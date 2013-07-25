@@ -70,6 +70,7 @@
 	{
 		controller = [[UINavigationController alloc] initWithRootViewController:[self rootController]];
 		controller.delegate = self;
+		[TiUtils configureController:controller withObject:nil];
 		[self setTitle:[self valueForKey:@"title"]];
 		[self setIcon:[self valueForKey:@"icon"]];
 		[self setBadge:[self valueForKey:@"badge"]];

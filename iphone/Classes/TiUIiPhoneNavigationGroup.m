@@ -52,6 +52,7 @@
 		UIViewController *rootController = [windowProxy controller];	
 		controller = [[UINavigationController alloc] initWithRootViewController:rootController];
 		[controller setDelegate:self];
+		[TiUtils configureController:controller withObject:nil];
 		[self addSubview:controller.view];
 		[controller.view addSubview:[windowProxy view]];
 		[windowProxy prepareForNavView:controller];
@@ -80,30 +81,26 @@
 
 -(void)close
 {
-	[self retain];
-	if (controller!=nil)
-	{
-		for (UIViewController *viewController in controller.viewControllers)
-		{
-			UIView *view = viewController.view;
-			if ([view isKindOfClass:[TiUIWindow class]])
-			{
-				TiWindowProxy *win =(TiWindowProxy*) ((TiUIWindow*)view).proxy;
-				[win retain];
-				[[win view] removeFromSuperview];
-				[win close:nil];
-				[[self proxy] forgetProxy:win];
-				[win autorelease];
-			}
-		}
-		[controller.view removeFromSuperview];
-		[controller resignFirstResponder];
-		RELEASE_TO_NIL(controller);
-		[visibleProxy autorelease];
-		visibleProxy = nil; // close/release handled by view removal
+    [self retain];
+    if (controller!=nil) {
+        [controller setDelegate:nil];
+        for (UIViewController *viewController in controller.viewControllers) {
+            TiWindowProxy* win = (TiWindowProxy *)[(TiViewController*)viewController proxy];
+            [win retain];
+            [[win view] removeFromSuperview];
+            [win close:nil];
+            [[self proxy] forgetProxy:win];
+            [win autorelease];
+        }
+        controller.viewControllers = [NSArray array];
+        [controller.view removeFromSuperview];
+        [controller resignFirstResponder];
+        RELEASE_TO_NIL(controller);
+        [visibleProxy autorelease];
+        visibleProxy = nil; // close/release handled by view removal
         RELEASE_TO_NIL(closingProxyArray)
-	}
-	[self release];
+    }
+    [self release];
 }
 
 -(void)open:(TiWindowProxy*)window withObject:(NSDictionary*)properties
