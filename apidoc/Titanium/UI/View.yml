@@ -170,7 +170,7 @@ description: |
     The behavior of these properties on [ImageView](Titanium.UI.ImageView) is slightly different and depends on the iOS version on the device.
 
     * For iOS 6.x and above, the behavior is as described above.
-    * For iOS 5.x the stretchable portion is tiled and not streched.
+    * For iOS 5.x the computed rectangle is tiled and not streched in the stretchable portion.
     * For iOS 4.x the strechable portion is always a 1x1 region that is tiled repeatedly.
 
     For best results on ImageView set up the `backgroundLeftCap` and `backgroundTopCap` properties such that the stretchable portion is always a 1x1 box.
