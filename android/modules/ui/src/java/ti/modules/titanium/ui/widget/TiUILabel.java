@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.graphics.Color;
 import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils.TruncateAt;
@@ -69,7 +70,7 @@ public class TiUILabel extends TiUIView
 		tv.setFocusable(false);
 		tv.setSingleLine(false);
 		TiUIHelper.styleText(tv, null);
-		defaultColor = tv.getCurrentTextColor();
+		defaultColor = Color.BLACK;
 		setNativeView(tv);
 
 	}
@@ -142,7 +143,11 @@ public class TiUILabel extends TiUIView
 			TiUIHelper.linkifyIfEnabled(tv, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
-			tv.setTextColor(TiConvert.toColor((String) newValue));
+			if (newValue == null) {
+				tv.setTextColor(defaultColor);
+			} else {
+				tv.setTextColor(TiConvert.toColor((String) newValue));
+			}
 		} else if (key.equals(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
 			tv.setHighlightColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals(TiC.PROPERTY_TEXT_ALIGN)) {
