@@ -512,7 +512,8 @@ build.prototype = {
 					ti_version: ti.manifest.version,
 					has_analytics_use_xhr: tiapp.mobileweb.analytics ? tiapp.mobileweb.analytics['use-xhr'] === true : false,
 					has_show_errors: this.deployType != 'production' && tiapp.mobileweb['disable-error-screen'] !== true,
-					has_instrumentation: !!tiapp.mobileweb.instrumentation
+					has_instrumentation: !!tiapp.mobileweb.instrumentation,
+					has_allow_touch: tiapp.mobileweb.hasOwnProperty('allow-touch') ? !!tiapp.mobileweb['allow-touch'] : true
 				}),
 
 				'\n', '\n'
