@@ -13,10 +13,13 @@ var require = {
 		version: "${app_version | jsQuoteEscapeFilter}"
 	},
 	has: {
-		"js-btoa": function(g) {
+		"touch": function (g) {
+			return ${has_allow_touch | jsQuoteEscapeFilter} && 'ontouchstart' in g;
+		},
+		"js-btoa": function (g) {
 			return "btoa" in g;
 		},
-		"native-localstorage": function(g) {
+		"native-localstorage": function (g) {
 			return "localStorage" in g && "setItem" in localStorage;
 		},
 		"function-bind": function () {
