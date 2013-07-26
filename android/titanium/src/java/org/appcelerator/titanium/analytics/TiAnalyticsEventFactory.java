@@ -256,6 +256,10 @@ public class TiAnalyticsEventFactory
 
 	public static String locationToJSONString(Location loc)
 	{
+		if (loc == null)
+		{
+			return null;
+		}
 		try {
 			JSONObject result = locationToJSONObject(loc);
 			return result.toString();
