@@ -124,6 +124,10 @@ public class AnalyticsModule extends KrollModule
 	{
 		try {
 			TiAnalyticsEvent event = TiApplication.getInstance().lastAnalyticsEvent;
+			if (event == null)
+			{
+				return null;
+			}
 			JSONObject json = new JSONObject();
 			json.put("ver", "2");
 			json.put("id", TiApplication.getInstance().lastEventID);
