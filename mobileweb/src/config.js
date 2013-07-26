@@ -14,6 +14,9 @@ var require = {
 	},
 	has: {
 		"declare-property-methods": true,
+		"touch": function (g) {
+			return ${has_allow_touch | jsQuoteEscapeFilter} && 'ontouchstart' in g;
+		},
 		"js-btoa": function(g) {
 			return "btoa" in g;
 		},
