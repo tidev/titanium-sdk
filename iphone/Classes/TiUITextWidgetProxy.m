@@ -125,7 +125,11 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	[self replaceValue:value forKey:@"keyboardToolbarColor" notification:YES];
 	if(keyboardUIToolbar != nil){ //It already exists, update it.
 		UIColor * newColor = [[TiUtils colorValue:value] _color];
-		[keyboardUIToolbar setTintColor:newColor];
+		if ([TiUtils isIOS7OrGreater]) {
+			[keyboardUIToolbar performSelector:@selector(setBarTintColor:) withObject:newColor];
+		} else {
+			[keyboardUIToolbar setTintColor:newColor];
+		}
 	}
 }
 
@@ -150,7 +154,11 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 		keyboardUIToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320,[self keyboardAccessoryHeight])];
 		UIColor * newColor = [[TiUtils colorValue:[self valueForKey:@"keyboardToolbarColor"]] _color];
 		if(newColor != nil){
-			[keyboardUIToolbar setTintColor:newColor];
+			if ([TiUtils isIOS7OrGreater]) {
+				[keyboardUIToolbar performSelector:@selector(setBarTintColor:) withObject:newColor];
+			} else {
+				[keyboardUIToolbar setTintColor:newColor];
+			}
 		}
 		[self updateUIToolbar];
 	}

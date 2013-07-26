@@ -237,12 +237,15 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
         EKEventStore* ourstore = [self store];
         [ourstore requestAccessToEntityType:EKEntityTypeEvent
                                  completion:^(BOOL granted, NSError *error){
-                                     NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:[error code]
-                                                                                        message:[TiUtils messageFromError:error]];
+                                     NSDictionary* propertiesDict;
+                                     if (error == nil) {
+                                         propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil];
+                                     } else {
+                                         propertiesDict = [TiUtils dictionaryWithCode:[error code]
+                                                                              message:[TiUtils messageFromError:error]];
+                                     }
                                      KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
                                      [[callback context] enqueue:invocationEvent];
-                                     
-                                     
                                  }];
 	}, NO);
 }

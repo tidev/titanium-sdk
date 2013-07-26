@@ -53,6 +53,16 @@ properties:
     description: |
         Must be set before the annotation is added to the map view.
     type: Boolean
+    
+  - name: centerOffset
+    summary: Defines a center offset point for the annotation.
+    description: |
+        By default, the center point of an annotation view is placed at the coordinate point of the associated annotation. 
+        Use this property to reposition the annotation view as needed. 
+        Positive offset values move the annotation view down and to the right, while negative values move it up and to the left.
+    type: Point
+    platforms: [iphone, ipad]
+    since: "3.1.2"
 
   - name: customView
     summary: Defines a custom view to be used by the annotation.

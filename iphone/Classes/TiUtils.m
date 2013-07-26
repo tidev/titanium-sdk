@@ -60,6 +60,21 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 	return YES;
 }
 
+/**
+ The class represent root controller in a view hierarchy.
+ */
+@protocol TiUIViewControllerIOS7Support <NSObject>
+/* Legacy support: UIViewController methods introduced in iOS 7.0
+ * For those still on 5.x and 6.x, we have to declare these methods so the
+ * the compiler knows the right return datatypes.
+ */
+@optional
+@property(nonatomic,assign) NSUInteger edgesForExtendedLayout; // Defaults to UIRectEdgeAll on iOS7. We will set to UIRectEdgeNone
+@property(nonatomic,assign) BOOL extendedLayoutIncludesOpaqueBars; // Defaults to NO, but bars are translucent by default on 7_0.
+@property(nonatomic,assign) BOOL automaticallyAdjustsScrollViewInsets; // Defaults to YES
+@end
+
+
 @implementation TiUtils
 
 +(int) dpi
@@ -126,6 +141,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 +(BOOL)isIOS6OrGreater
 {
     return [UIViewController instancesRespondToSelector:@selector(shouldAutomaticallyForwardRotationMethods)];
+}
+
++(BOOL)isIOS7OrGreater
+{
+    return [UIViewController instancesRespondToSelector:@selector(childViewControllerForStatusBarStyle)];
 }
 
 +(BOOL)isIPad
@@ -1333,22 +1353,80 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 	return UIBarStyleDefault;
 }
 
++(NSUInteger)extendedEdgesFromProp:(id)prop
+{
+    if (![prop isKindOfClass:[NSArray class]]) {
+        return 0;
+    }
+    
+    NSUInteger result = 0;
+    for (id mode in prop) {
+        int value = [TiUtils intValue:mode def:0];
+        switch (value) {
+            case 0:
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+            case 15:
+                result = result | value;
+                break;
+            default:
+                DebugLog(@"Invalid value passed for extendEdges %d",value);
+                break;
+        }
+    }
+    return result;
+}
+
++(void)configureController:(id)controller withObject:(id)object
+{
+    if ([self isIOS7OrGreater]) {
+        id edgesValue = nil;
+        id includeOpaque = nil;
+        id autoAdjust = nil;
+        if ([object isKindOfClass:[TiProxy class]]) {
+            edgesValue = [(TiProxy*)object valueForUndefinedKey:@"extendEdges"];
+            includeOpaque = [(TiProxy*)object valueForUndefinedKey:@"includeOpaqueBars"];
+            autoAdjust = [(TiProxy*)object valueForUndefinedKey:@"autoAdjustScrollViewInsets"];
+        } else if ([object isKindOfClass:[NSDictionary class]]){
+            edgesValue = [(NSDictionary*)object objectForKey:@"extendEdges"];
+            includeOpaque = [(NSDictionary*)object objectForKey:@"includeOpaqueBars"];
+            autoAdjust = [(NSDictionary*)object objectForKey:@"autoAdjustScrollViewInsets"];
+        } 
+        id<TiUIViewControllerIOS7Support> theController = controller;
+        
+        [theController setEdgesForExtendedLayout:[self extendedEdgesFromProp:edgesValue]];
+        [theController setExtendedLayoutIncludesOpaqueBars:[self boolValue:includeOpaque def:NO]];
+        [theController setAutomaticallyAdjustsScrollViewInsets:[self boolValue:autoAdjust def:NO]];
+    }
+}
 
 +(void)applyColor:(TiColor *)color toNavigationController:(UINavigationController *)navController
 {
-	UIColor * barColor = [self barColorForColor:color];
-	UIBarStyle barStyle = [self barStyleForColor:color];
-	BOOL isTranslucent = [self barTranslucencyForColor:color];
+    UIColor * barColor = [self barColorForColor:color];
+    UIBarStyle barStyle = [self barStyleForColor:color];
+    BOOL isTranslucent = [self barTranslucencyForColor:color];
 
-	UINavigationBar * navBar = [navController navigationBar];
-	[navBar setBarStyle:barStyle];
-	[navBar setTranslucent:isTranslucent];
-	[navBar setTintColor:barColor];
+    BOOL isIOS7 = [self isIOS7OrGreater];
 
-	UIToolbar * toolBar = [navController toolbar];
-	[toolBar setBarStyle:barStyle];
-	[toolBar setTranslucent:isTranslucent];
-	[toolBar setTintColor:barColor];
+    UINavigationBar * navBar = [navController navigationBar];
+    [navBar setBarStyle:barStyle];
+    [navBar setTranslucent:isTranslucent];
+    if(isIOS7) {
+        [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
+    } else {
+        [navBar setTintColor:barColor];
+    }
+
+    UIToolbar * toolBar = [navController toolbar];
+    [toolBar setBarStyle:barStyle];
+    [toolBar setTranslucent:isTranslucent];
+    if(isIOS7) {
+        [toolBar performSelector:@selector(setBarTintColor:) withObject:barColor];
+    } else {
+        [toolBar setTintColor:barColor];
+    }
 }
 
 +(NSString*)replaceString:(NSString *)string characters:(NSCharacterSet *)characterSet withString:(NSString *)replacementString
