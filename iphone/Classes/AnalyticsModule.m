@@ -43,7 +43,7 @@ NSString * const TI_DB_VERSION = @"1";
 
 
 @implementation AnalyticsModule
-
+@synthesize lastEvent;
 -(id)init
 {
 	if ((self = [super init]))
@@ -73,6 +73,7 @@ NSString * const TI_DB_VERSION = @"1";
 	RELEASE_TO_NIL(flushTimer);
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(lock);
+	[lastEvent release];
 	[super dealloc];
 }
 
@@ -345,6 +346,7 @@ NSString * const TI_DB_VERSION = @"1";
 	}
 
 	id value = [SBJSON stringify:dict];
+	self.lastEvent = value;
 	
 	NSString *sql = [NSString stringWithFormat:@"INSERT INTO pending_events VALUES (?)"];
 	NSError *error = nil;
