@@ -165,6 +165,19 @@ methods:
         optional: true
         default: null
 
+properties:
+  - name: lastEvent
+    summary: JSON representation of the last analytics event generated.
+    description: |
+         LastEvent is the JSON version of the last event prepared to be sent to Appcelerator
+         during the application's session. Because of storage differences, the sequence key
+         will only be in the iOS version. This value may be null or undefined if no such
+         event was queued.
+    type: String
+    since: "3.1.2"
+    permission: read-only
+    platforms: [android, iphone, ipad]
+
 examples:
   - title: Custom Feature Event
     example: |
