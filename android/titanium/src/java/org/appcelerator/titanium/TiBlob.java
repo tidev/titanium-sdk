@@ -515,8 +515,13 @@ public class TiBlob extends KrollProxy
 		int heightCropped = options.optInt(TiC.PROPERTY_HEIGHT, height);
 		int x = options.optInt(TiC.PROPERTY_X, (width - widthCropped) / 2);
 		int y = options.optInt(TiC.PROPERTY_Y, (height - heightCropped) / 2);
-		Bitmap imageCropped = Bitmap.createBitmap(img, x, y, widthCropped, heightCropped);
-		return blobFromImage(imageCropped);
+		try {
+			Bitmap imageCropped = Bitmap.createBitmap(img, x, y, widthCropped, heightCropped);
+			return blobFromImage(imageCropped);
+		} catch (OutOfMemoryError e) {
+			Log.e(TAG, "Unable to crop the image. Not enough memory: " + e.getMessage(), e);
+			return null;
+		}
 	}
 
 	@Kroll.method
@@ -529,8 +534,13 @@ public class TiBlob extends KrollProxy
 
 		int dstWidth = width.intValue();
 		int dstHeight = height.intValue();
-		Bitmap imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
-		return blobFromImage(imageResized);
+		try {
+			Bitmap imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
+			return blobFromImage(imageResized);
+		} catch (OutOfMemoryError e) {
+			Log.e(TAG, "Unable to resize the image. Not enough memory: " + e.getMessage(), e);
+			return null;
+		}
 	}
 
 	@Kroll.method
