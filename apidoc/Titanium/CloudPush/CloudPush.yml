@@ -24,11 +24,12 @@ description: |
     application be installed. For pre-4.0 devices, the user is required to set up their Google
     account.
 
+    GCM is available for both the community edition of the Titanium platform and the paid,
+    enterprise version of the Appcelerator Platform.
+
     MQTT is a light-weight protocol that provides a persistent connection to the ACS server without
     significantly degrading the device's battery life.  MQTT does not have any specific device
     requirements.  MQTT is only available for the community edition of the Titanium platform.
-
-    The Appcelerator Platform (paid, enterprise version) only supports GCM.
 
     #### Getting Started
 
