@@ -33,6 +33,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.WebViewProxy;
+import ti.modules.titanium.ui.android.AndroidModule;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -231,6 +232,11 @@ public class TiUIWebView extends TiUIView
 			WebSettings settings = getWebView().getSettings();
 			settings.setLoadWithOverviewMode(TiConvert.toBoolean(d, TiC.PROPERTY_SCALES_PAGE_TO_FIT));
 		}
+		
+		if (d.containsKey(TiC.PROPERTY_CACHE_MODE)) {
+			int mode = TiConvert.toInt(d.get(TiC.PROPERTY_CACHE_MODE), AndroidModule.WEBVIEW_LOAD_DEFAULT);
+			getWebView().getSettings().setCacheMode(mode);
+		}
 
 		if (d.containsKey(TiC.PROPERTY_URL) && !TiC.URL_ANDROID_ASSET_RESOURCES.equals(TiConvert.toString(d, TiC.PROPERTY_URL))) {
 			setUrl(TiConvert.toString(d, TiC.PROPERTY_URL));
@@ -275,10 +281,12 @@ public class TiUIWebView extends TiUIView
 		} else if (TiC.PROPERTY_SCALES_PAGE_TO_FIT.equals(key)) {
 			WebSettings settings = getWebView().getSettings();
 			settings.setLoadWithOverviewMode(TiConvert.toBoolean(newValue));
-		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)){
+		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
 			if (Build.VERSION.SDK_INT >= 9) {
 				nativeView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
 			}
+		} else if (TiC.PROPERTY_CACHE_MODE.equals(key)) { 
+			getWebView().getSettings().setCacheMode(TiConvert.toInt(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
