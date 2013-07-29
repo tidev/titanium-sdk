@@ -21,7 +21,8 @@ methods:
     description: |
         Must be called after calling `showCamera` and only when `autohide` is set to `false`. 
         This method causes the media capture UI to be hidden.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: {android: "3.2.0"}
   - name: hideMusicLibrary
     summary: Hides the music library.  
     description: |
@@ -126,6 +127,14 @@ methods:
 
         If the `showControls` option is `false`, you must control the camera explicitly, using
         the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera) 
+        methods.
+
+        #### Android Platform Notes
+
+        To suppress the default controls, set `autohide` to `false` and then set the
+        `overlay` property to a view that contains a control (such as a button) to
+        take the photo. You must then control the camera explicitly, using
+        the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera)
         methods.
         
         #### Tizen Platform Notes
@@ -1014,7 +1023,13 @@ properties:
     summary: Specifies if the camera should be hidden automatically after the media capture is completed.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: {android: "3.2.0"}
+    description: |
+        On Android, this property is considered only if `overlay` is also set. When an
+        overlay is not set, the default Android Camera Activity is used, which is only
+        capable of reporting back the results of one taken photo, making `autohide`
+        meaningless in that context.
   - name: animated 
     summary: Specifies if the dialog should be animated upon showing and hiding.
     type: Boolean
