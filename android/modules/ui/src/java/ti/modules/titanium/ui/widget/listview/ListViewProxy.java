@@ -32,7 +32,8 @@ import android.os.Message;
 	TiC.PROPERTY_FOOTER_TITLE,
 	TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
 	TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
-	TiC.PROPERTY_SECTIONS
+	TiC.PROPERTY_SECTIONS,
+	"scrollThreshold"
 })
 public class ListViewProxy extends TiViewProxy {
 
@@ -138,6 +139,7 @@ public class ListViewProxy extends TiViewProxy {
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SCROLL_TO_ITEM), d);
 		}
 	}
+	
 	
 
 	@Override

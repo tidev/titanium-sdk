@@ -54,6 +54,7 @@ public class TiListView extends TiUIView {
 	private int headerFooterId;
 	public static LayoutInflater inflater;
 	private int titleId;
+	private int[] threshold = new int[2];
 	private View headerView;
 	private View footerView;
 	private static final String TAG = "TiListView";
@@ -164,9 +165,9 @@ public class TiListView extends TiUIView {
 		}
 		@Override
 		public int getItemViewType(int position) {
-			Pair<ListSectionProxy, Integer> info = getSectionInfoByEntryIndex(position);
+			Pair<ListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
 			ListSectionProxy section = info.first;
-			int sectionItemIndex = info.second;
+			int sectionItemIndex = info.second.second;
 			if (section.isHeaderView(sectionItemIndex) || section.isFooterView(sectionItemIndex))
 				return HEADER_FOOTER_ITEM_TYPE;
 			return section.getTemplateByIndex(sectionItemIndex).getType();			
@@ -175,9 +176,16 @@ public class TiListView extends TiUIView {
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			//Get section info from index
-			Pair<ListSectionProxy, Integer> info = getSectionInfoByEntryIndex(position);
+			Pair<ListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
 			ListSectionProxy section = info.first;
-			int sectionItemIndex = info.second;
+			int sectionItemIndex = info.second.second;
+			int sectionIndex = info.second.first;
+			//check threshold
+			if (sectionIndex == threshold[0] && sectionItemIndex == threshold[1]) {
+				proxy.fireEvent("loadmoreitems", null);
+				resetThreshold();
+			}
+
 			View content = convertView;
 
 			//Handling section header/footer titles
@@ -193,7 +201,6 @@ public class TiListView extends TiUIView {
 			//Handling templates
 			KrollDict data = section.getListItemData(sectionItemIndex);
 			TiListViewTemplate template = section.getTemplateByIndex(sectionItemIndex);
-			int sectionIndex = sections.indexOf(section);
 
 			if (content != null) {
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
@@ -220,6 +227,7 @@ public class TiListView extends TiUIView {
 		itemTypeCount = new AtomicInteger(2);
 		templatesByBinding = new HashMap<String, TiListViewTemplate>();
 		defaultTemplateBinding = UIModule.LIST_ITEM_TEMPLATE_DEFAULT;
+		resetThreshold();
 		
 		//initializing listView and adapter
 		ListViewWrapper wrapper = new ListViewWrapper(activity);
@@ -259,6 +267,12 @@ public class TiListView extends TiUIView {
 		setNativeView(wrapper);
 	}
 	
+	private void resetThreshold() 
+	{
+		threshold[0] = -1;
+		threshold[1] = -1;
+	}
+
 	public void setHeaderTitle(String title) {
 		TextView textView = (TextView) headerView.findViewById(titleId);
 		textView.setText(title);
@@ -281,6 +295,17 @@ public class TiListView extends TiUIView {
 		registerForTouch(listView);
 	}
 	
+	private void setScrollThreshold(Object threshold) 
+	{
+		if (threshold instanceof HashMap) {
+			HashMap<String, Integer> item = (HashMap<String, Integer>) threshold;
+			int sectionIndex = item.get(TiC.PROPERTY_SECTION_INDEX);
+			int itemIndex = item.get(TiC.PROPERTY_ITEM_INDEX);
+			this.threshold[0] = sectionIndex;
+			this.threshold[1] = itemIndex;
+		}
+	}
+	
 	public void processProperties(KrollDict d) {
 		
 		if (d.containsKey(TiC.PROPERTY_TEMPLATES)) {
@@ -292,6 +317,10 @@ public class TiListView extends TiUIView {
 		
 		if (d.containsKey(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
 			listView.setVerticalScrollBarEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR, true));
+		}
+		
+		if (d.containsKey("scrollThreshold")) {
+			setScrollThreshold(d.get("scrollThreshold"));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE)) {
@@ -363,6 +392,8 @@ public class TiListView extends TiUIView {
 		} else if (key.equals(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE) && newValue != null) {
 			defaultTemplateBinding = TiConvert.toString(newValue);
 			refreshItems();
+		} else if (key.equals("scrollThreshold")) { 
+			setScrollThreshold(newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -416,7 +447,7 @@ public class TiListView extends TiUIView {
 		}
 	}
 	
-	protected Pair<ListSectionProxy, Integer> getSectionInfoByEntryIndex(int index) {
+	protected Pair<ListSectionProxy, Pair<Integer, Integer>> getSectionInfoByEntryIndex(int index) {
 		if (index < 0) {
 			return null;
 		}
@@ -424,7 +455,7 @@ public class TiListView extends TiUIView {
 			ListSectionProxy section = sections.get(i);
 			int sectionItemCount = section.getItemCount();
 			if (index <= sectionItemCount - 1) {
-				return new Pair<ListSectionProxy, Integer>(section, index);
+				return new Pair<ListSectionProxy, Pair<Integer, Integer>>(section, new Pair<Integer, Integer>(i, index));
 			} else {
 				index -= sectionItemCount;
 			}
