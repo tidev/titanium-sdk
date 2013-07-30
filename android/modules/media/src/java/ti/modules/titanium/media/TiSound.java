@@ -555,23 +555,18 @@ public class TiSound
 
 	private void startPlaying()
 	{
-		try {
-			if (mp != null) {
-				if (!isPlaying()) {
-					Log.d(TAG, "audio is not playing, starting.", Log.DEBUG_MODE);
-					Log.d(TAG, "Play: Volume set to " + volume, Log.DEBUG_MODE);
-					mp.start();
-					setState(STATE_PLAYING);
-					paused = false;
-					if (remote) {
-						startProgressTimer();
-					}
-				}
+		if (mp != null) {
+			if (!isPlaying()) {
+				Log.d(TAG, "audio is not playing, starting.", Log.DEBUG_MODE);
+				Log.d(TAG, "Play: Volume set to " + volume, Log.DEBUG_MODE);
+				mp.start();
 				setState(STATE_PLAYING);
+				paused = false;
+				if (remote) {
+					startProgressTimer();
+				}
 			}
-		} catch (Throwable t) {
-			Log.w(TAG, "Issue while playing : ", t);
-			reset();
+			setState(STATE_PLAYING);
 		}
 	}
 
@@ -585,7 +580,12 @@ public class TiSound
 			setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
 		}
 		if (!pausePending && !stopPending) {
-			startPlaying();
+			try {
+				startPlaying();
+			} catch (Throwable t) {
+				Log.w(TAG, "Issue while playing : ", t);
+				reset();
+			}
 		}
 	}
 }
