@@ -17,7 +17,7 @@ description: |
       * ACS servers using the MQTT protocol
 
     Since Release 3.1.2, GCM is the default method to send push notifications. If you
-    have an existing application that uses the MQTT protocol.  You either need to transition your
+    have an existing application that uses the MQTT protocol, you either need to transition your
     application to use GCM or set the `acs-push-type` key in the `tiapp.xml` file to `mqtt`.
 
     GCM supports devices that run Android 2.2 and later, and requires that the Google Play Store
@@ -32,8 +32,8 @@ description: |
 
     #### Getting Started
 
-    To use the CloudPush module, in your JavaScript code, you need to require in the CloudPush
-    module, initialize it with the `retrieveDeviceToken` method, then enable push notifications.
+    To use the CloudPush module in your JavaScript code, you need to require it in,
+    initialize it with the `retrieveDeviceToken` method, then enable push notifications.
     In your project's `tiapp.xml`, you need to add some keys to configure push notifications.
 
     Note that this module is not included in the Titanium namespace, but it is bundled with the Titanium SDK as of
@@ -92,10 +92,10 @@ methods:
         type: CloudPushNotificationConfig
 
   - name: clearStatus
-    summary: Clears the CloudPush module's stored status, including the push type, device token, GCM SenderId, etc.
+    summary: Clears the CloudPush module's stored status, including the push type, device token, GCM sender ID, etc.
     description: |
         This method is useful to transfer the push type from MQTT to GCM, or changing the GCM sender ID when needed.
-        After calling this method, the CloudPush module is reinitialized, use `retrieveDeviceToken` to
+        After calling this method, the CloudPush module is reinitialized. Use `retrieveDeviceToken` to
         get the device token again.
     since: 3.1.2
 properties:
