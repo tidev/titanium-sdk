@@ -22,7 +22,8 @@ methods:
         Must be called after calling `showCamera` and only when `autohide` is set to `false`. 
         This method causes the media capture UI to be hidden.
     platforms: [iphone, ipad, android]
-    since: {android: "3.2.0"}
+    since:
+        android: "3.2.0"
   - name: hideMusicLibrary
     summary: Hides the music library.  
     description: |
@@ -408,8 +409,6 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, android]
     since:
-        iphone: "3.2.0"
-        ipad: "3.2.0"
         android: "3.2.0"
   - name: CAMERA_REAR
     summary: Constant indicating the rear camera.
@@ -417,8 +416,6 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, android]
     since:
-        iphone: "3.2.0"
-        ipad: "3.2.0"
         android: "3.2.0"
   - name: DEVICE_BUSY
     summary: Constant for media device busy error.
