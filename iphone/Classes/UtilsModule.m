@@ -70,7 +70,7 @@
 	const char *data = [str UTF8String];
 	size_t len = [str length];
 	
-	size_t outsize = EstimateBas64DecodedDataSize(len);
+	size_t outsize = TI_EstimateBas64DecodedDataSize(len);
 	char *base64Result = NULL;
 	if(len>0){
 		base64Result = malloc(sizeof(char)*outsize);
@@ -81,7 +81,7 @@
 	}
 
 	size_t theResultLength = outsize;	
-	bool result = Base64DecodeData(data, len, base64Result, &theResultLength);
+	bool result = TI_Base64DecodeData(data, len, base64Result, &theResultLength);
 	if (result)
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
