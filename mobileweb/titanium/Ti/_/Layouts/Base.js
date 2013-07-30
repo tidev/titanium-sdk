@@ -2,15 +2,12 @@
 define(['Ti/_/css', 'Ti/_/declare', 'Ti/_/style', 'Ti/_/lang', 'Ti/API', 'Ti/UI', 'Ti/_', 'Ti/_/dom'],
 	function(css, declare, style, lang, API, UI, _, dom) {
 
-	var val = lang.val;
-
 	return declare('Ti._.Layouts.Base', null, {
 
 		computedSize: {width: 0, height: 0},
 
-		constructor: function(element) {
-			this.element = element;
-			css.add(element.domNode, css.clean(this.declaredClass));
+		constructor: function(args) {
+			css.add(args.element.domNode, css.clean(this.declaredClass));
 		},
 
 		destroy: function() {
@@ -34,7 +31,8 @@ define(['Ti/_/css', 'Ti/_/declare', 'Ti/_/style', 'Ti/_/lang', 'Ti/API', 'Ti/UI'
 
 		/*
 		calculateAnimation: function(node, animation) {
-			var animationCoefficients = node._animationCoefficients,
+			var val = lang.val,
+				animationCoefficients = node._animationCoefficients,
 				center,
 				results,
 				pixelUnits = 'px';
@@ -81,7 +79,8 @@ define(['Ti/_/css', 'Ti/_/declare', 'Ti/_/style', 'Ti/_/lang', 'Ti/API', 'Ti/UI'
 		*/
 
 		calculateAnimation: function(elem, animation) {
-			var animationCoefficients = elem._animationCoefficients || (elem._animationCoefficients = {
+			var val = lang.val,
+				animationCoefficients = elem._animationCoefficients || (elem._animationCoefficients = {
 					height: {},
 					left: {},
 					minWidth: {},

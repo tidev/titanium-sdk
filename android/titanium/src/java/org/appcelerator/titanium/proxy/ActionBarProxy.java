@@ -8,6 +8,7 @@ package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -33,12 +34,16 @@ public class ActionBarProxy extends KrollProxy
 	private static final int MSG_SET_LOGO = MSG_FIRST_ID + 105;
 	private static final int MSG_SET_ICON = MSG_FIRST_ID + 106;
 	private static final int MSG_SET_HOME_BUTTON_ENABLED = MSG_FIRST_ID + 107;
+	private static final int MSG_SET_NAVIGATION_MODE = MSG_FIRST_ID + 108;
 
 	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
 	private static final String BACKGROUND_IMAGE = "backgroundImage";
 	private static final String TITLE = "title";
 	private static final String LOGO = "logo";
 	private static final String ICON = "icon";
+	private static final String NAVIGATION_MODE = "navigationMode";
+
+	private static final String TAG = "ActionBarProxy";
 
 	private ActionBar actionBar;
 
@@ -56,6 +61,18 @@ public class ActionBarProxy extends KrollProxy
 		} else {
 			Message message = getMainHandler().obtainMessage(MSG_DISPLAY_HOME_AS_UP, showHomeAsUp);
 			message.getData().putBoolean(SHOW_HOME_AS_UP, showHomeAsUp);
+			message.sendToTarget();
+		}
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setNavigationMode(int navigationMode)
+	{
+		if (TiApplication.isUIThread()) {
+			handlesetNavigationMode(navigationMode);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_NAVIGATION_MODE, navigationMode);
+			message.getData().putInt(NAVIGATION_MODE, navigationMode);
 			message.sendToTarget();
 		}
 	}
@@ -91,6 +108,15 @@ public class ActionBarProxy extends KrollProxy
 			return null;
 		}
 		return (String) actionBar.getTitle();
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public int getNavigationMode()
+	{
+		if (actionBar == null) {
+			return 0;
+		}
+		return (int) actionBar.getNavigationMode();
 	}
 
 	@Kroll.method
@@ -143,30 +169,52 @@ public class ActionBarProxy extends KrollProxy
 
 	private void handleSetIcon(String url)
 	{
+		if (actionBar == null) {
+			Log.w(TAG, "ActionBar is not enabled");
+			return;
+		}
+
 		Drawable icon = getDrawableFromUrl(url);
 		if (icon != null) {
 			actionBar.setIcon(icon);
-		}
+		} 
 	}
 
 	private void handleSetTitle(String title)
 	{
-		actionBar.setDisplayShowTitleEnabled(true);
-		actionBar.setTitle(title);
+		if (actionBar != null) {
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setTitle(title);
+		} else {
+			Log.w(TAG, "ActionBar is not enabled");
+		}
 	}
 
 	private void handleShow()
 	{
-		actionBar.show();
+		if (actionBar != null) {
+			actionBar.show();
+		} else {
+			Log.w(TAG, "ActionBar is not enabled");
+		}
 	}
 
 	private void handleHide()
 	{
-		actionBar.hide();
+		if (actionBar != null) {
+			actionBar.hide();
+		} else {
+			Log.w(TAG, "ActionBar is not enabled");
+		}
 	}
 
 	private void handleSetBackgroundImage(String url)
 	{
+		if (actionBar == null) {
+			Log.w(TAG, "ActionBar is not enabled");
+			return;
+		}
+
 		Drawable backgroundImage = getDrawableFromUrl(url);
 		if (backgroundImage != null) {
 			actionBar.setBackgroundDrawable(backgroundImage);
@@ -175,11 +223,25 @@ public class ActionBarProxy extends KrollProxy
 
 	private void handlesetDisplayHomeAsUp(boolean showHomeAsUp)
 	{
-		actionBar.setDisplayHomeAsUpEnabled(showHomeAsUp);
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(showHomeAsUp);
+		} else {
+			Log.w(TAG, "ActionBar is not enabled");
+		}
+	}
+
+	private void handlesetNavigationMode(int navigationMode)
+	{
+		actionBar.setNavigationMode(navigationMode);
 	}
 
 	private void handleSetLogo(String url)
 	{
+		if (actionBar == null) {
+			Log.w(TAG, "ActionBar is not enabled");
+			return;
+		}
+
 		Drawable logo = getDrawableFromUrl(url);
 		if (logo != null) {
 			actionBar.setLogo(logo);
@@ -199,6 +261,9 @@ public class ActionBarProxy extends KrollProxy
 		switch (msg.what) {
 			case MSG_DISPLAY_HOME_AS_UP:
 				handlesetDisplayHomeAsUp(msg.getData().getBoolean(SHOW_HOME_AS_UP));
+				return true;
+			case MSG_SET_NAVIGATION_MODE:
+				handlesetNavigationMode(msg.getData().getInt(NAVIGATION_MODE));
 				return true;
 			case MSG_SET_BACKGROUND_IMAGE:
 				handleSetBackgroundImage(msg.getData().getString(BACKGROUND_IMAGE));

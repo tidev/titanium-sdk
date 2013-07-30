@@ -148,8 +148,14 @@
 	TiColor * newBarColor = [TiUtils colorValue:value];
 	
 	[[self toolBar] setBarStyle:[TiUtils barStyleForColor:newBarColor]];
-	[toolBar setTintColor:[TiUtils barColorForColor:newBarColor]];
 	[toolBar setTranslucent:[TiUtils barTranslucencyForColor:newBarColor]];
+	UIColor* barColor = [TiUtils barColorForColor:newBarColor];
+
+	if ([TiUtils isIOS7OrGreater]) {
+		[toolBar performSelector:@selector(setBarTintColor:) withObject:barColor];
+	} else {
+		[toolBar setTintColor:barColor];
+	}
 }
 
 -(void)setTranslucent_:(id)value

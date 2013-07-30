@@ -17,7 +17,7 @@ define(function() {
 				c = cache[url] || require.cache(url);
 
 			if (!c) {
-				x = new XMLHttpRequest();
+				x = new XMLHttpRequest;
 				x.open("GET", url, false);
 				x.send(null);
 				if (x.status === 200) {

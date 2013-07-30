@@ -20,6 +20,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.os.Message;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
+import android.webkit.WebStorage.QuotaUpdater;
 import android.webkit.WebView;
 
 public class TiWebChromeClient extends WebChromeClient
@@ -98,6 +99,12 @@ public class TiWebChromeClient extends WebChromeClient
 		}
 
 		return false;
+	}
+	
+	@Override
+	public void onExceededDatabaseQuota(String url, String databaseIdentifier, long currentQuota, long estimatedSize, long totalUsedQuota, QuotaUpdater quotaUpdater)
+	{
+		quotaUpdater.updateQuota(estimatedSize * 2);
 	}
 }
 

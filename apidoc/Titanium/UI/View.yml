@@ -158,6 +158,23 @@ description: |
     
     No error will occur on older devices if you set `accessibilityHidden`; the value will simply be ignored. 
 
+    #### iOS: backgroundLeftCap and backgroundTopCap properties
+
+    The [backgroundLeftCap](Titanium.UI.View.backgroundLeftCap) and [backgroundTopCap](Titanium.UI.View.backgroundTopCap) properties are 
+    used to specify the portions of the [backgroundImage](Titanium.UI.View.backgroundImage) that must not be resized when the image is streched or shrunk.
+
+    Given an image of width `w` and height `h`, the stretchable portion on the image is defined as a rectangle with the `top-left` point set to 
+    `(backgroundLeftCap , backgroundTopCap)` and the `bottom-right` point set to `(w - backgroundLeftCap , h - backgroundTopCap)`. The portions not covered by
+    the stretchable portion keep their original size and appearance.
+
+    The behavior of these properties on [ImageView](Titanium.UI.ImageView) is slightly different and depends on the iOS version on the device.
+
+    * For iOS 6.x and above, the behavior is as described above.
+    * For iOS 5.x the computed rectangle is tiled and not streched in the stretchable portion.
+    * For iOS 4.x the strechable portion is always a 1x1 region that is tiled repeatedly.
+
+    For best results on ImageView set up the `backgroundLeftCap` and `backgroundTopCap` properties such that the stretchable portion is always a 1x1 box.
+
 extends: Titanium.Proxy
 since: "0.9"
 
@@ -892,15 +909,7 @@ properties:
   - name: backgroundLeftCap
     summary: Size of the left end cap.
     description: |
-        End caps specify the portion of an image that should not be resized when an image is 
-        stretched. This technique is used to implement buttons and other resizable image-based 
-        interface elements. When a button with end caps is resized, the resizing occurs only in 
-        the middle of the button, in the region between the end caps. The end caps themselves keep 
-        their original size and appearance. This property specifies the size of the left end cap. 
-        The middle (stretchable) portion is assumed to be 1 pixel wide. The right end cap is 
-        therefore computed by adding the size of the left end cap and the middle portion together 
-        and then subtracting that value from the width of the image.
-        If this property is set to `0`, the image is scaled uniformly.
+        See the section on backgroundLeftCap and backgroundTopCap behavior on iOS in <Titanium.UI.View>.
     type: Number
     platforms: [iphone, ipad]
     default: 0
@@ -927,15 +936,7 @@ properties:
   - name: backgroundTopCap
     summary: Size of the top end cap.
     description: |
-        End caps specify the portion of an image that should not be resized when an image 
-        is stretched. This technique is used to implement buttons and other resizable 
-        image-based interface elements. When a button with end caps is resized, the resizing 
-        occurs only in the middle of the button, in the region between the end caps. The end 
-        caps themselves keep their original size and appearance. This property specifies the 
-        size of the top end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. 
-        The bottom end cap is therefore computed by adding the size of the top end cap and the
-        middle portion together and then subtracting that value from the height of the image.
-        If this property is set to `0`, the image is scaled uniformly.
+        See the section on backgroundLeftCap and backgroundTopCap behavior on iOS in <Titanium.UI.View>.
     type: Number
     platforms: [iphone, ipad]
     default: 0

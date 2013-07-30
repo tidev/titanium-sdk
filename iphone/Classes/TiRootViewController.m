@@ -257,6 +257,8 @@
 		[nc addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
 		[nc addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
 		[nc addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+
+		[TiUtils configureController:self withObject:nil];
 	}
 	return self;
 }
@@ -988,7 +990,14 @@
 
 	[window setParentOrientationController:self];
 	[windowProxies addObject:window];
-	[window parentWillShow];
+	
+    //TIMOB-12924 Native implement for JS workaround. This should be replaced with something better.
+    if ([windowProxies count] == 1) {
+        BOOL hidden = [[UIApplication sharedApplication] isStatusBarHidden];
+        [[UIApplication sharedApplication] setStatusBarHidden:hidden withAnimation:UIStatusBarAnimationNone];
+    }
+    
+    [window parentWillShow];
 	//Todo: Move all the root-attaching logic here.
 
 	[self childOrientationControllerChangedFlags:window];
