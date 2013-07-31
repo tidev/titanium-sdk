@@ -502,6 +502,20 @@ properties:
     platforms: [iphone, ipad]
     since: "1.8.2"
     default: true
+    
+- name: lightTouchEnabled
+    summary: Enables using light touches to make a selection and activate mouseovers.
+    description: |
+        Setting this property solve the problem of web links with specific length not triggering link click in Android.
+        
+        This is only an Android specific property and has no effect starting from API level 18.
+
+        This flag is `true` by default to retain backwards compatibility with previous
+        behavior.
+    type: Boolean
+    platforms: [android]
+    since: "3.2.0"
+    default: true
 
 examples:
   - title: Basic Web View to External URL 
