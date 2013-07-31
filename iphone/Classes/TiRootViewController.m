@@ -251,7 +251,7 @@
 		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
 		NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
-		[nc addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
+		//[nc addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
 
 		[nc addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
 		[nc addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];

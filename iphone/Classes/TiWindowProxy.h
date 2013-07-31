@@ -10,75 +10,7 @@
 #import "TiUIWindow.h"
 #import "TiUIView.h"
 #import "TiViewController.h"
-
-/**
- Titanium orientation flags.
- */
-typedef enum
-{
-	TiOrientationNone = 0,
-	TiOrientationAny = 0xFFFF,
-	
-    /**
-     Portrait orientation flag.
-     */
-	TiOrientationPortrait			= 1 << UIInterfaceOrientationPortrait,
-
-    /**
-     Upside-down portrait orientation flag.
-     */
-	TiOrientationPortraitUpsideDown	= 1 << UIInterfaceOrientationPortraitUpsideDown,
-	
-    /**
-     Landscape left orientation flag.
-     */
-    TiOrientationLandscapeLeft		= 1 << UIInterfaceOrientationLandscapeLeft,
-	
-    /**
-     Landscape right orientation flag.
-     */
-    TiOrientationLandscapeRight		= 1 << UIInterfaceOrientationLandscapeRight,
-
-    /**
-     Landscape (left or right) orientation flag.
-     */
-    TiOrientationLandscapeOnly		= TiOrientationLandscapeLeft | TiOrientationLandscapeRight,
-	
-    /**
-     Portrait (normal or upside-down) orientation flag.
-     */
-    TiOrientationPortraitOnly		= TiOrientationPortrait | TiOrientationPortraitUpsideDown,
-	
-} TiOrientationFlags;
-
-#define TI_ORIENTATION_ALLOWED(flag,bit)	(flag & (1<<bit))
-#define TI_ORIENTATION_SET(flag,bit)		(flag |= (1<<bit))
-
-/**
- Protocol for orientation controller.
- */
-@protocol TiOrientationController <NSObject>
-
-/**
- Provides access to parent orientation controller.
- */
-@property(nonatomic,readwrite,assign)	id<TiOrientationController> parentOrientationController;
-
-/**
- Returns orientation flags.
- */
-@property(nonatomic,readonly,assign)	TiOrientationFlags orientationFlags;
-
-/**
- Tells the controller that child orientation controller has changed flags.
- @param orientationController The child orientation controller
- */
--(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
-
-@end
-
-TiOrientationFlags TiOrientationFlagsFromObject(id args);
-
+#import "TiControllerProtocols.h"
 
 /**
  The class is a specialization for TiViews that act like top level

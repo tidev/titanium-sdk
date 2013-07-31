@@ -76,6 +76,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	return [sharedApp controller];
 }
 
+-(TiRootControllerNeue*)neueController
+{
+    return neueController;
+}
+
 -(TiContextGroupRef)contextGroup
 {
 	if(contextGroup == nil)
@@ -130,9 +135,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	
 	// attach our main view controller
 	controller = [[TiRootViewController alloc] init];
-	
+	neueController = [[TiRootControllerNeue alloc] init];
 	// attach our main view controller... IF we haven't already loaded the main window.
-	[window setRootViewController:controller];
+	[window setRootViewController:neueController];
     [window makeKeyAndVisible];
 }
 
@@ -652,7 +657,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (NSUInteger)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window
 {
     if ([self windowIsKeyWindow]) {
-        return [controller supportedInterfaceOrientations];
+        return [neueController supportedInterfaceOrientations];
     }
     
     //UIInterfaceOrientationMaskAll = 30;

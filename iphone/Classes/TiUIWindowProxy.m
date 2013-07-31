@@ -107,7 +107,7 @@
 
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    //[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     //Update the barImage here as well. Might have the wrong bounds but that will be corrected 
     //in the call from frameSizeChanged in TiUIWindow. Avoids the visual glitch
     if ( (!animating) && (controller != nil) && ([controller navigationController] != nil) ) {
@@ -121,10 +121,11 @@
 
 -(void)_destroy
 {
+    /*
     if (![self closing] && [[self opened] boolValue]) {
         TiThreadPerformOnMainThread(^{[self close:nil];}, YES);
     }
-    
+    */
 	TiThreadRemoveFromSuperviewOnMainThread(barImageView, NO);
 	TiThreadReleaseOnMainThread(barImageView, NO);
 	barImageView = nil;
@@ -142,7 +143,7 @@
 {
     RELEASE_TO_NIL(latch);
     contextReady = YES;
-
+    /*
     if (navWindow) {
         [self prepareForNavView:[self navController]];
         if (timeout) {
@@ -154,6 +155,7 @@
             [self open:args];
         }
     }
+     */
 }
 
 -(NSMutableDictionary*)langConversionTable
@@ -177,7 +179,7 @@
         [super windowDidOpen];
     }
 }
-
+/*
 -(BOOL)_handleOpen:(id)args
 {
 	// this is a special case that calls open again above to cause the event lifecycle to
@@ -232,7 +234,7 @@
 	
 	return YES;
 }
-
+*/
 -(void)windowDidClose
 {
     // Because other windows or proxies we have open and wish to continue functioning might be relying
@@ -262,6 +264,7 @@
 
 -(BOOL)_handleClose:(id)args
 {
+    /*
 	if (tab!=nil)
 	{
 		BOOL animate = args!=nil && [args count]>0 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
@@ -273,6 +276,7 @@
 		// events ourselves
 		[self fireFocus:NO];
 	}
+     */
 	// on close, reset our old base URL so that any subsequent
 	// re-opens will be correct
 	if (oldBaseURL!=nil)
@@ -318,7 +322,7 @@
 		TiColor * newColor = [TiUtils colorValue:color];
 		if (newColor == nil)
 		{
-			newColor =[TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
+			//newColor =[TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
 		}
 
 		UINavigationController * ourNC = [controller navigationController];
@@ -871,7 +875,7 @@ else{\
         }
     }
 }
-
+/*
 -(void)_tabBeforeFocus
 {
 	if (focused==NO)
@@ -923,7 +927,7 @@ else{\
 	[super _associateTab:controller_ navBar:navbar_ tab:tab_];
 	SETPROP(@"tabBarHidden",setTabBarHidden);
 }
-
+*/
 @end
 
 #endif
