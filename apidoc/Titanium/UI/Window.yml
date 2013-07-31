@@ -318,7 +318,10 @@ properties:
         a visual cue by dimming any background windows. If the window occupies the full screen, 
         `modal` has no effect.
 
-        On Mobile Web, Tizen and iOS, the modal property has no effect on whether the window is 
+        BlackBerry note: The very first window in the application cannot be modal, therefore the modal flag will be ignored
+        if set on the first window.
+
+        On Mobile Web, Tizen, iOS, and BlackBerry the modal property has no effect on whether the window is 
         translucent or opaque.
     type: Boolean
     default: false
@@ -487,6 +490,8 @@ properties:
 
   - name: title
     summary: Title of the window.
+    description: |
+        On BlackBerry, this property automatically creates a `navBar` and sets the title on it.
     type: String
 
   - name: titleControl
@@ -508,6 +513,7 @@ properties:
     summary: Key identifying a string from the locale file to use for the window title.
     description: Only one of `title` or `titleid` should be specified.
     type: String
+    exclude-platforms: [blackberry]
 
   - name: titlepromptid
     summary: Key identifying a string from the locale file to use for the window title prompt.
@@ -545,6 +551,7 @@ properties:
         in the main description for [Window](Titanium.UI.Window).
     type: String
     availability: creation
+    exclude-platforms: [blackberry]
 
   - name: windowSoftInputMode
     summary: |

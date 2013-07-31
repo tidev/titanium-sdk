@@ -118,7 +118,7 @@ properties:
   - name: badge
     summary: Badge value for this tab. `null` indicates no badge.
     type: String
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, blackberry]
   - name: icon
     summary: Icon URL for this tab.
     description: |
@@ -171,6 +171,7 @@ properties:
   - name: titleid
     summary: Key identifying a string from the locale file to use for the tab title. Only one of `title` or `titleid` should be specified.
     type: String
+    exclude-platform: [blackberry]
   - name: window
     summary: Root level tab window.  All tabs must have at least one root level tab window.
     type: Titanium.UI.Window
@@ -190,6 +191,7 @@ events:
       - name: previousTab
         summary: Previous active tab object.
         type: Titanium.UI.Tab
+    exclude-platform: [blackberry]
   - name: click
     summary: Fired when this tab is clicked in the tab group.
   - name: focus
@@ -207,6 +209,7 @@ events:
       - name: previousTab
         summary: Previous active tab object.
         type: Titanium.UI.Tab
+    exclude-platform: [blackberry]
 examples:
   - title: Simple Tab Example
     example: |
