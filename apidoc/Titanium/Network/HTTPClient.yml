@@ -77,7 +77,7 @@ methods:
       - name: factory
         summary: The authentication factory. This factory must implement the [AuthSchemeFactory](http://developer.android.com/reference/org/apache/http/auth/AuthSchemeFactory.html) interface.
         type: Object
-    platforms: [android]
+    platforms: [android, blackberry]
     since: {android: "3.0.0"}
 
   - name: clearCookies

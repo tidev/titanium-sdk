@@ -27,7 +27,7 @@ description: |
     Use the <Titanium.Network.Socket.createTCP> method to create a TCP socket.
 extends: Titanium.IOStream
 since: "1.7"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, blackberry]
 examples:
   - title: Simple Socket IO using Stream.pump
     example: |

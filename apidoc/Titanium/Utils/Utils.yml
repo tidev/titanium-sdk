@@ -5,6 +5,7 @@ summary: |
     building applications.
 extends: Titanium.Module
 since: "0.9"
+exclude-platforms: [blackberry]
 
 methods:
   - name: base64decode
