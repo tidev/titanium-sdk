@@ -33,14 +33,14 @@ methods:
 
   - name: isFaceUp
     summary: Returns whether current window is considered face up by the device.
-    description: Value returns `true` if in face up, and `false` otherwise.         
+    description: Value returns `true` if in face up else `false`.
     returns:
         type: Boolean
     platforms: [blackberry]
 
   - name: isFaceDown
     summary: Returns whether current window is considered face down by the device.
-    description: Value returns `true` if in face down, and `false` otherwise.         
+    description: Value returns `true` if in face down else `false`.
     returns:
         type: Boolean
     platforms: [blackberry]
