@@ -91,7 +91,7 @@ methods:
       - name: index
         summary: Section index of a row.
         type: Number
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
 
 properties:
   - name: footerTitle
@@ -101,7 +101,7 @@ properties:
         
         On Android, must be set at creation.
     type: String
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
     
   - name: footerView
     summary: View to use for this section footer.
@@ -110,7 +110,7 @@ properties:
         
         On Android, must be set at creation. 
     type: Titanium.UI.View
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
     
   - name: headerTitle
     summary: Title of this section header.
@@ -127,16 +127,16 @@ properties:
         
         On Android, must be set at creation.
     type: Titanium.UI.View
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
     
   - name: rowCount
     summary: Number of rows in this section.
     type: Number
     permission: read-only
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
     
   - name: rows
     summary: Rows in this section.
     type: Array<Titanium.UI.TableViewRow>
     permission: read-only
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]

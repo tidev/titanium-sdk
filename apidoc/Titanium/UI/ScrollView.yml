@@ -38,7 +38,7 @@ methods:
       - name: y
         summary: Y coordinate from the scrollable region's coordinate system.
         type: Number
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
         
   - name: setContentOffset
     summary: Sets the value of the [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
@@ -53,7 +53,7 @@ methods:
         summary: Determines whether the scrollable region reposition should be animated 
         type: contentOffsetOption
         optional: true
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
 
   - name: setZoomScale
     summary: Sets the value of the [zoomScale](Titanium.UI.ScrollView.zoomScale) property.
@@ -67,7 +67,7 @@ methods:
         summary: Determines whether the scrollable region reposition should be animated 
         type: zoomScaleOption
         optional: true
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
         
   - name: scrollToBottom
     summary: Moves the end of the scrollable region into the viewable area.
@@ -200,7 +200,7 @@ properties:
     description: |
         On iOS, a new value causes the scroll view to perform an animated scroll to the new offset. 
         The <Titanium.UI.ScrollView.setContentOffset> method can be used to prevent this animation.
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
         
   - name: contentWidth
     summary: Width of the scrollable region.
@@ -308,14 +308,14 @@ properties:
     description: Set to `true` to show the horizontal scroll indicator.
     type: Boolean
     default: false
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
     
   - name: showVerticalScrollIndicator
     summary: Determines whether the vertical scroll indicator is visible.
     description: Set to `true` to show the vertical scroll indicator.
     type: Boolean
     default: false
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
     
   - name: verticalBounce
     summary: Determines whether vertical scroll bounce of the scrollable region is enabled.

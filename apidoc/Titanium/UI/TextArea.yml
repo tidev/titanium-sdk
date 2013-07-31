@@ -166,7 +166,7 @@ properties:
         automatically enabled as soon as the user types any text in the area.
     type: Boolean
     default: false
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
    
   - name: font
     summary: Font to use for text.
@@ -288,7 +288,7 @@ properties:
         or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
     type: [String, Number]
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
     
   - name: value
     summary: Value of this text area, which may be set programmatically and modified by the user.
