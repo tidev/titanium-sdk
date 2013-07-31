@@ -77,6 +77,40 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 
 @implementation TiUtils
 
++(TiOrientationFlags) TiOrientationFlagsFromObject:(id)args
+{
+    if (![args isKindOfClass:[NSArray class]]) {
+        return TiOrientationNone;
+    }
+    
+    TiOrientationFlags result = TiOrientationNone;
+    for (id mode in args) {
+        UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:mode def:-1];
+        switch ((int)orientation)
+        {
+            case UIDeviceOrientationPortrait:
+            case UIDeviceOrientationPortraitUpsideDown:
+            case UIDeviceOrientationLandscapeLeft:
+            case UIDeviceOrientationLandscapeRight:
+                TI_ORIENTATION_SET(result,orientation);
+                break;
+            case UIDeviceOrientationUnknown:
+                DebugLog(@"[WARN] Ti.Gesture.UNKNOWN / Ti.UI.UNKNOWN is an invalid orientation mode.");
+                break;
+            case UIDeviceOrientationFaceDown:
+                DebugLog(@"[WARN] Ti.Gesture.FACE_DOWN / Ti.UI.FACE_DOWN is an invalid orientation mode.");
+                break;
+            case UIDeviceOrientationFaceUp:
+                DebugLog(@"[WARN] Ti.Gesture.FACE_UP / Ti.UI.FACE_UP is an invalid orientation mode.");
+                break;
+            default:
+                DebugLog(@"[WARN] An invalid orientation was requested. Ignoring.");
+                break;
+        }
+    }
+    return result;
+}
+
 +(int) dpi
 {
     if ([TiUtils isIPad]) {

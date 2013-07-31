@@ -37,11 +37,58 @@ typedef enum {
 } EncodingError;
 
 /**
+ Titanium orientation flags.
+ */
+typedef enum
+{
+	TiOrientationNone = 0,
+	TiOrientationAny = 0xFFFF,
+	
+    /**
+     Portrait orientation flag.
+     */
+	TiOrientationPortrait			= 1 << UIInterfaceOrientationPortrait,
+    
+    /**
+     Upside-down portrait orientation flag.
+     */
+	TiOrientationPortraitUpsideDown	= 1 << UIInterfaceOrientationPortraitUpsideDown,
+	
+    /**
+     Landscape left orientation flag.
+     */
+    TiOrientationLandscapeLeft		= 1 << UIInterfaceOrientationLandscapeLeft,
+	
+    /**
+     Landscape right orientation flag.
+     */
+    TiOrientationLandscapeRight		= 1 << UIInterfaceOrientationLandscapeRight,
+    
+    /**
+     Landscape (left or right) orientation flag.
+     */
+    TiOrientationLandscapeOnly		= TiOrientationLandscapeLeft | TiOrientationLandscapeRight,
+	
+    /**
+     Portrait (normal or upside-down) orientation flag.
+     */
+    TiOrientationPortraitOnly		= TiOrientationPortrait | TiOrientationPortraitUpsideDown,
+	
+} TiOrientationFlags;
+
+#define TI_ORIENTATION_ALLOWED(flag,bit)	(flag & (1<<bit))
+#define TI_ORIENTATION_SET(flag,bit)		(flag |= (1<<bit))
+
+
+
+/**
  Utilities class.
  */
 @interface TiUtils : NSObject {
 
 }
+
++(TiOrientationFlags) TiOrientationFlagsFromObject:(id)args;
 
 /**
  Converts date to UTC format.
