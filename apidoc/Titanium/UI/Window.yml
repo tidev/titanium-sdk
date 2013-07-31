@@ -318,7 +318,7 @@ properties:
         a visual cue by dimming any background windows. If the window occupies the full screen, 
         `modal` has no effect.
 
-        BlackBerry note: The very first window in the application cannot be modal, therefore the modal flag will be ignored
+        On the BlackBerry platform, the very first window in the application cannot be modal, therefore the modal flag will be ignored
         if set on the first window.
 
         On Mobile Web, Tizen, iOS, and BlackBerry the modal property has no effect on whether the window is 
