@@ -1,0 +1,42 @@
+---
+name: Titanium.UI.ImageButton
+summary: |
+    An image button widget that has four states: normal, disabled, focused and selected.
+description: |
+    A button displays its selected state while it is being pressed.
+
+    Use the <Titanium.UI.createImageButton> method to create an image button.
+platforms: [blackberry]
+    
+extends: Titanium.UI.View
+since: "3.1.2"
+
+properties:
+  - name: imageDisabled
+    summary: |
+        Background image for the button in its disabled state, specified as a local file path. 
+    type: String
+  - name: imagePressed
+    summary: |
+        Background image for the button in its focused state, specified as a local file path.
+    type: String
+  - name: enabled
+    summary: Set to `true` to enable the button, `false` to disable the button.
+    type: Boolean
+    default: true
+  - name: image
+    summary: Image to display on the button.
+    type: String
+examples:
+  - title: Simple Image Button Example
+    example: |
+        
+            var button = Ti.UI.createImageButton({
+                image: 'images/play_button.png',
+                imagePressed: 'images/play_button_pressed.png',
+                imageDisabled: 'images/appcelerator_small.png'
+            });
+            button.addEventListener('click',function(e)
+            {
+               Titanium.API.info("You clicked the button");
+            });
