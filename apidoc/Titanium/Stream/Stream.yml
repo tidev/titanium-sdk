@@ -297,7 +297,7 @@ methods:
 
 ---
 name: CreateStreamArgs
-exclude-platforms: [blackberry]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 summary: Argument passed to [createStream](Titanium.Stream.createStream).
 since: "1.7"
 
@@ -318,7 +318,7 @@ properties:
 
 ---
 name: ReadCallbackArgs
-exclude-platforms: [blackberry]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 summary: |
     Argument passed to the read callback when an asynchronous [read](Titanium.Stream.read) operation
     finishes.
@@ -375,7 +375,7 @@ properties:
 
 ---
 name: WriteCallbackArgs
-exclude-platforms: [blackberry]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 summary: |
     Argument passed to the write callback when an asynchronous
     [write](Titanium.Stream.write) operation
@@ -429,7 +429,7 @@ properties:
 
 ---
 name: WriteStreamCallbackArgs
-exclude-platforms: [blackberry]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 summary: |
     Argument passed to the callback when an asynchronous
     [writeStream](Titanium.Stream.writeStream) operation finishes.
@@ -466,7 +466,7 @@ properties:
 
 ---
 name: PumpCallbackArgs
-exclude-platforms: [blackberry]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 summary: |
     Argument passed to the callback each time the 
     [pump](Titanium.Stream.pump) operation has new data to deliver.

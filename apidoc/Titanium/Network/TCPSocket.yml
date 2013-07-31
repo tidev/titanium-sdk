@@ -10,7 +10,7 @@ summary: |
     represents a socket which either listens locally on the device for connections,
     or connects to a remote machine.
 since: "1.2.0"
-platforms: [iphone, ipad, blackberry]
+platforms: [iphone, ipad]
 methods:
   - name: close
     summary: close the socket
