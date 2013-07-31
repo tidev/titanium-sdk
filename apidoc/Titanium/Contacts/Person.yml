@@ -67,8 +67,10 @@ properties:
     
   - name: birthday
     summary: Date of birth of the person. Single value.
-    description: Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-                 On BlackBerry pass in a JavaScript Date object.
+    description: |
+        Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
+
+        On BlackBerry pass in a JavaScript Date object.
     type: String
     platforms: [android, iphone, ipad, tizen, blackberry]
     
