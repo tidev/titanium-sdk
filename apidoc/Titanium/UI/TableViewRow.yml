@@ -248,7 +248,7 @@ properties:
         
         On Android, `selectedColor` is not supported, so the text is always displayed in this color.
     type: String
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
    
   - name: editable
     summary: |
@@ -269,7 +269,7 @@ properties:
     summary: Font to use for the row title.
     type: Font
     default: System default font.
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
     
   - name: hasCheck
     summary: |
@@ -277,7 +277,7 @@ properties:
         the row.
     type: Boolean
     default: false
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
     
   - name: hasChild
     summary: |
@@ -345,12 +345,12 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
     
   - name: selectedBackgroundImage
     summary: Background image to render when the row is selected.
     type: String
-    exclude-platform: [blackberry]
+    exclude-platforms: [blackberry]
     
   - name: selectedColor
     summary: Color of the row text when the row is selected, as a color name or hex triplet.
