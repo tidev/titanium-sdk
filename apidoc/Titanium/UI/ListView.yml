@@ -1073,9 +1073,9 @@ properties:
 name: ListViewMarkerProps
 summary: The parameter for [setMarker](Titanium.UI.ListView.setMarker) method.
 description: |
-    Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method. For example
+    Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method. For example:
 
-        setMarker({sectionIndex:5, itemIndex:10})
+        setMarker({sectionIndex:5, itemIndex:10});
 since: 3.2.0
 platforms: [iphone, ipad, android]
 
