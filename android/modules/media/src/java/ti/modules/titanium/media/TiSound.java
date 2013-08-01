@@ -83,64 +83,12 @@ public class TiSound
 		throws IOException
 	{
 		try {
-			mp = new MediaPlayer();
-			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
-			boolean isAsset = URLUtil.isAssetUrl(url);
-			if (isAsset || url.startsWith("android.resource")) {
-				Context context = TiApplication.getInstance();
-				AssetFileDescriptor afd = null;
-				try {
-					if (isAsset) {
-						String path = url.substring(TiConvert.ASSET_URL.length());
-						afd = context.getAssets().openFd(path);
-					} else {
-						Uri uri = Uri.parse(url);
-						afd = context.getResources().openRawResourceFd(TiRHelper.getResource("raw." + uri.getLastPathSegment()));
-					}
-					// Why mp.setDataSource(afd) doesn't work is a problem for another day.
-					// http://groups.google.com/group/android-developers/browse_thread/thread/225c4c150be92416
-					mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-				} catch (IOException e) {
-					Log.e(TAG, "Error setting file descriptor: ", e);
-				} finally {
-					if (afd != null) {
-						afd.close();
-					}
-				}
-			} else {
-				Uri uri = Uri.parse(url);
-				if (uri.getScheme().equals(TiC.PROPERTY_FILE)) {
-					if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
-						mp.setDataSource(uri.getPath());
-					} else {
-						// For 2.2 and below, MediaPlayer uses the native player which requires
-						// files to have worldreadable access, workaround is to open an input
-						// stream to the file and give that to the player.
-						FileInputStream fis = null;
-						try {
-							fis = new FileInputStream(uri.getPath());
-							mp.setDataSource(fis.getFD());
-						} catch (IOException e) {
-							Log.e(TAG, "Error setting file descriptor: ", e);
-						} finally {
-							if (fis != null) {
-								fis.close();
-							}
-						}
-					}
-				} else {
-					remote = true;
-					mp.setDataSource(url);
-				}
-			}
-
+			seturl();	
 			mp.setLooping(looping);
 			mp.setOnCompletionListener(this);
 			mp.setOnErrorListener(this);
 			mp.setOnInfoListener(this);
 			mp.setOnBufferingUpdateListener(this);
-			
-			mp.prepare(); // Probably need to allow for Async
 			setState(STATE_INITIALIZED);
 
 			setVolume(volume);
@@ -336,6 +284,70 @@ public class TiSound
 		}
 
 		proxy.setProperty(TiC.PROPERTY_TIME, position);
+	}
+	
+	private void seturl()
+	{
+		try {
+			if (mp != null) {
+				mp.stop();
+				mp.release();
+			}
+			mp = new MediaPlayer();
+			String url = proxy.resolveUrl(null, TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL)));
+			boolean isAsset = URLUtil.isAssetUrl(url);
+			if (isAsset || url.startsWith("android.resource")) {
+				Context context = TiApplication.getInstance();
+				AssetFileDescriptor afd = null;
+				try {
+					if (isAsset) {
+						String path = url.substring(TiConvert.ASSET_URL.length());
+						afd = context.getAssets().openFd(path);
+					} else {
+						Uri uri = Uri.parse(url);
+						afd = context.getResources().openRawResourceFd(
+							TiRHelper.getResource("raw." + uri.getLastPathSegment()));
+					}
+					mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+				} catch (IOException e) {
+					Log.e(TAG, "Error setting file descriptor: ", e);
+				} finally {
+					if (afd != null) {
+						afd.close();
+					}
+				}
+			} else {
+				Uri uri = Uri.parse(url);
+				if (uri.getScheme().equals(TiC.PROPERTY_FILE)) {
+					if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
+						mp.setDataSource(uri.getPath());
+					} else {
+						// For 2.2 and below, MediaPlayer uses the native player which requires
+						// files to have worldreadable access, workaround is to open an input
+						// stream to the file and give that to the player.
+						FileInputStream fis = null;
+						try {
+							fis = new FileInputStream(uri.getPath());
+							mp.setDataSource(fis.getFD());
+						} catch (IOException e) {
+							Log.e(TAG, "Error setting file descriptor: ", e);
+						} finally {
+							if (fis != null) {
+								fis.close();
+							}
+						}
+					}
+				} else {
+					remote = true;
+					mp.setDataSource(url);
+				}
+			}
+			mp.prepare();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			release();
+			setState(STATE_STOPPED);
+		}
 	}
 
 	private void setState(int state)
@@ -558,6 +570,8 @@ public class TiSound
 			setVolume(TiConvert.toFloat(newValue, 1.0f));
 		} else if (TiC.PROPERTY_TIME.equals(key)) {
 			setTime(TiConvert.toInt(newValue));
+		} else if (TiC.PROPERTY_URL.equals(key)) {
+			seturl();
 		}
 	}
 
