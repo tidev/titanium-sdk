@@ -37,6 +37,7 @@
  */
 @protocol TiControllerContainment <NSObject>
 @required
+-(BOOL)canHostWindows;
 -(void)willOpenWindow:(id<TiWindowProtocol>)theWindow;
 -(void)didOpenWindow:(id<TiWindowProtocol>)theWindow;
 -(void)willCloseWindow:(id<TiWindowProtocol>)theWindow;

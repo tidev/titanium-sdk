@@ -268,9 +268,13 @@
     UIViewController* topmostController = self;
     UIViewController* presentedViewController = nil;
     UIViewController<TiControllerContainment>* result = nil;
+    UIViewController<TiControllerContainment>* match = nil;
     while (topmostController != nil) {
         if ([topmostController conformsToProtocol:@protocol(TiControllerContainment)]) {
-            result = (UIViewController<TiControllerContainment>*)topmostController;
+            match = (UIViewController<TiControllerContainment>*)topmostController;
+            if ([match canHostWindows]) {
+                result = match;
+            }
         }
         presentedViewController = [topmostController presentedViewController];
         if (presentedViewController != nil) {
@@ -286,6 +290,11 @@
 }
 
 #pragma mark - TiControllerContainment
+-(BOOL)canHostWindows
+{
+    return YES;
+}
+
 -(void)willOpenWindow:(id<TiWindowProtocol>)theWindow
 {
     [_containedWindows addObject:theWindow];
