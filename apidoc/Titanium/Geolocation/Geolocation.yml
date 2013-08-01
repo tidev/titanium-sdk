@@ -183,7 +183,6 @@ description: |
 
 extends: Titanium.Module
 since: "0.1"
-platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: forwardGeocoder
     summary: Resolves an address to a location.
@@ -268,7 +267,6 @@ events:
         summary: Dictionary object containing the heading data.
         type: HeadingData
 
-    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: location
     summary: Fired when a location update is received.
@@ -617,7 +615,8 @@ properties:
         This usage is deprecated. Applications using one of the iOS constants should
         migrate to using `ACCURACY_HIGH`, `ACCURACY_LOW`, or Android manual mode.
     type: Number
-
+    exclude-platforms: [blackberry]
+    
   - name: distanceFilter
     summary: The minimum change of position (in meters) before a 'location' event is fired. 
     description: |
@@ -645,6 +644,7 @@ properties:
         A lower frequency value generally increases power consumption. 
         A value of 0 means that updates should be generated as quickly as possible.
     type: Number
+    exclude-platforms: [blackberry]
 
   - name: hasCompass
     summary: Indicates whether the current device supports a compass.
