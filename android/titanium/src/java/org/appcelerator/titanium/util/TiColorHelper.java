@@ -62,7 +62,11 @@ public class TiColorHelper
 			} else {
 				// Try the parser, will throw illegalArgument if it can't parse it.
 				try {
-					color = Color.parseColor(lowval);
+					// In 4.3, Google introduced some new string color constants and they forgot to
+					// add the alpha bits to them! This is a temporary workaround 
+					// until they fix it. I've created a Google ticket for this:
+					// https://code.google.com/p/android/issues/detail?id=58352&thanks=58352
+					color = Color.parseColor(lowval) | 0xFF000000;
 				} catch (IllegalArgumentException e) {
 					if (colorTable == null) {
 						buildColorTable();
