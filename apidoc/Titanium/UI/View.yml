@@ -762,7 +762,7 @@ properties:
     summary: Current position of the view during an animation.
     type: Point
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     
   - name: backgroundColor
     summary: Background color of the view, as a color name or hex triplet.
