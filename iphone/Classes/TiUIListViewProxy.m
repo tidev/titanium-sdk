@@ -467,9 +467,7 @@
             return;
         }
         if ( (indexPath.section > marker.section) || ( (marker.section == indexPath.section) && (indexPath.row >= marker.row) ) ){
-            DebugLog(@"Matching (%d,%d) with (%d,%d)",indexPath.section,indexPath.row,marker.section,marker.row);
-            NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(marker.section),@"sectionIndex",NUMINT(marker.row),@"itemIndex",nil];
-            [self fireEvent:@"marker" withObject:event withSource:self propagate:NO];
+            [self fireEvent:@"marker" withObject:nil withSource:self propagate:NO];
             RELEASE_TO_NIL(marker);
         }
         pthread_rwlock_unlock(&_markerLock);

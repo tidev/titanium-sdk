@@ -251,14 +251,6 @@ events:
     platforms: [iphone, ipad, android]
     since: 3.2.0
     properties:
-      - name: sectionIndex
-        summary: Section index.
-        type: Number
-
-      - name: itemIndex
-        summary: Item index.
-        type: Number
-
       - name: bubbles
         summary: false. This event does not bubble.
         type: Boolean
