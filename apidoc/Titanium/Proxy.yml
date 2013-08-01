@@ -71,6 +71,7 @@ methods:
         summary: A dictionary of properties to apply.
         type: Dictionary
     since: "3.0.0"
+    exclude-platforms: [blackberry]
 
 properties:
 
