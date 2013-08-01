@@ -54,7 +54,7 @@ public class TiListView extends TiUIView {
 	private int headerFooterId;
 	public static LayoutInflater inflater;
 	private int titleId;
-	private int[] threshold = new int[2];
+	private int[] marker = new int[2];
 	private View headerView;
 	private View footerView;
 	private static final String TAG = "TiListView";
@@ -180,10 +180,10 @@ public class TiListView extends TiUIView {
 			ListSectionProxy section = info.first;
 			int sectionItemIndex = info.second.second;
 			int sectionIndex = info.second.first;
-			//check threshold
-			if (sectionIndex == threshold[0] && sectionItemIndex == threshold[1]) {
-				proxy.fireEvent("loadmoreitems", null);
-				resetThreshold();
+			//check marker
+			if (sectionIndex > marker[0] || (sectionIndex == marker[0] && sectionItemIndex >= marker[1])) {
+				proxy.fireEvent("marker", null, false);
+				resetMarker();
 			}
 
 			View content = convertView;
@@ -227,7 +227,14 @@ public class TiListView extends TiUIView {
 		itemTypeCount = new AtomicInteger(2);
 		templatesByBinding = new HashMap<String, TiListViewTemplate>();
 		defaultTemplateBinding = UIModule.LIST_ITEM_TEMPLATE_DEFAULT;
-		resetThreshold();
+		
+		//handling marker
+		HashMap<String, Integer> preloadMarker = ((ListViewProxy)proxy).getPreloadMarker();
+		if (preloadMarker != null) {
+			setMarker(preloadMarker);
+		} else {
+			resetMarker();
+		}
 		
 		//initializing listView and adapter
 		ListViewWrapper wrapper = new ListViewWrapper(activity);
@@ -267,10 +274,10 @@ public class TiListView extends TiUIView {
 		setNativeView(wrapper);
 	}
 	
-	private void resetThreshold() 
+	private void resetMarker() 
 	{
-		threshold[0] = -1;
-		threshold[1] = -1;
+		marker[0] = Integer.MAX_VALUE;
+		marker[1] = Integer.MAX_VALUE;
 	}
 
 	public void setHeaderTitle(String title) {
@@ -295,15 +302,11 @@ public class TiListView extends TiUIView {
 		registerForTouch(listView);
 	}
 	
-	private void setScrollThreshold(Object threshold) 
+	public void setMarker(HashMap<String, Integer> markerItem) 
 	{
-		if (threshold instanceof HashMap) {
-			HashMap<String, Integer> item = (HashMap<String, Integer>) threshold;
-			int sectionIndex = item.get(TiC.PROPERTY_SECTION_INDEX);
-			int itemIndex = item.get(TiC.PROPERTY_ITEM_INDEX);
-			this.threshold[0] = sectionIndex;
-			this.threshold[1] = itemIndex;
-		}
+		marker[0] = markerItem.get(TiC.PROPERTY_SECTION_INDEX);
+		marker[1] = markerItem.get(TiC.PROPERTY_ITEM_INDEX);
+		
 	}
 	
 	public void processProperties(KrollDict d) {
@@ -317,10 +320,6 @@ public class TiListView extends TiUIView {
 		
 		if (d.containsKey(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
 			listView.setVerticalScrollBarEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR, true));
-		}
-		
-		if (d.containsKey("scrollThreshold")) {
-			setScrollThreshold(d.get("scrollThreshold"));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE)) {
@@ -392,8 +391,6 @@ public class TiListView extends TiUIView {
 		} else if (key.equals(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE) && newValue != null) {
 			defaultTemplateBinding = TiConvert.toString(newValue);
 			refreshItems();
-		} else if (key.equals("scrollThreshold")) { 
-			setScrollThreshold(newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
