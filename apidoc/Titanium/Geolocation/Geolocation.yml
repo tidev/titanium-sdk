@@ -125,7 +125,7 @@ description: |
 
     On the BlackBerry platform you must add the `read_geolocation` permission to tiapp.xml.
     If the `blackberry` tag does not exist, you can simply create it, then add the `permissions`
-    tag and list the permissions that you need, in this case `read_geolocation`
+    tag and list the permissions that you need, in this case, `read_geolocation`:
 
         <blackberry>
             <permissions>
