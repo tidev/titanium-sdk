@@ -72,7 +72,7 @@ methods:
         type: String
       - name: data
         summary: The data to send in the UDP packet.
-        type: Number Array      
+        type: Array<Number>      
 
 properties:
   - name: port
@@ -110,7 +110,7 @@ properties:
 
   - name: bytesData
     summary: The data returned as an array of bytes
-    type: Number Array
+    type: Array<Number>  
 
   - name: address
     summary: The remote host address where the data came from.
