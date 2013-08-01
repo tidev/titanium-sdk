@@ -248,7 +248,7 @@ events:
     description: |
         This event is fired `only once`. Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method.
         On iOS this method does not fire when list view is in search mode.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
     since: 3.2.0
     properties:
       - name: sectionIndex
@@ -662,7 +662,7 @@ methods:
       - name: markerProps
         summary: Dictionary to describe the reference item.
         type: ListViewMarkerProps
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
     since: 3.2.0
 
 examples:
@@ -1085,7 +1085,7 @@ description: |
 
         setMarker({sectionIndex:5, itemIndex:10})
 since: 3.2.0
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, android]
 
 properties:
   - name: sectionIndex
