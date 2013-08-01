@@ -83,7 +83,7 @@ public class TiSound
 		throws IOException
 	{
 		try {
-			seturl();	
+			setUrl();	
 			mp.setLooping(looping);
 			mp.setOnCompletionListener(this);
 			mp.setOnErrorListener(this);
@@ -286,7 +286,7 @@ public class TiSound
 		proxy.setProperty(TiC.PROPERTY_TIME, position);
 	}
 	
-	private void seturl()
+	private void setUrl()
 	{
 		try {
 			if (mp != null) {
@@ -571,7 +571,7 @@ public class TiSound
 		} else if (TiC.PROPERTY_TIME.equals(key)) {
 			setTime(TiConvert.toInt(newValue));
 		} else if (TiC.PROPERTY_URL.equals(key)) {
-			seturl();
+			setUrl();
 		}
 	}
 
