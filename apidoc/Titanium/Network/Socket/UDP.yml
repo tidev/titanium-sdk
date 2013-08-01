@@ -80,7 +80,7 @@ properties:
     summary: The port to connect to or listen on. 
     
   - name: started
-    type: Callback
+    type: Callback<void>
     summary: Callback to be fired when the local UDP socket enters the "bound" state. 
     
   - name: data
@@ -93,7 +93,7 @@ properties:
 
 ---
 name: DataCallbackArgs
-summary: Argument object passed to the data callback when data arrives on the UDP socket .
+summary: Argument object passed to the data callback when data arrives on the UDP socket.
 since: "3.0.0"
 
 properties:
