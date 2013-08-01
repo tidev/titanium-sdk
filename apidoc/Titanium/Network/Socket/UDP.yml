@@ -80,7 +80,7 @@ properties:
     summary: The port to connect to or listen on. 
     
   - name: started
-    type: Callback<StatedCallbackArgs>
+    type: Callback<NULL>
     summary: Callback to be fired when the local UDP socket enters the "bound" state. 
     
   - name: data
@@ -91,4 +91,33 @@ properties:
     type: Callback<ErrorCallbackArgs>
     summary: Callback to be fired if an error occurs during the UDP sockect session.
 
- 
+---
+name: ErrorCallbackArgs
+summary: Object passed to the error callback when the socket enters 
+    the [ERROR](Titanium.Network.Socket.UDP.ERROR) state.
+since: "3.0.0"
+extends: FailureResponse
+
+---
+name: DataCallbackArgs
+summary: Argument object passed to the data callback when data arrives on the UDP socket .
+since: "3.0.0"
+
+properties:
+  - name: stringData
+    summary: The data returned as a string.
+    type: String
+
+  - name: bytesData
+    summary: The data returned as an array of bytes
+    type: Number Array
+
+  - name: address
+    summary: The remote host address where the data came from.
+    type: String
+
+  - name: port
+    summary: The local port on which the data arrived.
+    type: String
+  
+   
