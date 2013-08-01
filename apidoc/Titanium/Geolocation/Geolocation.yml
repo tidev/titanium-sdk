@@ -121,6 +121,18 @@ description: |
     In addition to the accuracy setting, there are several Mobile Web-specific settings.
     See <Titanium.Geolocation.MobileWeb> for details.
 
+    #### Configuring Location Updates on BlackBerry
+
+    On the BlackBerry platform you must add the `read_geolocation` permission to tiapp.xml.
+    If the `blackberry` tag does not exist, you can simply create it, then add the `permissions`
+    tag and list the permissions that you need, in this case, `read_geolocation`:
+
+        <blackberry>
+            <permissions>
+                <permission>read_geolocation</permission>
+            </permissions>
+        </blackberry>
+
     #### Using the Compass
 
     Both iOS and Android support a receiving heading updates from a hardware compass, if available.
