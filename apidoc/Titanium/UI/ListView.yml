@@ -246,7 +246,7 @@ events:
   - name: marker
     summary: Fired when the list view displays the reference item or an item beyond the reference item.
     description: |
-        This event is fired `only once`. Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method.
+        This event is fired "only once". Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method.
         On iOS this method does not fire when list view is in search mode.
     platforms: [iphone, ipad, android]
     since: 3.2.0
