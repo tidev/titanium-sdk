@@ -24,14 +24,26 @@ methods:
     description: Value returns `true` if in landscape, and `false` otherwise.         
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: isPortrait
     summary: Returns whether current window is considered portrait by the device.
     description: Value returns `true` if in portrait, and `false` otherwise.         
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+
+  - name: isFaceUp
+    summary: Returns whether current window is considered face up by the device.
+    description: Value returns `true` if in face up else `false`.
+    returns:
+        type: Boolean
+    platforms: [blackberry]
+
+  - name: isFaceDown
+    summary: Returns whether current window is considered face down by the device.
+    description: Value returns `true` if in face down else `false`.
+    returns:
+        type: Boolean
+    platforms: [blackberry]
 
 properties:
   - name: portrait
@@ -82,7 +94,6 @@ properties:
         To set the *allowable* orientations for a window, see <Titanium.UI.Window.orientationModes>.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb, tizen]
 
 events:
   - name: orientationchange

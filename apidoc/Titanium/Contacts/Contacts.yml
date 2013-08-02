@@ -19,7 +19,7 @@ description: |
     See the examples for sample use of the `reload` event.
 extends: Titanium.Module
 since: "0.8"
-platforms: [android, iphone, ipad, tizen]
+platforms: [android, iphone, ipad, tizen, blackberry]
 
 events:
   - name: reload
@@ -53,7 +53,6 @@ methods:
         changes to the underlying contacts database.
     returns:
         type: Titanium.Contacts.Person
-    platforms: [android, ipad, iphone, tizen]
     since: {android: "2.1.0"}
     parameters:
       - name: parameters
@@ -71,7 +70,7 @@ methods:
     
   - name: getAllPeople
     summary: Gets all people, unless a limit is specified. On Tizen, use [Titanium.Contacts.Tizen.getAllPeople](Titanium.Contacts.Tizen.getAllPeople).
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, blackberry]
     returns:
         type: Array<Titanium.Contacts.Person>    
     parameters:
@@ -95,7 +94,7 @@ methods:
         of these fields, that match the specified name.
         
         On Tizen, use [Titanium.Contacts.Tizen.getPeopleWithName](Titanium.Contacts.Tizen.getPeopleWithName).
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad, blackberry]
     returns:
         type: Array<Titanium.Contacts.Person>
     parameters:
@@ -137,7 +136,12 @@ methods:
         
         This method will remove the person from the Contacts book automatically. 
         
-    platforms: [android, iphone, ipad, tizen]
+        To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
+        of your Titanium application: 
+
+        * `http://tizen.org/privilege/contact.read`
+        * `http://tizen.org/privilege/contact.write`
+        
     since: {android: "2.1.0"}
     parameters:
       - name: person
@@ -169,6 +173,7 @@ methods:
       - name: params
         summary: Argument containing parameters for this method. Optional on Android.
         type: showContactsParams
+    exclude-platforms: [blackberry]
 
   - name: requestAuthorization
     summary: If authorization is unknown, will bring up a dialog requesting permission.
@@ -194,6 +199,7 @@ properties:
         and [CONTACTS_KIND_PERSON](Titanium.Contacts.CONTACTS_KIND_PERSON).
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: CONTACTS_KIND_PERSON
     summary: Specifies that a contact is a person.
@@ -205,6 +211,7 @@ properties:
         and [CONTACTS_KIND_PERSON](Titanium.Contacts.CONTACTS_KIND_PERSON).
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: CONTACTS_SORT_FIRST_NAME
     summary: Specifies that group members will be sorted by first name.
@@ -216,6 +223,7 @@ properties:
         and [CONTACTS_SORT_LAST_NAME](Titanium.Contacts.CONTACTS_SORT_LAST_NAME).
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: CONTACTS_SORT_LAST_NAME
     summary: Specifies that group members will be sorted by last name.
@@ -227,6 +235,7 @@ properties:
         and [CONTACTS_SORT_LAST_NAME](Titanium.Contacts.CONTACTS_SORT_LAST_NAME).
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: AUTHORIZATION_AUTHORIZED
     summary: |
@@ -278,6 +287,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, android, tizen]
     since: 2.1.3
+    exclude-platforms: [blackberry]
 
 examples:
   - title: Request access to the address book
