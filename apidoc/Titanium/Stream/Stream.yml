@@ -18,7 +18,7 @@ description: |
 
 extends: Titanium.Module
 since: "1.7"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, blackberry]
 examples: 
   - title: Stream.pump Example
     example: |
@@ -92,6 +92,7 @@ methods:
         type: CreateStreamArgs
 
   - name: read
+    exclude-platforms: [blackberry]
     summary: |
         Asynchronously reads data from an [IOStream](Titanium.IOStream) into a buffer.
     description: |
@@ -141,6 +142,7 @@ methods:
         type: Callback<ReadCallbackArgs>
 
   - name: readAll
+    exclude-platforms: [blackberry]
     summary: Reads all data from the specified [IOStream](Titanium.IOStream).
     description: |
         Reads data from the stream, either synchronously or asynchronously.
@@ -180,6 +182,7 @@ methods:
       - type: void
 
   - name: write
+    exclude-platforms: [blackberry]
     summary: Asynchronously writes data from a buffer to an [IOStream](Titanium.IOStream).
     description: |
         Data is read from the buffer and written to the stream. 
@@ -226,6 +229,7 @@ methods:
         type: Callback<WriteCallbackArgs>
 
   - name: writeStream
+    exclude-platforms: [blackberry]
     summary: Writes all data from an input stream to an output stream.
     description: |
 
@@ -264,6 +268,7 @@ methods:
         optional: true
 
   - name: pump
+    exclude-platforms: [blackberry]
     summary: Reads data from input stream and passes it to a handler method.
     description: |
         After the end of the input stream is reached, the handler is called 
@@ -292,6 +297,7 @@ methods:
 
 ---
 name: CreateStreamArgs
+platforms: [android, iphone, ipad, mobileweb, tizen]
 summary: Argument passed to [createStream](Titanium.Stream.createStream).
 since: "1.7"
 
@@ -312,6 +318,7 @@ properties:
 
 ---
 name: ReadCallbackArgs
+platforms: [android, iphone, ipad, mobileweb, tizen]
 summary: |
     Argument passed to the read callback when an asynchronous [read](Titanium.Stream.read) operation
     finishes.
@@ -336,18 +343,21 @@ properties:
         since: "3.1.0"
 
   - name: errorDescription
+    exclude-platforms: [blackberry]
     summary: Text description of the error.
     type: String
     deprecated:
         since: "3.1.0"
 
   - name: success
+    exclude-platforms: [blackberry]
     summary: Indicates if the operation succeeded.
     description: Returns `true` if request succeeded, `false` otherwise.
     type: Boolean
     since: "3.1.0"
 
   - name: error
+    exclude-platforms: [blackberry]
     summary: Error message, if any returned.
     description: Will be undefined if `success` is `true`.
     type: String
@@ -365,6 +375,7 @@ properties:
 
 ---
 name: WriteCallbackArgs
+platforms: [android, iphone, ipad, mobileweb, tizen]
 summary: |
     Argument passed to the write callback when an asynchronous
     [write](Titanium.Stream.write) operation
@@ -418,6 +429,7 @@ properties:
 
 ---
 name: WriteStreamCallbackArgs
+platforms: [android, iphone, ipad, mobileweb, tizen]
 summary: |
     Argument passed to the callback when an asynchronous
     [writeStream](Titanium.Stream.writeStream) operation finishes.
@@ -454,6 +466,7 @@ properties:
 
 ---
 name: PumpCallbackArgs
+platforms: [android, iphone, ipad, mobileweb, tizen]
 summary: |
     Argument passed to the callback each time the 
     [pump](Titanium.Stream.pump) operation has new data to deliver.

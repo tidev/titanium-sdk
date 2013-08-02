@@ -134,6 +134,7 @@ properties:
         dialog by clicking outside of the dialog. 
     type: Number
     default: undefined (Android), -1 (iOS, Mobile Web, Tizen)
+    exclude-platforms: [blackberry]
 
   - name: destructive
     summary: Index to define the destructive option, indicated by a visual cue when rendered.
@@ -141,7 +142,8 @@ properties:
     default: -1
     platforms: [iphone, ipad, mobileweb, tizen]
     availability: creation
-    
+    exclude-platforms: [blackberry]
+
   - name: options
     summary: List of option names.
     type: Array<String>
@@ -160,7 +162,7 @@ properties:
 
   - name: selectedIndex
     summary: Defines the default selected option.
-    platforms: [android]
+    platforms: [android, blackberry]
     type: Number
     availability: creation
     
@@ -171,6 +173,7 @@ properties:
   - name: titleid
     summary: Key identifying a string in the locale file to use for the title text.
     type: String
+    exclude-platforms: [blackberry]
 
 examples:
   - title: Dialog with 3 Options

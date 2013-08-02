@@ -34,7 +34,7 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb, tizen, blackberry]
 
   - name: hide
     summary: Hides the activity indicator and stops the animation.
@@ -118,6 +118,7 @@ properties:
         [indicatorDiameter](Titanium.UI.ActivityIndicator.indicatorDiameter)
     type: Number
     default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN> (iOS), <Titanium.UI.ActivityIndicatorStyle.PLAIN> (Android and Mobile Web)
+    exclude-platforms: [blackberry]
 
   - name: indicatorColor
     summary: Color of the animated indicator.

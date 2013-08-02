@@ -99,6 +99,7 @@ methods:
         type: Dictionary<Titanium.Network.TCPSocket>
   - name: decodeURIComponent
     summary: Returns a decoded version of a URI encoded value.
+    exclude-platforms: [blackberry]
     returns:
         type: String
     parameters:
@@ -144,6 +145,7 @@ methods:
     
   - name: unregisterForPushNotifications
     summary: Unregisters the application for push notifications.
+    exclude-platforms: [blackberry]
     description: |
         Per Apple's documentation, it is rarely necessary to call this method. See:
         [unregisterForRemoteNotifications in the UIApplication Class
@@ -174,6 +176,7 @@ properties:
     summary: |
         Special hostname value for listening sockets, representing all
         locally available network interfaces.
+    exclude-platforms: [blackberry]
     type: String
     permission: read-only
     platforms: [iphone, ipad]
@@ -183,6 +186,7 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the device is
         communicating over a local-area network.
+    exclude-platforms: [blackberry]
     description: |
         This network type is only used by the Mobile Web platform, when the application
         is running in a desktop browser attached to a LAN.
@@ -195,6 +199,7 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the device is
         communicating over a mobile network.
+    exclude-platforms: [blackberry]
     description: |
         This constant is also a possible value for the `networkType` property of the 
         [change](Titanium.Network.change) event.
@@ -204,6 +209,7 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that no 
         network is available.
+    exclude-platforms: [blackberry]
     description: |
         This constant is also a possible value for the `networkType` property of the 
         [change](Titanium.Network.change) event.
@@ -213,6 +219,7 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the  
         current network type is unknown.
+    exclude-platforms: [blackberry]
     description: |
         This constant is also a possible value for the `networkType` property of the 
         [change](Titanium.Network.change) event.
@@ -222,6 +229,7 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the  
         device is communicating over a WiFi network.
+    exclude-platforms: [blackberry]
     description: |
         This constant is also a possible value for the `networkType` property of the 
         [change](Titanium.Network.change) event.

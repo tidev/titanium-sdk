@@ -24,7 +24,7 @@ except:
 	sys.exit(1)
 
 
-VALID_PLATFORMS = ["android", "iphone", "ipad", "mobileweb", "tizen"]
+VALID_PLATFORMS = ["android", "iphone", "ipad", "mobileweb", "tizen", "blackberry"]
 VALID_KEYS = {
 		"type": ["name", "summary", "description", "createable", "platforms", "extends",
 			"excludes", "since", "deprecated", "osver", "examples", "methods", "properties",
@@ -37,7 +37,7 @@ VALID_KEYS = {
 			"optional", "value", "default","exclude-platforms"],
 		"event": ["name", "summary", "description", "extends", "platforms", "since",
 			"deprecated", "osver", "properties","exclude-platforms"],
-		"eventprop": ["name", "summary", "type", "platforms", "deprecated"],
+		"eventprop": ["name", "summary", "type", "platforms", "deprecated", "exclude-platforms"],
 		"deprecated": ["since", "removed", "notes"]
 		}
 
