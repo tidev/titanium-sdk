@@ -17,7 +17,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.graphics.Color;
 import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils.TruncateAt;
@@ -70,7 +69,7 @@ public class TiUILabel extends TiUIView
 		tv.setFocusable(false);
 		tv.setSingleLine(false);
 		TiUIHelper.styleText(tv, null);
-		defaultColor = Color.BLACK;
+		defaultColor =  tv.getCurrentTextColor();
 		setNativeView(tv);
 
 	}
