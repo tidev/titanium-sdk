@@ -243,6 +243,18 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
+  - name: marker
+    summary: Fired when the list view displays the reference item or an item beyond the reference item.
+    description: |
+        This event is fired "only once". Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method.
+        On iOS this method does not fire when list view is in search mode.
+    platforms: [iphone, ipad, android]
+    since: 3.2.0
+    properties:
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
   - name: move
     summary: Fired when a list row is moved to a different location by the user.
     description: |
@@ -634,6 +646,16 @@ methods:
     platforms: [iphone, ipad]
     since: 3.2.0
 
+  - name: setMarker
+    summary: Sets a reference item in the list view.
+    description: |
+        See [marker](Titanium.UI.ListView.marker) event for details. 
+    parameters:
+      - name: markerProps
+        summary: Dictionary to describe the reference item.
+        type: ListViewMarkerProps
+    platforms: [iphone, ipad, android]
+    since: 3.2.0
 
 examples:
   - title: List View Sections
@@ -1045,6 +1067,25 @@ properties:
     
   - name: duration
     summary: The duration in `milliseconds` for animation while the content inset is  being changed.
+    type: Number
+
+---
+name: ListViewMarkerProps
+summary: The parameter for [setMarker](Titanium.UI.ListView.setMarker) method.
+description: |
+    Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method. For example:
+
+        setMarker({sectionIndex:5, itemIndex:10});
+since: 3.2.0
+platforms: [iphone, ipad, android]
+
+properties:
+  - name: sectionIndex
+    summary: The sectionIndex of the reference item.
+    type: Number
+    
+  - name: itemIndex
+    summary: The itemIndex of the reference item.
     type: Number
 
 ---

@@ -1148,6 +1148,15 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 #pragma mark - UITableViewDelegate
 
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (searchActive || (tableView != _tableView)) {
+        return;
+    }
+    //Tell the proxy about the cell to be displayed
+    [self.listViewProxy willDisplayCell:indexPath];
+}
+
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
     if (tableView != _tableView) {

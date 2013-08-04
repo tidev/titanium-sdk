@@ -48,7 +48,6 @@ description: |
 
 extends: Titanium.Proxy
 since: "0.1"
-platforms: [android, iphone, ipad, mobileweb, tizen]
 createable: false
 examples: 
   - title: Reading a File
@@ -106,7 +105,7 @@ methods:
         type: [String,Titanium.Blob,Titanium.Filesystem.File]
     returns:
         type: Boolean
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb, tizen, blackberry]
   - name: copy
     summary: Copies the file identified by this file object to a new path.
     description: Returns `true` if the copy succeeds.
@@ -141,6 +140,7 @@ methods:
         On Android, returns 0 for resource files.
     returns:
         type: Number
+    exclude-platforms: [blackberry]
   - name: deleteDirectory
     summary: Deletes the directory identified by this file object.
     description: |
@@ -187,17 +187,16 @@ methods:
     returns:
       - type: String
       - type: Titanium.Filesystem.File
+    exclude-platforms: [blackberry]
   - name: isDirectory
     summary: Returns `true` if this file object represents a directory. 
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad, mobileweb, tizen]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
   - name: isFile
     summary: Returns `true` if this file object represents an ordinary file.
     returns: 
         type: Boolean
-    platforms: [android, iphone, ipad, mobileweb, tizen]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
   - name: modificationTimestamp
     summary: Returns the last modification time for this file.
@@ -205,6 +204,7 @@ methods:
         On Android, returns 0 for resource files.
     returns:
         type: Number
+    exclude-platforms: [blackberry]
   - name: move
     summary: Moves the file identified by this file object to another path.
     description: |
@@ -218,6 +218,7 @@ methods:
       - name: newpath
         summary: New location for the file.
         type: String
+    exclude-platforms: [blackberry]
   - name: open
     summary: Opens the file identified by this file object for random access. 
     description: |
@@ -235,6 +236,7 @@ methods:
         type: Number
     returns:
         type: Titanium.Filesystem.FileStream
+    exclude-platforms: [blackberry]
   - name: read
     summary: Returns the contents of the file identified by this file object as a `Blob`.
     returns:
@@ -257,6 +259,7 @@ methods:
       - name: newname
         summary: New name for the file.
         type: String
+    exclude-platforms: [blackberry]
   - name: resolve
     summary: Returns the fully-resolved native path associated with this file object.
     description: |
@@ -267,6 +270,7 @@ methods:
         [nativePath](Titanium.Filesystem.File.nativePath) property.
     returns:
         type: String
+    exclude-platforms: [blackberry]
   - name: spaceAvailable
     summary: Returns the amount of free space available on the device where the file
         identified by this file object is stored.
@@ -274,6 +278,7 @@ methods:
         Free space is returned in bytes.
     returns:
         type: Number
+    exclude-platforms: [blackberry]
   - name: write
     summary: Writes the specified data to the file identified by this file object.
     description: |
@@ -301,6 +306,7 @@ properties:
     type: Boolean
     platforms: [android, iphone, ipad, mobileweb, tizen]
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: hidden
     summary:
         Set to `true` if the file is hidden.
@@ -308,10 +314,12 @@ properties:
         On iOS, Mobile Web and Tizen, this property exists but is always `false`.
     type: Boolean
     platforms: [android, iphone, ipad, mobileweb, tizen]
+    exclude-platforms: [blackberry]
   - name: name
     summary: Name of the file.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: nativePath
     summary: Native path associated with this file object, as a file URL.
     description: |
@@ -324,6 +332,7 @@ properties:
     type: Titanium.Filesystem.File
     permission: read-only
     platforms: [android, mobileweb, tizen]
+    exclude-platforms: [blackberry]
   - name: readonly
     summary: |
         `true` if the file identified by this object is read-only.
@@ -333,11 +342,13 @@ properties:
     type: Boolean
     permission: read-only
     platforms: [android, mobileweb, tizen]
+    exclude-platforms: [blackberry]
   - name: size
     summary: Size, in bytes, of the file identified by this object.
     type: Number
     permission: read-only
     platforms: [android, mobileweb, tizen]
+    exclude-platforms: [blackberry]
   - name: remoteBackup
     summary: Value indicating whether or not to back up to a cloud service.
     description: |
@@ -361,6 +372,7 @@ properties:
         On Mobile Web and Tizen, this property exists but is always `false`.
     type: Boolean
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: writable
     summary: |
         `true` if the file identified by this object is writable.
