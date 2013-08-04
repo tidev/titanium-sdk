@@ -9,11 +9,10 @@
 #import <UIKit/UIKit.h>
 #import "TiControllerProtocols.h"
 
-@interface TiViewControllerNeue : UIViewController<TiOrientationController> {
+@interface TiViewControllerNeue : UIViewController {
 
     TiViewProxy* _proxy;
     TiOrientationFlags _supportedOrientations;
-    NSObject<TiOrientationController> * parentOrientationController;
 }
 
 -(id)initWithViewProxy:(TiViewProxy*)window;

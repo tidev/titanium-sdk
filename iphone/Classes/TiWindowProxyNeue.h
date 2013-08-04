@@ -12,6 +12,8 @@
 @interface TiWindowProxyNeue : TiViewProxy<TiWindowProtocol> {
 @protected
     TiViewControllerNeue* controller;
+    id<TiOrientationController> parentController;
+    TiOrientationFlags _supportedOrientations;
     BOOL opening;
     BOOL opened;
     BOOL closing;
