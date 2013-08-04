@@ -106,19 +106,6 @@
 
 #pragma mark - TiOrientationController methods
 
-@synthesize parentOrientationController;
-
--(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController
-{
-    [parentOrientationController childOrientationControllerChangedFlags:self];
-}
-
--(TiOrientationFlags) orientationFlags
-{
-    return _supportedOrientations;
-}
-
-
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     NSLog(@"I WILL ROTATE from %d MY FLAGS ARE %d",toInterfaceOrientation, _supportedOrientations);

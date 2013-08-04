@@ -22,25 +22,32 @@
 /**
  Protocol for Window
  */
-@protocol TiWindowProtocol <NSObject>
-@required
+@protocol TiWindowProtocol <TiOrientationController>
+//Minimal required for light weight window support.
 -(void)open:(id)args;
 -(void)close:(id)args;
--(UIViewController<TiOrientationController>*)contentController;
-@optional
+//Return NO to abort open/close operations. Only for light weight windows. Not for windows with ViewControllers
 -(BOOL)_handleOpen:(id)args;
 -(BOOL)_handleClose:(id)args;
+//Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
+-(void)viewWillAppear:(BOOL)animated;
+-(void)viewWillDisappear:(BOOL)animated;
+-(void)viewDidAppear:(BOOL)animated;
+-(void)viewDidDisappear:(BOOL)animated;
+-(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
+-(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
+-(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
 @end
 
 /**
- Protocol for containment controller
+ Protocol for containment controller. Implemented by UIViewControllers that can host Titanium Windows
  */
 @protocol TiControllerContainment <NSObject>
 @required
 -(BOOL)canHostWindows;
 -(void)willOpenWindow:(id<TiWindowProtocol>)theWindow;
--(void)didOpenWindow:(id<TiWindowProtocol>)theWindow;
 -(void)willCloseWindow:(id<TiWindowProtocol>)theWindow;
+-(void)didOpenWindow:(id<TiWindowProtocol>)theWindow;
 -(void)didCloseWindow:(id<TiWindowProtocol>)theWindow;
 
 @end

@@ -110,7 +110,7 @@
     return ([[[[TiApp app] neueController] view] superview]!=nil);
 }
 
-#pragma mark - TiWindowProtocol Methods
+#pragma mark - TiWindowProtocol Base Methods
 -(void)open:(id)args
 {
     //Make sure our RootView Controller is attached
@@ -138,7 +138,6 @@
     opening = YES;
     //Lets keep ourselves safe
     [self rememberSelf];
-    
     
     //TODO Argument Processing
     
@@ -177,21 +176,16 @@
     
 }
 
--(UIViewController<TiOrientationController>*)contentController
-{
-    if (controller == nil) {
-        controller = [[TiViewControllerNeue alloc] initWithViewProxy:self];
-    }
-    
-    return controller;
-}
-
 -(BOOL)_handleOpen:(id)args
 {
     TiRootControllerNeue* theController = [[TiApp app] neueController];
     if ([theController topPresentedController] != [theController topContainerController]) {
         DebugLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller.")
     }
+    
+    id object = [self valueForUndefinedKey:@"orientationModes"];
+    _supportedOrientations = [TiUtils TiOrientationFlagsFromObject:object];
+
     return YES;
 }
 
@@ -207,10 +201,7 @@
     if ([self _handleOpen:args]) {
         [self view];
         [self windowWillOpen];
-        //This might be false. Might have to maintain flags.
-        if ([[self contentController] navigationController] == nil) {
-            [self attachViewToTopContainerController];
-        }
+        [self attachViewToTopContainerController];
         [self windowDidOpen];
     } else {
         DebugLog(@"[WARN] OPEN ABORTED. _handleOpen returned NO");
@@ -226,6 +217,58 @@
     } else {
         DebugLog(@"[WARN] CLOSE ABORTED. _handleClose returned NO");
     }
+}
+
+#pragma mark - TiOrientationController
+-(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
+{
+    [parentController childOrientationControllerChangedFlags:self];
+}
+
+-(void)setParentOrientationController:(id <TiOrientationController>)newParent
+{
+    parentController = newParent;
+}
+
+-(id)parentOrientationController
+{
+	return parentController;
+}
+
+-(TiOrientationFlags) orientationFlags
+{
+    return _supportedOrientations;
+}
+
+#pragma mark - Appearance and Rotation Callbacks. For subclasses to override.
+//Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
+-(void)viewWillAppear:(BOOL)animated
+{
+    
+}
+-(void)viewWillDisappear:(BOOL)animated
+{
+    
+}
+-(void)viewDidAppear:(BOOL)animated
+{
+    
+}
+-(void)viewDidDisappear:(BOOL)animated
+{
+    
+}
+-(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    
+}
+-(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    
+}
+-(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+    
 }
 
 

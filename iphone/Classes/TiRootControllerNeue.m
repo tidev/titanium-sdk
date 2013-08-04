@@ -298,37 +298,25 @@
 -(void)willOpenWindow:(id<TiWindowProtocol>)theWindow
 {
     [_containedWindows addObject:theWindow];
-    UIViewController<TiOrientationController>* contentController = [theWindow contentController];
-    [self addChildViewController:contentController];
-    contentController.parentOrientationController = self;
+    theWindow.parentOrientationController = self;
 }
 
 -(void)didOpenWindow:(id<TiWindowProtocol>)theWindow
 {
-    UIViewController<TiOrientationController>* contentController = [theWindow contentController];
-    [contentController didMoveToParentViewController:self];
     [self dismissKeyboard];
-    BOOL isLoaded = [contentController isViewLoaded];
-    if (!isLoaded) {
-        NSLog(@"WINDOW OPENED BUT CONTROLLER SAYING NOT LOADED. WTF");
-    }
-    [self childOrientationControllerChangedFlags:contentController];
+    [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
 }
 
 -(void)willCloseWindow:(id<TiWindowProtocol>)theWindow
 {
     [_containedWindows removeObject:theWindow];
-    UIViewController<TiOrientationController>* contentController = [theWindow contentController];
-    [contentController willMoveToParentViewController:nil];
-    contentController.parentOrientationController = nil;
+    theWindow.parentOrientationController = nil;
 }
 
 -(void)didCloseWindow:(id<TiWindowProtocol>)theWindow
 {
-    UIViewController<TiOrientationController>* contentController = [theWindow contentController];
-    [contentController removeFromParentViewController];
-    [self childOrientationControllerChangedFlags:contentController];
     [self dismissKeyboard];
+    [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
 }
 
 #pragma mark - Orientation Control
@@ -449,7 +437,7 @@
 -(TiOrientationFlags) orientationFlags
 {
     if ([_containedWindows count] > 0) {
-        return [[[_containedWindows lastObject] contentController] orientationFlags];
+        return [[_containedWindows lastObject] orientationFlags];
     }
     return [self getDefaultOrientations];
 }
