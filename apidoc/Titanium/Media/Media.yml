@@ -865,8 +865,6 @@ properties:
     type: Array<Number>
     platforms: [iphone, ipad, android]
     since:
-        iphone: "3.2.0"
-        ipad: "3.2.0"
         android: "3.2.0"
     permission: read-only
   - name: availableCameraMediaTypes
