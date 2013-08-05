@@ -80,6 +80,9 @@ description: |
 
     ##### API Differences
 
+    **Note:** This is the first version of list view and some features have not been implemented.
+    The differences listed are for the final planned list view and the current table view in Release 3.1.0.
+
     - **TableViewRow properties**: The following properties and their accessors are not
       available for ListItem: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
       `hasChild`, `hasDetail`, `leftImage`, `moveable` and `rightImage`.
