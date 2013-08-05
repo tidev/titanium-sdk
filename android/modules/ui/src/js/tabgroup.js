@@ -38,6 +38,11 @@ exports.bootstrap = function(Titanium) {
 
 	var _open = TabGroup.prototype.open;
 	TabGroup.prototype.open = function(options) {
+
+		if (this.currentState == this.state.opened) {
+			return;
+		}
+		
 		this.currentState = this.state.opening;
 
 		// Retain the tab group until is has closed.

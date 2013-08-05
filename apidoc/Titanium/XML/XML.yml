@@ -14,6 +14,7 @@ description: |
     for brevity. For information on these features, please use the W3C documentation.
 extends: Titanium.Module
 since: "0.9"
+platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
 
   - name: parseString

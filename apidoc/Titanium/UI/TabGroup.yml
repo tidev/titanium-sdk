@@ -130,6 +130,7 @@ events:
             Previous active tab. On iOS, a value of `undefined` indicates that the **More** tab was 
             the previous tab.
         type: Titanium.UI.Tab
+    exclude-platforms: [blackberry]
         
   - name: close
     summary: Fired when the tab group is closed.
@@ -163,9 +164,11 @@ events:
       - name: previousTab
         summary: Previous active tab.
         type: Titanium.UI.Tab
+    exclude-platforms: [blackberry]
         
   - name: open
     summary: Fired when the tab group is opened.
+    exclude-platforms: [blackberry]
 
 methods:
   - name: addTab
@@ -199,7 +202,7 @@ methods:
     
   - name: removeTab
     summary: Removes a tab from the tab group.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb, tizen, blackberry]
     parameters:
       - name: tab
         summary: Tab to remove.

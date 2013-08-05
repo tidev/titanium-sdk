@@ -329,6 +329,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		super.handlePostOpen();
 
 		opened = true;
+		opening = false;
 
 		// First open before we load and focus our first tab.
 		fireEvent(TiC.EVENT_OPEN, null);
