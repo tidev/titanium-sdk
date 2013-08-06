@@ -442,17 +442,36 @@
     return [self getDefaultOrientations];
 }
 
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+#pragma mark - Appearance and rotation callbacks
+
+//Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
+-(void)viewWillAppear:(BOOL)animated
 {
-    NSLog(@"ROOT I WILL ROTATE from %d MY FLAGS ARE %d",toInterfaceOrientation, [self orientationFlags]);
-    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
-- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
-{
-    NSLog(@"I DID ROTATE from %d MY FLAGS ARE %d",fromInterfaceOrientation, [self orientationFlags]);
-    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     
 }
-
+-(void)viewWillDisappear:(BOOL)animated
+{
+    
+}
+-(void)viewDidAppear:(BOOL)animated
+{
+    
+}
+-(void)viewDidDisappear:(BOOL)animated
+{
+    
+}
+-(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    
+}
+-(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    
+}
+-(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+    
+}
 
 @end
