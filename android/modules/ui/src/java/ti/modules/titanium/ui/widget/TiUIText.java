@@ -119,6 +119,8 @@ public class TiUIText extends TiUIView
 		if (field) {
 			tv.setSingleLine();
 			tv.setMaxLines(1);
+		} else {
+			tv.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
 		}
 		tv.addTextChangedListener(this);
 		tv.setOnEditorActionListener(this);
