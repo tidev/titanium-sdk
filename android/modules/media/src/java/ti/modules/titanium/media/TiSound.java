@@ -573,6 +573,7 @@ public class TiSound
 	@Override
 	public void onPrepared(MediaPlayer mp)
 	{
+		mp.setOnPreparedListener(null);
 		setState(STATE_INITIALIZED);
 		initialized = true;
 		setVolume(volume);
