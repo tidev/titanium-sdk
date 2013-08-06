@@ -56,6 +56,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -77,6 +78,7 @@ import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectHandler;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
@@ -101,11 +103,13 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
-import android.os.Build;
 
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
+import android.os.Build;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 
 public class TiHTTPClient
 {
@@ -738,7 +742,54 @@ public class TiHTTPClient
 			}
 		} 
 	}
-	
+
+	/**
+	 * Get the cookies from webview and set it to the httpclient.
+	 */
+	public void setCookieFromWebView()
+	{
+		CookieSyncManager.createInstance(TiApplication.getInstance().getAppRootOrCurrentActivity());
+		CookieManager cookieManager = CookieManager.getInstance();
+		CookieStore cookieStore = client.getCookieStore();
+		String domain = uri.getHost();
+		String cookieString = cookieManager.getCookie(domain);
+		if (cookieString != null) {
+			String[] cookieValues = cookieString.split("; ");
+			for (int i = 0; i < cookieValues.length; i++) {
+				BasicClientCookie cookie;
+				String[] split = cookieValues[i].split("=");
+				String value = split.length == 2 ? split[1] : null;
+				cookie = new BasicClientCookie(split[0], value);
+				cookie.setDomain(domain);
+				cookieStore.addCookie(cookie);
+				if (Log.isDebugModeEnabled()) {
+					Log.d(TAG, "setCookieFromWebView: the cookie is " + cookieValues[i]);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Share the httpclient's cookies with the webview.
+	 */
+	public void syncCookiesWithWebView()
+	{
+		List<Cookie> cookies = new ArrayList<Cookie>(client.getCookieStore().getCookies());
+		if (!cookies.isEmpty()) {
+			CookieSyncManager.createInstance(TiApplication.getInstance().getAppRootOrCurrentActivity());
+			CookieManager cookieManager = CookieManager.getInstance();
+			for (Cookie cookie : cookies) {
+				String domain = cookie.getDomain();
+				String cookieString = cookie.getName() + "=" + cookie.getValue() + "; domain=" + domain;
+				cookieManager.setCookie(domain, cookieString);
+				CookieSyncManager.getInstance().sync();
+				if (Log.isDebugModeEnabled()) {
+					Log.d(TAG, "syncCookiesWithWebView: the cookie is " + cookieString);
+				}
+			}
+		}
+	}
+
 	public void setRequestHeader(String header, String value)
 	{
 		if (readyState <= READY_STATE_OPENED) {
@@ -1191,8 +1242,13 @@ public class TiHTTPClient
 					client.getAuthSchemes().register(scheme, customAuthenticators.get(scheme));
 				}
 
+				boolean shareCookiesWithWebView = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SHARE_COOKIES_WITH_WEBVIEW), false);
+
 				// lazy get client each time in case the validatesSecureCertificate() changes
 				client = getClient(validatesSecureCertificate());
+				if (shareCookiesWithWebView) {
+					setCookieFromWebView();
+				}
 				if (credentials != null) {
 					client.getCredentialsProvider().setCredentials (new AuthScope(uri.getHost(), -1), credentials);
 					credentials = null;
@@ -1280,6 +1336,9 @@ public class TiHTTPClient
 					Log.d(TAG, "Have result back from request len=" + result.length(), Log.DEBUG_MODE);
 				}
 				connected = false;
+				if (shareCookiesWithWebView) {
+					syncCookiesWithWebView();
+				}
 				setResponseText(result);
 				setReadyState(READY_STATE_DONE);
 

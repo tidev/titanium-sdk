@@ -385,6 +385,14 @@ properties:
     type: Titanium.XML.Document
     permission: read-only
 
+  - name: shareCookiesWithWebView
+    summary: Determines whether sharing the cookies between this `HTTPClient` and web views.
+    description:
+       Android does not share cookies between an `HTTPClient` and web views automatically. Setting
+       this property to `true` will allow sharing cookies.
+    type: Boolean
+    default: false
+
   - name: status
     summary: Response HTTP status code.
     type: Number
