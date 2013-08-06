@@ -386,12 +386,14 @@ properties:
     permission: read-only
 
   - name: shareCookiesWithWebView
-    summary: Determines whether sharing the cookies between this `HTTPClient` and web views.
+    summary: Determines whether sharing the cookies between `HTTPClient` and web views.
     description:
-       Android does not share cookies between an `HTTPClient` and web views automatically. Setting
+       Android does not share cookies between `HTTPClient` and web views automatically. Setting
        this property to `true` will allow sharing cookies.
     type: Boolean
     default: false
+    platforms: [android]
+    since: "3.2.0"
 
   - name: status
     summary: Response HTTP status code.
