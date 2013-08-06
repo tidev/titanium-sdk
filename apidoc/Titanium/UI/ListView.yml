@@ -204,6 +204,18 @@ events:
 
 properties:
 
+  - name: allowsSelection
+    summary: Determines whether this item can be selected.
+    description: |
+        Set to `false` to prevent the item from being selected.
+
+        On iOS, even if this property is set to `false`, you can interact with the detail disclosure
+        accessory (`accessoryType` set to <Titanium.UI.LIST_ACCESSORY_TYPE_DETAIL>) and any child
+        templates that are controls, such as a button, slider, etc.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+
   - name: templates
     summary: Contain key-value pairs mapping a style name (key) to an <ItemTemplate> (value).
     description: |
