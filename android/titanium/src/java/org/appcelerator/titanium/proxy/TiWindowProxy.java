@@ -130,13 +130,11 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		if (TiApplication.isUIThread()) {
 			handleOpen(options);
-			opening = false;
 			return;
 		}
 
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_OPEN), options);
 
-		opening = false;
 	}
 
 	@SuppressWarnings("unchecked")
