@@ -746,7 +746,7 @@ public class TiHTTPClient
 	/**
 	 * Get the cookies from webview and set it to the httpclient.
 	 */
-	public void setCookieFromWebView()
+	public void setCookiesFromWebView()
 	{
 		CookieSyncManager.createInstance(TiApplication.getInstance().getAppRootOrCurrentActivity());
 		CookieManager cookieManager = CookieManager.getInstance();
@@ -763,7 +763,7 @@ public class TiHTTPClient
 				cookie.setDomain(domain);
 				cookieStore.addCookie(cookie);
 				if (Log.isDebugModeEnabled()) {
-					Log.d(TAG, "setCookieFromWebView: the cookie is " + cookieValues[i]);
+					Log.d(TAG, "setCookiesFromWebView: the cookie is " + cookieValues[i]);
 				}
 			}
 		}
@@ -1247,7 +1247,7 @@ public class TiHTTPClient
 				// lazy get client each time in case the validatesSecureCertificate() changes
 				client = getClient(validatesSecureCertificate());
 				if (shareCookiesWithWebView) {
-					setCookieFromWebView();
+					setCookiesFromWebView();
 				}
 				if (credentials != null) {
 					client.getCredentialsProvider().setCredentials (new AuthScope(uri.getHost(), -1), credentials);
