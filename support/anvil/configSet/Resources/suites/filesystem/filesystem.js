@@ -124,11 +124,14 @@ module.exports = new function() {
 		valueOf(testRun, function(){f = Ti.Filesystem.getFile('./file.txt');}).shouldNotThrowException();
 		//Resource files are readonly, but only on device, not simulator. As such, we can't test
 		//the use case of where writable should be false.
-		valueOf(testRun, function(){blob = f.read();}).shouldNotThrowException();
+		
+        if(f.exists())     // Check file existance before performing any operations
+        {
+        valueOf(testRun, function(){blob = f.read();}).shouldNotThrowException();
 		var text;
 		valueOf(testRun, function(){text = blob.text;}).shouldNotThrowException();
 		valueOf(testRun, text.length).shouldBeGreaterThan(0);
-
+        }
 		finish(testRun);
 	}
 
