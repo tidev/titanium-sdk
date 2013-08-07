@@ -119,7 +119,7 @@
 
 - (UIViewController *)documentInteractionControllerViewControllerForPreview:(UIDocumentInteractionController *)controller
 {
-	UIViewController *ac = [[TiApp app] controller];
+	UIViewController *ac = [[TiApp app] neueController];
 	return ac;
 }
  

@@ -606,6 +606,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
+    [neueController showControllerModal:modalController animated:animated];
+    
 	/*
 	 *	In iPad (TIMOB 7839) there is a bug in iOS where a text field having
 	 *	focus during a modal presentation can lead to an edge case.
@@ -613,6 +615,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	 *	by the new modal controller. Because of this, there is no valid reason
 	 *	to have a text field with focus.
 	 */
+    /*
 	[controller dismissKeyboard];
 
 	UINavigationController *navController = nil; //[(TiRootViewController *)controller focusedViewController];
@@ -630,10 +633,13 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		[self attachModal:modalController toController:controller animated:animated];
 	}
+     */
 }
 
 -(void)hideModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
+    [neueController hideControllerModal:modalController animated:animated];
+    /*
 	UIViewController *navController = [modalController parentViewController];
 
 	//	As of iOS 5, Apple is phasing out the modal concept in exchange for
@@ -652,6 +658,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		[controller dismissModalViewControllerAnimated:animated];
 	}
+     */
 }
 
 - (NSUInteger)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window

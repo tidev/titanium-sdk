@@ -592,7 +592,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(NSNumber*)keyboardVisible
 {
-    return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
+    return NUMBOOL([[[TiApp app] neueController] keyboardVisible]);
 }
 
 #if defined(USE_TI_APPIOS)

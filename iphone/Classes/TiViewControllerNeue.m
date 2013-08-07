@@ -104,20 +104,56 @@
     }
 }
 
-#pragma mark - TiOrientationController methods
+#pragma mark - Appearance & rotation methods
 
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+-(void)viewWillAppear:(BOOL)animated
 {
-    NSLog(@"I WILL ROTATE from %d MY FLAGS ARE %d",toInterfaceOrientation, _supportedOrientations);
+   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)_proxy viewWillAppear:animated];
+    }
+    [super viewWillAppear:animated];
+}
+-(void)viewWillDisappear:(BOOL)animated
+{
+   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)_proxy viewWillDisappear:animated];
+    }
+    [super viewWillDisappear:animated];
+}
+-(void)viewDidAppear:(BOOL)animated
+{
+   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)_proxy viewDidAppear:animated];
+    }
+    [super viewDidAppear:animated];
+}
+-(void)viewDidDisappear:(BOOL)animated
+{
+   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)_proxy viewDidDisappear:animated];
+    }
+    [super viewDidDisappear:animated];
+}
+-(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)_proxy willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    }
+    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+}
+-(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)_proxy willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    }
     [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
-- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+-(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
-    NSLog(@"I DID ROTATE from %d MY FLAGS ARE %d",fromInterfaceOrientation, _supportedOrientations);
+   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)_proxy didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    }
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    
 }
-
-
 
 @end
