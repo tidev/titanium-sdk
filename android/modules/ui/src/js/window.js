@@ -17,6 +17,7 @@ var TAG = "Window";
 
 exports.bootstrap = function(Titanium) {
 
+	var TiWindow = Titanium.TiWindow;
 	var Window = Titanium.UI.Window;
 	Window.prototype._cachedActivityProxy = null;
 
@@ -77,6 +78,10 @@ exports.bootstrap = function(Titanium) {
 
 	var _add = Window.prototype.add;
 	Window.prototype.add = function(child) {
+		if (child instanceof TiWindow) {
+			throw new Error("Cannot add window/tabGroup to another window/tabGroup.");	    
+		}
+
 		_add.call(this, child);
 
 		// The children have to be retained by the window in the Javascript side
