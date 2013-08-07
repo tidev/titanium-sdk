@@ -239,7 +239,7 @@ properties:
     
   - name: ostype
     summary: Operating System architecture. On Android, this is `32bit`.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, mobileweb, ipad, tizen]
     type: String
     permission: read-only
     
