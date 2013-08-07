@@ -9,6 +9,7 @@
 #import "TiRootControllerNeue.h"
 #import "TiUtils.h"
 #import "TiApp.h"
+#import "TiLayoutQueue.h"
 
 @interface TiRootViewNeue : UIView
 @end
@@ -45,6 +46,7 @@
 	RELEASE_TO_NIL(_bgColor);
 	RELEASE_TO_NIL(_bgImage);
     RELEASE_TO_NIL(_containedWindows);
+    RELEASE_TO_NIL(_modalWindows);
     
 	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
@@ -70,7 +72,7 @@
         _defaultOrientations = TiOrientationNone;
         _allowedOrientations = TiOrientationPortrait;
         _containedWindows = [[NSMutableArray alloc] init];
-        
+        _modalWindows = [[NSMutableArray alloc] init];
         /*
          *	Default image view -- Since this goes away after startup, it's made here and
          *	nowhere else. We don't do this during loadView because it's possible that
@@ -289,6 +291,24 @@
     return result;
 }
 
+-(CGRect)resizeView
+{
+    CGRect rect = [[UIScreen mainScreen] applicationFrame];
+    if ([TiUtils isIOS7OrGreater]) {
+        //TODO. Check for fullscreen params
+    } else {
+        [[self view] setFrame:rect];
+    }
+    return [[self view]bounds];
+}
+
+-(void)repositionSubviews
+{
+    for (id<TiWindowProtocol> thisWindow in [_containedWindows reverseObjectEnumerator]) {
+        [TiLayoutQueue layoutProxy:(TiViewProxy*)thisWindow];
+    }
+}
+
 #pragma mark - TiControllerContainment
 -(BOOL)canHostWindows
 {
@@ -297,38 +317,87 @@
 
 -(void)willOpenWindow:(id<TiWindowProtocol>)theWindow
 {
-    [_containedWindows addObject:theWindow];
+    [[_containedWindows lastObject] resignFocus];
+    if ([theWindow isModal]) {
+        [_modalWindows addObject:theWindow];
+        //If opening a modal window we will rotate before modal window is presented.
+        //[self refreshOrientationWithDuration:0.0];
+    } else {
+        [_containedWindows addObject:theWindow];
+    }
     theWindow.parentOrientationController = self;
 }
 
 -(void)didOpenWindow:(id<TiWindowProtocol>)theWindow
 {
     [self dismissKeyboard];
-    [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
+    if ([self presentedViewController] == nil) {
+        [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
+        [[_containedWindows lastObject] gainFocus];
+    }
+    [self dismissDefaultImage];
 }
 
 -(void)willCloseWindow:(id<TiWindowProtocol>)theWindow
 {
-    [_containedWindows removeObject:theWindow];
+    [theWindow resignFocus];
+    if ([theWindow isModal]) {
+        [_modalWindows removeObject:theWindow];
+    } else {
+        [_containedWindows removeObject:theWindow];
+    }
     theWindow.parentOrientationController = nil;
 }
 
 -(void)didCloseWindow:(id<TiWindowProtocol>)theWindow
 {
     [self dismissKeyboard];
-    [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
+    if ([self presentedViewController] == nil) {
+        [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
+        [[_containedWindows lastObject] gainFocus];
+    }
 }
+
+-(void)showControllerModal:(UIViewController*)theController animated:(BOOL)animated
+{
+    UIViewController* topVC = [self topPresentedController];
+    [topVC presentViewController:theController animated:animated completion:nil];
+}
+
+-(void)hideControllerModal:(UIViewController*)theController animated:(BOOL)animated
+{
+    UIViewController* topVC = [self topPresentedController];
+    if (topVC != theController) {
+        DebugLog(@"[WARN] Dismissing a view controller when it is not the top presented view controller. Will probably crash now.");
+    }
+    UIViewController* presenter = [theController presentingViewController];
+    [presenter dismissViewControllerAnimated:animated completion:nil];
+}
+
 
 #pragma mark - Orientation Control
 -(UIInterfaceOrientation) lastValidOrientation
 {
 	for (int i = 0; i<4; i++) {
-		if ([self shouldAutorotateToInterfaceOrientation:orientationHistory[i]]) {
+		if ([self shouldRotateToInterfaceOrientation:orientationHistory[i]]) {
 			return orientationHistory[i];
 		}
 	}
 	//This line should never happen, but just in case...
 	return UIInterfaceOrientationPortrait;
+}
+
+- (BOOL)shouldRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+{
+    TiOrientationFlags result2 = TiOrientationNone;
+    TI_ORIENTATION_SET(result2, toInterfaceOrientation);
+    BOOL result = TI_ORIENTATION_ALLOWED([self orientationFlags],toInterfaceOrientation) ? YES : NO;
+    if (result == YES) {
+        NSLog(@"ROOT YES I WILL ROTATE %d %d",[self orientationFlags], result2);
+    } else {
+        NSLog(@"ROOT NO I WILL NOT ROTATE %d %d", [self orientationFlags], result2);
+    }
+    return result;
 }
 
 
@@ -341,15 +410,7 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
-    TiOrientationFlags result2 = TiOrientationNone;
-    TI_ORIENTATION_SET(result2, toInterfaceOrientation);
-    BOOL result = TI_ORIENTATION_ALLOWED([self orientationFlags],toInterfaceOrientation) ? YES : NO;
-    if (result == YES) {
-        NSLog(@"ROOT YES I WILL ROTATE %d %d",[self orientationFlags], result2);
-    } else {
-        NSLog(@"ROOT NO I WILL NOT ROTATE %d %d", [self orientationFlags], result2);
-    }
-    return result;
+    return [self shouldRotateToInterfaceOrientation:toInterfaceOrientation];
 }
 //IOS5 support. End Section
 
@@ -404,6 +465,80 @@
     return [self lastValidOrientation];
 }
 
+
+-(void)refreshOrientationWithDuration:(NSTimeInterval)theDuration
+{
+    if (![[TiApp app] windowIsKeyWindow]) {
+        VerboseLog(@"[DEBUG] RETURNING BECAUSE WE ARE NOT KEY WINDOW");
+        return;
+    }
+    
+    UIInterfaceOrientation targetOrientation = [self lastValidOrientation];
+    if ([[UIApplication sharedApplication] statusBarOrientation] != targetOrientation) {
+        [self manuallyRotateToOrientation:targetOrientation duration:theDuration];
+    }
+}
+
+-(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
+{
+    UIApplication * ourApp = [UIApplication sharedApplication];
+    UIInterfaceOrientation oldOrientation = [ourApp statusBarOrientation];
+    CGAffineTransform transform;
+
+    switch (newOrientation) {
+        case UIInterfaceOrientationPortraitUpsideDown:
+            transform = CGAffineTransformMakeRotation(M_PI);
+            break;
+        case UIInterfaceOrientationLandscapeLeft:
+            transform = CGAffineTransformMakeRotation(-M_PI_2);
+            break;
+        case UIInterfaceOrientationLandscapeRight:
+            transform = CGAffineTransformMakeRotation(M_PI_2);
+            break;
+        default:
+            transform = CGAffineTransformIdentity;
+            break;
+    }
+    
+    [self willRotateToInterfaceOrientation:newOrientation duration:duration];
+	
+    // Have to batch all of the animations together, so that it doesn't look funky
+    if (duration > 0.0) {
+        [UIView beginAnimations:@"orientation" context:nil];
+        [UIView setAnimationDuration:duration];
+    }
+    
+    if ((newOrientation != oldOrientation) && isCurrentlyVisible) {
+        TiViewProxy<TiKeyboardFocusableView> *kfvProxy = [keyboardFocusedProxy retain];
+        BOOL focusAfterBlur = [kfvProxy focused];
+        if (focusAfterBlur) {
+            [kfvProxy blur:nil];
+        }
+        forcingStatusBarOrientation = YES;
+        [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
+        forcingStatusBarOrientation = NO;
+        if (focusAfterBlur) {
+            [kfvProxy focus:nil];
+        }
+        [kfvProxy release];
+    }
+
+    UIView * ourView = [self view];
+    [ourView setTransform:transform];
+    [self resizeView];
+
+    [self willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
+
+    //Propigate this to everyone else. This has to be done INSIDE the animation.
+    [self repositionSubviews];
+
+    if (duration > 0.0) {
+        [UIView commitAnimations];
+    }
+
+    [self didRotateFromInterfaceOrientation:oldOrientation];
+}
+
 #pragma mark - TiOrientationController
 -(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
 {
@@ -411,16 +546,7 @@
 	/**
      * Essentially we are going to rotate the status bar here
      */
-    UIInterfaceOrientation targetOrientation = [self lastValidOrientation];
-    if ([[UIApplication sharedApplication] statusBarOrientation] != targetOrientation) {
-        forcingStatusBarOrientation = YES;
-        [[UIApplication sharedApplication] setStatusBarOrientation:targetOrientation animated:NO];
-        forcingStatusBarOrientation = NO;
-        UIViewController *c = [[UIViewController alloc]init];
-        [self presentModalViewController:c animated:NO];
-        [self dismissModalViewControllerAnimated:NO];
-        [c release];
-    }
+    [self refreshOrientationWithDuration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
 }
 
 -(void)setParentOrientationController:(id <TiOrientationController>)newParent
@@ -436,8 +562,28 @@
 
 -(TiOrientationFlags) orientationFlags
 {
-    if ([_containedWindows count] > 0) {
-        return [[_containedWindows lastObject] orientationFlags];
+    TiOrientationFlags result = TiOrientationNone;
+    
+    for (id<TiWindowProtocol> thisWindow in [_containedWindows reverseObjectEnumerator])
+    {
+         if ([thisWindow closing] == NO) {
+             result = [thisWindow orientationFlags];
+             if (result != TiOrientationNone)
+             {
+                 return result;
+             }
+         }
+    }
+    
+    for (id<TiWindowProtocol> thisWindow in [_containedWindows reverseObjectEnumerator])
+    {
+        if ([thisWindow closing] == NO) {
+            result = [thisWindow orientationFlags];
+            if (result != TiOrientationNone)
+            {
+                return result;
+            }
+        }
     }
     return [self getDefaultOrientations];
 }
@@ -447,31 +593,60 @@
 //Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 -(void)viewWillAppear:(BOOL)animated
 {
-    
+    TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
+    for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+        [thisWindow viewWillAppear:animated];
+    }
+    [super viewWillAppear:animated];
 }
 -(void)viewWillDisappear:(BOOL)animated
 {
-    
+    for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+        [thisWindow viewWillDisappear:animated];
+    }
+    [[_containedWindows lastObject] resignFocus];
+    [super viewWillDisappear:animated];
 }
 -(void)viewDidAppear:(BOOL)animated
 {
-    
+    isCurrentlyVisible = YES;
+    if ([_containedWindows count] > 0) {
+        [self refreshOrientationWithDuration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+    }
+    for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+        [thisWindow viewDidAppear:animated];
+    }
+    [[_containedWindows lastObject] gainFocus];
+    [super viewDidAppear:animated];
 }
 -(void)viewDidDisappear:(BOOL)animated
 {
-    
+    isCurrentlyVisible = NO;
+    for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+        [thisWindow viewDidDisappear:animated];
+    }
+    [super viewDidDisappear:animated];
 }
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-    
+    for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+        [thisWindow willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    }
+    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 -(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-    
+    for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+        [thisWindow willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    }
+    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 -(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
-    
+    for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+        [thisWindow didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    }
+    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
 
 @end

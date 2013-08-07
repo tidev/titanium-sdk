@@ -26,9 +26,12 @@
 //Minimal required for light weight window support.
 -(void)open:(id)args;
 -(void)close:(id)args;
-//Return NO to abort open/close operations. Only for light weight windows. Not for windows with ViewControllers
+//Return NO to abort open/close operations.
 -(BOOL)_handleOpen:(id)args;
 -(BOOL)_handleClose:(id)args;
+-(BOOL)opening;
+-(BOOL)closing;
+-(BOOL)isModal;
 //Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 -(void)viewWillAppear:(BOOL)animated;
 -(void)viewWillDisappear:(BOOL)animated;
@@ -37,6 +40,12 @@
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 -(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 -(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
+//Focus callbacks from containing or hosting controller
+-(void)gainFocus;
+-(void)resignFocus;
+-(BOOL)handleFocusEvents;
+//ViewController support
+-(UIViewController*) initController;
 @end
 
 /**
@@ -45,11 +54,13 @@
 @protocol TiControllerContainment <NSObject>
 @required
 -(BOOL)canHostWindows;
+//Called by light weight windows from their windowWillOpen, windowWillClose, windowDidOpen, windowDidClose methods
 -(void)willOpenWindow:(id<TiWindowProtocol>)theWindow;
 -(void)willCloseWindow:(id<TiWindowProtocol>)theWindow;
 -(void)didOpenWindow:(id<TiWindowProtocol>)theWindow;
 -(void)didCloseWindow:(id<TiWindowProtocol>)theWindow;
-
+-(void)showControllerModal:(UIViewController*)theController animated:(BOOL)animated;
+-(void)hideControllerModal:(UIViewController*)theController animated:(BOOL)animated;
 @end
 
 @protocol TiRootControllerProtocol <NSObject>
@@ -76,4 +87,9 @@
 -(TiOrientationFlags)getDefaultOrientations;
 -(UIViewController*)topPresentedController;
 -(UIViewController<TiControllerContainment>*)topContainerController;
+
+//Titanium Support
+-(CGRect)resizeView;
+-(void)repositionSubviews;
+
 @end

@@ -34,9 +34,11 @@
     //Orientation Stuff
     UIInterfaceOrientation orientationHistory[4];
     BOOL forcingStatusBarOrientation;
+    BOOL isCurrentlyVisible;
     TiOrientationFlags _defaultOrientations;
     TiOrientationFlags _allowedOrientations;
     NSMutableArray* _containedWindows;
+    NSMutableArray* _modalWindows;
     
 }
 

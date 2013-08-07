@@ -7,9 +7,10 @@
 //
 
 #import "TiViewProxy.h"
+#import "TiTab.h"
 #import "TiViewControllerNeue.h"
 
-@interface TiWindowProxyNeue : TiViewProxy<TiWindowProtocol> {
+@interface TiWindowProxyNeue : TiViewProxy<TiWindowProtocol, TiAnimationDelegate> {
 @protected
     TiViewControllerNeue* controller;
     id<TiOrientationController> parentController;
@@ -17,6 +18,14 @@
     BOOL opening;
     BOOL opened;
     BOOL closing;
+    BOOL focussed;
+    BOOL isModal;
+    TiViewProxy<TiTab> *tab;
+    TiAnimation * openAnimation;
+    TiAnimation * closeAnimation;
+    UIView* animatedOver;
 }
+
+@property (nonatomic, readwrite, assign) TiViewProxy<TiTab> *tab;
 
 @end

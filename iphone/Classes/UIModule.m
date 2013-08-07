@@ -213,13 +213,13 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_CALENDAR,UIDataDetectorTypeCalen
 
 -(void)setBackgroundColor:(id)color
 {
-	TiRootViewController *controller = [[TiApp app] controller];
+	TiRootControllerNeue *controller = [[TiApp app] neueController];
 	[controller setBackgroundColor:[Webcolor webColorNamed:color]];
 }
 
 -(void)setBackgroundImage:(id)image
 {
-	TiRootViewController *controller = [[TiApp app] controller];
+	TiRootControllerNeue *controller = [[TiApp app] neueController];
 	UIImage *resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:image proxy:self]];
 	if (resultImage==nil && [image isEqualToString:@"Default.png"])
 	{

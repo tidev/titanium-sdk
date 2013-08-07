@@ -179,7 +179,7 @@
         [super windowDidOpen];
     }
 }
-/*
+
 -(BOOL)_handleOpen:(id)args
 {
 	// this is a special case that calls open again above to cause the event lifecycle to
@@ -211,7 +211,7 @@
 				[self _setBaseURL:url];
 				contextReady=NO;
 				context = [[KrollBridge alloc] initWithHost:[self _host]];
-				NSDictionary *values = [NSDictionary dictionaryWithObjectsAndKeys:self,@"currentWindow",[self.tab tabGroup],@"currentTabGroup",self.tab,@"currentTab",nil];
+				NSDictionary *values = [NSDictionary dictionaryWithObjectsAndKeys:self,@"currentWindow",[tab tabGroup],@"currentTabGroup",tab,@"currentTab",nil];
 				NSDictionary *preload = [NSDictionary dictionaryWithObjectsAndKeys:values,@"UI",nil];
 				latch = [[TiUIWindowProxyLatch alloc] initWithTiWindow:self args:args];
 				[context boot:latch url:url preload:preload];
@@ -234,7 +234,7 @@
 	
 	return YES;
 }
-*/
+
 -(void)windowDidClose
 {
     // Because other windows or proxies we have open and wish to continue functioning might be relying
@@ -264,19 +264,19 @@
 
 -(BOOL)_handleClose:(id)args
 {
-    /*
+    
 	if (tab!=nil)
 	{
 		BOOL animate = args!=nil && [args count]>0 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
 		[tab windowClosing:self animated:animate];
 	}
-	else if(focused)
+	else if(focussed)
 	{
 		// if we don't have a tab, we need to fire blur
 		// events ourselves
-		[self fireFocus:NO];
+		//[self fireFocus:NO];
 	}
-     */
+    
 	// on close, reset our old base URL so that any subsequent
 	// re-opens will be correct
 	if (oldBaseURL!=nil)

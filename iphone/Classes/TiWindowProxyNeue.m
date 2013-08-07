@@ -18,6 +18,7 @@
 
 @implementation TiWindowProxyNeue
 
+@synthesize tab = tab;
 -(void) dealloc {
     [super dealloc];
 }
@@ -53,6 +54,8 @@
     opening = NO;
     opened = YES;
     [super windowDidOpen];
+    [self forgetProxy:openAnimation];
+    RELEASE_TO_NIL(openAnimation);
     [[[[TiApp app] neueController] topContainerController] didOpenWindow:self];
 }
 
@@ -66,6 +69,9 @@
 {
     opened = NO;
     closing = NO;
+    [self forgetProxy:closeAnimation];
+    RELEASE_TO_NIL(closeAnimation);
+    tab = nil;
     [[[[TiApp app] neueController] topContainerController] didCloseWindow:self];
     [super windowDidClose];
 }
@@ -88,11 +94,6 @@
         return [TiUtils boolValue:key properties:[args objectAtIndex:0] def:NO];
     }
     return NO;
-}
-
--(BOOL)isModal:(id)args
-{
-    return [self argOrWindowProperty:@"modal" args:args];
 }
 
 -(BOOL)isFullscreen:(id)args
@@ -136,11 +137,19 @@
     }
     
     opening = YES;
+    
+    isModal = [self argOrWindowProperty:@"modal" args:args];
+    
+    if (!isModal) {
+        openAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
+        [self rememberProxy:openAnimation];
+    }
     //Lets keep ourselves safe
     [self rememberSelf];
     
     //TODO Argument Processing
-    
+    id object = [self valueForUndefinedKey:@"orientationModes"];
+    _supportedOrientations = [TiUtils TiOrientationFlagsFromObject:object];
     
     //GO ahead and call open on the UI thread
     TiThreadPerformOnMainThread(^{
@@ -168,7 +177,9 @@
     }
     closing = YES;
     //TODO Argument Processing
-    
+    closeAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
+    [self rememberProxy:closeAnimation];
+
     //GO ahead and call close on UI thread
     TiThreadPerformOnMainThread(^{
         [self closeOnUIThread:args];
@@ -179,43 +190,156 @@
 -(BOOL)_handleOpen:(id)args
 {
     TiRootControllerNeue* theController = [[TiApp app] neueController];
-    if ([theController topPresentedController] != [theController topContainerController]) {
-        DebugLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller.")
+    if (isModal || (tab != nil)) {
+        [self forgetProxy:openAnimation];
+        RELEASE_TO_NIL(openAnimation);
     }
     
-    id object = [self valueForUndefinedKey:@"orientationModes"];
-    _supportedOrientations = [TiUtils TiOrientationFlagsFromObject:object];
-
+    if ( (tab == nil) && (isModal == NO) && ([theController topPresentedController] != [theController topContainerController]) ){
+        DebugLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller.")
+        [self forgetProxy:openAnimation];
+        RELEASE_TO_NIL(openAnimation);
+    }
+    
     return YES;
 }
 
 -(BOOL)_handleClose:(id)args
 {
+    TiRootControllerNeue* theController = [[TiApp app] neueController];
+    if (isModal || (tab != nil)) {
+        [self forgetProxy:closeAnimation];
+        RELEASE_TO_NIL(closeAnimation);
+    }
+    if ( (tab == nil) && (isModal == NO) && ([theController topPresentedController] != [theController topContainerController]) ){
+        DebugLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller.")
+        [self forgetProxy:closeAnimation];
+        RELEASE_TO_NIL(closeAnimation);
+    }
     return YES;
 }
 
+-(BOOL)opening
+{
+    return opening;
+}
+
+-(BOOL)closing
+{
+    return closing;
+}
+
+-(BOOL)isModal
+{
+    return isModal;
+}
+
+-(BOOL)handleFocusEvents
+{
+	return YES;
+}
+
+-(void)gainFocus
+{
+    if (focussed == NO) {
+        focussed = YES;
+        if ([self handleFocusEvents]) {
+            if ([self _hasListeners:@"focus"]) {
+                [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+            }
+        }
+    }
+}
+
+-(void)resignFocus
+{
+    if (focussed == YES) {
+        focussed = NO;
+        if ([self handleFocusEvents]) {
+            if ([self _hasListeners:@"blur"]) {
+                [self fireEvent:@"blur" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+            }
+        }
+    }
+}
+
+-(UIViewController*)initController;
+{
+    if (controller == nil) {
+        controller = [[[TiViewControllerNeue alloc] initWithViewProxy:self] retain];
+    }
+    return controller;
+}
 
 #pragma mark - Private Methods
 -(void)openOnUIThread:(NSArray*)args
 {
     if ([self _handleOpen:args]) {
         [self view];
-        [self windowWillOpen];
-        [self attachViewToTopContainerController];
-        [self windowDidOpen];
+        if (isModal) {
+            UIViewController* theController = [self initController];
+            [self windowWillOpen];
+            NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
+            int style = [TiUtils intValue:@"modalTransitionStyle" properties:dict def:-1];
+            if (style == -1) {
+                [theController setModalTransitionStyle:style];
+            }
+            style = [TiUtils intValue:@"modalStyle" properties:dict def:-1];
+            if (style != -1) {
+				// modal transition style page curl must be done only in fullscreen
+				// so only allow if not page curl
+				if ([theController modalTransitionStyle]!=UIModalTransitionStylePartialCurl)
+				{
+					[theController setModalPresentationStyle:style];
+				}
+            }
+            BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
+            [[TiApp app] showModalController:theController animated:animated];
+            [self windowDidOpen];
+        } else {
+            [self windowWillOpen];
+            if ((openAnimation == nil) || (![openAnimation isTransitionAnimation])){
+                [self attachViewToTopContainerController];
+            }
+            if (openAnimation != nil) {
+                [openAnimation setDelegate:self];
+                [openAnimation animate:self];
+            } else {
+                [self windowDidOpen];
+            }
+        }
     } else {
         DebugLog(@"[WARN] OPEN ABORTED. _handleOpen returned NO");
+        opening = NO;
+        opened = NO;
+        [self forgetProxy:openAnimation];
+        RELEASE_TO_NIL(openAnimation);
     }
 }
 
 -(void)closeOnUIThread:(NSArray *)args
 {
     if ([self _handleClose:args]) {
-        [self windowWillClose];
-        [self windowDidClose];
+        if (isModal) {
+            [self windowWillClose];
+            NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
+            BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
+            [[TiApp app] hideModalController:controller animated:animated];
+            [self windowDidClose];
+        } else {
+            [self windowWillClose];
+            if (closeAnimation != nil) {
+                [closeAnimation setDelegate:self];
+                [closeAnimation animate:self];
+            } else {
+                [self windowDidClose];
+            }
+        }
         
     } else {
         DebugLog(@"[WARN] CLOSE ABORTED. _handleClose returned NO");
+        closing = NO;
+        RELEASE_TO_NIL(closeAnimation);
     }
 }
 
@@ -248,11 +372,15 @@
 }
 -(void)viewWillDisappear:(BOOL)animated
 {
-    
+    if (controller != nil) {
+        [self resignFocus];
+    }
 }
 -(void)viewDidAppear:(BOOL)animated
 {
-    
+    if (controller != nil) {
+        [self gainFocus];
+    }
 }
 -(void)viewDidDisappear:(BOOL)animated
 {
@@ -271,5 +399,72 @@
     
 }
 
+
+#pragma mark - TiAnimation Delegate Methods
+-(BOOL)animationShouldTransition:(TiAnimation *)sender
+{
+    BOOL isOpenAnimation = NO;
+    UIView* hostingView = nil;
+    if (sender == openAnimation) {
+        hostingView = [[[[TiApp app] neueController] topContainerController] view];
+        isOpenAnimation = YES;
+    } else {
+        hostingView = [[self view] superview];
+    }
+    
+    void (^animation)(void) = ^{
+        if (isOpenAnimation) {
+            RELEASE_TO_NIL(animatedOver);
+            NSArray* subviews = [hostingView subviews];
+            if ([subviews count] > 0) {
+                animatedOver = [[subviews lastObject] retain];
+            }
+            if (animatedOver != nil) {
+                [animatedOver removeFromSuperview];
+            }
+            [hostingView addSubview:[self view]];
+        }
+        else
+        {
+            [[self view] removeFromSuperview];
+        }
+    };
+
+    [UIView transitionWithView:hostingView
+                      duration:[(TiAnimation*)sender animationDuration]
+                       options:[[(TiAnimation*)sender transition] intValue]
+                    animations:animation
+                    completion:^(BOOL finished) {
+                        [sender animationCompleted:[NSString stringWithFormat:@"%@",hostingView]
+                                          finished:[NSNumber numberWithBool:finished]
+                                           context:sender];
+                    }
+     ];
+
+    return NO;
+}
+
+-(void)animationDidComplete:(TiAnimation *)sender
+{
+    if (sender == openAnimation) {
+        if (animatedOver != nil) {
+            if ([animatedOver isKindOfClass:[TiUIView class]]) {
+                TiViewProxy* theProxy = (TiViewProxy*)[(TiUIView*)animatedOver proxy];
+                if ([theProxy viewAttached]) {
+                    [[[self view] superview] insertSubview:animatedOver belowSubview:[self view]];
+                    LayoutConstraint* layoutProps = [theProxy layoutProperties];
+                    ApplyConstraintToViewWithBounds(layoutProps, (TiUIView*)animatedOver, [[animatedOver superview] bounds]);
+                    [theProxy layoutChildren:NO];
+                    RELEASE_TO_NIL(animatedOver);
+                }
+            } else {
+                [[[self view] superview] insertSubview:animatedOver belowSubview:[self view]];
+            }
+        }
+        [self windowDidOpen];
+    } else {
+        [self windowDidClose];
+    }
+}
 
 @end
