@@ -236,7 +236,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public void windowCreated(TiBaseActivity activity) {
 		windowActivity = new WeakReference<TiBaseActivity>(activity);
-		// Don't set layout proxy because the layout created in TiBaseActivity is not the window layout. (TIMOB-10136)
 		activity.setWindowProxy(this);
 		setActivity(activity);
 

@@ -56,7 +56,8 @@ public abstract class TiJSActivity extends TiLaunchActivity
 		TiActivityWindowProxy window = new TiActivityWindowProxy();
 		window.setActivity(this);
 		TiBindingHelper.bindCurrentWindow(window);
-		setWindowAndLayoutProxy(window);
+		setWindowProxy(window);
+		setLayoutProxy(window);
 	}
 
 	@Override
