@@ -219,13 +219,23 @@ public abstract class TiBaseActivity extends FragmentActivity
 	}
 
 	/**
+	 * Sets the window proxy and layout proxy.
+	 * @param proxy
+	 */
+	public void setWindowAndLayoutProxy(TiWindowProxy proxy)
+	{
+		this.window = proxy;
+		setLayoutProxy(proxy);
+		updateTitle();
+	}
+
+	/**
 	 * Sets the window proxy.
 	 * @param proxy
 	 */
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
 		this.window = proxy;
-		setLayoutProxy(proxy);
 		updateTitle();
 	}
 
