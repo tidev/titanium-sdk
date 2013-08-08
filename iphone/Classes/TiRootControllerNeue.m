@@ -324,16 +324,20 @@
         //[self refreshOrientationWithDuration:0.0];
     } else {
         [_containedWindows addObject:theWindow];
+        if (isCurrentlyVisible) {
+            [theWindow viewWillAppear:YES];
+        }
+        theWindow.parentOrientationController = self;
     }
-    theWindow.parentOrientationController = self;
 }
 
 -(void)didOpenWindow:(id<TiWindowProtocol>)theWindow
 {
     [self dismissKeyboard];
-    if ([self presentedViewController] == nil) {
+    if (isCurrentlyVisible) {
         [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
         [[_containedWindows lastObject] gainFocus];
+        [theWindow viewDidAppear:YES];
     }
     [self dismissDefaultImage];
 }
@@ -345,14 +349,14 @@
         [_modalWindows removeObject:theWindow];
     } else {
         [_containedWindows removeObject:theWindow];
+        theWindow.parentOrientationController = nil;
     }
-    theWindow.parentOrientationController = nil;
 }
 
 -(void)didCloseWindow:(id<TiWindowProtocol>)theWindow
 {
     [self dismissKeyboard];
-    if ([self presentedViewController] == nil) {
+    if (isCurrentlyVisible) {
         [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
         [[_containedWindows lastObject] gainFocus];
     }

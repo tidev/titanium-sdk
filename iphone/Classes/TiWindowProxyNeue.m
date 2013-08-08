@@ -153,7 +153,7 @@
     
     isModal = [self argOrWindowProperty:@"modal" args:args];
     
-    if (!isModal) {
+    if (!isModal && (tab==nil)) {
         openAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
         [self rememberProxy:openAnimation];
     }
@@ -188,7 +188,14 @@
         DebugLog(@"Window is already closing. Ignoring this close call.");
         return;
     }
+    
     closing = YES;
+
+    if (tab != nil) {
+        [tab close:[NSArray arrayWithObjects:self,args, nil]];
+        return;
+    }
+    
     //TODO Argument Processing
     closeAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
     [self rememberProxy:closeAnimation];
@@ -290,6 +297,10 @@
     if ([self _handleOpen:args]) {
         [self parentWillShow];
         [self view];
+        if (tab != nil) {
+            [self windowWillOpen];
+            [self windowDidOpen];
+        }
         if (isModal) {
             UIViewController* theController = [self initController];
             [self windowWillOpen];

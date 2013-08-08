@@ -16,5 +16,6 @@
 }
 
 -(id)initWithViewProxy:(TiViewProxy*)window;
+-(TiViewProxy*) proxy;
 
 @end
