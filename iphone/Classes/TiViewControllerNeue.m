@@ -78,6 +78,7 @@
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
 {
+    //THIS HAS TO BE FIXED
     return [[[TiApp app] neueController] preferredInterfaceOrientationForPresentation];
 }
 
@@ -87,7 +88,9 @@
         return;
     }
     [self updateOrientations];
-    BOOL wrap = ( ([TiUtils isIOS7OrGreater]) && ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) );
+    //Always wrap proxy view with a wrapperView.
+    //This way proxy always has correct sandbox when laying out
+    BOOL wrap = YES;
     
     if (wrap) {
         //IOS7 now automatically sets the frame of its view based on the fullscreen control props.
