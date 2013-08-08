@@ -39,16 +39,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	TiThreadPerformOnMainThread(^{
 		UIApplication * app = [UIApplication sharedApplication];
 		TiApp * appDelegate = [TiApp app];
-		TiRootViewController * viewController = [TiApp controller];
-
-		/* Force window proxy closure, and wipe away the view update queue */
-		NSArray * proxyArray = [[viewController valueForKey:@"windowProxies"] copy];
-		NSArray * closeArgs = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"]];
-		for (TiWindowProxy * thisWindowProxy in proxyArray) {
-			[thisWindowProxy close:closeArgs];
-		}
+        [[[TiApp app] controller] shutdownUi];
 		[TiLayoutQueue resetQueue];
-		[proxyArray release];
 		
 		/* Begin backgrounding simulation */
 		[appDelegate applicationWillResignActive:app];
@@ -592,7 +584,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(NSNumber*)keyboardVisible
 {
-    return NUMBOOL([[[TiApp app] neueController] keyboardVisible]);
+    return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
 }
 
 #if defined(USE_TI_APPIOS)

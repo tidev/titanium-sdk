@@ -82,7 +82,7 @@
  @param window The view proxy associated with the view controller.
  @return A new view controller.
  */
--(id)initWithViewProxy:(TiViewProxy<TiUIViewController>*)window;
+-(id)initWithViewProxy:(TiViewProxy<TiUIViewControllerLegacy>*)window;
 
 /**
  Provides access to view proxy associated with the view controller.

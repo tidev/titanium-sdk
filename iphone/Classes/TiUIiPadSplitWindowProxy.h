@@ -8,9 +8,9 @@
 
 #ifdef USE_TI_UIIPADSPLITWINDOW
 
-#import "TiWindowProxy.h"
+#import "TiWindowProxyLegacy.h"
 
-@interface TiUIiPadSplitWindowProxy : TiWindowProxy {
+@interface TiUIiPadSplitWindowProxy : TiWindowProxyLegacy {
 
 @private
 	id<NSObject,TiOrientationController> detailView;

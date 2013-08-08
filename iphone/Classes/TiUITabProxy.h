@@ -8,7 +8,7 @@
 
 #import "TiViewProxy.h"
 #import "TiTab.h"
-#import "TiWindowProxyNeue.h"
+#import "TiWindowProxy.h"
 
 @class TiUITabGroupProxy;
 @class TiUITabController;
@@ -16,8 +16,8 @@
 @interface TiUITabProxy : TiViewProxy<TiTab,UINavigationControllerDelegate,TiOrientationController> {
 @private
 	UINavigationController *controller;
-	TiWindowProxyNeue *rootWindow;
-    TiWindowProxyNeue *current;
+	TiWindowProxy *rootWindow;
+    TiWindowProxy *current;
 	//This is an assign only property. TabGroup retains instances of tab.
 	TiUITabGroupProxy *tabGroup;
     
@@ -33,7 +33,7 @@
 
 -(void)setTabGroup:(TiUITabGroupProxy*)proxy;
 -(void)removeFromTabGroup;
--(void)closeWindow:(TiWindowProxyNeue *)window animated:(BOOL)animated;
+-(void)closeWindow:(TiWindowProxy *)window animated:(BOOL)animated;
 
 #pragma mark Public APIs
 

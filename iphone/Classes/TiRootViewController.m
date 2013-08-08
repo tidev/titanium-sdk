@@ -1,12 +1,12 @@
 //
-//  TiRootControllerNeue.m
+//  TiRootViewController.m
 //  Titanium
 //
 //  Created by Vishal Duggal on 7/30/13.
 //
 //
 
-#import "TiRootControllerNeue.h"
+#import "TiRootViewController.h"
 #import "TiUtils.h"
 #import "TiApp.h"
 #import "TiLayoutQueue.h"
@@ -31,7 +31,7 @@
 
 @end
 
-@interface TiRootControllerNeue (notifications_internal)
+@interface TiRootViewController (notifications_internal)
 -(void)didOrientNotify:(NSNotification *)notification;
 -(void)keyboardWillHide:(NSNotification*)notification;
 -(void)keyboardWillShow:(NSNotification*)notification;
@@ -39,7 +39,7 @@
 -(void)keyboardDidShow:(NSNotification*)notification;
 @end
 
-@implementation TiRootControllerNeue
+@implementation TiRootViewController
 
 -(void)dealloc
 {
@@ -308,6 +308,13 @@
         [TiLayoutQueue layoutProxy:(TiViewProxy*)thisWindow];
     }
 }
+
+#if defined(DEBUG) || defined(DEVELOPER)
+-(void)shutdownUi
+{
+    
+}
+#endif
 
 #pragma mark - TiControllerContainment
 -(BOOL)canHostWindows

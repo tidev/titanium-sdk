@@ -87,7 +87,7 @@
 	[super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 	if ([proxy respondsToSelector:@selector(willRotateToInterfaceOrientation:duration:)])
 	{
-		[(TiViewController*)proxy willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+		[(id)proxy willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 	}
 	[[proxy childViewController] willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
@@ -97,7 +97,7 @@
 	[super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 	if ([proxy respondsToSelector:@selector(didRotateFromInterfaceOrientation:)])
 	{
-		[(TiViewController*)proxy didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+		[(id)proxy didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 	}
 	[[proxy childViewController] didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }

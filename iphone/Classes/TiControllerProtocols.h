@@ -67,7 +67,7 @@
 /**
  The protocol for root controller.
  It is not intended to be implemented by clients.
- @see TiRootControllerNeue
+ @see TiRootViewController
  */
 
 @required
@@ -91,5 +91,8 @@
 //Titanium Support
 -(CGRect)resizeView;
 -(void)repositionSubviews;
+#if defined(DEBUG) || defined(DEVELOPER)
+-(void)shutdownUi;
+#endif
 
 @end

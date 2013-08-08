@@ -1,5 +1,5 @@
 //
-//  TiRootControllerNeue.h
+//  TiRootViewController.h
 //  Titanium
 //
 //  Created by Vishal Duggal on 7/30/13.
@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "TiControllerProtocols.h"
 
-@interface TiRootControllerNeue : UIViewController<TiRootControllerProtocol, TiControllerContainment, TiOrientationController> {
+@interface TiRootViewController : UIViewController<TiRootControllerProtocol, TiControllerContainment, TiOrientationController> {
     //Default background properties
     UIColor* _bgColor;
     UIImage* _bgImage;
