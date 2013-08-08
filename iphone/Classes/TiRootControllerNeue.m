@@ -564,7 +564,7 @@
 {
     TiOrientationFlags result = TiOrientationNone;
     
-    for (id<TiWindowProtocol> thisWindow in [_containedWindows reverseObjectEnumerator])
+    for (id<TiWindowProtocol> thisWindow in [_modalWindows reverseObjectEnumerator])
     {
          if ([thisWindow closing] == NO) {
              result = [thisWindow orientationFlags];

@@ -45,23 +45,31 @@
 -(void)windowWillOpen
 {
     [super windowWillOpen];
-    [self parentWillShow];
-    [[[[TiApp app] neueController] topContainerController] willOpenWindow:self];
+    if (tab == nil) {
+        [[[[TiApp app] neueController] topContainerController] willOpenWindow:self];
+    }
 }
 
 -(void)windowDidOpen
 {
     opening = NO;
     opened = YES;
+    if ([self _hasListeners:@"open"]) {
+        [self fireEvent:@"open" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
     [super windowDidOpen];
     [self forgetProxy:openAnimation];
     RELEASE_TO_NIL(openAnimation);
-    [[[[TiApp app] neueController] topContainerController] didOpenWindow:self];
+    if (tab == nil) {
+        [[[[TiApp app] neueController] topContainerController] didOpenWindow:self];
+    }
 }
 
 -(void) windowWillClose
 {
-    [[[[TiApp app] neueController] topContainerController] willCloseWindow:self];
+    if (tab == nil) {
+        [[[[TiApp app] neueController] topContainerController] willCloseWindow:self];
+    }
     [super windowWillClose];
 }
 
@@ -69,10 +77,15 @@
 {
     opened = NO;
     closing = NO;
+    if ([self _hasListeners:@"close"]) {
+        [self fireEvent:@"close" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
     [self forgetProxy:closeAnimation];
     RELEASE_TO_NIL(closeAnimation);
     tab = nil;
-    [[[[TiApp app] neueController] topContainerController] didCloseWindow:self];
+    if (tab == nil) {
+        [[[[TiApp app] neueController] topContainerController] didCloseWindow:self];
+    }
     [super windowDidClose];
 }
 
@@ -275,6 +288,7 @@
 -(void)openOnUIThread:(NSArray*)args
 {
     if ([self _handleOpen:args]) {
+        [self parentWillShow];
         [self view];
         if (isModal) {
             UIViewController* theController = [self initController];
