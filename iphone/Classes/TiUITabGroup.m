@@ -170,81 +170,89 @@ DEFINE_EXCEPTIONS
 
 -(void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated	
 {
-	NSArray * moreViewControllerStack = [navigationController viewControllers];
-	int stackHeight = [moreViewControllerStack count];
-	if (stackHeight > 1)
-	{
-		UIViewController * rootController = [moreViewControllerStack objectAtIndex:1];
-		if ([rootController respondsToSelector:@selector(tab)])
-		{
-			[(TiUITabProxy *)[(id)rootController tab] handleWillShowViewController:viewController animated:animated];
-		}
-	}
-	else
-	{
-		[self handleWillShowTab:nil];
-		[self updateMoreBar:navigationController];
-		if (allowConfiguration) {
-			[self setEditButton:navigationController];
-		}
-		// However, under iOS4, we have to manage the appearance/disappearance of the edit button ourselves.
-		else {
-			[self removeEditButton:navigationController];
-		}
-	}
+    NSArray * moreViewControllerStack = [navigationController viewControllers];
+    int stackHeight = [moreViewControllerStack count];
+    if (stackHeight > 1) {
+        UIViewController * rootController = [moreViewControllerStack objectAtIndex:1];
+        if ([rootController respondsToSelector:@selector(proxy)]) {
+            id theProxy = [(id)rootController proxy];
+            if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)] ) {
+                TiUITabProxy * tabProxy = (TiUITabProxy *)[(id)theProxy tab];
+                [tabProxy handleWillShowViewController:viewController animated:animated];
+            } else {
+                DebugLog(@"[ERROR] The view controller is not hosting a window proxy. Can not find tab.");
+            }
+        } else {
+            DebugLog(@"[ERROR] The view controller does not respond to selector proxy. Can not find window");
+        }
+    } else {
+        [self handleWillShowTab:nil];
+        [self updateMoreBar:navigationController];
+        if (allowConfiguration) {
+            [self setEditButton:navigationController];
+        }
+        // However, under iOS4, we have to manage the appearance/disappearance of the edit button ourselves.
+        else {
+            [self removeEditButton:navigationController];
+        }
+    }
 }
 
 
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-	NSArray * moreViewControllerStack = [navigationController viewControllers];
-	int stackHeight = [moreViewControllerStack count];
-	if (stackHeight < 2) //No more faux roots.
-	{
-		if (focused != nil)
-		{
-			[self handleDidShowTab:nil];
-		}
-		return;
-	}
+    NSArray * moreViewControllerStack = [navigationController viewControllers];
+    int stackHeight = [moreViewControllerStack count];
+    if (stackHeight < 2) { //No more faux roots.
+        if (focused != nil) {
+            [self handleDidShowTab:nil];
+        }
+        return;
+    }
 
-	UIViewController * rootController = [moreViewControllerStack objectAtIndex:1];
-	if (![rootController respondsToSelector:@selector(tab)])
-	{
-		return;
-	}
-	
-	TiUITabProxy * tabProxy = (TiUITabProxy *)[(id)rootController tab];
-	if (stackHeight == 2)	//One for the picker, one for the faux root.
-	{
-		if (tabProxy != focused)
-		{
-			[self handleDidShowTab:tabProxy];
-		}
-	}
+    UIViewController * rootController = [moreViewControllerStack objectAtIndex:1];
+    TiUITabProxy * tabProxy = nil;
+    if ([rootController respondsToSelector:@selector(proxy)]) {
+        id theProxy = [(id)rootController proxy];
+        if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)] ) {
+            tabProxy = (TiUITabProxy *)[(id)theProxy tab];
+        } else {
+            DebugLog(@"[ERROR] The view controller is not hosting a window proxy. Can not find tab.");
+            return;
+        }
+    } else {
+        DebugLog(@"[ERROR] The view controller does not respond to selector proxy. Can not find window");
+        return;
+    }
 
-	[tabProxy handleDidShowViewController:viewController animated:animated];
+    if (stackHeight == 2) {	//One for the picker, one for the faux root.
+        if (tabProxy != focused) {
+            [self handleDidShowTab:tabProxy];
+        }
+    }
+
+    [tabProxy handleDidShowViewController:viewController animated:animated];
 }
 
 #pragma mark TabBarController Delegates
 
 - (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController
 {
-	TiUITabProxy * target=nil;
-	if ([tabBarController moreNavigationController] == viewController)
-	{
-		if (self != [(UINavigationController *)viewController delegate])
-		{
-			[(UINavigationController *)viewController setDelegate:self];
-		}
-		NSArray * moreViewControllerStack = [(UINavigationController *)viewController viewControllers];
-		if ([moreViewControllerStack count]>1)
-		{
-			viewController = [moreViewControllerStack objectAtIndex:1];
-			if ([viewController respondsToSelector:@selector(tab)])
-			{
-				target = (TiUITabProxy *)[(id)viewController tab];
-			}
+    TiUITabProxy * target=nil;
+    if ([tabBarController moreNavigationController] == viewController) {
+        NSArray * moreViewControllerStack = [(UINavigationController *)viewController viewControllers];
+        if ([moreViewControllerStack count]>1) {
+            UIViewController * rootController = [moreViewControllerStack objectAtIndex:1];
+            if ([rootController respondsToSelector:@selector(proxy)]) {
+                id theProxy = [(id)rootController proxy];
+                if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)] ) {
+                    target = (TiUITabProxy *)[(id)theProxy tab];
+                } else {
+                    DebugLog(@"[ERROR] The view controller is not hosting a window proxy. Can not find tab.");
+                }
+            } else {
+                DebugLog(@"[ERROR] The view controller does not respond to selector proxy. Can not find window");
+            }
 		}
 	}
 	else
@@ -521,6 +529,8 @@ DEFINE_EXCEPTIONS
 
 -(void)focusVisibleWindow
 {
+    //DEAD CODE. FOCUS NOW HANDLED THROUGH APPEARANCE METHODS OF TiViewControllerNeue
+    /*
 	UINavigationController * ourCurrentNC = (UINavigationController *)[controller selectedViewController];
 	TiUITabController * ourCurrentVC = (TiUITabController *)[ourCurrentNC visibleViewController];
 	if([ourCurrentVC isKindOfClass:[TiUITabController class]])
@@ -528,10 +538,13 @@ DEFINE_EXCEPTIONS
 		TiWindowProxy * ourCurrentWindow = [ourCurrentVC window];
 		[ourCurrentWindow _tabFocus];
 	}
+    */
 }
 
 -(void)blurVisibleWindow
 {
+    //DEAD CODE. BLUR NOW HANDLED THROUGH APPEARANCE METHODS OF TiViewControllerNeue
+    /*
 	UINavigationController * ourCurrentNC = (UINavigationController *)[controller selectedViewController];
 	TiUITabController * ourCurrentVC = (TiUITabController *)[ourCurrentNC visibleViewController];
 	if([ourCurrentVC isKindOfClass:[TiUITabController class]])
@@ -539,6 +552,7 @@ DEFINE_EXCEPTIONS
 		TiWindowProxy * ourCurrentWindow = [ourCurrentVC window];
 		[ourCurrentWindow _tabBlur];
 	}
+     */
 }
 
 @end
