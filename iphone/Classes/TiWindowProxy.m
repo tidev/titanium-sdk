@@ -269,6 +269,8 @@
             }
         }
     }
+    [[self view] setAccessibilityElementsHidden:NO];
+
 }
 
 -(void)resignFocus
@@ -281,6 +283,7 @@
             }
         }
     }
+    [[self view] setAccessibilityElementsHidden:YES];
 }
 
 -(UIViewController*)initController;
@@ -404,6 +407,7 @@
 {
     if (controller != nil) {
         [self gainFocus];
+        UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
     }
 }
 -(void)viewDidDisappear:(BOOL)animated

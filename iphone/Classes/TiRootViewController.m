@@ -41,6 +41,8 @@
 
 @implementation TiRootViewController
 
+@synthesize keyboardFocusedProxy = keyboardFocusedProxy;
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(_bgColor);
@@ -327,8 +329,6 @@
     [[_containedWindows lastObject] resignFocus];
     if ([theWindow isModal]) {
         [_modalWindows addObject:theWindow];
-        //If opening a modal window we will rotate before modal window is presented.
-        //[self refreshOrientationWithDuration:0.0];
     } else {
         [_containedWindows addObject:theWindow];
         if (isCurrentlyVisible) {
@@ -345,6 +345,7 @@
         [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
         [[_containedWindows lastObject] gainFocus];
         [theWindow viewDidAppear:YES];
+        UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
     }
     [self dismissDefaultImage];
 }
@@ -366,6 +367,7 @@
     if (isCurrentlyVisible) {
         [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
         [[_containedWindows lastObject] gainFocus];
+        UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
     }
 }
 
