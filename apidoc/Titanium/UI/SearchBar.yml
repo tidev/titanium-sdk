@@ -123,7 +123,7 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
         
-        On iOS and Android, barColor specifies the color of the "frame" around the search text field.
+        On iOS and Android, `barColor` specifies the color of the "frame" around the search text field.
     type: String
     platforms: [android, iphone, ipad]
     default: System default bar color.
