@@ -1218,7 +1218,7 @@ properties:
         <Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS>.
     type: Number
     default: <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>
-    platforms: [android, tizen]
+    platforms: [android]
     
   - name: top
     summary: The view's top position.
