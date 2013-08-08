@@ -300,8 +300,7 @@
         if (tab != nil) {
             [self windowWillOpen];
             [self windowDidOpen];
-        }
-        if (isModal) {
+        } else if (isModal) {
             UIViewController* theController = [self initController];
             [self windowWillOpen];
             NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
