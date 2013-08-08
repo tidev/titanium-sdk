@@ -91,6 +91,7 @@
 //Titanium Support
 -(CGRect)resizeView;
 -(void)repositionSubviews;
+@property(nonatomic,readonly) TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedProxy;
 #if defined(DEBUG) || defined(DEVELOPER)
 -(void)shutdownUi;
 #endif
