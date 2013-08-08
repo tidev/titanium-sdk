@@ -1,10 +1,9 @@
-//
-//  TiRootViewController.h
-//  Titanium
-//
-//  Created by Vishal Duggal on 7/30/13.
-//
-//
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 
 #import <UIKit/UIKit.h>
 #import "TiControllerProtocols.h"
