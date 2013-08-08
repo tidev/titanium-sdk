@@ -218,7 +218,7 @@ static NSDictionary* TI_filterableItemProperties;
 	else
 	{
 		RELEASE_TO_NIL(popover);
-		UIView *poView = [[[tiApp controller] topWindow] view];
+		UIView *poView = [[[tiApp controller] topPresentedController] view];
 		CGRect poFrame;
 		TiViewProxy* popoverViewProxy = [args objectForKey:@"popoverView"];
 		UIPopoverArrowDirection arrow = [TiUtils intValue:@"arrowDirection" properties:args def:UIPopoverArrowDirectionAny];
@@ -227,12 +227,14 @@ static NSDictionary* TI_filterableItemProperties;
 		{
 			poView = [popoverViewProxy view];
 			poFrame = [poView bounds];
+			isPopoverSpecified = YES;
 		}
 		else
 		{
 			arrow = UIPopoverArrowDirectionAny;
 			poFrame = [poView bounds];
 			poFrame.size.height = 50;
+			isPopoverSpecified = NO;
 		}
 
 		if ([poView window] == nil) {
@@ -252,7 +254,7 @@ static NSDictionary* TI_filterableItemProperties;
 		//No need to begin generating these events since the TiRootViewController already does that
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIDeviceOrientationDidChangeNotification object:nil];
 		arrowDirection = arrow;
-		popoverView = poView;
+		self.popoverView = poView;
 		popover = [[UIPopoverController alloc] initWithContentViewController:picker_];
 		[popover setDelegate:self];
 		[popover presentPopoverFromRect:poFrame inView:poView permittedArrowDirections:arrow animated:animatedPicker];
@@ -290,7 +292,8 @@ static NSDictionary* TI_filterableItemProperties;
 	if (popover) {
 		//GO AHEAD AND RE-PRESENT THE POPOVER NOW 
 		CGRect popOverRect = [popoverView bounds];
-		if (popoverView == [[[[TiApp app] controller] topWindow] view]) {
+		if (!isPopoverSpecified) {
+			self.popoverView = [[[[TiApp app] controller] topPresentedController] view];
 			popOverRect.size.height = 50;
 		}
         if ([popoverView window] == nil) {
