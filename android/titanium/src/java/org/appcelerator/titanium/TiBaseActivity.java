@@ -214,7 +214,6 @@ public abstract class TiBaseActivity extends FragmentActivity
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
 		this.window = proxy;
-		setLayoutProxy(proxy);
 		updateTitle();
 	}
 
@@ -223,7 +222,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 * 
 	 * @param proxy
 	 */
-	protected void setLayoutProxy(TiViewProxy proxy)
+	public void setLayoutProxy(TiViewProxy proxy)
 	{
 		if (layout instanceof TiCompositeLayout) {
 			((TiCompositeLayout) layout).setProxy(proxy);
