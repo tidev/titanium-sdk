@@ -35,6 +35,12 @@
     }
 }
 
+-(TiViewProxy*) proxy
+{
+    return _proxy;
+}
+
+
 //IOS5 support. Begin Section. Drop in 3.2
 - (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers
 {
