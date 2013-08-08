@@ -629,6 +629,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         searchViewProxy = [args retain];
         [searchViewProxy setDelegate:self];
         tableController = [[UITableViewController alloc] init];
+        [TiUtils configureController:tableController withObject:nil];
         tableController.tableView = [self tableView];
         searchController = [[UISearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
         searchController.searchResultsDataSource = self;
@@ -1147,6 +1148,15 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 #pragma mark - UITableViewDelegate
 
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (searchActive || (tableView != _tableView)) {
+        return;
+    }
+    //Tell the proxy about the cell to be displayed
+    [self.listViewProxy willDisplayCell:indexPath];
+}
+
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
     if (tableView != _tableView) {
@@ -1426,6 +1436,17 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [self buildResultsForSearchText];
     if ([searchController isActive]) {
         [searchController setActive:NO animated:YES];
+    }
+    //IOS7 DP3. TableView seems to be adding the searchView to
+    //tableView. Bug on IOS7?
+    if ([TiUtils isIOS7OrGreater]) {
+        if (![[[controller searchBar] superview] isKindOfClass:[TiUIView class]]) {
+            if ([[searchViewProxy view] respondsToSelector:@selector(searchBar)]) {
+                [[searchViewProxy view] performSelector:@selector(searchBar)];
+            } else {
+                [_headerViewProxy layoutChildren:NO];
+            }
+        }
     }
     [_tableView reloadData];
 }

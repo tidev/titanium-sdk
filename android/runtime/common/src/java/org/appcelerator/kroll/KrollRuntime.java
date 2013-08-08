@@ -343,9 +343,12 @@ public abstract class KrollRuntime implements Handler.Callback
 		}
 	}
 
-	public static void decrementActivityRefCount()
+	public static void decrementActivityRefCount(boolean willDisposeRuntime)
 	{
 		activityRefCount--;
+		if (!willDisposeRuntime) {
+			return;
+		}
 		if ((activityRefCount + serviceReceiverRefCount) > 0 || instance == null) {
 			return;
 		}

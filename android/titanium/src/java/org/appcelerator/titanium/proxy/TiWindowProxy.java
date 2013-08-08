@@ -130,13 +130,11 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		if (TiApplication.isUIThread()) {
 			handleOpen(options);
-			opening = false;
 			return;
 		}
 
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_OPEN), options);
 
-		opening = false;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -168,16 +166,33 @@ public abstract class TiWindowProxy extends TiViewProxy
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLOSE), options);
 	}
 
-	public void closeFromActivity()
+	public void closeFromActivity(boolean activityIsFinishing)
 	{
 		if (!opened) { return; }
-		releaseViews();
+
+		KrollDict data = null;
+		if (activityIsFinishing) {
+			releaseViews();
+		} else {
+			// If the activity is forced to destroy by Android OS due to lack of memory or 
+			// enabling "Don't keep activities" (TIMOB-12939), we will not release the
+			// top-most view proxy (window and tabgroup).
+			releaseViewsForActivityForcedToDestroy();
+			data = new KrollDict();
+			data.put("_closeFromActivityForcedToDestroy", true);
+		}
 		opened = false;
 		activity = null;
 
 		// Once the window's activity is destroyed we will fire the close event.
-		// And it will dispose the handler of the window in the JS.
-		fireSyncEvent(TiC.EVENT_CLOSE, null);
+		// And it will dispose the handler of the window in the JS if the activity
+		// is not forced to destroy.
+		fireSyncEvent(TiC.EVENT_CLOSE, data);
+	}
+
+	protected void releaseViewsForActivityForcedToDestroy()
+	{
+		releaseViews();
 	}
 
 	@Kroll.method(name="setTab")

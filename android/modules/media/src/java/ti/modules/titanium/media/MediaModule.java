@@ -148,6 +148,8 @@ public class MediaModule extends KrollModule
 		KrollFunction successCallback = null;
 		KrollFunction cancelCallback = null;
 		KrollFunction errorCallback = null;
+		boolean autohide = true;
+		boolean saveToPhotoGallery = false;
 
 		if (options.containsKey("success")) {
 			successCallback = (KrollFunction) options.get("success");
@@ -159,19 +161,25 @@ public class MediaModule extends KrollModule
 			errorCallback = (KrollFunction) options.get("error");
 		}
 
-		boolean saveToPhotoGallery = false;
-		if (options.containsKey("saveToPhotoGallery")) {
-			saveToPhotoGallery = TiConvert.toBoolean(options.get("saveToPhotoGallery"));
+		Object autohideOption = options.get("autohide");
+		if (autohideOption != null) {
+			autohide = TiConvert.toBoolean(autohideOption);
+		}
+
+		Object saveToPhotoGalleryOption = options.get("saveToPhotoGallery");
+		if (saveToPhotoGalleryOption != null) {
+			saveToPhotoGallery = TiConvert.toBoolean(saveToPhotoGalleryOption);
 		}
 
 		// Use our own custom camera activity when an overlay is provided.
 		if (options.containsKey("overlay")) {
-			TiCameraActivity.overlayProxy = (TiViewProxy) options.get("overlay");
+			TiCameraActivity.overlayProxy = (TiViewProxy) options
+					.get("overlay");
 
 			TiCameraActivity.callbackContext = getKrollObject();
 			TiCameraActivity.successCallback = successCallback;
 			TiCameraActivity.errorCallback = errorCallback;
-			TiCameraActivity.cancelCallback	= cancelCallback;
+			TiCameraActivity.cancelCallback = cancelCallback;
 			TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
 			TiCameraActivity.whichCamera = CAMERA_REAR; // default.
 
@@ -182,6 +190,7 @@ public class MediaModule extends KrollModule
 			if (whichCamera != null) {
 				TiCameraActivity.whichCamera = TiConvert.toInt(whichCamera);
 			}
+			TiCameraActivity.autohide = autohide;
 
 			Intent intent = new Intent(activity, TiCameraActivity.class);
 			activity.startActivity(intent);
@@ -202,7 +211,10 @@ public class MediaModule extends KrollModule
 			}
 
 			if (errorCallback != null) {
-				errorCallback.call(getKrollObject(), new Object[] { createErrorResponse(NO_CAMERA, "Camera not available.") });
+				errorCallback.call(
+						getKrollObject(),
+						new Object[] { createErrorResponse(NO_CAMERA,
+								"Camera not available.") });
 			}
 
 			return;
@@ -212,28 +224,33 @@ public class MediaModule extends KrollModule
 		TiFileHelper tfh = TiFileHelper.getInstance();
 
 		TiIntentWrapper cameraIntent = new TiIntentWrapper(new Intent());
-		if(TiCameraActivity.overlayProxy == null) {
-			cameraIntent.getIntent().setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+		if (TiCameraActivity.overlayProxy == null) {
+			cameraIntent.getIntent().setAction(
+					MediaStore.ACTION_IMAGE_CAPTURE);
 			cameraIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
 		} else {
-			cameraIntent.getIntent().setClass(TiApplication.getInstance().getBaseContext(), TiCameraActivity.class);
+			cameraIntent.getIntent().setClass(
+					TiApplication.getInstance().getBaseContext(),
+					TiCameraActivity.class);
 		}
 
 		cameraIntent.setWindowId(TiIntentWrapper.createActivityName("CAMERA"));
 		PackageManager pm = (PackageManager) activity.getPackageManager();
-		List<ResolveInfo> activities = pm.queryIntentActivities(cameraIntent.getIntent(), PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> activities = pm.queryIntentActivities(
+				cameraIntent.getIntent(), PackageManager.MATCH_DEFAULT_ONLY);
 
 		// See if it's the HTC camera app
 		boolean isHTCCameraApp = false;
 
 		for (ResolveInfo rs : activities) {
 			try {
-				if (rs.activityInfo.applicationInfo.sourceDir.contains("HTC") || Build.MANUFACTURER.equals("HTC")) {
+				if (rs.activityInfo.applicationInfo.sourceDir.contains("HTC")
+						|| Build.MANUFACTURER.equals("HTC")) {
 					isHTCCameraApp = true;
 					break;
 				}
 			} catch (NullPointerException e) {
-				//Ignore
+				// Ignore
 			}
 		}
 
@@ -242,27 +259,35 @@ public class MediaModule extends KrollModule
 
 		try {
 			if (saveToPhotoGallery) {
-				// HTC camera application will create its own gallery image file.
+				// HTC camera application will create its own gallery image
+				// file.
 				if (!isHTCCameraApp) {
 					imageFile = createGalleryImageFile();
 				}
 
 			} else {
 				if (activity.getIntent() != null) {
-					String name = TiApplication.getInstance().getAppInfo().getName();
-					// For HTC cameras, specifying the directory from getExternalStorageDirectory is /mnt/sdcard and
-					// using that path prevents the gallery from recognizing it. To avoid this we use /sdcard instead
+					String name = TiApplication.getInstance().getAppInfo()
+							.getName();
+					// For HTC cameras, specifying the directory from
+					// getExternalStorageDirectory is /mnt/sdcard and
+					// using that path prevents the gallery from recognizing it.
+					// To avoid this we use /sdcard instead
 					// (this is a legacy path we've been using)
 					if (isHTCCameraApp) {
 						imageDir = new File(PHOTO_DCIM_CAMERA, name);
 					} else {
 						File rootsd = Environment.getExternalStorageDirectory();
-						imageDir = new File(rootsd.getAbsolutePath() + "/dcim/Camera/", name);
+						imageDir = new File(rootsd.getAbsolutePath()
+								+ "/dcim/Camera/", name);
 					}
 					if (!imageDir.exists()) {
 						imageDir.mkdirs();
 						if (!imageDir.exists()) {
-							Log.w(TAG, "Attempt to create '" + imageDir.getAbsolutePath() +  "' failed silently.");
+							Log.w(TAG,
+									"Attempt to create '"
+											+ imageDir.getAbsolutePath()
+											+ "' failed silently.");
 						}
 					}
 
@@ -276,7 +301,8 @@ public class MediaModule extends KrollModule
 		} catch (IOException e) {
 			Log.e(TAG, "Unable to create temp file", e);
 			if (errorCallback != null) {
-				errorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, e.getMessage()));
+				errorCallback.callAsync(getKrollObject(),
+						createErrorResponse(UNKNOWN_ERROR, e.getMessage()));
 			}
 
 			return;
@@ -293,11 +319,24 @@ public class MediaModule extends KrollModule
 
 		if (imageFile != null) {
 			String imageUrl = "file://" + imageFile.getAbsolutePath();
-			cameraIntent.getIntent().putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(imageUrl));
+			cameraIntent.getIntent().putExtra(MediaStore.EXTRA_OUTPUT,
+					Uri.parse(imageUrl));
 			resultHandler.imageUrl = imageUrl;
 		}
 
 		activity.runOnUiThread(resultHandler);
+	}
+
+	@Kroll.method
+	public void hideCamera()
+	{
+		// make sure the preview / camera are open before trying to hide
+		if (TiCameraActivity.cameraActivity != null) {
+			TiCameraActivity.hide();
+		} else {
+			Log.e(TAG, "Camera preview is not open, unable to hide");
+		}
+
 	}
 
 	/**

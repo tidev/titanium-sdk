@@ -33,6 +33,7 @@ import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
 import android.net.Uri;
 import android.os.Bundle;
@@ -65,6 +66,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public static KrollFunction successCallback, errorCallback, cancelCallback;
 	public static boolean saveToPhotoGallery = false;
 	public static int whichCamera = MediaModule.CAMERA_REAR;
+	public static boolean autohide = true;
 
 	private static class PreviewLayout extends FrameLayout
 	{
@@ -415,12 +417,12 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				public void onAutoFocus(boolean success, Camera camera)
 				{
 					// Take the picture when the camera auto focus completes.
-					camera.takePicture(null, null, jpegCallback);
+					camera.takePicture(shutterCallback, null, jpegCallback);
 				}
 			};
 			camera.autoFocus(focusCallback);
 		} else {
-			camera.takePicture(null, null, jpegCallback);
+			camera.takePicture(shutterCallback, null, jpegCallback);
 		}
 	}
 
@@ -447,6 +449,25 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		return this.previewRunning;
 	}
 
+	static public void hide()
+	{
+		cameraActivity.setResult(Activity.RESULT_OK);
+		cameraActivity.finish();
+	}
+
+	static ShutterCallback shutterCallback = new ShutterCallback()
+	{
+		// Just the presence of a shutter callback will
+		// allow the shutter click sound to occur (at least
+		// on Jelly Bean on a stock Google phone, which
+		// was remaining silent without this.)
+		@Override
+		public void onShutter()
+		{
+			// No-op
+		}
+	};
+
 	static PictureCallback jpegCallback = new PictureCallback()
 	{
 		public void onPictureTaken(byte[] data, Camera camera)
@@ -457,12 +478,18 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 			if (successCallback != null) {
 				TiBlob imageData = TiBlob.blobFromData(data);
-				KrollDict dict = MediaModule.createDictForImage(imageData, "image/jpeg");
+				KrollDict dict = MediaModule.createDictForImage(imageData,
+						"image/jpeg");
 				successCallback.callAsync(callbackContext, dict);
 			}
 
 			cancelCallback = null;
-			cameraActivity.finish();
+
+			if (autohide) {
+				cameraActivity.finish();
+			} else {
+				camera.startPreview();
+			}
 		}
 	};
 

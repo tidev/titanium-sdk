@@ -21,6 +21,6 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/lang"], function(_, Evented, lang) {
 		getGUID: function() {
 			return this.guid;
 		}
-	}, true);
+	});
 
 });

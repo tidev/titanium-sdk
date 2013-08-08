@@ -293,7 +293,7 @@
 
 @implementation TiUITableView
 #pragma mark Internal 
-@synthesize searchString;
+@synthesize searchString, viewWillDetach;
 
 -(id)init
 {
@@ -1339,7 +1339,11 @@
 
 -(void)hideSearchScreen:(id)sender
 {
-	// check to make sure we're not in the middle of a layout, in which case we 
+    if (viewWillDetach) {
+        return;
+    }
+    
+	// check to make sure we're not in the middle of a layout, in which case we
 	// want to try later or we'll get weird drawing animation issues
 	if (tableview.frame.size.width==0)
 	{
@@ -1369,6 +1373,10 @@
     // because of where the hide might be triggered from.
     
     
+    if (viewWillDetach) {
+        return;
+    }
+    searchActivated = NO;
     NSArray* visibleRows = [tableview indexPathsForVisibleRows];
     [tableview reloadRowsAtIndexPaths:visibleRows withRowAnimation:UITableViewRowAnimationNone];
     
@@ -1665,6 +1673,7 @@
 		[searchField windowWillOpen];
 		[searchField setDelegate:self];
 		tableController = [[UITableViewController alloc] init];
+		[TiUtils configureController:tableController withObject:nil];
 		tableController.tableView = [self tableView];
 		[tableController setClearsSelectionOnViewWillAppear:!allowsSelectionSet];
 		searchController = [[UISearchDisplayController alloc] initWithSearchBar:[search searchBar] contentsController:tableController];
@@ -2246,7 +2255,7 @@ return result;	\
 -(CGFloat)computeRowWidth
 {
     CGFloat rowWidth = tableview.bounds.size.width;
-	if (self.tableView.style == UITableViewStyleGrouped) {
+	if ((self.tableView.style == UITableViewStyleGrouped) && (![TiUtils isIOS7OrGreater]) ){
 		rowWidth -= GROUPED_MARGIN_WIDTH;
 	}
     
@@ -2506,6 +2515,10 @@ return result;	\
 
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
+    if (viewWillDetach) {
+        return;
+    }
+
     animateHide = YES;
     [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
 }

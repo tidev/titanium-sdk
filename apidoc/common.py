@@ -9,10 +9,10 @@
 import os, sys, re
 simple_tag_pattern = re.compile(r"<[^>]*?>")
 not_real_titanium_types = ("Titanium.Proxy", "Titanium.Module", "Titanium.Event")
-DEFAULT_PLATFORMS = ["android", "iphone", "ipad", "mobileweb", "tizen"]
+DEFAULT_PLATFORMS = ["android", "blackberry", "iphone", "ipad", "mobileweb", "tizen"]
 platform_names = { "android": "Android", "blackberry": "BlackBerry", 
 				"iphone": "iPhone", "ipad": "iPad", "mobileweb": "Mobile Web", "tizen": "Tizen" }
-initial_platform_version = { "blackberry": "3.1", "mobileweb" : "1.8", "tizen": "3.1" }
+initial_platform_version = { "blackberry": "3.1.2", "mobileweb" : "1.8", "tizen": "3.1" }
 platform_namespaces = [ "Android", "iOS",  "iPhone", "iPad", "MobileWeb", "BlackBerry", "Tizen" ]
 
 # odict source is in docgen folder (parent of this folder).

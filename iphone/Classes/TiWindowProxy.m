@@ -75,6 +75,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	if (controller == nil)
 	{
 		controller = [[TiViewController alloc] initWithViewProxy:self];
+		[TiUtils configureController:controller withObject:nil];
 	}
 	return controller;
 }
@@ -339,7 +340,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 		controller = [controller_ retain];
 		[(TiViewController *)controller setProxy:self];
 		tab = (TiViewProxy<TiTab>*)[tab_ retain];
-		
+		[TiUtils configureController:controller withObject:nil];
 		[self _tabAttached];
 	}
 	else
@@ -458,7 +459,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 			TiViewController *wc = (TiViewController*)[self controller];
 
 			UINavigationController *nc = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
-
+			[TiUtils configureController:nc withObject:nil];
 			BOOL navBarHidden = [self argOrWindowProperty:@"navBarHidden" args:args];
 			[nc setNavigationBarHidden:navBarHidden];
 
@@ -564,8 +565,10 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 			 ![TiUtils boolValue:@"closeByTab" properties:[args objectAtIndex:0] def:NO]))
 		{
 			NSMutableArray* closeArgs = [NSMutableArray arrayWithObject:self];
-			if (args != nil) {
+			if ([args isKindOfClass:[NSArray class]]) {
 				[closeArgs addObject:[args objectAtIndex:0]];
+			} else if (args != nil) {
+				[closeArgs addObject:args];
 			}
 			[self forgetProxy:closeAnimation];
 			RELEASE_TO_NIL(closeAnimation);
@@ -600,13 +603,17 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 -(void)closeOnUIThread:(id)args
 {
 	[self windowWillClose];
-
+	BOOL animated;
+	id propsDict = args;
+	if ([args isKindOfClass:[NSArray class]] && ([args count] > 0)) {
+		propsDict = [args objectAtIndex:0];
+	}
+	animated = [TiUtils boolValue:@"animated" properties:propsDict def:YES]; //TiUtils checks to see if NSDictionary
+	
+	
 	//TEMP hack until we can figure out split view issue
     // appears to be a dead code
 	if ((tempController != nil) && modalFlag) {
-        BOOL animated = (args!=nil && [args isKindOfClass:[NSDictionary class]]) ? 
-            [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
-
         [tempController dismissModalViewControllerAnimated:animated];
 
         if (!animated) {
@@ -625,7 +632,6 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 		if (modalFlag)
 		{
-			BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
 			[[TiApp app] hideModalController:vc animated:animated];
 			if (animated)
 			{

@@ -10,7 +10,6 @@ description: |
     The macro `L` can be used as an alias for the <Titanium.Locale.getString> method.
 extends: Titanium.Module
 since: "1.5"
-platforms: [android, iphone, ipad, mobileweb, tizen]
 
 methods:
   - name: formatTelephoneNumber
@@ -151,7 +150,7 @@ properties:
         This property holds a value such as `US` or `GB`. See the 
         [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
         country codes section of wikipedia for reference.
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb, tizen, blackberry]
     type: String
     permission: read-only
     

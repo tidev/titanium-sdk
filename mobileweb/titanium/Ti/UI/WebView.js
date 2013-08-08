@@ -70,14 +70,14 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 						if (i > 0) {
 							url = cw.location.href;
 							this.evalJS(bridge.replace("WEBVIEW_ID", this.widgetId + ":unload"));
-							(html = this.properties.__values__.html) && this._setContent(html);
+							(html = this.__values__.properties.html) && this._setContent(html);
 						} else {
 							API.warn("Unable to inject WebView bridge into cross-domain URL, ignore browser security message");
 						}
 
 						this._loading();
 						this.fireEvent("load", {
-							url: url ? (this.properties.__values__.url = url) : this.url
+							url: url ? (this.__values__.properties.url = url) : this.url
 						});
 					}),
 					on(iframe, "error", this, function() {
@@ -116,7 +116,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 			this.loading || v && this.fireEvent("beforeload", {
 				url: this.url
 			});
-			this.constants.loading = !!v;
+			this.__values__.constants.loading = !!v;
 		},
 
 		canGoBack: function() {
@@ -211,7 +211,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 					return value === void 0 && doc ? doc.documentElement.innerHTML : value;
 				},
 				post: function(value) {
-					var values = this.properties.__values__;
+					var values = this.__values__.properties;
 					values.data = void 0;
 					values.url = void 0;
 					this._createIFrame() && this._setContent(value);
@@ -228,7 +228,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 
 			url: { 
 				post: function(value) {
-					var values = this.properties.__values__;
+					var values = this.__values__.properties;
 					values.data = void 0;
 					values.html = void 0;
 					this._createIFrame();

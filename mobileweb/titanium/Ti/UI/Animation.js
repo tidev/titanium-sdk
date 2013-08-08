@@ -296,7 +296,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 			wid = elem.widgetId,
 			id = Math.random() * 1e9 | 0,
 			anis = animations[wid] = (animations[wid] || []),
-			properties = anim.properties.__values__,
+			properties = anim.__values__.properties,
 			delay = properties.delay | 0,
 			visible = !!properties.visible;
 

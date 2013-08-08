@@ -11,7 +11,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 			var self = this,
 				clickEventName = "ontouchstart" in window ? "touchend" : "click",
 				node = self.domNode,
-				rows = self.constants.__values__.rows = [],
+				rows = self.__values__.constants.rows = [],
 				upArrow = self._upArrow = dom.create("div", {
 					className: "TiUIElementGradient",
 					style: {

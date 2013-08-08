@@ -130,6 +130,7 @@ events:
             Previous active tab. On iOS, a value of `undefined` indicates that the **More** tab was 
             the previous tab.
         type: Titanium.UI.Tab
+    exclude-platforms: [blackberry]
         
   - name: close
     summary: Fired when the tab group is closed.
@@ -163,9 +164,11 @@ events:
       - name: previousTab
         summary: Previous active tab.
         type: Titanium.UI.Tab
+    exclude-platforms: [blackberry]
         
   - name: open
     summary: Fired when the tab group is opened.
+    exclude-platforms: [blackberry]
 
 methods:
   - name: addTab
@@ -199,7 +202,7 @@ methods:
     
   - name: removeTab
     summary: Removes a tab from the tab group.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb, tizen, blackberry]
     parameters:
       - name: tab
         summary: Tab to remove.
@@ -263,7 +266,8 @@ properties:
     description: |
         On other platforms, use [Window.navBarHidden](Titanium.UI.Window.navBarHidden) to
         show and hide the nav bar for a tab group. On Android, the nav bar can only be
-        shown or hidden for the whole tab group.
+        shown or hidden for the whole tab group. Setting this property to true disables 
+        the Action Bar since it is part of the navigation title bar.
     platforms: [android]
     default: false
     type: Boolean

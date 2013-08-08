@@ -253,8 +253,13 @@
 
 -(CGFloat)verifyHeight:(CGFloat)suggestedHeight
 {
-	CGSize fitSize = [[self sliderView] sizeThatFits:CGSizeZero];
-	return fitSize.height;
+    CGFloat result = [[self sliderView] sizeThatFits:CGSizeZero].height;
+    
+    //IOS7 DP3 sizeThatFits always returns zero for regular slider
+    if ((result == 0) && ([TiUtils isIOS7OrGreater])) {
+        result = 30.0;
+    }
+    return result;
 }
 
 USE_PROXY_FOR_VERIFY_AUTORESIZING
