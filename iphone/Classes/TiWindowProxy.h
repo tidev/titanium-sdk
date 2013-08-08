@@ -1,5 +1,5 @@
 //
-//  TiWindowProxyNeue.h
+//  TiWindowProxy.h
 //  Titanium
 //
 //  Created by Vishal Duggal on 7/30/13.
@@ -8,11 +8,11 @@
 
 #import "TiViewProxy.h"
 #import "TiTab.h"
-#import "TiViewControllerNeue.h"
+#import "TiViewController.h"
 
-@interface TiWindowProxyNeue : TiViewProxy<TiWindowProtocol, TiAnimationDelegate> {
+@interface TiWindowProxy : TiViewProxy<TiWindowProtocol, TiAnimationDelegate> {
 @protected
-    TiViewControllerNeue* controller;
+    TiViewController* controller;
     id<TiOrientationController> parentController;
     TiOrientationFlags _supportedOrientations;
     BOOL opening;

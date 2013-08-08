@@ -121,7 +121,7 @@ DEFINE_EXCEPTIONS
     [focused replaceValue:[NSNumber numberWithBool:YES] forKey:@"active" notification:NO];
 
     // If we're in the middle of opening, the focus happens once the tabgroup is opened
-    if (![(TiWindowProxyNeue*)[self proxy] opening]) {
+    if (![(TiWindowProxy*)[self proxy] opening]) {
         [self.proxy fireEvent:@"focus" withObject:event];
     }
 	[focused handleDidFocus:event];
@@ -527,7 +527,7 @@ DEFINE_EXCEPTIONS
 
 -(void)focusVisibleWindow
 {
-    //DEAD CODE. FOCUS NOW HANDLED THROUGH APPEARANCE METHODS OF TiViewControllerNeue
+    //DEAD CODE. FOCUS NOW HANDLED THROUGH APPEARANCE METHODS OF TiViewController
     /*
 	UINavigationController * ourCurrentNC = (UINavigationController *)[controller selectedViewController];
 	TiUITabController * ourCurrentVC = (TiUITabController *)[ourCurrentNC visibleViewController];
@@ -541,7 +541,7 @@ DEFINE_EXCEPTIONS
 
 -(void)blurVisibleWindow
 {
-    //DEAD CODE. BLUR NOW HANDLED THROUGH APPEARANCE METHODS OF TiViewControllerNeue
+    //DEAD CODE. BLUR NOW HANDLED THROUGH APPEARANCE METHODS OF TiViewController
     /*
 	UINavigationController * ourCurrentNC = (UINavigationController *)[controller selectedViewController];
 	TiUITabController * ourCurrentVC = (TiUITabController *)[ourCurrentNC visibleViewController];

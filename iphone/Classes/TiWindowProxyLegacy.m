@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiWindowProxy.h"
+#import "TiWindowProxyLegacy.h"
 #import "TiApp.h"
 #import "TiUtils.h"
 #import "TiAnimation.h"
@@ -38,7 +38,7 @@
 {
 	if (controller == nil)
 	{
-		controller = [[TiViewController alloc] initWithViewProxy:self];
+		controller = [[TiViewControllerLegacy alloc] initWithViewProxy:self];
 		[TiUtils configureController:controller withObject:nil];
 	}
 	return controller;
@@ -46,7 +46,7 @@
 
 -(void)releaseController
 {
-	[(TiViewController *)controller setProxy:nil];
+	[(TiViewControllerLegacy *)controller setProxy:nil];
 	TiThreadReleaseOnMainThread(controller, NO);
 	controller = nil;
 }
@@ -302,7 +302,7 @@
 	{
 		navController = [navbar_ retain];
 		controller = [controller_ retain];
-		[(TiViewController *)controller setProxy:self];
+		[(TiViewControllerLegacy *)controller setProxy:self];
 		tab = (TiViewProxy<TiTab>*)[tab_ retain];
 		[TiUtils configureController:controller withObject:nil];
 		[self _tabAttached];
@@ -420,7 +420,7 @@
 		{
 			modalFlag = YES;
 			attached = YES;
-			TiViewController *wc = (TiViewController*)[self controller];
+			TiViewControllerLegacy *wc = (TiViewControllerLegacy*)[self controller];
 
 			UINavigationController *nc = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
 			[TiUtils configureController:nc withObject:nil];
@@ -640,7 +640,7 @@
 		if (fullscreenFlag && !restoreFullscreen)
 		{
 			[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen withAnimation:UIStatusBarAnimationNone];
-			self.view.frame = [[[TiApp app] controller] resizeViewForStatusBarHidden];
+			//self.view.frame = [[[TiApp app] controller] resizeViewForStatusBarHidden];
 			[[[TiApp app] controller] repositionSubviews];
 		} 
  

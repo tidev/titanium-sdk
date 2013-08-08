@@ -76,11 +76,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	return [sharedApp controller];
 }
 
--(TiRootControllerNeue*)neueController
-{
-    return neueController;
-}
-
 -(TiContextGroupRef)contextGroup
 {
 	if(contextGroup == nil)
@@ -135,9 +130,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	
 	// attach our main view controller
 	controller = [[TiRootViewController alloc] init];
-	neueController = [[TiRootControllerNeue alloc] init];
 	// attach our main view controller... IF we haven't already loaded the main window.
-	[window setRootViewController:neueController];
+	[window setRootViewController:controller];
     [window makeKeyAndVisible];
 }
 
@@ -606,7 +600,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
-    [neueController showControllerModal:modalController animated:animated];
+    [controller showControllerModal:modalController animated:animated];
     
 	/*
 	 *	In iPad (TIMOB 7839) there is a bug in iOS where a text field having
@@ -638,7 +632,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)hideModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
-    [neueController hideControllerModal:modalController animated:animated];
+    [controller hideControllerModal:modalController animated:animated];
     /*
 	UIViewController *navController = [modalController parentViewController];
 
@@ -664,7 +658,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (NSUInteger)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window
 {
     if ([self windowIsKeyWindow]) {
-        return [neueController supportedInterfaceOrientations];
+        return [controller supportedInterfaceOrientations];
     }
     
     //UIInterfaceOrientationMaskAll = 30;

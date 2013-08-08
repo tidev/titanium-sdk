@@ -6,10 +6,10 @@
  */
 #ifdef USE_TI_UITAB
 
-#import "TiWindowProxyNeue.h"
+#import "TiWindowProxy.h"
 #import "TiTabGroup.h"
 
-@interface TiUITabGroupProxy : TiWindowProxyNeue<TiTabGroup>
+@interface TiUITabGroupProxy : TiWindowProxy<TiTabGroup>
 {
 @private
 	NSMutableArray *tabs;

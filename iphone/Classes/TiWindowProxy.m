@@ -1,22 +1,22 @@
 //
-//  TiWindowProxyNeue.m
+//  TiWindowProxy.m
 //  Titanium
 //
 //  Created by Vishal Duggal on 7/30/13.
 //
 //
 
-#import "TiWindowProxyNeue.h"
+#import "TiWindowProxy.h"
 #import "TiUIWindow.h"
 #import "TiApp.h"
 #import "TiErrorController.h"
 
-@interface TiWindowProxyNeue(Private)
+@interface TiWindowProxy(Private)
 -(void)openOnUIThread:(id)args;
 -(void)closeOnUIThread:(id)args;
 @end
 
-@implementation TiWindowProxyNeue
+@implementation TiWindowProxy
 
 @synthesize tab = tab;
 -(void) dealloc {
@@ -46,7 +46,7 @@
 {
     [super windowWillOpen];
     if (tab == nil) {
-        [[[[TiApp app] neueController] topContainerController] willOpenWindow:self];
+        [[[[TiApp app] controller] topContainerController] willOpenWindow:self];
     }
 }
 
@@ -61,14 +61,14 @@
     [self forgetProxy:openAnimation];
     RELEASE_TO_NIL(openAnimation);
     if (tab == nil) {
-        [[[[TiApp app] neueController] topContainerController] didOpenWindow:self];
+        [[[[TiApp app] controller] topContainerController] didOpenWindow:self];
     }
 }
 
 -(void) windowWillClose
 {
     if (tab == nil) {
-        [[[[TiApp app] neueController] topContainerController] willCloseWindow:self];
+        [[[[TiApp app] controller] topContainerController] willCloseWindow:self];
     }
     [super windowWillClose];
 }
@@ -84,14 +84,14 @@
     RELEASE_TO_NIL(closeAnimation);
     tab = nil;
     if (tab == nil) {
-        [[[[TiApp app] neueController] topContainerController] didCloseWindow:self];
+        [[[[TiApp app] controller] topContainerController] didCloseWindow:self];
     }
     [super windowDidClose];
 }
 
 -(void)attachViewToTopContainerController
 {
-    UIViewController<TiControllerContainment>* topContainerController = [[[TiApp app] neueController] topContainerController];
+    UIViewController<TiControllerContainment>* topContainerController = [[[TiApp app] controller] topContainerController];
     UIView *rootView = [topContainerController view];
     TiUIView* theView = [self view];
     [rootView addSubview:theView];
@@ -116,12 +116,12 @@
 
 -(BOOL)isRootViewLoaded
 {
-    return [[[TiApp app] neueController] isViewLoaded];
+    return [[[TiApp app] controller] isViewLoaded];
 }
 
 -(BOOL)isRootViewAttached
 {
-    return ([[[[TiApp app] neueController] view] superview]!=nil);
+    return ([[[[TiApp app] controller] view] superview]!=nil);
 }
 
 #pragma mark - TiWindowProtocol Base Methods
@@ -140,7 +140,7 @@
     }
     
     //If an error is up, Go away
-    if ([[[[TiApp app] neueController] topPresentedController] isKindOfClass:[TiErrorController class]]) {
+    if ([[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorController class]]) {
         return;
     }
     
@@ -209,7 +209,7 @@
 
 -(BOOL)_handleOpen:(id)args
 {
-    TiRootControllerNeue* theController = [[TiApp app] neueController];
+    TiRootViewController* theController = [[TiApp app] controller];
     if (isModal || (tab != nil)) {
         [self forgetProxy:openAnimation];
         RELEASE_TO_NIL(openAnimation);
@@ -226,7 +226,7 @@
 
 -(BOOL)_handleClose:(id)args
 {
-    TiRootControllerNeue* theController = [[TiApp app] neueController];
+    TiRootViewController* theController = [[TiApp app] controller];
     if (isModal || (tab != nil)) {
         [self forgetProxy:closeAnimation];
         RELEASE_TO_NIL(closeAnimation);
@@ -286,7 +286,7 @@
 -(UIViewController*)initController;
 {
     if (controller == nil) {
-        controller = [[[TiViewControllerNeue alloc] initWithViewProxy:self] retain];
+        controller = [[[TiViewController alloc] initWithViewProxy:self] retain];
     }
     return controller;
 }
@@ -430,7 +430,7 @@
     BOOL isOpenAnimation = NO;
     UIView* hostingView = nil;
     if (sender == openAnimation) {
-        hostingView = [[[[TiApp app] neueController] topContainerController] view];
+        hostingView = [[[[TiApp app] controller] topContainerController] view];
         isOpenAnimation = YES;
     } else {
         hostingView = [[self view] superview];

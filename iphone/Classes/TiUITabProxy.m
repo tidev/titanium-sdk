@@ -63,10 +63,10 @@
             [controller setViewControllers:[NSArray arrayWithObject:rootController]];
             if (current != nil) {
                 RELEASE_TO_NIL(current);
-                current = (TiWindowProxyNeue*)[(TiViewControllerNeue*)rootController proxy];
+                current = (TiWindowProxy*)[(TiViewController*)rootController proxy];
             }
-            for (TiViewControllerNeue* doomedVc in doomedVcs) {
-                [self closeWindow:(TiWindowProxyNeue *)[doomedVc proxy] animated:NO];
+            for (TiViewController* doomedVc in doomedVcs) {
+                [self closeWindow:(TiWindowProxy *)[doomedVc proxy] animated:NO];
             }
             RELEASE_TO_NIL(doomedVcs);
         }
@@ -85,7 +85,7 @@
 {
     if (rootWindow == nil) {
         id window = [self valueForKey:@"window"];
-        ENSURE_TYPE(window, TiWindowProxyNeue);
+        ENSURE_TYPE(window, TiWindowProxy);
         rootWindow = [window retain];
         [rootWindow setTab:self];
 		[rootWindow setParentOrientationController:self];
@@ -100,7 +100,7 @@
 		[self performSelector:_cmd withObject:args afterDelay:0.1];
 		return;
 	}
-	TiWindowProxyNeue *window = [args objectAtIndex:0];
+	TiWindowProxy *window = [args objectAtIndex:0];
 	BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
     
     UIViewController* theController = [[window initController] retain];
@@ -115,7 +115,7 @@
 		[self performSelector:_cmd withObject:args afterDelay:0.1];
 		return;
 	}
-	TiWindowProxyNeue *window = [args objectAtIndex:0];
+	TiWindowProxy *window = [args objectAtIndex:0];
     
     if (window == current) {
         BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
@@ -131,19 +131,7 @@
 #pragma mark - Internal API
 -(void)setTabGroup:(TiUITabGroupProxy*)proxy
 {
-	if (proxy == tabGroup)
-	{
-		return;
-	}
-	for (TiViewController * thisController in [controller viewControllers])
-	{
-		if (![thisController isKindOfClass:[TiViewController class]])
-		{
-			continue;
-		}
-		[(TiWindowProxy *)[thisController proxy] _associateTab:nil navBar:nil tab:nil];
-	}
-	tabGroup = proxy;
+    tabGroup = proxy;
 }
 
 -(void)removeFromTabGroup
@@ -152,7 +140,7 @@
     [self cleanNavStack:YES];
 }
 
-- (void)closeWindow:(TiWindowProxyNeue*)window animated:(BOOL)animated
+- (void)closeWindow:(TiWindowProxy*)window animated:(BOOL)animated
 {
     [window retain];
     UIViewController *windowController = [[window initController] retain];
@@ -197,8 +185,8 @@
 
 -(void)open:(NSArray*)args
 {
-	TiWindowProxyNeue *window = [args objectAtIndex:0];
-	ENSURE_TYPE(window,TiWindowProxyNeue);
+	TiWindowProxy *window = [args objectAtIndex:0];
+	ENSURE_TYPE(window,TiWindowProxy);
 
 	opening = YES;
 	// Because the window may be going out of scope soon, and that rememberself is a bit, not a counter, we can safely protect here.
@@ -213,8 +201,8 @@
 
 -(void)close:(NSArray *)args
 {
-	TiWindowProxyNeue *window = [args objectAtIndex:0];
-	ENSURE_TYPE(window,TiWindowProxyNeue);
+	TiWindowProxy *window = [args objectAtIndex:0];
+	ENSURE_TYPE(window,TiWindowProxy);
     if (window == rootWindow) {
         DebugLog(@"[ERROR] Can not close root window of the tab. Use removeTab instead");
         return;
@@ -255,7 +243,7 @@
 - (void)handleWillShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
     
-    TiWindowProxyNeue* theWindow = (TiWindowProxyNeue*)[(TiViewControllerNeue*)viewController proxy];
+    TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
     [theWindow open:nil];
 }
 
@@ -271,7 +259,7 @@
         }
     }
     RELEASE_TO_NIL(current);
-    TiWindowProxyNeue* theWindow = (TiWindowProxyNeue*)[(TiViewControllerNeue*)viewController proxy];
+    TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
     current = [theWindow retain];
     [self childOrientationControllerChangedFlags:current];
 }

@@ -221,8 +221,8 @@ DEFINE_SUBPROXY_AS(ListViewCellSelectionStyle, TableViewCellSelectionStyle, list
     BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
     int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:style];
-    [[[TiApp app] neueController] resizeView];
-    [[[TiApp app] neueController] repositionSubviews];
+    [[[TiApp app] controller] resizeView];
+    [[[TiApp app] controller] repositionSubviews];
 }
 
 -(void)showStatusBar:(id)args
@@ -233,8 +233,8 @@ DEFINE_SUBPROXY_AS(ListViewCellSelectionStyle, TableViewCellSelectionStyle, list
     BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
     int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
     [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:style];
-    [[[TiApp app] neueController] resizeView];
-    [[[TiApp app] neueController] repositionSubviews];
+    [[[TiApp app] controller] resizeView];
+    [[[TiApp app] controller] repositionSubviews];
 }
 
 -(void)setStatusBarHidden:(id)hidden
@@ -244,8 +244,8 @@ DEFINE_SUBPROXY_AS(ListViewCellSelectionStyle, TableViewCellSelectionStyle, list
 	
     BOOL value = [TiUtils boolValue:hidden];
     [[UIApplication sharedApplication] setStatusBarHidden:value withAnimation:UIStatusBarAnimationNone];
-    [[[TiApp app] neueController] resizeView];
-    [[[TiApp app] neueController] repositionSubviews];
+    [[[TiApp app] controller] resizeView];
+    [[[TiApp app] controller] repositionSubviews];
 }
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(statusBarHidden,NSNumber)

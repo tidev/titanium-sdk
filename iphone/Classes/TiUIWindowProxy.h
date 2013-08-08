@@ -7,13 +7,13 @@
 #ifdef USE_TI_UIWINDOW
 
 #import "TiUIView.h"
-#import "TiWindowProxyNeue.h"
+#import "TiWindowProxy.h"
 #import "KrollBridge.h"
 #import "TiViewProxy.h"
 
 //TODO: we probably should split this ViewProxy into a a separate TiUIView like normal
 
-@interface TiUIWindowProxy : TiWindowProxyNeue
+@interface TiUIWindowProxy : TiWindowProxy
 {
 @private
 	KrollBridge *context;

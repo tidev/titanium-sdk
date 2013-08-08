@@ -1,15 +1,15 @@
 //
-//  TiViewControllerNeue.m
+//  TiViewController.m
 //  Titanium
 //
 //  Created by Vishal Duggal on 7/30/13.
 //
 //
 
-#import "TiViewControllerNeue.h"
+#import "TiViewController.h"
 #import "TiApp.h"
 
-@implementation TiViewControllerNeue
+@implementation TiViewController
 
 -(id)initWithViewProxy:(TiViewProxy*)window
 {
@@ -31,7 +31,7 @@
     id object = [_proxy valueForUndefinedKey:@"orientationModes"];
     _supportedOrientations = [TiUtils TiOrientationFlagsFromObject:object];
     if (_supportedOrientations == TiOrientationNone) {
-        _supportedOrientations = [[[TiApp app] neueController] getDefaultOrientations];
+        _supportedOrientations = [[[TiApp app] controller] getDefaultOrientations];
     }
 }
 
@@ -85,7 +85,7 @@
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
 {
     //THIS HAS TO BE FIXED
-    return [[[TiApp app] neueController] preferredInterfaceOrientationForPresentation];
+    return [[[TiApp app] controller] preferredInterfaceOrientationForPresentation];
 }
 
 -(void)loadView

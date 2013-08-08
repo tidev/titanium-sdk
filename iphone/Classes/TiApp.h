@@ -12,7 +12,7 @@
 #ifdef USE_TI_UIWEBVIEW
 	#import "XHRBridge.h"
 #endif
-#import "TiRootControllerNeue.h"
+#import "TiRootViewController.h"
 #import <TiCore/TiContextRef.h>
 
 extern BOOL applicationInMemoryPanic;
@@ -47,7 +47,6 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	int32_t networkActivityCount;
 	
 	TiRootViewController *controller;
-    TiRootControllerNeue *neueController;
 	NSString *userAgent;
 	NSString *remoteDeviceUUID;
 	
@@ -112,7 +111,6 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 -(UIView *) topMostView;
 
 -(void)attachXHRBridgeIfRequired;
--(TiRootControllerNeue*)neueController;
 
 /**
  Returns application launch options

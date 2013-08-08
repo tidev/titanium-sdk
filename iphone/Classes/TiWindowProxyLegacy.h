@@ -9,14 +9,14 @@
 #import "TiTab.h"
 #import "TiUIWindow.h"
 #import "TiUIView.h"
-#import "TiViewController.h"
+#import "TiViewControllerLegacy.h"
 #import "TiControllerProtocols.h"
 
 /**
  The class is a specialization for TiViews that act like top level
  windows when opened, closed, etc.
  */
-@interface TiWindowProxyLegacy : TiViewProxy<TiAnimationDelegate,TiUIViewController,TiOrientationController> {
+@interface TiWindowProxyLegacy : TiViewProxy<TiAnimationDelegate,TiUIViewControllerLegacy,TiOrientationController> {
 @protected
 	BOOL opened;
 	BOOL focused;

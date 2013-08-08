@@ -539,9 +539,9 @@
 	else
 	{
 		NSString * backTitle = [TiUtils stringValue:[self valueForKey:@"backButtonTitle"]];
-		if ((backTitle == nil) && [prevController isKindOfClass:[TiViewControllerNeue class]])
+		if ((backTitle == nil) && [prevController isKindOfClass:[TiViewController class]])
 		{
-			id tc = [(TiViewControllerNeue*)prevController proxy];
+			id tc = [(TiViewController*)prevController proxy];
 			backTitle = [TiUtils stringValue:[tc valueForKey:@"title"]];
 		}
 		if (backTitle != nil)
