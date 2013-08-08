@@ -12,7 +12,6 @@
 #import "ImageLoader.h"
 #import "TiComplexValue.h"
 #import "TiApp.h"
-#import "TiTabController.h"
 #import "TiLayoutQueue.h"
 
 // this is how long we should wait on the new JS context to be loaded
@@ -540,10 +539,10 @@
 	else
 	{
 		NSString * backTitle = [TiUtils stringValue:[self valueForKey:@"backButtonTitle"]];
-		if ((backTitle == nil) && [prevController conformsToProtocol:@protocol(TiTabController)])
+		if ((backTitle == nil) && [prevController isKindOfClass:[TiViewControllerNeue class]])
 		{
-			id<TiTabController> tc = (id<TiTabController>)prevController;
-			backTitle = [TiUtils stringValue:[[tc window] valueForKey:@"title"]];
+			id tc = [(TiViewControllerNeue*)prevController proxy];
+			backTitle = [TiUtils stringValue:[tc valueForKey:@"title"]];
 		}
 		if (backTitle != nil)
 		{

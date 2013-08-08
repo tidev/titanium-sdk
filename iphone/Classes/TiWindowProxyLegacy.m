@@ -12,12 +12,12 @@
 #import "TiAction.h"
 #import "TiErrorController.h"
 
-@interface TiWindowProxy(Private)
+@interface TiWindowProxyLegacy(Private)
 -(void)openOnUIThread:(NSArray*)args;
 -(void)closeOnUIThread:(NSArray*)args;
 @end
 
-@implementation TiWindowProxy
+@implementation TiWindowProxyLegacy
 @synthesize navController, controller, opening;
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration

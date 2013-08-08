@@ -5,14 +5,14 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiViewController.h"
+#import "TiViewControllerLegacy.h"
 #import "TiApp.h"
 
-#import "TiWindowProxy.h"
+#import "TiWindowProxyLegacy.h"
 
-@implementation TiViewController
+@implementation TiViewControllerLegacy
 
--(id)initWithViewProxy:(TiViewProxy<TiUIViewController>*)window_
+-(id)initWithViewProxy:(TiViewProxy<TiUIViewControllerLegacy>*)window_
 {
 	if (self = [super init])
 	{
@@ -32,7 +32,7 @@
         return;
     }
     BOOL wrap = [TiUtils isIOS7OrGreater];
-    if (![proxy isKindOfClass:[TiWindowProxy class]]) {
+    if (![proxy isKindOfClass:[TiWindowProxyLegacy class]]) {
         DebugLog(@"[WARN] TiViewController - The proxy %@ is not of type TiWindowProxy.", proxy);
         wrap = NO;
     }
