@@ -103,9 +103,11 @@
         //However this will not work for our layout system since now the reference size in which to
         //layout the view is always the full screen. So we are going to wrap our window in a wrapper
         //so it lays out correctly.
+        [_proxy parentWillShow];
         UIView *wrapperView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
         wrapperView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
         [wrapperView addSubview:[_proxy view]];
+        [wrapperView bringSubviewToFront:[_proxy view]];
         self.view = wrapperView;
         [wrapperView release];
     } else {

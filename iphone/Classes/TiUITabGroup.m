@@ -123,7 +123,7 @@ DEFINE_EXCEPTIONS
     [focused replaceValue:[NSNumber numberWithBool:YES] forKey:@"active" notification:NO];
 
     // If we're in the middle of opening, the focus happens once the tabgroup is opened
-    if (![(TiWindowProxy*)[self proxy] opening]) {
+    if (![(TiWindowProxyNeue*)[self proxy] opening]) {
         [self.proxy fireEvent:@"focus" withObject:event];
     }
 	[focused handleDidFocus:event];
