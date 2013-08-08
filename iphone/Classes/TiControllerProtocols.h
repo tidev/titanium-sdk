@@ -93,7 +93,7 @@
 -(void)repositionSubviews;
 @property(nonatomic,readonly) TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedProxy;
 #if defined(DEBUG) || defined(DEVELOPER)
--(void)shutdownUi;
+-(void)shutdownUi:(id)arg;
 #endif
 
 @end
