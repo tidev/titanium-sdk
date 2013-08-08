@@ -6,7 +6,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "TiWindowProxy.h"
+#import "TiWindowProxyLegacy.h"
 
 /**
  The protocol for root controller.

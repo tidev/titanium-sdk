@@ -12,7 +12,6 @@
 #ifdef USE_TI_UIWEBVIEW
 	#import "XHRBridge.h"
 #endif
-#import "TiRootViewController.h"
 #import "TiRootControllerNeue.h"
 #import <TiCore/TiContextRef.h>
 

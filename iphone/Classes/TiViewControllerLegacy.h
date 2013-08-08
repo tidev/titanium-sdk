@@ -10,7 +10,7 @@
 /**
  The protocol for view controllers.
  */
-@protocol TiUIViewController
+@protocol TiUIViewControllerLegacy
 
 @required
 
@@ -73,9 +73,9 @@
 /**
  The base class for Titanium view controllers.
  */
-@interface TiViewController : UIViewController
+@interface TiViewControllerLegacy : UIViewController
 {
-	TiViewProxy<TiUIViewController> *proxy;
+	TiViewProxy<TiUIViewControllerLegacy> *proxy;
 }
 /**
  Initialize the view controller with the provided view proxy.
@@ -87,6 +87,6 @@
 /**
  Provides access to view proxy associated with the view controller.
  */
-@property(nonatomic,readwrite,assign)	TiViewProxy<TiUIViewController> *proxy;
+@property(nonatomic,readwrite,assign)	TiViewProxy<TiUIViewControllerLegacy> *proxy;
 
 @end

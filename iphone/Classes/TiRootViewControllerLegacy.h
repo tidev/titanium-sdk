@@ -5,8 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiRootController.h"
-#import "TiWindowProxy.h"
+#import "TiRootControllerLegacy.h"
 
 /**
  The class represent root controller in a view hierarchy.
@@ -24,7 +23,7 @@
 - (BOOL)isBeingDismissed;
 @end
 
-@interface TiRootViewController : UIViewController<UIApplicationDelegate,TiRootController,TiOrientationController,TiUIViewControllerIOS6Support> {
+@interface TiRootViewControllerLegacy : UIViewController<UIApplicationDelegate,TiRootController,TiOrientationController,TiUIViewControllerIOS6Support> {
 @private
 //Presentation: background image and color.
 	UIColor * backgroundColor;
@@ -159,7 +158,7 @@
 
 @end
 
-@interface TiRootViewController (unsupported_internal)
+@interface TiRootViewControllerLegacy (unsupported_internal)
 /*
  *	Methods declarations stored or moved in this category are NOT to be used
  *	by modules, as these methods can be added or removed from Titanium as

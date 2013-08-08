@@ -16,7 +16,7 @@
  The class is a specialization for TiViews that act like top level
  windows when opened, closed, etc.
  */
-@interface TiWindowProxy : TiViewProxy<TiAnimationDelegate,TiUIViewController,TiOrientationController> {
+@interface TiWindowProxyLegacy : TiViewProxy<TiAnimationDelegate,TiUIViewController,TiOrientationController> {
 @protected
 	BOOL opened;
 	BOOL focused;

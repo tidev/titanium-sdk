@@ -6,10 +6,9 @@
  */
 
 
-#import "TiRootViewController.h"
+#import "TiRootViewControllerLegacy.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
-#import "TiWindowProxy.h"
 #import "TiTab.h"
 #import "TiApp.h"
 #import <MessageUI/MessageUI.h>
@@ -36,7 +35,7 @@
 @end
 
 
-@interface TiRootViewController ()
+@interface TiRootViewControllerLegacy ()
 
 - (UIView *)keyboardAccessoryViewForProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy withView:(UIView **)proxyView;
 -(UIView*)viewForKeyboardAccessory;
@@ -52,7 +51,7 @@
 @end
 
 
-@implementation TiRootViewController
+@implementation TiRootViewControllerLegacy
 @synthesize backgroundColor, backgroundImage, defaultImageView, keyboardVisible;
 @synthesize windowOrientation;
 
