@@ -26,6 +26,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.os.StrictMode;
@@ -91,9 +92,15 @@ public class TiFastDev
 		//Starting with API 10, Android default policy is strict mode, which means
 		//all networking can't be done on the main thread. In this case we choose
 		//to change the policy to avoid exceptions.
-		if (Build.VERSION.SDK_INT >= 10) {
-			Builder policy = new ThreadPolicy.Builder().permitNetwork();
-			StrictMode.setThreadPolicy(policy.build());
+		if (Build.VERSION.SDK_INT >= 10 && Build.VERSION.SDK_INT < 16) {
+			enableNetworkOnUI();
+		} else if (Build.VERSION.SDK_INT >= 16) {
+			new Handler().postAtFrontOfQueue(new Runnable() {
+				@Override
+				public void run() {
+					enableNetworkOnUI();
+				}
+			});
 		}
 
 		appGuid = app.getAppGUID();
@@ -115,6 +122,11 @@ public class TiFastDev
 			session.executeHandshake();
 			session.start();
 		}
+	}
+
+	private void enableNetworkOnUI() {
+		Builder policy = new ThreadPolicy.Builder().permitNetwork();
+		StrictMode.setThreadPolicy(policy.build());
 	}
 
 	protected void readDeployData(TiDeployData deployData)
