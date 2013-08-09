@@ -690,6 +690,8 @@
         [_modalWindows addObject:theWindow];
     } else {
         [_containedWindows addObject:theWindow];
+        [TiUtils configureController:self withObject:theWindow];
+        [self resizeView];
         if (isCurrentlyVisible) {
             [theWindow viewWillAppear:YES];
         }
@@ -725,6 +727,8 @@
 {
     [self dismissKeyboard];
     if (isCurrentlyVisible) {
+        [TiUtils configureController:self withObject:[_containedWindows lastObject]];
+        [self resizeView];
         [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
         [[_containedWindows lastObject] gainFocus];
         UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
