@@ -172,6 +172,17 @@ methods:
         This method causes the media capture device to capture a photo and call the 
         `success` callback.
     platforms: [iphone, ipad, android]
+  - name: switchCamera
+    summary: Switches between front and rear-facing cameras.
+    platforms: [iphone, ipad, android]
+    parameters:
+      - name: camera
+        summary: The camera to switch to, <Titanium.Media.CAMERA_FRONT> or <Titanium.Media.CAMERA_REAR>.
+        type: Number
+    since:
+        android: 3.2.0
+        iphone: 1.8.1
+        ipad: 1.8.1
   - name: takeScreenshot
     summary: Takes a screen shot of the visible UI on the device.
     description: |
