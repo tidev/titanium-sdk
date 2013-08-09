@@ -149,20 +149,13 @@
 
 #pragma mark - TiWindowProtocol overrides
 
--(BOOL)handleFocusEvents
-{
-	if (context != nil) {
-        return contextReady;
-    }
-    return YES;
-}
 -(BOOL)_handleOpen:(id)args
 {
 	// this is a special case that calls open again above to cause the event lifecycle to
 	// happen after the JS context is fully up and ready
 	if (contextReady && context!=nil)
 	{
-		return YES;
+		return [super _handleOpen:args];
 	}
 	
 	//
@@ -213,17 +206,6 @@
 	}
 	
 	return [super _handleOpen:args];
-}
-
--(void)windowDidOpen
-{
-    [super windowDidOpen];
-    //Suppressed the focus event because context was not ready. So fire focus now
-    if (focussed && context != nil && contextReady) {
-        if ([self _hasListeners:@"focus"]) {
-            [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-        }
-    }
 }
 
 -(void) windowDidClose
