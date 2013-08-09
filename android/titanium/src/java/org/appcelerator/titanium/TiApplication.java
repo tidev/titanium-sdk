@@ -768,6 +768,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	public boolean isFastDevMode()
 	{
+		//If we're running on device, disable fastdev.
+		if (!Build.FINGERPRINT.startsWith("generic") || !Build.BRAND.equalsIgnoreCase("generic")) {
+			return false;
+		}
 		// Fast dev is enabled by default in development mode, and disabled otherwise
 		// When the property is set, it overrides the default behavior
 		return getSystemProperties().getBool(TiApplication.PROPERTY_FASTDEV,
