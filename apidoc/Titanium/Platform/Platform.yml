@@ -67,7 +67,7 @@ methods:
         On Mobile Web and Tizen, this function always returns false.
     returns:
         type: Boolean
-    platforms: [android, iphonnne, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     
 properties:
   - name: BATTERY_STATE_CHARGING
