@@ -188,12 +188,12 @@
         return;
     }
     
-    closing = YES;
-
     if (tab != nil) {
         [tab close:[NSArray arrayWithObjects:self,args, nil]];
         return;
     }
+    
+    closing = YES;
     
     //TODO Argument Processing
     closeAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
@@ -300,8 +300,7 @@
         [self parentWillShow];
         [self view];
         if (tab != nil) {
-            [self windowWillOpen];
-            [self windowDidOpen];
+            [tab open:[NSArray arrayWithObjects:self,args, nil]];
         } else if (isModal) {
             UIViewController* theController = [self initController];
             [self windowWillOpen];

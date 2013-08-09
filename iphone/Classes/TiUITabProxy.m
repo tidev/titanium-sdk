@@ -187,12 +187,21 @@
 {
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
+    
+    if (window == rootWindow) {
+        [rootWindow windowWillOpen];
+        [rootWindow windowDidOpen];
+    }
+    
+	[window setTab:self];
+	[window setParentOrientationController:self];
+    //Send to open. Will come back after _handleOpen returns true.
+    if (![window opening]) {
+        [window open:args];
+        return;
+    }
 
 	opening = YES;
-	// Because the window may be going out of scope soon, and that rememberself is a bit, not a counter, we can safely protect here.
-	[window rememberSelf];
-    [window setTab:self];
-	[window setParentOrientationController:self];
 	[[[TiApp app] controller] dismissKeyboard];
 	TiThreadPerformOnMainThread(^{
 		[self openOnUIThread:args];
@@ -244,7 +253,14 @@
 {
     
     TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
-    [theWindow open:nil];
+    if (theWindow == rootWindow) {
+        //This is probably too late for the root view controller.
+        //Figure out how to call open before this callback
+        [theWindow open:nil];
+    } else if ([theWindow opening]) {
+        [theWindow windowWillOpen];
+        [theWindow windowDidOpen];
+    }
 }
 
 - (void)handleDidShowViewController:(UIViewController *)viewController animated:(BOOL)animated
