@@ -24,15 +24,6 @@ static NSArray* tabGroupKeySequence;
     return tabGroupKeySequence;
 }
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-	if ([self viewAttached])
-	{
-		[(TiUITabGroup *)[self view] willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	}
-	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
-
 -(void)dealloc
 {
 	for (id thisTab in tabs)
@@ -155,21 +146,6 @@ static NSArray* tabGroupKeySequence;
 }
 
 
--(BOOL)handleFocusEvents
-{
-	return NO;
-}
-
--(void)_tabFocus
-{
-	[(TiUITabGroup *)[self view] focusVisibleWindow];
-}
-
--(void)_tabBlur
-{
-	[(TiUITabGroup *)[self view] blurVisibleWindow];
-}
-
 #pragma mark Window Management
 
 -(BOOL)_handleOpen:(id)args
@@ -194,41 +170,77 @@ static NSArray* tabGroupKeySequence;
 	// override but don't drop the tab group, causes problems
 }
 
-- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
+-(BOOL)handleFocusEvents
+{
+	return NO;
+}
+
+
+- (void)viewWillAppear:(BOOL)animated;
 {
 	if ([self viewAttached])
 	{
 		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
 		[tabController viewWillAppear:animated];
 	}
+    [super viewWillAppear:animated];
 }
 
-- (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
+- (void)viewDidAppear:(BOOL)animated;
 {
 	if ([self viewAttached])
 	{
 		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
 		[tabController viewDidAppear:animated];
 	}
+    [super viewDidAppear:animated];
 }
 
-- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
+- (void)viewWillDisappear:(BOOL)animated;
 {
 	if ([self viewAttached])
 	{
 		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
 		[tabController viewWillDisappear:animated];
 	}
+    [super viewWillDisappear:animated];
 }
 
-- (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
+- (void)viewDidDisappear:(BOOL)animated;
 {
 	if ([self viewAttached])
 	{
 		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
 		[tabController viewDidDisappear:animated];
 	}
+    [super viewDidDisappear:animated];
 }
+
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	if ([self viewAttached])
+	{
+		[(TiUITabGroup *)[self view] willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	}
+	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+}
+
+-(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	if ([self viewAttached])
+	{
+		[(TiUITabGroup *)[self view] willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	}
+}
+-(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+    if ([self viewAttached])
+	{
+		[(TiUITabGroup *)[self view] didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+	}
+}
+
 
 -(TiOrientationFlags)orientationFlags
 {
