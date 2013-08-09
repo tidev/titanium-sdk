@@ -21,7 +21,7 @@ events:
       - name: level
         summary: Percentage battery power level.
         type: Number
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, ipad, iphone, tizen]
     
 methods:
   - name: canOpenURL
