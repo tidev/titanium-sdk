@@ -671,7 +671,7 @@
     if ([arg respondsToSelector:@selector(_resumeRestart:)]) {
         [arg performSelector:@selector(_resumeRestart:) withObject:nil];
     } else {
-        DebugLog(@"[WARN] Could not resume. No selector _resumeRestart: found in arg");
+        DebugLog(@"[WARN] Could not resume. No selector _resumeRestart: found for arg");
     }
 }
 #endif
