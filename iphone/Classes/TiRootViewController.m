@@ -612,8 +612,17 @@
 -(CGRect)resizeView
 {
     CGRect rect = [[UIScreen mainScreen] applicationFrame];
+    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
     if ([TiUtils isIOS7OrGreater]) {
-        //TODO. Check for fullscreen params
+        NSUInteger edges = [(id<TiUIViewControllerIOS7Support>)self edgesForExtendedLayout];
+        //Check if I cover status bar
+        if ((edges & 1/*UIRectEdgeTop*/) == 0) {
+            [[self view] setFrame:rect];
+        } else {
+            rect.origin.y = 0;
+            rect.size.height += statusBarFrame.size.height;
+            [[self view] setFrame:rect];
+        }
     } else {
         [[self view] setFrame:rect];
     }
@@ -990,6 +999,7 @@
 -(void)viewDidAppear:(BOOL)animated
 {
     isCurrentlyVisible = YES;
+    [self resizeView];
     if ([_containedWindows count] > 0) {
         [self refreshOrientationWithDuration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
     }
