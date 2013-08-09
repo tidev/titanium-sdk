@@ -367,6 +367,16 @@ DEFINE_EXCEPTIONS
 	[controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
+-(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	[controller willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+}
+
+-(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+	[controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+}
+
 
 -(void)setBarColor_:(id)value
 {
@@ -522,35 +532,6 @@ DEFINE_EXCEPTIONS
 		controller.viewControllers = nil;
 	}
 	RELEASE_TO_NIL(controller);
-}
-
-
--(void)focusVisibleWindow
-{
-    //DEAD CODE. FOCUS NOW HANDLED THROUGH APPEARANCE METHODS OF TiViewController
-    /*
-	UINavigationController * ourCurrentNC = (UINavigationController *)[controller selectedViewController];
-	TiUITabController * ourCurrentVC = (TiUITabController *)[ourCurrentNC visibleViewController];
-	if([ourCurrentVC isKindOfClass:[TiUITabController class]])
-	{
-		TiWindowProxy * ourCurrentWindow = [ourCurrentVC window];
-		[ourCurrentWindow _tabFocus];
-	}
-    */
-}
-
--(void)blurVisibleWindow
-{
-    //DEAD CODE. BLUR NOW HANDLED THROUGH APPEARANCE METHODS OF TiViewController
-    /*
-	UINavigationController * ourCurrentNC = (UINavigationController *)[controller selectedViewController];
-	TiUITabController * ourCurrentVC = (TiUITabController *)[ourCurrentNC visibleViewController];
-	if([ourCurrentVC isKindOfClass:[TiUITabController class]])
-	{
-		TiWindowProxy * ourCurrentWindow = [ourCurrentVC window];
-		[ourCurrentWindow _tabBlur];
-	}
-     */
 }
 
 @end

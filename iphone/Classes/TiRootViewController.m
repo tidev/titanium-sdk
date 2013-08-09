@@ -110,6 +110,7 @@
         [rootView addSubview:_defaultImageView];
     }
     [rootView becomeFirstResponder];
+    [rootView setBackgroundColor:[UIColor yellowColor]];
     [rootView release];
 }
 
@@ -765,6 +766,22 @@
 
 
 //IOS5 support. Begin Section. Drop in 3.2
+
+
+- (void)viewWillLayoutSubviews
+{
+    self.edgesForExtendedLayout = UIRectEdgeLeft;
+    CGRect bounds = [[self view] bounds];
+    NSLog(@"WILL LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
+    [super viewWillLayoutSubviews];
+}
+
+- (void)viewDidLayoutSubviews
+{
+    CGRect bounds = [[self view] bounds];
+    NSLog(@"DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
+    [super viewDidLayoutSubviews];
+}
 
 - (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers
 {
