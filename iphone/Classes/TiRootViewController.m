@@ -724,21 +724,8 @@
 
 -(CGRect)resizeView
 {
-    CGRect rect = [[UIScreen mainScreen] applicationFrame];
-    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
-    if ([TiUtils isIOS7OrGreater]) {
-        NSUInteger edges = [(id<TiUIViewControllerIOS7Support>)self edgesForExtendedLayout];
-        //Check if I cover status bar
-        if ((edges & 1/*UIRectEdgeTop*/) == 0) {
-            [[self view] setFrame:rect];
-        } else {
-            rect.origin.y = 0;
-            rect.size.height += statusBarFrame.size.height;
-            [[self view] setFrame:rect];
-        }
-    } else {
-        [[self view] setFrame:rect];
-    }
+    CGRect rect = [TiUtils frameForController:self];
+    [[self view] setFrame:rect];
     return [[self view]bounds];
 }
 
@@ -851,6 +838,11 @@
     }
     deviceOrientation = (UIInterfaceOrientation) newOrientation;
     
+    if (![[TiApp app] windowIsKeyWindow]) {
+        VerboseLog(@"[DEBUG] RETURNING BECAUSE WE ARE NOT KEY WINDOW");
+        return;
+    }
+
     //Modal windows are going to handle their own orientation.
     //We only need to fix ourselves if we are top window
     if (isCurrentlyVisible && [self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
@@ -951,8 +943,7 @@
 
     UIView * ourView = [self view];
     [ourView setTransform:transform];
-    [self resizeView];
-
+    
     [self willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
 
     //Propigate this to everyone else. This has to be done INSIDE the animation.
@@ -1066,6 +1057,7 @@
     }
     targetOrientation = toInterfaceOrientation;
     [self updateOrientationHistory:targetOrientation];
+    [self resizeView];
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 -(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration

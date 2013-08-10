@@ -1421,6 +1421,22 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     }
 }
 
+
++(CGRect)frameForController:(id)theController
+{
+    CGRect rect = [[UIScreen mainScreen] applicationFrame];
+    if ([TiUtils isIOS7OrGreater]) {
+        CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+        NSUInteger edges = [(id<TiUIViewControllerIOS7Support>)theController edgesForExtendedLayout];
+        //Check if I cover status bar
+        if ((edges & 1/*UIRectEdgeTop*/) != 0) {
+            rect.origin.y = 0;
+            rect.size.height += statusBarFrame.size.height;
+        }
+    }
+    return rect;
+}
+
 +(void)applyColor:(TiColor *)color toNavigationController:(UINavigationController *)navController
 {
     UIColor * barColor = [self barColorForColor:color];
