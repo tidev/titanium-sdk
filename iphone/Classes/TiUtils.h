@@ -574,6 +574,8 @@ typedef enum
 
 +(void)configureController:(id)controller withObject:(id)object;
 
++(CGRect)frameForController:(id)theController;
+
 +(int)dpi;
 
 +(NSStringEncoding)charsetToEncoding:(NSString*)charset;

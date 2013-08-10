@@ -50,18 +50,6 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
     return TI_ORIENTATION_ALLOWED(_supportedOrientations,toInterfaceOrientation) ? YES : NO;
-    /*
-    BOOL result =  TI_ORIENTATION_ALLOWED(_supportedOrientations,toInterfaceOrientation) ? YES : NO;
-    TiOrientationFlags result2 = TiOrientationNone;
-    TI_ORIENTATION_SET(result2, toInterfaceOrientation);
-    if (result == YES) {
-        NSLog(@"YES I WILL ROTATE %d %d",_supportedOrientations, result2);
-    } else {
-        NSLog(@"NO I WILL NOT ROTATE %d %d", _supportedOrientations, result2);
-    }
-    
-    return result;
-     */
 }
 //IOS5 support. End Section
 
@@ -139,6 +127,9 @@
    	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
         [(id<TiWindowProtocol>)_proxy viewDidAppear:animated];
     }
+    if ([self presentingViewController] != nil) {
+        [[self view] setFrame:[TiUtils frameForController:self]];
+    }
     [super viewDidAppear:animated];
 }
 -(void)viewDidDisappear:(BOOL)animated
@@ -152,6 +143,9 @@
 {
    	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
         [(id<TiWindowProtocol>)_proxy willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    }
+    if ([self presentingViewController] != nil) {
+        [[self view] setFrame:[TiUtils frameForController:self]];
     }
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
