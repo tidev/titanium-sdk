@@ -19,6 +19,10 @@
 
 @synthesize tab = tab;
 -(void) dealloc {
+    if (controller != nil) {
+        TiThreadReleaseOnMainThread(controller, NO);
+        controller = nil;
+    }
     [super dealloc];
 }
 
@@ -85,6 +89,7 @@
     if (tab == nil) {
         [[[[TiApp app] controller] topContainerController] didCloseWindow:self];
     }
+    RELEASE_TO_NIL_AUTORELEASE(controller);
     [super windowDidClose];
 }
 
@@ -120,12 +125,30 @@
 
 -(BOOL)isRootViewAttached
 {
+    //When a modal window is up, just return yes
+    if ([[[TiApp app] controller] presentedViewController] != nil) {
+        return YES;
+    }
     return ([[[[TiApp app] controller] view] superview]!=nil);
 }
 
 #pragma mark - TiWindowProtocol Base Methods
 -(void)open:(id)args
 {
+    //If an error is up, Go away
+    if ([[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorController class]]) {
+        DebugLog(@"[ERROR] ErrorController is up. ABORTING open");
+        return;
+    }
+    
+    //I am already open or will be soon. Go Away
+    if (opening || opened) {
+        return;
+    }
+    
+    //Lets keep ourselves safe
+    [self rememberSelf];
+
     //Make sure our RootView Controller is attached
     if (![self isRootViewLoaded]) {
         DebugLog(@"[WARN] ROOT VIEW NOT LOADED. WAITING");
@@ -134,17 +157,8 @@
     }
     if (![self isRootViewAttached]) {
         DebugLog(@"[WARN] ROOT VIEW NOT ATTACHED. WAITING");
+        UIView* theView = [[[TiApp app] controller] view];
         [self performSelector:@selector(open:) withObject:args afterDelay:0.1];
-        return;
-    }
-    
-    //If an error is up, Go away
-    if ([[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorController class]]) {
-        return;
-    }
-    
-    //I am already open or will be soon. Go Away
-    if (opening || opened) {
         return;
     }
     
@@ -156,9 +170,6 @@
         openAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
         [self rememberProxy:openAnimation];
     }
-    //Lets keep ourselves safe
-    [self rememberSelf];
-    
     //TODO Argument Processing
     id object = [self valueForUndefinedKey:@"orientationModes"];
     _supportedOrientations = [TiUtils TiOrientationFlagsFromObject:object];

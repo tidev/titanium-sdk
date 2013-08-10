@@ -49,6 +49,8 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
+    return TI_ORIENTATION_ALLOWED(_supportedOrientations,toInterfaceOrientation) ? YES : NO;
+    /*
     BOOL result =  TI_ORIENTATION_ALLOWED(_supportedOrientations,toInterfaceOrientation) ? YES : NO;
     TiOrientationFlags result2 = TiOrientationNone;
     TI_ORIENTATION_SET(result2, toInterfaceOrientation);
@@ -59,6 +61,7 @@
     }
     
     return result;
+     */
 }
 //IOS5 support. End Section
 
@@ -71,7 +74,7 @@
 
 - (BOOL)shouldAutomaticallyForwardAppearanceMethods
 {
-    YES;
+    return YES;
 }
 
 - (BOOL)shouldAutorotate{
