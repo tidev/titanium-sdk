@@ -39,6 +39,8 @@
     NSMutableArray* _containedWindows;
     NSMutableArray* _modalWindows;
     
+    UIInterfaceOrientation targetOrientation;
+    UIInterfaceOrientation deviceOrientation;
 }
 
 @end
