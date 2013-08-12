@@ -69,7 +69,7 @@ public class TiUILabel extends TiUIView
 		tv.setFocusable(false);
 		tv.setSingleLine(false);
 		TiUIHelper.styleText(tv, null);
-		defaultColor = tv.getCurrentTextColor();
+		defaultColor =  tv.getCurrentTextColor();
 		setNativeView(tv);
 
 	}
@@ -142,7 +142,11 @@ public class TiUILabel extends TiUIView
 			TiUIHelper.linkifyIfEnabled(tv, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
-			tv.setTextColor(TiConvert.toColor((String) newValue));
+			if (newValue == null) {
+				tv.setTextColor(defaultColor);
+			} else {
+				tv.setTextColor(TiConvert.toColor((String) newValue));
+			}
 		} else if (key.equals(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
 			tv.setHighlightColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals(TiC.PROPERTY_TEXT_ALIGN)) {
