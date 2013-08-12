@@ -73,10 +73,10 @@
 -(UINavigationController*)controller
 {
     if (navController == nil) {
-        navController = [UINavigationController alloc];
- 		navController.delegate = self;
-		[TiUtils configureController:navController withObject:self];
-   }
+        navController = [[UINavigationController alloc] initWithRootViewController:[self rootController]];;
+        navController.delegate = self;
+        [TiUtils configureController:navController withObject:self];
+    }
     return navController;
 }
 
