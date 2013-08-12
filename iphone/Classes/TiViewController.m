@@ -40,6 +40,13 @@
     return _proxy;
 }
 
+- (void)viewWillLayoutSubviews
+{
+    if ([_proxy viewAttached]) {
+        ApplyConstraintToViewWithBounds([_proxy layoutProperties], [_proxy view], [self view].bounds);
+    }
+    [super viewWillLayoutSubviews];
+}
 
 //IOS5 support. Begin Section. Drop in 3.2
 - (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers

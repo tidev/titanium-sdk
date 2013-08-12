@@ -115,6 +115,14 @@
     [rootView release];
 }
 
+#pragma mark Remote Control Notifications
+
+- (void)remoteControlReceivedWithEvent:(UIEvent *)event
+{
+    /*Can not find code associated with this anywhere. Keeping in place just in case*/
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteControlNotification object:self userInfo:[NSDictionary dictionaryWithObject:event forKey:@"event"]];
+}
+
 #pragma mark - TiRootControllerProtocol
 //Background Control
 -(void)updateBackground
@@ -934,9 +942,13 @@
     if (topmostController != self) {
         NSUInteger retVal = [topmostController supportedInterfaceOrientations];
         if ([topmostController isBeingDismissed]) {
-            retVal = retVal | [[topmostController presentingViewController] supportedInterfaceOrientations];
+            UIViewController* presenter = [topmostController presentingViewController];
+            if (presenter == self) {
+                return retVal | [self orientationFlags];
+            } else {
+                return retVal | [presenter supportedInterfaceOrientations];
+            }
         }
-        return retVal;
     }
     return [self orientationFlags];
 }
