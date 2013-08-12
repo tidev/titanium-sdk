@@ -40,8 +40,6 @@
 {
     if ([self isModal]) {
         return _supportedOrientations;
-    } else if (controller == nil) {
-        return _supportedOrientations;
     } else {
         for (id thisController in [[navController viewControllers] reverseObjectEnumerator])
         {
