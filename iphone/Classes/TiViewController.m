@@ -89,28 +89,20 @@
 -(void)loadView
 {
     if (_proxy == nil) {
+        DebugLog(@"NO PROXY ASSOCIATED WITH VIEWCONTROLLER. RETURNING")
         return;
     }
     [self updateOrientations];
+    [self setHidesBottomBarWhenPushed:[TiUtils boolValue:[_proxy valueForUndefinedKey:@"tabBarHidden"] def:NO]];
     //Always wrap proxy view with a wrapperView.
     //This way proxy always has correct sandbox when laying out
-    BOOL wrap = YES;
-    
-    if (wrap) {
-        //IOS7 now automatically sets the frame of its view based on the fullscreen control props.
-        //However this will not work for our layout system since now the reference size in which to
-        //layout the view is always the full screen. So we are going to wrap our window in a wrapper
-        //so it lays out correctly.
-        [_proxy parentWillShow];
-        UIView *wrapperView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
-        wrapperView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-        [wrapperView addSubview:[_proxy view]];
-        [wrapperView bringSubviewToFront:[_proxy view]];
-        self.view = wrapperView;
-        [wrapperView release];
-    } else {
-        self.view = [_proxy view];
-    }
+    [_proxy parentWillShow];
+    UIView *wrapperView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
+    wrapperView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    [wrapperView addSubview:[_proxy view]];
+    [wrapperView bringSubviewToFront:[_proxy view]];
+    self.view = wrapperView;
+    [wrapperView release];
 }
 
 #pragma mark - Appearance & rotation methods
