@@ -111,7 +111,6 @@
         [rootView addSubview:_defaultImageView];
     }
     [rootView becomeFirstResponder];
-    [rootView setBackgroundColor:[UIColor yellowColor]];
     [rootView release];
 }
 
