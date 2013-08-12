@@ -790,6 +790,8 @@ else{\
     if ((controller == nil) || ([controller navigationController] == nil)) {
         return;
     }
+    
+    [[controller navigationController] setToolbarHidden:!hasToolbar animated:YES];
 
     SETPROP(@"title",setTitle);
     SETPROP(@"titlePrompt",setTitlePrompt);
