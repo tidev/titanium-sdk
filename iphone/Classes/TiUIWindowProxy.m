@@ -149,6 +149,16 @@
 
 #pragma mark - TiWindowProtocol overrides
 
+-(UIViewController*)initController;
+{
+    if (controller == nil) {
+        UIViewController* theController = [super initController];
+        [theController setHidesBottomBarWhenPushed:[TiUtils boolValue:[self valueForUndefinedKey:@"tabBarHidden"] def:NO]];
+        return theController;
+    }
+    return [super initController];
+}
+
 -(BOOL)_handleOpen:(id)args
 {
 	// this is a special case that calls open again above to cause the event lifecycle to
@@ -477,12 +487,12 @@
 
 -(void)setTabBarHidden:(id)value
 {
-	ENSURE_UI_THREAD_1_ARG(value);
 	[self replaceValue:value forKey:@"tabBarHidden" notification:NO];
-	if (controller!=nil)
-	{
-		[controller setHidesBottomBarWhenPushed:[TiUtils boolValue:value]];
-	}
+    TiThreadPerformOnMainThread(^{
+        if (controller != nil) {
+            [controller setHidesBottomBarWhenPushed:[TiUtils boolValue:value]];
+        }
+    }, NO);
 }
 
 -(void)hideTabBar:(id)value
