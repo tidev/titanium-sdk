@@ -200,7 +200,7 @@
     }
     
     if (tab != nil) {
-        [tab close:[NSArray arrayWithObjects:self,args, nil]];
+        [tab pop:[NSArray arrayWithObjects:self,args, nil]];
         return;
     }
     
@@ -311,7 +311,7 @@
         [self parentWillShow];
         [self view];
         if (tab != nil) {
-            [tab open:[NSArray arrayWithObjects:self,args, nil]];
+            [tab push:[NSArray arrayWithObjects:self,args, nil]];
         } else if (isModal) {
             UIViewController* theController = [self initController];
             [self windowWillOpen];

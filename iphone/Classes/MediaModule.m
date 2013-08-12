@@ -980,7 +980,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
     UIGraphicsEndImageContext();
 
-	UIInterfaceOrientation windowOrientation = [[TiApp controller] windowOrientation];
+	UIInterfaceOrientation windowOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 	switch (windowOrientation) {
 		case UIInterfaceOrientationPortraitUpsideDown:
 			image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationDown];
