@@ -164,6 +164,7 @@
 -(void)dismissDefaultImage
 {
     if (_defaultImageView != nil) {
+        [_defaultImageView setAlpha:0.0];
         [_defaultImageView removeFromSuperview];
         RELEASE_TO_NIL(_defaultImageView);
     }

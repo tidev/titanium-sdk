@@ -305,6 +305,16 @@
 }
 
 #pragma mark - Private Methods
+-(TiProxy*)tabGroup
+{
+    return tab!=nil ? [tab tabGroup] : nil;
+}
+
+-(TiProxy*)tab
+{
+    return tab;
+}
+
 -(void)openOnUIThread:(NSArray*)args
 {
     if ([self _handleOpen:args]) {
