@@ -317,7 +317,7 @@
             [self windowWillOpen];
             NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
             int style = [TiUtils intValue:@"modalTransitionStyle" properties:dict def:-1];
-            if (style == -1) {
+            if (style != -1) {
                 [theController setModalTransitionStyle:style];
             }
             style = [TiUtils intValue:@"modalStyle" properties:dict def:-1];

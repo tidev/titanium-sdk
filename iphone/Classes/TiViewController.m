@@ -128,7 +128,16 @@
         [(id<TiWindowProtocol>)_proxy viewDidAppear:animated];
     }
     if ([self presentingViewController] != nil) {
-        [[self view] setFrame:[TiUtils frameForController:self]];
+        BOOL resize = NO;
+        if ([self modalPresentationStyle] == UIModalPresentationFullScreen) {
+            resize = YES;
+        }
+        if ([self modalPresentationStyle] == UIModalPresentationCurrentContext) {
+            resize = ([[self presentingViewController] modalPresentationStyle] == UIModalPresentationFullScreen);
+        }
+        if (resize) {
+            [[self view] setFrame:[TiUtils frameForController:self]];
+        }
     }
     [super viewDidAppear:animated];
 }
@@ -145,7 +154,16 @@
         [(id<TiWindowProtocol>)_proxy willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
     if ([self presentingViewController] != nil) {
-        [[self view] setFrame:[TiUtils frameForController:self]];
+        BOOL resize = NO;
+        if ([self modalPresentationStyle] == UIModalPresentationFullScreen) {
+            resize = YES;
+        }
+        if ([self modalPresentationStyle] == UIModalPresentationCurrentContext) {
+            resize = ([[self presentingViewController] modalPresentationStyle] == UIModalPresentationFullScreen);
+        }
+        if (resize) {
+            [[self view] setFrame:[TiUtils frameForController:self]];
+        }
     }
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
