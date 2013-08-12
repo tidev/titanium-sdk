@@ -200,7 +200,12 @@
     }
     
     if (tab != nil) {
-        [tab pop:[NSArray arrayWithObjects:self,args, nil]];
+        if (args != nil && ([args count] > 0)) {
+            args = [NSArray arrayWithObjects:self, [args objectAtIndex:0], nil];
+        } else {
+            args = [NSArray arrayWithObjects:self, nil];
+        }
+        [tab pop:args];
         return;
     }
     
@@ -321,7 +326,12 @@
         [self parentWillShow];
         [self view];
         if (tab != nil) {
-            [tab push:[NSArray arrayWithObjects:self,args, nil]];
+            if (args != nil && ([args count] > 0)) {
+                args = [NSArray arrayWithObjects:self, [args objectAtIndex:0], nil];
+            } else {
+                args = [NSArray arrayWithObjects:self, nil];
+            }
+            [tab push:args];
         } else if (isModal) {
             UIViewController* theController = [self initController];
             [self windowWillOpen];
