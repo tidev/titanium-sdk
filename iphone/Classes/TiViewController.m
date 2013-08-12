@@ -17,7 +17,6 @@
         [self updateOrientations];
         [TiUtils configureController:self withObject:_proxy];
     }
-    NSLog(@"MY ORIENTATIONS ARE %d",_supportedOrientations);
     return self;
 }
 
