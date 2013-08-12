@@ -44,7 +44,7 @@ description: |
     
 extends: Titanium.Proxy
 since: "0.8"
-platforms: [android, iphone, ipad, tizen]
+platforms: [android, iphone, ipad, tizen, blackberry]
 
 properties:
   - name: address
@@ -78,9 +78,12 @@ properties:
     
   - name: birthday
     summary: Date of birth of the person. Single value.
-    description: Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
+    description: |
+        Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
+
+        On BlackBerry pass in a JavaScript Date object.
     type: String
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad, tizen, blackberry]
     
   - name: created
     summary: Date and time that the person record was created. Single value.
@@ -106,7 +109,7 @@ properties:
   - name: department
     summary: Department of the person. Single value.
     type: String
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad, tizen, blackberry]
     
   - name: email
     summary: Email addresses for the person. Multi-value. Read-only on Android.
@@ -122,12 +125,12 @@ properties:
   - name: firstName
     summary: First name of the person. Single value.
     type: String
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad, tizen, blackberry]
     
   - name: firstPhonetic
     summary: Phonetic first name of the person.  Single value.
     type: String
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad, tizen, blackberry]
     
   - name: fullName
     summary: Localized full name of the person. Single value. Read-only on Android.
@@ -137,14 +140,14 @@ properties:
   - name: id
     summary: Record identifier of the person. Single value.
     type: Number
-    platforms: [android, tizen]
+    platforms: [android, tizen, blackberry]
     permission: read-only
     
   - name: image
     summary: Image for the person. Single value.
     description: Set to `null` to remove the image. 
     type: Titanium.Blob
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, blackberry]
     
   - name: instantMessage
     summary: |
@@ -158,13 +161,18 @@ properties:
         
         The `service` key value may be one of `AIM`, `Facebook`, `GaduGadu`, `GoogleTalk`, `ICQ`, 
         `MSN`, `QQ`, `Skype`, or `Yahoo`.
+        
+        On BlackBerry, the following apply: `aim`, `aliwangwang`, `bbmPin`, `googleTalk`, `icq`,
+        `irc`, `jabber`, `msLcs`, `msn`, `qq`, `sametime`, `skype`, `yahooMessenger`, `yahooMessenger`
+
+
     type: Dictionary
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, blackberry]
     
   - name: jobTitle
     summary: Job title of the person. Single value.
     type: String
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad, tizen, blackberry]
     
   - name: kind
     summary: |
@@ -175,23 +183,24 @@ properties:
         <Titanium.Contacts.CONTACTS_KIND_ORGANIZATION>.
         
         Tizen supports only <Titanium.Contacts.CONTACTS_KIND_PERSON>.
+    exclude-platforms: [blackberry]
         
     type: Number
     
   - name: lastName
     summary: Last name of the person. Single value.
     type: String
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad, tizen, blackberry]
     
   - name: lastPhonetic
     summary: Phonetic last name of the person. Single value.
     type: String
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad, tizen, blackberry]
     
   - name: middleName
     summary: Middle name of the person. Single value.
     type: String
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad, tizen, blackberry]
     
   - name: middlePhonetic
     summary: Phonetic middle name of the person. Single value.
@@ -208,17 +217,17 @@ properties:
   - name: nickname
     summary: Nickname of the person. Single value.
     type: String
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad, tizen, blackberry]
     
   - name: note
     summary: Notes for the person. Single value.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, blackberry]
     
   - name: organization
     summary: Organization to which the person belongs. Single value.
     type: String
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad, tizen, blackberry]
     
   - name: phone
     summary: Phone numbers for the person. Multi-value. Read-only on Android.
@@ -237,12 +246,12 @@ properties:
     summary: Prefix for the person. Single value.
     type: String
     permission: read-only
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad, tizen, blackberry]
     
   - name: recordId
     summary: Record identifier of the person. Single value.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, blackberry]
     
   - name: relatedNames
     summary: Names of people to which the person is related. Multi-value.
@@ -259,7 +268,7 @@ properties:
     summary: Suffix for the person. Single value.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, blackberry]
 
   - name: url
     summary: URLs of webpages associated with the person. Multi-value.

@@ -302,6 +302,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public void windowCreated(TiBaseActivity activity) {
 		tabGroupActivity = new WeakReference<Activity>(activity);
 		activity.setWindowProxy(this);
+		activity.setLayoutProxy(this);
 		setActivity(activity);
 
 		// Use the navigation tabs if this platform supports the action bar.
@@ -329,6 +330,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		super.handlePostOpen();
 
 		opened = true;
+		opening = false;
 
 		// First open before we load and focus our first tab.
 		fireEvent(TiC.EVENT_OPEN, null);
