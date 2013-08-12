@@ -93,6 +93,10 @@
 	[window setParentOrientationController:self];
     //Send to open. Will come back after _handleOpen returns true.
     if (![window opening]) {
+        args = ([args count] > 1) ? [args objectAtIndex:1] : nil;
+        if (args != nil) {
+            args = [NSArray arrayWithObjects:args,nil];
+        }
         [window open:args];
         return;
     }
@@ -164,10 +168,10 @@
         ENSURE_TYPE(window, TiWindowProxy);
         rootWindow = [window retain];
         [rootWindow setTab:(TiViewProxy<TiTab> *)self];
-		[rootWindow setParentOrientationController:self];
+        [rootWindow setParentOrientationController:self];
         [rootWindow open:nil];
-	}
-	return [rootWindow initController];
+    }
+    return [rootWindow initController];
 }
 
 -(void)openOnUIThread:(NSArray*)args
@@ -180,9 +184,7 @@
 	TiWindowProxy *window = [args objectAtIndex:0];
 	BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
     
-    UIViewController* theController = [[window initController] retain];
-	
-    [[[self rootController] navigationController] pushViewController:theController animated:animated];
+    [[[self rootController] navigationController] pushViewController:[window initController] animated:animated];
 }
 
 -(void)closeOnUIThread:(NSArray*)args
@@ -196,7 +198,6 @@
     
     if (window == current) {
         BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
-        UIViewController* theController = [[window initController] retain];
         [[[self rootController] navigationController] popViewControllerAnimated:animated];
     }
     else {
