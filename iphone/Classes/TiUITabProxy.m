@@ -63,7 +63,7 @@
             [controller setViewControllers:[NSArray arrayWithObject:rootController]];
             if (current != nil) {
                 RELEASE_TO_NIL(current);
-                current = (TiWindowProxy*)[(TiViewController*)rootController proxy];
+                current = [(TiWindowProxy*)[(TiViewController*)rootController proxy] retain];
             }
             for (TiViewController* doomedVc in doomedVcs) {
                 [self closeWindow:(TiWindowProxy *)[doomedVc proxy] animated:NO];
@@ -183,7 +183,7 @@
     return tabGroup;
 }
 
--(void)open:(NSArray*)args
+-(void)push:(NSArray*)args
 {
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
@@ -200,15 +200,14 @@
         [window open:args];
         return;
     }
-
-	opening = YES;
+    
 	[[[TiApp app] controller] dismissKeyboard];
 	TiThreadPerformOnMainThread(^{
 		[self openOnUIThread:args];
 	}, YES);
 }
 
--(void)close:(NSArray *)args
+-(void)pop:(NSArray*)args
 {
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
@@ -219,6 +218,19 @@
     TiThreadPerformOnMainThread(^{
         [self closeOnUIThread:args];
     }, YES);
+}
+
+
+-(void)open:(NSArray*)args
+{
+    DebugLog(@"Tab.open API is deprecated. Please use Tab.push")
+    [self push:args];
+}
+
+-(void)close:(NSArray *)args
+{
+    DebugLog(@"Tab.close API is deprecated. Please use Tab.pop")
+    [self pop:args];
 }
 
 -(void)windowClosing:(TiWindowProxy*)window animated:(BOOL)animated

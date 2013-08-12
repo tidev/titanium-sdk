@@ -2593,6 +2593,7 @@
 		24D06FDE11D020E600F615D8 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				84E00A9917B6462900B6DCE2 /* Nav Window */,
 				2B0B6E0F15951FC200F3170F /* DocumentViewer */,
 				2BDEA4F41448FFCB004EC750 /* Tabbedbar */,
 				2BCD59C91429563400DEC2E8 /* Toolbar */,
@@ -2883,6 +2884,13 @@
 				502A68D916EEAA7500661EF6 /* TiUIListViewProxy.m */,
 			);
 			name = ListView;
+			sourceTree = "<group>";
+		};
+		84E00A9917B6462900B6DCE2 /* Nav Window */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Nav Window";
 			sourceTree = "<group>";
 		};
 		B43663DA11138AB300782262 /* Scrollable View */ = {
