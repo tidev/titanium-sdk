@@ -86,6 +86,7 @@
     if (window == rootWindow) {
         [rootWindow windowWillOpen];
         [rootWindow windowDidOpen];
+        return;
     }
     
 	[window setTab:(TiViewProxy<TiTab> *)self];
@@ -164,6 +165,7 @@
         rootWindow = [window retain];
         [rootWindow setTab:(TiViewProxy<TiTab> *)self];
 		[rootWindow setParentOrientationController:self];
+        [rootWindow open:nil];
 	}
 	return [rootWindow initController];
 }
