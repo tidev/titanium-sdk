@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -107,7 +107,7 @@
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self updateBackground];
     if (_defaultImageView != nil) {
-        //[self rotateDefaultImageViewToOrientation:UIInterfaceOrientationPortrait];
+        [self rotateDefaultImageViewToOrientation:UIInterfaceOrientationPortrait];
         [rootView addSubview:_defaultImageView];
     }
     [rootView becomeFirstResponder];
@@ -159,6 +159,134 @@
         [_defaultImageView removeFromSuperview];
         RELEASE_TO_NIL(_defaultImageView);
     }
+}
+
+- (UIImage*)defaultImageForOrientation:(UIDeviceOrientation) orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom*) imageIdiom
+{
+	UIImage* image;
+	
+	if([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
+	{
+		*imageOrientation = orientation;
+		*imageIdiom = UIUserInterfaceIdiomPad;
+		// Specific orientation check
+		switch (orientation) {
+			case UIDeviceOrientationPortrait:
+				image = [UIImage imageNamed:@"Default-Portrait.png"];
+				break;
+			case UIDeviceOrientationPortraitUpsideDown:
+				image = [UIImage imageNamed:@"Default-PortraitUpsideDown.png"];
+				break;
+			case UIDeviceOrientationLandscapeLeft:
+				image = [UIImage imageNamed:@"Default-LandscapeLeft.png"];
+				break;
+			case UIDeviceOrientationLandscapeRight:
+				image = [UIImage imageNamed:@"Default-LandscapeRight.png"];
+				break;
+			default:
+				image = nil;
+		}
+		if (image != nil) {
+			return image;
+		}
+		
+		// Generic orientation check
+		if (UIDeviceOrientationIsPortrait(orientation)) {
+			image = [UIImage imageNamed:@"Default-Portrait.png"];
+		}
+		else if (UIDeviceOrientationIsLandscape(orientation)) {
+			image = [UIImage imageNamed:@"Default-Landscape.png"];
+		}
+		
+		if (image != nil) {
+			return image;
+		}
+	}
+	*imageOrientation = UIDeviceOrientationPortrait;
+	*imageIdiom = UIUserInterfaceIdiomPhone;
+	// Default
+    image = nil;
+    if ([TiUtils isRetinaFourInch]) {
+        image = [UIImage imageNamed:@"Default-568h.png"];
+        if (image!=nil) {
+            return image;
+        }
+    }
+	return [UIImage imageNamed:@"Default.png"];
+}
+
+-(void)rotateDefaultImageViewToOrientation: (UIInterfaceOrientation )newOrientation;
+{
+	if (_defaultImageView == nil)
+	{
+		return;
+	}
+	UIDeviceOrientation imageOrientation;
+	UIUserInterfaceIdiom imageIdiom;
+	UIUserInterfaceIdiom deviceIdiom = [[UIDevice currentDevice] userInterfaceIdiom];
+    /*
+     *	This code could stand for some refinement, but it is rarely called during
+     *	an application's lifetime and is meant to recreate the quirks and edge cases
+     *	that iOS uses during application startup, including Apple's own
+     *	inconsistencies between iPad and iPhone.
+     */
+	
+	UIImage * defaultImage = [self defaultImageForOrientation:
+                              (UIDeviceOrientation)newOrientation
+                                         resultingOrientation:&imageOrientation idiom:&imageIdiom];
+    
+	CGFloat imageScale = [defaultImage scale];
+	CGRect newFrame = [[self view] bounds];
+	CGSize imageSize = [defaultImage size];
+	UIViewContentMode contentMode = UIViewContentModeScaleToFill;
+	
+	if (imageOrientation == UIDeviceOrientationPortrait) {
+		if (newOrientation == UIInterfaceOrientationLandscapeLeft) {
+			UIImageOrientation imageOrientation;
+			if (deviceIdiom == UIUserInterfaceIdiomPad)
+			{
+				imageOrientation = UIImageOrientationLeft;
+			}
+			else
+			{
+				imageOrientation = UIImageOrientationRight;
+			}
+			defaultImage = [
+							UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:imageOrientation];
+			imageSize = CGSizeMake(imageSize.height, imageSize.width);
+			if (imageScale > 1.5) {
+				contentMode = UIViewContentModeCenter;
+			}
+		}
+		else if(newOrientation == UIInterfaceOrientationLandscapeRight)
+		{
+			defaultImage = [UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:UIImageOrientationLeft];
+			imageSize = CGSizeMake(imageSize.height, imageSize.width);
+			if (imageScale > 1.5) {
+				contentMode = UIViewContentModeCenter;
+			}
+		}
+		else if((newOrientation == UIInterfaceOrientationPortraitUpsideDown) && (deviceIdiom == UIUserInterfaceIdiomPhone))
+		{
+			defaultImage = [UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:UIImageOrientationDown];
+			if (imageScale > 1.5) {
+				contentMode = UIViewContentModeCenter;
+			}
+		}
+	}
+    
+	if(imageSize.width == newFrame.size.width)
+	{
+		CGFloat overheight;
+		overheight = imageSize.height - newFrame.size.height;
+		if (overheight > 0.0) {
+			newFrame.origin.y -= overheight;
+			newFrame.size.height += overheight;
+		}
+	}
+	[_defaultImageView setContentMode:contentMode];
+	[_defaultImageView setImage:defaultImage];
+	[_defaultImageView setFrame:newFrame];
 }
 
 #pragma mark - Keyboard Control
@@ -1048,6 +1176,7 @@
     targetOrientation = toInterfaceOrientation;
     [self updateOrientationHistory:targetOrientation];
     [self resizeView];
+    [self rotateDefaultImageViewToOrientation:toInterfaceOrientation];
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 -(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
