@@ -275,6 +275,7 @@
         [theWindow windowWillOpen];
         [theWindow windowDidOpen];
     }
+    [[UIApplication sharedApplication] setStatusBarHidden:[theWindow hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
 }
 
 - (void)handleDidShowViewController:(UIViewController *)viewController animated:(BOOL)animated
