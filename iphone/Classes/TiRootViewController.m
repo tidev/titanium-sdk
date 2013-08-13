@@ -975,7 +975,8 @@
 
     //Modal windows are going to handle their own orientation.
     //We only need to fix ourselves if we are top window
-    if (isCurrentlyVisible && [self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
+    BOOL trulyVisible = isCurrentlyVisible && ([self presentedViewController] == nil);
+    if (trulyVisible && [self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
         if (deviceOrientation != targetOrientation) {
             [self manuallyRotateToOrientation:deviceOrientation duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
         }
