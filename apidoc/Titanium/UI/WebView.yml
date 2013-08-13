@@ -503,10 +503,10 @@ properties:
     since: "1.8.2"
     default: true
     
-- name: lightTouchEnabled
+  - name: lightTouchEnabled
     summary: Enables using light touches to make a selection and activate mouseovers.
     description: |
-        Setting this property solve the problem of web links with specific length not triggering link click in Android.
+        Setting this property solves the problem of web links with specific length not triggering a link click in Android.
         
         This is only an Android specific property and has no effect starting from API level 18.
 
