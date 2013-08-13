@@ -23,6 +23,8 @@ import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
@@ -249,6 +251,13 @@ public class WebViewProxy extends ViewProxy
 			default:
 				setProperty(TiC.PROPERTY_PLUGIN_STATE, TiUIWebView.PLUGIN_STATE_OFF, true);
 		}
+	}
+
+	@Kroll.method
+	public String getCookies(String url)
+	{
+		CookieManager cookieManager = CookieManager.getInstance();
+		return cookieManager.getCookie(url);
 	}
 
 	@Kroll.method

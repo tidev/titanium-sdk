@@ -128,6 +128,18 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	@Kroll.method
+	public void deleteCookie(String host, String name)
+	{
+		client.deleteCookie(host, name);
+	}
+
+	@Kroll.method
+	public String getCookies(String host)
+	{
+		return client.getCookies(host);
+	}
+
+	@Kroll.method
 	public void setRequestHeader(String header, String value)
 	{
 		client.setRequestHeader(header, value);

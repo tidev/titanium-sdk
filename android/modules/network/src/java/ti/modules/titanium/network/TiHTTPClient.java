@@ -743,30 +743,117 @@ public class TiHTTPClient
 		} 
 	}
 
+	public void deleteCookie(String url, String name)
+	{
+		String lower_url = url.toLowerCase();
+		String lower_name = name.toLowerCase();
+		List<Cookie> cookies = new ArrayList<Cookie>(client.getCookieStore().getCookies());
+		client.getCookieStore().clear();
+		if (!cookies.isEmpty()) {
+			for (Cookie cookie : cookies) {
+				String domain = cookie.getDomain().toLowerCase();
+				String cookieName = cookie.getName().toLowerCase();
+				if (!(lower_url.contains(domain) && lower_name.equals(cookieName))) {
+					client.getCookieStore().addCookie(cookie);
+				}
+			}
+		}
+	}
+	
+	public String getCookies(String url)
+	{
+		String lower_url = url.toLowerCase();
+		String result = "";
+		List<Cookie> cookies = client.getCookieStore().getCookies();
+		if (!cookies.isEmpty()) {
+			for (Cookie cookie : cookies) {
+				String domain = cookie.getDomain().toLowerCase();
+				if (lower_url.contains(domain)) {
+					String cookieString = cookie.getName() + "=" + cookie.getValue() + "; ";
+					result = result.concat(cookieString);
+				}
+			}
+		}
+		if (result.endsWith("; ")) {
+			result = result.substring(0, (result.length()-2));
+		}
+		return result;
+	}
+
 	/**
-	 * Get the cookies from webview and set it to the httpclient.
+	 * Get the cookies from webview and add it to the httpclient.
 	 */
 	public void setCookiesFromWebView()
 	{
-		CookieSyncManager.createInstance(TiApplication.getInstance().getAppRootOrCurrentActivity());
-		CookieManager cookieManager = CookieManager.getInstance();
-		CookieStore cookieStore = client.getCookieStore();
+		CookieManager webviewCookieManager = CookieManager.getInstance();
+		CookieStore httpCookieStore = client.getCookieStore();
 		String domain = uri.getHost();
-		String cookieString = cookieManager.getCookie(domain);
-		if (cookieString != null) {
-			String[] cookieValues = cookieString.split("; ");
+		String webviewCookieString = webviewCookieManager.getCookie(domain);
+		if (webviewCookieString != null) {
+			String[] cookieValues = webviewCookieString.split("; ");
 			for (int i = 0; i < cookieValues.length; i++) {
-				BasicClientCookie cookie;
+				BasicClientCookie httpCookie;
 				String[] split = cookieValues[i].split("=");
+				String name = split[0];
 				String value = split.length == 2 ? split[1] : null;
-				cookie = new BasicClientCookie(split[0], value);
-				cookie.setDomain(domain);
-				cookieStore.addCookie(cookie);
+				httpCookie = new BasicClientCookie(name, value);
+				httpCookie.setDomain(domain);
+				if (isCookieInHttpStore(domain, name)) {
+					httpCookie.setAttribute("_setFrom", "httpclient");
+				} else {
+					httpCookie.setAttribute("_setFrom", "webview");
+				}
+				httpCookieStore.addCookie(httpCookie);
 				if (Log.isDebugModeEnabled()) {
 					Log.d(TAG, "setCookiesFromWebView: the cookie is " + cookieValues[i]);
 				}
 			}
 		}
+		
+		List<Cookie> httpCookies = new ArrayList<Cookie>(httpCookieStore.getCookies());
+		if (!httpCookies.isEmpty()) {
+			for (Cookie cookie : httpCookies) {
+				if (cookie instanceof BasicClientCookie && ((BasicClientCookie)cookie).getAttribute("_setFrom").equals("webview")) {
+					String host = cookie.getDomain();
+					String name = cookie.getName();
+					if (!isCookieInWebViewStore(host, name)) {
+						deleteCookie(host, name);
+					}
+				}
+			}
+		}
+	}
+
+	public boolean isCookieInHttpStore(String host, String cookieName)
+	{
+		List<Cookie> cookies = client.getCookieStore().getCookies();
+		if (!cookies.isEmpty()) {
+			for (Cookie cookie : cookies) {
+				String domain = cookie.getDomain();
+				String name = cookie.getName();
+				if (host.equals(domain) && cookieName.equals(name)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean isCookieInWebViewStore(String host, String cookieName)
+	{
+		CookieManager cookieManager = CookieManager.getInstance();
+		String webviewCookieString = cookieManager.getCookie(host);
+		if (webviewCookieString != null) {
+			String[] cookieValues = webviewCookieString.split("; ");
+			for (int i = 0; i < cookieValues.length; i++) {
+				String[] split = cookieValues[i].split("=");
+				String name = split[0];
+				if (cookieName.equals(name)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -774,7 +861,7 @@ public class TiHTTPClient
 	 */
 	public void syncCookiesWithWebView()
 	{
-		List<Cookie> cookies = new ArrayList<Cookie>(client.getCookieStore().getCookies());
+		List<Cookie> cookies = client.getCookieStore().getCookies();
 		if (!cookies.isEmpty()) {
 			CookieSyncManager.createInstance(TiApplication.getInstance().getAppRootOrCurrentActivity());
 			CookieManager cookieManager = CookieManager.getInstance();
