@@ -79,12 +79,56 @@
     return [super _handleClose:args];
 }
 
-// Prevents dumb visual glitches - see 4619
--(void)ignoringRotationToOrientation:(UIInterfaceOrientation)orientation
+-(void)viewWillAppear:(BOOL)animated
 {
-    if (![[[TiApp app] controller] isTopWindow:self]) {
-        [(MGSplitViewController*)[(TiUIiPadSplitWindow*)[self view] controller] layoutSubviewsForInterfaceOrientation:orientation withAnimation:NO];
+    if ([self viewAttached]) {
+        [[(TiUIiPadSplitWindow*)[self view] controller] viewWillAppear:animated];
     }
+    [super viewWillAppear:animated];
+}
+-(void)viewWillDisappear:(BOOL)animated
+{
+    if ([self viewAttached]) {
+        [[(TiUIiPadSplitWindow*)[self view] controller] viewWillDisappear:animated];
+    }
+    [super viewWillDisappear:animated];
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    if ([self viewAttached]) {
+        [[(TiUIiPadSplitWindow*)[self view] controller] viewDidAppear:animated];
+    }
+    [super viewDidAppear:animated];
+}
+-(void)viewDidDisappear:(BOOL)animated
+{
+    if ([self viewAttached]) {
+        [[(TiUIiPadSplitWindow*)[self view] controller] viewDidDisappear:animated];
+    }
+    [super viewDidDisappear:animated];
+    
+}
+-(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    if ([self viewAttached]) {
+        [[(TiUIiPadSplitWindow*)[self view] controller] willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    }
+    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+}
+-(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    if ([self viewAttached]) {
+        [[(TiUIiPadSplitWindow*)[self view] controller] willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    }
+    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+}
+-(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+    if ([self viewAttached]) {
+        [[(TiUIiPadSplitWindow*)[self view] controller] didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    }
+    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
 
 @end

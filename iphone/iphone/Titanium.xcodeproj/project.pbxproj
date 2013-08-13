@@ -106,9 +106,7 @@
 		24CA8B67111161FE0084E2DE /* XHRBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A0E111161FD0084E2DE /* XHRBridge.m */; };
 		24CA8B68111161FE0084E2DE /* WebFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A10111161FD0084E2DE /* WebFont.m */; };
 		24CA8B6A111161FE0084E2DE /* UIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A14111161FD0084E2DE /* UIModule.m */; };
-		24CA8B6B111161FE0084E2DE /* TiWindowProxyLegacy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A16111161FD0084E2DE /* TiWindowProxyLegacy.m */; };
 		24CA8B6C111161FE0084E2DE /* TiViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A18111161FD0084E2DE /* TiViewProxy.m */; };
-		24CA8B6D111161FE0084E2DE /* TiViewControllerLegacy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A1A111161FD0084E2DE /* TiViewControllerLegacy.m */; };
 		24CA8B70111161FE0084E2DE /* TiUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A20111161FD0084E2DE /* TiUtils.m */; };
 		24CA8B71111161FE0084E2DE /* TiUIWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A22111161FD0084E2DE /* TiUIWindowProxy.m */; };
 		24CA8B72111161FE0084E2DE /* TiUIWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A24111161FD0084E2DE /* TiUIWindow.m */; };
@@ -124,7 +122,6 @@
 		24CA8B84111161FE0084E2DE /* TiUITableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A48111161FD0084E2DE /* TiUITableView.m */; };
 		24CA8B85111161FE0084E2DE /* TiUITabGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4A111161FD0084E2DE /* TiUITabGroupProxy.m */; };
 		24CA8B86111161FE0084E2DE /* TiUITabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4C111161FD0084E2DE /* TiUITabGroup.m */; };
-		24CA8B87111161FE0084E2DE /* TiUITabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4E111161FD0084E2DE /* TiUITabController.m */; };
 		24CA8B89111161FE0084E2DE /* TiUIiPhoneSystemIconProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A52111161FD0084E2DE /* TiUIiPhoneSystemIconProxy.m */; };
 		24CA8B8A111161FE0084E2DE /* TiUIiPhoneSystemButtonStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A54111161FD0084E2DE /* TiUIiPhoneSystemButtonStyleProxy.m */; };
 		24CA8B8B111161FE0084E2DE /* TiUIiPhoneSystemButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A56111161FD0084E2DE /* TiUIiPhoneSystemButtonProxy.m */; };
@@ -264,9 +261,7 @@
 		24D8E3E9119B9D8A00F8CAA6 /* XHRBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A0E111161FD0084E2DE /* XHRBridge.m */; };
 		24D8E3EA119B9D8A00F8CAA6 /* WebFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A10111161FD0084E2DE /* WebFont.m */; };
 		24D8E3EC119B9D8A00F8CAA6 /* UIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A14111161FD0084E2DE /* UIModule.m */; };
-		24D8E3ED119B9D8A00F8CAA6 /* TiWindowProxyLegacy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A16111161FD0084E2DE /* TiWindowProxyLegacy.m */; };
 		24D8E3EE119B9D8A00F8CAA6 /* TiViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A18111161FD0084E2DE /* TiViewProxy.m */; };
-		24D8E3EF119B9D8A00F8CAA6 /* TiViewControllerLegacy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A1A111161FD0084E2DE /* TiViewControllerLegacy.m */; };
 		24D8E3F0119B9D8A00F8CAA6 /* TiUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A20111161FD0084E2DE /* TiUtils.m */; };
 		24D8E3F1119B9D8A00F8CAA6 /* TiUIWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A22111161FD0084E2DE /* TiUIWindowProxy.m */; };
 		24D8E3F2119B9D8A00F8CAA6 /* TiUIWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A24111161FD0084E2DE /* TiUIWindow.m */; };
@@ -282,7 +277,6 @@
 		24D8E3FE119B9D8A00F8CAA6 /* TiUITableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A48111161FD0084E2DE /* TiUITableView.m */; };
 		24D8E3FF119B9D8A00F8CAA6 /* TiUITabGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4A111161FD0084E2DE /* TiUITabGroupProxy.m */; };
 		24D8E400119B9D8A00F8CAA6 /* TiUITabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4C111161FD0084E2DE /* TiUITabGroup.m */; };
-		24D8E401119B9D8A00F8CAA6 /* TiUITabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4E111161FD0084E2DE /* TiUITabController.m */; };
 		24D8E403119B9D8A00F8CAA6 /* TiUIiPhoneSystemIconProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A52111161FD0084E2DE /* TiUIiPhoneSystemIconProxy.m */; };
 		24D8E404119B9D8A00F8CAA6 /* TiUIiPhoneSystemButtonStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A54111161FD0084E2DE /* TiUIiPhoneSystemButtonStyleProxy.m */; };
 		24D8E405119B9D8A00F8CAA6 /* TiUIiPhoneSystemButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A56111161FD0084E2DE /* TiUIiPhoneSystemButtonProxy.m */; };
@@ -418,7 +412,6 @@
 		24D8E493119B9D8A00F8CAA6 /* TopTiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F6204E1199F1F400EEAD3C /* TopTiModule.m */; };
 		24D8E494119B9D8A00F8CAA6 /* TiApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F620531199F26500EEAD3C /* TiApp.m */; };
 		24D8E495119B9D8A00F8CAA6 /* TiErrorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F620571199F27700EEAD3C /* TiErrorController.m */; };
-		24D8E496119B9D8A00F8CAA6 /* TiRootViewControllerLegacy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F620591199F27700EEAD3C /* TiRootViewControllerLegacy.m */; };
 		24D8E498119B9D8A00F8CAA6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		24D8E499119B9D8A00F8CAA6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		24D8E49A119B9D8A00F8CAA6 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
@@ -471,7 +464,6 @@
 		24F6204F1199F1F400EEAD3C /* TopTiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F6204E1199F1F400EEAD3C /* TopTiModule.m */; };
 		24F620541199F26500EEAD3C /* TiApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F620531199F26500EEAD3C /* TiApp.m */; };
 		24F6205A1199F27700EEAD3C /* TiErrorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F620571199F27700EEAD3C /* TiErrorController.m */; };
-		24F6205B1199F27700EEAD3C /* TiRootViewControllerLegacy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F620591199F27700EEAD3C /* TiRootViewControllerLegacy.m */; };
 		24FB4EE3115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */; };
 		24FB4EF4115C81C5001AAF99 /* TiUIiPadPopoverProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EEE115C81C5001AAF99 /* TiUIiPadPopoverProxy.m */; };
 		24FB4EFC115C81DD001AAF99 /* TiUIiPadPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EF7115C81DD001AAF99 /* TiUIiPadPopover.m */; };
@@ -690,9 +682,7 @@
 		DABB36C512E8CB280026A6EA /* XHRBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A0E111161FD0084E2DE /* XHRBridge.m */; };
 		DABB36C612E8CB280026A6EA /* WebFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A10111161FD0084E2DE /* WebFont.m */; };
 		DABB36C712E8CB280026A6EA /* UIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A14111161FD0084E2DE /* UIModule.m */; };
-		DABB36C812E8CB280026A6EA /* TiWindowProxyLegacy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A16111161FD0084E2DE /* TiWindowProxyLegacy.m */; };
 		DABB36C912E8CB280026A6EA /* TiViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A18111161FD0084E2DE /* TiViewProxy.m */; };
-		DABB36CA12E8CB280026A6EA /* TiViewControllerLegacy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A1A111161FD0084E2DE /* TiViewControllerLegacy.m */; };
 		DABB36CB12E8CB280026A6EA /* TiUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A20111161FD0084E2DE /* TiUtils.m */; };
 		DABB36CC12E8CB280026A6EA /* TiUIWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A22111161FD0084E2DE /* TiUIWindowProxy.m */; };
 		DABB36CD12E8CB280026A6EA /* TiUIWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A24111161FD0084E2DE /* TiUIWindow.m */; };
@@ -708,7 +698,6 @@
 		DABB36D912E8CB280026A6EA /* TiUITableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A48111161FD0084E2DE /* TiUITableView.m */; };
 		DABB36DA12E8CB280026A6EA /* TiUITabGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4A111161FD0084E2DE /* TiUITabGroupProxy.m */; };
 		DABB36DB12E8CB280026A6EA /* TiUITabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4C111161FD0084E2DE /* TiUITabGroup.m */; };
-		DABB36DC12E8CB280026A6EA /* TiUITabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4E111161FD0084E2DE /* TiUITabController.m */; };
 		DABB36DE12E8CB280026A6EA /* TiUIiPhoneSystemIconProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A52111161FD0084E2DE /* TiUIiPhoneSystemIconProxy.m */; };
 		DABB36DF12E8CB280026A6EA /* TiUIiPhoneSystemButtonStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A54111161FD0084E2DE /* TiUIiPhoneSystemButtonStyleProxy.m */; };
 		DABB36E012E8CB280026A6EA /* TiUIiPhoneSystemButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A56111161FD0084E2DE /* TiUIiPhoneSystemButtonProxy.m */; };
@@ -844,7 +833,6 @@
 		DABB376B12E8CB280026A6EA /* TopTiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F6204E1199F1F400EEAD3C /* TopTiModule.m */; };
 		DABB376C12E8CB280026A6EA /* TiApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F620531199F26500EEAD3C /* TiApp.m */; };
 		DABB376D12E8CB280026A6EA /* TiErrorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F620571199F27700EEAD3C /* TiErrorController.m */; };
-		DABB376E12E8CB280026A6EA /* TiRootViewControllerLegacy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F620591199F27700EEAD3C /* TiRootViewControllerLegacy.m */; };
 		DABB376F12E8CB280026A6EA /* TiMediaMusicPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = DA864E3111A2314A00B9CD68 /* TiMediaMusicPlayer.m */; };
 		DABB377012E8CB280026A6EA /* TiMediaItem.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA905CD11A359F10030B119 /* TiMediaItem.m */; };
 		DABB377112E8CB280026A6EA /* TiLayoutQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = B468B4F011B5816F007D1C1E /* TiLayoutQueue.m */; };
@@ -975,7 +963,6 @@
 		243ED8EC11288B4300639DF4 /* TiUIiPhoneTableViewScrollPositionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPhoneTableViewScrollPositionProxy.m; sourceTree = "<group>"; };
 		24596691118E70D300519F79 /* ApplicationRouting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ApplicationRouting.h; path = ../Classes/ApplicationRouting.h; sourceTree = SOURCE_ROOT; };
 		24596692118E70D300519F79 /* ApplicationRouting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ApplicationRouting.m; path = ../Classes/ApplicationRouting.m; sourceTree = SOURCE_ROOT; };
-		24596A29118E88FE00519F79 /* TiTabController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTabController.h; sourceTree = "<group>"; };
 		24597034118FF66300519F79 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		245972C411921D0D00519F79 /* TiUIiPadSplitWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPadSplitWindow.h; sourceTree = "<group>"; };
 		245972C511921D0D00519F79 /* TiUIiPadSplitWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPadSplitWindow.m; sourceTree = "<group>"; };
@@ -1097,12 +1084,8 @@
 		24CA8A13111161FD0084E2DE /* Webcolor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Webcolor.h; path = ../Classes/Webcolor.h; sourceTree = SOURCE_ROOT; };
 		24CA8A14111161FD0084E2DE /* UIModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UIModule.m; path = ../Classes/UIModule.m; sourceTree = SOURCE_ROOT; };
 		24CA8A15111161FD0084E2DE /* UIModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UIModule.h; path = ../Classes/UIModule.h; sourceTree = SOURCE_ROOT; };
-		24CA8A16111161FD0084E2DE /* TiWindowProxyLegacy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiWindowProxyLegacy.m; path = ../Classes/TiWindowProxyLegacy.m; sourceTree = SOURCE_ROOT; };
-		24CA8A17111161FD0084E2DE /* TiWindowProxyLegacy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiWindowProxyLegacy.h; path = ../Classes/TiWindowProxyLegacy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A18111161FD0084E2DE /* TiViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiViewProxy.m; path = ../Classes/TiViewProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8A19111161FD0084E2DE /* TiViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiViewProxy.h; path = ../Classes/TiViewProxy.h; sourceTree = SOURCE_ROOT; };
-		24CA8A1A111161FD0084E2DE /* TiViewControllerLegacy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiViewControllerLegacy.m; path = ../Classes/TiViewControllerLegacy.m; sourceTree = SOURCE_ROOT; };
-		24CA8A1B111161FD0084E2DE /* TiViewControllerLegacy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiViewControllerLegacy.h; path = ../Classes/TiViewControllerLegacy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A20111161FD0084E2DE /* TiUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUtils.m; path = ../Classes/TiUtils.m; sourceTree = SOURCE_ROOT; };
 		24CA8A21111161FD0084E2DE /* TiUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUtils.h; path = ../Classes/TiUtils.h; sourceTree = SOURCE_ROOT; };
 		24CA8A22111161FD0084E2DE /* TiUIWindowProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIWindowProxy.m; path = ../Classes/TiUIWindowProxy.m; sourceTree = SOURCE_ROOT; };
@@ -1133,8 +1116,6 @@
 		24CA8A4B111161FD0084E2DE /* TiUITabGroupProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITabGroupProxy.h; path = ../Classes/TiUITabGroupProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A4C111161FD0084E2DE /* TiUITabGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUITabGroup.m; path = ../Classes/TiUITabGroup.m; sourceTree = SOURCE_ROOT; };
 		24CA8A4D111161FD0084E2DE /* TiUITabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITabGroup.h; path = ../Classes/TiUITabGroup.h; sourceTree = SOURCE_ROOT; };
-		24CA8A4E111161FD0084E2DE /* TiUITabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUITabController.m; path = ../Classes/TiUITabController.m; sourceTree = SOURCE_ROOT; };
-		24CA8A4F111161FD0084E2DE /* TiUITabController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITabController.h; path = ../Classes/TiUITabController.h; sourceTree = SOURCE_ROOT; };
 		24CA8A52111161FD0084E2DE /* TiUIiPhoneSystemIconProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIiPhoneSystemIconProxy.m; path = ../Classes/TiUIiPhoneSystemIconProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8A53111161FD0084E2DE /* TiUIiPhoneSystemIconProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIiPhoneSystemIconProxy.h; path = ../Classes/TiUIiPhoneSystemIconProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A54111161FD0084E2DE /* TiUIiPhoneSystemButtonStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIiPhoneSystemButtonStyleProxy.m; path = ../Classes/TiUIiPhoneSystemButtonStyleProxy.m; sourceTree = SOURCE_ROOT; };
@@ -1381,8 +1362,6 @@
 		24F620521199F26500EEAD3C /* TiApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiApp.h; sourceTree = "<group>"; };
 		24F620531199F26500EEAD3C /* TiApp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiApp.m; sourceTree = "<group>"; };
 		24F620571199F27700EEAD3C /* TiErrorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiErrorController.m; sourceTree = "<group>"; };
-		24F620581199F27700EEAD3C /* TiRootViewControllerLegacy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiRootViewControllerLegacy.h; sourceTree = "<group>"; };
-		24F620591199F27700EEAD3C /* TiRootViewControllerLegacy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiRootViewControllerLegacy.m; sourceTree = "<group>"; };
 		24F620601199F28600EEAD3C /* TiErrorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiErrorController.h; sourceTree = "<group>"; };
 		24FB4EDB115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPadSplitWindowProxy.h; sourceTree = "<group>"; };
 		24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPadSplitWindowProxy.m; sourceTree = "<group>"; };
@@ -1523,7 +1502,6 @@
 		D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKitUI.framework; path = System/Library/Frameworks/EventKitUI.framework; sourceTree = SDKROOT; };
 		DA2556421353D2FC005D459C /* TiNetworkSocketProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkSocketProxy.h; sourceTree = "<group>"; };
 		DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkSocketProxy.m; sourceTree = "<group>"; };
-		DA285CA411BDBE0A00D20833 /* TiRootControllerLegacy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiRootControllerLegacy.h; sourceTree = "<group>"; };
 		DA2B35C0134514FE00056705 /* TiNetworkSocketTCPProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkSocketTCPProxy.h; sourceTree = "<group>"; };
 		DA2B35C1134514FE00056705 /* TiNetworkSocketTCPProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkSocketTCPProxy.m; sourceTree = "<group>"; };
 		DA4E12D511C0A55F00A55BAB /* TiContactsGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiContactsGroup.h; sourceTree = "<group>"; };
@@ -2020,8 +1998,6 @@
 				8484E3A617A865F700C24B02 /* TiViewController.m */,
 				84EB33FE17A8CAA700723B1E /* TiWindowProxy.h */,
 				84EB33FF17A8CAA700723B1E /* TiWindowProxy.m */,
-				24F620581199F27700EEAD3C /* TiRootViewControllerLegacy.h */,
-				24F620591199F27700EEAD3C /* TiRootViewControllerLegacy.m */,
 				24F620521199F26500EEAD3C /* TiApp.h */,
 				24F620531199F26500EEAD3C /* TiApp.m */,
 				24F5AEB2111F9DE9005C9199 /* TiFile.h */,
@@ -2034,10 +2010,6 @@
 				24CA8AB9111161FD0084E2DE /* TiModule.h */,
 				24CA8A0E111161FD0084E2DE /* XHRBridge.m */,
 				24CA8A0F111161FD0084E2DE /* XHRBridge.h */,
-				24CA8A16111161FD0084E2DE /* TiWindowProxyLegacy.m */,
-				24CA8A17111161FD0084E2DE /* TiWindowProxyLegacy.h */,
-				24CA8A1A111161FD0084E2DE /* TiViewControllerLegacy.m */,
-				24CA8A1B111161FD0084E2DE /* TiViewControllerLegacy.h */,
 				24CA8AB0111161FD0084E2DE /* TiProxy.m */,
 				24CA8AB1111161FD0084E2DE /* TiProxy.h */,
 				24CA8AAB111161FD0084E2DE /* TiTab.h */,
@@ -2060,8 +2032,6 @@
 				24DD042A116A6C58006FD6E1 /* TiToolbar.h */,
 				24DD0455116A6F02006FD6E1 /* TiTabGroup.h */,
 				24DD0977116D8E07006FD6E1 /* TiToolbarButton.h */,
-				24596A29118E88FE00519F79 /* TiTabController.h */,
-				DA285CA411BDBE0A00D20833 /* TiRootControllerLegacy.h */,
 				24F29E2C12209C920099351D /* TiStylesheet.h */,
 				24F29E2D12209C920099351D /* TiStylesheet.m */,
 				24F29E6E1220CE0A0099351D /* TiLocale.h */,
@@ -2426,8 +2396,6 @@
 				24CA8A3B111161FD0084E2DE /* TiUITabProxy.h */,
 				24CA8A4C111161FD0084E2DE /* TiUITabGroup.m */,
 				24CA8A4D111161FD0084E2DE /* TiUITabGroup.h */,
-				24CA8A4E111161FD0084E2DE /* TiUITabController.m */,
-				24CA8A4F111161FD0084E2DE /* TiUITabController.h */,
 			);
 			name = Tabgroup;
 			sourceTree = "<group>";
@@ -3257,9 +3225,7 @@
 				24CA8B67111161FE0084E2DE /* XHRBridge.m in Sources */,
 				24CA8B68111161FE0084E2DE /* WebFont.m in Sources */,
 				24CA8B6A111161FE0084E2DE /* UIModule.m in Sources */,
-				24CA8B6B111161FE0084E2DE /* TiWindowProxyLegacy.m in Sources */,
 				24CA8B6C111161FE0084E2DE /* TiViewProxy.m in Sources */,
-				24CA8B6D111161FE0084E2DE /* TiViewControllerLegacy.m in Sources */,
 				24CA8B70111161FE0084E2DE /* TiUtils.m in Sources */,
 				24CA8B71111161FE0084E2DE /* TiUIWindowProxy.m in Sources */,
 				24CA8B72111161FE0084E2DE /* TiUIWindow.m in Sources */,
@@ -3275,7 +3241,6 @@
 				24CA8B84111161FE0084E2DE /* TiUITableView.m in Sources */,
 				24CA8B85111161FE0084E2DE /* TiUITabGroupProxy.m in Sources */,
 				24CA8B86111161FE0084E2DE /* TiUITabGroup.m in Sources */,
-				24CA8B87111161FE0084E2DE /* TiUITabController.m in Sources */,
 				24CA8B89111161FE0084E2DE /* TiUIiPhoneSystemIconProxy.m in Sources */,
 				24CA8B8A111161FE0084E2DE /* TiUIiPhoneSystemButtonStyleProxy.m in Sources */,
 				24CA8B8B111161FE0084E2DE /* TiUIiPhoneSystemButtonProxy.m in Sources */,
@@ -3413,7 +3378,6 @@
 				24F6204F1199F1F400EEAD3C /* TopTiModule.m in Sources */,
 				24F620541199F26500EEAD3C /* TiApp.m in Sources */,
 				24F6205A1199F27700EEAD3C /* TiErrorController.m in Sources */,
-				24F6205B1199F27700EEAD3C /* TiRootViewControllerLegacy.m in Sources */,
 				DA864E3211A2314A00B9CD68 /* TiMediaMusicPlayer.m in Sources */,
 				DAA905CE11A359F10030B119 /* TiMediaItem.m in Sources */,
 				B468B4F111B5816F007D1C1E /* TiLayoutQueue.m in Sources */,
@@ -3547,9 +3511,7 @@
 				24D8E3E9119B9D8A00F8CAA6 /* XHRBridge.m in Sources */,
 				24D8E3EA119B9D8A00F8CAA6 /* WebFont.m in Sources */,
 				24D8E3EC119B9D8A00F8CAA6 /* UIModule.m in Sources */,
-				24D8E3ED119B9D8A00F8CAA6 /* TiWindowProxyLegacy.m in Sources */,
 				24D8E3EE119B9D8A00F8CAA6 /* TiViewProxy.m in Sources */,
-				24D8E3EF119B9D8A00F8CAA6 /* TiViewControllerLegacy.m in Sources */,
 				24D8E3F0119B9D8A00F8CAA6 /* TiUtils.m in Sources */,
 				24D8E3F1119B9D8A00F8CAA6 /* TiUIWindowProxy.m in Sources */,
 				24D8E3F2119B9D8A00F8CAA6 /* TiUIWindow.m in Sources */,
@@ -3565,7 +3527,6 @@
 				24D8E3FE119B9D8A00F8CAA6 /* TiUITableView.m in Sources */,
 				24D8E3FF119B9D8A00F8CAA6 /* TiUITabGroupProxy.m in Sources */,
 				24D8E400119B9D8A00F8CAA6 /* TiUITabGroup.m in Sources */,
-				24D8E401119B9D8A00F8CAA6 /* TiUITabController.m in Sources */,
 				24D8E403119B9D8A00F8CAA6 /* TiUIiPhoneSystemIconProxy.m in Sources */,
 				24D8E404119B9D8A00F8CAA6 /* TiUIiPhoneSystemButtonStyleProxy.m in Sources */,
 				24D8E405119B9D8A00F8CAA6 /* TiUIiPhoneSystemButtonProxy.m in Sources */,
@@ -3703,7 +3664,6 @@
 				24D8E493119B9D8A00F8CAA6 /* TopTiModule.m in Sources */,
 				24D8E494119B9D8A00F8CAA6 /* TiApp.m in Sources */,
 				24D8E495119B9D8A00F8CAA6 /* TiErrorController.m in Sources */,
-				24D8E496119B9D8A00F8CAA6 /* TiRootViewControllerLegacy.m in Sources */,
 				DAA905CF11A35A010030B119 /* TiMediaMusicPlayer.m in Sources */,
 				DAA905D011A35A010030B119 /* TiMediaItem.m in Sources */,
 				B468B4F211B5816F007D1C1E /* TiLayoutQueue.m in Sources */,
@@ -3834,9 +3794,7 @@
 				DABB36C512E8CB280026A6EA /* XHRBridge.m in Sources */,
 				DABB36C612E8CB280026A6EA /* WebFont.m in Sources */,
 				DABB36C712E8CB280026A6EA /* UIModule.m in Sources */,
-				DABB36C812E8CB280026A6EA /* TiWindowProxyLegacy.m in Sources */,
 				DABB36C912E8CB280026A6EA /* TiViewProxy.m in Sources */,
-				DABB36CA12E8CB280026A6EA /* TiViewControllerLegacy.m in Sources */,
 				DABB36CB12E8CB280026A6EA /* TiUtils.m in Sources */,
 				DABB36CC12E8CB280026A6EA /* TiUIWindowProxy.m in Sources */,
 				DABB36CD12E8CB280026A6EA /* TiUIWindow.m in Sources */,
@@ -3852,7 +3810,6 @@
 				DABB36D912E8CB280026A6EA /* TiUITableView.m in Sources */,
 				DABB36DA12E8CB280026A6EA /* TiUITabGroupProxy.m in Sources */,
 				DABB36DB12E8CB280026A6EA /* TiUITabGroup.m in Sources */,
-				DABB36DC12E8CB280026A6EA /* TiUITabController.m in Sources */,
 				DABB36DE12E8CB280026A6EA /* TiUIiPhoneSystemIconProxy.m in Sources */,
 				DABB36DF12E8CB280026A6EA /* TiUIiPhoneSystemButtonStyleProxy.m in Sources */,
 				DABB36E012E8CB280026A6EA /* TiUIiPhoneSystemButtonProxy.m in Sources */,
@@ -3990,7 +3947,6 @@
 				DABB376B12E8CB280026A6EA /* TopTiModule.m in Sources */,
 				DABB376C12E8CB280026A6EA /* TiApp.m in Sources */,
 				DABB376D12E8CB280026A6EA /* TiErrorController.m in Sources */,
-				DABB376E12E8CB280026A6EA /* TiRootViewControllerLegacy.m in Sources */,
 				DABB376F12E8CB280026A6EA /* TiMediaMusicPlayer.m in Sources */,
 				DABB377012E8CB280026A6EA /* TiMediaItem.m in Sources */,
 				DABB377112E8CB280026A6EA /* TiLayoutQueue.m in Sources */,

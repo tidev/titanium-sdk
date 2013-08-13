@@ -11,7 +11,6 @@
 #import "TiWindowProxy.h"
 
 @class TiUITabGroupProxy;
-@class TiUITabController;
 
 @interface TiUITabProxy : TiViewProxy<TiTab,UINavigationControllerDelegate,TiOrientationController> {
 @private
