@@ -7,7 +7,7 @@ methods:
   - name: send
     summary: Send an email to a list of email adresses.
     description: |
-        See [Emails: Send Emails](http://cloud.appcelerator.com/docs/api/v1/emails/send)
+        See [Emails: Send Emails](http://docs.appcelerator.com/cloud/latest/#!/api/Emails-method-email_from_template)
         for the request parameters supported by this method.
         
         If you haven't configured your SMTP setting yet, go to your App Settings and configure and 
