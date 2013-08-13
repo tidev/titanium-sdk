@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
 
-        See [Friends: Add Friends](http://cloud.appcelerator.com/docs/api/v1/friends/add)
+        See [Friends: Add Friends](http://docs.appcelerator.com/cloud/latest/#!/api/Friends-method-add)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -25,7 +25,7 @@ methods:
     description: |
         Requires user login. 
 
-        See [Friends: Show Friend Requests](http://cloud.appcelerator.com/docs/api/v1/friends/requests)
+        See [Friends: Show Friend Requests](http://docs.appcelerator.com/cloud/latest/#!/api/Friends-method-requests)
         for the request parameters supported by this method.
 
         Data is returned in the `friend_requests` property of the parameter passed to the callback.
@@ -43,7 +43,7 @@ methods:
     description: |
         Requires user login.
 
-        See [Friends: Approve Friend Requests](http://cloud.appcelerator.com/docs/api/v1/friends/approve)
+        See [Friends: Approve Friend Requests](http://docs.appcelerator.com/cloud/latest/#!/api/Friends-method-approve)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -59,7 +59,7 @@ methods:
     description: |
         Requires user login.
 
-        See [Friends: Remove Friends](http://cloud.appcelerator.com/docs/api/v1/friends/remove)
+        See [Friends: Remove Friends](http://docs.appcelerator.com/cloud/latest/#!/api/Friends-method-remove)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -75,7 +75,7 @@ methods:
     description: |
         Requires user login.
 
-        See [Friends: Search Friends](http://cloud.appcelerator.com/docs/api/v1/friends/search)
+        See [Friends: Search Friends](http://docs.appcelerator.com/cloud/latest/#!/api/Friends-method-search)
         for the request parameters supported by this method.
 
         Data is returned in the `users` property of the parameter passed to the callback.

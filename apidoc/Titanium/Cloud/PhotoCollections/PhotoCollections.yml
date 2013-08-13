@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Photo Collections: Create a Photo Collection](http://cloud.appcelerator.com/docs/api/v1/collections/create)
+        See [Photo Collections: Create a Photo Collection](http://docs.appcelerator.com/cloud/latest/#!/api/PhotoCollections-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `collections` property of the parameter passed to the callback.
@@ -27,7 +27,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Photo Collections: Delete a Photo Collection](http://cloud.appcelerator.com/docs/api/v1/collections/delete)
+        See [Photo Collections: Delete a Photo Collection](http://docs.appcelerator.com/cloud/latest/#!/api/PhotoCollections-method-delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -41,7 +41,7 @@ methods:
   - name: search
     summary: Retrieves a list of top-level collections owned by a user.
     description: |
-        See [Photo Collections: Search Photo Collections](http://cloud.appcelerator.com/docs/api/v1/collections/search)
+        See [Photo Collections: Search Photo Collections](http://docs.appcelerator.com/cloud/latest/#!/api/PhotoCollections-method-search)
         for the request parameters supported by this method.
         
         Data is returned in the `collections` property of the parameter passed to the callback.
@@ -57,7 +57,7 @@ methods:
   - name: show
     summary: Retrieves details about a photo collection.
     description: |
-        See [Photo Collections: Show a Photo Collection](http://cloud.appcelerator.com/docs/api/v1/collections/show)
+        See [Photo Collections: Show a Photo Collection](http://docs.appcelerator.com/cloud/latest/#!/api/PhotoCollections-method-show)
         for the request parameters supported by this method.
         
         Data is returned in the `collections` property of the parameter passed to the callback.
@@ -73,7 +73,7 @@ methods:
   - name: showPhotos
     summary: Retrieves photos in a collection.
     description: |
-        See [PhotoCollections: Show Photos](http://cloud.appcelerator.com/docs/api/v1/collections/photos)
+        See [PhotoCollections: Show Photos](http://docs.appcelerator.com/cloud/latest/#!/api/PhotoCollections-method-show_photos)
         for the request parameters supported by this method.
         
         Data is returned in the `photos` property of the parameter passed to the callback.
@@ -89,7 +89,7 @@ methods:
   - name: showSubCollections
     summary: Retrieves a list of subcollections of a collection.
     description: |
-        See [Collections: Show Subcollections](http://cloud.appcelerator.com/docs/api/v1/collections/subcollections)
+        See [Collections: Show Subcollections](http://docs.appcelerator.com/cloud/latest/#!/api/PhotoCollections-method-show_subcollections)
         for the request parameters supported by this method.
         
         Data is returned in the `collections` property of the parameter passed to the callback.
@@ -107,7 +107,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Photo Collections: Update a Photo Collection](http://cloud.appcelerator.com/docs/api/v1/collections/update)
+        See [Photo Collections: Update a Photo Collection](http://docs.appcelerator.com/cloud/latest/#!/api/PhotoCollections-method-update)
         for the request parameters supported by this method.
         
         Data is returned in the `collections` property of the parameter passed to the callback.
