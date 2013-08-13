@@ -285,9 +285,7 @@
 	
 	// Layout the master, divider and detail views.
 	CGRect newFrame = CGRectMake(0, 0, width, height);
-    if ([TiUtils isIOS7OrGreater]) {
-        newFrame.origin.y = fullSize.origin.y;
-    }
+    
 	UIViewController *controller;
 	UIView *theView;
 	BOOL shouldShowMaster = [self shouldShowMasterForInterfaceOrientation:theOrientation];

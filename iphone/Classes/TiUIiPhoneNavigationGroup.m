@@ -43,6 +43,7 @@
 		{
 			[self throwException:@"window property required" subreason:nil location:CODELOCATION];
 		}
+        [windowProxy setIsManaged:YES];
 		UIViewController *rootController = [windowProxy initController];
 		controller = [[UINavigationController alloc] initWithRootViewController:rootController];
 		[controller setDelegate:self];

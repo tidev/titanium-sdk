@@ -20,11 +20,6 @@
 	return [[TiUIiPadSplitWindow alloc] init];
 }
 
-- (UIViewController *)childViewController
-{
-	return [(TiUIiPadSplitWindow*)[self view] controller];
-}
-
 -(void)windowDidOpen 
 {
 	[super windowDidOpen];
@@ -36,6 +31,21 @@
     if ([self viewAttached]) {
         [(TiUIiPadSplitWindow*)[self view] splitViewController:nil willShowViewController:nil invalidatingBarButtonItem:nil];
     }
+    TiViewProxy* masterProxy = [self valueForUndefinedKey:@"masterView"];
+    TiViewProxy* detailProxy = [self valueForUndefinedKey:@"detailView"];
+    [masterProxy windowWillClose];
+    [detailProxy windowWillClose];
+    
+    [super windowWillClose];
+}
+
+-(void)windowDidClose
+{
+    TiViewProxy* masterProxy = [self valueForUndefinedKey:@"masterView"];
+    TiViewProxy* detailProxy = [self valueForUndefinedKey:@"detailView"];
+    [masterProxy windowDidClose];
+    [detailProxy windowDidClose];
+    [super windowDidClose];
 }
 
 -(void)setToolbar:(id)items withObject:(id)properties

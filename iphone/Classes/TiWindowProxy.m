@@ -18,6 +18,8 @@
 @implementation TiWindowProxy
 
 @synthesize tab = tab;
+@synthesize isManaged;
+
 -(void) dealloc {
     if (controller != nil) {
         TiThreadReleaseOnMainThread(controller, NO);
@@ -48,7 +50,7 @@
 -(void)windowWillOpen
 {
     [super windowWillOpen];
-    if (tab == nil) {
+    if (tab == nil && (self.isManaged == NO)) {
         [[[[TiApp app] controller] topContainerController] willOpenWindow:self];
     }
 }
@@ -63,14 +65,14 @@
     [super windowDidOpen];
     [self forgetProxy:openAnimation];
     RELEASE_TO_NIL(openAnimation);
-    if (tab == nil) {
+    if (tab == nil && (self.isManaged == NO)) {
         [[[[TiApp app] controller] topContainerController] didOpenWindow:self];
     }
 }
 
 -(void) windowWillClose
 {
-    if (tab == nil) {
+    if (tab == nil && (self.isManaged == NO)) {
         [[[[TiApp app] controller] topContainerController] willCloseWindow:self];
     }
     [super windowWillClose];
@@ -85,10 +87,11 @@
     }
     [self forgetProxy:closeAnimation];
     RELEASE_TO_NIL(closeAnimation);
-    tab = nil;
-    if (tab == nil) {
+    if (tab == nil && (self.isManaged == NO)) {
         [[[[TiApp app] controller] topContainerController] didCloseWindow:self];
     }
+    tab = nil;
+    self.isManaged = NO;
     RELEASE_TO_NIL_AUTORELEASE(controller);
     [super windowDidClose];
 }
@@ -222,7 +225,7 @@
 -(BOOL)_handleOpen:(id)args
 {
     TiRootViewController* theController = [[TiApp app] controller];
-    if (isModal || (tab != nil)) {
+    if (isModal || (tab != nil) || self.isManaged) {
         [self forgetProxy:openAnimation];
         RELEASE_TO_NIL(openAnimation);
     }
@@ -239,7 +242,7 @@
 -(BOOL)_handleClose:(id)args
 {
     TiRootViewController* theController = [[TiApp app] controller];
-    if (isModal || (tab != nil)) {
+    if (isModal || (tab != nil) || self.isManaged) {
         [self forgetProxy:closeAnimation];
         RELEASE_TO_NIL(closeAnimation);
     }
@@ -356,7 +359,7 @@
             [self windowDidOpen];
         } else {
             [self windowWillOpen];
-            if ((openAnimation == nil) || (![openAnimation isTransitionAnimation])){
+            if ((self.isManaged == NO) && ((openAnimation == nil) || (![openAnimation isTransitionAnimation]))){
                 [self attachViewToTopContainerController];
             }
             if (openAnimation != nil) {
