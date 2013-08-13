@@ -208,6 +208,8 @@
 {
     TiWindowProxy *newWindow = (TiWindowProxy *)[(TiViewController*)viewController proxy];
 	[newWindow windowWillOpen];
+    [[UIApplication sharedApplication] setStatusBarHidden:[newWindow hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
+
 }
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
