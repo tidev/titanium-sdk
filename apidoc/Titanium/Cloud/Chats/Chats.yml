@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Chats: Create a Chat Message](http://cloud.appcelerator.com/docs/api/v1/chats/create)
+        See [Chats: Create a Chat Message](http://docs.appcelerator.com/cloud/latest/#!/api/Chats-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `chats` property of the parameter passed to the callback.
@@ -27,7 +27,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Chats: List Chat Groups](http://cloud.appcelerator.com/docs/api/v1/chats/get_chat_groups)
+        See [Chats: List Chat Groups](http://docs.appcelerator.com/cloud/latest/#!/api/Chats-method-get_chat_groups)
         for the request parameters supported by this method.
         
         Data is returned in the `chat_groups` property of the parameter passed to the callback.
@@ -46,7 +46,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Chats: Custom Query Chat Messages](http://cloud.appcelerator.com/docs/api/v1/chats/query)
+        See [Chats: Custom Query Chat Messages](http://docs.appcelerator.com/cloud/latest/#!/api/Chats-method-query)
         for the request parameters supported by this method.
         
         Data is returned in the `chats` property of the parameter passed to the callback.

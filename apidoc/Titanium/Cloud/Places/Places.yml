@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Places: Create a Place](http://cloud.appcelerator.com/docs/api/v1/places/create)
+        See [Places: Create a Place](http://docs.appcelerator.com/cloud/latest/#!/api/Places-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `places` property of the parameter passed to the callback.
@@ -25,7 +25,7 @@ methods:
   - name: query
     summary: Retrieve a list of places with sorting and pagination.
     description: |
-        See [Places: Custom Query Places](http://cloud.appcelerator.com/docs/api/v1/places/query)
+        See [Places: Custom Query Places](http://docs.appcelerator.com/cloud/latest/#!/api/Places-method-query)
         for the request parameters supported by this method.
         
         Data is returned in the `places` property of the parameter passed to the callback.
@@ -44,7 +44,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Places: Delete a Place](http://cloud.appcelerator.com/docs/api/v1/places/delete)
+        See [Places: Delete a Place](http://docs.appcelerator.com/cloud/latest/#!/api/Places-method-delete)
         for the request parameters supported by this method.
         
         Only the user who created the place can delete it.
@@ -60,7 +60,7 @@ methods:
   - name: search
     summary: Retrieve a list of places.
     description: |
-        See [Places: Search Places](http://cloud.appcelerator.com/docs/api/v1/places/search)
+        See [Places: Search Places](http://docs.appcelerator.com/cloud/latest/#!/api/Places-method-search)
         for the request parameters supported by this method.
         
         Data is returned in the `places` property of the parameter passed to the callback.
@@ -77,7 +77,7 @@ methods:
   - name: show
     summary: Retrieve information about a place.
     description: |
-        See [Places: Show a Place](http://cloud.appcelerator.com/docs/api/v1/places/show)
+        See [Places: Show a Place](http://docs.appcelerator.com/cloud/latest/#!/api/Places-method-show)
         for the request parameters supported by this method.
         
         Data is returned in the `places` property of the parameter passed to the callback.
@@ -95,7 +95,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Places: Update a Place](http://cloud.appcelerator.com/docs/api/v1/places/update)
+        See [Places: Update a Place](http://docs.appcelerator.com/cloud/latest/#!/api/Places-method-update)
         for the request parameters supported by this method.
         
         Only the user who created the place can update it.
