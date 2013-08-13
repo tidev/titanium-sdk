@@ -17,6 +17,7 @@
 #import "TiViewController.h"
 #import "TiApp.h"
 #import "TiUIiPadPopoverProxy.h"
+#import "TiWindowProxy.h"
 
 #ifdef USE_TI_UIIPADSPLITWINDOWBUTTON
 #import "TiUIiPadSplitWindowButtonProxy.h"
@@ -26,8 +27,8 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy);
 
 UIViewController * ControllerForProxy(TiViewProxy * proxy)
 {
-    if (![proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
-        DebugLog(@"[WARN] SplitView - The proxy %@ does not conform to TiWindowProtocol protocol.", proxy);
+    if ([proxy isKindOfClass:[TiWindowProxy class]]) {
+        [(TiWindowProxy*)proxy setIsManaged:YES];
     }
 
 	[[proxy view] setAutoresizingMask:UIViewAutoresizingNone];
