@@ -32,6 +32,7 @@
 -(BOOL)opening;
 -(BOOL)closing;
 -(BOOL)isModal;
+-(BOOL)hidesStatusBar;
 //Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 -(void)viewWillAppear:(BOOL)animated;
 -(void)viewWillDisappear:(BOOL)animated;

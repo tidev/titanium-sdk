@@ -708,10 +708,10 @@
     } else {
         [_containedWindows addObject:theWindow];
         [TiUtils configureController:self withObject:theWindow];
-        [self resizeView];
         if (isCurrentlyVisible) {
-            [theWindow viewWillAppear:YES];
+            [[UIApplication sharedApplication] setStatusBarHidden:[theWindow hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
         }
+        [self resizeView];
         theWindow.parentOrientationController = self;
     }
 }
@@ -722,7 +722,6 @@
     if (isCurrentlyVisible) {
         [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
         [[_containedWindows lastObject] gainFocus];
-        [theWindow viewDidAppear:YES];
         UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
     }
     [self dismissDefaultImage];
@@ -745,6 +744,7 @@
     [self dismissKeyboard];
     if (isCurrentlyVisible) {
         [TiUtils configureController:self withObject:[_containedWindows lastObject]];
+        [[UIApplication sharedApplication] setStatusBarHidden:[[_containedWindows lastObject] hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
         [self resizeView];
         [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
         [[_containedWindows lastObject] gainFocus];
