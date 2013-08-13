@@ -18,6 +18,7 @@
     BOOL closing;
     BOOL focussed;
     BOOL isModal;
+    BOOL hidesStatusBar;
     TiViewProxy<TiTab> *tab;
     TiAnimation * openAnimation;
     TiAnimation * closeAnimation;

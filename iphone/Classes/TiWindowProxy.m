@@ -113,11 +113,6 @@
     return NO;
 }
 
--(BOOL)isFullscreen:(id)args
-{
-    return [self argOrWindowProperty:@"fullscreen" args:args];
-}
-
 -(BOOL)isRootViewLoaded
 {
     return [[[TiApp app] controller] isViewLoaded];
@@ -165,6 +160,8 @@
     opening = YES;
     
     isModal = [self argOrWindowProperty:@"modal" args:args];
+    
+    hidesStatusBar = [self argOrWindowProperty:@"fullscreen" args:args];
     
     if (!isModal && (tab==nil)) {
         openAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
@@ -267,6 +264,11 @@
 -(BOOL)isModal
 {
     return isModal;
+}
+
+-(BOOL)hidesStatusBar
+{
+    return hidesStatusBar;
 }
 
 -(BOOL)handleFocusEvents
