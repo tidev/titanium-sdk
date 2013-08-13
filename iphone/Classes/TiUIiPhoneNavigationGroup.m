@@ -22,12 +22,6 @@
     // NOTE: We don't need to blur the currently visible proxy, because it gets closed out by the close: call.
 	TiWindowProxy * oldProxy = visibleProxy;
 	visibleProxy = [newVisibleProxy retain];
-	[oldProxy _tabBeforeBlur];
-	[newVisibleProxy _tabBeforeFocus];
-
-	[oldProxy _tabBlur];
-	[newVisibleProxy _tabFocus];
-
 	[oldProxy release];
 }
 
@@ -49,16 +43,13 @@
 		{
 			[self throwException:@"window property required" subreason:nil location:CODELOCATION];
 		}
-		UIViewController *rootController = [windowProxy controller];	
+		UIViewController *rootController = [windowProxy initController];
 		controller = [[UINavigationController alloc] initWithRootViewController:rootController];
 		[controller setDelegate:self];
-		[TiUtils configureController:controller withObject:nil];
+		[TiUtils configureController:controller withObject:rootController];
 		[self addSubview:controller.view];
-		[controller.view addSubview:[windowProxy view]];
-		[windowProxy prepareForNavView:controller];
 		
 		root = windowProxy;
-//		[self setVisibleProxy:windowProxy];
 	}
 	return controller;
 }
@@ -106,8 +97,7 @@
 -(void)open:(TiWindowProxy*)window withObject:(NSDictionary*)properties
 {
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-	UIViewController *viewController = [window controller];
-	[window prepareForNavView:controller];
+	UIViewController *viewController = [window initController];
 	opening = YES;
 	[controller pushViewController:viewController animated:animated];
 }
@@ -145,7 +135,7 @@
 
 -(void)removeWindowFromControllerStack:(TiWindowProxy*)window withObject:(NSDictionary*)properties
 {
-    UIViewController* windowController = [window controller];
+    UIViewController* windowController = [window initController];
     NSMutableArray* newControllers = [NSMutableArray arrayWithArray:controller.viewControllers];
     BOOL lastObject = (windowController == [newControllers lastObject]);
     BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:lastObject];
@@ -217,15 +207,7 @@
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
     TiWindowProxy *newWindow = (TiWindowProxy *)[(TiViewController*)viewController proxy];
-	[newWindow setupWindowDecorations];
 	[newWindow windowWillOpen];
-    //TIMOB-8559.TIMOB-8628. PR 1819 caused a regression that exposed an IOS issue. In IOS 5 and later, the nav controller calls 
-    //UIViewControllerDelegate methods, but not in IOS 4.X. As a result the parentVisible flag is never flipped to true
-    //and the window never lays out. Call them explicitly.
-    if (![TiUtils isIOS5OrGreater]) {
-        [visibleProxy viewWillDisappear:animated];
-        [newWindow viewWillAppear:animated];
-    }
 }
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
@@ -241,12 +223,6 @@
         }
         visibleProxyDidChange = YES;
         
-        //TIMOB-8559.TIMOB-8628. In IOS 5 and later, the nav controller calls 
-        //UIViewControllerDelegate methods, but not in IOS 4.X.Call them explicitly
-        if (![TiUtils isIOS5OrGreater]) {
-            [visibleProxy viewDidDisappear:animated];
-            [newWindow viewDidAppear:animated];
-        }
         [self setVisibleProxy:newWindow];
     }
     [closingProxy close:nil];
