@@ -956,7 +956,6 @@
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
 {
-    //TO DO
     return [self lastValidOrientation:YES];
 }
 
