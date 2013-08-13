@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Messages: Send a Message](http://cloud.appcelerator.com/docs/api/v1/messages/create)
+        See [Messages: Send a Message](http://docs.appcelerator.com/cloud/latest/#!/api/Messages-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `messages` property of the parameter passed to the callback.
@@ -25,7 +25,7 @@ methods:
   - name: reply
     summary: Reply to all recipients of a message.
     description: |
-        See [Messages: Reply to a Message](http://cloud.appcelerator.com/docs/api/v1/messages/reply)
+        See [Messages: Reply to a Message](http://docs.appcelerator.com/cloud/latest/#!/api/Messages-method-reply)
         for the request parameters supported by this method.
         
         Data is returned in the `messages` property of the parameter passed to the callback.
@@ -42,7 +42,7 @@ methods:
   - name: show
     summary: Retrieve information about a message.
     description: |
-        See [Messages: Show a Message](http://cloud.appcelerator.com/docs/api/v1/messages/show)
+        See [Messages: Show a Message](http://docs.appcelerator.com/cloud/latest/#!/api/Messages-method-show)
         for the request parameters supported by this method.
         
         Data is returned in the `messages` property of the parameter passed to the callback.
@@ -58,7 +58,7 @@ methods:
   - name: showInbox
     summary: Retrieve a list of messages in the current user's inbox.
     description: |
-        See [Messages: Show User's Inbox Messages](http://cloud.appcelerator.com/docs/api/v1/messages/inbox)
+        See [Messages: Show User's Inbox Messages](http://docs.appcelerator.com/cloud/latest/#!/api/Messages-method-show_inbox)
         for the request parameters supported by this method.
 
         Data is returned in the `messages` property of the parameter passed to the callback.
@@ -74,7 +74,7 @@ methods:
   - name: showSent
     summary: Retrieve a list of messages in the current user's inbox.
     description: |
-        See [Messages: Show User's Sent Messages](http://cloud.appcelerator.com/docs/api/v1/messages/sent)
+        See [Messages: Show User's Sent Messages](http://docs.appcelerator.com/cloud/latest/#!/api/Messages-method-show_sent)
         for the request parameters supported by this method.
 
         Data is returned in the `messages` property of the parameter passed to the callback.
@@ -90,7 +90,7 @@ methods:
   - name: showThreads
     summary: Retrieve a list of message threads in the current users' inbox.
     description: |
-        See [Messages: Show User's Message Threads](http://cloud.appcelerator.com/docs/api/v1/messages/threads)
+        See [Messages: Show User's Message Threads](http://docs.appcelerator.com/cloud/latest/#!/api/Messages-method-show_threads)
         for the request parameters supported by this method.
 
         Data is returned in the `messages` property of the parameter passed to the callback.
@@ -106,7 +106,7 @@ methods:
   - name: showThread
     summary: Retrieve a list of messages in a thread from the current user's inbox.
     description: |
-        See [Messages: Show Messages in a Thread](http://cloud.appcelerator.com/docs/api/v1/messages/thread)
+        See [Messages: Show Messages in a Thread](http://docs.appcelerator.com/cloud/latest/#!/api/Messages-method-show_thread)
         for the request parameters supported by this method.
 
         Data is returned in the `messages` property of the parameter passed to the callback.
@@ -124,7 +124,7 @@ methods:
     description: |
         Requires user login.
 
-        See [Messages: Delete a Message](http://cloud.appcelerator.com/docs/api/v1/messages/delete)
+        See [Messages: Delete a Message](http://docs.appcelerator.com/cloud/latest/#!/api/Messages-method-delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -140,7 +140,7 @@ methods:
     description: |
         Requires user login.
 
-        See [Messages: Delete All Messages in a Thread](http://cloud.appcelerator.com/docs/api/v1/messages/delete_thread)
+        See [Messages: Delete All Messages in a Thread](http://docs.appcelerator.com/cloud/latest/#!/api/Messages-method-delete_thread)
         for the request parameters supported by this method.
     parameters:
       - name: parameters

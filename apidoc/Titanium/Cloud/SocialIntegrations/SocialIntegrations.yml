@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Social Integration: Link an external account](http://cloud.appcelerator.com/docs/api/v1/social/linkexternal)
+        See [Social Integration: Link an external account](http://docs.appcelerator.com/cloud/latest/#!/api/SocialIntegrations-method-external_account_link)
         for the request parameters supported by this method.
         
         Data is returned in the `users` property of the parameter passed to the callback.
@@ -25,7 +25,7 @@ methods:
   - name: externalAccountLogin
     summary: Login to ACS using an external account such as Facebook, Twitter,LinkedIn, etc.
     description: |
-        See [Social Integration: Login with external account](http://cloud.appcelerator.com/docs/api/v1/social/loginexternal)
+        See [Social Integration: Login with external account](http://docs.appcelerator.com/cloud/latest/#!/api/SocialIntegrations-method-external_account_link)
         for the request parameters supported by this method.
         
         Data is returned in the `users` property of the parameter passed to the callback.
@@ -43,7 +43,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Social Integration: Unlink an external account](http://cloud.appcelerator.com/docs/api/v1/social/unlinkexternal)
+        See [Social Integration: Unlink an external account](http://docs.appcelerator.com/cloud/latest/#!/api/SocialIntegrations-method-external_account_unlink)
         for the request parameters supported by this method.
         
         Data is returned in the `users` property of the parameter passed to the callback.
@@ -61,7 +61,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Social Integration: Find Facebook Friends](http://cloud.appcelerator.com/docs/api/v1/social/facebook_friends)
+        See [Social Integration: Find Facebook Friends](http://docs.appcelerator.com/cloud/latest/#!/api/SocialIntegrations-method-facebook_search_friends)
         for the request parameters supported by this method.
         
         Data is returned in the `users` property of the parameter passed to the callback.

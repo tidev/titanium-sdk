@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Files: Create a File](http://cloud.appcelerator.com/docs/api/v1/files/create)
+        See [Files: Create a File](http://docs.appcelerator.com/cloud/latest/#!/api/Files-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `files` property of the parameter passed to the callback.
@@ -25,7 +25,7 @@ methods:
   - name: query
     summary: Retrieve a list of files with sorting and pagination.
     description: |
-        See [Files: Custom Query Files](http://cloud.appcelerator.com/docs/api/v1/files/query)
+        See [Files: Custom Query Files](http://docs.appcelerator.com/cloud/latest/#!/api/Files-method-query)
         for the request parameters supported by this method.
         
         Data is returned in the `files` property of the parameter passed to the callback.
@@ -44,7 +44,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Files: Delete a File](http://cloud.appcelerator.com/docs/api/v1/files/delete)
+        See [Files: Delete a File](http://docs.appcelerator.com/cloud/latest/#!/api/Files-method-delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -58,7 +58,7 @@ methods:
   - name: show
     summary: Retrieve information about a file.
     description: |
-        See [Files: Show File Info](http://cloud.appcelerator.com/docs/api/v1/files/show)
+        See [Files: Show File Info](http://docs.appcelerator.com/cloud/latest/#!/api/Files-method-show)
         for the request parameters supported by this method.
         
         Data is returned in the `files` property of the parameter passed to the callback.
@@ -76,7 +76,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Files: Update a File](http://cloud.appcelerator.com/docs/api/v1/files/update)
+        See [Files: Update a File](http://docs.appcelerator.com/cloud/latest/#!/api/Files-method-update)
         for the request parameters supported by this method.
         
         Data is returned in the `files` property of the parameter passed to the callback.
