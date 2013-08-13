@@ -81,7 +81,6 @@
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
 {
-    //THIS HAS TO BE FIXED
     return [[[TiApp app] controller] preferredInterfaceOrientationForPresentation];
 }
 
