@@ -704,6 +704,7 @@
     [self dismissKeyboard];
     [[_containedWindows lastObject] resignFocus];
     if ([theWindow isModal]) {
+        [[UIApplication sharedApplication] setStatusBarHidden:[theWindow hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
         [_modalWindows addObject:theWindow];
     } else {
         [_containedWindows addObject:theWindow];
@@ -1162,14 +1163,15 @@
 -(void)viewDidAppear:(BOOL)animated
 {
     isCurrentlyVisible = YES;
-    [self resizeView];
     if ([_containedWindows count] > 0) {
+        [[UIApplication sharedApplication] setStatusBarHidden:[[_containedWindows lastObject] hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
         [self refreshOrientationWithDuration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
         for (id<TiWindowProtocol> thisWindow in _containedWindows) {
             [thisWindow viewDidAppear:animated];
         }
         [[_containedWindows lastObject] gainFocus];
     }
+    [self resizeView];
     [super viewDidAppear:animated];
 }
 -(void)viewDidDisappear:(BOOL)animated
