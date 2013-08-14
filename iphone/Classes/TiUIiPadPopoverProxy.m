@@ -32,7 +32,6 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 		//This shouldn't happen because we clear it on hide.
 		currentlyDisplaying = nil;
 	}
-	[viewController setProxy:nil];
 	RELEASE_TO_NIL(viewController);
 	RELEASE_TO_NIL(navigationController);
 	RELEASE_TO_NIL(popoverController);
@@ -110,12 +109,6 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 	if (viewController == nil)
 	{
 		viewController = [[TiViewController alloc] initWithViewProxy:self];
-/*
- *	Yes, I know that [TiViewController view] will return [self view] anyways, but for some
- *	strange reason, UIPopoverController doesn't like that. So we must explicitly set the view
- *	variable so that the UIViewController mojo isn't thrown off for sizing.
- */
-		[viewController setView:[self view]];
 		[TiUtils configureController:viewController withObject:nil];
 	}
 	return viewController;
@@ -388,11 +381,6 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
     isDismissing = NO;
     [closingCondition signal];
     [closingCondition unlock];
-}
-
--(BOOL)suppressesRelayout
-{
-	return YES;
 }
 
 @end
