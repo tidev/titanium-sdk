@@ -720,7 +720,7 @@
 -(void)didOpenWindow:(id<TiWindowProtocol>)theWindow
 {
     [self dismissKeyboard];
-    if (isCurrentlyVisible) {
+    if (isCurrentlyVisible && ![theWindow isModal]) {
         [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
         [[_containedWindows lastObject] gainFocus];
         UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
@@ -904,6 +904,13 @@
     CGRect bounds = [[self view] bounds];
     NSLog(@"ROOT DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
 #endif
+    for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+        if ([thisWindow isKindOfClass:[TiViewProxy class]]) {
+            if (!CGRectEqualToRect([(TiViewProxy*)thisWindow sandboxBounds], [[self view] bounds])) {
+                [(TiViewProxy*)thisWindow parentSizeWillChange];
+            }
+        }
+    }
     [super viewDidLayoutSubviews];
 }
 
@@ -972,21 +979,9 @@
     }
     deviceOrientation = (UIInterfaceOrientation) newOrientation;
    
-    /*
-    if (![[TiApp app] windowIsKeyWindow]) {
-        VerboseLog(@"[DEBUG] RETURNING BECAUSE WE ARE NOT KEY WINDOW");
-        return;
+    if ([self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
+        [self updateOrientationHistory:deviceOrientation];
     }
-
-    //Modal windows are going to handle their own orientation.
-    //We only need to fix ourselves if we are top window
-    BOOL trulyVisible = isCurrentlyVisible && ([self presentedViewController] == nil);
-    if (trulyVisible && [self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
-        if (deviceOrientation != targetOrientation) {
-            //[self manuallyRotateToOrientation:deviceOrientation duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
-        }
-    }
-    */
 }
 
 

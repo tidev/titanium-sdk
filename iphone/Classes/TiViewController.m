@@ -43,7 +43,7 @@
 {
 #if defined(DEBUG) || defined(DEVELOPER)
     CGRect bounds = [[self view] bounds];
-    NSLog(@"ROOT WILL LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
+    NSLog(@"TIVIEWCONTROLLER WILL LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
 #endif
     [super viewWillLayoutSubviews];
 }
@@ -52,7 +52,7 @@
 {
 #if defined(DEBUG) || defined(DEVELOPER)
     CGRect bounds = [[self view] bounds];
-    NSLog(@"ROOT DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
+    NSLog(@"TIVIEWCONTROLLER DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
 #endif
     if (!CGRectEqualToRect([_proxy sandboxBounds], [[self view] bounds])) {
         [_proxy parentSizeWillChange];
