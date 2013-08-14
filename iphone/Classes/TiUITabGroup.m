@@ -60,12 +60,12 @@ DEFINE_EXCEPTIONS
 	return -1;
 }
 
--(void)layoutSubviews
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	[super layoutSubviews];
-	UIView *view = [self tabController].view;
-	[view setTransform:CGAffineTransformIdentity];
-	[view setFrame:[self bounds]];
+    if ([controller isViewLoaded]) {
+        [[controller view] setFrame:bounds];
+    }
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 #pragma mark Dispatching focus change
@@ -364,17 +364,47 @@ DEFINE_EXCEPTIONS
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-	[controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    if ([TiUtils isIOS7OrGreater]) {
+        UIViewController* selected = [controller selectedViewController];
+        if (selected != nil) {
+            if ([selected isKindOfClass:[UINavigationController class]]) {
+                selected = [(UINavigationController*)selected topViewController];
+            }
+            [selected willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+        }
+    } else {
+        [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    }
 }
 
 -(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-	[controller willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    if ([TiUtils isIOS7OrGreater]) {
+        UIViewController* selected = [controller selectedViewController];
+        if (selected != nil) {
+            if ([selected isKindOfClass:[UINavigationController class]]) {
+                selected = [(UINavigationController*)selected topViewController];
+            }
+            [selected willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+        }
+    } else {
+        [controller willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    }
 }
 
 -(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
-	[controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    if ([TiUtils isIOS7OrGreater]) {
+        UIViewController* selected = [controller selectedViewController];
+        if (selected != nil) {
+            if ([selected isKindOfClass:[UINavigationController class]]) {
+                selected = [(UINavigationController*)selected topViewController];
+            }
+            [selected didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+        }
+    } else {
+        [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    }
 }
 
 
