@@ -40,7 +40,7 @@ public class TiColorHelper
 		int color = Color.TRANSPARENT;
 		if (value != null) {
 			String lowval = value.trim().toLowerCase();
-			
+
 			Matcher m = null;
 			if ((m = shortHexPattern.matcher(lowval)).matches()) {
 				StringBuilder sb = new StringBuilder();
