@@ -21,7 +21,10 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.xml.DocumentProxy;
 
-@Kroll.proxy(creatableInModule=NetworkModule.class)
+@Kroll.proxy(creatableInModule=NetworkModule.class, propertyAccessors={
+	TiC.PROPERTY_SHARE_COOKIES_WITH_WEBVIEW
+})
+
 public class HTTPClientProxy extends KrollProxy
 {
 	@Kroll.constant public static final int UNSENT = TiHTTPClient.READY_STATE_UNSENT;
@@ -122,6 +125,18 @@ public class HTTPClientProxy extends KrollProxy
 	public void clearCookies(String host)
 	{
 		client.clearCookies(host);
+	}
+
+	@Kroll.method
+	public void deleteCookie(String host, String name)
+	{
+		client.deleteCookie(host, name);
+	}
+
+	@Kroll.method
+	public String getCookies(String host)
+	{
+		return client.getCookies(host);
 	}
 
 	@Kroll.method

@@ -1861,6 +1861,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SHARE_COOKIES_WITH_WEBVIEW = "shareCookiesWithWebView";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SHOW_AS_ACTION = "showAsAction";
 
 	/**
