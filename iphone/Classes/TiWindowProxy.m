@@ -429,13 +429,14 @@
 //Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 -(void)viewWillAppear:(BOOL)animated
 {
-    
+    [self willShow];
 }
 -(void)viewWillDisappear:(BOOL)animated
 {
     if (controller != nil) {
         [self resignFocus];
     }
+    [self willHide];
 }
 -(void)viewDidAppear:(BOOL)animated
 {

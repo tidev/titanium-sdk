@@ -41,10 +41,23 @@
 
 - (void)viewWillLayoutSubviews
 {
-    if ([_proxy viewAttached]) {
-        ApplyConstraintToViewWithBounds([_proxy layoutProperties], [_proxy view], [self view].bounds);
-    }
+#if defined(DEBUG) || defined(DEVELOPER)
+    CGRect bounds = [[self view] bounds];
+    NSLog(@"ROOT WILL LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
+#endif
     [super viewWillLayoutSubviews];
+}
+
+- (void)viewDidLayoutSubviews
+{
+#if defined(DEBUG) || defined(DEVELOPER)
+    CGRect bounds = [[self view] bounds];
+    NSLog(@"ROOT DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
+#endif
+    if (!CGRectEqualToRect([_proxy sandboxBounds], [[self view] bounds])) {
+        [_proxy parentSizeWillChange];
+    }
+    [super viewDidLayoutSubviews];
 }
 
 //IOS5 support. Begin Section. Drop in 3.2
@@ -107,6 +120,7 @@
 
 -(void)viewWillAppear:(BOOL)animated
 {
+    [_proxy parentWillShow];
    	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
         [(id<TiWindowProtocol>)_proxy viewWillAppear:animated];
     }
@@ -114,6 +128,7 @@
 }
 -(void)viewWillDisappear:(BOOL)animated
 {
+    [_proxy parentWillHide];
    	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
         [(id<TiWindowProtocol>)_proxy viewWillDisappear:animated];
     }
@@ -123,18 +138,6 @@
 {
    	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
         [(id<TiWindowProtocol>)_proxy viewDidAppear:animated];
-    }
-    if ([self presentingViewController] != nil) {
-        BOOL resize = NO;
-        if ([self modalPresentationStyle] == UIModalPresentationFullScreen) {
-            resize = YES;
-        }
-        if ([self modalPresentationStyle] == UIModalPresentationCurrentContext) {
-            resize = ([[self presentingViewController] modalPresentationStyle] == UIModalPresentationFullScreen);
-        }
-        if (resize) {
-            [[self view] setFrame:[TiUtils frameForController:self]];
-        }
     }
     [super viewDidAppear:animated];
 }
@@ -149,18 +152,6 @@
 {
    	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
         [(id<TiWindowProtocol>)_proxy willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
-    if ([self presentingViewController] != nil) {
-        BOOL resize = NO;
-        if ([self modalPresentationStyle] == UIModalPresentationFullScreen) {
-            resize = YES;
-        }
-        if ([self modalPresentationStyle] == UIModalPresentationCurrentContext) {
-            resize = ([[self presentingViewController] modalPresentationStyle] == UIModalPresentationFullScreen);
-        }
-        if (resize) {
-            [[self view] setFrame:[TiUtils frameForController:self]];
-        }
     }
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }

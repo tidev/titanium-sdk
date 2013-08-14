@@ -1431,7 +1431,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         //Check if I cover status bar
         if ((edges & 1/*UIRectEdgeTop*/) != 0) {
             rect.origin.y = 0;
-            rect.size.height += statusBarFrame.size.height;
+            rect.size.height += CGRectIsEmpty(statusBarFrame)?0:TI_STATUSBAR_HEIGHT;
         }
     }
     return rect;

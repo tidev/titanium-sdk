@@ -123,6 +123,16 @@
 	[super _destroy];
 }
 
+-(void)_configure
+{
+	[self replaceValue:nil forKey:@"barColor" notification:NO];
+	[self replaceValue:nil forKey:@"barImage" notification:NO];
+	[self replaceValue:nil forKey:@"translucent" notification:NO];
+	[self replaceValue:NUMBOOL(NO) forKey:@"tabBarHidden" notification:NO];
+	[super _configure];
+}
+
+
 -(void)dealloc
 {
     RELEASE_TO_NIL(barImageView);
@@ -331,7 +341,7 @@
 		TiColor * newColor = [TiUtils colorValue:color];
 		if (newColor == nil)
 		{
-			//newColor =[TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
+			newColor =[TiUtils colorValue:[[tab tabGroup] valueForKey:@"barColor"]];
 		}
 
 		UINavigationController * ourNC = [controller navigationController];
@@ -385,7 +395,8 @@
 	[self replaceValue:value forKey:@"translucent" notification:NO];
 	if (controller!=nil)
 	{
-		[controller navigationController].navigationBar.translucent = [TiUtils boolValue:value];
+        BOOL def = [TiUtils isIOS7OrGreater] ? YES: NO;
+		[controller navigationController].navigationBar.translucent = [TiUtils boolValue:value def:def];
 	}
 }
 

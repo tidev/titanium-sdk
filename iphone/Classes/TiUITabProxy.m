@@ -168,7 +168,7 @@
 	{
 		controller = [[UINavigationController alloc] initWithRootViewController:[self rootController]];
 		controller.delegate = self;
-		[TiUtils configureController:controller withObject:nil];
+		[TiUtils configureController:controller withObject:tabGroup];
 		[self setTitle:[self valueForKey:@"title"]];
 		[self setIcon:[self valueForKey:@"icon"]];
 		[self setBadge:[self valueForKey:@"badge"]];
@@ -179,6 +179,9 @@
 -(TiProxy<TiTabGroup>*)tabGroup
 {
     return tabGroup;
+    if (controller != nil) {
+        [TiUtils configureController:controller withObject:tabGroup];
+    }
 }
 
 -(void)push:(NSArray*)args

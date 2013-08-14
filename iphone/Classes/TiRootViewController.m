@@ -891,15 +891,19 @@
 
 - (void)viewWillLayoutSubviews
 {
+#if defined(DEBUG) || defined(DEVELOPER)
     CGRect bounds = [[self view] bounds];
-    //NSLog(@"WILL LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
+    NSLog(@"ROOT WILL LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
+#endif
     [super viewWillLayoutSubviews];
 }
 
 - (void)viewDidLayoutSubviews
 {
+#if defined(DEBUG) || defined(DEVELOPER)
     CGRect bounds = [[self view] bounds];
-    //NSLog(@"DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
+    NSLog(@"ROOT DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
+#endif
     [super viewDidLayoutSubviews];
 }
 
@@ -1075,6 +1079,7 @@
 
     UIView * ourView = [self view];
     [ourView setTransform:transform];
+    [self resizeView];
     
     [self willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
 
@@ -1190,7 +1195,6 @@
     }
     targetOrientation = toInterfaceOrientation;
     [self updateOrientationHistory:targetOrientation];
-    [self resizeView];
     [self rotateDefaultImageViewToOrientation:toInterfaceOrientation];
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }

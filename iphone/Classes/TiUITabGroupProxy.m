@@ -39,8 +39,9 @@ static NSArray* tabGroupKeySequence;
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
-	[self setValue:[NSNumber numberWithBool:YES] forKey:@"allowUserCustomization"];
-	[super _initWithProperties:properties];
+    [self initializeProperty:@"allowUserCustomization" defaultValue:NUMBOOL(YES)];
+    [self initializeProperty:@"extendEdges" defaultValue: [NSArray arrayWithObjects:NUMINT(15), nil]];
+    [super _initWithProperties:properties];
 }
 
 -(void)_destroy
