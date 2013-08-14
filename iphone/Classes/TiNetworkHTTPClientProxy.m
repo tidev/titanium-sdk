@@ -95,6 +95,7 @@ BOOL ExtractEncodingFromData(NSData * inputData, NSStringEncoding* result)
 		TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding,result);
 		TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding,result);
 		TRYENCODING("windows-1255",12,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsHebrew),result);
+        TRYENCODING("big5",4,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingBig5),result);
 	}	
 	return NO;
 }
