@@ -341,7 +341,7 @@
 		TiColor * newColor = [TiUtils colorValue:color];
 		if (newColor == nil)
 		{
-			newColor =[TiUtils colorValue:[[tab tabGroup] valueForKey:@"barColor"]];
+			newColor =[TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
 		}
 
 		UINavigationController * ourNC = [controller navigationController];
