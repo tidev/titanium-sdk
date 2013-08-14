@@ -320,9 +320,9 @@
     return tab!=nil ? [tab tabGroup] : nil;
 }
 
--(TiProxy*)tab
+-(NSNumber*)orientation
 {
-    return tab;
+	return NUMINT([UIApplication sharedApplication].statusBarOrientation);
 }
 
 -(void)openOnUIThread:(NSArray*)args
