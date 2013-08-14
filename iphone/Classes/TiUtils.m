@@ -1429,9 +1429,14 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
         NSUInteger edges = [(id<TiUIViewControllerIOS7Support>)theController edgesForExtendedLayout];
         //Check if I cover status bar
-        if ((edges & 1/*UIRectEdgeTop*/) != 0) {
-            rect.origin.y = 0;
-            rect.size.height += CGRectIsEmpty(statusBarFrame)?0:TI_STATUSBAR_HEIGHT;
+        if ( ((edges & 1/*UIRectEdgeTop*/) != 0) && (!CGRectIsEmpty(statusBarFrame)) ){
+            if (rect.origin.y > 0) {
+                rect.origin.y = 0;
+                rect.size.height += TI_STATUSBAR_HEIGHT;
+            } else if (rect.origin.x > 0){
+                rect.origin.x = 0;
+                rect.size.width += TI_STATUSBAR_HEIGHT;
+            }
         }
     }
     return rect;
