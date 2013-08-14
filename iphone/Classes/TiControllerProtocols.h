@@ -23,16 +23,15 @@
  Protocol for Window
  */
 @protocol TiWindowProtocol <TiOrientationController>
-//Minimal required for light weight window support.
 -(void)open:(id)args;
 -(void)close:(id)args;
-//Return NO to abort open/close operations.
 -(BOOL)_handleOpen:(id)args;
 -(BOOL)_handleClose:(id)args;
 -(BOOL)opening;
 -(BOOL)closing;
 -(BOOL)isModal;
 -(BOOL)hidesStatusBar;
+@property (nonatomic, readwrite, assign) BOOL isManaged;
 //Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 -(void)viewWillAppear:(BOOL)animated;
 -(void)viewWillDisappear:(BOOL)animated;
@@ -45,7 +44,7 @@
 -(void)gainFocus;
 -(void)resignFocus;
 -(BOOL)handleFocusEvents;
-//ViewController support
+//ViewController support. Always returns TiViewController (or subclass).
 -(UIViewController*) initController;
 @end
 

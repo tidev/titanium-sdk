@@ -87,6 +87,7 @@
         id window = [self valueForKey:@"window"];
         ENSURE_TYPE(window, TiWindowProxy);
         rootWindow = [window retain];
+        [rootWindow setIsManaged:YES];
         [rootWindow setTab:self];
         [rootWindow setParentOrientationController:self];
         [rootWindow open:nil];
@@ -193,7 +194,7 @@
         [rootWindow windowWillOpen];
         [rootWindow windowDidOpen];
     }
-    
+    [window setIsManaged:YES];
 	[window setTab:self];
 	[window setParentOrientationController:self];
     //Send to open. Will come back after _handleOpen returns true.
