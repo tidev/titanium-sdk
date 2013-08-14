@@ -19,6 +19,12 @@
     [super _destroy];
 }
 
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+    [self initializeProperty:@"extendEdges" defaultValue: [NSArray arrayWithObjects:NUMINT(15), nil]];
+    [super _initWithProperties:properties];
+}
+
 #pragma mark - TiOrientationController
 
 -(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;

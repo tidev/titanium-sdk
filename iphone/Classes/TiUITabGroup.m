@@ -29,6 +29,8 @@ DEFINE_EXCEPTIONS
         controller = [[UITabBarController alloc] init];
         controller.delegate = self;
         controller.moreNavigationController.delegate = self;
+        [TiUtils configureController:controller withObject:self.proxy];
+        [TiUtils configureController:controller.moreNavigationController withObject:self.proxy];
     }
     return controller;
 }
@@ -364,47 +366,17 @@ DEFINE_EXCEPTIONS
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        UIViewController* selected = [controller selectedViewController];
-        if (selected != nil) {
-            if ([selected isKindOfClass:[UINavigationController class]]) {
-                selected = [(UINavigationController*)selected topViewController];
-            }
-            [selected willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-        }
-    } else {
-        [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
+   [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
 -(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        UIViewController* selected = [controller selectedViewController];
-        if (selected != nil) {
-            if ([selected isKindOfClass:[UINavigationController class]]) {
-                selected = [(UINavigationController*)selected topViewController];
-            }
-            [selected willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-        }
-    } else {
-        [controller willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
+    [controller willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
 -(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        UIViewController* selected = [controller selectedViewController];
-        if (selected != nil) {
-            if ([selected isKindOfClass:[UINavigationController class]]) {
-                selected = [(UINavigationController*)selected topViewController];
-            }
-            [selected didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-        }
-    } else {
-        [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    }
+    [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
 
 
