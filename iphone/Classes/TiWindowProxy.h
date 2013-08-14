@@ -26,5 +26,4 @@
 }
 
 @property (nonatomic, readwrite, assign) TiViewProxy<TiTab> *tab;
-@property (nonatomic, readwrite, assign) BOOL isManaged;
 @end
