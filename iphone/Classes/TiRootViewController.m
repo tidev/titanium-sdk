@@ -967,7 +967,8 @@
         return;
     }
     deviceOrientation = (UIInterfaceOrientation) newOrientation;
-    
+   
+    /*
     if (![[TiApp app] windowIsKeyWindow]) {
         VerboseLog(@"[DEBUG] RETURNING BECAUSE WE ARE NOT KEY WINDOW");
         return;
@@ -978,10 +979,10 @@
     BOOL trulyVisible = isCurrentlyVisible && ([self presentedViewController] == nil);
     if (trulyVisible && [self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
         if (deviceOrientation != targetOrientation) {
-            [self manuallyRotateToOrientation:deviceOrientation duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+            //[self manuallyRotateToOrientation:deviceOrientation duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
         }
     }
-    
+    */
 }
 
 
