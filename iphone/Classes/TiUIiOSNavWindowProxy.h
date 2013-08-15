@@ -15,5 +15,8 @@
     TiWindowProxy *current;
     BOOL transitionIsAnimating;
 }
+
+//Private API
+-(void)setFrame:(CGRect)bounds;
 @end
 #endif
