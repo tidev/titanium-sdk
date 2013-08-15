@@ -720,7 +720,6 @@
     if (isCurrentlyVisible && ![theWindow isModal]) {
         [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
         [[_containedWindows lastObject] gainFocus];
-        UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
     }
     [self dismissDefaultImage];
 }
@@ -745,7 +744,6 @@
         [self resizeView];
         [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
         [[_containedWindows lastObject] gainFocus];
-        UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
     }
 }
 

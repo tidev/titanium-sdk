@@ -288,8 +288,9 @@
                 [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
             }
         }
+        UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
+        [[self view] setAccessibilityElementsHidden:NO];
     }
-    [[self view] setAccessibilityElementsHidden:NO];
 
 }
 
@@ -302,8 +303,8 @@
                 [self fireEvent:@"blur" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
             }
         }
+        [[self view] setAccessibilityElementsHidden:YES];
     }
-    [[self view] setAccessibilityElementsHidden:YES];
 }
 
 -(UIViewController*)initController;
@@ -356,7 +357,6 @@
             }
             BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
             [[TiApp app] showModalController:theController animated:animated];
-            [self windowDidOpen];
         } else {
             [self windowWillOpen];
             if ((self.isManaged == NO) && ((openAnimation == nil) || (![openAnimation isTransitionAnimation]))){
@@ -386,7 +386,6 @@
             NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
             BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
             [[TiApp app] hideModalController:controller animated:animated];
-            [self windowDidClose];
         } else {
             [self windowWillClose];
             if (closeAnimation != nil) {
@@ -440,14 +439,20 @@
 }
 -(void)viewDidAppear:(BOOL)animated
 {
+    if (isModal && opening) {
+        [self windowDidOpen];
+    }
     if (controller != nil) {
-        [self gainFocus];
-        UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
+        if (tab == nil) {
+            [self gainFocus];
+        }
     }
 }
 -(void)viewDidDisappear:(BOOL)animated
 {
-    
+    if (isModal && closing) {
+        [self windowDidClose];
+    }
 }
 
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
