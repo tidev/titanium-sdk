@@ -47,7 +47,7 @@
 		UIViewController *rootController = [windowProxy initController];
 		controller = [[UINavigationController alloc] initWithRootViewController:rootController];
 		[controller setDelegate:self];
-		[TiUtils configureController:controller withObject:self.proxy];
+		[TiUtils configureController:controller withObject:nil];
 		[self addSubview:controller.view];
 		
 		root = windowProxy;
