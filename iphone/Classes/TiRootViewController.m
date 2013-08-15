@@ -881,9 +881,13 @@
 
 -(void)repositionSubviews
 {
+    //Since the window relayout is now driven from viewDidLayoutSubviews
+    //this is not required. Leaving it in place in case someone is using it now.
+    /*
     for (id<TiWindowProtocol> thisWindow in [_containedWindows reverseObjectEnumerator]) {
         [TiLayoutQueue layoutProxy:(TiViewProxy*)thisWindow];
     }
+    */
 }
 
 -(UIInterfaceOrientation) lastValidOrientation:(BOOL)checkModal
