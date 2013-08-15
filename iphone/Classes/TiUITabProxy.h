@@ -26,6 +26,7 @@
 	BOOL opening;
 	BOOL systemTab;
 	BOOL transitionIsAnimating;
+	BOOL hasFocus;
 	
 	id<TiOrientationController> parentOrientationController;
 }
