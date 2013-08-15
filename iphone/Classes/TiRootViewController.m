@@ -706,10 +706,9 @@
         [_modalWindows addObject:theWindow];
     } else {
         [_containedWindows addObject:theWindow];
-        if (isCurrentlyVisible) {
+        if ([self presentedViewController] == nil) {
             [[UIApplication sharedApplication] setStatusBarHidden:[theWindow hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
         }
-        [self resizeView];
         theWindow.parentOrientationController = self;
     }
 }
@@ -717,7 +716,7 @@
 -(void)didOpenWindow:(id<TiWindowProtocol>)theWindow
 {
     [self dismissKeyboard];
-    if (isCurrentlyVisible && ![theWindow isModal]) {
+    if ([self presentedViewController] == nil) {
         [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
         [[_containedWindows lastObject] gainFocus];
     }
@@ -739,13 +738,14 @@
 -(void)didCloseWindow:(id<TiWindowProtocol>)theWindow
 {
     [self dismissKeyboard];
-    if (isCurrentlyVisible) {
+    if ([self presentedViewController] == nil) {
         [[UIApplication sharedApplication] setStatusBarHidden:[[_containedWindows lastObject] hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
-        [self resizeView];
         [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
         [[_containedWindows lastObject] gainFocus];
     }
 }
+
+@class TiViewController;
 
 -(void)showControllerModal:(UIViewController*)theController animated:(BOOL)animated
 {
@@ -753,6 +753,14 @@
     if ([topVC isKindOfClass:[TiErrorController class]]) {
         DebugLog(@"[ERROR] ErrorController is up. ABORTING showing of modal controller");
         return;
+    }
+    if (topVC == self) {
+        [[_containedWindows lastObject] resignFocus];
+    } else if ([topVC respondsToSelector:@selector(proxy)]) {
+        id theProxy = [topVC proxy];
+        if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+            [(id<TiWindowProtocol>)theProxy resignFocus];
+        }
     }
     [self dismissKeyboard];
     [topVC presentViewController:theController animated:animated completion:nil];
@@ -766,7 +774,18 @@
     }
     UIViewController* presenter = [theController presentingViewController];
     [presenter dismissViewControllerAnimated:animated completion:^{
-        [self dismissKeyboard];
+        if (presenter == self) {
+            [self didCloseWindow:nil];
+        } else {
+            [self dismissKeyboard];
+
+            if ([presenter respondsToSelector:@selector(proxy)]) {
+                id theProxy = [presenter proxy];
+                if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+                    [(id<TiWindowProtocol>)theProxy gainFocus];
+                }
+            }
+        }
     }];
 }
 
