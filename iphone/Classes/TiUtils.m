@@ -1430,15 +1430,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         NSUInteger edges = [(id<TiUIViewControllerIOS7Support>)theController edgesForExtendedLayout];
         //Check if I cover status bar
         if ( ((edges & 1/*UIRectEdgeTop*/) != 0) ){
-            UIInterfaceOrientation theOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-            if (UIInterfaceOrientationIsLandscape(theOrientation)) {
-                rect.size.width = mainScreen.size.height;
-                rect.size.height = mainScreen.size.width;
-                rect.origin.x = 0;
-                rect.origin.y = 0;
-            } else {
-                return mainScreen;
-            }
+            return mainScreen;
         }
     }
     return rect;
