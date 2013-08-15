@@ -149,21 +149,21 @@ static NSArray* tabGroupKeySequence;
 
 #pragma mark Window Management
 
--(BOOL)_handleOpen:(id)args
+-(void)windowWillOpen
 {
 	TiUITabGroup *tg = (TiUITabGroup*)self.view;
-	[tg open:args];
-	return YES;
+	[tg open:nil];
+	return [super windowWillOpen];
 }
 
--(BOOL)_handleClose:(id)args
+-(void)windowWillClose
 {
 	TiUITabGroup *tabGroup = (TiUITabGroup*)self.view;
 	if (tabGroup!=nil)
 	{
-		[tabGroup close:args];
+		[tabGroup close:nil];
 	}
-	return YES;
+	return [super windowWillClose];
 }
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification

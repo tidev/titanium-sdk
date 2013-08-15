@@ -22,7 +22,6 @@
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
-    [self initializeProperty:@"extendEdges" defaultValue: [NSArray arrayWithObjects:NUMINT(15), nil]];
     [super _initWithProperties:properties];
 }
 
