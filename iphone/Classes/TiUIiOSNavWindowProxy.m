@@ -155,6 +155,7 @@
     transitionIsAnimating = NO;
     if (current != nil) {
         UIViewController* oldController = [current initController];
+        
         if (![[navController viewControllers] containsObject:oldController]) {
             [current setTab:nil];
             [current setParentOrientationController:nil];
@@ -164,6 +165,9 @@
     RELEASE_TO_NIL(current);
     TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
     current = [theWindow retain];
+    if (focussed) {
+        [current gainFocus];
+    }
     [self childOrientationControllerChangedFlags:current];
 }
 
@@ -299,6 +303,31 @@
     [super viewDidDisappear:animated];
     
 }
+
+-(void)gainFocus
+{
+    UIViewController* topVC = [navController topViewController];
+    if ([topVC isKindOfClass:[TiViewController class]]) {
+        TiViewProxy* theProxy = [(TiViewController*)topVC proxy];
+        if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+            [(id<TiWindowProtocol>)theProxy gainFocus];
+        }
+    }
+    [super gainFocus];
+}
+
+-(void)resignFocus
+{
+    UIViewController* topVC = [navController topViewController];
+    if ([topVC isKindOfClass:[TiViewController class]]) {
+        TiViewProxy* theProxy = [(TiViewController*)topVC proxy];
+        if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+            [(id<TiWindowProtocol>)theProxy resignFocus];
+        }
+    }
+    [super resignFocus];
+}
+
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     if ([self viewAttached]) {
