@@ -1424,18 +1424,20 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 
 +(CGRect)frameForController:(id)theController
 {
+    CGRect mainScreen = [[UIScreen mainScreen] bounds];
     CGRect rect = [[UIScreen mainScreen] applicationFrame];
     if ([TiUtils isIOS7OrGreater]) {
-        CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
         NSUInteger edges = [(id<TiUIViewControllerIOS7Support>)theController edgesForExtendedLayout];
         //Check if I cover status bar
-        if ( ((edges & 1/*UIRectEdgeTop*/) != 0) && (!CGRectIsEmpty(statusBarFrame)) ){
-            if (rect.origin.y > 0) {
-                rect.origin.y = 0;
-                rect.size.height += TI_STATUSBAR_HEIGHT;
-            } else if (rect.origin.x > 0){
+        if ( ((edges & 1/*UIRectEdgeTop*/) != 0) ){
+            UIInterfaceOrientation theOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+            if (UIInterfaceOrientationIsLandscape(theOrientation)) {
+                rect.size.width = mainScreen.size.height;
+                rect.size.height = mainScreen.size.width;
                 rect.origin.x = 0;
-                rect.size.width += TI_STATUSBAR_HEIGHT;
+                rect.origin.y = 0;
+            } else {
+                return mainScreen;
             }
         }
     }

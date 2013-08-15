@@ -1185,7 +1185,6 @@
         }
         [[_containedWindows lastObject] gainFocus];
     }
-    [self resizeView];
     [super viewDidAppear:animated];
 }
 -(void)viewDidDisappear:(BOOL)animated
