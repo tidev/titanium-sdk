@@ -94,8 +94,6 @@
         [nc addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
         [nc addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
         [nc addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
-        
-        [TiUtils configureController:self withObject:nil];
     }
     return self;
 }
@@ -708,7 +706,6 @@
         [_modalWindows addObject:theWindow];
     } else {
         [_containedWindows addObject:theWindow];
-        [TiUtils configureController:self withObject:theWindow];
         if (isCurrentlyVisible) {
             [[UIApplication sharedApplication] setStatusBarHidden:[theWindow hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
         }
@@ -744,7 +741,6 @@
 {
     [self dismissKeyboard];
     if (isCurrentlyVisible) {
-        [TiUtils configureController:self withObject:[_containedWindows lastObject]];
         [[UIApplication sharedApplication] setStatusBarHidden:[[_containedWindows lastObject] hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
         [self resizeView];
         [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
