@@ -57,15 +57,14 @@
 
 -(void)setDetailView:(id<NSObject,TiOrientationController>)newDetailView
 {
-	ENSURE_UI_THREAD_1_ARG(newDetailView);
 	if (newDetailView == detailView)
 	{
 		return;
 	}
-	[detailView setParentOrientationController:nil];
-	[newDetailView setParentOrientationController:self];
-	RELEASE_AND_REPLACE(detailView,newDetailView);
 	[self replaceValue:newDetailView forKey:@"detailView" notification:YES];
+    TiThreadPerformOnMainThread(^{
+        RELEASE_AND_REPLACE(detailView,newDetailView);
+    }, YES);
 }
 
 -(TiOrientationFlags)orientationFlags
@@ -76,7 +75,9 @@
     
     TiOrientationFlags orientations = [super orientationFlags];
     if (orientations == TiOrientationNone) {
-        orientations = [detailView orientationFlags];
+        if ([detailView respondsToSelector:@selector(orientationFlags)]) {
+            orientations = [detailView orientationFlags];
+        }
     }
 	return orientations;
 }

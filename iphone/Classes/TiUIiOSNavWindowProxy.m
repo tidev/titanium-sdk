@@ -7,6 +7,7 @@
 #ifdef USE_TI_UIIOSNAVWINDOW
 
 #import "TiUIiOSNavWindowProxy.h"
+#import "TiUIiOSNavWindow.h"
 #import "TiApp.h"
 
 @implementation TiUIiOSNavWindowProxy
@@ -109,7 +110,7 @@
     
 	[[[TiApp app] controller] dismissKeyboard];
 	TiThreadPerformOnMainThread(^{
-		[self openOnUIThread:args];
+		[self pushOnUIThread:args];
 	}, YES);
 }
 
@@ -122,7 +123,7 @@
         return;
     }
     TiThreadPerformOnMainThread(^{
-        [self closeOnUIThread:args];
+        [self popOnUIThread:args];
     }, YES);
 }
 
@@ -168,6 +169,14 @@
 }
 
 #pragma mark - Private API
+
+-(void)setFrame:(CGRect)bounds
+{
+    if (navController != nil) {
+        [[navController view] setFrame:bounds];
+    }
+}
+
 -(UIViewController *)rootController
 {
     if (rootWindow == nil) {
@@ -182,7 +191,7 @@
     return [rootWindow initController];
 }
 
--(void)openOnUIThread:(NSArray*)args
+-(void)pushOnUIThread:(NSArray*)args
 {
 	if (transitionIsAnimating)
 	{
@@ -195,7 +204,7 @@
     [[[self rootController] navigationController] pushViewController:[window initController] animated:animated];
 }
 
--(void)closeOnUIThread:(NSArray*)args
+-(void)popOnUIThread:(NSArray*)args
 {
 	if (transitionIsAnimating)
 	{
@@ -313,16 +322,24 @@
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
 
--(BOOL)_handleOpen:(id)args;
+
+
+#pragma mark - TiViewProxy overrides
+-(TiUIView*)newView
 {
-    
+	CGRect frame = [self appFrame];
+	TiUIiOSNavWindow * win = [[TiUIiOSNavWindow alloc] initWithFrame:frame];
+	return win;
+}
+
+-(void)windowWillOpen
+{
     UIView *nview = [[self controller] view];
 	[nview setFrame:[[self view] bounds]];
 	[[self view] addSubview:nview];
-    return [super _handleOpen:args];
+    return [super windowWillOpen];
 }
 
-#pragma mark - TiViewProxy overrides
 
 -(void) windowWillClose
 {

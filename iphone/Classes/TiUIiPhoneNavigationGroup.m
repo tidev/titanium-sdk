@@ -59,7 +59,8 @@
 {
 	if (controller!=nil)
 	{
-		[TiUtils setView:controller.view positionRect:bounds];
+        [controller.view setFrame:bounds];
+		//[TiUtils setView:controller.view positionRect:bounds];
 	}
     [super frameSizeChanged:frame bounds:bounds];
 }
