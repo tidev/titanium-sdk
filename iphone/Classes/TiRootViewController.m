@@ -1105,7 +1105,7 @@
 -(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ;
-    if (isCurrentlyVisible) {
+    if ([self presentedViewController] == nil) {
         [self refreshOrientationWithDuration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
     }
 }
