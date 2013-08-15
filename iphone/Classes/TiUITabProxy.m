@@ -296,6 +296,9 @@
     RELEASE_TO_NIL(current);
     TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
     current = [theWindow retain];
+    if (hasFocus) {
+        [current gainFocus];
+    }
     [self childOrientationControllerChangedFlags:current];
 }
 
@@ -305,10 +308,10 @@
 
 - (void)handleDidBlur:(NSDictionary *)event
 {
-	if ([self _hasListeners:@"blur"])
-	{
-		[self fireEvent:@"blur" withObject:event propagate:NO];
-	}
+    hasFocus = NO;
+    if ([self _hasListeners:@"blur"]) {
+        [self fireEvent:@"blur" withObject:event propagate:NO];
+    }
 }
 
 - (void)handleWillFocus
@@ -317,10 +320,19 @@
 
 - (void)handleDidFocus:(NSDictionary *)event
 {
-	if ([self _hasListeners:@"focus"])
-	{
-		[self fireEvent:@"focus" withObject:event propagate:NO];
-	}
+    hasFocus = YES;
+    if (current != nil) {
+        UIViewController* topVC = [[[self rootController] navigationController] topViewController];
+        if ([topVC isKindOfClass:[TiViewController class]]) {
+            TiViewProxy* theProxy = [(TiViewController*)topVC proxy];
+            if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+                [(id<TiWindowProtocol>)theProxy gainFocus];
+            }
+        }
+    }
+    if ([self _hasListeners:@"focus"]) {
+        [self fireEvent:@"focus" withObject:event propagate:NO];
+    }
 }
 
 -(void)setActive:(id)active
