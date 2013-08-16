@@ -702,13 +702,9 @@
     [self dismissKeyboard];
     [[_containedWindows lastObject] resignFocus];
     if ([theWindow isModal]) {
-        [[UIApplication sharedApplication] setStatusBarHidden:[theWindow hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
         [_modalWindows addObject:theWindow];
     } else {
         [_containedWindows addObject:theWindow];
-        if ([self presentedViewController] == nil) {
-            [[UIApplication sharedApplication] setStatusBarHidden:[theWindow hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
-        }
         theWindow.parentOrientationController = self;
     }
 }
@@ -739,7 +735,6 @@
 {
     [self dismissKeyboard];
     if ([self presentedViewController] == nil) {
-        [[UIApplication sharedApplication] setStatusBarHidden:[[_containedWindows lastObject] hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
         [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
         [[_containedWindows lastObject] gainFocus];
     }
@@ -1199,7 +1194,6 @@
 {
     isCurrentlyVisible = YES;
     if ([_containedWindows count] > 0) {
-        [[UIApplication sharedApplication] setStatusBarHidden:[[_containedWindows lastObject] hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
         [self refreshOrientationWithDuration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
         for (id<TiWindowProtocol> thisWindow in _containedWindows) {
             [thisWindow viewDidAppear:animated];
