@@ -547,6 +547,8 @@ public class TiAnimationBuilder
 
 	private void addAnimator(List<Animator> list, ValueAnimator animator)
 	{
+		animator.setInterpolator(new LinearInterpolator());
+
 		// repeatCount is ignored at the AnimatorSet level, so it needs to
 		// be set for each member animator manually. Same with
 		// repeat mode.
