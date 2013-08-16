@@ -166,6 +166,24 @@
     
     hidesStatusBar = [self argOrWindowProperty:@"fullscreen" args:args];
     
+    int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"]];
+    switch (theStyle){
+        case UIStatusBarStyleDefault:
+            statusBarStyle = UIStatusBarStyleDefault;
+            break;
+        case UIStatusBarStyleBlackOpaque:
+        case UIStatusBarStyleBlackTranslucent:
+            if ([TiUtils isIOS7OrGreater]) {
+                statusBarStyle = 1;//UIStatusBarStyleLightContent;
+            } else {
+                statusBarStyle = theStyle;
+            }
+            break;
+        default:
+            statusBarStyle = UIStatusBarStyleDefault;
+    }
+
+    
     if (!isModal && (tab==nil)) {
         openAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
         [self rememberProxy:openAnimation];
@@ -272,6 +290,11 @@
 -(BOOL)hidesStatusBar
 {
     return hidesStatusBar;
+}
+
+-(UIStatusBarStyle)preferredStatusBarStyle;
+{
+    return statusBarStyle;
 }
 
 -(BOOL)handleFocusEvents

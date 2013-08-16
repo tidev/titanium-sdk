@@ -39,6 +39,8 @@
     NSMutableArray* _containedWindows;
     NSMutableArray* _modalWindows;
     BOOL forcingRotation;
+    BOOL statusBarInitiallyHidden;
+    BOOL viewControllerControlsStatusBar;
     
     UIInterfaceOrientation targetOrientation;
     UIInterfaceOrientation deviceOrientation;

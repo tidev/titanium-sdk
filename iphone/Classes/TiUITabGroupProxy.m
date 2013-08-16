@@ -242,6 +242,16 @@ static NSArray* tabGroupKeySequence;
 	}
 }
 
+-(UIStatusBarStyle)preferredStatusBarStyle;
+{
+    UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+    int blessedController = [tabController selectedIndex];
+    if (blessedController != NSNotFound) {
+        return [[tabs objectAtIndex:blessedController] preferredStatusBarStyle];
+    }
+    return [super preferredStatusBarStyle];
+}
+
 -(BOOL) hidesStatusBar
 {
     UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];

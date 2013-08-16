@@ -543,6 +543,23 @@
     return NO;
 }
 
+-(UIStatusBarStyle)preferredStatusBarStyle;
+{
+    if (rootWindow == nil) {
+        return UIStatusBarStyleDefault;
+    }
+    
+    UINavigationController* nc = [[rootWindow initController] navigationController];
+    UIViewController* topVc = [nc topViewController];
+    if ([topVc isKindOfClass:[TiViewController class]]) {
+        TiViewProxy* theProxy = [(TiViewController*)topVc proxy];
+        if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+            return [(id<TiWindowProtocol>)theProxy preferredStatusBarStyle];
+        }
+    }
+    return UIStatusBarStyleDefault;
+}
+
 -(TiOrientationFlags)orientationFlags
 {
 	UIViewController * modalController = [controller modalViewController];
