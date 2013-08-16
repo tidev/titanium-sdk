@@ -1017,7 +1017,7 @@
         }
     }
     if ([[UIApplication sharedApplication] statusBarOrientation] != target) {
-        [self manuallyRotateToOrientation:target duration:theDuration];
+        [self forceRotateToOrientation:target];
     }
 }
 
@@ -1045,8 +1045,24 @@
 	orientationHistory[0] = newOrientation;
 }
 
+-(void)forceRotateToOrientation:(UIInterfaceOrientation)newOrientation
+{
+#if defined(DEBUG) || defined(DEVELOPER)
+    DebugLog(@"Forcing rotation to %d. This is not good UI design. Please reconsider.",newOrientation);
+#endif
+    UIViewController* tempPresenter = [self topPresentedController];
+    UIViewController* dummy = [[UIViewController alloc] init];
+    
+    [[UIApplication sharedApplication] setStatusBarOrientation:newOrientation animated:NO];
+    [tempPresenter presentViewController:dummy animated:NO completion:nil];
+    [tempPresenter dismissViewControllerAnimated:NO completion:nil];
+    
+    [dummy release];
+}
+
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
 {
+    /*
     UIApplication * ourApp = [UIApplication sharedApplication];
     UIInterfaceOrientation oldOrientation = [ourApp statusBarOrientation];
     CGAffineTransform transform;
@@ -1103,6 +1119,7 @@
     }
 
     [self didRotateFromInterfaceOrientation:oldOrientation];
+     */
 }
 
 #pragma mark - TiOrientationController
