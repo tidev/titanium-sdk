@@ -170,17 +170,29 @@
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
 
+#pragma mark - Status Bar Appearance
+
 - (BOOL)prefersStatusBarHidden
 {
-    if ([self presentingViewController] != nil) {
-        if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
-            return [(id<TiWindowProtocol>)_proxy hidesStatusBar];
-        } else {
-            return NO;
-        }
+    if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        return [(id<TiWindowProtocol>)_proxy hidesStatusBar];
     } else {
-        return [[[TiApp app] controller] prefersStatusBarHidden];
+        return NO;
     }
+}
+
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        return [(id<TiWindowProtocol>)_proxy preferredStatusBarStyle];
+    } else {
+        return UIStatusBarStyleDefault;
+    }
+}
+
+-(BOOL) modalPresentationCapturesStatusBarAppearance
+{
+    return YES;
 }
 
 - (UIStatusBarAnimation)preferredStatusBarUpdateAnimation

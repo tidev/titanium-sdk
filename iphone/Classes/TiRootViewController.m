@@ -85,17 +85,32 @@
         [_defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
         [_defaultImageView setContentMode:UIViewContentModeScaleToFill];
 		
+        [self processInfoPlist];
+        
         //Notifications
         WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
-        [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
         NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
         [nc addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
         [nc addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
         [nc addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
         [nc addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
         [nc addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+        [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     }
     return self;
+}
+
+-(void)processInfoPlist
+{
+    //read the default orientations
+    [self getDefaultOrientations];
+    
+    //read the default value of UIStatusBarHidden
+    id statHidden = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIStatusBarHidden"];
+    statusBarInitiallyHidden = [TiUtils boolValue:statHidden];
+    //read the value of UIViewControllerBasedStatusBarAppearance
+    id vcbasedStatHidden = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIViewControllerBasedStatusBarAppearance"];
+    viewControllerControlsStatusBar = [TiUtils boolValue:vcbasedStatHidden def:YES];
 }
 
 -(void)loadView
@@ -1134,7 +1149,7 @@
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ;
     if ([self presentedViewController] == nil && isCurrentlyVisible) {
-        [self setNeedsStatusBarAppearanceUpdate];
+        [self updateStatusBar];
         [self refreshOrientationWithDuration:nil];
     }
 }
@@ -1212,9 +1227,9 @@
         }
         if (forcingRotation) {
             forcingRotation = NO;
-            [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+            [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[_containedWindows lastObject] afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
         } else {
-            [self childOrientationControllerChangedFlags:nil];
+            [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
         }
         [[_containedWindows lastObject] gainFocus];
     }
@@ -1256,7 +1271,10 @@
 #pragma mark - Status Bar Appearance
 - (BOOL)prefersStatusBarHidden
 {
-    return [[_containedWindows lastObject] hidesStatusBar];
+    if ([_containedWindows count] > 0) {
+        return [[_containedWindows lastObject] hidesStatusBar];
+    }
+    return statusBarInitiallyHidden;
 }
 
 - (UIStatusBarAnimation)preferredStatusBarUpdateAnimation
@@ -1264,12 +1282,26 @@
     return UIStatusBarAnimationNone;
 }
 
-- (void)setNeedsStatusBarAppearanceUpdate
+- (UIStatusBarStyle)preferredStatusBarStyle
 {
-    if ([TiUtils isIOS7OrGreater]) {
+    if ([_containedWindows count] > 0) {
+        return [[_containedWindows lastObject] preferredStatusBarStyle];
+    }
+    return UIStatusBarStyleDefault;
+}
+
+-(BOOL) modalPresentationCapturesStatusBarAppearance
+{
+    return YES;
+}
+
+- (void) updateStatusBar
+{
+    if ([TiUtils isIOS7OrGreater] && viewControllerControlsStatusBar) {
         [super setNeedsStatusBarAppearanceUpdate];
     } else {
-        [[UIApplication sharedApplication] setStatusBarHidden:[[_containedWindows lastObject] hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
+        [[UIApplication sharedApplication] setStatusBarHidden:[self prefersStatusBarHidden] withAnimation:UIStatusBarAnimationNone];
+        [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle] animated:NO];
         [self resizeView];
     }
 }

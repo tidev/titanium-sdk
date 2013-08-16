@@ -275,6 +275,11 @@ END_UI_THREAD_PROTECTED_VALUE(statusBarHidden)
 
 -(void)setStatusBarStyle:(NSNumber *)style
 {
+    if ([TiUtils isIOS7OrGreater]) {
+        DebugLog(@"setStatusBarStyle method is not supported on IOS7. Ignoring call. Use the statusBarStyle property of the window");
+        return;
+    }
+
 	ENSURE_UI_THREAD(setStatusBarStyle,style);
 	[[UIApplication sharedApplication] setStatusBarStyle:[style intValue]];
 }

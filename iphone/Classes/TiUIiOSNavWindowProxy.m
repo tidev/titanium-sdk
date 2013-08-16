@@ -315,6 +315,18 @@
     return [super hidesStatusBar];
 }
 
+-(UIStatusBarStyle)preferredStatusBarStyle;
+{
+    UIViewController* topVC = [navController topViewController];
+    if ([topVC isKindOfClass:[TiViewController class]]) {
+        TiViewProxy* theProxy = [(TiViewController*)topVC proxy];
+        if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+            return [(id<TiWindowProtocol>)theProxy preferredStatusBarStyle];
+        }
+    }
+    return [super preferredStatusBarStyle];
+}
+
 -(void)gainFocus
 {
     UIViewController* topVC = [navController topViewController];

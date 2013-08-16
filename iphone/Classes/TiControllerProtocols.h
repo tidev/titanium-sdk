@@ -31,6 +31,7 @@
 -(BOOL)closing;
 -(BOOL)isModal;
 -(BOOL)hidesStatusBar;
+-(UIStatusBarStyle)preferredStatusBarStyle;
 @property (nonatomic, readwrite, assign) BOOL isManaged;
 //Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 -(void)viewWillAppear:(BOOL)animated;
