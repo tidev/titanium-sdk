@@ -170,4 +170,22 @@
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
 
+- (BOOL)prefersStatusBarHidden
+{
+    if ([self presentingViewController] != nil) {
+        if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+            return [(id<TiWindowProtocol>)_proxy hidesStatusBar];
+        } else {
+            return NO;
+        }
+    } else {
+        return [[[TiApp app] controller] prefersStatusBarHidden];
+    }
+}
+
+- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation
+{
+    return UIStatusBarAnimationNone;
+}
+
 @end

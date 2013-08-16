@@ -215,6 +215,10 @@ DEFINE_SUBPROXY_AS(ListViewCellSelectionStyle, TableViewCellSelectionStyle, list
 
 -(void)hideStatusBar:(id)args
 {
+    if ([TiUtils isIOS7OrGreater]) {
+        DebugLog(@"hideStatusBar method is not supported on IOS7. Ignoring call. Use the fullScreen property of the window");
+        return;
+    }
     ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
     ENSURE_UI_THREAD(hideStatusBar,args);
 	
@@ -227,6 +231,10 @@ DEFINE_SUBPROXY_AS(ListViewCellSelectionStyle, TableViewCellSelectionStyle, list
 
 -(void)showStatusBar:(id)args
 {
+    if ([TiUtils isIOS7OrGreater]) {;
+        DebugLog(@"showStatusBar method is not supported on IOS7. Ignoring call. Use the fullScreen property of the window");
+        return;
+    }
     ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
     ENSURE_UI_THREAD(showStatusBar,args);
 	
@@ -239,6 +247,10 @@ DEFINE_SUBPROXY_AS(ListViewCellSelectionStyle, TableViewCellSelectionStyle, list
 
 -(void)setStatusBarHidden:(id)hidden
 {
+    if ([TiUtils isIOS7OrGreater]) {
+        DebugLog(@"setStatusBarHidden method is not supported on IOS7. Ignoring call. Use the fullScreen property of the window");
+        return;
+    }
     ENSURE_SINGLE_ARG(hidden,NSObject);
     ENSURE_UI_THREAD(setStatusBarHidden,hidden);
 	
