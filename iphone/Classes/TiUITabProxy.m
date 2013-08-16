@@ -295,10 +295,10 @@
     RELEASE_TO_NIL(current);
     TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
     current = [theWindow retain];
+    [self childOrientationControllerChangedFlags:current];
     if (hasFocus) {
         [current gainFocus];
     }
-    [self childOrientationControllerChangedFlags:current];
 }
 
 - (void)handleWillBlur
@@ -525,6 +525,23 @@
 #pragma mark - TiOrientationController
 
 @synthesize parentOrientationController;
+
+-(BOOL) hidesStatusBar
+{
+    if (rootWindow == nil) {
+        return NO;
+    }
+    
+    UINavigationController* nc = [[rootWindow initController] navigationController];
+    UIViewController* topVc = [nc topViewController];
+    if ([topVc isKindOfClass:[TiViewController class]]) {
+        TiViewProxy* theProxy = [(TiViewController*)topVc proxy];
+        if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+            return [(id<TiWindowProtocol>)theProxy hidesStatusBar];
+        }
+    }
+    return NO;
+}
 
 -(TiOrientationFlags)orientationFlags
 {

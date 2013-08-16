@@ -164,10 +164,10 @@
     RELEASE_TO_NIL(current);
     TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
     current = [theWindow retain];
+    [self childOrientationControllerChangedFlags:current];
     if (focussed) {
         [current gainFocus];
     }
-    [self childOrientationControllerChangedFlags:current];
 }
 
 #pragma mark - Private API
@@ -301,6 +301,18 @@
     }
     [super viewDidDisappear:animated];
     
+}
+
+-(BOOL) hidesStatusBar
+{
+    UIViewController* topVC = [navController topViewController];
+    if ([topVC isKindOfClass:[TiViewController class]]) {
+        TiViewProxy* theProxy = [(TiViewController*)topVC proxy];
+        if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+            return [(id<TiWindowProtocol>)theProxy hidesStatusBar];
+        }
+    }
+    return [super hidesStatusBar];
 }
 
 -(void)gainFocus

@@ -290,6 +290,10 @@
         }
         UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
         [[self view] setAccessibilityElementsHidden:NO];
+        
+        TiThreadPerformOnMainThread(^{
+            [self forceNavBarFrame];
+        }, NO);
     }
 
 }
@@ -325,6 +329,22 @@
 {
 	return NUMINT([UIApplication sharedApplication].statusBarOrientation);
 }
+
+-(void)forceNavBarFrame
+{
+    if (!focussed) {
+        return;
+    }
+    if ( (controller == nil) || ([controller navigationController] == nil) ) {
+        return;
+    }
+    UINavigationController* nc = [controller navigationController];
+    BOOL isHidden = [nc isNavigationBarHidden];
+    [nc setNavigationBarHidden:!isHidden animated:NO];
+    [nc setNavigationBarHidden:isHidden animated:NO];
+    [[nc view] setNeedsLayout];
+}
+
 
 -(void)openOnUIThread:(NSArray*)args
 {

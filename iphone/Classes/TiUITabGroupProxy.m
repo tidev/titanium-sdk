@@ -242,6 +242,16 @@ static NSArray* tabGroupKeySequence;
 	}
 }
 
+-(BOOL) hidesStatusBar
+{
+    UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+    int blessedController = [tabController selectedIndex];
+    if (blessedController != NSNotFound) {
+        return [[tabs objectAtIndex:blessedController] hidesStatusBar];
+    }
+    return [super hidesStatusBar];
+}
+
 
 -(TiOrientationFlags)orientationFlags
 {

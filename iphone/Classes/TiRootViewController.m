@@ -997,10 +997,14 @@
 }
 
 
--(void)refreshOrientationWithDuration:(NSTimeInterval)theDuration
+-(void)refreshOrientationWithDuration:(id)unused
 {
     if (![[TiApp app] windowIsKeyWindow]) {
         VerboseLog(@"[DEBUG] RETURNING BECAUSE WE ARE NOT KEY WINDOW");
+        return;
+    }
+    
+    if (forcingRotation) {
         return;
     }
     
@@ -1011,9 +1015,12 @@
             target = deviceOrientation;
         }
     }
+    
     if ([[UIApplication sharedApplication] statusBarOrientation] != target) {
+        forcingRotation = YES;
         [self forceRotateToOrientation:target];
     }
+    
 }
 
 -(void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation
@@ -1043,16 +1050,21 @@
 -(void)forceRotateToOrientation:(UIInterfaceOrientation)newOrientation
 {
 #if defined(DEBUG) || defined(DEVELOPER)
-    DebugLog(@"Forcing rotation to %d. This is not good UI design. Please reconsider.",newOrientation);
+    DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.",newOrientation,[[UIApplication sharedApplication] statusBarOrientation]);
 #endif
     UIViewController* tempPresenter = [self topPresentedController];
     UIViewController* dummy = [[UIViewController alloc] init];
-    
+    forcingStatusBarOrientation = YES;
+
     [[UIApplication sharedApplication] setStatusBarOrientation:newOrientation animated:NO];
-    [tempPresenter presentViewController:dummy animated:NO completion:nil];
-    [tempPresenter dismissViewControllerAnimated:NO completion:nil];
     
-    [dummy release];
+    forcingStatusBarOrientation = NO;
+
+    [tempPresenter presentViewController:dummy animated:NO completion:^{
+        [UIViewController attemptRotationToDeviceOrientation];
+        [tempPresenter dismissViewControllerAnimated:NO completion:nil];
+        [dummy release];
+    }];
 }
 
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
@@ -1121,8 +1133,9 @@
 -(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ;
-    if ([self presentedViewController] == nil) {
-        [self refreshOrientationWithDuration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+    if ([self presentedViewController] == nil && isCurrentlyVisible) {
+        [self setNeedsStatusBarAppearanceUpdate];
+        [self refreshOrientationWithDuration:nil];
     }
 }
 
@@ -1194,9 +1207,14 @@
 {
     isCurrentlyVisible = YES;
     if ([_containedWindows count] > 0) {
-        [self refreshOrientationWithDuration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
         for (id<TiWindowProtocol> thisWindow in _containedWindows) {
             [thisWindow viewDidAppear:animated];
+        }
+        if (forcingRotation) {
+            forcingRotation = NO;
+            [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+        } else {
+            [self childOrientationControllerChangedFlags:nil];
         }
         [[_containedWindows lastObject] gainFocus];
     }
@@ -1233,6 +1251,27 @@
         [thisWindow didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     }
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+}
+
+#pragma mark - Status Bar Appearance
+- (BOOL)prefersStatusBarHidden
+{
+    return [[_containedWindows lastObject] hidesStatusBar];
+}
+
+- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation
+{
+    return UIStatusBarAnimationNone;
+}
+
+- (void)setNeedsStatusBarAppearanceUpdate
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        [super setNeedsStatusBarAppearanceUpdate];
+    } else {
+        [[UIApplication sharedApplication] setStatusBarHidden:[[_containedWindows lastObject] hidesStatusBar] withAnimation:UIStatusBarAnimationNone];
+        [self resizeView];
+    }
 }
 
 @end

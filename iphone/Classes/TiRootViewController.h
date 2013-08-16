@@ -38,6 +38,7 @@
     TiOrientationFlags _allowedOrientations;
     NSMutableArray* _containedWindows;
     NSMutableArray* _modalWindows;
+    BOOL forcingRotation;
     
     UIInterfaceOrientation targetOrientation;
     UIInterfaceOrientation deviceOrientation;
