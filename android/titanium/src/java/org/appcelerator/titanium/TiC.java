@@ -792,7 +792,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BYTE_ORDER = "byteOrder";
-
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_VIEW_SHOWN = "calendarViewShown";
+	
 	/**
 	 * @module.api
 	 */

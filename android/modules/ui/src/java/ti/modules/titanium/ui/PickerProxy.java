@@ -18,6 +18,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -40,8 +41,9 @@ import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
-	"locale", "visibleItems", "value"
+@Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = { "locale", "visibleItems", "value",
+	TiC.PROPERTY_CALENDAR_VIEW_SHOWN
+
 })
 public class PickerProxy extends TiViewProxy implements PickerColumnListener
 {
@@ -62,6 +64,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	public PickerProxy()
 	{
 		super();
+
+		defaultValues.put(TiC.PROPERTY_CALENDAR_VIEW_SHOWN, false);
+
 	}
 
 	public PickerProxy(TiContext tiContext)
