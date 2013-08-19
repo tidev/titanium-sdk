@@ -139,7 +139,9 @@ public class TiUIWebView extends TiUIView
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
 		settings.setLoadsImagesAutomatically(true);
 		settings.setLightTouchEnabled(true);
-		settings.setAllowUniversalAccessFromFileURLs(true); // default is "false" for JellyBean, TIMOB-13065
+		if (Build.VERSION.SDK_INT >= 16) {
+			settings.setAllowUniversalAccessFromFileURLs(true); // default is "false" for JellyBean, TIMOB-13065
+		}
 		settings.setDomStorageEnabled(true); // Required by some sites such as Twitter. This is in our iOS WebView too.
 		File path = TiApplication.getInstance().getFilesDir();
 		if (path != null) {
