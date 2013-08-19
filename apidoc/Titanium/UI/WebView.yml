@@ -94,7 +94,6 @@ methods:
               
           setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
                   {baseURL:'http://developer.appcelerator.com/'});
-    platforms: [android, iphone, ipad, mobileweb, tizen]
     parameters:
 
       - name: html
