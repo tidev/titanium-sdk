@@ -446,9 +446,8 @@ DEFINE_EXCEPTIONS
 {
     if ([TiUtils isIOS7OrGreater]) {
         TiColor *ticolor = [TiUtils colorValue:color];
-        if (ticolor != nil) {
-            [self performSelector:@selector(setTintColor:) withObject:[ticolor _color]];
-        }
+        UIColor* theColor = (ticolor == nil) ? nil: [ticolor _color];
+        [self performSelector:@selector(setTintColor:) withObject:theColor];
     }
 }
 

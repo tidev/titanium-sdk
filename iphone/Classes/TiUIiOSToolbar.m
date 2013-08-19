@@ -158,6 +158,17 @@
 	}
 }
 
+-(void)setTintColor_:(id)color
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        TiColor *ticolor = [TiUtils colorValue:color];
+        UIColor* theColor = (ticolor == nil) ? nil: [ticolor _color];
+        [[self toolBar] performSelector:@selector(setTintColor:) withObject:theColor];
+        [self performSelector:@selector(setTintColor:) withObject:theColor];
+    }
+}
+
+
 -(void)setTranslucent_:(id)value
 {
 	[toolBar setTranslucent:[TiUtils boolValue:value]];
