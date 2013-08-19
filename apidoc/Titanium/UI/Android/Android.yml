@@ -490,6 +490,42 @@ properties:
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to load plugins on demand.
     type: Number
     permission: read-only
+    
+  - name: WEBVIEW_LOAD_DEFAULT
+    summary: |
+        Use with [WebView.cacheMode](Titanium.UI.WebView.cacheMode) to override how the cache is used in a web view.
+    description: |
+        This is the default cache usage mode.
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    
+  - name: WEBVIEW_LOAD_NO_CACHE
+    summary: |
+        Use with [WebView.cacheMode](Titanium.UI.WebView.cacheMode) to override how the cache is used in a web view.
+    description: |
+        Don't use cache, load from the network.
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    
+  - name: WEBVIEW_LOAD_CACHE_ONLY
+    summary: |
+        Use with [WebView.cacheMode](Titanium.UI.WebView.cacheMode) to override how the cache is used in a web view.
+    description: |
+        Don't use network, load from the cache only.
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+  
+  - name: WEBVIEW_LOAD_CACHE_ELSE_NETWORK
+    summary: |
+        Use with [WebView.cacheMode](Titanium.UI.WebView.cacheMode) to override how the cache is used in a web view.
+    description: |
+        Use cached resources when they're available, even when they're expired. Otherwise load resources via network.
+    type: Number
+    permission: read-only
+    since: "3.2.0"
 
 examples:
   - title: Android Preferences Example

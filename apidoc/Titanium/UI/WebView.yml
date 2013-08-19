@@ -396,6 +396,16 @@ properties:
     platforms: [android]
     since: "3.1.0"
     exclude-platforms: [blackberry]
+    
+  - name: cacheMode
+    summary: Determines how a cache is used in this web view.
+    description: |
+        One of <Titanium.UI.Android.WEBVIEW_LOAD_DEFAULT>, <Titanium.UI.Android.WEBVIEW_LOAD_NO_CACHE>, <Titanium.UI.Android.WEBVIEW_LOAD_CACHE_ONLY>,
+        or <Titanium.UI.Android.WEBVIEW_LOAD_CACHE_ELSE_NETWORK>
+    type: Number
+    default: <Titanium.UI.Android.WEBVIEW_LOAD_DEFAULT>
+    platforms: [android]
+    since: "3.2.0"
 
   - name: pluginState
     summary: Determines how to treat content that requires plugins in this web view.
