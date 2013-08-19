@@ -186,6 +186,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_LONGPRESS = "longpress";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_MARKER = "marker";
 
 	/**
 	 * @module.api

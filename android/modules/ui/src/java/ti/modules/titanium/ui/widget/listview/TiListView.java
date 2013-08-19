@@ -182,7 +182,7 @@ public class TiListView extends TiUIView {
 			int sectionIndex = info.second.first;
 			//check marker
 			if (sectionIndex > marker[0] || (sectionIndex == marker[0] && sectionItemIndex >= marker[1])) {
-				proxy.fireEvent("marker", null, false);
+				proxy.fireEvent(TiC.EVENT_MARKER, null, false);
 				resetMarker();
 			}
 
