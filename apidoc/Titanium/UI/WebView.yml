@@ -94,7 +94,6 @@ methods:
               
           setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
                   {baseURL:'http://developer.appcelerator.com/'});
-    platforms: [android, iphone, ipad, mobileweb, tizen]
     parameters:
 
       - name: html
@@ -213,6 +212,7 @@ methods:
       - name: password
         summary: Basic auth password.
         type: String
+    exclude-platforms: [blackberry]
 
   - name: stopLoading
     summary: Stops loading a currently loading page.
@@ -229,6 +229,7 @@ methods:
       - name: hardStop
         summary: Forces the web view to destroy the iFrame (Mobile Web and Tizen only).
         type: Boolean
+    exclude-platforms: [blackberry]
 
 events:
 
@@ -320,6 +321,7 @@ properties:
 
         See also: [url](Titanium.UI.WebView.url) and [html](Titanium.UI.WebView.html).
     type: [Titanium.Blob, Titanium.Filesystem.File]
+    exclude-platforms: [blackberry]
 
   - name: disableBounce
     summary: |
@@ -384,6 +386,7 @@ properties:
   - name: loading
     summary: Indicates if the webview is loading content.
     type: Boolean
+    exclude-platforms: [blackberry]
 
   - name: overScrollMode
     summary: |
@@ -392,6 +395,7 @@ properties:
     default: Titanium.UI.Android.OVER_SCROLL_ALWAYS
     platforms: [android]
     since: "3.1.0"
+    exclude-platforms: [blackberry]
 
   - name: pluginState
     summary: Determines how to treat content that requires plugins in this web view.
@@ -501,6 +505,20 @@ properties:
     type: Boolean
     platforms: [iphone, ipad]
     since: "1.8.2"
+    default: true
+    
+  - name: lightTouchEnabled
+    summary: Enables using light touches to make a selection and activate mouseovers.
+    description: |
+        Setting this property solves the problem of web links with specific length not triggering a link click in Android.
+        
+        This is only an Android specific property and has no effect starting from API level 18.
+
+        This flag is `true` by default to retain backwards compatibility with previous
+        behavior.
+    type: Boolean
+    platforms: [android]
+    since: "3.2.0"
     default: true
 
 examples:

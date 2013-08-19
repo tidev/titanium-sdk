@@ -1339,6 +1339,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LOAD_URL = "loadUrl";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LED_ARGB = "ledARGB";
 
 	/**
@@ -2251,6 +2256,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ZOOM_ENABLED = "zoomEnabled";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LIGHT_TOUCH_ENABLED = "lightTouchEnabled";
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";

@@ -70,7 +70,10 @@
 	NSInteger frameChanges;
     TiViewProxy* headerViewProxy;
     TiViewProxy* footerViewProxy;
+    BOOL viewWillDetach;
 }
+
+@property (nonatomic, assign) BOOL viewWillDetach;
 
 #pragma mark Framework
 -(CGFloat)tableRowHeight:(CGFloat)height;

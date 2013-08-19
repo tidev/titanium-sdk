@@ -1016,7 +1016,7 @@ NSArray* moviePlayerKeys = nil;
 			if (!sizeSet) {
 				[self setFullscreen:[loadProperties valueForKey:@"fullscreen"]];
 			}
-			if (player.loadState == MPMovieLoadStatePlayable) {
+			if ((player.loadState & MPMovieLoadStatePlayable)==MPMovieLoadStatePlayable) {
 				if ([self _hasListeners:@"load"]) {
 					[self fireEvent:@"load" withObject:nil];
 				}

@@ -15,7 +15,7 @@ description: |
     For a more detailed overview of ACS and how to configure an application to use it, refer to the 
     [Integrating with Appcelerator Cloud
     Services](http://docs.appcelerator.com/titanium/latest/#!/guide/Integrating_with_Appcelerator_Cloud_Services) 
-    and [ACS Quickstart](http://cloud.appcelerator.com/docs/quickstart) guides. 
+    and [ACS Quickstart](http://docs.appcelerator.com/cloud/latest/#!/guide/acs_quickstart) guides.
     
     #### Beta ACS APIs
     
@@ -136,7 +136,7 @@ description: |
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 since: "2.0"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, blackberry]
 
 methods:
   - name: hasStoredSession

@@ -9,6 +9,7 @@
 import os, sys, traceback
 import re, optparse
 import generators
+from distutils.version import StrictVersion
 from common import lazyproperty, dict_has_non_empty_member, not_real_titanium_types, DEFAULT_PLATFORMS, pretty_platform_name, first_version_for_platform
 
 try:
@@ -119,9 +120,8 @@ def combine_platforms_and_since(annotated_obj):
 		if not since_is_dict:
 			one_platform["since"] = since
 			if min_since is not None:
-				if len(since) >= 3:
-					if float(since[0:3]) < float(min_since):
-						one_platform["since"] = min_since
+				if StrictVersion(since) < StrictVersion(min_since):
+					one_platform["since"] = min_since
 		else:
 			if name in since:
 				one_platform["since"] = since[name]

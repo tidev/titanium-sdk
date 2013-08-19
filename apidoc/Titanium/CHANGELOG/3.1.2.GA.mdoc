@@ -1,0 +1,272 @@
+# Titanium SDK 3.1.2 General Availability - 08/15/2013
+
+##### Contents
+
+  * [About This Release](#about)
+    * [BlackBerry General Availability Release](#blackberry)
+    * [Android 4.3. Support](#android4_3)
+    * [iOS 7 Beta Support](#ios7)
+    * [Alloy 1.2.0](#alloy)
+  * [Installation Notes](#install)
+    * [Upgrading Pre-GA npm Packages](#upgrading_npm)
+  * [Notice of Breaking Changes](#changes)
+    * [Google Cloud Messaging Default for Android Push Notifications](#mqtt)
+    * [Google Maps v2 Behavior Change](#mapsv2) 
+  * [New Features](#features)
+    * [Google Cloud Messaging for Android Push Notifications](#gcm)
+    * [Push Notification API with Device Tokens](#push_api)
+    * [Android Activity Animations](#animate)
+    * [iOS Center Offset for Map Annotations](#mapcenter)
+    * [Retrieve Last Analytics Event and Fetched Location](#retrieve)
+  * [Known Issues](#known)
+    * [Fastdev Server May Cause the Application to Hang or the Emulator to Crash](#fastdev)
+    * [Alloy Not Properly Escaping Certain Escape Sequences](#alloy_es)
+  * [Fixed Issues and Enhancements](#issues) 
+    * [Issues when enabling "Do not keep activities" developer option](#android_dev_option)
+  * [API Changes](#apis) 
+    * [New APIs](#new_apis)
+
+<a name="about"></a>
+
+## About This Release
+
+Titanium SDK Release 3.1.2 is a service pack release of the Titanium SDK, addressing high-priority issues in previous releases.
+
+Note that this release includes breaking changes. See [Notice of Breaking Changes in Release 3.1.2](#changes) for details.
+
+<a name="blackberry"></a>
+
+### BlackBerry General Availability Release
+
+This release coincides with the General Availability Release of BlackBerry 10 with the Titanium SDK.
+
+The Titanium SDK supports features of the BlackBerry 10.0.9.x NDK.  You can use newer versions of the BlackBerry 10 NDK to develop and build BlackBerry Titanium applications, but the new features are not available in the Titanium SDK.
+
+Refer to [Installing the BlackBerry NDK](http://docs.appcelerator.com/titanium/latest/#!/guide/Installing_the_BlackBerry_NDK) for information on getting started with BlackBerry 10 development.
+
+<a name="android4_3"></a>
+
+### Android 4.3 Support
+
+This release includes support for Android 4.3.
+
+<a name="ios7"></a>
+
+### iOS 7 Beta Support
+
+This release includes preliminary support for iOS 7 beta and Xcode 5 Developer Preview (DP).  Note that Xcode 5 requires Mac OS X 10.8.4 and greater.
+
+A complete testing pass was performed against Release 3.1.2 using DP4 and DP5.  The following issues were discovered and addressed in this Release:
+
+  * [iOS 7 issues fixed in this Release](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=15336)
+
+<a name="alloy"></a>
+### Alloy 1.2.0
+
+This release coincides with the release of Alloy 1.2.0, which now supports dynamic styling, creating ListView objects in markup with data binding enabled, and the Tizen platform.
+
+  * [Dynamic Styles guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Dynamic_Styles)
+  * [Dynamic Styling Sample](https://github.com/appcelerator/alloy/tree/master/test/apps/advanced/dynamic_styling)
+  * [ListView Sample](https://github.com/appcelerator/alloy/tree/master/test/apps/ui/listview)
+  * [ListView with Data Binding Sample](https://github.com/appcelerator/alloy/tree/master/test/apps/models/binding_listview)
+
+For a complete list of updates, see the Alloy [Changelog](https://github.com/appcelerator/alloy/blob/1_2_X/CHANGELOG.md).
+
+<a name="install"></a>
+
+## Installation Notes
+
+<a name="upgrading_npm"></a>
+
+### Upgrading Pre-GA npm Packages
+
+If you previously installed the Release Candidate versions of the Titanium CLI and Alloy, you need to first uninstall these components before installing or updating to
+3.1.2.GA.
+
+To check the current versions run the following commands:
+
+    npm list -g titanium
+    npm list -g alloy
+
+If either package has a version number ending in `-alpha`, `-beta`, or `-cr`, you should uninstall
+the package manually before installing 3.1.2.GA.
+
+To uninstall these packages:
+
+    npm remove -g titanium
+    npm remove -g alloy
+
+Note: You may need to use <code>sudo</code> before these terminal commands on OSX and Linux.
+
+If you are using Titanium Studio, these components will be updated if you chose to install
+additional Titanium updates or from the **Help** menu, select **Check for Titanium Updates**.
+
+If you are using the Titainium CLI, you need to reinstall the CLI and Alloy from the terminal:
+
+    npm install -g titanium
+    npm install -g alloy
+
+If you should run into any issues, run `npm cache clean` and then retry the steps above.
+
+
+<a name="changes"></a>
+
+## Notice of Breaking Changes in Release 3.1.2
+
+The following changes alter the behavior of the Titanium SDK from previous versions, and may require
+code changes to run your application on Titanium SDK 3.1.2.
+
+<a name="mqtt"></a>
+
+### Google Cloud Messaging Default for Android Push Notifications
+
+By default, a new application will use Google Cloud Messaging (GCM) as the default push notification protocol for Android.  If you have an existing application that uses the MQTT protocol, you either need to transition your application to use GCM or set the `acs-push-type` property in the `tiapp.xml` file to `mqtt`.
+
+For more information, see the note below on [Google Cloud Messaging for Android Push Notifications](#gcm).
+
+<a name="mapsv2"></a>
+
+### Google Maps v2 Behavior Change
+
+When selecting an annotation in a map view, the map re-centers itself to the annotation, so the entire info window is visible on screen.  This behavior matches the native Android Google Maps v2 behavior.
+
+Previously, the map would not re-center itself, causing the info window to appear off-screen.
+
+<a name="features"></a>
+
+## New Features
+
+<a name="gcm"></a>
+
+### Google Cloud Messaging for Android Push Notifications
+
+As of this Release, the Titanium SDK and Appcelerator Cloud Services use Google Cloud Messaging (GCM) as the default protocol to support push notifications for the Android platform.  To use GCM, create a Google API project to obtain a **Google API key** and **GCM sender ID**, then supply this information to the **Manage ACS** console.  For the client application, use the `Titanium.CloudPush` module to receive the push notifications.
+
+For instructions on setting up GCM on the server side, see the "Configure Your App For Enabling Push Notifications" subsection under the "Push Notifications" section of the [ACS: Android SDK guide](http://docs.appcelerator.com/cloud/latest/#!/guide/android).
+
+For instructions on configuring the client application to receive push notifications, see [Titanium.CloudPush](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.CloudPush).
+
+<a name="push_api"></a>
+
+### Push Notification API with Device Tokens
+
+As of this Release, the Cloud module supports subscribing, unsubscribing and sending push notifications using only device tokens.  Previously, to send push notifications, the client application needed to be signed in to Appcelerator Cloud Services (ACS) with an ACS user account.
+
+The following methods rely on the device token to send, subscribe or unsubscribe from push notifications:
+
+  * [Cloud.PushNotifications.notifyTokens](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.PushNotifications-method-notifyTokens)
+  * [Cloud.PushNotifications.subscribeToken](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.PushNotifications-method-subscribeToken)
+  * [Cloud.PushNotifications.unsubscribeToken](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.PushNotifications-method-unsubscribeToken)
+
+To retrieve your device token:
+
+  * For Android, use the [CloudPush module](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.CloudPush).
+
+  * For iOS, use the [Titanium.Network.registerForPushNotifications](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Network-method-registerForPushNotifications) method.
+
+<a name="animate"></a>
+
+### Android Activity Animations
+
+Heavyweight windows support animated transitions when you open or close them.  In the parameter dictionary you pass to the Window's `open` or `close` method, set the [activityEnterAnimation](http://docs.appcelerator.com/titanium/latest/#!/api/openWindowParams-property-activityEnterAnimation) and [activityExitAnimation](http://docs.appcelerator.com/titanium/latest/#!/api/openWindowParams-property-activityExitAnimation) keys to animation resources. `activityEnterAnimation` sets the animation you want to run on the incoming activity, while `activityExitAnimation` sets the animation you want to run on the outgoing activity.
+
+Animation resources are available through the R object. Use either `Titanium.Android.R` for built-in resources or `Titanium.App.Android.R` for resources that you package in your application.
+
+For more information, see the "Heavyweight Window Transitions in Android" section in the [Titanium.UI.Window API Reference guide](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Window).
+
+<a name="mapcenter"></a>
+
+### iOS Center Offset for Map Annotations
+
+As of this Release, you can apply an (x, y) offset to a map annotation by specifying its [centerOffset property](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Map.Annotation-property-centerOffset).  This property is only for the iOS platform.
+
+<a name="retrieve"></a>
+
+### Retrieve Last Analytics Event and Fetched Location
+
+This release introduces two new read-only properties to retrieve the last Titanium.Analytics event and Titanium.Geolocation location:
+
+  * [Titanium.Analytics.lastEvent](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Analytics-property-lastEvent)
+  * [Titanium.Geolocation.lastGeolocation](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Geolocation-property-lastGeolocation)
+
+<a name="known"></a>
+
+## Known Issues
+
+<a name="fastdev"></a>
+
+### Fastdev Server May Cause the Application to Hang or the Emulator to Crash 
+
+In Studio, if you test a project on the Android emulator, then test on device with Fastdev enabled, the application may hang ([TIMOB-14793](https://jira.appcelerator.org/browse/TIMOB-14793)).
+
+For Android 4.1 and greater, the emulator crashes if Fastdev is enabled ([TIMOB-14769](https://jira.appcelerator.org/browse/TIMOB-14769)).
+
+To workaround this issue, either remove the `ti.android.fastdev` property from the `tiapp.xml` file or set the property to `false`.  Currently, there is a temporary fix in place for Studio to disable Fastdev if you are building for Android 4.1 and greater.
+
+By default, if this property is not set, Fastdev is enabled for the emulator and disabled for device.
+
+<a name="alloy_es"></a>
+
+### Alloy Not Properly Escaping Certain Escape Sequences
+
+In the TSS files, certain escape sequences, such as a newline ('\n'), are not escaped properly
+and these escape sequences are rendered in the generated code
+([ALOY-789](https://jira.appcelerator.org/browse/ALOY-789)).
+
+A fix for this issue is included with Alloy release candidate 1.2.1.  This fix has not been
+fully tested, but is available if you need it. To download this RC, run the following command:
+
+    npm install -g alloy@1.2.1-cr
+
+Note: You may need to use `sudo` before this command on OSX and Linux.
+
+Alloy 1.2.1 GA is expected to be released next week with the fix fully tested.
+
+<a name="issues"></a>
+
+## Fixed Issues and Enhancements
+
+  * [Full list of issues that were addressed in Release 3.1.2](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=15324)
+
+<a name="android_dev_option"></a>
+
+### Issues when enabling "Do not keep activities" developer option
+
+Android 4.0 and greater devices have an option called **Do not keep activities** under the **Developer
+Options** menu. When this option is enabled, the Android OS will destroy an activity as soon as it
+is stopped. It is intended to help developers debug their apps. For example, it can simulate the
+case that Android will kill an activity in the background due to memory pressure. In
+normal use, it is not recommended to turn this option on because this may lead to unexpected issues
+in your apps, such as freezes, force closes and reboots.
+ 
+Enabling this option causes Titanium applications to close immediately when the first activity is launched ([TIMOB-12939](https://jira.appcelerator.org/browse/TIMOB-12939)).
+ 
+This issue has been fixed in Release 3.1.2 and requires that the root window's `exitOnClose` property be set to `true` to properly close the application when this option is enabled.
+
+For prior Releases, if all windows in the application are lightweight, the application runs without any issues with this option enabled.  This issue only occurs when the application creates another activity, caused by creating heavyweight windows.
+
+<a name="apis"></a>
+
+## API Changes
+
+This section lists new APIs, deprecated APIs, and APIs that have been removed from the SDK.
+
+<a name="new_apis"></a>
+
+### New APIs
+
+The following APIs are new or have expanded platform support in Release 3.1.2.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.Analytics.getLastEvent</td><td>method</td><td><p>Gets the value of the lastEvent property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Analytics.lastEvent</td><td>property</td><td><p>JSON representation of the last analytics event generated. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.CloudPush.clearStatus</td><td>method</td><td><p>Clears the CloudPush module's stored status, including the push type, device token, GCM sender ID, etc. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.getLastGeolocation</td><td>method</td><td><p>Gets the value of the lastGeolocation property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.lastGeolocation</td><td>property</td><td><p>JSON representation of the last geolocation received. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Map.Annotation.centerOffset</td><td>property</td><td><p>Defines a center offset point for the annotation. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Map.Annotation.getCenterOffset</td><td>method</td><td><p>Gets the value of the centerOffset property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Map.Annotation.setCenterOffset</td><td>method</td><td><p>Sets the value of the centerOffset property. (New API, supported on iPhone and iPad.)</p></td></tr>
+<tr>
+</table>
+
