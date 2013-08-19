@@ -54,6 +54,7 @@ public class TiListView extends TiUIView {
 	private int headerFooterId;
 	public static LayoutInflater inflater;
 	private int titleId;
+	private int[] marker = new int[2];
 	private View headerView;
 	private View footerView;
 	private static final String TAG = "TiListView";
@@ -164,9 +165,9 @@ public class TiListView extends TiUIView {
 		}
 		@Override
 		public int getItemViewType(int position) {
-			Pair<ListSectionProxy, Integer> info = getSectionInfoByEntryIndex(position);
+			Pair<ListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
 			ListSectionProxy section = info.first;
-			int sectionItemIndex = info.second;
+			int sectionItemIndex = info.second.second;
 			if (section.isHeaderView(sectionItemIndex) || section.isFooterView(sectionItemIndex))
 				return HEADER_FOOTER_ITEM_TYPE;
 			return section.getTemplateByIndex(sectionItemIndex).getType();			
@@ -175,9 +176,16 @@ public class TiListView extends TiUIView {
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			//Get section info from index
-			Pair<ListSectionProxy, Integer> info = getSectionInfoByEntryIndex(position);
+			Pair<ListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
 			ListSectionProxy section = info.first;
-			int sectionItemIndex = info.second;
+			int sectionItemIndex = info.second.second;
+			int sectionIndex = info.second.first;
+			//check marker
+			if (sectionIndex > marker[0] || (sectionIndex == marker[0] && sectionItemIndex >= marker[1])) {
+				proxy.fireEvent(TiC.EVENT_MARKER, null, false);
+				resetMarker();
+			}
+
 			View content = convertView;
 
 			//Handling section header/footer titles
@@ -193,7 +201,6 @@ public class TiListView extends TiUIView {
 			//Handling templates
 			KrollDict data = section.getListItemData(sectionItemIndex);
 			TiListViewTemplate template = section.getTemplateByIndex(sectionItemIndex);
-			int sectionIndex = sections.indexOf(section);
 
 			if (content != null) {
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
@@ -220,6 +227,14 @@ public class TiListView extends TiUIView {
 		itemTypeCount = new AtomicInteger(2);
 		templatesByBinding = new HashMap<String, TiListViewTemplate>();
 		defaultTemplateBinding = UIModule.LIST_ITEM_TEMPLATE_DEFAULT;
+		
+		//handling marker
+		HashMap<String, Integer> preloadMarker = ((ListViewProxy)proxy).getPreloadMarker();
+		if (preloadMarker != null) {
+			setMarker(preloadMarker);
+		} else {
+			resetMarker();
+		}
 		
 		//initializing listView and adapter
 		ListViewWrapper wrapper = new ListViewWrapper(activity);
@@ -259,6 +274,12 @@ public class TiListView extends TiUIView {
 		setNativeView(wrapper);
 	}
 	
+	private void resetMarker() 
+	{
+		marker[0] = Integer.MAX_VALUE;
+		marker[1] = Integer.MAX_VALUE;
+	}
+
 	public void setHeaderTitle(String title) {
 		TextView textView = (TextView) headerView.findViewById(titleId);
 		textView.setText(title);
@@ -279,6 +300,13 @@ public class TiListView extends TiUIView {
 	public void registerForTouch()
 	{
 		registerForTouch(listView);
+	}
+	
+	public void setMarker(HashMap<String, Integer> markerItem) 
+	{
+		marker[0] = markerItem.get(TiC.PROPERTY_SECTION_INDEX);
+		marker[1] = markerItem.get(TiC.PROPERTY_ITEM_INDEX);
+		
 	}
 	
 	public void processProperties(KrollDict d) {
@@ -416,7 +444,7 @@ public class TiListView extends TiUIView {
 		}
 	}
 	
-	protected Pair<ListSectionProxy, Integer> getSectionInfoByEntryIndex(int index) {
+	protected Pair<ListSectionProxy, Pair<Integer, Integer>> getSectionInfoByEntryIndex(int index) {
 		if (index < 0) {
 			return null;
 		}
@@ -424,7 +452,7 @@ public class TiListView extends TiUIView {
 			ListSectionProxy section = sections.get(i);
 			int sectionItemCount = section.getItemCount();
 			if (index <= sectionItemCount - 1) {
-				return new Pair<ListSectionProxy, Integer>(section, index);
+				return new Pair<ListSectionProxy, Pair<Integer, Integer>>(section, new Pair<Integer, Integer>(i, index));
 			} else {
 				index -= sectionItemCount;
 			}

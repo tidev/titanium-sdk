@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget.listview;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
@@ -51,6 +52,7 @@ public class ListViewProxy extends TiViewProxy {
 	//indicate if user attempts to add/modify/delete sections before TiListView is created 
 	private boolean preload = false;
 	private ArrayList<ListSectionProxy> preloadSections;
+	private HashMap<String, Integer> preloadMarker;
 	
 	public TiUIView createView(Activity activity) {
 		return new TiListView(this, activity);
@@ -88,6 +90,11 @@ public class ListViewProxy extends TiViewProxy {
 		return preload;
 	}
 	
+	public HashMap<String, Integer> getPreloadMarker()
+	{
+		return preloadMarker;
+	}
+
 	private void addPreloadSections(Object secs, int index, boolean arrayOnly) {
 		if (secs instanceof Object[]) {
 			Object[] sections = (Object[]) secs;
@@ -136,6 +143,19 @@ public class ListViewProxy extends TiViewProxy {
 			d.put("itemIndex", itemIndex);
 			d.put("sectionIndex", sectionIndex);
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SCROLL_TO_ITEM), d);
+		}
+	}
+	
+	@Kroll.method
+	public void setMarker(Object marker) {
+		if (marker instanceof HashMap) {
+			HashMap<String, Integer> m = (HashMap<String, Integer>) marker;
+			TiUIView listView = peekView();
+			if (listView != null) {
+				((TiListView)listView).setMarker(m);
+			} else {
+				preloadMarker = m;
+			}
 		}
 	}
 	

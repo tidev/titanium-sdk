@@ -596,6 +596,7 @@ public class ListSectionProxy extends ViewProxy{
 			view.setAdditionalEventData(existingData);
 		}
 
+		//itemIndex = realItemIndex + header (if exists). We want the real item index.
 		if (headerTitle != null) {
 			itemIndex -= 1;
 		}
