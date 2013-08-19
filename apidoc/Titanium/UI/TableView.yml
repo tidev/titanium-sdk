@@ -1076,6 +1076,7 @@ properties:
         In iOS 6, there is no way to explicitly specify the group tableview background texture. The color
         values <Titanium.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND> or 'stripped' are interpreted as black.
     type: String
+    default: transparent on non-iOS platforms, white on the iOS platform
     exclude-platforms: [blackberry]
     
   - name: data

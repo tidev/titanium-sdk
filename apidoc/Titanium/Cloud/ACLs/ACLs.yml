@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
 
-        See [Access Control List (ACL): Create an access control list](http://cloud.appcelerator.com/docs/api/v1/acls/create)
+        See [Access Control List (ACL): Create an access control list](http://docs.appcelerator.com/cloud/latest/#!/api/ACLs-method-create)
         for the request parameters supported by this method.
 
         Data is returned in the `acls` property of the parameter passed to the callback.
@@ -27,7 +27,7 @@ methods:
     description: |
         Requires user login. 
 
-        See [Access Control List (ACL): Update an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/update)
+        See [Access Control List (ACL): Update an ACL](http://docs.appcelerator.com/cloud/latest/#!/api/ACLs-method-update)
         for the request parameters supported by this method.
 
         Data is returned in the `acls` property of the parameter passed to the callback.
@@ -46,7 +46,7 @@ methods:
     description: |
         Requires user login. 
 
-        See [Access Control List (ACL): Show an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/show)
+        See [Access Control List (ACL): Show an ACL](http://docs.appcelerator.com/cloud/latest/#!/api/ACLs-method-show)
         for the request parameters supported by this method.
 
         Data is returned in the `acls` property of the parameter passed to the callback.
@@ -64,7 +64,7 @@ methods:
     description: |
         Requires user login.
 
-        See [Access Control List (ACL): Delete an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/delete)
+        See [Access Control List (ACL): Delete an ACL](http://docs.appcelerator.com/cloud/latest/#!/api/ACLs-method-delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -80,7 +80,7 @@ methods:
     description: |
         Requires user login.
 
-        See [Access Control List (ACL): Add user(s) to an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/add)
+        See [Access Control List (ACL): Add user(s) to an ACL](http://docs.appcelerator.com/cloud/latest/#!/api/ACLs-method-add)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -96,7 +96,7 @@ methods:
     description: |
         Requires user login.
 
-        See [Access Control List (ACL): Remove user(s) from an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/remove)
+        See [Access Control List (ACL): Remove user(s) from an ACL](http://docs.appcelerator.com/cloud/latest/#!/api/ACLs-method-remove)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -112,7 +112,7 @@ methods:
     description: |
         Requires user login.
 
-        See [Access Control List (ACL): Check a user's permission in an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/check)
+        See [Access Control List (ACL): Check a user's permission in an ACL](http://docs.appcelerator.com/cloud/latest/#!/api/ACLs-method-check)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
