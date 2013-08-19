@@ -72,7 +72,6 @@ public class TiMapView extends TiUIView
 	private static final int MSG_SET_LOCATION = 300;
 	private static final int MSG_SET_MAPTYPE = 301;
 	private static final int MSG_SET_REGIONFIT = 302;
-	private static final int MSG_SET_ANIMATE = 303;
 	private static final int MSG_SET_USERLOCATION = 304;
 	private static final int MSG_SET_SCROLLENABLED = 305;
 	private static final int MSG_CHANGE_ZOOM = 306;
@@ -82,7 +81,6 @@ public class TiMapView extends TiUIView
 
 	private boolean scrollEnabled;
 	private boolean regionFit;
-	private boolean animate;
 	private boolean userLocation;
 
 	private LocalMapView view;
@@ -522,7 +520,6 @@ public class TiMapView extends TiUIView
 		setNativeView(view);
 
 		this.regionFit = true;
-		this.animate = false;
 
 		final TiViewProxy fproxy = proxy;
 
@@ -572,12 +569,8 @@ public class TiMapView extends TiUIView
 				regionFit = msg.arg1 == 1 ? true : false;
 				return true;
 
-			case MSG_SET_ANIMATE :
-				animate = msg.arg1 == 1 ? true : false;
-				return true;
-
 			case MSG_SET_SCROLLENABLED :
-				animate = msg.arg1 == 1 ? true : false;
+				scrollEnabled = msg.arg1 == 1 ? true : false;
 				if (view != null) {
 					view.setScrollable(scrollEnabled);
 				}
@@ -805,9 +798,6 @@ public class TiMapView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_REGION_FIT)) {
 			regionFit = d.getBoolean(TiC.PROPERTY_REGION_FIT);
 		}
-		if (d.containsKey(TiC.PROPERTY_ANIMATE)) {
-			animate = d.getBoolean(TiC.PROPERTY_ANIMATE);
-		}
 		if (d.containsKey(TiC.PROPERTY_USER_LOCATION)) {
 			doUserLocation(d.getBoolean(TiC.PROPERTY_USER_LOCATION));
 		}
@@ -982,10 +972,10 @@ public class TiMapView extends TiUIView
 			Log.e(TAG, "calling obtainMessage", Log.DEBUG_MODE);
 			
 			KrollDict args = new KrollDict();
-			args.put("select", new Boolean(select));
+			args.put("select", Boolean.valueOf(select));
 			args.put("title", title);
-			args.put("animate", new Boolean(animate));
-			args.put("center", new Boolean(center));
+			args.put("animate", Boolean.valueOf(animate));
+			args.put("center", Boolean.valueOf(center));
 			if (selectedAnnotation != null) {
 				args.put("annotation", selectedAnnotation);
 			}
