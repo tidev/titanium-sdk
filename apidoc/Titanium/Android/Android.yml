@@ -1435,6 +1435,18 @@ properties:
     permission: read-only
     since: "3.0.0"
 
+  - name: NAVIGATION_MODE_STANDARD
+    summary: Standard Action Bar navigation mode
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    
+  - name: NAVIGATION_MODE_TABS
+    summary: Action Bar tab navigation mode
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    
   - name: START_NOT_STICKY
     summary: |
         A Service start mode indicating that if the host application is stopped by Android, the service should not be restarted automatically.

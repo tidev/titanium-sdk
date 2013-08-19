@@ -206,10 +206,10 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+    exclude-platforms: [blackberry]
         
   - name: doubletap
     summary: Fired when the device detects a double tap against the view.
@@ -218,7 +218,6 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
-    
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -397,6 +396,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+    exclude-platforms: [blackberry]
 
 methods:
   - name: add
@@ -762,7 +762,7 @@ properties:
     summary: Current position of the view during an animation.
     type: Point
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     
   - name: backgroundColor
     summary: Background color of the view, as a color name or hex triplet.
@@ -947,17 +947,20 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     default: Same as the normal background color of this view (Android, Mobile Web, Tizen), black (iOS).
     type: String
+    exclude-platforms: [blackberry]
     
   - name: borderRadius
     summary: Radius for the rounded corners of the view's border.
     description: Each corner is rounded using an arc of a circle.
     type: Number
     default: 0
+    exclude-platforms: [blackberry]
     
   - name: borderWidth
     summary: Border width of the view.
     type: Number
     default: 0
+    exclude-platforms: [blackberry]
     
   - name: bottom
     summary: View's bottom position, in platform-specific units.
@@ -978,6 +981,7 @@ properties:
         represent the view's calculated position.
     default: undefined
     type: Point
+    exclude-platforms: [blackberry]
     
   - name: children
     summary: Array of this view's child views.
@@ -989,7 +993,7 @@ properties:
     description: Set to `true` to enable or `false` to disable the view.
     default: Enabled by default. (Property value may be undefined.)
     type: Boolean
-    platforms: [android]
+    platforms: [android, blackberry]
     
   - name: focusable
     summary: Whether view should be focusable while navigating with the trackball.
@@ -1187,6 +1191,7 @@ properties:
     type: Dimension
     permission: read-only
     since: "2.0.0"
+    exclude-platforms: [blackberry]
 
   - name: size
     summary: |
@@ -1203,6 +1208,7 @@ properties:
         [postlayout](Titanium.UI.View.postlayout) event.
     type: Dimension
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: softKeyboardOnFocus
     summary: Determines keyboard behavior when this view is focused.
@@ -1212,7 +1218,7 @@ properties:
         <Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS>.
     type: Number
     default: <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>
-    platforms: [android, tizen]
+    platforms: [android]
     
   - name: top
     summary: The view's top position.
@@ -1236,6 +1242,7 @@ properties:
     description: Android, Tizen and Mobile Web only support 2DMatrix transforms.
     type: [ Titanium.UI.2DMatrix, Titanium.UI.3DMatrix ]
     default: Identity matrix
+    exclude-platforms: [blackberry]
     
   - name: visible
     summary: Determines whether the view is visible.
@@ -1273,6 +1280,7 @@ properties:
     type: Boolean
     default: true
     since: "2.1.0"
+    exclude-platforms: [blackberry]
 
   - name: zIndex
     summary: Z-index stack order position, relative to other sibling views.

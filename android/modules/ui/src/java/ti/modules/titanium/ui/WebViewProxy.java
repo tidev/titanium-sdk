@@ -32,7 +32,8 @@ import android.webkit.WebView;
 	TiC.PROPERTY_URL,
 	TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR,
 	TiC.PROPERTY_OVER_SCROLL_MODE,
-	TiC.PROPERTY_CACHE_MODE
+	TiC.PROPERTY_CACHE_MODE,
+	TiC.PROPERTY_LIGHT_TOUCH_ENABLED
 })
 public class WebViewProxy extends ViewProxy 
 	implements Handler.Callback, OnLifecycleEvent
@@ -58,6 +59,7 @@ public class WebViewProxy extends ViewProxy
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
+		defaultValues.put(TiC.PROPERTY_LIGHT_TOUCH_ENABLED, true);
 	}
 
 	public WebViewProxy(TiContext context)

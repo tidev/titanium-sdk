@@ -139,7 +139,6 @@ public class TiUIWebView extends TiUIView
 		settings.setSupportMultipleWindows(true);
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
 		settings.setLoadsImagesAutomatically(true);
-		settings.setLightTouchEnabled(true);
 		settings.setDomStorageEnabled(true); // Required by some sites such as Twitter. This is in our iOS WebView too.
 		File path = TiApplication.getInstance().getFilesDir();
 		if (path != null) {
@@ -248,6 +247,11 @@ public class TiUIWebView extends TiUIView
 				setData((TiBlob) value);
 			}
 		}
+		
+		if (d.containsKey(TiC.PROPERTY_LIGHT_TOUCH_ENABLED)) {
+			WebSettings settings = getWebView().getSettings();
+			settings.setLightTouchEnabled(TiConvert.toBoolean(d,TiC.PROPERTY_LIGHT_TOUCH_ENABLED));
+		}
 
 		// If TiUIView's processProperties ended up making a TiBackgroundDrawable
 		// for the background, we must set the WebView background color to transparent
@@ -287,6 +291,9 @@ public class TiUIWebView extends TiUIView
 			}
 		} else if (TiC.PROPERTY_CACHE_MODE.equals(key)) { 
 			getWebView().getSettings().setCacheMode(TiConvert.toInt(newValue));
+		} else if (TiC.PROPERTY_LIGHT_TOUCH_ENABLED.equals(key)) {
+			WebSettings settings = getWebView().getSettings();
+			settings.setLightTouchEnabled(TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

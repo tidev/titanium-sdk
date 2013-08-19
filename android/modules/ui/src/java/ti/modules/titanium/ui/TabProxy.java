@@ -208,6 +208,8 @@ public class TabProxy extends TiViewProxy
 	{
 		// Windows are lazily opened when the tab is first focused.
 		if (window != null && !windowOpened) {
+			// Need to handle the url window in the JS side.
+			window.callPropertySync(TiC.PROPERTY_LOAD_URL, null);
 			windowOpened = true;
 			window.fireEvent(TiC.EVENT_OPEN, null, false);
 		}

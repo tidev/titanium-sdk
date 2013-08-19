@@ -104,6 +104,15 @@ properties:
     type: String
     permission: write-only
 
+  - name: navigationMode
+    summary: Controls the navigation mode.
+    description: |
+        The navigation mode can be [NAVIGATION_MODE_STANDARD](Titanium.Android.NAVIGATION_MODE_STANDARD), or [NAVIGATION_MODE_TABS](Titanium.Android.NAVIGATION_MODE_TABS). 
+        A TabGroup is initialized by Titanium Mobile with `NAVIGATION_MODE_TABS`, and can be hidden by setting to `NAVIGATION_MODE_STANDARD`. `NAVIGATION_MODE_LIST` is not yet supported.
+        See also: [setNavigationMode](http://developer.android.com/reference/android/app/ActionBar.html#setNavigationMode(int))
+        in the Android Developer Reference.
+    type: Number
+
   - name: onHomeIconItemSelected
     summary: Callback function called when the home icon is clicked.
     type: Callback

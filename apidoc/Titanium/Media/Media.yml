@@ -11,7 +11,6 @@ description: |
     in addition to the other media submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
-platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: beep
     summary: Plays a device beep notification.
@@ -21,7 +20,9 @@ methods:
     description: |
         Must be called after calling `showCamera` and only when `autohide` is set to `false`. 
         This method causes the media capture UI to be hidden.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since:
+        android: "3.2.0"
   - name: hideMusicLibrary
     summary: Hides the music library.  
     description: |
@@ -127,6 +128,14 @@ methods:
         If the `showControls` option is `false`, you must control the camera explicitly, using
         the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera) 
         methods.
+
+        #### Android Platform Notes
+
+        To suppress the default controls, set `autohide` to `false` and then set the
+        `overlay` property to a view that contains a control (such as a button) to
+        take the photo. You must then control the camera explicitly, using
+        the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera)
+        methods.
         
         #### Tizen Platform Notes
         
@@ -135,7 +144,7 @@ methods:
 
         * `http://tizen.org/privilege/application.launch`
         
-    platforms: [iphone, ipad, android, tizen]
+    platforms: [iphone, ipad, android, tizen, blackberry]
     parameters:
       - name: options
         summary: A dictionary of camera options as described in <CameraOptionsType>.
@@ -393,10 +402,25 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+  - name: CAMERA_FRONT
+    summary: Constant specifying the front camera.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, android]
+    since:
+        android: "3.2.0"
+  - name: CAMERA_REAR
+    summary: Constant indicating the rear camera.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, android]
+    since:
+        android: "3.2.0"
   - name: DEVICE_BUSY
     summary: Constant for media device busy error.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: MEDIA_TYPE_PHOTO
     summary: Media type constant for photo media.
     type: String
@@ -405,6 +429,7 @@ properties:
     summary: Media type constant for video media.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: MUSIC_MEDIA_TYPE_ALL
     summary: Music library media containing any type of content.
     type: Number
@@ -554,10 +579,12 @@ properties:
     summary: Constant for media no camera error.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: NO_VIDEO
     summary: Constant for media no video error.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: QUALITY_HIGH
     summary: Media type constant for high-quality video recording. 
     description: |
@@ -585,6 +612,7 @@ properties:
     summary: Constant for unknown media error.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: VIDEO_CONTROL_DEFAULT
     summary: Constant for default video controls.
     description: |
@@ -593,6 +621,7 @@ properties:
         of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: VIDEO_CONTROL_EMBEDDED
     summary: Constant for video controls for an embedded view. 
     description: |
@@ -650,6 +679,7 @@ properties:
         of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: VIDEO_CONTROL_VOLUME_ONLY
     deprecated:
         since: "1.8.0"
@@ -765,6 +795,7 @@ properties:
         is filled with a black bar. The aspect ratio of the movie is preserved.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: VIDEO_SCALING_MODE_FILL
     summary: Video is scaled until both dimensions fit the screen exactly, stretching if necessary.
     description: |
@@ -776,6 +807,7 @@ properties:
     summary: Video scaling is disabled.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: VIDEO_SOURCE_TYPE_FILE
     summary: Video source type is a file. 
     description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>.
@@ -828,6 +860,13 @@ properties:
         for audio properties on the Media module, but the iPod may be active).
     type: Number
     platforms: [iphone, ipad]
+  - name: availableCameras
+    summary: Array indicating which cameras are available, `CAMERA_FRONT`, `CAMERA_REAR` or both.
+    type: Array<Number>
+    platforms: [iphone, ipad, android]
+    since:
+        android: "3.2.0"
+    permission: read-only
   - name: availableCameraMediaTypes
     summary: Array of media type constants supported for the camera.
     type: Array<Object>
@@ -1014,7 +1053,13 @@ properties:
     summary: Specifies if the camera should be hidden automatically after the media capture is completed.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: {android: "3.2.0"}
+    description: |
+        On Android, this property is considered only if `overlay` is also set. When an
+        overlay is not set, the default Android Camera Activity is used, which is only
+        capable of reporting back the results of one taken photo, making `autohide`
+        meaningless in that context.
   - name: animated 
     summary: Specifies if the dialog should be animated upon showing and hiding.
     type: Boolean
