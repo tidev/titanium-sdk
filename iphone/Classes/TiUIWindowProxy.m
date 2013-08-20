@@ -129,6 +129,7 @@
 	[self replaceValue:nil forKey:@"barImage" notification:NO];
 	[self replaceValue:nil forKey:@"translucent" notification:NO];
 	[self replaceValue:NUMBOOL(NO) forKey:@"tabBarHidden" notification:NO];
+	[self replaceValue:NUMBOOL(NO) forKey:@"navBarHidden" notification:NO];
 	[super _configure];
 }
 
