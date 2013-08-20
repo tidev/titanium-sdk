@@ -177,11 +177,9 @@ public class TiSound
 	{
 		try {
 			if (mp != null) {
-				if(mp.isPlaying()) {
+				if (mp.isPlaying()) {
 					Log.d(TAG, "audio is playing, pause", Log.DEBUG_MODE);
-					if (remote) {
-						stopProgressTimer();
-					}
+					stopProgressTimer();
 					mp.pause();
 					paused = true;
 					setState(STATE_PAUSED);
@@ -207,9 +205,7 @@ public class TiSound
 					mp.start();
 					setState(STATE_PLAYING);
 					paused = false;
-					if (remote) {
-						startProgressTimer();
-					}
+					startProgressTimer();
 				}
 				setState(STATE_PLAYING);
 			}
@@ -223,9 +219,7 @@ public class TiSound
 	{
 		try {
 			if (mp != null) {
-				if (remote) {
-					stopProgressTimer();
-				}
+				stopProgressTimer();
 
 				setState(STATE_STOPPING);
 				mp.seekTo(0);
@@ -234,7 +228,7 @@ public class TiSound
 				setState(STATE_STOPPED);
 			}
 		} catch (Throwable t) {
-			Log.w(TAG, "Issue while resetting : " , t);
+			Log.w(TAG, "Issue while resetting : ", t);
 		}
 	}
 
@@ -393,9 +387,7 @@ public class TiSound
 					setState(STATE_STOPPING);
 					mp.stop();
 					setState(STATE_STOPPED);
-					if (remote) {
-						stopProgressTimer();
-					}
+					stopProgressTimer();
 					try {
 						mp.prepare();
 						mp.seekTo(0);
@@ -406,12 +398,12 @@ public class TiSound
 					}
 				}
 
-				if(isPaused()) {
+				if (isPaused()) {
 					paused = false;
 				}
 			}
 		} catch (Throwable t) {
-			Log.e(TAG, "Error : " , t);
+			Log.e(TAG, "Error : ", t);
 		}
 	}
 
