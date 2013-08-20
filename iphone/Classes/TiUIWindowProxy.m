@@ -201,7 +201,9 @@
 				[self _setBaseURL:url];
 				contextReady=NO;
 				context = [[KrollBridge alloc] initWithHost:[self _host]];
-				NSDictionary *values = [NSDictionary dictionaryWithObjectsAndKeys:self,@"currentWindow",[tab tabGroup],@"currentTabGroup",tab,@"currentTab",nil];
+				id theTabGroup = [tab tabGroup];
+				id theTab = (theTabGroup == nil)?nil:tab;
+				NSDictionary *values = [NSDictionary dictionaryWithObjectsAndKeys:self,@"currentWindow",theTabGroup,@"currentTabGroup",theTab,@"currentTab",nil];
 				NSDictionary *preload = [NSDictionary dictionaryWithObjectsAndKeys:values,@"UI",nil];
 				latch = [[TiUIWindowProxyLatch alloc] initWithTiWindow:self args:args];
 				[context boot:latch url:url preload:preload];
