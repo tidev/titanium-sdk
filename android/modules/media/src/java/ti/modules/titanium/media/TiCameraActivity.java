@@ -113,7 +113,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 		// set preview overlay
 		localOverlayProxy = overlayProxy;
-		//overlayProxy = null; // clear the static object once we have a local reference
 
 		// set overall layout - will populate in onResume
 		previewLayout = new PreviewLayout(this);
