@@ -229,13 +229,11 @@
 
 -(void)open:(NSArray*)args
 {
-    DebugLog(@"Tab.open API is deprecated. Please use Tab.push")
     [self push:args];
 }
 
 -(void)close:(NSArray *)args
 {
-    DebugLog(@"Tab.close API is deprecated. Please use Tab.pop")
     [self pop:args];
 }
 
