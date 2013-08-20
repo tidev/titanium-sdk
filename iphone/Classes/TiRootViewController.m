@@ -664,6 +664,16 @@
 	}
 }
 
+-(void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context
+{
+	if(![finished boolValue]){
+		return;
+	}
+	if(context == leavingAccessoryView){
+		[leavingAccessoryView removeFromSuperview];
+		RELEASE_TO_NIL(leavingAccessoryView);
+	}
+}
 
 #if defined(DEBUG) || defined(DEVELOPER)
 -(void)shutdownUi:(id)arg
