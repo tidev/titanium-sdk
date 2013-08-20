@@ -385,43 +385,22 @@
 
 -(void)extractKeyboardInfo:(NSDictionary *)userInfo
 {
-	NSValue *v = nil;
-	CGRect endingFrame;
-    
-	v = [userInfo valueForKey:UIKeyboardFrameEndUserInfoKey];
+    NSValue *v = nil;
+    CGRect endingFrame;
+    v = [userInfo valueForKey:UIKeyboardFrameEndUserInfoKey];
 	
-	if (v != nil)
-	{
-		endingFrame = [v CGRectValue];
-	}
-	else
-	{
-		v = [userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
-		endingFrame = [v CGRectValue];
-		v = [userInfo valueForKey:UIKeyboardFrameEndUserInfoKey];
-		CGPoint endingCenter = [v CGPointValue];
-		endingFrame.origin.x = endingCenter.x - endingFrame.size.width/2.0;
-		endingFrame.origin.y = endingCenter.y - endingFrame.size.height/2.0;
-	}
+    if (v != nil) {
+        endingFrame = [v CGRectValue];
+    }
     
-	CGRect startingFrame;
-	v = [userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
+    CGRect startingFrame;
+    v = [userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
     
-	if (v != nil)
-	{
-		startingFrame = [v CGRectValue];
-	}
-	else
-	{
-		startingFrame.size = endingFrame.size;
-		v = [userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
-		CGPoint startingCenter = [v CGPointValue];
-		startingFrame.origin.x = startingCenter.x - startingFrame.size.width/2.0;
-		startingFrame.origin.y = startingCenter.y - startingFrame.size.height/2.0;
-	}
-    
-	startFrame = startingFrame;
-	endFrame = endingFrame;
+    if (v != nil) {
+        startingFrame = [v CGRectValue];
+    }
+    startFrame = startingFrame;
+    endFrame = endingFrame;
 }
 
 -(void) placeView:(UIView *)targetView nearTopOfRect:(CGRect)targetRect aboveTop:(BOOL)aboveTop
