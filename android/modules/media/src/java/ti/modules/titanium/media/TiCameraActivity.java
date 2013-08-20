@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -115,7 +115,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 		// set preview overlay
 		localOverlayProxy = overlayProxy;
-		overlayProxy = null; // clear the static object once we have a local reference
+		//overlayProxy = null; // clear the static object once we have a local reference
 
 		// set overall layout - will populate in onResume
 		previewLayout = new PreviewLayout(this);
@@ -282,6 +282,16 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 		camera.stopPreview();
 		previewRunning = false;
+	}
+
+	@Override
+	public void finish()
+	{
+		// For API 10 and above, the whole activity gets destroyed during an orientation change. We only want to set
+		// overlayProxy to null when we call finish, i.e. when we hide the camera or take a picture. By doing this, the
+		// overlay proxy will be available during the recreation of the activity during an orientation change.
+		overlayProxy = null;
+		super.finish();
 	}
 
 	/**
