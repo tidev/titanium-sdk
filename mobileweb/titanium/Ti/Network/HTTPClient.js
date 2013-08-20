@@ -123,7 +123,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 				this._aborted = this._completed = 0;
 				has("ti-instrumentation") && (this._requestInstrumentationTest = instrumentation.startTest("HTTP Request")),
 				args = is(args, "Object") ? lang.urlEncode(args) : args;
-				args && this._xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+				this._contentTypeSet || args && this._xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 				this._xhr.setRequestHeader('X-Titanium-Id', App.guid);
 				this._xhr.send(args);
 				clearTimeout(this._timeoutTimer);
@@ -137,6 +137,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 		},
 
 		setRequestHeader: function(name, value) {
+			name === 'Content-Type' && (this._contentTypeSet = 1);
 			this._xhr.setRequestHeader(name, value);
 		},
 
