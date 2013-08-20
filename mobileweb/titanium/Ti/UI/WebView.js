@@ -49,8 +49,7 @@ define(['Ti/_/declare', 'Ti/_/UI/Widget', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang',
 						style: {
 							width: '100%',
 							height: '100%',
-							overflow: 'auto',
-							overflowScrolling: 'touch'
+							position: 'absolute'
 						}
 					}, this.domNode);
 
