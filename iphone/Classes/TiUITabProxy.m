@@ -92,7 +92,7 @@
         [rootWindow setParentOrientationController:self];
         [rootWindow open:nil];
     }
-    return [rootWindow initController];
+    return [rootWindow hostingController];
 }
 
 -(void)openOnUIThread:(NSArray*)args
@@ -105,7 +105,7 @@
 	TiWindowProxy *window = [args objectAtIndex:0];
 	BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
     
-    [[[self rootController] navigationController] pushViewController:[window initController] animated:animated];
+    [[[self rootController] navigationController] pushViewController:[window hostingController] animated:animated];
 }
 
 -(void)closeOnUIThread:(NSArray*)args
@@ -142,7 +142,7 @@
 - (void)closeWindow:(TiWindowProxy*)window animated:(BOOL)animated
 {
     [window retain];
-    UIViewController *windowController = [[window initController] retain];
+    UIViewController *windowController = [[window hostingController] retain];
     
 	// Manage the navigation controller stack
 	UINavigationController* navController = [[self rootController] navigationController];
@@ -282,7 +282,7 @@
 - (void)handleDidShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
     if (current != nil) {
-        UIViewController* oldController = [current initController];
+        UIViewController* oldController = [current hostingController];
         UINavigationController* navController = [[self rootController] navigationController];
         if (![[navController viewControllers] containsObject:oldController]) {
             [current setTab:nil];
@@ -362,7 +362,7 @@
 	}
 	ENSURE_UI_THREAD_0_ARGS;
 	
-    UIViewController* rootController = [rootWindow initController];
+    UIViewController* rootController = [rootWindow hostingController];
 	id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
 	id icon = [self valueForKey:@"icon"];
 	
@@ -530,7 +530,7 @@
         return NO;
     }
     
-    UINavigationController* nc = [[rootWindow initController] navigationController];
+    UINavigationController* nc = [[rootWindow hostingController] navigationController];
     UIViewController* topVc = [nc topViewController];
     if ([topVc isKindOfClass:[TiViewController class]]) {
         TiViewProxy* theProxy = [(TiViewController*)topVc proxy];
@@ -547,7 +547,7 @@
         return UIStatusBarStyleDefault;
     }
     
-    UINavigationController* nc = [[rootWindow initController] navigationController];
+    UINavigationController* nc = [[rootWindow hostingController] navigationController];
     UIViewController* topVc = [nc topViewController];
     if ([topVc isKindOfClass:[TiViewController class]]) {
         TiViewProxy* theProxy = [(TiViewController*)topVc proxy];

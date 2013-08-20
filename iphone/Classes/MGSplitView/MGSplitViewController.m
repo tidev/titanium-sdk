@@ -274,7 +274,7 @@
 	
 	// Layout the master, detail and divider views appropriately, adding/removing subviews as needed.
 	// First obtain relevant geometry.
-	CGRect fullSize = [[self view] bounds];//[self splitViewSizeForOrientation:theOrientation];
+	CGRect fullSize = [[self view] bounds];
 	float width = fullSize.size.width;
 	float height = fullSize.size.height;
 	
@@ -334,7 +334,6 @@
 			theView = controller.view;
 			if (theView) {
 				theView.frame = masterRect;
-                //theView.bounds = CGRectMake(0, 0, masterRect.size.width, masterRect.size.height);
 				if (theView.superview != self.view) {
 					[controller viewWillAppear:NO];
 					[self.view addSubview:theView];
@@ -356,7 +355,6 @@
 			theView = controller.view;
 			if (theView) {
 				theView.frame = detailRect;
-                //theView.bounds = CGRectMake(0, 0, detailRect.size.width, detailRect.size.height);
 				if (theView.superview != self.view) {
 					[self.view insertSubview:theView aboveSubview:self.masterViewController.view];
 				} else {
@@ -889,7 +887,7 @@
 	// Check to see if delegate wishes to constrain the position.
 	float newPosn = posn;
 	BOOL constrained = NO;
-	CGRect fullSize = [[self view] bounds];//[self splitViewSizeForOrientation:currentOrientation];
+	CGRect fullSize = [[self view] bounds];
 	if (_delegate && [_delegate respondsToSelector:@selector(splitViewController:constrainSplitPosition:splitViewSize:)]) {
 		newPosn = [_delegate splitViewController:self constrainSplitPosition:newPosn splitViewSize:fullSize.size];
 		constrained = YES; // implicitly trust delegate's response.

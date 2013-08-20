@@ -336,7 +336,7 @@
     }
 }
 
--(UIViewController*)initController;
+-(UIViewController*)hostingController;
 {
     if (controller == nil) {
         controller = [[[TiViewController alloc] initWithViewProxy:self] retain];
@@ -384,7 +384,7 @@
             }
             [tab push:args];
         } else if (isModal) {
-            UIViewController* theController = [self initController];
+            UIViewController* theController = [self hostingController];
             [self windowWillOpen];
             NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
             int style = [TiUtils intValue:@"modalTransitionStyle" properties:dict def:-1];

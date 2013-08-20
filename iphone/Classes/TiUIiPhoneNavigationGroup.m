@@ -44,7 +44,7 @@
 			[self throwException:@"window property required" subreason:nil location:CODELOCATION];
 		}
         [windowProxy setIsManaged:YES];
-		UIViewController *rootController = [windowProxy initController];
+		UIViewController *rootController = [windowProxy hostingController];
 		controller = [[UINavigationController alloc] initWithRootViewController:rootController];
 		[controller setDelegate:self];
 		[TiUtils configureController:controller withObject:nil];
@@ -99,7 +99,7 @@
 -(void)open:(TiWindowProxy*)window withObject:(NSDictionary*)properties
 {
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-	UIViewController *viewController = [window initController];
+	UIViewController *viewController = [window hostingController];
 	opening = YES;
 	[controller pushViewController:viewController animated:animated];
 }
@@ -137,7 +137,7 @@
 
 -(void)removeWindowFromControllerStack:(TiWindowProxy*)window withObject:(NSDictionary*)properties
 {
-    UIViewController* windowController = [window initController];
+    UIViewController* windowController = [window hostingController];
     NSMutableArray* newControllers = [NSMutableArray arrayWithArray:controller.viewControllers];
     BOOL lastObject = (windowController == [newControllers lastObject]);
     BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:lastObject];

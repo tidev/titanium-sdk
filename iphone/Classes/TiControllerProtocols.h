@@ -46,7 +46,7 @@
 -(void)resignFocus;
 -(BOOL)handleFocusEvents;
 //ViewController support. Always returns TiViewController (or subclass).
--(UIViewController*) initController;
+-(UIViewController*) hostingController;
 @end
 
 /**

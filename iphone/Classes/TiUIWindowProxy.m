@@ -160,14 +160,14 @@
 
 #pragma mark - TiWindowProtocol overrides
 
--(UIViewController*)initController;
+-(UIViewController*)hostingController;
 {
     if (controller == nil) {
-        UIViewController* theController = [super initController];
+        UIViewController* theController = [super hostingController];
         [theController setHidesBottomBarWhenPushed:[TiUtils boolValue:[self valueForUndefinedKey:@"tabBarHidden"] def:NO]];
         return theController;
     }
-    return [super initController];
+    return [super hostingController];
 }
 
 -(BOOL)_handleOpen:(id)args
