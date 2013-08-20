@@ -45,10 +45,10 @@
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(_bgColor);
-	RELEASE_TO_NIL(_bgImage);
-    RELEASE_TO_NIL(_containedWindows);
-    RELEASE_TO_NIL(_modalWindows);
+	RELEASE_TO_NIL(bgColor);
+	RELEASE_TO_NIL(bgImage);
+    RELEASE_TO_NIL(containedWindows);
+    RELEASE_TO_NIL(modalWindows);
     
 	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
@@ -71,19 +71,18 @@
         leaveDuration = 0.3;
         enterDuration = 0.3;
         
-        _defaultOrientations = TiOrientationNone;
-        _allowedOrientations = TiOrientationPortrait;
-        _containedWindows = [[NSMutableArray alloc] init];
-        _modalWindows = [[NSMutableArray alloc] init];
+        defaultOrientations = TiOrientationNone;
+        containedWindows = [[NSMutableArray alloc] init];
+        modalWindows = [[NSMutableArray alloc] init];
         /*
          *	Default image view -- Since this goes away after startup, it's made here and
          *	nowhere else. We don't do this during loadView because it's possible that
          *	the view will be unloaded (by, perhaps a Memory warning while a modal view
          *	controller and loaded at a later time.
          */
-        _defaultImageView = [[UIImageView alloc] init];
-        [_defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
-        [_defaultImageView setContentMode:UIViewContentModeScaleToFill];
+        defaultImageView = [[UIImageView alloc] init];
+        [defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
+        [defaultImageView setContentMode:UIViewContentModeScaleToFill];
 		
         [self processInfoPlist];
         
@@ -119,9 +118,9 @@
     self.view = rootView;
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self updateBackground];
-    if (_defaultImageView != nil) {
+    if (defaultImageView != nil) {
         [self rotateDefaultImageViewToOrientation:UIInterfaceOrientationPortrait];
-        [rootView addSubview:_defaultImageView];
+        [rootView addSubview:defaultImageView];
     }
     [rootView becomeFirstResponder];
     [rootView release];
@@ -140,12 +139,12 @@
 -(void)updateBackground
 {
 	UIView * ourView = [self view];
-	UIColor * chosenColor = (_bgColor==nil)?[UIColor blackColor]:_bgColor;
+	UIColor * chosenColor = (bgColor==nil)?[UIColor blackColor]:bgColor;
 	[ourView setBackgroundColor:chosenColor];
 	[[ourView superview] setBackgroundColor:chosenColor];
-	if (_bgColor!=nil)
+	if (bgColor!=nil)
 	{
-		[[ourView layer] setContents:(id)_bgImage.CGImage];
+		[[ourView layer] setContents:(id)bgImage.CGImage];
 	}
 	else
 	{
@@ -155,30 +154,30 @@
 
 -(void)setBackgroundImage:(UIImage*)newImage
 {
-    if ((newImage == _bgImage) || [_bgImage isEqual:newImage]) {
+    if ((newImage == bgImage) || [bgImage isEqual:newImage]) {
         return;
     }
-    [_bgImage release];
-	_bgImage = [newImage retain];
+    [bgImage release];
+	bgImage = [newImage retain];
 	TiThreadPerformOnMainThread(^{[self updateBackground];}, NO);
 }
 
 -(void)setBackgroundColor:(UIColor*)newColor
 {
-    if ((newColor == _bgColor) || [_bgColor isEqual:newColor]) {
+    if ((newColor == bgColor) || [bgColor isEqual:newColor]) {
         return;
     }
-    [_bgColor release];
-	_bgColor = [newColor retain];
+    [bgColor release];
+	bgColor = [newColor retain];
 	TiThreadPerformOnMainThread(^{[self updateBackground];}, NO);
 }
 
 -(void)dismissDefaultImage
 {
-    if (_defaultImageView != nil) {
-        [_defaultImageView setAlpha:0.0];
-        [_defaultImageView removeFromSuperview];
-        RELEASE_TO_NIL(_defaultImageView);
+    if (defaultImageView != nil) {
+        [defaultImageView setAlpha:0.0];
+        [defaultImageView removeFromSuperview];
+        RELEASE_TO_NIL(defaultImageView);
     }
 }
 
@@ -238,7 +237,7 @@
 
 -(void)rotateDefaultImageViewToOrientation: (UIInterfaceOrientation )newOrientation;
 {
-	if (_defaultImageView == nil)
+	if (defaultImageView == nil)
 	{
 		return;
 	}
@@ -305,9 +304,9 @@
 			newFrame.size.height += overheight;
 		}
 	}
-	[_defaultImageView setContentMode:contentMode];
-	[_defaultImageView setImage:defaultImage];
-	[_defaultImageView setFrame:newFrame];
+	[defaultImageView setContentMode:contentMode];
+	[defaultImageView setImage:defaultImage];
+	[defaultImageView setFrame:newFrame];
 }
 
 #pragma mark - Keyboard Control
@@ -679,8 +678,8 @@
         return;
     }
     //At this point all modal stuff is done. Go ahead and clean up proxies.
-    NSArray* modalCopy = [_modalWindows copy];
-    NSArray* windowCopy = [_containedWindows copy];
+    NSArray* modalCopy = [modalWindows copy];
+    NSArray* windowCopy = [containedWindows copy];
     
     if(modalCopy != nil) {
         for (TiViewProxy* theWindow in [modalCopy reverseObjectEnumerator]) {
@@ -715,11 +714,11 @@
 -(void)willOpenWindow:(id<TiWindowProtocol>)theWindow
 {
     [self dismissKeyboard];
-    [[_containedWindows lastObject] resignFocus];
+    [[containedWindows lastObject] resignFocus];
     if ([theWindow isModal]) {
-        [_modalWindows addObject:theWindow];
+        [modalWindows addObject:theWindow];
     } else {
-        [_containedWindows addObject:theWindow];
+        [containedWindows addObject:theWindow];
         theWindow.parentOrientationController = self;
     }
 }
@@ -728,8 +727,8 @@
 {
     [self dismissKeyboard];
     if ([self presentedViewController] == nil) {
-        [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
-        [[_containedWindows lastObject] gainFocus];
+        [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
+        [[containedWindows lastObject] gainFocus];
     }
     [self dismissDefaultImage];
 }
@@ -739,9 +738,9 @@
     [self dismissKeyboard];
     [theWindow resignFocus];
     if ([theWindow isModal]) {
-        [_modalWindows removeObject:theWindow];
+        [modalWindows removeObject:theWindow];
     } else {
-        [_containedWindows removeObject:theWindow];
+        [containedWindows removeObject:theWindow];
         theWindow.parentOrientationController = nil;
     }
 }
@@ -750,8 +749,8 @@
 {
     [self dismissKeyboard];
     if ([self presentedViewController] == nil) {
-        [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
-        [[_containedWindows lastObject] gainFocus];
+        [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
+        [[containedWindows lastObject] gainFocus];
     }
 }
 
@@ -765,9 +764,9 @@
         return;
     }
     if (topVC == self) {
-        [[_containedWindows lastObject] resignFocus];
+        [[containedWindows lastObject] resignFocus];
     } else if ([topVC respondsToSelector:@selector(proxy)]) {
-        id theProxy = [topVC proxy];
+        id theProxy = [(id)topVC proxy];
         if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
             [(id<TiWindowProtocol>)theProxy resignFocus];
         }
@@ -790,7 +789,7 @@
             [self dismissKeyboard];
 
             if ([presenter respondsToSelector:@selector(proxy)]) {
-                id theProxy = [presenter proxy];
+                id theProxy = [(id)presenter proxy];
                 if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
                     [(id<TiWindowProtocol>)theProxy gainFocus];
                 }
@@ -803,7 +802,7 @@
 #pragma mark - Orientation Control
 -(TiOrientationFlags)getDefaultOrientations
 {
-    if (_defaultOrientations == TiOrientationNone) {
+    if (defaultOrientations == TiOrientationNone) {
         // Read the orientation values from the plist - if they exist.
         NSArray* orientations = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UISupportedInterfaceOrientations"];
         TiOrientationFlags defaultFlags = TiOrientationPortrait;
@@ -833,10 +832,10 @@
                 }
             }
         }
-        _defaultOrientations = defaultFlags;
+        defaultOrientations = defaultFlags;
     }
 	
-	return _defaultOrientations;
+	return defaultOrientations;
 }
 
 -(UIViewController*)topPresentedController
@@ -894,7 +893,7 @@
     //Since the window relayout is now driven from viewDidLayoutSubviews
     //this is not required. Leaving it in place in case someone is using it now.
     /*
-    for (id<TiWindowProtocol> thisWindow in [_containedWindows reverseObjectEnumerator]) {
+    for (id<TiWindowProtocol> thisWindow in [containedWindows reverseObjectEnumerator]) {
         [TiLayoutQueue layoutProxy:(TiViewProxy*)thisWindow];
     }
     */
@@ -931,7 +930,7 @@
     CGRect bounds = [[self view] bounds];
     NSLog(@"ROOT DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
 #endif
-    for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
         if ([thisWindow isKindOfClass:[TiViewProxy class]]) {
             if (!CGRectEqualToRect([(TiViewProxy*)thisWindow sandboxBounds], [[self view] bounds])) {
                 [(TiViewProxy*)thisWindow parentSizeWillChange];
@@ -1174,7 +1173,7 @@
 {
     TiOrientationFlags result = TiOrientationNone;
     if (checkModal) {
-        for (id<TiWindowProtocol> thisWindow in [_modalWindows reverseObjectEnumerator])
+        for (id<TiWindowProtocol> thisWindow in [modalWindows reverseObjectEnumerator])
         {
             if ([thisWindow closing] == NO) {
                 result = [thisWindow orientationFlags];
@@ -1186,7 +1185,7 @@
         }
         
     }
-    for (id<TiWindowProtocol> thisWindow in [_containedWindows reverseObjectEnumerator])
+    for (id<TiWindowProtocol> thisWindow in [containedWindows reverseObjectEnumerator])
     {
         if ([thisWindow closing] == NO) {
             result = [thisWindow orientationFlags];
@@ -1205,47 +1204,47 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
-    for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
         [thisWindow viewWillAppear:animated];
     }
     [super viewWillAppear:animated];
 }
 -(void)viewWillDisappear:(BOOL)animated
 {
-    for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
         [thisWindow viewWillDisappear:animated];
     }
-    [[_containedWindows lastObject] resignFocus];
+    [[containedWindows lastObject] resignFocus];
     [super viewWillDisappear:animated];
 }
 -(void)viewDidAppear:(BOOL)animated
 {
     isCurrentlyVisible = YES;
-    if ([_containedWindows count] > 0) {
-        for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+    if ([containedWindows count] > 0) {
+        for (id<TiWindowProtocol> thisWindow in containedWindows) {
             [thisWindow viewDidAppear:animated];
         }
         if (forcingRotation) {
             forcingRotation = NO;
-            [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[_containedWindows lastObject] afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+            [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
         } else {
-            [self childOrientationControllerChangedFlags:[_containedWindows lastObject]];
+            [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
         }
-        [[_containedWindows lastObject] gainFocus];
+        [[containedWindows lastObject] gainFocus];
     }
     [super viewDidAppear:animated];
 }
 -(void)viewDidDisappear:(BOOL)animated
 {
     isCurrentlyVisible = NO;
-    for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
         [thisWindow viewDidDisappear:animated];
     }
     [super viewDidDisappear:animated];
 }
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-    for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
         [thisWindow willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
     targetOrientation = toInterfaceOrientation;
@@ -1255,14 +1254,14 @@
 }
 -(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-    for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
         [thisWindow willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
     [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 -(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
-    for (id<TiWindowProtocol> thisWindow in _containedWindows) {
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
         [thisWindow didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     }
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
@@ -1271,8 +1270,8 @@
 #pragma mark - Status Bar Appearance
 - (BOOL)prefersStatusBarHidden
 {
-    if ([_containedWindows count] > 0) {
-        return [[_containedWindows lastObject] hidesStatusBar];
+    if ([containedWindows count] > 0) {
+        return [[containedWindows lastObject] hidesStatusBar];
     }
     return statusBarInitiallyHidden;
 }
@@ -1284,8 +1283,8 @@
 
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
-    if ([_containedWindows count] > 0) {
-        return [[_containedWindows lastObject] preferredStatusBarStyle];
+    if ([containedWindows count] > 0) {
+        return [[containedWindows lastObject] preferredStatusBarStyle];
     }
     return UIStatusBarStyleDefault;
 }

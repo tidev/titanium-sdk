@@ -829,7 +829,6 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 	//TODO: check canEditVideoAtPath
 	
-	//UIViewController *root = [[TiApp app] controller];
 	editor = [[UIVideoEditorController alloc] init];
 	editor.delegate = self; 
 	editor.videoQuality = [TiUtils intValue:@"videoQuality" properties:args def:UIImagePickerControllerQualityTypeMedium];

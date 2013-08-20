@@ -10,9 +10,9 @@
 
 @interface TiRootViewController : UIViewController<TiRootControllerProtocol, TiControllerContainment, TiOrientationController> {
     //Default background properties
-    UIColor* _bgColor;
-    UIImage* _bgImage;
-    UIImageView* _defaultImageView;
+    UIColor* bgColor;
+    UIImage* bgImage;
+    UIImageView* defaultImageView;
     
     //Keyboard stuff
     BOOL updatingAccessoryView;
@@ -34,10 +34,9 @@
     UIInterfaceOrientation orientationHistory[4];
     BOOL forcingStatusBarOrientation;
     BOOL isCurrentlyVisible;
-    TiOrientationFlags _defaultOrientations;
-    TiOrientationFlags _allowedOrientations;
-    NSMutableArray* _containedWindows;
-    NSMutableArray* _modalWindows;
+    TiOrientationFlags defaultOrientations;
+    NSMutableArray* containedWindows;
+    NSMutableArray* modalWindows;
     BOOL forcingRotation;
     BOOL statusBarInitiallyHidden;
     BOOL viewControllerControlsStatusBar;
