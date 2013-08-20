@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
@@ -424,24 +423,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		} else {
 			camera.takePicture(shutterCallback, null, jpegCallback);
 		}
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public HashMap getOptions()
-	{
-		HashMap options = new HashMap();
-		options.put("success", successCallback);
-		options.put("cancel", cancelCallback);
-		options.put("error", errorCallback);
-		options.put("saveToPhotoGallery", saveToPhotoGallery);
-		options.put("whichCamera", whichCamera);
-		if (overlayProxy != null) {
-			options.put("overlay", overlayProxy);
-		} else {
-			options.put("overlay", localOverlayProxy);
-		}
-
-		return options;
 	}
 
 	public boolean isPreviewRunning()
