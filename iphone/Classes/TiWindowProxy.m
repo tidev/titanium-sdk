@@ -94,6 +94,7 @@
     self.isManaged = NO;
     RELEASE_TO_NIL_AUTORELEASE(controller);
     [super windowDidClose];
+    [self forgetSelf];
 }
 
 -(void)attachViewToTopContainerController
