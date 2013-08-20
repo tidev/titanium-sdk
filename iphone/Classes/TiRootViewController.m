@@ -142,7 +142,7 @@
 	UIColor * chosenColor = (bgColor==nil)?[UIColor blackColor]:bgColor;
 	[ourView setBackgroundColor:chosenColor];
 	[[ourView superview] setBackgroundColor:chosenColor];
-	if (bgColor!=nil)
+	if (bgImage!=nil)
 	{
 		[[ourView layer] setContents:(id)bgImage.CGImage];
 	}
