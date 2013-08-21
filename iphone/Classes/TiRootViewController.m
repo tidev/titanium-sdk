@@ -470,28 +470,20 @@
 	if ((scrolledView != nil) && (keyboardHeight > 0))	//If this isn't IN the toolbar, then we update the scrollviews to compensate.
 	{
 		UIView * possibleScrollView = [scrolledView superview];
-		NSMutableArray * confirmedScrollViews = nil;
+		UIView<TiScrolling> *confirmedScrollView = nil;
 		
 		while (possibleScrollView != nil)
 		{
 			if ([possibleScrollView conformsToProtocol:@protocol(TiScrolling)])
 			{
-				if(confirmedScrollViews == nil)
-				{
-					confirmedScrollViews = [NSMutableArray arrayWithObject:possibleScrollView];
-				}
-				else
-				{
-					[confirmedScrollViews insertObject:possibleScrollView atIndex:0];
-				}
+				confirmedScrollView = (UIView<TiScrolling>*)possibleScrollView;
 			}
 			possibleScrollView = [possibleScrollView superview];
 		}
         
-        UIView<TiScrolling> *confirmedScrollViewsLastObject = (UIView<TiScrolling> *)[confirmedScrollViews objectAtIndex:0];
         
-        [confirmedScrollViewsLastObject keyboardDidShowAtHeight:keyboardHeight];
-        [confirmedScrollViewsLastObject scrollToShowView:scrolledView withKeyboardHeight:keyboardHeight];
+        [confirmedScrollView keyboardDidShowAtHeight:keyboardHeight];
+        [confirmedScrollView scrollToShowView:scrolledView withKeyboardHeight:keyboardHeight];
 		
 	}
     
