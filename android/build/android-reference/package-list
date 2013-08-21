@@ -56,6 +56,7 @@ android.support.v4.util
 android.support.v4.view
 android.support.v4.view.accessibility
 android.support.v4.widget
+android.support.v7.app
 android.telephony
 android.telephony.cdma
 android.telephony.gsm
