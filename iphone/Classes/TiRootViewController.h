@@ -40,6 +40,7 @@
     BOOL forcingRotation;
     BOOL statusBarInitiallyHidden;
     BOOL viewControllerControlsStatusBar;
+    UIStatusBarStyle defaultStatusBarStyle;
     
     UIInterfaceOrientation targetOrientation;
     UIInterfaceOrientation deviceOrientation;

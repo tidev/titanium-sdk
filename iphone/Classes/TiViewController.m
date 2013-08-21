@@ -39,14 +39,14 @@
     return _proxy;
 }
 
+#if defined(DEBUG) || defined(DEVELOPER)
 - (void)viewWillLayoutSubviews
 {
-#if defined(DEBUG) || defined(DEVELOPER)
     CGRect bounds = [[self view] bounds];
     NSLog(@"TIVIEWCONTROLLER WILL LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
-#endif
     [super viewWillLayoutSubviews];
 }
+#endif
 
 - (void)viewDidLayoutSubviews
 {
