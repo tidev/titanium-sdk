@@ -179,7 +179,7 @@
 -(void)dismissDefaultImage
 {
     if (defaultImageView != nil) {
-        [defaultImageView setAlpha:0.0];
+        [defaultImageView setHidden:YES];
         [defaultImageView removeFromSuperview];
         RELEASE_TO_NIL(defaultImageView);
     }
@@ -390,21 +390,17 @@
 -(void)extractKeyboardInfo:(NSDictionary *)userInfo
 {
     NSValue *v = nil;
-    CGRect endingFrame;
     v = [userInfo valueForKey:UIKeyboardFrameEndUserInfoKey];
 	
     if (v != nil) {
-        endingFrame = [v CGRectValue];
+        endFrame = [v CGRectValue];
     }
     
-    CGRect startingFrame;
     v = [userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
     
     if (v != nil) {
-        startingFrame = [v CGRectValue];
+        startFrame = [v CGRectValue];
     }
-    startFrame = startingFrame;
-    endFrame = endingFrame;
 }
 
 -(void) placeView:(UIView *)targetView nearTopOfRect:(CGRect)targetRect aboveTop:(BOOL)aboveTop
