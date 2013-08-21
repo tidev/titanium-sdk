@@ -35,7 +35,9 @@ exports.bootstrap = function(Titanium) {
 	// Activity getter (account for scenario when heavy weight window's activity is not created yet) 
 	var activityProxyGetter = function () {
 		// Cannot get the activity for a lightweight window.
-		if (this._isLightweight) return undefined;
+		if (this._isLightweight()) {
+			return undefined;
+		}
 
 		var windowProxy = this._getWindowActivityProxy();
 		if (windowProxy) {
