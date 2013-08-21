@@ -11,6 +11,43 @@
 #import "TiLayoutQueue.h"
 #import "TiErrorController.h"
 
+@interface ForcingController: UIViewController {
+@private
+    TiOrientationFlags orientationFlags;
+    UIInterfaceOrientation supportedOrientation;
+    
+}
+-(void)setOrientation:(UIInterfaceOrientation)newOrientation;
+@end
+
+@implementation ForcingController
+-(void)setOrientation:(UIInterfaceOrientation)newOrientation
+{
+    supportedOrientation = newOrientation;
+    orientationFlags = TiOrientationNone;
+    TI_ORIENTATION_SET(orientationFlags, supportedOrientation);
+}
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+{
+    return (toInterfaceOrientation == supportedOrientation);
+}
+
+// New Autorotation support.
+- (BOOL)shouldAutorotate{
+    return YES;
+}
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return orientationFlags;
+}
+// Returns interface orientation masks.
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
+{
+    return supportedOrientation;
+}
+
+@end
+
 @interface TiRootViewNeue : UIView
 @end
 
@@ -979,6 +1016,8 @@
             } else {
                 return retVal | [presenter supportedInterfaceOrientations];
             }
+        } else {
+            return retVal;
         }
     }
     return [self orientationFlags];
@@ -1060,13 +1099,16 @@
     DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.",newOrientation,[[UIApplication sharedApplication] statusBarOrientation]);
 #endif
     UIViewController* tempPresenter = [self topPresentedController];
-    UIViewController* dummy = [[UIViewController alloc] init];
+    ForcingController* dummy = [[ForcingController alloc] init];
+    [dummy setOrientation:newOrientation];
     forcingStatusBarOrientation = YES;
 
     [[UIApplication sharedApplication] setStatusBarOrientation:newOrientation animated:NO];
     
     forcingStatusBarOrientation = NO;
-
+    
+    [self updateOrientationHistory:newOrientation];
+    
     [tempPresenter presentViewController:dummy animated:NO completion:^{
         [UIViewController attemptRotationToDeviceOrientation];
         [tempPresenter dismissViewControllerAnimated:NO completion:nil];
