@@ -118,7 +118,7 @@
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
     if (window == rootWindow) {
-        DebugLog(@"[ERROR] Can not close root window of the tab. Use removeTab instead");
+        DebugLog(@"[ERROR] Can not close root window of the navWindow. Close this window instead");
         return;
     }
     TiThreadPerformOnMainThread(^{
@@ -139,11 +139,7 @@
 {
 	transitionIsAnimating = YES;
     TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
-    if (theWindow == rootWindow) {
-        //This is probably too late for the root view controller.
-        //Figure out how to call open before this callback
-        [theWindow open:nil];
-    } else if ([theWindow opening]) {
+    if ((theWindow != rootWindow) && [theWindow opening]) {
         [theWindow windowWillOpen];
         [theWindow windowDidOpen];
     }
@@ -203,7 +199,7 @@
 	TiWindowProxy *window = [args objectAtIndex:0];
 	BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
     
-    [[[self rootController] navigationController] pushViewController:[window hostingController] animated:animated];
+    [navController pushViewController:[window hostingController] animated:animated];
 }
 
 -(void)popOnUIThread:(NSArray*)args
@@ -217,7 +213,7 @@
     
     if (window == current) {
         BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
-        [[[self rootController] navigationController] popViewControllerAnimated:animated];
+        [navController popViewControllerAnimated:animated];
     }
     else {
         [self closeWindow:window animated:NO];
@@ -248,25 +244,21 @@
 -(void) cleanNavStack
 {
     TiThreadPerformOnMainThread(^{
-        [navController setDelegate:nil];
-        UIViewController* rootController = [self rootController];
-        if ([[navController viewControllers] count] > 1) {
-            NSMutableArray* doomedVcs = [[NSMutableArray arrayWithArray:[navController viewControllers]] retain];
-            [doomedVcs removeObject:rootController];
-            [navController setViewControllers:[NSArray arrayWithObject:rootController]];
-            if (current != nil) {
-                RELEASE_TO_NIL(current);
-                current = [(TiWindowProxy*)[(TiViewController*)rootController proxy] retain];
+        if (navController != nil) {
+            [navController setDelegate:nil];
+            NSArray* currentControllers = [navController viewControllers];
+            [navController setViewControllers:[NSArray array]];
+            
+            for (UIViewController* viewController in currentControllers) {
+                TiWindowProxy* win = (TiWindowProxy *)[(TiViewController*)viewController proxy];
+                [win setTab:nil];
+                [win setParentOrientationController:nil];
+                [win close:nil];
             }
-            for (TiViewController* doomedVc in doomedVcs) {
-                [self closeWindow:(TiWindowProxy *)[doomedVc proxy] animated:NO];
-            }
-            RELEASE_TO_NIL(doomedVcs);
+            [navController.view removeFromSuperview];
+            RELEASE_TO_NIL(navController);
+            RELEASE_TO_NIL(current);
         }
-        [self closeWindow:rootWindow animated:NO];
-        RELEASE_TO_NIL(controller);
-        RELEASE_TO_NIL(current);
-
     },YES);
 }
 
