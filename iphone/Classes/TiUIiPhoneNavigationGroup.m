@@ -22,13 +22,14 @@
     // NOTE: We don't need to blur the currently visible proxy, because it gets closed out by the close: call.
 	TiWindowProxy * oldProxy = visibleProxy;
 	visibleProxy = [newVisibleProxy retain];
+	[visibleProxy gainFocus];
 	[oldProxy release];
 }
 
 -(void)dealloc
 {
 	RELEASE_TO_NIL(controller);
-    RELEASE_TO_NIL(closingProxyArray)
+    RELEASE_TO_NIL(root);
 	[self setVisibleProxy:nil];
 	//This is done this way so that proper methods are called as well.
 	[super dealloc];
@@ -36,23 +37,22 @@
 
 -(UINavigationController*)controller
 {
-	if (controller==nil)
-	{
-		TiWindowProxy* windowProxy = [self.proxy valueForKey:@"window"];
-		if (windowProxy==nil)
-		{
-			[self throwException:@"window property required" subreason:nil location:CODELOCATION];
-		}
+    if (controller==nil) {
+        TiWindowProxy* windowProxy = [self.proxy valueForKey:@"window"];
+        ENSURE_TYPE(windowProxy, TiWindowProxy);
         [windowProxy setIsManaged:YES];
-		UIViewController *rootController = [windowProxy hostingController];
-		controller = [[UINavigationController alloc] initWithRootViewController:rootController];
-		[controller setDelegate:self];
-		[TiUtils configureController:controller withObject:nil];
-		[self addSubview:controller.view];
+        [windowProxy setTab:(TiViewProxy<TiTab> *)self.proxy];
+        [windowProxy setParentOrientationController:(id <TiOrientationController>)self.proxy];
+        root = [windowProxy retain];
+        [windowProxy open:nil];
+        UIViewController *rootController = [windowProxy hostingController];
+        controller = [[UINavigationController alloc] initWithRootViewController:rootController];
+        [controller setDelegate:self];
+        [TiUtils configureController:controller withObject:nil];
+        [self addSubview:controller.view];
 		
-		root = windowProxy;
-	}
-	return controller;
+    }
+    return controller;
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -77,86 +77,79 @@
     [self retain];
     if (controller!=nil) {
         [controller setDelegate:nil];
-        for (UIViewController *viewController in controller.viewControllers) {
+        NSArray* currentControllers = [controller viewControllers];
+        [controller setViewControllers:[NSArray array]];
+        
+        for (UIViewController* viewController in currentControllers) {
             TiWindowProxy* win = (TiWindowProxy *)[(TiViewController*)viewController proxy];
-            [win retain];
-            [[win view] removeFromSuperview];
+            [win setTab:nil];
+            [win setParentOrientationController:nil];
             [win close:nil];
-            [[self proxy] forgetProxy:win];
-            [win autorelease];
         }
-        controller.viewControllers = [NSArray array];
         [controller.view removeFromSuperview];
         [controller resignFirstResponder];
         RELEASE_TO_NIL(controller);
-        [visibleProxy autorelease];
-        visibleProxy = nil; // close/release handled by view removal
-        RELEASE_TO_NIL(closingProxyArray)
+        RELEASE_TO_NIL_AUTORELEASE(visibleProxy);
     }
     [self release];
 }
 
--(void)open:(TiWindowProxy*)window withObject:(NSDictionary*)properties
+-(void)pushOnUIThread:(NSArray*)args
 {
-	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-	UIViewController *viewController = [window hostingController];
-	opening = YES;
-	[controller pushViewController:viewController animated:animated];
-}
-
--(void)delayedClose:(id)unused
-{
-    if ([closingProxyArray count] > 0) {
-        if ( closingProxy == nil) {
-            NSArray* args = [closingProxyArray objectAtIndex:0];
-            [self removeWindowFromControllerStack:[args objectAtIndex:0] withObject:[args objectAtIndex:1]];
-            [closingProxyArray removeObjectAtIndex:0];
-        }
-        else {
-            [self performSelector:@selector(delayedClose:) withObject:nil afterDelay:UINavigationControllerHideShowBarDuration];
-        }
+    if (transitionIsAnimating)
+    {
+        [self performSelector:_cmd withObject:args afterDelay:0.1];
+        return;
     }
+
+    TiWindowProxy *window = [args objectAtIndex:0];
+
+    if (window == root) {
+        [window windowWillOpen];
+        [window windowDidOpen];
+        return;
+    }
+    BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
+    UIViewController *viewController = [window hostingController];
+    [controller pushViewController:viewController animated:animated];
 }
 
--(void)close:(TiWindowProxy*)window withObject:(NSDictionary*)properties
+-(void)popOnUIThread:(NSArray*)args
 {
-    //TIMOB-10802. If a window is being popped off the stack wait until the 
-    //animation is complete before trying to pop another window
-    if ( (closingProxy != nil) || ([closingProxyArray count] >0) ) {
-        DebugLog(@"NavController is closing a proxy. Delaying this close call")
-        if (closingProxyArray == nil) {
-            closingProxyArray = [[NSMutableArray alloc] init];
-        }
-        [closingProxyArray addObject:[NSArray arrayWithObjects:window,properties,nil]];
-        [self performSelector:@selector(delayedClose:) withObject:nil afterDelay:UINavigationControllerHideShowBarDuration];
+    if (transitionIsAnimating)
+    {
+        [self performSelector:_cmd withObject:args afterDelay:0.1];
+        return;
+    }
+
+    TiWindowProxy *window = [args objectAtIndex:0];
+    
+    if (window == visibleProxy) {
+        BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
+        [[self controller] popViewControllerAnimated:animated];
     }
     else {
-        [self removeWindowFromControllerStack:window withObject:properties];
+        [self removeWindowFromControllerStack:window animated:NO];
     }
 }
 
--(void)removeWindowFromControllerStack:(TiWindowProxy*)window withObject:(NSDictionary*)properties
+-(void)removeWindowFromControllerStack:(TiWindowProxy*)window animated:animated
 {
-    UIViewController* windowController = [window hostingController];
+    [window retain];
+    UIViewController* windowController = [[window hostingController] retain];
     NSMutableArray* newControllers = [NSMutableArray arrayWithArray:controller.viewControllers];
-    BOOL lastObject = (windowController == [newControllers lastObject]);
-    BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:lastObject];
-    //Ignore animated if the view being popped is not the top view controller.
-    if (!lastObject) {
-        animated = NO;
-    }
     [newControllers removeObject:windowController];
-    [closingProxy autorelease];
-    closingProxy = [window retain];
     [controller setViewControllers:newControllers animated:animated];
-
-    //TIMOB-10802.If it is not the top view controller, delegate methods will 
-    //not be called. So call close on the proxy here.
-    if (!lastObject) {
-        [closingProxy close:nil];
-        [closingProxy release];
-        closingProxy = nil;
-    }
+    
+    [window setTab:nil];
+	[window setParentOrientationController:nil];
+	
+	// for this to work right, we need to sure that we always have the tab close the window
+	// and not let the window simply close by itself. this will ensure that we tell the
+	// tab that we're doing that
+	[window close:nil];
+    RELEASE_TO_NIL_AUTORELEASE(window);
+    RELEASE_TO_NIL(windowController);
 }
 
 -(UIViewController*) getFirstViewControllerInResponderChain
@@ -208,32 +201,29 @@
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
+    transitionIsAnimating = YES;
     TiWindowProxy *newWindow = (TiWindowProxy *)[(TiViewController*)viewController proxy];
-	[newWindow windowWillOpen];
+    if ([newWindow opening]) {
+        [newWindow windowWillOpen];
+        [newWindow windowDidOpen];
+    }
 }
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
     TiViewController *wincontroller = (TiViewController*)viewController;
     TiWindowProxy *newWindow = (TiWindowProxy *)[wincontroller proxy];
-    BOOL visibleProxyDidChange = NO;
-    if (newWindow!=visibleProxy)
-    {
-        if (visibleProxy != nil && visibleProxy!=root && opening==NO && visibleProxy != closingProxy)
-        {
-            //TODO: This is an expedient fix, but NavGroup needs rewriting anyways
-            [(TiUIiPhoneNavigationGroupProxy*)[self proxy] close:[NSArray arrayWithObject:visibleProxy]];   
-        }
-        visibleProxyDidChange = YES;
+    
+    if (visibleProxy != nil) {
         
-        [self setVisibleProxy:newWindow];
+        if (![[navigationController viewControllers] containsObject:wincontroller]) {
+            [visibleProxy setTab:nil];
+            [visibleProxy setParentOrientationController:nil];
+            [visibleProxy close:nil];
+        }
     }
-    [closingProxy close:nil];
-    [closingProxy release];
-    closingProxy = nil;
-    opening = NO;
-    if (visibleProxyDidChange) {
-        [newWindow windowDidOpen];
-    }
+    RELEASE_TO_NIL(visibleProxy);
+    [self setVisibleProxy:newWindow];
+    transitionIsAnimating = NO;
 }
 
 
