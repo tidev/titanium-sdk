@@ -58,7 +58,7 @@
         UIViewController* rootController = [self rootController];
         [controller setDelegate:nil];
         if ([[controller viewControllers] count] > 1) {
-            NSMutableArray* doomedVcs = [[NSMutableArray arrayWithArray:[controller viewControllers]] retain];
+            NSMutableArray* doomedVcs = [[controller viewControllers] mutableCopy];
             [doomedVcs removeObject:rootController];
             [controller setViewControllers:[NSArray arrayWithObject:rootController]];
             if (current != nil) {
@@ -131,6 +131,9 @@
 -(void)setTabGroup:(TiUITabGroupProxy*)proxy
 {
     tabGroup = proxy;
+    if (controller != nil) {
+        [TiUtils configureController:controller withObject:tabGroup];
+    }
 }
 
 -(void)removeFromTabGroup
@@ -180,9 +183,6 @@
 -(TiProxy<TiTabGroup>*)tabGroup
 {
     return tabGroup;
-    if (controller != nil) {
-        [TiUtils configureController:controller withObject:tabGroup];
-    }
 }
 
 -(void)push:(NSArray*)args
