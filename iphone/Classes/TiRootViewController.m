@@ -110,6 +110,10 @@
     //read the value of UIViewControllerBasedStatusBarAppearance
     id vcbasedStatHidden = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIViewControllerBasedStatusBarAppearance"];
     viewControllerControlsStatusBar = [TiUtils boolValue:vcbasedStatHidden def:YES];
+    //read the value of statusBarStyle
+    id statusStyle = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIStatusBarStyle"];
+    defaultStatusBarStyle = [TiUtils intValue:statusStyle];
+    
 }
 
 -(void)loadView
@@ -904,14 +908,14 @@
     return TI_ORIENTATION_ALLOWED([self getFlags:check],toInterfaceOrientation) ? YES : NO;
 }
 
+#if defined(DEBUG) || defined(DEVELOPER)
 - (void)viewWillLayoutSubviews
 {
-#if defined(DEBUG) || defined(DEVELOPER)
     CGRect bounds = [[self view] bounds];
     NSLog(@"ROOT WILL LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
-#endif
     [super viewWillLayoutSubviews];
 }
+#endif
 
 - (void)viewDidLayoutSubviews
 {
@@ -1275,7 +1279,7 @@
     if ([containedWindows count] > 0) {
         return [[containedWindows lastObject] preferredStatusBarStyle];
     }
-    return UIStatusBarStyleDefault;
+    return defaultStatusBarStyle;
 }
 
 -(BOOL) modalPresentationCapturesStatusBarAppearance

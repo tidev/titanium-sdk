@@ -126,7 +126,7 @@
 {
     if ([TiUtils isIOS7OrGreater]) {
         TiColor *ticolor = [TiUtils colorValue:color];
-        UIColor* theColor = (ticolor == nil) ? nil: [ticolor _color];
+        UIColor* theColor = [ticolor _color];
         [[self searchBar] performSelector:@selector(setTintColor:) withObject:theColor];
         [self performSelector:@selector(setTintColor:) withObject:theColor];
     }
