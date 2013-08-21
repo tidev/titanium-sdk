@@ -2201,7 +2201,9 @@ class Builder(object):
 			if not os.path.exists(self.assets_resources_dir):
 				os.makedirs(self.assets_resources_dir)
 
-			self.tiapp = TiAppXML(self.project_tiappxml)
+			shutil.copy(self.project_tiappxml, self.assets_dir)
+			finalxml = os.path.join(self.assets_dir,'tiapp.xml')
+			self.tiapp = TiAppXML(finalxml)
 			self.tiapp.setDeployType(deploy_type)
 			self.sdcard_copy = False
 			sdcard_property = "ti.android.loadfromsdcard"
