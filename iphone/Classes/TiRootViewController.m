@@ -646,6 +646,18 @@
 	}
 }
 
+-(UIView *)topTitaniumView
+{
+    if ([modalWindows count] > 0) {
+        return (UIView *)[[modalWindows lastObject] view];
+    } else if ([containedWindows count] > 0) {
+        return (UIView *)[[containedWindows lastObject] view];
+    } else {
+        return [self view];
+    }
+}
+
+
 #if defined(DEBUG) || defined(DEVELOPER)
 -(void)shutdownUi:(id)arg
 {

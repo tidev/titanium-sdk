@@ -213,7 +213,7 @@ static NSDictionary* TI_filterableItemProperties;
 	else
 	{
 		RELEASE_TO_NIL(popover);
-		UIView *poView = [[[tiApp controller] topPresentedController] view];
+		UIView *poView = [[tiApp controller] topTitaniumView];
 		CGRect poFrame;
 		TiViewProxy* popoverViewProxy = [args objectForKey:@"popoverView"];
 		UIPopoverArrowDirection arrow = [TiUtils intValue:@"arrowDirection" properties:args def:UIPopoverArrowDirectionAny];
