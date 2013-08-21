@@ -288,7 +288,7 @@ static NSDictionary* TI_filterableItemProperties;
 		//GO AHEAD AND RE-PRESENT THE POPOVER NOW 
 		CGRect popOverRect = [popoverView bounds];
 		if (!isPopoverSpecified) {
-			self.popoverView = [[[[TiApp app] controller] topPresentedController] view];
+			self.popoverView = [[[TiApp app] controller] topTitaniumView];
 			popOverRect.size.height = 50;
 		}
         if ([popoverView window] == nil) {
