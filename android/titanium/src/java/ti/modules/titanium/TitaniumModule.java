@@ -346,7 +346,7 @@ public class TitaniumModule extends KrollModule
 		return format.format((Number)args[0]);
 	}
 
-	@Kroll.method @Kroll.topLevel("L")
+	@Kroll.method
 	public String localize(Object args[])
 	{
 		String key = (String) args[0];
