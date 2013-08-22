@@ -30,7 +30,7 @@
 -(TiOrientationFlags) orientationFlags
 {
     if ([self isModal]) {
-        return _supportedOrientations;
+        return (_supportedOrientations==TiOrientationNone) ? [[[TiApp app] controller] getDefaultOrientations] : _supportedOrientations;
     } else {
         for (id thisController in [[navController viewControllers] reverseObjectEnumerator])
         {
