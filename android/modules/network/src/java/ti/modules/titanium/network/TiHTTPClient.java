@@ -480,7 +480,6 @@ public class TiHTTPClient
 	{
 		this.proxy = proxy;
 		this.client = getClient(false);
-		this.client.setCookieStore(cookieStore);
 
 		if (httpClientThreadCounter == null) {
 			httpClientThreadCounter = new AtomicInteger();
@@ -1017,8 +1016,11 @@ public class TiHTTPClient
 
 		HttpProtocolParams.setUseExpectContinue(params, false);
 		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+		
+		DefaultHttpClient httpClient = new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
+		httpClient.setCookieStore(cookieStore);
 
-		return new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
+		return httpClient;
 	}
 
 	protected DefaultHttpClient getClient(boolean validating)
