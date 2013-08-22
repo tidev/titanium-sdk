@@ -465,6 +465,9 @@
 
 -(TiOrientationFlags) orientationFlags
 {
+    if ([self isModal]) {
+        return (_supportedOrientations==TiOrientationNone) ? [[[TiApp app] controller] getDefaultOrientations] : _supportedOrientations;
+    }
     return _supportedOrientations;
 }
 
