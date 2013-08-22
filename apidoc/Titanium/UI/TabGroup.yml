@@ -233,6 +233,7 @@ properties:
     platforms: [android]
     since: 3.0.0
     type: Titanium.Android.Activity
+    permission: read-only
     
   - name: allowUserCustomization
     summary: |
