@@ -59,8 +59,7 @@
 {
 	if (controller!=nil)
 	{
-        [controller.view setFrame:bounds];
-		//[TiUtils setView:controller.view positionRect:bounds];
+		[controller.view setFrame:bounds];
 	}
     [super frameSizeChanged:frame bounds:bounds];
 }
@@ -109,7 +108,7 @@
         [window windowDidOpen];
         return;
     }
-    BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
+    BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
     UIViewController *viewController = [window hostingController];
     [controller pushViewController:viewController animated:animated];
 }

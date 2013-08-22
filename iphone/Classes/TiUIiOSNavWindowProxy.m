@@ -27,21 +27,6 @@
 
 #pragma mark - TiOrientationController
 
--(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
-{
-    [parentController childOrientationControllerChangedFlags:self];
-}
-
--(void)setParentOrientationController:(id <TiOrientationController>)newParent
-{
-    parentController = newParent;
-}
-
--(id)parentOrientationController
-{
-	return parentController;
-}
-
 -(TiOrientationFlags) orientationFlags
 {
     if ([self isModal]) {
@@ -101,7 +86,7 @@
     if (![window opening]) {
         args = ([args count] > 1) ? [args objectAtIndex:1] : nil;
         if (args != nil) {
-            args = [NSArray arrayWithObjects:args,nil];
+            args = [NSArray arrayWithObject:args];
         }
         [window open:args];
         return;

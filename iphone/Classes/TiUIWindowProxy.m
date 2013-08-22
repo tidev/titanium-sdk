@@ -270,7 +270,7 @@
 
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-    //[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     //Update the barImage here as well. Might have the wrong bounds but that will be corrected
     //in the call from frameSizeChanged in TiUIWindow. Avoids the visual glitch
     if ( (shouldUpdateNavBar) && (controller != nil) && ([controller navigationController] != nil) ) {
