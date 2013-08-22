@@ -216,6 +216,7 @@ properties:
         for example, [actionBar](Titanium.Android.Activity.actionBar).
     platforms: [android]
     type: Titanium.Android.Activity
+    permission: read-only
 
   - name: backButtonTitle
     summary: Title for the back button. This is only valid when the window is a child of a tab.
