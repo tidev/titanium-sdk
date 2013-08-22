@@ -230,7 +230,8 @@ DEFINE_SUBPROXY_AS(ListViewSeparatorStyle, TableViewSeparatorStyle, listViewSepa
     }
     ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
     ENSURE_UI_THREAD(hideStatusBar,args);
-	
+    DebugLog(@"hideStatusBar method deprecated in 3.1.3. Removed in 3.2.0");
+    
     BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
     int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:style];
@@ -246,7 +247,8 @@ DEFINE_SUBPROXY_AS(ListViewSeparatorStyle, TableViewSeparatorStyle, listViewSepa
     }
     ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
     ENSURE_UI_THREAD(showStatusBar,args);
-	
+    DebugLog(@"showStatusBar method deprecated in 3.1.3. Removed in 3.2.0");
+
     BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
     int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
     [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:style];
@@ -262,7 +264,8 @@ DEFINE_SUBPROXY_AS(ListViewSeparatorStyle, TableViewSeparatorStyle, listViewSepa
     }
     ENSURE_SINGLE_ARG(hidden,NSObject);
     ENSURE_UI_THREAD(setStatusBarHidden,hidden);
-	
+    DebugLog(@"setStatusBarHidden method deprecated in 3.1.3. Removed in 3.2.0");
+    
     BOOL value = [TiUtils boolValue:hidden];
     [[UIApplication sharedApplication] setStatusBarHidden:value withAnimation:UIStatusBarAnimationNone];
     [[[TiApp app] controller] resizeView];
@@ -281,6 +284,8 @@ END_UI_THREAD_PROTECTED_VALUE(statusBarHidden)
     }
 
 	ENSURE_UI_THREAD(setStatusBarStyle,style);
+	DebugLog(@"setStatusBarStyle method deprecated in 3.1.3. Removed in 3.2.0");
+    
 	[[UIApplication sharedApplication] setStatusBarStyle:[style intValue]];
 }
 
