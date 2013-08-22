@@ -60,7 +60,7 @@
     if (![window opening]) {
         args = ([args count] > 1) ? [args objectAtIndex:1] : nil;
         if (args != nil) {
-            args = [NSArray arrayWithObjects:args,nil];
+            args = [NSArray arrayWithObject:args];
         }
         [window open:args];
         return;

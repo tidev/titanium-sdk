@@ -103,7 +103,7 @@
 		return;
 	}
 	TiWindowProxy *window = [args objectAtIndex:0];
-	BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
+	BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
     
     [[[self rootController] navigationController] pushViewController:[window hostingController] animated:animated];
 }
@@ -118,7 +118,7 @@
 	TiWindowProxy *window = [args objectAtIndex:0];
     
     if (window == current) {
-        BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
+        BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
         [[[self rootController] navigationController] popViewControllerAnimated:animated];
     }
     else {
@@ -201,7 +201,7 @@
     if (![window opening]) {
         args = ([args count] > 1) ? [args objectAtIndex:1] : nil;
         if (args != nil) {
-            args = [NSArray arrayWithObjects:args,nil];
+            args = [NSArray arrayWithObject:args];
         }
         [window open:args];
         return;

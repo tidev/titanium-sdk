@@ -111,7 +111,7 @@
     if ([TiUtils boolValue:[self valueForUndefinedKey:key]]) {
         return YES;
     }
-    if (args!=nil && [args count] > 0 && [[args objectAtIndex:0] isKindOfClass:[NSDictionary class]]) {
+    if (([args count] > 0) && [[args objectAtIndex:0] isKindOfClass:[NSDictionary class]]) {
         return [TiUtils boolValue:key properties:[args objectAtIndex:0] def:NO];
     }
     return NO;
@@ -156,14 +156,13 @@
     }
     if (![self isRootViewAttached]) {
         DebugLog(@"[WARN] ROOT VIEW NOT ATTACHED. WAITING");
-        UIView* theView = [[[TiApp app] controller] view];
         [self performSelector:@selector(open:) withObject:args afterDelay:0.1];
         return;
     }
     
     opening = YES;
     
-    isModal = [self argOrWindowProperty:@"modal" args:args];
+    isModal = (tab == nil) ? [self argOrWindowProperty:@"modal" args:args] : NO;
     
     hidesStatusBar = [self argOrWindowProperty:@"fullscreen" args:args];
     
@@ -219,10 +218,10 @@
     }
     
     if (tab != nil) {
-        if (args != nil && ([args count] > 0)) {
+        if ([args count] > 0) {
             args = [NSArray arrayWithObjects:self, [args objectAtIndex:0], nil];
         } else {
-            args = [NSArray arrayWithObjects:self, nil];
+            args = [NSArray arrayWithObject:self];
         }
         [tab pop:args];
         return;
@@ -348,7 +347,7 @@
 #pragma mark - Private Methods
 -(TiProxy*)tabGroup
 {
-    return tab!=nil ? [tab tabGroup] : nil;
+    return [tab tabGroup];
 }
 
 -(NSNumber*)orientation
@@ -378,10 +377,10 @@
         [self parentWillShow];
         [self view];
         if (tab != nil) {
-            if (args != nil && ([args count] > 0)) {
+            if ([args count] > 0) {
                 args = [NSArray arrayWithObjects:self, [args objectAtIndex:0], nil];
             } else {
-                args = [NSArray arrayWithObjects:self, nil];
+                args = [NSArray arrayWithObject:self];
             }
             [tab push:args];
         } else if (isModal) {
@@ -427,13 +426,12 @@
 -(void)closeOnUIThread:(NSArray *)args
 {
     if ([self _handleClose:args]) {
+        [self windowWillClose];
         if (isModal) {
-            [self windowWillClose];
             NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
             BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
             [[TiApp app] hideModalController:controller animated:animated];
         } else {
-            [self windowWillClose];
             if (closeAnimation != nil) {
                 [closeAnimation setDelegate:self];
                 [closeAnimation animate:self];
