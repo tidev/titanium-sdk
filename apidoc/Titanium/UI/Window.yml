@@ -203,6 +203,7 @@ events:
 properties:
   - name: activity
     summary: |
+        For lightweight windows, this property returns undefined.
         For heavyweight windows, this property contains a reference to the
         Android Activity object associated with this window.
     description: |
