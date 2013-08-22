@@ -169,18 +169,18 @@
     int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"]];
     switch (theStyle){
         case UIStatusBarStyleDefault:
-            statusBarStyle = UIStatusBarStyleDefault;
+            barStyle = UIStatusBarStyleDefault;
             break;
         case UIStatusBarStyleBlackOpaque:
         case UIStatusBarStyleBlackTranslucent:
             if ([TiUtils isIOS7OrGreater]) {
-                statusBarStyle = 1;//UIStatusBarStyleLightContent;
+                barStyle = 1;//UIStatusBarStyleLightContent;
             } else {
-                statusBarStyle = theStyle;
+                barStyle = theStyle;
             }
             break;
         default:
-            statusBarStyle = UIStatusBarStyleDefault;
+            barStyle = UIStatusBarStyleDefault;
     }
 
     
@@ -294,7 +294,7 @@
 
 -(UIStatusBarStyle)preferredStatusBarStyle;
 {
-    return statusBarStyle;
+    return barStyle;
 }
 
 -(BOOL)handleFocusEvents
