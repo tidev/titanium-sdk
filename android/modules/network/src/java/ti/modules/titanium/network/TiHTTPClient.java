@@ -1273,7 +1273,7 @@ public class TiHTTPClient
 				}
 
 				Log.d(TAG, "Preparing to execute request", Log.DEBUG_MODE);
-				
+
 				String result = null;
 				try {
 					result = client.execute(host, request, handler);
