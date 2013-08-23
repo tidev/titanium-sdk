@@ -14,17 +14,6 @@
 
 @implementation TiUIiPhoneNavigationGroupProxy
 
--(id)init
-{
-	if (self = [super init])
-	{
-		//This is done to insert the top line of the nav bar
-		//underneath the bottom line of the status bar.
-		layoutProperties.top = TiDimensionDip(-1);
-	}
-	return self;
-}
-
 #pragma mark - Public API
 
 -(void)open:(NSArray*)args
