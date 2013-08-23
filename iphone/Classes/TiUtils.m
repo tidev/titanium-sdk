@@ -1452,7 +1452,8 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     } else {
         [navBar setTintColor:barColor];
     }
-
+    
+    //This should not be here but in setToolBar. But keeping in place. Clean in 3.2.0
     UIToolbar * toolBar = [navController toolbar];
     [toolBar setBarStyle:barStyle];
     [toolBar setTranslucent:isTranslucent];

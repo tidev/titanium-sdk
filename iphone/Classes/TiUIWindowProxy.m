@@ -126,6 +126,7 @@
 -(void)_configure
 {
 	[self replaceValue:nil forKey:@"barColor" notification:NO];
+	[self replaceValue:nil forKey:@"navTintColor" notification:NO];
 	[self replaceValue:nil forKey:@"barImage" notification:NO];
 	[self replaceValue:nil forKey:@"translucent" notification:NO];
 	[self replaceValue:NUMBOOL(NO) forKey:@"tabBarHidden" notification:NO];
@@ -332,6 +333,23 @@
 		[[controller navigationController] setNavigationBarHidden:YES animated:animated];
 		//TODO: need to fix height
 	}
+}
+
+-(void)setNavTintColor:(id)colorString
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        [self replaceValue:[TiUtils stringValue:colorString] forKey:@"navTintColor" notification:NO];
+	    return;
+    }
+    ENSURE_UI_THREAD(setNavTintColor,colorString);
+    NSString *color = [TiUtils stringValue:colorString];
+    [self replaceValue:color forKey:@"navTintColor" notification:NO];
+    if (controller!=nil) {
+        TiColor * newColor = [TiUtils colorValue:color];
+        UINavigationBar * navBar = [[controller navigationController] navigationBar];
+        [navBar setTintColor:[newColor color]];
+        [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+    }
 }
 
 -(void)setBarColor:(id)colorString
@@ -821,6 +839,7 @@ else{\
     SETPROP(@"titlePrompt",setTitlePrompt);
     [self updateTitleView];
     SETPROP(@"barColor",setBarColor);
+    SETPROP(@"navTintColor",setNavTintColor);
     SETPROP(@"translucent",setTranslucent);
     SETPROP(@"tabBarHidden",setTabBarHidden);
     SETPROPOBJ(@"leftNavButton",setLeftNavButton);
