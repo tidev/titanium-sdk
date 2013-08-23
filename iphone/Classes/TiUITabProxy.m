@@ -305,7 +305,20 @@
 
 - (void)handleDidBlur:(NSDictionary *)event
 {
+    if (!hasFocus) {
+        return;
+    }
+
     hasFocus = NO;
+    if (current != nil) {
+        UIViewController* topVC = [[[self rootController] navigationController] topViewController];
+        if ([topVC isKindOfClass:[TiViewController class]]) {
+            TiViewProxy* theProxy = [(TiViewController*)topVC proxy];
+            if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+                [(id<TiWindowProtocol>)theProxy resignFocus];
+            }
+        }
+    }
     if ([self _hasListeners:@"blur"]) {
         [self fireEvent:@"blur" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
@@ -317,6 +330,9 @@
 
 - (void)handleDidFocus:(NSDictionary *)event
 {
+    if (hasFocus) {
+        return;
+    }
     hasFocus = YES;
     if (current != nil) {
         UIViewController* topVC = [[[self rootController] navigationController] topViewController];
