@@ -177,6 +177,32 @@ static NSArray* tabGroupKeySequence;
 }
 
 
+-(void)gainFocus
+{
+    if (!focussed) {
+        UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+        int blessedController = [tabController selectedIndex];
+        if (blessedController != NSNotFound)
+        {
+            [[tabs objectAtIndex:blessedController] handleDidFocus:nil];
+        }
+    }
+    [super gainFocus];
+}
+
+-(void)resignFocus
+{
+    if (focussed) {
+        UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+        int blessedController = [tabController selectedIndex];
+        if (blessedController != NSNotFound)
+        {
+            [[tabs objectAtIndex:blessedController] handleDidBlur:nil];
+        }
+    }
+    [super resignFocus];
+}
+
 - (void)viewWillAppear:(BOOL)animated;
 {
 	if ([self viewAttached])
