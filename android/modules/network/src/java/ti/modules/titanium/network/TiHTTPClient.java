@@ -56,6 +56,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -74,6 +75,7 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.DefaultHttpRequestFactory;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectHandler;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
@@ -101,11 +103,11 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
-import android.os.Build;
 
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
+import android.os.Build;
 
 public class TiHTTPClient
 {
@@ -161,6 +163,9 @@ public class TiHTTPClient
 	private ArrayList<File> tmpFiles = new ArrayList<File>();
 	private ArrayList<X509TrustManager> trustManagers = new ArrayList<X509TrustManager>();
 	private ArrayList<X509KeyManager> keyManagers = new ArrayList<X509KeyManager>();
+
+	private static CookieStore cookieStore = new BasicCookieStore();
+
 
 	protected HashMap<String,String> headers = new HashMap<String,String>();
 	
@@ -692,7 +697,6 @@ public class TiHTTPClient
 	{
 		if (readyState > READY_STATE_UNSENT && readyState < READY_STATE_DONE) {
 			aborted = true;
-
 			if (client != null) {
 				client.getConnectionManager().shutdown();
 				client = null;
@@ -701,6 +705,7 @@ public class TiHTTPClient
 				validatingClient = null;
 			if (nonValidatingClient != null)
 				nonValidatingClient = null;
+				
 		}
 	}
 
@@ -1011,8 +1016,11 @@ public class TiHTTPClient
 
 		HttpProtocolParams.setUseExpectContinue(params, false);
 		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+		
+		DefaultHttpClient httpClient = new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
+		httpClient.setCookieStore(cookieStore);
 
-		return new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
+		return httpClient;
 	}
 
 	protected DefaultHttpClient getClient(boolean validating)
@@ -1269,7 +1277,6 @@ public class TiHTTPClient
 				String result = null;
 				try {
 					result = client.execute(host, request, handler);
-
 				} catch (IOException e) {
 					if (!aborted) {
 						throw e;
