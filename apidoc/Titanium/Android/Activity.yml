@@ -166,16 +166,18 @@ methods:
     
   - name: sendBroadcast
     summary: Broadcast the passed in `Intent` to all `BroadcastReceiver`s. 
+    since: "3.2.0"
     parameters:
       - name: intent
-        summary: Description of the activity to start.
+        summary: Description of the broadcast.
         type: Titanium.Android.Intent
 
   - name: sendBroadcastWithPermission
-    summary: Broadcast the passed in `Intent` to all `BroadcastReceiver`s with an optional permission. 
+    summary: Broadcast the passed in `Intent` to all `BroadcastReceiver`s with an optional permission.
+    since: "3.2.0"
     parameters:
       - name: intent
-        summary: Description of the activity to start.
+        summary: Description of the broadcast.
         type: Titanium.Android.Intent
       - name: receiverPermission
         summary: Name of the permission that the receiver should hold in order to receive the broadcast.
@@ -214,8 +216,8 @@ events:
 
   - name: newintent
     summary: Fired when the activity is already running and certain flags are set in its intent. 
-    description: |
         See also:
+    description: |
         [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
         in the Android Developer Reference.
     properties:

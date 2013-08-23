@@ -159,13 +159,14 @@ methods:
         type: Titanium.Android.Intent
         
   - name: createBroadcastIntent
-    summary: Create an `Intent` to be used in broadcast.
+    summary: Create an `Intent` to be used in a broadcast.
     returns:
         type: Titanium.Android.Intent
     parameters:
       - name: options
         summary: Options for the Intent.
         type: BroadcastIntentOptions
+    since: "3.2.0"
 
 properties:
 
@@ -1544,6 +1545,7 @@ properties:
 name: BroadcastIntentOptions
 summary: Options passed to <Titanium.Android.createBroadcastIntent>.
 properties:
+since: "3.2.0"
 
   - name: action
     summary: The action associated with this intent.
@@ -1554,8 +1556,8 @@ properties:
 
   - name: className
     summary: |
-        The Java class name of the activity associated with this intent
-        ([packageName](Titanium.Android.Intent.packageName) must also be set).
+        Constrain the broadcast to receivers matching this Java class name.
+        ([packageName](Titanium.Android.Intent.packageName) must then also be set).
     type: String
 
   - name: data
@@ -1567,18 +1569,17 @@ properties:
         For more information on data URIs, see:
         [Intent.setData in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#setData(android.net.Uri))
     type: String
+    optional: true
 
   - name: flags
     summary: Intent flags. See the `FLAG_` constants in <Titanium.Android>.
     type: Number
+    optional: true
 
   - name: packageName
-    summary: The fully-qualified Java package name of the activity.
+    summary: Constrain the broadcast to receivers which are Java classes in this Java package.
     type: String
-
-  - name: url
-    summary: The URL to a Titanium JavaScript Activity.
-    type: String
+    optional: true
 
 
     
