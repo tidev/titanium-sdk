@@ -122,6 +122,16 @@
 	[[self searchBar] setAutocapitalizationType:[TiUtils intValue:value]];
 }
 
+-(void)setTintColor_:(id)color
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        TiColor *ticolor = [TiUtils colorValue:color];
+        UIColor* theColor = [ticolor _color];
+        [[self searchBar] performSelector:@selector(setTintColor:) withObject:theColor];
+        [self performSelector:@selector(setTintColor:) withObject:theColor];
+    }
+}
+
 -(void)setBarColor_:(id)value
 {
 	TiColor * newBarColor = [TiUtils colorValue:value];

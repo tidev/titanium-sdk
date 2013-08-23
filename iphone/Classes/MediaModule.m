@@ -200,10 +200,6 @@ static NSDictionary* TI_filterableItemProperties;
 -(void)displayCamera:(UIViewController*)picker_
 {
 	TiApp * tiApp = [TiApp app];
-	if ([TiUtils isIPad]==NO)
-	{
-		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait duration:[[tiApp controller] suggestedRotationDuration]];
-	}
 	[tiApp showModalController:picker_ animated:animatedPicker];
 }
 
@@ -212,13 +208,12 @@ static NSDictionary* TI_filterableItemProperties;
 	TiApp * tiApp = [TiApp app];
 	if ([TiUtils isIPad]==NO)
 	{
-		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait duration:[[tiApp controller] suggestedRotationDuration]];
 		[tiApp showModalController:picker_ animated:animatedPicker];
 	}
 	else
 	{
 		RELEASE_TO_NIL(popover);
-		UIView *poView = [[[tiApp controller] topWindow] view];
+		UIView *poView = [[tiApp controller] topTitaniumView];
 		CGRect poFrame;
 		TiViewProxy* popoverViewProxy = [args objectForKey:@"popoverView"];
 		UIPopoverArrowDirection arrow = [TiUtils intValue:@"arrowDirection" properties:args def:UIPopoverArrowDirectionAny];
@@ -227,12 +222,14 @@ static NSDictionary* TI_filterableItemProperties;
 		{
 			poView = [popoverViewProxy view];
 			poFrame = [poView bounds];
+			isPopoverSpecified = YES;
 		}
 		else
 		{
 			arrow = UIPopoverArrowDirectionAny;
 			poFrame = [poView bounds];
 			poFrame.size.height = 50;
+			isPopoverSpecified = NO;
 		}
 
 		if ([poView window] == nil) {
@@ -252,7 +249,7 @@ static NSDictionary* TI_filterableItemProperties;
 		//No need to begin generating these events since the TiRootViewController already does that
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIDeviceOrientationDidChangeNotification object:nil];
 		arrowDirection = arrow;
-		popoverView = poView;
+		self.popoverView = poView;
 		popover = [[UIPopoverController alloc] initWithContentViewController:picker_];
 		[popover setDelegate:self];
 		[popover presentPopoverFromRect:poFrame inView:poView permittedArrowDirections:arrow animated:animatedPicker];
@@ -290,7 +287,8 @@ static NSDictionary* TI_filterableItemProperties;
 	if (popover) {
 		//GO AHEAD AND RE-PRESENT THE POPOVER NOW 
 		CGRect popOverRect = [popoverView bounds];
-		if (popoverView == [[[[TiApp app] controller] topWindow] view]) {
+		if (!isPopoverSpecified) {
+			self.popoverView = [[[TiApp app] controller] topTitaniumView];
 			popOverRect.size.height = 50;
 		}
         if ([popoverView window] == nil) {
@@ -831,7 +829,6 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 	//TODO: check canEditVideoAtPath
 	
-	UIViewController *root = [[TiApp app] controller];
 	editor = [[UIVideoEditorController alloc] init];
 	editor.delegate = self; 
 	editor.videoQuality = [TiUtils intValue:@"videoQuality" properties:args def:UIImagePickerControllerQualityTypeMedium];
@@ -860,7 +857,6 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	}
 	
 	TiApp * tiApp = [TiApp app];
-	[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait duration:[[tiApp controller] suggestedRotationDuration]];
 	[tiApp showModalController:editor animated:animated];
 }
 
@@ -977,7 +973,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
     UIGraphicsEndImageContext();
 
-	UIInterfaceOrientation windowOrientation = [[TiApp controller] windowOrientation];
+	UIInterfaceOrientation windowOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 	switch (windowOrientation) {
 		case UIInterfaceOrientationPortraitUpsideDown:
 			image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationDown];
