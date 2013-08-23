@@ -909,7 +909,7 @@ NSArray* moviePlayerKeys = nil;
 -(void)resizeRootView
 {
     TiThreadPerformOnMainThread(^{
-        [[[TiApp app] controller] resizeViewForStatusBarHidden];
+        [[[TiApp app] controller] resizeView];
         [[[TiApp app] controller] repositionSubviews];
     }, NO);
 }
