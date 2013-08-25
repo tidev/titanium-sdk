@@ -216,12 +216,11 @@ events:
 
   - name: newintent
     summary: Fired when the activity is already running and certain flags are set in its intent. 
-        See also:
     description: |
+        See also:
         [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
         in the Android Developer Reference.
     properties:
-
       - name: intent
         summary: The `Intent` passed to the native `onNewIntent` method.
         type: Titanium.Android.Intent

@@ -1541,11 +1541,12 @@ properties:
     type: Number
     optional: true
     default: Titanium.Android.START_REDELIVER_INTENT
+
 ---
 name: BroadcastIntentOptions
 summary: Options passed to <Titanium.Android.createBroadcastIntent>.
-properties:
 since: "3.2.0"
+properties:
 
   - name: action
     summary: The action associated with this intent.
@@ -1581,5 +1582,3 @@ since: "3.2.0"
     type: String
     optional: true
 
-
-    
