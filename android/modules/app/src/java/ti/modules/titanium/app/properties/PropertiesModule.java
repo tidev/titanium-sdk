@@ -7,7 +7,9 @@
 package ti.modules.titanium.app.properties;
 
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -17,7 +19,7 @@ import ti.modules.titanium.app.AppModule;
 
 @Kroll.module(parentModule=AppModule.class)
 public class PropertiesModule extends KrollModule {
-
+	private static final String TAG = "PropertiesModule";
 	private TiProperties appProperties;
 
 	public PropertiesModule()
@@ -31,28 +33,63 @@ public class PropertiesModule extends KrollModule {
 	{
 		this();
 	}
-
-	@Kroll.method
-	public boolean getBool(String key)
+	
+	private static final String NULL_STRING = "null";
+	
+	private String getStringValueIfExists(String key)
 	{
-		return appProperties.getBool(key, false);
+		Object stringVal = getPreferenceValue(key);
+		if (stringVal instanceof String) {
+			return (String) stringVal;
+		}
+		return null;
 	}
 
 	@Kroll.method
-	public double getDouble(String key)
+	public Object getBool(String key)
 	{
+		String stringValue = getStringValueIfExists(key);
+		if (KrollRuntime.UNDEFINED.toString().equals(stringValue)) {
+			return KrollRuntime.UNDEFINED;
+		} else if (NULL_STRING.equals(stringValue)) {
+			return null;
+		}
+		return appProperties.getBool(key, false);
+	}
+
+
+	@Kroll.method
+	public Object getDouble(String key)
+	{
+		String stringValue = getStringValueIfExists(key);
+		if (KrollRuntime.UNDEFINED.toString().equals(stringValue)) {
+			return KrollRuntime.UNDEFINED;
+		} else if (NULL_STRING.equals(stringValue)) {
+			return null;
+		}
 		return appProperties.getDouble(key, 0D);
 	}
 
 	@Kroll.method
-	public int getInt(String key)
+	public Object getInt(String key)
 	{
+		String stringValue = getStringValueIfExists(key);
+		if (KrollRuntime.UNDEFINED.toString().equals(stringValue)) {
+			return KrollRuntime.UNDEFINED;
+		} else if (NULL_STRING.equals(stringValue)) {
+			return null;
+		}
 		return appProperties.getInt(key, 0);
 	}
 
+	private static final int UNDEFINED_VALUE = -1;
 	@Kroll.method
-	public String getString(String key)
+	public Object getString(String key)
 	{
+		int intVal = appProperties.getInt(key, 0);
+		if (intVal == UNDEFINED_VALUE) {
+			return KrollRuntime.UNDEFINED;
+		}
 		return appProperties.getString(key, null);
 	}
 
@@ -83,49 +120,83 @@ public class PropertiesModule extends KrollModule {
 		return appProperties.getPreference().getAll().get(key);
 	}
 	
+	private void setUndefinedOrNull(String key, Object value, Object currentValue)
+	{
+		if (value == KrollRuntime.UNDEFINED) {
+			if (!KrollRuntime.UNDEFINED.toString().equals(currentValue)) {
+				appProperties.setString(key, KrollRuntime.UNDEFINED.toString());
+				fireEvent(TiC.EVENT_CHANGE, null);
+			}
+		} else if (value == null) {
+			if (!"null".equals(currentValue)) {
+				appProperties.setString(key, "null");
+				fireEvent(TiC.EVENT_CHANGE, null);
+			}
+		} else {
+			Log.w(TAG, "Invalid type");
+		}
+	}
+	
 	@Kroll.method
-	public void setBool(String key, boolean value)
+	public void setBool(String key, Object value)
 	{
 		Object boolValue = getPreferenceValue(key);
-		if (boolValue == null || !boolValue.equals(value)) {
-			appProperties.setBool(key, value);
-			fireEvent(TiC.EVENT_CHANGE, null);
+		if (value instanceof Boolean) {
+			boolean valueToSet = ((Boolean) value).booleanValue();
+			if (boolValue == null || !boolValue.equals(valueToSet)) {
+				appProperties.setBool(key, valueToSet);
+				fireEvent(TiC.EVENT_CHANGE, null);
+			}
+		} else {
+			setUndefinedOrNull(key, value, boolValue);
 		}
-		
 
 	}
 
 	@Kroll.method
-	public void setDouble(String key, double value)
+	public void setDouble(String key, Object value)
 	{
 		Object doubleValue = getPreferenceValue(key);
-		//Since there is no double type in SharedPreferences, we store doubles as strings, i.e "10.0"
-		//so we need to convert before comparing.
-		if (doubleValue == null || !doubleValue.equals(String.valueOf(value))) {
-			appProperties.setDouble(key, value);
-			fireEvent(TiC.EVENT_CHANGE, null);
+		if (value instanceof Double) {
+			double valueToSet = ((Double) value).doubleValue();
+			// Since there is no double type in SharedPreferences, we store doubles as strings, i.e "10.0"
+			// so we need to convert before comparing.
+			if (doubleValue == null || !doubleValue.equals(String.valueOf(valueToSet))) {
+				appProperties.setDouble(key, valueToSet);
+				fireEvent(TiC.EVENT_CHANGE, null);
+			}
+		} else {
+			setUndefinedOrNull(key, value, doubleValue);
 		}
-
 	}
 
 	@Kroll.method
-	public void setInt(String key, int value)
+	public void setInt(String key, Integer value)
 	{
 		Object intValue = getPreferenceValue(key);
-		if (intValue == null || !intValue.equals(value)) {
-			appProperties.setInt(key, value);
-			fireEvent(TiC.EVENT_CHANGE, null);
+		if (value instanceof Integer) {
+			int valueToSet = ((Integer) value).intValue();
+			if (intValue == null || !intValue.equals(valueToSet)) {
+				appProperties.setInt(key, valueToSet);
+				fireEvent(TiC.EVENT_CHANGE, null);
+			}
+		} else {
+			setUndefinedOrNull(key, value, intValue);
 		}
 
 	}
 
 	@Kroll.method
-	public void setString(String key, String value)
+	public void setString(String key, Object value)
 	{
-		Object stringValue = getPreferenceValue(key);
-		if (stringValue == null || !stringValue.equals(value)) {
-			appProperties.setString(key, value);
-			fireEvent(TiC.EVENT_CHANGE, null);
+		if (value == KrollRuntime.UNDEFINED) {
+			appProperties.setInt(key, UNDEFINED_VALUE);
+		} else if (value == null || value instanceof String) {
+			Object stringValue = getPreferenceValue(key);
+			if (stringValue == null || !stringValue.equals(value)) {
+				appProperties.setString(key, (String) value);
+				fireEvent(TiC.EVENT_CHANGE, null);
+			}
 		}
 	}
 
