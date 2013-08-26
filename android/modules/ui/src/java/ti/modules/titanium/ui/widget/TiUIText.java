@@ -119,8 +119,6 @@ public class TiUIText extends TiUIView
 		if (field) {
 			tv.setSingleLine();
 			tv.setMaxLines(1);
-		} else {
-			tv.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
 		}
 		tv.addTextChangedListener(this);
 		tv.setOnEditorActionListener(this);
@@ -446,6 +444,12 @@ public class TiUIText extends TiUIView
 		if (autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) {
 			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 		}
+		if (!field) {
+			if (d.containsKey(TiC.PROPERTY_RETURN_KEY_TYPE)) {
+				textTypeAndClass |= InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE;
+			}
+			tv.setSingleLine(false);
+		}
 		tv.setCursorVisible(true);
 		switch(type) {
 			case KEYBOARD_DEFAULT:
@@ -515,9 +519,6 @@ public class TiUIText extends TiUIView
 			tv.setCursorVisible(false);
 		}
 
-		if (!field) {
-			tv.setSingleLine(false);
-		}
 	}
 
 	public void setSelection(int start, int end) 
@@ -549,6 +550,9 @@ public class TiUIText extends TiUIView
 				tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 				break;
 			case RETURNKEY_SEARCH:
+				if (!field) {
+					tv.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
+				}
 				tv.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
 				break;
 			case RETURNKEY_YAHOO:
