@@ -60,22 +60,41 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 	return YES;
 }
 
-/**
- The class represent root controller in a view hierarchy.
- */
-@protocol TiUIViewControllerIOS7Support <NSObject>
-/* Legacy support: UIViewController methods introduced in iOS 7.0
- * For those still on 5.x and 6.x, we have to declare these methods so the
- * the compiler knows the right return datatypes.
- */
-@optional
-@property(nonatomic,assign) NSUInteger edgesForExtendedLayout; // Defaults to UIRectEdgeAll on iOS7. We will set to UIRectEdgeNone
-@property(nonatomic,assign) BOOL extendedLayoutIncludesOpaqueBars; // Defaults to NO, but bars are translucent by default on 7_0.
-@property(nonatomic,assign) BOOL automaticallyAdjustsScrollViewInsets; // Defaults to YES
-@end
-
-
 @implementation TiUtils
+
++(TiOrientationFlags) TiOrientationFlagsFromObject:(id)args
+{
+    if (![args isKindOfClass:[NSArray class]]) {
+        return TiOrientationNone;
+    }
+    
+    TiOrientationFlags result = TiOrientationNone;
+    for (id mode in args) {
+        UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:mode def:-1];
+        switch ((int)orientation)
+        {
+            case UIDeviceOrientationPortrait:
+            case UIDeviceOrientationPortraitUpsideDown:
+            case UIDeviceOrientationLandscapeLeft:
+            case UIDeviceOrientationLandscapeRight:
+                TI_ORIENTATION_SET(result,orientation);
+                break;
+            case UIDeviceOrientationUnknown:
+                DebugLog(@"[WARN] Ti.Gesture.UNKNOWN / Ti.UI.UNKNOWN is an invalid orientation mode.");
+                break;
+            case UIDeviceOrientationFaceDown:
+                DebugLog(@"[WARN] Ti.Gesture.FACE_DOWN / Ti.UI.FACE_DOWN is an invalid orientation mode.");
+                break;
+            case UIDeviceOrientationFaceUp:
+                DebugLog(@"[WARN] Ti.Gesture.FACE_UP / Ti.UI.FACE_UP is an invalid orientation mode.");
+                break;
+            default:
+                DebugLog(@"[WARN] An invalid orientation was requested. Ignoring.");
+                break;
+        }
+    }
+    return result;
+}
 
 +(int) dpi
 {
@@ -1402,6 +1421,21 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     }
 }
 
+
++(CGRect)frameForController:(id)theController
+{
+    CGRect mainScreen = [[UIScreen mainScreen] bounds];
+    CGRect rect = [[UIScreen mainScreen] applicationFrame];
+    if ([TiUtils isIOS7OrGreater]) {
+        NSUInteger edges = [(id<TiUIViewControllerIOS7Support>)theController edgesForExtendedLayout];
+        //Check if I cover status bar
+        if ( ((edges & 1/*UIRectEdgeTop*/) != 0) ){
+            return mainScreen;
+        }
+    }
+    return rect;
+}
+
 +(void)applyColor:(TiColor *)color toNavigationController:(UINavigationController *)navController
 {
     UIColor * barColor = [self barColorForColor:color];
@@ -1418,7 +1452,8 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     } else {
         [navBar setTintColor:barColor];
     }
-
+    
+    //This should not be here but in setToolBar. But keeping in place. Clean in 3.2.0
     UIToolbar * toolBar = [navController toolbar];
     [toolBar setBarStyle:barStyle];
     [toolBar setTranslucent:isTranslucent];
