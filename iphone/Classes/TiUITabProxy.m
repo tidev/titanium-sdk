@@ -441,7 +441,7 @@
         }
         if (activeImage != nil) {
             if ([activeImage respondsToSelector:@selector(imageWithRenderingMode:)]) {
-                NSInteger theMode = iconOriginal ? 1/*UIImageRenderingModeAlwaysOriginal*/ : 2/*UIImageRenderingModeAlwaysTemplate*/;
+                NSInteger theMode = activeIconOriginal ? 1/*UIImageRenderingModeAlwaysOriginal*/ : 2/*UIImageRenderingModeAlwaysTemplate*/;
                 activeImage = [(id<UIImageIOS7Support>)activeImage imageWithRenderingMode:theMode];
             }
         }
