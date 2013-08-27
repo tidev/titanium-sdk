@@ -167,6 +167,9 @@
 
 -(void)attachToFirstViewController
 {
+    if ([TiUtils isIOS7OrGreater]) {
+        return;
+    }
     if ([TiUtils isIOS5OrGreater]) {
         UIWindow* newWindow = [self window];
         if (newWindow != nil) {
