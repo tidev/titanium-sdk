@@ -533,6 +533,9 @@ public class TiUIText extends TiUIView
 
 	public void handleReturnKeyType(int type)
 	{
+		if (!field) {
+			tv.setInputType(tv.getInputType() | InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
+		}
 		switch(type) {
 			case RETURNKEY_GO:
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
@@ -550,9 +553,6 @@ public class TiUIText extends TiUIView
 				tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 				break;
 			case RETURNKEY_SEARCH:
-				if (!field) {
-					tv.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
-				}
 				tv.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
 				break;
 			case RETURNKEY_YAHOO:
