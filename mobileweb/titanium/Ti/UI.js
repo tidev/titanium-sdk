@@ -1,10 +1,10 @@
 /*global Ti define window document navigator instrumentation*/
 define(
-	['Ti/_', 'Ti/_/Evented', 'Ti/_/has', 'Ti/_/lang', 'Ti/_/ready', 'Ti/_/style', 'Ti/_/dom', 'Ti/_/event',
+	['Ti/_', 'Ti/_/Evented', 'Ti/_/has', 'Ti/_/lang', 'Ti/_/ready', 'Ti/_/style', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/has',
 	'Ti/_/Gestures/DoubleTap', 'Ti/_/Gestures/Dragging', 'Ti/_/Gestures/LongPress', 'Ti/_/Gestures/Pinch', 'Ti/_/Gestures/SingleTap',
 	'Ti/_/Gestures/Swipe', 'Ti/_/Gestures/TouchCancel', 'Ti/_/Gestures/TouchEnd', 'Ti/_/Gestures/TouchMove',
 	'Ti/_/Gestures/TouchStart', 'Ti/_/Gestures/TwoFingerTap'],
-	function(_, Evented, has, lang, ready, style, dom, event,
+	function(_, Evented, has, lang, ready, style, dom, event, has,
 		DoubleTap, Dragging, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd, TouchMove, TouchStart, TwoFingerTap) {
 
 	var global = window,
@@ -100,7 +100,7 @@ define(
 				}),
 				node = container.domNode,
 				coefficients = container._layoutCoefficients,
-				useTouch = 'ontouchstart' in global,
+				useTouch = has('touch'),
 				touching = 0;
 
 			coefficients.width.x1 = 1;
@@ -159,6 +159,10 @@ define(
 				}
 			}
 
+			// NOTE: This may be unnecessary. We have changed the event propagation system
+			// a few times and we can't remember if this code is actually used. It certainly
+			// may be redundant since each Ti.UI.View instance has it's own event handling,
+			// so we're just not sure if this is the source of the events.
 			on(node, useTouch ? 'touchstart' : 'mousedown', function(evt){
 				var handles = [
 					on(global, useTouch ? 'touchmove' : 'mousemove', function(evt){
