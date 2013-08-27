@@ -1582,3 +1582,8 @@ properties:
     type: String
     optional: true
 
+  - name: url
+    summary: Url for the broadcast receiver's JavaScript.
+    type: String
+    optional: true
+    
