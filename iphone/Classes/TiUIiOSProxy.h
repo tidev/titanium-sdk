@@ -41,6 +41,9 @@
 #if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
 -(id)createDocumentViewer:(id)args;
 #endif
+#ifdef USE_TI_UIIOSNAVWINDOW
+-(id)createNavWindow:(id)args;
+#endif
 
 @end
 

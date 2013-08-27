@@ -33,6 +33,10 @@
 #if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
     #import "TiUIiOSDocumentViewerProxy.h"
 #endif
+#ifdef USE_TI_UIIOSNAVWINDOW
+    #import "TiUIiOSNavWindowProxy.h"
+#endif
+
 
 @implementation TiUIiOSProxy
 
@@ -94,6 +98,13 @@
 	return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+#ifdef USE_TI_UIIOSNAVWINDOW
+-(id)createNavWindow:(id)args
+{
+    return [[[TiUIiOSNavWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
 
 
 #ifdef USE_TI_UIIOS

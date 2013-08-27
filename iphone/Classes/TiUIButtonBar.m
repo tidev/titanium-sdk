@@ -9,6 +9,12 @@
 #import "TiUtils.h"
 #import "Webcolor.h"
 
+@protocol UIImageIOS7Support <NSObject>
+@optional
+- (UIImage *)imageWithRenderingMode:(NSInteger)renderingMode;
+@end
+
+
 @implementation TiUIButtonBar
 
 - (id) init
@@ -181,6 +187,9 @@
 		{
 			if (thisSegmentAccessibilityLabel != nil) {
 				thisSegmentImage.accessibilityLabel = thisSegmentAccessibilityLabel;
+			}
+			if ([thisSegmentImage respondsToSelector:@selector(imageWithRenderingMode:)]) {
+				thisSegmentImage = [(id<UIImageIOS7Support>)thisSegmentImage imageWithRenderingMode:1];//UIImageRenderingModeAlwaysOriginal;
 			}
 			[segmentedControl insertSegmentWithImage:thisSegmentImage atIndex:thisSegmentIndex animated:NO];
 		}
