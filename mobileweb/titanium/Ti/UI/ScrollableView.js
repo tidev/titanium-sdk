@@ -1,6 +1,6 @@
 /*global define window*/
-define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/browser'],
-	function(declare, View, dom, style, UI, browser) {
+define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/has', 'Ti/_/style', 'Ti/UI', 'Ti/_/browser'],
+	function(declare, View, dom, has, style, UI, browser) {
 
 	var setStyle = style.set,
 		is = require.is,
@@ -17,7 +17,7 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/b
 		},
 		transitionEnd = transitionEvents[browser.runtime] || 'transitionEnd',
 
-		useTouch = 'ontouchstart' in global,
+		useTouch = has('touch'),
 
 		// Maximum time that a gesture can be considered a flick
 		maxFlickTime = 200,
