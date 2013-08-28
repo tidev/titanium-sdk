@@ -6,11 +6,10 @@
  */
 
 var appc = require('node-appc'),
-	i18n = appc.i18n(__dirname),
-	__ = i18n.__,
-	__n = i18n.__n,
+	__ = appc.i18n(__dirname).__,
 	afs = appc.fs,
 	ti = require('titanium-sdk'),
+	fs = require('fs'),
 	path = require('path');
 
 // TODO: need to support building modules... how do we know if --dir is a module or app? where is the module _build.js located?
@@ -52,7 +51,7 @@ exports.config = function (logger, config, cli) {
 							desc: __('the target build platform'),
 							hint: __('platform'),
 							prompt: {
-								label: __('Target platform [%s]', ti.targetPlatforms.join(',')),
+								label: __('Target platform'),
 								error: __('Invalid platform'),
 								validator: function (platform) {
 									if (!platform) {
@@ -91,7 +90,8 @@ exports.config = function (logger, config, cli) {
 						},
 						'project-dir': {
 							abbr: 'd',
-							desc: __('the directory containing the project, otherwise the current working directory')
+							desc: __('the directory containing the project'),
+							default: '.'
 						}
 					}, ti.commonOptions(logger, config)),
 					platforms: platformConf
@@ -107,7 +107,7 @@ exports.validate = function (logger, config, cli) {
 	// TODO: set the type to 'app' for now, but we'll need to determine if the project is an app or a module
 	cli.argv.type = 'app';
 
-	ti.validatePlatform(logger, cli.argv, 'platform');
+	ti.validatePlatform(logger, cli, 'platform');
 	if (ti.validatePlatformOptions(logger, config, cli, 'build') === false) {
 		return false;
 	}
@@ -115,9 +115,9 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli) {
-	var platform = cli.argv.platform,
-		buildModule = path.join(__dirname, '..', '..', platform, 'cli', 'commands', '_build.js');
-	if (!appc.fs.exists(buildModule)) {
+	var buildModule = path.join(__dirname, '..', '..', ti.resolvePlatform(cli.argv.platform), 'cli', 'commands', '_build.js');
+
+	if (!fs.existsSync(buildModule)) {
 		logger.error(__('Unable to find platform specific build command') + '\n');
 		logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk update --force --default').cyan) + '\n');
 		process.exit(1);

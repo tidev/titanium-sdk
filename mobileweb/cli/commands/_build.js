@@ -600,9 +600,10 @@ build.prototype = {
 			url = url.replace(/\\/g, '/');
 
 			var img = path.join(this.projectResDir, /^\//.test(url) ? '.' + url : url),
-				type = imageMimeTypes[img.match(/(\.[a-zA-Z]{3})$/)[1]];
+				m = img.match(/(\.[a-zA-Z]{3,4})$/),
+				type = m && imageMimeTypes[m[1]];
 
-			if (afs.exists(img) && type) {
+			if (type && afs.exists(img)) {
 				if (!requireCacheWritten) {
 					tiJS.push('require.cache({');
 					requireCacheWritten = true;
