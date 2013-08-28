@@ -47,8 +47,8 @@
 	[self replaceValue:nil forKey:@"title" notification:NO];
 	[self replaceValue:nil forKey:@"icon" notification:NO];
 	[self replaceValue:nil forKey:@"badge" notification:NO];
-	[self replaceValue:NUMBOOL(YES) forKey:@"iconIsTemplate" notification:NO];
-	[self replaceValue:NUMBOOL(YES) forKey:@"activeIconIsTemplate" notification:NO];
+	[self replaceValue:NUMBOOL(YES) forKey:@"iconIsMask" notification:NO];
+	[self replaceValue:NUMBOOL(YES) forKey:@"activeIconIsMask" notification:NO];
 	[super _configure];
 }
 
@@ -507,12 +507,12 @@
 	[self updateTabBarItem];
 }
 
--(void)setIconIsTemplate:(id)value
+-(void)setIconIsMask:(id)value
 {
     if (![TiUtils isIOS7OrGreater]) {
         return;
     }
-    [self replaceValue:value forKey:@"iconIsTemplate" notification:NO];
+    [self replaceValue:value forKey:@"iconIsMask" notification:NO];
     BOOL newValue = ![TiUtils boolValue:value def:YES];
     if (newValue != iconOriginal) {
         iconOriginal = newValue;
@@ -520,12 +520,12 @@
     }
 }
 
--(void)setActiveIconIsTemplate:(id)value
+-(void)setActiveIconIsMask:(id)value
 {
     if (![TiUtils isIOS7OrGreater]) {
         return;
     }
-    [self replaceValue:value forKey:@"activeIconIsTemplate" notification:NO];
+    [self replaceValue:value forKey:@"activeIconIsMask" notification:NO];
     BOOL newValue = ![TiUtils boolValue:value def:YES];
     if (newValue != activeIconOriginal) {
         activeIconOriginal = newValue;
