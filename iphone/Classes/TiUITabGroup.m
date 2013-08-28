@@ -322,6 +322,15 @@ DEFINE_EXCEPTIONS
     }
 }
 
+-(void)setTabsTintColor_:(id)value
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        TiColor* color = [TiUtils colorValue:value];
+        UITabBar* tabBar = [controller tabBar];
+        tabBar.tintColor = [color color];
+    }
+}
+
 -(void)setTabsBackgroundImage_:(id)value
 {
     controller.tabBar.backgroundImage = [self loadImage:value];
