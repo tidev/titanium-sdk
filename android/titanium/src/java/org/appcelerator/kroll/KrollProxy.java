@@ -715,14 +715,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 */
 	public boolean fireEvent(String event, Object data)
 	{
-		if (hierarchyHasListener(event)) {
-			Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT, data);
-			message.getData().putString(PROPERTY_NAME, event);
-			message.sendToTarget();
-			return true;
-		}
-
-		return false;
+		Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT, data);
+		message.getData().putString(PROPERTY_NAME, event);
+		message.sendToTarget();
+		return hierarchyHasListener(event);
 	}
 
 	/**
@@ -753,23 +749,24 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 */
 	public boolean fireSyncEvent(String event, Object data)
 	{
-		if (hierarchyHasListener(event)) {
-			if (KrollRuntime.getInstance().isRuntimeThread()) {
-				return doFireEvent(event, data);
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
+			return doFireEvent(event, data);
 
-			} else {
-				Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_SYNC_EVENT);
-				message.getData().putString(PROPERTY_NAME, event);
+		} else {
+			Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_SYNC_EVENT);
+			message.getData().putString(PROPERTY_NAME, event);
 
-				return (Boolean) TiMessenger.sendBlockingRuntimeMessage(message, data);
-			}
+			return (Boolean) TiMessenger.sendBlockingRuntimeMessage(message, data);
 		}
-		return false;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean doFireEvent(String event, Object data)
 	{
+		if (!hierarchyHasListener(event)) {
+			return false;
+		}
+
 		boolean bubbles = false;
 		boolean reportSuccess = false;
 		int code = 0;
