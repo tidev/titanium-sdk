@@ -47,6 +47,8 @@
 	[self replaceValue:nil forKey:@"title" notification:NO];
 	[self replaceValue:nil forKey:@"icon" notification:NO];
 	[self replaceValue:nil forKey:@"badge" notification:NO];
+	[self replaceValue:NUMBOOL(YES) forKey:@"iconIsMask" notification:NO];
+	[self replaceValue:NUMBOOL(YES) forKey:@"activeIconIsMask" notification:NO];
 	[super _configure];
 }
 
@@ -425,7 +427,32 @@
 
 	[rootController setTitle:title];
 	UITabBarItem *ourItem = nil;
-
+    
+    BOOL imageIsMask = NO;
+    
+    if ([TiUtils isIOS7OrGreater]) {
+        
+        //CLEAN UP CODE WHEN WE UPGRADE MIN XCODE VERSION TO XCODE5
+        if (image != nil) {
+            if ([image respondsToSelector:@selector(imageWithRenderingMode:)]) {
+                NSInteger theMode = iconOriginal ? 1/*UIImageRenderingModeAlwaysOriginal*/ : 2/*UIImageRenderingModeAlwaysTemplate*/;
+                image = [(id<UIImageIOS7Support>)image imageWithRenderingMode:theMode];
+            }
+        }
+        if (activeImage != nil) {
+            if ([activeImage respondsToSelector:@selector(imageWithRenderingMode:)]) {
+                NSInteger theMode = activeIconOriginal ? 1/*UIImageRenderingModeAlwaysOriginal*/ : 2/*UIImageRenderingModeAlwaysTemplate*/;
+                activeImage = [(id<UIImageIOS7Support>)activeImage imageWithRenderingMode:theMode];
+            }
+        }
+        
+        systemTab = NO;
+        ourItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
+        [ourItem setBadgeValue:badgeValue];
+        [rootController setTabBarItem:ourItem];
+        return;
+    }
+    
 	if (!systemTab)
 	{
 		ourItem = [rootController tabBarItem];
@@ -478,6 +505,32 @@
 	[self replaceValue:icon forKey:@"icon" notification:NO];
 
 	[self updateTabBarItem];
+}
+
+-(void)setIconIsMask:(id)value
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        return;
+    }
+    [self replaceValue:value forKey:@"iconIsMask" notification:NO];
+    BOOL newValue = ![TiUtils boolValue:value def:YES];
+    if (newValue != iconOriginal) {
+        iconOriginal = newValue;
+        [self updateTabBarItem];
+    }
+}
+
+-(void)setActiveIconIsMask:(id)value
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        return;
+    }
+    [self replaceValue:value forKey:@"activeIconIsMask" notification:NO];
+    BOOL newValue = ![TiUtils boolValue:value def:YES];
+    if (newValue != activeIconOriginal) {
+        activeIconOriginal = newValue;
+        [self updateTabBarItem];
+    }
 }
 
 -(void)setActiveIcon:(id)icon
