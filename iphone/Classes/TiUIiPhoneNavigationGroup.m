@@ -216,8 +216,8 @@
     TiWindowProxy *newWindow = (TiWindowProxy *)[wincontroller proxy];
     
     if (visibleProxy != nil) {
-        
-        if (![[navigationController viewControllers] containsObject:wincontroller]) {
+        UIViewController* oldController = [visibleProxy hostingController];
+        if (![[navigationController viewControllers] containsObject:oldController]) {
             [visibleProxy setTab:nil];
             [visibleProxy setParentOrientationController:nil];
             [visibleProxy close:nil];
