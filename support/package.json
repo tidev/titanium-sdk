@@ -3,7 +3,7 @@
 	"description": "Appcelerator Titanium Mobile dependencies - this file is omitted from distribution",
 	"version": "__VERSION__",
 	"dependencies": {
-		"async": "0.1.x",
+		"async": "0.2.x",
 		"clean-css": "0.6.0",
 		"css-parse": "1.0.X",
 		"humanize": "0.0.X",
