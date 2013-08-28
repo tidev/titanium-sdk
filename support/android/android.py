@@ -137,6 +137,7 @@ class Android(object):
 			type = property_el.get("type")
 			value = property_el.text
 			if name == None: continue
+			if name == "ti.android.fastdev" and self.deploy_type != 'development': continue
 			if type == None: type = "string"
 			if value == None: value = ""
 			self.app_properties[name] = {"type": type, "value": value}
