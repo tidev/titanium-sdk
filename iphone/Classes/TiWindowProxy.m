@@ -284,7 +284,7 @@
 
 -(void)setModal:(id)val
 {
-    //NOOP
+    [self replaceValue:val forKey:@"modal" notification:NO];
 }
 
 -(BOOL)isModal
