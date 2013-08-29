@@ -282,6 +282,11 @@
     return closing;
 }
 
+-(void)setModal:(id)val
+{
+    //NOOP
+}
+
 -(BOOL)isModal
 {
     return isModal;
