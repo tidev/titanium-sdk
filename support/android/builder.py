@@ -2209,7 +2209,7 @@ class Builder(object):
 
 			fastdev_property = "ti.android.fastdev"
 			fastdev_enabled = (self.deploy_type == 'development' and not self.build_only)
-			if self.tiapp.has_app_property(fastdev_property):
+			if self.tiapp.has_app_property(fastdev_property) and self.deploy_type == 'development':
 				fastdev_enabled = self.tiapp.to_bool(self.tiapp.get_app_property(fastdev_property))
 
 			if fastdev_enabled:
