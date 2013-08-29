@@ -363,6 +363,11 @@
     if ( (controller == nil) || ([controller navigationController] == nil) ) {
         return;
     }
+    
+    if (![[[TiApp app] controller] statusBarVisibilityChanged]) {
+        return;
+    }
+    
     UINavigationController* nc = [controller navigationController];
     BOOL isHidden = [nc isNavigationBarHidden];
     [nc setNavigationBarHidden:!isHidden animated:NO];

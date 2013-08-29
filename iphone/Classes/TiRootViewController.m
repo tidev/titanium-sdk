@@ -79,7 +79,7 @@
 @implementation TiRootViewController
 
 @synthesize keyboardFocusedProxy = keyboardFocusedProxy;
-
+@synthesize statusBarVisibilityChanged;
 -(void)dealloc
 {
 	RELEASE_TO_NIL(bgColor);
@@ -1305,10 +1305,14 @@
 #pragma mark - Status Bar Appearance
 - (BOOL)prefersStatusBarHidden
 {
+    BOOL oldStatus = statusBarIsHidden;
     if ([containedWindows count] > 0) {
-        return [[containedWindows lastObject] hidesStatusBar];
+        statusBarIsHidden = [[containedWindows lastObject] hidesStatusBar];
+    } else {
+        statusBarIsHidden = oldStatus = statusBarInitiallyHidden;
     }
-    return statusBarInitiallyHidden;
+    statusBarVisibilityChanged = (statusBarIsHidden != oldStatus);
+    return statusBarIsHidden;
 }
 
 - (UIStatusBarAnimation)preferredStatusBarUpdateAnimation
