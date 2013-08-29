@@ -2518,6 +2518,15 @@ return result;	\
         return;
     }
 
+    //IOS7 DP3. TableView seems to be adding the searchView to
+    //tableView. Bug on IOS7?
+    if ([TiUtils isIOS7OrGreater]) {
+        if (![[[controller searchBar] superview] isKindOfClass:[TiUIView class]]) {
+            if ([[searchField view] respondsToSelector:@selector(searchBar)]) {
+                [[searchField view] performSelector:@selector(searchBar)];
+            }
+        }
+    }
     animateHide = YES;
     [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
 }
