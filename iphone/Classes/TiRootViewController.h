@@ -44,6 +44,9 @@
     
     UIInterfaceOrientation targetOrientation;
     UIInterfaceOrientation deviceOrientation;
+    
+    BOOL statusBarIsHidden;
+    BOOL statusBarVisibilityChanged;
 }
 
 @end
