@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -49,6 +49,7 @@ public class TiUIWebView extends TiUIView
 
 	private static final String TAG = "TiUIWebView";
 	private TiWebViewClient client;
+	private TiWebChromeClient chromeClient;
 	private boolean bindingCodeInjected = false;
 	private boolean isLocalHTML = false;
 
@@ -162,7 +163,8 @@ public class TiUIWebView extends TiUIView
 			initializePluginAPI(webView);
 		}
 
-		webView.setWebChromeClient(new TiWebChromeClient(this));
+		chromeClient = new TiWebChromeClient(this);
+		webView.setWebChromeClient(chromeClient);
 		client = new TiWebViewClient(this, webView);
 		webView.setWebViewClient(client);
 		webView.client = client;
@@ -696,5 +698,10 @@ public class TiUIWebView extends TiUIView
 	public void setBindingCodeInjected(boolean injected)
 	{
 		bindingCodeInjected = injected;
+	}
+
+	public boolean interceptOnBackPressed()
+	{
+		return chromeClient.interceptOnBackPressed();
 	}
 }

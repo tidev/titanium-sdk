@@ -66,6 +66,16 @@ public class TiLifecycle
 		public void onWindowFocusChanged(boolean hasFocus);
 	}
 
+	/**
+	 * An interface to intercept OnBackPressed events.
+	 */
+	public interface interceptOnBackPressedEvent {
+		/**
+		 * Implementing classes should use this to intercept native Android onBackPressed events.
+		 */
+		public boolean interceptOnBackPressed();
+	}
+
 	public static void fireLifecycleEvent(Activity activity, OnLifecycleEvent listener, int which)
 	{
 		switch (which) {

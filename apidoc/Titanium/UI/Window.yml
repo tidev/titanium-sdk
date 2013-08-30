@@ -119,8 +119,10 @@ events:
         just call the *close* method of the window.
 
         This event replaces the android:back event. Some behavior
-        changes way exist such as the event no longer firing when the
-        user dismisses the keyboard with the back button.
+        changes may exist such as the event no longer firing when the
+        user dismisses the keyboard with the back button or when the
+        user closes a full-screen video which is embedded in a web view
+        with the back button.
 
     since: '3.0.0'
 
