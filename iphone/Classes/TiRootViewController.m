@@ -1001,6 +1001,15 @@
     return YES;
 }
 
+-(NSUInteger)supportedOrientationsForAppDelegate;
+{
+    if (forcingStatusBarOrientation) {
+        return 0;
+    }
+    //Since this is used just for intersection, ok to return UIInterfaceOrientationMaskAll
+    return 30;//UIInterfaceOrientationMaskAll
+}
+
 - (NSUInteger)supportedInterfaceOrientations{
     //IOS6. If forcing status bar orientation, this must return 0.
     if (forcingStatusBarOrientation) {
@@ -1072,7 +1081,7 @@
 #ifdef FORCE_WITH_MODAL
         [self forceRotateToOrientation:target];
 #else
-        [self manuallyRotateToOrientation:target duration:0.0];
+        [self manuallyRotateToOrientation:target duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
         forcingRotation = NO;
 #endif
     }
@@ -1158,9 +1167,18 @@
     }
     
     if ((newOrientation != oldOrientation) && isCurrentlyVisible) {
+        TiViewProxy<TiKeyboardFocusableView> *kfvProxy = [keyboardFocusedProxy retain];
+        BOOL focusAfterBlur = [kfvProxy focused];
+        if (focusAfterBlur) {
+            [kfvProxy blur:nil];
+        }
         forcingStatusBarOrientation = YES;
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
         forcingStatusBarOrientation = NO;
+        if (focusAfterBlur) {
+            [kfvProxy focus:nil];
+        }
+        [kfvProxy release];
     }
 
     UIView * ourView = [self view];
