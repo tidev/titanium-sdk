@@ -47,6 +47,18 @@ enum
 static NSDictionary* TI_itemProperties;
 static NSDictionary* TI_filterableItemProperties;
 
+#pragma mark - Backwards compatibility for pre-iOS 7.0
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_7_0
+
+@protocol AVAudioSessionIOS7Support <NSObject>
+@optional
+- (void)requestRecordPermission:(PermissionBlock)response;
+typedef void (^PermissionBlock)(BOOL granted)
+@end
+
+#endif
+
 @implementation MediaModule
 @synthesize popoverView;
 
@@ -1455,6 +1467,30 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 }
 
 #pragma mark Microphone support
+
+#pragma Microphone iOS 7 privacy control
+
+-(void) requestAuthorization:(id)args
+{
+    ENSURE_SINGLE_ARG(args, KrollCallback);
+	KrollCallback * callback = args;
+	if ([[AVAudioSession sharedInstance] respondsToSelector:@selector(requestRecordPermission:)]) {
+        TiThreadPerformOnMainThread(^(){
+            [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted){
+                KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback
+                                                                        eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
+                                                                         thisObject:self];
+                [[callback context] enqueue:invocationEvent];
+            }];
+        }, NO);
+    } else {
+        NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:0 message:nil];
+        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+        [callback call:invocationArray thisObject:self];
+        [invocationArray release];
+        return;
+    }
+}
 
 -(void)startMicrophoneMonitor:(id)args
 {
