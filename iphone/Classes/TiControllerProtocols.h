@@ -93,6 +93,7 @@
 -(CGRect)resizeView;
 -(void)repositionSubviews;
 -(UIView *)topTitaniumView;
+-(NSUInteger)supportedOrientationsForAppDelegate;
 @property (nonatomic, readonly) BOOL statusBarVisibilityChanged;
 @property(nonatomic,readonly) TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedProxy;
 #if defined(DEBUG) || defined(DEVELOPER)
