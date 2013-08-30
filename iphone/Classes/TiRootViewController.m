@@ -11,6 +11,7 @@
 #import "TiLayoutQueue.h"
 #import "TiErrorController.h"
 
+#ifdef FORCE_WITH_MODAL
 @interface ForcingController: UIViewController {
 @private
     TiOrientationFlags orientationFlags;
@@ -47,6 +48,7 @@
 }
 
 @end
+#endif
 
 @interface TiRootViewNeue : UIView
 @end
@@ -1064,7 +1066,15 @@
     
     if ([[UIApplication sharedApplication] statusBarOrientation] != target) {
         forcingRotation = YES;
+#if defined(DEBUG) || defined(DEVELOPER)
+        DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.",target,[[UIApplication sharedApplication] statusBarOrientation]);
+#endif
+#ifdef FORCE_WITH_MODAL
         [self forceRotateToOrientation:target];
+#else
+        [self manuallyRotateToOrientation:target duration:0.0];
+        forcingRotation = NO;
+#endif
     }
     
 }
@@ -1093,11 +1103,9 @@
 	orientationHistory[0] = newOrientation;
 }
 
+#ifdef FORCE_WITH_MODAL
 -(void)forceRotateToOrientation:(UIInterfaceOrientation)newOrientation
 {
-#if defined(DEBUG) || defined(DEVELOPER)
-    DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.",newOrientation,[[UIApplication sharedApplication] statusBarOrientation]);
-#endif
     UIViewController* tempPresenter = [self topPresentedController];
     ForcingController* dummy = [[ForcingController alloc] init];
     [dummy setOrientation:newOrientation];
@@ -1115,10 +1123,13 @@
         [dummy release];
     }];
 }
+#endif
 
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
 {
-    /*
+    if (!forcingRotation) {
+        return;
+    }
     UIApplication * ourApp = [UIApplication sharedApplication];
     UIInterfaceOrientation oldOrientation = [ourApp statusBarOrientation];
     CGAffineTransform transform;
@@ -1147,18 +1158,9 @@
     }
     
     if ((newOrientation != oldOrientation) && isCurrentlyVisible) {
-        TiViewProxy<TiKeyboardFocusableView> *kfvProxy = [keyboardFocusedProxy retain];
-        BOOL focusAfterBlur = [kfvProxy focused];
-        if (focusAfterBlur) {
-            [kfvProxy blur:nil];
-        }
         forcingStatusBarOrientation = YES;
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
         forcingStatusBarOrientation = NO;
-        if (focusAfterBlur) {
-            [kfvProxy focus:nil];
-        }
-        [kfvProxy release];
     }
 
     UIView * ourView = [self view];
@@ -1175,7 +1177,6 @@
     }
 
     [self didRotateFromInterfaceOrientation:oldOrientation];
-     */
 }
 
 #pragma mark - TiOrientationController
@@ -1282,8 +1283,7 @@
     for (id<TiWindowProtocol> thisWindow in containedWindows) {
         [thisWindow willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
-    targetOrientation = toInterfaceOrientation;
-    [self updateOrientationHistory:targetOrientation];
+    [self updateOrientationHistory:toInterfaceOrientation];
     [self rotateDefaultImageViewToOrientation:toInterfaceOrientation];
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
