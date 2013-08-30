@@ -19,6 +19,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
+import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
@@ -70,6 +71,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	private int originalOrientationMode = -1;
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
 	private TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<OnWindowFocusChangedEvent>();
+	private TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners = new TiWeakList<interceptOnBackPressedEvent>();
 
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -616,6 +618,19 @@ public abstract class TiBaseActivity extends FragmentActivity
 	@Override
 	public void onBackPressed()
 	{
+		synchronized (interceptOnBackPressedListeners.synchronizedList()) {
+			for (interceptOnBackPressedEvent listener : interceptOnBackPressedListeners.nonNull()) {
+				try {
+					if (listener.interceptOnBackPressed()) {
+						return;
+					}
+
+				} catch (Throwable t) {
+					Log.e(TAG, "Error dispatching interceptOnBackPressed event: " + t.getMessage(), t);
+				}
+			}
+		}
+
 		TiWindowProxy topWindow = topWindowOnStack();
 
 		// Prevent default Android behavior for "back" press
@@ -856,6 +871,11 @@ public abstract class TiBaseActivity extends FragmentActivity
 	public void addOnWindowFocusChangedEventListener(OnWindowFocusChangedEvent listener)
 	{
 		windowFocusChangedListeners.add(new WeakReference<OnWindowFocusChangedEvent>(listener));
+	}
+
+	public void addInterceptOnBackPressedEventListener(interceptOnBackPressedEvent listener)
+	{
+		interceptOnBackPressedListeners.add(new WeakReference<interceptOnBackPressedEvent>(listener));
 	}
 
 	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
