@@ -2060,17 +2060,24 @@ return result;	\
 // Allows customization of the editingStyle for a particular cell located at 'indexPath'. If not implemented, all editable cells will have UITableViewCellEditingStyleDelete set for them when the table has editing property set to YES.
 - (UITableViewCellEditingStyle)tableView:(UITableView *)ourTableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	RETURN_IF_SEARCH_TABLE_VIEW(UITableViewCellEditingStyleNone);
-	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
+RETURN_IF_SEARCH_TABLE_VIEW(UITableViewCellEditingStyleNone);
+TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
 
-	//Yes, this looks similar to canEdit, but here we need to make the distinction between moving and editing.
-	
-	//Actually, it's easier than that. editable or editing causes this to default true. Otherwise, it's the editable flag.
-	if ([TiUtils boolValue:[row valueForKey:@"editable"] def:editable || editing])
-	{
-		return UITableViewCellEditingStyleDelete;
-	}
-	return UITableViewCellEditingStyleNone;
+//Yes, this looks similar to canEdit, but here we need to make the distinction between moving and editing.
+//Actually, it's easier than that. editable or editing causes this to default true. Otherwise, it's the editable flag.
+if ([TiUtils boolValue:[row valueForKey:@"editable"] def:editable || editing])
+{
+        //Check for an "insert" style to change cell editing style to Insert rather than Delete.
+        if ([TiUtils boolValue:[row valueForKey:@"styleInsert"] def:false])
+        {
+            return UITableViewCellEditingStyleInsert;
+        }
+        else
+        {
+            return UITableViewCellEditingStyleDelete;
+        }
+}
+return UITableViewCellEditingStyleNone;
 }
 
 
@@ -2518,6 +2525,15 @@ return result;	\
         return;
     }
 
+    //IOS7 DP3. TableView seems to be adding the searchView to
+    //tableView. Bug on IOS7?
+    if ([TiUtils isIOS7OrGreater]) {
+        if (![[[controller searchBar] superview] isKindOfClass:[TiUIView class]]) {
+            if ([[searchField view] respondsToSelector:@selector(searchBar)]) {
+                [[searchField view] performSelector:@selector(searchBar)];
+            }
+        }
+    }
     animateHide = YES;
     [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
 }
