@@ -635,7 +635,8 @@
 		return [(id<TiOrientationController>)modalController orientationFlags];
 	}
 	
-	for (id thisController in [[controller viewControllers] reverseObjectEnumerator])
+	UINavigationController* nc = [[rootWindow hostingController] navigationController];
+	for (id thisController in [[nc viewControllers] reverseObjectEnumerator])
 	{
 		if (![thisController isKindOfClass:[TiViewController class]])
 		{
