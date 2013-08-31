@@ -83,6 +83,14 @@ properties:
     type: Boolean
     permission: write-only
 
+  - name: homeButtonEnabled
+    summary: Sets home icon button clickable
+    description: |
+        [setHomeButtonEnable](http://developer.android.com/reference/android/app/ActionBar.html#setHomeButtonEnabled(boolean)) 
+        in the Android Developer Reference.
+    type: Boolean
+    permission: write-only                  
+
   - name: icon
     summary: Sets the application icon displayed in the "home" area of the action bar, specified as a local file path or URL.
     description: |
