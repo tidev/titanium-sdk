@@ -25,6 +25,7 @@ module.exports = new function() {
 		{name: 'launch_not_exist'},
 		{name: 'launchAppControl'},
 		{name: 'findAppControl'},
+		{name: 'appMetaData'},
 		{name: 'calc_launch'}
 	];
 
@@ -231,10 +232,11 @@ module.exports = new function() {
 
 	// Test - launch image from another appControl
 	this.launchAppControl = function(testRun) {
-		var isError;
+		var isError,
+			serviceLaunched = false;
 		valueOf(testRun, function() {
 			appControl = Tizen.Apps.createApplicationControl({
-				operation: 'http://tizen.org/appcontrol/operation/create_content',
+				operation: 'http://tizen.org/appcontrol/operation/pick',
 				uri: null,
 				mime: 'image/jpeg',
 				category: null
@@ -274,6 +276,29 @@ module.exports = new function() {
 
 			finish(testRun);
 		}, 5000);
+	}
+
+	// Test - check ApplicationMetaData object
+	this.appMetaData = function(testRun) {
+		Ti.API.info("Start appMetaData test");
+
+		valueOf(testRun, Tizen.Apps).shouldBeObject();
+		valueOf(testRun, Tizen.Apps.getAppMetaData).shouldBeFunction();
+		valueOf(testRun, function() {
+			var i = 0,
+				metaDataArray = Tizen.Apps.getAppMetaData(null),
+				len = metaDataArray ? metaDataArray.length : 0;
+
+			valueOf(testRun, metaDataArray).shouldBeArray();
+
+			for(; i < len; i++) {
+				valueOf(testRun, metaDataArray[i]).shouldBe('[object TizenAppsApplicationMetaData]');
+				valueOf(testRun, metaDataArray[i].key).shouldBeString();
+				valueOf(testRun, metaDataArray[i].value).shouldBeString();
+			}
+		}).shouldNotThrowException();
+
+		finish(testRun);
 	}
 
 	this.findAppControl = function(testRun) {

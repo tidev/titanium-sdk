@@ -186,6 +186,7 @@ module.exports = new function() {
 		}).shouldNotThrowException();
 
 		valueOf(testRun, capabilities.toString()).shouldBe('[object TizenSystemInfoSystemInfoDeviceCapability]');
+		valueOf(testRun, capabilities.profile).shouldBeString();
 
 		finish(testRun);
 	}

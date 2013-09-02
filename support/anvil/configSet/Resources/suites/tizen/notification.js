@@ -43,6 +43,9 @@ module.exports = new function() {
 				content: 'This is a simple notificaiton.',
 				iconPath: 'images/image1.jpg', 
 				vibration: true, 
+                ledColor : "#FFFF00", 
+                ledOnPeriod: 1000,
+                ledOffPeriod : 500,
 				appControl: appControl
 			},
 			notification = Tizen.Notification.createStatusNotification({
