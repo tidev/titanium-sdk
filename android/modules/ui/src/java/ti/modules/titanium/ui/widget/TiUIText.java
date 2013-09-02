@@ -192,6 +192,8 @@ public class TiUIText extends TiUIView
 		
 		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT) || d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION) || d.containsKey(TiC.PROPERTY_EDITABLE)) {
 			handleKeyboard(d);
+		}else if (!field) {
+			tv.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_AUTO_LINK)) {
@@ -250,14 +252,13 @@ public class TiUIText extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_KEYBOARD_TYPE) || (key.equals(TiC.PROPERTY_AUTOCORRECT) || key.equals(TiC.PROPERTY_AUTOCAPITALIZATION) || key.equals(TiC.PROPERTY_PASSWORD_MASK) || key.equals(TiC.PROPERTY_EDITABLE))) {
 			KrollDict d = proxy.getProperties();
 			handleKeyboard(d);
-		} else if (key.equals(TiC.PROPERTY_RETURN_KEY_TYPE)) {
+		}else if (key.equals(TiC.PROPERTY_RETURN_KEY_TYPE)) {
 			handleReturnKeyType(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, (HashMap) newValue);
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)){
 			TiUIHelper.linkifyIfEnabled(tv, newValue);
 		} else {
-		
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
@@ -445,9 +446,6 @@ public class TiUIText extends TiUIView
 			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 		}
 		if (!field) {
-			if (d.containsKey(TiC.PROPERTY_RETURN_KEY_TYPE)) {
-				textTypeAndClass |= InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE;
-			}
 			tv.setSingleLine(false);
 		}
 		tv.setCursorVisible(true);
@@ -534,7 +532,7 @@ public class TiUIText extends TiUIView
 	public void handleReturnKeyType(int type)
 	{
 		if (!field) {
-			tv.setInputType(tv.getInputType() | InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
+			tv.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
 		}
 		switch(type) {
 			case RETURNKEY_GO:
