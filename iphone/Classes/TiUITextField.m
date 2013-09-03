@@ -537,7 +537,7 @@
     if ([ourProxy suppressFocusEvents]) {
         return;
     }
-    [(TiUITextFieldProxy *)self.proxy noteValueChange:[(UITextField *)textWidgetView text]];
+    [ourProxy noteValueChange:[(UITextField *)textWidgetView text]];
 }
 
 - (BOOL)textFieldShouldEndEditing:(UITextField *)tf
