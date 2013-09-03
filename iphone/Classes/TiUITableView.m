@@ -201,8 +201,6 @@
 		return;
 	}
 
-	CALayer * ourLayer = [self layer];
-	
 	if(gradientLayer == nil)
 	{
 		gradientLayer = [[TiGradientLayer alloc] init];
@@ -211,6 +209,9 @@
 	}
 
 	[gradientLayer setGradient:currentGradient];
+
+	CALayer* ourLayer = [[[self contentView] layer] superlayer];
+	
 	if([gradientLayer superlayer] != ourLayer)
 	{
         CALayer* contentLayer = [[self contentView] layer];
