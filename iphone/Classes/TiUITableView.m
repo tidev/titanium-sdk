@@ -1486,8 +1486,10 @@
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
 {
-	// called when cancel button pressed
-	[searchBar setText:nil];
+    // called when cancel button pressed
+    [searchBar setText:nil];
+    [self setSearchString:nil];
+    [self updateSearchResultIndexes];
     if (searchActivated) {
         searchActivated = NO;
         [tableview reloadData];
