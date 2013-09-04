@@ -204,6 +204,28 @@
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
     transitionIsAnimating = YES;
+    if (visibleProxy != nil) {
+        UIViewController *curController = [visibleProxy hostingController];
+        NSArray* curStack = [navigationController viewControllers];
+        BOOL winclosing = NO;
+        if (![curStack containsObject:curController]) {
+            winclosing = YES;
+        } else {
+            NSUInteger curIndex = [curStack indexOfObject:curController];
+            if (curIndex > 1) {
+                UIViewController* currentPopsTo = [curStack objectAtIndex:(curIndex - 1)];
+                if (currentPopsTo == viewController) {
+                    winclosing = YES;
+                }
+            }
+        }
+        if (winclosing) {
+            //TIMOB-15033. Have to call windowWillClose so any keyboardFocussedProxies resign
+            //as first responders. This is ok since tab is not nil so no message will be sent to
+            //hosting controller.
+            [visibleProxy windowWillClose];
+        }
+    }
     TiWindowProxy *newWindow = (TiWindowProxy *)[(TiViewController*)viewController proxy];
     if ([newWindow opening]) {
         [newWindow windowWillOpen];
