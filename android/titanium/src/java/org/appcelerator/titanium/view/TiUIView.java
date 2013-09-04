@@ -148,8 +148,7 @@ public abstract class TiUIView
 	/**
 	 * Adds a child view into the ViewGroup.
 	 * 
-	 * @param child
-	 *            the view to be added.
+	 * @param child the view to be added.
 	 */
 	public void add(TiUIView child)
 	{
