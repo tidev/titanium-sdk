@@ -658,6 +658,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		[self.proxy fireEvent:@"beforeload" withObject:event];
 	}
 
+	if (navigationType != UIWebViewNavigationTypeOther) {
+		RELEASE_TO_NIL(lastValidLoad);
+	}
+
 	NSString * scheme = [[newUrl scheme] lowercaseString];
 	if ([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"ftp"]
 			|| [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
