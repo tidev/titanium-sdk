@@ -121,7 +121,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_DISPOSE_HANDLE = "diposehandle";
+	public static final String EVENT_DISPOSE_HANDLE = "disposehandle";
 
 	/**
 	 * @module.api
