@@ -276,6 +276,20 @@ USE_VIEW_FOR_CONTENT_WIDTH
 
 DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 
+#pragma mark - Internal Use Only
+-(void)delayedLoad
+{
+    TiThreadPerformOnMainThread(^{
+        [self contentsWillChange];
+    }, NO);
+}
+
+-(void)webviewDidFinishLoad
+{
+    [self contentsWillChange];
+    //Do a delayed load as well if this one does not go through.
+    [self performSelector:@selector(delayedLoad) withObject:nil afterDelay:0.5];
+}
 @end
 
 #endif
