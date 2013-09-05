@@ -16,7 +16,8 @@
     BOOL inKJSThread;
 }
 -(void)setPageToken:(NSString*)pageToken;
-
+#pragma mark - Internal Use Only
+-(void)webviewDidFinishLoad;
 @end
 
 

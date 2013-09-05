@@ -720,8 +720,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     }
     [webView setNeedsDisplay];
     ignoreNextRequest = NO;
-    TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
-    [ourProxy contentsWillChange];
+    TiUIWebViewProxy * ourProxy = (TiUIWebViewProxy *)[self proxy];
+    [ourProxy webviewDidFinishLoad];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
