@@ -701,6 +701,10 @@ public class TiHTTPClient
 				validatingClient = null;
 			if (nonValidatingClient != null)
 				nonValidatingClient = null;
+
+			// Fire the disposehandle event if the request is aborted.
+			// And it will dispose the handle of the httpclient in the JS.
+			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 		}
 	}
 
@@ -1272,6 +1276,9 @@ public class TiHTTPClient
 
 				} catch (IOException e) {
 					if (!aborted) {
+						// Fire the disposehandle event if the exception is not due to aborting the request.
+						// And it will dispose the handle of the httpclient in the JS.
+						proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 						throw e;
 					}
 				}
@@ -1308,6 +1315,10 @@ public class TiHTTPClient
 			}
 
 			deleteTmpFiles();
+
+			// Fire the disposehandle event if the request is finished successfully or the errors occur.
+			// And it will dispose the handle of the httpclient in the JS.
+			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 		}
 	}
 
