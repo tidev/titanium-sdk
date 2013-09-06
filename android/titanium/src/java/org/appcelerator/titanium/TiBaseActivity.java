@@ -1152,9 +1152,6 @@ public abstract class TiBaseActivity extends FragmentActivity
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onUserLeaveHint()
-	 */
 	@Override
 	/**
 	 * When the activity is about to go into the background as a result of user choice, this method fires the 
