@@ -715,10 +715,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 */
 	public boolean fireEvent(String event, Object data)
 	{
-		Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT, data);
-		message.getData().putString(PROPERTY_NAME, event);
-		message.sendToTarget();
-		return hierarchyHasListener(event);
+		if (hierarchyHasListener(event)) {
+			Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT, data);
+			message.getData().putString(PROPERTY_NAME, event);
+			message.sendToTarget();
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -757,6 +761,28 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			message.getData().putString(PROPERTY_NAME, event);
 
 			return (Boolean) TiMessenger.sendBlockingRuntimeMessage(message, data);
+		}
+	}
+
+	/**
+	 * Fires an event synchronously via KrollRuntime thread, which can be intercepted on JS side.
+	 * @param event the event to be fired.
+	 * @param data  the data to be sent.
+	 * @param maxTimeout the maximum time to wait for the result to return, in the unit of milliseconds.
+	 * @return whether this proxy has an eventListener for this event.
+	 * @module.api
+	 */
+	public boolean fireSyncEvent(String event, Object data, long maxTimeout)
+	{
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
+			return doFireEvent(event, data);
+
+		} else {
+			Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_SYNC_EVENT);
+			message.getData().putString(PROPERTY_NAME, event);
+
+			Object result = TiMessenger.sendBlockingRuntimeMessage(message, data, maxTimeout);
+			return TiConvert.toBoolean(result, false);
 		}
 	}
 
