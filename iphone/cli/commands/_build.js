@@ -775,36 +775,38 @@ exports.validate = function (logger, config, cli) {
 		}
 	}
 
-	['debug', 'profiler'].forEach(function (type) {
-		if (cli.argv[type + '-host'] && cli.argv.target != 'dist-appstore') {
-			if (typeof cli.argv[type + '-host'] == 'number') {
-				logger.error(__('Invalid %s host "%s"', type, cli.argv[type + '-host']) + '\n');
-				logger.log(__('The %s host must be in the format "host:port".', type) + '\n');
-				process.exit(1);
-			}
-
-			var parts = cli.argv[type + '-host'].split(':');
-
-			if ((cli.argv.target == 'simulator' && parts.length < 2) || (cli.argv.target != 'simulator' && parts.length < 4)) {
-				logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
-				if (cli.argv.target == 'simulator') {
+	if (cli.argv.target != 'dist-appstore') {
+		['debug', 'profiler'].forEach(function (type) {
+			if (cli.argv[type + '-host']) {
+				if (typeof cli.argv[type + '-host'] == 'number') {
+					logger.error(__('Invalid %s host "%s"', type, cli.argv[type + '-host']) + '\n');
 					logger.log(__('The %s host must be in the format "host:port".', type) + '\n');
-				} else {
-					logger.log(__('The %s host must be in the format "host:port:airkey:hosts".', type) + '\n');
-				}
-				process.exit(1);
-			}
-
-			if (parts.length > 1 && parts[1]) {
-				var port = parseInt(parts[1]);
-				if (isNaN(port) || port < 1 || port > 65535) {
-					logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
-					logger.log(__('The port must be a valid integer between 1 and 65535.') + '\n');
 					process.exit(1);
 				}
+
+				var parts = cli.argv[type + '-host'].split(':');
+
+				if ((cli.argv.target == 'simulator' && parts.length < 2) || (cli.argv.target != 'simulator' && parts.length < 4)) {
+					logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
+					if (cli.argv.target == 'simulator') {
+						logger.log(__('The %s host must be in the format "host:port".', type) + '\n');
+					} else {
+						logger.log(__('The %s host must be in the format "host:port:airkey:hosts".', type) + '\n');
+					}
+					process.exit(1);
+				}
+
+				if (parts.length > 1 && parts[1]) {
+					var port = parseInt(parts[1]);
+					if (isNaN(port) || port < 1 || port > 65535) {
+						logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
+						logger.log(__('The port must be a valid integer between 1 and 65535.') + '\n');
+						process.exit(1);
+					}
+				}
 			}
-		}
-	});
+		});
+	}
 };
 
 exports.run = function (logger, config, cli, finished) {

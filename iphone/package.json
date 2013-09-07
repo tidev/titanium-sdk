@@ -2,10 +2,6 @@
 	"name": "titanium-mobile-ios",
 	"title": "iOS",
 	"description": "Appcelerator Titanium Mobile iOS",
-	"minIosSdkVersion": "5.0",
-	"maxIosSdkVersion": "6.1",
-	"minXcodeVersion": "4.3",
-	"maxXcodeVersion": "4.6",
 	"keywords": [
 		"appcelerator",
 		"titanium",
@@ -22,9 +18,20 @@
 		"Vishal Duggal <vduggal@appcelerator.com>",
 		"Chris Barber <cbarber@appcelerator.com>"
 	],
+	"vendorDependencies": {
+		"xcode":">=4.3 <=4.6.x",
+		"ios sdk": ">=5.0 <=6.x",
+		"node": ">0.8.0 <=0.10.x"
+	}
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/appcelerator/titanium_mobile_ios.git"
 	},
-	"license": "Apache Public License v2"
+	"license": "Apache Public License v2",
+
+
+	"minIosSdkVersion": "5.0",
+	"maxIosSdkVersion": "6.1",
+	"minXcodeVersion": "4.3",
+	"maxXcodeVersion": "4.6"
 }
