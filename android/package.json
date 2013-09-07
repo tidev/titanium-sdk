@@ -2,11 +2,6 @@
 	"name": "titanium-mobile-android",
 	"title": "Android",
 	"description": "Appcelerator Titanium Mobile Android",
-	"minSDKToolsVersion": "22",
-	"minSDKPlatformToolsVersion": "16",
-	"minSDKBuildToolsVersion": "16",
-	"minAPILevel": "10",
-	"maxAPILevel": "17",
 	"keywords": [
 		"appcelerator",
 		"titanium",
@@ -23,9 +18,26 @@
 		"Allen Yeung <ayeung@appcelerator.com>",
 		"Chris Barber <cbarber@appcelerator.com>"
 	],
+	"vendorDependencies": {
+		"android sdk": ">=2.3.3 <=4.2",
+		"android build tools": "<=18",
+		"android platform tools": "<=18",
+		"android tools": "<=22",
+		"android ndk": "r8e",
+		"node": ">0.8.0 <=0.10.x",
+		"java": "*"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/appcelerator/titanium_mobile_android.git"
 	},
-	"license": "Apache Public License v2"
+	"license": "Apache Public License v2",
+
+
+
+"minSDKToolsVersion": "22",
+"minSDKPlatformToolsVersion": "16",
+"minSDKBuildToolsVersion": "16",
+"minAPILevel": "10",
+"maxAPILevel": "17"
 }
