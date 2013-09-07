@@ -22,7 +22,7 @@
 		"xcode":">=4.3 <=4.6.x",
 		"ios sdk": ">=5.0 <=6.x",
 		"node": ">0.8.0 <=0.10.x"
-	}
+	},
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/appcelerator/titanium_mobile_ios.git"
