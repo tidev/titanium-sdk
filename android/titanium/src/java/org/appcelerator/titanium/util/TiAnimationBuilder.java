@@ -314,28 +314,23 @@ public class TiAnimationBuilder
 	 * @return AnimatorSet containing the Animator instances
 	 * that will be used to accomplish this animation.
 	 */
-	private AnimatorSet buildPropertyAnimators(int x, int y, int w, int h,
-			int parentWidth, int parentHeight)
+	private AnimatorSet buildPropertyAnimators(int x, int y, int w, int h, int parentWidth, int parentHeight)
 	{
 		List<Animator> animators = new ArrayList<Animator>();
 		boolean includesRotation = false;
 
 		if (toOpacity != null) {
-			addAnimator(
-					animators,
-					ObjectAnimator.ofFloat(view, "alpha",
-							toOpacity.floatValue()));
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "alpha", toOpacity.floatValue()));
 			if (PRE_HONEYCOMB && viewProxy.hasProperty(TiC.PROPERTY_OPACITY)) {
 				prepareOpacityForAnimation();
 			}
 		}
 
 		if (backgroundColor != null) {
-			TiBackgroundColorWrapper bgWrap = TiBackgroundColorWrapper
-					.wrap(view);
+			TiBackgroundColorWrapper bgWrap = TiBackgroundColorWrapper.wrap(view);
 			int currentBackgroundColor = bgWrap.getBackgroundColor();
-			ObjectAnimator bgAnimator = ObjectAnimator.ofInt(view,
-					"backgroundColor", currentBackgroundColor, backgroundColor);
+			ObjectAnimator bgAnimator = ObjectAnimator.ofInt(view, "backgroundColor", currentBackgroundColor,
+					backgroundColor);
 			bgAnimator.setEvaluator(new ArgbEvaluator());
 			addAnimator(animators, bgAnimator);
 		}
@@ -346,50 +341,57 @@ public class TiAnimationBuilder
 			// and use Honeycomb+ animations rather than
 			// our custom TiMatrixAnimation.
 			List<Operation> operations = tdm.getAllOperations();
-			for (Operation operation : operations) {
-				if (operation.anchorX != Ti2DMatrix.DEFAULT_ANCHOR_VALUE
-						|| operation.anchorY != Ti2DMatrix.DEFAULT_ANCHOR_VALUE) {
-					setAnchor(w, h, operation.anchorX, operation.anchorY);
-				}
-				switch (operation.type) {
-				case Operation.TYPE_ROTATE:
-					includesRotation = true;
-					if (operation.rotationFromValueSpecified) {
-						addAnimator(animators, ObjectAnimator.ofFloat(view,
-								"rotation", operation.rotateFrom,
-								operation.rotateTo));
-					} else {
-						addAnimator(animators, ObjectAnimator.ofFloat(view,
-								"rotation", operation.rotateTo));
-					}
-					break;
-				case Operation.TYPE_SCALE:
-					if (operation.scaleFromValuesSpecified) {
-						addAnimator(animators, ObjectAnimator.ofFloat(view,
-								"scaleX", operation.scaleFromX,
-								operation.scaleToX));
-						addAnimator(animators, ObjectAnimator.ofFloat(view,
-								"scaleY", operation.scaleFromY,
-								operation.scaleToY));
+			if (operations.size() == 0) {
+				// Identity matrix, which means any transforms that
+				// were previously done should be reversed.
+				addAnimator(animators, ObjectAnimator.ofFloat(view, "rotation", 0f));
+				addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleX", 1f));
+				addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", 1f));
+				addAnimator(animators, ObjectAnimator.ofFloat(view, "translationX", 0f));
+				addAnimator(animators, ObjectAnimator.ofFloat(view, "translationY", 0f));
 
-					} else {
-						addAnimator(animators, ObjectAnimator.ofFloat(view,
-								"scaleX", operation.scaleToX));
-						addAnimator(animators, ObjectAnimator.ofFloat(view,
-								"scaleY", operation.scaleToY));
+				// Relayout child in pre-Honeycomb so that touch targets get
+				// updated.
+				relayoutChild = PRE_HONEYCOMB && (autoreverse == null || !autoreverse.booleanValue());
+
+			} else {
+
+				for (Operation operation : operations) {
+					if (operation.anchorX != Ti2DMatrix.DEFAULT_ANCHOR_VALUE
+							|| operation.anchorY != Ti2DMatrix.DEFAULT_ANCHOR_VALUE) {
+						setAnchor(w, h, operation.anchorX, operation.anchorY);
 					}
-					break;
-				case Operation.TYPE_TRANSLATE:
-					addAnimator(animators, ObjectAnimator.ofFloat(view,
-							"translationX", operation.translateX));
-					addAnimator(animators, ObjectAnimator.ofFloat(view,
-							"translationY", operation.translateY));
+					switch (operation.type) {
+						case Operation.TYPE_ROTATE:
+							includesRotation = true;
+							if (operation.rotationFromValueSpecified) {
+								addAnimator(animators, ObjectAnimator.ofFloat(view, "rotation", operation.rotateFrom,
+										operation.rotateTo));
+							} else {
+								addAnimator(animators, ObjectAnimator.ofFloat(view, "rotation", operation.rotateTo));
+							}
+							break;
+						case Operation.TYPE_SCALE:
+							if (operation.scaleFromValuesSpecified) {
+								addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleX", operation.scaleFromX,
+										operation.scaleToX));
+								addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", operation.scaleFromY,
+										operation.scaleToY));
+
+							} else {
+								addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleX", operation.scaleToX));
+								addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", operation.scaleToY));
+							}
+							break;
+						case Operation.TYPE_TRANSLATE:
+							addAnimator(animators, ObjectAnimator.ofFloat(view, "translationX", operation.translateX));
+							addAnimator(animators, ObjectAnimator.ofFloat(view, "translationY", operation.translateY));
+					}
 				}
 			}
 		}
 
-		if (top != null || bottom != null || left != null || right != null
-				|| centerX != null || centerY != null) {
+		if (top != null || bottom != null || left != null || right != null || centerX != null || centerY != null) {
 			TiDimension optionTop = null, optionBottom = null;
 			TiDimension optionLeft = null, optionRight = null;
 			TiDimension optionCenterX = null, optionCenterY = null;
@@ -413,8 +415,7 @@ public class TiAnimationBuilder
 				optionLeft = new TiDimension(left, TiDimension.TYPE_LEFT);
 			} else if (right == null && centerX == null) {
 				// Fix a left value since no other x-axis value is being set.
-				optionLeft = new TiDimension(view.getLeft(),
-						TiDimension.TYPE_LEFT);
+				optionLeft = new TiDimension(view.getLeft(), TiDimension.TYPE_LEFT);
 				optionLeft.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
@@ -423,13 +424,11 @@ public class TiAnimationBuilder
 			}
 
 			if (centerX != null) {
-				optionCenterX = new TiDimension(centerX,
-						TiDimension.TYPE_CENTER_X);
+				optionCenterX = new TiDimension(centerX, TiDimension.TYPE_CENTER_X);
 			}
 
 			if (centerY != null) {
-				optionCenterY = new TiDimension(centerY,
-						TiDimension.TYPE_CENTER_Y);
+				optionCenterY = new TiDimension(centerY, TiDimension.TYPE_CENTER_Y);
 			}
 
 			int horizontal[] = new int[2];
@@ -441,28 +440,24 @@ public class TiAnimationBuilder
 				parentView = (View) parent;
 			}
 
-			TiCompositeLayout.computePosition(parentView, optionLeft,
-					optionCenterX, optionRight, w, 0, parentWidth, horizontal);
-			TiCompositeLayout.computePosition(parentView, optionTop,
-					optionCenterY, optionBottom, h, 0, parentHeight, vertical);
+			TiCompositeLayout.computePosition(parentView, optionLeft, optionCenterX, optionRight, w, 0, parentWidth,
+					horizontal);
+			TiCompositeLayout.computePosition(parentView, optionTop, optionCenterY, optionBottom, h, 0, parentHeight,
+					vertical);
 
 			int translationX = horizontal[0] - x;
 			int translationY = vertical[0] - y;
 
-			addAnimator(animators,
-					ObjectAnimator.ofFloat(view, "translationX", translationX));
-			addAnimator(animators,
-					ObjectAnimator.ofFloat(view, "translationY", translationY));
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "translationX", translationX));
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "translationY", translationY));
 
 			// Pre-Honeycomb, we will need to update layout params at end of
-			// animation
-			// so that touch events will be recognized at new location,
+			// animation so that touch events will be recognized at new location,
 			// and so that view will stay at new location after changes in
 			// orientation. But if autoreversing to original layout, no
 			// need to re-layout. Also, don't do it if a rotation is included,
 			// since the re-layout will lose the rotation.
-			relayoutChild = PRE_HONEYCOMB && !includesRotation
-					&& (autoreverse == null || !autoreverse.booleanValue());
+			relayoutChild = PRE_HONEYCOMB && !includesRotation && (autoreverse == null || !autoreverse.booleanValue());
 
 		}
 
@@ -490,23 +485,19 @@ public class TiAnimationBuilder
 			float scaleX = (float) toWidth / w;
 			float scaleY = (float) toHeight / h;
 
-			addAnimator(animators,
-					ObjectAnimator.ofFloat(view, "scaleX", scaleX));
-			addAnimator(animators,
-					ObjectAnimator.ofFloat(view, "scaleY", scaleY));
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleX", scaleX));
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", scaleY));
 
 			setAnchor(w, h);
 
 			// Pre-Honeycomb, will need to update layout params at end of
-			// animation
-			// so that touch events will be recognized within new
+			// animation so that touch events will be recognized within new
 			// size rectangle, and so that new size will survive
 			// any changes in orientation. But if autoreversing
 			// to original layout, no need to re-layout.
 			// Also, don't do it if a rotation is included,
 			// since the re-layout will lose the rotation.
-			relayoutChild = PRE_HONEYCOMB && !includesRotation
-					&& (autoreverse == null || !autoreverse.booleanValue());
+			relayoutChild = PRE_HONEYCOMB && !includesRotation && (autoreverse == null || !autoreverse.booleanValue());
 		}
 
 		AnimatorSet as = new AnimatorSet();
