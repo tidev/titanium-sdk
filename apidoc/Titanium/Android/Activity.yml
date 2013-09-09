@@ -255,7 +255,7 @@ events:
         See also:
         [onPause](http://developer.android.com/reference/android/app/Activity.html#onUserLeaveHint())
         in the Android Developer Reference.
-
+    since: "3.2.0"
 
 
 properties:
