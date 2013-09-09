@@ -1154,6 +1154,29 @@ public abstract class TiBaseActivity extends FragmentActivity
 
 	@Override
 	/**
+	 * When the activity is about to go into the background as a result of user choice, this method fires the 
+	 * javascript 'userleavehint' event.
+	 */
+	protected void onUserLeaveHint()
+	{
+		Log.d(TAG, "Activity " + this + " onUserLeaveHint", Log.DEBUG_MODE);
+
+		if (getTiApp().isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		if (activityProxy != null) {
+			activityProxy.fireSyncEvent(TiC.EVENT_USER_LEAVE_HINT, null);
+		}
+
+		super.onUserLeaveHint();
+	}
+	
+	@Override
+	/**
 	 * When this activity is destroyed, this method removes it from the activity stack, performs
 	 * clean up, and fires javascript 'destroy' event. 
 	 */
