@@ -454,13 +454,13 @@ def resolve_npm_deps(dir, version, node_appc_branch):
 		if p.returncode != 0:
 			codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 			print '[ERROR] Failed to npm install dependencies'
-			if stderr.find('EACCES') > 0:
+			if stderr.find('EACCES') > 0 or stderr.find('Permission denied') > 0:
 				try:
 					print '[ERROR] npm failed because there are files in the %s/.npm directory that are not writeable' % os.environ['HOME']
 					print '[ERROR] Either run'
-					print '[ERROR]    chown -R %s %s/.npm' % (os.environ['USER'], os.environ['HOME'])
+					print '[ERROR]    sudo chown -R %s %s/.npm' % (os.environ['USER'], os.environ['HOME'])
 					print '[ERROR] or'
-					print '[ERROR]    rm -rf %s/.npm/*' % os.environ['HOME']
+					print '[ERROR]    sudo rm -rf %s/.npm/*' % os.environ['HOME']
 				except:
 					print stderr
 			else:
