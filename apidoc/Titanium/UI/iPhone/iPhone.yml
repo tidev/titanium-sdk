@@ -27,6 +27,7 @@ methods:
         notes: |
             This method does not work on iOS 7 and is deprecated on earlier versions. Use the [fullscreen](Titanium.UI.Window.fullscreen) 
             property of the window to control if the staus bar is shown or not.    summary: Shows the status bar.
+    summary: Shows the status bar.
     parameters:
       - name: params
         summary: Determines whether action is animated.
