@@ -222,7 +222,7 @@ properties:
     summary: Defines if the active icon property of the tab must be used as a mask. This property is applicable on iOS 7 and greater. 
     description: |
         This is the equivalent of the [iconIsMask](Titanium.UI.Tab.iconIsmask) property, but for the active icon. When this is true, the active icon is 
-        tinted with the color specified in (tabsTintColor)[Titanium.UI.TabGroup.tabsTintColor]. When this is false the image is rendered as is, though the 
+        tinted with the color specified in [tabsTintColor](Titanium.UI.TabGroup.tabsTintColor). When this is false the image is rendered as is, though the 
         title of the tab is still tinted. 
     type: [Boolean]
     since: "3.1.3"

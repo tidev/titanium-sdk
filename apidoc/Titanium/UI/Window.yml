@@ -34,7 +34,7 @@ methods:
         optional: true
 
   - name: setToolbar
-    summary: Sets the array of items to show in the windows toolbar.
+    summary: Sets the array of items to show in the window's toolbar.
     parameters:
       - name: items
         summary: Array of button objects to show in the window's toolbar.
@@ -285,7 +285,7 @@ properties:
         determine the layout of the window within its parent view controller. For example if the window is specified to extend its top edge
         and it is hosted in a navigation controller, then the top edge of the window is extended underneath the navigation bar so that part
         of the window is obscured. If the navigation bar is opaque (translucent property on window is false), then the top edge of the window
-        will only extend if <Ti.UI.Window.includeOpaqueBars> is set to true. 
+        will only extend if <Titanium.UI.Window.includeOpaqueBars> is set to true. 
 
         The default behavior is to assume that no edges are to be extended. Must be specified before **opening** the window.
     platforms: [iphone,ipad]
@@ -295,7 +295,7 @@ properties:
 
   - name: includeOpaqueBars
     summary: |
-        Specifies if the edges should extend beyound opaque bars (navigation bar, tab bar, toolbar). Valid on iOS 7 and greater.
+        Specifies if the edges should extend beyond opaque bars (navigation bar, tab bar, toolbar). Valid on iOS 7 and greater.
     description:  |
         By default edges are only extended to include translucent bars. However if this is set to true, then edges are extended beyond
         opaque bars as well.
@@ -310,7 +310,7 @@ properties:
     summary: |
         Specifies whether or not the view controller should automatically adjust its scroll view insets. Valid on iOS 7 and greater.
     description:  |
-        When the value is true, it allows the view controller to adjust its scroll view insets in response to the screen areas consumed by the status bar, navigation bar, and toolbar or tab bar.
+        When the value is true, it allows the view controller to adjust its scroll view insets in response to the screen areas consumed by the status bar, navigation bar, toolbar and tab bar.
 
         The default behavior assumes that this is false. Must be specified before **opening** the window.
     platforms: [iphone,ipad]
@@ -1185,7 +1185,7 @@ properties:
     default: true on iOS 7 and above, false otherwise.
 
   - name: animated
-    summary: Defined if the toolbar appearance is animated.
+    summary: Defines if the toolbar appearance is animated.
     type: Boolean
     default: true if the window has toolbar items, false otherwise.
 
