@@ -162,7 +162,7 @@
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self updateBackground];
     if (defaultImageView != nil) {
-        [self rotateDefaultImageViewToOrientation:UIInterfaceOrientationPortrait];
+        [self rotateDefaultImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
         [rootView addSubview:defaultImageView];
     }
     [rootView becomeFirstResponder];
