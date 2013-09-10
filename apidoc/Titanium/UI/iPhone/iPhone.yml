@@ -185,14 +185,14 @@ properties:
   - name: statusBarHidden
     summary: Determines whether the status bar is hidden.
     description: |
-        The setter for this property does not work on iOS 7 and is deprecated for earlier iOS versions since ** Release 3.1.3**.
+        The setter for this property does not work on iOS 7 and is deprecated for earlier iOS versions since **Release 3.1.3**.
         Use the [fullscreen](Titanium.UI.Window.fullscreen) property of the window to control if the staus bar is shown or not.
     type: Boolean
     
   - name: statusBarStyle
     summary: Determines the status bar color style.
     description: |
-        The setter for this property does not work on iOS 7 and is deprecated for earlier iOS versions since **3.1.3**.
+        The setter for this property does not work on iOS 7 and is deprecated for earlier iOS versions since **Release 3.1.3**.
         Use the [statusBarStyle](Titanium.UI.Window.statusBarStyle) property of the window to control the staus bar style.
 
         One of the group of status bar style constants 
@@ -200,6 +200,7 @@ properties:
         <Titanium.UI.iPhone.StatusBar.GRAY>, 
         <Titanium.UI.iPhone.StatusBar.GREY>, 
         <Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK>, 
+        <Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT>,
         or <Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK>.
     type: Number
 
