@@ -225,7 +225,7 @@ typedef void (^PermissionBlock)(BOOL granted)
 	else
 	{
 		RELEASE_TO_NIL(popover);
-		UIView *poView = [[tiApp controller] topTitaniumView];
+		UIView *poView = [[tiApp controller] topWindowProxyView];
 		CGRect poFrame;
 		TiViewProxy* popoverViewProxy = [args objectForKey:@"popoverView"];
 		UIPopoverArrowDirection arrow = [TiUtils intValue:@"arrowDirection" properties:args def:UIPopoverArrowDirectionAny];
@@ -300,7 +300,7 @@ typedef void (^PermissionBlock)(BOOL granted)
 		//GO AHEAD AND RE-PRESENT THE POPOVER NOW 
 		CGRect popOverRect = [popoverView bounds];
 		if (!isPopoverSpecified) {
-			self.popoverView = [[[TiApp app] controller] topTitaniumView];
+			self.popoverView = [[[TiApp app] controller] topWindowProxyView];
 			popOverRect.size.height = 50;
 		}
         if ([popoverView window] == nil) {

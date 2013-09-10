@@ -106,6 +106,21 @@
     [rootView bringSubviewToFront:theView];
 }
 
+-(BOOL)argOrWindowPropertyExists:(NSString*)key args:(id)args
+{
+    id value = [self valueForUndefinedKey:key];
+    if (!IS_NULL_OR_NIL(value)) {
+        return YES;
+    }
+    if (([args count] > 0) && [[args objectAtIndex:0] isKindOfClass:[NSDictionary class]]) {
+        value = [[args objectAtIndex:0] objectForKey:key];
+        if (!IS_NULL_OR_NIL(value)) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 -(BOOL)argOrWindowProperty:(NSString*)key args:(id)args
 {
     if ([TiUtils boolValue:[self valueForUndefinedKey:key]]) {
@@ -164,15 +179,23 @@
     
     isModal = (tab == nil) ? [self argOrWindowProperty:@"modal" args:args] : NO;
     
-    hidesStatusBar = [self argOrWindowProperty:@"fullscreen" args:args];
+    if ([self argOrWindowProperty:@"fullscreen" args:args]) {
+        hidesStatusBar = YES;
+    } else {
+        if ([self argOrWindowPropertyExists:@"fullscreen" args:args]) {
+            hidesStatusBar = NO;
+        } else {
+            hidesStatusBar = [[[TiApp app] controller] statusBarInitiallyHidden];
+        }
+    }
     
-    int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"]];
+    int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"] def:[[[TiApp app] controller] defaultStatusBarStyle]];
     switch (theStyle){
         case UIStatusBarStyleDefault:
             barStyle = UIStatusBarStyleDefault;
             break;
         case UIStatusBarStyleBlackOpaque:
-        case UIStatusBarStyleBlackTranslucent:
+        case UIStatusBarStyleBlackTranslucent: //This will also catch UIStatusBarStyleLightContent
             if ([TiUtils isIOS7OrGreater]) {
                 barStyle = 1;//UIStatusBarStyleLightContent;
             } else {
