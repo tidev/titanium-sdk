@@ -33,7 +33,7 @@ methods:
         type: openWindowParams
         optional: true
 
-  - name: setToolBar
+  - name: setToolbar
     summary: Sets the array of items to show in the windows toolbar.
     parameters:
       - name: items
@@ -612,6 +612,7 @@ properties:
         the window has a navigation controller.
     platforms: [iphone, ipad]
     type: Array<Object>
+    permission: read-only
 
   - name: top
     summary: Window's top position, in platform-specific units.
@@ -1170,14 +1171,14 @@ properties:
 
 ---
 name: windowToolbarParam
-summary: Dictionary of options for the <Titanium.UI.Window.setToolBar> method.
+summary: Dictionary of options for the <Titanium.UI.Window.setToolbar> method.
 since: 3.1.3
 platforms: [iphone,ipad]
 
 properties:
 
   - name: translucent
-    summary: Defined if the toolbar is translucent.
+    summary: Defines if the toolbar is translucent.
     type: Boolean
     default: true on iOS 7 and above, false otherwise.
 

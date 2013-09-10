@@ -173,9 +173,6 @@ properties:
   - name: backgroundSelectedImage
     platforms: [mobileweb, tizen]
 
-  - name: backgroundSelectedImage
-    platforms: [mobileweb, tizen]
-
   - name: badge
     summary: Badge value for this tab. `null` indicates no badge.
     type: String
