@@ -76,7 +76,7 @@ properties:
         if [barColor](Titanium.UI.iOS.Toolbar.barColor) is set to a semi-transparent or 
         transparent color.
     type: Boolean
-    default: false
+    default: true on iOS 7 and above. false otherwise.
 
 examples: 
   - title: Simple Toolbar

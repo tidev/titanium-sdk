@@ -1220,6 +1220,17 @@ properties:
     default: <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>
     platforms: [android]
     
+  - name: tintColor
+    summary: The view's tintColor. This property is applicable on iOS 7 and greater. 
+    description: |
+        This property is a direct correspondant of the tintColor property of UIView on iOS. If no value is specified, 
+        the tintColor of the View is inherited from its superview. 
+    type: [String]
+    since: "3.1.3"
+    default: null
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad]
+    
   - name: top
     summary: The view's top position.
     description: |
