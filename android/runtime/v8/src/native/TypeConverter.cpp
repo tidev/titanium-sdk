@@ -625,6 +625,9 @@ jobject TypeConverter::jsValueToJavaObject(JNIEnv *env, v8::Local<v8::Value> jsV
 
 			return javaHashMap;
 		}
+	} else if (jsValue->IsUndefined()) {
+		*isNew = false;
+		return JNIUtil::undefinedObject;
 	}
 
 	if (!jsValue->IsNull() && !jsValue->IsUndefined()) {

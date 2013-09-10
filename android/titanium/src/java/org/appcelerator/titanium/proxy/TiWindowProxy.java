@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -112,7 +113,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		KrollDict options = null;
 		TiAnimation animation = null;
 
-		if (arg != null) {
+		if (arg != null && arg != KrollRuntime.UNDEFINED) {
 			if (arg instanceof KrollDict) {
 				options = (KrollDict) arg;
 
