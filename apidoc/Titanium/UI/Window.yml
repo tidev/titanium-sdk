@@ -325,7 +325,8 @@ properties:
         at creation time or in the `options` dictionary passed to the [Window.open](Titanium.UI.Window.open) method.
 
         On iOS the behavior of this property has changed. Starting from 3.1.3, if this property is undefined
-        then the property is treated as **explicit false**. On earlier versions, opening a window with this property
+        then the property is set to the value for UIStatusBarHidden defined in tiapp.xml.
+        If that is not defined it is treated as **explicit false**. On earlier versions, opening a window with this property
         undefined would not effect the status bar appearance.
 
         On Android, setting this property forces the creation of a heavyweight window before Titanium 3.2.0.
@@ -558,7 +559,8 @@ properties:
         Sets the status bar style when this window gains focus. This is now the recommended way to control the
         status bar style on the application. Must be specified **before** the the window is opened.
 
-        The default behavior is to assume that the value is set to <Titanium.UI.iPhone.StatusBar.DEFAULT>
+        If this value is undefined, the value is set to UIStatusBarStyle defined in tiapp.xml.
+        If that is not defined it defaults to <Titanium.UI.iPhone.StatusBar.DEFAULT>.
     type: [Number]
     since: "3.1.3"
     platforms: [iphone,ipad]
