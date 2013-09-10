@@ -1,24 +1,29 @@
 ---
-name: Titanium.UI.iPhone.NavigationGroup
-deprecated:
-    since: "3.1.3"
-    notes: |
-        This class is now deprecated. Please use the <Titanium.UI.iOS.NavigationWindow> class instead.
+name: Titanium.UI.iOS.NavigationWindow
 summary: |
-    A Navigation Group implements a specialized view that manages the navigation of hierarchical 
-    content.
+    A Navigation Window implements a specialized view that manages the navigation of hierarchical 
+    content. 
 description: |
-    The navigation group is created with the method <Titanium.UI.iPhone.createNavigationGroup>.
+    The navigation window is created with the method <Titanium.UI.iOS.createNavigationWindow>.
     
     ![navgroup](http://img.skitch.com/20100406-rwe44533tkd94fdnbqqudxynpe.png)
     
-    The `window` property must be set initially in the constructor when creating a navigation group 
-    to the root level window.  All navigation groups must have at least one root window that cannot 
+    The `window` property must be set initially in the constructor when creating a navigation window 
+    to the root level window.  All navigation windows must have at least one root window that cannot 
     be removed.
+
+    This class replaces the <Titanium.UI.iPhone.NavigationGroup> class. However please note that this object 
+    is a window and is supposed to be used as a top level container. This can not be added to other windows.
+    However this class can be used within the <Titanium.UI.iPad.SplitWindow>
 platforms: [iphone, ipad]
-extends: Titanium.UI.View
-since: "1.2"
-excludes: { methods:[removeAllChildren] }
+extends: Titanium.UI.Window
+since: "3.1.3"
+excludes:
+    methods: [removeAllChildren, setToolBar, hideTabBar]
+    properties: [navBarHidden, tabBarHidden, navTintColor, translucent, toolbar,
+                barColor, barImage, leftNavButton, rightNavButton, title, titleControl,
+                titlePrompt, titleImage, titleid, titlepromptid, url, backButtonTitle,
+                backButtonTitleImage]
 
 properties:
   - name: window
@@ -28,7 +33,7 @@ properties:
     optional: false
 
 methods:
-  - name: close
+  - name: pop
     summary: Closes a window and removes it from the navigation group.
     parameters:
       - name: window
@@ -41,7 +46,7 @@ methods:
             will be animated (default) while being closed.
         type: Dictionary
         
-  - name: open
+  - name: push
     summary: Opens a window within the navigation group.
     parameters:
       - name: window
@@ -61,11 +66,13 @@ examples:
         Press the button to open the blue window.
         Use the back button to return to the red root window.
 
-            var win1 = Titanium.UI.createWindow();
-
             var win2 = Titanium.UI.createWindow({
                 backgroundColor: 'red',
                 title: 'Red Window'
+            });
+
+            var win1 = Titanium.UI.iOS.createNavigationWindow({
+               window: win2
             });
 
             var win3 = Titanium.UI.createWindow({
@@ -77,43 +84,16 @@ examples:
                 title: 'Open Blue Window'
             });
             button.addEventListener('click', function(){
-                nav.open(win3, {animated:true});
-            });
-
-            var nav = Titanium.UI.iPhone.createNavigationGroup({
-               window: win2
+                win1.push(win3, {animated:true});
             });
 
             win2.add(button);
-            win1.add(nav);
+            var button2 = Titanium.UI.createButton({
+                title: 'Close Blue Window'
+            });
+            button2.addEventListener('click', function(){
+                win1.pop(win3, {animated:false}); //win3.close() will also work!!
+            });
+
+            win3.add(button2);
             win1.open();
-
-  - title: Alloy XML Markup
-    example: |
-        Previous example as two Alloy views.
-
-        navgroup.xml:
-
-            <Alloy>
-                <Window>
-                    <NavigationGroup id="nav" platform="ios">
-                        <Window id="win2" title="Red Window" backgroundColor="red">
-                            <Button title="Open Blue Window" onClick="openBlueWindow">
-                        </Window>
-                    </NavigationGroup>
-                </Window>
-            </Alloy>
-
-        navgroup.js:
-
-            function openBlueWindow(){
-                var win3 = Alloy.createController('bluewindow').getView();
-                $.nav.open(win3, {animated : true});
-            }
-
-        bluewindow.xml:
-
-            <Alloy>
-                <Window title="Blue Window" backgroundColor="blue" />
-            </Alloy>
-
