@@ -108,6 +108,14 @@ public class ScrollableViewProxy extends TiViewProxy
 				AsyncResult holder = (AsyncResult) msg.obj;
 				Object views = holder.getArg(); 
 				getView().setViews(views);
+				//Assign the activity to all the newly added views
+				Activity activity = getActivity();
+				if (activity != null) {
+					ArrayList<TiViewProxy> list = getView().getViews();
+					for (TiViewProxy proxy : list) {
+						proxy.setActivity(activity);
+					}
+				}
 				holder.setResult(null);
 				handled = true;
 				break;
@@ -117,6 +125,9 @@ public class ScrollableViewProxy extends TiViewProxy
 				Object view = holder.getArg();
 				if (view instanceof TiViewProxy) {
 					getView().addView((TiViewProxy) view);
+					if (getActivity() != null) {
+						((TiViewProxy) view).setActivity(getActivity());
+					}
 					handled = true;
 				} else if (view != null) {
 					Log.w(TAG, "addView() ignored. Expected a Titanium view object, got " + view.getClass().getSimpleName());
@@ -288,5 +299,15 @@ public class ScrollableViewProxy extends TiViewProxy
 	{
 		getMainHandler().removeMessages(MSG_HIDE_PAGER);
 		super.releaseViews();
+	}
+	
+	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+		ArrayList<TiViewProxy> list = getView().getViews();
+		for (TiViewProxy proxy : list) {
+			proxy.setActivity(activity);
+		}
 	}
 }
