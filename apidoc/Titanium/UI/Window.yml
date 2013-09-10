@@ -42,7 +42,7 @@ methods:
       - name: params
         summary: Parameters to control the toolbar appearance.
         type: windowToolbarParam
-        optional:true
+        optional: true
     platforms: [iphone,ipad]
 
 events:
