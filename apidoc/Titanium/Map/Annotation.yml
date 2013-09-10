@@ -53,7 +53,18 @@ properties:
         Must be set before the annotation is added to the map view.
     type: Boolean
     exclude-platforms: [blackberry]
-    
+
+  - name: canShowCallout
+    summary: Defines whether the annotation view is able to display extra information in a callout bubble.
+    description: |
+        When this is set to true, the annotation view shows the callout bubble on selection. Set this to false to disabled
+        the showing of the callout bubble on selection. This must be set before the annotation is added to the map.
+
+        If this value is undefined, the value is treated as **explicit true**. 
+    type: Boolean
+    platforms: [iphone, ipad]
+    since: "3.2.0"
+
   - name: centerOffset
     summary: Defines a center offset point for the annotation.
     description: |
