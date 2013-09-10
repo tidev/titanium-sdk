@@ -42,7 +42,7 @@ methods:
       - name: params
         summary: Parameters to control the toolbar appearance.
         type: windowToolbarParam
-        optional:true
+        optional: true
     platforms: [iphone,ipad]
 
 events:
@@ -557,6 +557,8 @@ properties:
     description: |
         Sets the status bar style when this winodow gains focus. This is now the recommended way to control the
         status bar style on the application. Must be specified **before** the the window is opened.
+
+        The default behavior is to assume that the value is set to <Titanium.UI.iPhone.StatusBar.DEFAULT>
     type: [Number]
     since: "3.1.3"
     platforms: [iphone,ipad]
