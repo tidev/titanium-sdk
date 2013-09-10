@@ -121,6 +121,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_DISPOSE_HANDLE = "disposehandle";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_DOUBLE_TAP = "doubletap";
 
 	/**
