@@ -33,6 +33,18 @@ methods:
         type: openWindowParams
         optional: true
 
+  - name: setToolBar
+    summary: Sets the array of items to show in the windows toolbar.
+    parameters:
+      - name: items
+        summary: Array of button objects to show in the window's toolbar.
+        type: Array<Object>
+      - name: params
+        summary: Parameters to control the toolbar appearance.
+        type: windowToolbarParam
+        optional:true
+    platforms: [iphone,ipad]
+
 events:
   - name: android:back
     deprecated:
@@ -268,10 +280,12 @@ properties:
   - name: fullscreen
     summary: Boolean value indicating if the window is fullscreen.
     description: |
-        A fullscreen window occupies all of the screen space, hiding elements
-        such as the iOS nav bar or the Android status bar. Must be specified
-        at creation time or in the `options` dictionary passed to the 
-        [Window.open](Titanium.UI.Window.open) method.
+        A fullscreen window occupies all of the screen space, hiding the status bar. Must be specified
+        at creation time or in the `options` dictionary passed to the [Window.open](Titanium.UI.Window.open) method.
+
+        On iOS the behavior of this property has changed. Starting from 3.1.3, if this property is undefined
+        then the property is treated as **explicit false**. On earlier versions, opening a window with this property
+        undefined would not effect the status bar appearance.
 
         On Android, setting this property forces the creation of a heavyweight window before Titanium 3.2.0.
         See "Android Heavyweight and Lightweight Windows" in the main description of this class for more
@@ -315,7 +329,9 @@ properties:
         iOS note: modal windows should not support orientation modes that the
         window they are opened over do not support. Doing otherwise *may* cause
         bad visual/redraw behavior after the modal is dismissed, due to how
-        iOS manages modal transitions.
+        iOS manages modal transitions. Beginning with 3.1.3, if the orientationModes property of a 
+        modal window is undefined, then the orientations supported by this window would be the orientationModes
+        specified by tiapp.xml.
         
         Mobile Web and Tizen note: On Mobile Web and Tizen, windows are always modal, blocking input to underlying 
         windows. If the window does not occupy the full screen, setting `modal` to `true` provides 
@@ -331,10 +347,13 @@ properties:
     default: false
 
   - name: navBarHidden
-    summary: For modal windows, hide the nav bar (`true`) or show the nav bar (`false`).
+    summary: Hides the nav bar (`true`) or shows the nav bar (`false`).
     description: |
         Must be specified at creation time or in the `options` dictionary passed to the 
         [Window.open](Titanium.UI.Window.open) method.
+
+        **Beginning with 3.1.3**, this is no longer a valid parameter passed to the [Window.open](Titanium.UI.Window.open) method.
+        Modal windows on iOS no longer have a navigation controller and hence **do not** have a nav bar.
 
         On Android, setting this property forces the creation of a heavyweight window before Titanium 3.2.0. See "Android
         Heavyweight and Lightweight Windows" in the main description of this class for more
@@ -491,7 +510,16 @@ properties:
     summary: View to show in the right nav bar area.
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
-
+    
+  - name: statusBarStyle
+    summary: The status bar style associated with this window. 
+    description: |
+        Sets the status bar style when this winodow gains focus. This is now the recommended way to control the
+        status bar style on the application. Must be specified **before** the the window is opened.
+    type: [Number]
+    since: "3.1.3"
+    platforms: [iphone,ipad]
+    
   - name: tabBarHidden
     summary: |
         Boolean value indicating if the tab bar should be hidden. 
@@ -538,7 +566,7 @@ properties:
   - name: toolbar
     summary: |
         Array of button objects to show in the window's toolbar. This is only valid when
-        the window is the child of a tab.
+        the window has a navigation controller.
     platforms: [iphone, ipad]
     type: Array<Object>
 
@@ -554,7 +582,7 @@ properties:
   - name: translucent
     summary: Boolean value indicating if the nav bar is translucent.
     platforms: [iphone, ipad, mobileweb, tizen]
-    default: false
+    default: true on iOS7 and above, false otherwise.
     type: Boolean
 
   - name: url
@@ -1095,6 +1123,32 @@ properties:
     type: Number
     platforms: [android]
     since: "3.1.0"
+
+---
+name: windowToolbarParam
+summary: Dictionary of options for the <Titanium.UI.Window.setToolBar> method.
+since: 3.1.3
+platforms: [iphone,ipad]
+
+properties:
+
+  - name: translucent
+    summary: Defined if the toolbar is translucent.
+    type: Boolean
+    default: true on iOS 7 and above, false otherwise.
+
+  - name: animated
+    summary: Defined if the toolbar appearance is animated.
+    type: Boolean
+    default: true if the window has toolbar items, false otherwise.
+
+  - name: barColor
+    summary: Background color for the toolbar, as a color name or hex triplet.
+    type: String
+
+  - name: tintColor
+    summary: The tintColor to apply to the tool bar. Applicable on iOS 7 and above.
+    type: String
 
 ---
 name: closeWindowParams
