@@ -140,6 +140,20 @@
     return self;
 }
 
+-(UIStatusBarStyle)styleFromString:(NSString*)theString
+{
+    if (!IS_NULL_OR_NIL(theString)) {
+        if ([theString isEqualToString:@"UIStatusBarStyleDefault"]) {
+            return UIStatusBarStyleDefault;
+        } else if ([theString isEqualToString:@"UIStatusBarStyleBlackOpaque"]) {
+            return [TiUtils isIOS7OrGreater] ? 1 : UIStatusBarStyleBlackOpaque;
+        } else if ([theString isEqualToString:@"UIStatusBarStyleBlackTranslucent"] || [theString isEqualToString:@"UIStatusBarStyleLightContent"]) {
+            return [TiUtils isIOS7OrGreater] ? 1 : UIStatusBarStyleBlackTranslucent;
+        }
+    }
+    return UIStatusBarStyleDefault;
+}
+
 -(void)processInfoPlist
 {
     //read the default orientations
@@ -153,7 +167,7 @@
     viewControllerControlsStatusBar = [TiUtils boolValue:vcbasedStatHidden def:YES];
     //read the value of statusBarStyle
     id statusStyle = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIStatusBarStyle"];
-    defaultStatusBarStyle = [TiUtils intValue:statusStyle];
+    defaultStatusBarStyle = [self styleFromString:statusStyle];
     
 }
 
