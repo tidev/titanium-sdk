@@ -172,7 +172,7 @@
             barStyle = UIStatusBarStyleDefault;
             break;
         case UIStatusBarStyleBlackOpaque:
-        case UIStatusBarStyleBlackTranslucent:
+        case UIStatusBarStyleBlackTranslucent: //This will also catch UIStatusBarStyleLightContent
             if ([TiUtils isIOS7OrGreater]) {
                 barStyle = 1;//UIStatusBarStyleLightContent;
             } else {
