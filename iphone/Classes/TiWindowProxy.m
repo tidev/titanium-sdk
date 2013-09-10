@@ -249,7 +249,7 @@
     }
     
     if ( (tab == nil) && (isModal == NO) && ([theController topPresentedController] != [theController topContainerController]) ){
-        DebugLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller.")
+        DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller.")
         [self forgetProxy:openAnimation];
         RELEASE_TO_NIL(openAnimation);
     }
@@ -265,7 +265,7 @@
         RELEASE_TO_NIL(closeAnimation);
     }
     if ( (tab == nil) && (isModal == NO) && ([theController topPresentedController] != [theController topContainerController]) ){
-        DebugLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller.")
+        DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller.")
         [self forgetProxy:closeAnimation];
         RELEASE_TO_NIL(closeAnimation);
     }
