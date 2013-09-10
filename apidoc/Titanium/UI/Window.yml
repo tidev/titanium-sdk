@@ -343,6 +343,16 @@ properties:
     default: false
     type: Boolean
 
+  - name: navTintColor
+    summary: The tintColor to apply to the navigation bar. This property is applicable on iOS 7 and greater. 
+    description: |
+        This property is a direct correspondant of the tintColor property of NavigationBar on iOS.
+    type: [String]
+    since: "3.1.3"
+    default: null
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad]
+    
   - name: opacity
     summary: The opacity from 0.0-1.0.
     description: |
