@@ -274,6 +274,47 @@ properties:
     type: Boolean
     availability: creation
 
+  - name: extendEdges
+    summary: |
+        An array of supported values specified using the EXTEND_EDGE constants in <Titanium.UI>. Valid on iOS 7 and greater.
+    description:  |
+        This is only valid for windows hosted by navigation controllers or tab bar controllers. This property is used to
+        determine the layout of the window within its parent view controller. For example if the window is specified to extend its top edge
+        and it is hosted in a navigation controller, then the top edge of the window is extended underneath the navigation bar so that part
+        of the window is obscured. If the navigation bar is opaque (translucent property on window is false), then the top edge of the window
+        will only extend if <Titanium.UI.Window.includeOpaqueBars> is set to true. 
+
+        The default behavior is to assume that no edges are to be extended. Must be specified before **opening** the window.
+    platforms: [iphone,ipad]
+    type: Array<Number>
+    since: 3.1.3
+    osver: {ios: {min: "7.0"}}
+
+  - name: includeOpaqueBars
+    summary: |
+        Specifies if the edges should extend beyond opaque bars (navigation bar, tab bar, toolbar). Valid on iOS 7 and greater.
+    description:  |
+        By default edges are only extended to include translucent bars. However if this is set to true, then edges are extended beyond
+        opaque bars as well.
+
+        The default behavior assumes that this is false. Must be specified before **opening** the window.
+    platforms: [iphone,ipad]
+    type: Boolean
+    since: 3.1.3
+    osver: {ios: {min: "7.0"}}
+
+  - name: autoAdjustScrollViewInsets
+    summary: |
+        Specifies whether or not the view controller should automatically adjust its scroll view insets. Valid on iOS 7 and greater.
+    description:  |
+        When the value is true, it allows the view controller to adjust its scroll view insets in response to the screen areas consumed by the status bar, navigation bar, toolbar and tab bar.
+
+        The default behavior assumes that this is false. Must be specified before **opening** the window.
+    platforms: [iphone,ipad]
+    type: Boolean
+    since: 3.1.3
+    osver: {ios: {min: "7.0"}}
+
   - name: fullscreen
     summary: Boolean value indicating if the window is fullscreen.
     description: |
