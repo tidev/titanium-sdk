@@ -82,6 +82,8 @@
 
 @synthesize keyboardFocusedProxy = keyboardFocusedProxy;
 @synthesize statusBarVisibilityChanged;
+@synthesize statusBarInitiallyHidden;
+@synthesize defaultStatusBarStyle;
 -(void)dealloc
 {
 	RELEASE_TO_NIL(bgColor);
@@ -685,7 +687,7 @@
 	}
 }
 
--(UIView *)topTitaniumView
+-(UIView *)topWindowProxyView
 {
     if ([modalWindows count] > 0) {
         return (UIView *)[[modalWindows lastObject] view];
