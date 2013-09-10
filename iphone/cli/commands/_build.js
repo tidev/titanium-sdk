@@ -103,7 +103,7 @@ UglifyJS.AST_Node.warn_function = function () {};
  * @param {Object} logger - The logger instance
  * @param {Object} config - The CLI config
  * @param {Object} cli - The CLI instance
- * @returns {Function} A function that returns the config info
+ * @returns {Function|undefined} A function that returns the config info or undefined
  */
 exports.config = function config(logger, config, cli) {
 	return function (done) {

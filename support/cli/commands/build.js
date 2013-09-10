@@ -108,10 +108,27 @@ exports.validate = function (logger, config, cli) {
 	cli.argv.type = 'app';
 
 	ti.validatePlatform(logger, cli, 'platform');
-	if (ti.validatePlatformOptions(logger, config, cli, 'build') === false) {
-		return false;
-	}
-	ti.loadPlugins(logger, cli, config, cli.argv['project-dir']);
+
+	return function (finished) {
+		function next(result) {
+			if (result) {
+				console.log('loading plugins');
+				ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
+					console.log('plugins loaded');
+					finished(result);
+				});
+			} else {
+				finished(result);
+			}
+		}
+
+		var result = ti.validatePlatformOptions(logger, config, cli, 'build');
+		if (result && typeof result == 'function') {
+			result(next);
+		} else {
+			next(result);
+		}
+	};
 };
 
 exports.run = function (logger, config, cli) {

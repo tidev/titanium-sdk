@@ -19,7 +19,7 @@
 		"Chris Barber <cbarber@appcelerator.com>"
 	],
 	"vendorDependencies": {
-		"android sdk": ">=2.3.3 <=4.2",
+		"android sdk": ">=10 <=18",
 		"android build tools": "<=18",
 		"android platform tools": "<=18",
 		"android tools": "<=22",

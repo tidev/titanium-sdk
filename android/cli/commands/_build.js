@@ -32,332 +32,337 @@ var ti = require('titanium-sdk'),
 	deployTypes = ['production', 'test', 'development'],
 	targets = ['emulator', 'device', 'dist-playstore'];
 
-exports.config = function (logger, config, cli) {
+function AndroidBuilder() {
+	Builder.apply(this, arguments);
+}
+
+util.inherits(AndroidBuilder, Builder);
+
+AndroidBuilder.prototype.config = function config(logger, config, cli) {
+	Builder.prototype.config.apply(this, arguments);
+
 	return function (finished) {
-		var conf;
-
-		cli.createHook('build.android.config', function (callback) {
-			callback({
-				options: {
-					'alias': {
-						abbr: 'L',
-						desc: __('the alias for the keystore'),
-						hint: 'alias',
-						prompt: function (callback) {
-							fields.text({
-								promptLabel: __("What is the name of the keystore's certificate alias?"),
-								validate: function (value, cb) {
-									if (!value) logger.error(__('Invalid keystore alias'));
-									cb(!value, value);
-								}
-							}).prompt(callback);
-						}
-					},
-					'android-sdk': {
-						abbr: 'A',
-						callback: function (value) {
-							return value.trim();
-						},
-						default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
-						desc: __('the path to the Android SDK'),
-						hint: __('path'),
-						required: true,
-						prompt: function (callback) {
-							fields.file({
-								promptLabel: __('Where is the Android SDK?'),
-								default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
-								complete: true,
-								showHidden: true,
-								ignoreDirs: config.get('cli.ignoreDirs'),
-								ignoreFiles: config.get('cil.ignoreFiles'),
-								validate: function (value, cb) {
-									if (!value) {
-										logger.error(__('Invalid Android SDK path'));
-										return cb(true);
-									}
-									android.findSDK(value, config, function (err, results) {
-										if (err) logger.error(__('Invalid Android SDK path: %s', value));
-										cb(err, results);
-									});
-								}
-							}).prompt(function (err, value) {
-								if (err) return callback(err);
-								// rerun detection
-								config.set('android.sdkPath', value);
-								callback(null, value);
-							});
-						}
-					},
-					'avd-abi': {
-						abbr: 'B',
-						desc: __('the abi for the Android emulator; deprecated, use --device')
-					},
-					'avd-id': {
-						abbr: 'I',
-						desc: __('the id for the Android emulator; deprecated, use --device'),
-						hint: __('id')
-					},
-					'avd-skin': {
-						abbr: 'S',
-						desc: __('the skin for the Android emulator; deprecated, use --device'),
-						hint: __('skin'),
-						default: 'HVGA'
-					},
-					'debug-host': {
-						hidden: true
-					},
-					'deploy-type': {
-						abbr: 'D',
-						desc: __('the type of deployment; only used with target is %s or %s', 'emulator'.cyan, 'device'.cyan),
-						hint: __('type'),
-						values: ['test', 'development'],
-					},
-					'device': {
-						abbr: 'V',
-						desc: __('the name for the device or Android emulator to install the application to'),
-						hint: __('name'),
-						required: true,
-						prompt: function (callback) {
-							// we need to get a list of all devices and emulators
-							async.series({
-								devices: function (cb) {
-									if (cli.argv.target != 'device') return cb();
-									var adb = new ADB(config);
-									adb.devices(cb);
-								},
-								avds: function (cb) {
-									if (cli.argv.target != 'emulator') return cb();
-									new EmulatorManager(config).detect(cb);
-								}
-							}, function (err, results) {
-								var opts = {},
-									avds = {};
-
-								if (Array.isArray(results.devices) && results.devices.length) {
-									opts[__('Devices')] = results.devices.map(function (d) {
-										return {
-											name: d.model || d.manufacturer,
-											id: d.id,
-											version: d.release,
-											abi: Array.isArray(d.abi) ? d.abi.join(',') : d.abi,
-											type: 'device'
-										};
-									});
-								}
-
-								if (Array.isArray(results.avds) && results.avds.length) {
-									var avd = __('Android Emulators'),
-										gm = __('Genymotion Emulators');
-									results.avds.forEach(function (a) {
-										if (a.type == 'avd') {
-											avds[a.name] = 1;
-											opts[avd] || (opts[avd] = []);
-											opts[avd].push({
-												name: a.name,
-												id: a.name,
-												version: a.target,
-												abi: a.abi,
-												type: a.type
-											});
-										} else if (a.type == 'genymotion') {
-											opts[gm] || (opts[gm] = []);
-											opts[gm].push({
-												name: a.name,
-												id: a.guid,
-												version: a.target,
-												abi: a.abi,
-												type: a.type
-											});
+		appc.async.parallel(this, {
+			jdkInfo: function (done) {
+				// quickly detect if java is installed
+				appc.jdk.detect(config, null, function (jdkInfo) {
+					done(null, jdkInfo);
+				});
+			},
+			conf: function (done) {
+				cli.createHook('build.android.config', function (callback) {
+					callback({
+						options: {
+							'alias': {
+								abbr: 'L',
+								desc: __('the alias for the keystore'),
+								hint: 'alias',
+								prompt: function (callback) {
+									fields.text({
+										promptLabel: __("What is the name of the keystore's certificate alias?"),
+										validate: function (value, cb) {
+											if (!value) logger.error(__('Invalid keystore alias'));
+											cb(!value, value);
 										}
-									});
+									}).prompt(callback);
 								}
-
-								// maybe they specified the old legacy --avd-id stuff
-								if (avds['titanium_' + cli.argv['avd-id'] + '_' + cli.argv['avd-skin'] + '_' + cli.argv['avd-abi']]
-									|| avds['titanium_' + cli.argv['avd-id'] + '_' + cli.argv['avd-skin']]) {
-									return callback();
-								}
-
-								// if there are no devices/emulators, error
-								if (!Object.keys(opts).length) {
-									logger.error(__('Unable to find any devices or emulators') + '\n');
-									logger.log(__('Please create an emulator or plug in an Android device, then try again.') + '\n');
-									process.exit(1);
-								}
-
-								fields.select({
-									title: __('Where do you want to install your application after building?'),
-									promptLabel: __('Select a device by number or name'),
-									formatters: {
-										option: function (opt, idx, num) {
-											return '    ' + num + opt.name.cyan + ' (' + opt.id + ')';
-										}
-									},
-									margin: '',
-									optionLabel: 'name',
-									optionValue: 'id',
-									numbered: true,
-									relistOnError: true,
-									complete: true,
-									suggest: true,
-									options: opts
-								}).prompt(callback);
-							});
-						}
-					},
-					'key-password': {
-						desc: __('the password for the keystore private key (defaults to the store-password)'),
-						hint: 'keypass',
-						password: true,
-						prompt: {
-							label: __('Keystore private key password'),
-							error: __('Invalid keystore private key password'),
-							validator: function (password) {
-								if (!password) {
-									throw new appc.exception(__('Invalid keystore private key password'));
-								}
-								return true;
-							}
-						}
-					},
-					'keystore': {
-						abbr: 'K',
-						desc: __('the location of the keystore file'),
-						hint: 'path',
-						prompt: {
-							label: __('Keystore File Location'),
-							error: __('Invalid keystore file'),
-							validator: function (keystorePath) {
-								keystorePath = afs.resolvePath(keystorePath);
-								if (!afs.exists(keystorePath) || !fs.lstatSync(keystorePath).isFile()) {
-									throw new appc.exception(__('Invalid keystore file location'));
-								}
-								return true;
-							}
-						}
-					},
-					'output-dir': {
-						abbr: 'O',
-						desc: __('the output directory when using %s', 'dist-playstore'.cyan),
-						hint: 'dir',
-						prompt: {
-							default: function () {
-								return cli.argv['project-dir'] && path.join(cli.argv['project-dir'], 'dist');
 							},
-							label: __('Output directory'),
-							error: __('Invalid output directory'),
-							validator: function (dir) {
-								if (!afs.resolvePath(dir)) {
-									throw new appc.exception(__('Invalid output directory'));
+							'android-sdk': {
+								abbr: 'A',
+								callback: function (value) {
+									return value.trim();
+								},
+								default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
+								desc: __('the path to the Android SDK'),
+								hint: __('path'),
+								required: true,
+								prompt: function (callback) {
+									fields.file({
+										promptLabel: __('Where is the Android SDK?'),
+										default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
+										complete: true,
+										showHidden: true,
+										ignoreDirs: config.get('cli.ignoreDirs'),
+										ignoreFiles: config.get('cil.ignoreFiles'),
+										validate: function (value, cb) {
+											if (!value) {
+												logger.error(__('Invalid Android SDK path'));
+												return cb(true);
+											}
+											android.findSDK(value, config, function (err, results) {
+												if (err) logger.error(__('Invalid Android SDK path: %s', value));
+												cb(err, results);
+											});
+										}
+									}).prompt(function (err, value) {
+										if (err) return callback(err);
+										// rerun detection
+										config.set('android.sdkPath', value);
+										callback(null, value);
+									});
 								}
-								return true;
-							}
-						}
-					},
-					'store-password': {
-						abbr: 'P',
-						alias: 'password',
-						desc: __('the password for the keystore'),
-						hint: 'storepass',
-						password: true,
-						prompt: {
-							label: __('Keystore password'),
-							error: __('Invalid keystore password'),
-							validator: function (password) {
-								if (!password) {
-									throw new appc.exception(__('Invalid keystore password'));
-								}
-								// TODO: check that the password actually works
-								return true;
-							}
-						}
-					},
-					target: {
-						abbr: 'T',
-						callback: function (value) {
-							// as soon as we know the target, toggle required options for validation
-							if (value === 'dist-playstore') {
-								conf.options['keystore'].required = true;
-								conf.options['store-password'].required = true;
-								conf.options['key-password'].required = true;
-								conf.options['alias'].required = true;
-								conf.options['output-dir'].required = true;
-								conf.options['deploy-type'].values = ['production'];
-								conf.options['device'].required = false;
-							}
-						},
-						default: 'emulator',
-						desc: __('the target to build for'),
-						required: true,
-						values: targets
-					}
-				}
-			});
-		})(function (err, results, result) {
-			conf = result;
+							},
+							'avd-abi': {
+								abbr: 'B',
+								desc: __('the abi for the Android emulator; deprecated, use --device')
+							},
+							'avd-id': {
+								abbr: 'I',
+								desc: __('the id for the Android emulator; deprecated, use --device'),
+								hint: __('id')
+							},
+							'avd-skin': {
+								abbr: 'S',
+								desc: __('the skin for the Android emulator; deprecated, use --device'),
+								hint: __('skin'),
+								default: 'HVGA'
+							},
+							'debug-host': {
+								hidden: true
+							},
+							'deploy-type': {
+								abbr: 'D',
+								desc: __('the type of deployment; only used with target is %s or %s', 'emulator'.cyan, 'device'.cyan),
+								hint: __('type'),
+								values: ['test', 'development'],
+							},
+							'device': {
+								abbr: 'V',
+								desc: __('the name for the device or Android emulator to install the application to'),
+								hint: __('name'),
+								required: true,
+								prompt: function (callback) {
+									// we need to get a list of all devices and emulators
+									async.series({
+										devices: function (cb) {
+											if (cli.argv.target != 'device') return cb();
+											var adb = new ADB(config);
+											adb.devices(cb);
+										},
+										avds: function (cb) {
+											if (cli.argv.target != 'emulator') return cb();
+											new EmulatorManager(config).detect(cb);
+										}
+									}, function (err, results) {
+										var opts = {},
+											avds = {};
 
-			// quickly detect if java is installed
-			appc.jdk.detect(config, null, function (r) {
-				jdk = r;
-				finished(conf);
-			});
+										if (Array.isArray(results.devices) && results.devices.length) {
+											opts[__('Devices')] = results.devices.map(function (d) {
+												return {
+													name: d.model || d.manufacturer,
+													id: d.id,
+													version: d.release,
+													abi: Array.isArray(d.abi) ? d.abi.join(',') : d.abi,
+													type: 'device'
+												};
+											});
+										}
+
+										if (Array.isArray(results.avds) && results.avds.length) {
+											var avd = __('Android Emulators'),
+												gm = __('Genymotion Emulators');
+											results.avds.forEach(function (a) {
+												if (a.type == 'avd') {
+													avds[a.name] = 1;
+													opts[avd] || (opts[avd] = []);
+													opts[avd].push({
+														name: a.name,
+														id: a.name,
+														version: a.target,
+														abi: a.abi,
+														type: a.type
+													});
+												} else if (a.type == 'genymotion') {
+													opts[gm] || (opts[gm] = []);
+													opts[gm].push({
+														name: a.name,
+														id: a.guid,
+														version: a.target,
+														abi: a.abi,
+														type: a.type
+													});
+												}
+											});
+										}
+
+										// maybe they specified the old legacy --avd-id stuff
+										if (avds['titanium_' + cli.argv['avd-id'] + '_' + cli.argv['avd-skin'] + '_' + cli.argv['avd-abi']]
+											|| avds['titanium_' + cli.argv['avd-id'] + '_' + cli.argv['avd-skin']]) {
+											return callback();
+										}
+
+										// if there are no devices/emulators, error
+										if (!Object.keys(opts).length) {
+											logger.error(__('Unable to find any devices or emulators') + '\n');
+											logger.log(__('Please create an emulator or plug in an Android device, then try again.') + '\n');
+											process.exit(1);
+										}
+
+										fields.select({
+											title: __('Where do you want to install your application after building?'),
+											promptLabel: __('Select a device by number or name'),
+											formatters: {
+												option: function (opt, idx, num) {
+													return '    ' + num + opt.name.cyan + ' (' + opt.id + ')';
+												}
+											},
+											margin: '',
+											optionLabel: 'name',
+											optionValue: 'id',
+											numbered: true,
+											relistOnError: true,
+											complete: true,
+											suggest: true,
+											options: opts
+										}).prompt(callback);
+									});
+								}
+							},
+							'key-password': {
+								desc: __('the password for the keystore private key (defaults to the store-password)'),
+								hint: 'keypass',
+								password: true,
+								prompt: {
+									label: __('Keystore private key password'),
+									error: __('Invalid keystore private key password'),
+									validator: function (password) {
+										if (!password) {
+											throw new appc.exception(__('Invalid keystore private key password'));
+										}
+										return true;
+									}
+								}
+							},
+							'keystore': {
+								abbr: 'K',
+								desc: __('the location of the keystore file'),
+								hint: 'path',
+								prompt: {
+									label: __('Keystore File Location'),
+									error: __('Invalid keystore file'),
+									validator: function (keystorePath) {
+										keystorePath = afs.resolvePath(keystorePath);
+										if (!afs.exists(keystorePath) || !fs.lstatSync(keystorePath).isFile()) {
+											throw new appc.exception(__('Invalid keystore file location'));
+										}
+										return true;
+									}
+								}
+							},
+							'output-dir': {
+								abbr: 'O',
+								desc: __('the output directory when using %s', 'dist-playstore'.cyan),
+								hint: 'dir',
+								prompt: {
+									default: function () {
+										return cli.argv['project-dir'] && path.join(cli.argv['project-dir'], 'dist');
+									},
+									label: __('Output directory'),
+									error: __('Invalid output directory'),
+									validator: function (dir) {
+										if (!afs.resolvePath(dir)) {
+											throw new appc.exception(__('Invalid output directory'));
+										}
+										return true;
+									}
+								}
+							},
+							'store-password': {
+								abbr: 'P',
+								alias: 'password',
+								desc: __('the password for the keystore'),
+								hint: 'storepass',
+								password: true,
+								prompt: {
+									label: __('Keystore password'),
+									error: __('Invalid keystore password'),
+									validator: function (password) {
+										if (!password) {
+											throw new appc.exception(__('Invalid keystore password'));
+										}
+										// TODO: check that the password actually works
+										return true;
+									}
+								}
+							},
+							target: {
+								abbr: 'T',
+								callback: function (value) {
+									// as soon as we know the target, toggle required options for validation
+									if (value === 'dist-playstore') {
+										conf.options['keystore'].required = true;
+										conf.options['store-password'].required = true;
+										conf.options['key-password'].required = true;
+										conf.options['alias'].required = true;
+										conf.options['output-dir'].required = true;
+										conf.options['deploy-type'].values = ['production'];
+										conf.options['device'].required = false;
+									}
+								},
+								default: 'emulator',
+								desc: __('the target to build for'),
+								required: true,
+								values: targets
+							}
+						}
+					});
+				})(function (err, results, result) {
+					done(err, result);
+				});
+			}
+		}, function (err, results) {
+			this.jdkInfo = results.jdkInfo;
+			this.conf = results.conf;
+			finished(this.conf);
 		});
-	}
+	}.bind(this);
 };
 
-exports.validate = function (logger, config, cli) {
+function assertNotIssue(name, issues, onerror) {
+	issues.forEach(function(issue) {
+		if ((typeof name == 'string' && issue.id == name) || (typeof name == 'object' && name.test(issue.id))) {
+			issue.message.split('\n').forEach(function (line) {
+				logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
+			});
+			logger.log();
+			onerror(false);
+		}
+	});
+}
+
+AndroidBuilder.prototype.validate = function validate() {
 	return function (finished) {
-		androidDetect(config, null, function (env) {
-			androidEnv = env;
+		androidDetect(this.config, null, function (androidInfo) {
+			// figure out the minimum Android SDK version
+			var minSupportedApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
 
-			ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
-			ti.validateTiappXml(logger, cli.tiapp);
+			this.androidInfo = androidInfo;
 
-			if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
+			// check that the Android SDK is found and sane
+			assertNotIssue('ANDROID_SDK_NOT_FOUND', this.androidInfo.issues, finished);
+			assertNotIssue('ANDROID_SDK_MISSING_PROGRAMS', this.androidInfo.issues, finished);
+
+			// check if the Android SDK is in a directory containing ampersands
+			assertNotIssue('ANDROID_SDK_PATH_CONTAINS_AMPERSANDS', this.androidInfo.issues, finished);
+
+			// make sure we have an Android SDK and some Android targets
+			if (Object.keys(this.androidInfo.targets).filter(function (id) { return id > minSupportedApiLevel; }.bind(this)).length <= 0) {
+				logger.error(__('No Android SDK targets found.') + '\n');
+				logger.log(__('Please download SDK targets (api level %s or newer) via Android SDK Manager and try again.', minSupportedApiLevel) + '\n');
+				process.exit(1);
+			}
+
+			ti.validateProjectDir(this.logger, this.cli, this.cli.argv, 'project-dir');
+
+			ti.validateTiappXml(this.logger, this.cli.tiapp);
+
+			if (!ti.validateCorrectSDK(this.logger, this.config, this.cli, 'build')) {
 				// we're running the build command for the wrong SDK version, gracefully return
 				return false;
 			}
 
-			// figure out the minimum Android SDK version
-			var minAndroidSdkVersion = appc.version.parseMin(packageJson.vendorDependencies['android sdk']);
-
-			// make sure we have an Android SDK and some Android targets
-			if (!androidEnv || !Object.keys(androidEnv.targets).length) {
-				logger.error(__('Unable to detect Android SDK targets.') + '\n');
-				logger.log(__('Please download SDK targets via Android SDK Manager and try again. (version %s or newer)', version.format(minAndroidSdkVersion, 3)) + '\n');
-				process.exit(1);
-			}
-
-			// check if the Android SDK is in a directory containing ampersands
-			androidEnv.issues.forEach(function(issue) {
-				if (issue.id == 'ANDROID_SDK_PATH_CONTAINS_AMPERSANDS') {
-					issue.message.split('\n').forEach(function (line) {
-						logger.error(line);
-					});
-					logger.log();
-					process.exit(1);
-				}
-			});
-
-			// check that the Android SDK is sane
-			androidEnv.issues.forEach(function(issue) {
-				if (/^ANDROID_SDK_(NOT_FOUND|MISSING_PROGRAMS)$/.test(issue.id)) {
-					issue.message.split('\n').forEach(function (line) {
-						logger.error(line);
-					});
-					logger.log();
-					process.exit(1);
-				}
-			});
-
-			// check that the target is valid
-			if (targets.indexOf(cli.argv.target) == -1) {
-				logger.error(__('Invalid target "%s"', cli.argv.target) + '\n');
-				appc.string.suggest(cli.argv.target, targets, logger.log, 3);
-				process.exit(1);
-			}
-
-			// Check for java version
+/*			// Check for java version
 			if (!jdk.version) {
 				logger.error(__('Unable to locate the Java Development Kit') + '\n');
 				logger.log(__('You can specify the location by setting the %s environment variable.', 'JAVA_HOME'.cyan) + '\n');
@@ -628,11 +633,17 @@ exports.validate = function (logger, config, cli) {
 
 				finished();
 			});
-		});
-	};
+*/
+
+			// TEMP!!!!!!
+			finished();
+
+		}.bind(this)); // end androidDetect()
+	}.bind(this); // end returned callback
 };
 
-exports.run = function (logger, config, cli, finished) {
+AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
+	//Builder.prototype.run.apply(this, arguments);
 
 	// temporary debug output
 	console.log('\nDONE!\n');
@@ -685,6 +696,7 @@ exports.run = function (logger, config, cli, finished) {
 */
 };
 
+/*
 function build(logger, config, cli, finished) {
 	cli.fireHook('build.pre.compile', this, function (e) {
 		var env = {};
@@ -843,9 +855,11 @@ function appnameToClassname(appname) {
 
 	return classname;
 }
+*/
 
-build.prototype = {
-
-	//
-
-};
+// create the builder instance and expose the public api
+(function (androidBuilder) {
+	exports.config   = androidBuilder.config.bind(androidBuilder);
+	exports.validate = androidBuilder.validate.bind(androidBuilder);
+	exports.run      = androidBuilder.run.bind(androidBuilder);
+}(new AndroidBuilder(module)));
