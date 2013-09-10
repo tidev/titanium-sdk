@@ -11,6 +11,7 @@
 #import "TiLayoutQueue.h"
 #import "TiErrorController.h"
 
+#ifdef FORCE_WITH_MODAL
 @interface ForcingController: UIViewController {
 @private
     TiOrientationFlags orientationFlags;
@@ -47,6 +48,7 @@
 }
 
 @end
+#endif
 
 @interface TiRootViewNeue : UIView
 @end
@@ -79,7 +81,7 @@
 @implementation TiRootViewController
 
 @synthesize keyboardFocusedProxy = keyboardFocusedProxy;
-
+@synthesize statusBarVisibilityChanged;
 -(void)dealloc
 {
 	RELEASE_TO_NIL(bgColor);
@@ -160,7 +162,7 @@
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self updateBackground];
     if (defaultImageView != nil) {
-        [self rotateDefaultImageViewToOrientation:UIInterfaceOrientationPortrait];
+        [self rotateDefaultImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
         [rootView addSubview:defaultImageView];
     }
     [rootView becomeFirstResponder];
@@ -999,6 +1001,15 @@
     return YES;
 }
 
+-(NSUInteger)supportedOrientationsForAppDelegate;
+{
+    if (forcingStatusBarOrientation) {
+        return 0;
+    }
+    //Since this is used just for intersection, ok to return UIInterfaceOrientationMaskAll
+    return 30;//UIInterfaceOrientationMaskAll
+}
+
 - (NSUInteger)supportedInterfaceOrientations{
     //IOS6. If forcing status bar orientation, this must return 0.
     if (forcingStatusBarOrientation) {
@@ -1064,7 +1075,15 @@
     
     if ([[UIApplication sharedApplication] statusBarOrientation] != target) {
         forcingRotation = YES;
+#if defined(DEBUG) || defined(DEVELOPER)
+        DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.",target,[[UIApplication sharedApplication] statusBarOrientation]);
+#endif
+#ifdef FORCE_WITH_MODAL
         [self forceRotateToOrientation:target];
+#else
+        [self manuallyRotateToOrientation:target duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+        forcingRotation = NO;
+#endif
     }
     
 }
@@ -1093,11 +1112,9 @@
 	orientationHistory[0] = newOrientation;
 }
 
+#ifdef FORCE_WITH_MODAL
 -(void)forceRotateToOrientation:(UIInterfaceOrientation)newOrientation
 {
-#if defined(DEBUG) || defined(DEVELOPER)
-    DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.",newOrientation,[[UIApplication sharedApplication] statusBarOrientation]);
-#endif
     UIViewController* tempPresenter = [self topPresentedController];
     ForcingController* dummy = [[ForcingController alloc] init];
     [dummy setOrientation:newOrientation];
@@ -1115,10 +1132,13 @@
         [dummy release];
     }];
 }
+#endif
 
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
 {
-    /*
+    if (!forcingRotation) {
+        return;
+    }
     UIApplication * ourApp = [UIApplication sharedApplication];
     UIInterfaceOrientation oldOrientation = [ourApp statusBarOrientation];
     CGAffineTransform transform;
@@ -1175,7 +1195,6 @@
     }
 
     [self didRotateFromInterfaceOrientation:oldOrientation];
-     */
 }
 
 #pragma mark - TiOrientationController
@@ -1282,8 +1301,7 @@
     for (id<TiWindowProtocol> thisWindow in containedWindows) {
         [thisWindow willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
-    targetOrientation = toInterfaceOrientation;
-    [self updateOrientationHistory:targetOrientation];
+    [self updateOrientationHistory:toInterfaceOrientation];
     [self rotateDefaultImageViewToOrientation:toInterfaceOrientation];
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
@@ -1305,10 +1323,14 @@
 #pragma mark - Status Bar Appearance
 - (BOOL)prefersStatusBarHidden
 {
+    BOOL oldStatus = statusBarIsHidden;
     if ([containedWindows count] > 0) {
-        return [[containedWindows lastObject] hidesStatusBar];
+        statusBarIsHidden = [[containedWindows lastObject] hidesStatusBar];
+    } else {
+        statusBarIsHidden = oldStatus = statusBarInitiallyHidden;
     }
-    return statusBarInitiallyHidden;
+    statusBarVisibilityChanged = (statusBarIsHidden != oldStatus);
+    return statusBarIsHidden;
 }
 
 - (UIStatusBarAnimation)preferredStatusBarUpdateAnimation

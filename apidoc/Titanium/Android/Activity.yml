@@ -249,6 +249,15 @@ events:
         See also: [onStop](http://developer.android.com/reference/android/app/Activity.html#onStop())
         in the Android Developer Reference.
 
+  - name: userleavehint
+    summary: Fired when the activity is about to go into the background as a result of user choice.
+    description: |
+        See also:
+        [onPause](http://developer.android.com/reference/android/app/Activity.html#onUserLeaveHint())
+        in the Android Developer Reference.
+    since: "3.2.0"
+
+
 properties:
 
   - name: actionBar

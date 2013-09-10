@@ -397,10 +397,13 @@ def resolve_npm_deps(dir, version, node_appc_branch):
 		for key in subs:
 			package_json_contents = package_json_contents.replace(key, subs[key])
 
+		json = simplejson.loads(package_json_contents)
 		if node_appc_branch:
-			json = simplejson.loads(package_json_contents)
+			print 'node-appc-branch = %s' % node_appc_branch
 			json['dependencies']['node-appc'] = 'git://github.com/appcelerator/node-appc.git#%s' % node_appc_branch
 			package_json_contents = simplejson.dumps(json, indent=True)
+		else:
+			print 'node-appc = %s' % json['dependencies']['node-appc']
 
 		codecs.open(package_json_file, 'w', 'utf-8').write(package_json_contents)
 
@@ -451,13 +454,13 @@ def resolve_npm_deps(dir, version, node_appc_branch):
 		if p.returncode != 0:
 			codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 			print '[ERROR] Failed to npm install dependencies'
-			if stderr.find('EACCES') > 0:
+			if stderr.find('EACCES') > 0 or stderr.find('Permission denied') > 0:
 				try:
 					print '[ERROR] npm failed because there are files in the %s/.npm directory that are not writeable' % os.environ['HOME']
 					print '[ERROR] Either run'
-					print '[ERROR]    chown -R %s %s/.npm' % (os.environ['USER'], os.environ['HOME'])
+					print '[ERROR]    sudo chown -R %s %s/.npm' % (os.environ['USER'], os.environ['HOME'])
 					print '[ERROR] or'
-					print '[ERROR]    rm -rf %s/.npm/*' % os.environ['HOME']
+					print '[ERROR]    sudo rm -rf %s/.npm/*' % os.environ['HOME']
 				except:
 					print stderr
 			else:

@@ -768,10 +768,17 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	public boolean isFastDevMode()
 	{
-		// Fast dev is enabled by default in development mode, and disabled otherwise
-		// When the property is set, it overrides the default behavior
-		return getSystemProperties().getBool(TiApplication.PROPERTY_FASTDEV,
-			getDeployType().equals(TiApplication.DEPLOY_TYPE_DEVELOPMENT));
+		/* Fast dev is enabled by default in development mode, and disabled otherwise
+		 * When the property is set, it overrides the default behavior on emulator only
+		 * Deploy types are as follow: 
+		 *    Emulator: 'development'
+		 *    Device: 'test'
+		 */
+		boolean development = getDeployType().equals(TiApplication.DEPLOY_TYPE_DEVELOPMENT);
+		if (!development) {
+			return false;
+		}
+		return getSystemProperties().getBool(TiApplication.PROPERTY_FASTDEV, development);
 	}
 
 	public boolean isCoverageEnabled()

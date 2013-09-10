@@ -482,6 +482,11 @@ public class TiC
 	 */
 	public static final String EVENT_PROPERTY_URL = "url";
 	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
+	
 
 	/**
 	 * @module.api

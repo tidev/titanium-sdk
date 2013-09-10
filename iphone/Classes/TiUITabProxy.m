@@ -47,6 +47,8 @@
 	[self replaceValue:nil forKey:@"title" notification:NO];
 	[self replaceValue:nil forKey:@"icon" notification:NO];
 	[self replaceValue:nil forKey:@"badge" notification:NO];
+	[self replaceValue:NUMBOOL(YES) forKey:@"iconIsMask" notification:NO];
+	[self replaceValue:NUMBOOL(YES) forKey:@"activeIconIsMask" notification:NO];
 	[super _configure];
 }
 
@@ -267,7 +269,28 @@
 
 - (void)handleWillShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-    
+    if (current != nil) {
+        UIViewController *curController = [current hostingController];
+        NSArray* curStack = [[[self rootController] navigationController] viewControllers];
+        BOOL winclosing = NO;
+        if (![curStack containsObject:curController]) {
+            winclosing = YES;
+        } else {
+            NSUInteger curIndex = [curStack indexOfObject:curController];
+            if (curIndex > 1) {
+                UIViewController* currentPopsTo = [curStack objectAtIndex:(curIndex - 1)];
+                if (currentPopsTo == viewController) {
+                    winclosing = YES;
+                }
+            }
+        }
+        if (winclosing) {
+            //TIMOB-15033. Have to call windowWillClose so any keyboardFocussedProxies resign
+            //as first responders. This is ok since tab is not nil so no message will be sent to
+            //hosting controller.
+            [current windowWillClose];
+        }
+    }
     TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
     if (theWindow == rootWindow) {
         //This is probably too late for the root view controller.
@@ -425,7 +448,32 @@
 
 	[rootController setTitle:title];
 	UITabBarItem *ourItem = nil;
-
+    
+    BOOL imageIsMask = NO;
+    
+    if ([TiUtils isIOS7OrGreater]) {
+        
+        //CLEAN UP CODE WHEN WE UPGRADE MIN XCODE VERSION TO XCODE5
+        if (image != nil) {
+            if ([image respondsToSelector:@selector(imageWithRenderingMode:)]) {
+                NSInteger theMode = iconOriginal ? 1/*UIImageRenderingModeAlwaysOriginal*/ : 2/*UIImageRenderingModeAlwaysTemplate*/;
+                image = [(id<UIImageIOS7Support>)image imageWithRenderingMode:theMode];
+            }
+        }
+        if (activeImage != nil) {
+            if ([activeImage respondsToSelector:@selector(imageWithRenderingMode:)]) {
+                NSInteger theMode = activeIconOriginal ? 1/*UIImageRenderingModeAlwaysOriginal*/ : 2/*UIImageRenderingModeAlwaysTemplate*/;
+                activeImage = [(id<UIImageIOS7Support>)activeImage imageWithRenderingMode:theMode];
+            }
+        }
+        
+        systemTab = NO;
+        ourItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
+        [ourItem setBadgeValue:badgeValue];
+        [rootController setTabBarItem:ourItem];
+        return;
+    }
+    
 	if (!systemTab)
 	{
 		ourItem = [rootController tabBarItem];
@@ -478,6 +526,32 @@
 	[self replaceValue:icon forKey:@"icon" notification:NO];
 
 	[self updateTabBarItem];
+}
+
+-(void)setIconIsMask:(id)value
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        return;
+    }
+    [self replaceValue:value forKey:@"iconIsMask" notification:NO];
+    BOOL newValue = ![TiUtils boolValue:value def:YES];
+    if (newValue != iconOriginal) {
+        iconOriginal = newValue;
+        [self updateTabBarItem];
+    }
+}
+
+-(void)setActiveIconIsMask:(id)value
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        return;
+    }
+    [self replaceValue:value forKey:@"activeIconIsMask" notification:NO];
+    BOOL newValue = ![TiUtils boolValue:value def:YES];
+    if (newValue != activeIconOriginal) {
+        activeIconOriginal = newValue;
+        [self updateTabBarItem];
+    }
 }
 
 -(void)setActiveIcon:(id)icon
@@ -582,7 +656,8 @@
 		return [(id<TiOrientationController>)modalController orientationFlags];
 	}
 	
-	for (id thisController in [[controller viewControllers] reverseObjectEnumerator])
+	UINavigationController* nc = [[rootWindow hostingController] navigationController];
+	for (id thisController in [[nc viewControllers] reverseObjectEnumerator])
 	{
 		if (![thisController isKindOfClass:[TiViewController class]])
 		{

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,6 +16,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -36,7 +37,7 @@ import android.webkit.WebView;
 	TiC.PROPERTY_LIGHT_TOUCH_ENABLED
 })
 public class WebViewProxy extends ViewProxy 
-	implements Handler.Callback, OnLifecycleEvent
+	implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
 {
 	private static final String TAG = "WebViewProxy";
 	private static final int MSG_FIRST_ID = ViewProxy.MSG_LAST_ID + 1;
@@ -71,6 +72,7 @@ public class WebViewProxy extends ViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		((TiBaseActivity)activity).addOnLifecycleEventListener(this);
+		((TiBaseActivity)activity).addInterceptOnBackPressedEventListener(this);
 		TiUIWebView webView = new TiUIWebView(this);
 
 		if (postCreateMessage != null) {
@@ -334,6 +336,16 @@ public class WebViewProxy extends ViewProxy
 	public void release()
 	{
 		super.releaseViews();
+	}
+
+	@Override
+	public boolean interceptOnBackPressed()
+	{
+		TiUIWebView view = (TiUIWebView) peekView();
+		if (view == null) {
+			return false;
+		}
+		return view.interceptOnBackPressed();
 	}
 
 	@Override

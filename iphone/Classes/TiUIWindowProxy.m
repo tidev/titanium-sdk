@@ -354,21 +354,29 @@
 
 -(void)setBarColor:(id)colorString
 {
-	ENSURE_UI_THREAD(setBarColor,colorString);
-	NSString *color = [TiUtils stringValue:colorString];
-	[self replaceValue:color forKey:@"barColor" notification:NO];
-	if (controller!=nil)
-	{
-		TiColor * newColor = [TiUtils colorValue:color];
-		if (newColor == nil)
-		{
-			newColor =[TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
-		}
+    ENSURE_UI_THREAD(setBarColor,colorString);
+    NSString *color = [TiUtils stringValue:colorString];
+    [self replaceValue:color forKey:@"barColor" notification:NO];
+    if (shouldUpdateNavBar && controller!=nil && [controller navigationController] != nil)
+    {
+        TiColor * newColor = [TiUtils colorValue:color];
+        if (newColor == nil)
+        {
+            newColor =[TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
+        }
 
-		UINavigationController * ourNC = [controller navigationController];
-		[TiUtils applyColor:newColor toNavigationController:ourNC];
-		[self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
-	}
+        UIColor * barColor = [TiUtils barColorForColor:newColor];
+        UIBarStyle navBarStyle = [TiUtils barStyleForColor:newColor];
+
+        UINavigationBar * navBar = [[controller navigationController] navigationBar];
+        [navBar setBarStyle:barStyle];
+        if([TiUtils isIOS7OrGreater]) {
+            [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
+        } else {
+            [navBar setTintColor:barColor];
+        }
+        [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+    }
 }
 
 -(void)updateBarImage
@@ -757,7 +765,7 @@
 	}
 	[self replaceValue:items forKey:@"toolbar" notification:NO];
 	TiThreadPerformOnMainThread( ^{
-		if (controller!=nil)
+		if (shouldUpdateNavBar && controller!=nil && [controller navigationController] != nil)
 		{
 			NSArray *existing = [controller toolbarItems];
 			UINavigationController * ourNC = [controller navigationController];
@@ -782,11 +790,20 @@
 				}
 			}
 			hasToolbar = (array != nil && [array count] > 0) ? YES : NO ;
-			BOOL translucent = [TiUtils boolValue:@"translucent" properties:properties def:NO];
+			BOOL translucent = [TiUtils boolValue:@"translucent" properties:properties def:[TiUtils isIOS7OrGreater]];
 			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:hasToolbar];
+			TiColor* toolbarColor = [TiUtils colorValue:@"barColor" properties:properties];
+			UIColor* barColor = [TiUtils barColorForColor:toolbarColor];
 			[controller setToolbarItems:array animated:animated];
 			[ourNC setToolbarHidden:(hasToolbar == NO ? YES : NO) animated:animated];
 			[ourNC.toolbar setTranslucent:translucent];
+			if ([TiUtils isIOS7OrGreater]) {
+				UIColor* tintColor = [[TiUtils colorValue:@"tintColor" properties:properties] color];
+				[ourNC.toolbar performSelector:@selector(setBarTintColor:) withObject:barColor];
+				[ourNC.toolbar setTintColor:tintColor];
+			} else {
+				[ourNC.toolbar setTintColor:barColor];
+			}
 			[array release];
 			
 		}

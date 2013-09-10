@@ -8,9 +8,7 @@
 var path = require('path'),
 	ti = require('titanium-sdk'),
 	appc = require('node-appc'),
-	i18n = appc.i18n(__dirname),
-	__ = i18n.__,
-	__n = i18n.__n,
+	__ = appc.i18n(__dirname).__,
 	mix = appc.util.mix;
 
 exports.cliVersion = '>=3.X';
@@ -69,7 +67,7 @@ exports.validate = function (logger, config, cli) {
 			process.exit(1);
 		}
 	}
-	
+
 	ti.loadPlugins(logger, cli, config, cli.argv['project-dir']);
 };
 
@@ -130,7 +128,7 @@ exports.run = function (logger, config, cli) {
 				logger.log();
 			}
 			break;
-			
+
 		case 1:
 			key = args[0];
 			if (key === 'deployment-targets') {
@@ -173,7 +171,7 @@ exports.run = function (logger, config, cli) {
 				logger.error( __('%s is not a valid entry name', key) + '\n');
 			}
 			break;
-			
+
 		case 2:
 			key = args[0];
 			switch (key) {
@@ -181,12 +179,12 @@ exports.run = function (logger, config, cli) {
 
 					// Get list of platforms from ti manifest and set to false (default value)
 					result = {};
-					
+
 					// add ipad and blackberry to list of platforms
 					['ipad', 'blackberry'].concat(ti.availablePlatforms).forEach(function (p) {
 						result[p] = false;
 					});
-					
+
 					// Validate the platforms and override the tiapp.xml setting to true
 					value = args[1].split(',');
 					value.forEach(function (p) {
@@ -200,7 +198,7 @@ exports.run = function (logger, config, cli) {
 							process.exit(1);
 						}
 					});
-					
+
 					for (p = 0; p < value.length; p++) {
 						result[value[p]] = true;
 					}
@@ -214,7 +212,7 @@ exports.run = function (logger, config, cli) {
 						logger.error(__('Unknown project template %s', cli.argv.template) + '\n');
 						process.exit(1);
 					}
-					
+
 					n = appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, {
 						logger: logger.log,
 						ignoreHiddenFiles: true

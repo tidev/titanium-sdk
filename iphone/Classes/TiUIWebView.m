@@ -658,6 +658,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		[self.proxy fireEvent:@"beforeload" withObject:event];
 	}
 
+	if (navigationType != UIWebViewNavigationTypeOther) {
+		RELEASE_TO_NIL(lastValidLoad);
+	}
+
 	NSString * scheme = [[newUrl scheme] lowercaseString];
 	if ([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"ftp"]
 			|| [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
@@ -720,8 +724,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     }
     [webView setNeedsDisplay];
     ignoreNextRequest = NO;
-    TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
-    [ourProxy contentsWillChange];
+    TiUIWebViewProxy * ourProxy = (TiUIWebViewProxy *)[self proxy];
+    [ourProxy webviewDidFinishLoad];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error

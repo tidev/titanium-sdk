@@ -1,8 +1,23 @@
-/*
- * build.js: Titanium IOS CLI build command
+/**
+ * iOS build command.
  *
- * Copyright (c) 2012, Appcelerator, Inc.  All Rights Reserved.
- * See the LICENSE file for more information.
+ * @module cli/_build
+ *
+ * @copyright
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ *
+ * @license
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ *
+ * @requires clean-css
+ * @requires humanize
+ * @requires node-appc
+ * @requires node-uuid
+ * @requires titanium-sdk
+ * @requires uglify-js
+ * @requires wrench
+ * @requires xmldom
  */
 
 var ti = require('titanium-sdk'),
@@ -18,11 +33,10 @@ var ti = require('titanium-sdk'),
 	DOMParser = require('xmldom').DOMParser,
 	uuid = require('node-uuid'),
 	appc = require('node-appc'),
-	i18n = appc.i18n(__dirname),
-	__ = i18n.__,
-	__n = i18n.__n,
+	humanize = require('humanize'),
+	detect = require('../lib/detect').detect,
+	__ = appc.i18n(__dirname).__,
 	afs = appc.fs,
-	ios = appc.ios,
 	version = appc.version,
 	parallel = appc.async.parallel,
 	series = appc.async.series,
@@ -84,9 +98,16 @@ var ti = require('titanium-sdk'),
 // silence uglify's default warn mechanism
 UglifyJS.AST_Node.warn_function = function () {};
 
-exports.config = function (logger, config, cli) {
+/**
+ * Returns iOS build-specific configuration options.
+ * @param {Object} logger - The logger instance
+ * @param {Object} config - The CLI config
+ * @param {Object} cli - The CLI instance
+ * @returns {Function} A function that returns the config info
+ */
+exports.config = function config(logger, config, cli) {
 	return function (done) {
-		ios.detect(function (env) {
+		detect(config, { minSDK: minIosSdkVersion }, function (env) {
 			iosEnv = env || {};
 
 			var sdks = {},
@@ -94,10 +115,20 @@ exports.config = function (logger, config, cli) {
 				defaultSdk,
 				conf,
 				devName,
-				lowerCasedDevNames = iosEnv.certs.devNames.map(function (s) { return s.toLowerCase(); }),
-				lowerCasedDistNames = iosEnv.certs.distNames.map(function (s) { return s.toLowerCase(); }),
-				humanize = require('humanize'),
+				lowerCasedDevNames = [],
+				lowerCasedDistNames = [],
 				libTiCoreSize = humanize.filesize(fs.statSync(afs.resolvePath(__dirname, '..', '..', 'libTiCore.a')).size, 1024, 1).toUpperCase();
+
+			// build the list of dev and dist cert names
+			Object.keys(iosEnv.certs).forEach(function (keychain) {
+				iosEnv.certs[keychain].developer && iosEnv.certs[keychain].developer.forEach(function (dev) {
+					lowerCasedDevNames.push(dev.name.toLowerCase());
+				});
+
+				iosEnv.certs[keychain].distribution && iosEnv.certs[keychain].distribution.forEach(function (dist) {
+					lowerCasedDistNames.push(dist.name.toLowerCase());
+				});
+			});
 
 			// attempt to resolve a default ios developer cert name (used for device builds)
 			if (process.env.CODE_SIGN_IDENTITY) {
@@ -466,7 +497,7 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 
-	if (!iosEnv.xcode.__selected__) {
+	if (!Object.keys(iosEnv.xcode).some(function (ver) { return iosEnv.xcode[ver].selected; })) {
 		logger.error(__('No Xcode version is currently selected') + '\n');
 		logger.error(__("Use 'xcode-select' to select one of the Xcode versions:"));
 		Object.keys(iosEnv.xcode).forEach(function (ver) {
@@ -747,8 +778,8 @@ exports.validate = function (logger, config, cli) {
 	['debug', 'profiler'].forEach(function (type) {
 		if (cli.argv[type + '-host'] && cli.argv.target != 'dist-appstore') {
 			if (typeof cli.argv[type + '-host'] == 'number') {
-				logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
-				logger.log(__('The ' + type + ' host must be in the format "host:port".') + '\n');
+				logger.error(__('Invalid %s host "%s"', type, cli.argv[type + '-host']) + '\n');
+				logger.log(__('The %s host must be in the format "host:port".', type) + '\n');
 				process.exit(1);
 			}
 
@@ -757,9 +788,9 @@ exports.validate = function (logger, config, cli) {
 			if ((cli.argv.target == 'simulator' && parts.length < 2) || (cli.argv.target != 'simulator' && parts.length < 4)) {
 				logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
 				if (cli.argv.target == 'simulator') {
-					logger.log(__('The ' + type + ' host must be in the format "host:port".') + '\n');
+					logger.log(__('The %s host must be in the format "host:port".', type) + '\n');
 				} else {
-					logger.log(__('The ' + type + ' host must be in the format "host:port:airkey:hosts".') + '\n');
+					logger.log(__('The %s host must be in the format "host:port:airkey:hosts".', type) + '\n');
 				}
 				process.exit(1);
 			}
@@ -861,9 +892,9 @@ function build(logger, config, cli, finished) {
 	if (cli.argv.xcode) {
 		this.deployType = cli.argv['deploy-type'];
 	} else {
-		this.deployType = /device|simulator/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : deployTypes[this.target];
+		this.deployType = /^device|simulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : deployTypes[this.target];
 	}
-	this.xcodeTarget = process.env.CONFIGURATION || (/device|simulator/.test(this.target) ? 'Debug' : 'Release');
+	this.xcodeTarget = process.env.CONFIGURATION || (/^device|simulator$/.test(this.target) ? 'Debug' : 'Release');
 	this.iosSdkVersion = cli.argv['ios-version'];
 	this.iosSimVersion = cli.argv['sim-version'];
 	this.iosSimType = cli.argv['sim-type'];
@@ -902,15 +933,15 @@ function build(logger, config, cli, finished) {
 	this.logger.debug(__('iOS WWDR certificate: %s', iosEnv.certs.wwdr ? __('installed').cyan : __('not found').cyan));
 	if (this.target == 'device') {
 		this.logger.info(__('iOS Development Certificate: %s', this.certDeveloperName.cyan));
-	} else if (/dist-appstore|dist\-adhoc/.test(this.target)) {
+	} else if (/^dist-appstore|dist\-adhoc$/.test(this.target)) {
 		this.logger.info(__('iOS Distribution Certificate: %s', this.certDistributionName.cyan));
 	}
 
 	// validate the min-ios-ver from the tiapp.xml
 	this.minIosVer = this.tiapp.ios && this.tiapp.ios['min-ios-ver'] || minIosSdkVersion;
-	if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, '5.0')) {
-		this.logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, '5.0'.cyan));
-		this.minIosVer = '5.0';
+	if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, minIosSdkVersion)) {
+		this.logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, version.format(minIosSdkVersion, 2).cyan));
+		this.minIosVer = minIosSdkVersion;
 	} else if (version.lt(this.minIosVer, minIosSdkVersion)) {
 		this.logger.info(__('The %s of the iOS section in the tiapp.xml is lower than minimum supported version: Using %s as minimum', 'min-ios-ver'.cyan, version.format(minIosSdkVersion, 2).cyan));
 		this.minIosVer = minIosSdkVersion;
@@ -920,7 +951,7 @@ function build(logger, config, cli, finished) {
 	}
 	this.logger.info(__('Minimum iOS version: %s', version.format(this.minIosVer, 2, 3).cyan));
 
-	if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
+	if (/^device|dist\-appstore|dist\-adhoc$/.test(this.target)) {
 		if (this.keychain) {
 			this.logger.info(__('Using keychain: %s', this.keychain));
 		} else {
@@ -2115,7 +2146,7 @@ build.prototype = {
 			},
 			dest,
 			variables = {},
-			mainContents = fs.readFileSync(path.join(this.titaniumIosSdkPath, 'main.m')).toString().replace(/(__.+__)/g, function (match, key, format) {
+			mainContents = fs.readFileSync(path.join(this.titaniumIosSdkPath, 'main.m')).toString().replace(/(__.+?__)/g, function (match, key, format) {
 				var s = consts.hasOwnProperty(key) ? consts[key] : key;
 				return typeof s == 'string' ? s.replace(/"/g, '\\"').replace(/\n/g, '\\n') : s;
 			}),
@@ -2454,7 +2485,7 @@ build.prototype = {
 								len--;
 							}
 							for (var j = i + 1; j < len; j++) {
-								this.logger.error('Error details: ' + out[j]);
+								this.logger.error(__('Error details: %s', out[j]));
 							}
 							this.logger.log();
 							process.exit(1);
@@ -2678,7 +2709,7 @@ build.prototype = {
 			if (ex.line) {
 				this.logger.error(__('%s [line %s, column %s]', ex.message, ex.line, ex.col));
 			} else {
-				this.logger.error(__('%s', ex.message));
+				this.logger.error(ex.message);
 			}
 			try {
 				original = original.split('\n');

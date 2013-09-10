@@ -249,7 +249,7 @@
     }
     
     if ( (tab == nil) && (isModal == NO) && ([theController topPresentedController] != [theController topContainerController]) ){
-        DebugLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller.")
+        DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller.")
         [self forgetProxy:openAnimation];
         RELEASE_TO_NIL(openAnimation);
     }
@@ -265,7 +265,7 @@
         RELEASE_TO_NIL(closeAnimation);
     }
     if ( (tab == nil) && (isModal == NO) && ([theController topPresentedController] != [theController topContainerController]) ){
-        DebugLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller.")
+        DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller.")
         [self forgetProxy:closeAnimation];
         RELEASE_TO_NIL(closeAnimation);
     }
@@ -280,6 +280,11 @@
 -(BOOL)closing
 {
     return closing;
+}
+
+-(void)setModal:(id)val
+{
+    [self replaceValue:val forKey:@"modal" notification:NO];
 }
 
 -(BOOL)isModal
@@ -363,6 +368,11 @@
     if ( (controller == nil) || ([controller navigationController] == nil) ) {
         return;
     }
+    
+    if (![[[TiApp app] controller] statusBarVisibilityChanged]) {
+        return;
+    }
+    
     UINavigationController* nc = [controller navigationController];
     BOOL isHidden = [nc isNavigationBarHidden];
     [nc setNavigationBarHidden:!isHidden animated:NO];

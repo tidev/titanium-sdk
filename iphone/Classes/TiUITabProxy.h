@@ -27,6 +27,8 @@
 	BOOL systemTab;
 	BOOL transitionIsAnimating;
 	BOOL hasFocus;
+	BOOL iconOriginal;
+	BOOL activeIconOriginal;
 	
 	id<TiOrientationController> parentOrientationController;
 }

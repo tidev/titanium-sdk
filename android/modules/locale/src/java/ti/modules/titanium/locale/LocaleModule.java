@@ -89,11 +89,11 @@ public class LocaleModule extends KrollModule
 		Log.w(TAG, "Locale.setLanguage not supported for Android.");
 	}
 
-	@Kroll.method
+	@Kroll.method  @Kroll.topLevel("L")
 	public String getString(String key, @Kroll.argument(optional=true) String defaultValue)
 	{
 		try {
-			int resid = TiRHelper.getResource("string." + key);
+			int resid = TiRHelper.getResource("string." + key.replace(".","_"));
 			if (resid != 0) {
 				return TiApplication.getInstance().getString(resid);
 			} else {
