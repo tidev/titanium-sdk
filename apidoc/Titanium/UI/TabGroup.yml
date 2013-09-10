@@ -310,7 +310,9 @@ properties:
   - name: tabsTintColor
     summary: The tintColor to apply to the tabs. This property is applicable on iOS 7 and greater. 
     description: |
-        This property is a direct correspondant of the tintColor property of UITabBar on iOS.
+        This property is a direct correspondant of the tintColor property of UITabBar on iOS. This effects the
+        title and icons rendered in the active tab. When not specified the active icons are tinted with a bright
+        blue on iOS7.
     type: [String]
     since: "3.1.3"
     default: null
