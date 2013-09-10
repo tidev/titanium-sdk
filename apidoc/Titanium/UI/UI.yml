@@ -643,6 +643,48 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     
+  - name: EXTEND_EDGE_TOP
+    summary: Specifies that the top edge of the window can extend.
+    description: |
+        One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
+    type: Number
+    permission: read-only
+    
+  - name: EXTEND_EDGE_BOTTOM
+    summary: Specifies that the bottom edge of the window can extend.
+    description: |
+        One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
+    type: Number
+    permission: read-only
+    
+  - name: EXTEND_EDGE_LEFT
+    summary: Specifies that the left edge of the window can extend.
+    description: |
+        One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
+    type: Number
+    permission: read-only
+    
+  - name: EXTEND_EDGE_RIGHT
+    summary: Specifies that the right edge of the window can extend.
+    description: |
+        One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
+    type: Number
+    permission: read-only
+    
+  - name: EXTEND_EDGE_NONE
+    summary: Specifies that none of the edges of the window can extend.
+    description: |
+        One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
+    type: Number
+    permission: read-only
+    
+  - name: EXTEND_EDGE_ALL
+    summary: Specifies that all the edges of the window can extend.
+    description: |
+        One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
+    type: Number
+    permission: read-only
+    
   - name: FACE_DOWN
     summary: Constant value for face-down orientation.
     description: |
