@@ -7,7 +7,7 @@
 #ifdef USE_TI_UIIPHONESTATUSBAR
 
 #import "TiUIiPhoneStatusBarProxy.h"
-
+#import "TiUtils.h"
 
 @implementation TiUIiPhoneStatusBarProxy
 
@@ -22,6 +22,15 @@ MAKE_SYSTEM_PROP(ANIMATION_STYLE_NONE,UIStatusBarAnimationNone);
 MAKE_SYSTEM_PROP(ANIMATION_STYLE_SLIDE,UIStatusBarAnimationSlide);
 MAKE_SYSTEM_PROP(ANIMATION_STYLE_FADE,UIStatusBarAnimationFade);
 
+-(NSNumber*)LIGHT_CONTENT
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [NSNumber numberWithInt:1];//UIStatusBarStyleLightContent
+    } else {
+        DebugLog(@"LIGHT_CONTENT is only valid on iOS7 and above. Returning TRANSLUCENT_BLACK")
+        return [NSNumber numberWithInt:UIStatusBarStyleBlackTranslucent];
+    }
+}
 @end
 
 #endif
