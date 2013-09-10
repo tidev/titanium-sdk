@@ -164,15 +164,19 @@
     
     isModal = (tab == nil) ? [self argOrWindowProperty:@"modal" args:args] : NO;
     
-    hidesStatusBar = [self argOrWindowProperty:@"fullscreen" args:args];
+    if ([self argOrWindowProperty:@"fullscreen" args:args]) {
+        hidesStatusBar = YES;
+    } else {
+        hidesStatusBar = [[[TiApp app] controller] statusBarInitiallyHidden];
+    }
     
-    int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"]];
+    int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"] def:[[[TiApp app] controller] defaultStatusBarStyle]];
     switch (theStyle){
         case UIStatusBarStyleDefault:
             barStyle = UIStatusBarStyleDefault;
             break;
         case UIStatusBarStyleBlackOpaque:
-        case UIStatusBarStyleBlackTranslucent:
+        case UIStatusBarStyleBlackTranslucent: //This will also catch UIStatusBarStyleLightContent
             if ([TiUtils isIOS7OrGreater]) {
                 barStyle = 1;//UIStatusBarStyleLightContent;
             } else {

@@ -307,6 +307,18 @@ properties:
     osver: {ios: {min: "5.0"}}
     platforms: [android, iphone, ipad, mobileweb, tizen]
     
+  - name: tabsTintColor
+    summary: The tintColor to apply to the tabs. This property is applicable on iOS 7 and greater. 
+    description: |
+        This property is a direct correspondant of the tintColor property of UITabBar on iOS. This effects the
+        title and icons rendered in the active tab. When not specified the active icons are tinted with a bright
+        blue on iOS7.
+    type: [String]
+    since: "3.1.3"
+    default: null
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad]
+    
   - name: tabsBackgroundImage
     summary: Default background image for tabs.
     description: |
