@@ -748,7 +748,7 @@
             pinview.animatesDrop = [ann animatesDrop] && ![(TiMapAnnotationProxy *)annotation placed];
             annView.calloutOffset = CGPointMake(-8, 0);
         }
-        annView.canShowCallout = YES;
+        annView.canShowCallout = [TiUtils boolValue:[ann valueForUndefinedKey:@"canShowCallout"] def:YES];
         annView.enabled = YES;
         annView.centerOffset = ann.offset;
         UIView *left = [ann leftViewAccessory];
