@@ -552,7 +552,7 @@ properties:
   - name: statusBarStyle
     summary: The status bar style associated with this window. 
     description: |
-        Sets the status bar style when this winodow gains focus. This is now the recommended way to control the
+        Sets the status bar style when this window gains focus. This is now the recommended way to control the
         status bar style on the application. Must be specified **before** the the window is opened.
     type: [Number]
     since: "3.1.3"
@@ -726,9 +726,11 @@ description: |
     other views. There are a few specialized top-level views that manage windows,
     including:
     
-    * [NavigationGroup](Titanium.UI.iPhone.NavigationGroup)
+    * [NavigationWindow](Titanium.UI.iOS.NavigationWindow)
     * [SplitWindow](Titanium.UI.iPad.SplitWindow)
     * [TabGroup](Titanium.UI.TabGroup). 
+    * [Tab](Titanium.UI.Tab)
+    * [NavigationGroup](Titanium.UI.iPhone.NavigationGroup)
 
     By default, windows occupy the entire screen except for the navigation bar, 
     status bar, and in the case of windows contained in tab groups, the tab bar.
