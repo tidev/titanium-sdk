@@ -179,6 +179,10 @@ exports.config = function config(logger, config, cli) {
 							desc: __('in combination with %s flag, start the tall version of the retina device', '--retina'),
 							hidden: version.lte(ti.manifest.version, '3.0.2')
 						},
+						'sim-64bit': {
+							desc: __('in combination with %s flag & %s flag, start the 64-bit tall version of the retina simulator', '--retina'.cyan, '--tall'.cyan),
+							hidden: version.lte(ti.manifest.version, '3.1.2')
+						},
 						'force-copy': {
 							default: false,
 							desc: __('forces files to be copied instead of symlinked for %s builds only', 'simulator'.cyan)
