@@ -123,9 +123,9 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
         
-        On iOS, `barColor` specifies the color of the "frame" around the search text field.
+        On iOS and Android, `barColor` specifies the color of the "frame" around the search text field.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     default: System default bar color.
 
   - name: hintText
@@ -149,7 +149,7 @@ properties:
   - name: prompt
     summary: Single line of text displayed at the top of the search bar.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     default: No prompt.
 
   - name: promptid
