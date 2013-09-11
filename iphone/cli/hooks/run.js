@@ -82,6 +82,9 @@ exports.init = function (logger, config, cli) {
 					cmd.push('--retina');
 					if (appc.version.gte(build.iosSimVersion, '6.0.0') && build.iosSimType == 'iphone' && cli.argv.tall) {
 						cmd.push('--tall');	
+						if (appc.version.gte(build.iosSimVersion, '7.0.0') && build.iosSimType == 'iphone' && cli.argv.tall) {
+							cmd.push('--sim-64bit');
+						}
 					}
 				}
 				cmd = cmd.join(' ');
