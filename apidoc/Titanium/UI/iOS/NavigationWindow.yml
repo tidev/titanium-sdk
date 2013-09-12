@@ -6,8 +6,6 @@ summary: |
 description: |
     The navigation window is created with the method <Titanium.UI.iOS.createNavigationWindow>.
     
-    ![navgroup](http://img.skitch.com/20100406-rwe44533tkd94fdnbqqudxynpe.png)
-    
     The `window` property must be set initially in the constructor when creating a navigation window 
     to the root level window.  All navigation windows must have at least one root window that cannot 
     be removed.
@@ -97,3 +95,40 @@ examples:
 
             win3.add(button2);
             win1.open();
+
+  - title: Alloy Markup Example
+    example: |
+        Previous example as two Alloy view-controllers.  Requires Alloy 1.2.2 and greater.
+
+        app/views/index.xml:
+
+            <Alloy>
+                <NavigationWindow id="win1" platform="ios">
+                    <Window id="win2" title="Red Window" backgroundColor="red">
+                        <Button id="button" onClick="openBlueWindow">Open Blue Window</Button>
+                    </Window>
+                </NavigationWindow>
+            </Alloy>
+
+        app/controllers/index.js:
+
+            function openBlueWindow(e) {
+                var win3 = Alloy.createController('bluewin').getView();
+                $.win1.push(win3);
+            }
+
+            $.win1.open();
+
+        app/views/bluewin.xml:
+
+            <Alloy>
+                <Window id="win3" title="Blue Window" backgroundColor="blue">
+                    <Button onClick="closeWindow">Close Window</Button>
+                </Window>
+            </Alloy>
+
+        app/controllers/bluewin.js:
+
+            function closeWindow(){
+                $.win3.close();
+            }
