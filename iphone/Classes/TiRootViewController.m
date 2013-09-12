@@ -963,7 +963,7 @@
     return TI_ORIENTATION_ALLOWED([self getFlags:check],toInterfaceOrientation) ? YES : NO;
 }
 
-#if defined(DEBUG) || defined(DEVELOPER)
+#ifdef DEVELOPER
 - (void)viewWillLayoutSubviews
 {
     CGRect bounds = [[self view] bounds];
@@ -974,7 +974,7 @@
 
 - (void)viewDidLayoutSubviews
 {
-#if defined(DEBUG) || defined(DEVELOPER)
+#ifdef DEVELOPER
     CGRect bounds = [[self view] bounds];
     NSLog(@"ROOT DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
 #endif
