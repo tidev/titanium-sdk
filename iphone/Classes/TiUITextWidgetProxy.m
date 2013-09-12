@@ -79,7 +79,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	}
 }
 
--(BOOL)focused
+-(BOOL)focused:(id)unused
 {
 	BOOL result=NO;
 	if ([self viewAttached])
