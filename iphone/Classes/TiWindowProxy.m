@@ -246,7 +246,7 @@
         } else {
             args = [NSArray arrayWithObject:self];
         }
-        [tab pop:args];
+        [tab closeWindow:args];
         return;
     }
     
@@ -415,7 +415,7 @@
             } else {
                 args = [NSArray arrayWithObject:self];
             }
-            [tab push:args];
+            [tab openWindow:args];
         } else if (isModal) {
             UIViewController* theController = [self hostingController];
             [self windowWillOpen];

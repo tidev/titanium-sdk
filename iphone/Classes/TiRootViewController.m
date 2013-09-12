@@ -1184,7 +1184,7 @@
     
     if ((newOrientation != oldOrientation) && isCurrentlyVisible) {
         TiViewProxy<TiKeyboardFocusableView> *kfvProxy = [keyboardFocusedProxy retain];
-        BOOL focusAfterBlur = [kfvProxy focused];
+        BOOL focusAfterBlur = [kfvProxy focused:nil];
         if (focusAfterBlur) {
             [kfvProxy blur:nil];
         }
