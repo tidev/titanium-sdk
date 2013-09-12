@@ -115,10 +115,10 @@ exports.bootstrap = function(Titanium) {
 		if (kroll.DBG) {
 			kroll.log(TAG, "Checkpoint: postWindowCreated()");
 		}
+		this.loadUrl();
 		if (this._cachedActivityProxy) {
 			this._internalActivity.extend(this._cachedActivityProxy);
 		}
-		this.loadUrl();
 	}
 
 	// Run the script where the "url" property specifies in its own sub-context.
