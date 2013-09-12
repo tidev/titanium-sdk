@@ -154,7 +154,7 @@ public abstract class TiUIView
 		add(child, -1);
 	}
 
-	public void add(TiUIView child, int childIndex)
+	private void add(TiUIView child, int childIndex)
 	{
 		if (child != null) {
 			View cv = child.getOuterView();
