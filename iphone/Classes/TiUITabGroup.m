@@ -19,7 +19,7 @@ DEFINE_EXCEPTIONS
 -(void)dealloc
 {
 	RELEASE_TO_NIL(controller);
-	RELEASE_TO_NIL(focused);
+	RELEASE_TO_NIL(focusedTabProxy);
 	[super dealloc];
 }
 
@@ -74,8 +74,8 @@ DEFINE_EXCEPTIONS
 
 - (void)handleWillShowTab:(TiUITabProxy *)newFocus
 {
-    if (focused != newFocus) {
-        [focused handleWillBlur];
+    if (focusedTabProxy != newFocus) {
+        [focusedTabProxy handleWillBlur];
         [newFocus handleWillFocus];
     }
 }
@@ -83,10 +83,10 @@ DEFINE_EXCEPTIONS
 - (void)handleDidShowTab:(TiUITabProxy *)newFocus
 {
     // Do nothing if no tabs are being focused or blurred (or the window is opening)
-    if ((focused == nil && newFocus == nil) || (focused == newFocus)) {
+    if ((focusedTabProxy == nil && newFocus == nil) || (focusedTabProxy == newFocus)) {
         //TIMOB-10796. Ensure activeTab is set to focused on early return
-        if (focused != nil) {
-            [self.proxy replaceValue:focused forKey:@"activeTab" notification:NO];
+        if (focusedTabProxy != nil) {
+            [self.proxy replaceValue:focusedTabProxy forKey:@"activeTab" notification:NO];
         }
         return;
     }
@@ -98,10 +98,10 @@ DEFINE_EXCEPTIONS
 	int previousIndex = -1;
 	int index = -1;
 
-	if (focused != nil)
+	if (focusedTabProxy != nil)
 	{
-		[event setObject:focused forKey:@"previousTab"];
-		previousIndex = [tabArray indexOfObject:[(TiUITabProxy *)focused controller]];
+		[event setObject:focusedTabProxy forKey:@"previousTab"];
+		previousIndex = [tabArray indexOfObject:[(TiUITabProxy *)focusedTabProxy controller]];
 	}
 	
 	if (newFocus != nil)
@@ -114,19 +114,19 @@ DEFINE_EXCEPTIONS
 	[event setObject:NUMINT(index) forKey:@"index"];
 
 	[self.proxy fireEvent:@"blur" withObject:event];
-	[focused handleDidBlur:event];
-    [focused replaceValue:[NSNumber numberWithBool:NO] forKey:@"active" notification:NO];
+	[focusedTabProxy handleDidBlur:event];
+    [focusedTabProxy replaceValue:[NSNumber numberWithBool:NO] forKey:@"active" notification:NO];
 	
-	RELEASE_TO_NIL(focused);
-	focused = [newFocus retain];
-	[self.proxy replaceValue:focused forKey:@"activeTab" notification:NO];
-    [focused replaceValue:[NSNumber numberWithBool:YES] forKey:@"active" notification:NO];
+	RELEASE_TO_NIL(focusedTabProxy);
+	focusedTabProxy = [newFocus retain];
+	[self.proxy replaceValue:focusedTabProxy forKey:@"activeTab" notification:NO];
+    [focusedTabProxy replaceValue:[NSNumber numberWithBool:YES] forKey:@"active" notification:NO];
 
     // If we're in the middle of opening, the focus happens once the tabgroup is opened
     if (![(TiWindowProxy*)[self proxy] opening]) {
         [self.proxy fireEvent:@"focus" withObject:event];
     }
-	[focused handleDidFocus:event];
+	[focusedTabProxy handleDidFocus:event];
 }
 
 
@@ -204,7 +204,7 @@ DEFINE_EXCEPTIONS
     NSArray * moreViewControllerStack = [navigationController viewControllers];
     int stackHeight = [moreViewControllerStack count];
     if (stackHeight < 2) { //No more faux roots.
-        if (focused != nil) {
+        if (focusedTabProxy != nil) {
             [self handleDidShowTab:nil];
         }
         return;
@@ -226,7 +226,7 @@ DEFINE_EXCEPTIONS
     }
 
     if (stackHeight == 2) {	//One for the picker, one for the faux root.
-        if (tabProxy != focused) {
+        if (tabProxy != focusedTabProxy) {
             [self handleDidShowTab:tabProxy];
         }
     }
@@ -470,36 +470,36 @@ DEFINE_EXCEPTIONS
         for (TiUITabProxy *tabProxy in tabs) {
             [controllers addObject:[tabProxy controller]];
             if ([TiUtils boolValue:[tabProxy valueForKey:@"active"]]) {
-                RELEASE_TO_NIL(focused);
-                focused = [tabProxy retain];
+                RELEASE_TO_NIL(focusedTabProxy);
+                focusedTabProxy = [tabProxy retain];
             }
         }
         
-        if (theActiveTab != nil && focused != theActiveTab) {
-            RELEASE_TO_NIL(focused);
-            focused = [theActiveTab retain];
+        if (theActiveTab != nil && focusedTabProxy != theActiveTab) {
+            RELEASE_TO_NIL(focusedTabProxy);
+            focusedTabProxy = [theActiveTab retain];
         }
 
         [self tabController].viewControllers = nil;
         [self tabController].viewControllers = controllers;
-        if ( focused != nil && ![tabs containsObject:focused]) {
+        if ( focusedTabProxy != nil && ![tabs containsObject:focusedTabProxy]) {
             if (theActiveTab != nil) {
                 [self setActiveTab_:theActiveTab];
             }
             else {
                 DebugLog(@"[WARN] ActiveTab property points to tab not in list. Ignoring");
-                RELEASE_TO_NIL(focused);
+                RELEASE_TO_NIL(focusedTabProxy);
             }
         }
 
         [controllers release];
     }
     else {
-        RELEASE_TO_NIL(focused);
+        RELEASE_TO_NIL(focusedTabProxy);
         [self tabController].viewControllers = nil;
     }
 
-    [self.proxy	replaceValue:focused forKey:@"activeTab" notification:YES];
+    [self.proxy	replaceValue:focusedTabProxy forKey:@"activeTab" notification:YES];
     [self setAllowUserCustomization_:[NSNumber numberWithBool:allowConfiguration]];
 }
 
@@ -512,11 +512,11 @@ DEFINE_EXCEPTIONS
 	// on an open, make sure we send the focus event to focused tab
     NSArray * tabArray = [controller viewControllers];
     int index = 0;
-    if (focused != nil)
+    if (focusedTabProxy != nil)
 	{
-		index = [tabArray indexOfObject:[(TiUITabProxy *)focused controller]];
+		index = [tabArray indexOfObject:[(TiUITabProxy *)focusedTabProxy controller]];
 	}
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focused,@"tab",NUMINT(index),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focusedTabProxy,@"tab",NUMINT(index),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
 	[self.proxy fireEvent:@"focus" withObject:event];
     
     // Tab has already been focused by the tab controller delegate

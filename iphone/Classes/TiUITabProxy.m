@@ -187,7 +187,7 @@
     return tabGroup;
 }
 
--(void)push:(NSArray*)args
+-(void)openWindow:(NSArray*)args
 {
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
@@ -215,7 +215,7 @@
 	}, YES);
 }
 
--(void)pop:(NSArray*)args
+-(void)closeWindow:(NSArray*)args
 {
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
@@ -231,12 +231,12 @@
 
 -(void)open:(NSArray*)args
 {
-    [self push:args];
+    [self openWindow:args];
 }
 
 -(void)close:(NSArray *)args
 {
-    [self pop:args];
+    [self closeWindow:args];
 }
 
 -(void)windowClosing:(TiWindowProxy*)window animated:(BOOL)animated
