@@ -33,7 +33,7 @@ properties:
     optional: false
 
 methods:
-  - name: pop
+  - name: closeWindow
     summary: Closes a window and removes it from the navigation group.
     parameters:
       - name: window
@@ -46,7 +46,7 @@ methods:
             will be animated (default) while being closed.
         type: Dictionary
         
-  - name: push
+  - name: openWindow
     summary: Opens a window within the navigation group.
     parameters:
       - name: window
@@ -84,7 +84,7 @@ examples:
                 title: 'Open Blue Window'
             });
             button.addEventListener('click', function(){
-                win1.push(win3, {animated:true});
+                win1.openWindow(win3, {animated:true});
             });
 
             win2.add(button);
@@ -92,7 +92,7 @@ examples:
                 title: 'Close Blue Window'
             });
             button2.addEventListener('click', function(){
-                win1.pop(win3, {animated:false}); //win3.close() will also work!!
+                win1.closeWindow(win3, {animated:false}); //win3.close() will also work!!
             });
 
             win3.add(button2);
