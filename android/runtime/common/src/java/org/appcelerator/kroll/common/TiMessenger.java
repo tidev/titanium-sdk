@@ -190,7 +190,7 @@ public class TiMessenger implements Handler.Callback
 	 * Sends a message to an {@link java.util.concurrent.ArrayBlockingQueue#ArrayBlockingQueue(int) ArrayBlockingQueue},
 	 * and dispatch messages on the current
 	 * queue while blocking on the passed in AsyncResult. The blocking is done on the KrollRuntime thread.
-	 * If maxTimeout > 0 and the cannot get the permission from the semaphore within maxTimeout, throw an error and return.
+	 * If maxTimeout > 0, it will throw an error and return when we cannot get the permission from the semaphore within maxTimeout.
 	 * @param message   the message to send.
 	 * @param asyncArg  the argument to be added to AsyncResult.
 	 * @param maxTimeout the maximum time to wait for a permit from the semaphore, in the unit of milliseconds.
