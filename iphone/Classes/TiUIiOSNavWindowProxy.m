@@ -391,10 +391,10 @@
 }
 
 
--(void) windowWillClose
+-(void) windowDidClose
 {
     [self cleanNavStack];
-    [super windowWillClose];
+    [super windowDidClose];
 }
 
 -(void)willChangeSize
