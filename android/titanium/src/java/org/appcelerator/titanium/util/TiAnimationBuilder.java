@@ -52,6 +52,7 @@ import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ArgbEvaluator;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.animation.ValueAnimator;
+import com.nineoldandroids.view.ViewHelper;
 import com.nineoldandroids.view.animation.AnimatorProxy;
 
 /**
@@ -321,13 +322,7 @@ public class TiAnimationBuilder
 		boolean includesRotation = false;
 
 		if (toOpacity != null) {
-			addAnimator(
-					animators,
-					ObjectAnimator.ofFloat(view, "alpha",
-							toOpacity.floatValue()));
-			if (PRE_HONEYCOMB && viewProxy.hasProperty(TiC.PROPERTY_OPACITY)) {
-				prepareOpacityForAnimation();
-			}
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "alpha", toOpacity.floatValue()));
 		}
 
 		if (backgroundColor != null) {
@@ -507,6 +502,20 @@ public class TiAnimationBuilder
 			// since the re-layout will lose the rotation.
 			relayoutChild = PRE_HONEYCOMB && !includesRotation
 					&& (autoreverse == null || !autoreverse.booleanValue());
+		}
+
+		// Because of https://github.com/JakeWharton/NineOldAndroids/issues/54
+		// we add a dummy animator if all of these conditions are met:
+		// 1. There is only one animator so far.
+		// 2. That animator is for the alpha property.
+		// 3. The view has a non-null background.
+		// 4. Pre-Honeycomb (e.g., Gingerbread) is running.
+		if (PRE_HONEYCOMB && animators.size() == 1 && toOpacity != null && view.getBackground() != null) {
+			float currentScaleX = ViewHelper.getScaleX(view);
+			ValueAnimator dummyAnimator = ObjectAnimator.ofFloat(view, "scaleX", currentScaleX + 0.001f);
+			dummyAnimator.setRepeatCount(1);
+			dummyAnimator.setRepeatMode(ValueAnimator.REVERSE);
+			addAnimator(animators, dummyAnimator);
 		}
 
 		AnimatorSet as = new AnimatorSet();

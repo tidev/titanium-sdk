@@ -21,7 +21,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.Button;
 
 public class TiUIButton extends TiUIView
@@ -132,52 +131,4 @@ public class TiUIButton extends TiUIView
 		}
 	}
 
-	public void setOpacityForButton(float opacity)
-	{
-		if (opacity < 0 || opacity > 1) {
-			Log.w(TAG, "Ignoring invalid value for opacity: " + opacity);
-			return;
-		}
-		View view = getNativeView();
-		if (view != null) {
-			TiUIHelper.setPaintOpacity(((Button) view).getPaint(), opacity);
-			Drawable[] drawables = ((Button) view).getCompoundDrawables();
-			if (drawables != null) {
-				for (int i = 0; i < drawables.length; i++) {
-					TiUIHelper.setDrawableOpacity(drawables[i], opacity);
-				}
-			}
-		}
-	}
-
-	public void clearOpacityForButton()
-	{
-		View view = getNativeView();
-		if (view != null) {
-			((Button) view).getPaint().setColorFilter(null);
-			Drawable[] drawables = ((Button) view).getCompoundDrawables();
-			if (drawables != null) {
-				for (int i = 0; i < drawables.length; i++) {
-					Drawable d = drawables[i];
-					if (d != null) {
-						d.clearColorFilter();
-					}
-				}
-			}
-		}
-	}
-
-	@Override
-	protected void setOpacity(View view, float opacity)
-	{
-		setOpacityForButton(opacity);
-		super.setOpacity(view, opacity);
-	}
-
-	@Override
-	public void clearOpacity(View view)
-	{
-		clearOpacityForButton();
-		super.clearOpacity(view);
-	}
 }
