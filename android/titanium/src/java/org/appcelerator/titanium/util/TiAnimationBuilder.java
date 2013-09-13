@@ -320,7 +320,10 @@ public class TiAnimationBuilder
 		boolean includesRotation = false;
 
 		if (toOpacity != null) {
-			addAnimator(animators, ObjectAnimator.ofFloat(view, "alpha", toOpacity.floatValue()));
+			addAnimator(
+					animators,
+					ObjectAnimator.ofFloat(view, "alpha",
+							toOpacity.floatValue()));
 			if (PRE_HONEYCOMB && viewProxy.hasProperty(TiC.PROPERTY_OPACITY)) {
 				prepareOpacityForAnimation();
 			}
