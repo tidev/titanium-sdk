@@ -450,6 +450,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_TASK_REMOVED = "taskremoved";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_TOUCH_CANCEL = "touchcancel";
 
 	/**
