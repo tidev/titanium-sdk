@@ -96,9 +96,9 @@ examples:
             win3.add(button2);
             win1.open();
 
-  - title: Alloy Markup Example
+  - title: Alloy XML Markup
     example: |
-        Previous example as two Alloy view-controllers.  Requires Alloy 1.2.2 and greater.
+        Previous example as two Alloy view-controllers.  Requires Alloy 1.2.2 and later.
 
         app/views/index.xml:
 
