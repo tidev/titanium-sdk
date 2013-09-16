@@ -61,6 +61,11 @@ static NSArray* tabGroupKeySequence;
 	return [(TiUITabGroup*)[self view] tabbar];
 }
 
+-(BOOL)canFocusTabs
+{
+    return focussed;
+}
+
 #pragma mark Public APIs
 
 -(void)addTab:(id)tabProxy
