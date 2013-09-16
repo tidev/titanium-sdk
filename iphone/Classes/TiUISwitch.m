@@ -93,10 +93,11 @@
 - (IBAction)switchChanged:(id)sender
 {
 	NSNumber * newValue = [NSNumber numberWithBool:[(UISwitch *)sender isOn]];
-	[self.proxy replaceValue:newValue forKey:@"value" notification:NO];
+	id current = [self.proxy valueForUndefinedKey:@"value"];
+    [self.proxy replaceValue:newValue forKey:@"value" notification:NO];
 	
 	//No need to setValue, because it's already been set.
-	if ([self.proxy _hasListeners:@"change"])
+	if ([self.proxy _hasListeners:@"change"] && (current != newValue) && ![current isEqual:newValue])
 	{
 		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
 	}
