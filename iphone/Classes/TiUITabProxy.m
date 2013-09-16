@@ -28,12 +28,11 @@
 
 -(void)_destroy
 {
-    RELEASE_TO_NIL(closingWindows);
     RELEASE_TO_NIL(controllerStack);
-	RELEASE_TO_NIL(rootWindow);
+    RELEASE_TO_NIL(rootWindow);
     RELEASE_TO_NIL(controller);
-	RELEASE_TO_NIL(current);
-	[super _destroy];
+    RELEASE_TO_NIL(current);
+    [super _destroy];
 }
 
 -(NSMutableDictionary*)langConversionTable
@@ -68,12 +67,12 @@
                 current = [(TiWindowProxy*)[(TiViewController*)rootController proxy] retain];
             }
             for (TiViewController* doomedVc in doomedVcs) {
-                [self closeWindow:(TiWindowProxy *)[doomedVc proxy] animated:NO];
+                [self closeWindowProxy:(TiWindowProxy *)[doomedVc proxy] animated:NO];
             }
             RELEASE_TO_NIL(doomedVcs);
         }
         if (removeTab) {
-            [self closeWindow:rootWindow animated:NO];
+            [self closeWindowProxy:rootWindow animated:NO];
             RELEASE_TO_NIL(controller);
             RELEASE_TO_NIL(current);
         }
@@ -106,7 +105,7 @@
 	}
 	TiWindowProxy *window = [args objectAtIndex:0];
 	BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
-    
+    [controllerStack addObject:[window hostingController]];
     [[[self rootController] navigationController] pushViewController:[window hostingController] animated:animated];
 }
 
@@ -124,7 +123,7 @@
         [[[self rootController] navigationController] popViewControllerAnimated:animated];
     }
     else {
-        [self closeWindow:window animated:NO];
+        [self closeWindowProxy:window animated:NO];
     }
     
 }
@@ -144,7 +143,7 @@
     [self cleanNavStack:YES];
 }
 
-- (void)closeWindow:(TiWindowProxy*)window animated:(BOOL)animated
+- (void)closeWindowProxy:(TiWindowProxy*)window animated:(BOOL)animated
 {
     [window retain];
     UIViewController *windowController = [[window hostingController] retain];
@@ -154,11 +153,9 @@
 	NSMutableArray* newControllerStack = [NSMutableArray arrayWithArray:[navController viewControllers]];
 	[newControllerStack removeObject:windowController];
 	[navController setViewControllers:newControllerStack animated:animated];
-    RELEASE_TO_NIL(controllerStack);
-    controllerStack = [newControllerStack retain];
 	[window setTab:nil];
 	[window setParentOrientationController:nil];
-	
+	[controllerStack removeObject:windowController];
 	// for this to work right, we need to sure that we always have the tab close the window
 	// and not let the window simply close by itself. this will ensure that we tell the
 	// tab that we're doing that
@@ -178,6 +175,8 @@
 		[self setTitle:[self valueForKey:@"title"]];
 		[self setIcon:[self valueForKey:@"icon"]];
 		[self setBadge:[self valueForKey:@"badge"]];
+		controllerStack = [[NSMutableArray alloc] init];
+		[controllerStack addObject:[self rootController]];
 	}
 	return controller;
 }
@@ -308,9 +307,22 @@
         UIViewController* oldController = [current hostingController];
         UINavigationController* navController = [[self rootController] navigationController];
         if (![[navController viewControllers] containsObject:oldController]) {
+            [controllerStack removeObject:oldController];
             [current setTab:nil];
             [current setParentOrientationController:nil];
             [current close:nil];
+            //TIMOB-15188. Tab can switch to rootView anytime by tapping the selected tab again.
+            if ((viewController == [self rootController]) && ([controllerStack count] > 1) ) {
+                [controllerStack removeObject:[self rootController]];
+                for (TiViewController* theController in [controllerStack reverseObjectEnumerator]) {
+                    TiWindowProxy* theWindow = (TiWindowProxy*)[theController proxy];
+                    [theWindow setTab:nil];
+                    [theWindow setParentOrientationController:nil];
+                    [theWindow close:nil];
+                }
+                [controllerStack removeAllObjects];
+                [controllerStack addObject:[self rootController]];
+            }
         }
     }
     RELEASE_TO_NIL(current);
