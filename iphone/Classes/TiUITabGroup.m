@@ -126,7 +126,10 @@ DEFINE_EXCEPTIONS
     if (![(TiWindowProxy*)[self proxy] opening]) {
         [self.proxy fireEvent:@"focus" withObject:event];
     }
-	[focusedTabProxy handleDidFocus:event];
+    //TIMOB-15187. Dont fire focus of tabs if proxy does not have focus
+    if ([(TiUITabGroupProxy*)[self proxy] canFocusTabs]) {
+        [focusedTabProxy handleDidFocus:event];
+    }
 }
 
 
