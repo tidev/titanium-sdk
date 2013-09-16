@@ -35,7 +35,7 @@
 
 -(void)setTabGroup:(TiUITabGroupProxy*)proxy;
 -(void)removeFromTabGroup;
--(void)closeWindow:(TiWindowProxy *)window animated:(BOOL)animated;
+-(void)closeWindowProxy:(TiWindowProxy *)window animated:(BOOL)animated;
 
 #pragma mark Public APIs
 
