@@ -35,6 +35,7 @@
 		_resetKeys = [[NSMutableSet alloc] initWithCapacity:5];
 		_proxy = [proxy retain];
 		_proxy.listItem = self;
+		self.backgroundColor = [UIColor clearColor];
     }
     return self;
 }
@@ -49,6 +50,7 @@
 		_resetKeys = [[NSMutableSet alloc] initWithCapacity:10];
 		_proxy = [proxy retain];
 		_proxy.listItem = self;
+		self.backgroundColor = [UIColor clearColor];
     }
     return self;
 }
