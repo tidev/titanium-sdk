@@ -354,7 +354,7 @@
 		}
 	}
     
-	if(imageSize.width == newFrame.size.width)
+	if ((imageSize.width == newFrame.size.width) && ![TiUtils isIOS7OrGreater])
 	{
 		CGFloat overheight;
 		overheight = imageSize.height - newFrame.size.height;
