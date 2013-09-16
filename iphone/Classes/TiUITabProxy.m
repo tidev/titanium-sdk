@@ -68,12 +68,12 @@
                 current = [(TiWindowProxy*)[(TiViewController*)rootController proxy] retain];
             }
             for (TiViewController* doomedVc in doomedVcs) {
-                [self closeWindow:(TiWindowProxy *)[doomedVc proxy] animated:NO];
+                [self closeWindowProxy:(TiWindowProxy *)[doomedVc proxy] animated:NO];
             }
             RELEASE_TO_NIL(doomedVcs);
         }
         if (removeTab) {
-            [self closeWindow:rootWindow animated:NO];
+            [self closeWindowProxy:rootWindow animated:NO];
             RELEASE_TO_NIL(controller);
             RELEASE_TO_NIL(current);
         }
@@ -124,7 +124,7 @@
         [[[self rootController] navigationController] popViewControllerAnimated:animated];
     }
     else {
-        [self closeWindow:window animated:NO];
+        [self closeWindowProxy:window animated:NO];
     }
     
 }
@@ -144,7 +144,7 @@
     [self cleanNavStack:YES];
 }
 
-- (void)closeWindow:(TiWindowProxy*)window animated:(BOOL)animated
+- (void)closeWindowProxy:(TiWindowProxy*)window animated:(BOOL)animated
 {
     [window retain];
     UIViewController *windowController = [[window hostingController] retain];
