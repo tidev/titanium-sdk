@@ -72,7 +72,8 @@ events:
     summary: Fired when the task that comes from the service's application has been removed.
     description: |
          This event is fired if the service is currently running and the user has removed a task 
-         that comes from the service's application. It only works for unbound service which is
+         that comes from the service's application, eg. the user swipes the application away from
+         the recent applications list. It only works for unbound service which is
          started using <Titanium.Android.startService>.
 
 properties:
