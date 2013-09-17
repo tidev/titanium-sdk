@@ -230,22 +230,8 @@
             [(UIImageView*)_bgView setImage:bgImage];
             [_bgView setBackgroundColor:((bgColor == nil) ? [UIColor clearColor] : bgColor)];
         } else {
-            if (bgColor != nil) {
-                if (![_bgView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
-                    [_bgView removeFromSuperview];
-                    RELEASE_TO_NIL(_bgView);
-                    _bgView = [[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero];
-                    _bgView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-                    [superView addSubview:_bgView];
-                }
-                ((TiSelectedCellBackgroundView*)_bgView).grouped = _grouped;
-                ((TiSelectedCellBackgroundView*)_bgView).fillColor = bgColor;
-                ((TiSelectedCellBackgroundView*)_bgView).position = _positionMask;
-                
-            } else {
-                [_bgView removeFromSuperview];
-                RELEASE_TO_NIL(_bgView);
-            }
+            [_bgView removeFromSuperview];
+            RELEASE_TO_NIL(_bgView);
         }
     } else {
         if (bgImage != nil) {
@@ -319,6 +305,23 @@
 		same = (heightValue == otherHeightValue) || [heightValue isEqual:otherHeightValue];
 	}
 	return same;
+}
+
+- (void)configureCellBackground
+{
+    //Ensure that we store the default backgroundColor
+    if ([_initialValues objectForKey:@"backgroundColor"] == nil) {
+        id initialValue = [self backgroundColor];
+        [_initialValues setObject:(initialValue != nil ? initialValue : [NSNull null]) forKey:@"backgroundColor"];
+    }
+    id propertiesValue = [_dataItem objectForKey:@"properties"];
+    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+    id colorValue = [properties objectForKey:@"backgroundColor"];
+    UIColor *color = colorValue != nil ? [[TiUtils colorValue:colorValue] _color] : nil;
+    if (color == nil) {
+        color = [_initialValues objectForKey:@"backgroundColor"];
+    }
+    self.backgroundColor = color;
 }
 
 - (void)setDataItem:(NSDictionary *)dataItem
