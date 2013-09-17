@@ -230,22 +230,8 @@
             [(UIImageView*)_bgView setImage:bgImage];
             [_bgView setBackgroundColor:((bgColor == nil) ? [UIColor clearColor] : bgColor)];
         } else {
-            if (bgColor != nil) {
-                if (![_bgView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
-                    [_bgView removeFromSuperview];
-                    RELEASE_TO_NIL(_bgView);
-                    _bgView = [[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero];
-                    _bgView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-                    [superView addSubview:_bgView];
-                }
-                ((TiSelectedCellBackgroundView*)_bgView).grouped = _grouped;
-                ((TiSelectedCellBackgroundView*)_bgView).fillColor = bgColor;
-                ((TiSelectedCellBackgroundView*)_bgView).position = _positionMask;
-                
-            } else {
-                [_bgView removeFromSuperview];
-                RELEASE_TO_NIL(_bgView);
-            }
+            [_bgView removeFromSuperview];
+            RELEASE_TO_NIL(_bgView);
         }
     } else {
         if (bgImage != nil) {

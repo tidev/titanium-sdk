@@ -1154,9 +1154,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         return;
     }
     //Let the cell configure its background
-    if ([TiUtils isIOS7OrGreater]) {
-        [(TiUIListItem*)cell configureCellBackground];
-    }
+    [(TiUIListItem*)cell configureCellBackground];
+    
     //Tell the proxy about the cell to be displayed
     [self.listViewProxy willDisplayCell:indexPath];
 }
