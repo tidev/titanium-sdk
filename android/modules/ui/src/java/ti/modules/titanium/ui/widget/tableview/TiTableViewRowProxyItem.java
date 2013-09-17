@@ -478,7 +478,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 			// If there is a child view, we don't set a minimum height for the row.
 			// Otherwise, we set a minimum height.
-			if (((TableViewRowProxy) item.proxy).hasControls()) {
+			boolean hasChildView = ((TableViewRowProxy) item.proxy).hasControls();
+			if (hasChildView) {
 				content.setMinimumHeight(0);
 			} else {
 				content.setMinimumHeight(48);
@@ -500,7 +501,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				} else {
 					h = Math.max(minRowHeight, height.getAsPixels(this));
 				}
-				content.getLayoutParams().height = h;
+				if (hasChildView) {
+					content.getLayoutParams().height = h;
+				}
 
 				if (Log.isDebugModeEnabled()) {
 					Log.d(TAG, "Row content measure (" + adjustedWidth + "x" + h + ")", Log.DEBUG_MODE);
