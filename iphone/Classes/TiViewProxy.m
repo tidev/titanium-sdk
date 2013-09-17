@@ -1324,24 +1324,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 -(CGRect)appFrame	//TODO: Why is this here? It doesn't have anything to do with a specific instance.
 {
-	CGRect result=[[UIScreen mainScreen] applicationFrame];
-	switch ([[UIApplication sharedApplication] statusBarOrientation])
-	{
-		case UIInterfaceOrientationLandscapeLeft:
-		case UIInterfaceOrientationLandscapeRight:
-		{
-			CGFloat leftMargin = result.origin.y;
-			CGFloat topMargin = result.origin.x;
-			CGFloat newHeight = result.size.width;
-			CGFloat newWidth = result.size.height;
-			result = CGRectMake(leftMargin, topMargin, newWidth, newHeight);
-			break;
-		}
-		default: {
-			break;
-		}
-	}
-	return result;
+	CGRect result = [[[[TiApp app] controller] view] bounds];
+    return result;
 }
 
 
