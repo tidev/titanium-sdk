@@ -11,12 +11,14 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.app.Activity;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -43,17 +45,29 @@ public class TiUIActivityIndicator extends TiUIView
 		super(proxy);
 		Log.d(TAG, "Creating an activity indicator", Log.DEBUG_MODE);
 
-		view = new LinearLayout(proxy.getActivity());
+		/*
+		 * use getAppCurrentActivity over getActivity since technically the activity indicator
+		 * should show up on top of the current activity when called - not just the
+		 * activity it was created in
+		 */
+		Activity activity = TiApplication.getAppCurrentActivity();
+
+		if (activity == null) {
+			Log.w(TAG, "Unable to create an activity indicator. Activity is null");
+			return;
+		}
+
+		view = new LinearLayout(activity);
 		view.setOrientation(LinearLayout.HORIZONTAL);
 		view.setGravity(Gravity.CENTER);
 
-		label = new TextView(proxy.getActivity());
+		label = new TextView(activity);
 		label.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		label.setPadding(0, 0, 0, 0);
 		label.setSingleLine(false);
 
 		currentStyle = getStyle();
-		progress = new ProgressBar(proxy.getActivity(), null, currentStyle);
+		progress = new ProgressBar(activity, null, currentStyle);
 
 		view.addView(progress);
 		view.addView(label);
@@ -148,7 +162,7 @@ public class TiUIActivityIndicator extends TiUIView
 		}
 
 		view.removeAllViews();
-		progress = new ProgressBar(proxy.getActivity(), null, style);
+		progress = new ProgressBar(TiApplication.getAppCurrentActivity(), null, style);
 		currentStyle = style;
 		view.addView(progress);
 		view.addView(label);
