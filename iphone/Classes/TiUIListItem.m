@@ -242,16 +242,7 @@
 			}];
 		}
 	}
-	id backgroundColorValue = [properties objectForKey:@"backgroundColor"];
-	if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"contentView.backgroundColor"]) {
-		UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : [UIColor clearColor];
-		if (backgroundColor != nil) {
-			[self recordChangeValue:backgroundColorValue forKeyPath:@"contentView.backgroundColor" withBlock:^{
-				self.contentView.backgroundColor = backgroundColor;
-			}];
-		}
-	}
-	
+    
 	[_resetKeys enumerateObjectsUsingBlock:^(NSString *keyPath, BOOL *stop) {
 		id value = [_initialValues objectForKey:keyPath];
 		[self setValue:(value != [NSNull null] ? value : nil) forKeyPath:keyPath];

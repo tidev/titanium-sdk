@@ -245,9 +245,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     //Let the cell configure its background
-    if ([TiUtils isIOS7OrGreater]) {
-        [(TiUIListItem*)cell configureCellBackground];
-    }
+    [(TiUIListItem*)cell configureCellBackground];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
