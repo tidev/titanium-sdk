@@ -61,6 +61,11 @@
     opened = YES;
     if ([self _hasListeners:@"open"]) {
         [self fireEvent:@"open" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        if (focussed && [self handleFocusEvents]) {
+            if ([self _hasListeners:@"focus"]) {
+                [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+            }
+        }
     }
     [super windowDidOpen];
     [self forgetProxy:openAnimation];
@@ -315,7 +320,7 @@
 {
     if (focussed == NO) {
         focussed = YES;
-        if ([self handleFocusEvents]) {
+        if ([self handleFocusEvents] && opened) {
             if ([self _hasListeners:@"focus"]) {
                 [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
             }
