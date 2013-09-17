@@ -321,6 +321,23 @@
 	return same;
 }
 
+- (void)configureCellBackground
+{
+    //Ensure that we store the default backgroundColor
+    if ([_initialValues objectForKey:@"backgroundColor"] == nil) {
+        id initialValue = [self backgroundColor];
+        [_initialValues setObject:(initialValue != nil ? initialValue : [NSNull null]) forKey:@"backgroundColor"];
+    }
+    id propertiesValue = [_dataItem objectForKey:@"properties"];
+    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+    id colorValue = [properties objectForKey:@"backgroundColor"];
+    UIColor *color = colorValue != nil ? [[TiUtils colorValue:colorValue] _color] : nil;
+    if (color == nil) {
+        color = [_initialValues objectForKey:@"backgroundColor"];
+    }
+    self.backgroundColor = color;
+}
+
 - (void)setDataItem:(NSDictionary *)dataItem
 {
 	_dataItem = [dataItem retain];
