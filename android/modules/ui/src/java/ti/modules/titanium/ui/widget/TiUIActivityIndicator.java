@@ -54,6 +54,7 @@ public class TiUIActivityIndicator extends TiUIView
 
 		if (activity == null) {
 			Log.w(TAG, "Unable to create an activity indicator. Activity is null");
+			return;
 		}
 
 		view = new LinearLayout(activity);
