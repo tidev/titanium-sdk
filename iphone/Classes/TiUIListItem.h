@@ -24,7 +24,7 @@ enum {
 - (id)initWithProxy:(TiUIListItemProxy *)proxy reuseIdentifier:(NSString *)reuseIdentifier;
 
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
-
+- (void)configureCellBackground;
 @end
 
 #endif

@@ -162,8 +162,8 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect,
 	if((position != inPosition) && (![TiUtils isIOS7OrGreater]))
 	{
 		position = inPosition;
-		[self setNeedsDisplay];
 	}
+	[self setNeedsDisplay];
 }
 
 @end

@@ -173,7 +173,7 @@
 
 -(void)loadView
 {
-    TiRootViewNeue *rootView = [[TiRootViewNeue alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
+    TiRootViewNeue *rootView = [[TiRootViewNeue alloc] initWithFrame:[TiUtils frameForController:self]];
     self.view = rootView;
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self updateBackground];
