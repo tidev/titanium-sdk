@@ -11,7 +11,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-var android = require('titanium-sdk/lib/android')
+var android = require('titanium-sdk/lib/android'),
+	appc = require('node-appc');
 
 /**
  * Detects current Android environment.
@@ -20,4 +21,8 @@ var android = require('titanium-sdk/lib/android')
  * @param {Object} opts - Detection options; currently only 'bypassCache'
  * @param {Function} finished - Callback when detection is finished
  */
-exports.detect = android.detect;
+exports.detect = function detect(config, opts, finished) {
+	opts || (opts = {});
+	opts.packageJson = appc.pkginfo.package(module);
+	android.detect(config, opts, finished);
+};

@@ -12,6 +12,7 @@ var ti = require('titanium-sdk'),
 	version = appc.version,
 
 	async = require('async'),
+	crypto = require('crypto'),
 	fields = require('fields'),
 	fs = require('fs'),
 	path = require('path'),
@@ -34,6 +35,8 @@ var ti = require('titanium-sdk'),
 
 function AndroidBuilder() {
 	Builder.apply(this, arguments);
+
+	this.keystoreAliases = [];
 }
 
 util.inherits(AndroidBuilder, Builder);
@@ -41,15 +44,57 @@ util.inherits(AndroidBuilder, Builder);
 AndroidBuilder.prototype.config = function config(logger, config, cli) {
 	Builder.prototype.config.apply(this, arguments);
 
+	var _t = this;
+
+	// we hook into the pre-validate event so that we can stop the build before
+	// prompting if we know the build is going to fail
+	cli.on('cli:pre-validate', function (obj, callback) {
+		// Check for java version
+		if (!_t.jdkInfo.version) {
+			logger.error(__('Unable to locate the Java Development Kit') + '\n');
+			logger.log(__('You can specify the location by setting the %s environment variable.', 'JAVA_HOME'.cyan) + '\n');
+			process.exit(1);
+		}
+
+		if (!version.satisfies(_t.jdkInfo.version, packageJson.vendorDependencies.java)) {
+			logger.error(__('JDK version %s detected, but only version %s is supported', _t.jdkInfo.version, packageJson.vendorDependencies.java) + '\n');
+			process.exit(1);
+		}
+
+		async.series([
+			function (next) {
+				if (cli.argv.keystore === void 0) return next();
+				_t.conf.keystore.validate(cli.argv.keystore, next);
+			},
+			function (next) {
+				if (cli.argv['store-password'] === void 0) return next();
+				_t.conf['store-password'].validate(cli.argv['store-password'], next);
+			}
+		], function (err) {
+			if (err) {
+				logger.error(err.message || err.toString());
+				logger.log();
+				process.exit(1);
+			}
+			callback();
+		});
+	});
+
 	return function (finished) {
-		appc.async.parallel(this, {
-			jdkInfo: function (done) {
-				// quickly detect if java is installed
-				appc.jdk.detect(config, null, function (jdkInfo) {
-					done(null, jdkInfo);
+		async.parallel([
+			function (done) {
+				androidDetect(config, { packageJson: packageJson }, function (androidInfo) {
+					_t.androidInfo = androidInfo;
+					done();
 				});
 			},
-			conf: function (done) {
+			function (done) {
+				appc.jdk.detect(config, null, function (jdkInfo) {
+					_t.jdkInfo = jdkInfo;
+					done();
+				});
+			},
+			function (done) {
 				cli.createHook('build.android.config', function (callback) {
 					callback({
 						options: {
@@ -57,14 +102,20 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								abbr: 'L',
 								desc: __('the alias for the keystore'),
 								hint: 'alias',
+								order: 7,
 								prompt: function (callback) {
-									fields.text({
-										promptLabel: __("What is the name of the keystore's certificate alias?"),
-										validate: function (value, cb) {
-											if (!value) logger.error(__('Invalid keystore alias'));
-											cb(!value, value);
-										}
-									}).prompt(callback);
+									callback(fields.select({
+										title: __("What is the name of the keystore's certificate alias?"),
+										promptLabel: __('Select a certificate alias by number or name'),
+										margin: '',
+										optionLabel: 'name',
+										optionValue: 'name',
+										numbered: true,
+										relistOnError: true,
+										complete: true,
+										suggest: false,
+										options: _t.keystoreAliases
+									}));
 								}
 							},
 							'android-sdk': {
@@ -75,36 +126,38 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
 								desc: __('the path to the Android SDK'),
 								hint: __('path'),
-								required: true,
+								order: 1,
 								prompt: function (callback) {
-									fields.file({
+									callback(fields.file({
 										promptLabel: __('Where is the Android SDK?'),
 										default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
 										complete: true,
 										showHidden: true,
-										ignoreDirs: config.get('cli.ignoreDirs'),
-										ignoreFiles: config.get('cil.ignoreFiles'),
+										ignoreDirs: new RegExp(config.get('cli.ignoreDirs')),
+										ignoreFiles: new RegExp(config.get('cli.ignoreFiles')),
 										validate: function (value, cb) {
 											if (!value) {
 												logger.error(__('Invalid Android SDK path'));
 												return cb(true);
 											}
-											android.findSDK(value, config, function (err, results) {
+											android.findSDK(value, config, appc.pkginfo.package(module), function (err, results) {
 												if (err) logger.error(__('Invalid Android SDK path: %s', value));
 												cb(err, results);
 											});
 										}
-									}).prompt(function (err, value) {
+									}));
+									/*.prompt(function (err, value) {
 										if (err) return callback(err);
-										// rerun detection
 										config.set('android.sdkPath', value);
 										callback(null, value);
-									});
-								}
+									});*/
+								},
+								required: true
 							},
 							'avd-abi': {
 								abbr: 'B',
-								desc: __('the abi for the Android emulator; deprecated, use --device')
+								desc: __('the abi for the Android emulator; deprecated, use --device'),
+								hint: __('abi')
 							},
 							'avd-id': {
 								abbr: 'I',
@@ -114,8 +167,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							'avd-skin': {
 								abbr: 'S',
 								desc: __('the skin for the Android emulator; deprecated, use --device'),
-								hint: __('skin'),
-								default: 'HVGA'
+								hint: __('skin')
 							},
 							'debug-host': {
 								hidden: true
@@ -130,7 +182,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								abbr: 'V',
 								desc: __('the name for the device or Android emulator to install the application to'),
 								hint: __('name'),
-								required: true,
+								order: 3,
 								prompt: function (callback) {
 									// we need to get a list of all devices and emulators
 									async.series({
@@ -199,7 +251,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 											process.exit(1);
 										}
 
-										fields.select({
+										callback(fields.select({
 											title: __('Where do you want to install your application after building?'),
 											promptLabel: __('Select a device by number or name'),
 											formatters: {
@@ -215,38 +267,45 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 											complete: true,
 											suggest: true,
 											options: opts
-										}).prompt(callback);
+										}));
 									});
-								}
+								},
+								required: true
 							},
 							'key-password': {
 								desc: __('the password for the keystore private key (defaults to the store-password)'),
 								hint: 'keypass',
-								password: true,
-								prompt: {
-									label: __('Keystore private key password'),
-									error: __('Invalid keystore private key password'),
-									validator: function (password) {
-										if (!password) {
-											throw new appc.exception(__('Invalid keystore private key password'));
+								order: 6,
+								prompt: function (callback) {
+									callback(fields.text({
+										promptLabel: __("What is the keystore's key password? %s", __('(leave blank to use the store password)').grey),
+										password: true,
+										validate: function (value, cb) {
+											cb(null, value);
 										}
-										return true;
-									}
+									}));
 								}
 							},
 							'keystore': {
 								abbr: 'K',
 								desc: __('the location of the keystore file'),
 								hint: 'path',
-								prompt: {
-									label: __('Keystore File Location'),
-									error: __('Invalid keystore file'),
-									validator: function (keystorePath) {
-										keystorePath = afs.resolvePath(keystorePath);
-										if (!afs.exists(keystorePath) || !fs.lstatSync(keystorePath).isFile()) {
-											throw new appc.exception(__('Invalid keystore file location'));
-										}
-										return true;
+								order: 4,
+								prompt: function (callback) {
+									callback(fields.file({
+										promptLabel: __('Where is the keystore file used to sign the app?'),
+										complete: true,
+										showHidden: true,
+										ignoreDirs: new RegExp(config.get('cli.ignoreDirs')),
+										ignoreFiles: new RegExp(config.get('cli.ignoreFiles')),
+										validate: _t.conf.keystore.validate.bind(_t)
+									}));
+								},
+								validate: function (keystoreFile, callback) {
+									if (!keystoreFile || !fs.existsSync(keystoreFile) || !fs.statSync(keystoreFile).isFile()) {
+										callback(new Error(keystoreFile ? __('Invalid keystore file') : __('Please specify the path to your keystore file')));
+									} else {
+										callback(null, keystoreFile);
 									}
 								}
 							},
@@ -254,401 +313,763 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								abbr: 'O',
 								desc: __('the output directory when using %s', 'dist-playstore'.cyan),
 								hint: 'dir',
-								prompt: {
-									default: function () {
-										return cli.argv['project-dir'] && path.join(cli.argv['project-dir'], 'dist');
-									},
-									label: __('Output directory'),
-									error: __('Invalid output directory'),
-									validator: function (dir) {
-										if (!afs.resolvePath(dir)) {
-											throw new appc.exception(__('Invalid output directory'));
+								order: 8,
+								prompt: function (callback) {
+									callback(fields.file({
+										promptLabel: __('Where would you like the output APK file saved?'),
+										default: cli.argv['project-dir'] && afs.resolvePath(cli.argv['project-dir'], 'dist'),
+										complete: true,
+										showHidden: true,
+										ignoreDirs: new RegExp(config.get('cli.ignoreDirs')),
+										ignoreFiles: /.*/,
+										validate: function (outputDir, cb) {
+											if (!outputDir) {
+												logger.error(__('Invalid output directory'));
+												return cb(true);
+											}
+											cb(null, outputDir);
 										}
-										return true;
-									}
+									}));
 								}
 							},
 							'store-password': {
 								abbr: 'P',
-								alias: 'password',
+								alias: 'password', // for backwards compatibility (also this conflicts with the login password option)
 								desc: __('the password for the keystore'),
 								hint: 'storepass',
-								password: true,
-								prompt: {
-									label: __('Keystore password'),
-									error: __('Invalid keystore password'),
-									validator: function (password) {
-										if (!password) {
-											throw new appc.exception(__('Invalid keystore password'));
-										}
-										// TODO: check that the password actually works
-										return true;
+								order: 5,
+								prompt: function (callback) {
+									callback(fields.text({
+										next: function (err, value) {
+											return err && err.next || null;
+										},
+										promptLabel: __("What is the keystore's store password?"),
+										password: true,
+										// if the password fails due to bad keystore file,
+										// we need to prompt for the keystore file again
+										repromptOnError: false,
+										validate: _t.conf['store-password'].bind(_t)
+									}));
+								},
+								validate: function (storePassword, callback) {
+									if (!storePassword) {
+										return callback(new Error(__('Please specify a keystore password')));
+									}
+
+									if (cli.argv.keystore && _t.jdkInfo && _t.jdkInfo.executables.keytool) {
+										appc.subprocess.run(_t.jdkInfo.executables.keytool, ['-list', '-v', '-keystore', cli.argv.keystore, '-storepass', storePassword], function (code, out, err) {
+											if (code) {
+												var msg = out.split('\n').shift().split('java.io.IOException:');
+
+												if (msg.length > 1) {
+													msg = msg[1].trim();
+													if (/invalid keystore format/i.test(msg)) {
+														msg = __('Invalid keystore file');
+														cli.argv.keystore = undefined;
+													}
+												} else {
+													msg = out;
+												}
+
+												return callback(new Error(msg));
+											}
+
+											// empty the alias array. it is important that we don't destory the original
+											// instance since it was passed by reference to the alias select list
+											while (_t.keystoreAliases.length) {
+												_t.keystoreAliases.pop();
+											}
+
+											var re = /Alias name\: (.+)/;
+											out.split('\n').forEach(function (line) {
+												var m = line.match(re);
+												if (m) {
+													_t.keystoreAliases.push({ name: m[1] });
+												}
+											}.bind(_t));
+
+											if (_t.keystoreAliases.length == 0) {
+												cli.argv.keystore = undefined;
+												return callback(new Error(__('Keystore does not contain any certificates')));
+											} else if (_t.keystoreAliases.length == 1) {
+												cli.argv.alias = _t.keystoreAliases[0].name;
+											}
+
+											callback(null, storePassword);
+										}.bind(_t));
+									} else {
+										callback(null, storePassword);
 									}
 								}
 							},
-							target: {
+							'target': {
 								abbr: 'T',
 								callback: function (value) {
 									// as soon as we know the target, toggle required options for validation
 									if (value === 'dist-playstore') {
-										conf.options['keystore'].required = true;
-										conf.options['store-password'].required = true;
-										conf.options['key-password'].required = true;
-										conf.options['alias'].required = true;
-										conf.options['output-dir'].required = true;
-										conf.options['deploy-type'].values = ['production'];
-										conf.options['device'].required = false;
+										_t.conf.options['alias'].required = true;
+										_t.conf.options['deploy-type'].values = ['production'];
+										_t.conf.options['device'].required = false;
+										_t.conf.options['key-password'].required = true;
+										_t.conf.options['keystore'].required = true;
+										_t.conf.options['output-dir'].required = true;
+										_t.conf.options['store-password'].required = true;
 									}
 								},
 								default: 'emulator',
 								desc: __('the target to build for'),
+								order: 2,
 								required: true,
 								values: targets
 							}
 						}
 					});
 				})(function (err, results, result) {
-					done(err, result);
+					_t.conf = result;
+					done();
 				});
 			}
-		}, function (err, results) {
-			this.jdkInfo = results.jdkInfo;
-			this.conf = results.conf;
-			finished(this.conf);
+		], function (err, results) {
+			finished(_t.conf);
 		});
 	}.bind(this);
 };
 
-function assertNotIssue(name, issues, onerror) {
-	issues.forEach(function(issue) {
-		if ((typeof name == 'string' && issue.id == name) || (typeof name == 'object' && name.test(issue.id))) {
-			issue.message.split('\n').forEach(function (line) {
-				logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-			});
-			logger.log();
-			onerror(false);
-		}
-	});
-}
-
 AndroidBuilder.prototype.validate = function validate() {
 	return function (finished) {
-		androidDetect(this.config, null, function (androidInfo) {
-			// figure out the minimum Android SDK version
-			var minSupportedApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
+		// figure out the minimum Android SDK version
+		var logger = this.logger,
+			config = this.config,
+			cli = this.cli,
+			minSupportedApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
 
-			this.androidInfo = androidInfo;
+		function assertNotIssue(name, issues, onerror) {
+			issues.forEach(function(issue) {
+				if ((typeof name == 'string' && issue.id == name) || (typeof name == 'object' && name.test(issue.id))) {
+					issue.message.split('\n').forEach(function (line) {
+						logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
+					});
+					logger.log();
+					onerror(false);
+				}
+			});
+		}
 
-			// check that the Android SDK is found and sane
-			assertNotIssue('ANDROID_SDK_NOT_FOUND', this.androidInfo.issues, finished);
-			assertNotIssue('ANDROID_SDK_MISSING_PROGRAMS', this.androidInfo.issues, finished);
+		// check that the Android SDK is found and sane
+		assertNotIssue('ANDROID_SDK_NOT_FOUND', this.androidInfo.issues, finished);
+		assertNotIssue('ANDROID_SDK_MISSING_PROGRAMS', this.androidInfo.issues, finished);
 
-			// check if the Android SDK is in a directory containing ampersands
-			assertNotIssue('ANDROID_SDK_PATH_CONTAINS_AMPERSANDS', this.androidInfo.issues, finished);
+		// check if the Android SDK is in a directory containing ampersands
+		assertNotIssue('ANDROID_SDK_PATH_CONTAINS_AMPERSANDS', this.androidInfo.issues, finished);
 
-			// make sure we have an Android SDK and some Android targets
-			if (Object.keys(this.androidInfo.targets).filter(function (id) { return id > minSupportedApiLevel; }.bind(this)).length <= 0) {
-				logger.error(__('No Android SDK targets found.') + '\n');
-				logger.log(__('Please download SDK targets (api level %s or newer) via Android SDK Manager and try again.', minSupportedApiLevel) + '\n');
-				process.exit(1);
-			}
+		// make sure we have an Android SDK and some Android targets
+		if (Object.keys(this.androidInfo.targets).filter(function (id) { return id > minSupportedApiLevel; }.bind(this)).length <= 0) {
+			logger.error(__('No Android SDK targets found.') + '\n');
+			logger.log(__('Please download SDK targets (api level %s or newer) via Android SDK Manager and try again.', minSupportedApiLevel) + '\n');
+			process.exit(1);
+		}
 
-			ti.validateProjectDir(this.logger, this.cli, this.cli.argv, 'project-dir');
+		ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 
-			ti.validateTiappXml(this.logger, this.cli.tiapp);
+		ti.validateTiappXml(logger, cli.tiapp);
 
-			if (!ti.validateCorrectSDK(this.logger, this.config, this.cli, 'build')) {
-				// we're running the build command for the wrong SDK version, gracefully return
-				return false;
-			}
+		if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
+			// we're running the build command for the wrong SDK version, gracefully return
+			return false;
+		}
 
-/*			// Check for java version
-			if (!jdk.version) {
-				logger.error(__('Unable to locate the Java Development Kit') + '\n');
-				logger.log(__('You can specify the location by setting the %s environment variable.', 'JAVA_HOME'.cyan) + '\n');
-				process.exit(1);
-			} else if (version.satisfies(jdk.version, packageJson.vendorDependencies.java)) {
-				logger.error(__('JDK version %s detected, but at least %s is required', androidEnv.java.version, minJavaSdkVersion) + '\n');
-				process.exit(1);
-			}
+		// check the Android specific app id rules
+		if (!config.get('android.skipAppIdValidation') && !/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(cli.tiapp.id)) {
+			logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
+			logger.error(__('The app id must consist of letters, numbers, and underscores.'));
+			logger.error(__('The first character must be a letter or underscore.'));
+			logger.error(__('The first character after a period must not be a number.'));
+			logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+			process.exit(1);
+		}
 
-			// check the Android specific app id rules
-			if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(cli.tiapp.id)) {
-				logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
-				logger.error(__('The app id must consist of letters, numbers, and underscores.'));
-				logger.error(__('The first character must be a letter or underscore.'));
-				logger.error(__('The first character after a period must not be a number.'));
-				logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
-				process.exit(1);
-			}
+		if (!ti.validAppId(cli.tiapp.id)) {
+			logger.error(__('Invalid app id "%s"', cli.tiapp.id));
+			logger.error(__('The app id must not contain Java reserved words.') + '\n');
+			process.exit(1);
+		}
 
-			if (!ti.validAppId(cli.tiapp.id)) {
-				logger.error(__('Invalid app id "%s"', cli.tiapp.id));
-				logger.error(__('The app id must not contain Java reserved words.') + '\n');
-				process.exit(1);
-			}
+		// check the default unit
+		cli.tiapp.properties || (cli.tiapp.properties = {});
+		cli.tiapp.properties['ti.ui.defaultunit'] || (cli.tiapp.properties['ti.ui.defaultunit'] = { type: 'string', value: 'system'});
+		if (!/^system|px|dp|dip|mm|cm|in$/.test(cli.tiapp.properties['ti.ui.defaultunit'].value)) {
+			logger.error(__('Invalid "ti.ui.defaultunit" property value "%s"', cli.tiapp.properties['ti.ui.defaultunit'].value) + '\n');
+			logger.log(__('Valid units:'));
+			'system,px,dp,dip,mm,cm,in'.split(',').forEach(function (unit) {
+				logger.log('  ' + unit.cyan);
+			});
+			logger.log();
+			process.exit(1);
+		}
 
-			// check the default unit
-			cli.tiapp.properties || (cli.tiapp.properties = {});
-			cli.tiapp.properties['ti.ui.defaultunit'] || (cli.tiapp.properties['ti.ui.defaultunit'] = { type: 'string', value: 'system'});
-			if (!/^system|px|dp|dip|mm|cm|in$/.test(cli.tiapp.properties['ti.ui.defaultunit'].value)) {
-				logger.error(__('Invalid "ti.ui.defaultunit" property value "%s"', cli.tiapp.properties['ti.ui.defaultunit'].value) + '\n');
-				logger.log(__('Valid units:'));
-				'system,px,dp,dip,mm,cm,in'.split(',').forEach(function (unit) {
-					logger.log('  ' + unit.cyan);
-				});
-				logger.log();
-				process.exit(1);
-			}
+		var usesSDK = cli.tiapp.android && cli.tiapp.android.manifest && cli.tiapp.android.manifest['uses-sdk'],
+			minSDK = cli.tiapp.android && cli.tiapp.android['tool-api-level'] || 10,
+			targetSDK = null;
+		if (usesSDK) {
+			usesSDK['android:minSdkVersion'] && (minSDK = usesSDK['android:minSdkVersion']);
+			usesSDK['android:targetSdkVersion'] && (targetSDK = usesSDK['android:targetSdkVersion']);
+		}
+		if (minSDK < minSupportedApiLevel) {
+			logger.error(__('Minimum Android SDK version must be 10 or newer') + '\n');
+			process.exit(1);
+		}
+		if (targetSDK && targetSDK < minSupportedApiLevel) {
+			logger.error(__('Target Android SDK version must be 10 or newer') + '\n');
+			process.exit(1);
+		}
 
-			var usesSDK = cli.tiapp.android && cli.tiapp.android.manifest && cli.tiapp.android.manifest['uses-sdk'],
-				minSDK = cli.tiapp.android && cli.tiapp.android['tool-api-level'] || 10,
-				targetSDK = null;
-			if (usesSDK) {
-				usesSDK['android:minSdkVersion'] && (minSDK = usesSDK['android:minSdkVersion']);
-				usesSDK['android:targetSdkVersion'] && (targetSDK = usesSDK['android:targetSdkVersion']);
-			}
-			if (minSDK < minAndroidSdkVersion) {
-				logger.error(__('Minimum Android SDK version must be 10 or newer') + '\n');
-				process.exit(1);
-			}
-			if (targetSDK && targetSDK < minAndroidSdkVersion) {
-				logger.error(__('Target Android SDK version must be 10 or newer') + '\n');
-				process.exit(1);
-			}
-
-			// Set defaults for target Emulator
-			if (cli.argv.target == 'emulator') {
-				androidEnv.issues.forEach(function (issue) {
-					if (/^ANDROID_MISSING_(LIBGL|I386_ARCH|IA32_LIBS|32BIT_GLIBC|32BIT_LIBSTDCPP)$/.test(issue.id)) {
-						issue.message.split('\n').forEach(function (line) {
-							logger.warn(line);
-						});
-					}
-				});
-
-				var avdid = parseInt(cli.argv['avd-id']);
-
-				// double check and make sure that the avd-id passed (or the default)
-				// exists as an android target and if not, deal with it vs. bombing
-				if (isNaN(avdid) || !androidEnv.targets || !androidEnv.targets[avdid]) {
-					var keys = Object.keys(androidEnv.targets || {}),
-						name,
-						skins;
-
-					avdid = 0;
-					for (var c = 0; c < keys.length; c++) {
-						var target = androidEnv.targets[keys[c]],
-							api = target['api-level'];
-
-						// search for the first api > 10 (Android 2.3.3) which is what titanium requires
-						if (api >= 10) {
-							avdid = keys[c];
-							name = target.name;
-							skins = target.skins;
-							break;
+		// from here on out, we go async
+		appc.async.series(this, [
+			function (next) {
+				// Set defaults for target Emulator
+				if (cli.argv.target == 'emulator') {
+					androidEnv.issues.forEach(function (issue) {
+						if (/^ANDROID_MISSING_(LIBGL|I386_ARCH|IA32_LIBS|32BIT_GLIBC|32BIT_LIBSTDCPP)$/.test(issue.id)) {
+							issue.message.split('\n').forEach(function (line) {
+								logger.warn(line);
+							});
 						}
-					}
+					});
 
-					if (avdid) {
-						// if we found a valid avd id, let's use it but warn the user
-						if (cli.argv['avd-id']) {
-							logger.warn(__('AVD ID %s not found. Launching with the AVD ID %s%s.',
-								(''+cli.argv['avd-id']).cyan, (''+avdid).cyan, name ? ' (' + name + ')' : ''));
+					var avdid = parseInt(cli.argv['avd-id']);
+
+					// double check and make sure that the avd-id passed (or the default)
+					// exists as an android target and if not, deal with it vs. bombing
+					if (isNaN(avdid) || !androidEnv.targets || !androidEnv.targets[avdid]) {
+						var keys = Object.keys(androidEnv.targets || {}),
+							name,
+							skins;
+
+						avdid = 0;
+						for (var c = 0; c < keys.length; c++) {
+							var target = androidEnv.targets[keys[c]],
+								api = target['api-level'];
+
+							// search for the first api > 10 (Android 2.3.3) which is what titanium requires
+							if (api >= 10) {
+								avdid = keys[c];
+								name = target.name;
+								skins = target.skins;
+								break;
+							}
+						}
+
+						if (avdid) {
+							// if we found a valid avd id, let's use it but warn the user
+							if (cli.argv['avd-id']) {
+								logger.warn(__('AVD ID %s not found. Launching with the AVD ID %s%s.',
+									(''+cli.argv['avd-id']).cyan, (''+avdid).cyan, name ? ' (' + name + ')' : ''));
+							} else {
+								logger.warn(__('No AVD ID specified. Launching with the AVD ID %s%s.',
+									(''+avdid).cyan, name ? ' (' + name + ')' : ''));
+							}
+							cli.argv['avd-id'] = avdid;
+							var s = skins.length && skins[skins.length - 1];
+							if (s && skins && skins.indexOf(cli.argv['avd-skin']) == -1) {
+								logger.warn(__('AVD ID %s does not support skin %s. Launching with the AVD skin %s.',
+									avdid, (''+cli.argv['avd-skin']).cyan, (''+s).cyan));
+								cli.argv['avd-skin'] = s;
+							}
 						} else {
-							logger.warn(__('No AVD ID specified. Launching with the AVD ID %s%s.',
-								(''+avdid).cyan, name ? ' (' + name + ')' : ''));
+							// if we couldn't find one
+							if (cli.argv['avd-id']) {
+								logger.error(__('AVD ID %s not found and no suitable Android SDKs found. Please install Android SDK 2.3.3 or newer.', (''+cli.argv['avd-id']).cyan) + '\n');
+							} else {
+								logger.error(__('No suitable Android SDKs found. Please install Android SDK 2.3.3 or newer.', (''+cli.argv['avd-id']).cyan) + '\n');
+							}
+							process.exit(1);
 						}
-						cli.argv['avd-id'] = avdid;
-						var s = skins.length && skins[skins.length - 1];
-						if (s && skins && skins.indexOf(cli.argv['avd-skin']) == -1) {
-							logger.warn(__('AVD ID %s does not support skin %s. Launching with the AVD skin %s.',
-								avdid, (''+cli.argv['avd-skin']).cyan, (''+s).cyan));
-							cli.argv['avd-skin'] = s;
-						}
-					} else {
-						// if we couldn't find one
-						if (cli.argv['avd-id']) {
-							logger.error(__('AVD ID %s not found and no suitable Android SDKs found. Please install Android SDK 2.3.3 or newer.', (''+cli.argv['avd-id']).cyan) + '\n');
+					}
+
+					if (!cli.argv['avd-abi']) {
+						// check to make sure exists
+						if (androidEnv.targets && androidEnv.targets[cli.argv['avd-id']]) {
+							cli.argv['avd-abi'] = androidEnv.targets[cli.argv['avd-id']].abis[0] || androidEnv.targets['7'].abis[0] || 'armeabi';
 						} else {
-							logger.error(__('No suitable Android SDKs found. Please install Android SDK 2.3.3 or newer.', (''+cli.argv['avd-id']).cyan) + '\n');
+							logger.warn(__('AVD ID %s not found. Please use %s to specify a valid AVD ID. Ignoring --avd-abi.', cli.argv['avd-id'], '--avd-id'.cyan));
 						}
+					}
+				}
+				next();
+			},
+
+/*
+			function (next) {
+				// Validate arguments for dist-playstore
+				if (cli.argv.target == 'dist-playstore') {
+					appc.async.series(this, [
+						function (cb) {
+							console.log('keystore should already be valid: ' + cli.argv.keystore);
+							//this.validateKeystore(cli.argv.keystore, function (err) {
+							//	if (err) process.exit(1);
+								cb();
+							//});
+						},
+						function (cb) {
+							console.log('store password should already be valid: ' + cli.argv['store-password']);
+							//this.validateStorePassword(cli.argv['store-password'], function (err) {
+							//	if (err) process.exit(1);
+								cb();
+							//});
+						}
+					], function () {
+						next();
+					});
+				} else {
+					next();
+				}
+			},
+
+*/
+/*
+			function (next) {
+				if (cli.argv.target == 'dist-playstore') {
+					if(!cli.argv['alias']) {
+						logger.error(__('Invalid required option "%s"', '--alias') + '\n');
+						process.exit(1);
+					}
+
+					if (!cli.argv.keystore) {
+						logger.error(__('Missing required keystore file path') + '\n');
+						process.exit(1);
+					}
+
+					cli.argv.keystore = afs.resolvePath(cli.argv.keystore);
+					if (!afs.exists(cli.argv.keystore) || !fs.statSync(cli.argv.keystore).isFile()) {
+						logger.error(__('Invalid keystore file: %s', cli.argv.keystore.cyan) + '\n');
+						process.exit(1);
+					}
+
+					if(!cli.argv['password']) {
+						logger.error(__('Invalid required option "%s"', '--password') + '\n');
+						process.exit(1);
+					}
+
+					if (!cli.argv['output-dir']) {
+						logger.error(__('Invalid required option "%s"', '--output-dir') + '\n');
+						process.exit(1);
+					}
+
+					cli.argv['output-dir'] = afs.resolvePath(cli.argv['output-dir']);
+					if (!afs.exists(cli.argv['output-dir'])) {
+						wrench.mkdirSyncRecursive(cli.argv['output-dir']);
+					} else if (!fs.statSync(cli.argv['output-dir']).isDirectory()) {
+						logger.error(__('Invalid required option "%s", option is not a directory.', '--output-dir') + '\n');
 						process.exit(1);
 					}
 				}
-
-				if (!cli.argv['avd-abi']) {
-					// check to make sure exists
-					if (androidEnv.targets && androidEnv.targets[cli.argv['avd-id']]) {
-						cli.argv['avd-abi'] = androidEnv.targets[cli.argv['avd-id']].abis[0] || androidEnv.targets['7'].abis[0] || 'armeabi';
-					} else {
-						logger.warn(__('AVD ID %s not found. Please use %s to specify a valid AVD ID. Ignoring --avd-abi.', cli.argv['avd-id'], '--avd-id'.cyan));
-					}
-				}
-			}
-
-			// Validate arguments for dist-playstore
-			if (cli.argv.target == 'dist-playstore') {
-				if(!cli.argv['alias']) {
-					logger.error(__('Invalid required option "%s"', '--alias') + '\n');
-					process.exit(1);
-				}
-
-				if (!cli.argv.keystore) {
-					logger.error(__('Missing required keystore file path') + '\n');
-					process.exit(1);
-				}
-
-				cli.argv.keystore = afs.resolvePath(cli.argv.keystore);
-				if (!afs.exists(cli.argv.keystore) || !fs.statSync(cli.argv.keystore).isFile()) {
-					logger.error(__('Invalid keystore file: %s', cli.argv.keystore.cyan) + '\n');
-					process.exit(1);
-				}
-
-				if(!cli.argv['password']) {
-					logger.error(__('Invalid required option "%s"', '--password') + '\n');
-					process.exit(1);
-				}
-
-				if (!cli.argv['output-dir']) {
-					logger.error(__('Invalid required option "%s"', '--output-dir') + '\n');
-					process.exit(1);
-				}
-
-				cli.argv['output-dir'] = afs.resolvePath(cli.argv['output-dir']);
-				if (!afs.exists(cli.argv['output-dir'])) {
-					wrench.mkdirSyncRecursive(cli.argv['output-dir']);
-				} else if (!fs.statSync(cli.argv['output-dir']).isDirectory()) {
-					logger.error(__('Invalid required option "%s", option is not a directory.', '--output-dir') + '\n');
-					process.exit(1);
-				}
-			} else {
-				// not dist-playstore
-
-				['debug', 'profiler'].forEach(function (type) {
-					if (cli.argv[type + '-host']) {
-						if (typeof cli.argv[type + '-host'] == 'number') {
-							logger.error(__('Invalid %s host "%s"', type, cli.argv[type + '-host']) + '\n');
-							logger.log(__('The %s host must be in the format "host:port".', type) + '\n');
-							process.exit(1);
-						}
-
-						var parts = cli.argv[type + '-host'].split(':');
-
-						if (parts.length < 2) {
-							logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
-							logger.log(__('The %s host must be in the format "host:port".', type) + '\n');
-							process.exit(1);
-						}
-
-						if (parts.length > 1 && parts[1]) {
-							var port = parseInt(parts[1]);
-							if (isNaN(port) || port < 1 || port > 65535) {
-								logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
-								logger.log(__('The port must be a valid integer between 1 and 65535.') + '\n');
-								process.exit(1);
-							}
-						}
-					}
-				});
-			}
-
-			// check that the build directory is writeable
-			var buildDir = path.join(cli.argv['project-dir'], 'build');
-			if (!afs.isDirWritable(buildDir)) {
-				logger.error(__('The build directory is not writeable: %s', buildDir) + '\n');
-				logger.log(__('Make sure the build directory is writeable and that you have sufficient free disk space.') + '\n');
-				process.exit(1);
-			}
-
-			// make sure we have an icon
-			if (!cli.tiapp.icon || !['Resources', 'Resources/android'].some(function (p) {
-					return fs.existsSync(cli.argv['project-dir'], p, cli.tiapp.icon);
-				})) {
-				cli.tiapp.icon = 'appicon.png';
-			}
-
-			// validate modules
-			var titaniumAndroidSdkPath = afs.resolvePath(__dirname, '..', '..'),
-				titaniumSdkVersion = path.basename(path.join(titaniumAndroidSdkPath, '..')),
-				moduleSearchPaths = [ cli.argv['project-dir'], afs.resolvePath(titaniumAndroidSdkPath, '..', '..', '..', '..') ],
-				modules = [],
-				commonJsModules = [];
-			if (config.paths && Array.isArray(config.paths.modules)) {
-				moduleSearchPaths = moduleSearchPaths.concat(config.paths.modules);
-			}
-			appc.timodule.find(cli.tiapp.modules, 'android', cli.argv.deployType, titaniumSdkVersion, moduleSearchPaths, logger, function (modules) {
-				if (modules.missing.length) {
-					logger.error(__('Could not find all required Titanium Modules:'))
-					modules.missing.forEach(function (m) {
-						logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t deploy-type: ' + m.deployType);
-					}, this);
-					logger.log();
-					process.exit(1);
-				}
-
-				if (modules.incompatible.length) {
-					logger.error(__('Found incompatible Titanium Modules:'));
-					modules.incompatible.forEach(function (m) {
-						logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + m.minsdk);
-					}, this);
-					logger.log();
-					process.exit(1);
-				}
-
-				if (modules.conflict.length) {
-					logger.error(__('Found conflicting Titanium modules:'));
-					modules.conflict.forEach(function (m) {
-						logger.error('   ' + __('Titanium module "%s" requested for both iOS and CommonJS platforms, but only one may be used at a time.', m.id));
-					}, this);
-					logger.log();
-					process.exit(1);
-				}
-
-				modules = modules.found;
-
-				var hashes = [];
-
-				modules.found.forEach(function (module) {
-					if (module.platform.indexOf('commonjs') != -1) {
-						commonJsModules.push(module);
-					} else {
-						module.libName = module.name + '.jar',
-						module.libFile = path.join(module.modulePath, module.libName);
-
-						if (!fs.existsSync(module.libFile)) {
-							this.logger.error(__('Module %s version %s is missing library file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
-							process.exit(1);
-						}
-
-						hashes.push(module.hash = afs.hashFile(module.libFile));
-
-						logger.info(__('Detected third-party native iOS module: %s version %s', module.id.cyan, (module.manifest.version || 'latest').cyan));
-						nativeLibModules.push(module);
-					}
-
-					// scan the module for any CLI hooks
-					cli.scanHooks(path.join(module.modulePath, 'hooks'));
-				}, this);
-
-				finished();
-			});
+				next();
+			},
 */
 
-			// TEMP!!!!!!
-			finished();
+			function (next) {
+				if (/emulator|device/.test(cli.argv.target)) {
+					// not dist-playstore
 
-		}.bind(this)); // end androidDetect()
+					['debug', 'profiler'].forEach(function (type) {
+						if (cli.argv[type + '-host']) {
+							if (typeof cli.argv[type + '-host'] == 'number') {
+								logger.error(__('Invalid %s host "%s"', type, cli.argv[type + '-host']) + '\n');
+								logger.log(__('The %s host must be in the format "host:port".', type) + '\n');
+								process.exit(1);
+							}
+
+							var parts = cli.argv[type + '-host'].split(':');
+
+							if (parts.length < 2) {
+								logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
+								logger.log(__('The %s host must be in the format "host:port".', type) + '\n');
+								process.exit(1);
+							}
+
+							if (parts.length > 1 && parts[1]) {
+								var port = parseInt(parts[1]);
+								if (isNaN(port) || port < 1 || port > 65535) {
+									logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
+									logger.log(__('The port must be a valid integer between 1 and 65535.') + '\n');
+									process.exit(1);
+								}
+							}
+						}
+					});
+				}
+				next();
+			},
+
+			function (next) {
+				// check that the build directory is writeable
+				var buildDir = path.join(cli.argv['project-dir'], 'build');
+				if (fs.existsSync(buildDir) && !afs.isDirWritable(buildDir)) {
+					logger.error(__('The build directory is not writeable: %s', buildDir) + '\n');
+					logger.log(__('Make sure the build directory is writeable and that you have sufficient free disk space.') + '\n');
+					process.exit(1);
+				}
+				next();
+			},
+
+			function (next) {
+				// make sure we have an icon
+				if (!cli.tiapp.icon || !['Resources', 'Resources/android'].some(function (p) {
+						return fs.existsSync(cli.argv['project-dir'], p, cli.tiapp.icon);
+					})) {
+					cli.tiapp.icon = 'appicon.png';
+				}
+				next();
+			},
+
+			function (next) {
+				// validate modules
+				var moduleSearchPaths = [ cli.argv['project-dir'], this.globalModulesPath ];
+				if (config.paths && Array.isArray(config.paths.modules)) {
+					moduleSearchPaths = moduleSearchPaths.concat(config.paths.modules);
+				}
+
+				appc.timodule.find(cli.tiapp.modules, 'android', cli.argv.deployType, this.titaniumSdkPath, moduleSearchPaths, logger, function (modules) {
+					if (modules.missing.length) {
+						logger.error(__('Could not find all required Titanium Modules:'))
+						modules.missing.forEach(function (m) {
+							logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t deploy-type: ' + m.deployType);
+						}, this);
+						logger.log();
+						process.exit(1);
+					}
+
+					if (modules.incompatible.length) {
+						logger.error(__('Found incompatible Titanium Modules:'));
+						modules.incompatible.forEach(function (m) {
+							logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + m.minsdk);
+						}, this);
+						logger.log();
+						process.exit(1);
+					}
+
+					if (modules.conflict.length) {
+						logger.error(__('Found conflicting Titanium modules:'));
+						modules.conflict.forEach(function (m) {
+							logger.error('   ' + __('Titanium module "%s" requested for both iOS and CommonJS platforms, but only one may be used at a time.', m.id));
+						}, this);
+						logger.log();
+						process.exit(1);
+					}
+
+					this.modules = modules.found;
+					this.commonJsModules = [];
+					this.nativeLibModules = [];
+
+					var hashes = [];
+
+					modules.found.forEach(function (module) {
+						if (module.platform.indexOf('commonjs') != -1) {
+							this.commonJsModules.push(module);
+						} else {
+							module.libName = module.name + '.jar',
+							module.libFile = path.join(module.modulePath, module.libName);
+
+							if (!fs.existsSync(module.libFile)) {
+								logger.error(__('Module %s version %s is missing library file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
+								process.exit(1);
+							}
+
+							hashes.push(module.hash = afs.hashFile(module.libFile));
+
+							logger.info(__('Detected third-party native iOS module: %s version %s', module.id.cyan, (module.manifest.version || 'latest').cyan));
+							this.nativeLibModules.push(module);
+						}
+
+						// scan the module for any CLI hooks
+						cli.scanHooks(path.join(module.modulePath, 'hooks'));
+					}, this);
+
+					this.nativeModulesHash = hashes.length ? crypto.createHash('md5').update(hashes.sort().join(',')).digest('hex') : '';
+
+					next();
+				}.bind(this));
+			}
+		], function () {
+			finished();
+		});
 	}.bind(this); // end returned callback
 };
 
 AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
-	//Builder.prototype.run.apply(this, arguments);
+	Builder.prototype.run.apply(this, arguments);
+
+	this.classname = this.tiapp.name.split(/[^A-Za-z0-9_]/).map(function (word) {
+		return appc.string.capitalize(word.toLowerCase());
+	}).join('');
+	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
+
+	this.buildManifestFile = path.join(this.buildDir, 'build-manifest.json');
+	this.androidManifestFile = path.join(this.buildDir, 'AndroidManifest.xml');
+
+	this.modulesHash = !Array.isArray(this.tiapp.modules) ? '' : crypto.createHash('md5').update(this.tiapp.modules.filter(function (m) {
+		return !m.platform || /^iphone|ipad|commonjs$/.test(m.platform);
+	}).map(function (m) {
+		return m.id + ',' + m.platform + ',' + m.version;
+	}).join('|')).digest('hex');
+
+	this.readBuildManifest();
+
+	// check if we need to do a rebuild
+	this.forceRebuild = this.checkIfShouldForceRebuild();
 
 	// temporary debug output
 	console.log('\nDONE!\n');
 
+	console.log('titaniumSdkPath     ='.cyan, this.titaniumSdkPath);
+	console.log('titaniumSdkVersion  ='.cyan, this.titaniumSdkVersion);
+	console.log('platformPath        ='.cyan, this.platformPath);
+	console.log('platformName        ='.cyan, this.platformName);
+	console.log('projectDir          ='.cyan, this.projectDir);
+	console.log('buildDir            ='.cyan, this.buildDir);
+	console.log('packageJson         =\n'.cyan, this.packageJson);
+	console.log('conf                =\n'.cyan, this.conf);
+	console.log('tiapp               =\n'.cyan, this.tiapp);
+	console.log('jdkInfo             =\n'.cyan, this.jdkInfo);
+	console.log('alias               ='.cyan, this.cli.argv['alias']);
+	console.log('keystoreAliases     ='.cyan, this.keystoreAliases);
+	console.log('avd-abi             ='.cyan, this.cli.argv['avd-abi']);
+	console.log('avd-id              ='.cyan, this.cli.argv['avd-id']);
+	console.log('avd-skin            ='.cyan, this.cli.argv['avd-skin']);
+	console.log('debug-host          ='.cyan, this.cli.argv['debug-host']);
+	console.log('deploy-type         ='.cyan, this.cli.argv['deploy-type']);
+	console.log('device              ='.cyan, this.cli.argv['device']);
+	console.log('keystore            ='.cyan, this.cli.argv['keystore']);
+	console.log('store-password      ='.cyan, this.cli.argv['store-password']);
+	console.log('key-password        ='.cyan, this.cli.argv['key-password']);
+	console.log('output-dir          ='.cyan, this.cli.argv['output-dir']);
+	console.log('target              ='.cyan, this.cli.argv['target']);
+	console.log('buildManifestFile   ='.cyan, this.buildManifestFile);
+	console.log('androidManifestFile ='.cyan, this.androidManifestFile);
+	console.log('classname           ='.cyan, this.classname);
+	console.log('modulesHash         ='.cyan, this.modulesHash);
+	console.log('nativeModulesHash   ='.cyan, this.nativeModulesHash);
+
+	console.log();
+
 	finished();
+};
+
+AndroidBuilder.prototype.readBuildManifest = function readBuildManifest() {
+	this.buildManifest = {};
+	if (fs.existsSync(this.buildManifestFile)) {
+		try {
+			this.buildManifest = JSON.parse(fs.readFileSync(this.buildManifestFile)) || {};
+		} catch (e) {}
+	}
+};
+
+AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callback) {
+	this.cli.createHook('build.ios.writeBuildManifest', this, function (manifest, cb) {
+		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
+		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
+		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), function () {
+			cb();
+		});
+	})({
+		target: this.target,
+		deployType: this.deployType,
+		classname: this.classname,
+		platformPath: this.platformPath,
+		modulesHash: this.modulesHash,
+		nativeModulesHash: this.nativeModulesHash,
+		gitHash: ti.manifest.githash,
+		outputDir: this.cli.argv['output-dir'],
+		name: this.tiapp.name,
+		id: this.tiapp.id,
+		analytics: this.tiapp.analytics,
+		publisher: this.tiapp.publisher,
+		url: this.tiapp.url,
+		version: this.tiapp.version,
+		description: this.tiapp.description,
+		copyright: this.tiapp.copyright,
+		guid: this.tiapp.guid,
+		icon: this.tiapp.icon,
+		fullscreen: this.tiapp.fullscreen,
+		skipJSMinification: !!this.cli.argv['skip-js-minify']
+	}, function (err, results, result) {
+		callback();
+	});
+};
+
+AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForceRebuild() {
+	var manifest = this.buildManifest;
+
+	if (this.cli.argv.force) {
+		this.logger.info(__('Forcing rebuild: %s flag was set', '--force'.cyan));
+		return true;
+	}
+
+	if (!fs.existsSync(this.buildManifestFile)) {
+		this.logger.info(__('Forcing rebuild: %s does not exist', this.buildManifestFile.cyan));
+		return true;
+	}
+
+	if (!fs.existsSync(this.androidManifestFile)) {
+		this.logger.info(__('Forcing rebuild: %s does not exist', this.androidManifestFile.cyan));
+		return true;
+	}
+
+	// check if the target changed
+	if (this.target != manifest.target) {
+		this.logger.info(__('Forcing rebuild: target changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.target));
+		this.logger.info('  ' + __('Now: %s', this.target));
+		return true;
+	}
+
+	// check if the deploy type changed
+	if (this.deployType != manifest.deployType) {
+		this.logger.info(__('Forcing rebuild: deploy type changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.deployType));
+		this.logger.info('  ' + __('Now: %s', this.deployType));
+		return true;
+	}
+
+	// check if the classname changed
+	if (this.classname != manifest.classname) {
+		this.logger.info(__('Forcing rebuild: classname changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.classname));
+		this.logger.info('  ' + __('Now: %s', this.classname));
+		return true;
+	}
+
+	// check if the titanium sdk paths are different
+	if (this.platformPath != manifest.platformPath) {
+		this.logger.info(__('Forcing rebuild: Titanium SDK path changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.platformPath));
+		this.logger.info('  ' + __('Now: %s', this.platformPath));
+		return true;
+	}
+
+	// check the git hashes are different
+	if (!manifest.gitHash || manifest.gitHash != ti.manifest.githash) {
+		this.logger.info(__('Forcing rebuild: githash changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.gitHash));
+		this.logger.info('  ' + __('Now: %s', ti.manifest.githash));
+		return true;
+	}
+
+	// check if the modules hashes are different
+	if (this.modulesHash != manifest.modulesHash) {
+		this.logger.info(__('Forcing rebuild: modules hash changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.modulesHash));
+		this.logger.info('  ' + __('Now: %s', this.modulesHash));
+		return true;
+	}
+
+	if (this.nativeModulesHash != manifest.nativeModulesHash) {
+		this.logger.info(__('Forcing rebuild: native modules hash changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.nativeModulesHash));
+		this.logger.info('  ' + __('Now: %s', this.nativeModulesHash));
+		this.forceRebuild = true;
+	}
+
+	// next we check if any tiapp.xml values changed so we know if we need to reconstruct the main.m
+	if (this.tiapp.name != manifest.name) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml project name changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.name));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.name));
+		return true;
+	}
+
+	if (this.tiapp.id != manifest.id) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml app id changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.id));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.id));
+		return true;
+	}
+
+	if (!this.tiapp.analytics != !manifest.analytics) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml analytics flag changed since last build'));
+		this.logger.info('  ' + __('Was: %s', !!manifest.analytics));
+		this.logger.info('  ' + __('Now: %s', !!this.tiapp.analytics));
+		return true;
+	}
+	if (this.tiapp.publisher != manifest.publisher) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml publisher changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.publisher));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.publisher));
+		return true;
+	}
+
+	if (this.tiapp.url != manifest.url) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml url changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.url));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.url));
+		return true;
+	}
+
+	if (this.tiapp.version != manifest.version) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml version changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.version));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.version));
+		return true;
+	}
+
+	if (this.tiapp.description != manifest.description) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml description changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.description));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.description));
+		return true;
+	}
+
+	if (this.tiapp.copyright != manifest.copyright) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml copyright changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.copyright));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.copyright));
+		return true;
+	}
+
+	if (this.tiapp.guid != manifest.guid) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml guid changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.guid));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.guid));
+		return true;
+	}
+
+	if (this.tiapp.icon != manifest.icon) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml icon changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.icon));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.icon));
+		return true;
+	}
+
+	if (this.tiapp.fullscreen != manifest.fullscreen) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml fullscreen changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.fullscreen));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.fullscreen));
+		return true;
+	}
+
+	if (this.tiapp['navbar-hidden'] != manifest['navbar-hidden']) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml fullscreen changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest['navbar-hidden']));
+		this.logger.info('  ' + __('Now: %s', this.tiapp['navbar-hidden']));
+		return true;
+	}
+
+	/*
+    yes if any of the module's manifest or api name changes
+
+    yes if new properties are added to tiapp.xml
+
+    yes if Android target SDK version changes
+
+    yes if any changes to activities in the Android <activities> in the tiapp.xml
+    yes if any changes to activities in the Android <services> in the tiapp.xml
+
+    yes if any jss files change
+	*/
+
+	return false;
+};
+
 
 /*
 	var eventName = 'android.' + cli.argv.target;
@@ -693,10 +1114,9 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 			}.bind(this));
 		});
 	});
-*/
-};
 
-/*
+
+
 function build(logger, config, cli, finished) {
 	cli.fireHook('build.pre.compile', this, function (e) {
 		var env = {};
@@ -840,20 +1260,6 @@ function build(logger, config, cli, finished) {
 			}.bind(this));
 		});
 	});
-}
-
-// Converts an application name to a Java classname.
-function appnameToClassname(appname) {
-	var classname = appname.split(/[^A-Za-z0-9_]/).map(function(word) {
-		return appc.string.capitalize(word.toLowerCase());
-	}).join('');
-
-	// Classnames cannot begin with a number.
-	if (classname.match(/^[0-9]/) !== null) {
-		classname = '_' + classname;
-	}
-
-	return classname;
 }
 */
 

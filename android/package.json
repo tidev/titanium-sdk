@@ -20,24 +20,16 @@
 	],
 	"vendorDependencies": {
 		"android sdk": ">=10 <=18",
-		"android build tools": "<=18",
-		"android platform tools": "<=18",
-		"android tools": "<=22",
+		"android build tools": "<18.x",
+		"android platform tools": "<=18.x",
+		"android tools": "<=22.x",
 		"android ndk": "r8e",
 		"node": ">0.8.0 <=0.10.x",
-		"java": "*"
+		"java": "<1.8"
 	},
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/appcelerator/titanium_mobile_android.git"
 	},
-	"license": "Apache Public License v2",
-
-
-
-"minSDKToolsVersion": "22",
-"minSDKPlatformToolsVersion": "16",
-"minSDKBuildToolsVersion": "16",
-"minAPILevel": "10",
-"maxAPILevel": "17"
+	"license": "Apache Public License v2"
 }
