@@ -491,7 +491,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(BOOL)viewAttached
 {
-	return callbackCell != nil;
+	return (callbackCell != nil) && (callbackCell.proxy == self);
 }
 
 -(BOOL)canHaveControllerParent
@@ -729,17 +729,34 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	attaching = NO;
 }
 
+-(void)triggerUpdateIfHeightChanged
+{
+    TiThreadPerformOnMainThread(^{
+        if ([self viewAttached] && rowContainerView != nil) {
+            CGFloat curHeight = rowContainerView.bounds.size.height;
+            CGSize newSize = [callbackCell computeCellSize];
+            if (newSize.height != curHeight) {
+                DeveloperLog(@"Height changing from %.1f to %.1f. Triggering update.",curHeight,newSize.height);
+                [self triggerRowUpdate];
+            } else {
+                DeveloperLog(@"Height does not change. Just laying out children. Height %.1f",curHeight);
+                [callbackCell setNeedsDisplay];
+            }
+        }
+    }, NO);
+}
+
 -(void)contentsWillChange
 {
 	if (attaching==NO)
 	{
-		[self triggerRowUpdate];
+		[self triggerUpdateIfHeightChanged];
 	}
 }
 
 -(void)childWillResize:(TiViewProxy *)child
 {
-	[self triggerRowUpdate];
+	[self triggerUpdateIfHeightChanged];
 }
 
 -(TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell atPoint:(CGPoint*)point
