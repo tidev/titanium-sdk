@@ -1370,7 +1370,7 @@
 - (void) updateStatusBar
 {
     if ([TiUtils isIOS7OrGreater] && viewControllerControlsStatusBar) {
-        [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate) withObject:nil];
+        [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate) onThread:[NSThread mainThread] withObject:nil waitUntilDone:NO];
     } else {
         [[UIApplication sharedApplication] setStatusBarHidden:[self prefersStatusBarHidden] withAnimation:UIStatusBarAnimationNone];
         [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle] animated:NO];

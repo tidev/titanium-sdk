@@ -227,6 +227,27 @@
     
 }
 
+-(void)setStatusBarStyle:(id)style
+{
+    int theStyle = [TiUtils intValue:style def:[[[TiApp app] controller] defaultStatusBarStyle]];
+    switch (theStyle){
+        case UIStatusBarStyleDefault:
+            barStyle = UIStatusBarStyleDefault;
+            break;
+        case UIStatusBarStyleBlackOpaque:
+        case UIStatusBarStyleBlackTranslucent: //This will also catch UIStatusBarStyleLightContent
+            if ([TiUtils isIOS7OrGreater]) {
+                barStyle = 1;//UIStatusBarStyleLightContent;
+            } else {
+                barStyle = theStyle;
+            }
+            break;
+        default:
+            barStyle = UIStatusBarStyleDefault;
+    }
+    [[TiApp controller] updateStatusBar];
+}
+
 -(void)close:(id)args
 {
     //I am not open. Go Away

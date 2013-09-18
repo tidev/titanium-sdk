@@ -557,7 +557,7 @@ properties:
     summary: The status bar style associated with this window. 
     description: |
         Sets the status bar style when this window gains focus. This is now the recommended way to control the
-        status bar style on the application. Must be specified **before** the the window is opened.
+        status bar style on the application.
 
         If this value is undefined, the value is set to UIStatusBarStyle defined in tiapp.xml.
         If that is not defined it defaults to <Titanium.UI.iPhone.StatusBar.DEFAULT>.
