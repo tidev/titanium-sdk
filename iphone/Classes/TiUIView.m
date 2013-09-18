@@ -702,7 +702,7 @@ DEFINE_EXCEPTIONS
 	animationDelayGuard = 0;
     BOOL resetState = NO;
     if ([self.proxy isKindOfClass:[TiViewProxy class]] && [(TiViewProxy*)self.proxy willBeRelaying]) {
-        DebugLog(@"RESETTING STATE");
+        DeveloperLog(@"RESETTING STATE");
         resetState = YES;
     }
     
