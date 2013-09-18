@@ -15,7 +15,7 @@ description: |
     For a more detailed overview of ACS and how to configure an application to use it, refer to the 
     [Integrating with Appcelerator Cloud
     Services](http://docs.appcelerator.com/titanium/latest/#!/guide/Integrating_with_Appcelerator_Cloud_Services) 
-    and [ACS Quickstart](http://cloud.appcelerator.com/docs/quickstart) guides. 
+    and [ACS Quickstart](http://docs.appcelerator.com/cloud/latest/#!/guide/acs_quickstart) guides.
     
     #### Beta ACS APIs
     
@@ -71,9 +71,6 @@ description: |
     `accessToken`; the application must provide storage that matches its security
     requirements.
 
-    By default, Ti.Cloud always uses SSL for communicating with the ACS servers, unless
-    the [useSecure](Titanium.Cloud.useSecure) flag is set to `false`.
-
     3-Legged OAuth, using [secureLogin](Titanium.Cloud.Users.secureLogin) and
     [secureCreate](Titanium.Cloud.Users.secureCreate) is the preferred authentication
     method in most cases. However, if your application is using 3-Legged OAuth, all of its
@@ -103,8 +100,8 @@ description: |
     
     The value for each setting that will be used is based on the following rules: 
     
-    * OAuth is preferred over apiKey. If both the OAuth key and OAuth secret are provided then 
-      OAuth will be used; otherwise, apiKey will be used.
+    * apiKey is preferred over OAuth. If apiKey is provided then 
+      apiKey will be used; otherwise, OAuth will be used.
     * If a deployment-specific setting is provided (production or development) then that value will 
       be used for the current deployment environment.
     
@@ -119,10 +116,27 @@ description: |
         <property name="acs-authbase-url-development" type="string">AUTHENTICATION URL HERE</property>
         <property name="acs-authbase-url-production" type="string">AUTHENTICATION URL HERE</property>
         <property name="acs-authbase-url" type="string">AUTHENTICATION URL HERE</property>
+
+    By default, Ti.Cloud always uses SSL for communicating with the ACS servers. This behavior can be overridden 
+    by setting the URLs with their non-SSL counterpart.
+
+        <property name="acs-base-url" type="string">http://api.cloud.appcelerator.com</property>
+        <property name="acs-authbase-url" type="string">http://secure-identity.cloud.appcelerator.com</property>
+
+    #### Pre 3.1.1 Release behavior
+    Before Release 3.1.1 specify URLs without the protocol:
+
+        <property name="acs-base-url" type="string">api.cloud.appcelerator.com</property>
+        <property name="acs-authbase-url" type="string">secure-identity.cloud.appcelerator.com</property>
+
+    To disable SSL, add this line to the application code:
+
+        Cloud.useSecure = false;
+
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 since: "2.0"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, blackberry]
 
 methods:
   - name: hasStoredSession
@@ -178,6 +192,14 @@ properties:
     summary: Indicates whether to use SSL when sending requests to ACS.
     type: Boolean
     default: true
+    deprecated:
+        since: "2.0"
+        removed: "3.1.1"
+        notes: |
+            To disable SSL, set the `acs-base-url` and `acs-authbase-url` properties in the `tiapp.xml` using the HTTP URL.
+            To enable SSL, use the HTTPS URL.
+
+                <property name="acs-base-url" type="string">http://api.cloud.appcelerator.com</property>
 
   - name: sessionId
     since: "2.1.2"

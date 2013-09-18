@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,8 @@ package ti.modules.titanium.analytics;
 
 //import org.appcelerator.kroll.KrollDate;
 import java.util.Date;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
@@ -16,6 +18,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -114,5 +117,34 @@ public class AnalyticsModule extends KrollModule
 	public void userEvent(String event, @Kroll.argument(optional=true) KrollDict data) 
 	{
 		localAddEvent(PROPERTY_APP_USER, event, data);
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public String getLastEvent()
+	{
+		try {
+			TiAnalyticsEvent event = TiApplication.getInstance().lastAnalyticsEvent;
+			if (event == null)
+			{
+				return null;
+			}
+			JSONObject json = new JSONObject();
+			json.put("ver", "2");
+			json.put("id", TiApplication.getInstance().lastEventID);
+			json.put("type", event.getEventType());
+			json.put("event", event.getEventEvent());
+			json.put("ts", event.getEventTimestamp());
+			json.put("mid", event.getEventMid());
+			json.put("sid", event.getEventSid());
+			json.put("aguid", event.getEventAppGuid());
+			if ( event.mustExpandPayload() ) {
+				json.put("data", new JSONObject(event.getEventPayload()));
+			} else {
+				json.put("data", event.getEventPayload());
+			}
+			return json.toString();
+		} catch (JSONException e) {
+			return null;
+		}
 	}
 }

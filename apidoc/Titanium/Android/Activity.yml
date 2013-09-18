@@ -34,6 +34,23 @@ description: |
     an application is paused and resumed, you must add event listeners to its individual
     activities.
 
+    Android 4.0 and greater devices have an option called **Don't keep activities** under the **Developer
+    Options** menu. When this option is enabled, the Android OS will destroy an activity as soon as it
+    is stopped. It is intended to help developers debug their apps. For example, it can simulate the
+    case that Android will kill an activity in the background due to memory pressure. In
+    normal use, it is not recommended to turn this option on because this may lead to unexpected issues
+    on the apps, such as freezes, force closes and reboots.
+
+    When the **Don't keep activities** option is enabled, the lifecycle of the activity is different
+    from the normal case. Whenever the user leaves an activity, such as backgrounding the app using the
+    HOME button, this activity is destroyed by Android, which calls `onDestroy`.  In the normal case, `onStop`
+    would be called and the activity would not be destroyed.  Later, when the user goes back to that activity, this
+    activity will be recreated, which calls `onCreate`.  In the normal case, since the activity is not destroyed, 
+    `onRestart` would be called instead.  Therefore, some events, such as the open and close events on the Window
+    or TabGroup, will be fired differently from the normal case, and the root window of the app must set
+    [exitOnClose](Titanium.UI.Window.exitOnClose) to true; otherwise, the app will be unable to back out, that is,
+    hitting the BACK button in the root window will not allow the application to exit.
+
 
 extends: Titanium.Proxy
 platforms: [android]
@@ -163,6 +180,26 @@ methods:
         See also: [onMenuOpened](http://developer.android.com/reference/android/app/Activity.html#onMenuOpened(int, android.view.Menu))
         in the Android API Reference.
     since: "3.0.0"
+    
+  - name: sendBroadcast
+    summary: Broadcast the passed in `Intent` to all `BroadcastReceiver`s. 
+    since: "3.2.0"
+    parameters:
+      - name: intent
+        summary: Description of the broadcast.
+        type: Titanium.Android.Intent
+
+  - name: sendBroadcastWithPermission
+    summary: Broadcast the passed in `Intent` to all `BroadcastReceiver`s with an optional permission.
+    since: "3.2.0"
+    parameters:
+      - name: intent
+        summary: Description of the broadcast.
+        type: Titanium.Android.Intent
+      - name: receiverPermission
+        summary: Name of the permission that the receiver should hold in order to receive the broadcast.
+        type: String
+        optional: true
 events:
 
   - name: create
@@ -201,7 +238,6 @@ events:
         [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
         in the Android Developer Reference.
     properties:
-
       - name: intent
         summary: The `Intent` passed to the native `onNewIntent` method.
         type: Titanium.Android.Intent
@@ -231,6 +267,15 @@ events:
     description: |
         See also: [onStop](http://developer.android.com/reference/android/app/Activity.html#onStop())
         in the Android Developer Reference.
+
+  - name: userleavehint
+    summary: Fired when the activity is about to go into the background as a result of user choice.
+    description: |
+        See also:
+        [onPause](http://developer.android.com/reference/android/app/Activity.html#onUserLeaveHint())
+        in the Android Developer Reference.
+    since: "3.2.0"
+
 
 properties:
 

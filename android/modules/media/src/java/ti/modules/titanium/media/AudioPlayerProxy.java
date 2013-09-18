@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,16 +14,17 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.filesystem.FileProxy;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=MediaModule.class, propertyAccessors={
-	TiC.PROPERTY_VOLUME
+	TiC.PROPERTY_VOLUME, TiC.PROPERTY_TIME
 })
 public class AudioPlayerProxy extends KrollProxy
-	implements OnLifecycleEvent
+	implements OnLifecycleEvent, OnWindowFocusChangedEvent
 {
 	private static final String TAG = "AudioPlayerProxy";
 
@@ -38,6 +39,8 @@ public class AudioPlayerProxy extends KrollProxy
 	@Kroll.constant public static final int STATE_WAITING_FOR_QUEUE = TiSound.STATE_WAITING_FOR_QUEUE;
 	
 	protected TiSound snd;
+	private boolean windowFocused;
+	private boolean resumeInOnWindowFocusChanged;
 
 	public AudioPlayerProxy()
 	{
@@ -48,6 +51,7 @@ public class AudioPlayerProxy extends KrollProxy
 		//((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 
 		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
+		defaultValues.put(TiC.PROPERTY_TIME,0);
 	}
 
 	public AudioPlayerProxy(TiContext tiContext)
@@ -58,7 +62,8 @@ public class AudioPlayerProxy extends KrollProxy
 	@Override
 	protected void initActivity(Activity activity) {
 		super.initActivity(activity);
-		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
+		((TiBaseActivity) getActivity()).addOnLifecycleEventListener(this);
+		((TiBaseActivity) getActivity()).addOnWindowFocusChangedEventListener(this);
 	}
 
 	@Override
@@ -110,7 +115,8 @@ public class AudioPlayerProxy extends KrollProxy
 		}
 		return false;
 	}
-
+	
+	
 	// An alias for play so that
 	@Kroll.method
 	public void start() {
@@ -175,11 +181,14 @@ public class AudioPlayerProxy extends KrollProxy
 	public void onStart(Activity activity) {
 	}
 
-	public void onResume(Activity activity) {
-		if (!allowBackground()) {
+	public void onResume(Activity activity)
+	{
+		if (windowFocused && !allowBackground()) {
 			if (snd != null) {
 				snd.onResume();
 			}
+		} else {
+			resumeInOnWindowFocusChanged = true;
 		}
 	}
 
@@ -199,5 +208,16 @@ public class AudioPlayerProxy extends KrollProxy
 			snd.onDestroy();
 		}
 		snd = null;
+	}
+
+	public void onWindowFocusChanged(boolean hasFocus)
+	{
+		windowFocused = hasFocus;
+		if (resumeInOnWindowFocusChanged && !allowBackground()) {
+			if (snd != null) {
+				snd.onResume();
+			}
+			resumeInOnWindowFocusChanged = false;
+		}
 	}
 }

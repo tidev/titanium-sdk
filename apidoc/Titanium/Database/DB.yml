@@ -4,7 +4,7 @@ summary: The `Database` instance returned by <Titanium.Database.open> or <Titani
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, blackberry]
 
 methods:
   - name: close
@@ -80,11 +80,14 @@ properties:
   - name: lastInsertRowId
     summary: The identifier of the last populated row.
     type: Number
+    exclude-platforms: [blackberry]
     
   - name: name
     summary: The name of the database.
     type: String
+    exclude-platforms: [blackberry]
     
   - name: rowsAffected
     summary: The number of rows affected by the last query.
     type: Number
+    exclude-platforms: [blackberry]

@@ -13,16 +13,20 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.TiUIText;
+import android.text.InputType;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
 public class TiUISearchBar extends TiUIText
 {
 	protected ImageButton cancelBtn;
+	private TiEditText tv;
 	
 	public interface OnSearchChangeListener {
 		public void filterBy(String text);
@@ -33,6 +37,9 @@ public class TiUISearchBar extends TiUIText
 	public TiUISearchBar(final TiViewProxy proxy)
 	{
 		super(proxy, true);
+
+		tv = (TiEditText) getNativeView();
+		tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
 		// TODO Add Filter support
 
@@ -55,6 +62,7 @@ public class TiUISearchBar extends TiUIText
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}*/
+				tv.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
 				fireEvent("cancel", null);
 			}
 		});

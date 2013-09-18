@@ -37,7 +37,7 @@
 /**
  Tells if this proxy is currently focused
  */
-- (BOOL)focused;
+- (BOOL)focused:(id)unused;
 
 #pragma mark Private internal APIs.
 
@@ -188,6 +188,12 @@ enum
  @param arg A single proxy to remove.
  */
 -(void)remove:(id)arg;
+
+/**
+ Tells the view proxy to remove all child proxies.
+ @param arg Ignored.
+ */
+-(void)removeAllChildren:(id)arg;
 
 /**
  Tells the view proxy to set visibility on a child proxy to _YES_.
@@ -565,8 +571,10 @@ enum
 -(void)relayout;
 
 -(void)reposition;	//Todo: Replace
-
--(BOOL)willBeRelaying;	//Todo: Replace
+/**
+ Tells if the view is enqueued in the LayoutQueue
+ */
+-(BOOL)willBeRelaying;
 
 -(BOOL) widthIsAutoFill;
 -(BOOL) widthIsAutoSize;

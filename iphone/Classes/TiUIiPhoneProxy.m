@@ -74,6 +74,9 @@
 #ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
 #import "TiUIiPhoneTableViewCellSelectionStyleProxy.h"
 #endif
+#ifdef USE_TI_UIIPHONELISTVIEWSEPARATORSTYLE
+#import "TiUIiPhoneTableViewSeparatorStyleProxy.h"
+#endif
 
 @implementation TiUIiPhoneProxy
 
@@ -135,6 +138,9 @@ RELEASE_TO_NIL(x); \
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
 	FORGET_AND_RELEASE(listViewCellSelectionStyle);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSEPARATORSTYLE
+	FORGET_AND_RELEASE(listViewSeparatorStyle);
 #endif
 	[super dealloc];
 }
@@ -212,76 +218,58 @@ DEFINE_SUBPROXY_AS(ListViewScrollPosition, TableViewScrollPosition, listViewScro
 #ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
 DEFINE_SUBPROXY_AS(ListViewCellSelectionStyle, TableViewCellSelectionStyle, listViewCellSelectionStyle);
 #endif
-
-#define RESPONDS_TO_3_2_STATUSBAR_SELECTOR \
-[[UIApplication sharedApplication] respondsToSelector:@selector(setStatusBarHidden:withAnimation:)]
+#ifdef USE_TI_UIIPHONELISTVIEWSEPARATORSTYLE
+DEFINE_SUBPROXY_AS(ListViewSeparatorStyle, TableViewSeparatorStyle, listViewSeparatorStyle);
+#endif
 
 -(void)hideStatusBar:(id)args
 {
-	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-	ENSURE_UI_THREAD(hideStatusBar,args);
-	
-	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-	
-	BOOL repositionViews = NO;
-	if (RESPONDS_TO_3_2_STATUSBAR_SELECTOR) {
-		int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
-		[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:style];
-	}
-	else {
-		[[UIApplication sharedApplication] setStatusBarHidden:YES];
-		repositionViews = YES;
-	}
-	
-	[[[TiApp app] controller] resizeView];
-	if (repositionViews) {
-		[[[TiApp app] controller] repositionSubviews];
-	}
+    if ([TiUtils isIOS7OrGreater]) {
+        DebugLog(@"hideStatusBar method is not supported on IOS7. Ignoring call. Use the fullScreen property of the window");
+        return;
+    }
+    ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+    ENSURE_UI_THREAD(hideStatusBar,args);
+    DebugLog(@"hideStatusBar method deprecated in 3.1.3. Removed in 3.2.0");
+    
+    BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+    int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
+    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:style];
+    [[[TiApp app] controller] resizeView];
+    [[[TiApp app] controller] repositionSubviews];
 }
 
 -(void)showStatusBar:(id)args
 {
-	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-	ENSURE_UI_THREAD(showStatusBar,args);
-	
-	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+    if ([TiUtils isIOS7OrGreater]) {;
+        DebugLog(@"showStatusBar method is not supported on IOS7. Ignoring call. Use the fullScreen property of the window");
+        return;
+    }
+    ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+    ENSURE_UI_THREAD(showStatusBar,args);
+    DebugLog(@"showStatusBar method deprecated in 3.1.3. Removed in 3.2.0");
 
-	BOOL repositionViews = NO;
-	if (RESPONDS_TO_3_2_STATUSBAR_SELECTOR) {
-		int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
-		[[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:style];
-	}
-	else {
-		[[UIApplication sharedApplication] setStatusBarHidden:NO];		
-		repositionViews = YES;
-	}
-	
-	[[[TiApp app] controller] resizeView];
-	if (repositionViews) {
-		[[[TiApp app] controller] repositionSubviews];
-	}
+    BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+    int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
+    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:style];
+    [[[TiApp app] controller] resizeView];
+    [[[TiApp app] controller] repositionSubviews];
 }
 
 -(void)setStatusBarHidden:(id)hidden
 {
-	ENSURE_SINGLE_ARG(hidden,NSObject);
-	ENSURE_UI_THREAD(setStatusBarHidden,hidden);
-	
-	BOOL value = [TiUtils boolValue:hidden];
-	
-	BOOL repositionViews = NO;
-	if (RESPONDS_TO_3_2_STATUSBAR_SELECTOR) {
-		[[UIApplication sharedApplication] setStatusBarHidden:value withAnimation:UIStatusBarAnimationNone];
-	}
-	else {
-		[[UIApplication sharedApplication] setStatusBarHidden:value];
-		repositionViews = YES;
-	}
-	
-	[[[TiApp app] controller] resizeView];
-	if (repositionViews) {
-		[[[TiApp app] controller] repositionSubviews];
-	}
+    if ([TiUtils isIOS7OrGreater]) {
+        DebugLog(@"setStatusBarHidden method is not supported on IOS7. Ignoring call. Use the fullScreen property of the window");
+        return;
+    }
+    ENSURE_SINGLE_ARG(hidden,NSObject);
+    ENSURE_UI_THREAD(setStatusBarHidden,hidden);
+    DebugLog(@"setStatusBarHidden method deprecated in 3.1.3. Removed in 3.2.0");
+    
+    BOOL value = [TiUtils boolValue:hidden];
+    [[UIApplication sharedApplication] setStatusBarHidden:value withAnimation:UIStatusBarAnimationNone];
+    [[[TiApp app] controller] resizeView];
+    [[[TiApp app] controller] repositionSubviews];
 }
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(statusBarHidden,NSNumber)
@@ -290,7 +278,14 @@ END_UI_THREAD_PROTECTED_VALUE(statusBarHidden)
 
 -(void)setStatusBarStyle:(NSNumber *)style
 {
+    if ([TiUtils isIOS7OrGreater]) {
+        DebugLog(@"setStatusBarStyle method is not supported on IOS7. Ignoring call. Use the statusBarStyle property of the window");
+        return;
+    }
+
 	ENSURE_UI_THREAD(setStatusBarStyle,style);
+	DebugLog(@"setStatusBarStyle method deprecated in 3.1.3. Removed in 3.2.0");
+    
 	[[UIApplication sharedApplication] setStatusBarStyle:[style intValue]];
 }
 
@@ -402,6 +397,9 @@ MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT,UIModalPresentationCurrentCo
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
 	FORGET_AND_RELEASE(listViewCellSelectionStyle);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSEPARATORSTYLE
+	FORGET_AND_RELEASE(listViewSeparatorStyle);
 #endif
 	[super didReceiveMemoryWarning:notification];
 }

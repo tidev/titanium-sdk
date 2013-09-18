@@ -60,8 +60,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected static final int MSG_SET_PROPERTY = KrollObject.MSG_LAST_ID + 106;
 	protected static final int MSG_FIRE_EVENT = KrollObject.MSG_LAST_ID + 107;
 	protected static final int MSG_FIRE_SYNC_EVENT = KrollObject.MSG_LAST_ID + 108;
-	protected static final int MSG_CALL_PROPERTY = KrollObject.MSG_LAST_ID + 109;
-	protected static final int MSG_LAST_ID = MSG_CALL_PROPERTY;
+	protected static final int MSG_CALL_PROPERTY_ASYNC = KrollObject.MSG_LAST_ID + 109;
+	protected static final int MSG_CALL_PROPERTY_SYNC = KrollObject.MSG_LAST_ID + 110;
+	protected static final int MSG_LAST_ID = MSG_CALL_PROPERTY_SYNC;
 	protected static final String PROPERTY_NAME = "name";
 	protected static final String PROPERTY_HAS_JAVA_LISTENER = "_hasJavaListener";
 
@@ -380,6 +381,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			return;
 		}
 
+		if (dict.containsKey(TiC.PROPERTY_BUBBLE_PARENT)) {
+			bubbleParent = TiConvert.toBoolean(dict, TiC.PROPERTY_BUBBLE_PARENT, true);
+		}
 		properties.putAll(dict);
 		handleDefaultValues();
 		handleLocaleProperties();
@@ -661,9 +665,28 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * @param args the arguments to pass when calling the function.
 	 */
 	public void callPropertyAsync(String name, Object[] args) {
-		Message msg = getRuntimeHandler().obtainMessage(MSG_CALL_PROPERTY, args);
+		Message msg = getRuntimeHandler().obtainMessage(MSG_CALL_PROPERTY_ASYNC, args);
 		msg.getData().putString(PROPERTY_NAME, name);
 		msg.sendToTarget();
+	}
+
+	/**
+	 * Synchronously calls a function referenced by a property on this object.
+	 * This may be called safely on any thread.
+	 *
+	 * @see KrollObject#callProperty(String, Object[])
+	 * @param name the property that references the function
+	 * @param args the arguments to pass when calling the function.
+	 */
+	public void callPropertySync(String name, Object[] args)
+	{
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
+			getKrollObject().callProperty(name, args);
+		} else {
+			Message msg = getRuntimeHandler().obtainMessage(MSG_CALL_PROPERTY_SYNC);
+			msg.getData().putString(PROPERTY_NAME, name);
+			TiMessenger.sendBlockingRuntimeMessage(msg, args);
+		}
 	}
 
 	protected void doSetProperty(String name, Object value)
@@ -692,11 +715,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 */
 	public boolean fireEvent(String event, Object data)
 	{
-		Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT, data);
-		message.getData().putString(PROPERTY_NAME, event);
-		message.sendToTarget();
+		if (hierarchyHasListener(event)) {
+			Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT, data);
+			message.getData().putString(PROPERTY_NAME, event);
+			message.sendToTarget();
+			return true;
+		}
 
-		return hierarchyHasListener(event);
+		return false;
 	}
 
 	/**
@@ -738,9 +764,35 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		}
 	}
 
+	/**
+	 * Fires an event synchronously via KrollRuntime thread, which can be intercepted on JS side.
+	 * @param event the event to be fired.
+	 * @param data  the data to be sent.
+	 * @param maxTimeout the maximum time to wait for the result to return, in the unit of milliseconds.
+	 * @return whether this proxy has an eventListener for this event.
+	 * @module.api
+	 */
+	public boolean fireSyncEvent(String event, Object data, long maxTimeout)
+	{
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
+			return doFireEvent(event, data);
+
+		} else {
+			Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_SYNC_EVENT);
+			message.getData().putString(PROPERTY_NAME, event);
+
+			Object result = TiMessenger.sendBlockingRuntimeMessage(message, data, maxTimeout);
+			return TiConvert.toBoolean(result, false);
+		}
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean doFireEvent(String event, Object data)
 	{
+		if (!hierarchyHasListener(event)) {
+			return false;
+		}
+
 		boolean bubbles = false;
 		boolean reportSuccess = false;
 		int code = 0;
@@ -872,9 +924,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		// Checks whether the parent has the listener or not
 		if (!hasListener) {
 			KrollProxy parentProxy = getParentForBubbling();
-			if (parentProxy != null) {
-				boolean parentHasListener = parentProxy.hierarchyHasListener(event);
-				hasListener = hasListener || parentHasListener;
+			if (parentProxy != null && bubbleParent) {
+				return parentProxy.hierarchyHasListener(event);
 			}
 		}
 
@@ -1064,10 +1115,21 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 				return handled;
 			}
-			case MSG_CALL_PROPERTY: {
+			case MSG_CALL_PROPERTY_ASYNC: {
 				String propertyName = msg.getData().getString(PROPERTY_NAME);
 				Object[] args = (Object[]) msg.obj;
 				getKrollObject().callProperty(propertyName, args);
+
+				return true;
+			}
+			case MSG_CALL_PROPERTY_SYNC: {
+				String propertyName = msg.getData().getString(PROPERTY_NAME);
+				AsyncResult asyncResult = (AsyncResult) msg.obj;
+				Object[] args = (Object[]) asyncResult.getArg();
+				getKrollObject().callProperty(propertyName, args);
+				asyncResult.setResult(null);
+
+				return true;
 			}
 		}
 

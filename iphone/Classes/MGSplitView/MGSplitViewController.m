@@ -33,7 +33,7 @@
 @interface MGSplitViewController (MGPrivateMethods)
 
 - (void)setup;
-- (CGSize)splitViewSizeForOrientation:(UIInterfaceOrientation)theOrientation;
+- (CGRect)splitViewSizeForOrientation:(UIInterfaceOrientation)theOrientation;
 - (void)layoutSubviews;
 - (void)layoutSubviewsWithAnimation:(BOOL)animate;
 - (void)layoutSubviewsForInterfaceOrientation:(UIInterfaceOrientation)theOrientation withAnimation:(BOOL)animate;
@@ -230,7 +230,7 @@
 }
 
 
-- (CGSize)splitViewSizeForOrientation:(UIInterfaceOrientation)theOrientation
+- (CGRect)splitViewSizeForOrientation:(UIInterfaceOrientation)theOrientation
 {
 	UIScreen *screen = [UIScreen mainScreen];
 	CGRect fullScreenRect = screen.bounds; // always implicitly in Portrait orientation.
@@ -256,7 +256,7 @@
 	// Account for status bar, which always subtracts from the height (since it's always at the top of the screen).
 	height -= statusBarHeight;
 	
-	return CGSizeMake(width, height);
+	return CGRectMake(0, statusBarHeight, width, height);
 }
 
 
@@ -274,9 +274,9 @@
 	
 	// Layout the master, detail and divider views appropriately, adding/removing subviews as needed.
 	// First obtain relevant geometry.
-	CGSize fullSize = [self splitViewSizeForOrientation:theOrientation];
-	float width = fullSize.width;
-	float height = fullSize.height;
+	CGRect fullSize = [[self view] bounds];
+	float width = fullSize.size.width;
+	float height = fullSize.size.height;
 	
 	if (NO) { // Just for debugging.
 		DeveloperLog(@"Target orientation is %@, dimensions will be %.0f x %.0f", 
@@ -285,6 +285,7 @@
 	
 	// Layout the master, divider and detail views.
 	CGRect newFrame = CGRectMake(0, 0, width, height);
+    
 	UIViewController *controller;
 	UIView *theView;
 	BOOL shouldShowMaster = [self shouldShowMasterForInterfaceOrientation:theOrientation];
@@ -333,7 +334,6 @@
 			theView = controller.view;
 			if (theView) {
 				theView.frame = masterRect;
-                theView.bounds = CGRectMake(0, 0, masterRect.size.width, masterRect.size.height);
 				if (theView.superview != self.view) {
 					[controller viewWillAppear:NO];
 					[self.view addSubview:theView];
@@ -355,7 +355,6 @@
 			theView = controller.view;
 			if (theView) {
 				theView.frame = detailRect;
-                theView.bounds = CGRectMake(0, 0, detailRect.size.width, detailRect.size.height);
 				if (theView.superview != self.view) {
 					[self.view insertSubview:theView aboveSubview:self.masterViewController.view];
 				} else {
@@ -438,6 +437,14 @@
 		}
 	}
 	
+	
+    if ([TiUtils isIOS7OrGreater]) {
+        //IOS7 has turned off rounded corners on its viewcontrollers.
+        //No need to add these anymore.
+        [(MGSplitView*)[self view] setLayingOut:NO];
+        return;
+    }
+
 	// Create corner views if necessary.
 	MGSplitCornersView *leadingCorners; // top/left of screen in vertical/horizontal split.
 	MGSplitCornersView *trailingCorners; // bottom/right of screen in vertical/horizontal split.
@@ -880,15 +887,15 @@
 	// Check to see if delegate wishes to constrain the position.
 	float newPosn = posn;
 	BOOL constrained = NO;
-	CGSize fullSize = [self splitViewSizeForOrientation:currentOrientation];
+	CGRect fullSize = [[self view] bounds];
 	if (_delegate && [_delegate respondsToSelector:@selector(splitViewController:constrainSplitPosition:splitViewSize:)]) {
-		newPosn = [_delegate splitViewController:self constrainSplitPosition:newPosn splitViewSize:fullSize];
+		newPosn = [_delegate splitViewController:self constrainSplitPosition:newPosn splitViewSize:fullSize.size];
 		constrained = YES; // implicitly trust delegate's response.
 		
 	} else {
 		// Apply default constraints if delegate doesn't wish to participate.
 		float minPos = MG_MIN_VIEW_WIDTH;
-		float maxPos = ((_vertical) ? fullSize.width : fullSize.height) - (MG_MIN_VIEW_WIDTH + _splitWidth);
+		float maxPos = ((_vertical) ? fullSize.size.width : fullSize.size.height) - (MG_MIN_VIEW_WIDTH + _splitWidth);
 		constrained = (newPosn != _splitPosition && newPosn >= minPos && newPosn <= maxPos);
 	}
 	
@@ -992,7 +999,7 @@
 	if (!newMaster) {
 		newMaster = [NSNull null];
 	}
-	
+	[TiUtils configureController:master withObject:nil];
 	BOOL changed = YES;
 	if ([_viewControllers count] > 0) {
 		if ([_viewControllers objectAtIndex:0] == newMaster) {
@@ -1030,7 +1037,7 @@
 		_viewControllers = [[NSMutableArray alloc] initWithCapacity:2];
 		[_viewControllers addObject:[NSNull null]];
 	}
-	
+	[TiUtils configureController:detail withObject:nil];
 	BOOL changed = YES;
 	if ([_viewControllers count] > 1) {
 		if ([_viewControllers objectAtIndex:1] == detail) {

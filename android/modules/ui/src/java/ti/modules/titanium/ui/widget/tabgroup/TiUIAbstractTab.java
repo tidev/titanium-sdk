@@ -19,7 +19,6 @@ import android.view.View;
 
 
 public abstract class TiUIAbstractTab extends TiUIView {
-	private TabContentViewProxy contentView;
 
 	public TiUIAbstractTab(TabProxy proxy) {
 		super(proxy);
@@ -39,37 +38,24 @@ public abstract class TiUIAbstractTab extends TiUIView {
 	 * @return the content view or null if the tab is empty
 	 */
 	public View getContentView() {
-		if (contentView == null) {
-			TiWindowProxy windowProxy = getWindowProxy();
-			if (windowProxy == null) {
-				// If no window is provided use an empty view.
-				View emptyContent = new View(TiApplication.getInstance().getApplicationContext());
-				emptyContent.setBackgroundColor(Color.BLACK);
-				return emptyContent;
-			}
-
-			contentView = new TabContentViewProxy();
-
-			// A tab's window should be bound to the tab group's activity.
-			// In order for the 'activity' property to work correctly
-			// we need to set the content view's activity to that of the group.
-			Activity tabGroupActivity = ((TabProxy) proxy).getTabGroup().getActivity();
-			contentView.setActivity(tabGroupActivity);
-
-			//set proxy support so events can be added.
-			contentView.getKrollObject().setProxySupport(contentView);
-			// Assign parent so events bubble up correctly.
-			contentView.setParent(proxy);
-
-			// We need to create the view before allowing the window to fill view with its children
-			if (contentView.peekView() == null) {
-				contentView.getOrCreateView();
-			}
-			// Allow the window to fill the content view with its children.
-			windowProxy.getKrollObject().setWindow(contentView);
+		TiWindowProxy windowProxy = getWindowProxy();
+		if (windowProxy == null) {
+			// If no window is provided use an empty view.
+			View emptyContent = new View(TiApplication.getInstance().getApplicationContext());
+			emptyContent.setBackgroundColor(Color.BLACK);
+			return emptyContent;
 		}
 
-		return contentView.getOrCreateView().getNativeView();
+		// A tab's window should be bound to the tab group's activity.
+		// In order for the 'activity' property to work correctly
+		// we need to set the content view's activity to that of the group.
+		Activity tabGroupActivity = ((TabProxy) proxy).getTabGroup().getActivity();
+		windowProxy.setActivity(tabGroupActivity);
+
+		// Assign parent so events bubble up correctly.
+		windowProxy.setParent(proxy);
+
+		return windowProxy.getOrCreateView().getNativeView();
 	}
 
 	private TiWindowProxy getWindowProxy() {

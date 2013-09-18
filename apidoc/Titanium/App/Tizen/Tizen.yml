@@ -5,7 +5,7 @@ description: |
     For more information, refer to the official documentation on the Tizen Developer website about 
     [application resources](https://developer.tizen.org/help/topic/org.tizen.web.appprogramming/html/guide/app_guide/app_guide.htm).
 extends: Titanium.Module
-since: "3.2"
+since: "3.1.0"
 platforms: [tizen]
 
 methods:
@@ -38,7 +38,7 @@ properties:
 
   - name: categories
     summary: The categories that the current app belongs to.
-    type: String[]
+    type: Array<String>
     permission: read-only
 
   - name: installDate

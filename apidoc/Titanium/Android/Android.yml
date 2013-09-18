@@ -157,6 +157,16 @@ methods:
             An `Intent` created with [createServiceIntent](Titanium.Android.createServiceIntent),
             which specifies the service to stop.
         type: Titanium.Android.Intent
+        
+  - name: createBroadcastIntent
+    summary: Create an `Intent` to be used in a broadcast.
+    returns:
+        type: Titanium.Android.Intent
+    parameters:
+      - name: options
+        summary: Options for the Intent.
+        type: BroadcastIntentOptions
+    since: "3.2.0"
 
 properties:
 
@@ -1435,6 +1445,18 @@ properties:
     permission: read-only
     since: "3.0.0"
 
+  - name: NAVIGATION_MODE_STANDARD
+    summary: Standard Action Bar navigation mode
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    
+  - name: NAVIGATION_MODE_TABS
+    summary: Action Bar tab navigation mode
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    
   - name: START_NOT_STICKY
     summary: |
         A Service start mode indicating that if the host application is stopped by Android, the service should not be restarted automatically.
@@ -1531,3 +1553,49 @@ properties:
     type: Number
     optional: true
     default: Titanium.Android.START_REDELIVER_INTENT
+
+---
+name: BroadcastIntentOptions
+summary: Options passed to <Titanium.Android.createBroadcastIntent>.
+since: "3.2.0"
+properties:
+
+  - name: action
+    summary: The action associated with this intent.
+    description: 
+        Specify one of the `ACTION` constants from <Titanium.Android>, or 
+        an application-specific custom action string.
+    type: String
+
+  - name: className
+    summary: |
+        Constrain the broadcast to receivers matching this Java class name.
+        ([packageName](Titanium.Android.Intent.packageName) must then also be set).
+    type: String
+
+  - name: data
+    summary: The Intent's Data URI. 
+    description: |
+        The data URI can be set when the intent is created. It is read-only after the
+        intent is created.
+
+        For more information on data URIs, see:
+        [Intent.setData in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#setData(android.net.Uri))
+    type: String
+    optional: true
+
+  - name: flags
+    summary: Intent flags. See the `FLAG_` constants in <Titanium.Android>.
+    type: Number
+    optional: true
+
+  - name: packageName
+    summary: Constrain the broadcast to receivers which are Java classes in this Java package.
+    type: String
+    optional: true
+
+  - name: url
+    summary: Url for the broadcast receiver's JavaScript.
+    type: String
+    optional: true
+    

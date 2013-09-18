@@ -442,6 +442,14 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Public APIs
 
+-(void)setTintColor_:(id)color
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        TiColor *ticolor = [TiUtils colorValue:color];
+        [self performSelector:@selector(setTintColor:) withObject:[ticolor _color]];
+    }
+}
+
 -(void)setBorderColor_:(id)color
 {
 	TiColor *ticolor = [TiUtils colorValue:color];
@@ -692,6 +700,19 @@ DEFINE_EXCEPTIONS
 	}
 	
 	animationDelayGuard = 0;
+    //TIMOB-13237. Wait for layout to finish before animating.
+    //TODO. This is a hack. When we implement the polynomial layout for iOS we will be able to do
+    //a full layout of this view and associated views in the animation block.
+    if ([self.proxy isKindOfClass:[TiViewProxy class]] && [(TiViewProxy*)self.proxy willBeRelaying]) {
+		DebugLog(@"[DEBUG] Ti.View.animate() called while view waiting to relayout: Will re-attempt", self);
+		if (animationDelayGuardForLayout++ > 2) {
+            DebugLog(@"[DEBUG] Animation guard triggered, exceeded timeout for layout to occur. Continuing.");
+        } else {
+            [self performSelector:@selector(animate:) withObject:newAnimation afterDelay:0.02];
+            return;
+        }
+    }
+    animationDelayGuardForLayout = 0;    
 
 	if (newAnimation != nil)
 	{

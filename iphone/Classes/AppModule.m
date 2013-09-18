@@ -15,6 +15,10 @@
 #import "TiAppiOSProxy.h"
 #endif
 
+#import <UIKit/UILocalNotification.h>
+#import <unistd.h>
+#import "TiLayoutQueue.h"
+
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_ID;
 extern NSString * const TI_APPLICATION_PUBLISHER;
@@ -27,6 +31,54 @@ extern NSString * const TI_APPLICATION_GUID;
 extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation AppModule
+
+#if defined(DEBUG) || defined(DEVELOPER)
+
+-(void)_restart:(id)unused
+{
+    TiThreadPerformOnMainThread(^{
+        [[[TiApp app] controller] shutdownUi:self];
+    }, NO);
+}
+
+-(void)_resumeRestart:(id)unused
+{
+    UIApplication * app = [UIApplication sharedApplication];
+    TiApp * appDelegate = [TiApp app];
+    [TiLayoutQueue resetQueue];
+    
+    /* Begin backgrounding simulation */
+    [appDelegate applicationWillResignActive:app];
+    [appDelegate applicationDidEnterBackground:app];
+    [appDelegate endBackgrounding];
+    /* End backgrounding simulation */
+    
+    /* Disconnect the old view system, intentionally leak controller and UIWindow */
+    [[appDelegate window] removeFromSuperview];
+    
+    /* Disconnect the old modules. */
+    NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
+    NSMutableArray * delegateModules = (NSMutableArray *)[appDelegate valueForKey:@"modules"];
+    for (TiModule * thisModule in delegateModules) {
+        [nc removeObserver:thisModule];
+    }
+    /* Because of other issues, we must leak the modules as well as the runtime */
+    [delegateModules copy];
+    [delegateModules removeAllObjects];
+    
+    /* Disconnect the Kroll bridge, and spoof the shutdown */
+    [nc removeObserver:[appDelegate krollBridge]];
+    NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:[appDelegate krollBridge]];
+    [nc postNotification:notification];
+    
+    /* Begin foregrounding simulation */
+    [appDelegate application:app didFinishLaunchingWithOptions:[appDelegate launchOptions]];
+    [appDelegate applicationWillEnterForeground:app];
+    [appDelegate applicationDidBecomeActive:app];
+    /* End foregrounding simulation */
+}
+
+#endif
 
 -(void)dealloc
 {

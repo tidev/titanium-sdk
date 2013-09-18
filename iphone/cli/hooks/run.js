@@ -6,9 +6,7 @@
  */
 
 var appc = require('node-appc'),
-	i18n = appc.i18n(__dirname),
-	__ = i18n.__,
-	__n = i18n.__n,
+	__ = appc.i18n(__dirname).__,
 	afs = appc.fs,
 	fs = require('fs'),
 	path = require('path'),
@@ -81,7 +79,10 @@ exports.init = function (logger, config, cli) {
 				if (cli.argv.retina) {
 					cmd.push('--retina');
 					if (appc.version.gte(build.iosSimVersion, '6.0.0') && build.iosSimType == 'iphone' && cli.argv.tall) {
-						cmd.push('--tall');	
+						cmd.push('--tall');
+						if (appc.version.gte(build.iosSimVersion, '7.0.0') && build.iosSimType == 'iphone' && cli.argv['sim-64bit']) {
+							cmd.push('--sim-64bit');
+						}
 					}
 				}
 				cmd = cmd.join(' ');
@@ -132,7 +133,7 @@ exports.init = function (logger, config, cli) {
 						logger.error(stderr);
 					}
 				});
-				
+
 				function findLogFile() {
 					var files = fs.readdirSync(simulatorDir),
 						file,
@@ -145,10 +146,10 @@ exports.init = function (logger, config, cli) {
 						if (afs.exists(file)) {
 							// if we found the log file, then the simulator must be running
 							simStarted = true;
-							
+
 							// pipe the log file
 							logger.debug(__('Found iPhone Simulator log file: %s', file.cyan));
-							
+
 							var startLogTxt = __('Start simulator log');
 							logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 
@@ -166,7 +167,7 @@ exports.init = function (logger, config, cli) {
 									m,
 									line,
 									i, len;
-								
+
 								if (position < stats.size) {
 									fd = fs.openSync(file, 'r');
 									do {
@@ -175,7 +176,7 @@ exports.init = function (logger, config, cli) {
 										buffer += buf.toString('utf-8', 0, bytesRead);
 									} while (bytesRead === 16);
 									fs.closeSync(fd);
-									
+
 									lines = buffer.split('\n');
 									buffer = lines.pop(); // keep the last line because it could be incomplete
 									for (i = 0, len = lines.length; i < len; i++) {

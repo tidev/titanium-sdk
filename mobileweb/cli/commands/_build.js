@@ -12,13 +12,11 @@ var ti = require('titanium-sdk'),
 	__n = i18n.__n,
 	cleanCSS = require('clean-css'),
 	afs = appc.fs,
-	xml = appc.xml,
 	parallel = appc.async.parallel,
 	UglifyJS = require('uglify-js'),
 	fs = require('fs'),
 	path = require('path'),
 	wrench = require('wrench'),
-	DOMParser = require('xmldom').DOMParser,
 	jsExtRegExp = /\.js$/,
 	HTML_HEADER = [
 		'<!--',
@@ -141,7 +139,6 @@ function build(logger, config, cli, finished) {
 	this.locales = [];
 	this.appNames = {};
 	this.splashHtml = '';
-	this.codeProcessor = cli.codeProcessor;
 
 	var pkgJson = this.readTiPackageJson();
 	this.packages = [{
@@ -189,45 +186,44 @@ function build(logger, config, cli, finished) {
 		// that build.pre.compile was fired.
 		ti.validateAppJsExists(this.projectDir, this.logger);
 
+		// Note: code processor is a pre-compile hook
+		this.codeProcessor = cli.codeProcessor;
+
 		parallel(this, [
 			'copyFiles',
 			'findProjectDependencies'
 		], function () {
 			parallel(this, [
 				'createIcons',
-				function (callback) {
-					parallel(this, [
-						'findModulesToCache',
-						'findPrecacheModules',
-						'findPrecacheImages',
-						'findTiModules',
-						'findI18N'
-					], function () {
-						parallel(this, [
-							'findDistinctCachedModules',
-							'detectCircularDependencies'
-						], function () {
-							this.logger.info(
-								__n('Found %s dependency', 'Found %s dependencies', this.projectDependencies.length) + ', ' +
-								__n('%s package', '%s packages', this.packages.length) + ', ' +
-								__n('%s module', '%s modules', this.modulesToCache.length)
-							);
-							parallel(this, [
-								'assembleTitaniumJS',
-								'assembleTitaniumCSS'
-							], callback);
-						});
-					});
-				}
+				'findModulesToCache',
+				'findPrecacheModules',
+				'findPrecacheImages',
+				'findTiModules',
+				'findI18N'
 			], function () {
-				this.minifyJavaScript();
-				this.createFilesystemRegistry();
-				this.createIndexHtml();
-				finished && finished.call(this);
+				parallel(this, [
+					'findDistinctCachedModules',
+					'detectCircularDependencies'
+				], function () {
+					this.logger.info(
+						__n('Found %s dependency', 'Found %s dependencies', this.projectDependencies.length) + ', ' +
+						__n('%s package', '%s packages', this.packages.length) + ', ' +
+						__n('%s module', '%s modules', this.modulesToCache.length)
+					);
+					parallel(this, [
+						'assembleTitaniumJS',
+						'assembleTitaniumCSS'
+					], function () {
+						this.minifyJavaScript();
+						this.createFilesystemRegistry();
+						this.createIndexHtml();
+						finished && finished.call(this);
+					});
+				});
 			});
 		});
 	}.bind(this));
-};
+}
 
 build.prototype = {
 
@@ -256,7 +252,18 @@ build.prototype = {
 		this.logger.info(__('Copying project files'));
 		if (afs.exists(this.buildDir)) {
 			this.logger.debug(__('Deleting existing build directory'));
-			wrench.rmdirSyncRecursive(this.buildDir);
+			try {
+				wrench.rmdirSyncRecursive(this.buildDir);
+			} catch (e) {
+				this.logger.error(__('Failed to remove build directory "%s".', this.buildDir));
+				if (e.message.indexOf('resource busy or locked') != -1) {
+					this.logger.error(__('Build directory is busy or locked'));
+					this.logger.error(__('Check that you don\'t have any terminal sessions or programs with open files in the build directory') + '\n');
+				} else {
+					this.logger.error(e.message + '\n');
+				}
+				process.exit(1);
+			}
 		}
 		wrench.mkdirSyncRecursive(this.buildDir);
 		afs.copyDirSyncRecursive(this.mobilewebThemeDir, this.buildDir + '/themes', { preserve: true, logger: this.logger.debug });
@@ -361,7 +368,7 @@ build.prototype = {
 		this.logger.info(__n('Searching for %s Titanium Module', 'Searching for %s Titanium Modules', this.tiapp.modules.length));
 		appc.timodule.find(this.tiapp.modules, 'mobileweb', this.deployType, this.titaniumSdkVersion, this.moduleSearchPaths, this.logger, function (modules) {
 			if (modules.missing.length) {
-				this.logger.error(__('Could not find all required Titanium Modules:'))
+				this.logger.error(__('Could not find all required Titanium Modules:'));
 				modules.missing.forEach(function (m) {
 					this.logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t deploy-type: ' + m.deployType);
 				}, this);
@@ -405,7 +412,7 @@ build.prototype = {
 
 				var libDir = ((pkgJson.directories && pkgJson.directories.lib) || '').replace(/^\//, '');
 
-				var mainFilePath = path.join(moduleDir, libDir, (pkgJson.main || '').replace(jsExtRegExp, '') + '.js')
+				var mainFilePath = path.join(moduleDir, libDir, (pkgJson.main || '').replace(jsExtRegExp, '') + '.js');
 				if (!afs.exists(mainFilePath)) {
 					this.logger.error(__('Invalid Titanium Mobile Module "%s": unable to find main file "%s"', module.id, pkgJson.main) + '\n');
 					process.exit(1);
@@ -458,16 +465,16 @@ build.prototype = {
 
 	findI18N: function (callback) {
 		var data = ti.i18n.load(this.projectDir, this.logger),
-			precacheLocales = (this.tiapp.precache || {}).locales || {};
+			precacheLocales = (this.tiapp.mobileweb.precache || {}).locales || [];
 
 		Object.keys(data).forEach(function (lang) {
 			data[lang].app && data[lang].appname && (self.appNames[lang] = data[lang].appname);
 			if (data[lang].strings) {
 				var dir = path.join(this.buildDir, 'titanium', 'Ti', 'Locale', lang);
 				wrench.mkdirSyncRecursive(dir);
-				fs.writeFileSync(path.join(dir, 'i18n.js'), 'define(' + JSON.stringify(data[lang].strings, null, '\t') + ')');
+				fs.writeFileSync(path.join(dir, 'i18n.js'), 'define(' + JSON.stringify(data[lang].strings, null, '\t') + ');');
 				this.locales.push(lang);
-				precacheLocales[lang] && this.modulesToCache.push('Ti/Locale/' + lang + '/i18n');
+				precacheLocales.indexOf(lang) != -1 && this.modulesToCache.push('Ti/Locale/' + lang + '/i18n');
 			};
 		}, this);
 
@@ -505,7 +512,8 @@ build.prototype = {
 					ti_version: ti.manifest.version,
 					has_analytics_use_xhr: tiapp.mobileweb.analytics ? tiapp.mobileweb.analytics['use-xhr'] === true : false,
 					has_show_errors: this.deployType != 'production' && tiapp.mobileweb['disable-error-screen'] !== true,
-					has_instrumentation: !!tiapp.mobileweb.instrumentation
+					has_instrumentation: !!tiapp.mobileweb.instrumentation,
+					has_allow_touch: tiapp.mobileweb.hasOwnProperty('allow-touch') ? !!tiapp.mobileweb['allow-touch'] : true
 				}),
 
 				'\n', '\n'
@@ -592,9 +600,10 @@ build.prototype = {
 			url = url.replace(/\\/g, '/');
 
 			var img = path.join(this.projectResDir, /^\//.test(url) ? '.' + url : url),
-				type = imageMimeTypes[img.match(/(\.[a-zA-Z]{3})$/)[1]];
+				m = img.match(/(\.[a-zA-Z]{3,4})$/),
+				type = m && imageMimeTypes[m[1]];
 
-			if (afs.exists(img) && type) {
+			if (type && afs.exists(img)) {
 				if (!requireCacheWritten) {
 					tiJS.push('require.cache({');
 					requireCacheWritten = true;
@@ -774,13 +783,16 @@ build.prototype = {
 		if (afs.exists(file)) {
 			afs.copyFileSync(file, this.buildDir, { logger: this.logger.debug });
 
-			appc.image.resize(file, [
+			var params = [
 				{ file: this.buildDir + '/favicon.ico', width: 16, height: 16 },
 				{ file: this.buildDir + '/apple-touch-icon-precomposed.png', width: 57, height: 57 },
 				{ file: this.buildDir + '/apple-touch-icon-57x57-precomposed.png', width: 57, height: 57 },
 				{ file: this.buildDir + '/apple-touch-icon-72x72-precomposed.png', width: 72, height: 72 },
 				{ file: this.buildDir + '/apple-touch-icon-114x114-precomposed.png', width: 114, height: 114 },
-			], function (err, stdout, stderr) {
+				{ file: this.buildDir + '/appicon144.png', width: 144, height: 144 }
+			];
+
+			appc.image.resize(file, params, function (err, stdout, stderr) {
 				if (err) {
 					this.logger.error(__('Failed to create icons'));
 					stdout && stdout.toString().split('\n').forEach(function (line) {
@@ -923,7 +935,7 @@ build.prototype = {
 
 		parts.length > 1 && (this.requireCache['url:' + parts[1]] = 1);
 
-		var deps = this.dependenciesMap[dep[1]];
+		var deps = this.dependenciesMap[parts.length > 1 ? mid : dep[1]];
 		for (var i = 0, l = deps.length; i < l; i++) {
 			dep = deps[i];
 			ref = mid.split('/');

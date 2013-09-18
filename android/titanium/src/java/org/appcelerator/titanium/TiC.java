@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -121,6 +121,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_DISPOSE_HANDLE = "disposehandle";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_DOUBLE_TAP = "doubletap";
 
 	/**
@@ -186,6 +191,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_LONGPRESS = "longpress";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_MARKER = "marker";
 
 	/**
 	 * @module.api
@@ -472,13 +482,18 @@ public class TiC
 	 */
 	public static final String EVENT_PROPERTY_URL = "url";
 	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
+	
 
 	/**
 	 * @module.api
 	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
-	public static final String INTENT_PROPERTY_ENTER_ANIMATION = "enterAnimation";
-	public static final String INTENT_PROPERTY_EXIT_ANIMATION = "exitAnimation";
+	public static final String INTENT_PROPERTY_ENTER_ANIMATION = "activityEnterAnimation";
+	public static final String INTENT_PROPERTY_EXIT_ANIMATION = "activityExitAnimation";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
 	public static final String INTENT_PROPERTY_IS_TAB = "isTab";
 	public static final String INTENT_PROPERTY_LAYOUT = "layout";
@@ -776,6 +791,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BUBBLE_PARENT = "bubbleParent";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BUBBLES = "bubbles";
 
 	/**
@@ -787,6 +807,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BYTE_ORDER = "byteOrder";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CACHE_MODE = "cacheMode";
 
 	/**
 	 * @module.api
@@ -1330,6 +1355,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LAYOUT_ID = "layoutId";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LOAD_URL = "loadUrl";
 
 	/**
 	 * @module.api
@@ -2246,6 +2276,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ZOOM_ENABLED = "zoomEnabled";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LIGHT_TOUCH_ENABLED = "lightTouchEnabled";
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";

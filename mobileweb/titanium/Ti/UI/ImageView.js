@@ -29,7 +29,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget
 				this.domNode.style.height = "";
 
 				var imageRatio = this.domNode.width / this.domNode.height,
-					values = this.properties.__values__,
+					values = this.__values__.properties,
 					oldWidth = values.width,
 					oldHeight = values.height;
 
@@ -192,8 +192,9 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget
 		},
 
 		_setState: function(paused, animating) {
-			this.constants.paused = !!paused;
-			this.constants.animating = !!animating;
+			var c = this.__values__.constants;
+			c.paused = !!paused;
+			c.animating = !!animating;
 		},
 
 		constants: {

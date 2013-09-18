@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui.widget.tableview;
 
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiUIView;
@@ -27,7 +26,6 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 	private RowView rowView;
 	private TiUIView headerView;
 	private boolean isHeaderView = false;
-	private Item item;
 
 	class RowView extends RelativeLayout
 	{
@@ -43,8 +41,8 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 			textView.setId(101);
 			textView.setFocusable(false);
 			textView.setFocusableInTouchMode(false);
-			RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT,
-				LayoutParams.FILL_PARENT);
+			RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT,
+				LayoutParams.MATCH_PARENT);
 			params.addRule(CENTER_VERTICAL);
 			params.alignWithParent = true;
 			addView(textView, params);
@@ -79,7 +77,7 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		super(activity);
 		this.handler = new Handler(this);
 		rowView = new RowView(activity);
-		this.addView(rowView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		this.addView(rowView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		setMinimumHeight((int) TiUIHelper.getRawDIPSize(18, activity));
 	}
 
@@ -104,24 +102,7 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 	{
 		if (!isHeaderView) {
 			rowView.setRowData(item);
-		} else {
-			setHeaderData(item);
-		}
-	}
-
-	private void setHeaderData(Item item)
-	{
-		this.item = item;
-		headerView.processProperties(item.proxy.getProperties());
-		if (headerView != null && headerView.getChildren() != null && headerView.getChildren().size() > 0 && item != null
-			&& item.proxy != null && item.proxy.getChildren() != null && item.proxy.getChildren().length > 0) {
-			TiUIView labelView = headerView.getChildren().get(0);
-			TiViewProxy labelProxy = item.proxy.getChildren()[0];
-			if (labelView != null && labelProxy != null) {
-				labelView.processProperties(labelProxy.getProperties());
-			}
-
-		}
+		} 
 	}
 
 	public Item getRowData()
@@ -145,15 +126,6 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		if (!isHeaderView) {
 			rowView.layout(left, 0, right, bottom - top);
 		} else {
-			//
-			// Do this association here, and NOT in getView().
-			//
-			TiViewProxy proxy = this.item.proxy;
-			proxy.setView(headerView);
-			headerView.setProxy(proxy);
-			proxy.setModelListener(headerView);
-			
-			
 			View view = headerView.getOuterView();
 			view.layout(left, 0, right, bottom - top);
 			// Also layout the inner native view when we have borders

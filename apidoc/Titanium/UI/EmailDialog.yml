@@ -10,7 +10,7 @@ description: |
     approximately 2000 characters.
 extends: Titanium.Proxy
 since: "0.8"
-platforms: [android, iphone, ipad, mobileweb, tizen]
+platforms: [android, iphone, ipad, mobileweb, tizen, blackberry]
 
 methods:
   - name: addAttachment
@@ -25,15 +25,22 @@ methods:
       - name: attachment
         summary: Attachment to include in the email.
         type: [Titanium.Blob, Titanium.Filesystem.File]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, blackberry]
     
   - name: isSupported
     summary: Indicates whether sending email is supported by the system.
+    exclude-platforms: [blackberry]
     returns:
         type: Boolean
     
   - name: open
     summary: Opens this email dialog.
+    description: |
+        To use this method on Tizen, you must include the following privilege
+        in the `tiapp.xml` file of your Titanium application: 
+
+        * `http://tizen.org/privilege/application.launch`
+        
     parameters:
       - name: properties
         summary: |
@@ -44,6 +51,7 @@ methods:
 events:
   - name: complete
     summary: Fired when this email dialog has completed sending an email.
+    exclude-platforms: [blackberry]
     description: |
         On Mobile Web and Tizen, as the platform cannot determine whether a message has been sent or not, 
         this event fires immediately after calling open() and always reports success.
@@ -82,22 +90,25 @@ properties:
     summary: Constant for the `CANCELLED` status result. On Android, this property exists but is not used.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, tizen]
     
   - name: FAILED
     summary: Constant for the `FAILED` status result.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: SAVED
     summary: Constant for the `SAVED` status result. On Android, this property exists but is not used.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: SENT
     summary: Constant for the `SENT` status result.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: barColor
     summary: |
@@ -125,6 +136,7 @@ properties:
         especially those for the desktop, do not support them.
     type: Boolean
     default: false
+    platforms: [android, iphone, ipad, mobileweb, blackberry]
     
   - name: messageBody
     summary: Email message body.

@@ -62,7 +62,6 @@ excludes:
     events: [ 'singletap', 'doubletap', 'dblclick', 'focus', 'longclick', 'pinch', 'swipe', 'touchstart', 'touchend', 'touchcancel', 'touchmove', 'twofingertap' ]
     properties: ['enabled']
 since: "0.8"
-platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
 
   - name: addAnnotation
@@ -71,7 +70,6 @@ methods:
       - name: annotation
         summary: Either a dictionary of properties for the annotation or a <Titanium.Map.Annotation> instance.
         type: [Dictionary<Titanium.Map.Annotation>, Titanium.Map.Annotation]
-    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: addAnnotations
     summary: Adds one or more new annotations to the map.
@@ -112,7 +110,6 @@ methods:
       - name: annotation
         summary: Annotation to remove, identified by an annotation title or a <Titanium.Map.Annotation> reference.
         type: [String, Titanium.Map.Annotation]
-    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: removeAnnotations
     summary: Removes one or more existing annotations from the map.
@@ -155,6 +152,7 @@ methods:
         summary: |
             Dictionary specifying the location and the zoom level for the map.
         type: MapLocationType
+    exclude-platforms: [blackberry]
 
   - name: setMapType
     summary: Sets the type of map (satellite, hybrid, or standard).
@@ -164,6 +162,7 @@ methods:
             Map type constant, either <Titanium.Map.STANDARD_TYPE>, <Titanium.Map.SATELLITE_TYPE> or 
             <Titanium.Map.HYBRID_TYPE>.
         type: Number
+    exclude-platforms: [blackberry]
 
   - name: zoom
     summary: Zooms in or out of the map.
@@ -176,6 +175,7 @@ methods:
       - name: level
         summary: Relative zoom level (positive to zoom in, negative to zoom out).
         type: Number
+    exclude-platforms: [blackberry]
 
 events:
 
@@ -353,6 +353,7 @@ events:
       - name: latitude
         summary: Latitude value for the center point of the map, in decimal degrees.
         type: Number
+    exclude-platforms: [blackberry]
 
   - name: regionchanged
     summary: |
@@ -411,6 +412,10 @@ properties:
   - name: region
     summary: |
         A dictionary specifying the location and zoom level of the map.
+
+        On the iOS platform, this property can only be set after the map view is loaded.
+        To ensure this property is set when the application starts, wait for the
+        [complete][Titanium.UI.Map-event-complete] event.
     type: MapRegionType
 
   - name: regionFit

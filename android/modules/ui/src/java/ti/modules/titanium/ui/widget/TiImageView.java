@@ -6,8 +6,11 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.kroll.common.Log;
+import java.lang.ref.WeakReference;
 
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiUIHelper;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
@@ -58,6 +61,8 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	private boolean viewHeightDefined;
 
 	private int orientation;
+	
+	private WeakReference<TiViewProxy> proxy;
 
 	public TiImageView(Context context) {
 		super(context);
@@ -97,15 +102,19 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 			@Override
 			public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy)
 			{
-				if (zoomControls.getVisibility() == View.VISIBLE) {
-					changeMatrix.postTranslate(-dx, -dy);
-					imageView.setImageMatrix(getViewMatrix());
-					requestLayout();
-					scheduleControlTimeout();
-					return true;
-				} else {
-					return false;
+				boolean retValue = false;
+				// Allow scrolling only if the image is zoomed in
+				if (zoomControls.getVisibility() == View.VISIBLE && scaleFactor > 1) {
+					// check if image scroll beyond its borders
+					if (!checkImageScrollBeyondBorders(dx, dy)) {
+						changeMatrix.postTranslate(-dx, -dy);
+						imageView.setImageMatrix(getViewMatrix());
+						requestLayout();
+						scheduleControlTimeout();
+						retValue = true;
+					}
 				}
+				return retValue;
 			}
 
 			@Override
@@ -137,6 +146,17 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		});
 
 		super.setOnClickListener(this);
+	}
+	
+	/**
+	 * Constructs a new TiImageView object.
+	 * @param context the associated context.
+	 * @param proxy the associated proxy.
+	 */
+	public TiImageView(Context context, TiViewProxy proxy)
+	{
+		this(context);
+		this.proxy = new WeakReference<TiViewProxy>(proxy);
 	}
 
 	public void setEnableScale(boolean enableScale)
@@ -382,6 +402,9 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 			int zoomHeight = zoomControls.getMeasuredHeight();
 			zoomControls.layout(parentRight - zoomWidth, parentBottom - zoomHeight, parentRight, parentBottom);
 		}
+		
+		TiViewProxy viewProxy = (proxy == null ? null : proxy.get());
+		TiUIHelper.firePostLayoutEvent(viewProxy);
 	}
 
 	public void setColorFilter(ColorFilter filter)
@@ -425,5 +448,23 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	{
 		this.orientation = orientation;
 		updateScaleType();
+	}
+	
+	private boolean checkImageScrollBeyondBorders(float dx, float dy)
+	{
+		float[] matrixValues = new float[9];
+		Matrix m = new Matrix(changeMatrix);
+		// Apply the translation
+		m.postTranslate(-dx, -dy);
+		m.getValues(matrixValues);
+		// Image can move only the extra width or height that is available
+		// after scaling from the original width or height
+		float scaledAdditionalHeight = imageView.getHeight() * (matrixValues[4] - 1);
+		float scaledAdditionalWidth = imageView.getWidth() * (matrixValues[0] - 1);
+		if (matrixValues[5] > -scaledAdditionalHeight && matrixValues[5] < 0 && matrixValues[2] > -scaledAdditionalWidth
+			&& matrixValues[2] < 0) {
+			return false;
+		}
+		return true;
 	}
 }

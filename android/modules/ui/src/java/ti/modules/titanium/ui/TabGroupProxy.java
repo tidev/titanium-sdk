@@ -302,6 +302,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public void windowCreated(TiBaseActivity activity) {
 		tabGroupActivity = new WeakReference<Activity>(activity);
 		activity.setWindowProxy(this);
+		activity.setLayoutProxy(this);
 		setActivity(activity);
 
 		// Use the navigation tabs if this platform supports the action bar.
@@ -329,6 +330,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		super.handlePostOpen();
 
 		opened = true;
+		opening = false;
 
 		// First open before we load and focus our first tab.
 		fireEvent(TiC.EVENT_OPEN, null);
@@ -378,15 +380,15 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	public void closeFromActivity() {
+	public void closeFromActivity(boolean activityIsFinishing) {
 		// Allow each tab to close its window before the tab group closes.
 		for (TabProxy tab : tabs) {
-			tab.close();
+			tab.close(activityIsFinishing);
 		}
 
 		// Call super to fire the close event on the tab group.
 		// This event must fire after each tab has been closed.
-		super.closeFromActivity();
+		super.closeFromActivity(activityIsFinishing);
 	}
 
 	@Override
@@ -487,16 +489,23 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
+	public void releaseViewsForActivityForcedToDestroy()
+	{
+		super.releaseViews();
+		if (tabs != null) {
+			synchronized (tabs) {
+				for (TabProxy t : tabs) {
+					// Need to keep the relationship between tabgroup and tabs, window and tab, window and tabgroup,
+					// in order to recover from forced-destroy activity.
+					t.releaseViewsForActivityForcedToDestroy();
+				}
+			}
+		}
+	}
+
+	@Override
 	protected Activity getWindowActivity()
 	{
 		return (tabGroupActivity != null) ? tabGroupActivity.get() : null;
-	}
-
-	@Kroll.method @Kroll.setProperty
-	@Override
-	public void setOrientationModes(int[] modes) {
-		// Unlike Windows this setter is not defined in JavaScript.
-		// We need to expose it here with an annotation.
-		super.setOrientationModes(modes);
 	}
 }

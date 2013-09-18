@@ -73,6 +73,7 @@ public class TiUIText extends TiUIView
 	private boolean field;
 	private int maxLength = -1;
 	private boolean isTruncatingText = false;
+	private boolean disableChangeEvent = false;
 
 	protected TiEditText tv;
 	
@@ -143,11 +144,15 @@ public class TiUIText extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_MAX_LENGTH) && field) {
 			maxLength = TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LENGTH), -1);
 		}
+		
+		// Disable change event temporarily as we are setting the default value
+		disableChangeEvent = true;
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
 			tv.setText(d.getString(TiC.PROPERTY_VALUE));
 		} else {
 			tv.setText("");
 		}
+		disableChangeEvent = false;
 		
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
@@ -187,6 +192,8 @@ public class TiUIText extends TiUIView
 		
 		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT) || d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION) || d.containsKey(TiC.PROPERTY_EDITABLE)) {
 			handleKeyboard(d);
+		} else if (!field) {
+			tv.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_AUTO_LINK)) {
@@ -249,10 +256,9 @@ public class TiUIText extends TiUIView
 			handleReturnKeyType(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, (HashMap) newValue);
-		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)){
+		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, newValue);
 		} else {
-		
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
@@ -295,7 +301,9 @@ public class TiUIText extends TiUIView
 			return;
 		}
 		String newText = tv.getText().toString();
-		if (!isTruncatingText || (isTruncatingText && proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), newText))) {
+		if (!disableChangeEvent
+			&& (!isTruncatingText || (isTruncatingText && proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE),
+				newText)))) {
 			KrollDict data = new KrollDict();
 			data.put(TiC.PROPERTY_VALUE, newText);
 			proxy.setProperty(TiC.PROPERTY_VALUE, newText);
@@ -437,6 +445,9 @@ public class TiUIText extends TiUIView
 		if (autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) {
 			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 		}
+		if (!field) {
+			tv.setSingleLine(false);
+		}
 		tv.setCursorVisible(true);
 		switch(type) {
 			case KEYBOARD_DEFAULT:
@@ -506,9 +517,6 @@ public class TiUIText extends TiUIView
 			tv.setCursorVisible(false);
 		}
 
-		if (!field) {
-			tv.setSingleLine(false);
-		}
 	}
 
 	public void setSelection(int start, int end) 
@@ -523,6 +531,9 @@ public class TiUIText extends TiUIView
 
 	public void handleReturnKeyType(int type)
 	{
+		if (!field) {
+			tv.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
+		}
 		switch(type) {
 			case RETURNKEY_GO:
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);

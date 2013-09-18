@@ -84,14 +84,14 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	// This handles the memory cache of images.
 	private TiImageLruCache mMemoryCache = TiImageLruCache.getInstance();
 
-	public TiUIImageView(TiViewProxy proxy)
+	public TiUIImageView(final TiViewProxy proxy)
 	{
 		super(proxy);
 		imageViewProxy = (ImageViewProxy) proxy;
 
 		Log.d(TAG, "Creating an ImageView", Log.DEBUG_MODE);
 
-		TiImageView view = new TiImageView(proxy.getActivity());
+		TiImageView view = new TiImageView(proxy.getActivity(), proxy);
 
 		downloadListener = new TiDownloadListener()
 		{
@@ -135,11 +135,19 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					}
 
 					// Update UI if the current image source has not been changed.
-					if (imageSources != null && imageSources.size() == 1 && imageSources.get(0).hashCode() == hash) {
-						setImage(bitmap);
-						if (!firedLoad) {
-							fireLoad(TiC.PROPERTY_IMAGE);
-							firedLoad = true;
+					if (imageSources != null && imageSources.size() == 1) {
+						TiDrawableReference imgsrc = imageSources.get(0);
+						if (imgsrc == null || imgsrc.getUrl() == null) {
+							return;
+						}
+						if (imgsrc.hashCode() == hash
+							|| (TiDrawableReference.fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString())
+								.hashCode() == hash)) {
+							setImage(bitmap);
+							if (!firedLoad) {
+								fireLoad(TiC.PROPERTY_IMAGE);
+								firedLoad = true;
+							}
 						}
 					}
 				}
@@ -214,17 +222,25 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private void handleCacheAndSetImage(TiDrawableReference imageref)
 	{
 		// Don't update UI if the current image source has been changed.
-		if (imageSources != null && imageSources.size() == 1 && imageref.equals(imageSources.get(0))) {
-			int hash = imageref.hashCode();
-			Bitmap bitmap = imageref.getBitmap(true);
-			if (bitmap != null) {
-				if (mMemoryCache.get(hash) == null) {
-					mMemoryCache.put(hash, bitmap);
-				}
-				setImage(bitmap);
-				if (!firedLoad) {
-					fireLoad(TiC.PROPERTY_IMAGE);
-					firedLoad = true;
+		if (imageSources != null && imageSources.size() == 1) {
+			TiDrawableReference imgsrc = imageSources.get(0);
+			if (imgsrc == null || imgsrc.getUrl() == null) {
+				return;
+			}
+			if (imageref.equals(imgsrc)
+				|| imageref
+					.equals(TiDrawableReference.fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString()))) {
+				int hash = imageref.hashCode();
+				Bitmap bitmap = imageref.getBitmap(true);
+				if (bitmap != null) {
+					if (mMemoryCache.get(hash) == null) {
+						mMemoryCache.put(hash, bitmap);
+					}
+					setImage(bitmap);
+					if (!firedLoad) {
+						fireLoad(TiC.PROPERTY_IMAGE);
+						firedLoad = true;
+					}
 				}
 			}
 		}

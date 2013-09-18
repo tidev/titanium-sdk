@@ -102,5 +102,5 @@ properties:
   - name: fontStyle
     summary: Font style. Valid values are "italic" or "normal". 
     type: String
-    platforms: [ iphone, ipad ]
+    platforms: [ iphone, ipad, blackberry ]
     default: normal

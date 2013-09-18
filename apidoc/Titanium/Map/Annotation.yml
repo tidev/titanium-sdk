@@ -44,7 +44,6 @@ description: |
     Use the <Titanium.Map.createAnnotation> method to create an annotation.
 extends: Titanium.Proxy
 since: "0.9"
-platforms: [android, iphone, ipad, mobileweb, tizen]
 
 properties:
 
@@ -53,6 +52,17 @@ properties:
     description: |
         Must be set before the annotation is added to the map view.
     type: Boolean
+    exclude-platforms: [blackberry]
+    
+  - name: centerOffset
+    summary: Defines a center offset point for the annotation.
+    description: |
+        By default, the center point of an annotation view is placed at the coordinate point of the associated annotation. 
+        Use this property to reposition the annotation view as needed. 
+        Positive offset values move the annotation view down and to the right, while negative values move it up and to the left.
+    type: Point
+    platforms: [iphone, ipad]
+    since: "3.1.2"
 
   - name: customView
     summary: Defines a custom view to be used by the annotation.
@@ -78,6 +88,7 @@ properties:
         The image can be specified using a local URL or an image `Blob`. This is ignored if the customView property is set.
     type: [String, Titanium.Blob]
     default: If not specified, a standard map pin image is used.
+    exclude-platforms: [blackberry]
 
   - name: latitude 
     summary: Latitude of the annotation, in decimal degrees.
@@ -99,6 +110,7 @@ properties:
 
         Mutually exclusive with `leftView`.
     type: [Number,String]
+    exclude-platforms: [blackberry]
 
   - name: leftView
     summary: Left view that is displayed on the annotation.
@@ -133,6 +145,7 @@ properties:
 
         Mutually exclusive with `rightView`.
     type: [Number,String]
+    exclude-platforms: [blackberry]
 
   - name: rightView
     summary: Right view that is displayed on the annotation.
@@ -148,6 +161,7 @@ properties:
   - name: subtitleid
     summary: Key in the locale file to use for the subtitle property.
     type: String
+    exclude-platforms: [blackberry]
 
   - name: title
     summary: Primary title of the annotation view.
@@ -156,6 +170,7 @@ properties:
   - name: titleid
     summary: Key in the locale file to use for the title property.
     type: String
+    exclude-platforms: [blackberry]
 
 events:
   - name: click
@@ -184,7 +199,7 @@ events:
         `title`, or `subtitle`. If the user deselects the annotation by clicking elsewhere
         in the map view, `clicksource` is `null`.
 
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb, tizen, blackberry]
 
     properties:
 

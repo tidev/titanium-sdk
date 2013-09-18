@@ -77,8 +77,36 @@ methods:
       - name: factory
         summary: The authentication factory. This factory must implement the [AuthSchemeFactory](http://developer.android.com/reference/org/apache/http/auth/AuthSchemeFactory.html) interface.
         type: Object
-    platforms: [android]
+    platforms: [android, blackberry]
     since: {android: "3.0.0"}
+
+  - name: addKeyManager
+    summary: Adds a custom key manager.
+    description: |
+        Use this method to add support for X.509 certifcate-base keypairs.
+
+        If this method is used to create a custom SSLContext, the `validatesSecureCertificate`
+        property is ignored.
+    parameters:
+      - name: X509KeyManager
+        summary: X.509 key manager. This key manager must implement the [X509KeyManager](http://developer.android.com/reference/javax/net/ssl/X509KeyManager.html) inteface.
+        type: Object
+    platforms: [android]
+    since: {android: "3.1.0"}
+
+  - name: addTrustManager
+    summary: Adds a custom trust manager.
+    description: |
+        Use this method to add support for X.509 certifcates.
+
+        If this method is used to create a custom SSLContext, the `validatesSecureCertificate`
+        property is ignored.
+    parameters:
+      - name: X509TrustManager
+        summary: X.509 trust manager. This trust manager must implement the [X509TrustManager](http://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) inteface.
+        type: Object
+    platforms: [android]
+    since: {android: "3.1.0"}
 
   - name: clearCookies
     summary: Clears any cookies stored for the host.
@@ -201,7 +229,7 @@ properties:
         See also: [getResponseHeader](Titanium.Network.HTTPClient.getResponseHeader).
     type: String
     permission: read-only
-    platforms: [android, tizen]
+    platforms: [android]
     
   - name: autoEncodeUrl
     summary: Determines whether automatic encoding is enabled for the specified URL.
@@ -383,6 +411,9 @@ properties:
 
   - name: validatesSecureCertificate
     summary: Determines how SSL certification validation is performed on connection.
+    description: |
+        On Android, this property is ignored if the `addKeyManager` or `addTrustManager` methods
+        are used to create a custom SSL context.
     type: Boolean
     default: |
         False when running in the simulator or on device in testing mode, and true if built for

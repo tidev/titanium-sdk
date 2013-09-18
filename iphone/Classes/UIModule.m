@@ -265,10 +265,8 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_CALENDAR,UIDataDetectorTypeCalen
 
 -(void)setOrientation:(id)mode
 {
-	UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:mode def:(UIDeviceOrientation)UIInterfaceOrientationPortrait];
-	TiThreadPerformOnMainThread(^{
-		[[TiApp controller] manuallyRotateToOrientation:orientation duration:[[TiApp controller] suggestedRotationDuration]];
-	}, NO);
+    DebugLog(@"Ti.UI.setOrientation is deprecated since 1.7.2 . Ignoring call.");
+    return;
 }
 
 MAKE_SYSTEM_PROP(PORTRAIT,UIInterfaceOrientationPortrait);
@@ -278,6 +276,14 @@ MAKE_SYSTEM_PROP(UPSIDE_PORTRAIT,UIInterfaceOrientationPortraitUpsideDown);
 MAKE_SYSTEM_PROP(UNKNOWN,UIDeviceOrientationUnknown);
 MAKE_SYSTEM_PROP(FACE_UP,UIDeviceOrientationFaceUp);
 MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
+
+MAKE_SYSTEM_PROP(EXTEND_EDGE_NONE,0);   //UIRectEdgeNone
+MAKE_SYSTEM_PROP(EXTEND_EDGE_TOP,1);    //UIRectEdgeTop
+MAKE_SYSTEM_PROP(EXTEND_EDGE_LEFT,2);   //UIEdgeRectLeft
+MAKE_SYSTEM_PROP(EXTEND_EDGE_BOTTOM,4); //UIEdgeRectBottom
+MAKE_SYSTEM_PROP(EXTEND_EDGE_RIGHT,8);  //UIEdgeRectRight
+MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
+
 
 -(NSNumber*)isLandscape:(id)args
 {

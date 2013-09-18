@@ -14,7 +14,6 @@ description: |
 
 extends: Titanium.Module
 since: "0.8"
-platforms: [android, iphone, ipad, mobileweb, tizen]
 properties:
 
   - name: ANNOTATION_DRAG_STATE_NONE
@@ -95,6 +94,7 @@ properties:
         Android.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: SATELLITE_TYPE
     summary: Used with [mapType](Titanium.Map.View.mapType) to display satellite imagery of the area.
@@ -104,17 +104,20 @@ properties:
         the same results as [HYBRID_TYPE](Titanium.Map.HYBRID_TYPE) on other platforms.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: STANDARD_TYPE
     summary: Used with [mapType](Titanium.Map.View.mapType) to display a street map that shows the position of all roads and some road names.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: TERRAIN_TYPE
     summary: Used with [mapType](Titanium.Map.View.mapType) to display the terrain that shows the position of all roads and some road names.
     type: Number
     permission: read-only
     platforms: [mobileweb, tizen]
+    exclude-platforms: [blackberry]
     
 examples:
   - title: Map Example
@@ -131,24 +134,24 @@ examples:
             var win = Titanium.UI.createWindow();
         
             var mountainView = Titanium.Map.createAnnotation({
-            	latitude:37.390749,
-            	longitude:-122.081651,
-            	title:"Appcelerator Headquarters",
-            	subtitle:'Mountain View, CA',
-            	pincolor:Titanium.Map.ANNOTATION_RED,
-            	animate:true,
-            	leftButton: '../images/appcelerator_small.png',
-            	myid:1 // Custom property to uniquely identify this annotation.
+                latitude:37.390749,
+                longitude:-122.081651,
+                title:"Appcelerator Headquarters",
+                subtitle:'Mountain View, CA',
+                pincolor:Titanium.Map.ANNOTATION_RED,
+                animate:true,
+                leftButton: '../images/appcelerator_small.png',
+                myid:1 // Custom property to uniquely identify this annotation.
             });
             
             var mapview = Titanium.Map.createView({
-            	mapType: Titanium.Map.STANDARD_TYPE,
-            	region: {latitude:33.74511, longitude:-84.38993, 
-            			latitudeDelta:0.01, longitudeDelta:0.01},
-            	animate:true,
-            	regionFit:true,
-            	userLocation:true,
-            	annotations:[mountainView]
+                mapType: Titanium.Map.STANDARD_TYPE,
+                region: {latitude:37.390749, longitude:-122.081651,
+                         latitudeDelta:0.01, longitudeDelta:0.01},
+                animate:true,
+                regionFit:true,
+                userLocation:true,
+                annotations:[mountainView]
             });
             
             win.add(mapview);
@@ -166,6 +169,16 @@ examples:
             });
             win.open();
 
+            // For the iOS platform, wait for the complete event to ensure the region is set
+            if (Ti.Platform.name == 'iPhone OS') {
+                mapview.addEventListener('complete', function(evt){
+                    mapview.region = {
+                        latitude:37.390749, longitude:-122.081651,
+                        latitudeDelta:0.01, longitudeDelta:0.01
+                    };
+                });
+            }
+
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
@@ -176,7 +189,7 @@ examples:
                 <Window id="win">
 
                     <!-- Note the ns attribute is used to change the default namespace. -->
-                    <View id="mapview" ns="Ti.Map" onClick="doClick"
+                    <View id="mapview" ns="Ti.Map" onClick="doClick" onComplete="setRegion"
                         animate="true" regionFit="true" userLocation="true"
                         mapType="Ti.Map.STANDARD_TYPE" >
 
@@ -205,6 +218,16 @@ examples:
                     Ti.API.info("Annotation " + evt.title + ", left button clicked.");
                 }
             };
+
+            function setRegion(evt) {
+                // For the iOS platform, wait for the complete event to ensure the region is set
+                if (OS_IOS) {
+                    $.mapview.region = {
+                        latitude:37.390749, longitude:-122.081651,
+                        latitudeDelta:0.01, longitudeDelta:0.01
+                    };
+                }
+            }
 
             // These parameters can also be defined in the TSS file.
             $.mapview.annotations = [$.mountainView];

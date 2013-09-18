@@ -12,7 +12,7 @@ description: |
     The behavior of tabs and tab groups follows the platform's native navigation style, 
     which varies significantly between platforms.
 
-    #### iOS and Mobile Web Platform Implementation Notes
+    #### iOS, Mobile Web and Tizen Platform Implementation Notes
 
     On iOS, Mobile Web and Tizen, the tab maintains a stack of windows. On Mobile Web and Tizen, the tab is 
     really just a [NavigationGroup](Titanium.UI.MobileWeb.NavigationGroup). Windows on top 
@@ -49,8 +49,14 @@ description: |
 extends: Titanium.UI.View
 since: "0.8"
 excludes:
-    methods: [removeAllChildren]
-    properties: [enabled]
+    events: [pinch, keypressed, longclick, twofingertap]
+    methods: [add, animate, hide, remove, removeAllChildren, show]
+    properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
+                 anchorPoint,animatedCenter,backgroundGradient,backgroundLeftCap,
+                 backgroundRepeat,backgroundTopCap,borderColor,borderRadius,borderWidth,
+                 bottom,center,children,enabled,focusable,height,horizontalWrap,keepScreenOn,
+                 layout,left,opacity,rect,right,size,softKeyboardOnFocus,
+                 top,transform,visible,width,zIndex]
 
 methods:
   - name: open
@@ -68,6 +74,7 @@ methods:
             Identical to the `options` parameter to [Window.open](Titanium.UI.Window.open).
             iOS only supports the **animated** parameter.
         type: Object
+
   - name: close
     summary: Closes the top-level window for this tab. 
     description: |
@@ -105,6 +112,7 @@ methods:
             iOS only supports the **animated** parameter.
         type: Object
         optional: true
+
 properties:
   - name: active
     summary: |
@@ -115,10 +123,61 @@ properties:
          is recommended instead.
     type: Boolean
     platforms: [iphone, ipad, mobileweb, tizen]
+
+  - name: activeIcon
+    summary: Icon URL for this tab when active.
+    description: |
+         iOS 5.0 and later only.
+
+         If unspecified, iOS uses a tint color to indicate the active tab. See
+         [icon](Titanium.UI.Tab.icon) for more information.
+
+         If the icon provided is larger than [30 pixels (60 pixels in the retina variant)]
+         (https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/IconsImages/IconsImages.html),
+         this image will be scaled to fit.
+
+         On iOS prior to 5.0, the default tint color is always used and this property
+         remains unset.
+    type: String
+    platforms: [iphone, ipad]
+    since: "3.1.0"
+    osver: {ios: {min: "5.0"}}
+
+  - name: backgroundColor
+    summary: Sets the color of the tab when it is inactive.
+    description: For information about color values, see the "Colors" section of <Titanium.UI>.
+    platforms: [android, mobileweb, tizen]
+    since: {android: 3.0.0}
+
+  - name: backgroundDisabledColor
+    platforms: [mobileweb, tizen]
+
+  - name: backgroundDisabledImage
+    platforms: [mobileweb, tizen]
+
+  - name: backgroundFocusedColor
+    summary: Sets the color of the tab when it is focused.
+    description: |
+        On the Android platform, this sets the color of the active tab.
+
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    platforms: [android, mobileweb, tizen]
+    since: {android: 3.0.0}
+
+  - name: backgroundFocusedImage
+    platforms: [mobileweb, tizen]
+
+  - name: backgroundImage
+    platforms: [mobileweb, tizen]
+
+  - name: backgroundSelectedImage
+    platforms: [mobileweb, tizen]
+
   - name: badge
     summary: Badge value for this tab. `null` indicates no badge.
     type: String
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, blackberry]
+
   - name: icon
     summary: Icon URL for this tab.
     description: |
@@ -147,33 +206,46 @@ properties:
          this image will be scaled to fit if used with activeIcon, and cropped at the bottom
          otherwise.
     type: String
-  - name: activeIcon
-    summary: Icon URL for this tab when active.
+
+  - name: iconIsmask
+    summary: Defines if the icon property of the tab must be used as a mask. This property is applicable on iOS 7 and greater. 
     description: |
-         iOS 5.0 and later only.
-
-         If unspecified, iOS uses a tint color to indicate the active tab. See
-         [icon](Titanium.UI.Tab.icon) for more information.
-         
-         If the icon provided is larger than [30 pixels (60 pixels in the retina variant)]
-         (https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/IconsImages/IconsImages.html),
-         this image will be scaled to fit.
-
-         On iOS prior to 5.0, the default tint color is always used and this property
-         remains unset.
-    type: String
-    platforms: [iphone, ipad]
-    since: "3.1.0"
-    osver: {ios: {min: "5.0"}}
+        When this property is true, the color data of the image specified as the icon is ignored and the image is used as an alpha mask. 
+        When this is false, the color data of the image is preserved.
+    type: [Boolean]
+    since: "3.1.3"
+    default: true
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad]
+    
+  - name: activeIconIsMask
+    summary: Defines if the active icon property of the tab must be used as a mask. This property is applicable on iOS 7 and greater. 
+    description: |
+        This is the equivalent of the [iconIsMask](Titanium.UI.Tab.iconIsmask) property, but for the active icon. When this is true, the active icon is 
+        tinted with the color specified in [tabsTintColor](Titanium.UI.TabGroup.tabsTintColor). When this is false the image is rendered as is, though the 
+        title of the tab is still tinted. 
+    type: [Boolean]
+    since: "3.1.3"
+    default: true
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad]
+    
   - name: title
     summary: Title for this tab.
     type: String
+
   - name: titleid
     summary: Key identifying a string from the locale file to use for the tab title. Only one of `title` or `titleid` should be specified.
     type: String
+    exclude-platforms: [blackberry]
+
+  - name: touchEnabled
+    platforms: [mobileweb, tizen]
+
   - name: window
     summary: Root level tab window.  All tabs must have at least one root level tab window.
     type: Titanium.UI.Window
+
 events: 
   - name: blur
     summary: Fired when the tab loses focus.
@@ -190,8 +262,18 @@ events:
       - name: previousTab
         summary: Previous active tab object.
         type: Titanium.UI.Tab
+    exclude-platforms: [blackberry]
+
   - name: click
     summary: Fired when this tab is clicked in the tab group.
+    exclude-platforms: [blackberry, iphone, ipad]
+
+  - name: dblclick
+    platforms: [mobileweb, tizen]
+
+  - name: doubletap
+    platforms: [mobileweb, tizen]
+
   - name: focus
     summary: Fired when the tab gains focus.
     properties:
@@ -207,12 +289,39 @@ events:
       - name: previousTab
         summary: Previous active tab object.
         type: Titanium.UI.Tab
+    platforms: [android, iphone, ipad, mobileweb, tizen]
+
+  - name: longpress
+    platforms: [mobileweb, tizen]
+
+  - name: postlayout
+    platforms: [mobileweb, tizen]
+
+  - name: singletap
+    platforms: [mobileweb, tizen]
+
+  - name: swipe
+    platforms: [mobileweb, tizen]
+
+  - name: touchcancel
+    platforms: [mobileweb, tizen]
+
+  - name: touchend
+    platforms: [mobileweb, tizen]
+
+  - name: touchmove
+    platforms: [mobileweb, tizen]
+
+  - name: touchstart
+    platforms: [mobileweb, tizen]
+
 examples:
   - title: Simple Tab Example
     example: |
         
         In this example, we create a simple tab and add it to a tab group.
         
+            var mywin = Titanium.UI.createWindow({title: "Hello"});
             var tab = Titanium.UI.createTab({
             	window:mywin,
             	title:'Hello',
@@ -226,8 +335,8 @@ examples:
 
             <Alloy>
                 <TabGroup id="tabGroup">
-                    <Tab id="tab">
-                        <Window id="mywin" title="Hello" icon="myicon.png"/>
+                    <Tab id="tab" title="Hello" icon="myicon.png">
+                        <Window id="mywin" title="Hello"/>
                     </Tab>
                  </TabGroup>
             </Alloy>

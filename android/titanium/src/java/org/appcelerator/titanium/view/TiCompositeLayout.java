@@ -169,7 +169,7 @@ public class TiCompositeLayout extends ViewGroup
 			}
 		});
 
-		needsSort = true;
+		setNeedsSort(true);
 		setOnHierarchyChangeListener(this);
 		this.proxy = new WeakReference<TiViewProxy>(proxy);
 	}
@@ -180,20 +180,20 @@ public class TiCompositeLayout extends ViewGroup
 	
 	public void resort()
 	{
-		needsSort = true;
+		setNeedsSort(true);
 		requestLayout();
 		invalidate();
 	}
 
 	public void onChildViewAdded(View parent, View child) {
-		needsSort = true;
+		setNeedsSort(true);
 		if (Log.isDebugModeEnabled() && parent != null && child != null) {
 			Log.d(TAG, "Attaching: " + viewToString(child) + " to " + viewToString(parent), Log.DEBUG_MODE);
 		}
 	}
 
 	public void onChildViewRemoved(View parent, View child) {
-		needsSort = true;
+		setNeedsSort(true);
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Removing: " + viewToString(child) + " from " + viewToString(parent), Log.DEBUG_MODE);
 		}
@@ -497,7 +497,7 @@ public class TiCompositeLayout extends ViewGroup
 					attachViewToParent(child, i++, child.getLayoutParams());
 				}
 			}
-			needsSort = false;
+			setNeedsSort(false);
 		}
 		// viewSorter is not needed after this. It's a source of
 		// memory leaks if it retains the views it's holding.
@@ -681,14 +681,25 @@ public class TiCompositeLayout extends ViewGroup
 		}
 		horiztonalLayoutPreviousRight = (optionRight == null) ? 0 : optionRight.getAsPixels(this);
 
-		int right = left + measuredWidth;
-		if (enableHorizontalWrap && ((right + horiztonalLayoutPreviousRight) > layoutRight)) {
+		int right;
+		// If it's fill width with horizontal wrap, just take up remaining space.
+		if(enableHorizontalWrap && params.autoFillsWidth && params.sizeOrFillWidthEnabled) {
+			right = measuredWidth;
+		} else {
+			right = left + measuredWidth;
+		}
+
+		if (enableHorizontalWrap && ((right + horiztonalLayoutPreviousRight) > layoutRight || left >= layoutRight)) {
 			// Too long for the current "line" that it's on. Need to move it down.
 			left = optionLeftValue;
 			right = measuredWidth + left;
 			horizontalLayoutTopBuffer = horizontalLayoutTopBuffer + horizontalLayoutLineHeight;
 			horizontalLayoutLineHeight = 0;
+		} else if (!enableHorizontalWrap && params.autoFillsWidth && params.sizeOrFillWidthEnabled) {
+			// If there is no wrap, and width is fill behavior, cap it off at the width of the screen
+			right = Math.min(right, layoutRight);
 		}
+
 		hpos[0] = left;
 		hpos[1] = right;
 		horizontalLayoutCurrentLeft = right;
@@ -884,5 +895,15 @@ public class TiCompositeLayout extends ViewGroup
 	{
 		this.proxy = new WeakReference<TiViewProxy>(proxy);
 	}
-
+	
+	private void setNeedsSort(boolean value)
+	{
+		// For vertical and horizontal layouts, since the controls doesn't
+		// overlap, we shouldn't sort based on the zIndex, the original order
+		// that controls added should be preserved
+		if (isHorizontalArrangement() || isVerticalArrangement()) {
+			value = false;
+		}
+		needsSort = value;
+	}
 }

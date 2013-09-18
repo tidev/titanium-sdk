@@ -63,6 +63,17 @@ public class ListItemProxy extends TiViewProxy
 		}
 	}
 
+	@Override
+	public boolean hierarchyHasListener(String event)
+	{
+		// In order to fire the "itemclick" event when the children views are clicked,
+		// the children views' "click" events must be fired and bubbled up. (TIMOB-14901)
+		if (event.equals(TiC.EVENT_CLICK)) {
+			return true;
+		}
+		return super.hierarchyHasListener(event);
+	}
+
 	public void release()
 	{
 		super.release();

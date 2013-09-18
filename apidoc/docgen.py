@@ -9,6 +9,7 @@
 import os, sys, traceback
 import re, optparse
 import generators
+from distutils.version import StrictVersion
 from common import lazyproperty, dict_has_non_empty_member, not_real_titanium_types, DEFAULT_PLATFORMS, pretty_platform_name, first_version_for_platform
 
 try:
@@ -41,6 +42,7 @@ current_api = None
 ignore_dirs = (".git", ".svn", "CVS")
 ignore_files = ("template.yml",)
 warn_inherited = False # see optparse option with same name in main()
+options = None
 
 def has_ancestor(one_type, ancestor_name):
 	if one_type["name"] == ancestor_name:
@@ -66,6 +68,21 @@ def is_titanium_module(one_type):
 def is_titanium_proxy(one_type):
 	# When you use this, don't forget that modules are also proxies
 	return has_ancestor(one_type, "Titanium.Proxy")
+
+# TIDOC-1080: Support exclude-platforms tag
+def exclude_platforms(obj, parent):
+	platforms = None
+	if parent is not None:
+		all_platforms = None
+		if dict_has_non_empty_member(parent.api_obj, "platforms"):
+			all_platforms = parent.api_obj["platforms"]
+		else:
+			all_platforms = DEFAULT_PLATFORMS
+		if all_platforms is not None:
+			platforms = [x for x in all_platforms if x not in obj["exclude-platforms"]]
+	if not platforms:
+		log.warn("No platforms for %s" % (obj["name"]))
+	return platforms
 
 def combine_platforms_and_since(annotated_obj):
 	parent = annotated_obj.parent
@@ -103,9 +120,8 @@ def combine_platforms_and_since(annotated_obj):
 		if not since_is_dict:
 			one_platform["since"] = since
 			if min_since is not None:
-				if len(since) >= 3:
-					if float(since[0:3]) < float(min_since):
-						one_platform["since"] = min_since
+				if StrictVersion(since) < StrictVersion(min_since):
+					one_platform["since"] = min_since
 		else:
 			if name in since:
 				one_platform["since"] = since[name]
@@ -162,9 +178,15 @@ def generate_output(options):
 		generator = getattr(generators, "%s_generator" % output_type)
 		generator.generate(apis, annotated_apis, options)
 
-def process_yaml(source_dirs):
+def process_yaml(source_dirs, options=None):
 	global apis
 	log.info("Parsing YAML files")
+	
+	if options and options.exclude_external and len(source_dirs) <= 1:
+		log.error("At least one path must be passed when using -e or --exclude-external")
+		sys.exit(1)
+	tag_external = True if options and options.exclude_external else False
+	
 	for source_dir in source_dirs:
 		for root, dirs, files in os.walk(source_dir):
 			for name in ignore_dirs:
@@ -183,7 +205,9 @@ def process_yaml(source_dirs):
 					for one_type in types:
 						if one_type["name"] in apis:
 							log.warn("%s has a duplicate" % one_type["name"])
+						one_type["external"] = tag_external
 						apis[one_type["name"]] = one_type
+		tag_external = False
 
 # If documentation for a method/event/property only "partially overrides"
 # the documentation for the super type, this will fill in the rest of
@@ -292,6 +316,10 @@ class AnnotatedApi(object):
 			self.optional = api_obj["optional"]
 		else:
 			self.optional = None
+		if "external" in api_obj:
+			self.external = api_obj["external"]
+		else:
+			self.external = False
 
 	@lazyproperty
 	def platforms(self):
@@ -522,6 +550,10 @@ class AnnotatedMethod(AnnotatedApi):
 		self.typestr = "method"
 		self.parent = annotated_parent
 		self.yaml_source_folder = self.parent.yaml_source_folder
+		if dict_has_non_empty_member(api_obj, "exclude-platforms") and not dict_has_non_empty_member(api_obj, "platforms"):
+			platforms = exclude_platforms(api_obj, annotated_parent);
+			if platforms:
+				api_obj["platforms"] = platforms
 
 	@lazyproperty
 	def parameters(self):
@@ -548,6 +580,10 @@ class AnnotatedProperty(AnnotatedApi):
 		self.typestr = "property"
 		self.parent = annotated_parent
 		self.yaml_source_folder = self.parent.yaml_source_folder
+		if dict_has_non_empty_member(api_obj, "exclude-platforms") and not dict_has_non_empty_member(api_obj, "platforms"):
+			platforms = exclude_platforms(api_obj, annotated_parent);
+			if platforms:
+				api_obj["platforms"] = platforms
 
 class AnnotatedEvent(AnnotatedApi):
 	def __init__(self, api_obj, annotated_parent):
@@ -555,6 +591,10 @@ class AnnotatedEvent(AnnotatedApi):
 		self.typestr = "event"
 		self.parent = annotated_parent
 		self.yaml_source_folder = self.parent.yaml_source_folder
+		if dict_has_non_empty_member(api_obj, "exclude-platforms") and not dict_has_non_empty_member(api_obj, "platforms"):
+			platforms = exclude_platforms(api_obj, annotated_parent);
+			if platforms:
+				api_obj["platforms"] = platforms
 
 	@lazyproperty
 	def properties(self):
@@ -574,7 +614,7 @@ class AnnotatedEvent(AnnotatedApi):
 		return sorted(properties, key=lambda item: item.name)
 
 def main():
-	global this_dir, log, warn_inherited
+	global this_dir, log, warn_inherited, options
 	titanium_dir = os.path.dirname(this_dir)
 	dist_apidoc_dir = os.path.join(titanium_dir, "dist", "apidoc")
 	sys.path.append(os.path.join(titanium_dir, "build"))
@@ -617,6 +657,11 @@ def main():
 			action="store_true",
 			help="Show a warning if the documentation for a method/property/event only partially overrides its super type's documentation, in which case the missing information is inherited from the super type documentation.",
 			default=False)
+	parser.add_option("-e", "--exclude-external",
+			dest="exclude_external",
+			action="store_true",
+			help="Will not generate output from the titanium doc foler, must pass a path to a documentation folder",
+			default=False)
 	(options, args) = parser.parse_args()
 	warn_inherited = options.warn_inherited
 	log_level = TiLogger.INFO
@@ -629,7 +674,7 @@ def main():
 
 	load_generators(options)
 	source_dirs = [ this_dir ] + args
-	process_yaml(source_dirs)
+	process_yaml(source_dirs, options)
 	finish_partial_overrides()
 	generate_output(options)
 

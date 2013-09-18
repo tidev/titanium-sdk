@@ -197,6 +197,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	RELEASE_TO_NIL(singleLocation);
 	RELEASE_TO_NIL(purpose);
 	RELEASE_TO_NIL(lock);
+	RELEASE_TO_NIL(lastLocationDict);
 	[super _destroy];
 }
 
@@ -562,6 +563,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     }
 }
 
+-(NSString *)lastGeolocation
+{
+	SBJSON *json = [[SBJSON alloc] init];
+	NSString * result = [json stringWithObject:lastLocationDict error:nil];
+	[json release];
+	return result;
+}
+
 -(NSNumber*)highAccuracy
 {
 	return NUMBOOL(accuracy==kCLLocationAccuracyBest);
@@ -871,13 +880,14 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 -(void)fireApplicationAnalyticsIfNeeded:(NSArray *)locations{
     static BOOL analyticsSend = NO;
+	[lastLocationDict release];
+	lastLocationDict = [[self locationDictionary:[locations lastObject]] copy];
     if (TI_APPLICATION_ANALYTICS && !analyticsSend)
 	{
         analyticsSend = YES;
-        NSDictionary *todict = [self locationDictionary:[locations lastObject]];
         NSDictionary *fromdict = [self locationDictionary:[locations objectAtIndex:0]];//This location could be same as todict value.
         
-        NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:todict,@"to",fromdict,@"from",nil];
+        NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:lastLocationDict,@"to",fromdict,@"from",nil];
         NSDictionary *geo = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.geo",@"name",@"ti.geo",@"type",nil];
         
         WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!

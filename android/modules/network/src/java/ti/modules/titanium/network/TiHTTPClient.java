@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -56,6 +56,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -74,6 +75,7 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.DefaultHttpRequestFactory;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectHandler;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
@@ -105,6 +107,7 @@ import org.appcelerator.titanium.util.TiUrl;
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
+import android.os.Build;
 
 public class TiHTTPClient
 {
@@ -112,7 +115,11 @@ public class TiHTTPClient
 	private static final int DEFAULT_MAX_BUFFER_SIZE = 512 * 1024;
 	private static final String PROPERTY_MAX_BUFFER_SIZE = "ti.android.httpclient.maxbuffersize";
 	private static final int PROTOCOL_DEFAULT_PORT = -1;
-
+	private static final String TITANIUM_ID_HEADER = "X-Titanium-Id";
+	private static final String TITANIUM_USER_AGENT = "Appcelerator Titanium/" + TiApplication.getInstance().getTiBuildVersion()
+	                                                  + " ("+ Build.MODEL + "; Android API Level: "
+	                                                  + Integer.toString(Build.VERSION.SDK_INT) + "; "
+	                                                  + TiPlatformHelper.getLocale() +";)";
 	private static final String[] FALLBACK_CHARSETS = {HTTP.UTF_8, HTTP.ISO_8859_1};
 
 	// Regular expressions for detecting charset information in response documents (ex: html, xml).
@@ -156,6 +163,9 @@ public class TiHTTPClient
 	private ArrayList<File> tmpFiles = new ArrayList<File>();
 	private ArrayList<X509TrustManager> trustManagers = new ArrayList<X509TrustManager>();
 	private ArrayList<X509KeyManager> keyManagers = new ArrayList<X509KeyManager>();
+
+	private static CookieStore cookieStore = new BasicCookieStore();
+
 
 	protected HashMap<String,String> headers = new HashMap<String,String>();
 	
@@ -687,7 +697,6 @@ public class TiHTTPClient
 	{
 		if (readyState > READY_STATE_UNSENT && readyState < READY_STATE_DONE) {
 			aborted = true;
-
 			if (client != null) {
 				client.getConnectionManager().shutdown();
 				client = null;
@@ -696,6 +705,10 @@ public class TiHTTPClient
 				validatingClient = null;
 			if (nonValidatingClient != null)
 				nonValidatingClient = null;
+
+			// Fire the disposehandle event if the request is aborted.
+			// And it will dispose the handle of the httpclient in the JS.
+			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 		}
 	}
 
@@ -870,7 +883,7 @@ public class TiHTTPClient
 			}
 		}
 		setReadyState(READY_STATE_OPENED);
-		setRequestHeader("User-Agent", (String) proxy.getProperty("userAgent"));
+		setRequestHeader("User-Agent", TITANIUM_USER_AGENT);
 		// Causes Auth to Fail with twitter and other size apparently block X- as well
 		// Ticket #729, ignore twitter for now
 		if (!hostString.contains("twitter.com")) {
@@ -1006,8 +1019,11 @@ public class TiHTTPClient
 
 		HttpProtocolParams.setUseExpectContinue(params, false);
 		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+		
+		DefaultHttpClient httpClient = new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
+		httpClient.setCookieStore(cookieStore);
 
-		return new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
+		return httpClient;
 	}
 
 	protected DefaultHttpClient getClient(boolean validating)
@@ -1150,6 +1166,7 @@ public class TiHTTPClient
 		Log.d(TAG, this.url, Log.DEBUG_MODE);
 
 		request = new DefaultHttpRequestFactory().newHttpRequest(method, this.url);
+		request.setHeader(TITANIUM_ID_HEADER, TiApplication.getInstance().getAppGUID());
 		for (String header : headers.keySet()) {
 			request.setHeader(header, headers.get(header));
 		}
@@ -1184,7 +1201,7 @@ public class TiHTTPClient
 					String scheme = authSchemes.nextElement();
 					client.getAuthSchemes().register(scheme, customAuthenticators.get(scheme));
 				}
-				
+
 				// lazy get client each time in case the validatesSecureCertificate() changes
 				client = getClient(validatesSecureCertificate());
 				if (credentials != null) {
@@ -1263,9 +1280,11 @@ public class TiHTTPClient
 				String result = null;
 				try {
 					result = client.execute(host, request, handler);
-
 				} catch (IOException e) {
 					if (!aborted) {
+						// Fire the disposehandle event if the exception is not due to aborting the request.
+						// And it will dispose the handle of the httpclient in the JS.
+						proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 						throw e;
 					}
 				}
@@ -1302,6 +1321,10 @@ public class TiHTTPClient
 			}
 
 			deleteTmpFiles();
+
+			// Fire the disposehandle event if the request is finished successfully or the errors occur.
+			// And it will dispose the handle of the httpclient in the JS.
+			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 		}
 	}
 

@@ -26,6 +26,7 @@ import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -238,6 +239,10 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int SHOW_AS_ACTION_IF_ROOM = MenuItem.SHOW_AS_ACTION_IF_ROOM;
 	@Kroll.constant public static final int SHOW_AS_ACTION_NEVER = MenuItem.SHOW_AS_ACTION_NEVER;
 	@Kroll.constant public static final int SHOW_AS_ACTION_WITH_TEXT = MenuItem.SHOW_AS_ACTION_WITH_TEXT;
+	
+	@Kroll.constant public static final int NAVIGATION_MODE_LIST = ActionBar.NAVIGATION_MODE_LIST;
+	@Kroll.constant public static final int NAVIGATION_MODE_STANDARD = ActionBar.NAVIGATION_MODE_STANDARD;
+	@Kroll.constant public static final int NAVIGATION_MODE_TABS = ActionBar.NAVIGATION_MODE_TABS;
 
 	protected RProxy r;
 
@@ -272,6 +277,7 @@ public class AndroidModule extends KrollModule
 		return intent;
 	}
 
+	@Kroll.method
 	public IntentProxy createBroadcastIntent(Object[] args)
 	{
 		IntentProxy intent = new IntentProxy();
