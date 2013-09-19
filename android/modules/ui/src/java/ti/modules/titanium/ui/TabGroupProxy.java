@@ -371,8 +371,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		releaseViews();
 		view = null;
 
-		opened = false;
-
 		Activity activity = tabGroupActivity.get();
 		if (activity != null && !activity.isFinishing()) {
 			activity.finish();
