@@ -236,9 +236,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
 }
 
-- (void)setTemplates_:(id)args
+- (void)setDictTemplates_:(id)args
 {
 	ENSURE_TYPE_OR_NIL(args,NSDictionary);
+	[[self proxy] replaceValue:args forKey:@"dictTemplates" notification:NO];
 	[_templates release];
 	_templates = [args copy];
 	if (_tableView != nil) {
