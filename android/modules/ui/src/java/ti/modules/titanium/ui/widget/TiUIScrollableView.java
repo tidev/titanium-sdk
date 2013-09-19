@@ -16,6 +16,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiEventHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
@@ -33,7 +34,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 
 public class TiUIScrollableView extends TiUIView
 {
@@ -41,6 +44,7 @@ public class TiUIScrollableView extends TiUIView
 
 	private static final int PAGE_LEFT = 200;
 	private static final int PAGE_RIGHT = 201;
+	private static final Class<?>[] DISALLOWINTERCEPTTOUCH_CLASSES = {ScrollView.class, ListView.class};
 
 	private final ViewPager mPager;
 	private final ArrayList<TiViewProxy> mViews;
@@ -553,19 +557,19 @@ public class TiUIScrollableView extends TiUIView
 		@Override
 		public boolean dispatchTouchEvent(MotionEvent ev)
 		{
-			// If the parent is a scroll view, then we prevent the scroll view from intercepting touch events
-			if (getParent() instanceof TiScrollViewLayout) {
+			// If inside a scroll view or a ListView, then we prevent the scroll view from intercepting touch events
+			if (TiUIHelper.isViewInsideViewOfClass(this, DISALLOWINTERCEPTTOUCH_CLASSES)) {
 				int action = ev.getAction();
 				switch (action) {
 					case MotionEvent.ACTION_DOWN:
 						requestDisallowInterceptTouchEvent(true);
 						break;
 
+
 					case MotionEvent.ACTION_UP:
 					case MotionEvent.ACTION_CANCEL:
 						requestDisallowInterceptTouchEvent(false);
 						break;
-
 				}
 			}
 			return super.dispatchTouchEvent(ev);
