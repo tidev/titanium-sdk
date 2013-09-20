@@ -14,7 +14,7 @@ var appc = require('node-appc'),
 
 // TODO: need to support building modules... how do we know if --dir is a module or app? where is the module _build.js located?
 
-exports.cliVersion = '>=3.X';
+exports.cliVersion = '>=3.2';
 exports.title = __('Build');
 exports.desc = __('builds a project');
 exports.extendedDesc = 'Builds an existing app or module project.';
@@ -108,10 +108,25 @@ exports.validate = function (logger, config, cli) {
 	cli.argv.type = 'app';
 
 	ti.validatePlatform(logger, cli, 'platform');
-	if (ti.validatePlatformOptions(logger, config, cli, 'build') === false) {
-		return false;
-	}
-	ti.loadPlugins(logger, cli, config, cli.argv['project-dir']);
+
+	return function (finished) {
+		function next(result) {
+			if (result !== false) {
+				ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
+					finished(result);
+				});
+			} else {
+				finished(result);
+			}
+		}
+
+		var result = ti.validatePlatformOptions(logger, config, cli, 'build');
+		if (result && typeof result == 'function') {
+			result(next);
+		} else {
+			next(result);
+		}
+	};
 };
 
 exports.run = function (logger, config, cli) {

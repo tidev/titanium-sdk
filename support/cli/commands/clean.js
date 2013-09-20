@@ -15,7 +15,7 @@ var appc = require('node-appc'),
 	wrench = require('wrench'),
 	async = require('async');
 
-exports.cliVersion = '>=3.X';
+exports.cliVersion = '>=3.2';
 exports.desc = __('removes previous build directories');
 
 exports.config = function (logger, config, cli) {
@@ -50,7 +50,7 @@ exports.validate = function (logger, config, cli) {
 	var platforms = cli.argv.platforms || cli.argv.platform;
 	if (platforms) {
 		platforms = ti.scrubPlatforms(platforms);
-		
+
 		if (platforms.bad.length) {
 			logger.error(__n('Invalid platform: %%s', 'Invalid platforms: %%s', platforms.bad.length, platforms.bad.join(', ')) + '\n');
 			logger.log(__('Available platforms for SDK version %s:', ti.manifest.sdkVersion) + '\n');
@@ -60,14 +60,19 @@ exports.validate = function (logger, config, cli) {
 			logger.log();
 			process.exit(1);
 		}
-		
+
 		cli.argv.platforms = platforms.scrubbed;
 	} else {
 		cli.argv.platforms = null;
 	}
-	
+
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
-	ti.loadPlugins(logger, cli, config, cli.argv['project-dir']);
+
+	return function (finished) {
+		ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
+			finished();
+		});
+	};
 };
 
 exports.run = function (logger, config, cli) {
