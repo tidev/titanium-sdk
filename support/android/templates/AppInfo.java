@@ -1,4 +1,4 @@
-package ${config['appid']};
+package {{=builder.appid}};
 
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
@@ -9,79 +9,77 @@ import org.appcelerator.kroll.common.Log;
  * Warning - this class was generated from your application's tiapp.xml
  * Any changes you make here will be overwritten
  */
-public final class ${config['classname']}AppInfo implements ITiAppInfo
+public final class {{=builder.classname}}AppInfo implements ITiAppInfo
 {
 	private static final String LCAT = "AppInfo";
-	
-	public ${config['classname']}AppInfo(TiApplication app) {
-		%if len(app_properties.keys()) > 0:
+
+	public {{=builder.classname}}AppInfo(TiApplication app) {
+		{{? Object.keys(builder.tiapp.properties).length}}
 		TiProperties properties = app.getSystemProperties();
 		TiProperties appProperties = app.getAppProperties();
-			%for property in app_properties.keys():
-				%try:
-					<%
-					value = app_properties[property]['value']
-					type = app_properties[property]['type']
-					if type == 'string': javaValue = '"%s"' % value
-					elif type == 'bool': javaValue = str(value in ['true', 'True', 'TRUE', 'yes', 'Yes', 'YES', 'y', 't', '1']).lower()
-					elif type == 'int': javaValue = int(value)
-					elif type == 'double': javaValue = float(value)
-					setter = 'set%s' % type[0:1].upper() + type[1:]
-					%>
-					properties.${setter}("${property}", ${javaValue});
-					appProperties.${setter}("${property}", ${javaValue});
-				%except:
-		Log.w(LCAT, "Couldn't convert application property '${property}', with value '${value}' to ${type}, skipping.");
-				%endtry
-			%endfor
-		%endif
+
+			{{ for (var prop in builder.tiapp.properties) { }}
+				{{
+					var value = builder.tiapp.properties[prop].value,
+						type = builder.tiapp.properties[prop].type,
+						setter = 'set' + type.substring(0, 1).toUpperCase() + type.substring(1);
+					type == 'string' && (value = '"' + value.replace(/"/g, '\\"') + '"');
+				}}
+				properties.{{=setter}}("{{=prop}}", {{=value}});
+				appProperties.{{=setter}}("{{=prop}}", {{=value}});
+			{{ } }}
+		{{?}}
 	}
-	
+
+	{{
+		function X(s) { return s.replace(/"/g, '\\"'); }
+	}}
+
 	public String getId() {
-		return "${app_info['id']}";
+		return "{{=X(builder.tiapp.id)}}";
 	}
-	
+
 	public String getName() {
-		return "${app_info['name']}";
+		return "{{=X(builder.tiapp.name)}}";
 	}
-	
+
 	public String getVersion() {
-		return "${app_info['version']}";
+		return "{{=X(builder.tiapp.version)}}";
 	}
-	
+
 	public String getPublisher() {
-		return "${app_info['publisher']}";
+		return "{{=X(builder.tiapp.publisher)}}";
 	}
-	
+
 	public String getUrl() {
-		return "${app_info['url']}";
+		return "{{=X(builder.tiapp.url)}}";
 	}
-	
+
 	public String getCopyright() {
-		return "${app_info['copyright']}";
+		return "{{=X(builder.tiapp.copyright)}}";
 	}
-	
+
 	public String getDescription() {
-		return "${app_info['description']}";
+		return "{{=X(builder.tiapp.description)}}";
 	}
-	
+
 	public String getIcon() {
-		return "${app_info['icon']}";
+		return "{{=X(builder.tiapp.icon)}}";
 	}
-	
+
 	public boolean isAnalyticsEnabled() {
-		return ${app_info['analytics']};
+		return {{=!!builder.tiapp.analytics}};
 	}
-	
+
 	public String getGUID() {
-		return "${app_info['guid']}";
+		return "{{=X(builder.tiapp.guid)}}";
 	}
-	
+
 	public boolean isFullscreen() {
-		return ${app_info['fullscreen']};
+		return {{=!!builder.tiapp.fullscreen}};
 	}
-	
+
 	public boolean isNavBarHidden() {
-		return ${app_info['navbar-hidden']};
+		return {{=!!builder.tiapp['navbar-hidden']}};
 	}
 }

@@ -926,7 +926,7 @@ function build(logger, config, cli, finished) {
 		}
 	}, this);
 
-	this.logger.debug(__('Titanium iOS SDK directory: %s', this.titaniumIosSdkPath.cyan));
+	this.logger.debug(__('Titanium SDK iOS directory: %s', this.titaniumIosSdkPath.cyan));
 	this.logger.info(__('Deploy type: %s', this.deployType.cyan));
 	this.logger.info(__('Building for target: %s', this.target.cyan));
 	this.logger.info(__('Building using iOS SDK: %s', version.format(this.iosSdkVersion, 2).cyan));
