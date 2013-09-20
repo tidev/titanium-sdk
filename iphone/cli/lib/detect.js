@@ -176,8 +176,7 @@ exports.detect = function detect(config, opts, finished) {
 									selected: dir == selectedXcodePath,
 									version: p.CFBundleShortVersionString,
 									build: p.ProductBuildVersion,
-									supported: appc.version.gte(p.CFBundleShortVersionString, iosPackageJson.minXcodeVersion)
-										? (appc.version.lt(p.CFBundleShortVersionString, iosPackageJson.maxXcodeVersion + '.9999') ? true : 'maybe') : false,
+									supported: appc.version.satisfies(p.CFBundleShortVersionString, iosPackageJson.vendorDependencies.xcode, true),
 									sdks: null,
 									sims: null
 								};
@@ -190,14 +189,14 @@ exports.detect = function detect(config, opts, finished) {
 											id: 'IOS_XCODE_TOO_OLD',
 											type: 'warning',
 											message: __('Xcode %s is too old and is no longer supported by Titanium SDK %s.', '__' + info.version + '__', manifestJson.version) + '\n' +
-												__('The minimumm supported Xcode version by Titanium SDK %s is Xcode %s.', manifestJson.version, iosPackageJson.minXcodeVersion)
+												__('The minimumm supported Xcode version by Titanium SDK %s is Xcode %s.', manifestJson.version, appc.version.parseMin(iosPackageJson.vendorDependencies.xcode))
 										});
 									} else if (info.supported == 'maybe') {
 										issues.push({
 											id: 'IOS_XCODE_TOO_NEW',
 											type: 'warning',
 											message: __('Xcode %s is too new and may or may not work with Titanium SDK %s.', '__' + info.version + '__', manifestJson.version) + '\n' +
-												__('The maximum supported Xcode version by Titanium SDK %s is Xcode %s.', manifestJson.version, iosPackageJson.maxXcodeVersion) + '\n'
+												__('The maximum supported Xcode version by Titanium SDK %s is Xcode %s.', manifestJson.version, appc.version.parseMax(iosPackageJson.vendorDependencies.xcode)) + '\n'
 										});
 									}
 
@@ -246,26 +245,17 @@ exports.detect = function detect(config, opts, finished) {
 				}
 			},
 
-			xcodeCLIToolsInstalled: function (done) {
-				var check = function (installed) {
-					if (!installed) {
-						issues.push({
-							id: 'IOS_XCODE_CLI_TOOLS_NOT_INSTALLED',
-							type: 'error',
-							message: __('The Xcode Command Line Tools are not installed.') + '\n' +
-								__('Titanium requires that the Xcode Command Line Tools be installed.') + '\n' +
-								__('You can install them from the Xcode Preferences > Downloads tab.')
-						});
-					}
-					done(null, installed);
-				}
-
+			xcodeCLITools: function (done) {
 				if (executables.pkgutil) {
 					run(executables.pkgutil, '--pkg-info=com.apple.pkg.DeveloperToolsCLI', function (err, stdout, stderr) {
-						check(!err);
+						if (!err) {
+							var m = stdout.match(/version: (.+)/m);
+							if (m) return done(null, m[1]);
+						}
+						done(null, false);
 					});
 				} else {
-					check(false);
+					done(null, false);
 				}
 			},
 
@@ -573,11 +563,23 @@ exports.detect = function detect(config, opts, finished) {
 		}, function (err, results) {
 			appc.util.mix(results, executables);
 
+			var xcodeCLIToolsVersion = appc.version.format(results.xcodeCLITools, 2, 2),
+				notInstalled = [];
+			Object.keys(results.xcode).forEach(function (name) {
+				var installed = results.xcode[name].cliTools = appc.version.gte(xcodeCLIToolsVersion, appc.version.format(results.xcode[name].version, 2, 2));
+				installed || notInstalled.push(results.xcode[name].version);
+			});
+			if (notInstalled.length) {
+				issues.push({
+					id: 'IOS_XCODE_CLI_TOOLS_NOT_INSTALLED',
+					type: 'error',
+					message: __('The Xcode Command Line Tools are not installed for the following Xcode versions: %s.', notInstalled.join(', ')) + '\n' +
+						__('Titanium requires that the Xcode Command Line Tools be installed.') + '\n' +
+						__('You can install them from the Xcode Preferences > Downloads tab.')
+				});
+			}
+
 			results.detectVersion    = '2.0';
-			results.minIosSdkVersion = iosPackageJson.minIosSdkVersion;
-			results.maxIosSdkVersion = iosPackageJson.maxIosSdkVersion;
-			results.minXcodeVersion  = iosPackageJson.minXcodeVersion;
-			results.maxXcodeVersion  = iosPackageJson.maxXcodeVersion;
 			results.issues           = issues;
 
 			finished(envCache = results);
