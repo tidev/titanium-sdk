@@ -742,6 +742,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
                 DeveloperLog(@"Height does not change. Just laying out children. Height %.1f",curHeight);
                 [callbackCell setNeedsDisplay];
             }
+        } else {
+            [callbackCell setNeedsDisplay];
         }
     }, NO);
 }
@@ -821,26 +823,32 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(void)setSelectedBackgroundColor:(id)arg
 {
-	[self replaceValue:arg forKey:@"selectedBackgroundColor" notification:NO];	
-	if (callbackCell != nil) {
-		[self configureBackground:callbackCell];
-	}
+    [self replaceValue:arg forKey:@"selectedBackgroundColor" notification:NO];
+    TiThreadPerformOnMainThread(^{
+        if ([self viewAttached]) {
+            [self configureBackground:callbackCell];
+        }
+    }, NO);
 }
 
 -(void)setBackgroundImage:(id)arg
 {
 	[self replaceValue:arg forKey:@"backgroundImage" notification:NO];	
-	if (callbackCell != nil) {
-		[self configureBackground:callbackCell];
-	}
+    TiThreadPerformOnMainThread(^{
+        if ([self viewAttached]) {
+            [self configureBackground:callbackCell];
+        }
+    }, NO);
 }
 
 -(void)setSelectedBackgroundImage:(id)arg
 {
 	[self replaceValue:arg forKey:@"selectedBackgroundImage" notification:NO];	
-	if (callbackCell != nil) {
-		[self configureBackground:callbackCell];
-	}
+    TiThreadPerformOnMainThread(^{
+        if ([self viewAttached]) {
+            [self configureBackground:callbackCell];
+        }
+    }, NO);
 }
 
 -(void)setBackgroundGradient:(id)arg
@@ -872,10 +880,34 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 					nil];
 	}
 	
-	if ([TableViewRowProperties member:key]!=nil)
-	{
-		[self triggerRowUpdate];
-	}
+    if ([TableViewRowProperties member:key]!=nil)
+    {
+        TiThreadPerformOnMainThread(^{
+            if (![self viewAttached]) {
+                return;
+            }
+            if ([key isEqualToString:@"height"] || [key isEqualToString:@"width"] || [key isEqualToString:@"indentionLevel"]) {
+                [self triggerRowUpdate];
+            } else if ([key isEqualToString:@"title"] || [key isEqualToString:@"color"] || [key isEqualToString:@"font"] || [key isEqualToString:@"selectedColor"]) {
+                [self configureTitle:callbackCell];
+                [callbackCell setNeedsDisplay];
+            } else if ([key isEqualToString:@"hasCheck"] || [key isEqualToString:@"hasChild"] || [key isEqualToString:@"hasDetail"] || [key isEqualToString:@"rightImage"]) {
+                [self configureRightSide:callbackCell];
+                [self triggerUpdateIfHeightChanged];
+            } else if ([key isEqualToString:@"leftImage"]) {
+                [self configureLeftSide:callbackCell];
+                [self triggerUpdateIfHeightChanged];
+            } else if ([key isEqualToString:@"backgroundImage"]) {
+                [self configureBackground:callbackCell];
+                [callbackCell setNeedsDisplay];
+            } else if ([key isEqualToString:@"backgroundColor"]) {
+                [callbackCell setBackgroundColor:[[TiUtils colorValue:newValue] color]];
+                [callbackCell setNeedsDisplay];
+            } else if ([key isEqualToString:@"accessibilityLabel"]){
+                callbackCell.accessibilityLabel = [TiUtils stringValue:newValue];
+            }
+        }, NO);
+    }
 }
 
 -(TiDimension)defaultAutoHeightBehavior:(id)unused
