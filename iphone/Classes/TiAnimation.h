@@ -96,6 +96,7 @@
 	// for autoreverse
     TiAnimation* reverseAnimation;
     BOOL isReverse;
+    BOOL resetState;
 }
 
 /**
@@ -107,6 +108,7 @@
 @property(nonatomic,readonly) ListenerEntry* callback;
 @property(nonatomic,readwrite,assign) TiAnimation* reverseAnimation;
 @property(nonatomic,readwrite,assign) BOOL isReverse;
+@property(nonatomic,readwrite,assign) BOOL resetState;
 
 // animatable properties against what is being animated
 @property(nonatomic,retain,readwrite) NSNumber	*zIndex;
