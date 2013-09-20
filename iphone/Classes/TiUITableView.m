@@ -1446,6 +1446,9 @@
 	{
 		CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, TI_NAVBAR_HEIGHT);
 		tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
+		[tableHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+		[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+		[[searchField searchBar] setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
 		[TiUtils setView:searchView positionRect:wrapperFrame];
 		[tableHeaderView addSubview:searchView];
 		[tableview setTableHeaderView:tableHeaderView];
