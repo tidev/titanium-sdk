@@ -511,7 +511,7 @@ exports.validate = function (logger, config, cli) {
 		logger.error(__("Use 'xcode-select' to select one of the Xcode versions:"));
 		Object.keys(iosEnv.xcode).forEach(function (ver) {
 			if (ver != '__selected__') {
-				logger.log('\n' + ('    xcode-select -switch ' + iosEnv.xcode[ver].path).cyan);
+				logger.log('\n' + ('    sudo xcode-select -switch ' + iosEnv.xcode[ver].path).cyan);
 			}
 		});
 		logger.log();
