@@ -151,6 +151,24 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
+	public void sendBroadcast(IntentProxy intent)
+	{
+		Activity activity = getWrappedActivity();
+		if (activity != null) {
+			activity.sendBroadcast(intent.getIntent());
+		}
+	}
+
+	@Kroll.method
+	public void sendBroadcastWithPermission(IntentProxy intent, @Kroll.argument(optional = true) String receiverPermission)
+	{
+		Activity activity = getWrappedActivity();
+		if (activity != null) {
+			activity.sendBroadcast(intent.getIntent(), receiverPermission);
+		}
+	}
+	
+	@Kroll.method
 	public String getString(int resId, Object[] formatArgs)
 	{
 		Activity activity = getWrappedActivity();

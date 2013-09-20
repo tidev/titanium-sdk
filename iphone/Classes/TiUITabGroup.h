@@ -13,7 +13,7 @@
 @interface TiUITabGroup : TiUIView<UITabBarControllerDelegate,UINavigationControllerDelegate> {
 @private
 	UITabBarController *controller;
-	TiUITabProxy *focused;
+	TiUITabProxy *focusedTabProxy;
 	BOOL allowConfiguration;
 	NSString* editTitle;
 	

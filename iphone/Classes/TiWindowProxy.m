@@ -61,6 +61,11 @@
     opened = YES;
     if ([self _hasListeners:@"open"]) {
         [self fireEvent:@"open" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        if (focussed && [self handleFocusEvents]) {
+            if ([self _hasListeners:@"focus"]) {
+                [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+            }
+        }
     }
     [super windowDidOpen];
     [self forgetProxy:openAnimation];
@@ -104,6 +109,21 @@
     TiUIView* theView = [self view];
     [rootView addSubview:theView];
     [rootView bringSubviewToFront:theView];
+}
+
+-(BOOL)argOrWindowPropertyExists:(NSString*)key args:(id)args
+{
+    id value = [self valueForUndefinedKey:key];
+    if (!IS_NULL_OR_NIL(value)) {
+        return YES;
+    }
+    if (([args count] > 0) && [[args objectAtIndex:0] isKindOfClass:[NSDictionary class]]) {
+        value = [[args objectAtIndex:0] objectForKey:key];
+        if (!IS_NULL_OR_NIL(value)) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 -(BOOL)argOrWindowProperty:(NSString*)key args:(id)args
@@ -164,15 +184,23 @@
     
     isModal = (tab == nil) ? [self argOrWindowProperty:@"modal" args:args] : NO;
     
-    hidesStatusBar = [self argOrWindowProperty:@"fullscreen" args:args];
+    if ([self argOrWindowProperty:@"fullscreen" args:args]) {
+        hidesStatusBar = YES;
+    } else {
+        if ([self argOrWindowPropertyExists:@"fullscreen" args:args]) {
+            hidesStatusBar = NO;
+        } else {
+            hidesStatusBar = [[[TiApp app] controller] statusBarInitiallyHidden];
+        }
+    }
     
-    int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"]];
+    int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"] def:[[[TiApp app] controller] defaultStatusBarStyle]];
     switch (theStyle){
         case UIStatusBarStyleDefault:
             barStyle = UIStatusBarStyleDefault;
             break;
         case UIStatusBarStyleBlackOpaque:
-        case UIStatusBarStyleBlackTranslucent:
+        case UIStatusBarStyleBlackTranslucent: //This will also catch UIStatusBarStyleLightContent
             if ([TiUtils isIOS7OrGreater]) {
                 barStyle = 1;//UIStatusBarStyleLightContent;
             } else {
@@ -223,7 +251,7 @@
         } else {
             args = [NSArray arrayWithObject:self];
         }
-        [tab pop:args];
+        [tab closeWindow:args];
         return;
     }
     
@@ -248,8 +276,8 @@
         RELEASE_TO_NIL(openAnimation);
     }
     
-    if ( (tab == nil) && (isModal == NO) && ([theController topPresentedController] != [theController topContainerController]) ){
-        DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller.")
+    if ( (!self.isManaged) && (!isModal) && (openAnimation != nil) && ([theController topPresentedController] != [theController topContainerController]) ){
+        DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller without animations.")
         [self forgetProxy:openAnimation];
         RELEASE_TO_NIL(openAnimation);
     }
@@ -264,8 +292,8 @@
         [self forgetProxy:closeAnimation];
         RELEASE_TO_NIL(closeAnimation);
     }
-    if ( (tab == nil) && (isModal == NO) && ([theController topPresentedController] != [theController topContainerController]) ){
-        DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller.")
+    if ( (!self.isManaged) && (!isModal) && (closeAnimation != nil) && ([theController topPresentedController] != [theController topContainerController]) ){
+        DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will close behind the presented controller without animations.")
         [self forgetProxy:closeAnimation];
         RELEASE_TO_NIL(closeAnimation);
     }
@@ -311,7 +339,7 @@
 {
     if (focussed == NO) {
         focussed = YES;
-        if ([self handleFocusEvents]) {
+        if ([self handleFocusEvents] && opened) {
             if ([self _hasListeners:@"focus"]) {
                 [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
             }
@@ -392,7 +420,7 @@
             } else {
                 args = [NSArray arrayWithObject:self];
             }
-            [tab push:args];
+            [tab openWindow:args];
         } else if (isModal) {
             UIViewController* theController = [self hostingController];
             [self windowWillOpen];

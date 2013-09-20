@@ -40,11 +40,6 @@
 		[searchView setDelegate:self];
 		[searchView setShowsCancelButton:[(TiUISearchBarProxy *)[self proxy] showsCancelButton]];
 	}
-    //IOS7 DP3 bug fix. See searchcontroller delegate method in listView.
-    if ([searchView superview] != self) {
-        [self addSubview:searchView];
-        [searchView setFrame:[self bounds]];
-    }
 	return searchView;
 }	
 

@@ -525,7 +525,8 @@ public abstract class TiBaseActivity extends FragmentActivity
 		windowCreated();
 
 		if (activityProxy != null) {
-			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null);
+			// Fire the sync event with a timeout, so the main thread won't be blocked too long to get an ANR. (TIMOB-13253)
+			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null, 4000);
 		}
 
 		// set the current activity back to what it was originally
@@ -1004,7 +1005,8 @@ public abstract class TiBaseActivity extends FragmentActivity
 		TiApplication.updateActivityTransitionState(false);
 		
 		if (activityProxy != null) {
-			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null);
+			// Fire the sync event with a timeout, so the main thread won't be blocked too long to get an ANR. (TIMOB-13253)
+			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null, 4000);
 		}
 
 		synchronized (lifecycleListeners.synchronizedList()) {
@@ -1062,7 +1064,8 @@ public abstract class TiBaseActivity extends FragmentActivity
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
 
-			activityProxy.fireSyncEvent(TiC.EVENT_START, null);
+			// Fire the sync event with a timeout, so the main thread won't be blocked too long to get an ANR. (TIMOB-13253)
+			activityProxy.fireSyncEvent(TiC.EVENT_START, null, 4000);
 
 			// set the current activity back to what it was originally
 			tiApp.setCurrentActivity(this, tempCurrentActivity);

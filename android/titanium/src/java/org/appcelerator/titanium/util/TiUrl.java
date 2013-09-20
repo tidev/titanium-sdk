@@ -339,7 +339,7 @@ public class TiUrl
 				}
 			}
 			builder.encodedAuthority(encodedAuthority);
-			builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/"));
+			builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/:@$+&=;,"));
 			return builder.build();
 		} catch (Exception e) {
 			Log.e(TAG, "Exception in getCleanUri argString= " + argString);
