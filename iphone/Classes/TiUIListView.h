@@ -14,7 +14,7 @@
 
 @property (nonatomic, readonly) UITableView *tableView;
 
-- (void)setTemplates_:(id)args;
+- (void)setDictTemplates_:(id)args;
 - (void)deselectAll:(BOOL)animated;
 
 + (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
