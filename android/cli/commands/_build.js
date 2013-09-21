@@ -14,7 +14,7 @@ var ti = require('titanium-sdk'),
 	AdmZip = require('adm-zip'),
 	async = require('async'),
 	crypto = require('crypto'),
-	doT = require('doT'),
+	ejs = require('ejs'),
 	fields = require('fields'),
 	fs = require('fs'),
 	path = require('path'),
@@ -35,10 +35,9 @@ var ti = require('titanium-sdk'),
 	deployTypes = ['production', 'test', 'development'],
 	targets = ['emulator', 'device', 'dist-playstore'];
 
-// override doT defaults
-doT.templateSettings.varname = 'builder';
-doT.templateSettings.strip = false;
-doT.templateSettings.append = false;
+function hash(s) {
+	return crypto.createHash('md5').update(s || '').digest('hex');
+}
 
 function AndroidBuilder() {
 	Builder.apply(this, arguments);
@@ -525,19 +524,21 @@ AndroidBuilder.prototype.validate = function validate() {
 			process.exit(1);
 		}
 
-		var usesSDK = cli.tiapp.android && cli.tiapp.android.manifest && cli.tiapp.android.manifest['uses-sdk'],
-			minSDK = cli.tiapp.android && cli.tiapp.android['tool-api-level'] || 10,
-			targetSDK = null;
+		// validate the sdk levels
+		var usesSDK = cli.tiapp.android && cli.tiapp.android.manifest && cli.tiapp.android.manifest['uses-sdk'];
+		this.minSDK = cli.tiapp.android && cli.tiapp.android['tool-api-level'] || this.minSupportedApiLevel;
+		this.targetSDK = null;
+
 		if (usesSDK) {
-			usesSDK['android:minSdkVersion'] && (minSDK = usesSDK['android:minSdkVersion']);
-			usesSDK['android:targetSdkVersion'] && (targetSDK = usesSDK['android:targetSdkVersion']);
+			usesSDK['android:minSdkVersion'] && (this.minSDK = usesSDK['android:minSdkVersion']);
+			usesSDK['android:targetSdkVersion'] && (this.targetSDK = usesSDK['android:targetSdkVersion']);
 		}
-		if (minSDK < this.minSupportedApiLevel) {
-			logger.error(__('Minimum Android SDK version must be 10 or newer') + '\n');
+		if (this.minSDK < this.minSupportedApiLevel) {
+			logger.error(__('Minimum Android SDK version must be %s or newer', this.minSupportedApiLevel) + '\n');
 			process.exit(1);
 		}
-		if (targetSDK && targetSDK < this.minSupportedApiLevel) {
-			logger.error(__('Target Android SDK version must be 10 or newer') + '\n');
+		if (this.targetSDK && this.targetSDK < this.minSupportedApiLevel) {
+			logger.error(__('Target Android SDK version must be %s or newer', this.minSupportedApiLevel) + '\n');
 			process.exit(1);
 		}
 
@@ -786,9 +787,13 @@ AndroidBuilder.prototype.validate = function validate() {
 					this.commonJsModules = [];
 					this.nativeLibModules = [];
 
-					var hashes = [];
+					var manifestHashes = [],
+						jarHashes = [],
+						bindingsHashes = [];
 
 					modules.found.forEach(function (module) {
+						manifestHashes.push(hash(JSON.stringify(module.manifest)));
+
 						if (module.platform.indexOf('commonjs') != -1) {
 							this.commonJsModules.push(module);
 						} else {
@@ -800,8 +805,6 @@ AndroidBuilder.prototype.validate = function validate() {
 								logger.error(__('Module %s version %s is missing jar file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.jarFile.cyan) + '\n');
 								process.exit(1);
 							}
-
-							hashes.push(module.hash = afs.hashFile(module.jarFile));
 
 							// read in the bindings
 							var zip = new AdmZip(module.jarFile),
@@ -831,6 +834,9 @@ AndroidBuilder.prototype.validate = function validate() {
 								process.exit(1);
 							}
 
+							jarHashes.push(module.hash = afs.hashFile(module.jarFile));
+							bindingsHashes.push(hash(JSON.stringify(module.bindings)));
+
 							logger.info(__('Detected third-party native Android module: %s version %s', module.id.cyan, (module.manifest.version || 'latest').cyan));
 							this.nativeLibModules.push(module);
 						}
@@ -839,7 +845,9 @@ AndroidBuilder.prototype.validate = function validate() {
 						cli.scanHooks(path.join(module.modulePath, 'hooks'));
 					}, this);
 
-					this.nativeModulesHash = hashes.length ? crypto.createHash('md5').update(hashes.sort().join(',')).digest('hex') : '';
+					this.modulesManifestHash = manifestHashes.length ? hash(manifestHashes.sort().join(',')) : '';
+					this.modulesJarHash = jarHashes.length ? hash(jarHashes.sort().join(',')) : '';
+					this.modulesBindingsHash = bindingsHashes.length ? hash(bindingsHashes.sort().join(',')) : '';
 
 					next();
 				}.bind(this));
@@ -915,6 +923,28 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 				return m.id + ',' + m.platform + ',' + m.version;
 			}).join('|')).digest('hex');
 
+			this.propertiesHash = hash(this.tiapp.properties ? JSON.stringify(this.tiapp.properties) : '');
+			var android = this.tiapp.android;
+			this.activitiesHash = hash(android && android.application && android.application ? JSON.stringify(android.application.activities) : '');
+			this.servicesHash = hash(android && android.services ? JSON.stringify(android.services) : '');
+
+			this.jssFilesHash = hash((function walk(dir) {
+				var re = /\.jss$/,
+					hashes = [];
+				fs.readdirSync(dir).forEach(function (name) {
+					var file = path.join(dir, name);
+					if (fs.existsSync(file)) {
+						var stat = fs.statSync(file);
+						if (stat.isFile() && re.test(name)) {
+							hashes.push(hash(fs.readFileSync(file).toString()));
+						} else if (stat.isDirectory()) {
+							hashes = hashes.concat(walk(file));
+						}
+					}
+				});
+				return hashes;
+			}(this.projectDir)).join(','));
+
 			// read the build manifest from the last build, if exists, so we
 			// can determine if we need to do a full rebuild
 			this.buildManifest = {};
@@ -936,7 +966,12 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		function (next) {
 			// check if we need to do a rebuild
 			this.forceRebuild = this.checkIfShouldForceRebuild();
-			next();
+
+			if (this.forceRebuild && fs.existsSync(this.buildDir)) {
+				wrench.rmdirSyncRecursive(this.buildDir);
+			}
+
+			this.writeBuildManifest(next);
 		},
 
 		// THIS OUTPUT IS TEMPORARY
@@ -969,7 +1004,14 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 			console.log('androidManifestFile ='.cyan, this.androidManifestFile);
 			console.log('classname           ='.cyan, this.classname);
 			console.log('modulesHash         ='.cyan, this.modulesHash);
-			console.log('nativeModulesHash   ='.cyan, this.nativeModulesHash);
+			console.log('modulesManifestHash ='.cyan, this.modulesManifestHash);
+			console.log('modulesJarHash      ='.cyan, this.modulesJarHash);
+			console.log('modulesBindingsHash ='.cyan, this.modulesBindingsHash);
+			console.log('minSDK              ='.cyan, this.minSDK);
+			console.log('targetSDK           ='.cyan, this.targetSDK);
+			console.log('activitiesHash      ='.cyan, this.activitiesHash);
+			console.log('servicesHash        ='.cyan, this.servicesHash);
+			console.log('jssFilesHash        ='.cyan, this.jssFilesHash);
 			console.log();
 			next();
 		},
@@ -984,8 +1026,6 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 			// Alloy generate an app.js, it may not have existed during validate(), but should exist now
 			// that build.pre.compile was fired.
 			ti.validateAppJsExists(this.projectDir, this.logger);
-
-			this.forceRebuild && fs.existsSync(this.buildDir) && wrench.rmdirSyncRecursive(this.buildDir);
 
 			fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
 
@@ -1013,7 +1053,8 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 			var copyTemplate = function (src, dest) {
 					if (this.forceRebuild || !fs.existsSync(dest)) {
 						this.logger.debug(__('Copying template %s => %s', src.cyan, dest.cyan));
-						fs.writeFileSync(dest, doT.template(fs.readFileSync(src).toString())(this));
+						// TODO: use ejs!
+						//fs.writeFileSync(dest, doT.template(fs.readFileSync(src).toString())(this));
 					}
 				}.bind(this),
 				copyOpts = { logger: this.logger.debug };
@@ -1090,7 +1131,9 @@ AndroidBuilder.prototype.readBuildManifest = function readBuildManifest() {
 };
 
 AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callback) {
-	this.cli.createHook('build.ios.writeBuildManifest', this, function (manifest, cb) {
+	this.logger.info(__('Writing build manifest: %s', this.buildManifestFile.cyan));
+
+	this.cli.createHook('build.android.writeBuildManifest', this, function (manifest, cb) {
 		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
 		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
 		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), function () {
@@ -1102,7 +1145,9 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		classname: this.classname,
 		platformPath: this.platformPath,
 		modulesHash: this.modulesHash,
-		nativeModulesHash: this.nativeModulesHash,
+		modulesManifestHash: this.modulesManifestHash,
+		modulesJarHash: this.modulesJarHash,
+		modulesBindingsHash: this.modulesBindingsHash,
 		gitHash: ti.manifest.githash,
 		outputDir: this.cli.argv['output-dir'],
 		name: this.tiapp.name,
@@ -1116,7 +1161,13 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		guid: this.tiapp.guid,
 		icon: this.tiapp.icon,
 		fullscreen: this.tiapp.fullscreen,
-		skipJSMinification: !!this.cli.argv['skip-js-minify']
+		skipJSMinification: !!this.cli.argv['skip-js-minify'],
+		minSDK: this.minSDK,
+		targetSDK: this.targetSDK,
+		propertiesHash: this.propertiesHash,
+		activitiesHash: this.activitiesHash,
+		servicesHash: this.servicesHash,
+		jssFilesHash: this.jssFilesHash
 	}, function (err, results, result) {
 		callback();
 	});
@@ -1188,11 +1239,25 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
-	if (this.nativeModulesHash != manifest.nativeModulesHash) {
-		this.logger.info(__('Forcing rebuild: native modules hash changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.nativeModulesHash));
-		this.logger.info('  ' + __('Now: %s', this.nativeModulesHash));
-		this.forceRebuild = true;
+	if (this.modulesManifestHash != manifest.modulesManifestHash) {
+		this.logger.info(__('Forcing rebuild: module manifest hash changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.modulesManifestHash));
+		this.logger.info('  ' + __('Now: %s', this.modulesManifestHash));
+		return true;
+	}
+
+	if (this.modulesJarHash != manifest.modulesJarHash) {
+		this.logger.info(__('Forcing rebuild: native modules jar hash changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.modulesJarHash));
+		this.logger.info('  ' + __('Now: %s', this.modulesJarHash));
+		return true;
+	}
+
+	if (this.modulesBindingsHash != manifest.modulesBindingsHash) {
+		this.logger.info(__('Forcing rebuild: native modules bindings hash changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.modulesBindingsHash));
+		this.logger.info('  ' + __('Now: %s', this.modulesBindingsHash));
+		return true;
 	}
 
 	// next we check if any tiapp.xml values changed so we know if we need to reconstruct the main.m
@@ -1279,18 +1344,47 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
-	/*
-    yes if any of the module's manifest or api name changes
+	if (this.minSDK != manifest.minSDK) {
+		this.logger.info(__('Forcing rebuild: Android minimum SDK changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.minSDK));
+		this.logger.info('  ' + __('Now: %s', this.minSDK));
+		return true;
+	}
 
-    yes if new properties are added to tiapp.xml
+	if (this.targetSDK != manifest.targetSDK) {
+		this.logger.info(__('Forcing rebuild: Android target SDK changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.targetSDK));
+		this.logger.info('  ' + __('Now: %s', this.targetSDK));
+		return true;
+	}
 
-    yes if Android target SDK version changes
+	if (this.propertiesHash != manifest.propertiesHash) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml properties changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.propertiesHash));
+		this.logger.info('  ' + __('Now: %s', this.propertiesHash));
+		return true;
+	}
 
-    yes if any changes to activities in the Android <activities> in the tiapp.xml
-    yes if any changes to activities in the Android <services> in the tiapp.xml
+	if (this.activitiesHash != manifest.activitiesHash) {
+		this.logger.info(__('Forcing rebuild: Android activites in tiapp.xml changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.activitiesHash));
+		this.logger.info('  ' + __('Now: %s', this.activitiesHash));
+		return true;
+	}
 
-    yes if any jss files change
-	*/
+	if (this.servicesHash != manifest.servicesHash) {
+		this.logger.info(__('Forcing rebuild: Android services in tiapp.xml SDK changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.servicesHash));
+		this.logger.info('  ' + __('Now: %s', this.servicesHash));
+		return true;
+	}
+
+	if (this.jssFilesHash != manifest.jssFilesHash) {
+		this.logger.info(__('Forcing rebuild: One or more JSS files changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.jssFilesHash));
+		this.logger.info('  ' + __('Now: %s', this.jssFilesHash));
+		return true;
+	}
 
 	return false;
 };
