@@ -27,11 +27,5 @@
 		"type": "git",
 		"url": "git://github.com/appcelerator/titanium_mobile_ios.git"
 	},
-	"license": "Apache Public License v2",
-
-
-	"minIosSdkVersion": "5.0",
-	"maxIosSdkVersion": "6.1",
-	"minXcodeVersion": "4.3",
-	"maxXcodeVersion": "4.6"
+	"license": "Apache Public License v2"
 }
