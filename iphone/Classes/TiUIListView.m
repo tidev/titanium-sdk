@@ -170,6 +170,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
+    if (![searchController isActive]) {
+        [searchViewProxy ensureSearchBarHeirarchy];
+    }
     [super frameSizeChanged:frame bounds:bounds];
     
     if (_headerViewProxy != nil) {
@@ -236,9 +239,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
 }
 
-- (void)setTemplates_:(id)args
+- (void)setDictTemplates_:(id)args
 {
 	ENSURE_TYPE_OR_NIL(args,NSDictionary);
+	[[self proxy] replaceValue:args forKey:@"dictTemplates" notification:NO];
 	[_templates release];
 	_templates = [args copy];
 	if (_tableView != nil) {
@@ -1153,6 +1157,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (searchActive || (tableView != _tableView)) {
         return;
     }
+    //Let the cell configure its background
+    [(TiUIListItem*)cell configureCellBackground];
+    
     //Tell the proxy about the cell to be displayed
     [self.listViewProxy willDisplayCell:indexPath];
 }
@@ -1439,19 +1446,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     //IOS7 DP3. TableView seems to be adding the searchView to
     //tableView. Bug on IOS7?
-    if ([TiUtils isIOS7OrGreater]) {
-        if (![[[controller searchBar] superview] isKindOfClass:[TiUIView class]]) {
-            if ([[searchViewProxy view] respondsToSelector:@selector(searchBar)]) {
-                [[searchViewProxy view] performSelector:@selector(searchBar)];
-            } else {
-                [_headerViewProxy layoutChildren:NO];
-            }
-        }
-    }
+    [searchViewProxy ensureSearchBarHeirarchy];
     [_tableView reloadData];
 }
-
-
 
 #pragma mark - TiScrolling
 

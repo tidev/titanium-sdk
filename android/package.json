@@ -19,13 +19,13 @@
 		"Chris Barber <cbarber@appcelerator.com>"
 	],
 	"vendorDependencies": {
-		"android sdk": ">=2.3.3 <=4.2",
-		"android build tools": "<=18",
-		"android platform tools": "<=18",
-		"android tools": "<=22",
+		"android sdk": ">=10 <=18",
+		"android build tools": "<18.x",
+		"android platform tools": "<=18.x",
+		"android tools": "<=22.x",
 		"android ndk": "r8e",
 		"node": ">0.8.0 <=0.10.x",
-		"java": "*"
+		"java": "<1.8"
 	},
 	"repository": {
 		"type": "git",

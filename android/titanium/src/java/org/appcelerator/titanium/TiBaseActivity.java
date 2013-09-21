@@ -525,7 +525,8 @@ public abstract class TiBaseActivity extends FragmentActivity
 		windowCreated();
 
 		if (activityProxy != null) {
-			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null);
+			// Fire the sync event with a timeout, so the main thread won't be blocked too long to get an ANR. (TIMOB-13253)
+			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null, 4000);
 		}
 
 		// set the current activity back to what it was originally
@@ -1004,7 +1005,8 @@ public abstract class TiBaseActivity extends FragmentActivity
 		TiApplication.updateActivityTransitionState(false);
 		
 		if (activityProxy != null) {
-			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null);
+			// Fire the sync event with a timeout, so the main thread won't be blocked too long to get an ANR. (TIMOB-13253)
+			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null, 4000);
 		}
 
 		synchronized (lifecycleListeners.synchronizedList()) {
@@ -1062,7 +1064,8 @@ public abstract class TiBaseActivity extends FragmentActivity
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
 
-			activityProxy.fireSyncEvent(TiC.EVENT_START, null);
+			// Fire the sync event with a timeout, so the main thread won't be blocked too long to get an ANR. (TIMOB-13253)
+			activityProxy.fireSyncEvent(TiC.EVENT_START, null, 4000);
 
 			// set the current activity back to what it was originally
 			tiApp.setCurrentActivity(this, tempCurrentActivity);
@@ -1152,6 +1155,29 @@ public abstract class TiBaseActivity extends FragmentActivity
 		}
 	}
 
+	@Override
+	/**
+	 * When the activity is about to go into the background as a result of user choice, this method fires the 
+	 * javascript 'userleavehint' event.
+	 */
+	protected void onUserLeaveHint()
+	{
+		Log.d(TAG, "Activity " + this + " onUserLeaveHint", Log.DEBUG_MODE);
+
+		if (getTiApp().isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		if (activityProxy != null) {
+			activityProxy.fireSyncEvent(TiC.EVENT_USER_LEAVE_HINT, null);
+		}
+
+		super.onUserLeaveHint();
+	}
+	
 	@Override
 	/**
 	 * When this activity is destroyed, this method removes it from the activity stack, performs

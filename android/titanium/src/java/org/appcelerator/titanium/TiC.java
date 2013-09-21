@@ -121,6 +121,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_DISPOSE_HANDLE = "disposehandle";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_DOUBLE_TAP = "doubletap";
 
 	/**
@@ -450,6 +455,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_TASK_REMOVED = "taskremoved";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_TOUCH_CANCEL = "touchcancel";
 
 	/**
@@ -476,6 +486,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_PROPERTY_URL = "url";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
 	
 
 	/**

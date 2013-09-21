@@ -16,6 +16,10 @@
 		"Chris Barber <cbarber@appcelerator.com>",
 		"Bryan Hughes <bhughes@appcelerator.com>"
 	],
+	"vendorDependencies": {
+		"node": ">0.8.0 <=0.10.x",
+		"java": "<=1.6.x"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/appcelerator/titanium_mobile_web.git"

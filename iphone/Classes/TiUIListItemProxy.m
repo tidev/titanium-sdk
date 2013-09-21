@@ -77,7 +77,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 		}, YES);
 	} else if ([key isEqualToString:@"backgroundColor"]) {
 		TiThreadPerformOnMainThread(^{
-			_listItem.contentView.backgroundColor = [[TiUtils colorValue:newValue] _color];
+			_listItem.backgroundColor = [[TiUtils colorValue:newValue] _color];
 		}, YES);
 	} else if ([key isEqualToString:@"selectionStyle"]) {
 		TiThreadPerformOnMainThread(^{

@@ -48,4 +48,18 @@
     BOOL statusBarVisibilityChanged;
 }
 
+//Titanium Support
+-(CGRect)resizeView;
+-(void)repositionSubviews;
+-(UIView *)topWindowProxyView;
+-(NSUInteger)supportedOrientationsForAppDelegate;
+@property (nonatomic, readonly) BOOL statusBarInitiallyHidden;
+@property (nonatomic, readonly) UIStatusBarStyle defaultStatusBarStyle;
+@property (nonatomic, readonly) BOOL statusBarVisibilityChanged;
+@property(nonatomic,readonly) TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedProxy;
+#if defined(DEBUG) || defined(DEVELOPER)
+-(void)shutdownUi:(id)arg;
+#endif
+
+
 @end

@@ -19,7 +19,7 @@
 		"Chris Barber <cbarber@appcelerator.com>"
 	],
 	"vendorDependencies": {
-		"xcode":">=4.3 <=4.6.x",
+		"xcode": ">=4.3 <=5.0.x",
 		"ios sdk": ">=5.0 <=6.x",
 		"node": ">0.8.0 <=0.10.x"
 	},

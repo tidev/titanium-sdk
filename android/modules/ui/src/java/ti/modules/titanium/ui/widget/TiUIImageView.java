@@ -137,11 +137,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					// Update UI if the current image source has not been changed.
 					if (imageSources != null && imageSources.size() == 1) {
 						TiDrawableReference imgsrc = imageSources.get(0);
-						if (imgsrc == null || imgsrc.getUrl() == null) {
+						if (imgsrc == null) {
 							return;
 						}
 						if (imgsrc.hashCode() == hash
-							|| (TiDrawableReference.fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString())
+							|| (imgsrc.getUrl() != null && TiDrawableReference.fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString())
 								.hashCode() == hash)) {
 							setImage(bitmap);
 							if (!firedLoad) {
