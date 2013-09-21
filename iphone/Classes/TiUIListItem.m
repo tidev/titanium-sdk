@@ -112,9 +112,14 @@
 
 - (void)configureCellBackground
 {
-    //Ensure that we store the default backgroundColor
     if ([_initialValues objectForKey:@"backgroundColor"] == nil) {
-        id initialValue = [self backgroundColor];
+        id initialValue = nil;
+        if (_templateStyle == TiUIListItemTemplateStyleCustom) {
+            initialValue = [[TiUtils colorValue:[_proxy valueForKey:@"backgroundColor"]] color];
+        }
+        if (IS_NULL_OR_NIL(initialValue)) {
+            initialValue = [self backgroundColor];
+        }
         [_initialValues setObject:(initialValue != nil ? initialValue : [NSNull null]) forKey:@"backgroundColor"];
     }
     id propertiesValue = [_dataItem objectForKey:@"properties"];
@@ -138,20 +143,11 @@
 		case UITableViewCellStyleValue1:
 		case UITableViewCellStyleValue2:
 			self.detailTextLabel.text = [[properties objectForKey:@"subtitle"] description];
-
-			id backgroundColorValue = [properties objectForKey:@"backgroundColor"];
-			if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"detailTextLabel.backgroundColor"]) {
-				UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : [UIColor clearColor];
-				if (backgroundColor != nil) {
-					[self recordChangeValue:backgroundColorValue forKeyPath:@"detailTextLabel.backgroundColor" withBlock:^{
-						[self.detailTextLabel setBackgroundColor:backgroundColor];
-					}];
-				}
-			}
-
+			self.detailTextLabel.backgroundColor = [UIColor clearColor];
 			// pass through
 		case UITableViewCellStyleDefault:
 			self.textLabel.text = [[properties objectForKey:@"title"] description];
+			self.textLabel.backgroundColor = [UIColor clearColor];
 			if (_templateStyle != UITableViewCellStyleValue2) {
 				id imageValue = [properties objectForKey:@"image"];
 				if ([self shouldUpdateValue:imageValue forKeyPath:@"imageView.image"]) {
@@ -181,16 +177,6 @@
 				if (color != nil) {
 					[self recordChangeValue:colorValue forKeyPath:@"textLabel.color" withBlock:^{
 						[self.textLabel setTextColor:color];
-					}];
-				}
-			}
-
-			backgroundColorValue = [properties objectForKey:@"backgroundColor"];
-			if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"textLabel.backgroundColor"]) {
-				UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : [UIColor clearColor];
-				if (backgroundColor != nil) {
-					[self recordChangeValue:backgroundColorValue forKeyPath:@"textLabel.backgroundColor" withBlock:^{
-						[self.textLabel setBackgroundColor:backgroundColor];
 					}];
 				}
 			}
