@@ -32,7 +32,6 @@ var ti = require('titanium-sdk'),
 	packageJson = appc.pkginfo.package(module),
 
 	androidEnv,
-	deployTypes = ['production', 'test', 'development'],
 	targets = ['emulator', 'device', 'dist-playstore'];
 
 function hash(s) {
@@ -845,9 +844,9 @@ AndroidBuilder.prototype.validate = function validate() {
 						cli.scanHooks(path.join(module.modulePath, 'hooks'));
 					}, this);
 
-					this.modulesManifestHash = manifestHashes.length ? hash(manifestHashes.sort().join(',')) : '';
-					this.modulesJarHash = jarHashes.length ? hash(jarHashes.sort().join(',')) : '';
-					this.modulesBindingsHash = bindingsHashes.length ? hash(bindingsHashes.sort().join(',')) : '';
+					this.modulesManifestHash = hash(manifestHashes.length ? manifestHashes.sort().join(',') : '');
+					this.modulesJarHash = hash(jarHashes.length ? jarHashes.sort().join(',') : '');
+					this.modulesBindingsHash = hash(bindingsHashes.length ? bindingsHashes.sort().join(',') : '');
 
 					next();
 				}.bind(this));
