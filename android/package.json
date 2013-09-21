@@ -31,13 +31,5 @@
 		"type": "git",
 		"url": "git://github.com/appcelerator/titanium_mobile_android.git"
 	},
-	"license": "Apache Public License v2",
-
-
-
-"minSDKToolsVersion": "22",
-"minSDKPlatformToolsVersion": "16",
-"minSDKBuildToolsVersion": "16",
-"minAPILevel": "10",
-"maxAPILevel": "17"
+	"license": "Apache Public License v2"
 }
