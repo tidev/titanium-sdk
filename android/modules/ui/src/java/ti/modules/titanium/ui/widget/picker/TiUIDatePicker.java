@@ -75,9 +75,9 @@ public class TiUIDatePicker extends TiUIView
 
         	this.minDate = minDateCalendar.getTime();
         }
-		if (d.containsKey(TiC.PROPERTY_CALENDAR_VIEW_SHOWN)) {
-			setCalendarView(TiConvert.toBoolean(d, TiC.PROPERTY_CALENDAR_VIEW_SHOWN));
-		}
+        if (d.containsKey(TiC.PROPERTY_CALENDAR_VIEW_SHOWN)) {
+        	setCalendarView(TiConvert.toBoolean(d, TiC.PROPERTY_CALENDAR_VIEW_SHOWN));
+        }
         if (d.containsKey("maxDate")) {
         	Calendar maxDateCalendar = Calendar.getInstance();
         	maxDateCalendar.setTime((Date) d.get("maxDate"));
