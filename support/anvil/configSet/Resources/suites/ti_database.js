@@ -20,24 +20,15 @@ module.exports = new function() {
 	]
 
 	this.test_TIMOB_6239 = function(testRun) {
-        
         var db = Ti.Database.open('mydb');
         db.execute('DROP TABLE IF EXISTS welcome');
         db.execute("CREATE TABLE IF NOT EXISTS welcome (title TEXT)");
         db.execute("INSERT INTO welcome (title) VALUES (?)",'one');
         db.execute("INSERT INTO welcome (title) VALUES (?)",'two');
-        
         var rows = db.execute("SELECT title FROM welcome");
-        
-        var count=rows.getRowCount();
-        valueOf(testRun, count).shouldBe(2);
-        
-        var next = rows.next();
-        valueOf(testRun, next).shouldBeTrue();
-        
-        var next = rows.next();
-        valueOf(testRun, next).shouldBeFalse();
-
+        valueOf(testRun, rows.getRowCount()).shouldBe(2);
+        valueOf(testRun, rows.next()).shouldBeTrue();
+        valueOf(testRun, rows.next()).shouldBeFalse();
         rows.close();
         db.close();
         
