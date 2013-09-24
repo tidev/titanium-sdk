@@ -737,7 +737,7 @@ description: |
     * [SplitWindow](Titanium.UI.iPad.SplitWindow)
     * [TabGroup](Titanium.UI.TabGroup)
     * [Tab](Titanium.UI.Tab)
-    * [NavigationGroup](Titanium.UI.iPhone.NavigationGroup)
+    * [NavigationGroup](Titanium.UI.MobileWeb.NavigationGroup)
 
     By default, windows occupy the entire screen except for the navigation bar, 
     status bar, and in the case of windows contained in tab groups, the tab bar.
