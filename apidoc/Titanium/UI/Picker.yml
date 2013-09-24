@@ -319,7 +319,7 @@ properties:
     default: 5
     platforms: [android]
     
-    - name: calendarViewShown
+  - name: calendarViewShown
     summary: |
         Determines whether the calenderView is visible.
     description: |
