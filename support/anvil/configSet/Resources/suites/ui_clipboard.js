@@ -16,7 +16,10 @@ module.exports = new function() {
 	this.name = "ui_clipboard";
 	this.tests = [
 		{name: "setAndGetText"},
-		{name: "clearText"},
+        {name: "setAndGetData"},
+        {name: "hasText"},
+        {name: "hasAndGetData"},
+        {name: "clearText"},
 		{name: "setAndGetHTML"},
 		{name: "urlData"}
 	]
@@ -28,6 +31,52 @@ module.exports = new function() {
 
 		finish(testRun);
 	}
+    //TIMOB-9263
+    this.setAndGetData = function(testRun) {
+        Ti.UI.Clipboard.setData('text/plain', 'hello');
+        valueOf(testRun, Ti.UI.Clipboard.hasData('text/plain')).shouldBeTrue();
+		valueOf(testRun, Ti.UI.Clipboard.getData('text/plain')).shouldNotBeNull();
+		valueOf(testRun, Ti.UI.Clipboard.getText()).shouldBe('hello');
+        
+		finish(testRun);
+	}
+	//TIMOB-9223
+	this.hasText = function(testRun) {
+		Ti.UI.Clipboard.clearText();
+		valueOf(testRun, Ti.UI.Clipboard.hasText()).shouldBeFalse();
+		Ti.UI.Clipboard.setText('hello');
+		valueOf(testRun, Ti.UI.Clipboard.hasText()).shouldBeTrue();
+		valueOf(testRun, Ti.UI.Clipboard.getText()).shouldBe('hello');
+        
+		finish(testRun);
+	}
+    //TIMOB-9222
+    this.hasAndGetData = function(testRun) {
+        if (Ti.UI.iOS){
+            Ti.UI.Clipboard.clearData();
+            Ti.UI.Clipboard.setData('text/uri-list', 'http://www.appcelerator.com/');
+            Ti.UI.Clipboard.setData('text/uri-list', 'http://developer.android.com/');
+            Ti.UI.Clipboard.setData('text/uri-list', 'https://developer.apple.com/');
+            valueOf(testRun,Ti.UI.Clipboard.hasData('text/uri-list')).shouldBeBoolean();
+            valueOf(testRun, function() {
+                    Ti.UI.Clipboard.hasData('text/uri-list')
+                    }).shouldNotThrowException();
+            valueOf(testRun,Ti.UI.Clipboard.getData('text/uri-list')).shouldNotBeNull();
+            valueOf(testRun, function() {
+                    Ti.UI.Clipboard.getData('text/uri-list')
+                    }).shouldNotThrowException();
+            valueOf(testRun,Ti.UI.Clipboard.hasData('image')).shouldBeBoolean();
+            valueOf(testRun, function() {
+                    Ti.UI.Clipboard.hasData('image')
+                    }).shouldNotThrowException();
+            valueOf(testRun,Ti.UI.Clipboard.hasData('image')).shouldNotBeNull();
+            valueOf(testRun, function() {
+                    Ti.UI.Clipboard.hasData('image')
+                    }).shouldNotThrowException();
+                    }
+		    finish(testRun);
+
+    }
 
 	this.clearText = function(testRun) {
 		 valueOf(testRun, function() {
