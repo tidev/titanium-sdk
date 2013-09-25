@@ -16,7 +16,6 @@
 	<ios>
 		<plist>
 			<dict>
-				<key>UISupportedInterfaceOrientations~ipad</key>
 				<key>UISupportedInterfaceOrientations~iphone</key>
 				<array>
 					<string>UIInterfaceOrientationPortrait</string>
