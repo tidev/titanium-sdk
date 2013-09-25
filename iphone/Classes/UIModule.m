@@ -290,7 +290,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 }
 -(NSString*)TEXT_STYLE_SUBHEADLINE
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleHeadline : @"INVALID";
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleSubheadline : @"INVALID";
 }
 -(NSString*)TEXT_STYLE_BODY
 {
