@@ -109,8 +109,8 @@
                     } else {
                         
                         for (NSString* name in fontNames) {
-                            if ( ([name rangeOfString:@"Bold"].location == NSNotFound) || ([name rangeOfString:@"Italic"].location == NSNotFound)
-                                || ([name rangeOfString:@"Oblique"].location == NSNotFound) ) {
+                            if ( ([name rangeOfString:@"Bold"].location == NSNotFound) && ([name rangeOfString:@"Italic"].location == NSNotFound)
+                                && ([name rangeOfString:@"Oblique"].location == NSNotFound) ) {
                                 foundFontName = name;
                             }
                             if (foundFontName != nil) {
