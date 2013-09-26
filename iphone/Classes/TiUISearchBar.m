@@ -40,6 +40,7 @@
 		[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		[searchView setDelegate:self];
 		[searchView setShowsCancelButton:[(TiUISearchBarProxy *)[self proxy] showsCancelButton]];
+		[self addSubview:searchView];
 	}
 	return searchView;
 }	

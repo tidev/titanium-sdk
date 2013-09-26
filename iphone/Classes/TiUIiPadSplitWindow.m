@@ -29,6 +29,7 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 {
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
         [(TiWindowProxy*)proxy setIsManaged:YES];
+        return [(TiWindowProxy*)proxy hostingController];
     }
 
 	[[proxy view] setAutoresizingMask:UIViewAutoresizingNone];
@@ -67,13 +68,19 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 
 		[controller willAnimateRotationToInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation] duration:0.0];
 
-
-		[masterProxy windowWillOpen];
-		[masterProxy windowDidOpen];
+		if ([masterProxy isKindOfClass:[TiWindowProxy class]]) {
+			[(TiWindowProxy*)masterProxy open:nil];
+		} else {
+			[masterProxy windowWillOpen];
+			[masterProxy windowDidOpen];
+		}
 		
-		[detailProxy windowWillOpen];
-		[detailProxy windowDidOpen];
-
+		if ([detailProxy isKindOfClass:[TiWindowProxy class]]) {
+			[(TiWindowProxy*)detailProxy open:nil];
+		} else {
+			[detailProxy windowWillOpen];
+			[detailProxy windowDidOpen];
+		}
 		[controller viewDidAppear:NO];
 	}
 	return controller;
@@ -130,7 +137,7 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 
 	if (masterInSplit)
 	{
-		[[self proxy] replaceValue:NUMBOOL(NO) forKey:@"masterPopupVisibile" notification:NO];
+		[(TiUIiPadSplitWindowProxy*) [self proxy] popupVisibilityChanged:NO];
 		return;
 	}
 
@@ -157,7 +164,7 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 
 - (void)splitViewController:(UISplitViewController*)svc willHideViewController:(UIViewController *)aViewController withBarButtonItem:(UIBarButtonItem*)barButtonItem forPopoverController:(UIPopoverController*)pc
 {
-	[[self proxy] replaceValue:NUMBOOL(NO) forKey:@"masterPopupVisibile" notification:NO];
+	[(TiUIiPadSplitWindowProxy*) [self proxy] popupVisibilityChanged:NO];
 	if ([self.proxy _hasListeners:@"visible"])
 	{
 		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:@"detail" forKey:@"view"];
@@ -172,7 +179,7 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 
 - (void)splitViewController:(UISplitViewController*)svc willShowViewController:(UIViewController *)aViewController invalidatingBarButtonItem:(UIBarButtonItem *)button
 {
-	[[self proxy] replaceValue:NUMBOOL(NO) forKey:@"masterPopupVisibile" notification:NO];
+	[(TiUIiPadSplitWindowProxy*) [self proxy] popupVisibilityChanged:NO];
 	if ([self.proxy _hasListeners:@"visible"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:@"master" forKey:@"view"];
@@ -182,7 +189,7 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 
 - (void)splitViewController:(UISplitViewController*)svc popoverController:(UIPopoverController*)pc willPresentViewController:(UIViewController *)aViewController
 {
-	[[self proxy] replaceValue:NUMBOOL(YES) forKey:@"masterPopupVisibile" notification:NO];
+	[(TiUIiPadSplitWindowProxy*) [self proxy] popupVisibilityChanged:YES];
 	if ([self.proxy _hasListeners:@"visible"])
 	{
 		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:@"popover" forKey:@"view"];
