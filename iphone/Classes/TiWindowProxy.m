@@ -527,10 +527,8 @@
     if (isModal && opening) {
         [self windowDidOpen];
     }
-    if (controller != nil) {
-        if (tab == nil) {
-            [self gainFocus];
-        }
+    if (controller != nil && !self.isManaged) {
+        [self gainFocus];
     }
 }
 -(void)viewDidDisappear:(BOOL)animated
