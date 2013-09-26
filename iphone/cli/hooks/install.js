@@ -12,7 +12,7 @@ var appc = require('node-appc'),
 	async = require('async'),
 	exec = require('child_process').exec;
 
-exports.cliVersion = '>=3.X';
+exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
 
@@ -56,7 +56,14 @@ exports.init = function (logger, config, cli) {
 					logger.info(__('Initiating iTunes sync'));
 					exec('osascript "' + path.join(build.titaniumIosSdkPath, 'itunes_sync.scpt') + '"', function (err, stdout, stderr) {
 						if (err) {
-							finished(new appc.exception(__('Failed to initiate iTunes sync'), stderr.split('\n').filter(function (line) { return !!line.length; })));
+							if (stderr.indexOf('(-1708)') != -1) {
+								// stderr == "itunes_sync.scpt: execution error: iTunes got an error: every source doesn’t understand the count message. (-1708)"
+								// TODO: alert that the EULA needs to be accepted and if prompting is enabled,
+								// then wait for them to accept it and then try again
+								finished(new appc.exception(__('Failed to initiate iTunes sync'), stderr.split('\n').filter(function (line) { return !!line.length; })));
+							} else {
+								finished(new appc.exception(__('Failed to initiate iTunes sync'), stderr.split('\n').filter(function (line) { return !!line.length; })));
+							}
 						} else {
 							finished();
 						}

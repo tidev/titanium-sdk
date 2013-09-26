@@ -40,7 +40,7 @@ p = subprocess.Popen([gitCmd,"show","--abbrev-commit","--no-color"],stderr=subpr
 githash = p.communicate()[0][7:].split('\n')[0].strip()
 
 ignoreExtensions = ['.pbxuser','.perspectivev3','.pyc']
-ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','build','bridge.txt', 'packaged']
+ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','bridge.txt', 'packaged']
 
 def remove_existing_zips(dist_dir, version_tag):
 	for os_name in os_names.values():

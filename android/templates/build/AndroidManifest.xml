@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="{{=builder.appid}}" android:versionCode="{{=builder.tiapp.version}}"
-	android:versionName="{{=builder.tiapp.version}}">
-	<uses-sdk android:minSdkVersion="{{=builder.minSupportedApiLevel}}" />
+	package="<%- appid %>" android:versionCode="<%- tiapp.version %>"
+	android:versionName="<%- tiapp.version %>">
+
+	<uses-sdk android:minSdkVersion="<%- minSDK %>"
+		<% if (targetSDK) { %>
+			android:targetSdkVersion="<%- targetSDK %>"
+		<% } %>
+		<% if (maxSDK) { %>
+			android:maxSdkVersion="<%- maxSDK %>"
+		<% } %>
+		/>
 
 	<!-- TI_MANIFEST -->
 
 	<application android:icon="@drawable/appicon"
-		android:label="{{=builder.tiapp.name}}" android:name="{{=builder.classname}}Application"
+		android:label="<%- tiapp.name %>" android:name="<%- classname %>Application"
 		android:debuggable="false">
 
 		<!-- TI_APPLICATION -->
 
-		<activity android:name=".{{=builder.classname}}Activity"
-			android:label="{{=builder.tiapp.name}}" android:theme="@style/Theme.Titanium"
+		<activity android:name=".<%- classname %>Activity"
+			android:label="<%- tiapp.name %>" android:theme="@style/Theme.Titanium"
 			android:configChanges="keyboardHidden|orientation">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />

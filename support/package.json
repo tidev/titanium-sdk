@@ -8,7 +8,7 @@
 		"clean-css": "~1.1.1",
 		"css-parse": "~1.5.3",
 		"ejs": "~0.8.4",
-		"fields": "~0.1.7",
+		"fields": "~0.1.8",
 		"humanize": "~0.0.9",
 		"less": "~1.4.2",
 		"node-appc": ">=0.1.17",
@@ -18,7 +18,11 @@
 		"wrench": "~1.5.1",
 		"xmldom": "~0.1.16"
 	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/appcelerator/titanium_mobile.git"
+	},
 	"engines": {
-		"node": ">=0.8.0"
+		"node": ">=0.8"
 	}
 }

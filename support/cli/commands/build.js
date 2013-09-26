@@ -109,9 +109,12 @@ exports.validate = function (logger, config, cli) {
 
 	ti.validatePlatform(logger, cli, 'platform');
 
+	// since we need validate() to be async, we return a function in which the cli
+	// will immediately call
 	return function (finished) {
 		function next(result) {
 			if (result !== false) {
+				// no error, load the tiapp.xml plugins
 				ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
 					finished(result);
 				});
@@ -120,6 +123,7 @@ exports.validate = function (logger, config, cli) {
 			}
 		}
 
+		// loads the platform specific bulid command and runs its validate() function
 		var result = ti.validatePlatformOptions(logger, config, cli, 'build');
 		if (result && typeof result == 'function') {
 			result(next);

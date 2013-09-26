@@ -487,12 +487,23 @@ exports.validate = function (logger, config, cli) {
 	ti.validateTiappXml(logger, cli.tiapp);
 
 	// at this point we've validated everything except underscores in the app id
-	if (cli.tiapp.id.indexOf('_') != -1) {
-		logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
-		logger.error(__('The app id must consist of letters, numbers, and dashes.'));
-		logger.error(__('The first character must be a letter.'));
-		logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
-		process.exit(1);
+	if (!config.get('ios.skipAppIdValidation')) {
+		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(cli.tiapp.id)) {
+			logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
+			logger.error(__('The app id must consist only of letters, numbers, dashes, and underscores.'));
+			logger.error(__('Note: iOS does not allow underscores.'));
+			logger.error(__('The first character must be a letter or underscore.'));
+			logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+			process.exit(1);
+		}
+
+		if (cli.tiapp.id.indexOf('_') != -1) {
+			logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
+			logger.error(__('The app id must consist of letters, numbers, and dashes.'));
+			logger.error(__('The first character must be a letter.'));
+			logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+			process.exit(1);
+		}
 	}
 
 	if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {

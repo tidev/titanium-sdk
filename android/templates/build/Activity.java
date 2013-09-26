@@ -1,7 +1,7 @@
-package {{=builder.appid}};
+package <%- appid %>;
 
 import org.appcelerator.titanium.TiRootActivity;
 
-public final class {{=builder.classname}}Activity extends TiRootActivity
+public final class <%- classname %>Activity extends TiRootActivity
 {
 }
