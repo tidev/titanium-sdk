@@ -344,17 +344,23 @@ public class TiListView extends TiUIView {
 
 		listProxy.clearPreloadSections();
 		
-		if (d.containsKey(TiC.PROPERTY_HEADER_TITLE)) {
+		if (d.containsKey(TiC.PROPERTY_HEADER_VIEW)) {
+			Object viewObj = d.get(TiC.PROPERTY_HEADER_VIEW);
+			setHeaderOrFooterView(viewObj, true);
+		} else if (d.containsKey(TiC.PROPERTY_HEADER_TITLE)) {
 			headerView = inflater.inflate(headerFooterId, null);
 			setHeaderTitle(TiConvert.toString(d, TiC.PROPERTY_HEADER_TITLE));
 		}
 		
-		if (d.containsKey(TiC.PROPERTY_FOOTER_TITLE)) {
+		if (d.containsKey(TiC.PROPERTY_FOOTER_VIEW)) {
+			Object viewObj = d.get(TiC.PROPERTY_FOOTER_VIEW);
+			setHeaderOrFooterView(viewObj, false);	
+		} else if (d.containsKey(TiC.PROPERTY_FOOTER_TITLE)) {
 			footerView = inflater.inflate(headerFooterId, null);
 			setFooterTitle(TiConvert.toString(d, TiC.PROPERTY_FOOTER_TITLE));
 		}
 
-		//Check to see if headerTitle and footerTitle are specified. If not, we hide the views
+		//Check to see if headerView and footerView are specified. If not, we hide the views
 		if (headerView == null) {
 			headerView = inflater.inflate(headerFooterId, null);
 			headerView.findViewById(titleId).setVisibility(View.GONE);
@@ -375,6 +381,21 @@ public class TiListView extends TiUIView {
 		
 	}
 	
+	private void setHeaderOrFooterView (Object viewObj, boolean isHeader) {
+		if (viewObj instanceof TiViewProxy) {
+			TiViewProxy viewProxy = (TiViewProxy)viewObj;
+			TiUIView v = viewProxy.getOrCreateView();
+			View view = v.getOuterView();
+			if (view != null) {
+				if (isHeader) {
+					headerView = view;
+				} else {
+					footerView = view;
+				}
+			}
+		}
+	}
+
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
 
 		if (key.equals(TiC.PROPERTY_HEADER_TITLE)) {
