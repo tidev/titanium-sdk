@@ -16,10 +16,10 @@ module.exports = new function() {
 	this.name = "ui_clipboard";
 	this.tests = [
 		{name: "setAndGetText"},
-        {name: "setAndGetData"},
-        {name: "hasText"},
-        {name: "hasAndGetData"},
-        {name: "clearText"},
+		{name: "setAndGetData"},
+		{name: "hasText"},
+		{name: "hasAndGetData"},
+		{name: "clearText"},
 		{name: "setAndGetHTML"},
 		{name: "urlData"}
 	]
