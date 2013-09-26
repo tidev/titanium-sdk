@@ -118,6 +118,7 @@ properties:
     summary: List of button names.
     description: |
         This property creates buttons underneath the picker options.
+        The dialog only supports three buttons.
     type: Array<String>
     platforms: [android]
     availability: creation
