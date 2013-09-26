@@ -318,6 +318,15 @@ properties:
     type: Number
     default: 5
     platforms: [android]
+    
+  - name: calendarViewShown
+    summary: |
+        Determines whether the calenderView is visible.
+    description: |
+         If 'calendarViewShown' is 'true', the calenderView is visible
+    type: Boolean
+    default: false
+    platforms: [android]
 examples:
   - title: Basic Single Column Picker
     example: |
