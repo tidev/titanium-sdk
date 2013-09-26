@@ -367,6 +367,32 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 //			Log.i(LCAT, "w: " + w + " wm: " + wm + " h: " + h + " hm: " + hm);
 //		}
 
+		// If height or width is not defined, we need to set the height/width properly
+		// so that it doesn't get the content height/width
+		if (!viewWidthDefined || !viewHeightDefined) {
+			Drawable d = imageView.getDrawable();
+			float aspectRaio = 1;
+			int w = MeasureSpec.getSize(widthMeasureSpec);
+			int h = MeasureSpec.getSize(heightMeasureSpec);
+
+			if (d != null) {
+				int ih = d.getIntrinsicHeight();
+				int iw = d.getIntrinsicWidth();
+				if (ih != 0 && iw != 0) {
+					aspectRaio = ih / iw;
+				}
+			}
+
+			if (viewWidthDefined) {
+				maxWidth = w;
+				maxHeight = Math.round(w * aspectRaio);
+			}
+			if (viewHeightDefined) {
+				maxHeight = h;
+				maxWidth = Math.round(h / aspectRaio);
+			}
+		}
+		
 		// TODO padding and margins
 
 		measureChild(imageView, widthMeasureSpec, heightMeasureSpec);
