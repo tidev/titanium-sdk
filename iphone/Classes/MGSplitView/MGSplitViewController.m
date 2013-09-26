@@ -739,16 +739,16 @@
 - (IBAction)showMasterPopover:(id)sender
 {
 	if (_hiddenPopoverController && !(_hiddenPopoverController.popoverVisible)) {
+		// Show popover.
+		[(MGSplitView*)[self view] setSingleLayout];
+		[_hiddenPopoverController presentPopoverFromBarButtonItem:_barButtonItem permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
 		// Inform delegate.
 		if (_delegate && [_delegate respondsToSelector:@selector(splitViewController:popoverController:willPresentViewController:)]) {
-			[(NSObject <MGSplitViewControllerDelegate> *)_delegate splitViewController:self 
-																	 popoverController:_hiddenPopoverController 
+			[(NSObject <MGSplitViewControllerDelegate> *)_delegate splitViewController:self
+																	 popoverController:_hiddenPopoverController
 															 willPresentViewController:self.masterViewController];
 		}
 		
-		// Show popover.
-        [(MGSplitView*)[self view] setSingleLayout];
-		[_hiddenPopoverController presentPopoverFromBarButtonItem:_barButtonItem permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
 	}
 }
 
