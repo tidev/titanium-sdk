@@ -75,10 +75,6 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 		TiThreadPerformOnMainThread(^{
 			_listItem.accessoryType = [TiUtils intValue:newValue def:UITableViewCellAccessoryNone];
 		}, YES);
-	} else if ([key isEqualToString:@"backgroundColor"]) {
-		TiThreadPerformOnMainThread(^{
-			_listItem.backgroundColor = [[TiUtils colorValue:newValue] _color];
-		}, YES);
 	} else if ([key isEqualToString:@"selectionStyle"]) {
 		TiThreadPerformOnMainThread(^{
 			_listItem.selectionStyle = [TiUtils intValue:newValue def:UITableViewCellSelectionStyleBlue];
