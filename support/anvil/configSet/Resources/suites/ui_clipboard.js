@@ -31,6 +31,7 @@ module.exports = new function() {
 
 		finish(testRun);
 	}
+	
     //TIMOB-9263
     this.setAndGetData = function(testRun) {
         Ti.UI.Clipboard.setData('text/plain', 'hello');
@@ -40,6 +41,7 @@ module.exports = new function() {
         
 		finish(testRun);
 	}
+	
 	//TIMOB-9223
 	this.hasText = function(testRun) {
 		Ti.UI.Clipboard.clearText();
@@ -50,6 +52,7 @@ module.exports = new function() {
         
 		finish(testRun);
 	}
+	
     //TIMOB-9222
     this.hasAndGetData = function(testRun) {
         if (Ti.UI.iOS){
@@ -75,10 +78,9 @@ module.exports = new function() {
                     }).shouldNotThrowException();
                     }
 		    finish(testRun);
+}
 
-    }
-
-	this.clearText = function(testRun) {
+    this.clearText = function(testRun) {
 		 valueOf(testRun, function() {
             Ti.UI.Clipboard.clearText();
         }).shouldNotThrowException();
