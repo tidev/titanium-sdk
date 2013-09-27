@@ -379,39 +379,30 @@
     }
 }
 
+
+
 -(void)updateBarImage
 {
-	UINavigationBar * ourNB = [[controller navigationController] navigationBar];
-	CGRect barFrame = [ourNB bounds];
-	UIImage * newImage = [TiUtils toImage:[self valueForUndefinedKey:@"barImage"]
-                                    proxy:self size:barFrame.size];
-    
-    if (newImage == nil) {
-        [barImageView removeFromSuperview];
-        RELEASE_TO_NIL(barImageView);
+    if (controller == nil || [controller navigationController] == nil) {
         return;
     }
-    if (barImageView == nil) {
-        barImageView = [[UIImageView alloc]initWithImage:newImage];
-    } else {
-        [barImageView setImage:newImage];
-    }
-    [barImageView setFrame:barFrame];
-    int barImageViewIndex = 0;
-    if ([ourNB respondsToSelector:@selector(setBackgroundImage:forBarMetrics:)]) {
-        //We should ideally be using the setBackgroundImage:forBarMetrics:
-        //method. Revisit after 1.8.1 release
-        barImageViewIndex = 1;
-    }
-    if ([[ourNB subviews] indexOfObject:barImageView] != barImageViewIndex) {
-        [ourNB insertSubview:barImageView atIndex:barImageViewIndex];
-    }
     
+    id barImageValue = [self valueForUndefinedKey:@"barImage"];
+    
+    UINavigationBar* ourNB = [[controller navigationController] navigationBar];
+    UIImage* theImage = [TiUtils toImage:barImageValue proxy:self];
+    
+    if (theImage == nil) {
+        [ourNB setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
+    } else {
+        UIImage* resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
+        [ourNB setBackgroundImage:resizableImage forBarMetrics:UIBarMetricsDefault];
+    }
 }
 
 -(void)setBarImage:(id)value
 {
-	[self replaceValue:[self sanitizeURL:value] forKey:@"barImage" notification:NO];
+	[self replaceValue:value forKey:@"barImage" notification:NO];
 	if (controller!=nil)
 	{
 		TiThreadPerformOnMainThread(^{[self updateBarImage];}, NO);
