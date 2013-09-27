@@ -12,7 +12,8 @@
 	<navbar-hidden>false</navbar-hidden>
 	<analytics>true</analytics>
 	<guid></guid>
-	<property name="ti.ui.defaultunit">system</property>
+	<property name="ti.ui.defaultunit" type="string">dp</property>
+	<property name="ti.android.bug2373.finishfalseroot" type="bool">true</property>
 	<ios>
 		<plist>
 			<dict>
