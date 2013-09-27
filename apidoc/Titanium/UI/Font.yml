@@ -107,7 +107,7 @@ properties:
   - name: textStyle
     summary: The text style for the font. 
     description: |
-        Use on of the TEXT_STYLE constants from <Titanium.UI> to set the font to a predefined system font.
+        Use one of the TEXT_STYLE constants from <Titanium.UI> to set the font to a predefined system font.
         When this is set to a valid value, all other font properties are ignored. Avaliable on iOS 7 and above.
     type: String
     platforms: [iphone, ipad]
