@@ -45,6 +45,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 	private static final int LEFT_MARGIN = 5;
 	private static final int RIGHT_MARGIN = 7;
+	private static final int MIN_HEIGHT = 48;
 
 	private BitmapDrawable hasChildDrawable, hasCheckDrawable;
 	private ImageView leftImage;
@@ -482,7 +483,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			if (hasChildView) {
 				content.setMinimumHeight(0);
 			} else {
-				content.setMinimumHeight(48);
+				content.setMinimumHeight(MIN_HEIGHT);
 			}
 
 			measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), heightMeasureSpec);
