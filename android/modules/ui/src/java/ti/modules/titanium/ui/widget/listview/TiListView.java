@@ -18,6 +18,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
@@ -28,8 +29,10 @@ import ti.modules.titanium.ui.UIModule;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -39,7 +42,7 @@ import android.widget.TextView;
 
 public class TiListView extends TiUIView {
 
-	private ListView listView;
+	private TiUIListView listView;
 	private TiBaseAdapter adapter;
 	private ArrayList<ListSectionProxy> sections;
 	private AtomicInteger itemTypeCount;
@@ -71,6 +74,24 @@ public class TiListView extends TiUIView {
 	public static final String MIN_ROW_HEIGHT = "30dp";
 	public static final int HEADER_FOOTER_ITEM_TYPE = 0;
 	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 1;
+	
+	class TiUIListView extends ListView {
+
+		public TiUIListView(Context context)
+		{
+			super(context);
+			
+		}
+		
+		@Override
+		public boolean dispatchTouchEvent(MotionEvent ev){
+		   if (ev.getAction() == MotionEvent.ACTION_MOVE && !TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CAN_SCROLL), true)) {
+		      return true;
+		   }
+		   return super.dispatchTouchEvent(ev);
+		}
+		
+	}
 	
 	class ListViewWrapper extends FrameLayout {
 
@@ -240,7 +261,7 @@ public class TiListView extends TiUIView {
 		ListViewWrapper wrapper = new ListViewWrapper(activity);
 		wrapper.setFocusable(false);
 		wrapper.setFocusableInTouchMode(false);
-		listView = new ListView(activity);
+		listView = new TiUIListView(activity);
 		listView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		wrapper.addView(listView);
 		adapter = new TiBaseAdapter(activity);
@@ -318,6 +339,11 @@ public class TiListView extends TiUIView {
 			}
 		} 
 		
+		if (d.containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
+			String color = TiConvert.toString(d, TiC.PROPERTY_SEPARATOR_COLOR);
+			setSeparatorColor(color);
+		}
+
 		if (d.containsKey(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
 			listView.setVerticalScrollBarEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR, true));
 		}
@@ -412,9 +438,19 @@ public class TiListView extends TiUIView {
 		} else if (key.equals(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE) && newValue != null) {
 			defaultTemplateBinding = TiConvert.toString(newValue);
 			refreshItems();
+		} else if (key.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
+			String color = TiConvert.toString(newValue);
+			setSeparatorColor(color);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
+	}
+
+	private void setSeparatorColor(String color) {
+		int sepColor = TiColorHelper.parseColor(color);
+		int dividerHeight = listView.getDividerHeight();
+		listView.setDivider(new ColorDrawable(sepColor));
+		listView.setDividerHeight(dividerHeight);
 	}
 
 	private void refreshItems() {
