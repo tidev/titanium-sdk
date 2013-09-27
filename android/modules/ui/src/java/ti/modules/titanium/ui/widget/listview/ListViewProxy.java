@@ -56,6 +56,11 @@ public class ListViewProxy extends TiViewProxy {
 	private ArrayList<ListSectionProxy> preloadSections;
 	private HashMap<String, Integer> preloadMarker;
 	
+	public ListViewProxy() {
+		super();
+		defaultValues.put(TiC.PROPERTY_CAN_SCROLL, true);
+	}
+
 	public TiUIView createView(Activity activity) {
 		return new TiListView(this, activity);
 	}
