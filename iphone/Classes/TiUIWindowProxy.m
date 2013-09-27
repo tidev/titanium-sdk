@@ -272,14 +272,6 @@
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    //Update the barImage here as well. Might have the wrong bounds but that will be corrected
-    //in the call from frameSizeChanged in TiUIWindow. Avoids the visual glitch
-    if ( (shouldUpdateNavBar) && (controller != nil) && ([controller navigationController] != nil) ) {
-        id barImageValue = [self valueForKey:@"barImage"];
-        if ((barImageValue != nil) && (barImageValue != [NSNull null])) {
-            [self updateBarImage];
-        }
-    }
     [self willChangeSize];
 }
 
@@ -449,8 +441,7 @@
 				// add the new one
                 BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
                 [controller.navigationItem setRightBarButtonItem:[proxy barButtonItem] animated:animated];
-                [self updateBarImage];
-			}
+            }
 			else 
 			{
 				controller.navigationItem.rightBarButtonItem = nil;
@@ -497,8 +488,7 @@
 				// add the new one
                 BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
                 [controller.navigationItem setLeftBarButtonItem:[proxy barButtonItem] animated:animated];
-                [self updateBarImage];
-			}
+            }
 			else 
 			{
 				controller.navigationItem.leftBarButtonItem = nil;
@@ -574,7 +564,6 @@
 	}
 	[[prevController navigationItem] setBackBarButtonItem:backButton];
 	[backButton release];
-    [self updateBarImage];
 }
 
 -(void)setBackButtonTitle:(id)proxy
@@ -609,10 +598,6 @@
     TiThreadPerformOnMainThread(^{
         if ([[self valueForKey:@"titleControl"] isKindOfClass:[TiViewProxy class]]) {
             [self updateTitleView];
-        }
-        id barImageValue = [self valueForKey:@"barImage"];
-        if ((barImageValue != nil) && (barImageValue != [NSNull null])) {
-            [self updateBarImage];
         }
     }, NO);
 }
@@ -655,8 +640,6 @@
             //layout the titleControl children
             [titleControl layoutChildren:NO];
             
-            [self updateBarImage];
-            
             return;
         }
         [oldProxy removeBarButtonView];
@@ -680,7 +663,6 @@
     if (oldView != newTitleView) {
         [ourNavItem setTitleView:newTitleView];
     }
-	[self updateBarImage];
 }
 
 
