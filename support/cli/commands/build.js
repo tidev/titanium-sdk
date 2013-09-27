@@ -134,7 +134,8 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli) {
-	var buildModule = path.join(__dirname, '..', '..', ti.resolvePlatform(cli.argv.platform), 'cli', 'commands', '_build.js');
+	var buildModule = path.join(__dirname, '..', '..', ti.resolvePlatform(cli.argv.platform), 'cli', 'commands', '_build.js'),
+		counter = 0;
 
 	if (!fs.existsSync(buildModule)) {
 		logger.error(__('Unable to find platform specific build command') + '\n');
@@ -143,12 +144,14 @@ exports.run = function (logger, config, cli) {
 	}
 
 	require(buildModule).run(logger, config, cli, function (err) {
-		var delta = appc.time.prettyDiff(cli.startTime, Date.now());
-		if (err) {
-			logger.error(__('Project failed to build after %s', delta) + '\n');
-			process.exit(1);
-		} else {
-			logger.info(__('Project built successfully in %s', delta) + '\n');
+		if (!counter++) {
+			var delta = appc.time.prettyDiff(cli.startTime, Date.now());
+			if (err) {
+				logger.error(__('Project failed to build after %s', delta) + '\n');
+				process.exit(1);
+			} else {
+				logger.info(__('Project built successfully in %s', delta) + '\n');
+			}
 		}
 	});
 };

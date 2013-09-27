@@ -68,6 +68,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 	cli.on('cli:pre-validate', function (obj, callback) {
 		async.series([
 			function (next) {
+				// detect android environment
 				androidDetect(config, { packageJson: packageJson }, function (androidInfo) {
 					_t.androidInfo = androidInfo;
 					next();
@@ -75,8 +76,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 			},
 
 			function (next) {
+				// detect java development kit
 				appc.jdk.detect(config, null, function (jdkInfo) {
-					// Check for java version
 					if (!jdkInfo.version) {
 						logger.error(__('Unable to locate the Java Development Kit') + '\n');
 						logger.log(__('You can specify the location by setting the %s environment variable.', 'JAVA_HOME'.cyan) + '\n');
@@ -91,25 +92,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					_t.jdkInfo = jdkInfo;
 					next();
 				});
-			},
-
-			function (next) {
-				if (cli.argv.keystore === void 0) return next();
-				_t.conf.keystore.validate(cli.argv.keystore, next);
-			},
-
-			function (next) {
-				if (cli.argv['store-password'] === void 0) return next();
-				_t.conf['store-password'].validate(cli.argv['store-password'], next);
 			}
-		], function (err) {
-			if (err) {
-				logger.error(err.message || err.toString());
-				logger.log();
-				process.exit(1);
-			}
-			callback();
-		});
+		], callback);
 	});
 
 	return function (finished) {
@@ -306,6 +290,11 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					},
 					'keystore': {
 						abbr: 'K',
+						callback: function (value) {
+							_t.conf.options['alias'].required = true;
+							_t.conf.options['key-password'].required = true;
+							_t.conf.options['store-password'].required = true;
+						},
 						desc: __('the location of the keystore file'),
 						hint: 'path',
 						order: 4,
@@ -373,50 +362,60 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								return callback(new Error(__('Please specify a keystore password')));
 							}
 
-							if (cli.argv.keystore && _t.jdkInfo && _t.jdkInfo.executables.keytool) {
-								appc.subprocess.run(_t.jdkInfo.executables.keytool, ['-list', '-v', '-keystore', cli.argv.keystore, '-storepass', storePassword], function (code, out, err) {
-									if (code) {
-										var msg = out.split('\n').shift().split('java.io.IOException:');
+							// sanity check they keystore
+							_t.conf.options.keystore.validate(cli.argv.keystore, function (err, keystoreFile) {
+								if (err) {
+									// we have a bad --keystore arg
+									console.log('bad --keystore');
+									cli.argv.keystore = undefined;
+									throw err;
+								}
 
-										if (msg.length > 1) {
-											msg = msg[1].trim();
-											if (/invalid keystore format/i.test(msg)) {
-												msg = __('Invalid keystore file');
-												cli.argv.keystore = undefined;
+								if (keystoreFile && _t.jdkInfo && _t.jdkInfo.executables.keytool) {
+									appc.subprocess.run(_t.jdkInfo.executables.keytool, ['-list', '-v', '-keystore', keystoreFile, '-storepass', storePassword], function (code, out, err) {
+										if (code) {
+											var msg = out.split('\n').shift().split('java.io.IOException:');
+											if (msg.length > 1) {
+												msg = msg[1].trim();
+												if (/invalid keystore format/i.test(msg)) {
+													msg = __('Invalid keystore file');
+													cli.argv.keystore = undefined;
+													_t.conf.options.keystore.required = true;
+												}
+											} else {
+												msg = out.trim();
 											}
-										} else {
-											msg = out;
+
+											return callback(new Error(msg));
 										}
 
-										return callback(new Error(msg));
-									}
-
-									// empty the alias array. it is important that we don't destory the original
-									// instance since it was passed by reference to the alias select list
-									while (_t.keystoreAliases.length) {
-										_t.keystoreAliases.pop();
-									}
-
-									var re = /Alias name\: (.+)/;
-									out.split('\n').forEach(function (line) {
-										var m = line.match(re);
-										if (m) {
-											_t.keystoreAliases.push({ name: m[1] });
+										// empty the alias array. it is important that we don't destory the original
+										// instance since it was passed by reference to the alias select list
+										while (_t.keystoreAliases.length) {
+											_t.keystoreAliases.pop();
 										}
+
+										var re = /Alias name\: (.+)/;
+										out.split('\n').forEach(function (line) {
+											var m = line.match(re);
+											if (m) {
+												_t.keystoreAliases.push({ name: m[1] });
+											}
+										}.bind(_t));
+
+										if (_t.keystoreAliases.length == 0) {
+											cli.argv.keystore = undefined;
+											return callback(new Error(__('Keystore does not contain any certificates')));
+										} else if (_t.keystoreAliases.length == 1) {
+											cli.argv.alias = _t.keystoreAliases[0].name;
+										}
+
+										callback(null, storePassword);
 									}.bind(_t));
-
-									if (_t.keystoreAliases.length == 0) {
-										cli.argv.keystore = undefined;
-										return callback(new Error(__('Keystore does not contain any certificates')));
-									} else if (_t.keystoreAliases.length == 1) {
-										cli.argv.alias = _t.keystoreAliases[0].name;
-									}
-
+								} else {
 									callback(null, storePassword);
-								}.bind(_t));
-							} else {
-								callback(null, storePassword);
-							}
+								}
+							});
 						}
 					},
 					'target': {
@@ -603,86 +602,85 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		process.exit(1);
 	}
 
+	// if we're building for the emulator, make sure we don't have any issues
+	if (cli.argv.target == 'emulator') {
+		this.androidInfo.issues.forEach(function (issue) {
+			if (/^ANDROID_MISSING_(LIBGL|I386_ARCH|IA32_LIBS|32BIT_GLIBC|32BIT_LIBSTDCPP)$/.test(issue.id)) {
+				issue.message.split('\n').forEach(function (line) {
+					logger.warn(line);
+				});
+			}
+		});
+	}
+
 	return function (finished) {
 		// from here on out, we go async
 		appc.async.series(this, [
 			function (next) {
-				if (this.target == 'emulator' || this.target == 'device' && this.device) {
+				if ((this.target == 'emulator' || this.target == 'device') && cli.argv.device) {
 					// TODO: validate --device exists
-				}
 
-				// Set defaults for target Emulator
-				if (cli.argv.target == 'emulator') {
-					this.androidInfo.issues.forEach(function (issue) {
-						if (/^ANDROID_MISSING_(LIBGL|I386_ARCH|IA32_LIBS|32BIT_GLIBC|32BIT_LIBSTDCPP)$/.test(issue.id)) {
-							issue.message.split('\n').forEach(function (line) {
-								logger.warn(line);
-							});
-						}
-					});
+				} else if (this.target == 'emulator' && !cli.argv.device) {
+					// legacy emulator stuff
 
-					if (!this.device) {
-						// legacy emulator stuff
+					// TODO: clean this up!!!!!!!!!!!
 
-						// TODO: clean this up!!!!!!!!!!!
+					var avdid = parseInt(cli.argv['avd-id']);
 
-						var avdid = parseInt(cli.argv['avd-id']);
+					// double check and make sure that the avd-id passed (or the default)
+					// exists as an android target and if not, deal with it vs. bombing
+					if (isNaN(avdid) || !this.androidInfo.targets || !this.androidInfo.targets[avdid]) {
+						var keys = Object.keys(this.androidInfo.targets || {}),
+							name,
+							skins;
 
-						// double check and make sure that the avd-id passed (or the default)
-						// exists as an android target and if not, deal with it vs. bombing
-						if (isNaN(avdid) || !this.androidInfo.targets || !this.androidInfo.targets[avdid]) {
-							var keys = Object.keys(this.androidInfo.targets || {}),
-								name,
-								skins;
+						avdid = 0;
+						for (var c = 0; c < keys.length; c++) {
+							var target = this.androidInfo.targets[keys[c]],
+								api = target['api-level'];
 
-							avdid = 0;
-							for (var c = 0; c < keys.length; c++) {
-								var target = this.androidInfo.targets[keys[c]],
-									api = target['api-level'];
-
-								// search for the first api > 10 (Android 2.3.3) which is what titanium requires
-								if (api >= this.minSupportedApiLevel) {
-									avdid = keys[c];
-									name = target.name;
-									skins = target.skins;
-									break;
-								}
-							}
-
-							if (avdid) {
-								// if we found a valid avd id, let's use it but warn the user
-								if (cli.argv['avd-id']) {
-									logger.warn(__('AVD ID %s not found. Launching with the AVD ID %s%s.',
-										(''+cli.argv['avd-id']).cyan, (''+avdid).cyan, name ? ' (' + name + ')' : ''));
-								} else {
-									logger.warn(__('No AVD ID specified. Launching with the AVD ID %s%s.',
-										(''+avdid).cyan, name ? ' (' + name + ')' : ''));
-								}
-								cli.argv['avd-id'] = avdid;
-								var s = skins.length && skins[skins.length - 1];
-								if (s && skins && skins.indexOf(cli.argv['avd-skin']) == -1) {
-									logger.warn(__('AVD ID %s does not support skin %s. Launching with the AVD skin %s.',
-										avdid, (''+cli.argv['avd-skin']).cyan, (''+s).cyan));
-									cli.argv['avd-skin'] = s;
-								}
-							} else {
-								// if we couldn't find one
-								if (cli.argv['avd-id']) {
-									logger.error(__('AVD ID %s not found and no suitable Android SDKs found. Please install Android SDK 2.3.3 or newer.', (''+cli.argv['avd-id']).cyan) + '\n');
-								} else {
-									logger.error(__('No suitable Android SDKs found. Please install Android SDK 2.3.3 or newer.', (''+cli.argv['avd-id']).cyan) + '\n');
-								}
-								process.exit(1);
+							// search for the first api > 10 (Android 2.3.3) which is what titanium requires
+							if (api >= this.minSupportedApiLevel) {
+								avdid = keys[c];
+								name = target.name;
+								skins = target.skins;
+								break;
 							}
 						}
 
-						if (!cli.argv['avd-abi']) {
-							// check to make sure exists
-							if (this.androidInfo.targets && this.androidInfo.targets[cli.argv['avd-id']]) {
-								cli.argv['avd-abi'] = this.androidInfo.targets[cli.argv['avd-id']].abis[0] || this.androidInfo.targets['7'].abis[0] || 'armeabi';
+						if (avdid) {
+							// if we found a valid avd id, let's use it but warn the user
+							if (cli.argv['avd-id']) {
+								logger.warn(__('AVD ID %s not found. Launching with the AVD ID %s%s.',
+									(''+cli.argv['avd-id']).cyan, (''+avdid).cyan, name ? ' (' + name + ')' : ''));
 							} else {
-								logger.warn(__('AVD ID %s not found. Please use %s to specify a valid AVD ID. Ignoring --avd-abi.', cli.argv['avd-id'], '--avd-id'.cyan));
+								logger.warn(__('No AVD ID specified. Launching with the AVD ID %s%s.',
+									(''+avdid).cyan, name ? ' (' + name + ')' : ''));
 							}
+							cli.argv['avd-id'] = avdid;
+							var s = skins.length && skins[skins.length - 1];
+							if (s && skins && skins.indexOf(cli.argv['avd-skin']) == -1) {
+								logger.warn(__('AVD ID %s does not support skin %s. Launching with the AVD skin %s.',
+									avdid, (''+cli.argv['avd-skin']).cyan, (''+s).cyan));
+								cli.argv['avd-skin'] = s;
+							}
+						} else {
+							// if we couldn't find one
+							if (cli.argv['avd-id']) {
+								logger.error(__('AVD ID %s not found and no suitable Android SDKs found. Please install Android SDK 2.3.3 or newer.', (''+cli.argv['avd-id']).cyan) + '\n');
+							} else {
+								logger.error(__('No suitable Android SDKs found. Please install Android SDK 2.3.3 or newer.', (''+cli.argv['avd-id']).cyan) + '\n');
+							}
+							process.exit(1);
+						}
+					}
+
+					if (!cli.argv['avd-abi']) {
+						// check to make sure exists
+						if (this.androidInfo.targets && this.androidInfo.targets[cli.argv['avd-id']]) {
+							cli.argv['avd-abi'] = this.androidInfo.targets[cli.argv['avd-id']].abis[0] || this.androidInfo.targets['7'].abis[0] || 'armeabi';
+						} else {
+							logger.warn(__('AVD ID %s not found. Please use %s to specify a valid AVD ID. Ignoring --avd-abi.', cli.argv['avd-id'], '--avd-id'.cyan));
 						}
 					}
 				}
@@ -2458,6 +2456,8 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 AndroidBuilder.prototype.parseAndroidManifestXml = function parseAndroidManifestXml(contents) {
 	var obj = {};
 
+	// for more info, refer to http://developer.android.com/guide/topics/manifest/manifest-intro.html
+
 	appc.xml.forEachElement((new DOMParser().parseFromString(contents, 'text/xml')).documentElement, function (node) {
 		switch (node.tagName) {
 			case 'uses-sdk':
@@ -2982,7 +2982,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					};
 				}), done);
 			}(opts.src, opts.dest, opts.ignoreRootDirs, callback));
-		},
+		}.bind(this),
 		tasks = [
 			function (cb) {
 				copyDir({
@@ -3049,7 +3049,6 @@ AndroidBuilder.prototype.compileJSS = function compileJSS(callback) {
 			}),
 			callback
 		);
-		callback();
 	}.bind(this));
 };
 

@@ -8,7 +8,7 @@
 		"clean-css": "~1.1.1",
 		"css-parse": "~1.5.3",
 		"ejs": "~0.8.4",
-		"fields": "~0.1.8",
+		"fields": "~0.1.9",
 		"humanize": "~0.0.9",
 		"less": "~1.4.2",
 		"node-appc": ">=0.1.17",
