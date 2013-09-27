@@ -184,7 +184,7 @@ function build(logger, config, cli, finished) {
 		// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
 		// Alloy generate an app.js, it may not have existed during validate(), but should exist now
 		// that build.pre.compile was fired.
-		ti.validateAppJsExists(this.projectDir, this.logger);
+		ti.validateAppJsExists(this.projectDir, this.logger, 'mobileweb');
 
 		// Note: code processor is a pre-compile hook
 		this.codeProcessor = cli.codeProcessor;
