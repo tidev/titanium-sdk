@@ -23,6 +23,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.ScrollableViewProxy;
 import ti.modules.titanium.ui.widget.TiUIScrollView.TiScrollViewLayout;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
@@ -38,13 +39,15 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
+@SuppressLint("NewApi")
 public class TiUIScrollableView extends TiUIView
 {
 	private static final String TAG = "TiUIScrollableView";
 
 	private static final int PAGE_LEFT = 200;
 	private static final int PAGE_RIGHT = 201;
-	private static final Class<?>[] DISALLOWINTERCEPTTOUCH_CLASSES = {ScrollView.class, ListView.class};
+	private View mTouchTarget;
+	private int mPreviousState = ViewPager.SCROLL_STATE_IDLE;
 
 	private final ViewPager mPager;
 	private final ArrayList<TiViewProxy> mViews;
@@ -104,6 +107,20 @@ public class TiUIScrollableView extends TiUIView
 			@Override
 			public void onPageScrollStateChanged(int scrollState)
 			{
+// All of this is to inhibit any scrollable container from consuming our touch events as the user is changing pages
+        if (mPreviousState == ViewPager.SCROLL_STATE_IDLE) {
+            if (scrollState == ViewPager.SCROLL_STATE_DRAGGING) {
+                mTouchTarget = mPager;
+                mContainer.requestDisallowInterceptTouchEvent(true);
+           }
+        } else {
+            if (scrollState == ViewPager.SCROLL_STATE_IDLE || scrollState == ViewPager.SCROLL_STATE_SETTLING) {
+                mTouchTarget = null;
+                mContainer.requestDisallowInterceptTouchEvent(false);
+           }
+        }
+
+        mPreviousState = scrollState;
 				if ((scrollState == ViewPager.SCROLL_STATE_IDLE) && isValidScroll) {
 					int oldIndex = mCurIndex;
 
@@ -555,23 +572,34 @@ public class TiUIScrollableView extends TiUIView
 		}
 
 		@Override
+	    public boolean onTouchEvent(MotionEvent ev) {
+	        //We capture any touches not already handled by the ViewPager
+	        // to implement scrolling from a touch outside the pager bounds.
+	        switch (ev.getAction()) {
+	            case MotionEvent.ACTION_UP:
+				case MotionEvent.ACTION_CANCEL:
+					requestDisallowInterceptTouchEvent(false); //to make sure we go back to the initial state!
+					break;
+	            default:
+	                break;
+	        }
+	 
+	        return ((View) mPager).onTouchEvent(ev);
+	    }
+
+		@Override
 		public boolean dispatchTouchEvent(MotionEvent ev)
 		{
-			// If inside a scroll view or a ListView, then we prevent the scroll view from intercepting touch events
-			if (TiUIHelper.isViewInsideViewOfClass(this, DISALLOWINTERCEPTTOUCH_CLASSES)) {
-				int action = ev.getAction();
-				switch (action) {
-					case MotionEvent.ACTION_DOWN:
-						requestDisallowInterceptTouchEvent(true);
-						break;
+			if (mTouchTarget != null) {
+	            boolean wasProcessed = mTouchTarget.dispatchTouchEvent(ev);
 
+	            if (!wasProcessed) {
+	                mTouchTarget = null;
+					requestDisallowInterceptTouchEvent(false);
+	            }
 
-					case MotionEvent.ACTION_UP:
-					case MotionEvent.ACTION_CANCEL:
-						requestDisallowInterceptTouchEvent(false);
-						break;
-				}
-			}
+	            return wasProcessed;
+	        }
 			return super.dispatchTouchEvent(ev);
 		}
 
