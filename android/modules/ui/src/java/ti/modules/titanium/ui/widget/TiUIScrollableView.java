@@ -320,7 +320,7 @@ public class TiUIScrollableView extends TiUIView
 	public void addView(TiViewProxy proxy)
 	{
 		if (!mViews.contains(proxy)) {
-			proxy.setActivity(proxy.getActivity());
+			proxy.setActivity(this.proxy.getActivity());
 			mViews.add(proxy);
 			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
 			mAdapter.notifyDataSetChanged();
@@ -425,7 +425,7 @@ public class TiUIScrollableView extends TiUIView
 
 		if (viewsObject instanceof Object[]) {
 			Object[] views = (Object[])viewsObject;
-			Activity activity = proxy.getActivity();
+			Activity activity = this.proxy.getActivity();
 			for (int i = 0; i < views.length; i++) {
 				if (views[i] instanceof TiViewProxy) {
 					TiViewProxy tv = (TiViewProxy)views[i];
