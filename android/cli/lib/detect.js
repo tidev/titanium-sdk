@@ -12,7 +12,7 @@
  */
 
 var android = require('titanium-sdk/lib/android'),
-	appc = require('node-appc');
+	EmulatorManager = require('titanium-sdk/lib/emulator');
 
 /**
  * Detects current Android environment.
@@ -21,8 +21,20 @@ var android = require('titanium-sdk/lib/android'),
  * @param {Object} opts - Detection options; currently only 'bypassCache'
  * @param {Function} finished - Callback when detection is finished
  */
-exports.detect = function detect(config, opts, finished) {
-	opts || (opts = {});
-	opts.packageJson = appc.pkginfo.package(module);
-	android.detect(config, opts, finished);
+exports.detect = android.detect;
+
+/**
+ * Detects connected Android emulators.
+ * @param {Object} config - The CLI config object
+ * @param {Object} [opts] - Detection options
+ * @param {String} [opts.type] - The type of emulator to load (avd, genymotion); defaults to all
+ * @param {Function} finished - Callback when detection is finished
+ */
+exports.detectEmulators = function detectEmulators(config, opts, finished) {
+	if (opts && typeof opts == 'function') {
+		finished = opts;
+		opts = {};
+	}
+
+	new EmulatorManager(config).detect(opts, finished);
 };

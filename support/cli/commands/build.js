@@ -105,10 +105,10 @@ exports.config = function (logger, config, cli) {
 						},
 						'project-dir': {
 							abbr: 'd',
-							callback: function (dir) {
+							callback: function (projectDir) {
 								// load the tiapp.xml
 								try {
-									var tiapp = cli.tiapp = new tiappxml(path.join(dir, 'tiapp.xml'));
+									var tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'));
 								} catch (ex) {
 									logger.error(ex);
 									logger.log();
@@ -123,7 +123,7 @@ exports.config = function (logger, config, cli) {
 									throw new cli.GracefulShutdown;
 								}
 
-								return dir;
+								return projectDir;
 							},
 							desc: __('the directory containing the project'),
 							default: process.env.SOURCE_ROOT ? path.join(process.env.SOURCE_ROOT, '..', '..') : '.',

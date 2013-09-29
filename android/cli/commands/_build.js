@@ -99,6 +99,56 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 		], callback);
 	});
 
+	function findTargets(target, callback) {
+		if (target == 'device') {
+			new ADB(config).devices(function (err, devices) {
+				if (err) {
+					callback(err);
+				} else {
+					callback(null, devices.map(function (d) {
+						return {
+							name: d.model || d.manufacturer,
+							id: d.id,
+							version: d.release,
+							abi: Array.isArray(d.abi) ? d.abi.join(',') : d.abi,
+							type: 'device'
+						};
+					}));
+				}
+			});
+		} else if (target == 'emulator') {
+			new EmulatorManager(config).detect(function (err, emus) {
+				if (err) {
+					callback(err);
+				} else {
+					callback(null, emus.map(function (emu) {
+						// normalize the emulator info
+						if (emu.type == 'avd') {
+							return {
+								name: emu.name,
+								id: emu.name,
+								version: emu.target,
+								abi: emu.abi,
+								type: emu.type
+							};
+						} else if (emu.type == 'genymotion') {
+							return {
+								name: emu.name,
+								id: emu.guid,
+								version: emu.target,
+								abi: emu.abi,
+								type: emu.type
+							};
+						}
+						return emu; // not good
+					}));
+				}
+			});
+		} else {
+			callback();
+		}
+	}
+
 	return function (finished) {
 		cli.createHook('build.android.config', function (callback) {
 			var conf = {
@@ -196,65 +246,33 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						hint: __('name'),
 						order: 103,
 						prompt: function (callback) {
-							// we need to get a list of all devices and emulators
-							async.series({
-								devices: function (cb) {
-									if (cli.argv.target != 'device') return cb();
-									var adb = new ADB(config);
-									adb.devices(cb);
-								},
-								avds: function (cb) {
-									if (cli.argv.target != 'emulator') return cb();
-									new EmulatorManager(config).detect(cb);
-								}
-							}, function (err, results) {
-								var opts = {},
-									avds = {};
+							findTargets(cli.argv.target, function (err, results) {
+								var opts = {};
 
-								if (Array.isArray(results.devices) && results.devices.length) {
-									opts[__('Devices')] = results.devices.map(function (d) {
-										return {
-											name: d.model || d.manufacturer,
-											id: d.id,
-											version: d.release,
-											abi: Array.isArray(d.abi) ? d.abi.join(',') : d.abi,
-											type: 'device'
-										};
+								if (cli.argv.target == 'device' && results.length) {
+									opts[__('Devices')] = results;
+								} else if (cli.argv.target == 'emulator') {
+									var emus = results.filter(function (e) {
+										return e.type == 'avd';
 									});
-								}
+									if (emus.length) {
+										opts[__('Android Emulators')] = emus;
+									}
 
-								if (Array.isArray(results.avds) && results.avds.length) {
-									var avd = __('Android Emulators'),
-										gm = __('Genymotion Emulators');
-									results.avds.forEach(function (a) {
-										if (a.type == 'avd') {
-											avds[a.name] = 1;
-											opts[avd] || (opts[avd] = []);
-											opts[avd].push({
-												name: a.name,
-												id: a.name,
-												version: a.target,
-												abi: a.abi,
-												type: a.type
-											});
-										} else if (a.type == 'genymotion') {
-											opts[gm] || (opts[gm] = []);
-											opts[gm].push({
-												name: a.name,
-												id: a.guid,
-												version: a.target,
-												abi: a.abi,
-												type: a.type
-											});
-										}
+									emus = results.filter(function (e) {
+										return e.type == 'genymotion';
 									});
+									if (emus.length) {
+										opts[__('Genymotion Emulators')] = emus;
+									}
 								}
 
-								// maybe they specified the old legacy --avd-id stuff
+/*								// maybe they specified the old legacy --avd-id stuff
 								if (avds['titanium_' + cli.argv['avd-id'] + '_' + cli.argv['avd-skin'] + '_' + cli.argv['avd-abi']]
 									|| avds['titanium_' + cli.argv['avd-id'] + '_' + cli.argv['avd-skin']]) {
 									return callback();
 								}
+*/
 
 								// if there are no devices/emulators, error
 								if (!Object.keys(opts).length) {
@@ -282,7 +300,15 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								}));
 							});
 						},
-						required: true
+						required: true,
+						validate: function (device, callback) {
+							findTargets(cli.argv.target, function (err, devices) {
+								if (!devices.some(function (d) { return d.name == device; })) {
+									return callback(new Error(__('Invalid device "%s"', device)));
+								}
+								callback(null, device);
+							});
+						}
 					},
 					'key-password': {
 						desc: __('the password for the keystore private key (defaults to the store-password)'),
