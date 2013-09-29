@@ -446,8 +446,6 @@ exports.validate = function (logger, config, cli) {
 		cli.argv['project-dir'] = path.dirname(process.env.PROJECT_DIR);
 	}
 
-	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
-
 	if (!cli.argv.xcode || !process.env.TITANIUM_CLI_XCODEBUILD) {
 		// make sure the app doesn't have any blacklisted directories in the Resources directory and warn about graylisted names
 		var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
@@ -484,8 +482,6 @@ exports.validate = function (logger, config, cli) {
 		}
 	}
 
-	ti.validateTiappXml(logger, cli.tiapp);
-
 	// at this point we've validated everything except underscores in the app id
 	if (!config.get('ios.skipAppIdValidation')) {
 		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(cli.tiapp.id)) {
@@ -504,11 +500,6 @@ exports.validate = function (logger, config, cli) {
 			logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
 			process.exit(1);
 		}
-	}
-
-	if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
-		// we're running the build command for the wrong SDK version, gracefully return
-		return false;
 	}
 
 	if (!Object.keys(iosEnv.xcode).length) {
@@ -2701,7 +2692,9 @@ build.prototype = {
 
 		this.tiModules.indexOf(s) == -1 && this.tiModules.push(s);
 
-		this.symbols[id] = [];
+		if (!Array.isArray(this.symbols[id])) {
+			this.symbols[id] = [];
+		}
 
 		tokens.forEach(function (t) {
 			current += t + '.';

@@ -6,13 +6,27 @@
  */
 
 var appc = require('node-appc'),
-	__ = appc.i18n(__dirname).__,
-	afs = appc.fs,
-	ti = require('titanium-sdk'),
+	fields = require('fields'),
 	fs = require('fs'),
-	path = require('path');
+	path = require('path'),
+	ti = require('titanium-sdk'),
+	tiappxml = require('titanium-sdk/lib/tiappxml')
+	__ = appc.i18n(__dirname).__;
 
-// TODO: need to support building modules... how do we know if --dir is a module or app? where is the module _build.js located?
+fields.setup({
+	formatters: {
+		error: function (err) {
+			if (err instanceof Error) {
+				return ('[ERROR] ' + err.message).red + '\n';
+			}
+			err = '' + err;
+			return '\n' + (/^(\[ERROR\])/i.test(err) ? err : '[ERROR] ' + err.replace(/^Error\:/i, '').trim()).red;
+		}
+	},
+	style: {
+		accelerator: 'cyan'
+	}
+});
 
 exports.cliVersion = '>=3.2';
 exports.title = __('Build');
@@ -23,7 +37,7 @@ exports.config = function (logger, config, cli) {
 	return function (finished) {
 		cli.createHook('build.config', function (callback) {
 			ti.platformOptions(logger, config, cli, 'build', function (platformConf) {
-				callback({
+				var conf = {
 					flags: {
 						'build-only': {
 							abbr: 'b',
@@ -50,6 +64,7 @@ exports.config = function (logger, config, cli) {
 							},
 							desc: __('the target build platform'),
 							hint: __('platform'),
+							order: 2,
 							prompt: {
 								label: __('Target platform'),
 								error: __('Invalid platform'),
@@ -79,7 +94,7 @@ exports.config = function (logger, config, cli) {
 										}
 									});
 
-									cli.scanHooks(afs.resolvePath(path.dirname(module.filename), '..', '..', platform, 'cli', 'hooks'));
+									cli.scanHooks(appc.fs.resolvePath(path.dirname(module.filename), '..', '..', platform, 'cli', 'hooks'));
 
 									return true;
 								}
@@ -90,12 +105,73 @@ exports.config = function (logger, config, cli) {
 						},
 						'project-dir': {
 							abbr: 'd',
+							callback: function (dir) {
+								// load the tiapp.xml
+								try {
+									var tiapp = cli.tiapp = new tiappxml(path.join(dir, 'tiapp.xml'));
+								} catch (ex) {
+									logger.error(ex);
+									logger.log();
+									process.exit(1);
+								}
+
+								// make sure the tiapp.xml is sane
+								ti.validateTiappXml(logger, tiapp);
+
+								// check that the Titanium SDK version is correct
+								if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
+									throw new cli.GracefulShutdown;
+								}
+
+								return dir;
+							},
 							desc: __('the directory containing the project'),
-							default: '.'
+							default: process.env.SOURCE_ROOT ? path.join(process.env.SOURCE_ROOT, '..', '..') : '.',
+							order: 1,
+							prompt: function (callback) {
+								callback(fields.file({
+									promptLabel: __('Where is the __project directory__?'),
+									complete: true,
+									showHidden: true,
+									ignoreDirs: new RegExp(config.get('cli.ignoreDirs')),
+									ignoreFiles: /.*/,
+									validate: conf.options['project-dir'].validate
+								}));
+							},
+							required: true,
+							validate: function (projectDir, callback) {
+								var isDefault = projectDir == conf.options['project-dir'].default;
+
+								var dir = appc.fs.resolvePath(projectDir);
+
+								if (!fs.existsSync(dir)) {
+									return callback(new Error(__('Project directory does not exist')));
+								}
+
+								var tiappFile = path.join(dir, 'tiapp.xml');
+
+								// try to find the tiapp.xml
+								while (!fs.existsSync(tiappFile)) {
+									dir = path.dirname(dir);
+									if (dir == '/') {
+										if (!isDefault) {
+											callback(new Error(__('Invalid project directory "%s" because tiapp.xml not found', projectDir)));
+											return;
+										} else {
+											callback(true);
+											return;
+										}
+									}
+									tiappFile = path.join(dir, 'tiapp.xml');
+								}
+
+								callback(null, dir);
+							}
 						}
 					}, ti.commonOptions(logger, config)),
 					platforms: platformConf
-				});
+				};
+				callback(conf);
 			});
 		})(function (err, results, result) {
 			finished(result);

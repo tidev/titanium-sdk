@@ -68,7 +68,11 @@ exports.validate = function (logger, config, cli) {
 		}
 	}
 
-	ti.loadPlugins(logger, cli, config, cli.argv['project-dir']);
+	return function (finished) {
+		ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
+			finished();
+		});
+	};
 };
 
 exports.run = function (logger, config, cli) {
