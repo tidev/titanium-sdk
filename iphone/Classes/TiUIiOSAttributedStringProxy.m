@@ -14,6 +14,13 @@
 @synthesize _attributedString;
 @synthesize _text;
 
+-(void)_destroy
+{
+    RELEASE_TO_NIL(_text)
+    RELEASE_TO_NIL(_attributedString)
+    [super _destroy];
+}
+
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     _text = [properties valueForKey:@"text"];
