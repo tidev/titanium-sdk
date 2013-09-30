@@ -284,6 +284,30 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_BOTTOM,4); //UIEdgeRectBottom
 MAKE_SYSTEM_PROP(EXTEND_EDGE_RIGHT,8);  //UIEdgeRectRight
 MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 
+-(NSString*)TEXT_STYLE_HEADLINE
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleHeadline : @"INVALID";
+}
+-(NSString*)TEXT_STYLE_SUBHEADLINE
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleSubheadline : @"INVALID";
+}
+-(NSString*)TEXT_STYLE_BODY
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleBody : @"INVALID";
+}
+-(NSString*)TEXT_STYLE_FOOTNOTE
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleFootnote : @"INVALID";
+}
+-(NSString*)TEXT_STYLE_CAPTION1
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleCaption1 : @"INVALID";
+}
+-(NSString*)TEXT_STYLE_CAPTION2
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleCaption2 : @"INVALID";
+}
 
 -(NSNumber*)isLandscape:(id)args
 {
