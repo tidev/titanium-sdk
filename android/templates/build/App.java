@@ -32,21 +32,62 @@ public final class <%= classname %>Application extends TiApplication
 		appInfo = new <%= classname %>AppInfo(this);
 		postAppInfo();
 
-		<% if (tiapp['encrypt-js']) { %>
-		    KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
-		<% } %>
+<% if (tiapp['encrypt-js']) { %>
+	    KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
+<% } %>
 
 		V8Runtime runtime = new V8Runtime();
 
-		//
+<% customModules.forEach(function (module) { %>
+		runtime.addExternalModule("<%- module.manifest.moduleid %>", <%- module.manifest.moduleid %>.<%- module.apiName %>Bootstrap.class);
+	<% if (module.isNativeJsModule) { %>
+		runtime.addExternalCommonJsModule("<%- module.manifest.moduleid %>", <%- module.manifest.moduleid %>.CommonJsSourceProvider.class);
+	<% } %>
+<% }); %>
+
+		KrollRuntime.init(this, runtime);
+
+		stylesheet = new ApplicationStylesheet();
+		postOnCreate();
+
+<% appModules.forEach(function (module) { %>
+	<% if (module.onAppCreate) { %>
+		<%- module.className %>.<%- module.onAppCreate %>(this);
+	<% } %>
+<% }); %>
+
+<% if (customModules.length) { %>
+		// Custom modules
+		KrollModuleInfo moduleInfo;
+	<% customModules.forEach(function (module) { %>
+		<% if (module.onAppCreate) { %>
+		<%- module.className %>.<%- module.onAppCreate %>(this);
+		<% } %>
+
+		moduleInfo = new KrollModuleInfo(
+			"<%- module.manifest.name %>", "<%- module.manifest.moduleid %>", "<%- module.manifest.guid %>", "<%- module.manifest.version %>",
+			"<%- module.manifest.description %>", "<%- module.manifest.author %>", "<%- module.manifest.license %>",
+			"<%- module.manifest.copyright %>");
+
+		<% if (module.manifest.licensekey) { %>
+		moduleInfo.setLicenseKey("<%- module.manifest.licensekey %>");
+		<% } %>
+
+		<% if (module.isNativeJsModule) { %>
+		moduleInfo.setIsJSModule(true);
+		<% } %>
+
+		KrollModule.addCustomModuleInfo(moduleInfo);
+	<% }); %>
+<% } %>
 	}
 
 	@Override
 	public void verifyCustomModules(TiRootActivity rootActivity)
 	{
-		<% if (deployType != 'production') { %>
+<% if (deployType != 'production') { %>
 		org.appcelerator.titanium.TiVerify verify = new org.appcelerator.titanium.TiVerify(rootActivity, this);
 		verify.verify();
-		<% } %>
+<% } %>
 	}
 }

@@ -839,28 +839,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 							}
 
 							// read in the bindings
-							var zip = new AdmZip(module.jarFile),
-								zipEntries = zip.getEntries(),
-								i = 0,
-								len = zipEntries.length,
-								pathName = 'org/appcelerator/titanium/bindings/',
-								pathNameLen = pathName.length,
-								entry, name;
-
-							for (; i < len; i++) {
-								entry = zipEntries[i];
-								name = entry.entryName.toString();
-								if (name.length > pathNameLen && name.indexOf(pathName) == 0) {
-									try {
-										module.bindings = JSON.parse(entry.getData());
-									} catch (e) {
-										logger.error(__('Module %s version %s contains invalid bindings json file', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
-										process.exit(1);
-									}
-									break;
-								}
-							}
-
+							module.bindings = this.getNativeModuleBindings(module.jarFile);
 							if (!module.bindings) {
 								logger.error(__('Module %s version %s is missing bindings json file', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
 								process.exit(1);
@@ -933,15 +912,10 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'createBuildDirs',
 		'copyResources',
 		'compileJSS',
-
-		// generate the index for require()
-		// this MUST be done after all files have been copied
 		'generateRequireIndex',
-
 		'processTiSymbols',
 		'generateJavaFiles',
 		'copyModuleResources',
-		'copyCommonJsModules',
 		'copyDrawables',
 		'generateAndroidManifest',
 		'compileJavaClasses',
@@ -1428,16 +1402,26 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		htmlJsFiles = {};
 
 	function copyDir(opts, callback) {
-		if (opts && opts.src && fs.existsSync(opts.src) && fs.statSync(opts.src).isDirectory() && opts.dest) {
-			recursivelyCopy.call(this, opts.src, opts.dest, opts.ignoreRootDirs, callback);
+		if (opts && opts.src && fs.existsSync(opts.src) && opts.dest) {
+			recursivelyCopy.call(this, opts.src, opts.dest, opts.ignoreRootDirs, opts, callback);
 		} else {
 			callback();
 		}
 	}
 
-	function recursivelyCopy(src, dest, ignoreRootDirs, done) {
+	function recursivelyCopy(src, dest, ignoreRootDirs, opts, done) {
 		wrench.mkdirSyncRecursive(dest);
-		appc.async.series(this, fs.readdirSync(src).map(function (filename) {
+
+		var files;
+		if (fs.statSync(src).isDirectory()) {
+			files = fs.readdirSync(src);
+		} else {
+			// we have a file, so fake a directory listing
+			files = [ path.basename(src) ];
+			src = path.dirname(src);
+		}
+
+		appc.async.series(this, files.map(function (filename) {
 			return function (next) {
 				var from = path.join(src, filename),
 					to = path.join(dest, filename);
@@ -1457,7 +1441,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
 
 				// if this is a directory, recurse
-				if (isDir) return recursivelyCopy.call(this, from, path.join(dest, filename), null, next);
+				if (isDir) return recursivelyCopy.call(this, from, path.join(dest, filename), null, opts, next);
 
 				// we have a file, now we need to see what sort of file
 				var ext = filename.match(extRegExp);
@@ -1489,7 +1473,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						// we use the destination file name minus the path to the assets dir as the id
 						// which will eliminate dupes
 						var id = to.replace(this.buildBinAssetsResourcesDir, '').replace(/^\//, '');
-						jsFiles[id] = from;
+
+						if (!jsFiles[id] || !opts || !opts.onJsConflict || opts.onJsConflict(from, to, id)) {
+							jsFiles[id] = from;
+						}
 
 						next();
 						break;
@@ -1537,23 +1524,48 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		}
 	];
 
+	// copy all commonjs modules
+	this.commonJsModules.forEach(function (module) {
+		var src = path.join(module.modulePath, module.id + '.js');
+		if (fs.existsSync(src)) {
+			tasks.push(function (cb) {
+				copyDir.call(this, {
+					src: src,
+					dest: this.buildBinAssetsResourcesDir,
+					onJsConflict: function (src, dest, id) {
+						this.logger.error(__('There is a project resource "%s" that conflicts with a CommonJS module', id));
+						this.logger.error(__('Please rename the file, then rebuild') + '\n');
+						process.exit(1);
+					}.bind(this)
+				}, cb);
+			});
+		} else {
+			this.logger.error(__('Unable to find main source file for CommonJS module "%s"', module.id) + '\n');
+			process.exit(1);
+		}
+	});
+
 	// WARNING! This is pretty dangerous, but yes, we're intentionally copying
 	// every file from platform/android and all modules into the build dir
-	[ path.join(this.projectDir, 'platform', 'android') ].concat(this.modules.map(function (module) {
+	var modulePaths = this.modules.map(function (module) {
 		return path.join(module.modulePath, 'platform', 'android');
-	})).forEach(function (dir) {
-		fs.existsSync(dir) && tasks.push(function (cb) {
-			afs.copyDirRecursive(dir, this.buildDir, cb, {
-				ignoreDirs: new RegExp(this.config.get('cli.ignoreDirs')),
-				ignoreFiles: new RegExp(this.config.get('cli.ignoreFiles')),
-				logger: this.logger.debug,
-				preserve: true
+	});
+	modulePaths.unshift(path.join(this.projectDir, 'platform', 'android'));
+	modulePaths.forEach(function (dir) {
+		if (fs.existsSync(dir)) {
+			tasks.push(function (cb) {
+				afs.copyDirRecursive(dir, this.buildDir, cb, {
+					ignoreDirs: new RegExp(this.config.get('cli.ignoreDirs')),
+					ignoreFiles: new RegExp(this.config.get('cli.ignoreFiles')),
+					logger: this.logger.debug,
+					preserve: true
+				});
 			});
-		});
+		}
 	}, this);
 
 	appc.async.series(this, tasks, function (err, results) {
-		var jsFilesToEncrypt = [];
+		var jsFilesToEncrypt = this.jsFilesToEncrypt = [];
 
 		appc.async.parallel(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
@@ -1675,173 +1687,242 @@ AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(ca
 		});
 	}(this.buildBinAssetsResourcesDir));
 
+	this.jsFilesToEncrypt.forEach(function (file) {
+		index['Resources/' + file] = 1;
+	});
+
 	fs.writeFile(destFile, JSON.stringify(index), callback);
+};
+
+AndroidBuilder.prototype.getNativeModuleBindings = function getNativeModuleBindings(jarFile) {
+	var zip = new AdmZip(jarFile),
+		zipEntries = zip.getEntries(),
+		i = 0,
+		len = zipEntries.length,
+		pathName = 'org/appcelerator/titanium/bindings/',
+		pathNameLen = pathName.length,
+		entry, name;
+
+	for (; i < len; i++) {
+		entry = zipEntries[i];
+		name = entry.entryName.toString();
+		if (name.length > pathNameLen && name.indexOf(pathName) == 0) {
+			try {
+				return JSON.parse(entry.getData());
+			} catch (e) {}
+			return;
+		}
+	}
 };
 
 AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 	// process all ti symbols and modules binding and stuff
 
-	dump(this.tiSymbols);
+	var depMap = JSON.parse(fs.readFileSync(path.join(this.platformPath, 'dependency.json'))),
+		modulesMap = JSON.parse(fs.readFileSync(path.join(this.platformPath, 'modules.json'))),
+		modulesPath = path.join(this.platformPath, 'modules'),
+		moduleBindings = {},
+		externalChildModules = {},
+		moduleJarMap = {},
+		tiNamespaces = {}, // map of namespace => titanium functions (i.e. ui => createWindow)
+		jarLibraries = this.jarLibraries = {},
+		appModules = this.appModules = [],
+		appModulesMap = {},
+		customModules = this.customModules = [],
+		ignoreNamespaces = /^(addEventListener|builddate|buildhash|fireEvent|include|_JSON|name|removeEventListener|userAgent|version)$/;
 
-	/*
-	full_resource_dir = os.path.join(self.project_dir, self.assets_resources_dir)
+	// reorg the modules map by module => jar instead of jar => modules
+	Object.keys(modulesMap).forEach(function (jar) {
+		modulesMap[jar].forEach(function (name) {
+			moduleJarMap[name.toLowerCase()] = jar;
+		});
+	});
 
-	compiler = Compiler(self.tiapp,
-						full_resource_dir,
-						self.java,
-						self.classes_dir,
-						self.project_gen_dir,
-						self.project_dir,
-						include_all_modules=include_all_ti_modules)
+	// load all module bindings
+	fs.readdirSync(modulesPath).forEach(function (filename) {
+		var file = path.join(modulesPath, filename);
+		if (fs.existsSync(file) && fs.statSync(file).isFile() && /\.jar$/.test(filename)) {
+			var bindings = this.getNativeModuleBindings(file);
+			if (bindings) {
+				Object.keys(bindings.modules).forEach(function (moduleClass) {
+					if (bindings.proxies[moduleClass]) {
+						moduleBindings[moduleClass] = bindings.modules[moduleClass];
+						moduleBindings[moduleClass].fullAPIName = bindings.proxies[moduleClass].proxyAttrs.fullAPIName;
+					} else {
+						// parent module is external, so the reference needs to be injected at boot time
+						Array.isArray(externalChildModules[moduleClass]) || (externalChildModules[moduleClass] = []);
+						externalChildModules[moduleClass] = externalChildModules[moduleClass].concat(bindings.modules[moduleClass].childModules);
+					}
+				});
+			}
+		}
+	}, this);
 
-	compiler.compile(compile_bytecode=self.compile_js, external_modules=self.modules)
+	// get the v8 runtime jar file(s)
+	if (depMap && depMap.runtimes && depMap.runtimes.v8) {
+		var v8 = depMap.runtimes.v8;
+		(Array.isArray(v8) ? v8 : [ v8 ]).forEach(function (jar) {
+			if (fs.existsSync(jar = path.join(this.platformPath, jar))) {
+				this.logger.debug(__('Adding library %s', jar.cyan));
+				jarLibraries[jar] = 1;
+			}
+		}, this);
+	}
 
-	self.compiled_files = compiler.compiled_files
-	self.android_jars = compiler.jar_libraries
+	function addTitaniumLibrary(namespace) {
+		namespace = namespace.toLowerCase();
+		if (ignoreNamespaces.test(namespace) || tiNamespaces[namespace]) return;
+		tiNamespaces[namespace] = [];
 
+		var jar = moduleJarMap[namespace];
+		if (jar) {
+			jar = jar == 'titanium.jar' ? path.join(this.platformPath, jar) : path.join(this.platformPath, 'modules', jar);
+			if (fs.existsSync(jar) && !jarLibraries[jar]) {
+				this.logger.debug(__('Adding library %s', jar.cyan));
+				jarLibraries[jar] = 1;
+			}
+		} else {
+			this.logger.debug(__('Unknown module %s', namespace.cyan));
+		}
+
+		depMap.libraries[namespace] && depMap.libraries[namespace].forEach(function (jar) {
+			if (fs.existsSync(jar = path.join(this.platformPath, jar)) && !jarLibraries[jar]) {
+				this.logger.debug(__('Adding dependency library %s', jar.cyan));
+				jarLibraries[jar] = 1;
+			}
+		}, this);
+
+		depMap.dependencies[namespace] && depMap.dependencies[namespace].forEach(addTitaniumLibrary, this);
+	}
+
+	// get all required titanium modules
+	depMap.required.forEach(addTitaniumLibrary, this);
+
+	// if we need to include all titanium modules, then do it
 	if (this.includeAllTiModules) {
-		for module in bindings.get_all_module_names():
-			self.add_required_module(module)
-	*/
+		Object.keys(moduleJarMap).forEach(addTitaniumLibrary, this);
+	}
 
+	// for each Titanium symbol found when we copied the JavaScript files, we need
+	// extract the Titanium namespace and make sure we include its jar library
+	Object.keys(this.tiSymbols).forEach(function (file) {
+		this.tiSymbols[file].forEach(function (symbol) {
+			var parts = symbol.split('.'),
+				namespace = parts.slice(0, -1).join('.');
+			if (namespace) {
+				addTitaniumLibrary.call(this, namespace);
+				if (tiNamespaces[namespace]) {
+					// track each method/property
+					tiNamespaces[namespace].push(parts.pop());
+				}
+			}
+		}, this);
+	}, this);
 
-	/*
-	def build_modules_info(self, resources_dir, app_bin_dir, include_all_ti_modules=False):
-		self.app_modules = []
-		(modules, external_child_modules) = bindings.get_all_module_bindings()
+	function createModuleDescriptor(namespace) {
+		var results = {
+				apiName: '',
+				className: '',
+				bindings: tiNamespaces[namespace],
+				externalChildModules: [],
+				onAppCreate: null
+			},
+			moduleBindingKeys = Object.keys(moduleBindings),
+			len = moduleBindingKeys.length,
+			i, name, extChildModule;
 
-		compiler = Compiler(self.tiapp, resources_dir, self.java, app_bin_dir,
-				None, os.path.dirname(app_bin_dir),
-				include_all_modules=include_all_ti_modules)
-		compiler.compile(compile_bytecode=False, info_message=None)
-		for module in compiler.modules:
-			module_bindings = []
-			# TODO: we should also detect module properties
-			for method in compiler.module_methods:
-				if method.lower().startswith(module+'.') and '.' not in method:
-					module_bindings.append(method[len(module)+1:])
+		for (i = 0; i < len; i++) {
+			name = moduleBindingKeys[i];
+			if (moduleBindings[name].fullAPIName.toLowerCase() == namespace) {
+				results.apiName = moduleBindings[name].fullAPIName
+				results.className = name;
+				if (moduleBindings[name].onAppCreate) {
+					results.onAppCreate = moduleBindings[name].onAppCreate;
+				}
+				break;
+			}
+		}
 
-			module_onAppCreate = None
-			module_class = None
-			module_apiName = None
-			for m in modules.keys():
-				if modules[m]['fullAPIName'].lower() == module:
-					module_class = m
-					module_apiName = modules[m]['fullAPIName']
-					if 'onAppCreate' in modules[m]:
-						module_onAppCreate = modules[m]['onAppCreate']
-					break
+		// check if we found the api name and if not bail
+		if (!results.apiName) return;
 
-			if module_apiName == None: continue # module wasn't found
-			ext_modules = []
-			if module_class in external_child_modules:
-				for child_module in external_child_modules[module_class]:
-					if child_module['fullAPIName'].lower() in compiler.modules:
-						ext_modules.append(child_module)
-			self.app_modules.append({
-				'api_name': module_apiName,
-				'class_name': module_class,
-				'bindings': module_bindings,
-				'external_child_modules': ext_modules,
-				'on_app_create': module_onAppCreate
-			})
+		if (extChildModule = externalChildModules[results.className]) {
+			for (i = 0, len = extChildModule.length; i < len; i++) {
+				if (tiNamespaces[extChildModule[i].fullAPIName.toLowerCase()]) {
+					results.externalChildModules.push(extChildModule[i]);
+					break;
+				}
+			}
+		}
 
-		# discover app modules
-		detector = ModuleDetector(self.project_dir)
-		missing, detected_modules = detector.find_app_modules(self.tiapp, 'android', self.deploy_type)
-		for missing_module in missing: print '[WARN] Couldn\'t find app module: %s' % missing_module['id']
+		appModulesMap[results.apiName.toLowerCase()] = 1;
 
-		self.custom_modules = []
-		for module in detected_modules:
-			if module.jar == None: continue
-			module_jar = zipfile.ZipFile(module.jar)
-			module_bindings = bindings.get_module_bindings(module_jar)
-			if module_bindings is None: continue
+		return results;
+	}
 
-			for module_class in module_bindings['modules'].keys():
-				module_apiName = module_bindings['modules'][module_class]['apiName']
-				module_proxy = module_bindings['proxies'][module_class]
-				module_id = module_proxy['proxyAttrs']['id']
-				module_proxy_class_name = module_proxy['proxyClassName']
-				module_onAppCreate = None
-				if 'onAppCreate' in module_proxy:
-					module_onAppCreate = module_proxy['onAppCreate']
+	// build the list of modules for the templates
+	Object.keys(tiNamespaces).map(createModuleDescriptor).forEach(function (m) {
+		m && this.appModules.push(m);
+	}, this);
 
-				print '[DEBUG] module_id = %s' % module_id
-				if module_id == module.manifest.moduleid:
-					# make sure that the module was not built before 1.8.0.1
-					try:
-						module_api_version = int(module.manifest.apiversion)
-						if module_api_version < 2:
-							print "[ERROR] The 'apiversion' for '%s' in the module manifest is less than version 2.  The module was likely built against a Titanium SDK pre 1.8.0.1.  Please use a version of the module that has 'apiversion' 2 or greater" % module_id
-							touch_tiapp_xml(os.path.join(self.project_dir, 'tiapp.xml'))
-							sys.exit(1)
+	this.modules.forEach(function (module) {
+		// check if the module has a metadata.json (which most native-wrapped CommonJS
+		// modules should), then make sure those Titanium namespaces are loaded
+		var metadataFile = path.join(module.modulePath, 'metadata.json'),
+			metadata;
+		if (fs.existsSync(metadataFile)) {
+			metadata = JSON.parse(fs.readFileSync(metadataFile));
+			if (metadata && typeof metadata == 'object' && Array.isArray(metadata.exports)) {
+				metadata.exports.forEach(function (namespace) {
+					addTitaniumLibrary.call(this, namespace);
+				}, this);
+			} else {
+				metadata = null;
+			}
+		}
 
-					except(TypeError, ValueError):
-						print "[ERROR] The 'apiversion' for '%s' in the module manifest is not a valid value.  Please use a version of the module that has an 'apiversion' value of 2 or greater set in it's manifest file" % module_id
-						touch_tiapp_xml(os.path.join(self.project_dir, 'tiapp.xml'))
-						sys.exit(1)
+		if (!module.jarFile || !module.bindings) return;
 
+		Object.keys(module.bindings.modules).forEach(function (moduleClass) {
+			var proxy = module.bindings.proxies[moduleClass],
+				result = {
+					id: proxy.proxyAttrs.id,
+					apiName: module.bindings.modules[moduleClass].apiName,
+					proxyName: proxy.proxyClassName,
+					className: moduleClass,
+					manifest: module.manifest,
+					onAppCreate: proxy.onAppCreate || null,
+					isNativeJsModule: !!module.manifest.commonjs
+				};
 
-					is_native_js_module = (hasattr(module.manifest, 'commonjs') and module.manifest.commonjs)
-					print '[DEBUG] appending module: %s' % module_class
-					self.custom_modules.append({
-						'module_id': module_id,
-						'module_apiName': module_apiName,
-						'proxy_name': module_proxy_class_name,
-						'class_name': module_class,
-						'manifest': module.manifest,
-						'on_app_create': module_onAppCreate,
-						'is_native_js_module': is_native_js_module
-					})
-					if is_native_js_module:
-						# Need to look at the app modules used in this external js module
-						metadata_file = os.path.join(module.path, "metadata.json")
-						metadata = None
-						try:
-							f = open(metadata_file, "r")
-							metadata = f.read()
-						finally:
-							f.close()
+			if (result.id != module.manifest.moduleid) return;
 
-						if metadata:
-							metadata = simplejson.loads(metadata)
-							if metadata.has_key("exports"):
-								exported_module_ids = metadata["exports"]
-								already_included_module_ids = [m["api_name"].lower() for m in self.app_modules]
-								need_to_add = [m for m in exported_module_ids if m not in already_included_module_ids]
-								if need_to_add:
-									for to_add in need_to_add:
-										module_onAppCreate = None
-										module_class = None
-										module_apiName = None
-										for m in modules.keys():
-											if modules[m]['fullAPIName'].lower() == to_add:
-												module_class = m
-												module_apiName = modules[m]['fullAPIName']
-												if 'onAppCreate' in modules[m]:
-													module_onAppCreate = modules[m]['onAppCreate']
-												break
+			// make sure that the module was not built before 1.8.0.1
+			if (~~module.manifest.apiversion < 2) {
+				this.logger.error(__('The "apiversion" for "%s" in the module manifest is less than version 2.', id.cyan));
+				this.logger.error(__('The module was likely built against a Titanium SDK 1.8.0.1 or older.'));
+				this.logger.error(__('Please use a version of the module that has "apiversion" 2 or greater'));
+				this.logger.log();
+				process.exit(1);
+			}
 
-										if module_apiName == None: continue # module wasn't found
-										ext_modules = []
-										if module_class in external_child_modules:
-											for child_module in external_child_modules[module_class]:
-												if child_module['fullAPIName'].lower() in compiler.modules:
-													ext_modules.append(child_module)
-										self.app_modules.append({
-											'api_name': module_apiName,
-											'class_name': module_class,
-											'bindings': [],
-											'external_child_modules': ext_modules,
-											'on_app_create': module_onAppCreate
-										})
-	*/
+			customModules.push(result);
+
+			metadata && metadata.exports.forEach(function (namespace) {
+				if (!appModulesMap[namespace]) {
+					var r = createModuleDescriptor(namespace);
+					r && appModules.push(r);
+				}
+			});
+		}, this);
+	}, this);
+
 	next();
 };
 
 AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
-	var copyTemplate = function (src, dest) {
+	var android = this.tiapp.android,
+		copyTemplate = function (src, dest) {
 			if (this.forceRebuild || !fs.existsSync(dest)) {
 				this.logger.debug(__('Copying template %s => %s', src.cyan, dest.cyan));
 				fs.writeFileSync(dest, ejs.render(fs.readFileSync(src).toString(), this));
@@ -1851,7 +1932,7 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 	// copy and populate templates
 	copyTemplate(path.join(this.templatesDir, 'AppInfo.java'), path.join(this.buildGenAppIdDir, 'AppInfo.java'));
 	copyTemplate(path.join(this.templatesDir, 'AndroidManifest.xml'), path.join(this.buildDir, 'AndroidManifest.xml'));
-	//copyTemplate(path.join(this.templatesDir, 'App.java'), path.join(this.buildGenAppIdDir, this.classname + 'Application.java'));
+	copyTemplate(path.join(this.templatesDir, 'App.java'), path.join(this.buildGenAppIdDir, this.classname + 'Application.java'));
 	copyTemplate(path.join(this.templatesDir, 'Activity.java'), path.join(this.buildGenAppIdDir, this.classname + 'Activity.java'));
 	copyTemplate(path.join(this.templatesDir, 'project'), path.join(this.buildDir, '.project'));
 	copyTemplate(path.join(this.templatesDir, 'default.properties'), path.join(this.buildDir, 'default.properties'));
@@ -1861,156 +1942,62 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 	// TODO: merge custom classpath with build/android/.classpath
 	afs.copyFileSync(path.join(this.templatesDir, 'classpath'), path.join(this.buildDir, '.classpath'), { logger: this.logger.debug });
 
-	/*
-	% for module in custom_modules:
-		<%
-			manifest = module['manifest']
-			className = module['module_apiName']
-			isJSMod = (module.has_key('is_native_js_module') and module['is_native_js_module'])
-		%>
+	// generate the JavaScript-based activities
+	if (android && android.activities) {
+		var activityTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSActivity.java')).toString();
+		Object.keys(android.activities).forEach(function (name) {
+			var activity = android.activities[name];
+			this.logger.debug(__('Generating activity class: %s', activity.classname.cyan));
+			fs.writeFileSync(path.join(this.buildGenAppIdDir, activity.classname + '.java'), ejs.render(activityTemplate, {
+				appid: this.appid,
+				activity: activity
+			}));
+		}, this);
+	}
 
-		runtime.addExternalModule("${manifest.moduleid}", ${manifest.moduleid}.${className}Bootstrap.class);
+	// generate the JavaScript-based services
+	if (android && android.services) {
+		var serviceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSService.java')).toString(),
+			intervalServiceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSIntervalService.java')).toString();
+		Object.keys(android.services).forEach(function (name) {
+			var service = android.services[name],
+				tpl = serviceTemplate;
+			if (service.type == 'interval') {
+				tpl = intervalServiceTemplate;
+				this.logger.debug(__('Generating interval service class: %s', service.classname.cyan));
+			} else {
+				this.logger.debug(__('Generating service class: %s', service.classname.cyan));
+			}
+			fs.writeFileSync(path.join(this.buildGenAppIdDir, service.classname + '.java'), ejs.render(tpl, {
+				appid: this.appid,
+				service: service
+			}));
+		}, this);
+	}
 
-		% if isJSMod:
-			runtime.addExternalCommonJsModule("${manifest.moduleid}", ${manifest.moduleid}.CommonJsSourceProvider.class);
-		% endif
-	% endfor
-
-	KrollRuntime.init(this, runtime);
-
-	stylesheet = new ApplicationStylesheet();
-	postOnCreate();
-
-	<%def name="onAppCreate(module)" filter="trim">
-		% if module['on_app_create'] != None:
-		try {
-			${module['class_name']}.${module['on_app_create']}(this);
-		} catch (Exception e) {
-			StringBuilder error = new StringBuilder();
-			error.append("Error running onAppCreate method ")
-				.append("\"${module['on_app_create']}\"")
-				.append(" for module ")
-				.append("${module.get('api_name') or module.get('manifest').moduleid}: ")
-				.append(e.getMessage());
-			Log.e(TAG, error.toString(), e);
-		}
-		% endif
-	</%def>
-
-	% for module in app_modules:
-	${onAppCreate(module)} \
-	% endfor
-
-	% if len(custom_modules) > 0:
-	// Custom modules
-	KrollModuleInfo moduleInfo;
-	% endif
-
-	% for module in custom_modules:
-	${onAppCreate(module)} \
-
-	<%
-	manifest = module['manifest']
-	isJSMod = (module.has_key('is_native_js_module') and module['is_native_js_module'])
-	%>
-
-	moduleInfo = new KrollModuleInfo(
-		"${manifest.name}", "${manifest.moduleid}", "${manifest.guid}", "${manifest.version}",
-		"${manifest.description}", "${manifest.author}", "${manifest.license}",
-		"${manifest.copyright}");
-
-	% if manifest.has_property("licensekey"):
-	moduleInfo.setLicenseKey("${manifest.licensekey}");
-	% endif
-
-	% if isJSMod:
-	moduleInfo.setIsJSModule(true);
-	% endif
-
-	KrollModule.addCustomModuleInfo(moduleInfo);
-	% endfor
-	*/
-
-	// TODO: generate activities from tiapp.xml
-	/*
-	def generate_activities(self, app_package_dir):
-		if not 'activities' in self.tiapp.android: return
-		for key in self.tiapp.android['activities'].keys():
-			activity = self.tiapp.android['activities'][key]
-			print '[DEBUG] generating activity class: ' + activity['classname']
-
-			self.render(template_dir, 'JSActivity.java', app_package_dir, activity['classname']+'.java', activity=activity)
-	*/
-
-	// TODO: generate services from tiapp.xml
-	/*
-	def generate_services(self, app_package_dir):
-		if not 'services' in self.tiapp.android: return
-		for key in self.tiapp.android['services'].keys():
-			service = self.tiapp.android['services'][key]
-			service_type = service['service_type']
-			print '[DEBUG] generating service type "%s", class "%s"' %(service_type, service['classname'])
-			if service_type == 'interval':
-				self.render(template_dir, 'JSIntervalService.java', app_package_dir, service['classname']+'.java', service=service)
-			else:
-				self.render(template_dir, 'JSService.java', app_package_dir, service['classname']+'.java', service=service)
-	*/
-
-	// TODO: write app_modules to build/android/bin/assets/app.json???
-	/*
-	fs.writeFileSync(path.join(this.buildDir, 'bin', 'assets', 'app.json'), JSON.stringify({
+	// write the app.json
+	fs.writeFileSync(path.join(this.buildBinAssetsDir, 'app.json'), JSON.stringify({
 		app_modules: this.appModules
-	});
-	*/
+	}));
 
 	next();
 };
 
 AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next) {
-	/*
-	def merge_internal_module_resources(self):
-		if not self.android_jars:
-			return
-		for jar in self.android_jars:
-			if not os.path.exists(jar):
-				continue
-			res_zip = jar[:-4] + '.res.zip'
-			if not os.path.exists(res_zip):
-				continue
-			res_zip_file = zipfile.ZipFile(res_zip, "r")
-			try:
-				zip_extractall(res_zip_file, self.project_dir)
-			except:
-				raise
-			finally:
-				res_zip_file.close()
-	*/
-	next();
-};
-
-AndroidBuilder.prototype.copyCommonJsModules = function copyCommonJsModules(next) {
-	// copy commonjs modules
-	if (this.commonJsModules.length) {
-		this.logger.info(__n('Copying %s CommonJS module', 'Copying %s CommonJS modules', this.commonJsModules.length));
-		this.commonJsModules.forEach(function (module) {
-			var src = path.join(module.modulePath, module.id + '.js'),
-				dest = path.join(this.buildBinAssetsResourcesDir, module.id + '.js');
-			if (!fs.existsSync(src)) {
-				this.logger.error(__('Unable to find main source file for CommonJS module "%s"', module.id));
-				process.exit(1);
-			}
-			if (fs.existsSync(dest)) {
-				this.logger.error(__('Found conflicting module "%s"', module.id));
-				this.logger.error(__('There is a file in this project named "%s.js" that conflicts with the %s module', module.id, module.id) + '\n');
-				process.exit(1);
-			} else {
-				afs.copyFileSync(src, dest, { logger: this.logger.debug });
-			}
-		}, this);
-	} else {
-		this.logger.info(__('No CommonJS modules to copy'));
-	}
-	next();
+	// for each jar library, if it has a companion resource zip file, extract
+	// all of its files into the build dir, and yes, this is stupidly dangerous
+	appc.async.series(this, Object.keys(this.jarLibraries).map(function (jarFile) {
+		return function (done) {
+			var resFile = jarFile.replace(/\.jar$/, '.res.zip');
+			if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) return done();
+			this.logger.info(__('Extracting module resources: %s', resFile.cyan));
+			appc.zip.unzip(resFile, this.buildDir, {
+				visitor: function (entry) {
+					this.logger.debug(__('Extracting %s', entry.entryName.toString().cyan));
+				}.bind(this)
+			}, done);
+		};
+	}), next);
 };
 
 AndroidBuilder.prototype.copyDrawables = function copyDrawables(next) {

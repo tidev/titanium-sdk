@@ -1,9 +1,9 @@
-package ${config['appid']};
+package <%- appid %>;
 
 import ti.modules.titanium.android.TiJSIntervalService;
 
-public final class ${service['classname']} extends TiJSIntervalService {
-	public ${service['classname']}() {
-		super("${service['url']}");
+public final class <%- service.classname %> extends TiJSIntervalService {
+	public <%- service.classname %>() {
+		super("<%- service.url %>");
 	}
 }
