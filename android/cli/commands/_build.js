@@ -14,7 +14,7 @@ var ADB = require('titanium-sdk/lib/adb'),
 	Builder = require('titanium-sdk/lib/builder'),
 	cleanCSS = require('clean-css'),
 	crypto = require('crypto'),
-	DOMParser = require('xmldom').DOMParser;
+	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
 	EmulatorManager = require('titanium-sdk/lib/emulator'),
 	fields = require('fields'),
@@ -322,19 +322,20 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 									callback(null, value);
 								}
 							}));
-						}
+						},
+						secret: true
 					},
 					'keystore': {
 						abbr: 'K',
 						callback: function (value) {
 							_t.conf.options['alias'].required = true;
-							_t.conf.options['key-password'].required = true;
 							_t.conf.options['store-password'].required = true;
 						},
 						desc: __('the location of the keystore file'),
 						hint: 'path',
 						order: 104,
 						prompt: function (callback) {
+							_t.conf.options['key-password'].required = true;
 							callback(fields.file({
 								promptLabel: __('Where is the __keystore file__ used to sign the app?'),
 								complete: true,
@@ -390,6 +391,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								validate: _t.conf.options['store-password'].validate.bind(_t)
 							}));
 						},
+						secret: true,
 						validate: function (storePassword, callback) {
 							if (!storePassword) {
 								return callback(new Error(__('Please specify a keystore password')));
@@ -459,7 +461,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								_t.conf.options['alias'].required = true;
 								_t.conf.options['deploy-type'].values = ['production'];
 								_t.conf.options['device'].required = false;
-								_t.conf.options['key-password'].required = true;
 								_t.conf.options['keystore'].required = true;
 								_t.conf.options['output-dir'].required = true;
 								_t.conf.options['store-password'].required = true;
@@ -1422,7 +1423,9 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	var ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')),
 		ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles')),
-		extRegExp = /\.(css|html|js|jss)$/;
+		extRegExp = /\.(css|html|js|jss)$/,
+		jsFiles = {},
+		htmlJsFiles = {};
 
 	function copyDir(opts, callback) {
 		if (opts && opts.src && fs.existsSync(opts.src) && fs.statSync(opts.src).isDirectory() && opts.dest) {
@@ -1472,41 +1475,23 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						break;
 
 					case 'html':
-						// TODO:
+						// find all app:// js files referenced in this html file
+						jsanalyze.analyzeHtmlFile(from).forEach(function (file) {
+							htmlJsFiles[file] = 1;
+						});
+
 						afs.copyFileAsync(from, to, { logger: this.logger.debug }, next);
 						break;
 
 					case 'js':
-						try {
-							// if we're encrypting the JavaScript, copy the files to the assets dir
-							// for processing later
-							if (this.encryptJS) {
-								to = path.join(this.buildAssetsDir, filename);
-							}
+						// track each js file so we can copy/minify later
 
-							// if we're not minifying the JavaScript and we're not forcing all
-							// Titanium Android modules to be included, then parse the AST and detect
-							// all Titanium symbols
-							if (this.minifyJS || !this.includeAllTiModules) {
-								this.logger.debug(this.minifyJS
-									? __('Copying and minifying %s => %s', from.cyan, to.cyan)
-									: __('Copying %s => %s', from.cyan, to.cyan));
+						// we use the destination file name minus the path to the assets dir as the id
+						// which will eliminate dupes
+						var id = to.replace(this.buildBinAssetsResourcesDir, '').replace(/^\//, '');
+						jsFiles[id] = from;
 
-								var r = jsanalyze.analyzeFile(from, { minify: this.minifyJS });
-
-								// we want to sort by the "to" filename so that we correctly handle file overwriting
-								this.tiSymbols[to] = r.symbols;
-
-								fs.writeFile(to, r.contents, next);
-							} else {
-								// no need to parse the AST, so just copy the file
-								afs.copyFileAsync(from, to, { logger: this.logger.debug }, next);
-							}
-						} catch (ex) {
-							ex.message.split('\n').forEach(this.logger.error);
-							this.logger.log();
-							process.exit(1);
-						}
+						next();
 						break;
 
 					case 'jss':
@@ -1518,6 +1503,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						if (fs.existsSync(to) && /^(strings|attrs|styles|bools|colors|dimens|ids|integers|arrays)\.xml$/.test(filename)) {
 							// merge the <resources> from the source into to dest file
 							// TODO:
+							next();
 							break;
 						}
 
@@ -1567,30 +1553,92 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	}, this);
 
 	appc.async.series(this, tasks, function (err, results) {
-		dump(this.tiSymbols);
-		next();
+		var jsFilesToEncrypt = [];
+
+		appc.async.parallel(this, Object.keys(jsFiles).map(function (id) {
+			return function (done) {
+				var from = jsFiles[id],
+					to = path.join(this.buildBinAssetsResourcesDir, id);
+
+				if (htmlJsFiles[id]) {
+					// this js file is referenced from an html file, so don't minify or encrypt
+					afs.copyFileAsync(from, to, { logger: this.logger.debug }, done);
+
+				} else {
+					// we have a js file that may be minified or encrypted
+
+					// if we're encrypting the JavaScript, copy the files to the assets dir
+					// for processing later
+					if (this.encryptJS) {
+						to = path.join(this.buildAssetsDir, id);
+						jsFilesToEncrypt.push(id);
+					}
+
+					// if we're not minifying the JavaScript and we're not forcing all
+					// Titanium Android modules to be included, then parse the AST and detect
+					// all Titanium symbols
+					if (this.minifyJS || !this.includeAllTiModules) {
+						this.logger.debug(this.minifyJS
+							? __('Copying and minifying %s => %s', from.cyan, to.cyan)
+							: __('Copying %s => %s', from.cyan, to.cyan));
+
+						var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+
+						// we want to sort by the "to" filename so that we correctly handle file overwriting
+						this.tiSymbols[to] = r.symbols;
+
+						var dir = path.dirname(to);
+						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+						fs.writeFile(to, r.contents, done);
+					} else {
+						// no need to parse the AST, so just copy the file
+						afs.copyFileAsync(from, to, { logger: this.logger.debug }, done);
+					}
+				}
+			};
+		}), function () {
+			if (!jsFilesToEncrypt.length) {
+				// nothing to encrypt, continue
+				return next();
+			}
+
+			// figure out which titanium prep to run
+			var titaniumPrep = 'titanium_prep';
+			if (process.platform == 'darwin') {
+				titaniumPrep += '.macos';
+			} else if (process.platform == 'win32') {
+				titaniumPrep += '.win.exe';
+			} else if (process.platform == 'linux') {
+				titaniumPrep += '.linux' + (process.arch == 'x64' ? '64' : '32');
+			}
+
+			var args = [ this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt);
+
+			this.logger.info('Encrypting JavaScript files: %s', (path.join(this.platformPath, titaniumPrep) + ' "' + args.join('" "') + '"').cyan);
+
+			// encrypt the javascript
+			appc.subprocess.run(path.join(this.platformPath, titaniumPrep), args, function (code, out, err) {
+				if (code) {
+					this.logger.error(__('Failed to encrypt JavaScript files'));
+					err.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
+
+				// write the encrypted JS bytes to the generated Java file
+				fs.writeFileSync(
+					path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java'),
+					ejs.render(fs.readFileSync(path.join(this.templatesDir, 'AssetCryptImpl.java')).toString(), {
+						appid: this.appid,
+						encryptedAssets: out
+					})
+				);
+
+				next();
+			}.bind(this));
+		});
 	});
-
-	/*
-	full_resource_dir = os.path.join(self.project_dir, self.assets_resources_dir)
-
-	compiler = Compiler(self.tiapp,
-						full_resource_dir,
-						self.java,
-						self.classes_dir,
-						self.project_gen_dir,
-						self.project_dir,
-						include_all_modules=include_all_ti_modules)
-
-	compiler.compile(compile_bytecode=self.compile_js, external_modules=self.modules)
-
-	self.compiled_files = compiler.compiled_files
-	self.android_jars = compiler.jar_libraries
-
-	if (this.includeAllTiModules) {
-		for module in bindings.get_all_module_names():
-			self.add_required_module(module)
-	*/
 };
 
 AndroidBuilder.prototype.compileJSS = function compileJSS(callback) {
@@ -1632,6 +1680,30 @@ AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(ca
 
 AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 	// process all ti symbols and modules binding and stuff
+
+	dump(this.tiSymbols);
+
+	/*
+	full_resource_dir = os.path.join(self.project_dir, self.assets_resources_dir)
+
+	compiler = Compiler(self.tiapp,
+						full_resource_dir,
+						self.java,
+						self.classes_dir,
+						self.project_gen_dir,
+						self.project_dir,
+						include_all_modules=include_all_ti_modules)
+
+	compiler.compile(compile_bytecode=self.compile_js, external_modules=self.modules)
+
+	self.compiled_files = compiler.compiled_files
+	self.android_jars = compiler.jar_libraries
+
+	if (this.includeAllTiModules) {
+		for module in bindings.get_all_module_names():
+			self.add_required_module(module)
+	*/
+
 
 	/*
 	def build_modules_info(self, resources_dir, app_bin_dir, include_all_ti_modules=False):
