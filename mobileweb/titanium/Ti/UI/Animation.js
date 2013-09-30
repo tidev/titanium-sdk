@@ -394,7 +394,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 			}
 		}
 
-		delay ? setTimeout(go, delay) : go();
+		setTimeout(go, delay || 0);
 
 		function findAnimation() {
 			var anis = animations[wid],
