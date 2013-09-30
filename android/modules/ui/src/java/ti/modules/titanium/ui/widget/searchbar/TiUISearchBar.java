@@ -125,17 +125,17 @@ public class TiUISearchBar extends TiUIText
 	{
 		super.processProperties(d);
 		if (d.containsKey(TiC.PROPERTY_SHOW_CANCEL)) {
-			applayProperty(TiC.PROPERTY_SHOW_CANCEL, null, TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SHOW_CANCEL)),
+			applyProperties(TiC.PROPERTY_SHOW_CANCEL, null, TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SHOW_CANCEL)),
 				null);
 		}
 		if (d.containsKey(TiC.PROPERTY_BAR_COLOR)) {
-			applayProperty(TiC.PROPERTY_BAR_COLOR, null, TiConvert.toString(proxy.getProperty(TiC.PROPERTY_BAR_COLOR)), null);
+			applyProperties(TiC.PROPERTY_BAR_COLOR, null, TiConvert.toString(proxy.getProperty(TiC.PROPERTY_BAR_COLOR)), null);
 		}
 		if (d.containsKey(TiC.PROPERTY_PROMPT)) {
-			applayProperty(TiC.PROPERTY_PROMPT, null, TiConvert.toString(proxy.getProperty(TiC.PROPERTY_PROMPT)), null);
+			applyProperties(TiC.PROPERTY_PROMPT, null, TiConvert.toString(proxy.getProperty(TiC.PROPERTY_PROMPT)), null);
 		}
 		if (d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			applayProperty(TiC.PROPERTY_BACKGROUND_IMAGE, null,
+			applyProperties(TiC.PROPERTY_BACKGROUND_IMAGE, null,
 				TiConvert.toString(proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE)), proxy);
 		}
 	}
@@ -144,10 +144,10 @@ public class TiUISearchBar extends TiUIText
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		super.propertyChanged(key, oldValue, newValue, proxy);
-		applayProperty(key, oldValue, newValue, proxy);
+		applyProperties(key, oldValue, newValue, proxy);
 	}
 
-	private void applayProperty(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	private void applyProperties(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (key.equals(TiC.PROPERTY_SHOW_CANCEL)) {
 			boolean showCancel = TiConvert.toBoolean(newValue);
