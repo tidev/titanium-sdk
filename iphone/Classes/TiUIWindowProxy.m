@@ -389,7 +389,21 @@
     } else {
         UIImage* resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
         [ourNB setBackgroundImage:resizableImage forBarMetrics:UIBarMetricsDefault];
+        //You can only set up the shadow image with a custom background image.
+        id shadowImageValue = [self valueForUndefinedKey:@"shadowImage"];
+        theImage = [TiUtils toImage:shadowImageValue proxy:self];
+        
+        if (theImage != nil) {
+            ourNB.shadowImage = theImage;
+        } else {
+            BOOL clipValue = [TiUtils boolValue:[self valueForUndefinedKey:@"hideShadow"] def:NO];
+            if (clipValue) {
+                //Set an empty Image.
+                ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
+            }
+        }
     }
+    
 }
 
 -(void)setBarImage:(id)value
@@ -835,7 +849,7 @@ else{\
     SETPROPOBJ(@"leftNavButton",setLeftNavButton);
     SETPROPOBJ(@"rightNavButton",setRightNavButton);
     SETPROPOBJ(@"toolbar",setToolbar);
-    SETPROP(@"barImage",setBarImage);
+    [self updateBarImage];
     [self refreshBackButton];
 
     id navBarHidden = [self valueForKey:@"navBarHidden"];
