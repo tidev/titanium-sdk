@@ -394,12 +394,15 @@
         theImage = [TiUtils toImage:shadowImageValue proxy:self];
         
         if (theImage != nil) {
-            ourNB.shadowImage = theImage;
+            UIImage* resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
+            ourNB.shadowImage = resizableImage;
         } else {
             BOOL clipValue = [TiUtils boolValue:[self valueForUndefinedKey:@"hideShadow"] def:NO];
             if (clipValue) {
                 //Set an empty Image.
                 ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
+            } else {
+                ourNB.shadowImage = nil;
             }
         }
     }
