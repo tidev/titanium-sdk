@@ -375,7 +375,7 @@
 
 -(void)updateBarImage
 {
-    if (controller == nil || [controller navigationController] == nil) {
+    if (controller == nil || [controller navigationController] == nil || !shouldUpdateNavBar) {
         return;
     }
     
@@ -412,6 +412,24 @@
 -(void)setBarImage:(id)value
 {
 	[self replaceValue:value forKey:@"barImage" notification:NO];
+	if (controller!=nil)
+	{
+		TiThreadPerformOnMainThread(^{[self updateBarImage];}, NO);
+	}
+}
+
+-(void)setShadowImage:(id)value
+{
+	[self replaceValue:value forKey:@"shadowImage" notification:NO];
+	if (controller!=nil)
+	{
+		TiThreadPerformOnMainThread(^{[self updateBarImage];}, NO);
+	}
+}
+
+-(void)setHideShadow:(id)value
+{
+	[self replaceValue:value forKey:@"hideShadow" notification:NO];
 	if (controller!=nil)
 	{
 		TiThreadPerformOnMainThread(^{[self updateBarImage];}, NO);
