@@ -1267,6 +1267,66 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
     
+  - name: TEXT_STYLE_HEADLINE
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "7.0"}}
+    since: "3.2.0"
+    
+  - name: TEXT_STYLE_SUBHEADLINE
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "7.0"}}
+    since: "3.2.0"
+    
+  - name: TEXT_STYLE_BODY
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "7.0"}}
+    since: "3.2.0"
+    
+  - name: TEXT_STYLE_FOOTNOTE
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "7.0"}}
+    since: "3.2.0"
+    
+  - name: TEXT_STYLE_CAPTION1
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "7.0"}}
+    since: "3.2.0"
+    
+  - name: TEXT_STYLE_CAPTION2
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "7.0"}}
+    since: "3.2.0"
+    
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM
     summary: Align text to the bottom of the view.
     description: |
