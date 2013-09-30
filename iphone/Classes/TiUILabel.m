@@ -11,6 +11,10 @@
 #import "TiUtils.h"
 #import "UIImage+Resize.h"
 
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+#import "TiUIiOSAttributedStringProxy.h"
+#endif
+
 @implementation TiUILabel
 
 #pragma mark Internal
@@ -258,6 +262,18 @@
                self.bounds.size.width + padding.origin.x + padding.size.width,
                                         self.bounds.size.height + padding.origin.y + padding.size.height);
     [self backgroundImageLayer].frame = backgroundFrame;
+}
+
+-(void)setAttributedString_:(id)arg
+{
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+    if([arg isKindOfClass:[TiUIiOSAttributedStringProxy class]])
+    {
+        TiUIiOSAttributedStringProxy *attr = arg;
+        [[self label] setAttributedText:[arg _attributedString]];
+    }
+#endif
+    
 }
 
 -(void)setBackgroundImage_:(id)url

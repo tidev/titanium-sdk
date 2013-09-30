@@ -12,6 +12,11 @@
 #import "TiApp.h"
 #import "TiUtils.h"
 
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+#import "TiUIiOSAttributedStringProxy.h"
+#endif
+
+
 @implementation TiUITextWidget
 
 - (id) init
@@ -26,6 +31,18 @@
 	return self;
 }
 
+
+-(void)setAttributedString_:(id)arg
+{
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+    if([arg isKindOfClass:[TiUIiOSAttributedStringProxy class]])
+    {
+        TiUIiOSAttributedStringProxy *attr = arg;
+        [(id)[self textWidgetView] setAttributedText:[arg _attributedString]];
+    }
+#endif
+    
+}
 
 -(void)setValue_:(id)value
 {

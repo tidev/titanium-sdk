@@ -423,6 +423,7 @@ typedef enum
  */
 +(TiDimension)dimensionValue:(NSString*)name properties:(NSDictionary*)properties def:(TiDimension)def exists:(BOOL*) exists;
 
++(NSShadow*)textShadowValue:(id)value;
 
 +(int)intValue:(NSString*)name properties:(NSDictionary*)props def:(int)def;
 
