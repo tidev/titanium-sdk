@@ -1,16 +1,16 @@
 instrumentation = {
-	
+
 	tests: [],
-	
+
 	counters: {},
-	
+
 	currentTestID: 1,
-	
+
 	startTime: Date.now(),
-	
+
 	startTest: function(category) {
 		var newTestID = this.currentTestID++,
-			newTest = { 
+			newTest = {
 				testID: newTestID,
 				category: category
 			};
@@ -23,6 +23,18 @@ instrumentation = {
 		return newTestID;
 	},
 
+	tick: function (testID, eventName) {
+		if (this.tests[testID]) {
+			var test = this.tests[testID],
+				category = test.category,
+				currentTime = Date.now();
+			console.debug('[INSTRUMENTATION] Test ' + (category ? '"' + category + ' ' + this.counters[category] + '"' : testID) + ' ticked\n' +
+				'\tElapsed time: ' + (currentTime - test.startTime) + ' ms\n' +
+				'\tTime since app launched: ' + (currentTime - this.startTime) + ' ms' +
+				(eventName ? '\n\tEvent: ' + eventName : ''));
+		}
+	},
+
 	stopTest: function(testID, customInformation) {
 		if (this.tests[testID]) {
 			var test = this.tests[testID],
@@ -33,19 +45,19 @@ instrumentation = {
 			this.logTest(testID);
 		}
 	},
-	
+
 	logTest: function(testID) {
 		var test = this.tests[testID],
 			category;
 		if (test) {
 			category = test.category;
-			console.debug("[INSTRUMENTATION] Test " + (category ? "'" + category + " " + this.counters[category] + "'" : testID) + " completed\n" +
-				"\tDuration: " + test.duration + " ms\n" +
-				"\tTime since app launched: " + test.timeSinceLaunch + " ms" +
-				(test.customInformation ? "\n\tMore Info: " + (typeof test.customInformation === "object" ? JSON.stringify(test.customInformation) : test.customInformation) : ""));
+			console.debug('[INSTRUMENTATION] Test ' + (category ? '"' + category + ' ' + this.counters[category] + '"' : testID) + ' completed\n' +
+				'\tDuration: ' + test.duration + ' ms\n' +
+				'\tTime since app launched: ' + test.timeSinceLaunch + ' ms' +
+				(test.customInformation ? '\n\tMore Info: ' + (typeof test.customInformation === 'object' ? JSON.stringify(test.customInformation) : test.customInformation) : ''));
 		}
 	},
-	
+
 	cancelTest: function(testID) {
 		(this.tests[testID]) && (this.tests[testID] = 0);
 	},
@@ -64,4 +76,4 @@ instrumentation = {
 		}
 	}
 };
-instrumentation.systemLoadTimeTest = instrumentation.startTest("System Load Time");
+instrumentation.systemLoadTimeTest = instrumentation.startTest('System Load Time');
