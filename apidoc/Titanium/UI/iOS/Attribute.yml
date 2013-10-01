@@ -1,0 +1,96 @@
+---
+name: Titanium.UI.iOS.Attribute
+summary: An abstract datatype for specifying an attributed string attribute.
+description: |
+    Attributes are added to the Titanium.UI.iOS.AttributedString object to create
+    styled text. The attribute is a JavaScript Object containing three properties:
+    name, value, range.
+
+properties:
+  - name: name
+    summary: Attribute name
+    description: |
+        The AttributedString expects a number value for the name. Use any of these:
+            Ti.UI.iOS.ATTRIBUTE_FONT
+            Ti.UI.iOS.ATTRIBUTE_PARAGRAPH_STYLE
+            Ti.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR
+            Ti.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR
+            Ti.UI.iOS.ATTRIBUTE_LIGATURE
+            Ti.UI.iOS.ATTRIBUTE_KERN
+            Ti.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE
+            Ti.UI.iOS.ATTRIBUTE_UNDERLINES_TYLE
+            Ti.UI.iOS.ATTRIBUTE_STROKE_COLOR
+            Ti.UI.iOS.ATTRIBUTE_STROKE_WIDTH
+            Ti.UI.iOS.ATTRIBUTE_SHADOW
+            Ti.UI.iOS.ATTRIBUTE_VERTICAL_GLYPH_FORM
+        For iOS 7 and above you can also use the following
+            Ti.UI.iOS.ATTRIBUTE_WRITING_DIRECTION
+            Ti.UI.iOS.ATTRIBUTE_TEXT_EFFECT
+            Ti.UI.iOS.ATTRIBUTE_ATTACHMENT
+            Ti.UI.iOS.ATTRIBUTE_LINK
+            Ti.UI.iOS.ATTRIBUTE_BASELINE_OFFSET
+            Ti.UI.iOS.ATTRIBUTE_UNDERLINE_COLOR
+            Ti.UI.iOS.ATTRIBUTE_STRIKETHROUGH_COLOR
+            Ti.UI.iOS.ATTRIBUTE_OBLIQUENESS
+            Ti.UI.iOS.ATTRIBUTE_EXPANSION
+
+    type: Number
+    optional: false
+  - name: value
+    summary: Attribute value.
+    description: |
+        The `value` paramenter has to match the `name` paramenter. For example, to
+        use the foreground color on the text you would use the Ti.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR
+        for the `name` and a color value for the value:
+        {
+            name: Ti.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR,
+            value: '#DDD',
+            range: [0, 100]
+        }
+        If you use the  Ti.UI.iOS.ATTRIBUTE_UNDERLINES_TYLE or the Ti.UI.iOS.ATTRIBUTE_STRIKETHROUGH_COLOR
+        you must use one, or more, of these constants:
+            Ti.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_NONE
+            Ti.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE
+            Ti.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_THICK
+            Ti.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
+            Ti.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_SOLID
+            Ti.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DOT
+            Ti.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH
+            Ti.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
+            Ti.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
+            Ti.UI.iOS.ATTRIBUTE_UNDERLINE_BY_WORD
+        These can be combined:
+        {
+            name: Ti.UI.iOS.ATTRIBUTE_UNDERLINES_TYLE,
+            value: Ti.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE | Ti.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH,
+            range: [0, 100]
+        }
+        
+        If you use the Ti.UI.iOS.ATTRIBUTE_WRITING_DIRECTION, you must use one or more of 
+        these constants
+            Ti.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
+            Ti.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
+            Ti.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_NATURAL
+            Ti.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
+            Ti.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
+        These can also be combined the same way as the underline styles.
+
+        If you use the Ti.UI.iOS.ATTRIBUTE_SHADOW, the `value` must a JavaScript object containing
+        any of the `offset`, `blurRadius`, and / or `color` properties:
+            {
+                offset: {
+                    width: 10,
+                    height: 10
+                },
+                blurRadius: 10,
+                color: 'red'
+            }
+    type: Number
+    optional: false
+  - name: range
+    summary: Attribute range. 
+    description: |
+                This specifies the range of text to applie the property to. An array of two
+                numbers. [from, to]
+    type: Array<Number>
+    optional: false

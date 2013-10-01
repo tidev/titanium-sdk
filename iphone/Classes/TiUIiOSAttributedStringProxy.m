@@ -195,7 +195,7 @@
 
     NSRange rangeValue = NSMakeRange(from, to);
 
-    if((from + to) > [_text length])
+    if((from + to) > [_attributedString length])
     {
 		DebugLog(@"[WARN] Ti.UI.iOS.AttributedString.range must me equal to or smaller than the text length");
         return;
