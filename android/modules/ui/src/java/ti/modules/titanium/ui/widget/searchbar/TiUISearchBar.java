@@ -125,29 +125,23 @@ public class TiUISearchBar extends TiUIText
 	{
 		super.processProperties(d);
 		if (d.containsKey(TiC.PROPERTY_SHOW_CANCEL)) {
-			applyProperties(TiC.PROPERTY_SHOW_CANCEL, null, TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SHOW_CANCEL)),
-				null);
+			boolean showCancel = TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_CANCEL, false);
+			cancelBtn.setVisibility(showCancel ? View.VISIBLE : View.GONE);
 		}
 		if (d.containsKey(TiC.PROPERTY_BAR_COLOR)) {
-			applyProperties(TiC.PROPERTY_BAR_COLOR, null, TiConvert.toString(proxy.getProperty(TiC.PROPERTY_BAR_COLOR)), null);
+			nativeView.setBackgroundColor(TiConvert.toColor(d, TiC.PROPERTY_BAR_COLOR));
 		}
 		if (d.containsKey(TiC.PROPERTY_PROMPT)) {
-			applyProperties(TiC.PROPERTY_PROMPT, null, TiConvert.toString(proxy.getProperty(TiC.PROPERTY_PROMPT)), null);
+			String strPrompt = TiConvert.toString(d, TiC.PROPERTY_PROMPT);
+			promptText.setText(strPrompt);
 		}
 		if (d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			applyProperties(TiC.PROPERTY_BACKGROUND_IMAGE, null,
-				TiConvert.toString(proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE)), proxy);
+			processBackgroundImage(proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE), proxy);
 		}
 	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
-	{
-		super.propertyChanged(key, oldValue, newValue, proxy);
-		applyProperties(key, oldValue, newValue, proxy);
-	}
-
-	private void applyProperties(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (key.equals(TiC.PROPERTY_SHOW_CANCEL)) {
 			boolean showCancel = TiConvert.toBoolean(newValue);
@@ -158,14 +152,21 @@ public class TiUISearchBar extends TiUIText
 			String strPrompt = TiConvert.toString(newValue);
 			promptText.setText(strPrompt);
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			String bkgdImage = TiConvert.toString(newValue);
-			TiFileHelper tfh = new TiFileHelper(tv.getContext());
-			String url = proxy.resolveUrl(null, bkgdImage);
-			Drawable background = tfh.loadDrawable(url, false);
-			nativeView.setBackgroundDrawable(background);
+			processBackgroundImage(newValue, proxy);
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
-	
+
+	private void processBackgroundImage(Object imgValue, KrollProxy proxy)
+	{
+		String bkgdImage = TiConvert.toString(imgValue);
+		TiFileHelper tfh = new TiFileHelper(tv.getContext());
+		String url = proxy.resolveUrl(null, bkgdImage);
+		Drawable background = tfh.loadDrawable(url, false);
+		nativeView.setBackgroundDrawable(background);
+	}
+
 	public void setOnSearchChangeListener(OnSearchChangeListener listener) {
 		this.searchChangeListener = listener;
 	}
