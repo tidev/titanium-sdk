@@ -107,13 +107,17 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 		], callback);
 	});
 
-	function findTargets(target, callback) {
+	var targetDeviceCache = {};
+
+	function findTargetDevices(target, callback) {
+		if (targetDeviceCache[target]) return callback(null, targetDeviceCache[target]);
+
 		if (target == 'device') {
 			new ADB(config).devices(function (err, devices) {
 				if (err) {
 					callback(err);
 				} else {
-					callback(null, devices.map(function (d) {
+					callback(null, targetDeviceCache[target] = devices.map(function (d) {
 						return {
 							name: d.model || d.manufacturer,
 							id: d.id,
@@ -129,7 +133,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 				if (err) {
 					callback(err);
 				} else {
-					callback(null, emus.map(function (emu) {
+					callback(null, targetDeviceCache[target] = emus.map(function (emu) {
 						// normalize the emulator info
 						if (emu.type == 'avd') {
 							return {
@@ -226,17 +230,17 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					},
 					'avd-abi': {
 						abbr: 'B',
-						desc: __('the abi for the Android emulator; deprecated, use --device'),
+						desc: __('the abi for the Android emulator; deprecated, use --device-id'),
 						hint: __('abi')
 					},
 					'avd-id': {
 						abbr: 'I',
-						desc: __('the id for the Android emulator; deprecated, use --device'),
+						desc: __('the id for the Android emulator; deprecated, use --device-id'),
 						hint: __('id')
 					},
 					'avd-skin': {
 						abbr: 'S',
-						desc: __('the skin for the Android emulator; deprecated, use --device'),
+						desc: __('the skin for the Android emulator; deprecated, use --device-id'),
 						hint: __('skin')
 					},
 					'debug-host': {
@@ -248,13 +252,13 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						hint: __('type'),
 						values: ['test', 'development']
 					},
-					'device': {
+					'device-id': {
 						abbr: 'V',
 						desc: __('the name for the device or Android emulator to install the application to'),
 						hint: __('name'),
 						order: 103,
 						prompt: function (callback) {
-							findTargets(cli.argv.target, function (err, results) {
+							findTargetDevices(cli.argv.target, function (err, results) {
 								var opts = {};
 
 								// we need to sort all results into groups for the select field
@@ -262,16 +266,12 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 									opts[__('Devices')] = results;
 								} else if (cli.argv.target == 'emulator') {
 									// for emulators, we sort by type
-									var avds = [],
-										emus = results.filter(function (e) {
+									var emus = results.filter(function (e) {
 											return e.type == 'avd';
 										});
 
 									if (emus.length) {
 										opts[__('Android Emulators')] = emus;
-										emus.forEach(function (e) {
-											avds.push(e.name);
-										});
 									}
 
 									emus = results.filter(function (e) {
@@ -280,67 +280,17 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 									if (emus.length) {
 										opts[__('Genymotion Emulators')] = emus;
 									}
-
-									// if --device was not specified, but --avd-id was, then we need to
-									// try to resolve a device based on the legacy --avd-* options
-									if (cli.argv.device == undefined && avds.length && cli.argv['avd-id']) {
-										// try finding the first avd that starts with the avd id
-										var name = 'titanium_' + cli.argv['avd-id'] + '_';
-										avds = avds.filter(function (avd) { return avd.indexOf(name) == 0; });
-										if (avds.length == 1) {
-											cli.argv.device = avds[0];
-											return callback();
-										} else if (avds.length > 1) {
-											// next try using the avd skin
-											if (!cli.argv['avd-skin']) {
-												// we have more than one match
-												logger.error(__n('Found %s avd with id "%%s"', 'Found %s avds with id "%%s"', avds.length, cli.argv['avd-id']));
-												logger.error(__('Specify --avd-skin and --avd-abi to select a specific emulator') + '\n');
-											} else {
-												name += cli.argv['avd-skin'];
-												// try exact match
-												var tmp = avds.filter(function (avd) { return avd == name; });
-												if (tmp.length) {
-													avds = tmp;
-												} else {
-													// try partial match
-													avds = avds.filter(function (avd) { return avd.indexOf(name + '_') == 0; });
-												}
-												if (avds.length == 0) {
-													logger.error(__('No emulators found with id "%s" and skin "%s"', cli.argv['avd-id'], cli.argv['avd-skin']) + '\n');
-												} else if (avds.length == 1) {
-													cli.argv.device = avds[0];
-													return callback();
-												} else if (!cli.argv['avd-abi']) {
-													// we have more than one matching avd, but no abi to filter by so we have to error
-													logger.error(__n('Found %s avd with id "%%s" and skin "%%s"', 'Found %s avds with id "%%s" and skin "%%s"', avds.length, cli.argv['avd-id'], cli.argv['avd-skin']));
-													logger.error(__('Specify --avd-abi to select a specific emulator') + '\n');
-												} else {
-													name += '_' + cli.argv['avd-abi'];
-													// try exact match
-													tmp = avds.filter(function (avd) { return avd == name; });
-													if (tmp.length) {
-														avds = tmp;
-													} else {
-														avds = avds.filter(function (avd) { return avd.indexOf(name + '_') == 0; });
-													}
-													if (avds.length == 0) {
-														logger.error(__('No emulators found with id "%s", skin "%s", and abi "%s"', cli.argv['avd-id'], cli.argv['avd-skin'], cli.argv['avd-abi']) + '\n');
-													} else {
-														// there is one or more avds, but we'll just return the first one
-														cli.argv.device = avds[0];
-														return callback();
-													}
-												}
-											}
-										}
-									}
 								}
 
 								// if there are no devices/emulators, error
 								if (!Object.keys(opts).length) {
-									logger.error(__('Unable to find any devices or emulators') + '\n');
-									logger.log(__('Please create an emulator or plug in an Android device, then try again.') + '\n');
+									if (cli.argv.target == 'device') {
+										logger.error(__('Unable to find any devices') + '\n');
+										logger.log(__('Please plug in an Android device, then try again.') + '\n');
+									} else {
+										logger.error(__('Unable to find any emulators') + '\n');
+										logger.log(__('Please create an Android emulator, then try again.') + '\n');
+									}
 									process.exit(1);
 								}
 
@@ -365,11 +315,89 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						},
 						required: true,
 						validate: function (device, callback) {
-							findTargets(cli.argv.target, function (err, devices) {
+							findTargetDevices(cli.argv.target, function (err, devices) {
 								if (!devices.some(function (d) { return d.name == device; })) {
 									return callback(new Error(__('Invalid device "%s"', device)));
 								}
 								callback(null, device);
+							});
+						},
+						verifyIfRequired: function (callback) {
+							if (cli.argv.target != 'emulator') {
+								return callback(true);
+							}
+
+							findTargetDevices(cli.argv.target, function (err, results) {
+								var avds = results.filter(function (a) { return a.type == 'avd'; }).map(function (a) { return a.name; });
+
+								// if --device-id was not specified, but --avd-id was, then we need to
+								// try to resolve a device based on the legacy --avd-* options
+								if (cli.argv['device-id'] == undefined && avds.length && cli.argv['avd-id']) {
+									// try finding the first avd that starts with the avd id
+									var name = 'titanium_' + cli.argv['avd-id'] + '_';
+									avds = avds.filter(function (avd) { return avd.indexOf(name) == 0; });
+									if (avds.length == 1) {
+										cli.argv['device-id'] = avds[0];
+										return callback();
+									} else if (avds.length > 1) {
+										// next try using the avd skin
+										if (!cli.argv['avd-skin']) {
+											// we have more than one match
+											logger.error(__n('Found %s avd with id "%%s"', 'Found %s avds with id "%%s"', avds.length, cli.argv['avd-id']));
+											logger.error(__('Specify --avd-skin and --avd-abi to select a specific emulator') + '\n');
+										} else {
+											name += cli.argv['avd-skin'];
+											// try exact match
+											var tmp = avds.filter(function (avd) { return avd == name; });
+											if (tmp.length) {
+												avds = tmp;
+											} else {
+												// try partial match
+												avds = avds.filter(function (avd) { return avd.indexOf(name + '_') == 0; });
+											}
+											if (avds.length == 0) {
+												logger.error(__('No emulators found with id "%s" and skin "%s"', cli.argv['avd-id'], cli.argv['avd-skin']) + '\n');
+											} else if (avds.length == 1) {
+												cli.argv['device-id'] = avds[0];
+												return callback();
+											} else if (!cli.argv['avd-abi']) {
+												// we have more than one matching avd, but no abi to filter by so we have to error
+												logger.error(__n('Found %s avd with id "%%s" and skin "%%s"', 'Found %s avds with id "%%s" and skin "%%s"', avds.length, cli.argv['avd-id'], cli.argv['avd-skin']));
+												logger.error(__('Specify --avd-abi to select a specific emulator') + '\n');
+											} else {
+												name += '_' + cli.argv['avd-abi'];
+												// try exact match
+												tmp = avds.filter(function (avd) { return avd == name; });
+												if (tmp.length) {
+													avds = tmp;
+												} else {
+													avds = avds.filter(function (avd) { return avd.indexOf(name + '_') == 0; });
+												}
+												if (avds.length == 0) {
+													logger.error(__('No emulators found with id "%s", skin "%s", and abi "%s"', cli.argv['avd-id'], cli.argv['avd-skin'], cli.argv['avd-abi']) + '\n');
+												} else {
+													// there is one or more avds, but we'll just return the first one
+													cli.argv['device-id'] = avds[0];
+													return callback();
+												}
+											}
+										}
+									}
+
+									logger.warn(__('%s options have been %s, please use %s', '--avd-*'.cyan, 'deprecated'.red, '--device-id'.cyan) + '\n');
+
+									// print list of available avds
+									if (results.length && !cli.argv.prompt) {
+										logger.log(__('Available Emulators:'))
+										results.forEach(function (emu) {
+											logger.log('    ' + emu.name.cyan);
+										});
+										logger.log();
+									}
+								}
+
+								// yup, still required
+								callback(true);
 							});
 						}
 					},
@@ -899,9 +927,9 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 			this.logger.info(__('Deploy type: %s', this.deployType.cyan));
 			this.logger.info(__('Building for target: %s', this.target.cyan));
 			if (this.target == 'emulator') {
-				this.logger.info(__('Emulator name: %s', this.device.cyan));
+				this.logger.info(__('Emulator name: %s', this.deviceId.cyan));
 			} else if (this.target == 'device') {
-				this.logger.info(__('Device name: %s', this.device.cyan));
+				this.logger.info(__('Device name: %s', this.deviceId.cyan));
 			}
 
 			// TODO: output other awesome info here
@@ -1026,7 +1054,7 @@ AndroidBuilder.prototype.initBuilder = function initBuilder(next) {
 	}).join('');
 	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
 
-	this.device = argv.device;
+	this.deviceId = argv['device-id'];
 	this.buildOnly = argv['build-only'];
 	this.outputDir = argv['output-dir'] ? afs.resolvePath(argv['output-dir']) : null;
 
