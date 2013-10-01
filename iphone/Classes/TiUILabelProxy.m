@@ -21,6 +21,13 @@ USE_VIEW_FOR_CONTENT_WIDTH
 
 -(CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
 {
+	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 10000);
+    if([self attrString])
+    {
+        TiUILabel *proxy = (TiUILabel*)[self view];
+        CGSize size = [[proxy label] sizeThatFits:maxSize];
+        return size.height;
+    }
 	NSString *value = [TiUtils stringValue:[self valueForKey:@"text"]];
 	id fontValue = [self valueForKey:@"font"];
 	UIFont *font = nil;
@@ -32,7 +39,6 @@ USE_VIEW_FOR_CONTENT_WIDTH
 	{
 		font = [UIFont systemFontOfSize:[UIFont labelFontSize]];
 	}
-	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 10000);
 	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
 	return [self verifyHeight:size.height]; //Todo: We need to verifyHeight elsewhere as well.
 }

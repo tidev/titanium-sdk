@@ -11,7 +11,7 @@
 @interface TiUILabelProxy : TiViewProxy {
 
 }
-
+@property(nonatomic, assign) NSMutableAttributedString *attrString;
 @end
 
 #endif

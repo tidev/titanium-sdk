@@ -26,6 +26,7 @@
         padding = CGRectZero;
         initialLabelFrame = CGRectZero;
         verticalAlign = -1;
+        attributedString = nil;
     }
     return self;
 }
@@ -63,6 +64,12 @@
 		// font from clipping
 		size.width += shadowOffset.width + 10;
 	}
+
+    if(attributedString)
+    {
+        size = [label sizeThatFits:maxSize];
+    }
+
 	return size;
 }
 
@@ -270,10 +277,21 @@
     if([arg isKindOfClass:[TiUIiOSAttributedStringProxy class]])
     {
         TiUIiOSAttributedStringProxy *attr = arg;
-        [[self label] setAttributedText:[arg _attributedString]];
+        attributedString = [arg _attributedString];
+        [((TiUILabelProxy*)[self proxy]) setAttrString:attributedString];
+        [[self label] setAttributedText:attributedString];
+
+        // Set the verticalAlign to something other than -1
+        // this makes the label have a real size and bypasses an
+        // Apple bug where the NSAttributedString gets cut off
+        if(verticalAlign == -1)
+        {
+            verticalAlign = UIControlContentVerticalAlignmentCenter;
+        }
+        [self padLabel];
+        [(TiViewProxy *)[self proxy] contentsWillChange];
     }
 #endif
-    
 }
 
 -(void)setBackgroundImage_:(id)url
