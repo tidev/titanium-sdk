@@ -26,6 +26,19 @@
 }
 
 #pragma mark - Public API
+-(NSNumber*)running
+{
+    if (theAnimator != nil) {
+        __block id result = nil;
+        TiThreadPerformOnMainThread(^{
+            result = [[NSNumber numberWithBool:[theAnimator isRunning]] retain];
+        }, YES);
+        return [result autorelease];
+    } else {
+        return NUMBOOL(NO);
+    }
+}
+
 -(TiViewProxy*) referenceView
 {
     return _referenceView;

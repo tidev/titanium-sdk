@@ -46,7 +46,9 @@
 #endif
 #ifdef USE_TI_UIIOSANIMATOR
 -(id)createAnimator:(id)args;
+#ifdef USE_TI_UIIOSSNAPBEHAVIOR
+-(id)createSnapBehavior:(id)args;
 #endif
-
+#endif
 @end
 

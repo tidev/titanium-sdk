@@ -20,7 +20,7 @@
 }
 
 #pragma mark - Public API
-
+-(NSNumber*)running;
 -(TiViewProxy*) referenceView;
 -(NSArray*)behaviors;
 -(void)setReferenceView:(id)args;
