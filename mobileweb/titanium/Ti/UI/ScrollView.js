@@ -120,6 +120,12 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/style', 'Ti/_/lang', 'Ti/UI'],
 				value: 'composite'
 			},
 
+			scrollingEnabled: {
+				post: function (value) {
+					setStyle(this.domNode, 'overflow', value ? 'scroll' : 'hidden');
+				}
+			},
+
 			showHorizontalScrollIndicator: {
 				set: function(value, oldValue) {
 					if (value !== oldValue) {
