@@ -56,8 +56,8 @@ define(['Ti/_/Layouts/Base', 'Ti/_/declare', 'Ti/API', 'Ti/UI', 'Ti/_/lang'],
 							} else {
 								childSize = child._layout._doLayout(
 									child,
-									isNaN(measuredWidth) ? width : measuredWidth - child._borderLeftWidth - child._borderRightWidth,
-									isNaN(measuredHeight) ? height : measuredHeight - child._borderTopWidth - child._borderBottomWidth,
+									isNaN(measuredWidth) ? width : measuredWidth - child._borderLeftWidth - child._borderRightWidth - child._innerMarginWidth,
+									isNaN(measuredHeight) ? height : measuredHeight - child._borderTopWidth - child._borderBottomWidth - child._innerMarginHeight,
 									isNaN(measuredWidth),
 									isNaN(measuredHeight));
 							}
@@ -92,8 +92,7 @@ define(['Ti/_/Layouts/Base', 'Ti/_/declare', 'Ti/API', 'Ti/UI', 'Ti/_/lang'],
 			}
 
 			// Calculate vertical size and position for the children
-			len = rows.length;
-			for(i = 0; i < len; i++) {
+			for(i = 0, len = rows.length; i < len; i++) {
 				row = rows[i];
 				rowHeight = 0;
 				rowLen = row.length;
@@ -114,8 +113,8 @@ define(['Ti/_/Layouts/Base', 'Ti/_/declare', 'Ti/API', 'Ti/UI', 'Ti/_/lang'],
 							child._childrenLaidOut = true;
 							child._layout._doLayout(
 								child,
-								isNaN(measuredWidth) ? width : measuredWidth - child._borderLeftWidth - child._borderRightWidth,
-								isNaN(measuredHeight) ? height : measuredHeight - child._borderTopWidth - child._borderBottomWidth,
+								isNaN(measuredWidth) ? width : measuredWidth - child._borderLeftWidth - child._borderRightWidth - child._innerMarginWidth,
+								isNaN(measuredHeight) ? height : measuredHeight - child._borderTopWidth - child._borderBottomWidth - child._innerMarginHeight,
 								isNaN(measuredWidth),
 								isNaN(measuredHeight));
 						}
@@ -168,8 +167,7 @@ define(['Ti/_/Layouts/Base', 'Ti/_/declare', 'Ti/API', 'Ti/UI', 'Ti/_/lang'],
 			}
 
 			// Position the children
-			len = children.length;
-			for(i = 0; i < len; i++) {
+			for(i = 0, len = children.length; i < len; i++) {
 				child = children[i];
 				if (child._markedForLayout) {
 					UI._elementLayoutCount++;

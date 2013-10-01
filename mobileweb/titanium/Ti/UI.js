@@ -1,10 +1,10 @@
-/*global Ti define window document navigator instrumentation*/
+/*global Ti, define, window, document, navigator, instrumentation*/
 define(
-	['Ti/_', 'Ti/_/Evented', 'Ti/_/has', 'Ti/_/lang', 'Ti/_/ready', 'Ti/_/style', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/has',
+	['Ti/_', 'Ti/_/Evented', 'Ti/_/has', 'Ti/_/lang', 'Ti/_/ready', 'Ti/_/style', 'Ti/_/dom', 'Ti/_/event',
 	'Ti/_/Gestures/DoubleTap', 'Ti/_/Gestures/Dragging', 'Ti/_/Gestures/LongPress', 'Ti/_/Gestures/Pinch', 'Ti/_/Gestures/SingleTap',
 	'Ti/_/Gestures/Swipe', 'Ti/_/Gestures/TouchCancel', 'Ti/_/Gestures/TouchEnd', 'Ti/_/Gestures/TouchMove',
 	'Ti/_/Gestures/TouchStart', 'Ti/_/Gestures/TwoFingerTap'],
-	function(_, Evented, has, lang, ready, style, dom, event, has,
+	function(_, Evented, has, lang, ready, style, dom, event,
 		DoubleTap, Dragging, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd, TouchMove, TouchStart, TwoFingerTap) {
 
 	var global = window,
@@ -42,7 +42,9 @@ define(
 		];
 
 	on(body, 'touchmove', function(e) {
-		e.preventDefault();
+		if (!e._allowDefault) {
+			e.preventDefault();
+		}
 	});
 
 	modules.split(',').forEach(function(name) {
@@ -101,7 +103,8 @@ define(
 				node = container.domNode,
 				coefficients = container._layoutCoefficients,
 				useTouch = has('touch'),
-				touching = 0;
+				touching = 0,
+				scrollBarMeasurer;
 
 			coefficients.width.x1 = 1;
 			coefficients.height.x1 = 1;
@@ -125,6 +128,19 @@ define(
 				}, 10);
 			});
 			hideAddressBar();
+
+			scrollBarMeasurer = dom.create('div', {
+				style: {
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					height: '100px',
+					width: '100px',
+					overflow: 'scroll'
+				}
+			}, body);
+			Ti.UI._scrollbarWidth = scrollBarMeasurer.offsetWidth - scrollBarMeasurer.clientWidth;
+			dom.destroy(scrollBarMeasurer);
 
 			function processTouchEvent(eventType, evt) {
 				var i = 0, len = recognizers.length,
@@ -246,6 +262,8 @@ define(
 				}
 			}
 		},
+
+		_scrollbarWidth: 0,
 
 		_layoutSemaphore: 0,
 

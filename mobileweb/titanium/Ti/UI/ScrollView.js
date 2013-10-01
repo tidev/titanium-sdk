@@ -1,72 +1,48 @@
 /*global define*/
-define(['Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/style', 'Ti/_/lang', 'Ti/UI'],
-	function(declare, KineticScrollView, style, lang, UI) {
+define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/style', 'Ti/_/lang', 'Ti/UI'],
+	function(declare, View, style, lang, UI) {
 
 	var isDef = lang.isDef,
+		setStyle = style.set,
+		on = require.on;
 
-		// The amount of deceleration (in pixels/ms^2)
-		deceleration = 0.001;
-
-	return declare('Ti.UI.ScrollView', KineticScrollView, {
+	return declare('Ti.UI.ScrollView', View, {
 
 		constructor: function() {
-			var contentContainer;
-			this._initKineticScrollView(contentContainer = UI.createView({
+			var startedAtTop,
+				startedAtBottom,
+				startY,
+				innerNode,
+				outerNode = this.domNode;
+			setStyle(outerNode, {
+				overflow: 'scroll',
+				overflowScrolling: 'touch'
+			});
+			this._add(this._contentContainer = UI.createView({
 				width: UI.SIZE,
 				height: UI.SIZE,
 				_minWidth: '100%',
 				_minHeight: '100%',
 				left: 0,
 				top: 0
-			}), 'both', 'both', 1);
-		},
-
-		_handleMouseWheel: function() {
-			this._isScrollBarActive && this.fireEvent('scroll',{
-				x: -this._currentTranslationX,
-				y: -this._currentTranslationY,
-				dragging: false,
-				decelerating: false
+			}));
+			innerNode = this._contentContainer.domNode;
+			this._innerMarginWidth = this._innerMarginHeight = UI._scrollbarWidth;
+			on(outerNode, 'touchstart', function(e) {
+				startedAtTop = outerNode.scrollTop === 0;
+				startedAtBottom = outerNode.scrollTop === innerNode.clientHeight - outerNode.clientHeight;
+				startY = e.touches[0].clientY;
 			});
-		},
-
-		_handleDragStart: function() {
-			this.fireEvent('dragStart');
-		},
-
-		_handleDrag: function() {
-			this.fireEvent('scroll',{
-				x: -this._currentTranslationX,
-				y: -this._currentTranslationY,
-				dragging: true,
-				decelerating: false
+			on(outerNode, 'touchmove', function(e) {
+				e._allowDefault = e.touches.length === 1 && (!startedAtTop || e.touches[0].clientY < startY - 1) &&
+					(!startedAtBottom || e.touches[0].clientY > startY + 1);
 			});
-		},
-
-		_handleDragEnd: function(e, velocityX, velocityY) {
-			if (isDef(velocityX)) {
-				var self = this,
-					velocity = Math.sqrt(velocityX * velocityX + velocityY * velocityY),
-					distance = velocity * velocity / (1.724 * deceleration),
-					duration = velocity / deceleration,
-					theta = Math.atan(Math.abs(velocityY / velocityX)),
-					distanceX = distance * Math.cos(theta) * (velocityX < 0 ? -1 : 1),
-					distanceY = distance * Math.sin(theta) * (velocityY < 0 ? -1 : 1),
-					translationX = Math.min(0, Math.max(self._minTranslationX, self._currentTranslationX + distanceX)),
-					translationY = Math.min(0, Math.max(self._minTranslationY, self._currentTranslationY + distanceY));
-				self.fireEvent('dragEnd',{
-					decelerate: true
-				});
-				self._animateToPosition(translationX, translationY, duration, UI.ANIMATION_CURVE_EASE_OUT, function() {
-					self._setTranslation(translationX, translationY);
-					self._endScrollBars();
-					self.fireEvent('scrollEnd');
-				});
-			}
 		},
 
 		scrollTo: function(x, y) {
-			this._setTranslation(x !== null ? -x : this._currentTranslationX, y !== null ? -y : this._currentTranslationX);
+			var node = this.domNode;
+			node.scrollTop = x;
+			node.scrollLeft = y;
 		},
 
 		_defaultWidth: UI.FILL,

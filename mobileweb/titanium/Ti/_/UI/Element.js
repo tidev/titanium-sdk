@@ -132,6 +132,7 @@ define(
 				width: 0,
 				height: 0
 			};
+			self._innerMarginWidth = self._innerMarginHeight = 0;
 		},
 
 		fireEvent: function(type, e) {

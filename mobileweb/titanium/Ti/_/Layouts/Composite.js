@@ -57,8 +57,8 @@ define(['Ti/_/Layouts/Base', 'Ti/_/declare', 'Ti/UI', 'Ti/_/lang'], function(Bas
 						} else {
 							childSize = child._layout._doLayout(
 								child,
-								isNaN(measuredWidth) ? width : measuredWidth - child._borderLeftWidth - child._borderRightWidth,
-								isNaN(measuredHeight) ? height : measuredHeight - child._borderTopWidth - child._borderBottomWidth,
+								isNaN(measuredWidth) ? width : measuredWidth - child._borderLeftWidth - child._borderRightWidth - child._innerMarginWidth,
+								isNaN(measuredHeight) ? height : measuredHeight - child._borderTopWidth - child._borderBottomWidth - child._innerMarginHeight,
 								isNaN(measuredWidth),
 								isNaN(measuredHeight));
 						}
