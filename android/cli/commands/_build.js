@@ -22,6 +22,7 @@ var ADB = require('titanium-sdk/lib/adb'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
 	spawn = require('child_process').spawn,
+	temp = require('temp'),
 	ti = require('titanium-sdk'),
 	util = require('util'),
 	wrench = require('wrench'),
@@ -31,6 +32,7 @@ var ADB = require('titanium-sdk/lib/adb'),
 	__ = i18n.__,
 	__n = i18n.__n,
 	version = appc.version,
+	xml = appc.xml,
 
 	packageJson = appc.pkginfo.package(module);
 
@@ -52,6 +54,8 @@ function AndroidBuilder() {
 	};
 
 	this.targets = ['emulator', 'device', 'dist-playstore'];
+
+	this.xmlMergeRegExp = /^(strings|attrs|styles|bools|colors|dimens|ids|integers|arrays)\.xml$/;
 }
 
 util.inherits(AndroidBuilder, Builder);
@@ -249,14 +253,21 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							findTargets(cli.argv.target, function (err, results) {
 								var opts = {};
 
+								// we need to sort all results into groups for the select field
 								if (cli.argv.target == 'device' && results.length) {
 									opts[__('Devices')] = results;
 								} else if (cli.argv.target == 'emulator') {
-									var emus = results.filter(function (e) {
-										return e.type == 'avd';
-									});
+									// for emulators, we sort by type
+									var avds = [],
+										emus = results.filter(function (e) {
+											return e.type == 'avd';
+										});
+
 									if (emus.length) {
 										opts[__('Android Emulators')] = emus;
+										emus.forEach(function (e) {
+											avds.push(e.name);
+										});
 									}
 
 									emus = results.filter(function (e) {
@@ -265,14 +276,62 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 									if (emus.length) {
 										opts[__('Genymotion Emulators')] = emus;
 									}
-								}
 
-/*								// maybe they specified the old legacy --avd-id stuff
-								if (avds['titanium_' + cli.argv['avd-id'] + '_' + cli.argv['avd-skin'] + '_' + cli.argv['avd-abi']]
-									|| avds['titanium_' + cli.argv['avd-id'] + '_' + cli.argv['avd-skin']]) {
-									return callback();
+									// if --device was not specified, but --avd-id was, then we need to
+									// try to resolve a device based on the legacy --avd-* options
+									if (cli.argv.device == undefined && avds.length && cli.argv['avd-id']) {
+										// try finding the first avd that starts with the avd id
+										var name = 'titanium_' + cli.argv['avd-id'] + '_';
+										avds = avds.filter(function (avd) { return avd.indexOf(name) == 0; });
+										if (avds.length == 1) {
+											cli.argv.device = avds[0];
+											return callback();
+										} else if (avds.length > 1) {
+											// next try using the avd skin
+											if (!cli.argv['avd-skin']) {
+												// we have more than one match
+												logger.error(__n('Found %s avd with id "%%s"', 'Found %s avds with id "%%s"', avds.length, cli.argv['avd-id']));
+												logger.error(__('Specify --avd-skin and --avd-abi to select a specific emulator') + '\n');
+											} else {
+												name += cli.argv['avd-skin'];
+												// try exact match
+												var tmp = avds.filter(function (avd) { return avd == name; });
+												if (tmp.length) {
+													avds = tmp;
+												} else {
+													// try partial match
+													avds = avds.filter(function (avd) { return avd.indexOf(name + '_') == 0; });
+												}
+												if (avds.length == 0) {
+													logger.error(__('No emulators found with id "%s" and skin "%s"', cli.argv['avd-id'], cli.argv['avd-skin']) + '\n');
+												} else if (avds.length == 1) {
+													cli.argv.device = avds[0];
+													return callback();
+												} else if (!cli.argv['avd-abi']) {
+													// we have more than one matching avd, but no abi to filter by so we have to error
+													logger.error(__n('Found %s avd with id "%%s" and skin "%%s"', 'Found %s avds with id "%%s" and skin "%%s"', avds.length, cli.argv['avd-id'], cli.argv['avd-skin']));
+													logger.error(__('Specify --avd-abi to select a specific emulator') + '\n');
+												} else {
+													name += '_' + cli.argv['avd-abi'];
+													// try exact match
+													tmp = avds.filter(function (avd) { return avd == name; });
+													if (tmp.length) {
+														avds = tmp;
+													} else {
+														avds = avds.filter(function (avd) { return avd.indexOf(name + '_') == 0; });
+													}
+													if (avds.length == 0) {
+														logger.error(__('No emulators found with id "%s", skin "%s", and abi "%s"', cli.argv['avd-id'], cli.argv['avd-skin'], cli.argv['avd-abi']) + '\n');
+													} else {
+														// there is one or more avds, but we'll just return the first one
+														cli.argv.device = avds[0];
+														return callback();
+													}
+												}
+											}
+										}
+									}
 								}
-*/
 
 								// if there are no devices/emulators, error
 								if (!Object.keys(opts).length) {
@@ -617,12 +676,52 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		logger.error(__('Minimum Android SDK version must be %s or newer', this.minSupportedApiLevel) + '\n');
 		process.exit(1);
 	}
+
+	// if no target sdk, then default to the min sdk (which is what android does already)
+	this.targetSDK || (this.targetSDK = this.minSDK);
+
 	if (this.targetSDK && this.targetSDK < this.minSupportedApiLevel) {
 		logger.error(__('Target Android SDK version must be %s or newer', this.minSupportedApiLevel) + '\n');
 		process.exit(1);
 	}
 	if (this.maxSDK && this.maxSupportedApiLevel && this.maxSDK > this.maxSupportedApiLevel) {
 		logger.error(__('Maximum Android SDK version must be %s or older', this.maxSupportedApiLevel) + '\n');
+		process.exit(1);
+	}
+
+	// check that we have this target sdk installed
+	this.androidTarget = (function (targets, targetSDK) {
+		var ids = Object.keys(targets),
+			i = 0,
+			len = ids.length;
+		for (; i < len; i++) {
+			if (targets[ids[i]].id == 'android-' + targetSDK) {
+				return targets[ids[i]];
+			}
+		}
+	}(this.androidInfo.targets, this.targetSDK));
+
+	if (!this.androidTarget) {
+		this.logger.error(__('Target Android SDK %s is not installed', this.targetSDK) + '\n');
+
+		var sdks = [];
+		Object.keys(this.androidInfo.targets).forEach(function (id) {
+			var t = this.androidInfo.targets[id];
+			if (t.type == 'platform') {
+				sdks.push(t['api-level']);
+			}
+		}, this);
+
+		if (sdks.length) {
+			this.logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager.', this.targetSDK.cyan) + '\n');
+			this.logger.log(__('You can also change the %s in the %s section of the tiapp.xml to one of the following:', '<tool-api-level>'.cyan, '<android>'.cyan));
+			sdks.forEach(function (name) {
+				this.logger.log('    ' + name.cyan);
+			}, this);
+			this.logger.log();
+		} else {
+			this.logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager', this.targetSDK.cyan) + '\n');
+		}
 		process.exit(1);
 	}
 
@@ -637,235 +736,144 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		});
 	}
 
-	return function (finished) {
-		// from here on out, we go async
-		appc.async.series(this, [
-			function (next) {
-				if ((this.target == 'emulator' || this.target == 'device') && cli.argv.device) {
-					// TODO: validate --device exists
-
-				} else if (this.target == 'emulator' && !cli.argv.device) {
-					// legacy emulator stuff
-
-					// TODO: clean this up!!!!!!!!!!!
-
-					var avdid = parseInt(cli.argv['avd-id']);
-
-					// double check and make sure that the avd-id passed (or the default)
-					// exists as an android target and if not, deal with it vs. bombing
-					if (isNaN(avdid) || !this.androidInfo.targets || !this.androidInfo.targets[avdid]) {
-						var keys = Object.keys(this.androidInfo.targets || {}),
-							name,
-							skins;
-
-						avdid = 0;
-						for (var c = 0; c < keys.length; c++) {
-							var target = this.androidInfo.targets[keys[c]],
-								api = target['api-level'];
-
-							// search for the first api > 10 (Android 2.3.3) which is what titanium requires
-							if (api >= this.minSupportedApiLevel) {
-								avdid = keys[c];
-								name = target.name;
-								skins = target.skins;
-								break;
-							}
-						}
-
-						if (avdid) {
-							// if we found a valid avd id, let's use it but warn the user
-							if (cli.argv['avd-id']) {
-								logger.warn(__('AVD ID %s not found. Launching with the AVD ID %s%s.',
-									(''+cli.argv['avd-id']).cyan, (''+avdid).cyan, name ? ' (' + name + ')' : ''));
-							} else {
-								logger.warn(__('No AVD ID specified. Launching with the AVD ID %s%s.',
-									(''+avdid).cyan, name ? ' (' + name + ')' : ''));
-							}
-							cli.argv['avd-id'] = avdid;
-							var s = skins.length && skins[skins.length - 1];
-							if (s && skins && skins.indexOf(cli.argv['avd-skin']) == -1) {
-								logger.warn(__('AVD ID %s does not support skin %s. Launching with the AVD skin %s.',
-									avdid, (''+cli.argv['avd-skin']).cyan, (''+s).cyan));
-								cli.argv['avd-skin'] = s;
-							}
-						} else {
-							// if we couldn't find one
-							if (cli.argv['avd-id']) {
-								logger.error(__('AVD ID %s not found and no suitable Android SDKs found. Please install Android SDK 2.3.3 or newer.', (''+cli.argv['avd-id']).cyan) + '\n');
-							} else {
-								logger.error(__('No suitable Android SDKs found. Please install Android SDK 2.3.3 or newer.', (''+cli.argv['avd-id']).cyan) + '\n');
-							}
-							process.exit(1);
-						}
-					}
-
-					if (!cli.argv['avd-abi']) {
-						// check to make sure exists
-						if (this.androidInfo.targets && this.androidInfo.targets[cli.argv['avd-id']]) {
-							cli.argv['avd-abi'] = this.androidInfo.targets[cli.argv['avd-id']].abis[0] || this.androidInfo.targets['7'].abis[0] || 'armeabi';
-						} else {
-							logger.warn(__('AVD ID %s not found. Please use %s to specify a valid AVD ID. Ignoring --avd-abi.', cli.argv['avd-id'], '--avd-id'.cyan));
-						}
-					}
-				}
-
-				next();
-			},
-
-			function (next) {
-				// validate debugger and profiler options
-				var tool = [];
-
-				this.allowDebugging && tool.push('debug');
-				this.allowProfiling && tool.push('profiler');
-
-				tool.forEach(function (type) {
-					if (cli.argv[type + '-host']) {
-						if (typeof cli.argv[type + '-host'] == 'number') {
-							logger.error(__('Invalid %s host "%s"', type, cli.argv[type + '-host']) + '\n');
-							logger.log(__('The %s host must be in the format "host:port".', type) + '\n');
-							process.exit(1);
-						}
-
-						var parts = cli.argv[type + '-host'].split(':');
-
-						if (parts.length < 2) {
-							logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
-							logger.log(__('The %s host must be in the format "host:port".', type) + '\n');
-							process.exit(1);
-						}
-
-						var port = parseInt(parts[1]);
-						if (isNaN(port) || port < 1 || port > 65535) {
-							logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
-							logger.log(__('The port must be a valid integer between 1 and 65535.') + '\n');
-							process.exit(1);
-						}
-
-						this[type + 'Host'] = parts[0];
-						this[type + 'Port'] = port;
-					} else {
-						this[type + 'Host'] = null;
-						this[type + 'Port'] = null;
-					}
-				}, this);
-
-				next();
-			},
-
-			function (next) {
-				// check that the build directory is writeable
-				var buildDir = path.join(cli.argv['project-dir'], 'build');
-				if (fs.existsSync(buildDir)) {
-					if (!afs.isDirWritable(buildDir)) {
-						logger.error(__('The build directory is not writeable: %s', buildDir) + '\n');
-						logger.log(__('Make sure the build directory is writeable and that you have sufficient free disk space.') + '\n');
-						process.exit(1);
-					}
-				} else if (!afs.isDirWritable(cli.argv['project-dir'])) {
-					logger.error(__('The project directory is not writeable: %s', cli.argv['project-dir']) + '\n');
-					logger.log(__('Make sure the project directory is writeable and that you have sufficient free disk space.') + '\n');
-					process.exit(1);
-				}
-				next();
-			},
-
-			function (next) {
-				// make sure we have an icon
-				if (!cli.tiapp.icon || !['Resources', 'Resources/android'].some(function (p) {
-						return fs.existsSync(cli.argv['project-dir'], p, cli.tiapp.icon);
-					})) {
-					cli.tiapp.icon = 'appicon.png';
-				}
-				next();
-			},
-
-			function (next) {
-				// validate modules
-				var moduleSearchPaths = [ cli.argv['project-dir'], this.globalModulesPath ];
-				if (config.paths && Array.isArray(config.paths.modules)) {
-					moduleSearchPaths = moduleSearchPaths.concat(config.paths.modules);
-				}
-
-				appc.timodule.find(cli.tiapp.modules, 'android', this.deployType, this.titaniumSdkVersion, moduleSearchPaths, logger, function (modules) {
-					if (modules.missing.length) {
-						logger.error(__('Could not find all required Titanium Modules:'))
-						modules.missing.forEach(function (m) {
-							logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t deploy-type: ' + m.deployType);
-						}, this);
-						logger.log();
-						process.exit(1);
-					}
-
-					if (modules.incompatible.length) {
-						logger.error(__('Found incompatible Titanium Modules:'));
-						modules.incompatible.forEach(function (m) {
-							logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + m.minsdk);
-						}, this);
-						logger.log();
-						process.exit(1);
-					}
-
-					if (modules.conflict.length) {
-						logger.error(__('Found conflicting Titanium modules:'));
-						modules.conflict.forEach(function (m) {
-							logger.error('   ' + __('Titanium module "%s" requested for both iOS and CommonJS platforms, but only one may be used at a time.', m.id));
-						}, this);
-						logger.log();
-						process.exit(1);
-					}
-
-					this.modules = modules.found;
-					this.commonJsModules = [];
-					this.nativeLibModules = [];
-
-					var manifestHashes = [],
-						jarHashes = [],
-						bindingsHashes = [];
-
-					modules.found.forEach(function (module) {
-						manifestHashes.push(hash(JSON.stringify(module.manifest)));
-
-						if (module.platform.indexOf('commonjs') != -1) {
-							this.commonJsModules.push(module);
-						} else {
-							// jar filenames are always lower case and must correspond to the name in the module's build.xml file
-							module.jarName = module.manifest.name.toLowerCase() + '.jar',
-							module.jarFile = path.join(module.modulePath, module.jarName);
-
-							if (!fs.existsSync(module.jarFile)) {
-								logger.error(__('Module %s version %s is missing jar file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.jarFile.cyan) + '\n');
-								process.exit(1);
-							}
-
-							// read in the bindings
-							module.bindings = this.getNativeModuleBindings(module.jarFile);
-							if (!module.bindings) {
-								logger.error(__('Module %s version %s is missing bindings json file', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
-								process.exit(1);
-							}
-
-							jarHashes.push(module.hash = afs.hashFile(module.jarFile));
-							bindingsHashes.push(hash(JSON.stringify(module.bindings)));
-
-							logger.info(__('Detected third-party native Android module: %s version %s', module.id.cyan, (module.manifest.version || 'latest').cyan));
-							this.nativeLibModules.push(module);
-						}
-
-						// scan the module for any CLI hooks
-						cli.scanHooks(path.join(module.modulePath, 'hooks'));
-					}, this);
-
-					this.modulesManifestHash = hash(manifestHashes.length ? manifestHashes.sort().join(',') : '');
-					this.modulesJarHash = hash(jarHashes.length ? jarHashes.sort().join(',') : '');
-					this.modulesBindingsHash = hash(bindingsHashes.length ? bindingsHashes.sort().join(',') : '');
-
-					next();
-				}.bind(this));
+	// validate debugger and profiler options
+	var tool = [];
+	this.allowDebugging && tool.push('debug');
+	this.allowProfiling && tool.push('profiler');
+	tool.forEach(function (type) {
+		if (cli.argv[type + '-host']) {
+			if (typeof cli.argv[type + '-host'] == 'number') {
+				logger.error(__('Invalid %s host "%s"', type, cli.argv[type + '-host']) + '\n');
+				logger.log(__('The %s host must be in the format "host:port".', type) + '\n');
+				process.exit(1);
 			}
-		], function () {
+
+			var parts = cli.argv[type + '-host'].split(':');
+
+			if (parts.length < 2) {
+				logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
+				logger.log(__('The %s host must be in the format "host:port".', type) + '\n');
+				process.exit(1);
+			}
+
+			var port = parseInt(parts[1]);
+			if (isNaN(port) || port < 1 || port > 65535) {
+				logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
+				logger.log(__('The port must be a valid integer between 1 and 65535.') + '\n');
+				process.exit(1);
+			}
+
+			this[type + 'Host'] = parts[0];
+			this[type + 'Port'] = port;
+		} else {
+			this[type + 'Host'] = null;
+			this[type + 'Port'] = null;
+		}
+	}, this);
+
+	// check that the build directory is writeable
+	var buildDir = path.join(cli.argv['project-dir'], 'build');
+	if (fs.existsSync(buildDir)) {
+		if (!afs.isDirWritable(buildDir)) {
+			logger.error(__('The build directory is not writeable: %s', buildDir) + '\n');
+			logger.log(__('Make sure the build directory is writeable and that you have sufficient free disk space.') + '\n');
+			process.exit(1);
+		}
+	} else if (!afs.isDirWritable(cli.argv['project-dir'])) {
+		logger.error(__('The project directory is not writeable: %s', cli.argv['project-dir']) + '\n');
+		logger.log(__('Make sure the project directory is writeable and that you have sufficient free disk space.') + '\n');
+		process.exit(1);
+	}
+
+	// make sure we have an icon
+	if (!cli.tiapp.icon || !['Resources', 'Resources/android'].some(function (p) {
+			return fs.existsSync(cli.argv['project-dir'], p, cli.tiapp.icon);
+		})) {
+		cli.tiapp.icon = 'appicon.png';
+	}
+
+	return function (finished) {
+		// validate modules
+		var moduleSearchPaths = [ cli.argv['project-dir'], this.globalModulesPath ];
+		if (config.paths && Array.isArray(config.paths.modules)) {
+			moduleSearchPaths = moduleSearchPaths.concat(config.paths.modules);
+		}
+
+		appc.timodule.find(cli.tiapp.modules, 'android', this.deployType, this.titaniumSdkVersion, moduleSearchPaths, logger, function (modules) {
+			if (modules.missing.length) {
+				logger.error(__('Could not find all required Titanium Modules:'))
+				modules.missing.forEach(function (m) {
+					logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t deploy-type: ' + m.deployType);
+				}, this);
+				logger.log();
+				process.exit(1);
+			}
+
+			if (modules.incompatible.length) {
+				logger.error(__('Found incompatible Titanium Modules:'));
+				modules.incompatible.forEach(function (m) {
+					logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + m.minsdk);
+				}, this);
+				logger.log();
+				process.exit(1);
+			}
+
+			if (modules.conflict.length) {
+				logger.error(__('Found conflicting Titanium modules:'));
+				modules.conflict.forEach(function (m) {
+					logger.error('   ' + __('Titanium module "%s" requested for both iOS and CommonJS platforms, but only one may be used at a time.', m.id));
+				}, this);
+				logger.log();
+				process.exit(1);
+			}
+
+			this.modules = modules.found;
+			this.commonJsModules = [];
+			this.nativeLibModules = [];
+
+			var manifestHashes = [],
+				jarHashes = [],
+				bindingsHashes = [];
+
+			modules.found.forEach(function (module) {
+				manifestHashes.push(hash(JSON.stringify(module.manifest)));
+
+				if (module.platform.indexOf('commonjs') != -1) {
+					this.commonJsModules.push(module);
+				} else {
+					// jar filenames are always lower case and must correspond to the name in the module's build.xml file
+					module.jarName = module.manifest.name.toLowerCase() + '.jar',
+					module.jarFile = path.join(module.modulePath, module.jarName);
+
+					if (!fs.existsSync(module.jarFile)) {
+						logger.error(__('Module %s version %s is missing jar file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.jarFile.cyan) + '\n');
+						process.exit(1);
+					}
+
+					// read in the bindings
+					module.bindings = this.getNativeModuleBindings(module.jarFile);
+					if (!module.bindings) {
+						logger.error(__('Module %s version %s is missing bindings json file', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
+						process.exit(1);
+					}
+
+					jarHashes.push(module.hash = afs.hashFile(module.jarFile));
+					bindingsHashes.push(hash(JSON.stringify(module.bindings)));
+
+					logger.info(__('Detected third-party native Android module: %s version %s', module.id.cyan, (module.manifest.version || 'latest').cyan));
+					this.nativeLibModules.push(module);
+				}
+
+				// scan the module for any CLI hooks
+				cli.scanHooks(path.join(module.modulePath, 'hooks'));
+			}, this);
+
+			this.modulesManifestHash = hash(manifestHashes.length ? manifestHashes.sort().join(',') : '');
+			this.modulesJarHash = hash(jarHashes.length ? jarHashes.sort().join(',') : '');
+			this.modulesBindingsHash = hash(bindingsHashes.length ? bindingsHashes.sort().join(',') : '');
+
 			finished();
-		});
+		}.bind(this)); // end timodule.find()
 	}.bind(this); // end returned callback
 };
 
@@ -886,6 +894,11 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 			this.logger.debug(__('Titanium SDK Android directory: %s', this.platformPath.cyan));
 			this.logger.info(__('Deploy type: %s', this.deployType.cyan));
 			this.logger.info(__('Building for target: %s', this.target.cyan));
+			if (this.target == 'emulator') {
+				this.logger.info(__('Emulator name: %s', this.device.cyan));
+			} else if (this.target == 'device') {
+				this.logger.info(__('Device name: %s', this.device.cyan));
+			}
 
 			// TODO: output other awesome info here
 
@@ -916,7 +929,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'processTiSymbols',
 		'generateJavaFiles',
 		'copyModuleResources',
-		'copyDrawables',
+		'generateAidl',
 		'generateAndroidManifest',
 		'compileJavaClasses',
 		'runDexer',
@@ -940,11 +953,11 @@ AndroidBuilder.prototype.parseAndroidManifestXml = function parseAndroidManifest
 
 	// for more info, refer to http://developer.android.com/guide/topics/manifest/manifest-intro.html
 
-	appc.xml.forEachElement((new DOMParser().parseFromString(contents, 'text/xml')).documentElement, function (node) {
+	xml.forEachElement((new DOMParser({ errorHandler: function(){} }).parseFromString(contents, 'text/xml')).documentElement, function (node) {
 		switch (node.tagName) {
 			case 'uses-sdk':
 				obj['uses-sdk'] = {};
-				appc.xml.forEachAttr(node, function (attr) {
+				xml.forEachAttr(node, function (attr) {
 					obj['uses-sdk'][attr.name] = attr.value;
 				});
 				break;
@@ -1009,8 +1022,8 @@ AndroidBuilder.prototype.initBuilder = function initBuilder(next) {
 	}).join('');
 	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
 
+	this.device = argv.device;
 	this.buildOnly = argv['build-only'];
-
 	this.outputDir = argv['output-dir'] ? afs.resolvePath(argv['output-dir']) : null;
 
 	// set the keystore to the dev keystore, if not already set
@@ -1050,6 +1063,8 @@ AndroidBuilder.prototype.initBuilder = function initBuilder(next) {
 	this.buildBinAssetsDir = path.join(this.buildDir, 'bin', 'assets');
 	this.buildBinAssetsResourcesDir = path.join(this.buildBinAssetsDir, 'Resources');
 	this.buildGenAppIdDir = path.join(this.buildDir, 'gen', this.appid.split('.').join(path.sep));
+	this.buildResDir = path.join(this.buildDir, 'res');
+	this.buildSrcDir = path.join(this.buildDir, 'src');
 	this.templatesDir = path.join(this.platformPath, 'templates', 'build');
 
 	next();
@@ -1384,12 +1399,12 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	fs.existsSync(dir = this.buildBinAssetsResourcesDir) || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildDir, 'bin', 'classes')) || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildDir, 'gen')) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(this.buildGenAppIdDir);
+	fs.existsSync(dir = this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildDir, 'lib')) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = path.join(this.buildDir, 'res')) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = path.join(this.buildDir, 'res', 'drawable')) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = path.join(this.buildDir, 'res', 'values')) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = path.join(this.buildDir, 'src')) || wrench.mkdirSyncRecursive(dir);
+	fs.existsSync(dir = this.buildResDir) || wrench.mkdirSyncRecursive(dir);
+	fs.existsSync(dir = path.join(this.buildResDir, 'drawable')) || wrench.mkdirSyncRecursive(dir);
+	fs.existsSync(dir = path.join(this.buildResDir, 'values')) || wrench.mkdirSyncRecursive(dir);
+	fs.existsSync(dir = this.buildSrcDir) || wrench.mkdirSyncRecursive(dir);
 
 	next();
 };
@@ -1398,11 +1413,16 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	var ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')),
 		ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles')),
 		extRegExp = /\.(css|html|js|jss)$/,
+		drawableRegExp = /^images\/(high|medium|low|res-[^\/]+)(\/(.*))?/,
+		drawableDpiRegExp = /^(high|medium|low)$/,
+		drawableExtRegExp = /((\.9)?\.(png|jpg))$/,
+		xmlMergeRegExp = this.xmlMergeRegExp,
 		jsFiles = {},
 		htmlJsFiles = {};
 
 	function copyDir(opts, callback) {
 		if (opts && opts.src && fs.existsSync(opts.src) && opts.dest) {
+			opts.origDest = opts.dest;
 			recursivelyCopy.call(this, opts.src, opts.dest, opts.ignoreRootDirs, opts, callback);
 		} else {
 			callback();
@@ -1444,6 +1464,23 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				if (isDir) return recursivelyCopy.call(this, from, path.join(dest, filename), null, opts, next);
 
 				// we have a file, now we need to see what sort of file
+
+				// check if it's a drawable resource
+				if (filename != 'default.png') {
+					var m = to.replace(opts.origDest, '').replace(/^\//, '').replace(/\\/g, '/').match(drawableRegExp);
+					if (m && m.length >= 4) {
+						var destFilename = m[3].toLowerCase(),
+							name = destFilename.replace(drawableExtRegExp, ''),
+							ext = destFilename.match(drawableExtRegExp);
+
+						to = path.join(
+							this.buildResDir,
+							drawableDpiRegExp.test(m[1]) ? 'drawable-' + m[1][0] : 'drawable-' + m[1].substring(4),
+							name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name).substring(0, 10) + (ext ? ext[1] : '')
+						);
+					}
+				}
+
 				var ext = filename.match(extRegExp);
 				switch (ext && ext[1]) {
 					case 'css':
@@ -1487,9 +1524,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						break;
 
 					case 'xml':
-						if (fs.existsSync(to) && /^(strings|attrs|styles|bools|colors|dimens|ids|integers|arrays)\.xml$/.test(filename)) {
-							// merge the <resources> from the source into to dest file
-							// TODO:
+						if (fs.existsSync(to) && xmlMergeRegExp.test(filename)) {
+							this.mergeXmlFiles(from, to);
 							next();
 							break;
 						}
@@ -1504,12 +1540,30 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		}), done);
 	}
 
+	function warnDupeDrawableFolders(resourceDir) {
+		var dir = path.join(resourceDir, 'images');
+		['high', 'medium', 'low'].forEach(function (dpi) {
+			var oldDir = path.join(dir, dpi),
+				newDir = path.join(dir, 'res-' + dpi[0] + 'dpi');
+			if (fs.existsSync(oldDir) && fs.existsSync(newDir)) {
+				oldDir = oldDir.replace(this.projectDir, '').replace(/^\//, '');
+				newDir = newDir.replace(this.projectDir, '').replace(/^\//, '');
+				this.logger.warn(__('You have both an %s folder and an %s folder', oldDir.cyan, newDir.cyan));
+				this.logger.warn(__('Files from both of these folders will end up in %s', ('res/drawable-' + dpi[0]+ 'dpi').cyan));
+				this.logger.warn(__('If two files are named the same, there is no guarantee which one will be copied last and therefore be the one the application uses'));
+				this.logger.warn(__('You should use just one of these folders to avoid conflicts'));
+			}
+		}, this);
+	}
+
 	var tasks = [
 		// first task is to copy all files in the Resources directory, but ignore
 		// any directory that is the name of a known platform
 		function (cb) {
+			var src = path.join(this.projectDir, 'Resources');
+			warnDupeDrawableFolders.call(this, src);
 			copyDir.call(this, {
-				src: path.join(this.projectDir, 'Resources'),
+				src: src,
 				dest: this.buildBinAssetsResourcesDir,
 				ignoreRootDirs: ti.availablePlatformsNames
 			}, cb);
@@ -1517,8 +1571,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 		// next copy all files from the Android specific Resources directory
 		function (cb) {
+			var src = path.join(this.projectDir, 'Resources', 'android');
+			warnDupeDrawableFolders.call(this, src);
 			copyDir.call(this, {
-				src: path.join(this.projectDir, 'Resources', 'android'),
+				src: src,
 				dest: this.buildBinAssetsResourcesDir
 			}, cb);
 		}
@@ -1782,7 +1838,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 				jarLibraries[jar] = 1;
 			}
 		} else {
-			this.logger.debug(__('Unknown module %s', namespace.cyan));
+			this.logger.debug(__('Unknown namespace %s, skipping', namespace.cyan));
 		}
 
 		depMap.libraries[namespace] && depMap.libraries[namespace].forEach(function (jar) {
@@ -1983,6 +2039,63 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 	next();
 };
 
+AndroidBuilder.prototype.mergeXmlFiles = function mergeXmlFiles(src, dest) {
+	var filename = path.basename(src),
+		srcDoc = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(src).toString(), 'text/xml')).documentElement,
+		destDoc = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(dest).toString(), 'text/xml')).documentElement,
+		dom = new DOMParser().parseFromString('<?xml version="1.0" encoding="UTF-8"?>\n<resources/>', 'text/xml'),
+		root = dom.documentElement,
+		contents,
+		nodes = {},
+		byName = function (node) {
+			var n = xml.getAttr(node, 'name');
+			n && (nodes[n] = node);
+		},
+		byTagAndName = function (node) {
+			var n = xml.getAttr(node, 'name');
+			if (n) {
+				nodes[node.tagName] || (nodes[node.tagName] = {});
+				nodes[node.tagName][n] = node;
+			}
+		};
+
+	this.logger.debug(__('Merging %s => %s', src.cyan, dest.cyan));
+
+	switch (filename) {
+		case 'arrays.xml':
+		case 'attrs.xml':
+		case 'bools.xml':
+		case 'colors.xml':
+		case 'dimens.xml':
+		case 'ids.xml':
+		case 'integers.xml':
+		case 'strings.xml':
+			xml.forEachElement(destDoc, byName);
+			xml.forEachElement(srcDoc, byName);
+			Object.keys(nodes).forEach(function (name) {
+				root.appendChild(dom.createTextNode('\n\t'));
+				root.appendChild(nodes[name]);
+			});
+			break;
+
+		case 'styles.xml':
+			xml.forEachElement(destDoc, byTagAndName);
+			xml.forEachElement(srcDoc, byTagAndName);
+			Object.keys(nodes).forEach(function (tag) {
+				Object.keys(nodes[tag]).forEach(function (name) {
+					root.appendChild(dom.createTextNode('\n\t'));
+					root.appendChild(nodes[tag][name]);
+				});
+			});
+			break;
+	}
+
+	root.appendChild(dom.createTextNode('\n'));
+	contents = '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString();
+	fs.unlinkSync(dest);
+	fs.writeFileSync(dest, contents);
+};
+
 AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next) {
 	// for each jar library, if it has a companion resource zip file, extract
 	// all of its files into the build dir, and yes, this is stupidly dangerous
@@ -1991,125 +2104,79 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 			var resFile = jarFile.replace(/\.jar$/, '.res.zip');
 			if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) return done();
 			this.logger.info(__('Extracting module resources: %s', resFile.cyan));
-			appc.zip.unzip(resFile, this.buildDir, {
-				visitor: function (entry) {
-					this.logger.debug(__('Extracting %s', entry.entryName.toString().cyan));
-				}.bind(this)
-			}, done);
+			var tmp = temp.mkdirSync();
+			appc.zip.unzip(resFile, tmp, {}, function (ex) {
+				if (ex) {
+					this.logger.error(__('Failed to extract module resource zip: %s', resFile.cyan) + '\n');
+					process.exit(1);
+				}
+
+				var xmlMergeRegExp = this.xmlMergeRegExp,
+					copyOpts = { logger: this.logger.debug },
+					_t = this;
+
+				// copy the files from the temp folder into the build dir
+				(function copy(src, dest) {
+					fs.readdirSync(src).forEach(function (filename) {
+						var from = path.join(src, filename),
+							to = path.join(dest, filename);
+						if (fs.existsSync(from)) {
+							if (fs.statSync(from).isDirectory()) {
+								copy(from, to);
+							} else if (fs.existsSync(to) && xmlMergeRegExp.test(filename)) {
+								_t.mergeXmlFiles(from, to);
+							} else {
+								appc.fs.copyFileSync(from, to, copyOpts);
+							}
+						}
+					});
+				}(tmp, this.buildDir));
+
+				done();
+			}.bind(this));
 		};
 	}), next);
 };
 
-AndroidBuilder.prototype.copyDrawables = function copyDrawables(next) {
-	// copy drawables
-
-	/*
-	def copy_resource_drawables(self):
-		debug('Processing Android resource drawables')
-
-		def make_resource_drawable_filename(orig):
-			normalized = orig.replace(os.sep, "/")
-			matches = re.search("/android/images/(high|medium|low|res-[^/]+)/(?P<chopped>.*$)", normalized)
-			if matches and matches.groupdict() and 'chopped' in matches.groupdict():
-				chopped = matches.groupdict()['chopped'].lower()
-				for_hash = chopped
-				if for_hash.endswith('.9.png'):
-					for_hash = for_hash[:-6] + '.png'
-				extension = ""
-				without_extension = chopped
-				if re.search("\\..*$", chopped):
-					if chopped.endswith('.9.png'):
-						extension = '9.png'
-						without_extension = chopped[:-6]
-					else:
-						extension = chopped.split(".")[-1]
-						without_extension = chopped[:-(len(extension)+1)]
-				cleaned_without_extension = re.sub(r'[^a-z0-9_]', '_', without_extension)
-				cleaned_extension = re.sub(r'[^a-z0-9\._]', '_', extension)
-				result = cleaned_without_extension[:80] + "_" + hashlib.md5(for_hash).hexdigest()[:10]
-				if extension:
-					result += "." + extension
-				return result
-			else:
-				trace("Regexp for resource drawable file %s failed" % orig)
-				return None
-
-		def delete_resource_drawable(orig):
-			folder = resource_drawable_folder(orig)
-			res_file = os.path.join(self.res_dir, folder, make_resource_drawable_filename(orig))
-			if os.path.exists(res_file):
-				try:
-					trace("DELETING FILE: %s" % res_file)
-					os.remove(res_file)
-				except:
-					warn('Unable to delete %s: %s. Execution will continue.' % (res_file, sys.exc_info()[0]))
-
-		def copy_resource_drawable(orig):
-			partial_folder = resource_drawable_folder(orig)
-			if not partial_folder:
-				trace("Could not copy %s; resource folder not determined" % orig)
-				return
-			dest_folder = os.path.join(self.res_dir, partial_folder)
-			dest_filename = make_resource_drawable_filename(orig)
-			if dest_filename is None:
-				return
-			dest = os.path.join(dest_folder, dest_filename)
-			if not os.path.exists(dest_folder):
-				os.makedirs(dest_folder)
-			trace("COPYING FILE: %s => %s" % (orig, dest))
-			shutil.copy(orig, dest)
-
-		fileset = []
-		if self.force_rebuild or self.deploy_type == 'production' or \
-			(self.js_changed and not self.fastdev):
-			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
-				remove_ignored_dirs(dirs)
-				for f in files:
-					if f in ignoreFiles:
-						continue
-					path = os.path.join(root, f)
-					if is_resource_drawable(path) and f != 'default.png':
-						fileset.append(path)
-		else:
-			if self.project_deltas:
-				for delta in self.project_deltas:
-					path = delta.get_path()
-					if is_resource_drawable(path):
-						if delta.get_status() == Delta.DELETED:
-							delete_resource_drawable(path)
-						else:
-							fileset.append(path)
-
-		if len(fileset) == 0:
-			return False
-
-		for f in fileset:
-			copy_resource_drawable(f)
-		return True
-	*/
-
-	/*
-	def warn_dupe_drawable_folders(self):
-		tocheck = ('high', 'medium', 'low')
-		image_parent = os.path.join(self.top_dir, 'Resources', 'android', 'images')
-		for check in tocheck:
-			if os.path.exists(os.path.join(image_parent, check)) and os.path.exists(os.path.join(image_parent, 'res-%sdpi' % check[0])):
-				warn('You have both an android/images/%s folder and an android/images/res-%sdpi folder. Files from both of these folders will end up in res/drawable-%sdpi.  If two files are named the same, there is no guarantee which one will be copied last and therefore be the one the application uses.  You should use just one of these folders to avoid conflicts.' % (check, check[0], check[0]))
-	*/
-
-	next();
-};
-
 AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
-	/*
-	def generate_aidl(self):
-		# support for android remote interfaces in platform/android/src
-		framework_aidl = self.sdk.platform_path('framework.aidl')
-		aidl_args = [self.sdk.get_aidl(), '-p' + framework_aidl, '-I' + self.project_src_dir, '-o' + self.project_gen_dir]
-		for aidl_file in self.recurse(self.project_src_dir, '*.aidl'):
-			run.run(aidl_args + [aidl_file])
-	*/
-	next();
+	if (!this.androidTarget.aidl) {
+		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidTarget['api-level']));
+		return next();
+	}
+
+	var aidlRegExp = /\.aidl$/,
+		files = (function scan(dir) {
+			var f = [];
+			fs.readdirSync(dir).forEach(function (name) {
+				var file = path.join(dir, name);
+				if (fs.existsSync(file)) {
+					if (fs.statSync(file).isDirectory()) {
+						f = f.concat(scan(file));
+					} else if (aidlRegExp.test(name)) {
+						f.push(file);
+					}
+				}
+			});
+			return f;
+		}(this.buildSrcDir));
+
+	if (!files.length) {
+		this.logger.info(__('No aidl files to compile, continuing'));
+		return next();
+	}
+
+	appc.async.series(this, files.map(function (file) {
+		return function (callback) {
+			var args = ['-p' + this.androidTarget.aidl, '-I' + this.buildSrcDir, '-o' + this.buildGenAppIdDir, file];
+			this.logger.info(__('Compiling aidl file: %s', file));
+			this.logger.debug(__('Running %s', this.androidInfo.sdk.executables.aidl + ' ' + args.join(' ')));
+			appc.subprocess.run(
+				this.androidInfo.sdk.executables.aidl,
+				args,
+				callback
+			);
+		};
+	}), next);
 };
 
 AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManifest(next) {

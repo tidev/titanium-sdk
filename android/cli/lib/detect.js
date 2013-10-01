@@ -12,6 +12,7 @@
  */
 
 var android = require('titanium-sdk/lib/android'),
+	ADB = require('titanium-sdk/lib/adb'),
 	EmulatorManager = require('titanium-sdk/lib/emulator');
 
 /**
@@ -37,4 +38,15 @@ exports.detectEmulators = function detectEmulators(config, opts, finished) {
 	}
 
 	new EmulatorManager(config).detect(opts, finished);
+};
+
+/**
+ * Detects connected Android devices.
+ * @param {Object} config - The CLI config object
+ * @param {Function} finished - Callback when detection is finished
+ */
+exports.detectDevices = function detectDevices(config, finished) {
+	new ADB(config).devices(function (err, devices) {
+		finished(null, devices);
+	});
 };

@@ -13,6 +13,7 @@
 		"less": "~1.4.2",
 		"node-appc": ">=0.1.17",
 		"node-uuid": "~1.4.1",
+		"temp": "~0.6.0",
 		"titanium-sdk": ">=0.1.0",
 		"uglify-js": "~2.4.0",
 		"wrench": "~1.5.1",
