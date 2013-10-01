@@ -43,6 +43,10 @@ function hash(s) {
 function AndroidBuilder() {
 	Builder.apply(this, arguments);
 
+	this.emulator = null;
+
+	this.androidTargetSdk = null;
+
 	this.keystoreAliases = [];
 
 	this.tiSymbols = {};
@@ -690,7 +694,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// check that we have this target sdk installed
-	this.androidTarget = (function (targets, targetSDK) {
+	this.androidTargetSdk = (function (targets, targetSDK) {
 		var ids = Object.keys(targets),
 			i = 0,
 			len = ids.length;
@@ -701,7 +705,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		}
 	}(this.androidInfo.targets, this.targetSDK));
 
-	if (!this.androidTarget) {
+	if (!this.androidTargetSdk) {
 		this.logger.error(__('Target Android SDK %s is not installed', this.targetSDK) + '\n');
 
 		var sdks = [];
@@ -2139,8 +2143,8 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 };
 
 AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
-	if (!this.androidTarget.aidl) {
-		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidTarget['api-level']));
+	if (!this.androidTargetSdk.aidl) {
+		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidTargetSdk['api-level']));
 		return next();
 	}
 
@@ -2167,7 +2171,7 @@ AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 
 	appc.async.series(this, files.map(function (file) {
 		return function (callback) {
-			var args = ['-p' + this.androidTarget.aidl, '-I' + this.buildSrcDir, '-o' + this.buildGenAppIdDir, file];
+			var args = ['-p' + this.androidTargetSdk.aidl, '-I' + this.buildSrcDir, '-o' + this.buildGenAppIdDir, file];
 			this.logger.info(__('Compiling aidl file: %s', file));
 			this.logger.debug(__('Running %s', this.androidInfo.sdk.executables.aidl + ' ' + args.join(' ')));
 			appc.subprocess.run(
@@ -2181,7 +2185,8 @@ AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 
 AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManifest(next) {
 	// detect google apis
-	this.usesGoogleApis = false;
+	this.usesGoogleApis = this.target == 'emulator' && this.emulator.googleApis;
+	dump(this.usesGoogleApis);
 	/*
 	# find the AVD we've selected and determine if we support Google APIs
 	if avd_id is not None:
