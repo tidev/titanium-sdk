@@ -44,6 +44,9 @@
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
 -(id)createNavigationWindow:(id)args;
 #endif
+#ifdef USE_TI_UIIOSANIMATOR
+-(id)createAnimator:(id)args;
+#endif
 
 @end
 

@@ -36,7 +36,9 @@
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
     #import "TiUIiOSNavWindowProxy.h"
 #endif
-
+#ifdef USE_TI_UIIOSANIMATOR
+#import "TiAnimatorProxy.h"
+#endif
 
 @implementation TiUIiOSProxy
 
@@ -104,7 +106,17 @@
     return [[[TiUIiOSNavWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
-
+#ifdef USE_TI_UIIOSANIMATOR
+-(id)createAnimator:(id)args
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiAnimatorProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The Animator object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+#endif
 
 
 #ifdef USE_TI_UIIOS
