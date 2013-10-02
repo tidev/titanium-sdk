@@ -35,6 +35,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
@@ -72,8 +73,9 @@ public class TiListView extends TiUIView {
 	public static List<String> MUST_SET_PROPERTIES = Arrays.asList(TiC.PROPERTY_VALUE);
 	
 	public static final String MIN_ROW_HEIGHT = "30dp";
-	public static final int HEADER_FOOTER_ITEM_TYPE = 0;
-	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 1;
+	public static final int HEADER_FOOTER_VIEW_TYPE = 0;
+	public static final int HEADER_FOOTER_TITLE_TYPE = 1;
+	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 2;
 	
 	class TiUIListView extends ListView {
 
@@ -178,10 +180,10 @@ public class TiListView extends TiUIView {
 			return position;
 		}
 		
-		//One type for header/footer, One type for built-in template, and one type per custom template.
+		//One type for header/footer title, one for header/footer view, one for built-in template, and one type per custom template.
 		@Override
 		public int getViewTypeCount() {
-			return 2 + templatesByBinding.size();
+			return 3 + templatesByBinding.size();
 			
 		}
 		@Override
@@ -189,8 +191,11 @@ public class TiListView extends TiUIView {
 			Pair<ListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
 			ListSectionProxy section = info.first;
 			int sectionItemIndex = info.second.second;
-			if (section.isHeaderView(sectionItemIndex) || section.isFooterView(sectionItemIndex))
-				return HEADER_FOOTER_ITEM_TYPE;
+			if (section.isHeaderTitle(sectionItemIndex) || section.isFooterTitle(sectionItemIndex))
+				return HEADER_FOOTER_TITLE_TYPE;
+			if (section.isHeaderView(sectionItemIndex) || section.isFooterView(sectionItemIndex)) {
+				return HEADER_FOOTER_VIEW_TYPE;
+			}
 			return section.getTemplateByIndex(sectionItemIndex).getType();			
 		}
 
@@ -209,8 +214,11 @@ public class TiListView extends TiUIView {
 
 			View content = convertView;
 
-			//Handling section header/footer titles
+			//Handles header/footer views and titles.
 			if (section.isHeaderView(sectionItemIndex) || section.isFooterView(sectionItemIndex)) {
+				return section.getHeaderOrFooterView(sectionItemIndex);
+			} else if (section.isHeaderTitle(sectionItemIndex) || section.isFooterTitle(sectionItemIndex)) {
+				//No content to reuse, so we create a new view
 				if (content == null) {
 					content = inflater.inflate(headerFooterId, null);
 				}
@@ -410,8 +418,9 @@ public class TiListView extends TiUIView {
 	private void setHeaderOrFooterView (Object viewObj, boolean isHeader) {
 		if (viewObj instanceof TiViewProxy) {
 			TiViewProxy viewProxy = (TiViewProxy)viewObj;
-			TiUIView v = viewProxy.getOrCreateView();
-			View view = v.getOuterView();
+			//TiUIView v = viewProxy.getOrCreateView();
+			//View view = v.getOuterView();
+			View view = layoutHeaderOrFooterView(viewProxy);
 			if (view != null) {
 				if (isHeader) {
 					headerView = view;
@@ -471,6 +480,25 @@ public class TiListView extends TiUIView {
 			//set parent of root item
 			template.setRootParent(proxy);
 		}
+	}
+	
+	public View layoutHeaderOrFooterView (TiViewProxy viewProxy) {
+		TiUIView tiView = viewProxy.peekView();
+		if (tiView != null) {
+			TiViewProxy parentProxy = viewProxy.getParent();
+			//Remove parent view if possible
+			if (parentProxy != null) {
+				TiUIView parentView = parentProxy.peekView();
+				if (parentView != null) {
+					parentView.remove(tiView);
+				}
+			}
+		} else {
+			tiView = viewProxy.forceCreateView();
+		}
+		View outerView = tiView.getOuterView();
+		outerView.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,  AbsListView.LayoutParams.WRAP_CONTENT));
+		return outerView;
 	}
 
 	protected void processSections(Object[] sections) {

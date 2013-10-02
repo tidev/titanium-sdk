@@ -30,6 +30,9 @@ import ti.modules.titanium.ui.widget.listview.TiListView.TiBaseAdapter;
 import ti.modules.titanium.ui.widget.listview.TiListViewTemplate.DataItem;
 import android.os.Message;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.AbsListView;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
 })
@@ -44,6 +47,9 @@ public class ListSectionProxy extends ViewProxy{
 	
 	private String headerTitle;
 	private String footerTitle;
+	
+	private TiViewProxy headerView;
+	private TiViewProxy footerView;
 	
 	private WeakReference<TiListView> listView;
 	public TiDefaultListViewTemplate builtInTemplate;
@@ -96,6 +102,18 @@ public class ListSectionProxy extends ViewProxy{
 		if (dict.containsKey(TiC.PROPERTY_FOOTER_TITLE)) {
 			footerTitle = TiConvert.toString(dict, TiC.PROPERTY_FOOTER_TITLE);
 		}
+		if (dict.containsKey(TiC.PROPERTY_HEADER_VIEW)) {
+			Object obj = dict.get(TiC.PROPERTY_HEADER_VIEW);
+			if (obj instanceof TiViewProxy) {
+				headerView = ((TiViewProxy) obj);
+			}
+		}
+		if (dict.containsKey(TiC.PROPERTY_FOOTER_VIEW)) {
+			Object obj = dict.get(TiC.PROPERTY_FOOTER_VIEW);
+			if (obj instanceof TiViewProxy) {
+				footerView = ((TiViewProxy) obj);
+			}
+		}
 		if (dict.containsKey(TiC.PROPERTY_ITEMS)) {
 			handleSetItems(dict.get(TiC.PROPERTY_ITEMS));
 		}
@@ -105,6 +123,32 @@ public class ListSectionProxy extends ViewProxy{
 		adapter = a;
 	}
 
+	@Kroll.method @Kroll.setProperty
+	public void setHeaderView(TiViewProxy headerView) {
+		this.headerView = headerView;
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public TiViewProxy getHeaderView() {
+		return headerView;
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setFooterView(TiViewProxy footerView) {
+		this.footerView = footerView;
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public TiViewProxy getFooterView() {
+		return footerView;
+	}
+	
 	@Kroll.method @Kroll.setProperty
 	public void setHeaderTitle(String headerTitle) {
 		this.headerTitle = headerTitle;
@@ -132,12 +176,21 @@ public class ListSectionProxy extends ViewProxy{
 	}
 	
 	public String getHeaderOrFooterTitle(int index) {
-		if (isHeaderView(index)) {
+		if (isHeaderTitle(index)) {
 			return headerTitle;
-		} else if (isFooterView(index)) {
+		} else if (isFooterTitle(index)) {
 			return footerTitle;
 		}
 		return "";
+	}
+
+	public View getHeaderOrFooterView(int index) {
+		if (isHeaderView(index)) {
+			return getListView().layoutHeaderOrFooterView(headerView);
+		} else if (isFooterView(index)) {
+			return getListView().layoutHeaderOrFooterView(footerView);
+		}
+		return null;
 	}
 
 	@Override
@@ -597,7 +650,7 @@ public class ListSectionProxy extends ViewProxy{
 		}
 
 		//itemIndex = realItemIndex + header (if exists). We want the real item index.
-		if (headerTitle != null) {
+		if (headerTitle != null || headerView != null) {
 			itemIndex -= 1;
 		}
 
@@ -684,7 +737,7 @@ public class ListSectionProxy extends ViewProxy{
 	}
 	
 	public TiListViewTemplate getTemplateByIndex(int index) {
-		if (headerTitle != null) {
+		if (headerTitle != null || headerView != null) {
 			index -= 1;
 		}
 		return listItemData.get(index).getTemplate();
@@ -693,25 +746,34 @@ public class ListSectionProxy extends ViewProxy{
 	public int getContentCount() {
 		return itemCount;
 	}
+
 	/**
 	 * @return number of entries within section
 	 */
 	public int getItemCount() {
 		int totalCount = itemCount;
-		if (headerTitle != null) {
+		if (headerTitle != null || headerView != null) {
 			totalCount += 1;
 		}
-		if (footerTitle != null) {
+		if (footerTitle != null || footerView != null) {
 			totalCount +=1;
 		}
 		return totalCount;
 	}
 	
 	public boolean isHeaderView(int pos) {
-		return (headerTitle != null && pos == 0) ;
+		return (headerView != null && pos == 0);
 	}
 	
 	public boolean isFooterView(int pos) {
+		return (footerView != null && pos == getItemCount() - 1);
+	}
+
+	public boolean isHeaderTitle(int pos) {
+		return (headerTitle != null && pos == 0) ;
+	}
+	
+	public boolean isFooterTitle(int pos) {
 		return (footerTitle != null && pos == getItemCount() - 1);
 	}
 	
@@ -741,7 +803,7 @@ public class ListSectionProxy extends ViewProxy{
 	}
 	
 	public KrollDict getListItemData(int position) {
-		if (headerTitle != null) {
+		if (headerTitle != null || headerView != null) {
 			position -= 1;
 		}
 		if (position >= 0 && position < listItemData.size()) {
