@@ -568,6 +568,9 @@
 		84A0100E17FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100D17FCA9A700D4BF94 /* TiViewAttachBehavior.m */; };
 		84A0100F17FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100D17FCA9A700D4BF94 /* TiViewAttachBehavior.m */; };
 		84A0101017FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100D17FCA9A700D4BF94 /* TiViewAttachBehavior.m */; };
+		84A0101317FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0101217FCB46E00D4BF94 /* TiCollisionBehavior.m */; };
+		84A0101417FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0101217FCB46E00D4BF94 /* TiCollisionBehavior.m */; };
+		84A0101517FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0101217FCB46E00D4BF94 /* TiCollisionBehavior.m */; };
 		84BBA58816570F90006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84BBA58A16570FA0006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84BBA58B16570FAF006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -1476,6 +1479,8 @@
 		84A0100817FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAnchorAttachBehavior.m; sourceTree = "<group>"; };
 		84A0100C17FCA9A700D4BF94 /* TiViewAttachBehavior.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiViewAttachBehavior.h; sourceTree = "<group>"; };
 		84A0100D17FCA9A700D4BF94 /* TiViewAttachBehavior.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiViewAttachBehavior.m; sourceTree = "<group>"; };
+		84A0101117FCB46E00D4BF94 /* TiCollisionBehavior.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCollisionBehavior.h; sourceTree = "<group>"; };
+		84A0101217FCB46E00D4BF94 /* TiCollisionBehavior.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiCollisionBehavior.m; sourceTree = "<group>"; };
 		84BBA58716570F90006B8C22 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		84C3870017417CB800970D26 /* TiSelectedCellbackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSelectedCellbackgroundView.h; sourceTree = "<group>"; };
 		84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSelectedCellbackgroundView.m; sourceTree = "<group>"; };
@@ -2917,6 +2922,8 @@
 				84A0100817FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m */,
 				84A0100C17FCA9A700D4BF94 /* TiViewAttachBehavior.h */,
 				84A0100D17FCA9A700D4BF94 /* TiViewAttachBehavior.m */,
+				84A0101117FCB46E00D4BF94 /* TiCollisionBehavior.h */,
+				84A0101217FCB46E00D4BF94 /* TiCollisionBehavior.m */,
 			);
 			name = Dynamics;
 			sourceTree = "<group>";
@@ -3360,6 +3367,7 @@
 				24CA8BCE111161FE0084E2DE /* TiBlob.m in Sources */,
 				24CA8BCF111161FE0084E2DE /* TiBase.m in Sources */,
 				24CA8BD0111161FE0084E2DE /* TiAppPropertiesProxy.m in Sources */,
+				84A0101317FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */,
 				24CA8BD1111161FE0084E2DE /* TiAnimation.m in Sources */,
 				24CA8BD2111161FE0084E2DE /* TiAction.m in Sources */,
 				24CA8BD4111161FE0084E2DE /* Ti2DMatrix.m in Sources */,
@@ -3650,6 +3658,7 @@
 				24D8E43B119B9D8A00F8CAA6 /* TiComplexValue.m in Sources */,
 				24D8E43C119B9D8A00F8CAA6 /* TiColor.m in Sources */,
 				24D8E43D119B9D8A00F8CAA6 /* TiButtonUtil.m in Sources */,
+				84A0101417FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */,
 				24D8E43E119B9D8A00F8CAA6 /* TiBlob.m in Sources */,
 				24D8E43F119B9D8A00F8CAA6 /* TiBase.m in Sources */,
 				24D8E440119B9D8A00F8CAA6 /* TiAppPropertiesProxy.m in Sources */,
@@ -3940,6 +3949,7 @@
 				DABB371412E8CB280026A6EA /* TiComplexValue.m in Sources */,
 				DABB371512E8CB280026A6EA /* TiColor.m in Sources */,
 				DABB371612E8CB280026A6EA /* TiButtonUtil.m in Sources */,
+				84A0101517FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */,
 				DABB371712E8CB280026A6EA /* TiBlob.m in Sources */,
 				DABB371812E8CB280026A6EA /* TiBase.m in Sources */,
 				DABB371912E8CB280026A6EA /* TiAppPropertiesProxy.m in Sources */,

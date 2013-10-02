@@ -61,6 +61,9 @@
 #ifdef USE_TI_UIIOSVIEWATTACHMENTBEHAVIOR
 -(id)createViewAttachmentBehavior:(id)args;
 #endif
+#ifdef USE_TI_UIIOSCOLLISIONBEHAVIOR
+-(id)createCollisionBehavior:(id)args;
+#endif
 #endif
 @end
 

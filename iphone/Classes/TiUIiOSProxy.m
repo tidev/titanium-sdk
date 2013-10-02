@@ -53,6 +53,9 @@
 #ifdef USE_TI_UIIOSVIEWATTACHMENTBEHAVIOR
 #import "TiViewAttachBehavior.h"
 #endif
+#ifdef USE_TI_UIIOSCOLLISIONBEHAVIOR
+#import "TiCollisionBehavior.h"
+#endif
 
 #endif
 
@@ -193,6 +196,22 @@ MAKE_SYSTEM_PROP(PUSH_MODE_INSTANTANEOUS, 1);
         return nil;
     }
 }
+#endif
+
+#ifdef USE_TI_UIIOSCOLLISIONBEHAVIOR
+-(id)createCollisionBehavior:(id)args
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiCollisionBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The Collision Behavior Object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+//TiCollisionBehavior Constants
+MAKE_SYSTEM_PROP(COLLISION_MODE_ITEM, 0);
+MAKE_SYSTEM_PROP(COLLISION_MODE_BOUNDARY, 1);
+MAKE_SYSTEM_PROP(COLLISION_MODE_ALL, 2);
 #endif
 
 #endif
