@@ -1490,7 +1490,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		drawableRegExp = /^images\/(high|medium|low|res-[^\/]+)(\/(.*))?/,
 		drawableDpiRegExp = /^(high|medium|low)$/,
 		drawableExtRegExp = /((\.9)?\.(png|jpg))$/,
-		xmlMergeRegExp = this.xmlMergeRegExp,
 		jsFiles = {},
 		htmlJsFiles = {};
 
@@ -1602,13 +1601,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						break;
 
 					case 'xml':
-						if (fs.existsSync(to) && xmlMergeRegExp.test(filename)) {
-							this.mergeXmlFiles(from, to);
+						if (this.xmlMergeRegExp.test(filename)) {
+							this.writeXmlFile(from, to);
 							next();
 							break;
 						}
-
-						// fall through and just copy the file
 
 					default:
 						// normal file, just copy it into the build/android/bin/assets directory
@@ -2115,10 +2112,11 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 	next();
 };
 
-AndroidBuilder.prototype.mergeXmlFiles = function mergeXmlFiles(srcOrDoc, dest) {
+AndroidBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest) {
 	var filename = path.basename(dest),
+		destExists = fs.existsSync(dest),
 		srcDoc = typeof srcOrDoc == 'string' ? (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(srcOrDoc).toString(), 'text/xml')).documentElement : srcOrDoc,
-		destDoc = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(dest).toString(), 'text/xml')).documentElement,
+		destDoc,
 		dom = new DOMParser().parseFromString('<?xml version="1.0" encoding="UTF-8"?>\n<resources/>', 'text/xml'),
 		root = dom.documentElement,
 		nodes = {},
@@ -2134,8 +2132,17 @@ AndroidBuilder.prototype.mergeXmlFiles = function mergeXmlFiles(srcOrDoc, dest) 
 			}
 		};
 
-	if (typeof srcOrDoc == 'string') {
-		this.logger.debug(__('Merging %s => %s', srcOrDoc.cyan, dest.cyan));
+	if (destExists) {
+		// we're merging
+		destDoc = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(dest).toString(), 'text/xml')).documentElement;
+		if (typeof srcOrDoc == 'string') {
+			this.logger.debug(__('Merging %s => %s', srcOrDoc.cyan, dest.cyan));
+		}
+	} else {
+		// copy the file, but make sure there are no dupes
+		if (typeof srcOrDoc == 'string') {
+			this.logger.debug(__('Copying %s => %s', srcOrDoc.cyan, dest.cyan));
+		}
 	}
 
 	switch (filename) {
@@ -2147,7 +2154,7 @@ AndroidBuilder.prototype.mergeXmlFiles = function mergeXmlFiles(srcOrDoc, dest) 
 		case 'ids.xml':
 		case 'integers.xml':
 		case 'strings.xml':
-			xml.forEachElement(destDoc, byName);
+			destDoc && xml.forEachElement(destDoc, byName);
 			xml.forEachElement(srcDoc, byName);
 			Object.keys(nodes).forEach(function (name) {
 				root.appendChild(dom.createTextNode('\n\t'));
@@ -2156,7 +2163,7 @@ AndroidBuilder.prototype.mergeXmlFiles = function mergeXmlFiles(srcOrDoc, dest) 
 			break;
 
 		case 'styles.xml':
-			xml.forEachElement(destDoc, byTagAndName);
+			destDoc && xml.forEachElement(destDoc, byTagAndName);
 			xml.forEachElement(srcDoc, byTagAndName);
 			Object.keys(nodes).forEach(function (tag) {
 				Object.keys(nodes[tag]).forEach(function (name) {
@@ -2168,7 +2175,7 @@ AndroidBuilder.prototype.mergeXmlFiles = function mergeXmlFiles(srcOrDoc, dest) 
 	}
 
 	root.appendChild(dom.createTextNode('\n'));
-	fs.unlinkSync(dest);
+	destExists && fs.unlinkSync(dest);
 	fs.writeFileSync(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
 };
 
@@ -2187,9 +2194,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 					process.exit(1);
 				}
 
-				var xmlMergeRegExp = this.xmlMergeRegExp,
-					copyOpts = { logger: this.logger.debug },
-					_t = this;
+				var _t = this;
 
 				// copy the files from the temp folder into the build dir
 				(function copy(src, dest) {
@@ -2199,10 +2204,10 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 						if (fs.existsSync(from)) {
 							if (fs.statSync(from).isDirectory()) {
 								copy(from, to);
-							} else if (fs.existsSync(to) && xmlMergeRegExp.test(filename)) {
-								_t.mergeXmlFiles(from, to);
+							} else if (_t.xmlMergeRegExp.test(filename)) {
+								_t.writeXmlFile(from, to);
 							} else {
-								appc.fs.copyFileSync(from, to, copyOpts);
+								appc.fs.copyFileSync(from, to, { logger: _t.logger.debug });
 							}
 						}
 					});
@@ -2275,11 +2280,10 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 
 		if (fs.existsSync(dest)) {
 			this.logger.debug(__('Merging %s strings => %s', locale.cyan, dest.cyan));
-			this.mergeXmlFiles(dom.documentElement, dest);
 		} else {
 			this.logger.debug(__('Writing %s strings => %s', locale.cyan, dest.cyan));
-			fs.writeFileSync(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
 		}
+		this.writeXmlFile(dom.documentElement, dest);
 	}, this);
 
 	next();
@@ -2287,23 +2291,6 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 
 AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManifest(next) {
 	/*
-	def generate_android_manifest(self,compiler):
-		self.remove_duplicate_res()
-
-		def remove_duplicate_res(self):
-			for root, dirs, files in os.walk(self.res_dir):
-				remove_ignored_dirs(dirs)
-				for filename in files:
-					if not (filename in resourceFiles):
-						continue
-					full_path = os.path.join(root, filename)
-					node_names_to_check = ["string", "bool", "color", "dimen", "item", "integer",
-						"array", "integer-array", "string-array", "declare-styleable", "attr", "style"]
-					# "strings.xml" is checked in generate_localizations()
-					if filename != "strings.xml":
-						remove_duplicate_nodes_in_res_file(full_path, node_names_to_check)
-
-
 		# NOTE: these are built-in permissions we need -- we probably need to refine when these are needed too
 		permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE', 'WRITE_EXTERNAL_STORAGE']
 
