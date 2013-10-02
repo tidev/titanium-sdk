@@ -142,15 +142,17 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								id: emu.name,
 								version: emu.target,
 								abi: emu.abi,
-								type: emu.type
+								type: emu.type,
+								googleApis: emu.googleApis
 							};
 						} else if (emu.type == 'genymotion') {
 							return {
 								name: emu.name,
-								id: emu.guid,
+								id: emu.name,
 								version: emu.target,
 								abi: emu.abi,
-								type: emu.type
+								type: emu.type,
+								googleApis: emu.googleApis
 							};
 						}
 						return emu; // not good
@@ -280,6 +282,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 									});
 									if (emus.length) {
 										opts[__('Genymotion Emulators')] = emus;
+
+										logger.log(__('NOTE: Genymotion emulator must be running to detect Google API support').magenta + '\n');
 									}
 								}
 
@@ -300,7 +304,11 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 									promptLabel: __('Select a device by number or name'),
 									formatters: {
 										option: function (opt, idx, num) {
-											return '    ' + num + opt.name.cyan + ' (' + opt.id + ')';
+											return '    ' + num + opt.name.cyan + (opt.googleApis
+												? (' (' + __('Google APIs supported') + ')').grey
+												: opt.googleApis === null
+													? (' (' + __('Google APIs support unknown') + ')').grey
+													: '');
 										}
 									},
 									margin: '',
@@ -1085,13 +1093,13 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	}).join('');
 	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
 
-	this.deviceId = argv['device-id'];
+	var deviceId = this.deviceId = argv['device-id'];
 
 	if (this.target == 'emulator') {
-		var emu = this.devices.filter(function (e) { return e.id == this.deviceId; }).shift();
+		var emu = this.devices.filter(function (e) { return e.name == deviceId; }).shift();
 		if (!emu) {
 			// sanity check
-			this.logger.error(__('Unable to find Android emulator "%s"', this.deviceId) + '\n');
+			this.logger.error(__('Unable to find Android emulator "%s"', deviceId) + '\n');
 			process.exit(0);
 		}
 		this.emulator = emu;
@@ -1696,6 +1704,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	appc.async.series(this, tasks, function (err, results) {
 		var jsFilesToEncrypt = this.jsFilesToEncrypt = [];
 
+		// copy js files into assets directory and minify if needed
 		appc.async.parallel(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
 				var from = jsFiles[id],
@@ -1715,6 +1724,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						jsFilesToEncrypt.push(id);
 					}
 
+					var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+
+					// we want to sort by the "to" filename so that we correctly handle file overwriting
+					this.tiSymbols[to] = r.symbols;
+
 					// if we're not minifying the JavaScript and we're not forcing all
 					// Titanium Android modules to be included, then parse the AST and detect
 					// all Titanium symbols
@@ -1723,14 +1737,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							? __('Copying and minifying %s => %s', from.cyan, to.cyan)
 							: __('Copying %s => %s', from.cyan, to.cyan));
 
-						var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-
-						// we want to sort by the "to" filename so that we correctly handle file overwriting
-						this.tiSymbols[to] = r.symbols;
-
 						var dir = path.dirname(to);
 						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-
 						fs.writeFile(to, r.contents, done);
 					} else {
 						// no need to parse the AST, so just copy the file
@@ -1845,15 +1853,13 @@ AndroidBuilder.prototype.getNativeModuleBindings = function getNativeModuleBindi
 };
 
 AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
-	// process all ti symbols and modules binding and stuff
-
 	var depMap = JSON.parse(fs.readFileSync(path.join(this.platformPath, 'dependency.json'))),
 		modulesMap = JSON.parse(fs.readFileSync(path.join(this.platformPath, 'modules.json'))),
 		modulesPath = path.join(this.platformPath, 'modules'),
 		moduleBindings = {},
 		externalChildModules = {},
 		moduleJarMap = {},
-		tiNamespaces = {}, // map of namespace => titanium functions (i.e. ui => createWindow)
+		tiNamespaces = this.tiNamespaces = {}, // map of namespace => titanium functions (i.e. ui => createWindow)
 		jarLibraries = this.jarLibraries = {},
 		appModules = this.appModules = [],
 		appModulesMap = {},
@@ -2290,138 +2296,140 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 };
 
 AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManifest(next) {
-	/*
-		# NOTE: these are built-in permissions we need -- we probably need to refine when these are needed too
-		permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE', 'WRITE_EXTERNAL_STORAGE']
+	var calendarPermissions = [ 'READ_CALENDAR', 'WRITE_CALENDAR' ],
+		cameraPermissions = [ 'CAMERA' ],
+		contactsPermissions = [ 'READ_CONTACTS', 'WRITE_CONTACTS' ],
+		contactsReadPermissions = [ 'READ_CONTACTS' ],
+		geoPermissions = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION' ],
+		vibratePermissions = [ 'VIBRATE' ],
+		wallpaperPermissions = [ 'SET_WALLPAPER' ],
 
-		GEO_PERMISSION = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION']
-		CONTACTS_READ_PERMISSION = ['READ_CONTACTS']
-		CONTACTS_PERMISSION = ['READ_CONTACTS', 'WRITE_CONTACTS']
-		CALENDAR_PERMISSION = ['READ_CALENDAR', 'WRITE_CALENDAR']
-		VIBRATE_PERMISSION = ['VIBRATE']
-		CAMERA_PERMISSION = ['CAMERA']
-		WALLPAPER_PERMISSION = ['SET_WALLPAPER']
+		permissions = {
+			'INTERNET': 1,
+			'ACCESS_WIFI_STATE': 1,
+			'ACCESS_NETWORK_STATE': 1,
+			'WRITE_EXTERNAL_STORAGE': 1
+		},
 
-		# Enable mock location if in development or test mode.
-		if self.deploy_type == 'development' or self.deploy_type == 'test':
-			GEO_PERMISSION.append('ACCESS_MOCK_LOCATION')
+		tiNamespacePermissions = {
+			'geolocation': geoPermissions
+		},
 
-		# this is our module to permission(s) trigger - for each module on the left, require the permission(s) on the right
-		permissions_module_mapping = {
-			# GEO
-			'geolocation' : GEO_PERMISSION
+		tiMethodPermissions = {
+			// old calendar
+			'Android.Calendar.getAllAlerts': calendarPermissions,
+			'Android.Calendar.getAllCalendars': calendarPermissions,
+			'Android.Calendar.getCalendarById': calendarPermissions,
+			'Android.Calendar.getSelectableCalendars': calendarPermissions,
+
+			// new calendar
+			'Calendar.getAllAlerts': calendarPermissions,
+			'Calendar.getAllCalendars': calendarPermissions,
+			'Calendar.getCalendarById': calendarPermissions,
+			'Calendar.getSelectableCalendars': calendarPermissions,
+
+			'Contacts.createPerson': contactsPermissions,
+			'Contacts.removePerson': contactsPermissions,
+			'Contacts.getAllContacts': contactsReadPermissions,
+			'Contacts.showContactPicker': contactsReadPermissions,
+			'Contacts.showContacts': contactsReadPermissions,
+			'Contacts.getPersonByID': contactsReadPermissions,
+			'Contacts.getPeopleWithName': contactsReadPermissions,
+			'Contacts.getAllPeople': contactsReadPermissions,
+			'Contacts.getAllGroups': contactsReadPermissions,
+			'Contacts.getGroupByID': contactsReadPermissions,
+
+			'Map.createView': geoPermissions,
+
+			'Media.Android.setSystemWallpaper': wallpaperPermissions,
+			'Media.showCamera': cameraPermissions,
+			'Media.vibrate': vibratePermissions,
+		},
+
+		tiMethodActivities = {
+			'Map.createView': {
+				'activity': {
+					'android:name': 'ti.modules.titanium.map.TiMapActivity',
+					'android:configChanges': 'keyboardHidden|orientation',
+					'android:launchMode': 'singleTask'
+				},
+				'uses-library': {
+					'android:name': 'com.google.android.maps'
+				}
+			},
+			'Media.createVideoPlayer': {
+				'activity': {
+					'android:name': 'ti.modules.titanium.media.TiVideoActivity',
+					'android:configChanges': 'keyboardHidden|orientation',
+					'android:theme': '@android:style/Theme.NoTitleBar.Fullscreen',
+					'android:launchMode': 'singleTask'
+				}
+			},
+			'Media.showCamera': {
+				'activity': {
+					'android:name': 'ti.modules.titanium.media.TiCameraActivity',
+					'android:configChanges': 'keyboardHidden|orientation',
+					'android:theme': '@android:style/Theme.Translucent.NoTitleBar.Fullscreen'
+				}
+			}
+		},
+
+		googleAPIs = [
+			'Map.createView'
+		],
+
+		enableGoogleAPIWarning = this.target == 'emulator' && this.emulator && !this.emulator.googleApis,
+
+		activities = [];
+
+	if (this.deployType == 'development' || this.deployType == 'test') {
+		// enable mock location if in development or test mode
+		geoPermissions.push('ACCESS_MOCK_LOCATION');
+	}
+
+	// set permissions for each titanium namespace found
+	Object.keys(this.tiNamespaces).forEach(function (ns) {
+		if (tiNamespacePermissions[ns]) {
+			tiNamespacePermissions[ns].forEach(function (perm) {
+				permissions[perm] = 1;
+			});
 		}
+	}, this);
 
-		# this is our module method to permission(s) trigger - for each method on the left, require the permission(s) on the right
-		permissions_method_mapping = {
-			# MAP
-			'Map.createView' : GEO_PERMISSION,
-			# MEDIA
-			'Media.vibrate' : VIBRATE_PERMISSION,
-			'Media.showCamera' : CAMERA_PERMISSION,
+	// set permissions for each titanium method found
+	var tmp = {};
+	Object.keys(this.tiSymbols).forEach(function (file) {
+		this.tiSymbols[file].forEach(function (symbol) {
+			if (tmp[symbol]) return;
+			tmp[symbol] = 1;
 
-			# CONTACTS
-			'Contacts.createPerson' : CONTACTS_PERMISSION,
-			'Contacts.removePerson' : CONTACTS_PERMISSION,
-			'Contacts.getAllContacts' : CONTACTS_READ_PERMISSION,
-			'Contacts.showContactPicker' : CONTACTS_READ_PERMISSION,
-			'Contacts.showContacts' : CONTACTS_READ_PERMISSION,
-			'Contacts.getPersonByID' : CONTACTS_READ_PERMISSION,
-			'Contacts.getPeopleWithName' : CONTACTS_READ_PERMISSION,
-			'Contacts.getAllPeople' : CONTACTS_READ_PERMISSION,
-			'Contacts.getAllGroups' : CONTACTS_READ_PERMISSION,
-			'Contacts.getGroupByID' : CONTACTS_READ_PERMISSION,
+			if (tiMethodPermissions[symbol]) {
+				tiMethodPermissions[symbol].forEach(function (perm) {
+					permissions[perm] = 1;
+				});
+			}
 
-			# Old CALENDAR
-			'Android.Calendar.getAllAlerts' : CALENDAR_PERMISSION,
-			'Android.Calendar.getAllCalendars' : CALENDAR_PERMISSION,
-			'Android.Calendar.getCalendarById' : CALENDAR_PERMISSION,
-			'Android.Calendar.getSelectableCalendars' : CALENDAR_PERMISSION,
+			if (tiMethodActivities[symbol]) {
+				activities.push(tiMethodActivities[symbol]);
+			}
 
-			# CALENDAR
-			'Calendar.getAllAlerts' : CALENDAR_PERMISSION,
-			'Calendar.getAllCalendars' : CALENDAR_PERMISSION,
-			'Calendar.getCalendarById' : CALENDAR_PERMISSION,
-			'Calendar.getSelectableCalendars' : CALENDAR_PERMISSION,
+			if (enableGoogleAPIWarning && googleAPIs.indexOf(symbol) != -1) {
+				var fn = 'Titanium.' + symbol + '()';
+				if (this.emulator.googleApis === null) {
+					this.logger.warn(__('Detected %s call which requires Google APIs, however the selected emulator %s may or may not support Google APIs', fn.cyan, ('"' + this.emulator.name + '"').cyan));
+					this.logger.warn(__('If the emulator does not support Google APIs, the %s call will fail', fn.cyan));
+				} else {
+					this.logger.warn(__('Detected %s call which requires Google APIs, but the selected emulator %s does not support Google APIs', fn.cyan, ('"' + this.emulator.name + '"').cyan));
+					this.logger.warn(__('Expect the %s call to fail', fn.cyan));
+				}
+				this.logger.warn(__('You should use, or create, an Android emulator that does support Google APIs'));
+			}
+		}, this);
+	}, this);
 
-			# WALLPAPER
-			'Media.Android.setSystemWallpaper' : WALLPAPER_PERMISSION,
-		}
+	dump(permissions);
 
-		VIDEO_ACTIVITY = """<activity
-		android:name="ti.modules.titanium.media.TiVideoActivity"
-		android:configChanges="keyboardHidden|orientation"
-		android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-		android:launchMode="singleTask"
-    	/>"""
-
-		MAP_ACTIVITY = """<activity
-    		android:name="ti.modules.titanium.map.TiMapActivity"
-    		android:configChanges="keyboardHidden|orientation"
-    		android:launchMode="singleTask"
-    	/>
-	<uses-library android:name="com.google.android.maps" />"""
-
-		CAMERA_ACTIVITY = """<activity
-		android:name="ti.modules.titanium.media.TiCameraActivity"
-		android:configChanges="keyboardHidden|orientation"
-		android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
-    />"""
-
-		activity_mapping = {
-
-			# MEDIA
-			'Media.createVideoPlayer' : VIDEO_ACTIVITY,
-			'Media.showCamera' : CAMERA_ACTIVITY,
-
-			# MAPS
-			'Map.createView' : MAP_ACTIVITY,
-		}
-
-		# this is a map of our APIs to ones that require Google APIs to be available on the device
-		google_apis = {
-			"Map.createView" : True
-		}
-
-		activities = []
-
-		def check_permissions_mapping(self, key, permissions_mapping, permissions_list):
-			try:
-				perms = permissions_mapping[key]
-				if perms:
-					for perm in perms:
-						try:
-							permissions_list.index(perm)
-
-						except:
-							permissions_list.append(perm)
-			except:
-				pass
-
-		# figure out which permissions we need based on the used module
-		for mod in compiler.modules:
-			self.check_permissions_mapping(mod, permissions_module_mapping, permissions_required)
-
-		# figure out which permissions we need based on the used module methods
-		for mn in compiler.module_methods:
-			self.check_permissions_mapping(mn, permissions_method_mapping, permissions_required)
-
-			try:
-				mappings = activity_mapping[mn]
-				try:
-					// use this.emulator.googleApis
-					if google_apis[mn] and not self.google_apis_supported:
-						warn("Google APIs detected but an emulator has been selected that doesn't support them. The API call to Titanium.%s will fail using '%s'" % (mn,my_avd['name']))
-						continue
-				except:
-					pass
-				try:
-					activities.index(mappings)
-				except:
-					activities.append(mappings)
-			except:
-				pass
-
+/*
 		# Javascript-based activities defined in tiapp.xml
 		if self.tiapp and self.tiapp.android and 'activities' in self.tiapp.android:
 			tiapp_activities = self.tiapp.android['activities']
