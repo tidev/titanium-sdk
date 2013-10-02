@@ -19,8 +19,8 @@ description: |
     
     The SplitWindow inherits its methods and properties from <Titanium.UI.Window>. 
 
-    To add a navigation bar to either the master or detail view, use a window placed in a
-    <Titanium.UI.iOS.NavigationWindow>.
+    To add a navigation bar to either the master or detail view of the split window,
+    use a <Titanium.UI.iOS.NavigationWindow>.  See the example below.
     
     The SplitWindow is a top-level window and cannot be contained within another window or view.
     ![splitview](http://img.skitch.com/20100406-1f85bm9cx8t768xgsjqax1ng6y.png)
