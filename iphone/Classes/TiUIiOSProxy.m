@@ -50,6 +50,9 @@
 #ifdef USE_TI_UIIOSANCHORATTACHMENTBEHAVIOR
 #import "TiAnchorAttachBehavior.h"
 #endif
+#ifdef USE_TI_UIIOSVIEWATTACHMENTBEHAVIOR
+#import "TiViewAttachBehavior.h"
+#endif
 
 #endif
 
@@ -175,6 +178,18 @@ MAKE_SYSTEM_PROP(PUSH_MODE_INSTANTANEOUS, 1);
         return [[[TiAnchorAttachBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
     } else {
         DebugLog(@"[WARN] The Anchor Attachment Behavior Object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+#endif
+
+#ifdef USE_TI_UIIOSVIEWATTACHMENTBEHAVIOR
+-(id)createViewAttachmentBehavior:(id)args
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiViewAttachBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The View Attachment Behavior Object is only available on iOS7 and above. Returning nil");
         return nil;
     }
 }

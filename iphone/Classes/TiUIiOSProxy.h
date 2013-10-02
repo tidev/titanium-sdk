@@ -58,6 +58,9 @@
 #ifdef USE_TI_UIIOSANCHORATTACHMENTBEHAVIOR
 -(id)createAnchorAttachmentBehavior:(id)args;
 #endif
+#ifdef USE_TI_UIIOSVIEWATTACHMENTBEHAVIOR
+-(id)createViewAttachmentBehavior:(id)args;
+#endif
 #endif
 @end
 
