@@ -19,6 +19,7 @@ var ADB = require('titanium-sdk/lib/adb'),
 	EmulatorManager = require('titanium-sdk/lib/emulator'),
 	fields = require('fields'),
 	fs = require('fs'),
+	i18n = require('titanium-sdk/lib/i18n'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
 	spawn = require('child_process').spawn,
@@ -28,9 +29,9 @@ var ADB = require('titanium-sdk/lib/adb'),
 	wrench = require('wrench'),
 
 	afs = appc.fs,
-	i18n = appc.i18n(__dirname),
-	__ = i18n.__,
-	__n = i18n.__n,
+	i18nLib = appc.i18n(__dirname),
+	__ = i18nLib.__,
+	__n = i18nLib.__n,
 	version = appc.version,
 	xml = appc.xml,
 
@@ -43,9 +44,7 @@ function hash(s) {
 function AndroidBuilder() {
 	Builder.apply(this, arguments);
 
-	this.emulator = null;
-
-	this.androidTargetSdk = null;
+	this.androidTargetSDK = null;
 
 	this.keystoreAliases = [];
 
@@ -117,6 +116,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 				if (err) {
 					callback(err);
 				} else {
+					_t.devices = devices;
 					callback(null, targetDeviceCache[target] = devices.map(function (d) {
 						return {
 							name: d.model || d.manufacturer,
@@ -133,6 +133,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 				if (err) {
 					callback(err);
 				} else {
+					_t.devices = emus;
 					callback(null, targetDeviceCache[target] = emus.map(function (emu) {
 						// normalize the emulator info
 						if (emu.type == 'avd') {
@@ -551,7 +552,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							if (value === 'dist-playstore') {
 								_t.conf.options['alias'].required = true;
 								_t.conf.options['deploy-type'].values = ['production'];
-								_t.conf.options['device'].required = false;
+								_t.conf.options['device-id'].required = false;
 								_t.conf.options['keystore'].required = true;
 								_t.conf.options['output-dir'].required = true;
 								_t.conf.options['store-password'].required = true;
@@ -693,57 +694,71 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	this.tiappAndroidManifest = cli.tiapp.android && cli.tiapp.android.manifest && this.parseAndroidManifestXml(cli.tiapp.android && cli.tiapp.android.manifest);
 
+	// map sdk versions to sdk targets instead of by id
+	var targetSDKMap = {};
+	Object.keys(this.androidInfo.targets).forEach(function (id) {
+		var t = this.androidInfo.targets[id];
+		if (t.type == 'platform') {
+			targetSDKMap[~~t.id.replace('android-', '')] = t;
+		}
+	}, this);
+
 	// validate the sdk levels
 	var usesSDK = this.tiappAndroidManifest && this.tiappAndroidManifest['uses-sdk'];
-	this.minSDK = cli.tiapp.android && cli.tiapp.android['tool-api-level'] || this.minSupportedApiLevel;
-	this.targetSDK = null;
+
+	this.minSDK = this.minSupportedApiLevel;
+	this.targetSDK = cli.tiapp.android && ~~cli.tiapp.android['tool-api-level'] || null;
 	this.maxSDK = null;
 
-	if (usesSDK) {
-		usesSDK['android:minSdkVersion'] && (this.minSDK = usesSDK['android:minSdkVersion']);
-		usesSDK['android:targetSdkVersion'] && (this.targetSDK = usesSDK['android:targetSdkVersion']);
-		usesSDK['android:maxSdkVersion'] && (this.targetSDK = usesSDK['android:maxSdkVersion']);
+	if (this.targetSDK) {
+		logger.warn(__('%s has been deprecated, please specify the target SDK using the %s tag:', '<tool-api-level>'.cyan, '<uses-sdk>'.cyan));
+		logger.warn();
+		logger.warn('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+		logger.warn('    <!-- snip -->'.grey);
+		logger.warn('    <android>'.grey);
+		logger.warn('        <manifest>'.grey);
+		logger.warn('            <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="17" android:maxSdkVersion="18"/>'.magenta);
+		logger.warn('        </manifest>'.grey);
+		logger.warn('    </android>'.grey);
+		logger.warn('</ti:app>'.grey);
+		logger.log();
 	}
+
+	if (usesSDK) {
+		usesSDK['android:minSdkVersion'] && (this.minSDK = ~~usesSDK['android:minSdkVersion']);
+		usesSDK['android:targetSdkVersion'] && (this.targetSDK = ~~usesSDK['android:targetSdkVersion']);
+		usesSDK['android:maxSdkVersion'] && (this.maxSDK = ~~usesSDK['android:maxSdkVersion']);
+	}
+
 	if (this.minSDK < this.minSupportedApiLevel) {
 		logger.error(__('Minimum Android SDK version must be %s or newer', this.minSupportedApiLevel) + '\n');
 		process.exit(1);
 	}
 
-	// if no target sdk, then default to the min sdk (which is what android does already)
-	this.targetSDK || (this.targetSDK = this.minSDK);
+	// if no target sdk, then default to most recent supported/installed
+	if (!this.targetSDK) {
+		var levels = Object.keys(targetSDKMap).sort(),
+			i = levels.length - 1;
+		for (; i >= 0; i--) {
+			if (levels[i] >= this.minSupportedApiLevel && levels[i] <= this.maxSupportedApiLevel) {
+				this.targetSDK = levels[i];
+				break;
+			}
+		}
 
-	if (this.targetSDK && this.targetSDK < this.minSupportedApiLevel) {
-		logger.error(__('Target Android SDK version must be %s or newer', this.minSupportedApiLevel) + '\n');
-		process.exit(1);
-	}
-	if (this.maxSDK && this.maxSupportedApiLevel && this.maxSDK > this.maxSupportedApiLevel) {
-		logger.error(__('Maximum Android SDK version must be %s or older', this.maxSupportedApiLevel) + '\n');
-		process.exit(1);
+		if (!this.targetSDK) {
+			this.logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
+			process.exit(1);
+		}
 	}
 
 	// check that we have this target sdk installed
-	this.androidTargetSdk = (function (targets, targetSDK) {
-		var ids = Object.keys(targets),
-			i = 0,
-			len = ids.length;
-		for (; i < len; i++) {
-			if (targets[ids[i]].id == 'android-' + targetSDK) {
-				return targets[ids[i]];
-			}
-		}
-	}(this.androidInfo.targets, this.targetSDK));
+	this.androidTargetSDK = targetSDKMap[this.targetSDK];
 
-	if (!this.androidTargetSdk) {
+	if (!this.androidTargetSDK) {
 		this.logger.error(__('Target Android SDK %s is not installed', this.targetSDK) + '\n');
 
-		var sdks = [];
-		Object.keys(this.androidInfo.targets).forEach(function (id) {
-			var t = this.androidInfo.targets[id];
-			if (t.type == 'platform') {
-				sdks.push(t['api-level']);
-			}
-		}, this);
-
+		var sdks = Object.keys(targetSDKMap);
 		if (sdks.length) {
 			this.logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager.', this.targetSDK.cyan) + '\n');
 			this.logger.log(__('You can also change the %s in the %s section of the tiapp.xml to one of the following:', '<tool-api-level>'.cyan, '<android>'.cyan));
@@ -755,6 +770,21 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager', this.targetSDK.cyan) + '\n');
 		}
 		process.exit(1);
+	}
+
+	if (this.targetSDK < this.minSDK) {
+		logger.error(__('Target Android SDK version must be %s or newer', this.minSDK) + '\n');
+		process.exit(1);
+	}
+
+	if (this.maxSDK && this.maxSDK < this.targetSDK) {
+		logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s', (''+this.targetSDK).cyan) + '\n');
+		process.exit(1);
+	}
+
+	if (this.maxSupportedApiLevel && this.targetSDK > this.maxSupportedApiLevel) {
+		// print warning that version this.targetSDK is not tested
+		logger.warn(__('Building with Android SDK %s which hasn\'t been tested against Titanium SDK %s', (''+this.targetSDK).cyan, this.titaniumSdkVersion));
 	}
 
 	// if we're building for the emulator, make sure we don't have any issues
@@ -918,7 +948,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		},
 
 		'doAnalytics',
-		'initBuilder',
+		'initialize',
 		'computeHashes',
 		'readBuildManifest',
 
@@ -962,6 +992,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'generateJavaFiles',
 		'copyModuleResources',
 		'generateAidl',
+		'generateI18N',
 		'generateAndroidManifest',
 		'compileJavaClasses',
 		'runDexer',
@@ -1043,7 +1074,7 @@ AndroidBuilder.prototype.doAnalytics = function doAnalytics(callback) {
 	callback();
 };
 
-AndroidBuilder.prototype.initBuilder = function initBuilder(next) {
+AndroidBuilder.prototype.initialize = function initialize(next) {
 	var argv = this.cli.argv;
 
 	this.appid = this.tiapp.id;
@@ -1055,6 +1086,17 @@ AndroidBuilder.prototype.initBuilder = function initBuilder(next) {
 	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
 
 	this.deviceId = argv['device-id'];
+
+	if (this.target == 'emulator') {
+		var emu = this.devices.filter(function (e) { return e.id == this.deviceId; }).shift();
+		if (!emu) {
+			// sanity check
+			this.logger.error(__('Unable to find Android emulator "%s"', this.deviceId) + '\n');
+			process.exit(0);
+		}
+		this.emulator = emu;
+	}
+
 	this.buildOnly = argv['build-only'];
 	this.outputDir = argv['output-dir'] ? afs.resolvePath(argv['output-dir']) : null;
 
@@ -1444,7 +1486,7 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	var ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')),
 		ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles')),
-		extRegExp = /\.(css|html|js|jss)$/,
+		extRegExp = /\.(.+)$/,
 		drawableRegExp = /^images\/(high|medium|low|res-[^\/]+)(\/(.*))?/,
 		drawableDpiRegExp = /^(high|medium|low)$/,
 		drawableExtRegExp = /((\.9)?\.(png|jpg))$/,
@@ -1489,9 +1531,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					return next();
 				}
 
-				// if the destination directory does not exists, create it
-				fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
-
 				// if this is a directory, recurse
 				if (isDir) return recursivelyCopy.call(this, from, path.join(dest, filename), null, opts, next);
 
@@ -1505,13 +1544,20 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							name = destFilename.replace(drawableExtRegExp, ''),
 							ext = destFilename.match(drawableExtRegExp);
 
-						to = path.join(
+						dest = path.join(
 							this.buildResDir,
-							drawableDpiRegExp.test(m[1]) ? 'drawable-' + m[1][0] : 'drawable-' + m[1].substring(4),
+							drawableDpiRegExp.test(m[1]) ? 'drawable-' + m[1][0] : 'drawable-' + m[1].substring(4)
+						);
+
+						to = path.join(
+							dest,
 							name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name).substring(0, 10) + (ext ? ext[1] : '')
 						);
 					}
 				}
+
+				// if the destination directory does not exists, create it
+				fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
 
 				var ext = filename.match(extRegExp);
 				switch (ext && ext[1]) {
@@ -1642,12 +1688,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	modulePaths.forEach(function (dir) {
 		if (fs.existsSync(dir)) {
 			tasks.push(function (cb) {
-				afs.copyDirRecursive(dir, this.buildDir, cb, {
-					ignoreDirs: new RegExp(this.config.get('cli.ignoreDirs')),
-					ignoreFiles: new RegExp(this.config.get('cli.ignoreFiles')),
-					logger: this.logger.debug,
-					preserve: true
-				});
+				copyDir.call(this, {
+					src: dir,
+					dest: this.buildDir
+				}, cb);
 			});
 		}
 	}, this);
@@ -2071,13 +2115,12 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 	next();
 };
 
-AndroidBuilder.prototype.mergeXmlFiles = function mergeXmlFiles(src, dest) {
-	var filename = path.basename(src),
-		srcDoc = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(src).toString(), 'text/xml')).documentElement,
+AndroidBuilder.prototype.mergeXmlFiles = function mergeXmlFiles(srcOrDoc, dest) {
+	var filename = path.basename(dest),
+		srcDoc = typeof srcOrDoc == 'string' ? (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(srcOrDoc).toString(), 'text/xml')).documentElement : srcOrDoc,
 		destDoc = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(dest).toString(), 'text/xml')).documentElement,
 		dom = new DOMParser().parseFromString('<?xml version="1.0" encoding="UTF-8"?>\n<resources/>', 'text/xml'),
 		root = dom.documentElement,
-		contents,
 		nodes = {},
 		byName = function (node) {
 			var n = xml.getAttr(node, 'name');
@@ -2091,7 +2134,9 @@ AndroidBuilder.prototype.mergeXmlFiles = function mergeXmlFiles(src, dest) {
 			}
 		};
 
-	this.logger.debug(__('Merging %s => %s', src.cyan, dest.cyan));
+	if (typeof srcOrDoc == 'string') {
+		this.logger.debug(__('Merging %s => %s', srcOrDoc.cyan, dest.cyan));
+	}
 
 	switch (filename) {
 		case 'arrays.xml':
@@ -2123,9 +2168,8 @@ AndroidBuilder.prototype.mergeXmlFiles = function mergeXmlFiles(src, dest) {
 	}
 
 	root.appendChild(dom.createTextNode('\n'));
-	contents = '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString();
 	fs.unlinkSync(dest);
-	fs.writeFileSync(dest, contents);
+	fs.writeFileSync(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
 };
 
 AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next) {
@@ -2171,8 +2215,8 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 };
 
 AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
-	if (!this.androidTargetSdk.aidl) {
-		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidTargetSdk['api-level']));
+	if (!this.androidTargetSDK.aidl) {
+		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidTargetSDK['api-level']));
 		return next();
 	}
 
@@ -2199,7 +2243,7 @@ AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 
 	appc.async.series(this, files.map(function (file) {
 		return function (callback) {
-			var args = ['-p' + this.androidTargetSdk.aidl, '-I' + this.buildSrcDir, '-o' + this.buildGenAppIdDir, file];
+			var args = ['-p' + this.androidTargetSDK.aidl, '-I' + this.buildSrcDir, '-o' + this.buildGenAppIdDir, file];
 			this.logger.info(__('Compiling aidl file: %s', file));
 			this.logger.debug(__('Running %s', this.androidInfo.sdk.executables.aidl + ' ' + args.join(' ')));
 			appc.subprocess.run(
@@ -2211,82 +2255,39 @@ AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 	}), next);
 };
 
+AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
+	var data = i18n.load(this.projectDir, this.logger);
+
+	Object.keys(data).forEach(function (locale) {
+		var dest = path.join(this.buildResDir, 'values' + (locale == 'en' ? '' : '-' + locale), 'strings.xml'),
+			dom = new DOMParser().parseFromString('<?xml version="1.0" encoding="UTF-8"?>\n<resources/>', 'text/xml'),
+			root = dom.documentElement;
+
+		Object.keys(data[locale].strings).forEach(function (name) {
+			var node = dom.createElement('string');
+			node.setAttribute('name', name);
+			node.appendChild(dom.createTextNode(data[locale].strings[name]));
+			root.appendChild(dom.createTextNode('\n\t'));
+			root.appendChild(node);
+		});
+
+		root.appendChild(dom.createTextNode('\n'));
+
+		if (fs.existsSync(dest)) {
+			this.logger.debug(__('Merging %s strings => %s', locale.cyan, dest.cyan));
+			this.mergeXmlFiles(dom.documentElement, dest);
+		} else {
+			this.logger.debug(__('Writing %s strings => %s', locale.cyan, dest.cyan));
+			fs.writeFileSync(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
+		}
+	}, this);
+
+	next();
+};
+
 AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManifest(next) {
-	// detect google apis
-	this.usesGoogleApis = this.target == 'emulator' && this.emulator.googleApis;
-	dump(this.usesGoogleApis);
-	/*
-	# find the AVD we've selected and determine if we support Google APIs
-	if avd_id is not None:
-		for avd_props in avd.get_avds(self.sdk):
-			if avd_props['id'] == avd_id:
-				my_avd = avd_props
-				self.google_apis_supported = (my_avd['name'].find('Google')!=-1 or my_avd['name'].find('APIs')!=-1)
-				break
-
-	if build_only or avd_id is None:
-		self.google_apis_supported = True
-	*/
-
 	/*
 	def generate_android_manifest(self,compiler):
-
-		self.generate_localizations()
-
-		def generate_localizations(self):
-			# compile localization files
-			localecompiler.LocaleCompiler(self.name,self.top_dir,'android',sys.argv[1]).compile()
-			# fix un-escaped single-quotes and full-quotes
-			# remove duplicate strings since we merge strings.xml from /i18n/ and /platform/android/res/values (TIMOB-12663)
-			offending_pattern = '[^\\\\][\'"]'
-			for root, dirs, files in os.walk(self.res_dir):
-				remove_ignored_dirs(dirs)
-				for filename in files:
-					if filename in ignoreFiles or not filename.endswith('.xml'):
-						continue
-					string_name_list = [] #keeps track of the string names
-					full_path = os.path.join(root, filename)
-					f = codecs.open(full_path, 'r', 'utf-8')
-					contents = f.read()
-					f.close()
-					if not re.search(r"<string ", contents):
-						continue
-					doc = parseString(contents.encode("utf-8"))
-					string_nodes = doc.getElementsByTagName('string')
-					resources_node = doc.getElementsByTagName('resources')[0]
-					if len(string_nodes) == 0:
-						continue
-					made_change = False
-					for string_node in string_nodes:
-						name = string_node.getAttribute('name')
-						# Remove the string node with the duplicate names
-						if name in string_name_list:
-							resources_node.removeChild(string_node)
-							made_change = True
-							debug('Removed duplicate string [%s] from %s' %(name, full_path))
-						else:
-							string_name_list.append(name)
-
-						if not string_node.hasChildNodes():
-							continue
-						string_child = string_node.firstChild
-						if string_child.nodeType == string_child.CDATA_SECTION_NODE or string_child.nodeType == string_child.TEXT_NODE:
-							string_value = string_child.nodeValue
-							if not re.search(offending_pattern, string_value):
-								continue
-							offenders = re.findall(offending_pattern, string_value)
-							if offenders:
-								for offender in offenders:
-									string_value = string_value.replace(offender, offender[0] + "\\" + offender[-1:])
-									made_change = True
-							string_child.nodeValue = string_value
-					if made_change:
-						new_contents = doc.toxml()
-						f = codecs.open(full_path, 'w', 'utf-8')
-						f.write(new_contents)
-						f.close()
-
-
 		self.remove_duplicate_res()
 
 		def remove_duplicate_res(self):
@@ -2421,6 +2422,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 			try:
 				mappings = activity_mapping[mn]
 				try:
+					// use this.emulator.googleApis
 					if google_apis[mn] and not self.google_apis_supported:
 						warn("Google APIs detected but an emulator has been selected that doesn't support them. The API call to Titanium.%s will fail using '%s'" % (mn,my_avd['name']))
 						continue
@@ -2810,67 +2812,65 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 };
 
 AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) {
-	// build generated classes
 	/*
-	def build_generated_classes(self):
-		src_list = []
-		self.module_jars = []
+	src_list = []
+	self.module_jars = []
 
-		classpath = os.pathsep.join([self.android_jar, os.pathsep.join(self.android_jars)])
+	classpath = os.pathsep.join([self.android_jar, os.pathsep.join(self.android_jars)])
 
-		project_module_dir = os.path.join(self.top_dir,'modules','android')
-		for module in self.modules:
-			if module.jar == None: continue
-			self.module_jars.append(module.jar)
-			classpath = os.pathsep.join([classpath, module.jar])
-			module_lib = module.get_resource('lib')
-			for jar in glob.glob(os.path.join(module_lib, '*.jar')):
-				self.module_jars.append(jar)
-				classpath = os.pathsep.join([classpath, jar])
+	project_module_dir = os.path.join(self.top_dir,'modules','android')
+	for module in self.modules:
+		if module.jar == None: continue
+		self.module_jars.append(module.jar)
+		classpath = os.pathsep.join([classpath, module.jar])
+		module_lib = module.get_resource('lib')
+		for jar in glob.glob(os.path.join(module_lib, '*.jar')):
+			self.module_jars.append(jar)
+			classpath = os.pathsep.join([classpath, jar])
 
-		if len(self.module_jars) > 0:
-			# kroll-apt.jar is needed for modules
-			classpath = os.pathsep.join([classpath, self.kroll_apt_jar])
+	if len(self.module_jars) > 0:
+		# kroll-apt.jar is needed for modules
+		classpath = os.pathsep.join([classpath, self.kroll_apt_jar])
 
-		classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-verify.jar')])
-		if self.deploy_type != 'production':
-			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
-			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-profiler.jar')])
+	classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-verify.jar')])
+	if self.deploy_type != 'production':
+		classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
+		classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-profiler.jar')])
 
-		for java_file in self.recurse([self.project_src_dir, self.project_gen_dir], '*.java'):
-			if self.project_src_dir in java_file:
-				relative_path = java_file[len(self.project_src_dir)+1:]
-			else:
-				relative_path = java_file[len(self.project_gen_dir)+1:]
-			class_file = os.path.join(self.classes_dir, relative_path.replace('.java', '.class'))
+	for java_file in self.recurse([self.project_src_dir, self.project_gen_dir], '*.java'):
+		if self.project_src_dir in java_file:
+			relative_path = java_file[len(self.project_src_dir)+1:]
+		else:
+			relative_path = java_file[len(self.project_gen_dir)+1:]
+		class_file = os.path.join(self.classes_dir, relative_path.replace('.java', '.class'))
 
-			if Deltafy.needs_update(java_file, class_file) > 0:
-				# the file list file still needs each file escaped apparently
-				debug("adding %s to javac build list" % java_file)
-				src_list.append('"%s"' % java_file.replace("\\", "\\\\"))
+		if Deltafy.needs_update(java_file, class_file) > 0:
+			# the file list file still needs each file escaped apparently
+			debug("adding %s to javac build list" % java_file)
+			src_list.append('"%s"' % java_file.replace("\\", "\\\\"))
 
-		if len(src_list) == 0:
-			# No sources are older than their classfile counterparts, we can skip javac / dex
-			return False
+	if len(src_list) == 0:
+		# No sources are older than their classfile counterparts, we can skip javac / dex
+		return False
 
-		debug("Building Java Sources: " + " ".join(src_list))
-		javac_command = [self.javac, '-encoding', 'utf8',
-			'-classpath', classpath, '-d', self.classes_dir, '-proc:none',
-			'-sourcepath', self.project_src_dir,
-			'-sourcepath', self.project_gen_dir, '-target', '1.6', '-source', '1.6']
-		(src_list_osfile, src_list_filename) = tempfile.mkstemp()
-		src_list_file = os.fdopen(src_list_osfile, 'w')
-		src_list_file.write("\n".join(src_list))
-		src_list_file.close()
+	debug("Building Java Sources: " + " ".join(src_list))
+	javac_command = [self.javac, '-encoding', 'utf8',
+		'-classpath', classpath, '-d', self.classes_dir, '-proc:none',
+		'-sourcepath', self.project_src_dir,
+		'-sourcepath', self.project_gen_dir, '-target', '1.6', '-source', '1.6']
+	(src_list_osfile, src_list_filename) = tempfile.mkstemp()
+	src_list_file = os.fdopen(src_list_osfile, 'w')
+	src_list_file.write("\n".join(src_list))
+	src_list_file.close()
 
-		javac_command.append('@' + src_list_filename)
-		(out, err, javac_process) = run.run(javac_command, ignore_error=True, return_error=True, return_process=True)
-		os.remove(src_list_filename)
-		if javac_process.returncode != 0:
-			error("Error(s) compiling generated Java code")
-			error(str(err))
-			sys.exit(1)
-		return True
+	javac_command.append('@' + src_list_filename)
+	(out, err, javac_process) = run.run(javac_command, ignore_error=True, return_error=True, return_process=True)
+	os.remove(src_list_filename)
+	if javac_process.returncode != 0:
+		error("Error(s) compiling generated Java code")
+		error(str(err))
+		sys.exit(1)
+	return True
 	*/
 	next();
 };
