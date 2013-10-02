@@ -38,7 +38,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
 import ti.modules.titanium.ui.ImageViewProxy;
-import ti.modules.titanium.ui.ScrollViewProxy;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -754,11 +753,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		if (view == null) {
 			return;
-		}
-
-		// Disable scaling for scrollview since the an image can extend beyond the screensize
-		if (proxy.getParent() instanceof ScrollViewProxy) {
-			view.setEnableScale(false);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_WIDTH)) {
