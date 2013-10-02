@@ -47,6 +47,10 @@
 #ifdef USE_TI_UIIOSGRAVITYBEHAVIOR
 #import "TiGravityBehavior.h"
 #endif
+#ifdef USE_TI_UIIOSANCHORATTACHMENTBEHAVIOR
+#import "TiAnchorAttachBehavior.h"
+#endif
+
 #endif
 
 @implementation TiUIiOSProxy
@@ -159,6 +163,18 @@ MAKE_SYSTEM_PROP(PUSH_MODE_INSTANTANEOUS, 1);
         return [[[TiGravityBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
     } else {
         DebugLog(@"[WARN] The Gravity Behavior Object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+#endif
+
+#ifdef USE_TI_UIIOSANCHORATTACHMENTBEHAVIOR
+-(id)createAnchorAttachmentBehavior:(id)args
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiAnchorAttachBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The Anchor Attachment Behavior Object is only available on iOS7 and above. Returning nil");
         return nil;
     }
 }

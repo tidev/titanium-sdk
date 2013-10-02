@@ -562,6 +562,9 @@
 		84A0100417FC8D3500D4BF94 /* TiGravityBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100317FC8D3500D4BF94 /* TiGravityBehavior.m */; };
 		84A0100517FC8D3500D4BF94 /* TiGravityBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100317FC8D3500D4BF94 /* TiGravityBehavior.m */; };
 		84A0100617FC8D3500D4BF94 /* TiGravityBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100317FC8D3500D4BF94 /* TiGravityBehavior.m */; };
+		84A0100917FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100817FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m */; };
+		84A0100A17FC9C2C00D4BF94 /* TiAnchorAttachBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100817FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m */; };
+		84A0100B17FC9C2C00D4BF94 /* TiAnchorAttachBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100817FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m */; };
 		84BBA58816570F90006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84BBA58A16570FA0006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84BBA58B16570FAF006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -1466,6 +1469,8 @@
 		84A00FFE17FB833000D4BF94 /* TiPushBehavior.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiPushBehavior.m; sourceTree = "<group>"; };
 		84A0100217FC8D3500D4BF94 /* TiGravityBehavior.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiGravityBehavior.h; sourceTree = "<group>"; };
 		84A0100317FC8D3500D4BF94 /* TiGravityBehavior.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiGravityBehavior.m; sourceTree = "<group>"; };
+		84A0100717FC9C2B00D4BF94 /* TiAnchorAttachBehavior.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAnchorAttachBehavior.h; sourceTree = "<group>"; };
+		84A0100817FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAnchorAttachBehavior.m; sourceTree = "<group>"; };
 		84BBA58716570F90006B8C22 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		84C3870017417CB800970D26 /* TiSelectedCellbackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSelectedCellbackgroundView.h; sourceTree = "<group>"; };
 		84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSelectedCellbackgroundView.m; sourceTree = "<group>"; };
@@ -2903,6 +2908,8 @@
 				84A00FFE17FB833000D4BF94 /* TiPushBehavior.m */,
 				84A0100217FC8D3500D4BF94 /* TiGravityBehavior.h */,
 				84A0100317FC8D3500D4BF94 /* TiGravityBehavior.m */,
+				84A0100717FC9C2B00D4BF94 /* TiAnchorAttachBehavior.h */,
+				84A0100817FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m */,
 			);
 			name = Dynamics;
 			sourceTree = "<group>";
@@ -3261,6 +3268,7 @@
 				24CA89B91111615D0084E2DE /* KrollCallback.m in Sources */,
 				24CA89BA1111615D0084E2DE /* KrollContext.m in Sources */,
 				24CA89BB1111615D0084E2DE /* KrollMethod.m in Sources */,
+				84A0100917FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m in Sources */,
 				24CA89BC1111615D0084E2DE /* KrollMethodDelegate.m in Sources */,
 				24CA89BD1111615D0084E2DE /* KrollObject.m in Sources */,
 				24CA89BE1111615D0084E2DE /* KrollPropertyDelegate.m in Sources */,
@@ -3549,6 +3557,7 @@
 				24D8E3DE119B9D8A00F8CAA6 /* PLSqliteResultSet.m in Sources */,
 				24D8E3DF119B9D8A00F8CAA6 /* SBJSON.m in Sources */,
 				24D8E3E0119B9D8A00F8CAA6 /* KrollBridge.m in Sources */,
+				84A0100A17FC9C2C00D4BF94 /* TiAnchorAttachBehavior.m in Sources */,
 				24D8E3E1119B9D8A00F8CAA6 /* KrollCallback.m in Sources */,
 				24D8E3E2119B9D8A00F8CAA6 /* KrollContext.m in Sources */,
 				24D8E3E3119B9D8A00F8CAA6 /* KrollMethod.m in Sources */,
@@ -3837,6 +3846,7 @@
 				DABB36BA12E8CB280026A6EA /* PLSqliteResultSet.m in Sources */,
 				DABB36BB12E8CB280026A6EA /* SBJSON.m in Sources */,
 				DABB36BC12E8CB280026A6EA /* KrollBridge.m in Sources */,
+				84A0100B17FC9C2C00D4BF94 /* TiAnchorAttachBehavior.m in Sources */,
 				DABB36BD12E8CB280026A6EA /* KrollCallback.m in Sources */,
 				DABB36BE12E8CB280026A6EA /* KrollContext.m in Sources */,
 				DABB36BF12E8CB280026A6EA /* KrollMethod.m in Sources */,

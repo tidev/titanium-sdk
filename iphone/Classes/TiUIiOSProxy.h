@@ -55,6 +55,9 @@
 #ifdef USE_TI_UIIOSGRAVITYBEHAVIOR
 -(id)createGravityBehavior:(id)args;
 #endif
+#ifdef USE_TI_UIIOSANCHORATTACHMENTBEHAVIOR
+-(id)createAnchorAttachmentBehavior:(id)args;
+#endif
 #endif
 @end
 
