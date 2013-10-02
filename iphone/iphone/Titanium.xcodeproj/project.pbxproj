@@ -556,6 +556,9 @@
 		84A00FF517FB675E00D4BF94 /* TiSnapBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A00FF417FB675E00D4BF94 /* TiSnapBehavior.m */; };
 		84A00FF617FB675E00D4BF94 /* TiSnapBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A00FF417FB675E00D4BF94 /* TiSnapBehavior.m */; };
 		84A00FF717FB675E00D4BF94 /* TiSnapBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A00FF417FB675E00D4BF94 /* TiSnapBehavior.m */; };
+		84A00FFF17FB833000D4BF94 /* TiPushBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A00FFE17FB833000D4BF94 /* TiPushBehavior.m */; };
+		84A0100017FB833000D4BF94 /* TiPushBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A00FFE17FB833000D4BF94 /* TiPushBehavior.m */; };
+		84A0100117FB833000D4BF94 /* TiPushBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A00FFE17FB833000D4BF94 /* TiPushBehavior.m */; };
 		84BBA58816570F90006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84BBA58A16570FA0006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84BBA58B16570FAF006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -1456,6 +1459,8 @@
 		84A00FEF17FB39A100D4BF94 /* TiAnimatorProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAnimatorProxy.m; sourceTree = "<group>"; };
 		84A00FF317FB675E00D4BF94 /* TiSnapBehavior.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSnapBehavior.h; sourceTree = "<group>"; };
 		84A00FF417FB675E00D4BF94 /* TiSnapBehavior.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSnapBehavior.m; sourceTree = "<group>"; };
+		84A00FFD17FB833000D4BF94 /* TiPushBehavior.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiPushBehavior.h; sourceTree = "<group>"; };
+		84A00FFE17FB833000D4BF94 /* TiPushBehavior.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiPushBehavior.m; sourceTree = "<group>"; };
 		84BBA58716570F90006B8C22 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		84C3870017417CB800970D26 /* TiSelectedCellbackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSelectedCellbackgroundView.h; sourceTree = "<group>"; };
 		84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSelectedCellbackgroundView.m; sourceTree = "<group>"; };
@@ -2889,6 +2894,8 @@
 				84A00FEF17FB39A100D4BF94 /* TiAnimatorProxy.m */,
 				84A00FF317FB675E00D4BF94 /* TiSnapBehavior.h */,
 				84A00FF417FB675E00D4BF94 /* TiSnapBehavior.m */,
+				84A00FFD17FB833000D4BF94 /* TiPushBehavior.h */,
+				84A00FFE17FB833000D4BF94 /* TiPushBehavior.m */,
 			);
 			name = Dynamics;
 			sourceTree = "<group>";
@@ -3335,6 +3342,7 @@
 				24CA8BD4111161FE0084E2DE /* Ti2DMatrix.m in Sources */,
 				24CA8BD9111161FE0084E2DE /* TiPlatformDisplayCaps.m in Sources */,
 				24CA8BDA111161FE0084E2DE /* PlatformModule.m in Sources */,
+				84A00FFF17FB833000D4BF94 /* TiPushBehavior.m in Sources */,
 				24CA8BDB111161FE0084E2DE /* OperationQueue.m in Sources */,
 				24CA8BDC111161FE0084E2DE /* NetworkModule.m in Sources */,
 				24CA8BDD111161FE0084E2DE /* Mimetypes.m in Sources */,
@@ -3621,6 +3629,7 @@
 				24D8E440119B9D8A00F8CAA6 /* TiAppPropertiesProxy.m in Sources */,
 				24D8E441119B9D8A00F8CAA6 /* TiAnimation.m in Sources */,
 				24D8E442119B9D8A00F8CAA6 /* TiAction.m in Sources */,
+				84A0100017FB833000D4BF94 /* TiPushBehavior.m in Sources */,
 				24D8E444119B9D8A00F8CAA6 /* Ti2DMatrix.m in Sources */,
 				24D8E445119B9D8A00F8CAA6 /* TiPlatformDisplayCaps.m in Sources */,
 				24D8E446119B9D8A00F8CAA6 /* PlatformModule.m in Sources */,
@@ -3907,6 +3916,7 @@
 				DABB371912E8CB280026A6EA /* TiAppPropertiesProxy.m in Sources */,
 				DABB371A12E8CB280026A6EA /* TiAnimation.m in Sources */,
 				DABB371B12E8CB280026A6EA /* TiAction.m in Sources */,
+				84A0100117FB833000D4BF94 /* TiPushBehavior.m in Sources */,
 				DABB371D12E8CB280026A6EA /* Ti2DMatrix.m in Sources */,
 				DABB371E12E8CB280026A6EA /* TiPlatformDisplayCaps.m in Sources */,
 				DABB371F12E8CB280026A6EA /* PlatformModule.m in Sources */,

@@ -13,20 +13,29 @@
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     _damping = 0.5;
-
+    _needsRefresh = NO;
+    _snapPoint = CGPointZero;
     [super _initWithProperties:properties];
 }
 
 -(void)dealloc
 {
     RELEASE_TO_NIL(_snapItem);
+    RELEASE_TO_NIL(_snapBehavior);
     [super dealloc];
 }
 
 #pragma mark - TiBehaviorProtocol
--(id)behaviorObject
+-(UIDynamicBehavior*)behaviorObject
 {
-    return [[[UISnapBehavior alloc] initWithItem:[_snapItem view] snapToPoint:_snapPoint] autorelease];
+    if (_needsRefresh) {
+        RELEASE_TO_NIL(_snapBehavior);
+    }
+    if (_snapBehavior == nil) {
+        _snapBehavior = [[UISnapBehavior alloc] initWithItem:[_snapItem view] snapToPoint:_snapPoint];
+    }
+    _needsRefresh = NO;
+    return _snapBehavior;
 }
 
 #pragma mark - Public API
@@ -39,8 +48,13 @@
 -(void) setItem:(id)args;
 {
     ENSURE_SINGLE_ARG(args, TiViewProxy);
-    RELEASE_TO_NIL(_snapItem);
-    _snapItem = [(TiViewProxy*)args retain];
+    if (args != _snapItem) {
+        [self forgetProxy:_snapItem];
+        RELEASE_TO_NIL(_snapItem);
+        _snapItem = [(TiViewProxy*)args retain];
+        [self rememberProxy:_snapItem];
+        _needsRefresh = YES;
+    }
 }
 
 -(NSNumber*) damping
@@ -60,6 +74,9 @@
         } else {
             _damping = newVal;
         }
+        TiThreadPerformOnMainThread(^{
+            [_snapBehavior setDamping:_damping];
+        }, YES);
     }
 }
 
@@ -71,7 +88,11 @@
 -(void) setSnapPoint:(id)args
 {
     ENSURE_SINGLE_ARG(args, NSObject);
-    _snapPoint = [TiUtils pointValue:args];
+    CGPoint newPoint = [TiUtils pointValue:args];
+    if (!CGPointEqualToPoint(_snapPoint, newPoint)) {
+        _snapPoint = newPoint;
+        _needsRefresh = YES;
+    }
 }
 
 @end

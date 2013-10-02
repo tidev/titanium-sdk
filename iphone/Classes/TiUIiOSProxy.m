@@ -41,6 +41,9 @@
 #ifdef USE_TI_UIIOSSNAPBEHAVIOR
 #import "TiSnapBehavior.h"
 #endif
+#ifdef USE_TI_UIIOSPUSHBEHAVIOR
+#import "TiPushBehavior.h"
+#endif
 #endif
 
 @implementation TiUIiOSProxy
@@ -129,6 +132,22 @@
         return nil;
     }
 }
+#endif
+
+#ifdef USE_TI_UIIOSPUSHBEHAVIOR
+-(id)createPushBehavior:(id)args
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiPushBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The Push Behavior Object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+//TiPushBehavior Constants
+MAKE_SYSTEM_PROP(PUSH_MODE_CONTINUOUS, 0);
+MAKE_SYSTEM_PROP(PUSH_MODE_INSTANTANEOUS, 1);
+
 #endif
 #endif
 

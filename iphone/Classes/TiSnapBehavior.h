@@ -13,6 +13,8 @@
     TiViewProxy* _snapItem;
     CGFloat _damping;
     CGPoint _snapPoint;
+    BOOL _needsRefresh;
+    UISnapBehavior* _snapBehavior;
 }
 
 #pragma mark - Public API

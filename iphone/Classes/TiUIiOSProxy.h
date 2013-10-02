@@ -49,6 +49,9 @@
 #ifdef USE_TI_UIIOSSNAPBEHAVIOR
 -(id)createSnapBehavior:(id)args;
 #endif
+#ifdef USE_TI_UIIOSPUSHBEHAVIOR
+-(id)createPushBehavior:(id)args;
+#endif
 #endif
 @end
 
