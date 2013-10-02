@@ -30,6 +30,7 @@ var suites = [
 	{name: "titanium"},
 	{name: "ui/ui"},
 	{name: "ui_2dMatrix"},
+	{name: "ui_clipboard"},
 	{name: "ui_controls"},
 	{name: "utils/utils"},
 	{name: "yahoo"}
@@ -53,8 +54,7 @@ if (Ti.Platform.osname === 'android') {
 	suites = suites.concat([
 		{name: "iphone/iphone_2Dmatrix"},
 		{name: "iphone/iphone_ui"},
-		{name: "iphone/iphone_UI_3DMatrix"},
-		{name: "iphone/iphone_ui_clipboard"}
+		{name: "iphone/iphone_UI_3DMatrix"}
 	]);
 }
 
