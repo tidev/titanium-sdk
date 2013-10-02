@@ -52,6 +52,9 @@
 #ifdef USE_TI_UIIOSPUSHBEHAVIOR
 -(id)createPushBehavior:(id)args;
 #endif
+#ifdef USE_TI_UIIOSGRAVITYBEHAVIOR
+-(id)createGravityBehavior:(id)args;
+#endif
 #endif
 @end
 

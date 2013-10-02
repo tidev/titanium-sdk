@@ -44,6 +44,9 @@
 #ifdef USE_TI_UIIOSPUSHBEHAVIOR
 #import "TiPushBehavior.h"
 #endif
+#ifdef USE_TI_UIIOSGRAVITYBEHAVIOR
+#import "TiGravityBehavior.h"
+#endif
 #endif
 
 @implementation TiUIiOSProxy
@@ -147,8 +150,20 @@
 //TiPushBehavior Constants
 MAKE_SYSTEM_PROP(PUSH_MODE_CONTINUOUS, 0);
 MAKE_SYSTEM_PROP(PUSH_MODE_INSTANTANEOUS, 1);
-
 #endif
+
+#ifdef USE_TI_UIIOSGRAVITYBEHAVIOR
+-(id)createGravityBehavior:(id)args
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiGravityBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The Gravity Behavior Object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+#endif
+
 #endif
 
 
