@@ -22,6 +22,8 @@ import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
+import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -32,7 +34,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Pair;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -73,6 +74,7 @@ public class TiListView extends TiUIView {
 	public static List<String> MUST_SET_PROPERTIES = Arrays.asList(TiC.PROPERTY_VALUE);
 	
 	public static final String MIN_ROW_HEIGHT = "30dp";
+	public static final int HEADER_FOOTER_WRAP_ID = 12345;
 	public static final int HEADER_FOOTER_VIEW_TYPE = 0;
 	public static final int HEADER_FOOTER_TITLE_TYPE = 1;
 	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 2;
@@ -251,7 +253,7 @@ public class TiListView extends TiUIView {
 		ListViewWrapper wrapper = new ListViewWrapper(activity);
 		wrapper.setFocusable(false);
 		wrapper.setFocusableInTouchMode(false);
-		listView = new TiUIListView(activity);
+		listView = new ListView(activity);
 		listView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		wrapper.addView(listView);
 		adapter = new TiBaseAdapter(activity);
@@ -400,8 +402,6 @@ public class TiListView extends TiUIView {
 	private void setHeaderOrFooterView (Object viewObj, boolean isHeader) {
 		if (viewObj instanceof TiViewProxy) {
 			TiViewProxy viewProxy = (TiViewProxy)viewObj;
-			//TiUIView v = viewProxy.getOrCreateView();
-			//View view = v.getOuterView();
 			View view = layoutHeaderOrFooterView(viewProxy);
 			if (view != null) {
 				if (isHeader) {
@@ -479,8 +479,19 @@ public class TiListView extends TiUIView {
 			tiView = viewProxy.forceCreateView();
 		}
 		View outerView = tiView.getOuterView();
-		outerView.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,  AbsListView.LayoutParams.WRAP_CONTENT));
-		return outerView;
+		ViewGroup parentView = (ViewGroup) outerView.getParent();
+		if (parentView != null && parentView.getId() == HEADER_FOOTER_WRAP_ID) {
+			return parentView;
+		} else {
+			//add a wrapper so layout params such as height, width takes in effect.
+			TiCompositeLayout wrapper = new TiCompositeLayout(viewProxy.getActivity(), LayoutArrangement.DEFAULT, null);
+			AbsListView.LayoutParams params = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,  AbsListView.LayoutParams.WRAP_CONTENT);
+			wrapper.setLayoutParams(params);
+			outerView = tiView.getOuterView();
+			wrapper.addView(outerView, tiView.getLayoutParams());
+			wrapper.setId(HEADER_FOOTER_WRAP_ID);
+			return wrapper;
+		}
 	}
 
 	protected void processSections(Object[] sections) {

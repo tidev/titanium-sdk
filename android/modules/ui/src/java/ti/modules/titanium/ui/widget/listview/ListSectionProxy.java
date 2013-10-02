@@ -30,9 +30,6 @@ import ti.modules.titanium.ui.widget.listview.TiListView.TiBaseAdapter;
 import ti.modules.titanium.ui.widget.listview.TiListViewTemplate.DataItem;
 import android.os.Message;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.widget.AbsListView;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
 })
@@ -105,13 +102,13 @@ public class ListSectionProxy extends ViewProxy{
 		if (dict.containsKey(TiC.PROPERTY_HEADER_VIEW)) {
 			Object obj = dict.get(TiC.PROPERTY_HEADER_VIEW);
 			if (obj instanceof TiViewProxy) {
-				headerView = ((TiViewProxy) obj);
+				headerView = (TiViewProxy) obj;
 			}
 		}
 		if (dict.containsKey(TiC.PROPERTY_FOOTER_VIEW)) {
 			Object obj = dict.get(TiC.PROPERTY_FOOTER_VIEW);
 			if (obj instanceof TiViewProxy) {
-				footerView = ((TiViewProxy) obj);
+				footerView = (TiViewProxy) obj;
 			}
 		}
 		if (dict.containsKey(TiC.PROPERTY_ITEMS)) {
