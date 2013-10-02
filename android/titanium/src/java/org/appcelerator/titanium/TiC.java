@@ -827,11 +827,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CAN_CANCEL_EVENTS = "canCancelEvents";
-	
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_CAN_SCROLL = "canScroll";
 
 	/**
 	 * @module.api

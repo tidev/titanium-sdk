@@ -34,7 +34,6 @@ import android.os.Message;
 	TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
 	TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
 	TiC.PROPERTY_SECTIONS,
-	TiC.PROPERTY_CAN_SCROLL,
 	TiC.PROPERTY_SEPARATOR_COLOR
 })
 public class ListViewProxy extends TiViewProxy {
@@ -58,7 +57,6 @@ public class ListViewProxy extends TiViewProxy {
 	
 	public ListViewProxy() {
 		super();
-		defaultValues.put(TiC.PROPERTY_CAN_SCROLL, true);
 	}
 
 	public TiUIView createView(Activity activity) {

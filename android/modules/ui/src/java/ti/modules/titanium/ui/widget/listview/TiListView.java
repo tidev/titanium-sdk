@@ -43,7 +43,7 @@ import android.widget.TextView;
 
 public class TiListView extends TiUIView {
 
-	private TiUIListView listView;
+	private ListView listView;
 	private TiBaseAdapter adapter;
 	private ArrayList<ListSectionProxy> sections;
 	private AtomicInteger itemTypeCount;
@@ -76,25 +76,7 @@ public class TiListView extends TiUIView {
 	public static final int HEADER_FOOTER_VIEW_TYPE = 0;
 	public static final int HEADER_FOOTER_TITLE_TYPE = 1;
 	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 2;
-	
-	class TiUIListView extends ListView {
 
-		public TiUIListView(Context context)
-		{
-			super(context);
-			
-		}
-		
-		@Override
-		public boolean dispatchTouchEvent(MotionEvent ev){
-		   if (ev.getAction() == MotionEvent.ACTION_MOVE && !TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CAN_SCROLL), true)) {
-		      return true;
-		   }
-		   return super.dispatchTouchEvent(ev);
-		}
-		
-	}
-	
 	class ListViewWrapper extends FrameLayout {
 
 		public ListViewWrapper(Context context) {
