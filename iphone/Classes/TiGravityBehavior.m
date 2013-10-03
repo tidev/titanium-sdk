@@ -56,7 +56,7 @@
 
 -(void)updateItems
 {
-    DebugLog(@"GOT UPDATE ITEMS CALL");
+    //Nothing to do here
 }
 
 #pragma mark - Public API

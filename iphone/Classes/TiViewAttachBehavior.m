@@ -56,7 +56,7 @@
 
 -(void)updateItems
 {
-    DebugLog(@"GOT UPDATE ITEMS CALL");
+    //Nothing to do here
 }
 
 #pragma mark - Public API
@@ -69,6 +69,15 @@
         _item = [args retain];
         [self rememberProxy:_item];
         _needsRefresh = (_attachBehavior != nil);
+        if (_needsRefresh) {
+            TiThreadPerformOnMainThread(^{
+                UIDynamicAnimator* theAnimator = _attachBehavior.dynamicAnimator;
+                if (theAnimator!= nil) {
+                    [theAnimator removeBehavior:_attachBehavior];
+                    [theAnimator addBehavior:[self behaviorObject]];
+                }
+            }, YES);
+        }
     }
 }
 
@@ -86,6 +95,15 @@
         _anchorItem = [args retain];
         [self rememberProxy:_anchorItem];
         _needsRefresh = (_attachBehavior != nil);
+        if (_needsRefresh) {
+            TiThreadPerformOnMainThread(^{
+                UIDynamicAnimator* theAnimator = _attachBehavior.dynamicAnimator;
+                if (theAnimator!= nil) {
+                    [theAnimator removeBehavior:_attachBehavior];
+                    [theAnimator addBehavior:[self behaviorObject]];
+                }
+            }, YES);
+        }
     }
 }
 
@@ -163,6 +181,15 @@
     if (!CGPointEqualToPoint(_itemOffset, newPoint)) {
         _itemOffset = newPoint;
         _needsRefresh = (_attachBehavior != nil);
+        if (_needsRefresh) {
+            TiThreadPerformOnMainThread(^{
+                UIDynamicAnimator* theAnimator = _attachBehavior.dynamicAnimator;
+                if (theAnimator!= nil) {
+                    [theAnimator removeBehavior:_attachBehavior];
+                    [theAnimator addBehavior:[self behaviorObject]];
+                }
+            }, YES);
+        }
     }
 }
 
@@ -178,6 +205,15 @@
     if (!CGPointEqualToPoint(_anchorOffset, newPoint)) {
         _anchorOffset = newPoint;
         _needsRefresh = (_attachBehavior != nil);
+        if (_needsRefresh) {
+            TiThreadPerformOnMainThread(^{
+                UIDynamicAnimator* theAnimator = _attachBehavior.dynamicAnimator;
+                if (theAnimator!= nil) {
+                    [theAnimator removeBehavior:_attachBehavior];
+                    [theAnimator addBehavior:[self behaviorObject]];
+                }
+            }, YES);
+        }
     }
 }
 

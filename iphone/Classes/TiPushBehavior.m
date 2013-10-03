@@ -60,7 +60,10 @@
 
 -(void)updateItems
 {
-    DebugLog(@"GOT UPDATE ITEMS CALL");
+    //Update params for reinitialization
+    _angle = [_pushBehavior angle];
+    _magnitude = [_pushBehavior magnitude];
+    _vector = [_pushBehavior pushDirection];
 }
 
 #pragma mark - Public API
@@ -175,6 +178,15 @@
         _mode = UIPushBehaviorModeContinuous;
     }
     _needsRefresh = (_pushBehavior != nil);
+    if (_needsRefresh) {
+        TiThreadPerformOnMainThread(^{
+            UIDynamicAnimator* theAnimator = _pushBehavior.dynamicAnimator;
+            if (theAnimator!= nil) {
+                [theAnimator removeBehavior:_pushBehavior];
+                [theAnimator addBehavior:[self behaviorObject]];
+            }
+        }, YES);
+    }
 }
 
 -(NSNumber*)pushMode

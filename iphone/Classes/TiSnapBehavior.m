@@ -44,7 +44,7 @@
 
 -(void)updateItems
 {
-    DebugLog(@"GOT UPDATE ITEMS CALL");
+    //Nothing to do here
 }
 
 #pragma mark - Public API
@@ -62,7 +62,16 @@
         RELEASE_TO_NIL(_snapItem);
         _snapItem = [(TiViewProxy*)args retain];
         [self rememberProxy:_snapItem];
-        _needsRefresh = YES;
+        _needsRefresh = (_snapBehavior != nil);
+        if (_needsRefresh) {
+            TiThreadPerformOnMainThread(^{
+                UIDynamicAnimator* theAnimator = _snapBehavior.dynamicAnimator;
+                if (theAnimator!= nil) {
+                    [theAnimator removeBehavior:_snapBehavior];
+                    [theAnimator addBehavior:[self behaviorObject]];
+                }
+            }, YES);
+        }
     }
 }
 
@@ -100,7 +109,16 @@
     CGPoint newPoint = [TiUtils pointValue:args];
     if (!CGPointEqualToPoint(_snapPoint, newPoint)) {
         _snapPoint = newPoint;
-        _needsRefresh = YES;
+        _needsRefresh = (_snapBehavior != nil);
+        if (_needsRefresh) {
+            TiThreadPerformOnMainThread(^{
+                UIDynamicAnimator* theAnimator = _snapBehavior.dynamicAnimator;
+                if (theAnimator!= nil) {
+                    [theAnimator removeBehavior:_snapBehavior];
+                    [theAnimator addBehavior:[self behaviorObject]];
+                }
+            }, YES);
+        }
     }
 }
 
