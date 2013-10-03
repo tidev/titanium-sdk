@@ -1001,6 +1001,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'copyModuleResources',
 		'generateAidl',
 		'generateI18N',
+		'generateTheme',
 		'generateAndroidManifest',
 		'compileJavaClasses',
 		'runDexer',
@@ -1146,6 +1147,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.buildBinAssetsResourcesDir = path.join(this.buildBinAssetsDir, 'Resources');
 	this.buildGenAppIdDir = path.join(this.buildDir, 'gen', this.appid.split('.').join(path.sep));
 	this.buildResDir = path.join(this.buildDir, 'res');
+	this.buildResDrawableDir = path.join(this.buildResDir, 'drawable')
 	this.buildSrcDir = path.join(this.buildDir, 'src');
 	this.templatesDir = path.join(this.platformPath, 'templates', 'build');
 
@@ -1484,7 +1486,7 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	fs.existsSync(dir = this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildDir, 'lib')) || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = this.buildResDir) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = path.join(this.buildResDir, 'drawable')) || wrench.mkdirSyncRecursive(dir);
+	fs.existsSync(dir = this.buildResDrawableDir) || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildResDir, 'values')) || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = this.buildSrcDir) || wrench.mkdirSyncRecursive(dir);
 
@@ -1498,11 +1500,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		drawableRegExp = /^images\/(high|medium|low|res-[^\/]+)(\/(.*))?/,
 		drawableDpiRegExp = /^(high|medium|low)$/,
 		drawableExtRegExp = /((\.9)?\.(png|jpg))$/,
+		splashScreenRegExp = /^default\.(9\.png|png|jpg)$/,
 		jsFiles = {},
 		htmlJsFiles = {};
 
 	function copyDir(opts, callback) {
 		if (opts && opts.src && fs.existsSync(opts.src) && opts.dest) {
+			opts.origSrc = opts.src;
 			opts.origDest = opts.dest;
 			recursivelyCopy.call(this, opts.src, opts.dest, opts.ignoreRootDirs, opts, callback);
 		} else {
@@ -1544,22 +1548,23 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				// we have a file, now we need to see what sort of file
 
 				// check if it's a drawable resource
-				if (filename != 'default.png') {
-					var m = to.replace(opts.origDest, '').replace(/^\//, '').replace(/\\/g, '/').match(drawableRegExp);
-					if (m && m.length >= 4) {
-						var destFilename = m[3].toLowerCase(),
-							name = destFilename.replace(drawableExtRegExp, ''),
-							ext = destFilename.match(drawableExtRegExp);
+				var m = from.replace(opts.origSrc, '').replace(/^\//, '').replace(/\\/g, '/').match(drawableRegExp);
+				if (m && m.length >= 4) {
+					var destFilename = m[3].toLowerCase(),
+						name = destFilename.replace(drawableExtRegExp, ''),
+						extMatch = destFilename.match(drawableExtRegExp),
+						ext = extMatch && extMatch[1] || '';
 
-						dest = path.join(
-							this.buildResDir,
-							drawableDpiRegExp.test(m[1]) ? 'drawable-' + m[1][0] : 'drawable-' + m[1].substring(4)
-						);
+					dest = path.join(
+						this.buildResDir,
+						drawableDpiRegExp.test(m[1]) ? 'drawable-' + m[1][0] : 'drawable-' + m[1].substring(4)
+					);
 
-						to = path.join(
-							dest,
-							name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name).substring(0, 10) + (ext ? ext[1] : '')
-						);
+					if (splashScreenRegExp.test(filename)) {
+						// we have a splash screen image
+						to = path.join(dest, 'background' + ext);
+					} else {
+						to = path.join(dest, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name).substring(0, 10) + ext);
 					}
 				}
 
@@ -1702,9 +1707,21 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	}, this);
 
 	appc.async.series(this, tasks, function (err, results) {
-		var jsFilesToEncrypt = this.jsFilesToEncrypt = [];
+		var templateImageDir = path.join(this.platformPath, 'templates', 'app', 'default', 'Resources', 'android', 'images');
+
+		// if an app icon hasn't been copied, copy the default one
+		var destIcon = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
+		if (!fs.existsSync(destIcon)) {
+			appc.fs.copyFileSync(path.join(templateImageDir, 'appicon.png'), destIcon, { logger: this.logger.debug });
+		}
+
+		// make sure we have a splash screen
+		if (!fs.readdirSync(this.buildResDrawableDir).some(function (n) { return /^background(\.9)?\.(png|jpg)$/; })) {
+			appc.fs.copyFileSync(path.join(templateImageDir, 'default.png'), path.join(this.buildResDrawableDir, 'background.png'), { logger: this.logger.debug });
+		}
 
 		// copy js files into assets directory and minify if needed
+		var jsFilesToEncrypt = this.jsFilesToEncrypt = [];
 		appc.async.parallel(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
 				var from = jsFiles[id],
@@ -2066,7 +2083,6 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 
 	// copy and populate templates
 	copyTemplate(path.join(this.templatesDir, 'AppInfo.java'), path.join(this.buildGenAppIdDir, 'AppInfo.java'));
-	copyTemplate(path.join(this.templatesDir, 'AndroidManifest.xml'), path.join(this.buildDir, 'AndroidManifest.xml'));
 	copyTemplate(path.join(this.templatesDir, 'App.java'), path.join(this.buildGenAppIdDir, this.classname + 'Application.java'));
 	copyTemplate(path.join(this.templatesDir, 'Activity.java'), path.join(this.buildGenAppIdDir, this.classname + 'Activity.java'));
 	copyTemplate(path.join(this.templatesDir, 'project'), path.join(this.buildDir, '.project'));
@@ -2295,6 +2311,27 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 	next();
 };
 
+AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
+	var themeFile = path.join(this.buildResDir, 'values', 'theme.xml');
+
+	if (!fs.existsSync(themeFile)) {
+		this.logger.info(__('Generating %s', themeFile));
+
+		var flags = 'Theme';
+		if ((this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) && this.tiapp['navbar-hidden']) {
+			flags += '.NoTitleBar.Fullscreen';
+		} else if (this.tiapp['navbar-hidden']) {
+			flags += '.NoTitleBar';
+		}
+
+		ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
+			flags: flags
+		});
+	}
+
+	next();
+};
+
 AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManifest(next) {
 	var calendarPermissions = [ 'READ_CALENDAR', 'WRITE_CALENDAR' ],
 		cameraPermissions = [ 'CAMERA' ],
@@ -2380,7 +2417,8 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 		enableGoogleAPIWarning = this.target == 'emulator' && this.emulator && !this.emulator.googleApis,
 
-		activities = [];
+		activities = [],
+		services = [];
 
 	if (this.deployType == 'development' || this.deployType == 'test') {
 		// enable mock location if in development or test mode
@@ -2427,210 +2465,140 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}, this);
 	}, this);
 
-	dump(permissions);
+	// gather activities
+	var tiappActivities = this.tiapp.android && this.tiapp.android.activities;
+	tiappActivities && Object.keys(tiappActivities).forEach(function (filename) {
+		var activity = tiappActivities[filename];
+		if (activity.url) {
+			var a = {
+				'android:name': this.appid + '.' + activity.classname
+			};
+			Object.keys(activity).forEach(function (key) {
+				if (!/^(name|url|options|classname|android\:name)$/.test(key)) {
+					a[key] = activity[key];
+				}
+			});
+			activity['android:config'] || (a['android:config'] = 'keyboardHidden|orientation');
+			activities.push({ 'activity': a });
+		}
+	}, this);
+
+	// gather services
+	var tiappServices = this.tiapp.android && this.tiapp.android.services;
+	tiappServices && Object.keys(tiappServices).forEach(function (filename) {
+		var service = tiappServices[filename];
+		if (service.url) {
+			var s = {
+				'android:name': this.appid + '.' + service.classname
+			};
+			Object.keys(service).forEach(function (key) {
+				if (!/^(type|name|url|options|classname|android\:name)$/.test(key)) {
+					s[key] = service[key];
+				}
+			});
+			services.push({ 'service': s });
+		}
+	}, this);
+
+	//
+	var defaultAndroidManifestFile = path.join(this.templatesDir, 'AndroidManifest.xml'),
+		defaultAndroidManifestXml = (new DOMParser({ errorHandler: function(){} }).parseFromString(ejs.render(fs.readFileSync(defaultAndroidManifestFile).toString(), this), 'text/xml')).documentElement,
+		customAndroidManifestFile = path.join(this.projectDir, 'platform', 'android', 'AndroidManifest.xml'),
+		customAndroidManifestXml,
+		tiappAndroidManifestXml;
+
+	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
+	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
+	// elements, otherwise changes in orientation will cause the app to restart
+	if (this.targetSDK >= 13) {
+		var appNode = defaultAndroidManifestXml.getElementsByTagName('application');
+		appNode && xml.forEachElement(appNode[0], function (node) {
+			if (node.tagName == 'activity') {
+				var configChanges = node.getAttribute('android:configChanges').trim().split('|');
+				configChanges.indexOf('screenSize') != -1 && configChanges.push('screenSize');
+				node.setAttribute('android:configChanges', configChanges);
+			}
+		});
+	}
+
+	if (fs.existsSync(customAndroidManifestFile)) {
+		this.logger.info(__('Detected custom ApplicationManifest.xml'));
+		customAndroidManifestXml = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(customAndroidManifestFile).toString(), 'text/xml')).documentElement;
+	}
+
+	if (this.tiapp.android && this.tiapp.android.manifest) {
+		tiappAndroidManifestXml = (new DOMParser({ errorHandler: function(){} }).parseFromString(this.tiapp.android.manifest, 'text/xml')).documentElement;
+		xml.forEachElement(tiappAndroidManifestXml, function (node) {
+			if (node.tagName == 'uses-permission') {
+				var name = (node.getAttribute('android:name') || '').split('.').pop();
+				if (name && !permissions[name]) {
+					permissions[name] = 1;
+				}
+			}
+		});
+	}
+
+	this.modules.forEach(function (module) {
+		var moduleXmlFile = path.join(module.modulePath, 'module.xml');
+		if (fs.existsSync(moduleXmlFile)) {
+			var moduleXml = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(moduleXmlFile).toString(), 'text/xml')).documentElement;
+			xml.forEachElement(moduleXml, function (node) {
+				if (node.tagName == 'uses-permission') {
+					var name = (node.getAttribute('android:name') || '').split('.').pop();
+					if (name && !permissions[name]) {
+						permissions[name] = 1;
+					}
+				}
+			});
+		}
+	});
+
+	// start with tiapp.xml
+	// mix in module.xml
+
+	// for each module
+	//    mix the module.xml into tiappAndroidManifestXml
+	//    extract uses-permissions
 
 /*
-		# Javascript-based activities defined in tiapp.xml
-		if self.tiapp and self.tiapp.android and 'activities' in self.tiapp.android:
-			tiapp_activities = self.tiapp.android['activities']
-			for key in tiapp_activities:
-				activity = tiapp_activities[key]
-				if not 'url' in activity:
-					continue
-				activity_name = self.app_id + '.' + activity['classname']
-				activity_str = '<activity \n\t\t\tandroid:name="%s"' % activity_name
-				for subkey in activity:
-					if subkey not in ('nodes', 'name', 'url', 'options', 'classname', 'android:name'):
-						activity_str += '\n\t\t\t%s="%s"' % (subkey, activity[subkey])
+		application_xml = get_application_xml(self.tiapp)
 
-				if 'android:config' not in activity:
-					activity_str += '\n\t\t\tandroid:configChanges="keyboardHidden|orientation"'
-				if 'nodes' in activity:
-					activity_str += '>'
-					for node in activity['nodes']:
-						activity_str += '\n\t\t\t\t' + node.toxml()
-					activities.append(activity_str + '\n\t\t</activity>\n')
-				else:
-					activities.append(activity_str + '\n\t\t/>\n')
-
-		activities = set(activities)
-
-		services = []
-		# Javascript-based services defined in tiapp.xml
-		if self.tiapp and self.tiapp.android and 'services' in self.tiapp.android:
-			tiapp_services = self.tiapp.android['services']
-			for key in tiapp_services:
-				service = tiapp_services[key]
-				if not 'url' in service:
-					continue
-				service_name = self.app_id + '.' + service['classname']
-				service_str = '<service \n\t\t\tandroid:name="%s"' % service_name
-				for subkey in service:
-					if subkey not in ('nodes', 'service_type', 'type', 'name', 'url', 'options', 'classname', 'android:name'):
-						service_str += '\n\t\t\t%s="%s"' % (subkey, service[subkey])
-
-				if 'nodes' in service:
-					service_str += '>'
-					for node in service['nodes']:
-						service_str += '\n\t\t\t\t' + node.toxml()
-					services.append(service_str + '\n\t\t</service>\n')
-				else:
-					services.append(service_str + '\n\t\t/>\n')
+		# add manifest / application entries from modules
+		for module in self.modules:
+			if module.xml == None: continue
+			manifest_xml += get_manifest_xml(module.xml, self.tiapp)
+			application_xml += get_application_xml(module.xml, self.tiapp)
+*/
 
 
-		self.use_maps = False
+
+	// this.androidManifestFile
+
+
+/*		self.use_maps = False
 		self.res_changed = False
-		icon_name = self.tiapp.properties['icon']
-		icon_path = os.path.join(self.assets_resources_dir, icon_name)
-		icon_ext = os.path.splitext(icon_path)[1]
 
 		res_drawable_dest = os.path.join(self.project_dir, 'res', 'drawable')
-		if not os.path.exists(res_drawable_dest):
-			os.makedirs(res_drawable_dest)
-
-		default_icon = os.path.join(self.support_resources_dir, 'default.png')
-		dest_icon = os.path.join(res_drawable_dest, 'appicon%s' % icon_ext)
-		if Deltafy.needs_update(icon_path, dest_icon):
-			self.res_changed = True
-			debug("copying app icon: %s" % icon_path)
-			shutil.copy(icon_path, dest_icon)
-		elif Deltafy.needs_update(default_icon, dest_icon):
-			self.res_changed = True
-			debug("copying default app icon")
-			shutil.copy(default_icon, dest_icon)
 
 		# make our Titanium theme for our icon
 		res_values_dir = os.path.join(self.project_dir, 'res','values')
-		if not os.path.exists(res_values_dir):
-			os.makedirs(res_values_dir)
-		theme_xml = os.path.join(res_values_dir,'theme.xml')
-		if not os.path.exists(theme_xml):
-			self.res_changed = True
-			debug('generating theme.xml')
-			theme_file = open(theme_xml, 'w')
-			theme_flags = "Theme"
-			# We need to treat the default values for fulscreen and
-			# navbar-hidden the same as android.py does -- false for both.
-			theme_fullscreen = False
-			theme_navbarhidden = False
-			if (self.tiapp.properties.get("fullscreen") == "true" or
-					self.tiapp.properties.get("statusbar-hidden") == "true"):
-				theme_fullscreen = True
-			elif self.tiapp.properties.get("navbar-hidden") == "true":
-				theme_navbarhidden = True
-			if theme_fullscreen:
-				theme_flags += ".NoTitleBar.Fullscreen"
-			elif theme_navbarhidden:
-				theme_flags += ".NoTitleBar"
-			# Wait, one exception.  If you want the notification area (very
-			# top of screen) hidden, but want the title bar in the app,
-			# there's no theme for that.  So we have to use the default theme (no flags)
-			# and when the application code starts running, the adjustments are then made.
-			# Only do this when the properties are explicitly set, so as to avoid changing
-			# old default behavior.
-			if theme_flags.endswith('.Fullscreen') and \
-					self.tiapp.properties.get("navbar-hidden") == 'false' and \
-					('fullscreen' in self.tiapp.explicit_properties or \
-					'statusbar-hidden' in self.tiapp.explicit_properties) and \
-					'navbar-hidden' in self.tiapp.explicit_properties:
-				theme_flags = 'Theme'
-
-			TITANIUM_THEME="""<?xml version="1.0" encoding="utf-8"?>
-<resources>
-<style name="Theme.Titanium" parent="android:%s">
-    <item name="android:windowBackground">@drawable/background</item>
-</style>
-</resources>
-""" % theme_flags
-			theme_file.write(TITANIUM_THEME)
-			theme_file.close()
 
 		# create our background image which acts as splash screen during load
 		resources_dir = os.path.join(self.top_dir, 'Resources')
-		android_images_dir = os.path.join(resources_dir, 'android', 'images')
-		# look for density-specific default.png's first
-
-
-		NOTE: we need to support nine patch as well as jpg
-		/^default\.(9\.png|png|jpg)$/
-
-
-		if os.path.exists(android_images_dir):
-			pattern = r'/android/images/(high|medium|low|res-[^/]+)/default.png'
-			for root, dirs, files in os.walk(android_images_dir):
-				remove_ignored_dirs(dirs)
-				for f in files:
-					if f in ignoreFiles:
-						continue
-					path = os.path.join(root, f)
-					if re.search(pattern, path.replace(os.sep, "/")):
-						res_folder = resource_drawable_folder(path)
-						debug('found %s splash screen at %s' % (res_folder, path))
-						dest_path = os.path.join(self.res_dir, res_folder)
-						dest_file = os.path.join(dest_path, 'background.png')
-						if not os.path.exists(dest_path):
-							os.makedirs(dest_path)
-						if Deltafy.needs_update(path, dest_file):
-							self.res_changed = True
-							debug('copying %s splash screen to %s' % (path, dest_file))
-							shutil.copy(path, dest_file)
-
-		default_png = os.path.join(self.assets_resources_dir, 'default.png')
-		support_default_png = os.path.join(self.support_resources_dir, 'default.png')
-		background_png = os.path.join(self.project_dir, 'res','drawable','background.png')
-		if os.path.exists(default_png) and Deltafy.needs_update(default_png, background_png):
-			self.res_changed = True
-			debug("found splash screen at %s" % os.path.abspath(default_png))
-			shutil.copy(default_png, background_png)
-		elif Deltafy.needs_update(support_default_png, background_png):
-			self.res_changed = True
-			debug("copying default splash screen")
-			shutil.copy(support_default_png, background_png)
-
 
 		android_manifest = os.path.join(self.project_dir, 'AndroidManifest.xml')
-		android_manifest_to_read = android_manifest
-
-		# NOTE: allow the user to use their own custom AndroidManifest if they put a file named
-		# AndroidManifest.xml in platform/android, in which case all bets are off
-		is_custom = False
-		# Catch people who may have it in project root (un-released 1.4.x android_native_refactor branch users)
-		if os.path.exists(os.path.join(self.top_dir, 'AndroidManifest.xml')):
-			warn('AndroidManifest.xml file in the project root is ignored.  Move it to platform/android if you want it to be your custom manifest.')
-		android_custom_manifest = os.path.join(self.project_dir, 'AndroidManifest.custom.xml')
-		if not os.path.exists(android_custom_manifest):
-			android_custom_manifest = os.path.join(self.platform_dir, 'AndroidManifest.xml')
-		else:
-			warn('Use of AndroidManifest.custom.xml is deprecated. Please put your custom manifest as "AndroidManifest.xml" in the "platform/android" directory if you do not need to compile for versions < 1.5')
-		if os.path.exists(android_custom_manifest):
-			android_manifest_to_read = android_custom_manifest
-			is_custom = True
-			info("Detected custom ApplicationManifest.xml -- no Titanium version migration supported")
 
 
+		def get_application_xml(tiapp, template_obj=None):
+			xml = ''
+			if 'application' in tiapp.android_manifest:
+				for app_el in tiapp.android_manifest['application']:
+					this_xml = app_el.toxml()
+					if template_obj is not None and "${" in this_xml:
+						this_xml = render_template_with_tiapp(this_xml, template_obj)
+					xml += this_xml
+			return xml
 
-		default_manifest_contents = self.android.render_android_manifest()
-
-		def render_android_manifest(self):
-			template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
-			tmpl = self.load_template(os.path.join(template_dir, 'templates', 'AndroidManifest.xml'))
-			return tmpl.render(config = self.config)
-
-
-
-
-		if self.sdk.api_level >= HONEYCOMB_MR2_LEVEL:
-			# Need to add "screenSize" in our default "configChanges" attribute on
-			# <activity> elements, else changes in orientation will cause the app
-			# to restart. cf. TIMOB-10863.
-			default_manifest_contents = default_manifest_contents.replace('|orientation"', '|orientation|screenSize"')
-			debug("Added 'screenSize' to <activity android:configChanges> because targeted api level %s is >= %s" % (self.sdk.api_level, HONEYCOMB_MR2_LEVEL))
-
-		custom_manifest_contents = None
-		if is_custom:
-			custom_manifest_contents = open(android_manifest_to_read,'r').read()
-
-		manifest_xml = ''
 		def get_manifest_xml(tiapp, template_obj=None):
 			xml = ''
 			if 'manifest' in tiapp.android_manifest:
@@ -2648,27 +2616,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 							this_xml = render_template_with_tiapp(this_xml, template_obj)
 						xml += this_xml
 			return xml
-
-		application_xml = ''
-		def get_application_xml(tiapp, template_obj=None):
-			xml = ''
-			if 'application' in tiapp.android_manifest:
-				for app_el in tiapp.android_manifest['application']:
-					this_xml = app_el.toxml()
-					if template_obj is not None and "${" in this_xml:
-						this_xml = render_template_with_tiapp(this_xml, template_obj)
-					xml += this_xml
-			return xml
-
-		# add manifest / application entries from tiapp.xml
-		manifest_xml += get_manifest_xml(self.tiapp)
-		application_xml += get_application_xml(self.tiapp)
-
-		# add manifest / application entries from modules
-		for module in self.modules:
-			if module.xml == None: continue
-			manifest_xml += get_manifest_xml(module.xml, self.tiapp)
-			application_xml += get_application_xml(module.xml, self.tiapp)
 
 		# build the permissions XML based on the permissions detected
 		permissions_required = set(permissions_required)
@@ -2759,13 +2706,13 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 					node_to_delete.parentNode.removeChild(node_to_delete)
 				default_manifest_contents = dom.toxml()
 
-		if custom_manifest_contents:
-			custom_manifest_contents = fill_manifest(custom_manifest_contents)
+		if customAndroidManifest:
+			customAndroidManifest = fill_manifest(customAndroidManifest)
 
 		new_manifest_contents = None
 		android_manifest_gen = android_manifest + '.default'
-		if custom_manifest_contents:
-			new_manifest_contents = custom_manifest_contents
+		if customAndroidManifest:
+			new_manifest_contents = customAndroidManifest
 			# Write the would-be default as well so user can see
 			# some of the auto-gen'd insides of it if they need/want.
 			amf = open(android_manifest_gen, 'w')
