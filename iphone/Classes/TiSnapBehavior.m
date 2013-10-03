@@ -47,6 +47,19 @@
     //Nothing to do here
 }
 
+-(void)updatePositioning
+{
+    CGSize size = [[_snapItem view] bounds].size;
+    CGPoint center = [[_snapItem view] center];
+    CGPoint anchor = [[[_snapItem view] layer] anchorPoint];
+    
+    DeveloperLog(@"WIDTH %.1f HEIGHT %.1f CX %.1f CY %.1f AX %.1f AY %.1f", size.width,size.height,center.x,center.y,anchor.x,anchor.y);
+    //Update Center, CT = CX + (AX-.5)*WIDTH ; CY = CY + (AY-.5)*HEIGHT
+    LayoutConstraint* constraint = [_snapItem layoutProperties];
+    constraint->centerX = TiDimensionDip(center.x + (anchor.x - 0.5)*size.width);
+    constraint->centerY = TiDimensionDip(center.y + (anchor.y - 0.5)*size.height);
+}
+
 #pragma mark - Public API
 
 -(TiViewProxy*) item

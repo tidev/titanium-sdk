@@ -12,6 +12,7 @@
 @required
 -(UIDynamicBehavior*)behaviorObject;
 -(void)updateItems;
+-(void)updatePositioning;
 @end
 
 @interface TiAnimatorProxy : TiProxy<UIDynamicAnimatorDelegate> {

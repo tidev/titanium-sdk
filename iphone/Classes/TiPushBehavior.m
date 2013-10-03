@@ -66,6 +66,21 @@
     _vector = [_pushBehavior pushDirection];
 }
 
+-(void)updatePositioning
+{
+    for (TiViewProxy* theItem in _items) {
+        CGSize size = [[theItem view] bounds].size;
+        CGPoint center = [[theItem view] center];
+        CGPoint anchor = [[[theItem view] layer] anchorPoint];
+        
+        DeveloperLog(@"WIDTH %.1f HEIGHT %.1f CX %.1f CY %.1f AX %.1f AY %.1f", size.width,size.height,center.x,center.y,anchor.x,anchor.y);
+        //Update Center, CT = CX + (AX-.5)*WIDTH ; CY = CY + (AY-.5)*HEIGHT
+        LayoutConstraint* constraint = [theItem layoutProperties];
+        constraint->centerX = TiDimensionDip(center.x + (anchor.x - 0.5)*size.width);
+        constraint->centerY = TiDimensionDip(center.y + (anchor.y - 0.5)*size.height);
+    }
+}
+
 #pragma mark - Public API
 -(void)addItem:(id)args
 {

@@ -106,6 +106,7 @@
         if ([_behaviors containsObject:theArg]) {
             TiThreadPerformOnMainThread(^{
                 [theAnimator removeBehavior:(UIDynamicBehavior *)[(id<TiBehaviorProtocol>)theArg behaviorObject]];
+                [theArg updatePositioning];
             }, YES);
             [self forgetProxy:(TiProxy*)theArg];
             [_behaviors removeObject:theArg];
@@ -145,6 +146,9 @@
     TiThreadPerformOnMainThread(^{
         [theAnimator removeAllBehaviors];
         RELEASE_TO_NIL(theAnimator);
+        for (id<TiBehaviorProtocol> theArg in _behaviors) {
+            [theArg updatePositioning];
+        }
     }, YES);
 }
 
@@ -157,6 +161,9 @@
 }
 - (void)dynamicAnimatorDidPause:(UIDynamicAnimator*)animator
 {
+    for (id<TiBehaviorProtocol> theArg in _behaviors) {
+        [theArg updatePositioning];
+    }
     if ([self _hasListeners:@"pause"]) {
         [self fireEvent:@"pause" withObject:nil propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
