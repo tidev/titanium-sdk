@@ -571,6 +571,9 @@
 		84A0101317FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0101217FCB46E00D4BF94 /* TiCollisionBehavior.m */; };
 		84A0101417FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0101217FCB46E00D4BF94 /* TiCollisionBehavior.m */; };
 		84A0101517FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0101217FCB46E00D4BF94 /* TiCollisionBehavior.m */; };
+		84A0101817FDC07000D4BF94 /* TiDynamicItemBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0101717FDC07000D4BF94 /* TiDynamicItemBehavior.m */; };
+		84A0101917FDC07000D4BF94 /* TiDynamicItemBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0101717FDC07000D4BF94 /* TiDynamicItemBehavior.m */; };
+		84A0101A17FDC07000D4BF94 /* TiDynamicItemBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0101717FDC07000D4BF94 /* TiDynamicItemBehavior.m */; };
 		84BBA58816570F90006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84BBA58A16570FA0006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84BBA58B16570FAF006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -1481,6 +1484,8 @@
 		84A0100D17FCA9A700D4BF94 /* TiViewAttachBehavior.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiViewAttachBehavior.m; sourceTree = "<group>"; };
 		84A0101117FCB46E00D4BF94 /* TiCollisionBehavior.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCollisionBehavior.h; sourceTree = "<group>"; };
 		84A0101217FCB46E00D4BF94 /* TiCollisionBehavior.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiCollisionBehavior.m; sourceTree = "<group>"; };
+		84A0101617FDC07000D4BF94 /* TiDynamicItemBehavior.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDynamicItemBehavior.h; sourceTree = "<group>"; };
+		84A0101717FDC07000D4BF94 /* TiDynamicItemBehavior.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDynamicItemBehavior.m; sourceTree = "<group>"; };
 		84BBA58716570F90006B8C22 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		84C3870017417CB800970D26 /* TiSelectedCellbackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSelectedCellbackgroundView.h; sourceTree = "<group>"; };
 		84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSelectedCellbackgroundView.m; sourceTree = "<group>"; };
@@ -2924,6 +2929,8 @@
 				84A0100D17FCA9A700D4BF94 /* TiViewAttachBehavior.m */,
 				84A0101117FCB46E00D4BF94 /* TiCollisionBehavior.h */,
 				84A0101217FCB46E00D4BF94 /* TiCollisionBehavior.m */,
+				84A0101617FDC07000D4BF94 /* TiDynamicItemBehavior.h */,
+				84A0101717FDC07000D4BF94 /* TiDynamicItemBehavior.m */,
 			);
 			name = Dynamics;
 			sourceTree = "<group>";
@@ -3402,6 +3409,7 @@
 				24EB0829111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m in Sources */,
 				24EB0843111D500E001DC2D1 /* TiDOMNodeListProxy.m in Sources */,
 				24EB085D111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */,
+				84A0101817FDC07000D4BF94 /* TiDynamicItemBehavior.m in Sources */,
 				24F5B146111FDFE8005C9199 /* ListenerEntry.m in Sources */,
 				24DEDAC7112371A500398D86 /* XMLModule.m in Sources */,
 				243ED8EF11288B4300639DF4 /* TiUIiPhoneTableViewScrollPositionProxy.m in Sources */,
@@ -3693,6 +3701,7 @@
 				24D8E460119B9D8A00F8CAA6 /* GDataXMLNode.m in Sources */,
 				24D8E461119B9D8A00F8CAA6 /* TiDOMNodeProxy.m in Sources */,
 				24D8E462119B9D8A00F8CAA6 /* TiDOMElementProxy.m in Sources */,
+				84A0101917FDC07000D4BF94 /* TiDynamicItemBehavior.m in Sources */,
 				24D8E463119B9D8A00F8CAA6 /* TiDOMNamedNodeMapProxy.m in Sources */,
 				24D8E464119B9D8A00F8CAA6 /* TiDOMNodeListProxy.m in Sources */,
 				24D8E465119B9D8A00F8CAA6 /* TiDOMAttrProxy.m in Sources */,
@@ -3984,6 +3993,7 @@
 				DABB373812E8CB280026A6EA /* GDataXMLNode.m in Sources */,
 				DABB373912E8CB280026A6EA /* TiDOMNodeProxy.m in Sources */,
 				DABB373A12E8CB280026A6EA /* TiDOMElementProxy.m in Sources */,
+				84A0101A17FDC07000D4BF94 /* TiDynamicItemBehavior.m in Sources */,
 				DABB373B12E8CB280026A6EA /* TiDOMNamedNodeMapProxy.m in Sources */,
 				DABB373C12E8CB280026A6EA /* TiDOMNodeListProxy.m in Sources */,
 				DABB373D12E8CB280026A6EA /* TiDOMAttrProxy.m in Sources */,
