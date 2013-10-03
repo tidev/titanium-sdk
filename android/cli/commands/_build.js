@@ -44,8 +44,6 @@ function hash(s) {
 function AndroidBuilder() {
 	Builder.apply(this, arguments);
 
-	this.androidTargetSDK = null;
-
 	this.keystoreAliases = [];
 
 	this.tiSymbols = {};
@@ -598,6 +596,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.target = cli.argv.target;
 	this.deployType = /^device|emulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 
+	// get the javac params
+	this.javacTarget = cli.tiapp.properties['android.javac.target'] || config.get('android.javac.target', '1.6');
+	this.javacSource = cli.tiapp.properties['android.javac.source'] || config.get('android.javac.source', '1.6');
+	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] || config.get('android.dx.maxMemory', '1024M');
+
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
 		case 'production':
@@ -777,6 +780,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		} else {
 			this.logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager', this.targetSDK.cyan) + '\n');
 		}
+		process.exit(1);
+	}
+
+	if (!this.androidTargetSDK.androidJar) {
+		logger.error(__('Target Android SDK %s is missing "android.jar"', this.targetSDK) + '\n');
 		process.exit(1);
 	}
 
@@ -1140,16 +1148,19 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	var includeAllTiModulesProp = this.tiapp.properties['ti.android.include_all_modules'];
 	this.includeAllTiModules = includeAllTiModulesProp && includeAllTiModulesProp.value;
 
-	this.buildManifestFile = path.join(this.buildDir, 'build-manifest.json');
-	this.androidManifestFile = path.join(this.buildDir, 'AndroidManifest.xml');
-	this.buildAssetsDir = path.join(this.buildDir, 'assets');
-	this.buildBinAssetsDir = path.join(this.buildDir, 'bin', 'assets');
+	this.buildManifestFile          = path.join(this.buildDir, 'build-manifest.json');
+	this.androidManifestFile        = path.join(this.buildDir, 'AndroidManifest.xml');
+	this.buildAssetsDir             = path.join(this.buildDir, 'assets');
+	this.buildBinDir                = path.join(this.buildDir, 'bin');
+	this.buildBinAssetsDir          = path.join(this.buildBinDir, 'assets');
 	this.buildBinAssetsResourcesDir = path.join(this.buildBinAssetsDir, 'Resources');
-	this.buildGenAppIdDir = path.join(this.buildDir, 'gen', this.appid.split('.').join(path.sep));
-	this.buildResDir = path.join(this.buildDir, 'res');
-	this.buildResDrawableDir = path.join(this.buildResDir, 'drawable')
-	this.buildSrcDir = path.join(this.buildDir, 'src');
-	this.templatesDir = path.join(this.platformPath, 'templates', 'build');
+	this.buildBinClassesDir         = path.join(this.buildBinDir, 'classes');
+	this.buildBinClassesDexDir      = path.join(this.buildBinDir, 'classes.dex')
+	this.buildGenAppIdDir           = path.join(this.buildDir, 'gen', this.appid.split('.').join(path.sep));
+	this.buildResDir                = path.join(this.buildDir, 'res');
+	this.buildResDrawableDir        = path.join(this.buildResDir, 'drawable')
+	this.buildSrcDir                = path.join(this.buildDir, 'src');
+	this.templatesDir               = path.join(this.platformPath, 'templates', 'build');
 
 	next();
 };
@@ -1481,7 +1492,7 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	// make directories
 	fs.existsSync(dir = path.join(this.buildDir, 'assets')) || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = this.buildBinAssetsResourcesDir) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = path.join(this.buildDir, 'bin', 'classes')) || wrench.mkdirSyncRecursive(dir);
+	fs.existsSync(dir = this.buildBinClassesDir) || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildDir, 'gen')) || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildDir, 'lib')) || wrench.mkdirSyncRecursive(dir);
@@ -1502,7 +1513,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		drawableExtRegExp = /((\.9)?\.(png|jpg))$/,
 		splashScreenRegExp = /^default\.(9\.png|png|jpg)$/,
 		jsFiles = {},
-		htmlJsFiles = {};
+		htmlJsFiles = this.htmlJsFiles = {};
 
 	function copyDir(opts, callback) {
 		if (opts && opts.src && fs.existsSync(opts.src) && opts.dest) {
@@ -1557,7 +1568,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 					dest = path.join(
 						this.buildResDir,
-						drawableDpiRegExp.test(m[1]) ? 'drawable-' + m[1][0] : 'drawable-' + m[1].substring(4)
+						drawableDpiRegExp.test(m[1]) ? 'drawable-' + m[1][0] + 'dpi' : 'drawable-' + m[1].substring(4)
 					);
 
 					if (splashScreenRegExp.test(filename)) {
@@ -2082,7 +2093,7 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 		}.bind(this);
 
 	// copy and populate templates
-	copyTemplate(path.join(this.templatesDir, 'AppInfo.java'), path.join(this.buildGenAppIdDir, 'AppInfo.java'));
+	copyTemplate(path.join(this.templatesDir, 'AppInfo.java'), path.join(this.buildGenAppIdDir, this.classname + 'AppInfo.java'));
 	copyTemplate(path.join(this.templatesDir, 'App.java'), path.join(this.buildGenAppIdDir, this.classname + 'Application.java'));
 	copyTemplate(path.join(this.templatesDir, 'Activity.java'), path.join(this.buildGenAppIdDir, this.classname + 'Activity.java'));
 	copyTemplate(path.join(this.templatesDir, 'project'), path.join(this.buildDir, '.project'));
@@ -2754,196 +2765,163 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 };
 
 AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) {
-	/*
-	src_list = []
-	self.module_jars = []
+	var classpath = {},
+		moduleJars = this.moduleJars = {};
 
-	classpath = os.pathsep.join([self.android_jar, os.pathsep.join(self.android_jars)])
+	classpath[this.androidTargetSDK.androidJar] = 1;
+	Object.keys(this.jarLibraries).map(function (jarFile) {
+		classpath[jarFile] = 1;
+	});
 
-	project_module_dir = os.path.join(self.top_dir,'modules','android')
-	for module in self.modules:
-		if module.jar == None: continue
-		self.module_jars.append(module.jar)
-		classpath = os.pathsep.join([classpath, module.jar])
-		module_lib = module.get_resource('lib')
-		for jar in glob.glob(os.path.join(module_lib, '*.jar')):
-			self.module_jars.append(jar)
-			classpath = os.pathsep.join([classpath, jar])
+	this.modules.forEach(function (module) {
+		if (fs.existsSync(module.jarFile)) {
+			moduleJars[module.jarFile] = 1;
+			classpath[module.jarFile] = 1;
 
-	if len(self.module_jars) > 0:
-		# kroll-apt.jar is needed for modules
-		classpath = os.pathsep.join([classpath, self.kroll_apt_jar])
+			var libDir = path.join(module.modulePath, 'lib'),
+				jarRegExp = /\.jar$/;
+			fs.existsSync(libDir) && fs.readdirSync(libDir).forEach(function (name) {
+				var jarFile = path.join(libDir, name);
+				if (jarRegExp.test(name) && fs.existsSync(jarFile)) {
+					moduleJars[jarFile] = 1;
+					classpath[jarFile] = 1;
+				}
+			});
+		}
+	});
 
-	classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-verify.jar')])
-	if self.deploy_type != 'production':
-		classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
-		classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-profiler.jar')])
+	if (Object.keys(moduleJars).length) {
+		// we need to include kroll-apt.jar if there are any modules
+		classpath[path.join(this.platformPath, 'kroll-apt.jar')] = 1;
+	}
 
-	for java_file in self.recurse([self.project_src_dir, self.project_gen_dir], '*.java'):
-		if self.project_src_dir in java_file:
-			relative_path = java_file[len(self.project_src_dir)+1:]
-		else:
-			relative_path = java_file[len(self.project_gen_dir)+1:]
-		class_file = os.path.join(self.classes_dir, relative_path.replace('.java', '.class'))
+	classpath[path.join(this.platformPath, 'lib', 'titanium-verify.jar')] = 1;
 
-		if Deltafy.needs_update(java_file, class_file) > 0:
-			# the file list file still needs each file escaped apparently
-			debug("adding %s to javac build list" % java_file)
-			src_list.append('"%s"' % java_file.replace("\\", "\\\\"))
+	if (this.allowDebugging && this.debugPort) {
+		classpath[path.join(this.platformPath, 'lib', 'titanium-debug.jar')] = 1;
+	}
 
-	if len(src_list) == 0:
-		# No sources are older than their classfile counterparts, we can skip javac / dex
-		return False
+	if (this.allowProfiling && this.profilePort) {
+		classpath[path.join(this.platformPath, 'lib', 'titanium-profiler.jar')] = 1;
+	}
 
-	debug("Building Java Sources: " + " ".join(src_list))
-	javac_command = [self.javac, '-encoding', 'utf8',
-		'-classpath', classpath, '-d', self.classes_dir, '-proc:none',
-		'-sourcepath', self.project_src_dir,
-		'-sourcepath', self.project_gen_dir, '-target', '1.6', '-source', '1.6']
-	(src_list_osfile, src_list_filename) = tempfile.mkstemp()
-	src_list_file = os.fdopen(src_list_osfile, 'w')
-	src_list_file.write("\n".join(src_list))
-	src_list_file.close()
+	var javaFiles = [],
+		javaRegExp = /\.java$/;
+	function scanJavaFiles(dir) {
+		fs.readdirSync(dir).forEach(function (name) {
+			var file = path.join(dir, name);
+			if (fs.existsSync(file)) {
+				if (fs.statSync(file).isDirectory()) {
+					scanJavaFiles(file);
+				} else if (javaRegExp.test(name)) {
+					javaFiles.push(file);
+					classpath[name.replace(javaRegExp, '.class')] = 1;
+				}
+			}
+		});
+	}
+	scanJavaFiles(this.buildGenAppIdDir);
+	scanJavaFiles(this.buildSrcDir);
 
-	javac_command.append('@' + src_list_filename)
-	(out, err, javac_process) = run.run(javac_command, ignore_error=True, return_error=True, return_process=True)
-	os.remove(src_list_filename)
-	if javac_process.returncode != 0:
-		error("Error(s) compiling generated Java code")
-		error(str(err))
-		sys.exit(1)
-	return True
-	*/
-	next();
+	var javacArgs = [
+		'-encoding', 'utf8',
+		'-classpath', Object.keys(classpath).join(process.platform == 'win32' ? ';' : ':'),
+		'-d', this.buildBinClassesDir,
+		'-proc:none',
+		'-sourcepath', this.buildGenAppIdDir,
+		'-sourcepath', this.buildSrcDir,
+		'-target', this.javacTarget,
+		'-source', this.javacSource
+	];
+
+	var tmp = temp.openSync();
+	fs.writeSync(tmp.fd, javaFiles.join('\n'));
+	fs.closeSync(tmp.fd);
+	javacArgs.push('@' + tmp.path);
+
+	this.logger.info(__('Building Java source files: %s', (this.jdkInfo.executables.javac + ' "' + javacArgs.join('" "') + '"').cyan));
+
+	appc.subprocess.run(this.jdkInfo.executables.javac, javacArgs, function (code, out, err) {
+		if (code) {
+			this.logger.error(__('Failed to compile Java source files:'));
+			this.logger.error();
+			err.trim().split('\n').forEach(this.logger.error);
+			this.logger.log();
+			process.exit(1);
+		}
+
+		next();
+	}.bind(this));
 };
 
 AndroidBuilder.prototype.runDexer = function runDexer(next) {
-	// run the dexer
-	// TODO: fire a hook
-	/*
-	self.classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')
+	var dexHook = this.cli.createHook('build.android.dexerArgs', function (args, cb) {
+			cb(args);
+		}),
+		dexArgs = [
+			'-Xmx' + this.dxMaxMemory,
+			'-XX:-UseGCOverheadLimit',
+			'-Djava.ext.dirs=' + this.androidInfo.sdk.platformTools.path,
+			'-jar', this.androidInfo.sdk.dx,
+			'--dex',
+			'--output=' + this.buildBinClassesDexDir,
+			this.buildBinClassesDir,
+			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
+		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries)),
+		networkJar = path.join(this.platformPath, 'modules', 'titanium-network.jar');
 
-	# the dx.bat that ships with android in windows doesn't allow command line
-	# overriding of the java heap space, so we call the jar directly
-	if platform.system() == 'Windows':
-		dex_args = [self.java, '-Xmx1024M', '-Djava.ext.dirs=%s' % self.sdk.get_platform_tools_dir(), '-jar', self.sdk.get_dx_jar()]
-	else:
-		dex_args = [dx, '-JXmx1536M', '-JXX:-UseGCOverheadLimit']
+	if (this.allowDebugging && this.debugPort) {
+		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
+	}
 
-	# Look for New Relic module
-	newrelic_module = None
-	for module in self.modules:
-		if module.path.find("newrelic") > 0:
-			newrelic_module = module
-			break
+	if (this.allowProfiling && this.profilePort) {
+		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
+	}
 
-	# If New Relic is present, add its Java agent to the dex arguments.
-	if newrelic_module:
-		info("Adding New Relic support.")
+	if (!this.jarLibraries[networkJar]) {
+		dexArgs.push(networkJar);
+	}
 
-		# Copy the dexer java agent jar to a tempfile. Eliminates white space from
-		# the module path which causes problems with the dex -Jjavaagent argument.
-		temp_jar = tempfile.NamedTemporaryFile(suffix='.jar', delete=True)
-		shutil.copyfile(os.path.join(newrelic_module.path, 'class.rewriter.jar'), temp_jar.name)
-		dex_args += ['-Jjavaagent:' + os.path.join(temp_jar.name)]
+	dexHook(dexArgs, function (err, results, args) {
+		this.logger.info(__('Running dexer: %s', (this.jdkInfo.executables.java + ' "' + args.join('" "') + '"').cyan));
 
-	dex_args += ['--dex', '--output='+self.classes_dex, self.classes_dir]
-	dex_args += self.android_jars
-	dex_args += self.module_jars
-
-	dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
-	if self.deploy_type != 'production':
-		dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
-		dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-profiler.jar'))
-		# the verifier depends on Ti.Network classes, so we may need to inject it
-		has_network_jar = False
-		for jar in self.android_jars:
-			if jar.endswith('titanium-network.jar'):
-				has_network_jar = True
-				break
-		if not has_network_jar:
-			dex_args.append(os.path.join(self.support_dir, 'modules', 'titanium-network.jar'))
-	run_result = run.run(dex_args, warning_regex=r'warning: ')
-	*/
-	next();
+		appc.subprocess.run(this.jdkInfo.executables.java, args, function (code, out, err) {
+			if (code) {
+				this.logger.error(__('Failed to run dexer:'));
+				this.logger.error();
+				err.trim().split('\n').forEach(this.logger.error);
+				this.logger.log();
+				process.exit(1);
+			}
+			next();
+		}.bind(this));
+	}.bind(this));
 };
 
 AndroidBuilder.prototype.packageApp = function packageApp(next) {
-	/*
-	# If in production mode and compiling JS, we do not package the JS
-	# files as assets (we protect them from prying eyes). But if a JS
-	# file is referenced in an html <script> tag, we DO need to package it.
-	def get_js_referenced_in_html():
-		js_files = []
-		for root, dirs, files in os.walk(self.assets_dir):
-			for one_file in files:
-				if one_file.lower().endswith(".html"):
-					full_path = os.path.join(root, one_file)
-					html_source = None
-					file_stream = None
-					try:
-						file_stream = open(full_path, "r")
-						html_source = file_stream.read()
-					except:
-						error("Unable to read html file '%s'" % full_path)
-					finally:
-						file_stream.close()
+	var args = [
+		'package',
+		'-f',
+		'-M', 'AndroidManifest.xml',
+		'-A', this.buildBinAssetsDir,
+		'-S', this.buildResDir,
+		'-I', this.androidTargetSDK.androidJar,
+		'-I', path.join(this.platformPath, 'titanium.jar'),
+		'-F', path.join(this.buildBinDir, 'app.ap_')
+	];
 
-					if html_source:
-						parser = HTMLParser()
-						parser.parse(html_source)
-						relative_js_files = parser.get_referenced_js_files()
-						if relative_js_files:
-							for one_rel_js_file in relative_js_files:
-								if one_rel_js_file.startswith("http:") or one_rel_js_file.startswith("https:"):
-									continue
-								if one_rel_js_file.startswith("app://"):
-									one_rel_js_file = one_rel_js_file[6:]
-								js_files.append(os.path.abspath(os.path.join(os.path.dirname(full_path), one_rel_js_file)))
+	this.logger.info(__('Packaging application: %s', (this.androidInfo.sdk.executables.aapt + ' "' + args.join('" "') + '"').cyan));
 
-		return js_files
-
-	ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')
-
-	# This is only to check if this has been overridden in production
-	has_compile_js = self.tiappxml.has_app_property("ti.android.compilejs")
-	compile_js = not has_compile_js or (has_compile_js and \
-		self.tiappxml.to_bool(self.tiappxml.get_app_property('ti.android.compilejs')))
-
-	# JS files referenced in html files and thus likely needed for webviews.
-	webview_js_files = []
-
-	pkg_assets_dir = self.assets_dir
-	if self.deploy_type == "test":
-		compile_js = False
-
-	if compile_js and os.environ.has_key('SKIP_JS_MINIFY'):
-		compile_js = False
-		info("Disabling JavaScript minification")
-
-	if self.deploy_type == "production" and compile_js:
-		webview_js_files = get_js_referenced_in_html()
-		non_js_assets = os.path.join(self.project_dir, 'bin', 'non-js-assets')
-		if not os.path.exists(non_js_assets):
-			os.mkdir(non_js_assets)
-		copy_all(self.assets_dir, non_js_assets, ignore_exts=['.js'])
-
-		# if we have any js files referenced in html, we *do* need
-		# to package them as if they are non-js assets.
-		if webview_js_files:
-			for one_js_file in webview_js_files:
-				if os.path.exists(one_js_file):
-					dest_file = one_js_file.replace(self.assets_dir, non_js_assets, 1)
-					if not os.path.exists(os.path.dirname(dest_file)):
-						os.makedirs(os.path.dirname(dest_file))
-					shutil.copyfile(one_js_file, dest_file)
-
-		pkg_assets_dir = non_js_assets
-
-	run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', pkg_assets_dir,
-		'-S', 'res', '-I', self.android_jar, '-I', self.titanium_jar, '-F', ap_], warning_regex=r'skipping')
-	*/
-	next();
+	appc.subprocess.run(this.androidInfo.sdk.executables.aapt, args, function (code, out, err) {
+			if (code) {
+				this.logger.error(__('Failed to package application:'));
+				this.logger.error();
+				err.trim().split('\n').forEach(this.logger.error);
+				this.logger.log();
+				process.exit(1);
+			}
+			next();
+	}.bind(this));
 };
 
 AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
@@ -3007,8 +2985,8 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 			resources_zip.close()
 
 		# add classes.dex
-		if is_modified(self.classes_dex) or not zip_contains(apk_zip, 'classes.dex'):
-			apk_zip.write(self.classes_dex, 'classes.dex')
+		if is_modified(this.buildBinClassesDexDir) or not zip_contains(apk_zip, 'classes.dex'):
+			apk_zip.write(this.buildBinClassesDexDir, 'classes.dex')
 
 		# add all resource files from the project
 		for root, dirs, files in os.walk(self.project_src_dir, True, None, True):
