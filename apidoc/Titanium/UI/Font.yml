@@ -35,28 +35,6 @@ description: |
       On OS X, double-clicking on the font file will launch the Font Book application, 
       which shows the official font name.
 
-    iOS requires one more step to embed a custom font in an application. The font must be 
-    added to the application's `Info.plist` file:
-
-    1.  Build the project at least once (the font won't work yet).
-
-    2.  Copy *yourproject*`/build/iphone/Info.plist` to the *yourproject* folder.
-
-    3.  Double-click `Info.plist` to open it in Xcode.
-
-    4.  Right-click a blank area in the list of keys and choose **Add Row**. 
-    
-        From the resulting list, choose **Fonts provided by application**.
-
-    5.  Expand **Fonts provided by application** and click in the Value field. 
-    
-        Enter the full path of the font file, for example, `/fonts/Chantelli_Antiqua.ttf`.
-
-    6.  Save the file and close Xcode.
-    
-    7.  In Studio, clean the project then build it again. Your custom font should
-        show up.
-
     For more information on embedding custom fonts, see:
 
     * [Custom Fonts in the Titanium Mobile Guides](http://docs.appcelerator.com/titanium/#!/guide/Custom_Fonts)
