@@ -124,7 +124,7 @@ public class ListSectionProxy extends ViewProxy{
 	public void setHeaderView(TiViewProxy headerView) {
 		this.headerView = headerView;
 		if (adapter != null) {
-			adapter.notifyDataSetChanged();
+			notifyDataChange();
 		}
 	}
 	
@@ -137,7 +137,7 @@ public class ListSectionProxy extends ViewProxy{
 	public void setFooterView(TiViewProxy footerView) {
 		this.footerView = footerView;
 		if (adapter != null) {
-			adapter.notifyDataSetChanged();
+			notifyDataChange();
 		}
 	}
 	
@@ -172,6 +172,16 @@ public class ListSectionProxy extends ViewProxy{
 		return footerTitle;
 	}
 	
+	public void notifyDataChange() {
+		getMainHandler().post(new Runnable() {
+			@Override
+			public void run()
+			{
+				adapter.notifyDataSetChanged();
+			}
+		});
+	}
+
 	public String getHeaderOrFooterTitle(int index) {
 		if (isHeaderTitle(index)) {
 			return headerTitle;
