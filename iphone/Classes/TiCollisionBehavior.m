@@ -84,9 +84,18 @@
             [_collisionBehavior setTranslatesReferenceBoundsIntoBoundary:NO];
         }
         [viewItems release];
+        void (^update)(void) = ^{
+            [self updateItems];
+        };
+        _collisionBehavior.action = update;
     }
     _needsRefresh = NO;
     return _collisionBehavior;
+}
+
+-(void)updateItems
+{
+    DebugLog(@"GOT UPDATE ITEMS CALL");
 }
 
 #pragma mark - Public API

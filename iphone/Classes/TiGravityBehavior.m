@@ -45,9 +45,18 @@
             [_gravityBehavior setMagnitude:_magnitude];
         }
         [viewItems release];
+        void (^update)(void) = ^{
+            [self updateItems];
+        };
+        _gravityBehavior.action = update;
     }
     _needsRefresh = NO;
     return _gravityBehavior;
+}
+
+-(void)updateItems
+{
+    DebugLog(@"GOT UPDATE ITEMS CALL");
 }
 
 #pragma mark - Public API

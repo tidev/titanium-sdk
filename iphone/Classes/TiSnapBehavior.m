@@ -33,9 +33,18 @@
     }
     if (_snapBehavior == nil) {
         _snapBehavior = [[UISnapBehavior alloc] initWithItem:[_snapItem view] snapToPoint:_snapPoint];
+        void (^update)(void) = ^{
+            [self updateItems];
+        };
+        _snapBehavior.action = update;
     }
     _needsRefresh = NO;
     return _snapBehavior;
+}
+
+-(void)updateItems
+{
+    DebugLog(@"GOT UPDATE ITEMS CALL");
 }
 
 #pragma mark - Public API

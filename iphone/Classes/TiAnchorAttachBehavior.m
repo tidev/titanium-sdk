@@ -45,9 +45,18 @@
         if (_length > 0) {
             [_attachBehavior setLength:_length];
         }
+        void (^update)(void) = ^{
+            [self updateItems];
+        };
+        _attachBehavior.action = update;
     }
     _needsRefresh = NO;
     return _attachBehavior;
+}
+
+-(void)updateItems
+{
+    DebugLog(@"GOT UPDATE ITEMS CALL");
 }
 
 #pragma mark - Public API

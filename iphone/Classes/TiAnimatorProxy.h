@@ -11,6 +11,7 @@
 @protocol TiBehaviorProtocol
 @required
 -(UIDynamicBehavior*)behaviorObject;
+-(void)updateItems;
 @end
 
 @interface TiAnimatorProxy : TiProxy<UIDynamicAnimatorDelegate> {

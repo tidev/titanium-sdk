@@ -49,9 +49,18 @@
         }
         [_pushBehavior setActive:_active];
         [viewItems release];
+        void (^update)(void) = ^{
+            [self updateItems];
+        };
+        _pushBehavior.action = update;
     }
     _needsRefresh = NO;
     return _pushBehavior;
+}
+
+-(void)updateItems
+{
+    DebugLog(@"GOT UPDATE ITEMS CALL");
 }
 
 #pragma mark - Public API
