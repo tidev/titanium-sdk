@@ -150,7 +150,7 @@ public class ListSectionProxy extends ViewProxy{
 	public void setHeaderTitle(String headerTitle) {
 		this.headerTitle = headerTitle;
 		if (adapter != null) {
-			adapter.notifyDataSetChanged();
+			notifyDataChange();
 		}
 	}
 	
@@ -163,7 +163,7 @@ public class ListSectionProxy extends ViewProxy{
 	public void setFooterTitle(String headerTitle) {
 		this.footerTitle = headerTitle;
 		if (adapter != null) {
-			adapter.notifyDataSetChanged();
+			notifyDataChange();
 		}
 	}
 	
