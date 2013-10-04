@@ -1,7 +1,18 @@
 {
-	"name": "titanium-mobile-deps",
-	"description": "Appcelerator Titanium Mobile dependencies - this file is omitted from distribution",
-	"version": "__VERSION__",
+	"name": "titanium-mobile",
+	"description": "Appcelerator Titanium Mobile",
+	"version": "3.2.0",
+	"keywords": [
+		"appcelerator",
+		"titanium",
+		"mobile",
+		"android",
+		"mobileweb",
+		"iphone",
+		"ipad",
+		"ios"
+	],
+	"author": "Appcelerator, Inc. <info@appcelerator.com>",
 	"dependencies": {
 		"adm-zip": "~0.4.3",
 		"async": "~0.2.9",
@@ -29,5 +40,6 @@
 	},
 	"engines": {
 		"node": ">=0.8"
-	}
+	},
+	"license": "Apache Public License v2"
 }
