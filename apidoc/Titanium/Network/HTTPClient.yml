@@ -288,6 +288,8 @@ properties:
 
   - name: location
     summary: Absolute URL of the request.
+    description: |
+        If the request redirects, this property returns the URL of the redirected request.
     type: String
     permission: read-only
 
