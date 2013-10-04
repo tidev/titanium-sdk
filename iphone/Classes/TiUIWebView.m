@@ -560,7 +560,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			}
 			return;
 		} else if (error!=nil) {
-			NSLog(@"[ERROR] Error loading file: %@. Message was: %@",path,error);
+			DebugLog(@"[DEBUG] Cannot load file: %@. Error message was: %@", path, error);
 			RELEASE_TO_NIL(url);
 			return;
 		}
