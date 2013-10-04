@@ -10,7 +10,7 @@ var appc = require('node-appc'),
 	fs = require('fs'),
 	path = require('path'),
 	ti = require('titanium-sdk'),
-	tiappxml = require('titanium-sdk/lib/tiappxml')
+	tiappxml = require('titanium-sdk/lib/tiappxml'),
 	__ = appc.i18n(__dirname).__;
 
 fields.setup({

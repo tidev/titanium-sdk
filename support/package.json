@@ -19,6 +19,10 @@
 		"wrench": "~1.5.1",
 		"xmldom": "~0.1.16"
 	},
+	"devDependencies": {
+		"mocha": "*",
+		"should": "*"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/appcelerator/titanium_mobile.git"

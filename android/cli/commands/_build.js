@@ -9,6 +9,7 @@ var ADB = require('titanium-sdk/lib/adb'),
 	AdmZip = require('adm-zip'),
 	android = require('titanium-sdk/lib/android'),
 	androidDetect = require('../lib/detect').detect,
+	AndroidManifest = require('../lib/AndroidManifest'),
 	appc = require('node-appc'),
 	async = require('async'),
 	Builder = require('titanium-sdk/lib/builder'),
@@ -25,6 +26,7 @@ var ADB = require('titanium-sdk/lib/adb'),
 	spawn = require('child_process').spawn,
 	temp = require('temp'),
 	ti = require('titanium-sdk'),
+	tiappxml = require('titanium-sdk/lib/tiappxml'),
 	util = require('util'),
 	wrench = require('wrench'),
 
@@ -2150,7 +2152,7 @@ AndroidBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest) {
 		destExists = fs.existsSync(dest),
 		srcDoc = typeof srcOrDoc == 'string' ? (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(srcOrDoc).toString(), 'text/xml')).documentElement : srcOrDoc,
 		destDoc,
-		dom = new DOMParser().parseFromString('<?xml version="1.0" encoding="UTF-8"?>\n<resources/>', 'text/xml'),
+		dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
 		root = dom.documentElement,
 		nodes = {},
 		byName = function (node) {
@@ -2298,7 +2300,7 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 
 	Object.keys(data).forEach(function (locale) {
 		var dest = path.join(this.buildResDir, 'values' + (locale == 'en' ? '' : '-' + locale), 'strings.xml'),
-			dom = new DOMParser().parseFromString('<?xml version="1.0" encoding="UTF-8"?>\n<resources/>', 'text/xml'),
+			dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
 			root = dom.documentElement;
 
 		Object.keys(data[locale].strings).forEach(function (name) {
@@ -2326,7 +2328,7 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 	var themeFile = path.join(this.buildResDir, 'values', 'theme.xml');
 
 	if (!fs.existsSync(themeFile)) {
-		this.logger.info(__('Generating %s', themeFile));
+		this.logger.info(__('Generating %s', themeFile.cyan));
 
 		var flags = 'Theme';
 		if ((this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) && this.tiapp['navbar-hidden']) {
@@ -2516,7 +2518,9 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		defaultAndroidManifestXml = (new DOMParser({ errorHandler: function(){} }).parseFromString(ejs.render(fs.readFileSync(defaultAndroidManifestFile).toString(), this), 'text/xml')).documentElement,
 		customAndroidManifestFile = path.join(this.projectDir, 'platform', 'android', 'AndroidManifest.xml'),
 		customAndroidManifestXml,
-		tiappAndroidManifestXml;
+		tiappAndroidManifestXml,
+		dom = (new DOMParser).parseFromString('<manifest/>'),
+		manifestNode = dom.documentElement;
 
 	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
 	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
@@ -2539,52 +2543,73 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 	if (this.tiapp.android && this.tiapp.android.manifest) {
 		tiappAndroidManifestXml = (new DOMParser({ errorHandler: function(){} }).parseFromString(this.tiapp.android.manifest, 'text/xml')).documentElement;
+
+		xml.forEachAttr(tiappAndroidManifestXml, function (attr) {
+			manifestNode.setAttribute(attr.name, attr.value);
+		});
+
 		xml.forEachElement(tiappAndroidManifestXml, function (node) {
 			if (node.tagName == 'uses-permission') {
 				var name = (node.getAttribute('android:name') || '').split('.').pop();
 				if (name && !permissions[name]) {
 					permissions[name] = 1;
 				}
+			} else {
+				manifestNode.appendChild(dom.createTextNode('\n\t'));
+				manifestNode.appendChild(node);
 			}
 		});
 	}
 
 	this.modules.forEach(function (module) {
-		var moduleXmlFile = path.join(module.modulePath, 'module.xml');
+		var moduleXmlFile = path.join(module.modulePath, 'timodule.xml');
 		if (fs.existsSync(moduleXmlFile)) {
-			var moduleXml = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(moduleXmlFile).toString(), 'text/xml')).documentElement;
-			xml.forEachElement(moduleXml, function (node) {
-				if (node.tagName == 'uses-permission') {
-					var name = (node.getAttribute('android:name') || '').split('.').pop();
-					if (name && !permissions[name]) {
-						permissions[name] = 1;
+			var moduleXml = new tiappxml(moduleXmlFile);
+			if (moduleXml.android && moduleXml.android.manifest) {
+				var root = (new DOMParser({ errorHandler: function(){} }).parseFromString(moduleXml.android.manifest, 'text/xml')).documentElement
+
+				xml.forEachAttr(root, function (attr) {
+					manifestNode.setAttribute(attr.name, attr.value);
+				});
+
+				xml.forEachElement(root, function (node) {
+					if (node.tagName == 'uses-permission') {
+						var name = (node.getAttribute('android:name') || '').split('.').pop();
+						if (name && !permissions[name]) {
+							permissions[name] = 1;
+						}
+					} else {
+						// does the node already exist?
+						var existing = manifestNode.getElementsByTagName(node.tagName);
+						if (existing.length) {
+							console.log(node.tagName + ' exists, merging', existing.length);
+/*
+							xml.forEachAttr(node, function (attr) {
+								existing.setAttribute(attr.name, attr.value);
+							});
+
+							// mix all children
+							xml.forEachElement(node, function (elem) {
+								console.log('Merging ' + elem.tagName);
+							});
+*/
+						} else {
+							manifestNode.appendChild(node);
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 	});
 
-	// start with tiapp.xml
-	// mix in module.xml
 
-	// for each module
-	//    mix the module.xml into tiappAndroidManifestXml
-	//    extract uses-permissions
+	fs.writeFileSync(this.androidManifestFile, ejs.render(fs.readFileSync(defaultAndroidManifestFile).toString(), this));
 
-/*
-		application_xml = get_application_xml(self.tiapp)
-
-		# add manifest / application entries from modules
-		for module in self.modules:
-			if module.xml == None: continue
-			manifest_xml += get_manifest_xml(module.xml, self.tiapp)
-			application_xml += get_application_xml(module.xml, self.tiapp)
-*/
-
-
-
-	// this.androidManifestFile
-
+	console.log('');
+	console.log(manifestNode);
+	console.log('');
+	console.log(manifestNode.toString());
+	process.exit(0);
 
 /*		self.use_maps = False
 		self.res_changed = False
@@ -2597,36 +2622,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		# create our background image which acts as splash screen during load
 		resources_dir = os.path.join(self.top_dir, 'Resources')
 
-		android_manifest = os.path.join(self.project_dir, 'AndroidManifest.xml')
-
-
-		def get_application_xml(tiapp, template_obj=None):
-			xml = ''
-			if 'application' in tiapp.android_manifest:
-				for app_el in tiapp.android_manifest['application']:
-					this_xml = app_el.toxml()
-					if template_obj is not None and "${" in this_xml:
-						this_xml = render_template_with_tiapp(this_xml, template_obj)
-					xml += this_xml
-			return xml
-
-		def get_manifest_xml(tiapp, template_obj=None):
-			xml = ''
-			if 'manifest' in tiapp.android_manifest:
-				for manifest_el in tiapp.android_manifest['manifest']:
-					# since we already track permissions in another way, go ahead and us e that
-					if manifest_el.nodeName == 'uses-permission' and manifest_el.hasAttribute('android:name'):
-						if manifest_el.getAttribute('android:name').split('.')[-1] not in permissions_required:
-							perm_val = manifest_el.getAttribute('android:name')
-							if template_obj is not None and "${" in perm_val:
-								perm_val = render_template_with_tiapp(perm_val, template_obj)
-							permissions_required.append(perm_val)
-					elif manifest_el.nodeName not in ('supports-screens', 'uses-sdk'):
-						this_xml = manifest_el.toprettyxml()
-						if template_obj is not None and "${" in this_xml:
-							this_xml = render_template_with_tiapp(this_xml, template_obj)
-						xml += this_xml
-			return xml
 
 		# build the permissions XML based on the permissions detected
 		permissions_required = set(permissions_required)
@@ -2761,6 +2756,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 		return manifest_changed
 	*/
+
 	next();
 };
 
@@ -2899,15 +2895,17 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 };
 
 AndroidBuilder.prototype.packageApp = function packageApp(next) {
+	this.ap_File = path.join(this.buildBinDir, 'app.ap_');
+
 	var args = [
 		'package',
 		'-f',
-		'-M', 'AndroidManifest.xml',
+		'-M', this.androidManifestFile,
 		'-A', this.buildBinAssetsDir,
 		'-S', this.buildResDir,
 		'-I', this.androidTargetSDK.androidJar,
 		'-I', path.join(this.platformPath, 'titanium.jar'),
-		'-F', path.join(this.buildBinDir, 'app.ap_')
+		'-F', this.ap_File
 	];
 
 	this.logger.info(__('Packaging application: %s', (this.androidInfo.sdk.executables.aapt + ' "' + args.join('" "') + '"').cyan));
@@ -2925,21 +2923,22 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 };
 
 AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
-	// create the unsigned apk
-	// unsigned_apk = self.create_unsigned_apk(ap_, webview_js_files)
+	var unsignedApkFile = this.unsignedApkFile = path.join(this.buildBinDir, 'app-unsigned.apk'),
+		ap_Zip = new AdmZip(this.ap_File),
+		apkZip = new AdmZip();
+
+	ap_Zip.getEntries().forEach(function (entry) {
+		dump(entry);
+	});
+
+process.exit(0);
+
+apkZip.addFile("test.txt", new Buffer("inner content of the file"));
+
+fs.existsSync(unsignedApk) && fs.unlinkSync(unsignedApk);
+apkZip.writeZip(unsignedApk);
+
 	/*
-	def create_unsigned_apk(self, resources_zip_file, webview_js_files=None):
-		unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
-		self.apk_updated = False
-
-		apk_modified = None
-		if os.path.exists(unsigned_apk):
-			apk_modified = Deltafy.get_modified_datetime(unsigned_apk)
-
-		debug("creating unsigned apk: " + unsigned_apk)
-		# copy existing resources into the APK
-		apk_zip = zipfile.ZipFile(unsigned_apk, 'w', zipfile.ZIP_DEFLATED)
-
 		def skip_jar_path(path):
 			ext = os.path.splitext(path)[1]
 			if path.endswith('/'): return True
@@ -2952,7 +2951,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 		def skip_js_file(path):
 			return self.compile_js is True and \
 				os.path.splitext(path)[1] == '.js' and \
-				os.path.join(self.project_dir, "bin", path) not in webview_js_files
+				os.path.join(self.project_dir, "bin", path) not in this.htmlJsFiles
 
 		def compression_type(path):
 			ext = os.path.splitext(path)[1]
@@ -2965,9 +2964,6 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 			info.compress_type = compression_type(path)
 			return info
 
-		def is_modified(path):
-			return apk_modified is None or Deltafy.needs_update_timestamp(path, apk_modified)
-
 		def zip_contains(zip, entry):
 			try:
 				zip.getinfo(entry)
@@ -2975,18 +2971,15 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 				return False
 			return True
 
-		if is_modified(resources_zip_file):
-			self.apk_updated = True
-			resources_zip = zipfile.ZipFile(resources_zip_file)
-			for path in resources_zip.namelist():
-				if skip_jar_path(path) or skip_js_file(path): continue
-				debug("from resource zip => " + path)
-				apk_zip.writestr(zipinfo(path), resources_zip.read(path))
-			resources_zip.close()
+		resources_zip = zipfile.ZipFile(ap_)
+		for path in resources_zip.namelist():
+			if skip_jar_path(path) or skip_js_file(path): continue
+			debug("from resource zip => " + path)
+			apk_zip.writestr(zipinfo(path), resources_zip.read(path))
+		resources_zip.close()
 
 		# add classes.dex
-		if is_modified(this.buildBinClassesDexDir) or not zip_contains(apk_zip, 'classes.dex'):
-			apk_zip.write(this.buildBinClassesDexDir, 'classes.dex')
+		apk_zip.write(this.buildBinClassesDexDir, 'classes.dex')
 
 		# add all resource files from the project
 		for root, dirs, files in os.walk(self.project_src_dir, True, None, True):
@@ -2997,10 +2990,8 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 				if os.path.splitext(f)[1] != '.java':
 					absolute_path = os.path.join(root, f)
 					relative_path = os.path.join(root[len(self.project_src_dir)+1:], f)
-					if is_modified(absolute_path) or not zip_contains(apk_zip, relative_path):
-						self.apk_updated = True
-						debug("resource file => " + relative_path)
-						apk_zip.write(os.path.join(root, f), relative_path, compression_type(f))
+					debug("resource file => " + relative_path)
+					apk_zip.write(os.path.join(root, f), relative_path, compression_type(f))
 
 		def add_resource_jar(jar_file):
 			jar = zipfile.ZipFile(jar_file)
@@ -3026,10 +3017,8 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 						if file.endswith('.so') and file not in exclude:
 							native_lib = os.path.join(libs_abi_dir, file)
 							path_in_zip = '/'.join(['lib', abi_dir, file])
-							if is_modified(native_lib) or not zip_contains(apk_zip, path_in_zip):
-								self.apk_updated = True
-								debug("installing native lib: %s" % native_lib)
-								apk_zip.write(native_lib, path_in_zip)
+							debug("installing native lib: %s" % native_lib)
+							apk_zip.write(native_lib, path_in_zip)
 
 		# add module native libraries
 		for module in self.modules:
@@ -3059,10 +3048,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 			for fname in ('libkroll-v8.so', 'libstlport_shared.so'):
 				apk_zip.write(os.path.join(lib_source_dir, fname), lib_dest_dir + fname)
 
-		self.apk_updated = True
-
 		apk_zip.close()
-		return unsigned_apk
 	*/
 	next();
 };
@@ -3091,13 +3077,18 @@ AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
 		# Return the default:
 		return "MD5withRSA"
 
+# 		if self.dist_dir:
+# 			app_apk = os.path.join(self.dist_dir, self.name + '.apk')
+# 		else:
+# 			app_apk = os.path.join(self.project_dir, 'bin', 'app.apk')
+
 	output = run.run([self.jarsigner,
 		'-sigalg', self.get_sigalg(),
 		'-digestalg', 'SHA1',
 		'-storepass', self.keystore_pass,
 		'-keystore', self.keystore,
 		'-signedjar', app_apk,
-		unsigned_apk,
+		this.unsignedApk,
 		self.keystore_alias], protect_arg_positions=(6,))
 	run.check_output_for_error(output, r'RuntimeException: (.*)', True)
 	run.check_output_for_error(output, r'^jarsigner: (.*)', True)
@@ -3106,16 +3097,25 @@ AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
 };
 
 AndroidBuilder.prototype.zipAlignApk = function zipAlignApk(next) {
-	// zip align the signed apk
-	/*
-	# zipalign to align byte boundaries
-	zipalign = self.sdk.get_zipalign()
-	if os.path.exists(app_apk+'z'):
-		os.remove(app_apk+'z')
-	ALIGN_32_BIT = 4
-	output = run.run([zipalign, '-v', str(ALIGN_32_BIT), app_apk, app_apk+'z'])
-	*/
-	next();
+/*	var zipAlignedApk = this.signedApk + 'z',
+		args = [
+			'-v', '4' // 4 byte alignment
+			this.signedApk,
+			zipAlignedApk
+		];
+
+	this.logger.info(__('Packaging application: %s', (this.androidInfo.sdk.executables.zipalign + ' "' + args.join('" "') + '"').cyan));
+
+	appc.subprocess.run(this.androidInfo.sdk.executables.zipalign, args, function (code, out, err) {
+			if (code) {
+				this.logger.error(__('Failed to zipalign apk:'));
+				this.logger.error();
+				err.trim().split('\n').forEach(this.logger.error);
+				this.logger.log();
+				process.exit(1);
+			}
+*/			next();
+//	}.bind(this));
 };
 
 // create the builder instance and expose the public api
