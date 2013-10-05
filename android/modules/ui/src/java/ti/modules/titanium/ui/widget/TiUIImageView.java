@@ -38,6 +38,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
 import ti.modules.titanium.ui.ImageViewProxy;
+import ti.modules.titanium.ui.ScrollViewProxy;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -749,6 +750,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	@Override
 	public void processProperties(KrollDict d)
 	{
+		boolean heightDefined = false;
+		boolean widthDefined = false;
 		TiImageView view = getView();
 
 		if (view == null) {
@@ -757,11 +760,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		if (d.containsKey(TiC.PROPERTY_WIDTH)) {
 			String widthProperty = d.getString(TiC.PROPERTY_WIDTH);
-			view.setWidthDefined(!TiC.LAYOUT_SIZE.equals(widthProperty) && !TiC.SIZE_AUTO.equals(widthProperty));
+			widthDefined = !TiC.LAYOUT_SIZE.equals(widthProperty) && !TiC.SIZE_AUTO.equals(widthProperty);
+			view.setWidthDefined(widthDefined);
 		}
 		if (d.containsKey(TiC.PROPERTY_HEIGHT)) {
 			String heightProperty = d.getString(TiC.PROPERTY_HEIGHT);
-			view.setHeightDefined(!TiC.LAYOUT_SIZE.equals(heightProperty) && !TiC.SIZE_AUTO.equals(heightProperty));
+			heightDefined = !TiC.LAYOUT_SIZE.equals(heightProperty) && !TiC.SIZE_AUTO.equals(heightProperty);
+			view.setHeightDefined(heightDefined);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
@@ -804,6 +809,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					setDefaultImage();
 				}
 			}
+		}
+		
+
+		// If height and width is not defined, disable scaling for scrollview since an image
+		// can extend beyond the screensize in scrollview.
+		if (proxy.getParent() instanceof ScrollViewProxy && !heightDefined && !widthDefined) {
+			view.setEnableScale(false);
 		}
 
 		super.processProperties(d);
