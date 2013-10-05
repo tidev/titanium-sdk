@@ -446,8 +446,6 @@ exports.validate = function (logger, config, cli) {
 		cli.argv['project-dir'] = path.dirname(process.env.PROJECT_DIR);
 	}
 
-	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
-
 	if (!cli.argv.xcode || !process.env.TITANIUM_CLI_XCODEBUILD) {
 		// make sure the app doesn't have any blacklisted directories in the Resources directory and warn about graylisted names
 		var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
@@ -484,20 +482,24 @@ exports.validate = function (logger, config, cli) {
 		}
 	}
 
-	ti.validateTiappXml(logger, cli.tiapp);
-
 	// at this point we've validated everything except underscores in the app id
-	if (cli.tiapp.id.indexOf('_') != -1) {
-		logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
-		logger.error(__('The app id must consist of letters, numbers, and dashes.'));
-		logger.error(__('The first character must be a letter.'));
-		logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
-		process.exit(1);
-	}
+	if (!config.get('ios.skipAppIdValidation')) {
+		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(cli.tiapp.id)) {
+			logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
+			logger.error(__('The app id must consist only of letters, numbers, dashes, and underscores.'));
+			logger.error(__('Note: iOS does not allow underscores.'));
+			logger.error(__('The first character must be a letter or underscore.'));
+			logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+			process.exit(1);
+		}
 
-	if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
-		// we're running the build command for the wrong SDK version, gracefully return
-		return false;
+		if (cli.tiapp.id.indexOf('_') != -1) {
+			logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
+			logger.error(__('The app id must consist of letters, numbers, and dashes.'));
+			logger.error(__('The first character must be a letter.'));
+			logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+			process.exit(1);
+		}
 	}
 
 	if (!Object.keys(iosEnv.xcode).length) {
@@ -1078,7 +1080,7 @@ build.prototype = {
 			// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
 			// Alloy generate an app.js, it may not have existed during validate(), but should exist now
 			// that build.pre.compile was fired.
-			ti.validateAppJsExists(this.projectDir, this.logger);
+			ti.validateAppJsExists(this.projectDir, this.logger, ['iphone', 'ios']);
 
 			// let's start building some apps!
 			parallel(this, [
@@ -2690,7 +2692,9 @@ build.prototype = {
 
 		this.tiModules.indexOf(s) == -1 && this.tiModules.push(s);
 
-		this.symbols[id] = [];
+		if (!Array.isArray(this.symbols[id])) {
+			this.symbols[id] = [];
+		}
 
 		tokens.forEach(function (t) {
 			current += t + '.';

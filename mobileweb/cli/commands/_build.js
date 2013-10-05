@@ -61,14 +61,7 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
-
-	ti.validateTiappXml(logger, cli.tiapp);
-
-	if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
-		// we're running the build command for the wrong SDK version, gracefully return
-		return false;
-	}
+	// nothing to do!
 };
 
 exports.run = function (logger, config, cli, finished) {
@@ -184,7 +177,7 @@ function build(logger, config, cli, finished) {
 		// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
 		// Alloy generate an app.js, it may not have existed during validate(), but should exist now
 		// that build.pre.compile was fired.
-		ti.validateAppJsExists(this.projectDir, this.logger);
+		ti.validateAppJsExists(this.projectDir, this.logger, 'mobileweb');
 
 		// Note: code processor is a pre-compile hook
 		this.codeProcessor = cli.codeProcessor;
