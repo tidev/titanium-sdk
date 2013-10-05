@@ -180,6 +180,13 @@
 @property(nonatomic,readonly) NSNumber *EXTEND_EDGE_BOTTOM;
 @property(nonatomic,readonly) NSNumber *EXTEND_EDGE_NONE;
 @property(nonatomic,readonly) NSNumber *EXTEND_EDGE_ALL;
+//IOS7 TextStyle Constants
+@property(nonatomic,readonly) NSString *TEXT_STYLE_HEADLINE;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_SUBHEADLINE;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_BODY;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_FOOTNOTE;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_CAPTION1;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_CAPTION2;
 
 #ifdef USE_TI_UI2DMATRIX
 -(id)create2DMatrix:(id)args;
