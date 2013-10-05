@@ -32,7 +32,7 @@ exports.init = function (logger, config, cli) {
 			}
 
 			var adb = new ADB(config),
-				deviceId = null, // FIX ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				deviceId = build.deviceId,
 				deployData = {
 					debuggerEnabled: builder.allowDebugging && builder.debugPort,
 					debuggerPort: builder.allowDebugging && builder.debugPort || -1,

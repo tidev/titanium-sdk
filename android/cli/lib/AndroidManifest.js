@@ -8,15 +8,15 @@ var appc = require('node-appc'),
 	DOMParser = require('xmldom').DOMParser,
 	fs = require('fs'),
 	path = require('path'),
-	plist = appc.plist,
-	version = appc.version,
 	wrench = require('wrench'),
 	xml = appc.xml,
 
+	androidAttrPrefixRegExp = /^android\:/,
 	defaultDOMParserArgs = { errorHandler: function(){} };
 
-module.exports = tiapp;
+module.exports = AndroidManifest;
 
+/*
 function toXml(dom, parent, name, value) {
 	// properties is a super special case
 	if (name == 'properties') {
@@ -39,66 +39,6 @@ function toXml(dom, parent, name, value) {
 					device: v,
 					nodeValue: value[v]
 				}, node);
-			});
-			break;
-
-		case 'ios':
-			if (value.hasOwnProperty('enablecoverage')) {
-				dom.create('enablecoverage', { nodeValue: !!value['enablecoverage'] }, node);
-			}
-
-			if (value.hasOwnProperty('enablemdfind')) {
-				dom.create('enablemdfind', { nodeValue: !!value['enablemdfind'] }, node);
-			}
-
-			if (value.hasOwnProperty('min-ios-ver')) {
-				dom.create('min-ios-ver', { nodeValue: version.format(value['min-ios-ver'], 2) }, node);
-			}
-
-			if (value.plist) {
-				var plNode = dom.create('plist', null, node),
-					pl = new plist(),
-					doc;
-				appc.util.mix(pl, value.plist);
-				doc = pl.toXml(3);
-				plNode.appendChild(dom.createTextNode('\r\n\t\t\t'));
-				xml.forEachElement(doc, function (elem) {
-					plNode.appendChild(elem);
-				});
-				plNode.appendChild(dom.createTextNode('\r\n\t\t'));
-			}
-			break;
-
-		case 'iphone':
-			value.orientations && Object.keys(value.orientations).forEach(function (o) {
-				dom.create('orientations', { device: o }, node, function (orientations) {
-					value.orientations[o].forEach(function (p) {
-						dom.create('orientation', { nodeValue: p }, orientations);
-					});
-				});
-			});
-
-			value.backgroundModes && dom.create('background', null, node, function (background) {
-				value.backgroundModes.forEach(function (mode) {
-					dom.create('mode', { nodeValue: mode }, background);
-				});
-			});
-
-			value.requiredFeatures && dom.create('requires', null, node, function (requires) {
-				value.requiredFeatures.forEach(function (feature) {
-					dom.create('feature', { nodeValue: feature }, requires);
-				});
-			});
-
-			value.types && dom.create('types', null, node, function (types) {
-				value.types.forEach(function (typeObj) {
-					dom.create('type', null, types, function (typeNode) {
-						dom.create('name', { nodeValue: typeObj.name }, typeNode);
-						dom.create('icon', { nodeValue: typeObj.icon }, typeNode);
-						dom.create('uti', { nodeValue: typeObj.uti.join(',') }, typeNode);
-						dom.create('owner', { nodeValue: !!typeObj.owner }, typeNode);
-					});
-				});
 			});
 			break;
 
@@ -204,43 +144,6 @@ function toXml(dom, parent, name, value) {
 			});
 			break;
 
-		case 'tizen' :
-			node.setAttribute('xmlns:tizen', 'http://ti.appcelerator.org');
-			//use default and generated values if appid and configXml are empty
-			value.appid && node.setAttribute('appid', value.appid);
-			//creating nodes from tizen specific entries
-			var tizenSection = new DOMParser(defaultDOMParserArgs).parseFromString('<?xml version="1.0" encoding="UTF-8"?>\n<tizen xmlns:tizen="http://ti.appcelerator.org" appid="' + value.appid+'"> ' + value.configXml + ' </tizen>', 'text/xml').documentElement,
-				child = tizenSection.firstChild,
-				nextSibl;
-			while (child) {
-				//store next sibling before calling nextSibling().
-				//Becaus after appendChild() nextSibling() will return node from other tree
-				nextSibl = child.nextSibling;
-				node.appendChild(child);
-				child = nextSibl;
-			}
-			break;
-
-		case 'modules':
-			value.forEach(function (mod) {
-				dom.create('module', {
-					platform: mod.platform,
-					version: mod.version ? version.format(mod.version, 2) : null,
-					'deploy-type': mod.deployType || null,
-					nodeValue: mod.id
-				}, node);
-			});
-			break;
-
-		case 'plugins':
-			value.forEach(function (plugin) {
-				dom.create('plugin', {
-					version: version.format(plugin.version, 2),
-					nodeValue: plugin.id
-				}, node);
-			});
-			break;
-
 		default:
 			node.appendChild(dom.createTextNode(value));
 			return;
@@ -248,10 +151,108 @@ function toXml(dom, parent, name, value) {
 
 	node.appendChild(dom.createTextNode('\r\n' + new Array(2).join('\t')));
 }
+*/
+
+function initAttr(node, obj) {
+	xml.forEachAttr(node, function (attr) {
+		obj.__attr__ || (obj.__attr__ = {});
+		obj.__attr__[attr.name] = xml.parse(attr.value);
+	});
+	return obj;
+}
+
+function initObject(node, obj, fn) {
+	var tmp = obj[node.tagName] = {};
+	initAttr(node, tmp);
+	fn && fn(tmp);
+}
+
+function initObjectByName(node, obj, fn) {
+	var tmp = obj[node.tagName] || (obj[node.tagName] = {}),
+		a = {};
+	xml.forEachAttr(node, function (attr) {
+		a[attr.name.replace(androidAttrPrefixRegExp, '')] = xml.parse(attr.value);
+	});
+	a.name && (tmp[a.name] = a);
+	fn && fn(tmp);
+}
+
+function initArray(node, obj, fn) {
+	var tmp = obj[node.tagName] || (obj[node.tagName] = []);
+	initAttr(node, tmp);
+	fn(tmp);
+}
 
 function toJS(obj, doc) {
-	var node = doc.firstChild;
-	while (node) {
+	initAttr(doc, obj);
+
+	xml.forEachElement(doc, function (node) {
+		switch (node.tagName) {
+			case 'application':
+				initObject(node, obj, function (obj) {
+					//
+				});
+				break;
+
+			case 'compatible-screens':
+				initArray(node, obj, function (compatibleScreens) {
+					xml.forEachElement(node, function (node) {
+						if (node.tagName == 'screen') {
+							var a = {};
+							xml.forEachAttr(node, function (attr) {
+								a[attr.name.replace(androidAttrPrefixRegExp, '')] = xml.parse(attr.value);
+							});
+							compatibleScreens.push(a);
+						}
+					});
+				});
+				break;
+
+			case 'instrumentation':
+			case 'permission':
+			case 'permission-group':
+			case 'permission-tree':
+				initObjectByName(node, obj);
+				break;
+
+			case 'supports-gl-texture':
+				initObject(node, obj, function (obj) {
+					//
+				});
+				break;
+
+			case 'supports-screens':
+				initObject(node, obj, function (obj) {
+					//
+				});
+				break;
+
+			case 'uses-configuration':
+				initObject(node, obj, function (obj) {
+					//
+				});
+				break;
+
+			case 'uses-feature':
+				initObject(node, obj, function (obj) {
+					//
+				});
+				break;
+
+			case 'uses-permission':
+				initObject(node, obj, function (obj) {
+					//
+				});
+				break;
+
+			case 'uses-sdk':
+				initObject(node, obj, function (obj) {
+					//
+				});
+				break;
+		}
+	});
+/*	while (node) {
 		if (node.nodeType == xml.ELEMENT_NODE) {
 			switch (node.tagName) {
 				case 'property':
@@ -298,116 +299,6 @@ function toJS(obj, doc) {
 								break;
 							default:
 								codeProcessor[elem.tagName] = xml.getValue(elem);
-						}
-					});
-					break;
-
-				case 'ios':
-					var ios = obj.ios = {};
-					xml.forEachElement(node, function (elem) {
-						switch (elem.tagName) {
-							case 'enablecoverage':
-								ios['enablecoverage'] = xml.getValue(elem);
-								break;
-
-							case 'enablemdfind':
-								ios['enablemdfind'] = xml.getValue(elem);
-								break;
-
-							case 'min-ios-ver':
-								ios['min-ios-ver'] = parseFloat(elem.firstChild.data) || 0;
-								break;
-
-							case 'plist':
-								ios.plist = {};
-								xml.forEachElement(elem, function (elem) {
-									if (elem.tagName == 'dict') {
-										var pl = new plist().parse('<plist version="1.0">' + elem.toString() + '</plist>');
-										Object.keys(pl).forEach(function (prop) {
-											if (!/^CFBundle(DisplayName|Executable|IconFile|Identifier|InfoDictionaryVersion|Name|PackageType|Signature|Version|ShortVersionString)|LSRequiresIPhoneOS$/.test(prop)) {
-												ios.plist[prop] = pl[prop];
-											}
-										});
-									}
-								});
-								break;
-						}
-					});
-					break;
-
-				case 'blackberry':
-					var blackberry = obj.blackberry = {};
-					xml.forEachElement(node, function (elem) {
-						switch (elem.tagName) {
-							case 'permissions':
-								var permissions = blackberry.permissions = {};
-								xml.forEachElement(elem, function (elem) {
-									permissions[xml.getValue(elem)] = true;
-								});
-								break;
-
-							case 'build-id':
-								blackberry[elem.tagName] = xml.getValue(elem);
-								break;
-
-							case 'orientation':
-								blackberry[elem.tagName] = xml.getValue(elem);
-								break;
-						}
-					});
-					break;
-
-				case 'iphone':
-					var iphone = obj.iphone = {},
-						dev;
-					xml.forEachElement(node, function (elem) {
-						switch (elem.tagName) {
-							case 'orientations':
-								iphone.orientations || (iphone.orientations = {});
-								if (dev = xml.getAttr(elem, 'device')) {
-									iphone.orientations[dev] || (iphone.orientations[dev] = []);
-									xml.forEachElement(elem, function (elem) {
-										iphone.orientations[dev].push(xml.getValue(elem));
-									});
-								}
-								break;
-
-							case 'background':
-								xml.forEachElement(elem, function (elem) {
-									if (elem.tagName == 'mode') {
-										iphone.backgroundModes || (iphone.backgroundModes = []);
-										iphone.backgroundModes.push(xml.getValue(elem));
-									}
-								});
-								break;
-
-							case 'requires':
-								xml.forEachElement(elem, function (elem) {
-									if (elem.tagName == 'feature') {
-										iphone.requiredFeatures || (iphone.requiredFeatures = []);
-										iphone.requiredFeatures.push(xml.getValue(elem));
-									}
-								});
-								break;
-
-							case 'types':
-								xml.forEachElement(elem, function (elem) {
-									if (elem.tagName == 'type') {
-										iphone.types || (iphone.types = []);
-										var type = {
-											name: '',
-											icon:'',
-											uti: [],
-											owner: false
-										};
-										xml.forEachElement(elem, function (elem) {
-											var v = xml.getValue(elem);
-											type[elem.tagName] = elem.tagName == 'uti' ? v.split(',').map(function (s) { return s.trim(); }) : v;
-										});
-										iphone.types.push(type);
-									}
-								});
-								break;
 						}
 					});
 					break;
@@ -541,33 +432,6 @@ function toJS(obj, doc) {
 					});
 					break
 
-				case 'modules':
-					var modules = obj.modules = [];
-					xml.forEachElement(node, function (elem) {
-						var opts = {
-								id: xml.getValue(elem),
-								platform: xml.getAttr(elem, 'platform')
-							},
-							version = elem.getAttribute('version'),
-							deployType = xml.getAttr(elem, 'deploy-type');
-						version && (opts.version = version);
-						deployType && (opts.deployType = deployType);
-						modules.push(opts);
-					});
-					break;
-
-				case 'plugins':
-					var plugins = obj.plugins = [];
-					xml.forEachElement(node, function (elem) {
-						var opts = {
-								id: xml.getValue(elem)
-							},
-							version = elem.getAttribute('version');
-						version && (opts.version = version);
-						plugins.push(opts);
-					});
-					break;
-
 				case 'version':
 					obj[node.tagName] = node.firstChild && node.firstChild.data.replace(/\n/g, '').trim() || '';
 					break;
@@ -589,13 +453,14 @@ function toJS(obj, doc) {
 		}
 		node = node.nextSibling;
 	}
+	*/
 }
 
-function tiapp(filename) {
+function AndroidManifest(filename) {
 	Object.defineProperty(this, 'load', {
 		value: function (file) {
 			if (!fs.existsSync(file)) {
-				throw new Error('tiapp.xml file does not exist');
+				throw new Error('AndroidManifest.xml file does not exist');
 			}
 			toJS(this, (new DOMParser(defaultDOMParserArgs).parseFromString(fs.readFileSync(file).toString(), 'text/xml')).documentElement);
 			return this;
@@ -612,7 +477,7 @@ function tiapp(filename) {
 	Object.defineProperty(this, 'toString', {
 		value: function (fmt) {
 			if (fmt == 'xml') {
-				var dom = new DOMParser(defaultDOMParserArgs).parseFromString('<ti:app xmlns:ti="http://ti.appcelerator.org"/>', 'text/xml');
+				var dom = new DOMParser(defaultDOMParserArgs).parseFromString('<manifest>', 'text/xml');
 
 				dom.create = function (tag, attrs, parent, callback) {
 					var node = dom.createElement(tag),
@@ -644,7 +509,7 @@ function tiapp(filename) {
 				};
 
 				Object.keys(this).forEach(function (key) {
-					toXml(dom, dom.documentElement, key, this[key]);
+					//toXml(dom, dom.documentElement, key, this[key]);
 				}, this);
 
 				dom.documentElement.appendChild(dom.createTextNode('\r\n'));
