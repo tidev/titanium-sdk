@@ -250,7 +250,7 @@
                     [_dynamicItemBehavior addAngularVelocity:floatVal forItem:[theItem view]];
                 }, YES);
             }
-            NSUInteger theIndex = [_items indexOfObject:args];
+            NSUInteger theIndex = [_items indexOfObject:theItem];
             CGFloat curVal = [TiUtils floatValue:[_angularVelocities objectAtIndex:theIndex] def:0] + floatVal;
             [_angularVelocities replaceObjectAtIndex:theIndex withObject:NUMFLOAT(curVal)];
         }
@@ -273,7 +273,7 @@
                     [_dynamicItemBehavior addLinearVelocity:newPoint forItem:[theItem view]];
                 }, YES);
             }
-            NSUInteger theIndex = [_items indexOfObject:args];
+            NSUInteger theIndex = [_items indexOfObject:theItem];
             TiPoint* thePoint = [_linearVelocities objectAtIndex:theIndex];
             CGPoint curPoint = [ thePoint point];
             curPoint.x = curPoint.x + newPoint.x;

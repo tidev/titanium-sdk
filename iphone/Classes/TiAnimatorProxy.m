@@ -136,7 +136,13 @@
                 DebugLog(@"[INFO] Animator is already started");
                 return;
             }
-            theAnimator = [[UIDynamicAnimator alloc] initWithReferenceView:[_referenceView view]];
+            //Need to get the parent view for children since this is the view that provides the animation context.
+            //Right now scrollable View will not work.
+            UIView* refView = [_referenceView parentViewForChild:nil];
+            if (refView == nil) {
+                refView = [_referenceView view];
+            }
+            theAnimator = [[UIDynamicAnimator alloc] initWithReferenceView:refView];
             theAnimator.delegate = self;
             for (id<TiBehaviorProtocol> theArg in _behaviors) {
                 [theAnimator addBehavior:(UIDynamicBehavior *)[(id<TiBehaviorProtocol>)theArg behaviorObject]];
