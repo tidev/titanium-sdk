@@ -32,6 +32,7 @@
 -(void)removeAllBehaviors:(id)unused;
 -(void)startAnimator:(id)unused;
 -(void)stopAnimator:(id)unused;
+-(void)updateItemUsingCurrentState:(id)args;
 
 @end
 

@@ -162,6 +162,14 @@
     }, YES);
 }
 
+-(void)updateItemUsingCurrentState:(id)args
+{
+    ENSURE_SINGLE_ARG(args, TiViewProxy);
+    TiThreadPerformOnMainThread(^{
+        [theAnimator updateItemUsingCurrentState:[(TiViewProxy*)args view]];
+    }, YES);
+}
+
 #pragma mark - UIDynamicAnimatorDelegate methods
 - (void)dynamicAnimatorWillResume:(UIDynamicAnimator*)animator
 {
