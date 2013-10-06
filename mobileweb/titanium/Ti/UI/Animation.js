@@ -186,7 +186,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 							// we need to remove this animation before resolving
 							anis.splice(i--, 1);
 							ani.promise.resolve();
-							if (!anis.length) {
+							if (!anis.length && !animations[wid].activeCount) {
 								delete animations[wid];
 							}
 						}
@@ -299,6 +299,9 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 			properties = anim.__values__.properties,
 			delay = properties.delay | 0,
 			visible = !!properties.visible;
+
+		isNaN(animations[wid].activeCount) && (animations[wid].activeCount = 0);
+		animations[wid].activeCount++;
 
 		function go() {
 			var i,
@@ -469,7 +472,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 					}
 
 					anis.splice(i, 1);
-					if (!anis.length) {
+					if (!anis.length && !animations[wid].activeCount) {
 						delete animations[wid];
 					}
 
@@ -479,6 +482,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 				}
 			}
 
+			animations[wid].activeCount--;
 			anim.fireEvent("cancel");
 
 			return result;
@@ -489,6 +493,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 			properties.zIndex !== void 0 && (elem.zIndex = zIndex);
 
 			// TODO: update View.rect here: TIMOB-8930
+			animations[wid].activeCount--;
 
 			anim.fireEvent("complete");
 		});
