@@ -132,6 +132,10 @@
 {
     if ([_behaviors count] > 0) {
         TiThreadPerformOnMainThread(^{
+            if (theAnimator != nil) {
+                DebugLog(@"[INFO] Animator is already started");
+                return;
+            }
             theAnimator = [[UIDynamicAnimator alloc] initWithReferenceView:[_referenceView view]];
             theAnimator.delegate = self;
             for (id<TiBehaviorProtocol> theArg in _behaviors) {

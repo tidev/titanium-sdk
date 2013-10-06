@@ -313,7 +313,7 @@
 - (void)collisionBehavior:(UICollisionBehavior*)behavior beganContactForItem:(id <UIDynamicItem>)item withBoundaryIdentifier:(id <NSCopying>)identifier atPoint:(CGPoint)p
 {
     if ([self _hasListeners:@"boundarycollision"]) {
-        if (identifier != nil) {
+        if (identifier == nil) {
             identifier = [NSNull null];
         }
         NSDictionary* theEvent = [[[NSDictionary dictionaryWithObjectsAndKeys:[(TiUIView*)item proxy],@"item",identifier,@"identifier",[TiUtils pointToDictionary:p],@"point",NUMBOOL(YES),@"start",nil] retain] autorelease];
@@ -323,7 +323,7 @@
 - (void)collisionBehavior:(UICollisionBehavior*)behavior endedContactForItem:(id <UIDynamicItem>)item withBoundaryIdentifier:(id <NSCopying>)identifier
 {
     if ([self _hasListeners:@"boundarycollision"]) {
-        if (identifier != nil) {
+        if (identifier == nil) {
             identifier = [NSNull null];
         }
         NSDictionary* theEvent = [[[NSDictionary dictionaryWithObjectsAndKeys:[(TiUIView*)item proxy],@"item",identifier,@"identifier",NUMBOOL(NO),@"start",nil] retain] autorelease];
