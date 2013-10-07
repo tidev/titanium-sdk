@@ -8,7 +8,7 @@ description: |
     The AttributedString proxy is created with the method <Titanium.UI.iOS.createAttributedString>.
     
     The `text` property must be set initially in the constructor when creating an attributed string.
-    The [attributes](Titanium.UI.iOS.AttributedString.attributes] can either be set in the constructor or after it has been created.
+    The [attributes](Titanium.UI.iOS.AttributedString.attributes) can either be set in the constructor or after it has been created.
 
 platforms: [iphone, ipad]
 extends: Titanium.Proxy
@@ -29,23 +29,15 @@ properties:
         Internally, this calls the `addAttribute` method for each of the attributes passed
         in.
         See also: [addAttribute](Titanium.UI.iOS.AttributedString.addAttribute), 
-    type: Array<Titanium.UI.iOS.Attribute>
+    type: Array<Attribute>
 
 methods:
   - name: addAttribute
-    summary: Adds an [attribute](Titanium.UI.iOS.Attribute) with the given name and value to the characters in the specified range.
+    summary: Adds an [attribute](Attribute) with the given name and value to the characters in the specified range.
     parameters:
-      - name: type
-        summary: A number specifying the attribute name.
-        type: Number
-
-      - name: value
-        summary: The attribute value associated with name.
-        type: Number
-
-      - name: range
-        summary: The range of characters to which the specified text applies.
-        type: Array<Number>
+      - name: attribute
+        summary: An attribute object.
+        type: <Attribute>
 
 examples:
   - title: Adds an array of attributes to a label

@@ -50,306 +50,306 @@ properties:
 
   - name: ATTRIBUTE_FONT
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_FOREGROUND_COLOR
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_BACKGROUND_COLOR
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_LIGATURE
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_KERN
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_STRIKETHROUGH_STYLE
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINES_TYLE
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_STROKE_COLOR
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_STROKE_WIDTH
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_SHADOW
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_VERTICAL_GLYPH_FORM
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_TEXT_EFFECT
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_LINK
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_BASELINE_OFFSET
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_COLOR
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_STRIKETHROUGH_COLOR
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_OBLIQUENESS
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_EXPANSION
     summary: |
-        Use with [Attributed.type](Titanium.UI.iOS.Attribute.type) to specify a type.
+        Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on type modes.
+        See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_NONE
     summary: |
-        Use with [Attributed.value](Titanium.UI.iOS.Attributed.value) to specify a value.
+        Use with [Attribute.value](Attribute.value) to specify a value.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on value modes.
+        See <Attribute> for more information on value modes.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_SINGLE
     summary: |
-        Use with [Attributed.value](Titanium.UI.iOS.Attributed.value) to specify a value.
+        Use with [Attribute.value](Attribute.value) to specify a value.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on value modes.
+        See <Attribute> for more information on value modes.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_THICK
     summary: |
-        Use with [Attributed.value](Titanium.UI.iOS.Attributed.value) to specify a value.
+        Use with [Attribute.value](Attribute.value) to specify a value.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on value modes.
+        See <Attribute> for more information on value modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
     summary: |
-        Use with [Attributed.value](Titanium.UI.iOS.Attributed.value) to specify a value.
+        Use with [Attribute.value](Attribute.value) to specify a value.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on value modes.
+        See <Attribute> for more information on value modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_SOLID
     summary: |
-        Use with [Attributed.value](Titanium.UI.iOS.Attributed.value) to specify a value.
+        Use with [Attribute.value](Attribute.value) to specify a value.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on value modes.
+        See <Attribute> for more information on value modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DOT
     summary: |
-        Use with [Attributed.value](Titanium.UI.iOS.Attributed.value) to specify a value.
+        Use with [Attribute.value](Attribute.value) to specify a value.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on value modes.
+        See <Attribute> for more information on value modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH
     summary: |
-        Use with [Attributed.value](Titanium.UI.iOS.Attributed.value) to specify a value.
+        Use with [Attribute.value](Attribute.value) to specify a value.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on value modes.
+        See <Attribute> for more information on value modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
     summary: |
-        Use with [Attributed.value](Titanium.UI.iOS.Attributed.value) to specify a value.
+        Use with [Attribute.value](Attribute.value) to specify a value.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on value modes.
+        See <Attribute> for more information on value modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
     summary: |
-        Use with [Attributed.value](Titanium.UI.iOS.Attributed.value) to specify a value.
+        Use with [Attribute.value](Attribute.value) to specify a value.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on value modes.
+        See <Attribute> for more information on value modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_BY_WORD
     summary: |
-        Use with [Attributed.value](Titanium.UI.iOS.Attributed.value) to specify a value.
+        Use with [Attribute.value](Attribute.value) to specify a value.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on value modes.
+        See <Attribute> for more information on value modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
     summary: |
-        Use with [Attributed.value](Titanium.UI.iOS.Attributed.value) to specify a value.
+        Use with [Attribute.value](Attribute.value) to specify a value.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on value modes.
+        See <Attribute> for more information on value modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
     summary: |
-        Use with [Attributed.value](Titanium.UI.iOS.Attributed.value) to specify a value.
+        Use with [Attribute.value](Attribute.value) to specify a value.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on value modes.
+        See <Attribute> for more information on value modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_NATURAL
     summary: |
-        Use with [Attributed.value](Titanium.UI.iOS.Attributed.value) to specify a value.
+        Use with [Attribute.value](Attribute.value) to specify a value.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on value modes.
+        See <Attribute> for more information on value modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
     summary: |
-        Use with [Attributed.value](Titanium.UI.iOS.Attributed.value) to specify a value.
+        Use with [Attribute.value](Attribute.value) to specify a value.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on value modes.
+        See <Attribute> for more information on value modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
     summary: |
-        Use with [Attributed.value](Titanium.UI.iOS.Attributed.value) to specify a value.
+        Use with [Attribute.value](Attribute.value) to specify a value.
     description: |
-        See <Titanium.UI.iOS.AttributedString> for more information on value modes.
+        See <Attribute> for more information on value modes.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only

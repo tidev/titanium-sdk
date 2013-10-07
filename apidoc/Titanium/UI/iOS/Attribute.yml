@@ -1,5 +1,5 @@
 ---
-name: Titanium.UI.iOS.Attribute
+name: Attribute
 summary: An abstract datatype for specifying an attributed string attribute.
 description: |
     Attributes are added to the Titanium.UI.iOS.AttributedString object to create
@@ -7,8 +7,6 @@ description: |
     `name`, `value`, `range`.
 platforms: [iphone, ipad]
 since: "3.2.0"
-excludes:
-    properties: [name, value, range]
 
 properties:
   - name: name
@@ -16,30 +14,30 @@ properties:
     description: |
         The AttributedString expects a number value for the name. Use any of these:
 
-            * Titanium.UI.iOS.ATTRIBUTE_FONT
-            * Titanium.UI.iOS.ATTRIBUTE_PARAGRAPH_STYLE
-            * Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR
-            * Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR
-            * Titanium.UI.iOS.ATTRIBUTE_LIGATURE
-            * Titanium.UI.iOS.ATTRIBUTE_KERN
-            * Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE
-            * Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_TYLE
-            * Titanium.UI.iOS.ATTRIBUTE_STROKE_COLOR
-            * Titanium.UI.iOS.ATTRIBUTE_STROKE_WIDTH
-            * Titanium.UI.iOS.ATTRIBUTE_SHADOW
-            * Titanium.UI.iOS.ATTRIBUTE_VERTICAL_GLYPH_FORM
+          * <Titanium.UI.iOS.ATTRIBUTE_FONT>
+          * <Titanium.UI.iOS.ATTRIBUTE_PARAGRAPH_STYLE>
+          * <Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR>
+          * <Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR>
+          * <Titanium.UI.iOS.ATTRIBUTE_LIGATURE>
+          * <Titanium.UI.iOS.ATTRIBUTE_KERN>
+          * <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>
+          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_TYLE>
+          * <Titanium.UI.iOS.ATTRIBUTE_STROKE_COLOR>
+          * <Titanium.UI.iOS.ATTRIBUTE_STROKE_WIDTH>
+          * <Titanium.UI.iOS.ATTRIBUTE_SHADOW>
+          * <Titanium.UI.iOS.ATTRIBUTE_VERTICAL_GLYPH_FORM>
 
         For iOS 7 and above you can also use the following:
 
-            * Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION
-            * Titanium.UI.iOS.ATTRIBUTE_TEXT_EFFECT
-            * Titanium.UI.iOS.ATTRIBUTE_ATTACHMENT
-            * Titanium.UI.iOS.ATTRIBUTE_LINK
-            * Titanium.UI.iOS.ATTRIBUTE_BASELINE_OFFSET
-            * Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_COLOR
-            * Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_COLOR
-            * Titanium.UI.iOS.ATTRIBUTE_OBLIQUENESS
-            * Titanium.UI.iOS.ATTRIBUTE_EXPANSION
+          * <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>
+          * <Titanium.UI.iOS.ATTRIBUTE_TEXT_EFFECT>
+          * <Titanium.UI.iOS.ATTRIBUTE_ATTACHMENT>
+          * <Titanium.UI.iOS.ATTRIBUTE_LINK>
+          * <Titanium.UI.iOS.ATTRIBUTE_BASELINE_OFFSET>
+          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_COLOR>
+          * <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_COLOR>
+          * <Titanium.UI.iOS.ATTRIBUTE_OBLIQUENESS>
+          * <Titanium.UI.iOS.ATTRIBUTE_EXPANSION>
 
     type: Number
     optional: false
@@ -59,16 +57,16 @@ properties:
         If you use the  Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_TYLE or the Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_COLOR
         you must use one, or more, of these constants:
 
-            * Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_NONE
-            * Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE
-            * Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_THICK
-            * Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
-            * Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_SOLID
-            * Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DOT
-            * Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH
-            * Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
-            * Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
-            * Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_BY_WORD
+          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_NONE>
+          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE>
+          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_THICK>
+          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_DOUBLE>
+          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_SOLID>
+          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DOT>
+          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH>
+          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT>
+          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT>
+          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_BY_WORD>
 
         These can be combined:
 
@@ -81,11 +79,11 @@ properties:
         If you use the Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION, you must use one or more of 
         these constants:
 
-            * Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
-            * Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
-            * Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_NATURAL
-            * Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
-            * Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
+          * <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING>
+          * <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_OVERRIDE>
+          * <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_NATURAL>
+          * <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT>
+          * <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT>
 
         These can also be combined the same way as the underline styles.
 
