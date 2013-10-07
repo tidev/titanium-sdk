@@ -306,6 +306,12 @@ define(['Ti/_/declare', 'Ti/_/Evented', 'Ti/_/style', 'Ti/UI'], function(declare
 		anis.activeCount = ~~anis.activeCount + 1;
 
 		function go() {
+
+			if (!elem._alive) {
+				anis.activeCount--;
+				return;
+			}
+
 			var i,
 				len,
 				props = {},
