@@ -21,7 +21,7 @@ excludes:
     properties: [navBarHidden, tabBarHidden, navTintColor, translucent, toolbar,
                 barColor, barImage, leftNavButton, rightNavButton, title, titleControl,
                 titlePrompt, titleImage, titleid, titlepromptid, url, backButtonTitle,
-                backButtonTitleImage]
+                backButtonTitleImage, shadowImage, hideShadow]
 
 properties:
   - name: window
