@@ -55,7 +55,7 @@
         }
         
     } else {
-        DebugLog(@"Can not change referenceView when animator is running. Ignoring.");
+        DebugLog(@"Can not change referenceView after animator is started. Ignoring.");
     }
 }
 
