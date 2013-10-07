@@ -146,9 +146,9 @@
 
 -(void)setBackgroundImage_:(id)arg
 {
-    NSURL *url = [TiUtils toURL:arg proxy:(TiProxy*)self.proxy];
-    UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url];
+    UIImage *image = [self loadImage:arg];
     [[self searchBar] setBackgroundImage:image];
+    self.backgroundImage = image;
 }
 
 #pragma mark Delegate 
