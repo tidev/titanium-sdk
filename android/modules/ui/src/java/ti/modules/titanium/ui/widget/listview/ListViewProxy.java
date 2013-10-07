@@ -33,7 +33,8 @@ import android.os.Message;
 	TiC.PROPERTY_FOOTER_TITLE,
 	TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
 	TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
-	TiC.PROPERTY_SECTIONS
+	TiC.PROPERTY_SECTIONS,
+	TiC.PROPERTY_SEPARATOR_COLOR
 })
 public class ListViewProxy extends TiViewProxy {
 
@@ -54,6 +55,10 @@ public class ListViewProxy extends TiViewProxy {
 	private ArrayList<ListSectionProxy> preloadSections;
 	private HashMap<String, Integer> preloadMarker;
 	
+	public ListViewProxy() {
+		super();
+	}
+
 	public TiUIView createView(Activity activity) {
 		return new TiListView(this, activity);
 	}

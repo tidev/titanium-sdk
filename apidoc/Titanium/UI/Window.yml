@@ -192,6 +192,7 @@ events:
         On iOS, this event does not fire before putting the application in the background.
         The application needs to monitor the <Titanium.App.pause> event.
         See <Titanium.App> for more information on the iOS application lifecycle.
+
   - name: close
     summary: Fired when the window is closed.
 
@@ -208,6 +209,8 @@ events:
         if it was previously backgrounded.
         The application needs to monitor the <Titanium.App.resumed> event.
         See <Titanium.App> for more information on the iOS application lifecycle.
+    platforms: [android, blackberry, iphone, ipad, mobileweb, tizen]
+
   - name: open
     summary: Fired when the window is opened.
     description: |
@@ -253,6 +256,10 @@ properties:
 
   - name: barImage
     summary: Background image for the nav bar, specified as a URL to a local image.
+    description: |
+        The behavior of this API on iOS has changed from version 3.2.0. Previous versions
+        of the SDK created a custom image view and inserted it as a child of the navigation bar.
+        The titanium sdk now uses the native call to set the background image of the navigation bar.
     platforms: [iphone, ipad, mobileweb, tizen]
     type: String
 
@@ -335,6 +342,15 @@ properties:
     platforms: [android, iphone, ipad]
     type: Boolean
     default: false
+
+  - name: hideShadow
+    summary: Set this to true to hide the shadow image of the navigation bar.
+    description: |
+        This property is only honored if a valid value is specified for the [barImage](Titanium.UI.Window.barImage) property.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: false
+    since: 3.2.0
 
   - name: left
     summary: Window's left position, in platform-specific units.
@@ -553,6 +569,14 @@ properties:
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
     
+  - name: shadowImage
+    summary: Shadow image for the navigation bar, specified as a URL to a local image..
+    description: |
+        This property is only honored if a valid value is specified for the [barImage](Titanium.UI.Window.barImage) property.
+    platforms: [iphone, ipad]
+    type: String
+    since: 3.2.0
+
   - name: statusBarStyle
     summary: The status bar style associated with this window. 
     description: |
@@ -737,7 +761,7 @@ description: |
     * [SplitWindow](Titanium.UI.iPad.SplitWindow)
     * [TabGroup](Titanium.UI.TabGroup)
     * [Tab](Titanium.UI.Tab)
-    * [NavigationGroup](Titanium.UI.iPhone.NavigationGroup)
+    * [NavigationGroup](Titanium.UI.MobileWeb.NavigationGroup)
 
     By default, windows occupy the entire screen except for the navigation bar, 
     status bar, and in the case of windows contained in tab groups, the tab bar.
