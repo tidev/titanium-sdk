@@ -163,6 +163,7 @@
                 if (exists) {
                     CollisionBoundary* boundary = [[CollisionBoundary alloc] initWithIdentifier:identifier point1:p1 point2:p2];
                     [_boundaries addObject:boundary];
+                    [_identifiers addObject:identifier];
                     if (_collisionBehavior != nil) {
                         TiThreadPerformOnMainThread(^{
                             [_collisionBehavior addBoundaryWithIdentifier:identifier fromPoint:p1 toPoint:p2];
@@ -170,16 +171,16 @@
                     }
                     [boundary release];
                 } else {
-                    DebugLog(@"ERROR Missing required parameter point2");
+                    DebugLog(@"[ERROR] Missing required parameter point2");
                 }
             } else {
-                DebugLog(@"ERROR Missing required parameter point1");
+                DebugLog(@"[ERROR] Missing required parameter point1");
             }
         } else {
-            DebugLog(@"ERROR A Boundary with the given identifier already exists. %@", identifier);
+            DebugLog(@"[ERROR] A Boundary with the given identifier already exists. %@", identifier);
         }
     } else {
-        DebugLog(@"ERROR Missing required parameter identifier");
+        DebugLog(@"[ERROR] Missing required parameter identifier");
     }
     
 }
