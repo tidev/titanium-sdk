@@ -104,7 +104,7 @@ properties:
   - name: range
     summary: Attribute range. 
     description: |
-                This specifies the range of text to applie the property to. An array of two
-                numbers. [from, to]
+                This specifies the range of text to apply the property to. An array of two
+                numbers. [from, length]
     type: Array<Number>
     optional: false

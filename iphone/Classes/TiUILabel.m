@@ -280,12 +280,11 @@
         attributedString = [arg _attributedString];
         [((TiUILabelProxy*)[self proxy]) setAttrString:attributedString];
         [[self label] setAttributedText:attributedString];
-
+        
         // Set the verticalAlign to something other than -1
         // this makes the label have a real size and bypasses an
         // Apple bug where the NSAttributedString gets cut off
-        if(verticalAlign == -1)
-        {
+        if(verticalAlign == -1) {
             verticalAlign = UIControlContentVerticalAlignmentCenter;
         }
         [self padLabel];

@@ -65,6 +65,14 @@ properties:
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
     
+  - name: attributedString
+    summary: TextArea attributed string. 
+    description: |
+        The underlying attributed string drawn by the textArea, if set, the textArea ignores
+        the `value` property
+    type: Titanium.UI.iOS.AttributedString
+    platforms: [iphone, ipad]
+
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 
     description: |

@@ -68,6 +68,22 @@ properties:
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
     
+  - name: attributedString
+    summary: TextField attributed string. 
+    description: |
+        The underlying attributed string drawn by the textField, if set, the textField ignores
+        the `value` property
+    type: Titanium.UI.iOS.AttributedString
+    platforms: [iphone, ipad]
+
+  - name: attributedHintText
+    summary: Hint text attributed string. 
+    description: |
+        The attributed hint text by the textField, if set, the textField ignores
+        the `hintText` property
+    type: Titanium.UI.iOS.AttributedString
+    platforms: [iphone, ipad]
+
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 
     description: |

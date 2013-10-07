@@ -13,6 +13,7 @@
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUITextWidget.h"
+#include "TiUIiOSAttributedStringProxy.h"
 
 @implementation TiTextField
 
@@ -364,6 +365,14 @@
 -(void)setHintText_:(id)value
 {
 	[[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
+}
+
+-(void)setAttributedHintText_:(id)value
+{
+    if([value isKindOfClass:[TiUIiOSAttributedStringProxy class]]) {
+        TiUIiOSAttributedStringProxy *attrProxy = (TiUIiOSAttributedStringProxy*)value;
+        [[self textWidgetView] setAttributedPlaceholder:[attrProxy _attributedString]];
+    }
 }
 
 -(void)setMinimumFontSize_:(id)value

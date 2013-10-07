@@ -37,7 +37,7 @@ methods:
     parameters:
       - name: attribute
         summary: An attribute object.
-        type: <Attribute>
+        type: Attribute
 
 examples:
   - title: Adds an array of attributes to a label
