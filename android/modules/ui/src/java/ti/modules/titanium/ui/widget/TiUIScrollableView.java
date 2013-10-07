@@ -105,7 +105,7 @@ public class TiUIScrollableView extends TiUIView
 			@Override
 			public void onPageScrollStateChanged(int scrollState)
 			{
-				mPager.requestDisallowInterceptTouchEvent(state != ViewPager.SCROLL_STATE_IDLE);
+				mPager.requestDisallowInterceptTouchEvent(scrollState != ViewPager.SCROLL_STATE_IDLE);
 
 				if ((scrollState == ViewPager.SCROLL_STATE_IDLE) && isValidScroll) {
 					int oldIndex = mCurIndex;

@@ -1006,17 +1006,4 @@ public class TiUIHelper
 			proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
 		}
 	}
-
-	public static boolean isViewInsideViewOfClass(View view, Class<?>[] testClass) {
-		ViewParent parent = view.getParent();
-		if (parent != null) {
-			for (int i = 0; i < testClass.length; i++) {
-				if (testClass[i].isAssignableFrom(parent.getClass()))
-					return true;
-			}
-			if (parent instanceof View)
-				return isViewInsideViewOfClass((View)parent, testClass);
-		}
-		return false;
-	}
 }
