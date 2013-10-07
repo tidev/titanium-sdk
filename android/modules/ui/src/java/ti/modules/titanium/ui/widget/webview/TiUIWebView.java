@@ -147,6 +147,11 @@ public class TiUIWebView extends TiUIView
 			settings.setDatabaseEnabled(true);
 		}
 		
+		File cacheDir = TiApplication.getInstance().getCacheDir();
+		if (cacheDir != null) {
+			settings.setAppCacheEnabled(true);
+			settings.setAppCachePath(cacheDir.getAbsolutePath());
+		}
 
 		// enable zoom controls by default
 		boolean enableZoom = true;

@@ -389,8 +389,10 @@ properties:
   - name: footerView
     summary: List view footer as a view that will be rendered instead of a label.
     type: Titanium.UI.View
+    description: |
+        On Android, this is a creation only property.
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: headerTitle
     summary: List view header title.
@@ -398,9 +400,11 @@ properties:
 
   - name: headerView
     summary: List view header as a view that will be rendered instead of a label.
+    description: |
+        On Android, this is a creation only property.
     type: Titanium.UI.View
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: pullView
     summary: View positioned above the first row that is only revealed when the user drags the list view contents down.
@@ -503,7 +507,7 @@ properties:
     type: String
     default: platform-specific default color
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: separatorStyle
     summary: Separator style constant. 
