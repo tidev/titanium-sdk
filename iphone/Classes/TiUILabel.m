@@ -260,11 +260,6 @@
     [self backgroundImageLayer].frame = backgroundFrame;
 }
 
--(void)setBackgroundImage_:(id)url
-{
-    [super setBackgroundImage_:url];
-}
-
 -(void)setBackgroundPaddingLeft_:(id)left
 {
     padding.origin.x = [TiUtils floatValue:left];
