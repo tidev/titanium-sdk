@@ -35,9 +35,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 
 @SuppressLint("NewApi")
 public class TiUIScrollableView extends TiUIView
