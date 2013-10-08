@@ -531,6 +531,13 @@ def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone,
 
 		zf.writestr('%s/api.jsca' % basepath, jsca)
 
+	# the node_modules directory was moved from support to the root of timob and
+	# we need to nuke it from the support directory so that it doesn't overwrite
+	# the node_modules added above
+	old_node_modules_path = os.path.join(template_dir, 'node_modules')
+	if os.path.exists(old_node_modules_path):
+		shutil.rmtree(old_node_modules_path, True)
+
 	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"), osname == 'osx')
 	#zip_dir(zf, all_dir, basepath)
 	zip_dir(zf, template_dir, basepath, ignore_paths=ignore_paths)

@@ -15,7 +15,7 @@ exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
 
-	cli.addHook('build.post.compile', {
+	cli.on('build.post.compile', {
 		priority: 10000,
 		post: function (builder, finished) {
 			if (builder.target != 'dist-playstore') return finished();
