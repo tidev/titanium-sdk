@@ -423,7 +423,7 @@ properties:
         Provides the same functionality as the [search](Titanium.UI.TableView.search) property in [TableView](Titanium.UI.TableView).
         Used in conjunction with [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
     type: [Titanium.UI.SearchBar]
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: 3.2.0
 
   - name: searchText
@@ -435,7 +435,7 @@ properties:
         When using this property the [style](Titanium.UI.ListView.style) property of the List View is honored. If the [keepSectionsInSearch](Titanium.UI.ListView.keepSectionsInSearch) property
         is set to true then section information is preserved in the search results, otherwise the search results are displayed in a single section.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: 3.2.0
 
   - name: caseInsensitiveSearch
@@ -445,7 +445,7 @@ properties:
         List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: 3.2.0
 
   - name: keepSectionsInSearch
