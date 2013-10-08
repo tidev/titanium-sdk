@@ -325,7 +325,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						required: true,
 						validate: function (device, callback) {
 							findTargetDevices(cli.argv.target, function (err, devices) {
-								if (!devices.some(function (d) { return d.name == device; })) {
+								if (!devices.some(function (d) { return d.id == device; })) {
 									return callback(new Error(__('Invalid device "%s"', device)));
 								}
 								callback(null, device);
