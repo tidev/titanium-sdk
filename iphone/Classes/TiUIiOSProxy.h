@@ -44,6 +44,29 @@
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
 -(id)createNavigationWindow:(id)args;
 #endif
-
+#ifdef USE_TI_UIIOSANIMATOR
+-(id)createAnimator:(id)args;
+#ifdef USE_TI_UIIOSSNAPBEHAVIOR
+-(id)createSnapBehavior:(id)args;
+#endif
+#ifdef USE_TI_UIIOSPUSHBEHAVIOR
+-(id)createPushBehavior:(id)args;
+#endif
+#ifdef USE_TI_UIIOSGRAVITYBEHAVIOR
+-(id)createGravityBehavior:(id)args;
+#endif
+#ifdef USE_TI_UIIOSANCHORATTACHMENTBEHAVIOR
+-(id)createAnchorAttachmentBehavior:(id)args;
+#endif
+#ifdef USE_TI_UIIOSVIEWATTACHMENTBEHAVIOR
+-(id)createViewAttachmentBehavior:(id)args;
+#endif
+#ifdef USE_TI_UIIOSCOLLISIONBEHAVIOR
+-(id)createCollisionBehavior:(id)args;
+#endif
+#ifdef USE_TI_UIIOSDYNAMICITEMBEHAVIOR
+-(id)createDynamicItemBehavior:(id)args;
+#endif
+#endif
 @end
 
