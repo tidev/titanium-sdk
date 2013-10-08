@@ -68,7 +68,15 @@
 
 -(void)updateItems
 {
-    //Nothing to do here
+    NSUInteger theIndex = 0;
+    for (TiViewProxy* theItem in _items) {
+        CGPoint linearVel = [_dynamicItemBehavior linearVelocityForItem:[theItem view]];
+        CGFloat angVelocity = [_dynamicItemBehavior angularVelocityForItem:[theItem view]];
+        [_angularVelocities replaceObjectAtIndex:theIndex withObject:NUMFLOAT(angVelocity)];
+        TiPoint* thePoint = [_linearVelocities objectAtIndex:theIndex];
+        [thePoint setPoint:linearVel];
+        theIndex ++;
+    }
 }
 
 -(void)updatePositioning
@@ -245,14 +253,18 @@
     if ([_items containsObject:theItem]) {
         CGFloat floatVal = [TiUtils floatValue:theVelocity def:0];
         if (floatVal != 0) {
+            NSUInteger theIndex = [_items indexOfObject:theItem];
+            __block CGFloat curVal = 0;
             if (_dynamicItemBehavior != nil) {
                 TiThreadPerformOnMainThread(^{
                     [_dynamicItemBehavior addAngularVelocity:floatVal forItem:[theItem view]];
+                    curVal = [_dynamicItemBehavior angularVelocityForItem:[theItem view]];
                 }, YES);
+            } else {
+                curVal = [TiUtils floatValue:[_angularVelocities objectAtIndex:theIndex] def:0] + floatVal;
             }
-            NSUInteger theIndex = [_items indexOfObject:theItem];
-            CGFloat curVal = [TiUtils floatValue:[_angularVelocities objectAtIndex:theIndex] def:0] + floatVal;
             [_angularVelocities replaceObjectAtIndex:theIndex withObject:NUMFLOAT(curVal)];
+            
         }
     } else {
         DebugLog(@"[ERROR] The item specified is not an item managed by this behavior object");
@@ -268,17 +280,20 @@
     if ([_items containsObject:theItem]) {
         CGPoint newPoint = [TiUtils pointValue:theVelocity];
         if (!CGPointEqualToPoint(newPoint, CGPointZero)) {
+            NSUInteger theIndex = [_items indexOfObject:theItem];
+            TiPoint* thePoint = [_linearVelocities objectAtIndex:theIndex];
             if (_dynamicItemBehavior != nil) {
                 TiThreadPerformOnMainThread(^{
                     [_dynamicItemBehavior addLinearVelocity:newPoint forItem:[theItem view]];
+                    CGPoint newValue = [_dynamicItemBehavior linearVelocityForItem:[theItem view]];
+                    [thePoint setPoint:newValue];
                 }, YES);
+            } else {
+                CGPoint curPoint = [thePoint point];
+                curPoint.x = curPoint.x + newPoint.x;
+                curPoint.y = curPoint.y + newPoint.y;
+                [thePoint setPoint:curPoint];
             }
-            NSUInteger theIndex = [_items indexOfObject:theItem];
-            TiPoint* thePoint = [_linearVelocities objectAtIndex:theIndex];
-            CGPoint curPoint = [ thePoint point];
-            curPoint.x = curPoint.x + newPoint.x;
-            curPoint.y = curPoint.y + newPoint.y;
-            [thePoint setPoint:curPoint];
         }
     } else {
         DebugLog(@"[ERROR] The item specified is not an item managed by this behavior object");
@@ -290,7 +305,11 @@
     ENSURE_SINGLE_ARG(args, TiViewProxy);
     if ([_items containsObject:args]) {
         NSUInteger theIndex = [_items indexOfObject:args];
-        return [_angularVelocities objectAtIndex:theIndex];
+        __block NSNumber* returnVal = nil;
+        TiThreadPerformOnMainThread(^{
+            returnVal = [[_angularVelocities objectAtIndex:theIndex] copy];
+        }, YES);
+        return [returnVal autorelease];
     } else {
         DebugLog(@"[ERROR] The item specified is not an item managed by this behavior object");
     }
@@ -301,8 +320,14 @@
     ENSURE_SINGLE_ARG(args, TiViewProxy);
     if ([_items containsObject:args]) {
         NSUInteger theIndex = [_items indexOfObject:args];
-        CGPoint curPoint = [ [_linearVelocities objectAtIndex:theIndex] point];
-        return [TiUtils pointToDictionary:curPoint];
+        __block TiPoint* returnVal = nil;
+        TiThreadPerformOnMainThread(^{
+            returnVal = [[_linearVelocities objectAtIndex:theIndex] copy];
+        }, YES);
+        
+        NSDictionary* result = [TiUtils pointToDictionary:[returnVal point]];
+        [returnVal release];
+        return result;
     } else {
         DebugLog(@"[ERROR] The item specified is not an item managed by this behavior object");
     }
