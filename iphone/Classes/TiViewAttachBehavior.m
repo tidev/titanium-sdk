@@ -48,7 +48,7 @@
         void (^update)(void) = ^{
             [self updateItems];
         };
-        _attachBehavior.action = update;
+        [_attachBehavior setAction:update];
     }
     _needsRefresh = NO;
     return _attachBehavior;

@@ -52,7 +52,7 @@
         void (^update)(void) = ^{
             [self updateItems];
         };
-        _pushBehavior.action = update;
+        [_pushBehavior setAction:update];
     }
     _needsRefresh = NO;
     return _pushBehavior;

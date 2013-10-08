@@ -87,7 +87,7 @@
         void (^update)(void) = ^{
             [self updateItems];
         };
-        _collisionBehavior.action = update;
+        [_collisionBehavior setAction:update];
     }
     _needsRefresh = NO;
     return _collisionBehavior;

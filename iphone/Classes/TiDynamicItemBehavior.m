@@ -60,7 +60,7 @@
         void (^update)(void) = ^{
             [self updateItems];
         };
-        _dynamicItemBehavior.action = update;
+        [_dynamicItemBehavior setAction:update];
     }
     
     return _dynamicItemBehavior;

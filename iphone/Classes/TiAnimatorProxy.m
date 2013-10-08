@@ -88,9 +88,15 @@
     id theArg = args;
     if ([theArg conformsToProtocol:@protocol(TiBehaviorProtocol)]) {
         [self rememberProxy:(TiProxy*)theArg];
-        [_behaviors addObject:theArg];
         TiThreadPerformOnMainThread(^{
-            [theAnimator addBehavior:(UIDynamicBehavior *)[(id<TiBehaviorProtocol>)theArg behaviorObject]];
+            UIDynamicBehavior* theBehavior = [theArg behaviorObject];
+            if (theBehavior != nil) {
+                [_behaviors addObject:theArg];
+                [theAnimator addBehavior:theBehavior];
+            } else {
+                DebugLog(@"[ERROR] Could not instantiate the behavior object. Ignoring");
+                [self forgetProxy:(TiProxy*)theArg];
+            }
         }, YES);
         
     } else {
@@ -144,9 +150,18 @@
             }
             theAnimator = [[UIDynamicAnimator alloc] initWithReferenceView:refView];
             theAnimator.delegate = self;
-            for (id<TiBehaviorProtocol> theArg in _behaviors) {
-                [theAnimator addBehavior:(UIDynamicBehavior *)[(id<TiBehaviorProtocol>)theArg behaviorObject]];
+            NSArray* behaviorCopy = [_behaviors copy];
+            for (id<TiBehaviorProtocol> theArg in behaviorCopy) {
+                UIDynamicBehavior* theBehavior = [theArg behaviorObject];
+                if (theBehavior != nil) {
+                    [theAnimator addBehavior:theBehavior];
+                } else {
+                    DebugLog(@"[ERROR] Could not instantiate the behavior object. Removing.");
+                    [self forgetProxy:(TiProxy*)theArg];
+                    [_behaviors removeObject:theArg];
+                }
             }
+            [behaviorCopy release];
         }, YES);
     }
 }

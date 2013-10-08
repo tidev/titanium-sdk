@@ -48,7 +48,7 @@
         void (^update)(void) = ^{
             [self updateItems];
         };
-        _gravityBehavior.action = update;
+        [_gravityBehavior setAction:update];
     }
     _needsRefresh = NO;
     return _gravityBehavior;

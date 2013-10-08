@@ -36,7 +36,7 @@
         void (^update)(void) = ^{
             [self updateItems];
         };
-        _snapBehavior.action = update;
+        [_snapBehavior setAction:update];
     }
     _needsRefresh = NO;
     return _snapBehavior;
