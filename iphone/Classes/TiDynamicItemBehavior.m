@@ -255,7 +255,7 @@
             [_angularVelocities replaceObjectAtIndex:theIndex withObject:NUMFLOAT(curVal)];
         }
     } else {
-        DebugLog(@"[ERROR] The item specified is not an item specified by this behavior object");
+        DebugLog(@"[ERROR] The item specified is not an item managed by this behavior object");
     }
 }
 
