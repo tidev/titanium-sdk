@@ -15,7 +15,9 @@ module.exports = new function() {
 
 	this.name = "android_calendar";
 	this.tests = [
-		{name: "moduleReachable"}
+		{name: "moduleReachable"},
+		{name: "noSuchColumnError"},
+		{name: "eventsBetween2Dates"}
 	]
 
 	this.moduleReachable = function(testRun) {
@@ -39,6 +41,41 @@ module.exports = new function() {
 		valueOf(testRun, Ti.Android.Calendar.allAlerts).shouldBeArray();
 		valueOf(testRun, Ti.Android.Calendar.allCalendars).shouldBeArray();
 		valueOf(testRun, Ti.Android.Calendar.selectableCalendars).shouldBeArray();
+
+		finish(testRun);
+	}
+
+	this.noSuchColumnError = function(testRun) {
+		var calendar = Ti.Android.Calendar.getCalendarById(1);
+		var eventBegins = new Date(2012, 03, 26, 12, 0, 0);
+		var eventEnds = new Date(2012, 03, 26, 14, 0, 0);
+		var details = {
+			title: 'Do some stuff',
+			description: "I'm going to do some stuff at this time.",
+			begin: eventBegins,
+			end: eventEnds
+		};
+		var event = calendar.createEvent(details);
+		valueOf(testRun, function() {
+			var events = calendar.getEventsInYear(2012);
+		}).shouldNotThrowException();
+
+		finish(testRun);
+	}
+
+	this.eventsBetween2Dates = function(testRun) {
+		valueOf(testRun, function() {
+			var startDate = new Date(2012, 03, 10, 12, 0, 0);
+			var endDate = new Date(2012, 03, 19, 14, 0, 0);
+			var out = [];
+			var calendars = Ti.Android.Calendar.allCalendars;
+			for (var i=0; i < calendars.length; i++) {
+				var cal_events = calendars[i].getEventsBetweenDates(startDate,endDate);
+				for (var j=0; j < cal_events.length; j++) {
+					out.push(cal_events[j]);
+				};
+			};
+		}).shouldNotThrowException();
 
 		finish(testRun);
 	}
