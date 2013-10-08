@@ -12,36 +12,113 @@ var appc = require('node-appc'),
 	xml = appc.xml,
 
 	androidAttrPrefixRegExp = /^android\:/,
-	defaultDOMParserArgs = { errorHandler: function(){} };
+	defaultDOMParserArgs = { errorHandler: function(){} },
+
+	tags = {
+		'application': /^(activity|activity-alias|provider|receiver|service|uses\-library)$/
+	},
+
+	tagAttrs = {
+		'application': /^(allowTaskReparenting|allowBackup|backupAgent|debuggable|description|enabled|hasCode|hardwareAccelerated|icon|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|permission|persistent|process|restoreAnyVersion|requiredAccountType|restrictedAccountType|supportsRtl|taskAffinity|testOnly|theme|uiOptions|vmSafeMode)$/,
+		'activity': /^(allowTaskReparenting|alwaysRetainTaskState|clearTaskOnLaunch|configChanges|enabled|excludeFromRecents|exported|finishOnTaskLaunch|hardwareAccelerated|icon|label|launchMode|multiprocess|name|noHistory|parentActivityName|permission|process|screenOrientation|stateNotNeeded|taskAffinity|theme|uiOptions|windowSoftInputMode)$/,
+		'activity-alias': /^(enabled|exported|icon|label|name|permission|targetActivity)$/,
+		'data': /^(host|mimeType|path|pathPattern|pathPrefix|port|scheme)$/,
+		'intent-filter': /^(icon|label|priority)$/,
+		'provider': /^(authorities|enabled|exported|grantUriPermissions|icon|initOrder|label|multiprocess|name|permission|process|readPermission|syncable|writePermission)$/,
+		'receiver': /^(enabled|exported|icon|label|name|permission|process)$/,
+		'service': /^(enabled|exported|icon|isolatedProcess|label|name|permission|process)$/,
+		'uses-sdk': /^(name|required)$/
+	};
 
 module.exports = AndroidManifest;
 
-/*
 function toXml(dom, parent, name, value) {
-	// properties is a super special case
-	if (name == 'properties') {
-		Object.keys(value).forEach(function (v) {
-			dom.create('property', {
-				name: v,
-				type: value[v].type || 'string',
-				nodeValue: value[v].value
-			}, parent);
-		});
-		return;
-	}
-
 	var node = dom.create(name, null, parent);
 
 	switch (name) {
-		case 'deployment-targets':
+		case 'application':
+			Object.keys(value).forEach(function (attr) {
+				var tag = attr;
+
+				if (tags.application.test(tag)) {
+					if (tag == 'provider') {
+						var providerNode = dom.create(tag, null, node);
+						Object.keys(value[tag]).forEach(function (attr) {
+							if (tagAttrs[tag].test(attr)) {
+								providerNode.setAttribute('android:' + attr, value[attr][tag]);
+							} else {
+								// grant-uri-permission
+								// meta-data
+								// path-permission
+							}
+						});
+					} else if (tag == 'uses-library') {
+						var usesLibraryNode = dom.create(tag, null, node);
+						Object.keys(value[tag]).forEach(function (attr) {
+							if (tagAttrs[tag].test(attr)) {
+								usesLibraryNode.setAttribute('android:' + attr, value[attr][tag]);
+							}
+						});
+					} else {
+						// activity, activity-alias, receiver, service
+						Object.keys(value[tag]).forEach(function (name) {
+							var childNode = dom.create(tag, null, node);
+							Object.keys(value[tag][name]).forEach(function (attr) {
+								var val = value[tag][name][attr];
+
+								if (tagAttrs[tag].test(attr)) {
+									if (/^(configChanges|windowSoftInputMode)$/.test(attr) && Array.isArray(val)) {
+										val = val.join('|');
+									}
+									childNode.setAttribute('android:' + attr, val);
+								} else if (attr == 'intent-filter' && Array.isArray(val)) {
+									val.forEach(function (intentFilter) {
+										var intentFilterNode = dom.create('intent-filter', null, childNode);
+										Object.keys(intentFilter).forEach(function (attr) {
+											if (tagAttrs['intent-filter'].test(attr)) {
+												intentFilterNode.setAttribute('android:' + attr, intentFilter[attr]);
+											} else if ((attr == 'action' || attr == 'category') && Array.isArray(intentFilter[attr])) {
+												intentFilter[attr].forEach(function (name) {
+													dom.create(attr, { 'android:name': name }, intentFilterNode);
+												});
+											} else if (attr == 'data' && Array.isArray(intentFilter.data)) {
+												intentFilter[attr].forEach(function (obj) {
+													var dataNode = dom.create('data', null, intentFilterNode);
+													Object.keys(obj).forEach(function (key) {
+														if (tagAttrs.data.test(key)) {
+															dataNode.setAttribute('android:' + key, obj[key]);
+														}
+													});
+												});
+											}
+										});
+										intentFilterNode.appendChild(dom.createTextNode('\r\n' + new Array(4).join('\t')));
+									});
+								} else if (attr == 'meta-data') {
+									var metaDataNode = dom.create('meta-data', null, childNode);
+									//
+								}
+							});
+							childNode.appendChild(dom.createTextNode('\r\n' + new Array(3).join('\t')));
+						});
+					}
+
+				} else if (tagAttrs.application.test(attr)) {
+					node.setAttribute('android:' + attr, value[attr]);
+				}
+			});
+
+/*
 			Object.keys(value).forEach(function (v) {
 				dom.create('target', {
 					device: v,
 					nodeValue: value[v]
 				}, node);
 			});
+*/
 			break;
 
+/*
 		case 'android':
 			node.setAttribute('xmlns:android', 'http://schemas.android.com/apk/res/android');
 
@@ -143,7 +220,7 @@ function toXml(dom, parent, name, value) {
 				}
 			});
 			break;
-
+*/
 		default:
 			node.appendChild(dom.createTextNode(value));
 			return;
@@ -151,7 +228,6 @@ function toXml(dom, parent, name, value) {
 
 	node.appendChild(dom.createTextNode('\r\n' + new Array(2).join('\t')));
 }
-*/
 
 function initAttr(node, obj) {
 	xml.forEachAttr(node, function (attr) {
@@ -159,13 +235,6 @@ function initAttr(node, obj) {
 		obj.__attr__[attr.name] = xml.parse(attr.value);
 	});
 	return obj;
-}
-
-function initSingleObject(node, obj) {
-	var tmp = obj[node.tagName] = {};
-	xml.forEachAttr(node, function (attr) {
-		tmp[attr.name.replace(androidAttrPrefixRegExp, '')] = xml.parse(attr.value);
-	});
 }
 
 function attrsToObj(node) {
@@ -183,12 +252,6 @@ function initObjectByName(node, obj) {
 		tmp[a.name] = a;
 		return a;
 	}
-}
-
-function initArray(node, obj, fn) {
-	var tmp = obj[node.tagName] || (obj[node.tagName] = []);
-	initAttr(node, tmp);
-	fn(tmp);
 }
 
 function toJS(obj, doc) {
@@ -216,7 +279,27 @@ function toJS(obj, doc) {
 								xml.forEachElement(node, function (node) {
 									switch (node.tagName) {
 										case 'intent-filter':
-											// action, category, data
+											Array.isArray(it['intent-filter']) || (it['intent-filter'] = []);
+											var intentFilter = attrsToObj(node);
+											it['intent-filter'].push(intentFilter);
+
+											xml.forEachElement(node, function (node) {
+												switch (node.tagName) {
+													case 'action':
+													case 'category':
+														Array.isArray(intentFilter[node.tagName]) || (intentFilter[node.tagName] = []);
+														var name = node.getAttribute('android:name');
+														if (name && intentFilter[node.tagName].indexOf(name) == -1) {
+															intentFilter[node.tagName].push(name);
+														}
+														break;
+
+													case 'data':
+														Array.isArray(intentFilter[node.tagName]) || (intentFilter[node.tagName] = []);
+														intentFilter[node.tagName].push(attrsToObj(node));
+														break;
+												}
+											});
 											break;
 
 										case 'meta-data':
@@ -257,10 +340,10 @@ function toJS(obj, doc) {
 
 			case 'compatible-screens':
 				// array of screen objects
-				initArray(node, obj, function (compatibleScreens) {
-					xml.forEachElement(node, function (node) {
-						node.tagName == 'screen' && compatibleScreens.push(attrsToObj(node));
-					});
+				var compatibleScreens = obj[node.tagName] || (obj[node.tagName] = []);
+				initAttr(node, compatibleScreens);
+				xml.forEachElement(node, function (node) {
+					node.tagName == 'screen' && compatibleScreens.push(attrsToObj(node));
 				});
 				break;
 
@@ -277,7 +360,10 @@ function toJS(obj, doc) {
 			case 'supports-screens':
 			case 'uses-sdk':
 				// single instance tags
-				initSingleObject(node, obj);
+				var tmp = obj[node.tagName] = {};
+				xml.forEachAttr(node, function (attr) {
+					tmp[attr.name.replace(androidAttrPrefixRegExp, '')] = xml.parse(attr.value);
+				});
 				break;
 
 			case 'uses-configuration':
@@ -352,12 +438,12 @@ function AndroidManifest(filename) {
 				};
 
 				Object.keys(this).forEach(function (key) {
-					//toXml(dom, dom.documentElement, key, this[key]);
+					toXml(dom, dom.documentElement, key, this[key]);
 				}, this);
 
 				dom.documentElement.appendChild(dom.createTextNode('\r\n'));
 
-				return '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString();
+				return '<?xml version="1.0" encoding="UTF-8"?>\r\n' + dom.documentElement.toString();
 			} else if (fmt == 'pretty-json') {
 				return JSON.stringify(this, null, '\t');
 			} else if (fmt == 'json') {
