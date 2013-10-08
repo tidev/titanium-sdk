@@ -1720,17 +1720,17 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	}, this);
 
 	appc.async.series(this, tasks, function (err, results) {
-		var templateImageDir = path.join(this.platformPath, 'templates', 'app', 'default', 'Resources', 'android', 'images');
+		var templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'Resources', 'android');
 
 		// if an app icon hasn't been copied, copy the default one
 		var destIcon = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
 		if (!fs.existsSync(destIcon)) {
-			appc.fs.copyFileSync(path.join(templateImageDir, 'appicon.png'), destIcon, { logger: this.logger.debug });
+			appc.fs.copyFileSync(path.join(templateDir, 'appicon.png'), destIcon, { logger: this.logger.debug });
 		}
 
 		// make sure we have a splash screen
 		if (!fs.readdirSync(this.buildResDrawableDir).some(function (n) { return /^background(\.9)?\.(png|jpg)$/; })) {
-			appc.fs.copyFileSync(path.join(templateImageDir, 'default.png'), path.join(this.buildResDrawableDir, 'background.png'), { logger: this.logger.debug });
+			appc.fs.copyFileSync(path.join(templateDir, 'default.png'), path.join(this.buildResDrawableDir, 'background.png'), { logger: this.logger.debug });
 		}
 
 		// copy js files into assets directory and minify if needed
