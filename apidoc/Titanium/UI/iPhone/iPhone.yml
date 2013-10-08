@@ -193,7 +193,7 @@ properties:
     summary: Determines the status bar color style.
     description: |
         The setter for this property does not work on iOS 7 and is deprecated for earlier iOS versions since **Release 3.1.3**.
-        Use the [statusBarStyle](Titanium.UI.Window.statusBarStyle) property of the window to control the staus bar style.
+        Use the [statusBarStyle](Titanium.UI.Window.statusBarStyle) property of the window to control the status bar style.
         
         One of the group of status bar style constants 
         <Titanium.UI.iPhone.StatusBar.DEFAULT>, 
