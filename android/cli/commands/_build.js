@@ -311,6 +311,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 													: '');
 										}
 									},
+									autoSelectOne: true,
 									margin: '',
 									optionLabel: 'name',
 									optionValue: 'id',
