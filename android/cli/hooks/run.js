@@ -8,6 +8,7 @@
 var ADB = require('titanium-sdk/lib/adb'),
 	appc = require('node-appc'),
 	async = require('async'),
+	EmulatorManager = require('titanium-sdk/lib/emulator'),
 	fs = require('fs'),
 	path = require('path'),
 	__ = appc.i18n(__dirname).__;
@@ -15,8 +16,30 @@ var ADB = require('titanium-sdk/lib/adb'),
 exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
+	var emulatorReady = false;
 
-	cli.addHook('build.post.compile', {
+	cli.on('build.pre.compile', {
+		priority: 8000,
+		post: function (builder, finished) {
+			if (builder.buildOnly || builder.target != 'emulator') return finished();
+
+			var emulator = new EmulatorManager(config);
+			emulator.start(builder.deviceId, function (err, emu) {
+				if (err) {
+					logger.error(__('Unable to start emulator "%s"', builder.deviceId) + '\n');
+					process.exit(1);
+				}
+
+				emu.on('ready', function (emu, device) {
+					emulatorReady = true;
+				});
+
+				finished();
+			});
+		}
+	});
+
+	cli.on('build.post.compile', {
 		priority: 10000,
 		post: function (builder, finished) {
 			if (builder.target != 'emulator' && builder.target != 'device') return finished();
@@ -46,9 +69,21 @@ exports.init = function (logger, config, cli) {
 				},
 
 				function (next) {
-					// TODO: if emulator, start emulator, if not running
-					// TODO: wait for sdcard
-					next();
+					if (builder.target != 'emulator') {
+						return next();
+					}
+
+					var tries = 4 * 60, // wait for a minute after the build finishes
+						timer = setInterval(function () {
+							if (emulatorReady) {
+								clearInterval(timer);
+								next();
+							}
+							if (!tries--) {
+								logger.error(__('Emulator failed to start in a timely manner') + '\n');
+								process.exit(1);
+							}
+						}, 250);
 				},
 
 				function (next) {

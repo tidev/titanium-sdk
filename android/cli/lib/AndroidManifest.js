@@ -161,20 +161,28 @@ function initAttr(node, obj) {
 	return obj;
 }
 
-function initObject(node, obj, fn) {
+function initSingleObject(node, obj) {
 	var tmp = obj[node.tagName] = {};
-	initAttr(node, tmp);
-	fn && fn(tmp);
+	xml.forEachAttr(node, function (attr) {
+		tmp[attr.name.replace(androidAttrPrefixRegExp, '')] = xml.parse(attr.value);
+	});
 }
 
-function initObjectByName(node, obj, fn) {
-	var tmp = obj[node.tagName] || (obj[node.tagName] = {}),
-		a = {};
+function attrsToObj(node) {
+	var a = {};
 	xml.forEachAttr(node, function (attr) {
 		a[attr.name.replace(androidAttrPrefixRegExp, '')] = xml.parse(attr.value);
 	});
-	a.name && (tmp[a.name] = a);
-	fn && fn(tmp);
+	return a;
+}
+
+function initObjectByName(node, obj) {
+	var tmp = obj[node.tagName] || (obj[node.tagName] = {}),
+		a = attrsToObj(node);
+	if (a.name) {
+		tmp[a.name] = a;
+		return a;
+	}
 }
 
 function initArray(node, obj, fn) {
@@ -189,21 +197,69 @@ function toJS(obj, doc) {
 	xml.forEachElement(doc, function (node) {
 		switch (node.tagName) {
 			case 'application':
-				initObject(node, obj, function (obj) {
-					//
+				// application object
+				var app = obj[node.tagName] = attrsToObj(node);
+
+				xml.forEachElement(node, function (node) {
+					switch (node.tagName) {
+						case 'activity':
+						case 'activity-alias':
+						case 'receiver':
+						case 'service':
+							var it = initObjectByName(node, app);
+							if (it) {
+								if (node.tagName == 'activity') {
+									it.configChanges && (it.configChanges = it.configChanges.split('|'));
+									it.windowSoftInputMode && (it.windowSoftInputMode = it.windowSoftInputMode.split('|'));
+								}
+
+								xml.forEachElement(node, function (node) {
+									switch (node.tagName) {
+										case 'intent-filter':
+											// action, category, data
+											break;
+
+										case 'meta-data':
+											Object.prototype.toString.call(it['meta-data']) == '[object Object]' || (it['meta-data'] = {});
+											initObjectByName(node, it);
+											break;
+									}
+								});
+							}
+							break;
+
+						case 'provider':
+							var provider = initObjectByName(node, app);
+							provider && xml.forEachElement(node, function (node) {
+								switch (node.tagName) {
+									case 'grant-uri-permission':
+									case 'path-permission':
+										Array.isArray(provider[node.tagName]) || (provider[node.tagName] = []);
+										provider[node.tagName].push(attrsToObj(node));
+										break;
+
+									case 'meta-data':
+										Object.prototype.toString.call(provider['meta-data']) == '[object Object]' || (provider['meta-data'] = {});
+										initObjectByName(node, provider);
+										break;
+								}
+							});
+							break;
+
+						case 'uses-library':
+							Object.prototype.toString.call(app['uses-library']) == '[object Object]' || (app['uses-library'] = {});
+							var a = attrsToObj(node);
+							a.name && (app['uses-library'][a.name] = a);
+							break;
+					}
 				});
 				break;
 
 			case 'compatible-screens':
+				// array of screen objects
 				initArray(node, obj, function (compatibleScreens) {
 					xml.forEachElement(node, function (node) {
-						if (node.tagName == 'screen') {
-							var a = {};
-							xml.forEachAttr(node, function (attr) {
-								a[attr.name.replace(androidAttrPrefixRegExp, '')] = xml.parse(attr.value);
-							});
-							compatibleScreens.push(a);
-						}
+						node.tagName == 'screen' && compatibleScreens.push(attrsToObj(node));
 					});
 				});
 				break;
@@ -212,248 +268,35 @@ function toJS(obj, doc) {
 			case 'permission':
 			case 'permission-group':
 			case 'permission-tree':
+			case 'uses-feature':
+			case 'uses-library':
+				// object with objects keyed by name
 				initObjectByName(node, obj);
 				break;
 
-			case 'supports-gl-texture':
-				initObject(node, obj, function (obj) {
-					//
-				});
-				break;
-
 			case 'supports-screens':
-				initObject(node, obj, function (obj) {
-					//
-				});
+			case 'uses-sdk':
+				// single instance tags
+				initSingleObject(node, obj);
 				break;
 
 			case 'uses-configuration':
-				initObject(node, obj, function (obj) {
-					//
-				});
+				// array of objects
+				Array.isArray(obj[node.tagName]) || (obj[node.tagName] = []);
+				obj[node.tagName].push(attrsToObj(node));
 				break;
 
-			case 'uses-feature':
-				initObject(node, obj, function (obj) {
-					//
-				});
-				break;
-
+			case 'supports-gl-texture':
 			case 'uses-permission':
-				initObject(node, obj, function (obj) {
-					//
-				});
-				break;
-
-			case 'uses-sdk':
-				initObject(node, obj, function (obj) {
-					//
-				});
+				// array of names
+				var a = node.getAttribute('android:name');
+				if (a) {
+					Array.isArray(obj[node.tagName]) || (obj[node.tagName] = []);
+					obj[node.tagName].push(a.replace(androidAttrPrefixRegExp, ''));
+				}
 				break;
 		}
 	});
-/*	while (node) {
-		if (node.nodeType == xml.ELEMENT_NODE) {
-			switch (node.tagName) {
-				case 'property':
-					var name = xml.getAttr(node, 'name'),
-						type = xml.getAttr(node, 'type') || 'string',
-						value = xml.getValue(node);
-					if (name) {
-						obj.properties || (obj.properties = {});
-						obj.properties[name] = {
-							type: type,
-							value: type == 'bool' ? !!value
-								: type == 'int' ? (parseInt(value) || 0)
-								: type == 'double' ? (parseFloat(value) || 0)
-								: '' + value
-						};
-					}
-					break;
-
-				case 'deployment-targets':
-					var targets = obj['deployment-targets'] = {};
-					xml.forEachElement(node, function (elem) {
-						var dev = xml.getAttr(elem, 'device');
-						dev && (targets[dev] = xml.getValue(elem));
-					});
-					break;
-
-				case 'code-processor':
-					var codeProcessor = obj['code-processor'] = {};
-					xml.forEachElement(node, function (elem) {
-						switch (elem.tagName) {
-							case 'plugins':
-								codeProcessor.plugins = [];
-								xml.forEachElement(elem, function (elem) {
-									if (elem.tagName == 'plugin') {
-										codeProcessor.plugins.push(xml.getValue(elem));
-									}
-								});
-								break;
-							case 'options':
-								codeProcessor.options = {};
-								xml.forEachElement(elem, function (elem) {
-									codeProcessor.options[elem.tagName] = xml.getValue(elem);
-								});
-								break;
-							default:
-								codeProcessor[elem.tagName] = xml.getValue(elem);
-						}
-					});
-					break;
-
-				case 'android':
-					var android = obj.android = {},
-						formatUrl = function (url) {
-							return appc.string.capitalize(url.replace(/^app\:\/\//, '').replace(/\.js$/, '').replace(/\//g, '_')).replace(/[\/ .$&@]/g, '_');
-						};
-
-					xml.forEachElement(node, function (elem) {
-						switch (elem.tagName) {
-							case 'manifest':
-								// the <manifest> tag is an XML document and we're just gonna
-								// defer the parsing to whoever wants its data
-								android.manifest = elem.toString();
-								break;
-
-							case 'abi':
-							case 'proguard':
-							case 'tool-api-level':
-								android[elem.tagName] = xml.getValue(elem);
-								break;
-
-							case 'activities':
-								var activities = android.activities = {};
-								xml.forEachElement(elem, function (elem) {
-									if (elem.tagName == 'activity') {
-										var url = xml.getAttr(elem, 'url') || xml.getValue(elem) || '';
-										if (url) {
-											var a = activities[url] = {};
-											xml.forEachAttr(elem, function (attr) {
-												a[attr.name] = xml.parse(attr.value);
-											});
-											a['classname'] = formatUrl(url) + 'Activity';
-											a['url'] = url;
-											xml.forEachElement(elem, function (elem) {
-												a['__childnodes'] || (a['nodes'] = []);
-												a['__childnodes'].push(elem);
-											});
-										}
-									}
-								});
-								break;
-
-							case 'services':
-								var services = android.services = {};
-								xml.forEachElement(elem, function (elem) {
-									if (elem.tagName == 'service') {
-										var url = xml.getAttr(elem, 'url') || xml.getValue(elem) || '';
-										if (url) {
-											var s = services[url] = {}
-											xml.forEachAttr(elem, function (attr) {
-												s[attr.name] = xml.parse(attr.value);
-											});
-											s['classname'] = formatUrl(url) + 'Service';
-											s['type'] = xml.getAttr(elem, 'type') || 'standard';
-											s['url'] = url;
-											xml.forEachElement(elem, function (elem) {
-												s['__childnodes'] || (s['nodes'] = []);
-												s['__childnodes'].push(elem);
-											});
-										}
-									}
-								});
-								break;
-						}
-					});
-					break;
-
-				case 'mobileweb':
-					var mobileweb = obj.mobileweb = {};
-					xml.forEachElement(node, function (elem) {
-						switch (elem.tagName) {
-							case 'build':
-								var build = mobileweb.build = {};
-								xml.forEachElement(elem, function (elem) {
-									var profile = build[elem.tagName] = {};
-									xml.forEachElement(elem, function (elem) {
-										switch (elem.tagName) {
-											case 'js':
-											case 'css':
-											case 'html':
-												var filetype = profile[elem.tagName] = {};
-												xml.forEachElement(elem, function (elem) {
-													filetype[elem.tagName] = xml.getValue(elem);
-												});
-												break;
-
-											default:
-												profile[elem.tagName] = xml.getValue(elem);
-										}
-									});
-								});
-								break;
-
-							case 'analytics':
-							case 'filesystem':
-							case 'map':
-							case 'splash':
-							case 'unsupported-platforms':
-								mobileweb[elem.tagName] = {};
-								xml.forEachElement(elem, function (subelem) {
-									mobileweb[elem.tagName][subelem.tagName] = xml.getValue(subelem);
-								});
-								break;
-
-							case 'precache':
-								var precache = mobileweb.precache = {};
-								xml.forEachElement(elem, function (elem) {
-									precache[elem.tagName] || (precache[elem.tagName] = []);
-									precache[elem.tagName].push(xml.getValue(elem));
-								});
-								break;
-
-							default:
-								mobileweb[elem.tagName] = xml.getValue(elem);
-						}
-					});
-					break;
-
-				case 'tizen':
-					var tizen = obj.tizen = {
-						appid : void 0,
-						configXml : void 0
-					};
-
-					tizen.appid = xml.getAttr(node, 'appid');
-					xml.forEachElement(node, function (elem) {
-						tizen.configXml ? tizen.configXml = tizen.configXml + '\n' +elem.toString() : tizen.configXml = elem.toString();
-					});
-					break
-
-				case 'version':
-					obj[node.tagName] = node.firstChild && node.firstChild.data.replace(/\n/g, '').trim() || '';
-					break;
-
-				case 'name':
-				case 'guid':
-				case 'id':
-				case 'icon':
-					// need to strip out line returns which shouldn't be there in the first place
-					obj[node.tagName] = '' + xml.getValue(node);
-					if (typeof obj[node.tagName] == 'string') {
-						obj[node.tagName] = obj[node.tagName].replace(/\n/g, '');
-					}
-					break;
-
-				default:
-					obj[node.tagName] = xml.getValue(node);
-			}
-		}
-		node = node.nextSibling;
-	}
-	*/
 }
 
 function AndroidManifest(filename) {
