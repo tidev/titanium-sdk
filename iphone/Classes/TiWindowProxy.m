@@ -245,7 +245,11 @@
         default:
             barStyle = UIStatusBarStyleDefault;
     }
-    [[TiApp controller] updateStatusBar];
+    if(focussed) {
+        TiThreadPerformOnMainThread(^{
+            [[[TiApp app] controller] updateStatusBar];
+        }, YES); 
+    }
 }
 
 -(void)close:(id)args
