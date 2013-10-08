@@ -272,14 +272,6 @@
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    //Update the barImage here as well. Might have the wrong bounds but that will be corrected
-    //in the call from frameSizeChanged in TiUIWindow. Avoids the visual glitch
-    if ( (shouldUpdateNavBar) && (controller != nil) && ([controller navigationController] != nil) ) {
-        id barImageValue = [self valueForKey:@"barImage"];
-        if ((barImageValue != nil) && (barImageValue != [NSNull null])) {
-            [self updateBarImage];
-        }
-    }
     [self willChangeSize];
 }
 
@@ -379,39 +371,65 @@
     }
 }
 
+
+
 -(void)updateBarImage
 {
-	UINavigationBar * ourNB = [[controller navigationController] navigationBar];
-	CGRect barFrame = [ourNB bounds];
-	UIImage * newImage = [TiUtils toImage:[self valueForUndefinedKey:@"barImage"]
-                                    proxy:self size:barFrame.size];
-    
-    if (newImage == nil) {
-        [barImageView removeFromSuperview];
-        RELEASE_TO_NIL(barImageView);
+    if (controller == nil || [controller navigationController] == nil || !shouldUpdateNavBar) {
         return;
     }
-    if (barImageView == nil) {
-        barImageView = [[UIImageView alloc]initWithImage:newImage];
+    
+    id barImageValue = [self valueForUndefinedKey:@"barImage"];
+    
+    UINavigationBar* ourNB = [[controller navigationController] navigationBar];
+    UIImage* theImage = [TiUtils toImage:barImageValue proxy:self];
+    
+    if (theImage == nil) {
+        [ourNB setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
     } else {
-        [barImageView setImage:newImage];
-    }
-    [barImageView setFrame:barFrame];
-    int barImageViewIndex = 0;
-    if ([ourNB respondsToSelector:@selector(setBackgroundImage:forBarMetrics:)]) {
-        //We should ideally be using the setBackgroundImage:forBarMetrics:
-        //method. Revisit after 1.8.1 release
-        barImageViewIndex = 1;
-    }
-    if ([[ourNB subviews] indexOfObject:barImageView] != barImageViewIndex) {
-        [ourNB insertSubview:barImageView atIndex:barImageViewIndex];
+        UIImage* resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
+        [ourNB setBackgroundImage:resizableImage forBarMetrics:UIBarMetricsDefault];
+        //You can only set up the shadow image with a custom background image.
+        id shadowImageValue = [self valueForUndefinedKey:@"shadowImage"];
+        theImage = [TiUtils toImage:shadowImageValue proxy:self];
+        
+        if (theImage != nil) {
+            UIImage* resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
+            ourNB.shadowImage = resizableImage;
+        } else {
+            BOOL clipValue = [TiUtils boolValue:[self valueForUndefinedKey:@"hideShadow"] def:NO];
+            if (clipValue) {
+                //Set an empty Image.
+                ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
+            } else {
+                ourNB.shadowImage = nil;
+            }
+        }
     }
     
 }
 
 -(void)setBarImage:(id)value
 {
-	[self replaceValue:[self sanitizeURL:value] forKey:@"barImage" notification:NO];
+	[self replaceValue:value forKey:@"barImage" notification:NO];
+	if (controller!=nil)
+	{
+		TiThreadPerformOnMainThread(^{[self updateBarImage];}, NO);
+	}
+}
+
+-(void)setShadowImage:(id)value
+{
+	[self replaceValue:value forKey:@"shadowImage" notification:NO];
+	if (controller!=nil)
+	{
+		TiThreadPerformOnMainThread(^{[self updateBarImage];}, NO);
+	}
+}
+
+-(void)setHideShadow:(id)value
+{
+	[self replaceValue:value forKey:@"hideShadow" notification:NO];
 	if (controller!=nil)
 	{
 		TiThreadPerformOnMainThread(^{[self updateBarImage];}, NO);
@@ -458,8 +476,7 @@
 				// add the new one
                 BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
                 [controller.navigationItem setRightBarButtonItem:[proxy barButtonItem] animated:animated];
-                [self updateBarImage];
-			}
+            }
 			else 
 			{
 				controller.navigationItem.rightBarButtonItem = nil;
@@ -506,8 +523,7 @@
 				// add the new one
                 BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
                 [controller.navigationItem setLeftBarButtonItem:[proxy barButtonItem] animated:animated];
-                [self updateBarImage];
-			}
+            }
 			else 
 			{
 				controller.navigationItem.leftBarButtonItem = nil;
@@ -583,7 +599,6 @@
 	}
 	[[prevController navigationItem] setBackBarButtonItem:backButton];
 	[backButton release];
-    [self updateBarImage];
 }
 
 -(void)setBackButtonTitle:(id)proxy
@@ -618,10 +633,6 @@
     TiThreadPerformOnMainThread(^{
         if ([[self valueForKey:@"titleControl"] isKindOfClass:[TiViewProxy class]]) {
             [self updateTitleView];
-        }
-        id barImageValue = [self valueForKey:@"barImage"];
-        if ((barImageValue != nil) && (barImageValue != [NSNull null])) {
-            [self updateBarImage];
         }
     }, NO);
 }
@@ -664,8 +675,6 @@
             //layout the titleControl children
             [titleControl layoutChildren:NO];
             
-            [self updateBarImage];
-            
             return;
         }
         [oldProxy removeBarButtonView];
@@ -689,7 +698,6 @@
     if (oldView != newTitleView) {
         [ourNavItem setTitleView:newTitleView];
     }
-	[self updateBarImage];
 }
 
 
@@ -862,7 +870,7 @@ else{\
     SETPROPOBJ(@"leftNavButton",setLeftNavButton);
     SETPROPOBJ(@"rightNavButton",setRightNavButton);
     SETPROPOBJ(@"toolbar",setToolbar);
-    SETPROP(@"barImage",setBarImage);
+    [self updateBarImage];
     [self refreshBackButton];
 
     id navBarHidden = [self valueForKey:@"navBarHidden"];
