@@ -15,6 +15,7 @@
 #import "TiUtils.h"
 #import "TiUISearchBarProxy.h"
 #import "TiUISearchBar.h"
+#import "ImageLoader.h"
 
 @implementation TiUISearchBar
 
@@ -143,15 +144,11 @@
 	}
 }
 
--(CALayer *)backgroundImageLayer
+-(void)setBackgroundImage_:(id)arg
 {
-	if(backgroundLayer==nil)
-	{
-		backgroundLayer = [[CALayer alloc] init];
-		[backgroundLayer setFrame:[self bounds]];
-		[[[self searchBar] layer] insertSublayer:backgroundLayer atIndex:1];
-	}
-	return backgroundLayer;
+    UIImage *image = [self loadImage:arg];
+    [[self searchBar] setBackgroundImage:image];
+    self.backgroundImage = arg;
 }
 
 #pragma mark Delegate 
