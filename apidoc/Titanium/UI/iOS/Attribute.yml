@@ -4,18 +4,17 @@ summary: An abstract datatype for specifying an attributed string attribute.
 description: |
     Attributes are added to the Titanium.UI.iOS.AttributedString object to create
     styled text. The attribute is a JavaScript Object containing three properties:
-    `name`, `value`, `range`.
+    `type`, `value`, `range`.
 platforms: [iphone, ipad]
 since: "3.2.0"
 
 properties:
-  - name: name
+  - name: type
     summary: Attribute name
     description: |
         The AttributedString expects a number value for the name. Use any of these:
 
           * <Titanium.UI.iOS.ATTRIBUTE_FONT>
-          * <Titanium.UI.iOS.ATTRIBUTE_PARAGRAPH_STYLE>
           * <Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR>
           * <Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR>
           * <Titanium.UI.iOS.ATTRIBUTE_LIGATURE>
@@ -31,7 +30,6 @@ properties:
 
           * <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>
           * <Titanium.UI.iOS.ATTRIBUTE_TEXT_EFFECT>
-          * <Titanium.UI.iOS.ATTRIBUTE_ATTACHMENT>
           * <Titanium.UI.iOS.ATTRIBUTE_LINK>
           * <Titanium.UI.iOS.ATTRIBUTE_BASELINE_OFFSET>
           * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_COLOR>
@@ -44,12 +42,12 @@ properties:
   - name: value
     summary: Attribute value.
     description: |
-        The `value` paramenter has to match the `name` paramenter. For example, to
+        The `value` paramenter has to match the `type` paramenter. For example, to
         use the foreground color on the text you would use the Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR
-        for the `name` and a color value for the value:
+        for the `type` and a color value for the value:
 
             {
-                name: Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR,
+                type: Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR,
                 value: '#DDD',
                 range: [0, 100]
             }
@@ -71,7 +69,7 @@ properties:
         These can be combined:
 
             {
-                name: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_TYLE,
+                type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_TYLE,
                 value: Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE | Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH,
                 range: [0, 100]
             }
