@@ -88,6 +88,7 @@ public class ActivityIndicatorProxy extends TiViewProxy
 	@Override
 	protected void handleHide(KrollDict options)
 	{
+		visible = false;
 		if (view == null) {
 			TiUIActivityIndicator ai = (TiUIActivityIndicator) getOrCreateView();
 			ai.hide();
