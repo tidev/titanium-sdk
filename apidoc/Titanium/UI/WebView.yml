@@ -175,10 +175,10 @@ methods:
     summary: Reloads the current webpage.
     description: |
         For Mobile Web and Tizen, when you reload, the last visited same domain page or the original `url` 
-        is the page that is reloaded.
+        is the page that is reloaded and all local URL history is reset. The history of remote URLs is
+        preserved.
 
         You may need to simply reset the `url` property to reinitialize the WebView's iframe. 
-        Reloading the web view will reset the history.
 
   - name: repaint
     summary: Forces the web view to repaint its contents.

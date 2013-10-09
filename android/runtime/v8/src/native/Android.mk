@@ -15,6 +15,9 @@ include $(CLEAR_VARS)
 include $(LOCAL_PATH)/genSources.mk
 include $(LOCAL_PATH)/common.mk
 
+# https://jira.appcelerator.org/browse/TIMOB-15263
+LOCAL_DISABLE_FORMAT_STRING_CHECKS=true
+
 LOCAL_MODULE := kroll-v8
 LOCAL_CFLAGS := $(CFLAGS)
 LOCAL_LDLIBS := $(LDLIBS)

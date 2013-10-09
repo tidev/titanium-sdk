@@ -10,9 +10,8 @@ description: |
     the existing content in a special type of window. The popover remains visible until the user 
     taps outside of the popover window or it is explicitly dismissed.
 
-    A <Titanium.UI.iPhone.NavigationGroup> may be added as a view in a popover. Do not add top-level
-    view containers, such as a `Window` or `TabGroup`, to a popover.  Adding top-level view containers
-    may have unintended side effects.
+    Do not add top-level view containers, such as a `Window` or `TabGroup`, to a popover.
+    Adding top-level view containers may have unintended side effects.
 
     ![popover](http://img.skitch.com/20100406-pmssjk1a3a65s6ui8qnbqi59c4.png)
 extends: Titanium.UI.View
