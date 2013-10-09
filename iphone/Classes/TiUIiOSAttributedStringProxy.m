@@ -67,7 +67,7 @@
             
         case AttributeNameFont:
             attrName = NSFontAttributeName;
-            attrValue = [TiUtils fontValue:value];
+            attrValue = [[TiUtils fontValue:value] font];
             break;
             
         case AttributeNameParagraphStyle:

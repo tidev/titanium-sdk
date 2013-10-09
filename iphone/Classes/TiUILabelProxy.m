@@ -13,34 +13,11 @@
 @implementation TiUILabelProxy
 
 USE_VIEW_FOR_CONTENT_WIDTH
+USE_VIEW_FOR_CONTENT_HEIGHT
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     [super _initWithProperties:properties];
-}
-
--(CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
-{
-	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 10000);
-    if([self attrString])
-    {
-        TiUILabel *proxy = (TiUILabel*)[self view];
-        CGSize size = [[proxy label] sizeThatFits:maxSize];
-        return size.height;
-    }
-	NSString *value = [TiUtils stringValue:[self valueForKey:@"text"]];
-	id fontValue = [self valueForKey:@"font"];
-	UIFont *font = nil;
-	if (fontValue!=nil)
-	{
-		font = [[TiUtils fontValue:[self valueForKey:@"font"]] font];
-	}
-	else 
-	{
-		font = [UIFont systemFontOfSize:[UIFont labelFontSize]];
-	}
-	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
-	return [self verifyHeight:size.height]; //Todo: We need to verifyHeight elsewhere as well.
 }
 
 -(CGFloat) verifyWidth:(CGFloat)suggestedWidth
