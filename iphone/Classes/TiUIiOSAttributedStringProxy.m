@@ -59,7 +59,7 @@
         DebugLog(@"[WARN] Ti.UI.iOS.AttributedString.range must be an array of two numbers");
         return;
     }
-    
+
     NSString *attrName = nil;
     NSString *errorMessage = nil;
     id attrValue = nil;
@@ -124,55 +124,58 @@
             attrName = NSVerticalGlyphFormAttributeName;
             attrValue = [TiUtils numberFromObject:value];
             break;
-            
-        case AttributeNameWritingDirection:
-            attrName = NSWritingDirectionAttributeName;
-            NSMutableArray *array = [NSMutableArray array];
-            [array addObject:[TiUtils numberFromObject: value]];
-            attrValue = array;
-            break;
-            
-        case AttributeNameTextEffect:
-            attrName = NSTextEffectAttributeName;
-            attrValue = [TiUtils stringValue:value];
-            break;
-            
-        case AttributeNameAttachment:
-            attrName = NSAttachmentAttributeName;
-            errorMessage = @"ATTRIBUTE_ATTACHMENT not yet supported";
-            break;
-            
-        case AttributeNameLink:
-            attrName = NSLinkAttributeName;
-            attrValue = [TiUtils stringValue:value];
-            break;
-            
-        case AttributeNameBaselineOffset:
-            attrName = NSBaselineOffsetAttributeName;
-            attrValue = [TiUtils numberFromObject:value];
-            break;
-            
-        case AttributeNameUnderlineColor:
-            attrName = NSUnderlineColorAttributeName;
-            attrValue = [[TiUtils colorValue:value] _color];
-            break;
-            
-        case AttributeNameStrikethroughColor:
-            attrName = NSStrikethroughColorAttributeName;
-            attrValue = [[TiUtils colorValue:value] _color];
-            break;
-            
-        case AttributeNameObliqueness:
-            attrName = NSObliquenessAttributeName;
-            attrValue = [TiUtils numberFromObject:value];
-            break;
-            
-        case AttributeNameExpansion:
-            attrName = NSExpansionAttributeName;
-            attrValue = [TiUtils numberFromObject:value];
-            break;
     }
-
+    if (attrName == nil && attrValue == nil && [TiUtils isIOS7OrGreater])
+    {
+        switch ([type integerValue]) {
+            case AttributeNameWritingDirection:
+                attrName = NSWritingDirectionAttributeName;
+                NSMutableArray *array = [NSMutableArray array];
+                [array addObject:[TiUtils numberFromObject: value]];
+                attrValue = array;
+                break;
+                
+            case AttributeNameTextEffect:
+                attrName = NSTextEffectAttributeName;
+                attrValue = [TiUtils stringValue:value];
+                break;
+                
+            case AttributeNameAttachment:
+                attrName = NSAttachmentAttributeName;
+                errorMessage = @"ATTRIBUTE_ATTACHMENT not yet supported";
+                break;
+                
+            case AttributeNameLink:
+                attrName = NSLinkAttributeName;
+                attrValue = [TiUtils stringValue:value];
+                break;
+                
+            case AttributeNameBaselineOffset:
+                attrName = NSBaselineOffsetAttributeName;
+                attrValue = [TiUtils numberFromObject:value];
+                break;
+                
+            case AttributeNameUnderlineColor:
+                attrName = NSUnderlineColorAttributeName;
+                attrValue = [[TiUtils colorValue:value] _color];
+                break;
+                
+            case AttributeNameStrikethroughColor:
+                attrName = NSStrikethroughColorAttributeName;
+                attrValue = [[TiUtils colorValue:value] _color];
+                break;
+                
+            case AttributeNameObliqueness:
+                attrName = NSObliquenessAttributeName;
+                attrValue = [TiUtils numberFromObject:value];
+                break;
+                
+            case AttributeNameExpansion:
+                attrName = NSExpansionAttributeName;
+                attrValue = [TiUtils numberFromObject:value];
+                break;
+        }
+    }
     if(errorMessage != nil) {
         DebugLog(@"[WARN] Ti.UI.iOS.%@", errorMessage);
         return;
