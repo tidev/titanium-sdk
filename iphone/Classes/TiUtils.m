@@ -505,27 +505,24 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     color: 'red'
  }
  */
-+(NSShadow*)textShadowValue:(id)value
++(NSShadow*)shadowValue:(id)value
 {
     if(![value isKindOfClass:[NSDictionary class]]) return nil;
     
     NSShadow *shadow = [[NSShadow alloc] init];
 
     id offset = [value objectForKey:@"offset"];
-    if (offset != nil && [offset isKindOfClass:[NSDictionary class]])
-    {
+    if (offset != nil && [offset isKindOfClass:[NSDictionary class]]) {
         id w = [offset valueForKey:@"width"];
         id h = [offset valueForKey:@"height"];
         [shadow setShadowOffset: CGSizeMake([TiUtils floatValue:w], [TiUtils floatValue:h])];
     }
     id blurRadius = [value objectForKey:@"blurRadius"];
-    if (blurRadius != nil)
-    {
+    if (blurRadius != nil) {
         [shadow setShadowBlurRadius:[TiUtils floatValue:blurRadius]];
     }
     id color = [value objectForKey:@"color"];
-    if(color != nil)
-    {
+    if(color != nil) {
         [shadow setShadowColor:[[TiUtils colorValue:color] _color]];
     }
     return [shadow autorelease];

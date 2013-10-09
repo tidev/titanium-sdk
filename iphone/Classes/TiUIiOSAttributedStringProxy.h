@@ -10,13 +10,12 @@
 
 @interface TiUIiOSAttributedStringProxy : TiProxy
 {
-
+    NSMutableAttributedString *_attributedString;
+    NSMutableArray *attributes;
 }
-#pragma mark - Not exposed to JS. Internal Use Only.
-@property(nonatomic, retain) NSMutableAttributedString *_attributedString;
 
--(void)addAttribute:(id)args;
--(void)setAttributes:(id)args;
+#pragma mark - Not exposed to JS. Internal Use Only.
+@property(nonatomic, readonly) NSMutableAttributedString *attributedString;
 
 @end
 

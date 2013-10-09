@@ -75,6 +75,7 @@ properties:
         the `value` property
     type: Titanium.UI.iOS.AttributedString
     platforms: [iphone, ipad]
+    since: 3.2.0
 
   - name: attributedHintText
     summary: Hint text attributed string. 
@@ -83,6 +84,7 @@ properties:
         the `hintText` property
     type: Titanium.UI.iOS.AttributedString
     platforms: [iphone, ipad]
+    since: 3.2.0
 
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 

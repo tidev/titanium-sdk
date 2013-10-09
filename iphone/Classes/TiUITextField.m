@@ -369,10 +369,11 @@
 
 -(void)setAttributedHintText_:(id)value
 {
-    if([value isKindOfClass:[TiUIiOSAttributedStringProxy class]]) {
-        TiUIiOSAttributedStringProxy *attrProxy = (TiUIiOSAttributedStringProxy*)value;
-        [[self textWidgetView] setAttributedPlaceholder:[attrProxy _attributedString]];
-    }
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+    ENSURE_SINGLE_ARG(value,TiUIiOSAttributedStringProxy);
+    [[self proxy] replaceValue:value forKey:@"attributedHintText" notification:NO];
+    [[self textWidgetView] setAttributedPlaceholder:[value attributedString]];
+#endif
 }
 
 -(void)setMinimumFontSize_:(id)value

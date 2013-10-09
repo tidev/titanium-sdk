@@ -35,13 +35,10 @@
 -(void)setAttributedString_:(id)arg
 {
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-    if([arg isKindOfClass:[TiUIiOSAttributedStringProxy class]])
-    {
-        TiUIiOSAttributedStringProxy *attr = arg;
-        [(id)[self textWidgetView] setAttributedText:[arg _attributedString]];
-    }
+    ENSURE_SINGLE_ARG(arg, TiUIiOSAttributedStringProxy);
+    [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
+    [(id)[self textWidgetView] setAttributedText:[arg attributedString]];
 #endif
-    
 }
 
 -(void)setValue_:(id)value
