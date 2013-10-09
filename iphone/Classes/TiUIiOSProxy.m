@@ -155,6 +155,13 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT, WritingDirectionRigh
 }
 #endif
 
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+-(id)createAttributedString:(id)args
+{
+    return [[[TiUIiOSAttributedStringProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
 #ifdef USE_TI_UIIOSTABBEDBAR
 -(id)createTabbedBar:(id)args
 {
