@@ -274,28 +274,12 @@
 -(void)setAttributedString_:(id)arg
 {
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-    if([arg isKindOfClass:[TiUIiOSAttributedStringProxy class]])
-    {
-        TiUIiOSAttributedStringProxy *attr = arg;
-        attributedString = [arg _attributedString];
-        [((TiUILabelProxy*)[self proxy]) setAttrString:attributedString];
-        [[self label] setAttributedText:attributedString];
-        
-        // Set the verticalAlign to something other than -1
-        // this makes the label have a real size and bypasses an
-        // Apple bug where the NSAttributedString gets cut off
-        if(verticalAlign == -1) {
-            verticalAlign = UIControlContentVerticalAlignmentCenter;
-        }
-        [self padLabel];
-        [(TiViewProxy *)[self proxy] contentsWillChange];
-    }
+    ENSURE_SINGLE_ARG(arg, TiUIiOSAttributedStringProxy);
+    [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
+    [[self label] setAttributedText:[arg attributedString]];
+    [self padLabel];
+    [(TiViewProxy *)[self proxy] contentsWillChange];
 #endif
-}
-
--(void)setBackgroundImage_:(id)url
-{
-    [super setBackgroundImage_:url];
 }
 
 -(void)setBackgroundPaddingLeft_:(id)left
