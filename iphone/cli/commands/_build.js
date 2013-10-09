@@ -441,11 +441,6 @@ exports.validate = function (logger, config, cli) {
 	var sdks = {},
 		sims = {};
 
-	// if we're running from Xcode, we want to use the PROJECT_DIR environment variable
-	if (process.env.PROJECT_DIR) {
-		cli.argv['project-dir'] = path.dirname(process.env.PROJECT_DIR);
-	}
-
 	if (!cli.argv.xcode || !process.env.TITANIUM_CLI_XCODEBUILD) {
 		// make sure the app doesn't have any blacklisted directories in the Resources directory and warn about graylisted names
 		var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
