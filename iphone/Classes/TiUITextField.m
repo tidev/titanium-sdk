@@ -13,7 +13,10 @@
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUITextWidget.h"
-#include "TiUIiOSAttributedStringProxy.h"
+
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+#import "TiUIiOSAttributedStringProxy.h"
+#endif
 
 @implementation TiTextField
 
