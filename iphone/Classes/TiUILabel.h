@@ -13,6 +13,7 @@
 	UILabel *label;
     CALayer* bgdLayer;
 	BOOL requiresLayout;
+	NSMutableAttributedString *attributedString;
     CGRect padding;
     CGRect textPadding;
     UIControlContentVerticalAlignment verticalAlign;
@@ -20,7 +21,7 @@
 }
 
 @property(nonatomic,getter=isHighlighted) BOOL     highlighted;          // default is NO
-
+-(UILabel*)label;
 @end
 
 #endif

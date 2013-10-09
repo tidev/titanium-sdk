@@ -210,6 +210,17 @@
 
 #pragma mark UITextViewDelegate
 
+- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange
+{
+    if([[self proxy] _hasListeners:@"link"]) {
+        NSDictionary *eventDict = @{ @"url"   : [URL absoluteString],
+                                     @"range" : @[NUMINT(characterRange.location), NUMINT(characterRange.length)]
+                                    };
+        [[self proxy] fireEvent:@"link" withObject:eventDict];
+    }
+    return handleLinks;
+}
+
 - (void)textViewDidBeginEditing:(UITextView *)tv
 {
 	[self textWidget:tv didFocusWithText:[tv text]];
@@ -271,6 +282,13 @@
 
 	[(TiUITextAreaProxy *)self.proxy noteValueChange:curText];
 	return TRUE;
+}
+
+-(void)setHandleLinks_:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSNumber);
+    handleLinks = [TiUtils boolValue:args];
+    [[self proxy] replaceValue:NUMBOOL(handleLinks) forKey:@"handleLinks" notification:NO];
 }
 
 /*
