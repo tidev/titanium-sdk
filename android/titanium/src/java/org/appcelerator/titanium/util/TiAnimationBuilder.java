@@ -21,6 +21,7 @@ import org.appcelerator.titanium.view.Ti2DMatrix;
 import org.appcelerator.titanium.view.Ti2DMatrix.Operation;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiBackgroundColorWrapper;
+import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
@@ -1065,9 +1066,14 @@ public class TiAnimationBuilder
 		public void onAnimationEnd(Animator animator)
 		{
 			if (relayoutChild && PRE_HONEYCOMB) {
-				LayoutParams params = (LayoutParams) view.getLayoutParams();
+				LayoutParams params = null;
+				View viewToSetParams = view;
+				if (view.getParent() instanceof TiBorderWrapperView) {
+					viewToSetParams = (View) view.getParent();
+				}
+				params = (LayoutParams) viewToSetParams.getLayoutParams();
 				TiConvert.fillLayout(options, params);
-				view.setLayoutParams(params);
+				viewToSetParams.setLayoutParams(params);
 				view.clearAnimation();
 				relayoutChild = false;
 				// TIMOB-11298 Propagate layout property changes to proxy
