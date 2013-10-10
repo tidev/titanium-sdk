@@ -44,7 +44,8 @@
 	// it via addEventListener
 	return NO;
 }
-
+/*
+ //No longer used since sizeThatFits seems to return correct values
 -(CGSize)sizeForFont:(CGFloat)suggestedWidth
 {
 	NSString *value = [label text];
@@ -67,21 +68,29 @@
 
 	return size;
 }
+ */
 
 -(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
-	return [self sizeForFont:suggestedWidth].width;
+	return [[self label] sizeThatFits:CGSizeMake(suggestedWidth, 0)].width;
 }
 
 -(CGFloat)contentHeightForWidth:(CGFloat)width
 {
-	return [self sizeForFont:width].height;
+	return [[self label] sizeThatFits:CGSizeMake(width, 0)].height;
 }
 
 -(void)padLabel
 {
-    if (verticalAlign != UIControlContentVerticalAlignmentFill) {
-        CGSize actualLabelSize = [self sizeForFont:initialLabelFrame.size.width];
+    CGSize actualLabelSize = [[self label] sizeThatFits:CGSizeMake(initialLabelFrame.size.width, 0)];
+    UIControlContentVerticalAlignment alignment = verticalAlign;
+    if (alignment == UIControlContentVerticalAlignmentFill) {
+        //IOS7 layout issue fix with attributed string.
+        if (actualLabelSize.height < initialLabelFrame.size.height) {
+            alignment = UIControlContentVerticalAlignmentCenter;
+        }
+    }
+    if (alignment != UIControlContentVerticalAlignmentFill) {
         CGFloat originX = 0;
         switch (label.textAlignment) {
             case UITextAlignmentRight:
@@ -98,7 +107,7 @@
             originX = 0;
         }
         CGRect labelRect = CGRectMake(originX, 0, actualLabelSize.width, actualLabelSize.height);
-        switch (verticalAlign) {
+        switch (alignment) {
             case UIControlContentVerticalAlignmentBottom:
                 labelRect.origin.y = initialLabelFrame.size.height - actualLabelSize.height;
                 break;
