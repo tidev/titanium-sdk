@@ -6,8 +6,8 @@
  */
 
 var suites = [
-	{name: "api"},
 	{name: "analytics"},
+	{name: "api"},
 	{name: "blob"},
 	{name: "buffer"},
 	{name: "codec"},
