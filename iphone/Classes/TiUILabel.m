@@ -25,8 +25,7 @@
         bgdLayer = nil;
         padding = CGRectZero;
         initialLabelFrame = CGRectZero;
-        verticalAlign = -1;
-        attributedString = nil;
+        verticalAlign = UIControlContentVerticalAlignmentFill;
     }
     return self;
 }
@@ -35,6 +34,7 @@
 {
     RELEASE_TO_NIL(label);
     RELEASE_TO_NIL(bgdLayer);
+    RELEASE_TO_NIL(wrapperView);
     [super dealloc];
 }
 
@@ -65,11 +65,6 @@
 		size.width += shadowOffset.width + 10;
 	}
 
-    if(attributedString)
-    {
-        size = [label sizeThatFits:maxSize];
-    }
-
 	return size;
 }
 
@@ -85,7 +80,7 @@
 
 -(void)padLabel
 {
-    if (verticalAlign != -1) {
+    if (verticalAlign != UIControlContentVerticalAlignmentFill) {
         CGSize actualLabelSize = [self sizeForFont:initialLabelFrame.size.width];
         CGFloat originX = 0;
         switch (label.textAlignment) {
@@ -143,10 +138,9 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	initialLabelFrame = bounds;
-    
+    initialLabelFrame = bounds;
+    [wrapperView setFrame:initialLabelFrame];
     [self padLabel];
-
     [super frameSizeChanged:frame bounds:bounds];
 }
 
@@ -157,9 +151,11 @@
         label = [[UILabel alloc] initWithFrame:CGRectZero];
         label.backgroundColor = [UIColor clearColor];
         label.numberOfLines = 0;
-        [self addSubview:label];
-//        self.clipsToBounds = YES;
-	}
+        wrapperView = [[UIView alloc] initWithFrame:[self bounds]];
+        [wrapperView addSubview:label];
+        wrapperView.clipsToBounds = YES;
+        [self addSubview:wrapperView];
+    }
 	return label;
 }
 
@@ -205,7 +201,7 @@
 {
     verticalAlign = [TiUtils intValue:value def:-1];
     if (verticalAlign < UIControlContentVerticalAlignmentCenter || verticalAlign > UIControlContentVerticalAlignmentBottom) {
-        verticalAlign = -1;
+        verticalAlign = UIControlContentVerticalAlignmentFill;
     }
     if (label != nil) {
         [self padLabel];
