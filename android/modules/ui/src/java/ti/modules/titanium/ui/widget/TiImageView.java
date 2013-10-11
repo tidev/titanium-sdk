@@ -371,7 +371,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		// so that it doesn't get the content height/width
 		if (!viewWidthDefined || !viewHeightDefined) {
 			Drawable d = imageView.getDrawable();
-			float aspectRaio = 1;
+			float aspectRatio = 1;
 			int w = MeasureSpec.getSize(widthMeasureSpec);
 			int h = MeasureSpec.getSize(heightMeasureSpec);
 
@@ -379,17 +379,17 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 				int ih = d.getIntrinsicHeight();
 				int iw = d.getIntrinsicWidth();
 				if (ih != 0 && iw != 0) {
-					aspectRaio = ih / iw;
+					aspectRatio = ih / iw;
 				}
 			}
 
 			if (viewWidthDefined) {
 				maxWidth = w;
-				maxHeight = Math.round(w * aspectRaio);
+				maxHeight = Math.round(w * aspectRatio);
 			}
 			if (viewHeightDefined) {
 				maxHeight = h;
-				maxWidth = Math.round(h / aspectRaio);
+				maxWidth = Math.round(h / aspectRatio);
 			}
 		}
 		
