@@ -50,8 +50,9 @@ public class ActivityIndicatorProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		TiUIView view = new TiUIActivityIndicator(this);
-		if (visible)
+		if (visible) {
 			getMainHandler().obtainMessage(MSG_SHOW).sendToTarget();
+		}
 		return view;
 	}
 
