@@ -216,7 +216,7 @@
         NSDictionary *eventDict = @{ @"url"   : [URL absoluteString],
                                      @"range" : @[NUMINT(characterRange.location), NUMINT(characterRange.length)]
                                     };
-        [[self proxy] fireEvent:@"link" withObject:eventDict];
+        [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
     return handleLinks;
 }
