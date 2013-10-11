@@ -39,26 +39,6 @@ typedef enum {
 	AttributeNameExpansion
 } AttributeName;
 
-typedef enum {
-    UnderlineStyleNone = NSUnderlineStyleNone,
-    UnderlineStyleSingle = NSUnderlineStyleSingle,
-    UnderlineStyleThick = NSUnderlineStyleThick,
-    UnderlineStyleDouble = NSUnderlineStyleDouble,
-    UnderlinePatternSolid = NSUnderlinePatternSolid,
-    UnderlinePatternDot = NSUnderlinePatternDot,
-    UnderlinePatternDash = NSUnderlinePatternDash,
-    UnderlinePatternDashDot = NSUnderlinePatternDashDot,
-    UnderlinePatternDashDotDot = NSUnderlinePatternDashDotDot,
-    UnderlineByWord = NSUnderlineByWord
-} UnderlineStyle;
-
-typedef enum {
-    WritingDirectionEmbedding = NSTextWritingDirectionEmbedding,
-    WritingDirectionOverride = NSTextWritingDirectionOverride,
-    WritingDirectionNatural = NSWritingDirectionNatural,
-    WritingDirectionLeftToRight = NSWritingDirectionLeftToRight,
-    WritingDirectionRightToLeft = NSWritingDirectionRightToLeft
-} WritingDirection;
 #endif
 
 @interface TiUIiOSProxy : TiProxy {

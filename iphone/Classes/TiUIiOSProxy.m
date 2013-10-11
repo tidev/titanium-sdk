@@ -90,24 +90,67 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_COLOR, AttributeNameStrikethroughColor)
 MAKE_SYSTEM_PROP(ATTRIBUTE_OBLIQUENESS, AttributeNameObliqueness);
 MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
 
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_STYLE_NONE, UnderlineStyleNone);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_STYLE_SINGLE, UnderlineStyleSingle);
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_NONE
+{
+    return NUMINT(NSUnderlineStyleNone);
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_SINGLE
+{
+    return NUMINT(NSUnderlineStyleSingle);
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_THICK
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlineStyleThick): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlineStyleDouble): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_SOLID
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternSolid): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DOT
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDot): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDash): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDashDot): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDashDotDot): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_BY_WORD
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlineByWord): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_NATURAL
+{
+    return NUMINT(NSWritingDirectionNatural);
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
+{
+    return NUMINT(NSWritingDirectionLeftToRight);
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
+{
+    return NUMINT(NSWritingDirectionRightToLeft);
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSTextWritingDirectionEmbedding): NUMINT(NSWritingDirectionNatural));
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSTextWritingDirectionOverride): NUMINT(NSWritingDirectionNatural));
+}
 
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_STYLE_THICK, UnderlineStyleThick);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_STYLE_DOUBLE, UnderlineStyleDouble);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_PATTERN_SOLID, UnderlinePatternSolid);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_PATTERN_DOT, UnderlinePatternDot);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_PATTERN_DASH, UnderlinePatternDash);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT, UnderlinePatternDashDot);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT, UnderlinePatternDashDotDot);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_BY_WORD, UnderlineByWord);
-
-MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_EMBEDDING, WritingDirectionEmbedding);
-MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_OVERRIDE, WritingDirectionOverride);
-
-MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_NATURAL, WritingDirectionNatural);
-MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT, WritingDirectionLeftToRight);
-MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT, WritingDirectionRightToLeft);
 #endif
 
 #ifdef USE_TI_UIIOSADVIEW
