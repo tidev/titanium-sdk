@@ -10,7 +10,7 @@
 #import "TiUILabelProxy.h"
 #import "TiUtils.h"
 #import "UIImage+Resize.h"
-
+#import <CoreText/CoreText.h>
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 #import "TiUIiOSAttributedStringProxy.h"
 #endif
@@ -38,12 +38,14 @@
     [super dealloc];
 }
 
+
 - (BOOL)interactionDefault
 {
 	// by default, labels don't have any interaction unless you explicitly add
 	// it via addEventListener
 	return NO;
 }
+
 /*
  //No longer used since sizeThatFits seems to return correct values
 -(CGSize)sizeForFont:(CGFloat)suggestedWidth
@@ -88,6 +90,8 @@
         //IOS7 layout issue fix with attributed string.
         if (actualLabelSize.height < initialLabelFrame.size.height) {
             alignment = UIControlContentVerticalAlignmentCenter;
+        } else {
+            alignment = UIControlContentVerticalAlignmentTop;
         }
     }
     if (alignment != UIControlContentVerticalAlignmentFill) {
@@ -163,9 +167,186 @@
         wrapperView = [[UIView alloc] initWithFrame:[self bounds]];
         [wrapperView addSubview:label];
         wrapperView.clipsToBounds = YES;
+        [wrapperView setUserInteractionEnabled:NO];
         [self addSubview:wrapperView];
     }
 	return label;
+}
+
+-(BOOL)proxyHasGestureListeners
+{
+    return [super proxyHasGestureListeners] || [(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO];
+}
+
+-(void)ensureGestureListeners
+{
+    if ([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO]) {
+        [[self gestureRecognizerForEvent:@"link"] setEnabled:YES];
+    }
+    [super ensureGestureListeners];
+}
+
+- (UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event
+{
+    if ([event isEqualToString:@"link"]) {
+        return [super gestureRecognizerForEvent:@"longpress"];
+    }
+    return [super gestureRecognizerForEvent:event];
+}
+
+-(void)handleListenerRemovedWithEvent:(NSString *)event
+{
+	ENSURE_UI_THREAD_1_ARG(event);
+	// unfortunately on a remove, we have to check all of them
+	// since we might be removing one but we still have others
+    if ([event isEqualToString:@"link"] || [event isEqualToString:@"longpress"]) {
+        BOOL enableListener = [self.proxy _hasListeners:@"longpress"] || [self.proxy _hasListeners:@"link"];
+        [[self gestureRecognizerForEvent:event] setEnabled:enableListener];
+    } else {
+        [super handleListenerRemovedWithEvent:event];
+    }
+}
+
+-(BOOL)checkLinkAttributeForString:(NSMutableAttributedString*)theString atPoint:(CGPoint)p
+{
+    CGPoint thePoint = [self convertPoint:p toView:label];
+    CGRect drawRect = [label textRectForBounds:[label bounds] limitedToNumberOfLines:label.numberOfLines];
+    drawRect.origin.y = (label.bounds.size.height - drawRect.size.height)/2;
+    thePoint = CGPointMake(thePoint.x - drawRect.origin.x, thePoint.y - drawRect.origin.y);
+    //Convert to CT point;
+    thePoint.y = (drawRect.size.height - thePoint.y);
+    CTFramesetterRef theRef = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)theString);
+    if (theRef == NULL) {
+        return;
+    }
+    
+    CGMutablePathRef path = CGPathCreateMutable();
+    
+    CGPathAddRect(path, NULL, drawRect);
+
+    CTFrameRef frame = CTFramesetterCreateFrame(theRef, CFRangeMake(0, [theString length]), path, NULL);
+    //Don't need this anymore
+    CFRelease(theRef);
+
+    if (frame == NULL) {
+        CFRelease(path);
+        return NO;
+    }
+    //Get Lines
+    CFArrayRef lines = CTFrameGetLines(frame);
+    if (lines == NULL) {
+        CFRelease(frame);
+        CFRelease(path);
+        return NO;
+    }
+    
+    NSInteger lineCount = CFArrayGetCount(lines);
+    if (lineCount == 0) {
+        CFRelease(frame);
+        CFRelease(path);
+        //CFRelease(lines);
+        return NO;
+    }
+    //Get Line Origins
+    CGPoint lineOrigins[lineCount];
+    CTFrameGetLineOrigins(frame, CFRangeMake(0, lineCount), lineOrigins);
+    
+    NSUInteger idx = NSNotFound;
+    for (CFIndex lineIndex = 0; (lineIndex < lineCount) && (idx == NSNotFound); lineIndex++) {
+        
+        CGPoint lineOrigin = lineOrigins[lineIndex];
+        CTLineRef line = CFArrayGetValueAtIndex(lines, lineIndex);
+        
+        // Get bounding information of line
+        CGRect lineRect = CTLineGetBoundsWithOptions(line,0);
+        CGFloat ymin = lineRect.origin.y + lineOrigin.y;
+        CGFloat ymax = ymin + lineRect.size.height;
+        
+        //Check for text alignment
+        CGPoint tempPoint = CGPointMake(thePoint.x, thePoint.y);
+        CGFloat offset = 0;
+        if (label.textAlignment == NSTextAlignmentRight) {
+            offset = label.bounds.size.width - lineRect.size.width;
+        } else if (label.textAlignment == NSTextAlignmentCenter) {
+            offset = (label.bounds.size.width - lineRect.size.width)/2.0f;
+        }
+        tempPoint.x = tempPoint.x - offset;
+        
+        if (ymin <= tempPoint.y && ymax >= tempPoint.y) {
+            if (tempPoint.x >= lineOrigin.x && tempPoint.x <= lineOrigin.x + lineRect.size.width) {
+                // Convert CT coordinates to line-relative coordinates
+                CGPoint relativePoint = CGPointMake(tempPoint.x - lineOrigin.x, tempPoint.y - lineOrigin.y);
+                idx = CTLineGetStringIndexForPosition(line, relativePoint);
+            }
+        }
+    }
+    
+    //Don't need frame,path or lines now
+    CFRelease(frame);
+    CFRelease(path);
+    //CFRelease(lines);
+    
+    if (idx != NSNotFound) {
+        if(idx > theString.string.length) {
+            return NO;
+        }
+        NSRange theRange = NSMakeRange(0, 0);
+        NSString *url = [theString attribute:NSLinkAttributeName atIndex:idx effectiveRange:&theRange];
+        if(url != nil && url.length) {
+            NSDictionary *eventDict = @{ @"url"   : url,
+                                         @"range" : @[NUMINT(theRange.location), NUMINT(theRange.length)]
+                                         };
+            [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO reportSuccess:NO errorCode:0 message:nil];
+            return YES;
+        }
+    }
+    return NO;
+}
+
+-(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer
+{
+    if ([recognizer state] == UIGestureRecognizerStateBegan) {
+        CGPoint p = [recognizer locationInView:self];
+        if ([self.proxy _hasListeners:@"longpress"]) {
+            NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   NUMFLOAT(p.x), @"x",
+                                   NUMFLOAT(p.y), @"y",
+                                   nil];
+            [self.proxy fireEvent:@"longpress" withObject:event];
+        }
+        if ([self.proxy _hasListeners:@"link"] && (label != nil) && [TiUtils isIOS7OrGreater]) {
+            /*
+             This part of code adapted from the NappUI project.
+             https://github.com/viezel/NappUI
+            */
+             NSMutableAttributedString* optimizedAttributedText = [label.attributedText mutableCopy];
+            if (optimizedAttributedText != nil) {
+                // use label's font and lineBreakMode properties in case the attributedText does not contain such attributes
+                [label.attributedText enumerateAttributesInRange:NSMakeRange(0, [label.attributedText length]) options:0 usingBlock:^(NSDictionary *attrs, NSRange range, BOOL *stop) {
+                    if (!attrs[(NSString*)kCTFontAttributeName]) {
+                        [optimizedAttributedText addAttribute:(NSString*)kCTFontAttributeName value:label.font range:NSMakeRange(0, [label.attributedText length])];
+                    }
+                    if (!attrs[(NSString*)kCTParagraphStyleAttributeName]) {
+                        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+                        [paragraphStyle setLineBreakMode:label.lineBreakMode];
+                        [optimizedAttributedText addAttribute:(NSString*)kCTParagraphStyleAttributeName value:paragraphStyle range:range];
+                    }
+                }];
+                
+                // modify kCTLineBreakByTruncatingTail lineBreakMode to kCTLineBreakByWordWrapping
+                [optimizedAttributedText enumerateAttribute:(NSString*)kCTParagraphStyleAttributeName inRange:NSMakeRange(0, [optimizedAttributedText length]) options:0 usingBlock:^(id value, NSRange range, BOOL *stop) {
+                    NSMutableParagraphStyle* paragraphStyle = [value mutableCopy];
+                    if ([paragraphStyle lineBreakMode] == kCTLineBreakByTruncatingTail) {
+                        [paragraphStyle setLineBreakMode:kCTLineBreakByWordWrapping];
+                    }
+                    [optimizedAttributedText removeAttribute:(NSString*)kCTParagraphStyleAttributeName range:range];
+                    [optimizedAttributedText addAttribute:(NSString*)kCTParagraphStyleAttributeName value:paragraphStyle range:range];
+                }];
+                [self checkLinkAttributeForString:optimizedAttributedText atPoint:p];
+                [optimizedAttributedText release];
+            }
+        }
+    }
 }
 
 - (id)accessibilityElement
@@ -208,7 +389,7 @@
 
 -(void)setVerticalAlign_:(id)value
 {
-    verticalAlign = [TiUtils intValue:value def:-1];
+    verticalAlign = [TiUtils intValue:value def:UIControlContentVerticalAlignmentFill];
     if (verticalAlign < UIControlContentVerticalAlignmentCenter || verticalAlign > UIControlContentVerticalAlignmentBottom) {
         verticalAlign = UIControlContentVerticalAlignmentFill;
     }

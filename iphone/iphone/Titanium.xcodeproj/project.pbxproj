@@ -526,6 +526,9 @@
 		8406A97616CED43D00EB62FB /* TiMapCustomAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 840A9D4816CEBF24003AA591 /* TiMapCustomAnnotationView.m */; };
 		8406A97716CED45400EB62FB /* TiMapCustomAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 840A9D4816CEBF24003AA591 /* TiMapCustomAnnotationView.m */; };
 		840A9D4916CEBF24003AA591 /* TiMapCustomAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 840A9D4816CEBF24003AA591 /* TiMapCustomAnnotationView.m */; };
+		841CCAD11807395C00C8DB76 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 841CCAD01807395C00C8DB76 /* CoreText.framework */; };
+		841CCAD21807396E00C8DB76 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 841CCAD01807395C00C8DB76 /* CoreText.framework */; };
+		841CCAD31807397800C8DB76 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 841CCAD01807395C00C8DB76 /* CoreText.framework */; };
 		843FA58417BD4DFF0064E061 /* TiUIiOSNavWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 843FA58317BD4DFF0064E061 /* TiUIiOSNavWindow.m */; };
 		843FA58517BD4DFF0064E061 /* TiUIiOSNavWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 843FA58317BD4DFF0064E061 /* TiUIiOSNavWindow.m */; };
 		843FA58617BD4DFF0064E061 /* TiUIiOSNavWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 843FA58317BD4DFF0064E061 /* TiUIiOSNavWindow.m */; };
@@ -1456,6 +1459,7 @@
 		5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiExceptionHandler.m; sourceTree = "<group>"; };
 		840A9D4716CEBF24003AA591 /* TiMapCustomAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMapCustomAnnotationView.h; sourceTree = "<group>"; };
 		840A9D4816CEBF24003AA591 /* TiMapCustomAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMapCustomAnnotationView.m; sourceTree = "<group>"; };
+		841CCAD01807395C00C8DB76 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		843FA58217BD4DFF0064E061 /* TiUIiOSNavWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSNavWindow.h; sourceTree = "<group>"; };
 		843FA58317BD4DFF0064E061 /* TiUIiOSNavWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSNavWindow.m; sourceTree = "<group>"; };
 		844E1F7C14883A3700F5424C /* TiDOMValidator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMValidator.h; sourceTree = "<group>"; };
@@ -1598,6 +1602,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				841CCAD11807395C00C8DB76 /* CoreText.framework in Frameworks */,
 				D93DAA6D16CBFD7100AD64C9 /* EventKit.framework in Frameworks */,
 				D93DAA6E16CBFD7100AD64C9 /* EventKitUI.framework in Frameworks */,
 				84BBA58816570F90006B8C22 /* Security.framework in Frameworks */,
@@ -1634,6 +1639,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				841CCAD21807396E00C8DB76 /* CoreText.framework in Frameworks */,
 				D93DAA6B16CBFD6400AD64C9 /* EventKit.framework in Frameworks */,
 				D93DAA6C16CBFD6400AD64C9 /* EventKitUI.framework in Frameworks */,
 				84BBA58A16570FA0006B8C22 /* Security.framework in Frameworks */,
@@ -1669,6 +1675,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				841CCAD31807397800C8DB76 /* CoreText.framework in Frameworks */,
 				D93DAA6916CBFD5600AD64C9 /* EventKit.framework in Frameworks */,
 				D93DAA6A16CBFD5600AD64C9 /* EventKitUI.framework in Frameworks */,
 				502E9D2416CAFB9D00C1BD26 /* libti_ios_profiler.a in Frameworks */,
@@ -2831,6 +2838,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				841CCAD01807395C00C8DB76 /* CoreText.framework */,
 				D93DAA6716CBFD5600AD64C9 /* EventKit.framework */,
 				D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */,
 				502E9D2316CAFB9D00C1BD26 /* libti_ios_profiler.a */,
