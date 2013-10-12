@@ -262,20 +262,10 @@
         CGFloat ymin = lineRect.origin.y + lineOrigin.y;
         CGFloat ymax = ymin + lineRect.size.height;
         
-        //Check for text alignment
-        CGPoint tempPoint = CGPointMake(thePoint.x, thePoint.y);
-        CGFloat offset = 0;
-        if (label.textAlignment == NSTextAlignmentRight) {
-            offset = label.bounds.size.width - lineRect.size.width;
-        } else if (label.textAlignment == NSTextAlignmentCenter) {
-            offset = (label.bounds.size.width - lineRect.size.width)/2.0f;
-        }
-        tempPoint.x = tempPoint.x - offset;
-        
-        if (ymin <= tempPoint.y && ymax >= tempPoint.y) {
-            if (tempPoint.x >= lineOrigin.x && tempPoint.x <= lineOrigin.x + lineRect.size.width) {
+        if (ymin <= thePoint.y && ymax >= thePoint.y) {
+            if (thePoint.x >= lineOrigin.x && thePoint.x <= lineOrigin.x + lineRect.size.width) {
                 // Convert CT coordinates to line-relative coordinates
-                CGPoint relativePoint = CGPointMake(tempPoint.x - lineOrigin.x, tempPoint.y - lineOrigin.y);
+                CGPoint relativePoint = CGPointMake(thePoint.x - lineOrigin.x, thePoint.y - lineOrigin.y);
                 idx = CTLineGetStringIndexForPosition(line, relativePoint);
             }
         }
@@ -326,7 +316,7 @@
                 // use label's font and lineBreakMode properties in case the attributedText does not contain such attributes
                 [label.attributedText enumerateAttributesInRange:NSMakeRange(0, [label.attributedText length]) options:0 usingBlock:^(NSDictionary *attrs, NSRange range, BOOL *stop) {
                     if (!attrs[(NSString*)kCTFontAttributeName]) {
-                        [optimizedAttributedText addAttribute:(NSString*)kCTFontAttributeName value:label.font range:NSMakeRange(0, [label.attributedText length])];
+                        [optimizedAttributedText addAttribute:(NSString*)kCTFontAttributeName value:label.font range:range];
                     }
                     if (!attrs[(NSString*)kCTParagraphStyleAttributeName]) {
                         NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
