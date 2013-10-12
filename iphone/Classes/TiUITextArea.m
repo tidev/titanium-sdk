@@ -212,10 +212,11 @@
 
 - (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange
 {
-    if([[self proxy] _hasListeners:@"link"]) {
-        NSDictionary *eventDict = @{ @"url"   : [URL absoluteString],
-                                     @"range" : @[NUMINT(characterRange.location), NUMINT(characterRange.length)]
-                                    };
+    if([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO]) {
+        NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   [URL absoluteString], @"url",
+                                   [NSArray arrayWithObjects:NUMINT(characterRange.location), NUMINT(characterRange.length),nil],@"range",
+                                   nil];
         [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
     return handleLinks;

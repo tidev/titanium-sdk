@@ -293,9 +293,11 @@
         NSRange theRange = NSMakeRange(0, 0);
         NSString *url = [theString attribute:NSLinkAttributeName atIndex:idx effectiveRange:&theRange];
         if(url != nil && url.length) {
-            NSDictionary *eventDict = @{ @"url"   : url,
-                                         @"range" : @[NUMINT(theRange.location), NUMINT(theRange.length)]
-                                         };
+            NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                       url, @"url",
+                                       [NSArray arrayWithObjects:NUMINT(theRange.location), NUMINT(theRange.length),nil],@"range",
+                                       nil];
+                                            
             [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO reportSuccess:NO errorCode:0 message:nil];
             return YES;
         }
@@ -314,7 +316,7 @@
                                    nil];
             [self.proxy fireEvent:@"longpress" withObject:event];
         }
-        if ([self.proxy _hasListeners:@"link"] && (label != nil) && [TiUtils isIOS7OrGreater]) {
+        if ([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO] && (label != nil) && [TiUtils isIOS7OrGreater]) {
             /*
              This part of code adapted from the NappUI project.
              https://github.com/viezel/NappUI
