@@ -10,6 +10,7 @@ var appc = require('node-appc'),
 	path = require('path'),
 	wrench = require('wrench'),
 	xml = appc.xml,
+	__ = appc.i18n(__dirname).__,
 
 	androidAttrPrefixRegExp = /^android\:/,
 	defaultDOMParserArgs = { errorHandler: function(){} },
@@ -323,10 +324,10 @@ function toJS(obj, doc) {
 
 			case 'compatible-screens':
 				// array of screen objects
-				var compatibleScreens = obj[node.tagName] || (obj[node.tagName] = []);
-				initAttr(node, compatibleScreens);
+				var tmp = obj[node.tagName] || (obj[node.tagName] = []);
+				initAttr(node, tmp);
 				xml.forEachElement(node, function (node) {
-					node.tagName == 'screen' && compatibleScreens.push(attrsToObj(node));
+					node.tagName == 'screen' && tmp.push(attrsToObj(node));
 				});
 				break;
 
@@ -372,7 +373,7 @@ function AndroidManifest(filename) {
 	Object.defineProperty(this, 'load', {
 		value: function (file) {
 			if (!fs.existsSync(file)) {
-				throw new Error('AndroidManifest.xml file does not exist');
+				throw new Error(__('AndroidManifest.xml file does not exist'));
 			}
 			toJS(this, (new DOMParser(defaultDOMParserArgs).parseFromString(fs.readFileSync(file).toString(), 'text/xml')).documentElement);
 			return this;
@@ -382,6 +383,101 @@ function AndroidManifest(filename) {
 	Object.defineProperty(this, 'parse', {
 		value: function (str) {
 			toJS(this, (new DOMParser(defaultDOMParserArgs).parseFromString(str, 'text/xml')).documentElement);
+			return this;
+		}
+	});
+
+	Object.defineProperty(this, 'merge', {
+		value: function (src) {
+			if (!src) return this;
+
+			if (!(src instanceof AndroidManifest)) {
+				throw new Error(__('Failed to merge, source must be an AndroidManifest object'));
+			}
+
+			src && Object.keys(src).forEach(function (tag) {
+				switch (tag) {
+					case 'application':
+						this[tag] || (this[tag] = {});
+						Object.keys(src[tag]).forEach(function (subtag) {
+							switch (subtag) {
+								case 'activity':
+								case 'activity-alias':
+								case 'receiver':
+								case 'service':
+								case 'provider':
+								case 'uses-library':
+									this[tag][subtag] || (this[tag][subtag] = {});
+									Object.keys(src[tag][subtag]).forEach(function (key) {
+										this[tag][subtag][key] = src[tag][subtag][key];
+									}, this);
+									break;
+							}
+						}, this);
+						break;
+
+					case 'compatible-screens':
+						Array.isArray(this[tag]) || (this[tag] = []);
+						var tmp = {};
+						this[tag].forEach(function (s) {
+							tmp[s.screenSize + '|' + s.screenDensity] = 1;
+						});
+						src[tag].forEach(function (s) {
+							var n = s.screenSize + '|' + s.screenDensity;
+							if (!tmp[n]) {
+								tmp[n] = 1;
+								this[tag].push(s);
+							}
+						}, this);
+						break;
+
+					case 'instrumentation':
+					case 'permission':
+					case 'permission-group':
+					case 'permission-tree':
+					case 'uses-feature':
+					case 'uses-library':
+						this[tag] || (this[tag] = {});
+						Object.keys(src[tag]).forEach(function (name) {
+							this[tag][name] = src[tag][name];
+						}, this);
+						break;
+
+					case 'supports-screens':
+					case 'uses-sdk':
+						this[tag] || (this[tag] = {});
+						Object.keys(src[tag]).forEach(function (attr) {
+							this[tag][attr] = src[tag][attr];
+						}, this);
+						break;
+
+					case 'uses-configuration':
+						Array.isArray(this[tag]) || (this[tag] = []);
+						var tmp = {};
+						this[tag].forEach(function (s) {
+							tmp[s.reqFiveWayNav + '|' + s.reqTouchScreen + '|' + s.reqKeyboardType] = 1;
+						});
+						src[tag].forEach(function (s) {
+							var n = s.reqFiveWayNav + '|' + s.reqTouchScreen + '|' + s.reqKeyboardType;
+							if (!tmp[n]) {
+								tmp[n] = 1;
+								this[tag].push(s);
+							}
+						}, this);
+						break;
+
+					case 'supports-gl-texture':
+					case 'uses-permission':
+						Array.isArray(this[tag]) || (this[tag] = []);
+						src[tag].forEach(function (s) {
+							if (this[tag].indexOf(s) == -1) {
+								this[tag].push(s);
+							}
+						}, this);
+						break;
+				}
+			}, this);
+
 			return this;
 		}
 	});

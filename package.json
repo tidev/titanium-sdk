@@ -15,6 +15,7 @@
 	"author": "Appcelerator, Inc. <info@appcelerator.com>",
 	"dependencies": {
 		"adm-zip": "~0.4.3",
+		"archiver": "~0.4.10",
 		"async": "~0.2.9",
 		"clean-css": "~1.1.1",
 		"css-parse": "~1.5.3",

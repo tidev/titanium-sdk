@@ -14777,4 +14777,177 @@ describe('AndroidManifest', function () {
 			].join('\r\n'));
 		});
 	});
+
+	describe('Merge AndroidManifest.xml Sample 2, 3, and 4', function () {
+		var am2 = new AndroidManifest(path.resolve('./resources/AndroidManifest-sample2.xml'));
+		var am3 = new AndroidManifest(path.resolve('./resources/AndroidManifest-sample3.xml'));
+		var am4 = new AndroidManifest(path.resolve('./resources/AndroidManifest-sample4.xml'));
+
+		am2.merge(am3).merge(am4);
+
+		it('should match object', function () {
+			am2.should.eql({
+				__attr__: {
+					'android:versionCode': 1,
+					'android:versionName': 1,
+					package: 'com.appcelerator.testapp2',
+					'xmlns:android': 'http://schemas.android.com/apk/res/android'
+				},
+				'uses-sdk': { minSdkVersion: 10, targetSdkVersion: 17 },
+				permission: {
+					'com.appcelerator.testapp2.permission.C2D_MESSAGE': {
+						name: 'com.appcelerator.testapp2.permission.C2D_MESSAGE',
+						protectionLevel: 'signature'
+					},
+					'${tiapp.properties[\'id\']}.permission.C2D_MESSAGE': {
+						name: '${tiapp.properties[\'id\']}.permission.C2D_MESSAGE',
+						protectionLevel: 'signature'
+					}
+				},
+				application: {
+					debuggable: false,
+					icon: '@drawable/appicon',
+					label: 'testapp2',
+					name: 'Testapp2Application',
+					activity: {
+						'.TestappActivity': {
+							alwaysRetainTaskState: true,
+							configChanges: [ 'keyboardHidden', 'orientation' ],
+							label: 'testapp',
+							name: '.TestappActivity',
+							theme: '@style/Theme.Titanium',
+							'intent-filter': [
+								{
+									action: [ 'android.intent.action.MAIN' ],
+									category: [ 'android.intent.category.LAUNCHER' ]
+								}
+							]
+						},
+						'.Testapp2Activity': {
+							configChanges: [ 'keyboardHidden', 'orientation' ],
+							label: 'testapp2',
+							name: '.Testapp2Activity',
+							theme: '@style/Theme.Titanium',
+							'intent-filter': [
+								{
+									action: [ 'android.intent.action.MAIN' ],
+									category: [ 'android.intent.category.LAUNCHER' ]
+								}
+							]
+						},
+						'com.appcelerator.testapp2.TestactivityActivity': {
+							configChanges: [ 'keyboardHidden', 'orientation' ],
+							name: 'com.appcelerator.testapp2.TestactivityActivity'
+						},
+						'org.appcelerator.titanium.TiActivity': {
+							screenOrientation: 'landscape',
+							name: 'org.appcelerator.titanium.TiActivity',
+							configChanges: [ 'keyboardHidden', 'orientation' ]
+						},
+						'org.appcelerator.titanium.TiTranslucentActivity': {
+							configChanges: [ 'keyboardHidden', 'orientation' ],
+							name: 'org.appcelerator.titanium.TiTranslucentActivity',
+							theme: '@android:style/Theme.Translucent'
+						},
+						'ti.modules.titanium.ui.android.TiPreferencesActivity': {
+							name: 'ti.modules.titanium.ui.android.TiPreferencesActivity'
+						},
+						'ti.modules.titanium.facebook.FBActivity': {
+							screenOrientation: 'landscape',
+							name: 'ti.modules.titanium.facebook.FBActivity',
+							theme: '@android:style/Theme.Translucent.NoTitleBar'
+						},
+						'org.appcelerator.titanium.TiModalActivity': {
+							screenOrientation: 'landscape',
+							name: 'org.appcelerator.titanium.TiModalActivity',
+							configChanges: [ 'keyboardHidden', 'orientation' ],
+							theme: '@android:style/Theme.Translucent.NoTitleBar.Fullscreen'
+						},
+						'ti.modules.titanium.ui.TiTabActivity': {
+							screenOrientation: 'landscape',
+							name: 'ti.modules.titanium.ui.TiTabActivity',
+							configChanges: [ 'keyboardHidden', 'orientation' ]
+						},
+						'ti.modules.titanium.media.TiVideoActivity': {
+							screenOrientation: 'landscape',
+							name: 'ti.modules.titanium.media.TiVideoActivity',
+							configChanges: [ 'keyboardHidden', 'orientation' ],
+							theme: '@android:style/Theme.NoTitleBar.Fullscreen'
+						}
+					},
+					service: {
+						'com.appcelerator.cloud.push.PushService': {
+							name: 'com.appcelerator.cloud.push.PushService'
+						},
+						'org.appcelerator.titanium.analytics.TiAnalyticsService': {
+							exported: false,
+							name: 'org.appcelerator.titanium.analytics.TiAnalyticsService'
+						},
+						'com.appcelerator.testapp2.TestserviceService': {
+							name: 'com.appcelerator.testapp2.TestserviceService'
+						}
+					},
+					receiver: {
+						'ti.cloudpush.IntentReceiver': {
+							name: 'ti.cloudpush.IntentReceiver'
+						},
+						'ti.cloudpush.MQTTReceiver': {
+							name: 'ti.cloudpush.MQTTReceiver',
+							'intent-filter': [
+								{
+									action: [
+										'android.intent.action.BOOT_COMPLETED',
+										'android.intent.action.USER_PRESENT',
+										'com.appcelerator.cloud.push.PushService.MSG_ARRIVAL'
+									],
+									category: [ 'android.intent.category.HOME' ]
+								}
+							],
+							'meta-data': {
+								'com.appcelerator.cloud.push.BroadcastReceiver.ArrivalActivity': {
+									name: 'com.appcelerator.cloud.push.BroadcastReceiver.ArrivalActivity',
+									value: 'ti.cloudpush.MQTTReceiver'
+								}
+							}
+						},
+						'ti.cloudpush.GCMReceiver': {
+							name: 'ti.cloudpush.GCMReceiver',
+							permission: 'com.google.android.c2dm.permission.SEND',
+							'intent-filter': [
+								{
+									action: [ 'com.google.android.c2dm.intent.RECEIVE' ],
+									category: [ '${tiapp.properties[\'id\']}' ]
+								}
+							]
+						},
+						'com.appcelerator.cloud.push.PushBroadcastReceiver': {
+							name: 'com.appcelerator.cloud.push.PushBroadcastReceiver',
+							permission: 'com.google.android.c2dm.permission.SEND',
+							'intent-filter': [
+								{
+									action: [ 'com.google.android.c2dm.intent.REGISTRATION' ],
+									category: [ '${tiapp.properties[\'id\']}' ]
+								}
+							]
+						}
+					}
+				},
+				'uses-permission': [
+					'android.permission.VIBRATE',
+					'android.permission.ACCESS_NETWORK_STATE',
+					'android.permission.WRITE_EXTERNAL_STORAGE',
+					'com.google.android.c2dm.permission.RECEIVE',
+					'android.permission.WAKE_LOCK',
+					'android.permission.ACCESS_WIFI_STATE',
+					'android.permission.RECEIVE_BOOT_COMPLETED',
+					'com.appcelerator.testapp2.permission.C2D_MESSAGE',
+					'android.permission.READ_PHONE_STATE',
+					'android.permission.INTERNET',
+					'android.permission.GET_ACCOUNTS',
+					'${tiapp.properties[\'id\']}.permission.C2D_MESSAGE'
+				],
+				'supports-screens': { anyDensity: false, xlargeScreens: true }
+			});
+		});
+	});
 });
