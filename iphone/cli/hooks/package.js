@@ -14,7 +14,7 @@ var appc = require('node-appc'),
 	wrench = require('wrench'),
 	exec = require('child_process').exec;
 
-exports.cliVersion = '>=3.X';
+exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
 
@@ -66,7 +66,7 @@ exports.init = function (logger, config, cli) {
 									newPlist = new appc.plist(),
 									appBundle = 'Applications/' + name + '.app';
 
-								fs.unlink(tempPlist);
+								fs.unlinkSync(tempPlist);
 
 								appc.util.mix(newPlist, {
 									ApplicationProperties: {
@@ -117,10 +117,10 @@ exports.init = function (logger, config, cli) {
 							dest = ipa,
 							outputDir = cli.argv['output-dir'] && afs.resolvePath(cli.argv['output-dir']);
 
-						if (outputDir) {
+						if (outputDir && outputDir != path.dirname(dest)) {
 							fs.existsSync(outputDir) || wrench.mkdirSyncRecursive(outputDir);
 							dest = path.join(outputDir, build.tiapp.name + '.ipa');
-							fs.existsSync(dest) && fs.unlink(dest);
+							fs.existsSync(dest) && fs.unlinkSync(dest);
 							afs.copyFileSync(ipa, dest, { logger: logger.debug });
 						}
 

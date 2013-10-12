@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest>
+	<uses-feature
+		android:name="android.hardware.bluetooth"
+		android:required="false"
+		android:glEsVersion="1" />
+
+	<uses-feature
+		android:name="android.hardware.camera"
+		android:required="true"
+		android:glEsVersion="2" />
+</manifest>

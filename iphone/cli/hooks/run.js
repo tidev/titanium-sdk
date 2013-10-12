@@ -15,7 +15,7 @@ var appc = require('node-appc'),
 	exec = cp.exec,
 	spawn = cp.spawn;
 
-exports.cliVersion = '>=3.X';
+exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
 
