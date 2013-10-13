@@ -9,10 +9,6 @@ description: |
     A `ListView` object is a container for [ListSection](Titanium.UI.ListSection) 
     objects that are, in turn, containers for [ListItem](Titanium.UI.ListItem) objects.
 
-    **Note:** this is the first version of list view. Not all features from the specification
-    are implemented in this version.  A complete list of implemented features is schedule for
-    the next list version, which is planned for Release 3.2.0.
-
     For more instructions and examples of using `ListView`, refer to the
     [ListViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/ListViews)
 

@@ -363,11 +363,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			TiViewProxy searchView = (TiViewProxy) d.get(TiC.PROPERTY_SEARCH_VIEW);
 			if (isSearchViewValid(searchView)) {
 				TiUIView search = searchView.getOrCreateView();
-				if (searchView instanceof SearchBarProxy) {
-					((TiUISearchBar)search).setOnSearchChangeListener(this);
-				} else if (searchView instanceof SearchViewProxy) {
-					((TiUISearchView)search).setOnSearchChangeListener(this);
-				}
+				setSearchListener(searchView, search);
 				layoutSearchView(searchView);
 			} else {
 				Log.e(TAG, "Searchview type is invalid");
@@ -555,11 +551,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			TiViewProxy searchView = (TiViewProxy) newValue;
 			if (isSearchViewValid(searchView)) {
 				TiUIView search = searchView.getOrCreateView();
-				if (searchView instanceof SearchBarProxy) {
-					((TiUISearchBar)search).setOnSearchChangeListener(this);
-				} else if (searchView instanceof SearchViewProxy) {
-					((TiUISearchView)search).setOnSearchChangeListener(this);
-				}
+				setSearchListener(searchView, search);
 				if (searchLayout != null) {
 					searchLayout.removeAllViews();
 					addSearchLayout(searchLayout, searchView, search);
@@ -580,6 +572,15 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			setSeparatorColor(color);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
+	}
+
+	private void setSearchListener(TiViewProxy searchView, TiUIView search) 
+	{
+		if (searchView instanceof SearchBarProxy) {
+			((TiUISearchBar)search).setOnSearchChangeListener(this);
+		} else if (searchView instanceof SearchViewProxy) {
+			((TiUISearchView)search).setOnSearchChangeListener(this);
 		}
 	}
 
