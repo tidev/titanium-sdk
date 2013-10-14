@@ -36,9 +36,79 @@
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
     #import "TiUIiOSNavWindowProxy.h"
 #endif
+#ifdef USE_TI_UIIOSANIMATOR
+#import "TiAnimatorProxy.h"
+#ifdef USE_TI_UIIOSSNAPBEHAVIOR
+#import "TiSnapBehavior.h"
+#endif
+#ifdef USE_TI_UIIOSPUSHBEHAVIOR
+#import "TiPushBehavior.h"
+#endif
+#ifdef USE_TI_UIIOSGRAVITYBEHAVIOR
+#import "TiGravityBehavior.h"
+#endif
+#ifdef USE_TI_UIIOSANCHORATTACHMENTBEHAVIOR
+#import "TiAnchorAttachBehavior.h"
+#endif
+#ifdef USE_TI_UIIOSVIEWATTACHMENTBEHAVIOR
+#import "TiViewAttachBehavior.h"
+#endif
+#ifdef USE_TI_UIIOSCOLLISIONBEHAVIOR
+#import "TiCollisionBehavior.h"
+#endif
+#ifdef USE_TI_UIIOSDYNAMICITEMBEHAVIOR
+#import "TiDynamicItemBehavior.h"
+#endif
 
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+#import "TiUIiOSAttributedStringProxy.h"
+#endif
+#endif
 
 @implementation TiUIiOSProxy
+
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+MAKE_SYSTEM_PROP(ATTRIBUTE_FONT, AttributeNameFont);
+MAKE_SYSTEM_PROP(ATTRIBUTE_PARAGRAPH_STYLE, AttributeNameParagraphStyle);
+MAKE_SYSTEM_PROP(ATTRIBUTE_FOREGROUND_COLOR, AttributeNameForegroundColor);
+MAKE_SYSTEM_PROP(ATTRIBUTE_BACKGROUND_COLOR, AttributeNameBackgroundColor);
+MAKE_SYSTEM_PROP(ATTRIBUTE_LIGATURE, AttributeNameLigature);
+MAKE_SYSTEM_PROP(ATTRIBUTE_KERN, AttributeNameKern);
+MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_STYLE, AttributeNameStrikethroughStyle);
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINES_TYLE, AttributeNameUnderlineStyle);
+MAKE_SYSTEM_PROP(ATTRIBUTE_STROKE_COLOR, AttributeNameStrokeColor);
+MAKE_SYSTEM_PROP(ATTRIBUTE_STROKE_WIDTH, AttributeNameStrokeWidth);
+MAKE_SYSTEM_PROP(ATTRIBUTE_SHADOW, AttributeNameShadow);
+MAKE_SYSTEM_PROP(ATTRIBUTE_VERTICAL_GLYPH_FORM, AttributeNameVerticalGlyphForm);
+MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION, AttributeNameWritingDirection);
+MAKE_SYSTEM_PROP(ATTRIBUTE_TEXT_EFFECT, AttributeNameTextEffect);
+MAKE_SYSTEM_PROP(ATTRIBUTE_ATTACHMENT, AttributeNameAttachment);
+MAKE_SYSTEM_PROP(ATTRIBUTE_LINK, AttributeNameLink);
+MAKE_SYSTEM_PROP(ATTRIBUTE_BASELINE_OFFSET, AttributeNameBaselineOffset);
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_COLOR, AttributeNameUnderlineColor);
+MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_COLOR, AttributeNameStrikethroughColor);
+MAKE_SYSTEM_PROP(ATTRIBUTE_OBLIQUENESS, AttributeNameObliqueness);
+MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
+
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_STYLE_NONE, UnderlineStyleNone);
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_STYLE_SINGLE, UnderlineStyleSingle);
+
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_STYLE_THICK, UnderlineStyleThick);
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_STYLE_DOUBLE, UnderlineStyleDouble);
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_PATTERN_SOLID, UnderlinePatternSolid);
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_PATTERN_DOT, UnderlinePatternDot);
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_PATTERN_DASH, UnderlinePatternDash);
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT, UnderlinePatternDashDot);
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT, UnderlinePatternDashDotDot);
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_BY_WORD, UnderlineByWord);
+
+MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_EMBEDDING, WritingDirectionEmbedding);
+MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_OVERRIDE, WritingDirectionOverride);
+
+MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_NATURAL, WritingDirectionNatural);
+MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT, WritingDirectionLeftToRight);
+MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT, WritingDirectionRightToLeft);
+#endif
 
 #ifdef USE_TI_UIIOSADVIEW
 
@@ -85,6 +155,13 @@
 }
 #endif
 
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+-(id)createAttributedString:(id)args
+{
+    return [[[TiUIiOSAttributedStringProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
 #ifdef USE_TI_UIIOSTABBEDBAR
 -(id)createTabbedBar:(id)args
 {
@@ -104,7 +181,108 @@
     return [[[TiUIiOSNavWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+#ifdef USE_TI_UIIOSANIMATOR
+-(id)createAnimator:(id)args
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiAnimatorProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The Animator object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+#ifdef USE_TI_UIIOSSNAPBEHAVIOR
+-(id)createSnapBehavior:(id)args
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiSnapBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The Snap Behavior Object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+#endif
 
+#ifdef USE_TI_UIIOSPUSHBEHAVIOR
+-(id)createPushBehavior:(id)args
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiPushBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The Push Behavior Object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+//TiPushBehavior Constants
+MAKE_SYSTEM_PROP(PUSH_MODE_CONTINUOUS, 0);
+MAKE_SYSTEM_PROP(PUSH_MODE_INSTANTANEOUS, 1);
+#endif
+
+#ifdef USE_TI_UIIOSGRAVITYBEHAVIOR
+-(id)createGravityBehavior:(id)args
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiGravityBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The Gravity Behavior Object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+#endif
+
+#ifdef USE_TI_UIIOSANCHORATTACHMENTBEHAVIOR
+-(id)createAnchorAttachmentBehavior:(id)args
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiAnchorAttachBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The Anchor Attachment Behavior Object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+#endif
+
+#ifdef USE_TI_UIIOSVIEWATTACHMENTBEHAVIOR
+-(id)createViewAttachmentBehavior:(id)args
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiViewAttachBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The View Attachment Behavior Object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+#endif
+
+#ifdef USE_TI_UIIOSCOLLISIONBEHAVIOR
+-(id)createCollisionBehavior:(id)args
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiCollisionBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The Collision Behavior Object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+//TiCollisionBehavior Constants
+MAKE_SYSTEM_PROP(COLLISION_MODE_ITEM, 0);
+MAKE_SYSTEM_PROP(COLLISION_MODE_BOUNDARY, 1);
+MAKE_SYSTEM_PROP(COLLISION_MODE_ALL, 2);
+#endif
+
+#ifdef USE_TI_UIIOSDYNAMICITEMBEHAVIOR
+-(id)createDynamicItemBehavior:(id)args
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiDynamicItemBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The Dynamic Item Behavior Object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+#endif
+
+#endif
 
 
 #ifdef USE_TI_UIIOS
