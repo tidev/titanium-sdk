@@ -54,7 +54,7 @@ exports.init = function (logger, config, cli) {
 
 					if (!deviceInfo) {
 						logger.error(__('Unable to find device "%s"', builder.deviceId));
-						logger.error(__('Did you unplug it or some shit?') + '\n');
+						logger.error(__('Did you unplug it?') + '\n');
 						process.exit(1);
 					}
 
@@ -85,7 +85,8 @@ exports.init = function (logger, config, cli) {
 					debuggerPort: builder.allowDebugging && builder.debugPort || -1,
 					profilerEnabled: builder.allowProfiling && builder.profilePort,
 					profilerPort: builder.allowProfiling && builder.profilePort || -1
-				};
+				},
+				appPidRegExp = null;
 
 			async.series([
 				function (next) {
@@ -148,8 +149,90 @@ exports.init = function (logger, config, cli) {
 				},
 
 				function (next) {
+					var logBuffer = [],
+						displayStartLog = true,
+						tiapiRegExp = /^(\w\/TiAPI\s*\:)/;
+
+					function printData(line) {
+						if (appPidRegExp.test(line)) {
+							line = line.trim().replace(/\%/g, '%%').replace(appPidRegExp, ':');
+							var logLevel = line.charAt(0).toLowerCase();
+							if (tiapiRegExp.test(line)) {
+								line = line.replace(tiapiRegExp, '').trim();
+							} else {
+								line = line.replace(/^\w\/(\w+)\s*\:/g, '$1:').grey;
+							}
+							switch (logLevel) {
+								case 'v':
+									logger.trace(line);
+									break;
+								case 'd':
+									logger.debug(line);
+									break;
+								case 'w':
+									logger.warn(line);
+									break;
+								case 'e':
+									logger.error(line);
+									break;
+								case 'i':
+								default:
+									logger.info(line);
+							}
+						}
+					}
+
+					adb.logcat(deviceInfo.id, function (data) {
+						if (appPidRegExp) {
+							if (displayStartLog) {
+								var startLogTxt = __('Start application log');
+								logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
+								displayStartLog = false;
+							}
+
+							// flush log buffer
+							if (logBuffer.length) {
+								logBuffer.forEach(printData);
+								logBuffer = [];
+							}
+
+							// flush data
+							data.trim().split('\n').forEach(printData);
+						} else {
+							logBuffer = logBuffer.concat(data.trim().split('\n'));
+						}
+					}, function () {
+						var endLogTxt = __('End application log');
+						logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey);
+						finished();
+					});
+
+					next();
+				},
+
+				function (next) {
 					logger.info(__('Starting app: %s', (builder.appid + '/.' + builder.classname + 'Activity').cyan));
 					adb.startApp(deviceInfo.id, builder.appid, builder.classname + 'Activity', next);
+				},
+
+				function (next) {
+					adb.getPid(deviceInfo.id, builder.appid, function (err, pid) {
+						if (err) {
+							logger.error(__('Unable to get application pid'));
+							err.split('\n').forEach(logger.error);
+							logger.log();
+							process.exit(1);
+						}
+						if (!pid) {
+							logger.error(__('Application is not running') + '\n');
+							process.exit(1);
+						}
+
+						logger.info(__('Application pid: %s', String(pid).cyan));
+						appPidRegExp = new RegExp('\\(\\s*' + pid + '\\)\:');
+
+						next();
+					});
 				},
 
 				function (next) {
@@ -172,12 +255,12 @@ exports.init = function (logger, config, cli) {
 					}
 				},
 
-			], function (err) {
+			]/*, function (err) {
 				if (err) {
 					logger.error(err);
 				}
 				finished();
-			});
+			}*/);
 		}
 	});
 

@@ -117,7 +117,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 				if (err) {
 					callback(err);
 				} else {
-					_t.devices = devices;
+					_t.devices = devices.filter(function (d) { return !d.emulator; });
 					callback(null, targetDeviceCache[target] = devices.map(function (d) {
 						return {
 							name: d.model || d.manufacturer,
@@ -312,7 +312,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 													: '');
 										}
 									},
-									//autoSelectOne: true,
+									autoSelectOne: true,
 									margin: '',
 									optionLabel: 'name',
 									optionValue: 'id',
@@ -618,17 +618,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			break;
 
 		case 'test':
-/*
-			this.encodeI18N = true;
-			this.minifyJS = true;
-			this.encryptJS = true;
-			this.removeUnusedTiAPIs = true;
-			this.allowDebugging = true;
-			this.allowProfiling = true;
-			this.showErrors = true;
-			break;
-*/
-
 		case 'development':
 		default:
 			this.encodeI18N = false;
@@ -1042,6 +1031,11 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'zipAlignApk',
 
 		function (next) {
+			if (!this.buildOnly) {
+				var delta = appc.time.prettyDiff(this.cli.startTime, Date.now());
+				this.logger.info(__('Finished building the application in %s', delta.cyan));
+			}
+
 			cli.emit('build.post.compile', this, next);
 		}
 	], function (err) {
@@ -2685,7 +2679,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 	];
 
 	var tmp = temp.openSync();
-	fs.writeSync(tmp.fd, javaFiles.join('\n'));
+	fs.writeSync(tmp.fd, '"' + javaFiles.join('"\n"') + '"');
 	fs.closeSync(tmp.fd);
 	javacArgs.push('@' + tmp.path);
 
