@@ -307,11 +307,7 @@
             [self.proxy fireEvent:@"longpress" withObject:event];
         }
         if ([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO] && (label != nil) && [TiUtils isIOS7OrGreater]) {
-            /*
-             This part of code adapted from the NappUI project.
-             https://github.com/viezel/NappUI
-            */
-             NSMutableAttributedString* optimizedAttributedText = [label.attributedText mutableCopy];
+            NSMutableAttributedString* optimizedAttributedText = [label.attributedText mutableCopy];
             if (optimizedAttributedText != nil) {
                 // use label's font and lineBreakMode properties in case the attributedText does not contain such attributes
                 [label.attributedText enumerateAttributesInRange:NSMakeRange(0, [label.attributedText length]) options:0 usingBlock:^(NSDictionary *attrs, NSRange range, BOOL *stop) {
