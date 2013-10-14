@@ -418,7 +418,8 @@ properties:
     description: |
         Provides the same functionality as the [search](Titanium.UI.TableView.search) property in [TableView](Titanium.UI.TableView).
         Used in conjunction with [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
-    type: [Titanium.UI.SearchBar]
+        On Android, you can either specify [Titanium.UI.SearchBar] or [Titanium.UI.SearchView], while on iOS only [Titanium.UI.SearchBar] is supported.
+    type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
     platforms: [android, iphone, ipad]
     since: 3.2.0
 
