@@ -182,7 +182,7 @@
     
     opening = YES;
     
-    isModal = (tab == nil) ? [self argOrWindowProperty:@"modal" args:args] : NO;
+    isModal = (tab == nil && !self.isManaged) ? [self argOrWindowProperty:@"modal" args:args] : NO;
     
     if ([self argOrWindowProperty:@"fullscreen" args:args]) {
         hidesStatusBar = YES;
