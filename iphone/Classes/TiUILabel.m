@@ -11,6 +11,10 @@
 #import "TiUtils.h"
 #import "UIImage+Resize.h"
 
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+#import "TiUIiOSAttributedStringProxy.h"
+#endif
+
 @implementation TiUILabel
 
 #pragma mark Internal
@@ -22,6 +26,7 @@
         padding = CGRectZero;
         initialLabelFrame = CGRectZero;
         verticalAlign = -1;
+        attributedString = nil;
     }
     return self;
 }
@@ -59,6 +64,12 @@
 		// font from clipping
 		size.width += shadowOffset.width + 10;
 	}
+
+    if(attributedString)
+    {
+        size = [label sizeThatFits:maxSize];
+    }
+
 	return size;
 }
 
@@ -260,9 +271,15 @@
     [self backgroundImageLayer].frame = backgroundFrame;
 }
 
--(void)setBackgroundImage_:(id)url
+-(void)setAttributedString_:(id)arg
 {
-    [super setBackgroundImage_:url];
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+    ENSURE_SINGLE_ARG(arg, TiUIiOSAttributedStringProxy);
+    [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
+    [[self label] setAttributedText:[arg attributedString]];
+    [self padLabel];
+    [(TiViewProxy *)[self proxy] contentsWillChange];
+#endif
 }
 
 -(void)setBackgroundPaddingLeft_:(id)left
