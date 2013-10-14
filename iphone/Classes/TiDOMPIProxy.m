@@ -10,6 +10,11 @@
 // Corresponds to Interface ProcessingInstruction of DOM2 Spec.
 @implementation TiDOMPIProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.XML.ProcessingInstruction";
+}
+
 -(NSString *)data
 {
 	return [node stringValue];

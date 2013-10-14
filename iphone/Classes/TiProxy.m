@@ -1274,6 +1274,12 @@ DEFINE_EXCEPTIONS
 	return [NSNull null];
 }
 
+//For subclasses to override
+-(NSString*)apiName
+{
+    return @"";
+}
+
 + (id)createProxy:(NSString*)qualifiedName withProperties:(NSDictionary*)properties inContext:(id<TiEvaluator>)context
 {
 	static dispatch_once_t onceToken;
