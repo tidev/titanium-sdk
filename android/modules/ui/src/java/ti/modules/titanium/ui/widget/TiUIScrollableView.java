@@ -22,6 +22,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.ScrollableViewProxy;
 import ti.modules.titanium.ui.widget.TiUIScrollView.TiScrollViewLayout;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
@@ -35,6 +36,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+@SuppressLint("NewApi")
 public class TiUIScrollableView extends TiUIView
 {
 	private static final String TAG = "TiUIScrollableView";
@@ -100,6 +102,8 @@ public class TiUIScrollableView extends TiUIView
 			@Override
 			public void onPageScrollStateChanged(int scrollState)
 			{
+				mPager.requestDisallowInterceptTouchEvent(scrollState != ViewPager.SCROLL_STATE_IDLE);
+
 				if ((scrollState == ViewPager.SCROLL_STATE_IDLE) && isValidScroll) {
 					int oldIndex = mCurIndex;
 
@@ -551,27 +555,6 @@ public class TiUIScrollableView extends TiUIView
 				showPager();
 			}
 			return super.onTrackballEvent(event);
-		}
-
-		@Override
-		public boolean dispatchTouchEvent(MotionEvent ev)
-		{
-			// If the parent is a scroll view, then we prevent the scroll view from intercepting touch events
-			if (getParent() instanceof TiScrollViewLayout) {
-				int action = ev.getAction();
-				switch (action) {
-					case MotionEvent.ACTION_DOWN:
-						requestDisallowInterceptTouchEvent(true);
-						break;
-
-					case MotionEvent.ACTION_UP:
-					case MotionEvent.ACTION_CANCEL:
-						requestDisallowInterceptTouchEvent(false);
-						break;
-
-				}
-			}
-			return super.dispatchTouchEvent(ev);
 		}
 
 		@Override

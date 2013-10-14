@@ -256,6 +256,10 @@ properties:
 
   - name: barImage
     summary: Background image for the nav bar, specified as a URL to a local image.
+    description: |
+        The behavior of this API on iOS has changed from version 3.2.0. Previous versions
+        of the SDK created a custom image view and inserted it as a child of the navigation bar.
+        The titanium sdk now uses the native call to set the background image of the navigation bar.
     platforms: [iphone, ipad, mobileweb, tizen]
     type: String
 
@@ -338,6 +342,15 @@ properties:
     platforms: [android, iphone, ipad]
     type: Boolean
     default: false
+
+  - name: hideShadow
+    summary: Set this to true to hide the shadow image of the navigation bar.
+    description: |
+        This property is only honored if a valid value is specified for the [barImage](Titanium.UI.Window.barImage) property.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: false
+    since: 3.2.0
 
   - name: left
     summary: Window's left position, in platform-specific units.
@@ -556,11 +569,19 @@ properties:
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
     
+  - name: shadowImage
+    summary: Shadow image for the navigation bar, specified as a URL to a local image..
+    description: |
+        This property is only honored if a valid value is specified for the [barImage](Titanium.UI.Window.barImage) property.
+    platforms: [iphone, ipad]
+    type: String
+    since: 3.2.0
+
   - name: statusBarStyle
     summary: The status bar style associated with this window. 
     description: |
-        Sets the status bar style when this window gains focus. This is now the recommended way to control the
-        status bar style on the application. Must be specified **before** the the window is opened.
+        Sets the status bar style when this window has focus. This is now the recommended way to control the
+        status bar style on the application.
 
         If this value is undefined, the value is set to UIStatusBarStyle defined in tiapp.xml.
         If that is not defined it defaults to <Titanium.UI.iPhone.StatusBar.DEFAULT>.
