@@ -698,6 +698,15 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		process.exit(1);
 	}
 
+	// check that the proguard config exists
+	var proguardConfigFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'proguard.cfg');
+	if (cli.tiapp.android && cli.tiapp.android.proguard && !fs.existsSync(proguardConfigFile)) {
+		logger.error(__('Missing ProGuard configuration file'));
+		logger.error(__('ProGuard settings must go in the file "%s"', proguardConfigFile));
+		logger.error(__('For example configurations, visit %s', 'http://proguard.sourceforge.net/index.html#manual/examples.html') + '\n');
+		process.exit(1);
+	}
+
 	// map sdk versions to sdk targets instead of by id
 	var targetSDKMap = {};
 	Object.keys(this.androidInfo.targets).forEach(function (id) {
@@ -1025,6 +1034,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'generateAndroidManifest',
 		'packageApp',
 		'compileJavaClasses',
+		'runProguard',
 		'runDexer',
 		'createUnsignedApk',
 		'createSignedApk',
@@ -2516,7 +2526,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 			str = str.replace(/(\$\{tiapp\.properties\[['"]([^'"]+)['"]\]\})/g, function (s, m1, m2) {
 				// if the property is the "id", we want to force our scrubbed "appid"
 				if (m2 == 'id') {
-					m2 = 'classname';
+					m2 = 'appid';
 				} else {
 					m2 = 'tiapp.' + m2;
 				}
@@ -2554,6 +2564,8 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 			if (moduleXml.android && moduleXml.android.manifest) {
 				var am = new AndroidManifest;
 				am.parse(fill(moduleXml.android.manifest));
+				// we don't want modules to override the <uses-sdk> tag
+				delete am['uses-sdk'];
 				finalAndroidManifest.merge(am);
 			}
 		}
@@ -2694,6 +2706,27 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 			process.exit(1);
 		}
 
+		next();
+	}.bind(this));
+};
+
+AndroidBuilder.prototype.runProguard = function runProguard(next) {
+	if (!this.tiapp.android || !this.tiapp.android.proguard) {
+		return next();
+	}
+
+	// check that the proguard config exists
+	var proguardConfigFile = path.join(this.buildDir, 'proguard.cfg');
+
+	this.logger.info(__('Running ProGuard: %s', (this.jdkInfo.executables.java + ' -jar "' + this.androidInfo.sdk.proguard + '" "@' + proguardConfigFile + '"').cyan));
+
+	appc.subprocess.run(this.jdkInfo.executables.java, ['-jar', this.androidInfo.sdk.proguard, '@' + proguardConfigFile], { cwd: this.buildDir }, function (code, out, err) {
+		if (code) {
+			this.logger.error(__('Failed to run ProGuard'));
+			err.trim().split('\n').forEach(this.logger.error);
+			this.logger.log();
+			process.exit(1);
+		}
 		next();
 	}.bind(this));
 };
