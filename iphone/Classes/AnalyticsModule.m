@@ -77,6 +77,11 @@ NSString * const TI_DB_VERSION = @"1";
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Analytics";
+}
+
 -(void)enqueueBlock:(void (^)(void))block
 {
 	[eventQueue addOperationWithBlock:block];
