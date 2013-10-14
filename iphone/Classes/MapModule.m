@@ -11,6 +11,11 @@
 
 @implementation MapModule
 
+-(NSString*)apiName
+{
+    return @"Ti.Map";
+}
+
 MAKE_SYSTEM_PROP(STANDARD_TYPE,MKMapTypeStandard);
 MAKE_SYSTEM_PROP(SATELLITE_TYPE,MKMapTypeSatellite);
 MAKE_SYSTEM_PROP(HYBRID_TYPE,MKMapTypeHybrid);

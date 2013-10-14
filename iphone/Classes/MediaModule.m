@@ -134,6 +134,11 @@ typedef void (^PermissionBlock)(BOOL granted)
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Media";
+}
+
 -(void)dispatchCallback:(NSArray*)args
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
