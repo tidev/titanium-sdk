@@ -429,7 +429,7 @@ properties:
         Provides a generic search API for the List View. This property can not be used when the [searchView](Titanium.UI.ListView.searchView) property is set.
         Used in conjunction with [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
 
-        When using this property the [style](Titanium.UI.ListView.style) property of the List View is honored. If the [keepSectionsInSearch](Titanium.UI.ListView.keepSectionsInSearch) property
+        On iOS, when using this property the [style](Titanium.UI.ListView.style) property of the List View is honored. If the [keepSectionsInSearch](Titanium.UI.ListView.keepSectionsInSearch) property
         is set to true then section information is preserved in the search results, otherwise the search results are displayed in a single section.
     type: String
     platforms: [android, iphone, ipad]
