@@ -1033,9 +1033,16 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'generateTheme',
 		'generateAndroidManifest',
 		'packageApp',
+
+		// we only need to compile java classes if any files in src or gen changed
 		'compileJavaClasses',
+
+		// we only need to run proguard if any java classes have changed
 		'runProguard',
+
+		// we only need to run the dexer if this.moduleJars or this.jarLibraries changes or any files in this.buildBinClassesDir have changed or debugging/profiling toggled
 		'runDexer',
+
 		'createUnsignedApk',
 		'createSignedApk',
 		'zipAlignApk',
@@ -2663,9 +2670,11 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 		classpath[path.join(this.platformPath, 'lib', 'titanium-profiler.jar')] = 1;
 	}
 
+	// find all java files and write them to the temp file
 	var javaFiles = [],
-		javaRegExp = /\.java$/;
-	function scanJavaFiles(dir) {
+		javaRegExp = /\.java$/,
+		javaSourcesFile = path.join(this.buildDir, 'java-sources.txt');
+	[this.buildGenAppIdDir, this.buildSrcDir].forEach(function scanJavaFiles(dir) {
 		fs.readdirSync(dir).forEach(function (name) {
 			var file = path.join(dir, name);
 			if (fs.existsSync(file)) {
@@ -2677,25 +2686,18 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 				}
 			}
 		});
-	}
-	scanJavaFiles(this.buildGenAppIdDir);
-	scanJavaFiles(this.buildSrcDir);
+	});
+	fs.writeFileSync(javaSourcesFile, '"' + javaFiles.join('"\n"') + '"');
 
 	var javacArgs = [
 		'-encoding', 'utf8',
 		'-classpath', Object.keys(classpath).join(process.platform == 'win32' ? ';' : ':'),
 		'-d', this.buildBinClassesDir,
 		'-proc:none',
-		'-sourcepath', this.buildGenAppIdDir,
-		'-sourcepath', this.buildSrcDir,
 		'-target', this.javacTarget,
-		'-source', this.javacSource
+		'-source', this.javacSource,
+		'@' + javaSourcesFile
 	];
-
-	var tmp = temp.openSync();
-	fs.writeSync(tmp.fd, '"' + javaFiles.join('"\n"') + '"');
-	fs.closeSync(tmp.fd);
-	javacArgs.push('@' + tmp.path);
 
 	this.logger.info(__('Building Java source files: %s', (this.jdkInfo.executables.javac + ' "' + javacArgs.join('" "') + '"').cyan));
 
