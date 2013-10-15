@@ -1277,6 +1277,7 @@ DEFINE_EXCEPTIONS
 //For subclasses to override
 -(NSString*)apiName
 {
+    DebugLog(@"[ERROR] Subclasses must override the apiName API endpoint.");
     return @"";
 }
 
