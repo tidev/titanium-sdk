@@ -33,6 +33,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.ScrollableView";
+}
+
 -(void)lockViews
 {
 	pthread_rwlock_rdlock(&viewsLock);

@@ -34,6 +34,11 @@ static NSArray* scrollViewKeySequence;
     [super _initWithProperties:properties];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.ScrollView";
+}
+
 -(TiPoint *) contentOffset{
     if([self viewAttached]){
         TiThreadPerformOnMainThread(^{

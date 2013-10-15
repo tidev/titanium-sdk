@@ -43,6 +43,11 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.TextWidget";
+}
+
 
 -(NSNumber*)hasText:(id)unused
 {

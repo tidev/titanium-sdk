@@ -25,6 +25,11 @@
     [super _initWithProperties:properties];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iOS.NavigationWindow";
+}
+
 #pragma mark - TiOrientationController
 
 -(TiOrientationFlags) orientationFlags

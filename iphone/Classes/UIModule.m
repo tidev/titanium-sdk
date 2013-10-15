@@ -72,6 +72,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI";
+}
+
 #pragma mark Public Constants
 
 MAKE_SYSTEM_PROP(ANIMATION_CURVE_EASE_IN_OUT,UIViewAnimationOptionCurveEaseInOut);

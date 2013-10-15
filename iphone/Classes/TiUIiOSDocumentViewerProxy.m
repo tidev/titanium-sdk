@@ -31,6 +31,11 @@
 	return controller;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iOS.DocumentViewer";
+}
+
 -(void)setAnnotation:(id)args
 {
 	[self controller].annotation = [args objectAtIndex:0];
