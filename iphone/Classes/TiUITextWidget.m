@@ -224,6 +224,22 @@
 	[self makeRootViewFirstResponder];
 }
 
+-(void)setSelectionFrom:(id)start to:(id)end
+{
+    id<UITextInput> textView = (id<UITextInput>)[self textWidgetView];
+    if ([textView conformsToProtocol:@protocol(UITextInput)]) {
+        if([self isFirstResponder] || [self becomeFirstResponder]) {
+            UITextPosition *beginning = textView.beginningOfDocument;
+            UITextPosition *startPos = [textView positionFromPosition:beginning offset:[TiUtils intValue: start]];
+            UITextPosition *endPos = [textView positionFromPosition:beginning offset:[TiUtils intValue: end]];
+            UITextRange *textRange;
+            textRange = [textView textRangeFromPosition:startPos toPosition:endPos];
+            [textView setSelectedTextRange:textRange];
+        }
+    } else {
+        DebugLog(@"TextWidget does not conform with UITextInput protocol. Ignore");
+    }
+}
 @end
 
 #endif
