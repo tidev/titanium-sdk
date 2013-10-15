@@ -67,6 +67,11 @@
 
 @implementation TiUIiOSProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iOS";
+}
+
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 MAKE_SYSTEM_PROP(ATTRIBUTE_FONT, AttributeNameFont);
 MAKE_SYSTEM_PROP(ATTRIBUTE_PARAGRAPH_STYLE, AttributeNameParagraphStyle);

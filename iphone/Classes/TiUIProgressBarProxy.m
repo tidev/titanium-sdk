@@ -15,6 +15,11 @@
 USE_VIEW_FOR_CONTENT_WIDTH
 USE_VIEW_FOR_CONTENT_HEIGHT
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.ProgressBar";
+}
+
 -(TiUIView*)newView
 {
 	id styleObj = [self valueForKey:@"style"];

@@ -162,6 +162,11 @@ self.p = v;\
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.Animation";
+}
+
 +(TiAnimation*)animationFromArg:(id)args context:(id<TiEvaluator>)context create:(BOOL)yn
 {
 	id arg = nil;

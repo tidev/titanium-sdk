@@ -38,6 +38,11 @@
     [super _configure];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Window";
+}
+
 
 -(TiUIView*)newView
 {

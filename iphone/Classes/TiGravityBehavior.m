@@ -26,6 +26,11 @@
     [super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iOS.GravityBehavior";
+}
+
 #pragma mark - TiBehaviorProtocol
 -(UIDynamicBehavior*)behaviorObject
 {

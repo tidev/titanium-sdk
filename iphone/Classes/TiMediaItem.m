@@ -27,6 +27,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Media.Item";
+}
+
 -(MPMediaItem*)item
 {
 	return item;

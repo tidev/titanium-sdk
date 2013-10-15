@@ -134,6 +134,11 @@
 	[super _configure];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.Window";
+}
+
 
 -(void)dealloc
 {

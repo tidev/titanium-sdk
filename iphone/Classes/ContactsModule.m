@@ -95,6 +95,11 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Contacts";
+}
+
 -(void)removeRecord:(ABRecordRef)record
 {
 	CFErrorRef error;

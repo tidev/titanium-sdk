@@ -42,6 +42,11 @@ DEFINE_DEF_INT_PROP(appearance,UIKeyboardAppearanceDefault);
 DEFINE_DEF_INT_PROP(autocapitalization,UITextAutocapitalizationTypeNone);
 DEFINE_DEF_INT_PROP(maxLength,-1);
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.TextField";
+}
+
 @end
 
 

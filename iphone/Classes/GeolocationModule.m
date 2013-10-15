@@ -201,6 +201,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	[super _destroy];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Geolocation";
+}
+
 -(void)contextWasShutdown:(KrollBridge*)bridge
 {
 	if (singleHeading!=nil)
