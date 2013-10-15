@@ -397,6 +397,12 @@ function AndroidManifest(filename) {
 
 			src && Object.keys(src).forEach(function (tag) {
 				switch (tag) {
+					case '__attr__':
+						Object.keys(src.__attr__).forEach(function (key) {
+							this.__attr__[key] = src.__attr__[key];
+						}, this);
+						break;
+
 					case 'application':
 						this[tag] || (this[tag] = {});
 						Object.keys(src[tag]).forEach(function (subtag) {

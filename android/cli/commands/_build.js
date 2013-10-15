@@ -118,7 +118,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					callback(err);
 				} else {
 					_t.devices = devices.filter(function (d) { return !d.emulator; });
-					callback(null, targetDeviceCache[target] = devices.map(function (d) {
+					callback(null, targetDeviceCache[target] = _t.devices.map(function (d) {
 						return {
 							name: d.model || d.manufacturer,
 							id: d.id,
@@ -257,7 +257,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						values: ['test', 'development']
 					},
 					'device-id': {
-						abbr: 'V',
+						abbr: 'C',
 						desc: __('the name for the device or Android emulator to install the application to'),
 						hint: __('name'),
 						order: 103,
@@ -2538,6 +2538,8 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		finalAndroidManifest = (new AndroidManifest).parse(fill(fs.readFileSync(path.join(this.templatesDir, 'AndroidManifest.xml')).toString())),
 		customAndroidManifest = this.customAndroidManifest,
 		tiappAndroidManifest = this.tiappAndroidManifest;
+
+	finalAndroidManifest.__attr__['android:versionName'] = this.tiapp.version || '1';
 
 	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
 	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
