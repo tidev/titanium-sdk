@@ -1278,7 +1278,7 @@ DEFINE_EXCEPTIONS
 -(NSString*)apiName
 {
     DebugLog(@"[ERROR] Subclasses must override the apiName API endpoint.");
-    return @"";
+    return @"Ti.Proxy";
 }
 
 + (id)createProxy:(NSString*)qualifiedName withProperties:(NSDictionary*)properties inContext:(id<TiEvaluator>)context
