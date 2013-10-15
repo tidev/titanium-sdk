@@ -837,6 +837,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CANCELABLE = "cancelable";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CASE_INSENSITIVE_SEARCH = "caseInsensitiveSearch";
 
 	/**
 	 * @module.api
@@ -1847,6 +1852,21 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SEARCH_AS_CHILD = "searchAsChild";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCH_TEXT = "searchText";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCH_VIEW = "searchView";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCHABLE_TEXT = "searchableText";
 
 	/**
 	 * @module.api
