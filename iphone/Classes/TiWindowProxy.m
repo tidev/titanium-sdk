@@ -25,6 +25,14 @@
         TiThreadReleaseOnMainThread(controller, NO);
         controller = nil;
     }
+    
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+    if(transitionProxy != nil)
+    {
+        [self forgetProxy:transitionProxy];
+        RELEASE_TO_NIL(transitionProxy)
+    }
+#endif
     [super dealloc];
 }
 
@@ -397,7 +405,7 @@
 -(UIViewController*)hostingController;
 {
     if (controller == nil) {
-        controller = [[[TiViewController alloc] initWithViewProxy:self] retain];
+        controller = [[TiViewController alloc] initWithViewProxy:self];
     }
     return controller;
 }
@@ -653,5 +661,23 @@
         [self windowDidClose];
     }
 }
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+-(TiUIiOSTransitionAnimationProxy*)transitionProxy
+{
+    return [self valueForUndefinedKey:@"transitionAnimation"];
+}
+
+-(void)setTransitionAnimation:(id)args
+{
+    ENSURE_SINGLE_ARG(args, TiUIiOSTransitionAnimationProxy)
+    if(transitionProxy != nil) {
+        [self forgetProxy:transitionProxy];
+        RELEASE_TO_NIL(transitionProxy)
+    }
+    transitionProxy = [args retain];
+    [self rememberProxy:transitionProxy];
+    [self replaceValue:args forKey:@"transitionAnimation" notification:NO];
+}
+#endif
 
 @end

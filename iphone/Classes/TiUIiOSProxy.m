@@ -8,7 +8,6 @@
 #import "TiUIiOSProxy.h"
 #import "TiUtils.h"
 #import "Webcolor.h"
-
 #ifdef USE_TI_UIIOS
  
 #ifdef USE_TI_UIIOSADVIEW
@@ -58,6 +57,9 @@
 #endif
 #ifdef USE_TI_UIIOSDYNAMICITEMBEHAVIOR
 #import "TiDynamicItemBehavior.h"
+#endif
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+#import "TiUIiOSTransitionAnimationProxy.h"
 #endif
 
 #endif
@@ -149,7 +151,17 @@
     }
 }
 #endif
-
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+-(id)createTransitionAnimation:(id)args;
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiUIiOSTransitionAnimationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The Transition Animation Object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+#endif
 #ifdef USE_TI_UIIOSPUSHBEHAVIOR
 -(id)createPushBehavior:(id)args
 {

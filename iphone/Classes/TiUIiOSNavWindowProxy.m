@@ -119,6 +119,22 @@
 
 #pragma mark - UINavigationControllerDelegate
 
+- (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
+                                   animationControllerForOperation:(UINavigationControllerOperation)operation
+                                                fromViewController:(UIViewController *)fromVC
+                                                  toViewController:(UIViewController *)toVC {
+    
+    
+    TiViewController* toViewController = (TiViewController*)toVC;
+    
+    TiWindowProxy *windowProxy = (TiWindowProxy*)[toViewController proxy];
+
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+    return [windowProxy transitionProxy];
+#else
+    return nil;
+#endif
+}
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
@@ -206,6 +222,11 @@
 	TiWindowProxy *window = [args objectAtIndex:0];
 	BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
     
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+    if([window transitionProxy]) {
+        [[window transitionProxy] startEvent];
+    }
+#endif
     [navController pushViewController:[window hostingController] animated:animated];
 }
 

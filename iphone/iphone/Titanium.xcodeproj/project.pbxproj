@@ -618,6 +618,9 @@
 		B4E9A913128E24FB006A111B /* UIImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9BE36E127F8F6C000FE9E1 /* UIImageExtras.m */; };
 		B4F97B6F111A41B600E2F72C /* TiUIScrollViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */; };
 		B4F97B73111A41C800E2F72C /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
+		B69A9C62180C738600A68F64 /* TiUIiOSTransitionAnimationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B69A9C61180C738600A68F64 /* TiUIiOSTransitionAnimationProxy.m */; };
+		B69A9C63180C738600A68F64 /* TiUIiOSTransitionAnimationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B69A9C61180C738600A68F64 /* TiUIiOSTransitionAnimationProxy.m */; };
+		B69A9C64180C738600A68F64 /* TiUIiOSTransitionAnimationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B69A9C61180C738600A68F64 /* TiUIiOSTransitionAnimationProxy.m */; };
 		D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
 		D4AB36F6123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
 		D930111E16DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */ = {isa = PBXBuildFile; fileRef = D930111D16DA9D62002E25C2 /* TiCalendarRecurrenceRule.m */; };
@@ -1529,6 +1532,8 @@
 		B4F97B72111A41C800E2F72C /* TiUIScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIScrollView.m; sourceTree = "<group>"; };
 		B4F97C56111BAD4700E2F72C /* TiUIiPhoneScrollIndicatorStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPhoneScrollIndicatorStyleProxy.h; sourceTree = "<group>"; };
 		B4F97C57111BAD4700E2F72C /* TiUIiPhoneScrollIndicatorStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPhoneScrollIndicatorStyleProxy.m; sourceTree = "<group>"; };
+		B69A9C60180C738600A68F64 /* TiUIiOSTransitionAnimationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTransitionAnimationProxy.h; sourceTree = "<group>"; };
+		B69A9C61180C738600A68F64 /* TiUIiOSTransitionAnimationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTransitionAnimationProxy.m; sourceTree = "<group>"; };
 		D4AB36F3123DE20200DED4A0 /* TiUIClipboardProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIClipboardProxy.h; sourceTree = "<group>"; };
 		D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIClipboardProxy.m; sourceTree = "<group>"; };
 		D930111C16DA9D61002E25C2 /* TiCalendarRecurrenceRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCalendarRecurrenceRule.h; sourceTree = "<group>"; };
@@ -2938,6 +2943,8 @@
 		84E00A9917B6462900B6DCE2 /* Nav Window */ = {
 			isa = PBXGroup;
 			children = (
+				B69A9C60180C738600A68F64 /* TiUIiOSTransitionAnimationProxy.h */,
+				B69A9C61180C738600A68F64 /* TiUIiOSTransitionAnimationProxy.m */,
 				84E00A9A17B646EE00B6DCE2 /* TiUIiOSNavWindowProxy.h */,
 				84E00A9B17B646EE00B6DCE2 /* TiUIiOSNavWindowProxy.m */,
 				843FA58217BD4DFF0064E061 /* TiUIiOSNavWindow.h */,
@@ -3484,6 +3491,7 @@
 				24ADC5121299F60C0014DB75 /* TiAppiOSProxy.m in Sources */,
 				24ADC5161299F6AA0014DB75 /* TiAppiOSBackgroundServiceProxy.m in Sources */,
 				84EB340017A8CAA700723B1E /* TiWindowProxy.m in Sources */,
+				B69A9C62180C738600A68F64 /* TiUIiOSTransitionAnimationProxy.m in Sources */,
 				24ADC634129A1ED60014DB75 /* TiAppiOSLocalNotificationProxy.m in Sources */,
 				84A0100E17FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */,
 				84A00FF017FB39A100D4BF94 /* TiAnimatorProxy.m in Sources */,
@@ -3776,6 +3784,7 @@
 				B48050201278AB170030AA3F /* TiThreading.m in Sources */,
 				DABDEB08128B5A8F00C85FEA /* AudioStreamerCUR.m in Sources */,
 				84EB340117A8CAA700723B1E /* TiWindowProxy.m in Sources */,
+				B69A9C63180C738600A68F64 /* TiUIiOSTransitionAnimationProxy.m in Sources */,
 				B4E9A913128E24FB006A111B /* UIImageExtras.m in Sources */,
 				84A0100F17FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */,
 				84A00FF117FB39A100D4BF94 /* TiAnimatorProxy.m in Sources */,
@@ -4068,6 +4077,7 @@
 				DABB378912E8CB280026A6EA /* TiThreading.m in Sources */,
 				DABB378B12E8CB280026A6EA /* AudioStreamerCUR.m in Sources */,
 				84EB340217A8CAA700723B1E /* TiWindowProxy.m in Sources */,
+				B69A9C64180C738600A68F64 /* TiUIiOSTransitionAnimationProxy.m in Sources */,
 				DABB378C12E8CB280026A6EA /* UIImageExtras.m in Sources */,
 				84A0101017FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */,
 				84A00FF217FB39A100D4BF94 /* TiAnimatorProxy.m in Sources */,
