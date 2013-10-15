@@ -60,6 +60,9 @@ exports.init = function (logger, config, cli) {
 
 					finished();
 				});
+
+			} else {
+				finished();
 			}
 		}
 	});

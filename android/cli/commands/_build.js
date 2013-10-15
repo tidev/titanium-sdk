@@ -448,10 +448,15 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							}));
 						},
 						validate: function (keystoreFile, callback) {
-							if (!keystoreFile || !fs.existsSync(keystoreFile) || !fs.statSync(keystoreFile).isFile()) {
-								callback(new Error(keystoreFile ? __('Invalid keystore file') : __('Please specify the path to your keystore file')));
+							if (!keystoreFile) {
+								callback(new Error(__('Please specify the path to your keystore file')));
 							} else {
-								callback(null, keystoreFile);
+								keystoreFile = appc.fs.resolvePath(keystoreFile);
+								if (!fs.existsSync(keystoreFile) || !fs.statSync(keystoreFile).isFile()) {
+									callback(new Error(__('Invalid keystore file')));
+								} else {
+									callback(null, keystoreFile);
+								}
 							}
 						}
 					},
@@ -503,9 +508,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							_t.conf.options.keystore.validate(cli.argv.keystore, function (err, keystoreFile) {
 								if (err) {
 									// we have a bad --keystore arg
-									console.log('bad --keystore');
 									cli.argv.keystore = undefined;
-									throw err;
+									return callback(err);
 								}
 
 								if (keystoreFile && _t.jdkInfo && _t.jdkInfo.executables.keytool) {
@@ -2872,9 +2876,12 @@ AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
 			'-keystore', this.keystore,
 			'-storepass', this.keystoreStorePassword,
 			'-alias', this.keystoreAlias
-		];
+		],
+		keytoolArgsSafe = [].concat(keytoolArgs);
 
-	this.logger.info(__('Determining signature algorithm: %s', (this.jdkInfo.executables.keytool + ' "' + keytoolArgs.join('" "') + '"').cyan));
+	keytoolArgsSafe[5] = keytoolArgsSafe[5].replace(/./g, '*');
+
+	this.logger.info(__('Determining signature algorithm: %s', (this.jdkInfo.executables.keytool + ' "' + keytoolArgsSafe.join('" "') + '"').cyan));
 
 	appc.subprocess.run(this.jdkInfo.executables.keytool, keytoolArgs, function (code, out, err) {
 		if (code) {
@@ -2890,14 +2897,19 @@ AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
 				'-digestalg', 'SHA1',
 				'-keystore', this.keystore,
 				'-storepass', this.keystoreStorePassword
-			];
+			],
+			signerArgsSafe;
 
 		this.logger.info(__('Using %s signature algorithm', (m ? m[1] : 'MD5withRSA').cyan));
 
 		this.keystoreKeyPassword && signerArgs.push('-keypass', this.keystoreKeyPassword);
 		signerArgs.push('-signedjar', this.apkFile, this.unsignedApkFile, this.keystoreAlias);
 
-		this.logger.info(__('Signing apk: %s', (this.jdkInfo.executables.jarsigner + ' "' + signerArgs.join('" "') + '"').cyan));
+		signerArgsSafe = [].concat(signerArgs);
+		signerArgsSafe[7] = signerArgsSafe[7].replace(/./g, '*');
+		this.keystoreKeyPassword && (signerArgsSafe[9] = signerArgsSafe[9].replace(/./g, '*'));
+
+		this.logger.info(__('Signing apk: %s', (this.jdkInfo.executables.jarsigner + ' "' + signerArgsSafe.join('" "') + '"').cyan));
 
 		appc.subprocess.run(this.jdkInfo.executables.jarsigner, signerArgs, function (code, out, err) {
 			if (code) {
