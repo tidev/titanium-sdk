@@ -167,7 +167,7 @@ properties:
         Used in conjunction with [searchView](Titanium.UI.ListView.searchView), [searchText](Titanium.UI.ListView.searchText) and [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) properties of ListView.
     type: String
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     accessors: false
 
   - name: color
