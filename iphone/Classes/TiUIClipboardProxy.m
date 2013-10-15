@@ -59,6 +59,11 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 @implementation TiUIClipboardProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.Clipboard";
+}
+
 -(void)clearData:(id)arg
 {
 	ENSURE_UI_THREAD(clearData, arg);

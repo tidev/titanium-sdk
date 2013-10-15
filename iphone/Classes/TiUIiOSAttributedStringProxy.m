@@ -29,6 +29,11 @@
     [super _initWithProperties:properties];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iOS.AttributedString";
+}
+
 -(NSMutableAttributedString*)attributedString
 {
     return _attributedString;

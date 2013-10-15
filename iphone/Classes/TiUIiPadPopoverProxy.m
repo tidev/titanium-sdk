@@ -40,6 +40,11 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPad.Popover";
+}
+
 #pragma mark Internal methods
 -(void)refreshTitleBarWithObject:(id)properties
 {

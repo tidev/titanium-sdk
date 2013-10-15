@@ -22,6 +22,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.App.iOS";
+}
+
 -(void)_listenerAdded:(NSString*)type count:(int)count
 {
 	if (count == 1 && [type isEqual:@"notification"])

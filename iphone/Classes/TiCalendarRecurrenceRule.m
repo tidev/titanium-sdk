@@ -37,6 +37,11 @@
     return rule;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Calendar.RecurrenceRule";
+}
+
 #pragma mark - Public API's
 
 -(id)valueForUndefinedKey:(NSString *)key

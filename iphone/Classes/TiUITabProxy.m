@@ -51,6 +51,11 @@
 	[super _configure];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.Tab";
+}
+
 #pragma mark - Private methods
 
 -(void) cleanNavStack:(BOOL)removeTab

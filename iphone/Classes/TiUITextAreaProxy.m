@@ -17,6 +17,11 @@ DEFINE_DEF_PROP(value,@"");
 DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 DEFINE_DEF_INT_PROP(maxLength,-1);
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.TextArea";
+}
+
 @end
 
 #endif

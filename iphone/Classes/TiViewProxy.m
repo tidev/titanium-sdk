@@ -58,6 +58,11 @@
 	return ((copy != nil) ? [copy autorelease] : [NSMutableArray array]);
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.View";
+}
+
 -(void)setVisible:(NSNumber *)newVisible withObject:(id)args
 {
 	[self setHidden:![TiUtils boolValue:newVisible def:YES] withArgs:args];

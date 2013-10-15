@@ -42,6 +42,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.ListSection";
+}
+
 - (id<TiUIListViewDelegate>)dispatcher
 {
 	return _delegate != nil ? _delegate : self;

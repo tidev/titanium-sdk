@@ -32,6 +32,12 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    //Should we return Ti.FileSystem.Blob? 
+    return @"Ti.Filesystem.File";
+}
+
 -(id)nativePath
 {
 	return [[NSURL fileURLWithPath:path] absoluteString];
