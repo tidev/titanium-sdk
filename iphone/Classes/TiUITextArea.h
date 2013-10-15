@@ -21,6 +21,7 @@
 @private
 	BOOL becameResponder;
     BOOL returnActive;
+    BOOL handleLinks;
 }
 
 @property(nonatomic,readonly) BOOL becameResponder;

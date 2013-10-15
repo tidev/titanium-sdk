@@ -307,7 +307,7 @@ define(['Ti/_/declare', 'Ti/_/Evented', 'Ti/_/style', 'Ti/UI'], function(declare
 
 		function go() {
 
-			if (!elem._alive) {
+			if (!elem._alive || !elem._isAttachedToActiveWin()) {
 				anis.activeCount--;
 				return;
 			}

@@ -151,19 +151,44 @@ public abstract class TiUIView
 	 */
 	public void add(TiUIView child)
 	{
+		add(child, -1);
+	}
+
+	private void add(TiUIView child, int childIndex)
+	{
 		if (child != null) {
 			View cv = child.getOuterView();
 			if (cv != null) {
 				View nv = getNativeView();
 				if (nv instanceof ViewGroup) {
 					if (cv.getParent() == null) {
-						((ViewGroup) nv).addView(cv, child.getLayoutParams());
+						if (childIndex != -1) {
+							((ViewGroup) nv).addView(cv, childIndex, child.getLayoutParams());
+						} else {
+							((ViewGroup) nv).addView(cv, child.getLayoutParams());
+						}
 					}
 					children.add(child);
 					child.parent = proxy;
 				}
 			}
 		}
+	}
+
+	private int findChildIndex(TiUIView child)
+	{
+		int idxChild = -1;
+		if (child != null) {
+			View cv = child.getOuterView();
+			if (cv != null) {
+				View nv = getNativeView();
+				if (nv instanceof ViewGroup) {
+					idxChild = ((ViewGroup) nv).indexOfChild(cv);
+
+				}
+			}
+		}
+		return idxChild;
 	}
 
 	/**
@@ -655,12 +680,18 @@ public abstract class TiUIView
 
 				if (hasBorder) {
 					if (borderView == null && parent != null) {
-						// Since we have to create a new border wrapper view, we need to remove this view, and re-add it.
+						// Since we have to create a new border wrapper view, we need to remove this view, and re-add
+						// it.
 						// This will ensure the border wrapper view is added correctly.
 						TiUIView parentView = parent.getOrCreateView();
+						int removedChildIndex = parentView.findChildIndex(this);
 						parentView.remove(this);
 						initializeBorder(d, bgColor);
-						parentView.add(this);
+						if (removedChildIndex == -1) {
+							parentView.add(this);
+						} else {
+							parentView.add(this, removedChildIndex);
+						}
 					} else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 						handleBorderProperty(key, newValue);
 					}
@@ -867,8 +898,12 @@ public abstract class TiUIView
 		if (nativeView != null) {
 			nativeView.clearFocus();
 			TiMessenger.postOnMain(new Runnable() {
-				public void run() {
-					TiUIHelper.showSoftKeyboard(nativeView, false);
+				public void run()
+				{
+					if (nativeView != null) {
+						TiUIHelper.showSoftKeyboard(nativeView, false);
+					}
+
 				}
 			});
 		}

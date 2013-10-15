@@ -14,6 +14,10 @@
 #import "TiApp.h"
 #import "TiUITextWidget.h"
 
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+#import "TiUIiOSAttributedStringProxy.h"
+#endif
+
 @implementation TiTextField
 
 @synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight, becameResponder;
@@ -364,6 +368,15 @@
 -(void)setHintText_:(id)value
 {
 	[[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
+}
+
+-(void)setAttributedHintText_:(id)value
+{
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+    ENSURE_SINGLE_ARG(value,TiUIiOSAttributedStringProxy);
+    [[self proxy] replaceValue:value forKey:@"attributedHintText" notification:NO];
+    [[self textWidgetView] setAttributedPlaceholder:[value attributedString]];
+#endif
 }
 
 -(void)setMinimumFontSize_:(id)value

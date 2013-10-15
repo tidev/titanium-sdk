@@ -462,7 +462,8 @@ public class TiTableView extends FrameLayout
 		View nativeView = tiView.getOuterView();
 		TiCompositeLayout.LayoutParams params = tiView.getLayoutParams();
 
-		int width = AbsListView.LayoutParams.WRAP_CONTENT;
+		// Set width to MATCH_PARENT to be consistent with iPhone
+		int width = AbsListView.LayoutParams.MATCH_PARENT;
 		int height = AbsListView.LayoutParams.WRAP_CONTENT;
 		if (params.sizeOrFillHeightEnabled) {
 			if (params.autoFillsHeight) {
@@ -471,13 +472,7 @@ public class TiTableView extends FrameLayout
 		} else if (params.optionHeight != null) {
 			height = params.optionHeight.getAsPixels(listView);
 		}
-		if (params.sizeOrFillWidthEnabled) {
-			if (params.autoFillsWidth) {
-				width = AbsListView.LayoutParams.MATCH_PARENT;
-			}
-		} else if (params.optionWidth != null) {
-			width = params.optionWidth.getAsPixels(listView);
-		}
+		
 		AbsListView.LayoutParams p = new AbsListView.LayoutParams(width, height);
 		nativeView.setLayoutParams(p);
 		return tiView;
