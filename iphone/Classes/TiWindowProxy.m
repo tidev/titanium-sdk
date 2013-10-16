@@ -669,7 +669,7 @@
 
 -(void)setTransitionAnimation:(id)args
 {
-    ENSURE_SINGLE_ARG(args, TiUIiOSTransitionAnimationProxy)
+    ENSURE_SINGLE_ARG_OR_NIL(args, TiUIiOSTransitionAnimationProxy)
     if(transitionProxy != nil) {
         [self forgetProxy:transitionProxy];
         RELEASE_TO_NIL(transitionProxy)
