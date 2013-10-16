@@ -140,7 +140,7 @@ exports.init = function (logger, config, cli) {
 
 					adb.installApp(deviceInfo.id, builder.apkFile, function (err) {
 						if (err) {
-							logger.error(__('Failed to installed apk on device "%s"', deviceInfo.id));
+							logger.error(__('Failed to install apk on "%s"', deviceInfo.id));
 							err.toString().split('\n').forEach(logger.error);
 							logger.log();
 							process.exit(1);
@@ -222,26 +222,32 @@ exports.init = function (logger, config, cli) {
 
 				function (next) {
 					logger.info(__('Starting app: %s', (builder.appid + '/.' + builder.classname + 'Activity').cyan));
-					adb.startApp(deviceInfo.id, builder.appid, builder.classname + 'Activity', next);
-				},
+					adb.startApp(deviceInfo.id, builder.appid, builder.classname + 'Activity', function (err) {
+						var startTimeout = 60,
+							waitUntil = Date.now() + (startTimeout * 1000),
+							done = false;
 
-				function (next) {
-					adb.getPid(deviceInfo.id, builder.appid, function (err, pid) {
-						if (err) {
-							logger.error(__('Unable to get application pid'));
-							err.split('\n').forEach(logger.error);
-							logger.log();
-							process.exit(1);
-						}
-						if (!pid) {
-							logger.error(__('Application is not running') + '\n');
-							process.exit(1);
-						}
+						async.whilst(
+							function () { return !done; },
+							function (cb) {
+								if (Date.now() > waitUntil) {
+									logger.error(__('Application failed to launch') + '\n');
+									process.exit(1);
+								}
 
-						logger.info(__('Application pid: %s', String(pid).cyan));
-						appPidRegExp = new RegExp('\\(\\s*' + pid + '\\)\:');
-
-						next();
+								adb.getPid(deviceInfo.id, builder.appid, function (err, pid) {
+									if (err || !pid) {
+										setTimeout(cb, 100);
+									} else {
+										logger.info(__('Application pid: %s', String(pid).cyan));
+										appPidRegExp = new RegExp('\\(\\s*' + pid + '\\)\:');
+										done = true;
+										cb();
+									}
+								});
+							},
+							next
+						);
 					});
 				},
 
