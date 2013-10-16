@@ -165,7 +165,7 @@ public class TiHTTPClient
 	private ArrayList<X509TrustManager> trustManagers = new ArrayList<X509TrustManager>();
 	private ArrayList<X509KeyManager> keyManagers = new ArrayList<X509KeyManager>();
 
-	private static CookieStore cookieStore = new BasicCookieStore();
+	private static CookieStore cookieStore = NetworkModule.getHTTPCookieStoreInstance();
 
 
 	protected HashMap<String,String> headers = new HashMap<String,String>();

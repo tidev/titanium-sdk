@@ -901,7 +901,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_COORDS = "coords";
+	public static final String PROPERTY_COMMENT = "comment";
 
 	/**
 	 * @module.api
@@ -942,6 +942,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CONTENT_WIDTH = "contentWidth";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_COORDS = "coords";
 
 	/**
 	 * @module.api
@@ -1087,6 +1092,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_EXIT_ON_CLOSE = "exitOnClose";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_EXPIRY_DATE = "expiryDate";
 
 	/**
 	 * @module.api
@@ -1259,6 +1269,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HTML = "html";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HTTP_ONLY = "httponly";
 
 	/**
 	 * @module.api
@@ -1659,6 +1674,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_PATH = "path";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
 
 	/**
@@ -1862,6 +1882,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SECTIONS = "sections";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SECURE = "secure";
 
 	/**
 	 * @module.api
@@ -2181,6 +2206,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VALUE = "value";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VERSION = "version";
 
 	/**
 	 * @module.api
