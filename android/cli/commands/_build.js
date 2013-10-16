@@ -625,6 +625,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.allowDebugging = false;
 			this.allowProfiling = false;
 			this.showErrors = false;
+			this.proguard = false;
 			break;
 
 		case 'test':
@@ -634,6 +635,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.allowDebugging = true;
 			this.allowProfiling = true;
 			this.showErrors = true;
+			this.proguard = false;
 			break;
 
 		case 'development':
@@ -644,6 +646,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.allowDebugging = true;
 			this.allowProfiling = true;
 			this.showErrors = true;
+			this.proguard = false;
 	}
 
 	var assertIssue = function (name) {
@@ -747,7 +750,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// check that the proguard config exists
 	var proguardConfigFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'proguard.cfg');
-	if (cli.tiapp.android && cli.tiapp.android.proguard && !fs.existsSync(proguardConfigFile)) {
+	if (this.proguard && !fs.existsSync(proguardConfigFile)) {
 		logger.error(__('Missing ProGuard configuration file'));
 		logger.error(__('ProGuard settings must go in the file "%s"', proguardConfigFile));
 		logger.error(__('For example configurations, visit %s', 'http://proguard.sourceforge.net/index.html#manual/examples.html') + '\n');
@@ -2838,11 +2841,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 };
 
 AndroidBuilder.prototype.runProguard = function runProguard(next) {
-	if (!this.forceRebuild) return next();
-
-	if (!this.tiapp.android || !this.tiapp.android.proguard) {
-		return next();
-	}
+	if (!this.forceRebuild || !this.proguard) return next();
 
 	// check that the proguard config exists
 	var proguardConfigFile = path.join(this.buildDir, 'proguard.cfg');
