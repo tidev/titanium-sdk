@@ -242,7 +242,7 @@ events:
   - name: marker
     summary: Fired when the list view displays the reference item or an item beyond the reference item.
     description: |
-        This event is fired "only once". Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method.
+        This event is fired only once. Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method.
         On iOS this method does not fire when list view is in search mode.
     platforms: [iphone, ipad, android]
     since: 3.2.0
@@ -418,7 +418,7 @@ properties:
     description: |
         Provides the same functionality as the [search](Titanium.UI.TableView.search) property in [TableView](Titanium.UI.TableView).
         Used in conjunction with [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
-        On Android, you can either specify [Titanium.UI.SearchBar] or [Titanium.UI.SearchView], while on iOS only [Titanium.UI.SearchBar] is supported.
+        On Android, you can either specify <Titanium.UI.SearchBar> or <Titanium.UI.Android.SearchView>, while on iOS only <Titanium.UI.SearchBar> is supported.
     type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
     platforms: [android, iphone, ipad]
     since: 3.2.0
