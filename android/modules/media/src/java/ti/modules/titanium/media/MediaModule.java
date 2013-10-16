@@ -142,6 +142,10 @@ public class MediaModule extends KrollModule
 	public void showCamera(@SuppressWarnings("rawtypes") HashMap options)
 	{
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
+		if (activity == null) {
+			Log.e(TAG, "Could not showCamera, current activity is null., Log.DEBUG_MODE");
+			return;
+		}
 
 		Log.d(TAG, "showCamera called", Log.DEBUG_MODE);
 
@@ -655,6 +659,12 @@ public class MediaModule extends KrollModule
 	@Kroll.method
 	public void openPhotoGallery(KrollDict options)
 	{
+		Activity activity = TiApplication.getInstance().getCurrentActivity();
+		if (activity == null) {
+			Log.e(TAG, "Could not openPhotoGallery, current activity is null., Log.DEBUG_MODE");
+			return;
+		}
+		
 		KrollFunction successCallback = null;
 		KrollFunction cancelCallback = null;
 		KrollFunction errorCallback = null;
@@ -675,7 +685,6 @@ public class MediaModule extends KrollModule
 
 		Log.d(TAG, "openPhotoGallery called", Log.DEBUG_MODE);
 
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 
 		TiIntentWrapper galleryIntent = new TiIntentWrapper(new Intent());

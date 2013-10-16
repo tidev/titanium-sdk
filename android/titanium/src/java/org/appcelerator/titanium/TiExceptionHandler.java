@@ -107,6 +107,10 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		}
 
 		Context context = application.getCurrentActivity();
+		if (context == null) {
+			Log.e(TAG, "Could not createDialog, current activity is null., Log.DEBUG_MODE");
+			return;
+		}
 		FrameLayout layout = new FrameLayout(context);
 		layout.setBackgroundColor(Color.rgb(128, 0, 0));
 
