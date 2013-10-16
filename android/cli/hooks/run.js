@@ -204,10 +204,17 @@ exports.init = function (logger, config, cli) {
 						} else {
 							logBuffer = logBuffer.concat(data.trim().split('\n'));
 						}
-					}, function () {
+					}, function endLog() {
+						// the adb server shutdown, the emulator quit, or the device was unplugged
 						var endLogTxt = __('End application log');
-						logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey);
-						finished();
+						logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+					});
+
+					// listen for ctrl-c
+					process.on('SIGINT', function endLog() {
+						var endLogTxt = __('End application log');
+						logger.log('\r' + ('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+						process.exit(0);
 					});
 
 					next();
@@ -258,12 +265,12 @@ exports.init = function (logger, config, cli) {
 					}
 				},
 
-			]/*, function (err) {
+			], function (err) {
 				if (err) {
 					logger.error(err);
 				}
 				finished();
-			}*/);
+			});
 		}
 	});
 

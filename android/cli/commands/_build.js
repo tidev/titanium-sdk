@@ -1064,12 +1064,12 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 
 		'createBuildDirs',
 		'copyResources',
-		'removeDeletedFiles',
 		'compileJSS',
 		'generateRequireIndex',
 		'processTiSymbols',
-		'generateJavaFiles',
 		'copyModuleResources',
+		'removeOldFiles',
+		'generateJavaFiles',
 		'generateAidl',
 		'generateI18N',
 		'generateTheme',
@@ -1522,8 +1522,7 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 AndroidBuilder.prototype.getLastBuildState = function getLastBuildState(next) {
 	if (this.forceRebuild) return next();
 
-	var lastBuildFiles = this.lastBuildFiles = {},
-		len = this.buildDir.length + 1; // add one for the trailing slash
+	var lastBuildFiles = this.lastBuildFiles = {};
 
 	// walk the entire build dir and build a map of all files
 	(function walk(dir) {
@@ -1533,7 +1532,7 @@ AndroidBuilder.prototype.getLastBuildState = function getLastBuildState(next) {
 				if (fs.statSync(file).isDirectory()) {
 					walk(file);
 				} else {
-					lastBuildFiles[file.substring(len)] = 1;
+					lastBuildFiles[file] = 1;
 				}
 			}
 		});
@@ -1662,7 +1661,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				// if the destination directory does not exists, create it
 				fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
 
-				delete this.lastBuildFiles[to.substring(this.buildDir.length + 1)];
+				delete this.lastBuildFiles[to];
 
 				var ext = filename.match(extRegExp);
 				switch (ext && ext[1]) {
@@ -1809,22 +1808,29 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		if (!fs.existsSync(destIcon)) {
 			appc.fs.copyFileSync(path.join(templateDir, 'appicon.png'), destIcon, { logger: this.logger.debug });
 		}
+		delete this.lastBuildFiles[destIcon];
+
 		var destIcon2 = path.join(this.buildResDrawableDir, this.tiapp.icon);
 		if (!fs.existsSync(destIcon2)) {
 			appc.fs.copyFileSync(destIcon, destIcon2, { logger: this.logger.debug });
 		}
+		delete this.lastBuildFiles[destIcon2];
 
 		// make sure we have a splash screen
-		var backgroundRegExp = /^background(\.9)?\.(png|jpg)$/;
+		var backgroundRegExp = /^background(\.9)?\.(png|jpg)$/,
+			destBg = path.join(this.buildResDrawableDir, 'background.png');
 		if (!fs.readdirSync(this.buildResDrawableDir).some(function (n) { return backgroundRegExp.test(n); })) {
-			appc.fs.copyFileSync(path.join(templateDir, 'default.png'), path.join(this.buildResDrawableDir, 'background.png'), { logger: this.logger.debug });
+			appc.fs.copyFileSync(path.join(templateDir, 'default.png'), destBg, { logger: this.logger.debug });
 		}
+		delete this.lastBuildFiles[destBg];
 
 		// copy js files into assets directory and minify if needed
 		appc.async.parallel(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
 				var from = jsFiles[id],
 					to = path.join(this.buildBinAssetsResourcesDir, id);
+
+				delete this.lastBuildFiles[to];
 
 				if (htmlJsFiles[id]) {
 					// this js file is referenced from an html file, so don't minify or encrypt
@@ -1906,12 +1912,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	});
 };
 
-AndroidBuilder.prototype.removeDeletedFiles = function removeDeletedFiles(next) {
-	var genAppIdDir = 'gen/' + this.appid.split('.').join(path.sep);
-
+AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
 	Object.keys(this.lastBuildFiles).forEach(function (file) {
-		if (file.indexOf('assets/') == 0 || file.indexOf('bin/assets/Resources/') == 0 || file.indexOf(genAppIdDir) == 0 || file.indexOf('res/') == 0) {
-			this.logger.debug(__('Removing deleted file: %s', file.cyan));
+		if (file.indexOf(this.buildAssetsDir) == 0 || file.indexOf(this.buildBinAssetsResourcesDir) == 0 || (this.forceRebuild && file.indexOf(this.buildGenAppIdDir) == 0) || file.indexOf(this.buildResDir) == 0) {
+			this.logger.debug(__('Removing old file: %s', file.cyan));
 			fs.unlinkSync(file);
 		}
 	}, this);
@@ -1957,6 +1961,7 @@ AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(ca
 		index['Resources/' + file] = 1;
 	});
 
+	fs.existsSync(destFile) && fs.unlinkSync(destFile);
 	fs.writeFile(destFile, JSON.stringify(index), callback);
 };
 
@@ -2319,8 +2324,6 @@ AndroidBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest) {
 };
 
 AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next) {
-	if (!this.forceRebuild) return next();
-
 	// for each jar library, if it has a companion resource zip file, extract
 	// all of its files into the build dir, and yes, this is stupidly dangerous
 	appc.async.series(this, Object.keys(this.jarLibraries).map(function (jarFile) {
@@ -2343,6 +2346,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 						var from = path.join(src, filename),
 							to = path.join(dest, filename);
 						if (fs.existsSync(from)) {
+							delete _t.lastBuildFiles[to];
 							if (fs.statSync(from).isDirectory()) {
 								copy(from, to);
 							} else if (_t.xmlMergeRegExp.test(filename)) {
@@ -2737,8 +2741,6 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 };
 
 AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) {
-	if (!this.forceRebuild) return next();
-
 	var classpath = {},
 		moduleJars = this.moduleJars = {};
 
@@ -2763,6 +2765,12 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 			});
 		}
 	});
+
+	if (!this.forceRebuild) {
+		// if we don't have to compile the java files, then we can return here
+		// we just needed the moduleJars
+		return next();
+	}
 
 	if (Object.keys(moduleJars).length) {
 		// we need to include kroll-apt.jar if there are any modules
