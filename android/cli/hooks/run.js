@@ -104,13 +104,12 @@ exports.init = function (logger, config, cli) {
 
 					logger.info(__('Waiting for emulator to become ready'));
 
-					var tries = 4 * 60, // wait for a minute after the build finishes
+					var waitUntil = Date.now() + (60 * 1000), // 1 minute
 						timer = setInterval(function () {
 							if (deviceInfo) {
 								clearInterval(timer);
 								next();
-							}
-							if (!tries--) {
+							} else if (Date.now() > waitUntil) {
 								logger.error(__('Emulator failed to start in a timely manner') + '\n');
 								process.exit(1);
 							}
@@ -134,8 +133,6 @@ exports.init = function (logger, config, cli) {
 
 				function (next) {
 					// install the app
-					var tries = 5,
-						installError;
 					logger.info(__('Installing apk: %s', builder.apkFile.cyan));
 
 					adb.installApp(deviceInfo.id, builder.apkFile, function (err) {
@@ -223,8 +220,7 @@ exports.init = function (logger, config, cli) {
 				function (next) {
 					logger.info(__('Starting app: %s', (builder.appid + '/.' + builder.classname + 'Activity').cyan));
 					adb.startApp(deviceInfo.id, builder.appid, builder.classname + 'Activity', function (err) {
-						var startTimeout = 60,
-							waitUntil = Date.now() + (startTimeout * 1000),
+						var waitUntil = Date.now() + (60 * 1000), // 1 minute
 							done = false;
 
 						async.whilst(
