@@ -89,26 +89,36 @@
 - (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext
 {
     
-    TiViewController *fromViewController = (TiViewController*)[transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
-    TiViewController *toViewController = (TiViewController*)[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
+    UIViewController *fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
+    UIViewController *toViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
     
-    TiViewProxy *fromProxy = [fromViewController proxy];
-    TiViewProxy *toProxy = [toViewController proxy];
+    TiViewProxy *fromProxy = nil;
+    TiViewProxy *toProxy = nil;
+    if([fromViewController isKindOfClass:[TiViewController class]]) {
+        
+        fromProxy = [(TiViewController*)fromViewController proxy];
+    }
+    if([toViewController isKindOfClass:[TiViewController class]]) {
+        
+        toProxy = [(TiViewController*)toViewController proxy];
+    }
 
     if([self _hasListeners:@"start"])
     {
-        NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:
-                              toProxy, @"toWindow",
-                              fromProxy, @"fromWindow",
-                              nil];
+        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+        if(toProxy != nil) {
+            [dict setObject:toProxy forKey:@"toWindow"];
+        }
+        if(fromProxy != nil) {
+            [dict setObject:fromProxy forKey:@"fromWindow"];
+        }
         [self fireEvent:@"start" withObject:dict propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
 
-    _endedFrom = [self transitionFrom] == nil;
-    _endedTo = [self transitionTo] == nil;
+    _endedFrom = (_transitionFrom == nil) || (fromProxy == nil) ;
+    _endedTo = (_transitionTo == nil) || (toProxy == nil);
 
     _transitionContext = [transitionContext retain];
-    
     
     [fromProxy setParentVisible:YES];
     [toProxy setParentVisible:YES];
@@ -119,14 +129,14 @@
     [container addSubview:[fromViewController view]];
     [container addSubview:[toViewController view]];
     
-    if([self transitionFrom] != nil) {
-        [fromProxy animate: [self transitionFrom]];
+    if(_transitionFrom != nil && fromProxy != nil) {
+        [fromProxy animate: _transitionFrom];
     }
-    if ([self transitionTo] != nil) {
-        [toProxy animate: [self transitionTo]];
+    if (_transitionTo != nil && toProxy != nil) {
+        [toProxy animate: _transitionTo];
     }
     
-    if([self transitionTo] == nil && [self transitionFrom] == nil)
+    if(_endedFrom && _endedTo)
     {
         [_transitionContext completeTransition:YES];
     }
@@ -147,14 +157,13 @@
 
 - (NSTimeInterval)transitionDuration:(id<UIViewControllerContextTransitioning>)transitionContext
 {
-    if([self transitionTo] == nil && [self transitionFrom] == nil)
-    {
+    if(_transitionTo == nil && _transitionFrom == nil) {
         return 0;
     }
     if(_duration == nil) {
         return MAX(
-                   [TiUtils floatValue:[[self transitionTo] duration] def:0],
-                   [TiUtils floatValue:[[self transitionFrom] duration] def:0]
+                   [TiUtils floatValue:[_transitionTo duration] def:0],
+                   [TiUtils floatValue:[_transitionFrom duration] def:0]
                 ) / 1000;
     }
     return [TiUtils floatValue:_duration def:0] / 1000;
@@ -163,18 +172,30 @@
 - (void)animationEnded:(BOOL) transitionCompleted;
 {
     if([self _hasListeners:@"end"]) {
-        TiViewController *fromViewController = (TiViewController*)[_transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
-        TiViewController *toViewController = (TiViewController*)[_transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
+
+        UIViewController *fromViewController = [_transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
+        UIViewController *toViewController = [_transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
         
-        TiViewProxy *fromProxy = [fromViewController proxy];
-        TiViewProxy *toProxy = [toViewController proxy];
+        TiViewProxy *fromProxy = nil;
+        TiViewProxy *toProxy = nil;
         
-        NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:
-                              toProxy, @"toWindow",
-                              fromProxy, @"fromWindow",
-                              nil];
+        if([fromViewController isKindOfClass:[TiViewController class]]) {
+            fromProxy = [(TiViewController*)fromViewController proxy];
+        }
+        if([toViewController isKindOfClass:[TiViewController class]]) {
+            toProxy = [(TiViewController*)toViewController proxy];
+        }
+        
+        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+        if(toProxy != nil) {
+            [dict setObject:toProxy forKey:@"toWindow"];
+        }
+        if(fromProxy != nil) {
+            [dict setObject:fromProxy forKey:@"fromWindow"];
+        }
         [self fireEvent:@"end" withObject:dict propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
+    RELEASE_TO_NIL(_transitionContext)
 }
 
 @end
