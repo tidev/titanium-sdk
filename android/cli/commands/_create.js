@@ -1,7 +1,7 @@
 /*
  * create.js: Titanium Android CLI create command
  *
- * Copyright (c) 2012, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -22,7 +22,7 @@ exports.run = function (logger, config, cli, projectConfig) {
 	var templatePath = afs.resolvePath(path.dirname(module.filename), '..', '..', 'templates', cli.argv.type, cli.argv.template),
 		ignoreExtRegExp = /\.(png','.gif','.jpg','.zip','.a','.o', '.jar)$/,
 		projectDir = afs.resolvePath(cli.argv['workspace-dir'], cli.argv.name);
-	
+
 	if (afs.exists(templatePath)) {
 		if (cli.argv.type == 'app') {
 			afs.copyDirSyncRecursive(templatePath, projectDir, {
