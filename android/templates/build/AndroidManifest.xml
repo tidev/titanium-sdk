@@ -12,13 +12,9 @@
 		<% } %>
 		/>
 
-	<!-- TI_MANIFEST -->
-
 	<application android:icon="@drawable/appicon"
 		android:label="<%- tiapp.name %>" android:name="<%- classname %>Application"
 		android:debuggable="false">
-
-		<!-- TI_APPLICATION -->
 
 		<activity android:name=".<%- classname %>Activity"
 			android:label="<%- tiapp.name %>" android:theme="@style/Theme.Titanium"
@@ -28,8 +24,6 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-
-		<!-- TI_ACTIVITIES -->
 
 		<activity android:name="org.appcelerator.titanium.TiActivity"
 			android:configChanges="keyboardHidden|orientation" />
@@ -41,10 +35,6 @@
 		<service android:name="org.appcelerator.titanium.analytics.TiAnalyticsService"
 			android:exported="false" />
 
-		<!-- TI_SERVICES -->
-
 	</application>
-
-	<!-- TI_PERMISSIONS -->
 
 </manifest>

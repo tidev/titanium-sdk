@@ -619,7 +619,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
 		case 'production':
-			this.encodeI18N = true;
 			this.minifyJS = true;
 			this.encryptJS = true;
 			this.removeUnusedTiAPIs = true;
@@ -629,9 +628,16 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			break;
 
 		case 'test':
+			this.minifyJS = true;
+			this.encryptJS = true;
+			this.removeUnusedTiAPIs = true;
+			this.allowDebugging = true;
+			this.allowProfiling = true;
+			this.showErrors = true;
+			break;
+
 		case 'development':
 		default:
-			this.encodeI18N = false;
 			this.minifyJS = false;
 			this.encryptJS = false;
 			this.removeUnusedTiAPIs = false;
@@ -707,6 +713,36 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		});
 		logger.log();
 		process.exit(1);
+	}
+
+	// determine the abis to support
+	this.abis = ['armeabi', 'armeabi-v7a', 'x86'];
+	if (cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') == -1) {
+		this.abis = cli.tiapp.android.abi;
+	}
+
+	if (/^device|emulator$/.test(this.target)) {
+		var device = this.devices.filter(function (d) { return d.id = cli.argv['device-id']; }).shift();
+		if (Array.isArray(device.abi) && !device.abi.some(function (a) { return this.abis.indexOf(a) != -1; }.bind(this))) {
+			if (this.target == 'emulator') {
+				logger.error(__n('The emulator "%%s" does not support the desired ABI %%s', 'The emulator "%%s" does not support the desired ABIs %%s', this.abis.length, device.name, '"' + this.abis.join('", "') + '"'));
+			} else {
+				logger.error(__n('The device "%%s" does not support the desired ABI %%s', 'The device "%%s" does not support the desired ABIs %%s', this.abis.length, device.model || device.manufacturer, '"' + this.abis.join('", "') + '"'));
+			}
+			logger.error(__('Supported ABIs: %s', device.abi.join(', ')) + '\n');
+
+			logger.log(__('You need to add at least one of the device\'s supported ABIs to the tiapp.xml'));
+			logger.log();
+			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+			logger.log('    <!-- snip -->'.grey);
+			logger.log('    <android>'.grey);
+			logger.log('        <abi>' + this.abis.concat(device.abi).join(',') + '</abi>');
+			logger.log('    </android>'.grey);
+			logger.log('</ti:app>'.grey);
+			logger.log();
+
+			process.exit(1);
+		}
 	}
 
 	// check that the proguard config exists
@@ -1150,12 +1186,6 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 			logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', 'ti.android.loadfromsdcard'.cyan));
 		}
 		this.compileJS = this.encryptJS = !!compileJSProp.value;
-	}
-
-	// determine the abis to support
-	this.abis = ['armeabi', 'armeabi-v7a', 'x86'];
-	if (this.tiapp.android && this.tiapp.android.abi && this.tiapp.android.abi.indexOf('all') == -1) {
-		this.abis = this.tiapp.android.abi;
 	}
 
 	var includeAllTiModulesProp = this.tiapp.properties['ti.android.include_all_modules'];
@@ -2121,18 +2151,18 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		if (!module.jarFile || !module.bindings) return;
 
 		Object.keys(module.bindings.modules).forEach(function (moduleClass) {
-			var proxy = module.bindings.proxies[moduleClass],
-				result = {
-					id: proxy.proxyAttrs.id,
-					apiName: module.bindings.modules[moduleClass].apiName,
-					proxyName: proxy.proxyClassName,
-					className: moduleClass,
-					manifest: module.manifest,
-					'on_app_create': proxy['on_app_create'] || null,
-					isNativeJsModule: !!module.manifest.commonjs
-				};
+			var proxy = module.bindings.proxies[moduleClass];
 
-			if (result.id != module.manifest.moduleid) return;
+			if (proxy.proxyAttrs.id != module.manifest.moduleid) return;
+
+			var result = {
+				apiName: module.bindings.modules[moduleClass].apiName,
+				proxyName: proxy.proxyClassName,
+				className: moduleClass,
+				manifest: module.manifest,
+				onAppCreate: proxy['on_app_create'] || null,
+				isNativeJsModule: !!module.manifest.commonjs
+			};
 
 			// make sure that the module was not built before 1.8.0.1
 			if (~~module.manifest.apiversion < 2) {
