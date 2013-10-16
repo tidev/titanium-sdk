@@ -604,6 +604,13 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.target = cli.argv.target;
 	this.deployType = /^device|emulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 
+	// ti.deploytype is deprecated and so we force the real deploy type
+	if (cli.tiapp.properties['ti.deploytype']) {
+		logger.warn(__('The %s tiapp.xml property has been deprecated, please use the %s option', 'ti.deploytype'.cyan, '--deploy-type'.cyan));
+		logger.log();
+	}
+	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
+
 	// get the javac params
 	this.javacTarget = cli.tiapp.properties['android.javac.target'] || config.get('android.javac.target', '1.6');
 	this.javacSource = cli.tiapp.properties['android.javac.source'] || config.get('android.javac.source', '1.6');
@@ -1552,7 +1559,7 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	var ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')),
 		ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles')),
-		extRegExp = /\.(.+)$/,
+		extRegExp = /\.(\w+)$/,
 		drawableRegExp = /^images\/(high|medium|low|res-[^\/]+)(\/(.*))?/,
 		drawableDpiRegExp = /^(high|medium|low)$/,
 		drawableExtRegExp = /((\.9)?\.(png|jpg))$/,
@@ -1571,8 +1578,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	}
 
 	function recursivelyCopy(src, dest, ignoreRootDirs, opts, done) {
-		wrench.mkdirSyncRecursive(dest);
-
 		var files;
 		if (fs.statSync(src).isDirectory()) {
 			files = fs.readdirSync(src);
@@ -1780,7 +1785,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		}
 
 		// make sure we have a splash screen
-		if (!fs.readdirSync(this.buildResDrawableDir).some(function (n) { return /^background(\.9)?\.(png|jpg)$/; })) {
+		var backgroundRegExp = /^background(\.9)?\.(png|jpg)$/;
+		if (!fs.readdirSync(this.buildResDrawableDir).some(function (n) { return backgroundRegExp.test(n); })) {
 			appc.fs.copyFileSync(path.join(templateDir, 'default.png'), path.join(this.buildResDrawableDir, 'background.png'), { logger: this.logger.debug });
 		}
 
@@ -2052,11 +2058,11 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 
 	function createModuleDescriptor(namespace) {
 		var results = {
-				apiName: '',
-				className: '',
-				bindings: tiNamespaces[namespace],
-				externalChildModules: [],
-				onAppCreate: null
+				'api_name': '',
+				'class_name': '',
+				'bindings': tiNamespaces[namespace],
+				'external_child_modules': [],
+				'on_app_create': null
 			},
 			moduleBindingKeys = Object.keys(moduleBindings),
 			len = moduleBindingKeys.length,
@@ -2065,28 +2071,28 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		for (i = 0; i < len; i++) {
 			name = moduleBindingKeys[i];
 			if (moduleBindings[name].fullAPIName.toLowerCase() == namespace) {
-				results.apiName = moduleBindings[name].fullAPIName
-				results.className = name;
-				if (moduleBindings[name].onAppCreate) {
-					results.onAppCreate = moduleBindings[name].onAppCreate;
+				results['api_name'] = moduleBindings[name].fullAPIName
+				results['class_name'] = name;
+				if (moduleBindings[name]['on_app_create']) {
+					results['on_app_create'] = moduleBindings[name]['on_app_create'];
 				}
 				break;
 			}
 		}
 
 		// check if we found the api name and if not bail
-		if (!results.apiName) return;
+		if (!results['api_name']) return;
 
-		if (extChildModule = externalChildModules[results.className]) {
+		if (extChildModule = externalChildModules[results['class_name']]) {
 			for (i = 0, len = extChildModule.length; i < len; i++) {
 				if (tiNamespaces[extChildModule[i].fullAPIName.toLowerCase()]) {
-					results.externalChildModules.push(extChildModule[i]);
+					results['external_child_modules'].push(extChildModule[i]);
 					break;
 				}
 			}
 		}
 
-		appModulesMap[results.apiName.toLowerCase()] = 1;
+		appModulesMap[results['api_name'].toLowerCase()] = 1;
 
 		return results;
 	}
@@ -2122,7 +2128,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 					proxyName: proxy.proxyClassName,
 					className: moduleClass,
 					manifest: module.manifest,
-					onAppCreate: proxy.onAppCreate || null,
+					'on_app_create': proxy['on_app_create'] || null,
 					isNativeJsModule: !!module.manifest.commonjs
 				};
 
@@ -2529,20 +2535,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 	finalAndroidManifest.__attr__['android:versionName'] = this.tiapp.version || '1';
 
-	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
-	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
-	// elements, otherwise changes in orientation will cause the app to restart
-	if (this.targetSDK >= 13) {
-		Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
-			var activity = finalAndroidManifest.application.activity[name];
-			if (!activity.configChanges) {
-				activity.configChanges = ['screenSize'];
-			} else if (activity.configChanges.indexOf('screenSize') == -1) {
-				activity.configChanges.push('screenSize');
-			}
-		});
-	}
-
 	if (this.deployType == 'development' || this.deployType == 'test') {
 		// enable mock location if in development or test mode
 		geoPermissions.push('ACCESS_MOCK_LOCATION');
@@ -2609,7 +2601,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 					a[key.replace(/^android\:/, '')] = activity[key];
 				}
 			});
-			a.config || (a.config = ['keyboardHidden', 'orientation']);
+			a.configChanges || (a.configChanges = ['keyboardHidden', 'orientation']);
 			finalAndroidManifest.application.activity || (finalAndroidManifest.application.activity = {});
 			finalAndroidManifest.application.activity[a.name] = a;
 		}
@@ -2650,6 +2642,20 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 			}
 		}
 	});
+
+	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
+	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
+	// elements, otherwise changes in orientation will cause the app to restart
+	if (this.targetSDK >= 13) {
+		Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
+			var activity = finalAndroidManifest.application.activity[name];
+			if (!activity.configChanges) {
+				activity.configChanges = ['screenSize'];
+			} else if (activity.configChanges.indexOf('screenSize') == -1) {
+				activity.configChanges.push('screenSize');
+			}
+		});
+	}
 
 	// add permissions
 	Array.isArray(finalAndroidManifest['uses-permission']) || (finalAndroidManifest['uses-permission'] = []);
