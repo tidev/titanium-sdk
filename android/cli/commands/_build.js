@@ -82,6 +82,16 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 				// detect android environment
 				androidDetect(config, { packageJson: packageJson }, function (androidInfo) {
 					_t.androidInfo = androidInfo;
+
+					var androidSdkPath = config.android && config.android.sdkPath;
+					if (!androidSdkPath && androidInfo.sdk) {
+						androidSdkPath = androidInfo.sdk.path;
+					}
+					if (androidSdkPath) {
+						androidSdkPath = afs.resolvePath(androidSdkPath);
+						cli.argv['android-sdk'] = androidSdkPath;
+					}
+
 					next();
 				});
 			},
@@ -199,9 +209,15 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						hint: __('path'),
 						order: 101,
 						prompt: function (callback) {
+							var androidSdkPath = config.android && config.android.sdkPath;
+							if (!androidSdkPath && _t.androidInfo.sdk) {
+								androidSdkPath = _t.androidInfo.sdk.path;
+							}
+							androidSdkPath && (androidSdkPath = afs.resolvePath(androidSdkPath));
+
 							callback(fields.file({
 								promptLabel: __('Where is the Android SDK?'),
-								default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
+								default: androidSdkPath,
 								complete: true,
 								showHidden: true,
 								ignoreDirs: new RegExp(config.get('cli.ignoreDirs')),
@@ -669,7 +685,10 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	assertIssue('ANDROID_SDK_MISSING_PROGRAMS');
 
 	// make sure we have an Android SDK and some Android targets
-	if (Object.keys(this.androidInfo.targets).filter(function (id) { return id > this.minSupportedApiLevel; }.bind(this)).length <= 0) {
+	if (Object.keys(this.androidInfo.targets).filter(function (id) {
+			var t = this.androidInfo.targets[id];
+			return t.type == 'platform' && t['api-level'] > this.minSupportedApiLevel;
+	}.bind(this)).length <= 0) {
 		logger.error(__('No Android SDK targets found.') + '\n');
 		logger.log(__('Please download SDK targets (api level %s or newer) via Android SDK Manager and try again.', this.minSupportedApiLevel) + '\n');
 		process.exit(1);
@@ -1559,10 +1578,8 @@ AndroidBuilder.prototype.checkBuildState = function checkBuildState(next) {
 	// check if we need to do a rebuild
 	this.forceRebuild = this.checkIfShouldForceRebuild();
 
-	if (this.forceRebuild) {
-		if (fs.existsSync(this.buildGenAppIdDir)) {
-			wrench.rmdirSyncRecursive(dir);
-		}
+	if (this.forceRebuild && fs.existsSync(this.buildGenAppIdDir)) {
+		wrench.rmdirSyncRecursive(this.buildGenAppIdDir);
 	}
 	fs.existsSync(this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(this.buildGenAppIdDir);
 
@@ -2846,7 +2863,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 			}
 		});
 	});
-	fs.writeFileSync(javaSourcesFile, '"' + javaFiles.join('"\n"') + '"');
+	fs.writeFileSync(javaSourcesFile, '"' + javaFiles.join('"\n"').replace(/\\/g, '/') + '"');
 
 	// if we're recompiling the java files, then nuke the classes dir
 	if (fs.existsSync(this.buildBinClassesDir)) {
