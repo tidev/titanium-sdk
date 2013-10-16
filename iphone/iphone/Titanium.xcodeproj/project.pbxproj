@@ -618,6 +618,12 @@
 		B4E9A913128E24FB006A111B /* UIImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9BE36E127F8F6C000FE9E1 /* UIImageExtras.m */; };
 		B4F97B6F111A41B600E2F72C /* TiUIScrollViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */; };
 		B4F97B73111A41C800E2F72C /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
+		B69A9C62180C738600A68F64 /* (null) in Sources */ = {isa = PBXBuildFile; };
+		B69A9C63180C738600A68F64 /* (null) in Sources */ = {isa = PBXBuildFile; };
+		B69A9C64180C738600A68F64 /* (null) in Sources */ = {isa = PBXBuildFile; };
+		B6A0A2B1180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */; };
+		B6A0A2B2180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */; };
+		B6A0A2B3180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */; };
 		B6C5206118035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6C5206018035AF3002471C6 /* TiUIiOSAttributedStringProxy.m */; };
 		B6C5206218035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6C5206018035AF3002471C6 /* TiUIiOSAttributedStringProxy.m */; };
 		B6C5206318035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6C5206018035AF3002471C6 /* TiUIiOSAttributedStringProxy.m */; };
@@ -1532,6 +1538,8 @@
 		B4F97B72111A41C800E2F72C /* TiUIScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIScrollView.m; sourceTree = "<group>"; };
 		B4F97C56111BAD4700E2F72C /* TiUIiPhoneScrollIndicatorStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPhoneScrollIndicatorStyleProxy.h; sourceTree = "<group>"; };
 		B4F97C57111BAD4700E2F72C /* TiUIiPhoneScrollIndicatorStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPhoneScrollIndicatorStyleProxy.m; sourceTree = "<group>"; };
+		B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTransitionAnimationProxy.h; sourceTree = "<group>"; };
+		B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTransitionAnimationProxy.m; sourceTree = "<group>"; };
 		B6C5205F18035AF3002471C6 /* TiUIiOSAttributedStringProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSAttributedStringProxy.h; sourceTree = "<group>"; };
 		B6C5206018035AF3002471C6 /* TiUIiOSAttributedStringProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSAttributedStringProxy.m; sourceTree = "<group>"; };
 		D4AB36F3123DE20200DED4A0 /* TiUIClipboardProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIClipboardProxy.h; sourceTree = "<group>"; };
@@ -2623,6 +2631,8 @@
 		24D06FDE11D020E600F615D8 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */,
+				B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */,
 				B6C5205E18035ACF002471C6 /* AttributedString */,
 				84A00FED17FB392E00D4BF94 /* Dynamics */,
 				84E00A9917B6462900B6DCE2 /* Nav Window */,
@@ -3445,6 +3455,7 @@
 				245B3C3D11375A6600CE7530 /* UtilsModule.m in Sources */,
 				245B45641139B41800CE7530 /* TiUIiPhoneTableViewCellSelectionStyleProxy.m in Sources */,
 				24C0128C1140D30B00A94CE2 /* TiUIMaskedImageProxy.m in Sources */,
+				B6A0A2B1180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */,
 				24C012921140D31C00A94CE2 /* TiUIMaskedImage.m in Sources */,
 				248133A7115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m in Sources */,
 				248133A8115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m in Sources */,
@@ -3499,6 +3510,7 @@
 				24ADC5121299F60C0014DB75 /* TiAppiOSProxy.m in Sources */,
 				24ADC5161299F6AA0014DB75 /* TiAppiOSBackgroundServiceProxy.m in Sources */,
 				84EB340017A8CAA700723B1E /* TiWindowProxy.m in Sources */,
+				B69A9C62180C738600A68F64 /* (null) in Sources */,
 				24ADC634129A1ED60014DB75 /* TiAppiOSLocalNotificationProxy.m in Sources */,
 				84A0100E17FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */,
 				84A00FF017FB39A100D4BF94 /* TiAnimatorProxy.m in Sources */,
@@ -3738,6 +3750,7 @@
 				24D8E475119B9D8A00F8CAA6 /* UIImage+Alpha.m in Sources */,
 				24D8E476119B9D8A00F8CAA6 /* UIImage+Resize.m in Sources */,
 				24D8E477119B9D8A00F8CAA6 /* UIImage+RoundedCorner.m in Sources */,
+				B6A0A2B2180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */,
 				24D8E478119B9D8A00F8CAA6 /* UtilsModule.m in Sources */,
 				24D8E479119B9D8A00F8CAA6 /* TiUIiPhoneTableViewCellSelectionStyleProxy.m in Sources */,
 				24D8E47A119B9D8A00F8CAA6 /* TiUIMaskedImageProxy.m in Sources */,
@@ -3792,6 +3805,7 @@
 				B48050201278AB170030AA3F /* TiThreading.m in Sources */,
 				DABDEB08128B5A8F00C85FEA /* AudioStreamerCUR.m in Sources */,
 				84EB340117A8CAA700723B1E /* TiWindowProxy.m in Sources */,
+				B69A9C63180C738600A68F64 /* (null) in Sources */,
 				B4E9A913128E24FB006A111B /* UIImageExtras.m in Sources */,
 				84A0100F17FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */,
 				84A00FF117FB39A100D4BF94 /* TiAnimatorProxy.m in Sources */,
@@ -4031,6 +4045,7 @@
 				DABB374D12E8CB280026A6EA /* UIImage+Alpha.m in Sources */,
 				DABB374E12E8CB280026A6EA /* UIImage+Resize.m in Sources */,
 				DABB374F12E8CB280026A6EA /* UIImage+RoundedCorner.m in Sources */,
+				B6A0A2B3180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */,
 				DABB375012E8CB280026A6EA /* UtilsModule.m in Sources */,
 				DABB375112E8CB280026A6EA /* TiUIiPhoneTableViewCellSelectionStyleProxy.m in Sources */,
 				DABB375212E8CB280026A6EA /* TiUIMaskedImageProxy.m in Sources */,
@@ -4085,6 +4100,7 @@
 				DABB378912E8CB280026A6EA /* TiThreading.m in Sources */,
 				DABB378B12E8CB280026A6EA /* AudioStreamerCUR.m in Sources */,
 				84EB340217A8CAA700723B1E /* TiWindowProxy.m in Sources */,
+				B69A9C64180C738600A68F64 /* (null) in Sources */,
 				DABB378C12E8CB280026A6EA /* UIImageExtras.m in Sources */,
 				84A0101017FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */,
 				84A00FF217FB39A100D4BF94 /* TiAnimatorProxy.m in Sources */,

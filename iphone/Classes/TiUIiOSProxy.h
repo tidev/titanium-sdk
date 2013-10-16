@@ -159,6 +159,9 @@ typedef enum {
 #ifdef USE_TI_UIIOSDYNAMICITEMBEHAVIOR
 -(id)createDynamicItemBehavior:(id)args;
 #endif
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+-(id)createTransitionAnimation:(id)args;
+#endif
 #endif
 @end
 
