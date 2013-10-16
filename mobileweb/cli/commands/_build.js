@@ -18,6 +18,8 @@ var ti = require('titanium-sdk'),
 	path = require('path'),
 	wrench = require('wrench'),
 	jsExtRegExp = /\.js$/,
+	wp8 = require('titanium-sdk/lib/wp8'),
+	wp8Env,
 	HTML_HEADER = [
 		'<!--',
 		'	WARNING: this is generated code and will be lost if changes are made.',
@@ -41,22 +43,56 @@ var ti = require('titanium-sdk'),
 UglifyJS.AST_Node.warn_function = function () {};
 
 exports.config = function (logger, config, cli) {
+	console.log(config, cli);
+	var conf;
 	return function (finished) {
-		cli.createHook('build.mobileweb.config', function (callback) {
-			callback({
-				options: {
-					'deploy-type': {
-						abbr: 'D',
-						default: 'development',
-						desc: __('the type of deployment; production performs optimizations'),
-						hint: __('type'),
-						values: ['production', 'development']
-					}
-				}
+
+		if (process.platform == 'win32') {
+			wp8.detect(function (env) {
+				wp8Env = env;
+				configure();
 			});
-		})(function (err, results, result) {
-			finished(result);
-		});
+		} else {
+			configure();
+		}
+
+		function configure() {
+			cli.createHook('build.mobileweb.config', function (callback) {
+				callback({
+					options: {
+						'deploy-type': {
+							abbr: 'D',
+							default: 'development',
+							desc: __('the type of deployment; production performs optimizations'),
+							hint: __('type'),
+							values: ['production', 'development']
+						},
+						target: {
+							abbr: 'T',
+							default: 'web',
+							desc: __('the target to build for'),
+							values: ['web', 'wp8'],
+							callback: function (value) {
+								if (value == 'wp8') {
+									conf.options['wp8-publisher-guid'].required = true;
+									conf.options['device-id'].required = true;
+								}
+							}
+						},
+						'wp8-publisher-guid': {
+							desc: __('The publisher GUID, obtained from http://developer.windowsphone.com'),
+							hint: __('GUID')
+						},
+						'device-id': {
+							abbr: 'C',
+							desc: __('On Windows Phone 8, the device-id of the emulator/device to run the app in, or xd for any emulator or de for any device'),
+						}
+					}
+				});
+			})(function (err, results, result) {
+				finished(conf = result);
+			});
+		}
 	};
 };
 
@@ -69,6 +105,31 @@ exports.validate = function (logger, config, cli) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
 	}
+
+	// If this is a Windows Phone 8 target, validate the wp8 specific parameters
+	if (cli.argv.target == 'wp8') {
+		if (wp8Env.issues.length) {
+			logger.error(__('There is are Windows Phone configuration issues preventing the app from being built') + '\n');
+			logger.log(__('Run "titanium info" to get more information on this error') + '\n');
+			process.exit(1);
+		}
+		if (cli.argv['wp8-publisher-guid']) {
+			if (!(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).test(
+					cli.argv['wp8-publisher-guid'])) {
+				logger.error(__('Invalid publisher GUID "%s"', cli.argv['wp8-publisher-guid']) + '\n');
+				logger.log(__('Obtain your published GUID from %s', 'https://developer.windowsphone.com/'.cyan) + '\n');
+				process.exit(1);
+			}
+		}
+		if (cli.argv['device-id']) {
+			if (cli.argv['device-id'] != 'xd' && cli.argv['device-id'] != 'de' && !wp8Env.devices[cli.argv['device-id']]) {
+				logger.error(__('Invalid device id "%s"', cli.argv['device-id']) + '\n');
+				logger.log(__('The device id must be "xd", "de", or the numerical value of a specific device or emulator') + '\n');
+				process.exit(1);
+			}
+		}
+	}
+
 };
 
 exports.run = function (logger, config, cli, finished) {
