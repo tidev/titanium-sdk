@@ -15,11 +15,9 @@
     TiAnimation *_transitionFrom;
     BOOL _endedTo;
     BOOL _endedFrom;
+    NSNumber *_duration;
 }
 
-@property(nonatomic, retain) NSNumber *duration;
-
--(void)startEvent;
 
 @end
 #endif

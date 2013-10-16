@@ -38,6 +38,6 @@
 @property (nonatomic, readonly) TiProxy* tabGroup;
 
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
--(TiUIiOSTransitionAnimationProxy*) transitionProxy;
+-(TiUIiOSTransitionAnimationProxy*) transitionAnimation;
 #endif
 @end

@@ -12,84 +12,103 @@
 
 
 @implementation TiUIiOSTransitionAnimationProxy
-@synthesize duration = _duration;
 
 - (id)init
 {
     self = [super init];
     if (self) {
-        [self setDuration:[NSNumber numberWithFloat:300]];
     }
     return self;
 }
 
 - (void)dealloc
 {
-    [self forgetProxy:_transitionFrom];
-    [self forgetProxy:_transitionTo];
+    if(_transitionFrom != nil) {
+        [self forgetProxy:_transitionFrom];
+        RELEASE_TO_NIL(_transitionFrom)
+    }
+    if(_transitionTo != nil) {
+        [self forgetProxy:_transitionTo];
+        RELEASE_TO_NIL(_transitionTo)
+    }
     RELEASE_TO_NIL(_duration)
     RELEASE_TO_NIL(_transitionContext)
     [super dealloc];
 }
 
--(void)startEvent
+-(id)duration
 {
-    TiThreadPerformOnMainThread(^{
-        [self fireEvent:@"start" withObject:nil];
-    }, NO);
+    return _duration;
 }
--(void)setDuration:(NSNumber *)duration
+
+-(void)setDuration:(id)arg
 {
+    ENSURE_SINGLE_ARG(arg, NSNumber)
     RELEASE_TO_NIL(_duration)
-    _duration = [duration retain];
-    [self replaceValue:duration forKey:@"duration" notification:NO];
+    _duration = [arg retain];
 }
 
 -(void)setTransitionTo:(id)args
 {
     RELEASE_TO_NIL(_transitionTo)
-    _transitionTo = [TiAnimation animationFromArg:args context:[self executionContext] create:YES];
-    [self rememberProxy:_transitionTo];
+    _transitionTo = [TiAnimation animationFromArg:args context:[self executionContext] create:NO];
+    if([_transitionTo isTransitionAnimation]) {
+        DebugLog(@"[ERROR] Transition animations are not supported yet");
+        _transitionTo = nil;
+        return;
+    }
     [_transitionTo setDelegate:self];
+    [_transitionTo retain];
+    [self rememberProxy:_transitionTo];
 }
 
 -(void)setTransitionFrom:(id)args
 {
     RELEASE_TO_NIL(_transitionFrom)
-    _transitionFrom = [TiAnimation animationFromArg:args context:[self executionContext] create:YES];
-    [self rememberProxy:_transitionFrom];
+    _transitionFrom = [TiAnimation animationFromArg:args context:[self executionContext] create:NO];
+    if([_transitionFrom isTransitionAnimation]) {
+        DebugLog(@"[ERROR] Transition animations are not supported yet");
+        _transitionFrom = nil;
+        return;
+    }
     [_transitionFrom setDelegate:self];
+    [_transitionFrom retain];
+    [self rememberProxy:_transitionFrom];
 }
 
 -(TiAnimation*)transitionTo
 {
-    if(_transitionTo == nil)
-    {
-        [self setTransitionTo:[NSDictionary dictionary]];
-    }
     return _transitionTo;
 }
 
 -(TiAnimation*)transitionFrom
 {
-    if(_transitionFrom == nil)
-    {
-        [self setTransitionFrom:[NSDictionary dictionary]];
-    }
     return _transitionFrom;
 }
 
 - (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext
 {
-    _endedFrom = NO;
-    _endedTo = NO;
-    _transitionContext = [transitionContext retain];
     
     TiViewController *fromViewController = (TiViewController*)[transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
     TiViewController *toViewController = (TiViewController*)[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
     
     TiViewProxy *fromProxy = [fromViewController proxy];
     TiViewProxy *toProxy = [toViewController proxy];
+
+    if([self _hasListeners:@"start"])
+    {
+        NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                              toProxy, @"toWindow",
+                              fromProxy, @"fromWindow",
+                              nil];
+        [self fireEvent:@"start" withObject:dict propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
+
+    _endedFrom = [self transitionFrom] == nil;
+    _endedTo = [self transitionTo] == nil;
+
+    _transitionContext = [transitionContext retain];
+    
     
     [fromProxy setParentVisible:YES];
     [toProxy setParentVisible:YES];
@@ -99,9 +118,18 @@
     
     [container addSubview:[fromViewController view]];
     [container addSubview:[toViewController view]];
-        
-    [fromProxy animate: [self transitionFrom]];
-    [toProxy animate: [self transitionTo]];
+    
+    if([self transitionFrom] != nil) {
+        [fromProxy animate: [self transitionFrom]];
+    }
+    if ([self transitionTo] != nil) {
+        [toProxy animate: [self transitionTo]];
+    }
+    
+    if([self transitionTo] == nil && [self transitionFrom] == nil)
+    {
+        [_transitionContext completeTransition:YES];
+    }
 }
 
 -(void)animationDidComplete:(TiAnimation *)animation;
@@ -119,20 +147,34 @@
 
 - (NSTimeInterval)transitionDuration:(id<UIViewControllerContextTransitioning>)transitionContext
 {
-    return [[self duration] floatValue] / 1000;
+    if([self transitionTo] == nil && [self transitionFrom] == nil)
+    {
+        return 0;
+    }
+    if(_duration == nil) {
+        return MAX(
+                   [TiUtils floatValue:[[self transitionTo] duration] def:0],
+                   [TiUtils floatValue:[[self transitionFrom] duration] def:0]
+                ) / 1000;
+    }
+    return [TiUtils floatValue:_duration def:0] / 1000;
 }
 
 - (void)animationEnded:(BOOL) transitionCompleted;
 {
-    UIView *container = [_transitionContext containerView];
-
-    TiViewController *fromViewController = (TiViewController*)[_transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
-    TiViewController *toViewController = (TiViewController*)[_transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
-    
-    TiViewProxy *fromProxy = [fromViewController proxy];
-    TiViewProxy *toProxy = [toViewController proxy];
-
-    [self fireEvent:@"end" withObject:@{ @"fromWindow": fromProxy, @"toWindow" : toProxy }];
+    if([self _hasListeners:@"end"]) {
+        TiViewController *fromViewController = (TiViewController*)[_transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
+        TiViewController *toViewController = (TiViewController*)[_transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
+        
+        TiViewProxy *fromProxy = [fromViewController proxy];
+        TiViewProxy *toProxy = [toViewController proxy];
+        
+        NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                              toProxy, @"toWindow",
+                              fromProxy, @"fromWindow",
+                              nil];
+        [self fireEvent:@"end" withObject:dict propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
 }
 
 @end

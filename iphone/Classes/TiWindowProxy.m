@@ -662,9 +662,9 @@
     }
 }
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
--(TiUIiOSTransitionAnimationProxy*)transitionProxy
+-(TiUIiOSTransitionAnimationProxy*)transitionAnimation
 {
-    return [self valueForUndefinedKey:@"transitionAnimation"];
+    return transitionProxy;
 }
 
 -(void)setTransitionAnimation:(id)args
@@ -676,7 +676,6 @@
     }
     transitionProxy = [args retain];
     [self rememberProxy:transitionProxy];
-    [self replaceValue:args forKey:@"transitionAnimation" notification:NO];
 }
 #endif
 
