@@ -668,9 +668,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	assertIssue('ANDROID_SDK_NOT_FOUND');
 	assertIssue('ANDROID_SDK_MISSING_PROGRAMS');
 
-	// check if the Android SDK is in a directory containing ampersands on Windows
-	assertIssue('ANDROID_SDK_PATH_CONTAINS_AMPERSANDS');
-
 	// make sure we have an Android SDK and some Android targets
 	if (Object.keys(this.androidInfo.targets).filter(function (id) { return id > this.minSupportedApiLevel; }.bind(this)).length <= 0) {
 		logger.error(__('No Android SDK targets found.') + '\n');
@@ -2411,8 +2408,6 @@ AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 };
 
 AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
-	if (!this.forceRebuild) return next();
-
 	var data = i18n.load(this.projectDir, this.logger);
 
 	Object.keys(data).forEach(function (locale) {
