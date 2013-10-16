@@ -451,7 +451,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							if (!keystoreFile) {
 								callback(new Error(__('Please specify the path to your keystore file')));
 							} else {
-								keystoreFile = appc.fs.resolvePath(keystoreFile);
+								keystoreFile = afs.resolvePath(keystoreFile);
 								if (!fs.existsSync(keystoreFile) || !fs.statSync(keystoreFile).isFile()) {
 									callback(new Error(__('Invalid keystore file')));
 								} else {
@@ -1214,33 +1214,40 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 };
 
 AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
+	// modules
 	this.modulesHash = !Array.isArray(this.tiapp.modules) ? '' : crypto.createHash('md5').update(this.tiapp.modules.filter(function (m) {
 		return !m.platform || /^iphone|ipad|commonjs$/.test(m.platform);
 	}).map(function (m) {
 		return m.id + ',' + m.platform + ',' + m.version;
 	}).join('|')).digest('hex');
 
+	// tiapp.xml properties, activities, and services
 	this.propertiesHash = hash(this.tiapp.properties ? JSON.stringify(this.tiapp.properties) : '');
 	var android = this.tiapp.android;
 	this.activitiesHash = hash(android && android.application && android.application ? JSON.stringify(android.application.activities) : '');
 	this.servicesHash = hash(android && android.services ? JSON.stringify(android.services) : '');
 
-	this.jssFilesHash = hash((function walk(dir) {
-		var re = /\.jss$/,
-			hashes = [];
-		fs.readdirSync(dir).forEach(function (name) {
+	function walk(dir, re) {
+		var hashes = [];
+		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
 			var file = path.join(dir, name);
 			if (fs.existsSync(file)) {
 				var stat = fs.statSync(file);
 				if (stat.isFile() && re.test(name)) {
 					hashes.push(hash(fs.readFileSync(file).toString()));
 				} else if (stat.isDirectory()) {
-					hashes = hashes.concat(walk(file));
+					hashes = hashes.concat(walk(file, re));
 				}
 			}
 		});
 		return hashes;
-	}(this.projectDir)).join(','));
+	}
+
+	// jss files
+	this.jssFilesHash = hash(walk(path.join(this.projectDir, 'Resources'), /\.jss$/).join(','));
+
+	// i18n files
+	this.i18nFilesHash = hash(walk(path.join(this.projectDir, 'i18n'), /\.xml$/).join(','));
 
 	next();
 };
@@ -1297,7 +1304,8 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		propertiesHash: this.propertiesHash,
 		activitiesHash: this.activitiesHash,
 		servicesHash: this.servicesHash,
-		jssFilesHash: this.jssFilesHash
+		jssFilesHash: this.jssFilesHash,
+		i18nFilesHash: this.i18nFilesHash
 	}, function (err, results, result) {
 		callback();
 	});
@@ -1342,6 +1350,12 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		this.logger.info(__('Forcing rebuild: classname changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.classname));
 		this.logger.info('  ' + __('Now: %s', this.classname));
+		return true;
+	}
+
+	// if encryption is enabled, then we must recompile the java files
+	if (this.encryptJS) {
+		this.logger.info(__('Forcing rebuild: JavaScript files need to be re-encrypted'));
 		return true;
 	}
 
@@ -1552,10 +1566,6 @@ AndroidBuilder.prototype.checkBuildState = function checkBuildState(next) {
 	}
 	fs.existsSync(this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(this.buildGenAppIdDir);
 
-	//if (this.forceRebuild && fs.existsSync(this.buildDir)) {
-	//	wrench.rmdirSyncRecursive(this.buildDir);
-	//}
-
 	next();
 };
 
@@ -1603,6 +1613,30 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			recursivelyCopy.call(this, opts.src, opts.dest, opts.ignoreRootDirs, opts, callback);
 		} else {
 			callback();
+		}
+	}
+
+	function copyFile(from, to, next) {
+		var d = path.dirname(to);
+		fs.existsSync(d) || wrench.mkdirSyncRecursive(d);
+		if (process.platform != 'win32' && this.config.get('android.symlinkResources', true)) {
+			fs.existsSync(to) && fs.unlinkSync(to);
+			this.logger.debug(__('Symlinking %s => %s', from.cyan, to.cyan));
+			if (next) {
+				fs.symlink(from, to, next);
+			} else {
+				fs.symlinkSync(from, to);
+			}
+		} else {
+			this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+			if (next) {
+				fs.readFile(from, function (err, data) {
+					if (err) throw err;
+					fs.writeFile(to, data, next);
+				});
+			} else {
+				fs.writeFileSync(to, fs.readFileSync(from));
+			}
 		}
 	}
 
@@ -1670,10 +1704,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						if (this.minifyCSS) {
 							this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
 							fs.readFile(from, function (err, data) {
+								if (err) throw err;
 								fs.writeFile(to, cleanCSS.process(data.toString()), next);
 							});
 						} else {
-							afs.copyFileAsync(from, to, { logger: this.logger.debug }, next);
+							copyFile.call(this, from, to, next);
 						}
 						break;
 
@@ -1683,7 +1718,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							htmlJsFiles[file] = 1;
 						});
 
-						afs.copyFileAsync(from, to, { logger: this.logger.debug }, next);
+						copyFile.call(this, from, to, next);
 						break;
 
 					case 'js':
@@ -1714,7 +1749,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 					default:
 						// normal file, just copy it into the build/android/bin/assets directory
-						afs.copyFileAsync(from, to, { logger: this.logger.debug }, next);
+						copyFile.call(this, from, to, next);
 				}
 			};
 		}), done);
@@ -1806,13 +1841,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		// if an app icon hasn't been copied, copy the default one
 		var destIcon = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
 		if (!fs.existsSync(destIcon)) {
-			appc.fs.copyFileSync(path.join(templateDir, 'appicon.png'), destIcon, { logger: this.logger.debug });
+			copyFile.call(this, path.join(templateDir, 'appicon.png'), destIcon);
 		}
 		delete this.lastBuildFiles[destIcon];
 
 		var destIcon2 = path.join(this.buildResDrawableDir, this.tiapp.icon);
 		if (!fs.existsSync(destIcon2)) {
-			appc.fs.copyFileSync(destIcon, destIcon2, { logger: this.logger.debug });
+			copyFile.call(this, destIcon, destIcon2);
 		}
 		delete this.lastBuildFiles[destIcon2];
 
@@ -1820,7 +1855,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		var backgroundRegExp = /^background(\.9)?\.(png|jpg)$/,
 			destBg = path.join(this.buildResDrawableDir, 'background.png');
 		if (!fs.readdirSync(this.buildResDrawableDir).some(function (n) { return backgroundRegExp.test(n); })) {
-			appc.fs.copyFileSync(path.join(templateDir, 'default.png'), destBg, { logger: this.logger.debug });
+			copyFile.call(this, path.join(templateDir, 'default.png'), destBg);
 		}
 		delete this.lastBuildFiles[destBg];
 
@@ -1834,7 +1869,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 				if (htmlJsFiles[id]) {
 					// this js file is referenced from an html file, so don't minify or encrypt
-					afs.copyFileAsync(from, to, { logger: this.logger.debug }, done);
+					copyFile.call(this, from, to, done);
 
 				} else {
 					// we have a js file that may be minified or encrypted
@@ -1864,7 +1899,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						fs.writeFile(to, r.contents, done);
 					} else {
 						// no need to parse the AST, so just copy the file
-						afs.copyFileAsync(from, to, { logger: this.logger.debug }, done);
+						copyFile.call(this, from, to, done);
 					}
 				}
 			};
@@ -2352,7 +2387,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 							} else if (_t.xmlMergeRegExp.test(filename)) {
 								_t.writeXmlFile(from, to);
 							} else {
-								appc.fs.copyFileSync(from, to, { logger: _t.logger.debug });
+								afs.copyFileSync(from, to, { logger: _t.logger.debug });
 							}
 						}
 					});
@@ -2408,11 +2443,20 @@ AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 };
 
 AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
-	var data = i18n.load(this.projectDir, this.logger);
+	this.logger.info(__('Generating i18n files'));
+
+	var data = i18n.load(this.projectDir, this.logger),
+		i18nFilesChanged = this.buildManifest.i18nFilesHash == this.i18nFilesHash;
 
 	Object.keys(data).forEach(function (locale) {
-		var dest = path.join(this.buildResDir, 'values' + (locale == 'en' ? '' : '-' + locale), 'strings.xml'),
-			dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
+		var dest = path.join(this.buildResDir, 'values' + (locale == 'en' ? '' : '-' + locale), 'strings.xml');
+
+		// if no i18n file changes and the dest exists, then there's nothing to do
+		if (!i18nFilesChanged && fs.existsSync(dest)) {
+			return;
+		}
+
+		var dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
 			root = dom.documentElement;
 
 		Object.keys(data[locale].strings).forEach(function (name) {

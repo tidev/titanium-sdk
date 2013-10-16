@@ -98,13 +98,13 @@ exports.init = function (logger, config, cli) {
 				},
 
 				function (next) {
-					if (deviceInfo) {
+					if (deviceInfo || builder.target != 'emulator') {
 						return next();
 					}
 
 					logger.info(__('Waiting for emulator to become ready'));
 
-					var waitUntil = Date.now() + (60 * 1000), // 1 minute
+					var waitUntil = Date.now() + config.get('android.emulatorStartTimeout', 60000), // 1 minute
 						timer = setInterval(function () {
 							if (deviceInfo) {
 								clearInterval(timer);
@@ -220,7 +220,7 @@ exports.init = function (logger, config, cli) {
 				function (next) {
 					logger.info(__('Starting app: %s', (builder.appid + '/.' + builder.classname + 'Activity').cyan));
 					adb.startApp(deviceInfo.id, builder.appid, builder.classname + 'Activity', function (err) {
-						var waitUntil = Date.now() + (60 * 1000), // 1 minute
+						var waitUntil = Date.now() + config.get('android.appStartTimeout', 60000), // 1 minute
 							done = false;
 
 						async.whilst(
