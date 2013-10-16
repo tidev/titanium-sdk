@@ -36,6 +36,11 @@
     [super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iOS.TransitionAnimation";
+}
+
 -(id)duration
 {
     return _duration;
