@@ -480,7 +480,6 @@
 		}
 	}
 
-	[rootController setTitle:title];
 	UITabBarItem *ourItem = nil;
     
     BOOL imageIsMask = NO;
