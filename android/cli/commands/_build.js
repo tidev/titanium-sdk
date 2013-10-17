@@ -1071,8 +1071,8 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'computeHashes',
 		'readBuildManifest',
 		'writeBuildManifest',
-		'getLastBuildState',
 		'checkBuildState',
+		'getLastBuildState',
 
 		function (next) {
 			cli.emit('build.pre.compile', this, next);
@@ -1549,6 +1549,18 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 	return false;
 };
 
+AndroidBuilder.prototype.checkBuildState = function checkBuildState(next) {
+	// check if we need to do a rebuild
+	this.forceRebuild = this.checkIfShouldForceRebuild();
+
+	if (this.forceRebuild && fs.existsSync(this.buildGenAppIdDir)) {
+		wrench.rmdirSyncRecursive(this.buildGenAppIdDir);
+	}
+	fs.existsSync(this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(this.buildGenAppIdDir);
+
+	next();
+};
+
 AndroidBuilder.prototype.getLastBuildState = function getLastBuildState(next) {
 	if (this.forceRebuild) return next();
 
@@ -1567,18 +1579,6 @@ AndroidBuilder.prototype.getLastBuildState = function getLastBuildState(next) {
 			}
 		});
 	}(this.buildDir));
-
-	next();
-};
-
-AndroidBuilder.prototype.checkBuildState = function checkBuildState(next) {
-	// check if we need to do a rebuild
-	this.forceRebuild = this.checkIfShouldForceRebuild();
-
-	if (this.forceRebuild && fs.existsSync(this.buildGenAppIdDir)) {
-		wrench.rmdirSyncRecursive(this.buildGenAppIdDir);
-	}
-	fs.existsSync(this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(this.buildGenAppIdDir);
 
 	next();
 };
