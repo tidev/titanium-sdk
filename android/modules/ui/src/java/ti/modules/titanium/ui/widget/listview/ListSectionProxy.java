@@ -788,13 +788,20 @@ public class ListSectionProxy extends ViewProxy{
 			totalCount = itemCount;
 		}
 
-		if (headerTitle != null || headerView != null) {
-			totalCount += 1;
-		}
-		if (footerTitle != null || footerView != null) {
-			totalCount +=1;
+		if (!hideHeaderOrFooter()) {
+			if (headerTitle != null || headerView != null) {
+				totalCount += 1;
+			}
+			if (footerTitle != null || footerView != null) {
+				totalCount +=1;
+			}
 		}
 		return totalCount;
+	}
+	
+	private boolean hideHeaderOrFooter() {
+		TiListView listview = getListView();
+		return (listview.getSearchText() != null && !listview.getKeepSectionsInSearch() && filterIndices.isEmpty());
 	}
 	
 	public boolean isHeaderView(int pos) {
