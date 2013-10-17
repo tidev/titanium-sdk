@@ -171,8 +171,9 @@
     [self updateGradientLayer:yn|[self isSelected] withAnimation:animated];
 }
 
--(void) setBackgroundGradient_:(TiGradient *)newGradient
+-(void) setBackgroundGradient_:(id)value
 {
+	TiGradient * newGradient = [TiGradient gradientFromObject:value proxy:_proxy];
 	if(newGradient == backgroundGradient)
 	{
 		return;
@@ -186,8 +187,9 @@
 	}
 }
 
--(void) setSelectedBackgroundGradient_:(TiGradient *)newGradient
+-(void) setSelectedBackgroundGradient_:(id)value
 {
+	TiGradient * newGradient = [TiGradient gradientFromObject:value proxy:_proxy];
 	if(newGradient == selectedBackgroundGradient)
 	{
 		return;
