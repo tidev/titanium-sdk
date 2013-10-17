@@ -43,7 +43,6 @@ var ti = require('titanium-sdk'),
 UglifyJS.AST_Node.warn_function = function () {};
 
 exports.config = function (logger, config, cli) {
-	console.log(config, cli);
 	var conf;
 	return function (finished) {
 

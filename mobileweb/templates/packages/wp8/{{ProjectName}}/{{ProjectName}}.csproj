@@ -121,6 +121,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <% for (var i = 0, len = appFiles.length; i < len; i++) { %>
+    <Content Include="<%= appFiles[i] %>" />
+    <% } %>
     <Content Include="Assets\AlignmentGrid.png" />
     <Content Include="Assets\ApplicationIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
