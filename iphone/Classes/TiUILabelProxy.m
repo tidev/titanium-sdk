@@ -69,6 +69,10 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     return TiDimensionAutoSize;
 }
 
+-(UIView *)parentViewForChild:(TiViewProxy *)child
+{
+	return [[(TiUILabel*)[self view] label] superview];
+}
 
 @end
 
