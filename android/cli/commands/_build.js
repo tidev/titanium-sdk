@@ -1562,9 +1562,9 @@ AndroidBuilder.prototype.checkBuildState = function checkBuildState(next) {
 };
 
 AndroidBuilder.prototype.getLastBuildState = function getLastBuildState(next) {
-	if (this.forceRebuild) return next();
-
 	var lastBuildFiles = this.lastBuildFiles = {};
+
+	if (this.forceRebuild) return next();
 
 	// walk the entire build dir and build a map of all files
 	(function walk(dir) {
