@@ -451,7 +451,7 @@ properties:
         Used in conjunction with [searchText](Titanium.UI.ListView.searchText) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: 3.2.0
 
   - name: sectionIndexTitles
