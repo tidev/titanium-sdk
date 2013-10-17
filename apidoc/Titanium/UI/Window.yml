@@ -246,6 +246,16 @@ properties:
     platforms: [iphone, ipad]
     type: [String, Titanium.Blob]
 
+  - name: backgroundColor
+    summary: Background color of the window, as a color name or hex triplet.
+    description: |
+        On Android, to specify a semi-transparent background, set the alpha value using the
+        [opacity](Titanium.UI.Window.opacity) property before opening the window.
+
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+    default: Transparent
+
   - name: barColor
     summary: |
         Background color for the nav bar, as a color name or hex triplet.

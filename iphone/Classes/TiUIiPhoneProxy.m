@@ -222,6 +222,11 @@ DEFINE_SUBPROXY_AS(ListViewCellSelectionStyle, TableViewCellSelectionStyle, list
 DEFINE_SUBPROXY_AS(ListViewSeparatorStyle, TableViewSeparatorStyle, listViewSeparatorStyle);
 #endif
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPhone";
+}
+
 -(void)hideStatusBar:(id)args
 {
     if ([TiUtils isIOS7OrGreater]) {

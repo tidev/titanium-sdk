@@ -31,6 +31,11 @@
     [super _destroy];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Calendar.Alert";
+}
+
 -(EKAlarm*)alert
 {
     return alert;

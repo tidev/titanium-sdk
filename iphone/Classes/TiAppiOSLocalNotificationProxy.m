@@ -21,6 +21,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.App.iOS.LocalNotification";
+}
+
 -(void)cancel:(id)args
 {
 	UILocalNotification * cancelledNotification = [notification retain];

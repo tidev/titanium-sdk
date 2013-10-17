@@ -26,6 +26,11 @@
     return self;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPhone.NavigationGroup";
+}
+
 #pragma mark - Public API
 
 -(void)open:(NSArray*)args

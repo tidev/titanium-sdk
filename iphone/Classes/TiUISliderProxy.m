@@ -23,6 +23,11 @@ NSArray* sliderKeySequence;
 	return sliderKeySequence;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.Slider";
+}
+
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     [self initializeProperty:@"leftTrackLeftCap" defaultValue:NUMFLOAT(1.0)];

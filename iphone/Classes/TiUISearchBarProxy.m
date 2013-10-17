@@ -20,6 +20,11 @@
 
 #pragma mark Method forwarding
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.SearchBar";
+}
+
 -(void)blur:(id)args
 {
 	[self makeViewPerformSelector:@selector(blur:) withObject:args createIfNeeded:YES waitUntilDone:NO];

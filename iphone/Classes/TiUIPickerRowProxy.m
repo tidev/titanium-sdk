@@ -16,6 +16,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.PickerRow";
+}
+
 -(UIView*)viewWithFrame:(CGRect)theFrame reusingView:(UIView*)theView
 {
     //The picker on IOS seems to consist of 3 tableViews (or some derivative of it) each of which calls the

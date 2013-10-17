@@ -20,6 +20,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.PickerColumn";
+}
+
 -(NSMutableArray*)rows
 {
 	// return copy so developer can't directly mutate

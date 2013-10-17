@@ -88,6 +88,11 @@ NSArray* moviePlayerKeys = nil;
 	[super _destroy];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Media.VideoPlayer";
+}
+
 -(void)configureNotifications
 {
 	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!

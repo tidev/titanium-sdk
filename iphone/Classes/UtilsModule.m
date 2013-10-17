@@ -29,6 +29,12 @@
 	THROW_INVALID_ARG(@"invalid type");
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Utils";
+}
+
+
 #pragma mark Public API
 
 -(TiBlob*)base64encode:(id)args

@@ -40,6 +40,11 @@
     [super _destroy];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Calendar.Calendar";
+}
+
 
 -(EKCalendar*)calendar
 {

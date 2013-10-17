@@ -34,6 +34,11 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     return self;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.ListItem";
+}
+
 - (id)init
 {
     self = [super init];

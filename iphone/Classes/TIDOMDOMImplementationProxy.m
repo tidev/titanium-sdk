@@ -15,6 +15,11 @@
 
 @implementation TIDOMDOMImplementation
 
+-(NSString*)apiName
+{
+    return @"Ti.XML.DOMImplementation";
+}
+
 -(id)hasFeature:(id)args
 {
 	ENSURE_ARG_COUNT(args, 2);
