@@ -15,7 +15,7 @@ from deltafy import Deltafy
 import bindings
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store']
-ignoreDirs = ['.git','.svn','_svn', 'CVS']
+ignoreDirs = ['.git','.hg','.svn','_svn', 'CVS']
 ignoreSymbols = ['version','userAgent','name','_JSON','include','fireEvent','addEventListener','removeEventListener','buildhash','builddate']
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.abspath(os.path.join(template_dir, "..", "common")))

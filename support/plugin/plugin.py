@@ -16,7 +16,7 @@ sdk_dir = os.path.dirname(template_dir)
 sys.path.append(sdk_dir)
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn','CVS'];
+ignoreDirs = ['.git','.hg','.svn','_svn','CVS'];
 nonFilterFiles = ['.png','.gif','.jpg','.zip','.a','.o', '.jar']
 
 class PluginProject(object):

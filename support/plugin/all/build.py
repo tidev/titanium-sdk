@@ -60,7 +60,7 @@ def validate_manifest():
 	return manifest,path
 
 ignoreFiles = ['.DS_Store','.gitignore','README','build.py']
-ignoreDirs = ['.DS_Store','.svn','.git','CVSROOT']
+ignoreDirs = ['.DS_Store','.hg','.svn','.git','CVSROOT']
 
 def zip_dir(zf,dir,basepath,ignore=[]):
 	for root, dirs, files in os.walk(dir):

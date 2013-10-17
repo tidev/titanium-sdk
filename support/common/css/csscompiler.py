@@ -11,7 +11,7 @@ import css, csslex, cssyacc, ply
 import os,codecs,time,types,sys
 
 ignoreFiles = ['.gitignore', '.cvsignore']
-ignoreDirs = ['.git','.svn', 'CVS']
+ignoreDirs = ['.git','.hg','.svn', 'CVS']
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../../'))

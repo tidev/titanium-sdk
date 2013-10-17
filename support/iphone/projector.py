@@ -15,7 +15,7 @@ from tools import *
 	
 fileTargets = ['.c','.cpp','.h','.m','.mm','.pbxproj']
 ignoreFiles = ['.gitignore', '.cvsignore','bridge.txt','libTitanium.a']
-ignoreDirs = ['.git','.svn', 'CVS']
+ignoreDirs = ['.git','.hg','.svn', 'CVS']
 symbolicMap = ['Titanium','Appcelerator']
 exclusions = ['TiCore']
 

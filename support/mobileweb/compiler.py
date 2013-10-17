@@ -15,7 +15,7 @@ import simplejson
 from csspacker import CSSPacker
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store']
-ignoreDirs = ['.git','.svn','_svn','CVS']
+ignoreDirs = ['.git','.hg','.svn','_svn','CVS']
 
 year = datetime.datetime.now().year
 

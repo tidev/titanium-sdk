@@ -30,7 +30,7 @@ from module import ModuleDetector
 from tools import *
 
 ignoreFiles = ['.gitignore', '.cvsignore']
-ignoreDirs = ['.git','.svn', 'CVS']
+ignoreDirs = ['.git','.hg','.svn', 'CVS']
 
 # need this so unicode works
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)

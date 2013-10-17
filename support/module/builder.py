@@ -62,7 +62,7 @@ def run_ant(project_dir):
 	run(ant_args, cwd=project_dir)
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn','CVS'];
+ignoreDirs = ['.git','.hg','.svn','_svn','CVS'];
 android_sdk = None
 
 def copy_resources(source, target):

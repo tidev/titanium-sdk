@@ -18,7 +18,7 @@ except ImportError:
 	import markdown
 
 ignoreFiles = ['.DS_Store','.cvsignore','.gitignore']
-ignoreDirs = ['.svn','_svn','.git','CVS','CVSROOT']
+ignoreDirs = ['.hg','.svn','_svn','.git','CVS','CVSROOT']
 
 required_manifest_keys = ['name','version','moduleid','description','copyright','license','copyright','platform','minsdk']
 manifest_defaults = {
