@@ -289,6 +289,26 @@
 	}
 }
 
+-(void)setShadowColor_:(id)color
+{
+	if (color==nil)
+	{
+		[[self button] setTitleShadowColor:nil forState:UIControlStateNormal];
+	}
+	else
+	{
+		color = [TiUtils colorValue:color];
+        [[self button] setTitleShadowColor:[color color] forState:UIControlStateNormal];
+	}
+}
+
+-(void)setShadowOffset_:(id)value
+{
+	CGPoint p = [TiUtils pointValue:value];
+	CGSize size = {p.x,p.y};
+	[[[self button] titleLabel] setShadowOffset:size];
+}
+
 -(void)setSelectedColor_:(id)color
 {
 	if (color!=nil)
