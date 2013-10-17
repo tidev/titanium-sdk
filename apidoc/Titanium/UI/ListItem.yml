@@ -105,23 +105,24 @@ properties:
         Must be a local resource.
     type: String
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     accessors: false
 
   - name: backgroundGradient
     summary: Background gradient to render when the item is not selected.
     type: Gradient
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     accessors: false
 
   - name: selectedBackgroundColor
     summary: Background color of the view, as a color name or hex triplet when item is selected.
     description: |
+        On Android, clicking on ListItem's sub-views will not trigger this unless these views have 'touchEnabled' set to false.
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     default: Transparent
     accessors: false
 
@@ -129,9 +130,10 @@ properties:
     summary: Background image to render when the item is selected.
     description: |
         Must be a local resource.
+        On Android, clicking on ListItem's sub-views will not trigger this unless these views have 'touchEnabled' set to false.
     type: String
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     accessors: false
 
   - name: selectedBackgroundGradient
