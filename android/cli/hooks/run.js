@@ -151,7 +151,8 @@ exports.init = function (logger, config, cli) {
 				function (next) {
 					var logBuffer = [],
 						displayStartLog = true,
-						tiapiRegExp = /^(\w\/TiAPI\s*\:)/;
+						tiapiRegExp = /^(\w\/TiAPI\s*\:)/,
+						endLog = false;
 
 					function printData(line) {
 						if (appPidRegExp.test(line)) {
@@ -205,12 +206,15 @@ exports.init = function (logger, config, cli) {
 						// the adb server shutdown, the emulator quit, or the device was unplugged
 						var endLogTxt = __('End application log');
 						logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+						endLog = true;
 					});
 
 					// listen for ctrl-c
-					process.on('SIGINT', function endLog() {
-						var endLogTxt = __('End application log');
-						logger.log('\r' + ('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+					process.on('SIGINT', function () {
+						if (!endLog) {
+							var endLogTxt = __('End application log');
+							logger.log('\r' + ('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+						}
 						process.exit(0);
 					});
 

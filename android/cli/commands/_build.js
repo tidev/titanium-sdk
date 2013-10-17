@@ -87,10 +87,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					if (!androidSdkPath && androidInfo.sdk) {
 						androidSdkPath = androidInfo.sdk.path;
 					}
-					if (androidSdkPath) {
-						androidSdkPath = afs.resolvePath(androidSdkPath);
-						cli.argv['android-sdk'] = androidSdkPath;
-					}
+					androidSdkPath && (cli.argv['android-sdk'] = afs.resolvePath(androidSdkPath));
 
 					next();
 				});
