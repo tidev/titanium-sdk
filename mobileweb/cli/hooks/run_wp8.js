@@ -6,11 +6,7 @@
  */
 
 var path = require('path'),
-	fs = require('fs'),
 	spawn = require('child_process').spawn,
-	wrench = require('wrench'),
-	ejs = require('ejs'),
-	uuid = require('node-uuid'),
 	appc = require('node-appc'),
 	i18n = appc.i18n(__dirname),
 	__ = i18n.__,
