@@ -513,13 +513,13 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 
     id offset = [value objectForKey:@"offset"];
     if (offset != nil && [offset isKindOfClass:[NSDictionary class]]) {
-        id w = [offset valueForKey:@"width"];
-        id h = [offset valueForKey:@"height"];
-        [shadow setShadowOffset: CGSizeMake([TiUtils floatValue:w], [TiUtils floatValue:h])];
+        id w = [offset objectForKey:@"width"];
+        id h = [offset objectForKey:@"height"];
+        [shadow setShadowOffset: CGSizeMake([TiUtils floatValue:w def:0], [TiUtils floatValue:h def:0])];
     }
     id blurRadius = [value objectForKey:@"blurRadius"];
     if (blurRadius != nil) {
-        [shadow setShadowBlurRadius:[TiUtils floatValue:blurRadius]];
+        [shadow setShadowBlurRadius:[TiUtils floatValue:blurRadius def:0]];
     }
     id color = [value objectForKey:@"color"];
     if(color != nil) {
