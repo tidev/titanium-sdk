@@ -1082,8 +1082,8 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 
 		'computeHashes',
 		'readBuildManifest',
+		'checkIfNeedToRecompile',
 		'writeBuildManifest',
-		'checkBuildState',
 		'getLastBuildState',
 
 		function (next) {
@@ -1327,6 +1327,7 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		fullscreen: this.tiapp.fullscreen,
 		'navbar-hidden': this.tiapp['navbar-hidden'],
 		skipJSMinification: !!this.cli.argv['skip-js-minify'],
+		encryptJS: this.encryptJS,
 		minSDK: this.minSDK,
 		targetSDK: this.targetSDK,
 		propertiesHash: this.propertiesHash,
@@ -1384,6 +1385,14 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 	// if encryption is enabled, then we must recompile the java files
 	if (this.encryptJS) {
 		this.logger.info(__('Forcing rebuild: JavaScript files need to be re-encrypted'));
+		return true;
+	}
+
+	// if encryptJS changed, then we need to recompile the java files
+	if (this.encryptJS != manifest.encryptJS) {
+		this.logger.info(__('Forcing rebuild: JavaScript encryption flag changed'));
+		this.logger.info('  ' + __('Was: %s', manifest.encryptJS));
+		this.logger.info('  ' + __('Now: %s', this.encryptJS));
 		return true;
 	}
 
@@ -1561,7 +1570,7 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 	return false;
 };
 
-AndroidBuilder.prototype.checkBuildState = function checkBuildState(next) {
+AndroidBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile(next) {
 	// check if we need to do a rebuild
 	this.forceRebuild = this.checkIfShouldForceRebuild();
 
