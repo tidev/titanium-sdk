@@ -96,7 +96,7 @@
 	"Unable to find a suitable installed Android SDK that is >=%s and <=%s": "Unable to find a suitable installed Android SDK that is >=%s and <=%s",
 	"Target Android SDK %s is not installed": "Target Android SDK %s is not installed",
 	"To target Android SDK %s, you first must install it using the Android SDK manager.": "To target Android SDK %s, you first must install it using the Android SDK manager.",
-	"You can also change the %s in the %s section of the tiapp.xml to one of the following:": "You can also change the %s in the %s section of the tiapp.xml to one of the following:",
+	"Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDKs: %s": "Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDKs: %s",
 	"To target Android SDK %s, you first must install it using the Android SDK manager": "To target Android SDK %s, you first must install it using the Android SDK manager",
 	"Target Android SDK %s is missing \"android.jar\"": "Target Android SDK %s is missing \"android.jar\"",
 	"Target Android SDK version must be %s or newer": "Target Android SDK version must be %s or newer",
