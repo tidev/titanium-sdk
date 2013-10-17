@@ -26,19 +26,23 @@ exports.init = function (logger, config, cli) {
 			if (builder.target == 'emulator') {
 				logger.info(__('Launching emulator: %s', builder.deviceId.cyan));
 
-				var emulator = new EmulatorManager(config);
-				emulator.start(builder.deviceId, function (err, emu) {
-					if (err) {
-						logger.error(__('Unable to start emulator "%s"', builder.deviceId) + '\n');
-						process.exit(1);
-					}
+				cli.createHook('build.android.startEmulator', function (opts, cb) {
+					cb(opts);
+				})({}, function (err, results, opts) {
+					var emulator = new EmulatorManager(config);
+					emulator.start(builder.deviceId, opts, function (err, emu) {
+						if (err) {
+							logger.error(__('Unable to start emulator "%s"', builder.deviceId) + '\n');
+							process.exit(1);
+						}
 
-					emu.on('ready', function (device) {
-						logger.info(__('Emulator ready!'));
-						deviceInfo = device;
+						emu.on('ready', function (device) {
+							logger.info(__('Emulator ready!'));
+							deviceInfo = device;
+						});
+
+						finished();
 					});
-
-					finished();
 				});
 
 			} else if (builder.target == 'device') {
