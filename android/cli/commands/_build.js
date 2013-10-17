@@ -2462,6 +2462,10 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 	var data = i18n.load(this.projectDir, this.logger),
 		i18nFilesChanged = this.buildManifest.i18nFilesHash == this.i18nFilesHash;
 
+	data.en || (data.en = {});
+	data.en.app || (data.en.app = {});
+	data.en.app.appname || (data.en.app.appname = this.tiapp.name);
+
 	Object.keys(data).forEach(function (locale) {
 		var dest = path.join(this.buildResDir, 'values' + (locale == 'en' ? '' : '-' + locale), 'strings.xml');
 
@@ -2471,14 +2475,23 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 		}
 
 		var dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
-			root = dom.documentElement;
+			root = dom.documentElement,
+			appname = data[locale].app && data[locale].app.appname || this.tiapp.name,
+			appnameNode = dom.createElement('string');
 
-		Object.keys(data[locale].strings).forEach(function (name) {
-			var node = dom.createElement('string');
-			node.setAttribute('name', name);
-			node.appendChild(dom.createTextNode(data[locale].strings[name]));
-			root.appendChild(dom.createTextNode('\n\t'));
-			root.appendChild(node);
+		appnameNode.setAttribute('name', 'app_name');
+		appnameNode.appendChild(dom.createTextNode(appname));
+		root.appendChild(dom.createTextNode('\n\t'));
+		root.appendChild(appnameNode);
+
+		data[locale].strings && Object.keys(data[locale].strings).forEach(function (name) {
+			if (name != 'appname') {
+				var node = dom.createElement('string');
+				node.setAttribute('name', name);
+				node.appendChild(dom.createTextNode(data[locale].strings[name]));
+				root.appendChild(dom.createTextNode('\n\t'));
+				root.appendChild(node);
+			}
 		});
 
 		root.appendChild(dom.createTextNode('\n'));

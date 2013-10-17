@@ -17,7 +17,7 @@
 		android:debuggable="false">
 
 		<activity android:name=".<%- classname %>Activity"
-			android:label="<%- tiapp.name %>" android:theme="@style/Theme.Titanium"
+			android:label="@string/app_name" android:theme="@style/Theme.Titanium"
 			android:configChanges="keyboardHidden|orientation">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
