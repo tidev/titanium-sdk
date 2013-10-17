@@ -7,6 +7,7 @@
 
 var path = require('path'),
 	fs = require('fs'),
+	spawn = require('child_process').spawn,
 	wrench = require('wrench'),
 	ejs = require('ejs'),
 	uuid = require('node-uuid'),
@@ -60,7 +61,8 @@ exports.init = function (logger, config, cli) {
 						path.join('{{ProjectName}}', 'Properties', 'AssemblyInfo.cs'),
 						path.join('{{ProjectName}}', 'Properties', 'WMAppManifest.xml')
 					],
-					appFiles = templateData.appFiles;
+					appFiles = templateData.appFiles,
+					buildProcess;
 
 				// Create the destination folder if it doesn't exist
 				if (!fs.existsSync(destination)) {
@@ -82,6 +84,8 @@ exports.init = function (logger, config, cli) {
 					} else {
 						logger.debug(__('Copying file %s => %s', sourcePath.cyan, destinationPath.cyan));
 						fs.writeFileSync(destinationPath, fs.readFileSync(sourcePath));
+
+						// Store the file for inclusion in the csproj file.
 						appFiles.push(path.join('App', file));
 					}
 				});
@@ -108,6 +112,36 @@ exports.init = function (logger, config, cli) {
 							logger.debug(__('Copying file %s => %s', sourcePath.cyan, destinationPath.cyan));
 							fs.writeFileSync(destinationPath, sourceData);
 						}
+					}
+				});
+
+				// Compile the app
+				logger.info(__('Building the Windows Phone 8 Visual Studio project'));
+				buildProcess = spawn('MSBuild', [
+					'/m',
+					'/p:configuration=' + (cli.argv['deploy-type'] == 'production' ? 'Release' : 'Debug'),
+					path.join(destination, tiapp.name + '.sln')]);
+				buildProcess.stdout.on('data', function (data) {
+					data.toString().split('\r\n').forEach(function (line) {
+						if (line.length) {
+							logger.trace(line);
+						}
+					});
+				});
+				buildProcess.stderr.on('data', function (data) {
+					data.toString().split('\r\n').forEach(function (line) {
+						if (line.length) {
+							logger.error(line);
+						}
+					});
+				});
+				buildProcess.on('close', function (code) {
+					if (code) {
+						logger.info(__('There were errors building the project'));
+						finished(code);
+					} else {
+						logger.info(__('Finished building the application'));
+						finished();
 					}
 				});
 			});
