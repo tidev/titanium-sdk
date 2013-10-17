@@ -183,6 +183,17 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT, WritingDirectionRigh
     return [[[TiUIiOSNavWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+-(id)createTransitionAnimation:(id)args;
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiUIiOSTransitionAnimationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The Transition Animation Object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+#endif
 #ifdef USE_TI_UIIOSANIMATOR
 -(id)createAnimator:(id)args
 {
@@ -200,17 +211,6 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT, WritingDirectionRigh
         return [[[TiSnapBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
     } else {
         DebugLog(@"[WARN] The Snap Behavior Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
-}
-#endif
-#ifdef USE_TI_UIIOSTRANSITIONANIMATION
--(id)createTransitionAnimation:(id)args;
-{
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiUIiOSTransitionAnimationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Transition Animation Object is only available on iOS7 and above. Returning nil");
         return nil;
     }
 }
