@@ -59,6 +59,36 @@ typedef void (^PermissionBlock)(BOOL granted)
 
 #endif
 
+@interface TiImagePickerController:UIImagePickerController
+@end
+
+@implementation TiImagePickerController
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+    [self prefersStatusBarHidden];
+    [self setNeedsStatusBarAppearanceUpdate];
+}
+
+-(BOOL)prefersStatusBarHidden
+{
+    return YES;
+}
+
+-(UIViewController *)childViewControllerForStatusBarHidden
+{
+    return nil;
+}
+
+- (UIViewController *)childViewControllerForStatusBarStyle
+{
+    return nil;
+}
+
+@end
+
 @implementation MediaModule
 @synthesize popoverView;
 
@@ -361,8 +391,22 @@ typedef void (^PermissionBlock)(BOOL granted)
 		[self sendPickerError:MediaModuleErrorBusy];
 		return;
 	}
+    
+    if ([TiUtils isIOS7OrGreater] && isCamera) {
+        BOOL customPicker = NO;
+        if ([TiUtils isIPad]) {
+            customPicker = ![TiUtils boolValue:@"inPopOver" properties:args def:NO];
+        } else {
+            customPicker = YES;
+        }
+        if (customPicker) {
+            picker = [[TiImagePickerController alloc] init];
+        }
+    }
+    if (picker == nil) {
+        picker = [[UIImagePickerController alloc] init];
+    }
 	
-	picker = [[UIImagePickerController alloc] init];
 	[picker setDelegate:self];
 	
 	animatedPicker = YES;
@@ -469,11 +513,13 @@ typedef void (^PermissionBlock)(BOOL granted)
 				[view performSelector:@selector(setTouchEnabled_:) withObject:NUMBOOL(NO)];
 			}
 			[TiUtils setView:view positionRect:[picker view].bounds];
-            [cameraView windowWillOpen];
+			[cameraView windowWillOpen];
 			[picker setCameraOverlayView:view];
-            [cameraView windowDidOpen];
-            [cameraView layoutChildren:NO];
-			[picker setWantsFullScreenLayout:YES];
+			[cameraView windowDidOpen];
+			[cameraView layoutChildren:NO];
+			if (![TiUtils isIOS7OrGreater]) {
+				[picker setWantsFullScreenLayout:YES];
+			}
 		}
 		
 		// allow a transform on the preview image
