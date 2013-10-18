@@ -2675,9 +2675,9 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 	finalAndroidManifest.__attr__['android:versionName'] = this.tiapp.version || '1';
 
-	if (this.deployType == 'development' || this.deployType == 'test') {
+	if (this.deployType != 'production') {
 		// enable mock location if in development or test mode
-		geoPermissions.push('ACCESS_MOCK_LOCATION');
+		geoPermissions.push('android.permission.ACCESS_MOCK_LOCATION');
 	}
 
 	// set permissions for each titanium namespace found
