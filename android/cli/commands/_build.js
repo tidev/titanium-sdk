@@ -1334,7 +1334,8 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		activitiesHash: this.activitiesHash,
 		servicesHash: this.servicesHash,
 		jssFilesHash: this.jssFilesHash,
-		i18nFilesHash: this.i18nFilesHash
+		i18nFilesHash: this.i18nFilesHash,
+		jarLibHash: this.jarLibHash || ''
 	}, function (err, results, result) {
 		callback();
 	});
@@ -2065,7 +2066,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		moduleJarMap = {},
 		tiNamespaces = this.tiNamespaces = {}, // map of namespace => titanium functions (i.e. ui => createWindow)
 		jarLibraries = this.jarLibraries = {},
-		appModules = this.appModules = [],
+		appModules = this.appModules = [], // also used in the App.java template
 		appModulesMap = {},
 		customModules = this.customModules = [],
 		ignoreNamespaces = /^(addEventListener|builddate|buildhash|fireEvent|include|_JSON|name|removeEventListener|userAgent|version)$/;
@@ -2210,8 +2211,8 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 
 	// build the list of modules for the templates
 	Object.keys(tiNamespaces).map(createModuleDescriptor).forEach(function (m) {
-		m && this.appModules.push(m);
-	}, this);
+		m && appModules.push(m);
+	});
 
 	this.modules.forEach(function (module) {
 		// check if the module has a metadata.json (which most native-wrapped CommonJS
@@ -2265,7 +2266,21 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		}, this);
 	}, this);
 
-	next();
+	// write the app.json
+	this.logger.info(__('Writing %s', path.join(this.buildBinAssetsDir, 'app.json')));
+	fs.writeFileSync(path.join(this.buildBinAssetsDir, 'app.json'), JSON.stringify({
+		app_modules: appModules
+	}));
+
+	var jarLibHash = this.jarLibHash = hash(Object.keys(jarLibraries).join(','));
+	if (jarLibHash != this.buildManifest.jarLibHash) {
+		this.logger.info(__('Forcing rebuild: Detected change in Titanium APIs used and need to recompile'));
+		this.forceRebuild = true;
+		this.buildManifest.jarLibHash = jarLibHash;
+		this.writeBuildManifest(next);
+	} else {
+		next();
+	}
 };
 
 AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
@@ -2323,11 +2338,6 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 			}));
 		}, this);
 	}
-
-	// write the app.json
-	fs.writeFileSync(path.join(this.buildBinAssetsDir, 'app.json'), JSON.stringify({
-		app_modules: this.appModules
-	}));
 
 	next();
 };
