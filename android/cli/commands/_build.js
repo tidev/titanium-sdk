@@ -1083,7 +1083,6 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'computeHashes',
 		'readBuildManifest',
 		'checkIfNeedToRecompile',
-		'writeBuildManifest',
 		'getLastBuildState',
 
 		function (next) {
@@ -1092,11 +1091,11 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 
 		'createBuildDirs',
 		'copyResources',
-		'compileJSS',
 		'generateRequireIndex',
 		'processTiSymbols',
 		'copyModuleResources',
 		'removeOldFiles',
+		'compileJSS',
 		'generateJavaFiles',
 		'generateAidl',
 		'generateI18N',
@@ -1116,6 +1115,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'createUnsignedApk',
 		'createSignedApk',
 		'zipAlignApk',
+		'writeBuildManifest',
 
 		function (next) {
 			if (!this.buildOnly) {
@@ -1290,56 +1290,13 @@ AndroidBuilder.prototype.readBuildManifest = function readBuildManifest(next) {
 			this.buildManifest = JSON.parse(fs.readFileSync(this.buildManifestFile)) || {};
 			this.prevJarLibHash = this.buildManifest.jarLibHash || '';
 		} catch (e) {}
+
+		// now that we've read the build manifest, delete it so if this build
+		// becomes incomplete, the next build will be a full rebuild
+		fs.unlinkSync(this.buildManifestFile);
 	}
 
 	next();
-};
-
-AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callback) {
-	this.logger.info(__('Writing build manifest: %s', this.buildManifestFile.cyan));
-
-	this.cli.createHook('build.android.writeBuildManifest', this, function (manifest, cb) {
-		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
-		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
-		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), function () {
-			cb();
-		});
-	})({
-		target: this.target,
-		deployType: this.deployType,
-		classname: this.classname,
-		platformPath: this.platformPath,
-		modulesHash: this.modulesHash,
-		modulesManifestHash: this.modulesManifestHash,
-		modulesJarHash: this.modulesJarHash,
-		modulesBindingsHash: this.modulesBindingsHash,
-		gitHash: ti.manifest.githash,
-		outputDir: this.cli.argv['output-dir'],
-		name: this.tiapp.name,
-		id: this.tiapp.id,
-		analytics: this.tiapp.analytics,
-		publisher: this.tiapp.publisher,
-		url: this.tiapp.url,
-		version: this.tiapp.version,
-		description: this.tiapp.description,
-		copyright: this.tiapp.copyright,
-		guid: this.tiapp.guid,
-		icon: this.tiapp.icon,
-		fullscreen: this.tiapp.fullscreen,
-		'navbar-hidden': this.tiapp['navbar-hidden'],
-		skipJSMinification: !!this.cli.argv['skip-js-minify'],
-		encryptJS: this.encryptJS,
-		minSDK: this.minSDK,
-		targetSDK: this.targetSDK,
-		propertiesHash: this.propertiesHash,
-		activitiesHash: this.activitiesHash,
-		servicesHash: this.servicesHash,
-		jssFilesHash: this.jssFilesHash,
-		i18nFilesHash: this.i18nFilesHash,
-		jarLibHash: this.jarLibHash || ''
-	}, function (err, results, result) {
-		callback();
-	});
 };
 
 AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForceRebuild() {
@@ -1984,33 +1941,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	});
 };
 
-AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
-	Object.keys(this.lastBuildFiles).forEach(function (file) {
-		if (file.indexOf(this.buildAssetsDir) == 0 || file.indexOf(this.buildBinAssetsResourcesDir) == 0 || (this.forceRebuild && file.indexOf(this.buildGenAppIdDir) == 0) || file.indexOf(this.buildResDir) == 0) {
-			this.logger.debug(__('Removing old file: %s', file.cyan));
-			fs.unlinkSync(file);
-		}
-	}, this);
-
-	next();
-};
-
-AndroidBuilder.prototype.compileJSS = function compileJSS(callback) {
-	ti.jss.load(path.join(this.projectDir, 'Resources'), ['android'], this.logger, function (results) {
-		fs.writeFile(
-			path.join(this.buildGenAppIdDir, 'ApplicationStylesheet.java'),
-			ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationStylesheet.java')).toString(), {
-				appid: this.appid,
-				classes: appc.util.mix({}, results.classes, results.tags),
-				classesDensity: appc.util.mix({}, results.classes_density, results.tags_density),
-				ids: results.ids,
-				idsDensity: results.ids_density
-			}),
-			callback
-		);
-	}.bind(this));
-};
-
 AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(callback) {
 	var index = {},
 		binAssetsDir = this.buildBinAssetsDir,
@@ -2273,17 +2203,83 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		app_modules: appModules
 	}));
 
-	var jarLibHash = hash(Object.keys(jarLibraries).sort().join('|'));
-	if (jarLibHash != this.prevJarLibHash) {
+	this.jarLibHash = hash(Object.keys(jarLibraries).sort().join('|'));
+	if (this.jarLibHash != this.buildManifest.jarLibHash) {
 		if (!this.forceRebuild) {
 			this.logger.info(__('Forcing rebuild: Detected change in Titanium APIs used and need to recompile'));
 		}
 		this.forceRebuild = true;
-		this.jarLibHash = this.buildManifest.jarLibHash = jarLibHash;
-		this.writeBuildManifest(next);
-	} else {
-		next();
 	}
+
+	next();
+};
+
+AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next) {
+	// for each jar library, if it has a companion resource zip file, extract
+	// all of its files into the build dir, and yes, this is stupidly dangerous
+	appc.async.series(this, Object.keys(this.jarLibraries).map(function (jarFile) {
+		return function (done) {
+			var resFile = jarFile.replace(/\.jar$/, '.res.zip');
+			if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) return done();
+			this.logger.info(__('Extracting module resources: %s', resFile.cyan));
+			var tmp = temp.mkdirSync();
+			appc.zip.unzip(resFile, tmp, {}, function (ex) {
+				if (ex) {
+					this.logger.error(__('Failed to extract module resource zip: %s', resFile.cyan) + '\n');
+					process.exit(1);
+				}
+
+				var _t = this;
+
+				// copy the files from the temp folder into the build dir
+				(function copy(src, dest) {
+					fs.readdirSync(src).forEach(function (filename) {
+						var from = path.join(src, filename),
+							to = path.join(dest, filename);
+						if (fs.existsSync(from)) {
+							delete _t.lastBuildFiles[to];
+							if (fs.statSync(from).isDirectory()) {
+								copy(from, to);
+							} else if (_t.xmlMergeRegExp.test(filename)) {
+								_t.writeXmlFile(from, to);
+							} else {
+								afs.copyFileSync(from, to, { logger: _t.logger.debug });
+							}
+						}
+					});
+				}(tmp, this.buildDir));
+
+				done();
+			}.bind(this));
+		};
+	}), next);
+};
+
+AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
+	Object.keys(this.lastBuildFiles).forEach(function (file) {
+		if (file.indexOf(this.buildAssetsDir) == 0 || file.indexOf(this.buildBinAssetsResourcesDir) == 0 || (this.forceRebuild && file.indexOf(this.buildGenAppIdDir) == 0) || file.indexOf(this.buildResDir) == 0) {
+			this.logger.debug(__('Removing old file: %s', file.cyan));
+			fs.unlinkSync(file);
+		}
+	}, this);
+
+	next();
+};
+
+AndroidBuilder.prototype.compileJSS = function compileJSS(callback) {
+	ti.jss.load(path.join(this.projectDir, 'Resources'), ['android'], this.logger, function (results) {
+		fs.writeFile(
+			path.join(this.buildGenAppIdDir, 'ApplicationStylesheet.java'),
+			ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationStylesheet.java')).toString(), {
+				appid: this.appid,
+				classes: appc.util.mix({}, results.classes, results.tags),
+				classesDensity: appc.util.mix({}, results.classes_density, results.tags_density),
+				ids: results.ids,
+				idsDensity: results.ids_density
+			}),
+			callback
+		);
+	}.bind(this));
 };
 
 AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
@@ -2410,47 +2406,6 @@ AndroidBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest) {
 	root.appendChild(dom.createTextNode('\n'));
 	destExists && fs.unlinkSync(dest);
 	fs.writeFileSync(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
-};
-
-AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next) {
-	// for each jar library, if it has a companion resource zip file, extract
-	// all of its files into the build dir, and yes, this is stupidly dangerous
-	appc.async.series(this, Object.keys(this.jarLibraries).map(function (jarFile) {
-		return function (done) {
-			var resFile = jarFile.replace(/\.jar$/, '.res.zip');
-			if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) return done();
-			this.logger.info(__('Extracting module resources: %s', resFile.cyan));
-			var tmp = temp.mkdirSync();
-			appc.zip.unzip(resFile, tmp, {}, function (ex) {
-				if (ex) {
-					this.logger.error(__('Failed to extract module resource zip: %s', resFile.cyan) + '\n');
-					process.exit(1);
-				}
-
-				var _t = this;
-
-				// copy the files from the temp folder into the build dir
-				(function copy(src, dest) {
-					fs.readdirSync(src).forEach(function (filename) {
-						var from = path.join(src, filename),
-							to = path.join(dest, filename);
-						if (fs.existsSync(from)) {
-							delete _t.lastBuildFiles[to];
-							if (fs.statSync(from).isDirectory()) {
-								copy(from, to);
-							} else if (_t.xmlMergeRegExp.test(filename)) {
-								_t.writeXmlFile(from, to);
-							} else {
-								afs.copyFileSync(from, to, { logger: _t.logger.debug });
-							}
-						}
-					});
-				}(tmp, this.buildDir));
-
-				done();
-			}.bind(this));
-		};
-	}), next);
 };
 
 AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
@@ -3210,6 +3165,53 @@ AndroidBuilder.prototype.zipAlignApk = function zipAlignApk(next) {
 
 		next();
 	}.bind(this));
+};
+
+AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callback) {
+	this.logger.info(__('Writing build manifest: %s', this.buildManifestFile.cyan));
+
+	this.cli.createHook('build.android.writeBuildManifest', this, function (manifest, cb) {
+		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
+		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
+		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), function () {
+			cb();
+		});
+	})({
+		target: this.target,
+		deployType: this.deployType,
+		classname: this.classname,
+		platformPath: this.platformPath,
+		modulesHash: this.modulesHash,
+		modulesManifestHash: this.modulesManifestHash,
+		modulesJarHash: this.modulesJarHash,
+		modulesBindingsHash: this.modulesBindingsHash,
+		gitHash: ti.manifest.githash,
+		outputDir: this.cli.argv['output-dir'],
+		name: this.tiapp.name,
+		id: this.tiapp.id,
+		analytics: this.tiapp.analytics,
+		publisher: this.tiapp.publisher,
+		url: this.tiapp.url,
+		version: this.tiapp.version,
+		description: this.tiapp.description,
+		copyright: this.tiapp.copyright,
+		guid: this.tiapp.guid,
+		icon: this.tiapp.icon,
+		fullscreen: this.tiapp.fullscreen,
+		'navbar-hidden': this.tiapp['navbar-hidden'],
+		skipJSMinification: !!this.cli.argv['skip-js-minify'],
+		encryptJS: this.encryptJS,
+		minSDK: this.minSDK,
+		targetSDK: this.targetSDK,
+		propertiesHash: this.propertiesHash,
+		activitiesHash: this.activitiesHash,
+		servicesHash: this.servicesHash,
+		jssFilesHash: this.jssFilesHash,
+		i18nFilesHash: this.i18nFilesHash,
+		jarLibHash: this.jarLibHash
+	}, function (err, results, result) {
+		callback();
+	});
 };
 
 // create the builder instance and expose the public api
