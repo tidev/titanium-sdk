@@ -108,13 +108,16 @@ exports.init = function (logger, config, cli) {
 
 					logger.info(__('Waiting for emulator to become ready'));
 
-					var waitUntil = Date.now() + config.get('android.emulatorStartTimeout', 2 * 60 * 1000), // 2 minutes
+					var timeout = config.get('android.emulatorStartTimeout', 2 * 60 * 1000),  // 2 minute default
+						waitUntil = Date.now() + timeout,
 						timer = setInterval(function () {
 							if (deviceInfo) {
 								clearInterval(timer);
 								next();
 							} else if (Date.now() > waitUntil) {
 								logger.error(__('Emulator failed to start in a timely manner') + '\n');
+								logger.log(__('The current timeout is set to %s', appc.time.prettyDiff(0, timeout).cyan) + '\n');
+								logger.log(__('You can increase this timeout by running: %s', (cli.argv.$ + ' config android.emulatorStartTimeout <timeout ms>').cyan) + '\n');
 								process.exit(1);
 							}
 						}, 250);
@@ -228,7 +231,8 @@ exports.init = function (logger, config, cli) {
 				function (next) {
 					logger.info(__('Starting app: %s', (builder.appid + '/.' + builder.classname + 'Activity').cyan));
 					adb.startApp(deviceInfo.id, builder.appid, builder.classname + 'Activity', function (err) {
-						var waitUntil = Date.now() + config.get('android.appStartTimeout', 2 * 60 * 1000), // 2 minutes
+						var timeout = config.get('android.appStartTimeout', 2 * 60 * 1000),  // 2 minute default
+							waitUntil = Date.now() + timeout,
 							done = false;
 
 						async.whilst(
@@ -236,6 +240,8 @@ exports.init = function (logger, config, cli) {
 							function (cb) {
 								if (Date.now() > waitUntil) {
 									logger.error(__('Application failed to launch') + '\n');
+									logger.log(__('The current timeout is set to %s', appc.time.prettyDiff(0, timeout).cyan) + '\n');
+									logger.log(__('You can increase this timeout by running: %s', (cli.argv.$ + ' config android.emulatorStartTimeout <timeout ms>').cyan) + '\n');
 									process.exit(1);
 								}
 

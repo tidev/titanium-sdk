@@ -120,14 +120,16 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 	var targetDeviceCache = {};
 
 	function findTargetDevices(target, callback) {
-		if (targetDeviceCache[target]) return callback(null, targetDeviceCache[target]);
+		if (targetDeviceCache[target]) {
+			return callback(null, targetDeviceCache[target]);
+		}
 
 		if (target == 'device') {
 			new ADB(config).devices(function (err, devices) {
 				if (err) {
 					callback(err);
 				} else {
-					_t.devices = devices.filter(function (d) { return !d.emulator; });
+					_t.devices = devices.filter(function (d) { return !d.emulator && d.state == 'device'; });
 					callback(null, targetDeviceCache[target] = _t.devices.map(function (d) {
 						return {
 							name: d.model || d.manufacturer,
@@ -151,7 +153,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							return {
 								name: emu.name,
 								id: emu.name,
-								version: emu.target,
+								version: emu['sdk-version'],
 								abi: emu.abi,
 								type: emu.type,
 								googleApis: emu.googleApis
@@ -160,7 +162,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							return {
 								name: emu.name,
 								id: emu.name,
-								version: emu.target,
+								version: emu['sdk-version'],
 								abi: emu.abi,
 								type: emu.type,
 								googleApis: emu.googleApis
@@ -226,20 +228,33 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						validate: function (value, callback) {
 							if (!value) {
 								callback(new Error(__('Invalid Android SDK path')));
+							} else if (_t.androidInfo.sdk && _t.androidInfo.sdk.path == value) {
+								// no sense doing the detection again
+								callback(null, value);
 							} else {
 								// do a quick scan to see if the path is correct
 								android.findSDK(value, config, appc.pkginfo.package(module), function (err, results) {
 									if (err) {
 										callback(new Error(__('Invalid Android SDK path: %s', value)));
 									} else {
-										// set the android sdk in the config just in case a plugin or something needs it
-										config.set('android.sdkPath', value);
+										function next() {
+											// set the android sdk in the config just in case a plugin or something needs it
+											config.set('android.sdkPath', value);
 
-										// path looks good, do a full scan again
-										androidDetect(config, { packageJson: packageJson, bypassCache: true }, function (androidInfo) {
-											_t.androidInfo = androidInfo;
-											callback(null, value);
-										});
+											// path looks good, do a full scan again
+											androidDetect(config, { packageJson: packageJson, bypassCache: true }, function (androidInfo) {
+												_t.androidInfo = androidInfo;
+												callback(null, value);
+											});
+										}
+
+										// new android sdk path looks good
+										// if we found an android sdk in the pre-validate hook, then we need to kill the other sdk's adb server
+										if (_t.androidInfo.sdk) {
+											new ADB(config).stopServer(next);
+										} else {
+											next();
+										}
 									}
 								});
 							}
@@ -319,7 +334,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 									promptLabel: __('Select a device by number or name'),
 									formatters: {
 										option: function (opt, idx, num) {
-											return '    ' + num + opt.name.cyan + (opt.googleApis
+											return '    ' + num + opt.name.cyan + ' (' + opt.version + ')' + (opt.googleApis
 												? (' (' + __('Google APIs supported') + ')').grey
 												: opt.googleApis === null
 													? (' (' + __('Google APIs support unknown') + ')').grey
@@ -348,77 +363,100 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							});
 						},
 						verifyIfRequired: function (callback) {
-							if (cli.argv.target != 'emulator') {
-								return callback(true);
-							}
-
 							findTargetDevices(cli.argv.target, function (err, results) {
-								var avds = results.filter(function (a) { return a.type == 'avd'; }).map(function (a) { return a.name; });
+								if (cli.argv.target == 'emulator' && cli.argv['device-id'] == undefined && cli.argv['avd-id']) {
+									// if --device-id was not specified, but --avd-id was, then we need to
+									// try to resolve a device based on the legacy --avd-* options
+									var avds = results.filter(function (a) { return a.type == 'avd'; }).map(function (a) { return a.name; }),
+										name = 'titanium_' + cli.argv['avd-id'] + '_';
 
-								// if --device-id was not specified, but --avd-id was, then we need to
-								// try to resolve a device based on the legacy --avd-* options
-								if (cli.argv['device-id'] == undefined && avds.length && cli.argv['avd-id']) {
-									// try finding the first avd that starts with the avd id
-									var name = 'titanium_' + cli.argv['avd-id'] + '_';
-									avds = avds.filter(function (avd) { return avd.indexOf(name) == 0; });
-									if (avds.length == 1) {
-										cli.argv['device-id'] = avds[0];
-										return callback();
-									} else if (avds.length > 1) {
-										// next try using the avd skin
-										if (!cli.argv['avd-skin']) {
-											// we have more than one match
-											logger.error(__n('Found %s avd with id "%%s"', 'Found %s avds with id "%%s"', avds.length, cli.argv['avd-id']));
-											logger.error(__('Specify --avd-skin and --avd-abi to select a specific emulator') + '\n');
-										} else {
-											name += cli.argv['avd-skin'];
-											// try exact match
-											var tmp = avds.filter(function (avd) { return avd == name; });
-											if (tmp.length) {
-												avds = tmp;
+									if (avds.length) {
+										// try finding the first avd that starts with the avd id
+										avds = avds.filter(function (avd) { return avd.indexOf(name) == 0; });
+										if (avds.length == 1) {
+											cli.argv['device-id'] = avds[0];
+											return callback();
+										} else if (avds.length > 1) {
+											// next try using the avd skin
+											if (!cli.argv['avd-skin']) {
+												// we have more than one match
+												logger.error(__n('Found %s avd with id "%%s"', 'Found %s avds with id "%%s"', avds.length, cli.argv['avd-id']));
+												logger.error(__('Specify --avd-skin and --avd-abi to select a specific emulator') + '\n');
 											} else {
-												// try partial match
-												avds = avds.filter(function (avd) { return avd.indexOf(name + '_') == 0; });
-											}
-											if (avds.length == 0) {
-												logger.error(__('No emulators found with id "%s" and skin "%s"', cli.argv['avd-id'], cli.argv['avd-skin']) + '\n');
-											} else if (avds.length == 1) {
-												cli.argv['device-id'] = avds[0];
-												return callback();
-											} else if (!cli.argv['avd-abi']) {
-												// we have more than one matching avd, but no abi to filter by so we have to error
-												logger.error(__n('Found %s avd with id "%%s" and skin "%%s"', 'Found %s avds with id "%%s" and skin "%%s"', avds.length, cli.argv['avd-id'], cli.argv['avd-skin']));
-												logger.error(__('Specify --avd-abi to select a specific emulator') + '\n');
-											} else {
-												name += '_' + cli.argv['avd-abi'];
+												name += cli.argv['avd-skin'];
 												// try exact match
-												tmp = avds.filter(function (avd) { return avd == name; });
+												var tmp = avds.filter(function (avd) { return avd == name; });
 												if (tmp.length) {
 													avds = tmp;
 												} else {
+													// try partial match
 													avds = avds.filter(function (avd) { return avd.indexOf(name + '_') == 0; });
 												}
 												if (avds.length == 0) {
-													logger.error(__('No emulators found with id "%s", skin "%s", and abi "%s"', cli.argv['avd-id'], cli.argv['avd-skin'], cli.argv['avd-abi']) + '\n');
-												} else {
-													// there is one or more avds, but we'll just return the first one
+													logger.error(__('No emulators found with id "%s" and skin "%s"', cli.argv['avd-id'], cli.argv['avd-skin']) + '\n');
+												} else if (avds.length == 1) {
 													cli.argv['device-id'] = avds[0];
 													return callback();
+												} else if (!cli.argv['avd-abi']) {
+													// we have more than one matching avd, but no abi to filter by so we have to error
+													logger.error(__n('Found %s avd with id "%%s" and skin "%%s"', 'Found %s avds with id "%%s" and skin "%%s"', avds.length, cli.argv['avd-id'], cli.argv['avd-skin']));
+													logger.error(__('Specify --avd-abi to select a specific emulator') + '\n');
+												} else {
+													name += '_' + cli.argv['avd-abi'];
+													// try exact match
+													tmp = avds.filter(function (avd) { return avd == name; });
+													if (tmp.length) {
+														avds = tmp;
+													} else {
+														avds = avds.filter(function (avd) { return avd.indexOf(name + '_') == 0; });
+													}
+													if (avds.length == 0) {
+														logger.error(__('No emulators found with id "%s", skin "%s", and abi "%s"', cli.argv['avd-id'], cli.argv['avd-skin'], cli.argv['avd-abi']) + '\n');
+													} else {
+														// there is one or more avds, but we'll just return the first one
+														cli.argv['device-id'] = avds[0];
+														return callback();
+													}
 												}
 											}
 										}
+
+										logger.warn(__('%s options have been %s, please use %s', '--avd-*'.cyan, 'deprecated'.red, '--device-id'.cyan) + '\n');
+
+										// print list of available avds
+										if (results.length && !cli.argv.prompt) {
+											logger.log(__('Available Emulators:'))
+											results.forEach(function (emu) {
+												logger.log('    ' + emu.name.cyan + ' (' + emu.version + ')');
+											});
+											logger.log();
+										}
 									}
 
-									logger.warn(__('%s options have been %s, please use %s', '--avd-*'.cyan, 'deprecated'.red, '--device-id'.cyan) + '\n');
+								} else if (cli.argv['device-id'] == undefined && results.length && config.get('android.autoSelectDevice', true)) {
+									// we set the device-id to an array of devices so that later in validate()
+									// after the tiapp.xml has been parsed, we can auto select the best device
+									cli.argv['device-id'] = results.sort(function (a, b) {
+										var eq = appc.version.eq(a.version, b.version),
+											gt = appc.version.gt(a.version, b.version);
 
-									// print list of available avds
-									if (results.length && !cli.argv.prompt) {
-										logger.log(__('Available Emulators:'))
-										results.forEach(function (emu) {
-											logger.log('    ' + emu.name.cyan);
-										});
-										logger.log();
-									}
+										if (eq) {
+											if (a.type == b.type) {
+												if (a.googleApis == b.googleApis) {
+													return 0;
+												} else if (b.googleApis) {
+													return 1;
+												} else if (a.googleApis === false && b.googleApis === null) {
+													return 1;
+												}
+												return -1;
+											}
+											return a.type == 'avd' ? -1 : 1;
+										}
+
+										return gt ? 1 : -1;
+									});
+									return callback();
 								}
 
 								// yup, still required
@@ -731,34 +769,15 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		process.exit(1);
 	}
 
-	// determine the abis to support
-	this.abis = ['armeabi', 'armeabi-v7a', 'x86'];
-	if (cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') == -1) {
-		this.abis = cli.tiapp.android.abi;
-	}
-
-	if (/^device|emulator$/.test(this.target)) {
-		var device = this.devices.filter(function (d) { return d.id = cli.argv['device-id']; }).shift();
-		if (Array.isArray(device.abi) && !device.abi.some(function (a) { return this.abis.indexOf(a) != -1; }.bind(this))) {
-			if (this.target == 'emulator') {
-				logger.error(__n('The emulator "%%s" does not support the desired ABI %%s', 'The emulator "%%s" does not support the desired ABIs %%s', this.abis.length, device.name, '"' + this.abis.join('", "') + '"'));
-			} else {
-				logger.error(__n('The device "%%s" does not support the desired ABI %%s', 'The device "%%s" does not support the desired ABIs %%s', this.abis.length, device.model || device.manufacturer, '"' + this.abis.join('", "') + '"'));
+	// if we're building for the emulator, make sure we don't have any issues
+	if (cli.argv.target == 'emulator') {
+		this.androidInfo.issues.forEach(function (issue) {
+			if (/^ANDROID_MISSING_(LIBGL|I386_ARCH|IA32_LIBS|32BIT_GLIBC|32BIT_LIBSTDCPP)$/.test(issue.id)) {
+				issue.message.split('\n').forEach(function (line) {
+					logger.warn(line);
+				});
 			}
-			logger.error(__('Supported ABIs: %s', device.abi.join(', ')) + '\n');
-
-			logger.log(__('You need to add at least one of the device\'s supported ABIs to the tiapp.xml'));
-			logger.log();
-			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-			logger.log('    <!-- snip -->'.grey);
-			logger.log('    <android>'.grey);
-			logger.log(('        <abi>' + this.abis.concat(device.abi).join(',') + '</abi>').magenta);
-			logger.log('    </android>'.grey);
-			logger.log('</ti:app>'.grey);
-			logger.log();
-
-			process.exit(1);
-		}
+		});
 	}
 
 	// check that the proguard config exists
@@ -897,15 +916,144 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		logger.warn(__('Building with Android SDK %s which hasn\'t been tested against Titanium SDK %s', (''+this.targetSDK).cyan, this.titaniumSdkVersion));
 	}
 
-	// if we're building for the emulator, make sure we don't have any issues
-	if (cli.argv.target == 'emulator') {
-		this.androidInfo.issues.forEach(function (issue) {
-			if (/^ANDROID_MISSING_(LIBGL|I386_ARCH|IA32_LIBS|32BIT_GLIBC|32BIT_LIBSTDCPP)$/.test(issue.id)) {
-				issue.message.split('\n').forEach(function (line) {
-					logger.warn(line);
-				});
+	if (/^device|emulator$/.test(this.target)) {
+		var deviceId = cli.argv['device-id'];
+
+		if (Array.isArray(deviceId)) {
+			// no --device-id, so intelligently auto select one
+
+			var ver = targetSDKMap[this.targetSDK].version,
+				devices = deviceId,
+				i,
+				len = devices.length;
+
+			// reset the device id
+			deviceId = null;
+
+			if (cli.argv.target == 'device') {
+				logger.info(__('Auto selecting device that closest matches %s', ver.cyan));
+			} else {
+				logger.info(__('Auto selecting emulator that closest matches %s', ver.cyan));
 			}
-		});
+
+			function setDeviceId(device) {
+				deviceId = device.id;
+
+				var gapi = '';
+				if (device.googleApis) {
+					gapi = (' (' + __('Google APIs supported') + ')').grey;
+				} else if (device.googleApis === null) {
+					gapi = (' (' + __('Google APIs support unknown') + ')').grey;
+				}
+
+				if (cli.argv.target == 'device') {
+					logger.info(__('Auto selected device %s %s', devices[i].name.cyan, devices[i].version) + gapi);
+				} else {
+					logger.info(__('Auto selected emulator %s %s', devices[i].name.cyan, devices[i].version) + gapi);
+				}
+			}
+
+			// find the first one where version is >= and google apis == true
+			logger.debug(__('Searching for version >= %s and has Google APIs', ver));
+			for (i = 0; i < len; i++) {
+				if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis) {
+					setDeviceId(devices[i]);
+					break;
+				}
+			}
+
+			if (!deviceId) {
+				// find first one where version is >= and google apis is a maybe
+				logger.debug(__('Searching for version >= %s and may have Google APIs', ver));
+				for (i = 0; i < len; i++) {
+					if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis === null) {
+						setDeviceId(devices[i]);
+						break;
+					}
+				}
+
+				if (!deviceId) {
+					// find first one where version is >= and no google apis
+					logger.debug(__('Searching for version >= %s and no Google APIs', ver));
+					for (i = 0; i < len; i++) {
+						if (appc.version.gte(devices[i].version, ver)) {
+							setDeviceId(devices[i]);
+							break;
+						}
+					}
+
+					if (!deviceId) {
+						// find first one where version < and google apis == true
+						logger.debug(__('Searching for version < %s and has Google APIs', ver));
+						for (i = len - 1; i >= 0; i--) {
+							if (appc.version.lt(devices[i].version, ver)) {
+								setDeviceId(devices[i]);
+								break;
+							}
+						}
+
+						if (!deviceId) {
+							// find first one where version <
+							logger.debug(__('Searching for version < %s and no Google APIs', ver));
+							for (i = len - 1; i >= 0; i--) {
+								if (appc.version.lt(devices[i].version, ver) && devices[i].googleApis) {
+									setDeviceId(devices[i]);
+									break;
+								}
+							}
+
+							if (!deviceId) {
+								// just grab first one
+								logger.debug(__('Selecting first device'));
+								setDeviceId(devices[0]);
+							}
+						}
+					}
+				}
+			}
+
+			cli.argv['device-id'] = deviceId;
+		}
+
+		// sanity check
+		if (!deviceId) {
+			if (this.target == 'device') {
+				logger.error(__('Unable to find any devices') + '\n');
+				logger.log(__('Please plug in an Android device, then try again.') + '\n');
+			} else {
+				logger.error(__('Unable to find any emulators') + '\n');
+				logger.log(__('Please create an Android emulator, then try again.') + '\n');
+			}
+			process.exit(1);
+		}
+
+		// determine the abis to support
+		this.abis = ['armeabi', 'armeabi-v7a', 'x86'];
+		if (cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') == -1) {
+			this.abis = cli.tiapp.android.abi;
+		}
+
+		var device = this.devices.filter(function (d) { return d.id = deviceId; }).shift();
+		if (Array.isArray(device.abi) && !device.abi.some(function (a) { return this.abis.indexOf(a) != -1; }.bind(this))) {
+			if (this.target == 'emulator') {
+				logger.error(__n('The emulator "%%s" does not support the desired ABI %%s', 'The emulator "%%s" does not support the desired ABIs %%s', this.abis.length, device.name, '"' + this.abis.join('", "') + '"'));
+			} else {
+				logger.error(__n('The device "%%s" does not support the desired ABI %%s', 'The device "%%s" does not support the desired ABIs %%s', this.abis.length, device.model || device.manufacturer, '"' + this.abis.join('", "') + '"'));
+			}
+			logger.error(__('Supported ABIs: %s', device.abi.join(', ')) + '\n');
+
+			logger.log(__('You need to add at least one of the device\'s supported ABIs to the tiapp.xml'));
+			logger.log();
+			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+			logger.log('    <!-- snip -->'.grey);
+			logger.log('    <android>'.grey);
+			logger.log(('        <abi>' + this.abis.concat(device.abi).join(',') + '</abi>').magenta);
+			logger.log('    </android>'.grey);
+			logger.log('</ti:app>'.grey);
+			logger.log();
+
+			process.exit(1);
+		}
 	}
 
 	// validate debugger and profiler options
@@ -1861,7 +2009,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		delete this.lastBuildFiles[destBg];
 
 		// copy js files into assets directory and minify if needed
-		appc.async.parallel(this, Object.keys(jsFiles).map(function (id) {
+		appc.async.series(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
 				var from = jsFiles[id],
 					to = path.join(this.buildBinAssetsResourcesDir, id);
@@ -1870,38 +2018,37 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 				if (htmlJsFiles[id]) {
 					// this js file is referenced from an html file, so don't minify or encrypt
-					copyFile.call(this, from, to, done);
+					return copyFile.call(this, from, to, done);
+				}
 
+				// we have a js file that may be minified or encrypted
+
+				// if we're encrypting the JavaScript, copy the files to the assets dir
+				// for processing later
+				if (this.encryptJS) {
+					to = path.join(this.buildAssetsDir, id);
+					jsFilesToEncrypt.push(id);
+				}
+
+				var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+
+				// we want to sort by the "to" filename so that we correctly handle file overwriting
+				this.tiSymbols[to] = r.symbols;
+
+				// if we're not minifying the JavaScript and we're not forcing all
+				// Titanium Android modules to be included, then parse the AST and detect
+				// all Titanium symbols
+				if (this.minifyJS || !this.includeAllTiModules) {
+					this.logger.debug(this.minifyJS
+						? __('Copying and minifying %s => %s', from.cyan, to.cyan)
+						: __('Copying %s => %s', from.cyan, to.cyan));
+
+					var dir = path.dirname(to);
+					fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+					fs.writeFile(to, r.contents, done);
 				} else {
-					// we have a js file that may be minified or encrypted
-
-					// if we're encrypting the JavaScript, copy the files to the assets dir
-					// for processing later
-					if (this.encryptJS) {
-						to = path.join(this.buildAssetsDir, id);
-						jsFilesToEncrypt.push(id);
-					}
-
-					var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-
-					// we want to sort by the "to" filename so that we correctly handle file overwriting
-					this.tiSymbols[to] = r.symbols;
-
-					// if we're not minifying the JavaScript and we're not forcing all
-					// Titanium Android modules to be included, then parse the AST and detect
-					// all Titanium symbols
-					if (this.minifyJS || !this.includeAllTiModules) {
-						this.logger.debug(this.minifyJS
-							? __('Copying and minifying %s => %s', from.cyan, to.cyan)
-							: __('Copying %s => %s', from.cyan, to.cyan));
-
-						var dir = path.dirname(to);
-						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-						fs.writeFile(to, r.contents, done);
-					} else {
-						// no need to parse the AST, so just copy the file
-						copyFile.call(this, from, to, done);
-					}
+					// no need to parse the AST, so just copy the file
+					copyFile.call(this, from, to, done);
 				}
 			};
 		}), function () {
@@ -2461,7 +2608,10 @@ AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 	this.logger.info(__('Generating i18n files'));
 
-	var data = i18n.load(this.projectDir, this.logger);
+	var data = i18n.load(this.projectDir, this.logger, {
+		ignoreDirs: new RegExp(this.config.get('cli.ignoreDirs')),
+		ignoreFiles: new RegExp(this.config.get('cli.ignoreFiles'))
+	});
 	data.en || (data.en = {});
 	data.en.app || (data.en.app = {});
 	data.en.app.appname || (data.en.app.appname = this.tiapp.name);
