@@ -71,6 +71,7 @@
     TiViewProxy* headerViewProxy;
     TiViewProxy* footerViewProxy;
     BOOL viewWillDetach;
+    UIEdgeInsets defaultSeparatorInsets;
 }
 
 @property (nonatomic, assign) BOOL viewWillDetach;
