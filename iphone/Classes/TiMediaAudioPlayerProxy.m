@@ -276,7 +276,7 @@ PLAYER_PROP_DOUBLE(state,state);
 	}
 }
 
--(void)setTime:(id)arg
+-(void)seekToTime:(id)arg
 {
     ENSURE_SINGLE_ARG(arg, NSNumber);
     if (![NSThread isMainThread]) {
