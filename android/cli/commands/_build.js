@@ -83,11 +83,14 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 				androidDetect(config, { packageJson: packageJson }, function (androidInfo) {
 					_t.androidInfo = androidInfo;
 
-					var androidSdkPath = config.android && config.android.sdkPath;
-					if (!androidSdkPath && androidInfo.sdk) {
-						androidSdkPath = androidInfo.sdk.path;
+					// if --android-sdk was not specified, then we simply try to set a default android sdk
+					if (!cli.argv['android-sdk']) {
+						var androidSdkPath = config.android && config.android.sdkPath;
+						if (!androidSdkPath && androidInfo.sdk) {
+							androidSdkPath = androidInfo.sdk.path;
+						}
+						androidSdkPath && (cli.argv['android-sdk'] = afs.resolvePath(androidSdkPath));
 					}
-					androidSdkPath && (cli.argv['android-sdk'] = afs.resolvePath(androidSdkPath));
 
 					next();
 				});
@@ -198,9 +201,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					},
 					'android-sdk': {
 						abbr: 'A',
-						callback: function (value) {
-							return value.trim();
-						},
 						default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
 						desc: __('the path to the Android SDK'),
 						hint: __('path'),
@@ -236,7 +236,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 										config.set('android.sdkPath', value);
 
 										// path looks good, do a full scan again
-										androidDetect(config, { packageJson: packageJson }, function (androidInfo) {
+										androidDetect(config, { packageJson: packageJson, bypassCache: true }, function (androidInfo) {
 											_t.androidInfo = androidInfo;
 											callback(null, value);
 										});
@@ -618,7 +618,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.deployType = /^device|emulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 
 	// ti.deploytype is deprecated and so we force the real deploy type
-	if (cli.tiapp.properties && cli.tiapp.properties['ti.deploytype']) {
+	cli.tiapp.properties || (cli.tiapp.properties = {});
+	if (cli.tiapp.properties['ti.deploytype']) {
 		logger.warn(__('The %s tiapp.xml property has been deprecated, please use the %s option', 'ti.deploytype'.cyan, '--deploy-type'.cyan));
 		logger.log();
 	}
@@ -662,9 +663,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.proguard = false;
 	}
 
-	var assertIssue = function (name) {
-		var issues = this.androidInfo.issues,
-			i = 0,
+	function assertAndroidIssue(issues, name) {
+		var i = 0,
 			len = issues.length;
 		for (; i < len; i++) {
 			if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
@@ -675,11 +675,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 				process.exit(1);
 			}
 		}
-	}.bind(this);
+	}
 
 	// check that the Android SDK is found and sane
-	assertIssue('ANDROID_SDK_NOT_FOUND');
-	assertIssue('ANDROID_SDK_MISSING_PROGRAMS');
+	assertAndroidIssue(this.androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
+	assertAndroidIssue(this.androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
 
 	// make sure we have an Android SDK and some Android targets
 	if (Object.keys(this.androidInfo.targets).filter(function (id) {
