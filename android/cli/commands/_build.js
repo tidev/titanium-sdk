@@ -1288,6 +1288,7 @@ AndroidBuilder.prototype.readBuildManifest = function readBuildManifest(next) {
 	if (fs.existsSync(this.buildManifestFile)) {
 		try {
 			this.buildManifest = JSON.parse(fs.readFileSync(this.buildManifestFile)) || {};
+			this.prevJarLibHash = this.buildManifest.jarLibHash || '';
 		} catch (e) {}
 	}
 
@@ -2272,11 +2273,13 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		app_modules: appModules
 	}));
 
-	var jarLibHash = this.jarLibHash = hash(Object.keys(jarLibraries).sort().join(','));
-	if (jarLibHash != this.buildManifest.jarLibHash) {
-		this.logger.info(__('Forcing rebuild: Detected change in Titanium APIs used and need to recompile'));
+	var jarLibHash = hash(Object.keys(jarLibraries).sort().join('|'));
+	if (jarLibHash != this.prevJarLibHash) {
+		if (!this.forceRebuild) {
+			this.logger.info(__('Forcing rebuild: Detected change in Titanium APIs used and need to recompile'));
+		}
 		this.forceRebuild = true;
-		this.buildManifest.jarLibHash = jarLibHash;
+		this.jarLibHash = this.buildManifest.jarLibHash = jarLibHash;
 		this.writeBuildManifest(next);
 	} else {
 		next();
