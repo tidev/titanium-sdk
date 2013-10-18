@@ -281,7 +281,7 @@ PLAYER_PROP_DOUBLE(state,state);
     ENSURE_SINGLE_ARG(arg, NSNumber);
     if (![NSThread isMainThread]) {
         TiThreadPerformOnMainThread(^{
-            [self setTime:arg];
+            [self seekToTime:arg];
         }, YES);
     }
     
