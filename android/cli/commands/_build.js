@@ -183,7 +183,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						abbr: 'L',
 						desc: __('the alias for the keystore'),
 						hint: 'alias',
-						order: 107,
+						order: 170,
 						prompt: function (callback) {
 							callback(fields.select({
 								title: __("What is the name of the keystore's certificate alias?"),
@@ -204,7 +204,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
 						desc: __('the path to the Android SDK'),
 						hint: __('path'),
-						order: 101,
+						order: 100,
 						prompt: function (callback) {
 							var androidSdkPath = config.android && config.android.sdkPath;
 							if (!androidSdkPath && _t.androidInfo.sdk) {
@@ -267,13 +267,14 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						abbr: 'D',
 						desc: __('the type of deployment; only used when target is %s or %s', 'emulator'.cyan, 'device'.cyan),
 						hint: __('type'),
+						order: 105,
 						values: ['test', 'development']
 					},
 					'device-id': {
 						abbr: 'C',
 						desc: __('the name for the device or Android emulator to install the application to'),
 						hint: __('name'),
-						order: 103,
+						order: 130,
 						prompt: function (callback) {
 							findTargetDevices(cli.argv.target, function (err, results) {
 								var opts = {};
@@ -428,7 +429,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					'key-password': {
 						desc: __('the password for the keystore private key (defaults to the store-password)'),
 						hint: 'keypass',
-						order: 106,
+						order: 160,
 						prompt: function (callback) {
 							callback(fields.text({
 								promptLabel: __("What is the keystore's __key password__?") + ' ' + __('(leave blank to use the store password)').grey,
@@ -448,7 +449,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						},
 						desc: __('the location of the keystore file'),
 						hint: 'path',
-						order: 104,
+						order: 140,
 						prompt: function (callback) {
 							_t.conf.options['key-password'].required = true;
 							callback(fields.file({
@@ -477,7 +478,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						abbr: 'O',
 						desc: __('the output directory when using %s', 'dist-playstore'.cyan),
 						hint: 'dir',
-						order: 108,
+						order: 180,
 						prompt: function (callback) {
 							callback(fields.file({
 								promptLabel: __('Where would you like the output APK file saved?'),
@@ -497,7 +498,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						abbr: 'P',
 						desc: __('the password for the keystore'),
 						hint: 'password',
-						order: 105,
+						order: 150,
 						prompt: function (callback) {
 							callback(fields.text({
 								next: function (err, value) {
@@ -587,7 +588,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						},
 						default: 'emulator',
 						desc: __('the target to build for'),
-						order: 102,
+						order: 120,
 						required: true,
 						values: _t.targets
 					}
