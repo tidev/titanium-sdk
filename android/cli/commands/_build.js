@@ -618,7 +618,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.deployType = /^device|emulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 
 	// ti.deploytype is deprecated and so we force the real deploy type
-	if (cli.tiapp.properties['ti.deploytype']) {
+	if (cli.tiapp.properties && cli.tiapp.properties['ti.deploytype']) {
 		logger.warn(__('The %s tiapp.xml property has been deprecated, please use the %s option', 'ti.deploytype'.cyan, '--deploy-type'.cyan));
 		logger.log();
 	}
