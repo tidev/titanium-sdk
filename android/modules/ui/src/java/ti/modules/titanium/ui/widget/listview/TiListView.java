@@ -46,6 +46,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -112,9 +113,15 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			}
 			OnFocusChangeListener focusListener = null;
 			View focusedView = listView.findFocus();
+			int cursorPosition = -1;
 			if (focusedView != null) {
 				OnFocusChangeListener listener = focusedView.getOnFocusChangeListener();
 				if (listener != null && listener instanceof TiUIView) {
+					//Before unfocus the current editText, store cursor position so
+					//we can restore it later
+					if (focusedView instanceof EditText) {
+						cursorPosition = ((EditText)focusedView).getSelectionStart();
+					}
 					focusedView.setOnFocusChangeListener(null);
 					focusListener = listener;
 				}
@@ -144,6 +151,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 					//Ok right now focus is with listView. So set it back to the focusedView
 					focusedView.requestFocus();
 					focusedView.setOnFocusChangeListener(focusListener);
+					//Restore cursor position
+					if (cursorPosition != -1) {
+						((EditText)focusedView).setSelection(cursorPosition);
+					}
 				}
 			}
 		}
