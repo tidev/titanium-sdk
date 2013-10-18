@@ -2,7 +2,7 @@
 name: Titanium.Media
 summary: The top-level Media module.
 description: |
-    # The Media module is used to access the device's media-related functionality, such
+    The Media module is used to access the device's media-related functionality, such
     as using the device's camera and photo gallery, playing media files, or recording
     audio or video.
 
