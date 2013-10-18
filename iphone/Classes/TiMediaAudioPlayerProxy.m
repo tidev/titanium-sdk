@@ -276,6 +276,20 @@ PLAYER_PROP_DOUBLE(state,state);
 	}
 }
 
+-(void)setTime:(id)arg
+{
+    ENSURE_SINGLE_ARG(arg, NSNumber);
+    if (![NSThread isMainThread]) {
+        TiThreadPerformOnMainThread(^{
+            [self setTime:arg];
+        }, YES);
+    }
+    
+    if (player != nil) {
+        [player seekToTime:arg];
+    }
+}
+
 MAKE_SYSTEM_PROP(STATE_INITIALIZED,AS_INITIALIZED);
 MAKE_SYSTEM_PROP(STATE_STARTING,AS_STARTING_FILE_THREAD);
 MAKE_SYSTEM_PROP(STATE_WAITING_FOR_DATA,AS_WAITING_FOR_DATA);
