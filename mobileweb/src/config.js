@@ -53,3 +53,5 @@ var require = {
 		dom: ["", "Webkit", "Moz", "ms", "O", "Khtml"]
 	}
 };
+
+window.hasWP8Extensions = ${has_wp8_extensions};

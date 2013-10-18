@@ -32,12 +32,13 @@ namespace <%= projectName %>
 
         private void browser_ScriptNotify(object sender, NotifyEventArgs e)
         {
-            var matches = fileRequestRegex.Match(e.Value);
-            var id = matches.Groups[1].Value;
-            var file = matches.Groups[2].Value;
-            var streamReader = new StreamReader("App/" + file);
-            var fileContents = streamReader.ReadToEnd();
-            browser.InvokeScript("handleMessage", id, fileContents);
+            try {
+                var streamReader = new StreamReader("App/" + e.Value);
+                var fileContents = streamReader.ReadToEnd();
+                browser.InvokeScript("handleFileResponse", e.Value, "s" + fileContents);
+            } catch (Exception ex) {
+                browser.InvokeScript("handleFileResponse", e.Value, "f");
+            }
         }
     }
 }

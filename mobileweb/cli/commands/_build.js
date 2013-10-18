@@ -172,6 +172,7 @@ function build(logger, config, cli, finished) {
 	this.deployType = cli.argv['deploy-type'];
 	this.os = cli.env.os;
 	this.tiapp = cli.tiapp;
+	this.target = cli.argv.target;
 
 	this.titaniumSdkVersion = ti.manifest.version;
 	this.projectDir = afs.resolvePath(cli.argv['project-dir']);
@@ -573,7 +574,8 @@ build.prototype = {
 					has_analytics_use_xhr: tiapp.mobileweb.analytics ? tiapp.mobileweb.analytics['use-xhr'] === true : false,
 					has_show_errors: this.deployType != 'production' && tiapp.mobileweb['disable-error-screen'] !== true,
 					has_instrumentation: !!tiapp.mobileweb.instrumentation,
-					has_allow_touch: tiapp.mobileweb.hasOwnProperty('allow-touch') ? !!tiapp.mobileweb['allow-touch'] : true
+					has_allow_touch: tiapp.mobileweb.hasOwnProperty('allow-touch') ? !!tiapp.mobileweb['allow-touch'] : true,
+					has_wp8_extensions: this.target == 'wp8'
 				}),
 
 				'\n', '\n'

@@ -56,7 +56,7 @@ exports.init = function (logger, config, cli) {
 						logger.info(__('There were errors building the project'));
 						finished(code);
 					} else {
-						logger.info(__('Finished building the application'));
+						logger.info(__('Finished launching the application'));
 						finished();
 					}
 				});

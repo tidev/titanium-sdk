@@ -10,7 +10,7 @@
  * Copyright (c) 2010-2011, The Dojo Foundation
  * New BSD License / MIT License
  * <http://requirejs.org>
- * 
+ *
  * curl.js
  * Copyright (c) 2011 unscriptable.com / John Hann
  * MIT License
@@ -78,7 +78,9 @@
 		modules = {},
 
 		// mixin of common functions
-		fnMixin;
+		fnMixin,
+
+		bridgeFileCache = {};
 
 	/******************************************************************************
 	 * Utility functions
@@ -179,6 +181,23 @@
 		}
 		return result.join("/");
 	}
+
+	function getFile(path, callback) {
+		if (typeof bridgeFileCache[path] == 'string') {
+			callback(bridgeFileCache[path]);
+		} else {
+			if (global.hasWP8Extensions) {
+				bridgeFileCache[path] = callback;
+				global.external.notify(path);
+			}
+		}
+	}
+
+	global.handleFileResponse = function handleFileResponse(path, contents) {
+		var s = contents[0] == 's',
+			cb = bridgeFileCache[path];
+		cb(s, bridgeFileCache[path] = contents.slice(1));
+	};
 
 	/******************************************************************************
 	 * Event handling
@@ -558,14 +577,24 @@
 				}, timeout));
 
 				if (_t.sync = sync) {
-					xhr = new XMLHttpRequest;
-					xhr.open("GET", _t.url, false);
-					xhr.send(null);
-
-					if (xhr.status === 200) {
-						onload(xhr.responseText);
+					if (global.hasWP8Extensions) {
+						getFile(_t.url, function (success, data) {
+							if (success) {
+								onload(data);
+							} else {
+								onfail(404);
+							}
+						});
 					} else {
-						onfail(xhr.status);
+						xhr = new XMLHttpRequest;
+						xhr.open("GET", _t.url, false);
+						xhr.send(null);
+
+						if (xhr.status === 200) {
+							onload(xhr.responseText);
+						} else {
+							onfail(xhr.status);
+						}
 					}
 				} else {
 					// insert the script tag, attach onload, wait
@@ -711,7 +740,7 @@
 			// if the module is anonymous, assume this module's name
 			m.name || (m.name = module.name);
 
-			// if the module is this module, then modify this 
+			// if the module is this module, then modify this
 			if (m.name === module.name) {
 				modules[m.name] = module;
 				module.deps = m.deps;
