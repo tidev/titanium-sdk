@@ -74,6 +74,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	private View footerView;
 	private String searchText;
 	private boolean caseInsensitive;
+	private boolean keepSectionsInSearch;
 	private RelativeLayout searchLayout;
 	private static final String TAG = "TiListView";
 	
@@ -309,7 +310,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	public boolean getCaseInsensitive() {
 		return caseInsensitive;
 	}
-
+	
+	public boolean getKeepSectionsInSearch() {
+		return keepSectionsInSearch;
+	}
 
 	private void resetMarker() 
 	{
@@ -372,6 +376,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		
 		if (d.containsKey(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH)) {
 			this.caseInsensitive = TiConvert.toBoolean(d, TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_KEEP_SECTIONS_IN_SEARCH)) {
+			this.keepSectionsInSearch = TiConvert.toBoolean(d, TiC.PROPERTY_KEEP_SECTIONS_IN_SEARCH, false);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
@@ -544,6 +552,11 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			}
 		} else if (key.equals(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH)) {
 			this.caseInsensitive = TiConvert.toBoolean(newValue, true);
+			if (this.searchText != null) {
+				reFilter(this.searchText);
+			}
+		} else if (key.equals(TiC.PROPERTY_KEEP_SECTIONS_IN_SEARCH)) {
+			this.keepSectionsInSearch = TiConvert.toBoolean(newValue, false);
 			if (this.searchText != null) {
 				reFilter(this.searchText);
 			}
