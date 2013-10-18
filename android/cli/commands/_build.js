@@ -2352,7 +2352,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 	}, this);
 
 	// write the app.json
-	this.logger.info(__('Writing %s', path.join(this.buildBinAssetsDir, 'app.json')));
+	this.logger.info(__('Writing %s', path.join(this.buildBinAssetsDir, 'app.json').cyan));
 	fs.writeFileSync(path.join(this.buildBinAssetsDir, 'app.json'), JSON.stringify({
 		app_modules: appModules
 	}));
