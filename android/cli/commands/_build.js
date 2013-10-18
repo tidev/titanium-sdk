@@ -2272,7 +2272,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		app_modules: appModules
 	}));
 
-	var jarLibHash = this.jarLibHash = hash(Object.keys(jarLibraries).join(','));
+	var jarLibHash = this.jarLibHash = hash(Object.keys(jarLibraries).sort().join(','));
 	if (jarLibHash != this.buildManifest.jarLibHash) {
 		this.logger.info(__('Forcing rebuild: Detected change in Titanium APIs used and need to recompile'));
 		this.forceRebuild = true;
