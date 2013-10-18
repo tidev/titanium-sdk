@@ -36,7 +36,7 @@ namespace <%= projectName %>
                 var streamReader = new StreamReader("App/" + e.Value);
                 var fileContents = streamReader.ReadToEnd();
                 browser.InvokeScript("handleFileResponse", e.Value, "s" + fileContents);
-            } catch (Exception ex) {
+            } catch {
                 browser.InvokeScript("handleFileResponse", e.Value, "f");
             }
         }

@@ -182,7 +182,7 @@
 		return result.join("/");
 	}
 
-	function getFile(path, callback) {
+	function getFileFromNative(path, callback) {
 		if (typeof bridgeFileCache[path] == 'string') {
 			callback(bridgeFileCache[path]);
 		} else {
@@ -196,7 +196,16 @@
 	global.handleFileResponse = function handleFileResponse(path, contents) {
 		var s = contents[0] == 's',
 			cb = bridgeFileCache[path];
-		cb(s, bridgeFileCache[path] = contents.slice(1));
+		try {
+			cb(s, bridgeFileCache[path] = s ? contents.slice(1) : void 0);
+		} catch(e) {
+			// If an error is thrown in a call from native wp8, the entire app crashes.
+			// setTimeout allows us to throw and show the red screen of death, but not
+			// kill the entire app
+			setTimeout(function () {
+				throw e;
+			});
+		}
 	};
 
 	/******************************************************************************
@@ -578,7 +587,7 @@
 
 				if (_t.sync = sync) {
 					if (global.hasWP8Extensions) {
-						getFile(_t.url, function (success, data) {
+						getFileFromNative(_t.url, function (success, data) {
 							if (success) {
 								onload(data);
 							} else {
@@ -1030,7 +1039,8 @@
 		isEmpty: isEmpty,
 		mix: mix,
 		on: on,
-		Promise: Promise
+		Promise: Promise,
+		getFileFromNative: getFileFromNative
 	});
 
 	req.cache = function requireCache(subject) {
