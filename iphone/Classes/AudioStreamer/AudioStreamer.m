@@ -141,11 +141,6 @@ static NSString * const AS_AUDIO_BUFFER_TOO_SMALL_STRING = @"Audio packets are l
     [(AudioStreamerCUR*)streamer seekToTime:newPos];
 }
 
--(NSNumber*)duration
-{
-    double duration = [(AudioStreamerCUR*)streamer duration];
-}
-
 #define RUN_ON_STREAMER_SET(func, type) \
 -(void)func:(type)arg \
 {\
