@@ -6,6 +6,7 @@
  */
 
 var suites = [
+	{name: "activityIndicator"},
 	{name: "analytics"},
 	{name: "blob"},
 	{name: "buffer"},
