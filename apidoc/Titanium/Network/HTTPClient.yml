@@ -38,6 +38,15 @@ description: |
 
     The Android platform does not support synchronous requests.
 
+    #### Android Platform Implementation Notes
+
+    On Android, the `HTTPClient` uses its own cookie store which does not share cookies with the
+    system cookie store used by <Titanium.UI.WebView>. Developers can manage their cookies for both
+    cookie stores using the methods <Titanium.Network.addHTTPCookie>, <Titanium.Network.addSystemCookie>,
+    <Titanium.Network.getHTTPCookies>, <Titanium.Network.getHTTPCookieForDomain>, <Titanium.Network.getSystemCookies>,
+    <Titanium.Network.removeHTTPCookie>, <Titanium.Network.removeHTTPCookiesForDomain>, <Titanium.Network.removeAllHTTPCookies>,
+    <Titanium.Network.removeSystemCookie>, <Titanium.Network.removeAllSystemCookies>.
+
     #### Mobile Web Platform Implementation Notes
 
     Mobile Web is limited by the same-origin policy. According to W3C: "User agents

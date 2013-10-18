@@ -34,7 +34,7 @@ public class CookieProxy extends KrollProxy
 {
 	private static final String TAG = "CookieProxy";
 	private static TimeZone timezone = TimeZone.getTimeZone("GMT");
-	public static final SimpleDateFormat httpExpiryDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSz");
+	public static final SimpleDateFormat httpExpiryDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 	public static final SimpleDateFormat systemExpiryDateFormatter = new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss 'GMT'");
 	static {
 		httpExpiryDateFormatter.setTimeZone(timezone);
@@ -74,11 +74,15 @@ public class CookieProxy extends KrollProxy
 		KrollDict dict = new KrollDict();
 		dict.put(TiC.PROPERTY_NAME, name);
 		dict.put(TiC.PROPERTY_VALUE, value);
+		setProperty(TiC.PROPERTY_NAME, name);
+		setProperty(TiC.PROPERTY_VALUE, value);
 		if (domain != null) {
 			dict.put(TiC.PROPERTY_DOMAIN, domain);
+			setProperty(TiC.PROPERTY_DOMAIN, domain);
 		}
 		if (path != null) {
 			dict.put(TiC.PROPERTY_PATH, path);
+			setProperty(TiC.PROPERTY_PATH, path);
 		}
 		handleCreationDict(dict);
 	}

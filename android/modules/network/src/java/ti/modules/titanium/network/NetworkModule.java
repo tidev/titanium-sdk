@@ -344,8 +344,6 @@ public class NetworkModule extends KrollModule {
 				if ((name == null || cookieName.equals(name)) && domainMatch(cookieDomain, domain)
 					&& pathMatch(cookiePath, path)) {
 					cookieList.add(new CookieProxy(cookie));
-					Log.d(TAG, "getHTTPCookies: " + "cookieDomain=" + cookieDomain + ", cookiePath=" + cookiePath
-						+ ", cookieName=" + cookieName + ", value=" + cookie.getValue());
 				}
 			}
 		}
@@ -374,7 +372,6 @@ public class NetworkModule extends KrollModule {
 				String cookieDomain = cookie.getDomain();
 				if (domainMatch(cookieDomain, domain)) {
 					cookieList.add(new CookieProxy(cookie));
-					Log.d(TAG, "getHTTPCookies: " + "cookieDomain=" + cookieDomain + ", cookiePath=" + cookie.getPath() + ", cookieName=" + cookie.getName() + ", value=" + cookie.getValue());
 				}
 			}
 		}
@@ -505,16 +502,14 @@ public class NetworkModule extends KrollModule {
 		String url = domain.toLowerCase() + path;
 		String cookieString = cookieManager.getCookie(url); // The cookieString is in the format of NAME=VALUE[;
 															// NAME=VALUE]
-		Log.d(TAG, "getSystemCookies: " + cookieString);
 		if (cookieString != null) {
 			String[] cookieValues = cookieString.split("; ");
 			for (int i = 0; i < cookieValues.length; i++) {
-				String[] pair = cookieValues[i].split("=");
+				String[] pair = cookieValues[i].split("=", 2);
 				String cookieName = pair[0];
 				String value = pair.length == 2 ? pair[1] : null;
 				if (name == null || cookieName.equals(name)) {
 					cookieList.add(new CookieProxy(cookieName, value, null, null));
-					Log.d(TAG, "getSystemCookies: " + ", cookieName=" + cookieName + ", value=" + value);
 				}
 			}
 		}
