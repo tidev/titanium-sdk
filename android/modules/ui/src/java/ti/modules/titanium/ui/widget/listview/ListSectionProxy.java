@@ -801,7 +801,7 @@ public class ListSectionProxy extends ViewProxy{
 	
 	private boolean hideHeaderOrFooter() {
 		TiListView listview = getListView();
-		return (listview.getSearchText() != null && !listview.getKeepSectionsInSearch() && filterIndices.isEmpty());
+		return (listview.getSearchText() != null && filterIndices.isEmpty());
 	}
 	
 	public boolean isHeaderView(int pos) {

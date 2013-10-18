@@ -1344,11 +1344,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_KEEP_SECTIONS_IN_SEARCH = "keepSectionsInSearch";
-
-	/**
-	 * @module.api
-	 */
 	public static final String PROPERTY_KEYBOARD_TYPE = "keyboardType";
 
 	/**
