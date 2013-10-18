@@ -622,7 +622,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	cli.tiapp.properties || (cli.tiapp.properties = {});
 	if (cli.tiapp.properties['ti.deploytype']) {
 		logger.warn(__('The %s tiapp.xml property has been deprecated, please use the %s option', 'ti.deploytype'.cyan, '--deploy-type'.cyan));
-		logger.log();
 	}
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
@@ -803,6 +802,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.maxSDK = null;
 
 	if (this.targetSDK) {
+		logger.log();
 		logger.warn(__('%s has been deprecated, please specify the target SDK using the %s tag:', '<tool-api-level>'.cyan, '<uses-sdk>'.cyan));
 		logger.warn();
 		logger.warn('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
@@ -1099,7 +1099,11 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'compileJSS',
 		'generateJavaFiles',
 		'generateAidl',
+
+		// generate the i18n files after copyModuleResources to make sure the app_name isn't
+		// overwritten by some module's strings.xml
 		'generateI18N',
+
 		'generateTheme',
 		'generateAndroidManifest',
 		'packageApp',
@@ -1110,7 +1114,8 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		// we only need to run proguard if any java classes have changed
 		'runProguard',
 
-		// we only need to run the dexer if this.moduleJars or this.jarLibraries changes or any files in this.buildBinClassesDir have changed or debugging/profiling toggled
+		// we only need to run the dexer if this.moduleJars or this.jarLibraries changes or
+		// any files in this.buildBinClassesDir have changed or debugging/profiling toggled
 		'runDexer',
 
 		'createUnsignedApk',
@@ -1274,9 +1279,6 @@ AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
 
 	// jss files
 	this.jssFilesHash = hash(walk(path.join(this.projectDir, 'Resources'), /\.jss$/).join(','));
-
-	// i18n files
-	this.i18nFilesHash = hash(walk(path.join(this.projectDir, 'i18n'), /\.xml$/).join(','));
 
 	next();
 };
@@ -1667,7 +1669,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				// we have a file, now we need to see what sort of file
 
 				// check if it's a drawable resource
-				var m = from.replace(opts.origSrc, '').replace(/^\//, '').replace(/\\/g, '/').match(drawableRegExp);
+				var relPath = from.replace(opts.origSrc, '').replace(/^\//, '').replace(/\\/g, '/'),
+					m = relPath.match(drawableRegExp);
 				if (m && m.length >= 4) {
 					var destFilename = m[3].toLowerCase(),
 						name = destFilename.replace(drawableExtRegExp, ''),
@@ -1685,6 +1688,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					} else {
 						to = path.join(dest, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name).substring(0, 10) + ext);
 					}
+				} else if (/^default(\.9)?\.(png|jpg)$/.test(relPath)) {
+					dest = this.buildResDrawableDir;
+					to = path.join(this.buildResDrawableDir, filename.replace('default.', 'background.'));
 				}
 
 				// if the destination directory does not exists, create it
@@ -2455,22 +2461,14 @@ AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 	this.logger.info(__('Generating i18n files'));
 
-	var data = i18n.load(this.projectDir, this.logger),
-		i18nFilesChanged = this.buildManifest.i18nFilesHash == this.i18nFilesHash;
-
+	var data = i18n.load(this.projectDir, this.logger);
 	data.en || (data.en = {});
 	data.en.app || (data.en.app = {});
 	data.en.app.appname || (data.en.app.appname = this.tiapp.name);
 
 	Object.keys(data).forEach(function (locale) {
-		var dest = path.join(this.buildResDir, 'values' + (locale == 'en' ? '' : '-' + locale), 'strings.xml');
-
-		// if no i18n file changes and the dest exists, then there's nothing to do
-		if (!i18nFilesChanged && fs.existsSync(dest)) {
-			return;
-		}
-
-		var dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
+		var dest = path.join(this.buildResDir, 'values' + (locale == 'en' ? '' : '-' + locale), 'strings.xml'),
+			dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
 			root = dom.documentElement,
 			appname = data[locale].app && data[locale].app.appname || this.tiapp.name,
 			appnameNode = dom.createElement('string');
@@ -3208,7 +3206,6 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		activitiesHash: this.activitiesHash,
 		servicesHash: this.servicesHash,
 		jssFilesHash: this.jssFilesHash,
-		i18nFilesHash: this.i18nFilesHash,
 		jarLibHash: this.jarLibHash
 	}, function (err, results, result) {
 		callback();
