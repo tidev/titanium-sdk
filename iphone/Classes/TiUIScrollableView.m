@@ -162,16 +162,14 @@
 
 	UIView *wrapper = [svSubviews objectAtIndex:index];
 	TiViewProxy *viewproxy = [[self proxy] viewAtIndex:index];
-	if ([[wrapper subviews] count]==0)
-	{
-		// we need to realize this view
-		TiUIView *uiview = [viewproxy view];
-		[wrapper addSubview:uiview];
-	}
-    [viewproxy windowWillOpen];
-    [viewproxy reposition];
-    [viewproxy windowDidOpen];
-
+    if (![viewproxy viewAttached]) {
+        if ([[viewproxy view] superview] != wrapper) {
+            [wrapper addSubview:[viewproxy view]];
+        }
+        [viewproxy windowWillOpen];
+        [viewproxy windowDidOpen];
+        [viewproxy layoutChildrenIfNeeded];
+    }
 }
 
 -(NSRange)cachedFrames:(int)page
@@ -222,9 +220,10 @@
             [self renderViewForIndex:i];
         }
         else {
-            [viewProxy windowWillClose];
-            [viewProxy parentWillHide];
-            [viewProxy windowDidClose];
+            if ([viewProxy viewAttached]) {
+                [viewProxy windowWillClose];
+                [viewProxy windowDidClose];
+            }
         }
     }
 }
@@ -283,9 +282,13 @@
 	
 	if (readd)
 	{
-		for (UIView *view in [sv subviews])
-		{
+		for (UIView *view in [sv subviews]) {
 			[view removeFromSuperview];
+		}
+        
+		for (TiViewProxy* theView in [[self proxy] views]) {
+			[theView windowWillClose];
+			[theView windowDidClose];
 		}
 	}
 	

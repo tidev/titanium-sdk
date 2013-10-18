@@ -8,7 +8,6 @@
 #import "TiUIiOSProxy.h"
 #import "TiUtils.h"
 #import "Webcolor.h"
-
 #ifdef USE_TI_UIIOS
  
 #ifdef USE_TI_UIIOSADVIEW
@@ -59,6 +58,9 @@
 #ifdef USE_TI_UIIOSDYNAMICITEMBEHAVIOR
 #import "TiDynamicItemBehavior.h"
 #endif
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+#import "TiUIiOSTransitionAnimationProxy.h"
+#endif
 
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 #import "TiUIiOSAttributedStringProxy.h"
@@ -66,6 +68,11 @@
 #endif
 
 @implementation TiUIiOSProxy
+
+-(NSString*)apiName
+{
+    return @"Ti.UI.iOS";
+}
 
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 MAKE_SYSTEM_PROP(ATTRIBUTE_FONT, AttributeNameFont);
@@ -90,24 +97,67 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_COLOR, AttributeNameStrikethroughColor)
 MAKE_SYSTEM_PROP(ATTRIBUTE_OBLIQUENESS, AttributeNameObliqueness);
 MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
 
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_STYLE_NONE, UnderlineStyleNone);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_STYLE_SINGLE, UnderlineStyleSingle);
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_NONE
+{
+    return NUMINT(NSUnderlineStyleNone);
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_SINGLE
+{
+    return NUMINT(NSUnderlineStyleSingle);
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_THICK
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlineStyleThick): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlineStyleDouble): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_SOLID
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternSolid): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DOT
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDot): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDash): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDashDot): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDashDotDot): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_BY_WORD
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlineByWord): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_NATURAL
+{
+    return NUMINT(NSWritingDirectionNatural);
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
+{
+    return NUMINT(NSWritingDirectionLeftToRight);
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
+{
+    return NUMINT(NSWritingDirectionRightToLeft);
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSTextWritingDirectionEmbedding): NUMINT(NSWritingDirectionNatural));
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
+{
+    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSTextWritingDirectionOverride): NUMINT(NSWritingDirectionNatural));
+}
 
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_STYLE_THICK, UnderlineStyleThick);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_STYLE_DOUBLE, UnderlineStyleDouble);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_PATTERN_SOLID, UnderlinePatternSolid);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_PATTERN_DOT, UnderlinePatternDot);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_PATTERN_DASH, UnderlinePatternDash);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT, UnderlinePatternDashDot);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT, UnderlinePatternDashDotDot);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_BY_WORD, UnderlineByWord);
-
-MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_EMBEDDING, WritingDirectionEmbedding);
-MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_OVERRIDE, WritingDirectionOverride);
-
-MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_NATURAL, WritingDirectionNatural);
-MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT, WritingDirectionLeftToRight);
-MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT, WritingDirectionRightToLeft);
 #endif
 
 #ifdef USE_TI_UIIOSADVIEW
@@ -181,6 +231,17 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT, WritingDirectionRigh
     return [[[TiUIiOSNavWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+-(id)createTransitionAnimation:(id)args;
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        return [[[TiUIiOSTransitionAnimationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    } else {
+        DebugLog(@"[WARN] The Transition Animation Object is only available on iOS7 and above. Returning nil");
+        return nil;
+    }
+}
+#endif
 #ifdef USE_TI_UIIOSANIMATOR
 -(id)createAnimator:(id)args
 {
@@ -202,7 +263,6 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT, WritingDirectionRigh
     }
 }
 #endif
-
 #ifdef USE_TI_UIIOSPUSHBEHAVIOR
 -(id)createPushBehavior:(id)args
 {

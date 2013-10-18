@@ -40,6 +40,7 @@ public class ListSectionProxy extends ViewProxy{
 	private int itemCount;
 	private TiBaseAdapter adapter;
 	private ArrayList<Object> itemProperties;
+	private ArrayList<Integer> filterIndices;
 	private boolean preload;
 	
 	private String headerTitle;
@@ -62,21 +63,32 @@ public class ListSectionProxy extends ViewProxy{
 	private static final int MSG_UPDATE_ITEM_AT = MSG_FIRST_ID + 706;
 	private static final int MSG_GET_ITEMS = MSG_FIRST_ID + 707;
 
-
-	
-
-
-	
 	public class ListItemData {
 		private KrollDict properties;
 		private TiListViewTemplate template;
+		private String searchableText;
 		public ListItemData (KrollDict properties, TiListViewTemplate template) {
 			this.properties = properties;
 			this.template = template;
+			//set searchableText
+			if (properties.containsKey(TiC.PROPERTY_PROPERTIES)) {
+				Object props = properties.get(TiC.PROPERTY_PROPERTIES);
+				if (props instanceof HashMap) {
+					HashMap<String, Object> propsHash = (HashMap<String, Object>) props;
+					if (propsHash.containsKey(TiC.PROPERTY_SEARCHABLE_TEXT)) {
+						searchableText = TiConvert.toString(propsHash, TiC.PROPERTY_SEARCHABLE_TEXT);
+					}
+				}
+			}
+
 		}
-		
+
 		public KrollDict getProperties() {
 			return properties;
+		}
+		
+		public String getSearchableText() {
+			return searchableText;
 		}
 		
 		public TiListViewTemplate getTemplate() {
@@ -87,6 +99,7 @@ public class ListSectionProxy extends ViewProxy{
 	public ListSectionProxy () {
 		//initialize variables
 		listItemData = new ArrayList<ListItemData>();
+		filterIndices = new ArrayList<Integer>();
 		itemCount = 0;
 		preload = false;
 	}
@@ -747,25 +760,48 @@ public class ListSectionProxy extends ViewProxy{
 		if (headerTitle != null || headerView != null) {
 			index -= 1;
 		}
-		return listItemData.get(index).getTemplate();
+		
+		if (isFilterOn()) {
+			return listItemData.get(filterIndices.get(index)).getTemplate();
+		} else {
+			return listItemData.get(index).getTemplate();
+		}
 	}
 
 	public int getContentCount() {
-		return itemCount;
+		if (isFilterOn()) {
+			return filterIndices.size();
+		} else {
+			return itemCount;
+		}
 	}
 
 	/**
 	 * @return number of entries within section
 	 */
 	public int getItemCount() {
-		int totalCount = itemCount;
-		if (headerTitle != null || headerView != null) {
-			totalCount += 1;
+		int totalCount = 0;
+
+		if (isFilterOn()) {
+			totalCount = filterIndices.size();
+		} else { 
+			totalCount = itemCount;
 		}
-		if (footerTitle != null || footerView != null) {
-			totalCount +=1;
+
+		if (!hideHeaderOrFooter()) {
+			if (headerTitle != null || headerView != null) {
+				totalCount += 1;
+			}
+			if (footerTitle != null || footerView != null) {
+				totalCount +=1;
+			}
 		}
 		return totalCount;
+	}
+	
+	private boolean hideHeaderOrFooter() {
+		TiListView listview = getListView();
+		return (listview.getSearchText() != null && !listview.getKeepSectionsInSearch() && filterIndices.isEmpty());
 	}
 	
 	public boolean isHeaderView(int pos) {
@@ -813,10 +849,39 @@ public class ListSectionProxy extends ViewProxy{
 		if (headerTitle != null || headerView != null) {
 			position -= 1;
 		}
-		if (position >= 0 && position < listItemData.size()) {
+		
+		if (isFilterOn()) {
+			return listItemData.get(filterIndices.get(position)).getProperties();
+		} else if (position >= 0 && position < listItemData.size()) {
 			return listItemData.get(position).getProperties();
 		} 
 		return null;
+	}
+	
+	public boolean isFilterOn() {
+		if (getListView().getSearchText() != null) {
+			return true;
+		}
+		return false;
+	}
+
+	public void applyFilter(String searchText) {
+		//Clear previous result
+		filterIndices.clear();
+		boolean caseInsensitive = getListView().getCaseInsensitive();
+		//Add new results
+		for (int i = 0; i < listItemData.size(); ++i) {
+			String searchableText = listItemData.get(i).getSearchableText();
+			//Handle case sensitivity
+			if (caseInsensitive) {
+				searchText = searchText.toLowerCase();
+				searchableText = searchableText.toLowerCase();
+			}
+			//String comparison
+			if (searchableText != null && searchableText.contains(searchText)) {
+				filterIndices.add(i);
+			}
+		}
 	}
 	
 	public void release() {

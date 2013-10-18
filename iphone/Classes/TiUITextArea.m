@@ -83,30 +83,6 @@
 	[super frameSizeChanged:frame bounds:bounds];
 }
 
--(void)setSelectionFrom:(id)start to:(id)end 
-{
-    
-    if([TiUtils isIOS5OrGreater]) {
-        UITextView *textView = (UITextView*)[self textWidgetView];
-        if ([textView conformsToProtocol:@protocol(UITextInput)]) {
-            if([self becomeFirstResponder]){
-                UITextPosition *beginning = textView.beginningOfDocument;
-                UITextPosition *startPos = [textView positionFromPosition:beginning offset:[TiUtils intValue: start]];
-                UITextPosition *endPos = [textView positionFromPosition:beginning offset:[TiUtils intValue: end]];
-                UITextRange *textRange;
-                textRange = [textView textRangeFromPosition:startPos toPosition:endPos];
-                [textView setSelectedTextRange:textRange];
-            }
-            
-        } else {
-            DebugLog(@"UITextView does not conform with UITextInput protocol. Ignore");
-        }
-    } else {
-        DebugLog(@"Selecting text is only supported with iOS5+");
-    }
-    
-}
-
 -(UIView<UITextInputTraits>*)textWidgetView
 {
     if (textWidgetView==nil)
@@ -212,11 +188,12 @@
 
 - (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange
 {
-    if([[self proxy] _hasListeners:@"link"]) {
-        NSDictionary *eventDict = @{ @"url"   : [URL absoluteString],
-                                     @"range" : @[NUMINT(characterRange.location), NUMINT(characterRange.length)]
-                                    };
-        [[self proxy] fireEvent:@"link" withObject:eventDict];
+    if([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO]) {
+        NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   [URL absoluteString], @"url",
+                                   [NSArray arrayWithObjects:NUMINT(characterRange.location), NUMINT(characterRange.length),nil],@"range",
+                                   nil];
+        [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
     return handleLinks;
 }

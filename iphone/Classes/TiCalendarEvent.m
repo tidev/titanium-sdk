@@ -37,6 +37,11 @@
     return event;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Calendar.Event";
+}
+
 
 +(NSArray*) convertEvents:(NSArray*)events_ withContext:(id<TiEvaluator>)context_  calendar:(EKCalendar*)calendar_ module:(CalendarModule*)module_
 {

@@ -18,6 +18,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.XML.NodeList";
+}
+
 -(void)setNodes:(NSArray*)nodes_
 {
     if (nodes == nodes_) {

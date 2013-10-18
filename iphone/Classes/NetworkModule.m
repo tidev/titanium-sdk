@@ -19,6 +19,11 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 
 @implementation NetworkModule
 
+-(NSString*)apiName
+{
+    return @"Ti.Network";
+}
+
 -(NSString*)INADDR_ANY
 {
     return INADDR_ANY_token;

@@ -40,6 +40,11 @@
     return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"title",@"titleid",@"subtitle",@"subtitleid",nil];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Map.Annotation";
+}
+
 
 -(UIView*)makeButton:(id)button tag:(int)buttonTag
 {

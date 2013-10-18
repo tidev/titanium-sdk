@@ -9,10 +9,6 @@ description: |
     A `ListView` object is a container for [ListSection](Titanium.UI.ListSection) 
     objects that are, in turn, containers for [ListItem](Titanium.UI.ListItem) objects.
 
-    **Note:** this is the first version of list view. Not all features from the specification
-    are implemented in this version.  A complete list of implemented features is schedule for
-    the next list version, which is planned for Release 3.2.0.
-
     For more instructions and examples of using `ListView`, refer to the
     [ListViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/ListViews)
 
@@ -246,7 +242,7 @@ events:
   - name: marker
     summary: Fired when the list view displays the reference item or an item beyond the reference item.
     description: |
-        This event is fired "only once". Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method.
+        This event is fired only once. Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method.
         On iOS this method does not fire when list view is in search mode.
     platforms: [iphone, ipad, android]
     since: 3.2.0
@@ -422,8 +418,9 @@ properties:
     description: |
         Provides the same functionality as the [search](Titanium.UI.TableView.search) property in [TableView](Titanium.UI.TableView).
         Used in conjunction with [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
-    type: [Titanium.UI.SearchBar]
-    platforms: [iphone, ipad]
+        On Android, you can either specify <Titanium.UI.SearchBar> or <Titanium.UI.Android.SearchView>, while on iOS only <Titanium.UI.SearchBar> is supported.
+    type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
+    platforms: [android, iphone, ipad]
     since: 3.2.0
 
   - name: searchText
@@ -432,10 +429,10 @@ properties:
         Provides a generic search API for the List View. This property can not be used when the [searchView](Titanium.UI.ListView.searchView) property is set.
         Used in conjunction with [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
 
-        When using this property the [style](Titanium.UI.ListView.style) property of the List View is honored. If the [keepSectionsInSearch](Titanium.UI.ListView.keepSectionsInSearch) property
+        On iOS, when using this property the [style](Titanium.UI.ListView.style) property of the List View is honored. If the [keepSectionsInSearch](Titanium.UI.ListView.keepSectionsInSearch) property
         is set to true then section information is preserved in the search results, otherwise the search results are displayed in a single section.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: 3.2.0
 
   - name: caseInsensitiveSearch
@@ -445,7 +442,7 @@ properties:
         List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: 3.2.0
 
   - name: keepSectionsInSearch
@@ -454,7 +451,7 @@ properties:
         Used in conjunction with [searchText](Titanium.UI.ListView.searchText) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: 3.2.0
 
   - name: sectionIndexTitles

@@ -51,6 +51,11 @@
 	[super _configure];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.Tab";
+}
+
 #pragma mark - Private methods
 
 -(void) cleanNavStack:(BOOL)removeTab
@@ -104,6 +109,7 @@
 		return;
 	}
 	TiWindowProxy *window = [args objectAtIndex:0];
+    
 	BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
     [controllerStack addObject:[window hostingController]];
     [[[self rootController] navigationController] pushViewController:[window hostingController] animated:animated];
@@ -245,6 +251,22 @@
 
 #pragma mark - UINavigationControllerDelegate
 
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+- (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
+                                   animationControllerForOperation:(UINavigationControllerOperation)operation
+                                                fromViewController:(UIViewController *)fromVC
+                                                  toViewController:(UIViewController *)toVC
+{
+    if([toVC isKindOfClass:[TiViewController class]]) {
+        TiViewController* toViewController = (TiViewController*)toVC;
+        if([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
+            TiWindowProxy *windowProxy = (TiWindowProxy*)[toViewController proxy];
+            return [windowProxy transitionAnimation];
+        }
+    }
+    return nil;
+}
+#endif
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
@@ -458,7 +480,6 @@
 		}
 	}
 
-	[rootController setTitle:title];
 	UITabBarItem *ourItem = nil;
     
     BOOL imageIsMask = NO;

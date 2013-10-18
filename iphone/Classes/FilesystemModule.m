@@ -28,6 +28,11 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	return [TiUtils stringValue:arg];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Filesystem";
+}
+
 -(NSString*)pathFromComponents:(NSArray*)args
 {
 	NSString * newpath;

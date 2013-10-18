@@ -25,6 +25,11 @@
 	return @"medium";
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Platform.DisplayCaps";
+}
+
 - (id)dpi
 {
 	return [NSNumber numberWithInt:[TiUtils dpi]];
