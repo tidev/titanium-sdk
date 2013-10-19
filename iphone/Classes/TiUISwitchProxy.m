@@ -15,6 +15,11 @@
 	return suggestedResizing & ~(UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth);
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.Switch";
+}
+
 USE_VIEW_FOR_VERIFY_HEIGHT
 USE_VIEW_FOR_VERIFY_WIDTH
 

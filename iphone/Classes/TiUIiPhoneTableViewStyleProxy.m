@@ -10,6 +10,11 @@
 
 @implementation TiUIiPhoneTableViewStyleProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPhone.TableViewStyle";
+}
+
 MAKE_SYSTEM_PROP(PLAIN,UITableViewStylePlain);
 MAKE_SYSTEM_PROP(GROUPED,UITableViewStyleGrouped);
 

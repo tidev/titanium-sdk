@@ -11,6 +11,11 @@
 
 @implementation LocaleModule
 
+-(NSString*)apiName
+{
+    return @"Ti.Locale";
+}
+
 -(id)getString:(id)args
 {
 	NSString *key = [args objectAtIndex:0];

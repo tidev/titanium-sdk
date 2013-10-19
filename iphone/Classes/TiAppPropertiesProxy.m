@@ -23,6 +23,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.App.Properties";
+}
+
 -(void)_listenerAdded:(NSString*)type count:(int)count
 {
 	if (count == 1 && [type isEqual:@"change"])

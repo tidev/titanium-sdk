@@ -737,6 +737,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_BAR_COLOR = "barColor";
 
 	/**
 	 * @module.api
@@ -837,6 +842,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CANCELABLE = "cancelable";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CASE_INSENSITIVE_SEARCH = "caseInsensitiveSearch";
 
 	/**
 	 * @module.api
@@ -1719,6 +1729,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_PROMPT = "prompt";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_PROPERTIES = "properties";
 
 	/**
@@ -1847,6 +1862,21 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SEARCH_AS_CHILD = "searchAsChild";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCH_TEXT = "searchText";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCH_VIEW = "searchView";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCHABLE_TEXT = "searchableText";
 
 	/**
 	 * @module.api
@@ -1892,6 +1922,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SHOW_AS_ACTION = "showAsAction";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHOW_CANCEL = "showCancel";
 
 	/**
 	 * @module.api

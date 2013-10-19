@@ -22,6 +22,11 @@ MAKE_SYSTEM_PROP(ANIMATION_STYLE_NONE,UIStatusBarAnimationNone);
 MAKE_SYSTEM_PROP(ANIMATION_STYLE_SLIDE,UIStatusBarAnimationSlide);
 MAKE_SYSTEM_PROP(ANIMATION_STYLE_FADE,UIStatusBarAnimationFade);
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPhone.StatusBar";
+}
+
 -(NSNumber*)LIGHT_CONTENT
 {
     if ([TiUtils isIOS7OrGreater]) {

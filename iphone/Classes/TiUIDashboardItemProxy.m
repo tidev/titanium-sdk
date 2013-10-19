@@ -29,6 +29,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.DashboardItem";
+}
+
 -(void)setItem:(LauncherItem*)item_
 {
 	if (item!=nil)
