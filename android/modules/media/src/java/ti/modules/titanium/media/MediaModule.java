@@ -143,7 +143,7 @@ public class MediaModule extends KrollModule
 	{
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
 		if (activity == null) {
-			Log.e(TAG, "Could not showCamera, current activity is null., Log.DEBUG_MODE");
+			Log.e(TAG, "Could not showCamera, current activity is null.", Log.DEBUG_MODE);
 			return;
 		}
 
@@ -661,7 +661,7 @@ public class MediaModule extends KrollModule
 	{
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
 		if (activity == null) {
-			Log.e(TAG, "Could not openPhotoGallery, current activity is null., Log.DEBUG_MODE");
+			Log.e(TAG, "Could not openPhotoGallery, current activity is null.", Log.DEBUG_MODE);
 			return;
 		}
 		

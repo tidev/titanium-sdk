@@ -60,7 +60,7 @@ public class AndroidModule extends KrollModule
 		if (activity != null) {
 			(new MediaScannerClient(activity, mediaPaths, mimeTypes, callback)).scan();
 		} else {
-			Log.e(TAG, "Could not scanMediaFiles, current activity is null., Log.DEBUG_MODE");
+			Log.e(TAG, "Could not scanMediaFiles, current activity is null.", Log.DEBUG_MODE);
 		}
 	}
 
@@ -69,7 +69,7 @@ public class AndroidModule extends KrollModule
 	{
 		Context ctx = TiApplication.getInstance().getCurrentActivity();
 		if (ctx == null) {
-			Log.e(TAG, "Could not setSystemWallpaper, current activity is null., Log.DEBUG_MODE");
+			Log.e(TAG, "Could not setSystemWallpaper, current activity is null.", Log.DEBUG_MODE);
 			return;
 		}
 		WallpaperManager wm = WallpaperManager.getInstance(ctx);

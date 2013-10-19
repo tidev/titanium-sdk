@@ -218,7 +218,7 @@ public class TabProxy extends TiViewProxy
 		//When tab loses focus, we hide the soft keyboard.
 		Activity currentActivity = TiApplication.getAppCurrentActivity();
 		if (currentActivity == null) {
-			Log.e(TAG, "Could not onFocusChanged, current activity is null., Log.DEBUG_MODE");
+			Log.e(TAG, "Could not onFocusChanged, current activity is null.", Log.DEBUG_MODE);
 			return;
 		}
 		if (!focused && currentActivity != null) {

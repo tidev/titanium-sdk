@@ -194,7 +194,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		Activity topActivity = TiApplication.getAppCurrentActivity();
 		if (topActivity == null) {
-			Log.e(TAG, "Could not handleOpen, current activity is null., Log.DEBUG_MODE");
+			Log.e(TAG, "Could not handleOpen, current activity is null.", Log.DEBUG_MODE);
 			return;
 		}
 		Intent intent = new Intent(topActivity, TiActivity.class);
