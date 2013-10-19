@@ -167,6 +167,28 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [iphone,ipad,mobileweb, tizen]
+
+  - name: shadowColor
+    summary: Title shadow color, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    platforms: [android]
+    since: "3.2.0"
+
+  - name: shadowOffset
+    summary: Shadow offset as a dictionary with the properties `x` and `y`.
+    type: Object
+    platforms: [android]
+    since: "3.2.0"
+
+  - name: shadowRadius
+    summary: Radius of the shadow.
+    type: Number
+    default: 0
+    platforms: [android]
+    since: "3.2.0"
+
   - name: style
     summary: Style constant for the button, as defined in <Titanium.UI.iPhone.SystemButtonStyle>.
     type: Number

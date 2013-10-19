@@ -136,13 +136,22 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [iphone, ipad, mobileweb, tizen]
-    
+    platforms: [android, iphone, ipad, mobileweb, tizen]
+    since: {android: "3.2.0"}
+
   - name: shadowOffset
     summary: Shadow offset as a dictionary with the properties `x` and `y`.
     type: Object
-    platforms: [iphone, ipad, mobileweb, tizen]
-    
+    platforms: [android, iphone, ipad, mobileweb, tizen]
+    since: {android: "3.2.0"}
+
+  - name: shadowRadius
+    summary: Radius of the shadow.
+    type: Number
+    default: 0
+    platforms: [android]
+    since: "3.2.0"
+
   - name: text
     summary: Label text.
     description: |
@@ -234,6 +243,7 @@ examples:
               font: { fontSize:48 },
               shadowColor: '#aaa',
               shadowOffset: {x:5, y:5},
+              shadowRadius: 3,
               text: 'A simple label',
               textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
               top: 30,

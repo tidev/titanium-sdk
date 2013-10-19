@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.graphics.Color;
 import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils.TruncateAt;
@@ -31,6 +32,10 @@ public class TiUILabel extends TiUIView
 
 	private int defaultColor;
 	private boolean wordWrap = true;
+	private float shadowRadius = 0f;
+	private float shadowX = 0f;
+	private float shadowY = 0f;
+	private int shadowColor = Color.TRANSPARENT;
 
 	public TiUILabel(final TiViewProxy proxy)
 	{
@@ -81,6 +86,8 @@ public class TiUILabel extends TiUIView
 
 		TextView tv = (TextView) getNativeView();
 		
+		boolean needShadow = false;
+
 		// Only accept one, prefer text to title.
 		if (d.containsKey(TiC.PROPERTY_HTML)) {
 			String html = TiConvert.toString(d, TiC.PROPERTY_HTML);
@@ -123,6 +130,26 @@ public class TiUILabel extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_WORD_WRAP)) {
 			wordWrap = TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP, true);
 			tv.setSingleLine(!wordWrap);
+		}
+		if (d.containsKey(TiC.PROPERTY_SHADOW_OFFSET)) {
+			Object value = d.get(TiC.PROPERTY_SHADOW_OFFSET);
+			if (value instanceof HashMap) {
+				needShadow = true;
+				HashMap dict = (HashMap) value;
+				shadowX = TiConvert.toFloat(dict.get(TiC.PROPERTY_X), 0);
+				shadowY = TiConvert.toFloat(dict.get(TiC.PROPERTY_Y), 0);
+			}
+		}
+		if (d.containsKey(TiC.PROPERTY_SHADOW_RADIUS)) {
+			needShadow = true;
+			shadowRadius = TiConvert.toFloat(d.get(TiC.PROPERTY_SHADOW_RADIUS), 0);
+		}
+		if (d.containsKey(TiC.PROPERTY_SHADOW_COLOR)) {
+			needShadow = true;
+			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR);
+		}
+		if (needShadow) {
+			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		}
 		// This needs to be the last operation.
 		TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
@@ -168,6 +195,19 @@ public class TiUILabel extends TiUIView
 			tv.setSingleLine(!TiConvert.toBoolean(newValue, true));
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			Linkify.addLinks(tv, TiConvert.toInt(newValue));
+		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
+			if (newValue instanceof HashMap) {
+				HashMap dict = (HashMap) newValue;
+				shadowX = TiConvert.toFloat(dict.get(TiC.PROPERTY_X), 0);
+				shadowY = TiConvert.toFloat(dict.get(TiC.PROPERTY_Y), 0);
+				tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+			}
+		} else if (key.equals(TiC.PROPERTY_SHADOW_RADIUS)) {
+			shadowRadius = TiConvert.toFloat(newValue, 0);
+			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
+			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
+			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
