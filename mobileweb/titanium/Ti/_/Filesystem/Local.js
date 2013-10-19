@@ -50,11 +50,22 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "T
 	}
 
 	function getRemote(path) {
-		var xhr = new XMLHttpRequest;
-		xhr.overrideMimeType('text/plain; charset=x-user-defined');
-		xhr.open("GET", '.' + path, false);
-		xhr.send(null);
-		return xhr.status === 200 ? { data: xhr.responseText, mimeType: xhr.getResponseHeader("Content-Type") } : null;
+		if (window.hasWP8Extensions) {
+			var r;
+			require.getFileFromNative(path, function (success, content) {
+				r = success ? content : null;
+			});
+			return {
+				data: r,
+				mimeType: null
+			};
+		} else {
+			var xhr = new XMLHttpRequest;
+			xhr.overrideMimeType('text/plain; charset=x-user-defined');
+			xhr.open("GET", '.' + path, false);
+			xhr.send(null);
+			return xhr.status === 200 ? { data: xhr.responseText, mimeType: xhr.getResponseHeader("Content-Type") } : null;
+		}
 	}
 
 	function registry(path) {
