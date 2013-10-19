@@ -1173,6 +1173,10 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 						process.exit(1);
 					}
 
+
+					// TODO: determine ABIs and validate that we're compatible
+
+
 					// read in the bindings
 					module.bindings = this.getNativeModuleBindings(module.jarFile);
 					if (!module.bindings) {
@@ -2456,7 +2460,6 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 
 	afs.copyFileSync(path.join(this.templatesDir, 'gitignore'), path.join(this.buildDir, '.gitignore'), { logger: this.logger.debug });
 
-	// TODO: merge custom classpath with build/android/.classpath
 	afs.copyFileSync(path.join(this.templatesDir, 'classpath'), path.join(this.buildDir, '.classpath'), { logger: this.logger.debug });
 
 	// generate the JavaScript-based activities
@@ -2955,7 +2958,8 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 
 AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) {
 	var classpath = {},
-		moduleJars = this.moduleJars = {};
+		moduleJars = this.moduleJars = {},
+		jarNames = {};
 
 	classpath[this.androidTargetSDK.androidJar] = 1;
 	Object.keys(this.jarLibraries).map(function (jarFile) {
@@ -2963,21 +2967,36 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 	});
 
 	this.modules.forEach(function (module) {
+		var filename = path.basename(module.jarFile);
 		if (fs.existsSync(module.jarFile)) {
-			moduleJars[module.jarFile] = 1;
-			classpath[module.jarFile] = 1;
+			var jarHash = hash(fs.readFileSync(module.jarFile).toString());
+
+			if (!jarNames[jarHash]) {
+				moduleJars[module.jarFile] = 1;
+				classpath[module.jarFile] = 1;
+				jarNames[jarHash] = 1;
+			} else {
+				this.logger.debug(__('Skipping duplicate jar file: %s', module.jarFile.cyan));
+			}
 
 			var libDir = path.join(module.modulePath, 'lib'),
 				jarRegExp = /\.jar$/;
+
 			fs.existsSync(libDir) && fs.readdirSync(libDir).forEach(function (name) {
 				var jarFile = path.join(libDir, name);
 				if (jarRegExp.test(name) && fs.existsSync(jarFile)) {
-					moduleJars[jarFile] = 1;
-					classpath[jarFile] = 1;
+					var jarHash = hash(fs.readFileSync(jarFile).toString());
+					if (!jarNames[jarHash]) {
+						moduleJars[jarFile] = 1;
+						classpath[jarFile] = 1;
+						jarNames[jarHash] = 1;
+					} else {
+						this.logger.debug(__('Skipping duplicate jar file: %s', jarFile.cyan));
+					}
 				}
-			});
+			}, this);
 		}
-	});
+	}, this);
 
 	if (!this.forceRebuild) {
 		// if we don't have to compile the java files, then we can return here
