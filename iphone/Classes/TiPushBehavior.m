@@ -29,6 +29,11 @@
 }
 
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iOS.PushBehavior";
+}
+
 #pragma mark - TiBehaviorProtocol
 -(UIDynamicBehavior*)behaviorObject
 {

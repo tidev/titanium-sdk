@@ -19,6 +19,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.XML.NamedNodeMap";
+}
+
 -(void)setElement:(TiDOMElementProxy*)element_
 {
 	RELEASE_TO_NIL(element);

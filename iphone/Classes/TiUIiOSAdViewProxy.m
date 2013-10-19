@@ -31,6 +31,11 @@
 	return @"ADBannerContentSize480x32";
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iOS.AdView";
+}
+
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;

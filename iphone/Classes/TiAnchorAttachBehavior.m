@@ -28,6 +28,11 @@
     [super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iOS.AnchorAttachmentBehavior";
+}
+
 #pragma mark - TiBehaviorProtocol
 -(UIDynamicBehavior*)behaviorObject
 {

@@ -120,10 +120,10 @@ description:  |
     `'green'`, `'lightgray'`, `'lime'`, `'magenta'`, `'maroon'`, `'navy'`, `'olive'`, `'orange'`, 
     `'pink'`, `'purple'`, `'red'`, `'silver'`, `'teal'`, `'white'`, `'yellow'`.
     
-    Currently, Android does not support the color name `'brown'` and iOS does not support `'aqua'`, 
-    `'fuchsia'`, `'lime'` or `'maroon'`.
-    
     All color properties also accept a value of `'transparent'`.
+
+    On Android, if you want to create a semi-transparent window, set the `opacity`
+    property **before** opening the window.
     
     If a color property is undefined, the default color of the particular UI element is applied. 
     If a color value is not valid on iOS, the default color is applied, whereas, on Android, the 

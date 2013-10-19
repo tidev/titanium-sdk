@@ -25,6 +25,11 @@
     [super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iOS.Animator";
+}
+
 #pragma mark - Public API
 -(NSNumber*)running
 {

@@ -9,6 +9,10 @@
 #import "TiDOMCDATANodeProxy.h"
 
 @implementation TiDOMCDATANodeProxy
+-(NSString*)apiName
+{
+    return @"Ti.XML.CDATASection";
+}
 
 @end
 #endif

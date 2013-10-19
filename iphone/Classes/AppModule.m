@@ -100,6 +100,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 										name:UIAccessibilityVoiceOverStatusChanged object:nil];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.App";
+}
+
 -(void)addEventListener:(NSArray*)args
 {
 	NSString *type = [args objectAtIndex:0];

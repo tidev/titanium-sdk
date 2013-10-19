@@ -43,6 +43,11 @@ static NSArray* webKeySequence;
     return webKeySequence;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.WebView";
+}
+
 -(BOOL)shouldDetachViewForSpace
 {
 	return NO;

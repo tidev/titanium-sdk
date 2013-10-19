@@ -28,6 +28,11 @@
 	[super _destroy];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPad.SplitWindowButton";
+}
+
 -(void)setTitle:(id)title
 {
 	[button setTitle:title];

@@ -42,6 +42,11 @@
 	return [[TiApp app] userAgent];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti";
+}
+
 -(void)include:(NSArray*)jsfiles
 {
 	id<TiEvaluator> context = [self executionContext];

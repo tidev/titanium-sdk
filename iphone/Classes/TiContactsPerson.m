@@ -53,6 +53,11 @@ static NSDictionary* multiValueLabels;
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Contacts.Person";
+}
+
 #pragma mark Property dictionaries
 
 // -kABPerson non-multi properties

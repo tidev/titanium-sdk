@@ -59,6 +59,11 @@
     [super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iOS.CollisionBehavior";
+}
+
 #pragma mark - TiBehaviorProtocol
 -(UIDynamicBehavior*)behaviorObject
 {

@@ -69,6 +69,11 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
     return [ourStore calendars];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Calendar";
+}
+
 -(void)startup
 {
     [super startup];

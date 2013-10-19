@@ -15,6 +15,11 @@
 USE_VIEW_FOR_CONTENT_WIDTH
 USE_VIEW_FOR_CONTENT_HEIGHT
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.Label";
+}
+
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     [super _initWithProperties:properties];
@@ -64,6 +69,10 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     return TiDimensionAutoSize;
 }
 
+-(UIView *)parentViewForChild:(TiViewProxy *)child
+{
+	return [[(TiUILabel*)[self view] label] superview];
+}
 
 @end
 

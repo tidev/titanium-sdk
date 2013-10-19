@@ -42,6 +42,11 @@
     [super _initWithProperties:properties];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.ListView";
+}
+
 - (void)dealloc
 {
 	[_operationQueue release];
