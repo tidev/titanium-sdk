@@ -1,7 +1,7 @@
 /*
  * build.js: Titanium Android CLI build command
  *
- * Copyright (c) 2012, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -11,6 +11,7 @@ var ADB = require('titanium-sdk/lib/adb'),
 	androidDetect = require('../lib/detect').detect,
 	AndroidManifest = require('../lib/AndroidManifest'),
 	appc = require('node-appc'),
+	archiver = require('archiver'),
 	async = require('async'),
 	Builder = require('titanium-sdk/lib/builder'),
 	cleanCSS = require('clean-css'),
@@ -81,6 +82,16 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 				// detect android environment
 				androidDetect(config, { packageJson: packageJson }, function (androidInfo) {
 					_t.androidInfo = androidInfo;
+
+					// if --android-sdk was not specified, then we simply try to set a default android sdk
+					if (!cli.argv['android-sdk']) {
+						var androidSdkPath = config.android && config.android.sdkPath;
+						if (!androidSdkPath && androidInfo.sdk) {
+							androidSdkPath = androidInfo.sdk.path;
+						}
+						androidSdkPath && (cli.argv['android-sdk'] = afs.resolvePath(androidSdkPath));
+					}
+
 					next();
 				});
 			},
@@ -109,15 +120,17 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 	var targetDeviceCache = {};
 
 	function findTargetDevices(target, callback) {
-		if (targetDeviceCache[target]) return callback(null, targetDeviceCache[target]);
+		if (targetDeviceCache[target]) {
+			return callback(null, targetDeviceCache[target]);
+		}
 
 		if (target == 'device') {
 			new ADB(config).devices(function (err, devices) {
 				if (err) {
 					callback(err);
 				} else {
-					_t.devices = devices;
-					callback(null, targetDeviceCache[target] = devices.map(function (d) {
+					_t.devices = devices.filter(function (d) { return !d.emulator && d.state == 'device'; });
+					callback(null, targetDeviceCache[target] = _t.devices.map(function (d) {
 						return {
 							name: d.model || d.manufacturer,
 							id: d.id,
@@ -140,7 +153,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							return {
 								name: emu.name,
 								id: emu.name,
-								version: emu.target,
+								version: emu['sdk-version'],
 								abi: emu.abi,
 								type: emu.type,
 								googleApis: emu.googleApis
@@ -149,7 +162,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							return {
 								name: emu.name,
 								id: emu.name,
-								version: emu.target,
+								version: emu['sdk-version'],
 								abi: emu.abi,
 								type: emu.type,
 								googleApis: emu.googleApis
@@ -172,7 +185,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						abbr: 'L',
 						desc: __('the alias for the keystore'),
 						hint: 'alias',
-						order: 107,
+						order: 170,
 						prompt: function (callback) {
 							callback(fields.select({
 								title: __("What is the name of the keystore's certificate alias?"),
@@ -190,17 +203,20 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					},
 					'android-sdk': {
 						abbr: 'A',
-						callback: function (value) {
-							return value.trim();
-						},
 						default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
 						desc: __('the path to the Android SDK'),
 						hint: __('path'),
-						order: 101,
+						order: 100,
 						prompt: function (callback) {
+							var androidSdkPath = config.android && config.android.sdkPath;
+							if (!androidSdkPath && _t.androidInfo.sdk) {
+								androidSdkPath = _t.androidInfo.sdk.path;
+							}
+							androidSdkPath && (androidSdkPath = afs.resolvePath(androidSdkPath));
+
 							callback(fields.file({
 								promptLabel: __('Where is the Android SDK?'),
-								default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
+								default: androidSdkPath,
 								complete: true,
 								showHidden: true,
 								ignoreDirs: new RegExp(config.get('cli.ignoreDirs')),
@@ -212,20 +228,33 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						validate: function (value, callback) {
 							if (!value) {
 								callback(new Error(__('Invalid Android SDK path')));
+							} else if (_t.androidInfo.sdk && _t.androidInfo.sdk.path == value) {
+								// no sense doing the detection again
+								callback(null, value);
 							} else {
 								// do a quick scan to see if the path is correct
 								android.findSDK(value, config, appc.pkginfo.package(module), function (err, results) {
 									if (err) {
 										callback(new Error(__('Invalid Android SDK path: %s', value)));
 									} else {
-										// set the android sdk in the config just in case a plugin or something needs it
-										config.set('android.sdkPath', value);
+										function next() {
+											// set the android sdk in the config just in case a plugin or something needs it
+											config.set('android.sdkPath', value);
 
-										// path looks good, do a full scan again
-										androidDetect(config, { packageJson: packageJson }, function (androidInfo) {
-											_t.androidInfo = androidInfo;
-											callback(null, value);
-										});
+											// path looks good, do a full scan again
+											androidDetect(config, { packageJson: packageJson, bypassCache: true }, function (androidInfo) {
+												_t.androidInfo = androidInfo;
+												callback(null, value);
+											});
+										}
+
+										// new android sdk path looks good
+										// if we found an android sdk in the pre-validate hook, then we need to kill the other sdk's adb server
+										if (_t.androidInfo.sdk) {
+											new ADB(config).stopServer(next);
+										} else {
+											next();
+										}
 									}
 								});
 							}
@@ -253,13 +282,14 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						abbr: 'D',
 						desc: __('the type of deployment; only used when target is %s or %s', 'emulator'.cyan, 'device'.cyan),
 						hint: __('type'),
+						order: 105,
 						values: ['test', 'development']
 					},
 					'device-id': {
-						abbr: 'V',
+						abbr: 'C',
 						desc: __('the name for the device or Android emulator to install the application to'),
 						hint: __('name'),
-						order: 103,
+						order: 130,
 						prompt: function (callback) {
 							findTargetDevices(cli.argv.target, function (err, results) {
 								var opts = {};
@@ -304,7 +334,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 									promptLabel: __('Select a device by number or name'),
 									formatters: {
 										option: function (opt, idx, num) {
-											return '    ' + num + opt.name.cyan + (opt.googleApis
+											return '    ' + num + opt.name.cyan + ' (' + opt.version + ')' + (opt.googleApis
 												? (' (' + __('Google APIs supported') + ')').grey
 												: opt.googleApis === null
 													? (' (' + __('Google APIs support unknown') + ')').grey
@@ -333,77 +363,100 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							});
 						},
 						verifyIfRequired: function (callback) {
-							if (cli.argv.target != 'emulator') {
-								return callback(true);
-							}
-
 							findTargetDevices(cli.argv.target, function (err, results) {
-								var avds = results.filter(function (a) { return a.type == 'avd'; }).map(function (a) { return a.name; });
+								if (cli.argv.target == 'emulator' && cli.argv['device-id'] == undefined && cli.argv['avd-id']) {
+									// if --device-id was not specified, but --avd-id was, then we need to
+									// try to resolve a device based on the legacy --avd-* options
+									var avds = results.filter(function (a) { return a.type == 'avd'; }).map(function (a) { return a.name; }),
+										name = 'titanium_' + cli.argv['avd-id'] + '_';
 
-								// if --device-id was not specified, but --avd-id was, then we need to
-								// try to resolve a device based on the legacy --avd-* options
-								if (cli.argv['device-id'] == undefined && avds.length && cli.argv['avd-id']) {
-									// try finding the first avd that starts with the avd id
-									var name = 'titanium_' + cli.argv['avd-id'] + '_';
-									avds = avds.filter(function (avd) { return avd.indexOf(name) == 0; });
-									if (avds.length == 1) {
-										cli.argv['device-id'] = avds[0];
-										return callback();
-									} else if (avds.length > 1) {
-										// next try using the avd skin
-										if (!cli.argv['avd-skin']) {
-											// we have more than one match
-											logger.error(__n('Found %s avd with id "%%s"', 'Found %s avds with id "%%s"', avds.length, cli.argv['avd-id']));
-											logger.error(__('Specify --avd-skin and --avd-abi to select a specific emulator') + '\n');
-										} else {
-											name += cli.argv['avd-skin'];
-											// try exact match
-											var tmp = avds.filter(function (avd) { return avd == name; });
-											if (tmp.length) {
-												avds = tmp;
+									if (avds.length) {
+										// try finding the first avd that starts with the avd id
+										avds = avds.filter(function (avd) { return avd.indexOf(name) == 0; });
+										if (avds.length == 1) {
+											cli.argv['device-id'] = avds[0];
+											return callback();
+										} else if (avds.length > 1) {
+											// next try using the avd skin
+											if (!cli.argv['avd-skin']) {
+												// we have more than one match
+												logger.error(__n('Found %s avd with id "%%s"', 'Found %s avds with id "%%s"', avds.length, cli.argv['avd-id']));
+												logger.error(__('Specify --avd-skin and --avd-abi to select a specific emulator') + '\n');
 											} else {
-												// try partial match
-												avds = avds.filter(function (avd) { return avd.indexOf(name + '_') == 0; });
-											}
-											if (avds.length == 0) {
-												logger.error(__('No emulators found with id "%s" and skin "%s"', cli.argv['avd-id'], cli.argv['avd-skin']) + '\n');
-											} else if (avds.length == 1) {
-												cli.argv['device-id'] = avds[0];
-												return callback();
-											} else if (!cli.argv['avd-abi']) {
-												// we have more than one matching avd, but no abi to filter by so we have to error
-												logger.error(__n('Found %s avd with id "%%s" and skin "%%s"', 'Found %s avds with id "%%s" and skin "%%s"', avds.length, cli.argv['avd-id'], cli.argv['avd-skin']));
-												logger.error(__('Specify --avd-abi to select a specific emulator') + '\n');
-											} else {
-												name += '_' + cli.argv['avd-abi'];
+												name += cli.argv['avd-skin'];
 												// try exact match
-												tmp = avds.filter(function (avd) { return avd == name; });
+												var tmp = avds.filter(function (avd) { return avd == name; });
 												if (tmp.length) {
 													avds = tmp;
 												} else {
+													// try partial match
 													avds = avds.filter(function (avd) { return avd.indexOf(name + '_') == 0; });
 												}
 												if (avds.length == 0) {
-													logger.error(__('No emulators found with id "%s", skin "%s", and abi "%s"', cli.argv['avd-id'], cli.argv['avd-skin'], cli.argv['avd-abi']) + '\n');
-												} else {
-													// there is one or more avds, but we'll just return the first one
+													logger.error(__('No emulators found with id "%s" and skin "%s"', cli.argv['avd-id'], cli.argv['avd-skin']) + '\n');
+												} else if (avds.length == 1) {
 													cli.argv['device-id'] = avds[0];
 													return callback();
+												} else if (!cli.argv['avd-abi']) {
+													// we have more than one matching avd, but no abi to filter by so we have to error
+													logger.error(__n('Found %s avd with id "%%s" and skin "%%s"', 'Found %s avds with id "%%s" and skin "%%s"', avds.length, cli.argv['avd-id'], cli.argv['avd-skin']));
+													logger.error(__('Specify --avd-abi to select a specific emulator') + '\n');
+												} else {
+													name += '_' + cli.argv['avd-abi'];
+													// try exact match
+													tmp = avds.filter(function (avd) { return avd == name; });
+													if (tmp.length) {
+														avds = tmp;
+													} else {
+														avds = avds.filter(function (avd) { return avd.indexOf(name + '_') == 0; });
+													}
+													if (avds.length == 0) {
+														logger.error(__('No emulators found with id "%s", skin "%s", and abi "%s"', cli.argv['avd-id'], cli.argv['avd-skin'], cli.argv['avd-abi']) + '\n');
+													} else {
+														// there is one or more avds, but we'll just return the first one
+														cli.argv['device-id'] = avds[0];
+														return callback();
+													}
 												}
 											}
 										}
+
+										logger.warn(__('%s options have been %s, please use %s', '--avd-*'.cyan, 'deprecated'.red, '--device-id'.cyan) + '\n');
+
+										// print list of available avds
+										if (results.length && !cli.argv.prompt) {
+											logger.log(__('Available Emulators:'))
+											results.forEach(function (emu) {
+												logger.log('    ' + emu.name.cyan + ' (' + emu.version + ')');
+											});
+											logger.log();
+										}
 									}
 
-									logger.warn(__('%s options have been %s, please use %s', '--avd-*'.cyan, 'deprecated'.red, '--device-id'.cyan) + '\n');
+								} else if (cli.argv['device-id'] == undefined && results.length && config.get('android.autoSelectDevice', true)) {
+									// we set the device-id to an array of devices so that later in validate()
+									// after the tiapp.xml has been parsed, we can auto select the best device
+									cli.argv['device-id'] = results.sort(function (a, b) {
+										var eq = appc.version.eq(a.version, b.version),
+											gt = appc.version.gt(a.version, b.version);
 
-									// print list of available avds
-									if (results.length && !cli.argv.prompt) {
-										logger.log(__('Available Emulators:'))
-										results.forEach(function (emu) {
-											logger.log('    ' + emu.name.cyan);
-										});
-										logger.log();
-									}
+										if (eq) {
+											if (a.type == b.type) {
+												if (a.googleApis == b.googleApis) {
+													return 0;
+												} else if (b.googleApis) {
+													return 1;
+												} else if (a.googleApis === false && b.googleApis === null) {
+													return 1;
+												}
+												return -1;
+											}
+											return a.type == 'avd' ? -1 : 1;
+										}
+
+										return gt ? 1 : -1;
+									});
+									return callback();
 								}
 
 								// yup, still required
@@ -414,7 +467,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					'key-password': {
 						desc: __('the password for the keystore private key (defaults to the store-password)'),
 						hint: 'keypass',
-						order: 106,
+						order: 160,
 						prompt: function (callback) {
 							callback(fields.text({
 								promptLabel: __("What is the keystore's __key password__?") + ' ' + __('(leave blank to use the store password)').grey,
@@ -434,7 +487,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						},
 						desc: __('the location of the keystore file'),
 						hint: 'path',
-						order: 104,
+						order: 140,
 						prompt: function (callback) {
 							_t.conf.options['key-password'].required = true;
 							callback(fields.file({
@@ -447,10 +500,15 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							}));
 						},
 						validate: function (keystoreFile, callback) {
-							if (!keystoreFile || !fs.existsSync(keystoreFile) || !fs.statSync(keystoreFile).isFile()) {
-								callback(new Error(keystoreFile ? __('Invalid keystore file') : __('Please specify the path to your keystore file')));
+							if (!keystoreFile) {
+								callback(new Error(__('Please specify the path to your keystore file')));
 							} else {
-								callback(null, keystoreFile);
+								keystoreFile = afs.resolvePath(keystoreFile);
+								if (!fs.existsSync(keystoreFile) || !fs.statSync(keystoreFile).isFile()) {
+									callback(new Error(__('Invalid keystore file')));
+								} else {
+									callback(null, keystoreFile);
+								}
 							}
 						}
 					},
@@ -458,7 +516,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						abbr: 'O',
 						desc: __('the output directory when using %s', 'dist-playstore'.cyan),
 						hint: 'dir',
-						order: 108,
+						order: 180,
 						prompt: function (callback) {
 							callback(fields.file({
 								promptLabel: __('Where would you like the output APK file saved?'),
@@ -478,7 +536,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						abbr: 'P',
 						desc: __('the password for the keystore'),
 						hint: 'password',
-						order: 105,
+						order: 150,
 						prompt: function (callback) {
 							callback(fields.text({
 								next: function (err, value) {
@@ -502,9 +560,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							_t.conf.options.keystore.validate(cli.argv.keystore, function (err, keystoreFile) {
 								if (err) {
 									// we have a bad --keystore arg
-									console.log('bad --keystore');
 									cli.argv.keystore = undefined;
-									throw err;
+									return callback(err);
 								}
 
 								if (keystoreFile && _t.jdkInfo && _t.jdkInfo.executables.keytool) {
@@ -569,7 +626,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						},
 						default: 'emulator',
 						desc: __('the target to build for'),
-						order: 102,
+						order: 120,
 						required: true,
 						values: _t.targets
 					}
@@ -599,6 +656,13 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.target = cli.argv.target;
 	this.deployType = /^device|emulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 
+	// ti.deploytype is deprecated and so we force the real deploy type
+	cli.tiapp.properties || (cli.tiapp.properties = {});
+	if (cli.tiapp.properties['ti.deploytype']) {
+		logger.warn(__('The %s tiapp.xml property has been deprecated, please use the %s option', 'ti.deploytype'.cyan, '--deploy-type'.cyan));
+	}
+	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
+
 	// get the javac params
 	this.javacTarget = cli.tiapp.properties['android.javac.target'] || config.get('android.javac.target', '1.6');
 	this.javacSource = cli.tiapp.properties['android.javac.source'] || config.get('android.javac.source', '1.6');
@@ -607,39 +671,38 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
 		case 'production':
-			this.encodeI18N = true;
 			this.minifyJS = true;
 			this.encryptJS = true;
 			this.removeUnusedTiAPIs = true;
 			this.allowDebugging = false;
 			this.allowProfiling = false;
 			this.showErrors = false;
+			this.proguard = false;
 			break;
 
 		case 'test':
-			this.encodeI18N = true;
 			this.minifyJS = true;
 			this.encryptJS = true;
 			this.removeUnusedTiAPIs = true;
 			this.allowDebugging = true;
 			this.allowProfiling = true;
 			this.showErrors = true;
+			this.proguard = false;
 			break;
 
 		case 'development':
 		default:
-			this.encodeI18N = false;
 			this.minifyJS = false;
 			this.encryptJS = false;
 			this.removeUnusedTiAPIs = false;
 			this.allowDebugging = true;
 			this.allowProfiling = true;
 			this.showErrors = true;
+			this.proguard = false;
 	}
 
-	var assertIssue = function (name) {
-		var issues = this.androidInfo.issues,
-			i = 0,
+	function assertAndroidIssue(issues, name) {
+		var i = 0,
 			len = issues.length;
 		for (; i < len; i++) {
 			if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
@@ -650,17 +713,17 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 				process.exit(1);
 			}
 		}
-	}.bind(this);
+	}
 
 	// check that the Android SDK is found and sane
-	assertIssue('ANDROID_SDK_NOT_FOUND');
-	assertIssue('ANDROID_SDK_MISSING_PROGRAMS');
-
-	// check if the Android SDK is in a directory containing ampersands on Windows
-	assertIssue('ANDROID_SDK_PATH_CONTAINS_AMPERSANDS');
+	assertAndroidIssue(this.androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
+	assertAndroidIssue(this.androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
 
 	// make sure we have an Android SDK and some Android targets
-	if (Object.keys(this.androidInfo.targets).filter(function (id) { return id > this.minSupportedApiLevel; }.bind(this)).length <= 0) {
+	if (Object.keys(this.androidInfo.targets).filter(function (id) {
+			var t = this.androidInfo.targets[id];
+			return t.type == 'platform' && t['api-level'] > this.minSupportedApiLevel;
+	}.bind(this)).length <= 0) {
 		logger.error(__('No Android SDK targets found.') + '\n');
 		logger.log(__('Please download SDK targets (api level %s or newer) via Android SDK Manager and try again.', this.minSupportedApiLevel) + '\n');
 		process.exit(1);
@@ -706,7 +769,25 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		process.exit(1);
 	}
 
-	this.tiappAndroidManifest = cli.tiapp.android && cli.tiapp.android.manifest && this.parseAndroidManifestXml(cli.tiapp.android && cli.tiapp.android.manifest);
+	// if we're building for the emulator, make sure we don't have any issues
+	if (cli.argv.target == 'emulator') {
+		this.androidInfo.issues.forEach(function (issue) {
+			if (/^ANDROID_MISSING_(LIBGL|I386_ARCH|IA32_LIBS|32BIT_GLIBC|32BIT_LIBSTDCPP)$/.test(issue.id)) {
+				issue.message.split('\n').forEach(function (line) {
+					logger.warn(line);
+				});
+			}
+		});
+	}
+
+	// check that the proguard config exists
+	var proguardConfigFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'proguard.cfg');
+	if (this.proguard && !fs.existsSync(proguardConfigFile)) {
+		logger.error(__('Missing ProGuard configuration file'));
+		logger.error(__('ProGuard settings must go in the file "%s"', proguardConfigFile));
+		logger.error(__('For example configurations, visit %s', 'http://proguard.sourceforge.net/index.html#manual/examples.html') + '\n');
+		process.exit(1);
+	}
 
 	// map sdk versions to sdk targets instead of by id
 	var targetSDKMap = {};
@@ -717,21 +798,36 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		}
 	}, this);
 
+	try {
+		this.tiappAndroidManifest = cli.tiapp.android && cli.tiapp.android.manifest && (new AndroidManifest).parse(cli.tiapp.android.manifest);
+	} catch (ex) {
+		logger.error(__('Malformed <manifest> definition in the <android> section of the tiapp.xml') + '\n');
+		process.exit(1);
+	}
+
+	try {
+		var customAndroidManifestFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'AndroidManifest.xml');
+		this.customAndroidManifest = fs.existsSync(customAndroidManifestFile) && (new AndroidManifest(customAndroidManifestFile));
+	} catch (ex) {
+		logger.error(__('Malformed custom AndroidManifest.xml file: %s', customAndroidManifestFile) + '\n');
+		process.exit(1);
+	}
+
 	// validate the sdk levels
-	var usesSDK = this.tiappAndroidManifest && this.tiappAndroidManifest['uses-sdk'];
+	var usesSDK = (this.tiappAndroidManifest && this.tiappAndroidManifest['uses-sdk']) || (this.customAndroidManifest && this.customAndroidManifest['uses-sdk']);
 
 	this.minSDK = this.minSupportedApiLevel;
 	this.targetSDK = cli.tiapp.android && ~~cli.tiapp.android['tool-api-level'] || null;
 	this.maxSDK = null;
 
 	if (this.targetSDK) {
+		logger.log();
 		logger.warn(__('%s has been deprecated, please specify the target SDK using the %s tag:', '<tool-api-level>'.cyan, '<uses-sdk>'.cyan));
 		logger.warn();
 		logger.warn('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-		logger.warn('    <!-- snip -->'.grey);
 		logger.warn('    <android>'.grey);
 		logger.warn('        <manifest>'.grey);
-		logger.warn('            <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="17" android:maxSdkVersion="18"/>'.magenta);
+		logger.warn(('            <uses-sdk android:minSdkVersion="' + this.minSupportedApiLevel + '" android:targetSdkVersion="' + this.minSupportedApiLevel + '" android:maxSdkVersion="' + this.maxSupportedApiLevel + '"/>').magenta);
 		logger.warn('        </manifest>'.grey);
 		logger.warn('    </android>'.grey);
 		logger.warn('</ti:app>'.grey);
@@ -739,9 +835,9 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	if (usesSDK) {
-		usesSDK['android:minSdkVersion'] && (this.minSDK = ~~usesSDK['android:minSdkVersion']);
-		usesSDK['android:targetSdkVersion'] && (this.targetSDK = ~~usesSDK['android:targetSdkVersion']);
-		usesSDK['android:maxSdkVersion'] && (this.maxSDK = ~~usesSDK['android:maxSdkVersion']);
+		usesSDK['minSdkVersion'] && (this.minSDK = ~~usesSDK['minSdkVersion']);
+		usesSDK['targetSdkVersion'] && (this.targetSDK = ~~usesSDK['targetSdkVersion']);
+		usesSDK['maxSdkVersion'] && (this.maxSDK = ~~usesSDK['maxSdkVersion']);
 	}
 
 	if (this.minSDK < this.minSupportedApiLevel) {
@@ -753,6 +849,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	if (!this.targetSDK) {
 		var levels = Object.keys(targetSDKMap).sort(),
 			i = levels.length - 1;
+
 		for (; i >= 0; i--) {
 			if (levels[i] >= this.minSupportedApiLevel && levels[i] <= this.maxSupportedApiLevel) {
 				this.targetSDK = levels[i];
@@ -761,7 +858,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		}
 
 		if (!this.targetSDK) {
-			this.logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
+			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
 			process.exit(1);
 		}
 	}
@@ -770,18 +867,31 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.androidTargetSDK = targetSDKMap[this.targetSDK];
 
 	if (!this.androidTargetSDK) {
-		this.logger.error(__('Target Android SDK %s is not installed', this.targetSDK) + '\n');
+		logger.error(__('Target Android SDK %s is not installed', this.targetSDK) + '\n');
 
-		var sdks = Object.keys(targetSDKMap);
+		var sdks = Object.keys(targetSDKMap).filter(function (ver) {
+			return ~~ver > this.minSupportedApiLevel;
+		}.bind(this)).sort();
+
 		if (sdks.length) {
-			this.logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager.', this.targetSDK.cyan) + '\n');
-			this.logger.log(__('You can also change the %s in the %s section of the tiapp.xml to one of the following:', '<tool-api-level>'.cyan, '<android>'.cyan));
-			sdks.forEach(function (name) {
-				this.logger.log('    ' + name.cyan);
-			}, this);
-			this.logger.log();
+			logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager.', String(this.targetSDK).cyan) + '\n');
+			logger.log(
+				appc.string.wrap(
+					__('Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDKs: %s', '<uses-sdk>'.cyan, '<android> <manifest>'.cyan, sdks.join(', ').cyan),
+					config.get('cli.width', 100)
+				)
+			);
+			logger.log();
+			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+			logger.log('    <android>'.grey);
+			logger.log('        <manifest>'.grey);
+			logger.log(('            <uses-sdk android:minSdkVersion="' + sdks[0] + '" android:targetSdkVersion="' + sdks[0] + '" android:maxSdkVersion="' + this.maxSupportedApiLevel + '"/>').magenta);
+			logger.log('        </manifest>'.grey);
+			logger.log('    </android>'.grey);
+			logger.log('</ti:app>'.grey);
+			logger.log();
 		} else {
-			this.logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager', this.targetSDK.cyan) + '\n');
+			logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager', String(this.targetSDK).cyan) + '\n');
 		}
 		process.exit(1);
 	}
@@ -806,15 +916,144 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		logger.warn(__('Building with Android SDK %s which hasn\'t been tested against Titanium SDK %s', (''+this.targetSDK).cyan, this.titaniumSdkVersion));
 	}
 
-	// if we're building for the emulator, make sure we don't have any issues
-	if (cli.argv.target == 'emulator') {
-		this.androidInfo.issues.forEach(function (issue) {
-			if (/^ANDROID_MISSING_(LIBGL|I386_ARCH|IA32_LIBS|32BIT_GLIBC|32BIT_LIBSTDCPP)$/.test(issue.id)) {
-				issue.message.split('\n').forEach(function (line) {
-					logger.warn(line);
-				});
+	if (/^device|emulator$/.test(this.target)) {
+		var deviceId = cli.argv['device-id'];
+
+		if (Array.isArray(deviceId)) {
+			// no --device-id, so intelligently auto select one
+
+			var ver = targetSDKMap[this.targetSDK].version,
+				devices = deviceId,
+				i,
+				len = devices.length;
+
+			// reset the device id
+			deviceId = null;
+
+			if (cli.argv.target == 'device') {
+				logger.info(__('Auto selecting device that closest matches %s', ver.cyan));
+			} else {
+				logger.info(__('Auto selecting emulator that closest matches %s', ver.cyan));
 			}
-		});
+
+			function setDeviceId(device) {
+				deviceId = device.id;
+
+				var gapi = '';
+				if (device.googleApis) {
+					gapi = (' (' + __('Google APIs supported') + ')').grey;
+				} else if (device.googleApis === null) {
+					gapi = (' (' + __('Google APIs support unknown') + ')').grey;
+				}
+
+				if (cli.argv.target == 'device') {
+					logger.info(__('Auto selected device %s %s', devices[i].name.cyan, devices[i].version) + gapi);
+				} else {
+					logger.info(__('Auto selected emulator %s %s', devices[i].name.cyan, devices[i].version) + gapi);
+				}
+			}
+
+			// find the first one where version is >= and google apis == true
+			logger.debug(__('Searching for version >= %s and has Google APIs', ver));
+			for (i = 0; i < len; i++) {
+				if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis) {
+					setDeviceId(devices[i]);
+					break;
+				}
+			}
+
+			if (!deviceId) {
+				// find first one where version is >= and google apis is a maybe
+				logger.debug(__('Searching for version >= %s and may have Google APIs', ver));
+				for (i = 0; i < len; i++) {
+					if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis === null) {
+						setDeviceId(devices[i]);
+						break;
+					}
+				}
+
+				if (!deviceId) {
+					// find first one where version is >= and no google apis
+					logger.debug(__('Searching for version >= %s and no Google APIs', ver));
+					for (i = 0; i < len; i++) {
+						if (appc.version.gte(devices[i].version, ver)) {
+							setDeviceId(devices[i]);
+							break;
+						}
+					}
+
+					if (!deviceId) {
+						// find first one where version < and google apis == true
+						logger.debug(__('Searching for version < %s and has Google APIs', ver));
+						for (i = len - 1; i >= 0; i--) {
+							if (appc.version.lt(devices[i].version, ver)) {
+								setDeviceId(devices[i]);
+								break;
+							}
+						}
+
+						if (!deviceId) {
+							// find first one where version <
+							logger.debug(__('Searching for version < %s and no Google APIs', ver));
+							for (i = len - 1; i >= 0; i--) {
+								if (appc.version.lt(devices[i].version, ver) && devices[i].googleApis) {
+									setDeviceId(devices[i]);
+									break;
+								}
+							}
+
+							if (!deviceId) {
+								// just grab first one
+								logger.debug(__('Selecting first device'));
+								setDeviceId(devices[0]);
+							}
+						}
+					}
+				}
+			}
+
+			cli.argv['device-id'] = deviceId;
+		}
+
+		// sanity check
+		if (!deviceId) {
+			if (this.target == 'device') {
+				logger.error(__('Unable to find any devices') + '\n');
+				logger.log(__('Please plug in an Android device, then try again.') + '\n');
+			} else {
+				logger.error(__('Unable to find any emulators') + '\n');
+				logger.log(__('Please create an Android emulator, then try again.') + '\n');
+			}
+			process.exit(1);
+		}
+
+		// determine the abis to support
+		this.abis = ['armeabi', 'armeabi-v7a', 'x86'];
+		if (cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') == -1) {
+			this.abis = cli.tiapp.android.abi;
+		}
+
+		var device = this.devices.filter(function (d) { return d.id = deviceId; }).shift();
+		if (Array.isArray(device.abi) && !device.abi.some(function (a) { return this.abis.indexOf(a) != -1; }.bind(this))) {
+			if (this.target == 'emulator') {
+				logger.error(__n('The emulator "%%s" does not support the desired ABI %%s', 'The emulator "%%s" does not support the desired ABIs %%s', this.abis.length, device.name, '"' + this.abis.join('", "') + '"'));
+			} else {
+				logger.error(__n('The device "%%s" does not support the desired ABI %%s', 'The device "%%s" does not support the desired ABIs %%s', this.abis.length, device.model || device.manufacturer, '"' + this.abis.join('", "') + '"'));
+			}
+			logger.error(__('Supported ABIs: %s', device.abi.join(', ')) + '\n');
+
+			logger.log(__('You need to add at least one of the device\'s supported ABIs to the tiapp.xml'));
+			logger.log();
+			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+			logger.log('    <!-- snip -->'.grey);
+			logger.log('    <android>'.grey);
+			logger.log(('        <abi>' + this.abis.concat(device.abi).join(',') + '</abi>').magenta);
+			logger.log('    </android>'.grey);
+			logger.log('</ti:app>'.grey);
+			logger.log();
+
+			process.exit(1);
+		}
 	}
 
 	// validate debugger and profiler options
@@ -920,8 +1159,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 				manifestHashes.push(hash(JSON.stringify(module.manifest)));
 
 				if (module.platform.indexOf('commonjs') != -1) {
+					module.native = false;
 					this.commonJsModules.push(module);
 				} else {
+					module.native = true;
+
 					// jar filenames are always lower case and must correspond to the name in the module's build.xml file
 					module.jarName = module.manifest.name.toLowerCase() + '.jar',
 					module.jarFile = path.join(module.modulePath, module.jarName);
@@ -930,6 +1172,10 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 						logger.error(__('Module %s version %s is missing jar file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.jarFile.cyan) + '\n');
 						process.exit(1);
 					}
+
+
+					// TODO: determine ABIs and validate that we're compatible
+
 
 					// read in the bindings
 					module.bindings = this.getNativeModuleBindings(module.jarFile);
@@ -941,7 +1187,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 					jarHashes.push(module.hash = afs.hashFile(module.jarFile));
 					bindingsHashes.push(hash(JSON.stringify(module.bindings)));
 
-					logger.info(__('Detected third-party native Android module: %s version %s', module.id.cyan, (module.manifest.version || 'latest').cyan));
+					logger.info(__('Detected third-party native Android module: %s version %s', module.id.cyan, (module.version || 'latest').cyan));
 					this.nativeLibModules.push(module);
 				}
 
@@ -963,13 +1209,11 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 
 	appc.async.series(this, [
 		function (next) {
-			cli.emit('build.pre.construct', next);
+			cli.emit('build.pre.construct', this, next);
 		},
 
 		'doAnalytics',
 		'initialize',
-		'computeHashes',
-		'readBuildManifest',
 
 		function (next) {
 			this.logger.debug(__('Titanium SDK Android directory: %s', this.platformPath.cyan));
@@ -980,88 +1224,70 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 			} else if (this.target == 'device') {
 				this.logger.info(__('Device name: %s', this.deviceId.cyan));
 			}
+			this.logger.info(__('ABIs: %s', this.abis.join(', ').cyan));
+			this.logger.debug(__('App ID: %s', this.appid.cyan));
+			this.logger.debug(__('Classname: %s', this.classname.cyan));
 
 			// TODO: output other awesome info here
 
 			next();
 		},
 
-		function (next) {
-			// check if we need to do a rebuild
-			this.forceRebuild = this.checkIfShouldForceRebuild();
-
-			if (this.forceRebuild && fs.existsSync(this.buildDir)) {
-				wrench.rmdirSyncRecursive(this.buildDir);
-			}
-
-			next();
-		},
-
-		'writeBuildManifest',
+		'computeHashes',
+		'readBuildManifest',
+		'checkIfNeedToRecompile',
+		'getLastBuildState',
 
 		function (next) {
-			cli.emit('build.pre.compile', next);
+			cli.emit('build.pre.compile', this, next);
 		},
 
 		'createBuildDirs',
 		'copyResources',
-		'compileJSS',
 		'generateRequireIndex',
 		'processTiSymbols',
-		'generateJavaFiles',
 		'copyModuleResources',
+		'removeOldFiles',
+		'compileJSS',
+		'generateJavaFiles',
 		'generateAidl',
+
+		// generate the i18n files after copyModuleResources to make sure the app_name isn't
+		// overwritten by some module's strings.xml
 		'generateI18N',
+
 		'generateTheme',
 		'generateAndroidManifest',
-		'compileJavaClasses',
-		'runDexer',
 		'packageApp',
+
+		// we only need to compile java classes if any files in src or gen changed
+		'compileJavaClasses',
+
+		// we only need to run proguard if any java classes have changed
+		'runProguard',
+
+		// we only need to run the dexer if this.moduleJars or this.jarLibraries changes or
+		// any files in this.buildBinClassesDir have changed or debugging/profiling toggled
+		'runDexer',
+
 		'createUnsignedApk',
 		'createSignedApk',
 		'zipAlignApk',
+		'writeBuildManifest',
 
 		function (next) {
-			cli.emit('build.post.compile', next);
+			if (!this.buildOnly) {
+				var delta = appc.time.prettyDiff(this.cli.startTime, Date.now());
+				this.logger.info(__('Finished building the application in %s', delta.cyan));
+			}
+
+			cli.emit('build.post.compile', this, next);
 		}
 	], function (err) {
 		cli.emit('build.finalize', this, function () {
 			finished(err);
 		});
 	});
-};
-
-AndroidBuilder.prototype.parseAndroidManifestXml = function parseAndroidManifestXml(contents) {
-	var obj = {};
-
-	// for more info, refer to http://developer.android.com/guide/topics/manifest/manifest-intro.html
-
-	xml.forEachElement((new DOMParser({ errorHandler: function(){} }).parseFromString(contents, 'text/xml')).documentElement, function (node) {
-		switch (node.tagName) {
-			case 'uses-sdk':
-				obj['uses-sdk'] = {};
-				xml.forEachAttr(node, function (attr) {
-					obj['uses-sdk'][attr.name] = attr.value;
-				});
-				break;
-
-			case 'uses-permission':
-			case 'permission':
-			case 'permission-tree':
-			case 'permission-group':
-			case 'instrumentation':
-			case 'uses-configuration':
-			case 'uses-feature':
-			case 'supports-screens':
-			case 'compatible-screens':
-			case 'supports-gl-texture':
-			case 'application':
-				// not supported :(
-				break;
-		}
-	});
-
-	return obj;
 };
 
 AndroidBuilder.prototype.doAnalytics = function doAnalytics(callback) {
@@ -1151,51 +1377,60 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	var includeAllTiModulesProp = this.tiapp.properties['ti.android.include_all_modules'];
 	this.includeAllTiModules = includeAllTiModulesProp && includeAllTiModulesProp.value;
 
-	this.buildManifestFile          = path.join(this.buildDir, 'build-manifest.json');
-	this.androidManifestFile        = path.join(this.buildDir, 'AndroidManifest.xml');
+	// directories
 	this.buildAssetsDir             = path.join(this.buildDir, 'assets');
 	this.buildBinDir                = path.join(this.buildDir, 'bin');
 	this.buildBinAssetsDir          = path.join(this.buildBinDir, 'assets');
 	this.buildBinAssetsResourcesDir = path.join(this.buildBinAssetsDir, 'Resources');
 	this.buildBinClassesDir         = path.join(this.buildBinDir, 'classes');
-	this.buildBinClassesDexDir      = path.join(this.buildBinDir, 'classes.dex')
+	this.buildBinClassesDex         = path.join(this.buildBinDir, 'classes.dex')
 	this.buildGenAppIdDir           = path.join(this.buildDir, 'gen', this.appid.split('.').join(path.sep));
 	this.buildResDir                = path.join(this.buildDir, 'res');
 	this.buildResDrawableDir        = path.join(this.buildResDir, 'drawable')
 	this.buildSrcDir                = path.join(this.buildDir, 'src');
 	this.templatesDir               = path.join(this.platformPath, 'templates', 'build');
 
+	// files
+	this.buildManifestFile          = path.join(this.buildDir, 'build-manifest.json');
+	this.androidManifestFile        = path.join(this.buildDir, 'AndroidManifest.xml');
+	this.unsignedApkFile            = path.join(this.buildBinDir, 'app-unsigned.apk');
+	this.apkFile                    = path.join(this.buildBinDir, this.tiapp.name + '.apk');
+
 	next();
 };
 
 AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
+	// modules
 	this.modulesHash = !Array.isArray(this.tiapp.modules) ? '' : crypto.createHash('md5').update(this.tiapp.modules.filter(function (m) {
 		return !m.platform || /^iphone|ipad|commonjs$/.test(m.platform);
 	}).map(function (m) {
 		return m.id + ',' + m.platform + ',' + m.version;
 	}).join('|')).digest('hex');
 
+	// tiapp.xml properties, activities, and services
 	this.propertiesHash = hash(this.tiapp.properties ? JSON.stringify(this.tiapp.properties) : '');
 	var android = this.tiapp.android;
 	this.activitiesHash = hash(android && android.application && android.application ? JSON.stringify(android.application.activities) : '');
 	this.servicesHash = hash(android && android.services ? JSON.stringify(android.services) : '');
 
-	this.jssFilesHash = hash((function walk(dir) {
-		var re = /\.jss$/,
-			hashes = [];
-		fs.readdirSync(dir).forEach(function (name) {
+	function walk(dir, re) {
+		var hashes = [];
+		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
 			var file = path.join(dir, name);
 			if (fs.existsSync(file)) {
 				var stat = fs.statSync(file);
 				if (stat.isFile() && re.test(name)) {
 					hashes.push(hash(fs.readFileSync(file).toString()));
 				} else if (stat.isDirectory()) {
-					hashes = hashes.concat(walk(file));
+					hashes = hashes.concat(walk(file, re));
 				}
 			}
 		});
 		return hashes;
-	}(this.projectDir)).join(','));
+	}
+
+	// jss files
+	this.jssFilesHash = hash(walk(path.join(this.projectDir, 'Resources'), /\.jss$/).join(','));
 
 	next();
 };
@@ -1208,54 +1443,15 @@ AndroidBuilder.prototype.readBuildManifest = function readBuildManifest(next) {
 	if (fs.existsSync(this.buildManifestFile)) {
 		try {
 			this.buildManifest = JSON.parse(fs.readFileSync(this.buildManifestFile)) || {};
+			this.prevJarLibHash = this.buildManifest.jarLibHash || '';
 		} catch (e) {}
+
+		// now that we've read the build manifest, delete it so if this build
+		// becomes incomplete, the next build will be a full rebuild
+		fs.unlinkSync(this.buildManifestFile);
 	}
 
 	next();
-};
-
-AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callback) {
-	this.logger.info(__('Writing build manifest: %s', this.buildManifestFile.cyan));
-
-	this.cli.createHook('build.android.writeBuildManifest', this, function (manifest, cb) {
-		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
-		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
-		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), function () {
-			cb();
-		});
-	})({
-		target: this.target,
-		deployType: this.deployType,
-		classname: this.classname,
-		platformPath: this.platformPath,
-		modulesHash: this.modulesHash,
-		modulesManifestHash: this.modulesManifestHash,
-		modulesJarHash: this.modulesJarHash,
-		modulesBindingsHash: this.modulesBindingsHash,
-		gitHash: ti.manifest.githash,
-		outputDir: this.cli.argv['output-dir'],
-		name: this.tiapp.name,
-		id: this.tiapp.id,
-		analytics: this.tiapp.analytics,
-		publisher: this.tiapp.publisher,
-		url: this.tiapp.url,
-		version: this.tiapp.version,
-		description: this.tiapp.description,
-		copyright: this.tiapp.copyright,
-		guid: this.tiapp.guid,
-		icon: this.tiapp.icon,
-		fullscreen: this.tiapp.fullscreen,
-		'navbar-hidden': this.tiapp['navbar-hidden'],
-		skipJSMinification: !!this.cli.argv['skip-js-minify'],
-		minSDK: this.minSDK,
-		targetSDK: this.targetSDK,
-		propertiesHash: this.propertiesHash,
-		activitiesHash: this.activitiesHash,
-		servicesHash: this.servicesHash,
-		jssFilesHash: this.jssFilesHash
-	}, function (err, results, result) {
-		callback();
-	});
 };
 
 AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForceRebuild() {
@@ -1297,6 +1493,20 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		this.logger.info(__('Forcing rebuild: classname changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.classname));
 		this.logger.info('  ' + __('Now: %s', this.classname));
+		return true;
+	}
+
+	// if encryption is enabled, then we must recompile the java files
+	if (this.encryptJS) {
+		this.logger.info(__('Forcing rebuild: JavaScript files need to be re-encrypted'));
+		return true;
+	}
+
+	// if encryptJS changed, then we need to recompile the java files
+	if (this.encryptJS != manifest.encryptJS) {
+		this.logger.info(__('Forcing rebuild: JavaScript encryption flag changed'));
+		this.logger.info('  ' + __('Was: %s', manifest.encryptJS));
+		this.logger.info('  ' + __('Now: %s', this.encryptJS));
 		return true;
 	}
 
@@ -1474,6 +1684,40 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 	return false;
 };
 
+AndroidBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile(next) {
+	// check if we need to do a rebuild
+	this.forceRebuild = this.checkIfShouldForceRebuild();
+
+	if (this.forceRebuild && fs.existsSync(this.buildGenAppIdDir)) {
+		wrench.rmdirSyncRecursive(this.buildGenAppIdDir);
+	}
+	fs.existsSync(this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(this.buildGenAppIdDir);
+
+	next();
+};
+
+AndroidBuilder.prototype.getLastBuildState = function getLastBuildState(next) {
+	var lastBuildFiles = this.lastBuildFiles = {};
+
+	if (this.forceRebuild) return next();
+
+	// walk the entire build dir and build a map of all files
+	(function walk(dir) {
+		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
+			var file = path.join(dir, name);
+			if (fs.existsSync(file)) {
+				if (fs.statSync(file).isDirectory()) {
+					walk(file);
+				} else {
+					lastBuildFiles[file] = 1;
+				}
+			}
+		});
+	}(this.buildDir));
+
+	next();
+};
+
 AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
 	// Alloy generate an app.js, it may not have existed during validate(), but should exist now
@@ -1484,25 +1728,18 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 
 	var dir;
 
-	// remove directories
-	// TODO: do we REALLY want to delete these directories???
-	fs.existsSync(dir = path.join(this.buildDir, 'res')) && wrench.rmdirSyncRecursive(dir);
-	fs.existsSync(dir = path.join(this.buildDir, 'src')) && wrench.rmdirSyncRecursive(dir);
-
 	// remove the previous deploy.json file which contains debugging/profiling info
 	fs.existsSync(dir = path.join(this.buildDir, 'bin', 'deploy.json')) && fs.unlinkSync(dir);
 
-	// make directories
-	fs.existsSync(dir = path.join(this.buildDir, 'assets')) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = this.buildBinAssetsResourcesDir) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = this.buildBinClassesDir) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = path.join(this.buildDir, 'gen')) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = path.join(this.buildDir, 'lib')) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = this.buildResDir) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = this.buildResDrawableDir) || wrench.mkdirSyncRecursive(dir);
+	// make directories if they don't already exist
+	fs.existsSync(dir = this.buildAssetsDir)                   || wrench.mkdirSyncRecursive(dir);
+	fs.existsSync(dir = this.buildBinAssetsResourcesDir)       || wrench.mkdirSyncRecursive(dir);
+	fs.existsSync(dir = path.join(this.buildDir, 'gen'))       || wrench.mkdirSyncRecursive(dir);
+	fs.existsSync(dir = path.join(this.buildDir, 'lib'))       || wrench.mkdirSyncRecursive(dir);
+	fs.existsSync(dir = this.buildResDir)                      || wrench.mkdirSyncRecursive(dir);
+	fs.existsSync(dir = this.buildResDrawableDir)              || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildResDir, 'values')) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = this.buildSrcDir) || wrench.mkdirSyncRecursive(dir);
+	fs.existsSync(dir = this.buildSrcDir)                      || wrench.mkdirSyncRecursive(dir);
 
 	next();
 };
@@ -1510,7 +1747,7 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	var ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')),
 		ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles')),
-		extRegExp = /\.(.+)$/,
+		extRegExp = /\.(\w+)$/,
 		drawableRegExp = /^images\/(high|medium|low|res-[^\/]+)(\/(.*))?/,
 		drawableDpiRegExp = /^(high|medium|low)$/,
 		drawableExtRegExp = /((\.9)?\.(png|jpg))$/,
@@ -1528,9 +1765,31 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		}
 	}
 
-	function recursivelyCopy(src, dest, ignoreRootDirs, opts, done) {
-		wrench.mkdirSyncRecursive(dest);
+	function copyFile(from, to, next) {
+		var d = path.dirname(to);
+		fs.existsSync(d) || wrench.mkdirSyncRecursive(d);
+		if (process.platform != 'win32' && this.config.get('android.symlinkResources', true)) {
+			fs.existsSync(to) && fs.unlinkSync(to);
+			this.logger.debug(__('Symlinking %s => %s', from.cyan, to.cyan));
+			if (next) {
+				fs.symlink(from, to, next);
+			} else {
+				fs.symlinkSync(from, to);
+			}
+		} else {
+			this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+			if (next) {
+				fs.readFile(from, function (err, data) {
+					if (err) throw err;
+					fs.writeFile(to, data, next);
+				});
+			} else {
+				fs.writeFileSync(to, fs.readFileSync(from));
+			}
+		}
+	}
 
+	function recursivelyCopy(src, dest, ignoreRootDirs, opts, done) {
 		var files;
 		if (fs.statSync(src).isDirectory()) {
 			files = fs.readdirSync(src);
@@ -1562,7 +1821,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				// we have a file, now we need to see what sort of file
 
 				// check if it's a drawable resource
-				var m = from.replace(opts.origSrc, '').replace(/^\//, '').replace(/\\/g, '/').match(drawableRegExp);
+				var relPath = from.replace(opts.origSrc, '').replace(/^\//, '').replace(/\\/g, '/'),
+					m = relPath.match(drawableRegExp);
 				if (m && m.length >= 4) {
 					var destFilename = m[3].toLowerCase(),
 						name = destFilename.replace(drawableExtRegExp, ''),
@@ -1580,10 +1840,15 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					} else {
 						to = path.join(dest, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name).substring(0, 10) + ext);
 					}
+				} else if (/^default(\.9)?\.(png|jpg)$/.test(relPath)) {
+					dest = this.buildResDrawableDir;
+					to = path.join(this.buildResDrawableDir, filename.replace('default.', 'background.'));
 				}
 
 				// if the destination directory does not exists, create it
 				fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
+
+				delete this.lastBuildFiles[to];
 
 				var ext = filename.match(extRegExp);
 				switch (ext && ext[1]) {
@@ -1592,10 +1857,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						if (this.minifyCSS) {
 							this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
 							fs.readFile(from, function (err, data) {
+								if (err) throw err;
 								fs.writeFile(to, cleanCSS.process(data.toString()), next);
 							});
 						} else {
-							afs.copyFileAsync(from, to, { logger: this.logger.debug }, next);
+							copyFile.call(this, from, to, next);
 						}
 						break;
 
@@ -1605,7 +1871,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							htmlJsFiles[file] = 1;
 						});
 
-						afs.copyFileAsync(from, to, { logger: this.logger.debug }, next);
+						copyFile.call(this, from, to, next);
 						break;
 
 					case 'js':
@@ -1636,7 +1902,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 					default:
 						// normal file, just copy it into the build/android/bin/assets directory
-						afs.copyFileAsync(from, to, { logger: this.logger.debug }, next);
+						copyFile.call(this, from, to, next);
 				}
 			};
 		}), done);
@@ -1720,61 +1986,73 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		}
 	}, this);
 
+	var jsFilesToEncrypt = this.jsFilesToEncrypt = [];
+
 	appc.async.series(this, tasks, function (err, results) {
 		var templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'Resources', 'android');
 
 		// if an app icon hasn't been copied, copy the default one
 		var destIcon = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
 		if (!fs.existsSync(destIcon)) {
-			appc.fs.copyFileSync(path.join(templateDir, 'appicon.png'), destIcon, { logger: this.logger.debug });
+			copyFile.call(this, path.join(templateDir, 'appicon.png'), destIcon);
 		}
+		delete this.lastBuildFiles[destIcon];
+
+		var destIcon2 = path.join(this.buildResDrawableDir, this.tiapp.icon);
+		if (!fs.existsSync(destIcon2)) {
+			copyFile.call(this, destIcon, destIcon2);
+		}
+		delete this.lastBuildFiles[destIcon2];
 
 		// make sure we have a splash screen
-		if (!fs.readdirSync(this.buildResDrawableDir).some(function (n) { return /^background(\.9)?\.(png|jpg)$/; })) {
-			appc.fs.copyFileSync(path.join(templateDir, 'default.png'), path.join(this.buildResDrawableDir, 'background.png'), { logger: this.logger.debug });
+		var backgroundRegExp = /^background(\.9)?\.(png|jpg)$/,
+			destBg = path.join(this.buildResDrawableDir, 'background.png');
+		if (!fs.readdirSync(this.buildResDrawableDir).some(function (n) { return backgroundRegExp.test(n); })) {
+			copyFile.call(this, path.join(templateDir, 'default.png'), destBg);
 		}
+		delete this.lastBuildFiles[destBg];
 
 		// copy js files into assets directory and minify if needed
-		var jsFilesToEncrypt = this.jsFilesToEncrypt = [];
-		appc.async.parallel(this, Object.keys(jsFiles).map(function (id) {
+		appc.async.series(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
 				var from = jsFiles[id],
 					to = path.join(this.buildBinAssetsResourcesDir, id);
 
+				delete this.lastBuildFiles[to];
+
 				if (htmlJsFiles[id]) {
 					// this js file is referenced from an html file, so don't minify or encrypt
-					afs.copyFileAsync(from, to, { logger: this.logger.debug }, done);
+					return copyFile.call(this, from, to, done);
+				}
 
+				// we have a js file that may be minified or encrypted
+
+				// if we're encrypting the JavaScript, copy the files to the assets dir
+				// for processing later
+				if (this.encryptJS) {
+					to = path.join(this.buildAssetsDir, id);
+					jsFilesToEncrypt.push(id);
+				}
+
+				var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+
+				// we want to sort by the "to" filename so that we correctly handle file overwriting
+				this.tiSymbols[to] = r.symbols;
+
+				// if we're not minifying the JavaScript and we're not forcing all
+				// Titanium Android modules to be included, then parse the AST and detect
+				// all Titanium symbols
+				if (this.minifyJS || !this.includeAllTiModules) {
+					this.logger.debug(this.minifyJS
+						? __('Copying and minifying %s => %s', from.cyan, to.cyan)
+						: __('Copying %s => %s', from.cyan, to.cyan));
+
+					var dir = path.dirname(to);
+					fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+					fs.writeFile(to, r.contents, done);
 				} else {
-					// we have a js file that may be minified or encrypted
-
-					// if we're encrypting the JavaScript, copy the files to the assets dir
-					// for processing later
-					if (this.encryptJS) {
-						to = path.join(this.buildAssetsDir, id);
-						jsFilesToEncrypt.push(id);
-					}
-
-					var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-
-					// we want to sort by the "to" filename so that we correctly handle file overwriting
-					this.tiSymbols[to] = r.symbols;
-
-					// if we're not minifying the JavaScript and we're not forcing all
-					// Titanium Android modules to be included, then parse the AST and detect
-					// all Titanium symbols
-					if (this.minifyJS || !this.includeAllTiModules) {
-						this.logger.debug(this.minifyJS
-							? __('Copying and minifying %s => %s', from.cyan, to.cyan)
-							: __('Copying %s => %s', from.cyan, to.cyan));
-
-						var dir = path.dirname(to);
-						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-						fs.writeFile(to, r.contents, done);
-					} else {
-						// no need to parse the AST, so just copy the file
-						afs.copyFileAsync(from, to, { logger: this.logger.debug }, done);
-					}
+					// no need to parse the AST, so just copy the file
+					copyFile.call(this, from, to, done);
 				}
 			};
 		}), function () {
@@ -1821,22 +2099,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	});
 };
 
-AndroidBuilder.prototype.compileJSS = function compileJSS(callback) {
-	ti.jss.load(path.join(this.projectDir, 'Resources'), ['android'], this.logger, function (results) {
-		fs.writeFile(
-			path.join(this.buildGenAppIdDir, 'ApplicationStylesheet.java'),
-			ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationStylesheet.java')).toString(), {
-				appid: this.appid,
-				classes: appc.util.mix({}, results.classes, results.tags),
-				classesDensity: appc.util.mix({}, results.classes_density, results.tags_density),
-				ids: results.ids,
-				idsDensity: results.ids_density
-			}),
-			callback
-		);
-	}.bind(this));
-};
-
 AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(callback) {
 	var index = {},
 		binAssetsDir = this.buildBinAssetsDir,
@@ -1859,6 +2121,7 @@ AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(ca
 		index['Resources/' + file] = 1;
 	});
 
+	fs.existsSync(destFile) && fs.unlinkSync(destFile);
 	fs.writeFile(destFile, JSON.stringify(index), callback);
 };
 
@@ -1892,7 +2155,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		moduleJarMap = {},
 		tiNamespaces = this.tiNamespaces = {}, // map of namespace => titanium functions (i.e. ui => createWindow)
 		jarLibraries = this.jarLibraries = {},
-		appModules = this.appModules = [],
+		appModules = this.appModules = [], // also used in the App.java template
 		appModulesMap = {},
 		customModules = this.customModules = [],
 		ignoreNamespaces = /^(addEventListener|builddate|buildhash|fireEvent|include|_JSON|name|removeEventListener|userAgent|version)$/;
@@ -1961,6 +2224,9 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		depMap.dependencies[namespace] && depMap.dependencies[namespace].forEach(addTitaniumLibrary, this);
 	}
 
+	// force the network lib since it's needed for tiverify and analytics
+	addTitaniumLibrary.call(this, 'network');
+
 	// get all required titanium modules
 	depMap.required.forEach(addTitaniumLibrary, this);
 
@@ -1973,25 +2239,31 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 	// extract the Titanium namespace and make sure we include its jar library
 	Object.keys(this.tiSymbols).forEach(function (file) {
 		this.tiSymbols[file].forEach(function (symbol) {
-			var parts = symbol.split('.'),
-				namespace = parts.slice(0, -1).join('.');
-			if (namespace) {
-				addTitaniumLibrary.call(this, namespace);
-				if (tiNamespaces[namespace]) {
-					// track each method/property
-					tiNamespaces[namespace].push(parts.pop());
+			var parts = symbol.split('.').slice(0, -1), // strip last part which should be the method or property
+				namespace;
+
+			// add this namespace and all parent namespaces
+			while (parts.length) {
+				namespace = parts.join('.');
+				if (namespace) {
+					addTitaniumLibrary.call(this, namespace);
+					if (tiNamespaces[namespace]) {
+						// track each method/property
+						tiNamespaces[namespace].push(parts[parts.length - 1]);
+					}
 				}
+				parts.pop();
 			}
 		}, this);
 	}, this);
 
 	function createModuleDescriptor(namespace) {
 		var results = {
-				apiName: '',
-				className: '',
-				bindings: tiNamespaces[namespace],
-				externalChildModules: [],
-				onAppCreate: null
+				'api_name': '',
+				'class_name': '',
+				'bindings': tiNamespaces[namespace],
+				'external_child_modules': [],
+				'on_app_create': null
 			},
 			moduleBindingKeys = Object.keys(moduleBindings),
 			len = moduleBindingKeys.length,
@@ -2000,36 +2272,36 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		for (i = 0; i < len; i++) {
 			name = moduleBindingKeys[i];
 			if (moduleBindings[name].fullAPIName.toLowerCase() == namespace) {
-				results.apiName = moduleBindings[name].fullAPIName
-				results.className = name;
-				if (moduleBindings[name].onAppCreate) {
-					results.onAppCreate = moduleBindings[name].onAppCreate;
+				results['api_name'] = moduleBindings[name].fullAPIName
+				results['class_name'] = name;
+				if (moduleBindings[name]['on_app_create']) {
+					results['on_app_create'] = moduleBindings[name]['on_app_create'];
 				}
 				break;
 			}
 		}
 
 		// check if we found the api name and if not bail
-		if (!results.apiName) return;
+		if (!results['api_name']) return;
 
-		if (extChildModule = externalChildModules[results.className]) {
+		if (extChildModule = externalChildModules[results['class_name']]) {
 			for (i = 0, len = extChildModule.length; i < len; i++) {
 				if (tiNamespaces[extChildModule[i].fullAPIName.toLowerCase()]) {
-					results.externalChildModules.push(extChildModule[i]);
+					results['external_child_modules'].push(extChildModule[i]);
 					break;
 				}
 			}
 		}
 
-		appModulesMap[results.apiName.toLowerCase()] = 1;
+		appModulesMap[results['api_name'].toLowerCase()] = 1;
 
 		return results;
 	}
 
 	// build the list of modules for the templates
 	Object.keys(tiNamespaces).map(createModuleDescriptor).forEach(function (m) {
-		m && this.appModules.push(m);
-	}, this);
+		m && appModules.push(m);
+	});
 
 	this.modules.forEach(function (module) {
 		// check if the module has a metadata.json (which most native-wrapped CommonJS
@@ -2050,18 +2322,18 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		if (!module.jarFile || !module.bindings) return;
 
 		Object.keys(module.bindings.modules).forEach(function (moduleClass) {
-			var proxy = module.bindings.proxies[moduleClass],
-				result = {
-					id: proxy.proxyAttrs.id,
-					apiName: module.bindings.modules[moduleClass].apiName,
-					proxyName: proxy.proxyClassName,
-					className: moduleClass,
-					manifest: module.manifest,
-					onAppCreate: proxy.onAppCreate || null,
-					isNativeJsModule: !!module.manifest.commonjs
-				};
+			var proxy = module.bindings.proxies[moduleClass];
 
-			if (result.id != module.manifest.moduleid) return;
+			if (proxy.proxyAttrs.id != module.manifest.moduleid) return;
+
+			var result = {
+				apiName: module.bindings.modules[moduleClass].apiName,
+				proxyName: proxy.proxyClassName,
+				className: moduleClass,
+				manifest: module.manifest,
+				onAppCreate: proxy['on_app_create'] || null,
+				isNativeJsModule: !!module.manifest.commonjs
+			};
 
 			// make sure that the module was not built before 1.8.0.1
 			if (~~module.manifest.apiversion < 2) {
@@ -2083,10 +2355,94 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		}, this);
 	}, this);
 
+	// write the app.json
+	this.logger.info(__('Writing %s', path.join(this.buildBinAssetsDir, 'app.json').cyan));
+	fs.writeFileSync(path.join(this.buildBinAssetsDir, 'app.json'), JSON.stringify({
+		app_modules: appModules
+	}));
+
+	this.jarLibHash = hash(Object.keys(jarLibraries).sort().join('|'));
+	if (this.jarLibHash != this.buildManifest.jarLibHash) {
+		if (!this.forceRebuild) {
+			this.logger.info(__('Forcing rebuild: Detected change in Titanium APIs used and need to recompile'));
+		}
+		this.forceRebuild = true;
+	}
+
 	next();
 };
 
+AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next) {
+	// for each jar library, if it has a companion resource zip file, extract
+	// all of its files into the build dir, and yes, this is stupidly dangerous
+	appc.async.series(this, Object.keys(this.jarLibraries).map(function (jarFile) {
+		return function (done) {
+			var resFile = jarFile.replace(/\.jar$/, '.res.zip');
+			if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) return done();
+			this.logger.info(__('Extracting module resources: %s', resFile.cyan));
+			var tmp = temp.mkdirSync();
+			appc.zip.unzip(resFile, tmp, {}, function (ex) {
+				if (ex) {
+					this.logger.error(__('Failed to extract module resource zip: %s', resFile.cyan) + '\n');
+					process.exit(1);
+				}
+
+				var _t = this;
+
+				// copy the files from the temp folder into the build dir
+				(function copy(src, dest) {
+					fs.readdirSync(src).forEach(function (filename) {
+						var from = path.join(src, filename),
+							to = path.join(dest, filename);
+						if (fs.existsSync(from)) {
+							delete _t.lastBuildFiles[to];
+							if (fs.statSync(from).isDirectory()) {
+								copy(from, to);
+							} else if (_t.xmlMergeRegExp.test(filename)) {
+								_t.writeXmlFile(from, to);
+							} else {
+								afs.copyFileSync(from, to, { logger: _t.logger.debug });
+							}
+						}
+					});
+				}(tmp, this.buildDir));
+
+				done();
+			}.bind(this));
+		};
+	}), next);
+};
+
+AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
+	Object.keys(this.lastBuildFiles).forEach(function (file) {
+		if (file.indexOf(this.buildAssetsDir) == 0 || file.indexOf(this.buildBinAssetsResourcesDir) == 0 || (this.forceRebuild && file.indexOf(this.buildGenAppIdDir) == 0) || file.indexOf(this.buildResDir) == 0) {
+			this.logger.debug(__('Removing old file: %s', file.cyan));
+			fs.unlinkSync(file);
+		}
+	}, this);
+
+	next();
+};
+
+AndroidBuilder.prototype.compileJSS = function compileJSS(callback) {
+	ti.jss.load(path.join(this.projectDir, 'Resources'), ['android'], this.logger, function (results) {
+		fs.writeFile(
+			path.join(this.buildGenAppIdDir, 'ApplicationStylesheet.java'),
+			ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationStylesheet.java')).toString(), {
+				appid: this.appid,
+				classes: appc.util.mix({}, results.classes, results.tags),
+				classesDensity: appc.util.mix({}, results.classes_density, results.tags_density),
+				ids: results.ids,
+				idsDensity: results.ids_density
+			}),
+			callback
+		);
+	}.bind(this));
+};
+
 AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
+	if (!this.forceRebuild) return next();
+
 	var android = this.tiapp.android,
 		copyTemplate = function (src, dest) {
 			if (this.forceRebuild || !fs.existsSync(dest)) {
@@ -2104,7 +2460,6 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 
 	afs.copyFileSync(path.join(this.templatesDir, 'gitignore'), path.join(this.buildDir, '.gitignore'), { logger: this.logger.debug });
 
-	// TODO: merge custom classpath with build/android/.classpath
 	afs.copyFileSync(path.join(this.templatesDir, 'classpath'), path.join(this.buildDir, '.classpath'), { logger: this.logger.debug });
 
 	// generate the JavaScript-based activities
@@ -2139,11 +2494,6 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 			}));
 		}, this);
 	}
-
-	// write the app.json
-	fs.writeFileSync(path.join(this.buildBinAssetsDir, 'app.json'), JSON.stringify({
-		app_modules: this.appModules
-	}));
 
 	next();
 };
@@ -2215,47 +2565,9 @@ AndroidBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest) {
 	fs.writeFileSync(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
 };
 
-AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next) {
-	// for each jar library, if it has a companion resource zip file, extract
-	// all of its files into the build dir, and yes, this is stupidly dangerous
-	appc.async.series(this, Object.keys(this.jarLibraries).map(function (jarFile) {
-		return function (done) {
-			var resFile = jarFile.replace(/\.jar$/, '.res.zip');
-			if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) return done();
-			this.logger.info(__('Extracting module resources: %s', resFile.cyan));
-			var tmp = temp.mkdirSync();
-			appc.zip.unzip(resFile, tmp, {}, function (ex) {
-				if (ex) {
-					this.logger.error(__('Failed to extract module resource zip: %s', resFile.cyan) + '\n');
-					process.exit(1);
-				}
-
-				var _t = this;
-
-				// copy the files from the temp folder into the build dir
-				(function copy(src, dest) {
-					fs.readdirSync(src).forEach(function (filename) {
-						var from = path.join(src, filename),
-							to = path.join(dest, filename);
-						if (fs.existsSync(from)) {
-							if (fs.statSync(from).isDirectory()) {
-								copy(from, to);
-							} else if (_t.xmlMergeRegExp.test(filename)) {
-								_t.writeXmlFile(from, to);
-							} else {
-								appc.fs.copyFileSync(from, to, { logger: _t.logger.debug });
-							}
-						}
-					});
-				}(tmp, this.buildDir));
-
-				done();
-			}.bind(this));
-		};
-	}), next);
-};
-
 AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
+	if (!this.forceRebuild) return next();
+
 	if (!this.androidTargetSDK.aidl) {
 		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidTargetSDK['api-level']));
 		return next();
@@ -2297,19 +2609,36 @@ AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 };
 
 AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
-	var data = i18n.load(this.projectDir, this.logger);
+	this.logger.info(__('Generating i18n files'));
+
+	var data = i18n.load(this.projectDir, this.logger, {
+		ignoreDirs: new RegExp(this.config.get('cli.ignoreDirs')),
+		ignoreFiles: new RegExp(this.config.get('cli.ignoreFiles'))
+	});
+	data.en || (data.en = {});
+	data.en.app || (data.en.app = {});
+	data.en.app.appname || (data.en.app.appname = this.tiapp.name);
 
 	Object.keys(data).forEach(function (locale) {
 		var dest = path.join(this.buildResDir, 'values' + (locale == 'en' ? '' : '-' + locale), 'strings.xml'),
 			dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
-			root = dom.documentElement;
+			root = dom.documentElement,
+			appname = data[locale].app && data[locale].app.appname || this.tiapp.name,
+			appnameNode = dom.createElement('string');
 
-		Object.keys(data[locale].strings).forEach(function (name) {
-			var node = dom.createElement('string');
-			node.setAttribute('name', name);
-			node.appendChild(dom.createTextNode(data[locale].strings[name]));
-			root.appendChild(dom.createTextNode('\n\t'));
-			root.appendChild(node);
+		appnameNode.setAttribute('name', 'app_name');
+		appnameNode.appendChild(dom.createTextNode(appname));
+		root.appendChild(dom.createTextNode('\n\t'));
+		root.appendChild(appnameNode);
+
+		data[locale].strings && Object.keys(data[locale].strings).forEach(function (name) {
+			if (name != 'appname') {
+				var node = dom.createElement('string');
+				node.setAttribute('name', name);
+				node.appendChild(dom.createTextNode(data[locale].strings[name].replace(/\\?'/g, '\\')));
+				root.appendChild(dom.createTextNode('\n\t'));
+				root.appendChild(node);
+			}
 		});
 
 		root.appendChild(dom.createTextNode('\n'));
@@ -2338,28 +2667,32 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 			flags += '.NoTitleBar';
 		}
 
-		ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
+		fs.writeFileSync(themeFile, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
 			flags: flags
-		});
+		}));
 	}
 
 	next();
 };
 
 AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManifest(next) {
-	var calendarPermissions = [ 'READ_CALENDAR', 'WRITE_CALENDAR' ],
-		cameraPermissions = [ 'CAMERA' ],
-		contactsPermissions = [ 'READ_CONTACTS', 'WRITE_CONTACTS' ],
-		contactsReadPermissions = [ 'READ_CONTACTS' ],
-		geoPermissions = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION' ],
-		vibratePermissions = [ 'VIBRATE' ],
-		wallpaperPermissions = [ 'SET_WALLPAPER' ],
+	if (!this.forceRebuild && fs.existsSync(this.androidManifestFile)) {
+		return next();
+	}
+
+	var calendarPermissions = [ 'android.permission.READ_CALENDAR', 'android.permission.WRITE_CALENDAR' ],
+		cameraPermissions = [ 'android.permission.CAMERA' ],
+		contactsPermissions = [ 'android.permission.READ_CONTACTS', 'android.permission.WRITE_CONTACTS' ],
+		contactsReadPermissions = [ 'android.permission.READ_CONTACTS' ],
+		geoPermissions = [ 'android.permission.ACCESS_COARSE_LOCATION', 'android.permission.ACCESS_FINE_LOCATION' ],
+		vibratePermissions = [ 'android.permission.VIBRATE' ],
+		wallpaperPermissions = [ 'android.permission.SET_WALLPAPER' ],
 
 		permissions = {
-			'INTERNET': 1,
-			'ACCESS_WIFI_STATE': 1,
-			'ACCESS_NETWORK_STATE': 1,
-			'WRITE_EXTERNAL_STORAGE': 1
+			'android.permission.INTERNET': 1,
+			'android.permission.ACCESS_WIFI_STATE': 1,
+			'android.permission.ACCESS_NETWORK_STATE': 1,
+			'android.permission.WRITE_EXTERNAL_STORAGE': 1
 		},
 
 		tiNamespacePermissions = {
@@ -2400,27 +2733,27 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		tiMethodActivities = {
 			'Map.createView': {
 				'activity': {
-					'android:name': 'ti.modules.titanium.map.TiMapActivity',
-					'android:configChanges': 'keyboardHidden|orientation',
-					'android:launchMode': 'singleTask'
+					'name': 'ti.modules.titanium.map.TiMapActivity',
+					'configChanges': ['keyboardHidden', 'orientation'],
+					'launchMode': 'singleTask'
 				},
 				'uses-library': {
-					'android:name': 'com.google.android.maps'
+					'name': 'com.google.android.maps'
 				}
 			},
 			'Media.createVideoPlayer': {
 				'activity': {
-					'android:name': 'ti.modules.titanium.media.TiVideoActivity',
-					'android:configChanges': 'keyboardHidden|orientation',
-					'android:theme': '@android:style/Theme.NoTitleBar.Fullscreen',
-					'android:launchMode': 'singleTask'
+					'name': 'ti.modules.titanium.media.TiVideoActivity',
+					'configChanges': ['keyboardHidden', 'orientation'],
+					'theme': '@android:style/Theme.NoTitleBar.Fullscreen',
+					'launchMode': 'singleTask'
 				}
 			},
 			'Media.showCamera': {
 				'activity': {
-					'android:name': 'ti.modules.titanium.media.TiCameraActivity',
-					'android:configChanges': 'keyboardHidden|orientation',
-					'android:theme': '@android:style/Theme.Translucent.NoTitleBar.Fullscreen'
+					'name': 'ti.modules.titanium.media.TiCameraActivity',
+					'configChanges': ['keyboardHidden', 'orientation'],
+					'theme': '@android:style/Theme.Translucent.NoTitleBar.Fullscreen'
 				}
 			}
 		},
@@ -2431,12 +2764,30 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 		enableGoogleAPIWarning = this.target == 'emulator' && this.emulator && !this.emulator.googleApis,
 
-		activities = [],
-		services = [];
+		fill = function (str) {
+			// first we replace all legacy variable placeholders with EJS style placeholders
+			str = str.replace(/(\$\{tiapp\.properties\[['"]([^'"]+)['"]\]\})/g, function (s, m1, m2) {
+				// if the property is the "id", we want to force our scrubbed "appid"
+				if (m2 == 'id') {
+					m2 = 'appid';
+				} else {
+					m2 = 'tiapp.' + m2;
+				}
+				return '<%- ' + m2 + ' %>';
+			});
+			// then process the string as an EJS template
+			return ejs.render(str, this);
+		}.bind(this),
 
-	if (this.deployType == 'development' || this.deployType == 'test') {
+		finalAndroidManifest = (new AndroidManifest).parse(fill(fs.readFileSync(path.join(this.templatesDir, 'AndroidManifest.xml')).toString())),
+		customAndroidManifest = this.customAndroidManifest,
+		tiappAndroidManifest = this.tiappAndroidManifest;
+
+	finalAndroidManifest.__attr__['android:versionName'] = this.tiapp.version || '1';
+
+	if (this.deployType != 'production') {
 		// enable mock location if in development or test mode
-		geoPermissions.push('ACCESS_MOCK_LOCATION');
+		geoPermissions.push('android.permission.ACCESS_MOCK_LOCATION');
 	}
 
 	// set permissions for each titanium namespace found
@@ -2461,8 +2812,16 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				});
 			}
 
-			if (tiMethodActivities[symbol]) {
-				activities.push(tiMethodActivities[symbol]);
+			var obj = tiMethodActivities[symbol];
+			if (obj) {
+				if (obj.activity) {
+					finalAndroidManifest.application.activity || (finalAndroidManifest.application.activity = {});
+					finalAndroidManifest.application.activity[obj.activity.name] = obj.activity;
+				}
+				if (obj['uses-library']) {
+					finalAndroidManifest.application['uses-library'] || (finalAndroidManifest.application['uses-library'] = {});
+					finalAndroidManifest.application['uses-library'][obj['uses-library'].name] = obj['uses-library'];
+				}
 			}
 
 			if (enableGoogleAPIWarning && googleAPIs.indexOf(symbol) != -1) {
@@ -2485,15 +2844,16 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		var activity = tiappActivities[filename];
 		if (activity.url) {
 			var a = {
-				'android:name': this.appid + '.' + activity.classname
+				name: this.appid + '.' + activity.classname
 			};
 			Object.keys(activity).forEach(function (key) {
 				if (!/^(name|url|options|classname|android\:name)$/.test(key)) {
-					a[key] = activity[key];
+					a[key.replace(/^android\:/, '')] = activity[key];
 				}
 			});
-			activity['android:config'] || (a['android:config'] = 'keyboardHidden|orientation');
-			activities.push({ 'activity': a });
+			a.configChanges || (a.configChanges = ['keyboardHidden', 'orientation']);
+			finalAndroidManifest.application.activity || (finalAndroidManifest.application.activity = {});
+			finalAndroidManifest.application.activity[a.name] = a;
 		}
 	}, this);
 
@@ -2503,396 +2863,59 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		var service = tiappServices[filename];
 		if (service.url) {
 			var s = {
-				'android:name': this.appid + '.' + service.classname
+				'name': this.appid + '.' + service.classname
 			};
 			Object.keys(service).forEach(function (key) {
 				if (!/^(type|name|url|options|classname|android\:name)$/.test(key)) {
-					s[key] = service[key];
+					s[key.replace(/^android\:/, '')] = service[key];
 				}
 			});
-			services.push({ 'service': s });
+			finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
+			finalAndroidManifest.application.service[s.name] = s;
 		}
 	}, this);
 
-	//
-	var defaultAndroidManifestFile = path.join(this.templatesDir, 'AndroidManifest.xml'),
-		defaultAndroidManifestXml = (new DOMParser({ errorHandler: function(){} }).parseFromString(ejs.render(fs.readFileSync(defaultAndroidManifestFile).toString(), this), 'text/xml')).documentElement,
-		customAndroidManifestFile = path.join(this.projectDir, 'platform', 'android', 'AndroidManifest.xml'),
-		customAndroidManifestXml,
-		tiappAndroidManifestXml,
-		dom = (new DOMParser).parseFromString('<manifest/>'),
-		manifestNode = dom.documentElement;
-
-	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
-	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
-	// elements, otherwise changes in orientation will cause the app to restart
-	if (this.targetSDK >= 13) {
-		var appNode = defaultAndroidManifestXml.getElementsByTagName('application');
-		appNode && xml.forEachElement(appNode[0], function (node) {
-			if (node.tagName == 'activity') {
-				var configChanges = node.getAttribute('android:configChanges').trim().split('|');
-				configChanges.indexOf('screenSize') != -1 && configChanges.push('screenSize');
-				node.setAttribute('android:configChanges', configChanges);
-			}
-		});
-	}
-
-	if (fs.existsSync(customAndroidManifestFile)) {
-		this.logger.info(__('Detected custom ApplicationManifest.xml'));
-		customAndroidManifestXml = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(customAndroidManifestFile).toString(), 'text/xml')).documentElement;
-	}
-
-	if (this.tiapp.android && this.tiapp.android.manifest) {
-		tiappAndroidManifestXml = (new DOMParser({ errorHandler: function(){} }).parseFromString(this.tiapp.android.manifest, 'text/xml')).documentElement;
-
-		xml.forEachAttr(tiappAndroidManifestXml, function (attr) {
-			manifestNode.setAttribute(attr.name, attr.value);
-		});
-
-		xml.forEachElement(tiappAndroidManifestXml, function (node) {
-			if (node.tagName == 'uses-permission') {
-				var name = (node.getAttribute('android:name') || '').split('.').pop();
-				if (name && !permissions[name]) {
-					permissions[name] = 1;
-				}
-			} else {
-				manifestNode.appendChild(dom.createTextNode('\n\t'));
-				manifestNode.appendChild(node);
-			}
-		});
-	}
+	// merge the android manifests
+	finalAndroidManifest.merge(customAndroidManifest);
+	finalAndroidManifest.merge(tiappAndroidManifest);
 
 	this.modules.forEach(function (module) {
 		var moduleXmlFile = path.join(module.modulePath, 'timodule.xml');
 		if (fs.existsSync(moduleXmlFile)) {
 			var moduleXml = new tiappxml(moduleXmlFile);
 			if (moduleXml.android && moduleXml.android.manifest) {
-				var root = (new DOMParser({ errorHandler: function(){} }).parseFromString(moduleXml.android.manifest, 'text/xml')).documentElement
-
-				xml.forEachAttr(root, function (attr) {
-					manifestNode.setAttribute(attr.name, attr.value);
-				});
-
-				xml.forEachElement(root, function (node) {
-					if (node.tagName == 'uses-permission') {
-						var name = (node.getAttribute('android:name') || '').split('.').pop();
-						if (name && !permissions[name]) {
-							permissions[name] = 1;
-						}
-					} else {
-						// does the node already exist?
-						var existing = manifestNode.getElementsByTagName(node.tagName);
-						if (existing.length) {
-							console.log(node.tagName + ' exists, merging', existing.length);
-/*
-							xml.forEachAttr(node, function (attr) {
-								existing.setAttribute(attr.name, attr.value);
-							});
-
-							// mix all children
-							xml.forEachElement(node, function (elem) {
-								console.log('Merging ' + elem.tagName);
-							});
-*/
-						} else {
-							manifestNode.appendChild(node);
-						}
-					}
-				});
+				var am = new AndroidManifest;
+				am.parse(fill(moduleXml.android.manifest));
+				// we don't want modules to override the <uses-sdk> tag
+				delete am['uses-sdk'];
+				finalAndroidManifest.merge(am);
 			}
 		}
 	});
 
-
-	fs.writeFileSync(this.androidManifestFile, ejs.render(fs.readFileSync(defaultAndroidManifestFile).toString(), this));
-
-	console.log('');
-	console.log(manifestNode);
-	console.log('');
-	console.log(manifestNode.toString());
-	process.exit(0);
-
-/*		self.use_maps = False
-		self.res_changed = False
-
-		res_drawable_dest = os.path.join(self.project_dir, 'res', 'drawable')
-
-		# make our Titanium theme for our icon
-		res_values_dir = os.path.join(self.project_dir, 'res','values')
-
-		# create our background image which acts as splash screen during load
-		resources_dir = os.path.join(self.top_dir, 'Resources')
-
-
-		# build the permissions XML based on the permissions detected
-		permissions_required = set(permissions_required)
-		permissions_required_xml = ""
-		for p in permissions_required:
-			if '.' not in p:
-				permissions_required_xml+="<uses-permission android:name=\"android.permission.%s\"/>\n\t" % p
-			else:
-				permissions_required_xml+="<uses-permission android:name=\"%s\"/>\n\t" % p
-
-		def fill_manifest(manifest_source):
-			ti_activities = '<!-- TI_ACTIVITIES -->'
-			ti_permissions = '<!-- TI_PERMISSIONS -->'
-			ti_manifest = '<!-- TI_MANIFEST -->'
-			ti_application = '<!-- TI_APPLICATION -->'
-			ti_services = '<!-- TI_SERVICES -->'
-			manifest_source = manifest_source.replace(ti_activities,"\n\n\t\t".join(activities))
-			manifest_source = manifest_source.replace(ti_services,"\n\n\t\t".join(services))
-			manifest_source = manifest_source.replace(ti_permissions,permissions_required_xml)
-			if len(manifest_xml) > 0:
-				manifest_source = manifest_source.replace(ti_manifest, manifest_xml)
-			if len(application_xml) > 0:
-				manifest_source = manifest_source.replace(ti_application, application_xml)
-
-			return manifest_source
-
-		default_manifest_contents = fill_manifest(default_manifest_contents)
-		# if a custom uses-sdk or supports-screens has been specified via tiapp.xml
-		# <android><manifest>..., we need to replace the ones in the generated
-		# default manifest
-		supports_screens_node = None
-		uses_sdk_node = None
-		if 'manifest' in self.tiapp.android_manifest:
-			for node in self.tiapp.android_manifest['manifest']:
-				if node.nodeName == 'uses-sdk':
-					uses_sdk_node = node
-				elif node.nodeName == 'supports-screens':
-					supports_screens_node = node
-		if supports_screens_node or uses_sdk_node or ('manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length) or ('application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length):
-			dom = parseString(default_manifest_contents)
-			def replace_node(olddom, newnode):
-				nodes = olddom.getElementsByTagName(newnode.nodeName)
-				retval = False
-				if nodes:
-					olddom.documentElement.replaceChild(newnode, nodes[0])
-					retval = True
-				return retval
-
-			if supports_screens_node:
-				if not replace_node(dom, supports_screens_node):
-					dom.documentElement.insertBefore(supports_screens_node, dom.documentElement.firstChild.nextSibling)
-			if uses_sdk_node:
-				replace_node(dom, uses_sdk_node)
-
-			def set_attrs(element, new_attr_set):
-				for k in new_attr_set.keys():
-					if element.hasAttribute(k):
-						element.removeAttribute(k)
-					element.setAttribute(k, new_attr_set.get(k).value)
-
-			if 'manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length:
-				set_attrs(dom.documentElement, self.tiapp.android_manifest['manifest-attributes'])
-			if 'application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length:
-				set_attrs(dom.getElementsByTagName('application')[0], self.tiapp.android_manifest['application-attributes'])
-
-			default_manifest_contents = dom.toxml()
-
-		if application_xml:
-			# If the tiapp.xml <manifest><application> section was not empty, it could be
-			# that user put in <activity> entries that duplicate our own,
-			# such as if they want a custom theme on TiActivity.  So we should delete any dupes.
-			dom = parseString(default_manifest_contents)
-			package_name = dom.documentElement.getAttribute('package')
-			manifest_activities = dom.getElementsByTagName('activity')
-			activity_names = []
-			nodes_to_delete = []
-			for manifest_activity in manifest_activities:
-				if manifest_activity.hasAttribute('android:name'):
-					activity_name = manifest_activity.getAttribute('android:name')
-					if activity_name.startswith('.'):
-						activity_name = package_name + activity_name
-					if activity_name in activity_names:
-						nodes_to_delete.append(manifest_activity)
-					else:
-						activity_names.append(activity_name)
-			if nodes_to_delete:
-				for node_to_delete in nodes_to_delete:
-					node_to_delete.parentNode.removeChild(node_to_delete)
-				default_manifest_contents = dom.toxml()
-
-		if customAndroidManifest:
-			customAndroidManifest = fill_manifest(customAndroidManifest)
-
-		new_manifest_contents = None
-		android_manifest_gen = android_manifest + '.default'
-		if customAndroidManifest:
-			new_manifest_contents = customAndroidManifest
-			# Write the would-be default as well so user can see
-			# some of the auto-gen'd insides of it if they need/want.
-			amf = open(android_manifest_gen, 'w')
-			amf.write(default_manifest_contents)
-			amf.close()
-		else:
-			new_manifest_contents = default_manifest_contents
-			if os.path.exists(android_manifest_gen):
-				os.remove(android_manifest_gen)
-
-		manifest_changed = False
-		old_contents = None
-		if os.path.exists(android_manifest):
-			old_contents = open(android_manifest, 'r').read()
-
-		if new_manifest_contents != old_contents:
-			trace("Writing out AndroidManifest.xml")
-			amf = open(android_manifest,'w')
-			amf.write(new_manifest_contents)
-			amf.close()
-			manifest_changed = True
-
-		if self.res_changed or manifest_changed:
-			res_dir = os.path.join(self.project_dir, 'res')
-			output = run.run([self.aapt, 'package', '-m',
-				'-J', self.project_gen_dir,
-				'-M', android_manifest,
-				'-S', res_dir,
-				'-I', self.android_jar], warning_regex=r'skipping')
-
-		r_file = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep), 'R.java')
-		if not os.path.exists(r_file) or (self.res_changed and output == None):
-			error("Error generating R.java from manifest")
-			sys.exit(1)
-
-		return manifest_changed
-	*/
-
-	next();
-};
-
-AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) {
-	var classpath = {},
-		moduleJars = this.moduleJars = {};
-
-	classpath[this.androidTargetSDK.androidJar] = 1;
-	Object.keys(this.jarLibraries).map(function (jarFile) {
-		classpath[jarFile] = 1;
-	});
-
-	this.modules.forEach(function (module) {
-		if (fs.existsSync(module.jarFile)) {
-			moduleJars[module.jarFile] = 1;
-			classpath[module.jarFile] = 1;
-
-			var libDir = path.join(module.modulePath, 'lib'),
-				jarRegExp = /\.jar$/;
-			fs.existsSync(libDir) && fs.readdirSync(libDir).forEach(function (name) {
-				var jarFile = path.join(libDir, name);
-				if (jarRegExp.test(name) && fs.existsSync(jarFile)) {
-					moduleJars[jarFile] = 1;
-					classpath[jarFile] = 1;
-				}
-			});
-		}
-	});
-
-	if (Object.keys(moduleJars).length) {
-		// we need to include kroll-apt.jar if there are any modules
-		classpath[path.join(this.platformPath, 'kroll-apt.jar')] = 1;
-	}
-
-	classpath[path.join(this.platformPath, 'lib', 'titanium-verify.jar')] = 1;
-
-	if (this.allowDebugging && this.debugPort) {
-		classpath[path.join(this.platformPath, 'lib', 'titanium-debug.jar')] = 1;
-	}
-
-	if (this.allowProfiling && this.profilePort) {
-		classpath[path.join(this.platformPath, 'lib', 'titanium-profiler.jar')] = 1;
-	}
-
-	var javaFiles = [],
-		javaRegExp = /\.java$/;
-	function scanJavaFiles(dir) {
-		fs.readdirSync(dir).forEach(function (name) {
-			var file = path.join(dir, name);
-			if (fs.existsSync(file)) {
-				if (fs.statSync(file).isDirectory()) {
-					scanJavaFiles(file);
-				} else if (javaRegExp.test(name)) {
-					javaFiles.push(file);
-					classpath[name.replace(javaRegExp, '.class')] = 1;
-				}
+	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
+	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
+	// elements, otherwise changes in orientation will cause the app to restart
+	if (this.targetSDK >= 13) {
+		Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
+			var activity = finalAndroidManifest.application.activity[name];
+			if (!activity.configChanges) {
+				activity.configChanges = ['screenSize'];
+			} else if (activity.configChanges.indexOf('screenSize') == -1) {
+				activity.configChanges.push('screenSize');
 			}
 		});
 	}
-	scanJavaFiles(this.buildGenAppIdDir);
-	scanJavaFiles(this.buildSrcDir);
 
-	var javacArgs = [
-		'-encoding', 'utf8',
-		'-classpath', Object.keys(classpath).join(process.platform == 'win32' ? ';' : ':'),
-		'-d', this.buildBinClassesDir,
-		'-proc:none',
-		'-sourcepath', this.buildGenAppIdDir,
-		'-sourcepath', this.buildSrcDir,
-		'-target', this.javacTarget,
-		'-source', this.javacSource
-	];
+	// add permissions
+	Array.isArray(finalAndroidManifest['uses-permission']) || (finalAndroidManifest['uses-permission'] = []);
+	Object.keys(permissions).forEach(function (perm) {
+		finalAndroidManifest['uses-permission'].indexOf(perm) == -1 && finalAndroidManifest['uses-permission'].push(perm);
+	});
 
-	var tmp = temp.openSync();
-	fs.writeSync(tmp.fd, javaFiles.join('\n'));
-	fs.closeSync(tmp.fd);
-	javacArgs.push('@' + tmp.path);
+	fs.writeFileSync(this.androidManifestFile, finalAndroidManifest.toString('xml'));
 
-	this.logger.info(__('Building Java source files: %s', (this.jdkInfo.executables.javac + ' "' + javacArgs.join('" "') + '"').cyan));
-
-	appc.subprocess.run(this.jdkInfo.executables.javac, javacArgs, function (code, out, err) {
-		if (code) {
-			this.logger.error(__('Failed to compile Java source files:'));
-			this.logger.error();
-			err.trim().split('\n').forEach(this.logger.error);
-			this.logger.log();
-			process.exit(1);
-		}
-
-		next();
-	}.bind(this));
-};
-
-AndroidBuilder.prototype.runDexer = function runDexer(next) {
-	var dexHook = this.cli.createHook('build.android.dexerArgs', function (args, cb) {
-			cb(args);
-		}),
-		dexArgs = [
-			'-Xmx' + this.dxMaxMemory,
-			'-XX:-UseGCOverheadLimit',
-			'-Djava.ext.dirs=' + this.androidInfo.sdk.platformTools.path,
-			'-jar', this.androidInfo.sdk.dx,
-			'--dex',
-			'--output=' + this.buildBinClassesDexDir,
-			this.buildBinClassesDir,
-			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
-		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries)),
-		networkJar = path.join(this.platformPath, 'modules', 'titanium-network.jar');
-
-	if (this.allowDebugging && this.debugPort) {
-		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
-	}
-
-	if (this.allowProfiling && this.profilePort) {
-		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
-	}
-
-	if (!this.jarLibraries[networkJar]) {
-		dexArgs.push(networkJar);
-	}
-
-	dexHook(dexArgs, function (err, results, args) {
-		this.logger.info(__('Running dexer: %s', (this.jdkInfo.executables.java + ' "' + args.join('" "') + '"').cyan));
-
-		appc.subprocess.run(this.jdkInfo.executables.java, args, function (code, out, err) {
-			if (code) {
-				this.logger.error(__('Failed to run dexer:'));
-				this.logger.error();
-				err.trim().split('\n').forEach(this.logger.error);
-				this.logger.log();
-				process.exit(1);
-			}
-			next();
-		}.bind(this));
-	}.bind(this));
+	next();
 };
 
 AndroidBuilder.prototype.packageApp = function packageApp(next) {
@@ -2901,6 +2924,8 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 	var args = [
 		'package',
 		'-f',
+		'-m',
+		'-J', path.join(this.buildDir, 'gen'),
 		'-M', this.androidManifestFile,
 		'-A', this.buildBinAssetsDir,
 		'-S', this.buildResDir,
@@ -2919,204 +2944,441 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 				this.logger.log();
 				process.exit(1);
 			}
+
+			// check that the R.java file exists
+			var rFile = path.join(this.buildGenAppIdDir, 'R.java');
+			if (!fs.existsSync(rFile)) {
+				this.logger.error(__('Unable to find generated R.java file') + '\n');
+				process.exit(1);
+			}
+
 			next();
 	}.bind(this));
 };
 
-AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
-	var unsignedApkFile = this.unsignedApkFile = path.join(this.buildBinDir, 'app-unsigned.apk'),
-		ap_Zip = new AdmZip(this.ap_File),
-		apkZip = new AdmZip();
+AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) {
+	var classpath = {},
+		moduleJars = this.moduleJars = {},
+		jarNames = {};
 
-	ap_Zip.getEntries().forEach(function (entry) {
-		dump(entry);
+	classpath[this.androidTargetSDK.androidJar] = 1;
+	Object.keys(this.jarLibraries).map(function (jarFile) {
+		classpath[jarFile] = 1;
 	});
 
-process.exit(0);
+	this.modules.forEach(function (module) {
+		var filename = path.basename(module.jarFile);
+		if (fs.existsSync(module.jarFile)) {
+			var jarHash = hash(fs.readFileSync(module.jarFile).toString());
 
-apkZip.addFile("test.txt", new Buffer("inner content of the file"));
+			if (!jarNames[jarHash]) {
+				moduleJars[module.jarFile] = 1;
+				classpath[module.jarFile] = 1;
+				jarNames[jarHash] = 1;
+			} else {
+				this.logger.debug(__('Skipping duplicate jar file: %s', module.jarFile.cyan));
+			}
 
-fs.existsSync(unsignedApk) && fs.unlinkSync(unsignedApk);
-apkZip.writeZip(unsignedApk);
+			var libDir = path.join(module.modulePath, 'lib'),
+				jarRegExp = /\.jar$/;
 
-	/*
-		def skip_jar_path(path):
-			ext = os.path.splitext(path)[1]
-			if path.endswith('/'): return True
-			if path.startswith('META-INF/'): return True
-			if path.split('/')[-1].startswith('.'): return True
-			if ext == '.class': return True
-			if 'org/appcelerator/titanium/bindings' in path and ext == '.json': return True
-			if 'tiapp' in path and ext =='.xml': return True
+			fs.existsSync(libDir) && fs.readdirSync(libDir).forEach(function (name) {
+				var jarFile = path.join(libDir, name);
+				if (jarRegExp.test(name) && fs.existsSync(jarFile)) {
+					var jarHash = hash(fs.readFileSync(jarFile).toString());
+					if (!jarNames[jarHash]) {
+						moduleJars[jarFile] = 1;
+						classpath[jarFile] = 1;
+						jarNames[jarHash] = 1;
+					} else {
+						this.logger.debug(__('Skipping duplicate jar file: %s', jarFile.cyan));
+					}
+				}
+			}, this);
+		}
+	}, this);
 
-		def skip_js_file(path):
-			return self.compile_js is True and \
-				os.path.splitext(path)[1] == '.js' and \
-				os.path.join(self.project_dir, "bin", path) not in this.htmlJsFiles
+	if (!this.forceRebuild) {
+		// if we don't have to compile the java files, then we can return here
+		// we just needed the moduleJars
+		return next();
+	}
 
-		def compression_type(path):
-			ext = os.path.splitext(path)[1]
-			if ext in uncompressed_types:
-				return zipfile.ZIP_STORED
-			return zipfile.ZIP_DEFLATED
+	if (Object.keys(moduleJars).length) {
+		// we need to include kroll-apt.jar if there are any modules
+		classpath[path.join(this.platformPath, 'kroll-apt.jar')] = 1;
+	}
 
-		def zipinfo(path):
-			info = zipfile.ZipInfo(path)
-			info.compress_type = compression_type(path)
-			return info
+	classpath[path.join(this.platformPath, 'lib', 'titanium-verify.jar')] = 1;
 
-		def zip_contains(zip, entry):
-			try:
-				zip.getinfo(entry)
-			except:
-				return False
-			return True
+	if (this.allowDebugging && this.debugPort) {
+		classpath[path.join(this.platformPath, 'lib', 'titanium-debug.jar')] = 1;
+	}
 
-		resources_zip = zipfile.ZipFile(ap_)
-		for path in resources_zip.namelist():
-			if skip_jar_path(path) or skip_js_file(path): continue
-			debug("from resource zip => " + path)
-			apk_zip.writestr(zipinfo(path), resources_zip.read(path))
-		resources_zip.close()
+	if (this.allowProfiling && this.profilePort) {
+		classpath[path.join(this.platformPath, 'lib', 'titanium-profiler.jar')] = 1;
+	}
 
-		# add classes.dex
-		apk_zip.write(this.buildBinClassesDexDir, 'classes.dex')
+	// find all java files and write them to the temp file
+	var javaFiles = [],
+		javaRegExp = /\.java$/,
+		javaSourcesFile = path.join(this.buildDir, 'java-sources.txt');
+	[this.buildGenAppIdDir, this.buildSrcDir].forEach(function scanJavaFiles(dir) {
+		fs.readdirSync(dir).forEach(function (name) {
+			var file = path.join(dir, name);
+			if (fs.existsSync(file)) {
+				if (fs.statSync(file).isDirectory()) {
+					scanJavaFiles(file);
+				} else if (javaRegExp.test(name)) {
+					javaFiles.push(file);
+					classpath[name.replace(javaRegExp, '.class')] = 1;
+				}
+			}
+		});
+	});
+	fs.writeFileSync(javaSourcesFile, '"' + javaFiles.join('"\n"').replace(/\\/g, '/') + '"');
 
-		# add all resource files from the project
-		for root, dirs, files in os.walk(self.project_src_dir, True, None, True):
-			remove_ignored_dirs(dirs)
-			for f in files:
-				if f in ignoreFiles:
-					continue
-				if os.path.splitext(f)[1] != '.java':
-					absolute_path = os.path.join(root, f)
-					relative_path = os.path.join(root[len(self.project_src_dir)+1:], f)
-					debug("resource file => " + relative_path)
-					apk_zip.write(os.path.join(root, f), relative_path, compression_type(f))
+	// if we're recompiling the java files, then nuke the classes dir
+	if (fs.existsSync(this.buildBinClassesDir)) {
+		wrench.rmdirSyncRecursive(this.buildBinClassesDir);
+	}
+	wrench.mkdirSyncRecursive(this.buildBinClassesDir);
 
-		def add_resource_jar(jar_file):
-			jar = zipfile.ZipFile(jar_file)
-			for path in jar.namelist():
-				if skip_jar_path(path): continue
-				debug("from JAR %s => %s" % (jar_file, path))
-				apk_zip.writestr(zipinfo(path), jar.read(path))
-			jar.close()
+	var javacArgs = [
+		'-encoding', 'utf8',
+		'-classpath', Object.keys(classpath).join(process.platform == 'win32' ? ';' : ':'),
+		'-d', this.buildBinClassesDir,
+		'-proc:none',
+		'-target', this.javacTarget,
+		'-source', this.javacSource,
+		'@' + javaSourcesFile
+	];
 
-		for jar_file in self.module_jars:
-			add_resource_jar(jar_file)
-		for jar_file in self.android_jars:
-			add_resource_jar(jar_file)
+	this.logger.info(__('Building Java source files: %s', (this.jdkInfo.executables.javac + ' "' + javacArgs.join('" "') + '"').cyan));
 
-		def add_native_libs(libs_dir, exclude=[]):
-			if os.path.exists(libs_dir):
-				for abi_dir in os.listdir(libs_dir):
-					if abi_dir not in self.abis:
-						continue
-					libs_abi_dir = os.path.join(libs_dir, abi_dir)
-					if not os.path.isdir(libs_abi_dir): continue
-					for file in os.listdir(libs_abi_dir):
-						if file.endswith('.so') and file not in exclude:
-							native_lib = os.path.join(libs_abi_dir, file)
-							path_in_zip = '/'.join(['lib', abi_dir, file])
-							debug("installing native lib: %s" % native_lib)
-							apk_zip.write(native_lib, path_in_zip)
+	appc.subprocess.run(this.jdkInfo.executables.javac, javacArgs, function (code, out, err) {
+		if (code) {
+			this.logger.error(__('Failed to compile Java source files:'));
+			this.logger.error();
+			err.trim().split('\n').forEach(this.logger.error);
+			this.logger.log();
+			process.exit(1);
+		}
 
-		# add module native libraries
-		for module in self.modules:
-			exclude_libs = []
-			add_native_libs(module.get_resource('libs'), exclude_libs)
-	*/
-	//	# add any native libraries : libs/**/*.so -> lib/**/*.so
-	/*
-		add_native_libs(os.path.join(self.project_dir, 'libs'))
+		next();
+	}.bind(this));
+};
 
-		# add sdk runtime native libraries
-		debug("installing native SDK libs")
-		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
+AndroidBuilder.prototype.runProguard = function runProguard(next) {
+	if (!this.forceRebuild || !this.proguard) return next();
 
-		for abi in self.abis:
-			lib_source_dir = os.path.join(sdk_native_libs, abi)
-			lib_dest_dir = 'lib/%s/' % abi
-			if abi == 'x86' and ((not os.path.exists(lib_source_dir)) or self.deploy_type == 'production'):
-				# x86 only in non-production builds for now.
-				continue
+	// check that the proguard config exists
+	var proguardConfigFile = path.join(this.buildDir, 'proguard.cfg');
 
-			# libtiverify is always included
-			apk_zip.write(os.path.join(lib_source_dir, 'libtiverify.so'), lib_dest_dir + 'libtiverify.so')
-			# profiler
-			apk_zip.write(os.path.join(lib_source_dir, 'libtiprofiler.so'), lib_dest_dir + 'libtiprofiler.so')
+	this.logger.info(__('Running ProGuard: %s', (this.jdkInfo.executables.java + ' -jar "' + this.androidInfo.sdk.proguard + '" "@' + proguardConfigFile + '"').cyan));
 
-			for fname in ('libkroll-v8.so', 'libstlport_shared.so'):
-				apk_zip.write(os.path.join(lib_source_dir, fname), lib_dest_dir + fname)
+	appc.subprocess.run(this.jdkInfo.executables.java, ['-jar', this.androidInfo.sdk.proguard, '@' + proguardConfigFile], { cwd: this.buildDir }, function (code, out, err) {
+		if (code) {
+			this.logger.error(__('Failed to run ProGuard'));
+			err.trim().split('\n').forEach(this.logger.error);
+			this.logger.log();
+			process.exit(1);
+		}
+		next();
+	}.bind(this));
+};
 
-		apk_zip.close()
-	*/
-	next();
+AndroidBuilder.prototype.runDexer = function runDexer(next) {
+	if (!this.forceRebuild && fs.existsSync(this.buildBinClassesDex)) return next();
+
+	var dexHook = this.cli.createHook('build.android.dexerArgs', function (args, cb) {
+			cb(args);
+		}),
+		dexArgs = [
+			'-Xmx' + this.dxMaxMemory,
+			'-XX:-UseGCOverheadLimit',
+			'-Djava.ext.dirs=' + this.androidInfo.sdk.platformTools.path,
+			'-jar', this.androidInfo.sdk.dx,
+			'--dex',
+			'--output=' + this.buildBinClassesDex,
+			this.buildBinClassesDir,
+			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
+		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+
+	if (this.allowDebugging && this.debugPort) {
+		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
+	}
+
+	if (this.allowProfiling && this.profilePort) {
+		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
+	}
+
+	dexHook(dexArgs, function (err, results, args) {
+		this.logger.info(__('Running dexer: %s', (this.jdkInfo.executables.java + ' "' + args.join('" "') + '"').cyan));
+
+		appc.subprocess.run(this.jdkInfo.executables.java, args, function (code, out, err) {
+			if (code) {
+				this.logger.error(__('Failed to run dexer:'));
+				this.logger.error();
+				err.trim().split('\n').forEach(this.logger.error);
+				this.logger.log();
+				process.exit(1);
+			}
+			next();
+		}.bind(this));
+	}.bind(this));
+};
+
+AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
+	var dest = archiver('zip', {
+			forceUTC: true
+		}),
+		apkStream,
+		jsonRegExp = /\.json$/,
+		javaRegExp = /\.java$/,
+		classRegExp = /\.class$/,
+		soRegExp = /\.so$/,
+		trailingSlashRegExp = /\/$/,
+		nativeLibs = {};
+
+	fs.existsSync(this.unsignedApkFile) && fs.unlinkSync(this.unsignedApkFile);
+	apkStream = fs.createWriteStream(this.unsignedApkFile);
+	apkStream.on('close', function() {
+		next();
+	});
+	dest.catchEarlyExitAttached = true; // silence exceptions
+	dest.pipe(apkStream);
+
+	this.logger.info(__('Creating unsigned apk'));
+
+	// merge files from the app.ap_ file as well as all titanium and 3rd party jar files
+	var archives = [ this.ap_File ].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+	archives.forEach(function (file) {
+		var src = new AdmZip(file),
+			entries = src.getEntries();
+
+		this.logger.info(__('Processing %s', file.cyan));
+
+		entries.forEach(function (entry) {
+			if (entry.entryName.indexOf('META-INF/') == -1
+				&& (entry.entryName.indexOf('org/appcelerator/titanium/bindings/') == -1 || !jsonRegExp.test(entry.name))
+				&& entry.name.charAt(0) != '.'
+				&& !classRegExp.test(entry.name)
+				&& !trailingSlashRegExp.test(entry.entryName)
+			) {
+				this.logger.debug(__('Adding %s', entry.entryName.cyan));
+				dest.append(src.readFile(entry), { name: entry.entryName });
+			}
+		}, this);
+	}, this);
+
+	this.logger.debug(__('Adding %s', 'classes.dex'.cyan));
+	dest.append(fs.createReadStream(this.buildBinClassesDex), { name: 'classes.dex' });
+
+	this.logger.info(__('Processing %s', this.buildSrcDir.cyan));
+	(function copyDir(dir, base) {
+		base = base || dir;
+		fs.readdirSync(dir).forEach(function (name) {
+			var file = path.join(dir, name);
+			if (fs.existsSync(file)) {
+				if (fs.statSync(file).isDirectory()) {
+					copyDir(file, base);
+				} else if (!javaRegExp.test(name)) {
+					name = file.replace(base, '').replace(/^[\/\\]/, '');
+					this.logger.debug(__('Adding %s', name.cyan));
+					dest.append(fs.createReadStream(file), { name: name });
+				}
+			}
+		}, this);
+	}.call(this, this.buildSrcDir));
+
+	var addNativeLibs = function (dir) {
+			if (!fs.existsSync(dir)) return;
+
+			for (var i = 0; i < this.abis.length; i++) {
+				var abiDir = path.join(dir, this.abis[i]);
+
+				// check that we found the desired abi, otherwise we abort the build
+				if (!fs.existsSync(abiDir) || !fs.statSync(abiDir).isDirectory()) {
+					throw this.abis[i];
+				}
+
+				// copy all the .so files into the archive
+				fs.readdirSync(abiDir).forEach(function (name) {
+					if (name != 'libtiprofiler.so' || (this.allowProfiling && this.profilePort)) {
+						var file = path.join(abiDir, name),
+							rel = 'lib/' + this.abis[i] + '/' + name;
+						if (!nativeLibs[rel] && soRegExp.test(name) && fs.existsSync(file)) {
+							nativeLibs[rel] = 1;
+							this.logger.debug(__('Adding %s', rel.cyan));
+							dest.append(fs.createReadStream(file), { name: rel });
+						}
+					}
+				}, this);
+			}
+		}.bind(this);
+
+	try {
+		addNativeLibs(path.join(this.platformPath, 'native', 'libs'));
+	} catch (abi) {
+		var abis = [];
+		fs.readdirSync(path.join(this.platformPath, 'native', 'libs')).forEach(function (abi) {
+			var dir = path.join(this.platformPath, 'native', 'libs', abi);
+			if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+				abis.push(abi);
+			}
+		});
+		this.logger.error(__('Invalid native Titanium library ABI "%s"', abi));
+		this.logger.error(__('Supported ABIs: %s', abis.join(', ')) + '\n');
+		process.exit(1);
+	}
+
+	this.modules.forEach(function (m) {
+		if (m.native) {
+			try {
+				addNativeLibs(path.join(m.modulePath, 'libs'));
+			} catch (abi) {
+				var abis = [];
+				fs.readdirSync(path.join(m.modulePath, 'libs')).forEach(function (abi) {
+					var dir = path.join(m.modulePath, 'libs', abi);
+					if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+						abis.push(abi);
+					}
+				});
+				this.logger.error(__('The module "%s" does not support the ABI "%s"', m.id, abi));
+				this.logger.error(__('Supported ABIs: %s', abis.join(', ')) + '\n');
+				process.exit(1);
+			}
+		}
+	}, this);
+
+	this.logger.info(__('Writing unsigned apk: %s', this.unsignedApkFile.cyan));
+	dest.finalize();
 };
 
 AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
-	// sign the apk
-	/*
-	def get_sigalg(self):
-		output = run.run([self.keytool,
+	var keytoolArgs = [
 			'-v',
 			'-list',
-			'-keystore', self.keystore,
-			'-storepass', self.keystore_pass,
-			'-alias', self.keystore_alias
-		], protect_arg_positions=(6,))
+			'-keystore', this.keystore,
+			'-storepass', this.keystoreStorePassword,
+			'-alias', this.keystoreAlias
+		],
+		keytoolArgsSafe = [].concat(keytoolArgs);
 
-		# If the keytool encounters an error, that means some of the provided
-		# keychain info is invalid and we should bail anyway
-		run.check_output_for_error(output, r'RuntimeException: (.*)', True)
-		run.check_output_for_error(output, r'^keytool: (.*)', True)
+	keytoolArgsSafe[5] = keytoolArgsSafe[5].replace(/./g, '*');
 
-		match = re.search(r'Signature algorithm name: (.*)', output)
-		if match is not None:
-			return match.group(1)
+	this.logger.info(__('Determining signature algorithm: %s', (this.jdkInfo.executables.keytool + ' "' + keytoolArgsSafe.join('" "') + '"').cyan));
 
-		# Return the default:
-		return "MD5withRSA"
+	appc.subprocess.run(this.jdkInfo.executables.keytool, keytoolArgs, function (code, out, err) {
+		if (code) {
+			this.logger.error(__('Failed to determine signature algorithm:'));
+			err.trim().split('\n').forEach(this.logger.error);
+			this.logger.log();
+			process.exit(1);
+		}
 
-# 		if self.dist_dir:
-# 			app_apk = os.path.join(self.dist_dir, self.name + '.apk')
-# 		else:
-# 			app_apk = os.path.join(self.project_dir, 'bin', 'app.apk')
+		var m = out.match(/Signature algorithm name: (.+)/m),
+			signerArgs = [
+				'-sigalg', m ? m[1] : 'MD5withRSA',
+				'-digestalg', 'SHA1',
+				'-keystore', this.keystore,
+				'-storepass', this.keystoreStorePassword
+			],
+			signerArgsSafe;
 
-	output = run.run([self.jarsigner,
-		'-sigalg', self.get_sigalg(),
-		'-digestalg', 'SHA1',
-		'-storepass', self.keystore_pass,
-		'-keystore', self.keystore,
-		'-signedjar', app_apk,
-		this.unsignedApk,
-		self.keystore_alias], protect_arg_positions=(6,))
-	run.check_output_for_error(output, r'RuntimeException: (.*)', True)
-	run.check_output_for_error(output, r'^jarsigner: (.*)', True)
-	*/
-	next();
+		this.logger.info(__('Using %s signature algorithm', (m ? m[1] : 'MD5withRSA').cyan));
+
+		this.keystoreKeyPassword && signerArgs.push('-keypass', this.keystoreKeyPassword);
+		signerArgs.push('-signedjar', this.apkFile, this.unsignedApkFile, this.keystoreAlias);
+
+		signerArgsSafe = [].concat(signerArgs);
+		signerArgsSafe[7] = signerArgsSafe[7].replace(/./g, '*');
+		this.keystoreKeyPassword && (signerArgsSafe[9] = signerArgsSafe[9].replace(/./g, '*'));
+
+		this.logger.info(__('Signing apk: %s', (this.jdkInfo.executables.jarsigner + ' "' + signerArgsSafe.join('" "') + '"').cyan));
+
+		appc.subprocess.run(this.jdkInfo.executables.jarsigner, signerArgs, function (code, out, err) {
+			if (code) {
+				this.logger.error(__('Failed to sign apk:'));
+				out.trim().split('\n').forEach(this.logger.error);
+				this.logger.log();
+				process.exit(1);
+			}
+			next();
+		}.bind(this));
+	}.bind(this));
 };
 
 AndroidBuilder.prototype.zipAlignApk = function zipAlignApk(next) {
-/*	var zipAlignedApk = this.signedApk + 'z',
+	var zipAlignedApk = this.apkFile + 'z',
 		args = [
-			'-v', '4' // 4 byte alignment
-			this.signedApk,
+			'-v', '4', // 4 byte alignment
+			this.apkFile,
 			zipAlignedApk
 		];
 
 	this.logger.info(__('Packaging application: %s', (this.androidInfo.sdk.executables.zipalign + ' "' + args.join('" "') + '"').cyan));
 
 	appc.subprocess.run(this.androidInfo.sdk.executables.zipalign, args, function (code, out, err) {
-			if (code) {
-				this.logger.error(__('Failed to zipalign apk:'));
-				this.logger.error();
-				err.trim().split('\n').forEach(this.logger.error);
-				this.logger.log();
-				process.exit(1);
-			}
-*/			next();
-//	}.bind(this));
+		if (code) {
+			this.logger.error(__('Failed to zipalign apk:'));
+			err.trim().split('\n').forEach(this.logger.error);
+			this.logger.log();
+			process.exit(1);
+		}
+
+		fs.unlinkSync(this.apkFile);
+		fs.renameSync(zipAlignedApk, this.apkFile);
+
+		next();
+	}.bind(this));
+};
+
+AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callback) {
+	this.logger.info(__('Writing build manifest: %s', this.buildManifestFile.cyan));
+
+	this.cli.createHook('build.android.writeBuildManifest', this, function (manifest, cb) {
+		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
+		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
+		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), function () {
+			cb();
+		});
+	})({
+		target: this.target,
+		deployType: this.deployType,
+		classname: this.classname,
+		platformPath: this.platformPath,
+		modulesHash: this.modulesHash,
+		modulesManifestHash: this.modulesManifestHash,
+		modulesJarHash: this.modulesJarHash,
+		modulesBindingsHash: this.modulesBindingsHash,
+		gitHash: ti.manifest.githash,
+		outputDir: this.cli.argv['output-dir'],
+		name: this.tiapp.name,
+		id: this.tiapp.id,
+		analytics: this.tiapp.analytics,
+		publisher: this.tiapp.publisher,
+		url: this.tiapp.url,
+		version: this.tiapp.version,
+		description: this.tiapp.description,
+		copyright: this.tiapp.copyright,
+		guid: this.tiapp.guid,
+		icon: this.tiapp.icon,
+		fullscreen: this.tiapp.fullscreen,
+		'navbar-hidden': this.tiapp['navbar-hidden'],
+		skipJSMinification: !!this.cli.argv['skip-js-minify'],
+		encryptJS: this.encryptJS,
+		minSDK: this.minSDK,
+		targetSDK: this.targetSDK,
+		propertiesHash: this.propertiesHash,
+		activitiesHash: this.activitiesHash,
+		servicesHash: this.servicesHash,
+		jssFilesHash: this.jssFilesHash,
+		jarLibHash: this.jarLibHash
+	}, function (err, results, result) {
+		callback();
+	});
 };
 
 // create the builder instance and expose the public api

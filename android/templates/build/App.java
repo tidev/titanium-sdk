@@ -32,7 +32,7 @@ public final class <%= classname %>Application extends TiApplication
 		appInfo = new <%= classname %>AppInfo(this);
 		postAppInfo();
 
-<% if (tiapp['encrypt-js']) { %>
+<% if (encryptJS) { %>
 	    KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
 <% } %>
 
@@ -51,8 +51,8 @@ public final class <%= classname %>Application extends TiApplication
 		postOnCreate();
 
 <% appModules.forEach(function (module) { %>
-	<% if (module.onAppCreate) { %>
-		<%- module.className %>.<%- module.onAppCreate %>(this);
+	<% if (module['on_app_create']) { %>
+		<%- module['class_name'] %>.<%- module['on_app_create'] %>(this);
 	<% } %>
 <% }); %>
 

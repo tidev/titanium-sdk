@@ -1,7 +1,7 @@
 /*
  * build.js: Titanium Mobile CLI build command
  *
- * Copyright (c) 2012, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -60,7 +60,16 @@ exports.config = function (logger, config, cli) {
 							abbr: 'p',
 							callback: function (platform) {
 								cli.argv.$originalPlatform = platform;
-								return ti.resolvePlatform(platform);
+								platform = ti.resolvePlatform(platform);
+
+								var p = platformConf[platform];
+								p && p.options && Object.keys(p.options).forEach(function (name) {
+									if (p.options[name].default && cli.argv[name] === undefined) {
+										cli.argv[name] = p.options[name].default;
+									}
+								});
+
+								return platform;
 							},
 							desc: __('the target build platform'),
 							hint: __('platform'),
@@ -70,32 +79,10 @@ exports.config = function (logger, config, cli) {
 								error: __('Invalid platform'),
 								validator: function (platform) {
 									if (!platform) {
-										throw new appc.exception(__('Invalid platform'));
+										throw new Error(__('Invalid platform'));
+									} else if (ti.availablePlatforms.indexOf(platform) == -1) {
+										throw new Error(__('Invalid platform: %s', platform));
 									}
-
-									platform = platform.trim();
-
-									// temp: ti.availablePlatforms contains "iphone" and "ipad" which aren't going to be valid supported platforms
-									if (ti.availablePlatforms.indexOf(platform) == -1) {
-										throw new appc.exception(__('Invalid platform: %s', platform));
-									}
-
-									// now that we've passed the validation, transform and continue
-									platform = ti.resolvePlatform(platform);
-
-									// it's possible that platform was not specified at the command line in which case the it would
-									// be prompted for. that means that validate() was unable to apply default values for platform-
-									// specific options and scan for platform-specific hooks, so we must do it here.
-
-									var p = platformConf[platform];
-									p && p.options && Object.keys(p.options).forEach(function (name) {
-										if (p.options[name].default && cli.argv[name] === undefined) {
-											cli.argv[name] = p.options[name].default;
-										}
-									});
-
-									cli.scanHooks(appc.fs.resolvePath(path.dirname(module.filename), '..', '..', platform, 'cli', 'hooks'));
-
 									return true;
 								}
 							},
