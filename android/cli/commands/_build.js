@@ -2635,7 +2635,7 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 			if (name != 'appname') {
 				var node = dom.createElement('string');
 				node.setAttribute('name', name);
-				node.appendChild(dom.createTextNode(data[locale].strings[name]));
+				node.appendChild(dom.createTextNode(data[locale].strings[name].replace(/\\?'/g, '\\')));
 				root.appendChild(dom.createTextNode('\n\t'));
 				root.appendChild(node);
 			}
