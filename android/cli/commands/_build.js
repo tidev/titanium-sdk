@@ -1183,7 +1183,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 					jarHashes.push(module.hash = afs.hashFile(module.jarFile));
 					bindingsHashes.push(hash(JSON.stringify(module.bindings)));
 
-					logger.info(__('Detected third-party native Android module: %s version %s', module.id.cyan, (module.manifest.version || 'latest').cyan));
+					logger.info(__('Detected third-party native Android module: %s version %s', module.id.cyan, (module.version || 'latest').cyan));
 					this.nativeLibModules.push(module);
 				}
 
