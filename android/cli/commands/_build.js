@@ -1295,8 +1295,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 				}
 			}
 
-				process.exit(0);
-
 			finished();
 		}.bind(this)); // end timodule.find()
 	}.bind(this); // end returned callback
