@@ -116,7 +116,7 @@ exports.init = function (logger, config, cli) {
 								next();
 							} else if (Date.now() > waitUntil) {
 								logger.error(__('Emulator failed to start in a timely manner') + '\n');
-								logger.log(__('The current timeout is set to %s', appc.time.prettyDiff(0, timeout).cyan) + '\n');
+								logger.log(__('The current timeout is set to %s ms', String(timeout).cyan));
 								logger.log(__('You can increase this timeout by running: %s', (cli.argv.$ + ' config android.emulatorStartTimeout <timeout ms>').cyan) + '\n');
 								process.exit(1);
 							}
@@ -240,7 +240,7 @@ exports.init = function (logger, config, cli) {
 							function (cb) {
 								if (Date.now() > waitUntil) {
 									logger.error(__('Application failed to launch') + '\n');
-									logger.log(__('The current timeout is set to %s', appc.time.prettyDiff(0, timeout).cyan) + '\n');
+									logger.log(__('The current timeout is set to %s ms', String(timeout).cyan));
 									logger.log(__('You can increase this timeout by running: %s', (cli.argv.$ + ' config android.emulatorStartTimeout <timeout ms>').cyan) + '\n');
 									process.exit(1);
 								}
