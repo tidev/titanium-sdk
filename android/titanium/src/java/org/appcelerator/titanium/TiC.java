@@ -1916,12 +1916,12 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_SHADOW_OFFSET = "shadowOffset";
+	public static final String PROPERTY_SHADOW_COLOR = "shadowColor";
 
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_SHADOW_COLOR = "shadowColor";
+	public static final String PROPERTY_SHADOW_OFFSET = "shadowOffset";
 
 	/**
 	 * @module.api
