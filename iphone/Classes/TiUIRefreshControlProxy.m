@@ -47,6 +47,14 @@
     }
 }
 
+-(void)refreshStart
+{
+    if ([self _hasListeners:@"refreshstart"]) {
+        [self fireEvent:@"refreshstart" withObject:nil propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
+}
+
+
 #pragma mark - Public API
 
 -(void)setTitle:(id)args
@@ -74,13 +82,6 @@
     TiThreadPerformOnMainThread(^{
         [self refreshControl];
     }, NO);
-}
-
--(void)refreshStart
-{
-    if ([self _hasListeners:@"refreshstart"]) {
-        [self fireEvent:@"refreshstart" withObject:nil propagate:NO reportSuccess:NO errorCode:0 message:nil];
-    }
 }
 
 -(void)beginRefreshing:(id)unused
