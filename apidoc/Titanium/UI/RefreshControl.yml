@@ -4,7 +4,7 @@ summary: The RefreshControl is a representation of the native [UIRefreshControl]
 description: |
     Use the <Titanium.UI.createRefreshControl> method to create a RefreshControl.
 
-    This control is intended to be used with the <TiTanium.UI.TableView> and <Titanium.UI.ListView> classes.
+    This control is intended to be used with the <Titanium.UI.TableView> and <Titanium.UI.ListView> classes.
     This control provides an alternate method to implement **pull to refresh** functionality. 
     Use this in lieu of <Titanium.UI.TableView.headerPullView> and <Titanium.UI.ListView.pullView> properties.
 
