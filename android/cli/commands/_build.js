@@ -1541,10 +1541,6 @@ AndroidBuilder.prototype.readBuildManifest = function readBuildManifest(next) {
 			this.buildManifest = JSON.parse(fs.readFileSync(this.buildManifestFile)) || {};
 			this.prevJarLibHash = this.buildManifest.jarLibHash || '';
 		} catch (e) {}
-
-		// now that we've read the build manifest, delete it so if this build
-		// becomes incomplete, the next build will be a full rebuild
-		fs.unlinkSync(this.buildManifestFile);
 	}
 
 	next();
@@ -1788,6 +1784,10 @@ AndroidBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompil
 		wrench.rmdirSyncRecursive(this.buildGenAppIdDir);
 	}
 	fs.existsSync(this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(this.buildGenAppIdDir);
+
+	// now that we've read the build manifest, delete it so if this build
+	// becomes incomplete, the next build will be a full rebuild
+	fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
 
 	next();
 };
