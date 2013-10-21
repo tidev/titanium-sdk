@@ -107,15 +107,13 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					aspectRatio = (double) optimalPreviewSize.height / optimalPreviewSize.width;
 				}
 			}
-
-			// Resize the preview frame with correct aspect ratio.
-			if (previewWidth > previewHeight * aspectRatio) {
-				previewWidth = (int) (previewHeight * aspectRatio + .5);
+			if (previewHeight < previewWidth / aspectRatio) {
+				previewHeight = (int) (previewWidth / aspectRatio + .5);
 
 			} else {
-				previewHeight = (int) (previewWidth / aspectRatio + .5);
+				previewWidth = (int) (previewHeight * aspectRatio + .5);
 			}
-
+			
 			super.onMeasure(MeasureSpec.makeMeasureSpec(previewWidth,
 					MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(
 					previewHeight, MeasureSpec.EXACTLY));
@@ -131,6 +129,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
+		setFullscreen(true);
+		setNavBarHidden(true);
+		
 		super.onCreate(savedInstanceState);
 
 		// create camera preview
@@ -342,39 +343,27 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	 */
 	private static Size getOptimalPreviewSize(List<Size> sizes, int w, int h)
 	{
-		final double ASPECT_TOLERANCE = 0.01;
-		double targetRatio = (double) w / h;
+		double targetRatio = 1;
+		if (w > h) {
+			targetRatio = (double) w / h;
+		} else {
+			targetRatio = (double) h / w;
+		}
 		if (sizes == null) {
 			return null;
 		}
 		Size optimalSize = null;
-		double minDiff = Double.MAX_VALUE;
-
-		int targetHeight = h;
+		double minAspectDiff = Double.MAX_VALUE;
 
 		// Try to find an size match aspect ratio and size
 		for (Size size : sizes) {
 			double ratio = (double) size.width / size.height;
-			if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) {
-				continue;
-			}
-			if (Math.abs(size.height - targetHeight) < minDiff) {
+			if (Math.abs(ratio - targetRatio) < minAspectDiff) {
 				optimalSize = size;
-				minDiff = Math.abs(size.height - targetHeight);
+				minAspectDiff = Math.abs(ratio - targetRatio);
 			}
 		}
-
-		// Cannot find the one match the aspect ratio, ignore the requirement
-		if (optimalSize == null) {
-			Log.w(TAG, "No preview size found that matches the aspect ratio.", Log.DEBUG_MODE);
-			minDiff = Double.MAX_VALUE;
-			for (Size size : sizes) {
-				if (Math.abs(size.height - targetHeight) < minDiff) {
-					optimalSize = size;
-					minDiff = Math.abs(size.height - targetHeight);
-				}
-			}
-		}
+		
 		return optimalSize;
 	}
 
