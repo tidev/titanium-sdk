@@ -59,6 +59,8 @@ function AndroidBuilder() {
 
 	this.targets = ['emulator', 'device', 'dist-playstore'];
 
+	this.validABIs = ['armeabi', 'armeabi-v7a', 'x86'];
+
 	this.xmlMergeRegExp = /^(strings|attrs|styles|bools|colors|dimens|ids|integers|arrays)\.xml$/;
 }
 
@@ -916,6 +918,23 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		logger.warn(__('Building with Android SDK %s which hasn\'t been tested against Titanium SDK %s', (''+this.targetSDK).cyan, this.titaniumSdkVersion));
 	}
 
+	// determine the abis to support
+	this.abis = this.validABIs;
+	if (cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') == -1) {
+		this.abis = cli.tiapp.android.abi;
+		this.abis.forEach(function (abi) {
+			if (this.validABIs.indexOf(abi) == -1) {
+				logger.error(__('Invalid ABI "%s"', abi) + '\n');
+				logger.log(__('Valid ABIs:'));
+				this.validABIs.forEach(function (name) {
+					logger.log('   ' + name.cyan);
+				});
+				logger.log();
+				process.exit(1);
+			}
+		}, this);
+	}
+
 	if (/^device|emulator$/.test(this.target)) {
 		var deviceId = cli.argv['device-id'];
 
@@ -1025,12 +1044,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 				logger.log(__('Please create an Android emulator, then try again.') + '\n');
 			}
 			process.exit(1);
-		}
-
-		// determine the abis to support
-		this.abis = ['armeabi', 'armeabi-v7a', 'x86'];
-		if (cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') == -1) {
-			this.abis = cli.tiapp.android.abi;
 		}
 
 		var device = this.devices.filter(function (d) { return d.id = deviceId; }).shift();
@@ -1152,8 +1165,10 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.nativeLibModules = [];
 
 			var manifestHashes = [],
-				jarHashes = [],
-				bindingsHashes = [];
+				nativeHashes = [],
+				bindingsHashes = [],
+				jarHashes = {},
+				ignoreDirs = new RegExp(config.get('cli.ignoreDirs'));
 
 			modules.found.forEach(function (module) {
 				manifestHashes.push(hash(JSON.stringify(module.manifest)));
@@ -1173,9 +1188,56 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 						process.exit(1);
 					}
 
+					// get the jar hashes
+					var jarHash = module.hash = hash(fs.readFileSync(module.jarFile).toString());
+					nativeHashes.push(jarHash);
+					jarHashes[module.jarName] || (jarHashes[module.jarName] = []);
+					jarHashes[module.jarName].push({
+						hash: module.hash,
+						module: module
+					});
 
-					// TODO: determine ABIs and validate that we're compatible
+					var libDir = path.join(module.modulePath, 'lib'),
+						jarRegExp = /\.jar$/;
+					fs.existsSync(libDir) && fs.readdirSync(libDir).forEach(function (name) {
+						var file = path.join(libDir, name);
+						if (jarRegExp.test(name) && fs.existsSync(file)) {
+							jarHashes[name] || (jarHashes[name] = []);
+							jarHashes[name].push({
+								hash: hash(fs.readFileSync(file).toString()),
+								module: module
+							});
+						}
+					});
 
+					// determine the module's ABIs
+					module.abis = [];
+					var libsDir = path.join(module.modulePath, 'libs'),
+						soRegExp = /\.so$/;
+					fs.existsSync(libsDir) && fs.readdirSync(libsDir).forEach(function (abi) {
+						var dir = path.join(libsDir, abi),
+							added = false;
+						if (!ignoreDirs.test(abi) && fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+							fs.readdirSync(dir).forEach(function (name) {
+								if (soRegExp.test(name)) {
+									var file = path.join(dir, name);
+									if (!added) {
+										module.abis.push(abi);
+										added = true;
+									}
+									nativeHashes.push(afs.hashFile(file));
+								}
+							});
+						}
+					});
+
+					// check missing abis
+					var missingAbis = module.abis.length && this.abis.filter(function (a) { return module.abis.indexOf(a) == -1; });
+					if (missingAbis.length) {
+						this.logger.error(__n('The module "%%s" does not support the ABI: %%s', 'The module "%%s" does not support the ABIs: %s', missingAbis.length, module.id, '"' + missingAbis.join('" "') + '"'));
+						this.logger.error(__('It only supports the following ABIs: %s', module.abis.join(', ')) + '\n');
+						process.exit(1);
+					}
 
 					// read in the bindings
 					module.bindings = this.getNativeModuleBindings(module.jarFile);
@@ -1184,7 +1246,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 						process.exit(1);
 					}
 
-					jarHashes.push(module.hash = afs.hashFile(module.jarFile));
 					bindingsHashes.push(hash(JSON.stringify(module.bindings)));
 
 					logger.info(__('Detected third-party native Android module: %s version %s', module.id.cyan, (module.version || 'latest').cyan));
@@ -1196,8 +1257,45 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			}, this);
 
 			this.modulesManifestHash = hash(manifestHashes.length ? manifestHashes.sort().join(',') : '');
-			this.modulesJarHash = hash(jarHashes.length ? jarHashes.sort().join(',') : '');
+			this.modulesNativeHash = hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
 			this.modulesBindingsHash = hash(bindingsHashes.length ? bindingsHashes.sort().join(',') : '');
+
+			// check if we have any conflicting jars
+			var possibleConflicts = Object.keys(jarHashes).filter(function (jar) { return jarHashes[jar].length > 1; });
+			if (possibleConflicts.length) {
+				var foundConflict = false;
+				possibleConflicts.forEach(function (jar) {
+					var modules = jarHashes[jar],
+						maxlen = 0,
+						h = {};
+					modules.forEach(function (m) {
+						m.module.id.length > maxlen && (maxlen = m.module.id.length);
+						h[m.hash] = 1;
+					});
+					if (Object.keys(h).length > 1) {
+						if (!foundConflict) {
+							logger.error(__('Conflicting jar files detected:'));
+							foundConflict = true;
+						}
+						logger.error();
+						logger.error(__('The following modules have different "%s" files', jar));
+						modules.forEach(function (m) {
+							logger.error(__('   %s (version %s) (hash=%s)', appc.string.rpad(m.module.id, maxlen + 2), m.module.version, m.hash));
+						});
+					}
+				});
+				if (foundConflict) {
+					logger.error();
+					appc.string.wrap(
+						__('You can either select a version of these modules where the conflicting jar file is the same or you can try copying the jar file from one module\'s "lib" folder to the other module\'s "lib" folder.'),
+						config.get('cli.width', 100)
+					).split('\n').forEach(logger.error);
+					logger.log();
+					process.exit(1);
+				}
+			}
+
+				process.exit(0);
 
 			finished();
 		}.bind(this)); // end timodule.find()
@@ -1541,10 +1639,10 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
-	if (this.modulesJarHash != manifest.modulesJarHash) {
-		this.logger.info(__('Forcing rebuild: native modules jar hash changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.modulesJarHash));
-		this.logger.info('  ' + __('Now: %s', this.modulesJarHash));
+	if (this.modulesNativeHash != manifest.modulesNativeHash) {
+		this.logger.info(__('Forcing rebuild: native modules hash changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.modulesNativeHash));
+		this.logger.info('  ' + __('Now: %s', this.modulesNativeHash));
 		return true;
 	}
 
@@ -3221,6 +3319,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 	try {
 		addNativeLibs(path.join(this.platformPath, 'native', 'libs'));
 	} catch (abi) {
+		// this should never be called since we already validated this
 		var abis = [];
 		fs.readdirSync(path.join(this.platformPath, 'native', 'libs')).forEach(function (abi) {
 			var dir = path.join(this.platformPath, 'native', 'libs', abi);
@@ -3238,6 +3337,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 			try {
 				addNativeLibs(path.join(m.modulePath, 'libs'));
 			} catch (abi) {
+				// this should never be called since we already validated this
 				var abis = [];
 				fs.readdirSync(path.join(m.modulePath, 'libs')).forEach(function (abi) {
 					var dir = path.join(m.modulePath, 'libs', abi);
@@ -3351,7 +3451,7 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		platformPath: this.platformPath,
 		modulesHash: this.modulesHash,
 		modulesManifestHash: this.modulesManifestHash,
-		modulesJarHash: this.modulesJarHash,
+		modulesNativeHash: this.modulesNativeHash,
 		modulesBindingsHash: this.modulesBindingsHash,
 		gitHash: ti.manifest.githash,
 		outputDir: this.cli.argv['output-dir'],
