@@ -71,6 +71,9 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 
 	var _t = this;
 
+	this.ignoreDirs = new RegExp(config.get('cli.ignoreDirs'));
+	this.ignoreFiles = new RegExp(config.get('cli.ignoreFiles'));
+
 	// we hook into the pre-validate event so that we can stop the build before
 	// prompting if we know the build is going to fail.
 
@@ -221,8 +224,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								default: androidSdkPath,
 								complete: true,
 								showHidden: true,
-								ignoreDirs: new RegExp(config.get('cli.ignoreDirs')),
-								ignoreFiles: new RegExp(config.get('cli.ignoreFiles')),
+								ignoreDirs: _t.ignoreDirs,
+								ignoreFiles: _t.ignoreFiles,
 								validate: _t.conf.options['android-sdk'].validate.bind(_t)
 							}));
 						},
@@ -496,8 +499,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								promptLabel: __('Where is the __keystore file__ used to sign the app?'),
 								complete: true,
 								showHidden: true,
-								ignoreDirs: new RegExp(config.get('cli.ignoreDirs')),
-								ignoreFiles: new RegExp(config.get('cli.ignoreFiles')),
+								ignoreDirs: _t.ignoreDirs,
+								ignoreFiles: _t.ignoreFiles,
 								validate: _t.conf.options.keystore.validate.bind(_t)
 							}));
 						},
@@ -525,7 +528,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								default: cli.argv['project-dir'] && afs.resolvePath(cli.argv['project-dir'], 'dist'),
 								complete: true,
 								showHidden: true,
-								ignoreDirs: new RegExp(config.get('cli.ignoreDirs')),
+								ignoreDirs: _t.ignoreDirs,
 								ignoreFiles: /.*/,
 								validate: _t.conf.options['output-dir'].validate.bind(_t)
 							}));
@@ -1168,7 +1171,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 				nativeHashes = [],
 				bindingsHashes = [],
 				jarHashes = {},
-				ignoreDirs = new RegExp(config.get('cli.ignoreDirs'));
+				ignoreDirs = this.ignoreDirs;
 
 			modules.found.forEach(function (module) {
 				manifestHashes.push(hash(JSON.stringify(module.manifest)));
@@ -1841,8 +1844,8 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 };
 
 AndroidBuilder.prototype.copyResources = function copyResources(next) {
-	var ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')),
-		ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles')),
+	var ignoreDirs = this.ignoreDirs,
+		ignoreFiles = this.ignoreFiles,
 		extRegExp = /\.(\w+)$/,
 		drawableRegExp = /^images\/(high|medium|low|res-[^\/]+)(\/(.*))?/,
 		drawableDpiRegExp = /^(high|medium|low)$/,
@@ -2708,8 +2711,8 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 	this.logger.info(__('Generating i18n files'));
 
 	var data = i18n.load(this.projectDir, this.logger, {
-		ignoreDirs: new RegExp(this.config.get('cli.ignoreDirs')),
-		ignoreFiles: new RegExp(this.config.get('cli.ignoreFiles'))
+		ignoreDirs: this.ignoreDirs,
+		ignoreFiles: this.ignoreFiles
 	});
 	data.en || (data.en = {});
 	data.en.app || (data.en.app = {});
