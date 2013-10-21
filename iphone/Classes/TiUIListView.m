@@ -1033,7 +1033,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     } else {
         sectionCount = [self.listViewProxy.sectionCount unsignedIntegerValue];
     }
-    return MAX(1,sectionCount);
+    return MAX(0,sectionCount);
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
