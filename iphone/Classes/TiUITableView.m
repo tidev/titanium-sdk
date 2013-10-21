@@ -332,6 +332,9 @@
 	RELEASE_TO_NIL(searchResultIndexes);
 	RELEASE_TO_NIL(tableHeaderPullView);
 	[searchString release];
+#ifdef USE_TI_UIREFRESHCONTROL
+    RELEASE_TO_NIL(_refreshControlProxy);
+#endif
 	[super dealloc];
 }
 
@@ -1839,6 +1842,20 @@
 -(void)setMaxRowHeight_:(id)height
 {
 	maxRowHeight = [TiUtils dimensionValue:height];
+}
+
+-(void)setRefreshControl_:(id)args
+{
+#ifdef USE_TI_UIREFRESHCONTROL
+    ENSURE_SINGLE_ARG_OR_NIL(args,TiUIRefreshControlProxy);
+    [[_refreshControlProxy control] removeFromSuperview];
+    RELEASE_TO_NIL(_refreshControlProxy);
+    [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
+    if (args != nil) {
+        _refreshControlProxy = [args retain];
+        [[self tableView] addSubview:[_refreshControlProxy control]];
+    }
+#endif
 }
 
 -(void)setHeaderPullView_:(id)value
