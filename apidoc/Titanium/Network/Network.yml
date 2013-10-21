@@ -198,8 +198,8 @@ methods:
         Gets all the cookies with the domain, path and name matched with the given values from the system cookie store.
     description: |
         On Android, <Titanium.UI.WebView> uses the system cookie store. The domain matching and path matching follow `RFC6265`.
-        If name is null, return all the cookies with the domain and path matched. The returned cookies are only with the 
-        [name](Titanium.Network.Cookie.name) and [value](Titanium.Network.Cookie.value) spedified.
+        If name is null, return all the cookies with the domain and path matched. The returned cookies only have their
+        [name](Titanium.Network.Cookie.name) and [value](Titanium.Network.Cookie.value) properties returned.
     parameters:
       - name: domain
         summary: The domain of the cookie to get. It is case-insensitive.

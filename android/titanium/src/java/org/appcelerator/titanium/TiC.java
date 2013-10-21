@@ -1674,12 +1674,12 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_PATH = "path";
+	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
 
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
+	public static final String PROPERTY_PATH = "path";
 
 	/**
 	 * @module.api

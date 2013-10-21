@@ -34,7 +34,7 @@ public class CookieProxy extends KrollProxy
 {
 	private static final String TAG = "CookieProxy";
 	private static TimeZone timezone = TimeZone.getTimeZone("GMT");
-	public static final SimpleDateFormat httpExpiryDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+	private static final SimpleDateFormat httpExpiryDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 	public static final SimpleDateFormat systemExpiryDateFormatter = new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss 'GMT'");
 	static {
 		httpExpiryDateFormatter.setTimeZone(timezone);

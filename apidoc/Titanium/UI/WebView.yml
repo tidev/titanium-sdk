@@ -69,7 +69,7 @@ description: |
     On Android, the web view uses the system cookie store which does not share cookies with the
     <Titanium.Network.HTTPClient> cookie store. Developers can manage their cookies for both
     cookie stores using the methods <Titanium.Network.addHTTPCookie>, <Titanium.Network.addSystemCookie>,
-    <Titanium.Network.getHTTPCookies>, <Titanium.Network.getHTTPCookieForDomain>, <Titanium.Network.getSystemCookies>,
+    <Titanium.Network.getHTTPCookies>, <Titanium.Network.getHTTPCookiesForDomain>, <Titanium.Network.getSystemCookies>,
     <Titanium.Network.removeHTTPCookie>, <Titanium.Network.removeHTTPCookiesForDomain>, <Titanium.Network.removeAllHTTPCookies>,
     <Titanium.Network.removeSystemCookie>, <Titanium.Network.removeAllSystemCookies>.
 

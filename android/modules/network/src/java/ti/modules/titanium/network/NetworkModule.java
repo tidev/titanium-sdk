@@ -328,7 +328,9 @@ public class NetworkModule extends KrollModule {
 	public CookieProxy[] getHTTPCookies(String domain, String path, String name)
 	{
 		if (domain == null || domain.length() == 0) {
-			Log.e(TAG, "Unable to get the HTTP cookies. Need to provide a valid domain.");
+			if (Log.isDebugModeEnabled()) {
+				Log.e(TAG, "Unable to get the HTTP cookies. Need to provide a valid domain.");
+			}
 			return null;
 		}
 		if (path == null || path.length() == 0) {
@@ -336,15 +338,13 @@ public class NetworkModule extends KrollModule {
 		}
 		ArrayList<CookieProxy> cookieList = new ArrayList<CookieProxy>();
 		List<Cookie> cookies = getHTTPCookieStoreInstance().getCookies();
-		if (!cookies.isEmpty()) {
-			for (Cookie cookie : cookies) {
-				String cookieName = cookie.getName();
-				String cookieDomain = cookie.getDomain();
-				String cookiePath = cookie.getPath();
-				if ((name == null || cookieName.equals(name)) && domainMatch(cookieDomain, domain)
-					&& pathMatch(cookiePath, path)) {
-					cookieList.add(new CookieProxy(cookie));
-				}
+		for (Cookie cookie : cookies) {
+			String cookieName = cookie.getName();
+			String cookieDomain = cookie.getDomain();
+			String cookiePath = cookie.getPath();
+			if ((name == null || cookieName.equals(name)) && domainMatch(cookieDomain, domain)
+				&& pathMatch(cookiePath, path)) {
+				cookieList.add(new CookieProxy(cookie));
 			}
 		}
 		if (!cookieList.isEmpty()) {
@@ -362,17 +362,17 @@ public class NetworkModule extends KrollModule {
 	public CookieProxy[] getHTTPCookiesForDomain(String domain)
 	{
 		if (domain == null || domain.length() == 0) {
-			Log.e(TAG, "Unable to get the HTTP cookies. Need to provide a valid domain.");
+			if (Log.isDebugModeEnabled()) {
+				Log.e(TAG, "Unable to get the HTTP cookies. Need to provide a valid domain.");
+			}
 			return null;
 		}
 		ArrayList<CookieProxy> cookieList = new ArrayList<CookieProxy>();
 		List<Cookie> cookies = getHTTPCookieStoreInstance().getCookies();
-		if (!cookies.isEmpty()) {
-			for (Cookie cookie : cookies) {
-				String cookieDomain = cookie.getDomain();
-				if (domainMatch(cookieDomain, domain)) {
-					cookieList.add(new CookieProxy(cookie));
-				}
+		for (Cookie cookie : cookies) {
+			String cookieDomain = cookie.getDomain();
+			if (domainMatch(cookieDomain, domain)) {
+				cookieList.add(new CookieProxy(cookie));
 			}
 		}
 		if (!cookieList.isEmpty()) {
@@ -390,20 +390,20 @@ public class NetworkModule extends KrollModule {
 	public void removeHTTPCookie(String domain, String path, String name)
 	{
 		if (domain == null || name == null) {
-			Log.e(TAG, "Unable to remove the HTTP cookie. Need to provide a valid domain / name.");
+			if (Log.isDebugModeEnabled()) {
+				Log.e(TAG, "Unable to remove the HTTP cookie. Need to provide a valid domain / name.");
+			}
 			return;
 		}
 		CookieStore cookieStore = getHTTPCookieStoreInstance();
 		List<Cookie> cookies = new ArrayList<Cookie>(cookieStore.getCookies());
 		cookieStore.clear();
-		if (!cookies.isEmpty()) {
-			for (Cookie cookie : cookies) {
-				String cookieName = cookie.getName();
-				String cookieDomain = cookie.getDomain();
-				String cookiePath = cookie.getPath();
-				if (!(name.equals(cookieName) && stringEqual(domain, cookieDomain, false) && stringEqual(path, cookiePath, true))) {
-					cookieStore.addCookie(cookie);
-				}
+		for (Cookie cookie : cookies) {
+			String cookieName = cookie.getName();
+			String cookieDomain = cookie.getDomain();
+			String cookiePath = cookie.getPath();
+			if (!(name.equals(cookieName) && stringEqual(domain, cookieDomain, false) && stringEqual(path, cookiePath, true))) {
+				cookieStore.addCookie(cookie);
 			}
 		}
 	}
@@ -418,12 +418,10 @@ public class NetworkModule extends KrollModule {
 		CookieStore cookieStore = getHTTPCookieStoreInstance();
 		List<Cookie> cookies = new ArrayList<Cookie>(cookieStore.getCookies());
 		cookieStore.clear();
-		if (!cookies.isEmpty()) {
-			for (Cookie cookie : cookies) {
-				String cookieDomain = cookie.getDomain();
-				if (!(domainMatch(cookieDomain, domain))) {
-					cookieStore.addCookie(cookie);
-				}
+		for (Cookie cookie : cookies) {
+			String cookieDomain = cookie.getDomain();
+			if (!(domainMatch(cookieDomain, domain))) {
+				cookieStore.addCookie(cookie);
 			}
 		}
 	}
@@ -489,7 +487,9 @@ public class NetworkModule extends KrollModule {
 	public CookieProxy[] getSystemCookies(String domain, String path, String name)
 	{
 		if (domain == null || domain.length() == 0) {
-			Log.e(TAG, "Unable to get the HTTP cookies. Need to provide a valid domain.");
+			if (Log.isDebugModeEnabled()) {
+				Log.e(TAG, "Unable to get the HTTP cookies. Need to provide a valid domain.");
+			}
 			return null;
 		}
 		if (path == null || path.length() == 0) {
@@ -529,7 +529,9 @@ public class NetworkModule extends KrollModule {
 	public void removeSystemCookie(String domain, String path, String name)
 	{
 		if (domain == null || name == null) {
-			Log.e(TAG, "Unable to remove the system cookie. Need to provide a valid domain / name.");
+			if (Log.isDebugModeEnabled()) {
+				Log.e(TAG, "Unable to remove the system cookie. Need to provide a valid domain / name.");
+			}
 			return;
 		}
 		String lower_domain = domain.toLowerCase();
