@@ -1921,6 +1921,21 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SHADOW_COLOR = "shadowColor";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHADOW_OFFSET = "shadowOffset";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHADOW_RADIUS = "shadowRadius";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SHOW_AS_ACTION = "showAsAction";
 	
 	/**
