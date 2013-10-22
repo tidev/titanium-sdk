@@ -30,7 +30,7 @@ define(function() {
 
 			if (!c) {
 				if (window.hasWP8Extensions) {
-					require.getFileFromNative(url, function (success, content) {
+					require.getFileFromNative(url, 0, function (success, content) {
 						if (success) {
 							c = content;
 						} else {
