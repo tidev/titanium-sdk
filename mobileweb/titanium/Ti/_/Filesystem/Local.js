@@ -416,7 +416,7 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "T
 						nativePath: path
 					};
 
-				if (this._remote && _.isBinaryMimeType(type)) {
+				if (this._remote && _.isBinaryMimeType(type) && !window.hasWP8Extensions) {
 					while (i < len) {
 						binaryData += String.fromCharCode(data.charCodeAt(i++) & 0xff);
 					}

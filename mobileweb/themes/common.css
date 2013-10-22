@@ -16,9 +16,10 @@ body {
 	display: block;
 	margin: 0;
 	overflow: hidden;
-	user-select: none;
 	-moz-user-select: none;
 	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 body,
@@ -39,8 +40,8 @@ textarea {
 }
 
 button,
-input[type="button"], 
-input[type="reset"], 
+input[type="button"],
+input[type="reset"],
 input[type="submit"] {
 	cursor: pointer;
 	*overflow: visible;
@@ -128,9 +129,9 @@ textarea {
 		#fff 50%,
 		#bbb);
 	background: -webkit-gradient(
-		linear, 
-		left top, 
-		left bottom, 
+		linear,
+		left top,
+		left bottom,
 		from(#fff), to(#bbb));
 }
 
@@ -156,9 +157,9 @@ textarea {
 		#fff 50%,
 		#999);
 	background: -webkit-gradient(
-		linear, 
-		left top, 
-		left bottom, 
+		linear,
+		left top,
+		left bottom,
 		from(#fff), to(#999));
 }
 
@@ -185,9 +186,9 @@ textarea {
 		#fff 50%,
 		#fff);
 	background: -webkit-gradient(
-		linear, 
-		left top, 
-		left bottom, 
+		linear,
+		left top,
+		left bottom,
 		from(#bbb), to(#fff));
 }
 
@@ -336,7 +337,7 @@ textarea {
 }
 
 .TiUIButtonDefault {
-	border: 1px solid #666; 
+	border: 1px solid #666;
 	border-radius: 6px;
 }
 
@@ -455,6 +456,9 @@ textarea {
 	overflow: hidden;
 	text-align: left;
 	text-overflow: ellipsis;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
 	user-select: none;
 	white-space: nowrap;
 	width: 100%;
