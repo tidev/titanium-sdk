@@ -519,8 +519,11 @@
 - (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay
 {
     NSArray* keys = [mapLinesDictionary allKeysForObject:overlay];
-    NSString* theKey = [keys objectAtIndex:0];
-    return [mapViewsDictionary objectForKey:theKey];
+    if ([keys count] > 0) {
+        NSString* theKey = [keys objectAtIndex:0];
+        return [mapViewsDictionary objectForKey:theKey];
+    }
+    return nil;
 }
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
