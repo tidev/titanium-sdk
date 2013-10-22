@@ -488,7 +488,7 @@
     free(pointArray);
     
 	// construct the MKPolylineView
-    MKPolylineView* routeView = [[MKPolylineView alloc] initWithPolyline:routeLine];
+    MKPolylineView* routeView = [[[MKPolylineView alloc] initWithPolyline:routeLine] autorelease];
     routeView.fillColor = routeView.strokeColor = color ? [color _color] : [UIColor blueColor];
     routeView.lineWidth = width;
     
