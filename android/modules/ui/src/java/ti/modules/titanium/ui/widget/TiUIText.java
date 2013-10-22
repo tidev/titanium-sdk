@@ -189,13 +189,13 @@ public class TiUIText extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_RETURN_KEY_TYPE)) {
 			handleReturnKeyType(TiConvert.toInt(d.get(TiC.PROPERTY_RETURN_KEY_TYPE), RETURNKEY_DEFAULT));
 		}
-		
-		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT) || d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION) || d.containsKey(TiC.PROPERTY_EDITABLE)) {
+
+		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT)
+			|| d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)
+			|| d.containsKey(TiC.PROPERTY_EDITABLE)) {
 			handleKeyboard(d);
-		} else if (!field) {
-			tv.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
 		}
@@ -498,7 +498,7 @@ public class TiUIText extends TiUIView
 			textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_PASSWORD;
 			// Sometimes password transformation does not work properly when the input type is set after the transformation method.
 			// This issue has been filed at http://code.google.com/p/android/issues/detail?id=7092
-			tv.setInputType(textTypeAndClass);
+			tv.setInputType(tv.getInputType() | textTypeAndClass);
 			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
 			//turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in landscape mode.
@@ -507,7 +507,7 @@ public class TiUIText extends TiUIView
 			}
 
 		} else {
-			tv.setInputType(textTypeAndClass);
+			tv.setInputType(tv.getInputType() | textTypeAndClass);
 			if (tv.getTransformationMethod() instanceof PasswordTransformationMethod) {
 				tv.setTransformationMethod(null);
 			}
