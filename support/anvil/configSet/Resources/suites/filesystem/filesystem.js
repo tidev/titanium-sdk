@@ -35,7 +35,17 @@ module.exports = new function() {
 		{name: "emptyFile"},
 		{name: "fileSize"},
 		{name: "mimeType"},
-		{name: "filesInApplicationCacheDirectoryExists"}
+		{name: "filesInApplicationCacheDirectoryExists"},
+		{name: "existsMethod"},
+		{name: "soundIsNotFound"},
+		{name: "appCrashWindows7"},
+		{name: "FileDotWritable"},
+		{name: "httpClientFileTransfers", timeout:20000},
+		{name: "applicationCacheDirectory"},
+		{name: "BlobDotNativePathException"},
+		{name: "multiLingualFilename"},
+		{name: "isFileMethod"},
+		{name: "resourceDirAsFile"}
 	]
 
 	this.optionalArgAPIs = function(testRun) {
@@ -561,5 +571,180 @@ module.exports = new function() {
 		}
 
 		finish(testRun);
+	}
+
+	//TIMOB-4469
+	this.existsMethod = function(testRun) {
+		valueOf(testRun, Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'app.js').exists()).shouldBeTrue();
+		valueOf(testRun, Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'appp.js').exists()).shouldBeFalse();
+
+		finish(testRun);
+	}
+
+	//TIMOB-5239
+	this.soundIsNotFound = function(testRun) {
+		if(Ti.Platform.osname === 'android'){
+			var activity = Ti.Android.currentActivity;
+			var intent = Ti.Android.createIntent({
+			});
+			var pending = Ti.Android.createPendingIntent({
+				'activity' : activity,
+				'intent' : intent,
+				'type' : Ti.Android.PENDING_INTENT_FOR_ACTIVITY,
+				'flags' : 1073741824
+			});
+			var ts = new Date().getTime();
+			valueOf(testRun, function() {
+				var notification = Ti.Android.createNotification({
+					contentIntent : pending,
+					contentTitle : 'Test',
+					contentText : 'test',
+					when : ts,
+					sound: '1.mp3',
+					defaults: Titanium.Android.NotificationManager.DEFAULT_ALL
+				});
+				Ti.Android.NotificationManager.notify(1, notification);
+			}).shouldNotThrowException();
+			
+
+			finish(testRun);
+		}else {
+			Ti.API.warn("Cross-context tests aren't currently being tested in iOS");
+
+			finish(testRun);
+		}
+	}
+
+	//TIMOB-6371
+	this.appCrashWindows7 = function(testRun) {
+		if (Ti.Platform.osname === 'android'){
+			valueOf(testRun, function(){
+				var Window = require('suites/filesystem/applicationWindow').ApplicationWindow;
+				new Window().open();
+			}).shouldNotThrowException();
+
+			finish(testRun);
+		}else {
+			Ti.API.warn("Cross-context tests aren't currently being tested in iOS");
+
+			finish(testRun);
+		}
+    }
+
+	//TIMOB-6932
+	this.FileDotWritable = function(testRun) {
+		file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, "app.js");
+		if (Ti.Platform.osname === 'android'){
+			valueOf(testRun, file.writable).shouldBeFalse();
+
+			finish(testRun);
+		}else if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad'){
+			valueOf(testRun, file.writable).shouldBeTrue();
+
+			finish(testRun);
+		}
+	}
+
+	//TIMOB-7605
+	this.httpClientFileTransfers = function(testRun) {
+		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad'){
+			var count=0;
+			for (var i=1; i<=5; i++) {
+				var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, "projects", "p"+i);
+				if (!file.exists()) {
+					file.createDirectory(true);
+				}
+			}
+			downloadafile("p1", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
+			downloadafile("p2", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
+			downloadafile("p3", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
+			downloadafile("p4", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
+			downloadafile("p5", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
+			function downloadafile(foldername, filename, fileurl) {
+				var file = Ti.Filesystem.pathFromComponents(Ti.Filesystem.applicationDataDirectory, "projects", foldername, filename);
+				var c = Titanium.Network.createHTTPClient({
+					timeout : 10000,
+					onload : function(e) {
+						Ti.API.info('LOADED ' + filename + " TO " + foldername);
+						count++;
+						if(count==5)
+
+							finish(testRun);
+					},
+					onerror : function(e) {
+						Ti.API.info('XHR Error ' + e.error);
+					}
+				});
+				c.clearCookies("all");
+				c.open('GET', fileurl);
+				c.file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory + "/projects/" + foldername + "/" + filename);
+				c.send();
+			}
+		}else {
+			Ti.API.warn("Cross-context tests aren't currently being tested in android");
+
+			finish(testRun);
+		}
+
+	}
+
+	//TIMOB-8684
+	this.applicationCacheDirectory = function(testRun) {
+		valueOf(testRun, Ti.Filesystem.applicationCacheDirectory).shouldNotBeUndefined();
+		valueOf(testRun, function(){
+			Ti.API.info(Ti.Filesystem.applicationCacheDirectory);
+		}).shouldNotThrowException();
+		
+		finish(testRun);
+	}
+
+	//TIMOB-9175
+	this.BlobDotNativePathException = function(testRun) {
+		var button = Titanium.UI.createButton({
+			title: 'Hello',
+			top: 10,
+			width: 100,
+			height: 50
+		});
+		var myBlob = button.toImage();
+		valueOf(testRun, function(){
+			Ti.API.info("Blob.nativePath: " + JSON.stringify(myBlob.nativePath));
+		}).shouldNotThrowException();
+
+		finish(testRun);
+	}
+
+	//TIMOB-10107
+	this.multiLingualFilename = function(testRun) {
+		valueOf(testRun, function(){
+			var msg = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory,'網上廣東話輸入法.txt');
+			msg.write("Appcelerator", true);
+		}).shouldNotThrowException();
+
+		finish(testRun);
+	}
+
+	//TIMOB-12414
+	this.isFileMethod = function(testRun) {
+		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad'){
+			var file = Titanium.Filesystem.getFile('app.js');
+			valueOf(testRun, file.isFile( )).shouldBeTrue();
+
+			finish(testRun);
+		}else {
+			Ti.API.warn("Cross-context tests aren't currently being tested in android");
+
+			finish(testRun);
+		}
+	}
+
+	//TIMOB-12901
+	this.resourceDirAsFile = function(testRun) {
+		var resourceDir = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory);
+		valueOf(testRun, resourceDir.isDirectory()).shouldBeTrue();
+		valueOf(testRun, resourceDir.isFile()).shouldBeFalse();
+
+		finish(testRun);
+
 	}
 }
