@@ -302,6 +302,7 @@
         hideOnSearch = YES; // Legacy behavior
 		filterCaseInsensitive = YES; // defaults to true on search
 		searchString = @"";
+		defaultSeparatorInsets = UIEdgeInsetsZero;
 	}
 	return self;
 }
@@ -425,6 +426,10 @@
         }
 		
 		[self updateSearchView];
+        
+		if ([TiUtils isIOS7OrGreater]) {
+			defaultSeparatorInsets = [tableview separatorInset];
+		}
 	}
 	if ([tableview superview] != self)
 	{
@@ -1533,6 +1538,24 @@
 	UITableView *table = [self tableView];
 	NSIndexPath *path = [self indexPathFromInt:index];
 	[table scrollToRowAtIndexPath:path atScrollPosition:position animated:animated];
+}
+
+-(void)setSeparatorInsets_:(id)arg
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        [self tableView];
+        
+        if ([arg isKindOfClass:[NSDictionary class]]) {
+            CGFloat left = [TiUtils floatValue:@"left" properties:arg def:defaultSeparatorInsets.left];
+            CGFloat right = [TiUtils floatValue:@"right" properties:arg def:defaultSeparatorInsets.right];
+            [tableview setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
+        } else {
+            [tableview setSeparatorInset:defaultSeparatorInsets];
+        }
+        if (!searchActivated) {
+            [tableview setNeedsDisplay];
+        }
+    }
 }
 
 -(void)setBackgroundColor_:(id)arg

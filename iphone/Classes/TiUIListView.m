@@ -59,6 +59,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     BOOL searchActive;
     BOOL keepSectionsInSearch;
     NSMutableArray* _searchResults;
+    UIEdgeInsets _defaultSeparatorInsets;
 }
 
 - (id)init
@@ -66,6 +67,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     self = [super init];
     if (self) {
         _defaultItemTemplate = [[NSNumber numberWithUnsignedInteger:UITableViewCellStyleDefault] retain];
+        _defaultSeparatorInsets = UIEdgeInsetsZero;
     }
     return self;
 }
@@ -170,6 +172,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [tapGestureRecognizer release];
 
         [self configureHeaders];
+        if ([TiUtils isIOS7OrGreater]) {
+            _defaultSeparatorInsets = [_tableView separatorInset];
+        }
     }
     if ([_tableView superview] != self) {
         [self addSubview:_tableView];
@@ -406,6 +411,23 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 }
 
 #pragma mark - Public API
+
+-(void)setSeparatorInsets_:(id)arg
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        [self tableView];
+        if ([arg isKindOfClass:[NSDictionary class]]) {
+            CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
+            CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
+            [_tableView setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
+        } else {
+            [_tableView setSeparatorInset:_defaultSeparatorInsets];
+        }
+        if (![searchController isActive]) {
+            [_tableView setNeedsDisplay];
+        }
+    }
+}
 
 -(void)setPruneSectionsOnEdit_:(id)args
 {
@@ -1056,7 +1078,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     } else {
         sectionCount = [self.listViewProxy.sectionCount unsignedIntegerValue];
     }
-    return MAX(1,sectionCount);
+    return MAX(0,sectionCount);
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
