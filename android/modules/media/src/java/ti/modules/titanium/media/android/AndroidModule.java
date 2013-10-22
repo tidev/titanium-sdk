@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -153,5 +153,11 @@ public class AndroidModule extends KrollModule
 			connection = new MediaScannerConnection(activity, this);
 			connection.connect();
 		}
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Media.Android";
 	}
 }

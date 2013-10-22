@@ -278,4 +278,10 @@ public class NetworkModule extends KrollModule {
 		manageConnectivityListener(false);
 		connectivityManager = null;
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Network";
+	}
 }

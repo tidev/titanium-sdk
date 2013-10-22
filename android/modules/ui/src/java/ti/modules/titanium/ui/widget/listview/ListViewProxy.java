@@ -324,4 +324,10 @@ public class ListViewProxy extends TiViewProxy {
 			
 		}
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.ListView";
+	}
 }
