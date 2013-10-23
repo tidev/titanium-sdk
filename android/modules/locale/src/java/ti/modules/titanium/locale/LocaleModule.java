@@ -107,4 +107,10 @@ public class LocaleModule extends KrollModule
 			return defaultValue;
 		}
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Locale";
+	}
 }

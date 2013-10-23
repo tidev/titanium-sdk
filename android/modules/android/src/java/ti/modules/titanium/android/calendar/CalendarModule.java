@@ -99,4 +99,10 @@ public class CalendarModule extends KrollModule
 		ArrayList<AlertProxy> alerts = AlertProxy.queryAlerts(null, null, null);
 		return alerts.toArray(new AlertProxy[alerts.size()]);
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Android.Calendar";
+	}
 }

@@ -38,4 +38,10 @@ public class SearchViewProxy extends TiViewProxy
 		Log.e(TAG, "SearchView is only supported on target API 11+");
 		return null;
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.Android.SearchView";
+	}
 }

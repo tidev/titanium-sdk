@@ -166,4 +166,10 @@ public class CookieProxy extends KrollProxy
 	{
 		return TiConvert.toString(getProperty(TiC.PROPERTY_NAME));
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Network.Cookie";
+	}
 }

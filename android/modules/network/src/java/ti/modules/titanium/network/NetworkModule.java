@@ -635,4 +635,10 @@ public class NetworkModule extends KrollModule {
 		}
 		return false;
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Network";
+	}
 }
