@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -122,9 +122,9 @@ public class TiUILabel extends TiUIView
 			TiUIHelper.setAlignment(tv, textAlign, verticalAlign);
 		}
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
-			if (TiConvert.toBoolean(d, TiC.PROPERTY_ELLIPSIZE, false)) {
+			ellipsize = TiConvert.toBoolean(d, TiC.PROPERTY_ELLIPSIZE, false);
+			if (ellipsize) {
 				tv.setEllipsize(TruncateAt.END);
-				ellipsize = true;
 			} else {
 				tv.setEllipsize(null);
 			}
@@ -188,13 +188,15 @@ public class TiUILabel extends TiUIView
 			TiUIHelper.styleText(tv, (HashMap) newValue);
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_ELLIPSIZE)) {
-			if (TiConvert.toBoolean(newValue, false)) {
+			ellipsize = TiConvert.toBoolean(newValue, false);
+			if (ellipsize) {
 				tv.setEllipsize(TruncateAt.END);
 			} else {
 				tv.setEllipsize(null);
 			}
 		} else if (key.equals(TiC.PROPERTY_WORD_WRAP)) {
-			tv.setSingleLine(!TiConvert.toBoolean(newValue, true));
+			wordWrap = TiConvert.toBoolean(newValue, true);
+			tv.setSingleLine(!wordWrap);
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			Linkify.addLinks(tv, TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
