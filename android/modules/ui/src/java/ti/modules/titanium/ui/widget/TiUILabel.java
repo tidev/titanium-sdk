@@ -31,6 +31,7 @@ public class TiUILabel extends TiUIView
 
 	private int defaultColor;
 	private boolean wordWrap = true;
+	private boolean ellipsize;
 
 	public TiUILabel(final TiViewProxy proxy)
 	{
@@ -41,8 +42,8 @@ public class TiUILabel extends TiUIView
 			@Override
 			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 			{
-				// Only allow label to exceed the size of parent when it's size behavior with wordwrap disabled
-				if (!wordWrap && layoutParams.optionWidth == null && !layoutParams.autoFillsWidth) {
+				// Only allow label to exceed the size of parent when it's size behavior with both wordwrap and ellipsize disabled
+				if (!wordWrap && !ellipsize && layoutParams.optionWidth == null && !layoutParams.autoFillsWidth) {
 					widthMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec),
 						MeasureSpec.UNSPECIFIED);
 					heightMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(heightMeasureSpec),
@@ -116,6 +117,7 @@ public class TiUILabel extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
 			if (TiConvert.toBoolean(d, TiC.PROPERTY_ELLIPSIZE, false)) {
 				tv.setEllipsize(TruncateAt.END);
+				ellipsize = true;
 			} else {
 				tv.setEllipsize(null);
 			}
