@@ -63,8 +63,8 @@ description: |
 
       * Left: (-x,0)
       * Right: (+x,0)
-      * Up: (0,+y)
-      * Down: (0,-y)
+      * Up: (0,-y)
+      * Down: (0,+y)
 
     **Angles**
 
