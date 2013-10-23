@@ -14,6 +14,8 @@ description: |
          [gravityDirection](Titanium.UI.iOS.GravityBehavior.gravityDirection) property.
       3. Use the [addItem](Titanium.UI.iOS.GravityBehavior.addItem) method to add items to the behavior.
       4. Add the behavior to an [Animator object](Titanium.UI.iOS.Animator).
+
+    You can only define one gravity behavior per animator.
     
 extends: Titanium.Proxy
 since: "3.2"
