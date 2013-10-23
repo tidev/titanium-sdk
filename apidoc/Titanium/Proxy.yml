@@ -91,8 +91,8 @@ properties:
   - name: apiName
     summary: The name of the API that this proxy corresponds to.
     description: |
-      The value of this property is the fully qualified name of the API. For example, a [Button](Titanium.UI.Button)
-      will return "Ti.UI.Button" for apiName.
+      The value of this property is the fully qualified name of the API. For example, [Button](Titanium.UI.Button)
+      returns `Ti.UI.Button`.
     permission: read-only
     type: String
     platforms: [android, blackberry, iphone, ipad]
