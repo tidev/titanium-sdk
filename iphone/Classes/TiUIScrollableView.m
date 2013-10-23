@@ -612,12 +612,19 @@
                 minCacheSize = cacheSize;
             }
         }
+        pageChanged = YES;
         cacheSize = minCacheSize;
-		[pageControl setCurrentPage:nextPage];
-		currentPage = nextPage;
-		[self.proxy replaceValue:NUMINT(currentPage) forKey:@"currentPage" notification:NO];
-        [self manageCache:currentPage];
+        [pageControl setCurrentPage:nextPage];
+        currentPage = nextPage;
+        [self.proxy replaceValue:NUMINT(currentPage) forKey:@"currentPage" notification:NO];
         cacheSize = curCacheSize;
+    }
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    if (pageChanged) {
+        [self manageCache:currentPage];
     }
 }
 
@@ -654,6 +661,8 @@
 													   [[self proxy] viewAtIndex:pageNum],@"view",nil]]; 
 	}
 	currentPage=pageNum;
+	[self manageCache:currentPage];
+	pageChanged = NO;
 	[pageControl setCurrentPage:pageNum];
 }
 
