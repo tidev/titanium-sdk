@@ -5,10 +5,12 @@ description: |
     The following APIs are supported on iOS 7 and later.
 
     The animator provides physics-related capabilities and animations using the iOS physics engine.
-    Each animator is indepedent of other animators you create.  An item in the animator can be given
+    Each animator is indepedent of other animators you create.  An animator is comprised of
+    behaviors and items. Behaviors define the rules of the animation, while items are the
+    view objects to be animated. An item in the animator can be given
     multiple behaviors as long as those behaviors belong to the same animator.
 
-    To use these dynamic animations, first create the items to animate (view objects), then:
+    To use these dynamic animations, first create the items to animate, then:
 
     **1.** Create an animator using the <Titanium.UI.iOS.createAnimator> method. 
 
