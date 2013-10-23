@@ -153,6 +153,18 @@ methods:
         
         On Tizen this method releases the internal audio resources immediately.
     platforms: [android, tizen]
+  - name: seekToTime
+    summary: Tries to set the stream position to the specified time in milliseconds.
+    description: |
+        This method is only effective after the audio player is initialized and can gather certain required information.
+        The player requires two specific pieces of information. One it should be able to calculate the duration of the audio stream
+        and second it should be able to calculate the bitrate of the audio stream. 
+    parameters: 
+      - name: position
+        summary: The new position in stream specified in milliseconds.
+        type: Number
+    platforms: [iphone, ipad]
+    since: 3.2.0
   - name: start
     summary: Starts or resumes audio playback.
   - name: stateDescription

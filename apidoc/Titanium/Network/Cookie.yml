@@ -1,0 +1,58 @@
+---
+name: Titanium.Network.Cookie
+summary: Cookie object used to manage the system cookie store and HTTP client cookie store.
+description: |
+    Use <Titanium.Network.createCookie> to create a new `Cookie` object.
+extends: Titanium.Proxy
+since: "3.2.0"
+platforms: [android]
+
+properties:
+  - name: comment
+    summary: The comment describing the purpose of this cookie
+    type: String
+
+  - name: domain
+    summary: The domain attribute of the cookie.
+    type: String
+
+  - name: expiryDate
+    summary: The expiration Date of the cookie.
+    description: |
+        Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
+    type: String
+
+  - name: httponly
+    summary: The httponly attribute of the cookie.
+    description: |
+        When this property is set to `true`, the cookie will be used only when transmitting HTTP (or HTTPS) requests.
+    type: Boolean
+    default: false
+
+  - name: name
+    summary: The name of the cookie.
+    type: String
+    permission: read-only
+    availability: creation
+
+  - name: path
+    summary: The path attribute of the cookie.
+    description: |
+        In the system cookie store, the default value of the path is "/". In the HTTP client cookie store,
+        the default value of the path is `null`.
+    type: String
+
+  - name: secure
+    summary: The secure attribute of the cookie.
+    description: |
+        Indicates whether this cookie requires a secure connection.
+    type: Boolean
+    default: false
+
+  - name: value
+    summary: The value of the cookie.
+    type: String
+
+  - name: version
+    summary: The version of the cookie specification to which this cookie conforms.
+    type: Number
