@@ -95,5 +95,5 @@ properties:
       returns `Ti.UI.Button`.
     permission: read-only
     type: String
-    platforms: [android, blackberry, iphone, ipad]
+    platforms: [android, blackberry, iphone, ipad, mobileweb, tizen]
     since: "3.2.0"
