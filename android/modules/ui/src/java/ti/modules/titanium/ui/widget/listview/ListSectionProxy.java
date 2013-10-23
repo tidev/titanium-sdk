@@ -317,7 +317,9 @@ public class ListSectionProxy extends ViewProxy{
 	
 	@Kroll.method @Kroll.getProperty
 	public Object[] getItems() {
-		if (TiApplication.isUIThread()) {
+		if (itemProperties == null) {
+			return new Object[0];
+		} else if (TiApplication.isUIThread()) {
 			return itemProperties.toArray();
 		} else {
 			return (Object[]) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_ITEMS));
@@ -788,13 +790,20 @@ public class ListSectionProxy extends ViewProxy{
 			totalCount = itemCount;
 		}
 
-		if (headerTitle != null || headerView != null) {
-			totalCount += 1;
-		}
-		if (footerTitle != null || footerView != null) {
-			totalCount +=1;
+		if (!hideHeaderOrFooter()) {
+			if (headerTitle != null || headerView != null) {
+				totalCount += 1;
+			}
+			if (footerTitle != null || footerView != null) {
+				totalCount +=1;
+			}
 		}
 		return totalCount;
+	}
+	
+	private boolean hideHeaderOrFooter() {
+		TiListView listview = getListView();
+		return (listview.getSearchText() != null && filterIndices.isEmpty());
 	}
 	
 	public boolean isHeaderView(int pos) {

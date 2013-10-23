@@ -55,7 +55,7 @@ public abstract class TiUIAbstractTab extends TiUIView {
 		// Assign parent so events bubble up correctly.
 		windowProxy.setParent(proxy);
 
-		return windowProxy.getOrCreateView().getNativeView();
+		return windowProxy.getOrCreateView().getOuterView();
 	}
 
 	private TiWindowProxy getWindowProxy() {
