@@ -436,8 +436,14 @@ properties:
     platforms: [iphone, ipad]
   - name: AUDIO_SESSION_OVERRIDE_ROUTE_NONE
     summary: Constant that specifies audio should output to the default audio route. See <Titanium.Media.setOverrideAudioRoute> for more information. 
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER
     summary: Constant that specifies audio should output to the speaker. See <Titanium.Media.setOverrideAudioRoute> for more information.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: AUDIO_SPEAKER
     summary: Line-type constant for speaker output.
     type: Number
