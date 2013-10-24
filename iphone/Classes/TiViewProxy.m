@@ -44,6 +44,13 @@
 @synthesize children;
 -(NSArray*)children
 {
+    if (![NSThread isMainThread]) {
+        __block NSArray* result = nil;
+        TiThreadPerformOnMainThread(^{
+            result = [[self children] retain];
+        }, YES);
+        return [result autorelease];
+    }
     NSArray* copy = nil;
     
 	pthread_rwlock_rdlock(&childrenLock);
