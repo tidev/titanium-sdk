@@ -104,11 +104,17 @@
 	// This is because the view drawing subsystem takes the cell frame to be the sandbox bounds when drawing views,
 	// and if its frame is too big... the view system allocates way too much memory/pixels and doesn't appear to let
 	// them go.
-
-	CGRect oldFrame = [[self contentView] frame];
-	//CGSize cellSize = [self computeCellSize];
-    
-	[[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 0,0)];
+    CGRect oldBounds = [[self contentView] bounds];
+    if (!CGPointEqualToPoint(oldBounds.origin,CGPointZero)) {
+        //TIMOB-15396. Occasionally the bounds have a non zero origin. Why?
+        [[self contentView] setBounds:CGRectZero];
+        [[self contentView] setCenter:CGPointZero];
+        
+    } else {
+        CGRect oldFrame = [[self contentView] frame];
+        
+        [[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 0,0)];
+    }
 }
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
