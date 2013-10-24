@@ -384,12 +384,11 @@
         }
         UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
         [[self view] setAccessibilityElementsHidden:NO];
-        
-        if ([TiUtils isIOS7OrGreater]) {
-            TiThreadPerformOnMainThread(^{
-                [self forceNavBarFrame];
-            }, NO);
-        }
+    }
+    if ([TiUtils isIOS7OrGreater]) {
+        TiThreadPerformOnMainThread(^{
+            [self forceNavBarFrame];
+        }, NO);
     }
 
 }
