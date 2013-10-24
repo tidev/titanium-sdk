@@ -130,6 +130,16 @@ public class TiUIWebView extends TiUIView
 			super.onLayout(changed, left, top, right, bottom);
 			TiUIHelper.firePostLayoutEvent(proxy);
 		}
+
+		@Override
+		public boolean onCheckIsTextEditor()
+		{
+			if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
+				&& TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
+				return false;
+			}
+			return true;
+		}
 	}
 
 	public TiUIWebView(TiViewProxy proxy)
