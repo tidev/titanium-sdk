@@ -60,7 +60,7 @@
         map = [[MKMapView alloc] initWithFrame:CGRectZero];
         map.delegate = self;
         map.userInteractionEnabled = YES;
-        map.showsUserLocation = YES; // defaults
+        map.showsUserLocation = [TiUtils boolValue:[self.proxy valueForKey:@"userLocation"]];
         map.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
         [self addSubview:map];
         mapLinesDictionary = [[NSMutableDictionary alloc] init];
