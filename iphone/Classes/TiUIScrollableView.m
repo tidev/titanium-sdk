@@ -628,6 +628,14 @@
     }
 }
 
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    //Since we are now managing cache at end of scroll, ensure quick scroll is disabled to avoid blank screens.
+    if (pageChanged) {
+        [scrollview setUserInteractionEnabled:!decelerate];
+    }
+}
+
 -(void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
 	// called when setContentOffset/scrollRectVisible:animated: finishes. not called if not animating
@@ -663,6 +671,7 @@
 	currentPage=pageNum;
 	[self manageCache:currentPage];
 	pageChanged = NO;
+	[scrollview setUserInteractionEnabled:YES];
 	[pageControl setCurrentPage:pageNum];
 }
 
