@@ -184,7 +184,7 @@
 
 	function getFileFromNative(path, isBinary, callback) {
 		if (typeof bridgeFileCache[path] == 'string') {
-			callback(bridgeFileCache[path]);
+			callback(1, bridgeFileCache[path]);
 		} else {
 			if (global.hasWP8Extensions) {
 				bridgeFileCache[path] = callback;
