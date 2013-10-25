@@ -44,6 +44,7 @@ module.exports = new function() {
 			height: Ti.UI.SIZE,
 			width: Ti.UI.SIZE
 		});
+		valueOf(testRun, activityIndicator.color).shouldBe('red');
 		activityIndicator.color = 'green';
 		valueOf(testRun, activityIndicator.color).shouldBe('green');
 		valueOf(testRun, activityIndicator.getTop()).shouldBe(0);
@@ -62,7 +63,7 @@ module.exports = new function() {
 		win.add(activityIndicator);
 		win.open();
 	}
-	//TOMOB-7024
+	//TIMOB-7024
 	this.focusWindow = function(testRun) {
 		var suite_complete=false;
 		var win1 = Ti.UI.createWindow({
