@@ -48,7 +48,6 @@
 @property (nonatomic, readonly) NSString *EVENT_ACCESSIBILITY_ANNOUNCEMENT;
 @property (nonatomic, readonly) NSString *EVENT_ACCESSIBILITY_CHANGED;
 
-@property (nonatomic, assign) NSNumber *hideScreenShotOnAppResume;
 #ifdef USE_TI_APPIOS
 @property(nonatomic,readonly)			TiProxy* iOS;
 #endif
