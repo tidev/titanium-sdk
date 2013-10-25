@@ -34,5 +34,11 @@
 		"retina": true,
 		"tall": false,
 		"type": "ipad"
+	},
+	"iPad Retina (64-bit)": {
+		"64bit": true,
+		"retina": true,
+		"tall": false,
+		"type": "ipad"
 	}
 }
