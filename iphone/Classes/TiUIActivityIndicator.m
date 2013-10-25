@@ -216,6 +216,15 @@
 
 }
 
+- (void)didMoveToWindow
+{
+    //TIMOB-15293
+    if ( ([self window] != nil) && (self.hidden == NO) && (indicatorView != nil) && (![indicatorView isAnimating]) ) {
+        [indicatorView startAnimating];
+    }
+    [super didMoveToWindow];
+}
+
 -(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
 	return [self sizeThatFits:CGSizeZero].width;
