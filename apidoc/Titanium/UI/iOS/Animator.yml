@@ -5,7 +5,7 @@ description: |
     The following APIs are supported on iOS 7 and later.
 
     The animator provides physics-related capabilities and animations using the iOS physics engine.
-    Each animator is indepedent of other animators you create.  An animator is comprised of
+    Each animator is independent of other animators you create.  An animator is comprised of
     behaviors and items. Behaviors define the rules of the animation, while items are the
     view objects to be animated. An item in the animator can be given
     multiple behaviors as long as those behaviors belong to the same animator.
@@ -42,6 +42,9 @@ description: |
     property establishes the coordinate system for the animation behaviors and items.  Each item that
     needs to be animated must be a child of the reference view.
 
+    By default, when you create a collision behavior, the behavior uses the edge's of the reference
+    view as its boundary, so any item within this view cannot be pushed out of it.
+
     Use the following lists as references when specifying your animation behaviors.
 
     **Points**
@@ -54,6 +57,8 @@ description: |
       * Center: (WIDTH/2, HEIGHT/2)
       * Bottom-left corner: (0, HEIGHT)
       * Bottom-right corner: (WIDTH, HEIGHT)
+
+    Note that on iOS a point is equivalent to a display pixel.
 
     **Vectors**
 
@@ -147,8 +152,8 @@ methods:
     summary: Updates the animator's state information with the current state of the specified item.
     description: |
         When an item is first added to the animator, the animator reads the initial state of the
-        item, then takes responsibility for updating it.  If you actively make updates to the item, use this
-        method to update the item's state.
+        item, then takes responsibility for updating it.  If you actively make changes to the item's properties,
+        such as changing its position or dimensions, use this method to update the item's new state.
     parameters:
       - name: item
         summary: Item to update with new state information.

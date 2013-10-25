@@ -28,7 +28,7 @@ properties:
   - name: collisionMode
     summary: Specifies the collision behavior.
     description: |
-        Set to either:
+        Set to one of the following:
 
           * <Titanium.UI.iOS.COLLISION_MODE_ITEM> for collisions with items.
           * <Titanium.UI.iOS.COLLISION_MODE_BOUNDARY> for collisions with boundaries.
@@ -44,7 +44,7 @@ properties:
 
   - name: referenceInsets
     summary: Insets to apply when using the animator's reference view as the boundary.
-    description: The `treatReferenceAsBoundary` needs to be set to `true` to use this property.
+    description: The `treatReferenceAsBoundary` property needs to be set to `true` to use this property.
     type: ReferenceInsets
     default: All insets are zero.
 
@@ -131,7 +131,7 @@ examples:
     example: |
 
         The following example creates many blocks scattered across the top of the window, which
-        starts falling after the window opens.  The item and boundary collisions are reported to the
+        start falling after the window opens.  The item and boundary collisions are reported to the
         console.
 
             var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});

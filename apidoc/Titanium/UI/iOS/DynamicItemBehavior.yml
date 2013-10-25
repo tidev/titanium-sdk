@@ -4,7 +4,7 @@ summary: Base dynamic configuration for an item.
 description: |
     The following APIs are supported on iOS 7 and later.
 
-    A dynamic item behavior configures the physics attributes for one or more item. These
+    A dynamic item behavior configures the physics attributes for one or more items. These
     attributes, such as density and resistance, affects the behavior of the object when other behaviors,
     such as push forces or collisions, are applied to it.  To define a dynamic behavior for an item:
 
@@ -76,7 +76,9 @@ methods:
         type: Titanium.UI.View
 
       - name: velocity
-        summary: Velocity to add in radians per second. Applying a negative value reduces the velocity.
+        summary: |
+            Velocity to add or subtract in radians per second. If the current velocity is positive,
+            the item spins clockwise.  A negative value means the item spins counter-clockwise.
         type: Number
 
   - name: addItem
@@ -94,8 +96,8 @@ methods:
         type: Titanium.UI.View
 
       - name: velocity
-        summary: Velocity to add in points per second. Applying a negative value reduces the velocity.
-        type: Number
+        summary: Velocity to add or substract in points per second in the x and y directions.
+        type: Point
 
   - name: angularVelocityForItem
     summary: Returns the angular velocity of the item.
@@ -113,7 +115,7 @@ methods:
         summary: Item to retrieve the velocity of.
         type: Titanium.UI.View
     returns:
-        type: Number
+        type: Point
 
   - name: removeItem
     summary: Removes the specified item from this behavior.
