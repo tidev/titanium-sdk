@@ -95,8 +95,10 @@
         [textViewImpl setContentInset:UIEdgeInsetsZero];
         self.clipsToBounds = YES;
         
+        lastSelectedRange.location = 0;
+        lastSelectedRange.length = 0;
         //Temporarily setting text to a blank space, to set the editable property [TIMOB-10295]
-        //This is a workaround for a Apple Bug. 
+        //This is a workaround for a Apple Bug.
         textViewImpl.text = @" ";
         textViewImpl.editable = YES;
         
@@ -106,6 +108,19 @@
         
     }
     return textWidgetView;
+}
+
+-(void)adjustOffsetIfRequired:(UITextView*)tv
+{
+    CGFloat contentHeight = tv.contentSize.height;
+    CGFloat boundsHeight = tv.bounds.size.height;
+    CGFloat lineHeight = tv.font.lineHeight;
+    
+    if (contentHeight >= (boundsHeight - lineHeight)) {
+        CGPoint curOffset = tv.contentOffset;
+        curOffset.y = curOffset.y + lineHeight;
+        [tv setContentOffset:curOffset animated:NO];
+    }
 }
 
 #pragma mark Public APIs
@@ -232,6 +247,12 @@
 		NSDictionary *event = [NSDictionary dictionaryWithObject:rangeDict forKey:@"range"];
 		[self.proxy fireEvent:@"selected" withObject:event];
 	}
+    //TIMOB-15401. Workaround for UI artifact
+    if ((tv == textWidgetView) && (!NSEqualRanges(tv.selectedRange, lastSelectedRange))) {
+        lastSelectedRange.location = tv.selectedRange.location;
+        lastSelectedRange.length = tv.selectedRange.length;
+        [tv scrollRangeToVisible:lastSelectedRange];
+    }
 }
 
 - (BOOL)textViewShouldEndEditing:(UITextView *)tv
@@ -255,6 +276,14 @@
     if ( (maxLength > -1) && ([curText length] > maxLength) ) {
         [self setValue_:curText];
         return NO;
+    }
+    
+    //TIMOB-15401. Workaround for UI artifact
+    if ([tv isScrollEnabled] && [text isEqualToString:@"\n"]) {
+        if (curText.length - tv.selectedRange.location == 1) {
+            //Last line. Adjust
+            [self adjustOffsetIfRequired:tv];
+        }
     }
 
 	[(TiUITextAreaProxy *)self.proxy noteValueChange:curText];

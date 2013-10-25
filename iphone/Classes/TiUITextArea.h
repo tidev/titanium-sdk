@@ -22,6 +22,7 @@
 	BOOL becameResponder;
     BOOL returnActive;
     BOOL handleLinks;
+    NSRange lastSelectedRange;
 }
 
 @property(nonatomic,readonly) BOOL becameResponder;

@@ -93,6 +93,11 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 	SetEventOverrideDelegateRecursive(self.children, self);
 }
 
+-(BOOL)canHaveControllerParent
+{
+	return NO;
+}
+
 #pragma mark - TiViewEventOverrideDelegate
 
 - (NSDictionary *)overrideEventObject:(NSDictionary *)eventObject forEvent:(NSString *)eventType fromViewProxy:(TiViewProxy *)viewProxy

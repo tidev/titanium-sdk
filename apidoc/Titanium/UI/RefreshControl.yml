@@ -1,0 +1,80 @@
+---
+name: Titanium.UI.RefreshControl
+summary: The RefreshControl is a representation of the native [UIRefreshControl](https://developer.apple.com/library/ios/documentation/uikit/reference/UIRefreshControl_class/Reference/Reference.html).
+description: |
+    Use the <Titanium.UI.createRefreshControl> method to create a RefreshControl.
+
+    This control is intended to be used with the <Titanium.UI.TableView> and <Titanium.UI.ListView> classes.
+    This control provides an alternate method to implement **pull to refresh** functionality. 
+    Use this in lieu of <Titanium.UI.TableView.headerPullView> and <Titanium.UI.ListView.pullView> properties.
+
+extends: Titanium.Proxy
+since: "3.2.0"
+platforms: [iphone, ipad]
+methods:
+  - name: beginRefreshing
+    summary: Tells the control that a refresh operation was started programmatically.
+    description: |
+        Call this method when an external event source triggers a programmatic refresh of your table. 
+        This method updates the state of the refresh control to reflect the in-progress refresh operation. 
+        When the refresh operation ends, be sure to call the [endRefreshing](Titanium.UI.RefreshControl.endRefreshing) method to return the control to its default state.
+  - name: endRefreshing
+    summary: Tells the control that a refresh operation has ended.
+    description: |
+        Call this method at the end of any refresh operation (whether it was initiated programmatically or by the user) to return the refresh control to its default state. 
+properties:
+  - name: title
+    summary: The title of the control. 
+    type: Titanium.UI.iOS.AttributedString
+
+  - name: tintColor
+    summary: The tint color for the refresh control, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+
+events:
+  - name: refreshstart
+    summary: Fired in response to a user initiated action to refresh the contents of the table view or list view.
+    properties:
+      - name: bubbles
+        summary: This is false. This event does not bubble
+        type: Boolean
+examples:
+  - title: Basic Pull To Refresh
+    example: |
+        A basic sample showing the usage of refreshstart event with endRefreshing functionality.
+                    
+            var win = Ti.UI.createWindow({
+                fullscreen:true
+            });
+            var counter = 0;
+            function genData()
+            {
+                var data = [];
+                var i=1;
+                for (i=1;i<=3;i++) {
+                    data.push({properties:{title:'ROW '+(counter+i)}})
+                }
+                counter += 3;
+                return data;
+            }
+            var section = Ti.UI.createListSection();
+            section.setItems(genData());
+            var control = Ti.UI.createRefreshControl({
+                tintColor:'red'
+            })
+            var listView = Ti.UI.createListView({
+                sections:[section],
+                refreshControl:control
+            });
+            control.addEventListener('refreshstart',function(e){
+                Ti.API.info('refreshstart');
+                setTimeout(function(){
+                    Ti.API.debug('Timeout');
+                    section.appendItems(genData());
+                    control.endRefreshing();
+                }, 2000);
+            })
+            win.add(listView);
+            win.open();

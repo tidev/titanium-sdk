@@ -147,4 +147,10 @@ public class AnalyticsModule extends KrollModule
 			return null;
 		}
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Analytics";
+	}
 }

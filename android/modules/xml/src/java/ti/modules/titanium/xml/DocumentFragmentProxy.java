@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -21,5 +21,11 @@ public class DocumentFragmentProxy extends NodeProxy {
 	public DocumentFragmentProxy(TiContext context, DocumentFragment fragment)
 	{
 		this(fragment);
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.XML.DocumentFragment";
 	}
 }

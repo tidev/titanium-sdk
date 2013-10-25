@@ -259,4 +259,10 @@ public class TableViewRowProxy extends TiViewProxy
 	{
 		return tableViewItem;
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.TableViewRow";
+	}
 }
