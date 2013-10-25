@@ -23,6 +23,7 @@
 		"fields": "~0.1.11",
 		"humanize": "~0.0.9",
 		"node-appc": ">=0.1.17",
+		"node-ios-device": "~0.1.0",
 		"node-uuid": "~1.4.1",
 		"temp": "~0.6.0",
 		"titanium-sdk": ">=0.1.0",
