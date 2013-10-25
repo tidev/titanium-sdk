@@ -286,4 +286,9 @@ public class SoundProxy extends KrollProxy
 		}
 	}
 
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Media.Sound";
+	}
 }

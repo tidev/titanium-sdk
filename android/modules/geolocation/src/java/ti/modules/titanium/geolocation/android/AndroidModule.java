@@ -284,5 +284,11 @@ public class AndroidModule extends KrollModule
 			manualLocationRules.remove(locationRuleIndex);
 		}
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Geolocation.Android";
+	}
 }
 

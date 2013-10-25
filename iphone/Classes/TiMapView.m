@@ -26,14 +26,8 @@
 		map.delegate = nil;
 		RELEASE_TO_NIL(map);
 	}
-    if (mapLine2View) {
-        CFRelease(mapLine2View);
-        mapLine2View = nil;
-    }
-    if (mapName2Line) {
-        CFRelease(mapName2Line);
-        mapName2Line = nil;
-    }
+    RELEASE_TO_NIL(mapLinesDictionary);
+    RELEASE_TO_NIL(mapViewsDictionary);
 	[super dealloc];
 }
 
@@ -69,8 +63,8 @@
         map.showsUserLocation = YES; // defaults
         map.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
         [self addSubview:map];
-        mapLine2View = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-        mapName2Line = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+        mapLinesDictionary = [[NSMutableDictionary alloc] init];
+        mapViewsDictionary = [[NSMutableDictionary alloc] init];
         //Initialize loaded state to YES. This will automatically go to NO if the map needs to download new data
         loaded = YES;
     }
@@ -471,6 +465,9 @@
 	if (!name) {
 		[self throwException:@"missing required name key" subreason:nil location:CODELOCATION];
 	}
+    if ([mapLinesDictionary objectForKey:name] != nil) {
+        DebugLog(@"Route with name %@ already added. Ignoring this call",name);
+    }
     TiColor* color = [TiUtils colorValue:@"color" properties:args];
     float width = [TiUtils floatValue:@"width" properties:args def:2];
 
@@ -484,17 +481,17 @@
         MKMapPoint pt = MKMapPointForCoordinate(coord);
         pointArray[i] = pt;             
     }
-    MKPolyline* routeLine = [[MKPolyline polylineWithPoints:pointArray count:[points count]] autorelease];
+    MKPolyline* routeLine = [MKPolyline polylineWithPoints:pointArray count:[points count]];
     free(pointArray);
     
 	// construct the MKPolylineView
-    MKPolylineView* routeView = [[MKPolylineView alloc] initWithPolyline:routeLine];
+    MKPolylineView* routeView = [[[MKPolylineView alloc] initWithPolyline:routeLine] autorelease];
     routeView.fillColor = routeView.strokeColor = color ? [color _color] : [UIColor blueColor];
     routeView.lineWidth = width;
     
     // update our mappings
-    CFDictionaryAddValue(mapName2Line, name, routeLine);
-    CFDictionaryAddValue(mapLine2View, routeLine, routeView);
+    [mapLinesDictionary setObject:routeLine forKey:name];
+    [mapViewsDictionary setObject:routeView forKey:name];
     // finally add our new overlay
     [map addOverlay:routeLine];
 }
@@ -506,12 +503,13 @@
 	if (!name) {
 		[self throwException:@"missing required name key" subreason:nil location:CODELOCATION];
 	}
-    
-    MKPolyline* routeLine = (MKPolyline*)CFDictionaryGetValue(mapName2Line, name);
-    if (routeLine) {
-        CFDictionaryRemoveValue(mapLine2View, routeLine);
-        CFDictionaryRemoveValue(mapName2Line, name);
+    MKPolyline* routeLine = [mapLinesDictionary objectForKey:name];
+    if (routeLine != nil) {
         [map removeOverlay:routeLine];
+        [mapLinesDictionary removeObjectForKey:name];
+        [mapViewsDictionary removeObjectForKey:name];
+    } else {
+        DebugLog(@"Did not find route with name %@. Ignoring this call",name);
     }
 }
 
@@ -519,8 +517,13 @@
 #pragma mark Delegates
 
 - (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay
-{	
-    return (MKOverlayView *)CFDictionaryGetValue(mapLine2View, overlay);
+{
+    NSArray* keys = [mapLinesDictionary allKeysForObject:overlay];
+    if ([keys count] > 0) {
+        NSString* theKey = [keys objectAtIndex:0];
+        return [mapViewsDictionary objectForKey:theKey];
+    }
+    return nil;
 }
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated

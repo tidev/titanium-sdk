@@ -104,11 +104,17 @@
 	// This is because the view drawing subsystem takes the cell frame to be the sandbox bounds when drawing views,
 	// and if its frame is too big... the view system allocates way too much memory/pixels and doesn't appear to let
 	// them go.
-
-	CGRect oldFrame = [[self contentView] frame];
-	//CGSize cellSize = [self computeCellSize];
-    
-	[[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 0,0)];
+    CGRect oldBounds = [[self contentView] bounds];
+    if (!CGPointEqualToPoint(oldBounds.origin,CGPointZero)) {
+        //TIMOB-15396. Occasionally the bounds have a non zero origin. Why?
+        [[self contentView] setBounds:CGRectZero];
+        [[self contentView] setCenter:CGPointZero];
+        
+    } else {
+        CGRect oldFrame = [[self contentView] frame];
+        
+        [[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 0,0)];
+    }
 }
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
@@ -302,6 +308,7 @@
         hideOnSearch = YES; // Legacy behavior
 		filterCaseInsensitive = YES; // defaults to true on search
 		searchString = @"";
+		defaultSeparatorInsets = UIEdgeInsetsZero;
 	}
 	return self;
 }
@@ -332,6 +339,9 @@
 	RELEASE_TO_NIL(searchResultIndexes);
 	RELEASE_TO_NIL(tableHeaderPullView);
 	[searchString release];
+#ifdef USE_TI_UIREFRESHCONTROL
+    RELEASE_TO_NIL(_refreshControlProxy);
+#endif
 	[super dealloc];
 }
 
@@ -422,6 +432,10 @@
         }
 		
 		[self updateSearchView];
+        
+		if ([TiUtils isIOS7OrGreater]) {
+			defaultSeparatorInsets = [tableview separatorInset];
+		}
 	}
 	if ([tableview superview] != self)
 	{
@@ -1532,6 +1546,24 @@
 	[table scrollToRowAtIndexPath:path atScrollPosition:position animated:animated];
 }
 
+-(void)setSeparatorInsets_:(id)arg
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        [self tableView];
+        
+        if ([arg isKindOfClass:[NSDictionary class]]) {
+            CGFloat left = [TiUtils floatValue:@"left" properties:arg def:defaultSeparatorInsets.left];
+            CGFloat right = [TiUtils floatValue:@"right" properties:arg def:defaultSeparatorInsets.right];
+            [tableview setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
+        } else {
+            [tableview setSeparatorInset:defaultSeparatorInsets];
+        }
+        if (!searchActivated) {
+            [tableview setNeedsDisplay];
+        }
+    }
+}
+
 -(void)setBackgroundColor_:(id)arg
 {
 	[[self proxy] replaceValue:arg forKey:@"backgroundColor" notification:NO];
@@ -1839,6 +1871,20 @@
 -(void)setMaxRowHeight_:(id)height
 {
 	maxRowHeight = [TiUtils dimensionValue:height];
+}
+
+-(void)setRefreshControl_:(id)args
+{
+#ifdef USE_TI_UIREFRESHCONTROL
+    ENSURE_SINGLE_ARG_OR_NIL(args,TiUIRefreshControlProxy);
+    [[_refreshControlProxy control] removeFromSuperview];
+    RELEASE_TO_NIL(_refreshControlProxy);
+    [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
+    if (args != nil) {
+        _refreshControlProxy = [args retain];
+        [[self tableView] addSubview:[_refreshControlProxy control]];
+    }
+#endif
 }
 
 -(void)setHeaderPullView_:(id)value

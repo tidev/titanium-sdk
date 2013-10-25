@@ -68,6 +68,7 @@ public class TiAnalyticsEventFactory
 			json.put("oscpu", TiPlatformHelper.getProcessorCount());
 			json.put("platform", TiPlatformHelper.getName());
 			json.put("app_id", tiApp.getAppInfo().getId());
+			json.put("app_version", tiApp.getAppInfo().getVersion());
 			json.put("ostype", TiPlatformHelper.getOstype());
 			json.put("osarch", TiPlatformHelper.getArchitecture());
 			json.put("model", TiPlatformHelper.getModel());

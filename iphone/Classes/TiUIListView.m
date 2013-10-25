@@ -12,6 +12,9 @@
 #import "TiUIListItemProxy.h"
 #import "TiUILabelProxy.h"
 #import "TiUISearchBarProxy.h"
+#ifdef USE_TI_UIREFRESHCONTROL
+#import "TiUIRefreshControlProxy.h"
+#endif
 
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
@@ -30,6 +33,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     TiViewProxy *_headerWrapper;
     TiViewProxy *_footerViewProxy;
     TiViewProxy *_pullViewProxy;
+#ifdef USE_TI_UIREFRESHCONTROL
+    TiUIRefreshControlProxy* _refreshControlProxy;
+#endif
 
     TiUISearchBarProxy *searchViewProxy;
     UITableViewController *tableController;
@@ -53,6 +59,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     BOOL searchActive;
     BOOL keepSectionsInSearch;
     NSMutableArray* _searchResults;
+    UIEdgeInsets _defaultSeparatorInsets;
 }
 
 - (id)init
@@ -60,6 +67,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     self = [super init];
     if (self) {
         _defaultItemTemplate = [[NSNumber numberWithUnsignedInteger:UITableViewCellStyleDefault] retain];
+        _defaultSeparatorInsets = UIEdgeInsetsZero;
     }
     return self;
 }
@@ -85,6 +93,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     RELEASE_TO_NIL(sectionIndices);
     RELEASE_TO_NIL(filteredTitles);
     RELEASE_TO_NIL(filteredIndices);
+#ifdef USE_TI_UIREFRESHCONTROL
+    RELEASE_TO_NIL(_refreshControlProxy);
+#endif
     [super dealloc];
 }
 
@@ -161,6 +172,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [tapGestureRecognizer release];
 
         [self configureHeaders];
+        if ([TiUtils isIOS7OrGreater]) {
+            _defaultSeparatorInsets = [_tableView separatorInset];
+        }
     }
     if ([_tableView superview] != self) {
         [self addSubview:_tableView];
@@ -398,6 +412,23 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 #pragma mark - Public API
 
+-(void)setSeparatorInsets_:(id)arg
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        [self tableView];
+        if ([arg isKindOfClass:[NSDictionary class]]) {
+            CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
+            CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
+            [_tableView setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
+        } else {
+            [_tableView setSeparatorInset:_defaultSeparatorInsets];
+        }
+        if (![searchController isActive]) {
+            [_tableView setNeedsDisplay];
+        }
+    }
+}
+
 -(void)setPruneSectionsOnEdit_:(id)args
 {
     pruneSections = [TiUtils boolValue:args def:NO];
@@ -494,6 +525,20 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [_footerViewProxy removeAllChildren:nil];
         [_footerViewProxy add:(TiViewProxy*) args];
     }
+}
+
+-(void)setRefreshControl_:(id)args
+{
+#ifdef USE_TI_UIREFRESHCONTROL
+    ENSURE_SINGLE_ARG_OR_NIL(args,TiUIRefreshControlProxy);
+    [[_refreshControlProxy control] removeFromSuperview];
+    RELEASE_TO_NIL(_refreshControlProxy);
+    [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
+    if (args != nil) {
+        _refreshControlProxy = [args retain];
+        [[self tableView] addSubview:[_refreshControlProxy control]];
+    }
+#endif
 }
 
 -(void)setPullView_:(id)args
@@ -1033,7 +1078,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     } else {
         sectionCount = [self.listViewProxy.sectionCount unsignedIntegerValue];
     }
-    return MAX(1,sectionCount);
+    return MAX(0,sectionCount);
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section

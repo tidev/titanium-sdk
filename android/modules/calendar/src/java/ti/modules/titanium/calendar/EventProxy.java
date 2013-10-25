@@ -465,4 +465,10 @@ public class EventProxy extends KrollProxy {
 		values.put("event_id", getId());
 		contentResolver.insert(extPropsUri, values);
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Calendar.Event";
+	}
 }

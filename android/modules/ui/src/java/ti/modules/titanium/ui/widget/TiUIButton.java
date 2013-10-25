@@ -19,6 +19,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.View;
@@ -29,6 +30,10 @@ public class TiUIButton extends TiUIView
 	private static final String TAG = "TiUIButton";
 	
 	private int defaultColor;
+	private float shadowRadius = 0f;
+	private float shadowX = 0f;
+	private float shadowY = 0f;
+	private int shadowColor = Color.TRANSPARENT;
 
 	public TiUIButton(final TiViewProxy proxy)
 	{
@@ -52,6 +57,8 @@ public class TiUIButton extends TiUIView
 	public void processProperties(KrollDict d)
 	{
 		super.processProperties(d);
+
+		boolean needShadow = false;
 
 		Button btn = (Button) getNativeView();
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
@@ -94,6 +101,26 @@ public class TiUIButton extends TiUIView
 			String verticalAlign = d.getString(TiC.PROPERTY_VERTICAL_ALIGN);
 			TiUIHelper.setAlignment(btn, null, verticalAlign);
 		}
+		if (d.containsKey(TiC.PROPERTY_SHADOW_OFFSET)) {
+			Object value = d.get(TiC.PROPERTY_SHADOW_OFFSET);
+			if (value instanceof HashMap) {
+				needShadow = true;
+				HashMap dict = (HashMap) value;
+				shadowX = TiConvert.toFloat(dict.get(TiC.PROPERTY_X), 0);
+				shadowY = TiConvert.toFloat(dict.get(TiC.PROPERTY_Y), 0);
+			}
+		}
+		if (d.containsKey(TiC.PROPERTY_SHADOW_RADIUS)) {
+			needShadow = true;
+			shadowRadius = TiConvert.toFloat(d.get(TiC.PROPERTY_SHADOW_RADIUS), 0);
+		}
+		if (d.containsKey(TiC.PROPERTY_SHADOW_COLOR)) {
+			needShadow = true;
+			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR);
+		}
+		if (needShadow) {
+			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		}
 		btn.invalidate();
 	}
 
@@ -127,6 +154,19 @@ public class TiUIButton extends TiUIView
 				Drawable image = drawableRef.getDrawable();
 				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
 			}
+		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
+			if (newValue instanceof HashMap) {
+				HashMap dict = (HashMap) newValue;
+				shadowX = TiConvert.toFloat(dict.get(TiC.PROPERTY_X), 0);
+				shadowY = TiConvert.toFloat(dict.get(TiC.PROPERTY_Y), 0);
+				btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+			}
+		} else if (key.equals(TiC.PROPERTY_SHADOW_RADIUS)) {
+			shadowRadius = TiConvert.toFloat(newValue, 0);
+			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
+			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
+			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

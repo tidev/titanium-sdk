@@ -201,4 +201,10 @@ public class AlertProxy extends KrollProxy
 	{
 		return minutes;
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Calendar.Alert";
+	}
 }
