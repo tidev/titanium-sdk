@@ -207,7 +207,23 @@ exports.config = function config(logger, config, cli) {
 							//hint: 'host:port[:airkey:hosts]',
 							hidden: true
 						},
-						'launch-url': {
+/*						'device-id': {
+							abbr: 'C',
+							desc: __('the name for the device or iOS simulator to install the application to'),
+							hint: __('name'),
+							order: 130,
+							prompt: function (callback) {
+								callback();
+							},
+							required: true,
+							validate: function (device, callback) {
+								callback(null, device);
+							},
+							verifyIfRequired: function (callback) {
+								callback(true);
+							}
+						},
+*/						'launch-url': {
 							//desc: __('url for the application to launch in mobileSafari , as soon as the app boots up.'),
 							//hint: 'http://www.appcelerator.com/',
 							hidden: true
