@@ -294,18 +294,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 -(UIImageView*)splashScreenImage
 {
     if(splashScreenImage == nil) {
-        UIDeviceOrientation imageOrientation;
-        UIUserInterfaceIdiom imageIdiom;
-        
         splashScreenImage = [[UIImageView alloc] init];
         [splashScreenImage setBackgroundColor:[UIColor yellowColor]];
         [splashScreenImage setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
         [splashScreenImage setContentMode:UIViewContentModeScaleToFill];
-        [controller rotateDefaultImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation]
+        [controller rotateImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation]
                                           withImageView:splashScreenImage];
-        
-        //        UIImage *img = [controller defaultImageForOrientation:[[UIApplication sharedApplication] statusBarOrientation] resultingOrientation:imageOrientation idiom:imageIdiom];
-        //        [splashScreenImage setImage:img];
         [splashScreenImage setFrame:[window bounds]];
     }
     return splashScreenImage;
@@ -460,7 +454,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 -(void)applicationWillResignActive:(UIApplication *)application
 {
     [self setAppInBackground:YES];
-    if([self hideScreenShotOnAppResume]) {
+    if([self forceSplashAsSnapshot]) {
         [window addSubview:[self splashScreenImage]];
     }
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
@@ -521,7 +515,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
     [[self splashScreenImage] removeFromSuperview];
     RELEASE_TO_NIL(splashScreenImage);
-
+    [self setAppInBackground:NO];
     [sessionId release];
     sessionId = [[TiUtils createUUID] retain];
     
@@ -721,7 +715,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 	[self checkBackgroundServices];
 	RELEASE_TO_NIL(runningServices);
-    [self setAppInBackground:NO];
 }
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification

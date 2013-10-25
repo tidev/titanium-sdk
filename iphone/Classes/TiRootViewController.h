@@ -61,7 +61,7 @@
 -(void)shutdownUi:(id)arg;
 #endif
 
--(void)rotateDefaultImageViewToOrientation: (UIInterfaceOrientation )newOrientation withImageView:(UIImageView*)theImageView;
+-(void)rotateImageViewToOrientation: (UIInterfaceOrientation )newOrientation withImageView:(UIImageView*)theImageView;
 
 
 @end

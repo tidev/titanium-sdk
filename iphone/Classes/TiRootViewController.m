@@ -178,7 +178,7 @@
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self updateBackground];
     if (defaultImageView != nil) {
-        [self rotateDefaultImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation] withImageView:defaultImageView];
+        [self rotateImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation] withImageView:defaultImageView];
         [rootView addSubview:defaultImageView];
     }
     [rootView becomeFirstResponder];
@@ -294,7 +294,7 @@
 	return [UIImage imageNamed:@"Default.png"];
 }
 
--(void)rotateDefaultImageViewToOrientation: (UIInterfaceOrientation )newOrientation withImageView:(UIImageView*)theImageView;
+-(void)rotateImageViewToOrientation: (UIInterfaceOrientation )newOrientation withImageView:(UIImageView*)theImageView;
 {
 	if (theImageView == nil)
 	{
@@ -1341,7 +1341,7 @@
         [thisWindow willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
     [self updateOrientationHistory:toInterfaceOrientation];
-    [self rotateDefaultImageViewToOrientation:toInterfaceOrientation withImageView:defaultImageView];
+    [self rotateImageViewToOrientation:toInterfaceOrientation withImageView:defaultImageView];
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 -(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration

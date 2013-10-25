@@ -62,7 +62,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	NSDictionary *localNotification;
 }
 
-@property (nonatomic) BOOL hideScreenShotOnAppResume;
+@property (nonatomic) BOOL forceSplashAsSnapshot;
 @property (nonatomic) BOOL appInBackground;
 /**
  Returns application's primary window.
