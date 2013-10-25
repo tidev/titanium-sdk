@@ -574,7 +574,7 @@ exports.detect = function detect(config, opts, finished) {
 			if (notInstalled.length) {
 				issues.push({
 					id: 'IOS_XCODE_CLI_TOOLS_NOT_INSTALLED',
-					type: 'warn',
+					type: 'warning',
 					message: __('The Xcode Command Line Tools are not installed for the following Xcode versions: %s.', notInstalled.join(', ')) + '\n' +
 						__('Titanium requires that the Xcode Command Line Tools be installed.') + '\n' +
 						__('You can install them from the Xcode Preferences > Downloads tab.')
