@@ -1,0 +1,44 @@
+{
+	"iPhone": {
+		"64bit": false,
+		"retina": false,
+		"tall": false,
+		"type": "iphone"
+	},
+	"iPhone Retina (3.5 inch)": {
+		"64bit": false,
+		"retina": true,
+		"tall": false,
+		"type": "iphone"
+	},
+	"iPhone Retina (4 inch)": {
+		"64bit": false,
+		"retina": true,
+		"tall": true,
+		"type": "iphone"
+	},
+	"iPhone Retina (4 inch 64-bit)": {
+		"64bit": true,
+		"retina": true,
+		"tall": true,
+		"type": "iphone"
+	},
+	"iPad": {
+		"64bit": false,
+		"retina": false,
+		"tall": false,
+		"type": "ipad"
+	},
+	"iPad Retina": {
+		"64bit": false,
+		"retina": true,
+		"tall": false,
+		"type": "ipad"
+	},
+	"iPad Retina (64-bit)": {
+		"64bit": true,
+		"retina": true,
+		"tall": false,
+		"type": "ipad"
+	}
+}
