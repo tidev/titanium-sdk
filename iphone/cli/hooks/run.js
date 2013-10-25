@@ -1,7 +1,7 @@
 /*
  * run.js: Titanium iOS CLI run hook
  *
- * Copyright (c) 2012, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -15,7 +15,7 @@ var appc = require('node-appc'),
 	exec = cp.exec,
 	spawn = cp.spawn;
 
-exports.cliVersion = '>=3.X';
+exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
 
