@@ -35,6 +35,7 @@ exports.init = function (logger, config, cli) {
 				tiapp = build.tiapp,
 				templateData = {
 					projectName: tiapp.id || 'Project',
+					projectDisplayName: tiapp.name || 'Project',
 					projectVersion: tiapp.version || '0.0.0',
 					projectGUID: tiapp.guid || uuid.v4(),
 					assemblyGUID: uuid.v4(),
