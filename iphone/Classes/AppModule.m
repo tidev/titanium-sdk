@@ -586,6 +586,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
 }
 
+-(void)setHideScreenShotOnAppResume:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSNumber)
+    [self replaceValue:args forKey:@"hideScreenShotOnAppResume" notification:NO];
+    BOOL flag = [TiUtils boolValue:args def:YES];
+    [[TiApp app] setHideScreenShotOnAppResume:flag];
+}
+
 #if defined(USE_TI_APPIOS)
 -(id)iOS
 {

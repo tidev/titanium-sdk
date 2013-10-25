@@ -291,13 +291,33 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[self boot];
 }
 
+-(UIImageView*)splashScreenImage
+{
+    if(splashScreenImage == nil) {
+        UIDeviceOrientation imageOrientation;
+        UIUserInterfaceIdiom imageIdiom;
+        
+        splashScreenImage = [[UIImageView alloc] init];
+        [splashScreenImage setBackgroundColor:[UIColor yellowColor]];
+        [splashScreenImage setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
+        [splashScreenImage setContentMode:UIViewContentModeScaleToFill];
+        [controller rotateDefaultImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation]
+                                          withImageView:splashScreenImage];
+        
+        //        UIImage *img = [controller defaultImageForOrientation:[[UIApplication sharedApplication] statusBarOrientation] resultingOrientation:imageOrientation idiom:imageIdiom];
+        //        [splashScreenImage setImage:img];
+        [splashScreenImage setFrame:[window bounds]];
+    }
+    return splashScreenImage;
+}
+
 - (void)generateNotification:(NSDictionary*)dict
 {
 	// Check and see if any keys from APS and the rest of the dictionary match; if they do, just
 	// bump out the dictionary as-is
 	remoteNotification = [[NSMutableDictionary alloc] initWithDictionary:dict];
 	NSDictionary* aps = [dict objectForKey:@"aps"];
-	for (id key in aps) 
+    for (id key in aps)
 	{
 		if ([dict objectForKey:key] != nil) {
 			DebugLog(@"[WARN] Conflicting keys in push APS dictionary and notification dictionary `%@`, not copying to toplevel from APS", key);
@@ -439,6 +459,10 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)applicationWillResignActive:(UIApplication *)application
 {
+    [self setAppInBackground:YES];
+    if([self hideScreenShotOnAppResume]) {
+        [window addSubview:[self splashScreenImage]];
+    }
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
 	
 	// suspend any image loading
@@ -495,6 +519,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
+    [[self splashScreenImage] removeFromSuperview];
+    RELEASE_TO_NIL(splashScreenImage);
+
     [sessionId release];
     sessionId = [[TiUtils createUUID] retain];
     
@@ -625,6 +652,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	RELEASE_TO_NIL(xhrBridge);
 #endif	
 	RELEASE_TO_NIL(loadView);
+    RELEASE_TO_NIL(splashScreenImage)
 	RELEASE_TO_NIL(window);
 	RELEASE_TO_NIL(launchOptions);
 	RELEASE_TO_NIL(controller);
@@ -693,6 +721,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 	[self checkBackgroundServices];
 	RELEASE_TO_NIL(runningServices);
+    [self setAppInBackground:NO];
 }
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
