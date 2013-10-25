@@ -219,8 +219,11 @@
 - (void)didMoveToWindow
 {
     //TIMOB-15293
-    if ( ([self window] != nil) && (self.hidden == NO) && (indicatorView != nil) && (![indicatorView isAnimating]) ) {
-        [indicatorView startAnimating];
+    if ( ([self window] != nil) && (indicatorView != nil) && (![indicatorView isAnimating]) ) {
+        BOOL visible = [TiUtils boolValue:[[self proxy] valueForKey:@"visible"] def:NO];
+        if (visible) {
+            [indicatorView startAnimating];
+        }
     }
     [super didMoveToWindow];
 }
