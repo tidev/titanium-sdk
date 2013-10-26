@@ -31,7 +31,8 @@ exports.init = function (logger, config, cli) {
 
 			logger.info(__('Running application in iOS Simulator'));
 
-			var simulatorDir = afs.resolvePath('~/Library/Application Support/iPhone Simulator/' + build.iosSimVersion + '/Applications'),
+			var simulatorDir = afs.resolvePath('~/Library/Application Support/iPhone Simulator/' + build.iosSimVersion +
+					(appc.version.gte(build.iosSimVersion, '7.0.0') && cli.argv['sim-64bit'] ? '-64' : '') + '/Applications'),
 				logFile = build.tiapp.guid + '.log';
 
 			parallel([
