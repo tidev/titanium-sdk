@@ -154,7 +154,17 @@ exports.detect = function detect(config, opts, finished) {
 								var file = path.join(dir, d);
 								if (fs.existsSync(file) && fs.statSync(file).isDirectory()) {
 									var m = d.match(sdkRegExp);
-									m && (!opts.minSDK || appc.version.gte(m[2], opts.minSDK)) && vers.push(m[2]);
+									if (m && (!opts.minSDK || appc.version.gte(m[2], opts.minSDK))) {
+										var ver = m[2];
+										file = path.join(file, 'System', 'Library', 'CoreServices', 'SystemVersion.plist');
+										if (fs.existsSync(file)) {
+											var p = new appc.plist(file);
+											if (p.ProductVersion) {
+												ver = p.ProductVersion;
+											}
+										}
+										vers.push(ver);
+									}
 								}
 							});
 							return vers;
@@ -565,10 +575,10 @@ exports.detect = function detect(config, opts, finished) {
 		}, function (err, results) {
 			appc.util.mix(results, executables);
 
-			var xcodeCLIToolsVersion = appc.version.format(results.xcodeCLITools, 2, 2),
+			var xcodeCLIToolsVersion = appc.version.format(results.xcodeCLITools, 3, 3),
 				notInstalled = [];
 			Object.keys(results.xcode).forEach(function (name) {
-				var installed = results.xcode[name].cliTools = appc.version.gte(xcodeCLIToolsVersion, appc.version.format(results.xcode[name].version, 2, 2));
+				var installed = results.xcode[name].cliTools = appc.version.gte(xcodeCLIToolsVersion, appc.version.format(results.xcode[name].version, 3, 3));
 				installed || notInstalled.push(results.xcode[name].version);
 			});
 			if (notInstalled.length) {
@@ -623,7 +633,7 @@ exports.detectSimulators = function detectSimulators(config, opts, finished) {
 				_64bit = !!sim['64bit'],
 				retina = !!sim.retina,
 				tall = !!sim.tall,
-				compatSdks = {};
+				compatVersions = {};
 
 			if (!opts.type || opts.type == type) {
 				// calculate the sdks
@@ -632,7 +642,7 @@ exports.detectSimulators = function detectSimulators(config, opts, finished) {
 						if (!_64bit || version.gte(sdk, '7.0.0')) {
 							if (!tall || version.gte(sdk, '6.0.0')) {
 								if ((!retina && type == 'ipad' || version.lt(sdk, '7.0.0')) || (retina && version.gte(sdk, '4.0.0'))) {
-									compatSdks[sdk] = 1;
+									compatVersions[sdk] = 1;
 								}
 							}
 						}
@@ -645,7 +655,7 @@ exports.detectSimulators = function detectSimulators(config, opts, finished) {
 					'64bit': _64bit,
 					retina: retina,
 					tall: tall,
-					sdks: Object.keys(compatSdks).sort()
+					versions: Object.keys(compatVersions).sort()
 				});
 			}
 		});
