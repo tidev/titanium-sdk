@@ -32,27 +32,33 @@ namespace <%= projectName %>
 
         private void browser_ScriptNotify(object sender, NotifyEventArgs e)
         {
-            var isBinary = e.Value[0] == 'b';
-            var path = e.Value.Substring(1);
-            string fileContents = "";
-            try
+            var type = e.Value[0]; // f for file, l for log
+            if (type == 'f')
             {
-                if (isBinary)
+                var isBinary = e.Value[1] == 'b';
+                var path = e.Value.Substring(2);
+                string fileContents = "";
+                try
                 {
-                    var filestream = new FileStream("App/" + path, FileMode.Open);
-                    byte[] data = new byte[filestream.Length];
-                    filestream.Read(data, 0, (int)filestream.Length);
-                    fileContents = Convert.ToBase64String(data);
+                    if (isBinary)
+                    {
+                        var filestream = new FileStream("App/" + path, FileMode.Open);
+                        byte[] data = new byte[filestream.Length];
+                        filestream.Read(data, 0, (int)filestream.Length);
+                        fileContents = Convert.ToBase64String(data);
+                    }
+                    else
+                    {
+                        fileContents = (new StreamReader("App/" + path)).ReadToEnd();
+                    }
+                    browser.InvokeScript("handleFileResponse", path, "s" + fileContents);
                 }
-                else
+                catch
                 {
-                    fileContents = (new StreamReader("App/" + path)).ReadToEnd();
+                    browser.InvokeScript("handleFileResponse", path, "f");
                 }
-                browser.InvokeScript("handleFileResponse", path, "s" + fileContents);
-            }
-            catch
-            {
-                browser.InvokeScript("handleFileResponse", path, "f");
+            } else if (type == 'l') {
+                System.Diagnostics.Debug.WriteLine(e.Value.Substring(1));
             }
         }
     }

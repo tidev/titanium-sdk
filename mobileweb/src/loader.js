@@ -182,6 +182,13 @@
 		return result.join("/");
 	}
 
+	// Current types are 'f' for fetching a native file and 'l' for logging
+	function sendNativeMessage(type, payload) {
+		if (global.hasWP8Extensions) {
+			global.external.notify(type + payload);
+		}
+	}
+
 	// Note: although it takes a callback, this function is actually synchronous
 	function getFileFromNative(path, isBinary, callback) {
 		if (typeof bridgeFileCache[path] == 'string') {
@@ -189,7 +196,7 @@
 		} else {
 			if (global.hasWP8Extensions) {
 				bridgeFileCache[path] = callback;
-				global.external.notify((isBinary ? 'b' : 't') + path);
+				sendNativeMessage('f', (isBinary ? 'b' : 't') + path);
 			}
 		}
 	}
@@ -1038,7 +1045,8 @@
 		mix: mix,
 		on: on,
 		Promise: Promise,
-		getFileFromNative: getFileFromNative
+		getFileFromNative: getFileFromNative,
+		sendNativeMessage: sendNativeMessage
 	});
 
 	req.cache = function requireCache(subject) {
