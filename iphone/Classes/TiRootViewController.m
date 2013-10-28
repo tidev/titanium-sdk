@@ -178,7 +178,7 @@
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self updateBackground];
     if (defaultImageView != nil) {
-        [self rotateDefaultImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+        [self rotateImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation] withImageView:defaultImageView];
         [rootView addSubview:defaultImageView];
     }
     [rootView becomeFirstResponder];
@@ -294,9 +294,9 @@
 	return [UIImage imageNamed:@"Default.png"];
 }
 
--(void)rotateDefaultImageViewToOrientation: (UIInterfaceOrientation )newOrientation;
+-(void)rotateImageViewToOrientation: (UIInterfaceOrientation )newOrientation withImageView:(UIImageView*)theImageView;
 {
-	if (defaultImageView == nil)
+	if (theImageView == nil)
 	{
 		return;
 	}
@@ -352,7 +352,29 @@
 				contentMode = UIViewContentModeCenter;
 			}
 		}
-	}
+	} else {
+        if([[TiApp app] appInBackground]) {
+            // Rotate image, we're in background!
+            UIImageOrientation newImgOrientation;
+            switch (newOrientation) {
+                case UIDeviceOrientationLandscapeLeft:
+                    newImgOrientation = UIImageOrientationRight;
+                    break;
+                case UIDeviceOrientationLandscapeRight:
+                    newImgOrientation = UIImageOrientationLeft;
+                    break;
+                default:
+                    newImgOrientation = UIImageOrientationDown;
+                    break;
+            }
+            defaultImage = [UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation: newImgOrientation ];
+            if (imageScale > 1.5) {
+                contentMode = UIViewContentModeCenter;
+            }
+        } else {
+            // DO NOT rotate image, we're NOT in background!;
+        }
+    }
     
 	if(imageSize.width == newFrame.size.width)
 	{
@@ -363,9 +385,9 @@
 			newFrame.size.height += overheight;
 		}
 	}
-	[defaultImageView setContentMode:contentMode];
-	[defaultImageView setImage:defaultImage];
-	[defaultImageView setFrame:newFrame];
+	[theImageView setContentMode:contentMode];
+	[theImageView setImage:defaultImage];
+	[theImageView setFrame:newFrame];
 }
 
 #pragma mark - Keyboard Control
@@ -1319,7 +1341,7 @@
         [thisWindow willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
     [self updateOrientationHistory:toInterfaceOrientation];
-    [self rotateDefaultImageViewToOrientation:toInterfaceOrientation];
+    [self rotateImageViewToOrientation:toInterfaceOrientation withImageView:defaultImageView];
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 -(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration

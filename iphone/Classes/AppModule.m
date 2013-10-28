@@ -586,6 +586,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
 }
 
+-(void)setForceSplashAsSnapshot:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSNumber)
+    [self replaceValue:args forKey:@"forceSplashAsSnapshot" notification:NO];
+    BOOL flag = [TiUtils boolValue:args def:NO];
+    [[TiApp app] setForceSplashAsSnapshot:flag];
+}
+
 #if defined(USE_TI_APPIOS)
 -(id)iOS
 {
