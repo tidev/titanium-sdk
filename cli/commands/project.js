@@ -69,9 +69,7 @@ exports.validate = function (logger, config, cli) {
 	}
 
 	return function (finished) {
-		ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
-			finished();
-		});
+		ti.loadPlugins(null, config, cli, cli.argv['project-dir'], finished);
 	};
 };
 
@@ -92,10 +90,11 @@ exports.run = function (logger, config, cli) {
 		propsList = ['sdk-version', 'id', 'name', 'version', 'publisher', 'url', 'description', 'copyright', 'icon', 'analytics', 'guid'],
 		deploymentTargets = tiapp['deployment-targets'];
 
-	cli.argv.output === "report" && logger.banner();
+	output == 'report' && logger.banner();
+
 	switch (args.length) {
 		case 0:
-			if (output === "json") {
+			if (output == 'json') {
 
 				// Store the deployment targets
 				result =  new ti.tiappxml();
@@ -109,6 +108,7 @@ exports.run = function (logger, config, cli) {
 					result[p] = tiapp[p];
 				});
 				logger.log(result.toString('pretty-json'));
+
 			} else {
 
 				// Print the deployment targets
@@ -136,7 +136,7 @@ exports.run = function (logger, config, cli) {
 		case 1:
 			key = args[0];
 			if (key === 'deployment-targets') {
-				if (output === "json") {
+				if (output === 'json') {
 					result = {
 						'deployment-targets': {}
 					};
@@ -144,7 +144,7 @@ exports.run = function (logger, config, cli) {
 						result['deployment-targets'][p] = deploymentTargets[p];
 					}
 					logger.log(JSON.stringify(result));
-				} else if (output === "text") {
+				} else if (output === 'text') {
 					result = [];
 					for (p in deploymentTargets) {
 						result.push(p + '=' + deploymentTargets[p]);
@@ -162,11 +162,11 @@ exports.run = function (logger, config, cli) {
 					logger.log();
 				}
 			} else if (!!~propsList.indexOf(key)) {
-				if (output === "json") {
+				if (output === 'json') {
 					value = {};
 					value[key] = tiapp[key];
 					logger.log(JSON.stringify(value));
-				} else if (output === "text") {
+				} else if (output === 'text') {
 					logger.log(tiapp[key]);
 				} else {
 					logger.log(__('The value of %s is %s', (key.cyan + ''), (tiapp[key] + '').cyan) + '\n');
