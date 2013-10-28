@@ -299,6 +299,11 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 		if (optimalPreviewSize != null) {
 			param.setPreviewSize(optimalPreviewSize.width, optimalPreviewSize.height);
+			List<Size> pictSizes = param.getSupportedPictureSizes();
+			Size pictureSize = getOptimalPictureSize(pictSizes);
+			if (pictureSize != null) {
+				param.setPictureSize(pictureSize.width, pictureSize.height);
+			}
 			camera.setParameters(param);
 		}
 
@@ -364,6 +369,33 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			}
 		}
 		
+		return optimalSize;
+	}
+	
+	/**
+	 * Computes the optimal picture size given the preview size. 
+	 * This returns the maximum resolution size.
+	 * 
+	 * @param sizes
+	 *            a list of picture sizes the camera supports
+	 * @return the optimal size of the picture
+	 */
+	private static Size getOptimalPictureSize(List<Size> sizes)
+	{
+		if (sizes == null) {
+			return null;
+		}
+		Size optimalSize = null;
+
+		long resolution = 0;
+
+		for (Size size : sizes) {
+			if (size.width * size.height > resolution) {
+				optimalSize = size;
+				resolution = size.width * size.height;
+			}
+		}
+
 		return optimalSize;
 	}
 
