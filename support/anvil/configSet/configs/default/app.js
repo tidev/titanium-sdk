@@ -26,6 +26,7 @@ var suites = [
 	{name: "network_socket_tcp"},
 	{name: "platform"},
 	{name: "properties"},
+	{name: "slider"},
 	{name: "stream"},
 	{name: "titanium"},
 	{name: "ui/ui"},
