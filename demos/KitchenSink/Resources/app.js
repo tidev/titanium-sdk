@@ -2,7 +2,10 @@
 Titanium.UI.setBackgroundColor('#000');
 
 // create tab group
-var tabGroup = Titanium.UI.createTabGroup({id:'tabGroup1'});
+var tabGroup = Titanium.UI.createTabGroup({
+	orientationModes: [1,2,3,4],
+	id:'tabGroup1'
+});
 
 
 //
