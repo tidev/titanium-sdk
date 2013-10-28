@@ -194,10 +194,8 @@
 		if (typeof bridgeFileCache[path] == 'string') {
 			callback(1, bridgeFileCache[path]);
 		} else {
-			if (global.hasWP8Extensions) {
-				bridgeFileCache[path] = callback;
-				sendNativeMessage('f', (isBinary ? 'b' : 't') + path);
-			}
+			bridgeFileCache[path] = callback;
+			sendNativeMessage('f', (isBinary ? 'b' : 't') + path);
 		}
 	}
 
