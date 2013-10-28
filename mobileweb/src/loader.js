@@ -182,6 +182,7 @@
 		return result.join("/");
 	}
 
+	// Note: although it takes a callback, this function is actually synchronous
 	function getFileFromNative(path, isBinary, callback) {
 		if (typeof bridgeFileCache[path] == 'string') {
 			callback(1, bridgeFileCache[path]);
@@ -589,17 +590,13 @@
 				if (_t.sync = sync) {
 					if (global.hasWP8Extensions) {
 						getFileFromNative(_t.url, 0, function (success, data) {
-							if (success) {
-								onload(data);
-							} else {
-								onfail(404);
-							}
+							(s = success) && onload(data);
 						});
-					} else {
+					}
+					if (!s) {
 						xhr = new XMLHttpRequest;
 						xhr.open("GET", _t.url, false);
 						xhr.send(null);
-
 						if (xhr.status === 200) {
 							onload(xhr.responseText);
 						} else {
