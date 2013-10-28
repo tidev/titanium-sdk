@@ -293,19 +293,6 @@ exports.run = function (logger, config, cli) {
 		projectConfig['sdk-version'] = sdk.name;
 		projectConfig.save(projectDir + '/tiapp.xml');
 
-		// create the manifest file
-		fs.writeFileSync(projectDir + '/manifest', [
-			'#appname: ' + projectName,
-			'#appid: ' + id,
-			'#type: mobile',
-			'#guid: ' + projectConfig.guid,
-			'#version: ' + projectConfig.version,
-			'#publisher: not specified',
-			'#url: not specified',
-			'#image: appicon.png',
-			'#desc: not specified'
-		].join('\n'));
-
 		analyticsPayload = {
 			dir: projectDir,
 			name: projectName,
