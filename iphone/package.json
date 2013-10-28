@@ -13,14 +13,14 @@
 	"version": "__VERSION__",
 	"author": "Appcelerator, Inc. <info@appcelerator.com>",
 	"maintainers": [
-		"Blain Hamon <bhamon@appcelerator.com>",
-		"Sabil Rahim <srahim@appcelerator.com>",
+		"Chris Barber <cbarber@appcelerator.com>",
 		"Vishal Duggal <vduggal@appcelerator.com>",
-		"Chris Barber <cbarber@appcelerator.com>"
+		"Matt Langston <mlangston@appcelerator.com>",
+		"Sabil Rahim <srahim@appcelerator.com>"
 	],
 	"vendorDependencies": {
-		"xcode": ">=4.3 <=5.0.x",
-		"ios sdk": ">=5.0 <=6.x",
+		"xcode": ">=4.6 <=5.0.x",
+		"ios sdk": ">=5.0 <=7.x",
 		"node": ">0.8.0 <=0.10.x"
 	},
 	"repository": {

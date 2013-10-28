@@ -68,9 +68,11 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 	{
 		if (fragment != null) {
 			FragmentManager fragmentManager = fragment.getFragmentManager();
-			FragmentTransaction transaction = fragmentManager.beginTransaction();
-			transaction.remove(fragment);
-			transaction.commit();
+			if (fragmentManager != null) {
+				FragmentTransaction transaction = fragmentManager.beginTransaction();
+				transaction.remove(fragment);
+				transaction.commit();
+			}
 		}
 		super.release();
 	}
