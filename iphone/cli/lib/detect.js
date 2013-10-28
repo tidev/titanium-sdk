@@ -633,7 +633,7 @@ exports.detectSimulators = function detectSimulators(config, opts, finished) {
 				_64bit = !!sim['64bit'],
 				retina = !!sim.retina,
 				tall = !!sim.tall,
-				compatVersions = {};
+				versions = {};
 
 			if (!opts.type || opts.type == type) {
 				// calculate the sdks
@@ -642,21 +642,25 @@ exports.detectSimulators = function detectSimulators(config, opts, finished) {
 						if (!_64bit || version.gte(sdk, '7.0.0')) {
 							if (!tall || version.gte(sdk, '6.0.0')) {
 								if ((!retina && type == 'ipad' || version.lt(sdk, '7.0.0')) || (retina && version.gte(sdk, '4.0.0'))) {
-									compatVersions[sdk] = 1;
+									versions[sdk] = 1;
 								}
 							}
 						}
 					}
 				});
 
-				results.push({
-					name: name,
-					type: type,
-					'64bit': _64bit,
-					retina: retina,
-					tall: tall,
-					versions: Object.keys(compatVersions).sort()
-				});
+				versions = Object.keys(versions).sort();
+
+				if (versions.length) {
+					results.push({
+						name: name,
+						type: type,
+						'64bit': _64bit,
+						retina: retina,
+						tall: tall,
+						versions: versions
+					});
+				}
 			}
 		});
 

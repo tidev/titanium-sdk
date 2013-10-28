@@ -7,7 +7,7 @@
 
 var appc = require('node-appc'),
 	__ = appc.i18n(__dirname).__,
-	afs = appc.fs,
+	fs = require('fs'),
 	path = require('path'),
 	async = require('async'),
 	exec = require('child_process').exec;
@@ -21,15 +21,10 @@ exports.init = function (logger, config, cli) {
 		post: function (build, finished) {
 			if (cli.argv.target != 'device') return finished();
 
-			if (cli.argv['build-only']) {
-				logger.info(__('Performed build only, skipping installing of the application'));
-				return finished();
-			}
-
 			async.parallel([
 				function (next) {
 					var pkgapp = path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneOS.platform', 'Developer', 'usr', 'bin', 'PackageApplication');
-					if (afs.exists(pkgapp)) {
+					if (fs.existsSync(pkgapp)) {
 						exec('"' + pkgapp + '" "' + build.xcodeAppDir + '"', function (err, stdout, stderr) {
 							if (err) {
 								logger.warn(__('An error occurred running the iOS Package Application tool'));
@@ -44,7 +39,12 @@ exports.init = function (logger, config, cli) {
 				}
 			], function () {
 				var ipa = path.join(path.dirname(build.xcodeAppDir), build.tiapp.name + '.ipa');
-				afs.exists(ipa) || (ipa = build.xcodeAppDir);
+				fs.existsSync(ipa) || (ipa = build.xcodeAppDir);
+
+				if (cli.argv['build-only']) {
+					logger.info(__('Performed build only, skipping installing of the application'));
+					return finished();
+				}
 
 				logger.info(__('Installing application into iTunes'));
 

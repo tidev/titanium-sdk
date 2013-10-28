@@ -51,6 +51,9 @@ function AndroidBuilder() {
 
 	this.tiSymbols = {};
 
+	this.minSupportedApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
+	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
+
 	this.deployTypes = {
 		'emulator': 'development',
 		'device': 'test',
@@ -654,9 +657,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 };
 
 AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
-	this.minSupportedApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
-	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
-
 	// copy args to build object
 	this.target = cli.argv.target;
 	this.deployType = /^device|emulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
@@ -1313,25 +1313,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 
 		'doAnalytics',
 		'initialize',
-
-		function (next) {
-			this.logger.debug(__('Titanium SDK Android directory: %s', this.platformPath.cyan));
-			this.logger.info(__('Deploy type: %s', this.deployType.cyan));
-			this.logger.info(__('Building for target: %s', this.target.cyan));
-			if (this.target == 'emulator') {
-				this.logger.info(__('Emulator name: %s', this.deviceId.cyan));
-			} else if (this.target == 'device') {
-				this.logger.info(__('Device name: %s', this.deviceId.cyan));
-			}
-			this.logger.info(__('ABIs: %s', this.abis.join(', ').cyan));
-			this.logger.debug(__('App ID: %s', this.appid.cyan));
-			this.logger.debug(__('Classname: %s', this.classname.cyan));
-
-			// TODO: output other awesome info here
-
-			next();
-		},
-
+		'loginfo',
 		'computeHashes',
 		'readBuildManifest',
 		'checkIfNeedToRecompile',
@@ -1494,6 +1476,39 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.androidManifestFile        = path.join(this.buildDir, 'AndroidManifest.xml');
 	this.unsignedApkFile            = path.join(this.buildBinDir, 'app-unsigned.apk');
 	this.apkFile                    = path.join(this.buildBinDir, this.tiapp.name + '.apk');
+
+	next();
+};
+
+AndroidBuilder.prototype.loginfo = function loginfo(next) {
+	this.logger.debug(__('Titanium SDK Android directory: %s', this.platformPath.cyan));
+	this.logger.info(__('Deploy type: %s', this.deployType.cyan));
+	this.logger.info(__('Building for target: %s', this.target.cyan));
+
+	if (this.target == 'emulator') {
+		this.logger.info(__('Building for emulator: %s', this.deviceId.cyan));
+	} else if (this.target == 'device') {
+		this.logger.info(__('Building for device: %s', this.deviceId.cyan));
+	}
+
+	this.logger.info(__('Targeting Android SDK: %s', String(this.targetSDK).cyan));
+	this.logger.info(__('Building for the following architectures: %s', this.abis.join(', ').cyan));
+	this.logger.info(__('Signing with keystore: %s', (this.keystore + ' (' + this.keystoreAlias + ')').cyan));
+
+	this.logger.debug(__('App ID: %s', this.appid.cyan));
+	this.logger.debug(__('Classname: %s', this.classname.cyan));
+
+	if (this.allowDebugging && this.debugPort) {
+		this.logger.info(__('Debugging enabled via debug port: %s', String(this.debugPort).cyan));
+	} else {
+		this.logger.info(__('Debugging disabled'));
+	}
+
+	if (this.allowProfiling && this.profilePort) {
+		this.logger.info(__('Profiler enabled via profiler port: %s', String(this.profilePort).cyan));
+	} else {
+		this.logger.info(__('Profiler disabled'));
+	}
 
 	next();
 };
