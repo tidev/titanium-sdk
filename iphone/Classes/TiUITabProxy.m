@@ -479,7 +479,7 @@
 			activeImage = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:activeIcon proxy:currentWindow]];
 		}
 	}
-
+	[rootController setTitle:title];
 	UITabBarItem *ourItem = nil;
     
     BOOL imageIsMask = NO;
