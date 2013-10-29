@@ -21,6 +21,7 @@ module.exports = new function() {
 		{name: "labelBackground"}
 	]
 	
+	//TIMOB-4123
 	this.labelHeight = function(testRun) {
 		var win = Titanium.UI.createWindow({
 			backgroundColor:'white'
@@ -66,21 +67,21 @@ module.exports = new function() {
 			right:'10%',
 			textid:'check'
 		});
-        view.add(label);
-        label.textid='new';
-        valueOf(testRun, label.textid).shouldBe('new');
-        label.textid='new';
-        valueOf(testRun, label.textid).shouldBe('new');
-        label.textid='new';
-        valueOf(testRun, label.textid).shouldBe('new');
-        
-        finish(testRun);
-        
-        win.add(view)
-        win.open();
+		view.add(label);
+		label.textid='new';
+		valueOf(testRun, label.textid).shouldBe('new');
+		label.textid='new';
+		valueOf(testRun, label.textid).shouldBe('new');
+		label.textid='new';
+		valueOf(testRun, label.textid).shouldBe('new');
+		
+		finish(testRun);
+		win.add(view)
+		win.open();
 	}
 	
-    this.labelPostlayout=function(testRun){
+	//TIMOB-9994
+	this.labelPostlayout=function(testRun){
 		var win = Ti.UI.createWindow({
 			layout : 'vertical'
 		});
@@ -113,6 +114,7 @@ module.exports = new function() {
 		win.open();
 	}
 	
+	//TIMOB-8955 & TIMOB-8246
 	this.labelBackground=function(testRun){
 		var win = Ti.UI.createWindow();
 		win.open();
@@ -136,7 +138,6 @@ module.exports = new function() {
 			height:45,
 			width:290,
 			textAlign:'center',
-			backgroundImage:'flower.jpg',
 			backgroundColor: 'red'
 		});
 		label.addEventListener("postlayout", function(){
@@ -153,7 +154,6 @@ module.exports = new function() {
 			valueOf(testRun,label.getTextAlign()).shouldBe('center');
 			valueOf(testRun, label.getText()).shouldBe('Appcelerator');
 			valueOf(testRun, label.getBackgroundColor()).shouldBe('red');
-			valueOf(testRun, label.getBackgroundImage()).shouldBe('flower.jpg');
 			valueOf(testRun,label.getHeight()).shouldBe(45);
 			valueOf(testRun,label.getWidth()).shouldBe(290);
 			
@@ -165,10 +165,3 @@ module.exports = new function() {
 		win.add(signonview);
 	}
 }
-
-
-
-
-
-
-
