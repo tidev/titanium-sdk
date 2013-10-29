@@ -630,7 +630,7 @@
 					});
 
 					// set the source url last
-					scriptTag.src = _t.url;
+					scriptTag.src = global.hasWP8Extensions && /^\/\//.test(_t.url) ? 'http:' + _t.url : _t.url;
 
 					s = doc.getElementsByTagName("script")[0];
 					s.parentNode.insertBefore(scriptTag, s);
