@@ -94,7 +94,7 @@ exports.init = function (logger, config, cli) {
 					logger.info(__('Project version number will be converted to %s for compatibility with Visual Studio', version));
 				}
 			}
-			templateData.projectVersion = version;
+			templateData.projectVersion = tiapp._windowsVersion = version;
 
 			// Create the destination folder if it doesn't exist
 			if (!fs.existsSync(destination)) {

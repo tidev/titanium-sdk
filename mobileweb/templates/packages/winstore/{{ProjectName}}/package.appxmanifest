@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  <Identity Name="<%= projectGUID %>" Version="<%= projectVersion %>" Publisher="CN=<%= author %>" />
+  <Identity Name="<%= projectName %>" Version="<%= projectVersion %>" Publisher="CN=<%= author %>" />
   <Properties>
     <DisplayName><%= projectDisplayName %></DisplayName>
     <PublisherDisplayName><%= author %></PublisherDisplayName>
