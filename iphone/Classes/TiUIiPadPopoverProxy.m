@@ -82,8 +82,7 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
         CGSize tempSize = CGSizeMake(screenSize.height, screenSize.width);
         screenSize = tempSize;
     }
-    
-	return SizeConstraintViewWithSizeAddingResizing([self layoutProperties], self, screenSize , NULL);
+	return SizeConstraintViewWithSizeAddingResizing(&popoverLayoutProperties, self, screenSize , NULL);
 }
 
 -(UINavigationController *)navigationController
@@ -188,7 +187,8 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
 -(void)setWidth:(id)value
 {
-	[super setWidth:value];
+    popoverLayoutProperties.width = TiDimensionFromObject(value);
+    [self replaceValue:value forKey:@"width" notification:NO];
 	if (popoverController != nil)
 	{
 		TiThreadPerformOnMainThread(^{[self updateContentSize];}, NO);
@@ -197,13 +197,38 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
 -(void)setHeight:(id)value
 {
-	[super setHeight:value];
+    popoverLayoutProperties.height = TiDimensionFromObject(value);
+    [self replaceValue:value forKey:@"height" notification:NO];
 	if (popoverController != nil)
 	{
 		TiThreadPerformOnMainThread(^{[self updateContentSize];}, NO);
 	}
 }
 
+-(void)setTop:(id)value
+{
+    DeveloperLog(@"[WARN] PopoverProxy only supports width and height properties");
+}
+
+-(void)setBottom:(id)value
+{
+    DeveloperLog(@"[WARN] PopoverProxy only supports width and height properties");
+}
+
+-(void)setLeft:(id)value
+{
+    DeveloperLog(@"[WARN] PopoverProxy only supports width and height properties");
+}
+
+-(void)setRight:(id)value
+{
+    DeveloperLog(@"[WARN] PopoverProxy only supports width and height properties");
+}
+
+-(void)setCenter:(id)value
+{
+    DeveloperLog(@"[WARN] PopoverProxy only supports width and height properties");
+}
 
 -(void)show:(id)args
 {
