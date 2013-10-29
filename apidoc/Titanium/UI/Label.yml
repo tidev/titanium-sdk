@@ -25,10 +25,9 @@ methods:
 
 properties:
   - name: attributedString
-    summary: Label attributed string. 
+    summary: Specify an attributed string for the label.
     description: |
-        The underlying attributed string drawn by the label, if set, the label ignores
-        the `text`, `color`, and `shadow` properties
+        If set, the label ignores the `text`, `color`, and `shadow` properties.
     type: Titanium.UI.iOS.AttributedString
     platforms: [iphone, ipad]
     since: 3.2.0

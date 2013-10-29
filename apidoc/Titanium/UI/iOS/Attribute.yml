@@ -2,9 +2,9 @@
 name: Attribute
 summary: An abstract datatype for specifying an attributed string attribute.
 description: |
-    Attributes are added to the Titanium.UI.iOS.AttributedString object to create
+    Attributes are added to the <Titanium.UI.iOS.AttributedString> object to create
     styled text. The attribute is a JavaScript Object containing three properties:
-    `type`, `value`, `range`.
+    `type`, `value` and `range`.
 platforms: [iphone, ipad]
 since: "3.2.0"
 
@@ -42,9 +42,9 @@ properties:
   - name: value
     summary: Attribute value.
     description: |
-        The `value` paramenter has to match the `type` paramenter. For example, to
-        use the foreground color on the text you would use the Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR
-        for the `type` and a color value for the value:
+        The `value` parameter has to match the `type` paramenter. For example, to
+        use the foreground color on the text you would use <Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR>
+        for the `type` and a color value for the `value`:
 
             {
                 type: Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR,
@@ -52,8 +52,8 @@ properties:
                 range: [0, 100]
             }
 
-        If you use the  Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_TYLE or the Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_COLOR
-        you must use one, or more, of these constants:
+        If you use <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_COLOR>,
+        you must use one or more of these constants:
 
           * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_NONE>
           * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE>
@@ -74,7 +74,7 @@ properties:
                 range: [0, 100]
             }
 
-        If you use the Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION, you must use one or more of 
+        If you use the <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>, you must use one or more of
         these constants:
 
           * <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING>
@@ -85,8 +85,8 @@ properties:
 
         These can also be combined the same way as the underline styles.
 
-        If you use the Titanium.UI.iOS.ATTRIBUTE_SHADOW, the `value` must a JavaScript object containing
-        any of the `offset`, `blurRadius`, and / or `color` properties:
+        If you use the <Titanium.UI.iOS.ATTRIBUTE_SHADOW>, the `value` must be a JavaScript object containing
+        any of the `offset`, `blurRadius` or `color` properties:
 
             {
                 offset: {
@@ -102,7 +102,6 @@ properties:
   - name: range
     summary: Attribute range. 
     description: |
-                This specifies the range of text to apply the property to. An array of two
-                numbers. [from, length]
+        This specifies the range of text to apply the property to, as an array of two numbers: `[from, length]`.
     type: Array<Number>
     optional: false
