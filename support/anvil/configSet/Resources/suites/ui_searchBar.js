@@ -65,26 +65,19 @@ module.exports = new function() {
 	
 	//TIMOB-3223
 	this.showBookmark = function(testRun) {
-		if (Ti.UI.iOS){
-			var window = Titanium.UI.createWindow();
-			var searchBar = Titanium.UI.createSearchBar({
-				top: 0,
-				height: 44,
-				showBookmark:true
-			});
-			window.addEventListener("focus",function(){
+		var window = Titanium.UI.createWindow();
+		var searchBar = Titanium.UI.createSearchBar({
+			height: 44,
+			showBookmark:true
+		});
+		window.addEventListener("focus",function(){
+			if (Ti.UI.iOS){
 				valueOf(testRun,searchBar.getHeight()).shouldBe(44);
-				valueOf(testRun,searchBar.getTop()).shouldBe(0);
 				valueOf(testRun,searchBar.getShowBookmark()).shouldBeTrue();
-				
-				finish(testRun);
-			})
-			window.add(searchBar);
-			window.open();
-		}
-		else {
-			Ti.API.warn("Cross-context tests aren't currently being tested in Android");
+			}
 			finish(testRun);
-		}
+		})
+		window.add(searchBar);
+		window.open();
 	}
 }
