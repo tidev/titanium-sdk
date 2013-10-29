@@ -23,30 +23,20 @@ module.exports = new function() {
 	
 	//TIMOB-4123
 	this.labelHeight = function(testRun) {
-		var win = Titanium.UI.createWindow({
-			backgroundColor:'white'
-		});
-		win.open();
 		var label = Ti.UI.createLabel({
-			text:'text',
 			top:10,
 			right:10,
 			height : 'auto',
 			width:'auto',
 			borderColor:'red'
 		});
-		valueOf(testRun, label.getText()).shouldBe('text');
-		setTimeout(function(){
-			label.text = "updated";
-			valueOf(testRun, label.getTop()).shouldBe(10);
-			valueOf(testRun, label.getHeight()).shouldBe('auto');
-			valueOf(testRun, label.getWidth()).shouldBe('auto');
-			valueOf(testRun, label.getBorderColor()).shouldBe('red');
-			valueOf(testRun, label.getRight()).shouldBe('10');
-			valueOf(testRun, label.getText()).shouldBe('updated');
-			
-			finish(testRun);
-		}, 2000);
+		valueOf(testRun, label.getTop()).shouldBe(10);
+		valueOf(testRun, label.getHeight()).shouldBe('auto');
+		valueOf(testRun, label.getWidth()).shouldBe('auto');
+		valueOf(testRun, label.getBorderColor()).shouldBe('red');
+		valueOf(testRun, label.getRight()).shouldBe('10');
+						
+		finish(testRun);
 	}
 	
 	//TIMOB-9912
