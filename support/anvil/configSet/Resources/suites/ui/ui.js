@@ -544,7 +544,7 @@ module.exports = new function() {
 		finish(testRun);
 	}
 
-	// https://jira.appcelerator.org/browse/TIMOB-6856
+	//TIMOB-6856
 	this.orientationModesReturnNull = function(testRun) {
 		if (Ti.Platform.osname === 'android') {
 			var win = Titanium.UI.createWindow({  
@@ -554,7 +554,6 @@ module.exports = new function() {
 			win.orientationModes = [Ti.UI.PORTRAIT, Ti.UI.UPSIDE_PORTRAIT];
 			valueOf(testRun, win.orientationModes).shouldBe('1,3');
 		}
-
 		finish(testRun);
 	}
 }
