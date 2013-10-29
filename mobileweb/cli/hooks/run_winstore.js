@@ -84,6 +84,7 @@ exports.init = function (logger, config, cli) {
 						'Add-AppDevPackage.ps1'), '-Force' ]);
 					installProcess.stdout.on('data', function (data) {
 						data.toString().split('\r\n').forEach(function (line) {
+							line = line.trim();
 							if (line.length) {
 								logger.trace(line);
 							}
@@ -91,6 +92,7 @@ exports.init = function (logger, config, cli) {
 					});
 					installProcess.stderr.on('data', function (data) {
 						data.toString().split('\r\n').forEach(function (line) {
+							line = line.trim();
 							if (line.length) {
 								logger.error(line);
 							}
