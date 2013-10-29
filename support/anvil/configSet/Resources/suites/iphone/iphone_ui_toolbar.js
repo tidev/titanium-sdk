@@ -15,13 +15,13 @@ module.exports = new function() {
 	
 	this.name = "ui_toolbar";
 	this.tests = [
-		{name: "uiDotIOSdotToolbar"},
+		{name: "ui_IOS_Toolbar"},
 		{name: "keyBoardToolbar"},
 		{name: "toolbarLabel"}
 	]
 	
 	//TIMOB-4911
-	this.uiDotIOSdotToolbar = function(testRun) {
+	this.ui_IOS_Toolbar = function(testRun) {
 		var win =Ti.UI.createWindow();
 		var send = Titanium.UI.createButton({
 			title: 'Send',
@@ -58,11 +58,9 @@ module.exports = new function() {
 		var win1 = Titanium.UI.createWindow({backgroundColor:'#fff'});
 		var textfields=[];
 		var send = Titanium.UI.createButton({
-			title : 'Send',
 			style : Titanium.UI.iPhone.SystemButtonStyle.DONE
 		});
 		var cancel = Titanium.UI.createButton({
-			title:'cancel',
 			systemButton : Titanium.UI.iPhone.SystemButton.CANCEL
 		});
 		var toolbar1 = Titanium.UI.iOS.createToolbar({
@@ -86,8 +84,6 @@ module.exports = new function() {
 				textfields[i].focus();
 				for(var k=0;k<2;k++){
 					valueOf(testRun,textfields[i].getKeyboardToolbar().items[k].getEnabled()).shouldBeTrue();
-					valueOf(testRun,textfields[i].getKeyboardToolbar().items[k].getTitle()).shouldNotBeNull();
-					valueOf(testRun,textfields[i].getKeyboardToolbar().items[k].getTitle()).shouldNotBeUndefined();
 				}
 				valueOf(testRun, textfields[i].getKeyboardToolbar().items.length).shouldBe(2);
 				valueOf(testRun, textfields[i].getKeyboardToolbar().items).shouldNotBeNull();
