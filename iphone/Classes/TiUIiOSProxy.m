@@ -10,6 +10,14 @@
 #import "Webcolor.h"
 #ifdef USE_TI_UIIOS
  
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+#import "TiUIiOSTransitionAnimationProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+#import "TiUIiOSAttributedStringProxy.h"
+#endif
+
 #ifdef USE_TI_UIIOSADVIEW
 	#import "TiUIiOSAdViewProxy.h"
     #import <iAd/iAd.h>
@@ -57,13 +65,6 @@
 #endif
 #ifdef USE_TI_UIIOSDYNAMICITEMBEHAVIOR
 #import "TiDynamicItemBehavior.h"
-#endif
-#ifdef USE_TI_UIIOSTRANSITIONANIMATION
-#import "TiUIiOSTransitionAnimationProxy.h"
-#endif
-
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-#import "TiUIiOSAttributedStringProxy.h"
 #endif
 #endif
 
