@@ -97,4 +97,10 @@ public class ActivityIndicatorProxy extends TiViewProxy
 		}
 		super.handleHide(options);
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.ActivityIndicator";
+	}
 }

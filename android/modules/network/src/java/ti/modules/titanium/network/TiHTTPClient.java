@@ -75,7 +75,6 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.DefaultHttpRequestFactory;
-import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectHandler;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
@@ -165,7 +164,7 @@ public class TiHTTPClient
 	private ArrayList<X509TrustManager> trustManagers = new ArrayList<X509TrustManager>();
 	private ArrayList<X509KeyManager> keyManagers = new ArrayList<X509KeyManager>();
 
-	private static CookieStore cookieStore = new BasicCookieStore();
+	private static CookieStore cookieStore = NetworkModule.getHTTPCookieStoreInstance();
 
 
 	protected HashMap<String,String> headers = new HashMap<String,String>();
