@@ -182,14 +182,20 @@
 		return result.join("/");
 	}
 
+	// Current types are 'f' for fetching a native file and 'l' for logging
+	function sendNativeMessage(type, payload) {
+		if (global.hasWP8Extensions) {
+			global.external.notify(type + payload);
+		}
+	}
+
+	// Note: although it takes a callback, this function is actually synchronous
 	function getFileFromNative(path, isBinary, callback) {
 		if (typeof bridgeFileCache[path] == 'string') {
 			callback(1, bridgeFileCache[path]);
 		} else {
-			if (global.hasWP8Extensions) {
-				bridgeFileCache[path] = callback;
-				global.external.notify((isBinary ? 'b' : 't') + path);
-			}
+			bridgeFileCache[path] = callback;
+			sendNativeMessage('f', (isBinary ? 'b' : 't') + path);
 		}
 	}
 
@@ -589,17 +595,13 @@
 				if (_t.sync = sync) {
 					if (global.hasWP8Extensions) {
 						getFileFromNative(_t.url, 0, function (success, data) {
-							if (success) {
-								onload(data);
-							} else {
-								onfail(404);
-							}
+							(s = success) && onload(data);
 						});
-					} else {
+					}
+					if (!s) {
 						xhr = new XMLHttpRequest;
 						xhr.open("GET", _t.url, false);
 						xhr.send(null);
-
 						if (xhr.status === 200) {
 							onload(xhr.responseText);
 						} else {
@@ -628,7 +630,7 @@
 					});
 
 					// set the source url last
-					scriptTag.src = _t.url;
+					scriptTag.src = global.hasWP8Extensions && /^\/\//.test(_t.url) ? 'http:' + _t.url : _t.url;
 
 					s = doc.getElementsByTagName("script")[0];
 					s.parentNode.insertBefore(scriptTag, s);
@@ -1041,7 +1043,8 @@
 		mix: mix,
 		on: on,
 		Promise: Promise,
-		getFileFromNative: getFileFromNative
+		getFileFromNative: getFileFromNative,
+		sendNativeMessage: sendNativeMessage
 	});
 
 	req.cache = function requireCache(subject) {

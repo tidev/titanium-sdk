@@ -34,7 +34,8 @@ exports.init = function (logger, config, cli) {
 				destination = path.resolve(path.join(source, '..', 'mobileweb-wp8')),
 				tiapp = build.tiapp,
 				templateData = {
-					projectName: tiapp.name || 'Project',
+					projectName: tiapp.id || 'Project',
+					projectDisplayName: tiapp.name || 'Project',
 					projectVersion: tiapp.version || '0.0.0',
 					projectGUID: tiapp.guid || uuid.v4(),
 					assemblyGUID: uuid.v4(),
@@ -118,7 +119,7 @@ exports.init = function (logger, config, cli) {
 			buildProcess = spawn('MSBuild', [
 				'/m',
 				'/p:configuration=' + (cli.argv['deploy-type'] == 'production' ? 'Release' : 'Debug'),
-				path.join(destination, tiapp.name + '.sln')]);
+				path.join(destination, tiapp.id + '.sln')]);
 			buildProcess.stdout.on('data', function (data) {
 				data.toString().split('\r\n').forEach(function (line) {
 					if (line.length) {

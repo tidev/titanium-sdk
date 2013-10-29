@@ -35,7 +35,7 @@ exports.init = function (logger, config, cli) {
 				buildProcess = spawn(env.xapDeployCmd, [
 					'/installlaunch',
 					path.resolve(path.join(build.buildDir, '..', 'mobileweb-wp8',
-						tiapp.name, 'Bin', buildType, tiapp.name + '_' + buildType + '_AnyCPU.xap')),
+						tiapp.id, 'Bin', buildType, tiapp.id + '_' + buildType + '_AnyCPU.xap')),
 					'/targetdevice:' + cli.argv['device-id']]);
 				buildProcess.stdout.on('data', function (data) {
 					data.toString().split('\r\n').forEach(function (line) {
