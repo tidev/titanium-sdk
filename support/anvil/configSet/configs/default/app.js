@@ -29,6 +29,7 @@ var suites = [
 	{name: "stream"},
 	{name: "titanium"},
 	{name: "ui/ui"},
+	{name: "ui_textArea"},
 	{name: "ui_2dMatrix"},
 	{name: "ui_clipboard"},
 	{name: "ui_controls"},
