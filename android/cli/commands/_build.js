@@ -1955,8 +1955,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						to = path.join(dest, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name).substring(0, 10) + ext);
 					}
 				} else if (/^default(\.9)?\.(png|jpg)$/.test(relPath)) {
-					dest = this.buildResDrawableDir;
-					to = path.join(this.buildResDrawableDir, filename.replace('default.', 'background.'));
+					dest = path.join(this.buildResDir, 'drawable-nodpi');
+					to = path.join(this.buildResDir, 'drawable-nodpi', filename.replace('default.', 'background.'));
 				}
 
 				// if the destination directory does not exists, create it

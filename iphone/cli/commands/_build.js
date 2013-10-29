@@ -928,7 +928,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 				this.logger.info(__('Invoking xcodebuild'));
 				this.xcodePrecompilePhase(function () {
 					this.invokeXcodeBuild(next);
-				});
+				}.bind(this));
 			} else {
 				this.logger.info(__('Skipping xcodebuild'));
 				next();
@@ -2709,11 +2709,48 @@ iOSBuilder.prototype.compileJsFile = function compileJsFile(id, file) {
 iOSBuilder.prototype.xcodePrecompilePhase = function xcodePrecompilePhase(finished) {
 	this.logger.info(__('Initiating Xcode pre-compile phase'));
 
+	series(this, [
+		'copyResources'
+	], function () {
+		finished();
+	});
+};
+
+iOSBuilder.prototype.copyResources = function copyResources(finished) {
 	this.tiModules = [];
 	this.symbols = {
 		$: ['USE_TI_ANALYTICS', 'USE_TI_NETWORK', 'USE_TI_PLATFORM', 'USE_TI_UI', 'USE_TI_API']
 	};
 	this.jsFilesToPrepare = [];
+
+	var tasks = [
+		// first task is to copy all files in the Resources directory, but ignore
+		// any directory that is the name of a known platform
+		function (cb) {
+			copyDir.call(this, {
+				src: path.join(this.projectDir, 'Resources'),
+				dest: this.buildBinAssetsResourcesDir,
+				ignoreRootDirs: ti.availablePlatformsNames
+			}, cb);
+		},
+
+		// next copy all files from the iOS specific Resources directory
+		function (cb) {
+			copyDir.call(this, {
+				src: path.join(this.projectDir, 'Resources', 'iphone'),
+				dest: this.buildBinAssetsResourcesDir
+			}, cb);
+		},
+
+		function (cb) {
+			copyDir.call(this, {
+				src: path.join(this.projectDir, 'Resources', 'ios'),
+				dest: this.buildBinAssetsResourcesDir
+			}, cb);
+		}
+	];
+
+
 
 	this.compileResources(path.join(this.projectDir, 'Resources'), this.xcodeAppDir, function () {
 		parallel(this, [
@@ -2734,10 +2771,10 @@ iOSBuilder.prototype.xcodePrecompilePhase = function xcodePrecompilePhase(finish
 				this.compileResources(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir, next);
 			},
 			function (next) {
-				this.compileResources(path.join(this.projectDir, 'platform', 'ios'), this.xcodeAppDir, next);
+				this.compileResources(path.join(this.projectDir, 'platform', 'ios'), this.buildDir, next);
 			},
 			function (next) {
-				this.compileResources(path.join(this.projectDir, 'platform', 'iphone'), this.xcodeAppDir, next);
+				this.compileResources(path.join(this.projectDir, 'platform', 'iphone'), this.buildDir, next);
 			},
 			function (next) {
 				this.detectModules(function () {
