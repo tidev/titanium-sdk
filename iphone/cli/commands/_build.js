@@ -924,7 +924,7 @@ function build(logger, config, cli, finished) {
 	this.iosSimVersion = cli.argv['sim-version'];
 	this.iosSimType = cli.argv['sim-type'];
 	this.deviceFamily = cli.argv['device-family'];
-	this.xcodeTargetOS = this.target == 'simulator' ? 'iphonesimulator' + this.iosSdkVersion : 'iphoneos' + this.iosSdkVersion;
+	this.xcodeTargetOS = (this.target == 'simulator' ? 'iphonesimulator' : 'iphoneos') + appc.version.format(this.iosSdkVersion, 2, 2);
 	this.iosBuildDir = path.join(this.buildDir, 'build', this.xcodeTarget + '-' + (this.target == 'simulator' ? 'iphonesimulator' : 'iphoneos'));
 	this.xcodeAppDir = cli.argv.xcode ? path.join(process.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : path.join(this.iosBuildDir, this.tiapp.name + '.app');
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
