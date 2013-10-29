@@ -38,7 +38,7 @@ module.exports = new function() {
 			valueOf(testRun, bb1.style).shouldBe(1);
 			valueOf(testRun, bb1.backgroundColor).shouldBe('blue');
 			
-		finish(testRun);
+			finish(testRun);
 		});
 		win.open();
 	}
