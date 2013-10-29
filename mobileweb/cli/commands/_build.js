@@ -70,7 +70,7 @@ exports.config = function (logger, config, cli) {
 							abbr: 'T',
 							default: 'web',
 							desc: __('the target to build for'),
-							values: ['web', 'wp8'],
+							values: ['web', 'wp8', 'winstore'],
 							callback: function (value) {
 								if (value == 'wp8') {
 									conf.options['wp8-publisher-guid'].required = true;
