@@ -1,7 +1,7 @@
 /*
  * run.js: Titanium Mobile Web CLI run in Windows Phone 8 hook
  *
- * Copyright (c) 2012, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
