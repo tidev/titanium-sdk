@@ -308,25 +308,23 @@
 
 -(void)setDisabledColor_:(id)color
 {
-	if (color!=nil)
-	{
-		TiColor *selColor = [TiUtils colorValue:color];
-		UIButton *b = [self button];
-		if (selColor!=nil)
-		{
-			[b setTitleColor:[selColor _color] forState:UIControlStateDisabled];
-		}
-	}
+    if (color!=nil) {
+        TiColor *selColor = [TiUtils colorValue:color];
+        UIButton *b = [self button];
+        if (selColor!=nil) {
+            [b setTitleColor:[selColor _color] forState:UIControlStateDisabled];
+        }
+    }
 }
 
 -(void)setShadowColor_:(id)color
 {
-	if (color==nil) {
-		[[self button] setTitleShadowColor:nil forState:UIControlStateNormal];
-	} else {
-		color = [TiUtils colorValue:color];
+    if (color==nil) {
+        [[self button] setTitleShadowColor:nil forState:UIControlStateNormal];
+    } else {
+        color = [TiUtils colorValue:color];
         [[self button] setTitleShadowColor:[color color] forState:UIControlStateNormal];
-	}
+    }
 }
 
 -(void)setShadowOffset_:(id)value
