@@ -242,6 +242,19 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return false;
 	}
 
+	/**
+	 * Check whether the current activity is in foreground or not.
+	 * @return true if the current activity is in foreground; false otherwise.
+	 * @module.api
+	 */
+	public static boolean isCurrentActivityInForeground()
+	{
+		Activity currentActivity = getAppCurrentActivity();
+		if (currentActivity instanceof TiBaseActivity) {
+			return ((TiBaseActivity)currentActivity).isInForeground();
+		}
+		return false;
+	}
 	
 	/**
 	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
