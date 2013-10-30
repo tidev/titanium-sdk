@@ -28,7 +28,7 @@ excludes: {
     ],
     properties: [backgroundDisabledColor, backgroundDisabledImage, backgroundFocusedColor,
                  backgroundFocusedImage, backgroundSelectedColor, backgroundSelectedImage,
-                 focusable, keepScreenOn, softKeyboardOnFocus
+                 focusable, keepScreenOn, softKeyboardOnFocus, left, right, top, bottom, center
     ]
 }
 
