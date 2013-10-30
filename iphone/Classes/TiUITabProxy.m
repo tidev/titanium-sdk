@@ -170,6 +170,25 @@
     RELEASE_TO_NIL(windowController);
 }
 
+-(void)popGestureStateHandler:(UIGestureRecognizer *)recognizer
+{
+    UIGestureRecognizerState curState = recognizer.state;
+    
+    switch (curState) {
+        case UIGestureRecognizerStateBegan:
+            transitionWithGesture = YES;
+            break;
+        case UIGestureRecognizerStateEnded:
+        case UIGestureRecognizerStateCancelled:
+        case UIGestureRecognizerStateFailed:
+            transitionWithGesture = NO;
+            break;
+        default:
+            break;
+    }
+    
+}
+
 #pragma mark - TiTab protocol
 -(UINavigationController*)controller
 {
