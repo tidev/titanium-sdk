@@ -615,6 +615,14 @@ properties:
         On BlackBerry, this property automatically creates a `navBar` and sets the title on it.
     type: String
 
+  - name: titleAttributes
+    summary: Title text attributes of the window.
+    description: |
+        Use this property to specify the color, font and shadow attributes of the title.
+    since: "3.2.0"
+    platforms: [iphone, ipad]
+    type: titleAttributesParams
+
   - name: titleControl
     summary: View to show in the title area of the nav bar.
     platforms: [iphone, ipad, mobileweb, tizen]
@@ -1275,3 +1283,49 @@ properties:
                     activityEnterAnimation: Ti.Android.R.anim.fade_in,
                     activityExitAnimation: Ti.Android.R.anim.fade_out
                 });
+
+---
+name: titleAttributesParams
+summary: Dictionary of options for the <Titanium.UI.Window.titleAttributes> property.
+since: 3.2.0
+platforms: [iphone, ipad]
+examples:
+  - title: Simple Example
+    example: |
+
+        var win = Titanium.UI.createWindow({
+            title: 'Title',
+            barColor: 'yellow',
+            titleAttributes:  {
+                color:'blue',
+                font: {fontFamily:'Snell Roundhand', fontSize:36},
+                shadow:{color:'gray', offset:{width:1,height:1}}
+            }
+        });
+        var nav = Titanium.UI.iOS.createNavigationWindow({window: win});
+        nav.open();
+
+properties:
+
+  - name: color
+    summary: Color of the window title, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+
+  - name: font
+    summary: Font to use for the window title.
+    type: Font
+
+  - name: shadow
+    summary: Shadow color and offset for the window title.
+    description: |
+        Specified as a dictionary with the properties `blurRadius`, `color` and `offset`.
+
+        `blurRadius` (iOS 7 and later) specifies the blur radius of the shadow.  `0` means no blur.
+
+        `color` is a color name or hex triplet.
+
+        `offset` is a dictionary with the properties `width` and `height` used as the horizontal
+        and vertical offset of the shadow, respectively.
+    type: Dictionary
