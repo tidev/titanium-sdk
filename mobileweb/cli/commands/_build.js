@@ -108,7 +108,7 @@ exports.validate = function (logger, config, cli) {
 	// If this is a Windows Phone 8 target, validate the wp8 specific parameters
 	if (cli.argv.target == 'wp8') {
 		if (wp8Env.issues.length) {
-			logger.error(__('There is are Windows Phone configuration issues preventing the app from being built') + '\n');
+			logger.error(__('There are Windows Phone configuration issues preventing the app from being built') + '\n');
 			logger.log(__('Run "titanium info" to get more information on this error') + '\n');
 			process.exit(1);
 		}

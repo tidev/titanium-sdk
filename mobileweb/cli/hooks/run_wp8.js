@@ -27,6 +27,12 @@ exports.init = function (logger, config, cli) {
 			logger.info(__('Installing and launching the application'));
 			wp8.detect(function (env) {
 
+				if (env.issues.length) {
+					logger.error(__('There were issues detected with the Windows Phone 8 development environment setup. ' +
+						'Please run "titanium info" for more information'));
+					process.exit(1);
+				}
+
 				var tiapp = build.tiapp,
 					buildType = cli.argv['deploy-type'] == 'production' ? 'Release' : 'Debug',
 					installProcess;
@@ -53,7 +59,6 @@ exports.init = function (logger, config, cli) {
 				});
 				installProcess.on('close', function (code) {
 					if (code) {
-						logger.info(__('There were errors deploying the application'));
 						finished(code);
 					} else {
 						logger.info(__('Finished launching the application'));
