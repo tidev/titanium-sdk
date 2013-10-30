@@ -494,6 +494,10 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
+    if(splashScreenImage != nil) {
+        [[self splashScreenImage] removeFromSuperview];
+        RELEASE_TO_NIL(splashScreenImage);
+    }
 	// NOTE: Have to fire a separate but non-'resume' event here because there is SOME information
 	// (like new URL) that is not passed through as part of the normal foregrounding process.
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification object:self];
@@ -536,10 +540,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
-    if(splashScreenImage != nil) {
-        [[self splashScreenImage] removeFromSuperview];
-        RELEASE_TO_NIL(splashScreenImage);
-    }
     [sessionId release];
     sessionId = [[TiUtils createUUID] retain];
     
