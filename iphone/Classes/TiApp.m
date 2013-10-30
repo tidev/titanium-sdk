@@ -676,7 +676,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	RELEASE_TO_NIL(userAgent);
 	RELEASE_TO_NIL(remoteDeviceUUID);
 	RELEASE_TO_NIL(remoteNotification);
-    RELEASE_TO_NIL(splashScreenImage);
+	RELEASE_TO_NIL(splashScreenImage);
     if ([self debugMode]) {
         TiDebuggerStop();
     }

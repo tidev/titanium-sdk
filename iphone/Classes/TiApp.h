@@ -32,7 +32,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 {
 	UIWindow *window;
 	UIImageView *loadView;
-    UIImageView *splashScreenImage;
+	UIImageView *splashScreenImage;
 	BOOL loaded;
 
 	TiContextGroupRef contextGroup;
