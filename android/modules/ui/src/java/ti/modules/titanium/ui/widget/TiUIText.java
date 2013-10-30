@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -140,11 +140,11 @@ public class TiUIText extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_MAX_LENGTH) && field) {
 			maxLength = TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LENGTH), -1);
 		}
-		
+
 		// Disable change event temporarily as we are setting the default value
 		disableChangeEvent = true;
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
@@ -153,15 +153,15 @@ public class TiUIText extends TiUIView
 			tv.setText("");
 		}
 		disableChangeEvent = false;
-		
+
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_HINT_TEXT)) {
 			tv.setHint(d.getString(TiC.PROPERTY_HINT_TEXT));
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
 			if (TiConvert.toBoolean(d, TiC.PROPERTY_ELLIPSIZE)) {
 				tv.setEllipsize(TruncateAt.END);
@@ -169,11 +169,11 @@ public class TiUIText extends TiUIView
 				tv.setEllipsize(null);
 			}
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, d.getKrollDict(TiC.PROPERTY_FONT));
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_TEXT_ALIGN) || d.containsKey(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			String textAlign = null;
 			String verticalAlign = null;
@@ -185,7 +185,7 @@ public class TiUIText extends TiUIView
 			}
 			handleTextAlign(textAlign, verticalAlign);
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_RETURN_KEY_TYPE)) {
 			handleReturnKeyType(TiConvert.toInt(d.get(TiC.PROPERTY_RETURN_KEY_TYPE), RETURNKEY_DEFAULT));
 		}
@@ -249,11 +249,17 @@ public class TiUIText extends TiUIView
 				verticalAlign = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_VERTICAL_ALIGN));
 			}
 			handleTextAlign(textAlign, verticalAlign);
-		} else if (key.equals(TiC.PROPERTY_KEYBOARD_TYPE) || (key.equals(TiC.PROPERTY_AUTOCORRECT) || key.equals(TiC.PROPERTY_AUTOCAPITALIZATION) || key.equals(TiC.PROPERTY_PASSWORD_MASK) || key.equals(TiC.PROPERTY_EDITABLE))) {
+		} else if (key.equals(TiC.PROPERTY_KEYBOARD_TYPE)
+			|| (key.equals(TiC.PROPERTY_AUTOCORRECT) || key.equals(TiC.PROPERTY_AUTOCAPITALIZATION)
+				|| key.equals(TiC.PROPERTY_PASSWORD_MASK) || key.equals(TiC.PROPERTY_EDITABLE))) {
 			KrollDict d = proxy.getProperties();
 			handleKeyboard(d);
 		} else if (key.equals(TiC.PROPERTY_RETURN_KEY_TYPE)) {
+			// Update the keyboard as well when changing the return key type. This is to account for the scenario when
+			// autocapitalization is enabled during creation and return key type is dynamically changed.
+			KrollDict d = proxy.getProperties();
 			handleReturnKeyType(TiConvert.toInt(newValue));
+			handleKeyboard(d);
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, (HashMap) newValue);
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
