@@ -49,7 +49,6 @@ exports.init = function (logger, config, cli) {
 									previousPackageFullName = match[1];
 								}
 							}
-							logger.info('App is not already installed');
 							next();
 						}
 					});
@@ -58,7 +57,7 @@ exports.init = function (logger, config, cli) {
 				// Remove the previously installed app, if it exists
 				function (next) {
 					if (previousPackageFullName) {
-						logger.info(__('App was previously installed, uninstalling now'));
+						logger.info(__('App is already installed, uninstalling now'));
 						exec('powershell.exe -command "Remove-AppxPackage \\"' + previousPackageFullName + '\\"',
 							function (code, stdout, stderr) {
 								if (code) {
@@ -100,9 +99,44 @@ exports.init = function (logger, config, cli) {
 					});
 					installProcess.on('close', function (code) {
 						if (code) {
-							logger.info(__('There were errors deploying the project. You may need to enable script execution by running "Set-ExecutionPolicy RemoteSigned" from an elevated powershell prompt'));
+							logger.info(__('There were errors deploying the application. You may need to enable script ' +
+								'execution by running "Set-ExecutionPolicy RemoteSigned" from an elevated powershell prompt'));
 						} else {
 							logger.info(__('Finished deploying the application'));
+						}
+						next(code);
+					});
+				},
+
+				// Launch the app
+				function (next) {
+					var launchProcess;
+
+					logger.info(__('Launching the application'));
+
+					launchProcess = spawn(path.join(__dirname, '..', '..', '..', 'common', 'Win8AppLauncher', 'AppLauncher.exe'),
+						[ tiapp.id, tiapp._windowsVersion ]);
+					launchProcess.stdout.on('data', function (data) {
+						data.toString().split('\r\n').forEach(function (line) {
+							line = line.trim();
+							if (line.length) {
+								logger.trace(line);
+							}
+						});
+					});
+					launchProcess.stderr.on('data', function (data) {
+						data.toString().split('\r\n').forEach(function (line) {
+							line = line.trim();
+							if (line.length) {
+								logger.error(line);
+							}
+						});
+					});
+					launchProcess.on('close', function (code) {
+						if (code) {
+							logger.info(__('There were errors launching the application.'));
+						} else {
+							logger.info(__('Finished launching the application'));
 						}
 						next(code);
 					});

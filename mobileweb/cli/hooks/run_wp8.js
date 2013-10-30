@@ -24,7 +24,7 @@ exports.init = function (logger, config, cli) {
 				return;
 			}
 
-			logger.info(__('Installing and launching the app'));
+			logger.info(__('Installing and launching the application'));
 			wp8.detect(function (env) {
 
 				var tiapp = build.tiapp,
@@ -53,7 +53,7 @@ exports.init = function (logger, config, cli) {
 				});
 				installProcess.on('close', function (code) {
 					if (code) {
-						logger.info(__('There were errors deploying the project'));
+						logger.info(__('There were errors deploying the application'));
 						finished(code);
 					} else {
 						logger.info(__('Finished launching the application'));
