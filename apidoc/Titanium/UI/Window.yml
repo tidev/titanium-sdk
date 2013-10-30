@@ -659,6 +659,20 @@ properties:
     type: [Number,String]
     default: 0
 
+  - name: transitionAnimation
+    summary: |
+        Use a transition animation when opening or closing windows in a
+        <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
+    description: |
+        Create the transition animation using the <Titanium.UI.iOS.createTransitionAnimation>
+        method.
+
+        Supported on iOS 7 and later.
+    type: Titanium.Proxy
+    since: "3.2.0"
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "7.0"}}
+
   - name: translucent
     summary: Boolean value indicating if the nav bar is translucent.
     platforms: [iphone, ipad, mobileweb, tizen]
