@@ -135,12 +135,6 @@ static NSString * const AS_AUDIO_BUFFER_TOO_SMALL_STRING = @"Audio packets are l
 	return AS_AUDIO_STREAMER_FAILED_STRING;
 }
 
-- (void)seekToTime:(NSNumber*)arg
-{
-    double newPos = [arg doubleValue] / 1000.0;
-    [(AudioStreamerCUR*)streamer seekToTime:newPos];
-}
-
 #define RUN_ON_STREAMER_SET(func, type) \
 -(void)func:(type)arg \
 {\
