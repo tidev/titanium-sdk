@@ -712,6 +712,7 @@ public class TiHTTPClient
 		if (readyState > READY_STATE_UNSENT && readyState < READY_STATE_DONE) {
 			aborted = true;
 			if (client != null) {
+				client.setRedirectHandler(null);
 				client.getConnectionManager().shutdown();
 				client = null;
 			}
@@ -1340,7 +1341,9 @@ public class TiHTTPClient
 			} finally {
 				if (tiClient != null)
 				{
-					tiClient.client.setRedirectHandler(null);
+					if (tiClient.client != null) {
+						tiClient.client.setRedirectHandler(null);
+					}
 					tiClient.deleteTmpFiles();
 		
 					// Fire the disposehandle event if the request is finished successfully or the errors occur.
