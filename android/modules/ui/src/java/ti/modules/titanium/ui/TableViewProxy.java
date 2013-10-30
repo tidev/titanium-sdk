@@ -161,9 +161,12 @@ public class TableViewProxy extends TiViewProxy
 				Object source = dataCopy.get(TiC.PROPERTY_SOURCE);
 				int index = getTableView().getTableView().getIndexFromXY(x, y);
 				if (index != -1 && source == this) {
-					Item item = getTableView().getTableView().getItemAtPosition(index);
-					dataCopy.put(TiC.PROPERTY_SOURCE, item.proxy);
-					return item.proxy.fireEvent(eventName, dataCopy, bubbles);
+					//TIMOB-13339 
+					if (!(this.properties.containsKey(TiC.PROPERTY_HEADER_VIEW) && index == 0)) {
+						Item item = getTableView().getTableView().getItemAtPosition(index);
+						dataCopy.put(TiC.PROPERTY_SOURCE, item.proxy);
+						return item.proxy.fireEvent(eventName, dataCopy, bubbles);
+					}
 				}
 			}
 		}
