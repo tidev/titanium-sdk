@@ -373,7 +373,7 @@ properties:
     permission: read-only
     exclude-platforms: [blackberry]
     
-  - name forceSplashAsSnapshot
+  - name: forceSplashAsSnapshot
     summary: Shows the application's splash screen on app resume.
     description: |
         Note: This only works on device.
