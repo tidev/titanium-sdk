@@ -1,0 +1,135 @@
+---
+name: Titanium.UI.iOS.ViewAttachmentBehavior
+summary: Dynamic behavior to support connections between two items.
+description: |
+    The following APIs are supported on iOS 7 and later.
+
+    A view attachment behavior creates a dynamic connection between two items. To define a view
+    attachment behavior:
+
+      1. Use the <Titanium.UI.iOS.createViewAttachmentBehavior> method to create and define a behavior.
+      2. Set the [anchorItem](Titanium.UI.iOS.ViewAttachmentBehavior.anchorItem) and
+         [item](Titanium.UI.iOS.ViewAttachmentBehavior.item) properties.
+      3. Add the behavior to the [Animator object](Titanium.UI.iOS.Animator).
+
+    To create a dynamic connection between an item and anchor point, use <Titanium.UI.iOS.AnchorAttachmentBehavior>.
+    
+extends: Titanium.Proxy
+since: "3.2"
+platforms: [iphone, ipad]
+osver: {ios: {min: "7.0"}}
+
+properties:
+  - name: anchorItem
+    summary: Item to use as the anchor in this behavior.
+    type: Titanium.UI.View
+
+  - name: anchorOffset
+    summary: Offset from the center point of the anchor item for the attachment.
+    type: Point
+    default: (0,0)
+
+  - name: damping
+    summary: Amount of damping to apply to the attachment behavior.
+    type: Number
+    default: 0
+
+  - name: distance
+    summary: Distance, in points, between the two attachment points.
+    type: Number
+    default: 0
+
+  - name: frequency
+    summary: Frequency of oscillation for the behavior.
+    type: Number
+    default: 0
+
+  - name: item
+    summary: Item to connect to use the attachment behavior.
+    type: Titanium.UI.View
+
+  - name: itemOffset
+    summary: Offset from the center point of the item for the attachment.
+    type: Point
+    default: (0,0)
+
+examples:
+  - title: Simple Example
+    example: |
+        The following example anchors a green block to either a red or blue block.  Click on the red
+        or blue block to change which one the green block is anchored to.
+
+            var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
+
+            // Create an Animator object using the window as the coordinate system
+            var animator = Ti.UI.iOS.createAnimator({referenceView: win});
+
+            var redBlock = Ti.UI.createView({
+                backgroundColor: 'red',
+                width: 25,
+                height: 25,
+                top: 10,
+                left: 75
+            });
+            // Snap the red block so it does not move
+            var redSnap = Ti.UI.iOS.createSnapBehavior({
+                snapPoint: {x: 75, y: 10},
+                item: redBlock,
+                damping: 0.0
+            });
+            animator.addBehavior(redSnap);
+
+            var greenBlock = Ti.UI.createView({
+                backgroundColor: 'green',
+                width: 25,
+                height: 25,
+                top: 50,
+            });
+
+            var WIDTH = Ti.Platform.displayCaps.platformWidth;
+            var blueBlock = Ti.UI.createView({
+                backgroundColor: 'blue',
+                width: 25,
+                height: 25,
+                top: 10,
+                right: 75
+            });
+            // Snap the blue block so it does not move
+            var blueSnap = Ti.UI.iOS.createSnapBehavior({
+                snapPoint: {x: WIDTH - 75, y: 10},
+                item: blueBlock,
+                damping: 0.0
+            });
+            animator.addBehavior(blueSnap);
+
+            // Anchor the green block to the red one when the app starts
+            var anchor = Ti.UI.iOS.createViewAttachmentBehavior({
+                anchorItem: redBlock,
+                item: greenBlock
+            });
+            animator.addBehavior(anchor);
+
+            // Simulate Earth's gravity to allow the green block to swing
+            var gravity = Ti.UI.iOS.createGravityBehavior({
+                gravityDirection: {x: 0.0, y: 1.0}
+            });
+            gravity.addItem(greenBlock);
+            animator.addBehavior(gravity);
+
+            // Change the anchor item when clicking either the red or blue block
+            redBlock.addEventListener('click', function(e){
+                anchor.anchorItem = redBlock;
+            });
+            blueBlock.addEventListener('click', function(e){
+                anchor.anchorItem = blueBlock;
+            });
+            
+            // Start the animation when the window opens
+            win.addEventListener('open', function(e){
+                animator.startAnimator();
+            });
+
+            win.add(redBlock);
+            win.add(greenBlock);
+            win.add(blueBlock);
+            win.open();

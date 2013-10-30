@@ -1,0 +1,231 @@
+---
+name: Titanium.UI.iOS.CollisionBehavior
+summary: Dynamic behavior to support collisions between items and boundaries.
+description: |
+    The following APIs are supported on iOS 7 and later.
+
+    A collision behavior specifies the behavior when items collide with each other and boundaries.
+    To define a collision behavior:
+
+      1. Use the <Titanium.UI.iOS.createCollisionBehavior> method to create and define the behavior.
+      2. Use the [addItem](Titanium.UI.iOS.CollisionBehavior.addItem) method to add items to the behavior.
+      3. Use the [addBoundary](Titanium.UI.iOS.CollisionBehavior.addBoundary) method to add custom
+         boundaries for the item to collide with. By default, the behavior uses the Animator
+         object's reference view as the boundary.
+      4. Add the behavior to an [Animator object](Titanium.UI.iOS.Animator).
+    
+extends: Titanium.Proxy
+since: "3.2"
+platforms: [iphone, ipad]
+osver: {ios: {min: "7.0"}}
+
+properties:
+  - name: boundaryIdentifiers
+    summary: Boundary identfiers added to this behavior.
+    type: Array<BoundaryIdentifier>
+    permission: read-only
+
+  - name: collisionMode
+    summary: Specifies the collision behavior.
+    description: |
+        Set to one of the following:
+
+          * <Titanium.UI.iOS.COLLISION_MODE_ITEM> for collisions with items.
+          * <Titanium.UI.iOS.COLLISION_MODE_BOUNDARY> for collisions with boundaries.
+          * <Titanium.UI.iOS.COLLISION_MODE_ALL> for collisions with either boundaries or items.
+
+    type: Number
+    default: <Titanium.UI.iOS.COLLISION_MODE_ALL>
+
+  - name: items
+    summary: Items added to this behavior.
+    type: Array<Titanium.UI.View>
+    permission: read-only
+
+  - name: referenceInsets
+    summary: Insets to apply when using the animator's reference view as the boundary.
+    description: The `treatReferenceAsBoundary` property needs to be set to `true` to use this property.
+    type: ReferenceInsets
+    default: All insets are zero.
+
+  - name: treatReferenceAsBoundary
+    summary: Use the animator's reference view as the boundary.
+    description: Set to `true` to enable this behavior or `false` to disable it.
+    type: Boolean
+    default: true
+
+methods:
+  - name: addBoundary
+    summary: Adds a boundary to this behavior.
+    parameters:
+      - name: boundary
+        summary:
+        type: BoundaryIdentifier
+
+  - name: addItem
+    summary: Adds an item to this behavior.
+    parameters:
+      - name: item
+        summary: 
+        type: Titanium.UI.View
+
+  - name: removeAllBoundaries
+    summary: Removes all boundaries from this behavior.
+
+  - name: removeBoundary
+    summary: Removes the specified boundary from this behavior.
+    parameters:
+      - name: boundary
+        summary: Boundary to remove.
+        type: BoundaryIdentifier
+
+  - name: removeItem
+    summary: Removes the specified item from this behavior.
+    parameters:
+      - name: item
+        summary: Item to remove.
+        type: Titanium.UI.View
+
+events:
+  - name: boundarycollision
+    summary: Fired when an item collides with a boundary.
+    properties:
+      - name: item
+        summary: Item that collided with the boundary.
+        type: Titanium.UI.View
+
+      - name: identifier
+        summary: Identifier of the boundary the item collided with.
+        type: String
+
+      - name: point
+        summary: Point of the collision when it started. Only returned when `start` is `true`.
+        type: Point
+
+      - name: start
+        summary: Returns `true` if the collision started else `false`.
+        type: Boolean
+
+
+  - name: itemcollision
+    summary: Fired when two items collide.
+    properties:
+      - name: item1
+        summary: Item that collided with `item2`.
+        type: Titanium.UI.View
+
+      - name: item2
+        summary: Item that collided with `item1`.
+        type: Titanium.UI.View
+
+      - name: point
+        summary: Point of the collision when it started. Only returned when `start` is `true`.
+        type: Point
+
+      - name: start
+        summary: Returns `true` if the collision started else `false`.
+        type: Boolean
+
+examples:
+  - title: Simple Example
+    example: |
+
+        The following example creates many blocks scattered across the top of the window, which
+        start falling after the window opens.  The item and boundary collisions are reported to the
+        console.
+
+            var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
+
+            // Create an Animator object using the window as the coordinate system
+            var animator = Ti.UI.iOS.createAnimator({referenceView: win});
+
+            // Create a default collision behavior, using the window edges as boundaries
+            var collision = Ti.UI.iOS.createCollisionBehavior();
+
+            // Listen for collisions
+            function report(e) {
+                Ti.API.info(JSON.stringify(e.type));
+            };
+            collision.addEventListener('itemcollision', report);
+            collision.addEventListener('boundarycollision', report);
+
+            // Simulate Earth's gravity
+            var gravity = Ti.UI.iOS.createGravityBehavior({
+                gravityDirection: {x: 0.0, y: 1.0}
+            });
+
+            var WIDTH = Ti.Platform.displayCaps.platformWidth;
+            var HEIGHT = Ti.Platform.displayCaps.platformHeight;
+
+            // Create a bunch of random blocks; add to the window and behaviors
+            var blocks = [];   
+            for (var i = 0; i < 25; i++) {
+                var r = Math.round(Math.random() * 255);
+                var g = Math.round(Math.random() * 255);
+                var b = Math.round(Math.random() * 255);
+                var rgb = 'rgb(' + r +"," + g + "," + b + ")";
+
+                blocks[i] = Ti.UI.createView({
+                    width: 25,
+                    height: 25,
+                    top: Math.round(Math.random() * (HEIGHT / 4) + 25),
+                    left: Math.round(Math.random() * (WIDTH - 25) + 25),
+                    backgroundColor: rgb
+                });
+                win.add(blocks[i]);
+                collision.addItem(blocks[i]);
+                gravity.addItem(blocks[i]);
+            }
+
+            animator.addBehavior(collision);
+            animator.addBehavior(gravity);
+
+            // Start the animation when the window opens
+            win.addEventListener('open', function(e){
+                animator.startAnimator();
+            });
+
+            win.open();
+
+---
+name: BoundaryIdentifier
+summary: Dictionary to specify a boundary identifier for <Titanium.UI.iOS.CollisionBehavior.addBoundary>.
+since: "3.2"
+platforms: [iphone, ipad]
+osver: {ios: {min: "7.0"}}
+properties:
+  - name: identifier
+    summary: Arbitrary identifier for the boundary
+    type: String
+
+  - name: point1
+    summary: Start point for the boundary
+    type: Point
+
+  - name: point2
+    summary: End point for the boundary
+    type: Point
+
+---
+name: ReferenceInsets
+summary: Dictionary to specify edge insets for <Titanium.UI.iOS.CollisionBehavior.referenceInsets>.
+since: "3.2"
+platforms: [iphone, ipad]
+osver: {ios: {min: "7.0"}}
+properties:
+  - name: top 
+    summary: Top inset.
+    type: Number
+
+  - name: left
+    summary: Left inset.
+    type: Number
+
+  - name: right
+    summary: Right inset.
+    type: Number
+
+  - name: bottom
+    summary: Bottom inset.
+    type: Number
+
