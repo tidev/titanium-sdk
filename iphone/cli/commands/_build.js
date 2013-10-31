@@ -149,6 +149,13 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 					if (err) {
 						callback(err);
 					} else {
+						if (devices.length > 2) {
+							// we have more than 1 device plus itunes, so we should show 'all'
+							devices.push({
+								id: 'all',
+								name: 'All Devices'
+							});
+						}
 						this.devices = targetDeviceCache[target] = devices;
 						callback(null, devices);
 					}
@@ -303,8 +310,10 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 										promptLabel: promptLabel,
 										formatters: {
 											option: function (opt, idx, num) {
-												return '  ' + num + appc.string.rpad(opt.name, maxName).cyan + (opt.id == 'itunes' ? ''
-													: ' ' + opt.deviceClass + ' (' + opt.productVersion + ')');
+												return '  ' + num + appc.string.rpad(opt.name, maxName).cyan
+													+ (opt.deviceClass
+														? ' ' + opt.deviceClass + ' (' + opt.productVersion + ')'
+														: '');
 											}
 										},
 										default: '1',
@@ -602,7 +611,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 
 iOSBuilder.prototype.validate = function (logger, config, cli) {
 
-
+dump(cli.argv);
 console.log('DONE');
 process.exit(0);
 
