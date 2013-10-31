@@ -18,6 +18,10 @@ exports.cliVersion = '>=3.X';
 
 exports.init = function (logger, config, cli) {
 
+	if (process.platform != 'win32') {
+		return;
+	}
+
 	cli.addHook('build.post.compile', {
 		priority: 10000,
 		post: function (build, finished) {

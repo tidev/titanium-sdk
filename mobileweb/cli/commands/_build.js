@@ -57,7 +57,7 @@ exports.config = function (logger, config, cli) {
 
 		function configure() {
 			cli.createHook('build.mobileweb.config', function (callback) {
-				callback({
+				var opts = {
 					options: {
 						'deploy-type': {
 							abbr: 'D',
@@ -70,24 +70,27 @@ exports.config = function (logger, config, cli) {
 							abbr: 'T',
 							default: 'web',
 							desc: __('the target to build for'),
-							values: ['web', 'wp8', 'winstore'],
+							values: process.platform == 'win32' ? [ 'web', 'wp8', 'winstore' ] : [ 'web' ],
 							callback: function (value) {
 								if (value == 'wp8') {
 									conf.options['wp8-publisher-guid'].required = true;
 									conf.options['device-id'].required = true;
 								}
 							}
-						},
-						'wp8-publisher-guid': {
-							desc: __('The publisher GUID, obtained from http://developer.windowsphone.com'),
-							hint: __('GUID')
-						},
-						'device-id': {
-							abbr: 'C',
-							desc: __('On Windows Phone 8, the device-id of the emulator/device to run the app in, or xd for any emulator or de for any device'),
 						}
 					}
-				});
+				};
+				if (process.platform == 'win32') {
+					opts.options['wp8-publisher-guid'] = {
+						desc: __('The publisher GUID, obtained from %s', 'http://developer.windowsphone.com'.cyan),
+						hint: __('GUID')
+					};
+					opts.options['device-id'] = {
+						abbr: 'C',
+						desc: __('On Windows Phone 8, the device-id of the emulator/device to run the app in, "xd" for any emulator, or "de" for any device'),
+					};
+				}
+				callback(opts);
 			})(function (err, results, result) {
 				finished(conf = result);
 			});
