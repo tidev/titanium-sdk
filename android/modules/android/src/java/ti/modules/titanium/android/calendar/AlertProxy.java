@@ -188,4 +188,10 @@ public class AlertProxy extends KrollProxy {
 	public int getMinutes() {
 		return minutes;
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Android.Calendar.Alert";
+	}
 }

@@ -952,5 +952,11 @@ public class MediaModule extends KrollModule
 		return result;
 
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Media";
+	}
 }
 

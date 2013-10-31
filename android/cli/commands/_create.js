@@ -1,7 +1,7 @@
 /*
  * create.js: Titanium Android CLI create command
  *
- * Copyright (c) 2012, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -12,26 +12,21 @@ var appc = require('node-appc'),
 	afs = appc.fs,
 	path = require('path');
 
-exports.config = function (logger, config, cli) {
-	return {
-		//
-	};
-};
-
 exports.run = function (logger, config, cli, projectConfig) {
 	var templatePath = afs.resolvePath(path.dirname(module.filename), '..', '..', 'templates', cli.argv.type, cli.argv.template),
-		ignoreExtRegExp = /\.(png','.gif','.jpg','.zip','.a','.o', '.jar)$/,
+		ignoreExtRegExp = /\.(png|gif|jpg|zip|a|o|jar)$/,
 		projectDir = afs.resolvePath(cli.argv['workspace-dir'], cli.argv.name);
-	
+
 	if (afs.exists(templatePath)) {
 		if (cli.argv.type == 'app') {
 			afs.copyDirSyncRecursive(templatePath, projectDir, {
-				ignoreDirs: ['.git','.svn', 'CVS'],
-				ignoreFiles: ['.gitignore', '.cvsignore'],
+				ignoreDirs: new RegExp(config.get('cli.ignoreDirs')),
+				ignoreFiles: new RegExp(config.get('cli.ignoreFiles')),
 				logger: logger.debug,
 				preserve: true
 			});
 		} else if (cli.argv.type == 'module') {
+			// NOTE: this is not finished
 			afs.copyDirSyncRecursive(templatePath, projectDir, {
 				callback: function (src, dest, contents, logger) {
 					var result = {
@@ -49,8 +44,8 @@ exports.run = function (logger, config, cli, projectConfig) {
 					}
 					return result;
 				},
-				ignoreDirs: ['.git','.svn', 'CVS'],
-				ignoreFiles: ['.gitignore', '.cvsignore'],
+				ignoreDirs: new RegExp(config.get('cli.ignoreDirs')),
+				ignoreFiles: new RegExp(config.get('cli.ignoreFiles')),
 				logger: logger.debug,
 				preserve: true
 			});

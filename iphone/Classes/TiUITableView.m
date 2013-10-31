@@ -104,11 +104,17 @@
 	// This is because the view drawing subsystem takes the cell frame to be the sandbox bounds when drawing views,
 	// and if its frame is too big... the view system allocates way too much memory/pixels and doesn't appear to let
 	// them go.
-
-	CGRect oldFrame = [[self contentView] frame];
-	//CGSize cellSize = [self computeCellSize];
-    
-	[[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 0,0)];
+    CGRect oldBounds = [[self contentView] bounds];
+    if (!CGPointEqualToPoint(oldBounds.origin,CGPointZero)) {
+        //TIMOB-15396. Occasionally the bounds have a non zero origin. Why?
+        [[self contentView] setBounds:CGRectZero];
+        [[self contentView] setCenter:CGPointZero];
+        
+    } else {
+        CGRect oldFrame = [[self contentView] frame];
+        
+        [[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 0,0)];
+    }
 }
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
@@ -2539,10 +2545,11 @@ return result;	\
 		[self.proxy fireEvent:@"dragend" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
 	}
     
+    //This section of code now moved to [TiUITextWidgetView updateKeyboardStatus]
     // Update keyboard status to insure that any fields actively being edited remain in view
-    if ([[[TiApp app] controller] keyboardVisible]) {
-        [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
-    }
+    //if ([[[TiApp app] controller] keyboardVisible]) {
+    //    [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+    //}
 }
 
 

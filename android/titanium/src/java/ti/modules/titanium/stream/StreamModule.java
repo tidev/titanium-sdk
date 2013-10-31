@@ -564,4 +564,10 @@ public class StreamModule extends KrollModule
 
 		return callbackArgs;
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Stream";
+	}
 }

@@ -65,4 +65,9 @@ public class BroadcastReceiverProxy extends KrollProxy
 		return receiver;
 	}
 
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Android.BroadcastReceiver";
+	}
 }
