@@ -145,7 +145,7 @@ exports.init = function (logger, config, cli) {
 						launchProcess.on('close', function (code) {
 							if (code) {
 								logger.error(__('There were errors launching the application. ' +
-									'You may need to enable script execution by running "Set-ExecutionPolicy RemoteSigned" from within PowerShell'));
+									'You may need to enable script execution by running "Set-ExecutionPolicy AllSigned" from within PowerShell'));
 							} else {
 								logger.info(__('Finished launching the application'));
 							}
