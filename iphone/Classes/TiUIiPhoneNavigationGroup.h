@@ -11,10 +11,11 @@
 
 @interface TiUIiPhoneNavigationGroup : TiUIView<UINavigationControllerDelegate> {
 @private
-	UINavigationController *controller;
-	TiWindowProxy *root;
-	TiWindowProxy *visibleProxy;
-	BOOL transitionIsAnimating;
+    UINavigationController *controller;
+    TiWindowProxy *root;
+    TiWindowProxy *visibleProxy;
+    BOOL transitionIsAnimating;
+    BOOL transitionWithGesture;
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;

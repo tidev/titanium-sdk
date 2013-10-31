@@ -38,6 +38,13 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 -(CGFloat) verifyHeight:(CGFloat)suggestedHeight
 {
 	int height = ceil(suggestedHeight);
+    if ([self viewInitialized]) {
+        int minHeight = ceil([[[(TiUILabel*)view label] font] lineHeight]);
+        if (height < minHeight) {
+            height = minHeight;
+        }
+    }
+    
 	if (height & 0x01)
 	{
 		height ++;

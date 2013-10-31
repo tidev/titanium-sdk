@@ -163,6 +163,10 @@ public class TiUIWebView extends TiUIView
 		settings.setBuiltInZoomControls(enableZoom);
 		settings.setSupportZoom(enableZoom);
 
+		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_JELLY_BEAN) {
+			settings.setAllowUniversalAccessFromFileURLs(true); // default is "false" for JellyBean, TIMOB-13065
+		}
+
 		// We can only support webview settings for plugin/flash in API 8 and higher.
 		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
 			initializePluginAPI(webView);

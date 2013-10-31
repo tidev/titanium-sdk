@@ -207,7 +207,23 @@ exports.config = function config(logger, config, cli) {
 							//hint: 'host:port[:airkey:hosts]',
 							hidden: true
 						},
-						'launch-url': {
+/*						'device-id': {
+							abbr: 'C',
+							desc: __('the name for the device or iOS simulator to install the application to'),
+							hint: __('name'),
+							order: 130,
+							prompt: function (callback) {
+								callback();
+							},
+							required: true,
+							validate: function (device, callback) {
+								callback(null, device);
+							},
+							verifyIfRequired: function (callback) {
+								callback(true);
+							}
+						},
+*/						'launch-url': {
 							//desc: __('url for the application to launch in mobileSafari , as soon as the app boots up.'),
 							//hint: 'http://www.appcelerator.com/',
 							hidden: true
@@ -441,13 +457,6 @@ exports.validate = function (logger, config, cli) {
 	var sdks = {},
 		sims = {};
 
-	// if we're running from Xcode, we want to use the PROJECT_DIR environment variable
-	if (process.env.PROJECT_DIR) {
-		cli.argv['project-dir'] = path.dirname(process.env.PROJECT_DIR);
-	}
-
-	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
-
 	if (!cli.argv.xcode || !process.env.TITANIUM_CLI_XCODEBUILD) {
 		// make sure the app doesn't have any blacklisted directories in the Resources directory and warn about graylisted names
 		var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
@@ -484,20 +493,24 @@ exports.validate = function (logger, config, cli) {
 		}
 	}
 
-	ti.validateTiappXml(logger, cli.tiapp);
-
 	// at this point we've validated everything except underscores in the app id
-	if (cli.tiapp.id.indexOf('_') != -1) {
-		logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
-		logger.error(__('The app id must consist of letters, numbers, and dashes.'));
-		logger.error(__('The first character must be a letter.'));
-		logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
-		process.exit(1);
-	}
+	if (!config.get('ios.skipAppIdValidation')) {
+		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(cli.tiapp.id)) {
+			logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
+			logger.error(__('The app id must consist only of letters, numbers, dashes, and underscores.'));
+			logger.error(__('Note: iOS does not allow underscores.'));
+			logger.error(__('The first character must be a letter or underscore.'));
+			logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+			process.exit(1);
+		}
 
-	if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
-		// we're running the build command for the wrong SDK version, gracefully return
-		return false;
+		if (cli.tiapp.id.indexOf('_') != -1) {
+			logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
+			logger.error(__('The app id must consist of letters, numbers, and dashes.'));
+			logger.error(__('The first character must be a letter.'));
+			logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+			process.exit(1);
+		}
 	}
 
 	if (!Object.keys(iosEnv.xcode).length) {
@@ -876,6 +889,7 @@ function sendAnalytics(cli) {
 
 function build(logger, config, cli, finished) {
 	this.logger = logger;
+	this.config = config;
 	this.cli = cli;
 
 	this.titaniumIosSdkPath = afs.resolvePath(__dirname, '..', '..');
@@ -910,7 +924,7 @@ function build(logger, config, cli, finished) {
 	this.iosSimVersion = cli.argv['sim-version'];
 	this.iosSimType = cli.argv['sim-type'];
 	this.deviceFamily = cli.argv['device-family'];
-	this.xcodeTargetOS = this.target == 'simulator' ? 'iphonesimulator' + this.iosSdkVersion : 'iphoneos' + this.iosSdkVersion;
+	this.xcodeTargetOS = (this.target == 'simulator' ? 'iphonesimulator' : 'iphoneos') + appc.version.format(this.iosSdkVersion, 2, 2);
 	this.iosBuildDir = path.join(this.buildDir, 'build', this.xcodeTarget + '-' + (this.target == 'simulator' ? 'iphonesimulator' : 'iphoneos'));
 	this.xcodeAppDir = cli.argv.xcode ? path.join(process.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : path.join(this.iosBuildDir, this.tiapp.name + '.app');
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
@@ -1006,8 +1020,8 @@ build.prototype = {
 		afs.copyDirSyncRecursive(src, dest, opts || {
 			preserve: true,
 			logger: this.logger.debug,
-			ignoreDirs: ['.git', '.svn', 'CVS'],
-			ignoreFiles: ['.gitignore', '.cvsignore']
+			ignoreDirs: new RegExp(this.config.get('cli.ignoreDirs')),
+			ignoreFiles: new RegExp(this.config.get('cli.ignoreFiles'))
 		});
 	},
 
@@ -1015,8 +1029,8 @@ build.prototype = {
 		afs.copyDirRecursive(src, dest, callback, opts || {
 			preserve: true,
 			logger: this.logger.debug,
-			ignoreDirs: ['.git', '.svn', 'CVS'],
-			ignoreFiles: ['.gitignore', '.cvsignore']
+			ignoreDirs: new RegExp(this.config.get('cli.ignoreDirs')),
+			ignoreFiles: new RegExp(this.config.get('cli.ignoreFiles'))
 		});
 	},
 
@@ -1078,7 +1092,7 @@ build.prototype = {
 			// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
 			// Alloy generate an app.js, it may not have existed during validate(), but should exist now
 			// that build.pre.compile was fired.
-			ti.validateAppJsExists(this.projectDir, this.logger);
+			ti.validateAppJsExists(this.projectDir, this.logger, ['iphone', 'ios']);
 
 			// let's start building some apps!
 			parallel(this, [
@@ -1417,8 +1431,8 @@ build.prototype = {
 			copyOpts = {
 				preserve: true,
 				logger: this.logger.debug,
-				ignoreDirs: ['.git','.svn', 'CVS'],
-				ignoreFiles: ['.gitignore', '.cvsignore', 'bridge.txt', 'libTitanium.a'],
+				ignoreDirs: new RegExp(this.config.get('cli.ignoreDirs')),
+				ignoreFiles: /^(bridge\.txt|libTitanium\.a|\.gitignore|\.npmignore|\.cvsignore|\.DS_Store|\._.*|[Tt]humbs.db|\.vspscc|\.vssscc|\.sublime-project|\.sublime-workspace|\.project|\.tmproj)$'/,
 				callback: function (src, dest, contents, logger) {
 					if (extRegExp.test(src) && src.indexOf('TiCore') == -1) {
 						logger && logger(__('Processing %s', src.cyan));
@@ -2266,8 +2280,9 @@ build.prototype = {
 
 	createSymlinks: function (callback) {
 		if (this.target == 'simulator' && this.deployType == 'development') {
-			var ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.svn|_svn|CVS$/,
-				icon = (this.tiapp.icon || 'appicon.png').match(/^(.*)\.(.+)$/),
+			var icon = (this.tiapp.icon || 'appicon.png').match(/^(.*)\.(.+)$/),
+				ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')),
+				ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles')),
 				unsymlinkableFileRegExp = new RegExp("^Default.*\.png|.+\.(otf|ttf)|iTunesArtwork" + (icon ? '|' + icon[1].replace(/\./g, '\\.') + '.*\\.' + icon[2] : '') + "$"),
 				symlinkHook = this.cli.createHook('build.ios.copyResource', this, function (srcFile, destFile, cb) {
 					this.logger.debug(__('Symlinking %s => %s', srcFile.cyan, destFile.cyan));
@@ -2284,10 +2299,12 @@ build.prototype = {
 						wrench.mkdirSyncRecursive(dest);
 
 						series(this, fs.readdirSync(src).map(function (file) {
+							var srcFile = path.join(src, file),
+								destFile = path.join(dest, file),
+								isDir = fs.existsSync(srcFile) && fs.statSync(srcFile).isDirectory();
+
 							return function (next) {
-								if ((this.deviceFamily != 'iphone' || ipadSplashImages.indexOf(file) == -1) && !ignoreRegExp.test(file) && (!doIgnoreDirs || ti.availablePlatformsNames.indexOf(file) == -1)) {
-									var srcFile = path.join(src, file),
-										destFile = path.join(dest, file);
+								if ((this.deviceFamily != 'iphone' || ipadSplashImages.indexOf(file) == -1) && !(isDir ? ignoreDirs : ignoreFiles).test(file) && (!doIgnoreDirs || ti.availablePlatformsNames.indexOf(file) == -1)) {
 									if (fs.statSync(srcFile).isDirectory()) {
 										setTimeout(function () {
 											symlinkResources(srcFile, destFile, false, next);
@@ -2532,7 +2549,8 @@ build.prototype = {
 	compileResources: function (src, dest, callback) {
 		if ((this.target != 'simulator' || this.deployType != 'development') && fs.existsSync(src)) {
 			var compiledTargets = {},
-				ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.svn|_svn|CVS$/,
+				ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')),
+				ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles')),
 				recursivelyCopy = function (from, to, rel, ignore, done) {
 					wrench.mkdirSyncRecursive(to);
 					series(this, fs.readdirSync(from).map(function (file) {
@@ -2541,7 +2559,8 @@ build.prototype = {
 								t = f.replace(from, to),
 								fstat = fs.statSync(f),
 								p = rel ? rel + '/' + file : file;
-							if (ignoreRegExp.test(file) || (ignore && ignore.indexOf(file) != -1)) {
+
+							if ((fstat.isDirectory() ? ignoreDirs : ignoreFiles).test(file) || (ignore && ignore.indexOf(file) != -1)) {
 								this.logger.debug(__('Ignoring %s', f.cyan));
 							} else if (fstat.isDirectory()) {
 								recursivelyCopy(f, t, p, null, next);

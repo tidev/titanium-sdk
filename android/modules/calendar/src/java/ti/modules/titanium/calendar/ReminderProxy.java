@@ -117,4 +117,10 @@ public class ReminderProxy extends KrollProxy {
 	{
 		return method;
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Calendar.Reminder";
+	}
 }

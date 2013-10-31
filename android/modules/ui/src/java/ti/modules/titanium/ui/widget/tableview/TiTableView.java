@@ -401,9 +401,13 @@ public class TiTableView extends FrameLayout
 		}
 	}
 	
-	public Item getItemAtPosition(int position) {
+	public Item getItemAtPosition(int position)
+	{
 		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
 			position -= 1;
+		}
+		if (position == -1 || position == adapter.getCount()) {
+			return null;
 		}
 		return viewModel.getViewModel().get(adapter.index.get(position));
 	}

@@ -37,5 +37,10 @@ public class AndroidModule extends PlatformModule{
 	{
 		super();
 	}
-	
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Platform.Android";
+	}
 }

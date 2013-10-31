@@ -17,11 +17,13 @@ var fs = require('fs'),
 	async = require('async'),
 	spawn = require('child_process').spawn,
 	appc = require('node-appc'),
+	iosDevice = require('node-ios-device'),
 	iosPackageJson = appc.pkginfo.package(module),
 	manifestJson = appc.pkginfo.manifest(module),
 	__ = appc.i18n(__dirname).__,
 	afs = appc.fs,
 	encoding = appc.encoding,
+	version = appc.version,
 	run = appc.subprocess.run,
 	findExecutable = appc.subprocess.findExecutable,
 	envCache;
@@ -107,12 +109,12 @@ exports.detect = function detect(config, opts, finished) {
 				var xcodePaths = config.get('paths.xcode');
 				Array.isArray(xcodePaths) && xcodePaths.forEach(function (p) {
 					p = afs.resolvePath(p);
-					if (afs.exists(p) && fs.statSync(p).isDirectory()) {
+					if (fs.existsSync(p) && fs.statSync(p).isDirectory()) {
 						// check if the path is to the Xcode.app dir
 						if (!/.+\/Contents\/Developer$/.test(p)) {
 							// yep, we need to add the /Contents/Developer
 							var q = path.join(p, 'Contents', 'Developer');
-							if (afs.exists(q)) {
+							if (fs.existsSync(q)) {
 								// looks good
 								p = q;
 							} else {
@@ -126,7 +128,7 @@ exports.detect = function detect(config, opts, finished) {
 								return;
 							}
 						}
-						if (afs.exists(p) && searchPaths.indexOf(p) == -1) {
+						if (fs.existsSync(p) && searchPaths.indexOf(p) == -1) {
 							searchPaths.push(p);
 						}
 					}
@@ -148,11 +150,21 @@ exports.detect = function detect(config, opts, finished) {
 					var sdkRegExp = /^iPhone(OS|Simulator)(.+)\.sdk$/,
 						findIosSdks = function (dir) {
 							var vers = [];
-							afs.exists(dir) && fs.readdirSync(dir).forEach(function (d) {
+							fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (d) {
 								var file = path.join(dir, d);
 								if (fs.existsSync(file) && fs.statSync(file).isDirectory()) {
 									var m = d.match(sdkRegExp);
-									m && (!opts.minSDK || appc.version.gte(m[2], opts.minSDK)) && vers.push(m[2]);
+									if (m && (!opts.minSDK || appc.version.gte(m[2], opts.minSDK))) {
+										var ver = m[2];
+										file = path.join(file, 'System', 'Library', 'CoreServices', 'SystemVersion.plist');
+										if (fs.existsSync(file)) {
+											var p = new appc.plist(file);
+											if (p.ProductVersion) {
+												ver = p.ProductVersion;
+											}
+										}
+										vers.push(ver);
+									}
 								}
 							});
 							return vers;
@@ -167,7 +179,7 @@ exports.detect = function detect(config, opts, finished) {
 								plistfile = path.join(path.dirname(dir), 'version.plist'),
 								p, info, key;
 
-							if (afs.exists(xcodebuild) && afs.exists(plistfile)) {
+							if (fs.existsSync(xcodebuild) && fs.existsSync(plistfile)) {
 								p = new appc.plist(plistfile);
 								info = {
 									path: dir,
@@ -336,7 +348,7 @@ exports.detect = function detect(config, opts, finished) {
 				var keychainCache = {},
 					keychainCacheFile = afs.resolvePath('~/.titanium/ios-keychain-cache.json');
 
-				if (afs.exists(keychainCacheFile)) {
+				if (fs.existsSync(keychainCacheFile)) {
 					try {
 						keychainCache = JSON.parse(fs.readFileSync(keychainCacheFile));
 					} catch (ex) {}
@@ -495,7 +507,7 @@ exports.detect = function detect(config, opts, finished) {
 
 							if (!p.ProvisionedDevices || !p.ProvisionedDevices.length) {
 								dest = 'distribution';
-							} else if (new Buffer(p.DeveloperCertificates[0], 'base64').toString().indexOf('Distribution:') != -1) {
+							} else if (new Buffer(p.DeveloperCertificates[0].value, 'base64').toString().indexOf('Distribution:') != -1) {
 								dest = 'adhoc';
 							}
 
@@ -563,16 +575,16 @@ exports.detect = function detect(config, opts, finished) {
 		}, function (err, results) {
 			appc.util.mix(results, executables);
 
-			var xcodeCLIToolsVersion = appc.version.format(results.xcodeCLITools, 2, 2),
+			var xcodeCLIToolsVersion = appc.version.format(results.xcodeCLITools, 3, 3),
 				notInstalled = [];
 			Object.keys(results.xcode).forEach(function (name) {
-				var installed = results.xcode[name].cliTools = appc.version.gte(xcodeCLIToolsVersion, appc.version.format(results.xcode[name].version, 2, 2));
+				var installed = results.xcode[name].cliTools = appc.version.gte(xcodeCLIToolsVersion, appc.version.format(results.xcode[name].version, 3, 3));
 				installed || notInstalled.push(results.xcode[name].version);
 			});
 			if (notInstalled.length) {
 				issues.push({
 					id: 'IOS_XCODE_CLI_TOOLS_NOT_INSTALLED',
-					type: 'error',
+					type: 'warning',
 					message: __('The Xcode Command Line Tools are not installed for the following Xcode versions: %s.', notInstalled.join(', ')) + '\n' +
 						__('Titanium requires that the Xcode Command Line Tools be installed.') + '\n' +
 						__('You can install them from the Xcode Preferences > Downloads tab.')
@@ -586,4 +598,76 @@ exports.detect = function detect(config, opts, finished) {
 		});
 	});
 
+};
+
+/**
+ * Returns the iOS Simulator profiles.
+ * @param {Object} config - The CLI config object
+ * @param {Object} [opts] - Detection options
+ * @param {String} [opts.type] - The type of emulator to load (avd, genymotion); defaults to all
+ * @param {Function} finished(err, results) - Callback when detection is finished
+ */
+exports.detectSimulators = function detectSimulators(config, opts, finished) {
+	if (opts && typeof opts == 'function') {
+		finished = opts;
+		opts = {};
+	}
+
+	exports.detect(config, opts, function (info) {
+		var file = path.join(__dirname, '..', '..', 'simulators.json'),
+			results = [],
+			sims = JSON.parse(fs.readFileSync(file)),
+			sdks = {};
+
+		Object.keys(info.xcode).forEach(function (ver) {
+			info.xcode[ver].sims && info.xcode[ver].sims.forEach(function (sdk) {
+				sdks[sdk] = 1;
+			});
+		});
+
+		sdks = Object.keys(sdks).sort();
+
+		Object.keys(sims).forEach(function (name) {
+			var sim = sims[name],
+				type = sim.type || 'iphone',
+				_64bit = !!sim['64bit'],
+				retina = !!sim.retina,
+				tall = !!sim.tall,
+				compatVersions = {};
+
+			if (!opts.type || opts.type == type) {
+				// calculate the sdks
+				sdks.forEach(function (sdk) {
+					if (type == 'iphone' || (type == 'ipad' && version.gte(sdk, '3.0.0'))) {
+						if (!_64bit || version.gte(sdk, '7.0.0')) {
+							if (!tall || version.gte(sdk, '6.0.0')) {
+								if ((!retina && type == 'ipad' || version.lt(sdk, '7.0.0')) || (retina && version.gte(sdk, '4.0.0'))) {
+									compatVersions[sdk] = 1;
+								}
+							}
+						}
+					}
+				});
+
+				results.push({
+					name: name,
+					type: type,
+					'64bit': _64bit,
+					retina: retina,
+					tall: tall,
+					versions: Object.keys(compatVersions).sort()
+				});
+			}
+		});
+
+		finished(null, results);
+	});
+};
+
+/**
+ * Detects connected iOS devices.
+ * @param {Function} finished - Callback when detection is finished
+ */
+exports.detectDevices = function detectDevices(finished) {
+	iosDevice.devices(finished);
 };

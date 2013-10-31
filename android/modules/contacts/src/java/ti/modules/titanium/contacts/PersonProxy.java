@@ -191,4 +191,10 @@ public class PersonProxy extends KrollProxy
 		}
 		super.onPropertyChanged(name, value);
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Contacts.Person";
+	}
 }

@@ -446,4 +446,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		// We know whether a window is lightweight or not only after it opens.
 		return (opened && lightweight);
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.Window";
+	}
 }

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -393,5 +393,11 @@ public class MenuProxy extends KrollProxy
 		}
 		//TODO walk the items and release the natives
 		menuMap.clear();
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Android.Menu";
 	}
 }

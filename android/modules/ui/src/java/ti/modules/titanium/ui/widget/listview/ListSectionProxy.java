@@ -908,5 +908,10 @@ public class ListSectionProxy extends ViewProxy{
 	{
 		listView = null;
 	}
-	
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.ListSection";
+	}
 }

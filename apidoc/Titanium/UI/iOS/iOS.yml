@@ -654,6 +654,32 @@ properties:
     permission: read-only
     since: "1.8.1"
 
+  - name: COLLISION_MODE_ALL
+    summary: |
+        Use with <Titanium.UI.iOS.CollisionBehavior.collisionMode> to specify collisions with both items and
+        boundaries.
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    osver: {ios: {min: "7.0"}}
+
+  - name: COLLISION_MODE_BOUNDARY
+    summary: |
+        Use with <Titanium.UI.iOS.CollisionBehavior.collisionMode> to specify collisions with
+        boundaries only.
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    osver: {ios: {min: "7.0"}}
+
+  - name: COLLISION_MODE_ITEM
+    summary: |
+        Use with <Titanium.UI.iOS.CollisionBehavior.collisionMode> to specify collisions with items only.
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    osver: {ios: {min: "7.0"}}
+
   - name: COLOR_GROUP_TABLEVIEW_BACKGROUND
     summary: Returns the iOS system texture used to render the background on a group table view. 
     description: |
@@ -698,6 +724,22 @@ properties:
     permission: read-only
     since: "2.1.0"
     osver: {iOS: {min: "5.0"}}
+
+  - name: PUSH_MODE_CONTINUOUS
+    summary: |
+        Use with <Titanium.UI.iOS.PushBehavior.pushMode> to specifiy a continuous force.
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    osver: {ios: {min: "7.0"}}
+
+  - name: PUSH_MODE_INSTANTANEOUS
+    summary: |
+        Use with <Titanium.UI.iOS.PushBehavior.pushMode> to specifiy an instantaneous force.
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    osver: {ios: {min: "7.0"}}
 
   - name: WEBVIEW_NAVIGATIONTYPE_LINK_CLICKED
     summary: User tapped a link.
