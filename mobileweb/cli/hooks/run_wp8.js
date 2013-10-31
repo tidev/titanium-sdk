@@ -24,36 +24,41 @@ exports.init = function (logger, config, cli) {
 				return;
 			}
 
-			logger.info(__('Installing and launching the app'));
+			logger.info(__('Installing and launching the application'));
 			wp8.detect(function (env) {
+
+				if (env.issues.length) {
+					logger.error(__('There were issues detected with the Windows Phone 8 development environment setup. ' +
+						'Please run "titanium info" for more information'));
+					process.exit(1);
+				}
 
 				var tiapp = build.tiapp,
 					buildType = cli.argv['deploy-type'] == 'production' ? 'Release' : 'Debug',
-					buildProcess;
+					installProcess;
 
 				// Install and launch the app
-				buildProcess = spawn(env.xapDeployCmd, [
+				installProcess = spawn(env.xapDeployCmd, [
 					'/installlaunch',
 					path.resolve(path.join(build.buildDir, '..', 'mobileweb-wp8',
 						tiapp.id, 'Bin', buildType, tiapp.id + '_' + buildType + '_AnyCPU.xap')),
 					'/targetdevice:' + cli.argv['device-id']]);
-				buildProcess.stdout.on('data', function (data) {
+				installProcess.stdout.on('data', function (data) {
 					data.toString().split('\r\n').forEach(function (line) {
 						if (line.length) {
 							logger.trace(line);
 						}
 					});
 				});
-				buildProcess.stderr.on('data', function (data) {
+				installProcess.stderr.on('data', function (data) {
 					data.toString().split('\r\n').forEach(function (line) {
 						if (line.length) {
 							logger.error(line);
 						}
 					});
 				});
-				buildProcess.on('close', function (code) {
+				installProcess.on('close', function (code) {
 					if (code) {
-						logger.info(__('There were errors building the project'));
 						finished(code);
 					} else {
 						logger.info(__('Finished launching the application'));

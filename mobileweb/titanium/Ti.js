@@ -73,7 +73,7 @@ define(
 
 	if (!has("function-bind")) {
 		function Empty(){}
-		
+
 		Function.prototype.bind = function bind(that) {
 			var target = this,
 				slice = Array.prototype.slice,
@@ -230,7 +230,7 @@ define(
 				});
 
 				makeLabel("Error messages will only be displayed during development. When your app is packaged for final distribution, no error screen will appear. Test your code!", "28%", "#000", "10pt");
-				
+
 				on.once(win,"postlayout", function() {
 					setTimeout(function() {
 						win.animate({
@@ -242,9 +242,10 @@ define(
 						});
 					}, 100);
 				});
-				
+
 				win.open();
 			}
+			return true; // This prevents windows store applications from exiting entirely on error, and it must be true, not just something truthy
 		});
 	}
 
