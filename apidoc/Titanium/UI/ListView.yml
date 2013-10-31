@@ -126,6 +126,8 @@ description: |
     [TextArea](Titanium.UI.TextArea). Thus, this layout is strongly discouraged.
 
     #### TextFields in Lists with SOFT_INPUT_ADJUST_PAN (Android)
+    In order to use [TextField](Titanium.UI.TextField) inside `ListView`, [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN)
+    must be set to the window that is containing the `ListView`, otherwise the [TextField](Titanium.UI.TextField) may not be able to gain focus.
 
     When a [TextField](Titanium.UI.TextField) is placed in a row near the bottom of a `ListView`,
     in a window that is configured with

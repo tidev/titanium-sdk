@@ -64,7 +64,7 @@ exports.init = function (logger, config, cli) {
 						'launch',
 						'"' + build.xcodeAppDir + '"',
 						'--sdk',
-						build.iosSimVersion,
+						appc.version.format(build.iosSimVersion, 2, 2),
 						'--family',
 						build.iosSimType
 					],

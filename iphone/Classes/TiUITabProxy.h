@@ -25,6 +25,7 @@
 	BOOL opening;
 	BOOL systemTab;
 	BOOL transitionIsAnimating;
+	BOOL transitionWithGesture;
 	BOOL hasFocus;
 	BOOL iconOriginal;
 	BOOL activeIconOriginal;
