@@ -809,5 +809,19 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	return [[event copy] autorelease];
 }
 
++(NSDictionary *)tiAppProperties
+{
+    static NSDictionary* props;
+    if(props == nil) {
+        NSString *tiAppPropertiesPath = [[TiHost resourcePath] stringByAppendingPathComponent:@"_ti_app.json"];
+        NSData *jsonData = [TiUtils loadAppResource: [NSURL fileURLWithPath:tiAppPropertiesPath]];
+        if (jsonData==nil) {
+            jsonData = [NSData dataWithContentsOfFile:tiAppPropertiesPath];
+        }
+        NSError *error = nil;
+        props = [[NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error] retain];
+    }
+    return props;
+}
 
 @end

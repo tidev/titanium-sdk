@@ -8,6 +8,7 @@
 
 #import "TiAppPropertiesProxy.h"
 #import "TiUtils.h"
+#import "TiApp.h"
 
 @implementation TiAppPropertiesProxy {
 	NSData *_defaultsNull;
@@ -65,6 +66,10 @@
 #define GETPROP \
 ENSURE_TYPE(args,NSArray);\
 NSString *key = [args objectAtIndex:0];\
+NSString *appProp = [[TiApp tiAppProperties] objectForKey:key]; \
+if(appProp) { \
+    return appProp; \
+} \
 id defaultValue = [args count] > 1 ? [args objectAtIndex:1] : [NSNull null];\
 if (![self propertyExists:key]) return defaultValue; \
 
@@ -116,11 +121,17 @@ if (![self propertyExists:key]) return defaultValue; \
     else {
         return theObject;
     }
+    
 }
 
 #define SETPROP \
 ENSURE_TYPE(args,NSArray);\
 NSString *key = [args objectAtIndex:0];\
+NSString *appProp = [[TiApp tiAppProperties] objectForKey:key]; \
+if(appProp) { \
+    DebugLog(@"Property \"%@\" already exist and cannot be overwritten", key); \
+    return; \
+} \
 id value = [args count] > 1 ? [args objectAtIndex:1] : nil;\
 if (value==nil || value==[NSNull null]) {\
     [defaultsObject removeObjectForKey:key];\
