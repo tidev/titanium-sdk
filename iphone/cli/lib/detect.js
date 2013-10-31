@@ -274,9 +274,7 @@ exports.detect = function detect(config, opts, finished) {
 
 			certs: function (done) {
 				var result = {
-						keychains: {
-							'System Default': {} // this is a dummy entry and doesn't really have any certs
-						},
+						keychains: {},
 						wwdr: false
 					},
 					check = function () {

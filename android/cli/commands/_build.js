@@ -1190,6 +1190,13 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 				if (module.platform.indexOf('commonjs') != -1) {
 					module.native = false;
+
+					module.libFile = path.join(module.modulePath, module.id + '.js');
+					if (!fs.existsSync(module.libFile)) {
+						this.logger.error(__('Module %s version %s is missing module file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
+						process.exit(1);
+					}
+
 					this.commonJsModules.push(module);
 				} else {
 					module.native = true;
@@ -2104,23 +2111,26 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 	// copy all commonjs modules
 	this.commonJsModules.forEach(function (module) {
-		var src = path.join(module.modulePath, module.id + '.js');
-		if (fs.existsSync(src)) {
-			tasks.push(function (cb) {
-				copyDir.call(this, {
-					src: src,
-					dest: this.buildBinAssetsResourcesDir,
-					onJsConflict: function (src, dest, id) {
-						this.logger.error(__('There is a project resource "%s" that conflicts with a CommonJS module', id));
-						this.logger.error(__('Please rename the file, then rebuild') + '\n');
-						process.exit(1);
-					}.bind(this)
-				}, cb);
-			});
-		} else {
-			this.logger.error(__('Unable to find main source file for CommonJS module "%s"', module.id) + '\n');
-			process.exit(1);
-		}
+		// copy the main module
+		tasks.push(function (cb) {
+			copyDir.call(this, {
+				src: module.libFile,
+				dest: this.buildBinAssetsResourcesDir,
+				onJsConflict: function (src, dest, id) {
+					this.logger.error(__('There is a project resource "%s" that conflicts with a CommonJS module', id));
+					this.logger.error(__('Please rename the file, then rebuild') + '\n');
+					process.exit(1);
+				}.bind(this)
+			}, cb);
+		});
+
+		// copy the assets
+		tasks.push(function (cb) {
+			copyDir.call(this, {
+				src: path.join(module.modulePath, 'assets'),
+				dest: path.join(this.buildBinAssetsResourcesDir, 'assets')
+			}, cb);
+		});
 	});
 
 	var platformPaths = [
