@@ -161,7 +161,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 					}
 				});
 			} else if (target == 'simulator') {
-				detect.detectSimulators(function (err, sims) {
+				detect.detectSimulators(config, function (err, sims) {
 					if (err) {
 						callback(err);
 					} else {
@@ -298,10 +298,10 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 
 									// we need to sort all results into groups for the select field
 									if (cli.argv.target == 'device') {
-										title = __('Which device do you want to install your application?');
+										title = __('Which device do you want to install your app on?');
 										promptLabel = __('Select an device by number or name');
 									} else if (cli.argv.target == 'simulator') {
-										title = __('Which simulator do you want to launch your application?');
+										title = __('Which simulator do you want to launch your app in?');
 										promptLabel = __('Select an simulator by number or name');
 									}
 

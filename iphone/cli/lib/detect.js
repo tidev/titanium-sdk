@@ -533,7 +533,7 @@ exports.detect = function detect(config, opts, finished) {
  * @param {Function} finished(err, results) - Callback when detection is finished
  */
 exports.detectSimulators = function detectSimulators(config, opts, finished) {
-	if (opts && typeof opts == 'function') {
+	if (typeof opts == 'function') {
 		finished = opts;
 		opts = {};
 	}

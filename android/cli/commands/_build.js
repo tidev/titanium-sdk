@@ -334,7 +334,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								// we need to sort all results into groups for the select field
 								if (cli.argv.target == 'device' && results.length) {
 									opts[__('Devices')] = results;
-									title = __('Which device do you want to install your application?');
+									title = __('Which device do you want to install your app on?');
 									promptLabel = __('Select a device by number or name');
 								} else if (cli.argv.target == 'emulator') {
 									// for emulators, we sort by type
@@ -355,7 +355,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 										logger.log(__('NOTE: Genymotion emulator must be running to detect Google API support').magenta + '\n');
 									}
 
-									title = __('Which simulator do you want to launch your application?');
+									title = __('Which emulator do you want to launch your app in?');
 									promptLabel = __('Select an emulator by number or name');
 								}
 
