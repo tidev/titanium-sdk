@@ -43,18 +43,8 @@ var appc = require('node-appc'),
 // silence uglify's default warn mechanism
 UglifyJS.AST_Node.warn_function = function () {};
 
-function assertIssue(logger, issues, name) {
-	var i = 0,
-		len = issues.length;
-	for (; i < len; i++) {
-		if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
-			issues[i].message.split('\n').forEach(function (line) {
-				logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-			});
-			logger.log();
-			process.exit(1);
-		}
-	}
+function hash(s) {
+	return crypto.createHash('md5').update(s || '').digest('hex');
 }
 
 function iOSBuilder() {
@@ -156,7 +146,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								name: 'All Devices'
 							});
 						}
-						this.devices = targetDeviceCache[target] = devices;
+						_t.devices = targetDeviceCache[target] = devices;
 						callback(null, devices);
 					}
 				});
@@ -165,80 +155,85 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 					if (err) {
 						callback(err);
 					} else {
-						this.devices = targetDeviceCache[target] = sims;
+						_t.devices = targetDeviceCache[target] = sims;
 						callback(null, sims);
 					}
 				});
 			} else {
 				callback();
 			}
-		}.bind(this);
+		},
+		assertIssue = function assertIssue(issues, name) {
+			var i = 0,
+				len = issues.length;
+			for (; i < len; i++) {
+				if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
+					logger.banner();
+					appc.string.wrap(issues[i].message, config.get('cli.width', 100)).split('\n').forEach(function (line, i) {
+						logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
+						if (!i) logger.log();
+					});
+					logger.log();
+					process.exit(1);
+				}
+			}
+		};
 
 	return function (done) {
 		detect.detect(config, { minSDK: _t.minSupportedIosSdk }, function (iosInfo) {
 			this.iosInfo = iosInfo;
 
 			// check that the iOS environment is found and sane
-			assertIssue(logger, iosInfo.issues, 'IOS_XCODE_NOT_INSTALLED');
-			assertIssue(logger, iosInfo.issues, 'IOS_NO_SUPPORTED_XCODE_FOUND');
+			assertIssue(iosInfo.issues, 'IOS_XCODE_NOT_INSTALLED');
+			assertIssue(iosInfo.issues, 'IOS_NO_SUPPORTED_XCODE_FOUND');
+			assertIssue(iosInfo.issues, 'IOS_NO_IOS_SDKS');
+			assertIssue(iosInfo.issues, 'IOS_NO_IOS_SIMS');
 
 			// get the all installed iOS SDKs and Simulators across all Xcode versions
-			var sdks = {},
-				sims = {};
+			var sdkVersions = {},
+				simVersions = {};
 			Object.keys(iosInfo.xcode).forEach(function (ver) {
 				iosInfo.xcode[ver].sdks.forEach(function (sdk) {
-					sdks[sdk] = 1;
+					sdkVersions[sdk] = 1;
 				});
 				iosInfo.xcode[ver].sims.forEach(function (sim) {
-					sims[sim] = 1;
+					simVersions[sim] = 1;
 				});
 			});
-			sdks = version.sort(Object.keys(sdks));
-			sims = version.sort(Object.keys(sims));
+			sdkVersions = this.iosSdkVersions = version.sort(Object.keys(sdkVersions));
+			simVersions = this.iosSimVersions = version.sort(Object.keys(simVersions));
 
-			// determine the default --ios-version
-			var defaultIosVersion = undefined;
-			if (process.env.SDK_NAME) {
-				process.env.SDK_NAME.replace(/iphonesimulator|iphoneos/, '')
+			// if we're running from Xcode, determine the default --ios-version
+			var defaultIosVersion = undefined,
+				sdkRoot = process.env.SDKROOT || process.env.SDK_DIR;
+			if (sdkRoot) {
+				var m = sdkRoot.match(/\/iphone(?:os|simulator)(\d.\d).sdk/i);
+				if (m) {
+					defaultIosVersion = m[1];
+					var file = path.join(sdkRoot, 'System', 'Library', 'CoreServices', 'SystemVersion.plist');
+					if (fs.existsSync(file)) {
+						var p = new appc.plist(file);
+						if (p.ProductVersion) {
+							defaultIosVersion = p.ProductVersion;
+						}
+					}
+				}
 			}
 
-			// get all of the developer names
-			var developerCerts = {},
-				developerCertLookup = {},
-				maxDevCertLen = 0,
-				distributionCerts = {},
-				distributionCertLookup = {},
-				maxDistCertLen = 0;
+			// create the lookup maps for validating developer/distribution certs from the cli args
+			var developerCertLookup = {},
+				distributionCertLookup = {};
 			Object.keys(iosInfo.certs.keychains).forEach(function (keychain) {
-				var group = keychain;
 				(iosInfo.certs.keychains[keychain].developer || []).forEach(function (d) {
 					if (!d.invalid) {
-						Array.isArray(developerCerts[group]) || (developerCerts[group] = []);
-						developerCerts[group].push(d);
-						developerCertLookup[d.name] = 1;
-						maxDevCertLen = Math.max(d.name.length, maxDevCertLen);
+						developerCertLookup[d.name.toLowerCase()] = d.name;
 					}
 				});
 
 				(iosInfo.certs.keychains[keychain].distribution || []).forEach(function (d) {
 					if (!d.invalid) {
-						Array.isArray(distributionCerts[group]) || (distributionCerts[group] = []);
-						distributionCerts[group].push(d);
-						distributionCertLookup[d.name] = 1;
-						maxDistCertLen = Math.max(d.name.length, maxDistCertLen);
+						distributionCertLookup[d.name.toLowerCase()] = d.name;
 					}
-				});
-			});
-
-			// sort the certs
-			Object.keys(developerCerts).forEach(function (keychain) {
-				developerCerts[keychain] = developerCerts[keychain].sort(function (a, b) {
-					return a.name == b.name ? 0 : a.name < b.name ? -1 : 1;
-				});
-			});
-			Object.keys(distributionCerts).forEach(function (keychain) {
-				distributionCerts[keychain] = distributionCerts[keychain].sort(function (a, b) {
-					return a.name == b.name ? 0 : a.name < b.name ? -1 : 1;
 				});
 			});
 
@@ -316,7 +311,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 														: '');
 											}
 										},
-										default: '1',
+										default: '1', // just default to the first one, whatever that will be
 										autoSelectOne: true,
 										margin: '',
 										optionLabel: 'name',
@@ -332,25 +327,31 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							required: true,
 							validate: function (device, callback) {
 								findTargetDevices(cli.argv.target, function (err, devices) {
-									if (!devices.some(function (d) { return d.id == device; })) {
-										return callback(
-											cli.argv.target ? new Error(__('Invalid iOS device "%s"', device))
-												: new Error(__('Invalid iOS simulator "%s"', device))
-										);
+									var dev = device.toLowerCase(),
+										i = 0,
+										l = devices.length;
+									for (; i < l; i++) {
+										if (devices[i].id.toLowerCase() == dev) {
+											return callback(null, devices[i].id);
+										}
 									}
-									callback(null, device);
+									callback(new Error(cli.argv.target ? __('Invalid iOS device "%s"', device) : __('Invalid iOS simulator "%s"', device)));
 								});
 							},
 							verifyIfRequired: function (callback) {
-								findTargetDevices(cli.argv.target, function (err, results) {
-									if (cli.argv.target == 'device' && cli.argv['device-id'] == undefined && config.get('ios.autoSelectDevice', true)) {
+								if (cli.argv['device-id'] == undefined) {
+									if (cli.argv.target == 'device' && config.get('ios.autoSelectDevice', true)) {
 										cli.argv['device-id'] = 'itunes';
 										return callback();
+									} else if (cli.argv.target == 'simulator') {
+										// for simulator builds, --device-id is a simulator profile and is not
+										// required and we always try to best match
+										return callback();
 									}
+								}
 
-									// yup, still required
-									callback(true);
-								});
+								// yup, still required
+								callback(true);
 							}
 						},
 						'developer-name': {
@@ -360,6 +361,26 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							hint: 'name',
 							order: 170,
 							prompt: function (callback) {
+								var developerCerts = {},
+									maxDevCertLen = 0;
+
+								Object.keys(iosInfo.certs.keychains).forEach(function (keychain) {
+									(iosInfo.certs.keychains[keychain].developer || []).forEach(function (d) {
+										if (!d.invalid) {
+											Array.isArray(developerCerts[keychain]) || (developerCerts[keychain] = []);
+											developerCerts[keychain].push(d);
+											maxDevCertLen = Math.max(d.name.length, maxDevCertLen);
+										}
+									});
+								});
+
+								// sort the certs
+								Object.keys(developerCerts).forEach(function (keychain) {
+									developerCerts[keychain] = developerCerts[keychain].sort(function (a, b) {
+										return a.name == b.name ? 0 : a.name < b.name ? -1 : 1;
+									});
+								});
+
 								callback(fields.select({
 									title: __("Which developer certificate would you like to use?"),
 									promptLabel: __('Select a certificate by number or name'),
@@ -386,8 +407,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								}));
 							},
 							validate: function (value, callback) {
-								if (developerCertLookup[value]) {
-									callback(null, value);
+								var v = developerCertLookup[value.toLowerCase()];
+								if (v) {
+									callback(null, v);
 								} else {
 									callback(new Error(__('Invalid developer certificate "%s"', value)));
 								}
@@ -400,6 +422,26 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							hint: 'name',
 							order: 180,
 							prompt: function (callback) {
+								var distributionCerts = {},
+									maxDistCertLen = 0;
+
+								Object.keys(iosInfo.certs.keychains).forEach(function (keychain) {
+									(iosInfo.certs.keychains[keychain].distribution || []).forEach(function (d) {
+										if (!d.invalid) {
+											Array.isArray(distributionCerts[keychain]) || (distributionCerts[keychain] = []);
+											distributionCerts[keychain].push(d);
+											maxDistCertLen = Math.max(d.name.length, maxDistCertLen);
+										}
+									});
+								});
+
+								// sort the certs
+								Object.keys(distributionCerts).forEach(function (keychain) {
+									distributionCerts[keychain] = distributionCerts[keychain].sort(function (a, b) {
+										return a.name == b.name ? 0 : a.name < b.name ? -1 : 1;
+									});
+								});
+
 								callback(fields.select({
 									title: __("Which distribution certificate would you like to use?"),
 									promptLabel: __('Select a certificate by number or name'),
@@ -426,8 +468,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								}));
 							},
 							validate: function (value, callback) {
-								if (distributionCertLookup[value]) {
-									callback(null, value);
+								var v = distributionCertLookup[value.toLowerCase()];
+								if (v) {
+									callback(null, v);
 								} else {
 									callback(new Error(__('Invalid distribution certificate "%s"', value)));
 								}
@@ -444,7 +487,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							default: defaultIosVersion,
 							desc: __('iOS SDK version to build for'),
 							order: 130,
-							values: sdks
+							values: sdkVersions
 						},
 						'keychain': {
 							abbr: 'K',
@@ -490,12 +533,17 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 										if (!p.expired) {
 											var re = new RegExp(p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*'));
 											if (re.test(appId)) {
-												maxAppId = Math.max(p.appId.length, maxAppId);
+												var label = p.name;
+												if (label.indexOf(p.appId) == -1) {
+													label += ': ' + p.appId;
+												}
+												p.label = label;
+												maxAppId = Math.max(p.label.length, maxAppId);
 												return true;
 											}
 										}
 									}).sort(function (a, b) {
-										return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+										return a.label.toLowerCase().localeCompare(b.label.toLowerCase());
 									});
 								}
 
@@ -515,7 +563,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 												day = expires.format('D'),
 												hour = expires.format('h');
 											return '  ' + num + String(opt.uuid).cyan + ' '
-												+ appc.string.rpad(opt.appId, maxAppId + 1)
+												+ appc.string.rpad(opt.label, maxAppId + 1)
 												+ (opt.expirationDate ? (' (' + __('expires %s', expires.format('MMM') + ' '
 												+ (day.length == 1 ? ' ' : '') + day + ', ' + expires.format('YYYY') + ' '
 												+ (hour.length == 1 ? ' ' : '') + hour + ':' + expires.format('mm:ss a'))
@@ -533,8 +581,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								}));
 							},
 							validate: function (value, callback) {
-								if (provisioningProfileLookup[value]) {
-									callback(null, value);
+								var v = provisioningProfileLookup[value.toLowerCase()];
+								if (v) {
+									callback(null, v);
 								} else {
 									callback(new Error(__('Invalid provisioning profile UUID "%s"', value)));
 								}
@@ -555,7 +604,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							desc: __('iOS Simulator version; only used when target is %s', 'simulator'.cyan),
 							hint: 'version',
 							order: 160,
-							values: sims
+							values: simVersions
 						},
 						'target': {
 							abbr: 'T',
@@ -571,7 +620,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 										assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DEV_CERTS_FOUND');
 										assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES');
 										iosInfo.provisioningProfiles.development.forEach(function (d) {
-											provisioningProfileLookup[d.uuid] = 1;
+											provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
 										});
 										_t.conf.options['developer-name'].required = true;
 										_t.conf.options['pp-uuid'].required = true;
@@ -581,10 +630,10 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 										assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DIST_CERTS_FOUND');
 										// TODO: assert there is at least one distribution or adhoc provisioning profile
 										iosInfo.provisioningProfiles.distribution.forEach(function (d) {
-											provisioningProfileLookup[d.uuid] = 1;
+											provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
 										});
 										iosInfo.provisioningProfiles.adhoc.forEach(function (d) {
-											provisioningProfileLookup[d.uuid] = 1;
+											provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
 										});
 										_t.conf.options['output-dir'].required = true;
 										// purposely fall through!
@@ -606,16 +655,10 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 				done(_t.conf = result);
 			});
 		}.bind(this));
-	};
+	}.bind(this);
 };
 
 iOSBuilder.prototype.validate = function (logger, config, cli) {
-
-dump(cli.argv);
-console.log('DONE');
-process.exit(0);
-
-
 	this.target = cli.argv.target;
 	this.deployType = /^device|simulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 
@@ -643,8 +686,22 @@ process.exit(0);
 			this.allowProfiling = true;
 	}
 
-	// TODO: if simulator build, determine the correct simulator -- config.get('ios.autoSelectDevice', true)
+	var deviceId = this.deviceId = cli.argv['device-id'];
+	// if we're doing a simulator build and we have a --device-id, then set the
+	// args based on the sim profile values
+	if (this.target == 'simulator' && deviceId) {
+		for (var i = 0, l = this.devices.length; i < l; i++) {
+			if (this.devices[i].id == deviceId) {
+				cli.argv.retina = !!this.devices[i].retina;
+				cli.argv.tall = !!this.devices[i].tall;
+				cli.argv['sim-64bit'] = !!this.devices[i]['64bit'];
+				cli.argv['sim-type'] = !!this.devices[i].type;
+				break;
+			}
+		}
+	}
 
+	// if we're in the prepare phase or manually running from xcode...
 	if (!cli.argv.xcode || !process.env.TITANIUM_CLI_XCODEBUILD) {
 		// make sure the app doesn't have any blacklisted directories in the Resources directory and warn about graylisted names
 		var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
@@ -701,46 +758,32 @@ process.exit(0);
 		}
 	}
 
-	if (!Object.keys(this.iosInfo.xcode).length) {
-		logger.error(__('Unable to find Xcode') + '\n');
-		logger.error(__('Please download and install Xcode, then try again') + '\n');
-		process.exit(1);
-	}
-
-	if (!Object.keys(this.iosInfo.xcode).some(function (ver) { return this.iosInfo.xcode[ver].selected; }, this)) {
-		logger.error(__('No Xcode version is currently selected') + '\n');
-		logger.error(__("Use 'xcode-select' to select one of the Xcode versions:"));
-		Object.keys(this.iosInfo.xcode).forEach(function (ver) {
-			if (ver != '__selected__') {
-				logger.log('\n' + ('    sudo xcode-select -switch ' + this.iosInfo.xcode[ver].path).cyan);
-			}
-		}, this);
-		logger.log();
-		process.exit(1);
-	}
-
-	if (!Object.keys(this.iosSDKs).length) {
-		logger.error(__('Unable to find any iOS SDKs') + '\n');
-		logger.error(__('Please download and install an iOS SDK (version %s or newer)', version.format(this.minSupportedIosSdk, 2)) + '\n');
-		process.exit(1);
-	}
-
 	if (!cli.argv['ios-version']) {
-		cli.argv['ios-version'] = this.defaultIosSDK || Object.keys(this.iosSDKs).pop();
+		if (this.iosSdkVersions.length) {
+			// set the latest version
+			cli.argv['ios-version'] = this.iosSdkVersions[this.iosSdkVersions.length-1];
+		} else {
+			// this should not be possible, but you never know
+			logger.error(cli.argv['ios-version'] ? __('Unable to find iOS SDK %s', cli.argv['ios-version']) + '\n' : __('Missing iOS SDK') + '\n');
+			logger.log(__('Available iOS SDK versions:'));
+			this.iosSdkVersions.forEach(function (ver) {
+				logger.log('    ' + ver.cyan);
+			});
+			logger.log();
+			process.exit(1);
+		}
 	}
 
-	if (!cli.argv['ios-version'] || !Object.keys(this.iosSDKs).some(function (ver) {
-		if (version.eq(ver, cli.argv['ios-version'])) {
-			cli.argv['ios-version'] = ver;
-			return true;
+	// we have an ios sdk version, find the best xcode version to use
+	this.xcodeEnv = null;
+	Object.keys(this.iosInfo.xcode).forEach(function (ver) {
+		if (ver != '__selected__' && (!this.xcodeEnv || this.iosInfo.xcode[ver].selected) && this.iosInfo.xcode[ver].sdks.some(function (sdk) { return version.eq(sdk, cli.argv['ios-version']); }, this)) {
+			this.xcodeEnv = this.iosInfo.xcode[ver];
 		}
-	})) {
-		logger.error(cli.argv['ios-version'] ? __('Unable to find iOS SDK %s', cli.argv['ios-version']) + '\n' : __('Missing iOS SDK') + '\n');
-		logger.log(__('Available iOS SDK versions:'));
-		Object.keys(this.iosSDKs).forEach(function (ver) {
-			logger.log('    ' + ver.cyan);
-		});
-		logger.log();
+	}, this);
+	if (!this.xcodeEnv) {
+		// this should never happen
+		logger.error(__('Unable to find suitable Xcode install that supports iOS SDK %s', cli.argv['ios-version']) + '\n');
 		process.exit(1);
 	}
 
@@ -783,12 +826,14 @@ process.exit(0);
 		}
 	}
 
-	if (this.targets.indexOf(cli.argv.target) == -1) {
-		logger.error(__('Invalid target "%s"', cli.argv.target) + '\n');
-		appc.string.suggest(cli.argv.target, this.targets, logger.log, 3);
-		process.exit(1);
-	}
 
+
+// TODO: double check all the validation logic below!
+
+
+
+
+	// if in the prepare phase and doing a device/dist build...
 	if (!cli.argv.xcode && cli.argv.target != 'simulator') {
 		// make sure they have Apple's WWDR cert installed
 		if (!this.iosInfo.certs.wwdr) {
@@ -973,19 +1018,25 @@ process.exit(0);
 		if (!cli.argv['sim-version']) {
 			cli.argv['sim-version'] = cli.argv['ios-version'];
 		}
-		if (!this.iosSDKs[cli.argv['ios-version']].some(function (ver) {
-			if (version.eq(ver, cli.argv['sim-version'])) {
-				cli.argv['sim-version'] = ver;
-				return true;
+		// check that the sim version exists
+		if (!this.xcodeEnv.sims || this.xcodeEnv.sims.indexOf(cli.argv['sim-version']) == -1) {
+			// the preferred Xcode install we selected doesn't have this simulator, search the all again
+			this.xcodeEnv = null;
+			Object.keys(this.iosInfo.xcode).forEach(function (ver) {
+				if (ver != '__selected__'
+					&& !this.xcodeEnv
+					&& this.iosInfo.xcode[ver].sdks.some(function (sdk) { return version.eq(sdk, cli.argv['ios-version']); })
+					&& this.iosInfo.xcode[ver].sims.some(function (sim) { return version.eq(sim, cli.argv['sim-version']); })
+				) {
+					this.xcodeEnv = this.iosInfo.xcode[ver];
+				}
+			}, this);
+
+			if (!this.xcodeEnv) {
+				// this should never happen
+				logger.error(__('Unable to find any Xcode installs that has iOS SDK %s and iOS Simulator %s', cli.argv['ios-version'], cli.argv['sim-version']) + '\n');
+				process.exit(1);
 			}
-		})) {
-			logger.error(__('Unable to find iOS Simulator %s', cli.argv['sim-version']) + '\n');
-			logger.log(__('Available iOS Simulator versions for iOS SDK %s:', cli.argv['ios-version']));
-			this.iosSDKs[cli.argv['ios-version']].forEach(function (ver) {
-				logger.log('    ' + ver.cyan);
-			});
-			logger.log();
-			process.exit(1);
 		}
 
 		if (!cli.argv['sim-type']) {
@@ -1028,13 +1079,82 @@ process.exit(0);
 			}
 		});
 	}
+
+	return function (finished) {
+		// validate modules
+		var moduleSearchPaths = [ cli.argv['project-dir'], this.globalModulesPath ];
+		if (config.paths && Array.isArray(config.paths.modules)) {
+			moduleSearchPaths = moduleSearchPaths.concat(config.paths.modules);
+		}
+
+		appc.timodule.find(cli.tiapp.modules, ['ios', 'iphone'], this.deployType, this.titaniumSdkVersion, moduleSearchPaths, logger, function (modules) {
+			if (modules.missing.length) {
+				logger.error(__('Could not find all required Titanium Modules:'))
+				modules.missing.forEach(function (m) {
+					logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t deploy-type: ' + m.deployType);
+				}, this);
+				logger.log();
+				process.exit(1);
+			}
+
+			if (modules.incompatible.length) {
+				logger.error(__('Found incompatible Titanium Modules:'));
+				modules.incompatible.forEach(function (m) {
+					logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + m.minsdk);
+				}, this);
+				logger.log();
+				process.exit(1);
+			}
+
+			if (modules.conflict.length) {
+				logger.error(__('Found conflicting Titanium modules:'));
+				modules.conflict.forEach(function (m) {
+					logger.error('   ' + __('Titanium module "%s" requested for both iOS and CommonJS platforms, but only one may be used at a time.', m.id));
+				}, this);
+				logger.log();
+				process.exit(1);
+			}
+
+			this.modules = modules.found;
+			this.commonJsModules = [];
+			this.nativeLibModules = [];
+
+			var nativeHashes = [];
+
+			modules.found.forEach(function (module) {
+				if (module.platform.indexOf('commonjs') != -1) {
+					module.native = false;
+					this.commonJsModules.push(module);
+				} else {
+					module.native = true;
+
+					module.libName = 'lib' + module.id.toLowerCase() + '.a',
+					module.libFile = path.join(module.modulePath, module.libName);
+
+					if (!fs.existsSync(module.libFile)) {
+						this.logger.error(__('Module %s version %s is missing library file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
+						process.exit(1);
+					}
+
+					nativeHashes.push(module.hash = hash(fs.readFileSync(module.libFile)));
+
+					this.logger.info(__('Detected third-party native iOS module: %s version %s', module.id.cyan, (module.manifest.version || 'latest').cyan));
+					this.nativeLibModules.push(module);
+				}
+
+				// scan the module for any CLI hooks
+				cli.scanHooks(path.join(module.modulePath, 'hooks'));
+			}, this);
+
+			this.modulesNativeHash = hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
+
+			finished();
+		}.bind(this)); // end timodule.find()
+	}.bind(this); // end returned callback
 };
 
 iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 	Builder.prototype.run.apply(this, arguments);
-
-console.log('DONE');
-process.exit(0);
 
 	// force the platform to "ios" just in case it was "iphone" so that plugins can reference it
 	cli.argv.platform = 'ios';
@@ -1059,11 +1179,8 @@ process.exit(0);
 		'doAnalytics',
 		'initialize',
 		'loginfo',
-
-		//'readBuildManifest',
-		//'checkIfNeedToRecompile',
-		//'getLastBuildState',
-
+		'readBuildManifest',
+		'checkIfNeedToRecompile',
 		'preparePhase',
 
 		function (next) {
@@ -1080,7 +1197,6 @@ process.exit(0);
 
 		'createInfoPlist',
 		'createEntitlementsPlist',
-		'detectModules',
 		'initBuildDir',
 		'createSymlinks',
 		'createDebuggerPlist',
@@ -1092,7 +1208,6 @@ process.exit(0);
 		'copyCommonJSModules',
 		'copyItunesArtwork',
 		'copyGraphics',
-		'writeBuildManifest',
 
 		function (next) {
 			// this is a hack... for non-deployment builds we need to force xcode so that the pre-compile phase
@@ -1104,6 +1219,8 @@ process.exit(0);
 
 			if (this.forceRebuild || this.target != 'simulator' || !fs.existsSync(this.xcodeAppDir, this.tiapp.name)) {
 				this.logger.info(__('Invoking xcodebuild'));
+				// we're not being called from Xcode, so we can call the pre-compile phase now
+				// and save us several seconds
 				this.xcodePrecompilePhase(function () {
 					this.invokeXcodeBuild(next);
 				}.bind(this));
@@ -1112,6 +1229,8 @@ process.exit(0);
 				next();
 			}
 		},
+
+		'writeBuildManifest',
 
 		function (next) {
 			if (!this.buildOnly) {
@@ -1206,36 +1325,7 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 
 	this.forceRebuild = false;
 
-
-
-
-
-
-
-
-
-
-
-	// FIXME TODO can we use this.iosSDKs?
-
-
-	// the ios sdk version is not in the selected xcode version, need to find the version that does have it
-	Object.keys(this.iosInfo.xcode).forEach(function (sdk) {
-		if (sdk != '__selected__' && (!this.xcodeEnv || this.iosInfo.xcode[sdk].selected) && this.iosInfo.xcode[sdk].sdks.some(function (ver) { return version.eq(ver, this.iosSdkVersion); }, this)) {
-			this.xcodeEnv = this.iosInfo.xcode[sdk];
-		}
-	}, this);
-
-
-
-
-
-
-
-
-
-
-
+	this.buildManifestFile = path.join(this.buildDir, 'build-manifest.json');
 
 	// make sure we have an icon
 	if (!this.tiapp.icon || !['Resources', 'Resources/iphone', 'Resources/ios'].some(function (p) {
@@ -1243,8 +1333,6 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 		}, this)) {
 		this.tiapp.icon = 'appicon.png';
 	}
-
-	Array.isArray(this.tiapp.modules) || (this.tiapp.modules = []);
 
 	this.architectures = 'armv6 armv7 i386';
 	// no armv6 support above 4.3 or with 6.0+ SDK
@@ -1314,8 +1402,216 @@ iOSBuilder.prototype.loginfo = function loginfo(next) {
 	next();
 };
 
-iOSBuilder.prototype.hashFile = function hashFile(file) {
-	return crypto.createHash('md5').update(fs.readFileSync(file)).digest('hex');
+iOSBuilder.prototype.readBuildManifest = function readBuildManifest(next) {
+	// read the build manifest from the last build, if exists, so we
+	// can determine if we need to do a full rebuild
+	this.buildManifest = {};
+
+	if (fs.existsSync(this.buildManifestFile)) {
+		try {
+			this.buildManifest = JSON.parse(fs.readFileSync(this.buildManifestFile)) || {};
+		} catch (e) {}
+	}
+
+	next();
+};
+
+iOSBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForceRebuild() {
+	var manifest = this.buildManifest;
+
+	if (this.cli.argv.force) {
+		this.logger.info(__('Forcing rebuild: %s flag was set', '--force'.cyan));
+		return true;
+	}
+
+	if (!fs.existsSync(this.buildManifestFile)) {
+		// if no .version file, rebuild!
+		this.logger.info(__('Forcing rebuild: %s does not exist', this.buildManifestFile.cyan));
+		return true;
+	}
+
+	// check if the target changed
+	if (this.target != manifest.target) {
+		this.logger.info(__('Forcing rebuild: target changed since last build'));
+		this.logger.info('  ' + __('Was: %s', this.buildManifest.target));
+		this.logger.info('  ' + __('Now: %s', this.target));
+		return true;
+	}
+
+	if (fs.existsSync(this.xcodeProjectConfigFile)) {
+		// we have a previous build, see if the Titanium SDK changed
+		var conf = fs.readFileSync(this.xcodeProjectConfigFile).toString(),
+			versionMatch = conf.match(/TI_VERSION\=([^\n]*)/),
+			idMatch = conf.match(/TI_APPID\=([^\n]*)/);
+
+		if (versionMatch && !appc.version.eq(versionMatch[1], this.titaniumSdkVersion)) {
+			this.logger.info(__("Forcing rebuild: last build was under Titanium SDK version %s and we're compiling for version %s", versionMatch[1].cyan, this.titaniumSdkVersion.cyan));
+			return true;
+		}
+
+		if (idMatch && idMatch[1] != this.tiapp.id) {
+			this.logger.info(__("Forcing rebuild: app id changed from %s to %s", idMatch[1].cyan, this.tiapp.id.cyan));
+			return true;
+		}
+	}
+
+	if (!fs.existsSync(this.xcodeAppDir)) {
+		this.logger.info(__('Forcing rebuild: %s does not exist', this.xcodeAppDir.cyan));
+		return true;
+	}
+
+	// check that we have a libTiCore hash
+	if (!manifest.tiCoreHash) {
+		this.logger.info(__('Forcing rebuild: incomplete version file %s', this.buildVersionFile.cyan));
+		return true;
+	}
+
+	// check if the libTiCore hashes are different
+	if (this.libTiCoreHash != manifest.tiCoreHash) {
+		this.logger.info(__('Forcing rebuild: libTiCore hash changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.tiCoreHash));
+		this.logger.info('  ' + __('Now: %s', this.libTiCoreHash));
+		return true;
+	}
+
+	// check if the titanium sdk paths are different
+	if (manifest.iosSdkPath != this.titaniumIosSdkPath) {
+		this.logger.info(__('Forcing rebuild: Titanium SDK path changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.iosSdkPath));
+		this.logger.info('  ' + __('Now: %s', this.titaniumIosSdkPath));
+		return true;
+	}
+
+	// check if the device family has changed (i.e. was universal, now iphone)
+	if (manifest.deviceFamily != this.deviceFamily) {
+		this.logger.info(__('Forcing rebuild: device family changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.deviceFamily));
+		this.logger.info('  ' + __('Now: %s', this.deviceFamily));
+		return true;
+	}
+
+	// check the git hashes are different
+	if (!manifest.gitHash || manifest.gitHash != ti.manifest.githash) {
+		this.logger.info(__('Forcing rebuild: githash changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.gitHash));
+		this.logger.info('  ' + __('Now: %s', ti.manifest.githash));
+		return true;
+	}
+
+	// check if the modules hashes are different
+	if (this.modulesHash != manifest.modulesHash) {
+		this.logger.info(__('Forcing rebuild: modules hash changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.modulesHash));
+		this.logger.info('  ' + __('Now: %s', this.modulesHash));
+		return true;
+	}
+
+	if (this.modulesNativeHash != manifest.modulesNativeHash) {
+		this.logger.info(__('Forcing rebuild: native modules hash changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.modulesNativeHash));
+		this.logger.info('  ' + __('Now: %s', this.modulesNativeHash));
+		return true;
+	}
+
+	// next we check if any tiapp.xml values changed so we know if we need to reconstruct the main.m
+	if (this.tiapp.name != manifest.name) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml project name changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.name));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.name));
+		return true;
+	}
+
+	if (this.tiapp.id != manifest.id) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml app id changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.id));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.id));
+		return true;
+	}
+
+	if (!this.tiapp.analytics != !manifest.analytics) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml analytics flag changed since last build'));
+		this.logger.info('  ' + __('Was: %s', !!manifest.analytics));
+		this.logger.info('  ' + __('Now: %s', !!this.tiapp.analytics));
+		return true;
+	}
+	if (this.tiapp.publisher != manifest.publisher) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml publisher changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.publisher));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.publisher));
+		return true;
+	}
+
+	if (this.tiapp.url != manifest.url) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml url changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.url));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.url));
+		return true;
+	}
+
+	if (this.tiapp.version != manifest.version) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml version changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.version));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.version));
+		return true;
+	}
+
+	if (this.tiapp.description != manifest.description) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml description changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.description));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.description));
+		return true;
+	}
+
+	if (this.tiapp.copyright != manifest.copyright) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml copyright changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.copyright));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.copyright));
+		return true;
+	}
+
+	if (this.tiapp.guid != manifest.guid) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml guid changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.guid));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.guid));
+		return true;
+	}
+
+	if (this.forceCopy != manifest.forceCopy) {
+		this.logger.info(__('Forcing rebuild: force copy flag changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.forceCopy));
+		this.logger.info('  ' + __('Now: %s', this.forceCopy));
+		return true;
+	}
+
+	if (this.forceCopyAll != manifest.forceCopyAll) {
+		this.logger.info(__('Forcing rebuild: force copy all flag changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.forceCopyAll));
+		this.logger.info('  ' + __('Now: %s', this.forceCopyAll));
+		return true;
+	}
+
+	return false;
+};
+
+iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile(next) {
+	// determine the libTiCore hash
+	this.libTiCoreHash = hash(fs.readFileSync(path.join(this.titaniumIosSdkPath, 'libTiCore.a')));
+
+	// figure out all of the modules currently in use
+	this.modulesHash = hash(this.tiapp.modules.filter(function (m) {
+		return !m.platform || /^iphone|ipad|ios|commonjs$/.test(m.platform);
+	}).map(function (m) {
+		return m.id + ',' + m.platform + ',' + m.version;
+	}).join('|'));
+
+	// check if we need to do a rebuild
+	this.forceRebuild = this.checkIfShouldForceRebuild();
+
+	// now that we've read the build manifest, delete it so if this build
+	// becomes incomplete, the next build will be a full rebuild
+	fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
+
+	next();
 };
 
 iOSBuilder.prototype.copyDirSync = function copyDirSync(src, dest, opts) {
@@ -1347,28 +1643,6 @@ iOSBuilder.prototype.preparePhase = function preparePhase(next) {
 	// recreate the build directory (<project dir>/build/[iphone|ios]/assets)
 	fs.existsSync(this.assetsDir) && wrench.rmdirSyncRecursive(this.assetsDir);
 	wrench.mkdirSyncRecursive(this.assetsDir);
-
-	// read the build manifest from the last time we built, if exists
-	this.buildManifest = {};
-	this.buildManifestFile = path.join(this.buildDir, 'build-manifest.json');
-	if (fs.existsSync(this.buildManifestFile)) {
-		try {
-			this.buildManifest = JSON.parse(fs.readFileSync(this.buildManifestFile)) || {};
-		} catch (e) {}
-	}
-
-	// determine the libTiCore hash
-	this.libTiCoreHash = this.hashFile(path.join(this.titaniumIosSdkPath, 'libTiCore.a'));
-
-	// figure out all of the modules currently in use
-	this.modulesHash = crypto.createHash('md5').update(this.tiapp.modules.filter(function (m) {
-		return !m.platform || /^iphone|ipad|commonjs$/.test(m.platform);
-	}).map(function (m) {
-		return m.id + ',' + m.platform + ',' + m.version;
-	}).join('|')).digest('hex');
-
-	// check if we need to do a rebuild
-	this.forceRebuild = this.checkIfShouldForceRebuild();
 
 	next();
 };
@@ -1760,253 +2034,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 	fs.writeFileSync(path.join(this.buildDir, 'module.xcconfig'), '// this is a generated file - DO NOT EDIT\n\n');
 };
 
-iOSBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForceRebuild() {
-	var manifest = this.buildManifest;
-
-	if (this.cli.argv.force) {
-		this.logger.info(__('Forcing rebuild: %s flag was set', '--force'.cyan));
-		return true;
-	}
-
-	if (!fs.existsSync(this.buildManifestFile)) {
-		// if no .version file, rebuild!
-		this.logger.info(__('Forcing rebuild: %s does not exist', this.buildManifestFile.cyan));
-		return true;
-	}
-
-	// check if the target changed
-	if (this.target != manifest.target) {
-		this.logger.info(__('Forcing rebuild: target changed since last build'));
-		this.logger.info('  ' + __('Was: %s', this.buildManifest.target));
-		this.logger.info('  ' + __('Now: %s', this.target));
-		return true;
-	}
-
-	if (fs.existsSync(this.xcodeProjectConfigFile)) {
-		// we have a previous build, see if the Titanium SDK changed
-		var conf = fs.readFileSync(this.xcodeProjectConfigFile).toString(),
-			versionMatch = conf.match(/TI_VERSION\=([^\n]*)/),
-			idMatch = conf.match(/TI_APPID\=([^\n]*)/);
-
-		if (versionMatch && !appc.version.eq(versionMatch[1], this.titaniumSdkVersion)) {
-			this.logger.info(__("Forcing rebuild: last build was under Titanium SDK version %s and we're compiling for version %s", versionMatch[1].cyan, this.titaniumSdkVersion.cyan));
-			return true;
-		}
-
-		if (idMatch && idMatch[1] != this.tiapp.id) {
-			this.logger.info(__("Forcing rebuild: app id changed from %s to %s", idMatch[1].cyan, this.tiapp.id.cyan));
-			return true;
-		}
-	}
-
-	if (!fs.existsSync(this.xcodeAppDir)) {
-		this.logger.info(__('Forcing rebuild: %s does not exist', this.xcodeAppDir.cyan));
-		return true;
-	}
-
-	// check that we have a libTiCore hash
-	if (!manifest.tiCoreHash) {
-		this.logger.info(__('Forcing rebuild: incomplete version file %s', this.buildVersionFile.cyan));
-		return true;
-	}
-
-	// check if the libTiCore hashes are different
-	if (this.libTiCoreHash != manifest.tiCoreHash) {
-		this.logger.info(__('Forcing rebuild: libTiCore hash changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.tiCoreHash));
-		this.logger.info('  ' + __('Now: %s', this.libTiCoreHash));
-		return true;
-	}
-
-	// check if the titanium sdk paths are different
-	if (manifest.iosSdkPath != this.titaniumIosSdkPath) {
-		this.logger.info(__('Forcing rebuild: Titanium SDK path changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.iosSdkPath));
-		this.logger.info('  ' + __('Now: %s', this.titaniumIosSdkPath));
-		return true;
-	}
-
-	// check if the device family has changed (i.e. was universal, now iphone)
-	if (manifest.deviceFamily != this.deviceFamily) {
-		this.logger.info(__('Forcing rebuild: device family changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.deviceFamily));
-		this.logger.info('  ' + __('Now: %s', this.deviceFamily));
-		return true;
-	}
-
-	// check the git hashes are different
-	if (!manifest.gitHash || manifest.gitHash != ti.manifest.githash) {
-		this.logger.info(__('Forcing rebuild: githash changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.gitHash));
-		this.logger.info('  ' + __('Now: %s', ti.manifest.githash));
-		return true;
-	}
-
-	// check if the modules hashes are different
-	if (this.modulesHash != manifest.modulesHash) {
-		this.logger.info(__('Forcing rebuild: modules hash changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.modulesHash));
-		this.logger.info('  ' + __('Now: %s', this.modulesHash));
-		return true;
-	}
-
-	// next we check if any tiapp.xml values changed so we know if we need to reconstruct the main.m
-	if (this.tiapp.name != manifest.name) {
-		this.logger.info(__('Forcing rebuild: tiapp.xml project name changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.name));
-		this.logger.info('  ' + __('Now: %s', this.tiapp.name));
-		return true;
-	}
-
-	if (this.tiapp.id != manifest.id) {
-		this.logger.info(__('Forcing rebuild: tiapp.xml app id changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.id));
-		this.logger.info('  ' + __('Now: %s', this.tiapp.id));
-		return true;
-	}
-
-	if (!this.tiapp.analytics != !manifest.analytics) {
-		this.logger.info(__('Forcing rebuild: tiapp.xml analytics flag changed since last build'));
-		this.logger.info('  ' + __('Was: %s', !!manifest.analytics));
-		this.logger.info('  ' + __('Now: %s', !!this.tiapp.analytics));
-		return true;
-	}
-	if (this.tiapp.publisher != manifest.publisher) {
-		this.logger.info(__('Forcing rebuild: tiapp.xml publisher changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.publisher));
-		this.logger.info('  ' + __('Now: %s', this.tiapp.publisher));
-		return true;
-	}
-
-	if (this.tiapp.url != manifest.url) {
-		this.logger.info(__('Forcing rebuild: tiapp.xml url changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.url));
-		this.logger.info('  ' + __('Now: %s', this.tiapp.url));
-		return true;
-	}
-
-	if (this.tiapp.version != manifest.version) {
-		this.logger.info(__('Forcing rebuild: tiapp.xml version changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.version));
-		this.logger.info('  ' + __('Now: %s', this.tiapp.version));
-		return true;
-	}
-
-	if (this.tiapp.description != manifest.description) {
-		this.logger.info(__('Forcing rebuild: tiapp.xml description changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.description));
-		this.logger.info('  ' + __('Now: %s', this.tiapp.description));
-		return true;
-	}
-
-	if (this.tiapp.copyright != manifest.copyright) {
-		this.logger.info(__('Forcing rebuild: tiapp.xml copyright changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.copyright));
-		this.logger.info('  ' + __('Now: %s', this.tiapp.copyright));
-		return true;
-	}
-
-	if (this.tiapp.guid != manifest.guid) {
-		this.logger.info(__('Forcing rebuild: tiapp.xml guid changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.guid));
-		this.logger.info('  ' + __('Now: %s', this.tiapp.guid));
-		return true;
-	}
-
-	if (this.forceCopy != manifest.forceCopy) {
-		this.logger.info(__('Forcing rebuild: force copy flag changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.forceCopy));
-		this.logger.info('  ' + __('Now: %s', this.forceCopy));
-		return true;
-	}
-
-	if (this.forceCopyAll != manifest.forceCopyAll) {
-		this.logger.info(__('Forcing rebuild: force copy all flag changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.forceCopyAll));
-		this.logger.info('  ' + __('Now: %s', this.forceCopyAll));
-		return true;
-	}
-
-	return false;
-};
-
-iOSBuilder.prototype.detectModules = function detectModules(next) {
-	this.modules = [];
-	this.commonJsModules = [];
-	this.nativeLibModules = [];
-
-	if (!this.tiapp.modules || !this.tiapp.modules.length) {
-		this.logger.info(__('No Titanium Modules required, continuing'));
-		next();
-		return;
-	}
-
-	appc.timodule.find(this.tiapp.modules, ['iphone', 'ios'], this.deployType, this.titaniumSdkVersion, this.moduleSearchPaths, this.logger, function (modules) {
-		if (modules.missing.length) {
-			this.logger.error(__('Could not find all required Titanium Modules:'))
-			modules.missing.forEach(function (m) {
-				this.logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t deploy-type: ' + m.deployType);
-			}, this);
-			this.logger.log();
-			process.exit(1);
-		}
-
-		if (modules.incompatible.length) {
-			this.logger.error(__('Found incompatible Titanium Modules:'));
-			modules.incompatible.forEach(function (m) {
-				this.logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + m.minsdk);
-			}, this);
-			this.logger.log();
-			process.exit(1);
-		}
-
-		if (modules.conflict.length) {
-			this.logger.error(__('Found conflicting Titanium modules:'));
-			modules.conflict.forEach(function (m) {
-				this.logger.error('   ' + __('Titanium module "%s" requested for both iOS and CommonJS platforms, but only one may be used at a time.', m.id));
-			}, this);
-			this.logger.log();
-			process.exit(1);
-		}
-
-		this.modules = modules.found;
-
-		var hashes = [];
-
-		modules.found.forEach(function (module) {
-			if (module.platform.indexOf('commonjs') != -1) {
-				this.commonJsModules.push(module);
-			} else {
-				module.libName = 'lib' + module.id.toLowerCase() + '.a',
-				module.libFile = path.join(module.modulePath, module.libName);
-
-				if (!fs.existsSync(module.libFile)) {
-					this.logger.error(__('Module %s version %s is missing library file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
-					process.exit(1);
-				}
-
-				hashes.push(module.hash = this.hashFile(module.libFile));
-
-				this.logger.info(__('Detected third-party native iOS module: %s version %s', module.id.cyan, (module.manifest.version || 'latest').cyan));
-				this.nativeLibModules.push(module);
-			}
-		}, this);
-
-		// check if any native modules were added, updated, or removed
-		if (this.buildManifest) {
-			this.nativeModulesHash = crypto.createHash('md5').update(hashes.sort().join(',')).digest('hex');
-			if (this.nativeModulesHash != this.buildManifest.nativeModulesHash) {
-				this.logger.info(__('Forcing rebuild: native modules hash changed since last build'));
-				this.logger.info('  ' + __('Was: %s', this.buildManifest.nativeModulesHash));
-				this.logger.info('  ' + __('Now: %s', this.nativeModulesHash));
-				this.forceRebuild = true;
-			}
-		}
-
-		next();
-	}.bind(this));
-};
-
 iOSBuilder.prototype.injectApplicationDefaults = function injectApplicationDefaults(next) {
 	var file = path.join(this.buildDir, 'Classes', 'ApplicationDefaults.m'),
 		exists = fs.existsSync(file),
@@ -2106,6 +2133,8 @@ iOSBuilder.prototype.copyGraphics = function copyGraphics(next) {
 
 iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 	this.cli.createHook('build.ios.writeBuildManifest', this, function (manifest, cb) {
+		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
+		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
 		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), function () {
 			cb();
 		});

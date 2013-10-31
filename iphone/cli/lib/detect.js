@@ -208,13 +208,23 @@ exports.detect = function detect(config, opts, finished) {
 						};
 					}), function () {
 						if (Object.keys(xcodeInstalls).length) {
-							var validXcodes = 0;
+							var validXcodes = 0,
+								sdkCounter = 0,
+								simCounter = 0;
+
 							Object.keys(xcodeInstalls).forEach(function (x) {
 								if (xcodeInstalls[x].supported) {
 									// we're counting maybe's as valid
 									validXcodes++;
 								}
+								if (xcodeInstalls[x].sdks) {
+									sdkCounter += xcodeInstalls[x].sdks.length;
+								}
+								if (xcodeInstalls[x].sims) {
+									simCounter += xcodeInstalls[x].sims.length;
+								}
 							});
+
 							if (!validXcodes) {
 								issues.push({
 									id: 'IOS_NO_SUPPORTED_XCODE_FOUND',
@@ -222,12 +232,30 @@ exports.detect = function detect(config, opts, finished) {
 									message: __('There are no Xcode installations found that are supported by Titanium SDK %s.', manifestJson.version)
 								});
 							}
+
+							if (!sdkCounter) {
+								issues.push({
+									id: 'IOS_NO_IOS_SDKS',
+									type: 'error',
+									message: __('There are no iOS SDKs found') + '\n' +
+										__('Launch Xcode and download the mobile support packages.')
+								});
+							}
+
+							if (!sdkCounter) {
+								issues.push({
+									id: 'IOS_NO_IOS_SIMS',
+									type: 'error',
+									message: __('There are no iOS Simulators found') + '\n' +
+										__('You can install them from the Xcode Preferences > Downloads tab.')
+								});
+							}
 						} else {
 							issues.push({
 								id: 'IOS_XCODE_NOT_INSTALLED',
 								type: 'error',
 								message: __('No Xcode installations found.') + '\n' +
-									__('You will need to login into %s with your Apple Download account and download the latest Xcode version.',
+									__('You need to login into %s with your Apple Download account and download the latest Xcode version.',
 										'__https://developer.apple.com/ios/manage/certificates/team/index.action__')
 							});
 						}

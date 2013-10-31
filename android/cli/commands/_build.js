@@ -119,6 +119,16 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
 					assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
 
+					// make sure we have an Android SDK and some Android targets
+					if (!Object.keys(androidInfo.targets).filter(function (id) {
+							var t = androidInfo.targets[id];
+							return t.type == 'platform' && t['api-level'] > _t.minSupportedApiLevel;
+					}).length) {
+						logger.error(__('No Android SDK targets found.') + '\n');
+						logger.log(__('Please download SDK targets (api level %s or newer) via Android SDK Manager and try again.', _t.minSupportedApiLevel) + '\n');
+						process.exit(1);
+					}
+
 					// if --android-sdk was not specified, then we simply try to set a default android sdk
 					if (!cli.argv['android-sdk']) {
 						var androidSdkPath = config.android && config.android.sdkPath;
@@ -734,16 +744,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.allowDebugging = true;
 			this.allowProfiling = true;
 			this.proguard = false;
-	}
-
-	// make sure we have an Android SDK and some Android targets
-	if (Object.keys(this.androidInfo.targets).filter(function (id) {
-			var t = this.androidInfo.targets[id];
-			return t.type == 'platform' && t['api-level'] > this.minSupportedApiLevel;
-	}.bind(this)).length <= 0) {
-		logger.error(__('No Android SDK targets found.') + '\n');
-		logger.log(__('Please download SDK targets (api level %s or newer) via Android SDK Manager and try again.', this.minSupportedApiLevel) + '\n');
-		process.exit(1);
 	}
 
 	// check the Android specific app id rules
@@ -1427,7 +1427,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
 
 	var deviceId = this.deviceId = argv['device-id'];
-
+this.devices
 	if (this.target == 'emulator') {
 		var emu = this.devices.filter(function (e) { return e.name == deviceId; }).shift();
 		if (!emu) {
