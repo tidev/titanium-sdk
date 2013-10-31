@@ -37,7 +37,16 @@ exports.detectEmulators = function detectEmulators(config, opts, finished) {
 		opts = {};
 	}
 
-	new EmulatorManager(config).detect(opts, finished);
+	new EmulatorManager(config).detect(opts, function (err, emus) {
+		if (err) {
+			finished(err);
+		} else {
+			finished(null, emus.map(function (e) {
+				e.id = e.name;
+				return e;
+			}));
+		}
+	});
 };
 
 /**
@@ -47,6 +56,11 @@ exports.detectEmulators = function detectEmulators(config, opts, finished) {
  */
 exports.detectDevices = function detectDevices(config, finished) {
 	new ADB(config).devices(function (err, devices) {
-		finished(null, devices.filter(function (d) { return !d.emulator }));
+		finished(null, devices.filter(function (d) {
+			return !d.emulator;
+		}).map(function (d) {
+			d.name = d.model || d.manufacturer || d.name || ('Android ' + d.release + ' Device');
+			return d;
+		}));
 	});
 };
