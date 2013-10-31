@@ -58,7 +58,7 @@ examples:
                 attributes: [
                     // Underlines text
                     {
-                        type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_TYLE,
+                        type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
                         value: Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
                         range: [0, text.length]
                     },
@@ -118,7 +118,7 @@ examples:
 
             // Underlines text
             attr.addAttribute({
-                type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_TYLE,
+                type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
                 value: Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
                 range: [0, text.length]
             });
