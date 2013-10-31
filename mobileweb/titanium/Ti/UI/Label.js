@@ -29,6 +29,7 @@ define(['Ti/_/declare', 'Ti/_/UI/FontWidget', 'Ti/_/dom', 'Ti/_/css', 'Ti/_/styl
 			};
 
 			this._addStyleableDomNode(textContainerDomNode);
+			setStyle(textContainerDomNode, 'overflow', 'visible');
 			this.wordWrap = true;
 		},
 
