@@ -20,7 +20,7 @@ properties:
         The text applied to the attributed string.
     description: |
         The `text` property must be set in the constructor and cannot be changed.
-   type: String
+    type: String
 
   - name: attributes
     summary: |
