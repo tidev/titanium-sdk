@@ -632,7 +632,7 @@ exports.detectDevices = function detectDevices(finished) {
 		} else {
 			devices.unshift({
 				udid: 'itunes',
-				name: __('iTunes Device Sync')
+				name: __('iTunes Sync')
 			});
 			finished(null, devices.map(function (d) {
 				d.id = d.udid;

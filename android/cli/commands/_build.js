@@ -407,14 +407,20 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						},
 						required: true,
 						validate: function (device, callback) {
+							var dev = device.toLowerCase();
+							if (cli.argv.target == 'device' && dev == 'all') {
+								// we let 'all' slide by
+								return callback(null, dev);
+							}
 							findTargetDevices(cli.argv.target, function (err, devices) {
-								if (!devices.some(function (d) { return d.id == device; })) {
-									return callback(
-										cli.argv.target ? new Error(__('Invalid Android device "%s"', device))
-											: new Error(__('Invalid Android emulator "%s"', device))
-									);
+								var i = 0,
+									l = devices.length;
+								for (; i < l; i++) {
+									if (devices[i].id.toLowerCase() == dev) {
+										return callback(null, devices[i].id);
+									}
 								}
-								callback(null, device);
+								callback(new Error(cli.argv.target ? __('Invalid Android device "%s"', device) : __('Invalid Android emulator "%s"', device)));
 							});
 						},
 						verifyIfRequired: function (callback) {
@@ -1376,7 +1382,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'writeBuildManifest',
 
 		function (next) {
-			if (!this.buildOnly) {
+			if (!this.buildOnly && this.target == 'simulator') {
 				var delta = appc.time.prettyDiff(this.cli.startTime, Date.now());
 				this.logger.info(__('Finished building the application in %s', delta.cyan));
 			}
@@ -2063,7 +2069,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 					default:
 						// normal file, just copy it into the build/android/bin/assets directory
-						copyFile.call(this, from, to, next);
+						this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
+							copyFile.call(this, from, to, cb);
+						})(from, to, next);
 				}
 			};
 		}), done);
@@ -2224,9 +2232,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						? __('Copying and minifying %s => %s', from.cyan, to.cyan)
 						: __('Copying %s => %s', from.cyan, to.cyan));
 
-					var dir = path.dirname(to);
-					fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-					fs.writeFile(to, r.contents, done);
+					this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb) {
+						var dir = path.dirname(to);
+						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+						fs.writeFile(to, r.contents, cb);
+					})(r, from, to, done);
 				} else {
 					// no need to parse the AST, so just copy the file
 					copyFile.call(this, from, to, done);
