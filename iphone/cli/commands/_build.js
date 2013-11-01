@@ -2789,6 +2789,18 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 				}
 			};
 		}), function () {
+			// write the properties file
+			var appPropsFile = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, '_app_props_.json'),
+				props = {};
+			Object.keys(this.tiapp.properties).forEach(function (prop) {
+				props[prop] = this.tiapp.properties[prop].value;
+			}, this);
+			fs.writeFileSync(
+				appPropsFile,
+				JSON.stringify(props)
+			);
+			this.encryptJS && jsFilesToEncrypt.push('_app_props_.json');
+
 			if (!jsFilesToEncrypt.length) {
 				// nothing to encrypt, continue
 				return finished();

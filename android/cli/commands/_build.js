@@ -2243,6 +2243,19 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 			};
 		}), function () {
+			// write the properties file
+			var appPropsFile = path.join(this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir, '_app_props_.json'),
+				props = {};
+			Object.keys(this.tiapp.properties).forEach(function (prop) {
+				props[prop] = this.tiapp.properties[prop].value;
+			}, this);
+			fs.writeFileSync(
+				appPropsFile,
+				JSON.stringify(props)
+			);
+			this.encryptJS && jsFilesToEncrypt.push('_app_props_.json');
+			delete this.lastBuildFiles[appPropsFile];
+
 			if (!jsFilesToEncrypt.length) {
 				// nothing to encrypt, continue
 				return next();
@@ -2307,6 +2320,8 @@ AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(ca
 	this.jsFilesToEncrypt.forEach(function (file) {
 		index['Resources/' + file] = 1;
 	});
+
+	delete index['Resources/_app_props_.json'];
 
 	fs.existsSync(destFile) && fs.unlinkSync(destFile);
 	fs.writeFile(destFile, JSON.stringify(index), callback);
