@@ -526,7 +526,8 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							prompt: function (callback) {
 								var provisioningProfiles = {},
 									appId = cli.tiapp.id,
-									maxAppId = 0;
+									maxAppId = 0,
+									pp;
 
 								function prep(a) {
 									return a.filter(function (p) {
@@ -548,10 +549,48 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								}
 
 								if (cli.argv.target == 'device') {
-									provisioningProfiles[__('Available Development UUIDs:')] = prep(iosInfo.provisioningProfiles.development);
+									if (iosInfo.provisioningProfiles.development.length) {
+										pp = prep(iosInfo.provisioningProfiles.development);
+										if (pp.length) {
+											provisioningProfiles[__('Available Development UUIDs:')] = pp;
+										} else {
+											logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s"', appId) + '\n');
+											logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
+												'https://developer.apple.com/account/ios/certificate/certificateList.action?type=development'.cyan) + '\n');
+											process.exit(1);
+										}
+									} else {
+										logger.error(__('Unable to find any development provisioning profiles') + '\n');
+										logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
+											'https://developer.apple.com/account/ios/certificate/certificateList.action?type=development'.cyan) + '\n');
+										process.exit(1);
+									}
 								} else if (cli.argv.target == 'dist-appstore' || cli.argv.target == 'dist-adhoc') {
-									provisioningProfiles[__('Available Distribution UUIDs:')] =  prep(iosInfo.provisioningProfiles.distribution);
-									provisioningProfiles[__('Available Adhoc UUIDs:')] = prep(iosInfo.provisioningProfiles.adhoc);
+									if (iosInfo.provisioningProfiles.distribution.length || iosInfo.provisioningProfiles.adhoc.length) {
+										pp = prep(iosInfo.provisioningProfiles.distribution);
+										var valid = pp.length;
+										if (pp.length) {
+											provisioningProfiles[__('Available Distribution UUIDs:')] = pp;
+										}
+
+										pp = prep(iosInfo.provisioningProfiles.adhoc);
+										valid += pp.length;
+										if (pp.length) {
+											provisioningProfiles[__('Available Adhoc UUIDs:')] = pp;
+										}
+
+										if (!valid) {
+											logger.error(__('Unable to find any non-expired distribution or adhoc provisioning profiles that match the app id "%s".', appId) + '\n');
+											logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
+												'https://developer.apple.com/account/ios/certificate/certificateList.action?type=development'.cyan) + '\n');
+											process.exit(1);
+										}
+									} else {
+										logger.error(__('Unable to find any distribution or adhoc provisioning profiles'));
+										logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
+											'https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution'.cyan) + '\n');
+										process.exit(1);
+									}
 								}
 
 								callback(fields.select({
@@ -629,19 +668,23 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									case 'dist-adhoc':
 										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DIST_CERTS_FOUND');
 										// TODO: assert there is at least one distribution or adhoc provisioning profile
-										iosInfo.provisioningProfiles.distribution.forEach(function (d) {
-											provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
-										});
-										iosInfo.provisioningProfiles.adhoc.forEach(function (d) {
-											provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
-										});
+
 										_t.conf.options['output-dir'].required = true;
+
 										// purposely fall through!
 
 									case 'dist-appstore':
 										_t.conf.options['device-id'].required = false;
 										_t.conf.options['distribution-name'].required = true;
 										_t.conf.options['pp-uuid'].required = true;
+
+										// build lookup maps
+										iosInfo.provisioningProfiles.distribution.forEach(function (d) {
+											provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
+										});
+										iosInfo.provisioningProfiles.adhoc.forEach(function (d) {
+											provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
+										});
 								}
 							},
 							default: 'simulator',

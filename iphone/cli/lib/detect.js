@@ -509,7 +509,7 @@ exports.detect = function detect(config, opts, finished) {
 						type: 'warning',
 						message: __('Unable to find any valid iOS development provisioning profiles.') + '\n' +
 							__('This will prevent you from building apps for testing on iOS devices.') + '\n' +
-							__('You will need to login into %s with your Apple Download account, then create, download, and install a certificate.',
+							__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
 								'__https://developer.apple.com/account/ios/certificate/certificateList.action?type=development__')
 					});
 				}
@@ -520,7 +520,7 @@ exports.detect = function detect(config, opts, finished) {
 						type: 'warning',
 						message: __('Unable to find any valid iOS adhoc provisioning profiles.') + '\n' +
 							__('This will prevent you from packaging apps for adhoc distribution.') + '\n' +
-							__('You will need to login into %s with your Apple Download account, then create, download, and install a certificate.',
+							__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
 								'__https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution__')
 					});
 				}
@@ -531,7 +531,7 @@ exports.detect = function detect(config, opts, finished) {
 						type: 'warning',
 						message: __('Unable to find any valid iOS distribution provisioning profiles.') + '\n' +
 							__('This will prevent you from packaging apps for AppStore distribution.') + '\n' +
-							__('You will need to login into %s with your Apple Download account, then create, download, and install a certificate.',
+							__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
 								'__https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution__')
 					});
 				}
