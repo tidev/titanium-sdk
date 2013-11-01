@@ -427,6 +427,7 @@ function AndroidManifest(filename) {
 							switch (subtag) {
 								case 'activity':
 								case 'activity-alias':
+								case 'meta-data':
 								case 'receiver':
 								case 'service':
 								case 'provider':
