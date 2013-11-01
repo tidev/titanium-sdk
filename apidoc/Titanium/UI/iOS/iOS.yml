@@ -801,3 +801,103 @@ properties:
     permission: read-only
     since: "2.1.0"
 
+methods:
+  - name: createTransitionAnimation
+    summary: |
+        Creates a transition animation when opening or closing windows in a
+        <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
+    description: |
+        Use the object returned by this method with the Window's
+        [transitionAnimation](Titanium.UI.Window.transitionAnimation) property.
+
+        Supported on iOS 7 and later.
+    parameters:
+      - name: transition
+        summary: Dictionary specifying the transition animation.
+        type: transitionAnimationParam
+    returns:
+      - type: Titanium.Proxy
+    since: "3.2.0"
+    osver: {ios: {min: "7.0"}}
+
+---
+name: transitionAnimationParam
+summary: |
+    Dictionary specifying the transition animation used with the <Titanium.UI.iOS.createTransitionAnimation> method.
+    Only supported on iOS 7 and later.
+platforms: [iphone, ipad]
+since: "3.2.0"
+osver: {ios: {min: "7.0"}}
+
+examples:
+  - title: Simple Example
+    example: |
+        In this example, the red window opens with a transition animation, while closing it uses the
+        default behavior where it slides off screen.  To add a transition animation when the red
+        window closes, define a transition animation for the blue window.
+
+            var transition = Ti.UI.iOS.createTransitionAnimation({
+                duration: 300,
+                // The show transition makes the window opaque and rotates it correctly
+                transitionTo: {
+                    opacity: 1,
+                    duration: 300,
+                    transform: Ti.UI.create2DMatrix()
+                },
+                // The hide transition makes the window transparent and rotates it upside down
+                transitionFrom: {
+                    opacity: 0,
+                    duration: 300 / 2,
+                    transform: Ti.UI.create2DMatrix().rotate(180),
+                }
+            });
+
+            var win2 = Ti.UI.createWindow({
+                backgroundColor: 'red',
+                title: 'Red Window',
+                transitionAnimation: transition,
+                opacity: 0,
+                transform: Ti.UI.create2DMatrix().rotate(180)
+            });
+            var button2 = Ti.UI.createButton({
+                title: 'Close Red Window'
+            });
+            button2.addEventListener('click', function(){
+                nav.closeWindow(win2);
+                // In order to see the blue window again,
+                // need to reverse the transition animation
+                win1.opacity = 1;
+                win1.transform = Ti.UI.create2DMatrix().rotate(0);
+            });
+            win2.add(button2);
+
+            var win1 = Ti.UI.createWindow({
+                backgroundColor: 'blue',
+                title: 'Blue Window',
+                // Uncomment to use a transition animation when the blue window is closed
+                // transitionAnimation: transition
+            });
+            var button1 = Ti.UI.createButton({title: 'Open Red Window'});
+            button1.addEventListener('click', function(){
+                nav.openWindow(win2);
+            });
+            win1.add(button1);
+
+            var nav = Ti.UI.iOS.createNavigationWindow({
+                window: win1
+            });
+            nav.open();
+
+properties:
+  - name: duration
+    summary: Length of the transition in milliseconds.
+    type: Number
+
+  - name: transitionFrom
+    summary: Animation to hide the current window.
+    type: Titanium.UI.Animation
+
+  - name: tranistionTo
+    summary: Animation to show the new window.
+    type: Titanium.UI.Animation
+
