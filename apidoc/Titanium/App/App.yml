@@ -373,6 +373,16 @@ properties:
     permission: read-only
     exclude-platforms: [blackberry]
     
+  - name: forceSplashAsSnapshot
+    summary: Shows the application's splash screen on app resume.
+    description: |
+        Note: This only works on device.
+        When the app goes to the background a screenshot of the current app state is taken. When
+        the app resumes that screenshot is shown for brief moment. To disable this behavior, set
+        this property to `true` and the default splash screen will show on app resume instead.
+    type: Boolean
+    platforms: [iphone, ipad]
+
   - name: id
     summary: Application ID, from `tiapp.xml`. 
     description: |
