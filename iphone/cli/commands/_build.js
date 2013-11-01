@@ -2759,7 +2759,7 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 				}
 
 				// we have a js file that may be minified or encrypted
-				id = id.replace(/\.js$/, '_js');
+				id = id.replace(/\./g, '_');
 
 				// if we're encrypting the JavaScript, copy the files to the assets dir
 				// for processing later
