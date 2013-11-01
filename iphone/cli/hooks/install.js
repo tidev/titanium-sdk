@@ -80,7 +80,6 @@ exports.init = function (logger, config, cli) {
 									logger.info(__('Installing app on device: %s', device.name.cyan));
 									iosDevice.installApp(device.udid, builder.xcodeAppDir, function (err) {
 										if (err) {
-											logger.error(__('Failed to install app on device "%s"', device.name));
 											logger.error(err.message || err);
 										} else {
 											logger.info(__('App successfully installed on device: %s', device.name.cyan));
