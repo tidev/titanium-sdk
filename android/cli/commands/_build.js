@@ -280,7 +280,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						validate: function (value, callback) {
 							if (!value) {
 								callback(new Error(__('Invalid Android SDK path')));
-							} else if (_t.androidInfo.sdk && _t.androidInfo.sdk.path == value) {
+							} else if (_t.androidInfo.sdk && _t.androidInfo.sdk.path == afs.resolvePath(value)) {
 								// no sense doing the detection again
 								callback(null, value);
 							} else {
