@@ -1164,7 +1164,7 @@
 
 
     if ([recognizer numberOfTouchesRequired] == 2) {
-        if ([[self proxy] _hasListeners:@"touchstart"]) {
+        if ([[self proxy] _hasListeners:@"twofingertap"]) {
             [[self proxy] fireEvent:@"twofingertap" withObject:event];
         }
     }
