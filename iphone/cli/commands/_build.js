@@ -449,7 +449,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 											var expires = moment(opt.after),
 												day = expires.format('D'),
 												hour = expires.format('h');
-											return '  ' + num + appc.string.rpad(opt.name, maxDevCertLen + 1).cyan
+											return '  ' + num + appc.string.rpad(opt.name, maxDistCertLen + 1).cyan
 												+ (opt.after ? (' (' + __('expires %s', expires.format('MMM') + ' '
 												+ (day.length == 1 ? ' ' : '') + day + ', ' + expires.format('YYYY') + ' '
 												+ (hour.length == 1 ? ' ' : '') + hour + ':' + expires.format('mm:ss a'))
