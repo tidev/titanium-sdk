@@ -813,7 +813,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
     static NSDictionary* props;
     if(props == nil) {
-        NSString *tiAppPropertiesPath = [[TiHost resourcePath] stringByAppendingPathComponent:@"_ti_app.json"];
+        NSString *tiAppPropertiesPath = [[TiHost resourcePath] stringByAppendingPathComponent:@"_app_props_.json"];
         NSData *jsonData = [TiUtils loadAppResource: [NSURL fileURLWithPath:tiAppPropertiesPath]];
         if (jsonData==nil) {
             jsonData = [NSData dataWithContentsOfFile:tiAppPropertiesPath];

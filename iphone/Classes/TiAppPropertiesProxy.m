@@ -200,6 +200,10 @@ if ([self propertyExists:key] && [ [defaultsObject objectForKey:key] isEqual:val
 -(void)removeProperty:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSString);
+    if([[TiApp tiAppProperties] objectForKey:args] != nil) {
+        DebugLog(@"Cannot remove property \"%@\", it is read-only.", args);
+        return;
+    }
 	[defaultsObject removeObjectForKey:[TiUtils stringValue:args]];
 	[defaultsObject synchronize];
 }
@@ -213,13 +217,18 @@ if ([self propertyExists:key] && [ [defaultsObject objectForKey:key] isEqual:val
 
 -(id)hasProperty:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSString);
-	return [NSNumber numberWithBool:[self propertyExists:[TiUtils stringValue:args]]];
+    ENSURE_SINGLE_ARG(args,NSString);
+    BOOL inUserDefaults = [self propertyExists:[TiUtils stringValue:args]];
+    BOOL inTiAppProperties = [[TiApp tiAppProperties] objectForKey:args] != nil;
+    return NUMBOOL(inUserDefaults || inTiAppProperties);
 }
 
 -(id)listProperties:(id)args
 {
-	return [[defaultsObject dictionaryRepresentation] allKeys];
+    NSMutableArray *array = [NSMutableArray array];
+    [array addObjectsFromArray:[[defaultsObject dictionaryRepresentation] allKeys]];
+    [array addObjectsFromArray:[[TiApp tiAppProperties] allKeys]];
+    return array;
 }
 
 -(void) NSUserDefaultsDidChange
