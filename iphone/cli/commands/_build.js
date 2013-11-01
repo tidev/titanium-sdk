@@ -322,11 +322,11 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							required: true,
 							validate: function (device, callback) {
 								var dev = device.toLowerCase();
-								if (cli.argv.target == 'device' && dev == 'all') {
-									// we let 'all' slide by
-									return callback(null, dev);
-								}
 								findTargetDevices(cli.argv.target, function (err, devices) {
+									if (cli.argv.target == 'device' && dev == 'all') {
+										// we let 'all' slide by
+										return callback(null, dev);
+									}
 									var i = 0,
 										l = devices.length;
 									for (; i < l; i++) {

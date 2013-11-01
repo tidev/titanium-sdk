@@ -175,6 +175,13 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						callback(err);
 					} else {
 						this.devices = devices.filter(function (d) { return !d.emulator && d.state == 'device'; });
+						if (this.devices.length > 1) {
+							// we have more than 1 device, so we should show 'all'
+							this.devices.push({
+								id: 'all',
+								model: 'All Devices'
+							});
+						}
 						callback(null, targetDeviceCache[target] = this.devices.map(function (d) {
 							return {
 								name: d.model || d.manufacturer,
@@ -386,7 +393,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 									promptLabel: promptLabel,
 									formatters: {
 										option: function (opt, idx, num) {
-											return '  ' + num + opt.name.cyan + ' (' + opt.version + ')' + (opt.googleApis
+											return '  ' + num + opt.name.cyan + (opt.version ? ' (' + opt.version + ')' : '') + (opt.googleApis
 												? (' (' + __('Google APIs supported') + ')').grey
 												: opt.googleApis === null
 													? (' (' + __('Google APIs support unknown') + ')').grey
@@ -408,11 +415,11 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						required: true,
 						validate: function (device, callback) {
 							var dev = device.toLowerCase();
-							if (cli.argv.target == 'device' && dev == 'all') {
-								// we let 'all' slide by
-								return callback(null, dev);
-							}
 							findTargetDevices(cli.argv.target, function (err, devices) {
+								if (cli.argv.target == 'device' && dev == 'all') {
+									// we let 'all' slide by
+									return callback(null, dev);
+								}
 								var i = 0,
 									l = devices.length;
 								for (; i < l; i++) {
@@ -1067,27 +1074,29 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			process.exit(1);
 		}
 
-		var device = this.devices.filter(function (d) { return d.id = deviceId; }).shift();
-		if (Array.isArray(device.abi) && !device.abi.some(function (a) { return this.abis.indexOf(a) != -1; }.bind(this))) {
-			if (this.target == 'emulator') {
-				logger.error(__n('The emulator "%%s" does not support the desired ABI %%s', 'The emulator "%%s" does not support the desired ABIs %%s', this.abis.length, device.name, '"' + this.abis.join('", "') + '"'));
-			} else {
-				logger.error(__n('The device "%%s" does not support the desired ABI %%s', 'The device "%%s" does not support the desired ABIs %%s', this.abis.length, device.model || device.manufacturer, '"' + this.abis.join('", "') + '"'));
+		var devices = deviceId == 'all' ? this.devices : this.devices.filter(function (d) { return d.id = deviceId; });
+		devices.forEach(function (device) {
+			if (Array.isArray(device.abi) && !device.abi.some(function (a) { return this.abis.indexOf(a) != -1; }.bind(this))) {
+				if (this.target == 'emulator') {
+					logger.error(__n('The emulator "%%s" does not support the desired ABI %%s', 'The emulator "%%s" does not support the desired ABIs %%s', this.abis.length, device.name, '"' + this.abis.join('", "') + '"'));
+				} else {
+					logger.error(__n('The device "%%s" does not support the desired ABI %%s', 'The device "%%s" does not support the desired ABIs %%s', this.abis.length, device.model || device.manufacturer, '"' + this.abis.join('", "') + '"'));
+				}
+				logger.error(__('Supported ABIs: %s', device.abi.join(', ')) + '\n');
+
+				logger.log(__('You need to add at least one of the device\'s supported ABIs to the tiapp.xml'));
+				logger.log();
+				logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+				logger.log('    <!-- snip -->'.grey);
+				logger.log('    <android>'.grey);
+				logger.log(('        <abi>' + this.abis.concat(device.abi).join(',') + '</abi>').magenta);
+				logger.log('    </android>'.grey);
+				logger.log('</ti:app>'.grey);
+				logger.log();
+
+				process.exit(1);
 			}
-			logger.error(__('Supported ABIs: %s', device.abi.join(', ')) + '\n');
-
-			logger.log(__('You need to add at least one of the device\'s supported ABIs to the tiapp.xml'));
-			logger.log();
-			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-			logger.log('    <!-- snip -->'.grey);
-			logger.log('    <android>'.grey);
-			logger.log(('        <abi>' + this.abis.concat(device.abi).join(',') + '</abi>').magenta);
-			logger.log('    </android>'.grey);
-			logger.log('</ti:app>'.grey);
-			logger.log();
-
-			process.exit(1);
-		}
+		}, this);
 	}
 
 	// validate debugger and profiler options
