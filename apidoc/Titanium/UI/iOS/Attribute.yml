@@ -20,7 +20,7 @@ properties:
           * <Titanium.UI.iOS.ATTRIBUTE_LIGATURE>
           * <Titanium.UI.iOS.ATTRIBUTE_KERN>
           * <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>
-          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_TYLE>
+          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE>
           * <Titanium.UI.iOS.ATTRIBUTE_STROKE_COLOR>
           * <Titanium.UI.iOS.ATTRIBUTE_STROKE_WIDTH>
           * <Titanium.UI.iOS.ATTRIBUTE_SHADOW>
@@ -69,7 +69,7 @@ properties:
         These can be combined:
 
             {
-                type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_TYLE,
+                type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
                 value: Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE | Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH,
                 range: [0, 100]
             }

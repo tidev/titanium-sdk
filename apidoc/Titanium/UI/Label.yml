@@ -152,7 +152,7 @@ properties:
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Label.shadowColor) and [shadowOffset](Titanium.UI.Label.shadowOffset).
     type: Number
-    platforms: [android]
+    platforms: [android, mobileweb]
     since: "3.2.0"
 
   - name: text

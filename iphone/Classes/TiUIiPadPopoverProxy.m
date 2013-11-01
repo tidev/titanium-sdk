@@ -104,7 +104,7 @@ static NSArray* popoverSequence;
     if (contentViewProxy != nil) {
         return SizeConstraintViewWithSizeAddingResizing([contentViewProxy layoutProperties], contentViewProxy, screenSize , NULL);
     }
-    return SizeConstraintViewWithSizeAddingResizing([self layoutProperties], self, screenSize , NULL);
+    return SizeConstraintViewWithSizeAddingResizing(&popoverLayoutProperties, self, screenSize , NULL);
 }
 
 -(UINavigationController *)navigationController
@@ -247,7 +247,8 @@ static NSArray* popoverSequence;
     if (contentViewProxy != nil) {
         [contentViewProxy setWidth:value];
     } else {
-        [super setWidth:value];
+        popoverLayoutProperties.width = TiDimensionFromObject(value);
+        [self replaceValue:value forKey:@"width" notification:NO];
     }
 	if (popoverController != nil)
 	{
@@ -260,12 +261,38 @@ static NSArray* popoverSequence;
     if (contentViewProxy != nil) {
         [contentViewProxy setHeight:value];
     } else {
-        [super setHeight:value];
+        popoverLayoutProperties.height = TiDimensionFromObject(value);
+        [self replaceValue:value forKey:@"height" notification:NO];
     }
 	if (popoverController != nil)
 	{
 		TiThreadPerformOnMainThread(^{[self updateContentSize];}, NO);
 	}
+}
+
+-(void)setTop:(id)value
+{
+    DeveloperLog(@"[WARN] PopoverProxy only supports width and height properties");
+}
+
+-(void)setBottom:(id)value
+{
+    DeveloperLog(@"[WARN] PopoverProxy only supports width and height properties");
+}
+
+-(void)setLeft:(id)value
+{
+    DeveloperLog(@"[WARN] PopoverProxy only supports width and height properties");
+}
+
+-(void)setRight:(id)value
+{
+    DeveloperLog(@"[WARN] PopoverProxy only supports width and height properties");
+}
+
+-(void)setCenter:(id)value
+{
+    DeveloperLog(@"[WARN] PopoverProxy only supports width and height properties");
 }
 
 -(void)setContentView:(id)value

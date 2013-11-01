@@ -32,6 +32,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 {
 	UIWindow *window;
 	UIImageView *loadView;
+	UIImageView *splashScreenImage;
 	BOOL loaded;
 
 	TiContextGroupRef contextGroup;
@@ -60,6 +61,8 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	NSMutableArray *runningServices;
 	NSDictionary *localNotification;
 }
+
+@property (nonatomic) BOOL forceSplashAsSnapshot;
 
 /**
  Returns application's primary window.

@@ -375,9 +375,6 @@ static void ASReadStreamCallBackCUR
 		{
 			state = aStatus;
 			[delegate playbackStateChanged:self];
-			if (state == AS_STOPPED) {
-				seekTime = 0;
-			}
 		}
 	}
 }

@@ -10,6 +10,14 @@
 #import "Webcolor.h"
 #ifdef USE_TI_UIIOS
  
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+#import "TiUIiOSTransitionAnimationProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+#import "TiUIiOSAttributedStringProxy.h"
+#endif
+
 #ifdef USE_TI_UIIOSADVIEW
 	#import "TiUIiOSAdViewProxy.h"
     #import <iAd/iAd.h>
@@ -58,13 +66,6 @@
 #ifdef USE_TI_UIIOSDYNAMICITEMBEHAVIOR
 #import "TiDynamicItemBehavior.h"
 #endif
-#ifdef USE_TI_UIIOSTRANSITIONANIMATION
-#import "TiUIiOSTransitionAnimationProxy.h"
-#endif
-
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-#import "TiUIiOSAttributedStringProxy.h"
-#endif
 #endif
 
 @implementation TiUIiOSProxy
@@ -82,7 +83,7 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_BACKGROUND_COLOR, AttributeNameBackgroundColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_LIGATURE, AttributeNameLigature);
 MAKE_SYSTEM_PROP(ATTRIBUTE_KERN, AttributeNameKern);
 MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_STYLE, AttributeNameStrikethroughStyle);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINES_TYLE, AttributeNameUnderlineStyle);
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINES_STYLE, AttributeNameUnderlineStyle);
 MAKE_SYSTEM_PROP(ATTRIBUTE_STROKE_COLOR, AttributeNameStrokeColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_STROKE_WIDTH, AttributeNameStrokeWidth);
 MAKE_SYSTEM_PROP(ATTRIBUTE_SHADOW, AttributeNameShadow);
