@@ -102,7 +102,7 @@ properties:
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
-  - name: ATTRIBUTE_UNDERLINES_TYLE
+  - name: ATTRIBUTE_UNDERLINES_STYLE
     summary: |
         Use with [Attribute.type](Attribute.type) to specify a type.
     description: |
