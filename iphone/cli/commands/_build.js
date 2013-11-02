@@ -740,7 +740,6 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				cli.argv.tall = !!this.devices[i].tall;
 				cli.argv['sim-64bit'] = !!this.devices[i]['64bit'];
 				cli.argv['sim-type'] = this.devices[i].type;
-				dump(cli.argv);
 				break;
 			}
 		}
@@ -2069,7 +2068,7 @@ iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 		iosSdkPath: this.titaniumIosSdkPath,
 		tiCoreHash: this.libTiCoreHash,
 		modulesHash: this.modulesHash,
-		nativeModulesHash: this.nativeModulesHash,
+		modulesNativeHash: this.modulesNativeHash,
 		gitHash: ti.manifest.githash,
 		outputDir: this.cli.argv['output-dir'],
 		name: this.tiapp.name,
