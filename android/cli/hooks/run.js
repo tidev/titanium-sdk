@@ -16,7 +16,7 @@ var ADB = require('titanium-sdk/lib/adb'),
 exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
-	var deviceInfo;
+	var deviceInfo = [];
 
 	cli.on('build.pre.compile', {
 		priority: 8000,
