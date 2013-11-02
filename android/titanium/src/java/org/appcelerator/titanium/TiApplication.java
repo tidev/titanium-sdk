@@ -75,7 +75,6 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	private static final long TIME_SEPARATION_ANALYTICS = 1000;
 	private static final int MSG_SEND_ANALYTICS = 100;
 	private static final long SEND_ANALYTICS_DELAY = 30000; // Time analytics send request sits in queue before starting service.
-	private static final String PROPERTY_DEPLOY_TYPE = "ti.deploytype";
 	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
 	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
 	private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
@@ -364,7 +363,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	private void loadAppProperties() {
 		// Load the JSON file:
-		String appPropertiesString = KrollAssetHelper.readAsset("Resources/_app_properties_.json");
+		String appPropertiesString = KrollAssetHelper.readAsset("Resources/_app_props_.json");
 		if (appPropertiesString != null) {
 			try {
 				TiProperties.setSystemProperties(new JSONObject(appPropertiesString));
@@ -399,9 +398,6 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
 
-		if (getDeployType().equals(DEPLOY_TYPE_DEVELOPMENT)) {
-			deployData = new TiDeployData(this);
-		}
 		tempFileHelper = new TiTempFileHelper(this);
 	}
 
@@ -434,6 +430,8 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	public void postAppInfo()
 	{
+		deployData = new TiDeployData(this);
+
 		TiPlatformHelper.initialize();
 		TiFastDev.initFastDev(this);
 	}
@@ -751,7 +749,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	public String getDeployType()
 	{
-		return getAppProperties().getString(PROPERTY_DEPLOY_TYPE, DEPLOY_TYPE_DEVELOPMENT);
+		return getAppInfo().getDeployType();
 	}
 
 	/**
