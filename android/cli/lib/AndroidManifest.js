@@ -16,7 +16,10 @@ var appc = require('node-appc'),
 	defaultDOMParserArgs = { errorHandler: function(){} },
 
 	tags = {
-		'application': /^(activity|activity-alias|provider|receiver|service|uses\-library)$/
+		// according to http://developer.android.com/guide/topics/manifest/meta-data-element.html,
+		// <meta-data> is not intended to be a direct descendent of <application> but it is required
+		// that we support it so that we can pass a Google Maps API key to their library
+		'application': /^(activity|activity-alias|meta-data|provider|receiver|service|uses\-library)$/
 	},
 
 	tagAttrs = {
@@ -82,6 +85,16 @@ function toXml(dom, parent, name, value) {
 								}
 							});
 							children && providerNode.appendChild(dom.createTextNode('\r\n' + new Array(3).join('\t')));
+						});
+					} else if (tag == 'meta-data') {
+						Object.keys(value['meta-data']).forEach(function (name) {
+							var metaDataNode = dom.create('meta-data', null, node);
+							Object.keys(value['meta-data'][name]).forEach(function (attr) {
+								if (tagAttrs['meta-data'].test(attr)) {
+									metaDataNode.setAttribute('android:' + attr, value['meta-data'][name][attr]);
+								}
+							});
+							children++;
 						});
 					} else if (tag == 'uses-library') {
 						Object.keys(value['uses-library']).forEach(function (name) {
@@ -295,6 +308,11 @@ function toJS(obj, doc) {
 							}
 							break;
 
+						case 'meta-data':
+							Object.prototype.toString.call(app['meta-data']) == '[object Object]' || (app['meta-data'] = {});
+							initObjectByName(node, app);
+							break;
+
 						case 'provider':
 							var provider = initObjectByName(node, app);
 							provider && xml.forEachElement(node, function (node) {
@@ -409,6 +427,7 @@ function AndroidManifest(filename) {
 							switch (subtag) {
 								case 'activity':
 								case 'activity-alias':
+								case 'meta-data':
 								case 'receiver':
 								case 'service':
 								case 'provider':
