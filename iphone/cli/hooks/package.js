@@ -23,11 +23,6 @@ exports.init = function (logger, config, cli) {
 		post: function (build, finished) {
 			if (!/dist-(appstore|adhoc)/.test(cli.argv.target)) return finished();
 
-			if (cli.argv['build-only']) {
-				logger.info('Performed build only, skipping packaging');
-				return finished();
-			}
-
 			switch (cli.argv.target) {
 				case 'dist-appstore':
 					logger.info('Packaging for App Store distribution');

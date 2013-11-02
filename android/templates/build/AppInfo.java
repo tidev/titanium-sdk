@@ -14,20 +14,10 @@ public final class <%- classname %>AppInfo implements ITiAppInfo
 	private static final String LCAT = "AppInfo";
 
 	public <%- classname %>AppInfo(TiApplication app) {
-	<% if (Object.keys(tiapp.properties).length) { %>
-		TiProperties properties = app.getSystemProperties();
-		TiProperties appProperties = app.getAppProperties();
+	}
 
-		<% for (var prop in tiapp.properties) {
-			var value = tiapp.properties[prop].value,
-				type = tiapp.properties[prop].type,
-				setter = 'set' + type.substring(0, 1).toUpperCase() + type.substring(1);
-			type == 'string' && (value = '"' + value.replace(/"/g, '\\"') + '"');
-		%>
-			properties.<%- setter %>("<%- prop %>", <%- value %>);
-			appProperties.<%- setter %>("<%- prop %>", <%- value %>);
-		<% } %>
-	<% } %>
+	public String getDeployType() {
+		return "<%- deployType %>";
 	}
 
 	public String getId() {

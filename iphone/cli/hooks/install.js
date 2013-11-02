@@ -6,10 +6,12 @@
  */
 
 var appc = require('node-appc'),
-	__ = appc.i18n(__dirname).__,
-	afs = appc.fs,
-	path = require('path'),
 	async = require('async'),
+	fs = require('fs'),
+	iosDevice = require('node-ios-device'),
+	path = require('path'),
+	run = appc.subprocess.run,
+	__ = appc.i18n(__dirname).__,
 	exec = require('child_process').exec;
 
 exports.cliVersion = '>=3.2';
@@ -18,22 +20,17 @@ exports.init = function (logger, config, cli) {
 
 	cli.addHook('build.post.compile', {
 		priority: 8000,
-		post: function (build, finished) {
+		post: function (builder, finished) {
 			if (cli.argv.target != 'device') return finished();
-
-			if (cli.argv['build-only']) {
-				logger.info(__('Performed build only, skipping installing of the application'));
-				return finished();
-			}
 
 			async.parallel([
 				function (next) {
-					var pkgapp = path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneOS.platform', 'Developer', 'usr', 'bin', 'PackageApplication');
-					if (afs.exists(pkgapp)) {
-						exec('"' + pkgapp + '" "' + build.xcodeAppDir + '"', function (err, stdout, stderr) {
-							if (err) {
+					var pkgapp = path.join(builder.xcodeEnv.path, 'Platforms', 'iPhoneOS.platform', 'Developer', 'usr', 'bin', 'PackageApplication');
+					if (fs.existsSync(pkgapp)) {
+						run(pkgapp, builder.xcodeAppDir, function (code, out, err) {
+							if (code) {
 								logger.warn(__('An error occurred running the iOS Package Application tool'));
-								stderr.split('\n').forEach(logger.debug);
+								err.split('\n').forEach(logger.debug);
 							}
 							next();
 						});
@@ -43,32 +40,59 @@ exports.init = function (logger, config, cli) {
 					}
 				}
 			], function () {
-				var ipa = path.join(path.dirname(build.xcodeAppDir), build.tiapp.name + '.ipa');
-				afs.exists(ipa) || (ipa = build.xcodeAppDir);
+				var ipa = path.join(path.dirname(builder.xcodeAppDir), builder.tiapp.name + '.ipa');
+				fs.existsSync(ipa) || (ipa = builder.xcodeAppDir);
 
-				logger.info(__('Installing application into iTunes'));
+				if (cli.argv['build-only']) {
+					logger.info(__('Performed build only, skipping installing of the application'));
+					return finished();
+				}
 
-				exec('open -b com.apple.itunes "' + ipa + '"', function (err, stdout, stderr) {
-					if (err) {
-						return finished(new appc.exception(__('Failed to launch iTunes')));
-					}
+				if (!builder.deviceId || builder.deviceId == 'itunes') {
+					logger.info(__('Installing application into iTunes'));
 
-					logger.info(__('Initiating iTunes sync'));
-					exec('osascript "' + path.join(build.titaniumIosSdkPath, 'itunes_sync.scpt') + '"', function (err, stdout, stderr) {
-						if (err) {
-							if (stderr.indexOf('(-1708)') != -1) {
-								// stderr == "itunes_sync.scpt: execution error: iTunes got an error: every source doesn’t understand the count message. (-1708)"
-								// TODO: alert that the EULA needs to be accepted and if prompting is enabled,
-								// then wait for them to accept it and then try again
-								finished(new appc.exception(__('Failed to initiate iTunes sync'), stderr.split('\n').filter(function (line) { return !!line.length; })));
-							} else {
-								finished(new appc.exception(__('Failed to initiate iTunes sync'), stderr.split('\n').filter(function (line) { return !!line.length; })));
-							}
-						} else {
-							finished();
+					run('open', ['-b', 'com.apple.itunes', ipa], function (code, out, err) {
+						if (code) {
+							return finished(new appc.exception(__('Failed to launch iTunes')));
 						}
+
+						logger.info(__('Initiating iTunes sync'));
+						run('osascript', path.join(builder.titaniumIosSdkPath, 'itunes_sync.scpt'), function (code, out, err) {
+							if (code) {
+								if (err.indexOf('(-1708)') != -1) {
+									// err == "itunes_sync.scpt: execution error: iTunes got an error: every source doesn’t understand the count message. (-1708)"
+									// TODO: alert that the EULA needs to be accepted and if prompting is enabled,
+									// then wait for them to accept it and then try again
+									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; })));
+								} else {
+									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; })));
+								}
+							} else {
+								finished();
+							}
+						});
 					});
-				});
+				} else {
+					iosDevice.devices(function (err, devices) {
+						async.series(devices.map(function (device) {
+							return function (next) {
+								if (builder.deviceId == 'all' || builder.deviceId == device.udid) {
+									logger.info(__('Installing app on device: %s', device.name.cyan));
+									iosDevice.installApp(device.udid, builder.xcodeAppDir, function (err) {
+										if (err) {
+											logger.error(err.message || err);
+										} else {
+											logger.info(__('App successfully installed on device: %s', device.name.cyan));
+										}
+										next();
+									});
+								} else {
+									next();
+								}
+							};
+						}), finished);
+					});
+				}
 			});
 		}
 	});
