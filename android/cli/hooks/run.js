@@ -231,8 +231,8 @@ exports.init = function (logger, config, cli) {
 							} else {
 								logBuffer = logBuffer.concat(data.trim().split('\n'));
 							}
-						}, function endLog() {
-							if (--instances) {
+						}, function () {
+							if (--instances == 0) {
 								// the adb server shutdown, the emulator quit, or the device was unplugged
 								var endLogTxt = __('End application log');
 								logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
