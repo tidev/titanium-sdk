@@ -66,7 +66,7 @@
 #define GETPROP \
 ENSURE_TYPE(args,NSArray);\
 NSString *key = [args objectAtIndex:0];\
-NSString *appProp = [[TiApp tiAppProperties] objectForKey:key]; \
+id appProp = [[TiApp tiAppProperties] objectForKey:key]; \
 if(appProp) { \
     return appProp; \
 } \
@@ -127,7 +127,7 @@ if (![self propertyExists:key]) return defaultValue; \
 #define SETPROP \
 ENSURE_TYPE(args,NSArray);\
 NSString *key = [args objectAtIndex:0];\
-NSString *appProp = [[TiApp tiAppProperties] objectForKey:key]; \
+id appProp = [[TiApp tiAppProperties] objectForKey:key]; \
 if(appProp) { \
     DebugLog(@"Property \"%@\" already exist and cannot be overwritten", key); \
     return; \
