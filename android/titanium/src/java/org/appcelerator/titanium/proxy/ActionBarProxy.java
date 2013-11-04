@@ -35,14 +35,14 @@ public class ActionBarProxy extends KrollProxy
 	private static final int MSG_SET_ICON = MSG_FIRST_ID + 106;
 	private static final int MSG_SET_HOME_BUTTON_ENABLED = MSG_FIRST_ID + 107;
 	private static final int MSG_SET_NAVIGATION_MODE = MSG_FIRST_ID + 108;
-
+	private static final int MSG_SET_SUBTITLE = MSG_FIRST_ID + 109;
 	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
 	private static final String BACKGROUND_IMAGE = "backgroundImage";
 	private static final String TITLE = "title";
 	private static final String LOGO = "logo";
 	private static final String ICON = "icon";
 	private static final String NAVIGATION_MODE = "navigationMode";
-
+	private static final String SUBTITLE = "subtitle";
 	private static final String TAG = "ActionBarProxy";
 
 	private ActionBar actionBar;
@@ -101,6 +101,18 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method @Kroll.setProperty
+	public void setSubTitle(String subTitle)
+	{
+		if (TiApplication.isUIThread()) {
+			handleSetSubTitle(subTitle);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_SUBTITLE, subTitle);
+			message.getData().putString(SUBTITLE, subTitle);
+			message.sendToTarget();
+		}
+	}
+
 	@Kroll.method @Kroll.getProperty
 	public String getTitle()
 	{
@@ -109,6 +121,7 @@ public class ActionBarProxy extends KrollProxy
 		}
 		return (String) actionBar.getTitle();
 	}
+	
 
 	@Kroll.method @Kroll.getProperty
 	public int getNavigationMode()
@@ -190,6 +203,16 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
+	private void handleSetSubTitle(String subTitle)
+	{
+		if (actionBar != null) {
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setSubtitle(subTitle);
+		} else {
+			Log.w(TAG, "ActionBar is not enabled");
+		}
+	}
+	
 	private void handleShow()
 	{
 		if (actionBar != null) {
@@ -271,6 +294,10 @@ public class ActionBarProxy extends KrollProxy
 			case MSG_SET_TITLE:
 				handleSetTitle(msg.getData().getString(TITLE));
 				return true;
+			case MSG_SET_SUBTITLE:
+				handleSetSubTitle(msg.getData().getString(SUBTITLE));
+				return true;
+
 			case MSG_SHOW:
 				handleShow();
 				return true;
