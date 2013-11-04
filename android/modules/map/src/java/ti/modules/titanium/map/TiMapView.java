@@ -445,7 +445,7 @@ public class TiMapView extends TiUIView
 		this.selectedAnnotations = selectedAnnotations;
 
 		TiApplication app = TiApplication.getInstance();
-		TiProperties systemProperties = app.getSystemProperties();
+		TiProperties systemProperties = app.getAppProperties();
 		String oldKey = systemProperties.getString(OLD_API_KEY, "");
 		String developmentKey = systemProperties.getString(DEVELOPMENT_API_KEY, "");
 		String productionKey = systemProperties.getString(PRODUCTION_API_KEY, "");

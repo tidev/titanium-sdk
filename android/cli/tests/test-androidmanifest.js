@@ -517,6 +517,66 @@ describe('AndroidManifest', function () {
 		//var am = new AndroidManifest(path.resolve('./resources/AndroidManifest_application_activity-alias.xml'));
 	});
 
+	describe('<application> <meta-data>', function () {
+		var am = new AndroidManifest(path.resolve('./resources/AndroidManifest_application_meta-data.xml'));
+
+		it('should match object', function () {
+			am.should.eql({
+				"application": {
+					"meta-data": {
+						"zooVal": {
+							"name": "zooVal",
+							"value": "@string/kangaroo"
+						},
+						"zooRes": {
+							"name": "zooRes",
+							"resource": "@string/kangaroo"
+						}
+					}
+				}
+			});
+		});
+
+		it('toString()', function () {
+			am.toString().should.equal('[object Object]');
+		});
+
+		it("toString('json')", function () {
+			am.toString('json').should.equal('{"application":{"meta-data":{"zooVal":{"name":"zooVal","value":"@string/kangaroo"},"zooRes":{"name":"zooRes","resource":"@string/kangaroo"}}}}');
+		});
+
+		it("toString('pretty-json')", function () {
+			am.toString('pretty-json').should.equal([
+				'{',
+				'	"application": {',
+				'		"meta-data": {',
+				'			"zooVal": {',
+				'				"name": "zooVal",',
+				'				"value": "@string/kangaroo"',
+				'			},',
+				'			"zooRes": {',
+				'				"name": "zooRes",',
+				'				"resource": "@string/kangaroo"',
+				'			}',
+				'		}',
+				'	}',
+				'}'
+			].join('\n'));
+		});
+
+		it("toString('xml')", function () {
+			am.toString('xml').should.equal([
+				'<?xml version="1.0" encoding="UTF-8"?>',
+				'<manifest>',
+				'	<application>',
+				'		<meta-data android:name="zooVal" android:value="@string/kangaroo"/>',
+				'		<meta-data android:name="zooRes" android:resource="@string/kangaroo"/>',
+				'	</application>',
+				'</manifest>'
+			].join('\r\n'));
+		});
+	});
+
 	describe('<application> <provider>', function () {
 		var am = new AndroidManifest(path.resolve('./resources/AndroidManifest_application_provider.xml'));
 
