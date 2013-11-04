@@ -11,7 +11,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -36,11 +35,15 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	private boolean useSpinner = false;
 	private boolean suppressListenerEvents = false;
 
+	// Indicate whether this picker column is not created by users.
+	// Users can directly add picker rows to the picker. In this case, we create a picker column for them and this is
+	// the only column in the picker.
+	private boolean createIfMissing = false;
+
 
 	public PickerColumnProxy()
 	{
 		super();
-		defaultValues.put(TiC.PROPERTY_WIDTH, TiC.LAYOUT_FILL);
 	}
 
 	public PickerColumnProxy(TiContext tiContext)
@@ -300,6 +303,16 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		if (getParent() instanceof PickerProxy) {
 			((PickerProxy)getParent()).forceRequestLayout();
 		}
+	}
+
+	public void setCreateIfMissing(boolean flag)
+	{
+		createIfMissing = flag;
+	}
+
+	public boolean getCreateIfMissing()
+	{
+		return createIfMissing;
 	}
 
 	@Override
