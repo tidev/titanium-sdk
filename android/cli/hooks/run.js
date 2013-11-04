@@ -1,5 +1,5 @@
 /*
- * run.js: Titanium iOS Android run hook
+ * run.js: Titanium Android run hook
  *
  * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
@@ -96,8 +96,7 @@ exports.init = function (logger, config, cli) {
 					debuggerPort: builder.allowDebugging && builder.debugPort || -1,
 					profilerEnabled: builder.allowProfiling && builder.profilePort,
 					profilerPort: builder.allowProfiling && builder.profilePort || -1
-				},
-				appPidRegExp = null;
+				};
 
 			async.series([
 				function (next) {
@@ -176,9 +175,9 @@ exports.init = function (logger, config, cli) {
 						instances = deviceInfo.length,
 						endLog = false;
 
-					function printData(deviceName, line) {
-						if (appPidRegExp.test(line)) {
-							line = line.trim().replace(/\%/g, '%%').replace(appPidRegExp, ':');
+					function printData(device, deviceName, line) {
+						if (device.appPidRegExp.test(line)) {
+							line = line.trim().replace(/\%/g, '%%').replace(device.appPidRegExp, ':');
 							var logLevel = line.charAt(0).toLowerCase();
 							if (tiapiRegExp.test(line)) {
 								line = line.replace(tiapiRegExp, '').trim();
@@ -209,7 +208,7 @@ exports.init = function (logger, config, cli) {
 					deviceInfo.forEach(function (device) {
 						var deviceName = deviceInfo.length > 1 ? ('[' + (device.model || device.manufacturer || device.id) + '] ').magenta : '';
 						adb.logcat(device.id, function (data) {
-							if (appPidRegExp) {
+							if (device.appPidRegExp) {
 								if (displayStartLog) {
 									var startLogTxt = __('Start application log');
 									logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
@@ -219,14 +218,14 @@ exports.init = function (logger, config, cli) {
 								// flush log buffer
 								if (logBuffer.length) {
 									logBuffer.forEach(function (line) {
-										printData(deviceName, line);
+										printData(device, deviceName, line);
 									});
 									logBuffer = [];
 								}
 
 								// flush data
 								data.trim().split('\n').forEach(function (line) {
-									printData(deviceName, line);
+									printData(device, deviceName, line);
 								});
 							} else {
 								logBuffer = logBuffer.concat(data.trim().split('\n'));
@@ -277,7 +276,7 @@ exports.init = function (logger, config, cli) {
 												setTimeout(cb2, 100);
 											} else {
 												logger.info(__('Application pid: %s', String(pid).cyan));
-												appPidRegExp = new RegExp('\\(\\s*' + pid + '\\)\:');
+												device.appPidRegExp = new RegExp('\\(\\s*' + pid + '\\)\:');
 												done = true;
 												cb2();
 											}
