@@ -155,17 +155,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	}
 #endif
 }
-//To load application Defaults 
-- (void) loadUserDefaults
-{
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	NSDictionary *appDefaults = [ApplicationDefaults copyDefaults];
-	if(appDefaults != nil)
-	{
-		[defaults registerDefaults:appDefaults];
-	}
-	[appDefaults release];
-}
 
 - (void) launchToUrl
 {
@@ -286,7 +275,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	[TiExceptionHandler defaultExceptionHandler];
 	[self initController];
-	[self loadUserDefaults];
     [self launchToUrl];
 	[self boot];
 }
@@ -391,7 +379,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		[self generateNotification:notification];
 	}
     [self launchToUrl];
-	[self loadUserDefaults];
 	[self boot];
 	
 	return YES;
