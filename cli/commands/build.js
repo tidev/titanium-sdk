@@ -48,7 +48,7 @@ exports.config = function (logger, config, cli) {
 							desc: __('force a full rebuild')
 						},
 						legacy: {
-							desc: __('build using the old Python-based builder.py')
+							desc: __('build using the old Python-based builder.py; deprecated')
 						},
 						'skip-js-minify': {
 							default: false,
@@ -213,7 +213,7 @@ exports.run = function (logger, config, cli) {
 				logger.error(__('Project failed to build after %s', delta) + '\n');
 				process.exit(1);
 			} else {
-				logger.info(__('Project built successfully in %s', delta) + '\n');
+				logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
 			}
 		}
 	});

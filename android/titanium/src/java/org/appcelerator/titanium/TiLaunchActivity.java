@@ -156,7 +156,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	{
 		Intent intent = getIntent();
 		if (intent != null) {
-			TiProperties systemProperties = getTiApp().getSystemProperties();
+			TiProperties systemProperties = getTiApp().getAppProperties();
 			boolean detectionDisabled = systemProperties.getBool("ti.android.bug2373.disableDetection", false) ||
 					systemProperties.getBool("ti.android.bug2373.finishfalseroot", false);
 			if (!detectionDisabled) {
@@ -191,7 +191,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 				Log.e(TAG, "Android issue 2373 detected (missing intent CATEGORY_LAUNCHER or FLAG_ACTIVITY_RESET_TASK_IF_NEEDED), restarting app. " + this);
 				layout = new TiCompositeLayout(this, window);
 				setContentView(layout);
-				TiProperties systemProperties = getTiApp().getSystemProperties();
+				TiProperties systemProperties = getTiApp().getAppProperties();
 				int backgroundColor = TiColorHelper.parseColor(systemProperties.getString("ti.android.bug2373.backgroundColor", "black"));
 				getWindow().getDecorView().setBackgroundColor(backgroundColor);
 				layout.setBackgroundColor(backgroundColor);
@@ -208,7 +208,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	protected void alertMissingLauncher()
 	{
 		// No context, we have a launch problem.
-		TiProperties systemProperties = getTiApp().getSystemProperties();
+		TiProperties systemProperties = getTiApp().getAppProperties();
 		String message = systemProperties.getString("ti.android.bug2373.message", "An application restart is required");
 		final int restartDelay = systemProperties.getInt("ti.android.bug2373.restartDelay", RESTART_DELAY);
 		final int finishDelay = systemProperties.getInt("ti.android.bug2373.finishDelay", FINISH_DELAY);
@@ -307,7 +307,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			return;
 		}
 
-		TiProperties systemProperties = tiApp.getSystemProperties();
+		TiProperties systemProperties = tiApp.getAppProperties();
 
 		boolean restart = systemProperties.getBool("ti.android.root.reappears.restart", false);
 		if (restart) {
@@ -488,7 +488,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		TiProperties systemProperties = null;
 
 		if (tiApp != null) {
-			systemProperties = tiApp.getSystemProperties();
+			systemProperties = tiApp.getAppProperties();
 		}
 
 		if (systemProperties != null

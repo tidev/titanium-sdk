@@ -1032,7 +1032,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 		isResumed = true;
 
 		// Checkpoint for ti.start event
-		String deployType = tiApp.getSystemProperties().getString("ti.deploytype", "unknown");
+		String deployType = tiApp.getAppProperties().getString("ti.deploytype", "unknown");
 		tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppStartEvent(tiApp, deployType));
 	}
 

@@ -240,7 +240,7 @@ public class TiResponseCache extends ResponseCache
 		assert cachedir.isDirectory() : "cachedir MUST be a directory";
 		cacheDir = cachedir;
 
-		maxCacheSize = tiApp.getSystemProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024;
+		maxCacheSize = tiApp.getAppProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024;
 		Log.d(TAG, "max cache size is:" + maxCacheSize, Log.DEBUG_MODE);
 
 		cleanupExecutor = Executors.newSingleThreadScheduledExecutor();
