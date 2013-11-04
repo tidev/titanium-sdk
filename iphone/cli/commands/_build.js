@@ -1460,13 +1460,13 @@ iOSBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForceRebu
 		return true;
 	}
 
-	// if encryption is enabled, then we must recompile the java files
+	// if encryption is enabled, then we must recompile
 	if (this.encryptJS) {
 		this.logger.info(__('Forcing rebuild: JavaScript files need to be re-encrypted'));
 		return true;
 	}
 
-	// if encryptJS changed, then we need to recompile the java files
+	// if encryptJS changed, then we need to recompile
 	if (this.encryptJS != manifest.encryptJS) {
 		this.logger.info(__('Forcing rebuild: JavaScript encryption flag changed'));
 		this.logger.info('  ' + __('Was: %s', manifest.encryptJS));
