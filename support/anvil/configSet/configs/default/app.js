@@ -19,6 +19,7 @@ var suites = [
 	{name: "jss"},
 	{name: "kroll"},
 	{name: "locale"},
+	{name: "map"},
 	{name: "media/media"},
 	{name: "network_httpclient"},
 	{name: "network"},
