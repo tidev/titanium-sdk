@@ -38,7 +38,7 @@ public final class ${config['classname']}AppInfo implements ITiAppInfo
 	}
 
 	public String getDeployType() {
-		return "";
+		return "${app_info['deploy-type']}";
 	}
 
 	public String getId() {
