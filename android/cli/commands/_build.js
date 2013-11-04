@@ -230,7 +230,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 		}.bind(this);
 
 	return function (finished) {
-		cli.createHook('build.android.config', function (callback) {
+		cli.createHook('build.android.config', this, function (callback) {
 			var conf = {
 				options: {
 					'alias': {
@@ -728,9 +728,9 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
 	// get the javac params
-	this.javacTarget = cli.tiapp.properties['android.javac.target'] || config.get('android.javac.target', '1.6');
-	this.javacSource = cli.tiapp.properties['android.javac.source'] || config.get('android.javac.source', '1.6');
-	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] || config.get('android.dx.maxMemory', '1024M');
+	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
+	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
+	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
 
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
@@ -739,6 +739,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.encryptJS = true;
 			this.allowDebugging = false;
 			this.allowProfiling = false;
+			this.includeAllTiModules = false;
 			this.proguard = false;
 			break;
 
@@ -747,6 +748,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.encryptJS = true;
 			this.allowDebugging = true;
 			this.allowProfiling = true;
+			this.includeAllTiModules = false;
 			this.proguard = false;
 			break;
 
@@ -756,6 +758,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.encryptJS = false;
 			this.allowDebugging = true;
 			this.allowProfiling = true;
+			this.includeAllTiModules = true;
 			this.proguard = false;
 	}
 
@@ -1184,7 +1187,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			if (modules.conflict.length) {
 				logger.error(__('Found conflicting Titanium modules:'));
 				modules.conflict.forEach(function (m) {
-					logger.error('   ' + __('Titanium module "%s" requested for both iOS and CommonJS platforms, but only one may be used at a time.', m.id));
+					logger.error('   ' + __('Titanium module "%s" requested for both Android and CommonJS platforms, but only one may be used at a time.', m.id));
 				}, this);
 				logger.log();
 				process.exit(1);
@@ -1284,8 +1287,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 					}
 
 					bindingsHashes.push(hash(JSON.stringify(module.bindings)));
-
-					logger.info(__('Detected third-party native Android module: %s version %s', module.id.cyan, (module.version || 'latest').cyan));
 					this.nativeLibModules.push(module);
 				}
 
@@ -1449,7 +1450,6 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
 
 	var deviceId = this.deviceId = argv['device-id'];
-this.devices
 	if (this.target == 'emulator') {
 		var emu = this.devices.filter(function (e) { return e.name == deviceId; }).shift();
 		if (!emu) {
@@ -1492,7 +1492,9 @@ this.devices
 	}
 
 	var includeAllTiModulesProp = this.tiapp.properties['ti.android.include_all_modules'];
-	this.includeAllTiModules = includeAllTiModulesProp && includeAllTiModulesProp.value;
+	if (includeAllTiModulesProp !== undefined) {
+		this.includeAllTiModules = includeAllTiModulesProp.value;
+	}
 
 	// directories
 	this.buildAssetsDir             = path.join(this.buildDir, 'assets');
@@ -1849,8 +1851,6 @@ AndroidBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompil
 AndroidBuilder.prototype.getLastBuildState = function getLastBuildState(next) {
 	var lastBuildFiles = this.lastBuildFiles = {};
 
-	if (this.forceRebuild) return next();
-
 	// walk the entire build dir and build a map of all files
 	(function walk(dir) {
 		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
@@ -1882,7 +1882,18 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	fs.existsSync(dir = path.join(this.buildDir, 'bin', 'deploy.json')) && fs.unlinkSync(dir);
 
 	// make directories if they don't already exist
-	fs.existsSync(dir = this.buildAssetsDir)                   || wrench.mkdirSyncRecursive(dir);
+	dir = this.buildAssetsDir;
+	if (this.forceRebuild) {
+		fs.existsSync(dir) && wrench.rmdirSyncRecursive(dir);
+		Object.keys(this.lastBuildFiles).forEach(function (file) {
+			if (file.indexOf(dir + '/') == 0) {
+				delete this.lastBuildFiles[file];
+			}
+		}, this);
+		wrench.mkdirSyncRecursive(dir);
+	} else if (!fs.existsSync(dir)) {
+		wrench.mkdirSyncRecursive(dir);
+	}
 	fs.existsSync(dir = this.buildBinAssetsResourcesDir)       || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildDir, 'gen'))       || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildDir, 'lib'))       || wrench.mkdirSyncRecursive(dir);
@@ -2024,9 +2035,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				// if the destination directory does not exists, create it
 				fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
 
-				delete this.lastBuildFiles[to];
-
 				var ext = filename.match(extRegExp);
+
+				if (ext && ext[1] != 'js') {
+					// we exclude js files because we'll check if they need to be removed after all files have been copied
+					delete this.lastBuildFiles[to];
+				}
+
 				switch (ext && ext[1]) {
 					case 'css':
 						// if we encounter a css file, check if we should minify it
@@ -2212,10 +2227,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				var from = jsFiles[id],
 					to = path.join(this.buildBinAssetsResourcesDir, id);
 
-				delete this.lastBuildFiles[to];
-
 				if (htmlJsFiles[id]) {
 					// this js file is referenced from an html file, so don't minify or encrypt
+					delete this.lastBuildFiles[to];
 					return copyFile.call(this, from, to, done);
 				}
 
@@ -2227,16 +2241,17 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					to = path.join(this.buildAssetsDir, id);
 					jsFilesToEncrypt.push(id);
 				}
-
-				var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-
-				// we want to sort by the "to" filename so that we correctly handle file overwriting
-				this.tiSymbols[to] = r.symbols;
+				delete this.lastBuildFiles[to];
 
 				// if we're not minifying the JavaScript and we're not forcing all
 				// Titanium Android modules to be included, then parse the AST and detect
 				// all Titanium symbols
 				if (this.minifyJS || !this.includeAllTiModules) {
+					var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+
+					// we want to sort by the "to" filename so that we correctly handle file overwriting
+					this.tiSymbols[to] = r.symbols;
+
 					this.logger.debug(this.minifyJS
 						? __('Copying and minifying %s => %s', from.cyan, to.cyan)
 						: __('Copying %s => %s', from.cyan, to.cyan));
@@ -2280,30 +2295,36 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				titaniumPrep += '.linux' + (process.arch == 'x64' ? '64' : '32');
 			}
 
-			var args = [ this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt);
-
-			this.logger.info('Encrypting JavaScript files: %s', (path.join(this.platformPath, titaniumPrep) + ' "' + args.join('" "') + '"').cyan);
-
 			// encrypt the javascript
-			appc.subprocess.run(path.join(this.platformPath, titaniumPrep), args, function (code, out, err) {
-				if (code) {
-					this.logger.error(__('Failed to encrypt JavaScript files'));
-					err.trim().split('\n').forEach(this.logger.error);
-					this.logger.log();
-					process.exit(1);
-				}
+			var titaniumPrepHook = this.cli.createHook('build.android.titaniumprep', this, function (exe, args, opts, done) {
+					this.logger.info('Encrypting JavaScript files: %s', (exe + ' "' + args.join('" "') + '"').cyan);
+					appc.subprocess.run(exe, args, opts, function (code, out, err) {
+						if (code) {
+							this.logger.error(__('Failed to encrypt JavaScript files'));
+							err.trim().split('\n').forEach(this.logger.error);
+							this.logger.log();
+							process.exit(1);
+						}
 
-				// write the encrypted JS bytes to the generated Java file
-				fs.writeFileSync(
-					path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java'),
-					ejs.render(fs.readFileSync(path.join(this.templatesDir, 'AssetCryptImpl.java')).toString(), {
-						appid: this.appid,
-						encryptedAssets: out
-					})
-				);
+						// write the encrypted JS bytes to the generated Java file
+						fs.writeFileSync(
+							path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java'),
+							ejs.render(fs.readFileSync(path.join(this.templatesDir, 'AssetCryptImpl.java')).toString(), {
+								appid: this.appid,
+								encryptedAssets: out
+							})
+						);
 
-				next();
-			}.bind(this));
+						done();
+					}.bind(this));
+				});
+
+			titaniumPrepHook(
+				path.join(this.platformPath, titaniumPrep),
+				[ this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt),
+				{},
+				next
+			);
 		});
 	});
 };
@@ -2809,12 +2830,17 @@ AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 
 	appc.async.series(this, files.map(function (file) {
 		return function (callback) {
-			var args = ['-p' + this.androidTargetSDK.aidl, '-I' + this.buildSrcDir, '-o' + this.buildGenAppIdDir, file];
 			this.logger.info(__('Compiling aidl file: %s', file));
-			this.logger.debug(__('Running %s', this.androidInfo.sdk.executables.aidl + ' ' + args.join(' ')));
-			appc.subprocess.run(
+
+			var aidlHook = this.cli.createHook('build.android.aidl', this, function (exe, args, opts, done) {
+					this.logger.info('Running aidl: %s', (exe + ' "' + args.join('" "') + '"').cyan);
+					appc.subprocess.run(exe, args, opts, done);
+				});
+
+			aidlHook(
 				this.androidInfo.sdk.executables.aidl,
-				args,
+				['-p' + this.androidTargetSDK.aidl, '-I' + this.buildSrcDir, '-o' + this.buildGenAppIdDir, file],
+				{},
 				callback
 			);
 		};
@@ -3134,39 +3160,45 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 AndroidBuilder.prototype.packageApp = function packageApp(next) {
 	this.ap_File = path.join(this.buildBinDir, 'app.ap_');
 
-	var args = [
-		'package',
-		'-f',
-		'-m',
-		'-J', path.join(this.buildDir, 'gen'),
-		'-M', this.androidManifestFile,
-		'-A', this.buildBinAssetsDir,
-		'-S', this.buildResDir,
-		'-I', this.androidTargetSDK.androidJar,
-		'-I', path.join(this.platformPath, 'titanium.jar'),
-		'-F', this.ap_File
-	];
+	var aaptHook = this.cli.createHook('build.android.aapt', this, function (exe, args, opts, done) {
+			this.logger.info(__('Packaging application: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+			appc.subprocess.run(exe, args, opts, function (code, out, err) {
+				if (code) {
+					this.logger.error(__('Failed to package application:'));
+					this.logger.error();
+					err.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
 
-	this.logger.info(__('Packaging application: %s', (this.androidInfo.sdk.executables.aapt + ' "' + args.join('" "') + '"').cyan));
+				// check that the R.java file exists
+				var rFile = path.join(this.buildGenAppIdDir, 'R.java');
+				if (!fs.existsSync(rFile)) {
+					this.logger.error(__('Unable to find generated R.java file') + '\n');
+					process.exit(1);
+				}
 
-	appc.subprocess.run(this.androidInfo.sdk.executables.aapt, args, function (code, out, err) {
-			if (code) {
-				this.logger.error(__('Failed to package application:'));
-				this.logger.error();
-				err.trim().split('\n').forEach(this.logger.error);
-				this.logger.log();
-				process.exit(1);
-			}
+				done();
+			}.bind(this));
+		});
 
-			// check that the R.java file exists
-			var rFile = path.join(this.buildGenAppIdDir, 'R.java');
-			if (!fs.existsSync(rFile)) {
-				this.logger.error(__('Unable to find generated R.java file') + '\n');
-				process.exit(1);
-			}
-
-			next();
-	}.bind(this));
+	aaptHook(
+		this.androidInfo.sdk.executables.aapt,
+		[
+			'package',
+			'-f',
+			'-m',
+			'-J', path.join(this.buildDir, 'gen'),
+			'-M', this.androidManifestFile,
+			'-A', this.buildBinAssetsDir,
+			'-S', this.buildResDir,
+			'-I', this.androidTargetSDK.androidJar,
+			'-I', path.join(this.platformPath, 'titanium.jar'),
+			'-F', this.ap_File
+		],
+		{},
+		next
+	);
 };
 
 AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) {
@@ -3257,55 +3289,77 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 	}
 	wrench.mkdirSyncRecursive(this.buildBinClassesDir);
 
-	var javacArgs = [
-		'-encoding', 'utf8',
-		'-classpath', Object.keys(classpath).join(process.platform == 'win32' ? ';' : ':'),
-		'-d', this.buildBinClassesDir,
-		'-proc:none',
-		'-target', this.javacTarget,
-		'-source', this.javacSource,
-		'@' + javaSourcesFile
-	];
+	var javacHook = this.cli.createHook('build.android.javac', this, function (exe, args, opts, done) {
+			this.logger.info(__('Building Java source files: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+			appc.subprocess.run(exe, args, opts, function (code, out, err) {
+				if (code) {
+					this.logger.error(__('Failed to compile Java source files:'));
+					this.logger.error();
+					err.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
+				done();
+			}.bind(this));
+		});
 
-	this.logger.info(__('Building Java source files: %s', (this.jdkInfo.executables.javac + ' "' + javacArgs.join('" "') + '"').cyan));
-
-	appc.subprocess.run(this.jdkInfo.executables.javac, javacArgs, function (code, out, err) {
-		if (code) {
-			this.logger.error(__('Failed to compile Java source files:'));
-			this.logger.error();
-			err.trim().split('\n').forEach(this.logger.error);
-			this.logger.log();
-			process.exit(1);
-		}
-
-		next();
-	}.bind(this));
+	javacHook(
+		this.jdkInfo.executables.javac,
+		[
+			'-encoding', 'utf8',
+			'-classpath', Object.keys(classpath).join(process.platform == 'win32' ? ';' : ':'),
+			'-d', this.buildBinClassesDir,
+			'-proc:none',
+			'-target', this.javacTarget,
+			'-source', this.javacSource,
+			'@' + javaSourcesFile
+		],
+		{},
+		next
+	);
 };
 
 AndroidBuilder.prototype.runProguard = function runProguard(next) {
 	if (!this.forceRebuild || !this.proguard) return next();
 
 	// check that the proguard config exists
-	var proguardConfigFile = path.join(this.buildDir, 'proguard.cfg');
+	var proguardConfigFile = path.join(this.buildDir, 'proguard.cfg'),
+		proguardHook = this.cli.createHook('build.android.proguard', this, function (exe, args, opts, done) {
+			this.logger.info(__('Running ProGuard: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+			appc.subprocess.run(exe, args, opts, function (code, out, err) {
+				if (code) {
+					this.logger.error(__('Failed to run ProGuard'));
+					err.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
+				done();
+			}.bind(this));
+		});
 
-	this.logger.info(__('Running ProGuard: %s', (this.jdkInfo.executables.java + ' -jar "' + this.androidInfo.sdk.proguard + '" "@' + proguardConfigFile + '"').cyan));
-
-	appc.subprocess.run(this.jdkInfo.executables.java, ['-jar', this.androidInfo.sdk.proguard, '@' + proguardConfigFile], { cwd: this.buildDir }, function (code, out, err) {
-		if (code) {
-			this.logger.error(__('Failed to run ProGuard'));
-			err.trim().split('\n').forEach(this.logger.error);
-			this.logger.log();
-			process.exit(1);
-		}
-		next();
-	}.bind(this));
+	proguardHook(
+		this.jdkInfo.executables.java,
+		['-jar', this.androidInfo.sdk.proguard, '@' + proguardConfigFile],
+		{ cwd: this.buildDir },
+		next
+	);
 };
 
 AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	if (!this.forceRebuild && fs.existsSync(this.buildBinClassesDex)) return next();
 
-	var dexHook = this.cli.createHook('build.android.dexerArgs', function (args, cb) {
-			cb(args);
+	var dexerHook = this.cli.createHook('build.android.dexer', this, function (exe, args, opts, done) {
+			this.logger.info(__('Running dexer: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+			appc.subprocess.run(exe, args, opts, function (code, out, err) {
+				if (code) {
+					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error();
+					err.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
+				done();
+			}.bind(this));
 		}),
 		dexArgs = [
 			'-Xmx' + this.dxMaxMemory,
@@ -3326,20 +3380,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
 	}
 
-	dexHook(dexArgs, function (err, results, args) {
-		this.logger.info(__('Running dexer: %s', (this.jdkInfo.executables.java + ' "' + args.join('" "') + '"').cyan));
-
-		appc.subprocess.run(this.jdkInfo.executables.java, args, function (code, out, err) {
-			if (code) {
-				this.logger.error(__('Failed to run dexer:'));
-				this.logger.error();
-				err.trim().split('\n').forEach(this.logger.error);
-				this.logger.log();
-				process.exit(1);
-			}
-			next();
-		}.bind(this));
-	}.bind(this));
+	dexerHook(this.jdkInfo.executables.java, dexArgs, {}, next);
 };
 
 AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
@@ -3511,43 +3552,57 @@ AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
 		signerArgsSafe[7] = signerArgsSafe[7].replace(/./g, '*');
 		this.keystoreKeyPassword && (signerArgsSafe[9] = signerArgsSafe[9].replace(/./g, '*'));
 
-		this.logger.info(__('Signing apk: %s', (this.jdkInfo.executables.jarsigner + ' "' + signerArgsSafe.join('" "') + '"').cyan));
+		var jarsignerHook = this.cli.createHook('build.android.jarsigner', this, function (exe, args, opts, done) {
+				this.logger.info(__('Signing apk: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+				appc.subprocess.run(exe, args, opts, function (code, out, err) {
+					if (code) {
+						this.logger.error(__('Failed to sign apk:'));
+						out.trim().split('\n').forEach(this.logger.error);
+						this.logger.log();
+						process.exit(1);
+					}
+					done();
+				}.bind(this));
+			});
 
-		appc.subprocess.run(this.jdkInfo.executables.jarsigner, signerArgs, function (code, out, err) {
-			if (code) {
-				this.logger.error(__('Failed to sign apk:'));
-				out.trim().split('\n').forEach(this.logger.error);
-				this.logger.log();
-				process.exit(1);
-			}
-			next();
-		}.bind(this));
+		jarsignerHook(
+			this.jdkInfo.executables.jarsigner,
+			signerArgs,
+			{},
+			next
+		);
 	}.bind(this));
 };
 
 AndroidBuilder.prototype.zipAlignApk = function zipAlignApk(next) {
 	var zipAlignedApk = this.apkFile + 'z',
-		args = [
+		zipalignHook = this.cli.createHook('build.android.zipalign', this, function (exe, args, opts, done) {
+			this.logger.info(__('Aligning zip file: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+			appc.subprocess.run(exe, args, opts, function (code, out, err) {
+				if (code) {
+					this.logger.error(__('Failed to zipalign apk:'));
+					err.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
+
+				fs.unlinkSync(this.apkFile);
+				fs.renameSync(zipAlignedApk, this.apkFile);
+
+				done();
+			}.bind(this));
+		});
+
+	zipalignHook(
+		this.androidInfo.sdk.executables.zipalign,
+		[
 			'-v', '4', // 4 byte alignment
 			this.apkFile,
 			zipAlignedApk
-		];
-
-	this.logger.info(__('Packaging application: %s', (this.androidInfo.sdk.executables.zipalign + ' "' + args.join('" "') + '"').cyan));
-
-	appc.subprocess.run(this.androidInfo.sdk.executables.zipalign, args, function (code, out, err) {
-		if (code) {
-			this.logger.error(__('Failed to zipalign apk:'));
-			err.trim().split('\n').forEach(this.logger.error);
-			this.logger.log();
-			process.exit(1);
-		}
-
-		fs.unlinkSync(this.apkFile);
-		fs.renameSync(zipAlignedApk, this.apkFile);
-
-		next();
-	}.bind(this));
+		],
+		{},
+		next
+	);
 };
 
 AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callback) {

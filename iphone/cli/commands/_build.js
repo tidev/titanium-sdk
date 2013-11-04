@@ -175,7 +175,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 		};
 
 	return function (done) {
-		detect.detect(config, { minSDK: _t.minSupportedIosSdk }, function (iosInfo) {
+		detect.detect(config, null, function (iosInfo) {
 			this.iosInfo = iosInfo;
 
 			// check that the iOS environment is found and sane
@@ -185,16 +185,21 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 			this.assertIssue(iosInfo.issues, 'IOS_NO_IOS_SIMS');
 
 			// get the all installed iOS SDKs and Simulators across all Xcode versions
-			var sdkVersions = {},
+			var allSdkVersions = {},
+				sdkVersions = {},
 				simVersions = {};
 			Object.keys(iosInfo.xcode).forEach(function (ver) {
 				iosInfo.xcode[ver].sdks.forEach(function (sdk) {
-					sdkVersions[sdk] = 1;
-				});
+					allSdkVersions[sdk] = 1;
+					if (version.gte(sdk, this.minSupportedIosSdk)) {
+						sdkVersions[sdk] = 1;
+					}
+				}, this);
 				iosInfo.xcode[ver].sims.forEach(function (sim) {
 					simVersions[sim] = 1;
 				});
-			});
+			}, this);
+			allSdkVersions = this.iosAllSdkVersions = version.sort(Object.keys(allSdkVersions));
 			sdkVersions = this.iosSdkVersions = version.sort(Object.keys(sdkVersions));
 			simVersions = this.iosSimVersions = version.sort(Object.keys(simVersions));
 
@@ -338,7 +343,10 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								});
 							},
 							verifyIfRequired: function (callback) {
-								if (cli.argv['device-id'] == undefined && config.get('ios.autoSelectDevice', true)) {
+								if (cli.argv['build-only']) {
+									// not required if we're build only
+									return callback();
+								} else if (cli.argv['device-id'] == undefined && config.get('ios.autoSelectDevice', true)) {
 									if (cli.argv.target == 'device') {
 										cli.argv['device-id'] = 'itunes';
 										return callback();
@@ -483,9 +491,39 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						},
 						'ios-version': {
 							abbr: 'I',
+							callback: function (value) {
+								try {
+									if (value && allSdkVersions.indexOf(value) != -1 && version.lt(value, _t.minSupportedIosSdk)) {
+										logger.banner();
+										logger.error(__('The specified iOS SDK version "%s" is not supported by Titanium %s', value, _t.titaniumSdkVersion) + '\n');
+										if (sdkVersions.length) {
+											logger.log(__('Available supported iOS SDKs:'));
+											sdkVersions.forEach(function (ver) {
+												logger.log('   ' + ver.cyan);
+											});
+											logger.log();
+										}
+										process.exit(1);
+									}
+								} catch (e) {
+									// squelch and let the cli detect the bad version
+								}
+							},
 							default: defaultIosVersion,
-							desc: __('iOS SDK version to build for'),
+							desc: __('iOS SDK version to build with'),
 							order: 130,
+							prompt: function (callback) {
+								callback(fields.select({
+									title: __("Which iOS SDK version would you like to build with?"),
+									promptLabel: __('Select an iOS SDK version by number or name'),
+									margin: '',
+									numbered: true,
+									relistOnError: true,
+									complete: true,
+									suggest: false,
+									options: sdkVersions
+								}));
+							},
 							values: sdkVersions
 						},
 						'keychain': {
@@ -713,6 +751,9 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			this.encryptJS = true;
 			this.allowDebugging = false;
 			this.allowProfiling = false;
+			this.includeAllTiModules = false;
+			this.compileI18N = true;
+			this.compileJSS = true;
 			break;
 
 		case 'test':
@@ -720,6 +761,9 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			this.encryptJS = true;
 			this.allowDebugging = true;
 			this.allowProfiling = true;
+			this.includeAllTiModules = false;
+			this.compileI18N = true;
+			this.compileJSS = true;
 			break;
 
 		case 'development':
@@ -728,6 +772,9 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			this.encryptJS = false;
 			this.allowDebugging = true;
 			this.allowProfiling = true;
+			this.includeAllTiModules = true;
+			this.compileI18N = false;
+			this.compileJSS = false;
 	}
 
 	var deviceId = this.deviceId = cli.argv['device-id'];
@@ -1053,8 +1100,6 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 					}
 
 					nativeHashes.push(module.hash = hash(fs.readFileSync(module.libFile)));
-
-					this.logger.info(__('Detected third-party native iOS module: %s version %s', module.id.cyan, (module.manifest.version || 'latest').cyan));
 					this.nativeLibModules.push(module);
 				}
 
@@ -1132,7 +1177,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 				this.forceRebuild = true;
 			}
 
-			if (this.forceRebuild || this.target != 'simulator' || !fs.existsSync(this.xcodeAppDir, this.tiapp.name)) {
+			if (this.forceRebuild || !fs.existsSync(this.xcodeAppDir, this.tiapp.name)) {
 				// we're not being called from Xcode, so we can call the pre-compile phase now
 				// and save us several seconds
 				this.xcodePrecompilePhase(function () {
@@ -1412,6 +1457,20 @@ iOSBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForceRebu
 		this.logger.info(__('Forcing rebuild: githash changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.gitHash));
 		this.logger.info('  ' + __('Now: %s', ti.manifest.githash));
+		return true;
+	}
+
+	// if encryption is enabled, then we must recompile the java files
+	if (this.encryptJS) {
+		this.logger.info(__('Forcing rebuild: JavaScript files need to be re-encrypted'));
+		return true;
+	}
+
+	// if encryptJS changed, then we need to recompile the java files
+	if (this.encryptJS != manifest.encryptJS) {
+		this.logger.info(__('Forcing rebuild: JavaScript encryption flag changed'));
+		this.logger.info('  ' + __('Was: %s', manifest.encryptJS));
+		this.logger.info('  ' + __('Now: %s', this.encryptJS));
 		return true;
 	}
 
@@ -1845,7 +1904,8 @@ iOSBuilder.prototype.createEntitlementsPlist = function createEntitlementsPlist(
 				var plist = new appc.plist();
 				plist['get-task-allow'] = !!pp.getTaskAllow;
 				pp.apsEnvironment && (plist['aps-environment'] = pp.apsEnvironment);
-				this.target == 'dist-appstore' && (plist['application-identifier'] = plist['keychain-access-groups'] = pp.appPrefix + '.' + this.tiapp.id);
+				plist['application-identifier'] = pp.appPrefix + '.' + this.tiapp.id;
+				plist['keychain-access-groups'] = [ plist['application-identifier'] ];
 				contents = plist.toString('xml');
 			}
 		}
@@ -2082,13 +2142,14 @@ iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 		guid: this.tiapp.guid,
 		skipJSMinification: !!this.cli.argv['skip-js-minify'],
 		forceCopy: !!this.forceCopy,
-		forceCopyAll: !!this.forceCopyAll
+		forceCopyAll: !!this.forceCopyAll,
+		encryptJS: !!this.encryptJS
 	}, function (err, results, result) {
 		next();
 	});
 };
 
-iOSBuilder.prototype.compileI18N = function compileI18N(next) {
+iOSBuilder.prototype.compileI18NFiles = function compileI18NFiles(next) {
 	var data = ti.i18n.load(this.projectDir, this.logger);
 
 	parallel(this,
@@ -2113,12 +2174,12 @@ iOSBuilder.prototype.compileI18N = function compileI18N(next) {
 							return '"' + (map && map[name] || name).replace(/\\"/g, '"').replace(/"/g, '\\"') +
 								'" = "' + (''+obj[name]).replace(/%s/g, '%@').replace(/\\"/g, '"').replace(/"/g, '\\"') + '";';
 						})).join('\n'));
-						if (this.deployType == 'development') {
-							next();
-						} else {
+						if (this.compileI18N) {
 							appc.subprocess.run('/usr/bin/plutil', ['-convert', 'binary1', dest], function (code, out, err) {
 								next();
 							});
+						} else {
+							next();
 						}
 					});
 				}
@@ -2390,13 +2451,13 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries(next
 	next();
 };
 
-iOSBuilder.prototype.compileJSS = function compileJSS(next) {
+iOSBuilder.prototype.compileJSSFiles = function compileJSSFiles(next) {
 	ti.jss.load(path.join(this.projectDir, 'Resources'), this.deviceFamilyNames[this.deviceFamily], this.logger, function (results) {
 		var appStylesheet = path.join(this.xcodeAppDir, 'stylesheet.plist'),
 			plist = new appc.plist();
 		appc.util.mix(plist, results);
 		fs.writeFile(appStylesheet, plist.toString('xml'), function () {
-			if (this.target != 'simulator') {
+			if (this.compileJSS) {
 				// compile plist into binary format so it's faster to load, we can be slow on simulator
 				appc.subprocess.run('/usr/bin/plutil', ['-convert', 'binary1', appStylesheet], function (code, out, err) {
 					next();
@@ -2408,7 +2469,7 @@ iOSBuilder.prototype.compileJSS = function compileJSS(next) {
 	}.bind(this));
 };
 
-iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(finished) {
+iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 	this.logger.info(__('Invoking xcodebuild'));
 
 	var xcodeArgs = [
@@ -2450,7 +2511,85 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(finished) {
 		xcodeArgs.push('CODE_SIGN_IDENTITY=iPhone Distribution: ' + this.certDistributionName);
 	}
 
-	var p = spawn(this.xcodeEnv.xcodebuild, xcodeArgs, {
+	var xcodebuildHook = this.cli.createHook('build.ios.xcodebuild', this, function (exe, args, opts, done) {
+			var p = spawn(exe, args, opts),
+				out = [],
+				err = [],
+				stopOutputting = false;
+
+			p.stdout.on('data', function (data) {
+				data.toString().split('\n').forEach(function (line) {
+					if (line.length) {
+						out.push(line);
+						if (line.indexOf('Failed to minify') != -1) {
+							stopOutputting = true;
+						}
+						if (!stopOutputting) {
+							this.logger.trace(line);
+						}
+					}
+				}, this);
+			}.bind(this));
+
+			p.stderr.on('data', function (data) {
+				data.toString().split('\n').forEach(function (line) {
+					if (line.length) {
+						err.push(line);
+					}
+				}, this);
+			}.bind(this));
+
+			p.on('close', function (code, signal) {
+				if (code) {
+					// first see if we errored due to a dependency issue
+					if (err.join('\n').indexOf('Check dependencies') != -1) {
+						var len = out.length;
+						for (var i = len - 1; i >= 0; i--) {
+							if (out[i].indexOf('Check dependencies') != -1) {
+								if (out[out.length - 1].indexOf('Command /bin/sh failed with exit code') != -1) {
+									len--;
+								}
+								for (var j = i + 1; j < len; j++) {
+									this.logger.error(__('Error details: %s', out[j]));
+								}
+								this.logger.log();
+								process.exit(1);
+							}
+						}
+					}
+
+					// next see if it was a minification issue
+					var len = out.length;
+					for (var i = len - 1, k = 0; i >= 0 && k < 10; i--, k++) {
+						if (out[i].indexOf('Failed to minify') != -1) {
+							if (out[out.length - 1].indexOf('Command /bin/sh failed with exit code') != -1) {
+								len--;
+							}
+							while (i < len) {
+								this.logger.log(out[i++]);
+							}
+							this.logger.log();
+							process.exit(1);
+						}
+					}
+
+					// just print the entire error buffer
+					err.forEach(function (line) {
+						this.logger.error(line);
+					}, this);
+					this.logger.log();
+					process.exit(1);
+				}
+
+				// end of the line
+				done(code);
+			}.bind(this));
+		});
+
+	xcodebuildHook(
+		this.xcodeEnv.xcodebuild,
+		xcodeArgs,
+		{
 			cwd: this.buildDir,
 			env: {
 				DEVELOPER_DIR: this.xcodeEnv.path,
@@ -2459,78 +2598,9 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(finished) {
 				PATH: process.env.PATH,
 				TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? http://jobs.appcelerator.com/'
 			}
-		}),
-		out = [],
-		err = [],
-		stopOutputting = false;
-
-	p.stdout.on('data', function (data) {
-		data.toString().split('\n').forEach(function (line) {
-			if (line.length) {
-				out.push(line);
-				if (line.indexOf('Failed to minify') != -1) {
-					stopOutputting = true;
-				}
-				if (!stopOutputting) {
-					this.logger.trace(line);
-				}
-			}
-		}, this);
-	}.bind(this));
-
-	p.stderr.on('data', function (data) {
-		data.toString().split('\n').forEach(function (line) {
-			if (line.length) {
-				err.push(line);
-			}
-		}, this);
-	}.bind(this));
-
-	p.on('exit', function (code, signal) {
-		if (code) {
-			// first see if we errored due to a dependency issue
-			if (err.join('\n').indexOf('Check dependencies') != -1) {
-				var len = out.length;
-				for (var i = len - 1; i >= 0; i--) {
-					if (out[i].indexOf('Check dependencies') != -1) {
-						if (out[out.length - 1].indexOf('Command /bin/sh failed with exit code') != -1) {
-							len--;
-						}
-						for (var j = i + 1; j < len; j++) {
-							this.logger.error(__('Error details: %s', out[j]));
-						}
-						this.logger.log();
-						process.exit(1);
-					}
-				}
-			}
-
-			// next see if it was a minification issue
-			var len = out.length;
-			for (var i = len - 1, k = 0; i >= 0 && k < 10; i--, k++) {
-				if (out[i].indexOf('Failed to minify') != -1) {
-					if (out[out.length - 1].indexOf('Command /bin/sh failed with exit code') != -1) {
-						len--;
-					}
-					while (i < len) {
-						this.logger.log(out[i++]);
-					}
-					this.logger.log();
-					process.exit(1);
-				}
-			}
-
-			// just print the entire error buffer
-			err.forEach(function (line) {
-				this.logger.error(line);
-			}, this);
-			this.logger.log();
-			process.exit(1);
-		}
-
-		// end of the line
-		finished.call(this, code);
-	}.bind(this));
+		},
+		next
+	);
 };
 
 iOSBuilder.prototype.xcodePrecompilePhase = function xcodePrecompilePhase(finished) {
@@ -2540,10 +2610,11 @@ iOSBuilder.prototype.xcodePrecompilePhase = function xcodePrecompilePhase(finish
 		'copyResources',
 		'processTiSymbols',
 		'writeDebugProfilePlists',
-		'compileJSS',
-		'compileI18N',
+		'compileJSSFiles',
+		'compileI18NFiles',
 		'copyLocalizedSplashScreens',
 		function (next) {
+			// if not production and running from Xcode
 			if (this.deployType != 'production' && !process.env.TITANIUM_CLI_XCODEBUILD) {
 				var appDefaultsFile = path.join(this.buildDir, 'Classes', 'ApplicationDefaults.m');
 				fs.writeFileSync(appDefaultsFile, fs.readFileSync(appDefaultsFile).toString().replace(/return \[NSDictionary dictionaryWithObjectsAndKeys\:\[TiUtils stringValue\:@".+"\], @"application-launch-url", nil];/, 'return nil;'));
@@ -2556,14 +2627,13 @@ iOSBuilder.prototype.xcodePrecompilePhase = function xcodePrecompilePhase(finish
 };
 
 iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists(next) {
-	['debugger.plist', 'profiler.plist'].forEach(function (filename) {
-		var src = path.join(this.buildDir, filename),
-			dest = path.join(this.xcodeAppDir, filename);
+	function processPlist(filename, enabled) {
+		var dest = path.join(this.xcodeAppDir, filename);
 
-		// we only copy the plist file for dev/test when building from Studio (via the Ti CLI), otherwise make sure the file doesn't exist
-		if (this.deployType != 'production' && process.env.TITANIUM_CLI_XCODEBUILD) {
+		// we only copy the plist file for dev/test when NOT building from Xcode
+		if (enabled && process.env.TITANIUM_CLI_XCODEBUILD) {
 			afs.copyFileSync(
-				src,
+				path.join(this.buildDir, filename),
 				dest,
 				{ logger: this.logger.debug }
 			);
@@ -2571,7 +2641,10 @@ iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists(
 			this.logger.info(__('Removing unwanted %s from build', filename.cyan));
 			fs.unlinkSync(dest);
 		}
-	}, this);
+	}
+
+	processPlist.call(this, 'debugger.plist', this.allowDebugging);
+	processPlist.call(this, 'profiler.plist', this.allowProfiling);
 
 	next();
 };
@@ -2706,6 +2779,8 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 							this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
 								copyFile.call(this, from, to, cb);
 							})(from, to, next);
+						} else {
+							next();
 						}
 				}
 			};
@@ -2791,6 +2866,7 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 
 	series(this, tasks, function (err, results) {
 		// copy js files into assets directory and minify if needed
+		this.logger.info(__('Processing JavaScript files'));
 		series(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
 				var from = jsFiles[id],
@@ -2811,15 +2887,15 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 					jsFilesToEncrypt.push(id);
 				}
 
-				var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-
-				// we want to sort by the "to" filename so that we correctly handle file overwriting
-				this.tiSymbols[to] = r.symbols;
-
 				// if we're not minifying the JavaScript and we're not forcing all
-				// Titanium Android modules to be included, then parse the AST and detect
+				// Titanium modules to be included, then parse the AST and detect
 				// all Titanium symbols
-				if (this.minifyJS) {
+				if (this.minifyJS || !this.includeAllTiModules) {
+					var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+
+					// we want to sort by the "to" filename so that we correctly handle file overwriting
+					this.tiSymbols[to] = r.symbols;
+
 					this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
 					this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb) {
 						var dir = path.dirname(to);
@@ -2850,63 +2926,70 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 			}
 
 			this.cli.fireHook('build.ios.prerouting', this, function (err) {
-				var exe = path.join(this.titaniumIosSdkPath, 'titanium_prep'),
-					args = [this.tiapp.id, this.buildAssetsDir],
-					tries = 0,
-					done = false;
+				var titaniumPrepHook = this.cli.createHook('build.ios.titaniumprep', this, function (exe, args, opts, done) {
+						var tries = 0,
+							completed = false;
 
-				this.logger.info('Encrypting JavaScript files: %s', (exe + ' "' + args.join('" "') + '"').cyan);
-				jsFilesToEncrypt.forEach(function (file) {
-					this.logger.debug(__('Preparing %s', file.cyan));
-				}, this);
+						this.logger.info('Encrypting JavaScript files: %s', (exe + ' "' + args.join('" "') + '"').cyan);
+						jsFilesToEncrypt.forEach(function (file) {
+							this.logger.debug(__('Preparing %s', file.cyan));
+						}, this);
 
-				async.whilst(
-					function () {
-						if (tries > 3) {
-							// we failed 3 times, so just give up
-							this.logger.error(__('titanium_prep failed to complete successfully'));
-							this.logger.error(__('Try cleaning this project and build again') + '\n');
-							process.exit(1);
-						}
-						return !done;
-					},
-					function (cb) {
-						var child = spawn(exe, args),
-							out = '';
+						async.whilst(
+							function () {
+								if (tries > 3) {
+									// we failed 3 times, so just give up
+									this.logger.error(__('titanium_prep failed to complete successfully'));
+									this.logger.error(__('Try cleaning this project and build again') + '\n');
+									process.exit(1);
+								}
+								return !completed;
+							},
+							function (cb) {
+								var child = spawn(exe, args, opts),
+									out = '';
 
-						child.stdin.write(jsFilesToEncrypt.join('\n'));
-						child.stdin.end();
+								child.stdin.write(jsFilesToEncrypt.join('\n'));
+								child.stdin.end();
 
-						child.stdout.on('data', function (data) {
-							out += data.toString();
-						});
+								child.stdout.on('data', function (data) {
+									out += data.toString();
+								});
 
-						child.on('close', function (code) {
-							if (code) {
-								this.logger.error(__('titanium_prep failed to run (%s)', code) + '\n');
-								process.exit(1);
-							}
+								child.on('close', function (code) {
+									if (code) {
+										this.logger.error(__('titanium_prep failed to run (%s)', code) + '\n');
+										process.exit(1);
+									}
 
-							if (out.indexOf('initWithObjectsAndKeys') != -1) {
-								// success!
-								var file = path.join(this.buildDir, 'Classes', 'ApplicationRouting.m');
-								this.logger.debug(__('Writing application routing source file: %s', file.cyan));
-								fs.writeFileSync(
-									file,
-									ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationRouting.m')).toString(), {
-										bytes: out
-									})
-								);
-								done = true;
-							} else {
-								// failure, maybe it was a fluke, try again
-								this.logger.warn(__('titanium_prep failed to complete successfully, trying again'));
-								tries++;
-							}
+									if (out.indexOf('initWithObjectsAndKeys') != -1) {
+										// success!
+										var file = path.join(this.buildDir, 'Classes', 'ApplicationRouting.m');
+										this.logger.debug(__('Writing application routing source file: %s', file.cyan));
+										fs.writeFileSync(
+											file,
+											ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationRouting.m')).toString(), {
+												bytes: out
+											})
+										);
+										completed = true;
+									} else {
+										// failure, maybe it was a fluke, try again
+										this.logger.warn(__('titanium_prep failed to complete successfully, trying again'));
+										tries++;
+									}
 
-							cb();
-						}.bind(this));
-					}.bind(this),
+									cb();
+								}.bind(this));
+							}.bind(this),
+							done
+						);
+					});
+
+				titaniumPrepHook(
+					path.join(this.titaniumIosSdkPath, 'titanium_prep'),
+					[this.tiapp.id, this.buildAssetsDir],
+					{},
 					finished
 				);
 			}.bind(this));
@@ -2915,8 +2998,8 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 };
 
 iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
-	// if development and the simulator, then we're symlinking files and there's no need to anything below
-	if (this.deployType == 'development' && this.target == 'simulator') {
+	// if we're including all titanium modules, then there's no point writing the defines.h
+	if (this.includeAllTiModules) {
 		return finished();
 	}
 

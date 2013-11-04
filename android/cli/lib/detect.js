@@ -56,6 +56,10 @@ exports.detectEmulators = function detectEmulators(config, opts, finished) {
  */
 exports.detectDevices = function detectDevices(config, finished) {
 	new ADB(config).devices(function (err, devices) {
+		if (err) {
+			return finished(err);
+		}
+
 		finished(null, devices.filter(function (d) {
 			return !d.emulator;
 		}).map(function (d) {
