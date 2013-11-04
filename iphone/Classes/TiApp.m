@@ -808,7 +808,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         NSError *error = nil;
         props = [[NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error] retain];
         if(error != nil) {
-            DebugLog(@"[WARN] Could not load tiapp.xml properties, error was %@", [error localizedDescription]);
+            DebugLog(@"[ERROR] Could not load tiapp.xml properties, error was %@", [error localizedDescription]);
         }
     }
     return props;

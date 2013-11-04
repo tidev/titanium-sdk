@@ -129,7 +129,7 @@ ENSURE_TYPE(args,NSArray);\
 NSString *key = [args objectAtIndex:0];\
 id appProp = [[TiApp tiAppProperties] objectForKey:key]; \
 if(appProp) { \
-    DebugLog(@"Property \"%@\" already exist and cannot be overwritten", key); \
+    DebugLog(@"[ERROR] Property \"%@\" already exist and cannot be overwritten", key); \
     return; \
 } \
 id value = [args count] > 1 ? [args objectAtIndex:1] : nil;\
@@ -201,7 +201,7 @@ if ([self propertyExists:key] && [ [defaultsObject objectForKey:key] isEqual:val
 {
 	ENSURE_SINGLE_ARG(args,NSString);
     if([[TiApp tiAppProperties] objectForKey:args] != nil) {
-        DebugLog(@"Cannot remove property \"%@\", it is read-only.", args);
+        DebugLog(@"[ERROR] Cannot remove property \"%@\", it is read-only.", args);
         return;
     }
 	[defaultsObject removeObjectForKey:[TiUtils stringValue:args]];
