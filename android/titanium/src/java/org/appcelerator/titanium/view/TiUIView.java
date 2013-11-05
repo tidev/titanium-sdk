@@ -488,7 +488,7 @@ public abstract class TiUIView
 		};
 		v.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
 
-		// On Jelly Bean, the view will visibly transform if the transformation starts after the layout pass,
+		// On Jelly Bean+, the view will visibly transform if the transformation starts after the layout pass,
 		// so we add OnPreDrawListener to skip the drawing pass before the animation is ended.
 		// This mechanism only works for Honeycomb+ property Animators. Because if we use pre-Honeycomb view
 		// animations and skip the drawing pass, the AnimationListener will not be triggered so
