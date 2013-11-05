@@ -20,13 +20,10 @@ module.exports = new function() {
 		{name: "percentageDimension"},
 		{name: "getProperties"},
 		{name: "fireevent"},
-		{name: "touchstartEvent"},
-		{name: "deadlockWarning"},
 		{name: "sourcevalue"},
 		{name: "thisvalue"},
 		{name: "offsetProperty"},
-		{name: "e_source_size"},
-		{name: "contentHeight"},
+		{name: "e_source_size"}
 	]
 	
 	//TIMOB-1124
@@ -49,7 +46,7 @@ module.exports = new function() {
 			valueOf(testRun, linearGradient.height).shouldBe(100);
 			
 			finish(testRun);
-		})
+		});
 		win.open();
 	}
 	
@@ -74,11 +71,11 @@ module.exports = new function() {
 			valueOf(testRun,view1.size.width).shouldBe(win.size.width-40);
 			
 			finish(testRun);
-		})
+		});
 		win.open();
 	}
 	
-	//TIMOB-3228
+	//TIMOB-3238
 	this.percentageDimension=function(testRun){
 		var win = Ti.UI.createWindow({
 			layout: 'vertical', 
@@ -107,7 +104,7 @@ module.exports = new function() {
 	}
 	
 	//TIMOB-4644
-	this.getProperties=function(testRun){
+	this.getProperties = function(testRun){
 		var myApp = {};
 		myApp.ui = {};
 		myApp.ui.createMyView = function() {
@@ -154,72 +151,7 @@ module.exports = new function() {
 		});
 		win.open();
 	}
-	
-	//TIMOB-6601
-	this.touchstartEvent=function(testRun){ 
-		var win = Titanium.UI.createWindow();
-		var sampleParentView = Ti.UI.createView({
-			bottom: 0, width: 100, height: 100, backgroundColor: 'yellow',
-			id: 'parent'
-		});
-		var sampleChildView = Ti.UI.createView({
-			width: 50, height: 50, backgroundColor: 'red',
-			id: 'child'
-		});
-		sampleChildView.addEventListener('touchstart', function(e){
-			valueOf(testRun,e.type).shouldBe('touchstart');
-			valueOf(testRun,e.source.id).shouldBe('child');
-			
-			finish(testRun);  
-		});
-		sampleParentView.add(sampleChildView);
-		win.add(sampleParentView);
-		win.addEventListener("open", function(){
-			sampleChildView.fireEvent('touchstart');
-		})
-		win.open();
-	}
-	
-	//TIMOB-8516
-	this.deadlockWarning=function(testRun){
-		var win1 = Ti.UI.createWindow({  
-			layout:'vertical'
-		});
-		var vw1 = Ti.UI.createView({
-			layout:'horizontal',
-			width:'100%',
-			height:75
-		});
-		win1.add(vw1);
-		var TheOrange=Ti.UI.createView({
-			height:75,
-			width:'160dp',
-			top:0
-		});
-		var GreenView=Ti.UI.createView({
-			height:Ti.UI.SIZE,
-			width:Ti.UI.SIZE,
-			focusable:false,
-			touchEnabled:false,
-		});
-		valueOf(testRun, function(){
-			GreenView.add(TheOrange);
-		}).shouldNotThrowException();
-		valueOf(testRun, function(){
-			vw1.add(GreenView); 
-		}).shouldNotThrowException();
-		var BlueView=Ti.UI.createView({
-			width:50,
-			height:50
-		});
-		valueOf(testRun, function(){
-			vw1.add(BlueView);
-		}).shouldNotThrowException();
-		
-		finish(testRun);
-		win1.open();
-	}
-	
+
 	//TIMOB-9054
 	this.sourcevalue=function(testRun){
 		var win = Ti.UI.createWindow();
@@ -227,7 +159,7 @@ module.exports = new function() {
 			backgroundColor: "blue"
 		});
 		win.add(view);
-		valueOf(testRun, view.backgroundColor).shouldBe('blue')
+		valueOf(testRun, view.backgroundColor).shouldBe('blue');
 		view.addEventListener("myEvent", function(e) {
 			e.source.backgroundColor = "red";
 			valueOf(testRun, e.message).shouldBe('Hello');
@@ -243,19 +175,15 @@ module.exports = new function() {
 	}
 	
 	//TIMOB-9085
-	this.thisvalue=function(testRun){
+	this.thisvalue = function(testRun){
 		var win = Ti.UI.createWindow({
 			navBarHidden: true
 		});
 		var view = Ti.UI.createView({ width: '100%', height: '100%'});
 		view.addEventListener('postlayout', function(){
 			valueOf(testRun, this).shouldBeObject();
-			if(Ti.Platform.osname === 'iphone'){
-				valueOf(testRun, this).shouldBe('[object TiUIView]');
-			}
-			else
-				valueOf(testRun, this).shouldBe('[object View]');	
-			
+			valueOf(testRun, this).shouldBe('[object TiUIView]');
+
 			finish(testRun);
 		});
 		win.add(view);
@@ -263,14 +191,14 @@ module.exports = new function() {
 	}
 	
 	//TIMOB-10015
-	this.offsetProperty=function(testRun){
-		var win1=Ti.UI.createWindow({
+	this.offsetProperty = function(testRun){
+		var win1 = Ti.UI.createWindow({
 			layout:'vertical',
 			backgroundColor:'gray',
 			exitOnClose:true,
 			navBarHidden:true
 		});
-		var view=Ti.UI.createView({
+		var view = Ti.UI.createView({
 			height:100,
 			width:100,
 			backgroundGradient:{
@@ -291,7 +219,7 @@ module.exports = new function() {
 	}
 	
 	//TIMOB-10485
-	this.e_source_size=function(testRun){
+	this.e_source_size = function(testRun){
 		var win = Ti.UI.createWindow();
 		var data = [];
 		var label = Ti.UI.createLabel({
@@ -323,43 +251,4 @@ module.exports = new function() {
 		win.open();
 	}
 	
-	//TIMOB-6155
-	this.contentHeight=function(testRun){
-		var win = Ti.UI.createWindow();
-		var scrollView = Ti.UI.createScrollView({
-			layout:'vertical',
-			contentHeight:'auto',
-			top:0,bottom:0,left:0,right:0
-		});
-		win.add(scrollView);
-		win.open();
-		var magicView = Ti.UI.createView({
-			top:5,
-			left:30,
-			right:30,
-			height:100
-		});
-		var viewThatWillGetPushedToTheTop = Ti.UI.createView({
-			top:5,
-			left:30,
-			right:30,
-			height:100
-		});
-		var lastview=Ti.UI.createView({
-			backgroundColor:'blue',
-			height:100,
-			top:10
-		}) 
-		scrollView.add(magicView);
-		scrollView.add(viewThatWillGetPushedToTheTop);
-		scrollView.add(lastview);
-		setTimeout(function(){
-			magicView.hide();
-			viewThatWillGetPushedToTheTop.top -= magicView.height;
-			valueOf(testRun,lastview.height).shouldBe(100);
-			valueOf(testRun,lastview.top).shouldBe(10);
-			
-			finish(testRun); 
-		},1000);
-	}
 }
