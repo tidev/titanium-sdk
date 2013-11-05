@@ -61,7 +61,7 @@ module.exports = new function() {
 			}).shouldNotThrowException();
 			
 			finish(testRun);
-		})
+		});
 		win.open();
 	}
 	
