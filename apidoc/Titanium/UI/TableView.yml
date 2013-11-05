@@ -1145,9 +1145,9 @@ properties:
         A `headerPullView` is a UI control that is often used to provide a convenient way for the 
         user to refresh a table's data.  Typically used with the 
         [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
-        
-        The [TableView Refresh with headerPullView](http://docs.appcelerator.com/titanium/latest/#!/guide/TableView_Refresh_with_headerPullView)
-        guide describes one way a `headerPullView` may be untilized.
+
+        For an example, see the "Pull to refresh" section in the
+        [TableViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/TableViews).
     type: Titanium.UI.View
     platforms: [iphone, ipad]
     since: "2.1.0"
