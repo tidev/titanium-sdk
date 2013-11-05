@@ -45,21 +45,23 @@ module.exports = new function() {
 			width: Ti.UI.SIZE
 		});
 		win.add(activityIndicator);
-		valueOf(testRun, activityIndicator.color).shouldBe('red');
-		activityIndicator.color = 'green';
-		valueOf(testRun, activityIndicator.color).shouldBe('green');
-		valueOf(testRun, activityIndicator.getTop()).shouldBe(0);
-		valueOf(testRun, activityIndicator.getLeft()).shouldBe(0);
-		activityIndicator.color = 'blue';
-		valueOf(testRun, activityIndicator.color).shouldBe('blue');
-		valueOf(testRun, function(){
-			activityIndicator.hide();
-		}).shouldNotThrowException();
-		valueOf(testRun, function(){
-			activityIndicator.show();
-		}).shouldNotThrowException();
+		win.addEventListener('focus', function(){)
+			valueOf(testRun, activityIndicator.color).shouldBe('red');
+				activityIndicator.color = 'green';
+			valueOf(testRun, activityIndicator.color).shouldBe('green');
+			valueOf(testRun, activityIndicator.getTop()).shouldBe(0);
+			valueOf(testRun, activityIndicator.getLeft()).shouldBe(0);
+				activityIndicator.color = 'blue';
+			valueOf(testRun, activityIndicator.color).shouldBe('blue');
+			valueOf(testRun, function(){
+				activityIndicator.hide();
+			}).shouldNotThrowException();
+			valueOf(testRun, function(){
+				activityIndicator.show();
+			}).shouldNotThrowException();
 		
-		finish(testRun);
+			finish(testRun);
+		}
 		win.open();
 	}
 	
@@ -96,18 +98,19 @@ module.exports = new function() {
 				width : 10,
 				message : 'Loading...'
 			});
-			valueOf(testRun, actInd.getBottom()).shouldBe(10);
-			valueOf(testRun, actInd.getHeight()).shouldBe(50);
-			valueOf(testRun, actInd.getWidth()).shouldBe(10);
+			win.add(actInd);
 			valueOf(testRun,function(){
 				actInd.show();
 			}).shouldNotThrowException();
+			valueOf(testRun, actInd.getBottom()).shouldBe(10);
+			valueOf(testRun, actInd.getHeight()).shouldBe(50);
+			valueOf(testRun, actInd.getWidth()).shouldBe(10);
 			setTimeout(function(){
 				valueOf(testRun,function(){
 					actInd.hide();
 				}).shouldNotThrowException();
 			}, 2000);
-			if(suite_complete==true)
+			if(suite_complete == true)
 				finish(testRun);
 		});
 		win1.open();
