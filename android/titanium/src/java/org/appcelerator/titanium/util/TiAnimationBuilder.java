@@ -693,7 +693,6 @@ public class TiAnimationBuilder
 			}
 
 			anim = new TiMatrixAnimation(tdm, anchorX, anchorY);
-
 			addAnimation(as, anim);
 
 		}
@@ -1297,7 +1296,7 @@ public class TiAnimationBuilder
 	 * @return true if the map of running animations contains
 	 * the View, false otherwise.
 	 */
-	private static boolean isAnimationRunningFor(View v)
+	public static boolean isAnimationRunningFor(View v)
 	{
 		if (sRunningViews.size() == 0) {
 			return false;
@@ -1377,5 +1376,10 @@ public class TiAnimationBuilder
 			return;
 		}
 		tiView.setOpacity(1.0f);
+	}
+
+	public boolean isUsingPropertyAnimators()
+	{
+		return (tdm == null || tdm.canUsePropertyAnimators());
 	}
 }
