@@ -21,14 +21,13 @@ module.exports = new function() {
 		{name: "textFieldInScrollview"},
 		{name: "focusAndBlurEvents"},
 		{name: "setProperties"},
-		{name: "setSelectionMethod"},
-		{name: "commonNamespace"}
+		{name: "setSelectionMethod"}
 	]
 	
 	//TIMOB-877
 	this.editableFalse = function(testRun) {
-		var w =Ti.UI.createWindow();
-		var tf = Ti.UI.createTextField({
+		var w = Ti.UI.createWindow();
+		var tf =  Ti.UI.createTextField({
 			width: 280,
 			height: 44,
 			hintText: "Selecionar...",
@@ -45,10 +44,10 @@ module.exports = new function() {
 			valueOf(testRun, tf.height).shouldBe(44);
 			valueOf(testRun, tf.color).shouldBe("red");
 			valueOf(testRun, function(){
-				tf.editable=true;
+				tf.editable = true;
 			}).shouldNotThrowException();
 			valueOf(testRun, function(){
-				tf.editable=false;
+				tf.editable = false;
 			}).shouldNotThrowException();
 			
 			finish(testRun);
@@ -86,7 +85,7 @@ module.exports = new function() {
 	
 	//TIMOB-997
 	this.hasTextInIfStatement = function(testRun) {
-		var win=Ti.UI.createWindow();
+		var win = Ti.UI.createWindow();
 		var textField = Ti.UI.createTextField({
 			height:30,
 			color: 'red',
@@ -97,9 +96,11 @@ module.exports = new function() {
 		textField.addEventListener('focus', function(e) {
 			valueOf(testRun, function(){
 				if(textField.hasText()) {
-					found_Bug=false;
+					found_Bug = false;
 				}
-				else found_Bug=true;
+				else { 
+					found_Bug = true;
+				}
 			}).shouldNotThrowException();
 			valueOf(testRun, textField.height).shouldBe(30);
 			valueOf(testRun, textField.color).shouldBe('red');
@@ -116,7 +117,7 @@ module.exports = new function() {
 	this.textFieldInScrollview = function(testRun) {
 		var win = Ti.UI.createWindow();
 		var formboxLeft = Ti.UI.createView();
-		var finished=false;
+		var finished = false;
 		var field = Ti.UI.createTextField({
 			width:250,
 			left: 50,
@@ -147,22 +148,24 @@ module.exports = new function() {
 			}
 		})
 		field.addEventListener("blur", function(){
-			finished=true;
+			finished = true;
 		})
 		scroll.add(field);
 		formboxLeft.add(scroll);
 		win.add(formboxLeft);
+		win.addEventListener('focus', function(){
+			field.focus();
+			field.blur();
+			field.focus();
+		});
 		win.open();
-		field.focus();
-		field.blur();
-		field.focus();
 	}
 		
 	//TIMOB-6873
 	this.focusAndBlurEvents = function(testRun) {
 		var win = Ti.UI.createWindow();
-		var focus_count=0;
-		var blur_count=0;
+		var focus_count = 0;
+		var blur_count = 0;
 		var row1 = Ti.UI.createTableViewRow({
 			height : 80,
 		});
@@ -173,10 +176,10 @@ module.exports = new function() {
 			focusable : true
 		});
 		tf1.addEventListener('focus', function() {
-			focus_count+=1;
+			focus_count += 1;
 		});
 		tf1.addEventListener('blur', function() {
-			blur_count+=1;
+			blur_count += 1;
 			valueOf(testRun, focus_count).shouldBe(1);
 			valueOf(testRun, blur_count).shouldBe(1);
 		});
@@ -191,10 +194,10 @@ module.exports = new function() {
 			focusable : true
 		});
 		tf2.addEventListener('focus', function() {
-			focus_count+=1;
+			focus_count += 1;
 		});
 		tf2.addEventListener('blur', function() {
-			blur_count+=1;
+			blur_count += 1;
 			valueOf(testRun, focus_count).shouldBe(2);
 			valueOf(testRun, blur_count).shouldBe(2);
 		});
@@ -204,12 +207,12 @@ module.exports = new function() {
 		});
 		tf3 = Titanium.UI.createTextField({
 			color : '#336699',
-            width : 250,
-            height : 80,
-            focusable : true
+			width : 250,
+			height : 80,
+			focusable : true
 		});
 		tf3.addEventListener('focus', function() {
-			focus_count+=1;
+			focus_count += 1;
 			valueOf(testRun, focus_count).shouldBe(3);
 			valueOf(testRun, blur_count).shouldBe(2);
 			
@@ -217,22 +220,24 @@ module.exports = new function() {
 		});
 		row3.add(tf3);
 		var data = [];
-		data[0]=row1;
-		data[1]=row2;
-		data[2]=row3;
+		data[0] = row1;
+		data[1] = row2;
+		data[2] = row3;
 		var tableView = Ti.UI.createTableView({
 			data : data,
 		});
 		win.add(tableView);
+		win.addEventListener('focus', function(){
+			tf1.focus();
+			tf2.focus();
+			tf3.focus();
+		})
 		win.open();
-		tf1.focus();
-		tf2.focus();
-		tf3.focus();
 	}
 	
 	// TIMOB-7255
 	this.setProperties = function(testRun) {
-		var win=Ti.UI.createWindow();
+		var win = Ti.UI.createWindow();
 		var textField = Ti.UI.createTextField({
 			height: 30,
 			top: 20,
@@ -273,33 +278,6 @@ module.exports = new function() {
 			finish(testRun);
 		});
 		win.add(text);
-		win.open();
-	}
-	
-	// TIMOB-9807
-	this.commonNamespace = function(testRun) {
-		var win = Ti.UI.createWindow({
-			backgroundColor : "white"
-		});
-		var ta = Ti.UI.createTextArea({
-			left:5, top: 5, right: 5, height: 180,
-			editable: false,
-			backgroundColor:'#ccc',
-			autoLink: Titanium.UI.AUTOLINK_ALL,
-			value:'Contact\n test@test.com\n 817-555-5555\n http://bit.ly\n 444 Castro Street, Mountain View, CA'
-		});
-		valueOf(testRun, ta.autoLink).shouldBe(Titanium.UI.AUTOLINK_ALL);
-		win.addEventListener('focus', function(e) {
-			ta.autoLink = Titanium.UI.AUTOLINK_NONE ;
-			valueOf(testRun, ta.autoLink).shouldBe(Titanium.UI.AUTOLINK_NONE);
-			valueOf(ta.left).shouldBe(5),
-			valueOf(ta.top).shouldBe(5),
-			valueOf(ta.right).shouldBe(5),
-			valueOf(ta.height).shouldBe(180),
-			
-			finish(testRun);
-		});
-		win.add(ta);
 		win.open();
 	}
 }

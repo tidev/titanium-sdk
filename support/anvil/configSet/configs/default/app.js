@@ -27,12 +27,12 @@ var suites = [
 	{name: "platform"},
 	{name: "properties"},
 	{name: "stream"},
-	{name: "text/textfield"},
 	{name: "titanium"},
 	{name: "ui/ui"},
 	{name: "ui_2dMatrix"},
 	{name: "ui_clipboard"},
 	{name: "ui_controls"},
+	{name: "ui_textfield"},
 	{name: "utils/utils"},
 	{name: "yahoo"}
 ];
