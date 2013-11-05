@@ -1361,10 +1361,13 @@ public abstract class TiUIView
 					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double) event.getY());
 				}
 
-				scaleDetector.onTouchEvent(event);
-				if (scaleDetector.isInProgress()) {
-					pointersDown = 0;
-					return true;
+				// Check scaling only if waiting for pinch
+ 				if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
+					scaleDetector.onTouchEvent(event);
+					if (scaleDetector.isInProgress()) {
+						pointersDown = 0;
+						return true;
+					}
 				}
 
 				boolean handled = detector.onTouchEvent(event);
@@ -1381,14 +1384,16 @@ public abstract class TiUIView
 						pointersDown++;
 					}
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
-					if (pointersDown == 1) {
-						fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
-						pointersDown = 0;
-						return true;
+ 					// Don't fire twofingertap if there is no listener	
+ 					if (proxy.hierarchyHasListener(TiC.EVENT_TWOFINGERTAP)) {
+						if (pointersDown == 1) {
+							fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
+							pointersDown = 0;
+							return true;
+						}
 					}
 					pointersDown = 0;
 				}
-
 
 				String motionEvent = motionEvents.get(event.getAction());
 				if (motionEvent != null) {
