@@ -53,7 +53,7 @@ typedef enum {
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_LIGATURE;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_KERN;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_STRIKETHROUGH_STYLE;
-@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINES_TYLE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINES_STYLE;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_STROKE_COLOR;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_STROKE_WIDTH;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_SHADOW;

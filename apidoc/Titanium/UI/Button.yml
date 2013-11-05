@@ -174,7 +174,7 @@ properties:
         Use in conjunction with [shadowOffset](Titanium.UI.Button.shadowOffset) and [shadowRadius](Titanium.UI.Button.shadowRadius).
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [android]
+    platforms: [android, mobileweb]
     since: "3.2.0"
 
   - name: shadowOffset
@@ -182,7 +182,7 @@ properties:
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Button.shadowColor) and [shadowRadius](Titanium.UI.Button.shadowRadius).
     type: Dictionary
-    platforms: [android]
+    platforms: [android, mobileweb]
     since: "3.2.0"
 
   - name: shadowRadius
@@ -190,7 +190,7 @@ properties:
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Button.shadowColor) and [shadowOffset](Titanium.UI.Button.shadowOffset).
     type: Number
-    platforms: [android]
+    platforms: [android, mobileweb]
     since: "3.2.0"
 
   - name: style

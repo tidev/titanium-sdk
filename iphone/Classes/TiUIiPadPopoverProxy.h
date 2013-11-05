@@ -27,6 +27,7 @@
     BOOL isShowing;
     BOOL isDismissing;
     NSCondition* closingCondition;
+    LayoutConstraint popoverLayoutProperties;
 }
 
 //Because the Popover isn't meant to be placed in anywhere specific, 

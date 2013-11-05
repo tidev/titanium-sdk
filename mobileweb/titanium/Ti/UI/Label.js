@@ -1,25 +1,25 @@
-define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/Locale", "Ti/UI"],
+define(['Ti/_/declare', 'Ti/_/UI/FontWidget', 'Ti/_/dom', 'Ti/_/css', 'Ti/_/style', 'Ti/_/lang', 'Ti/Locale', 'Ti/UI'],
 	function(declare, FontWidget, dom, css, style, lang, Locale, UI) {
 
 	var setStyle = style.set,
 		unitize = dom.unitize,
 		tabStop = 2,
 		textPost = {
-			post: "_setText"
+			post: '_setText'
 		};
 
-	return declare("Ti.UI.Label", FontWidget, {
+	return declare('Ti.UI.Label', FontWidget, {
 
 		constructor: function() {
 			this._add(this._textContainer = UI.createView({
 				width: UI.INHERIT,
 				height: UI.SIZE,
-				center: {y: "50%"}
+				center: {y: '50%'}
 			}));
-			
+
 			var self = this,
 				textContainerDomNode = this._textContainerDomNode = this._textContainer.domNode;
-			self._textContainer._getContentSize = function(width, height) {
+			self._textContainer._getContentSize = function(width) {
 				var text = self._textContainerDomNode.innerHTML,
 					measuredSize = self._measureText(text, textContainerDomNode, self._hasSizeWidth() ? void 0 : width);
 				return {
@@ -27,8 +27,9 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					height: measuredSize.height
 				};
 			};
-			
+
 			this._addStyleableDomNode(textContainerDomNode);
+			setStyle(textContainerDomNode, 'overflow', 'visible');
 			this.wordWrap = true;
 		},
 
@@ -45,23 +46,23 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 			// Handle null, undefined, etc edge case
 			if (text === void 0) {
-				return "";
+				return '';
 			}
-			text += "";
+			text += '';
 
 			// Convert \t and \n to &nbsp;'s and <br/>'s
 			while (currentIndex < text.length) {
 				if (text[currentIndex] === '\t') {
-					var tabSpaces = "",
+					var tabSpaces = '',
 						numSpacesToInsert = tabStop - (currentTabIndex) % tabStop;
 					for (i = 0; i < numSpacesToInsert; i++) {
-						tabSpaces += "&nbsp;";
+						tabSpaces += '&nbsp;';
 					}
 					text = text.substring(0, currentIndex) + tabSpaces + text.substring(currentIndex + 1);
 					currentIndex += tabSpaces.length;
 					currentTabIndex += numSpacesToInsert;
 				} else if (text[currentIndex] === '\n') {
-					text = text.substring(0, currentIndex) + "<br/>" + text.substring(currentIndex + 1);
+					text = text.substring(0, currentIndex) + '<br/>' + text.substring(currentIndex + 1);
 					currentIndex += 5;
 					lineStartIndex = currentIndex;
 					currentTabIndex = 0;
@@ -71,7 +72,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				}
 			}
 
-			text.match(/<br\/>$/) && (text += "&nbsp;");
+			text.match(/<br\/>$/) && (text += '&nbsp;');
 			return text;
 		},
 
@@ -81,20 +82,21 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		},
 
 		_setTextShadow: function() {
-			var shadowColor = this.shadowColor && this.shadowColor !== "" ? this.shadowColor : void 0;
+			var shadowColor = this.shadowColor && this.shadowColor !== '' ? this.shadowColor : void 0;
 			setStyle(
 				this._textContainerDomNode,
-				"textShadow",
+				'textShadow',
 				this.shadowOffset || shadowColor
-					? (this.shadowOffset ? unitize(this.shadowOffset.x) + " " + unitize(this.shadowOffset.y) : "0px 0px") + " 0.1em " + lang.val(shadowColor,"black")
-					: ""
+					? (this.shadowOffset ? unitize(this.shadowOffset.x) + ' ' + unitize(this.shadowOffset.y) : '0px 0px') +
+						' ' + (this.shadowRadius ? unitize(this.shadowRadius) : '0.1em') + ' ' + lang.val(shadowColor,'black')
+					: ''
 			);
 		},
 
 		properties: {
 			ellipsize: {
 				set: function(value) {
-					setStyle(this._textContainerDomNode,"textOverflow", !!value ? "ellipsis" : "clip");
+					setStyle(this._textContainerDomNode,'textOverflow', !!value ? 'ellipsis' : 'clip');
 					return value;
 				},
 				value: true
@@ -107,26 +109,25 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				}
 			},
 			shadowColor: {
-				post: function() {
-					this._setTextShadow();
-				}
+				post: '_setTextShadow'
 			},
 			shadowOffset: {
-				post: function() {
-					this._setTextShadow();
-				}
+				post: '_setTextShadow'
+			},
+			shadowRadius: {
+				post: '_setTextShadow'
 			},
 			text: textPost,
 			textAlign: {
 				set: function(value) {
-					setStyle(this._textContainerDomNode, "textAlign", /(center|right)/.test(value) ? value : "left");
+					setStyle(this._textContainerDomNode, 'textAlign', /(center|right)/.test(value) ? value : 'left');
 					return value;
 				}
 			},
 			textid: textPost,
 			wordWrap: {
 				set: function(value) {
-					setStyle(this._textContainerDomNode, "whiteSpace", !!value ? "normal" : "nowrap");
+					setStyle(this._textContainerDomNode, 'whiteSpace', !!value ? 'normal' : 'nowrap');
 					return value;
 				}
 			},
@@ -138,7 +139,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 						textContainer = this._textContainer;
 					switch(value) {
 						case UI.TEXT_VERTICAL_ALIGNMENT_TOP: top = 0; break;
-						case UI.TEXT_VERTICAL_ALIGNMENT_CENTER: center.y = "50%"; break;
+						case UI.TEXT_VERTICAL_ALIGNMENT_CENTER: center.y = '50%'; break;
 						case UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM: bottom = 0; break;
 					}
 					textContainer.top = top;
