@@ -8,6 +8,8 @@
 #import "TiBase.h"
 #include <math.h>
 
+@class TiApp;
+
 #define INCH_IN_CM 2.54
 #define INCH_IN_MM 25.4
 
@@ -142,7 +144,7 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
 	}
 	if ([object respondsToSelector:@selector(floatValue)])
 	{
-        id val = [[NSUserDefaults standardUserDefaults] objectForKey:@"ti.ui.defaultunit"];
+        id val = [[TiApp tiAppProperties] objectForKey:@"ti.ui.defaultunit"];
         if (val == nil) {
             return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
         }
