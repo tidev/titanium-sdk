@@ -27,6 +27,8 @@ description: |
 extends: Titanium.UI.Window
 platforms: [ipad]
 since: "1.2"
+excludes:
+    properties: [transitionAnimation]
 
 events:
   - name: visible

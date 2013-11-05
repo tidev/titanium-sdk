@@ -31,7 +31,8 @@ exports.init = function (logger, config, cli) {
 
 			logger.info(__('Running application in iOS Simulator'));
 
-			var simulatorDir = afs.resolvePath('~/Library/Application Support/iPhone Simulator/' + build.iosSimVersion + '/Applications'),
+			var simulatorDir = afs.resolvePath('~/Library/Application Support/iPhone Simulator/' + build.iosSimVersion +
+					(appc.version.gte(build.iosSimVersion, '7.0.0') && cli.argv['sim-64bit'] ? '-64' : '') + '/Applications'),
 				logFile = build.tiapp.guid + '.log';
 
 			parallel([
@@ -63,7 +64,7 @@ exports.init = function (logger, config, cli) {
 						'launch',
 						'"' + build.xcodeAppDir + '"',
 						'--sdk',
-						build.iosSimVersion,
+						appc.version.format(build.iosSimVersion, 2, 2),
 						'--family',
 						build.iosSimType
 					],
@@ -80,10 +81,10 @@ exports.init = function (logger, config, cli) {
 					cmd.push('--retina');
 					if (appc.version.gte(build.iosSimVersion, '6.0.0') && build.iosSimType == 'iphone' && cli.argv.tall) {
 						cmd.push('--tall');
-						if (appc.version.gte(build.iosSimVersion, '7.0.0') && build.iosSimType == 'iphone' && cli.argv['sim-64bit']) {
-							cmd.push('--sim-64bit');
-						}
 					}
+				}
+				if (appc.version.gte(build.iosSimVersion, '7.0.0') && cli.argv['sim-64bit']) {
+					cmd.push('--sim-64bit');
 				}
 				cmd = cmd.join(' ');
 

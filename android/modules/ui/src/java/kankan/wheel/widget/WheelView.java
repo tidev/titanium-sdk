@@ -19,7 +19,7 @@
 /**
  * MODIFICATIONS:
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -365,7 +365,9 @@ public class WheelView extends View {
 	 * 
 	 * @return the text
 	 */
-	private String buildText() {
+	// APPCELERATOR TITANIUM CUSTOMIZATION:
+	// Must build ellipsized string here because the layout in this class only support one-line items. (TIMOB-14654)
+	private String buildText(int widthItems) {
 		WheelAdapter adapter = getAdapter();
 		StringBuilder itemsText = new StringBuilder();
 		int addItems = visibleItems / 2;
@@ -373,6 +375,8 @@ public class WheelView extends View {
 			if (i >= 0 && adapter != null) {
 				String text = adapter.getItem(i);
 				if (text != null) {
+					// TITANIUM
+					text = (String) TextUtils.ellipsize(text, itemsPaint, widthItems, TextUtils.TruncateAt.END);
 					itemsText.append(text);
 				}
 			}
@@ -385,6 +389,8 @@ public class WheelView extends View {
 			if (adapter != null && i < adapter.getItemsCount()) {
 				String text = adapter.getItem(i);
 				if (text != null) {
+					// TITANIUM
+					text = (String) TextUtils.ellipsize(text, itemsPaint, widthItems, TextUtils.TruncateAt.END);
 					itemsText.append(text);
 				}
 			}
@@ -497,7 +503,9 @@ public class WheelView extends View {
 	 */
 	private void createLayouts(int widthItems, int widthLabel) {
 		if (itemsLayout == null || itemsLayout.getWidth() > widthItems) {
-			String text = buildText();
+			// APPCELERATOR TITANIUM CUSTOMIZATION:
+			// Must build ellipsized string here because the layout in this class only support one-line items. (TIMOB-14654)
+			String text = buildText(widthItems);
 			if (text == null) {
 				text = "";
 			}
@@ -510,6 +518,9 @@ public class WheelView extends View {
 
 		if (valueLayout == null || valueLayout.getWidth() > widthItems) {
 			String text = getAdapter() != null ? getAdapter().getItem(currentItem) : null;
+			// APPCELERATOR TITANIUM CUSTOMIZATION:
+			// Must build ellipsized string here because the layout in this class only support one-line items. (TIMOB-14654)
+			text = text != null ? (String) TextUtils.ellipsize(text, valuePaint, widthItems, TextUtils.TruncateAt.END) : null;
 			valueLayout = new StaticLayout(text != null ? text : "",
 					0, text != null ? text.length() : 0,
 					valuePaint, widthItems, widthLabel > 0 ?
