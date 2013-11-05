@@ -45,7 +45,10 @@ module.exports = new function() {
 			width: Ti.UI.SIZE
 		});
 		win.add(activityIndicator);
-		win.addEventListener('focus', function(){)
+		win.addEventListener('focus', function(){
+			valueOf(testRun, function(){
+				activityIndicator.show();
+			}).shouldNotThrowException();
 			valueOf(testRun, activityIndicator.color).shouldBe('red');
 				activityIndicator.color = 'green';
 			valueOf(testRun, activityIndicator.color).shouldBe('green');
@@ -56,12 +59,9 @@ module.exports = new function() {
 			valueOf(testRun, function(){
 				activityIndicator.hide();
 			}).shouldNotThrowException();
-			valueOf(testRun, function(){
-				activityIndicator.show();
-			}).shouldNotThrowException();
-		
+			
 			finish(testRun);
-		}
+		})
 		win.open();
 	}
 	
