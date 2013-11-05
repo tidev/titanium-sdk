@@ -1378,13 +1378,25 @@ public abstract class TiUIView
 						didScale = false;
 						pointersDown = 0;
 					} else {
-						pointersDown++;
+						int index = event.getActionIndex();
+						float x = event.getX(index);
+						float y = event.getY(index);
+						if (x >= 0 && x < touchable.getWidth() && y >= 0 && y < touchable.getHeight()) {
+							// If the second touch-up happens inside the view, it is a two-finger touch.
+							pointersDown++;
+						}
 					}
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
-					if (pointersDown == 1) {
-						fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
-						pointersDown = 0;
-						return true;
+					// Don't fire twofingertap if there is no listener
+					if (proxy.hierarchyHasListener(TiC.EVENT_TWOFINGERTAP)) {
+						if (pointersDown == 1) {
+							float x = event.getX();
+							float y = event.getY();
+							if (x >= 0 && x < touchable.getWidth() && y >= 0 && y < touchable.getHeight()) {
+								// If the touch-up happens inside the view, fire the event.
+								fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
+							}
+						}
 					}
 					pointersDown = 0;
 				}
