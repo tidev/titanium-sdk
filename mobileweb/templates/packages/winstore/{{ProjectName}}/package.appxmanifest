@@ -16,7 +16,7 @@
   </Resources>
   <Applications>
     <Application Id="App" StartPage="App/index.html">
-      <VisualElements DisplayName="StoreBrowserTest" Logo="images\logo.png" SmallLogo="images\smalllogo.png" Description="StoreBrowserTest" ForegroundText="light" BackgroundColor="#464646">
+      <VisualElements DisplayName="<%= projectDisplayName %>" Logo="images\logo.png" SmallLogo="images\smalllogo.png" Description="<%= projectDescription %>" ForegroundText="light" BackgroundColor="#464646">
         <DefaultTile ShowName="allLogos" />
         <SplashScreen Image="images\splashscreen.png" />
       </VisualElements>
