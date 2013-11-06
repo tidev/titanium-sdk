@@ -142,11 +142,6 @@
 -(void)hideStatusBar:(id)args;
 -(void)showStatusBar:(id)args;
 
-#ifdef USE_TI_UIIPHONENAVIGATIONGROUP
--(id)createNavigationGroup:(id)args;
-#endif
-
-
 @end
 
 #endif

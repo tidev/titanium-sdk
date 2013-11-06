@@ -50,9 +50,6 @@
 #ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
 	#import "TiUIiPhoneTableViewCellSelectionStyleProxy.h"
 #endif
-#ifdef USE_TI_UIIPHONENAVIGATIONGROUP
-	#import "TiUIiPhoneNavigationGroupProxy.h"
-#endif
 #ifdef USE_TI_UIIPAD
 	#import "TiUIiPadProxy.h"
 #endif
@@ -325,14 +322,6 @@ BEGIN_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit,NSNumber)
 result = [NSNumber numberWithBool:[[UIApplication sharedApplication] applicationSupportsShakeToEdit]];
 END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
-#ifdef USE_TI_UIIPHONENAVIGATIONGROUP
--(id)createNavigationGroup:(id)args
-{
-	// don't create a static depedency, do it with lazy binding
-	Class cl = NSClassFromString(@"TiUIiPhoneNavigationGroupProxy");
-	return [[[cl alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
 
 MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_COVER_VERTICAL,UIModalTransitionStyleCoverVertical);
 MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,UIModalTransitionStyleFlipHorizontal);
