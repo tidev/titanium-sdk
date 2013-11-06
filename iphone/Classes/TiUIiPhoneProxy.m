@@ -224,72 +224,9 @@ DEFINE_SUBPROXY_AS(ListViewSeparatorStyle, TableViewSeparatorStyle, listViewSepa
     return @"Ti.UI.iPhone";
 }
 
--(void)hideStatusBar:(id)args
-{
-    if ([TiUtils isIOS7OrGreater]) {
-        DebugLog(@"hideStatusBar method is not supported on IOS7. Ignoring call. Use the fullScreen property of the window");
-        return;
-    }
-    ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-    ENSURE_UI_THREAD(hideStatusBar,args);
-    DebugLog(@"hideStatusBar method deprecated in 3.1.3. Removed in 3.2.0");
-    
-    BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-    int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
-    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:style];
-    [[[TiApp app] controller] resizeView];
-    [[[TiApp app] controller] repositionSubviews];
-}
-
--(void)showStatusBar:(id)args
-{
-    if ([TiUtils isIOS7OrGreater]) {;
-        DebugLog(@"showStatusBar method is not supported on IOS7. Ignoring call. Use the fullScreen property of the window");
-        return;
-    }
-    ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-    ENSURE_UI_THREAD(showStatusBar,args);
-    DebugLog(@"showStatusBar method deprecated in 3.1.3. Removed in 3.2.0");
-
-    BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-    int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
-    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:style];
-    [[[TiApp app] controller] resizeView];
-    [[[TiApp app] controller] repositionSubviews];
-}
-
--(void)setStatusBarHidden:(id)hidden
-{
-    if ([TiUtils isIOS7OrGreater]) {
-        DebugLog(@"setStatusBarHidden method is not supported on IOS7. Ignoring call. Use the fullScreen property of the window");
-        return;
-    }
-    ENSURE_SINGLE_ARG(hidden,NSObject);
-    ENSURE_UI_THREAD(setStatusBarHidden,hidden);
-    DebugLog(@"setStatusBarHidden method deprecated in 3.1.3. Removed in 3.2.0");
-    
-    BOOL value = [TiUtils boolValue:hidden];
-    [[UIApplication sharedApplication] setStatusBarHidden:value withAnimation:UIStatusBarAnimationNone];
-    [[[TiApp app] controller] resizeView];
-    [[[TiApp app] controller] repositionSubviews];
-}
-
 BEGIN_UI_THREAD_PROTECTED_VALUE(statusBarHidden,NSNumber)
 result = [NSNumber numberWithBool:[[UIApplication sharedApplication] isStatusBarHidden]];
 END_UI_THREAD_PROTECTED_VALUE(statusBarHidden)
-
--(void)setStatusBarStyle:(NSNumber *)style
-{
-    if ([TiUtils isIOS7OrGreater]) {
-        DebugLog(@"setStatusBarStyle method is not supported on IOS7. Ignoring call. Use the statusBarStyle property of the window");
-        return;
-    }
-
-	ENSURE_UI_THREAD(setStatusBarStyle,style);
-	DebugLog(@"setStatusBarStyle method deprecated in 3.1.3. Removed in 3.2.0");
-    
-	[[UIApplication sharedApplication] setStatusBarStyle:[style intValue]];
-}
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(statusBarStyle,NSNumber)
 result = [NSNumber numberWithInt:[[UIApplication sharedApplication] statusBarStyle]];
