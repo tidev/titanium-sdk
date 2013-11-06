@@ -18,6 +18,7 @@
 		"Matt Langston <mlangston@appcelerator.com>",
 		"Sabil Rahim <srahim@appcelerator.com>"
 	],
+	"minIosVersion": "5.0",
 	"vendorDependencies": {
 		"xcode": ">=5.0 <=5.0.x",
 		"ios sdk": ">=7.0 <=7.x",

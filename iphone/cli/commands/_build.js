@@ -414,12 +414,13 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								}));
 							},
 							validate: function (value, callback) {
-								var v = developerCertLookup[value.toLowerCase()];
-								if (v) {
-									callback(null, v);
-								} else {
-									callback(new Error(__('Invalid developer certificate "%s"', value)));
+								if (value) {
+									var v = developerCertLookup[value.toLowerCase()];
+									if (v) {
+										return callback(null, v);
+									}
 								}
+								callback(new Error(__('Invalid developer certificate "%s"', value)));
 							}
 						},
 						'distribution-name': {
@@ -552,7 +553,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								}));
 							},
 							validate: function (outputDir, callback) {
-								callback(outputDir ? null : new Error(__('Invalid output directory')), outputDir);
+								callback(outputDir || !_t.conf.options['output-dir'].required ? null : new Error(__('Invalid output directory')), outputDir);
 							}
 						},
 						'pp-uuid': {
@@ -777,16 +778,84 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			this.compileJSS = false;
 	}
 
+	if (cli.argv['skip-js-minify']) {
+		this.minifyJS = false;
+	}
+
+	// at this point we've validated everything except underscores in the app id
+	if (!config.get('ios.skipAppIdValidation')) {
+		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(cli.tiapp.id)) {
+			logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
+			logger.error(__('The app id must consist only of letters, numbers, dashes, and underscores.'));
+			logger.error(__('Note: iOS does not allow underscores.'));
+			logger.error(__('The first character must be a letter or underscore.'));
+			logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+			process.exit(1);
+		}
+
+		if (cli.tiapp.id.indexOf('_') != -1) {
+			logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
+			logger.error(__('The app id must consist of letters, numbers, and dashes.'));
+			logger.error(__('The first character must be a letter.'));
+			logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+			process.exit(1);
+		}
+	}
+
+	if (!cli.argv['ios-version']) {
+		if (this.iosSdkVersions.length) {
+			// set the latest version
+			cli.argv['ios-version'] = this.iosSdkVersions[this.iosSdkVersions.length-1];
+		} else {
+			// this should not be possible, but you never know
+			logger.error(cli.argv['ios-version'] ? __('Unable to find iOS SDK %s', cli.argv['ios-version']) + '\n' : __('Missing iOS SDK') + '\n');
+			logger.log(__('Available iOS SDK versions:'));
+			this.iosSdkVersions.forEach(function (ver) {
+				logger.log('    ' + ver.cyan);
+			});
+			logger.log();
+			process.exit(1);
+		}
+	}
+	this.iosSdkVersion = cli.argv['ios-version'];
+
+	// figure out the min-ios-ver that this app is going to support
+	var defaultMinIosSdk = this.packageJson.minIosVersion;
+	this.minIosVer = cli.tiapp.ios && cli.tiapp.ios['min-ios-ver'] || defaultMinIosSdk;
+	if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosSdk)) {
+		this.minIosVer = defaultMinIosSdk;
+	} else if (version.lt(this.minIosVer, defaultMinIosSdk)) {
+		this.minIosVer = defaultMinIosSdk;
+	} else if (version.gt(this.minIosVer, this.iosSdkVersion)) {
+		this.minIosVer = this.iosSdkVersion;
+	}
+
 	var deviceId = this.deviceId = cli.argv['device-id'];
 	// if we're doing a simulator build and we have a --device-id, then set the
 	// args based on the sim profile values
-	if (this.target == 'simulator' && deviceId) {
+	if ((this.target == 'device' || this.target == 'simulator') && deviceId) {
 		for (var i = 0, l = this.devices.length; i < l; i++) {
 			if (this.devices[i].id == deviceId) {
-				cli.argv.retina = !!this.devices[i].retina;
-				cli.argv.tall = !!this.devices[i].tall;
-				cli.argv['sim-64bit'] = !!this.devices[i]['64bit'];
-				cli.argv['sim-type'] = this.devices[i].type;
+				if (this.target == 'device') {
+					if (version.lt(this.devices[i].productVersion, this.minIosVer)) {
+						logger.error(__('This app does not support the device "%s"', this.devices[i].name) + '\n');
+						logger.log(__("The device is running iOS %s, however the app's the minimum iOS version is set to %s", this.devices[i].productVersion.cyan, this.minIosVer.cyan));
+						logger.log(__('In order to install this app on this device, lower the %s to %s in the tiapp.xml:', '<min-ios-ver>'.cyan, version.format(this.devices[i].productVersion, 2, 2).cyan));
+						logger.log();
+						logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+						logger.log('    <ios>'.grey);
+						logger.log(('        <min-ios-ver>' + version.format(this.devices[i].productVersion, 2, 2) + '</min-ios-ver>').magenta);
+						logger.log('    </ios>'.grey);
+						logger.log('</ti:app>'.grey);
+						logger.log();
+						process.exit(0);
+					}
+				} else if (this.target == 'simulator') {
+					cli.argv.retina = !!this.devices[i].retina;
+					cli.argv.tall = !!this.devices[i].tall;
+					cli.argv['sim-64bit'] = !!this.devices[i]['64bit'];
+					cli.argv['sim-type'] = this.devices[i].type;
+				}
 				break;
 			}
 		}
@@ -826,42 +895,6 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 					}
 				}
 			}, this);
-		}
-	}
-
-	// at this point we've validated everything except underscores in the app id
-	if (!config.get('ios.skipAppIdValidation')) {
-		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(cli.tiapp.id)) {
-			logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
-			logger.error(__('The app id must consist only of letters, numbers, dashes, and underscores.'));
-			logger.error(__('Note: iOS does not allow underscores.'));
-			logger.error(__('The first character must be a letter or underscore.'));
-			logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
-			process.exit(1);
-		}
-
-		if (cli.tiapp.id.indexOf('_') != -1) {
-			logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
-			logger.error(__('The app id must consist of letters, numbers, and dashes.'));
-			logger.error(__('The first character must be a letter.'));
-			logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
-			process.exit(1);
-		}
-	}
-
-	if (!cli.argv['ios-version']) {
-		if (this.iosSdkVersions.length) {
-			// set the latest version
-			cli.argv['ios-version'] = this.iosSdkVersions[this.iosSdkVersions.length-1];
-		} else {
-			// this should not be possible, but you never know
-			logger.error(cli.argv['ios-version'] ? __('Unable to find iOS SDK %s', cli.argv['ios-version']) + '\n' : __('Missing iOS SDK') + '\n');
-			logger.log(__('Available iOS SDK versions:'));
-			this.iosSdkVersions.forEach(function (ver) {
-				logger.log('    ' + ver.cyan);
-			});
-			logger.log();
-			process.exit(1);
 		}
 	}
 
@@ -1269,7 +1302,6 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 		this.deployType = /^device|simulator$/.test(this.target) && argv['deploy-type'] ? argv['deploy-type'] : this.deployTypes[this.target];
 	}
 	this.xcodeTarget = process.env.CONFIGURATION || (/^device|simulator$/.test(this.target) ? 'Debug' : 'Release');
-	this.iosSdkVersion = argv['ios-version'];
 	this.iosSimVersion = argv['sim-version'];
 	this.iosSimType = argv['sim-type'];
 	this.deviceFamily = argv['device-family'];
@@ -1328,17 +1360,6 @@ iOSBuilder.prototype.loginfo = function loginfo(next) {
 	}
 
 	// validate the min-ios-ver from the tiapp.xml
-	this.minIosVer = this.tiapp.ios && this.tiapp.ios['min-ios-ver'] || this.minSupportedIosSdk;
-	if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, this.minSupportedIosSdk)) {
-		this.logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, version.format(this.minSupportedIosSdk, 2).cyan));
-		this.minIosVer = this.minSupportedIosSdk;
-	} else if (version.lt(this.minIosVer, this.minSupportedIosSdk)) {
-		this.logger.info(__('The %s of the iOS section in the tiapp.xml is lower than minimum supported version: Using %s as minimum', 'min-ios-ver'.cyan, version.format(this.minSupportedIosSdk, 2).cyan));
-		this.minIosVer = this.minSupportedIosSdk;
-	} else if (version.gt(this.minIosVer, this.iosSdkVersion)) {
-		this.logger.info(__('The %s of the iOS section in the tiapp.xml is greater than the specified %s: Using %s as minimum', 'min-ios-ver'.cyan, 'ios-version'.cyan, version.format(this.iosSdkVersion, 2).cyan));
-		this.minIosVer = this.iosSdkVersion;
-	}
 	this.logger.info(__('Minimum iOS version: %s', version.format(this.minIosVer, 2, 3).cyan));
 
 	if (/^device|dist\-appstore|dist\-adhoc$/.test(this.target)) {

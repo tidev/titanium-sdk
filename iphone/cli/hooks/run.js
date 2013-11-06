@@ -135,12 +135,14 @@ exports.init = function (logger, config, cli) {
 					}
 				});
 
+				var levels = logger.getLevels(),
+					logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
+
 				function findLogFile() {
 					var files = fs.readdirSync(simulatorDir),
 						file,
 						i = 0,
-						l = files.length,
-						logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + logger.getLevels().join('|') + ')\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
+						l = files.length;
 
 					for (; i < l; i++) {
 						file = path.join(simulatorDir, files[i], 'Documents', logFile);
@@ -162,12 +164,7 @@ exports.init = function (logger, config, cli) {
 
 							(function readChanges () {
 								var stats = fs.statSync(file),
-									fd,
-									bytesRead,
-									lines,
-									m,
-									line,
-									i, len;
+									fd, bytesRead, lines, m,line, i, len;
 
 								if (position < stats.size) {
 									fd = fs.openSync(file, 'r');
@@ -185,7 +182,11 @@ exports.init = function (logger, config, cli) {
 										if (line) {
 											m = line.match(logLevelRE);
 											if (m) {
-												logger[lastLogger = m[2].toLowerCase()](m[4].trim());
+												lastLogger = m[2].toLowerCase();
+												line = m[4].trim();
+											}
+											if (levels.indexOf(lastLogger) == -1) {
+												logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
 											} else {
 												logger[lastLogger](line);
 											}
