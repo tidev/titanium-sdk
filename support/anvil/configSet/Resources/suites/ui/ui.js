@@ -544,6 +544,7 @@ module.exports = new function() {
 		finish(testRun);
 	}
 
+	//TIMOB-10812
 	this.horizontalLayoutWidth = function(testRun) {
 		var win = Ti.UI.createWindow({ backgroundColor: 'white' });
 		var view = Ti.UI.createView({ width: Ti.UI.SIZE, height: 30, layout: 'horizontal', backgroundColor: 'red' });

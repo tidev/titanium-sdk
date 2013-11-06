@@ -27,6 +27,7 @@ module.exports = new function() {
 		{name: "createPendingIntentAndNotification"}
 	]
 
+	//TIMOB-9052
 	this.addressBookAppCrash = function(testRun){
 		valueOf(testRun, function() {
 			var values = {
@@ -61,6 +62,7 @@ module.exports = new function() {
 		finish(testRun);
 	}
 
+	//TIMOB-10531
 	this.contactsFullName = function(testRun){
 		var contact = Ti.Contacts.createPerson({
 			firstName: 'David',
@@ -191,6 +193,7 @@ module.exports = new function() {
 		finish(testRun);
 	}
 
+	//TIMOB-6928
 	this.createPendingIntentAndNotification = function(testRun) {
 		valueOf(testRun, function() {
 			var AppIntent=Ti.Android.createIntent({
@@ -205,7 +208,8 @@ module.exports = new function() {
 				flags:Ti.Android.FLAG_UPDATE_CURRENT,
 				type:Ti.Android.PENDING_INTENT_FOR_ACTIVITY
 			});
-			var NotificationMembers = {contentTitle: Ti.App.name,
+			var NotificationMembers = {
+				contentTitle: Ti.App.name,
 				contentText: 'I am workin here',
 				when: 0,
 				contentIntent: NotificationClickAction};
