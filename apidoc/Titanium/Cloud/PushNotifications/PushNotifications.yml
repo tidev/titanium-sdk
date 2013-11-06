@@ -1,11 +1,9 @@
 name: Titanium.Cloud.PushNotifications
 summary: Provides methods for accessing ACS push notification channels.
 description: |
-    Please refer to [configure push notifications for iOS](http://cloud.appcelerator.com/docs/ios#pushn)
-    and [configure push notifications for Android](http://cloud.appcelerator.com/docs/android#pushn) 
-    to set up your app for push notifications. To receive push notifications on Android, please 
-    refer to the <Titanium.CloudPush> module.
-    
+    For information on configuring and setting up push notifications,
+    see the [Push Notifications guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Push_Notifications).
+
     The methods in this module are used to subscribe and unsubscribe from ACS push notification 
     channels, and to generate ACS push notifications. Push notifications are received using 
     platform-specific mechanisms:
