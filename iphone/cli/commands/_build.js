@@ -3042,7 +3042,10 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		var parts = symbol.replace(/^(Ti|Titanium)./, '').split('.');
 		if (parts.length) {
 			namespaces[parts[0].toLowerCase()] = 1;
-			symbols[parts.join('.').replace(/\.create/gi, '').replace(/\./g, '').replace(/\-/g, '_').toUpperCase()] = 1;
+			while (parts.length) {
+				symbols[parts.join('.').replace(/\.create/gi, '').replace(/\./g, '').replace(/\-/g, '_').toUpperCase()] = 1;
+				parts.pop();
+			}
 		}
 	}
 
