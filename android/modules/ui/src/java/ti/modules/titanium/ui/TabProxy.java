@@ -8,6 +8,7 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -216,6 +217,10 @@ public class TabProxy extends TiViewProxy
 		
 		//When tab loses focus, we hide the soft keyboard.
 		Activity currentActivity = TiApplication.getAppCurrentActivity();
+		if (currentActivity == null) {
+			Log.e(TAG, "Could not onFocusChanged, current activity is null.", Log.DEBUG_MODE);
+			return;
+		}
 		if (!focused && currentActivity != null) {
 			TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
 		}

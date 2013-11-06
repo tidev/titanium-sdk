@@ -135,7 +135,7 @@ public class ContactsModule extends KrollModule
 		
 		Activity launchingActivity = TiApplication.getInstance().getCurrentActivity();
 		if (launchingActivity == null) {
-			Log.e(TAG, "Could not showContacts, current activity is null., Log.DEBUG_MODE");
+			Log.e(TAG, "Could not showContacts, current activity is null.", Log.DEBUG_MODE);
 			return;
 		}
 		

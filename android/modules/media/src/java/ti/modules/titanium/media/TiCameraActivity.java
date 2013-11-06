@@ -412,7 +412,12 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		Uri contentUri = Uri.fromFile(imageFile);
 		mediaScanIntent.setData(contentUri);
 		Activity activity = TiApplication.getAppCurrentActivity();
-		activity.sendBroadcast(mediaScanIntent);
+		if (activity != null) {
+			activity.sendBroadcast(mediaScanIntent);
+		} else {
+			Log.e(TAG, "Could not saveToPhotoGallery, current activity is null.", Log.DEBUG_MODE);
+			return;
+		}
 	}
 
 	static public void takePicture()

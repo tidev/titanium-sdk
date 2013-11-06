@@ -288,6 +288,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	protected void handleOpen(KrollDict options)
 	{
 		Activity topActivity = TiApplication.getAppCurrentActivity();
+		if (topActivity == null) {
+			Log.e(TAG, "Could not handleOpen, current activity is null.", Log.DEBUG_MODE);
+			return;
+		}
 		Intent intent = new Intent(topActivity, TiActivity.class);
 		fillIntent(topActivity, intent);
 

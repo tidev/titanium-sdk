@@ -57,13 +57,21 @@ public class AndroidModule extends KrollModule
 		}
 
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
-		(new MediaScannerClient(activity, mediaPaths, mimeTypes, callback)).scan();
+		if (activity != null) {
+			(new MediaScannerClient(activity, mediaPaths, mimeTypes, callback)).scan();
+		} else {
+			Log.e(TAG, "Could not scanMediaFiles, current activity is null.", Log.DEBUG_MODE);
+		}
 	}
 
 	@Kroll.method
 	public void setSystemWallpaper(TiBlob image, boolean scale)
 	{
 		Context ctx = TiApplication.getInstance().getCurrentActivity();
+		if (ctx == null) {
+			Log.e(TAG, "Could not setSystemWallpaper, current activity is null.", Log.DEBUG_MODE);
+			return;
+		}
 		WallpaperManager wm = WallpaperManager.getInstance(ctx);
 		TiDrawableReference ref = TiDrawableReference.fromBlob(getActivity(), image);
 		Bitmap b = null;

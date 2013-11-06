@@ -178,8 +178,10 @@ public class TiFastDev implements Handler.Callback
 		KrollRuntime kRuntime = KrollRuntime.getInstance();
 		if (kRuntime != null) {
 			Context ctx = kRuntime.getKrollApplication().getCurrentActivity();
-			Toast toast = Toast.makeText(ctx, message, Toast.LENGTH_LONG);
-			toast.show();
+			if (ctx != null) {
+				Toast toast = Toast.makeText(ctx, message, Toast.LENGTH_LONG);
+				toast.show();
+			}
 		}
 		
 	}
