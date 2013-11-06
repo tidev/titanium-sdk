@@ -2330,7 +2330,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			titaniumPrepHook(
 				path.join(this.platformPath, titaniumPrep),
 				[ this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt),
-				{},
+				{
+					env: appc.util.mix({
+						'JAVA_HOME': this.jdkInfo.home
+					}, process.env)
+				},
 				next
 			);
 		});
