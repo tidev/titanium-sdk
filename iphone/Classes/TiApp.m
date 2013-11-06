@@ -38,6 +38,7 @@ extern void UIColorFlushCache();
 
 #define SHUTDOWN_TIMEOUT_IN_SEC	3
 #define TIV @"TiVerify"
+#define TI_BACKGROUNDFETCH_MAX_INTERVAL 29
 
 BOOL applicationInMemoryPanic = NO;
 
@@ -59,6 +60,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 @synthesize window, remoteNotificationDelegate, controller;
 @synthesize disableNetworkActivityIndicator;
 @synthesize remoteNotification;
+@synthesize pendingCompletionHandlers;
 @synthesize localNotification;
 
 +(void)initialize
@@ -264,6 +266,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		DebugLog(@"[DEBUG] Application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
 		fflush(stderr);
+        appBooted = YES;
 		if (localNotification != nil) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 		}
@@ -336,10 +339,16 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions_
 {
-	started = [NSDate timeIntervalSinceReferenceDate];
-	[TiExceptionHandler defaultExceptionHandler];
+    FunctionName();
 
-	// nibless window
+    //TODO: do this if only need to.
+    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
+
+    started = [NSDate timeIntervalSinceReferenceDate];
+	[TiExceptionHandler defaultExceptionHandler];
+    
+    
+    // nibless window
 	window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 
 	[self initController];
@@ -380,7 +389,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	}
     [self launchToUrl];
 	[self boot];
-	
+	DebugLog(@"");
 	return YES;
 }
 
@@ -390,6 +399,122 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[launchOptions setObject:[url absoluteString] forKey:@"url"];
     return YES;
 }
+
+#pragma mark
+#pragma mark Background Fetch iOS 7
+
+-(void)application:(UIApplication*)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+
+    FunctionName();
+    NSURLSession
+    
+    // Generate unique key with timestamp.
+    id key = [NSString stringWithFormat:@"F-%f",[[NSDate date] timeIntervalSince1970]];
+    
+    // Store the completionhandler till we can come back and send appropriate message.
+    if (pendingCompletionHandlers == nil) {
+        pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
+    }
+    
+    [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
+    
+    // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
+    // the bridge completes processing of app.js (adding the event into notification center).
+    
+    [self postNotificationwithKey:[NSDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil] withNotificationName:kTiBackgroundFetchNotification] ;
+    
+    // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
+    NSTimer*  flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO] ;
+    [[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
+    
+}
+
+#pragma mark Helper Methods
+
+-(void)postNotificationwithKey:(NSMutableDictionary*)userInfo withNotificationName:(NSString*)notificationName{
+    if (appBooted && ([pendingCompletionHandlers objectForKey:[userInfo objectForKey:@"handlerId"]] != nil)) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:userInfo];
+    } else {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_current_queue(), ^{
+            [self postNotificationwithKey:userInfo withNotificationName:notificationName];
+        });
+    }
+}
+
+-(void)flushCompletionHandlerQueue
+{
+    FunctionName();
+    if (pendingCompletionHandlers !=nil) {
+        for (id key in pendingCompletionHandlers) {
+            [self completionHandler:key withResult:UIBackgroundFetchResultFailed];
+        }
+    }
+    RELEASE_TO_NIL(pendingCompletionHandlers);
+}
+
+-(void)fireCompletionHandler:(NSTimer*)timer
+{
+    FunctionName();
+    id key = timer.userInfo;
+    if ([pendingCompletionHandlers objectForKey:key]) {
+        [self completionHandler:key withResult:UIBackgroundFetchResultFailed];
+        //Send a event signalling the that backgroundfetch ended.
+    }
+}
+
+-(void)completionHandler:(id)key withResult:(UIBackgroundFetchResult)result
+{
+    FunctionName();
+    if ([pendingCompletionHandlers objectForKey:key]) {
+        void (^completionHandler)(UIBackgroundFetchResult);
+        completionHandler = [pendingCompletionHandlers objectForKey:key];
+        completionHandler(result);
+        [pendingCompletionHandlers removeObjectForKey:key];
+    } else {
+        DebugLog(@"[ERROR] The specified Completion Handler with ID: %@ has already expired or removed from the system", key);
+    }
+}
+
+#pragma mark
+#pragma mark Remote Notifications iOS 7
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler
+{
+    FunctionName();
+    
+    // Generate unique key with timestamp.
+    id key = [NSString stringWithFormat:@"R-%f",[[NSDate date] timeIntervalSince1970]];
+    
+    // Store the completionhandler till we can come back and send appropriate message.
+    if (pendingCompletionHandlers == nil) {
+        pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
+    }
+    
+    [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
+    
+    // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
+    // the bridge completes processing of app.js (adding the event into notification center).
+    
+    //TODO: Rethink this approach not really sure if i am doing the right thing.
+    
+    NSMutableDictionary* userInfo_ = [NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil];
+    [userInfo_ addEntriesFromDictionary:userInfo];
+    [self postNotificationwithKey:userInfo_ withNotificationName:kTiSilentPushNotification] ;
+    
+    // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
+    NSTimer*  flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO] ;
+    [[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
+}
+
+#pragma mark
+#pragma mark Background Transfer Service iOS 7
+
+- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
+{NSURLSession
+    FunctionName();
+}
+
+#pragma mark
 
 -(void)waitForKrollProcessing
 {
@@ -413,7 +538,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
-	NSNotificationCenter * theNotificationCenter = [NSNotificationCenter defaultCenter];
+	FunctionName();
+    NSNotificationCenter * theNotificationCenter = [NSNotificationCenter defaultCenter];
 
 	//This will send out the 'close' message.
 	[theNotificationCenter postNotificationName:kTiWillShutdownNotification object:self];
@@ -448,6 +574,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	RELEASE_TO_NIL(xhrBridge);
 #endif	
 	RELEASE_TO_NIL(remoteNotification);
+    RELEASE_TO_NIL(pendingCompletionHandlers);
 	RELEASE_TO_NIL(sessionId);
 }
 
@@ -468,6 +595,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         [window addSubview:[self splashScreenImage]];
     }
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
+	FunctionName();
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
 	
 	// suspend any image loading
 	[[ImageLoader sharedLoader] suspend];
@@ -485,7 +614,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         [[self splashScreenImage] removeFromSuperview];
         RELEASE_TO_NIL(splashScreenImage);
     }
-	// NOTE: Have to fire a separate but non-'resume' event here because there is SOME information
+	FunctionName();
+    // NOTE: Have to fire a separate but non-'resume' event here because there is SOME information
 	// (like new URL) that is not passed through as part of the normal foregrounding process.
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification object:self];
 	
@@ -495,7 +625,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)applicationDidEnterBackground:(UIApplication *)application
 {
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification object:self];
+	FunctionName();
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification object:self];
 	[TiUtils queueAnalytics:@"ti.background" name:@"ti.background" data:nil];
 
 	if (backgroundServices==nil)
@@ -527,6 +658,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
+    FunctionName();
+    [self flushCompletionHandlerQueue];
     [sessionId release];
     sessionId = [[TiUtils createUUID] retain];
     

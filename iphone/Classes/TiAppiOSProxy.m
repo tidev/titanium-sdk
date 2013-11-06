@@ -33,6 +33,22 @@
 	{
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveLocalNotification:) name:kTiLocalNotification object:nil];
 	}
+    if ((count == 1) && [type isEqual:@"backgroundfetch"]) {
+        NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+        if ([backgroundModes containsObject:@"fetch"]) {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveBackgroundFetchNotification:) name:kTiBackgroundFetchNotification object:nil];
+        } else {
+            DebugLog(@"[ERROR] Cannot add backgroundfetch eventListener. Please add `fetch` to UIBackgroundModes inside info.plist ");
+        }
+    }
+    if ((count == 1) && [type isEqual:@"silentpush"]) {
+        NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+        if ([backgroundModes containsObject:@"remote-notification"]) {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveBackgroundFetchNotification:) name:kTiBackgroundFetchNotification object:nil];
+        } else {
+            DebugLog(@"[ERROR] Cannot add backgroundfetch eventListener. Please add `fetch` to UIBackgroundModes inside info.plist ");
+        }
+    }
 }
 
 -(void)_listenerRemoved:(NSString*)type count:(int)count
@@ -41,6 +57,10 @@
 	{
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiLocalNotification object:nil];
 	}
+    if ((count == 1) && [type isEqual:@"backgroundfetch"]) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiBackgroundFetchNotification object:nil];
+    }
+
 }
 
 #pragma mark Public
@@ -193,9 +213,42 @@
 	[self fireEvent:@"notification" withObject:notification];
 }
 
+-(void)didReceiveBackgroundFetchNotification:(NSNotification*)note
+{
+    [self fireEvent:@"backgroundfetch" withObject:[note userInfo]];
+}
+
+-(void)didReceiveSilentPushNotification:(NSNotification*)note
+{
+    [self fireEvent:@"silentpush" withObject:[note userInfo]];
+}
+
+
+-(void)setMinimumBackgroundFetchInterval:(id)value
+{
+       [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
+ 
+    
+}
+
+-(void)endBackgroundFetch:(id)args
+{
+    ENSURE_ARG_COUNT(args, 2);
+    NSString *key = [args objectAtIndex:0];
+    int result = [args objectAtIndex:1];
+    if (result != 1 || result != 0) {
+        [[TiApp app] completionHandler:key withResult:2]; //UIBackgroundFetchResultFailed
+    } else {
+        [[TiApp app] completionHandler:key withResult:result];
+    }
+}
+
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_LAYOUT_CHANGED,@"accessibilitylayoutchanged");
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_SCREEN_CHANGED,@"accessibilityscreenchanged");
 
+MAKE_SYSTEM_PROP(FETCH_NEWDATA, 0); //UIBackgroundFetchResultNewData
+MAKE_SYSTEM_PROP(FETCH_NODATA, 1); //UIBackgroundFetchResultNoData
+MAKE_SYSTEM_PROP(FETCH_FAILED, 2); //UIBackgroundFetchResultFailed
 
 @end
 
