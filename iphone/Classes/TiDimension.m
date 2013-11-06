@@ -7,7 +7,7 @@
 
 #import "TiDimension.h"
 #import "TiUtils.h"
-
+#import "TiApp.h"
 
 const TiDimension TiDimensionZero = {TiDimensionTypeDip, 0};
 const TiDimension TiDimensionAuto = {TiDimensionTypeAuto, 0};

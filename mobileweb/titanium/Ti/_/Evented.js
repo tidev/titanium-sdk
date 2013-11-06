@@ -67,6 +67,14 @@ define(function() {
 			(require.is(name, 'Array') ? name : [name]).forEach(function(n) {
 				(this._modifiers[n] = this._modifiers[n] || []).push(handler);
 			}, this);
+		},
+
+		constants: {
+			apiName: {
+				get: function() {
+					return this.declaredClass;
+				}
+			}
 		}
 	};
 

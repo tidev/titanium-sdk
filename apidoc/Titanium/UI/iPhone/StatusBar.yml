@@ -49,13 +49,14 @@ properties:
   - name: DEFAULT
     summary: Default status bar style.
     description: |
-        Used with the <Titanium.UI.iPhone.statusBarStyle> property.
+        Use with the <Titanium.UI.iPhone.statusBarStyle> and <Titanium.UI.Window.statusBarStyle> properties.
         
         One of the group of status bar style constants 
         [DEFAULT](Titanium.UI.iPhone.StatusBar.DEFAULT), 
         [GRAY](Titanium.UI.iPhone.StatusBar.GRAY), 
         [GREY](Titanium.UI.iPhone.StatusBar.GREY), 
         [OPAQUE_BLACK](Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK), 
+        [LIGHT_CONTENT](Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT),
         and [TRANSLUCENT_BLACK](Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK).
     type: Number
     permission: read-only
@@ -63,13 +64,14 @@ properties:
   - name: GRAY
     summary: Gray-colored status bar style.
     description: |
-        Used with the <Titanium.UI.iPhone.statusBarStyle> property.
+        Use with the <Titanium.UI.iPhone.statusBarStyle> and <Titanium.UI.Window.statusBarStyle> properties.
         
         One of the group of status bar style constants 
         [DEFAULT](Titanium.UI.iPhone.StatusBar.DEFAULT), 
         [GRAY](Titanium.UI.iPhone.StatusBar.GRAY), 
         [GREY](Titanium.UI.iPhone.StatusBar.GREY), 
         [OPAQUE_BLACK](Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK), 
+        [LIGHT_CONTENT](Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT), 
         and [TRANSLUCENT_BLACK](Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK).
     type: Number
     permission: read-only
@@ -79,27 +81,47 @@ properties:
     description: |
         Alias for [GRAY](Titanium.UI.iPhone.StatusBar.GRAY).
         
-        Used with the <Titanium.UI.iPhone.statusBarStyle> property.
+        Use with the <Titanium.UI.iPhone.statusBarStyle> and <Titanium.UI.Window.statusBarStyle> properties.
         
         One of the group of status bar style constants 
         [DEFAULT](Titanium.UI.iPhone.StatusBar.DEFAULT), 
         [GRAY](Titanium.UI.iPhone.StatusBar.GRAY), 
         [GREY](Titanium.UI.iPhone.StatusBar.GREY), 
         [OPAQUE_BLACK](Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK), 
+        [LIGHT_CONTENT](Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT), 
         and [TRANSLUCENT_BLACK](Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK).
     type: Number
     permission: read-only
 
-  - name: OPAQUE_BLACK
-    summary: Opaque black-colored status bar style.
+  - name: LIGHT_CONTENT
+    summary: Status bar style to use with dark backgrounds. Valid on iOS 7 and above.
     description: |
-        Used with the <Titanium.UI.iPhone.statusBarStyle> property.
+        Use with the <Titanium.UI.iPhone.statusBarStyle> and <Titanium.UI.Window.statusBarStyle> properties.
+        When used with versions lower than iOS 7, returns [TRANSLUCENT_BLACK](Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK).
         
         One of the group of status bar style constants 
         [DEFAULT](Titanium.UI.iPhone.StatusBar.DEFAULT), 
         [GRAY](Titanium.UI.iPhone.StatusBar.GRAY), 
         [GREY](Titanium.UI.iPhone.StatusBar.GREY), 
         [OPAQUE_BLACK](Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK), 
+        [LIGHT_CONTENT](Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT), 
+        and [TRANSLUCENT_BLACK](Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK).
+    type: Number
+    permission: read-only
+    since: "3.1.3"
+
+  - name: OPAQUE_BLACK
+    summary: Opaque black-colored status bar style.
+    description: |
+        Use with the <Titanium.UI.iPhone.statusBarStyle> and <Titanium.UI.Window.statusBarStyle> properties.
+        This is deprecated on iOS 7 and above. Use [LIGHT_CONTENT](Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT)
+
+        One of the group of status bar style constants 
+        [DEFAULT](Titanium.UI.iPhone.StatusBar.DEFAULT), 
+        [GRAY](Titanium.UI.iPhone.StatusBar.GRAY), 
+        [GREY](Titanium.UI.iPhone.StatusBar.GREY), 
+        [OPAQUE_BLACK](Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK), 
+        [LIGHT_CONTENT](Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT), 
         and [TRANSLUCENT_BLACK](Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK).
     type: Number
     permission: read-only
@@ -109,13 +131,15 @@ properties:
         Translucent black-colored status bar style, which provides some degree of transparency to 
         the device background.
     description: |
-        Used with the <Titanium.UI.iPhone.statusBarStyle> property.
-        
+        Use with the <Titanium.UI.iPhone.statusBarStyle> and <Titanium.UI.Window.statusBarStyle> properties.
+        This is deprecated on iOS 7 and above. Use [LIGHT_CONTENT](Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT).
+
         One of the group of status bar style constants 
         [DEFAULT](Titanium.UI.iPhone.StatusBar.DEFAULT), 
         [GRAY](Titanium.UI.iPhone.StatusBar.GRAY), 
         [GREY](Titanium.UI.iPhone.StatusBar.GREY), 
         [OPAQUE_BLACK](Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK), 
+        [LIGHT_CONTENT](Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT), 
         and [TRANSLUCENT_BLACK](Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK).
     type: Number
     permission: read-only

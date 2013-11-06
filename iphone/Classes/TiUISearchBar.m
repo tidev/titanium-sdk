@@ -15,6 +15,7 @@
 #import "TiUtils.h"
 #import "TiUISearchBarProxy.h"
 #import "TiUISearchBar.h"
+#import "ImageLoader.h"
 
 @implementation TiUISearchBar
 
@@ -39,12 +40,8 @@
 		[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		[searchView setDelegate:self];
 		[searchView setShowsCancelButton:[(TiUISearchBarProxy *)[self proxy] showsCancelButton]];
+		[self addSubview:searchView];
 	}
-    //IOS7 DP3 bug fix. See searchcontroller delegate method in listView.
-    if ([searchView superview] != self) {
-        [self addSubview:searchView];
-        [searchView setFrame:[self bounds]];
-    }
 	return searchView;
 }	
 
@@ -147,15 +144,11 @@
 	}
 }
 
--(CALayer *)backgroundImageLayer
+-(void)setBackgroundImage_:(id)arg
 {
-	if(backgroundLayer==nil)
-	{
-		backgroundLayer = [[CALayer alloc] init];
-		[backgroundLayer setFrame:[self bounds]];
-		[[[self searchBar] layer] insertSublayer:backgroundLayer atIndex:1];
-	}
-	return backgroundLayer;
+    UIImage *image = [self loadImage:arg];
+    [[self searchBar] setBackgroundImage:image];
+    self.backgroundImage = arg;
 }
 
 #pragma mark Delegate 

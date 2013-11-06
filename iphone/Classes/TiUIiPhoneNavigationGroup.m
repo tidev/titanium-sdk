@@ -35,6 +35,25 @@
 	[super dealloc];
 }
 
+-(void)popGestureStateHandler:(UIGestureRecognizer *)recognizer
+{
+    UIGestureRecognizerState curState = recognizer.state;
+    
+    switch (curState) {
+        case UIGestureRecognizerStateBegan:
+            transitionWithGesture = YES;
+            break;
+        case UIGestureRecognizerStateEnded:
+        case UIGestureRecognizerStateCancelled:
+        case UIGestureRecognizerStateFailed:
+            transitionWithGesture = NO;
+            break;
+        default:
+            break;
+    }
+    
+}
+
 -(UINavigationController*)controller
 {
     if (controller==nil) {
@@ -50,7 +69,9 @@
         [controller setDelegate:self];
         [TiUtils configureController:controller withObject:nil];
         [self addSubview:controller.view];
-		
+        if ([TiUtils isIOS7OrGreater]) {
+            [controller.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
+        }
     }
     return controller;
 }
@@ -95,7 +116,7 @@
 
 -(void)pushOnUIThread:(NSArray*)args
 {
-    if (transitionIsAnimating)
+    if (transitionIsAnimating || transitionWithGesture)
     {
         [self performSelector:_cmd withObject:args afterDelay:0.1];
         return;
@@ -115,7 +136,7 @@
 
 -(void)popOnUIThread:(NSArray*)args
 {
-    if (transitionIsAnimating)
+    if (transitionIsAnimating || transitionWithGesture)
     {
         [self performSelector:_cmd withObject:args afterDelay:0.1];
         return;
@@ -203,7 +224,31 @@
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-    transitionIsAnimating = YES;
+    if (!transitionWithGesture) {
+        transitionIsAnimating = YES;
+    }
+    if (visibleProxy != nil) {
+        UIViewController *curController = [visibleProxy hostingController];
+        NSArray* curStack = [navigationController viewControllers];
+        BOOL winclosing = NO;
+        if (![curStack containsObject:curController]) {
+            winclosing = YES;
+        } else {
+            NSUInteger curIndex = [curStack indexOfObject:curController];
+            if (curIndex > 1) {
+                UIViewController* currentPopsTo = [curStack objectAtIndex:(curIndex - 1)];
+                if (currentPopsTo == viewController) {
+                    winclosing = YES;
+                }
+            }
+        }
+        if (winclosing) {
+            //TIMOB-15033. Have to call windowWillClose so any keyboardFocussedProxies resign
+            //as first responders. This is ok since tab is not nil so no message will be sent to
+            //hosting controller.
+            [visibleProxy windowWillClose];
+        }
+    }
     TiWindowProxy *newWindow = (TiWindowProxy *)[(TiViewController*)viewController proxy];
     if ([newWindow opening]) {
         [newWindow windowWillOpen];
@@ -226,6 +271,7 @@
     RELEASE_TO_NIL(visibleProxy);
     [self setVisibleProxy:newWindow];
     transitionIsAnimating = NO;
+    transitionWithGesture = NO;
 }
 
 

@@ -77,6 +77,11 @@ NSString * const TI_DB_VERSION = @"1";
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Analytics";
+}
+
 -(void)enqueueBlock:(void (^)(void))block
 {
 	[eventQueue addOperationWithBlock:block];
@@ -472,6 +477,7 @@ NSString * const TI_DB_VERSION = @"1";
 		[enrollment setObject:TI_APPLICATION_NAME forKey:@"app_name"];
 		[enrollment setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
 		[enrollment setObject:TI_APPLICATION_ID forKey:@"app_id"];
+		[enrollment setObject:TI_APPLICATION_VERSION forKey:@"app_version"];
 		[enrollment setObject:@"iphone" forKey:@"platform"];
 		
 		[self queueEvent:@"ti.enroll" name:@"ti.enroll" data:enrollment immediate:NO];

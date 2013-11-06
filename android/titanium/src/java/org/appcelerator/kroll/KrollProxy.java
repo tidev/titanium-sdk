@@ -753,23 +753,46 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 */
 	public boolean fireSyncEvent(String event, Object data)
 	{
-		if (hierarchyHasListener(event)) {
-			if (KrollRuntime.getInstance().isRuntimeThread()) {
-				return doFireEvent(event, data);
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
+			return doFireEvent(event, data);
 
-			} else {
-				Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_SYNC_EVENT);
-				message.getData().putString(PROPERTY_NAME, event);
+		} else {
+			Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_SYNC_EVENT);
+			message.getData().putString(PROPERTY_NAME, event);
 
-				return (Boolean) TiMessenger.sendBlockingRuntimeMessage(message, data);
-			}
+			return (Boolean) TiMessenger.sendBlockingRuntimeMessage(message, data);
 		}
-		return false;
+	}
+
+	/**
+	 * Fires an event synchronously via KrollRuntime thread, which can be intercepted on JS side.
+	 * @param event the event to be fired.
+	 * @param data  the data to be sent.
+	 * @param maxTimeout the maximum time to wait for the result to return, in the unit of milliseconds.
+	 * @return whether this proxy has an eventListener for this event.
+	 * @module.api
+	 */
+	public boolean fireSyncEvent(String event, Object data, long maxTimeout)
+	{
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
+			return doFireEvent(event, data);
+
+		} else {
+			Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_SYNC_EVENT);
+			message.getData().putString(PROPERTY_NAME, event);
+
+			Object result = TiMessenger.sendBlockingRuntimeMessage(message, data, maxTimeout);
+			return TiConvert.toBoolean(result, false);
+		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean doFireEvent(String event, Object data)
 	{
+		if (!hierarchyHasListener(event)) {
+			return false;
+		}
+
 		boolean bubbles = false;
 		boolean reportSuccess = false;
 		int code = 0;
@@ -1277,5 +1300,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return new TiContext(getActivity(), proxyId);
 	}
 
+	// For subclasses to override
+	@Kroll.method @Kroll.getProperty
+	public String getApiName()
+	{
+		return "Ti.Proxy";
+	}
 }
 

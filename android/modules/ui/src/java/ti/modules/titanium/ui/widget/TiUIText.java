@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -140,11 +140,11 @@ public class TiUIText extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_MAX_LENGTH) && field) {
 			maxLength = TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LENGTH), -1);
 		}
-		
+
 		// Disable change event temporarily as we are setting the default value
 		disableChangeEvent = true;
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
@@ -153,15 +153,15 @@ public class TiUIText extends TiUIView
 			tv.setText("");
 		}
 		disableChangeEvent = false;
-		
+
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_HINT_TEXT)) {
 			tv.setHint(d.getString(TiC.PROPERTY_HINT_TEXT));
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
 			if (TiConvert.toBoolean(d, TiC.PROPERTY_ELLIPSIZE)) {
 				tv.setEllipsize(TruncateAt.END);
@@ -169,11 +169,11 @@ public class TiUIText extends TiUIView
 				tv.setEllipsize(null);
 			}
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, d.getKrollDict(TiC.PROPERTY_FONT));
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_TEXT_ALIGN) || d.containsKey(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			String textAlign = null;
 			String verticalAlign = null;
@@ -185,15 +185,17 @@ public class TiUIText extends TiUIView
 			}
 			handleTextAlign(textAlign, verticalAlign);
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_RETURN_KEY_TYPE)) {
 			handleReturnKeyType(TiConvert.toInt(d.get(TiC.PROPERTY_RETURN_KEY_TYPE), RETURNKEY_DEFAULT));
 		}
-		
-		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT) || d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION) || d.containsKey(TiC.PROPERTY_EDITABLE)) {
+
+		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT)
+			|| d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)
+			|| d.containsKey(TiC.PROPERTY_EDITABLE)) {
 			handleKeyboard(d);
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
 		}
@@ -247,17 +249,22 @@ public class TiUIText extends TiUIView
 				verticalAlign = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_VERTICAL_ALIGN));
 			}
 			handleTextAlign(textAlign, verticalAlign);
-		} else if (key.equals(TiC.PROPERTY_KEYBOARD_TYPE) || (key.equals(TiC.PROPERTY_AUTOCORRECT) || key.equals(TiC.PROPERTY_AUTOCAPITALIZATION) || key.equals(TiC.PROPERTY_PASSWORD_MASK) || key.equals(TiC.PROPERTY_EDITABLE))) {
+		} else if (key.equals(TiC.PROPERTY_KEYBOARD_TYPE)
+			|| (key.equals(TiC.PROPERTY_AUTOCORRECT) || key.equals(TiC.PROPERTY_AUTOCAPITALIZATION)
+				|| key.equals(TiC.PROPERTY_PASSWORD_MASK) || key.equals(TiC.PROPERTY_EDITABLE))) {
 			KrollDict d = proxy.getProperties();
 			handleKeyboard(d);
 		} else if (key.equals(TiC.PROPERTY_RETURN_KEY_TYPE)) {
+			// Update the keyboard as well when changing the return key type. This is to account for the scenario when
+			// autocapitalization is enabled during creation and return key type is dynamically changed.
+			KrollDict d = proxy.getProperties();
 			handleReturnKeyType(TiConvert.toInt(newValue));
+			handleKeyboard(d);
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, (HashMap) newValue);
-		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)){
+		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, newValue);
 		} else {
-		
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
@@ -444,6 +451,9 @@ public class TiUIText extends TiUIView
 		if (autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) {
 			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 		}
+		if (!field) {
+			tv.setSingleLine(false);
+		}
 		tv.setCursorVisible(true);
 		switch(type) {
 			case KEYBOARD_DEFAULT:
@@ -494,7 +504,7 @@ public class TiUIText extends TiUIView
 			textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_PASSWORD;
 			// Sometimes password transformation does not work properly when the input type is set after the transformation method.
 			// This issue has been filed at http://code.google.com/p/android/issues/detail?id=7092
-			tv.setInputType(textTypeAndClass);
+			tv.setInputType(tv.getInputType() | textTypeAndClass);
 			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
 			//turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in landscape mode.
@@ -503,7 +513,7 @@ public class TiUIText extends TiUIView
 			}
 
 		} else {
-			tv.setInputType(textTypeAndClass);
+			tv.setInputType(tv.getInputType() | textTypeAndClass);
 			if (tv.getTransformationMethod() instanceof PasswordTransformationMethod) {
 				tv.setTransformationMethod(null);
 			}
@@ -513,9 +523,6 @@ public class TiUIText extends TiUIView
 			tv.setCursorVisible(false);
 		}
 
-		if (!field) {
-			tv.setSingleLine(false);
-		}
 	}
 
 	public void setSelection(int start, int end) 
@@ -530,6 +537,9 @@ public class TiUIText extends TiUIView
 
 	public void handleReturnKeyType(int type)
 	{
+		if (!field) {
+			tv.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
+		}
 		switch(type) {
 			case RETURNKEY_GO:
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);

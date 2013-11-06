@@ -162,16 +162,14 @@
 
 	UIView *wrapper = [svSubviews objectAtIndex:index];
 	TiViewProxy *viewproxy = [[self proxy] viewAtIndex:index];
-	if ([[wrapper subviews] count]==0)
-	{
-		// we need to realize this view
-		TiUIView *uiview = [viewproxy view];
-		[wrapper addSubview:uiview];
-	}
-    [viewproxy windowWillOpen];
-    [viewproxy reposition];
-    [viewproxy windowDidOpen];
-
+    if (![viewproxy viewAttached]) {
+        if ([[viewproxy view] superview] != wrapper) {
+            [wrapper addSubview:[viewproxy view]];
+        }
+        [viewproxy windowWillOpen];
+        [viewproxy windowDidOpen];
+        [viewproxy layoutChildrenIfNeeded];
+    }
 }
 
 -(NSRange)cachedFrames:(int)page
@@ -222,9 +220,10 @@
             [self renderViewForIndex:i];
         }
         else {
-            [viewProxy windowWillClose];
-            [viewProxy parentWillHide];
-            [viewProxy windowDidClose];
+            if ([viewProxy viewAttached]) {
+                [viewProxy windowWillClose];
+                [viewProxy windowDidClose];
+            }
         }
     }
 }
@@ -283,9 +282,13 @@
 	
 	if (readd)
 	{
-		for (UIView *view in [sv subviews])
-		{
+		for (UIView *view in [sv subviews]) {
 			[view removeFromSuperview];
+		}
+        
+		for (TiViewProxy* theView in [[self proxy] views]) {
+			[theView windowWillClose];
+			[theView windowDidClose];
 		}
 	}
 	
@@ -609,12 +612,27 @@
                 minCacheSize = cacheSize;
             }
         }
+        pageChanged = YES;
         cacheSize = minCacheSize;
-		[pageControl setCurrentPage:nextPage];
-		currentPage = nextPage;
-		[self.proxy replaceValue:NUMINT(currentPage) forKey:@"currentPage" notification:NO];
-        [self manageCache:currentPage];
+        [pageControl setCurrentPage:nextPage];
+        currentPage = nextPage;
+        [self.proxy replaceValue:NUMINT(currentPage) forKey:@"currentPage" notification:NO];
         cacheSize = curCacheSize;
+    }
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    if (pageChanged) {
+        [self manageCache:currentPage];
+    }
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    //Since we are now managing cache at end of scroll, ensure quick scroll is disabled to avoid blank screens.
+    if (pageChanged) {
+        [scrollview setUserInteractionEnabled:!decelerate];
     }
 }
 
@@ -651,6 +669,9 @@
 													   [[self proxy] viewAtIndex:pageNum],@"view",nil]]; 
 	}
 	currentPage=pageNum;
+	[self manageCache:currentPage];
+	pageChanged = NO;
+	[scrollview setUserInteractionEnabled:YES];
 	[pageControl setCurrentPage:pageNum];
 }
 

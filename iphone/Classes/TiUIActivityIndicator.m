@@ -216,6 +216,18 @@
 
 }
 
+- (void)didMoveToWindow
+{
+    //TIMOB-15293
+    if ( ([self window] != nil) && (indicatorView != nil) && (![indicatorView isAnimating]) ) {
+        BOOL visible = [TiUtils boolValue:[[self proxy] valueForKey:@"visible"] def:NO];
+        if (visible) {
+            [indicatorView startAnimating];
+        }
+    }
+    [super didMoveToWindow];
+}
+
 -(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
 	return [self sizeThatFits:CGSizeZero].width;

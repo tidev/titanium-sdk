@@ -72,6 +72,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI";
+}
+
 #pragma mark Public Constants
 
 MAKE_SYSTEM_PROP(ANIMATION_CURVE_EASE_IN_OUT,UIViewAnimationOptionCurveEaseInOut);
@@ -83,9 +88,9 @@ MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_TOP,UIControlContentVerticalAlignmentTo
 MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_CENTER,UIControlContentVerticalAlignmentCenter);
 MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_BOTTOM,UIControlContentVerticalAlignmentBottom);
 
-MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_LEFT,UITextAlignmentLeft);
-MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_CENTER,UITextAlignmentCenter);
-MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_RIGHT,UITextAlignmentRight);
+MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_LEFT,NSTextAlignmentLeft);
+MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_CENTER,NSTextAlignmentCenter);
+MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_RIGHT,NSTextAlignmentRight);
 
 MAKE_SYSTEM_PROP(RETURNKEY_DEFAULT,UIReturnKeyDefault);
 MAKE_SYSTEM_PROP(RETURNKEY_GO,UIReturnKeyGo);
@@ -284,6 +289,30 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_BOTTOM,4); //UIEdgeRectBottom
 MAKE_SYSTEM_PROP(EXTEND_EDGE_RIGHT,8);  //UIEdgeRectRight
 MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 
+-(NSString*)TEXT_STYLE_HEADLINE
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleHeadline : @"INVALID";
+}
+-(NSString*)TEXT_STYLE_SUBHEADLINE
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleSubheadline : @"INVALID";
+}
+-(NSString*)TEXT_STYLE_BODY
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleBody : @"INVALID";
+}
+-(NSString*)TEXT_STYLE_FOOTNOTE
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleFootnote : @"INVALID";
+}
+-(NSString*)TEXT_STYLE_CAPTION1
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleCaption1 : @"INVALID";
+}
+-(NSString*)TEXT_STYLE_CAPTION2
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleCaption2 : @"INVALID";
+}
 
 -(NSNumber*)isLandscape:(id)args
 {

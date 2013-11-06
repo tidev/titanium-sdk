@@ -20,12 +20,12 @@
 	//This is an assign only property. TabGroup retains instances of tab.
 	TiUITabGroupProxy *tabGroup;
     
-    NSArray* controllerStack;
-    NSMutableArray* closingWindows;
+	NSMutableArray* controllerStack;
     
 	BOOL opening;
 	BOOL systemTab;
 	BOOL transitionIsAnimating;
+	BOOL transitionWithGesture;
 	BOOL hasFocus;
 	BOOL iconOriginal;
 	BOOL activeIconOriginal;
@@ -35,7 +35,7 @@
 
 -(void)setTabGroup:(TiUITabGroupProxy*)proxy;
 -(void)removeFromTabGroup;
--(void)closeWindow:(TiWindowProxy *)window animated:(BOOL)animated;
+-(void)closeWindowProxy:(TiWindowProxy *)window animated:(BOOL)animated;
 
 #pragma mark Public APIs
 

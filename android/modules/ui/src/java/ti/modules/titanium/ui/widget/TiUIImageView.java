@@ -137,8 +137,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					// Update UI if the current image source has not been changed.
 					if (imageSources != null && imageSources.size() == 1) {
 						TiDrawableReference imgsrc = imageSources.get(0);
+						if (imgsrc == null) {
+							return;
+						}
 						if (imgsrc.hashCode() == hash
-							|| (TiDrawableReference.fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString())
+							|| (imgsrc.getUrl() != null && TiDrawableReference.fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString())
 								.hashCode() == hash)) {
 							setImage(bitmap);
 							if (!firedLoad) {
@@ -221,6 +224,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		// Don't update UI if the current image source has been changed.
 		if (imageSources != null && imageSources.size() == 1) {
 			TiDrawableReference imgsrc = imageSources.get(0);
+			if (imgsrc == null || imgsrc.getUrl() == null) {
+				return;
+			}
 			if (imageref.equals(imgsrc)
 				|| imageref
 					.equals(TiDrawableReference.fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString()))) {
@@ -744,24 +750,23 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	@Override
 	public void processProperties(KrollDict d)
 	{
+		boolean heightDefined = false;
+		boolean widthDefined = false;
 		TiImageView view = getView();
 
 		if (view == null) {
 			return;
 		}
 
-		// Disable scaling for scrollview since the an image can extend beyond the screensize
-		if (proxy.getParent() instanceof ScrollViewProxy) {
-			view.setEnableScale(false);
-		}
-
 		if (d.containsKey(TiC.PROPERTY_WIDTH)) {
 			String widthProperty = d.getString(TiC.PROPERTY_WIDTH);
-			view.setWidthDefined(!TiC.LAYOUT_SIZE.equals(widthProperty) && !TiC.SIZE_AUTO.equals(widthProperty));
+			widthDefined = !TiC.LAYOUT_SIZE.equals(widthProperty) && !TiC.SIZE_AUTO.equals(widthProperty);
+			view.setWidthDefined(widthDefined);
 		}
 		if (d.containsKey(TiC.PROPERTY_HEIGHT)) {
 			String heightProperty = d.getString(TiC.PROPERTY_HEIGHT);
-			view.setHeightDefined(!TiC.LAYOUT_SIZE.equals(heightProperty) && !TiC.SIZE_AUTO.equals(heightProperty));
+			heightDefined = !TiC.LAYOUT_SIZE.equals(heightProperty) && !TiC.SIZE_AUTO.equals(heightProperty);
+			view.setHeightDefined(heightDefined);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
@@ -804,6 +809,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					setDefaultImage();
 				}
 			}
+		}
+		
+
+		// If height and width is not defined, disable scaling for scrollview since an image
+		// can extend beyond the screensize in scrollview.
+		if (proxy.getParent() instanceof ScrollViewProxy && !heightDefined && !widthDefined) {
+			view.setEnableScale(false);
 		}
 
 		super.processProperties(d);

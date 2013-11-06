@@ -28,7 +28,7 @@ properties:
         Using this property and `footerTitle` together is not supported. Use one or the other. 
     type: Titanium.UI.View
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: headerTitle
     summary: Title of this section header.
@@ -42,7 +42,7 @@ properties:
         Using this property and `headerTitle` together is not supported. Use one or the other. 
     type: Titanium.UI.View
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: items
     summary: Items of this list section.

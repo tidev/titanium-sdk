@@ -227,6 +227,28 @@ DEFINE_EXCEPTIONS
 	return YES;
 }
 
+-(void)ensureGestureListeners
+{
+    if ([(TiViewProxy*)proxy _hasListeners:@"swipe"]) {
+        [[self gestureRecognizerForEvent:@"uswipe"] setEnabled:YES];
+        [[self gestureRecognizerForEvent:@"dswipe"] setEnabled:YES];
+        [[self gestureRecognizerForEvent:@"rswipe"] setEnabled:YES];
+        [[self gestureRecognizerForEvent:@"lswipe"] setEnabled:YES];
+    }
+    if ([(TiViewProxy*)proxy _hasListeners:@"pinch"]) {
+         [[self gestureRecognizerForEvent:@"pinch"] setEnabled:YES];
+    }
+    if ([(TiViewProxy*)proxy _hasListeners:@"longpress"]) {
+        [[self gestureRecognizerForEvent:@"longpress"] setEnabled:YES];
+    }
+}
+
+-(BOOL)proxyHasGestureListeners
+{
+    return [(TiViewProxy*)proxy _hasListeners:@"swipe"] ||
+            [(TiViewProxy*)proxy _hasListeners:@"pinch"] ||
+            [(TiViewProxy*)proxy _hasListeners:@"longpress"];
+}
 
 -(BOOL)proxyHasTapListener
 {
@@ -247,14 +269,12 @@ DEFINE_EXCEPTIONS
 
 -(void)updateTouchHandling
 {
-	BOOL touchEventsSupported = [self viewSupportsBaseTouchEvents];
-	handlesTouches = touchEventsSupported && (
+    BOOL touchEventsSupported = [self viewSupportsBaseTouchEvents];
+    handlesTouches = touchEventsSupported && (
                 [self proxyHasTouchListener]
                 || [self proxyHasTapListener]
-                || [proxy _hasListeners:@"swipe"]
-                || [proxy _hasListeners:@"pinch"]
-                || [proxy _hasListeners:@"longpress"]);
-
+                || [self proxyHasGestureListeners]);
+    [self ensureGestureListeners];
     // If a user has not explicitly set whether or not the view interacts, base it on whether or
     // not it handles events, and if not, set it to the interaction default.
     if (!changedInteraction) {
@@ -637,7 +657,7 @@ DEFINE_EXCEPTIONS
 
 -(void)setTouchEnabled_:(id)arg
 {
-	self.userInteractionEnabled = [TiUtils boolValue:arg];
+	self.userInteractionEnabled = [TiUtils boolValue:arg def:[self interactionDefault]];
     changedInteraction = YES;
 }
 
@@ -700,30 +720,23 @@ DEFINE_EXCEPTIONS
 	}
 	
 	animationDelayGuard = 0;
-    //TIMOB-13237. Wait for layout to finish before animating.
-    //TODO. This is a hack. When we implement the polynomial layout for iOS we will be able to do
-    //a full layout of this view and associated views in the animation block.
+    BOOL resetState = NO;
     if ([self.proxy isKindOfClass:[TiViewProxy class]] && [(TiViewProxy*)self.proxy willBeRelaying]) {
-		DebugLog(@"[DEBUG] Ti.View.animate() called while view waiting to relayout: Will re-attempt", self);
-		if (animationDelayGuardForLayout++ > 2) {
-            DebugLog(@"[DEBUG] Animation guard triggered, exceeded timeout for layout to occur. Continuing.");
-        } else {
-            [self performSelector:@selector(animate:) withObject:newAnimation afterDelay:0.02];
-            return;
-        }
+        DeveloperLog(@"RESETTING STATE");
+        resetState = YES;
     }
+    
     animationDelayGuardForLayout = 0;    
 
-	if (newAnimation != nil)
-	{
-		RELEASE_TO_NIL(animation);
-		animation = [newAnimation retain];
-		[animation animate:self];
-	}	
-	else
-	{
-		DebugLog(@"[WARN] Ti.View.animate() (view %@) could not make animation from: %@", self, newAnimation);
-	}
+    if (newAnimation != nil) {
+        RELEASE_TO_NIL(animation);
+        animation = [newAnimation retain];
+        animation.resetState = resetState;
+        [animation animate:self];
+    }
+    else {
+        DebugLog(@"[WARN] Ti.View.animate() (view %@) could not make animation from: %@", self, newAnimation);
+    }
 }
 -(void)animationStarted
 {

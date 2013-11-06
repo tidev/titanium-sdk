@@ -32,6 +32,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 {
 	UIWindow *window;
 	UIImageView *loadView;
+	UIImageView *splashScreenImage;
 	BOOL loaded;
 
 	TiContextGroupRef contextGroup;
@@ -60,6 +61,8 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	NSMutableArray *runningServices;
 	NSDictionary *localNotification;
 }
+
+@property (nonatomic) BOOL forceSplashAsSnapshot;
 
 /**
  Returns application's primary window.
@@ -96,6 +99,11 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  Returns singleton instance of TiApp application object.
  */
 +(TiApp*)app;
+
+/**
+ * Returns a read-only dictionary from tiapp.xml properties
+ */
++(NSDictionary *)tiAppProperties;
 
 /*
  Convenience method to returns root view controller for TiApp instance.

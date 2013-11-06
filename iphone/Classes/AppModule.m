@@ -100,6 +100,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 										name:UIAccessibilityVoiceOverStatusChanged object:nil];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.App";
+}
+
 -(void)addEventListener:(NSArray*)args
 {
 	NSString *type = [args objectAtIndex:0];
@@ -387,18 +392,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
     [nc addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
 
-
-#if __IPHONE_OS_VERSION_MIN_ALLOWED >= __IPHONE_5_0
-    if ([TiUtils isIOS5OrGreater])
-    {
-        [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardDidChangeFrameNotification object:nil];
-    }
-#else
-    
-    [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardDidShowNotification object:nil];
-    [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardDidHideNotification object:nil];
+    [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardDidChangeFrameNotification object:nil];
     [nc addObserver:self selector:@selector(timeChanged:) name:UIApplicationSignificantTimeChangeNotification object:nil];
-#endif	
     
     [super startup];
 }
@@ -589,6 +584,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(NSNumber*)keyboardVisible
 {
     return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
+}
+
+-(void)setForceSplashAsSnapshot:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSNumber)
+    [self replaceValue:args forKey:@"forceSplashAsSnapshot" notification:NO];
+    BOOL flag = [TiUtils boolValue:args def:NO];
+    [[TiApp app] setForceSplashAsSnapshot:flag];
 }
 
 #if defined(USE_TI_APPIOS)

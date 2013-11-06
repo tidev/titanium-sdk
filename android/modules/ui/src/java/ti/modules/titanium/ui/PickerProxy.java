@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,6 +18,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -41,7 +42,7 @@ import android.widget.DatePicker;
 import android.widget.TimePicker;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
-	"locale", "visibleItems", "value"
+	"locale", "visibleItems", "value", TiC.PROPERTY_CALENDAR_VIEW_SHOWN
 })
 public class PickerProxy extends TiViewProxy implements PickerColumnListener
 {
@@ -62,6 +63,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	public PickerProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_CALENDAR_VIEW_SHOWN, false);
 	}
 
 	public PickerProxy(TiContext tiContext)
@@ -504,9 +506,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		PickerColumnProxy column = getColumn(0);
 		if (column == null && createIfMissing) {
 			column = new PickerColumnProxy();
-			//Force applying default values
-			KrollDict d = new KrollDict();
-			column.handleCreationDict(d);
+			column.setCreateIfMissing(true);
 			add(column);
 		}
 		return column;
@@ -808,5 +808,11 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	private void handleForceRequestLayout()
 	{
 		((TiUISpinner)view).forceRequestLayout();
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.Picker";
 	}
 }

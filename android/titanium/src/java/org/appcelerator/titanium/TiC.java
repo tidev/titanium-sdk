@@ -121,6 +121,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_DISPOSE_HANDLE = "disposehandle";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_DOUBLE_TAP = "doubletap";
 
 	/**
@@ -450,6 +455,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_TASK_REMOVED = "taskremoved";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_TOUCH_CANCEL = "touchcancel";
 
 	/**
@@ -476,6 +486,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_PROPERTY_URL = "url";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
 	
 
 	/**
@@ -722,6 +737,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_BAR_COLOR = "barColor";
 
 	/**
 	 * @module.api
@@ -806,6 +826,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CALENDAR_VIEW_SHOWN = "calendarViewShown";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CAN_CANCEL_EVENTS = "canCancelEvents";
 
 	/**
@@ -817,6 +842,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CANCELABLE = "cancelable";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CASE_INSENSITIVE_SEARCH = "caseInsensitiveSearch";
 
 	/**
 	 * @module.api
@@ -881,7 +911,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_COORDS = "coords";
+	public static final String PROPERTY_COMMENT = "comment";
 
 	/**
 	 * @module.api
@@ -922,6 +952,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CONTENT_WIDTH = "contentWidth";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_COORDS = "coords";
 
 	/**
 	 * @module.api
@@ -1067,6 +1102,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_EXIT_ON_CLOSE = "exitOnClose";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_EXPIRY_DATE = "expiryDate";
 
 	/**
 	 * @module.api
@@ -1239,6 +1279,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HTML = "html";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HTTP_ONLY = "httponly";
 
 	/**
 	 * @module.api
@@ -1644,6 +1689,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_PATH = "path";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_PERSISTENT = "persistent";
 
 	/**
@@ -1695,6 +1745,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PREFERRED_PROVIDER = "preferredProvider";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PROMPT = "prompt";
 	
 	/**
 	 * @module.api
@@ -1827,6 +1882,21 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SEARCH_AS_CHILD = "searchAsChild";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCH_TEXT = "searchText";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCH_VIEW = "searchView";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCHABLE_TEXT = "searchableText";
 
 	/**
 	 * @module.api
@@ -1842,6 +1912,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SECTIONS = "sections";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SECURE = "secure";
 
 	/**
 	 * @module.api
@@ -1871,7 +1946,27 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SHADOW_COLOR = "shadowColor";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHADOW_OFFSET = "shadowOffset";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHADOW_RADIUS = "shadowRadius";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SHOW_AS_ACTION = "showAsAction";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHOW_CANCEL = "showCancel";
 
 	/**
 	 * @module.api
@@ -2161,6 +2256,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VALUE = "value";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VERSION = "version";
 
 	/**
 	 * @module.api

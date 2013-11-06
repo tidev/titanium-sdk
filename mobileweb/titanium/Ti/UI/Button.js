@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/Locale", "Ti/UI"],
+define(['Ti/_/declare', 'Ti/_/UI/Widget', 'Ti/_/dom', 'Ti/_/css', 'Ti/_/style', 'Ti/_/lang', 'Ti/Locale', 'Ti/UI'],
 	function(declare, Widget, dom, css, style, lang, Locale, UI) {
 
 	var on = require.on,
@@ -21,14 +21,14 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 			}
 		};
 
-	return declare("Ti.UI.Button", Widget, {
+	return declare('Ti.UI.Button', Widget, {
 
 		constructor: function() {
 			var contentContainer = this._contentContainer = UI.createView({
 					width: UI.INHERIT,
 					height: UI.INHERIT,
 					layout: UI._LAYOUT_CONSTRAINING_HORIZONTAL,
-					borderColor: "transparent"
+					borderColor: 'transparent'
 				}),
 				node = this.domNode;
 
@@ -44,26 +44,26 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 
 			this._setDefaultLook();
 
-			on(this, "touchstart", this, function() {
+			on(this, 'touchstart', this, function() {
 				if (this._hasDefaultLook) {
-					css.remove(node, "TiUIElementGradient");
-					css.add(node, "TiUIElementGradientActive");
+					css.remove(node, 'TiUIElementGradient');
+					css.add(node, 'TiUIElementGradientActive');
 				} else {
 					this.selectedColor && (this._buttonTitle.color = this.selectedColor);
-					this.backgroundSelectedColor && setStyle(this.domNode,"backgroundColor",this.backgroundSelectedColor);
+					this.backgroundSelectedColor && setStyle(this.domNode,'backgroundColor',this.backgroundSelectedColor);
 				}
 			});
-			on(this, "touchend", this, function() {
+			on(this, 'touchend', this, function() {
 				if (this._hasDefaultLook) {
-					css.remove(node, "TiUIElementGradientActive");
-					css.add(node, "TiUIElementGradient");
+					css.remove(node, 'TiUIElementGradientActive');
+					css.add(node, 'TiUIElementGradient');
 				} else {
-					this.selectedColor && (this._buttonTitle.color = this.color || "#000");
-					this.backgroundSelectedColor && setStyle(this.domNode,"backgroundColor",this.backgroundColor);
+					this.selectedColor && (this._buttonTitle.color = this.color || '#000');
+					this.backgroundSelectedColor && setStyle(this.domNode,'backgroundColor',this.backgroundColor);
 				}
 			});
-			on(node, "mouseout", this, function() {
-				this.selectedColor && (this._buttonTitle.color = this.color || "#000");
+			on(node, 'mouseout', this, function() {
+				this.selectedColor && (this._buttonTitle.color = this.color || '#000');
 			});
 		},
 
@@ -76,8 +76,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				this._hasDefaultLook = true;
 				this._previousBorderWidth = this.borderWidth;
 				this._previousBorderColor = this.borderColor;
-				css.add(this.domNode, "TiUIElementGradient");
-				css.add(this.domNode, "TiUIButtonDefault");
+				css.add(this.domNode, 'TiUIElementGradient');
+				css.add(this.domNode, 'TiUIButtonDefault');
 				this._contentContainer.borderWidth = 6;
 				this._getBorderFromCSS();
 			}
@@ -88,8 +88,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				this._hasDefaultLook = false;
 				this.borderWidth = this._previousBorderWidth;
 				this.borderColor = this._previousBorderColor;
-				css.remove(this.domNode, "TiUIElementGradient");
-				css.remove(this.domNode, "TiUIButtonDefault");
+				css.remove(this.domNode, 'TiUIElementGradient');
+				css.remove(this.domNode, 'TiUIButtonDefault');
 				this._contentContainer.borderWidth = 0;
 			}
 		},
@@ -119,11 +119,11 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 					if (value !== oldValue) {
 						if (this._hasDefaultLook) {
 							if (!value) {
-								css.remove(this.domNode,"TiUIElementGradient");
-								setStyle(this.domNode,"backgroundColor","#aaa");
+								css.remove(this.domNode,'TiUIElementGradient');
+								setStyle(this.domNode,'backgroundColor','#aaa');
 							} else {
-								css.add(this.domNode,"TiUIElementGradient");
-								setStyle(this.domNode,"backgroundColor","");
+								css.add(this.domNode,'TiUIElementGradient');
+								setStyle(this.domNode,'backgroundColor','');
 							}
 						}
 						this._setTouchEnabled(value);
@@ -137,6 +137,21 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				set: function(value) {
 					this._buttonImage.image = value;
 					return value;
+				}
+			},
+			shadowColor: {
+				post: function (value) {
+					this._buttonTitle.shadowColor = value;
+				}
+			},
+			shadowOffset: {
+				post: function (value) {
+					this._buttonTitle.shadowOffset = value;
+				}
+			},
+			shadowRadius: {
+				post: function (value) {
+					this._buttonTitle.shadowRadius = value;
 				}
 			},
 			selectedColor: void 0,

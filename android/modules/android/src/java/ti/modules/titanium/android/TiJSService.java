@@ -86,8 +86,8 @@ public class TiJSService extends TiBaseService
 		if (baseUrl.length() == 0) {
 			baseUrl = null;
 		}
-		ServiceProxy proxy = new ServiceProxy(this, intent, proxyCounter.incrementAndGet());
-		return proxy;
+		serviceProxy= new ServiceProxy(this, intent, proxyCounter.incrementAndGet());
+		return serviceProxy;
 	}
 
 	@Override

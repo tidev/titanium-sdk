@@ -48,6 +48,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Contacts.Group";
+}
+
 #pragma mark Public API
 
 -(NSString*)name

@@ -13,8 +13,8 @@ description: |
 
     The third column is constant (0,0,1). 
 
-    On iOS, the matrix terms, `a`, `b`, `c`, `d`, `tx`, and `ty`, are available as
-    properties. On Android, the matrix terms are not available as properties. 
+    On iOS, Mobile Web and Tizen, the matrix terms, `a`, `b`, `c`, `d`, `tx`, and `ty`,
+    are available as properties. On Android, the matrix terms are not available as properties.
     
     Use the <Titanium.UI.create2DMatrix> method to create a new 2D matrix. You can 
     pass an optional <MatrixCreationDict> dictionary to the method to initialize the 
@@ -27,7 +27,7 @@ description: |
 
 extends: Titanium.Proxy
 since: "0.9"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: invert
     summary: Returns a matrix constructed by inverting this matrix.
@@ -168,7 +168,6 @@ methods:
         type: Number
         optional: true
 
-    platforms: [android]
 
   - name: translate
     summary: Returns a matrix constructed by applying a translation transform to this matrix.
@@ -185,27 +184,27 @@ properties:
   - name: a
     summary: The entry at position [1,1] in the matrix.
     type: Number
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
   - name: b
     summary: The entry at position [1,2] in the matrix.
     type: Number
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
   - name: c
     summary: The entry at position [2,1] in the matrix.
     type: Number
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
   - name: d
     summary: The entry at position [2,2] in the matrix.
     type: Number
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
   - name: tx
     summary: The entry at position [3,1] in the matrix.
     type: Number
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
   - name: ty
     summary: The entry at position [3,2] in the matrix.
     type: Number
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
 
 ---
 name: MatrixCreationDict

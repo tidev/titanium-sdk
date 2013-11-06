@@ -20,6 +20,11 @@
 
 #pragma mark Method forwarding
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.SearchBar";
+}
+
 -(void)blur:(id)args
 {
 	[self makeViewPerformSelector:@selector(blur:) withObject:args createIfNeeded:YES waitUntilDone:NO];
@@ -57,6 +62,20 @@
 {
 	return [(TiUISearchBar*)[self view] searchBar];
 }
+
+-(void)ensureSearchBarHeirarchy
+{
+    WARN_IF_BACKGROUND_THREAD;
+    if ([self viewAttached]) {
+        UISearchBar* searchBar = [self searchBar];
+        if ([searchBar superview] != view) {
+            [view addSubview:searchBar];
+            [searchBar setFrame:[view bounds]];
+        }
+    }
+    
+}
+
 
 -(NSMutableDictionary*)langConversionTable
 {

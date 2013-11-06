@@ -385,4 +385,9 @@ public class WebViewProxy extends ViewProxy
 		super.releaseViews();
 	}
 
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.WebView";
+	}
 }

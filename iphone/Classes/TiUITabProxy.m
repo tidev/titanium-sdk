@@ -28,12 +28,11 @@
 
 -(void)_destroy
 {
-    RELEASE_TO_NIL(closingWindows);
     RELEASE_TO_NIL(controllerStack);
-	RELEASE_TO_NIL(rootWindow);
+    RELEASE_TO_NIL(rootWindow);
     RELEASE_TO_NIL(controller);
-	RELEASE_TO_NIL(current);
-	[super _destroy];
+    RELEASE_TO_NIL(current);
+    [super _destroy];
 }
 
 -(NSMutableDictionary*)langConversionTable
@@ -52,6 +51,11 @@
 	[super _configure];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.Tab";
+}
+
 #pragma mark - Private methods
 
 -(void) cleanNavStack:(BOOL)removeTab
@@ -68,12 +72,12 @@
                 current = [(TiWindowProxy*)[(TiViewController*)rootController proxy] retain];
             }
             for (TiViewController* doomedVc in doomedVcs) {
-                [self closeWindow:(TiWindowProxy *)[doomedVc proxy] animated:NO];
+                [self closeWindowProxy:(TiWindowProxy *)[doomedVc proxy] animated:NO];
             }
             RELEASE_TO_NIL(doomedVcs);
         }
         if (removeTab) {
-            [self closeWindow:rootWindow animated:NO];
+            [self closeWindowProxy:rootWindow animated:NO];
             RELEASE_TO_NIL(controller);
             RELEASE_TO_NIL(current);
         }
@@ -99,20 +103,21 @@
 
 -(void)openOnUIThread:(NSArray*)args
 {
-	if (transitionIsAnimating)
+	if (transitionIsAnimating || transitionWithGesture)
 	{
 		[self performSelector:_cmd withObject:args afterDelay:0.1];
 		return;
 	}
 	TiWindowProxy *window = [args objectAtIndex:0];
-	BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
     
+	BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
+    [controllerStack addObject:[window hostingController]];
     [[[self rootController] navigationController] pushViewController:[window hostingController] animated:animated];
 }
 
 -(void)closeOnUIThread:(NSArray*)args
 {
-	if (transitionIsAnimating)
+	if (transitionIsAnimating || transitionWithGesture)
 	{
 		[self performSelector:_cmd withObject:args afterDelay:0.1];
 		return;
@@ -124,7 +129,7 @@
         [[[self rootController] navigationController] popViewControllerAnimated:animated];
     }
     else {
-        [self closeWindow:window animated:NO];
+        [self closeWindowProxy:window animated:NO];
     }
     
 }
@@ -144,7 +149,7 @@
     [self cleanNavStack:YES];
 }
 
-- (void)closeWindow:(TiWindowProxy*)window animated:(BOOL)animated
+- (void)closeWindowProxy:(TiWindowProxy*)window animated:(BOOL)animated
 {
     [window retain];
     UIViewController *windowController = [[window hostingController] retain];
@@ -154,17 +159,34 @@
 	NSMutableArray* newControllerStack = [NSMutableArray arrayWithArray:[navController viewControllers]];
 	[newControllerStack removeObject:windowController];
 	[navController setViewControllers:newControllerStack animated:animated];
-    RELEASE_TO_NIL(controllerStack);
-    controllerStack = [newControllerStack retain];
 	[window setTab:nil];
 	[window setParentOrientationController:nil];
-	
+	[controllerStack removeObject:windowController];
 	// for this to work right, we need to sure that we always have the tab close the window
 	// and not let the window simply close by itself. this will ensure that we tell the
 	// tab that we're doing that
 	[window close:nil];
     RELEASE_TO_NIL_AUTORELEASE(window);
     RELEASE_TO_NIL(windowController);
+}
+
+-(void)popGestureStateHandler:(UIGestureRecognizer *)recognizer
+{
+    UIGestureRecognizerState curState = recognizer.state;
+    
+    switch (curState) {
+        case UIGestureRecognizerStateBegan:
+            transitionWithGesture = YES;
+            break;
+        case UIGestureRecognizerStateEnded:
+        case UIGestureRecognizerStateCancelled:
+        case UIGestureRecognizerStateFailed:
+            transitionWithGesture = NO;
+            break;
+        default:
+            break;
+    }
+    
 }
 
 #pragma mark - TiTab protocol
@@ -178,6 +200,11 @@
 		[self setTitle:[self valueForKey:@"title"]];
 		[self setIcon:[self valueForKey:@"icon"]];
 		[self setBadge:[self valueForKey:@"badge"]];
+		controllerStack = [[NSMutableArray alloc] init];
+		[controllerStack addObject:[self rootController]];
+		if ([TiUtils isIOS7OrGreater]) {
+			[controller.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
+		}
 	}
 	return controller;
 }
@@ -187,7 +214,7 @@
     return tabGroup;
 }
 
--(void)push:(NSArray*)args
+-(void)openWindow:(NSArray*)args
 {
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
@@ -215,7 +242,7 @@
 	}, YES);
 }
 
--(void)pop:(NSArray*)args
+-(void)closeWindow:(NSArray*)args
 {
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
@@ -231,12 +258,12 @@
 
 -(void)open:(NSArray*)args
 {
-    [self push:args];
+    [self openWindow:args];
 }
 
 -(void)close:(NSArray *)args
 {
-    [self pop:args];
+    [self closeWindow:args];
 }
 
 -(void)windowClosing:(TiWindowProxy*)window animated:(BOOL)animated
@@ -246,10 +273,28 @@
 
 #pragma mark - UINavigationControllerDelegate
 
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+- (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
+                                   animationControllerForOperation:(UINavigationControllerOperation)operation
+                                                fromViewController:(UIViewController *)fromVC
+                                                  toViewController:(UIViewController *)toVC
+{
+    if([toVC isKindOfClass:[TiViewController class]]) {
+        TiViewController* toViewController = (TiViewController*)toVC;
+        if([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
+            TiWindowProxy *windowProxy = (TiWindowProxy*)[toViewController proxy];
+            return [windowProxy transitionAnimation];
+        }
+    }
+    return nil;
+}
+#endif
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-	transitionIsAnimating = YES;
+	if (!transitionWithGesture) {
+		transitionIsAnimating = YES;
+	}
 	[self handleWillShowViewController:viewController animated:animated];
 }
 
@@ -261,6 +306,7 @@
         [self setActive:[NSNumber numberWithBool:YES]];
     }
 	transitionIsAnimating = NO;
+	transitionWithGesture = NO;
 	[self handleDidShowViewController:viewController animated:animated];
 }
 
@@ -269,7 +315,28 @@
 
 - (void)handleWillShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-    
+    if (current != nil) {
+        UIViewController *curController = [current hostingController];
+        NSArray* curStack = [[[self rootController] navigationController] viewControllers];
+        BOOL winclosing = NO;
+        if (![curStack containsObject:curController]) {
+            winclosing = YES;
+        } else {
+            NSUInteger curIndex = [curStack indexOfObject:curController];
+            if (curIndex > 1) {
+                UIViewController* currentPopsTo = [curStack objectAtIndex:(curIndex - 1)];
+                if (currentPopsTo == viewController) {
+                    winclosing = YES;
+                }
+            }
+        }
+        if (winclosing) {
+            //TIMOB-15033. Have to call windowWillClose so any keyboardFocussedProxies resign
+            //as first responders. This is ok since tab is not nil so no message will be sent to
+            //hosting controller.
+            [current windowWillClose];
+        }
+    }
     TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
     if (theWindow == rootWindow) {
         //This is probably too late for the root view controller.
@@ -287,9 +354,22 @@
         UIViewController* oldController = [current hostingController];
         UINavigationController* navController = [[self rootController] navigationController];
         if (![[navController viewControllers] containsObject:oldController]) {
+            [controllerStack removeObject:oldController];
             [current setTab:nil];
             [current setParentOrientationController:nil];
             [current close:nil];
+            //TIMOB-15188. Tab can switch to rootView anytime by tapping the selected tab again.
+            if ((viewController == [self rootController]) && ([controllerStack count] > 1) ) {
+                [controllerStack removeObject:[self rootController]];
+                for (TiViewController* theController in [controllerStack reverseObjectEnumerator]) {
+                    TiWindowProxy* theWindow = (TiWindowProxy*)[theController proxy];
+                    [theWindow setTab:nil];
+                    [theWindow setParentOrientationController:nil];
+                    [theWindow close:nil];
+                }
+                [controllerStack removeAllObjects];
+                [controllerStack addObject:[self rootController]];
+            }
         }
     }
     RELEASE_TO_NIL(current);
@@ -424,7 +504,6 @@
 			activeImage = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:activeIcon proxy:currentWindow]];
 		}
 	}
-
 	[rootController setTitle:title];
 	UITabBarItem *ourItem = nil;
     

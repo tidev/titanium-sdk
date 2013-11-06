@@ -19,6 +19,11 @@ USE_VIEW_FOR_VERIFY_HEIGHT
 	return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iOS.Toolbar";
+}
+
 -(UIToolbar*)toolbar
 {
 	TiUIiOSToolbar *theview = (TiUIiOSToolbar*) [self view];

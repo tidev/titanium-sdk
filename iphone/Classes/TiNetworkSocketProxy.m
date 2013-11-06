@@ -15,6 +15,12 @@
     return [[[TiNetworkSocketTCPProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Network.Socket";
+}
+
+
 MAKE_SYSTEM_PROP(INITIALIZED,SOCKET_INITIALIZED);
 MAKE_SYSTEM_PROP(CONNECTED,SOCKET_CONNECTED);
 MAKE_SYSTEM_PROP(LISTENING,SOCKET_LISTENING);

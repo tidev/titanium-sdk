@@ -69,6 +69,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
+	private boolean inForeground = false; // Indicates whether this activity is in foreground or not.
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
 	private TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<OnWindowFocusChangedEvent>();
 	private TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners = new TiWeakList<interceptOnBackPressedEvent>();
@@ -461,6 +462,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	{
 		Log.d(TAG, "Activity " + this + " onCreate", Log.DEBUG_MODE);
 
+		inForeground = true;
 		TiApplication tiApp = getTiApp();
 
 		if (tiApp.isRestartPending()) {
@@ -525,7 +527,8 @@ public abstract class TiBaseActivity extends FragmentActivity
 		windowCreated();
 
 		if (activityProxy != null) {
-			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null);
+			// Fire the sync event with a timeout, so the main thread won't be blocked too long to get an ANR. (TIMOB-13253)
+			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null, 4000);
 		}
 
 		// set the current activity back to what it was originally
@@ -549,6 +552,11 @@ public abstract class TiBaseActivity extends FragmentActivity
 	public int getOriginalOrientationMode()
 	{
 		return originalOrientationMode;
+	}
+
+	public boolean isInForeground()
+	{
+		return inForeground;
 	}
 
 	protected void sendMessage(final int msgId)
@@ -924,6 +932,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 */
 	protected void onPause() 
 	{
+		inForeground = false;
 		super.onPause();
 		isResumed = false;
 
@@ -981,6 +990,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 */
 	protected void onResume()
 	{
+		inForeground = true;
 		super.onResume();
 		if (isFinishing()) {
 			return;
@@ -1004,7 +1014,8 @@ public abstract class TiBaseActivity extends FragmentActivity
 		TiApplication.updateActivityTransitionState(false);
 		
 		if (activityProxy != null) {
-			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null);
+			// Fire the sync event with a timeout, so the main thread won't be blocked too long to get an ANR. (TIMOB-13253)
+			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null, 4000);
 		}
 
 		synchronized (lifecycleListeners.synchronizedList()) {
@@ -1021,7 +1032,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 		isResumed = true;
 
 		// Checkpoint for ti.start event
-		String deployType = tiApp.getSystemProperties().getString("ti.deploytype", "unknown");
+		String deployType = tiApp.getAppProperties().getString("ti.deploytype", "unknown");
 		tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppStartEvent(tiApp, deployType));
 	}
 
@@ -1033,6 +1044,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 */
 	protected void onStart()
 	{
+		inForeground = true;
 		super.onStart();
 		if (isFinishing()) {
 			return;
@@ -1062,7 +1074,8 @@ public abstract class TiBaseActivity extends FragmentActivity
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
 
-			activityProxy.fireSyncEvent(TiC.EVENT_START, null);
+			// Fire the sync event with a timeout, so the main thread won't be blocked too long to get an ANR. (TIMOB-13253)
+			activityProxy.fireSyncEvent(TiC.EVENT_START, null, 4000);
 
 			// set the current activity back to what it was originally
 			tiApp.setCurrentActivity(this, tempCurrentActivity);
@@ -1090,6 +1103,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 */
 	protected void onStop()
 	{
+		inForeground = false;
 		super.onStop();
 
 		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
@@ -1125,6 +1139,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 */
 	protected void onRestart()
 	{
+		inForeground = true;
 		super.onRestart();
 
 		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
@@ -1154,6 +1169,29 @@ public abstract class TiBaseActivity extends FragmentActivity
 
 	@Override
 	/**
+	 * When the activity is about to go into the background as a result of user choice, this method fires the 
+	 * javascript 'userleavehint' event.
+	 */
+	protected void onUserLeaveHint()
+	{
+		Log.d(TAG, "Activity " + this + " onUserLeaveHint", Log.DEBUG_MODE);
+
+		if (getTiApp().isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		if (activityProxy != null) {
+			activityProxy.fireSyncEvent(TiC.EVENT_USER_LEAVE_HINT, null);
+		}
+
+		super.onUserLeaveHint();
+	}
+	
+	@Override
+	/**
 	 * When this activity is destroyed, this method removes it from the activity stack, performs
 	 * clean up, and fires javascript 'destroy' event. 
 	 */
@@ -1161,6 +1199,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	{
 		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
 
+		inForeground = false;
 		TiApplication tiApp = getTiApp();
 		//Clean up dialogs when activity is destroyed. 
 		releaseDialogs(true);

@@ -17,7 +17,6 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 	private static int viewId = 1000;
 
 	private Fragment fragment;
-
 	private Handler handler;
 
 	public TiUIFragment(TiViewProxy proxy, Activity activity)
@@ -62,6 +61,20 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 	protected boolean interceptTouchEvent(MotionEvent ev)
 	{
 		return false;
+	}
+	
+	@Override
+	public void release()
+	{
+		if (fragment != null) {
+			FragmentManager fragmentManager = fragment.getFragmentManager();
+			if (fragmentManager != null) {
+				FragmentTransaction transaction = fragmentManager.beginTransaction();
+				transaction.remove(fragment);
+				transaction.commit();
+			}
+		}
+		super.release();
 	}
 
 	protected abstract void onViewCreated();

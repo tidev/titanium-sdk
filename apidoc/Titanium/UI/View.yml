@@ -470,30 +470,29 @@ methods:
             other controls, added to its `items` array. Views added using the `add` method are
             displayed on top of the controls in the `items` array.
 
-        *   The `Tab`, `TabGroup`, `NavigationGroup` and `SplitWindow` objects are 
-            special containers that manage windows. These are discussed in the 
+        *   The `Tab`, `TabGroup`, `NavigationGroup`, `NavigationWindow` and `SplitWindow` objects are
+            special containers that manage windows. These are discussed in the
             "Top-Level Containers" section.
 
 
         #### Top-Level Containers
-         
-        There are certain top-level containers that are not intended to be added 
-        as the children of other views. These top-level containers include 
-        [Window](Titanium.UI.Window), [SplitWindow](Titanium.UI.iPad.SplitWindow),
-        and [TabGroup](Titanium.UI.TabGroup).  Other types of views must be added 
+
+        There are certain top-level containers that are not intended to be added
+        as the children of other views. These top-level containers include
+        <Titanium.UI.Window>, <Titanium.UI.iPad.SplitWindow>, <Titanium.UI.iOS.NavigationWindow>,
+        and <Titanium.UI.TabGroup>.  Other types of views must be added
         to a top-level container in order to be displayed on screen.
 
-        The special containers [NavigationGroup](Titanium.UI.iPhone.NavigationGroup), 
-        [SplitWindow](Titanium.UI.iPad.SplitWindow), [Tab](Titanium.UI.Tab), and 
-        [TabGroup](Titanium.UI.TabGroup)
-        manage windows. These managed windows may be referred to as *children* of the 
+        The special containers <Titanium.UI.MobileWeb.NavigationGroup>,
+        <Titanium.UI.iOS.NavigationWindow>, <Titanium.UI.iPad.SplitWindow>,
+        <Titanium.UI.Tab>, and <Titanium.UI.TabGroup> manage windows.
+        These managed windows may be referred to as *children* of the
         container, but they are not added using the `add` method.
-        
-        Note that although a `NavigationGroup`
-        manages windows, it is not itself a top-level container.  It must be added to a
-        `Window` or `Popover` in order to be displayed.
-        
-        `Tab` is another kind of special container: it is not itself a top-level container, 
+
+        Note that although a `NavigationGroup` manages windows, it is not itself a
+        top-level container.  It must be added to a `Window` in order to be displayed.
+
+        `Tab` is another kind of special container: it is not itself a top-level container,
         but can only be used within a `TabGroup`. You cannot `add` a `Tab` to an arbitrary
         container.
     parameters:
@@ -1219,6 +1218,17 @@ properties:
     type: Number
     default: <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>
     platforms: [android]
+    
+  - name: tintColor
+    summary: The view's tintColor. This property is applicable on iOS 7 and greater. 
+    description: |
+        This property is a direct correspondant of the tintColor property of UIView on iOS. If no value is specified, 
+        the tintColor of the View is inherited from its superview. 
+    type: [String]
+    since: "3.1.3"
+    default: null
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad]
     
   - name: top
     summary: The view's top position.

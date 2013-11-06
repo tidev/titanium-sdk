@@ -25,6 +25,31 @@
     [super _initWithProperties:properties];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iOS.NavigationWindow";
+}
+
+
+-(void)popGestureStateHandler:(UIGestureRecognizer *)recognizer
+{
+    UIGestureRecognizerState curState = recognizer.state;
+    
+    switch (curState) {
+        case UIGestureRecognizerStateBegan:
+            transitionWithGesture = YES;
+            break;
+        case UIGestureRecognizerStateEnded:
+        case UIGestureRecognizerStateCancelled:
+        case UIGestureRecognizerStateFailed:
+            transitionWithGesture = NO;
+            break;
+        default:
+            break;
+    }
+    
+}
+
 #pragma mark - TiOrientationController
 
 -(TiOrientationFlags) orientationFlags
@@ -65,11 +90,14 @@
         navController = [[UINavigationController alloc] initWithRootViewController:[self rootController]];;
         navController.delegate = self;
         [TiUtils configureController:navController withObject:self];
+        if ([TiUtils isIOS7OrGreater]) {
+            [navController.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
+        }
     }
     return navController;
 }
 
--(void)push:(NSArray*)args
+-(void)openWindow:(NSArray*)args
 {
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
@@ -98,7 +126,7 @@
 	}, YES);
 }
 
--(void)pop:(NSArray*)args
+-(void)closeWindow:(NSArray*)args
 {
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
@@ -119,10 +147,50 @@
 
 #pragma mark - UINavigationControllerDelegate
 
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+- (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
+                                   animationControllerForOperation:(UINavigationControllerOperation)operation
+                                                fromViewController:(UIViewController *)fromVC
+                                                  toViewController:(UIViewController *)toVC
+{
+    if([toVC isKindOfClass:[TiViewController class]]) {
+        TiViewController* toViewController = (TiViewController*)toVC;
+        if([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
+            TiWindowProxy *windowProxy = (TiWindowProxy*)[toViewController proxy];
+            return [windowProxy transitionAnimation];
+        }
+    }
+    return nil;
+}
+#endif
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-	transitionIsAnimating = YES;
+    if (!transitionWithGesture) {
+        transitionIsAnimating = YES;
+    }
+    if (current != nil) {
+        UIViewController *curController = [current hostingController];
+        NSArray* curStack = [navController viewControllers];
+        BOOL winclosing = NO;
+        if (![curStack containsObject:curController]) {
+            winclosing = YES;
+        } else {
+            NSUInteger curIndex = [curStack indexOfObject:curController];
+            if (curIndex > 1) {
+                UIViewController* currentPopsTo = [curStack objectAtIndex:(curIndex - 1)];
+                if (currentPopsTo == viewController) {
+                    winclosing = YES;
+                }
+            }
+        }
+        if (winclosing) {
+            //TIMOB-15033. Have to call windowWillClose so any keyboardFocussedProxies resign
+            //as first responders. This is ok since tab is not nil so no message will be sent to
+            //hosting controller.
+            [current windowWillClose];
+        }
+    }
     TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
     if ((theWindow != rootWindow) && [theWindow opening]) {
         [theWindow windowWillOpen];
@@ -133,6 +201,7 @@
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
     transitionIsAnimating = NO;
+    transitionWithGesture = NO;
     if (current != nil) {
         UIViewController* oldController = [current hostingController];
         
@@ -176,7 +245,7 @@
 
 -(void)pushOnUIThread:(NSArray*)args
 {
-	if (transitionIsAnimating)
+	if (transitionIsAnimating || transitionWithGesture)
 	{
 		[self performSelector:_cmd withObject:args afterDelay:0.1];
 		return;
@@ -189,7 +258,7 @@
 
 -(void)popOnUIThread:(NSArray*)args
 {
-	if (transitionIsAnimating)
+	if (transitionIsAnimating || transitionWithGesture)
 	{
 		[self performSelector:_cmd withObject:args afterDelay:0.1];
 		return;
@@ -369,10 +438,10 @@
 }
 
 
--(void) windowWillClose
+-(void) windowDidClose
 {
     [self cleanNavStack];
-    [super windowWillClose];
+    [super windowDidClose];
 }
 
 -(void)willChangeSize

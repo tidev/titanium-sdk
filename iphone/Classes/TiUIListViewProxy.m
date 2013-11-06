@@ -42,6 +42,11 @@
     [super _initWithProperties:properties];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.ListView";
+}
+
 - (void)dealloc
 {
 	[_operationQueue release];
@@ -196,7 +201,7 @@
 		}
 	}];
 	TiThreadPerformOnMainThread(^{
-		[self.listView setTemplates_:templates];
+		[self.listView setDictTemplates_:templates];
 	}, NO);
 	[templates release];
 }

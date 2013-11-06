@@ -94,7 +94,14 @@ exports.bootstrap = function(Titanium) {
 			}
 			xhr.open('GET', url);
 			xhr.send();
+		},
+
+		apiName: "Ti.Yahoo",
+
+		getApiName: function() {
+			return this.apiName;
 		}
+
 	};
 
 	return Yahoo;

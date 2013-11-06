@@ -48,6 +48,312 @@ properties:
     type: Number
     permission: read-only
 
+  - name: ATTRIBUTE_FONT
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_FOREGROUND_COLOR
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_BACKGROUND_COLOR
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LIGATURE
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_KERN
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_STRIKETHROUGH_STYLE
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINES_STYLE
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_STROKE_COLOR
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_STROKE_WIDTH
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_SHADOW
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_VERTICAL_GLYPH_FORM
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_WRITING_DIRECTION
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_TEXT_EFFECT
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINK
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_BASELINE_OFFSET
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_COLOR
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_STRIKETHROUGH_COLOR
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_OBLIQUENESS
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_EXPANSION
+    summary: |
+        Use with [Attribute.type](Attribute.type) to specify a type.
+    description: |
+        See <Attribute> for more information on type modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_STYLE_NONE
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_STYLE_SINGLE
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_STYLE_THICK
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_PATTERN_SOLID
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_PATTERN_DOT
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_BY_WORD
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_WRITING_DIRECTION_NATURAL
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
   - name: AUTODETECT_ADDRESS
     deprecated:
         since: "3.0.0"
@@ -348,6 +654,32 @@ properties:
     permission: read-only
     since: "1.8.1"
 
+  - name: COLLISION_MODE_ALL
+    summary: |
+        Use with <Titanium.UI.iOS.CollisionBehavior.collisionMode> to specify collisions with both items and
+        boundaries.
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    osver: {ios: {min: "7.0"}}
+
+  - name: COLLISION_MODE_BOUNDARY
+    summary: |
+        Use with <Titanium.UI.iOS.CollisionBehavior.collisionMode> to specify collisions with
+        boundaries only.
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    osver: {ios: {min: "7.0"}}
+
+  - name: COLLISION_MODE_ITEM
+    summary: |
+        Use with <Titanium.UI.iOS.CollisionBehavior.collisionMode> to specify collisions with items only.
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    osver: {ios: {min: "7.0"}}
+
   - name: COLOR_GROUP_TABLEVIEW_BACKGROUND
     summary: Returns the iOS system texture used to render the background on a group table view. 
     description: |
@@ -392,6 +724,22 @@ properties:
     permission: read-only
     since: "2.1.0"
     osver: {iOS: {min: "5.0"}}
+
+  - name: PUSH_MODE_CONTINUOUS
+    summary: |
+        Use with <Titanium.UI.iOS.PushBehavior.pushMode> to specifiy a continuous force.
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    osver: {ios: {min: "7.0"}}
+
+  - name: PUSH_MODE_INSTANTANEOUS
+    summary: |
+        Use with <Titanium.UI.iOS.PushBehavior.pushMode> to specifiy an instantaneous force.
+    type: Number
+    permission: read-only
+    since: "3.2.0"
+    osver: {ios: {min: "7.0"}}
 
   - name: WEBVIEW_NAVIGATIONTYPE_LINK_CLICKED
     summary: User tapped a link.
@@ -452,4 +800,104 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+
+methods:
+  - name: createTransitionAnimation
+    summary: |
+        Creates a transition animation when opening or closing windows in a
+        <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
+    description: |
+        Use the object returned by this method with the Window's
+        [transitionAnimation](Titanium.UI.Window.transitionAnimation) property.
+
+        Supported on iOS 7 and later.
+    parameters:
+      - name: transition
+        summary: Dictionary specifying the transition animation.
+        type: transitionAnimationParam
+    returns:
+      - type: Titanium.Proxy
+    since: "3.2.0"
+    osver: {ios: {min: "7.0"}}
+
+---
+name: transitionAnimationParam
+summary: |
+    Dictionary specifying the transition animation used with the <Titanium.UI.iOS.createTransitionAnimation> method.
+    Only supported on iOS 7 and later.
+platforms: [iphone, ipad]
+since: "3.2.0"
+osver: {ios: {min: "7.0"}}
+
+examples:
+  - title: Simple Example
+    example: |
+        In this example, the red window opens with a transition animation, while closing it uses the
+        default behavior where it slides off screen.  To add a transition animation when the red
+        window closes, define a transition animation for the blue window.
+
+            var transition = Ti.UI.iOS.createTransitionAnimation({
+                duration: 300,
+                // The show transition makes the window opaque and rotates it correctly
+                transitionTo: {
+                    opacity: 1,
+                    duration: 300,
+                    transform: Ti.UI.create2DMatrix()
+                },
+                // The hide transition makes the window transparent and rotates it upside down
+                transitionFrom: {
+                    opacity: 0,
+                    duration: 300 / 2,
+                    transform: Ti.UI.create2DMatrix().rotate(180),
+                }
+            });
+
+            var win2 = Ti.UI.createWindow({
+                backgroundColor: 'red',
+                title: 'Red Window',
+                transitionAnimation: transition,
+                opacity: 0,
+                transform: Ti.UI.create2DMatrix().rotate(180)
+            });
+            var button2 = Ti.UI.createButton({
+                title: 'Close Red Window'
+            });
+            button2.addEventListener('click', function(){
+                nav.closeWindow(win2);
+                // In order to see the blue window again,
+                // need to reverse the transition animation
+                win1.opacity = 1;
+                win1.transform = Ti.UI.create2DMatrix().rotate(0);
+            });
+            win2.add(button2);
+
+            var win1 = Ti.UI.createWindow({
+                backgroundColor: 'blue',
+                title: 'Blue Window',
+                // Uncomment to use a transition animation when the blue window is closed
+                // transitionAnimation: transition
+            });
+            var button1 = Ti.UI.createButton({title: 'Open Red Window'});
+            button1.addEventListener('click', function(){
+                nav.openWindow(win2);
+            });
+            win1.add(button1);
+
+            var nav = Ti.UI.iOS.createNavigationWindow({
+                window: win1
+            });
+            nav.open();
+
+properties:
+  - name: duration
+    summary: Length of the transition in milliseconds.
+    type: Number
+
+  - name: transitionFrom
+    summary: Animation to hide the current window.
+    type: Titanium.UI.Animation
+
+  - name: tranistionTo
+    summary: Animation to show the new window.
+    type: Titanium.UI.Animation
 

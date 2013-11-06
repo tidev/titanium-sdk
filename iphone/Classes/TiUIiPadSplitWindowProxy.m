@@ -20,7 +20,12 @@
 	return [[TiUIiPadSplitWindow alloc] init];
 }
 
--(void)windowDidOpen 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPad.SplitWindow";
+}
+
+-(void)windowDidOpen
 {
 	[super windowDidOpen];
 	[self reposition];
@@ -54,6 +59,55 @@
 	[(TiUIiPadSplitWindow*)[self view] setToolbar:items withObject:properties];
 }
 
+-(void)popupVisibilityChanged:(BOOL)newVal
+{
+    [self replaceValue:NUMBOOL(newVal) forKey:@"masterPopupVisibile" notification:NO];
+    TiViewProxy* masterProxy = [self valueForUndefinedKey:@"masterView"];
+    if ([masterProxy isKindOfClass:[TiWindowProxy class]]) {
+        if (newVal) {
+            [(TiWindowProxy*) masterProxy gainFocus];
+        } else {
+            [(TiWindowProxy*) masterProxy resignFocus];
+        }
+    }
+}
+
+-(void)gainFocus
+{
+    TiViewProxy* masterProxy = [self valueForUndefinedKey:@"masterView"];
+    TiViewProxy* detailProxy = [self valueForUndefinedKey:@"detailView"];
+    if ([detailProxy isKindOfClass:[TiWindowProxy class]]) {
+        [(TiWindowProxy*) detailProxy gainFocus];
+    }
+    
+    if ([masterProxy isKindOfClass:[TiWindowProxy class]]) {
+        id showMasterInPortrait = [self valueForUndefinedKey:@"showMasterInPortrait"];
+        if ([TiUtils boolValue:showMasterInPortrait def:NO]) {
+            [(TiWindowProxy*) masterProxy gainFocus];
+        } else {
+            TiThreadPerformOnMainThread(^{
+                UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+                if (UIInterfaceOrientationIsLandscape(curOrientation)) {
+                    [(TiWindowProxy*) masterProxy gainFocus];
+                }
+            }, YES);
+        }
+    }
+    [super gainFocus];
+}
+
+-(void)resignFocus
+{
+    TiViewProxy* masterProxy = [self valueForUndefinedKey:@"masterView"];
+    TiViewProxy* detailProxy = [self valueForUndefinedKey:@"detailView"];
+    if ([detailProxy isKindOfClass:[TiWindowProxy class]]) {
+        [(TiWindowProxy*) detailProxy resignFocus];
+    }
+    if ([masterProxy isKindOfClass:[TiWindowProxy class]]) {
+        [(TiWindowProxy*) masterProxy resignFocus];
+    }
+    [super resignFocus];
+}
 
 -(void)setDetailView:(id<NSObject,TiOrientationController>)newDetailView
 {
@@ -139,6 +193,24 @@
     if ([self viewAttached]) {
         [[(TiUIiPadSplitWindow*)[self view] controller] didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     }
+    
+    if (focussed) {
+        TiViewProxy* masterProxy = [self valueForUndefinedKey:@"masterView"];
+        if ([masterProxy isKindOfClass:[TiWindowProxy class]]) {
+            BOOL showMaster = [TiUtils boolValue:[self valueForUndefinedKey:@"showMasterInPortrait"] def:NO];
+            if (!showMaster) {
+                UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+                showMaster = UIInterfaceOrientationIsLandscape(curOrientation);
+            }
+            if (showMaster) {
+                [(TiWindowProxy*) masterProxy gainFocus];
+            } else {
+                [(TiWindowProxy*) masterProxy resignFocus];
+            }
+        }
+        
+    }
+
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
 

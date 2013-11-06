@@ -37,6 +37,11 @@ static NSArray* tabGroupKeySequence;
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.TabGroup";
+}
+
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     [self initializeProperty:@"allowUserCustomization" defaultValue:NUMBOOL(YES)];
@@ -59,6 +64,11 @@ static NSArray* tabGroupKeySequence;
 -(UITabBar*)tabbar
 {
 	return [(TiUITabGroup*)[self view] tabbar];
+}
+
+-(BOOL)canFocusTabs
+{
+    return focussed;
 }
 
 #pragma mark Public APIs

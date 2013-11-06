@@ -17,11 +17,14 @@ var fs = require('fs'),
 	async = require('async'),
 	spawn = require('child_process').spawn,
 	appc = require('node-appc'),
+	iosDevice = require('node-ios-device'),
+	x509 = require('x509'),
 	iosPackageJson = appc.pkginfo.package(module),
 	manifestJson = appc.pkginfo.manifest(module),
 	__ = appc.i18n(__dirname).__,
 	afs = appc.fs,
 	encoding = appc.encoding,
+	version = appc.version,
 	run = appc.subprocess.run,
 	findExecutable = appc.subprocess.findExecutable,
 	envCache;
@@ -43,55 +46,41 @@ exports.detect = function detect(config, opts, finished) {
 	// first we find all the executables we're going to be calling
 	async.parallel({
 		xcodeSelect: function (next) {
-			findExecutable([config.get('ios.executables.xcodeSelect'), 'xcode-select'], function (err, result) {
+			findExecutable([config.get('osx.executables.xcodeSelect'), 'xcode-select'], function (err, result) {
 				err && issues.push({
 					id: 'IOS_XCODE_SELECT_EXECUTABLE_NOT_FOUND',
 					type: 'error',
 					message: __("Unable to find the 'xcode-select' executable") + '\n'
 						+ __('Perhaps Xcode is not installed, your Xcode installation is corrupt, or your system path is incomplete.') + '\n'
-						+ __("If you know where this executable is, you can tell the Titanium CLI where it located by running 'titanium config ios.xcodeSelect /path/to/xcode-select'.")
-				});
-				next(null, result);
-			});
-		},
-
-		pkgutil: function (next) {
-			findExecutable([config.get('ios.executables.pkgutil'), 'pkgutil'], function (err, result) {
-				err && issues.push({
-					id: 'IOS_PKGUTIL_EXECUTABLE_NOT_FOUND',
-					type: 'error',
-					message: __("Unable to find the 'pkgutil' executable") + '\n'
-						+ __('Please verify your system path.') + '\n'
-						+ __("This program is distributed with Mac OS X and if it's missing, you'll have to restore it from a backup or another computer, or reinstall Mac OS X.")
-						+ __("If you know where this executable is, you can tell the Titanium CLI where it located by running 'titanium config ios.pkgutil /path/to/pkgutil'.")
+						+ __("If you know where this executable is, you can tell the Titanium CLI where it located by running 'titanium config osx.executables.xcodeSelect /path/to/xcode-select'.")
 				});
 				next(null, result);
 			});
 		},
 
 		security: function (next) {
-			findExecutable([config.get('ios.executables.security'), 'security'], function (err, result) {
+			findExecutable([config.get('osx.executables.security'), 'security'], function (err, result) {
 				err && issues.push({
 					id: 'IOS_SECURITY_EXECUTABLE_NOT_FOUND',
 					type: 'error',
 					message: __("Unable to find the 'security' executable") + '\n'
 						+ __('Please verify your system path.') + '\n'
 						+ __("This program is distributed with Mac OS X and if it's missing, you'll have to restore it from a backup or another computer, or reinstall Mac OS X.")
-						+ __("If you know where this executable is, you can tell the Titanium CLI where it located by running 'titanium config ios.security /path/to/security'.")
+						+ __("If you know where this executable is, you can tell the Titanium CLI where it located by running 'titanium config osx.executables.security /path/to/security'.")
 				});
 				next(null, result);
 			});
 		},
 
 		openssl: function (next) {
-			findExecutable([config.get('ios.executables.openssl'), 'openssl'], function (err, result) {
+			findExecutable([config.get('osx.executables.openssl'), 'openssl'], function (err, result) {
 				err && issues.push({
 					id: 'IOS_OPENSSL_EXECUTABLE_NOT_FOUND',
 					type: 'error',
 					message: __("Unable to find the 'openssl' executable") + '\n'
 						+ __('Please verify your system path.') + '\n'
 						+ __("This program should be distributed with Mac OS X and if it's missing, you can download from http://www.openssl.org/.")
-						+ __("If you know where this executable is, you can tell the Titanium CLI where it located by running 'titanium config ios.openssl /path/to/openssl'.")
+						+ __("If you know where this executable is, you can tell the Titanium CLI where it located by running 'titanium config osx.executables.openssl /path/to/openssl'.")
 				});
 				next(null, result);
 			});
@@ -107,12 +96,12 @@ exports.detect = function detect(config, opts, finished) {
 				var xcodePaths = config.get('paths.xcode');
 				Array.isArray(xcodePaths) && xcodePaths.forEach(function (p) {
 					p = afs.resolvePath(p);
-					if (afs.exists(p) && fs.statSync(p).isDirectory()) {
+					if (fs.existsSync(p) && fs.statSync(p).isDirectory()) {
 						// check if the path is to the Xcode.app dir
 						if (!/.+\/Contents\/Developer$/.test(p)) {
 							// yep, we need to add the /Contents/Developer
 							var q = path.join(p, 'Contents', 'Developer');
-							if (afs.exists(q)) {
+							if (fs.existsSync(q)) {
 								// looks good
 								p = q;
 							} else {
@@ -126,7 +115,7 @@ exports.detect = function detect(config, opts, finished) {
 								return;
 							}
 						}
-						if (afs.exists(p) && searchPaths.indexOf(p) == -1) {
+						if (fs.existsSync(p) && searchPaths.indexOf(p) == -1) {
 							searchPaths.push(p);
 						}
 					}
@@ -148,11 +137,21 @@ exports.detect = function detect(config, opts, finished) {
 					var sdkRegExp = /^iPhone(OS|Simulator)(.+)\.sdk$/,
 						findIosSdks = function (dir) {
 							var vers = [];
-							afs.exists(dir) && fs.readdirSync(dir).forEach(function (d) {
+							fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (d) {
 								var file = path.join(dir, d);
 								if (fs.existsSync(file) && fs.statSync(file).isDirectory()) {
 									var m = d.match(sdkRegExp);
-									m && (!opts.minSDK || appc.version.gte(m[2], opts.minSDK)) && vers.push(m[2]);
+									if (m && (!opts.minSDK || appc.version.gte(m[2], opts.minSDK))) {
+										var ver = m[2];
+										file = path.join(file, 'System', 'Library', 'CoreServices', 'SystemVersion.plist');
+										if (fs.existsSync(file)) {
+											var p = new appc.plist(file);
+											if (p.ProductVersion) {
+												ver = p.ProductVersion;
+											}
+										}
+										vers.push(ver);
+									}
 								}
 							});
 							return vers;
@@ -167,7 +166,7 @@ exports.detect = function detect(config, opts, finished) {
 								plistfile = path.join(path.dirname(dir), 'version.plist'),
 								p, info, key;
 
-							if (afs.exists(xcodebuild) && afs.exists(plistfile)) {
+							if (fs.existsSync(xcodebuild) && fs.existsSync(plistfile)) {
 								p = new appc.plist(plistfile);
 								info = {
 									path: dir,
@@ -176,8 +175,7 @@ exports.detect = function detect(config, opts, finished) {
 									selected: dir == selectedXcodePath,
 									version: p.CFBundleShortVersionString,
 									build: p.ProductBuildVersion,
-									supported: appc.version.gte(p.CFBundleShortVersionString, iosPackageJson.minXcodeVersion)
-										? (appc.version.lt(p.CFBundleShortVersionString, iosPackageJson.maxXcodeVersion + '.9999') ? true : 'maybe') : false,
+									supported: appc.version.satisfies(p.CFBundleShortVersionString, iosPackageJson.vendorDependencies.xcode, true),
 									sdks: null,
 									sims: null
 								};
@@ -190,14 +188,14 @@ exports.detect = function detect(config, opts, finished) {
 											id: 'IOS_XCODE_TOO_OLD',
 											type: 'warning',
 											message: __('Xcode %s is too old and is no longer supported by Titanium SDK %s.', '__' + info.version + '__', manifestJson.version) + '\n' +
-												__('The minimumm supported Xcode version by Titanium SDK %s is Xcode %s.', manifestJson.version, iosPackageJson.minXcodeVersion)
+												__('The minimumm supported Xcode version by Titanium SDK %s is Xcode %s.', manifestJson.version, appc.version.parseMin(iosPackageJson.vendorDependencies.xcode))
 										});
 									} else if (info.supported == 'maybe') {
 										issues.push({
 											id: 'IOS_XCODE_TOO_NEW',
 											type: 'warning',
 											message: __('Xcode %s is too new and may or may not work with Titanium SDK %s.', '__' + info.version + '__', manifestJson.version) + '\n' +
-												__('The maximum supported Xcode version by Titanium SDK %s is Xcode %s.', manifestJson.version, iosPackageJson.maxXcodeVersion) + '\n'
+												__('The maximum supported Xcode version by Titanium SDK %s is Xcode %s.', manifestJson.version, appc.version.parseMax(iosPackageJson.vendorDependencies.xcode)) + '\n'
 										});
 									}
 
@@ -210,13 +208,23 @@ exports.detect = function detect(config, opts, finished) {
 						};
 					}), function () {
 						if (Object.keys(xcodeInstalls).length) {
-							var validXcodes = 0;
+							var validXcodes = 0,
+								sdkCounter = 0,
+								simCounter = 0;
+
 							Object.keys(xcodeInstalls).forEach(function (x) {
 								if (xcodeInstalls[x].supported) {
 									// we're counting maybe's as valid
 									validXcodes++;
 								}
+								if (xcodeInstalls[x].sdks) {
+									sdkCounter += xcodeInstalls[x].sdks.length;
+								}
+								if (xcodeInstalls[x].sims) {
+									simCounter += xcodeInstalls[x].sims.length;
+								}
 							});
+
 							if (!validXcodes) {
 								issues.push({
 									id: 'IOS_NO_SUPPORTED_XCODE_FOUND',
@@ -224,12 +232,30 @@ exports.detect = function detect(config, opts, finished) {
 									message: __('There are no Xcode installations found that are supported by Titanium SDK %s.', manifestJson.version)
 								});
 							}
+
+							if (!sdkCounter) {
+								issues.push({
+									id: 'IOS_NO_IOS_SDKS',
+									type: 'error',
+									message: __('There are no iOS SDKs found') + '\n' +
+										__('Launch Xcode and download the mobile support packages.')
+								});
+							}
+
+							if (!sdkCounter) {
+								issues.push({
+									id: 'IOS_NO_IOS_SIMS',
+									type: 'error',
+									message: __('There are no iOS Simulators found') + '\n' +
+										__('You can install them from the Xcode Preferences > Downloads tab.')
+								});
+							}
 						} else {
 							issues.push({
 								id: 'IOS_XCODE_NOT_INSTALLED',
 								type: 'error',
 								message: __('No Xcode installations found.') + '\n' +
-									__('You will need to login into %s with your Apple Download account and download the latest Xcode version.',
+									__('You need to login into %s with your Apple Download account and download the latest Xcode version.',
 										'__https://developer.apple.com/ios/manage/certificates/team/index.action__')
 							});
 						}
@@ -246,34 +272,9 @@ exports.detect = function detect(config, opts, finished) {
 				}
 			},
 
-			xcodeCLIToolsInstalled: function (done) {
-				var check = function (installed) {
-					if (!installed) {
-						issues.push({
-							id: 'IOS_XCODE_CLI_TOOLS_NOT_INSTALLED',
-							type: 'error',
-							message: __('The Xcode Command Line Tools are not installed.') + '\n' +
-								__('Titanium requires that the Xcode Command Line Tools be installed.') + '\n' +
-								__('You can install them from the Xcode Preferences > Downloads tab.')
-						});
-					}
-					done(null, installed);
-				}
-
-				if (executables.pkgutil) {
-					run(executables.pkgutil, '--pkg-info=com.apple.pkg.DeveloperToolsCLI', function (err, stdout, stderr) {
-						check(!err);
-					});
-				} else {
-					check(false);
-				}
-			},
-
 			certs: function (done) {
 				var result = {
-						keychains: {
-							'System Default': {} // this is a dummy entry and doesn't really have any certs
-						},
+						keychains: {},
 						wwdr: false
 					},
 					check = function () {
@@ -341,136 +342,104 @@ exports.detect = function detect(config, opts, finished) {
 						done(null, result);
 					};
 
-				// load the keychain cache which has the cert dates so we don't
-				// have to call openssl (which is really slow)
-				var keychainCache = {},
-					keychainCacheFile = afs.resolvePath('~/.titanium/ios-keychain-cache.json');
-
-				if (afs.exists(keychainCacheFile)) {
-					try {
-						keychainCache = JSON.parse(fs.readFileSync(keychainCacheFile));
-					} catch (ex) {}
-				}
-
+				// if we didn't find the 'security' program, then proceed
 				if (!executables.security) {
 					return check();
 				}
 
-				run(executables.security, 'list-keychains', function (err, stdout, stderr) {
-					if (!err) {
-						stdout.split('\n').forEach(function (line) {
-							var m = line.match(/[^"]*"([^"]*)"/);
-							if (m) {
-								result.keychains[m[1].trim()] = {};
-							}
-						});
-					}
+				// get all keychains and certs
+				run(executables.security, 'list-keychains', function (code, out, err) {
+					if (code) return check();
 
-					run(executables.security, 'dump-keychain', function (err, stdout, stderr) {
-						if (err) {
-							// not sure this is possible, but assume we have no certs
-							return check();
-						}
+					var begin = '-----BEGIN CERTIFICATE-----',
+						iphoneDev = 'iPhone Developer:',
+						iphoneDist = 'iPhone Distribution:',
+						now = new Date,
+						tasks = [];
 
-						// these are used to make sure we don't create dupes
-						var lookup = {};
+					// parse out the keychains and add tasks to find certs for each keychain
+					out.split('\n').forEach(function (line) {
+						var m = line.match(/[^"]*"([^"]*)"/);
+						if (m) {
+							var keychain = m[1].trim(),
+								dest = result.keychains[keychain] = {};
 
-						async.series(stdout.split('keychain: ').map(function (chunk) {
-							return function (next) {
-								// check if this cert is one we care about
-								var m = chunk.match(/"alis"<blob>=[^"]*"(?:(?:iPhone (Developer|Distribution)\: (.*))|(Apple Worldwide Developer Relations Certification Authority))"/);
-								if (!m) return next();
+							// find all the developer certificates in this keychain
+							tasks.push(function (next) {
+								run(executables.security, ['find-certificate', '-c', iphoneDev, '-a', '-p', keychain], function (code, out, err) {
+									if (code) return next();
 
-								if (m[3]) {
-									result.wwdr = true;
-									return next();
-								}
+									out.trim().split(begin).forEach(function (c, i) {
+										if (!i) return; // skip first element because it's empty from the split
+										var cert = x509.parseCert(begin + c),
+											expired = cert.notAfter < now,
+											invalid = expired || cert.notBefore > now;
 
-								var type = m[1].toLowerCase(),
-									name = encoding.decodeOctalUTF8(m[2]),
-									keychain = chunk.match(/^\s*"(.+)"/),
-									lookupKey = keychain + '|' + type + '|' + name;
+										dest.developer || (dest.developer = []);
 
-								// if we find a dupe, move on to the next cert
-								if (lookup[lookupKey]) return next();
-
-								// mark that we've visited this cert name
-								lookup[lookupKey] = 1;
-
-								// make sure the destination exists
-								result.keychains[keychain[1]] || (result.keychains[keychain[1]] = {});
-								result.keychains[keychain[1]][type] || (result.keychains[keychain[1]][type] = []);
-
-								// check if this cert info is cached
-								var cache = keychainCache[name],
-									hash = crypto.createHash('md5').update(chunk).digest('hex');
-								if (cache && cache.hash == hash) {
-									var info = {
-										name: name
-									};
-									cache.before && (info.before = new Date(cache.before));
-									cache.after && (info.after = new Date(cache.after));
-									info.expired = info.after ? info.after < new Date : false;
-									info.invalid = info.expired || (info.before ? info.before > new Date : false);
-									result.keychains[keychain[1]][type].push(info);
-									return next();
-								}
-
-								// if openssl is not found, then we can't get the cert dates
-								if (!executables.openssl || !executables.security) return next();
-
-								// not cached, need to find every cert and call openssl to get the cert dates
-								var opensslChild = spawn(executables.openssl, ['x509', '-dates']),
-									certChild = spawn(executables.security, ['find-certificate', '-c', name, '-p', keychain[1]]),
-									buf = '';
-
-								certChild.stdout.pipe(opensslChild.stdin);
-
-								opensslChild.stdout.on('data', function (data) {
-									buf += data.toString();
-								});
-
-								opensslChild.on('close', function (code) {
-									var info = {
-										name: name
-									};
-
-									// find the dates
-									buf.split('\n').forEach(function (line) {
-										var m = line.match(/not(Before|After)=(.+)/);
-										if (m) {
-											info[m[1].toLowerCase()] = new Date(m[2]);
-										}
+										dest.developer.push({
+											name: cert.subject.commonName.substring(iphoneDev.length).trim(),
+											before: cert.notBefore,
+											after: cert.notAfter,
+											expired: expired,
+											invalid: invalid
+										});
 									});
-
-									info.expired = info.after ? info.after < new Date : false;
-									info.invalid = info.expired || (info.before ? info.before > new Date : false);
-
-									// add the cert info to the keychain cache
-									keychainCache[name] = {
-										hash: hash,
-										name: name,
-										before: info.before,
-										after: info.after
-									};
-									result.keychains[keychain[1]][type].push(info);
 
 									next();
 								});
-							};
-						}), function () {
-							// write the keychain cache
-							fs.writeFileSync(keychainCacheFile, JSON.stringify(keychainCache, null, '\t'));
-
-							// sort the names
-							Object.keys(result.keychains).forEach(function (kc) {
-								result.keychains[kc].developer && result.keychains[kc].developer.sort(function (a, b) { return a.name > b.name; });
-								result.keychains[kc].distribution && result.keychains[kc].distribution.sort(function (a, b) { return a.name > b.name; });
 							});
 
-							check();
-						});
+							// find all the distribution certificates in this keychain
+							tasks.push(function (next) {
+								run(executables.security, ['find-certificate', '-c', iphoneDist, '-a', '-p', keychain], function (code, out, err) {
+									if (code) return next();
+
+									out.trim().split(begin).forEach(function (c, i) {
+										if (!i) return; // skip first element because it's empty from the split
+										var cert = x509.parseCert(begin + c),
+											expired = cert.notAfter < now,
+											invalid = expired || cert.notBefore > now;
+
+										dest.distribution || (dest.distribution = []);
+
+										dest.distribution.push({
+											name: cert.subject.commonName.substring(iphoneDist.length).trim(),
+											before: cert.notBefore,
+											after: cert.notAfter,
+											expired: expired,
+											invalid: invalid
+										});
+									});
+
+									next();
+								});
+							});
+
+							// find all the wwdr certificates in this keychain
+							tasks.push(function (next) {
+								if (result.wwdr) return next();
+
+								run(executables.security, ['find-certificate', '-c', 'Apple Worldwide Developer Relations Certification Authority', '-a', '-p', keychain], function (code, out, err) {
+									if (code) return next();
+
+									out.trim().split(begin).forEach(function (c, i) {
+										if (!i) return; // skip first element because it's empty from the split
+										var cert = x509.parseCert(begin + c),
+											invalid = cert.notAfter < now || cert.notBefore > now;
+										if (!invalid) {
+											result.wwdr = true;
+										}
+									});
+
+									next();
+								});
+							});
+						}
 					});
+
+					// process all cert tasks
+					async.parallel(tasks, check);
 				});
 			},
 
@@ -505,7 +474,7 @@ exports.detect = function detect(config, opts, finished) {
 
 							if (!p.ProvisionedDevices || !p.ProvisionedDevices.length) {
 								dest = 'distribution';
-							} else if (new Buffer(p.DeveloperCertificates[0], 'base64').toString().indexOf('Distribution:') != -1) {
+							} else if (new Buffer(p.DeveloperCertificates[0].value, 'base64').toString().indexOf('Distribution:') != -1) {
 								dest = 'adhoc';
 							}
 
@@ -540,7 +509,7 @@ exports.detect = function detect(config, opts, finished) {
 						type: 'warning',
 						message: __('Unable to find any valid iOS development provisioning profiles.') + '\n' +
 							__('This will prevent you from building apps for testing on iOS devices.') + '\n' +
-							__('You will need to login into %s with your Apple Download account, then create, download, and install a certificate.',
+							__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
 								'__https://developer.apple.com/account/ios/certificate/certificateList.action?type=development__')
 					});
 				}
@@ -551,7 +520,7 @@ exports.detect = function detect(config, opts, finished) {
 						type: 'warning',
 						message: __('Unable to find any valid iOS adhoc provisioning profiles.') + '\n' +
 							__('This will prevent you from packaging apps for adhoc distribution.') + '\n' +
-							__('You will need to login into %s with your Apple Download account, then create, download, and install a certificate.',
+							__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
 								'__https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution__')
 					});
 				}
@@ -562,7 +531,7 @@ exports.detect = function detect(config, opts, finished) {
 						type: 'warning',
 						message: __('Unable to find any valid iOS distribution provisioning profiles.') + '\n' +
 							__('This will prevent you from packaging apps for AppStore distribution.') + '\n' +
-							__('You will need to login into %s with your Apple Download account, then create, download, and install a certificate.',
+							__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
 								'__https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution__')
 					});
 				}
@@ -574,14 +543,101 @@ exports.detect = function detect(config, opts, finished) {
 			appc.util.mix(results, executables);
 
 			results.detectVersion    = '2.0';
-			results.minIosSdkVersion = iosPackageJson.minIosSdkVersion;
-			results.maxIosSdkVersion = iosPackageJson.maxIosSdkVersion;
-			results.minXcodeVersion  = iosPackageJson.minXcodeVersion;
-			results.maxXcodeVersion  = iosPackageJson.maxXcodeVersion;
 			results.issues           = issues;
 
 			finished(envCache = results);
 		});
 	});
 
+};
+
+/**
+ * Returns the iOS Simulator profiles.
+ * @param {Object} config - The CLI config object
+ * @param {Object} [opts] - Detection options
+ * @param {String} [opts.type] - The type of emulator to load (avd, genymotion); defaults to all
+ * @param {Function} finished(err, results) - Callback when detection is finished
+ */
+exports.detectSimulators = function detectSimulators(config, opts, finished) {
+	if (typeof opts == 'function') {
+		finished = opts;
+		opts = {};
+	}
+
+	exports.detect(config, opts, function (info) {
+		var file = path.join(__dirname, '..', '..', 'simulators.json'),
+			results = [],
+			sims = JSON.parse(fs.readFileSync(file)),
+			sdks = {};
+
+		Object.keys(info.xcode).forEach(function (ver) {
+			info.xcode[ver].sims && info.xcode[ver].sims.forEach(function (sdk) {
+				sdks[sdk] = 1;
+			});
+		});
+
+		sdks = Object.keys(sdks).sort();
+
+		Object.keys(sims).forEach(function (name) {
+			var sim = sims[name],
+				type = sim.type || 'iphone',
+				_64bit = !!sim['64bit'],
+				retina = !!sim.retina,
+				tall = !!sim.tall,
+				versions = {};
+
+			if (!opts.type || opts.type == type) {
+				// calculate the sdks
+				sdks.forEach(function (sdk) {
+					if (type == 'iphone' || (type == 'ipad' && version.gte(sdk, '3.0.0'))) {
+						if (!_64bit || version.gte(sdk, '7.0.0')) {
+							if (!tall || version.gte(sdk, '6.0.0')) {
+								if ((!retina && type == 'ipad' || version.lt(sdk, '7.0.0')) || (retina && version.gte(sdk, '4.0.0'))) {
+									versions[sdk] = 1;
+								}
+							}
+						}
+					}
+				});
+
+				versions = Object.keys(versions).sort();
+
+				// if we don't have at least 1 simulator version that matches this profile, don't add it
+				if (versions.length) {
+					results.push({
+						id: name,
+						name: name,
+						type: type,
+						'64bit': _64bit,
+						retina: retina,
+						tall: tall,
+						versions: versions
+					});
+				}
+			}
+		});
+
+		finished(null, results);
+	});
+};
+
+/**
+ * Detects connected iOS devices.
+ * @param {Function} finished - Callback when detection is finished
+ */
+exports.detectDevices = function detectDevices(finished) {
+	iosDevice.devices(function (err, devices) {
+		if (err) {
+			finished(err);
+		} else {
+			devices.unshift({
+				udid: 'itunes',
+				name: __('iTunes Sync')
+			});
+			finished(null, devices.map(function (d) {
+				d.id = d.udid;
+				return d;
+			}));
+		}
+	});
 };

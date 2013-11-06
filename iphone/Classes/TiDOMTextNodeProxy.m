@@ -11,6 +11,11 @@
 
 @implementation TiDOMTextNodeProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.XML.Text";
+}
+
 
 -(TiDOMTextNodeProxy *) splitText:(id)args
 {
