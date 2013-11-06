@@ -28,7 +28,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  TiApp represents an instance of an application. There is always only one instance per application which could be accessed through <app> class method.
  @see app
  */
-@interface TiApp : TiHost <UIApplicationDelegate> 
+@interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate>
 {
 	UIWindow *window;
 	UIImageView *loadView;

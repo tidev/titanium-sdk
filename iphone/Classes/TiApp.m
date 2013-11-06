@@ -406,7 +406,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 -(void)application:(UIApplication*)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 
     FunctionName();
-    NSURLSession
+    
     
     // Generate unique key with timestamp.
     id key = [NSString stringWithFormat:@"F-%f",[[NSDate date] timeIntervalSince1970]];
@@ -421,7 +421,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
     // the bridge completes processing of app.js (adding the event into notification center).
     
-    [self postNotificationwithKey:[NSDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil] withNotificationName:kTiBackgroundFetchNotification] ;
+    [self postNotificationwithKey:[NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil] withNotificationName:kTiBackgroundFetchNotification] ;
     
     // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
     NSTimer*  flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO] ;
@@ -439,6 +439,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
             [self postNotificationwithKey:userInfo withNotificationName:notificationName];
         });
     }
+    //NSURLSession
 }
 
 -(void)flushCompletionHandlerQueue
@@ -495,8 +496,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
     // the bridge completes processing of app.js (adding the event into notification center).
     
-    //TODO: Rethink this approach not really sure if i am doing the right thing.
-    
     NSMutableDictionary* userInfo_ = [NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil];
     [userInfo_ addEntriesFromDictionary:userInfo];
     [self postNotificationwithKey:userInfo_ withNotificationName:kTiSilentPushNotification] ;
@@ -510,9 +509,38 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 #pragma mark Background Transfer Service iOS 7
 
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
-{NSURLSession
+{
     FunctionName();
 }
+
+#pragma mark Background Transfer Service Delegates.
+//TODO: Move these delegates to the module post 3.2.0
+
+-(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
+{
+    FunctionName();
+
+}
+
+-(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
+{
+
+    FunctionName();
+
+}
+
+-(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didResumeAtOffset:(int64_t)fileOffset expectedTotalBytes:(int64_t)expectedTotalBytes
+{
+    FunctionName();
+    
+}
+
+-(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
+{
+    FunctionName();
+
+}
+
 
 #pragma mark
 

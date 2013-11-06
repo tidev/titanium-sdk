@@ -226,9 +226,7 @@
 
 -(void)setMinimumBackgroundFetchInterval:(id)value
 {
-       [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
- 
-    
+    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
 }
 
 -(void)endBackgroundFetch:(id)args
