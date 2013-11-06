@@ -358,9 +358,7 @@ DEFINE_EXCEPTIONS
 
 - (void)setAccessibilityHidden_:(id)accessibilityHidden
 {
-	if ([TiUtils isIOS5OrGreater]) {
-		self.accessibilityElementsHidden = [TiUtils boolValue:accessibilityHidden def:NO];
-	}
+    self.accessibilityElementsHidden = [TiUtils boolValue:accessibilityHidden def:NO];
 }
 
 #pragma mark Layout 
