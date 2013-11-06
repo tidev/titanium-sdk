@@ -600,6 +600,9 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							callback(outputDir || !_t.conf.options['output-dir'].required ? null : new Error(__('Invalid output directory')), outputDir);
 						}
 					},
+					'profiler-host': {
+						hidden: true
+					},
 					'store-password': {
 						abbr: 'P',
 						desc: __('the password for the keystore'),
