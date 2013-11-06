@@ -68,7 +68,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 					String path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on.png"; // default medium
 					switch (density) {
 						case DisplayMetrics.DENSITY_HIGH : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_48.png"; break;
-						case DisplayMetrics.DENSITY_LOW : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_1ow 8.png"; break;
+						case DisplayMetrics.DENSITY_LOW : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_18.png"; break;
 					}
 					
 					if (Build.VERSION.SDK_INT >= 9 && density == DisplayMetrics.DENSITY_XHIGH) {
