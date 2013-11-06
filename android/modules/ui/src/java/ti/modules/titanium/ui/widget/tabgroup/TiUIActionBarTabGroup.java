@@ -6,7 +6,10 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -60,6 +63,28 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		// Note: since the tab bar is NOT part of the content, animations
 		// will not transform it along with the rest of the group.
 		setNativeView(tabContent);
+	}
+	
+	@Override
+	public void processProperties(KrollDict d)
+	{
+		// TODO Auto-generated method stub
+		super.processProperties(d);
+		if (d.containsKey(TiC.PROPERTY_TITLE)) {
+			actionBar.setTitle(d.getString(TiC.PROPERTY_TITLE));
+		}
+
+	}
+
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
+		// TODO Auto-generated method stub
+		if (key.equals(TiC.PROPERTY_TITLE)) {
+			actionBar.setTitle((String) newValue);
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
 	}
 
 	@Override
