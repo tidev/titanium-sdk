@@ -414,6 +414,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								}));
 							},
 							validate: function (value, callback) {
+								if (cli.argv.target != 'device') {
+									return callback(null, value);
+								}
 								if (value) {
 									var v = developerCertLookup[value.toLowerCase()];
 									if (v) {
@@ -476,12 +479,16 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								}));
 							},
 							validate: function (value, callback) {
-								var v = distributionCertLookup[value.toLowerCase()];
-								if (v) {
-									callback(null, v);
-								} else {
-									callback(new Error(__('Invalid distribution certificate "%s"', value)));
+								if (cli.argv.target != 'dist-appstore' && cli.argv.target != 'dist-adhoc') {
+									return callback(null, value);
 								}
+								if (value) {
+									var v = distributionCertLookup[value.toLowerCase()];
+									if (v) {
+										return callback(null, v);
+									}
+								}
+								callback(new Error(__('Invalid distribution certificate "%s"', value)));
 							}
 						},
 						'device-family': {
@@ -659,12 +666,16 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								}));
 							},
 							validate: function (value, callback) {
-								var v = provisioningProfileLookup[value.toLowerCase()];
-								if (v) {
-									callback(null, v);
-								} else {
-									callback(new Error(__('Invalid provisioning profile UUID "%s"', value)));
+								if (cli.argv.target == 'simulator') {
+									return callback(null, value);
 								}
+								if (value) {
+									var v = provisioningProfileLookup[value.toLowerCase()];
+									if (v) {
+										return callback(null, v);
+									}
+								}
+								callback(new Error(__('Invalid provisioning profile UUID "%s"', value)));
 							}
 						},
 						'profiler-host': {
