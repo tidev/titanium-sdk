@@ -149,9 +149,7 @@ module.exports = new function() {
 
 	//TIMOB-7743
 	this.test_encodeURIComponent = function(testRun) {
-		if (Ti.Platform.osname === 'android') {
-			valueOf(testRun, encodeURIComponent("üöäß &?/ tes tetst et st e\ntest etes te stet")).shouldBe('%C3%BC%C3%B6%C3%A4%C3%9F%20%26%3F%2F%20tes%20tetst%20et%20st%20e%0Atest%20etes%20te%20stet');
-		}
+		valueOf(testRun, encodeURIComponent("üöäß &?/ tes tetst et st e\ntest etes te stet")).shouldBe('%C3%BC%C3%B6%C3%A4%C3%9F%20%26%3F%2F%20tes%20tetst%20et%20st%20e%0Atest%20etes%20te%20stet');
 
 		finish(testRun);
 	}
@@ -196,10 +194,8 @@ module.exports = new function() {
 	
 	//TIMOB-9350
 	this.test_getDoubleInt = function(testRun) {
-		if (Ti.Platform.osname === 'android') {
-			Titanium.App.Properties.setInt('Int',10);
-			valueOf(testRun, Titanium.App.Properties.getDouble('Int')).shouldBe(10);
-		}
+		Titanium.App.Properties.setInt('Int',10);
+		valueOf(testRun, Titanium.App.Properties.getDouble('Int')).shouldBe(10);
 
 		finish(testRun);
 	}
@@ -219,17 +215,15 @@ module.exports = new function() {
 
 	//TIMOB-11399
 	this.test_setObjectNullValue = function(testRun) {
-		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
-			var objectWithNullValue = {
-				expires_at: 1347623585,
-				value: {
-					something: null
-				}
-			};
-			Ti.App.Properties.setObject('Object1', objectWithNullValue);
-			valueOf(testRun, Ti.App.Properties.getObject('Object1')).shouldBeObject();
-			valueOf(testRun, Ti.App.Properties.getObject('Object1').value.something).shouldBeNull();
-		}
+		var objectWithNullValue = {
+			expires_at: 1347623585,
+			value: {
+				something: null
+			}
+		};
+		Ti.App.Properties.setObject('Object1', objectWithNullValue);
+		valueOf(testRun, Ti.App.Properties.getObject('Object1')).shouldBeObject();
+		valueOf(testRun, Ti.App.Properties.getObject('Object1').value.something).shouldBeNull();
 		
 		finish(testRun);
 	}
