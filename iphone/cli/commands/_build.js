@@ -850,7 +850,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				if (this.target == 'device') {
 					if (this.devices[i].id != 'itunes' && version.lt(this.devices[i].productVersion, this.minIosVer)) {
 						logger.error(__('This app does not support the device "%s"', this.devices[i].name) + '\n');
-						logger.log(__("The device is running iOS %s, however the app's the minimum iOS version is set to %s", this.devices[i].productVersion.cyan, this.minIosVer.cyan));
+						logger.log(__("The device is running iOS %s, however the app's the minimum iOS version is set to %s", this.devices[i].productVersion.cyan, version.format(this.minIosVer, 2, 3).cyan));
 						logger.log(__('In order to install this app on this device, lower the %s to %s in the tiapp.xml:', '<min-ios-ver>'.cyan, version.format(this.devices[i].productVersion, 2, 2).cyan));
 						logger.log();
 						logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
