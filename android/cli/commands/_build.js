@@ -48,20 +48,6 @@ function hash(s) {
 	return crypto.createHash('md5').update(s || '').digest('hex');
 }
 
-function assertIssue(logger, issues, name) {
-	var i = 0,
-		len = issues.length;
-	for (; i < len; i++) {
-		if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
-			issues[i].message.split('\n').forEach(function (line) {
-				logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-			});
-			logger.log();
-			process.exit(1);
-		}
-	}
-}
-
 function AndroidBuilder() {
 	Builder.apply(this, arguments);
 
@@ -115,18 +101,32 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 				androidDetect(config, { packageJson: _t.packageJson }, function (androidInfo) {
 					_t.androidInfo = androidInfo;
 
-					// check that the Android SDK is found and sane
-					assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
-					assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
+					if (!cli.argv.prompt) {
+						function assertIssue(logger, issues, name) {
+							var i = 0,
+								len = issues.length;
+							for (; i < len; i++) {
+								if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
+									issues[i].message.split('\n').forEach(function (line) {
+										logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
+									});
+									logger.log();
+								}
+							}
+						}
 
-					// make sure we have an Android SDK and some Android targets
-					if (!Object.keys(androidInfo.targets).filter(function (id) {
-							var t = androidInfo.targets[id];
-							return t.type == 'platform' && t['api-level'] > _t.minSupportedApiLevel;
-					}).length) {
-						logger.error(__('No Android SDK targets found.') + '\n');
-						logger.log(__('Please download SDK targets (api level %s or newer) via Android SDK Manager and try again.', _t.minSupportedApiLevel) + '\n');
-						process.exit(1);
+						// check that the Android SDK is found and sane
+						assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
+						assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
+
+						// make sure we have an Android SDK and some Android targets
+						if (!Object.keys(androidInfo.targets).filter(function (id) {
+								var t = androidInfo.targets[id];
+								return t.type == 'platform' && t['api-level'] > _t.minSupportedApiLevel;
+						}).length) {
+							logger.error(__('No Android SDK targets found.') + '\n');
+							logger.log(__('Please download SDK targets (api level %s or newer) via Android SDK Manager and try again.', _t.minSupportedApiLevel) + '\n');
+						}
 					}
 
 					// if --android-sdk was not specified, then we simply try to set a default android sdk
@@ -294,7 +294,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 											config.set('android.sdkPath', value);
 
 											// path looks good, do a full scan again
-											androidDetect(config, { packageJson: packageJson, bypassCache: true }, function (androidInfo) {
+											androidDetect(config, { packageJson: _t.packageJson, bypassCache: true }, function (androidInfo) {
 												_t.androidInfo = androidInfo;
 												callback(null, value);
 											});
@@ -597,8 +597,11 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							}));
 						},
 						validate: function (outputDir, callback) {
-							callback(outputDir ? null : new Error(__('Invalid output directory')), outputDir);
+							callback(outputDir || !_t.conf.options['output-dir'].required ? null : new Error(__('Invalid output directory')), outputDir);
 						}
+					},
+					'profiler-host': {
+						hidden: true
 					},
 					'store-password': {
 						abbr: 'P',
@@ -760,6 +763,10 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.allowProfiling = true;
 			this.includeAllTiModules = true;
 			this.proguard = false;
+	}
+
+	if (cli.argv['skip-js-minify']) {
+		this.minifyJS = false;
 	}
 
 	// check the Android specific app id rules
@@ -1913,7 +1920,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		drawableDpiRegExp = /^(high|medium|low)$/,
 		drawableExtRegExp = /((\.9)?\.(png|jpg))$/,
 		splashScreenRegExp = /^default\.(9\.png|png|jpg)$/,
-		relSplashScreenRegExp = /^images\/default\.(9\.png|png|jpg)$/,
+		relSplashScreenRegExp = /^default\.(9\.png|png|jpg)$/,
 		drawableResources = {},
 		jsFiles = {},
 		jsFilesToEncrypt = this.jsFilesToEncrypt = [],
@@ -1965,8 +1972,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 		appc.async.series(this, files.map(function (filename) {
 			return function (next) {
-				var from = path.join(src, filename),
-					to = path.join(dest, filename);
+				var destDir = dest,
+					from = path.join(src, filename),
+					to = path.join(destDir, filename);
 
 				// check that the file actually exists and isn't a broken symlink
 				if (!fs.existsSync(from)) return next();
@@ -1980,7 +1988,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 
 				// if this is a directory, recurse
-				if (isDir) return recursivelyCopy.call(this, from, path.join(dest, filename), null, opts, next);
+				if (isDir) return recursivelyCopy.call(this, from, path.join(destDir, filename), null, opts, next);
 
 				// we have a file, now we need to see what sort of file
 
@@ -1994,26 +2002,26 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						extMatch = destFilename.match(drawableExtRegExp),
 						ext = extMatch && extMatch[1] || '';
 
-					dest = path.join(
+					destDir = path.join(
 						this.buildResDir,
 						drawableDpiRegExp.test(m[1]) ? 'drawable-' + m[1][0] + 'dpi' : 'drawable-' + m[1].substring(4)
 					);
 
 					if (splashScreenRegExp.test(filename)) {
 						// we have a splash screen image
-						to = path.join(dest, 'background' + ext);
+						to = path.join(destDir, 'background' + ext);
 					} else {
-						to = path.join(dest, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name).substring(0, 10) + ext);
+						to = path.join(destDir, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name).substring(0, 10) + ext);
 					}
 					isDrawable = true;
 				} else if (m = relPath.match(relSplashScreenRegExp)) {
 					// we have a splash screen
 					// if it's a 9 patch, then the image goes in drawable-nodpi, not drawable
-					if (m[1] == '.9.png') {
-						dest = path.join(this.buildResDir, 'drawable-nodpi');
-						to = path.join(dest, filename.replace('default.', 'background.'));
+					if (m[1] == '9.png') {
+						destDir = path.join(this.buildResDir, 'drawable-nodpi');
+						to = path.join(destDir, filename.replace('default.', 'background.'));
 					} else {
-						dest = this.buildResDrawableDir;
+						destDir = this.buildResDrawableDir;
 						to = path.join(this.buildResDrawableDir, filename.replace('default.', 'background.'));
 					}
 					isDrawable = true;
@@ -2033,7 +2041,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 
 				// if the destination directory does not exists, create it
-				fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
+				fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
 
 				var ext = filename.match(extRegExp);
 
@@ -2322,7 +2330,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			titaniumPrepHook(
 				path.join(this.platformPath, titaniumPrep),
 				[ this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt),
-				{},
+				{
+					env: appc.util.mix({
+						'JAVA_HOME': this.jdkInfo.home
+					}, process.env)
+				},
 				next
 			);
 		});
@@ -3541,20 +3553,23 @@ AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
 				'-digestalg', 'SHA1',
 				'-keystore', this.keystore,
 				'-storepass', this.keystoreStorePassword
-			],
-			signerArgsSafe;
+			];
 
 		this.logger.info(__('Using %s signature algorithm', (m ? m[1] : 'MD5withRSA').cyan));
 
 		this.keystoreKeyPassword && signerArgs.push('-keypass', this.keystoreKeyPassword);
 		signerArgs.push('-signedjar', this.apkFile, this.unsignedApkFile, this.keystoreAlias);
 
-		signerArgsSafe = [].concat(signerArgs);
-		signerArgsSafe[7] = signerArgsSafe[7].replace(/./g, '*');
-		this.keystoreKeyPassword && (signerArgsSafe[9] = signerArgsSafe[9].replace(/./g, '*'));
-
 		var jarsignerHook = this.cli.createHook('build.android.jarsigner', this, function (exe, args, opts, done) {
-				this.logger.info(__('Signing apk: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+				var safeArgs = [];
+				for (var i = 0, l = args.length; i < l; i++) {
+					safeArgs.push(args[i]);
+					if (args[i] == '-storepass' || args[i] == 'keypass') {
+						safeArgs.push(args[++i].replace(/./g, '*'));
+					}
+				}
+
+				this.logger.info(__('Signing apk: %s', (exe + ' "' + safeArgs.join('" "') + '"').cyan));
 				appc.subprocess.run(exe, args, opts, function (code, out, err) {
 					if (code) {
 						this.logger.error(__('Failed to sign apk:'));
