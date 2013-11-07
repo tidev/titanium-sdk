@@ -94,6 +94,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	public static final int HEADER_FOOTER_VIEW_TYPE = 0;
 	public static final int HEADER_FOOTER_TITLE_TYPE = 1;
 	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 2;
+	public static final int CUSTOM_TEMPLATE_ITEM_TYPE = 3;
 
 	class ListViewWrapper extends FrameLayout {
 		private boolean viewFocused = false;
@@ -268,7 +269,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		
 		//initializing variables
 		sections = new ArrayList<ListSectionProxy>();
-		itemTypeCount = new AtomicInteger(2);
+		itemTypeCount = new AtomicInteger(CUSTOM_TEMPLATE_ITEM_TYPE);
 		templatesByBinding = new HashMap<String, TiListViewTemplate>();
 		defaultTemplateBinding = UIModule.LIST_ITEM_TEMPLATE_DEFAULT;
 		caseInsensitive = true;
