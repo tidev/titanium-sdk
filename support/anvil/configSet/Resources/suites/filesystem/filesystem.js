@@ -38,10 +38,10 @@ module.exports = new function() {
 		{name: "filesInApplicationCacheDirectoryExists"},
 		{name: "existsMethod"},
 		{name: "soundIsNotFound"},
-		{name: "FileDotWritable"},
+		{name: "File_Writable"},
 		{name: "httpClientFileTransfers", timeout:30000},
 		{name: "applicationCacheDirectory"},
-		{name: "BlobDotNativePathException"},
+		{name: "Blob_NativePathException"},
 		{name: "multiLingualFilename"},
 		{name: "isFileMethod"},
 		{name: "resourceDirAsFile"},
@@ -600,9 +600,9 @@ module.exports = new function() {
 				contentTitle : 'Test',
 				contentText : 'test',
 				when : ts,
-				sound: '1.mp3',
-				defaults: Titanium.Android.NotificationManager.DEFAULT_ALL
-				});
+				sound : Titanium.Filesystem.resRawDirectory+'1.mp3',
+				defaults : Titanium.Android.NotificationManager.DEFAULT_ALL
+			});
 			valueOf(testRun, function() {
 				Ti.Android.NotificationManager.notify(1, notification);
 			}).shouldNotThrowException();
@@ -612,53 +612,46 @@ module.exports = new function() {
 	}
 
 	//TIMOB-6932
-	this.FileDotWritable = function(testRun) {
-		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
-			file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, "app.js");
-			valueOf(testRun, file.writable).shouldBeTrue();
-		}
+	this.File_Writable = function(testRun) {
+		file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, "app.js");
+		valueOf(testRun, file.writable).shouldBeTrue();
 
 		finish(testRun);
 	}
 
 	//TIMOB-7605
 	this.httpClientFileTransfers = function(testRun) {
-		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
-			var count=0;
-			for (var i=1; i<=5; i++) {
-				var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, "projects", "p"+i);
-				if (!file.exists()) {
-					file.createDirectory(true);
-				}
+		var count=0;
+		for (var i=1; i<=5; i++) {
+			var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, "projects", "p"+i);
+			if (!file.exists()) {
+				file.createDirectory(true);				
 			}
-			downloadafile("p1", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
-			downloadafile("p2", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
-			downloadafile("p3", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
-			downloadafile("p4", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
-			downloadafile("p5", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
-			function downloadafile(foldername, filename, fileurl) {
-				var file = Ti.Filesystem.pathFromComponents(Ti.Filesystem.applicationDataDirectory, "projects", foldername, filename);
-				var c = Titanium.Network.createHTTPClient({
-					timeout : 10000,
-					onload : function(e) {
-						Ti.API.info('LOADED ' + filename + " TO " + foldername);
-						count++;
-						if(count==5)
-
+		}
+		downloadafile("p1", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
+		downloadafile("p2", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");			
+		downloadafile("p3", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
+		downloadafile("p4", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
+		downloadafile("p5", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
+		function downloadafile(foldername, filename, fileurl) {
+			var file = Ti.Filesystem.pathFromComponents(Ti.Filesystem.applicationDataDirectory, "projects", foldername, filename);
+			var c = Titanium.Network.createHTTPClient({
+				timeout : 10000,
+				onload : function(e) {
+					count++;
+					if(count==5)
+						
 						finish(testRun);
 					},
 					onerror : function(e) {
 						Ti.API.info('XHR Error ' + e.error);
 					}
-				});
-				c.clearCookies("all");
-				c.open('GET', fileurl);
-				c.file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory + "/projects/" + foldername + "/" + filename);
-				c.send();
-			}
+			});
+			c.clearCookies("all");
+			c.open('GET', fileurl);
+			c.file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory + "/projects/" + foldername + "/" + filename);
+			c.send();
 		}
-		
-		finish(testRun);
 	}
 
 	//TIMOB-8684
@@ -672,26 +665,24 @@ module.exports = new function() {
 	}
 
 		//TIMOB-9175
-	this.BlobDotNativePathException = function(testRun) {
-		if(Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad'){
-			var win = Titanium.UI.createWindow({
-				title:'Tab 1',
-				backgroundColor:'#fff'
-			});
-			var button = Titanium.UI.createButton({
-				title: 'Hello',
-				top: 10,
-				width: 100,
-				height: 50
-			});
-			win.add(button);
-			win.addEventListener('focus',function(){
-				var myBlob = button.toImage();
-				valueOf(testRun, myBlob.nativePath).shouldBeNull();
-			});
-			win.open();
-		}
-
+	this.Blob_NativePathException = function(testRun) {
+		var win = Titanium.UI.createWindow({
+			title : 'Tab 1',
+			backgroundColor : '#fff'
+		});
+		var button = Titanium.UI.createButton({
+			title : 'Hello',
+			top : 10,
+			width : 100,
+			height : 50
+		});
+		win.add(button);
+		win.addEventListener('focus',function(){
+			var myBlob = button.toImage();
+			valueOf(testRun, myBlob.nativePath).shouldBeNull();
+		});
+		win.open();
+		
 		finish(testRun);
 	}
 
@@ -707,11 +698,9 @@ module.exports = new function() {
 
 	//TIMOB-12414
 	this.isFileMethod = function(testRun) {
-		if(Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad'){
-			var file = Titanium.Filesystem.getFile('app.js');
-			valueOf(testRun, file.isFile( )).shouldBeTrue();
-		}
-
+		var file = Titanium.Filesystem.getFile('app.js');
+		valueOf(testRun, file.isFile( )).shouldBeTrue();
+		
 		finish(testRun);
 	}
 
@@ -726,14 +715,13 @@ module.exports = new function() {
 
 	//TIMOB-6080
 	this.jssErrorDialog = function(testRun) {
-		if(Ti.Platform.osname === 'android'){
-			valueOf(testRun, function() {
-				var stream1 = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
-				var stream2 = Ti.Filesystem.openStream(Ti.Filesystem.MODE_APPEND, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
-				var resourceFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
-				resourceFileStream.close();
-			}).shouldThrowException();
-		}
+		valueOf(testRun, function() {
+			var stream1 = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
+			var stream2 = Ti.Filesystem.openStream(Ti.Filesystem.MODE_APPEND, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
+			var resourceFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
+			resourceFileStream.close();
+		}).shouldThrowException();
+
 		finish(testRun);
 	}
 }

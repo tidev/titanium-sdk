@@ -134,19 +134,15 @@ module.exports = new function() {
 	
 	//TIMOB-5494_A
 	this.test_userDefaultProperties_A = function(testRun) {
-		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
-			Titanium.App.Properties.setString('my_prop', 'dadfcool');
-			valueOf(testRun, Ti.App.Properties.hasProperty('my_prop')).shouldBeTrue();
-		}
+		Titanium.App.Properties.setString('my_prop', 'dadfcool');
+		valueOf(testRun, Ti.App.Properties.hasProperty('my_prop')).shouldBeTrue();
 
 		finish(testRun);
 	}
 
 	//TIMOB-5494_B
 	this.test_userDefaultProperties_B = function(testRun) {
-		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
-			valueOf(testRun, Ti.App.Properties.hasProperty('my_prop')).shouldBeTrue();
-		}
+		valueOf(testRun, Ti.App.Properties.hasProperty('my_prop')).shouldBeTrue();
 
 		finish(testRun);
 	}
