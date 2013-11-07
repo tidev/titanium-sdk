@@ -431,6 +431,11 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							});
 						},
 						verifyIfRequired: function (callback) {
+							if (cli.argv['build-only']) {
+								// not required if we're build only
+								return callback();
+							}
+
 							findTargetDevices(cli.argv.target, function (err, results) {
 								if (cli.argv.target == 'emulator' && cli.argv['device-id'] == undefined && cli.argv['avd-id']) {
 									// if --device-id was not specified, but --avd-id was, then we need to
@@ -1072,41 +1077,31 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			cli.argv['device-id'] = deviceId;
 		}
 
-		// sanity check
-		if (!deviceId) {
-			if (this.target == 'device') {
-				logger.error(__('Unable to find any devices') + '\n');
-				logger.log(__('Please plug in an Android device, then try again.') + '\n');
-			} else {
-				logger.error(__('Unable to find any emulators') + '\n');
-				logger.log(__('Please create an Android emulator, then try again.') + '\n');
-			}
-			process.exit(1);
-		}
+		if (!cli.argv['build-only']) {
+			var devices = deviceId == 'all' ? this.devices : this.devices.filter(function (d) { return d.id = deviceId; });
+			devices.forEach(function (device) {
+				if (Array.isArray(device.abi) && !device.abi.some(function (a) { return this.abis.indexOf(a) != -1; }.bind(this))) {
+					if (this.target == 'emulator') {
+						logger.error(__n('The emulator "%%s" does not support the desired ABI %%s', 'The emulator "%%s" does not support the desired ABIs %%s', this.abis.length, device.name, '"' + this.abis.join('", "') + '"'));
+					} else {
+						logger.error(__n('The device "%%s" does not support the desired ABI %%s', 'The device "%%s" does not support the desired ABIs %%s', this.abis.length, device.model || device.manufacturer, '"' + this.abis.join('", "') + '"'));
+					}
+					logger.error(__('Supported ABIs: %s', device.abi.join(', ')) + '\n');
 
-		var devices = deviceId == 'all' ? this.devices : this.devices.filter(function (d) { return d.id = deviceId; });
-		devices.forEach(function (device) {
-			if (Array.isArray(device.abi) && !device.abi.some(function (a) { return this.abis.indexOf(a) != -1; }.bind(this))) {
-				if (this.target == 'emulator') {
-					logger.error(__n('The emulator "%%s" does not support the desired ABI %%s', 'The emulator "%%s" does not support the desired ABIs %%s', this.abis.length, device.name, '"' + this.abis.join('", "') + '"'));
-				} else {
-					logger.error(__n('The device "%%s" does not support the desired ABI %%s', 'The device "%%s" does not support the desired ABIs %%s', this.abis.length, device.model || device.manufacturer, '"' + this.abis.join('", "') + '"'));
+					logger.log(__('You need to add at least one of the device\'s supported ABIs to the tiapp.xml'));
+					logger.log();
+					logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+					logger.log('    <!-- snip -->'.grey);
+					logger.log('    <android>'.grey);
+					logger.log(('        <abi>' + this.abis.concat(device.abi).join(',') + '</abi>').magenta);
+					logger.log('    </android>'.grey);
+					logger.log('</ti:app>'.grey);
+					logger.log();
+
+					process.exit(1);
 				}
-				logger.error(__('Supported ABIs: %s', device.abi.join(', ')) + '\n');
-
-				logger.log(__('You need to add at least one of the device\'s supported ABIs to the tiapp.xml'));
-				logger.log();
-				logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-				logger.log('    <!-- snip -->'.grey);
-				logger.log('    <android>'.grey);
-				logger.log(('        <abi>' + this.abis.concat(device.abi).join(',') + '</abi>').magenta);
-				logger.log('    </android>'.grey);
-				logger.log('</ti:app>'.grey);
-				logger.log();
-
-				process.exit(1);
-			}
-		}, this);
+			}, this);
+		}
 	}
 
 	// validate debugger and profiler options
@@ -1456,8 +1451,10 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	}).join('');
 	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
 
+	this.buildOnly = argv['build-only'];
+
 	var deviceId = this.deviceId = argv['device-id'];
-	if (this.target == 'emulator') {
+	if (!this.buildOnly && this.target == 'emulator') {
 		var emu = this.devices.filter(function (e) { return e.name == deviceId; }).shift();
 		if (!emu) {
 			// sanity check
@@ -1467,7 +1464,6 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 		this.emulator = emu;
 	}
 
-	this.buildOnly = argv['build-only'];
 	this.outputDir = argv['output-dir'] ? afs.resolvePath(argv['output-dir']) : null;
 
 	// set the keystore to the dev keystore, if not already set
@@ -1530,10 +1526,14 @@ AndroidBuilder.prototype.loginfo = function loginfo(next) {
 	this.logger.info(__('Deploy type: %s', this.deployType.cyan));
 	this.logger.info(__('Building for target: %s', this.target.cyan));
 
-	if (this.target == 'emulator') {
-		this.logger.info(__('Building for emulator: %s', this.deviceId.cyan));
-	} else if (this.target == 'device') {
-		this.logger.info(__('Building for device: %s', this.deviceId.cyan));
+	if (this.buildOnly) {
+		this.logger.info(__('Performing build only'));
+	} else {
+		if (this.target == 'emulator') {
+			this.logger.info(__('Building for emulator: %s', this.deviceId.cyan));
+		} else if (this.target == 'device') {
+			this.logger.info(__('Building for device: %s', this.deviceId.cyan));
+		}
 	}
 
 	this.logger.info(__('Targeting Android SDK: %s', String(this.targetSDK).cyan));

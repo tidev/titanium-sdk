@@ -347,14 +347,19 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									// not required if we're build only
 									return callback();
 								} else if (cli.argv['device-id'] == undefined && config.get('ios.autoSelectDevice', true)) {
-									if (cli.argv.target == 'device') {
-										cli.argv['device-id'] = 'itunes';
-										return callback();
-									} else if (cli.argv.target == 'simulator') {
-										// for simulator builds, --device-id is a simulator profile and is not
-										// required and we always try to best match
-										return callback();
-									}
+									findTargetDevices(cli.argv.target, function (err, devices) {
+										if (cli.argv.target == 'device') {
+											cli.argv['device-id'] = 'itunes';
+											callback();
+										} else if (cli.argv.target == 'simulator') {
+											// for simulator builds, --device-id is a simulator profile and is not
+											// required and we always try to best match
+											callback();
+										} else {
+											callback(true);
+										}
+									});
+									return;
 								}
 
 								// yup, still required
@@ -1302,6 +1307,7 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 		this.moduleSearchPaths = this.moduleSearchPaths.concat(this.config.paths.modules);
 	}
 
+	this.buildOnly = argv['build-only'];
 	this.debugHost = this.allowDebugging && argv['debug-host'];
 	this.profilerHost = this.allowProfiling && argv['profiler-host'];
 	this.launchUrl = argv['launch-url'];
@@ -1355,9 +1361,17 @@ iOSBuilder.prototype.loginfo = function loginfo(next) {
 	this.logger.info(__('Deploy type: %s', this.deployType.cyan));
 	this.logger.info(__('Building for target: %s', this.target.cyan));
 	this.logger.info(__('Building using iOS SDK: %s', version.format(this.iosSdkVersion, 2).cyan));
-	if (this.target == 'simulator') {
-		this.logger.info(__('Building for iOS %s Simulator: %s', this.simTypes[this.iosSimType], this.iosSimVersion.cyan));
+
+	if (this.buildOnly) {
+		this.logger.info(__('Performing build only'));
+	} else {
+		if (this.target == 'simulator') {
+			this.logger.info(__('Building for iOS %s Simulator: %s', this.simTypes[this.iosSimType], this.iosSimVersion.cyan));
+		} else if (this.target == 'device') {
+			this.logger.info(__('Building for device: %s', this.deviceId.cyan));
+		}
 	}
+
 	this.logger.info(__('Building for device family: %s', this.deviceFamily.cyan));
 	this.logger.debug(__('Setting Xcode target to %s', this.xcodeTarget.cyan));
 	this.logger.debug(__('Setting Xcode build OS to %s', this.xcodeTargetOS.cyan));
