@@ -31,7 +31,8 @@ module.exports = new function() {
 		{name: "imageLoadEvent", timeout: 10000},
 		{name: "tabWindowNull"},
 		{name: "deleteCorrectRowIndex", timeout: 3000},
-		{name: "childrenArrayEmpty"}
+		{name: "childrenArrayEmpty"},
+		{name: "horizontalLayoutWidth"}
 	]
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2583
@@ -539,6 +540,21 @@ module.exports = new function() {
 		valueOf(testRun, view.children).shouldNotBeUndefined();
 		valueOf(testRun, view.children).shouldBeObject();
 		valueOf(testRun, view.children).shouldBe(0);
+
+		finish(testRun);
+	}
+
+	//TIMOB-10812
+	this.horizontalLayoutWidth = function(testRun) {
+		var win = Ti.UI.createWindow({ backgroundColor: 'white' });
+		var view = Ti.UI.createView({ width: Ti.UI.SIZE, height: 30, layout: 'horizontal', backgroundColor: 'red' });
+		view.add(Ti.UI.createView({ width:50, height: 20,backgroundColor: 'yellow' }));
+		view.add(Ti.UI.createView({ width:50, height: 20,backgroundColor: 'green' }));
+		win.add(view);
+		win.open();
+		view.addEventListener('postlayout', function(){
+			valueOf(testRun, view.size.width).shouldBe(100);
+		});
 
 		finish(testRun);
 	}
