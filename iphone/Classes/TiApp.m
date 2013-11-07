@@ -19,6 +19,7 @@
 #import "ApplicationDefaults.h"
 #import <libkern/OSAtomic.h>
 #import "TiExceptionHandler.h"
+#import "Mimetypes.h"
 
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
@@ -532,7 +533,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 -(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
 {
     FunctionName();
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys: NUMINT(downloadTask.taskIdentifier),@"taskIdentifier",[location absoluteString],@"url", nil];
+    TiBlob * downloadedFile =[[[TiBlob alloc] initWithData:[NSData dataWithContentsOfURL:location] mimetype:[Mimetypes mimeTypeForExtension:[location absoluteString]]] autorelease];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier ],@"taskIdentifier",downloadedFile,@"data", nil];
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLDownloadFinished object:self userInfo:dict];
     
 }
@@ -542,7 +544,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
     FunctionName();
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                          NUMINT(downloadTask.taskIdentifier),@"taskIdentifier",
+                                          [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier], @"taskIdentifier",
                                           [NSNumber numberWithUnsignedLongLong:bytesWritten], @"bytesWritten",
                                           [NSNumber numberWithUnsignedLongLong:totalBytesWritten], @"totalBytesWritten",
                                           [NSNumber numberWithUnsignedLongLong:totalBytesExpectedToWrite], @"totalBytesExpectedToWrite", nil];
@@ -563,8 +565,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 -(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
     FunctionName();
+    
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                          task.taskIdentifier, @"taskIdentifier",
+                                 [NSNumber numberWithUnsignedInteger:task.taskIdentifier], @"taskIdentifier",
                           nil];
     if (error) {
         NSDictionary * errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
@@ -582,6 +585,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionCompleted object:self userInfo:dict];
 
 }
+
 
 
 #pragma mark
