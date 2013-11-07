@@ -49,6 +49,24 @@
             DebugLog(@"[ERROR] Cannot add backgroundfetch eventListener. Please add `fetch` to UIBackgroundModes inside info.plist ");
         }
     }
+    if ((count == 1) && [type isEqual:@"backgroundtransfer"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveBackgroundTransferNotification:) name:kTiBackgroundTransfer object:nil];
+    }
+    if ((count == 1) && [type isEqual:@"downloadfinished"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveDownloadFinishedNotification:) name:kTiURLDownloadFinished object:nil];
+    }
+    if ((count == 1) && [type isEqual:@"sessioncompleted"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveSessionCompletedNotification:) name:kTiURLSessionCompleted object:nil];
+    }
+    if ((count == 1) && [type isEqual:@"downloadprogress"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveDownloadProgressNotification:) name:kTiURLDowloadProgress object:nil];
+    }
+    if ((count == 1) && [type isEqual:@"uploadprogress"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveUploadProgressNotification:) name:kTiURLUploadProgress object:nil];
+    }
+
+
+
 }
 
 -(void)_listenerRemoved:(NSString*)type count:(int)count
@@ -223,6 +241,30 @@
     [self fireEvent:@"silentpush" withObject:[note userInfo]];
 }
 
+-(void)didReceiveBackgroundTransferNotification:(NSNotification*)note
+{
+    [self fireEvent:@"backgroundtransfer" withObject:[note userInfo]];
+}
+
+-(void)didReceiveDownloadFinishedNotification:(NSNotification*)note
+{
+    [self fireEvent:@"downloadfinished" withObject:[note userInfo]];
+}
+
+-(void)didReceiveSessionCompletedNotification:(NSNotification*)note
+{
+    [self fireEvent:@"sessioncompleted" withObject:[note userInfo]];
+}
+
+-(void)didReceiveDownloadProgressNotification:(NSNotification*)note
+{
+    [self fireEvent:@"downloadprogress" withObject:[note userInfo]];
+}
+
+-(void)didReceiveUploadProgressNotification:(NSNotification*)note
+{
+    [self fireEvent:@"uploadprogress" withObject:[note userInfo]];
+}
 
 -(void)setMinimumBackgroundFetchInterval:(id)value
 {

@@ -409,7 +409,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     
     
     // Generate unique key with timestamp.
-    id key = [NSString stringWithFormat:@"F-%f",[[NSDate date] timeIntervalSince1970]];
+    id key = [NSString stringWithFormat:@"Fetch-%f",[[NSDate date] timeIntervalSince1970]];
     
     // Store the completionhandler till we can come back and send appropriate message.
     if (pendingCompletionHandlers == nil) {
@@ -484,7 +484,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     FunctionName();
     
     // Generate unique key with timestamp.
-    id key = [NSString stringWithFormat:@"R-%f",[[NSDate date] timeIntervalSince1970]];
+    id key = [NSString stringWithFormat:@"SilentPush-%f",[[NSDate date] timeIntervalSince1970]];
     
     // Store the completionhandler till we can come back and send appropriate message.
     if (pendingCompletionHandlers == nil) {
@@ -496,9 +496,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
     // the bridge completes processing of app.js (adding the event into notification center).
     
-    NSMutableDictionary* userInfo_ = [NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil];
-    [userInfo_ addEntriesFromDictionary:userInfo];
-    [self postNotificationwithKey:userInfo_ withNotificationName:kTiSilentPushNotification] ;
+    NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil];
+    [dict addEntriesFromDictionary:userInfo];
+    [self postNotificationwithKey:dict withNotificationName:kTiSilentPushNotification];
     
     // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
     NSTimer*  flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO] ;
@@ -511,6 +511,19 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
 {
     FunctionName();
+    // Generate unique key with timestamp.
+    id key = [NSString stringWithFormat:@"Session-%f",[[NSDate date] timeIntervalSince1970]];
+    
+    // Store the completionhandler till we can come back and send appropriate message.
+    if (pendingCompletionHandlers == nil) {
+        pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
+    }
+    
+    [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:identifier, @"sessionIdentifier",
+                                                                             key, @"handlerId", nil];
+    [self postNotificationwithKey:dict withNotificationName:kTiBackgroundTransfer];
+
 }
 
 #pragma mark Background Transfer Service Delegates.
@@ -519,25 +532,54 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 -(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
 {
     FunctionName();
-
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys: NUMINT(downloadTask.taskIdentifier),@"taskIdentifier",[location absoluteString],@"url", nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLDownloadFinished object:self userInfo:dict];
+    
 }
 
 -(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
 {
 
     FunctionName();
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                          NUMINT(downloadTask.taskIdentifier),@"taskIdentifier",
+                                          [NSNumber numberWithUnsignedLongLong:bytesWritten], @"bytesWritten",
+                                          [NSNumber numberWithUnsignedLongLong:totalBytesWritten], @"totalBytesWritten",
+                                          [NSNumber numberWithUnsignedLongLong:totalBytesExpectedToWrite], @"totalBytesExpectedToWrite", nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLDowloadProgress object:self userInfo:dict];
 
 }
 
--(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didResumeAtOffset:(int64_t)fileOffset expectedTotalBytes:(int64_t)expectedTotalBytes
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent
+    totalBytesSent:(int64_t) totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
 {
-    FunctionName();
-    
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMINT(task.taskIdentifier),@"taskIdentifier",
+                                 [NSNumber numberWithUnsignedLongLong:bytesSent], @"bytesSent",
+                                 [NSNumber numberWithUnsignedLongLong:totalBytesSent], @"totalBytesSent",
+                                 [NSNumber numberWithUnsignedLongLong:totalBytesExpectedToSend], @"totalBytesExpectedToSend", nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLUploadProgress object:self userInfo:dict];
 }
 
 -(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
     FunctionName();
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                          task.taskIdentifier, @"taskIdentifier",
+                          nil];
+    if (error) {
+        NSDictionary * errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
+                                                NUMINT([error code]), @"errorCode",
+                                                [error localizedDescription], @"message",
+                                                nil];
+        [dict addEntriesFromDictionary:errorinfo];
+    } else {
+        NSDictionary * success = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
+                                              NUMINT(0), @"errorCode",
+                                              @"", @"message",
+                                              nil];
+        [dict addEntriesFromDictionary:success];
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionCompleted object:self userInfo:dict];
 
 }
 

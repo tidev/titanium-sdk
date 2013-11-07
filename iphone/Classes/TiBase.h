@@ -569,7 +569,13 @@ extern NSString * const kTiGestureShakeNotification;
 extern NSString * const kTiRemoteControlNotification;
 extern NSString * const kTiBackgroundFetchNotification;
 extern NSString * const kTiSilentPushNotification;
+extern NSString * const kTiBackgroundTransfer;
 extern NSString * const kTiLocalNotification;
+extern NSString * const kTiBackgroundTransfer;
+extern NSString * const kTiURLDownloadFinished;
+extern NSString * const kTiURLSessionCompleted;
+extern NSString * const kTiURLDowloadProgress;
+extern NSString * const kTiURLUploadProgress;
     
 extern NSString* const kTiBehaviorSize;
 extern NSString* const kTiBehaviorFill;

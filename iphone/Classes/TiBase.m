@@ -145,7 +145,11 @@ NSString * const kTiGestureShakeNotification = @"TiGestureShake";
 NSString * const kTiRemoteControlNotification = @"TiRemoteControl";
 NSString * const kTiBackgroundFetchNotification = @"TiBackgroundFetch";
 NSString * const kTiSilentPushNotification = @"TiSilentPush";
-
+NSString * const kTiBackgroundTransfer = @"TiBackgroundTransfer";
+NSString * const kTiURLDownloadFinished = @"TiDownloadFinished";
+NSString * const kTiURLSessionCompleted = @"TiSessionCompleted";
+NSString * const kTiURLDowloadProgress = @"TiDownloadProgress";
+NSString * const kTiURLUploadProgress = @"TiUploadProgress";
 
 NSString * const kTiLocalNotification = @"TiLocalNotification";
 
