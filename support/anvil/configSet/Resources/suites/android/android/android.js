@@ -167,9 +167,7 @@ module.exports = new function() {
 	//TIMOB-10214
 	this.broadcastReceiverApi = function(testRun) {
 		valueOf(testRun, function() {
-			var bc = Ti.Android.createBroadcastReceiver({
-				url:'mybroadcast.js'
-			});
+			var bc = Ti.Android.createBroadcastReceiver({});
 			Ti.Android.registerBroadcastReceiver(bc, [Ti.Android.ACTION_AIRPLANE_MODE_CHANGED]);
 			Ti.Android.unregisterBroadcastReceiver(bc);
 		}).shouldNotThrowException();
