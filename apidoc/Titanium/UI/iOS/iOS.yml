@@ -93,6 +93,15 @@ properties:
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
+  - name: ATTRIBUTE_LETTERPRESS_STYLE
+    summary: |
+        Use with [Attribute.value](Attribute.value) to specify a value.
+    description: |
+        See <Attribute> for more information on value modes.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
   - name: ATTRIBUTE_KERN
     summary: |
         Use with <Attribute.type> to specify kerning (space between characters).

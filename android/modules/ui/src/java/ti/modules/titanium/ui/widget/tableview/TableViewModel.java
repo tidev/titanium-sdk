@@ -147,6 +147,18 @@ public class TableViewModel
 						viewModel.add(itemForHeader(index, section, null, footerTitle));
 					}
 
+					if (section.hasProperty(TiC.PROPERTY_FOOTER_VIEW)) {
+						Object footerView = section.getProperty(TiC.PROPERTY_FOOTER_VIEW);
+						if (footerView instanceof TiViewProxy) {
+							Item item = new Item(index);
+							item.proxy = (TiViewProxy) footerView;
+							item.className = TableViewProxy.CLASSNAME_HEADERVIEW;
+							viewModel.add(item);
+						} else {
+							Log.e(TAG, "FooterView must be of type TiViewProxy");
+						}
+					}
+					
 					sectionIndex++;
 					indexInSection = 0;
 				}

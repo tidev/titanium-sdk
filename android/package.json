@@ -19,9 +19,9 @@
 		"Allen Yeung <ayeung@appcelerator.com>"
 	],
 	"vendorDependencies": {
-		"android sdk": ">=10 <=18",
-		"android build tools": ">=17 <18.x",
-		"android platform tools": ">=17 <=18.x",
+		"android sdk": ">=10 <=19",
+		"android build tools": ">=17 <19.x",
+		"android platform tools": ">=17 <=19.x",
 		"android tools": "22.x",
 		"android ndk": ">=r8e <=r9",
 		"node": ">0.8.0 <=0.10.x",

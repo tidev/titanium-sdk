@@ -517,6 +517,66 @@ describe('AndroidManifest', function () {
 		//var am = new AndroidManifest(path.resolve('./resources/AndroidManifest_application_activity-alias.xml'));
 	});
 
+	describe('<application> <meta-data>', function () {
+		var am = new AndroidManifest(path.resolve('./resources/AndroidManifest_application_meta-data.xml'));
+
+		it('should match object', function () {
+			am.should.eql({
+				"application": {
+					"meta-data": {
+						"zooVal": {
+							"name": "zooVal",
+							"value": "@string/kangaroo"
+						},
+						"zooRes": {
+							"name": "zooRes",
+							"resource": "@string/kangaroo"
+						}
+					}
+				}
+			});
+		});
+
+		it('toString()', function () {
+			am.toString().should.equal('[object Object]');
+		});
+
+		it("toString('json')", function () {
+			am.toString('json').should.equal('{"application":{"meta-data":{"zooVal":{"name":"zooVal","value":"@string/kangaroo"},"zooRes":{"name":"zooRes","resource":"@string/kangaroo"}}}}');
+		});
+
+		it("toString('pretty-json')", function () {
+			am.toString('pretty-json').should.equal([
+				'{',
+				'	"application": {',
+				'		"meta-data": {',
+				'			"zooVal": {',
+				'				"name": "zooVal",',
+				'				"value": "@string/kangaroo"',
+				'			},',
+				'			"zooRes": {',
+				'				"name": "zooRes",',
+				'				"resource": "@string/kangaroo"',
+				'			}',
+				'		}',
+				'	}',
+				'}'
+			].join('\n'));
+		});
+
+		it("toString('xml')", function () {
+			am.toString('xml').should.equal([
+				'<?xml version="1.0" encoding="UTF-8"?>',
+				'<manifest>',
+				'	<application>',
+				'		<meta-data android:name="zooVal" android:value="@string/kangaroo"/>',
+				'		<meta-data android:name="zooRes" android:resource="@string/kangaroo"/>',
+				'	</application>',
+				'</manifest>'
+			].join('\r\n'));
+		});
+	});
+
 	describe('<application> <provider>', function () {
 		var am = new AndroidManifest(path.resolve('./resources/AndroidManifest_application_provider.xml'));
 
@@ -14773,6 +14833,100 @@ describe('AndroidManifest', function () {
 				'		</activity-alias>',
 				'	</application>',
 				'	<instrumentation android:name=".app.LocalSampleInstrumentation" android:targetPackage="com.example.android.apis" android:label="Local Sample"/>',
+				'</manifest>'
+			].join('\r\n'));
+		});
+	});
+
+	describe('Merge multiple <application> tags', function () {
+		var am = new AndroidManifest(path.resolve('./resources/AndroidManifest_application.xml'));
+		var am2 = new AndroidManifest(path.resolve('./resources/AndroidManifest_application2.xml'));
+
+		am.merge(am2);
+
+		it('should match object', function () {
+			am.should.eql({
+				"application": {
+					"allowTaskReparenting": false,
+					"allowBackup": true,
+					"backupAgent": ".MyBackupAgent",
+					"debuggable": true,
+					"description": "this is a test",
+					"enabled": true,
+					"hasCode": true,
+					"hardwareAccelerated": true,
+					"icon": "@drawable/icon",
+					"killAfterRestore": true,
+					"largeHeap": false,
+					"label": "test",
+					"logo": "@drawable/logo",
+					"manageSpaceActivity": ".TestActivity",
+					"name": "test",
+					"permission": "testPermission",
+					"persistent": true,
+					"process": "test",
+					"restoreAnyVersion": false,
+					"requiredAccountType": "com.google",
+					"restrictedAccountType": "com.google",
+					"supportsRtl": false,
+					"taskAffinity": "test",
+					"testOnly": false,
+					"theme": "testTheme",
+					"uiOptions": "none",
+					"vmSafeMode": false
+				}
+			});
+		});
+
+		it('toString()', function () {
+			am.toString().should.equal('[object Object]');
+		});
+
+		it("toString('json')", function () {
+			am.toString('json').should.equal('{"application":{"allowTaskReparenting":false,"allowBackup":true,"backupAgent":".MyBackupAgent","debuggable":true,"description":"this is a test","enabled":true,"hasCode":true,"hardwareAccelerated":true,"icon":"@drawable/icon","killAfterRestore":true,"largeHeap":false,"label":"test","logo":"@drawable/logo","manageSpaceActivity":".TestActivity","name":"test","permission":"testPermission","persistent":true,"process":"test","restoreAnyVersion":false,"requiredAccountType":"com.google","restrictedAccountType":"com.google","supportsRtl":false,"taskAffinity":"test","testOnly":false,"theme":"testTheme","uiOptions":"none","vmSafeMode":false}}');
+		});
+
+		it("toString('pretty-json')", function () {
+			am.toString('pretty-json').should.equal([
+				'{',
+				'	"application": {',
+				'		"allowTaskReparenting": false,',
+				'		"allowBackup": true,',
+				'		"backupAgent": ".MyBackupAgent",',
+				'		"debuggable": true,',
+				'		"description": "this is a test",',
+				'		"enabled": true,',
+				'		"hasCode": true,',
+				'		"hardwareAccelerated": true,',
+				'		"icon": "@drawable/icon",',
+				'		"killAfterRestore": true,',
+				'		"largeHeap": false,',
+				'		"label": "test",',
+				'		"logo": "@drawable/logo",',
+				'		"manageSpaceActivity": ".TestActivity",',
+				'		"name": "test",',
+				'		"permission": "testPermission",',
+				'		"persistent": true,',
+				'		"process": "test",',
+				'		"restoreAnyVersion": false,',
+				'		"requiredAccountType": "com.google",',
+				'		"restrictedAccountType": "com.google",',
+				'		"supportsRtl": false,',
+				'		"taskAffinity": "test",',
+				'		"testOnly": false,',
+				'		"theme": "testTheme",',
+				'		"uiOptions": "none",',
+				'		"vmSafeMode": false',
+				'	}',
+				'}'
+			].join('\n'));
+		});
+
+		it("toString('xml')", function () {
+			am.toString('xml').should.equal([
+				'<?xml version="1.0" encoding="UTF-8"?>',
+				'<manifest>',
+				'	<application android:allowTaskReparenting="false" android:allowBackup="true" android:backupAgent=".MyBackupAgent" android:debuggable="true" android:description="this is a test" android:enabled="true" android:hasCode="true" android:hardwareAccelerated="true" android:icon="@drawable/icon" android:killAfterRestore="true" android:largeHeap="false" android:label="test" android:logo="@drawable/logo" android:manageSpaceActivity=".TestActivity" android:name="test" android:permission="testPermission" android:persistent="true" android:process="test" android:restoreAnyVersion="false" android:requiredAccountType="com.google" android:restrictedAccountType="com.google" android:supportsRtl="false" android:taskAffinity="test" android:testOnly="false" android:theme="testTheme" android:uiOptions="none" android:vmSafeMode="false"/>',
 				'</manifest>'
 			].join('\r\n'));
 		});

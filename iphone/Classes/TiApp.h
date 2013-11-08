@@ -100,6 +100,11 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  */
 +(TiApp*)app;
 
+/**
+ * Returns a read-only dictionary from tiapp.xml properties
+ */
++(NSDictionary *)tiAppProperties;
+
 /*
  Convenience method to returns root view controller for TiApp instance.
  @return The application's root view controller.
