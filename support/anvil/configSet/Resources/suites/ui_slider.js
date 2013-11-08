@@ -13,7 +13,7 @@ module.exports = new function() {
 		valueOf = testUtils.valueOf;
 	}
 
-	this.name = "slider";
+	this.name = "ui_slider";
 	this.tests = [
 		{name: "sliderInTableViewRow"},
 		{name: "valueOnCreation"}
@@ -25,10 +25,10 @@ module.exports = new function() {
 		var ds =[];
 		expandableView = Ti.UI.createView({top:0,height:40,backgroundColor:'yellow'});
 		var slider = Titanium.UI.createSlider({
-			top: 0,
-			min: 0,
-			max: 100,
-			value:40
+			top : 0,
+			min : 0,
+			max : 100,
+			value :40
 		});
 		expandableView.add(slider);
 		var row1 = Titanium.UI.createTableViewRow({height:100});
@@ -38,9 +38,9 @@ module.exports = new function() {
 			data : ds,
 			scrollable : true,
 			separatorColor : 'transparent',
-			separatorStyle: 'none',
-			top:0,
-			height:80
+			separatorStyle : 'none',
+			top : 0,
+			height : 80
 		});
 		win1.add(tableView);
 		win1.open();
@@ -51,23 +51,23 @@ module.exports = new function() {
 
 	//TIMOB-10880
 	this.valueOnCreation= function(testRun) {
-		if (Ti.Platform.osname === 'android') {
-			win = Titanium.UI.createWindow({
-				backgroundColor : '#FFFFFF',
-			});
-			var ss = Ti.UI.createSlider({
-				top : 25,
-				value : 20,
-				min : 0,
-				max : 50,
-				left : 0,
-				right : 0
-			});
-			win.add(ss);
-			win.open();
+		win = Titanium.UI.createWindow({
+			backgroundColor : '#FFFFFF',
+		});
+		var ss = Ti.UI.createSlider({
+			top : 25,
+			value : 20,
+			min : 0,
+			max : 50,
+			left : 0,
+			right : 0
+		});
+		win.add(ss);
+		win.addEventListener('focus', function(){
 			valueOf(testRun, ss.value).shouldBe(20);
-		}
-
-		finish(testRun);
+		
+			finish(testRun);
+		});
+		win.open();
 	}
 }

@@ -26,13 +26,13 @@ var suites = [
 	{name: "network_socket_tcp"},
 	{name: "platform"},
 	{name: "properties"},
-	{name: "slider"},
 	{name: "stream"},
 	{name: "titanium"},
 	{name: "ui/ui"},
 	{name: "ui_2dMatrix"},
 	{name: "ui_clipboard"},
 	{name: "ui_controls"},
+	{name: "ui_slider"},
 	{name: "utils/utils"},
 	{name: "yahoo"}
 ];
