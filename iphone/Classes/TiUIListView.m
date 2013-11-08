@@ -273,6 +273,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             TiUIListItem* cell = [[TiUIListItem alloc] initWithProxy:theProxy reuseIdentifier:@"__measurementCell__"];
             [theProxy unarchiveFromTemplate:template];
             [_measureProxies setObject:cell forKey:key];
+            [theProxy setIndexPath:[NSIndexPath indexPathForRow:-1 inSection:-1]];
             [cell release];
             [theProxy release];
         }
