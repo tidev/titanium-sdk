@@ -1299,15 +1299,31 @@ class Builder(object):
 			return xml
 
 		application_xml = ''
+		application_services = []
+		application_receivers = []
 		def get_application_xml(tiapp, template_obj=None):
 			xml = ''
 			if 'application' in tiapp.android_manifest:
 				for app_el in tiapp.android_manifest['application']:
+					if app_el.nodeName == 'service' and app_el.hasAttribute('android:name'):
+						service_name =  app_el.getAttribute('android:name')
+						if (service_name in application_services):
+							continue
+						else:
+							application_services.append(service_name)
+					if app_el.nodeName == 'receiver' and app_el.hasAttribute('android:name'):
+						receiver_name =  app_el.getAttribute('android:name')
+						if (receiver_name in application_receivers):
+							continue
+						else:
+							application_receivers.append(receiver_name)
 					this_xml = app_el.toxml()
 					if template_obj is not None and "${" in this_xml:
 						this_xml = render_template_with_tiapp(this_xml, template_obj)
-					xml += this_xml
+					xml += this_xml + '\n'
 			return xml
+
+		
 
 		# add manifest / application entries from tiapp.xml
 		manifest_xml += get_manifest_xml(self.tiapp)
