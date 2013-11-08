@@ -9,6 +9,7 @@ var path = require('path'),
 	fs = require('fs'),
 	spawn = require('child_process').spawn,
 	wrench = require('wrench'),
+	async = require('async'),
 	ejs = require('ejs'),
 	uuid = require('node-uuid'),
 	appc = require('node-appc'),
@@ -65,7 +66,8 @@ exports.init = function (logger, config, cli) {
 							projectGUID: tiapp.guid || uuid.v4(),
 							projectDescription: tiapp.description || '',
 							author: tiapp.publisher,
-							appFiles: []
+							appFiles: [],
+							visualStudioVersion: env.visualStudioVersion
 						},
 					templateDir = path.join(__dirname, '..', '..', 'templates', 'packages', target),
 					filenameReplacementRegex = /\{\{ProjectName\}\}/g,
@@ -158,36 +160,146 @@ exports.init = function (logger, config, cli) {
 					}
 				});
 
-				// Compile the app
-				logger.info(__('Building the %s Visual Studio project', displayName));
-				buildProcess = spawn(env.vcvarsScript,[
-					'&&',
-					'MSBuild',
-					'/m',
-					'/p:configuration=' + (cli.argv['deploy-type'] == 'production' ? 'Release' : 'Debug'),
-					path.join(destination, tiapp.id + '.sln')]);
-				buildProcess.stdout.on('data', function (data) {
-					data.toString().split('\r\n').forEach(function (line) {
-						if (line.length) {
-							logger.trace(line);
+				// Generate a certificate, if this is a Windows Store app
+				if (target == 'winstore') {
+					async.series([
+
+						// Create the certificate and private key
+						function (next) {
+							if (fs.existsSync(path.join(destination, 'test', (tiapp.id || 'Project') + '_TemporaryKey.pfx'))) {
+								logger.debug(__('Code signing certificate already exists, reusing'));
+								next();
+								return;
+							}
+							logger.info(__('Creating temporary code signing certificate'));
+							var makeCertProcess = spawn('MakeCert', [
+								'/n', 'CN=' + tiapp.publisher,
+								'/r',
+								'/h', '0',
+								'/eku', '1.3.6.1.5.5.7.3.3,1.3.6.1.4.1.311.10.3.13',
+								'/e', (function getFormattedDate() {
+										var currentDate = new Date(),
+											formattedDate = [
+												currentDate.getMonth().toString(),
+												currentDate.getDate().toString(),
+												(currentDate.getFullYear() + 1).toString()
+											];
+										while (formattedDate[0].length < 2) {
+											formattedDate[0] = '0' + formattedDate[0];
+										}
+										while (formattedDate[1].length < 2) {
+											formattedDate[1] = '0' + formattedDate[1];
+										}
+										return formattedDate.join('/');
+									})(),
+								'/sv', path.join(destination, 'test', (tiapp.id || 'Project') + '_TemporaryKey.pvk'),
+								path.join(destination, 'test', (tiapp.id || 'Project') + '_TemporaryKey.cer')]);
+							makeCertProcess.stdout.on('data', function (data) {
+								data.toString().split('\r\n').forEach(function (line) {
+									line = line.trim();
+									if (line.length) {
+										logger.trace(line);
+									}
+								});
+							});
+							makeCertProcess.stderr.on('data', function (data) {
+								data.toString().split('\r\n').forEach(function (line) {
+									line = line.trim();
+									if (line.length) {
+										logger.error(line);
+									}
+								});
+							});
+							makeCertProcess.on('close', function (code) {
+								if (code) {
+									logger.error(__('There were errors creating the temporary code signing certificate.'));
+								} else {
+									logger.debug(__('Finished creating the code signing certificate'));
+								}
+								next(code);
+							});
+						},
+
+						// Create the pfx version
+						function (next) {
+							if (fs.existsSync(path.join(destination, 'test', (tiapp.id || 'Project') + '_TemporaryKey.pfx'))) {
+								next();
+								return;
+							}
+							logger.info(__('Converting temporary code signing certificate to PKCS#12'));
+							var pvk2PfxProcess = spawn('Pvk2Pfx', [
+									'/pvk', path.join(destination, 'test', (tiapp.id || 'Project') + '_TemporaryKey.pvk'),
+									'/spc', path.join(destination, 'test', (tiapp.id || 'Project') + '_TemporaryKey.cer'),
+									'/pfx', path.join(destination, 'test', (tiapp.id || 'Project') + '_TemporaryKey.pfx')]);
+							pvk2PfxProcess.stdout.on('data', function (data) {
+								data.toString().split('\r\n').forEach(function (line) {
+									line = line.trim();
+									if (line.length) {
+										logger.trace(line);
+									}
+								});
+							});
+							pvk2PfxProcess.stderr.on('data', function (data) {
+								data.toString().split('\r\n').forEach(function (line) {
+									line = line.trim();
+									if (line.length) {
+										logger.error(line);
+									}
+								});
+							});
+							pvk2PfxProcess.on('close', function (code) {
+								if (code) {
+									logger.error(__('There were errors converting the temporary code signing certificate to PKCS#12.'));
+								} else {
+									logger.debug(__('Finished converting the code signing certificate tp PKCS#12'));
+								}
+								fs.unlinkSync(path.join(destination, 'test', (tiapp.id || 'Project') + '_TemporaryKey.pvk'));
+								fs.unlinkSync(path.join(destination, 'test', (tiapp.id || 'Project') + '_TemporaryKey.cer'));
+								next(code);
+							});
+
+						}
+					], function (err) {
+						if (!err) {
+							compile();
 						}
 					});
-				});
-				buildProcess.stderr.on('data', function (data) {
-					data.toString().split('\r\n').forEach(function (line) {
-						if (line.length) {
-							logger.error(line);
+				} else {
+					compile();
+				}
+
+				function compile() {
+					// Compile the app
+					logger.info(__('Building the %s Visual Studio project', displayName));
+					buildProcess = spawn(env.vcvarsScript,[
+						'&&',
+						'MSBuild',
+						'/m',
+						'/p:configuration=' + (cli.argv['deploy-type'] == 'production' ? 'Release' : 'Debug'),
+						path.join(destination, tiapp.id + '.sln')]);
+					buildProcess.stdout.on('data', function (data) {
+						data.toString().split('\r\n').forEach(function (line) {
+							if (line.length) {
+								logger.trace(line);
+							}
+						});
+					});
+					buildProcess.stderr.on('data', function (data) {
+						data.toString().split('\r\n').forEach(function (line) {
+							if (line.length) {
+								logger.error(line);
+							}
+						});
+					});
+					buildProcess.on('close', function (code) {
+						if (code) {
+							finished(code);
+						} else {
+							logger.info(__('Finished building the application'));
+							finished();
 						}
 					});
-				});
-				buildProcess.on('close', function (code) {
-					if (code) {
-						finished(code);
-					} else {
-						logger.info(__('Finished building the application'));
-						finished();
-					}
-				});
+				}
 			});
 		}
 	});
