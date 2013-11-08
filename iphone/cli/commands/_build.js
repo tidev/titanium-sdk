@@ -1221,19 +1221,19 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 				this.forceRebuild = true;
 			}
 
-			if (this.forceRebuild || !fs.existsSync(this.xcodeAppDir, this.tiapp.name)) {
-				// we're not being called from Xcode, so we can call the pre-compile phase now
-				// and save us several seconds
-				this.xcodePrecompilePhase(function () {
+			this.xcodePrecompilePhase(function () {
+				if (this.forceRebuild || !fs.existsSync(this.xcodeAppDir, this.tiapp.name)) {
+					// we're not being called from Xcode, so we can call the pre-compile phase now
+					// and save us several seconds
 					parallel(this, [
 						'optimizeImages',
 						'invokeXcodeBuild'
 					], next);
-				}.bind(this));
-			} else {
-				this.logger.info(__('Skipping xcodebuild'));
-				next();
-			}
+				} else {
+					this.logger.info(__('Skipping xcodebuild'));
+					next();
+				}
+			}.bind(this));
 		},
 
 		'writeBuildManifest',
