@@ -546,14 +546,15 @@ module.exports = new function() {
 
 	//TIMOB-6856
 	this.orientationModesReturnNull = function(testRun) {
-		if (Ti.Platform.osname === 'android') {
-			var win = Titanium.UI.createWindow({  
-				backgroundColor:'#000',
-			});
-			win.open();
-			win.orientationModes = [Ti.UI.PORTRAIT, Ti.UI.UPSIDE_PORTRAIT];
+		var win = Titanium.UI.createWindow({  
+			backgroundColor:'#000',
+			orientationModes:[Ti.UI.PORTRAIT, Ti.UI.UPSIDE_PORTRAIT]
+		});
+		win.addEventListener('open', function(){
 			valueOf(testRun, win.orientationModes).shouldBe('1,3');
-		}
-		finish(testRun);
+
+			finish(testRun);
+		});
+		win.open();
 	}
 }
