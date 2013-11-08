@@ -46,7 +46,7 @@
         if ([backgroundModes containsObject:@"remote-notification"]) {
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveBackgroundFetchNotification:) name:kTiBackgroundFetchNotification object:nil];
         } else {
-            DebugLog(@"[ERROR] Cannot add backgroundfetch eventListener. Please add `fetch` to UIBackgroundModes inside info.plist ");
+            DebugLog(@"[ERROR] Cannot add silentpush eventListener. Please add `remote-notification` to UIBackgroundModes inside info.plist ");
         }
     }
     if ((count == 1) && [type isEqual:@"backgroundtransfer"]) {
@@ -58,15 +58,15 @@
     if ((count == 1) && [type isEqual:@"sessioncompleted"]) {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveSessionCompletedNotification:) name:kTiURLSessionCompleted object:nil];
     }
+    if ((count ==1) && [type isEqual:@"sessioneventscompleted"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveSessionEventsCompletedNotification:) name:kTiURLSessionEventsCompleted object:nil];
+    }
     if ((count == 1) && [type isEqual:@"downloadprogress"]) {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveDownloadProgressNotification:) name:kTiURLDowloadProgress object:nil];
     }
     if ((count == 1) && [type isEqual:@"uploadprogress"]) {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveUploadProgressNotification:) name:kTiURLUploadProgress object:nil];
     }
-
-
-
 }
 
 -(void)_listenerRemoved:(NSString*)type count:(int)count
@@ -78,7 +78,27 @@
     if ((count == 1) && [type isEqual:@"backgroundfetch"]) {
         [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiBackgroundFetchNotification object:nil];
     }
-
+    if ((count == 1) && [type isEqual:@"sessioneventscompleted"]) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiURLSessionEventsCompleted object:nil];
+    }
+    if ((count == 1) && [type isEqual:@"silentpush"]) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiSilentPushNotification object:nil];
+    }
+    if ((count == 1) && [type isEqual:@"backgroundtransfer"]) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiBackgroundTransfer object:nil];
+    }
+    if ((count == 1) && [type isEqual:@"sessioncompleted"]) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiURLSessionCompleted object:nil];
+    }
+    if ((count == 1) && [type isEqual:@"downloadfinished"]) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiURLDownloadFinished object:nil];
+    }
+    if ((count == 1) && [type isEqual:@"downloadprogress"]) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiURLDowloadProgress object:nil];
+    }
+    if ((count == 1) && [type isEqual:@"uploadprogress"]) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiURLUploadProgress object:nil];
+    }
 }
 
 #pragma mark Public
@@ -256,6 +276,10 @@
     [self fireEvent:@"sessioncompleted" withObject:[note userInfo]];
 }
 
+-(void)didReceiveSessionEventsCompletedNotification:(NSNotification*)note
+{
+    [self fireEvent:@"sessioneventscompleted" withObject:[note userInfo]];
+}
 -(void)didReceiveDownloadProgressNotification:(NSNotification*)note
 {
     [self fireEvent:@"downloadprogress" withObject:[note userInfo]];
@@ -268,20 +292,20 @@
 
 -(void)setMinimumBackgroundFetchInterval:(id)value
 {
+    //TODO: Need to fix this thing
     [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
 }
 
--(void)endBackgroundFetch:(id)args
+-(void)endBackgroundHandler:(id)arg
 {
-    ENSURE_ARG_COUNT(args, 2);
-    NSString *key = [args objectAtIndex:0];
-    int result = [args objectAtIndex:1];
-    if (result != 1 || result != 0) {
-        [[TiApp app] completionHandler:key withResult:2]; //UIBackgroundFetchResultFailed
+    ENSURE_SINGLE_ARG(arg, NSString);
+    if ([arg rangeOfString:@"Session"].location != NSNotFound) {
+        [[TiApp app] completionHandlerForBackgroundTransfer:arg];
     } else {
-        [[TiApp app] completionHandler:key withResult:result];
+        [[TiApp app] completionHandler:arg withResult:1];
     }
 }
+
 
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_LAYOUT_CHANGED,@"accessibilitylayoutchanged");
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_SCREEN_CHANGED,@"accessibilityscreenchanged");

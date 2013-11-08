@@ -148,6 +148,7 @@ NSString * const kTiSilentPushNotification = @"TiSilentPush";
 NSString * const kTiBackgroundTransfer = @"TiBackgroundTransfer";
 NSString * const kTiURLDownloadFinished = @"TiDownloadFinished";
 NSString * const kTiURLSessionCompleted = @"TiSessionCompleted";
+NSString * const kTiURLSessionEventsCompleted = @"TiSessionEventsCompleted";
 NSString * const kTiURLDowloadProgress = @"TiDownloadProgress";
 NSString * const kTiURLUploadProgress = @"TiUploadProgress";
 

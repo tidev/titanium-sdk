@@ -574,6 +574,7 @@ extern NSString * const kTiLocalNotification;
 extern NSString * const kTiBackgroundTransfer;
 extern NSString * const kTiURLDownloadFinished;
 extern NSString * const kTiURLSessionCompleted;
+extern NSString * const kTiURLSessionEventsCompleted;
 extern NSString * const kTiURLDowloadProgress;
 extern NSString * const kTiURLUploadProgress;
     
