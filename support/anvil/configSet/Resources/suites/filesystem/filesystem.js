@@ -41,7 +41,6 @@ module.exports = new function() {
 		{name: "File_Writable"},
 		{name: "httpClientFileTransfers", timeout:30000},
 		{name: "applicationCacheDirectory"},
-		{name: "Blob_NativePathException"},
 		{name: "multiLingualFilename"},
 		{name: "isFileMethod"},
 		{name: "resourceDirAsFile"},
@@ -660,28 +659,6 @@ module.exports = new function() {
 		valueOf(testRun, function(){
 			Ti.API.info(Ti.Filesystem.applicationCacheDirectory);
 		}).shouldNotThrowException();
-		
-		finish(testRun);
-	}
-
-		//TIMOB-9175
-	this.Blob_NativePathException = function(testRun) {
-		var win = Titanium.UI.createWindow({
-			title : 'Tab 1',
-			backgroundColor : '#fff'
-		});
-		var button = Titanium.UI.createButton({
-			title : 'Hello',
-			top : 10,
-			width : 100,
-			height : 50
-		});
-		win.add(button);
-		win.addEventListener('focus',function(){
-			var myBlob = button.toImage();
-			valueOf(testRun, myBlob.nativePath).shouldBeNull();
-		});
-		win.open();
 		
 		finish(testRun);
 	}
