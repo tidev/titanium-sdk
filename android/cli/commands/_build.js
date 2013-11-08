@@ -1503,6 +1503,13 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 		this.includeAllTiModules = includeAllTiModulesProp.value;
 	}
 
+	this.externalLibraries = [
+	// {
+	// 	javaClass:'com.actionbarsherlock',
+	// 	resPath:path.join(this.platformPath, 'externals/actionbarsherlock/res')
+	// }
+	];
+
 	// directories
 	this.buildAssetsDir             = path.join(this.buildDir, 'assets');
 	this.buildBinDir                = path.join(this.buildDir, 'bin');
@@ -3194,21 +3201,30 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 				done();
 			}.bind(this));
 		});
-
+	var args = [
+		'package',
+		'-f',
+		'-m',
+		'--auto-add-overlay',
+		'-M', this.androidManifestFile,
+		'-A', this.buildBinAssetsDir,
+		'-S', this.buildResDir,
+		'-I', this.androidTargetSDK.androidJar,
+		'-I', path.join(this.platformPath, 'titanium.jar'),
+		'-J', path.join(this.buildDir, 'gen'),
+		'-F', this.ap_File
+		];
+	var len = this.externalLibraries.length;
+	for (i = 0; i < len; i++) {
+		var lib = this.externalLibraries[i];
+		args.push('--extra-packages');
+		args.push(lib.javaClass);
+		args.push('-S');
+		args.push(lib.resPath);
+	}
 	aaptHook(
 		this.androidInfo.sdk.executables.aapt,
-		[
-			'package',
-			'-f',
-			'-m',
-			'-J', path.join(this.buildDir, 'gen'),
-			'-M', this.androidManifestFile,
-			'-A', this.buildBinAssetsDir,
-			'-S', this.buildResDir,
-			'-I', this.androidTargetSDK.androidJar,
-			'-I', path.join(this.platformPath, 'titanium.jar'),
-			'-F', this.ap_File
-		],
+		args,
 		{},
 		next
 	);
@@ -3276,12 +3292,19 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 	if (this.allowProfiling && this.profilePort) {
 		classpath[path.join(this.platformPath, 'lib', 'titanium-profiler.jar')] = 1;
 	}
+	var _t = this;
 
+	var dirs = [this.buildGenAppIdDir, this.buildSrcDir];
+	var len = this.externalLibraries.length;
+	for (i = 0; i < len; i++) {
+		var lib = this.externalLibraries[i];
+		dirs.push(path.join(this.buildDir, 'gen', lib.javaClass.split('.').join(path.sep)));
+	}
 	// find all java files and write them to the temp file
 	var javaFiles = [],
 		javaRegExp = /\.java$/,
 		javaSourcesFile = path.join(this.buildDir, 'java-sources.txt');
-	[this.buildGenAppIdDir, this.buildSrcDir].forEach(function scanJavaFiles(dir) {
+	dirs.forEach(function scanJavaFiles(dir) {
 		fs.readdirSync(dir).forEach(function (name) {
 			var file = path.join(dir, name);
 			if (fs.existsSync(file)) {
