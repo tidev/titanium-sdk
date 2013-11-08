@@ -789,10 +789,6 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			this.compileJSS = false;
 	}
 
-	if (cli.argv['skip-js-minify']) {
-		this.minifyJS = false;
-	}
-
 	// at this point we've validated everything except underscores in the app id
 	if (!config.get('ios.skipAppIdValidation')) {
 		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(cli.tiapp.id)) {
@@ -959,6 +955,20 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			cli.argv['force-copy']			= true; // if building from xcode, we'll force files to be copied instead of symlinked
 			cli.argv['force-copy-all']		= false; // we don't want to copy the big libTiCore.a file around by default
 		}
+	}
+
+	// determine if we're going to be minifying javascript
+	var compileJSProp = cli.tiapp.properties['ti.compilejs'];
+	if (cli.argv['skip-js-minify']) {
+		if (this.compileJS) {
+			logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', '--skip-js-minify'.cyan));
+		}
+		this.compileJS = this.encryptJS = this.minifyJS = false;
+	} else if (compileJSProp) {
+		if (this.compileJS && !compileJSProp.value) {
+			logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', 'ti.compilejs'.cyan));
+		}
+		this.encryptJS = this.minifyJS = !!compileJSProp.value;
 	}
 
 	// if in the prepare phase and doing a device/dist build...
@@ -2172,7 +2182,7 @@ iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 		description: this.tiapp.description,
 		copyright: this.tiapp.copyright,
 		guid: this.tiapp.guid,
-		skipJSMinification: !!this.cli.argv['skip-js-minify'],
+		skipJSMinification: !!this.minifyJS ,
 		forceCopy: !!this.forceCopy,
 		forceCopyAll: !!this.forceCopyAll,
 		encryptJS: !!this.encryptJS
