@@ -3035,6 +3035,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		tiappAndroidManifest = this.tiappAndroidManifest;
 
 	finalAndroidManifest.__attr__['android:versionName'] = this.tiapp.version || '1';
+	finalAndroidManifest.__attr__['android:versionCode'] = '1';
 
 	if (this.deployType != 'production') {
 		// enable mock location if in development or test mode
