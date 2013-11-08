@@ -13,12 +13,11 @@ module.exports = new function() {
 		valueOf = testUtils.valueOf;
 	}
 
-	this.name = "android_geolocation";
+	this.name = "geolocation";
 	this.tests = [
 		{name: "getCurrentPositionException"},
 		{name: "getPreferredProviderAppCrash"},
-		{name: "trueHeadingGreaterThan360", timeout: 50000},
-		{name: "updateIsValidProvider"},
+		{name: "shouldBeLessThan360", timeout: 50000},
 		{name: "trueHeadingNotGenerated", timeout: 50000},
 		{name: "invalidValue"}
 	]
@@ -40,20 +39,13 @@ module.exports = new function() {
 	}
 
 	//TIMOB-3077
-	this.trueHeadingGreaterThan360 = function(testRun) {
+	this.shouldBeLessThan360 = function(testRun) {
 		var headingCallback = function(e) {
 			valueOf(testRun, e.heading.trueHeading).shouldBeLessThanEqual(360);
 			
 			finish(testRun);
 		};
 		Titanium.Geolocation.addEventListener('heading', headingCallback);
-	}
-
-	//TIMOB-7456
-	this.updateIsValidProvider = function(testRun) {
-		valueOf(testRun, Ti.Geolocation.locationServicesEnabled).shouldBeTrue();
-
-		finish(testRun);
 	}
 
 	//TIMOB-9434

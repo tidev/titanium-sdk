@@ -15,6 +15,7 @@ var suites = [
 	{name: "database"},
 	{name: "facebook"},
 	{name: "filesystem/filesystem"},
+	{name: "geolocation"},
 	{name: "json"},
 	{name: "jss"},
 	{name: "kroll"},
@@ -40,7 +41,6 @@ if (Ti.Platform.osname === 'android') {
 	suites = suites.concat([
 		{name: "android/android_database/android_database"},
 		{name: "android/android_filesystem"},
-		{name: "android/android_geolocation"},
 		{name: "android/android_kroll"},
 		{name: "android/android_network_httpclient"},
 		{name: "android/android_notificationmgr"},
@@ -53,7 +53,6 @@ if (Ti.Platform.osname === 'android') {
 } else if((Ti.Platform.osname === 'iPhone') || (Ti.Platform.osname === 'iPad')) {
 	suites = suites.concat([
 		{name: "iphone/iphone_2Dmatrix"},
-		{name: "iphone/iphone_geolocation"},
 		{name: "iphone/iphone_ui"},
 		{name: "iphone/iphone_UI_3DMatrix"}
 	]);
