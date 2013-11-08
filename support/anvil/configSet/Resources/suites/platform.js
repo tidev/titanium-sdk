@@ -78,17 +78,15 @@ module.exports = new function() {
 	var platform_id;
 
 	this.platform_id_A = function(testRun) {
-		if (Ti.Platform.osname === 'android') {
-			platform_id=Ti.Platform.id;
-			valueOf(testRun, platform_id).shouldNotBeNull();
-		}
+		platform_id=Ti.Platform.id;
+		valueOf(testRun, platform_id).shouldNotBeNull();
+		
 		finish(testRun);
 	}
 
 	this.platform_id_B = function(testRun) {
-		if (Ti.Platform.osname === 'android') {
-			valueOf(testRun, Ti.Platform.id).shouldBe(platform_id);
-		}
+		valueOf(testRun, Ti.Platform.id).shouldBe(platform_id);
+		
 		finish(testRun);
 	}
 
@@ -120,9 +118,8 @@ module.exports = new function() {
 
 	//TIMOB-10482
 	this.platform_manufacturer = function(testRun) {
-		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
-			valueOf(testRun, Ti.Platform.getManufacturer()).shouldBe(Ti.Platform.manufacturer);
-		}
+		valueOf(testRun, Ti.Platform.getManufacturer()).shouldBe(Ti.Platform.manufacturer);
+		
 		finish(testRun);
 	}
 }
