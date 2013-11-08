@@ -24,7 +24,6 @@ properties:
           * <Titanium.UI.iOS.ATTRIBUTE_STROKE_COLOR>
           * <Titanium.UI.iOS.ATTRIBUTE_STROKE_WIDTH>
           * <Titanium.UI.iOS.ATTRIBUTE_SHADOW>
-          * <Titanium.UI.iOS.ATTRIBUTE_VERTICAL_GLYPH_FORM>
 
         For iOS 7 and above you can also use the following:
 
