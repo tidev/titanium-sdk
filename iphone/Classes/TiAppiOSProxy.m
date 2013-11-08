@@ -292,8 +292,10 @@
 
 -(void)setMinimumBackgroundFetchInterval:(id)value
 {
-    //TODO: Need to fix this thing
-    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
+    ENSURE_TYPE(value, NSNumber);
+    double fetchInterval = [TiUtils doubleValue:value];
+    fetchInterval = MIN(MAX(fetchInterval, UIApplicationBackgroundFetchIntervalNever),UIApplicationBackgroundFetchIntervalMinimum);
+    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:fetchInterval];
 }
 
 -(void)endBackgroundHandler:(id)arg
@@ -313,6 +315,9 @@ MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_SCREEN_CHANGED,@"accessibilityscreenchanged"
 MAKE_SYSTEM_PROP(FETCH_NEWDATA, 0); //UIBackgroundFetchResultNewData
 MAKE_SYSTEM_PROP(FETCH_NODATA, 1); //UIBackgroundFetchResultNoData
 MAKE_SYSTEM_PROP(FETCH_FAILED, 2); //UIBackgroundFetchResultFailed
+
+MAKE_SYSTEM_PROP_DBL(BACKGROUNDFETCHINTERVAL_MIN, UIApplicationBackgroundFetchIntervalMinimum);
+MAKE_SYSTEM_PROP_DBL(BACKGROUNDFETCHINTERVAL_NEVER, UIApplicationBackgroundFetchIntervalNever);
 
 @end
 
