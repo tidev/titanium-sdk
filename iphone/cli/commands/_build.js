@@ -2874,6 +2874,14 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 				}.bind(this)
 			}, cb);
 		});
+
+		// copy the assets
+		tasks.push(function (cb) {
+			copyDir.call(this, {
+				src: path.join(module.modulePath, 'assets'),
+				dest: path.join(this.xcodeAppDir, 'modules', module.id)
+			}, cb);
+		});
 	});
 
 	// copy all module assets

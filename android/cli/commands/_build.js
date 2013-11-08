@@ -2168,7 +2168,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		tasks.push(function (cb) {
 			copyDir.call(this, {
 				src: path.join(module.modulePath, 'assets'),
-				dest: path.join(this.buildBinAssetsResourcesDir, 'assets')
+				dest: path.join(this.buildBinAssetsResourcesDir, 'modules', module.id)
 			}, cb);
 		});
 	});
@@ -2617,44 +2617,57 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 };
 
 AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next) {
-	// for each jar library, if it has a companion resource zip file, extract
-	// all of its files into the build dir, and yes, this is stupidly dangerous
-	appc.async.series(this, Object.keys(this.jarLibraries).map(function (jarFile) {
-		return function (done) {
-			var resFile = jarFile.replace(/\.jar$/, '.res.zip');
-			if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) return done();
-			this.logger.info(__('Extracting module resources: %s', resFile.cyan));
-			var tmp = temp.mkdirSync();
-			appc.zip.unzip(resFile, tmp, {}, function (ex) {
-				if (ex) {
-					this.logger.error(__('Failed to extract module resource zip: %s', resFile.cyan) + '\n');
-					process.exit(1);
+	var _t = this;
+
+	function copy(src, dest) {
+		fs.readdirSync(src).forEach(function (filename) {
+			var from = path.join(src, filename),
+				to = path.join(dest, filename);
+			if (fs.existsSync(from)) {
+				delete _t.lastBuildFiles[to];
+				if (fs.statSync(from).isDirectory()) {
+					copy(from, to);
+				} else if (_t.xmlMergeRegExp.test(filename)) {
+					_t.writeXmlFile(from, to);
+				} else {
+					afs.copyFileSync(from, to, { logger: _t.logger.debug });
 				}
+			}
+		});
+	}
 
-				var _t = this;
+	var tasks = Object.keys(this.jarLibraries).map(function (jarFile) {
+			return function (done) {
+				var resFile = jarFile.replace(/\.jar$/, '.res.zip');
+				if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) return done();
+				this.logger.info(__('Extracting module resources: %s', resFile.cyan));
+				var tmp = temp.mkdirSync();
+				appc.zip.unzip(resFile, tmp, {}, function (ex) {
+					if (ex) {
+						this.logger.error(__('Failed to extract module resource zip: %s', resFile.cyan) + '\n');
+						process.exit(1);
+					}
 
-				// copy the files from the temp folder into the build dir
-				(function copy(src, dest) {
-					fs.readdirSync(src).forEach(function (filename) {
-						var from = path.join(src, filename),
-							to = path.join(dest, filename);
-						if (fs.existsSync(from)) {
-							delete _t.lastBuildFiles[to];
-							if (fs.statSync(from).isDirectory()) {
-								copy(from, to);
-							} else if (_t.xmlMergeRegExp.test(filename)) {
-								_t.writeXmlFile(from, to);
-							} else {
-								afs.copyFileSync(from, to, { logger: _t.logger.debug });
-							}
-						}
-					});
-				}(tmp, this.buildDir));
+					// copy the files from the temp folder into the build dir
+					copy(tmp, this.buildDir);
+					done();
+				}.bind(this));
+			};
+		});
 
+	this.nativeLibModules.forEach(function (m) {
+		var src = path.join(m.modulePath, 'assets');
+		if (fs.existsSync(src)) {
+			tasks.push(function (done) {
+				copy(src, path.join(this.buildBinAssetsResourcesDir, 'modules', m.id));
 				done();
 			}.bind(this));
-		};
-	}), next);
+		}
+	}, this);
+
+	// for each jar library, if it has a companion resource zip file, extract
+	// all of its files into the build dir, and yes, this is stupidly dangerous
+	appc.async.series(this, tasks, next);
 };
 
 AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
