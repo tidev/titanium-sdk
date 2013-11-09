@@ -2814,6 +2814,9 @@ AndroidBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest) {
 			xml.forEachElement(srcDoc, byName);
 			Object.keys(nodes).forEach(function (name) {
 				root.appendChild(dom.createTextNode('\n\t'));
+				if (filename == 'strings.xml') {
+					nodes[name].setAttribute('formatted', 'false');
+				}
 				root.appendChild(nodes[name]);
 			});
 			break;
@@ -2903,6 +2906,7 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 			appnameNode = dom.createElement('string');
 
 		appnameNode.setAttribute('name', 'app_name');
+		appnameNode.setAttribute('formatted', 'false');
 		appnameNode.appendChild(dom.createTextNode(appname));
 		root.appendChild(dom.createTextNode('\n\t'));
 		root.appendChild(appnameNode);
@@ -2911,7 +2915,8 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 			if (name != 'appname') {
 				var node = dom.createElement('string');
 				node.setAttribute('name', name);
-				node.appendChild(dom.createTextNode(data[locale].strings[name].replace(/\\?'/g, '\\')));
+				node.setAttribute('formatted', 'false');
+				node.appendChild(dom.createTextNode(data[locale].strings[name].replace(/\\?'/g, "\\'")));
 				root.appendChild(dom.createTextNode('\n\t'));
 				root.appendChild(node);
 			}
