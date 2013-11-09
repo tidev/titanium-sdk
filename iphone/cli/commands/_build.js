@@ -607,13 +607,13 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 										} else {
 											logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s"', appId) + '\n');
 											logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
-												'https://developer.apple.com/account/ios/certificate/certificateList.action?type=development'.cyan) + '\n');
+												'http://appcelerator.com/ios-dev-certs'.cyan) + '\n');
 											process.exit(1);
 										}
 									} else {
 										logger.error(__('Unable to find any development provisioning profiles') + '\n');
 										logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
-											'https://developer.apple.com/account/ios/certificate/certificateList.action?type=development'.cyan) + '\n');
+											'http://appcelerator.com/ios-dev-certs'.cyan) + '\n');
 										process.exit(1);
 									}
 								} else if (cli.argv.target == 'dist-appstore' || cli.argv.target == 'dist-adhoc') {
@@ -633,13 +633,13 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 										if (!valid) {
 											logger.error(__('Unable to find any non-expired distribution or adhoc provisioning profiles that match the app id "%s".', appId) + '\n');
 											logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
-												'https://developer.apple.com/account/ios/certificate/certificateList.action?type=development'.cyan) + '\n');
+												'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
 											process.exit(1);
 										}
 									} else {
 										logger.error(__('Unable to find any distribution or adhoc provisioning profiles'));
 										logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
-											'https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution'.cyan) + '\n');
+											'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
 										process.exit(1);
 									}
 								}
@@ -971,7 +971,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		// make sure they have Apple's WWDR cert installed
 		if (!this.iosInfo.certs.wwdr) {
 			logger.error(__('WWDR Intermediate Certificate not found') + '\n');
-			logger.log(__('Download and install the certificate from %s', 'https://developer.apple.com/ios/manage/certificates/team/index.action'.cyan) + '\n');
+			logger.log(__('Download and install the certificate from %s', 'http://appcelerator.com/ios-wwdr'.cyan) + '\n');
 			process.exit(1);
 		}
 
@@ -2965,7 +2965,7 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 			// write the properties file
 			var appPropsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_app_props__json') : path.join(this.xcodeAppDir, '_app_props_.json'),
 				props = {};
-			Object.keys(this.tiapp.properties).forEach(function (prop) {
+			this.tiapp.properties && Object.keys(this.tiapp.properties).forEach(function (prop) {
 				props[prop] = this.tiapp.properties[prop].value;
 			}, this);
 			fs.writeFileSync(

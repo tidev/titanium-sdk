@@ -95,6 +95,20 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 			return callback();
 		}
 
+		function assertIssue(logger, issues, name, exit) {
+			var i = 0,
+				len = issues.length;
+			for (; i < len; i++) {
+				if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
+					issues[i].message.split('\n').forEach(function (line) {
+						logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
+					});
+					logger.log();
+					exit && process.exit(1);
+				}
+			}
+		}
+
 		async.series([
 			function (next) {
 				// detect android environment
@@ -102,19 +116,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					_t.androidInfo = androidInfo;
 
 					if (!cli.argv.prompt) {
-						function assertIssue(logger, issues, name) {
-							var i = 0,
-								len = issues.length;
-							for (; i < len; i++) {
-								if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
-									issues[i].message.split('\n').forEach(function (line) {
-										logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-									});
-									logger.log();
-								}
-							}
-						}
-
 						// check that the Android SDK is found and sane
 						assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
 						assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
@@ -145,6 +146,9 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 			function (next) {
 				// detect java development kit
 				appc.jdk.detect(config, null, function (jdkInfo) {
+					assertIssue(logger, jdkInfo.issues, 'JDK_NOT_INSTALLED', true);
+					assertIssue(logger, jdkInfo.issues, 'JDK_MISSING_PROGRAMS', true);
+
 					if (!jdkInfo.version) {
 						logger.error(__('Unable to locate the Java Development Kit') + '\n');
 						logger.log(__('You can specify the location by setting the %s environment variable.', 'JAVA_HOME'.cyan) + '\n');
@@ -264,7 +268,12 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							if (!androidSdkPath && _t.androidInfo.sdk) {
 								androidSdkPath = _t.androidInfo.sdk.path;
 							}
-							androidSdkPath && (androidSdkPath = afs.resolvePath(androidSdkPath));
+							if (androidSdkPath) {
+								androidSdkPath = afs.resolvePath(androidSdkPath);
+								if (process.platform == 'win32' || androidSdkPath.indexOf('&') != -1) {
+									androidSdkPath = undefined;
+								}
+							}
 
 							callback(fields.file({
 								promptLabel: __('Where is the Android SDK?'),
@@ -280,6 +289,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						validate: function (value, callback) {
 							if (!value) {
 								callback(new Error(__('Invalid Android SDK path')));
+							} else if (process.platform == 'win32' && value.indexOf('&') != -1) {
+								callback(new Error(__('The Android SDK path cannot contain ampersands (&) on Windows')));
 							} else if (_t.androidInfo.sdk && _t.androidInfo.sdk.path == afs.resolvePath(value)) {
 								// no sense doing the detection again
 								callback(null, value);
@@ -2331,9 +2342,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				path.join(this.platformPath, titaniumPrep),
 				[ this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt),
 				{
-					env: appc.util.mix({
+					env: appc.util.mix({}, process.env, {
+						// we force the JAVA_HOME so that titaniumprep doesn't complain
 						'JAVA_HOME': this.jdkInfo.home
-					}, process.env)
+					})
 				},
 				next
 			);

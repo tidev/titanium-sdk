@@ -11,6 +11,7 @@
 	"path": "path",
 	"Where is the Android SDK?": "Where is the Android SDK?",
 	"Invalid Android SDK path": "Invalid Android SDK path",
+	"The Android SDK path cannot contain ampersands (&) on Windows": "The Android SDK path cannot contain ampersands (&) on Windows",
 	"Invalid Android SDK path: %s": "Invalid Android SDK path: %s",
 	"the abi for the Android emulator; deprecated, use --device-id": "the abi for the Android emulator; deprecated, use --device-id",
 	"abi": "abi",
