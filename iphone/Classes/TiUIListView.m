@@ -190,7 +190,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (![searchController isActive]) {
         [searchViewProxy ensureSearchBarHeirarchy];
         if (_searchWrapper != nil) {
-            CGFloat rowWidth = floorf([self computeRowWidthForTableView:_tableView]);
+            CGFloat rowWidth = floorf([self computeRowWidth]);
             if (rowWidth > 0) {
                 CGFloat right = _tableView.bounds.size.width - rowWidth;
                 [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
@@ -318,7 +318,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 #pragma mark - Helper Methods
 
--(CGFloat)computeRowWidthForTableView:(UITableView*)tableView
+-(CGFloat)computeRowWidth
 {
     if (_tableView == nil) {
         return 0;
@@ -333,7 +333,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     // The following is unreliable since it uses a private API name, but one which has existed
     // since iOS 3.0. The alternative is to grab a specific subview of the tableview itself,
     // which is more fragile.
-    
+    if (sectionTitles == nil) {
+        return rowWidth;
+    }
     NSArray* subviews = [_tableView subviews];
     if ([subviews count] > 0) {
         // Obfuscate private class name
@@ -345,7 +347,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
     }
     
-    return floorf(rowWidth - 2);
+    return floorf(rowWidth);
 }
 
 -(id)valueWithKey:(NSString*)key atIndexPath:(NSIndexPath*)indexPath
@@ -1449,8 +1451,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             if (theCell != nil) {
                 if (item != nil) {
                     theCell.dataItem = item;
-                    BOOL differ = (tableView != _tableView);
-                    CGFloat maxWidth = [self computeRowWidthForTableView:tableView];
+                    CGFloat maxWidth = [self computeRowWidth];
                     if (maxWidth > 0) {
                         if ((tableView.style == UITableViewStyleGrouped) && (![TiUtils isIOS7OrGreater]) ){
                             maxWidth -= 20;
@@ -1475,11 +1476,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                         [theProxy layoutProperties]->height = TiDimensionAutoSize;
                         [theProxy layoutProperties]->width = TiDimensionAutoFill;
                         CGFloat result =  [theProxy minimumParentHeightForSize:CGSizeMake(maxWidth, tableView.bounds.size.height)];
-                        if (differ) {
-                            NSLog(@"DIFFER MAX WIDTH %f HEIGHT %f ROW %d SECTION %d",maxWidth, result, indexPath.row,indexPath.section);
-                        } else {
-                            NSLog(@"SAME MAX WIDTH %f HEIGHT %f ROW %d SECTION %d",maxWidth, result, indexPath.row,indexPath.section);
-                        }
                         return result;
                     }
                 }
@@ -1608,7 +1604,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     //IOS7 DP3. TableView seems to be adding the searchView to
     //tableView. Bug on IOS7?
     if (_searchWrapper != nil) {
-        CGFloat rowWidth = floorf([self computeRowWidthForTableView:_tableView]);
+        CGFloat rowWidth = floorf([self computeRowWidth]);
         if (rowWidth > 0) {
             CGFloat right = _tableView.bounds.size.width - rowWidth;
             [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
