@@ -167,8 +167,6 @@
 	"Forcing rebuild: ApplicationDefaults.m does not exist": "Forcing rebuild: ApplicationDefaults.m does not exist",
 	"Forcing rebuild: ApplicationDefaults.m has changed since last build": "Forcing rebuild: ApplicationDefaults.m has changed since last build",
 	"Writing application defaults: %s": "Writing application defaults: %s",
-	"Copying module resources": "Copying module resources",
-	"No module resources to copy": "No module resources to copy",
 	"Copying iTunes artwork": "Copying iTunes artwork",
 	"Creating lproj folder %s": "Creating lproj folder %s",
 	"Removing File %s, as it is being localized": "Removing File %s, as it is being localized",

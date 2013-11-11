@@ -2671,7 +2671,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 		var src = path.join(m.modulePath, 'assets');
 		if (fs.existsSync(src)) {
 			tasks.push(function (done) {
-				copy(src, path.join(this.buildBinAssetsResourcesDir, 'modules', m.id));
+				copy(src, this.buildBinAssetsResourcesDir);
 				done();
 			}.bind(this));
 		}

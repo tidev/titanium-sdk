@@ -1214,7 +1214,6 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'injectModulesIntoXcodeProject',
 		'injectApplicationDefaults', // if ApplicationDefaults.m was modified, forceRebuild will be set to true
 		'copyTitaniumLibraries',
-		'copyModuleResources',
 		'copyItunesArtwork',
 		'copyGraphics',
 
@@ -2097,26 +2096,6 @@ iOSBuilder.prototype.injectApplicationDefaults = function injectApplicationDefau
 	}
 };
 
-iOSBuilder.prototype.copyModuleResources = function copyModuleResources(next) {
-	var counter = 0;
-	parallel(this, this.nativeLibModules.map(function (m) {
-		return function (next) {
-			var src = path.join(m.modulePath, 'assets'),
-				dest = path.join(this.xcodeAppDir, 'modules', m.id);
-			if (fs.existsSync(src)) {
-				wrench.mkdirSyncRecursive(dest);
-				counter++ == 0 && this.logger.info(__('Copying module resources'));
-				this.copyDirAsync(src, dest, next);
-			} else {
-				next();
-			}
-		};
-	}), function () {
-		counter || this.logger.info(__('No module resources to copy'));
-		next();
-	});
-};
-
 iOSBuilder.prototype.copyItunesArtwork = function copyItunesArtwork(next) {
 	// note: iTunesArtwork is a png image WITHOUT the file extension and the
 	// purpose of this function is to copy it from the root of the project.
@@ -2872,14 +2851,6 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 					this.logger.error(__('Please rename the file, then rebuild') + '\n');
 					process.exit(1);
 				}.bind(this)
-			}, cb);
-		});
-
-		// copy the assets
-		tasks.push(function (cb) {
-			copyDir.call(this, {
-				src: path.join(module.modulePath, 'assets'),
-				dest: path.join(this.xcodeAppDir, 'modules', module.id)
 			}, cb);
 		});
 	});
