@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  <Identity Name="<%= projectName %>" Version="<%= projectVersion %>" Publisher="CN=<%= author %>" />
+  <Identity Name="<%= projectName %>" Version="<%= projectVersion %>" Publisher="CN=<%= author %>, O=Titanium, OU=Windows Store Applications" />
   <Properties>
     <DisplayName><%= projectDisplayName %></DisplayName>
     <PublisherDisplayName><%= author %></PublisherDisplayName>
@@ -8,8 +8,8 @@
     <Description><%= projectDescription%></Description>
   </Properties>
   <Prerequisites>
-    <OSMinVersion>6.2.1</OSMinVersion>
-    <OSMaxVersionTested>6.2.1</OSMaxVersionTested>
+    <OSMinVersion>6.<%= (visualStudioVersion == '2013' ? '3.0' : '2.1') %></OSMinVersion>
+    <OSMaxVersionTested>6.<%= (visualStudioVersion == '2013' ? '3.0' : '2.1') %></OSMaxVersionTested>
   </Prerequisites>
   <Resources>
     <Resource Language="x-generate" />
