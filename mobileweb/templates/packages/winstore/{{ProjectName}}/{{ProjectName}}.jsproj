@@ -47,13 +47,13 @@
     <TargetPlatformIdentifier>Windows</TargetPlatformIdentifier>
     <TargetPlatformVersion>8.<%= (visualStudioVersion == '2013' ? '1' : '0') %></TargetPlatformVersion>
     <DefaultLanguage>en-US</DefaultLanguage>
-    <PackageCertificateKeyFile><%= projectName %>_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile><%= certificatePath %></PackageCertificateKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <AppxManifest Include="package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="<%= projectName %>_TemporaryKey.pfx" />
+    <None Include="<%= certificatePath %>" />
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="Microsoft.WinJS.<%= (visualStudioVersion == '2013' ? '2' : '1') %>.0, Version=1.0" />
