@@ -80,7 +80,7 @@ exports.init = function (logger, config, cli) {
 					logger.info(__('No code signing certificate for Windows Store applications was found, ' +
 						'creating and installing one now. ' +
 						'The certificate will be installed in the local machine\'s Trusted Root Certificate Authorities certificate store. ' +
-						'If this command fails, try running it from an elevated command prompt.'));
+						'When prompted for a password, leave everything blank.'));
 
 					async.series([
 
@@ -93,7 +93,7 @@ exports.init = function (logger, config, cli) {
 									certificatePathRoot
 								], function (code) {
 									if (code) {
-										logger.error(__('There were errors creating the temporary code signing certificate. Try run this command in an elevated command prompt'));
+										logger.error(__('There were errors creating the temporary code signing certificate'));
 									} else {
 										logger.debug(__('Finished creating the code signing certificate'));
 									}
@@ -113,7 +113,7 @@ exports.init = function (logger, config, cli) {
 									fs.unlinkSync(certificatePathRoot + '.pvk');
 									fs.unlinkSync(certificatePathRoot + '.cer');
 									if (code) {
-										logger.error(__('There were errors exporting the code signing certificate. Try run this command in an elevated command prompt'));
+										logger.error(__('There were errors exporting the code signing certificate'));
 									} else {
 										logger.debug(__('Finished creating the code signing certificate'));
 									}
