@@ -31,7 +31,7 @@ exports.init = function (logger, config, cli) {
 			var target = cli.argv.target,
 				tiapp = build.tiapp,
 				displayName = target == 'wp8' ? __('Windows Phone 8') : __('Windows Store'),
-				certificatePathRoot = path.join(build.projectDir, tiapp.name || '_WindowsCodeSigningCert');
+				certificatePathRoot = path.join(build.projectDir, tiapp.name + '_WindowsCodeSigningCert');
 
 			if (process.platform != 'win32' || target != 'winstore' && target != 'wp8') {
 				finished();
