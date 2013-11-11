@@ -780,6 +780,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
     }
     [_tableView reloadSectionIndexTitles];
+    [_tableView reloadData];
 }
 
 #pragma mark - SectionIndexTitle Support Datasource methods.
