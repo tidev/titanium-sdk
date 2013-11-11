@@ -18,6 +18,7 @@ var suites = [
 	{name: "json"},
 	{name: "jss"},
 	{name: "kroll"},
+	{name: "ui_label"},
 	{name: "locale"},
 	{name: "media/media"},
 	{name: "network_httpclient"},
