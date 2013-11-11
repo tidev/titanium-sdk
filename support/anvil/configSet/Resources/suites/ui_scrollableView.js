@@ -13,7 +13,7 @@ module.exports = new function() {
 		valueOf = testUtils.valueOf;
 	}
 
-	this.name = "ui_scrollable_view";
+	this.name = "ui_scrollableView";
 	this.tests = [
 		{name: "showPagingControl"},
 		{name: "removeView"},
