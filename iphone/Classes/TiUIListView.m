@@ -815,6 +815,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         return 0;
     }
     
+    if(theIndex == 0) {
+        // If the `theIndex` is 0 then scroll to the top, this is the case if the index passed in is -1 from JS
+        // Fix for the {search} title TIMOB-2710
+        [[self tableView] setContentOffset:CGPointMake(0, 0)];
+        return -1;
+    }
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) && (filteredTitles != nil) && (filteredIndices != nil) ) {
             // get the index for the title
