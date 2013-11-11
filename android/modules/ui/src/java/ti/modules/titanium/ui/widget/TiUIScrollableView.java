@@ -22,6 +22,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.ScrollableViewProxy;
 import ti.modules.titanium.ui.widget.TiUIScrollView.TiScrollViewLayout;
+import ti.modules.titanium.ui.widget.listview.ListItemProxy;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -542,9 +543,27 @@ public class TiUIScrollableView extends TiUIView
 		public TiViewPagerLayout(Context context)
 		{
 			super(context, proxy);
-			setFocusable(true);
-			setFocusableInTouchMode(true);
+			boolean focusable = true;
+			// Container can't be focusable inside list view, otherwise it will be focused and subsequent layout passes
+			// wont happen.
+			if (isListViewParent(proxy)) {
+				focusable = false;
+			}
+			setFocusable(focusable);
+			setFocusableInTouchMode(focusable);
 			setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+		}
+
+		private boolean isListViewParent(TiViewProxy proxy) {
+			if (proxy instanceof ListItemProxy) {
+				return true;
+			}
+			TiViewProxy parent = proxy.getParent();
+			if (parent == null) {
+				return false;
+			} else {
+				return isListViewParent(parent);
+			}
 		}
 
 		@Override

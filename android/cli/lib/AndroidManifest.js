@@ -437,6 +437,10 @@ function AndroidManifest(filename) {
 										this[tag][subtag][key] = src[tag][subtag][key];
 									}, this);
 									break;
+								default:
+									if (tagAttrs.application.test(subtag)) {
+										this[tag][subtag] = src[tag][subtag];
+									}
 							}
 						}, this);
 						break;

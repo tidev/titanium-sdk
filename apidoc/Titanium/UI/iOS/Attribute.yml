@@ -97,6 +97,9 @@ properties:
                 color: 'red'
             }
 
+        If you use the Titanium.UI.iOS.ATTRIBUTE_TEXT_EFFECT, you must use the only supported iOS 7 constant
+        <Titanium.UI.iOS.ATTRIBUTE_LETTERPRESS_STYLE>
+
     type: Number
     optional: false
   - name: range
