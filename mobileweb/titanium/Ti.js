@@ -27,6 +27,7 @@ define(
 		unloaded,
 		showingError,
 		waiting = [],
+		alertShowing,
 		Ti = lang.setObject("Ti", Evented, {
 			constants: {
 				buildDate: cfg.ti.buildDate,
@@ -156,6 +157,20 @@ define(
 			}
 
 			return bytes.join('');
+		};
+	}
+
+	// Shim out alert()
+	if (has("winstore_extensions")) {
+		global.alert = function (msg) {
+			if (alertShowing) {
+				API.warn('Cannot show more than one alert at a time');
+			} else {
+				alertShowing = 1;
+				new Windows.UI.Popups.MessageDialog(msg).showAsync().done(function () {
+					alertShowing = 0;
+				});
+			}
 		};
 	}
 

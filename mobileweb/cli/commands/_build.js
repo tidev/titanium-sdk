@@ -569,7 +569,8 @@ build.prototype = {
 					has_show_errors: this.deployType != 'production' && tiapp.mobileweb['disable-error-screen'] !== true,
 					has_instrumentation: !!tiapp.mobileweb.instrumentation,
 					has_allow_touch: tiapp.mobileweb.hasOwnProperty('allow-touch') ? !!tiapp.mobileweb['allow-touch'] : true,
-					has_wp8_extensions: this.target == 'wp8'
+					has_wp8_extensions: this.target == 'wp8',
+					has_winstore_extensions: this.target == 'winstore'
 				}),
 
 				'\n', '\n'
@@ -918,7 +919,11 @@ build.prototype = {
 			ti_statusbar_style: statusBarStyle,
 			ti_css: fs.readFileSync(this.buildDir + '/titanium.css').toString(),
 			splash_screen: this.splashHtml,
-			ti_js: fs.readFileSync(this.buildDir + '/titanium.js').toString()
+			ti_js: fs.readFileSync(this.buildDir + '/titanium.js').toString(),
+			winstore_headers: this.target == 'winstore' ? '<!-- WinJS references -->\n' +
+				'\t<link href="//Microsoft.WinJS.2.0/css/ui-dark.css" rel="stylesheet" />\n' +
+				'\t<script src="//Microsoft.WinJS.2.0/js/base.js"></script>\n' +
+				'\t<script src="//Microsoft.WinJS.2.0/js/ui.js"></script>\n' : ''
 		}));
 	},
 
