@@ -549,6 +549,8 @@ exports.detectSimulators = function detectSimulators(config, opts, finished) {
 	if (typeof opts == 'function') {
 		finished = opts;
 		opts = {};
+	} else {
+		opts = opts || {};
 	}
 
 	exports.detect(config, opts, function (info) {
