@@ -210,13 +210,13 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 				var m = sdkRoot.match(/\/iphone(?:os|simulator)(\d.\d).sdk/i);
 				if (m) {
 					defaultIosVersion = m[1];
-					var file = path.join(sdkRoot, 'System', 'Library', 'CoreServices', 'SystemVersion.plist');
-					if (fs.existsSync(file)) {
-						var p = new appc.plist(file);
-						if (p.ProductVersion) {
-							defaultIosVersion = p.ProductVersion;
-						}
-					}
+					// var file = path.join(sdkRoot, 'System', 'Library', 'CoreServices', 'SystemVersion.plist');
+					// if (fs.existsSync(file)) {
+					// 	var p = new appc.plist(file);
+					// 	if (p.ProductVersion) {
+					// 		defaultIosVersion = p.ProductVersion;
+					// 	}
+					// }
 				}
 			}
 

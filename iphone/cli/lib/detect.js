@@ -143,14 +143,14 @@ exports.detect = function detect(config, opts, finished) {
 									var m = d.match(sdkRegExp);
 									if (m && (!opts.minSDK || appc.version.gte(m[2], opts.minSDK))) {
 										var ver = m[2];
-										file = path.join(file, 'System', 'Library', 'CoreServices', 'SystemVersion.plist');
-										if (fs.existsSync(file)) {
-											var p = new appc.plist(file);
-											if (p.ProductVersion) {
-												ver = p.ProductVersion;
-											}
-										}
-										vers.push(ver);
+										// file = path.join(file, 'System', 'Library', 'CoreServices', 'SystemVersion.plist');
+										// if (fs.existsSync(file)) {
+										// 	var p = new appc.plist(file);
+										// 	if (p.ProductVersion) {
+										// 		ver = p.ProductVersion;
+										// 	}
+										// }
+										// vers.push(ver);
 									}
 								}
 							});
