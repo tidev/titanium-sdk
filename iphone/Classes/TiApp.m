@@ -546,7 +546,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     }
     
     [backgroundTransferCompletionHandlers setObject:[completionHandler copy] forKey:key];
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:identifier, @"sessionIdentifier",
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:identifier, @"sessionId",
                                                                              key, @"handlerId", nil];
     [self postNotificationwithKey:dict withNotificationName:kTiBackgroundTransfer];
 
@@ -602,7 +602,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
                                                 nil];
         [dict addEntriesFromDictionary:errorinfo];
     } else {
-        NSDictionary * success = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
+        NSDictionary * success = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
                                               NUMINT(0), @"errorCode",
                                               @"", @"message",
                                               nil];

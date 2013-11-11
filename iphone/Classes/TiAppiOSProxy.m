@@ -44,7 +44,7 @@
     if ((count == 1) && [type isEqual:@"silentpush"]) {
         NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
         if ([backgroundModes containsObject:@"remote-notification"]) {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveBackgroundFetchNotification:) name:kTiBackgroundFetchNotification object:nil];
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveBackgroundFetchNotification:) name:kTiSilentPushNotification object:nil];
         } else {
             DebugLog(@"[ERROR] Cannot add silentpush eventListener. Please add `remote-notification` to UIBackgroundModes inside info.plist ");
         }
@@ -52,7 +52,7 @@
     if ((count == 1) && [type isEqual:@"backgroundtransfer"]) {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveBackgroundTransferNotification:) name:kTiBackgroundTransfer object:nil];
     }
-    if ((count == 1) && [type isEqual:@"downloadfinished"]) {
+    if ((count == 1) && [type isEqual:@"downloadcompleted"]) {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveDownloadFinishedNotification:) name:kTiURLDownloadFinished object:nil];
     }
     if ((count == 1) && [type isEqual:@"sessioncompleted"]) {
@@ -268,7 +268,7 @@
 
 -(void)didReceiveDownloadFinishedNotification:(NSNotification*)note
 {
-    [self fireEvent:@"downloadfinished" withObject:[note userInfo]];
+    [self fireEvent:@"downloadcompleted" withObject:[note userInfo]];
 }
 
 -(void)didReceiveSessionCompletedNotification:(NSNotification*)note
@@ -294,7 +294,7 @@
 {
     ENSURE_TYPE(value, NSNumber);
     double fetchInterval = [TiUtils doubleValue:value];
-    fetchInterval = MIN(MAX(fetchInterval, UIApplicationBackgroundFetchIntervalNever),UIApplicationBackgroundFetchIntervalMinimum);
+    fetchInterval = MAX(MIN(fetchInterval, UIApplicationBackgroundFetchIntervalNever),UIApplicationBackgroundFetchIntervalMinimum);
     [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:fetchInterval];
 }
 
