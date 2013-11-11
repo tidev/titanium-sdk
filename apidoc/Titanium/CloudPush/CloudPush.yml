@@ -14,11 +14,12 @@ description: |
     The CloudPush module supports two protocols to access push notifications for Android devices:
 
       * Google Cloud Messaging (GCM) (since Release 3.1.2)
-      * ACS servers using the MQTT protocol
+      * ACS servers using the MQTT protocol (deprecated)
 
     Since Release 3.1.2, GCM is the default method to send push notifications. If you
     have an existing application that uses the MQTT protocol, you either need to transition your
     application to use GCM or set the `acs-push-type` key in the `tiapp.xml` file to `mqtt`.
+    Any new application should use GCM.
 
     GCM supports devices that run Android 2.2 and later, and requires that the Google Play Store
     application be installed. For pre-4.0 devices, the user is required to set up their Google

@@ -152,6 +152,13 @@
 }
 
 #pragma mark Delegate 
+- (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
+{
+    if (delegate!=nil && [delegate respondsToSelector:@selector(searchBarShouldBeginEditing:)]) {
+        [delegate searchBarShouldBeginEditing:searchBar];
+    }
+    return YES;
+}
 
 // called when text starts editing
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar                    

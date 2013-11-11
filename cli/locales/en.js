@@ -3,7 +3,7 @@
 	"builds a project": "builds a project",
 	"only perform the build; if true, does not install or run the app": "only perform the build; if true, does not install or run the app",
 	"force a full rebuild": "force a full rebuild",
-	"build using the old Python-based builder.py": "build using the old Python-based builder.py",
+	"build using the old Python-based builder.py; deprecated": "build using the old Python-based builder.py; deprecated",
 	"bypasses JavaScript minification; %s builds are never minified; only supported for %s and %s": "bypasses JavaScript minification; %s builds are never minified; only supported for %s and %s",
 	"the target build platform": "the target build platform",
 	"platform": "platform",

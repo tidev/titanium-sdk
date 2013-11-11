@@ -18,6 +18,7 @@ var suites = [
 	{name: "json"},
 	{name: "jss"},
 	{name: "kroll"},
+	{name: "ui_label"},
 	{name: "locale"},
 	{name: "media/media"},
 	{name: "network_httpclient"},
@@ -32,6 +33,7 @@ var suites = [
 	{name: "ui_2dMatrix"},
 	{name: "ui_clipboard"},
 	{name: "ui_controls"},
+	{name: "ui_searchBar"},
 	{name: "utils/utils"},
 	{name: "yahoo"}
 ];
@@ -54,7 +56,8 @@ if (Ti.Platform.osname === 'android') {
 	suites = suites.concat([
 		{name: "iphone/iphone_2Dmatrix"},
 		{name: "iphone/iphone_ui"},
-		{name: "iphone/iphone_UI_3DMatrix"}
+		{name: "iphone/iphone_UI_3DMatrix"},
+		{name: "iphone/iphone_ui_toolbar"}
 	]);
 }
 
