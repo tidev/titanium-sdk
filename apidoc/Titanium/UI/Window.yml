@@ -1355,3 +1355,4 @@ properties:
     summary: |
         Dictionary with the properties `width` and `height` used as the horizontal
         and vertical offset of the shadow, respectively.
+    type: Dictionary
