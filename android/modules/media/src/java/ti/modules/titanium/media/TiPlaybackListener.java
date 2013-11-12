@@ -16,4 +16,8 @@ public interface TiPlaybackListener
 	public void onStopPlayback();
 
 	public void onPlayingPlayback();
+	
+	public void onSeekingBackward();
+	
+	public void onSeekingForward();
 }
