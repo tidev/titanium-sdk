@@ -412,7 +412,7 @@ properties:
         use  <Titanium.Media.AUDIO_SESSION_MODE_RECORD> instead. This category normally 
         disallows mixing iPod audio with application audio.
 
-        In this mode, by default audio playback is routed to the speaker in the iPhone receiver. To have audio playback through the iPhone speaker, use <Titanium.Media.setRouteOverride>.
+        In this mode, by default audio playback is routed to the speaker in the iPhone receiver. To have audio playback through the iPhone speaker, use <Titanium.Media.setOverrideAudioRoute>.
 
     type: Number
     permission: read-only
