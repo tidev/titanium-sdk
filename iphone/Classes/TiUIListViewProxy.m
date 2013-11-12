@@ -451,6 +451,14 @@
     }, NO);
 }
 
+-(void)setContentOffset:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSDictionary)
+    CGPoint offset = [TiUtils pointValue:args];
+    BOOL animated = [TiUtils boolValue: [args objectForKey:@"animated"] def:NO];
+    [[[self listView] tableView] setContentOffset:offset animated:animated];
+}
+
 #pragma mark - Marker Support
 - (void)setMarker:(id)args;
 {

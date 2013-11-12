@@ -2258,9 +2258,12 @@ return result;	\
 		// get the section for the row index
 		int index = [[sectionIndexMap objectForKey:title] intValue];
 
+        if([(TiViewProxy*)[self proxy] _hasListeners:@"indexclick" checkParent:NO]) {
+            NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys:title, @"title", NUMINT(index), @"index", nil];
+            [[self proxy] fireEvent:@"indexclick" withObject:eventArgs propagate:NO];
+        }
 		if(index == -1) {
-			// If the index number happens to be -1, we're assuming the title is {search}
-			// Scroll to the top of the table
+			// If the index number happens to be -1 scroll to the top of the table
 			[[self tableView] setContentOffset:CGPointMake(0, 0)];
 			return index;
 		}
