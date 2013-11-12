@@ -19,6 +19,7 @@
 #import "ApplicationDefaults.h"
 #import <libkern/OSAtomic.h>
 #import "TiExceptionHandler.h"
+#import "Reachability.h"
 
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
@@ -255,7 +256,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 - (void)validator
 {
-	[[[NSClassFromString(TIV) alloc] init] autorelease];
+	NetworkStatus status = [[Reachability reachabilityForInternetConnection] currentReachabilityStatus];
+	if (status == ReachableViaWiFi || status == ReachableViaWWAN) {
+        [[[NSClassFromString(TIV) alloc] init] autorelease];
+    } else {
+        DebugLog(@"[WARN] Skipping Module Verify. No internet connection detected.");
+    }
 }
 
 - (void)booted:(id)bridge
