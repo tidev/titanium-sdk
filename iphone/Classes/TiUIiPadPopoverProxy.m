@@ -354,6 +354,7 @@ static NSArray* popoverSequence;
                 [contentViewProxy windowDidOpen];
             }
         } else {
+            DebugLog(@"[WARN] Using the popover without the contentView property set is deprecated.");
             [self windowWillOpen];
             [self reposition];
             [self updatePopoverNow];
