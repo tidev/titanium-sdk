@@ -7,6 +7,7 @@
 
 var suites = [
 	{name: "analytics"},
+	{name: "api"},
 	{name: "blob"},
 	{name: "buffer"},
 	{name: "codec"},
