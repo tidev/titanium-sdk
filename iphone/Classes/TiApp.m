@@ -802,7 +802,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
     static NSDictionary* props;
 
-    if(props == nil) {
+    if(props == nil && [ApplicationDefaults instancesRespondToSelector:@selector(copyDefaults)]) {
         // Backwards compatibility with older python CLI
         // Get the props from tiapp.xml's generated ApplicationDefaults class
         props = [ApplicationDefaults copyDefaults];
