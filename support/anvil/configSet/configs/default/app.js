@@ -7,6 +7,7 @@
 
 var suites = [
 	{name: "analytics"},
+	{name: "api"},
 	{name: "blob"},
 	{name: "buffer"},
 	{name: "codec"},
@@ -18,6 +19,7 @@ var suites = [
 	{name: "json"},
 	{name: "jss"},
 	{name: "kroll"},
+	{name: "ui_label"},
 	{name: "locale"},
 	{name: "media/media"},
 	{name: "network_httpclient"},
@@ -32,6 +34,7 @@ var suites = [
 	{name: "ui_2dMatrix"},
 	{name: "ui_clipboard"},
 	{name: "ui_controls"},
+	{name: "ui_view"},
 	{name: "ui_searchBar"},
 	{name: "utils/utils"},
 	{name: "yahoo"}
