@@ -98,7 +98,7 @@ module.exports = new function() {
 				width : 10,
 				message : 'Loading...'
 			});
-			win.add(actInd);
+			win1.add(actInd);
 			valueOf(testRun,function(){
 				actInd.show();
 			}).shouldNotThrowException();
