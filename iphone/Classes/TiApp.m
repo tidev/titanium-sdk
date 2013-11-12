@@ -801,15 +801,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 +(NSDictionary *)tiAppProperties
 {
     static NSDictionary* props;
-
-    if(props == nil && [ApplicationDefaults instancesRespondToSelector:@selector(copyDefaults)]) {
-        // Backwards compatibility with older python CLI
-        // Get the props from tiapp.xml's generated ApplicationDefaults class
-        props = [ApplicationDefaults copyDefaults];
-    }
     
     if(props == nil) {
-        // New CLI - get the props from the encrypted json file
+        // Get the props from the encrypted json file
         NSString *tiAppPropertiesPath = [[TiHost resourcePath] stringByAppendingPathComponent:@"_app_props_.json"];
         NSData *jsonData = [TiUtils loadAppResource: [NSURL fileURLWithPath:tiAppPropertiesPath]];
         
@@ -832,7 +826,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         if(errorString != nil) {
             // Let the developer know that we could not load the tiapp.xml properties.
             DebugLog(@"[ERROR] Could not load tiapp.xml properties, error was %@", errorString);
-            
             // Create an empty dictioary to avoid running this code over and over again.
             props = [[NSDictionary dictionary] retain];
         }
