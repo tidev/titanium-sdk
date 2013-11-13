@@ -1,6 +1,7 @@
 var appc = require('node-appc'),
 	__ = appc.i18n(__dirname).__,
 	fs = require('fs'),
+	moment = require('moment'),
 	path = require('path');
 
 exports.name = 'ios';

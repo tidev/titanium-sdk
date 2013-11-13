@@ -115,6 +115,9 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 				androidDetect(config, { packageJson: _t.packageJson }, function (androidInfo) {
 					_t.androidInfo = androidInfo;
 
+					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND', true);
+					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS', true);
+
 					if (!cli.argv.prompt) {
 						// check that the Android SDK is found and sane
 						assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');

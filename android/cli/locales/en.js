@@ -290,6 +290,8 @@
 	"Forwarding host port %s:%s to device for profiling": "Forwarding host port %s:%s to device for profiling",
 	"AndroidManifest.xml file does not exist": "AndroidManifest.xml file does not exist",
 	"Failed to merge, source must be an AndroidManifest object": "Failed to merge, source must be an AndroidManifest object",
+	"Android %s Device": "Android %s Device",
+	"Android Device": "Android Device",
 	"Android SDK": "Android SDK",
 	"Android Executable": "Android Executable",
 	"not found": "not found",
@@ -329,5 +331,6 @@
 	"OpenGL Acceleration": "OpenGL Acceleration",
 	"unknown, emulator not running": "unknown, emulator not running",
 	"Connected Android Devices": "Connected Android Devices",
-	"ID": "ID"
+	"ID": "ID",
+	"State": "State"
 }

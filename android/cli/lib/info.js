@@ -156,9 +156,16 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 			var name = device.name,
 				result = [
 					'  ' + rpad(__('ID'))          + ' = ' + styleValue(device.id),
-					'  ' + rpad(__('SDK Version')) + ' = ' + styleValue(device.release + ' (android-' + device.sdk + ')'),
-					'  ' + rpad(__('ABIs'))        + ' = ' + styleValue(device.abi.join(', '))
+					'  ' + rpad(__('State'))       + ' = ' + styleValue(device.state)
 				];
+
+			if (device.release) {
+				result.push('  ' + rpad(__('SDK Version')) + ' = ' + styleValue(device.release + ' (android-' + device.sdk + ')'));
+			}
+
+			if (Array.isArray(device.abi)) {
+				result.push('  ' + rpad(__('ABIs'))        + ' = ' + styleValue(device.abi.join(', ')));
+			}
 
 			if (device.emulator) {
 				switch (device.emulator.type) {
