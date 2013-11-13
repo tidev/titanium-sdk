@@ -121,9 +121,10 @@ module.exports = new function() {
 	this.dotSlash = function(testRun) {
 		var f;
 		var blob;
-		valueOf(testRun, function(){f = Ti.Filesystem.getFile('./file.txt');}).shouldNotThrowException();
+		valueOf(testRun, function(){f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, './file.txt');}).shouldNotThrowException();
 		//Resource files are readonly, but only on device, not simulator. As such, we can't test
 		//the use case of where writable should be false.
+		f.write('Appcelerator');
 		valueOf(testRun, function(){blob = f.read();}).shouldNotThrowException();
 		var text;
 		valueOf(testRun, function(){text = blob.text;}).shouldNotThrowException();

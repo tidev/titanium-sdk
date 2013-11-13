@@ -373,21 +373,33 @@ module.exports = new function() {
 		var numOfPass = 0;
 		
 		function handler(e) {
-			valueOf(testRun, e.errorState).shouldBeNumber();
-			valueOf(testRun, e.errorDescription).shouldBeString();
-			valueOf(testRun, e.bytesProcessed).shouldBeLessThanEqual(chunksize);
-			valueOf(testRun, e.buffer).shouldNotBeNull();
+			if (e.bytesProcessed != -1) { // If "e.bytesProcessed" equals -1 "e.buffer" will be undefined
+				valueOf(testRun, e.errorState).shouldBeNumber();
+				valueOf(testRun, e.errorDescription).shouldBeString();
+				valueOf(testRun, e.bytesProcessed).shouldBeLessThanEqual(chunksize);
+				valueOf(testRun, e.buffer).shouldNotBeNull();
 
-			for (var i=0; i < e.buffer.length; i++) {
-				valueOf(testRun, e.buffer[i]).shouldBeExactly(sourceValue(i,totalsize));
-			}
-
-			if (e.bytesProcessed != -1) {
+				for (var i=0; i < e.buffer.length; i++) {
+					valueOf(testRun, e.buffer[i]).shouldBeExactly(sourceValue(i,totalsize));
+				}
 				totalsize += e.bytesProcessed;
+				valueOf(testRun, totalsize).shouldBeExactly(e.totalBytesProcessed);
 			}
-			valueOf(testRun, totalsize).shouldBeExactly(e.totalBytesProcessed);
+			else {// "numOfPass" is incremented after completion of each pump 
+				numOfPass += 1; 
+			}
+			if (numOfPass == 1 && e.bytesProcessed == -1) { // confirms that the first pump has just completed and ready for the second pump
+					sourceValue = function(pos, totalsize) {
+						return sourceBlobStr.charCodeAt(pos+totalsize);
+					};
+				var blobStream = Ti.Stream.createStream({source:sourceBlob, mode:Ti.Stream.MODE_READ});
+				valueOf(testRun, blobStream).shouldNotBeNull();
 
-			numOfPass += 1;
+				// Asynch pump
+				totalsize = 0;
+				Ti.Stream.pump(blobStream, handler, chunksize, true);
+			}
+			
 			if (numOfPass == 2) {
 				finish(testRun);
 			}
@@ -401,15 +413,5 @@ module.exports = new function() {
 
 		// Synch pump
 		Ti.Stream.pump(bufferStream, handler, chunksize);
-
-		sourceValue = function(pos, totalsize) {
-			return sourceBlobStr.charCodeAt(pos+totalsize);
-		};
-		var blobStream = Ti.Stream.createStream({source:sourceBlob, mode:Ti.Stream.MODE_READ});
-		valueOf(testRun, blobStream).shouldNotBeNull();
-
-		// Asynch pump
-		totalsize = 0;
-		Ti.Stream.pump(blobStream, handler, chunksize, true);
 	}
 }
