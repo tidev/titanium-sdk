@@ -799,19 +799,38 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	return [[event copy] autorelease];
 }
 
+// Returns an NSDictionary with the properties from tiapp.xml
+// this is called from Ti.App.Properties and other places.
 +(NSDictionary *)tiAppProperties
 {
     static NSDictionary* props;
+    
     if(props == nil) {
+        // Get the props from the encrypted json file
         NSString *tiAppPropertiesPath = [[TiHost resourcePath] stringByAppendingPathComponent:@"_app_props_.json"];
         NSData *jsonData = [TiUtils loadAppResource: [NSURL fileURLWithPath:tiAppPropertiesPath]];
+        
         if (jsonData==nil) {
+            // Not found in encrypted file, this means we're in development mode, get it from the filesystem
             jsonData = [NSData dataWithContentsOfFile:tiAppPropertiesPath];
         }
-        NSError *error = nil;
-        props = [[NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error] retain];
-        if(error != nil) {
-            DebugLog(@"[ERROR] Could not load tiapp.xml properties, error was %@", [error localizedDescription]);
+        
+        NSString *errorString = nil;
+        // Get the JSON data and create the NSDictionary.
+        if(jsonData) {
+            NSError *error = nil;
+            props = [[NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error] retain];
+            errorString = [error localizedDescription];
+        } else {
+            // If we have no data...
+            // This should never happen on a Titanium app using the node.js CLI
+            errorString = @"File not found";
+        }
+        if(errorString != nil) {
+            // Let the developer know that we could not load the tiapp.xml properties.
+            DebugLog(@"[ERROR] Could not load tiapp.xml properties, error was %@", errorString);
+            // Create an empty dictioary to avoid running this code over and over again.
+            props = [[NSDictionary dictionary] retain];
         }
     }
     return props;
