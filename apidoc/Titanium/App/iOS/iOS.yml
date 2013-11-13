@@ -50,24 +50,27 @@ methods:
     description: |
         This property has no effect for apps that do not have the UIBackgroundModes key with 
         the fetch value in its Info.plist file. The default fetch interval for apps is 
-        <replace>. Therefore, you must call this method and set a fetch interval before your 
-        app is given background execution time.
+        <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER>. Therefore, you must call this 
+        method and set a fetch interval before your app is given background execution time.
     parameters:
       - name: fetchInterval
         summary: |
             The minimum number of seconds that must elapse before another background fetch can be initiated. 
             This value is advisory only and does not indicate the exact amount of time expected between 
             fetch operations.
+            
+            Two system defined constants for this parameter are 
+            <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER> and <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER>.
         type: Number
     since: "3.2.0"
 
   - name: endBackgroundHandler
     summary: Marks the end of the app execution when a download operation is complete. 
     description: |
-        When calling this method, pass in the handerID value that inititated the background state. 
+        When calling this method, pass in the handlerID value that inititated the background state. 
         You must call this handler and should do so as soon as possible. 
     parameters:
-      - name: handerID
+      - name: handlerID
         summary: |
             Unique string identifer for the event (backgroundfetch, silentpush or backgroundtransfer) 
             that initiated the background opertation mode.
@@ -93,14 +96,16 @@ properties:
         Specifies the smallest fetch interval supported by the system.
     type: Number
     permission: read-only
+    osver: {ios: {min:"7.0"}}
     since: "3.2.0"
 
   - name: BACKGROUNDFETCHINTERVAL_NEVER
     summary: |
         Use with (endBackgroundHandler)[Titanium.App.iOS.endBackgroundHandler] method. 
-        Used to specify a fetch interval large enough to prevent fetch operations from occurring..
+        Used to specify a fetch interval large enough to prevent fetch operations from occurring.
     type: Number
     permission: read-only
+    osver: {ios: {min:"7.0"}}
     since: "3.2.0"
 
 events:
@@ -150,7 +155,7 @@ events:
         
         When this event is fired, your app has up to 30 seconds of wall-clock time to perform the download 
         operation and call the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method. In practice, 
-        your app should call the[endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method. as soon as possible 
+        your app should call the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method as soon as possible 
         after downloading the needed data. If you do not call the 
         [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method in time, your app is suspended. 
         More importantly, the system uses the elapsed time to calculate power usage and data costs for your 
@@ -168,6 +173,7 @@ events:
             to the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
         type: String.
     platforms: [iphone, ipad]
+    osver: {ios: {min:"7.0"}}
     since: '3.2.0'
 
   - name: silentpush
@@ -202,6 +208,7 @@ events:
             to the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
         type: String.
     platforms: [iphone, ipad]
+    osver: {ios: {min:"7.0"}}
     since: '3.2.0'
 
   - name: backgroundTransfer
@@ -240,6 +247,7 @@ events:
             you can use this identifier to create a new urlSession object that can receive the events.
         type: String
     platforms: [iphone, ipad]
+    osver: {ios: {min:"7.0"}}
     since: '3.2.0'
 
   - name: downloadprogress
@@ -264,6 +272,7 @@ events:
             The expected length of the file, as provided by the Content-Length header. If this 
             header was not provided, the value is zero.
         type: Number
+    osver: {ios: {min:"7.0"}}
     since: "3.2.0"
 
   - name: downloadcompleted
@@ -278,6 +287,7 @@ events:
       - name: data
         summary: The downloaded data as a Titanium.Blob object.
         type: Titanium.Blob
+    osver: {ios: {min:"7.0"}}
     since: "3.2.0"
 
   - name: sessioncompleted
@@ -304,6 +314,7 @@ events:
       - name: message
         summary: A string containing the localized description of the error. 
         type: String
+    osver: {ios: {min:"7.0"}}
     since: "3.2.0"
     
   - name: sessioneventscompleted
@@ -323,6 +334,7 @@ events:
         is now safe to invoke [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) 
         method with the handlerID  or to begin any internal updates that may result in invoking 
         this method.
+    osver: {ios: {min:"7.0"}}
     since: "3.2.0"
 ---
 name: NotificationParams
