@@ -25,7 +25,7 @@ module.exports = new function() {
 	//TIMOB-5170
 	this.showPagingControl = function(testRun) {
 		var win = Ti.UI.createWindow({
-			backgroundColor:'#444'
+			backgroundColor:'#c6c6c6'
 		});
 		var scrollableView = Ti.UI.createScrollableView({
 			bottom : "50dp",
