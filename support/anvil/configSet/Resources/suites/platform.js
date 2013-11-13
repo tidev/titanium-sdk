@@ -68,9 +68,8 @@ module.exports = new function() {
 
 	//TIMOB-2475
 	this.displayCaps_platformHeight = function(testRun) {
-		if (Ti.Platform.osname === 'android') {
-			valueOf(testRun, Titanium.Platform.displayCaps.platformHeight).shouldNotBeUndefined();
-		}
+		valueOf(testRun, Titanium.Platform.displayCaps.platformHeight).shouldNotBeUndefined();
+		
 		finish(testRun);
 	}
 
