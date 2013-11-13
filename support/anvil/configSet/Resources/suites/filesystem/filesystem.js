@@ -574,11 +574,9 @@ module.exports = new function() {
 
 	//TIMOB-4469
 	this.existsMethod = function(testRun) {
-		if(Ti.Platform.osname === 'android'){
-			valueOf(testRun, Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'app.js').exists()).shouldBeTrue();
-			valueOf(testRun, Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'appp.js').exists()).shouldBeFalse();
-		}
-
+		valueOf(testRun, Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'app.js').exists()).shouldBeTrue();
+		valueOf(testRun, Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'appp.js').exists()).shouldBeFalse();
+		
 		finish(testRun);
 	}
 
