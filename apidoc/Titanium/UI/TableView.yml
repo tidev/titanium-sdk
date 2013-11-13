@@ -263,7 +263,7 @@ events:
   - name: indexclick
     summary: Fired when the index bar is clicked by the user.
     description: |
-        If the list view contains the sectionIndexTitles array of indices the index bar will appear on the side.
+        If the tabe view contains the [index](Titanium.UI.TableView.index) array of indices the index bar will appear on the side.
         This event will fire when this bar is clicked 
     properties:
       - name: title
@@ -274,6 +274,7 @@ events:
         summary: The index number clicked.
         type: Number
     platforms: [iphone, ipad]
+    since: 3.2.0
 
   - name: longpress
     summary: Fired when the device detects a long press.
@@ -988,9 +989,11 @@ methods:
     parameters:
       - name: contentOffset
         summary: |
-            X and Y coordinates to which to reposition the top-left point of the scrollable region.
-            The animated property is optional and set to false by default. 
+            Dictionary with the properties `x`, `y`, and `animated`. The `x` and `y` coordinates
+            reposition the top-left point of the scrollable region of the list view.
+            The `animated` property is optional and set to `false` by default. 
         type: Dictionary
+    since: 3.2.0
 
   - name: selectRow
     summary: | 
@@ -1219,7 +1222,7 @@ properties:
     description: |
         If an index array is specified, an index bar is displayed on the right-hand side of the 
         table view. Clicking on a title in the index bar scrolls the table view to the row 
-        index associated with that title. If the index is -1 the list view will scroll to the top.
+        index associated with that title. If the index is -1 the table view will scroll to the top.
 
     type: Array<TableViewIndexEntry>
     platforms: [iphone, ipad]
