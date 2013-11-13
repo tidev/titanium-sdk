@@ -40,34 +40,49 @@ module.exports = new function() {
 
 	//TIMOB-3077
 	this.shouldBeLessThan360 = function(testRun) {
-		var headingCallback = function(e) {
-			valueOf(testRun, e.heading.trueHeading).shouldBeLessThanEqual(360);
+		if (Ti.Platform.osname === 'android') {
+			var headingCallback = function(e) {
+				valueOf(testRun, e.heading.trueHeading).shouldBeLessThanEqual(360);
 			
+				finish(testRun);
+			};
+			Titanium.Geolocation.addEventListener('heading', headingCallback);
+		}
+		else
+
 			finish(testRun);
-		};
-		Titanium.Geolocation.addEventListener('heading', headingCallback);
 	}
 
 	//TIMOB-9434
 	this.trueHeadingNotGenerated = function(testRun) {
-		var headingHandler = function(e) {
-			valueOf(testRun, e.heading.trueHeading).shouldNotBeUndefined();
+		if (Ti.Platform.osname === 'android') {
+			var headingHandler = function(e) {
+				valueOf(testRun, e.heading.trueHeading).shouldNotBeUndefined();
 			
-			finish(testRun);	
+				finish(testRun);	
+			}
+			Ti.Geolocation.addEventListener("heading", headingHandler);
 		}
-		Ti.Geolocation.addEventListener("heading", headingHandler);
+		else
+
+			finish(testRun);
 	}
 
 	//TIMOB-11235
 	this.invalidValue = function(testRun) {
-		gpsProvider = Ti.Geolocation.Android.createLocationProvider({
-			name: Ti.Geolocation.PROVIDER_GPS,
-			minUpdateTime: '5.0',
-			minUpdateDistance: '3.0'
-		});
-		valueOf(testRun, gpsProvider.minUpdateTime).shouldBe('5.0');
-		valueOf(testRun, gpsProvider.minUpdateDistance).shouldBe('3.0');
+		if (Ti.Platform.osname === 'android') {
+			gpsProvider = Ti.Geolocation.Android.createLocationProvider({
+				name: Ti.Geolocation.PROVIDER_GPS,
+				minUpdateTime: '5.0',
+				minUpdateDistance: '3.0'
+			});
+			valueOf(testRun, gpsProvider.minUpdateTime).shouldBe('5.0');
+			valueOf(testRun, gpsProvider.minUpdateDistance).shouldBe('3.0');
 
-		finish(testRun);
+			finish(testRun);
+		}
+		else
+
+			finish(testRun);
 	}
 }
