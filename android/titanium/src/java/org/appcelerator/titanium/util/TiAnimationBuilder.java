@@ -604,6 +604,7 @@ public class TiAnimationBuilder
 	{
 		view.setPivotX(pivotX);
 		view.setPivotY(pivotY);
+		view.invalidate();
 	}
 
 	private void setViewPivot(float pivotX, float pivotY)
