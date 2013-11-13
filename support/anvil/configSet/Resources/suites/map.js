@@ -17,7 +17,6 @@ module.exports = new function() {
 	this.tests = [
 		{name: "addAnnotations"},
 		{name: "appCrash"},
-		{name: "customViewsInThePin"},
 		{name: "subtitleidAndTitleid"}
 		]
 
@@ -72,29 +71,6 @@ module.exports = new function() {
 		}).shouldNotThrowException();
 
 		finish(testRun);	
-	}
-
-	//TIMOB-12582/TIMOB-12583
-	this.customViewsInThePin = function(testRun) {
-		var myView1 = Ti.UI.createView({
-			width:Ti.UI.SIZE,
-			height:Ti.UI.SIZE,
-			backgroundColor:'red'
-		});
-		var label = Ti.UI.createLabel({
-			text:" $400K ",
-			font:{fontSize:18, fontWeight:"bold", fontStyle:"italic"}
-		});
-		myView1.add(label);
-		var anno = Titanium.Map.createAnnotation({
-			latitude: -33.87365,
-			customView: myView1,
-			image: "KS_nav_ui.png",
-			longitude: 151.20689,
-		});
-		valueOf(testRun, anno.customView.backgroundColor).shouldBe('red');
-
-		finish(testRun);
 	}
 	
 	//TIMOB-7308
