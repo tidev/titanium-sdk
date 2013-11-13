@@ -154,6 +154,20 @@ public abstract class TiUIView
 	{
 		add(child, -1);
 	}
+	
+	/**
+	 * Adds a child view into the ViewGroup in specific position.
+	 * @param child the view to be added.
+	 * @param position position the view to be added.
+	 */
+	public void insertAt(TiUIView child, int position)
+	{
+		add(child, position);
+		if(children.contains(child)) {
+			children.remove(child);
+			children.add(position, child);
+		}
+	}
 
 	private void add(TiUIView child, int childIndex)
 	{

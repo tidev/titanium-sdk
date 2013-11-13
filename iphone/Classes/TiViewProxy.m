@@ -159,8 +159,22 @@
 		}
 		return;
 	}
-	
-    if ([arg conformsToProtocol:@protocol(TiWindowProtocol)]) {
+    
+    int position = -1;
+    TiViewProxy *childView = nil;
+    
+    if([arg isKindOfClass:[NSDictionary class]]) {
+        childView = [arg objectForKey:@"view"];
+        position = [TiUtils intValue:[arg objectForKey:@"position"] def:-1];
+    }
+    
+    if([arg isKindOfClass:[TiViewProxy class]]) {
+        childView = arg;
+    }
+    
+    if(childView == nil) return;
+    
+    if ([childView conformsToProtocol:@protocol(TiWindowProtocol)]) {
         DebugLog(@"Can not add a window as a child of a view. Returning");
         return;
     }
@@ -174,17 +188,20 @@
 		}		
 		else 
 		{
-			[children addObject:arg];
+            if(position < 0 || position > [children count]) {
+                position = [children count];
+            }
+            [children insertObject:childView atIndex:position];
 		}
         //Turn on clipping because I have children
         [self view].clipsToBounds = YES;
         
 		pthread_rwlock_unlock(&childrenLock);
-		[arg setParent:self];
+		[childView setParent:self];
 		[self contentsWillChange];
 		if(parentVisible && !hidden)
 		{
-			[arg parentWillShow];
+			[childView parentWillShow];
 		}
 		
 		//If layout is non absolute push this into the layout queue
@@ -193,12 +210,12 @@
 			[self contentsWillChange];
 		}
 		else {
-			[self layoutChild:arg optimize:NO withMeasuredBounds:[[self view] bounds]];
+			[self layoutChild:childView optimize:NO withMeasuredBounds:[[self view] bounds]];
 		}
 	}
 	else
 	{
-		[self rememberProxy:arg];
+		[self rememberProxy:childView];
 		if (windowOpened)
 		{
 			TiThreadPerformOnMainThread(^{[self add:arg];}, NO);
@@ -207,15 +224,24 @@
 		pthread_rwlock_wrlock(&childrenLock);
 		if (pendingAdds==nil)
 		{
-			pendingAdds = [[NSMutableArray arrayWithObject:arg] retain];
+			pendingAdds = [[NSMutableArray arrayWithObject:childView] retain];
 		}
 		else 
 		{
-			[pendingAdds addObject:arg];
+            if(position < 0 || position > [children count]) {
+                position = [pendingAdds count];
+            }
+            [pendingAdds insertObject:childView atIndex:position];
 		}
 		pthread_rwlock_unlock(&childrenLock);
-		[arg setParent:self];
+		[childView setParent:self];
 	}
+}
+
+-(void)insertAt:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+    [self add:args];
 }
 
 -(void)remove:(id)arg
