@@ -15,7 +15,8 @@ module.exports = new function() {
 
 	this.name = "android_calendar";
 	this.tests = [
-		{name: "moduleReachable"}
+		{name: "moduleReachable"},
+		{name: "eventLocation"}
 	]
 
 	this.moduleReachable = function(testRun) {
@@ -42,4 +43,20 @@ module.exports = new function() {
 
 		finish(testRun);
 	}
+	
+	this.eventLocation = function(testRun) {
+            var eventBegins = new Date(2010, 11, 26, 12, 0, 0);
+            var eventEnds = new Date(2010, 11, 26, 14, 0, 0);
+            var details = {
+            title: 'Do some stuff',
+            description: "I'm going to do some stuff at this time.",
+            begin: eventBegins,
+            end: eventEnds,
+            location:'my_location'
+            };
+            var event = Ti.Calendar.selectableCalendars[0].createEvent(details);
+            valueOf(testRun, event.location).shouldBe('my_location');
+            
+            finish(testRun);
+    }
 }

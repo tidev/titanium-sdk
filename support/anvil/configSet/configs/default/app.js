@@ -54,7 +54,7 @@ if (Ti.Platform.osname === 'android') {
 		{name: "android/android_resources/android_resources"},
 		{name: "android/android_string"},
 		{name: "android/android_ui/android_ui"}
-	]);
+    ]);
 
 } else if((Ti.Platform.osname === 'iPhone') || (Ti.Platform.osname === 'iPad')) {
 	suites = suites.concat([
