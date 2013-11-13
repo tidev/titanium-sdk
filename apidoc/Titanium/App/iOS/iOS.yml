@@ -62,6 +62,7 @@ methods:
             Two system defined constants for this parameter are 
             <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER> and <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER>.
         type: Number
+    osver: {ios: {min:"7.0"}}
     since: "3.2.0"
 
   - name: endBackgroundHandler
@@ -75,6 +76,7 @@ methods:
             Unique string identifer for the event (backgroundfetch, silentpush or backgroundtransfer) 
             that initiated the background opertation mode.
         type: String
+    osver: {ios: {min:"7.0"}}
     since: "3.2.0"
 
 properties:
