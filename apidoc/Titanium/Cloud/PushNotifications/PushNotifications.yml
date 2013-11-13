@@ -215,7 +215,7 @@ summary: Argument passed to the callback when a request finishes successfully.
 extends: CloudResponse
 properties:
   - name: push_channels
-    summary: Array `push_channel` names, if any exist.
+    summary: Array of `push_channel` names, if any exist.
     description: Only included if `success` is `true`.
     type: Array<String>
 ---
@@ -224,6 +224,6 @@ summary: Argument passed to the callback when a request finishes successfully.
 extends: CloudResponse
 properties:
   - name: devices
-    summary: Dictionary containing counts of devices subscribed to a push channel, grouped by plartform.
+    summary: Dictionary containing counts of devices subscribed to a push channel, grouped by platform.
     description: Only included if `success` is `true`.
     type: Dictionary
