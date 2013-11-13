@@ -21,6 +21,7 @@ var suites = [
 	{name: "kroll"},
 	{name: "ui_label"},
 	{name: "locale"},
+	{name: "map"},
 	{name: "media/media"},
 	{name: "network_httpclient"},
 	{name: "network"},
