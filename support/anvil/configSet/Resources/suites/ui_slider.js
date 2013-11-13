@@ -23,7 +23,11 @@ module.exports = new function() {
 	this.sliderInTableViewRow = function(testRun) {
 		var win1 = Titanium.UI.createWindow({backgroundColor:'#FFFFFF'});
 		var ds =[];
-		expandableView = Ti.UI.createView({top:0,height:40,backgroundColor:'yellow'});
+		expandableView = Ti.UI.createView({
+			top : 0,
+			height : 40,
+			backgroundColor : 'yellow'
+		});
 		var slider = Titanium.UI.createSlider({
 			top : 0,
 			min : 0,
@@ -31,7 +35,9 @@ module.exports = new function() {
 			value :40
 		});
 		expandableView.add(slider);
-		var row1 = Titanium.UI.createTableViewRow({height:100});
+		var row1 = Titanium.UI.createTableViewRow({
+			height : 100
+		});
 		row1.add(expandableView);
 		ds.push(row1);
 		var tableView = Titanium.UI.createTableView({
