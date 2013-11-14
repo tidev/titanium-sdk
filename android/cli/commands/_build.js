@@ -2025,7 +2025,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						// we have a splash screen image
 						to = path.join(destDir, 'background' + ext);
 					} else {
-						to = path.join(destDir, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name).substring(0, 10) + ext);
+						to = path.join(destDir, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name + ext).substring(0, 10) + ext);
 					}
 					isDrawable = true;
 				} else if (m = relPath.match(relSplashScreenRegExp)) {

@@ -11,6 +11,7 @@ methods:
   - name: hideStatusBar
     deprecated:
         since: "3.1.3"
+        removed: "3.2.0"
         notes: |
             This method does not work on iOS 7 and is deprecated on earlier versions. Use the [fullscreen](Titanium.UI.Window.fullscreen) 
             property of the window to control if the staus bar is shown or not.
@@ -24,6 +25,7 @@ methods:
   - name: showStatusBar
     deprecated:
         since: "3.1.3"
+        removed: "3.2.0"
         notes: |
             This method does not work on iOS 7 and is deprecated on earlier versions. Use the [fullscreen](Titanium.UI.Window.fullscreen) 
             property of the window to control if the staus bar is shown or not.
@@ -188,6 +190,7 @@ properties:
         The setter for this property does not work on iOS 7 and is deprecated for earlier iOS versions since **Release 3.1.3**.
         Use the [fullscreen](Titanium.UI.Window.fullscreen) property of the window to control if the staus bar is shown or not.
     type: Boolean
+    permission: read-only
     
   - name: statusBarStyle
     summary: Determines the status bar color style.
@@ -203,6 +206,7 @@ properties:
         <Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT>,
         or <Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK>.
     type: Number
+    permission: read-only
 
 ---
 name: hideStatusBarParams

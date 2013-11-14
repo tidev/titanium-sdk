@@ -479,15 +479,46 @@ public class TiAnimationBuilder
 			if (height != null) {
 				optionHeight = new TiDimension(height, TiDimension.TYPE_HEIGHT);
 			} else {
-				optionHeight = new TiDimension(w, TiDimension.TYPE_HEIGHT);
+				optionHeight = new TiDimension(h, TiDimension.TYPE_HEIGHT);
 				optionHeight.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
-			int toWidth = optionWidth.getAsPixels(view);
-			int toHeight = optionHeight.getAsPixels(view);
+			ViewParent parent = view.getParent();
+			View parentView = null;
+			if (parent instanceof View) {
+				parentView = (View) parent;
+			}
+			int toWidth = optionWidth.getAsPixels(parentView != null ? parentView : view);
+			int toHeight = optionHeight.getAsPixels(parentView != null ? parentView : view);
 
 			float scaleX = (float) toWidth / w;
 			float scaleY = (float) toHeight / h;
+
+			// On Honeycomb+, if the original width/height is 0, we need to set width to a non-zero value so it can be scaled.
+			if (!PRE_HONEYCOMB && (w == 0 || h == 0)) {
+				ViewGroup.LayoutParams params = view.getLayoutParams();
+				TiCompositeLayout.LayoutParams tiParams = null;
+				if (params instanceof TiCompositeLayout.LayoutParams) {
+					tiParams = (TiCompositeLayout.LayoutParams) params;
+				}
+				if (w == 0) {
+					params.width = 1;
+					scaleX = (float) toWidth;
+					if (tiParams != null) {
+						tiParams.optionWidth = new TiDimension(1, TiDimension.TYPE_WIDTH);
+						tiParams.optionWidth.setUnits(TypedValue.COMPLEX_UNIT_PX);
+					}
+				}
+				if (h == 0) {
+					params.height = 1;
+					scaleY = (float) toHeight;
+					if (tiParams != null) {
+						tiParams.optionHeight = new TiDimension(1, TiDimension.TYPE_WIDTH);
+						tiParams.optionHeight.setUnits(TypedValue.COMPLEX_UNIT_PX);
+					}
+				}
+				view.setLayoutParams(params);
+			}
 
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleX", scaleX));
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", scaleY));

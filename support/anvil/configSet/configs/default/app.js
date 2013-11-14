@@ -7,6 +7,7 @@
 
 var suites = [
 	{name: "analytics"},
+	{name: "api"},
 	{name: "blob"},
 	{name: "buffer"},
 	{name: "codec"},
@@ -18,7 +19,9 @@ var suites = [
 	{name: "json"},
 	{name: "jss"},
 	{name: "kroll"},
+	{name: "ui_label"},
 	{name: "locale"},
+	{name: "map"},
 	{name: "media/media"},
 	{name: "network_httpclient"},
 	{name: "network"},
@@ -29,9 +32,11 @@ var suites = [
 	{name: "stream"},
 	{name: "titanium"},
 	{name: "ui/ui"},
+	{name: "ui_textArea"},
 	{name: "ui_2dMatrix"},
 	{name: "ui_clipboard"},
 	{name: "ui_controls"},
+	{name: "ui_view"},
 	{name: "ui_searchBar"},
 	{name: "utils/utils"},
 	{name: "yahoo"}
@@ -39,6 +44,7 @@ var suites = [
 
 if (Ti.Platform.osname === 'android') {
 	suites = suites.concat([
+		{name: "android/android_activityIndicator"},
 		{name: "android/android_database/android_database"},
 		{name: "android/android_filesystem"},
 		{name: "android/android_geolocation"},

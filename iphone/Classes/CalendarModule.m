@@ -149,33 +149,25 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
 
 -(TiCalendarCalendar*)getCalendarById:(id)arg
 {
-    if ([TiUtils isIOS5OrGreater]) {
-        ENSURE_SINGLE_ARG(arg, NSString);
+    ENSURE_SINGLE_ARG(arg, NSString);
         
-        if (![NSThread isMainThread]) {
-            __block id result = nil;
-            TiThreadPerformOnMainThread(^{result = [[self getCalendarById:arg] retain];}, YES);
-            return [result autorelease];
-        }
-        
-        EKEventStore* ourStore = [self store];
-        if (ourStore  == NULL) {
-            DebugLog(@"Could not instantiate an event of the event store.");
-            return nil;
-            
-        }
-        EKCalendar* calendar_ = [ourStore calendarWithIdentifier:arg];
-        if (calendar_ == NULL) {
-            return NULL;
-        }
-        TiCalendarCalendar* calendar = [[[TiCalendarCalendar alloc] _initWithPageContext:[self executionContext] calendar:calendar_ module:self] autorelease];
-        return calendar;
+    if (![NSThread isMainThread]) {
+        __block id result = nil;
+        TiThreadPerformOnMainThread(^{result = [[self getCalendarById:arg] retain];}, YES);
+        return [result autorelease];
     }
-    else {
-        DebugLog(@"Ti.Calendar.getCalendarById is only supported in iOS 5.0 and above.");
+        
+    EKEventStore* ourStore = [self store];
+    if (ourStore  == NULL) {
+        DebugLog(@"Could not instantiate an event of the event store.");
         return nil;
     }
-
+    EKCalendar* calendar_ = [ourStore calendarWithIdentifier:arg];
+    if (calendar_ == NULL) {
+        return NULL;
+    }
+    TiCalendarCalendar* calendar = [[[TiCalendarCalendar alloc] _initWithPageContext:[self executionContext] calendar:calendar_ module:self] autorelease];
+    return calendar;
 }
 
 
