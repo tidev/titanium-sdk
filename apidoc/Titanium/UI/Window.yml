@@ -1333,12 +1333,26 @@ properties:
 
   - name: shadow
     summary: Shadow color and offset for the window title.
+    type: shadowDict
+
+---
+name: shadowDict
+summary: Dictionary describing the shadow effect for text.
+properties:
+  - name: blurRadius
+    summary: Specifies the blur radius of the shadow.
     description: |
-        Specified as a dictionary with the following properties:
+        Supported on iOS 7 and later.
 
-          * `blurRadius` (iOS 7 and later): specifies the blur radius of the shadow.  `0` means no blur.
-          * `color`: color name or hex triplet specifying the color of the shadow.
-          * `offset`: dictionary with the properties `width` and `height` used as the horizontal
-            and vertical offset of the shadow, respectively.
+        `0` means no blur.
+    type: Number
 
+  - name: color
+    summary: Color name or hex triplet specifying the color of the shadow.
+    type: String
+
+  - name: offset
+    summary: |
+        Dictionary with the properties `width` and `height` used as the horizontal
+        and vertical offset of the shadow, respectively.
     type: Dictionary

@@ -471,9 +471,12 @@ public class TiHTTPClient
 		@Override
 		public void write(int b) throws IOException
 		{
-			super.write(b);
-			transferred++;
-			fireProgress();
+			//Donot write if request is aborted
+			if (!aborted) {	
+				super.write(b);
+				transferred++;
+				fireProgress();
+			}
 		}
 	}
 

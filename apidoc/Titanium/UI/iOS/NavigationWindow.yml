@@ -10,7 +10,7 @@ description: |
     to the root level window.  All navigation windows must have at least one root window that cannot 
     be removed.
 
-    This class replaces the <Titanium.UI.iPhone.NavigationGroup> class. However please note that this object 
+    This class replaces the Titanium.UI.iPhone.NavigationGroup class. Please note that this object 
     is a window and is supposed to be used as a top level container. This can not be added to other windows.
     However this class can be used within the <Titanium.UI.iPad.SplitWindow>
 platforms: [iphone, ipad]
