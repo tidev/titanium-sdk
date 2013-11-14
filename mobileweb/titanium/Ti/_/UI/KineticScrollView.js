@@ -169,8 +169,27 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			});
 
 			// Handle mouse wheel scrolling
-			enableMouseWheel && (this._disconnectMouseWheelEvent = on(self.domNode, "mousewheel",function(e) {
+            // Firefox needs DOMMouseScroll, so check userAgent to pick the correct event
+            var mouseWheelEvent = navigator.userAgent.indexOf("Firefox") != -1 ? "DOMMouseScroll" : "mousewheel";
+			enableMouseWheel && (this._disconnectMouseWheelEvent = on(self.domNode, mouseWheelEvent,function(e) {
 				if (self.scrollingEnabled) {
+
+                    if (mouseWheelEvent == "DOMMouseScroll") { //Patch Firefox
+                        e.wheelDeltaY = - e.detail * 40; //Normalize Value (FF "detail" is either 3 or -3)
+                        e.wheelDeltaX = 0;
+                    } else if (e.wheelDelta && !e.wheelDeltaX) { //Patch IE as it only has e.wheelDelta
+                        e.wheelDeltaY = e.wheelDelta;
+                        e.wheelDeltaX = 0;
+                    }
+                    if (e.shiftKey) { //Translate the scoll direction by 90 degrees for shift + scroll
+                        e.wheelDeltaX = e.wheelDeltaY;
+                        e.wheelDeltaY = 0;
+                    } else if (e.ctrlKey) {
+                        //TODO turn control + mousewheel into zoom/pinch
+                        e.preventDefault(); //For now, prevent standard browser ctrl + scroll zoom
+                        return false;
+                    }
+
 					self._cancelAnimations();
 					var distanceX = contentContainer._measuredWidth - self._measuredWidth,
 						distanceY = contentContainer._measuredHeight - self._measuredHeight,
