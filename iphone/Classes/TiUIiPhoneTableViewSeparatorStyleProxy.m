@@ -10,6 +10,11 @@
 
 @implementation TiUIiPhoneTableViewSeparatorStyleProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPhone.TableViewSeparatorStyle";
+}
+
 MAKE_SYSTEM_PROP(NONE,UITableViewCellSeparatorStyleNone);
 MAKE_SYSTEM_PROP(SINGLE_LINE,UITableViewCellSeparatorStyleSingleLine);
 

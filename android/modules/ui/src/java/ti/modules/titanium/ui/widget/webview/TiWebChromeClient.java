@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,17 +10,24 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.WebViewProxy;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.graphics.Color;
 import android.os.Message;
+import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
+import android.webkit.WebStorage.QuotaUpdater;
 import android.webkit.WebView;
+import android.widget.FrameLayout;
 
 public class TiWebChromeClient extends WebChromeClient
 {
@@ -28,6 +35,9 @@ public class TiWebChromeClient extends WebChromeClient
 	private static final String CONSOLE_TAG = TAG + ".console";
 
 	private TiUIWebView tiWebView;
+	private FrameLayout mCustomViewContainer;
+	private CustomViewCallback mCustomViewCallback;
+	private View mCustomView;
 
 	public TiWebChromeClient(TiUIWebView webView)
 	{
@@ -97,6 +107,68 @@ public class TiWebChromeClient extends WebChromeClient
 			return true;
 		}
 
+		return false;
+	}
+	
+	@Override
+	public void onExceededDatabaseQuota(String url, String databaseIdentifier, long currentQuota, long estimatedSize, long totalUsedQuota, QuotaUpdater quotaUpdater)
+	{
+		quotaUpdater.updateQuota(estimatedSize * 2);
+	}
+
+	@Override
+	public void onShowCustomView(View view, CustomViewCallback callback)
+	{
+		tiWebView.getWebView().setVisibility(View.GONE);
+
+		// If a view already existed then immediately terminate the new one.
+		if (mCustomView != null) {
+			callback.onCustomViewHidden();
+			return;
+		}
+
+		Activity activity = tiWebView.getProxy().getActivity();
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+		if (activity instanceof TiBaseActivity) {
+			if (mCustomViewContainer == null) {
+				mCustomViewContainer = new FrameLayout(activity);
+				mCustomViewContainer.setBackgroundColor(Color.BLACK);
+				mCustomViewContainer.setLayoutParams(params);
+				activity.getWindow().addContentView(mCustomViewContainer, params);
+			}
+			mCustomViewContainer.addView(view);
+			mCustomView = view;
+			mCustomViewCallback = callback;
+			mCustomViewContainer.setVisibility(View.VISIBLE);
+		}
+	}
+
+	@Override
+	public void onHideCustomView()
+	{
+		if (mCustomView == null) {
+			return;
+		}
+
+		// Hide the custom view and remove it from its container.
+		mCustomView.setVisibility(View.GONE);
+		mCustomViewContainer.removeView(mCustomView);
+		mCustomView = null;
+		mCustomViewContainer.setVisibility(View.GONE);
+		mCustomViewCallback.onCustomViewHidden();
+
+		tiWebView.getWebView().setVisibility(View.VISIBLE);
+	}
+
+	public boolean interceptOnBackPressed()
+	{
+		if (mCustomView != null) {
+			onHideCustomView();
+			if (Log.isDebugModeEnabled()) {
+				Log.d(TAG, "WebView intercepts the OnBackPressed event to close the full-screen video.");
+			}
+			return true;
+		}
 		return false;
 	}
 }

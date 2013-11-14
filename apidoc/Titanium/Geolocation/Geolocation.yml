@@ -121,6 +121,18 @@ description: |
     In addition to the accuracy setting, there are several Mobile Web-specific settings.
     See <Titanium.Geolocation.MobileWeb> for details.
 
+    #### Configuring Location Updates on BlackBerry
+
+    On the BlackBerry platform you must add the `read_geolocation` permission to tiapp.xml.
+    If the `blackberry` tag does not exist, you can simply create it, then add the `permissions`
+    tag and list the permissions that you need, in this case, `read_geolocation`:
+
+        <blackberry>
+            <permissions>
+                <permission>read_geolocation</permission>
+            </permissions>
+        </blackberry>
+
     #### Using the Compass
 
     Both iOS and Android support a receiving heading updates from a hardware compass, if available.
@@ -171,7 +183,6 @@ description: |
 
 extends: Titanium.Module
 since: "0.1"
-platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: forwardGeocoder
     summary: Resolves an address to a location.
@@ -256,7 +267,6 @@ events:
         summary: Dictionary object containing the heading data.
         type: HeadingData
 
-    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: location
     summary: Fired when a location update is received.
@@ -605,7 +615,8 @@ properties:
         This usage is deprecated. Applications using one of the iOS constants should
         migrate to using `ACCURACY_HIGH`, `ACCURACY_LOW`, or Android manual mode.
     type: Number
-
+    exclude-platforms: [blackberry]
+    
   - name: distanceFilter
     summary: The minimum change of position (in meters) before a 'location' event is fired. 
     description: |
@@ -633,6 +644,7 @@ properties:
         A lower frequency value generally increases power consumption. 
         A value of 0 means that updates should be generated as quickly as possible.
     type: Number
+    exclude-platforms: [blackberry]
 
   - name: hasCompass
     summary: Indicates whether the current device supports a compass.
@@ -776,6 +788,16 @@ properties:
     platforms: [iphone,ipad]
     since: "3.1.0"
 
+  - name: lastGeolocation
+    summary: JSON representation of the last geolocation received.
+    description: |
+         LastEvent is the JSON version of the last geolocation sent by the OS. This does not
+         trigger a geolocation attempt, nor wait for such. If no geolocation has happened,
+         this value may be null or undefined.
+    type: String
+    since: "3.1.2"
+    permission: read-only
+    platforms: [android, iphone, ipad]
 ---
 name: LocationResults
 summary: |

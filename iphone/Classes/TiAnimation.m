@@ -25,7 +25,7 @@
 @synthesize zIndex, left, right, top, bottom, width, height;
 @synthesize duration, color, backgroundColor, opacity, opaque, view;
 @synthesize visible, curve, repeat, autoreverse, delay, transform, transition;
-@synthesize animatedView, callback, isReverse, reverseAnimation;
+@synthesize animatedView, callback, isReverse, reverseAnimation, resetState;
 
 -(id)initWithDictionary:(NSDictionary*)properties context:(id<TiEvaluator>)context_ callback:(KrollCallback*)callback_
 {
@@ -160,6 +160,11 @@ self.p = v;\
 	RELEASE_TO_NIL(animatedView);
     [animatedViewProxy release];
 	[super dealloc];
+}
+
+-(NSString*)apiName
+{
+    return @"Ti.UI.Animation";
 }
 
 +(TiAnimation*)animationFromArg:(id)args context:(id<TiEvaluator>)context create:(BOOL)yn
@@ -412,7 +417,10 @@ self.p = v;\
 	animatedView = [theview retain];
     
     if (!transitionAnimation) {
-        UIViewAnimationOptions options = (UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState); // Backwards compatible
+        UIViewAnimationOptions options = (UIViewAnimationOptionAllowUserInteraction); // Backwards compatible
+        if (!resetState) {
+            options = (options | UIViewAnimationOptionBeginFromCurrentState);
+        }
 		[view_ animationStarted];
         NSTimeInterval animationDuration = [self animationDuration];
         

@@ -24,7 +24,8 @@ module.exports = new function() {
 		{name: "testDatabaseSavepointRollback"},
 		{name: "testDatabaseLH2917"},
 		{name: "testTypedGettersAndSetters"},
-		{name: "testDatabaseExceptions"}
+		{name: "testDatabaseExceptions"},
+		{name: "testDatabaseResultsetDotNext"}
 	]
 
 	this.testModuleMethodsAndConstants = function(testRun) {
@@ -444,5 +445,21 @@ module.exports = new function() {
 			}
 
 		finish(testRun);
+	}
+	
+	this.testDatabaseResultsetDotNext = function(testRun) {
+        var db = Ti.Database.open('mydb');
+        db.execute('DROP TABLE IF EXISTS welcome');
+        db.execute("CREATE TABLE IF NOT EXISTS welcome (title TEXT)");
+        db.execute("INSERT INTO welcome (title) VALUES (?)",'one');
+        db.execute("INSERT INTO welcome (title) VALUES (?)",'two');
+        var rows = db.execute("SELECT title FROM welcome");
+        valueOf(testRun, rows.getRowCount()).shouldBe(2);
+        valueOf(testRun, rows.next()).shouldBeTrue();
+        valueOf(testRun, rows.next()).shouldBeFalse();
+        rows.close();
+        db.close();
+        
+        finish(testRun);
 	}
 }

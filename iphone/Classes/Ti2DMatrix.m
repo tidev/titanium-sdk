@@ -45,6 +45,11 @@
 	return self;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.2DMatrix";
+}
+
 -(CGAffineTransform)matrix
 {
 	return matrix;

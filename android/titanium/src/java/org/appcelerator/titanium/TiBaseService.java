@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.proxy.ServiceProxy;
+import org.appcelerator.kroll.common.Log;
 
 import android.app.Service;
 import android.content.Intent;
@@ -22,8 +23,10 @@ import android.os.IBinder;
  */
 public class TiBaseService extends Service
 {
+	private static final String TAG = "TiBaseService";
 	public static final String TI_SERVICE_INTENT_ID_KEY = "$__TITANIUM_SERVICE_INTENT_ID__$";
 	protected AtomicInteger proxyCounter = new AtomicInteger();
+	protected ServiceProxy serviceProxy;
 
 	public class TiServiceBinder extends Binder
 	{
@@ -47,7 +50,8 @@ public class TiBaseService extends Service
 	 */
 	protected ServiceProxy createProxy(Intent intent)
 	{
-		return new ServiceProxy(this, intent, proxyCounter.incrementAndGet());
+		serviceProxy = new ServiceProxy(this, intent, proxyCounter.incrementAndGet());
+		return serviceProxy;
 	}
 
 	/**
@@ -88,5 +92,14 @@ public class TiBaseService extends Service
 	{
 		super.onDestroy();
 		KrollRuntime.decrementServiceReceiverRefCount();
+	}
+
+	@Override
+	public void onTaskRemoved(Intent rootIntent)
+	{
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "The task that comes from the service's application has been removed.");
+		}
+		serviceProxy.fireSyncEvent(TiC.EVENT_TASK_REMOVED, null);
 	}
 }

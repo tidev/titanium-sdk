@@ -110,8 +110,15 @@ public class TiUITableView extends TiUIView
 			((TiBaseActivity) activity).addOnLifecycleEventListener(this);
 		}
 
-		tableView.setOnItemClickListener(this);
-		tableView.setOnItemLongClickListener(this);
+		boolean clickable = true;
+		if (d.containsKey(TiC.PROPERTY_TOUCH_ENABLED)) {
+			clickable = (Boolean) d.get(TiC.PROPERTY_TOUCH_ENABLED);
+		}
+		if (clickable) {
+			tableView.setOnItemClickListener(this);
+			tableView.setOnItemLongClickListener(this);
+
+		}
 
 		if (d.containsKey(TiC.PROPERTY_SEARCH)) {
 			TiViewProxy searchView = (TiViewProxy) d.get(TiC.PROPERTY_SEARCH);
@@ -223,6 +230,20 @@ public class TiUITableView extends TiUIView
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
+
+		if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
+			boolean clickable = TiConvert.toBoolean(newValue);
+			if (clickable) {
+				tableView.setOnItemClickListener(this);
+				tableView.setOnItemLongClickListener(this);
+
+			} else {
+				tableView.setOnItemClickListener(null);
+				tableView.setOnItemLongClickListener(null);
+			}
+
+		}
+
 		if (key.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			tableView.setSeparatorColor(TiConvert.toString(newValue));
 		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {

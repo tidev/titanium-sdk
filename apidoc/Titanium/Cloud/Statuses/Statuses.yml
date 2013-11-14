@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Users: Create a Status](http://cloud.appcelerator.com/docs/api/v1/statuses/create)
+        See [Users: Create a Status](http://docs.appcelerator.com/cloud/latest/#!/api/Statuses-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `statuses` property of the parameter passed to the callback.
@@ -25,7 +25,7 @@ methods:
   - name: query
     summary: Retrieve a list of statuses with sorting and pagination.
     description: |
-        See [Statuses: Custom Query Status](http://cloud.appcelerator.com/docs/api/v1/statuses/query)
+        See [Statuses: Custom Query Status](http://docs.appcelerator.com/cloud/latest/#!/api/Statuses-method-query)
         for the request parameters supported by this method.
         
         Data is returned in the `statuses` property of the parameter passed to the callback.
@@ -42,7 +42,7 @@ methods:
   - name: search
     summary: Retrieve the statuses for a user.
     description: |
-        See [Users: Show Statuses for a User](http://cloud.appcelerator.com/docs/api/v1/statuses/show)
+        See [Users: Show Statuses for a User](http://docs.appcelerator.com/cloud/latest/#!/api/Statuses-method-show)
         for the request parameters supported by this method.
         
         Data is returned in the `statuses` property of the parameter passed to the callback.

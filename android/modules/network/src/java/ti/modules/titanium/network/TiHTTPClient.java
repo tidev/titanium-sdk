@@ -56,6 +56,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -101,11 +102,11 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
-import android.os.Build;
 
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
+import android.os.Build;
 
 public class TiHTTPClient
 {
@@ -158,9 +159,13 @@ public class TiHTTPClient
 	private boolean autoRedirect = true;
 	private Uri uri;
 	private String url;
+	private String redirectedLocation;
 	private ArrayList<File> tmpFiles = new ArrayList<File>();
 	private ArrayList<X509TrustManager> trustManagers = new ArrayList<X509TrustManager>();
 	private ArrayList<X509KeyManager> keyManagers = new ArrayList<X509KeyManager>();
+
+	private static CookieStore cookieStore = NetworkModule.getHTTPCookieStoreInstance();
+
 
 	protected HashMap<String,String> headers = new HashMap<String,String>();
 	
@@ -193,6 +198,7 @@ public class TiHTTPClient
 			// in some cases we have to manually replace spaces in the URI (probably because the HTTP server isn't correctly escaping them)
 			String location = locationHeader.getValue().replaceAll (" ", "%20");
 			response.setHeader("location", location);
+			redirectedLocation = location;
 			
 			return super.getLocationURI(response, context);
 		}
@@ -465,9 +471,12 @@ public class TiHTTPClient
 		@Override
 		public void write(int b) throws IOException
 		{
-			super.write(b);
-			transferred++;
-			fireProgress();
+			//Donot write if request is aborted
+			if (!aborted) {	
+				super.write(b);
+				transferred++;
+				fireProgress();
+			}
 		}
 	}
 
@@ -486,7 +495,7 @@ public class TiHTTPClient
 		this.nvPairs = new ArrayList<NameValuePair>();
 		this.parts = new HashMap<String,ContentBody>();
 		this.maxBufferSize = TiApplication.getInstance()
-				.getSystemProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
+				.getAppProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
 	}
 
 	public int getReadyState()
@@ -692,7 +701,6 @@ public class TiHTTPClient
 	{
 		if (readyState > READY_STATE_UNSENT && readyState < READY_STATE_DONE) {
 			aborted = true;
-
 			if (client != null) {
 				client.getConnectionManager().shutdown();
 				client = null;
@@ -701,6 +709,10 @@ public class TiHTTPClient
 				validatingClient = null;
 			if (nonValidatingClient != null)
 				nonValidatingClient = null;
+
+			// Fire the disposehandle event if the request is aborted.
+			// And it will dispose the handle of the httpclient in the JS.
+			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 		}
 	}
 
@@ -819,6 +831,7 @@ public class TiHTTPClient
 			this.url = url;
 		}
 
+		redirectedLocation = null;
 		this.method = method;
 		String hostString = uri.getHost();
 		int port = PROTOCOL_DEFAULT_PORT;
@@ -1011,8 +1024,11 @@ public class TiHTTPClient
 
 		HttpProtocolParams.setUseExpectContinue(params, false);
 		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+		
+		DefaultHttpClient httpClient = new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
+		httpClient.setCookieStore(cookieStore);
 
-		return new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
+		return httpClient;
 	}
 
 	protected DefaultHttpClient getClient(boolean validating)
@@ -1269,9 +1285,11 @@ public class TiHTTPClient
 				String result = null;
 				try {
 					result = client.execute(host, request, handler);
-
 				} catch (IOException e) {
 					if (!aborted) {
+						// Fire the disposehandle event if the exception is not due to aborting the request.
+						// And it will dispose the handle of the httpclient in the JS.
+						proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 						throw e;
 					}
 				}
@@ -1308,6 +1326,10 @@ public class TiHTTPClient
 			}
 
 			deleteTmpFiles();
+
+			// Fire the disposehandle event if the request is finished successfully or the errors occur.
+			// And it will dispose the handle of the httpclient in the JS.
+			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 		}
 	}
 
@@ -1352,9 +1374,12 @@ public class TiHTTPClient
 			e.setEntity(entity);
 		}
 	}
-	
+
 	public String getLocation()
 	{
+		if (redirectedLocation != null) {
+			return redirectedLocation;
+		}
 		return url;
 	}
 

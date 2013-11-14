@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Custom Objects: Create Custom Object](http://cloud.appcelerator.com/docs/api/v1/custom_objects/create)
+        See [Custom Objects: Create Custom Objects](http://docs.appcelerator.com/cloud/latest/#!/api/CustomObjects-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `classname` property of the parameter passed to the callback.
@@ -25,7 +25,7 @@ methods:
   - name: query
     summary: Retrieve a list of custom objects of type `classname`.
     description: |
-        See [Custom Objects: Query Custom Objects](http://cloud.appcelerator.com/docs/api/v1/custom_objects/query)
+        See [Custom Objects: Query Custom Objects](http://docs.appcelerator.com/cloud/latest/#!/api/CustomObjects-method-query)
         for the request parameters supported by this method.
         
         Data is returned in the `classname` property of the parameter passed to the callback.
@@ -44,7 +44,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Custom Objects: Delete Custom Object](http://cloud.appcelerator.com/docs/api/v1/custom_objects/delete)
+        See [Custom Objects: Delete Custom Objects](http://docs.appcelerator.com/cloud/latest/#!/api/CustomObjects-method-delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -58,7 +58,7 @@ methods:
   - name: show
     summary: Retrieve a list of custom objects of type `classname`.
     description: |
-        See [Custom Objects: Show Custom Object(s)](http://cloud.appcelerator.com/docs/api/v1/custom_objects/show)
+        See [Custom Objects: Show Custom Objects(s)](http://docs.appcelerator.com/cloud/latest/#!/api/CustomObjects-method-show)
         for the request parameters supported by this method.
         
         Data is returned in the `classname` property of the parameter passed to the callback.
@@ -77,7 +77,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Custom Objects: Update Custom Object](http://cloud.appcelerator.com/docs/api/v1/custom_objects/update)
+        See [Custom Objects: Update Custom Objects](http://docs.appcelerator.com/cloud/latest/#!/api/CustomObjects-method-update)
         for the request parameters supported by this method.
         
         Data is returned in the `classname` property of the parameter passed to the callback.

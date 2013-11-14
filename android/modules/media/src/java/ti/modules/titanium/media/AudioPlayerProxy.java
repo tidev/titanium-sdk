@@ -21,7 +21,7 @@ import ti.modules.titanium.filesystem.FileProxy;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=MediaModule.class, propertyAccessors={
-	TiC.PROPERTY_VOLUME
+	TiC.PROPERTY_VOLUME, TiC.PROPERTY_TIME
 })
 public class AudioPlayerProxy extends KrollProxy
 	implements OnLifecycleEvent, OnWindowFocusChangedEvent
@@ -51,6 +51,7 @@ public class AudioPlayerProxy extends KrollProxy
 		//((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 
 		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
+		defaultValues.put(TiC.PROPERTY_TIME,0);
 	}
 
 	public AudioPlayerProxy(TiContext tiContext)
@@ -114,7 +115,8 @@ public class AudioPlayerProxy extends KrollProxy
 		}
 		return false;
 	}
-
+	
+	
 	// An alias for play so that
 	@Kroll.method
 	public void start() {
@@ -217,5 +219,11 @@ public class AudioPlayerProxy extends KrollProxy
 			}
 			resumeInOnWindowFocusChanged = false;
 		}
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Media.AudioPlayer";
 	}
 }

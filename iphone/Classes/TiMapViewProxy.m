@@ -32,6 +32,11 @@
 	[super _destroy];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Map.View";
+}
+
 -(NSNumber*) longitudeDelta
 {
 	__block CLLocationDegrees delta = 0.0;
@@ -309,7 +314,7 @@
 
 -(void)removeAnnotations:(id)arg
 {
-	ENSURE_TYPE(arg,NSArray)
+    ENSURE_SINGLE_ARG(arg,NSArray)
     for (id ann in arg) {
         if ([ann isKindOfClass:[TiMapAnnotationProxy class]]) {
             [self forgetProxy:ann];

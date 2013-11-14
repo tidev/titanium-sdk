@@ -158,6 +158,23 @@ description: |
     
     No error will occur on older devices if you set `accessibilityHidden`; the value will simply be ignored. 
 
+    #### iOS: backgroundLeftCap and backgroundTopCap properties
+
+    The [backgroundLeftCap](Titanium.UI.View.backgroundLeftCap) and [backgroundTopCap](Titanium.UI.View.backgroundTopCap) properties are 
+    used to specify the portions of the [backgroundImage](Titanium.UI.View.backgroundImage) that must not be resized when the image is streched or shrunk.
+
+    Given an image of width `w` and height `h`, the stretchable portion on the image is defined as a rectangle with the `top-left` point set to 
+    `(backgroundLeftCap , backgroundTopCap)` and the `bottom-right` point set to `(w - backgroundLeftCap , h - backgroundTopCap)`. The portions not covered by
+    the stretchable portion keep their original size and appearance.
+
+    The behavior of these properties on [ImageView](Titanium.UI.ImageView) is slightly different and depends on the iOS version on the device.
+
+    * For iOS 6.x and above, the behavior is as described above.
+    * For iOS 5.x the computed rectangle is tiled and not streched in the stretchable portion.
+    * For iOS 4.x the strechable portion is always a 1x1 region that is tiled repeatedly.
+
+    For best results on ImageView set up the `backgroundLeftCap` and `backgroundTopCap` properties such that the stretchable portion is always a 1x1 box.
+
 extends: Titanium.Proxy
 since: "0.9"
 
@@ -189,10 +206,10 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+    exclude-platforms: [blackberry]
         
   - name: doubletap
     summary: Fired when the device detects a double tap against the view.
@@ -201,7 +218,6 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
-    
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -380,6 +396,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+    exclude-platforms: [blackberry]
 
 methods:
   - name: add
@@ -453,30 +470,29 @@ methods:
             other controls, added to its `items` array. Views added using the `add` method are
             displayed on top of the controls in the `items` array.
 
-        *   The `Tab`, `TabGroup`, `NavigationGroup` and `SplitWindow` objects are 
-            special containers that manage windows. These are discussed in the 
+        *   The `Tab`, `TabGroup`, `NavigationGroup`, `NavigationWindow` and `SplitWindow` objects are
+            special containers that manage windows. These are discussed in the
             "Top-Level Containers" section.
 
 
         #### Top-Level Containers
-         
-        There are certain top-level containers that are not intended to be added 
-        as the children of other views. These top-level containers include 
-        [Window](Titanium.UI.Window), [SplitWindow](Titanium.UI.iPad.SplitWindow),
-        and [TabGroup](Titanium.UI.TabGroup).  Other types of views must be added 
+
+        There are certain top-level containers that are not intended to be added
+        as the children of other views. These top-level containers include
+        <Titanium.UI.Window>, <Titanium.UI.iPad.SplitWindow>, <Titanium.UI.iOS.NavigationWindow>,
+        and <Titanium.UI.TabGroup>.  Other types of views must be added
         to a top-level container in order to be displayed on screen.
 
-        The special containers [NavigationGroup](Titanium.UI.iPhone.NavigationGroup), 
-        [SplitWindow](Titanium.UI.iPad.SplitWindow), [Tab](Titanium.UI.Tab), and 
-        [TabGroup](Titanium.UI.TabGroup)
-        manage windows. These managed windows may be referred to as *children* of the 
+        The special containers <Titanium.UI.MobileWeb.NavigationGroup>,
+        <Titanium.UI.iOS.NavigationWindow>, <Titanium.UI.iPad.SplitWindow>,
+        <Titanium.UI.Tab>, and <Titanium.UI.TabGroup> manage windows.
+        These managed windows may be referred to as *children* of the
         container, but they are not added using the `add` method.
-        
-        Note that although a `NavigationGroup`
-        manages windows, it is not itself a top-level container.  It must be added to a
-        `Window` or `Popover` in order to be displayed.
-        
-        `Tab` is another kind of special container: it is not itself a top-level container, 
+
+        Note that although a `NavigationGroup` manages windows, it is not itself a
+        top-level container.  It must be added to a `Window` in order to be displayed.
+
+        `Tab` is another kind of special container: it is not itself a top-level container,
         but can only be used within a `TabGroup`. You cannot `add` a `Tab` to an arbitrary
         container.
     parameters:
@@ -745,7 +761,7 @@ properties:
     summary: Current position of the view during an animation.
     type: Point
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     
   - name: backgroundColor
     summary: Background color of the view, as a color name or hex triplet.
@@ -892,15 +908,7 @@ properties:
   - name: backgroundLeftCap
     summary: Size of the left end cap.
     description: |
-        End caps specify the portion of an image that should not be resized when an image is 
-        stretched. This technique is used to implement buttons and other resizable image-based 
-        interface elements. When a button with end caps is resized, the resizing occurs only in 
-        the middle of the button, in the region between the end caps. The end caps themselves keep 
-        their original size and appearance. This property specifies the size of the left end cap. 
-        The middle (stretchable) portion is assumed to be 1 pixel wide. The right end cap is 
-        therefore computed by adding the size of the left end cap and the middle portion together 
-        and then subtracting that value from the width of the image.
-        If this property is set to `0`, the image is scaled uniformly.
+        See the section on backgroundLeftCap and backgroundTopCap behavior on iOS in <Titanium.UI.View>.
     type: Number
     platforms: [iphone, ipad]
     default: 0
@@ -927,15 +935,7 @@ properties:
   - name: backgroundTopCap
     summary: Size of the top end cap.
     description: |
-        End caps specify the portion of an image that should not be resized when an image 
-        is stretched. This technique is used to implement buttons and other resizable 
-        image-based interface elements. When a button with end caps is resized, the resizing 
-        occurs only in the middle of the button, in the region between the end caps. The end 
-        caps themselves keep their original size and appearance. This property specifies the 
-        size of the top end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. 
-        The bottom end cap is therefore computed by adding the size of the top end cap and the
-        middle portion together and then subtracting that value from the height of the image.
-        If this property is set to `0`, the image is scaled uniformly.
+        See the section on backgroundLeftCap and backgroundTopCap behavior on iOS in <Titanium.UI.View>.
     type: Number
     platforms: [iphone, ipad]
     default: 0
@@ -946,17 +946,20 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     default: Same as the normal background color of this view (Android, Mobile Web, Tizen), black (iOS).
     type: String
+    exclude-platforms: [blackberry]
     
   - name: borderRadius
     summary: Radius for the rounded corners of the view's border.
     description: Each corner is rounded using an arc of a circle.
     type: Number
     default: 0
+    exclude-platforms: [blackberry]
     
   - name: borderWidth
     summary: Border width of the view.
     type: Number
     default: 0
+    exclude-platforms: [blackberry]
     
   - name: bottom
     summary: View's bottom position, in platform-specific units.
@@ -977,6 +980,7 @@ properties:
         represent the view's calculated position.
     default: undefined
     type: Point
+    exclude-platforms: [blackberry]
     
   - name: children
     summary: Array of this view's child views.
@@ -988,7 +992,7 @@ properties:
     description: Set to `true` to enable or `false` to disable the view.
     default: Enabled by default. (Property value may be undefined.)
     type: Boolean
-    platforms: [android]
+    platforms: [android, blackberry]
     
   - name: focusable
     summary: Whether view should be focusable while navigating with the trackball.
@@ -1186,6 +1190,7 @@ properties:
     type: Dimension
     permission: read-only
     since: "2.0.0"
+    exclude-platforms: [blackberry]
 
   - name: size
     summary: |
@@ -1202,6 +1207,7 @@ properties:
         [postlayout](Titanium.UI.View.postlayout) event.
     type: Dimension
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: softKeyboardOnFocus
     summary: Determines keyboard behavior when this view is focused.
@@ -1211,7 +1217,18 @@ properties:
         <Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS>.
     type: Number
     default: <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>
-    platforms: [android, tizen]
+    platforms: [android]
+    
+  - name: tintColor
+    summary: The view's tintColor. This property is applicable on iOS 7 and greater. 
+    description: |
+        This property is a direct correspondant of the tintColor property of UIView on iOS. If no value is specified, 
+        the tintColor of the View is inherited from its superview. 
+    type: [String]
+    since: "3.1.3"
+    default: null
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad]
     
   - name: top
     summary: The view's top position.
@@ -1235,6 +1252,7 @@ properties:
     description: Android, Tizen and Mobile Web only support 2DMatrix transforms.
     type: [ Titanium.UI.2DMatrix, Titanium.UI.3DMatrix ]
     default: Identity matrix
+    exclude-platforms: [blackberry]
     
   - name: visible
     summary: Determines whether the view is visible.
@@ -1272,6 +1290,7 @@ properties:
     type: Boolean
     default: true
     since: "2.1.0"
+    exclude-platforms: [blackberry]
 
   - name: zIndex
     summary: Z-index stack order position, relative to other sibling views.

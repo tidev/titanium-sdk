@@ -12,26 +12,26 @@
 //The iPadPopoverProxy should be seen more as like a window or such, because
 //The popover controller will contain the viewController, which has the view.
 //If the view had the logic, you get some nasty dependency loops.
-@interface TiUIiPadPopoverProxy : TiViewProxy<UIPopoverControllerDelegate,TiUIViewController> {
+@interface TiUIiPadPopoverProxy : TiViewProxy<UIPopoverControllerDelegate> {
 @private
-	UIPopoverController *popoverController;
-	UINavigationController *navigationController;
-	TiViewController *viewController;
+    UIPopoverController *popoverController;
+    UINavigationController *navigationController;
+    UIViewController *viewController;
+    TiViewProxy *contentViewProxy;
+    //We need to hold onto this information for whenever the status bar rotates.
+    TiViewProxy *popoverView;
+    CGRect popoverRect;
+    BOOL animated;
+    UIPopoverArrowDirection directions;
 	
-//We need to hold onto this information for whenever the status bar rotates.
-	TiViewProxy *popoverView;
-	CGRect popoverRect;
-	BOOL animated;
-	UIPopoverArrowDirection directions;
-	
-	BOOL isShowing;
+    BOOL isShowing;
     BOOL isDismissing;
     NSCondition* closingCondition;
+    LayoutConstraint popoverLayoutProperties;
 }
 
 //Because the Popover isn't meant to be placed in anywhere specific, 
 @property(nonatomic,readonly) UIPopoverController *popoverController;
-@property(nonatomic,readwrite,retain) TiViewController *viewController;
 
 
 @property(nonatomic,readwrite,retain) TiViewProxy *popoverView;

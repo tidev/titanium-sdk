@@ -102,5 +102,14 @@ properties:
   - name: fontStyle
     summary: Font style. Valid values are "italic" or "normal". 
     type: String
-    platforms: [ iphone, ipad ]
+    platforms: [ iphone, ipad, blackberry ]
     default: normal
+  - name: textStyle
+    summary: The text style for the font. 
+    description: |
+        Use one of the TEXT_STYLE constants from <Titanium.UI> to set the font to a predefined system font.
+        When this property is set to a valid value, all other font properties are ignored. Avaliable on iOS 7 and above.
+    type: String
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "7.0"}}
+    since: "3.2.0"

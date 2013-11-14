@@ -31,8 +31,12 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiGradientDrawable.GradientType;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -56,8 +60,9 @@ import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 
@@ -147,19 +152,44 @@ public abstract class TiUIView
 	 */
 	public void add(TiUIView child)
 	{
+		add(child, -1);
+	}
+
+	private void add(TiUIView child, int childIndex)
+	{
 		if (child != null) {
 			View cv = child.getOuterView();
 			if (cv != null) {
 				View nv = getNativeView();
 				if (nv instanceof ViewGroup) {
 					if (cv.getParent() == null) {
-						((ViewGroup) nv).addView(cv, child.getLayoutParams());
+						if (childIndex != -1) {
+							((ViewGroup) nv).addView(cv, childIndex, child.getLayoutParams());
+						} else {
+							((ViewGroup) nv).addView(cv, child.getLayoutParams());
+						}
 					}
 					children.add(child);
 					child.parent = proxy;
 				}
 			}
 		}
+	}
+
+	private int findChildIndex(TiUIView child)
+	{
+		int idxChild = -1;
+		if (child != null) {
+			View cv = child.getOuterView();
+			if (cv != null) {
+				View nv = getNativeView();
+				if (nv instanceof ViewGroup) {
+					idxChild = ((ViewGroup) nv).indexOfChild(cv);
+
+				}
+			}
+		}
+		return idxChild;
 	}
 
 	/**
@@ -283,6 +313,7 @@ public abstract class TiUIView
 		// Pre-honeycomb, if one animation clobbers another you get a problem whereby the background of the
 		// animated view's parent (or the grandparent) bleeds through.  It seems to improve if you cancel and clear
 		// the older animation.  So here we cancel and clear, then re-queue the desired animation.
+
 		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
 			Animation currentAnimation = nativeView.getAnimation();
 			if (currentAnimation != null && currentAnimation.hasStarted() && !currentAnimation.hasEnded()) {
@@ -302,7 +333,6 @@ public abstract class TiUIView
 		}
 
 		proxy.clearAnimation(builder);
-		AnimationSet as = builder.render(proxy, nativeView);
 
 		// If a view is "visible" but not currently seen (such as because it's covered or
 		// its position is currently set to be fully outside its parent's region),
@@ -328,9 +358,10 @@ public abstract class TiUIView
 		}
 
 		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "starting animation: " + as, Log.DEBUG_MODE);
+			Log.d(TAG, "starting animation", Log.DEBUG_MODE);
 		}
-		nativeView.startAnimation(as);
+
+		builder.start(proxy, nativeView);
 
 		if (invalidateParent) {
 			((View) viewParent).postInvalidate();
@@ -375,29 +406,119 @@ public abstract class TiUIView
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR);
 	}
 
+	public float[] getPreTranslationValue(float[] points)
+	{
+		if (layoutParams.optionTransform != null) {
+			TiMatrixAnimation matrixAnimation = animBuilder.createMatrixAnimation(layoutParams.optionTransform);
+			int width = getNativeView().getWidth();
+			int height = getNativeView().getHeight();
+			Matrix m = matrixAnimation.getFinalMatrix(width, height);
+			// Get the translation values
+			float[] values = new float[9];
+			m.getValues(values);
+			points[0] = points[0] - values[2];
+			points[1] = points[1] - values[5];
+		}
+		return points;
+	}
+	
 	protected void applyTransform(Ti2DMatrix matrix)
 	{
 		layoutParams.optionTransform = matrix;
 		if (animBuilder == null) {
 			animBuilder = new TiAnimationBuilder();
 		}
+
 		View outerView = getOuterView();
-		if (outerView != null) {
-			if (matrix != null) {
-				TiMatrixAnimation matrixAnimation = animBuilder.createMatrixAnimation(matrix);
-				matrixAnimation.interpolate = false;
-				matrixAnimation.setDuration(1);
-				matrixAnimation.setFillAfter(true);
-				outerView.startAnimation(matrixAnimation);
-			} else {
-				outerView.clearAnimation();
-			}
+		if (outerView == null) {
+			return;
+		}
+
+		boolean clearTransform = (matrix == null);
+		Ti2DMatrix matrixApply = matrix; // To not change original.
+
+		if (clearTransform) {
+			outerView.clearAnimation();
+			// Since we may have used property animators, which
+			// do not set the animation property of a view,
+			// we should also quickly apply a matrix with
+			// no rotation, no rotation and scale of 1.
+			matrixApply = (new Ti2DMatrix()).rotate(new Object[] { 0d })
+					.translate(0d, 0d).scale(new Object[] { 1d, 1d });
+		}
+
+		HashMap<String, Object> options = new HashMap<String, Object>(2);
+		options.put(TiC.PROPERTY_TRANSFORM, matrixApply);
+		options.put(TiC.PROPERTY_DURATION, 1);
+
+		animBuilder.applyOptions(options);
+
+		// When using Honeycomb+ property Animators, we can only use absolute values to specify the anchor point, eg. "50px".
+		// Therefore, we must start the transformation after the layout pass when we get the height and width of the view.
+		if (animBuilder.isUsingPropertyAnimators()) {
+			startTransformAfterLayout(outerView);
+		} else {
+			animBuilder.start(this.proxy, outerView);
 		}
 	}
 
-	public void forceLayoutNativeView(boolean imformParent)
+	/**
+	 * When using Honeycomb+ property Animators, we start the transformation after the layout pass.
+	 * @param v the view to animate
+	 */
+	protected void startTransformAfterLayout(final View v)
 	{
-		layoutNativeView(imformParent);
+		final TiViewProxy p = this.proxy;
+		OnGlobalLayoutListener layoutListener = new OnGlobalLayoutListener() {
+			public void onGlobalLayout()
+			{
+				animBuilder.start(p, v);
+				try {
+					if (Build.VERSION.SDK_INT < TiC.API_LEVEL_JELLY_BEAN) {
+						v.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+					} else {
+						v.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+					}
+				} catch (IllegalStateException e) {
+					if (Log.isDebugModeEnabled()) {
+						Log.w(TAG, "Unable to remove the OnGlobalLayoutListener.", e.getMessage());
+					}
+				}
+			}
+		};
+		v.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
+
+		// On Jelly Bean+, the view will visibly transform if the transformation starts after the layout pass,
+		// so we add OnPreDrawListener to skip the drawing pass before the animation is ended.
+		// This mechanism only works for Honeycomb+ property Animators. Because if we use pre-Honeycomb view
+		// animations and skip the drawing pass, the AnimationListener will not be triggered so
+		// TiAnimationBuilder.isAnimationRunningFor(view) will always return true.
+		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_JELLY_BEAN) {
+			final OnPreDrawListener preDrawListener = new OnPreDrawListener()
+			{
+				public boolean onPreDraw()
+				{
+					if (TiAnimationBuilder.isAnimationRunningFor(v)) {
+						// Skip the current drawing pass.
+						return false;
+					}
+					try {
+						v.getViewTreeObserver().removeOnPreDrawListener(this);
+					} catch (IllegalStateException e) {
+						if (Log.isDebugModeEnabled()) {
+							Log.w(TAG, "Unable to remove the OnPreDrawListener.", e.getMessage());
+						}
+					}
+					return true;
+				}
+			};
+			v.getViewTreeObserver().addOnPreDrawListener(preDrawListener);
+		}
+	}
+
+	public void forceLayoutNativeView(boolean informParent)
+	{
+		layoutNativeView(informParent);
 	}
 
 	protected void layoutNativeView()
@@ -415,14 +536,11 @@ public abstract class TiUIView
 				TiMatrixAnimation matrixAnimation = (TiMatrixAnimation) a;
 				matrixAnimation.invalidateWithMatrix(nativeView);
 			}
-			if (informParent) {				
+			if (informParent) {
 				if (parent != null) {
 					TiUIView uiv = parent.peekView();
 					if (uiv != null) {
-						View v = uiv.getNativeView();
-						if (v instanceof TiCompositeLayout) {
-							((TiCompositeLayout) v).resort();
-						}
+						uiv.resort();
 					}
 				}
 			}
@@ -430,6 +548,13 @@ public abstract class TiUIView
 		}
 	}
 
+	public void resort()
+	{
+		View v = getNativeView();
+		if (v instanceof TiCompositeLayout) {
+			((TiCompositeLayout) v).resort();
+		}
+	}
 	public boolean iszIndexChanged()
 	{
 		return zIndexChanged;
@@ -543,6 +668,7 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
 			doSetClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
+			newValue = (newValue == null) ? false : newValue;
 			this.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			nativeView.setEnabled(TiConvert.toBoolean(newValue));
@@ -576,6 +702,10 @@ public abstract class TiUIView
 					Integer bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
 					if (!nativeViewNull) {
 						nativeView.setBackgroundColor(bgColor);
+						// A bug only on Android 2.3 (TIMOB-14311).
+						if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB && proxy.hasProperty(TiC.PROPERTY_OPACITY)) {
+							setOpacity(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_OPACITY), 1f));
+						}
 						nativeView.postInvalidate();
 					}
 				} else {
@@ -612,12 +742,18 @@ public abstract class TiUIView
 
 				if (hasBorder) {
 					if (borderView == null && parent != null) {
-						// Since we have to create a new border wrapper view, we need to remove this view, and re-add it.
+						// Since we have to create a new border wrapper view, we need to remove this view, and re-add
+						// it.
 						// This will ensure the border wrapper view is added correctly.
 						TiUIView parentView = parent.getOrCreateView();
+						int removedChildIndex = parentView.findChildIndex(this);
 						parentView.remove(this);
 						initializeBorder(d, bgColor);
-						parentView.add(this);
+						if (removedChildIndex == -1) {
+							parentView.add(this);
+						} else {
+							parentView.add(this, removedChildIndex);
+						}
 					} else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 						handleBorderProperty(key, newValue);
 					}
@@ -627,6 +763,9 @@ public abstract class TiUIView
 
 				if (key.equals(TiC.PROPERTY_OPACITY)) {
 					setOpacity(TiConvert.toFloat(newValue, 1f));
+				} else if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB && proxy.hasProperty(TiC.PROPERTY_OPACITY)) {
+					// A bug only on Android 2.3 (TIMOB-14311).
+					setOpacity(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_OPACITY), 1f));
 				}
 
 			}
@@ -704,7 +843,12 @@ public abstract class TiUIView
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_VISIBLE) && !nativeViewNull) {
-			setVisibility(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE, true) ? View.VISIBLE : View.INVISIBLE);
+			Object visible = d.get(TiC.PROPERTY_VISIBLE);
+			if (visible != null) {
+				setVisibility(TiConvert.toBoolean(visible, true) ? View.VISIBLE : View.INVISIBLE);
+			} else {
+				setVisibility(View.INVISIBLE);
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_ENABLED) && !nativeViewNull) {
 			nativeView.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
@@ -816,8 +960,12 @@ public abstract class TiUIView
 		if (nativeView != null) {
 			nativeView.clearFocus();
 			TiMessenger.postOnMain(new Runnable() {
-				public void run() {
-					TiUIHelper.showSoftKeyboard(nativeView, false);
+				public void run()
+				{
+					if (nativeView != null) {
+						TiUIHelper.showSoftKeyboard(nativeView, false);
+					}
+
 				}
 			});
 		}
@@ -1023,7 +1171,7 @@ public abstract class TiUIView
 	private void handleBorderProperty(String property, Object value)
 	{
 		if (TiC.PROPERTY_BORDER_COLOR.equals(property)) {
-			borderView.setColor(TiConvert.toColor(value.toString()));
+			borderView.setColor(value != null ? TiConvert.toColor(value.toString()) : Color.TRANSPARENT);
 		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
 			float radius = TiConvert.toFloat(value, 0f);
 			if (radius > 0f && HONEYCOMB_OR_GREATER) {
@@ -1230,13 +1378,23 @@ public abstract class TiUIView
 						didScale = false;
 						pointersDown = 0;
 					} else {
-						pointersDown++;
+						int index = event.getActionIndex();
+						float x = event.getX(index);
+						float y = event.getY(index);
+						if (x >= 0 && x < touchable.getWidth() && y >= 0 && y < touchable.getHeight()) {
+							// If the second touch-up happens inside the view, it is a two-finger touch.
+							pointersDown++;
+						}
 					}
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
-					if (pointersDown == 1) {
-						fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
-						pointersDown = 0;
-						return true;
+					// Don't fire twofingertap if there is no listener
+					if (proxy.hierarchyHasListener(TiC.EVENT_TWOFINGERTAP) && pointersDown == 1) {
+						float x = event.getX();
+						float y = event.getY();
+						if (x >= 0 && x < touchable.getWidth() && y >= 0 && y < touchable.getHeight()) {
+							// If the touch-up happens inside the view, fire the event.
+							fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
+						}
 					}
 					pointersDown = 0;
 				}
@@ -1264,18 +1422,25 @@ public abstract class TiUIView
 			return;
 		}
 		
-		registerTouchEvents(touchable);
-		
-		// Previously, we used the single tap handling above to fire our click event.  It doesn't
-		// work: a single tap is not the same as a click.  A click can be held for a while before
-		// lifting the finger; a single-tap is only generated from a quick tap (which will also cause
-		// a click.)  We wanted to do it in single-tap handling presumably because the singletap
-		// listener gets a MotionEvent, which gives us the information we want to provide to our
-		// users in our click event, whereas Android's standard OnClickListener does _not_ contain
-		// that info.  However, an "up" seems to always occur before the click listener gets invoked,
-		// so we store the last up event's x,y coordinates (see onTouch above) and use them here.
-		// Note: AdapterView throws an exception if you try to put a click listener on it.
-		doSetClickable(touchable);
+		boolean clickable = true;
+		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
+			clickable = (Boolean) proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED);
+		}
+
+		if (clickable) {
+			registerTouchEvents(touchable);
+
+			// Previously, we used the single tap handling above to fire our click event. It doesn't
+			// work: a single tap is not the same as a click. A click can be held for a while before
+			// lifting the finger; a single-tap is only generated from a quick tap (which will also cause
+			// a click.) We wanted to do it in single-tap handling presumably because the singletap
+			// listener gets a MotionEvent, which gives us the information we want to provide to our
+			// users in our click event, whereas Android's standard OnClickListener does _not_ contain
+			// that info. However, an "up" seems to always occur before the click listener gets invoked,
+			// so we store the last up event's x,y coordinates (see onTouch above) and use them here.
+			// Note: AdapterView throws an exception if you try to put a click listener on it.
+			doSetClickable(touchable);
+		}
 	}
 
 
@@ -1354,6 +1519,7 @@ public abstract class TiUIView
 	 * Sets the nativeView's opacity.
 	 * @param opacity the opacity to set.
 	 */
+	@SuppressLint("NewApi")
 	public void setOpacity(float opacity)
 	{
 		if (opacity < 0 || opacity > 1) {
@@ -1366,7 +1532,7 @@ public abstract class TiUIView
 		}
 		if (nativeView != null) {
 			if (HONEYCOMB_OR_GREATER) {
-				nativeView.setAlpha(opacity);
+				setAlpha(nativeView, opacity);
 			} else {
 				setOpacity(nativeView, opacity);
 			}
@@ -1375,7 +1541,18 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Sets the view's opacity.
+	 * Sets the view's alpha (Honeycomb or later).
+	 * @param view The native view object
+	 * @param alpha The new alpha value
+	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	protected void setAlpha(View view, float alpha)
+	{
+		view.setAlpha(alpha);
+	}
+
+	/**
+	 * Sets the view's opacity (pre-Honeycomb).
 	 * @param view the view object.
 	 * @param opacity the opacity to set.
 	 */

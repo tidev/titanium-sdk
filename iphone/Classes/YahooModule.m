@@ -38,6 +38,11 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Yahoo";
+}
+
 #pragma mark Delegates
 
 - (void)requestFinished:(ASIHTTPRequest *)request

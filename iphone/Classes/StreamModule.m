@@ -116,6 +116,11 @@
     }
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Stream";
+}
+
 -(void)read:(id)args
 {
     TiStreamProxy<TiStreamInternal>* stream = nil;

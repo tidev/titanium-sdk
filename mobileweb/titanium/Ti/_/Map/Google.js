@@ -32,7 +32,7 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 		MapView = declare('Ti.Map.View', View, {
 
 			constructor: function() {
-				this.properties.__values__.annotations = [];
+				this.__values__.properties.annotations = [];
 				this._annotationMap = {};
 				this._routes = [];
 				this.fireEvent('loading');
@@ -112,7 +112,7 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 			removeAnnotation: function(/*String|Ti.Map.Annotation*/a) {
 				require.is(a, 'String') && (a = this._annotationMap[a]);
 				if (a) {
-					var annotations = this.properties.__values__.annotations,
+					var annotations = this.__values__.properties.annotations,
 						p = annotations.indexOf(a);
 					theInfoWindow && this._hide(a);
 					gevent.removeListener(a.evt);
@@ -295,11 +295,11 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 					this[theInfoWindow && theInfoWindow.widgetId === a.widgetId ? '_hide' : '_show'](a);
 				}));
 
-				this.properties.__values__.annotations.push(a);
+				this.__values__.properties.annotations.push(a);
 			},
 
 			_fitRegion: function() {
-				var c = this.constants,
+				var c = this.__values__.constants,
 					gmap = this._gmap,
 					center = gmap.getCenter(),
 					bounds = gmap.getBounds(),
@@ -314,7 +314,7 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 						longitudeDelta: lngD
 					};
 
-				this.regionFit && (this.properties.__values__.region = region);
+				this.regionFit && (this.__values__.properties.region = region);
 
 				if (!this._initialized) {
 					this._initialized = 1;
@@ -367,7 +367,7 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 
 					if (!Geolocation.locationServicesEnabled) {
 						Ti.API.warn('Geolocation services unavailable');
-						this.properties.__values__.userLocation = false;
+						this.__values__.properties.userLocation = false;
 					} else if (!userLocation || this._locationMarker) {
 						this._locationMarker.setVisible(userLocation);
 					}

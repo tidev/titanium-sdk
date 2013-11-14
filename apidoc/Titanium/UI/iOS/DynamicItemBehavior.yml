@@ -1,0 +1,203 @@
+---
+name: Titanium.UI.iOS.DynamicItemBehavior
+summary: Base dynamic configuration for an item.
+description: |
+    The following APIs are supported on iOS 7 and later.
+
+    A dynamic item behavior configures the physics attributes for one or more items. These
+    attributes, such as density and resistance, affects the behavior of the object when other behaviors,
+    such as push forces or collisions, are applied to it.  To define a dynamic behavior for an item:
+
+      1. Use the <Titanium.UI.iOS.createDynamicItemBehavior> method to create and define the behavior.
+      2. Use the [addItem](Titanium.UI.iOS.DynamicItemBehavior.addItem) method to add items to the behavior.
+      3. Add the behavior to an [Animator object](Titanium.UI.iOS.Animator).
+    
+extends: Titanium.Proxy
+since: "3.2"
+platforms: [iphone, ipad]
+osver: {ios: {min: "7.0"}}
+
+properties:
+  - name: allowsRotation
+    summary: Specifies if this item can rotate.
+    description: Set to `true` to enable this behavior or `false` to disable.
+    type: Boolean
+    default: true
+
+  - name: angularResistance
+    summary: Specifies the angular resistance of this item.
+    description: |
+        The greater the value, the greater the angular damping and rotation slows to a stop faster.
+    type: Number
+    default: 0
+
+  - name: density
+    summary: Specifies the relative mass density of this item.
+    description: |
+        An item's density along with its size determines its effective mass and affects its dynamic
+        behavior.
+    type: Number
+    default: 1
+
+  - name: elasticity
+    summary: Specifies the elasticity applied to collisions for this item.
+    description: |
+        A value of 0.0 indicates no bounce upon collision, while 1.0 indicates a completely elastic
+        collision.
+    type: Number
+    default: 0
+
+  - name: friction
+    summary: Specifies the linear resistance of the item when it slides against another item.
+    description: |
+        A value of 0.0 indicates no friction, while 1.0 indicates strong friction. Use higher
+        numbers to apply even higher friction.
+    type: Number
+    default: 0
+
+  - name: items
+    summary: Items added to this behavior.
+    type: Array<Titanium.UI.View>
+    permission: read-only
+
+  - name: resistance
+    summary: Specifies the linear resistance of this item which reduces linear velocity over time.
+    description: |
+        A value of 0.0 indicates no velocity damping.
+    type: Number
+    default: 0
+
+methods:
+  - name: addAngularVelocityForItem
+    summary: Adds a specified angular velocity for the item.
+    parameters:
+      - name: item
+        summary: Item to add the velocity for.
+        type: Titanium.UI.View
+
+      - name: velocity
+        summary: |
+            Velocity to add or subtract in radians per second. If the current velocity is positive,
+            the item spins clockwise.  A negative value means the item spins counter-clockwise.
+        type: Number
+
+  - name: addItem
+    summary: Adds an item to this behavior.
+    parameters:
+      - name: item
+        summary: 
+        type: Titanium.UI.View
+
+  - name: addLinearVelocityForItem
+    summary: Adds a specified linear velocity for the item.
+    parameters:
+      - name: item
+        summary: Item to add the velocity for.
+        type: Titanium.UI.View
+
+      - name: velocity
+        summary: Velocity to add or substract in points per second in the x and y directions.
+        type: Point
+
+  - name: angularVelocityForItem
+    summary: Returns the angular velocity of the item.
+    parameters:
+      - name: item
+        summary: Item to retrieve the velocity of.
+        type: Titanium.UI.View
+    returns:
+        type: Number
+
+  - name: linearVelocityForItem
+    summary: Returns the linear velocity of the item.
+    parameters:
+      - name: item
+        summary: Item to retrieve the velocity of.
+        type: Titanium.UI.View
+    returns:
+        type: Point
+
+  - name: removeItem
+    summary: Removes the specified item from this behavior.
+    parameters:
+      - name: item
+        summary: Item to remove.
+        type: Titanium.UI.View
+
+examples:
+  - title: Simple Example
+    example: |
+        The following example create two blocks, which are pushed towards each other.  Because the
+        red block is more dense and has higher resistance than the blue block, the red block moves
+        steadily to the left, while the blue block spins around unpredictably.
+
+            var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
+            
+            // Create an Animator object using the window as the coordinate system
+            var animator = Ti.UI.iOS.createAnimator({referenceView: win});
+
+            // Create a red block
+            var redBlock = Ti.UI.createView({
+                backgroundColor: 'red',
+                width: 25,
+                height: 25,
+                top: 25,
+                left: 25
+            });
+
+            // Change the physics attributes of the red block
+            var redDynamic = Ti.UI.iOS.createDynamicItemBehavior({
+                density: 20.0,
+                angularResistance: 1.0,
+                friction: 1.0,
+                resistance: 1.0,
+                allowsRotation: false
+            });
+            redDynamic.addItem(redBlock);
+
+            // Apply a left push to the red block
+            var redPush = Ti.UI.iOS.createPushBehavior({
+                pushDirection: {x: 2.0, y: 0.0}
+            });
+            redPush.addItem(redBlock);
+
+            // Create a blue block
+            var blueBlock = Ti.UI.createView({
+                backgroundColor: 'blue',
+                width: 50,
+                height: 50,
+                top: 25,
+                right: 25
+            });
+
+            // Change the physics attributes of the blue block
+            var blueDynamic = Ti.UI.iOS.createDynamicItemBehavior({
+                elasticity: 1.0,
+            });
+            blueDynamic.addItem(blueBlock);
+
+            // Apply a right push to the blue block
+            var bluePush = Ti.UI.iOS.createPushBehavior({
+                pushDirection: {x: -2.0, y: 0.0}
+            });
+            bluePush.addItem(blueBlock);
+
+            // Create the collision behavior so the items can collide
+            var collision = Ti.UI.iOS.createCollisionBehavior();
+            collision.addItem(redBlock);
+            collision.addItem(blueBlock);
+
+            animator.addBehavior(redDynamic);
+            animator.addBehavior(redPush);
+            animator.addBehavior(blueDynamic);
+            animator.addBehavior(bluePush);
+            animator.addBehavior(collision);
+
+            // Start the animation when the window opens
+            win.addEventListener('open', function(e){
+                animator.startAnimator();
+            });
+
+            win.add(redBlock);
+            win.add(blueBlock);
+            win.open();

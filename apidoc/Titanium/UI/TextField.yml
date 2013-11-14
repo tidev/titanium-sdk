@@ -68,6 +68,24 @@ properties:
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
     
+  - name: attributedString
+    summary: TextField attributed string. 
+    description: |
+        The underlying attributed string drawn by the textField, if set, the textField ignores
+        the `value` property
+    type: Titanium.UI.iOS.AttributedString
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
+  - name: attributedHintText
+    summary: Hint text attributed string. 
+    description: |
+        The attributed hint text by the textField, if set, the textField ignores
+        the `hintText` property
+    type: Titanium.UI.iOS.AttributedString
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 
     description: |
@@ -78,7 +96,7 @@ properties:
         or [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
     type: Number
     default: <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>
-    
+    exclude-platforms: [blackberry]    
   - name: autocorrect
     summary: |
         Determines whether to automatically correct text entered into this text field.
@@ -90,7 +108,8 @@ properties:
         On iOS and Mobile Web, the returned default value is `false`, and on Android, the returned
         default value is undefined, but all behave as if the value is `true`.
     type: Boolean
-    
+    exclude-platforms: [blackberry]    
+
   - name: autoLink
     summary: Automatically convert text to clickable links. 
     description: |     
@@ -149,6 +168,7 @@ properties:
     summary: Determines whether the value of this text field should be cleared when it is focused.
     type: Boolean
     default: false
+    exclude-platforms: [blackberry]    
     
   - name: color
     summary: Color of the text in this text field, as a color name or hex triplet.
@@ -171,7 +191,6 @@ properties:
     summary: Determines whether the field is enabled.
     type: Boolean
     default: true
-    platforms: [android, ipad, iphone, mobileweb, tizen]
     
   - name: enableReturnKey
     summary: |
@@ -182,6 +201,7 @@ properties:
         automatically enabled as soon as the user types any text in the field.
     type: Boolean
     default: false
+    exclude-platforms: [blackberry]    
     
   - name: font
     summary: Font to use for text.
@@ -360,6 +380,7 @@ properties:
         or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
     type: [String, Number]
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
+    exclude-platforms: [blackberry]    
     
   - name: value
     summary: Value of this text field, which may be set programmatically and modified by the user.

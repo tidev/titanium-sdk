@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -150,6 +150,24 @@ public class ActivityProxy extends KrollProxy
 		return false;
 	}
 
+	@Kroll.method
+	public void sendBroadcast(IntentProxy intent)
+	{
+		Activity activity = getWrappedActivity();
+		if (activity != null) {
+			activity.sendBroadcast(intent.getIntent());
+		}
+	}
+
+	@Kroll.method
+	public void sendBroadcastWithPermission(IntentProxy intent, @Kroll.argument(optional = true) String receiverPermission)
+	{
+		Activity activity = getWrappedActivity();
+		if (activity != null) {
+			activity.sendBroadcast(intent.getIntent(), receiverPermission);
+		}
+	}
+	
 	@Kroll.method
 	public String getString(int resId, Object[] formatArgs)
 	{
@@ -319,4 +337,9 @@ public class ActivityProxy extends KrollProxy
 		return super.handleMessage(msg);
 	}
 
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Android.Activity";
+	}
 }

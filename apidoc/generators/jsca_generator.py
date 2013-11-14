@@ -223,6 +223,9 @@ def to_jsca_since(platforms):
 		}, ("name",)) for platform in platforms]
 
 def to_jsca_type(api):
+	# Objects marked as external should be ignored
+	if api.external:
+		return None
 	if api.name in not_real_titanium_types:
 		return None
 	log.trace("Converting %s to jsca" % api.name)

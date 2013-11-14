@@ -94,6 +94,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Filesystem.FileStream";
+}
+
 #define THROW_IF_HANDLE_NIL(loc) \
 if(fileHandle == nil) {\
 	[self throwException:TiExceptionInternalInconsistency subreason:@"File handle has already been closed." location:loc];\

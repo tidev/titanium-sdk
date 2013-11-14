@@ -838,11 +838,20 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 
 	public void seekTo(int msec)
 	{
+		int currPosition = getCurrentPosition();
 		if (isInPlaybackState()) {
 			mMediaPlayer.seekTo(msec);
 			mSeekWhenPrepared = 0;
 		} else {
 			mSeekWhenPrepared = msec;
+		}
+		
+		if (mPlaybackListener != null) {
+			if (msec > currPosition) {
+				mPlaybackListener.onSeekingForward();
+			} else if (msec < currPosition) {
+				mPlaybackListener.onSeekingBackward();
+			}
 		}
 	}
 

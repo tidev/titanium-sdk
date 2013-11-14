@@ -34,6 +34,11 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     return self;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.ListItem";
+}
+
 - (id)init
 {
     self = [super init];
@@ -75,10 +80,6 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 		TiThreadPerformOnMainThread(^{
 			_listItem.accessoryType = [TiUtils intValue:newValue def:UITableViewCellAccessoryNone];
 		}, YES);
-	} else if ([key isEqualToString:@"backgroundColor"]) {
-		TiThreadPerformOnMainThread(^{
-			_listItem.contentView.backgroundColor = [[TiUtils colorValue:newValue] _color];
-		}, YES);
 	} else if ([key isEqualToString:@"selectionStyle"]) {
 		TiThreadPerformOnMainThread(^{
 			_listItem.selectionStyle = [TiUtils intValue:newValue def:UITableViewCellSelectionStyleBlue];
@@ -90,6 +91,11 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 {
 	[super unarchiveFromTemplate:viewTemplate];
 	SetEventOverrideDelegateRecursive(self.children, self);
+}
+
+-(BOOL)canHaveControllerParent
+{
+	return NO;
 }
 
 #pragma mark - TiViewEventOverrideDelegate

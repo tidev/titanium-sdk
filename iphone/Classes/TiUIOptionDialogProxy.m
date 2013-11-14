@@ -28,6 +28,11 @@
     return [NSMutableDictionary dictionaryWithObject:@"title" forKey:@"titleid"];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.OptionDialog";
+}
+
 -(void)show:(id)args
 {
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);

@@ -28,10 +28,11 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  TiApp represents an instance of an application. There is always only one instance per application which could be accessed through <app> class method.
  @see app
  */
-@interface TiApp : TiHost <UIApplicationDelegate> 
+@interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate>
 {
 	UIWindow *window;
 	UIImageView *loadView;
+	UIImageView *splashScreenImage;
 	BOOL loaded;
 
 	TiContextGroupRef contextGroup;
@@ -52,7 +53,10 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	
 	id remoteNotificationDelegate;
 	NSDictionary* remoteNotification;
-	
+	NSMutableDictionary* pendingCompletionHandlers;
+    NSMutableDictionary* backgroundTransferCompletionHandlers;
+    BOOL appBooted;
+    
 	NSString *sessionId;
 
 	UIBackgroundTaskIdentifier bgTask;
@@ -60,6 +64,8 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	NSMutableArray *runningServices;
 	NSDictionary *localNotification;
 }
+
+@property (nonatomic) BOOL forceSplashAsSnapshot;
 
 /**
  Returns application's primary window.
@@ -69,6 +75,10 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 
 @property (nonatomic, assign) id remoteNotificationDelegate;
+
+
+@property (nonatomic, readonly) NSMutableDictionary* pendingCompletionHandlers;
+@property (nonatomic, readonly) NSMutableDictionary* backgroundTransferCompletionHandlers;
 
 /**
  Returns details for the last remote notification.
@@ -96,6 +106,11 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  Returns singleton instance of TiApp application object.
  */
 +(TiApp*)app;
+
+/**
+ * Returns a read-only dictionary from tiapp.xml properties
+ */
++(NSDictionary *)tiAppProperties;
 
 /*
  Convenience method to returns root view controller for TiApp instance.
@@ -189,9 +204,13 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 -(void)beginBackgrounding;
 -(void)endBackgrounding;
 
+@property(nonatomic,readonly) BOOL appBooted;
+
 -(void)registerBackgroundService:(TiProxy*)proxy;
 -(void)unregisterBackgroundService:(TiProxy*)proxy;
 -(void)stopBackgroundService:(TiProxy*)proxy;
+-(void)completionHandler:(id)key withResult:(int)result;
+-(void)completionHandlerForBackgroundTransfer:(id)key;
 
 @end
 

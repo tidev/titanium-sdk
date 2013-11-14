@@ -13,28 +13,16 @@
 @implementation TiUILabelProxy
 
 USE_VIEW_FOR_CONTENT_WIDTH
+USE_VIEW_FOR_CONTENT_HEIGHT
+
+-(NSString*)apiName
+{
+    return @"Ti.UI.Label";
+}
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     [super _initWithProperties:properties];
-}
-
--(CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
-{
-	NSString *value = [TiUtils stringValue:[self valueForKey:@"text"]];
-	id fontValue = [self valueForKey:@"font"];
-	UIFont *font = nil;
-	if (fontValue!=nil)
-	{
-		font = [[TiUtils fontValue:[self valueForKey:@"font"]] font];
-	}
-	else 
-	{
-		font = [UIFont systemFontOfSize:[UIFont labelFontSize]];
-	}
-	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 10000);
-	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
-	return [self verifyHeight:size.height]; //Todo: We need to verifyHeight elsewhere as well.
 }
 
 -(CGFloat) verifyWidth:(CGFloat)suggestedWidth
@@ -50,6 +38,13 @@ USE_VIEW_FOR_CONTENT_WIDTH
 -(CGFloat) verifyHeight:(CGFloat)suggestedHeight
 {
 	int height = ceil(suggestedHeight);
+    if ([self viewInitialized]) {
+        int minHeight = ceil([[[(TiUILabel*)view label] font] lineHeight]);
+        if (height < minHeight) {
+            height = minHeight;
+        }
+    }
+    
 	if (height & 0x01)
 	{
 		height ++;
@@ -81,6 +76,10 @@ USE_VIEW_FOR_CONTENT_WIDTH
     return TiDimensionAutoSize;
 }
 
+-(UIView *)parentViewForChild:(TiViewProxy *)child
+{
+	return [[(TiUILabel*)[self view] label] superview];
+}
 
 @end
 

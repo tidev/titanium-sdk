@@ -8,23 +8,31 @@ package ti.modules.titanium.ui.widget.searchbar;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.TiUIText;
+import android.graphics.drawable.Drawable;
 import android.text.InputType;
+import android.text.TextUtils.TruncateAt;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 public class TiUISearchBar extends TiUIText
 {
 	protected ImageButton cancelBtn;
+	private TiEditText tv;
+	private TextView promptText;
 	
 	public interface OnSearchChangeListener {
 		public void filterBy(String text);
@@ -35,9 +43,12 @@ public class TiUISearchBar extends TiUIText
 	public TiUISearchBar(final TiViewProxy proxy)
 	{
 		super(proxy, true);
-		
-		TiEditText tv = (TiEditText) getNativeView();
+
+		tv = (TiEditText) getNativeView();
 		tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
+		promptText = new TextView(proxy.getActivity());
+		promptText.setEllipsize(TruncateAt.END);
+		promptText.setSingleLine(true);
 
 		// TODO Add Filter support
 
@@ -60,6 +71,7 @@ public class TiUISearchBar extends TiUIText
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}*/
+				tv.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
 				fireEvent("cancel", null);
 			}
 		});
@@ -76,8 +88,15 @@ public class TiUISearchBar extends TiUIText
 
 		layout.setGravity(Gravity.NO_GRAVITY);
 		layout.setPadding(0,0,0,0);
+		
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT,
+			LayoutParams.WRAP_CONTENT);
+		params.addRule(RelativeLayout.CENTER_IN_PARENT);
+		params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		promptText.setGravity(Gravity.CENTER_HORIZONTAL);
+		layout.addView(promptText, params);
 
-		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+		params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		params.addRule(RelativeLayout.CENTER_VERTICAL);
 		params.addRule(RelativeLayout.LEFT_OF, 101);
@@ -105,28 +124,49 @@ public class TiUISearchBar extends TiUIText
 	public void processProperties(KrollDict d)
 	{
 		super.processProperties(d);
-
-		if (d.containsKey("showCancel")) {
-			boolean showCancel = TiConvert.toBoolean(d, "showCancel", false);
+		if (d.containsKey(TiC.PROPERTY_SHOW_CANCEL)) {
+			boolean showCancel = TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_CANCEL, false);
 			cancelBtn.setVisibility(showCancel ? View.VISIBLE : View.GONE);
-		} else if (d.containsKey("barColor")) {
-			nativeView.setBackgroundColor(TiConvert.toColor(d, "barColor"));
+		}
+		if (d.containsKey(TiC.PROPERTY_BAR_COLOR)) {
+			nativeView.setBackgroundColor(TiConvert.toColor(d, TiC.PROPERTY_BAR_COLOR));
+		}
+		if (d.containsKey(TiC.PROPERTY_PROMPT)) {
+			String strPrompt = TiConvert.toString(d, TiC.PROPERTY_PROMPT);
+			promptText.setText(strPrompt);
+		}
+		if (d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
+			processBackgroundImage(proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE), proxy);
 		}
 	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if (key.equals("showCancel")) {
+		if (key.equals(TiC.PROPERTY_SHOW_CANCEL)) {
 			boolean showCancel = TiConvert.toBoolean(newValue);
 			cancelBtn.setVisibility(showCancel ? View.VISIBLE : View.GONE);
-		} else if (key.equals("barColor")) {
+		} else if (key.equals(TiC.PROPERTY_BAR_COLOR)) {
 			nativeView.setBackgroundColor(TiConvert.toColor(TiConvert.toString(newValue)));
+		} else if (key.equals(TiC.PROPERTY_PROMPT)) {
+			String strPrompt = TiConvert.toString(newValue);
+			promptText.setText(strPrompt);
+		} else if (key.equals(TiC.PROPERTY_BACKGROUND_IMAGE)) {
+			processBackgroundImage(newValue, proxy);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
-	
+
+	private void processBackgroundImage(Object imgValue, KrollProxy proxy)
+	{
+		String bkgdImage = TiConvert.toString(imgValue);
+		TiFileHelper tfh = new TiFileHelper(tv.getContext());
+		String url = proxy.resolveUrl(null, bkgdImage);
+		Drawable background = tfh.loadDrawable(url, false);
+		nativeView.setBackgroundDrawable(background);
+	}
+
 	public void setOnSearchChangeListener(OnSearchChangeListener listener) {
 		this.searchChangeListener = listener;
 	}

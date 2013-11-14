@@ -40,7 +40,7 @@ p = subprocess.Popen([gitCmd,"show","--abbrev-commit","--no-color"],stderr=subpr
 githash = p.communicate()[0][7:].split('\n')[0].strip()
 
 ignoreExtensions = ['.pbxuser','.perspectivev3','.pyc']
-ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','build','bridge.txt', 'packaged']
+ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','bridge.txt', 'packaged']
 
 def remove_existing_zips(dist_dir, version_tag):
 	for os_name in os_names.values():
@@ -277,6 +277,8 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 
 	ticore_lib = os.path.join(top_dir,'iphone','lib')
 
+	zf.write(os.path.join(top_dir, 'iphone', 'simulators.json'), basepath+'/iphone/simulators.json')
+
 	# during 1.3.3, we added a new lib to a folder that had a .gitignore
 	# and we need to manually reset this
 	if not os.path.exists(os.path.join(ticore_lib,'libtiverify.a')):
@@ -389,18 +391,14 @@ def resolve_npm_deps(dir, version, node_appc_branch):
 		package_json_original = codecs.open(package_json_file, 'r', 'utf-8').read()
 		package_json_contents = package_json_original
 
-		subs = {
-			"__VERSION__": version,
-			"__TIMESTAMP__": ts,
-			"__GITHASH__": githash
-		}
-		for key in subs:
-			package_json_contents = package_json_contents.replace(key, subs[key])
-
+		json = simplejson.loads(package_json_contents)
+		json['version'] = version
 		if node_appc_branch:
-			json = simplejson.loads(package_json_contents)
+			print 'node-appc-branch = %s' % node_appc_branch
 			json['dependencies']['node-appc'] = 'git://github.com/appcelerator/node-appc.git#%s' % node_appc_branch
 			package_json_contents = simplejson.dumps(json, indent=True)
+		else:
+			print 'node-appc = %s' % json['dependencies']['node-appc']
 
 		codecs.open(package_json_file, 'w', 'utf-8').write(package_json_contents)
 
@@ -411,7 +409,7 @@ def resolve_npm_deps(dir, version, node_appc_branch):
 		npm_installed = False
 
 		try:
-			p = subprocess.Popen('node --version', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			p = subprocess.Popen('node --version', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			stdout, stderr = p.communicate()
 			if p.returncode == 0:
 				node_installed = True
@@ -424,7 +422,7 @@ def resolve_npm_deps(dir, version, node_appc_branch):
 				if len(ver) > 1 and int(ver[0]) == 0 and int(ver[1]) < node_minimum_minor_ver:
 					node_too_old = True
 
-				p = subprocess.Popen('npm --version', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				p = subprocess.Popen('npm --version', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 				stdout, stderr = p.communicate()
 				if p.returncode == 0:
 					npm_installed = True
@@ -446,18 +444,20 @@ def resolve_npm_deps(dir, version, node_appc_branch):
 
 		# need to npm install all node dependencies
 		print 'Calling npm from %s' % dir
-		p = subprocess.Popen('npm install', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		node_env = os.environ.copy()
+		node_env['NODE_ENV'] = os.getenv('NODE_ENV', 'production')
+		p = subprocess.Popen('npm install', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=node_env)
 		stdout, stderr = p.communicate()
 		if p.returncode != 0:
 			codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 			print '[ERROR] Failed to npm install dependencies'
-			if stderr.find('EACCES') > 0:
+			if stderr.find('EACCES') > 0 or stderr.find('Permission denied') > 0:
 				try:
 					print '[ERROR] npm failed because there are files in the %s/.npm directory that are not writeable' % os.environ['HOME']
 					print '[ERROR] Either run'
-					print '[ERROR]    chown -R %s %s/.npm' % (os.environ['USER'], os.environ['HOME'])
+					print '[ERROR]    sudo chown -R %s %s/.npm' % (os.environ['USER'], os.environ['HOME'])
 					print '[ERROR] or'
-					print '[ERROR]    rm -rf %s/.npm/*' % os.environ['HOME']
+					print '[ERROR]    sudo rm -rf %s/.npm/*' % os.environ['HOME']
 				except:
 					print stderr
 			else:
@@ -477,12 +477,16 @@ def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, version_tag, build_jsca):
 	zf, basepath, filename = create_platform_zip('mobilesdk', dist_dir, osname, version, version_tag)
 
-	version_txt = """version=%s
-module_apiversion=%s
-timestamp=%s
-githash=%s
-""" % (version,module_apiversion,ts,githash)
-	zf.writestr('%s/version.txt' % basepath,version_txt)
+	ignore_paths = []
+	if osname == 'win32':
+		ignore_paths.append(os.path.join(template_dir, 'iphone'))
+		ignore_paths.append(os.path.join(template_dir, 'osx'))
+	if osname == 'linux':
+		ignore_paths.append(os.path.join(template_dir, 'iphone'))
+		ignore_paths.append(os.path.join(template_dir, 'osx'))
+		ignore_paths.append(os.path.join(template_dir, 'win32'))
+	if osname == 'osx':
+		ignore_paths.append(os.path.join(template_dir, 'win32'))
 
 	platforms = []
 	for dir in os.listdir(top_dir):
@@ -490,6 +494,13 @@ githash=%s
 			# if new platforms are added, be sure to add them to the line below!
 			if (dir == 'android' and android) or (osname == "osx" and dir == 'iphone' and (iphone or ipad)) or (dir == 'mobileweb' and mobileweb) or (dir == 'blackberry' and blackberry) or (dir == 'tizen' and tizen) or (dir == 'ivi' and ivi):
 				platforms.append(dir)
+
+	# bundle root files
+	zf.write(os.path.join(top_dir, 'CREDITS'), '%s/CREDITS' % basepath)
+	zf.write(os.path.join(top_dir, 'README.md'), '%s/README.md' % basepath)
+	zf.write(os.path.join(top_dir, 'package.json'), '%s/package.json' % basepath)
+	zip_dir(zf, os.path.join(top_dir, 'cli'), '%s/cli' % basepath, ignore_paths=ignore_paths)
+	zip_dir(zf, os.path.join(top_dir, 'node_modules'), '%s/node_modules' % basepath, ignore_paths=ignore_paths)
 
 	manifest_json = '''{
 	"version": "%s",
@@ -522,20 +533,16 @@ githash=%s
 
 		zf.writestr('%s/api.jsca' % basepath, jsca)
 
-	ignore_paths = []
-	if osname == 'win32':
-		ignore_paths.append(os.path.join(template_dir, 'iphone'))
-		ignore_paths.append(os.path.join(template_dir, 'osx'))
-	if osname == 'linux':
-		ignore_paths.append(os.path.join(template_dir, 'iphone'))
-		ignore_paths.append(os.path.join(template_dir, 'osx'))
-		ignore_paths.append(os.path.join(template_dir, 'win32'))
-	if osname == 'osx':
-		ignore_paths.append(os.path.join(template_dir, 'win32'))
+	# the node_modules directory was moved from support to the root of timob and
+	# we need to nuke it from the support directory so that it doesn't overwrite
+	# the node_modules added above
+	old_node_modules_path = os.path.join(template_dir, 'node_modules')
+	if os.path.exists(old_node_modules_path):
+		shutil.rmtree(old_node_modules_path, True)
 
 	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"), osname == 'osx')
-	zip_dir(zf, all_dir, basepath)
-	zip_dir(zf, template_dir, basepath, ignore_paths=ignore_paths, ignore_files=[os.path.join(template_dir, 'package.json')])
+	#zip_dir(zf, all_dir, basepath)
+	zip_dir(zf, template_dir, basepath, ignore_paths=ignore_paths)
 	if android: zip_android(zf, basepath, version)
 	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone',version,version_tag)
 	if mobileweb: zip_mobileweb(zf, basepath, version)
@@ -555,7 +562,7 @@ class Packager(object):
 			version_tag = version
 
 		# get all SDK level npm dependencies
-		resolve_npm_deps(template_dir, version, node_appc_branch)()
+		resolve_npm_deps(top_dir, version, node_appc_branch)()
 
 		zip_mobilesdk(dist_dir, os_names[platform.system()], version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, version_tag, self.build_jsca)
 
@@ -569,7 +576,7 @@ class Packager(object):
 		remove_existing_zips(dist_dir, version_tag)
 
 		# get all SDK level npm dependencies
-		resolve_npm_deps(template_dir, version, node_appc_branch)()
+		resolve_npm_deps(top_dir, version, node_appc_branch)()
 
 		for os in os_names.values():
 			zip_mobilesdk(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, version_tag, self.build_jsca)

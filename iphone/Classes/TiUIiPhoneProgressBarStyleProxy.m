@@ -11,6 +11,11 @@
 
 @implementation TiUIiPhoneProgressBarStyleProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPhone.ProgressBarStyle";
+}
+
 MAKE_SYSTEM_PROP(PLAIN,UIProgressViewStyleDefault);
 MAKE_SYSTEM_PROP(DEFAULT,UIProgressViewStyleDefault);
 MAKE_SYSTEM_PROP(BAR,UIProgressViewStyleBar);

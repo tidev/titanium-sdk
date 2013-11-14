@@ -507,9 +507,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 {
 	[self ensureLocalProtocolHandler];
 	NSStringEncoding encoding = NSUTF8StringEncoding;
-	NSString *mimeType = [Mimetypes mimeTypeForExtension:[url path]];
-	NSString *textEncodingName = @"utf-8";
 	NSString *path = [url path];
+	NSString *mimeType = [Mimetypes mimeTypeForExtension:path];
+	NSString *textEncodingName = @"utf-8";
 	NSError *error = nil;
 	NSURL *baseURL = [[url copy] autorelease];
 	
@@ -530,7 +530,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			{
 				//step 3: try an appropriate legacy encoding (if one) -- what's that? Latin-1?
 				//at this point we're just going to fail
-				DebugLog(@"[ERROR] Couldn't determine the proper encoding. Make sure this file: %@ is UTF-8 encoded.",[path lastPathComponent]);
+                //This is assuming, of course, that this just isn't a pdf or some other non-HTML file.
+                if([[path pathExtension] hasPrefix:@"htm"]){
+                    DebugLog(@"[ERROR] Couldn't determine the proper encoding. Make sure this file: %@ is UTF-8 encoded.",[path lastPathComponent]);                    
+                }
 			} else {
 				// if we get here, it succeeded using UTF8
 				encoding = NSUTF8StringEncoding;
@@ -557,7 +560,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			}
 			return;
 		} else if (error!=nil) {
-			NSLog(@"[ERROR] Error loading file: %@. Message was: %@",path,error);
+			DebugLog(@"[DEBUG] Cannot load file: %@. Error message was: %@", path, error);
 			RELEASE_TO_NIL(url);
 			return;
 		}
@@ -655,6 +658,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		[self.proxy fireEvent:@"beforeload" withObject:event];
 	}
 
+	if (navigationType != UIWebViewNavigationTypeOther) {
+		RELEASE_TO_NIL(lastValidLoad);
+	}
+
 	NSString * scheme = [[newUrl scheme] lowercaseString];
 	if ([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"ftp"]
 			|| [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
@@ -717,8 +724,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     }
     [webView setNeedsDisplay];
     ignoreNextRequest = NO;
-    TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
-    [ourProxy contentsWillChange];
+    TiUIWebViewProxy * ourProxy = (TiUIWebViewProxy *)[self proxy];
+    [ourProxy webviewDidFinishLoad];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error

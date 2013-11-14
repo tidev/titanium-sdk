@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -162,8 +162,10 @@ public class TableViewProxy extends TiViewProxy
 				int index = getTableView().getTableView().getIndexFromXY(x, y);
 				if (index != -1 && source == this) {
 					Item item = getTableView().getTableView().getItemAtPosition(index);
-					dataCopy.put(TiC.PROPERTY_SOURCE, item.proxy);
-					return item.proxy.fireEvent(eventName, dataCopy, bubbles);
+					if (item != null) {
+						dataCopy.put(TiC.PROPERTY_SOURCE, item.proxy);
+						return item.proxy.fireEvent(eventName, dataCopy, bubbles);
+					}
 				}
 			}
 		}
@@ -338,7 +340,7 @@ public class TableViewProxy extends TiViewProxy
 				getTableView().setModelDirty();
 				updateView();
 			} else {
-				throw new IllegalStateException("Unable to delete row. Index out of range. Non-existent row at " + index);
+				Log.e(TAG, "Unable to delete row. Index out of range. Non-existent row at " + index);
 			}
 		} else if (row instanceof TableViewRowProxy) {
 			TableViewRowProxy rowProxy = (TableViewRowProxy) row;
@@ -963,5 +965,11 @@ public class TableViewProxy extends TiViewProxy
 				}
 			}
 		}
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.TableView";
 	}
 }

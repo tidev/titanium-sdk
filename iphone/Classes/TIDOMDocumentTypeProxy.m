@@ -11,6 +11,11 @@
 
 @implementation TIDOMDocumentTypeProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.XML.DocumentType";
+}
+
 -(id)nodeValue
 {
 	// DOM spec says nodeValue must return null

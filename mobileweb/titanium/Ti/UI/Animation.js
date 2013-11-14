@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare, Evented, style, UI) {
+/*global define, window, requestAnimationFrame*/
+define(['Ti/_/declare', 'Ti/_/Evented', 'Ti/_/style', 'Ti/UI'], function(declare, Evented, style, UI) {
 
 	var curves = [
 			function easeInOut(n) {
@@ -19,7 +20,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 		now = Date.now,
 		on = require.on,
 		lastTime = 0,
-		prefixes = ["ms", "moz", "webkit", "o"],
+		prefixes = ['ms', 'moz', 'webkit', 'o'],
 		i = prefixes.length,
 		ignoreOptions = {
 			autoreverse: 1,
@@ -51,9 +52,9 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 		rotateRegExp = /rotate(3d)?\(([^\)]*)/,
 		needsRender,
 		animations = {},
-		transformName = style.discover("transform"),
+		transformName = style.discover('transform'),
 		colors = require(require.config.ti.colorsModule),
-		api = declare("Ti.UI.Animation", Evented, {
+		api = declare('Ti.UI.Animation', Evented, {
 			properties: {
 				autoreverse: void 0,
 				backgroundColor: void 0,
@@ -77,7 +78,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 		});
 
 	while (--i >= 0 && !global.requestAnimationFrame) {
-		global.requestAnimationFrame = global[prefixes[i] + "RequestAnimationFrame"];
+		global.requestAnimationFrame = global[prefixes[i] + 'RequestAnimationFrame'];
 	}
 
 	global.requestAnimationFrame || (global.requestAnimationFrame = function(callback) {
@@ -89,8 +90,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 	});
 
 	function pump() {
-		UI._layoutInProgress ? on.once(UI, "postlayout", function() {
-			requestAnimationFrame(render)
+		UI._layoutInProgress ? on.once(UI, 'postlayout', function() {
+			requestAnimationFrame(render);
 		}) : requestAnimationFrame(render);
 	}
 
@@ -107,6 +108,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 			ts = now(),
 			pct,
 			progress,
+			prop,
 			val,
 			vals;
 
@@ -128,7 +130,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 
 							pct === 1 && (val = ani.forward ? to : from);
 
-							if (prop === "transform") {
+							if (prop === 'transform') {
 								if (pct !== 1) {
 									val = [];
 									len = from.length;
@@ -144,10 +146,10 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 
 								if (val.length === 16) {
 									j = val.splice(12);
-									val = "matrix3d(" + val.join(',') + ") rotate3d(" + j.join(',') + "deg)";
+									val = 'matrix3d(' + val.join(',') + ') rotate3d(' + j.join(',') + 'deg)';
 								} else {
 									j = val.pop();
-									val = "matrix(" + val.join(',') + ") rotate(" + j + "deg)";
+									val = 'matrix(' + val.join(',') + ') rotate(' + j + 'deg)';
 								}
 
 								prop = transformName;
@@ -160,14 +162,14 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 									}
 									needsRender = 1;
 								}
-								val = "rgba(" + val.join(',') + ")";
+								val = 'rgba(' + val.join(',') + ')';
 
 							} else if (positionOptions[prop]) {
 								if (pct !== 1) {
 									val = from + ((to - from) * progress);
 									needsRender = 1;
 								}
-								val = prop === "opacity" ? val : val + "px";
+								val = prop === 'opacity' ? val : val + 'px';
 							}
 
 							ani.prev !== val && (elem.domNode.style[prop] = val);
@@ -186,7 +188,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 							// we need to remove this animation before resolving
 							anis.splice(i--, 1);
 							ani.promise.resolve();
-							if (!anis.length) {
+							if (!anis.length && !animations[wid].activeCount) {
 								delete animations[wid];
 							}
 						}
@@ -206,7 +208,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 		if (color.charAt(0) === '#') {
 			// hex
 			bits = color.length == 4 ? 4 : 8;
-			if (!isNaN(color = Number("0x" + color.substring(1)))) {
+			if (!isNaN(color = Number('0x' + color.substring(1)))) {
 				mask = (1 << bits) - 1; // 15 or 255
 				result = bits === 4 ? 17 : 1; // multiplier
 				result = [((color >> bits * 2) & mask) * result, ((color >> bits) & mask) * result, (color & mask) * result, 1];
@@ -296,11 +298,20 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 			wid = elem.widgetId,
 			id = Math.random() * 1e9 | 0,
 			anis = animations[wid] = (animations[wid] || []),
-			properties = anim.properties.__values__,
+			properties = anim.__values__.properties,
 			delay = properties.delay | 0,
-			visible = !!properties.visible;
+			visible = !!properties.visible,
+			zIndex = properties.zIndex;
+
+		anis.activeCount = ~~anis.activeCount + 1;
 
 		function go() {
+
+			if (!elem._alive || !elem._isAttachedToActiveWin()) {
+				anis.activeCount--;
+				return;
+			}
+
 			var i,
 				len,
 				props = {},
@@ -333,10 +344,10 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 						to = parseColor(to);
 						(from < to || to < from) && (props[prop] = [from, to]);
 					} else if (positionOptions[prop]) {
-						isNaN(from = parseFloat(from)) && prop === "opacity" && (from = 1);
+						isNaN(from = parseFloat(from)) && prop === 'opacity' && (from = 1);
 						to = prop in layoutTo ? layoutTo[prop] : to;
 						from !== to && (props[prop] = [from, to]);
-					} else if (prop === "transform" && (toType = to.declaredClass.match(tiMatrixRegExp))) {
+					} else if (prop === 'transform' && (toType = to.declaredClass.match(tiMatrixRegExp))) {
 						toType = toType[1] | 0;
 
 						matrix = from.match(matrixRegExp);
@@ -373,7 +384,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 				}
 			}
 
-			animations[wid].push({
+			anis.push({
 				id: id,
 				elem: elem,
 				promise: promise,
@@ -386,7 +397,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 				repeat: !!properties.repeat
 			});
 
-			anim.fireEvent("start");
+			anim.fireEvent('start');
 
 			if (!needsRender) {
 				needsRender = 1;
@@ -394,11 +405,10 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 			}
 		}
 
-		delay ? setTimeout(go, delay) : go();
+		setTimeout(go, delay || 0);
 
 		function findAnimation() {
-			var anis = animations[wid],
-				i = 0,
+			var i = 0,
 				len = anis && anis.length;
 			for (; i < len; i++) {
 				if (anis[i].id === id) {
@@ -414,7 +424,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 		promise.pause = function() {
 			var a = findAnimation();
 			a = !!a && (a.paused || (a.paused = now()));
-			anim.fireEvent("pause");
+			anim.fireEvent('pause');
 			return a;
 		};
 
@@ -442,14 +452,13 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 
 			a = !!a && !(a.paused = 0);
 
-			anim.fireEvent("resume");
+			anim.fireEvent('resume');
 
 			return a;
 		};
 
 		promise.cancel = function(reset) {
-			var anis = animations[wid],
-				ani,
+			var ani,
 				prop,
 				node,
 				i = 0,
@@ -464,12 +473,12 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 						node = ani.elem.domNode;
 						for (prop in ani.props) {
 							j = ani.props[prop][0];
-							style.set(node, prop, positionOptions[prop] && prop !== "opacity" ? j + "px" : j);
+							style.set(node, prop, positionOptions[prop] && prop !== 'opacity' ? j + 'px' : j);
 						}
 					}
 
 					anis.splice(i, 1);
-					if (!anis.length) {
+					if (!anis.length && !anis.activeCount) {
 						delete animations[wid];
 					}
 
@@ -479,7 +488,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 				}
 			}
 
-			anim.fireEvent("cancel");
+			anis.activeCount--;
+			anim.fireEvent('cancel');
 
 			return result;
 		};
@@ -490,7 +500,9 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 
 			// TODO: update View.rect here: TIMOB-8930
 
-			anim.fireEvent("complete");
+			anis.activeCount--;
+
+			anim.fireEvent('complete');
 		});
 	};
 

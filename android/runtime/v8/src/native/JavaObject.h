@@ -15,6 +15,11 @@
 
 namespace titanium {
 
+// Provides an interface between a JavaScript object
+// and a Java object instance. This class is also responsible
+// for mangaging the lifetime of the Java object reference
+// so that it is properly collected once becoming unreachable
+// from the JavaScript code.
 class JavaObject : public EventEmitter
 {
 public:
@@ -25,6 +30,7 @@ public:
 	// Delete this object once the Java object has been finalized.
 	virtual ~JavaObject();
 
+  // Test if the JavaScript object wraps a Java object.
 	static bool isJavaObject(v8::Handle<v8::Object> jsObject)
 	{
 		if (jsObject->InternalFieldCount() > 0) {

@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Checkins: Checkin to a Place or Event](http://cloud.appcelerator.com/docs/api/v1/checkins/create)
+        See [Checkins: Checkin to a Place or Event](http://docs.appcelerator.com/cloud/latest/#!/api/Checkins-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `checkins` property of the parameter passed to the callback.
@@ -25,7 +25,7 @@ methods:
   - name: query
     summary: Retrieve a list of checkins with sorting and pagination.
     description: |
-        See [Checkins: Custom Query Checkins](http://cloud.appcelerator.com/docs/api/v1/checkins/query)
+        See [Checkins: Custom Query Checkins](http://docs.appcelerator.com/cloud/latest/#!/api/Checkins-method-query)
         for the request parameters supported by this method.
         
         Data is returned in the `checkins` property of the parameter passed to the callback.
@@ -44,7 +44,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Checkins: Delete a checkin](http://cloud.appcelerator.com/docs/api/v1/checkins/delete)
+        See [Checkins: Delete a checkin](http://docs.appcelerator.com/cloud/latest/#!/api/Checkins-method-delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -58,7 +58,7 @@ methods:
   - name: show
     summary: Retrieve a checkin.
     description: |
-        See [Checkins: Show a Checkin](http://cloud.appcelerator.com/docs/api/v1/checkins/show)
+        See [Checkins: Show a Checkin](http://docs.appcelerator.com/cloud/latest/#!/api/Checkins-method-show)
         for the request parameters supported by this method.
         
         Data is returned in the `checkins` property of the parameter passed to the callback.

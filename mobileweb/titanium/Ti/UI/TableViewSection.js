@@ -68,7 +68,7 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/_/UI/Widget', 'Ti/_/style','Ti/UI/Mobil
 				// Update the row information
 				var rows = this._rows._children,
 					tableView = this._tableView,
-					rowsData = this.constants.rows = [],
+					rowsData = this.__values__.constants.rows = [],
 					i,
 					row;
 				for (i = 1; i < rows.length; i += 2) {

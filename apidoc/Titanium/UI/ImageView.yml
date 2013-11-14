@@ -64,10 +64,12 @@ methods:
     summary: |
         Starts the image animation. On Android and Mobile Web, also resets `index` to the first image.
     description:  This method only works if multiple images are specified.
+    exclude-platforms: [blackberry]
     
   - name: stop
     summary: Stops a running animation. On iOS and Mobile Web, also resets `index` to the first image.
     description:  This method only works if multiple images are specified.
+    exclude-platforms: [blackberry]
     
   - name: toBlob
     summary: Returns the image as a Blob object.
@@ -90,15 +92,19 @@ events:
             property is loaded. Set to `images`, when the series of images defined in the 
             [images](Titanium.UI.ImageView.images) property are loaded.
         type: String
+    exclude-platforms: [blackberry]
     
   - name: start
     summary: Fired when the animation starts.
+    exclude-platforms: [blackberry]
     
   - name: stop
     summary: Fired when the animation stops.
+    exclude-platforms: [blackberry]
     
   - name: error
     summary: Fired when an image fails to load.
+    exclude-platforms: [blackberry]
     properties:
       - name: success
         summary: Indicates a successful operation. Returns `false`.
@@ -122,6 +128,7 @@ events:
     summary: Fired when the animation pauses.
     platforms: [android, iphone, ipad, mobileweb, tizen]
     since: { android: "2.1.1" }
+    exclude-platforms: [blackberry]
 properties:
   - name: animating
     summary: |
@@ -129,6 +136,7 @@ properties:
     type: Boolean
     default: false on creation, true on load (Android), false (iPhone, iPad, Mobile Web, Tizen)
     permission: read-only
+    exclude-platforms: [blackberry]
   
   - name: autorotate
     summary: |
@@ -169,6 +177,7 @@ properties:
         and [start](Titanium.UI.ImageView.start) need to be called for the new value to take effect.
     type: Number
     default: 200 ms in Release 2.1.1 and later. Platform-specific default in earlier releases.
+    exclude-platforms: [blackberry]
     
   - name: enableZoomControls
     summary: Show zoom controls when the user touches the image view.
@@ -176,6 +185,7 @@ properties:
     default: false
     platforms: [android]
     since: "1.3.0"
+    exclude-platforms: [blackberry]
     
   - name: hires
     summary: |
@@ -203,12 +213,14 @@ properties:
         remote URLs (Android only), or `Blob` objects containing image data. `Blob` and `File` 
         objects are not supported on Mobile Web.
     type: [ Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File> ]
+    exclude-platforms: [blackberry]
     
   - name: paused
     summary: Indicates whether the animation is paused.
     type: Boolean
     default: false
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: preventDefaultImage
     summary: |

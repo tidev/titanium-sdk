@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.media;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
@@ -25,11 +26,12 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.webkit.URLUtil;
 
 public class TiSound
 	implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, KrollProxyListener,
-	MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener
+	MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener, MediaPlayer.OnPreparedListener
 {
 	private static final String TAG = "TiSound";
 
@@ -69,6 +71,11 @@ public class TiSound
 	protected boolean playOnResume;
 	protected boolean remote;
 	protected Timer progressTimer;
+	
+	private boolean pausePending = false;
+	private boolean stopPending = false;
+	private boolean playPending = false;
+	private boolean prepareRequired = false;
 
 	public TiSound(KrollProxy proxy)
 	{
@@ -77,7 +84,7 @@ public class TiSound
 		this.remote = false;
 	}
 
-	protected void initialize()
+	protected void initializeAndPlay()
 		throws IOException
 	{
 		try {
@@ -108,7 +115,24 @@ public class TiSound
 			} else {
 				Uri uri = Uri.parse(url);
 				if (uri.getScheme().equals(TiC.PROPERTY_FILE)) {
-					mp.setDataSource(uri.getPath());
+					if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
+						mp.setDataSource(uri.getPath());
+					} else {
+						// For 2.2 and below, MediaPlayer uses the native player which requires
+						// files to have worldreadable access, workaround is to open an input
+						// stream to the file and give that to the player.
+						FileInputStream fis = null;
+						try {
+							fis = new FileInputStream(uri.getPath());
+							mp.setDataSource(fis.getFD());
+						} catch (IOException e) {
+							Log.e(TAG, "Error setting file descriptor: ", e);
+						} finally {
+							if (fis != null) {
+								fis.close();
+							}
+						}
+					}
 				} else {
 					remote = true;
 					mp.setDataSource(url);
@@ -121,13 +145,20 @@ public class TiSound
 			mp.setOnInfoListener(this);
 			mp.setOnBufferingUpdateListener(this);
 			
-			mp.prepare(); // Probably need to allow for Async
-			setState(STATE_INITIALIZED);
-
-			setVolume(volume);
-			if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
-				setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
+			if (remote) { // try async
+				mp.setOnPreparedListener(this);
+				mp.prepareAsync();
+				playPending = true;
+			} else {
+				mp.prepare();
+				setState(STATE_INITIALIZED);
+				setVolume(volume);
+				if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
+					setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
+				}
+				startPlaying();
 			}
+
 		} catch (Throwable t) {
 			Log.w(TAG, "Issue while initializing : " , t);
 			release();
@@ -158,14 +189,14 @@ public class TiSound
 	{
 		try {
 			if (mp != null) {
-				if(mp.isPlaying()) {
+				if (mp.isPlaying()) {
 					Log.d(TAG, "audio is playing, pause", Log.DEBUG_MODE);
-					if (remote) {
-						stopProgressTimer();
-					}
+					stopProgressTimer();
 					mp.pause();
 					paused = true;
 					setState(STATE_PAUSED);
+				} else if (playPending) {
+					pausePending = true;
 				}
 			}
 		} catch (Throwable t) {
@@ -178,21 +209,13 @@ public class TiSound
 		try {
 			if (mp == null) {
 				setState(STATE_STARTING);
-				initialize();
-			}
-
-			if (mp != null) {
-				if (!isPlaying()) {
-					Log.d(TAG, "audio is not playing, starting.", Log.DEBUG_MODE);
-					Log.d(TAG, "Play: Volume set to " + volume, Log.DEBUG_MODE);
-					mp.start();
-					setState(STATE_PLAYING);
-					paused = false;
-					if (remote) {
-						startProgressTimer();
-					}
+				initializeAndPlay();
+			} else {
+				if (prepareRequired) {
+					prepareAndPlay();
+				} else {
+					startPlaying();
 				}
-				setState(STATE_PLAYING);
 			}
 		} catch (Throwable t) {
 			Log.w(TAG, "Issue while playing : " , t);
@@ -200,13 +223,39 @@ public class TiSound
 		}
 	}
 
+	private void prepareAndPlay() throws IllegalStateException, IOException
+	{
+		prepareRequired = false;
+		if (remote) {
+			playPending = true;
+			mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener()
+			{
+				@Override
+				public void onPrepared(MediaPlayer mp)
+				{
+					mp.setOnPreparedListener(null);
+					mp.seekTo(0);
+					if (!stopPending && !pausePending) {
+						startPlaying();
+					}
+					playPending = false;
+					pausePending = false;
+					stopPending = false;
+				}
+			});
+			mp.prepareAsync();
+		} else {
+			mp.prepare();
+			mp.seekTo(0);
+			startPlaying();
+		}
+	}
+	
 	public void reset()
 	{
 		try {
 			if (mp != null) {
-				if (remote) {
-					stopProgressTimer();
-				}
+				stopProgressTimer();
 
 				setState(STATE_STOPPING);
 				mp.seekTo(0);
@@ -215,7 +264,7 @@ public class TiSound
 				setState(STATE_STOPPED);
 			}
 		} catch (Throwable t) {
-			Log.w(TAG, "Issue while resetting : " , t);
+			Log.w(TAG, "Issue while resetting : ", t);
 		}
 	}
 
@@ -374,25 +423,18 @@ public class TiSound
 					setState(STATE_STOPPING);
 					mp.stop();
 					setState(STATE_STOPPED);
-					if (remote) {
-						stopProgressTimer();
-					}
-					try {
-						mp.prepare();
-						mp.seekTo(0);
-					} catch (IOException e) {
-						Log.e(TAG, "Error while preparing audio after stop(). Ignoring.", Log.DEBUG_MODE);
-					} catch (IllegalStateException e) {
-						Log.w(TAG, "Error while preparing audio after stop(). Ignoring.", Log.DEBUG_MODE);
-					}
+					stopProgressTimer();
+					prepareRequired = true;
+				} else if (playPending) {
+					stopPending = true;
 				}
 
-				if(isPaused()) {
+				if (isPaused()) {
 					paused = false;
 				}
 			}
 		} catch (Throwable t) {
-			Log.e(TAG, "Error : " , t);
+			Log.e(TAG, "Error : ", t);
 		}
 	}
 
@@ -548,5 +590,41 @@ public class TiSound
 		for (KrollPropertyChange change : changes) {
 			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
 		}
-	}	
+	}
+	
+	private void startPlaying()
+	{
+		if (mp != null) {
+			if (!isPlaying()) {
+				Log.d(TAG, "audio is not playing, starting.", Log.DEBUG_MODE);
+				Log.d(TAG, "Play: Volume set to " + volume, Log.DEBUG_MODE);
+				mp.start();
+				paused = false;
+				startProgressTimer();
+			}
+			setState(STATE_PLAYING);
+		}
+	}
+
+	@Override
+	public void onPrepared(MediaPlayer mp)
+	{
+		mp.setOnPreparedListener(null);
+		setState(STATE_INITIALIZED);
+		setVolume(volume);
+		if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
+			setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
+		}
+		if (!pausePending && !stopPending) {
+			try {
+				startPlaying();
+			} catch (Throwable t) {
+				Log.w(TAG, "Issue while playing : ", t);
+				reset();
+			}
+		}
+		playPending = false;
+		pausePending = false;
+		stopPending = false;
+	}
 }
