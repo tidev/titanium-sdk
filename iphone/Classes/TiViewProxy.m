@@ -244,6 +244,29 @@
     [self add:args];
 }
 
+-(void)replaceAt:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+    NSInteger position = [TiUtils intValue:[args objectForKey:@"position"] def:0];
+    if(children != nil && [children count] >= position) {
+        TiViewProxy *childToRemove = [children objectAtIndex:position];
+        [self add:args];
+        [self remove: childToRemove];
+    } else {
+        [self add:args];
+    }
+}
+
+-(TiViewProxy*)getAt:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSNumber)
+    NSInteger position = [TiUtils intValue:args def:0];
+    if(children != nil && [children count] >= position) {
+        return [children objectAtIndex:position];
+    }
+    return nil;
+}
+
 -(void)remove:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,TiViewProxy);

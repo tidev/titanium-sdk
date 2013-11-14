@@ -85,7 +85,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private static final int MSG_UPDATE_LAYOUT = MSG_FIRST_ID + 113;
 	private static final int MSG_QUEUED_ANIMATE = MSG_FIRST_ID + 114;
 	private static final int MSG_INSERT_VIEW_AT = MSG_FIRST_ID + 115;
-
+	private static final int MSG_GET_VIEW_AT = MSG_FIRST_ID + 116;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	protected ArrayList<TiViewProxy> children;
@@ -330,6 +330,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				handleInsertAt((HashMap) msg.obj);
 				return true;
 			}
+			case MSG_GET_VIEW_AT: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				result.setResult( handleGetAt((Integer) result.getArg()) );
+				return true;
+			}
 		}
 		return super.handleMessage(msg);
 	}
@@ -560,6 +565,28 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 		//TODO zOrder
 	}
+
+	@SuppressWarnings("unchecked")
+	@Kroll.method
+	public void replaceAt(Object params)
+	{
+		HashMap<String, Object> options;
+		if (!(params instanceof HashMap)) {
+			Log.e(TAG, "Argument for replaceAt must be a dictionary");
+			return;
+		}
+		options = (HashMap<String, Object>) params;
+		Integer position = -1;
+		if(options.containsKey("position")) {
+			position = (Integer) options.get("position");
+		}
+		if(children != null && children.size() >= position) {
+	        TiViewProxy childToRemove = children.get(position);
+	        insertAt(params);
+	        remove(childToRemove);
+		}
+	}
+	
 
 	/**
 	 * Adds a child to this view proxy in the specified position. This is useful for "vertical" and
@@ -883,6 +910,25 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 
 		return view.toImage();
+	}
+
+	@Kroll.method
+	public TiViewProxy getAt(Integer position)
+	{
+		if (TiApplication.isUIThread()) {
+			return handleGetAt(position);
+
+		} else {
+			return (TiViewProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_VIEW_AT), position);
+		}
+	}
+
+	protected TiViewProxy handleGetAt(Integer position)
+	{
+		if(children != null && children.size() >= position) {
+			return children.get(position);
+		}
+		return null;
 	}
 
 
