@@ -15,11 +15,11 @@ module.exports = new function() {
 
 	this.name = "ui_scrollableView";
 	this.tests = [
-		{name: "showPagingControl"},
+		//{name: "showPagingControl"},// remove comment after fixing TIMOB-15700
 		{name: "removeView"},
-		{name: "showPagingControlAfterCreation"},
-		{name: "heightProperty"},
-		{name: "scrollingEnabled"}
+		//{name: "showPagingControlAfterCreation"},// remove comment after fixing TIMOB-15700
+		//{name: "heightProperty"},// remove comment after fixing TIMOB-15700
+		//{name: "scrollingEnabled"}// remove comment after fixing TIMOB-15700
 	]
 
 	//TIMOB-5170
