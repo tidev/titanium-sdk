@@ -37,7 +37,7 @@ module.exports = new function() {
 			borderWidth : 4,
 		});
 		scrollview.add(view);
-		win.addEventListener('focus', function() {
+		win.addEventListener('open', function() { //after fixing https://jira.appcelerator.org/browse/TIMOB-15700 change to focus event
 			valueOf(testRun, scrollview.getChildren( )).shouldBeObject();
 			valueOf(testRun, scrollview.getChildren( )[0].height).shouldBe(20);
 			scrollview.remove(view);
@@ -61,7 +61,7 @@ module.exports = new function() {
 			scrollType : 'vertical'
 		});
 		win.add(scroll);
-		win.addEventListener('focus', function () {
+		win.addEventListener('open', function () {//after fixing https://jira.appcelerator.org/browse/TIMOB-15700 change to focus event
 			valueOf(testRun, function() {
 				scroll.scrollToBottom();
 			}).shouldNotThrowException
@@ -82,7 +82,7 @@ module.exports = new function() {
 			scrollingEnabled : false
 		});
 		win.add(scroll);
-		win.addEventListener('focus', function() {
+		win.addEventListener('open', function() {//after fixing https://jira.appcelerator.org/browse/TIMOB-15700 change to focus event
 			valueOf(testRun, scroll.scrollingEnabled).shouldBeFalse();
 			scroll.scrollingEnabled = true;
 			valueOf(testRun, scroll.scrollingEnabled).shouldBeTrue();
