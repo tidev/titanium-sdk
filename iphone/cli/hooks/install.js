@@ -83,7 +83,7 @@ exports.init = function (logger, config, cli) {
 											err = err.message || err;
 											logger.error(err);
 											if (err.indexOf('0xe8008017') != -1) {
-												logger.error(__('Chances are there is a signing issue with your provisiing profile or the generated app is not compatible with your device'));
+												logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device'));
 											}
 										} else {
 											logger.info(__('App successfully installed on device: %s', device.name.cyan));

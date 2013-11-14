@@ -79,11 +79,8 @@
     if ([key isEqualToString:@"title"]) {
         return currEvent.title;
     }
-    else if ([key isEqualToString:@"notes"] && [TiUtils isIOS5OrGreater]) {
-        if ([TiUtils isIOS5OrGreater]) {
-            return [TiUtils stringValue:currEvent.notes];
-        }
-        return nil;
+    else if ([key isEqualToString:@"notes"]) {
+        return [TiUtils stringValue:currEvent.notes];
     }
     else if ([key isEqualToString:@"begin"]) {
         return [TiUtils UTCDateForDate:currEvent.startDate];
@@ -114,32 +111,18 @@
     }
     else if ([key isEqualToString:@"recurrenceRules"])
     {
-        if ([TiUtils isIOS5OrGreater]) {
-            NSArray* rules_ = currEvent.recurrenceRules;
-            NSMutableArray *rules = [NSMutableArray arrayWithCapacity:[rules_ count]];
-            for (EKRecurrenceRule* rule_ in rules_) {
-                TiCalendarRecurrenceRule* rule = [[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext] rule:rule_];
-                [rules addObject:rule];
-            }
-            return rules;
-
-        } else {
-            DebugLog(@"Ti.Calendar.recurrenceRules is available in iOS 5.0 and above");
-            return nil;
+        NSArray* rules_ = currEvent.recurrenceRules;
+        NSMutableArray *rules = [NSMutableArray arrayWithCapacity:[rules_ count]];
+        for (EKRecurrenceRule* rule_ in rules_) {
+            TiCalendarRecurrenceRule* rule = [[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext] rule:rule_];
+            [rules addObject:rule];
         }
+        return rules;
      }
     else if ([key isEqualToString:@"recurrenceRule"])
     {
-        if (![TiUtils isIOS5OrGreater]) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_5_0 // REQUIRED OTHERWISE XCODE WON'T LET US COMPILE
-            TiCalendarRecurrenceRule* rule = [[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext] rule:currEvent.reccurrenceRule];
-            return rule;
-#endif
-        } else {
-            DebugLog(@"Ti.Calendar.recurrenceRule is available below ios 5.0");
-            return nil;
-        }
-
+        DebugLog(@"[ERROR]Ti.Calendar.Event.recurrenceRule is no longer supported. Use Ti.Calendar.Event.recurrenceRules.");
+        return nil;
     }
     else if ([key isEqualToString:@"alerts"]) {
         if (currEvent.hasAlarms) {
@@ -204,33 +187,18 @@
         return;
     }
     else if ([key isEqualToString:@"recurrenceRule"]) {
-        if (![TiUtils isIOS5OrGreater]) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_5_0 //REQUIRED 
-            ENSURE_TYPE_OR_NIL(value,TiCalendarRecurrenceRule);
-            EKRecurrenceRule *rule = [value rule];
-            currEvent.recurrenceRule = rule;
-            return;
-#endif
-        } else {
-            DebugLog(@"Ti.Calendar.recurrenceRule is only available from iOS 4.0 to 5.0.")
-            return;
-        }
+        DebugLog(@"[ERROR] Ti.Calendar.Event.recurrenceRule is no longer supported. Use Ti.Calendar.Event.recurrenceRules.")
+        return;
     }
     else if ([key isEqualToString:@"recurrenceRules"]) {
-        if ([TiUtils isIOS5OrGreater])
-        {
-            ENSURE_TYPE_OR_NIL(value,NSArray);
-            NSMutableArray * rules = [NSMutableArray arrayWithCapacity:[value count]];
-            for (TiCalendarRecurrenceRule *recurranceRule_ in value) {
-                EKRecurrenceRule * ruleToBeAdded = [recurranceRule_ ruleForRecurrence];
-                [rules addObject:ruleToBeAdded];
-            }
-            currEvent.recurrenceRules = rules;
-            return;
-        } else {
-            DebugLog(@"Ti.Calendar.recurrenceRules is only available in iOS 5.0 and above.")
-            return;
+        ENSURE_TYPE_OR_NIL(value,NSArray);
+        NSMutableArray * rules = [NSMutableArray arrayWithCapacity:[value count]];
+        for (TiCalendarRecurrenceRule *recurranceRule_ in value) {
+            EKRecurrenceRule * ruleToBeAdded = [recurranceRule_ ruleForRecurrence];
+            [rules addObject:ruleToBeAdded];
         }
+        currEvent.recurrenceRules = rules;
+        return;
     }
     // Array of TiCalendarAlerts
     else if ([key isEqualToString:@"alerts"]) {
@@ -445,56 +413,45 @@
 
 -(void) addRecurrenceRule:(id)arg
 {
-    if ([TiUtils isIOS5OrGreater]) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
-        TiCalendarRecurrenceRule* ruleProxy = nil;
-        ENSURE_ARG_AT_INDEX(ruleProxy, arg, 0, TiCalendarRecurrenceRule);
+    TiCalendarRecurrenceRule* ruleProxy = nil;
+    ENSURE_ARG_AT_INDEX(ruleProxy, arg, 0, TiCalendarRecurrenceRule);
         
-        if (![NSThread isMainThread]) {
-            TiThreadPerformOnMainThread(^{[self addRecurrenceRule:arg];}, YES);
-            return;
-        }
-        
-        EKEvent* currEvent = [self event];
-        
-        if (currEvent == NULL) {
-            DebugLog(@"Cannot access event from the eventStore.");
-            return;
-        }
-        
-        EKRecurrenceRule *rule = [ruleProxy ruleForRecurrence];
-        
-        [currEvent addRecurrenceRule:rule];
-#endif
-    } else {
-        DebugLog(@"Ti.Event.addRecurrenceRule() is available in iOS 5.0 or greater");
+    if (![NSThread isMainThread]) {
+        TiThreadPerformOnMainThread(^{[self addRecurrenceRule:arg];}, YES);
+        return;
     }
-    
+        
+    EKEvent* currEvent = [self event];
+        
+    if (currEvent == NULL) {
+        DebugLog(@"Cannot access event from the eventStore.");
+        return;
+    }
+        
+    EKRecurrenceRule *rule = [ruleProxy ruleForRecurrence];
+        
+    [currEvent addRecurrenceRule:rule];
 }
 
 -(void) removeRecurenceRule:(id)arg
 {
-    if ([TiUtils isIOS5OrGreater]) {
-        TiCalendarRecurrenceRule* ruleProxy = nil;
-        ENSURE_ARG_AT_INDEX(ruleProxy, arg, 0, TiCalendarRecurrenceRule);
+    TiCalendarRecurrenceRule* ruleProxy = nil;
+    ENSURE_ARG_AT_INDEX(ruleProxy, arg, 0, TiCalendarRecurrenceRule);
         
-        if (![NSThread isMainThread]) {
-            TiThreadPerformOnMainThread(^{[self removeRecurenceRule:arg];}, YES);
-            return;
-        }
-        
-        EKEvent* currEvent = [self event];
-        
-        if (currEvent == NULL) {
-            DebugLog(@"Cannot access event from the eventStore.");
-            return;
-        }
-        
-        EKRecurrenceRule *rule = [ruleProxy ruleForRecurrence];
-        [currEvent  removeRecurrenceRule:rule];
-    } else {
-        DebugLog(@"Ti.Event.removeRecurenceRule() is available in iOS 5.0 or greater");
+    if (![NSThread isMainThread]) {
+        TiThreadPerformOnMainThread(^{[self removeRecurenceRule:arg];}, YES);
+        return;
     }
+        
+    EKEvent* currEvent = [self event];
+        
+    if (currEvent == NULL) {
+        DebugLog(@"Cannot access event from the eventStore.");
+        return;
+    }
+        
+    EKRecurrenceRule *rule = [ruleProxy ruleForRecurrence];
+    [currEvent  removeRecurrenceRule:rule];
 }
 
 -(NSNumber*) save:(id)arg

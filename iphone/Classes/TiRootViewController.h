@@ -53,6 +53,7 @@
 -(void)repositionSubviews;
 -(UIView *)topWindowProxyView;
 -(NSUInteger)supportedOrientationsForAppDelegate;
+-(void)updateStatusBar;
 @property (nonatomic, readonly) BOOL statusBarInitiallyHidden;
 @property (nonatomic, readonly) UIStatusBarStyle defaultStatusBarStyle;
 @property (nonatomic, readonly) BOOL statusBarVisibilityChanged;

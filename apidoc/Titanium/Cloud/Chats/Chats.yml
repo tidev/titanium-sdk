@@ -21,6 +21,22 @@ methods:
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudChatsResponse>
+
+  - name: remove
+    summary: Deletes a chat message.
+    description: |
+        Requires user login. 
+        
+        See [Chats: Delete a Chat Message](http://docs.appcelerator.com/cloud/latest/#!/api/Chats-method-delete)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+      
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudResponse>
   
   - name: getChatGroups
     summary: Retrieve a list of chat groups the current user belongs to.
@@ -28,6 +44,25 @@ methods:
         Requires user login. 
         
         See [Chats: List Chat Groups](http://docs.appcelerator.com/cloud/latest/#!/api/Chats-method-get_chat_groups)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `chat_groups` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        optional: true
+      
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudChatGroupsResponse>
+
+  - name: queryChatGroups
+    summary: Retrieve a list of chat groups with sorting and pagination.
+    description: |
+        Requires user login. 
+        
+        See [Chats: Query Chat Groups](http://docs.appcelerator.com/cloud/latest/#!/api/Chats-method-query_chat_groups)
         for the request parameters supported by this method.
         
         Data is returned in the `chat_groups` property of the parameter passed to the callback.
