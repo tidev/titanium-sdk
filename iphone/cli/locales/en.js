@@ -207,7 +207,7 @@
 	"Initiating iTunes sync": "Initiating iTunes sync",
 	"Failed to initiate iTunes sync": "Failed to initiate iTunes sync",
 	"Installing app on device: %s": "Installing app on device: %s",
-	"Chances are there is a signing issue with your provisiing profile or the generated app is not compatible with your device": "Chances are there is a signing issue with your provisiing profile or the generated app is not compatible with your device",
+	"Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device": "Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device",
 	"App successfully installed on device: %s": "App successfully installed on device: %s",
 	"Archiving app bundle to %s": "Archiving app bundle to %s",
 	"Archiving debug symbols to %s": "Archiving debug symbols to %s",
