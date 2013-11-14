@@ -31,6 +31,8 @@ exports.init = function (logger, config, cli) {
 					emulator.start(deviceId, opts, function (err, emu) {
 						if (err) {
 							logger.error(__('Unable to start emulator "%s"', deviceId) + '\n');
+							logger.error(err.message || err);
+							logger.log();
 							process.exit(1);
 						}
 
@@ -39,9 +41,35 @@ exports.init = function (logger, config, cli) {
 							deviceInfo = [ device ];
 						});
 
+						var stdout = '';
+						emu.on('stdout', function (data) {
+							stdout += data.toString();
+						});
+
+						var stderr = '';
+						emu.on('stderr', function (data) {
+							stderr += data.toString();
+						});
+
+						emu.on('error', function (err) {
+							logger.error(__('An emulator error occurred'));
+							logger.error(err);
+							logger.log();
+							process.exit(1);
+						});
+
+						emu.on('exit', function (code) {
+							if (code) {
+								logger.error(__('Emulator exited with error: %s', code));
+								stderr.trim().split('\n').forEach(logger.error);
+								logger.log();
+								process.exit(1);
+							}
+						});
+
 						cb();
 					});
-				})(builder.deviceId, {}, function (err, results, opts) {
+				})(builder.deviceId, { logger: logger }, function (err, results, opts) {
 					finished();
 				});
 

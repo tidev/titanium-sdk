@@ -176,578 +176,587 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 
 	return function (done) {
 		detect.detect(config, null, function (iosInfo) {
-			this.iosInfo = iosInfo;
+			detect.detectSimulators(config, null, function (err, simInfo) {
+				this.iosInfo = iosInfo;
 
-			// check that the iOS environment is found and sane
-			this.assertIssue(iosInfo.issues, 'IOS_XCODE_NOT_INSTALLED');
-			this.assertIssue(iosInfo.issues, 'IOS_NO_SUPPORTED_XCODE_FOUND');
-			this.assertIssue(iosInfo.issues, 'IOS_NO_IOS_SDKS');
-			this.assertIssue(iosInfo.issues, 'IOS_NO_IOS_SIMS');
+				// check that the iOS environment is found and sane
+				this.assertIssue(iosInfo.issues, 'IOS_XCODE_NOT_INSTALLED');
+				this.assertIssue(iosInfo.issues, 'IOS_NO_SUPPORTED_XCODE_FOUND');
+				this.assertIssue(iosInfo.issues, 'IOS_NO_IOS_SDKS');
+				this.assertIssue(iosInfo.issues, 'IOS_NO_IOS_SIMS');
 
-			// get the all installed iOS SDKs and Simulators across all Xcode versions
-			var allSdkVersions = {},
-				sdkVersions = {},
-				simVersions = {};
-			Object.keys(iosInfo.xcode).forEach(function (ver) {
-				iosInfo.xcode[ver].sdks.forEach(function (sdk) {
-					allSdkVersions[sdk] = 1;
-					if (version.gte(sdk, this.minSupportedIosSdk)) {
-						sdkVersions[sdk] = 1;
-					}
+				// get the all installed iOS SDKs and Simulators across all Xcode versions
+				var allSdkVersions = {},
+					sdkVersions = {},
+					simVersions = {};
+				Object.keys(iosInfo.xcode).forEach(function (ver) {
+					iosInfo.xcode[ver].sdks.forEach(function (sdk) {
+						allSdkVersions[sdk] = 1;
+						if (version.gte(sdk, this.minSupportedIosSdk)) {
+							sdkVersions[sdk] = 1;
+						}
+					}, this);
+					iosInfo.xcode[ver].sims.forEach(function (sim) {
+						simVersions[sim] = 1;
+					});
 				}, this);
-				iosInfo.xcode[ver].sims.forEach(function (sim) {
-					simVersions[sim] = 1;
-				});
-			}, this);
-			allSdkVersions = this.iosAllSdkVersions = version.sort(Object.keys(allSdkVersions));
-			sdkVersions = this.iosSdkVersions = version.sort(Object.keys(sdkVersions));
-			simVersions = this.iosSimVersions = version.sort(Object.keys(simVersions));
+				allSdkVersions = this.iosAllSdkVersions = version.sort(Object.keys(allSdkVersions));
+				sdkVersions = this.iosSdkVersions = version.sort(Object.keys(sdkVersions));
+				simVersions = this.iosSimVersions = version.sort(Object.keys(simVersions));
 
-			// if we're running from Xcode, determine the default --ios-version
-			var defaultIosVersion = undefined,
-				sdkRoot = process.env.SDKROOT || process.env.SDK_DIR;
-			if (sdkRoot) {
-				var m = sdkRoot.match(/\/iphone(?:os|simulator)(\d.\d).sdk/i);
-				if (m) {
-					defaultIosVersion = m[1];
-					var file = path.join(sdkRoot, 'System', 'Library', 'CoreServices', 'SystemVersion.plist');
-					if (fs.existsSync(file)) {
-						var p = new appc.plist(file);
-						if (p.ProductVersion) {
-							defaultIosVersion = p.ProductVersion;
+				// if we're running from Xcode, determine the default --ios-version
+				var defaultIosVersion = undefined,
+					sdkRoot = process.env.SDKROOT || process.env.SDK_DIR;
+				if (sdkRoot) {
+					var m = sdkRoot.match(/\/iphone(?:os|simulator)(\d.\d).sdk/i);
+					if (m) {
+						defaultIosVersion = m[1];
+						var file = path.join(sdkRoot, 'System', 'Library', 'CoreServices', 'SystemVersion.plist');
+						if (fs.existsSync(file)) {
+							var p = new appc.plist(file);
+							if (p.ProductVersion) {
+								defaultIosVersion = p.ProductVersion;
+							}
 						}
 					}
 				}
-			}
 
-			// create the lookup maps for validating developer/distribution certs from the cli args
-			var developerCertLookup = {},
-				distributionCertLookup = {};
-			Object.keys(iosInfo.certs.keychains).forEach(function (keychain) {
-				(iosInfo.certs.keychains[keychain].developer || []).forEach(function (d) {
-					if (!d.invalid) {
-						developerCertLookup[d.name.toLowerCase()] = d.name;
-					}
-				});
-
-				(iosInfo.certs.keychains[keychain].distribution || []).forEach(function (d) {
-					if (!d.invalid) {
-						distributionCertLookup[d.name.toLowerCase()] = d.name;
-					}
-				});
-			});
-
-			var provisioningProfileLookup = {};
-
-			cli.createHook('build.ios.config', function (callback) {
-				callback({
-					flags: {
-						'force-copy': {
-							desc: __('forces files to be copied instead of symlinked for %s builds only', 'simulator'.cyan)
-						},
-						'force-copy-all': {
-							desc: __('identical to the %s flag, except this will also copy the %s libTiCore.a file', '--force-copy',
-								humanize.filesize(fs.statSync(path.join(_t.platformPath, 'libTiCore.a')).size, 1024, 1).toUpperCase().cyan)
-						},
-						'retina': {
-							desc: __('use the retina version of the iOS Simulator')
-						},
-						'sim-64bit': {
-							desc: __('use the 64-bit version of the iOS Simulator')
-						},
-						'tall': {
-							desc: __('in combination with %s flag, start the tall version of the retina device', '--retina'.cyan)
-						},
-						'xcode': {
-							// secret flag to perform Xcode pre-compile build step
-							hidden: true
+				// create the lookup maps for validating developer/distribution certs from the cli args
+				var developerCertLookup = {},
+					distributionCertLookup = {};
+				Object.keys(iosInfo.certs.keychains).forEach(function (keychain) {
+					(iosInfo.certs.keychains[keychain].developer || []).forEach(function (d) {
+						if (!d.invalid) {
+							developerCertLookup[d.name.toLowerCase()] = d.name;
 						}
-					},
-					options: {
-						'debug-host': {
-							hidden: true
-						},
-						'deploy-type': {
-							abbr: 'D',
-							desc: __('the type of deployment; only used when target is %s or %s', 'simulator'.cyan, 'device'.cyan),
-							hint: __('type'),
-							order: 100,
-							values: ['test', 'development']
-						},
-						'device-id': {
-							abbr: 'C',
-							desc: __('the name for the device or iOS simulator to install the application to'),
-							hint: __('name'),
-							order: 210,
-							prompt: function (callback) {
-								findTargetDevices(cli.argv.target, function (err, results) {
-									var maxName = 0,
-										title,
-										promptLabel;
+					});
 
-									results.forEach(function (d) {
-										if (d.id != 'itunes') {
-											maxName = Math.max(d.name.length, maxName);
+					(iosInfo.certs.keychains[keychain].distribution || []).forEach(function (d) {
+						if (!d.invalid) {
+							distributionCertLookup[d.name.toLowerCase()] = d.name;
+						}
+					});
+				});
+
+				var provisioningProfileLookup = {};
+
+				cli.createHook('build.ios.config', function (callback) {
+					callback({
+						flags: {
+							'force-copy': {
+								desc: __('forces files to be copied instead of symlinked for %s builds only', 'simulator'.cyan)
+							},
+							'force-copy-all': {
+								desc: __('identical to the %s flag, except this will also copy the %s libTiCore.a file', '--force-copy',
+									humanize.filesize(fs.statSync(path.join(_t.platformPath, 'libTiCore.a')).size, 1024, 1).toUpperCase().cyan)
+							},
+							'retina': {
+								desc: __('use the retina version of the iOS Simulator')
+							},
+							'sim-64bit': {
+								desc: __('use the 64-bit version of the iOS Simulator')
+							},
+							'tall': {
+								desc: __('in combination with %s flag, start the tall version of the retina device', '--retina'.cyan)
+							},
+							'xcode': {
+								// secret flag to perform Xcode pre-compile build step
+								hidden: true
+							}
+						},
+						options: {
+							'debug-host': {
+								hidden: true
+							},
+							'deploy-type': {
+								abbr: 'D',
+								desc: __('the type of deployment; only used when target is %s or %s', 'simulator'.cyan, 'device'.cyan),
+								hint: __('type'),
+								order: 100,
+								values: ['test', 'development']
+							},
+							'device-id': {
+								abbr: 'C',
+								desc: __('the name of the iOS simulator or the device udid to install the application to; for %s builds %s; for %s builds %s',
+									'simulator'.cyan, ('[' + simInfo.map(function (s) { return s.id; }).join(', ') + ']').grey,
+									'device'.cyan, ('[' + 'itunes'.bold + ', <udid>, all]').grey),
+								hint: __('name'),
+								order: 210,
+								prompt: function (callback) {
+									findTargetDevices(cli.argv.target, function (err, results) {
+										var maxName = 0,
+											title,
+											promptLabel;
+
+										results.forEach(function (d) {
+											if (d.id != 'itunes') {
+												maxName = Math.max(d.name.length, maxName);
+											}
+										});
+
+										// we need to sort all results into groups for the select field
+										if (cli.argv.target == 'device') {
+											title = __('Which device do you want to install your app on?');
+											promptLabel = __('Select an device by number or name');
+										} else if (cli.argv.target == 'simulator') {
+											title = __('Which simulator do you want to launch your app in?');
+											promptLabel = __('Select an simulator by number or name');
 										}
-									});
 
-									// we need to sort all results into groups for the select field
-									if (cli.argv.target == 'device') {
-										title = __('Which device do you want to install your app on?');
-										promptLabel = __('Select an device by number or name');
-									} else if (cli.argv.target == 'simulator') {
-										title = __('Which simulator do you want to launch your app in?');
-										promptLabel = __('Select an simulator by number or name');
+										callback(fields.select({
+											title: title,
+											promptLabel: promptLabel,
+											formatters: {
+												option: function (opt, idx, num) {
+													return '  ' + num + appc.string.rpad(opt.name, maxName).cyan
+														+ (opt.deviceClass
+															? '  ' + opt.deviceClass + ' (' + opt.productVersion + ')'
+															: '');
+												}
+											},
+											default: '1', // just default to the first one, whatever that will be
+											autoSelectOne: true,
+											margin: '',
+											optionLabel: 'name',
+											optionValue: 'id',
+											numbered: true,
+											relistOnError: true,
+											complete: true,
+											suggest: true,
+											options: results
+										}));
+									});
+								},
+								required: true,
+								validate: function (device, callback) {
+									var dev = device.toLowerCase();
+									findTargetDevices(cli.argv.target, function (err, devices) {
+										if (cli.argv.target == 'device' && dev == 'all') {
+											// we let 'all' slide by
+											return callback(null, dev);
+										}
+										var i = 0,
+											l = devices.length;
+										for (; i < l; i++) {
+											if (devices[i].id.toLowerCase() == dev) {
+												return callback(null, devices[i].id);
+											}
+										}
+										callback(new Error(cli.argv.target ? __('Invalid iOS device "%s"', device) : __('Invalid iOS simulator "%s"', device)));
+									});
+								},
+								verifyIfRequired: function (callback) {
+									if (cli.argv['build-only']) {
+										// not required if we're build only
+										return callback();
+									} else if (cli.argv['device-id'] == undefined && config.get('ios.autoSelectDevice', true)) {
+										findTargetDevices(cli.argv.target, function (err, devices) {
+											if (cli.argv.target == 'device') {
+												cli.argv['device-id'] = 'itunes';
+												callback();
+											} else if (cli.argv.target == 'simulator') {
+												// for simulator builds, --device-id is a simulator profile and is not
+												// required and we always try to best match
+												callback();
+											} else {
+												callback(true);
+											}
+										});
+										return;
 									}
 
+									// yup, still required
+									callback(true);
+								}
+							},
+							'developer-name': {
+								abbr: 'V',
+								default: config.get('ios.developerName'),
+								desc: __('the iOS Developer Certificate to use; required when target is %s', 'device'.cyan),
+								hint: 'name',
+								order: 170,
+								prompt: function (callback) {
+									var developerCerts = {},
+										maxDevCertLen = 0;
+
+									Object.keys(iosInfo.certs.keychains).forEach(function (keychain) {
+										(iosInfo.certs.keychains[keychain].developer || []).forEach(function (d) {
+											if (!d.invalid) {
+												Array.isArray(developerCerts[keychain]) || (developerCerts[keychain] = []);
+												developerCerts[keychain].push(d);
+												maxDevCertLen = Math.max(d.name.length, maxDevCertLen);
+											}
+										});
+									});
+
+									// sort the certs
+									Object.keys(developerCerts).forEach(function (keychain) {
+										developerCerts[keychain] = developerCerts[keychain].sort(function (a, b) {
+											return a.name == b.name ? 0 : a.name < b.name ? -1 : 1;
+										});
+									});
+
 									callback(fields.select({
-										title: title,
-										promptLabel: promptLabel,
+										title: __("Which developer certificate would you like to use?"),
+										promptLabel: __('Select a certificate by number or name'),
 										formatters: {
 											option: function (opt, idx, num) {
-												return '  ' + num + appc.string.rpad(opt.name, maxName).cyan
-													+ (opt.deviceClass
-														? '  ' + opt.deviceClass + ' (' + opt.productVersion + ')'
-														: '');
+												var expires = moment(opt.after),
+													day = expires.format('D'),
+													hour = expires.format('h');
+												return '  ' + num + appc.string.rpad(opt.name, maxDevCertLen + 1).cyan
+													+ (opt.after ? (' (' + __('expires %s', expires.format('MMM') + ' '
+													+ (day.length == 1 ? ' ' : '') + day + ', ' + expires.format('YYYY') + ' '
+													+ (hour.length == 1 ? ' ' : '') + hour + ':' + expires.format('mm:ss a'))
+													+ ')').grey : '');
 											}
 										},
-										default: '1', // just default to the first one, whatever that will be
-										autoSelectOne: true,
 										margin: '',
 										optionLabel: 'name',
-										optionValue: 'id',
+										optionValue: 'name',
 										numbered: true,
 										relistOnError: true,
 										complete: true,
-										suggest: true,
-										options: results
+										suggest: false,
+										options: developerCerts
 									}));
-								});
-							},
-							required: true,
-							validate: function (device, callback) {
-								var dev = device.toLowerCase();
-								findTargetDevices(cli.argv.target, function (err, devices) {
-									if (cli.argv.target == 'device' && dev == 'all') {
-										// we let 'all' slide by
-										return callback(null, dev);
+								},
+								validate: function (value, callback) {
+									if (cli.argv.target != 'device') {
+										return callback(null, value);
 									}
-									var i = 0,
-										l = devices.length;
-									for (; i < l; i++) {
-										if (devices[i].id.toLowerCase() == dev) {
-											return callback(null, devices[i].id);
+									if (value) {
+										var v = developerCertLookup[value.toLowerCase()];
+										if (v) {
+											return callback(null, v);
 										}
 									}
-									callback(new Error(cli.argv.target ? __('Invalid iOS device "%s"', device) : __('Invalid iOS simulator "%s"', device)));
-								});
-							},
-							verifyIfRequired: function (callback) {
-								if (cli.argv['build-only']) {
-									// not required if we're build only
-									return callback();
-								} else if (cli.argv['device-id'] == undefined && config.get('ios.autoSelectDevice', true)) {
-									if (cli.argv.target == 'device') {
-										cli.argv['device-id'] = 'itunes';
-										return callback();
-									} else if (cli.argv.target == 'simulator') {
-										// for simulator builds, --device-id is a simulator profile and is not
-										// required and we always try to best match
-										return callback();
-									}
-								}
-
-								// yup, still required
-								callback(true);
-							}
-						},
-						'developer-name': {
-							abbr: 'V',
-							default: config.get('ios.developerName'),
-							desc: __('the iOS Developer Certificate to use; required when target is %s', 'device'.cyan),
-							hint: 'name',
-							order: 170,
-							prompt: function (callback) {
-								var developerCerts = {},
-									maxDevCertLen = 0;
-
-								Object.keys(iosInfo.certs.keychains).forEach(function (keychain) {
-									(iosInfo.certs.keychains[keychain].developer || []).forEach(function (d) {
-										if (!d.invalid) {
-											Array.isArray(developerCerts[keychain]) || (developerCerts[keychain] = []);
-											developerCerts[keychain].push(d);
-											maxDevCertLen = Math.max(d.name.length, maxDevCertLen);
-										}
-									});
-								});
-
-								// sort the certs
-								Object.keys(developerCerts).forEach(function (keychain) {
-									developerCerts[keychain] = developerCerts[keychain].sort(function (a, b) {
-										return a.name == b.name ? 0 : a.name < b.name ? -1 : 1;
-									});
-								});
-
-								callback(fields.select({
-									title: __("Which developer certificate would you like to use?"),
-									promptLabel: __('Select a certificate by number or name'),
-									formatters: {
-										option: function (opt, idx, num) {
-											var expires = moment(opt.after),
-												day = expires.format('D'),
-												hour = expires.format('h');
-											return '  ' + num + appc.string.rpad(opt.name, maxDevCertLen + 1).cyan
-												+ (opt.after ? (' (' + __('expires %s', expires.format('MMM') + ' '
-												+ (day.length == 1 ? ' ' : '') + day + ', ' + expires.format('YYYY') + ' '
-												+ (hour.length == 1 ? ' ' : '') + hour + ':' + expires.format('mm:ss a'))
-												+ ')').grey : '');
-										}
-									},
-									margin: '',
-									optionLabel: 'name',
-									optionValue: 'name',
-									numbered: true,
-									relistOnError: true,
-									complete: true,
-									suggest: false,
-									options: developerCerts
-								}));
-							},
-							validate: function (value, callback) {
-								if (cli.argv.target != 'device') {
-									return callback(null, value);
-								}
-								if (value) {
-									var v = developerCertLookup[value.toLowerCase()];
-									if (v) {
-										return callback(null, v);
-									}
-								}
-								callback(new Error(__('Invalid developer certificate "%s"', value)));
-							}
-						},
-						'distribution-name': {
-							abbr: 'R',
-							default: config.get('ios.distributionName'),
-							desc: __('the iOS Distribution Certificate to use; required when target is %s or %s', 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
-							hint: 'name',
-							order: 180,
-							prompt: function (callback) {
-								var distributionCerts = {},
-									maxDistCertLen = 0;
-
-								Object.keys(iosInfo.certs.keychains).forEach(function (keychain) {
-									(iosInfo.certs.keychains[keychain].distribution || []).forEach(function (d) {
-										if (!d.invalid) {
-											Array.isArray(distributionCerts[keychain]) || (distributionCerts[keychain] = []);
-											distributionCerts[keychain].push(d);
-											maxDistCertLen = Math.max(d.name.length, maxDistCertLen);
-										}
-									});
-								});
-
-								// sort the certs
-								Object.keys(distributionCerts).forEach(function (keychain) {
-									distributionCerts[keychain] = distributionCerts[keychain].sort(function (a, b) {
-										return a.name == b.name ? 0 : a.name < b.name ? -1 : 1;
-									});
-								});
-
-								callback(fields.select({
-									title: __("Which distribution certificate would you like to use?"),
-									promptLabel: __('Select a certificate by number or name'),
-									formatters: {
-										option: function (opt, idx, num) {
-											var expires = moment(opt.after),
-												day = expires.format('D'),
-												hour = expires.format('h');
-											return '  ' + num + appc.string.rpad(opt.name, maxDistCertLen + 1).cyan
-												+ (opt.after ? (' (' + __('expires %s', expires.format('MMM') + ' '
-												+ (day.length == 1 ? ' ' : '') + day + ', ' + expires.format('YYYY') + ' '
-												+ (hour.length == 1 ? ' ' : '') + hour + ':' + expires.format('mm:ss a'))
-												+ ')').grey : '');
-										}
-									},
-									margin: '',
-									optionLabel: 'name',
-									optionValue: 'name',
-									numbered: true,
-									relistOnError: true,
-									complete: true,
-									suggest: false,
-									options: distributionCerts
-								}));
-							},
-							validate: function (value, callback) {
-								if (cli.argv.target != 'dist-appstore' && cli.argv.target != 'dist-adhoc') {
-									return callback(null, value);
-								}
-								if (value) {
-									var v = distributionCertLookup[value.toLowerCase()];
-									if (v) {
-										return callback(null, v);
-									}
-								}
-								callback(new Error(__('Invalid distribution certificate "%s"', value)));
-							}
-						},
-						'device-family': {
-							abbr: 'F',
-							desc: __('the device family to build for'),
-							order: 120,
-							values: Object.keys(_t.deviceFamilies)
-						},
-						'ios-version': {
-							abbr: 'I',
-							callback: function (value) {
-								try {
-									if (value && allSdkVersions.indexOf(value) != -1 && version.lt(value, _t.minSupportedIosSdk)) {
-										logger.banner();
-										logger.error(__('The specified iOS SDK version "%s" is not supported by Titanium %s', value, _t.titaniumSdkVersion) + '\n');
-										if (sdkVersions.length) {
-											logger.log(__('Available supported iOS SDKs:'));
-											sdkVersions.forEach(function (ver) {
-												logger.log('   ' + ver.cyan);
-											});
-											logger.log();
-										}
-										process.exit(1);
-									}
-								} catch (e) {
-									// squelch and let the cli detect the bad version
+									callback(new Error(__('Invalid developer certificate "%s"', value)));
 								}
 							},
-							default: defaultIosVersion,
-							desc: __('iOS SDK version to build with'),
-							order: 130,
-							prompt: function (callback) {
-								callback(fields.select({
-									title: __("Which iOS SDK version would you like to build with?"),
-									promptLabel: __('Select an iOS SDK version by number or name'),
-									margin: '',
-									numbered: true,
-									relistOnError: true,
-									complete: true,
-									suggest: false,
-									options: sdkVersions
-								}));
-							},
-							values: sdkVersions
-						},
-						'keychain': {
-							abbr: 'K',
-							desc: __('path to the distribution keychain to use instead of the system default; only used when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
-							hideValues: true
-						},
-						'launch-url': {
-							// url for the application to launch in mobile Safari, as soon as the app boots up
-							hidden: true
-						},
-						'output-dir': {
-							abbr: 'O',
-							desc: __('the output directory when using %s', 'dist-adhoc'.cyan),
-							hint: 'dir',
-							order: 200,
-							prompt: function (callback) {
-								callback(fields.file({
-									promptLabel: __('Where would you like the output IPA file saved?'),
-									default: cli.argv['project-dir'] && afs.resolvePath(cli.argv['project-dir'], 'dist'),
-									complete: true,
-									showHidden: true,
-									ignoreDirs: _t.ignoreDirs,
-									ignoreFiles: /.*/,
-									validate: _t.conf.options['output-dir'].validate.bind(_t)
-								}));
-							},
-							validate: function (outputDir, callback) {
-								callback(outputDir || !_t.conf.options['output-dir'].required ? null : new Error(__('Invalid output directory')), outputDir);
-							}
-						},
-						'pp-uuid': {
-							abbr: 'P',
-							default: process.env.PROVISIONING_PROFILE,
-							desc: __('the provisioning profile uuid; required when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
-							hint: 'uuid',
-							order: 190,
-							prompt: function (callback) {
-								var provisioningProfiles = {},
-									appId = cli.tiapp.id,
-									maxAppId = 0,
-									pp;
+							'distribution-name': {
+								abbr: 'R',
+								default: config.get('ios.distributionName'),
+								desc: __('the iOS Distribution Certificate to use; required when target is %s or %s', 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
+								hint: 'name',
+								order: 180,
+								prompt: function (callback) {
+									var distributionCerts = {},
+										maxDistCertLen = 0;
 
-								function prep(a) {
-									return a.filter(function (p) {
-										if (!p.expired) {
-											var re = new RegExp(p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*'));
-											if (re.test(appId)) {
-												var label = p.name;
-												if (label.indexOf(p.appId) == -1) {
-													label += ': ' + p.appId;
-												}
-												p.label = label;
-												maxAppId = Math.max(p.label.length, maxAppId);
-												return true;
+									Object.keys(iosInfo.certs.keychains).forEach(function (keychain) {
+										(iosInfo.certs.keychains[keychain].distribution || []).forEach(function (d) {
+											if (!d.invalid) {
+												Array.isArray(distributionCerts[keychain]) || (distributionCerts[keychain] = []);
+												distributionCerts[keychain].push(d);
+												maxDistCertLen = Math.max(d.name.length, maxDistCertLen);
 											}
-										}
-									}).sort(function (a, b) {
-										return a.label.toLowerCase().localeCompare(b.label.toLowerCase());
+										});
 									});
-								}
 
-								if (cli.argv.target == 'device') {
-									if (iosInfo.provisioningProfiles.development.length) {
-										pp = prep(iosInfo.provisioningProfiles.development);
-										if (pp.length) {
-											provisioningProfiles[__('Available Development UUIDs:')] = pp;
+									// sort the certs
+									Object.keys(distributionCerts).forEach(function (keychain) {
+										distributionCerts[keychain] = distributionCerts[keychain].sort(function (a, b) {
+											return a.name == b.name ? 0 : a.name < b.name ? -1 : 1;
+										});
+									});
+
+									callback(fields.select({
+										title: __("Which distribution certificate would you like to use?"),
+										promptLabel: __('Select a certificate by number or name'),
+										formatters: {
+											option: function (opt, idx, num) {
+												var expires = moment(opt.after),
+													day = expires.format('D'),
+													hour = expires.format('h');
+												return '  ' + num + appc.string.rpad(opt.name, maxDistCertLen + 1).cyan
+													+ (opt.after ? (' (' + __('expires %s', expires.format('MMM') + ' '
+													+ (day.length == 1 ? ' ' : '') + day + ', ' + expires.format('YYYY') + ' '
+													+ (hour.length == 1 ? ' ' : '') + hour + ':' + expires.format('mm:ss a'))
+													+ ')').grey : '');
+											}
+										},
+										margin: '',
+										optionLabel: 'name',
+										optionValue: 'name',
+										numbered: true,
+										relistOnError: true,
+										complete: true,
+										suggest: false,
+										options: distributionCerts
+									}));
+								},
+								validate: function (value, callback) {
+									if (cli.argv.target != 'dist-appstore' && cli.argv.target != 'dist-adhoc') {
+										return callback(null, value);
+									}
+									if (value) {
+										var v = distributionCertLookup[value.toLowerCase()];
+										if (v) {
+											return callback(null, v);
+										}
+									}
+									callback(new Error(__('Invalid distribution certificate "%s"', value)));
+								}
+							},
+							'device-family': {
+								abbr: 'F',
+								desc: __('the device family to build for'),
+								order: 120,
+								values: Object.keys(_t.deviceFamilies)
+							},
+							'ios-version': {
+								abbr: 'I',
+								callback: function (value) {
+									try {
+										if (value && allSdkVersions.indexOf(value) != -1 && version.lt(value, _t.minSupportedIosSdk)) {
+											logger.banner();
+											logger.error(__('The specified iOS SDK version "%s" is not supported by Titanium %s', value, _t.titaniumSdkVersion) + '\n');
+											if (sdkVersions.length) {
+												logger.log(__('Available supported iOS SDKs:'));
+												sdkVersions.forEach(function (ver) {
+													logger.log('   ' + ver.cyan);
+												});
+												logger.log();
+											}
+											process.exit(1);
+										}
+									} catch (e) {
+										// squelch and let the cli detect the bad version
+									}
+								},
+								default: defaultIosVersion,
+								desc: __('iOS SDK version to build with'),
+								order: 130,
+								prompt: function (callback) {
+									callback(fields.select({
+										title: __("Which iOS SDK version would you like to build with?"),
+										promptLabel: __('Select an iOS SDK version by number or name'),
+										margin: '',
+										numbered: true,
+										relistOnError: true,
+										complete: true,
+										suggest: false,
+										options: sdkVersions
+									}));
+								},
+								values: sdkVersions
+							},
+							'keychain': {
+								abbr: 'K',
+								desc: __('path to the distribution keychain to use instead of the system default; only used when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
+								hideValues: true
+							},
+							'launch-url': {
+								// url for the application to launch in mobile Safari, as soon as the app boots up
+								hidden: true
+							},
+							'output-dir': {
+								abbr: 'O',
+								desc: __('the output directory when using %s', 'dist-adhoc'.cyan),
+								hint: 'dir',
+								order: 200,
+								prompt: function (callback) {
+									callback(fields.file({
+										promptLabel: __('Where would you like the output IPA file saved?'),
+										default: cli.argv['project-dir'] && afs.resolvePath(cli.argv['project-dir'], 'dist'),
+										complete: true,
+										showHidden: true,
+										ignoreDirs: _t.ignoreDirs,
+										ignoreFiles: /.*/,
+										validate: _t.conf.options['output-dir'].validate.bind(_t)
+									}));
+								},
+								validate: function (outputDir, callback) {
+									callback(outputDir || !_t.conf.options['output-dir'].required ? null : new Error(__('Invalid output directory')), outputDir);
+								}
+							},
+							'pp-uuid': {
+								abbr: 'P',
+								default: process.env.PROVISIONING_PROFILE,
+								desc: __('the provisioning profile uuid; required when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
+								hint: 'uuid',
+								order: 190,
+								prompt: function (callback) {
+									var provisioningProfiles = {},
+										appId = cli.tiapp.id,
+										maxAppId = 0,
+										pp;
+
+									function prep(a) {
+										return a.filter(function (p) {
+											if (!p.expired) {
+												var re = new RegExp(p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*'));
+												if (re.test(appId)) {
+													var label = p.name;
+													if (label.indexOf(p.appId) == -1) {
+														label += ': ' + p.appId;
+													}
+													p.label = label;
+													maxAppId = Math.max(p.label.length, maxAppId);
+													return true;
+												}
+											}
+										}).sort(function (a, b) {
+											return a.label.toLowerCase().localeCompare(b.label.toLowerCase());
+										});
+									}
+
+									if (cli.argv.target == 'device') {
+										if (iosInfo.provisioningProfiles.development.length) {
+											pp = prep(iosInfo.provisioningProfiles.development);
+											if (pp.length) {
+												provisioningProfiles[__('Available Development UUIDs:')] = pp;
+											} else {
+												logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s"', appId) + '\n');
+												logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
+													'http://appcelerator.com/ios-dev-certs'.cyan) + '\n');
+												process.exit(1);
+											}
 										} else {
-											logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s"', appId) + '\n');
+											logger.error(__('Unable to find any development provisioning profiles') + '\n');
 											logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
-												'https://developer.apple.com/account/ios/certificate/certificateList.action?type=development'.cyan) + '\n');
+												'http://appcelerator.com/ios-dev-certs'.cyan) + '\n');
 											process.exit(1);
 										}
-									} else {
-										logger.error(__('Unable to find any development provisioning profiles') + '\n');
-										logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
-											'https://developer.apple.com/account/ios/certificate/certificateList.action?type=development'.cyan) + '\n');
-										process.exit(1);
-									}
-								} else if (cli.argv.target == 'dist-appstore' || cli.argv.target == 'dist-adhoc') {
-									if (iosInfo.provisioningProfiles.distribution.length || iosInfo.provisioningProfiles.adhoc.length) {
-										pp = prep(iosInfo.provisioningProfiles.distribution);
-										var valid = pp.length;
-										if (pp.length) {
-											provisioningProfiles[__('Available Distribution UUIDs:')] = pp;
-										}
+									} else if (cli.argv.target == 'dist-appstore' || cli.argv.target == 'dist-adhoc') {
+										if (iosInfo.provisioningProfiles.distribution.length || iosInfo.provisioningProfiles.adhoc.length) {
+											pp = prep(iosInfo.provisioningProfiles.distribution);
+											var valid = pp.length;
+											if (pp.length) {
+												provisioningProfiles[__('Available Distribution UUIDs:')] = pp;
+											}
 
-										pp = prep(iosInfo.provisioningProfiles.adhoc);
-										valid += pp.length;
-										if (pp.length) {
-											provisioningProfiles[__('Available Adhoc UUIDs:')] = pp;
-										}
+											pp = prep(iosInfo.provisioningProfiles.adhoc);
+											valid += pp.length;
+											if (pp.length) {
+												provisioningProfiles[__('Available Adhoc UUIDs:')] = pp;
+											}
 
-										if (!valid) {
-											logger.error(__('Unable to find any non-expired distribution or adhoc provisioning profiles that match the app id "%s".', appId) + '\n');
+											if (!valid) {
+												logger.error(__('Unable to find any non-expired distribution or adhoc provisioning profiles that match the app id "%s".', appId) + '\n');
+												logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
+													'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
+												process.exit(1);
+											}
+										} else {
+											logger.error(__('Unable to find any distribution or adhoc provisioning profiles'));
 											logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
-												'https://developer.apple.com/account/ios/certificate/certificateList.action?type=development'.cyan) + '\n');
+												'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
 											process.exit(1);
 										}
-									} else {
-										logger.error(__('Unable to find any distribution or adhoc provisioning profiles'));
-										logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
-											'https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution'.cyan) + '\n');
-										process.exit(1);
 									}
+
+									callback(fields.select({
+										title: __("Which provisioning profile would you like to use?"),
+										promptLabel: __('Select a provisioning profile UUID by number or name'),
+										formatters: {
+											option: function (opt, idx, num) {
+												var expires = moment(opt.expirationDate),
+													day = expires.format('D'),
+													hour = expires.format('h');
+												return '  ' + num + String(opt.uuid).cyan + ' '
+													+ appc.string.rpad(opt.label, maxAppId + 1)
+													+ (opt.expirationDate ? (' (' + __('expires %s', expires.format('MMM') + ' '
+													+ (day.length == 1 ? ' ' : '') + day + ', ' + expires.format('YYYY') + ' '
+													+ (hour.length == 1 ? ' ' : '') + hour + ':' + expires.format('mm:ss a'))
+													+ ')').grey : '');
+											}
+										},
+										margin: '',
+										optionLabel: 'name',
+										optionValue: 'uuid',
+										numbered: true,
+										relistOnError: true,
+										complete: true,
+										suggest: false,
+										options: provisioningProfiles
+									}));
+								},
+								validate: function (value, callback) {
+									if (cli.argv.target == 'simulator') {
+										return callback(null, value);
+									}
+									if (value) {
+										var v = provisioningProfileLookup[value.toLowerCase()];
+										if (v) {
+											return callback(null, v);
+										}
+									}
+									callback(new Error(__('Invalid provisioning profile UUID "%s"', value)));
 								}
-
-								callback(fields.select({
-									title: __("Which provisioning profile would you like to use?"),
-									promptLabel: __('Select a provisioning profile UUID by number or name'),
-									formatters: {
-										option: function (opt, idx, num) {
-											var expires = moment(opt.expirationDate),
-												day = expires.format('D'),
-												hour = expires.format('h');
-											return '  ' + num + String(opt.uuid).cyan + ' '
-												+ appc.string.rpad(opt.label, maxAppId + 1)
-												+ (opt.expirationDate ? (' (' + __('expires %s', expires.format('MMM') + ' '
-												+ (day.length == 1 ? ' ' : '') + day + ', ' + expires.format('YYYY') + ' '
-												+ (hour.length == 1 ? ' ' : '') + hour + ':' + expires.format('mm:ss a'))
-												+ ')').grey : '');
-										}
-									},
-									margin: '',
-									optionLabel: 'name',
-									optionValue: 'uuid',
-									numbered: true,
-									relistOnError: true,
-									complete: true,
-									suggest: false,
-									options: provisioningProfiles
-								}));
 							},
-							validate: function (value, callback) {
-								if (cli.argv.target == 'simulator') {
-									return callback(null, value);
-								}
-								if (value) {
-									var v = provisioningProfileLookup[value.toLowerCase()];
-									if (v) {
-										return callback(null, v);
+							'profiler-host': {
+								hidden: true
+							},
+							'sim-type': {
+								abbr: 'Y',
+								desc: __('iOS Simulator type; only used when target is %s', 'simulator'.cyan),
+								hint: 'type',
+								order: 150,
+								values: Object.keys(_t.simTypes)
+							},
+							'sim-version': {
+								abbr: 'S',
+								desc: __('iOS Simulator version; only used when target is %s', 'simulator'.cyan),
+								hint: 'version',
+								order: 160,
+								values: simVersions
+							},
+							'target': {
+								abbr: 'T',
+								callback: function (value) {
+									if (value != 'simulator') {
+										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_KEYCHAINS_FOUND');
+										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_WWDR_CERT_FOUND');
 									}
-								}
-								callback(new Error(__('Invalid provisioning profile UUID "%s"', value)));
+
+									// as soon as we know the target, toggle required options for validation
+									switch (value) {
+										case 'device':
+											_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DEV_CERTS_FOUND');
+											_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES');
+											iosInfo.provisioningProfiles.development.forEach(function (d) {
+												provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
+											});
+											_t.conf.options['developer-name'].required = true;
+											_t.conf.options['pp-uuid'].required = true;
+											break;
+
+										case 'dist-adhoc':
+											_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DIST_CERTS_FOUND');
+											// TODO: assert there is at least one distribution or adhoc provisioning profile
+
+											_t.conf.options['output-dir'].required = true;
+
+											// purposely fall through!
+
+										case 'dist-appstore':
+											_t.conf.options['device-id'].required = false;
+											_t.conf.options['distribution-name'].required = true;
+											_t.conf.options['pp-uuid'].required = true;
+
+											// build lookup maps
+											iosInfo.provisioningProfiles.distribution.forEach(function (d) {
+												provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
+											});
+											iosInfo.provisioningProfiles.adhoc.forEach(function (d) {
+												provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
+											});
+									}
+								},
+								default: 'simulator',
+								desc: __('the target to build for'),
+								order: 110,
+								required: true,
+								values: _t.targets
 							}
-						},
-						'profiler-host': {
-							hidden: true
-						},
-						'sim-type': {
-							abbr: 'Y',
-							desc: __('iOS Simulator type; only used when target is %s', 'simulator'.cyan),
-							hint: 'type',
-							order: 150,
-							values: Object.keys(_t.simTypes)
-						},
-						'sim-version': {
-							abbr: 'S',
-							desc: __('iOS Simulator version; only used when target is %s', 'simulator'.cyan),
-							hint: 'version',
-							order: 160,
-							values: simVersions
-						},
-						'target': {
-							abbr: 'T',
-							callback: function (value) {
-								if (value != 'simulator') {
-									_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_KEYCHAINS_FOUND');
-									_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_WWDR_CERT_FOUND');
-								}
-
-								// as soon as we know the target, toggle required options for validation
-								switch (value) {
-									case 'device':
-										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DEV_CERTS_FOUND');
-										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES');
-										iosInfo.provisioningProfiles.development.forEach(function (d) {
-											provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
-										});
-										_t.conf.options['developer-name'].required = true;
-										_t.conf.options['pp-uuid'].required = true;
-										break;
-
-									case 'dist-adhoc':
-										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DIST_CERTS_FOUND');
-										// TODO: assert there is at least one distribution or adhoc provisioning profile
-
-										_t.conf.options['output-dir'].required = true;
-
-										// purposely fall through!
-
-									case 'dist-appstore':
-										_t.conf.options['device-id'].required = false;
-										_t.conf.options['distribution-name'].required = true;
-										_t.conf.options['pp-uuid'].required = true;
-
-										// build lookup maps
-										iosInfo.provisioningProfiles.distribution.forEach(function (d) {
-											provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
-										});
-										iosInfo.provisioningProfiles.adhoc.forEach(function (d) {
-											provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
-										});
-								}
-							},
-							default: 'simulator',
-							desc: __('the target to build for'),
-							order: 110,
-							required: true,
-							values: _t.targets
 						}
-					}
+					});
+				})(function (err, results, result) {
+					done(_t.conf = result);
 				});
-			})(function (err, results, result) {
-				done(_t.conf = result);
-			});
+			}.bind(this));
 		}.bind(this));
 	}.bind(this);
 };
@@ -966,7 +975,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		// make sure they have Apple's WWDR cert installed
 		if (!this.iosInfo.certs.wwdr) {
 			logger.error(__('WWDR Intermediate Certificate not found') + '\n');
-			logger.log(__('Download and install the certificate from %s', 'https://developer.apple.com/ios/manage/certificates/team/index.action'.cyan) + '\n');
+			logger.log(__('Download and install the certificate from %s', 'http://appcelerator.com/ios-wwdr'.cyan) + '\n');
 			process.exit(1);
 		}
 
@@ -1209,7 +1218,6 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'injectModulesIntoXcodeProject',
 		'injectApplicationDefaults', // if ApplicationDefaults.m was modified, forceRebuild will be set to true
 		'copyTitaniumLibraries',
-		'copyModuleResources',
 		'copyItunesArtwork',
 		'copyGraphics',
 
@@ -1302,6 +1310,7 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 		this.moduleSearchPaths = this.moduleSearchPaths.concat(this.config.paths.modules);
 	}
 
+	this.buildOnly = argv['build-only'];
 	this.debugHost = this.allowDebugging && argv['debug-host'];
 	this.profilerHost = this.allowProfiling && argv['profiler-host'];
 	this.launchUrl = argv['launch-url'];
@@ -1355,9 +1364,17 @@ iOSBuilder.prototype.loginfo = function loginfo(next) {
 	this.logger.info(__('Deploy type: %s', this.deployType.cyan));
 	this.logger.info(__('Building for target: %s', this.target.cyan));
 	this.logger.info(__('Building using iOS SDK: %s', version.format(this.iosSdkVersion, 2).cyan));
-	if (this.target == 'simulator') {
-		this.logger.info(__('Building for iOS %s Simulator: %s', this.simTypes[this.iosSimType], this.iosSimVersion.cyan));
+
+	if (this.buildOnly) {
+		this.logger.info(__('Performing build only'));
+	} else {
+		if (this.target == 'simulator') {
+			this.logger.info(__('Building for iOS %s Simulator: %s', this.simTypes[this.iosSimType], this.iosSimVersion.cyan));
+		} else if (this.target == 'device') {
+			this.logger.info(__('Building for device: %s', this.deviceId.cyan));
+		}
 	}
+
 	this.logger.info(__('Building for device family: %s', this.deviceFamily.cyan));
 	this.logger.debug(__('Setting Xcode target to %s', this.xcodeTarget.cyan));
 	this.logger.debug(__('Setting Xcode build OS to %s', this.xcodeTargetOS.cyan));
@@ -2081,26 +2098,6 @@ iOSBuilder.prototype.injectApplicationDefaults = function injectApplicationDefau
 	} else {
 		next();
 	}
-};
-
-iOSBuilder.prototype.copyModuleResources = function copyModuleResources(next) {
-	var counter = 0;
-	parallel(this, this.nativeLibModules.map(function (m) {
-		return function (next) {
-			var src = path.join(m.modulePath, 'assets'),
-				dest = path.join(this.xcodeAppDir, 'modules', m.id);
-			if (fs.existsSync(src)) {
-				wrench.mkdirSyncRecursive(dest);
-				counter++ == 0 && this.logger.info(__('Copying module resources'));
-				this.copyDirAsync(src, dest, next);
-			} else {
-				next();
-			}
-		};
-	}), function () {
-		counter || this.logger.info(__('No module resources to copy'));
-		next();
-	});
 };
 
 iOSBuilder.prototype.copyItunesArtwork = function copyItunesArtwork(next) {
@@ -2943,7 +2940,7 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 			// write the properties file
 			var appPropsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_app_props__json') : path.join(this.xcodeAppDir, '_app_props_.json'),
 				props = {};
-			Object.keys(this.tiapp.properties).forEach(function (prop) {
+			this.tiapp.properties && Object.keys(this.tiapp.properties).forEach(function (prop) {
 				props[prop] = this.tiapp.properties[prop].value;
 			}, this);
 			fs.writeFileSync(
