@@ -529,7 +529,7 @@ examples:
         Previous custom keyboard toolbar example as an Alloy view.  Use the `<KeyboardToolbar>` XML
         element to set the `keyboardToolbar` property.
 
-        You can also declare the leftButton and rightButton properties in XML markup as the
+        You can also declare the `leftButton` and `rightButton` properties in XML markup as the
         `<LeftButton>` and `<RightButton>` XML elements.
 
             <Alloy>
