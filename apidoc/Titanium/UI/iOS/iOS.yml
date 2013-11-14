@@ -50,71 +50,101 @@ properties:
 
   - name: ATTRIBUTE_FONT
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to specify a font.
     description: |
-        See <Attribute> for more information on type modes.
+        Use a <Font> dictionary for <Attribute.value>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_FOREGROUND_COLOR
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to specify a font color.
     description: |
-        See <Attribute> for more information on type modes.
+        Use a color name or hex value for <Attribute.value>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_BACKGROUND_COLOR
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to specify a background color.
     description: |
-        See <Attribute> for more information on type modes.
+        Use a color name or hex value for <Attribute.value>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_LIGATURE
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to enable or disable ligatures.
     description: |
-        See <Attribute> for more information on type modes.
+        Set <Attribute.value> to `1` to enable ligatures, else `0` to disable.
+        Ligatures are only supported on certain fonts.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
+  - name: ATTRIBUTE_LETTERPRESS_STYLE
+    summary: |
+        Use with <Attribute.value> to use a letterpress text effect.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.iOS.ATTRIBUTE_TEXT_EFFECT>.
+
+        See <Attribute> for more information.
+    type: Number
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
   - name: ATTRIBUTE_KERN
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to specify kerning (space between characters).
     description: |
-        See <Attribute> for more information on type modes.
+        Set <Attribute.value> to a float value specifying how many pixels to increase the character
+        spacing.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_STRIKETHROUGH_STYLE
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to place a horizontal line through the text.
     description: |
-        See <Attribute> for more information on type modes.
+        Set the `value` property to a `Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_*` constant.
+ 
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINES_STYLE
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to place a horizontal line under the text.
     description: |
-        See <Attribute> for more information on type modes.
+        Set the `value` property to a `Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_*` constant.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_STROKE_COLOR
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to specify a color for the stroke text.
     description: |
+        Use a color name or hex value for the `value` property in the attributes dictionary.
+
         See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "6.0"}}
@@ -122,35 +152,34 @@ properties:
 
   - name: ATTRIBUTE_STROKE_WIDTH
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to specify the width of the stroke text.
     description: |
-        See <Attribute> for more information on type modes.
+        Set <Attribute.value> to a float value specifying the size of stroke width as a percentage of the
+        font size. A positive value displays an outline of the charater, while a negative value
+        fills the character.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_SHADOW
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to display a shadow behind the text.
     description: |
-        See <Attribute> for more information on type modes.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
+        Set <Attribute.value> to a [Shadow](shadowDict) dictionary.
 
-  - name: ATTRIBUTE_VERTICAL_GLYPH_FORM
-    summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
-    description: |
-        See <Attribute> for more information on type modes.
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to control the direction of the text.
     description: |
+        Set <Attribute.value> to a `Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_*` constant.
+
         See <Attribute> for more information on type modes.
     type: Number
     osver: {ios: {min: "7.0"}}
@@ -158,198 +187,273 @@ properties:
 
   - name: ATTRIBUTE_TEXT_EFFECT
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to apply a text effect.
     description: |
-        See <Attribute> for more information on type modes.
+        Set <Attribute.value> to `Titainium.UI.iOS.ATTRIBUTE_LETTERPRESS_STYLE` to apply a
+        letterpress effect to the text.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_LINK
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to create a link.
     description: |
-        See <Attribute> for more information on type modes.
+        Set <Attribute.value> to a URL.
+
+        Use the Label's [link](Titanium.UI.Label.link) event to determine when the user triggers a
+        long press (not a click) event on the linked text.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_BASELINE_OFFSET
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to apply a different baseline to the text.
     description: |
-        See <Attribute> for more information on type modes.
+        Set <Attribute.value> to a number to specify how many pixels to raise or lower the text.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_COLOR
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to change the color of the horizontal line.
     description: |
-        See <Attribute> for more information on type modes.
+        Use a color name or hex value for <Attribute.value>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_STRIKETHROUGH_COLOR
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to change the color of the horizontal line.
     description: |
-        See <Attribute> for more information on type modes.
+        Use a color name or hex value for <Attribute.value>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_OBLIQUENESS
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to skew the text.
     description: |
-        See <Attribute> for more information on type modes.
+        Set <Attribute.value> to a float value to specify how much to skew the text.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_EXPANSION
     summary: |
-        Use with [Attribute.type](Attribute.type) to specify a type.
+        Use with <Attribute.type> to stretch the text horizontally.
     description: |
-        See <Attribute> for more information on type modes.
+        Set <Attribute.value> to a float value to specify how much to stretch the text.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_NONE
     summary: |
-        Use with [Attribute.value](Attribute.value) to specify a value.
+        Use with <Attribute.value> to not draw a line.
     description: |
-        See <Attribute> for more information on value modes.
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_SINGLE
     summary: |
-        Use with [Attribute.value](Attribute.value) to specify a value.
+        Use with <Attribute.value> to draw a single line.
     description: |
-        See <Attribute> for more information on value modes.
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_THICK
     summary: |
-        Use with [Attribute.value](Attribute.value) to specify a value.
+        Use with <Attribute.value> to draw a thick line.
     description: |
-        See <Attribute> for more information on value modes.
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
     summary: |
-        Use with [Attribute.value](Attribute.value) to specify a value.
+        Use with <Attribute.value> to draw a double line.
     description: |
-        See <Attribute> for more information on value modes.
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_SOLID
     summary: |
-        Use with [Attribute.value](Attribute.value) to specify a value.
+        Use with <Attribute.value> to draw a solid line.
     description: |
-        See <Attribute> for more information on value modes.
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DOT
     summary: |
-        Use with [Attribute.value](Attribute.value) to specify a value.
+        Use with <Attribute.value> to draw a dotted line.
     description: |
-        See <Attribute> for more information on value modes.
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH
     summary: |
-        Use with [Attribute.value](Attribute.value) to specify a value.
+        Use with <Attribute.value> to draw a dashed line.
     description: |
-        See <Attribute> for more information on value modes.
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
     summary: |
-        Use with [Attribute.value](Attribute.value) to specify a value.
+        Use with <Attribute.value> to draw an alternating line of dashes and dots.
     description: |
-        See <Attribute> for more information on value modes.
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
     summary: |
-        Use with [Attribute.value](Attribute.value) to specify a value.
+        Use with <Attribute.value> to draw an alternating line of dashes and two dots.
     description: |
-        See <Attribute> for more information on value modes.
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_BY_WORD
     summary: |
-        Use with [Attribute.value](Attribute.value) to specify a value.
+        Use with <Attribute.value> to draw a line only underneath or through words.
     description: |
-        See <Attribute> for more information on value modes.
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
     summary: |
-        Use with [Attribute.value](Attribute.value) to specify a value.
+        Use with <Attribute.value> to use the embedded text direction.
     description: |
-        See <Attribute> for more information on value modes.
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
     summary: |
-        Use with [Attribute.value](Attribute.value) to specify a value.
+        Use with <Attribute.value> to override the text direction.
     description: |
-        See <Attribute> for more information on value modes.
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_NATURAL
     summary: |
-        Use with [Attribute.value](Attribute.value) to specify a value.
+        Use with <Attribute.value> to use the 
+        [Unicode Bidirection Algorithm rules P2 and P3](http://www.unicode.org/reports/tr9/#The_Paragraph_Level)
+        to determine which direction to use.
     description: |
-        See <Attribute> for more information on value modes.
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
     summary: |
-        Use with [Attribute.value](Attribute.value) to specify a value.
+        Use with <Attribute.value> to write text left to right.
     description: |
-        See <Attribute> for more information on value modes.
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
     summary: |
-        Use with [Attribute.value](Attribute.value) to specify a value.
+        Use with <Attribute.value> to write text right to left.
     description: |
-        See <Attribute> for more information on value modes.
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
+
+        See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only

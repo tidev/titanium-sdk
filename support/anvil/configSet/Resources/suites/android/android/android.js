@@ -21,7 +21,8 @@ module.exports = new function() {
 		{name: "pendingIntentFlags"},
 		{name: "intentFlags"},
 		{name: "intentFlagAccessors"},
-		{name: "proxyInvocation"}
+		{name: "proxyInvocation"},
+		{name: "broadcastReceiverApi"}
 	]
 
 	this.androidAPIs = function(testRun) {
@@ -163,6 +164,16 @@ module.exports = new function() {
 		finish(testRun);
 	}
 
+	//TIMOB-10214
+	this.broadcastReceiverApi = function(testRun) {
+		valueOf(testRun, function() {
+			var bc = Ti.Android.createBroadcastReceiver({});
+			Ti.Android.registerBroadcastReceiver(bc, [Ti.Android.ACTION_AIRPLANE_MODE_CHANGED]);
+			Ti.Android.unregisterBroadcastReceiver(bc);
+		}).shouldNotThrowException();
+
+		finish(testRun);
+	}
 	/*this.options = {
 		forceBuild: true
 	}*/

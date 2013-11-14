@@ -5,7 +5,7 @@ summary: |
     font and kerning) that apply to individual characters or ranges of characters in the string.
 
 description: |
-    The AttributedString proxy is created with the method <Titanium.UI.iOS.createAttributedString>.
+    The AttributedString proxy is created with the <Titanium.UI.iOS.createAttributedString> method.
     
     The `text` property must be set initially in the constructor when creating an attributed string.
     The [attributes](Titanium.UI.iOS.AttributedString.attributes) can either be set in the constructor or after it has been created.
@@ -26,9 +26,8 @@ properties:
     summary: |
         An array of attributes to add.
     description: |
-        Internally, this calls the `addAttribute` method for each of the attributes passed
-        in.
-        See also: [addAttribute](Titanium.UI.iOS.AttributedString.addAttribute), 
+        Internally, this calls the [addAttribute](Titanium.UI.iOS.AttributedString.addAttribute)
+        method for each of the attributes passed in.
     type: Array<Attribute>
 
 methods:
@@ -43,7 +42,7 @@ examples:
   - title: Adds an array of attributes to a label
     example: |
         Creates an AttributedString proxy, adds some attributes to it, and applies them
-        to a Titanium.UI.Label
+        to a <Titanium.UI.Label>.
 
             var win = Titanium.UI.createWindow({
                 backgroundColor: '#ddd',
@@ -101,7 +100,7 @@ examples:
 
             win.add(label);
 
-  - title: Adds attributes, one by one
+  - title: Adds attributes, one by one.
     example: |
 
             var win = Titanium.UI.createWindow({

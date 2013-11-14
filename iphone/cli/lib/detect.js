@@ -18,7 +18,7 @@ var fs = require('fs'),
 	spawn = require('child_process').spawn,
 	appc = require('node-appc'),
 	iosDevice = require('node-ios-device'),
-	x509 = require('x509'),
+	pki = require('node-forge')({disableNativeCode: true}).pki,
 	iosPackageJson = appc.pkginfo.package(module),
 	manifestJson = appc.pkginfo.manifest(module),
 	__ = appc.i18n(__dirname).__,
@@ -67,20 +67,6 @@ exports.detect = function detect(config, opts, finished) {
 						+ __('Please verify your system path.') + '\n'
 						+ __("This program is distributed with Mac OS X and if it's missing, you'll have to restore it from a backup or another computer, or reinstall Mac OS X.")
 						+ __("If you know where this executable is, you can tell the Titanium CLI where it located by running 'titanium config osx.executables.security /path/to/security'.")
-				});
-				next(null, result);
-			});
-		},
-
-		openssl: function (next) {
-			findExecutable([config.get('osx.executables.openssl'), 'openssl'], function (err, result) {
-				err && issues.push({
-					id: 'IOS_OPENSSL_EXECUTABLE_NOT_FOUND',
-					type: 'error',
-					message: __("Unable to find the 'openssl' executable") + '\n'
-						+ __('Please verify your system path.') + '\n'
-						+ __("This program should be distributed with Mac OS X and if it's missing, you can download from http://www.openssl.org/.")
-						+ __("If you know where this executable is, you can tell the Titanium CLI where it located by running 'titanium config osx.executables.openssl /path/to/openssl'.")
 				});
 				next(null, result);
 			});
@@ -255,8 +241,9 @@ exports.detect = function detect(config, opts, finished) {
 								id: 'IOS_XCODE_NOT_INSTALLED',
 								type: 'error',
 								message: __('No Xcode installations found.') + '\n' +
-									__('You need to login into %s with your Apple Download account and download the latest Xcode version.',
-										'__https://developer.apple.com/ios/manage/certificates/team/index.action__')
+									__('You can download it from the %s or from %s.',
+										'__App Store__',
+										'__https://developer.apple.com/xcode/__')
 							});
 						}
 						done(null, xcodeInstalls);
@@ -284,7 +271,7 @@ exports.detect = function detect(config, opts, finished) {
 								type: 'error',
 								message: __('Apple’s World Wide Developer Relations (WWDR) intermediate certificate is not installed.') + '\n' +
 									__('This will prevent you from building apps for iOS devices or package for distribution.') + '\n' +
-									__('Download and install the certificate from %s', '__http://developer.apple.com/certificationauthority/AppleWWDRCA.cer__')
+									__('Download and install the certificate from %s', '__http://appcelerator.com/ios-wwdr__')
 							});
 						}
 
@@ -324,7 +311,7 @@ exports.detect = function detect(config, opts, finished) {
 								message: __('Unable to find any valid iOS developer certificates.') + '\n' +
 									__('This will prevent you from building apps for iOS devices.') + '\n' +
 									__('You will need to login into %s with your Apple Download account, then create, download, and install a certificate.',
-										'__https://developer.apple.com/account/ios/certificate/certificateList.action?type=development__')
+										'__http://appcelerator.com/ios-dev-certs__')
 							});
 						}
 
@@ -335,7 +322,7 @@ exports.detect = function detect(config, opts, finished) {
 								message: __('Unable to find any valid iOS production distribution certificates.') + '\n' +
 									__('This will prevent you from packaging apps for distribution.') + '\n' +
 									__('You will need to login into %s with your Apple Download account, then create, download, and install a certificate.',
-										'__https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution__')
+										'__http://appcelerator.com/ios-dist-certs__')
 							});
 						}
 
@@ -371,16 +358,16 @@ exports.detect = function detect(config, opts, finished) {
 
 									out.trim().split(begin).forEach(function (c, i) {
 										if (!i) return; // skip first element because it's empty from the split
-										var cert = x509.parseCert(begin + c),
-											expired = cert.notAfter < now,
-											invalid = expired || cert.notBefore > now;
+										var cert = pki.certificateFromPem(begin + c),
+											expired = cert.validity.notAfter < now,
+											invalid = expired || cert.validity.notBefore > now;
 
 										dest.developer || (dest.developer = []);
 
 										dest.developer.push({
-											name: cert.subject.commonName.substring(iphoneDev.length).trim(),
-											before: cert.notBefore,
-											after: cert.notAfter,
+											name: cert.subject.getField('CN').value.substring(iphoneDev.length).trim(),
+											before: cert.validity.notBefore,
+											after: cert.validity.notAfter,
 											expired: expired,
 											invalid: invalid
 										});
@@ -397,16 +384,16 @@ exports.detect = function detect(config, opts, finished) {
 
 									out.trim().split(begin).forEach(function (c, i) {
 										if (!i) return; // skip first element because it's empty from the split
-										var cert = x509.parseCert(begin + c),
-											expired = cert.notAfter < now,
-											invalid = expired || cert.notBefore > now;
+										var cert = pki.certificateFromPem(begin + c),
+											expired = cert.validity.notAfter < now,
+											invalid = expired || cert.validity.notBefore > now;
 
 										dest.distribution || (dest.distribution = []);
 
 										dest.distribution.push({
-											name: cert.subject.commonName.substring(iphoneDist.length).trim(),
-											before: cert.notBefore,
-											after: cert.notAfter,
+											name: cert.subject.getField('CN').value.substring(iphoneDist.length).trim(),
+											before: cert.validity.notBefore,
+											after: cert.validity.notAfter,
 											expired: expired,
 											invalid: invalid
 										});
@@ -425,8 +412,8 @@ exports.detect = function detect(config, opts, finished) {
 
 									out.trim().split(begin).forEach(function (c, i) {
 										if (!i) return; // skip first element because it's empty from the split
-										var cert = x509.parseCert(begin + c),
-											invalid = cert.notAfter < now || cert.notBefore > now;
+										var cert = pki.certificateFromPem(begin + c),
+											invalid = cert.validity.notAfter < now || cert.validity.notBefore > now;
 										if (!invalid) {
 											result.wwdr = true;
 										}
@@ -510,7 +497,7 @@ exports.detect = function detect(config, opts, finished) {
 						message: __('Unable to find any valid iOS development provisioning profiles.') + '\n' +
 							__('This will prevent you from building apps for testing on iOS devices.') + '\n' +
 							__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
-								'__https://developer.apple.com/account/ios/certificate/certificateList.action?type=development__')
+								'__http://appcelerator.com/ios-dev-certs__')
 					});
 				}
 
@@ -521,7 +508,7 @@ exports.detect = function detect(config, opts, finished) {
 						message: __('Unable to find any valid iOS adhoc provisioning profiles.') + '\n' +
 							__('This will prevent you from packaging apps for adhoc distribution.') + '\n' +
 							__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
-								'__https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution__')
+								'__http://appcelerator.com/ios-dist-certs__')
 					});
 				}
 
@@ -532,7 +519,7 @@ exports.detect = function detect(config, opts, finished) {
 						message: __('Unable to find any valid iOS distribution provisioning profiles.') + '\n' +
 							__('This will prevent you from packaging apps for AppStore distribution.') + '\n' +
 							__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
-								'__https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution__')
+								'__http://appcelerator.com/ios-dist-certs__')
 					});
 				}
 
@@ -562,6 +549,8 @@ exports.detectSimulators = function detectSimulators(config, opts, finished) {
 	if (typeof opts == 'function') {
 		finished = opts;
 		opts = {};
+	} else {
+		opts = opts || {};
 	}
 
 	exports.detect(config, opts, function (info) {

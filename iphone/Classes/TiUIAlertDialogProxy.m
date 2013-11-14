@@ -127,15 +127,8 @@ static BOOL alertShowing = NO;
 
 		[alert setCancelButtonIndex:[TiUtils intValue:[self valueForKey:@"cancel"] def:-1]];
 
-		if ([TiUtils isIOS5OrGreater])
-		{
-			int style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
-			[alert setAlertViewStyle:style];
-		}
-		else
-		{
-			NSLog(@"[WARN] Alert dialog `style` property is only supported in iOS 5 or above.");
-		}
+		int style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
+		[alert setAlertViewStyle:style];
 
 		[self retain];
 		[alert show];
@@ -163,32 +156,25 @@ static BOOL alertShowing = NO;
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-	if ([self _hasListeners:@"click"])
-	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-							   [NSNumber numberWithInt:buttonIndex],@"index",
-							   [NSNumber numberWithInt:[alertView cancelButtonIndex]],@"cancel",
-							   nil];
+	if ([self _hasListeners:@"click"]) {
+        NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                            [NSNumber numberWithInt:buttonIndex],@"index",
+                            [NSNumber numberWithInt:[alertView cancelButtonIndex]],@"cancel",
+                            nil];
 
-		if ([TiUtils isIOS5OrGreater])
-		{
-			if ([alertView alertViewStyle] == UIAlertViewStylePlainTextInput ||
-				[alertView alertViewStyle] == UIAlertViewStyleSecureTextInput)
-			{
-				[event setObject:[[alertView textFieldAtIndex:0] text] forKey:@"text"];
-			}
-			else if ([alertView alertViewStyle] == UIAlertViewStyleLoginAndPasswordInput)
-			{
-				[event setObject:[[alertView textFieldAtIndex:0] text] forKey:@"login"];
+        if ([alertView alertViewStyle] == UIAlertViewStylePlainTextInput || [alertView alertViewStyle] == UIAlertViewStyleSecureTextInput) {
+            [event setObject:[[alertView textFieldAtIndex:0] text] forKey:@"text"];
+        }
+        else if ([alertView alertViewStyle] == UIAlertViewStyleLoginAndPasswordInput) {
+            [event setObject:[[alertView textFieldAtIndex:0] text] forKey:@"login"];
 
-				// If password field never gets focus, `text` property becomes `nil`.
-				NSString *password = [[alertView textFieldAtIndex:1] text];
-				[event setObject:(IS_NULL_OR_NIL(password) ? @"" : password) forKey:@"password"];
-			}
-		}
+            // If password field never gets focus, `text` property becomes `nil`.
+            NSString *password = [[alertView textFieldAtIndex:1] text];
+            [event setObject:(IS_NULL_OR_NIL(password) ? @"" : password) forKey:@"password"];
+        }
 
-		[self fireEvent:@"click" withObject:event];
-	}
+        [self fireEvent:@"click" withObject:event];
+    }
 }
 
 -(void)alertViewCancel:(UIAlertView *)alertView

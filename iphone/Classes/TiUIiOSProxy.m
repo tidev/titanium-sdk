@@ -158,6 +158,10 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
 {
     return ([TiUtils isIOS7OrGreater] ? NUMINT(NSTextWritingDirectionOverride): NUMINT(NSWritingDirectionNatural));
 }
+-(NSString *)ATTRIBUTE_LETTERPRESS_STYLE
+{
+    return ([TiUtils isIOS7OrGreater] ? NSTextEffectLetterpressStyle : @"");
+}
 
 #endif
 

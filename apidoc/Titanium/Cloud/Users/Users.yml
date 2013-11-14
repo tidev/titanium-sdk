@@ -164,6 +164,22 @@ methods:
         summary: Callback function to execute when the method completes.
         type: Callback<CloudUsersResponse>
 
+  - name: resendConfirmation
+    summary: Re-send a user verification email.
+    description: |
+        See [Users: Send a reset password email to User](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-resend_confirmation)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `users` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudUsersResponse>
+
   - name: secureCreate
     since: 2.1.2
     platforms: [android, iphone, ipad]
