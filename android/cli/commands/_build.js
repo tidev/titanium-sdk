@@ -2244,6 +2244,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		}
 
 		// copy js files into assets directory and minify if needed
+		this.logger.info(__('Processing JavaScript files'));
 		appc.async.series(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
 				var from = jsFiles[id],
@@ -2285,7 +2286,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					})(r, from, to, done);
 				} else {
 					// no need to parse the AST, so just copy the file
-					copyFile.call(this, from, to, done);
+					this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
+						copyFile.call(this, from, to, cb);
+					})(from, to, done);
 				}
 			};
 		}), function () {

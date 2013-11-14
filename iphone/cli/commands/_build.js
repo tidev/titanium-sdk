@@ -2933,7 +2933,9 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 					})(r, from, to, done);
 				} else {
 					// no need to parse the AST, so just copy the file
-					copyFile.call(this, from, to, done);
+					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
+						copyFile.call(this, from, to, cb);
+					})(from, to, done);
 				}
 			};
 		}), function () {
