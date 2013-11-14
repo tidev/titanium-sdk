@@ -164,6 +164,21 @@ methods:
         summary: Callback function to execute when the method completes.
         type: Callback<CloudUsersResponse>
 
+  - name: resetPassword
+    summary: Reset a user's password.
+    description: |
+        See [Users: Reset a password](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-reset_password)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudResponse>
+    since: 3.2.0
+
   - name: resendConfirmation
     summary: Re-send a user verification email.
     description: |
