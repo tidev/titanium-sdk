@@ -8,12 +8,26 @@ description: |
     Google is no longer issuing Google Maps API v1 keys and this module can no longer be used to
     support native maps on Android unless you have these keys.
 
-    For new Android applications, use the [Google Maps v2 add-on module](Modules.Map)
+    For new Android applications, use the [ti.map add-on module](Modules.Map)
     to add native maps support for your application. If you have an application that still uses the old keys,
     you can either transition to the new module or continue using the built-in Titanium.Maps module.
 
+    #### iOS Platform Notes
+
+    Since Release 3.2.0, support for this module was removed. Use the [ti.map add-on module](Modules.Map).
+
 extends: Titanium.Module
 since: "0.8"
+deprecated:
+    since: "3.2.0"
+    notes: |
+        For new Android applications or to use Google Maps v2, use the [ti.map add-on module](Modules.Map).
+
+        For the iOS platform, use the [ti.map add-on module](Modules.Map). Support for the `Titanium.Map` module
+        on iOS was removed in Release 3.2.0.
+
+        For all other platforms, continue to use this module.
+
 properties:
 
   - name: ANNOTATION_DRAG_STATE_NONE
