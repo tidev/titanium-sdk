@@ -1495,17 +1495,17 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.loadFromSDCard = loadFromSDCardProp && loadFromSDCardProp.value === true;
 
 	// determine if we're going to be minifying javascript
-	var compileJSProp = this.tiapp.properties['ti.android.compilejs'];
+	var compileJSProp = this.tiapp.properties['ti.compilejs'];
 	if (argv['skip-js-minify']) {
 		if (this.compileJS) {
 			logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', '--skip-js-minify'.cyan));
 		}
-		this.compileJS = this.encryptJS = false;
+		this.compileJS = this.encryptJS = this.minifyJS = false;
 	} else if (compileJSProp) {
 		if (this.compileJS && !compileJSProp.value) {
-			logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', 'ti.android.loadfromsdcard'.cyan));
+			logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', 'ti.compilejs'.cyan));
 		}
-		this.compileJS = this.encryptJS = !!compileJSProp.value;
+		this.compileJS = this.encryptJS = this.minifyJS = !!compileJSProp.value;
 	}
 
 	var includeAllTiModulesProp = this.tiapp.properties['ti.android.include_all_modules'];
