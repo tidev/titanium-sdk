@@ -41,7 +41,7 @@ module.exports = new function() {
 		win.open();	
 	}
 
-	//TIMOB-5996
+	//TIMOB-5990
 	this.removeView = function(testRun) {
 		valueOf(testRun, function(){
 			Ti.UI.createScrollableView({
