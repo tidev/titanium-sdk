@@ -8,6 +8,7 @@
 
 #import "TiAppPropertiesProxy.h"
 #import "TiUtils.h"
+#import "TiApp.h"
 
 @implementation TiAppPropertiesProxy {
 	NSData *_defaultsNull;
@@ -21,6 +22,11 @@
 	RELEASE_TO_NIL(defaultsObject);
 	RELEASE_TO_NIL(_defaultsNull);
 	[super dealloc];
+}
+
+-(NSString*)apiName
+{
+    return @"Ti.App.Properties";
 }
 
 -(void)_listenerAdded:(NSString*)type count:(int)count
@@ -60,6 +66,10 @@
 #define GETPROP \
 ENSURE_TYPE(args,NSArray);\
 NSString *key = [args objectAtIndex:0];\
+id appProp = [[TiApp tiAppProperties] objectForKey:key]; \
+if(appProp) { \
+    return appProp; \
+} \
 id defaultValue = [args count] > 1 ? [args objectAtIndex:1] : [NSNull null];\
 if (![self propertyExists:key]) return defaultValue; \
 
@@ -111,11 +121,17 @@ if (![self propertyExists:key]) return defaultValue; \
     else {
         return theObject;
     }
+    
 }
 
 #define SETPROP \
 ENSURE_TYPE(args,NSArray);\
 NSString *key = [args objectAtIndex:0];\
+id appProp = [[TiApp tiAppProperties] objectForKey:key]; \
+if(appProp) { \
+    DebugLog(@"[ERROR] Property \"%@\" already exist and cannot be overwritten", key); \
+    return; \
+} \
 id value = [args count] > 1 ? [args objectAtIndex:1] : nil;\
 if (value==nil || value==[NSNull null]) {\
     [defaultsObject removeObjectForKey:key];\
@@ -184,6 +200,10 @@ if ([self propertyExists:key] && [ [defaultsObject objectForKey:key] isEqual:val
 -(void)removeProperty:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSString);
+    if([[TiApp tiAppProperties] objectForKey:args] != nil) {
+        DebugLog(@"[ERROR] Cannot remove property \"%@\", it is read-only.", args);
+        return;
+    }
 	[defaultsObject removeObjectForKey:[TiUtils stringValue:args]];
 	[defaultsObject synchronize];
 }
@@ -197,13 +217,18 @@ if ([self propertyExists:key] && [ [defaultsObject objectForKey:key] isEqual:val
 
 -(id)hasProperty:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSString);
-	return [NSNumber numberWithBool:[self propertyExists:[TiUtils stringValue:args]]];
+    ENSURE_SINGLE_ARG(args,NSString);
+    BOOL inUserDefaults = [self propertyExists:[TiUtils stringValue:args]];
+    BOOL inTiAppProperties = [[TiApp tiAppProperties] objectForKey:args] != nil;
+    return NUMBOOL(inUserDefaults || inTiAppProperties);
 }
 
 -(id)listProperties:(id)args
 {
-	return [[defaultsObject dictionaryRepresentation] allKeys];
+    NSMutableArray *array = [NSMutableArray array];
+    [array addObjectsFromArray:[[defaultsObject dictionaryRepresentation] allKeys]];
+    [array addObjectsFromArray:[[TiApp tiAppProperties] allKeys]];
+    return array;
 }
 
 -(void) NSUserDefaultsDidChange

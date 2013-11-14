@@ -261,4 +261,10 @@ public class HTTPClientProxy extends KrollProxy
 			client.addKeyManager((X509KeyManager)manager);
 		}
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Network.HTTPClient";
+	}
 }

@@ -83,30 +83,6 @@
 	[super frameSizeChanged:frame bounds:bounds];
 }
 
--(void)setSelectionFrom:(id)start to:(id)end 
-{
-    
-    if([TiUtils isIOS5OrGreater]) {
-        UITextView *textView = (UITextView*)[self textWidgetView];
-        if ([textView conformsToProtocol:@protocol(UITextInput)]) {
-            if([self becomeFirstResponder]){
-                UITextPosition *beginning = textView.beginningOfDocument;
-                UITextPosition *startPos = [textView positionFromPosition:beginning offset:[TiUtils intValue: start]];
-                UITextPosition *endPos = [textView positionFromPosition:beginning offset:[TiUtils intValue: end]];
-                UITextRange *textRange;
-                textRange = [textView textRangeFromPosition:startPos toPosition:endPos];
-                [textView setSelectedTextRange:textRange];
-            }
-            
-        } else {
-            DebugLog(@"UITextView does not conform with UITextInput protocol. Ignore");
-        }
-    } else {
-        DebugLog(@"Selecting text is only supported with iOS5+");
-    }
-    
-}
-
 -(UIView<UITextInputTraits>*)textWidgetView
 {
     if (textWidgetView==nil)
@@ -119,8 +95,10 @@
         [textViewImpl setContentInset:UIEdgeInsetsZero];
         self.clipsToBounds = YES;
         
+        lastSelectedRange.location = 0;
+        lastSelectedRange.length = 0;
         //Temporarily setting text to a blank space, to set the editable property [TIMOB-10295]
-        //This is a workaround for a Apple Bug. 
+        //This is a workaround for a Apple Bug.
         textViewImpl.text = @" ";
         textViewImpl.editable = YES;
         
@@ -130,6 +108,19 @@
         
     }
     return textWidgetView;
+}
+
+-(void)adjustOffsetIfRequired:(UITextView*)tv
+{
+    CGFloat contentHeight = tv.contentSize.height;
+    CGFloat boundsHeight = tv.bounds.size.height;
+    CGFloat lineHeight = tv.font.lineHeight;
+    
+    if (contentHeight >= (boundsHeight - lineHeight)) {
+        CGPoint curOffset = tv.contentOffset;
+        curOffset.y = curOffset.y + lineHeight;
+        [tv setContentOffset:curOffset animated:NO];
+    }
 }
 
 #pragma mark Public APIs
@@ -210,6 +201,18 @@
 
 #pragma mark UITextViewDelegate
 
+- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange
+{
+    if([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO]) {
+        NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   [URL absoluteString], @"url",
+                                   [NSArray arrayWithObjects:NUMINT(characterRange.location), NUMINT(characterRange.length),nil],@"range",
+                                   nil];
+        [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
+    return handleLinks;
+}
+
 - (void)textViewDidBeginEditing:(UITextView *)tv
 {
 	[self textWidget:tv didFocusWithText:[tv text]];
@@ -244,6 +247,12 @@
 		NSDictionary *event = [NSDictionary dictionaryWithObject:rangeDict forKey:@"range"];
 		[self.proxy fireEvent:@"selected" withObject:event];
 	}
+    //TIMOB-15401. Workaround for UI artifact
+    if ((tv == textWidgetView) && (!NSEqualRanges(tv.selectedRange, lastSelectedRange))) {
+        lastSelectedRange.location = tv.selectedRange.location;
+        lastSelectedRange.length = tv.selectedRange.length;
+        [tv scrollRangeToVisible:lastSelectedRange];
+    }
 }
 
 - (BOOL)textViewShouldEndEditing:(UITextView *)tv
@@ -268,9 +277,24 @@
         [self setValue_:curText];
         return NO;
     }
+    
+    //TIMOB-15401. Workaround for UI artifact
+    if ([tv isScrollEnabled] && [text isEqualToString:@"\n"]) {
+        if (curText.length - tv.selectedRange.location == 1) {
+            //Last line. Adjust
+            [self adjustOffsetIfRequired:tv];
+        }
+    }
 
 	[(TiUITextAreaProxy *)self.proxy noteValueChange:curText];
 	return TRUE;
+}
+
+-(void)setHandleLinks_:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSNumber);
+    handleLinks = [TiUtils boolValue:args];
+    [[self proxy] replaceValue:NUMBOOL(handleLinks) forKey:@"handleLinks" notification:NO];
 }
 
 /*

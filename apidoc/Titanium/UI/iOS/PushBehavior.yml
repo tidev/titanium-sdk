@@ -1,0 +1,141 @@
+---
+name: Titanium.UI.iOS.PushBehavior
+summary: Continuous or instantaneous force to apply to an item.
+description: |
+    The following APIs are supported on iOS 7 and later.
+
+    A push behavior configures the continuous or instaneous force to apply to one or more items. To
+    define a push behavior:
+
+      1. Use the <Titanium.UI.iOS.createPushBehavior> method to create and define the behavior.
+      2. To define a force vector, either set the
+         [angle](Titanium.UI.iOS.PushBehavior.angle) and
+         [magnitude](Titanium.UI.iOS.PushBehavior.magnitude) properties, or set the
+         [pushDiretion](Titanium.UI.iOS.PushBehavior.pushDirection) property.
+      3. Use the [addItem](Titanium.UI.iOS.PushBehavior.addItem) method to add items to the behavior.
+      4. Add the behavior to an [Animator object](Titanium.UI.iOS.Animator).
+    
+extends: Titanium.Proxy
+since: "3.2"
+platforms: [iphone, ipad]
+osver: {ios: {min: "7.0"}}
+
+properties:
+  - name: active
+    summary: State of the push behavior's force.
+    description: |
+        Set to `true` to activate the force or `false` to deactivate it.  Use this property rather
+        than removing and re-adding the behavior to the animator.
+    type: Boolean
+    default: true
+
+  - name: angle
+    summary: Specifies the angle of the force vector in radians.
+    description: |
+        To configure the force vector, you need to also specify the
+        [magnitude](Titanium.UI.iOS.PushBehavior.magnitude) property.
+    type: Number
+    default: 0
+
+  - name: items
+    summary: Items added to this behavior.
+    type: Array<Titanium.UI.View>
+    permission: read-only
+
+  - name: magnitude
+    summary: Specifies the magnitude of the force vector.
+    description: |
+        A value of 1.0 represents an acceleration of 100 points per second squared if the item is
+        100 x 100 points with a `density` of 1.0.
+
+        To configure the push vector, you need to also specify the
+        [angle](Titanium.UI.iOS.PushBehavior.angle) property.
+    type: Number
+    default: 0
+
+  - name: pushDirection
+    summary: Specifies the direction of the force vector as an x, y pair.
+    description: |
+        For example, specifiying `{x: 0.0, y: 1.0}` indicates a positive upward force of 100
+        points per second squared if the item is 100 x 100 points with a `density` of 1.0.
+
+        Specifiying a negative value reverses the direction of the force.
+    type: Point
+    default: (0,0)
+
+  - name: pushMode
+    summary: Specifies the push mode.
+    description: |
+        Specifiy one of the following constants:
+
+          * <Titanium.UI.iOS.PUSH_MODE_CONTINUOUS> for a continuous force
+          * <Titanium.UI.iOS.PUSH_MODE_INSTANTANEOUS> for an instantaneous force
+    type: Number
+    default: <Titanium.UI.iOS.PUSH_MODE_CONTINUOUS>
+
+methods:
+  - name: addItem
+    summary: Adds an item to this behavior.
+    parameters:
+      - name: item
+        summary: 
+        type: Titanium.UI.View
+
+  - name: removeItem
+    summary: Removes the specified item from this behavior.
+    parameters:
+      - name: item
+        summary: Item to remove.
+        type: Titanium.UI.View
+
+examples:
+  - title: Simple Example
+    example: |
+        The following example generates a random push force on the block when it stops
+
+            var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
+
+            // Create an Animator object using the window as the coordinate system
+            var animator = Ti.UI.iOS.createAnimator({referenceView: win});
+
+            var block = Ti.UI.createView({
+                width: 100,
+                height: 100,
+                backgroundColor: 'blue',
+                transform: Ti.UI.create2DMatrix({ rotate: 45 })
+            });
+
+            // Create a default collision behavior, using the window edges as boundaries
+            var collision = Ti.UI.iOS.createCollisionBehavior();
+            collision.addItem(block);
+            animator.addBehavior(collision);
+            
+            // Push the block down when the application first starts
+            var push = Ti.UI.iOS.createPushBehavior({
+                pushDirection: {x: 0.0, y: 1.0},
+                pushMode: Ti.UI.iOS.PUSH_MODE_INSTANTANEOUS
+            });
+            push.addItem(block);
+            animator.addBehavior(push);
+
+            // Apply a new push behavior when the item stops
+            animator.addEventListener('pause', function(e){
+                push.angle = 2 * Math.PI * Math.random();
+                push.magnitude = Math.random() * 5 + 5;
+                push.active = true;
+            });
+
+            animator.addEventListener('resume', function(e){
+                Ti.API.info(JSON.stringify(
+                    'push force: ' + push.magnitude * 100 + " points/s^2 @ "
+                    + (push.angle * 360 / (2 * Math.PI)) + " degrees")
+                );
+            });
+
+            // Start the animation when the window opens
+            win.addEventListener('open', function(e){
+                animator.startAnimator();
+            });
+
+            win.add(block);
+            win.open();

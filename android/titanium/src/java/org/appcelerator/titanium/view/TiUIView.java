@@ -31,8 +31,8 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiGradientDrawable.GradientType;
 
-import android.annotation.TargetApi;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -40,7 +40,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.view.ViewCompat;
@@ -61,6 +60,8 @@ import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -151,19 +152,44 @@ public abstract class TiUIView
 	 */
 	public void add(TiUIView child)
 	{
+		add(child, -1);
+	}
+
+	private void add(TiUIView child, int childIndex)
+	{
 		if (child != null) {
 			View cv = child.getOuterView();
 			if (cv != null) {
 				View nv = getNativeView();
 				if (nv instanceof ViewGroup) {
 					if (cv.getParent() == null) {
-						((ViewGroup) nv).addView(cv, child.getLayoutParams());
+						if (childIndex != -1) {
+							((ViewGroup) nv).addView(cv, childIndex, child.getLayoutParams());
+						} else {
+							((ViewGroup) nv).addView(cv, child.getLayoutParams());
+						}
 					}
 					children.add(child);
 					child.parent = proxy;
 				}
 			}
 		}
+	}
+
+	private int findChildIndex(TiUIView child)
+	{
+		int idxChild = -1;
+		if (child != null) {
+			View cv = child.getOuterView();
+			if (cv != null) {
+				View nv = getNativeView();
+				if (nv instanceof ViewGroup) {
+					idxChild = ((ViewGroup) nv).indexOfChild(cv);
+
+				}
+			}
+		}
+		return idxChild;
 	}
 
 	/**
@@ -426,7 +452,68 @@ public abstract class TiUIView
 		options.put(TiC.PROPERTY_DURATION, 1);
 
 		animBuilder.applyOptions(options);
-		animBuilder.start(this.proxy, outerView);
+
+		// When using Honeycomb+ property Animators, we can only use absolute values to specify the anchor point, eg. "50px".
+		// Therefore, we must start the transformation after the layout pass when we get the height and width of the view.
+		if (animBuilder.isUsingPropertyAnimators()) {
+			startTransformAfterLayout(outerView);
+		} else {
+			animBuilder.start(this.proxy, outerView);
+		}
+	}
+
+	/**
+	 * When using Honeycomb+ property Animators, we start the transformation after the layout pass.
+	 * @param v the view to animate
+	 */
+	protected void startTransformAfterLayout(final View v)
+	{
+		final TiViewProxy p = this.proxy;
+		OnGlobalLayoutListener layoutListener = new OnGlobalLayoutListener() {
+			public void onGlobalLayout()
+			{
+				animBuilder.start(p, v);
+				try {
+					if (Build.VERSION.SDK_INT < TiC.API_LEVEL_JELLY_BEAN) {
+						v.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+					} else {
+						v.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+					}
+				} catch (IllegalStateException e) {
+					if (Log.isDebugModeEnabled()) {
+						Log.w(TAG, "Unable to remove the OnGlobalLayoutListener.", e.getMessage());
+					}
+				}
+			}
+		};
+		v.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
+
+		// On Jelly Bean+, the view will visibly transform if the transformation starts after the layout pass,
+		// so we add OnPreDrawListener to skip the drawing pass before the animation is ended.
+		// This mechanism only works for Honeycomb+ property Animators. Because if we use pre-Honeycomb view
+		// animations and skip the drawing pass, the AnimationListener will not be triggered so
+		// TiAnimationBuilder.isAnimationRunningFor(view) will always return true.
+		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_JELLY_BEAN) {
+			final OnPreDrawListener preDrawListener = new OnPreDrawListener()
+			{
+				public boolean onPreDraw()
+				{
+					if (TiAnimationBuilder.isAnimationRunningFor(v)) {
+						// Skip the current drawing pass.
+						return false;
+					}
+					try {
+						v.getViewTreeObserver().removeOnPreDrawListener(this);
+					} catch (IllegalStateException e) {
+						if (Log.isDebugModeEnabled()) {
+							Log.w(TAG, "Unable to remove the OnPreDrawListener.", e.getMessage());
+						}
+					}
+					return true;
+				}
+			};
+			v.getViewTreeObserver().addOnPreDrawListener(preDrawListener);
+		}
 	}
 
 	public void forceLayoutNativeView(boolean informParent)
@@ -655,12 +742,18 @@ public abstract class TiUIView
 
 				if (hasBorder) {
 					if (borderView == null && parent != null) {
-						// Since we have to create a new border wrapper view, we need to remove this view, and re-add it.
+						// Since we have to create a new border wrapper view, we need to remove this view, and re-add
+						// it.
 						// This will ensure the border wrapper view is added correctly.
 						TiUIView parentView = parent.getOrCreateView();
+						int removedChildIndex = parentView.findChildIndex(this);
 						parentView.remove(this);
 						initializeBorder(d, bgColor);
-						parentView.add(this);
+						if (removedChildIndex == -1) {
+							parentView.add(this);
+						} else {
+							parentView.add(this, removedChildIndex);
+						}
 					} else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 						handleBorderProperty(key, newValue);
 					}
@@ -867,8 +960,12 @@ public abstract class TiUIView
 		if (nativeView != null) {
 			nativeView.clearFocus();
 			TiMessenger.postOnMain(new Runnable() {
-				public void run() {
-					TiUIHelper.showSoftKeyboard(nativeView, false);
+				public void run()
+				{
+					if (nativeView != null) {
+						TiUIHelper.showSoftKeyboard(nativeView, false);
+					}
+
 				}
 			});
 		}
@@ -1281,13 +1378,23 @@ public abstract class TiUIView
 						didScale = false;
 						pointersDown = 0;
 					} else {
-						pointersDown++;
+						int index = event.getActionIndex();
+						float x = event.getX(index);
+						float y = event.getY(index);
+						if (x >= 0 && x < touchable.getWidth() && y >= 0 && y < touchable.getHeight()) {
+							// If the second touch-up happens inside the view, it is a two-finger touch.
+							pointersDown++;
+						}
 					}
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
-					if (pointersDown == 1) {
-						fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
-						pointersDown = 0;
-						return true;
+					// Don't fire twofingertap if there is no listener
+					if (proxy.hierarchyHasListener(TiC.EVENT_TWOFINGERTAP) && pointersDown == 1) {
+						float x = event.getX();
+						float y = event.getY();
+						if (x >= 0 && x < touchable.getWidth() && y >= 0 && y < touchable.getHeight()) {
+							// If the touch-up happens inside the view, fire the event.
+							fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
+						}
 					}
 					pointersDown = 0;
 				}

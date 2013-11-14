@@ -220,4 +220,10 @@ public class AudioPlayerProxy extends KrollProxy
 			resumeInOnWindowFocusChanged = false;
 		}
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Media.AudioPlayer";
+	}
 }

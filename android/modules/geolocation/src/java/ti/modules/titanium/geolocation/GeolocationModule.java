@@ -891,7 +891,11 @@ public class GeolocationModule extends KrollModule
 		return d;
 	}
 
-
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Geolocation";
+	}
 }
 
 

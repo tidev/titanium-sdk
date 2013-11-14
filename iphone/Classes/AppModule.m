@@ -100,6 +100,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 										name:UIAccessibilityVoiceOverStatusChanged object:nil];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.App";
+}
+
 -(void)addEventListener:(NSArray*)args
 {
 	NSString *type = [args objectAtIndex:0];
@@ -579,6 +584,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(NSNumber*)keyboardVisible
 {
     return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
+}
+
+-(void)setForceSplashAsSnapshot:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSNumber)
+    [self replaceValue:args forKey:@"forceSplashAsSnapshot" notification:NO];
+    BOOL flag = [TiUtils boolValue:args def:NO];
+    [[TiApp app] setForceSplashAsSnapshot:flag];
 }
 
 #if defined(USE_TI_APPIOS)

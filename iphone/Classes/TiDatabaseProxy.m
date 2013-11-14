@@ -45,6 +45,11 @@
 	[super _configure];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Database.DB";
+}
+
 -(NSString*)dbDir
 {
     // See this apple tech note for why this changed: https://developer.apple.com/library/ios/#qa/qa1719/_index.html

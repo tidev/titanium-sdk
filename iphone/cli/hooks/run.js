@@ -1,7 +1,7 @@
 /*
  * run.js: Titanium iOS CLI run hook
  *
- * Copyright (c) 2012, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -15,7 +15,7 @@ var appc = require('node-appc'),
 	exec = cp.exec,
 	spawn = cp.spawn;
 
-exports.cliVersion = '>=3.X';
+exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
 
@@ -31,7 +31,8 @@ exports.init = function (logger, config, cli) {
 
 			logger.info(__('Running application in iOS Simulator'));
 
-			var simulatorDir = afs.resolvePath('~/Library/Application Support/iPhone Simulator/' + build.iosSimVersion + '/Applications'),
+			var simulatorDir = afs.resolvePath('~/Library/Application Support/iPhone Simulator/' + build.iosSimVersion +
+					(appc.version.gte(build.iosSimVersion, '7.0.0') && cli.argv['sim-64bit'] ? '-64' : '') + '/Applications'),
 				logFile = build.tiapp.guid + '.log';
 
 			parallel([
@@ -63,7 +64,7 @@ exports.init = function (logger, config, cli) {
 						'launch',
 						'"' + build.xcodeAppDir + '"',
 						'--sdk',
-						build.iosSimVersion,
+						appc.version.format(build.iosSimVersion, 2, 2),
 						'--family',
 						build.iosSimType
 					],
@@ -80,10 +81,10 @@ exports.init = function (logger, config, cli) {
 					cmd.push('--retina');
 					if (appc.version.gte(build.iosSimVersion, '6.0.0') && build.iosSimType == 'iphone' && cli.argv.tall) {
 						cmd.push('--tall');
-						if (appc.version.gte(build.iosSimVersion, '7.0.0') && build.iosSimType == 'iphone' && cli.argv['sim-64bit']) {
-							cmd.push('--sim-64bit');
-						}
 					}
+				}
+				if (appc.version.gte(build.iosSimVersion, '7.0.0') && cli.argv['sim-64bit']) {
+					cmd.push('--sim-64bit');
 				}
 				cmd = cmd.join(' ');
 
@@ -134,12 +135,14 @@ exports.init = function (logger, config, cli) {
 					}
 				});
 
+				var levels = logger.getLevels(),
+					logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
+
 				function findLogFile() {
 					var files = fs.readdirSync(simulatorDir),
 						file,
 						i = 0,
-						l = files.length,
-						logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + logger.getLevels().join('|') + ')\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
+						l = files.length;
 
 					for (; i < l; i++) {
 						file = path.join(simulatorDir, files[i], 'Documents', logFile);
@@ -161,12 +164,7 @@ exports.init = function (logger, config, cli) {
 
 							(function readChanges () {
 								var stats = fs.statSync(file),
-									fd,
-									bytesRead,
-									lines,
-									m,
-									line,
-									i, len;
+									fd, bytesRead, lines, m,line, i, len;
 
 								if (position < stats.size) {
 									fd = fs.openSync(file, 'r');
@@ -184,7 +182,11 @@ exports.init = function (logger, config, cli) {
 										if (line) {
 											m = line.match(logLevelRE);
 											if (m) {
-												logger[lastLogger = m[2].toLowerCase()](m[4].trim());
+												lastLogger = m[2].toLowerCase();
+												line = m[4].trim();
+											}
+											if (levels.indexOf(lastLogger) == -1) {
+												logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
 											} else {
 												logger[lastLogger](line);
 											}

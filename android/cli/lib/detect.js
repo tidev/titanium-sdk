@@ -12,7 +12,10 @@
  */
 
 var android = require('titanium-sdk/lib/android'),
-	appc = require('node-appc');
+	ADB = require('titanium-sdk/lib/adb'),
+	EmulatorManager = require('titanium-sdk/lib/emulator'),
+	appc = require('node-appc'),
+	__ = appc.i18n(__dirname).__;
 
 /**
  * Detects current Android environment.
@@ -21,8 +24,49 @@ var android = require('titanium-sdk/lib/android'),
  * @param {Object} opts - Detection options; currently only 'bypassCache'
  * @param {Function} finished - Callback when detection is finished
  */
-exports.detect = function detect(config, opts, finished) {
-	opts || (opts = {});
-	opts.packageJson = appc.pkginfo.package(module);
-	android.detect(config, opts, finished);
+exports.detect = android.detect;
+
+/**
+ * Detects connected Android emulators.
+ * @param {Object} config - The CLI config object
+ * @param {Object} [opts] - Detection options
+ * @param {String} [opts.type] - The type of emulator to load (avd, genymotion); defaults to all
+ * @param {Function} finished - Callback when detection is finished
+ */
+exports.detectEmulators = function detectEmulators(config, opts, finished) {
+	if (opts && typeof opts == 'function') {
+		finished = opts;
+		opts = {};
+	}
+
+	new EmulatorManager(config).detect(opts, function (err, emus) {
+		if (err) {
+			finished(err);
+		} else {
+			finished(null, emus.map(function (e) {
+				e.id = e.name;
+				return e;
+			}));
+		}
+	});
+};
+
+/**
+ * Detects connected Android devices.
+ * @param {Object} config - The CLI config object
+ * @param {Function} finished - Callback when detection is finished
+ */
+exports.detectDevices = function detectDevices(config, finished) {
+	new ADB(config).devices(function (err, devices) {
+		if (err) {
+			return finished(err);
+		}
+
+		finished(null, devices.filter(function (d) {
+			return !d.emulator;
+		}).map(function (d) {
+			d.name = d.model || d.manufacturer || d.name || (d.release ? __('Android %s Device', d.release) : __('Android Device'));
+			return d;
+		}));
+	});
 };

@@ -35,6 +35,11 @@ NSArray* dashboardKeySequence;
     return self;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.DashboardView";
+}
+
 -(void)startEditing:(id)args
 {
     [self makeViewPerformSelector:@selector(startEditing) withObject:nil createIfNeeded:YES waitUntilDone:NO];

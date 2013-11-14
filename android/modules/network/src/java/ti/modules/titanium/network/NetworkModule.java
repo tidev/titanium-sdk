@@ -6,13 +6,23 @@
  */
 package ti.modules.titanium.network;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.http.client.CookieStore;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,11 +32,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 
 @Kroll.module
 public class NetworkModule extends KrollModule {
 
 	private static final String TAG = "TiNetwork";
+	private static CookieStore httpCookieStore;
 
 	public static final String EVENT_CONNECTIVITY = "change";
 	public static final String NETWORK_USER_AGENT = System.getProperties().getProperty("http.agent") ;
@@ -277,5 +290,355 @@ public class NetworkModule extends KrollModule {
 		super.onDestroy(activity);
 		manageConnectivityListener(false);
 		connectivityManager = null;
+	}
+
+	public static CookieStore getHTTPCookieStoreInstance()
+	{
+		if (httpCookieStore == null) {
+			httpCookieStore = new BasicCookieStore();
+		}
+		return httpCookieStore;
+	}
+
+	/**
+	 * Adds a cookie to the HTTPClient cookie store. Any existing cookie with the same domain and name will be replaced with
+	 * the new cookie. This seems like a bug in org.apache.http.impl.client.BasicCookieStore because based on RFC6265
+	 * (http://tools.ietf.org/html/rfc6265#section-4.1.2), an existing cookie with the same cookie-name, domain-value and
+	 * path-value with the new cookie will be evicted and replaced.
+	 * @param cookieProxy the cookie to add
+	 */
+	@Kroll.method
+	public void addHTTPCookie(CookieProxy cookieProxy)
+	{
+		BasicClientCookie cookie = cookieProxy.getHTTPCookie();
+		if (cookie != null) {
+			getHTTPCookieStoreInstance().addCookie(cookie);
+		}
+	}
+
+	/**
+	 * Gets all the cookies with the domain, path and name matched with the given values. If name is null, gets all the cookies with
+	 * the domain and path matched.
+	 * @param domain the domain of the cookie to get. It is case-insensitive.
+	 * @param path the path of the cookie to get. It is case-sensitive.
+	 * @param name the name of the cookie to get. It is case-sensitive.
+	 * @return an array of cookies. If name is null, returns all the cookies with the domain and path matched.
+	 */
+	@Kroll.method
+	public CookieProxy[] getHTTPCookies(String domain, String path, String name)
+	{
+		if (domain == null || domain.length() == 0) {
+			if (Log.isDebugModeEnabled()) {
+				Log.e(TAG, "Unable to get the HTTP cookies. Need to provide a valid domain.");
+			}
+			return null;
+		}
+		if (path == null || path.length() == 0) {
+			path = "/";
+		}
+		ArrayList<CookieProxy> cookieList = new ArrayList<CookieProxy>();
+		List<Cookie> cookies = getHTTPCookieStoreInstance().getCookies();
+		for (Cookie cookie : cookies) {
+			String cookieName = cookie.getName();
+			String cookieDomain = cookie.getDomain();
+			String cookiePath = cookie.getPath();
+			if ((name == null || cookieName.equals(name)) && domainMatch(cookieDomain, domain)
+				&& pathMatch(cookiePath, path)) {
+				cookieList.add(new CookieProxy(cookie));
+			}
+		}
+		if (!cookieList.isEmpty()) {
+			return cookieList.toArray(new CookieProxy[cookieList.size()]);
+		}
+		return null;
+	}
+
+	/**
+	 * Gets all the cookies with the domain matched with the given value.
+	 * @param domain the domain of the cookie to get. It is case-insensitive.
+	 * @return an array of cookies with the domain matched.
+	 */
+	@Kroll.method
+	public CookieProxy[] getHTTPCookiesForDomain(String domain)
+	{
+		if (domain == null || domain.length() == 0) {
+			if (Log.isDebugModeEnabled()) {
+				Log.e(TAG, "Unable to get the HTTP cookies. Need to provide a valid domain.");
+			}
+			return null;
+		}
+		ArrayList<CookieProxy> cookieList = new ArrayList<CookieProxy>();
+		List<Cookie> cookies = getHTTPCookieStoreInstance().getCookies();
+		for (Cookie cookie : cookies) {
+			String cookieDomain = cookie.getDomain();
+			if (domainMatch(cookieDomain, domain)) {
+				cookieList.add(new CookieProxy(cookie));
+			}
+		}
+		if (!cookieList.isEmpty()) {
+			return cookieList.toArray(new CookieProxy[cookieList.size()]);
+		}
+		return null;
+	}
+
+	/** Removes the cookie with the domain, path and name exactly the same as the given values.
+	 * @param domain the domain of the cookie to remove. It is case-insensitive.
+	 * @param path the path of the cookie to remove. It is case-sensitive.
+	 * @param name the name of the cookie to remove. It is case-sensitive.
+	 */
+	@Kroll.method
+	public void removeHTTPCookie(String domain, String path, String name)
+	{
+		if (domain == null || name == null) {
+			if (Log.isDebugModeEnabled()) {
+				Log.e(TAG, "Unable to remove the HTTP cookie. Need to provide a valid domain / name.");
+			}
+			return;
+		}
+		CookieStore cookieStore = getHTTPCookieStoreInstance();
+		List<Cookie> cookies = new ArrayList<Cookie>(cookieStore.getCookies());
+		cookieStore.clear();
+		for (Cookie cookie : cookies) {
+			String cookieName = cookie.getName();
+			String cookieDomain = cookie.getDomain();
+			String cookiePath = cookie.getPath();
+			if (!(name.equals(cookieName) && stringEqual(domain, cookieDomain, false) && stringEqual(path, cookiePath, true))) {
+				cookieStore.addCookie(cookie);
+			}
+		}
+	}
+
+	/**
+	 * Removes all the cookies with the domain matched with the given value.
+	 * @param domain the domain of the cookie to remove. It is case-insensitive.
+	 */
+	@Kroll.method
+	public void removeHTTPCookiesForDomain(String domain)
+	{
+		CookieStore cookieStore = getHTTPCookieStoreInstance();
+		List<Cookie> cookies = new ArrayList<Cookie>(cookieStore.getCookies());
+		cookieStore.clear();
+		for (Cookie cookie : cookies) {
+			String cookieDomain = cookie.getDomain();
+			if (!(domainMatch(cookieDomain, domain))) {
+				cookieStore.addCookie(cookie);
+			}
+		}
+	}
+
+	/**
+	 * Removes all the cookies in the HTTPClient cookie store.
+	 */
+	@Kroll.method
+	public void removeAllHTTPCookies()
+	{
+		CookieStore cookieStore = getHTTPCookieStoreInstance();
+		cookieStore.clear();
+	}
+
+	/**
+	 * Adds a cookie to the system cookie store. Any existing cookie with the same domain, path and name will be replaced with
+	 * the new cookie. The cookie being set must not have expired, otherwise it will be ignored.
+	 * @param cookieProxy the cookie to add
+	 */
+	@Kroll.method
+	public void addSystemCookie(CookieProxy cookieProxy)
+	{
+		BasicClientCookie cookie = cookieProxy.getHTTPCookie();
+		String cookieString = cookie.getName() + "=" + cookie.getValue();
+		String domain = cookie.getDomain();
+		if (domain == null) {
+			Log.w(TAG, "Unable to add system cookie. Need to provide domain.");
+			return;
+		}
+		cookieString += "; domain=" + domain;
+
+		String path = cookie.getPath();
+		Date expiryDate = cookie.getExpiryDate();
+		boolean secure = cookie.isSecure();
+		boolean httponly = TiConvert.toBoolean(cookieProxy.getProperty(TiC.PROPERTY_HTTP_ONLY), false);
+		if (path != null) {
+			cookieString += "; path=" + path;
+		}
+		if (expiryDate != null) {
+			cookieString += "; expires=" + CookieProxy.systemExpiryDateFormatter.format(expiryDate);
+		}
+		if (secure) {
+			cookieString += "; secure";
+		}
+		if (httponly) {
+			cookieString += " httponly";
+		}
+		CookieSyncManager.createInstance(TiApplication.getInstance().getRootOrCurrentActivity());
+		CookieManager cookieManager = CookieManager.getInstance();
+		cookieManager.setCookie(domain, cookieString);
+		CookieSyncManager.getInstance().sync();
+	}
+
+	/**
+	 * Gets all the cookies with the domain, path and name matched with the given values. If name is null, gets all the cookies with
+	 * the domain and path matched.
+	 * @param domain the domain of the cookie to get. It is case-insensitive.
+	 * @param path the path of the cookie to get. It is case-sensitive.
+	 * @param name the name of the cookie to get. It is case-sensitive.
+	 * @return an array of cookies only with name and value specified. If name is null, returns all the cookies with the domain and path matched.
+	 */
+	@Kroll.method
+	public CookieProxy[] getSystemCookies(String domain, String path, String name)
+	{
+		if (domain == null || domain.length() == 0) {
+			if (Log.isDebugModeEnabled()) {
+				Log.e(TAG, "Unable to get the HTTP cookies. Need to provide a valid domain.");
+			}
+			return null;
+		}
+		if (path == null || path.length() == 0) {
+			path = "/";
+		}
+
+		ArrayList<CookieProxy> cookieList = new ArrayList<CookieProxy>();
+		CookieSyncManager.createInstance(TiApplication.getInstance().getRootOrCurrentActivity());
+		CookieManager cookieManager = CookieManager.getInstance();
+		String url = domain.toLowerCase() + path;
+		String cookieString = cookieManager.getCookie(url); // The cookieString is in the format of NAME=VALUE[;
+															// NAME=VALUE]
+		if (cookieString != null) {
+			String[] cookieValues = cookieString.split("; ");
+			for (int i = 0; i < cookieValues.length; i++) {
+				String[] pair = cookieValues[i].split("=", 2);
+				String cookieName = pair[0];
+				String value = pair.length == 2 ? pair[1] : null;
+				if (name == null || cookieName.equals(name)) {
+					cookieList.add(new CookieProxy(cookieName, value, null, null));
+				}
+			}
+		}
+		if (!cookieList.isEmpty()) {
+			return cookieList.toArray(new CookieProxy[cookieList.size()]);
+		}
+		return null;
+	}
+
+	/**
+	 * Removes the cookie with the domain, path and name exactly the same as the given values.
+	 * @param domain the domain of the cookie to remove. It is case-insensitive.
+	 * @param path the path of the cookie to remove. It is case-sensitive.
+	 * @param name the name of the cookie to remove. It is case-sensitive.
+	 */
+	@Kroll.method
+	public void removeSystemCookie(String domain, String path, String name)
+	{
+		if (domain == null || name == null) {
+			if (Log.isDebugModeEnabled()) {
+				Log.e(TAG, "Unable to remove the system cookie. Need to provide a valid domain / name.");
+			}
+			return;
+		}
+		String lower_domain = domain.toLowerCase();
+		String cookieString = name + "=; domain=" + lower_domain + "; path=" + path + "; expires=" + CookieProxy.systemExpiryDateFormatter.format(new Date(0));
+		CookieSyncManager.createInstance(TiApplication.getInstance().getRootOrCurrentActivity());
+		CookieManager cookieManager = CookieManager.getInstance();
+		cookieManager.setCookie(lower_domain, cookieString);
+		CookieSyncManager.getInstance().sync();
+	}
+
+	/**
+	 * Removes all the cookies in the system cookie store.
+	 */
+	@Kroll.method
+	public void removeAllSystemCookies()
+	{
+		CookieSyncManager.createInstance(TiApplication.getInstance().getRootOrCurrentActivity());
+		CookieManager cookieManager = CookieManager.getInstance();
+		cookieManager.removeAllCookie();
+		CookieSyncManager.getInstance().sync();
+	}
+
+	/**
+	 * Helper method to decide whether the domain matches the cookie's domain. If the both domains are null, return true.
+	 * The domain matching follows RFC6265 (http://tools.ietf.org/html/rfc6265#section-5.1.3).
+	 * @param cookieDomain cookie's domain
+	 * @param domain domain to match
+	 * @return true if the domain matches cookieDomain; false otherwise. If the both domains are null, return true.
+	 */
+	private boolean domainMatch(String cookieDomain, String domain)
+	{
+		if (cookieDomain == null && domain == null) {
+			return true;
+		}
+		if (cookieDomain == null || domain == null) {
+			return false;
+		}
+
+		String lower_cookieDomain = cookieDomain.toLowerCase();
+		String lower_domain = domain.toLowerCase();
+		if (lower_cookieDomain.startsWith(".")) {
+			if (lower_domain.endsWith(lower_cookieDomain.substring(1))) {
+				int cookieLen = lower_cookieDomain.length();
+				int domainLen = lower_domain.length();
+				if (domainLen > cookieLen -1) {
+					// make sure bar.com doesn't match .ar.com
+					return lower_domain.charAt(domainLen - cookieLen) == '.';
+				}
+				return true;
+			}
+			return false;
+		} else {
+			return lower_domain.equals(lower_cookieDomain);
+		}
+	}
+
+	/**
+	 * Helper method to decide whether the path matches the cookie's path. If the cookie's path is null or an empty string, return true.
+	 * If the path is null or an empty string, use "/" as the default value. The path matching follows RFC6265 (http://tools.ietf.org/html/rfc6265#section-5.1.4).
+	 * @param cookiePath cookie's path
+	 * @param path path to match
+	 * @return true if the path matches cookiePath; false otherwise. If cookiePath is null or an empty string, return true.
+	 */
+	private boolean pathMatch(String cookiePath, String path)
+	{
+		if (cookiePath == null || cookiePath.length() == 0) {
+			return true;
+		}
+		if (path == null || path.length() == 0) {
+			path = "/";
+		}
+
+		if (path.startsWith(cookiePath)) {
+			int cookieLen = cookiePath.length();
+			int pathLen = path.length();
+			if (cookiePath.charAt(cookieLen - 1) != '/' && pathLen > cookieLen) {
+				// make sure /wee doesn't match /we
+				return path.charAt(cookieLen) == '/';
+			}
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Helper method to determine whether two strings are equal.
+	 * @param s1 string to compare
+	 * @param s2 string to compare
+	 * @param isCaseSensitive true if using case-sensitive comparison; false if using case-insensitive comparison.
+	 * @return true if the two strings are both null or they are equal.
+	 */
+	private boolean stringEqual(String s1, String s2, boolean isCaseSensitive)
+	{
+		if (s1 == null && s2 == null) {
+			return true;
+		}
+		if (s1 != null && s2 != null) {
+			if ((isCaseSensitive && s1.equals(s2)) || (!isCaseSensitive && s1.toLowerCase().equals(s2.toLowerCase()))) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Network";
 	}
 }

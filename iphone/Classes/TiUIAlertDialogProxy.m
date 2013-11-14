@@ -36,6 +36,11 @@ static BOOL alertShowing = NO;
 			nil];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.AlertDialog";
+}
+
 -(void) cleanup
 {
 	if(alert != nil)
@@ -97,6 +102,7 @@ static BOOL alertShowing = NO;
 		RELEASE_TO_NIL(alert);
 		
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resumed:) name:kTiResumedNotification object:nil];
 		
 		NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
 		if (buttonNames==nil || (id)buttonNames == [NSNull null])
@@ -121,15 +127,8 @@ static BOOL alertShowing = NO;
 
 		[alert setCancelButtonIndex:[TiUtils intValue:[self valueForKey:@"cancel"] def:-1]];
 
-		if ([TiUtils isIOS5OrGreater])
-		{
-			int style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
-			[alert setAlertViewStyle:style];
-		}
-		else
-		{
-			NSLog(@"[WARN] Alert dialog `style` property is only supported in iOS 5 or above.");
-		}
+		int style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
+		[alert setAlertViewStyle:style];
 
 		[self retain];
 		[alert show];
@@ -142,7 +141,12 @@ static BOOL alertShowing = NO;
         [self hide:[NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"]];
     }
 }
-
+-(void)resumed:(NSNotification*)note
+{
+    if (persistentFlag) {
+        [alert show];
+    }
+}
 #pragma mark AlertView Delegate
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
@@ -152,32 +156,25 @@ static BOOL alertShowing = NO;
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-	if ([self _hasListeners:@"click"])
-	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-							   [NSNumber numberWithInt:buttonIndex],@"index",
-							   [NSNumber numberWithInt:[alertView cancelButtonIndex]],@"cancel",
-							   nil];
+	if ([self _hasListeners:@"click"]) {
+        NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                            [NSNumber numberWithInt:buttonIndex],@"index",
+                            [NSNumber numberWithInt:[alertView cancelButtonIndex]],@"cancel",
+                            nil];
 
-		if ([TiUtils isIOS5OrGreater])
-		{
-			if ([alertView alertViewStyle] == UIAlertViewStylePlainTextInput ||
-				[alertView alertViewStyle] == UIAlertViewStyleSecureTextInput)
-			{
-				[event setObject:[[alertView textFieldAtIndex:0] text] forKey:@"text"];
-			}
-			else if ([alertView alertViewStyle] == UIAlertViewStyleLoginAndPasswordInput)
-			{
-				[event setObject:[[alertView textFieldAtIndex:0] text] forKey:@"login"];
+        if ([alertView alertViewStyle] == UIAlertViewStylePlainTextInput || [alertView alertViewStyle] == UIAlertViewStyleSecureTextInput) {
+            [event setObject:[[alertView textFieldAtIndex:0] text] forKey:@"text"];
+        }
+        else if ([alertView alertViewStyle] == UIAlertViewStyleLoginAndPasswordInput) {
+            [event setObject:[[alertView textFieldAtIndex:0] text] forKey:@"login"];
 
-				// If password field never gets focus, `text` property becomes `nil`.
-				NSString *password = [[alertView textFieldAtIndex:1] text];
-				[event setObject:(IS_NULL_OR_NIL(password) ? @"" : password) forKey:@"password"];
-			}
-		}
+            // If password field never gets focus, `text` property becomes `nil`.
+            NSString *password = [[alertView textFieldAtIndex:1] text];
+            [event setObject:(IS_NULL_OR_NIL(password) ? @"" : password) forKey:@"password"];
+        }
 
-		[self fireEvent:@"click" withObject:event];
-	}
+        [self fireEvent:@"click" withObject:event];
+    }
 }
 
 -(void)alertViewCancel:(UIAlertView *)alertView

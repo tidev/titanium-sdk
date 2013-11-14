@@ -25,6 +25,14 @@
         TiThreadReleaseOnMainThread(controller, NO);
         controller = nil;
     }
+    
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+    if(transitionProxy != nil)
+    {
+        [self forgetProxy:transitionProxy];
+        RELEASE_TO_NIL(transitionProxy)
+    }
+#endif
     [super dealloc];
 }
 
@@ -38,12 +46,28 @@
     [super _configure];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Window";
+}
+
 
 -(TiUIView*)newView
 {
 	CGRect frame = [self appFrame];
 	TiUIWindow * win = [[TiUIWindow alloc] initWithFrame:frame];
 	return win;
+}
+
+-(BOOL)suppressesRelayout
+{
+    if (controller != nil) {
+        //If controller view is not loaded, sandbox bounds will become zero.
+        //In that case we do not want to mess up our sandbox, which is by default
+        //mainscreen bounds. It will adjust when view loads.
+        return ![controller isViewLoaded];
+    }
+    return [super suppressesRelayout];
 }
 
 #pragma mark - Utility Methods
@@ -182,7 +206,7 @@
     
     opening = YES;
     
-    isModal = (tab == nil) ? [self argOrWindowProperty:@"modal" args:args] : NO;
+    isModal = (tab == nil && !self.isManaged) ? [self argOrWindowProperty:@"modal" args:args] : NO;
     
     if ([self argOrWindowProperty:@"fullscreen" args:args]) {
         hidesStatusBar = YES;
@@ -225,6 +249,31 @@
         [self openOnUIThread:args];
     }, YES);
     
+}
+
+-(void)setStatusBarStyle:(id)style
+{
+    int theStyle = [TiUtils intValue:style def:[[[TiApp app] controller] defaultStatusBarStyle]];
+    switch (theStyle){
+        case UIStatusBarStyleDefault:
+            barStyle = UIStatusBarStyleDefault;
+            break;
+        case UIStatusBarStyleBlackOpaque:
+        case UIStatusBarStyleBlackTranslucent: //This will also catch UIStatusBarStyleLightContent
+            if ([TiUtils isIOS7OrGreater]) {
+                barStyle = 1;//UIStatusBarStyleLightContent;
+            } else {
+                barStyle = theStyle;
+            }
+            break;
+        default:
+            barStyle = UIStatusBarStyleDefault;
+    }
+    if(focussed) {
+        TiThreadPerformOnMainThread(^{
+            [[[TiApp app] controller] updateStatusBar];
+        }, YES); 
+    }
 }
 
 -(void)close:(id)args
@@ -346,12 +395,11 @@
         }
         UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
         [[self view] setAccessibilityElementsHidden:NO];
-        
-        if ([TiUtils isIOS7OrGreater]) {
-            TiThreadPerformOnMainThread(^{
-                [self forceNavBarFrame];
-            }, NO);
-        }
+    }
+    if ([TiUtils isIOS7OrGreater]) {
+        TiThreadPerformOnMainThread(^{
+            [self forceNavBarFrame];
+        }, NO);
     }
 
 }
@@ -372,7 +420,7 @@
 -(UIViewController*)hostingController;
 {
     if (controller == nil) {
-        controller = [[[TiViewController alloc] initWithViewProxy:self] retain];
+        controller = [[TiViewController alloc] initWithViewProxy:self];
     }
     return controller;
 }
@@ -628,5 +676,22 @@
         [self windowDidClose];
     }
 }
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+-(TiUIiOSTransitionAnimationProxy*)transitionAnimation
+{
+    return transitionProxy;
+}
+
+-(void)setTransitionAnimation:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args, TiUIiOSTransitionAnimationProxy)
+    if(transitionProxy != nil) {
+        [self forgetProxy:transitionProxy];
+        RELEASE_TO_NIL(transitionProxy)
+    }
+    transitionProxy = [args retain];
+    [self rememberProxy:transitionProxy];
+}
+#endif
 
 @end

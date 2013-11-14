@@ -12,6 +12,11 @@
 
 @implementation TiUIiPhoneTableViewCellSelectionStyleProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPhone.TableViewCellSelectionStyle";
+}
+
 MAKE_SYSTEM_PROP(NONE,UITableViewCellSelectionStyleNone);
 MAKE_SYSTEM_PROP(BLUE,UITableViewCellSelectionStyleBlue);
 MAKE_SYSTEM_PROP(GRAY,UITableViewCellSelectionStyleGray);

@@ -34,6 +34,11 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     return self;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.ListItem";
+}
+
 - (id)init
 {
     self = [super init];
@@ -86,6 +91,11 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 {
 	[super unarchiveFromTemplate:viewTemplate];
 	SetEventOverrideDelegateRecursive(self.children, self);
+}
+
+-(BOOL)canHaveControllerParent
+{
+	return NO;
 }
 
 #pragma mark - TiViewEventOverrideDelegate

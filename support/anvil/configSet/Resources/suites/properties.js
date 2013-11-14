@@ -16,7 +16,15 @@ module.exports = new function() {
 	this.name = "properties";
 	this.tests = [
 		{name: "setsAndGets"},
-		{name: "doublePrecision"}
+		{name: "doublePrecision"},
+		{name: "test_userDefaultProperties_A"},
+		{name: "test_userDefaultProperties_B"},
+		{name: "test_encodeURIComponent"},
+		{name: "test_caseWrong"},
+		{name: "test_keyboardVisible"},
+		{name: "test_getDoubleInt"},
+		{name: "test_changeEvent"},
+		{name: "test_setObjectNullValue"}
 	]
 
 	this.setsAndGets = function(testRun) {
@@ -121,6 +129,102 @@ module.exports = new function() {
 		var value = Ti.App.Properties.getDouble('time');
 		valueOf(testRun, value).shouldBe(time);
 
+		finish(testRun);
+	}
+	
+	//TIMOB-5494_A
+	this.test_userDefaultProperties_A = function(testRun) {
+		Titanium.App.Properties.setString('my_prop', 'dadfcool');
+		valueOf(testRun, Ti.App.Properties.hasProperty('my_prop')).shouldBeTrue();
+
+		finish(testRun);
+	}
+
+	//TIMOB-5494_B
+	this.test_userDefaultProperties_B = function(testRun) {
+		valueOf(testRun, Ti.App.Properties.hasProperty('my_prop')).shouldBeTrue();
+
+		finish(testRun);
+	}
+
+	//TIMOB-7743
+	this.test_encodeURIComponent = function(testRun) {
+		valueOf(testRun, encodeURIComponent("üöäß &?/ tes tetst et st e\ntest etes te stet")).shouldBe('%C3%BC%C3%B6%C3%A4%C3%9F%20%26%3F%2F%20tes%20tetst%20et%20st%20e%0Atest%20etes%20te%20stet');
+
+		finish(testRun);
+	}
+	
+	//TIMOB-7982
+	this.test_caseWrong = function(testRun) {
+		if (Ti.Platform.osname === 'android') {
+			valueOf(testRun, Titanium.App.id).shouldBe(Titanium.App.getId());
+			valueOf(testRun, Titanium.App.id).shouldBe(Titanium.App.getID());
+			valueOf(testRun, Titanium.App.url).shouldBe(Titanium.App.getUrl());
+			valueOf(testRun, Titanium.App.url).shouldBe(Titanium.App.getURL());
+			valueOf(testRun, Titanium.App.guid).shouldBe(Titanium.App.getGuid());
+			valueOf(testRun, Titanium.App.guid).shouldBe(Titanium.App.getGUID());
+		}
+
+		finish(testRun);
+	}
+
+	//TIMOB-8383
+	this.test_keyboardVisible = function(testRun) {
+		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
+			var win = Ti.UI.createWindow({
+				backgroundColor:'white'
+			});
+			var input = Ti.UI.createTextField({
+				width:200,
+				height:40,
+				value:'click me',
+				top:20,
+				borderStyle:Ti.UI.INPUT_BORDERSTYLE_LINE
+			});
+			input.addEventListener('focus', function isVisible() {
+				valueOf(testRun, Ti.App.keyboardVisible).shouldBeTrue();
+			});
+			win.add(input);
+			win.open();
+			input.focus();
+		}
+
+		finish(testRun);
+	}
+	
+	//TIMOB-9350
+	this.test_getDoubleInt = function(testRun) {
+		Titanium.App.Properties.setInt('Int',10);
+		valueOf(testRun, Titanium.App.Properties.getDouble('Int')).shouldBe(10);
+
+		finish(testRun);
+	}
+
+	//TIMOB-10260, TIMOB-10314
+	this.test_changeEvent = function(testRun) {
+		Ti.App.Properties.setBool('test',false);
+		valueOf(testRun, Ti.App.Properties.getBool('test')).shouldBeFalse();
+		function onPropertiesChange()
+		{
+			finish(testRun);
+		}
+		Ti.App.Properties.addEventListener('change',onPropertiesChange);
+		Ti.App.Properties.setBool('test',true);
+		valueOf(testRun, Ti.App.Properties.getBool('test')).shouldBeTrue();
+	}
+
+	//TIMOB-11399
+	this.test_setObjectNullValue = function(testRun) {
+		var objectWithNullValue = {
+			expires_at: 1347623585,
+			value: {
+				something: null
+			}
+		};
+		Ti.App.Properties.setObject('Object1', objectWithNullValue);
+		valueOf(testRun, Ti.App.Properties.getObject('Object1')).shouldBeObject();
+		valueOf(testRun, Ti.App.Properties.getObject('Object1').value.something).shouldBeNull();
+		
 		finish(testRun);
 	}
 }

@@ -24,9 +24,7 @@
     if (self = [super _initWithPageContext:context]) {
         module= [module_ retain] ;
         calendar = [calendar_ retain];
-        if ([TiUtils isIOS5OrGreater]) {
-            calendarId = [calendar calendarIdentifier];
-        }
+        calendarId = [calendar calendarIdentifier];
     }
         
     return self;
@@ -38,6 +36,11 @@
 	RELEASE_TO_NIL(module);
 	RELEASE_TO_NIL(calendar);
     [super _destroy];
+}
+
+-(NSString*)apiName
+{
+    return @"Ti.Calendar.Calendar";
 }
 
 

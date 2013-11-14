@@ -69,6 +69,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
+	private boolean inForeground = false; // Indicates whether this activity is in foreground or not.
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
 	private TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<OnWindowFocusChangedEvent>();
 	private TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners = new TiWeakList<interceptOnBackPressedEvent>();
@@ -461,6 +462,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	{
 		Log.d(TAG, "Activity " + this + " onCreate", Log.DEBUG_MODE);
 
+		inForeground = true;
 		TiApplication tiApp = getTiApp();
 
 		if (tiApp.isRestartPending()) {
@@ -550,6 +552,11 @@ public abstract class TiBaseActivity extends FragmentActivity
 	public int getOriginalOrientationMode()
 	{
 		return originalOrientationMode;
+	}
+
+	public boolean isInForeground()
+	{
+		return inForeground;
 	}
 
 	protected void sendMessage(final int msgId)
@@ -925,6 +932,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 */
 	protected void onPause() 
 	{
+		inForeground = false;
 		super.onPause();
 		isResumed = false;
 
@@ -982,6 +990,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 */
 	protected void onResume()
 	{
+		inForeground = true;
 		super.onResume();
 		if (isFinishing()) {
 			return;
@@ -1023,7 +1032,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 		isResumed = true;
 
 		// Checkpoint for ti.start event
-		String deployType = tiApp.getSystemProperties().getString("ti.deploytype", "unknown");
+		String deployType = tiApp.getAppProperties().getString("ti.deploytype", "unknown");
 		tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppStartEvent(tiApp, deployType));
 	}
 
@@ -1035,6 +1044,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 */
 	protected void onStart()
 	{
+		inForeground = true;
 		super.onStart();
 		if (isFinishing()) {
 			return;
@@ -1093,6 +1103,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 */
 	protected void onStop()
 	{
+		inForeground = false;
 		super.onStop();
 
 		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
@@ -1128,6 +1139,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 */
 	protected void onRestart()
 	{
+		inForeground = true;
 		super.onRestart();
 
 		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
@@ -1187,6 +1199,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	{
 		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
 
+		inForeground = false;
 		TiApplication tiApp = getTiApp();
 		//Clean up dialogs when activity is destroyed. 
 		releaseDialogs(true);
