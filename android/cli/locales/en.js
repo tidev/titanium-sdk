@@ -204,6 +204,7 @@
 	"You should use just one of these folders to avoid conflicts": "You should use just one of these folders to avoid conflicts",
 	"There is a project resource \"%s\" that conflicts with a CommonJS module": "There is a project resource \"%s\" that conflicts with a CommonJS module",
 	"Please rename the file, then rebuild": "Please rename the file, then rebuild",
+	"Processing JavaScript files": "Processing JavaScript files",
 	"Failed to encrypt JavaScript files": "Failed to encrypt JavaScript files",
 	"Adding library %s": "Adding library %s",
 	"Unknown namespace %s, skipping": "Unknown namespace %s, skipping",
