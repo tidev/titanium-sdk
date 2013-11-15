@@ -244,7 +244,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						abbr: 'L',
 						desc: __('the alias for the keystore'),
 						hint: 'alias',
-						order: 170,
+						order: 155,
 						prompt: function (callback) {
 							callback(fields.select({
 								title: __("What is the name of the keystore's certificate alias?"),
@@ -559,12 +559,54 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							callback(fields.text({
 								promptLabel: __("What is the keystore's __key password__?") + ' ' + __('(leave blank to use the store password)').grey,
 								password: true,
-								validate: function (value, callback) {
-									callback(null, value);
-								}
+								validate: _t.conf.options['key-password'].validate.bind(_t)
 							}));
 						},
-						secret: true
+						secret: true,
+						validate: function (keyPassword, callback) {
+							// sanity check the keystore and store password
+							_t.conf.options['store-password'].validate(cli.argv['store-password'], function (err, storePassword) {
+								if (err) {
+									// we have a bad --keystore or --store-password arg
+									cli.argv.keystore = cli.argv['store-password'] = undefined;
+									return callback(err);
+								}
+
+								var keystoreFile = cli.argv.keystore,
+									alias = cli.argv.alias,
+									tmpKeystoreFile = temp.path({ suffix: '.jks' });
+
+								if (keystoreFile && storePassword && alias && _t.jdkInfo && _t.jdkInfo.executables.keytool) {
+									// the only way to test the key password is to export the cert
+									appc.subprocess.run(_t.jdkInfo.executables.keytool, [
+										'-importkeystore',
+										'-v',
+										'-srckeystore', keystoreFile,
+										'-destkeystore', tmpKeystoreFile,
+										'-srcstorepass', storePassword,
+										'-deststorepass', storePassword,
+										'-srcalias', alias,
+										'-destalias', alias,
+										'-srckeypass', keyPassword || storePassword,
+										'-noprompt'
+									], function (code, out, err) {
+										if (code) {
+											if (out.indexOf('java.security.UnrecoverableKeyException') != -1) {
+												return callback(new Error(__('Bad key password')));
+											}
+											return callback(new Error(out.trim()));
+										}
+
+										// remove the temp keystore
+										fs.existsSync(tmpKeystoreFile) && fs.unlinkSync(tmpKeystoreFile);
+
+										callback(null, keyPassword);
+									});
+								} else {
+									callback(null, keyPassword);
+								}
+							});
+						}
 					},
 					'keystore': {
 						abbr: 'K',
@@ -646,7 +688,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								return callback(new Error(__('Please specify a keystore password')));
 							}
 
-							// sanity check they keystore
+							// sanity check the keystore
 							_t.conf.options.keystore.validate(cli.argv.keystore, function (err, keystoreFile) {
 								if (err) {
 									// we have a bad --keystore arg
@@ -693,7 +735,37 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 											cli.argv.alias = _t.keystoreAliases[0].name;
 										}
 
-										callback(null, storePassword);
+										// check if this keystore requires a key password
+										var keystoreFile = cli.argv.keystore,
+											alias = cli.argv.alias,
+											tmpKeystoreFile = temp.path({ suffix: '.jks' });
+
+										if (keystoreFile && storePassword && alias && _t.jdkInfo && _t.jdkInfo.executables.keytool) {
+											// the only way to test the key password is to export the cert
+											appc.subprocess.run(_t.jdkInfo.executables.keytool, [
+												'-importkeystore',
+												'-v',
+												'-srckeystore', keystoreFile,
+												'-destkeystore', tmpKeystoreFile,
+												'-srcstorepass', storePassword,
+												'-deststorepass', storePassword,
+												'-srcalias', alias,
+												'-destalias', alias,
+												'-srckeypass', storePassword,
+												'-noprompt'
+											], function (code, out, err) {
+												if (code) {
+													// requires a key password
+													_t.conf.options['key-password'].required = true;
+												} else {
+													// remove the temp keystore
+													fs.existsSync(tmpKeystoreFile) && fs.unlinkSync(tmpKeystoreFile);
+												}
+												callback(null, storePassword);
+											});
+										} else {
+											callback(null, storePassword);
+										}
 									}.bind(_t));
 								} else {
 									callback(null, storePassword);
