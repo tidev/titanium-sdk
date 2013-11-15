@@ -784,6 +784,10 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.proguard = false;
 	}
 
+	if (cli.tiapp.properties['ti.android.compilejs']) {
+		logger.warn(__('The %s tiapp.xml property has been deprecated, please use the %s option to bypass JavaScript minification', 'ti.android.compilejs'.cyan, '--skip-js-minify'.cyan));
+	}
+
 	if (cli.argv['skip-js-minify']) {
 		this.minifyJS = false;
 	}
@@ -1240,18 +1244,21 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 					module.jarFile = path.join(module.modulePath, module.jarName);
 
 					if (!fs.existsSync(module.jarFile)) {
-						logger.error(__('Module %s version %s is missing jar file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.jarFile.cyan) + '\n');
-						process.exit(1);
+						// NOTE: this should be an error, not a warning, but due to the soasta module, we can't error out
+						// logger.error(__('Module %s version %s is missing main jar file', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
+						// process.exit(1);
+						logger.warn(__('Module %s version %s does not have a main jar file', module.id.cyan, (module.manifest.version || 'latest').cyan));
+						module.jarName = module.jarFile = null;
+					} else {
+						// get the jar hashes
+						var jarHash = module.hash = hash(fs.readFileSync(module.jarFile).toString());
+						nativeHashes.push(jarHash);
+						jarHashes[module.jarName] || (jarHashes[module.jarName] = []);
+						jarHashes[module.jarName].push({
+							hash: module.hash,
+							module: module
+						});
 					}
-
-					// get the jar hashes
-					var jarHash = module.hash = hash(fs.readFileSync(module.jarFile).toString());
-					nativeHashes.push(jarHash);
-					jarHashes[module.jarName] || (jarHashes[module.jarName] = []);
-					jarHashes[module.jarName].push({
-						hash: module.hash,
-						module: module
-					});
 
 					var libDir = path.join(module.modulePath, 'lib'),
 						jarRegExp = /\.jar$/;
@@ -1295,14 +1302,16 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 						process.exit(1);
 					}
 
-					// read in the bindings
-					module.bindings = this.getNativeModuleBindings(module.jarFile);
-					if (!module.bindings) {
-						logger.error(__('Module %s version %s is missing bindings json file', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
-						process.exit(1);
+					if (module.jarFile) {
+						// read in the bindings
+						module.bindings = this.getNativeModuleBindings(module.jarFile);
+						if (!module.bindings) {
+							logger.error(__('Module %s version %s is missing bindings json file', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
+							process.exit(1);
+						}
+						bindingsHashes.push(hash(JSON.stringify(module.bindings)));
 					}
 
-					bindingsHashes.push(hash(JSON.stringify(module.bindings)));
 					this.nativeLibModules.push(module);
 				}
 
@@ -1494,20 +1503,6 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	var loadFromSDCardProp = this.tiapp.properties['ti.android.loadfromsdcard'];
 	this.loadFromSDCard = loadFromSDCardProp && loadFromSDCardProp.value === true;
 
-	// determine if we're going to be minifying javascript
-	var compileJSProp = this.tiapp.properties['ti.android.compilejs'];
-	if (argv['skip-js-minify']) {
-		if (this.compileJS) {
-			logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', '--skip-js-minify'.cyan));
-		}
-		this.compileJS = this.encryptJS = false;
-	} else if (compileJSProp) {
-		if (this.compileJS && !compileJSProp.value) {
-			logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', 'ti.android.loadfromsdcard'.cyan));
-		}
-		this.compileJS = this.encryptJS = !!compileJSProp.value;
-	}
-
 	var includeAllTiModulesProp = this.tiapp.properties['ti.android.include_all_modules'];
 	if (includeAllTiModulesProp !== undefined) {
 		this.includeAllTiModules = includeAllTiModulesProp.value;
@@ -1519,8 +1514,9 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.buildBinAssetsDir          = path.join(this.buildBinDir, 'assets');
 	this.buildBinAssetsResourcesDir = path.join(this.buildBinAssetsDir, 'Resources');
 	this.buildBinClassesDir         = path.join(this.buildBinDir, 'classes');
-	this.buildBinClassesDex         = path.join(this.buildBinDir, 'classes.dex')
-	this.buildGenAppIdDir           = path.join(this.buildDir, 'gen', this.appid.split('.').join(path.sep));
+	this.buildBinClassesDex         = path.join(this.buildBinDir, 'classes.dex');
+	this.buildGenDir                = path.join(this.buildDir, 'gen');
+	this.buildGenAppIdDir           = path.join(this.buildGenDir, this.appid.split('.').join(path.sep));
 	this.buildResDir                = path.join(this.buildDir, 'res');
 	this.buildResDrawableDir        = path.join(this.buildResDir, 'drawable')
 	this.buildSrcDir                = path.join(this.buildDir, 'src');
@@ -2904,6 +2900,10 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 	data.en.app || (data.en.app = {});
 	data.en.app.appname || (data.en.app.appname = this.tiapp.name);
 
+	function replaceSpaces(s) {
+		return s.replace(/./g, '\\u0020');
+	}
+
 	Object.keys(data).forEach(function (locale) {
 		var dest = path.join(this.buildResDir, 'values' + (locale == 'en' ? '' : '-' + locale), 'strings.xml'),
 			dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
@@ -2922,7 +2922,7 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 				var node = dom.createElement('string');
 				node.setAttribute('name', name);
 				node.setAttribute('formatted', 'false');
-				node.appendChild(dom.createTextNode(data[locale].strings[name].replace(/\\?'/g, "\\'")));
+				node.appendChild(dom.createTextNode(data[locale].strings[name].replace(/\\?'/g, "\\'").replace(/^\s+/g, replaceSpaces).replace(/\s+$/g, replaceSpaces)));
 				root.appendChild(dom.createTextNode('\n\t'));
 				root.appendChild(node);
 			}
@@ -3317,7 +3317,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 	var javaFiles = [],
 		javaRegExp = /\.java$/,
 		javaSourcesFile = path.join(this.buildDir, 'java-sources.txt');
-	[this.buildGenAppIdDir, this.buildSrcDir].forEach(function scanJavaFiles(dir) {
+	[this.buildGenDir, this.buildSrcDir].forEach(function scanJavaFiles(dir) {
 		fs.readdirSync(dir).forEach(function (name) {
 			var file = path.join(dir, name);
 			if (fs.existsSync(file)) {

@@ -371,7 +371,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							},
 							'developer-name': {
 								abbr: 'V',
-								default: config.get('ios.developerName'),
+								default: process.env.CODE_SIGN_IDENTITY && process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Developer(?:\: )?/, '') || config.get('ios.developerName'),
 								desc: __('the iOS Developer Certificate to use; required when target is %s', 'device'.cyan),
 								hint: 'name',
 								order: 170,
@@ -436,7 +436,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							},
 							'distribution-name': {
 								abbr: 'R',
-								default: config.get('ios.distributionName'),
+								default: process.env.CODE_SIGN_IDENTITY && process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Distribution(?:\: )?/, '') || config.get('ios.distributionName'),
 								desc: __('the iOS Distribution Certificate to use; required when target is %s or %s', 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
 								hint: 'name',
 								order: 180,
@@ -745,7 +745,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 											});
 									}
 								},
-								default: 'simulator',
+								default: process.env.CURRENT_ARCH && process.env.CURRENT_ARCH != 'i386' ? 'device' : 'simulator',
 								desc: __('the target to build for'),
 								order: 110,
 								required: true,
@@ -763,7 +763,12 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 
 iOSBuilder.prototype.validate = function (logger, config, cli) {
 	this.target = cli.argv.target;
-	this.deployType = /^device|simulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
+
+	if (cli.argv.xcode) {
+		this.deployType = cli.argv['deploy-type'] || this.deployTypes[this.target];
+	} else {
+		this.deployType = /^device|simulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
+	}
 
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
@@ -881,41 +886,38 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		}
 	}
 
-	// if we're in the prepare phase or manually running from xcode...
-	if (!cli.argv.xcode || !process.env.TITANIUM_CLI_XCODEBUILD) {
-		// make sure the app doesn't have any blacklisted directories in the Resources directory and warn about graylisted names
-		var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
-		if (fs.existsSync(resourcesDir)) {
-			fs.readdirSync(resourcesDir).forEach(function (filename) {
-				var lcaseFilename = filename.toLowerCase(),
-					isDir = fs.statSync(path.join(resourcesDir, filename)).isDirectory();
+	// make sure the app doesn't have any blacklisted directories in the Resources directory and warn about graylisted names
+	var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
+	if (fs.existsSync(resourcesDir)) {
+		fs.readdirSync(resourcesDir).forEach(function (filename) {
+			var lcaseFilename = filename.toLowerCase(),
+				isDir = fs.statSync(path.join(resourcesDir, filename)).isDirectory();
 
-				if (this.blacklistDirectories.indexOf(lcaseFilename) != -1) {
-					if (isDir) {
-						logger.error(__('Found blacklisted directory in the Resources directory') + '\n');
-						logger.error(__('The directory "%s" is a reserved word.', filename));
-						logger.error(__('You must rename this directory to something else.') + '\n');
-					} else {
-						logger.error(__('Found blacklisted file in the Resources directory') + '\n');
-						logger.error(__('The file "%s" is a reserved word.', filename));
-						logger.error(__('You must rename this file to something else.') + '\n');
-					}
-					process.exit(1);
-				} else if (this.graylistDirectories.indexOf(lcaseFilename) != -1) {
-					if (isDir) {
-						logger.warn(__('Found graylisted directory in the Resources directory'));
-						logger.warn(__('The directory "%s" is potentially a reserved word.', filename));
-						logger.warn(__('There is a good chance your app will be rejected by Apple.'));
-						logger.warn(__('It is highly recommended you rename this directory to something else.'));
-					} else {
-						logger.warn(__('Found graylisted file in the Resources directory'));
-						logger.warn(__('The file "%s" is potentially a reserved word.', filename));
-						logger.warn(__('There is a good chance your app will be rejected by Apple.'));
-						logger.warn(__('It is highly recommended you rename this file to something else.'));
-					}
+			if (this.blacklistDirectories.indexOf(lcaseFilename) != -1) {
+				if (isDir) {
+					logger.error(__('Found blacklisted directory in the Resources directory') + '\n');
+					logger.error(__('The directory "%s" is a reserved word.', filename));
+					logger.error(__('You must rename this directory to something else.') + '\n');
+				} else {
+					logger.error(__('Found blacklisted file in the Resources directory') + '\n');
+					logger.error(__('The file "%s" is a reserved word.', filename));
+					logger.error(__('You must rename this file to something else.') + '\n');
 				}
-			}, this);
-		}
+				process.exit(1);
+			} else if (this.graylistDirectories.indexOf(lcaseFilename) != -1) {
+				if (isDir) {
+					logger.warn(__('Found graylisted directory in the Resources directory'));
+					logger.warn(__('The directory "%s" is potentially a reserved word.', filename));
+					logger.warn(__('There is a good chance your app will be rejected by Apple.'));
+					logger.warn(__('It is highly recommended you rename this directory to something else.'));
+				} else {
+					logger.warn(__('Found graylisted file in the Resources directory'));
+					logger.warn(__('The file "%s" is potentially a reserved word.', filename));
+					logger.warn(__('There is a good chance your app will be rejected by Apple.'));
+					logger.warn(__('It is highly recommended you rename this file to something else.'));
+				}
+			}
+		}, this);
 	}
 
 	// we have an ios sdk version, find the best xcode version to use
@@ -931,43 +933,11 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 
-	// check if this is the Xcode pre-compile phase
+	// check if we are running from Xcode
 	if (cli.argv.xcode) {
-		if (process.env.TITANIUM_CLI_XCODEBUILD) {
-			// we are being built from the CLI, so we must have a valid buildManifest.json
-			var buildManifestFile = path.join(cli.argv['project-dir'], 'build', path.basename(afs.resolvePath(__dirname, '..', '..')), 'build-manifest.json');
-			try {
-				var buildManifest = JSON.parse(fs.readFileSync(buildManifestFile));
-				// first mix everything in
-				appc.util.mix(cli.argv, buildManifest);
-				// next translate specific keys that may differ
-				cli.argv.target = process.env.CURRENT_ARCH === 'i386' ? 'simulator' : (buildManifest.target != 'simulator' ? buildManifest.target : 'device');
-				cli.argv['deploy-type']			= buildManifest.deployType;
-				cli.argv['output-dir']			= buildManifest.outputDir;
-				cli.argv['developer-name']		= buildManifest.developerName;
-				cli.argv['distribution-name']	= buildManifest.distributionName;
-				cli.argv['skip-js-minify']		= buildManifest.skipJSMinification;
-				cli.argv['force-copy']			= buildManifest.forceCopy;
-				cli.argv['force-copy-all']		= buildManifest.forceCopyAll;
-			} catch (e) {
-				if (fs.existsSync(buildManifestFile)) {
-					logger.error(__('Build manifest is invalid: %s', buildManifestFile));
-				} else {
-					logger.error(__('Build manifest does not exist: %s', buildManifestFile));
-				}
-				logger.error(__('Clean your project, then rebuild it'));
-				process.exit(1);
-			}
-		} else {
-			// we are being build from Xcode
-			cli.argv.target = process.env.CURRENT_ARCH === 'i386' ? 'simulator' : 'device';
-			cli.argv['deploy-type']			= process.env.CURRENT_ARCH === 'i386' ? 'development' : 'test';
-			cli.argv['developer-name']		= process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Developer\: /, '');
-			cli.argv['distribution-name']	= process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Distribution\: /, '');
-			cli.argv['skip-js-minify']		= true; // never minify Xcode builds
-			cli.argv['force-copy']			= true; // if building from xcode, we'll force files to be copied instead of symlinked
-			cli.argv['force-copy-all']		= false; // we don't want to copy the big libTiCore.a file around by default
-		}
+		cli.argv['skip-js-minify'] = true; // never minify Xcode builds
+		cli.argv['force-copy']     = true; // if building from xcode, we'll force files to be copied instead of symlinked
+		cli.argv['force-copy-all'] = false; // we don't want to copy the big libTiCore.a file around by default
 	}
 
 	// if in the prepare phase and doing a device/dist build...
@@ -1213,8 +1183,6 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'createInfoPlist',
 		'createEntitlementsPlist',
 		'initBuildDir',
-		'createDebuggerPlist',
-		'createProfilerPlist',
 		'injectModulesIntoXcodeProject',
 		'injectApplicationDefaults', // if ApplicationDefaults.m was modified, forceRebuild will be set to true
 		'copyTitaniumLibraries',
@@ -1303,24 +1271,17 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 
 	this.platformName = path.basename(this.titaniumIosSdkPath); // the name of the actual platform directory which will some day be "ios"
 
-	this.provisioningProfileUUID = argv['pp-uuid'];
-
 	this.moduleSearchPaths = [ this.projectDir, afs.resolvePath(this.titaniumIosSdkPath, '..', '..', '..', '..') ];
 	if (this.config.paths && Array.isArray(this.config.paths.modules)) {
 		this.moduleSearchPaths = this.moduleSearchPaths.concat(this.config.paths.modules);
 	}
 
+	this.provisioningProfileUUID = argv['pp-uuid'];
 	this.buildOnly = argv['build-only'];
 	this.debugHost = this.allowDebugging && argv['debug-host'];
 	this.profilerHost = this.allowProfiling && argv['profiler-host'];
 	this.launchUrl = argv['launch-url'];
 	this.keychain = argv.keychain;
-
-	if (argv.xcode) {
-		this.deployType = argv['deploy-type'];
-	} else {
-		this.deployType = /^device|simulator$/.test(this.target) && argv['deploy-type'] ? argv['deploy-type'] : this.deployTypes[this.target];
-	}
 	this.xcodeTarget = process.env.CONFIGURATION || (/^device|simulator$/.test(this.target) ? 'Debug' : 'Release');
 	this.iosSimVersion = argv['sim-version'];
 	this.iosSimType = argv['sim-type'];
@@ -1329,10 +1290,8 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 	this.iosBuildDir = path.join(this.buildDir, 'build', this.xcodeTarget + '-' + (this.target == 'simulator' ? 'iphonesimulator' : 'iphoneos'));
 	this.xcodeAppDir = argv.xcode ? path.join(process.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : path.join(this.iosBuildDir, this.tiapp.name + '.app');
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
-
 	this.certDeveloperName = argv['developer-name'];
 	this.certDistributionName = argv['distribution-name'];
-
 	this.forceCopy = !!argv['force-copy'];
 	this.forceCopyAll = !!argv['force-copy-all'];
 
@@ -1862,64 +1821,6 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 	fs.writeFile(dest, plist.toString('xml'), next);
 };
 
-iOSBuilder.prototype.createDebuggerPlist = function createDebuggerPlist(next) {
-	var parts = (this.debugHost || '').split(':'),
-		plist = ejs.render(fs.readFileSync(path.join(this.templatesDir, 'debugger.plist')).toString(), {
-			host: parts.length > 0 ? parts[0] : '',
-			port: parts.length > 1 ? parts[1] : '',
-			airkey: parts.length > 2 ? parts[2] : '',
-			hosts: parts.length > 3 ? parts[3] : ''
-		}),
-		dest = path.join(this.buildDir, 'debugger.plist'),
-		exists = fs.existsSync(dest);
-
-	if (!exists || fs.readFileSync(dest).toString() != plist) {
-		if (this.target != 'simulator') {
-			if (!exists) {
-				this.logger.info(__('Forcing rebuild: debugger.plist does not exist'));
-			} else {
-				this.logger.info(__('Forcing rebuild: debugger settings changed since last build'));
-			}
-			this.forceRebuild = true;
-		} else {
-			// write the debugger.plist to the app dir now since we're skipping Xcode and the pre-compile phase
-			fs.writeFileSync(path.join(this.xcodeAppDir, 'debugger.plist'), plist);
-		}
-		fs.writeFile(dest, plist, next);
-	} else {
-		next();
-	}
-};
-
-iOSBuilder.prototype.createProfilerPlist = function createProfilerPlist(next) {
-	var parts = (this.debugHost || '').split(':'),
-		plist = ejs.render(fs.readFileSync(path.join(this.templatesDir, 'profiler.plist')).toString(), {
-			host: parts.length > 0 ? parts[0] : '',
-			port: parts.length > 1 ? parts[1] : '',
-			airkey: parts.length > 2 ? parts[2] : '',
-			hosts: parts.length > 3 ? parts[3] : ''
-		}),
-		dest = path.join(this.buildDir, 'profiler.plist'),
-		exists = fs.existsSync(dest);
-
-	if (!exists || fs.readFileSync(dest).toString() != plist) {
-		if (this.target != 'simulator') {
-			if (!exists) {
-				this.logger.info(__('Forcing rebuild: profiler.plist does not exist'));
-			} else {
-				this.logger.info(__('Forcing rebuild: profiler settings changed since last build'));
-			}
-			this.forceRebuild = true;
-		} else {
-			// write the profiler.plist to the app dir now since we're skipping Xcode and the pre-compile phase
-			fs.writeFileSync(path.join(this.xcodeAppDir, 'debugger.plist'), plist);
-		}
-		fs.writeFile(dest, plist, next);
-	} else {
-		next();
-	}
-};
-
 iOSBuilder.prototype.createEntitlementsPlist = function createEntitlementsPlist(next) {
 	if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
 		// allow the project to have its own custom entitlements
@@ -2053,7 +1954,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 		'Pre-Compile',
 		'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then ' +
 			(process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' +
-			this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-banner --no-colors --xcode\\nexit $?' +
+			this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-progress-bars --no-banner --no-colors --xcode --build-only\\nexit $?' +
 		'; else echo \\"skipping pre-compile phase\\"; fi'
 	);
 	proj = injectCompileShellScript(
@@ -2644,7 +2545,7 @@ iOSBuilder.prototype.xcodePrecompilePhase = function xcodePrecompilePhase(finish
 		'copyLocalizedSplashScreens',
 		function (next) {
 			// if not production and running from Xcode
-			if (this.deployType != 'production' && !process.env.TITANIUM_CLI_XCODEBUILD) {
+			if (this.deployType != 'production') {
 				var appDefaultsFile = path.join(this.buildDir, 'Classes', 'ApplicationDefaults.m');
 				fs.writeFileSync(appDefaultsFile, fs.readFileSync(appDefaultsFile).toString().replace(/return \[NSDictionary dictionaryWithObjectsAndKeys\:\[TiUtils stringValue\:@".+"\], @"application-launch-url", nil];/, 'return nil;'));
 			}
@@ -2656,24 +2557,20 @@ iOSBuilder.prototype.xcodePrecompilePhase = function xcodePrecompilePhase(finish
 };
 
 iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists(next) {
-	function processPlist(filename, enabled) {
-		var dest = path.join(this.xcodeAppDir, filename);
+	function processPlist(filename, host) {
+		var dest = path.join(this.xcodeAppDir, filename),
+			parts = (host || '').split(':');
 
-		// we only copy the plist file for dev/test when NOT building from Xcode
-		if (enabled && process.env.TITANIUM_CLI_XCODEBUILD) {
-			afs.copyFileSync(
-				path.join(this.buildDir, filename),
-				dest,
-				{ logger: this.logger.debug }
-			);
-		} else if (fs.existsSync(dest)) {
-			this.logger.info(__('Removing unwanted %s from build', filename.cyan));
-			fs.unlinkSync(dest);
-		}
+		fs.writeFileSync(dest, ejs.render(fs.readFileSync(path.join(this.templatesDir, filename)).toString(), {
+			host: parts.length > 0 ? parts[0] : '',
+			port: parts.length > 1 ? parts[1] : '',
+			airkey: parts.length > 2 ? parts[2] : '',
+			hosts: parts.length > 3 ? parts[3] : ''
+		}));
 	}
 
-	processPlist.call(this, 'debugger.plist', this.allowDebugging);
-	processPlist.call(this, 'profiler.plist', this.allowProfiling);
+	processPlist.call(this, 'debugger.plist', this.debugHost);
+	processPlist.call(this, 'profiler.plist', this.profilerHost);
 
 	next();
 };
