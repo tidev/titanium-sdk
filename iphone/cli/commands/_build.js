@@ -1972,13 +1972,13 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 		+ '        echo \\"Xcode Post-Compile Phase: Image optimization finished before xcodebuild finished, continuing\\"\\n'
 		+ '    else\\n'
 		+ '        echo \\"Xcode Post-Compile Phase: Waiting for image optimization to complete\\"\\n'
+		+ '        echo \\"Xcode Post-Compile Phase: $TITANIUM_CLI_IMAGES_OPTIMIZED\\"\\n'
 		+ '        while [ ! -f \\"$TITANIUM_CLI_IMAGES_OPTIMIZED\\" ]\\n'
 		+ '        do\\n'
 		+ '            sleep 1\\n'
 		+ '        done\\n'
 		+ "        echo 'Xcode Post-Compile Phase: Image optimization complete, continuing'\\n"
 		+ '    fi\\n'
-		+ '    rm -f \\"$TITANIUM_CLI_IMAGES_OPTIMIZED\\"\\n'
 		+ 'fi'
 	);
 
