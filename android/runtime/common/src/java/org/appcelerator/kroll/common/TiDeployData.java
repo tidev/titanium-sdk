@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+import org.appcelerator.kroll.KrollApplication;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.util.KrollStreamHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,7 +69,7 @@ public class TiDeployData
 	 */
 	public boolean isDebuggerEnabled()
 	{
-		if (deployData == null) {
+		if (deployTypeDisabled()) {
 			return false;
 		}
 
@@ -79,7 +81,7 @@ public class TiDeployData
 	 */
 	public int getDebuggerPort()
 	{
-		if (deployData == null) {
+		if (deployTypeDisabled()) {
 			return -1;
 		}
 
@@ -91,7 +93,7 @@ public class TiDeployData
 	 */
 	public boolean isProfilerEnabled()
 	{
-		if (deployData == null) {
+		if (deployTypeDisabled()) {
 			return false;
 		}
 
@@ -103,7 +105,7 @@ public class TiDeployData
 	 */
 	public int getProfilerPort()
 	{
-		if (deployData == null) {
+		if (deployTypeDisabled()) {
 			return -1;
 		}
 
@@ -115,7 +117,7 @@ public class TiDeployData
 	 */
 	public int getFastDevPort()
 	{
-		if (deployData == null) {
+		if (deployTypeDisabled()) {
 			return -1;
 		}
 
@@ -128,10 +130,20 @@ public class TiDeployData
 	 */
 	public boolean getFastDevListen()
 	{
-		if (deployData == null) {
+		if (deployTypeDisabled()) {
 			return false;
 		}
 
 		return deployData.optBoolean(FASTDEV_LISTEN, false);
+	}
+	
+	private boolean deployTypeDisabled() {
+	    KrollApplication app = KrollRuntime.getInstance().getKrollApplication();
+	    String deployType = null;
+	    if (app != null) {
+	        deployType = app.getDeployType();
+	    }
+
+		return (deployData == null || "production".equals(deployType));
 	}
 }
