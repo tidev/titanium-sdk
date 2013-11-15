@@ -190,6 +190,7 @@
 	"Titanium symbol file already up-to-date: %s": "Titanium symbol file already up-to-date: %s",
 	"Optimizing all images in %s": "Optimizing all images in %s",
 	"Removing empty directories": "Removing empty directories",
+	"Image optimization complete": "Image optimization complete",
 	"Unable to find iphoneos-optimize, skipping image optimization": "Unable to find iphoneos-optimize, skipping image optimization",
 	"An error occurred running the iOS Package Application tool": "An error occurred running the iOS Package Application tool",
 	"Unable to locate iOS Package Application tool": "Unable to locate iOS Package Application tool",

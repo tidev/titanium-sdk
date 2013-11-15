@@ -1315,6 +1315,9 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 		this.architectures = 'armv7 i386';
 	}
 
+	this.imagesOptimizedFile = path.join(this.buildDir, 'images_optimized');
+	fs.existsSync(this.imagesOptimizedFile) && fs.unlinkSync(this.imagesOptimizedFile);
+
 	next();
 };
 
@@ -1952,16 +1955,33 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 	proj = injectCompileShellScript(
 		proj,
 		'Pre-Compile',
-		'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then ' +
-			(process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' +
-			this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-progress-bars --no-banner --no-colors --xcode --build-only\\nexit $?' +
-		'; else echo \\"skipping pre-compile phase\\"; fi'
+		'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then\\n'
+		+ '    ' + (process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-progress-bars --no-banner --no-colors --xcode\\n'
+		+ '    exit $?\\n'
+		+ 'else\\n'
+		+ '    echo \\"skipping pre-compile phase\\"\\n'
+		+ 'fi'
 	);
 	proj = injectCompileShellScript(
 		proj,
 		'Post-Compile',
-		"echo 'Xcode Post-Compile Phase: Touching important files'\\ntouch -c Classes/ApplicationRouting.h Classes/ApplicationRouting.m Classes/ApplicationDefaults.m Classes/ApplicationMods.m Classes/defines.h"
+		"echo 'Xcode Post-Compile Phase: Touching important files'\\n"
+		+ 'touch -c Classes/ApplicationRouting.h Classes/ApplicationRouting.m Classes/ApplicationDefaults.m Classes/ApplicationMods.m Classes/defines.h\\n'
+		+ 'if [ \\"x$TITANIUM_CLI_IMAGES_OPTIMIZED\\" != \\"x\\" ]; then\\n'
+		+ '    if [ -f \\"$TITANIUM_CLI_IMAGES_OPTIMIZED\\" ]; then\\n'
+		+ '        echo \\"Xcode Post-Compile Phase: Image optimization finished before xcodebuild finished, continuing\\"\\n'
+		+ '    else\\n'
+		+ '        echo \\"Xcode Post-Compile Phase: Waiting for image optimization to complete\\"\\n'
+		+ '        while [ ! -f \\"$TITANIUM_CLI_IMAGES_OPTIMIZED\\" ]\\n'
+		+ '        do\\n'
+		+ '            sleep 1\\n'
+		+ '        done\\n'
+		+ "        echo 'Xcode Post-Compile Phase: Image optimization complete, continuing'\\n"
+		+ '    fi\\n'
+		+ '    rm -f \\"$TITANIUM_CLI_IMAGES_OPTIMIZED\\"\\n'
+		+ 'fi'
 	);
+
 	fs.writeFileSync(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'), proj);
 
 	this.logger.info(__('Writing Xcode project configuration: %s', 'project.xcconfig'.cyan));
@@ -2526,7 +2546,8 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 				TMPDIR: process.env.TMPDIR,
 				HOME: process.env.HOME,
 				PATH: process.env.PATH,
-				TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? http://jobs.appcelerator.com/'
+				TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? http://jobs.appcelerator.com/',
+				TITANIUM_CLI_IMAGES_OPTIMIZED: this.imagesOptimizedFile
 			}
 		},
 		next
@@ -3037,15 +3058,18 @@ iOSBuilder.prototype.optimizeImages = function optimizeImages(next) {
 		this.logger.info(__('Optimizing all images in %s', this.xcodeAppDir.cyan));
 		appc.subprocess.run(tool, this.xcodeAppDir, function (code, out, err) {
 			// remove empty directories
-			this.logger.info(__('Removing empty directories'));
+			this.logger.debug(__('Removing empty directories'));
 			appc.subprocess.run('find', ['.', '-type', 'd', '-empty', '-delete'], {
 				cwd: this.xcodeAppDir
 			}, function (code, out, err) {
+				this.logger.info(__('Image optimization complete'));
+				afs.touch(this.imagesOptimizedFile);
 				next();
-			});
+			}.bind(this));
 		}.bind(this));
 	} else {
 		this.logger.warn(__('Unable to find iphoneos-optimize, skipping image optimization'));
+		afs.touch(this.imagesOptimizedFile);
 		next();
 	}
 };
