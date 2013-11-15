@@ -1244,18 +1244,21 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 					module.jarFile = path.join(module.modulePath, module.jarName);
 
 					if (!fs.existsSync(module.jarFile)) {
-						logger.error(__('Module %s version %s is missing jar file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.jarFile.cyan) + '\n');
-						process.exit(1);
+						// NOTE: this should be an error, not a warning, but due to the soasta module, we can't error out
+						// logger.error(__('Module %s version %s is missing main jar file', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
+						// process.exit(1);
+						logger.warn(__('Module %s version %s does not have a main jar file', module.id.cyan, (module.manifest.version || 'latest').cyan));
+						module.jarName = module.jarFile = null;
+					} else {
+						// get the jar hashes
+						var jarHash = module.hash = hash(fs.readFileSync(module.jarFile).toString());
+						nativeHashes.push(jarHash);
+						jarHashes[module.jarName] || (jarHashes[module.jarName] = []);
+						jarHashes[module.jarName].push({
+							hash: module.hash,
+							module: module
+						});
 					}
-
-					// get the jar hashes
-					var jarHash = module.hash = hash(fs.readFileSync(module.jarFile).toString());
-					nativeHashes.push(jarHash);
-					jarHashes[module.jarName] || (jarHashes[module.jarName] = []);
-					jarHashes[module.jarName].push({
-						hash: module.hash,
-						module: module
-					});
 
 					var libDir = path.join(module.modulePath, 'lib'),
 						jarRegExp = /\.jar$/;
@@ -1299,14 +1302,16 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 						process.exit(1);
 					}
 
-					// read in the bindings
-					module.bindings = this.getNativeModuleBindings(module.jarFile);
-					if (!module.bindings) {
-						logger.error(__('Module %s version %s is missing bindings json file', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
-						process.exit(1);
+					if (module.jarFile) {
+						// read in the bindings
+						module.bindings = this.getNativeModuleBindings(module.jarFile);
+						if (!module.bindings) {
+							logger.error(__('Module %s version %s is missing bindings json file', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
+							process.exit(1);
+						}
+						bindingsHashes.push(hash(JSON.stringify(module.bindings)));
 					}
 
-					bindingsHashes.push(hash(JSON.stringify(module.bindings)));
 					this.nativeLibModules.push(module);
 				}
 

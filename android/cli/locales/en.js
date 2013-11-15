@@ -131,7 +131,7 @@
 	"Found conflicting Titanium modules:": "Found conflicting Titanium modules:",
 	"Titanium module \"%s\" requested for both Android and CommonJS platforms, but only one may be used at a time.": "Titanium module \"%s\" requested for both Android and CommonJS platforms, but only one may be used at a time.",
 	"Module %s version %s is missing module file: %s": "Module %s version %s is missing module file: %s",
-	"Module %s version %s is missing jar file: %s": "Module %s version %s is missing jar file: %s",
+	"Module %s version %s does not have a main jar file": "Module %s version %s does not have a main jar file",
 	"The module \"%%s\" does not support the ABI: %%s": {
 		"one": "The module \"%%s\" does not support the ABI: %%s",
 		"other": "The module \"%%s\" does not support the ABIs: %s"
