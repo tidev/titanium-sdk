@@ -435,7 +435,7 @@ examples:
            <Alloy>
                <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" title="ScrollView Demo">
                    <ScrollView id="scrollView" showVerticalScrollIndicator="true" showHorizontalScrollIndicator="true" height="80%" width="80%">
-                       <View id="view" backgroundColor="#336699" borderRaduis="10" top="10" height="2000" width="1000" />
+                       <View id="view" backgroundColor="#336699" borderRadius="10" top="10" height="2000" width="1000" />
                    </ScrollView>
                </Window>
            </Alloy>

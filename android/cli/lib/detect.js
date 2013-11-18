@@ -13,7 +13,9 @@
 
 var android = require('titanium-sdk/lib/android'),
 	ADB = require('titanium-sdk/lib/adb'),
-	EmulatorManager = require('titanium-sdk/lib/emulator');
+	EmulatorManager = require('titanium-sdk/lib/emulator'),
+	appc = require('node-appc'),
+	__ = appc.i18n(__dirname).__;
 
 /**
  * Detects current Android environment.
@@ -63,7 +65,7 @@ exports.detectDevices = function detectDevices(config, finished) {
 		finished(null, devices.filter(function (d) {
 			return !d.emulator;
 		}).map(function (d) {
-			d.name = d.model || d.manufacturer || d.name || ('Android ' + d.release + ' Device');
+			d.name = d.model || d.manufacturer || d.name || (d.release ? __('Android %s Device', d.release) : __('Android Device'));
 			return d;
 		}));
 	});
