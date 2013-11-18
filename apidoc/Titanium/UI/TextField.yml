@@ -268,6 +268,9 @@ properties:
   - name: leftButton
     summary: Left button view.
     description: |
+        Set the `width` and `height` properties of the button or else it does not display in the
+        text field.
+
         Using an object other than a [Button](Titanium.UI.Button) may have unpredictable results.
     type: Object
     platforms: [iphone, ipad]
@@ -345,6 +348,9 @@ properties:
   - name: rightButton
     summary: Right button view. 
     description: |
+        Set the `width` and `height` properties of the button or else it does not display in the
+        text field.
+
         Using an object other than a [Button](Titanium.UI.Button) may have unpredictable results.
     type: Object
     platforms: [iphone, ipad]
@@ -470,6 +476,10 @@ examples:
         
         This code excerpt creates a text field with a toolbar:
         
+            var win = Ti.UI.createWindow({
+              backgroundColor: 'white'
+            });
+
             var send = Titanium.UI.createButton({
                 title : 'Send',
                 style : Titanium.UI.iPhone.SystemButtonStyle.DONE,
@@ -497,6 +507,9 @@ examples:
                 width : 300, height : 35
             });
 
+            win.add(textField);
+            win.open();
+
   - title: Alloy XML Markup
     example: |
         Previous basic text field with rounded border example as an Alloy view.
@@ -508,3 +521,40 @@ examples:
                     <TextField id="textField" borderStyle="Ti.UI.INPUT_BORDERSTYLE_ROUNDED" color="#336699" top="10" left="10" width="250" height="60" />
                 </Window>
             </Alloy>
+
+  - title: Alloy Custom Keyboard Toolbar (iOS)
+    example: |
+        Supported in Alloy 1.3.0 and later.
+
+        Previous custom keyboard toolbar example as an Alloy view.  Use the `<KeyboardToolbar>` XML
+        element to set the `keyboardToolbar` property.
+
+        You can also declare the `leftButton` and `rightButton` properties in XML markup as the
+        `<LeftButton>` and `<RightButton>` XML elements.
+
+            <Alloy>
+                <Window fullscreen="true" backgroundColor="white">
+                    <TextField
+                        platform="ios"
+                        borderStyle="Ti.UI.INPUT_BORDERSTYLE_BEZEL"
+                        keyboardToolbarColor="#999" keyboardToolbarHeight="40"
+                        top="10" height="35" width="300"
+                        value="Focus to see keyboard with toolbar">
+
+                        <!-- Sets the keyboardToolbar property -->
+                        <KeyboardToolbar>
+                            <Toolbar>
+                                <Items>
+                                    <Button systemButton="Ti.UI.iPhone.SystemButton.CANCEL" />
+                                    <FlexSpace/>
+                                    <Button systemButton="Ti.UI.iPhone.SystemButton.CAMERA" />
+                                    <FlexSpace/>
+                                    <Button style="Ti.UI.iPhone.SystemButtonStyle.DONE">Send</Button>
+                                </Items>
+                            </Toolbar>
+                        </KeyboardToolbar>
+
+                    </TextField>
+                </Window>
+            </Alloy>
+

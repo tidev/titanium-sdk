@@ -122,8 +122,8 @@
 #endif
 
 
-@property(nonatomic,readwrite,assign)	NSNumber *statusBarHidden;
-@property(nonatomic,readwrite,assign)	NSNumber *statusBarStyle;
+@property(nonatomic,readonly)	NSNumber *statusBarHidden;
+@property(nonatomic,readonly)	NSNumber *statusBarStyle;
 @property(nonatomic,readwrite,assign)	NSNumber *appBadge;
 @property(nonatomic,readwrite,assign)	NSNumber *appSupportsShakeToEdit;
 
@@ -137,15 +137,6 @@
 @property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_PAGESHEET;
 @property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_FORMSHEET;
 @property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_CURRENT_CONTEXT;
-
-
--(void)hideStatusBar:(id)args;
--(void)showStatusBar:(id)args;
-
-#ifdef USE_TI_UIIPHONENAVIGATIONGROUP
--(id)createNavigationGroup:(id)args;
-#endif
-
 
 @end
 

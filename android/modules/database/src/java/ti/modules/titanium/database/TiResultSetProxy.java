@@ -105,12 +105,13 @@ public class TiResultSetProxy extends KrollProxy
 		try {
 			if (rs instanceof AbstractWindowedCursor) {
 				AbstractWindowedCursor cursor = (AbstractWindowedCursor) rs;
-				if (cursor.isNull(index)) {
-					result = null;
-				} else if (cursor.isFloat(index)) {
+				
+				if (cursor.isFloat(index)) {
 					result = cursor.getDouble(index);
 				} else if (cursor.isLong(index)) {
 					result = cursor.getLong(index);
+				} else if (cursor.isNull(index)) {
+					result = null;
 				} else if (cursor.isBlob(index)) {
 					result = TiBlob.blobFromData(cursor.getBlob(index));
 				} else {

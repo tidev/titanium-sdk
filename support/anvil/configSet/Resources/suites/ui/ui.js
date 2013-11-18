@@ -31,7 +31,8 @@ module.exports = new function() {
 		{name: "imageLoadEvent", timeout: 10000},
 		{name: "tabWindowNull"},
 		{name: "deleteCorrectRowIndex", timeout: 3000},
-		{name: "childrenArrayEmpty"}
+		{name: "childrenArrayEmpty"},
+		{name: "orientationModesReturnNull"}
 	]
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2583
@@ -541,5 +542,20 @@ module.exports = new function() {
 		valueOf(testRun, view.children).shouldBe(0);
 
 		finish(testRun);
+	}
+
+	//TIMOB-6856
+	this.orientationModesReturnNull = function(testRun) {
+		var win = Titanium.UI.createWindow({  
+			backgroundColor:'#000',
+			orientationModes:[Ti.UI.PORTRAIT, Ti.UI.UPSIDE_PORTRAIT]
+		});
+		win.addEventListener('open', function(){
+			//valueOf(testRun, win.orientationModes).shouldBe('1,3');
+			//https://jira.appcelerator.org/browse/TIMOB-15706 is not fixed yet.
+
+			finish(testRun);
+		});
+		win.open();
 	}
 }
