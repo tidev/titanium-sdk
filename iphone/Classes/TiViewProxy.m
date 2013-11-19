@@ -167,7 +167,7 @@
         childView = [arg objectForKey:@"view"];
         position = [TiUtils intValue:[arg objectForKey:@"position"] def:-1];
     }
-    
+    else
     if([arg isKindOfClass:[TiViewProxy class]]) {
         childView = arg;
     }
@@ -184,7 +184,7 @@
 		pthread_rwlock_wrlock(&childrenLock);
 		if (children==nil)
 		{
-			children = [[NSMutableArray alloc] initWithObjects:arg,nil];
+			children = [[NSMutableArray alloc] initWithObjects:childView,nil];
 		}		
 		else 
 		{
@@ -247,11 +247,12 @@
 -(void)replaceAt:(id)args
 {
     ENSURE_SINGLE_ARG(args, NSDictionary);
-    NSInteger position = [TiUtils intValue:[args objectForKey:@"position"] def:0];
-    if(children != nil && [children count] >= position) {
-        TiViewProxy *childToRemove = [children objectAtIndex:position];
+    NSInteger position = [TiUtils intValue:[args objectForKey:@"position"] def:-1];
+    if(children != nil && position > -1 && [children count] <= position) {
+        TiViewProxy *childToRemove = [[children objectAtIndex:position] retain];
         [self add:args];
         [self remove: childToRemove];
+        [childToRemove autorelease];
     } else {
         [self add:args];
     }
