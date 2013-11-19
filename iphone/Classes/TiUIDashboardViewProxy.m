@@ -79,6 +79,20 @@ NSArray* dashboardKeySequence;
 	[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
 }
 
+-(void)windowWillOpen
+{
+    [super windowWillOpen];
+    
+    TiUIDashboardView *v = (TiUIDashboardView*)[self view];
+    
+    NSArray *data = [self valueForUndefinedKey:@"data"];
+    NSArray *items = [v allItems];
+    
+    if(data != nil && (items == nil || [items count] == 0)) {
+        [self makeViewPerformSelector:@selector(setViewData:) withObject:data createIfNeeded:YES waitUntilDone:YES];
+    }
+}
+
 -(void)setData:(id)data
 {
     for (TiViewProxy* proxy in data) {

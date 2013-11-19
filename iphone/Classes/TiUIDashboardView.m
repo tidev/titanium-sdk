@@ -28,6 +28,7 @@ static const NSInteger kDashboardViewDefaultColumnCount = 3;
 		[launcher endEditing];
 	}
 	RELEASE_TO_NIL(launcher);
+    RELEASE_TO_NIL(allItems);
 	[super dealloc];
 }
 
@@ -72,10 +73,22 @@ static const NSInteger kDashboardViewDefaultColumnCount = 3;
     [[self proxy] replaceValue:args forKey:@"editable" notification:NO];
 }
 
+-(NSArray *)allItems
+{
+    return allItems;
+}
+
 -(void)setViewData:(id)args
 {
 	[self launcher];
     
+    if(allItems == nil) {
+        allItems = [[NSMutableArray alloc] initWithArray:args];
+    } else {
+        [allItems removeAllObjects];
+        [allItems addObjectsFromArray:args];
+    }
+
     NSArray* items = [launcher launcheritems_];
     for (LauncherItem* item in items) {
         [launcher removeItem:item animated:NO];
