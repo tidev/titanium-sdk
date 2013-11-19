@@ -333,6 +333,7 @@ properties:
   - name: title
     summary: Title for this tabGroup.
     type: String
+    since: '3.3.0'
     platforms: [android]  
  
   - name: tabsBackgroundImage

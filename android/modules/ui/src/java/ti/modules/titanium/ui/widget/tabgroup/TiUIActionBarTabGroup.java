@@ -11,6 +11,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import ti.modules.titanium.ui.TabGroupProxy;
@@ -81,7 +82,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	{
 		// TODO Auto-generated method stub
 		if (key.equals(TiC.PROPERTY_TITLE)) {
-			actionBar.setTitle((String) newValue);
+			actionBar.setTitle(TiConvert.toString(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
