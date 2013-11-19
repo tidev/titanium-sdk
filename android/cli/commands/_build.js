@@ -2661,7 +2661,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 				proxyName: proxy.proxyClassName,
 				className: moduleClass,
 				manifest: module.manifest,
-				onAppCreate: proxy['on_app_create'] || null,
+				onAppCreate: proxy.onAppCreate || proxy['on_app_create'] || null,
 				isNativeJsModule: !!module.manifest.commonjs
 			};
 
