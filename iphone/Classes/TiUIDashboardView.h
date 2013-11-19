@@ -13,13 +13,11 @@
 
 @private
 	LauncherView *launcher;
-    NSMutableArray *allItems;
 
 }
 
 -(LauncherView*)launcher;
--(void)setViewData:(NSArray*)data;
--(NSArray *)allItems;
+-(void)setViewData_:(NSArray*)data;
 @end
 
 
