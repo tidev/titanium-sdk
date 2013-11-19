@@ -1649,7 +1649,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	// Have to handle the situation in which the proxy's view might be nil... like, for example,
 	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
     // NOTE: We want to fire postlayout events on ANY view, even those which do not allow interactions.
-	if (proxyView == nil || [proxyView interactionEnabled] || [type isEqualToString:@"postlayout"]) {
+	if (proxyView == nil || [proxyView interactionEnabled] || [type isEqualToString:@"postlayout"] || [type isEqualToString:@"load"]) {
 		if (eventOverrideDelegate != nil) {
 			obj = [eventOverrideDelegate overrideEventObject:obj forEvent:type fromViewProxy:self];
 		}
