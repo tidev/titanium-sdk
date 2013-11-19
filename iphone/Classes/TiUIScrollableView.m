@@ -169,7 +169,6 @@
         [viewproxy windowWillOpen];
         [viewproxy windowDidOpen];
         [viewproxy layoutChildrenIfNeeded];
-        [viewproxy layoutChildren:YES];
     }
 }
 
