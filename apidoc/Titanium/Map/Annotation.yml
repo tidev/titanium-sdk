@@ -44,6 +44,15 @@ description: |
     Use the <Titanium.Map.createAnnotation> method to create an annotation.
 extends: Titanium.Proxy
 since: "0.9"
+deprecated:
+    since: "3.2.0"
+    notes: |
+        For new Android applications or to use Google Maps v2, use the [ti.map add-on module](Modules.Map).
+
+        For the iOS platform, use the [ti.map add-on module](Modules.Map). Support for the
+        `Titanium.Map` module on iOS was removed in Release 3.2.0.
+
+        For all other platforms, continue to use this module.
 
 properties:
 

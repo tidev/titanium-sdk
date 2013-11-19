@@ -87,13 +87,8 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 					   black,@"ff000000",
 					   nil];
 	}
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
-	if ([TiUtils isIOS5OrGreater])
-	{
-		[colorLookup setObject:[UIColor underPageBackgroundColor] forKey:IOS_COLOR_UNDER_PAGE_BACKGROUND];
-	}
-#endif
-	if ([colorName hasPrefix:@"#"]) 
+	[colorLookup setObject:[UIColor underPageBackgroundColor] forKey:IOS_COLOR_UNDER_PAGE_BACKGROUND];
+	if ([colorName hasPrefix:@"#"])
 	{
 		colorName = [colorName substringFromIndex:1];
 	}

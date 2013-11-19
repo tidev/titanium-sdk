@@ -15,7 +15,8 @@ module.exports = new function() {
 
 	this.name = "blob";
 	this.tests = [
-		{name: "testBlob"}
+		{name: "testBlob"},
+		{name: "invalidSource"}
 	]
 
 	this.testBlob = function(testRun) {
@@ -26,6 +27,23 @@ module.exports = new function() {
                 value: "Use a string to build a buffer to make a blob."}).toBlob();
             valueOf(testRun, myBlob.nativePath).shouldBeNull();
         }).shouldNotThrowException();
+
+		finish(testRun);
+	}
+
+	//TIMOB-7081
+	this.invalidSource = function (testRun) {
+		if (Ti.Platform.osname === 'android') {
+			valueOf(testRun, function() {
+				var image1 = Ti.UI.createImageView({
+					image:"images/schat.png"
+				});
+				var blob = image1.toBlob();
+				var win = Ti.UI.createWindow({backgroundColor:'white'});
+				win.add(image1);
+				win.open();
+			}).shouldNotThrowException();
+		}
 
 		finish(testRun);
 	}
