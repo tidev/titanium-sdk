@@ -404,7 +404,7 @@ public class TiHTTPClient
 		public void progress(int progress);
 	}
 
-	private class ProgressEntity implements HttpEntity
+	static private class ProgressEntity implements HttpEntity
 	{
 		private HttpEntity delegate;
 		private ProgressListener listener;
@@ -461,7 +461,7 @@ public class TiHTTPClient
 		}
 	}
 
-	private class ProgressOutputStream extends FilterOutputStream
+	static private class ProgressOutputStream extends FilterOutputStream
 	{
 		private ProgressListener listener;
 		private int transferred = 0, lastTransferred = 0;
@@ -1267,7 +1267,7 @@ public class TiHTTPClient
 
 						HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest) tiClient.request;
 
-						ProgressEntity progressEntity = tiClient.new ProgressEntity(mpe, new ProgressListener() {
+						ProgressEntity progressEntity = new ProgressEntity(mpe, new ProgressListener() {
 							public void progress(int progress) {
 								KrollDict data = new KrollDict();
 								data.put("progress", ((double)progress)/totalLength);
