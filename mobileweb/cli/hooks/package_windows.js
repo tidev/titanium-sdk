@@ -86,19 +86,23 @@ exports.init = function (logger, config, cli) {
 
 						// Create the certificate and install it in the root trusted certificates
 						function (next) {
-							logger.debug(__('Generating the code signing certificate'));
-							run([ 'powershell.exe',
-									'-command', path.join(__dirname, '..', '..', '..', 'node_modules', 'titanium-sdk', 'bin', 'winstore_create_cert.ps1'),
-									tiapp.id,
-									certificatePathRoot
-								], function (code) {
-									if (code) {
-										logger.error(__('There were errors creating the temporary code signing certificate'));
-									} else {
-										logger.debug(__('Finished creating the code signing certificate'));
-									}
-									next(code);
-								});
+							var cmd = [
+									'powershell.exe',
+									'-command',
+									path.join(__dirname, '..', '..', '..', 'node_modules', 'titanium-sdk', 'bin', 'winstore_create_cert.ps1') + ' ' + tiapp.id + ' "' + certificatePathRoot + '"'
+								];
+
+							logger.info(__('Generating the code signing certificate'));
+							logger.debug(__('Running: %s', ('"' + cmd.join('" "') + '"').cyan));
+
+							run(cmd, function (code) {
+								if (code) {
+									logger.error(__('There were errors creating the temporary code signing certificate'));
+								} else {
+									logger.debug(__('Finished creating the code signing certificate'));
+								}
+								next(code);
+							});
 						},
 
 						// Package the certificate as pfx
