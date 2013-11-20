@@ -89,36 +89,46 @@ exports.init = function (logger, config, cli) {
 
 					// Install the app
 					function (next) {
-						var installProcess,
-							buildType = cli.argv['deploy-type'] == 'production' ? 'Release' : 'Debug';
+						var buildType = cli.argv['deploy-type'] == 'production' ? 'Release' : 'Debug';
 
-						logger.debug(__('Installing the app'));
-						installProcess = spawn('powershell.exe', [ path.join(build.buildDir, '..', 'mobileweb-winstore',
-							tiapp.id, 'AppPackages', tiapp.id + '_' + tiapp._windowsVersion + '_AnyCPU_' + buildType + '_Test',
-							'Add-AppDevPackage.ps1'), '-Force' ]);
-						installProcess.stdout.on('data', function (data) {
-							data.toString().split('\r\n').forEach(function (line) {
-								line = line.trim();
-								if (line.length) {
-									logger.trace(line);
+						appc.subprocess.getRealName(path.join(
+							build.buildDir,
+							'..',
+							'mobileweb-winstore',
+							tiapp.id,
+							'AppPackages',
+							tiapp.id + '_' + tiapp._windowsVersion + '_AnyCPU_' + buildType + '_Test',
+							'Add-AppDevPackage.ps1'
+						), function (err, psScript) {
+							var installProcess,
+								args = [ '-command', psScript + ' -Force' ];
+
+							logger.info(__('Installing the app'));
+							logger.debug(__('Running: %s', ('powershell.exe "' + args.join('" "') + '"').cyan));
+							appc.subprocess.run('powershell.exe', args, function (code, out, err) {
+								if (!code) {
+									logger.debug(__('Finished deploying the application'));
+									return next();
 								}
-							});
-						});
-						installProcess.stderr.on('data', function (data) {
-							data.toString().split('\r\n').forEach(function (line) {
-								line = line.trim();
-								if (line.length) {
-									logger.error(line);
+
+								if (out.indexOf('Please rerun the script without the -Force parameter') == -1) {
+									logger.error(__('There were errors deploying the application') + '\n');
+									process.exit(1);
 								}
+
+								args = [ '-command', psScript ];
+								logger.debug(__('Failed, trying again without -Force'));
+								logger.debug(__('Running: %s', ('powershell.exe "' + args.join('" "') + '"').cyan));
+								appc.subprocess.run('powershell.exe', args, function (code, out, err) {
+									if (code) {
+										logger.error(__('There were errors deploying the application') + '\n');
+										process.exit(1);
+									} else {
+										logger.debug(__('Finished deploying the application'));
+										next();
+									}
+								});
 							});
-						});
-						installProcess.on('close', function (code) {
-							if (code) {
-								logger.error(__('There were errors deploying the application'));
-							} else {
-								logger.debug(__('Finished deploying the application'));
-							}
-							next(code);
 						});
 					},
 
