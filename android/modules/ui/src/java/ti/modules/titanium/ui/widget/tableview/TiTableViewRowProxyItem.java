@@ -321,11 +321,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (v.getParent() == null) {
 			TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) t.getLayoutParams();
 			if (params.optionLeft == null) {
-				params.optionLeft = new TiDimension(5, TiDimension.TYPE_LEFT);
+				params.optionLeft = new TiDimension(LEFT_MARGIN, TiDimension.TYPE_LEFT);
 			}
 
 			if (params.optionRight == null) {
-				params.optionRight = new TiDimension(5, TiDimension.TYPE_RIGHT);
+				params.optionRight = new TiDimension(LEFT_MARGIN, TiDimension.TYPE_RIGHT);
 			}
 			params.autoFillsWidth = true;
 			content.addView(v, params);
