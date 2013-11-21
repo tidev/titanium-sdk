@@ -139,7 +139,7 @@ module.exports = new function() {
 		win.open();
 	}
 
-	//TIMOB-4916
+	//TIMOB-4917
 	this.appendRowSupportArrayOfRows = function(testRun){
 		var win = Ti.UI.createWindow();
 		var table = Ti.UI.createTableView();
