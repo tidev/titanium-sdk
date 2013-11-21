@@ -42,7 +42,6 @@ public class ActionBarProxy extends KrollProxy
 	private static final String LOGO = "logo";
 	private static final String ICON = "icon";
 	private static final String NAVIGATION_MODE = "navigationMode";
-	private static final String SUBTITLE = "subtitle";
 	private static final String TAG = "ActionBarProxy";
 
 	private ActionBar actionBar;
@@ -108,10 +107,20 @@ public class ActionBarProxy extends KrollProxy
 			handleSetSubTitle(subTitle);
 		} else {
 			Message message = getMainHandler().obtainMessage(MSG_SET_SUBTITLE, subTitle);
-			message.getData().putString(SUBTITLE, subTitle);
+			message.getData().putString(TiC.PROPERTY_SUBTITLE, subTitle);
 			message.sendToTarget();
 		}
 	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getSubTitle()
+	{
+		if (actionBar == null) {
+			return null;
+		}
+		return (String) actionBar.getSubtitle();
+	}
+	
 
 	@Kroll.method @Kroll.getProperty
 	public String getTitle()
@@ -295,7 +304,7 @@ public class ActionBarProxy extends KrollProxy
 				handleSetTitle(msg.getData().getString(TITLE));
 				return true;
 			case MSG_SET_SUBTITLE:
-				handleSetSubTitle(msg.getData().getString(SUBTITLE));
+				handleSetSubTitle(msg.getData().getString(TiC.PROPERTY_SUBTITLE));
 				return true;
 
 			case MSG_SHOW:
