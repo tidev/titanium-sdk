@@ -1653,7 +1653,7 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir(next) {
 iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 	var src = this.projectDir + '/Info.plist',
 		dest = this.buildDir + '/Info.plist',
-		plist = new appc.plist(),
+		plist = this.infoPlist = new appc.plist(),
 		iphone = this.tiapp.iphone,
 		ios = this.tiapp.ios,
 		defaultInfoPlist = path.join(this.titaniumIosSdkPath, 'Info.plist'),
@@ -3020,7 +3020,14 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 	contents = contents.concat(Object.keys(symbols).sort().map(function (s) {
 		return '#define USE_TI_' + s;
 	}));
-
+	
+	if (Array.isArray(this.infoPlist.UIBackgroundModes) && this.infoPlist.UIBackgroundModes.indexOf('remote-notification') != -1) {
+		contents.push('#define USE_TI_SILENTPUSH');
+	}
+	if (Array.isArray(this.infoPlist.UIBackgroundModes) && this.infoPlist.UIBackgroundModes.indexOf('fetch') != -1) {
+		contents.push('#define USE_TI_FETCH');
+	}
+	
 	contents.push(
 		'#ifdef USE_TI_UILISTVIEW',
 		'#define USE_TI_UILABEL',

@@ -401,6 +401,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 #pragma mark
 #pragma mark Background Fetch iOS 7
 
+#ifdef USE_TI_FETCH
+
 -(void)application:(UIApplication*)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 
     // Generate unique key with timestamp.
@@ -423,6 +425,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     [[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
     
 }
+
+#endif
 
 #pragma mark Helper Methods
 
@@ -504,11 +508,14 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 #pragma mark
 #pragma mark Remote Notifications iOS 7
 
-
+#ifdef USE_TI_SILENTPUSH
 //Delegate callback for Silent Remote Notification.
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler
 {
     //FunctionName();
+    //Forward the callback
+    [self application:application didReceiveRemoteNotification:userInfo];
+    
     
     // Generate unique key with timestamp.
     id key = [NSString stringWithFormat:@"SilentPush-%f",[[NSDate date] timeIntervalSince1970]];
@@ -531,6 +538,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     NSTimer*  flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO] ;
     [[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
 }
+
+#endif
 
 #pragma mark
 #pragma mark Background Transfer Service iOS 7
