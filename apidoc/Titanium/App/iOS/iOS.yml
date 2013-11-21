@@ -62,7 +62,7 @@ methods:
             fetch operations.
 
             Two system defined constants for this parameter are
-            <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER> and <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER>.
+            <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER> and <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_MIN>.
         type: Number
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
