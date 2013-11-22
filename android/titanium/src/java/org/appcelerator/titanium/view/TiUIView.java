@@ -565,10 +565,33 @@ public abstract class TiUIView
 		this.zIndexChanged = zIndexChanged;
 	}
 
+	/**
+	 * On Honeycomb+ devices, we use property animations, which may affect
+	 * translation values. We need to reset translationX when 'left', 'right'
+	 * or 'center' property is changed.
+	 */
+	private void resetTranslationX() {
+		if (HONEYCOMB_OR_GREATER && nativeView != null) {
+			nativeView.setTranslationX(0);
+		}
+	}
+	
+	/**
+	 * On Honeycomb+ devices, we use property animations, which may affect
+	 * translation values. We need to reset translationX when 'top', 'bottom'
+	 * or 'center' property is changed.
+	 */
+	private void resetTranslationY() {
+		if (HONEYCOMB_OR_GREATER && nativeView != null) {
+			nativeView.setTranslationY(0);
+		}
+	}
+	
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (key.equals(TiC.PROPERTY_LEFT)) {
 			resetPostAnimationValues();
+			resetTranslationX();
 			if (newValue != null) {
 				layoutParams.optionLeft = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_LEFT);
 			} else {
@@ -577,6 +600,7 @@ public abstract class TiUIView
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_TOP)) {
 			resetPostAnimationValues();
+			resetTranslationY();
 			if (newValue != null) {
 				layoutParams.optionTop = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_TOP);
 			} else {
@@ -585,10 +609,13 @@ public abstract class TiUIView
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_CENTER)) {
 			resetPostAnimationValues();
+			resetTranslationX();
+			resetTranslationY();
 			TiConvert.updateLayoutCenter(newValue, layoutParams);
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_RIGHT)) {
 			resetPostAnimationValues();
+			resetTranslationX();
 			if (newValue != null) {
 				layoutParams.optionRight = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_RIGHT);
 			} else {
@@ -597,6 +624,7 @@ public abstract class TiUIView
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_BOTTOM)) {
 			resetPostAnimationValues();
+			resetTranslationY();
 			if (newValue != null) {
 				layoutParams.optionBottom = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_BOTTOM);
 			} else {
