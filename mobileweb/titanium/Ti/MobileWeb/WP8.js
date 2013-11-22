@@ -114,7 +114,14 @@ define(['Ti/_/lang'], function(lang) {
 			};
 			sendNativeMessage('r', 'ci' + JSON.stringify({
 				className: className,
-				argValues: argValues
+				argTypes: argTypes,
+				argValues: argValues.map(function (value) {
+					var isHandle = value instanceof Handle;
+					return {
+						valueHnd: isHandle ? value._hnd : void 0,
+						valuePrimitive: isHandle ? void 0 : value,
+					};
+				})
 			}));
 			global.handleProxyResponse = void 0;
 			return proxyList[hnd] = new Handle(hnd);

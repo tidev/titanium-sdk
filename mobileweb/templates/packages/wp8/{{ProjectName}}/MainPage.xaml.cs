@@ -149,87 +149,6 @@ namespace <%= projectName %>
             return cachedTypes[className] = Type.GetType(className);
         }
 
-        private string getRootGrid(string value)
-        {
-            // Add the root to the list of instances if it isn't already there
-            if (!instances.ContainsKey("root"))
-            {
-                instances["root"] = root;
-            }
-
-            // Return the info
-            return "root";
-        }
-
-        [DataContract]
-        private class CreateInstancePayload
-        {
-            [DataMember(Name = "className")]
-            public string className { get; set; }
-            [DataMember(Name = "argValues")]
-            public object[] argValues { get; set; }
-        }
-        private string createInstance(string value)
-        {
-            // Deserialize the data
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(CreateInstancePayload));
-            var payload = (CreateInstancePayload)ser.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(value)));
-
-            // Fetch the type
-            Type type = lookupType(payload.className);
-
-            // Create the list of argument types
-            Type[] ctorArgumentTypes;
-            if (payload.argValues != null)
-            {
-                ctorArgumentTypes = new Type[payload.argValues.Length];
-                for (int i = 0; i < payload.argValues.Length; i++)
-                {
-                    if (payload.argValues[i].GetType() == typeof(string) && instances.ContainsKey((string)payload.argValues[i]))
-                    {
-                        ctorArgumentTypes[i] = instances[(string)payload.argValues[i]].GetType();
-                    }
-                    else
-                    {
-                        ctorArgumentTypes[i] = payload.argValues[i].GetType();
-                    }
-                }
-            }
-            else
-            {
-                ctorArgumentTypes = new Type[0];
-            }
-
-            // Lookup the constructor
-            ConstructorInfo ctor = type.GetConstructor(ctorArgumentTypes);
-
-            // invoke the constructor
-            object[] ctorArguments;
-            if (payload.argValues == null)
-            {
-                ctorArguments = new object[0];
-            }
-            else
-            {
-                ctorArguments = new object[payload.argValues.Length];
-                for (int i = 0; i < payload.argValues.Length; i++)
-                {
-                    if (payload.argValues[i].GetType() == typeof(string) && instances.ContainsKey((string)payload.argValues[i]))
-                    {
-                        ctorArguments[i] = instances[(string)payload.argValues[i]];
-                    }
-                    else
-                    {
-                        ctorArguments[i] = (string)payload.argValues[i];
-                    }
-                }
-            }
-            var instance = ctor.Invoke(payload.argValues);
-            var hnd = instances.Count.ToString();
-            instances[hnd] = instance;
-            return hnd;
-        }
-
         private string createReturnType(Type type, object value)
         {
             string result;
@@ -253,6 +172,18 @@ namespace <%= projectName %>
             return result;
         }
 
+        private string getRootGrid(string value)
+        {
+            // Add the root to the list of instances if it isn't already there
+            if (!instances.ContainsKey("root"))
+            {
+                instances["root"] = root;
+            }
+
+            // Return the info
+            return "root";
+        }
+
         [DataContract]
         private class ValuePayload
         {
@@ -261,6 +192,52 @@ namespace <%= projectName %>
             [DataMember(Name = "valuePrimitive")]
             public object valuePrimitive { get; set; }
         }
+
+        [DataContract]
+        private class CreateInstancePayload
+        {
+            [DataMember(Name = "className")]
+            public string className { get; set; }
+            [DataMember(Name = "argTypes")]
+            public string[] argTypes { get; set; }
+            [DataMember(Name = "argValues")]
+            public ValuePayload[] argValues { get; set; }
+        }
+        private string createInstance(string value)
+        {
+            // Deserialize the data
+            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(CreateInstancePayload));
+            var payload = (CreateInstancePayload)ser.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(value)));
+
+            // Create the argument types array
+            Type[] ctorArgumentTypes = new Type[payload.argTypes.Length];
+            for (int i = 0; i < ctorArgumentTypes.Length; i++)
+            {
+                ctorArgumentTypes[i] = lookupType(payload.argTypes[i]);
+            }
+
+            // Create the arguments object
+            object[] ctorArguments = new object[payload.argValues.Length];
+            for (int i = 0; i < payload.argValues.Length; i++)
+            {
+                if (payload.argValues[i].valueHnd != null)
+                {
+                    ctorArguments[i] = instances[(string)payload.argValues[i].valueHnd];
+                }
+                else
+                {
+                    ctorArguments[i] = payload.argValues[i].valuePrimitive;
+                }
+                ctorArguments[i] = Convert.ChangeType(ctorArguments[i], ctorArgumentTypes[i]);
+            }
+
+            // Invoke the constructor and return the result
+            var instance = lookupType(payload.className).GetConstructor(ctorArgumentTypes).Invoke(ctorArguments);
+            var hnd = instances.Count.ToString();
+            instances[hnd] = instance;
+            return hnd;
+        }
+
         [DataContract]
         private class InvokePayload
         {
