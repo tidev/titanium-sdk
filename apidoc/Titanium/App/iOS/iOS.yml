@@ -96,7 +96,7 @@ properties:
     
   - name: BACKGROUNDFETCHINTERVAL_MIN
     summary: |
-        Use with [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
+        Use with [setMinimumBackgroundFetchInterval](Titanium.App.iOS.setMinimumBackgroundFetchInterval) method.
         Specifies the smallest fetch interval supported by the system.
     type: Number
     permission: read-only
@@ -105,7 +105,7 @@ properties:
 
   - name: BACKGROUNDFETCHINTERVAL_NEVER
     summary: |
-        Use with [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
+        Use with [setMinimumBackgroundFetchInterval](Titanium.App.iOS.setMinimumBackgroundFetchInterval) method.
         Used to specify a fetch interval large enough to prevent fetch operations from occurring.
     type: Number
     permission: read-only
