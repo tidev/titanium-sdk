@@ -182,7 +182,7 @@
 		return result.join("/");
 	}
 
-	// Current types are 'f' for fetching a native file and 'l' for logging
+	// Current types are 'f' for fetching a native file, 'r' for reflection, and 'l' for logging
 	function sendNativeMessage(type, payload) {
 		if (global.hasWP8Extensions) {
 			global.external.notify(type + payload);
@@ -308,7 +308,7 @@
 
 		_complete: function promiseComplete(fnIdx, result) {
 			this.then = fnIdx ? function promiseCompleteReject(resolved, rejected) { rejected && rejected(result); }
-			                   : function promiseCompleteResolve(resolved) { resolved && resolved.apply(null, result); };
+							   : function promiseCompleteResolve(resolved) { resolved && resolved.apply(null, result); };
 			this._complete = noop;
 
 			for (var i = 0, thens = this.thens, len = thens.length, fn; i < len;) {

@@ -13,11 +13,13 @@
     SupportedOrientations="Portrait" Orientation="Portrait"
     shell:SystemTray.IsVisible="True">
 
-    <phone:WebBrowser
-        Name="browser"
-        IsScriptEnabled="True"
-        IsGeolocationEnabled="True"
-        Loaded="browser_Loaded"
-        ScriptNotify="browser_ScriptNotify"/>
+    <Grid Name="root">
+        <phone:WebBrowser
+            Name="browser"
+            IsScriptEnabled="True"
+            IsGeolocationEnabled="True"
+            Loaded="browser_Loaded"
+            ScriptNotify="browser_ScriptNotify"/>
+    </Grid>
 
 </phone:PhoneApplicationPage>
