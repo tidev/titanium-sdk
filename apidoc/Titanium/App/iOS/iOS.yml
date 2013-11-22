@@ -70,7 +70,7 @@ methods:
   - name: endBackgroundHandler
     summary: Marks the end of the app execution when a download operation is complete. Available only on iOS 7 and later.
     description: |
-        When calling this method, pass in the `handlerID` value that inititated the background state.
+        When calling this method, pass in the `handlerID` value that initiated the background state.
         You must call this handler and should do so as soon as possible.
     parameters:
       - name: handlerID
