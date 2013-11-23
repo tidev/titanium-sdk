@@ -227,7 +227,7 @@ public class WebViewProxy extends ViewProxy
 	public String getUserAgent()
 	{
 		TiUIWebView currWebView = getWebView();
-		if(currWebView != null) {
+		if (currWebView != null) {
 			if (TiApplication.isUIThread()) {
 				return currWebView.getUserAgentString();
 			} else {
@@ -302,10 +302,10 @@ public class WebViewProxy extends ViewProxy
 	@Kroll.method @Kroll.setProperty
 	public void setPluginState(int pluginState)
 	{
-		switch(pluginState) {
-			case TiUIWebView.PLUGIN_STATE_OFF :
-			case TiUIWebView.PLUGIN_STATE_ON :
-			case TiUIWebView.PLUGIN_STATE_ON_DEMAND :
+		switch (pluginState) {
+			case TiUIWebView.PLUGIN_STATE_OFF:
+			case TiUIWebView.PLUGIN_STATE_ON:
+			case TiUIWebView.PLUGIN_STATE_ON_DEMAND:
 				setPropertyAndFire(TiC.PROPERTY_PLUGIN_STATE, pluginState);
 				break;
 			default:
@@ -348,7 +348,7 @@ public class WebViewProxy extends ViewProxy
 	{
 		boolean enabled = true;
 
-		if(hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+		if (hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			enabled = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
 		}
 		return enabled;
