@@ -68,10 +68,10 @@ methods:
     since: "3.2.0"
 
   - name: endBackgroundHandler
-    summary: Marks the end of the app execution when a download operation is complete. Available only on iOS 7 and later.
+    summary: Marks the end of the app execution after initiating the download operation. Available only on iOS 7 and later.
     description: |
         When calling this method, pass in the `handlerID` value that initiated the background state.
-        You must call this handler and should do so as soon as possible.
+        You must call this handler after initiating the download operation and should do so as soon as possible.
     parameters:
       - name: handlerID
         summary: |
@@ -158,14 +158,16 @@ events:
         [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method with the `handlerID` parameter from this event.
 
         When this event is fired, your app has up to 30 seconds of wall-clock time to perform the download
-        operation and call the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method. In practice,
-        your app should call the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method as soon as possible
-        after downloading the needed data. If you do not call the
-        [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method in time, your app is suspended.
+        operation and call the `endBackgroundHandler` method. In practice,
+        your app should call the `endBackgroundHandler` method as soon as possible
+        after initiating the download. If you do not call the `endBackgroundHandler` method in time, your app is suspended.
         More importantly, the system uses the elapsed time to calculate power usage and data costs for your
-        app's background downloads. If your app takes a long time to call
-        [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method, it may be given fewer
+        app's background downloads. If your app takes a long time to call `endBackgroundHandler` method, it may be given fewer
         future opportunities to fetch data in the future.
+
+        If you are downloading large content, initiate the download using a
+        [urlSession](Modules.URLSession) background download task, then call the `endBackgroundHandler` method.
+        Listen for the [downloadcompleted](Titanium.App.iOS.downloadcompleted) event to prepare the data for use.
 
         The event returns the dictionary containing the `handlerID` property, which is a unique handler ID for the
         current event. This identifier should be passed as the argument to the
@@ -196,12 +198,17 @@ events:
         or not running, the system wakes up or launches your app and puts it into the background
         running state before firing the event.
 
-        When this event is fired, your app has up to 30 seconds of wall-clock time to perform
-        the download operation and call the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler)
-        method with the given `handlerID`. In practice, your app should call the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method
-        as soon as possible after downloading the needed data. If you do not call the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method in time,
-        your app is suspended. More importantly, the system uses the elapsed time to calculate
-        power usage and data costs for your app's background downloads.
+        When this event is fired, your app has up to 30 seconds of wall-clock time to perform the download
+        operation and call the `endBackgroundHandler` method. In practice,
+        your app should call the `endBackgroundHandler` method as soon as possible
+        after initiating the download. If you do not call the `endBackgroundHandler` method in time, your app is suspended.
+        More importantly, the system uses the elapsed time to calculate power usage and data costs for your
+        app's background downloads. If your app takes a long time to call `endBackgroundHandler` method, it may be given fewer
+        future opportunities to fetch data in the future.
+
+        If you are downloading large content, initiate the download using a
+        [urlSession](Modules.URLSession) background download task, then call the `endBackgroundHandler` method.
+        Listen for the [downloadcompleted](Titanium.App.iOS.downloadcompleted) event to prepare the data for use.
 
         The event returns the dictionary containing the `handlerID` property, which is a unique handler ID for the
         current event. This identifier should be passed as the argument to the
@@ -217,7 +224,9 @@ events:
     since: '3.2.0'
 
   - name: backgroundtransfer
-    summary: Fired when the events related to a `urlSession` are waiting to be processed. Available only on iOS 7 and later.
+    summary: |
+        Fired when the events related to a [urlSession](Modules.URLSession) are waiting to be processed.
+        Available only on iOS 7 and later.
     description: |
         The app fires this events when all background transfers associated with a `urlSession` object
         have finished or failed. Use this method to reconnect any `urlSession`s and to update your
@@ -256,7 +265,9 @@ events:
     since: '3.2.0'
 
   - name: downloadprogress
-    summary: Fired periodically to inform the app about the download's progress. Available only on iOS 7 and later.
+    summary: |
+        Fired periodically to inform the app about the download's progress of a [urlSession](Modules.URLSession).
+        Available only on iOS 7 and later.
     description: |
         This event only needs to be used if your app is using the `urlSession` module to download data.
     properties:
@@ -281,7 +292,9 @@ events:
     since: "3.2.0"
 
   - name: downloadcompleted
-    summary: Fired to indicate that a download task has finished downloading. Available only on iOS 7 and later.
+    summary: |
+        Fired to indicate that a [urlSession's](Modules.URLSession) download task has finished downloading.
+        Available only on iOS 7 and later.
     description: |
         This event only needs to be used if your app is using the `urlSession` module to download data.
     properties:
@@ -296,7 +309,9 @@ events:
     since: "3.2.0"
 
   - name: sessioncompleted
-    summary: Fired to indicate that a session task finished transferring data. Available only on iOS 7 and later.
+    summary: |
+        Fired to indicate that a [urlSession](Modules.URLSession) task finished transferring data.
+        Available only on iOS 7 and later.
     description: |
         This event only needs to be used if your app is using the `urlSession` module to download data.
 
@@ -323,7 +338,9 @@ events:
     since: "3.2.0"
 
   - name: sessioneventscompleted
-    summary: Fired to indicate that all messages enqueued for a session have been delivered. Available only on iOS 7 and later.
+    summary: |
+        Fired to indicate that all messages enqueued for a [urlSession](Modules.URLSession) have been delivered.
+        Available only on iOS 7 and later.
     description: |
         This event only needs to be used if your app is using the `urlSession` module to download data.
 
