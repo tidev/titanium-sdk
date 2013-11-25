@@ -1031,6 +1031,49 @@ examples:
                 left: '60dp', top: '25dp'
             }
 
+  - title: ListView Properties as XML Elements
+    example: |
+        Supported in Alloy 1.3.0 and later.
+
+        In Alloy, ListView's `searchView`, `headerView`, `footerView`, and `pullView`
+        properties may be declared as XML elements inline with the `ListView` element.  The example
+        below demonstrates how to use `searchView`, `headerView` and `footerView`.
+
+            <Alloy>
+                <Window fullscreen="true">
+                    <ListView>
+                        <!-- Sets ListView's searchView property.
+                             For Android, you can also do <SearchView platform="android" />
+                             to use a Ti.UI.Android.SearchView instead of a search bar. -->
+                        <SearchBar barColor="#000" />
+
+                        <!-- Sets ListView's headerView property -->
+                        <HeaderView>
+                            <View backgroundColor="#DDD" height="Ti.UI.SIZE">
+                                <Label>Header View</Label>
+                            </View>>
+                        </HeaderView>
+
+                        <ListSection>
+                            <ListItem title="Papaya" searchableText="Papaya"/>
+                            <ListItem title="Peach" searchableText="Peach"/>
+                            <ListItem title="Pear" searchableText="Pear"/>
+                            <ListItem title="Persimmon" searchableText="Persimmon"/>
+                            <ListItem title="Pineapple" searchableText="Pineapple"/>
+                            <ListItem title="Pluot" searchableText="Pluto"/>
+                            <ListItem title="Pomegranate" searchableText="Pomegranate"/>
+                        </ListSection>
+
+                        <!-- Sets ListView's footerView property -->
+                        <FooterView>
+                            <View backgroundColor="#DDD" height="Ti.UI.SIZE">
+                                <Label>Footer View</Label>
+                            </View>
+                        </FooterView>
+                    </ListView>
+                </Window>
+            </Alloy>
+
 ---
 name: ListViewAnimationProperties
 summary: |

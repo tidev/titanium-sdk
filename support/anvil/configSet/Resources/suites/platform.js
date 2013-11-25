@@ -15,7 +15,14 @@ module.exports = new function() {
 
 	this.name = "platform";
 	this.tests = [
-		{name: "apiPoints"}
+		{name: "apiPoints"},
+		{name: "displayCaps_platformHeight"},
+		{name: "platform_id_A"},
+		{name: "platform_id_B"},
+		{name: "platform_Android_API_LEVEL"},
+		{name: "displayCaps_platformWidth"},
+		{name: "physicalSizeCategory"},
+		{name: "platform_manufacturer"}
 	]
 
 	this.apiPoints = function(testRun) {
@@ -56,6 +63,62 @@ module.exports = new function() {
         	valueOf(testRun, Ti.Platform.runtime.length).shouldBeGreaterThan(0);
     	}
 
+		finish(testRun);
+	}
+
+	//TIMOB-2475
+	this.displayCaps_platformHeight = function(testRun) {
+		valueOf(testRun, Titanium.Platform.displayCaps.platformHeight).shouldNotBeUndefined();
+		
+		finish(testRun);
+	}
+
+	//TIMOB-5752 
+	var platform_id;
+
+	this.platform_id_A = function(testRun) {
+		platform_id=Ti.Platform.id;
+		valueOf(testRun, platform_id).shouldNotBeNull();
+		
+		finish(testRun);
+	}
+
+	this.platform_id_B = function(testRun) {
+		valueOf(testRun, Ti.Platform.id).shouldBe(platform_id);
+		
+		finish(testRun);
+	}
+
+	//TIMOB-7242
+	this.platform_Android_API_LEVEL = function(testRun) {
+		if (Ti.Platform.osname === 'android') {
+			valueOf(testRun, Ti.Platform.Android.API_LEVEL).shouldBeNumber();
+		}
+		finish(testRun);
+	}
+
+	//TIMOB-7917
+	this.displayCaps_platformWidth = function(testRun) {
+		if (Ti.Platform.osname === 'android') {
+			var result=Ti.Platform.displayCaps.platformWidth;
+			var LastDPI=Ti.Platform.displayCaps.dpi;
+			valueOf(testRun, Ti.Platform.displayCaps.platformWidth).shouldBe(result);
+		}
+		finish(testRun);
+	}
+
+	//TIMOB-10043
+	this.physicalSizeCategory = function(testRun) {
+		if (Ti.Platform.osname === 'android') {
+			valueOf(testRun, Ti.Platform.Android.physicalSizeCategory).shouldBeNumber();
+		}
+		finish(testRun);
+	}
+
+	//TIMOB-10482
+	this.platform_manufacturer = function(testRun) {
+		valueOf(testRun, Ti.Platform.getManufacturer()).shouldBe(Ti.Platform.manufacturer);
+		
 		finish(testRun);
 	}
 }

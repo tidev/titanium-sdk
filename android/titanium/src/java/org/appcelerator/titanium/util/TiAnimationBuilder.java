@@ -604,6 +604,8 @@ public class TiAnimationBuilder
 	{
 		view.setPivotX(pivotX);
 		view.setPivotY(pivotY);
+		//invalidate the view to update the canvas after setting pivots [TIMOB-2373].
+		view.invalidate();
 	}
 
 	private void setViewPivot(float pivotX, float pivotY)
