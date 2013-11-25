@@ -1061,10 +1061,16 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 	return function (finished) {
 		// validate modules
-		var moduleSearchPaths = [ cli.argv['project-dir'], this.globalModulesPath ];
-		if (config.paths && Array.isArray(config.paths.modules)) {
-			moduleSearchPaths = moduleSearchPaths.concat(config.paths.modules);
-		}
+		var moduleSearchPaths = [ cli.argv['project-dir'] ],
+			customModulePaths = config.get('paths.modules'),
+			addSearchPath = function (p) {
+				p = afs.resolvePath(p);
+				if (fs.existsSync(p) && moduleSearchPaths.indexOf(p) == -1) {
+					moduleSearchPaths.push(p);
+				}
+			};
+		cli.env.os.sdkPaths.forEach(addSearchPath);
+		Array.isArray(customModulePaths) && customModulePaths.forEach(addSearchPath);
 
 		appc.timodule.find(cli.tiapp.modules, ['ios', 'iphone'], this.deployType, this.titaniumSdkVersion, moduleSearchPaths, logger, function (modules) {
 			if (modules.missing.length) {
@@ -3020,14 +3026,14 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 	contents = contents.concat(Object.keys(symbols).sort().map(function (s) {
 		return '#define USE_TI_' + s;
 	}));
-	
+
 	if (Array.isArray(this.infoPlist.UIBackgroundModes) && this.infoPlist.UIBackgroundModes.indexOf('remote-notification') != -1) {
 		contents.push('#define USE_TI_SILENTPUSH');
 	}
 	if (Array.isArray(this.infoPlist.UIBackgroundModes) && this.infoPlist.UIBackgroundModes.indexOf('fetch') != -1) {
 		contents.push('#define USE_TI_FETCH');
 	}
-	
+
 	contents.push(
 		'#ifdef USE_TI_UILISTVIEW',
 		'#define USE_TI_UILABEL',
