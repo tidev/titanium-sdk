@@ -151,6 +151,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 				appc.jdk.detect(config, null, function (jdkInfo) {
 					assertIssue(logger, jdkInfo.issues, 'JDK_NOT_INSTALLED', true);
 					assertIssue(logger, jdkInfo.issues, 'JDK_MISSING_PROGRAMS', true);
+					assertIssue(logger, jdkInfo.issues, 'JDK_INVALID_JAVA_HOME', true);
 
 					if (!jdkInfo.version) {
 						logger.error(__('Unable to locate the Java Development Kit') + '\n');
