@@ -629,7 +629,6 @@ public class TableViewProxy extends TiViewProxy
 			if (o instanceof HashMap || o instanceof TableViewRowProxy) {
 				TableViewRowProxy rowProxy = rowProxyFor(o);
 				if (rowProxy.hasProperty(TiC.PROPERTY_FOOTER)) {
-
 					currentSection = new TableViewSectionProxy();
 					currentSection.setActivity(getActivity());
 					sections.add(currentSection);
