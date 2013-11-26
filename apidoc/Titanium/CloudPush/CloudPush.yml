@@ -29,22 +29,9 @@ description: |
 
     #### MQTT Legacy Support
 
-    MQTT is a light-weight protocol that provides a persistent connection to the ACS server without
-    significantly degrading the device's battery life.  MQTT does not have any specific device
-    requirements.  MQTT is only available for the community edition of the Titanium platform.
-    
-    From Release 3.2.0, you need to download the `ti.cloudpush.mqtt` module from the
+    From Release 3.2.0, you need to download and use the `ti.cloudpush.mqtt` module from the
     Appcelerator Marketplace if you wish to continue to support MQTT or use an older version of the
     module.
-
-    To allow the client application to use MQTT, add the following to your `tiapp.xml` file:
-
-        <!-- By default, GCM is used if these properties are not specified -->
-        <property name="acs-push-type-development" type="string">mqtt</property>
-        <property name="acs-push-type-production" type="string">mqtt</property>
-        -or-
-        <property name="acs-push-type" type="string">mqtt</property>
-
 
     #### Getting Started
 
