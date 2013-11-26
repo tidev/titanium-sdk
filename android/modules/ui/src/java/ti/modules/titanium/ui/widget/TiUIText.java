@@ -448,7 +448,7 @@ public class TiUIText extends TiUIView
 		int textTypeAndClass = typeModifiers;
 		// For some reason you can't set both TYPE_CLASS_TEXT and TYPE_TEXT_FLAG_NO_SUGGESTIONS together.
 		// Also, we need TYPE_CLASS_TEXT for passwords.
-		if (autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) {
+		if ((autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) && type != KEYBOARD_DECIMAL_PAD) {
 			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 		}
 		if (!field) {
@@ -461,12 +461,12 @@ public class TiUIText extends TiUIView
 				// Don't need a key listener, inputType handles that.
 				break;
 			case KEYBOARD_NUMBERS_PUNCTUATION:
-				textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
+				textTypeAndClass |= (InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT);
 				tv.setKeyListener(new NumberKeyListener()
 				{
 					@Override
 					public int getInputType() {
-						return InputType.TYPE_CLASS_NUMBER;
+						return InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT;
 					}
 
 					@Override
