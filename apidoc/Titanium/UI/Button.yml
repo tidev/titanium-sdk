@@ -130,7 +130,7 @@ properties:
         Focusable must be true for normal views. Sets the background image for the focused 
         state only. For iOS, since there is not a trackball, this does nothing.
     type: String
-    exclude-platforms: [blackberry]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: backgroundSelectedImage
     summary: |
