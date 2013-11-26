@@ -94,7 +94,7 @@ description: |
     notifications together as one notification.
 
     To use grouped notifications, add a grouped notification template to either the `tiapp.xml` file
-    or the `i18n` folder for internalized versions:
+    or the `i18n` folder for internationalized versions:
 
     `tiapp.xml`:
 
