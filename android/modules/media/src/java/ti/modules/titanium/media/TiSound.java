@@ -138,7 +138,8 @@ public class TiSound
 					mp.setDataSource(url);
 				}
 			}
-
+			
+			looping = Boolean.parseBoolean(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_LOOPING)));
 			mp.setLooping(looping);
 			mp.setOnCompletionListener(this);
 			mp.setOnErrorListener(this);

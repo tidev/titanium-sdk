@@ -1395,6 +1395,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LOAD_URL = "loadUrl";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LOOPING = "looping";
 
 	/**
 	 * @module.api
