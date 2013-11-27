@@ -19,6 +19,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils.TruncateAt;
@@ -296,6 +297,17 @@ public class TiUIText extends TiUIView
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count)
 	{
+		//Since Jelly Bean, pressing the 'return' key won't trigger onEditorAction callback
+		//http://stackoverflow.com/questions/11311790/oneditoraction-is-not-called-after-enter-key-has-been-pressed-on-jelly-bean-em
+		//So here we need to handle the 'return' key manually
+		if (Build.VERSION.SDK_INT >= 16 && before == 0 && s.length() > start && s.charAt(start) == '\n') {
+			//We use the previous value to make it consistent with pre Jelly Bean behavior (onEditorAction is called before 
+			//onTextChanged.
+			String value = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_VALUE));
+			KrollDict data = new KrollDict();
+			data.put(TiC.PROPERTY_VALUE, value);
+			fireEvent(TiC.EVENT_RETURN, data);
+		}
 		/**
 		 * There is an Android bug regarding setting filter on EditText that impacts auto completion.
 		 * Therefore we can't use filters to implement "maxLength" property. Instead we manipulate
@@ -374,7 +386,7 @@ public class TiUIText extends TiUIView
 		if ((actionId == EditorInfo.IME_NULL && keyEvent != null) || 
 				actionId == EditorInfo.IME_ACTION_NEXT || 
 				actionId == EditorInfo.IME_ACTION_DONE ) {
-			fireEvent("return", data);
+			fireEvent(TiC.EVENT_RETURN, data);
 		}
 
 		Boolean enableReturnKey = (Boolean) proxy.getProperty(TiC.PROPERTY_ENABLE_RETURN_KEY);
@@ -576,4 +588,5 @@ public class TiUIText extends TiUIView
 				break;
 		}
 	}
+
 }
