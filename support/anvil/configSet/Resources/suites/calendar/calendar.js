@@ -18,33 +18,36 @@ module.exports = new function() {
 		{name: "moduleReachable"},
 		{name: "eventLocation"},
 		{name: "noSuchColumnError"},
-		{name: "eventsBetweenTwoDates"}
+		//{name: "eventsBetweenTwoDates"}
 	]
 
 	this.moduleReachable = function(testRun) {
 		//https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2435-android-titaniumandroidcalendar-returns-null
 		// Just tests if the module is even reachable, by referencing one of its constants
-		valueOf(testRun,  function() { Ti.Calendar.METHOD_ALERT; }).shouldNotThrowException();
-		valueOf(testRun, Ti.Calendar.METHOD_ALERT).shouldBeNumber();
-		valueOf(testRun, Ti.Calendar.METHOD_DEFAULT).shouldBeNumber();
-		valueOf(testRun, Ti.Calendar.METHOD_EMAIL).shouldBeNumber();
-		valueOf(testRun, Ti.Calendar.METHOD_SMS).shouldBeNumber();
-		valueOf(testRun, Ti.Calendar.STATE_DISMISSED).shouldBeNumber();
-		valueOf(testRun, Ti.Calendar.STATE_FIRED).shouldBeNumber();
-		valueOf(testRun, Ti.Calendar.STATE_SCHEDULED).shouldBeNumber();
+		if (Ti.Platform.osname === 'android') {
+			valueOf(testRun,  function() { Ti.Calendar.METHOD_ALERT; }).shouldNotThrowException();
+			valueOf(testRun, Ti.Calendar.METHOD_ALERT).shouldBeNumber();
+			valueOf(testRun, Ti.Calendar.METHOD_DEFAULT).shouldBeNumber();
+			valueOf(testRun, Ti.Calendar.METHOD_EMAIL).shouldBeNumber();
+			valueOf(testRun, Ti.Calendar.METHOD_SMS).shouldBeNumber();
+			valueOf(testRun, Ti.Calendar.STATE_DISMISSED).shouldBeNumber();
+			valueOf(testRun, Ti.Calendar.STATE_FIRED).shouldBeNumber();
+			valueOf(testRun, Ti.Calendar.STATE_SCHEDULED).shouldBeNumber();
+			valueOf(testRun, Ti.Calendar.VISIBILITY_CONFIDENTIAL).shouldBeNumber();
+			valueOf(testRun, Ti.Calendar.VISIBILITY_DEFAULT).shouldBeNumber();
+			valueOf(testRun, Ti.Calendar.VISIBILITY_PRIVATE).shouldBeNumber();
+			valueOf(testRun, Ti.Calendar.VISIBILITY_PUBLIC).shouldBeNumber();
+			valueOf(testRun, Ti.Calendar.allAlerts).shouldBeArray();
+			valueOf(testRun, Ti.Calendar.selectableCalendars).shouldBeArray();
+		}
 		valueOf(testRun, Ti.Calendar.STATUS_CANCELED).shouldBeNumber();
 		valueOf(testRun, Ti.Calendar.STATUS_CONFIRMED).shouldBeNumber();
 		valueOf(testRun, Ti.Calendar.STATUS_TENTATIVE).shouldBeNumber();
-		valueOf(testRun, Ti.Calendar.VISIBILITY_CONFIDENTIAL).shouldBeNumber();
-		valueOf(testRun, Ti.Calendar.VISIBILITY_DEFAULT).shouldBeNumber();
-		valueOf(testRun, Ti.Calendar.VISIBILITY_PRIVATE).shouldBeNumber();
-		valueOf(testRun, Ti.Calendar.VISIBILITY_PUBLIC).shouldBeNumber();
-		valueOf(testRun, Ti.Calendar.allAlerts).shouldBeArray();
 		valueOf(testRun, Ti.Calendar.allCalendars).shouldBeArray();
-		valueOf(testRun, Ti.Calendar.selectableCalendars).shouldBeArray();
 
 		finish(testRun);
 	}
+
 
 	//TIMOB-10415
 	this.eventLocation = function(testRun) {
@@ -57,15 +60,24 @@ module.exports = new function() {
 			end : eventEnds,
 			location : 'my_location'
 		};
-		var event = Ti.Calendar.selectableCalendars[0].createEvent(details);
-		valueOf(testRun, event.location).shouldBe('my_location');
+		if (Ti.Platform.osname === 'android') {
+			var event = Ti.Calendar.selectableCalendars[0].createEvent(details);
+		}
+		else {
+			var event = Ti.Calendar.allCalendars[0].createEvent(details);
+		}
+		valueOf(testRun, event.getLocation( )).shouldBe('my_location');
 
 		finish(testRun);
 	}
 
 	//TIMOB-7959
 	this.noSuchColumnError = function(testRun) {
-		var calendar = Ti.Calendar.getCalendarById(1);
+		if (Ti.Platform.osname === 'android') {
+			var calendar = Ti.Calendar.getCalendarById(1);
+		} else {
+			var calendar = Ti.Calendar.allCalendars[0];
+		}
 		var eventBegins = new Date(2012, 03, 26, 12, 0, 0);
 		var eventEnds = new Date(2012, 03, 26, 14, 0, 0);
 		var details = {
