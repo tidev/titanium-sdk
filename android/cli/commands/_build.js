@@ -2176,7 +2176,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 						// we use the destination file name minus the path to the assets dir as the id
 						// which will eliminate dupes
-						var id = to.replace(opts.origDest, '').replace(/^\//, '');
+						var id = to.replace(opts.origDest, '').replace(/\\/g, '/').replace(/^\//, '');
 
 						if (!jsFiles[id] || !opts || !opts.onJsConflict || opts.onJsConflict(from, to, id)) {
 							jsFiles[id] = from;
@@ -2399,20 +2399,20 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			if (process.platform == 'darwin') {
 				titaniumPrep += '.macos';
 			} else if (process.platform == 'win32') {
-				titaniumPrep += '.win.exe';
+				titaniumPrep += '.win64.exe';
 			} else if (process.platform == 'linux') {
 				titaniumPrep += '.linux' + (process.arch == 'x64' ? '64' : '32');
 			}
 
 			// encrypt the javascript
 			var titaniumPrepHook = this.cli.createHook('build.android.titaniumprep', this, function (exe, args, opts, done) {
-					this.logger.info('Encrypting JavaScript files: %s', (exe + ' "' + args.join('" "') + '"').cyan);
+					this.logger.info(__('Encrypting JavaScript files: %s', (exe + ' "' + args.join('" "') + '"').cyan));
 					appc.subprocess.run(exe, args, opts, function (code, out, err) {
 						if (code) {
-							this.logger.error(__('Failed to encrypt JavaScript files'));
-							err.trim().split('\n').forEach(this.logger.error);
-							this.logger.log();
-							process.exit(1);
+							return done({
+								code: code,
+								msg: err.trim()
+							});
 						}
 
 						// write the encrypted JS bytes to the generated Java file
@@ -2426,18 +2426,49 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 						done();
 					}.bind(this));
-				});
-
-			titaniumPrepHook(
-				path.join(this.platformPath, titaniumPrep),
-				[ this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt),
-				{
+				}),
+				args = [ this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt),
+				opts = {
 					env: appc.util.mix({}, process.env, {
 						// we force the JAVA_HOME so that titaniumprep doesn't complain
 						'JAVA_HOME': this.jdkInfo.home
 					})
 				},
-				next
+				fatal = function fatal(err) {
+					this.logger.error(__('Failed to encrypt JavaScript files'));
+					err.msg.split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}.bind(this);
+
+			titaniumPrepHook(
+				path.join(this.platformPath, titaniumPrep),
+				args,
+				opts,
+				function (err) {
+					if (!err) {
+						return next();
+					}
+
+					if (process.platform != 'win32') {
+						fatal(err);
+					}
+
+					// windows 64-bit failed, try again using 32-bit
+					this.logger.debug(__('64-bit titanium prep failed, trying again using 32-bit'));
+					titaniumPrep = 'titanium_prep.win32.exe';
+					titaniumPrepHook(
+						path.join(this.platformPath, titaniumPrep),
+						args,
+						opts,
+						function (err) {
+							if (err) {
+								fatal(err);
+							}
+							next();
+						}
+					);
+				}.bind(this)
 			);
 		});
 	});
@@ -2445,7 +2476,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(callback) {
 	var index = {},
-		binAssetsDir = this.buildBinAssetsDir,
+		binAssetsDir = this.buildBinAssetsDir.replace(/\\/g, '/'),
 		destFile = path.join(binAssetsDir, 'index.json');
 
 	(function walk(dir) {
@@ -2462,7 +2493,7 @@ AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(ca
 	}(this.buildBinAssetsResourcesDir));
 
 	this.jsFilesToEncrypt.forEach(function (file) {
-		index['Resources/' + file] = 1;
+		index['Resources/' + file.replace(/\\/g, '/')] = 1;
 	});
 
 	delete index['Resources/_app_props_.json'];
@@ -3554,7 +3585,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 			var src = new AdmZip(file),
 				entries = src.getEntries();
 
-			this.logger.info(__('Processing %s', file.cyan));
+			this.logger.debug(__('Processing %s', file.cyan));
 
 			entries.forEach(function (entry) {
 				if (entry.entryName.indexOf('META-INF/') == -1
