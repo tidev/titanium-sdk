@@ -10,6 +10,7 @@ var suites = [
 	{name: "api"},
 	{name: "blob"},
 	{name: "buffer"},
+	{name: "button_test"},
 	{name: "codec"},
 	{name: "commonjs/commonjs"},
 	{name: "console"},
