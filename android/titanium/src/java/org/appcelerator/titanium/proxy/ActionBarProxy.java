@@ -183,7 +183,6 @@ public class ActionBarProxy extends KrollProxy
 	private void handleSetTitle(String title)
 	{
 		if (actionBar != null) {
-			actionBar.setDisplayShowTitleEnabled(true);
 			actionBar.setTitle(title);
 		} else {
 			Log.w(TAG, "ActionBar is not enabled");
@@ -216,7 +215,10 @@ public class ActionBarProxy extends KrollProxy
 		}
 
 		Drawable backgroundImage = getDrawableFromUrl(url);
+		//This is a workaround due to https://code.google.com/p/styled-action-bar/issues/detail?id=3. [TIMOB-12148]
 		if (backgroundImage != null) {
+			actionBar.setDisplayShowTitleEnabled(false);
+			actionBar.setDisplayShowTitleEnabled(true);
 			actionBar.setBackgroundDrawable(backgroundImage);
 		}
 	}
