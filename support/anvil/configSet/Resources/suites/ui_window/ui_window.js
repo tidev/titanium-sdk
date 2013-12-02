@@ -15,6 +15,13 @@ module.exports = new function() {
 
 	this.name = "ui_window";
 	this.tests = [
+		{name: "events_Navigationbar", timeout: 5000},
+		{name: "openAndFocusEventOrder", timeout: 5000},
+		{name: "postlyoutEvent", timeout: 5000},
+		{name: "exposePixelFormat", timeout: 5000},
+		{name: "openEventInNavigationalGroup", timeout: 5000},
+		{name: "fireCloseEvent", timeout: 5000},
+		{name: "openAndFocusOnFirstWindow", timeout: 5000},
 		{name: "removeChildren", timeout: 10000},
 		{name: "parentwindowFocus"},
 		{name: "closeEventHW"},
@@ -27,6 +34,241 @@ module.exports = new function() {
 		{name: "barimageForNavbar"},
 		{name: "openEventOfNormalwindow"}
 	];
+
+	//TIMOB-5192 ios
+	this.events_Navigationbar = function(testRun){
+		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
+			var mainWin = Ti.UI.createWindow();
+			var navGroup = Ti.UI.iPhone.createNavigationGroup();
+			var win1 = Titanium.UI.createWindow();
+			var win2 = Titanium.UI.createWindow();
+			var winOpen = 0;
+			var winFocus = 0;
+			var winBlur = 0;
+			var navWinOpen = 0;
+			var navWinClose = 0;
+			win1.addEventListener("focus",function(){
+				winFocus += 1;
+				if(winFocus == 1){
+					navGroup.open(win2);
+					navGroup.close(win2);
+				}
+				else{
+					valueOf(testRun, winFocus).shouldBe(2);
+					valueOf(testRun, winOpen).shouldBe(1);
+					valueOf(testRun, winBlur).shouldBe(1);
+					valueOf(testRun, navWinOpen).shouldBe(1);
+					valueOf(testRun, navWinClose).shouldBe(1);
+
+					finish(testRun);
+				}
+			});
+			win1.addEventListener("open",function(){
+				winOpen += 1;
+			});
+			win2.addEventListener("close",function(){
+				navWinClose += 1;
+			});
+			win2.addEventListener("open",function(){
+				navWinOpen += 1;
+			});
+			win1.addEventListener("blur",function(){
+				winBlur+= 1;
+			});
+			navGroup.window = win1;
+			mainWin.add(navGroup);
+			mainWin.open();
+		}
+		else {
+			finish(testRun);
+		}
+	}
+
+	//TIMOB-7023 TIMOB-8331
+	this.openAndFocusEventOrder = function(testRun){
+		var win1 = Titanium.UI.createWindow({  
+			navBarHidden:true
+		});
+		var openevent = false;
+		var focusevent = false;
+		win1.addEventListener("open", function(e) {
+			openevent = true;
+			valueOf(testRun,focusevent).shouldBeFalse();
+			valueOf(testRun,openevent).shouldBeTrue();
+		});
+		win1.addEventListener("focus", function(e) {
+			focusevent = true;
+			valueOf(testRun,focusevent).shouldBeTrue();
+			valueOf(testRun,openevent).shouldBeTrue();
+			
+			finish(testRun);
+		});
+		win1.open();
+	}
+
+	//TIMOB-10005
+	this.postlyoutEvent = function(testRun){
+		var win = Ti.UI.createWindow({
+			layout: 'vertical',
+			navBarHidden: true
+		});
+		var button = Ti.UI.createButton();
+		win.add(button);
+		var label = Ti.UI.createLabel({
+			height: Ti.UI.SIZE, 
+			width: Ti.UI.FILL 
+		});
+		win.add(label);
+		var buttonEvent = 0;
+		var labelEvent = 0;
+		var winEvent = 0;
+		button.addEventListener('postlayout', function(e) {
+			buttonEvent += 1;
+		});
+		label.addEventListener('postlayout', function(e) {
+			labelEvent += 1;
+		});
+		win.addEventListener('postlayout', function(e) {
+			winEvent += 1;
+		});
+		setTimeout(function(){
+			valueOf(testRun, buttonEvent).shouldBe(1);  
+			valueOf(testRun, labelEvent).shouldBe(1);  
+			valueOf(testRun, winEvent).shouldBe(1);  
+			
+			finish(testRun);
+		},2000);
+		win.open();
+	}
+
+	//TIMOB-4104
+	this.exposePixelFormat = function(testRun){
+		if (Ti.Platform.osname === 'android') {
+			var w = Ti.UI.createWindow({
+				navBarHidden: false,
+				exitOnClose: true,
+				backgroundImage: 'gradient.png',
+				windowPixelFormat: Ti.UI.Android.PIXEL_FORMAT_RGB_565
+			});
+			w.addEventListener('focus', function(){
+				valueOf(testRun, function(){
+					w.windowPixelFormat = Ti.UI.Android.PIXEL_FORMAT_RGB_565;
+				}).shouldNotThrowException();
+				valueOf(testRun, function(){
+					w.setWindowPixelFormat(Ti.UI.Android.PIXEL_FORMAT_RGBA_8888);
+				}).shouldNotThrowException();
+				
+				finish(testRun);
+			});
+			w.open();
+		}
+		else {
+			finish(testRun);
+		}
+	} 
+
+	//TIMOB-8027
+	this.openEventInNavigationalGroup = function(testRun){
+		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
+			var win = Titanium.UI.createWindow();
+			var win1 = Titanium.UI.createWindow();
+			var firstWinOpen = 0;
+			var secondWinOpen = 0;
+			win1.addEventListener('open', function(e) {
+				firstWinOpen += 1;
+			});
+			var nav = Titanium.UI.iPhone.createNavigationGroup({
+				window: win1
+			});
+			win.add(nav);
+			var win2 = Titanium.UI.createWindow();
+			win2.addEventListener('open', function(e) {
+				secondWinOpen += 1;
+			});
+			setTimeout(function(){
+				valueOf(testRun, firstWinOpen).shouldBe(1);
+				valueOf(testRun, secondWinOpen).shouldBe(1);
+				
+				finish(testRun);
+			},2000);
+			win.open();
+
+			nav.open(win2,{animated: true});
+		}
+		else {
+			finish(testRun);
+		}
+	}
+	
+	//TIMOB-8314
+	this.fireCloseEvent = function(testRun){
+		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
+			var win = Titanium.UI.createWindow();
+			var win1 = Titanium.UI.createWindow();
+			var winFocus = 0;
+			var winClose = 0;
+			var nav = Titanium.UI.iPhone.createNavigationGroup({
+				window: win1
+			});
+			win.add(nav);
+			var win2 = Titanium.UI.createWindow();
+			win2.addEventListener('focus', function(){
+				winFocus += 1;
+			});
+			win2.addEventListener('close', function(){
+				winClose += 1;
+			});
+			setTimeout(function(){
+				win2.close()
+			},1000);
+			setTimeout(function(){
+				valueOf(testRun,winFocus).shouldBe(1);
+				valueOf(testRun,winClose).shouldBe(1);
+				
+				finish(testRun);
+			},5000);
+			win.open();
+			nav.open(win2,{animated:true});
+		}
+		else {
+			finish(testRun);
+		}
+	}
+	
+	//TIMOB-9502
+	this.openAndFocusOnFirstWindow = function(testRun){
+		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
+			var win = Ti.UI.createWindow({
+				height: 100,
+				width: 100,
+				url: '/suites/ui_window/window.js',
+				layout: 'vertical'
+			});
+			var nav = Ti.UI.iOS.createNavigationWindow({
+				window: win
+			});
+			var mainWin = Ti.UI.createWindow();
+			var openEvent = 0;
+			var focusEvent = 0;
+			win.addEventListener('open',function(){
+				openEvent += 1;
+			});
+			win.addEventListener('focus',function(){
+				focusEvent += 1;
+				valueOf(testRun,openEvent ).shouldBe(1);
+				valueOf(testRun,focusEvent ).shouldBe(1);
+
+				finish(testRun);
+			});
+			mainWin.addEventListener('open', function(){
+				nav.open();
+			});
+			mainWin.open();
+		}
+		else {
+			finish(testRun);
+		}
+	}
 
 	//TIMOB-9100
 	this.removeChildren = function(testRun){
@@ -239,25 +481,30 @@ module.exports = new function() {
 
 	//TIMOB-5047
 	this.barimageForNavbar = function(testRun){
-		var tabGroup = Titanium.UI.createTabGroup();
-		var win1 = Titanium.UI.createWindow({  
-			height: 100,
-			width: 100
-		});
-		var tab1 = Titanium.UI.createTab({  
-			window:win1
-		});
-		tabGroup.addTab(tab1);  
-		tabGroup.addEventListener('focus', function(){
-			valueOf(testRun, function(){
-				win1.setBarImage('/suites/ui_window/gradient.png');
-			}).shouldNotThrowException();
-			valueOf(testRun, win1.height).shouldBe(100);
-			valueOf(testRun, win1.width).shouldBe(100);
-			
+		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
+			var tabGroup = Titanium.UI.createTabGroup();
+			var win1 = Titanium.UI.createWindow({  
+				height: 100,
+				width: 100
+			});
+			var tab1 = Titanium.UI.createTab({  
+				window:win1
+			});
+			tabGroup.addTab(tab1);  
+			tabGroup.addEventListener('focus', function(){
+				valueOf(testRun, function(){
+					win1.setBarImage('/suites/ui_window/gradient.png');
+				}).shouldNotThrowException();
+				valueOf(testRun, win1.height).shouldBe(100);
+				valueOf(testRun, win1.width).shouldBe(100);
+				
+				finish(testRun);
+			});
+			tabGroup.open();
+		}
+		else {
 			finish(testRun);
-		});
-		tabGroup.open();
+		}
 	}
 
 	//TIMOB-7569
