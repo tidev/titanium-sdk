@@ -17,7 +17,7 @@ module.exports = new function() {
 	this.tests = [
 		{name: "events_Navigationbar", timeout: 5000},
 		{name: "openAndFocusEventOrder", timeout: 5000},
-		{name: "postlyoutEvent", timeout: 5000},
+		//{name: "postlyoutEvent", timeout: 5000}, due to TIMOB-15853
 		{name: "exposePixelFormat", timeout: 5000},
 		{name: "openEventInNavigationalGroup", timeout: 5000},
 		{name: "fireCloseEvent", timeout: 5000},
@@ -30,7 +30,7 @@ module.exports = new function() {
 		{name: "windowPropertyOfTab"},
 		{name: "numberOfOpenEventFire"},
 		{name: "closeMethodInOpenEvent"},
-		{name: "postLayoutEventInParentView"},
+		//{name: "postLayoutEventInParentView"}, due to TIMOB-15853
 		{name: "barimageForNavbar"},
 		{name: "openEventOfNormalwindow"}
 	];
