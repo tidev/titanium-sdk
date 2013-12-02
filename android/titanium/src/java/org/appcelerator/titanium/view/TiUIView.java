@@ -66,6 +66,8 @@ import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 
+import com.nineoldandroids.view.ViewHelper;
+
 /**
  * This class is for Titanium View implementations, that correspond with TiViewProxy. 
  * A TiUIView is responsible for creating and maintaining a native Android View instance.
@@ -1547,7 +1549,6 @@ public abstract class TiUIView
 	 * Sets the nativeView's opacity.
 	 * @param opacity the opacity to set.
 	 */
-	@SuppressLint("NewApi")
 	public void setOpacity(float opacity)
 	{
 		if (opacity < 0 || opacity > 1) {
@@ -1559,11 +1560,7 @@ public abstract class TiUIView
 			borderView.postInvalidate();
 		}
 		if (nativeView != null) {
-			if (HONEYCOMB_OR_GREATER) {
-				setAlpha(nativeView, opacity);
-			} else {
-				setOpacity(nativeView, opacity);
-			}
+			setOpacity(nativeView, opacity);
 			nativeView.postInvalidate();
 		}
 	}
@@ -1584,22 +1581,27 @@ public abstract class TiUIView
 	 * @param view the view object.
 	 * @param opacity the opacity to set.
 	 */
+	@SuppressLint("NewApi")
 	protected void setOpacity(View view, float opacity)
 	{
-		if (view != null) {
-			TiUIHelper.setDrawableOpacity(view.getBackground(), opacity);
-			if (opacity == 1) {
-				clearOpacity(view);
-			}
+		if (view == null) {
+			return;
+		}
+
+		if (HONEYCOMB_OR_GREATER) {
+			setAlpha(view, opacity);
+		} else {
+			ViewHelper.setAlpha(view, opacity);
+		}
+
+		if (opacity == 1.0f) {
+			clearOpacity(view);
 		}
 	}
 
-	public void clearOpacity(View view)
+	protected void clearOpacity(View view)
 	{
-		Drawable d = view.getBackground();
-		if (d != null) {
-			d.clearColorFilter();
-		}
+		// Sub-classes can implement if needed.
 	}
 
 	public KrollDict toImage()
