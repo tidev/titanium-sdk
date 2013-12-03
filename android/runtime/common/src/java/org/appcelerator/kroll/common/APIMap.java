@@ -16,8 +16,6 @@ public class APIMap {
     
     public static String getProxyClass(String apiName_) {
     	apiName_ = apiName_.replaceFirst("^(Titanium|Ti)\\.", "");
-    	Log.d("test", PROXY_MAP.toString());
-    	Log.d("APIMap", apiName_);
     	return PROXY_MAP.get(apiName_); 
     }
 }
