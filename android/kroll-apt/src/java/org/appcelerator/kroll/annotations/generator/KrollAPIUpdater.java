@@ -10,6 +10,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +20,10 @@ import java.util.Map;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
+
+import freemarker.template.Configuration;
+import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.Template;
 
 /**
  * This application reconciles and saves all of the fullAPINames in the generated JSON bindings,
@@ -28,6 +35,7 @@ public class KrollAPIUpdater
 
 	private JSONUtils jsonUtils = new JSONUtils();
 	private HashMap<String, Object> apiTree = new HashMap<String, Object>();
+	private HashMap<String, Object> apiMap = new HashMap<String, Object>();
 	private HashMap<String, HashMap<String, Object>> proxies = new HashMap<String, HashMap<String, Object>>();
 	private HashMap<String, HashMap<String, Object>> modules = new HashMap<String, HashMap<String, Object>>();
 
@@ -88,15 +96,16 @@ public class KrollAPIUpdater
 	protected void addToApiTree(String jsonPath, String className, Map<String, Object> proxy)
 	{
 		String fullApiName = getFullApiName(jsonPath, proxy);
-		jsonUtils.getMap(proxy, "proxyAttrs").put("fullAPIName", fullApiName);
+		jsonUtils.getMap(proxy, "proxyAttrs").put("fullAPIName", fullApiName.replace("Titanium.", ""));
 
 		Map<String, Object> tree = apiTree;
+		
+		apiMap.put(fullApiName, className);
 		String[] apiNames = fullApiName.split("\\.");
 		for (String api : apiNames) {
 			if (api.equals("Titanium")) {
 				continue;
 			}
-
 			if (!tree.containsKey(api)) {
 				HashMap<String, Object> subTree = new HashMap<String, Object>();
 				tree.put(api, subTree);
@@ -213,6 +222,63 @@ public class KrollAPIUpdater
 			e.printStackTrace();
 		}
 	}
+	
+	protected void saveTypeTemplate(String outPath, Template template, String outFile, Map root)
+	{
+		Writer writer = null;
+		try {
+			File file = new File(outPath, outFile);
+			System.out.println("Generating " + file.getAbsolutePath());
+
+			File parent = file.getParentFile();
+			if (!parent.exists()) {
+				parent.mkdirs();
+			}
+
+			writer = new FileWriter(file);
+			template.process(root, writer);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		} finally {
+			if (writer != null) {
+				try {
+					writer.flush();
+					writer.close();
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+	}
+	
+	private void generateAPIJavaMap(String moduleDir) {
+		String destDir = moduleDir + "/generated/java/org/appcelerator/kroll/common";
+		// System.err.println("this.proxies: " + this.proxies.toString());
+		Configuration fmConfig = new Configuration();
+		fmConfig.setObjectWrapper(new DefaultObjectWrapper());
+		fmConfig.setClassForTemplateLoading(getClass(), "");
+
+		try {
+			ClassLoader loader = getClass().getClassLoader();
+			String templatePackage = "org/appcelerator/kroll/common/";
+			String filename = "APIMap.java";
+			String filenameFM = filename + ".fm";
+			
+			InputStream stream = loader.getResourceAsStream(templatePackage + filenameFM);
+
+			Template template = new Template(filenameFM, new InputStreamReader(stream), fmConfig);
+			
+			HashMap<Object, Object> root = new HashMap<Object, Object>();
+			root.put("apis", apiMap);
+			saveTypeTemplate(destDir, template, filename, root);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public static void main(String[] args)
 		throws Exception
@@ -223,13 +289,15 @@ public class KrollAPIUpdater
 		}
 
 		String modulesDestDir = args[0];
+		String commonModuleDestDir = args[1];
 
 		KrollAPIUpdater updater = new KrollAPIUpdater();
-		for (int i = 1; i < args.length; i++) {
+		for (int i = 2; i < args.length; i++) {
 			updater.loadBindings(args[i]);
 		}
 
 		updater.updateApis();
+		updater.generateAPIJavaMap(commonModuleDestDir);
 		updater.genModules(modulesDestDir);
 	}
 

@@ -391,13 +391,21 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<target name="build.kroll.common.jar">
 		<property name="kroll.common.classes.dir" location="${dist.classes.dir}/kroll-common"/>
 		<mkdir dir="${kroll.common.classes.dir}"/>
-		<javac srcdir="${kroll.common.project.dir}/src/java"
+		<javac
+			srcdir="${kroll.common.project.dir}/src/java"
 			destdir="${kroll.common.classes.dir}" debug="true"
 			source="1.6" target="1.6"
 			includeantruntime="false">
 			<classpath refid="android"/>
 		</javac>
-
+		<mkdir dir="${kroll.common.project.dir}/generated/java"/>
+		<javac
+			srcdir="${kroll.common.project.dir}/generated/java"
+			destdir="${kroll.common.classes.dir}" debug="true"
+			source="1.6" target="1.6"
+			includeantruntime="false">
+			<classpath refid="android"/>
+		</javac>
 		<property name="kroll.common.dest" value="${dist.dir}/kroll-common.jar"/>
 		<jar destfile="${kroll.common.dest}" basedir="${kroll.common.classes.dir}"/>
 	</target>
@@ -549,6 +557,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<arg value="${toString:kroll.apt.path}"/>
 			<arg value="org.appcelerator.kroll.annotations.generator.KrollAPIUpdater"/>
 			<arg value="${dist.dir}"/>
+			<arg value="${kroll.common.project.dir}"/>
 
 			<fileset dir="${dist.json.dir}" includes="**/*.json"/>
 		</apply>
