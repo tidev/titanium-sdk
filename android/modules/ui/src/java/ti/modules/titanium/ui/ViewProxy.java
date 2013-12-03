@@ -56,7 +56,6 @@ public class ViewProxy extends TiViewProxy
 				getApiName());
 		Object properties = (template_.containsKey(TiC.PROPERTY_PROPERTIES))?template_.get(TiC.PROPERTY_PROPERTIES):template_;
 		try {
-			String result = APIMap.getProxyClass(type);
 			Class<? extends KrollProxy> cls = (Class<? extends KrollProxy>) Class
 					.forName(APIMap.getProxyClass(type));
 			TiViewProxy proxy = (TiViewProxy) KrollProxy.createProxy(cls, null,
