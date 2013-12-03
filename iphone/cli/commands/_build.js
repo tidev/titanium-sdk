@@ -1591,11 +1591,11 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile(ne
 	this.libTiCoreHash = hash(fs.readFileSync(path.join(this.titaniumIosSdkPath, 'libTiCore.a')));
 
 	// figure out all of the modules currently in use
-	this.modulesHash = hash(this.tiapp.modules.filter(function (m) {
+	this.modulesHash = hash(this.tiapp.modules ? this.tiapp.modules.filter(function (m) {
 		return !m.platform || /^iphone|ipad|ios|commonjs$/.test(m.platform);
 	}).map(function (m) {
 		return m.id + ',' + m.platform + ',' + m.version;
-	}).join('|'));
+	}).join('|') : '');
 
 	// check if we need to do a rebuild
 	this.forceRebuild = this.checkIfShouldForceRebuild();
