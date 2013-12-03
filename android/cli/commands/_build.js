@@ -741,7 +741,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 										if (_t.keystoreAliases.length == 0) {
 											cli.argv.keystore = undefined;
 											return callback(new Error(__('Keystore does not contain any certificates')));
-										} else if (_t.keystoreAliases.length == 1) {
+										} else if (!cli.argv.alias && _t.keystoreAliases.length == 1) {
 											cli.argv.alias = _t.keystoreAliases[0].name;
 										}
 
@@ -765,7 +765,13 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 												'-noprompt'
 											], function (code, out, err) {
 												if (code) {
-													// requires a key password
+													if (out.indexOf('Alias <' + alias + '> does not exist') != -1) {
+														// bad alias
+														cli.argv.alias = undefined;
+														_t.conf.options['alias'].required = true;
+													}
+
+													// since we have an error, force the key password to be required
 													_t.conf.options['key-password'].required = true;
 												} else {
 													// remove the temp keystore
@@ -1385,9 +1391,14 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 					// check missing abis
 					var missingAbis = module.abis.length && this.abis.filter(function (a) { return module.abis.indexOf(a) == -1; });
 					if (missingAbis.length) {
+						/* commenting this out to preserve the old, incorrect behavior
 						this.logger.error(__n('The module "%%s" does not support the ABI: %%s', 'The module "%%s" does not support the ABIs: %s', missingAbis.length, module.id, '"' + missingAbis.join('" "') + '"'));
 						this.logger.error(__('It only supports the following ABIs: %s', module.abis.join(', ')) + '\n');
 						process.exit(1);
+						*/
+						this.logger.warn(__n('The module %%s does not support the ABI: %%s', 'The module %%s does not support the ABIs: %s', missingAbis.length, module.id.cyan, missingAbis.map(function (a) { return a.cyan; }).join(', ')));
+						this.logger.warn(__('It only supports the following ABIs: %s', module.abis.map(function (a) { return a.cyan; }).join(', ')));
+						this.logger.warn(__('Your application will most likely encounter issues'));
 					}
 
 					if (module.jarFile) {
@@ -2445,13 +2456,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				path.join(this.platformPath, titaniumPrep),
 				args,
 				opts,
-				function (err) {
-					if (!err) {
+				function (err, results, error) {
+					if (!error) {
 						return next();
 					}
 
 					if (process.platform != 'win32') {
-						fatal(err);
+						fatal(error);
 					}
 
 					// windows 64-bit failed, try again using 32-bit
@@ -2774,7 +2785,11 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 				var resFile = jarFile.replace(/\.jar$/, '.res.zip');
 				if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) return done();
 				this.logger.info(__('Extracting module resources: %s', resFile.cyan));
-				var tmp = temp.mkdirSync();
+
+				var tmp = temp.path();
+				fs.existsSync(tmp) && wrench.rmdirSyncRecursive(tmp);
+				wrench.mkdirSyncRecursive(tmp);
+
 				appc.zip.unzip(resFile, tmp, {}, function (ex) {
 					if (ex) {
 						this.logger.error(__('Failed to extract module resource zip: %s', resFile.cyan) + '\n');
@@ -2805,7 +2820,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 
 AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
 	Object.keys(this.lastBuildFiles).forEach(function (file) {
-		if (file.indexOf(this.buildAssetsDir) == 0 || file.indexOf(this.buildBinAssetsResourcesDir) == 0 || (this.forceRebuild && file.indexOf(this.buildGenAppIdDir) == 0) || file.indexOf(this.buildResDir) == 0) {
+		if ((file.indexOf(this.buildAssetsDir) == 0 || file.indexOf(this.buildBinAssetsResourcesDir) == 0 || (this.forceRebuild && file.indexOf(this.buildGenAppIdDir) == 0) || file.indexOf(this.buildResDir) == 0) && fs.existsSync(file)) {
 			this.logger.debug(__('Removing old file: %s', file.cyan));
 			fs.unlinkSync(file);
 		}
@@ -3475,7 +3490,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 		this.jdkInfo.executables.javac,
 		[
 			'-encoding', 'utf8',
-			'-classpath', Object.keys(classpath).join(process.platform == 'win32' ? ';' : ':'),
+			'-bootclasspath', Object.keys(classpath).join(process.platform == 'win32' ? ';' : ':'),
 			'-d', this.buildBinClassesDir,
 			'-proc:none',
 			'-target', this.javacTarget,
@@ -3683,9 +3698,14 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 							abis.push(abi);
 						}
 					});
+					/* commenting this out to preserve the old, incorrect behavior
 					this.logger.error(__('The module "%s" does not support the ABI "%s"', m.id, abi));
 					this.logger.error(__('Supported ABIs: %s', abis.join(', ')) + '\n');
 					process.exit(1);
+					*/
+					this.logger.warn(__('The module %s does not support the ABI: %s', m.id.cyan, abi.cyan));
+					this.logger.warn(__('It only supports the following ABIs: %s', abis.map(function (a) { return a.cyan; }).join(', ')));
+					this.logger.warn(__('Your application will most likely encounter issues'));
 				}
 			}
 		}, this);

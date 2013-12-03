@@ -161,13 +161,21 @@ exports.init = function (logger, config, cli) {
 								// push deploy.json
 								var deployJsonFile = path.join(builder.buildDir, 'bin', 'deploy.json');
 								fs.writeFileSync(deployJsonFile, JSON.stringify(deployData));
-								logger.info(__('Pushing %s to sdcard', deployJsonFile.cyan));
-								adb.shell(device.id, 'mkdir /sdcard/' + builder.appid + ' || echo', function () {
+								logger.info(__('Pushing %s to SD card', deployJsonFile.cyan));
+								adb.shell(device.id, '[ ! -f "/sdcard/' + builder.appid + '" ] && mkdir "/sdcard/' + builder.appid + '" && echo "SUCCESS" || echo ""', function (err, output) {
+									if (err || output.toString().indexOf('SUCCESS') == -1) {
+										if (builder.target == 'device') {
+											logger.error(__("Android device's SD card is read only") + '\n');
+										} else {
+											logger.error(__("Android emulator's SD card is read only") + '\n');
+										}
+										process.exit(1);
+									}
 									adb.push(device.id, deployJsonFile, '/sdcard/' + builder.appid + '/deploy.json', cb);
 								});
 							} else {
-								logger.info(__('Removing %s from sdcard', 'deploy.json'.cyan));
-								adb.shell(device.id, '[ -f "/sdcard/' + builder.appid + '/deploy.json"] && rm -f "/sdcard/' + builder.appid + '/deploy.json" || echo ""', cb);
+								logger.info(__('Removing %s from SD card', 'deploy.json'.cyan));
+								adb.shell(device.id, '[ -f "/sdcard/' + builder.appid + '/deploy.json" ] && rm -f "/sdcard/' + builder.appid + '/deploy.json" || echo ""', cb);
 							}
 						};
 					}), next);
