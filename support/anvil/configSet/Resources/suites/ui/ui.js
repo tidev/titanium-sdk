@@ -32,7 +32,8 @@ module.exports = new function() {
 		{name: "tabWindowNull"},
 		{name: "deleteCorrectRowIndex", timeout: 3000},
 		{name: "childrenArrayEmpty"},
-		{name: "orientationModesReturnNull"}
+		{name: "orientationModesReturnNull"},
+		{name: "emailDialogAnimated"}
 	]
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2583
@@ -554,6 +555,22 @@ module.exports = new function() {
 			//valueOf(testRun, win.orientationModes).shouldBe('1,3');
 			//https://jira.appcelerator.org/browse/TIMOB-15706 is not fixed yet.
 
+			finish(testRun);
+		});
+		win.open();
+	}
+
+	//TIMOB-5855
+	this.emailDialogAnimated = function(testRun) {
+		var win = Ti.UI.createWindow({
+			backgroundColor:'blue'
+		});
+		win.addEventListener('open',function(e){
+			var email = Ti.UI.createEmailDialog();
+			valueOf(testRun, function(){
+				email.open({animated:true});
+			}).shouldNotThrowException();
+			
 			finish(testRun);
 		});
 		win.open();
