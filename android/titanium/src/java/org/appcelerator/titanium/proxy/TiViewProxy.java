@@ -530,8 +530,13 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	 * @module.api
 	 */
 	@Kroll.method
-	public void add(TiViewProxy child)
+	public void add(Object obj)
 	{
+		TiViewProxy child = null;
+		if (obj instanceof TiViewProxy) {
+			child = (TiViewProxy)obj;
+		}
+
 		if (child == null) {
 			Log.e(TAG, "Add called with a null child");
 			return;

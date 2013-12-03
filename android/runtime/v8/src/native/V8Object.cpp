@@ -59,6 +59,42 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 	properties->Set(jsName, jsValue);
 }
 
+JNIEXPORT void JNICALL
+Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeUpdateProperties
+	(JNIEnv *env, jobject object, jlong ptr, jobject jprops)
+{
+	ENTER_V8(V8Runtime::globalContext);
+	titanium::JNIScope jniScope(env);
+
+	Handle<Object> jsProxy;
+	if (ptr != 0) {
+		jsProxy = Persistent<Object>((Object *) ptr);
+	} else {
+		jsProxy = TypeConverter::javaObjectToJsValue(env, object)->ToObject();
+	}
+
+	Handle<Object> properties = TypeConverter::javaHashMapToJsValue(env, jprops);
+	Handle<Array> names = properties->GetOwnPropertyNames();
+	int length = names->Length();
+
+	for (int i = 0; i < length; ++i) {
+		Handle<Value> name = names->Get(i);
+		Handle<Value> value = properties->Get(name);
+		bool isProperty = true;
+		if (name->IsString()) {
+			Handle<String> nameString = name->ToString();
+			if (!jsProxy->HasRealNamedCallbackProperty(nameString)
+				&& !jsProxy->HasRealNamedProperty(nameString)) {
+				jsProxy->Set(name, value);
+				isProperty = false;
+			}
+		}
+		if (isProperty) {
+			properties->Set(name, value);
+		}
+	}
+}
+
 
 JNIEXPORT jboolean JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent

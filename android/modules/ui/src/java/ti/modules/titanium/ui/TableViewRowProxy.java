@@ -113,8 +113,13 @@ public class TableViewRowProxy extends TiViewProxy
 		return controls.toArray(new TiViewProxy[controls.size()]);
 	}
 
-	public void add(TiViewProxy control)
+	@Override
+	public void add(Object obj) 
 	{
+		TiViewProxy control = null;
+		if(obj instanceof TiViewProxy) {
+			control = (TiViewProxy)obj;
+		}
 		if (controls == null) {
 			controls = new ArrayList<TiViewProxy>();
 		}

@@ -579,6 +579,21 @@ public class TiConvert
 	{
 		return toString(hashMap.get(key));
 	}
+	
+	/**
+	 * Takes a value out of a hash table then attempts to convert it using {@link #toString(Object)} for more details.
+	 * @param hashMap the hash map to search.
+	 * @param key the lookup key.
+	 * @return String or null.
+	 * @module.api
+	 */
+	public static String toString(HashMap<String, Object> hashMap, String key, String def)
+	{
+		if (hashMap != null)
+			return toString(hashMap.get(key), def);
+		return def;
+	}
+
 
 	/**
 	 * Converts an Object array into a String array.

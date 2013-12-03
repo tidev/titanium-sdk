@@ -97,6 +97,16 @@ public class V8Object extends KrollObject
 			release();
 		}
 	}
+	
+	@Override
+	public void updateNativeProperties(Object properties)
+	{
+		if (!KrollRuntime.isInitialized()) {
+			Log.w(TAG, "Runtime disposed, cannot updateNativeProperties");
+			return;
+		}
+		nativeUpdateProperties(ptr, properties);
+	}
 
 	// JNI method prototypes
 	protected static native void nativeInitObject(Class<?> proxyClass, Object proxyObject);
@@ -106,5 +116,6 @@ public class V8Object extends KrollObject
 	private native void nativeSetProperty(long ptr, String name, Object value);
 	private native boolean nativeFireEvent(long ptr, Object source, long sourcePtr, String event, Object data, boolean bubble, boolean reportSuccess, int code, String errorMessage);
 	private native void nativeSetWindow(long ptr, Object windowProxyObject);
+	private native void nativeUpdateProperties(long ptr, Object properties);
 }
 

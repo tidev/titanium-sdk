@@ -158,5 +158,6 @@ public abstract class KrollObject implements Handler.Callback
 	protected abstract boolean fireEvent(KrollObject source, String type, Object data, boolean bubbles, boolean reportSuccess, int code, String message);
 	protected abstract void doRelease();
 	protected abstract void doSetWindow(Object windowProxyObject);
+	protected abstract void updateNativeProperties(Object properties);
 }
 
