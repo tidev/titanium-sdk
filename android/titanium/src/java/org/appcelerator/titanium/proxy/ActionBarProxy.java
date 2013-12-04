@@ -101,7 +101,7 @@ public class ActionBarProxy extends KrollProxy
 	}
 
 	@Kroll.method @Kroll.setProperty
-	public void setSubTitle(String subTitle)
+	public void setSubtitle(String subTitle)
 	{
 		if (TiApplication.isUIThread()) {
 			handleSetSubTitle(subTitle);
@@ -113,7 +113,7 @@ public class ActionBarProxy extends KrollProxy
 	}
 	
 	@Kroll.method @Kroll.getProperty
-	public String getSubTitle()
+	public String getSubtitle()
 	{
 		if (actionBar == null) {
 			return null;
