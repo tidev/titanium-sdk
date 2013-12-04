@@ -2122,7 +2122,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					var destFilename = m[3].toLowerCase(),
 						name = destFilename.replace(drawableExtRegExp, ''),
 						extMatch = destFilename.match(drawableExtRegExp),
-						ext = extMatch && extMatch[1] || '';
+						origExt = extMatch && extMatch[1] || '',
+						hashExt = extMatch && extMatch.length > 2 ? '.' + extMatch[3] : '';
 
 					destDir = path.join(
 						this.buildResDir,
@@ -2131,9 +2132,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 					if (splashScreenRegExp.test(filename)) {
 						// we have a splash screen image
-						to = path.join(destDir, 'background' + ext);
+						to = path.join(destDir, 'background' + origExt);
 					} else {
-						to = path.join(destDir, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name + ext).substring(0, 10) + ext);
+						to = path.join(destDir, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name + hashExt).substring(0, 10) + origExt);
 					}
 					isDrawable = true;
 				} else if (m = relPath.match(relSplashScreenRegExp)) {
