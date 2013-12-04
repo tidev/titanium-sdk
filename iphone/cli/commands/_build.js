@@ -2699,8 +2699,11 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 						break;
 
 					case 'html':
-						// find all app:// js files referenced in this html file
-						jsanalyze.analyzeHtmlFile(from).forEach(function (file) {
+						// find all js files referenced in this html file
+						var relPath = from.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, '').split('/');
+						relPath.pop(); // remove the filename
+						relPath = relPath.join('/');
+						jsanalyze.analyzeHtmlFile(from, relPath).forEach(function (file) {
 							htmlJsFiles[file] = 1;
 						});
 

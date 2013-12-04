@@ -225,7 +225,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 									version: emu['sdk-version'],
 									abi: emu.abi,
 									type: emu.type,
-									googleApis: emu.googleApis
+									googleApis: emu.googleApis,
+									sdcard: emu.sdcard
 								};
 							} else if (emu.type == 'genymotion') {
 								return {
@@ -234,7 +235,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 									version: emu['sdk-version'],
 									abi: emu.abi,
 									type: emu.type,
-									googleApis: emu.googleApis
+									googleApis: emu.googleApis,
+									sdcard: true
 								};
 							}
 							return emu; // not good
@@ -1098,92 +1100,92 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			// reset the device id
 			deviceId = null;
 
-			if (cli.argv.target == 'device') {
-				logger.info(__('Auto selecting device that closest matches %s', ver.cyan));
-			} else {
-				logger.info(__('Auto selecting emulator that closest matches %s', ver.cyan));
-			}
-
-			function setDeviceId(device) {
-				deviceId = device.id;
-
-				var gapi = '';
-				if (device.googleApis) {
-					gapi = (' (' + __('Google APIs supported') + ')').grey;
-				} else if (device.googleApis === null) {
-					gapi = (' (' + __('Google APIs support unknown') + ')').grey;
-				}
-
+			if (!cli.argv['build-only']) {
 				if (cli.argv.target == 'device') {
-					logger.info(__('Auto selected device %s %s', devices[i].name.cyan, devices[i].version) + gapi);
+					logger.info(__('Auto selecting device that closest matches %s', ver.cyan));
 				} else {
-					logger.info(__('Auto selected emulator %s %s', devices[i].name.cyan, devices[i].version) + gapi);
+					logger.info(__('Auto selecting emulator that closest matches %s', ver.cyan));
 				}
-			}
 
-			// find the first one where version is >= and google apis == true
-			logger.debug(__('Searching for version >= %s and has Google APIs', ver));
-			for (i = 0; i < len; i++) {
-				if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis) {
-					setDeviceId(devices[i]);
-					break;
+				function setDeviceId(device) {
+					deviceId = device.id;
+
+					var gapi = '';
+					if (device.googleApis) {
+						gapi = (' (' + __('Google APIs supported') + ')').grey;
+					} else if (device.googleApis === null) {
+						gapi = (' (' + __('Google APIs support unknown') + ')').grey;
+					}
+
+					if (cli.argv.target == 'device') {
+						logger.info(__('Auto selected device %s %s', devices[i].name.cyan, devices[i].version) + gapi);
+					} else {
+						logger.info(__('Auto selected emulator %s %s', devices[i].name.cyan, devices[i].version) + gapi);
+					}
 				}
-			}
 
-			if (!deviceId) {
-				// find first one where version is >= and google apis is a maybe
-				logger.debug(__('Searching for version >= %s and may have Google APIs', ver));
+				// find the first one where version is >= and google apis == true
+				logger.debug(__('Searching for version >= %s and has Google APIs', ver));
 				for (i = 0; i < len; i++) {
-					if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis === null) {
+					if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis) {
 						setDeviceId(devices[i]);
 						break;
 					}
 				}
 
 				if (!deviceId) {
-					// find first one where version is >= and no google apis
-					logger.debug(__('Searching for version >= %s and no Google APIs', ver));
+					// find first one where version is >= and google apis is a maybe
+					logger.debug(__('Searching for version >= %s and may have Google APIs', ver));
 					for (i = 0; i < len; i++) {
-						if (appc.version.gte(devices[i].version, ver)) {
+						if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis === null) {
 							setDeviceId(devices[i]);
 							break;
 						}
 					}
 
 					if (!deviceId) {
-						// find first one where version < and google apis == true
-						logger.debug(__('Searching for version < %s and has Google APIs', ver));
-						for (i = len - 1; i >= 0; i--) {
-							if (appc.version.lt(devices[i].version, ver)) {
+						// find first one where version is >= and no google apis
+						logger.debug(__('Searching for version >= %s and no Google APIs', ver));
+						for (i = 0; i < len; i++) {
+							if (appc.version.gte(devices[i].version, ver)) {
 								setDeviceId(devices[i]);
 								break;
 							}
 						}
 
 						if (!deviceId) {
-							// find first one where version <
-							logger.debug(__('Searching for version < %s and no Google APIs', ver));
+							// find first one where version < and google apis == true
+							logger.debug(__('Searching for version < %s and has Google APIs', ver));
 							for (i = len - 1; i >= 0; i--) {
-								if (appc.version.lt(devices[i].version, ver) && devices[i].googleApis) {
+								if (appc.version.lt(devices[i].version, ver)) {
 									setDeviceId(devices[i]);
 									break;
 								}
 							}
 
 							if (!deviceId) {
-								// just grab first one
-								logger.debug(__('Selecting first device'));
-								setDeviceId(devices[0]);
+								// find first one where version <
+								logger.debug(__('Searching for version < %s and no Google APIs', ver));
+								for (i = len - 1; i >= 0; i--) {
+									if (appc.version.lt(devices[i].version, ver) && devices[i].googleApis) {
+										setDeviceId(devices[i]);
+										break;
+									}
+								}
+
+								if (!deviceId) {
+									// just grab first one
+									logger.debug(__('Selecting first device'));
+									setDeviceId(devices[0]);
+								}
 							}
 						}
 					}
 				}
+
+				cli.argv['device-id'] = deviceId;
 			}
 
-			cli.argv['device-id'] = deviceId;
-		}
-
-		if (!cli.argv['build-only']) {
 			var devices = deviceId == 'all' ? this.devices : this.devices.filter(function (d) { return d.id = deviceId; });
 			devices.forEach(function (device) {
 				if (Array.isArray(device.abi) && !device.abi.some(function (a) { return this.abis.indexOf(a) != -1; }.bind(this))) {
@@ -1204,6 +1206,17 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 					logger.log('</ti:app>'.grey);
 					logger.log();
 
+					process.exit(1);
+				}
+
+				// if debugging/profiling, make sure we have a sd card
+				if (this.target == 'emulator' && (this.allowDebugging || this.allowProfiling) && !device.sdcard) {
+					logger.error(__('The selected emulator "%s" does not have an SD card.', devices[i].name));
+					if (this.allowProfiling) {
+						logger.error(__('An SD card is required for profiling.') + '\n');
+					} else {
+						logger.error(__('An SD card is required for debuggin.') + '\n');
+					}
 					process.exit(1);
 				}
 			}, this);
@@ -2174,8 +2187,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						break;
 
 					case 'html':
-						// find all app:// js files referenced in this html file
-						jsanalyze.analyzeHtmlFile(from).forEach(function (file) {
+						// find all js files referenced in this html file
+						var relPath = from.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, '').split('/');
+						relPath.pop(); // remove the filename
+						relPath = relPath.join('/');
+						jsanalyze.analyzeHtmlFile(from, relPath).forEach(function (file) {
 							htmlJsFiles[file] = 1;
 						});
 
