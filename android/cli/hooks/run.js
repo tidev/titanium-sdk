@@ -69,7 +69,10 @@ exports.init = function (logger, config, cli) {
 
 						cb();
 					});
-				})(builder.deviceId, { logger: logger }, function (err, results, opts) {
+				})(builder.deviceId, {
+					logger: logger,
+					checkMounts: builder.allowDebugging || builder.allowProfiling
+				}, function (err, results, opts) {
 					finished();
 				});
 
