@@ -319,19 +319,13 @@
 		}
 	}
     
-	if (page==0 || readd)
-	{
-        [self manageCache:page];
-	}
+	[self manageCache:page];
 	
-	CGRect contentBounds;
-	contentBounds.origin.x = viewBounds.origin.x;
-	contentBounds.origin.y = viewBounds.origin.y;
-	contentBounds.size.width = viewBounds.size.width;
-	contentBounds.size.height = viewBounds.size.height-(showPageControl ? pageControlHeight : 0);
-	contentBounds.size.width *= viewsCount;
+	CGSize contentBounds;
+	contentBounds.width = viewBounds.size.width*viewsCount;
+	contentBounds.height = viewBounds.size.height-(showPageControl ? pageControlHeight : 0);
 	
-	[sv setContentSize:contentBounds.size];
+	[sv setContentSize:contentBounds];
 	[sv setFrame:CGRectMake(0, 0, visibleBounds.size.width, visibleBounds.size.height)];
 }
 
