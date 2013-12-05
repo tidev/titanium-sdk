@@ -1962,7 +1962,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 		proj,
 		'Pre-Compile',
 		'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then\\n'
-		+ '    ' + (process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-progress-bars --no-banner --no-colors --xcode\\n'
+		+ '    ' + (process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-progress-bars --no-banner --no-colors --build-only --xcode\\n'
 		+ '    exit $?\\n'
 		+ 'else\\n'
 		+ '    echo \\"skipping pre-compile phase\\"\\n'
@@ -2699,8 +2699,11 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 						break;
 
 					case 'html':
-						// find all app:// js files referenced in this html file
-						jsanalyze.analyzeHtmlFile(from).forEach(function (file) {
+						// find all js files referenced in this html file
+						var relPath = from.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, '').split('/');
+						relPath.pop(); // remove the filename
+						relPath = relPath.join('/');
+						jsanalyze.analyzeHtmlFile(from, relPath).forEach(function (file) {
 							htmlJsFiles[file] = 1;
 						});
 
