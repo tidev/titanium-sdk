@@ -71,7 +71,7 @@ exports.init = function (logger, config, cli) {
 					});
 				})(builder.deviceId, {
 					logger: logger,
-					checkMounts: builder.allowDebugging || builder.allowProfiling
+					checkMounts: (builder.allowDebugging && builder.debugHost) || (builder.allowProfiling && builder.profilerHost)
 				}, function (err, results, opts) {
 					finished();
 				});
@@ -189,7 +189,7 @@ exports.init = function (logger, config, cli) {
 								});
 							} else {
 								logger.info(__('Removing %s from SD card', 'deploy.json'.cyan));
-								adb.shell(device.id, '[ -f "/sdcard/' + builder.appid + '/deploy.json" ] && rm -f "/sdcard/' + builder.appid + '/deploy.json"\necho "DONE"', cb);
+								adb.shell(device.id, 'rm "/sdcard/' + builder.appid + '/deploy.json"\necho "DONE"', cb);
 							}
 						};
 					}), next);
