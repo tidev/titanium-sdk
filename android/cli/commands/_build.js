@@ -741,7 +741,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 										if (_t.keystoreAliases.length == 0) {
 											cli.argv.keystore = undefined;
 											return callback(new Error(__('Keystore does not contain any certificates')));
-										} else if (_t.keystoreAliases.length == 1) {
+										} else if (!cli.argv.alias && _t.keystoreAliases.length == 1) {
 											cli.argv.alias = _t.keystoreAliases[0].name;
 										}
 
@@ -765,7 +765,13 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 												'-noprompt'
 											], function (code, out, err) {
 												if (code) {
-													// requires a key password
+													if (out.indexOf('Alias <' + alias + '> does not exist') != -1) {
+														// bad alias
+														cli.argv.alias = undefined;
+														_t.conf.options['alias'].required = true;
+													}
+
+													// since we have an error, force the key password to be required
 													_t.conf.options['key-password'].required = true;
 												} else {
 													// remove the temp keystore
@@ -1092,92 +1098,92 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			// reset the device id
 			deviceId = null;
 
-			if (cli.argv.target == 'device') {
-				logger.info(__('Auto selecting device that closest matches %s', ver.cyan));
-			} else {
-				logger.info(__('Auto selecting emulator that closest matches %s', ver.cyan));
-			}
-
-			function setDeviceId(device) {
-				deviceId = device.id;
-
-				var gapi = '';
-				if (device.googleApis) {
-					gapi = (' (' + __('Google APIs supported') + ')').grey;
-				} else if (device.googleApis === null) {
-					gapi = (' (' + __('Google APIs support unknown') + ')').grey;
-				}
-
+			if (!cli.argv['build-only']) {
 				if (cli.argv.target == 'device') {
-					logger.info(__('Auto selected device %s %s', devices[i].name.cyan, devices[i].version) + gapi);
+					logger.info(__('Auto selecting device that closest matches %s', ver.cyan));
 				} else {
-					logger.info(__('Auto selected emulator %s %s', devices[i].name.cyan, devices[i].version) + gapi);
+					logger.info(__('Auto selecting emulator that closest matches %s', ver.cyan));
 				}
-			}
 
-			// find the first one where version is >= and google apis == true
-			logger.debug(__('Searching for version >= %s and has Google APIs', ver));
-			for (i = 0; i < len; i++) {
-				if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis) {
-					setDeviceId(devices[i]);
-					break;
+				function setDeviceId(device) {
+					deviceId = device.id;
+
+					var gapi = '';
+					if (device.googleApis) {
+						gapi = (' (' + __('Google APIs supported') + ')').grey;
+					} else if (device.googleApis === null) {
+						gapi = (' (' + __('Google APIs support unknown') + ')').grey;
+					}
+
+					if (cli.argv.target == 'device') {
+						logger.info(__('Auto selected device %s %s', devices[i].name.cyan, devices[i].version) + gapi);
+					} else {
+						logger.info(__('Auto selected emulator %s %s', devices[i].name.cyan, devices[i].version) + gapi);
+					}
 				}
-			}
 
-			if (!deviceId) {
-				// find first one where version is >= and google apis is a maybe
-				logger.debug(__('Searching for version >= %s and may have Google APIs', ver));
+				// find the first one where version is >= and google apis == true
+				logger.debug(__('Searching for version >= %s and has Google APIs', ver));
 				for (i = 0; i < len; i++) {
-					if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis === null) {
+					if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis) {
 						setDeviceId(devices[i]);
 						break;
 					}
 				}
 
 				if (!deviceId) {
-					// find first one where version is >= and no google apis
-					logger.debug(__('Searching for version >= %s and no Google APIs', ver));
+					// find first one where version is >= and google apis is a maybe
+					logger.debug(__('Searching for version >= %s and may have Google APIs', ver));
 					for (i = 0; i < len; i++) {
-						if (appc.version.gte(devices[i].version, ver)) {
+						if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis === null) {
 							setDeviceId(devices[i]);
 							break;
 						}
 					}
 
 					if (!deviceId) {
-						// find first one where version < and google apis == true
-						logger.debug(__('Searching for version < %s and has Google APIs', ver));
-						for (i = len - 1; i >= 0; i--) {
-							if (appc.version.lt(devices[i].version, ver)) {
+						// find first one where version is >= and no google apis
+						logger.debug(__('Searching for version >= %s and no Google APIs', ver));
+						for (i = 0; i < len; i++) {
+							if (appc.version.gte(devices[i].version, ver)) {
 								setDeviceId(devices[i]);
 								break;
 							}
 						}
 
 						if (!deviceId) {
-							// find first one where version <
-							logger.debug(__('Searching for version < %s and no Google APIs', ver));
+							// find first one where version < and google apis == true
+							logger.debug(__('Searching for version < %s and has Google APIs', ver));
 							for (i = len - 1; i >= 0; i--) {
-								if (appc.version.lt(devices[i].version, ver) && devices[i].googleApis) {
+								if (appc.version.lt(devices[i].version, ver)) {
 									setDeviceId(devices[i]);
 									break;
 								}
 							}
 
 							if (!deviceId) {
-								// just grab first one
-								logger.debug(__('Selecting first device'));
-								setDeviceId(devices[0]);
+								// find first one where version <
+								logger.debug(__('Searching for version < %s and no Google APIs', ver));
+								for (i = len - 1; i >= 0; i--) {
+									if (appc.version.lt(devices[i].version, ver) && devices[i].googleApis) {
+										setDeviceId(devices[i]);
+										break;
+									}
+								}
+
+								if (!deviceId) {
+									// just grab first one
+									logger.debug(__('Selecting first device'));
+									setDeviceId(devices[0]);
+								}
 							}
 						}
 					}
 				}
+
+				cli.argv['device-id'] = deviceId;
 			}
 
-			cli.argv['device-id'] = deviceId;
-		}
-
-		if (!cli.argv['build-only']) {
 			var devices = deviceId == 'all' ? this.devices : this.devices.filter(function (d) { return d.id = deviceId; });
 			devices.forEach(function (device) {
 				if (Array.isArray(device.abi) && !device.abi.some(function (a) { return this.abis.indexOf(a) != -1; }.bind(this))) {
@@ -1385,9 +1391,14 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 					// check missing abis
 					var missingAbis = module.abis.length && this.abis.filter(function (a) { return module.abis.indexOf(a) == -1; });
 					if (missingAbis.length) {
+						/* commenting this out to preserve the old, incorrect behavior
 						this.logger.error(__n('The module "%%s" does not support the ABI: %%s', 'The module "%%s" does not support the ABIs: %s', missingAbis.length, module.id, '"' + missingAbis.join('" "') + '"'));
 						this.logger.error(__('It only supports the following ABIs: %s', module.abis.join(', ')) + '\n');
 						process.exit(1);
+						*/
+						this.logger.warn(__n('The module %%s does not support the ABI: %%s', 'The module %%s does not support the ABIs: %s', missingAbis.length, module.id.cyan, missingAbis.map(function (a) { return a.cyan; }).join(', ')));
+						this.logger.warn(__('It only supports the following ABIs: %s', module.abis.map(function (a) { return a.cyan; }).join(', ')));
+						this.logger.warn(__('Your application will most likely encounter issues'));
 					}
 
 					if (module.jarFile) {
@@ -1999,10 +2010,16 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	} else if (!fs.existsSync(dir)) {
 		wrench.mkdirSyncRecursive(dir);
 	}
+
+	// we always destroy and rebuild the res directory
+	if (fs.existsSync(this.buildResDir)) {
+		wrench.rmdirSyncRecursive(this.buildResDir);
+	}
+	wrench.mkdirSyncRecursive(this.buildResDir);
+
 	fs.existsSync(dir = this.buildBinAssetsResourcesDir)       || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildDir, 'gen'))       || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildDir, 'lib'))       || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = this.buildResDir)                      || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = this.buildResDrawableDir)              || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildResDir, 'values')) || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = this.buildSrcDir)                      || wrench.mkdirSyncRecursive(dir);
@@ -2098,7 +2115,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					var destFilename = m[3].toLowerCase(),
 						name = destFilename.replace(drawableExtRegExp, ''),
 						extMatch = destFilename.match(drawableExtRegExp),
-						ext = extMatch && extMatch[1] || '';
+						origExt = extMatch && extMatch[1] || '',
+						hashExt = extMatch && extMatch.length > 2 ? '.' + extMatch[3] : '';
 
 					destDir = path.join(
 						this.buildResDir,
@@ -2107,9 +2125,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 					if (splashScreenRegExp.test(filename)) {
 						// we have a splash screen image
-						to = path.join(destDir, 'background' + ext);
+						to = path.join(destDir, 'background' + origExt);
 					} else {
-						to = path.join(destDir, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name + ext).substring(0, 10) + ext);
+						to = path.join(destDir, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name + hashExt).substring(0, 10) + origExt);
 					}
 					isDrawable = true;
 				} else if (m = relPath.match(relSplashScreenRegExp)) {
@@ -2163,8 +2181,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						break;
 
 					case 'html':
-						// find all app:// js files referenced in this html file
-						jsanalyze.analyzeHtmlFile(from).forEach(function (file) {
+						// find all js files referenced in this html file
+						var relPath = from.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, '').split('/');
+						relPath.pop(); // remove the filename
+						relPath = relPath.join('/');
+						jsanalyze.analyzeHtmlFile(from, relPath).forEach(function (file) {
 							htmlJsFiles[file] = 1;
 						});
 
@@ -2445,13 +2466,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				path.join(this.platformPath, titaniumPrep),
 				args,
 				opts,
-				function (err) {
-					if (!err) {
+				function (err, results, error) {
+					if (!error) {
 						return next();
 					}
 
 					if (process.platform != 'win32') {
-						fatal(err);
+						fatal(error);
 					}
 
 					// windows 64-bit failed, try again using 32-bit
@@ -2774,7 +2795,11 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 				var resFile = jarFile.replace(/\.jar$/, '.res.zip');
 				if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) return done();
 				this.logger.info(__('Extracting module resources: %s', resFile.cyan));
-				var tmp = temp.mkdirSync();
+
+				var tmp = temp.path();
+				fs.existsSync(tmp) && wrench.rmdirSyncRecursive(tmp);
+				wrench.mkdirSyncRecursive(tmp);
+
 				appc.zip.unzip(resFile, tmp, {}, function (ex) {
 					if (ex) {
 						this.logger.error(__('Failed to extract module resource zip: %s', resFile.cyan) + '\n');
@@ -2805,7 +2830,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 
 AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
 	Object.keys(this.lastBuildFiles).forEach(function (file) {
-		if (file.indexOf(this.buildAssetsDir) == 0 || file.indexOf(this.buildBinAssetsResourcesDir) == 0 || (this.forceRebuild && file.indexOf(this.buildGenAppIdDir) == 0) || file.indexOf(this.buildResDir) == 0) {
+		if ((file.indexOf(this.buildAssetsDir) == 0 || file.indexOf(this.buildBinAssetsResourcesDir) == 0 || (this.forceRebuild && file.indexOf(this.buildGenAppIdDir) == 0) || file.indexOf(this.buildResDir) == 0) && fs.existsSync(file)) {
 			this.logger.debug(__('Removing old file: %s', file.cyan));
 			fs.unlinkSync(file);
 		}
@@ -3475,7 +3500,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 		this.jdkInfo.executables.javac,
 		[
 			'-encoding', 'utf8',
-			'-classpath', Object.keys(classpath).join(process.platform == 'win32' ? ';' : ':'),
+			'-bootclasspath', Object.keys(classpath).join(process.platform == 'win32' ? ';' : ':'),
 			'-d', this.buildBinClassesDir,
 			'-proc:none',
 			'-target', this.javacTarget,
@@ -3683,9 +3708,14 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 							abis.push(abi);
 						}
 					});
+					/* commenting this out to preserve the old, incorrect behavior
 					this.logger.error(__('The module "%s" does not support the ABI "%s"', m.id, abi));
 					this.logger.error(__('Supported ABIs: %s', abis.join(', ')) + '\n');
 					process.exit(1);
+					*/
+					this.logger.warn(__('The module %s does not support the ABI: %s', m.id.cyan, abi.cyan));
+					this.logger.warn(__('It only supports the following ABIs: %s', abis.map(function (a) { return a.cyan; }).join(', ')));
+					this.logger.warn(__('Your application will most likely encounter issues'));
 				}
 			}
 		}, this);
