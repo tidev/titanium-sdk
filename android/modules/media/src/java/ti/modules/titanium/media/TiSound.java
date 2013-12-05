@@ -93,11 +93,8 @@ public class TiSound
 			mp.setOnErrorListener(this);
 			mp.setOnInfoListener(this);
 			mp.setOnBufferingUpdateListener(this);
-
 			setState(STATE_INITIALIZED);
-
 			setVolume(volume);
-
 			if (remote) { // try async
 				mp.setOnPreparedListener(this);
 				mp.prepareAsync();
