@@ -1215,7 +1215,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 					if (this.allowProfiling) {
 						logger.error(__('An SD card is required for profiling.') + '\n');
 					} else {
-						logger.error(__('An SD card is required for debuggin.') + '\n');
+						logger.error(__('An SD card is required for debugging.') + '\n');
 					}
 					process.exit(1);
 				}
@@ -2023,10 +2023,16 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	} else if (!fs.existsSync(dir)) {
 		wrench.mkdirSyncRecursive(dir);
 	}
+
+	// we always destroy and rebuild the res directory
+	if (fs.existsSync(this.buildResDir)) {
+		wrench.rmdirSyncRecursive(this.buildResDir);
+	}
+	wrench.mkdirSyncRecursive(this.buildResDir);
+
 	fs.existsSync(dir = this.buildBinAssetsResourcesDir)       || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildDir, 'gen'))       || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildDir, 'lib'))       || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = this.buildResDir)                      || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = this.buildResDrawableDir)              || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildResDir, 'values')) || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = this.buildSrcDir)                      || wrench.mkdirSyncRecursive(dir);
