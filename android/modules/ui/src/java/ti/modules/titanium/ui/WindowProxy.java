@@ -278,8 +278,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			Object height = getProperty(TiC.PROPERTY_HEIGHT);
 			View decorView = win.getDecorView();
 			if (decorView != null) {
-				int w = width == null ? LayoutParams.MATCH_PARENT : TiConvert.toTiDimension(width, TiDimension.TYPE_WIDTH).getAsPixels(decorView);
-				int h = height == null ? LayoutParams.MATCH_PARENT : TiConvert.toTiDimension(height, TiDimension.TYPE_HEIGHT).getAsPixels(decorView);
+				int w = (width == null || width.equals(TiC.LAYOUT_FILL)) ? LayoutParams.MATCH_PARENT : TiConvert
+					.toTiDimension(width, TiDimension.TYPE_WIDTH).getAsPixels(decorView);
+				int h = (height == null || height.equals(TiC.LAYOUT_FILL)) ? LayoutParams.MATCH_PARENT : TiConvert
+					.toTiDimension(height, TiDimension.TYPE_HEIGHT).getAsPixels(decorView);
 				win.setLayout(w, h);
 			}
 		}
@@ -435,8 +437,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			if (win != null) {
 				View decorView = win.getDecorView();
 				if (decorView != null) {
-					int w = width == null ? LayoutParams.MATCH_PARENT : TiConvert.toTiDimension(width, TiDimension.TYPE_WIDTH).getAsPixels(decorView);
-					int h = height == null ? LayoutParams.MATCH_PARENT : TiConvert.toTiDimension(height, TiDimension.TYPE_HEIGHT).getAsPixels(decorView);
+					int w = (width == null || width.equals(TiC.LAYOUT_FILL)) ? LayoutParams.MATCH_PARENT : TiConvert
+						.toTiDimension(width, TiDimension.TYPE_WIDTH).getAsPixels(decorView);
+					int h = (height == null || height.equals(TiC.LAYOUT_FILL)) ? LayoutParams.MATCH_PARENT : TiConvert
+						.toTiDimension(height, TiDimension.TYPE_HEIGHT).getAsPixels(decorView);
 					win.setLayout(w, h);
 				}
 			}
