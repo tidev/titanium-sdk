@@ -69,7 +69,10 @@ exports.init = function (logger, config, cli) {
 
 						cb();
 					});
-				})(builder.deviceId, { logger: logger }, function (err, results, opts) {
+				})(builder.deviceId, {
+					logger: logger,
+					checkMounts: builder.allowDebugging || builder.allowProfiling
+				}, function (err, results, opts) {
 					finished();
 				});
 
@@ -161,13 +164,32 @@ exports.init = function (logger, config, cli) {
 								// push deploy.json
 								var deployJsonFile = path.join(builder.buildDir, 'bin', 'deploy.json');
 								fs.writeFileSync(deployJsonFile, JSON.stringify(deployData));
-								logger.info(__('Pushing %s to sdcard', deployJsonFile.cyan));
-								adb.shell(device.id, 'mkdir /sdcard/' + builder.appid + ' || echo', function () {
+								logger.info(__('Pushing %s to SD card', deployJsonFile.cyan));
+								adb.shell(device.id, [
+									'if [ -d "/sdcard/' + builder.appid + '" ]; then',
+									'	echo "SUCCESS"',
+									'else',
+									'	mkdir "/sdcard/' + builder.appid + '"',
+									'	if [ $? -ne 0 ]; then',
+									'		echo "FAILED"',
+									'	else',
+									'		echo "SUCCESS"',
+									'	fi',
+									'fi'
+								].join('\n'), function (err, output) {
+									if (err || output.toString().trim().split('\n').shift().trim() == 'FAILED') {
+										if (builder.target == 'device') {
+											logger.error(__('Failed to copy "deploy.json" to Android device\'s SD card. Perhaps it\'s read only or out of space.') + '\n');
+										} else {
+											logger.error(__('Failed to copy "deploy.json" to Android emulator\'s SD card. Perhaps it\'s read only or out of space.') + '\n');
+										}
+										process.exit(1);
+									}
 									adb.push(device.id, deployJsonFile, '/sdcard/' + builder.appid + '/deploy.json', cb);
 								});
 							} else {
-								logger.info(__('Removing %s from sdcard', 'deploy.json'.cyan));
-								adb.shell(device.id, '[ -f "/sdcard/' + builder.appid + '/deploy.json"] && rm -f "/sdcard/' + builder.appid + '/deploy.json" || echo ""', cb);
+								logger.info(__('Removing %s from SD card', 'deploy.json'.cyan));
+								adb.shell(device.id, '[ -f "/sdcard/' + builder.appid + '/deploy.json" ] && rm -f "/sdcard/' + builder.appid + '/deploy.json"\necho "DONE"', cb);
 							}
 						};
 					}), next);
