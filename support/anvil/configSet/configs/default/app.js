@@ -37,6 +37,7 @@ var suites = [
 	{name: "ui_2dMatrix"},
 	{name: "ui_clipboard"},
 	{name: "ui_controls"},
+	{name: "ui_picker"},
 	{name: "ui_textfield"},
 	{name: "ui_view"},
 	{name: "ui_searchBar"},
