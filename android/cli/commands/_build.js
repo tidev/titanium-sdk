@@ -225,7 +225,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 									version: emu['sdk-version'],
 									abi: emu.abi,
 									type: emu.type,
-									googleApis: emu.googleApis
+									googleApis: emu.googleApis,
+									sdcard: emu.sdcard
 								};
 							} else if (emu.type == 'genymotion') {
 								return {
@@ -234,7 +235,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 									version: emu['sdk-version'],
 									abi: emu.abi,
 									type: emu.type,
-									googleApis: emu.googleApis
+									googleApis: emu.googleApis,
+									sdcard: true
 								};
 							}
 							return emu; // not good
@@ -1204,6 +1206,17 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 					logger.log('</ti:app>'.grey);
 					logger.log();
 
+					process.exit(1);
+				}
+
+				// if debugging/profiling, make sure we have a sd card
+				if (this.target == 'emulator' && (this.allowDebugging || this.allowProfiling) && !device.sdcard) {
+					logger.error(__('The selected emulator "%s" does not have an SD card.', devices[i].name));
+					if (this.allowProfiling) {
+						logger.error(__('An SD card is required for profiling.') + '\n');
+					} else {
+						logger.error(__('An SD card is required for debugging.') + '\n');
+					}
 					process.exit(1);
 				}
 			}, this);
