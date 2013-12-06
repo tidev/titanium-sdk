@@ -588,7 +588,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								if (keystoreFile && storePassword && alias && _t.jdkInfo && _t.jdkInfo.executables.keytool) {
 									// the only way to test the key password is to export the cert
 									appc.subprocess.run(_t.jdkInfo.executables.keytool, [
-										'-J"-Duser.language=en"',
+										'-J-Duser.language=en',
 										'-importkeystore',
 										'-v',
 										'-srckeystore', keystoreFile,
@@ -708,7 +708,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 
 								if (keystoreFile && _t.jdkInfo && _t.jdkInfo.executables.keytool) {
 									appc.subprocess.run(_t.jdkInfo.executables.keytool, [
-										'-J"-Duser.language=en"',
+										'-J-Duser.language=en',
 										'-list',
 										'-v',
 										'-keystore', keystoreFile,
@@ -759,7 +759,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 										if (keystoreFile && storePassword && alias && _t.jdkInfo && _t.jdkInfo.executables.keytool) {
 											// the only way to test the key password is to export the cert
 											appc.subprocess.run(_t.jdkInfo.executables.keytool, [
-												'-J"-Duser.language=en"',
+												'-J-Duser.language=en',
 												'-importkeystore',
 												'-v',
 												'-srckeystore', keystoreFile,
@@ -3737,7 +3737,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 
 AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
 	var keytoolArgs = [
-			'-J"-Duser.language=en"',
+			'-J-Duser.language=en',
 			'-v',
 			'-list',
 			'-keystore', this.keystore,
