@@ -2814,7 +2814,7 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 			tasks.push(function (cb) {
 				copyDir.call(this, {
 					src: dir,
-					dest: this.buildDir
+					dest: this.xcodeAppDir
 				}, cb);
 			});
 		}
