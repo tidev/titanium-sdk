@@ -808,7 +808,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	}
 
 	// at this point we've validated everything except underscores in the app id
-	if (!config.get('ios.skipAppIdValidation')) {
+	if (!config.get('app.skipAppIdValidation') && !cli.tiapp.properties['ti.skipAppIdValidation']) {
 		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(cli.tiapp.id)) {
 			logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
 			logger.error(__('The app id must consist only of letters, numbers, dashes, and underscores.'));
@@ -1783,7 +1783,9 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 	plist.CFBundleIdentifier = this.tiapp.id;
 
 	// device builds require an additional token to ensure uniquiness so that iTunes will detect an updated app to sync
-	if (this.target == 'device') {
+	if (this.config.get('app.skipVersionValidation') || this.tiapp.properties['ti.skipVersionValidation']) {
+		plist.CFBundleVersion = this.tiapp.version;
+	} else if (this.target == 'device') {
 		plist.CFBundleVersion = appc.version.format(this.tiapp.version, 3, 3) + '.' + (new Date).getTime();
 	} else {
 		plist.CFBundleVersion = appc.version.format(this.tiapp.version, 3, 3);
