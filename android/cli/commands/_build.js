@@ -30,7 +30,6 @@ var ADB = require('titanium-sdk/lib/adb'),
 	i18n = require('titanium-sdk/lib/i18n'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
-	spawn = require('child_process').spawn,
 	temp = require('temp'),
 	ti = require('titanium-sdk'),
 	tiappxml = require('titanium-sdk/lib/tiappxml'),
@@ -591,6 +590,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								if (keystoreFile && storePassword && alias && _t.jdkInfo && _t.jdkInfo.executables.keytool) {
 									// the only way to test the key password is to export the cert
 									appc.subprocess.run(_t.jdkInfo.executables.keytool, [
+										'-J-Duser.language=en',
 										'-importkeystore',
 										'-v',
 										'-srckeystore', keystoreFile,
@@ -709,7 +709,13 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								}
 
 								if (keystoreFile && _t.jdkInfo && _t.jdkInfo.executables.keytool) {
-									appc.subprocess.run(_t.jdkInfo.executables.keytool, ['-list', '-v', '-keystore', keystoreFile, '-storepass', storePassword], function (code, out, err) {
+									appc.subprocess.run(_t.jdkInfo.executables.keytool, [
+										'-J-Duser.language=en',
+										'-list',
+										'-v',
+										'-keystore', keystoreFile,
+										'-storepass', storePassword
+									], function (code, out, err) {
 										if (code) {
 											var msg = out.split('\n').shift().split('java.io.IOException:');
 											if (msg.length > 1) {
@@ -755,6 +761,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 										if (keystoreFile && storePassword && alias && _t.jdkInfo && _t.jdkInfo.executables.keytool) {
 											// the only way to test the key password is to export the cert
 											appc.subprocess.run(_t.jdkInfo.executables.keytool, [
+												'-J-Duser.language=en',
 												'-importkeystore',
 												'-v',
 												'-srckeystore', keystoreFile,
@@ -3743,6 +3750,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 
 AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
 	var keytoolArgs = [
+			'-J-Duser.language=en',
 			'-v',
 			'-list',
 			'-keystore', this.keystore,
