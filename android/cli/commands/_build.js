@@ -840,7 +840,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.deployType = /^device|emulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 
 	// ti.deploytype is deprecated and so we force the real deploy type
-	cli.tiapp.properties || (cli.tiapp.properties = {});
 	if (cli.tiapp.properties['ti.deploytype']) {
 		logger.warn(__('The %s tiapp.xml property has been deprecated, please use the %s option', 'ti.deploytype'.cyan, '--deploy-type'.cyan));
 	}
@@ -890,7 +889,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// check the Android specific app id rules
-	if (!config.get('android.skipAppIdValidation')) {
+	if (!config.get('app.skipAppIdValidation') && !cli.tiapp.properties['ti.skipAppIdValidation']) {
 		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(cli.tiapp.id)) {
 			logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
 			logger.error(__('The app id must consist only of letters, numbers, dashes, and underscores.'));
