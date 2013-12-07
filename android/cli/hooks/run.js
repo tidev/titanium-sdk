@@ -71,7 +71,7 @@ exports.init = function (logger, config, cli) {
 					});
 				})(builder.deviceId, {
 					logger: logger,
-					checkMounts: builder.allowDebugging || builder.allowProfiling
+					checkMounts: builder.debugPort || builder.profilerPort
 				}, function (err, results, opts) {
 					finished();
 				});
@@ -123,10 +123,10 @@ exports.init = function (logger, config, cli) {
 
 			var adb = new ADB(config),
 				deployData = {
-					debuggerEnabled: builder.allowDebugging && builder.debugPort,
-					debuggerPort: builder.allowDebugging && builder.debugPort || -1,
-					profilerEnabled: builder.allowProfiling && builder.profilePort,
-					profilerPort: builder.allowProfiling && builder.profilePort || -1
+					debuggerEnabled: !!builder.debugPort,
+					debuggerPort: builder.debugPort || -1,
+					profilerEnabled: !!builder.profilePort,
+					profilerPort: builder.profilePort || -1
 				};
 
 			async.series([
