@@ -273,15 +273,29 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		// Handle the width and height of the window.
+		// TODO: If width / height is a percentage value, we can not get the dimension in pixel because
+		// the width / height of the decor view is not measured yet at this point. So we can not use the 
+		// getAsPixels() method. Maybe we can use WindowManager.getDefaultDisplay.getRectSize(rect) to
+		// get the application display dimension.
 		if (hasProperty(TiC.PROPERTY_WIDTH) || hasProperty(TiC.PROPERTY_HEIGHT)) {
 			Object width = getProperty(TiC.PROPERTY_WIDTH);
 			Object height = getProperty(TiC.PROPERTY_HEIGHT);
 			View decorView = win.getDecorView();
 			if (decorView != null) {
-				int w = (width == null || width.equals(TiC.LAYOUT_FILL)) ? LayoutParams.MATCH_PARENT : TiConvert
-					.toTiDimension(width, TiDimension.TYPE_WIDTH).getAsPixels(decorView);
-				int h = (height == null || height.equals(TiC.LAYOUT_FILL)) ? LayoutParams.MATCH_PARENT : TiConvert
-					.toTiDimension(height, TiDimension.TYPE_HEIGHT).getAsPixels(decorView);
+				int w = LayoutParams.MATCH_PARENT;
+				if (!(width == null || width.equals(TiC.LAYOUT_FILL))) {
+					TiDimension wDimension = TiConvert.toTiDimension(width, TiDimension.TYPE_WIDTH);
+					if (!wDimension.isUnitPercent()) {
+						w = wDimension.getAsPixels(decorView);
+					}
+				}
+				int h = LayoutParams.MATCH_PARENT;
+				if (!(height == null || height.equals(TiC.LAYOUT_FILL))) {
+					TiDimension hDimension = TiConvert.toTiDimension(height, TiDimension.TYPE_HEIGHT);
+					if (!hDimension.isUnitPercent()) {
+						h = hDimension.getAsPixels(decorView);
+					}
+				}
 				win.setLayout(w, h);
 			}
 		}
@@ -437,10 +451,20 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			if (win != null) {
 				View decorView = win.getDecorView();
 				if (decorView != null) {
-					int w = (width == null || width.equals(TiC.LAYOUT_FILL)) ? LayoutParams.MATCH_PARENT : TiConvert
-						.toTiDimension(width, TiDimension.TYPE_WIDTH).getAsPixels(decorView);
-					int h = (height == null || height.equals(TiC.LAYOUT_FILL)) ? LayoutParams.MATCH_PARENT : TiConvert
-						.toTiDimension(height, TiDimension.TYPE_HEIGHT).getAsPixels(decorView);
+					int w = LayoutParams.MATCH_PARENT;
+					if (!(width == null || width.equals(TiC.LAYOUT_FILL))) {
+						TiDimension wDimension = TiConvert.toTiDimension(width, TiDimension.TYPE_WIDTH);
+						if (!wDimension.isUnitPercent()) {
+							w = wDimension.getAsPixels(decorView);
+						}
+					}
+					int h = LayoutParams.MATCH_PARENT;
+					if (!(height == null || height.equals(TiC.LAYOUT_FILL))) {
+						TiDimension hDimension = TiConvert.toTiDimension(height, TiDimension.TYPE_HEIGHT);
+						if (!hDimension.isUnitPercent()) {
+							h = hDimension.getAsPixels(decorView);
+						}
+					}
 					win.setLayout(w, h);
 				}
 			}
