@@ -125,8 +125,8 @@ exports.init = function (logger, config, cli) {
 				deployData = {
 					debuggerEnabled: !!builder.debugPort,
 					debuggerPort: builder.debugPort || -1,
-					profilerEnabled: !!builder.profilePort,
-					profilerPort: builder.profilePort || -1
+					profilerEnabled: !!builder.profilerPort,
+					profilerPort: builder.profilerPort || -1
 				};
 
 			async.series([
@@ -355,8 +355,8 @@ exports.init = function (logger, config, cli) {
 
 				function (next) {
 					if (deployData.profilerEnabled) {
-						logger.info(__('Forwarding host port %s:%s to device for profiling', builder.profilePort));
-						var forwardPort = 'tcp:' + builder.profilePort;
+						logger.info(__('Forwarding host port %s to device for profiling', builder.profilerPort));
+						var forwardPort = 'tcp:' + builder.profilerPort;
 						async.series(deviceInfo.map(function (device) {
 							return function (cb) {
 								adb.forward(device.id, forwardPort, forwardPort, cb);
