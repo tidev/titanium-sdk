@@ -1690,8 +1690,8 @@ AndroidBuilder.prototype.loginfo = function loginfo(next) {
 		this.logger.info(__('Debugging disabled'));
 	}
 
-	if (this.allowProfiling && this.profilePort) {
-		this.logger.info(__('Profiler enabled via profiler port: %s', String(this.profilePort).cyan));
+	if (this.allowProfiling && this.profilerPort) {
+		this.logger.info(__('Profiler enabled via profiler port: %s', String(this.profilerPort).cyan));
 	} else {
 		this.logger.info(__('Profiler disabled'));
 	}
@@ -3485,7 +3485,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 		classpath[path.join(this.platformPath, 'lib', 'titanium-debug.jar')] = 1;
 	}
 
-	if (this.allowProfiling && this.profilePort) {
+	if (this.allowProfiling && this.profilerPort) {
 		classpath[path.join(this.platformPath, 'lib', 'titanium-profiler.jar')] = 1;
 	}
 
@@ -3601,7 +3601,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
 	}
 
-	if (this.allowProfiling && this.profilePort) {
+	if (this.allowProfiling && this.profilerPort) {
 		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
 	}
 
@@ -3698,7 +3698,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 
 					// copy all the .so files into the archive
 					fs.readdirSync(abiDir).forEach(function (name) {
-						if (name != 'libtiprofiler.so' || (this.allowProfiling && this.profilePort)) {
+						if (name != 'libtiprofiler.so' || (this.allowProfiling && this.profilerPort)) {
 							var file = path.join(abiDir, name),
 								rel = 'lib/' + this.abis[i] + '/' + name;
 							if (!nativeLibs[rel] && soRegExp.test(name) && fs.existsSync(file)) {
