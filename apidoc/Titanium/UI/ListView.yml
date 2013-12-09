@@ -186,7 +186,7 @@ events:
         summary: The index number clicked.
         type: Number
     platforms: [iphone, ipad]
-    since: 3.2.0
+    since: 3.3.0
 
   - name: itemclick
     summary: Fired when a list row is clicked by the user.
@@ -708,7 +708,7 @@ methods:
             reposition the top-left point of the scrollable region of the list view.
             The `animated` property is optional and set to `false` by default. 
         type: Dictionary
-    since: 3.2.0
+    since: 3.3.0
 
   - name: setMarker
     summary: Sets a reference item in the list view.

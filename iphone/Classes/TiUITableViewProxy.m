@@ -812,14 +812,6 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	[[self view] performSelector:@selector(setContentInsets_:withObject:) withObject:arg1 withObject:arg2];
 }
 
--(void)setContentOffset:(id)args
-{
-    ENSURE_SINGLE_ARG(args, NSDictionary)
-    CGPoint offset = [TiUtils pointValue:args];
-    BOOL animated = [TiUtils boolValue: [args objectForKey:@"animated"] def:NO];
-    [[[self tableView] tableView] setContentOffset:offset animated:animated];
-}
-
 DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 
 #pragma mark Section management

@@ -1986,6 +1986,14 @@
 	}
 }
 
+-(void)setContentOffset_:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSDictionary)
+    CGPoint offset = [TiUtils pointValue:args];
+    BOOL animated = [TiUtils boolValue: [args objectForKey:@"animated"] def:NO];
+    [tableview setContentOffset:offset animated:animated];
+}
+
 -(void)setContentInsets_:(id)value withObject:(id)props
 {
 	UIEdgeInsets insets = [TiUtils contentInsets:value];

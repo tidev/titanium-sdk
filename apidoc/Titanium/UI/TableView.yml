@@ -274,7 +274,7 @@ events:
         summary: The index number clicked.
         type: Number
     platforms: [iphone, ipad]
-    since: 3.2.0
+    since: 3.3.0
 
   - name: longpress
     summary: Fired when the device detects a long press.
@@ -984,16 +984,16 @@ methods:
     since: "2.1.0"
     
   - name: setContentOffset
-    summary: Sets the value of the content offset of the list view without animation by default.
+    summary: Sets the value of the content offset of the table view without animation by default.
     platforms: [iphone, ipad]
     parameters:
       - name: contentOffset
         summary: |
             Dictionary with the properties `x`, `y`, and `animated`. The `x` and `y` coordinates
-            reposition the top-left point of the scrollable region of the list view.
+            reposition the top-left point of the scrollable region of the table view.
             The `animated` property is optional and set to `false` by default. 
         type: Dictionary
-    since: 3.2.0
+    since: 3.3.0
 
   - name: selectRow
     summary: | 
