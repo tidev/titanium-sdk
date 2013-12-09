@@ -15,7 +15,7 @@ module.exports = new function() {
 	
 	this.name = "ui_tableViewRow";
 	this.tests = [
-		{name: "setFontProperties"},
+		//{name: "setFontProperties"},
 		{name: "dpDimension"},
 		{name: "setHeaderOutsideTable", timeout: 30000},
 		{name: "percentageHeight"},
@@ -80,25 +80,28 @@ module.exports = new function() {
 	//TIMOB-6368
 	this.setHeaderOutsideTable = function(testRun){
 		var win = Titanium.UI.createWindow();
-		var table = Titanium.UI.createTableView({});
-		win.add(table);
-		win.addEventListener('focus', function(){
-			valueOf(testRun, function(){
-				for(var i = 0; i<1000; i++){
-					addrow();
-				}
-			}).shouldNotThrowException();
-
-			finish(testRun);
+		var table = Titanium.UI.createTableView({
+			height: 100,
+			width: 200
 		});
-		win.open();
 		var addrow = function(){
 			var row = Ti.UI.createTableViewRow({
 				height: 65
 			});
-			row.header = 'A';
+			row.header= 'A';
 			table.appendRow(row);
 		}
+		for(var i = 0; i<200; i++){
+			addrow();
+		}
+		win.add(table);
+		table.addEventListener('postlayout', function(){
+			valueOf(testRun,table.getHeight()).shouldBe(100);
+			valueOf(testRun,table.getWidth()).shouldBe(200);
+
+			finish(testRun);
+		});
+		win.open();
 	}
 
 	//TIMOB-6769
