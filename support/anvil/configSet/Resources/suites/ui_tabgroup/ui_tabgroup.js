@@ -15,6 +15,7 @@ module.exports = new function() {
 	
 	this.name = "ui_tabgroup";
 	this.tests = [
+		{name: "tabGroupEvents"},
 		{name: "tabGroupFocus"}, 
 		{name: "activeTab"},
 		{name: "removeEventListener"},
@@ -22,6 +23,74 @@ module.exports = new function() {
 		{name: "openingAndClosingNewTab"},
 		{name: "tabGroup_Open"}
 	];
+
+	//TIMOB-9436, TIMOB-8910, TIMOB-7926, TIMOB-3139
+	this.tabGroupEvents = function(testRun){
+		var tabGroup = Ti.UI.createTabGroup();
+		var win1 = Ti.UI.createWindow();
+		var tab1 = Ti.UI.createTab({
+			window:win1
+		});
+		var win2 = Ti.UI.createWindow();
+		var tab2 = Ti.UI.createTab({
+			window:win2
+		});
+		tabGroup.addTab(tab1);
+		tabGroup.addTab(tab2);
+		var tabfocus = 0;
+		var tab1focus = 0;
+		var tab2focus =0
+		var win1focus = 0;
+		var win2focus = 0;
+		var tab1blur =0;
+		var tab2blur=0;
+		var win1blur =0;
+		var win2blur=0;
+		tabGroup.addEventListener('focus', function(){
+			tabfocus +=1;
+		});
+		tab1.addEventListener('focus', function(){
+			tab1focus +=1;
+		});
+		tab2.addEventListener('focus', function(){
+			tab2focus +=1;
+		});
+		win1.addEventListener('focus', function(){
+			win1focus +=1;
+		});
+		win2.addEventListener('focus', function(){
+			win2focus +=1;
+		});
+		tab1.addEventListener('blur', function(){
+			tab1blur +=1;
+		});
+		tab2.addEventListener('blur', function(){
+			tab2blur +=1;
+		});
+		win1.addEventListener('blur', function(){
+			win1blur +=1;
+		});
+		win2.addEventListener('blur', function(e){
+			win2blur +=1;
+		});
+		setTimeout(function(){
+			tabGroup.setActiveTab(tab2);
+			tabGroup.setActiveTab(tab1);
+			setTimeout(function(){
+				valueOf(testRun, tab1focus).shouldBe(2);
+				valueOf(testRun, win1focus).shouldBe(2);
+				valueOf(testRun, win2focus).shouldBe(1);
+				valueOf(testRun, tab1blur).shouldBe(1);
+				valueOf(testRun, tab2focus).shouldBe(1);
+				valueOf(testRun, tab2blur).shouldBe(1);
+				valueOf(testRun, win1blur).shouldBe(1);
+				valueOf(testRun, win2blur).shouldBe(1);
+
+				finish(testRun);
+			},3000)
+		},2000);
+		tabGroup.open();
+	}
 
 	//TIMOB-10946
 	this.tabGroupFocus = function(testRun){
