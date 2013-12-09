@@ -1092,147 +1092,138 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		}, this);
 	}
 
-	if (/^device|emulator$/.test(this.target)) {
-		var deviceId = cli.argv['device-id'];
+	var deviceId = cli.argv['device-id'];
 
-		if (Array.isArray(deviceId)) {
-			// no --device-id, so intelligently auto select one
+	if (/^device|emulator$/.test(this.target) && Array.isArray(deviceId)) {
+		// no --device-id, so intelligently auto select one
 
-			var ver = targetSDKMap[this.targetSDK].version,
-				devices = deviceId,
-				i,
-				len = devices.length;
+		var ver = targetSDKMap[this.targetSDK].version,
+			devices = deviceId,
+			i,
+			len = devices.length;
 
-			// reset the device id
-			deviceId = null;
+		// reset the device id
+		deviceId = null;
 
-			if (!cli.argv['build-only']) {
+		if (!cli.argv['build-only']) {
+			if (cli.argv.target == 'device') {
+				logger.info(__('Auto selecting device that closest matches %s', ver.cyan));
+			} else {
+				logger.info(__('Auto selecting emulator that closest matches %s', ver.cyan));
+			}
+
+			function setDeviceId(device) {
+				deviceId = device.id;
+
+				var gapi = '';
+				if (device.googleApis) {
+					gapi = (' (' + __('Google APIs supported') + ')').grey;
+				} else if (device.googleApis === null) {
+					gapi = (' (' + __('Google APIs support unknown') + ')').grey;
+				}
+
 				if (cli.argv.target == 'device') {
-					logger.info(__('Auto selecting device that closest matches %s', ver.cyan));
+					logger.info(__('Auto selected device %s %s', devices[i].name.cyan, devices[i].version) + gapi);
 				} else {
-					logger.info(__('Auto selecting emulator that closest matches %s', ver.cyan));
+					logger.info(__('Auto selected emulator %s %s', devices[i].name.cyan, devices[i].version) + gapi);
 				}
+			}
 
-				function setDeviceId(device) {
-					deviceId = device.id;
-
-					var gapi = '';
-					if (device.googleApis) {
-						gapi = (' (' + __('Google APIs supported') + ')').grey;
-					} else if (device.googleApis === null) {
-						gapi = (' (' + __('Google APIs support unknown') + ')').grey;
-					}
-
-					if (cli.argv.target == 'device') {
-						logger.info(__('Auto selected device %s %s', devices[i].name.cyan, devices[i].version) + gapi);
-					} else {
-						logger.info(__('Auto selected emulator %s %s', devices[i].name.cyan, devices[i].version) + gapi);
-					}
+			// find the first one where version is >= and google apis == true
+			logger.debug(__('Searching for version >= %s and has Google APIs', ver));
+			for (i = 0; i < len; i++) {
+				if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis) {
+					setDeviceId(devices[i]);
+					break;
 				}
+			}
 
-				// find the first one where version is >= and google apis == true
-				logger.debug(__('Searching for version >= %s and has Google APIs', ver));
+			if (!deviceId) {
+				// find first one where version is >= and google apis is a maybe
+				logger.debug(__('Searching for version >= %s and may have Google APIs', ver));
 				for (i = 0; i < len; i++) {
-					if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis) {
+					if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis === null) {
 						setDeviceId(devices[i]);
 						break;
 					}
 				}
 
 				if (!deviceId) {
-					// find first one where version is >= and google apis is a maybe
-					logger.debug(__('Searching for version >= %s and may have Google APIs', ver));
+					// find first one where version is >= and no google apis
+					logger.debug(__('Searching for version >= %s and no Google APIs', ver));
 					for (i = 0; i < len; i++) {
-						if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis === null) {
+						if (appc.version.gte(devices[i].version, ver)) {
 							setDeviceId(devices[i]);
 							break;
 						}
 					}
 
 					if (!deviceId) {
-						// find first one where version is >= and no google apis
-						logger.debug(__('Searching for version >= %s and no Google APIs', ver));
-						for (i = 0; i < len; i++) {
-							if (appc.version.gte(devices[i].version, ver)) {
+						// find first one where version < and google apis == true
+						logger.debug(__('Searching for version < %s and has Google APIs', ver));
+						for (i = len - 1; i >= 0; i--) {
+							if (appc.version.lt(devices[i].version, ver)) {
 								setDeviceId(devices[i]);
 								break;
 							}
 						}
 
 						if (!deviceId) {
-							// find first one where version < and google apis == true
-							logger.debug(__('Searching for version < %s and has Google APIs', ver));
+							// find first one where version <
+							logger.debug(__('Searching for version < %s and no Google APIs', ver));
 							for (i = len - 1; i >= 0; i--) {
-								if (appc.version.lt(devices[i].version, ver)) {
+								if (appc.version.lt(devices[i].version, ver) && devices[i].googleApis) {
 									setDeviceId(devices[i]);
 									break;
 								}
 							}
 
 							if (!deviceId) {
-								// find first one where version <
-								logger.debug(__('Searching for version < %s and no Google APIs', ver));
-								for (i = len - 1; i >= 0; i--) {
-									if (appc.version.lt(devices[i].version, ver) && devices[i].googleApis) {
-										setDeviceId(devices[i]);
-										break;
-									}
-								}
-
-								if (!deviceId) {
-									// just grab first one
-									logger.debug(__('Selecting first device'));
-									setDeviceId(devices[0]);
-								}
+								// just grab first one
+								logger.debug(__('Selecting first device'));
+								setDeviceId(devices[0]);
 							}
 						}
 					}
 				}
-
-				cli.argv['device-id'] = deviceId;
 			}
 
-			var devices = deviceId == 'all' ? this.devices : this.devices.filter(function (d) { return d.id = deviceId; });
-			devices.forEach(function (device) {
-				if (Array.isArray(device.abi) && !device.abi.some(function (a) { return this.abis.indexOf(a) != -1; }.bind(this))) {
-					if (this.target == 'emulator') {
-						logger.error(__n('The emulator "%%s" does not support the desired ABI %%s', 'The emulator "%%s" does not support the desired ABIs %%s', this.abis.length, device.name, '"' + this.abis.join('", "') + '"'));
-					} else {
-						logger.error(__n('The device "%%s" does not support the desired ABI %%s', 'The device "%%s" does not support the desired ABIs %%s', this.abis.length, device.model || device.manufacturer, '"' + this.abis.join('", "') + '"'));
-					}
-					logger.error(__('Supported ABIs: %s', device.abi.join(', ')) + '\n');
-
-					logger.log(__('You need to add at least one of the device\'s supported ABIs to the tiapp.xml'));
-					logger.log();
-					logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-					logger.log('    <!-- snip -->'.grey);
-					logger.log('    <android>'.grey);
-					logger.log(('        <abi>' + this.abis.concat(device.abi).join(',') + '</abi>').magenta);
-					logger.log('    </android>'.grey);
-					logger.log('</ti:app>'.grey);
-					logger.log();
-
-					process.exit(1);
-				}
-
-				// if debugging/profiling, make sure we have a sd card
-				if (this.target == 'emulator' && (this.allowDebugging || this.allowProfiling) && !device.sdcard) {
-					logger.error(__('The selected emulator "%s" does not have an SD card.', devices[i].name));
-					if (this.allowProfiling) {
-						logger.error(__('An SD card is required for profiling.') + '\n');
-					} else {
-						logger.error(__('An SD card is required for debugging.') + '\n');
-					}
-					process.exit(1);
-				}
-			}, this);
+			cli.argv['device-id'] = deviceId;
 		}
+
+		var devices = deviceId == 'all' ? this.devices : this.devices.filter(function (d) { return d.id = deviceId; });
+		devices.forEach(function (device) {
+			if (Array.isArray(device.abi) && !device.abi.some(function (a) { return this.abis.indexOf(a) != -1; }.bind(this))) {
+				if (this.target == 'emulator') {
+					logger.error(__n('The emulator "%%s" does not support the desired ABI %%s', 'The emulator "%%s" does not support the desired ABIs %%s', this.abis.length, device.name, '"' + this.abis.join('", "') + '"'));
+				} else {
+					logger.error(__n('The device "%%s" does not support the desired ABI %%s', 'The device "%%s" does not support the desired ABIs %%s', this.abis.length, device.model || device.manufacturer, '"' + this.abis.join('", "') + '"'));
+				}
+				logger.error(__('Supported ABIs: %s', device.abi.join(', ')) + '\n');
+
+				logger.log(__('You need to add at least one of the device\'s supported ABIs to the tiapp.xml'));
+				logger.log();
+				logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+				logger.log('    <!-- snip -->'.grey);
+				logger.log('    <android>'.grey);
+				logger.log(('        <abi>' + this.abis.concat(device.abi).join(',') + '</abi>').magenta);
+				logger.log('    </android>'.grey);
+				logger.log('</ti:app>'.grey);
+				logger.log();
+
+				process.exit(1);
+			}
+		}, this);
 	}
 
 	// validate debugger and profiler options
 	var tool = [];
 	this.allowDebugging && tool.push('debug');
 	this.allowProfiling && tool.push('profiler');
+	this.debugHost = null;
+	this.debugPort = null;
+	this.profilerHost = null;
+	this.profilerPort = null;
 	tool.forEach(function (type) {
 		if (cli.argv[type + '-host']) {
 			if (typeof cli.argv[type + '-host'] == 'number') {
@@ -1258,11 +1249,32 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 			this[type + 'Host'] = parts[0];
 			this[type + 'Port'] = port;
-		} else {
-			this[type + 'Host'] = null;
-			this[type + 'Port'] = null;
 		}
 	}, this);
+
+	if (this.debugPort || this.profilerPort) {
+		// if debugging/profiling, make sure we only have one device and that it has an sd card
+		if (this.target == 'emulator') {
+			var emu = this.devices.filter(function (d) { return d.name == deviceId; }).shift();
+			if (!emu) {
+				logger.error(__('Unable find emulator "%s"', deviceId) + '\n');
+				process.exit(1);
+			} else if (!emu.sdcard) {
+				logger.error(__('The selected emulator "%s" does not have an SD card.', emu.name));
+				if (this.profilerPort) {
+					logger.error(__('An SD card is required for profiling.') + '\n');
+				} else {
+					logger.error(__('An SD card is required for debugging.') + '\n');
+				}
+				process.exit(1);
+			}
+		} else if (this.target == 'device' && deviceId == 'all' && this.devices.length > 1) {
+			// fail, can't do 'all' for debug builds
+			logger.error(__('Cannot debug application when --device-id is set to "all" and more than one device is connected.'));
+			logger.error(__('Please specify a single device to debug on.') + '\n');
+			process.exit(1);
+		}
+	}
 
 	// check that the build directory is writeable
 	var buildDir = path.join(cli.argv['project-dir'], 'build');
@@ -1555,9 +1567,9 @@ AndroidBuilder.prototype.doAnalytics = function doAnalytics(next) {
 
 	if (cli.argv.target == 'dist-playstore') {
 		eventName = "android.distribute.playstore";
-	} else if (this.allowDebugging && cli.argv['debug-host']) {
+	} else if (this.allowDebugging && this.debugPort) {
 		eventName += '.debug';
-	} else if (this.allowProfiling && cli.argv['profiler-host']) {
+	} else if (this.allowProfiling && this.profilerPort) {
 		eventName += '.profile';
 	} else {
 		eventName += '.run';
@@ -1677,8 +1689,8 @@ AndroidBuilder.prototype.loginfo = function loginfo(next) {
 		this.logger.info(__('Debugging disabled'));
 	}
 
-	if (this.allowProfiling && this.profilePort) {
-		this.logger.info(__('Profiler enabled via profiler port: %s', String(this.profilePort).cyan));
+	if (this.allowProfiling && this.profilerPort) {
+		this.logger.info(__('Profiler enabled via profiler port: %s', String(this.profilerPort).cyan));
 	} else {
 		this.logger.info(__('Profiler disabled'));
 	}
@@ -3472,7 +3484,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 		classpath[path.join(this.platformPath, 'lib', 'titanium-debug.jar')] = 1;
 	}
 
-	if (this.allowProfiling && this.profilePort) {
+	if (this.allowProfiling && this.profilerPort) {
 		classpath[path.join(this.platformPath, 'lib', 'titanium-profiler.jar')] = 1;
 	}
 
@@ -3588,7 +3600,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
 	}
 
-	if (this.allowProfiling && this.profilePort) {
+	if (this.allowProfiling && this.profilerPort) {
 		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
 	}
 
@@ -3685,7 +3697,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 
 					// copy all the .so files into the archive
 					fs.readdirSync(abiDir).forEach(function (name) {
-						if (name != 'libtiprofiler.so' || (this.allowProfiling && this.profilePort)) {
+						if (name != 'libtiprofiler.so' || (this.allowProfiling && this.profilerPort)) {
 							var file = path.join(abiDir, name),
 								rel = 'lib/' + this.abis[i] + '/' + name;
 							if (!nativeLibs[rel] && soRegExp.test(name) && fs.existsSync(file)) {
