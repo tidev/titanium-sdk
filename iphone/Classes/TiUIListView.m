@@ -853,12 +853,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [[self proxy] fireEvent:@"indexclick" withObject:eventArgs propagate:NO];
         }
 
-        if(sectionIndex == -1) {
-            // If the index is -1 then scroll to the top
-            // Fix for the Ti.UI.iOS.TABLEVIEW_INDEX_SEARCH title TIMOB-2710
-            [[self tableView] setContentOffset:CGPointMake(0, 0)];
-            return -1;
-        }
         if (index > 0 && (index < [sectionIndices count]) ) {
             return sectionIndex;
         }
