@@ -43,7 +43,13 @@
 	[label setNumberOfLines:0];
 	return [label autorelease];
 }
-
+- (CGRect)applicationRect
+{
+  if (UIInterfaceOrientationIsLandscape([[UIDevice currentDevice] orientation])) {
+    return CGRectMake( 0.0f, 0.0f, [[UIScreen mainScreen]bounds].size.height, [UIScreen mainScreen].bounds.size.width);
+  }
+  return CGRectMake( 0.0f, 0.0f, [[UIScreen mainScreen]bounds].size.width, [UIScreen mainScreen].bounds.size.height);
+}
 -(void)dismiss:(id)sender
 {
 	[[TiApp app] hideModalController:self animated:YES];
@@ -53,7 +59,7 @@
 {
 	self.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
 	
-	UIView *view = [[UIView alloc] initWithFrame:[UIScreen mainScreen].applicationFrame];
+	UIView *view = [[UIView alloc] initWithFrame:[self applicationRect]];
 	[view setBackgroundColor:[UIColor redColor]];
 	
 	UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(0, 20, view.bounds.size.width, 35)];
