@@ -6,6 +6,9 @@
  * @copyright
  * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  *
+ * Copyright (c) 2012-2013 Chris Talkington, contributors.
+ * {@link https://github.com/ctalkington/node-archiver}
+ *
  * @license
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -18,6 +21,7 @@ var ADB = require('titanium-sdk/lib/adb'),
 	AndroidManifest = require('../lib/AndroidManifest'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
+	archiverCore = require('archiver/lib/archiver/core'),
 	async = require('async'),
 	Builder = require('titanium-sdk/lib/builder'),
 	cleanCSS = require('clean-css'),
@@ -42,6 +46,41 @@ var ADB = require('titanium-sdk/lib/adb'),
 	__n = i18nLib.__n,
 	version = appc.version,
 	xml = appc.xml;
+
+// Archiver 0.4.10 has a problem where the stack size is exceeded if the project
+// has lots and lots of files. Below is a function copied directly from
+// lib/archiver/core.js and modified to use a setTimeout to collapse the call
+// stack. Copyright (c) 2012-2013 Chris Talkington, contributors.
+archiverCore.prototype._processQueue = function _processQueue() {
+	if (this.archiver.processing) {
+		return;
+	}
+
+	if (this.archiver.queue.length > 0) {
+		var next = this.archiver.queue.shift();
+		var nextCallback = function(err, file) {
+			next.callback(err);
+
+			if (!err) {
+				this.archiver.files.push(file);
+				this.archiver.processing = false;
+				// do a setTimeout to collapse the call stack
+				setTimeout(function () {
+					this._processQueue();
+				}.bind(this), 0);
+			}
+		}.bind(this);
+
+		this.archiver.processing = true;
+
+		this._processFile(next.source, next.data, nextCallback);
+	} else if (this.archiver.finalized && this.archiver.writableEndCalled === false) {
+		this.archiver.writableEndCalled = true;
+		this.end();
+	} else if (this.archiver.finalize && this.archiver.queue.length === 0) {
+		this._finalize();
+	}
+};
 
 function hash(s) {
 	return crypto.createHash('md5').update(s || '').digest('hex');
@@ -846,8 +885,9 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
 	// get the javac params
-	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
+	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '256M');
 	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
+	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
 	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
 
 	// manually inject the build profile settings into the tiapp.xml
@@ -2070,7 +2110,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		drawableResources = {},
 		jsFiles = {},
 		jsFilesToEncrypt = this.jsFilesToEncrypt = [],
-		htmlJsFiles = this.htmlJsFiles = {};
+		htmlJsFiles = this.htmlJsFiles = {},
+		_t = this;
 
 	function copyDir(opts, callback) {
 		if (opts && opts.src && fs.existsSync(opts.src) && opts.dest) {
@@ -2116,9 +2157,14 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			src = path.dirname(src);
 		}
 
-		appc.async.series(this, files.map(function (filename) {
-			return function (next) {
-				var destDir = dest,
+		async.whilst(
+			function () {
+				return files.length;
+			},
+
+			function (next) {
+				var filename = files.shift(),
+					destDir = dest,
 					from = path.join(src, filename),
 					to = path.join(destDir, filename);
 
@@ -2129,12 +2175,12 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 				// check if we are ignoring this file
 				if ((isDir && ignoreRootDirs && ignoreRootDirs.indexOf(filename) != -1) || (isDir ? ignoreDirs : ignoreFiles).test(filename)) {
-					this.logger.debug(__('Ignoring %s', from.cyan));
+					_t.logger.debug(__('Ignoring %s', from.cyan));
 					return next();
 				}
 
 				// if this is a directory, recurse
-				if (isDir) return recursivelyCopy.call(this, from, path.join(destDir, filename), null, opts, next);
+				if (isDir) return recursivelyCopy.call(_t, from, path.join(destDir, filename), null, opts, next);
 
 				// we have a file, now we need to see what sort of file
 
@@ -2150,7 +2196,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						hashExt = extMatch && extMatch.length > 2 ? '.' + extMatch[3] : '';
 
 					destDir = path.join(
-						this.buildResDir,
+						_t.buildResDir,
 						drawableDpiRegExp.test(m[1]) ? 'drawable-' + m[1][0] + 'dpi' : 'drawable-' + m[1].substring(4)
 					);
 
@@ -2165,23 +2211,23 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					// we have a splash screen
 					// if it's a 9 patch, then the image goes in drawable-nodpi, not drawable
 					if (m[1] == '9.png') {
-						destDir = path.join(this.buildResDir, 'drawable-nodpi');
+						destDir = path.join(_t.buildResDir, 'drawable-nodpi');
 						to = path.join(destDir, filename.replace('default.', 'background.'));
 					} else {
-						destDir = this.buildResDrawableDir;
-						to = path.join(this.buildResDrawableDir, filename.replace('default.', 'background.'));
+						destDir = _t.buildResDrawableDir;
+						to = path.join(_t.buildResDrawableDir, filename.replace('default.', 'background.'));
 					}
 					isDrawable = true;
 				}
 
 				if (isDrawable) {
-					var _from = from.replace(this.projectDir, '').substring(1),
-						_to = to.replace(this.buildResDir, '').replace(drawableExtRegExp, '').substring(1);
+					var _from = from.replace(_t.projectDir, '').substring(1),
+						_to = to.replace(_t.buildResDir, '').replace(drawableExtRegExp, '').substring(1);
 					if (drawableResources[_to]) {
-						this.logger.error(__('Found conflicting resources:'));
-						this.logger.error('   ' + drawableResources[_to]);
-						this.logger.error('   ' + from.replace(this.projectDir, '').substring(1));
-						this.logger.error(__('You cannot have resources that resolve to the same resource entry name') + '\n');
+						_t.logger.error(__('Found conflicting resources:'));
+						_t.logger.error('   ' + drawableResources[_to]);
+						_t.logger.error('   ' + from.replace(_t.projectDir, '').substring(1));
+						_t.logger.error(__('You cannot have resources that resolve to the same resource entry name') + '\n');
 						process.exit(1);
 					}
 					drawableResources[_to] = _from;
@@ -2194,20 +2240,20 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 				if (ext && ext[1] != 'js') {
 					// we exclude js files because we'll check if they need to be removed after all files have been copied
-					delete this.lastBuildFiles[to];
+					delete _t.lastBuildFiles[to];
 				}
 
 				switch (ext && ext[1]) {
 					case 'css':
 						// if we encounter a css file, check if we should minify it
-						if (this.minifyCSS) {
-							this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+						if (_t.minifyCSS) {
+							_t.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
 							fs.readFile(from, function (err, data) {
 								if (err) throw err;
 								fs.writeFile(to, cleanCSS.process(data.toString()), next);
 							});
 						} else {
-							copyFile.call(this, from, to, next);
+							copyFile.call(_t, from, to, next);
 						}
 						break;
 
@@ -2220,7 +2266,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							htmlJsFiles[file] = 1;
 						});
 
-						copyFile.call(this, from, to, next);
+						copyFile.call(_t, from, to, next);
 						break;
 
 					case 'js':
@@ -2243,20 +2289,22 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						break;
 
 					case 'xml':
-						if (this.xmlMergeRegExp.test(filename)) {
-							this.writeXmlFile(from, to);
+						if (_t.xmlMergeRegExp.test(filename)) {
+							_t.writeXmlFile(from, to);
 							next();
 							break;
 						}
 
 					default:
 						// normal file, just copy it into the build/android/bin/assets directory
-						this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
-							copyFile.call(this, from, to, cb);
+						_t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
+							copyFile.call(_t, from, to, cb);
 						})(from, to, next);
 				}
-			};
-		}), done);
+			},
+
+			done
+		);
 	}
 
 	function warnDupeDrawableFolders(resourceDir) {
@@ -3530,6 +3578,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 	javacHook(
 		this.jdkInfo.executables.javac,
 		[
+			'-J-Xmx' + this.javacMaxMemory,
 			'-encoding', 'utf8',
 			'-bootclasspath', Object.keys(classpath).join(process.platform == 'win32' ? ';' : ':'),
 			'-d', this.buildBinClassesDir,
@@ -3637,6 +3686,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 
 		// merge files from the app.ap_ file as well as all titanium and 3rd party jar files
 		var archives = [ this.ap_File ].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+
 		archives.forEach(function (file) {
 			var src = new AdmZip(file),
 				entries = src.getEntries();
