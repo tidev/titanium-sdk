@@ -3032,10 +3032,15 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		return '#define USE_TI_' + s;
 	}));
 
-	if (Array.isArray(this.infoPlist.UIBackgroundModes) && this.infoPlist.UIBackgroundModes.indexOf('remote-notification') != -1) {
+	var infoPlist = this.infoPlist;
+	if (!infoPlist) {
+		infoPlist = new appc.plist(this.buildDir + '/Info.plist');
+	}
+
+	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('remote-notification') != -1) {
 		contents.push('#define USE_TI_SILENTPUSH');
 	}
-	if (Array.isArray(this.infoPlist.UIBackgroundModes) && this.infoPlist.UIBackgroundModes.indexOf('fetch') != -1) {
+	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('fetch') != -1) {
 		contents.push('#define USE_TI_FETCH');
 	}
 
