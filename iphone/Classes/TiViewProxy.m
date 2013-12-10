@@ -248,7 +248,7 @@
 {
     ENSURE_SINGLE_ARG(args, NSDictionary);
     NSInteger position = [TiUtils intValue:[args objectForKey:@"position"] def:-1];
-    if(children != nil && position > -1 && [children count] <= position) {
+    if(children != nil && position > -1 && [children count] >= position) {
         TiViewProxy *childToRemove = [[children objectAtIndex:position] retain];
         [self add:args];
         [self remove: childToRemove];
