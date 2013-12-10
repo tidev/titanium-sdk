@@ -11,14 +11,15 @@
 
 @interface TiUIOptionDialogProxy : TiProxy<UIActionSheetDelegate> {
 
-	UIActionSheet *actionSheet;
+    UIActionSheet *actionSheet;
 //We need to hold onto this information for whenever the status bar rotates.
-	TiViewProxy *dialogView;
-	CGRect dialogRect;
-	BOOL animated;
+    TiViewProxy *dialogView;
+    CGRect dialogRect;
+    BOOL animated;
     NSUInteger accumulatedOrientationChanges;
-	BOOL showDialog;
+    BOOL showDialog;
     BOOL persistentFlag;
+    BOOL forceOpaqueBackground;
 }
 
 @property(nonatomic,retain,readwrite)	TiViewProxy *dialogView;
