@@ -2451,7 +2451,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			if (process.platform == 'darwin') {
 				titaniumPrep += '.macos';
 			} else if (process.platform == 'win32') {
-				titaniumPrep += '.win64.exe';
+				titaniumPrep += '.win32.exe';
 			} else if (process.platform == 'linux') {
 				titaniumPrep += '.linux' + (process.arch == 'x64' ? '64' : '32');
 			}
@@ -2507,15 +2507,15 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					}
 
 					// windows 64-bit failed, try again using 32-bit
-					this.logger.debug(__('64-bit titanium prep failed, trying again using 32-bit'));
-					titaniumPrep = 'titanium_prep.win32.exe';
+					this.logger.debug(__('32-bit titanium prep failed, trying again using 64-bit'));
+					titaniumPrep = 'titanium_prep.win64.exe';
 					titaniumPrepHook(
 						path.join(this.platformPath, titaniumPrep),
 						args,
 						opts,
-						function (err) {
-							if (err) {
-								fatal(err);
+						function (err, results, error) {
+							if (error) {
+								fatal(error);
 							}
 							next();
 						}
