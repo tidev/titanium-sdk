@@ -2423,6 +2423,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					return true;
 				}
 			}, this)) {
+				delete this.lastBuildFiles[destBg];
 				copyFile.call(this, path.join(templateDir, 'default.png'), destBg);
 			}
 		}
