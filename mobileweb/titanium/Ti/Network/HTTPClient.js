@@ -23,7 +23,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 			];
 
 			xhr.onreadystatechange = lang.hitch(this, function() {
-				var c = this.constants,
+				var c = this.__values__.constants,
 					f,
 					onload = this.onload;
 
@@ -85,7 +85,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 			clearTimeout(this._timeoutTimer);
 			this._aborted = 1;
 			this.connected && this._xhr.abort();
-			this.constants.readyState = this.UNSENT;
+			this.__values__.constants.readyState = this.UNSENT;
 			this._fireStateChange();
 		},
 
@@ -99,7 +99,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 
 		open: function(method, url, async) {
 			var httpURLFormatter = Ti.Network.httpURLFormatter,
-				c = this.constants,
+				c = this.__values__.constants,
 				wc = this.withCredentials,
 				loc = _.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
 				parts = loc.match(/^((?:.+\:)?\/\/)?(?:.+@)?(.*)$/);
@@ -123,7 +123,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 				this._aborted = this._completed = 0;
 				has("ti-instrumentation") && (this._requestInstrumentationTest = instrumentation.startTest("HTTP Request")),
 				args = is(args, "Object") ? lang.urlEncode(args) : args;
-				args && this._xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+				this._contentTypeSet || args && this._xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 				this._xhr.setRequestHeader('X-Titanium-Id', App.guid);
 				this._xhr.send(args);
 				clearTimeout(this._timeoutTimer);
@@ -137,6 +137,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 		},
 
 		setRequestHeader: function(name, value) {
+			name === 'Content-Type' && (this._contentTypeSet = 1);
 			this._xhr.setRequestHeader(name, value);
 		},
 

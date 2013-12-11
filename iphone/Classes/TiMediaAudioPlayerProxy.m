@@ -47,6 +47,11 @@
     [super _destroy];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Media.AudioPlayer";
+}
+
 -(void)_listenerAdded:(NSString *)type count:(int)count
 {
 	if (count == 1 && [type isEqualToString:@"progress"])

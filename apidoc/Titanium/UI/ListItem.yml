@@ -91,19 +91,6 @@ properties:
     default: Titanium.UI.LIST_ACCESSORY_TYPE_NONE
     accessors: false
 
-  - name: allowsSelection
-    summary: Determines whether this item can be selected.
-    description: |
-        Set to `false` to prevent the item from being selected.
-
-        On iOS, even if this property is set to `false`, you can interact with the detail disclosure
-        accessory (`accessoryType` set to <Titanium.UI.LIST_ACCESSORY_TYPE_DETAIL>) and any child
-        templates that are controls, such as a button, slider, etc.
-    type: Boolean
-    default: true
-    platforms: [iphone, ipad]
-    accessors: false
-
   - name: backgroundColor
     summary: Background color of the view, as a color name or hex triplet.
     description: |
@@ -118,23 +105,24 @@ properties:
         Must be a local resource.
     type: String
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     accessors: false
 
   - name: backgroundGradient
     summary: Background gradient to render when the item is not selected.
     type: Gradient
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     accessors: false
 
   - name: selectedBackgroundColor
     summary: Background color of the view, as a color name or hex triplet when item is selected.
     description: |
+        On Android, clicking on ListItem's sub-views will not trigger this unless these views have 'touchEnabled' set to false.
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     default: Transparent
     accessors: false
 
@@ -142,9 +130,10 @@ properties:
     summary: Background image to render when the item is selected.
     description: |
         Must be a local resource.
+        On Android, clicking on ListItem's sub-views will not trigger this unless these views have 'touchEnabled' set to false.
     type: String
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     accessors: false
 
   - name: selectedBackgroundGradient
@@ -180,7 +169,7 @@ properties:
         Used in conjunction with [searchView](Titanium.UI.ListView.searchView), [searchText](Titanium.UI.ListView.searchText) and [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) properties of ListView.
     type: String
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     accessors: false
 
   - name: color

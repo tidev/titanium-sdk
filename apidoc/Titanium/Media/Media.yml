@@ -11,7 +11,6 @@ description: |
     in addition to the other media submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
-platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: beep
     summary: Plays a device beep notification.
@@ -21,7 +20,9 @@ methods:
     description: |
         Must be called after calling `showCamera` and only when `autohide` is set to `false`. 
         This method causes the media capture UI to be hidden.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since:
+        android: "3.2.0"
   - name: hideMusicLibrary
     summary: Hides the music library.  
     description: |
@@ -114,6 +115,22 @@ methods:
             will be called when the save succeeds, and `error` a function that will be 
             called upon receiving an error.
         type: Object
+  - name: setOverrideAudioRoute
+    summary: Overrides the default audio route when using the <Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD> session mode.
+    description: | 
+        By default, when using the <Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD> session mode, the audio output is routed to the speaker in the receiver. This method lets you specify that audio should be routed to the built-in speaker.
+
+        The method can take one of the following values:
+
+        * <Titanium.Media.AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER> sends output audio to the built-in speaker. 
+        * <Titanium.Media.AUDIO_SESSION_OVERRIDE_ROUTE_NONE> sends output to the default audio route.
+
+        If you override the audio route while audio is playing the changes won't not take effect until  the audio is restarted.
+    platforms: [iphone, ipad]
+    parameters: 
+      - name: route
+        summary: The specified audio route. Can either be <Titanium.Media.AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER> or <Titanium.Media.AUDIO_SESSION_OVERRIDE_ROUTE_NONE>.
+        type: Number
   - name: showCamera
     summary: Shows the camera.
     description: |
@@ -127,6 +144,14 @@ methods:
         If the `showControls` option is `false`, you must control the camera explicitly, using
         the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera) 
         methods.
+
+        #### Android Platform Notes
+
+        To suppress the default controls, set `autohide` to `false` and then set the
+        `overlay` property to a view that contains a control (such as a button) to
+        take the photo. You must then control the camera explicitly, using
+        the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera)
+        methods.
         
         #### Tizen Platform Notes
         
@@ -135,7 +160,7 @@ methods:
 
         * `http://tizen.org/privilege/application.launch`
         
-    platforms: [iphone, ipad, android, tizen]
+    platforms: [iphone, ipad, android, tizen, blackberry]
     parameters:
       - name: options
         summary: A dictionary of camera options as described in <CameraOptionsType>.
@@ -163,6 +188,19 @@ methods:
         This method causes the media capture device to capture a photo and call the 
         `success` callback.
     platforms: [iphone, ipad, android]
+  - name: switchCamera
+    summary: Switches between front and rear-facing cameras.
+    description: |
+        In Android, this can only be called when using a custom overlay (see <Titanium.Media.showCamera>).
+    platforms: [iphone, ipad, android]
+    parameters:
+      - name: camera
+        summary: The camera to switch to, <Titanium.Media.CAMERA_FRONT> or <Titanium.Media.CAMERA_REAR>.
+        type: Number
+    since:
+        android: 3.2.0
+        iphone: 1.8.1
+        ipad: 1.8.1
   - name: takeScreenshot
     summary: Takes a screen shot of the visible UI on the device.
     description: |
@@ -197,6 +235,21 @@ methods:
         optional: true
         type: Array<Number>
     platforms: [iphone, ipad, android, mobileweb, tizen]
+
+  - name: requestAuthorization
+    summary: Request the user's permission for audio recording.
+    description: |
+        On iOS 7.0, recording audio requires explicit permission from the user. After the user 
+        grants or denies permission, the system remembers the choice for future use in the same app. 
+        If permission is not granted, or if the user has not yet responded to the permission prompt, 
+        any audio recording sessions record only silence.
+    platforms: [iphone, ipad]
+    since: 3.1.3
+    parameters:
+      - name: callback
+        summary: Callback function to execute when the users responds to the authorization alert.
+        type: Callback<MediaAuthorizationResponse>
+        
 events:
   - name: linechange
     summary: Fired when an audio line type change is detected.
@@ -358,6 +411,9 @@ properties:
         that sounds such as Messages alerts do not play while your application is recording, 
         use  <Titanium.Media.AUDIO_SESSION_MODE_RECORD> instead. This category normally 
         disallows mixing iPod audio with application audio.
+
+        In this mode, by default audio playback is routed to the speaker in the iPhone receiver. To have audio playback through the iPhone speaker, use <Titanium.Media.setOverrideAudioRoute>.
+
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -378,6 +434,16 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+  - name: AUDIO_SESSION_OVERRIDE_ROUTE_NONE
+    summary: Constant that specifies audio should output to the default audio route. See <Titanium.Media.setOverrideAudioRoute> for more information. 
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+  - name: AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER
+    summary: Constant that specifies audio should output to the speaker. See <Titanium.Media.setOverrideAudioRoute> for more information.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: AUDIO_SPEAKER
     summary: Line-type constant for speaker output.
     type: Number
@@ -393,10 +459,25 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+  - name: CAMERA_FRONT
+    summary: Constant specifying the front camera.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, android]
+    since:
+        android: "3.2.0"
+  - name: CAMERA_REAR
+    summary: Constant indicating the rear camera.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, android]
+    since:
+        android: "3.2.0"
   - name: DEVICE_BUSY
     summary: Constant for media device busy error.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: MEDIA_TYPE_PHOTO
     summary: Media type constant for photo media.
     type: String
@@ -405,6 +486,7 @@ properties:
     summary: Media type constant for video media.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: MUSIC_MEDIA_TYPE_ALL
     summary: Music library media containing any type of content.
     type: Number
@@ -554,10 +636,12 @@ properties:
     summary: Constant for media no camera error.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: NO_VIDEO
     summary: Constant for media no video error.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: QUALITY_HIGH
     summary: Media type constant for high-quality video recording. 
     description: |
@@ -585,6 +669,7 @@ properties:
     summary: Constant for unknown media error.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: VIDEO_CONTROL_DEFAULT
     summary: Constant for default video controls.
     description: |
@@ -593,6 +678,7 @@ properties:
         of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: VIDEO_CONTROL_EMBEDDED
     summary: Constant for video controls for an embedded view. 
     description: |
@@ -650,6 +736,7 @@ properties:
         of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: VIDEO_CONTROL_VOLUME_ONLY
     deprecated:
         since: "1.8.0"
@@ -765,6 +852,7 @@ properties:
         is filled with a black bar. The aspect ratio of the movie is preserved.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: VIDEO_SCALING_MODE_FILL
     summary: Video is scaled until both dimensions fit the screen exactly, stretching if necessary.
     description: |
@@ -776,6 +864,7 @@ properties:
     summary: Video scaling is disabled.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: VIDEO_SOURCE_TYPE_FILE
     summary: Video source type is a file. 
     description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>.
@@ -828,6 +917,13 @@ properties:
         for audio properties on the Media module, but the iPod may be active).
     type: Number
     platforms: [iphone, ipad]
+  - name: availableCameras
+    summary: Array indicating which cameras are available, `CAMERA_FRONT`, `CAMERA_REAR` or both.
+    type: Array<Number>
+    platforms: [iphone, ipad, android]
+    since:
+        android: "3.2.0"
+    permission: read-only
   - name: availableCameraMediaTypes
     summary: Array of media type constants supported for the camera.
     type: Array<Object>
@@ -1014,7 +1110,13 @@ properties:
     summary: Specifies if the camera should be hidden automatically after the media capture is completed.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: {android: "3.2.0"}
+    description: |
+        On Android, this property is considered only if `overlay` is also set. When an
+        overlay is not set, the default Android Camera Activity is used, which is only
+        capable of reporting back the results of one taken photo, making `autohide`
+        meaningless in that context.
   - name: animated 
     summary: Specifies if the dialog should be animated upon showing and hiding.
     type: Boolean
@@ -1234,3 +1336,7 @@ properties:
     summary: The screenshot image.
     type: Titanium.Blob
     accessors: false
+---
+name: MediaAuthorizationResponse
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: ErrorResponse

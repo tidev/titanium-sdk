@@ -1,50 +1,104 @@
 name: Titanium.CloudPush
-summary: Provides methods for accessing Android push notifications from ACS using the MQTT protocol.
+summary: |
+    Provides support for Android push notifications.
 description: |
-    The MQTT protocol is a very lightweight, long lived connection to a server. It is perfect for keeping mobile devices
-    in connection with a server, while not significantly degrading their battery life.
-    
-    In addition to communicating with an MQTT server, this module can also present tray notifications to the user.
-    Please refer to the [showTrayNotification](Titanium.CloudPush.showTrayNotification) property to see more information
-    about this.
-    
+    The CloudPush module supports Android push notifications for a device by providing a connection
+    to the push notification server to the device to receive push notifications and to optionally
+    present a tray notification to the user when a new push notification is received.
+
+    This module is only used to receive push notifications.  For information on configuring your
+    project to send push notifications, see <Titanium.Cloud.PushNotifications>.
+
+    #### Push Protocols
+
+    As of Release 3.2.0, the CloudPush module only supports Google Cloud Messaging (GCM) for push
+    notifications. MQTT support is deprecated and support was removed in Release 3.2.0.  Refer to
+    the next section for MQTT support.
+
+    Since Release 3.1.2, GCM is the default method to send push notifications. If you
+    have an existing application that uses the MQTT protocol, you either need to transition your
+    application to use GCM or set the `acs-push-type` key in the `tiapp.xml` file to `mqtt`.
+    Any new application should use GCM.
+
+    GCM supports devices that run Android 2.2 and later, and requires that the Google Play Store
+    application be installed. For pre-4.0 devices, the user is required to set up their Google
+    account.
+
+    GCM is available for both the community edition of the Titanium platform and the paid,
+    enterprise version of the Appcelerator Platform.
+
+    #### MQTT Legacy Support
+
+    From Release 3.2.0, you need to download and use the `ti.cloudpush.mqtt` module from the
+    Appcelerator Marketplace if you wish to continue to support MQTT or use an older version of the
+    module.
+
+    #### Getting Started
+
+    To use the CloudPush module in your JavaScript code, you need to require it in,
+    initialize it with the `retrieveDeviceToken` method, then enable push notifications.
+    In your project's `tiapp.xml`, you need to add some keys to configure push notifications.
+
     Note that this module is not included in the Titanium namespace, but it is bundled with the Titanium SDK as of
     version 2.0.0. To use it, you must require it, like this:
-    
+
         var CloudPush = require('ti.cloudpush');
 
     Then, call the `retrieveDeviceToken` method before setting the `enabled` property to `true`
     to enable the device to receive push notifications. You must call `retrieveDeviceToken` before
     any other CloudPush API call or else the device will not receive push notifications.
-    
+
     This module must also be added to the modules section in your tiapp.xml. This can be done using the Modules list in
     the Titanium Studio TiApp Editor, or by editing the XML directly and adding the following line to the modules
     element:
-    
+
         <module platform="android">ti.cloudpush</module>
-    
+
     Your app must prove that it is allowed to talk to ACS. This keeps your data secure by preventing anyone from
     making requests to ACS that impersonate your app.
 
-    Titanium Studio will create a pair of keys (Development and Production) for each Titanium application depending on the
+    Titanium Studio creates a pair of keys (Development and Production) for each Titanium application depending on the
     user preference specified during new project creation. This pair of keys will be stored in `tiapp.xml` and one of the
     keys will be used during application build depending on the build type (development or production).
 
-    The supported properties in `tiapp.xml` are:
+    To use push notifications, in the `tiapp.xml` file, you need to specify the ACS keys and push
+    type. The supported properties in `tiapp.xml` are:
 
+        <!-- Property keys for ACS (required) -->
         <property name="acs-api-key-development" type="string">YOUR DEVELOPMENT API KEY HERE</property>
-
         <property name="acs-api-key-production" type="string">YOUR PRODUCTION API KEY HERE</property>
-
         <property name="acs-api-key" type="string">YOUR API KEY HERE</property>
 
-    The value for each setting that will be used is based on the following rules:
-
-    * If a deployment-specific setting is provided (production or development) then that value will be used for the current deployment environment.
+    If a deployment-specific setting is provided (production or development) then that value will be used for the current deployment environment.
 
     *WARNING*: The default properties of this module are used until you set a property for the first time. Because the
     properties are persisted to the device settings (via <Titanium.App.Properties>), the most recent value you set will
     always be used.
+
+    #### Grouped Notifications
+
+    If the device receives multiple push notifications from the application, Android can group these
+    notifications together as one notification.
+
+    To use grouped notifications, add a grouped notification template to either the `tiapp.xml` file
+    or the `i18n` folder for internationalized versions:
+
+    `tiapp.xml`:
+
+        <property name="acs-grouped-notification-message-development" type="string">You have $number$ unread messages.</property>
+        <property name="acs-grouped-notification-message-production" type="string">You have $number$ unread messages.</property>
+        -or-
+        <property name="acs-grouped-notification-message" type="string">You have $number$ unread messages.</property>
+
+    `i18n/es/strings.xml` (example for Spanish):
+
+        <?xml version="1.0" encoding="utf-8"?>
+        <resources>
+           <string name="acs_grouped_notification_message">Tienes $number$ mensajes no leidos.</string>
+        </resources>
+
+    The `$number$` variable indicates the number of unread messages.
+
 platforms: [android]
 since: "2.0.0"
 extends: Titanium.Module
@@ -61,6 +115,14 @@ methods:
       - name: config
         summary: Dictionary specifying token retrieval related options. 
         type: CloudPushNotificationConfig
+
+  - name: clearStatus
+    summary: Clears the CloudPush module's stored status, including the push type, device token, GCM sender ID, etc.
+    description: |
+        This method is useful to transfer the push type from MQTT to GCM, or changing the GCM sender ID when needed.
+        After calling this method, the CloudPush module is reinitialized. Use `retrieveDeviceToken` to
+        get the device token again.
+    since: 3.1.2
 properties:
   - name: enabled
     summary: Whether or not this device will receive push notifications.
@@ -158,6 +220,7 @@ examples:
   - title: Listening for Push Notifications
     example: |
         This example lets the user choose if push notifications should be enabled, and listens for several events.
+
             var CloudPush = require('ti.cloudpush');
             CloudPush.retrieveDeviceToken({
                 success: function deviceTokenSuccess(e) {

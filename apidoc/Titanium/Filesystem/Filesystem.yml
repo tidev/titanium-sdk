@@ -3,17 +3,18 @@ name: Titanium.Filesystem
 summary: The top level filesystem module, used to access files and directories on the device.
 extends: Titanium.Module
 since: "0.1"
-platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: createTempDirectory
     summary: Creates a temporary directory and returns a [File](Titanium.Filesystem.File) object representing the new directory.
     returns:
         type: Titanium.Filesystem.File
+    exclude-platforms: [blackberry]
   - name: createTempFile
     summary: Creates a temporary file and returns a [File](Titanium.Filesystem.File)
         object representing the new file.
     returns:
         type: Titanium.Filesystem.File
+    exclude-platforms: [blackberry]
   - name: getFile
     summary: Returns a `File` object representing the file identified by the path
         arguments.
@@ -57,6 +58,7 @@ methods:
         Returns `false` on iOS, Mobile Web and Tizen.
     returns:
         type: Boolean
+    exclude-platforms: [blackberry]
   - name: openStream
     summary: Opens file using the <Titanium.IOStream> interface.
     parameters:
@@ -73,19 +75,23 @@ methods:
         type: String
     returns:
         type: Titanium.Filesystem.FileStream
+    exclude-platforms: [blackberry]
 properties:
   - name: MODE_APPEND
     summary: Constant for append mode for file operations.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: MODE_READ
     summary: Constant for read mode for file operations.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: MODE_WRITE
     summary: Constant for write mode for file operations.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: applicationCacheDirectory
     summary: Path to the application's internal cache directory.
     type: String
@@ -154,6 +160,7 @@ properties:
     summary: Platform-specific line ending constant.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: resourcesDirectory
     summary: Path to the application's resource directory.
     description: |
@@ -198,10 +205,16 @@ properties:
     summary: Platform-specific path separator constant.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
   - name: tempDirectory
     summary: Path for the application's temporary directory. 
     description: |
         This directory can be used for storing temporary files. Files in this directory
         may not persist when the application is shut down and restarted.
+
+        On BlackBerry, files in this directory *will* be deleted by the OS when the application
+        is shut down.
+
+
     type: String
     permission: read-only

@@ -325,6 +325,7 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
     since: "3.0.0"
+    exclude-platforms: [blackberry]
 
   - name: EVENT_ACCESSIBILITY_CHANGED
     summary: Convenience constant for system event "accessibilitychanged".
@@ -337,16 +338,19 @@ properties:
     summary: Indicates whether Accessibility is enabled by the system.
     type: Boolean
     permission: read-only
+    exclude-platforms: [blackberry]
  
   - name: analytics
     summary: Indicates whether Analytics is enabled, determined by `tiapp.xml`.
     type: Boolean
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: copyright
     summary: Application copyright statement, determined by `tiapp.xml`.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: deployType
     summary: |
@@ -354,24 +358,38 @@ properties:
         `production`.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: description
     summary: Application description, determined by `tiapp.xml`.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: guid
     summary: Application globally-unique ID, determined by `tiapp.xml`.
     description: This value is system-generated and consistent through all versions.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
+  - name: forceSplashAsSnapshot
+    summary: Shows the application's splash screen on app resume.
+    description: |
+        Note: This only works on device.
+        When the app goes to the background a screenshot of the current app state is taken. When
+        the app resumes that screenshot is shown for brief moment. To disable this behavior, set
+        this property to `true` and the default splash screen will show on app resume instead.
+    type: Boolean
+    platforms: [iphone, ipad]
+
   - name: id
     summary: Application ID, from `tiapp.xml`. 
     description: |
         The application ID is a required property that must be specified when creating a new project.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: installId
     summary: The install ID for this application.
@@ -395,6 +413,7 @@ properties:
     summary: Application name, determined by `tiapp.xml`.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: proximityDetection
     summary: Determines whether proximity detection is enabled. 
@@ -433,21 +452,25 @@ properties:
     summary: Application publisher, from `tiapp.xml`.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: sessionId
     summary: Unique session identifier for the current continuous run of the application.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: url
     summary: Application URL, from `tiapp.xml`.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: version
     summary: Application version, from `tiapp.xml`.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: keyboardVisible
     summary: Indicates whether or not the soft keyboard is visible.

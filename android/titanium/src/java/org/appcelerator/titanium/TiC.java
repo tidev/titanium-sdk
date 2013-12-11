@@ -121,6 +121,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_DISPOSE_HANDLE = "disposehandle";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_DOUBLE_TAP = "doubletap";
 
 	/**
@@ -186,6 +191,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_LONGPRESS = "longpress";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_MARKER = "marker";
 
 	/**
 	 * @module.api
@@ -401,6 +411,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_RESUME = "resume";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_RETURN = "return";
 
 	/**
 	 * @module.api
@@ -445,6 +460,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_TASK_REMOVED = "taskremoved";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_TOUCH_CANCEL = "touchcancel";
 
 	/**
@@ -471,6 +491,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_PROPERTY_URL = "url";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
 	
 
 	/**
@@ -717,6 +742,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_BAR_COLOR = "barColor";
 
 	/**
 	 * @module.api
@@ -792,6 +822,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BYTE_ORDER = "byteOrder";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CACHE_MODE = "cacheMode";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_VIEW_SHOWN = "calendarViewShown";
 
 	/**
 	 * @module.api
@@ -807,6 +847,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CANCELABLE = "cancelable";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CASE_INSENSITIVE_SEARCH = "caseInsensitiveSearch";
 
 	/**
 	 * @module.api
@@ -871,7 +916,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_COORDS = "coords";
+	public static final String PROPERTY_COMMENT = "comment";
 
 	/**
 	 * @module.api
@@ -912,6 +957,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CONTENT_WIDTH = "contentWidth";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_COORDS = "coords";
 
 	/**
 	 * @module.api
@@ -1057,6 +1107,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_EXIT_ON_CLOSE = "exitOnClose";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_EXPIRY_DATE = "expiryDate";
 
 	/**
 	 * @module.api
@@ -1233,6 +1288,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_HTTP_ONLY = "httponly";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ICON = "icon";
 
 	/**
@@ -1335,6 +1395,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LAYOUT_ID = "layoutId";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LOAD_URL = "loadUrl";
 
 	/**
 	 * @module.api
@@ -1629,6 +1694,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_PATH = "path";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_PERSISTENT = "persistent";
 
 	/**
@@ -1680,6 +1750,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PREFERRED_PROVIDER = "preferredProvider";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PROMPT = "prompt";
 	
 	/**
 	 * @module.api
@@ -1812,6 +1887,21 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SEARCH_AS_CHILD = "searchAsChild";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCH_TEXT = "searchText";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCH_VIEW = "searchView";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCHABLE_TEXT = "searchableText";
 
 	/**
 	 * @module.api
@@ -1827,6 +1917,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SECTIONS = "sections";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SECURE = "secure";
 
 	/**
 	 * @module.api
@@ -1856,7 +1951,27 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SHADOW_COLOR = "shadowColor";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHADOW_OFFSET = "shadowOffset";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHADOW_RADIUS = "shadowRadius";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SHOW_AS_ACTION = "showAsAction";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHOW_CANCEL = "showCancel";
 
 	/**
 	 * @module.api
@@ -2150,6 +2265,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_VERSION = "version";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_VERTICAL_ALIGN = "verticalAlign";
 
 	/**
@@ -2251,6 +2371,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ZOOM_ENABLED = "zoomEnabled";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LIGHT_TOUCH_ENABLED = "lightTouchEnabled";
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";

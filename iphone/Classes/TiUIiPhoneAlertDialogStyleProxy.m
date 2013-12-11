@@ -10,6 +10,11 @@
 
 @implementation TiUIiPhoneAlertDialogStyleProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPhone.AlertDialogStyle";
+}
+
 MAKE_SYSTEM_PROP(DEFAULT,                   UIAlertViewStyleDefault);
 MAKE_SYSTEM_PROP(PLAIN_TEXT_INPUT,          UIAlertViewStylePlainTextInput);
 MAKE_SYSTEM_PROP(SECURE_TEXT_INPUT,         UIAlertViewStyleSecureTextInput);

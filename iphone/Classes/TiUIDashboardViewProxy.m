@@ -35,6 +35,11 @@ NSArray* dashboardKeySequence;
     return self;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.DashboardView";
+}
+
 -(void)startEditing:(id)args
 {
     [self makeViewPerformSelector:@selector(startEditing) withObject:nil createIfNeeded:YES waitUntilDone:NO];
@@ -81,8 +86,8 @@ NSArray* dashboardKeySequence;
         [self rememberProxy:proxy];
     }
     
-    [self setValue:data forUndefinedKey:@"data"];
-    [self makeViewPerformSelector:@selector(setViewData:) withObject:data createIfNeeded:YES waitUntilDone:YES];
+    [self replaceValue:data forKey:@"data" notification:NO];
+    [self replaceValue:data forKey:@"viewData" notification:YES];
 }
 
 @end

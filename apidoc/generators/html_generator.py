@@ -196,7 +196,7 @@ def annotate(annotated_obj):
 			if dict_has_non_empty_member(example, "title"):
 				one_example["title"] = example["title"]
 			if dict_has_non_empty_member(example, "example"):
-				html_example = markdown_to_html(example["example"], obj=annotated_obj, suppress_link_warnings=is_inherited)
+				html_example = markdown_to_html(example["example"], obj=annotated_obj, suppress_link_warnings=True)
 				# Suspicious if the example has content (beyond the <p></p>) but not <code>.
 				# This can happen if in the .yml the example starts off immediately with code,
 				# because the yaml parser interprets the leading four spaces (which the programmer

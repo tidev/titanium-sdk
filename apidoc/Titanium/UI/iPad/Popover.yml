@@ -10,9 +10,9 @@ description: |
     the existing content in a special type of window. The popover remains visible until the user 
     taps outside of the popover window or it is explicitly dismissed.
 
-    A <Titanium.UI.iPhone.NavigationGroup> may be added as a view in a popover. Do not add top-level
-    view containers, such as a `Window` or `TabGroup`, to a popover.  Adding top-level view containers
-    may have unintended side effects.
+    Do not add top-level view containers, such as a `SplitWindow` or `TabGroup`, to a popover.
+    Adding top-level view containers may have unintended side effects. See the [contentView](Titanium.UI.iPad.Popover.contentView) 
+    property for more information.
 
     ![popover](http://img.skitch.com/20100406-pmssjk1a3a65s6ui8qnbqi59c4.png)
 extends: Titanium.UI.View
@@ -28,7 +28,7 @@ excludes: {
     ],
     properties: [backgroundDisabledColor, backgroundDisabledImage, backgroundFocusedColor,
                  backgroundFocusedImage, backgroundSelectedColor, backgroundSelectedImage,
-                 focusable, keepScreenOn, softKeyboardOnFocus
+                 focusable, keepScreenOn, softKeyboardOnFocus, left, right, top, bottom, center
     ]
 }
 
@@ -66,16 +66,33 @@ properties:
     type: Number
     permission: read-only
     
+  - name: contentView
+    summary: The View to use for popover content instead of the popover. Must be set before calling `show` method.
+    description: |
+        This is now the preferred way to set the popover content. This can be set to any <Titanium.UI.View> object.
+        This property also supports the <Titanium.UI.Window> and <Titanium.UI.iOS.NavigationWindow> objects.
+        This property does not support the <Titanium.UI.iPad.SplitWindow> or <Titanium.UI.TabGroup> objects.
+        When this property is set to a valid object, the popover ** does not include the navigation controller**.
+        Set this to a <Titanium.UI.iOS.NavigationWindow> object to display and manage the navigation controller.
+    type: Titanium.UI.View
+    since: 3.2.0
+    
   - name: leftNavButton
     summary: Left button in the navigation area of the popover.
+    description: |
+        Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
     type: Object
     
   - name: rightNavButton
     summary: Right button in the navigation area of the popover.
+    description: |
+        Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
     type: Object
 
   - name: title
     summary: Title of the navigation area of the popover.
+    description: |
+        Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
     type: String
 
 examples:

@@ -63,7 +63,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Blob", "Ti/Codec"], function(declare
 		},
 
 		_set: function(value) {
-			this.constants.__values__.value = ""+value;
+			this.__values__.constants.value = ""+value;
 		},
 
 		_resize: function(offset, length) {
@@ -86,7 +86,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Blob", "Ti/Codec"], function(declare
 					if (newValue < oldValue) {
 						this._resize(0, newValue);
 					} else {
-						this.constants.__values__.value += (new Array(newValue - oldValue)).join(' ');
+						this.__values__.constants.value += (new Array(newValue - oldValue)).join(' ');
 					}
 					return newValue;
 				}

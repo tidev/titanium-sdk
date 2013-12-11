@@ -92,4 +92,10 @@ public class ImageViewProxy extends ViewProxy
 	public TiBlob toBlob() {
 		return getImageView().toBlob();
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.ImageView";
+	}
 }

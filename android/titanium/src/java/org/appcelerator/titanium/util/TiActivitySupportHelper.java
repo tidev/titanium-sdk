@@ -97,4 +97,14 @@ public class TiActivitySupportHelper
 		}
 		resultHandlers.put(code, resultHandler);
 	}
+
+	/**
+	 * Set the attached activity. When the activity is recovered from force-quitting, the
+	 * attached activity instance will be changed and must be reset.
+	 * @param activity the new attached activity.
+	 */
+	public void setActivity(Activity activity)
+	{
+		this.activity = activity;
+	}
 }

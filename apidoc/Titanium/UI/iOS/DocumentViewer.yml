@@ -77,12 +77,12 @@ examples:
         In the example below, the navigation bar's right button opens the options menu,
         while the window button immediately launches the document in the document viewer.
 
-            var win2 = Ti.UI.createWindow();
-            // Use a NavigationGroup to create a navigation bar for the window
-            var navGroup = Ti.UI.iPhone.createNavigationGroup({window: win2});
+            var win = Ti.UI.createWindow();
+            // Use a NavigationWindow to create a navigation bar for the window
+            var navWin = Ti.UI.iOS.createNavigationWindow({window: win});
 
             var navButton = Titanium.UI.createButton({title:'Launch'});
-            win2.RightNavButton = navButton;
+            win.RightNavButton = navButton;
 
             var winButton = Titanium.UI.createButton({
                 title:'Launch',
@@ -90,7 +90,7 @@ examples:
                 width:200,
                 top:270
             });
-            win2.add(winButton);
+            win.add(winButton);
 
             // Create a document viewer to preview a PDF file
             docViewer = Ti.UI.iOS.createDocumentViewer({url:'Example.pdf'});
@@ -102,9 +102,7 @@ examples:
             // The document viewer immediately launches without an animation
             winButton.addEventListener('click', function(){docViewer.show()});
 
-            var win1 = Titanium.UI.createWindow();
-            win1.add(navGroup);
-            win1.open();
+            navWin.open();
 
 ---
 name: DocumentViewerOptions

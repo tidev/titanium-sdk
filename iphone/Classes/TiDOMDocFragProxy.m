@@ -10,6 +10,11 @@
 // Corresponds to Interface DocumentFragment of DOM2 Spec
 @implementation TiDOMDocFragProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.XML.DocumentFragment";
+}
+
 -(id)nodeValue
 {
 	// DOM spec says nodeValue must return null

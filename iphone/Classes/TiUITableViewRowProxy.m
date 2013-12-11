@@ -22,7 +22,7 @@ NSString * const defaultRowTableClass = @"_default_";
 #define CHILD_ACCESSORY_WIDTH 20.0
 #define CHECK_ACCESSORY_WIDTH 20.0
 #define DETAIL_ACCESSORY_WIDTH 33.0
-
+#define IOS7_ACCESSORY_EXTRA_OFFSET 15.0
 // TODO: Clean this up a bit
 #define NEEDS_UPDATE_ROW 1
 
@@ -75,6 +75,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 {
 	[hitTarget autorelease];
 	hitTarget = nil;
+}
+
+-(NSString*)apiName
+{
+    return @"Ti.UI.TableViewRow";
 }
 
 -(TiProxy *)hitTarget
@@ -217,34 +222,42 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force
 {
-	CGFloat width = oldWidth;
-	if (force || !configuredChildren) {
-		if ([TiUtils boolValue:[self valueForKey:@"hasChild"] def:NO]) {
-			width -= CHILD_ACCESSORY_WIDTH;
-		}
-		else if ([TiUtils boolValue:[self valueForKey:@"hasDetail"] def:NO]) {
-			width -= DETAIL_ACCESSORY_WIDTH;
-		}
-		else if ([TiUtils boolValue:[self valueForKey:@"hasCheck"] def:NO]) {
-			width -= CHECK_ACCESSORY_WIDTH;
-		}
+    CGFloat width = oldWidth;
+    BOOL updateForiOS7 = NO;
+    if (force || !configuredChildren) {
+        if ([TiUtils boolValue:[self valueForKey:@"hasChild"] def:NO]) {
+            width -= CHILD_ACCESSORY_WIDTH;
+            updateForiOS7 = YES;
+        }
+        else if ([TiUtils boolValue:[self valueForKey:@"hasDetail"] def:NO]) {
+            width -= DETAIL_ACCESSORY_WIDTH;
+            updateForiOS7 = YES;
+        }
+        else if ([TiUtils boolValue:[self valueForKey:@"hasCheck"] def:NO]) {
+            width -= CHECK_ACCESSORY_WIDTH;
+            updateForiOS7 = YES;
+        }
 		
-		id rightImage = [self valueForKey:@"rightImage"];
-		if (rightImage != nil) {
-			NSURL *url = [TiUtils toURL:rightImage proxy:self];
-			UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
-			width -= [image size].width;
-		}
+        id rightImage = [self valueForKey:@"rightImage"];
+        if (rightImage != nil) {
+            NSURL *url = [TiUtils toURL:rightImage proxy:self];
+            UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+            width -= [image size].width;
+        }
 		
-		id leftImage = [self valueForKey:@"leftImage"];
-		if (leftImage != nil) {
-			NSURL *url = [TiUtils toURL:leftImage proxy:self];
-			UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
-			width -= [image size].width;			
-		}
-	}
+        id leftImage = [self valueForKey:@"leftImage"];
+        if (leftImage != nil) {
+            NSURL *url = [TiUtils toURL:leftImage proxy:self];
+            UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+            width -= [image size].width;
+        }
+    }
+    
+    if (updateForiOS7 && [TiUtils isIOS7OrGreater]) {
+        width -= IOS7_ACCESSORY_EXTRA_OFFSET;
+    }
 	
-	return width;
+    return width;
 }
 
 -(CGFloat)rowHeight:(CGFloat)width
@@ -384,78 +397,52 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		cell.backgroundView = nil;
 	}
 	
-	id selBgImage = [self valueForKey:@"selectedBackgroundImage"];
-	if (selBgImage!=nil)
-	{
-		NSURL *url = [TiUtils toURL:selBgImage proxy:(TiProxy*)table.proxy];
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
-		if ([cell.selectedBackgroundView isKindOfClass:[UIImageView class]]==NO)
-		{
-			UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
-			cell.selectedBackgroundView = view_;
-		}
-		if (image!=((UIImageView*)cell.selectedBackgroundView).image)
-		{
-			((UIImageView*)cell.selectedBackgroundView).image = image;
-		}
-	}
-	else if (selBgColor==nil && cell.selectedBackgroundView!=nil && [cell.selectedBackgroundView isKindOfClass:[UIImageView class]] && ((UIImageView*)cell.selectedBackgroundView).image!=nil)
-	{
-		cell.selectedBackgroundView = nil;
-	}
-	
-	if (selBgImage==nil && (selBgColor!=nil || [[table tableView] style]==UITableViewStyleGrouped))
-	{
-		if (selBgColor==nil)
-		{
-			// if we have a grouped view with no selected background color, we 
-			// need to setup a cell and force the color otherwise you'll get
-			// square corners on a rounded row
-			if ([cell selectionStyle]==UITableViewCellSelectionStyleBlue)
-			{
-				selBgColor = @"#0272ed";
-			}
-			else if ([cell selectionStyle]==UITableViewCellSelectionStyleGray)
-			{
-				selBgColor = @"#bbb";
-			}
-			else 
-			{
-				selBgColor = @"#fff";
-			}
-		}
-		if (cell.selectedBackgroundView == nil || [cell.selectedBackgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]==NO)
-		{								
-			cell.selectedBackgroundView = [[[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero] autorelease];
-		}
-		TiSelectedCellBackgroundView *selectedBGView = (TiSelectedCellBackgroundView*)cell.selectedBackgroundView;
-		int count = [section rowCount];
-		if (count == 1)
-		{
-			selectedBGView.position = TiCellBackgroundViewPositionSingleLine;
-		}
-		else 
-		{
-			if (row == 0)
-			{
-				selectedBGView.position = TiCellBackgroundViewPositionTop;
-			}
-			else if (row == count-1)
-			{
-				selectedBGView.position = TiCellBackgroundViewPositionBottom;
-			}
-			else 
-			{
-				selectedBGView.position = TiCellBackgroundViewPositionMiddle;
-			}
-		}
-		selectedBGView.fillColor = [Webcolor webColorNamed:selBgColor];	
-		selectedBGView.grouped = [[table tableView] style]==UITableViewStyleGrouped;
-	}
-	else if (cell.selectedBackgroundView!=nil)
-	{
-		cell.selectedBackgroundView.backgroundColor = nil;
-	}
+    id selBgImage = [self valueForKey:@"selectedBackgroundImage"];
+    if (selBgImage!=nil) {
+        NSURL *url = [TiUtils toURL:selBgImage proxy:(TiProxy*)table.proxy];
+        UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
+        if ([cell.selectedBackgroundView isKindOfClass:[UIImageView class]]==NO) {
+            UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+            cell.selectedBackgroundView = view_;
+        }
+        if (image!=((UIImageView*)cell.selectedBackgroundView).image) {
+            ((UIImageView*)cell.selectedBackgroundView).image = image;
+        }
+        
+        UIColor* theColor = [Webcolor webColorNamed:selBgColor];
+        cell.selectedBackgroundView.backgroundColor = ((theColor == nil)?[UIColor clearColor]:theColor);
+    } else {
+        if (![cell.selectedBackgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
+            cell.selectedBackgroundView = [[[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero] autorelease];
+        }
+        TiSelectedCellBackgroundView *selectedBGView = (TiSelectedCellBackgroundView*)cell.selectedBackgroundView;
+        selectedBGView.grouped = [[table tableView] style]==UITableViewStyleGrouped;
+        UIColor* theColor = [Webcolor webColorNamed:selBgColor];
+        if (theColor == nil) {
+            switch (cell.selectionStyle) {
+                case UITableViewCellSelectionStyleGray:theColor = [Webcolor webColorNamed:@"#bbb"];break;
+                case UITableViewCellSelectionStyleNone:theColor = [UIColor clearColor];break;
+                case UITableViewCellSelectionStyleBlue:theColor = [Webcolor webColorNamed:@"#0272ed"];break;
+                default:theColor = [TiUtils isIOS7OrGreater] ? [Webcolor webColorNamed:@"#e0e0e0"] : [Webcolor webColorNamed:@"#0272ed"];break;
+            }
+        }
+        selectedBGView.fillColor = theColor;
+        int count = [section rowCount];
+        if (count == 1) {
+            selectedBGView.position = TiCellBackgroundViewPositionSingleLine;
+        }
+        else {
+            if (row == 0) {
+                selectedBGView.position = TiCellBackgroundViewPositionTop;
+            }
+            else if (row == count-1) {
+                selectedBGView.position = TiCellBackgroundViewPositionBottom;
+            }
+            else {
+                selectedBGView.position = TiCellBackgroundViewPositionMiddle;
+            }
+        }
+    }
 }
 
 -(void)configureLeftSide:(UITableViewCell*)cell
@@ -509,7 +496,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(BOOL)viewAttached
 {
-	return callbackCell != nil;
+	return (callbackCell != nil) && (callbackCell.proxy == self);
 }
 
 -(BOOL)canHaveControllerParent
@@ -744,20 +731,47 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 {
 	attaching = YES;
 	[super windowWillOpen];
+	[self setParentVisible:YES];
 	attaching = NO;
+}
+
+-(void)triggerUpdateIfHeightChanged
+{
+    TiThreadPerformOnMainThread(^{
+        if ([self viewAttached] && rowContainerView != nil) {
+            CGFloat curHeight = rowContainerView.bounds.size.height;
+            CGSize newSize = [callbackCell computeCellSize];
+            if (newSize.height != curHeight) {
+                DeveloperLog(@"Height changing from %.1f to %.1f. Triggering update.",curHeight,newSize.height);
+                [self triggerRowUpdate];
+            } else {
+                DeveloperLog(@"Height does not change. Just laying out children. Height %.1f",curHeight);
+                //TIMOB-13121. Ensure touchdelegate is set if we are not going to reconstruct the row.
+                if ([rowContainerView superview] != nil) {
+                    UIView* contentView = [rowContainerView superview];
+                    [[self children] enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
+                        [self redelegateViews:proxy toView:contentView];
+                    }];
+                }
+                [callbackCell setNeedsDisplay];
+            }
+        } else {
+            [callbackCell setNeedsDisplay];
+        }
+    }, NO);
 }
 
 -(void)contentsWillChange
 {
 	if (attaching==NO)
 	{
-		[self triggerRowUpdate];
+		[self triggerUpdateIfHeightChanged];
 	}
 }
 
 -(void)childWillResize:(TiViewProxy *)child
 {
-	[self triggerRowUpdate];
+	[self triggerUpdateIfHeightChanged];
 }
 
 -(TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell atPoint:(CGPoint*)point
@@ -822,26 +836,32 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(void)setSelectedBackgroundColor:(id)arg
 {
-	[self replaceValue:arg forKey:@"selectedBackgroundColor" notification:NO];	
-	if (callbackCell != nil) {
-		[self configureBackground:callbackCell];
-	}
+    [self replaceValue:arg forKey:@"selectedBackgroundColor" notification:NO];
+    TiThreadPerformOnMainThread(^{
+        if ([self viewAttached]) {
+            [self configureBackground:callbackCell];
+        }
+    }, NO);
 }
 
 -(void)setBackgroundImage:(id)arg
 {
 	[self replaceValue:arg forKey:@"backgroundImage" notification:NO];	
-	if (callbackCell != nil) {
-		[self configureBackground:callbackCell];
-	}
+    TiThreadPerformOnMainThread(^{
+        if ([self viewAttached]) {
+            [self configureBackground:callbackCell];
+        }
+    }, NO);
 }
 
 -(void)setSelectedBackgroundImage:(id)arg
 {
 	[self replaceValue:arg forKey:@"selectedBackgroundImage" notification:NO];	
-	if (callbackCell != nil) {
-		[self configureBackground:callbackCell];
-	}
+    TiThreadPerformOnMainThread(^{
+        if ([self viewAttached]) {
+            [self configureBackground:callbackCell];
+        }
+    }, NO);
 }
 
 -(void)setBackgroundGradient:(id)arg
@@ -873,10 +893,34 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 					nil];
 	}
 	
-	if ([TableViewRowProperties member:key]!=nil)
-	{
-		[self triggerRowUpdate];
-	}
+    if ([TableViewRowProperties member:key]!=nil)
+    {
+        TiThreadPerformOnMainThread(^{
+            if (![self viewAttached]) {
+                return;
+            }
+            if ([key isEqualToString:@"height"] || [key isEqualToString:@"width"] || [key isEqualToString:@"indentionLevel"]) {
+                [self triggerRowUpdate];
+            } else if ([key isEqualToString:@"title"] || [key isEqualToString:@"color"] || [key isEqualToString:@"font"] || [key isEqualToString:@"selectedColor"]) {
+                [self configureTitle:callbackCell];
+                [callbackCell setNeedsDisplay];
+            } else if ([key isEqualToString:@"hasCheck"] || [key isEqualToString:@"hasChild"] || [key isEqualToString:@"hasDetail"] || [key isEqualToString:@"rightImage"]) {
+                [self configureRightSide:callbackCell];
+                [self triggerUpdateIfHeightChanged];
+            } else if ([key isEqualToString:@"leftImage"]) {
+                [self configureLeftSide:callbackCell];
+                [self triggerUpdateIfHeightChanged];
+            } else if ([key isEqualToString:@"backgroundImage"]) {
+                [self configureBackground:callbackCell];
+                [callbackCell setNeedsDisplay];
+            } else if ([key isEqualToString:@"backgroundColor"]) {
+                [callbackCell setBackgroundColor:[[TiUtils colorValue:newValue] color]];
+                [callbackCell setNeedsDisplay];
+            } else if ([key isEqualToString:@"accessibilityLabel"]){
+                callbackCell.accessibilityLabel = [TiUtils stringValue:newValue];
+            }
+        }, NO);
+    }
 }
 
 -(TiDimension)defaultAutoHeightBehavior:(id)unused

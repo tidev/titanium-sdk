@@ -14,6 +14,7 @@
 #import "TiStylesheet.h"
 #import "TiLocale.h"
 #import "TiUIView.h"
+#import "TiApp.h"
 
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
@@ -44,6 +45,13 @@
 @synthesize children;
 -(NSArray*)children
 {
+    if (![NSThread isMainThread]) {
+        __block NSArray* result = nil;
+        TiThreadPerformOnMainThread(^{
+            result = [[self children] retain];
+        }, YES);
+        return [result autorelease];
+    }
     NSArray* copy = nil;
     
 	pthread_rwlock_rdlock(&childrenLock);
@@ -56,6 +64,11 @@
     }
 	pthread_rwlock_unlock(&childrenLock);
 	return ((copy != nil) ? [copy autorelease] : [NSMutableArray array]);
+}
+
+-(NSString*)apiName
+{
+    return @"Ti.View";
 }
 
 -(void)setVisible:(NSNumber *)newVisible withObject:(id)args
@@ -147,6 +160,11 @@
 		return;
 	}
 	
+    if ([arg conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        DebugLog(@"Can not add a window as a child of a view. Returning");
+        return;
+    }
+    
 	if ([NSThread isMainThread])
 	{
 		pthread_rwlock_wrlock(&childrenLock);
@@ -461,7 +479,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	TiRect *rect = [[TiRect alloc] init];
     if ([self viewAttached]) {
         [self makeViewPerformSelector:@selector(fillBoundsToRect:) withObject:rect createIfNeeded:YES waitUntilDone:YES];
-        id defaultUnit = [[NSUserDefaults standardUserDefaults] objectForKey:@"ti.ui.defaultunit"];
+        id defaultUnit = [[TiApp tiAppProperties] objectForKey:@"ti.ui.defaultunit"];
         if ([defaultUnit isKindOfClass:[NSString class]]) {
             [rect convertToUnit:defaultUnit];
         }
@@ -494,7 +512,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
         viewRect.origin.y += viewPosition.y;
         [rect setRect:viewRect];
         
-        id defaultUnit = [[NSUserDefaults standardUserDefaults] objectForKey:@"ti.ui.defaultunit"];
+        id defaultUnit = [[TiApp tiAppProperties] objectForKey:@"ti.ui.defaultunit"];
         if ([defaultUnit isKindOfClass:[NSString class]]) {
             [rect convertToUnit:defaultUnit];
         }       
@@ -1006,27 +1024,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 #pragma mark Recognizers
 
--(void)recognizedPinch:(UIPinchGestureRecognizer*)recognizer 
-{ 
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                           NUMDOUBLE(recognizer.scale), @"scale", 
-                           NUMDOUBLE(recognizer.velocity), @"velocity", 
-                           nil]; 
-    [self fireEvent:@"pinch" withObject:event]; 
-}
-
--(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer 
-{ 
-    if ([recognizer state] == UIGestureRecognizerStateBegan) {
-        CGPoint p = [recognizer locationInView:self.view];
-        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                               NUMFLOAT(p.x), @"x",
-                               NUMFLOAT(p.y), @"y",
-                               nil];
-        [self fireEvent:@"longpress" withObject:event]; 
-    }
-}
-
 -(TiUIView*)view
 {
 	if (view == nil)
@@ -1042,18 +1039,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		[self viewWillAttach];
 		view = [self newView];
 
-        // check listeners dictionary to see if we need gesture recognizers
-        if ([self _hasListeners:@"pinch"]) {
-            UIPinchGestureRecognizer* r = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
-            [view addGestureRecognizer:r];
-            [r release];
-        }
-        if ([self _hasListeners:@"longpress"]) {
-            UILongPressGestureRecognizer* r = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
-            [view addGestureRecognizer:r];
-            [r release];
-        }
-        
 		view.proxy = self;
 		view.layer.transform = CATransform3DIdentity;
 		view.transform = CGAffineTransformIdentity;
@@ -1319,23 +1304,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 -(CGRect)appFrame	//TODO: Why is this here? It doesn't have anything to do with a specific instance.
 {
-	CGRect result=[[UIScreen mainScreen] applicationFrame];
-	switch ([[UIApplication sharedApplication] statusBarOrientation])
-	{
-		case UIInterfaceOrientationLandscapeLeft:
-		case UIInterfaceOrientationLandscapeRight:
-		{
-			CGFloat leftMargin = result.origin.y;
-			CGFloat topMargin = result.origin.x;
-			CGFloat newHeight = result.size.width;
-			CGFloat newWidth = result.size.height;
-			result = CGRectMake(leftMargin, topMargin, newWidth, newHeight);
-			break;
-		}
-		default: {
-			break;
-		}
-	}
+	CGRect result = [[[[TiApp app] controller] view] bounds];
 	return result;
 }
 
@@ -1635,9 +1604,17 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 #pragma mark Listener Management
 
+-(BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check
+{
+    BOOL returnVal = [super _hasListeners:type];
+    if (!returnVal && check) {
+        returnVal = [[self parentForBubbling] _hasListeners:type];
+    }
+	return returnVal;
+}
 -(BOOL)_hasListeners:(NSString *)type
 {
-	return [super _hasListeners:type] || [[self parentForBubbling] _hasListeners:type];
+	return [self _hasListeners:type checkParent:YES];
 }
 
 //TODO: Remove once we've properly deprecated.
@@ -2282,7 +2259,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 -(BOOL)willBeRelaying
 {
-    DebugLog(@"DIRTY FLAGS %d WILLBERELAYING %d",dirtyflags, (*((char*)&dirtyflags) & (1 << (7 - TiRefreshViewEnqueued))));
+    DeveloperLog(@"DIRTY FLAGS %d WILLBERELAYING %d",dirtyflags, (*((char*)&dirtyflags) & (1 << (7 - TiRefreshViewEnqueued))));
     return ((*((char*)&dirtyflags) & (1 << (7 - TiRefreshViewEnqueued))) != 0);
 }
 

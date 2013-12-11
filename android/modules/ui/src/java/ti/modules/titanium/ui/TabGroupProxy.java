@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -302,6 +302,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public void windowCreated(TiBaseActivity activity) {
 		tabGroupActivity = new WeakReference<Activity>(activity);
 		activity.setWindowProxy(this);
+		activity.setLayoutProxy(this);
 		setActivity(activity);
 
 		// Use the navigation tabs if this platform supports the action bar.
@@ -329,6 +330,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		super.handlePostOpen();
 
 		opened = true;
+		opening = false;
 
 		// First open before we load and focus our first tab.
 		fireEvent(TiC.EVENT_OPEN, null);
@@ -369,8 +371,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		releaseViews();
 		view = null;
 
-		opened = false;
-
 		Activity activity = tabGroupActivity.get();
 		if (activity != null && !activity.isFinishing()) {
 			activity.finish();
@@ -378,15 +378,15 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	public void closeFromActivity() {
+	public void closeFromActivity(boolean activityIsFinishing) {
 		// Allow each tab to close its window before the tab group closes.
 		for (TabProxy tab : tabs) {
-			tab.close();
+			tab.close(activityIsFinishing);
 		}
 
 		// Call super to fire the close event on the tab group.
 		// This event must fire after each tab has been closed.
-		super.closeFromActivity();
+		super.closeFromActivity(activityIsFinishing);
 	}
 
 	@Override
@@ -487,8 +487,29 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
+	public void releaseViewsForActivityForcedToDestroy()
+	{
+		super.releaseViews();
+		if (tabs != null) {
+			synchronized (tabs) {
+				for (TabProxy t : tabs) {
+					// Need to keep the relationship between tabgroup and tabs, window and tab, window and tabgroup,
+					// in order to recover from forced-destroy activity.
+					t.releaseViewsForActivityForcedToDestroy();
+				}
+			}
+		}
+	}
+
+	@Override
 	protected Activity getWindowActivity()
 	{
 		return (tabGroupActivity != null) ? tabGroupActivity.get() : null;
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.TabGroup";
 	}
 }

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -29,7 +29,6 @@ import android.os.Message;
 import android.view.Window;
 
 @Kroll.proxy(creatableInModule = MapModule.class, propertyAccessors = {
-	TiC.PROPERTY_ANIMATE,
 	TiC.PROPERTY_ANNOTATIONS,
 	TiC.PROPERTY_MAP_TYPE,
 	TiC.PROPERTY_REGION,
@@ -546,5 +545,11 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 				return super.handleMessage(msg);
 			}
 		}
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Map.View";
 	}
 }

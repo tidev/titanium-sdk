@@ -38,15 +38,31 @@ exports.bootstrap = function(Titanium) {
 
 	var _open = TabGroup.prototype.open;
 	TabGroup.prototype.open = function(options) {
+
+		if (this.currentState == this.state.opened) {
+			return;
+		}
+		
 		this.currentState = this.state.opening;
 
 		// Retain the tab group until is has closed.
 		var handle = new PersistentHandle(this);
 
 		var self = this;
-		this.on('close', function() {
+		this.on("close", function(e) {
+			if (e._closeFromActivityForcedToDestroy) {
+				if (kroll.DBG) {
+					kroll.log(TAG, "Tabgroup is closed because the activity is forced to destroy by Android OS.");
+				}
+				return;
+			}
+
 			self.currentState = self.state.closed;
 			handle.dispose();
+
+			if (kroll.DBG) {
+				kroll.log(TAG, "Tabgroup is closed normally.");
+			}
 		});
 
 		this.setTabs(this._tabs);

@@ -19,6 +19,8 @@
 	NSMutableArray *_sections;
 	NSMutableArray *_operationQueue;
 	pthread_mutex_t _operationQueueMutex;
+	pthread_rwlock_t _markerLock;
+	NSIndexPath *marker;
 }
 
 - (id)init
@@ -28,6 +30,7 @@
 		_sections = [[NSMutableArray alloc] initWithCapacity:4];
 		_operationQueue = [[NSMutableArray alloc] initWithCapacity:10];
 		pthread_mutex_init(&_operationQueueMutex,NULL);
+		pthread_rwlock_init(&_markerLock,NULL);
     }
     return self;
 }
@@ -39,11 +42,18 @@
     [super _initWithProperties:properties];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.ListView";
+}
+
 - (void)dealloc
 {
 	[_operationQueue release];
 	pthread_mutex_destroy(&_operationQueueMutex);
+	pthread_rwlock_destroy(&_markerLock);
 	[_sections release];
+	RELEASE_TO_NIL(marker);
     [super dealloc];
 }
 
@@ -191,7 +201,7 @@
 		}
 	}];
 	TiThreadPerformOnMainThread(^{
-		[self.listView setTemplates_:templates];
+		[self.listView setDictTemplates_:templates];
 	}, NO);
 	[templates release];
 }
@@ -439,6 +449,34 @@
     TiThreadPerformOnMainThread(^{
         [self.listView setContentInsets_:arg1 withObject:arg2];
     }, NO);
+}
+
+#pragma mark - Marker Support
+- (void)setMarker:(id)args;
+{
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+    pthread_rwlock_wrlock(&_markerLock);
+    int section = [TiUtils intValue:[args objectForKey:@"sectionIndex"] def:NSIntegerMax];
+    int row = [TiUtils intValue:[args objectForKey:@"itemIndex"] def:NSIntegerMax];
+    RELEASE_TO_NIL(marker);
+    marker = [[NSIndexPath indexPathForRow:row inSection:section] retain];
+    pthread_rwlock_unlock(&_markerLock);
+}
+
+-(void)willDisplayCell:(NSIndexPath*)indexPath
+{
+    if ((marker != nil) && [self _hasListeners:@"marker"]) {
+        //Never block the UI thread
+        int result = pthread_rwlock_tryrdlock(&_markerLock);
+        if (result != 0) {
+            return;
+        }
+        if ( (indexPath.section > marker.section) || ( (marker.section == indexPath.section) && (indexPath.row >= marker.row) ) ){
+            [self fireEvent:@"marker" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+            RELEASE_TO_NIL(marker);
+        }
+        pthread_rwlock_unlock(&_markerLock);
+    }
 }
 
 DEFINE_DEF_BOOL_PROP(willScrollOnStatusTap,YES);

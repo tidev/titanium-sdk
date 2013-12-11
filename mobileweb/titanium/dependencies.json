@@ -15,7 +15,8 @@
 		"Ti/Locale",
 		"Ti/_/include"
 	],
-	"Ti/_": [
+	"Ti/API": [
+		"Ti/_/Evented",
 		"Ti/_/lang"
 	],
 	"Ti/Accelerometer": [
@@ -24,10 +25,6 @@
 	],
 	"Ti/Analytics": [
 		"Ti/_/analytics",
-		"Ti/_/Evented",
-		"Ti/_/lang"
-	],
-	"Ti/API": [
 		"Ti/_/Evented",
 		"Ti/_/lang"
 	],
@@ -79,7 +76,8 @@
 		"Ti/_/Evented",
 		"Ti/_/lang",
 		"Ti/UI",
-		"Ti/_/ready"
+		"Ti/_/ready",
+		"Ti/_/event"
 	],
 	"Ti/IOStream": [
 		"Ti/_/declare",
@@ -149,220 +147,8 @@
 		"Ti/_/Evented",
 		"Ti/_/lang"
 	],
-	"Ti/_/analytics": [
-		"Ti/_",
-		"Ti/_/dom",
-		"Ti/_/has",
-		"Ti/_/lang",
-		"Ti/App",
-		"Ti/Platform"
-	],
-	"Ti/_/browser": [
-		"Ti/_"
-	],
-	"Ti/_/colors": [],
-	"Ti/_/css": [
-		"Ti/_",
-		"Ti/_/string"
-	],
-	"Ti/_/declare": [
-		"Ti/_",
+	"Ti/_": [
 		"Ti/_/lang"
-	],
-	"Ti/_/dom": [
-		"Ti/_",
-		"Ti/API",
-		"Ti/_/style"
-	],
-	"Ti/_/encoding": [
-		"Ti/_/lang"
-	],
-	"Ti/_/event": [],
-	"Ti/_/Evented": [],
-	"Ti/_/has": [],
-	"Ti/_/image": [],
-	"Ti/_/include": [],
-	"Ti/_/lang": [
-		"Ti/_/has"
-	],
-	"Ti/_/Layouts": [
-		"Ti/_/Layouts/Composite",
-		"Ti/_/Layouts/Horizontal",
-		"Ti/_/Layouts/Vertical",
-		"Ti/_/Layouts/ConstrainingHorizontal",
-		"Ti/_/Layouts/ConstrainingVertical"
-	],
-	"Ti/_/Promise": [
-		"./declare",
-		"./lang"
-	],
-	"Ti/_/ready": [],
-	"Ti/_/string": [
-		"Ti/_",
-		"Ti/_/has",
-		"Ti/_/lang"
-	],
-	"Ti/_/style": [
-		"Ti/_",
-		"Ti/_/string",
-		"Ti/Filesystem"
-	],
-	"Ti/_/text": [],
-	"Ti/_/Filesystem/Local": [
-		"Ti/_",
-		"Ti/_/declare",
-		"Ti/_/encoding",
-		"Ti/_/lang",
-		"Ti/API",
-		"Ti/Blob"
-	],
-	"Ti/_/Gestures/DoubleTap": [
-		"Ti/_/declare",
-		"Ti/_/lang"
-	],
-	"Ti/_/Gestures/Dragging": [
-		"Ti/_/declare",
-		"Ti/_/lang"
-	],
-	"Ti/_/Gestures/LongPress": [
-		"Ti/_/declare",
-		"Ti/_/lang"
-	],
-	"Ti/_/Gestures/Pinch": [
-		"Ti/_/declare",
-		"Ti/_/lang"
-	],
-	"Ti/_/Gestures/SingleTap": [
-		"Ti/_/declare",
-		"Ti/_/lang"
-	],
-	"Ti/_/Gestures/Swipe": [
-		"Ti/_/declare",
-		"Ti/_/lang"
-	],
-	"Ti/_/Gestures/TouchCancel": [
-		"Ti/_/declare",
-		"Ti/_/lang"
-	],
-	"Ti/_/Gestures/TouchEnd": [
-		"Ti/_/declare",
-		"Ti/_/lang"
-	],
-	"Ti/_/Gestures/TouchMove": [
-		"Ti/_/declare",
-		"Ti/_/lang"
-	],
-	"Ti/_/Gestures/TouchStart": [
-		"Ti/_/declare",
-		"Ti/_/lang"
-	],
-	"Ti/_/Gestures/TwoFingerTap": [
-		"Ti/_/declare",
-		"Ti/_/lang"
-	],
-	"Ti/_/Layouts/Base": [
-		"Ti/_/css",
-		"Ti/_/declare",
-		"Ti/_/style",
-		"Ti/_/lang",
-		"Ti/API",
-		"Ti/UI",
-		"Ti/_",
-		"Ti/_/dom"
-	],
-	"Ti/_/Layouts/Composite": [
-		"Ti/_/Layouts/Base",
-		"Ti/_/declare",
-		"Ti/UI",
-		"Ti/_/lang"
-	],
-	"Ti/_/Layouts/ConstrainingHorizontal": [
-		"Ti/_/Layouts/Base",
-		"Ti/_/declare",
-		"Ti/UI",
-		"Ti/_/lang",
-		"Ti/_/style"
-	],
-	"Ti/_/Layouts/ConstrainingVertical": [
-		"Ti/_/Layouts/Base",
-		"Ti/_/declare",
-		"Ti/UI",
-		"Ti/_/lang",
-		"Ti/_/style"
-	],
-	"Ti/_/Layouts/Horizontal": [
-		"Ti/_/Layouts/Base",
-		"Ti/_/declare",
-		"Ti/API",
-		"Ti/UI",
-		"Ti/_/lang",
-		"Ti/_/style"
-	],
-	"Ti/_/Layouts/Vertical": [
-		"Ti/_/Layouts/Base",
-		"Ti/_/declare",
-		"Ti/UI",
-		"Ti/_/lang",
-		"Ti/_/style"
-	],
-	"Ti/_/Map/Google": [
-		"Ti/_/declare",
-		"Ti/_/dom",
-		"Ti/_/event",
-		"Ti/_/lang",
-		"Ti/App/Properties",
-		"Ti/Geolocation",
-		"Ti/Map",
-		"Ti/UI/View",
-		"Ti/Utils"
-	],
-	"Ti/_/UI/Element": [
-		"Ti/_/css",
-		"Ti/_/declare",
-		"Ti/_/dom",
-		"Ti/_/event",
-		"Ti/_/lang",
-		"Ti/_/style",
-		"Ti/_/Evented",
-		"Ti/UI",
-		"Ti/UI/Animation"
-	],
-	"Ti/_/UI/FontWidget": [
-		"Ti/_/declare",
-		"Ti/_/dom",
-		"Ti/_/lang",
-		"Ti/_/ready",
-		"Ti/_/style",
-		"Ti/_/UI/Widget"
-	],
-	"Ti/_/UI/KineticScrollView": [
-		"Ti/_/browser",
-		"Ti/_/declare",
-		"Ti/UI/View",
-		"Ti/_/lang",
-		"Ti/_/dom",
-		"Ti/_/style",
-		"Ti/UI",
-		"Ti/_/event"
-	],
-	"Ti/_/UI/SuperView": [
-		"Ti/_/declare",
-		"Ti/UI",
-		"Ti/UI/View"
-	],
-	"Ti/_/UI/TextBox": [
-		"Ti/_/declare",
-		"Ti/_/dom",
-		"Ti/_/event",
-		"Ti/_/style",
-		"Ti/_/lang",
-		"Ti/_/UI/FontWidget",
-		"Ti/UI"
-	],
-	"Ti/_/UI/WebViewBridge": [],
-	"Ti/_/UI/Widget": [
-		"Ti/_/declare",
-		"Ti/UI/View"
 	],
 	"Ti/App/Properties": [
 		"Ti/_/Evented",
@@ -377,7 +163,6 @@
 	],
 	"Ti/Filesystem/File": [
 		"Ti/_/declare",
-		"Ti/_/Evented",
 		"Ti/_/Filesystem/Local",
 		"Ti/App/Properties"
 	],
@@ -392,9 +177,16 @@
 	],
 	"Ti/Map/View": [
 		"Ti/_/declare",
-		"Ti/_/Evented",
 		"Ti/_/Map/Google",
 		"Ti/App/Properties"
+	],
+	"Ti/Media/AudioPlayer": [
+		"Ti/_/declare",
+		"Ti/_/Evented"
+	],
+	"Ti/Media/Sound": [
+		"Ti/_/declare",
+		"Ti/_/Evented"
 	],
 	"Ti/Media/VideoPlayer": [
 		"Ti/_/declare",
@@ -537,6 +329,13 @@
 		"Ti/_/style",
 		"Ti/UI"
 	],
+	"Ti/UI/ScrollView": [
+		"Ti/_/declare",
+		"Ti/_/UI/KineticScrollView",
+		"Ti/_/style",
+		"Ti/_/lang",
+		"Ti/UI"
+	],
 	"Ti/UI/ScrollableView": [
 		"Ti/_/declare",
 		"Ti/UI/View",
@@ -544,13 +343,6 @@
 		"Ti/_/style",
 		"Ti/UI",
 		"Ti/_/browser"
-	],
-	"Ti/UI/ScrollView": [
-		"Ti/_/declare",
-		"Ti/_/UI/KineticScrollView",
-		"Ti/_/style",
-		"Ti/_/lang",
-		"Ti/UI"
 	],
 	"Ti/UI/Slider": [
 		"Ti/_/declare",
@@ -630,12 +422,9 @@
 	],
 	"Ti/UI/View": [
 		"Ti/_/declare",
-		"Ti/_/dom",
 		"Ti/_/UI/Element",
-		"Ti/_/lang",
 		"Ti/_/string",
 		"Ti/_/Layouts",
-		"Ti/_/style",
 		"Ti/UI"
 	],
 	"Ti/UI/WebView": [
@@ -644,12 +433,12 @@
 		"Ti/_/dom",
 		"Ti/_/event",
 		"Ti/_/lang",
-		"Ti/_/text",
-		"Ti/_/UI/WebViewBridge",
+		"Ti/_/text!Ti/_/UI/WebViewBridge.js",
 		"Ti/App",
 		"Ti/API",
 		"Ti/UI"
 	],
+	"Ti/_/text!Ti/_/UI/WebViewBridge.js": [],
 	"Ti/UI/Window": [
 		"Ti/_/declare",
 		"Ti/Gesture",
@@ -666,5 +455,212 @@
 	],
 	"Ti/UI/MobileWeb/TableViewSeparatorStyle": [
 		"Ti/_/lang"
+	],
+	"Ti/_/Evented": [],
+	"Ti/_/Layouts": [
+		"Ti/_/Layouts/Composite",
+		"Ti/_/Layouts/Horizontal",
+		"Ti/_/Layouts/Vertical",
+		"Ti/_/Layouts/ConstrainingHorizontal",
+		"Ti/_/Layouts/ConstrainingVertical"
+	],
+	"Ti/_/analytics": [
+		"Ti/_",
+		"Ti/_/dom",
+		"Ti/_/has",
+		"Ti/_/lang",
+		"Ti/App",
+		"Ti/Platform"
+	],
+	"Ti/_/browser": [
+		"Ti/_"
+	],
+	"Ti/_/colors": [],
+	"Ti/_/css": [
+		"Ti/_",
+		"Ti/_/string"
+	],
+	"Ti/_/declare": [
+		"Ti/_",
+		"Ti/_/lang"
+	],
+	"Ti/_/dom": [
+		"Ti/_",
+		"Ti/API",
+		"Ti/_/style"
+	],
+	"Ti/_/encoding": [
+		"Ti/_/lang"
+	],
+	"Ti/_/event": [],
+	"Ti/_/has": [],
+	"Ti/_/image": [],
+	"Ti/_/include": [],
+	"Ti/_/lang": [
+		"Ti/_/has"
+	],
+	"Ti/_/ready": [],
+	"Ti/_/string": [
+		"Ti/_",
+		"Ti/_/has",
+		"Ti/_/lang"
+	],
+	"Ti/_/style": [
+		"Ti/_",
+		"Ti/_/string",
+		"Ti/Filesystem"
+	],
+	"Ti/_/text": [],
+	"Ti/_/Filesystem/Local": [
+		"Ti/_",
+		"Ti/_/Evented",
+		"Ti/_/declare",
+		"Ti/_/encoding",
+		"Ti/_/lang",
+		"Ti/API",
+		"Ti/Blob"
+	],
+	"Ti/_/Gestures/DoubleTap": [
+		"Ti/_/declare",
+		"Ti/_/lang"
+	],
+	"Ti/_/Gestures/Dragging": [
+		"Ti/_/declare",
+		"Ti/_/lang"
+	],
+	"Ti/_/Gestures/LongPress": [
+		"Ti/_/declare",
+		"Ti/_/lang"
+	],
+	"Ti/_/Gestures/Pinch": [
+		"Ti/_/declare",
+		"Ti/_/lang"
+	],
+	"Ti/_/Gestures/SingleTap": [
+		"Ti/_/declare",
+		"Ti/_/lang"
+	],
+	"Ti/_/Gestures/Swipe": [
+		"Ti/_/declare",
+		"Ti/_/lang"
+	],
+	"Ti/_/Gestures/TouchCancel": [
+		"Ti/_/declare",
+		"Ti/_/lang"
+	],
+	"Ti/_/Gestures/TouchEnd": [
+		"Ti/_/declare",
+		"Ti/_/lang"
+	],
+	"Ti/_/Gestures/TouchMove": [
+		"Ti/_/declare",
+		"Ti/_/lang"
+	],
+	"Ti/_/Gestures/TouchStart": [
+		"Ti/_/declare",
+		"Ti/_/lang"
+	],
+	"Ti/_/Gestures/TwoFingerTap": [
+		"Ti/_/declare",
+		"Ti/_/lang"
+	],
+	"Ti/_/Layouts/Base": [
+		"Ti/_/css",
+		"Ti/_/declare",
+		"Ti/_/style",
+		"Ti/_/lang",
+		"Ti/API",
+		"Ti/UI",
+		"Ti/_",
+		"Ti/_/dom"
+	],
+	"Ti/_/Layouts/Composite": [
+		"Ti/_/Layouts/Base",
+		"Ti/_/declare",
+		"Ti/UI",
+		"Ti/_/lang"
+	],
+	"Ti/_/Layouts/ConstrainingHorizontal": [
+		"Ti/_/Layouts/Base",
+		"Ti/_/declare",
+		"Ti/UI",
+		"Ti/_/lang"
+	],
+	"Ti/_/Layouts/ConstrainingVertical": [
+		"Ti/_/Layouts/Base",
+		"Ti/_/declare",
+		"Ti/UI",
+		"Ti/_/lang"
+	],
+	"Ti/_/Layouts/Horizontal": [
+		"Ti/_/Layouts/Base",
+		"Ti/_/declare",
+		"Ti/API",
+		"Ti/UI",
+		"Ti/_/lang"
+	],
+	"Ti/_/Layouts/Vertical": [
+		"Ti/_/Layouts/Base",
+		"Ti/_/declare",
+		"Ti/UI",
+		"Ti/_/lang"
+	],
+	"Ti/_/Map/Google": [
+		"Ti/_/declare",
+		"Ti/_/dom",
+		"Ti/_/event",
+		"Ti/_/lang",
+		"Ti/App/Properties",
+		"Ti/Geolocation",
+		"Ti/Map",
+		"Ti/UI/View",
+		"Ti/Utils"
+	],
+	"Ti/_/UI/Element": [
+		"Ti/_/css",
+		"Ti/_/declare",
+		"Ti/_/dom",
+		"Ti/_/event",
+		"Ti/_/lang",
+		"Ti/_/style",
+		"Ti/_/Evented",
+		"Ti/UI",
+		"Ti/UI/Animation"
+	],
+	"Ti/_/UI/FontWidget": [
+		"Ti/_/declare",
+		"Ti/_/dom",
+		"Ti/_/lang",
+		"Ti/_/ready",
+		"Ti/_/style",
+		"Ti/_/UI/Widget"
+	],
+	"Ti/_/UI/KineticScrollView": [
+		"Ti/_/browser",
+		"Ti/_/declare",
+		"Ti/UI/View",
+		"Ti/_/lang",
+		"Ti/_/dom",
+		"Ti/_/style",
+		"Ti/UI",
+		"Ti/_/event"
+	],
+	"Ti/_/UI/SuperView": [
+		"Ti/_/declare",
+		"Ti/UI",
+		"Ti/UI/View"
+	],
+	"Ti/_/UI/TextBox": [
+		"Ti/_/declare",
+		"Ti/_/dom",
+		"Ti/_/event",
+		"Ti/_/style",
+		"Ti/_/lang",
+		"Ti/_/UI/FontWidget",
+		"Ti/UI"
+	],
+	"Ti/_/UI/Widget": [
+		"Ti/_/declare",
+		"Ti/UI/View"
 	]
 }

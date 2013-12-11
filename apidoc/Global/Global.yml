@@ -86,6 +86,7 @@ methods:
       - name: encodedURI
         summary: Text that optionally contains encoded escape sequences.
         type: String
+    exclude-platforms: [blackberry]
         
   - name: encodeURIComponent
     summary: |
@@ -102,6 +103,7 @@ methods:
       - name: string
         summary: Text that optionally contains special characters.
         type: String
+    exclude-platforms: [blackberry]
         
   - name: L
     summary: An alias for <Titanium.Locale.getString>.

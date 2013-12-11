@@ -40,10 +40,14 @@ public class ListSectionProxy extends ViewProxy{
 	private int itemCount;
 	private TiBaseAdapter adapter;
 	private ArrayList<Object> itemProperties;
+	private ArrayList<Integer> filterIndices;
 	private boolean preload;
 	
 	private String headerTitle;
 	private String footerTitle;
+	
+	private TiViewProxy headerView;
+	private TiViewProxy footerView;
 	
 	private WeakReference<TiListView> listView;
 	public TiDefaultListViewTemplate builtInTemplate;
@@ -59,21 +63,32 @@ public class ListSectionProxy extends ViewProxy{
 	private static final int MSG_UPDATE_ITEM_AT = MSG_FIRST_ID + 706;
 	private static final int MSG_GET_ITEMS = MSG_FIRST_ID + 707;
 
-
-	
-
-
-	
 	public class ListItemData {
 		private KrollDict properties;
 		private TiListViewTemplate template;
+		private String searchableText;
 		public ListItemData (KrollDict properties, TiListViewTemplate template) {
 			this.properties = properties;
 			this.template = template;
+			//set searchableText
+			if (properties.containsKey(TiC.PROPERTY_PROPERTIES)) {
+				Object props = properties.get(TiC.PROPERTY_PROPERTIES);
+				if (props instanceof HashMap) {
+					HashMap<String, Object> propsHash = (HashMap<String, Object>) props;
+					if (propsHash.containsKey(TiC.PROPERTY_SEARCHABLE_TEXT)) {
+						searchableText = TiConvert.toString(propsHash, TiC.PROPERTY_SEARCHABLE_TEXT);
+					}
+				}
+			}
+
 		}
-		
+
 		public KrollDict getProperties() {
 			return properties;
+		}
+		
+		public String getSearchableText() {
+			return searchableText;
 		}
 		
 		public TiListViewTemplate getTemplate() {
@@ -84,6 +99,7 @@ public class ListSectionProxy extends ViewProxy{
 	public ListSectionProxy () {
 		//initialize variables
 		listItemData = new ArrayList<ListItemData>();
+		filterIndices = new ArrayList<Integer>();
 		itemCount = 0;
 		preload = false;
 	}
@@ -96,6 +112,18 @@ public class ListSectionProxy extends ViewProxy{
 		if (dict.containsKey(TiC.PROPERTY_FOOTER_TITLE)) {
 			footerTitle = TiConvert.toString(dict, TiC.PROPERTY_FOOTER_TITLE);
 		}
+		if (dict.containsKey(TiC.PROPERTY_HEADER_VIEW)) {
+			Object obj = dict.get(TiC.PROPERTY_HEADER_VIEW);
+			if (obj instanceof TiViewProxy) {
+				headerView = (TiViewProxy) obj;
+			}
+		}
+		if (dict.containsKey(TiC.PROPERTY_FOOTER_VIEW)) {
+			Object obj = dict.get(TiC.PROPERTY_FOOTER_VIEW);
+			if (obj instanceof TiViewProxy) {
+				footerView = (TiViewProxy) obj;
+			}
+		}
 		if (dict.containsKey(TiC.PROPERTY_ITEMS)) {
 			handleSetItems(dict.get(TiC.PROPERTY_ITEMS));
 		}
@@ -106,10 +134,36 @@ public class ListSectionProxy extends ViewProxy{
 	}
 
 	@Kroll.method @Kroll.setProperty
+	public void setHeaderView(TiViewProxy headerView) {
+		this.headerView = headerView;
+		if (adapter != null) {
+			notifyDataChange();
+		}
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public TiViewProxy getHeaderView() {
+		return headerView;
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setFooterView(TiViewProxy footerView) {
+		this.footerView = footerView;
+		if (adapter != null) {
+			notifyDataChange();
+		}
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public TiViewProxy getFooterView() {
+		return footerView;
+	}
+	
+	@Kroll.method @Kroll.setProperty
 	public void setHeaderTitle(String headerTitle) {
 		this.headerTitle = headerTitle;
 		if (adapter != null) {
-			adapter.notifyDataSetChanged();
+			notifyDataChange();
 		}
 	}
 	
@@ -122,7 +176,7 @@ public class ListSectionProxy extends ViewProxy{
 	public void setFooterTitle(String headerTitle) {
 		this.footerTitle = headerTitle;
 		if (adapter != null) {
-			adapter.notifyDataSetChanged();
+			notifyDataChange();
 		}
 	}
 	
@@ -131,13 +185,32 @@ public class ListSectionProxy extends ViewProxy{
 		return footerTitle;
 	}
 	
+	public void notifyDataChange() {
+		getMainHandler().post(new Runnable() {
+			@Override
+			public void run()
+			{
+				adapter.notifyDataSetChanged();
+			}
+		});
+	}
+
 	public String getHeaderOrFooterTitle(int index) {
-		if (isHeaderView(index)) {
+		if (isHeaderTitle(index)) {
 			return headerTitle;
-		} else if (isFooterView(index)) {
+		} else if (isFooterTitle(index)) {
 			return footerTitle;
 		}
 		return "";
+	}
+
+	public View getHeaderOrFooterView(int index) {
+		if (isHeaderView(index)) {
+			return getListView().layoutHeaderOrFooterView(headerView);
+		} else if (isFooterView(index)) {
+			return getListView().layoutHeaderOrFooterView(footerView);
+		}
+		return null;
 	}
 
 	@Override
@@ -244,7 +317,9 @@ public class ListSectionProxy extends ViewProxy{
 	
 	@Kroll.method @Kroll.getProperty
 	public Object[] getItems() {
-		if (TiApplication.isUIThread()) {
+		if (itemProperties == null) {
+			return new Object[0];
+		} else if (TiApplication.isUIThread()) {
 			return itemProperties.toArray();
 		} else {
 			return (Object[]) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_ITEMS));
@@ -596,7 +671,8 @@ public class ListSectionProxy extends ViewProxy{
 			view.setAdditionalEventData(existingData);
 		}
 
-		if (headerTitle != null) {
+		//itemIndex = realItemIndex + header (if exists). We want the real item index.
+		if (headerTitle != null || headerView != null) {
 			itemIndex -= 1;
 		}
 
@@ -683,34 +759,66 @@ public class ListSectionProxy extends ViewProxy{
 	}
 	
 	public TiListViewTemplate getTemplateByIndex(int index) {
-		if (headerTitle != null) {
+		if (headerTitle != null || headerView != null) {
 			index -= 1;
 		}
-		return listItemData.get(index).getTemplate();
+		
+		if (isFilterOn()) {
+			return listItemData.get(filterIndices.get(index)).getTemplate();
+		} else {
+			return listItemData.get(index).getTemplate();
+		}
 	}
 
 	public int getContentCount() {
-		return itemCount;
+		if (isFilterOn()) {
+			return filterIndices.size();
+		} else {
+			return itemCount;
+		}
 	}
+
 	/**
 	 * @return number of entries within section
 	 */
 	public int getItemCount() {
-		int totalCount = itemCount;
-		if (headerTitle != null) {
-			totalCount += 1;
+		int totalCount = 0;
+
+		if (isFilterOn()) {
+			totalCount = filterIndices.size();
+		} else { 
+			totalCount = itemCount;
 		}
-		if (footerTitle != null) {
-			totalCount +=1;
+
+		if (!hideHeaderOrFooter()) {
+			if (headerTitle != null || headerView != null) {
+				totalCount += 1;
+			}
+			if (footerTitle != null || footerView != null) {
+				totalCount +=1;
+			}
 		}
 		return totalCount;
 	}
 	
+	private boolean hideHeaderOrFooter() {
+		TiListView listview = getListView();
+		return (listview.getSearchText() != null && filterIndices.isEmpty());
+	}
+	
 	public boolean isHeaderView(int pos) {
-		return (headerTitle != null && pos == 0) ;
+		return (headerView != null && pos == 0);
 	}
 	
 	public boolean isFooterView(int pos) {
+		return (footerView != null && pos == getItemCount() - 1);
+	}
+
+	public boolean isHeaderTitle(int pos) {
+		return (headerTitle != null && pos == 0) ;
+	}
+	
+	public boolean isFooterTitle(int pos) {
 		return (footerTitle != null && pos == getItemCount() - 1);
 	}
 	
@@ -740,13 +848,42 @@ public class ListSectionProxy extends ViewProxy{
 	}
 	
 	public KrollDict getListItemData(int position) {
-		if (headerTitle != null) {
+		if (headerTitle != null || headerView != null) {
 			position -= 1;
 		}
-		if (position >= 0 && position < listItemData.size()) {
+		
+		if (isFilterOn()) {
+			return listItemData.get(filterIndices.get(position)).getProperties();
+		} else if (position >= 0 && position < listItemData.size()) {
 			return listItemData.get(position).getProperties();
 		} 
 		return null;
+	}
+	
+	public boolean isFilterOn() {
+		if (getListView().getSearchText() != null) {
+			return true;
+		}
+		return false;
+	}
+
+	public void applyFilter(String searchText) {
+		//Clear previous result
+		filterIndices.clear();
+		boolean caseInsensitive = getListView().getCaseInsensitive();
+		//Add new results
+		for (int i = 0; i < listItemData.size(); ++i) {
+			String searchableText = listItemData.get(i).getSearchableText();
+			//Handle case sensitivity
+			if (caseInsensitive) {
+				searchText = searchText.toLowerCase();
+				searchableText = searchableText.toLowerCase();
+			}
+			//String comparison
+			if (searchableText != null && searchableText.contains(searchText)) {
+				filterIndices.add(i);
+			}
+		}
 	}
 	
 	public void release() {
@@ -771,5 +908,10 @@ public class ListSectionProxy extends ViewProxy{
 	{
 		listView = null;
 	}
-	
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.ListSection";
+	}
 }

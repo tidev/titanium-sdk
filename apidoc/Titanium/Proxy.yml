@@ -71,6 +71,7 @@ methods:
         summary: A dictionary of properties to apply.
         type: Dictionary
     since: "3.0.0"
+    exclude-platforms: [blackberry]
 
 properties:
 
@@ -86,3 +87,13 @@ properties:
     default: true
     platforms: [iphone, ipad, android]
     since: "3.0.0"
+
+  - name: apiName
+    summary: The name of the API that this proxy corresponds to.
+    description: |
+      The value of this property is the fully qualified name of the API. For example, [Button](Titanium.UI.Button)
+      returns `Ti.UI.Button`.
+    permission: read-only
+    type: String
+    platforms: [android, blackberry, iphone, ipad, mobileweb, tizen]
+    since: "3.2.0"

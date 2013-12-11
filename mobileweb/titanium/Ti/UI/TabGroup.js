@@ -11,7 +11,7 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 
 		constructor: function(args) {
 			var self = this,
-				tabsAtBottom = self.constants.tabsAtBottom = lang.val(args && args.tabsAtBottom, self.constants.tabsAtBottom),
+				tabsAtBottom = self.__values__.constants.tabsAtBottom = lang.val(args && args.tabsAtBottom, self.__values__.constants.tabsAtBottom),
 				TabBarContainer = declare(View, {
 					// set a declared class here so that it's not defined globally, yet we still are able
 					// to set a widget id and css class on the dom node.

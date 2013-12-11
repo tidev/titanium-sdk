@@ -23,7 +23,7 @@ description: |
     Make sure the window is modal and not full screen, and that the navigation bar is not hidden.
 extends: Titanium.UI.View
 since: "0.8"
-platforms: [android, iphone, ipad, mobileweb, tizen]
+platforms: [android, iphone, ipad, mobileweb, tizen, blackberry]
 
 methods:
     # main doc inherited from Ti.UI.View.add
@@ -50,15 +50,18 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
+    exclude-platforms: [blackberry]
   - name: font
     summary: Font for the progress bar text.
     type: Font
+    exclude-platforms: [blackberry]
   - name: max
     summary: Maximum value of the progress bar.
     type: Number
   - name: message
     summary: Progress bar text.
     type: String
+    exclude-platforms: [blackberry]
   - name: min
     summary: Minimum value of the progress bar.
     type: Number

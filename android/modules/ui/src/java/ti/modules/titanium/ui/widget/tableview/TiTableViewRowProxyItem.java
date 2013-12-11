@@ -45,6 +45,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 	private static final int LEFT_MARGIN = 5;
 	private static final int RIGHT_MARGIN = 7;
+	private static final int MIN_HEIGHT = 48;
 
 	private BitmapDrawable hasChildDrawable, hasCheckDrawable;
 	private ImageView leftImage;
@@ -319,8 +320,13 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		View v = t.getOuterView();
 		if (v.getParent() == null) {
 			TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) t.getLayoutParams();
-			params.optionLeft = new TiDimension(5, TiDimension.TYPE_LEFT);
-			params.optionRight = new TiDimension(5, TiDimension.TYPE_RIGHT);
+			if (params.optionLeft == null) {
+				params.optionLeft = new TiDimension(LEFT_MARGIN, TiDimension.TYPE_LEFT);
+			}
+
+			if (params.optionRight == null) {
+				params.optionRight = new TiDimension(LEFT_MARGIN, TiDimension.TYPE_RIGHT);
+			}
 			params.autoFillsWidth = true;
 			content.addView(v, params);
 		}
@@ -478,10 +484,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 			// If there is a child view, we don't set a minimum height for the row.
 			// Otherwise, we set a minimum height.
-			if (((TableViewRowProxy) item.proxy).hasControls()) {
+			boolean hasChildView = ((TableViewRowProxy) item.proxy).hasControls();
+			if (hasChildView) {
 				content.setMinimumHeight(0);
 			} else {
-				content.setMinimumHeight(48);
+				content.setMinimumHeight(MIN_HEIGHT);
 			}
 
 			measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), heightMeasureSpec);
@@ -500,7 +507,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				} else {
 					h = Math.max(minRowHeight, height.getAsPixels(this));
 				}
-				content.getLayoutParams().height = h;
+				if (hasChildView) {
+					content.getLayoutParams().height = h;
+				}
 
 				if (Log.isDebugModeEnabled()) {
 					Log.d(TAG, "Row content measure (" + adjustedWidth + "x" + h + ")", Log.DEBUG_MODE);

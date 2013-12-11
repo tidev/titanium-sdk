@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Key-Values: Append to a Key-Value](http://cloud.appcelerator.com/docs/api/v1/keyvalues/append)
+        See [Key-Values: Append to a Key-Value](http://docs.appcelerator.com/cloud/latest/#!/api/KeyValues-method-append)
         for the request parameters supported by this method.
         
         Not allowed on keyvalues with binary data.
@@ -27,7 +27,7 @@ methods:
   - name: get
     summary: Retrieve a string or binary value.
     description: |
-        See [Key-Value Store: Get a Value](http://cloud.appcelerator.com/docs/api/v1/keyvalues/get)
+        See [Key-Value Store: Get a Value](http://docs.appcelerator.com/cloud/latest/#!/api/KeyValues-method-get)
         for the request parameters supported by this method.
         
         Data is returned in the `keyvalues` property of the parameter passed to the callback.
@@ -45,7 +45,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Key-Values: Increment a Key-Value](http://cloud.appcelerator.com/docs/api/v1/keyvalues/incrby)
+        See [Key-Values: Increment a Key-Value](http://docs.appcelerator.com/cloud/latest/#!/api/KeyValues-method-incrby)
         for the request parameters supported by this method.
         
         Not allowed on keyvalues with binary data.
@@ -65,7 +65,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Key-Values: Delete a Key-Value](http://cloud.appcelerator.com/docs/api/v1/keyvalues/delete)
+        See [Key-Values: Delete a Key-Value](http://docs.appcelerator.com/cloud/latest/#!/api/KeyValues-method-delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -81,7 +81,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Key-Value Storage: Set a string or binary value](http://cloud.appcelerator.com/docs/api/v1/keyvalues/set)
+        See [Key-Value Storage: Set a string or binary value](http://docs.appcelerator.com/cloud/latest/#!/api/KeyValues-method-set)
         for the request parameters supported by this method.
     parameters:
       - name: parameters

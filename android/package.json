@@ -11,17 +11,22 @@
 	"version": "__VERSION__",
 	"author": "Appcelerator, Inc. <info@appcelerator.com>",
 	"maintainers": [
-		"Opie Cyrus <ncyrus@appcelerator.com>",
-		"Bill Dawson <bdawson@appcelerator.com>",
-		"Josh Roesslein <jroesslein@appcelerator.com>",
-		"Max Stepanov <mstepanov@appcelerator.com>",
+		"Chris Barber <cbarber@appcelerator.com>",
 		"Vishal Duggal <vduggal@appcelerator.com>",
+		"Matt Langston <mlangston@appcelerator.com>",
 		"Hieu Pham <hpham@appcelerator.com>",
 		"Ping Wang <pwang@appcelerator.com>",
-		"Allen Yeung <ayeung@appcelerator.com>",
-		"Karl Rowley <krowley@appcelerator.com>",
-		"Chris Barber <cbarber@appcelerator.com>"
+		"Allen Yeung <ayeung@appcelerator.com>"
 	],
+	"vendorDependencies": {
+		"android sdk": ">=10 <=19",
+		"android build tools": ">=17 <19.x",
+		"android platform tools": ">=17 <=19.x",
+		"android tools": "22.x",
+		"android ndk": ">=r8e <=r9",
+		"node": ">0.8.0 <=0.10.x",
+		"java": "<=1.7.x"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/appcelerator/titanium_mobile_android.git"

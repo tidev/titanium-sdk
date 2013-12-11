@@ -1,63 +1,610 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #import "TiWindowProxy.h"
+#import "TiUIWindow.h"
 #import "TiApp.h"
-#import "TiUtils.h"
-#import "TiAnimation.h"
-#import "TiAction.h"
 #import "TiErrorController.h"
 
-TiOrientationFlags TiOrientationFlagsFromObject(id args)
-{
-	if (![args isKindOfClass:[NSArray class]])
-	{
-		return TiOrientationNone;
-	}
-
-	TiOrientationFlags result = TiOrientationNone;
-	for (id mode in args)
-	{
-		UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:mode def:-1];
-		switch ((int)orientation)
-		{
-			case UIDeviceOrientationPortrait:
-			case UIDeviceOrientationPortraitUpsideDown:
-			case UIDeviceOrientationLandscapeLeft:
-			case UIDeviceOrientationLandscapeRight:
-				TI_ORIENTATION_SET(result,orientation);
-				break;
-			case UIDeviceOrientationUnknown:
-				DebugLog(@"[WARN] Ti.Gesture.UNKNOWN / Ti.UI.UNKNOWN is an invalid orientation mode.");
-				break;
-			case UIDeviceOrientationFaceDown:
-				DebugLog(@"[WARN] Ti.Gesture.FACE_DOWN / Ti.UI.FACE_DOWN is an invalid orientation mode.");
-				break;
-			case UIDeviceOrientationFaceUp:
-				DebugLog(@"[WARN] Ti.Gesture.FACE_UP / Ti.UI.FACE_UP is an invalid orientation mode.");
-				break;
-			default:
-				DebugLog(@"[WARN] An invalid orientation was requested. Ignoring.");
-				break;
-		}
-	}
-	return result;
-}
-
 @interface TiWindowProxy(Private)
--(void)openOnUIThread:(NSArray*)args;
--(void)closeOnUIThread:(NSArray*)args;
+-(void)openOnUIThread:(id)args;
+-(void)closeOnUIThread:(id)args;
+-(void)rootViewDidForceFrame:(NSNotification *)notification;
 @end
 
 @implementation TiWindowProxy
-@synthesize navController, controller, opening;
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+@synthesize tab = tab;
+@synthesize isManaged;
+
+-(void) dealloc {
+    if (controller != nil) {
+        TiThreadReleaseOnMainThread(controller, NO);
+        controller = nil;
+    }
+    
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+    if(transitionProxy != nil)
+    {
+        [self forgetProxy:transitionProxy];
+        RELEASE_TO_NIL(transitionProxy)
+    }
+#endif
+    [super dealloc];
+}
+
+-(void)_destroy {
+    [super _destroy];
+}
+
+-(void)_configure
 {
+    [self replaceValue:nil forKey:@"orientationModes" notification:NO];
+    [super _configure];
+}
+
+-(NSString*)apiName
+{
+    return @"Ti.Window";
+}
+
+-(void)rootViewDidForceFrame:(NSNotification *)notification
+{
+    if (focussed && opened) {
+        if ( (controller == nil) || ([controller navigationController] == nil) ) {
+            return;
+        }
+        UINavigationController* nc = [controller navigationController];
+        BOOL isHidden = [nc isNavigationBarHidden];
+        [nc setNavigationBarHidden:!isHidden animated:NO];
+        [nc setNavigationBarHidden:isHidden animated:NO];
+        [[nc view] setNeedsLayout];
+    }
+}
+
+-(TiUIView*)newView
+{
+	CGRect frame = [self appFrame];
+	TiUIWindow * win = [[TiUIWindow alloc] initWithFrame:frame];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewDidForceFrame:) name:kTiFrameAdjustNotification object:nil];
+	return win;
+}
+
+-(BOOL)suppressesRelayout
+{
+    if (controller != nil) {
+        //If controller view is not loaded, sandbox bounds will become zero.
+        //In that case we do not want to mess up our sandbox, which is by default
+        //mainscreen bounds. It will adjust when view loads.
+        return ![controller isViewLoaded];
+    }
+    return [super suppressesRelayout];
+}
+
+#pragma mark - Utility Methods
+-(void)windowWillOpen
+{
+    [super windowWillOpen];
+    if (tab == nil && (self.isManaged == NO)) {
+        [[[[TiApp app] controller] topContainerController] willOpenWindow:self];
+    }
+}
+
+-(void)windowDidOpen
+{
+    opening = NO;
+    opened = YES;
+    if ([self _hasListeners:@"open"]) {
+        [self fireEvent:@"open" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
+    if (focussed && [self handleFocusEvents]) {
+        if ([self _hasListeners:@"focus"]) {
+            [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        }
+    }
+    [super windowDidOpen];
+    [self forgetProxy:openAnimation];
+    RELEASE_TO_NIL(openAnimation);
+    if (tab == nil && (self.isManaged == NO)) {
+        [[[[TiApp app] controller] topContainerController] didOpenWindow:self];
+    }
+}
+
+-(void) windowWillClose
+{
+    if (tab == nil && (self.isManaged == NO)) {
+        [[[[TiApp app] controller] topContainerController] willCloseWindow:self];
+    }
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [super windowWillClose];
+}
+
+-(void) windowDidClose
+{
+    opened = NO;
+    closing = NO;
+    if ([self _hasListeners:@"close"]) {
+        [self fireEvent:@"close" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
+    [self forgetProxy:closeAnimation];
+    RELEASE_TO_NIL(closeAnimation);
+    if (tab == nil && (self.isManaged == NO)) {
+        [[[[TiApp app] controller] topContainerController] didCloseWindow:self];
+    }
+    tab = nil;
+    self.isManaged = NO;
+    RELEASE_TO_NIL_AUTORELEASE(controller);
+    [super windowDidClose];
+    [self forgetSelf];
+}
+
+-(void)attachViewToTopContainerController
+{
+    UIViewController<TiControllerContainment>* topContainerController = [[[TiApp app] controller] topContainerController];
+    UIView *rootView = [topContainerController view];
+    TiUIView* theView = [self view];
+    [rootView addSubview:theView];
+    [rootView bringSubviewToFront:theView];
+}
+
+-(BOOL)argOrWindowPropertyExists:(NSString*)key args:(id)args
+{
+    id value = [self valueForUndefinedKey:key];
+    if (!IS_NULL_OR_NIL(value)) {
+        return YES;
+    }
+    if (([args count] > 0) && [[args objectAtIndex:0] isKindOfClass:[NSDictionary class]]) {
+        value = [[args objectAtIndex:0] objectForKey:key];
+        if (!IS_NULL_OR_NIL(value)) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+-(BOOL)argOrWindowProperty:(NSString*)key args:(id)args
+{
+    if ([TiUtils boolValue:[self valueForUndefinedKey:key]]) {
+        return YES;
+    }
+    if (([args count] > 0) && [[args objectAtIndex:0] isKindOfClass:[NSDictionary class]]) {
+        return [TiUtils boolValue:key properties:[args objectAtIndex:0] def:NO];
+    }
+    return NO;
+}
+
+-(BOOL)isRootViewLoaded
+{
+    return [[[TiApp app] controller] isViewLoaded];
+}
+
+-(BOOL)isRootViewAttached
+{
+    //When a modal window is up, just return yes
+    if ([[[TiApp app] controller] presentedViewController] != nil) {
+        return YES;
+    }
+    return ([[[[TiApp app] controller] view] superview]!=nil);
+}
+
+#pragma mark - TiWindowProtocol Base Methods
+-(void)open:(id)args
+{
+    //If an error is up, Go away
+    if ([[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorController class]]) {
+        DebugLog(@"[ERROR] ErrorController is up. ABORTING open");
+        return;
+    }
+    
+    //I am already open or will be soon. Go Away
+    if (opening || opened) {
+        return;
+    }
+    
+    //Lets keep ourselves safe
+    [self rememberSelf];
+
+    //Make sure our RootView Controller is attached
+    if (![self isRootViewLoaded]) {
+        DebugLog(@"[WARN] ROOT VIEW NOT LOADED. WAITING");
+        [self performSelector:@selector(open:) withObject:args afterDelay:0.1];
+        return;
+    }
+    if (![self isRootViewAttached]) {
+        DebugLog(@"[WARN] ROOT VIEW NOT ATTACHED. WAITING");
+        [self performSelector:@selector(open:) withObject:args afterDelay:0.1];
+        return;
+    }
+    
+    opening = YES;
+    
+    isModal = (tab == nil && !self.isManaged) ? [self argOrWindowProperty:@"modal" args:args] : NO;
+    
+    if ([self argOrWindowProperty:@"fullscreen" args:args]) {
+        hidesStatusBar = YES;
+    } else {
+        if ([self argOrWindowPropertyExists:@"fullscreen" args:args]) {
+            hidesStatusBar = NO;
+        } else {
+            hidesStatusBar = [[[TiApp app] controller] statusBarInitiallyHidden];
+        }
+    }
+    
+    int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"] def:[[[TiApp app] controller] defaultStatusBarStyle]];
+    switch (theStyle){
+        case UIStatusBarStyleDefault:
+            barStyle = UIStatusBarStyleDefault;
+            break;
+        case UIStatusBarStyleBlackOpaque:
+        case UIStatusBarStyleBlackTranslucent: //This will also catch UIStatusBarStyleLightContent
+            if ([TiUtils isIOS7OrGreater]) {
+                barStyle = 1;//UIStatusBarStyleLightContent;
+            } else {
+                barStyle = theStyle;
+            }
+            break;
+        default:
+            barStyle = UIStatusBarStyleDefault;
+    }
+
+    
+    if (!isModal && (tab==nil)) {
+        openAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
+        [self rememberProxy:openAnimation];
+    }
+    //TODO Argument Processing
+    id object = [self valueForUndefinedKey:@"orientationModes"];
+    _supportedOrientations = [TiUtils TiOrientationFlagsFromObject:object];
+    
+    //GO ahead and call open on the UI thread
+    TiThreadPerformOnMainThread(^{
+        [self openOnUIThread:args];
+    }, YES);
+    
+}
+
+-(void)setStatusBarStyle:(id)style
+{
+    int theStyle = [TiUtils intValue:style def:[[[TiApp app] controller] defaultStatusBarStyle]];
+    switch (theStyle){
+        case UIStatusBarStyleDefault:
+            barStyle = UIStatusBarStyleDefault;
+            break;
+        case UIStatusBarStyleBlackOpaque:
+        case UIStatusBarStyleBlackTranslucent: //This will also catch UIStatusBarStyleLightContent
+            if ([TiUtils isIOS7OrGreater]) {
+                barStyle = 1;//UIStatusBarStyleLightContent;
+            } else {
+                barStyle = theStyle;
+            }
+            break;
+        default:
+            barStyle = UIStatusBarStyleDefault;
+    }
+    if(focussed) {
+        TiThreadPerformOnMainThread(^{
+            [[[TiApp app] controller] updateStatusBar];
+        }, YES); 
+    }
+}
+
+-(void)close:(id)args
+{
+    //I am not open. Go Away
+    if (opening) {
+        DebugLog(@"Window is opening. Ignoring this close call");
+        return;
+    }
+    
+    if (!opened) {
+        DebugLog(@"Window is not open. Ignoring this close call");
+        return;
+    }
+    
+    if (closing) {
+        DebugLog(@"Window is already closing. Ignoring this close call.");
+        return;
+    }
+    
+    if (tab != nil) {
+        if ([args count] > 0) {
+            args = [NSArray arrayWithObjects:self, [args objectAtIndex:0], nil];
+        } else {
+            args = [NSArray arrayWithObject:self];
+        }
+        [tab closeWindow:args];
+        return;
+    }
+    
+    closing = YES;
+    
+    //TODO Argument Processing
+    closeAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
+    [self rememberProxy:closeAnimation];
+
+    //GO ahead and call close on UI thread
+    TiThreadPerformOnMainThread(^{
+        [self closeOnUIThread:args];
+    }, YES);
+    
+}
+
+-(BOOL)_handleOpen:(id)args
+{
+    TiRootViewController* theController = [[TiApp app] controller];
+    if (isModal || (tab != nil) || self.isManaged) {
+        [self forgetProxy:openAnimation];
+        RELEASE_TO_NIL(openAnimation);
+    }
+    
+    if ( (!self.isManaged) && (!isModal) && (openAnimation != nil) && ([theController topPresentedController] != [theController topContainerController]) ){
+        DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller without animations.")
+        [self forgetProxy:openAnimation];
+        RELEASE_TO_NIL(openAnimation);
+    }
+    
+    return YES;
+}
+
+-(BOOL)_handleClose:(id)args
+{
+    TiRootViewController* theController = [[TiApp app] controller];
+    if (isModal || (tab != nil) || self.isManaged) {
+        [self forgetProxy:closeAnimation];
+        RELEASE_TO_NIL(closeAnimation);
+    }
+    if ( (!self.isManaged) && (!isModal) && (closeAnimation != nil) && ([theController topPresentedController] != [theController topContainerController]) ){
+        DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will close behind the presented controller without animations.")
+        [self forgetProxy:closeAnimation];
+        RELEASE_TO_NIL(closeAnimation);
+    }
+    return YES;
+}
+
+-(BOOL)opening
+{
+    return opening;
+}
+
+-(BOOL)closing
+{
+    return closing;
+}
+
+-(void)setModal:(id)val
+{
+    [self replaceValue:val forKey:@"modal" notification:NO];
+}
+
+-(BOOL)isModal
+{
+    return isModal;
+}
+
+-(BOOL)hidesStatusBar
+{
+    return hidesStatusBar;
+}
+
+-(UIStatusBarStyle)preferredStatusBarStyle;
+{
+    return barStyle;
+}
+
+-(BOOL)handleFocusEvents
+{
+	return YES;
+}
+
+-(void)gainFocus
+{
+    if (focussed == NO) {
+        focussed = YES;
+        if ([self handleFocusEvents] && opened) {
+            if ([self _hasListeners:@"focus"]) {
+                [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+            }
+        }
+        UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
+        [[self view] setAccessibilityElementsHidden:NO];
+    }
+    if ([TiUtils isIOS7OrGreater]) {
+        TiThreadPerformOnMainThread(^{
+            [self forceNavBarFrame];
+        }, NO);
+    }
+
+}
+
+-(void)resignFocus
+{
+    if (focussed == YES) {
+        focussed = NO;
+        if ([self handleFocusEvents]) {
+            if ([self _hasListeners:@"blur"]) {
+                [self fireEvent:@"blur" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+            }
+        }
+        [[self view] setAccessibilityElementsHidden:YES];
+    }
+}
+
+-(UIViewController*)hostingController;
+{
+    if (controller == nil) {
+        controller = [[TiViewController alloc] initWithViewProxy:self];
+    }
+    return controller;
+}
+
+#pragma mark - Private Methods
+-(TiProxy*)tabGroup
+{
+    return [tab tabGroup];
+}
+
+-(NSNumber*)orientation
+{
+	return NUMINT([UIApplication sharedApplication].statusBarOrientation);
+}
+
+-(void)forceNavBarFrame
+{
+    if (!focussed) {
+        return;
+    }
+    if ( (controller == nil) || ([controller navigationController] == nil) ) {
+        return;
+    }
+    
+    if (![[[TiApp app] controller] statusBarVisibilityChanged]) {
+        return;
+    }
+    
+    UINavigationController* nc = [controller navigationController];
+    BOOL isHidden = [nc isNavigationBarHidden];
+    [nc setNavigationBarHidden:!isHidden animated:NO];
+    [nc setNavigationBarHidden:isHidden animated:NO];
+    [[nc view] setNeedsLayout];
+}
+
+
+-(void)openOnUIThread:(NSArray*)args
+{
+    if ([self _handleOpen:args]) {
+        [self parentWillShow];
+        [self view];
+        if (tab != nil) {
+            if ([args count] > 0) {
+                args = [NSArray arrayWithObjects:self, [args objectAtIndex:0], nil];
+            } else {
+                args = [NSArray arrayWithObject:self];
+            }
+            [tab openWindow:args];
+        } else if (isModal) {
+            UIViewController* theController = [self hostingController];
+            [self windowWillOpen];
+            NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
+            int style = [TiUtils intValue:@"modalTransitionStyle" properties:dict def:-1];
+            if (style != -1) {
+                [theController setModalTransitionStyle:style];
+            }
+            style = [TiUtils intValue:@"modalStyle" properties:dict def:-1];
+            if (style != -1) {
+				// modal transition style page curl must be done only in fullscreen
+				// so only allow if not page curl
+				if ([theController modalTransitionStyle]!=UIModalTransitionStylePartialCurl)
+				{
+					[theController setModalPresentationStyle:style];
+				}
+            }
+            BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
+            [[TiApp app] showModalController:theController animated:animated];
+        } else {
+            [self windowWillOpen];
+            if ((self.isManaged == NO) && ((openAnimation == nil) || (![openAnimation isTransitionAnimation]))){
+                [self attachViewToTopContainerController];
+            }
+            if (openAnimation != nil) {
+                [openAnimation setDelegate:self];
+                [openAnimation animate:self];
+            } else {
+                [self windowDidOpen];
+            }
+        }
+    } else {
+        DebugLog(@"[WARN] OPEN ABORTED. _handleOpen returned NO");
+        opening = NO;
+        opened = NO;
+        [self forgetProxy:openAnimation];
+        RELEASE_TO_NIL(openAnimation);
+    }
+}
+
+-(void)closeOnUIThread:(NSArray *)args
+{
+    if ([self _handleClose:args]) {
+        [self windowWillClose];
+        if (isModal) {
+            NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
+            BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
+            [[TiApp app] hideModalController:controller animated:animated];
+        } else {
+            if (closeAnimation != nil) {
+                [closeAnimation setDelegate:self];
+                [closeAnimation animate:self];
+            } else {
+                [self windowDidClose];
+            }
+        }
+        
+    } else {
+        DebugLog(@"[WARN] CLOSE ABORTED. _handleClose returned NO");
+        closing = NO;
+        RELEASE_TO_NIL(closeAnimation);
+    }
+}
+
+#pragma mark - TiOrientationController
+-(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
+{
+    [parentController childOrientationControllerChangedFlags:self];
+}
+
+-(void)setParentOrientationController:(id <TiOrientationController>)newParent
+{
+    parentController = newParent;
+}
+
+-(id)parentOrientationController
+{
+	return parentController;
+}
+
+-(TiOrientationFlags) orientationFlags
+{
+    if ([self isModal]) {
+        return (_supportedOrientations==TiOrientationNone) ? [[[TiApp app] controller] getDefaultOrientations] : _supportedOrientations;
+    }
+    return _supportedOrientations;
+}
+
+#pragma mark - Appearance and Rotation Callbacks. For subclasses to override.
+//Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
+-(void)viewWillAppear:(BOOL)animated
+{
+    [self willShow];
+}
+-(void)viewWillDisappear:(BOOL)animated
+{
+    if (controller != nil) {
+        [self resignFocus];
+    }
+    [self willHide];
+}
+-(void)viewDidAppear:(BOOL)animated
+{
+    if (isModal && opening) {
+        [self windowDidOpen];
+    }
+    if (controller != nil && !self.isManaged) {
+        [self gainFocus];
+    }
+}
+-(void)viewDidDisappear:(BOOL)animated
+{
+    if (isModal && closing) {
+        [self windowDidClose];
+    }
+}
+
+-(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
     NSArray* childProxies = [self children];
 	for (TiViewProxy * thisProxy in childProxies)
 	{
@@ -66,864 +613,101 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 			[(id)thisProxy willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 		}
 	}
-	//This is in place for TabController (Or any others) to subclass.
 }
 
-
--(UIViewController *)controller
+-(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-	if (controller == nil)
-	{
-		controller = [[TiViewController alloc] initWithViewProxy:self];
-	}
-	return controller;
-}
-
--(void)releaseController
-{
-	[(TiViewController *)controller setProxy:nil];
-	TiThreadReleaseOnMainThread(controller, NO);
-	controller = nil;
-}
-
--(void)replaceController
-{
-	if (controller != nil) {
-		[self releaseController];
-		[self controller];
-	}
-}
-
--(void) dealloc {
     
-	RELEASE_TO_NIL(navController);
-	[self releaseController];
-	
-	[super dealloc];
 }
 
--(void)_destroy
+-(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
-	[self releaseController];
-
-    [tab release];
-    [closeView release];
-    [animatedOver release];
-    [openAnimation release];
-    [closeAnimation release];
-	
-	[super _destroy];
-}
-
--(void)_configure
-{	
-	[self replaceValue:nil forKey:@"orientationModes" notification:NO];
-	[super _configure];
-}
-
--(TiUIView*)newView
-{
-	CGRect frame = [self appFrame];
-	if (navController!=nil)
-	{
-		frame = navController.view.frame;
-	}
-	TiUIWindow * win = [[TiUIWindow alloc] initWithFrame:frame];
-	return win;
-}
-
-
--(NSNumber *) opened{
-    return [NSNumber numberWithBool:opened];
-}
-
--(BOOL)handleFocusEvents
-{
-	return YES;
-}
-
--(BOOL)_handleOpen:(id)args
-{
-	//subclasses can override
-	return YES;
-}
-
--(UIWindow*)_window
-{
-	return [[TiApp app] window];
-}
-
--(void)windowDidOpen
-{
-	[super windowDidOpen];
-	
-	[self forgetProxy:openAnimation];
-	RELEASE_TO_NIL(openAnimation);
-
-    if (opening) {
-        opening = NO;
-        if ([self _hasListeners:@"open"])
-        {
-            [self fireEvent:@"open" withObject:nil];
-        }
-    }
-	
-	// we do it here in case we have a window that
-	// neither has tabs nor JS
-	if (focused==NO && [self handleFocusEvents])
-	{
-		[self fireFocus:YES];
-	}
     
-    if (animatedOver != nil) {
-        UIView* rootView = [[[TiApp app] controller] view];
-        [rootView insertSubview:animatedOver belowSubview:[self view]];
-        if ([animatedOver isKindOfClass:[TiUIView class]]) {
-            TiUIView* tiview = (TiUIView*)animatedOver;
-            LayoutConstraint* layoutProps = [(TiViewProxy*)[tiview proxy] layoutProperties];
-            ApplyConstraintToViewWithBounds(layoutProps, tiview, rootView.bounds);
-            [(TiViewProxy*)[tiview proxy] layoutChildren:NO];
-        }
-        RELEASE_TO_NIL(animatedOver);
+}
+
+
+#pragma mark - TiAnimation Delegate Methods
+-(BOOL)animationShouldTransition:(TiAnimation *)sender
+{
+    BOOL isOpenAnimation = NO;
+    UIView* hostingView = nil;
+    if (sender == openAnimation) {
+        hostingView = [[[[TiApp app] controller] topContainerController] view];
+        isOpenAnimation = YES;
+    } else {
+        hostingView = [[self view] superview];
     }
-	// Send notification to Accessibility subsystem that the screen has changed. This will refresh accessibility focus
-	UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
-}
-
--(void)windowReady
-{
-	if (opened)
-	{
-		return;
-	}
-	opened = YES;
-	
-	if (!navWindow) 
-	{
-		[self attachViewToTopLevelWindow];
-	}
-}
-
--(BOOL)closing
-{
-	return closing;
-}
-
--(void)windowClosed
-{
-	ENSURE_UI_THREAD_0_ARGS
-
-	[(TiRootViewController *)[[TiApp app] controller] closeWindow:self withObject:nil];
-	
-	if (opened==NO)
-	{
-		return;
-	}
-	VerboseLog(@"%@ (modal:%d)%@",self,modalFlag,CODELOCATION);
-	[[[TiApp app] controller] didHideViewController:controller animated:YES];
-	if ([self _hasListeners:@"close"])
-	{
-		[self fireEvent:@"close" withObject:nil];
-	}
-
-	[self forgetProxy:closeAnimation];
-	RELEASE_TO_NIL(closeAnimation);
-	opened = NO;
-	attached = NO;
-	opening = NO;
-	closing = NO;
-	
-	//TODO: Since windowDidClose also calls detachView, is this necessary?
-	[self detachView];
-	// notify our child that his window is closing
-    NSArray* childProxies = [self children];
-	for (TiViewProxy *child in childProxies)
-	{
-		[child windowDidClose];
-	}
-	
-	RELEASE_TO_NIL(navController);
-	[self releaseController];
-	
-	[self windowDidClose];
-	[self forgetSelf];
-	
-	// Make previous window elements accessible again
-	UIView *rootView = [[TiApp app] controller].view;
-	if ([TiUtils isIOS5OrGreater]) {
-		[(UIView *)[[rootView subviews] lastObject] setAccessibilityElementsHidden:NO];
-	}
-	// Send notification to Accessibility subsystem that the screen has changed. This will refresh accessibility focus
-	UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
-}
-
--(void)windowWillClose
-{
-	if (closing==NO)
-	{
-		closing = YES;
-		[super windowWillClose];
-	}
-}
-
--(BOOL)_handleClose:(id)args
-{
-	return YES;
-}
-
--(TiProxy<TiTab>*)tab
-{
-	return tab;
-}
-
--(TiProxy*)tabGroup
-{
-	return tab!=nil ? [tab tabGroup] : nil;
-}
-
--(BOOL)_isChildOfTab
-{
-	return tab!=nil;
-}
-
--(void)_tabAttached
-{
-	// for subclasses
-}
-
--(void)_tabDetached
-{
-	// for subclasses
-}
-
--(void)_tabFocus
-{
-    if (![self opening]) {
-        focused = YES;
-    }
-	[self willShow];
-	if (!navWindow) {
-		[[[TiApp app] controller] windowFocused:[self controller]];
-	}
-}
-
--(void)_tabBlur
-{
-	[self willHide];
-	focused = NO;
-}
-
--(void)_tabBeforeFocus
-{
-}
-
--(void)_tabBeforeBlur
-{
-}
-
--(void)setupWindowDecorations
-{
-}
-
-// called to associate a Tab UIViewController with this window when it's connected
-// to a tab or nil to disassociate
--(void)_associateTab:(UIViewController*)controller_ navBar:(UINavigationController*)navbar_ tab:(TiProxy<TiTab>*)tab_ 
-{
-	[self releaseController];
-	RELEASE_TO_NIL(navController);
-	RELEASE_TO_NIL(tab);
-	
-	if (tab_!=nil)
-	{
-		navController = [navbar_ retain];
-		controller = [controller_ retain];
-		[(TiViewController *)controller setProxy:self];
-		tab = (TiViewProxy<TiTab>*)[tab_ retain];
-		
-		[self _tabAttached];
-	}
-	else
-	{
-		[self _tabDetached];
-	}
-}
-
--(BOOL)argOrWindowProperty:(NSString*)key args:(id)args
-{
-	if ([TiUtils boolValue:[self valueForUndefinedKey:key]])
-	{
-		return YES;
-	}
-	if (args!=nil && [args count] > 0 && [[args objectAtIndex:0] isKindOfClass:[NSDictionary class]])
-	{
-		return [TiUtils boolValue:key properties:[args objectAtIndex:0] def:NO];
-	}
-	return NO;
-}
-
--(BOOL)isModal:(id)args
-{
-	return [self argOrWindowProperty:@"modal" args:args];
-}
-
--(BOOL)modalFlagValue
-{
-    return modalFlag;
-}
--(BOOL)isFullscreen:(id)args
-{
-	return [self argOrWindowProperty:@"fullscreen" args:args];
-}
-
--(BOOL)isRootViewAttached
-{
-	BOOL result = ([[[[TiApp app] controller] view] superview]!=nil);
-	return result;
-}
-
--(void)open:(id)args
-{
-	if ([[[[TiApp app] controller] modalViewController] isKindOfClass:[TiErrorController class]]) { // we have an error dialog up
-		return;
-	}
-	// opening a window more than once does nothing
-	if (opened==YES)
-	{
-		return;
-	}
-
-	[self rememberSelf];
-	
-	//First, we need to get our arguments in order. Perhaps in Opening.
-
-	if (opening==NO)
-	{
-		modalFlag = [self isModal:args];
-		fullscreenFlag = [self isFullscreen:args];
-		if (!modalFlag)
-		{
-			[self forgetProxy:openAnimation];
-			RELEASE_TO_NIL(openAnimation);
-			openAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
-			[self rememberProxy:openAnimation];
-		}
-		opening = YES;
-	}
-    TiThreadPerformOnMainThread(^{
-        [self openOnUIThread:args];
-    }, YES);
-}
-
--(void)openOnUIThread:(NSArray*)args
-{
-	navWindow = NO;
-	BOOL rootViewAttached = [self isRootViewAttached];
-	[self parentWillShow];
-	// give it to our subclass. he'll either return true to continue with open state and animation or 
-	// false to delay for some other action
-	if ([self _handleOpen:args])
-	{
-		// ensure on open that we've created our view before we start to use it
-		[self view];
-		[self windowWillOpen];
-		[self windowReady];
-		//This flag will track if window was opened with an animation to resolve the edge case 
-		//that the animation completes before the method ends. TIMOB-8030
-		BOOL hasAnimation = NO;
-		if (openAnimation!=nil)
-		{
-			if (rootViewAttached)
-			{
-				[self attachViewToTopLevelWindow];
-			}
-			if ([openAnimation isTransitionAnimation])
-			{
-				transitionAnimation = [[openAnimation transition] intValue];
-				startingTransitionAnimation = [[TiApp controller] defaultImageView] != nil;
-			}
-			openAnimation.delegate = self;
-			[openAnimation animate:self];
-			hasAnimation = YES;
-		}
-		if (fullscreenFlag)
-		{
-			restoreFullscreen = [UIApplication sharedApplication].statusBarHidden;
-			[[UIApplication sharedApplication] setStatusBarHidden:YES];
-			[self view].frame = [[[TiApp app] controller] resizeView];
-		}
-		if (modalFlag)
-		{
-			modalFlag = YES;
-			attached = YES;
-			TiViewController *wc = (TiViewController*)[self controller];
-
-			UINavigationController *nc = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
-
-			BOOL navBarHidden = [self argOrWindowProperty:@"navBarHidden" args:args];
-			[nc setNavigationBarHidden:navBarHidden];
-
-			NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
-			int style = [TiUtils intValue:@"modalTransitionStyle" properties:dict def:-1];
-			if (style!=-1)
-			{
-				[wc setModalTransitionStyle:style];
-				[nc setModalTransitionStyle:style];
-			}
-			style = [TiUtils intValue:@"modalStyle" properties:dict def:-1];
-			if (style!=-1)
-			{
-				// modal transition style page curl must be done only in fullscreen
-				// so only allow if not page curl
-				if ([wc modalTransitionStyle]!=UIModalTransitionStylePartialCurl)
-				{
-					[wc setModalPresentationStyle:style];
-				    [nc setModalPresentationStyle:style];
-				}
-			}
-
-//			[self setController:wc];
-			[self setNavController:nc];
-			BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
-			[self setupWindowDecorations];
-
-			//showModalController will show the passed-in controller's navigation controller if it exists
-			[[TiApp app] showModalController:nc animated:animated];
-		}
-		if (hasAnimation == NO)
-		{
-			[self windowDidOpen];
-		}
-	}
-}
-
-// We can't open properly in nav views since they handle all of the view
-// goofiness, and need to perform the prepatory steps that open: usually does.
--(void)prepareForNavView:(UINavigationController*)navController_
-{
-	ENSURE_UI_THREAD_1_ARG(navController_)
-	
-	if (opened) {
-		return;
-	}
-	
-	if (!opening) {
-		opening = YES;
-	}
-	
-	self.navController = navController_;
-	navWindow = YES;
-	[self view];
-	if ([self _handleOpen:nil])
-	{
-		[self windowReady];
-	}
-}
-
--(void)removeTempController
-{
-	//TEMP hack until split view is fixed
-	[tempController.view removeFromSuperview];
-    [[self view] removeFromSuperview];
-	RELEASE_TO_NIL(tempController);
-}
-
--(void)close:(id)args
-{
-    // There's the following very odd case we need to handle:
-    // * Context A is opening a window for Context B
-    // * Context B, in its JS evaluation, fires an event which
-    //   is caught by the window's event listener in Context A - and requests
-    //   that the window close
-    // 
-    // Note that the JS evaluation doesn't occur until -[TiWindowProxy openOnUIThread:]
-    // is called, so it's safe to queue on the main thread and block until
-    // completion. This also doesn't guarantee the window isn't (briefly) displayed,
-    // because in between the open and close there may be a rendering pass (depends
-    // entirely on the instruction being executed in -[TiWindowProxy openOnUIThread:]
-    // when this is called).
-    
-    if (opening) {
-        TiThreadPerformOnMainThread(^{
-            opening = NO; // Preemptively clear 'opening' so we don't hit this block again
-            [self close:args];
-        }, YES);
-        return;
-    }
-    
-	// closing more than once does nothing
-	if (opened==NO)
-	{
-		return;
-	}
-    
-	if ([self _isChildOfTab]) 
-	{
-		if (![args isKindOfClass:[NSArray class]] ||
-			([args isKindOfClass:[NSArray class]] &&
-			 [args count] > 0 && 
-			 ![TiUtils boolValue:@"closeByTab" properties:[args objectAtIndex:0] def:NO]))
-		{
-			NSMutableArray* closeArgs = [NSMutableArray arrayWithObject:self];
-			if (args != nil) {
-				[closeArgs addObject:[args objectAtIndex:0]];
-			}
-			[self forgetProxy:closeAnimation];
-			RELEASE_TO_NIL(closeAnimation);
-			[[self tab] close:closeArgs];
-			return;
-		}
-	}
-	else if(![NSThread isMainThread])
-	{
-		[self forgetProxy:closeAnimation];
-		RELEASE_TO_NIL(closeAnimation);
-		closeAnimation = [[TiAnimation animationFromArg:args context:[self executionContext] create:NO] retain];
-		[self rememberProxy:closeAnimation];
-	}
-
-    TiThreadPerformOnMainThread(^{
-        [self closeOnUIThread:args];
-    }, YES);
-}
-
--(BOOL)restoreFullScreen
-{
-    if (fullscreenFlag && !restoreFullscreen)
-    {
-        [[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen withAnimation:UIStatusBarAnimationNone];
-        [[[TiApp app] controller] resizeViewForStatusBarHidden];
-        return YES;
-    } 
-    return NO;
-}
-
--(void)closeOnUIThread:(id)args
-{
-	[self windowWillClose];
-
-	//TEMP hack until we can figure out split view issue
-    // appears to be a dead code
-	if ((tempController != nil) && modalFlag) {
-        BOOL animated = (args!=nil && [args isKindOfClass:[NSDictionary class]]) ? 
-            [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
-
-        [tempController dismissModalViewControllerAnimated:animated];
-
-        if (!animated) {
-            [self removeTempController];
-        }
-        else {
-            [self performSelector:@selector(removeTempController) withObject:nil afterDelay:0.3];
-        }
-		return;
-	}
-	else
-	{
-		UIViewController *vc = [self controller];
-		
-		[[[TiApp app] controller] windowClosed:vc];
-
-		if (modalFlag)
-		{
-			BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
-			[[TiApp app] hideModalController:vc animated:animated];
-			if (animated)
-			{
-				// if animated, we don't want to immediately remove our view but instead need
-				// to wait until the modal dialog is dismissed before we remove our view 
-				// otherwise, you'll see the view popup as the window is lowering
-				modalFlag = NO;
-				[self performSelector:@selector(close:) withObject:nil afterDelay:0.5];
-				return;
-			}
-		}
-	}	
-	
-	opening = NO;
-	UIView *myview = nil;
-	if([self viewAttached]) {
-		myview = [self view];
-	}
-	// hold ourself during close
-	[myview retain];	
-	[self retain];
-
-	[[[TiApp app] controller] willHideViewController:controller animated:YES];
-	VerboseLog(@"%@ (modal:%d)%@",self,modalFlag,CODELOCATION);
-	if ([self _handleClose:args])
-	{
-		if (closeAnimation!=nil)
-		{
-			if ([closeAnimation isTransitionAnimation])
-			{
-				UIView *rootView = [[TiApp app] controller].view;
-				transitionAnimation = [[closeAnimation transition] intValue];
-				startingTransitionAnimation = [[rootView subviews] count]<=1 && modalFlag==NO;
-			}
-            
-			closeAnimation.delegate = self;
-			// we need to hold a reference during close
-			closeView = [myview retain];
-			[closeAnimation animate:self];
-		}
-		  
-		if (fullscreenFlag && !restoreFullscreen)
-		{
-			[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen withAnimation:UIStatusBarAnimationNone];
-			self.view.frame = [[[TiApp app] controller] resizeViewForStatusBarHidden];
-			[[[TiApp app] controller] repositionSubviews];
-		} 
- 
-		if (closeAnimation!=nil)
-		{
-			[self performSelector:@selector(windowClosed) withObject:nil afterDelay:0.8];
-		}
-		else 
-		{
-			[self windowClosed];
-		}
-	}
-	[myview release];
-    if (tempController != nil) {
-        [self removeTempController];
-    }
-	[self release];
-}
-
--(void)attachViewToTopLevelWindow
-{
-    if (attached) {
-        return;
-    }
-    attached = YES;
-	
-    /*
-     If opening a regular window on top of a modal window
-     it must be attached to the modal window superview and not 
-     the root controller view
-     */
-    UIView *rootView = nil;
-    TiWindowProxy* topWindow = [[TiApp controller] topWindow];
-    if ( topWindow != nil) {
-        //This will get the nav controller view for modal top windows
-        //and the rootView for regular top windows
-        rootView = [[topWindow view] superview];
-    }
-    if (rootView == nil) {
-        rootView = [[TiApp app] controller].view;
-    }
-
-    TiUIView *view_ = [self view];
-	
-    /*
-     A modal window is by definition presented and should never be a subview of anything.
-     */
-    if (![self _isChildOfTab]) {
-        if (!modalFlag) {
-			// Hide inactive window elements for accessibility
-			if ([TiUtils isIOS5OrGreater]) {
-				[(UIView *)[[rootView subviews] lastObject] setAccessibilityElementsHidden:YES];
-			}
-            [rootView addSubview:view_];
-        }
-
-        [self controller];
-
-        [(TiRootViewController *)[[TiApp app] controller] openWindow:self withObject:nil];
-        [[[TiApp app] controller] windowFocused:[self controller]];
-    }
-
-    if (!modalFlag) {
-        [rootView bringSubviewToFront:view_];
-    }
-
-    // make sure the splash is gone
-    [[TiApp controller] dismissDefaultImageView];
-}
-
--(NSNumber*)focused
-{
-	return NUMBOOL(focused);
-}
-
--(void)fireFocus:(BOOL)newFocused;
-{
-#ifdef VERBOSE
-    if (newFocused == focused)
-    {
-        VerboseLog(@"[DEBUG] Setting focus to %d when it's already set to that.",focused);
-    }
-#endif
-    focused = newFocused;
-    [self fireEvent:newFocused?@"focus":@"blur" withObject:nil propagate:NO];
-}
-
-#pragma mark TIUIViewController methods
-/*
- *	Over time, we should move focus and blurs to be triggered by standard
- *	Cocoa conventions instead of second-guessing iOS. This will be a slow
- *	transition, and in the meantime, verbose debug statements of focus being
- *	already set/cleared should not be a need for panic.
- */
-
-- (void)viewDidAppear:(BOOL)animated
-{
-	[[self parentOrientationController]
-			childOrientationControllerChangedFlags:self];
-    
-	if (!focused)
-	{
-        //Do not fire focus until context is ready
-        if (![self opening]) {
-            [self fireFocus:YES];
-        }
-	}
-	else
-	{
-		DeveloperLog(@"[DEBUG] Focused was already set while in viewDidAppear.");
-	}
-}
-
--(void)viewWillDisappear:(BOOL)animated
-{
-	if (focused)
-	{
-		[self fireFocus:NO];
-	}
-	else
-	{
-		DeveloperLog(@"[DEBUG] Focused was already cleared while in viewWillDisappear.");
-	}
-}
-
--(void)viewWillAppear:(BOOL)animated
-{
-	[self parentWillShow];
-	TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
-}
-
-- (void)viewDidDisappear:(BOOL)animated
-{
-	[self parentWillHide];
-}
-
-#pragma mark Animation Delegates
-
--(BOOL)animationShouldTransition:(id)sender
-{
-	UIView *rootView = [[TiApp app] controller].view;
     
     void (^animation)(void) = ^{
-        if (opening)
-        {
-            if (startingTransitionAnimation)
-            {
-                startingTransitionAnimation=NO;
-                [[TiApp controller] dismissDefaultImageView];
+        if (isOpenAnimation) {
+            RELEASE_TO_NIL(animatedOver);
+            NSArray* subviews = [hostingView subviews];
+            if ([subviews count] > 0) {
+                animatedOver = [[subviews lastObject] retain];
             }
-            else
-            {
-                RELEASE_TO_NIL(animatedOver);
-                NSArray* subviews = [rootView subviews];
-                if ([subviews count] > 0) {
-                    // We should be attached to the top level view at this point (the window is "ready") so
-                    // this is OK to do.
-                    NSUInteger index = [subviews indexOfObject:[self view]];
-                    if (index != NSNotFound && index != 0) {
-                        animatedOver = [[subviews objectAtIndex:index-1] retain];
-                        [animatedOver removeFromSuperview];
-                    }
-                }
+            if (animatedOver != nil) {
+                [animatedOver removeFromSuperview];
             }
-            [self attachViewToTopLevelWindow];
+            [hostingView addSubview:[self view]];
         }
-        else 
+        else
         {
-            [self detachView];
+            [[self view] removeFromSuperview];
         }
     };
-    
-    [UIView transitionWithView:rootView
+
+    [UIView transitionWithView:hostingView
                       duration:[(TiAnimation*)sender animationDuration]
-                       options:transitionAnimation
+                       options:[[(TiAnimation*)sender transition] intValue]
                     animations:animation
                     completion:^(BOOL finished) {
-                        [sender animationCompleted:[NSString stringWithFormat:@"%X",(void *)rootView] 
-                                          finished:[NSNumber numberWithBool:finished] 
+                        [sender animationCompleted:[NSString stringWithFormat:@"%@",hostingView]
+                                          finished:[NSNumber numberWithBool:finished]
                                            context:sender];
                     }
      ];
-    
-	return NO;
+
+    return NO;
 }
 
--(void)animationWillStart:(id)sender
+-(void)animationDidComplete:(TiAnimation *)sender
 {
-//	[self rememberProxy:sender];
-	if (opening)
-	{
-		if (startingTransitionAnimation==NO)
-		{
-			[[[TiApp controller] defaultImageView] setAlpha:0.0];
-			[self attachViewToTopLevelWindow];
-		}
-	}
-	else
-	{
-		if (startingTransitionAnimation)
-		{
-			[self detachView];
-		}
-	}
+    if (sender == openAnimation) {
+        if (animatedOver != nil) {
+            if ([animatedOver isKindOfClass:[TiUIView class]]) {
+                TiViewProxy* theProxy = (TiViewProxy*)[(TiUIView*)animatedOver proxy];
+                if ([theProxy viewAttached]) {
+                    [[[self view] superview] insertSubview:animatedOver belowSubview:[self view]];
+                    LayoutConstraint* layoutProps = [theProxy layoutProperties];
+                    ApplyConstraintToViewWithBounds(layoutProps, (TiUIView*)animatedOver, [[animatedOver superview] bounds]);
+                    [theProxy layoutChildren:NO];
+                    RELEASE_TO_NIL(animatedOver);
+                }
+            } else {
+                [[[self view] superview] insertSubview:animatedOver belowSubview:[self view]];
+            }
+        }
+        [self windowDidOpen];
+    } else {
+        [self windowDidClose];
+    }
 }
-
--(void)animationDidComplete:(id)sender
+#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+-(TiUIiOSTransitionAnimationProxy*)transitionAnimation
 {
-//	[self forgetProxy:sender];
-	if (opening)
-	{
-		[self windowDidOpen];
-	}
-	else if (closing)
-	{
-		[self windowClosed];
-		[closeView autorelease];
-		closeView=nil;
-	}
+    return transitionProxy;
 }
 
-
-- (UIViewController *)childViewController
+-(void)setTransitionAnimation:(id)args
 {
-	return nil;
+    ENSURE_SINGLE_ARG_OR_NIL(args, TiUIiOSTransitionAnimationProxy)
+    if(transitionProxy != nil) {
+        [self forgetProxy:transitionProxy];
+        RELEASE_TO_NIL(transitionProxy)
+    }
+    transitionProxy = [args retain];
+    [self rememberProxy:transitionProxy];
 }
-
-
--(void)setOrientationModes:(id)value
-{
-	[self replaceValue:value forKey:@"orientationModes" notification:YES];
-	
-	TiOrientationFlags newFlags = TiOrientationFlagsFromObject(value);
-	if (newFlags == orientationFlags)
-	{
-		return;
-	}
-	orientationFlags = newFlags;
-	TiThreadPerformOnMainThread(^{[parentOrientationController childOrientationControllerChangedFlags:self];}, NO);
-}
-
-
--(NSNumber*)orientation
-{
-	return NUMINT([UIApplication sharedApplication].statusBarOrientation);
-}
-
-
-@synthesize parentOrientationController, orientationFlags;
--(void)childOrientationControllerChangedFlags:(id <TiOrientationController>)orientationController
-{
-	WARN_IF_BACKGROUND_THREAD;
-	[parentOrientationController childOrientationControllerChangedFlags:self];
-}
+#endif
 
 @end

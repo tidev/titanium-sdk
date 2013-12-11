@@ -9,10 +9,6 @@ description: |
     A `ListView` object is a container for [ListSection](Titanium.UI.ListSection) 
     objects that are, in turn, containers for [ListItem](Titanium.UI.ListItem) objects.
 
-    **Note:** this is the first version of list view. Not all features from the specification
-    are implemented in this version.  A complete list of implemented features is schedule for
-    the next list version, which is planned for Release 3.2.0.
-
     For more instructions and examples of using `ListView`, refer to the
     [ListViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/ListViews)
 
@@ -87,9 +83,6 @@ description: |
 
     ##### API Differences
 
-    **Note:** This is the first version of list view and some features have not been implemented.
-    The differences listed are for the final planned list view and the current table view in Release 3.1.0.
-
     - **TableViewRow properties**: The following properties and their accessors are not
       available for `ListItem`: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
       `hasChild`, `hasDetail`, `leftImage`, `moveable` and `rightImage`.
@@ -133,6 +126,8 @@ description: |
     [TextArea](Titanium.UI.TextArea). Thus, this layout is strongly discouraged.
 
     #### TextFields in Lists with SOFT_INPUT_ADJUST_PAN (Android)
+    In order to use [TextField](Titanium.UI.TextField) inside `ListView`, [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN)
+    must be set to the window that is containing the `ListView`, otherwise the [TextField](Titanium.UI.TextField) may not be able to gain focus.
 
     When a [TextField](Titanium.UI.TextField) is placed in a row near the bottom of a `ListView`,
     in a window that is configured with
@@ -144,7 +139,7 @@ description: |
     To mitigate this, a `ScrollView` may be used instead of a list view, as demonstrated in the
     [ScrollView](Titanium.UI.ScrollView), "Scroll View as a Table View", example.
 
-    #### Editing Support (IOS)
+    #### Editing Support (iOS)
 
     Editing a list view through user initiated actions is supported through the following properties.
 
@@ -246,6 +241,18 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
+  - name: marker
+    summary: Fired when the list view displays the reference item or an item beyond the reference item.
+    description: |
+        This event is fired only once. Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method.
+        On iOS this method does not fire when list view is in search mode.
+    platforms: [iphone, ipad, android]
+    since: 3.2.0
+    properties:
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
   - name: move
     summary: Fired when a list row is moved to a different location by the user.
     description: |
@@ -315,6 +322,18 @@ events:
 
 properties:
 
+  - name: allowsSelection
+    summary: Determines whether this item can be selected.
+    description: |
+        Set to `false` to prevent the item from being selected.
+
+        On iOS, even if this property is set to `false`, you can interact with the detail disclosure
+        accessory (`accessoryType` set to <Titanium.UI.LIST_ACCESSORY_TYPE_DETAIL>) and any child
+        templates that are controls, such as a button, slider, etc.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+
   - name: canScroll
     summary: Determines if the list view can scroll in response to user actions.
     description: Set to false to disable scrolling.
@@ -368,8 +387,10 @@ properties:
   - name: footerView
     summary: List view footer as a view that will be rendered instead of a label.
     type: Titanium.UI.View
+    description: |
+        On Android, this is a creation only property.
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: headerTitle
     summary: List view header title.
@@ -377,9 +398,11 @@ properties:
 
   - name: headerView
     summary: List view header as a view that will be rendered instead of a label.
+    description: |
+        On Android, this is a creation only property.
     type: Titanium.UI.View
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: pullView
     summary: View positioned above the first row that is only revealed when the user drags the list view contents down.
@@ -392,13 +415,22 @@ properties:
     platforms: [iphone, ipad]
     since: 3.2.0
 
+  - name: refreshControl
+    summary: View positioned above the first row that is only revealed when the user drags the list view contents down.
+    description: |
+        An alternate to the pullView property. See <Titanium.UI.RefreshControl> for usage and examples.
+    type: Titanium.UI.RefreshControl
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
   - name: searchView
     summary: Search field to use for the list view.
     description: |
-        Provides the same functionality as the [search](Titanium.UI.TableView.Search) property in [TableView](Titanium.UI.TableView).
+        Provides the same functionality as the [search](Titanium.UI.TableView.search) property in [TableView](Titanium.UI.TableView).
         Used in conjunction with [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
-    type: [Titanium.UI.SearchBar]
-    platforms: [iphone, ipad]
+        On Android, you can either specify <Titanium.UI.SearchBar> or <Titanium.UI.Android.SearchView>, while on iOS only <Titanium.UI.SearchBar> is supported.
+    type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
+    platforms: [android, iphone, ipad]
     since: 3.2.0
 
   - name: searchText
@@ -407,10 +439,10 @@ properties:
         Provides a generic search API for the List View. This property can not be used when the [searchView](Titanium.UI.ListView.searchView) property is set.
         Used in conjunction with [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
 
-        When using this property the [style](Titanium.UI.ListView.style) property of the List View is honored. If the [keepSectionsInSearch](Titanium.UI.ListView.keepSectionsInSearch) property
+        On iOS, when using this property the [style](Titanium.UI.ListView.style) property of the List View is honored. If the [keepSectionsInSearch](Titanium.UI.ListView.keepSectionsInSearch) property
         is set to true then section information is preserved in the search results, otherwise the search results are displayed in a single section.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: 3.2.0
 
   - name: caseInsensitiveSearch
@@ -420,7 +452,7 @@ properties:
         List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: 3.2.0
 
   - name: keepSectionsInSearch
@@ -482,6 +514,18 @@ properties:
     type: String
     default: platform-specific default color
     since: 3.2.0
+    platforms: [android, iphone, ipad]
+
+  - name: separatorInsets
+    summary: The insets for list view separators (applies to all cells). This property is applicable on iOS 7 and greater.
+    description: |
+        In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. 
+        This property sets the default inset for all cells in the table. 
+        
+        Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge. 
+    type: Dictionary
+    since: 3.2.0
+    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
 
   - name: separatorStyle
@@ -637,6 +681,16 @@ methods:
     platforms: [iphone, ipad]
     since: 3.2.0
 
+  - name: setMarker
+    summary: Sets a reference item in the list view.
+    description: |
+        See [marker](Titanium.UI.ListView.marker) event for details. 
+    parameters:
+      - name: markerProps
+        summary: Dictionary to describe the reference item.
+        type: ListViewMarkerProps
+    platforms: [iphone, ipad, android]
+    since: 3.2.0
 
 examples:
   - title: List View Sections
@@ -754,7 +808,7 @@ examples:
             win.add(listView);
             win.open();
 
-  - title: List View with a pullView (IOS only supported since 3.2.0)
+  - title: List View with a pullView (Only supported on iOS since 3.2.0)
     example: |
         This sample shows how the [pullView](Titanium.UI.ListView.pullView) property could be
         utilized along with the [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events to
@@ -913,6 +967,113 @@ examples:
             win.add(eventStatus);
             win.open();
 
+  - title: Alloy XML Markup
+    example: |
+        'List View with Custom Item Template' as an Alloy view.  List view markup is supported in
+        Alloy 1.2.0 and later.
+
+        `app/views/index.xml`:
+
+            <Alloy>
+                <Window backgroundColor="white">
+                    <ListView id="listView" defaultItemTemplate="template">
+
+                        <!-- The Templates tag sets the ListView's templates property -->
+
+                        <Templates>
+
+                            <!-- Define your item templates within the Templates tags or use the
+                                 Require tag to include a view that only contains an ItemTemplate -->
+
+                            <ItemTemplate name="template">
+                                <ImageView bindId="pic" id="icon" />
+                                <Label bindId="info" id="title" />
+                                <Label bindId="es_info" id="subtitle" />
+                            </ItemTemplate>
+
+                        </Templates>
+
+                        <ListSection headerTitle="Fruit / Frutas">
+
+                            <!-- You can specify any ListItem or ListDataItem properties in ListItem -->
+
+                            <!-- Specify data to bind to the item template with inline attributes
+                                 defined as <bindId>:<Ti.UI.Component.property> -->
+
+                            <ListItem info:text="Apple" es_info:text="Manzana" pic:image="/apple.png" />
+                            <ListItem info:text="Banana" es_info:text="Banana" pic:image="/banana.png" />
+                        </ListSection>
+                        <ListSection headerTitle="Vegetables / Verduras">
+                            <ListItem info:text="Carrot" es_info:text="Zanahoria" pic:image="/carrot.png" />
+                            <ListItem info:text="Potato" es_info:text="Patata" pic:image="/potato.png" />
+                        </ListSection>
+                        <ListSection headerTitle="Grains / Granos">
+                            <ListItem info:text="Corn" es_info:text="Maiz" pic:image="/corn.png" />
+                            <ListItem info:text="Rice" es_info:text="Arroz" pic:image="/rice.png" />
+                        </ListSection>
+                    </ListView>
+                </Window>
+            </Alloy>
+
+        `app/styles/index.tss`:
+
+            "#icon" : {
+                width: '50dp', height: '50dp', left: 0
+            },
+            "#title" : {
+                color: 'black',
+                font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
+                left: '60dp', top: 0
+            },
+            "#subtitle" : {
+                color: 'gray',
+                font: { fontFamily:'Arial', fontSize: '14dp' },
+                left: '60dp', top: '25dp'
+            }
+
+  - title: ListView Properties as XML Elements
+    example: |
+        Supported in Alloy 1.3.0 and later.
+
+        In Alloy, ListView's `searchView`, `headerView`, `footerView`, and `pullView`
+        properties may be declared as XML elements inline with the `ListView` element.  The example
+        below demonstrates how to use `searchView`, `headerView` and `footerView`.
+
+            <Alloy>
+                <Window fullscreen="true">
+                    <ListView>
+                        <!-- Sets ListView's searchView property.
+                             For Android, you can also do <SearchView platform="android" />
+                             to use a Ti.UI.Android.SearchView instead of a search bar. -->
+                        <SearchBar barColor="#000" />
+
+                        <!-- Sets ListView's headerView property -->
+                        <HeaderView>
+                            <View backgroundColor="#DDD" height="Ti.UI.SIZE">
+                                <Label>Header View</Label>
+                            </View>>
+                        </HeaderView>
+
+                        <ListSection>
+                            <ListItem title="Papaya" searchableText="Papaya"/>
+                            <ListItem title="Peach" searchableText="Peach"/>
+                            <ListItem title="Pear" searchableText="Pear"/>
+                            <ListItem title="Persimmon" searchableText="Persimmon"/>
+                            <ListItem title="Pineapple" searchableText="Pineapple"/>
+                            <ListItem title="Pluot" searchableText="Pluto"/>
+                            <ListItem title="Pomegranate" searchableText="Pomegranate"/>
+                        </ListSection>
+
+                        <!-- Sets ListView's footerView property -->
+                        <FooterView>
+                            <View backgroundColor="#DDD" height="Ti.UI.SIZE">
+                                <Label>Footer View</Label>
+                            </View>
+                        </FooterView>
+                    </ListView>
+                </Window>
+            </Alloy>
+
 ---
 name: ListViewAnimationProperties
 summary: |
@@ -984,6 +1145,25 @@ properties:
     
   - name: duration
     summary: The duration in `milliseconds` for animation while the content inset is  being changed.
+    type: Number
+
+---
+name: ListViewMarkerProps
+summary: The parameter for [setMarker](Titanium.UI.ListView.setMarker) method.
+description: |
+    Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method. For example:
+
+        setMarker({sectionIndex:5, itemIndex:10});
+since: 3.2.0
+platforms: [iphone, ipad, android]
+
+properties:
+  - name: sectionIndex
+    summary: The sectionIndex of the reference item.
+    type: Number
+    
+  - name: itemIndex
+    summary: The itemIndex of the reference item.
     type: Number
 
 ---

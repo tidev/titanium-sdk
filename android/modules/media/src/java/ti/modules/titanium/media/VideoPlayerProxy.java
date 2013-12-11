@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -626,6 +626,16 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 		fireComplete(MediaModule.VIDEO_FINISH_REASON_PLAYBACK_ERROR);
 	}
+	
+	public void onSeekingForward()
+	{
+		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_SEEKING_FORWARD);
+	}
+
+	public void onSeekingBackward()
+	{
+		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD);
+	}
 
 	private String getActionName(int action)
 	{
@@ -702,5 +712,11 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	private TiUIVideoView getVideoView()
 	{
 		return (TiUIVideoView) view;
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Media.VideoPlayer";
 	}
 }

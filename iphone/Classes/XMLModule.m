@@ -21,6 +21,11 @@
 	return proxy;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.XML";
+}
+
 -(id)serializeToString:(id)arg
 {
     ENSURE_SINGLE_ARG(arg,TiDOMNodeProxy);

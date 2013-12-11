@@ -36,7 +36,7 @@ VALID_KEYS = {
 			"optional", "value", "default","exclude-platforms"],
 		"event": ["name", "summary", "description", "extends", "platforms", "since",
 			"deprecated", "osver", "properties","exclude-platforms"],
-		"eventprop": ["name", "summary", "type", "platforms", "deprecated"],
+		"eventprop": ["name", "summary", "type", "platforms", "deprecated", "exclude-platforms"],
 		"deprecated": ["since", "removed", "notes"]
 		}
 

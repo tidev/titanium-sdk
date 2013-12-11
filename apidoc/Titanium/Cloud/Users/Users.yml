@@ -7,7 +7,7 @@ methods:
   - name: create
     summary: Create a new user.
     description: |
-        See [Users: Create User](http://cloud.appcelerator.com/docs/api/v1/users/create)
+        See [Users: Create User](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `users` property of the parameter passed to the callback.
@@ -23,7 +23,7 @@ methods:
   - name: login
     summary: Log in a user.
     description: |
-        See [Users: Login User](http://cloud.appcelerator.com/docs/api/v1/users/login)
+        See [Users: Login User](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-login)
         for the request parameters supported by this method.
         
         Data is returned in the `users` property of the parameter passed to the callback.
@@ -41,7 +41,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Users: Logout User](http://cloud.appcelerator.com/docs/api/v1/users/logout)
+        See [Users: Logout User](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-logout)
         for the request parameters supported by this method.
         
         Data is returned in the `users` property of the parameter passed to the callback.
@@ -53,7 +53,7 @@ methods:
   - name: query
     summary: Retrieve a list of users with sorting and pagination.
     description: |
-        See [Users: Custom Query of Users](http://cloud.appcelerator.com/docs/api/v1/users/query)
+        See [Users: Custom Query of Users](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-query)
         for the request parameters supported by this method.
         
         Data is returned in the `users` property of the parameter passed to the callback.
@@ -70,7 +70,7 @@ methods:
   - name: search
     summary: Retrieve a list of users based on the specified search criteria.
     description: |
-        See [Users: Search Users](http://cloud.appcelerator.com/docs/api/v1/users/search)
+        See [Users: Search Users](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-search)
         for the request parameters supported by this method.
         
         Data is returned in the `users` property of the parameter passed to the callback.
@@ -87,7 +87,7 @@ methods:
   - name: show
     summary: Show public user information.
     description: |
-        See [Users: Show User Profile](http://cloud.appcelerator.com/docs/api/v1/users/show)
+        See [Users: Show User Profile](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-show)
         for the request parameters supported by this method.
         
         Data is returned in the `users` property of the parameter passed to the callback.
@@ -105,7 +105,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Users: Show Current User Profile](http://cloud.appcelerator.com/docs/api/v1/users/showme)
+        See [Users: Show Current User Profile](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-show_me)
         for the request parameters supported by this method.
         
         Data is returned in the `users` property of the parameter passed to the callback.
@@ -119,7 +119,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Users: Update Current User](http://cloud.appcelerator.com/docs/api/v1/users/update)
+        See [Users: Update Current User](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-update)
         for the request parameters supported by this method.
         
         Data is returned in the `users` property of the parameter passed to the callback.
@@ -137,7 +137,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Users: Delete User](http://cloud.appcelerator.com/docs/api/v1/users/delete)
+        See [Users: Delete User](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -151,7 +151,23 @@ methods:
   - name: requestResetPassword
     summary: Send an email to user to recover lost password.
     description: |
-        See [Users: Send a reset password email to User](http://cloud.appcelerator.com/docs/api/v1/users/reset_password)
+        See [Users: Send a reset password email to User](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-request_reset_password)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `users` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudUsersResponse>
+
+  - name: resendConfirmation
+    summary: Re-send a user verification email.
+    description: |
+        See [Users: Send a reset password email to User](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-resend_confirmation)
         for the request parameters supported by this method.
         
         Data is returned in the `users` property of the parameter passed to the callback.
@@ -172,7 +188,7 @@ methods:
         Invokes a modal dialog that allows the authentication server to display a
         web page for creating a new user.
 
-        See [Authentication](http://cloud.appcelerator.com/docs/authentication)
+        See [Authentication](http://docs.appcelerator.com/cloud/latest/#!/guide/acs_authentication)
         for instructions on enabling 3-Legged OAuth for your application.
 
         Authentication data is returned in the parameter passed to the callback.
@@ -194,7 +210,7 @@ methods:
         Invokes a modal dialog that allows the authentication server to display a
         web page for authenticating a user.
 
-        See [Authentication](http://cloud.appcelerator.com/docs/authentication)
+        See [Authentication](http://docs.appcelerator.com/cloud/latest/#!/guide/acs_authentication)
         for instructions on enabling 3-Legged OAuth for your application.
 
         Authentication data is returned in the parameter passed to the callback.

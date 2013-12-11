@@ -16,7 +16,6 @@
 #import "TiUITableViewProxy.h"
 #import "TiApp.h"
 #import "TiLayoutQueue.h"
-#import "TiRootController.h"
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 #define GROUPED_MARGIN_WIDTH 18.0
@@ -105,11 +104,17 @@
 	// This is because the view drawing subsystem takes the cell frame to be the sandbox bounds when drawing views,
 	// and if its frame is too big... the view system allocates way too much memory/pixels and doesn't appear to let
 	// them go.
-
-	CGRect oldFrame = [[self contentView] frame];
-	//CGSize cellSize = [self computeCellSize];
-    
-	[[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 0,0)];
+    CGRect oldBounds = [[self contentView] bounds];
+    if (!CGPointEqualToPoint(oldBounds.origin,CGPointZero)) {
+        //TIMOB-15396. Occasionally the bounds have a non zero origin. Why?
+        [[self contentView] setBounds:CGRectZero];
+        [[self contentView] setCenter:CGPointZero];
+        
+    } else {
+        CGRect oldFrame = [[self contentView] frame];
+        
+        [[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 0,0)];
+    }
 }
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
@@ -202,8 +207,6 @@
 		return;
 	}
 
-	CALayer * ourLayer = [self layer];
-	
 	if(gradientLayer == nil)
 	{
 		gradientLayer = [[TiGradientLayer alloc] init];
@@ -212,6 +215,9 @@
 	}
 
 	[gradientLayer setGradient:currentGradient];
+
+	CALayer* ourLayer = [[[self contentView] layer] superlayer];
+	
 	if([gradientLayer superlayer] != ourLayer)
 	{
         CALayer* contentLayer = [[self contentView] layer];
@@ -293,7 +299,7 @@
 
 @implementation TiUITableView
 #pragma mark Internal 
-@synthesize searchString;
+@synthesize searchString, viewWillDetach;
 
 -(id)init
 {
@@ -302,6 +308,7 @@
         hideOnSearch = YES; // Legacy behavior
 		filterCaseInsensitive = YES; // defaults to true on search
 		searchString = @"";
+		defaultSeparatorInsets = UIEdgeInsetsZero;
 	}
 	return self;
 }
@@ -332,6 +339,9 @@
 	RELEASE_TO_NIL(searchResultIndexes);
 	RELEASE_TO_NIL(tableHeaderPullView);
 	[searchString release];
+#ifdef USE_TI_UIREFRESHCONTROL
+    RELEASE_TO_NIL(_refreshControlProxy);
+#endif
 	[super dealloc];
 }
 
@@ -422,6 +432,10 @@
         }
 		
 		[self updateSearchView];
+        
+		if ([TiUtils isIOS7OrGreater]) {
+			defaultSeparatorInsets = [tableview separatorInset];
+		}
 	}
 	if ([tableview superview] != self)
 	{
@@ -657,7 +671,7 @@
     BOOL reloadSearch = NO;
 
 	TiViewProxy<TiKeyboardFocusableView> * chosenField = [[[TiApp controller] keyboardFocusedProxy] retain];
-	BOOL hasFocus = [chosenField focused];
+	BOOL hasFocus = [chosenField focused:nil];
 	BOOL oldSuppress = [chosenField suppressFocusEvents];
 	[chosenField setSuppressFocusEvents:YES];
 	switch (action.type)
@@ -1100,6 +1114,79 @@
     }
 }
 
+
+-(void)recognizedTap:(UITapGestureRecognizer*)recognizer
+{
+    BOOL viaSearch = [searchController isActive];
+    UITableView* theTableView = viaSearch ? [searchController searchResultsTableView] : [self tableView];
+    CGPoint point = [recognizer locationInView:theTableView];
+    CGPoint pointInView = [recognizer locationInView:self];
+    NSIndexPath* indexPath = nil;
+    
+    if (viaSearch) {
+        NSIndexPath* index = [theTableView indexPathForRowAtPoint:point];
+        if (index != nil) {
+            indexPath = [self indexPathFromSearchIndex:[index row]];
+        }
+    } else {
+        indexPath = [theTableView indexPathForRowAtPoint:point];
+    }
+    
+    NSMutableDictionary *event = [[TiUtils pointToDictionary:pointInView] mutableCopy];
+    [event setObject:NUMBOOL(NO) forKey:@"detail"];
+    [event setObject:NUMBOOL(viaSearch) forKey:@"search"];
+    
+    if (indexPath != nil) {
+        //We have index path. Let us fill out section and row information. Also since the
+        int sectionIdx = [indexPath section];
+        NSArray * sections = [(TiUITableViewProxy *)[self proxy] internalSections];
+        TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
+        
+        int rowIndex = [indexPath row];
+        int dataIndex = 0;
+        int c = 0;
+        TiUITableViewRowProxy *row = [section rowAtIndex:rowIndex];
+        
+        // unfortunately, we have to scan to determine our row index
+        for (TiUITableViewSectionProxy *section in sections) {
+            if (c == sectionIdx) {
+                dataIndex += rowIndex;
+                break;
+            }
+            dataIndex += [section rowCount];
+            c++;
+        }
+        [event setObject:section forKey:@"section"];
+        [event setObject:row forKey:@"row"];
+        [event setObject:row forKey:@"rowData"];
+        [event setObject:NUMINT(dataIndex) forKey:@"index"];
+    }
+
+
+    if ([recognizer numberOfTouchesRequired] == 2) {
+        if ([[self proxy] _hasListeners:@"twofingertap"]) {
+            [[self proxy] fireEvent:@"twofingertap" withObject:event];
+        }
+    }
+    else if ([recognizer numberOfTapsRequired] == 2) {
+        //Because double-tap suppresses touchStart and double-click, we must do this:
+        if ([[self proxy] _hasListeners:@"touchstart"]) {
+            [[self proxy] fireEvent:@"touchstart" withObject:event propagate:YES];
+        }
+        if ([[self proxy] _hasListeners:@"dblclick"]) {
+            [[self proxy] fireEvent:@"dblclick" withObject:event propagate:YES];
+        }
+        if ([[self proxy] _hasListeners:@"doubletap"]) {
+            [[self proxy] fireEvent:@"doubletap" withObject:event];
+        }
+    }
+    else {
+        if ([[self proxy] _hasListeners:@"singletap"]) {
+            [[self proxy] fireEvent:@"singletap" withObject:event];
+        }
+    }
+}
+
 -(void)longPressGesture:(UILongPressGestureRecognizer *)recognizer
 {
     if([[self proxy] _hasListeners:@"longpress"] && [recognizer state] == UIGestureRecognizerStateBegan)
@@ -1278,6 +1365,10 @@
 			[tableview setContentOffset:CGPointMake(0,0)];
 		}
 	}
+    
+	if (!searchActivated) {
+		[searchField ensureSearchBarHeirarchy];
+	}
 
 	[super frameSizeChanged:frame bounds:bounds];
 	
@@ -1339,7 +1430,11 @@
 
 -(void)hideSearchScreen:(id)sender
 {
-	// check to make sure we're not in the middle of a layout, in which case we 
+    if (viewWillDetach) {
+        return;
+    }
+    
+	// check to make sure we're not in the middle of a layout, in which case we
 	// want to try later or we'll get weird drawing animation issues
 	if (tableview.frame.size.width==0)
 	{
@@ -1369,6 +1464,10 @@
     // because of where the hide might be triggered from.
     
     
+    if (viewWillDetach) {
+        return;
+    }
+    searchActivated = NO;
     NSArray* visibleRows = [tableview indexPathsForVisibleRows];
     [tableview reloadRowsAtIndexPaths:visibleRows withRowAnimation:UITableViewRowAnimationNone];
     
@@ -1434,6 +1533,9 @@
 	{
 		CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, TI_NAVBAR_HEIGHT);
 		tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
+		[tableHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+		[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+		[[searchField searchBar] setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
 		[TiUtils setView:searchView positionRect:wrapperFrame];
 		[tableHeaderView addSubview:searchView];
 		[tableview setTableHeaderView:tableHeaderView];
@@ -1479,8 +1581,10 @@
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
 {
-	// called when cancel button pressed
-	[searchBar setText:nil];
+    // called when cancel button pressed
+    [searchBar setText:nil];
+    [self setSearchString:nil];
+    [self updateSearchResultIndexes];
     if (searchActivated) {
         searchActivated = NO;
         [tableview reloadData];
@@ -1513,6 +1617,24 @@
 	UITableView *table = [self tableView];
 	NSIndexPath *path = [self indexPathFromInt:index];
 	[table scrollToRowAtIndexPath:path atScrollPosition:position animated:animated];
+}
+
+-(void)setSeparatorInsets_:(id)arg
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        [self tableView];
+        
+        if ([arg isKindOfClass:[NSDictionary class]]) {
+            CGFloat left = [TiUtils floatValue:@"left" properties:arg def:defaultSeparatorInsets.left];
+            CGFloat right = [TiUtils floatValue:@"right" properties:arg def:defaultSeparatorInsets.right];
+            [tableview setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
+        } else {
+            [tableview setSeparatorInset:defaultSeparatorInsets];
+        }
+        if (!searchActivated) {
+            [tableview setNeedsDisplay];
+        }
+    }
 }
 
 -(void)setBackgroundColor_:(id)arg
@@ -1665,6 +1787,7 @@
 		[searchField windowWillOpen];
 		[searchField setDelegate:self];
 		tableController = [[UITableViewController alloc] init];
+		[TiUtils configureController:tableController withObject:nil];
 		tableController.tableView = [self tableView];
 		[tableController setClearsSelectionOnViewWillAppear:!allowsSelectionSet];
 		searchController = [[UISearchDisplayController alloc] initWithSearchBar:[search searchBar] contentsController:tableController];
@@ -1821,6 +1944,20 @@
 -(void)setMaxRowHeight_:(id)height
 {
 	maxRowHeight = [TiUtils dimensionValue:height];
+}
+
+-(void)setRefreshControl_:(id)args
+{
+#ifdef USE_TI_UIREFRESHCONTROL
+    ENSURE_SINGLE_ARG_OR_NIL(args,TiUIRefreshControlProxy);
+    [[_refreshControlProxy control] removeFromSuperview];
+    RELEASE_TO_NIL(_refreshControlProxy);
+    [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
+    if (args != nil) {
+        _refreshControlProxy = [args retain];
+        [[self tableView] addSubview:[_refreshControlProxy control]];
+    }
+#endif
 }
 
 -(void)setHeaderPullView_:(id)value
@@ -2246,7 +2383,7 @@ return result;	\
 -(CGFloat)computeRowWidth
 {
     CGFloat rowWidth = tableview.bounds.size.width;
-	if (self.tableView.style == UITableViewStyleGrouped) {
+	if ((self.tableView.style == UITableViewStyleGrouped) && (![TiUtils isIOS7OrGreater]) ){
 		rowWidth -= GROUPED_MARGIN_WIDTH;
 	}
     
@@ -2481,10 +2618,11 @@ return result;	\
 		[self.proxy fireEvent:@"dragend" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
 	}
     
+    //This section of code now moved to [TiUITextWidgetView updateKeyboardStatus]
     // Update keyboard status to insure that any fields actively being edited remain in view
-    if ([[[TiApp app] controller] keyboardVisible]) {
-        [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
-    }
+    //if ([[[TiApp app] controller] keyboardVisible]) {
+    //    [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+    //}
 }
 
 
@@ -2506,6 +2644,13 @@ return result;	\
 
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
+    if (viewWillDetach) {
+        return;
+    }
+
+    //IOS7 DP3. TableView seems to be adding the searchView to
+    //tableView. Bug on IOS7?
+    [searchField ensureSearchBarHeirarchy];
     animateHide = YES;
     [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
 }

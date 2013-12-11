@@ -87,6 +87,11 @@ const NSString* socketKey = @"socket";
     [super _destroy];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Network.BounjourService";
+}
+
 -(BOOL)isEqual:(id)obj
 {
     if ([obj isKindOfClass:[TiNetworkBonjourServiceProxy class]]) {

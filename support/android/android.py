@@ -46,18 +46,18 @@ def copy_resources(source, target):
 	 for root, dirs, files in os.walk(source, True, None, True):
 		  for name in ignoreDirs:
 		  	    if name in dirs:
-				    dirs.remove(name)	# don't visit ignored directories			  
+				    dirs.remove(name)	# don't visit ignored directories
 		  for file in files:
 				if file in ignoreFiles:
 					 continue
-				from_ = join(root, file)			  
+				from_ = join(root, file)
 				to_ = os.path.expanduser(from_.replace(source, target, 1))
 				to_directory = os.path.expanduser(split(to_)[0])
 				if not exists(to_directory):
 					 os.makedirs(to_directory)
 				print "[TRACE] copying: %s to: %s" % (from_,to_)
 				copyfile(from_, to_)
-	
+
 class Android(object):
 
 	def __init__(self, name, myid, sdk, deploy_type, java):
@@ -81,14 +81,14 @@ class Android(object):
 		self.config['classname'] = Android.strip_classname(self.name)
 		self.deploy_type = deploy_type
 		self.java = java
-	
+
 	@classmethod
 	def strip_classname(cls, name):
 		classname = ''.join([str.capitalize() for str in re.split('[^A-Za-z0-9_]', name)])
 		if re.search("^[0-9]", classname) != None:
 			classname = "_" + classname
 		return classname
-		
+
 	def newdir(self, *segments):
 		path = os.path.join(*segments)
 		if not os.path.exists(path):
@@ -118,11 +118,14 @@ class Android(object):
 
 	def build_app_info(self, project_dir):
 		tiapp = ElementTree()
-		
-		self.app_info = {'fullscreen':'false','navbar-hidden':'false'}
+		assets_tiappxml = os.path.join(project_dir, 'build', 'android', 'bin', 'assets', 'tiapp.xml')
+
+		self.app_info = {'fullscreen':'false','navbar-hidden':'false','deploy-type':self.deploy_type}
 		self.app_properties = {}
-		
-		tiapp.parse(open(os.path.join(project_dir, 'tiapp.xml'), 'r'))
+		if not os.path.exists(assets_tiappxml):
+			shutil.copy(os.path.join(project_dir, 'tiapp.xml'), assets_tiappxml)
+
+		tiapp.parse(open(assets_tiappxml, 'r'))
 		for key in ['id', 'name', 'version', 'publisher', 'url', 'copyright',
 			'description', 'icon', 'analytics', 'guid', 'navbar-hidden', 'fullscreen']:
 			el = tiapp.find(key)
@@ -137,15 +140,15 @@ class Android(object):
 			if type == None: type = "string"
 			if value == None: value = ""
 			self.app_properties[name] = {"type": type, "value": value}
-	
+
 	def generate_activities(self, app_package_dir):
 		if not 'activities' in self.tiapp.android: return
 		for key in self.tiapp.android['activities'].keys():
 			activity = self.tiapp.android['activities'][key]
 			print '[DEBUG] generating activity class: ' + activity['classname']
-			
+
 			self.render(template_dir, 'JSActivity.java', app_package_dir, activity['classname']+'.java', activity=activity)
-	
+
 	def generate_services(self, app_package_dir):
 		if not 'services' in self.tiapp.android: return
 		for key in self.tiapp.android['services'].keys():
@@ -160,7 +163,7 @@ class Android(object):
 	def build_modules_info(self, resources_dir, app_bin_dir, include_all_ti_modules=False):
 		self.app_modules = []
 		(modules, external_child_modules) = bindings.get_all_module_bindings()
-		
+
 		compiler = Compiler(self.tiapp, resources_dir, self.java, app_bin_dir,
 				None, os.path.dirname(app_bin_dir),
 				include_all_modules=include_all_ti_modules)
@@ -182,7 +185,7 @@ class Android(object):
 					if 'onAppCreate' in modules[m]:
 						module_onAppCreate = modules[m]['onAppCreate']
 					break
-			
+
 			if module_apiName == None: continue # module wasn't found
 			ext_modules = []
 			if module_class in external_child_modules:
@@ -196,19 +199,19 @@ class Android(object):
 				'external_child_modules': ext_modules,
 				'on_app_create': module_onAppCreate
 			})
-		
+
 		# discover app modules
 		detector = ModuleDetector(self.project_dir)
 		missing, detected_modules = detector.find_app_modules(self.tiapp, 'android', self.deploy_type)
 		for missing_module in missing: print '[WARN] Couldn\'t find app module: %s' % missing_module['id']
-		
+
 		self.custom_modules = []
 		for module in detected_modules:
 			if module.jar == None: continue
 			module_jar = zipfile.ZipFile(module.jar)
 			module_bindings = bindings.get_module_bindings(module_jar)
 			if module_bindings is None: continue
-			
+
 			for module_class in module_bindings['modules'].keys():
 				module_apiName = module_bindings['modules'][module_class]['apiName']
 				module_proxy = module_bindings['proxies'][module_class]
@@ -232,7 +235,7 @@ class Android(object):
 						print "[ERROR] The 'apiversion' for '%s' in the module manifest is not a valid value.  Please use a version of the module that has an 'apiversion' value of 2 or greater set in it's manifest file" % module_id
 						touch_tiapp_xml(os.path.join(self.project_dir, 'tiapp.xml'))
 						sys.exit(1)
- 
+
 
 					is_native_js_module = (hasattr(module.manifest, 'commonjs') and module.manifest.commonjs)
 					print '[DEBUG] appending module: %s' % module_class
@@ -290,7 +293,7 @@ class Android(object):
 
 	def create(self, dir, build_time=False, project_dir=None, include_all_ti_modules=False):
 		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
-		
+
 		# Build up output directory tree
 		if project_dir is None:
 			project_dir = self.newdir(dir, self.name)
@@ -310,29 +313,29 @@ class Android(object):
 
 		#if os.path.exists(os.path.join(app_dir,'bin')):
 		#	shutil.rmtree(os.path.join(app_dir,'bin'))
-			
+
 		if os.path.exists(os.path.join(app_dir,'src')):
 			shutil.rmtree(os.path.join(app_dir,'src'))
 
 		if os.path.exists(os.path.join(app_dir,'res')):
 			shutil.rmtree(os.path.join(app_dir,'res'))
-			
+
 		app_bin_dir = self.newdir(app_dir, 'bin')
 		app_lib_dir = self.newdir(app_dir, 'lib')
 		app_src_dir = self.newdir(app_dir, 'src')
 		app_res_dir = self.newdir(app_dir, 'res')
 		app_gen_dir = self.newdir(app_dir, 'gen')
 		app_bin_classes_dir = self.newdir(app_bin_dir, 'classes')
-		
+
 		app_res_drawable_dir = self.newdir(app_res_dir, 'drawable')
 		app_assets_dir = self.newdir(app_dir, 'assets')
 		app_package_dir = self.newdir(app_gen_dir, *self.id.split('.'))
 		app_bin_assets_dir = self.newdir(app_bin_dir, 'assets')
 		app_bin_assets_resources_dir = self.newdir(app_bin_assets_dir, 'Resources')
-		
+
 		self.build_app_info(project_dir)
 		self.build_modules_info(app_bin_assets_resources_dir, app_bin_dir, include_all_ti_modules=include_all_ti_modules)
-		
+
 		# Create android source
 		self.render(template_dir, 'AppInfo.java', app_package_dir, self.config['classname'] + 'AppInfo.java',
 			app_properties = self.app_properties, app_info = self.app_info)
@@ -365,10 +368,10 @@ class Android(object):
 
 		if build_time==False and os.path.exists(android_project_resources):
 			shutil.rmtree(android_project_resources)
-		
+
 		if not os.path.exists(android_project_resources):
 			copy_resources(os.path.join(template_dir,'resources'),android_project_resources)
-		
+
 
 if __name__ == '__main__':
 	# this is for testing only for the time being

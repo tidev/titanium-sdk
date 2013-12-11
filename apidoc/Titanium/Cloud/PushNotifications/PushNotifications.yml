@@ -1,11 +1,9 @@
 name: Titanium.Cloud.PushNotifications
 summary: Provides methods for accessing ACS push notification channels.
 description: |
-    Please refer to [configure push notifications for iOS](http://cloud.appcelerator.com/docs/ios#pushn)
-    and [configure push notifications for Android](http://cloud.appcelerator.com/docs/android#pushn) 
-    to set up your app for push notifications. To receive push notifications on Android, please 
-    refer to the <Titanium.CloudPush> module.
-    
+    For information on configuring and setting up push notifications,
+    see the [Push Notifications guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Push_Notifications).
+
     The methods in this module are used to subscribe and unsubscribe from ACS push notification 
     channels, and to generate ACS push notifications. Push notifications are received using 
     platform-specific mechanisms:
@@ -36,7 +34,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Push Notifications: Notify](http://cloud.appcelerator.com/docs/api/v1/push_notifications/notify)
+        See [push_notifications/notify.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-notify)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -47,12 +45,27 @@ methods:
         summary: Callback function to execute when the method completes.
         type: Callback<CloudPushNotificationsResponse>
   
+  - name: notifyTokens
+    summary: Send a push notification to a channel to the specified devices.
+    description: |
+        See [push_notifications/notify_tokens.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-notify_tokens)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+    since: 3.1.2
+
   - name: subscribe
     summary: Subscribe a mobile device to a push notification channel.
     description: |
         Requires user login. 
         
-        See [Push Notifications: Subscribe](http://cloud.appcelerator.com/docs/api/v1/push_notifications/subscribe)
+        See [push_notifications/subscribe.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-subscribe)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -63,12 +76,27 @@ methods:
         summary: Callback function to execute when the method completes.
         type: Callback<CloudPushNotificationsResponse>
   
+  - name: subscribeToken
+    summary: Subscribe a mobile device to a push notification channel using a device token.
+    description: |
+        See [push_notifications/subsribe_tokens.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-subscribe_token)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+    since: 3.1.2
+
   - name: unsubscribe
     summary: Unsubscribe a mobile device from a push notification channel.
     description: |
         Requires user login. 
         
-        See [Push Notifications: Unsubscribe](http://cloud.appcelerator.com/docs/api/v1/push_notifications/unsubscribe)
+        See [push_notifications/unsubscribe.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-unsubscribe)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -78,6 +106,72 @@ methods:
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudPushNotificationsResponse>
+
+  - name: unsubscribeToken
+    summary: Unsubscribe a mobile device from a push notification channel using a device token.
+    description: |
+        See [push_notifications/unsubscribe_tokens.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-unsubscribe_token)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+    since: 3.1.2
+
+  - name: queryChannels
+    summary: Returns a list of push notification channels the user is subscribed to.
+    description: |
+        Requires user login. 
+        
+        See [push_notifications/channels/query.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-channels_query)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsQueryChannelResponse>
+    since: 3.2.0
+
+  - name: showChannels
+    summary: Returns the number of devices subscribed to the specified channel.
+    description: |
+        Requires user login. 
+        
+        See [push_notifications/channels/show.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-channels_show)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsShowChannelResponse>
+    since: 3.2.0
+
+  - name: query
+    summary: Custom query of push notification subscriptions with paginating.
+    description: |
+        See [push_notifications/query.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-query)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `subscriptions` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsQueryResponse>
+    since: 3.2.0
 
 examples:
   - title: Subscribe to Channel
@@ -132,3 +226,30 @@ examples:
 name: CloudPushNotificationsResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: CloudResponse
+---
+name: CloudPushNotificationsQueryChannelResponse
+summary: Argument passed to the callback when a request finishes successfully.
+extends: CloudResponse
+properties:
+  - name: push_channels
+    summary: Array of `push_channel` names, if any exist.
+    description: Only included if `success` is `true`.
+    type: Array<String>
+---
+name: CloudPushNotificationsShowChannelResponse
+summary: Argument passed to the callback when a request finishes successfully.
+extends: CloudResponse
+properties:
+  - name: devices
+    summary: Dictionary containing counts of devices subscribed to a push channel, grouped by platform.
+    description: Only included if `success` is `true`.
+    type: Dictionary
+---
+name: CloudPushNotificationsQueryResponse
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: CloudResponse
+properties:
+  - name: subscriptions
+    summary: Set of `subscription` objects, if any exist.
+    description: Only included if `success` is `true`.
+    type: Array<Dictionary>

@@ -19,6 +19,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
+import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
@@ -68,11 +69,14 @@ public abstract class TiBaseActivity extends FragmentActivity
 
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
+	private boolean inForeground = false; // Indicates whether this activity is in foreground or not.
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
 	private TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<OnWindowFocusChangedEvent>();
+	private TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners = new TiWeakList<interceptOnBackPressedEvent>();
 
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
+	protected int supportHelperId = -1;
 	protected TiWindowProxy window;
 	protected TiViewProxy view;
 	protected ActivityProxy activityProxy;
@@ -103,9 +107,18 @@ public abstract class TiBaseActivity extends FragmentActivity
 		
 		public TiBaseActivity getActivity()
 		{
-			return dialogActivity.get();
+			if (dialogActivity == null) {
+				return null;
+			} else {
+				return dialogActivity.get();
+			}
 		}
-		
+
+		public void setActivity(WeakReference<TiBaseActivity> da)
+		{
+			dialogActivity = da;
+		}
+
 		public AlertDialog getDialog() {
 			return dialog;
 		}
@@ -215,7 +228,6 @@ public abstract class TiBaseActivity extends FragmentActivity
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
 		this.window = proxy;
-		setLayoutProxy(proxy);
 		updateTitle();
 	}
 
@@ -224,7 +236,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 * 
 	 * @param proxy
 	 */
-	protected void setLayoutProxy(TiViewProxy proxy)
+	public void setLayoutProxy(TiViewProxy proxy)
 	{
 		if (layout instanceof TiCompositeLayout) {
 			((TiCompositeLayout) layout).setProxy(proxy);
@@ -450,6 +462,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	{
 		Log.d(TAG, "Activity " + this + " onCreate", Log.DEBUG_MODE);
 
+		inForeground = true;
 		TiApplication tiApp = getTiApp();
 
 		if (tiApp.isRestartPending()) {
@@ -460,8 +473,11 @@ public abstract class TiBaseActivity extends FragmentActivity
 			return;
 		}
 
+		// If all the activities has been killed and the runtime has been disposed, we cannot recover one
+		// specific activity because the info of the top-most view proxy has been lost (TiActivityWindows.dispose()).
+		// In this case, we have to restart the app.
 		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
-			Log.w(TAG, "Unsupported, out-of-order activity creation. Finishing.");
+			Log.w(TAG, "Runtime has been disposed. Finishing.");
 			super.onCreate(savedInstanceState);
 			tiApp.scheduleRestart(250);
 			finish();
@@ -511,7 +527,8 @@ public abstract class TiBaseActivity extends FragmentActivity
 		windowCreated();
 
 		if (activityProxy != null) {
-			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null);
+			// Fire the sync event with a timeout, so the main thread won't be blocked too long to get an ANR. (TIMOB-13253)
+			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null, 4000);
 		}
 
 		// set the current activity back to what it was originally
@@ -535,6 +552,11 @@ public abstract class TiBaseActivity extends FragmentActivity
 	public int getOriginalOrientationMode()
 	{
 		return originalOrientationMode;
+	}
+
+	public boolean isInForeground()
+	{
+		return inForeground;
 	}
 
 	protected void sendMessage(final int msgId)
@@ -573,6 +595,8 @@ public abstract class TiBaseActivity extends FragmentActivity
 	{
 		if (supportHelper == null) {
 			this.supportHelper = new TiActivitySupportHelper(this);
+			// Register the supportHelper so we can get it back when the activity is recovered from force-quitting.
+			supportHelperId = TiActivitySupportHelpers.addSupportHelper(supportHelper);
 		}
 
 		return supportHelper;
@@ -602,6 +626,19 @@ public abstract class TiBaseActivity extends FragmentActivity
 	@Override
 	public void onBackPressed()
 	{
+		synchronized (interceptOnBackPressedListeners.synchronizedList()) {
+			for (interceptOnBackPressedEvent listener : interceptOnBackPressedListeners.nonNull()) {
+				try {
+					if (listener.interceptOnBackPressed()) {
+						return;
+					}
+
+				} catch (Throwable t) {
+					Log.e(TAG, "Error dispatching interceptOnBackPressed event: " + t.getMessage(), t);
+				}
+			}
+		}
+
 		TiWindowProxy topWindow = topWindowOnStack();
 
 		// Prevent default Android behavior for "back" press
@@ -844,6 +881,11 @@ public abstract class TiBaseActivity extends FragmentActivity
 		windowFocusChangedListeners.add(new WeakReference<OnWindowFocusChangedEvent>(listener));
 	}
 
+	public void addInterceptOnBackPressedEventListener(interceptOnBackPressedEvent listener)
+	{
+		interceptOnBackPressedListeners.add(new WeakReference<interceptOnBackPressedEvent>(listener));
+	}
+
 	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
 		// TODO stub
@@ -890,6 +932,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 */
 	protected void onPause() 
 	{
+		inForeground = false;
 		super.onPause();
 		isResumed = false;
 
@@ -947,6 +990,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 */
 	protected void onResume()
 	{
+		inForeground = true;
 		super.onResume();
 		if (isFinishing()) {
 			return;
@@ -970,7 +1014,8 @@ public abstract class TiBaseActivity extends FragmentActivity
 		TiApplication.updateActivityTransitionState(false);
 		
 		if (activityProxy != null) {
-			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null);
+			// Fire the sync event with a timeout, so the main thread won't be blocked too long to get an ANR. (TIMOB-13253)
+			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null, 4000);
 		}
 
 		synchronized (lifecycleListeners.synchronizedList()) {
@@ -987,7 +1032,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 		isResumed = true;
 
 		// Checkpoint for ti.start event
-		String deployType = tiApp.getSystemProperties().getString("ti.deploytype", "unknown");
+		String deployType = tiApp.getAppProperties().getString("ti.deploytype", "unknown");
 		tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppStartEvent(tiApp, deployType));
 	}
 
@@ -999,6 +1044,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 */
 	protected void onStart()
 	{
+		inForeground = true;
 		super.onStart();
 		if (isFinishing()) {
 			return;
@@ -1028,7 +1074,8 @@ public abstract class TiBaseActivity extends FragmentActivity
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
 
-			activityProxy.fireSyncEvent(TiC.EVENT_START, null);
+			// Fire the sync event with a timeout, so the main thread won't be blocked too long to get an ANR. (TIMOB-13253)
+			activityProxy.fireSyncEvent(TiC.EVENT_START, null, 4000);
 
 			// set the current activity back to what it was originally
 			tiApp.setCurrentActivity(this, tempCurrentActivity);
@@ -1056,6 +1103,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 */
 	protected void onStop()
 	{
+		inForeground = false;
 		super.onStop();
 
 		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
@@ -1091,6 +1139,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	 */
 	protected void onRestart()
 	{
+		inForeground = true;
 		super.onRestart();
 
 		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
@@ -1120,6 +1169,29 @@ public abstract class TiBaseActivity extends FragmentActivity
 
 	@Override
 	/**
+	 * When the activity is about to go into the background as a result of user choice, this method fires the 
+	 * javascript 'userleavehint' event.
+	 */
+	protected void onUserLeaveHint()
+	{
+		Log.d(TAG, "Activity " + this + " onUserLeaveHint", Log.DEBUG_MODE);
+
+		if (getTiApp().isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		if (activityProxy != null) {
+			activityProxy.fireSyncEvent(TiC.EVENT_USER_LEAVE_HINT, null);
+		}
+
+		super.onUserLeaveHint();
+	}
+	
+	@Override
+	/**
 	 * When this activity is destroyed, this method removes it from the activity stack, performs
 	 * clean up, and fires javascript 'destroy' event. 
 	 */
@@ -1127,6 +1199,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	{
 		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
 
+		inForeground = false;
 		TiApplication tiApp = getTiApp();
 		//Clean up dialogs when activity is destroyed. 
 		releaseDialogs(true);
@@ -1152,19 +1225,14 @@ public abstract class TiBaseActivity extends FragmentActivity
 
 		super.onDestroy();
 
-		// Our Activities are currently unable to recover from Android-forced restarts,
-		// so we need to relaunch the application entirely.
-		if (!isFinishing())
-		{
-			if (!shouldFinishRootActivity()) {
-				// Put it in, because we want it to finish root in this case.
-				getIntent().putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, true);
-			}
+		boolean isFinishing = isFinishing();
 
-			tiApp.scheduleRestart(250);
-			finish();
-
-			return;
+		// If the activity is finishing, remove the windowId and supportHelperId so the window and supportHelper can be released.
+		// If the activity is forced to destroy by Android OS, keep the windowId and supportHelperId so the activity can be recovered.
+		if (isFinishing) {
+			int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
+			TiActivityWindows.removeWindow(windowId);
+			TiActivitySupportHelpers.removeSupportHelper(supportHelperId);
 		}
 
 		fireOnDestroy();
@@ -1182,7 +1250,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 		}
 
 		if (window != null) {
-			window.closeFromActivity();
+			window.closeFromActivity(isFinishing);
 			window = null;
 		}
 
@@ -1196,8 +1264,36 @@ public abstract class TiBaseActivity extends FragmentActivity
 			activityProxy = null;
 		}
 
-		KrollRuntime.decrementActivityRefCount();
+		// Don't dispose the runtime if the activity is forced to destroy by Android,
+		// so we can recover the activity later.
+		KrollRuntime.decrementActivityRefCount(isFinishing);
 		KrollRuntime.suggestGC();
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		super.onSaveInstanceState(outState);
+
+		// If the activity is forced to destroy by Android, save the supportHelperId so
+		// we can get it back when the activity is recovered.
+		if (!isFinishing() && supportHelper != null) {
+			outState.putInt("supportHelperId", supportHelperId);
+		}
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState)
+	{
+		super.onRestoreInstanceState(savedInstanceState);
+
+		if (savedInstanceState.containsKey("supportHelperId")) {
+			supportHelperId = savedInstanceState.getInt("supportHelperId");
+			supportHelper = TiActivitySupportHelpers.retrieveSupportHelper(this, supportHelperId);
+			if (supportHelper == null) {
+				Log.e(TAG, "Unable to retrieve the activity support helper.");
+			}
+		}
 	}
 
 	// called in order to ensure that the onDestroy call is only acted upon once.
@@ -1226,8 +1322,15 @@ public abstract class TiBaseActivity extends FragmentActivity
 			TiApplication app = getTiApp();
 			if (app != null) {
 				TiRootActivity rootActivity = app.getRootActivity();
-				if (rootActivity != null && !(rootActivity.equals(this))) {
+				if (rootActivity != null && !(rootActivity.equals(this)) && !rootActivity.isFinishing()) {
 					rootActivity.finish();
+				} else if (rootActivity == null && !app.isRestartPending()) {
+					// When the root activity has been killed and garbage collected and the app is not scheduled to restart,
+					// we need to force finish the root activity while this activity has an intent to finish root.
+					// This happens when the "Don't keep activities" option is enabled and the user stays in some activity
+					// (eg. heavyweight window, tabgroup) other than the root activity for a while and then he wants to back
+					// out the app.
+					app.setForceFinishRootActivity(true);
 				}
 			}
 		}
@@ -1273,29 +1376,18 @@ public abstract class TiBaseActivity extends FragmentActivity
 	}
 
 	/**
-	 * Called by the onCreate methods of TiBaseActivity and TiTabActivity (the latter does
-	 * not extend the former) to determine if an unsupported application re-launch appears to
-	 * be occurring. It's here simply as a convenience for both classes to use it without duplication.
+	 * Called by the onCreate methods of TiBaseActivity to determine if an unsupported application
+	 * re-launch appears to be occurring.
 	 * @param activity The Activity getting the onCreate
 	 * @param savedInstanceState The argument passed to the onCreate. A non-null value is a "tell"
 	 * that the system is re-starting a killed application.
 	 */
 	public static boolean isUnsupportedReLaunch(Activity activity, Bundle savedInstanceState)
 	{
-		if (savedInstanceState != null && !(activity instanceof TiLaunchActivity) &&
-			!(TiApplication.getInstance().activityStackHasLaunchActivity())) {
-			/**
-			 * This state "looks like" the following has occurred:
-			 *
-			 * a) The app was running, but Android killed it off (such as, to save memory),
-			 * or a third-party task killer killed it.
-			 * b)  The app is now re-starting, and this activity -- which is *not*
-			 * a launch activity -- is being asked by Android to come into the foreground,
-			 * with none of our launch activities "behind" it.
-			 *
-			 * This is a situation we can't currently handle.  We count on a "normal" lifecycle
-			 * beginning with a launch activity.
-			 */
+		// If all the activities has been killed and the runtime has been disposed, we have to relaunch
+		// the app.
+		if (KrollRuntime.getInstance().getRuntimeState() == KrollRuntime.State.DISPOSED &&
+				savedInstanceState != null && !(activity instanceof TiLaunchActivity)) {
 			return true;
 		}
 		return false;

@@ -8,6 +8,9 @@ THIS_DIR = $(LOCAL_PATH)
 LOCAL_MODULE := @MODULE_ID@
 LOCAL_CFLAGS := -g "-I$(TI_MOBILE_SDK)/android/native/include"
 
+# https://jira.appcelerator.org/browse/TIMOB-15263
+LOCAL_DISABLE_FORMAT_STRING_CHECKS=true
+
 # Several places in generated code we set some jvalues to NULL and
 # since NDK r8b we'd get warnings about each one.
 LOCAL_CFLAGS += -Wno-conversion-null

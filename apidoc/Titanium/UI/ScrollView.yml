@@ -9,7 +9,7 @@ description: |
     content. If a scrollable region fits within the size of its scroll view, the view will not 
     scroll.
     
-    #### Android
+    #### Android Platform Notes
     
     On Android, a scroll view can only scroll in one direction, either vertical or horizontal, 
     and not both at the same time. Hence, the <Titanium.UI.ScrollView.scrollType> property may be 
@@ -22,6 +22,11 @@ description: |
     "vertical".  If `contentHeight` and `height` are both set and are equal, or if they are both 
     set and `showHorizontalScrollIndicator` is set to `true`, then the scroll direction is set 
     to "horizontal".  If `scrollType` is set, it overrides the deduced setting.
+
+    Pinching the view to zoom in and out of content is not supported on Android as opposed to iOS.
+    On iOS, this action is natively supported by the UIScrollView class, but on Android, the
+    native ScrollView class does not support this action. Parity between the two platforms cannot be
+    achieved with this feature.
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
@@ -38,6 +43,7 @@ methods:
       - name: y
         summary: Y coordinate from the scrollable region's coordinate system.
         type: Number
+    exclude-platforms: [blackberry]
         
   - name: setContentOffset
     summary: Sets the value of the [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
@@ -52,6 +58,7 @@ methods:
         summary: Determines whether the scrollable region reposition should be animated 
         type: contentOffsetOption
         optional: true
+    exclude-platforms: [blackberry]
 
   - name: setZoomScale
     summary: Sets the value of the [zoomScale](Titanium.UI.ScrollView.zoomScale) property.
@@ -65,6 +72,7 @@ methods:
         summary: Determines whether the scrollable region reposition should be animated 
         type: zoomScaleOption
         optional: true
+    exclude-platforms: [blackberry]
         
   - name: scrollToBottom
     summary: Moves the end of the scrollable region into the viewable area.
@@ -197,6 +205,7 @@ properties:
     description: |
         On iOS, a new value causes the scroll view to perform an animated scroll to the new offset. 
         The <Titanium.UI.ScrollView.setContentOffset> method can be used to prevent this animation.
+    exclude-platforms: [blackberry]
         
   - name: contentWidth
     summary: Width of the scrollable region.
@@ -304,12 +313,14 @@ properties:
     description: Set to `true` to show the horizontal scroll indicator.
     type: Boolean
     default: false
+    exclude-platforms: [blackberry]
     
   - name: showVerticalScrollIndicator
     summary: Determines whether the vertical scroll indicator is visible.
     description: Set to `true` to show the vertical scroll indicator.
     type: Boolean
     default: false
+    exclude-platforms: [blackberry]
     
   - name: verticalBounce
     summary: Determines whether vertical scroll bounce of the scrollable region is enabled.
@@ -424,7 +435,7 @@ examples:
            <Alloy>
                <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" title="ScrollView Demo">
                    <ScrollView id="scrollView" showVerticalScrollIndicator="true" showHorizontalScrollIndicator="true" height="80%" width="80%">
-                       <View id="view" backgroundColor="#336699" borderRaduis="10" top="10" height="2000" width="1000" />
+                       <View id="view" backgroundColor="#336699" borderRadius="10" top="10" height="2000" width="1000" />
                    </ScrollView>
                </Window>
            </Alloy>

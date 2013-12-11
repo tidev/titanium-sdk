@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -76,5 +76,11 @@ public class NotificationManagerModule extends KrollModule
 	public void notify(int id, NotificationProxy notificationProxy)
 	{
 		getManager().notify(id, notificationProxy.getNotification());
-	}	
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Android.NotificationManager";
+	}
 }

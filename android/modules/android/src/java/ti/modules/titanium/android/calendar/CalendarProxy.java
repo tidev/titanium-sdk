@@ -205,5 +205,11 @@ public class CalendarProxy extends KrollProxy {
 	{
 		return hidden;
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Android.Calendar.Calendar";
+	}
 }
 

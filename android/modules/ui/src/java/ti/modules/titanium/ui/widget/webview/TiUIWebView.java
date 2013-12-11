@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -33,6 +33,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.WebViewProxy;
+import ti.modules.titanium.ui.android.AndroidModule;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -48,6 +49,7 @@ public class TiUIWebView extends TiUIView
 
 	private static final String TAG = "TiUIWebView";
 	private TiWebViewClient client;
+	private TiWebChromeClient chromeClient;
 	private boolean bindingCodeInjected = false;
 	private boolean isLocalHTML = false;
 
@@ -138,7 +140,6 @@ public class TiUIWebView extends TiUIView
 		settings.setSupportMultipleWindows(true);
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
 		settings.setLoadsImagesAutomatically(true);
-		settings.setLightTouchEnabled(true);
 		settings.setDomStorageEnabled(true); // Required by some sites such as Twitter. This is in our iOS WebView too.
 		File path = TiApplication.getInstance().getFilesDir();
 		if (path != null) {
@@ -146,6 +147,11 @@ public class TiUIWebView extends TiUIView
 			settings.setDatabaseEnabled(true);
 		}
 		
+		File cacheDir = TiApplication.getInstance().getCacheDir();
+		if (cacheDir != null) {
+			settings.setAppCacheEnabled(true);
+			settings.setAppCachePath(cacheDir.getAbsolutePath());
+		}
 
 		// enable zoom controls by default
 		boolean enableZoom = true;
@@ -157,12 +163,17 @@ public class TiUIWebView extends TiUIView
 		settings.setBuiltInZoomControls(enableZoom);
 		settings.setSupportZoom(enableZoom);
 
+		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_JELLY_BEAN) {
+			settings.setAllowUniversalAccessFromFileURLs(true); // default is "false" for JellyBean, TIMOB-13065
+		}
+
 		// We can only support webview settings for plugin/flash in API 8 and higher.
 		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
 			initializePluginAPI(webView);
 		}
 
-		webView.setWebChromeClient(new TiWebChromeClient(this));
+		chromeClient = new TiWebChromeClient(this);
+		webView.setWebChromeClient(chromeClient);
 		client = new TiWebViewClient(this, webView);
 		webView.setWebViewClient(client);
 		webView.client = client;
@@ -231,6 +242,11 @@ public class TiUIWebView extends TiUIView
 			WebSettings settings = getWebView().getSettings();
 			settings.setLoadWithOverviewMode(TiConvert.toBoolean(d, TiC.PROPERTY_SCALES_PAGE_TO_FIT));
 		}
+		
+		if (d.containsKey(TiC.PROPERTY_CACHE_MODE)) {
+			int mode = TiConvert.toInt(d.get(TiC.PROPERTY_CACHE_MODE), AndroidModule.WEBVIEW_LOAD_DEFAULT);
+			getWebView().getSettings().setCacheMode(mode);
+		}
 
 		if (d.containsKey(TiC.PROPERTY_URL) && !TiC.URL_ANDROID_ASSET_RESOURCES.equals(TiConvert.toString(d, TiC.PROPERTY_URL))) {
 			setUrl(TiConvert.toString(d, TiC.PROPERTY_URL));
@@ -241,6 +257,11 @@ public class TiUIWebView extends TiUIView
 			if (value instanceof TiBlob) {
 				setData((TiBlob) value);
 			}
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_LIGHT_TOUCH_ENABLED)) {
+			WebSettings settings = getWebView().getSettings();
+			settings.setLightTouchEnabled(TiConvert.toBoolean(d,TiC.PROPERTY_LIGHT_TOUCH_ENABLED));
 		}
 
 		// If TiUIView's processProperties ended up making a TiBackgroundDrawable
@@ -275,10 +296,15 @@ public class TiUIWebView extends TiUIView
 		} else if (TiC.PROPERTY_SCALES_PAGE_TO_FIT.equals(key)) {
 			WebSettings settings = getWebView().getSettings();
 			settings.setLoadWithOverviewMode(TiConvert.toBoolean(newValue));
-		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)){
+		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
 			if (Build.VERSION.SDK_INT >= 9) {
 				nativeView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
 			}
+		} else if (TiC.PROPERTY_CACHE_MODE.equals(key)) { 
+			getWebView().getSettings().setCacheMode(TiConvert.toInt(newValue));
+		} else if (TiC.PROPERTY_LIGHT_TOUCH_ENABLED.equals(key)) {
+			WebSettings settings = getWebView().getSettings();
+			settings.setLightTouchEnabled(TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -681,5 +707,10 @@ public class TiUIWebView extends TiUIView
 	public void setBindingCodeInjected(boolean injected)
 	{
 		bindingCodeInjected = injected;
+	}
+
+	public boolean interceptOnBackPressed()
+	{
+		return chromeClient.interceptOnBackPressed();
 	}
 }

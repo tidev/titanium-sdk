@@ -46,12 +46,14 @@ methods:
         
   - name: createUUID
     summary: Creates a globally-unique identifier.
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     returns:
         type: String
         
   - name: openURL
     summary: |
         Opens this URL using the system's default application for its protocol.
+    platforms: [android, iphone, ipad, mobileweb, tizen]    
     returns:
         type: Boolean
     parameters:
@@ -116,6 +118,7 @@ properties:
     
   - name: batteryMonitoring
     summary: Determines whether battery monitoring is enabled.
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     default: false
     type: Boolean
     
@@ -152,6 +155,7 @@ properties:
         this has been restricted by Apple. For more information, see
         [Apple's uniqueIdentifier](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIDevice_Class/DeprecationAppendix/AppendixADeprecatedAPI.html#//apple_ref/occ/instp/UIDevice/uniqueIdentifier)
         documentation.
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     type: String
     permission: read-only
         
@@ -163,6 +167,7 @@ properties:
         [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
         [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
         sections of wikipedia for reference.
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     type: String
     permission: read-only
     
@@ -234,6 +239,7 @@ properties:
     
   - name: ostype
     summary: Operating System architecture. On Android, this is `32bit`.
+    platforms: [android, iphone, mobileweb, ipad, tizen]
     type: String
     permission: read-only
     

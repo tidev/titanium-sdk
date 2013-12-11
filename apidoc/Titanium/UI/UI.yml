@@ -120,10 +120,10 @@ description:  |
     `'green'`, `'lightgray'`, `'lime'`, `'magenta'`, `'maroon'`, `'navy'`, `'olive'`, `'orange'`, 
     `'pink'`, `'purple'`, `'red'`, `'silver'`, `'teal'`, `'white'`, `'yellow'`.
     
-    Currently, Android does not support the color name `'brown'` and iOS does not support `'aqua'`, 
-    `'fuchsia'`, `'lime'` or `'maroon'`.
-    
     All color properties also accept a value of `'transparent'`.
+
+    On Android, if you want to create a semi-transparent window, set the `opacity`
+    property **before** opening the window.
     
     If a color property is undefined, the default color of the particular UI element is applied. 
     If a color value is not valid on iOS, the default color is applied, whereas, on Android, the 
@@ -151,7 +151,8 @@ methods:
         summary: Initial transformation of the matrix.
         type: MatrixCreationDict
         optional: true
-        
+    exclude-platforms: [blackberry]
+
   - name: convertUnits
     summary: Converts one type of unit to another using the metrics of the main display.
     description: As this method does not support percentages, `0` is returned if they are specified.
@@ -169,6 +170,7 @@ methods:
         summary: |
             Desired unit for the conversion result. Use one of the unit constants in <Titanium.UI>.
         type: String
+    exclude-platforms: [blackberry]
 
 properties:
   - name: ANIMATION_CURVE_EASE_IN
@@ -641,6 +643,60 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     
+  - name: EXTEND_EDGE_TOP
+    summary: Specifies that the top edge of the window can extend.
+    description: |
+        One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "3.1.3"
+    
+  - name: EXTEND_EDGE_BOTTOM
+    summary: Specifies that the bottom edge of the window can extend.
+    description: |
+        One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "3.1.3"
+    
+  - name: EXTEND_EDGE_LEFT
+    summary: Specifies that the left edge of the window can extend.
+    description: |
+        One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "3.1.3"
+    
+  - name: EXTEND_EDGE_RIGHT
+    summary: Specifies that the right edge of the window can extend.
+    description: |
+        One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "3.1.3"
+    
+  - name: EXTEND_EDGE_NONE
+    summary: Specifies that none of the edges of the window can extend.
+    description: |
+        One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "3.1.3"
+    
+  - name: EXTEND_EDGE_ALL
+    summary: Specifies that all the edges of the window can extend.
+    description: |
+        One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "3.1.3"
+    
   - name: FACE_DOWN
     summary: Constant value for face-down orientation.
     description: |
@@ -692,24 +748,28 @@ properties:
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]    
     
   - name: INPUT_BORDERSTYLE_LINE
     summary: Use a simple line border on the input field.
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]    
     
   - name: INPUT_BORDERSTYLE_NONE
     summary: Use no border on the input field.
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]    
     
   - name: INPUT_BORDERSTYLE_ROUNDED
     summary: Use a rounded-rectangle border on the input field.
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]    
     
   - name: INPUT_BUTTONMODE_ALWAYS
     summary: Always show buttons on the input field.
@@ -809,7 +869,7 @@ properties:
         properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, blackberry]
     
   - name: KEYBOARD_NUMBERS_PUNCTUATION
     summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
@@ -818,7 +878,7 @@ properties:
         properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, blackberry]
     
   - name: KEYBOARD_NUMBER_PAD
     summary: Use a keyboard with a number pad only, with the pad keyboard layout.
@@ -1075,7 +1135,8 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    
+    exclude-platforms: [blackberry]
+
   - name: RETURNKEY_JOIN
     summary: Set the return key text to "Join".
     description: |
@@ -1110,7 +1171,8 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    
+    exclude-platforms: [blackberry]
+
   - name: RETURNKEY_SEND
     summary: Set the return key text to "Send".
     description: |
@@ -1127,6 +1189,7 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: SIZE
     summary: SIZE behavior for UI layout.
@@ -1172,6 +1235,7 @@ properties:
         <Titanium.UI.TextArea.autocapitalization> properties.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: TEXT_AUTOCAPITALIZATION_NONE
     summary: Do not auto-capitalize.
@@ -1180,6 +1244,7 @@ properties:
         <Titanium.UI.TextArea.autocapitalization> properties.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: TEXT_AUTOCAPITALIZATION_SENTENCES
     summary: Use sentence-style auto-capitalization in the input field.
@@ -1188,6 +1253,7 @@ properties:
         <Titanium.UI.TextArea.autocapitalization> properties.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: TEXT_AUTOCAPITALIZATION_WORDS
     summary: Auto-capitalize the first letter of each word in the input field.
@@ -1201,6 +1267,66 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
     
+  - name: TEXT_STYLE_HEADLINE
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "7.0"}}
+    since: "3.2.0"
+    
+  - name: TEXT_STYLE_SUBHEADLINE
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "7.0"}}
+    since: "3.2.0"
+    
+  - name: TEXT_STYLE_BODY
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "7.0"}}
+    since: "3.2.0"
+    
+  - name: TEXT_STYLE_FOOTNOTE
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "7.0"}}
+    since: "3.2.0"
+    
+  - name: TEXT_STYLE_CAPTION1
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "7.0"}}
+    since: "3.2.0"
+    
+  - name: TEXT_STYLE_CAPTION2
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "7.0"}}
+    since: "3.2.0"
+    
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM
     summary: Align text to the bottom of the view.
     description: |
@@ -1210,6 +1336,7 @@ properties:
         This constant is a string on android, and a number on iOS, Tizen and Mobile Web.
     type: [Number, String]
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: TEXT_VERTICAL_ALIGNMENT_CENTER
     summary: Vertically align text to the center of the view.
@@ -1220,6 +1347,7 @@ properties:
         This constant is a string on android, and a number on iOS, Tizen and Mobile Web.
     type: [Number, String]
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: TEXT_VERTICAL_ALIGNMENT_TOP
     summary: Align text to the top of the view.
@@ -1230,36 +1358,42 @@ properties:
         This constant is a string on android, and a number on iOS, Tizen and Mobile Web.
     type: [Number, String]
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: UNIT_CM
     summary: Unit constant representing units in centimeters.
     type: String
     permission: read-only
     since: "2.0.0"
+    exclude-platforms: [blackberry]
     
   - name: UNIT_DIP
     summary: Unit constant representing units in density-independent pixels.
     type: String
     permission: read-only
     since: "2.0.0"
+    exclude-platforms: [blackberry]
     
   - name: UNIT_IN
     summary: Unit constant representing units in inches.
     type: String
     permission: read-only
     since: "2.0.0"
+    exclude-platforms: [blackberry]
     
   - name: UNIT_MM
     summary: Unit constant representing units in millimeters.
     type: String
     permission: read-only
     since: "2.0.0"
+    exclude-platforms: [blackberry]
     
   - name: UNIT_PX
     summary: Unit constant representing units in pixels.
     type: String
     permission: read-only
     since: "2.0.0"
+    exclude-platforms: [blackberry]
     
   - name: UNKNOWN
     summary: Orientation constant representing an unknown orientation.
@@ -1296,6 +1430,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: URL_ERROR_BAD_URL
     summary: Bad url error code reported via <Titanium.UI.WebView.error>.
@@ -1303,6 +1438,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: URL_ERROR_CONNECT
     summary: Error code reported via <Titanium.UI.WebView.error> for a failure to connect to host.
@@ -1310,6 +1446,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: URL_ERROR_SSL_FAILED
     summary: Error code reported via <Titanium.UI.WebView.error> for an SSL failure.
@@ -1317,6 +1454,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: URL_ERROR_FILE
     summary: Error code reported via <Titanium.UI.WebView.error> for a failure to access a file resource on a host, except "file not found", which has its own constant.
@@ -1324,6 +1462,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: URL_ERROR_FILE_NOT_FOUND
     summary: Error code reported via <Titanium.UI.WebView.error> when a requested file does not exist on the host.
@@ -1331,6 +1470,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: URL_ERROR_HOST_LOOKUP
     summary: Error code reported via <Titanium.UI.WebView.error> when a host name cannot be resolved, such as via a DNS lookup error.
@@ -1338,6 +1478,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: URL_ERROR_REDIRECT_LOOP
     summary: Error code reported via <Titanium.UI.WebView.error> when a redirect loop is detected.
@@ -1345,6 +1486,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: URL_ERROR_TIMEOUT
     summary: Error code reported via <Titanium.UI.WebView.error> when a timeout occurs.
@@ -1352,6 +1494,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: URL_ERROR_UNKNOWN
     summary: Error code reported via <Titanium.UI.WebView.error> when an unknown error occurs.
@@ -1359,6 +1502,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: URL_ERROR_UNSUPPORTED_SCHEME
     summary: Error code reported via <Titanium.UI.WebView.error> when a url contains an unsupported scheme.
@@ -1375,6 +1519,7 @@ properties:
         The default background color may also show through if you use semi-transparent 
         windows.
     type: String
+    exclude-platforms: [blackberry]
     
   - name: backgroundImage
     summary: |
@@ -1384,17 +1529,20 @@ properties:
         The default background image may also show through if you use semi-transparent 
         windows.
     type: String
+    exclude-platforms: [blackberry]
     
   - name: currentTab
     summary: The currently active tab, if a tab group is open.
     description: |
         If no tab group is open, this value is undefined.
     type: Titanium.UI.Tab
+    exclude-platforms: [blackberry]
     
   - name: currentWindow
     summary: The active window associated with the executing JavaScript context.
     type: Titanium.UI.Window
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: orientation
     summary: Updates the orientation of the current window to the specified orientation value.

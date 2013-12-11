@@ -21,7 +21,7 @@ description: |
     one to be opened later, but the root of the application must be a heavyweight window to prevent 
     it exiting. Tabs cannot be removed from the tab group once added, and tabs cannot be reordered.
     
-    On iOS, more than one tab group may exist, and the may be opened and closed as required. 
+    On iOS, more than one tab group may exist, and may be opened and closed as required.
     Each tab can contain a stack of windows, and the user can switch between them by tapping the 
     tab's associated control. Tabs can be removed, and the user may (optionally) be allowed to 
     reorder tabs.
@@ -41,8 +41,15 @@ description: |
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
-    methods: [removeAllChildren]
-    properties: [enabled]
+    methods: [add, remove, removeAllChildren]
+    properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
+                 anchorPoint,animatedCenter,backgroundColor,backgroundDisabledColor,backgroundDisabledImage,
+                 backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,
+                 backgroundRepeat,backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,
+                 borderColor,borderRadius,borderWidth,bottom,children,enabled,focusable,height,
+                 horizontalWrap,layout,left,opacity,right,softKeyboardOnFocus,
+                 top,transform,width,zIndex]
+
 events:
   - name: androidback
     platforms: [android]
@@ -130,6 +137,7 @@ events:
             Previous active tab. On iOS, a value of `undefined` indicates that the **More** tab was 
             the previous tab.
         type: Titanium.UI.Tab
+    exclude-platforms: [blackberry]
         
   - name: close
     summary: Fired when the tab group is closed.
@@ -163,9 +171,11 @@ events:
       - name: previousTab
         summary: Previous active tab.
         type: Titanium.UI.Tab
+    exclude-platforms: [blackberry]
         
   - name: open
     summary: Fired when the tab group is opened.
+    exclude-platforms: [blackberry]
 
 methods:
   - name: addTab
@@ -183,23 +193,12 @@ methods:
     returns:
         type: Titanium.UI.Tab
         
-  - name: getActivity
-    summary: Returns the activity for this tab group.
-    description: |
-        The activity is not available until the tab group is open.
-
-        Activity will be exposed as a property in a future release.
-    returns:
-        type: Titanium.Android.Activity
-    platforms: [android]
-    since: 3.0.0
-
   - name: open
     summary: Opens the tab group and makes it visible.
     
   - name: removeTab
     summary: Removes a tab from the tab group.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb, tizen, blackberry]
     parameters:
       - name: tab
         summary: Tab to remove.
@@ -221,6 +220,20 @@ properties:
   - name: activeTab
     summary: Active tab.
     type: Titanium.UI.Tab
+
+  - name: activity
+    summary: |
+        Reference to the Android Activity object associated with this tab group.
+    description: |
+        An Activity object is not created until the tab group is opened.
+        Before the tab group is opened, `activity` refers to an empty JavaScript object.
+        Unlike a Window activity, you CANNOT set any properties on this object.
+        Once the tab group is opened, the actual Activity object is created.
+        At this point, you can access properties and call methods on the activity.
+    platforms: [android]
+    since: 3.0.0
+    type: Titanium.Android.Activity
+    permission: read-only
     
   - name: allowUserCustomization
     summary: |
@@ -263,7 +276,8 @@ properties:
     description: |
         On other platforms, use [Window.navBarHidden](Titanium.UI.Window.navBarHidden) to
         show and hide the nav bar for a tab group. On Android, the nav bar can only be
-        shown or hidden for the whole tab group.
+        shown or hidden for the whole tab group. Setting this property to true disables 
+        the Action Bar since it is part of the navigation title bar.
     platforms: [android]
     default: false
     type: Boolean
@@ -304,6 +318,24 @@ properties:
     osver: {ios: {min: "5.0"}}
     platforms: [android, iphone, ipad, mobileweb, tizen]
     
+  - name: tabsTintColor
+    summary: The tintColor to apply to the tabs. This property is applicable on iOS 7 and greater. 
+    description: |
+        This property is a direct correspondant of the tintColor property of UITabBar on iOS. This effects the
+        title and icons rendered in the active tab. When not specified the active icons are tinted with a bright
+        blue on iOS7.
+    type: [String]
+    since: "3.1.3"
+    default: null
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad]
+
+  - name: title
+    summary: Title for this tabGroup.
+    type: String
+    since: '3.3.0'
+    platforms: [android]  
+ 
   - name: tabsBackgroundImage
     summary: Default background image for tabs.
     description: |
@@ -333,7 +365,7 @@ properties:
     type: String
     since: {iphone: "3.1.0", ipad: "3.1.0" }
     osver: {ios: {min: "5.0"}}
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad]
     
   - name: tabsBackgroundDisabledColor
     summary: Default background disabled color for tabs, as a color name or hex triplet.

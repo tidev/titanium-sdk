@@ -173,6 +173,21 @@
 @property(nonatomic,readonly) NSNumber *LIST_ACCESSORY_TYPE_DETAIL;
 @property(nonatomic,readonly) NSNumber *LIST_ACCESSORY_TYPE_DISCLOSURE;
 
+//IOS7 Constants
+@property(nonatomic,readonly) NSNumber *EXTEND_EDGE_LEFT;
+@property(nonatomic,readonly) NSNumber *EXTEND_EDGE_RIGHT;
+@property(nonatomic,readonly) NSNumber *EXTEND_EDGE_TOP;
+@property(nonatomic,readonly) NSNumber *EXTEND_EDGE_BOTTOM;
+@property(nonatomic,readonly) NSNumber *EXTEND_EDGE_NONE;
+@property(nonatomic,readonly) NSNumber *EXTEND_EDGE_ALL;
+//IOS7 TextStyle Constants
+@property(nonatomic,readonly) NSString *TEXT_STYLE_HEADLINE;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_SUBHEADLINE;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_BODY;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_FOOTNOTE;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_CAPTION1;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_CAPTION2;
+
 #ifdef USE_TI_UI2DMATRIX
 -(id)create2DMatrix:(id)args;
 #endif

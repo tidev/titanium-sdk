@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.view;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -25,22 +26,22 @@ public class Ti2DMatrix extends KrollProxy
 
 	protected Ti2DMatrix next, prev;
 
-	protected static class Operation
+	public static class Operation
 	{
-		protected static final int TYPE_SCALE = 0;
-		protected static final int TYPE_TRANSLATE = 1;
-		protected static final int TYPE_ROTATE = 2;
-		protected static final int TYPE_MULTIPLY = 3;
-		protected static final int TYPE_INVERT = 4;
+		public static final int TYPE_SCALE = 0;
+		public static final int TYPE_TRANSLATE = 1;
+		public static final int TYPE_ROTATE = 2;
+		public static final int TYPE_MULTIPLY = 3;
+		public static final int TYPE_INVERT = 4;
 
-		protected float scaleFromX, scaleFromY, scaleToX, scaleToY;
-		protected float translateX, translateY;
-		protected float rotateFrom, rotateTo;
-		protected float anchorX = 0.5f, anchorY = 0.5f;
-		protected Ti2DMatrix multiplyWith;
-		protected int type;
-		protected boolean scaleFromValuesSpecified = false;
-		protected boolean rotationFromValueSpecified = false;
+		public float scaleFromX, scaleFromY, scaleToX, scaleToY;
+		public float translateX, translateY;
+		public float rotateFrom, rotateTo;
+		public float anchorX = 0.5f, anchorY = 0.5f;
+		public Ti2DMatrix multiplyWith;
+		public int type;
+		public boolean scaleFromValuesSpecified = false;
+		public boolean rotationFromValueSpecified = false;
 
 		public Operation(int type)
 		{
@@ -69,6 +70,7 @@ public class Ti2DMatrix extends KrollProxy
 					matrix.invert(matrix); break;
 			}
 		}
+
 	}
 
 	protected Operation op;
@@ -105,6 +107,7 @@ public class Ti2DMatrix extends KrollProxy
 				}
 				prev = new Ti2DMatrix();
 				prev.handleCreationDict(newDict);
+				prev.next = this;
 			}
 
 		} else if (dict.containsKey(TiC.PROPERTY_SCALE)) {
@@ -379,4 +382,81 @@ public class Ti2DMatrix extends KrollProxy
 			this.op.rotateFrom = degrees;
 		}
 	}
+
+	/**
+	 * Determines whether we can use Honeycomb+ style
+	 * animations, namely property Animator instances.
+	 * We can do that if the matrix is not "complicated".
+	 * See the class documentation for
+	 * {@link org.appcelerator.titanium.util.TiAnimationBuilder TiAnimationBuilder}
+	 * for a detailed description of what makes a matrix too
+	 * complicated for property Animators.
+	 * @return true if property animators (i.e., Honeycomb+
+	 * animation) can be used, false if we need to stick
+	 * with the old-style view animations.
+	 */
+	public boolean canUsePropertyAnimators()
+	{
+		boolean hasScale = false, hasRotate = false, hasTranslate = false;
+		List<Operation> ops = getAllOperations();
+
+		for (Operation op : ops) {
+			if (op == null) {
+				continue;
+			}
+
+			switch (op.type) {
+			case Operation.TYPE_SCALE:
+				if (hasScale) {
+					return false;
+				}
+				hasScale = true;
+				break;
+
+			case Operation.TYPE_TRANSLATE:
+				if (hasTranslate) {
+					return false;
+				}
+				hasTranslate = true;
+				break;
+
+			case Operation.TYPE_ROTATE:
+				if (hasRotate) {
+					return false;
+				}
+				hasRotate = true;
+				break;
+
+			case Operation.TYPE_MULTIPLY:
+			case Operation.TYPE_INVERT:
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Collect this matrix's operation and
+	 * those of its predecessors into one
+	 * list. This way we can assess
+	 * what the resulting transform is
+	 * going to do.
+	 * @return List of operations.
+	 */
+	public List<Operation> getAllOperations()
+	{
+		List<Operation> ops = new ArrayList<Operation>();
+		Ti2DMatrix toCheck = this;
+
+		while (toCheck != null) {
+			if (toCheck.op != null) {
+				ops.add(toCheck.op);
+			}
+			toCheck = toCheck.prev;
+		}
+
+		return ops;
+	}
+
 }

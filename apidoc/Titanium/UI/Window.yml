@@ -33,6 +33,18 @@ methods:
         type: openWindowParams
         optional: true
 
+  - name: setToolbar
+    summary: Sets the array of items to show in the window's toolbar.
+    parameters:
+      - name: items
+        summary: Array of button objects to show in the window's toolbar.
+        type: Array<Object>
+      - name: params
+        summary: Parameters to control the toolbar appearance.
+        type: windowToolbarParam
+        optional: true
+    platforms: [iphone,ipad]
+
 events:
   - name: android:back
     deprecated:
@@ -119,8 +131,10 @@ events:
         just call the *close* method of the window.
 
         This event replaces the android:back event. Some behavior
-        changes way exist such as the event no longer firing when the
-        user dismisses the keyboard with the back button.
+        changes may exist such as the event no longer firing when the
+        user dismisses the keyboard with the back button or when the
+        user closes a full-screen video which is embedded in a web view
+        with the back button.
 
     since: '3.0.0'
 
@@ -178,6 +192,7 @@ events:
         On iOS, this event does not fire before putting the application in the background.
         The application needs to monitor the <Titanium.App.pause> event.
         See <Titanium.App> for more information on the iOS application lifecycle.
+
   - name: close
     summary: Fired when the window is closed.
 
@@ -194,6 +209,8 @@ events:
         if it was previously backgrounded.
         The application needs to monitor the <Titanium.App.resumed> event.
         See <Titanium.App> for more information on the iOS application lifecycle.
+    platforms: [android, blackberry, iphone, ipad, mobileweb, tizen]
+
   - name: open
     summary: Fired when the window is opened.
     description: |
@@ -203,6 +220,7 @@ events:
 properties:
   - name: activity
     summary: |
+        For lightweight windows, this property returns undefined.
         For heavyweight windows, this property contains a reference to the
         Android Activity object associated with this window.
     description: |
@@ -215,6 +233,7 @@ properties:
         for example, [actionBar](Titanium.Android.Activity.actionBar).
     platforms: [android]
     type: Titanium.Android.Activity
+    permission: read-only
 
   - name: backButtonTitle
     summary: Title for the back button. This is only valid when the window is a child of a tab.
@@ -227,6 +246,16 @@ properties:
     platforms: [iphone, ipad]
     type: [String, Titanium.Blob]
 
+  - name: backgroundColor
+    summary: Background color of the window, as a color name or hex triplet.
+    description: |
+        On Android, to specify a semi-transparent background, set the alpha value using the
+        [opacity](Titanium.UI.Window.opacity) property before opening the window.
+
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+    default: Transparent
+
   - name: barColor
     summary: |
         Background color for the nav bar, as a color name or hex triplet.
@@ -237,6 +266,10 @@ properties:
 
   - name: barImage
     summary: Background image for the nav bar, specified as a URL to a local image.
+    description: |
+        The behavior of this API on iOS has changed from version 3.2.0. Previous versions
+        of the SDK created a custom image view and inserted it as a child of the navigation bar.
+        The titanium sdk now uses the native call to set the background image of the navigation bar.
     platforms: [iphone, ipad, mobileweb, tizen]
     type: String
 
@@ -261,13 +294,57 @@ properties:
     type: Boolean
     availability: creation
 
+  - name: extendEdges
+    summary: |
+        An array of supported values specified using the EXTEND_EDGE constants in <Titanium.UI>. Valid on iOS 7 and greater.
+    description:  |
+        This is only valid for windows hosted by navigation controllers or tab bar controllers. This property is used to
+        determine the layout of the window within its parent view controller. For example if the window is specified to extend its top edge
+        and it is hosted in a navigation controller, then the top edge of the window is extended underneath the navigation bar so that part
+        of the window is obscured. If the navigation bar is opaque (translucent property on window is false), then the top edge of the window
+        will only extend if <Titanium.UI.Window.includeOpaqueBars> is set to true. 
+
+        The default behavior is to assume that no edges are to be extended. Must be specified before **opening** the window.
+    platforms: [iphone,ipad]
+    type: Array<Number>
+    since: 3.1.3
+    osver: {ios: {min: "7.0"}}
+
+  - name: includeOpaqueBars
+    summary: |
+        Specifies if the edges should extend beyond opaque bars (navigation bar, tab bar, toolbar). Valid on iOS 7 and greater.
+    description:  |
+        By default edges are only extended to include translucent bars. However if this is set to true, then edges are extended beyond
+        opaque bars as well.
+
+        The default behavior assumes that this is false. Must be specified before **opening** the window.
+    platforms: [iphone,ipad]
+    type: Boolean
+    since: 3.1.3
+    osver: {ios: {min: "7.0"}}
+
+  - name: autoAdjustScrollViewInsets
+    summary: |
+        Specifies whether or not the view controller should automatically adjust its scroll view insets. Valid on iOS 7 and greater.
+    description:  |
+        When the value is true, it allows the view controller to adjust its scroll view insets in response to the screen areas consumed by the status bar, navigation bar, toolbar and tab bar.
+
+        The default behavior assumes that this is false. Must be specified before **opening** the window.
+    platforms: [iphone,ipad]
+    type: Boolean
+    since: 3.1.3
+    osver: {ios: {min: "7.0"}}
+
   - name: fullscreen
     summary: Boolean value indicating if the window is fullscreen.
     description: |
-        A fullscreen window occupies all of the screen space, hiding elements
-        such as the iOS nav bar or the Android status bar. Must be specified
-        at creation time or in the `options` dictionary passed to the 
-        [Window.open](Titanium.UI.Window.open) method.
+        A fullscreen window occupies all of the screen space, hiding the status bar. Must be specified
+        at creation time or in the `options` dictionary passed to the [Window.open](Titanium.UI.Window.open) method.
+
+        On iOS the behavior of this property has changed. Starting from 3.1.3, if this property is undefined
+        then the property is set to the value for UIStatusBarHidden defined in tiapp.xml.
+        If that is not defined it is treated as **explicit false**. On earlier versions, opening a window with this property
+        undefined would not effect the status bar appearance.
 
         On Android, setting this property forces the creation of a heavyweight window before Titanium 3.2.0.
         See "Android Heavyweight and Lightweight Windows" in the main description of this class for more
@@ -275,6 +352,15 @@ properties:
     platforms: [android, iphone, ipad]
     type: Boolean
     default: false
+
+  - name: hideShadow
+    summary: Set this to true to hide the shadow image of the navigation bar.
+    description: |
+        This property is only honored if a valid value is specified for the [barImage](Titanium.UI.Window.barImage) property.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: false
+    since: 3.2.0
 
   - name: left
     summary: Window's left position, in platform-specific units.
@@ -311,31 +397,49 @@ properties:
         iOS note: modal windows should not support orientation modes that the
         window they are opened over do not support. Doing otherwise *may* cause
         bad visual/redraw behavior after the modal is dismissed, due to how
-        iOS manages modal transitions.
+        iOS manages modal transitions. Beginning with 3.1.3, if the orientationModes property of a 
+        modal window is undefined, then the orientations supported by this window would be the orientationModes
+        specified by tiapp.xml.
         
         Mobile Web and Tizen note: On Mobile Web and Tizen, windows are always modal, blocking input to underlying 
         windows. If the window does not occupy the full screen, setting `modal` to `true` provides 
         a visual cue by dimming any background windows. If the window occupies the full screen, 
         `modal` has no effect.
 
-        On Mobile Web, Tizen and iOS, the modal property has no effect on whether the window is 
+        On the BlackBerry platform, the very first window in the application cannot be modal, therefore the modal flag will be ignored
+        if set on the first window.
+
+        On Mobile Web, Tizen, iOS, and BlackBerry the modal property has no effect on whether the window is 
         translucent or opaque.
     type: Boolean
     default: false
 
   - name: navBarHidden
-    summary: For modal windows, hide the nav bar (`true`) or show the nav bar (`false`).
+    summary: Hides the nav bar (`true`) or shows the nav bar (`false`).
     description: |
         Must be specified at creation time or in the `options` dictionary passed to the 
         [Window.open](Titanium.UI.Window.open) method.
 
+        **Beginning with 3.1.3**, this is no longer a valid parameter passed to the [Window.open](Titanium.UI.Window.open) method.
+        Modal windows on iOS no longer have a navigation controller and hence **do not** have a nav bar.
+
         On Android, setting this property forces the creation of a heavyweight window before Titanium 3.2.0. See "Android
         Heavyweight and Lightweight Windows" in the main description of this class for more
-        information.
+        information. Setting this property to true disables the Action Bar since it is part of the navigation title bar.
     platforms: [android, iphone, ipad, mobileweb, tizen]
     default: false
     type: Boolean
 
+  - name: navTintColor
+    summary: The tintColor to apply to the navigation bar. This property is applicable on iOS 7 and greater. 
+    description: |
+        This property is a direct correspondant of the tintColor property of NavigationBar on iOS.
+    type: [String]
+    since: "3.1.3"
+    default: null
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad]
+    
   - name: opacity
     summary: The opacity from 0.0-1.0.
     description: |
@@ -474,7 +578,27 @@ properties:
     summary: View to show in the right nav bar area.
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
+    
+  - name: shadowImage
+    summary: Shadow image for the navigation bar, specified as a URL to a local image..
+    description: |
+        This property is only honored if a valid value is specified for the [barImage](Titanium.UI.Window.barImage) property.
+    platforms: [iphone, ipad]
+    type: String
+    since: 3.2.0
 
+  - name: statusBarStyle
+    summary: The status bar style associated with this window. 
+    description: |
+        Sets the status bar style when this window has focus. This is now the recommended way to control the
+        status bar style on the application.
+
+        If this value is undefined, the value is set to UIStatusBarStyle defined in tiapp.xml.
+        If that is not defined it defaults to <Titanium.UI.iPhone.StatusBar.DEFAULT>.
+    type: [Number]
+    since: "3.1.3"
+    platforms: [iphone,ipad]
+    
   - name: tabBarHidden
     summary: |
         Boolean value indicating if the tab bar should be hidden. 
@@ -487,7 +611,17 @@ properties:
 
   - name: title
     summary: Title of the window.
+    description: |
+        On BlackBerry, this property automatically creates a `navBar` and sets the title on it.
     type: String
+
+  - name: titleAttributes
+    summary: Title text attributes of the window.
+    description: |
+        Use this property to specify the color, font and shadow attributes of the title.
+    since: "3.2.0"
+    platforms: [iphone, ipad]
+    type: titleAttributesParams
 
   - name: titleControl
     summary: View to show in the title area of the nav bar.
@@ -508,6 +642,7 @@ properties:
     summary: Key identifying a string from the locale file to use for the window title.
     description: Only one of `title` or `titleid` should be specified.
     type: String
+    exclude-platforms: [blackberry]
 
   - name: titlepromptid
     summary: Key identifying a string from the locale file to use for the window title prompt.
@@ -518,9 +653,10 @@ properties:
   - name: toolbar
     summary: |
         Array of button objects to show in the window's toolbar. This is only valid when
-        the window is the child of a tab.
+        the window has a navigation controller.
     platforms: [iphone, ipad]
     type: Array<Object>
+    permission: read-only
 
   - name: top
     summary: Window's top position, in platform-specific units.
@@ -531,10 +667,24 @@ properties:
     type: [Number,String]
     default: 0
 
+  - name: transitionAnimation
+    summary: |
+        Use a transition animation when opening or closing windows in a
+        <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
+    description: |
+        Create the transition animation using the <Titanium.UI.iOS.createTransitionAnimation>
+        method.
+
+        Supported on iOS 7 and later.
+    type: Titanium.Proxy
+    since: "3.2.0"
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "7.0"}}
+
   - name: translucent
     summary: Boolean value indicating if the nav bar is translucent.
     platforms: [iphone, ipad, mobileweb, tizen]
-    default: false
+    default: true on iOS7 and above, false otherwise.
     type: Boolean
 
   - name: url
@@ -545,6 +695,7 @@ properties:
         in the main description for [Window](Titanium.UI.Window).
     type: String
     availability: creation
+    exclude-platforms: [blackberry]
 
   - name: windowSoftInputMode
     summary: |
@@ -638,10 +789,11 @@ description: |
     Windows *contain* other views, but in general they are not *contained* inside
     other views. There are a few specialized views that manage windows:
     
-    * [NavigationGroup](Titanium.UI.iPhone.NavigationGroup)
+    * [NavigationWindow](Titanium.UI.iOS.NavigationWindow)
     * [SplitWindow](Titanium.UI.iPad.SplitWindow)
     * [TabGroup](Titanium.UI.TabGroup)
     * [Tab](Titanium.UI.Tab)
+    * [NavigationGroup](Titanium.UI.MobileWeb.NavigationGroup)
 
     By default, windows occupy the entire screen except for the navigation bar, 
     status bar, and in the case of windows contained in tab groups, the tab bar.
@@ -1004,6 +1156,8 @@ properties:
 
   - name: navBarHidden
     summary: For modal windows, hides the nav bar (`true`) or shows the nav bar (`false`).
+    description: |
+        On iOS, beginning with **Release 3.1.3**, this is no longer a valid parameter passed to the [Window.open](Titanium.UI.Window.open) method.
     type: Boolean
     default: false
 
@@ -1076,6 +1230,32 @@ properties:
     since: "3.1.0"
 
 ---
+name: windowToolbarParam
+summary: Dictionary of options for the <Titanium.UI.Window.setToolbar> method.
+since: 3.1.3
+platforms: [iphone,ipad]
+
+properties:
+
+  - name: translucent
+    summary: Defines if the toolbar is translucent.
+    type: Boolean
+    default: true on iOS 7 and above, false otherwise.
+
+  - name: animated
+    summary: Defines if the toolbar appearance is animated.
+    type: Boolean
+    default: true if the window has toolbar items, false otherwise.
+
+  - name: barColor
+    summary: Background color for the toolbar, as a color name or hex triplet.
+    type: String
+
+  - name: tintColor
+    summary: The tintColor to apply to the tool bar. Applicable on iOS 7 and above.
+    type: String
+
+---
 name: closeWindowParams
 summary: Dictionary of options for the <Titanium.UI.Window.close> method.
 since: 3.2.0
@@ -1117,3 +1297,62 @@ properties:
                     activityEnterAnimation: Ti.Android.R.anim.fade_in,
                     activityExitAnimation: Ti.Android.R.anim.fade_out
                 });
+
+---
+name: titleAttributesParams
+summary: Dictionary of options for the <Titanium.UI.Window.titleAttributes> property.
+since: 3.2.0
+platforms: [iphone, ipad]
+examples:
+  - title: Simple Example
+    example: |
+
+        var win = Titanium.UI.createWindow({
+            title: 'Title',
+            barColor: 'yellow',
+            titleAttributes:  {
+                color:'blue',
+                font: {fontFamily:'Snell Roundhand', fontSize:36},
+                shadow:{color:'gray', offset:{width:1,height:1}}
+            }
+        });
+        var nav = Titanium.UI.iOS.createNavigationWindow({window: win});
+        nav.open();
+
+properties:
+
+  - name: color
+    summary: Color of the window title, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+
+  - name: font
+    summary: Font to use for the window title.
+    type: Font
+
+  - name: shadow
+    summary: Shadow color and offset for the window title.
+    type: shadowDict
+
+---
+name: shadowDict
+summary: Dictionary describing the shadow effect for text.
+properties:
+  - name: blurRadius
+    summary: Specifies the blur radius of the shadow.
+    description: |
+        Supported on iOS 7 and later.
+
+        `0` means no blur.
+    type: Number
+
+  - name: color
+    summary: Color name or hex triplet specifying the color of the shadow.
+    type: String
+
+  - name: offset
+    summary: |
+        Dictionary with the properties `width` and `height` used as the horizontal
+        and vertical offset of the shadow, respectively.
+    type: Dictionary

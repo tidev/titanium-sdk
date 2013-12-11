@@ -43,7 +43,7 @@ NSString * const TI_DB_VERSION = @"1";
 
 
 @implementation AnalyticsModule
-
+@synthesize lastEvent;
 -(id)init
 {
 	if ((self = [super init]))
@@ -73,7 +73,13 @@ NSString * const TI_DB_VERSION = @"1";
 	RELEASE_TO_NIL(flushTimer);
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(lock);
+	[lastEvent release];
 	[super dealloc];
+}
+
+-(NSString*)apiName
+{
+    return @"Ti.Analytics";
 }
 
 -(void)enqueueBlock:(void (^)(void))block
@@ -345,6 +351,7 @@ NSString * const TI_DB_VERSION = @"1";
 	}
 
 	id value = [SBJSON stringify:dict];
+	self.lastEvent = value;
 	
 	NSString *sql = [NSString stringWithFormat:@"INSERT INTO pending_events VALUES (?)"];
 	NSError *error = nil;
@@ -470,6 +477,7 @@ NSString * const TI_DB_VERSION = @"1";
 		[enrollment setObject:TI_APPLICATION_NAME forKey:@"app_name"];
 		[enrollment setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
 		[enrollment setObject:TI_APPLICATION_ID forKey:@"app_id"];
+		[enrollment setObject:TI_APPLICATION_VERSION forKey:@"app_version"];
 		[enrollment setObject:@"iphone" forKey:@"platform"];
 		
 		[self queueEvent:@"ti.enroll" name:@"ti.enroll" data:enrollment immediate:NO];

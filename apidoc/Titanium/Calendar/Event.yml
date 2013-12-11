@@ -248,13 +248,16 @@ properties:
         This property is read-only on Android.
     type: String
     platforms: [android, iphone, ipad]
-    
+
   - name: recurenceRule
     summary: Recurrence rule associated with the event. (Available in iOS 4.0 through iOS 5.1.)
     type: Titanium.Calendar.RecurrenceRule
     osver: {ios: {max: "5.0"}}
+    deprecated:
+        since: "3.1.3"
+        removed: "3.2.0"
     platforms: [iphone, ipad]
-
+    
   - name: recurenceRules
     summary: The recurrence rules for the calendar item. (Available in iOS 5.1 and above.)
     type: Array<Titanium.Calendar.RecurrenceRule>

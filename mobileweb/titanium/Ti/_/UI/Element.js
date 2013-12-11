@@ -1,8 +1,8 @@
 /*global Ti define window*/
 define(
-	['Ti/_/css', 'Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang',
+	['Ti/_/css', 'Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/has', 'Ti/_/lang',
 	'Ti/_/style', 'Ti/_/Evented', 'Ti/UI', 'Ti/UI/Animation'],
-	function(css, declare, dom, event, lang, style, Evented, UI, Animation) {
+	function(css, declare, dom, event, has, lang, style, Evented, UI, Animation) {
 
 	var global = window,
 		unitize = dom.unitize,
@@ -23,7 +23,7 @@ define(
 			set: postLayoutPropFunction
 		},
 		pixelUnits = 'px',
-		useTouch = 'ontouchstart' in global,
+		useTouch = has('touch'),
 		gestureEvents = [
 			'touchstart',
 			'touchend',
@@ -76,7 +76,7 @@ define(
 				(evt._elements || (evt._elements = [])).push(self);
 			});
 
-			var values = self.constants.__values__;
+			var values = self.__values__.constants;
 			self._layoutCoefficients = {
 				width: {
 					x1: 0,

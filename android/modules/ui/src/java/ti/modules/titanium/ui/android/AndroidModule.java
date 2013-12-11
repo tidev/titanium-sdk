@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.text.util.Linkify;
 import android.view.WindowManager;
+import android.webkit.WebSettings;
 
 @Kroll.module(parentModule=UIModule.class)
 @Kroll.dynamicApis(properties = {
@@ -72,6 +73,15 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_OFF = TiUIWebView.PLUGIN_STATE_OFF;
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_ON = TiUIWebView.PLUGIN_STATE_ON;
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_ON_DEMAND = TiUIWebView.PLUGIN_STATE_ON_DEMAND;
+	
+	@Kroll.constant public static final int WEBVIEW_LOAD_DEFAULT = WebSettings.LOAD_DEFAULT;
+	@Kroll.constant public static final int WEBVIEW_LOAD_NO_CACHE = WebSettings.LOAD_NO_CACHE;
+	@Kroll.constant public static final int WEBVIEW_LOAD_CACHE_ONLY = WebSettings.LOAD_CACHE_ONLY;
+	@Kroll.constant public static final int WEBVIEW_LOAD_CACHE_ELSE_NETWORK = WebSettings.LOAD_CACHE_ELSE_NETWORK;
+
+
+
+
 
 	@Kroll.constant public static final int PROGRESS_INDICATOR_STATUS_BAR = TiUIProgressIndicator.STATUS_BAR;
 	@Kroll.constant public static final int PROGRESS_INDICATOR_DIALOG = TiUIProgressIndicator.DIALOG;
@@ -129,5 +139,11 @@ public class AndroidModule extends KrollModule
 			}
 			
 		});
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.Android";
 	}
 }

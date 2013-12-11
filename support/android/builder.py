@@ -2201,7 +2201,9 @@ class Builder(object):
 			if not os.path.exists(self.assets_resources_dir):
 				os.makedirs(self.assets_resources_dir)
 
-			self.tiapp = TiAppXML(self.project_tiappxml)
+			shutil.copy(self.project_tiappxml, self.assets_dir)
+			finalxml = os.path.join(self.assets_dir,'tiapp.xml')
+			self.tiapp = TiAppXML(finalxml)
 			self.tiapp.setDeployType(deploy_type)
 			self.sdcard_copy = False
 			sdcard_property = "ti.android.loadfromsdcard"
@@ -2210,7 +2212,7 @@ class Builder(object):
 
 			fastdev_property = "ti.android.fastdev"
 			fastdev_enabled = (self.deploy_type == 'development' and not self.build_only)
-			if self.tiapp.has_app_property(fastdev_property):
+			if self.tiapp.has_app_property(fastdev_property) and self.deploy_type == 'development':
 				fastdev_enabled = self.tiapp.to_bool(self.tiapp.get_app_property(fastdev_property))
 
 			if fastdev_enabled:
@@ -2378,14 +2380,14 @@ class Builder(object):
 				if self.deploy_type != 'production':
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-profiler.jar'))
-					# the verifier depends on Ti.Network classes, so we may need to inject it
-					has_network_jar = False
-					for jar in self.android_jars:
-						if jar.endswith('titanium-network.jar'):
-							has_network_jar = True
-							break
-					if not has_network_jar:
-						dex_args.append(os.path.join(self.support_dir, 'modules', 'titanium-network.jar'))
+				# the verifier depends on Ti.Network classes, so we may need to inject it
+				has_network_jar = False
+				for jar in self.android_jars:
+					if jar.endswith('titanium-network.jar'):
+						has_network_jar = True
+						break
+				if not has_network_jar:
+					dex_args.append(os.path.join(self.support_dir, 'modules', 'titanium-network.jar'))
 
 				info("Compiling Android Resources... This could take some time")
 				# TODO - Document Exit message

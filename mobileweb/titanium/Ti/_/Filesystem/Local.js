@@ -1,5 +1,5 @@
-define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
-	function(_, declare, encoding, lang, API, Blob) {
+define(["Ti/_", "Ti/_/Evented", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
+	function(_, Evented, declare, encoding, lang, API, Blob) {
 
 	var reg,
 		regDate = Date.now(),
@@ -170,7 +170,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 		"tmp://": 0
 	}, Date.now()));
 
-	return File = declare("Ti._.Filesystem.Local", null, {
+	return File = declare("Ti._.Filesystem.Local", Evented, {
 
 		constructor: function(path) {
 			if (is(path, "String")) {
@@ -181,14 +181,14 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 					throw new Error('Irrational path "' + path + '"');
 				}
 
-				this.constants.__values__.nativePath = (b ? match[2] + "://" : slash) + path;
+				this.__values__.constants.nativePath = (b ? match[2] + "://" : slash) + path;
 			}
 
 			this._type = !path || path._type === 'D' ? 'D' : 'F';
 		},
 
 		postscript: function(args) {
-			var c = this.constants,
+			var c = this.__values__.constants,
 				path = this.nativePath,
 				metaData = path && getLocal(path, 1) || registry(path),
 				match = path.match(pathRegExp),
@@ -200,7 +200,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 				var fieldInfo = metaMap[line.charAt(0)],
 					field = fieldInfo.substring(1),
 					value = metaCast[fieldInfo.charAt(0)](line.substring(1));
-				(c.hasOwnProperty(field) ? c.__values__ : this)[field] = value;
+				(c.hasOwnProperty(field) ? c : this)[field] = value;
 			}, this);
 
 			path = match[1] ? match[2] : match[4];
@@ -225,7 +225,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 					return !this.readonly;
 				},
 				set: function(value) {
-					return this.constants.__value__.readonly = !value;
+					return this.__values__.constants.readonly = !value;
 				},
 				value: true
 			}
@@ -429,7 +429,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 					prefix = (match[1] ? match[1] : match[2] + match[3]) || slash,
 					i = 0,
 					len = ls.length,
-					c = this.constants.__values__,
+					c = this.__values__.constants,
 					dest,
 					key;
 
@@ -491,7 +491,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 				this._exists = 1;
 				this._modified = Date.now();
 				this._created || (this._created = this._modified);
-				this.constants.__values__.size = setLocal(path, append ? this.read() + data : data);
+				this.__values__.constants.size = setLocal(path, append ? this.read() + data : data);
 				return this._save();
 			}
 			return false;

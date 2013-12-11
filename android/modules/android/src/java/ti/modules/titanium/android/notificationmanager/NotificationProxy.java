@@ -263,4 +263,10 @@ public class NotificationProxy extends KrollProxy
 	{ 
 		return notification;
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Android.Notification";
+	}
 }

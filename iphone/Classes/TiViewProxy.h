@@ -37,7 +37,7 @@
 /**
  Tells if this proxy is currently focused
  */
-- (BOOL)focused;
+- (BOOL)focused:(id)unused;
 
 #pragma mark Private internal APIs.
 
@@ -174,7 +174,7 @@ enum
 -(void)updateLayout:(id)arg;//Deprecated since 3.0.0
 -(void)setTempProperty:(id)propVal forKey:(id)propName;
 -(void)processTempProperties:(NSDictionary*)arg;
-
+-(BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check;
 -(void)setProxyObserver:(id)arg;
 
 /**
