@@ -2613,7 +2613,8 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 		jsFiles = {},
 		jsFilesToEncrypt = this.jsFilesToEncrypt = [],
 		htmlJsFiles = this.htmlJsFiles = {},
-		symlinkFiles = this.target == 'simulator' && this.config.get('ios.symlinkResources', true) && !this.forceCopy && !this.forceCopyAll;
+		symlinkFiles = this.target == 'simulator' && this.config.get('ios.symlinkResources', true) && !this.forceCopy && !this.forceCopyAll,
+		_t = this;
 
 	function copyDir(opts, callback) {
 		if (opts && opts.src && fs.existsSync(opts.src) && opts.dest) {
@@ -2659,9 +2660,14 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 			src = path.dirname(src);
 		}
 
-		series(this, files.map(function (filename) {
-			return function (next) {
-				var from = path.join(src, filename),
+		async.whilst(
+			function () {
+				return files.length;
+			},
+
+			function (next) {
+				var filename = files.shift(),
+					from = path.join(src, filename),
 					to = path.join(dest, filename);
 
 				// check that the file actually exists and isn't a broken symlink
@@ -2671,12 +2677,12 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 
 				// check if we are ignoring this file
 				if ((isDir && ignoreRootDirs && ignoreRootDirs.indexOf(filename) != -1) || (isDir ? ignoreDirs : ignoreFiles).test(filename)) {
-					this.logger.debug(__('Ignoring %s', from.cyan));
+					_t.logger.debug(__('Ignoring %s', from.cyan));
 					return next();
 				}
 
 				// if this is a directory, recurse
-				if (isDir) return recursivelyCopy.call(this, from, path.join(dest, filename), null, opts, next);
+				if (isDir) return recursivelyCopy.call(_t, from, path.join(dest, filename), null, opts, next);
 
 				// we have a file, now we need to see what sort of file
 
@@ -2689,14 +2695,14 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 				switch (ext && ext[1]) {
 					case 'css':
 						// if we encounter a css file, check if we should minify it
-						if (this.minifyCSS) {
-							this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+						if (_t.minifyCSS) {
+							_t.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
 							fs.readFile(from, function (err, data) {
 								if (err) throw err;
 								fs.writeFile(to, cleanCSS.process(data.toString()), next);
 							});
 						} else {
-							copyFile.call(this, from, to, next);
+							copyFile.call(_t, from, to, next);
 						}
 						break;
 
@@ -2709,7 +2715,7 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 							htmlJsFiles[file] = 1;
 						});
 
-						copyFile.call(this, from, to, next);
+						copyFile.call(_t, from, to, next);
 						break;
 
 					case 'js':
@@ -2732,17 +2738,19 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 
 					default:
 						// if the device family is iphone, then don't copy iPad specific images
-						if (this.deviceFamily != 'iphone' || this.ipadSplashImages.indexOf(relPath) == -1) {
+						if (_t.deviceFamily != 'iphone' || _t.ipadSplashImages.indexOf(relPath) == -1) {
 							// normal file, just copy it into the build/iphone/bin/assets directory
-							this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
-								copyFile.call(this, from, to, cb);
+							_t.cli.createHook('build.ios.copyResource', _t, function (from, to, cb) {
+								copyFile.call(_t, from, to, cb);
 							})(from, to, next);
 						} else {
 							next();
 						}
 				}
-			};
-		}), done);
+			},
+
+			done
+		);
 	}
 
 	var tasks = [
