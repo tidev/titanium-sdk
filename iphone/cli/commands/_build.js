@@ -99,6 +99,23 @@ exports.config = function (logger, config, cli) {
 				humanize = require('humanize'),
 				libTiCoreSize = humanize.filesize(fs.statSync(afs.resolvePath(__dirname, '..', '..', 'libTiCore.a')).size, 1024, 1).toUpperCase();
 
+			// if we're running from Xcode, determine the default --ios-version
+			var defaultIosVersion = undefined,
+				sdkRoot = process.env.SDKROOT || process.env.SDK_DIR;
+			if (sdkRoot) {
+				var m = sdkRoot.match(/\/iphone(?:os|simulator)(\d.\d).sdk/i);
+				if (m) {
+					defaultIosVersion = m[1];
+					var file = path.join(sdkRoot, 'System', 'Library', 'CoreServices', 'SystemVersion.plist');
+					if (fs.existsSync(file)) {
+						var p = new appc.plist(file);
+						if (p.ProductVersion) {
+							defaultIosVersion = p.ProductVersion;
+						}
+					}
+				}
+			}
+
 			// attempt to resolve a default ios developer cert name (used for device builds)
 			if (process.env.CODE_SIGN_IDENTITY) {
 				devName = process.env.CODE_SIGN_IDENTITY.replace(/(iPhone Developer\: (.+) \(.+)/, '$2');
@@ -257,7 +274,7 @@ exports.config = function (logger, config, cli) {
 						},
 						'ios-version': {
 							abbr: 'I',
-							default: process.env.SDK_NAME ? process.env.SDK_NAME.replace(/iphonesimulator|iphoneos/, '') : defaultSdk || (sdks.length && sdks[0]),
+							default: defaultIosVersion,
 							desc: __('iOS SDK version to build for'),
 							values: sdks
 						},
@@ -872,7 +889,7 @@ function build(logger, config, cli, finished) {
 	this.iosSimVersion = cli.argv['sim-version'];
 	this.iosSimType = cli.argv['sim-type'];
 	this.deviceFamily = cli.argv['device-family'];
-	this.xcodeTargetOS = this.target == 'simulator' ? 'iphonesimulator' + this.iosSdkVersion : 'iphoneos' + this.iosSdkVersion;
+	this.xcodeTargetOS = (this.target == 'simulator' ? 'iphonesimulator' : 'iphoneos') + version.format(this.iosSdkVersion, 2, 2);
 	this.iosBuildDir = path.join(this.buildDir, 'build', this.xcodeTarget + '-' + (this.target == 'simulator' ? 'iphonesimulator' : 'iphoneos'));
 	this.xcodeAppDir = cli.argv.xcode ? path.join(process.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : path.join(this.iosBuildDir, this.tiapp.name + '.app');
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
