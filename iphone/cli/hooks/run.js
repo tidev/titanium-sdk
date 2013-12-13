@@ -33,7 +33,8 @@ exports.init = function (logger, config, cli) {
 
 			logger.info(__('Running application in iOS Simulator'));
 
-			var simulatorDir = afs.resolvePath('~/Library/Application Support/iPhone Simulator/' + build.iosSimVersion + '/Applications'),
+			var simulatorDir = afs.resolvePath('~/Library/Application Support/iPhone Simulator/' + build.iosSimVersion +
+							(appc.version.gte(build.iosSimVersion, '7.0.0') && cli.argv['sim-64bit'] ? '-64' : '') + '/Applications'),
 				logFile = build.tiapp.guid + '.log';
 
 			parallel([
@@ -65,7 +66,7 @@ exports.init = function (logger, config, cli) {
 						'launch',
 						'"' + build.xcodeAppDir + '"',
 						'--sdk',
-						build.iosSimVersion,
+						appc.version.format(build.iosSimVersion, 2, 2),
 						'--family',
 						build.iosSimType
 					],
@@ -78,13 +79,16 @@ exports.init = function (logger, config, cli) {
 					simEnv = path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Library', 'PrivateFrameworks') +
 							':' + afs.resolvePath(build.xcodeEnv.path, '..', 'OtherFrameworks');
 
-				if (cli.argv.retina) {
+				if (appc.version.gte(build.iosSimVersion, '7.0.0') && cli.argv['sim-64bit']) {
+					cmd.push('--retina');
+					if (build.iosSimType == 'iphone') {
+						cmd.push('--tall');
+					}
+					cmd.push('--sim-64bit');
+				} else if (cli.argv.retina) {
 					cmd.push('--retina');
 					if (appc.version.gte(build.iosSimVersion, '6.0.0') && build.iosSimType == 'iphone' && cli.argv.tall) {
 						cmd.push('--tall');
-						if (appc.version.gte(build.iosSimVersion, '7.0.0') && build.iosSimType == 'iphone' && cli.argv['sim-64bit']) {
-							cmd.push('--sim-64bit');
-						}
 					}
 				}
 				cmd = cmd.join(' ');
@@ -135,7 +139,7 @@ exports.init = function (logger, config, cli) {
 						logger.error(stderr);
 					}
 				});
-				
+
 				function findLogFile() {
 					var files = fs.readdirSync(simulatorDir),
 						file,
@@ -148,10 +152,10 @@ exports.init = function (logger, config, cli) {
 						if (afs.exists(file)) {
 							// if we found the log file, then the simulator must be running
 							simStarted = true;
-							
+
 							// pipe the log file
 							logger.debug(__('Found iPhone Simulator log file: %s', file.cyan));
-							
+
 							var startLogTxt = __('Start simulator log');
 							logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 
@@ -169,7 +173,7 @@ exports.init = function (logger, config, cli) {
 									m,
 									line,
 									i, len;
-								
+
 								if (position < stats.size) {
 									fd = fs.openSync(file, 'r');
 									do {
@@ -178,7 +182,7 @@ exports.init = function (logger, config, cli) {
 										buffer += buf.toString('utf-8', 0, bytesRead);
 									} while (bytesRead === 16);
 									fs.closeSync(fd);
-									
+
 									lines = buffer.split('\n');
 									buffer = lines.pop(); // keep the last line because it could be incomplete
 									for (i = 0, len = lines.length; i < len; i++) {
