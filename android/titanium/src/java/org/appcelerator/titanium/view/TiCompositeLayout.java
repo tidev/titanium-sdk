@@ -23,10 +23,13 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
+
+import com.nineoldandroids.view.animation.AnimatorProxy;
 
 /**
  * Base layout class for all Titanium views. 
@@ -54,6 +57,7 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	protected static final String TAG = "TiCompositeLayout";
+	protected static final boolean PRE_HONEYCOMB = Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB;
 
 	public static final int NOT_SET = Integer.MIN_VALUE;
 
@@ -518,6 +522,30 @@ public class TiCompositeLayout extends ViewGroup
 				int childMeasuredHeight = child.getMeasuredHeight();
 				int childMeasuredWidth = child.getMeasuredWidth();
 
+				// In Property Animation, the scale/translation factors may change, so we need to take them
+				// into account when calculating the child's position if it's in a vertical/horizontal layout.
+				float childScaleX = 1f;
+				float childScaleY = 1f;
+				float childTranslationX = 0f;
+				float childTranslationY = 0f;
+
+				if (PRE_HONEYCOMB) {
+					AnimatorProxy animatorProxy = AnimatorProxy.wrap(child);
+					if (animatorProxy != null) {
+						childScaleX = animatorProxy.getScaleX();
+						childScaleY = animatorProxy.getScaleY();
+						childTranslationX = animatorProxy.getTranslationX();
+						childTranslationY = animatorProxy.getTranslationY();
+					}
+				} else {
+					childScaleX = child.getScaleX();
+					childScaleY = child.getScaleY();
+					childTranslationX = child.getTranslationX();
+					childTranslationY = child.getTranslationY();
+				}
+				int childRenderedHeight = (int)(childMeasuredHeight * childScaleY);
+				int childRenderedWidth = (int)(childMeasuredWidth * childScaleX);
+
 				if (isHorizontalArrangement()) {
 					if (i == 0)  {
 						horizontalLayoutCurrentLeft = left;
@@ -527,7 +555,8 @@ public class TiCompositeLayout extends ViewGroup
 						horiztonalLayoutPreviousRight = 0;
 						updateRowForHorizontalWrap(right, i);
 					}
-					computeHorizontalLayoutPosition(params, childMeasuredWidth, childMeasuredHeight, right, top, bottom, horizontal, vertical, i);
+					computeHorizontalLayoutPosition(params, childRenderedWidth, childMeasuredHeight, right, top, bottom, horizontal, vertical, i);
+					horizontalLayoutCurrentLeft += childTranslationX;
 
 				} else {
 					// Try to calculate width/height from pins, and default to measured width/height. We have to do this in
@@ -537,7 +566,7 @@ public class TiCompositeLayout extends ViewGroup
 
 					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
 					if (isVerticalArrangement()) {
-						computeVerticalLayoutPosition(currentHeight, params.optionTop, childMeasuredHeight, top, vertical,
+						computeVerticalLayoutPosition(currentHeight, params.optionTop, childRenderedHeight, top, vertical,
 							bottom);
 						// Include bottom in height calculation for vertical layout (used as padding)
 						TiDimension optionBottom = params.optionBottom;
@@ -558,8 +587,7 @@ public class TiCompositeLayout extends ViewGroup
 				int newHeight = vertical[1] - vertical[0];
 				// If the old child measurements do not match the new measurements that we calculated, then update the
 				// child measurements accordingly
-				if (newWidth != child.getMeasuredWidth()
-					|| newHeight != child.getMeasuredHeight()) {
+				if (newWidth != childRenderedWidth || newHeight != childRenderedHeight) {
 					int newWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
 					int newHeightSpec = MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY);
 					child.measure(newWidthSpec, newHeightSpec);
@@ -575,9 +603,20 @@ public class TiCompositeLayout extends ViewGroup
 					}
 				}
 
-				child.layout(horizontal[0], vertical[0], horizontal[1], vertical[1]);
+				//child.layout(horizontal[0], vertical[0], horizontal[1], vertical[1]);
+				int horizontal0 = horizontal[0];
+				int horizontal1 = horizontal[1];
+				int vertical0 = vertical[0];
+				int vertical1 = vertical[1];
+				if (childScaleX != 0) {
+					horizontal1 = (int) (horizontal0 + newWidth * 1.0 / childScaleX);
+				}
+				if (childScaleY != 0) {
+					vertical1 = (int) (vertical0 + newHeight * 1.0 / childScaleY);
+				}
+				child.layout(horizontal0, vertical0, horizontal1, vertical1);
 
-				currentHeight += newHeight;
+				currentHeight += newHeight + childTranslationY;
 				if (params.optionTop != null) {
 					currentHeight += params.optionTop.getAsPixels(this);
 				}
