@@ -2042,12 +2042,10 @@ AndroidBuilder.prototype.getLastBuildState = function getLastBuildState(next) {
 	(function walk(dir) {
 		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
 			var file = path.join(dir, name);
-			if (fs.existsSync(file)) {
-				if (fs.statSync(file).isDirectory()) {
-					walk(file);
-				} else {
-					lastBuildFiles[file] = 1;
-				}
+			if (fs.existsSync(file) && fs.statSync(file).isDirectory()) {
+				walk(file);
+			} else {
+				lastBuildFiles[file] = 1;
 			}
 		});
 	}(this.buildDir));
@@ -2910,9 +2908,19 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 
 AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
 	Object.keys(this.lastBuildFiles).forEach(function (file) {
-		if ((file.indexOf(this.buildAssetsDir) == 0 || file.indexOf(this.buildBinAssetsResourcesDir) == 0 || (this.forceRebuild && file.indexOf(this.buildGenAppIdDir) == 0) || file.indexOf(this.buildResDir) == 0) && fs.existsSync(file)) {
-			this.logger.debug(__('Removing old file: %s', file.cyan));
-			fs.unlinkSync(file);
+		if (path.dirname(file) == this.buildDir || file.indexOf(this.buildAssetsDir) == 0 || file.indexOf(this.buildBinAssetsResourcesDir) == 0 || (this.forceRebuild && file.indexOf(this.buildGenAppIdDir) == 0) || file.indexOf(this.buildResDir) == 0) {
+			if (fs.existsSync(file)) {
+				this.logger.debug(__('Removing old file: %s', file.cyan));
+				fs.unlinkSync(file);
+			} else {
+				// maybe it's a symlink?
+				try {
+					if (fs.lstatSync(file)) {
+						this.logger.debug(__('Removing old symlink: %s', file.cyan));
+						fs.unlinkSync(file);
+					}
+				} catch (e) {}
+			}
 		}
 	}, this);
 
@@ -3424,6 +3432,9 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	Object.keys(permissions).forEach(function (perm) {
 		finalAndroidManifest['uses-permission'].indexOf(perm) == -1 && finalAndroidManifest['uses-permission'].push(perm);
 	});
+
+	// if the AndroidManifest.xml already exists, remove it so that we aren't updating the original file (if it's symlinked)
+	fs.existsSync(this.androidManifestFile) && fs.unlinkSync(this.androidManifestFile);
 
 	fs.writeFileSync(this.androidManifestFile, finalAndroidManifest.toString('xml'));
 
