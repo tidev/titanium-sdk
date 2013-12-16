@@ -324,7 +324,7 @@ events:
         A list touch event and a list [scroll](Titanium.UI.ListView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the `touchcancel` event fires before the `scroll` event begins.
 
-        On the Android platform, other gesture events, such as `lonpress` or `swipe`, cancel touch events,
+        On the Android platform, other gesture events, such as `longpress` or `swipe`, cancel touch events,
         so this event may not be triggered after a `touchstart` event.
 
 
