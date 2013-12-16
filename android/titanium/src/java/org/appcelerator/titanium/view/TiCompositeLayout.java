@@ -477,7 +477,7 @@ public class TiCompositeLayout extends ViewGroup
 	/**
 	 * In Property Animation, the scaling/translation factors may change, so we need to take them
 	 * into account when laying out the view.
-	 * @param child the views
+	 * @param child the view
 	 * @return an array with the view's scaling and translation factors, in the form of
 	 * [scaleX, scaleY, translationX, translationY].
 	 */
