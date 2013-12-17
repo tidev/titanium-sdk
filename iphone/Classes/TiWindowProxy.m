@@ -285,6 +285,7 @@
         default:
             barStyle = UIStatusBarStyleDefault;
     }
+    [self setValue:NUMINT(barStyle) forUndefinedKey:@"statusBarStyle"];
     if(focussed) {
         TiThreadPerformOnMainThread(^{
             [[[TiApp app] controller] updateStatusBar];
