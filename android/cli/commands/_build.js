@@ -3394,8 +3394,13 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}
 	}, this);
 
-	// merge the android manifests
+	// set the app icon
+	finalAndroidManifest.application.icon = '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, '');
+
+	// merge the custom android manifest
 	finalAndroidManifest.merge(customAndroidManifest);
+
+	// merge the tiapp.xml android manifest
 	finalAndroidManifest.merge(tiappAndroidManifest);
 
 	this.modules.forEach(function (module) {
