@@ -2183,7 +2183,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				// we have a file, now we need to see what sort of file
 
 				// check if it's a drawable resource
-				var relPath = from.replace(opts.origSrc, '').replace(/^\//, '').replace(/\\/g, '/'),
+				var relPath = from.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, ''),
 					m = relPath.match(drawableRegExp),
 					isDrawable = false;
 				if (m && m.length >= 4) {
