@@ -927,12 +927,12 @@ public class TiCompositeLayout extends ViewGroup
 		}
 	}
 
-	public boolean isVerticalArrangement()
+	protected boolean isVerticalArrangement()
 	{
 		return (arrangement == LayoutArrangement.VERTICAL);
 	}
 
-	public boolean isHorizontalArrangement()
+	protected boolean isHorizontalArrangement()
 	{
 		return (arrangement == LayoutArrangement.HORIZONTAL);
 	}
