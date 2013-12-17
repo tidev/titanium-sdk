@@ -364,10 +364,10 @@ define(
 					}
 
 					// Compute the angle, start location, and end location of the gradient
-					var angle = Math.atan2(endPointY - startPointY, endPointX - startPointX)
+					var angle = Math.atan2(endPointY - startPointY, endPointX - startPointX),
 						tanAngle = Math.tan(angle),
 						cosAngle = Math.cos(angle),
-						originLineIntersection = centerY - centerX * tanAngle;
+						originLineIntersection = centerY - centerX * tanAngle,
 						userDistance = (startPointY - startPointX * tanAngle - originLineIntersection) * cosAngle,
 						userXOffset = userDistance * Math.sin(angle),
 						userYOffset = userDistance * cosAngle,
@@ -424,7 +424,7 @@ define(
 
 					for (var i = 0; i <= (numColors - 2) / 2; i++) {
 						var mirroredPosition = numColors - i - 1;
-						colorList[i] = colors[mirroredPosition],
+						colorList[i] = colors[mirroredPosition];
 						colorList[mirroredPosition] = colors[i];
 					}
 					if (numColors % 2 === 1) {
