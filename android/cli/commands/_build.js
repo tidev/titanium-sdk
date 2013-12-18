@@ -1331,6 +1331,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// make sure we have an icon
+	if (this.tiappAndroidManifest && this.tiappAndroidManifest.application && this.tiappAndroidManifest.application.icon) {
+		cli.tiapp.icon = this.tiappAndroidManifest.application.icon.replace(/^\@drawable\//, '') + '.png';
+	} else if (this.customAndroidManifest && this.customAndroidManifest.application && this.customAndroidManifest.application.icon) {
+		cli.tiapp.icon = this.customAndroidManifest.application.icon.replace(/^\@drawable\//, '') + '.png';
+	}
 	if (!cli.tiapp.icon || !['Resources', 'Resources/android'].some(function (p) {
 			return fs.existsSync(cli.argv['project-dir'], p, cli.tiapp.icon);
 		})) {
@@ -3394,8 +3399,13 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}
 	}, this);
 
-	// merge the android manifests
+	// set the app icon
+	finalAndroidManifest.application.icon = '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, '');
+
+	// merge the custom android manifest
 	finalAndroidManifest.merge(customAndroidManifest);
+
+	// merge the tiapp.xml android manifest
 	finalAndroidManifest.merge(tiappAndroidManifest);
 
 	this.modules.forEach(function (module) {
@@ -3830,9 +3840,10 @@ AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
 			'-storepass', this.keystoreStorePassword,
 			'-alias', this.keystoreAlias
 		],
-		keytoolArgsSafe = [].concat(keytoolArgs);
+		keytoolArgsSafe = [].concat(keytoolArgs),
+		i = keytoolArgs.indexOf('-storepass') + 1;
 
-	keytoolArgsSafe[5] = keytoolArgsSafe[5].replace(/./g, '*');
+	keytoolArgsSafe[i] = keytoolArgsSafe[i].replace(/./g, '*');
 
 	this.logger.info(__('Determining signature algorithm: %s', (this.jdkInfo.executables.keytool + ' "' + keytoolArgsSafe.join('" "') + '"').cyan));
 
