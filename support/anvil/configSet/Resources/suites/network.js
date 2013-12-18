@@ -167,15 +167,20 @@ module.exports = new function() {
 
 	//TIMOB-7718
 	this.listeningForHttpRequests = function(testRun) {
-		valueOf(testRun, function(){
-			socket = Titanium.Network.Socket.createTCP({
-				host:Ti.Platform.address,
-				port:8080,
-				listenQueueSize:100,
-			});
-			socket.listen();
-		}).shouldNotThrowException();
+		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
+			valueOf(testRun, function(){
+				socket = Titanium.Network.Socket.createTCP({
+					host:Ti.Platform.address,
+					port:8080,
+					listenQueueSize:100,
+				});
+				socket.listen();
+			}).shouldNotThrowException();
 
 		finish(testRun);
+		} else {
+
+			finish(testRun);
+		}
 	}
 }
