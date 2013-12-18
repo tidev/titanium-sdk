@@ -706,6 +706,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							'target': {
 								abbr: 'T',
 								callback: function (value) {
+									// if we're building from Xcode, no need to check certs and provisioning profiles
+									if (cli.argv.xcode) return;
+
 									if (value != 'simulator') {
 										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_KEYCHAINS_FOUND');
 										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_WWDR_CERT_FOUND');
