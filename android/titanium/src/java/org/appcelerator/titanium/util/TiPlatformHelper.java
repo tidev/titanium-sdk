@@ -24,7 +24,9 @@ import org.appcelerator.titanium.TiApplication;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.DhcpInfo;
@@ -50,6 +52,8 @@ public class TiPlatformHelper
 	public static float applicationScaleFactor = 1.0F;
 	public static int applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
 	private static boolean applicationDisplayInfoInitialized = false;
+	private static int appVersionCode = -1;
+	private static String appVersionName;
 
 	public static void initialize() {
 		TiApplication app = TiApplication.getInstance();
@@ -409,7 +413,33 @@ public class TiPlatformHelper
 	public static String getNetworkTypeName() {
 		return networkTypeToTypeName(getNetworkType());
 	}
+	
 
+	public static int getAppVersionCode() {
+		if (appVersionCode == -1) {
+			initializeVersionValues();
+		}
+		return appVersionCode;
+	}
+	
+	public static String getAppVersionName() {
+		if (appVersionName == null) {
+			initializeVersionValues();
+		}
+		return appVersionName;
+	}
+	
+	private static void initializeVersionValues() {
+		PackageInfo pInfo;
+		try {
+			pInfo = TiApplication.getInstance().getPackageManager().getPackageInfo(TiApplication.getInstance().getPackageName(), 0);
+			appVersionCode = pInfo.versionCode;
+			appVersionName = pInfo.versionName;
+		} catch (NameNotFoundException e) {
+			Log.w(TAG, "Unable to get package info", Log.DEBUG_MODE);
+		}
+	}
+	
 	private static int getNetworkType() {
 		int type = -1;
 

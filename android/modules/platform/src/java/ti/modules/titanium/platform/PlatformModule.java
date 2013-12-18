@@ -205,6 +205,16 @@ public class PlatformModule extends KrollModule
 		return KrollRuntime.getInstance().getRuntimeName();
 	}
 
+	@Kroll.getProperty @Kroll.method
+	public int getAppVersionCode() {
+		return TiPlatformHelper.getAppVersionCode();
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public String getAppVersionName() {
+		return TiPlatformHelper.getAppVersionName();
+	}
+	
 	protected void registerBatteryStateReceiver()
 	{
 		batteryStateReceiver = new BroadcastReceiver() {
