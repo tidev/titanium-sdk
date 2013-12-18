@@ -510,7 +510,12 @@
         return NO;
     }
 
-	[(TiUITextFieldProxy *)self.proxy noteValueChange:curText];
+    /*
+        Adding a small delay as `change` event can be fired even before the textfield text is actually updated by the system,
+        leading to race conditions. Refer to TIMOB-16014
+     */
+
+	[(TiUITextFieldProxy *)self.proxy performSelector:@selector(noteValueChange:) withObject:curText afterDelay:0.01];
 	return YES;
 }
 
