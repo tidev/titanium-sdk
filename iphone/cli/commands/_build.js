@@ -1352,10 +1352,13 @@ iOSBuilder.prototype.loginfo = function loginfo(next) {
 	this.logger.debug(__('Xcode installation: %s', this.xcodeEnv.path.cyan));
 	this.logger.debug(__('iOS WWDR certificate: %s', this.iosInfo.certs.wwdr ? __('installed').cyan : __('not found').cyan));
 	this.logger.debug(__('Building for the following architectures: %s', this.architectures.cyan));
-	if (this.target == 'device') {
-		this.logger.info(__('iOS Development Certificate: %s', this.certDeveloperName.cyan));
-	} else if (/^dist-appstore|dist\-adhoc$/.test(this.target)) {
-		this.logger.info(__('iOS Distribution Certificate: %s', this.certDistributionName.cyan));
+
+	if (!this.cli.argv.xcode) {
+		if (this.target == 'device') {
+			this.logger.info(__('iOS Development Certificate: %s', this.certDeveloperName.cyan));
+		} else if (/^dist-appstore|dist\-adhoc$/.test(this.target)) {
+			this.logger.info(__('iOS Distribution Certificate: %s', this.certDistributionName.cyan));
+		}
 	}
 
 	// validate the min-ios-ver from the tiapp.xml
