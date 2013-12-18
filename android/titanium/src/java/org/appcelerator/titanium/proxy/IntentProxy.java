@@ -186,8 +186,14 @@ public class IntentProxy extends KrollProxy
 			intent.putExtra(key, (Integer) value);
 		} else if (value instanceof Long) {
 			intent.putExtra(key, (Long) value);
-		}
-		else {
+		} else if (value instanceof Object[]) {
+			try {
+				Object[] objVal = (Object[]) value;
+				String[] stringArray = Arrays.copyOf(objVal, objVal.length, String[].class);
+				intent.putExtra(key, stringArray);
+			} catch (Exception ex) {
+			}
+		} else {
 			Log.w(TAG, "Warning unimplemented put conversion for " + value.getClass().getCanonicalName() + " trying String");
 			intent.putExtra(key, TiConvert.toString(value));
 		}
