@@ -384,6 +384,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		[self generateNotification:notification];
 	}
     [self launchToUrl];
+    //TODO : Should be removed once crittercism update's module
+    [self updateModuleAppId];
 	[self boot];
 	
 	return YES;
@@ -506,6 +508,13 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         completionHandler();
     } else{
         DebugLog(@"[ERROR] The specified Completion Handler with ID: %@ has already expired or removed from the system", key);
+    }
+}
+
+-(void)updateModuleAppId {
+    id val = [[TiApp tiAppProperties] objectForKey:@"com-appcelerator-apm-id"];
+    if (val != nil) {
+        [[NSUserDefaults standardUserDefaults] setObject:val forKey:@"com-appcelerator-apm-id"];
     }
 }
 
