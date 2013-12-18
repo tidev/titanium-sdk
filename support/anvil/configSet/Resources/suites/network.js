@@ -177,7 +177,7 @@ module.exports = new function() {
 				socket.listen();
 			}).shouldNotThrowException();
 
-		finish(testRun);
+			finish(testRun);
 		} else {
 
 			finish(testRun);
