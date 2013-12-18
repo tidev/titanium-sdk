@@ -488,15 +488,9 @@ public class TiCompositeLayout extends ViewGroup
 		float childTranslationX = 0f;
 		float childTranslationY = 0f;
 
-		if (PRE_HONEYCOMB) {
-			AnimatorProxy animatorProxy = AnimatorProxy.wrap(child);
-			if (animatorProxy != null) {
-				childScaleX = animatorProxy.getScaleX();
-				childScaleY = animatorProxy.getScaleY();
-				childTranslationX = animatorProxy.getTranslationX();
-				childTranslationY = animatorProxy.getTranslationY();
-			}
-		} else {
+		// We only re-layout between animation frames for Honeycomb+ for now due to the flicker issue on Gingerbread.
+		// So we only need to get scaling/translation factors for Honeycomb+.
+		if (!PRE_HONEYCOMB) {
 			childScaleX = child.getScaleX();
 			childScaleY = child.getScaleY();
 			childTranslationX = child.getTranslationX();
