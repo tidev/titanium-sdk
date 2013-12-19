@@ -11,26 +11,13 @@ description: |
 
     #### Push Protocols
 
-    The CloudPush module supports two protocols to access push notifications for Android devices:
-
-      * Google Cloud Messaging (GCM) (since Release 3.1.2)
-      * ACS servers using the MQTT protocol (deprecated)
-
-    Since Release 3.1.2, GCM is the default method to send push notifications. If you
-    have an existing application that uses the MQTT protocol, you either need to transition your
-    application to use GCM or set the `acs-push-type` key in the `tiapp.xml` file to `mqtt`.
-    Any new application should use GCM.
+    As of Release 3.2.0, the CloudPush module only supports Google Cloud Messaging (GCM) for push
+    notifications. MQTT support is deprecated and support was removed in Release 3.2.0. Upgrade your
+    application to use the GCM protocol.
 
     GCM supports devices that run Android 2.2 and later, and requires that the Google Play Store
     application be installed. For pre-4.0 devices, the user is required to set up their Google
     account.
-
-    GCM is available for both the community edition of the Titanium platform and the paid,
-    enterprise version of the Appcelerator Platform.
-
-    MQTT is a light-weight protocol that provides a persistent connection to the ACS server without
-    significantly degrading the device's battery life.  MQTT does not have any specific device
-    requirements.  MQTT is only available for the community edition of the Titanium platform.
 
     #### Getting Started
 
@@ -60,25 +47,44 @@ description: |
     user preference specified during new project creation. This pair of keys will be stored in `tiapp.xml` and one of the
     keys will be used during application build depending on the build type (development or production).
 
-    To use push notifications, in the `tiapp.xml` file, you need to specify the ACS keys and push type
-    (either `gcm` or `mqtt`). The supported properties in `tiapp.xml` are:
+    To use push notifications, in the `tiapp.xml` file, you need to specify the ACS keys and push
+    type. The supported properties in `tiapp.xml` are:
 
         <!-- Property keys for ACS (required) -->
         <property name="acs-api-key-development" type="string">YOUR DEVELOPMENT API KEY HERE</property>
         <property name="acs-api-key-production" type="string">YOUR PRODUCTION API KEY HERE</property>
         <property name="acs-api-key" type="string">YOUR API KEY HERE</property>
 
-        <!-- Property to configure push notifications -->
-        <!-- By default, GCM is used if this property is not specified -->
-        <property name="acs-push-type-development" type="string">"gcm" or "mqtt"</property>
-        <property name="acs-push-type-production" type="string">"gcm" or "mqtt"</property>
-        <property name="acs-push-type" type="string">"gcm" or "mqtt"</property>
-
     If a deployment-specific setting is provided (production or development) then that value will be used for the current deployment environment.
 
     *WARNING*: The default properties of this module are used until you set a property for the first time. Because the
     properties are persisted to the device settings (via <Titanium.App.Properties>), the most recent value you set will
     always be used.
+
+    #### Grouped Notifications
+
+    If the device receives multiple push notifications from the application, Android can group these
+    notifications together as one notification.
+
+    To use grouped notifications, add a grouped notification template to either the `tiapp.xml` file
+    or the `i18n` folder for internationalized versions:
+
+    `tiapp.xml`:
+
+        <property name="acs-grouped-notification-message-development" type="string">You have $number$ unread messages.</property>
+        <property name="acs-grouped-notification-message-production" type="string">You have $number$ unread messages.</property>
+        -or-
+        <property name="acs-grouped-notification-message" type="string">You have $number$ unread messages.</property>
+
+    `i18n/es/strings.xml` (example for Spanish):
+
+        <?xml version="1.0" encoding="utf-8"?>
+        <resources>
+           <string name="acs_grouped_notification_message">Tienes $number$ mensajes no leidos.</string>
+        </resources>
+
+    The `$number$` variable indicates the number of unread messages.
+
 platforms: [android]
 since: "2.0.0"
 extends: Titanium.Module

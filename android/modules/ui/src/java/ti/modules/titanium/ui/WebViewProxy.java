@@ -10,7 +10,9 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -47,6 +49,13 @@ public class WebViewProxy extends ViewProxy
 	private static final int MSG_RELOAD = MSG_FIRST_ID + 103;
 	private static final int MSG_STOP_LOADING = MSG_FIRST_ID + 104;
 	private static final int MSG_SET_HTML = MSG_FIRST_ID + 105;
+	private static final int MSG_SET_USER_AGENT = MSG_FIRST_ID + 106;
+	private static final int MSG_GET_USER_AGENT = MSG_FIRST_ID + 107;
+	private static final int MSG_CAN_GO_BACK = MSG_FIRST_ID + 108;
+	private static final int MSG_CAN_GO_FORWARD = MSG_FIRST_ID + 109;
+	private static final int MSG_RELEASE = MSG_FIRST_ID + 110;
+	private static final int MSG_PAUSE = MSG_FIRST_ID + 111;
+	private static final int MSG_RESUME = MSG_FIRST_ID + 112;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static String fusername;
@@ -136,23 +145,50 @@ public class WebViewProxy extends ViewProxy
 	{
 		if (peekView() != null) {
 			switch (msg.what) {
-			case MSG_GO_BACK:
-				getWebView().goBack();
-				return true;
-			case MSG_GO_FORWARD:
-				getWebView().goForward();
-				return true;
-			case MSG_RELOAD:
-				getWebView().reload();
-				return true;
-			case MSG_STOP_LOADING:
-				getWebView().stopLoading();
-				return true;
-			case MSG_SET_HTML:
-				String html = TiConvert.toString(getProperty(TiC.PROPERTY_HTML));
-				HashMap<String, Object> d = (HashMap<String, Object>) getProperty(OPTIONS_IN_SETHTML);
-				getWebView().setHtml(html, d);
-				return true;
+				case MSG_GO_BACK:
+					getWebView().goBack();
+					return true;
+				case MSG_GO_FORWARD:
+					getWebView().goForward();
+					return true;
+				case MSG_RELOAD:
+					getWebView().reload();
+					return true;
+				case MSG_STOP_LOADING:
+					getWebView().stopLoading();
+					return true;
+				case MSG_SET_USER_AGENT:
+					getWebView().setUserAgentString(msg.obj.toString());
+					return true;
+				case MSG_GET_USER_AGENT: {
+					AsyncResult result = (AsyncResult) msg.obj;
+					result.setResult(getWebView().getUserAgentString());
+					return true;
+				}
+				case MSG_CAN_GO_BACK: {
+					AsyncResult result = (AsyncResult) msg.obj;
+					result.setResult(getWebView().canGoBack());
+					return true;
+				}
+				case MSG_CAN_GO_FORWARD: {
+					AsyncResult result = (AsyncResult) msg.obj;
+					result.setResult(getWebView().canGoForward());
+					return true;
+				}
+				case MSG_RELEASE:
+					super.releaseViews();
+					return true;
+				case MSG_PAUSE:
+					getWebView().pauseWebView();
+					return true;
+				case MSG_RESUME:
+					getWebView().resumeWebView();
+					return true;
+				case MSG_SET_HTML:
+					String html = TiConvert.toString(getProperty(TiC.PROPERTY_HTML));
+					HashMap<String, Object> d = (HashMap<String, Object>) getProperty(OPTIONS_IN_SETHTML);
+					getWebView().setHtml(html, d);
+					return true;
 			}
 		}
 		return super.handleMessage(msg);
@@ -177,7 +213,13 @@ public class WebViewProxy extends ViewProxy
 	{
 		TiUIWebView currWebView = getWebView();
 		if (currWebView != null) {
-			currWebView.setUserAgentString(userAgent);
+			if (TiApplication.isUIThread()) {
+				currWebView.setUserAgentString(userAgent);
+			} else {
+				Message message = getMainHandler().obtainMessage(MSG_SET_USER_AGENT);
+				message.obj = userAgent;
+				message.sendToTarget();
+			}
 		}
 	}
 
@@ -185,14 +227,25 @@ public class WebViewProxy extends ViewProxy
 	public String getUserAgent()
 	{
 		TiUIWebView currWebView = getWebView();
-		return (currWebView != null) ? currWebView.getUserAgentString() : "";
+		if (currWebView != null) {
+			if (TiApplication.isUIThread()) {
+				return currWebView.getUserAgentString();
+			} else {
+				return (String) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_USER_AGENT));
+			}
+		}
+		return "";
 	}
 
 	@Kroll.method
 	public boolean canGoBack()
 	{
 		if (peekView() != null) {
-			return getWebView().canGoBack();
+			if (TiApplication.isUIThread()) {
+				return getWebView().canGoBack();
+			} else {
+				return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CAN_GO_BACK));
+			}
 		}
 		return false;
 	}
@@ -201,7 +254,11 @@ public class WebViewProxy extends ViewProxy
 	public boolean canGoForward()
 	{
 		if (peekView() != null) {
-			return getWebView().canGoForward();
+			if (TiApplication.isUIThread()) {
+				return getWebView().canGoForward();
+			} else {
+				return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CAN_GO_FORWARD));
+			}
 		}
 		return false;
 	}
@@ -245,14 +302,14 @@ public class WebViewProxy extends ViewProxy
 	@Kroll.method @Kroll.setProperty
 	public void setPluginState(int pluginState)
 	{
-		switch(pluginState) {
-			case TiUIWebView.PLUGIN_STATE_OFF :
-			case TiUIWebView.PLUGIN_STATE_ON :
-			case TiUIWebView.PLUGIN_STATE_ON_DEMAND :
-				setProperty(TiC.PROPERTY_PLUGIN_STATE, pluginState, true);
+		switch (pluginState) {
+			case TiUIWebView.PLUGIN_STATE_OFF:
+			case TiUIWebView.PLUGIN_STATE_ON:
+			case TiUIWebView.PLUGIN_STATE_ON_DEMAND:
+				setPropertyAndFire(TiC.PROPERTY_PLUGIN_STATE, pluginState);
 				break;
 			default:
-				setProperty(TiC.PROPERTY_PLUGIN_STATE, TiUIWebView.PLUGIN_STATE_OFF, true);
+				setPropertyAndFire(TiC.PROPERTY_PLUGIN_STATE, TiUIWebView.PLUGIN_STATE_OFF);
 		}
 	}
 
@@ -260,7 +317,11 @@ public class WebViewProxy extends ViewProxy
 	public void pause() 
 	{
 		if (peekView() != null) {
-			getWebView().pauseWebView();
+			if (TiApplication.isUIThread()) {
+				getWebView().pauseWebView();
+			} else {
+				getMainHandler().sendEmptyMessage(MSG_PAUSE);
+			}
 		}
 	}
 
@@ -268,15 +329,18 @@ public class WebViewProxy extends ViewProxy
 	public void resume()
 	{
 		if (peekView() != null) {
-			getWebView().resumeWebView();
+			if (TiApplication.isUIThread()) {
+				getWebView().resumeWebView();
+			} else {
+				getMainHandler().sendEmptyMessage(MSG_RESUME);
+			}
 		}
 	}
-	
 
 	@Kroll.method(runOnUiThread=true) @Kroll.setProperty(runOnUiThread=true)
 	public void setEnableZoomControls(boolean enabled)
 	{
-		setProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, enabled, true);
+		setPropertyAndFire(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, enabled);
 	}
 
 	@Kroll.method @Kroll.getProperty
@@ -284,7 +348,7 @@ public class WebViewProxy extends ViewProxy
 	{
 		boolean enabled = true;
 
-		if(hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+		if (hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			enabled = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
 		}
 		return enabled;
@@ -335,7 +399,11 @@ public class WebViewProxy extends ViewProxy
 	@Kroll.method
 	public void release()
 	{
-		super.releaseViews();
+		if (TiApplication.isUIThread()) {
+			super.releaseViews();
+		} else {
+			getMainHandler().sendEmptyMessage(MSG_RELEASE);
+		}
 	}
 
 	@Override

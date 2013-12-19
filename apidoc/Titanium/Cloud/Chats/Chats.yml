@@ -37,6 +37,7 @@ methods:
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudResponse>
+    since: 3.2.0
   
   - name: getChatGroups
     summary: Retrieve a list of chat groups the current user belongs to.
@@ -75,6 +76,7 @@ methods:
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudChatGroupsResponse>
+    since: 3.2.0
     
   - name: query
     summary: Retrieve a list of chat messages with sorting and pagination.

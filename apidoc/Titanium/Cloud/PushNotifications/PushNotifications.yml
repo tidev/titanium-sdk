@@ -122,6 +122,57 @@ methods:
         type: Callback<CloudPushNotificationsResponse>
     since: 3.1.2
 
+  - name: queryChannels
+    summary: Returns a list of push notification channels the user is subscribed to.
+    description: |
+        Requires user login. 
+        
+        See [push_notifications/channels/query.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-channels_query)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsQueryChannelResponse>
+    since: 3.2.0
+
+  - name: showChannels
+    summary: Returns the number of devices subscribed to the specified channel.
+    description: |
+        Requires user login. 
+        
+        See [push_notifications/channels/show.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-channels_show)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsShowChannelResponse>
+    since: 3.2.0
+
+  - name: query
+    summary: Custom query of push notification subscriptions with paginating.
+    description: |
+        See [push_notifications/query.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-query)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `subscriptions` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsQueryResponse>
+    since: 3.2.0
+
 examples:
   - title: Subscribe to Channel
     example: |
@@ -175,3 +226,30 @@ examples:
 name: CloudPushNotificationsResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: CloudResponse
+---
+name: CloudPushNotificationsQueryChannelResponse
+summary: Argument passed to the callback when a request finishes successfully.
+extends: CloudResponse
+properties:
+  - name: push_channels
+    summary: Array of `push_channel` names, if any exist.
+    description: Only included if `success` is `true`.
+    type: Array<String>
+---
+name: CloudPushNotificationsShowChannelResponse
+summary: Argument passed to the callback when a request finishes successfully.
+extends: CloudResponse
+properties:
+  - name: devices
+    summary: Dictionary containing counts of devices subscribed to a push channel, grouped by platform.
+    description: Only included if `success` is `true`.
+    type: Dictionary
+---
+name: CloudPushNotificationsQueryResponse
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: CloudResponse
+properties:
+  - name: subscriptions
+    summary: Set of `subscription` objects, if any exist.
+    description: Only included if `success` is `true`.
+    type: Array<Dictionary>
