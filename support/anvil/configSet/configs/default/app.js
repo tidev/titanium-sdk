@@ -17,6 +17,7 @@ var suites = [
 	{name: "facebook"},
 	{name: "filesystem/filesystem"},
 	{name: "geolocation"},
+	{name: "js_search"},
 	{name: "json"},
 	{name: "jss"},
 	{name: "kroll"},
