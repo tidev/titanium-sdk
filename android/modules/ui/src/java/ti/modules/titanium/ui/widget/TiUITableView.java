@@ -112,7 +112,7 @@ public class TiUITableView extends TiUIView
 
 		boolean clickable = true;
 		if (d.containsKey(TiC.PROPERTY_TOUCH_ENABLED)) {
-			clickable = (Boolean) d.get(TiC.PROPERTY_TOUCH_ENABLED);
+			clickable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
 		}
 		if (clickable) {
 			tableView.setOnItemClickListener(this);
