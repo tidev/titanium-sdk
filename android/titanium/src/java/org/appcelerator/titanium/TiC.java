@@ -1131,6 +1131,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_FILTER_ANCHORED = "filterAnchored";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
 	
 	/**
