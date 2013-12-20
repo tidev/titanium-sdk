@@ -20,10 +20,8 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -36,7 +34,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.WebViewProxy;
 import ti.modules.titanium.ui.android.AndroidModule;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -47,7 +44,7 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
-public class TiUIWebView extends TiUIView implements OnLifecycleEvent
+public class TiUIWebView extends TiUIView
 {
 
 	private static final String TAG = "TiUIWebView";
@@ -196,11 +193,6 @@ public class TiUIWebView extends TiUIView implements OnLifecycleEvent
 		params.autoFillsWidth = true;
 
 		setNativeView(webView);
-		
-		Activity activity = proxy.getActivity();
-		if (activity instanceof TiBaseActivity) {
-			((TiBaseActivity) activity).addOnLifecycleEventListener(this);
-		}
 	}
 
 	public WebView getWebView()
@@ -720,41 +712,5 @@ public class TiUIWebView extends TiUIView implements OnLifecycleEvent
 	public boolean interceptOnBackPressed()
 	{
 		return chromeClient.interceptOnBackPressed();
-	}
-
-	@Override
-	public void onStart(Activity activity)
-	{
-	}
-
-	@Override
-	public void onResume(Activity activity)
-	{
-		resumeWebView();
-	}
-
-	@Override
-	public void onPause(Activity activity)
-	{
-		pauseWebView();
-	}
-
-	@Override
-	public void onStop(Activity activity)
-	{
-	}
-
-	@Override
-	public void onDestroy(Activity activity)
-	{
-	}
-	
-	@Override
-	public void release()
-	{
-		if (proxy != null && proxy.getActivity() != null && proxy.getActivity() instanceof TiBaseActivity) {
-			((TiBaseActivity) proxy.getActivity()).removeOnLifecycleEventListener(this);
-		}
-		super.release();
 	}
 }
