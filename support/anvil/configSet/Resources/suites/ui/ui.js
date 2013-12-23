@@ -32,7 +32,8 @@ module.exports = new function() {
 		{name: "tabWindowNull"},
 		{name: "deleteCorrectRowIndex", timeout: 3000},
 		{name: "childrenArrayEmpty"},
-		{name: "orientationModesReturnNull"}
+		{name: "orientationModesReturnNull"},
+		{name: "passingWindow", timeout: 10000}
 	]
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2583
@@ -557,5 +558,40 @@ module.exports = new function() {
 			finish(testRun);
 		});
 		win.open();
+	}
+
+	//KitchenSink: Platform
+	this.passingWindow = function(testRun) {
+		var win1 = Titanium.UI.createWindow({  
+			backgroundColor : '#000',
+		});
+		win1.addEventListener('open', function(){
+			w2 = require('suites/ui/win_2').set_prop();
+			w2.title = 'Custom Prop Test';			
+			w2.stringProp1 = 'Foo';
+			w2.stringProp2 = 'Bar';
+			w2.numProp1 = 1;
+			w2.numProp2 = 2;
+			w2.objProp1 = {name:'Jane', age:30};
+			w2.myFunc = function()
+			{
+				return 'myFunc was called';
+			};
+			w2.open();
+			setTimeout(function() {
+				var win2 = require('suites/ui/win_2').get_prop();
+				valueOf(testRun, win2.title).shouldBe('Custom Prop Test');
+				valueOf(testRun, win2.stringProp1).shouldBe('Foo');
+				valueOf(testRun, win2.stringProp2).shouldBe('Bar');
+				valueOf(testRun, win2.numProp1).shouldBe(1);
+				valueOf(testRun, win2.numProp2).shouldBe(2);
+				valueOf(testRun, win2.objProp1.name).shouldBe('Jane');
+				valueOf(testRun, win2.objProp1.age).shouldBe(30);
+				valueOf(testRun, win2.myFunc()).shouldBe('myFunc was called');
+
+				finish(testRun);
+			}, 10000);
+		});
+		win1.open();	
 	}
 }
