@@ -507,7 +507,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				} else {
 					h = Math.max(minRowHeight, height.getAsPixels(this));
 				}
-				if (hasChildView) {
+				// Make sure the height is greater than 1 (not 0 since image views default to 1)
+				if (hasChildView && h > 1) {
 					content.getLayoutParams().height = h;
 				}
 
