@@ -2021,6 +2021,13 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
+	if (this.config.get('android.skipCustomManifestMerge', false) != manifest.skipCustomManifestMerge) {
+		this.logger.info(__('Forcing rebuild: skipCustomManifestMerge config has changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.skipCustomManifestMerge));
+		this.logger.info('  ' + __('Now: %s', this.config.get('android.skipCustomManifestMerge', false)));
+		return true;
+	}
+
 	return false;
 };
 
@@ -3210,6 +3217,13 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		return next();
 	}
 
+	// Directly copy over the custom manifest without merging if android.skipCustomManifestMerge is true
+	if (this.config.get('android.skipCustomManifestMerge', false) && this.customAndroidManifest) {
+		this.logger.debug(__('Skipping custom manifest merge...'));
+		fs.writeFileSync(this.androidManifestFile, this.customAndroidManifest.toString('xml'));
+		return next();
+	}
+
 	var calendarPermissions = [ 'android.permission.READ_CALENDAR', 'android.permission.WRITE_CALENDAR' ],
 		cameraPermissions = [ 'android.permission.CAMERA' ],
 		contactsPermissions = [ 'android.permission.READ_CONTACTS', 'android.permission.WRITE_CONTACTS' ],
@@ -3968,6 +3982,7 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		fullscreen: this.tiapp.fullscreen,
 		'navbar-hidden': this.tiapp['navbar-hidden'],
 		skipJSMinification: !!this.cli.argv['skip-js-minify'],
+		skipCustomManifestMerge: this.config.get('android.skipCustomManifestMerge', false),
 		encryptJS: this.encryptJS,
 		minSDK: this.minSDK,
 		targetSDK: this.targetSDK,
