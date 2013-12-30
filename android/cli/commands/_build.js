@@ -3221,8 +3221,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		permissions = {
 			'android.permission.INTERNET': 1,
 			'android.permission.ACCESS_WIFI_STATE': 1,
-			'android.permission.ACCESS_NETWORK_STATE': 1,
-			'android.permission.WRITE_EXTERNAL_STORAGE': 1
+			'android.permission.ACCESS_NETWORK_STATE': 1
 		},
 
 		tiNamespacePermissions = {
@@ -3320,6 +3319,11 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		geoPermissions.push('android.permission.ACCESS_MOCK_LOCATION');
 	}
 
+	// if doing a development or debug build, then we need storage permissions to write the deploy.json
+	if (this.deployType == 'development' || (this.allowDebugging && this.debugPort)) {
+		permissions['android.permission.WRITE_EXTERNAL_STORAGE'] = 1;
+	}
+
 	// set permissions for each titanium namespace found
 	Object.keys(this.tiNamespaces).forEach(function (ns) {
 		if (tiNamespacePermissions[ns]) {
@@ -3405,6 +3409,16 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}
 	}, this);
 
+	// add the analytics service
+	if (this.tiapp.analytics) {
+		var tiAnalyticsService = 'org.appcelerator.titanium.analytics.TiAnalyticsService';
+		finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
+		finalAndroidManifest.application.service[tiAnalyticsService] = {
+			name: tiAnalyticsService,
+			exported: false
+		};
+	}
+
 	// set the app icon
 	finalAndroidManifest.application.icon = '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, '');
 
@@ -3452,9 +3466,10 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	// if the AndroidManifest.xml already exists, remove it so that we aren't updating the original file (if it's symlinked)
 	fs.existsSync(this.androidManifestFile) && fs.unlinkSync(this.androidManifestFile);
 
-	fs.writeFileSync(this.androidManifestFile, finalAndroidManifest.toString('xml'));
-
-	next();
+	(this.cli.createHook('build.android.writeAndroidManifest', this, function (file, xml, done) {
+		fs.writeFileSync(file, xml.toString('xml'));
+		done();
+	}))(this.androidManifestFile, finalAndroidManifest, next);
 };
 
 AndroidBuilder.prototype.packageApp = function packageApp(next) {
