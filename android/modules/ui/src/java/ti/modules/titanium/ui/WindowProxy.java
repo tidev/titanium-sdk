@@ -11,6 +11,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiActivity;
@@ -32,12 +33,15 @@ import ti.modules.titanium.ui.widget.TiView;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Message;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
+import android.view.WindowManager;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_MODAL,
@@ -61,7 +65,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	// This flag is just for a temporary use. We won't need it after the lightweight window
 	// is completely removed.
 	private boolean lightweight = false;
-
 
 	public WindowProxy()
 	{
@@ -393,6 +396,43 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		super.setWidth(width);
 	}
 
+	@Kroll.getProperty
+	@Kroll.method
+	public Object getWidth()
+	{
+
+		Object width = this.getActivity().getWindow().getAttributes().width;
+		if (getProperty(TiC.PROPERTY_WIDTH) == null) {
+
+			Display display = this.getActivity().getWindowManager().getDefaultDisplay();
+			Point size = new Point();
+			display.getSize(size);
+			width = size.x;
+		} else {
+			width = super.getWidth();
+		}
+		return width;
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public Object getHeight()
+	{
+
+		Object height = this.getActivity().getWindow().getAttributes().height;
+		if (getProperty(TiC.PROPERTY_HEIGHT) == null) {
+
+			Display display = this.getActivity().getWindowManager().getDefaultDisplay();
+			Point size = new Point();
+			display.getSize(size);
+			height = size.y;
+		} else {
+			height = super.getHeight();
+		}
+		return height;
+	}
+	
+	
 	@Override
 	@Kroll.setProperty(retain=false) @Kroll.method
 	public void setHeight(Object height)
