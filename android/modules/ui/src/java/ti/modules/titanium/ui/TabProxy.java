@@ -24,7 +24,8 @@ import android.app.Activity;
 propertyAccessors = {
 	TiC.PROPERTY_TITLE,
 	TiC.PROPERTY_TITLEID,
-	TiC.PROPERTY_ICON
+	TiC.PROPERTY_ICON,
+	TiC.PROPERTY_FONT
 })
 public class TabProxy extends TiViewProxy
 {

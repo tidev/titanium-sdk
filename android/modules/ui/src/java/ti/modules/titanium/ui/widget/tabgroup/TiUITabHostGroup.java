@@ -109,6 +109,7 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 		tabHost.addTab(tabSpec);
 
 		tabView.setIndicatorView(tabWidget.getChildTabViewAt(tabIndex));
+		tabView.setFontStyle(tabHost);
 
 		// TabHost will automatically select the first tab.
 		// We must suppress the tab selection callback when this selection

@@ -16,7 +16,9 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import ti.modules.titanium.ui.TabProxy;
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
@@ -36,26 +38,48 @@ public class TiUITabHostTab extends TiUIAbstractTab {
 	public void setBackgroundColor(int color) {
 		indicatorView.setBackgroundColor(color);
 	}
-
+ 
+	
+ 
 	void setupTabSpec(TabSpec spec) {
 		KrollDict properties = proxy.getProperties();
-
 		String title = properties.optString(TiC.PROPERTY_TITLE, "");
 		Object icon = properties.get(TiC.PROPERTY_ICON);
 		spec.setIndicator(title, icon != null ? TiUIHelper.getResourceDrawable(icon) : null);
+		 
 	}
 
 	void setIndicatorView(View indicatorView) {
 		this.indicatorView = indicatorView;
 		defaultTabBackground = indicatorView.getBackground();
-
+		 
 		// Initialize custom background color of tab if provided.
 		int tabBackgroundColor = ((TabProxy) proxy).getTabColor();
 		if (tabBackgroundColor != 0) {
 			setBackgroundColor(tabBackgroundColor);
 		}
 	}
-
+	
+	void setFontStyle(TabHost tabHost)
+	{
+		KrollDict properties = proxy.getProperties();
+		for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++) {
+			TextView tv = (TextView) tabHost.getTabWidget().getChildAt(i).findViewById(android.R.id.title);
+			if (properties.containsKey(TiC.PROPERTY_FONT)) {
+				TiUIHelper.styleText(tv, properties.getKrollDict(TiC.PROPERTY_FONT));
+			}
+		}
+		 
+	}
+@Override
+public void processProperties(KrollDict d)
+{
+	// TODO Auto-generated method stub
+	super.processProperties(d);
+	 
+		
+	 
+}
 	@Override
 	public void onSelectionChange(boolean selected) {
 		TabProxy tabProxy = (TabProxy) proxy;
@@ -75,6 +99,8 @@ public class TiUITabHostTab extends TiUIAbstractTab {
 		if (backgroundColor != 0) {
 			setBackgroundColor(backgroundColor);
 		}
+		
+		
 	}
 	
 	@Override
@@ -91,17 +117,34 @@ public class TiUITabHostTab extends TiUIAbstractTab {
 				Log.d(TAG, "Did not find a title View inside indicatorView to update ", Log.DEBUG_MODE);
 			}
 		}
+		
+		 
 		if (key.equals(TiC.PROPERTY_ICON)) {
 			View iconView = indicatorView.findViewById(android.R.id.icon);
 			if (iconView instanceof ImageView) {
 				Drawable icon = null;
-				if (newValue != null){
+				if (newValue != null) {
 					icon = TiUIHelper.getResourceDrawable(newValue);
 				}
-				((ImageView)iconView).setImageDrawable(icon);
+				((ImageView) iconView).setImageDrawable(icon);
 			} else {
 				Log.d(TAG, "Did not find a image View inside indicatorView to update ", Log.DEBUG_MODE);
 			}
+		}
+		
+		if(key.equals(TiC.PROPERTY_FONT))
+		{
+			 
+				View titleView = indicatorView.findViewById(android.R.id.title);
+				if (titleView instanceof TextView) {
+					if (newValue != null) {
+						KrollDict properties = proxy.getProperties();
+						TiUIHelper.styleText((TextView)titleView,properties.getKrollDict(TiC.PROPERTY_FONT)  );
+					}
+						
+					 
+				} 
+ 			 	
 		}
 	}
 
