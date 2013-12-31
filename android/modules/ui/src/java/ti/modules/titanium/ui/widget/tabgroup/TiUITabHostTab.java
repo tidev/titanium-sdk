@@ -16,7 +16,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import ti.modules.titanium.ui.TabProxy;
 import android.graphics.drawable.Drawable;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
@@ -39,14 +38,12 @@ public class TiUITabHostTab extends TiUIAbstractTab {
 		indicatorView.setBackgroundColor(color);
 	}
  
-	
- 
 	void setupTabSpec(TabSpec spec) {
+		
 		KrollDict properties = proxy.getProperties();
 		String title = properties.optString(TiC.PROPERTY_TITLE, "");
 		Object icon = properties.get(TiC.PROPERTY_ICON);
 		spec.setIndicator(title, icon != null ? TiUIHelper.getResourceDrawable(icon) : null);
-		 
 	}
 
 	void setIndicatorView(View indicatorView) {
@@ -71,15 +68,7 @@ public class TiUITabHostTab extends TiUIAbstractTab {
 		}
 		 
 	}
-@Override
-public void processProperties(KrollDict d)
-{
-	// TODO Auto-generated method stub
-	super.processProperties(d);
-	 
-		
-	 
-}
+
 	@Override
 	public void onSelectionChange(boolean selected) {
 		TabProxy tabProxy = (TabProxy) proxy;
@@ -99,8 +88,6 @@ public void processProperties(KrollDict d)
 		if (backgroundColor != 0) {
 			setBackgroundColor(backgroundColor);
 		}
-		
-		
 	}
 	
 	@Override
@@ -117,34 +104,29 @@ public void processProperties(KrollDict d)
 				Log.d(TAG, "Did not find a title View inside indicatorView to update ", Log.DEBUG_MODE);
 			}
 		}
-		
-		 
 		if (key.equals(TiC.PROPERTY_ICON)) {
 			View iconView = indicatorView.findViewById(android.R.id.icon);
 			if (iconView instanceof ImageView) {
 				Drawable icon = null;
-				if (newValue != null) {
+				if (newValue != null){
 					icon = TiUIHelper.getResourceDrawable(newValue);
 				}
-				((ImageView) iconView).setImageDrawable(icon);
+				((ImageView)iconView).setImageDrawable(icon);
 			} else {
 				Log.d(TAG, "Did not find a image View inside indicatorView to update ", Log.DEBUG_MODE);
 			}
 		}
 		
-		if(key.equals(TiC.PROPERTY_FONT))
-		{
-			 
-				View titleView = indicatorView.findViewById(android.R.id.title);
-				if (titleView instanceof TextView) {
-					if (newValue != null) {
-						KrollDict properties = proxy.getProperties();
-						TiUIHelper.styleText((TextView)titleView,properties.getKrollDict(TiC.PROPERTY_FONT)  );
-					}
-						
-					 
-				} 
- 			 	
+		if (key.equals(TiC.PROPERTY_FONT)) {
+
+			View titleView = indicatorView.findViewById(android.R.id.title);
+			if (titleView instanceof TextView) {
+				if (newValue != null) {
+					KrollDict properties = proxy.getProperties();
+					TiUIHelper.styleText((TextView) titleView, properties.getKrollDict(TiC.PROPERTY_FONT));
+				}
+
+			}
 		}
 	}
 
