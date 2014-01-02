@@ -427,7 +427,7 @@
 - (void)keyboardDidHide:(NSNotification*)notification
 {
 	startFrame = endFrame;
-    [self performSelector:@selector(adjustKeyboardHeight:) withObject:[NSNumber numberWithBool:NO] afterDelay:leaveDuration];
+    [self performSelector:@selector(adjustKeyboardHeight:) withObject:[NSNumber numberWithBool:NO]];
 }
 
 - (void)keyboardDidShow:(NSNotification*)notification
