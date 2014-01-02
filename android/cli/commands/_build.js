@@ -3221,7 +3221,8 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		permissions = {
 			'android.permission.INTERNET': 1,
 			'android.permission.ACCESS_WIFI_STATE': 1,
-			'android.permission.ACCESS_NETWORK_STATE': 1
+			'android.permission.ACCESS_NETWORK_STATE': 1,
+			'android.permission.WRITE_EXTERNAL_STORAGE': 1
 		},
 
 		tiNamespacePermissions = {
@@ -3312,16 +3313,21 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		customAndroidManifest = this.customAndroidManifest,
 		tiappAndroidManifest = this.tiappAndroidManifest;
 
+	// if they are using a custom AndroidManifest and merging is disabled, then write the custom one as is
+	if (!this.config.get('android.mergeCustomAndroidManifest', false)) {
+		(this.cli.createHook('build.android.writeAndroidManifest', this, function (file, xml, done) {
+			this.logger.info(__('Writing unmerged custom AndroidManifest.xml'));
+			fs.writeFileSync(file, xml.toString('xml'));
+			done();
+		}))(this.androidManifestFile, customAndroidManifest, next);
+		return;
+	}
+
 	finalAndroidManifest.__attr__['android:versionName'] = this.tiapp.version || '1';
 
 	if (this.deployType != 'production') {
 		// enable mock location if in development or test mode
 		geoPermissions.push('android.permission.ACCESS_MOCK_LOCATION');
-	}
-
-	// if doing a development or debug build, then we need storage permissions to write the deploy.json
-	if (this.deployType == 'development' || (this.allowDebugging && this.debugPort)) {
-		permissions['android.permission.WRITE_EXTERNAL_STORAGE'] = 1;
 	}
 
 	// set permissions for each titanium namespace found
