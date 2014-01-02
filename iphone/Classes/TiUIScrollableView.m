@@ -232,14 +232,26 @@
 
 -(void)listenerAdded:(NSString*)event count:(int)count
 {
-	[super listenerAdded:event count:count];
-	[[self proxy] lockViews];
-	for (TiViewProxy* viewProxy in [[self proxy] viewProxies]) {
-		if ([viewProxy viewAttached]) {
-			[[viewProxy view] updateTouchHandling];
-		}
-	}
-	[[self proxy] unlockViews];
+    [super listenerAdded:event count:count];
+    NSArray * childrenArray = [[[self proxy] views] retain];
+    for (id child in childrenArray) {
+        if ([child respondsToSelector:@selector(parentListenersChanged)]) {
+            [child performSelector:@selector(parentListenersChanged)];
+        }
+    }
+    [childrenArray release];
+}
+
+-(void)listenerRemoved:(NSString*)event count:(int)count
+{
+    [super listenerRemoved:event count:count];
+    NSArray * childrenArray = [[[self proxy] views] retain];
+    for (id child in childrenArray) {
+        if ([child respondsToSelector:@selector(parentListenersChanged)]) {
+            [child performSelector:@selector(parentListenersChanged)];
+        }
+    }
+    [childrenArray release];
 }
 
 -(int)currentPage
