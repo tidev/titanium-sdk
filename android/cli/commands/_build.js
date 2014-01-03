@@ -3313,6 +3313,16 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		customAndroidManifest = this.customAndroidManifest,
 		tiappAndroidManifest = this.tiappAndroidManifest;
 
+	// if they are using a custom AndroidManifest and merging is disabled, then write the custom one as is
+	if (!this.config.get('android.mergeCustomAndroidManifest', false)) {
+		(this.cli.createHook('build.android.writeAndroidManifest', this, function (file, xml, done) {
+			this.logger.info(__('Writing unmerged custom AndroidManifest.xml'));
+			fs.writeFileSync(file, xml.toString('xml'));
+			done();
+		}))(this.androidManifestFile, customAndroidManifest, next);
+		return;
+	}
+
 	finalAndroidManifest.__attr__['android:versionName'] = this.tiapp.version || '1';
 
 	if (this.deployType != 'production') {
@@ -3405,6 +3415,16 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}
 	}, this);
 
+	// add the analytics service
+	if (this.tiapp.analytics) {
+		var tiAnalyticsService = 'org.appcelerator.titanium.analytics.TiAnalyticsService';
+		finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
+		finalAndroidManifest.application.service[tiAnalyticsService] = {
+			name: tiAnalyticsService,
+			exported: false
+		};
+	}
+
 	// set the app icon
 	finalAndroidManifest.application.icon = '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, '');
 
@@ -3452,9 +3472,10 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	// if the AndroidManifest.xml already exists, remove it so that we aren't updating the original file (if it's symlinked)
 	fs.existsSync(this.androidManifestFile) && fs.unlinkSync(this.androidManifestFile);
 
-	fs.writeFileSync(this.androidManifestFile, finalAndroidManifest.toString('xml'));
-
-	next();
+	(this.cli.createHook('build.android.writeAndroidManifest', this, function (file, xml, done) {
+		fs.writeFileSync(file, xml.toString('xml'));
+		done();
+	}))(this.androidManifestFile, finalAndroidManifest, next);
 };
 
 AndroidBuilder.prototype.packageApp = function packageApp(next) {
