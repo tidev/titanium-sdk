@@ -240,6 +240,7 @@
 	"Merging %s strings => %s": "Merging %s strings => %s",
 	"Writing %s strings => %s": "Writing %s strings => %s",
 	"Generating %s": "Generating %s",
+	"Writing unmerged custom AndroidManifest.xml": "Writing unmerged custom AndroidManifest.xml",
 	"Detected %s call which requires Google APIs, however the selected emulator %s may or may not support Google APIs": "Detected %s call which requires Google APIs, however the selected emulator %s may or may not support Google APIs",
 	"If the emulator does not support Google APIs, the %s call will fail": "If the emulator does not support Google APIs, the %s call will fail",
 	"Detected %s call which requires Google APIs, but the selected emulator %s does not support Google APIs": "Detected %s call which requires Google APIs, but the selected emulator %s does not support Google APIs",

@@ -31,9 +31,6 @@
 			android:theme="@android:style/Theme.Translucent" />
 		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity" />
 
-		<service android:name="org.appcelerator.titanium.analytics.TiAnalyticsService"
-			android:exported="false" />
-
 	</application>
 
 </manifest>
