@@ -380,13 +380,10 @@ public class TiTableView extends FrameLayout
 		this.proxy.getChildren();
 		if (fview != null) {
 			listView.removeFooterView(fview.peekView().getOuterView());
-			listView.setAdapter(adapter);
 			fview = null;
 		}
 		listView.addFooterView(layoutHeaderOrFooter(view).getOuterView(), null, false);
 		fview = view;
-		listView.setAdapter(adapter);
-
 	}
 
 	public TiTableView(TiContext tiContext, TableViewProxy proxy)
