@@ -2021,6 +2021,13 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
+	if (this.config.get('android.mergeCustomAndroidManifest', false) != manifest.mergeCustomAndroidManifest) {
+		this.logger.info(__('Forcing rebuild: mergeCustomAndroidManifest config has changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.mergeCustomAndroidManifest));
+		this.logger.info('  ' + __('Now: %s', this.config.get('android.mergeCustomAndroidManifest', false)));
+		return true;
+	}
+
 	return false;
 };
 
@@ -3314,7 +3321,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		tiappAndroidManifest = this.tiappAndroidManifest;
 
 	// if they are using a custom AndroidManifest and merging is disabled, then write the custom one as is
-	if (!this.config.get('android.mergeCustomAndroidManifest', false)) {
+	if (!this.config.get('android.mergeCustomAndroidManifest', false) && this.customAndroidManifest) {
 		(this.cli.createHook('build.android.writeAndroidManifest', this, function (file, xml, done) {
 			this.logger.info(__('Writing unmerged custom AndroidManifest.xml'));
 			fs.writeFileSync(file, xml.toString('xml'));
@@ -3989,6 +3996,7 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		fullscreen: this.tiapp.fullscreen,
 		'navbar-hidden': this.tiapp['navbar-hidden'],
 		skipJSMinification: !!this.cli.argv['skip-js-minify'],
+		mergeCustomAndroidManifest: this.config.get('android.mergeCustomAndroidManifest', false),
 		encryptJS: this.encryptJS,
 		minSDK: this.minSDK,
 		targetSDK: this.targetSDK,
