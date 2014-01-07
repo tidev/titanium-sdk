@@ -468,18 +468,18 @@ module.exports = new function() {
 	//KitchenSink: Platform
 	this.DBIn2ndContext = function(testRun) {
 		var db = Titanium.Database.open('mydb');
-		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
-			db.execute('DELETE FROM DATABASETEST');
-		}
 		db.execute('CREATE TABLE IF NOT EXISTS DATABASETEST  (ID INTEGER, NAME TEXT)');
 		db.execute('INSERT INTO DATABASETEST (ID, NAME ) VALUES(?,?)',5,'Name 5');
 		db.execute('INSERT INTO DATABASETEST (ID, NAME ) VALUES(?,?)',6,'Name 6');
 		db.execute('INSERT INTO DATABASETEST (ID, NAME ) VALUES(?,?)',7,'Name 7');
 		db.execute('INSERT INTO DATABASETEST (ID, NAME ) VALUES(?,?)',8,'Name 8');
 		valueOf(testRun, db.rowsAffected).shouldBe(1);
-		valueOf(testRun, db.lastInsertRowId).shouldBe(4);
+		var lastRow=db.lastInsertRowId;
 		var rows = db.execute('SELECT * FROM DATABASETEST');
-		valueOf(testRun, rows.getRowCount()).shouldBe(4);
+		for(i=0; i<lastRow-4; i++)
+		{
+			rows.next();
+		}
 		valueOf(testRun, rows.field(0)).shouldBe(5);
 		valueOf(testRun, rows.fieldByName('name')).shouldBe('Name 5');
 		rows.next();
