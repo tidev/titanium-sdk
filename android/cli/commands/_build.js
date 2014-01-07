@@ -3817,6 +3817,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 			}.bind(this);
 
 		try {
+			// add Titanium native modules
 			addNativeLibs(path.join(this.platformPath, 'native', 'libs'));
 		} catch (abi) {
 			// this should never be called since we already validated this
@@ -3832,9 +3833,15 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 			process.exit(1);
 		}
 
+		try {
+			// add native modules from the build dir's "libs" dir
+			addNativeLibs(path.join(this.buildDir, 'libs'));
+		} catch (e) {}
+
 		this.modules.forEach(function (m) {
 			if (m.native) {
 				try {
+					// add native modules for each module
 					addNativeLibs(path.join(m.modulePath, 'libs'));
 				} catch (abi) {
 					// this should never be called since we already validated this
