@@ -138,6 +138,22 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 	this.ignoreDirs = new RegExp(config.get('cli.ignoreDirs'));
 	this.ignoreFiles = new RegExp(config.get('cli.ignoreFiles'));
 
+	// we hook into the pre-validate event so that we can stop the build before
+	// prompting if we know the build is going to fail.
+	cli.on('cli:pre-validate', function (obj, callback) {
+		if (cli.argv.platform && !/^(ios|iphone|ipad)$/i.test(cli.argv.platform)) {
+			return callback();
+		}
+
+		// check that the iOS environment is found and sane
+		this.assertIssue(this.iosInfo.issues, 'IOS_XCODE_NOT_INSTALLED');
+		this.assertIssue(this.iosInfo.issues, 'IOS_NO_SUPPORTED_XCODE_FOUND');
+		this.assertIssue(this.iosInfo.issues, 'IOS_NO_IOS_SDKS');
+		this.assertIssue(this.iosInfo.issues, 'IOS_NO_IOS_SIMS');
+
+		callback();
+	}.bind(this));
+
 	var targetDeviceCache = {};
 		findTargetDevices = function findTargetDevices(target, callback) {
 			if (targetDeviceCache[target]) {
@@ -178,12 +194,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 		detect.detect(config, null, function (iosInfo) {
 			detect.detectSimulators(config, null, function (err, simInfo) {
 				this.iosInfo = iosInfo;
-
-				// check that the iOS environment is found and sane
-				this.assertIssue(iosInfo.issues, 'IOS_XCODE_NOT_INSTALLED');
-				this.assertIssue(iosInfo.issues, 'IOS_NO_SUPPORTED_XCODE_FOUND');
-				this.assertIssue(iosInfo.issues, 'IOS_NO_IOS_SDKS');
-				this.assertIssue(iosInfo.issues, 'IOS_NO_IOS_SIMS');
 
 				// get the all installed iOS SDKs and Simulators across all Xcode versions
 				var allSdkVersions = {},
