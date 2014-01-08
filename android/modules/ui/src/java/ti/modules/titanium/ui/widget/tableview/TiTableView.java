@@ -376,7 +376,8 @@ public class TiTableView extends FrameLayout
 	
 	public void removeHeaderView(TiViewProxy viewProxy)
 	{
-		View outerView = (viewProxy.peekView() == null) ? null : viewProxy.peekView().getOuterView();
+		TiUIView peekView = viewProxy.peekView();
+		View outerView = (peekView == null) ? null : peekView.getOuterView();
 		if (outerView != null) {
 			listView.removeHeaderView(outerView);
 		}
@@ -394,7 +395,8 @@ public class TiTableView extends FrameLayout
 
 	public void removeFooterView(TiViewProxy viewProxy)
 	{
-		View outerView = (viewProxy.peekView() == null) ? null : viewProxy.peekView().getOuterView();
+		TiUIView peekView = viewProxy.peekView();
+		View outerView = (peekView == null) ? null : peekView.getOuterView();
 		if (outerView != null) {
 			listView.removeFooterView(outerView);
 		}
