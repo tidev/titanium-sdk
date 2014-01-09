@@ -329,4 +329,5 @@ properties:
     description: |
         Time is reported in milliseconds.
     type: Number
+    since: "3.3.0"
     platforms: [android]
