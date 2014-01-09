@@ -13,6 +13,7 @@ import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 import kankan.wheel.widget.WheelView;
@@ -20,12 +21,14 @@ import kankan.wheel.widget.WheelView;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.graphics.Typeface;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 
@@ -147,6 +150,10 @@ public class TiUIDateSpinner extends TiUIView
         	numericMonths = TiConvert.toBoolean(d, "numericMonths");
         }
         
+        if (d.containsKeyStartingWith("font")) {
+			setFontProperties();
+		}
+        
         if (maxDate.before(minDate)) {
         	maxDate.setTime(minDate.getTime());
         }
@@ -169,8 +176,11 @@ public class TiUIDateSpinner extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if ("value".equals(key)) {
-			Date date = (Date)newValue;
+		if ("font".equals(key)) {
+			setFontProperties();
+
+		} else if ("value".equals(key)) {
+			Date date = (Date) newValue;
 			setValue(date.getTime());
 		} else if ("locale".equals(key)) {
 			setLocale(TiConvert.toString(newValue));
@@ -178,7 +188,71 @@ public class TiUIDateSpinner extends TiUIView
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
 	
-	
+	private void setFontProperties()
+	{
+
+		String fontFamily = null;
+		Float fontSize = null;
+		String fontWeight = null;
+		Typeface typeface = null;
+		KrollDict d = proxy.getProperties();
+		// KrollDict d = new KrollDict();
+		if (d.containsKey(TiC.PROPERTY_FONT) && d.get(TiC.PROPERTY_FONT) instanceof HashMap) {
+			KrollDict font = d.getKrollDict(TiC.PROPERTY_FONT);
+			if (font.containsKey("fontSize")) {
+				String sFontSize = TiConvert.toString(font, "fontSize");
+				fontSize = new Float(TiUIHelper.getSize(sFontSize));
+			}
+			if (font.containsKey("fontFamily")) {
+				fontFamily = TiConvert.toString(font, "fontFamily");
+			}
+			if (font.containsKey("fontWeight")) {
+				fontWeight = TiConvert.toString(font, "fontWeight");
+			}
+		}
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_FONT_FAMILY)) {
+			fontFamily = TiConvert.toString(d, TiC.PROPERTY_FONT_FAMILY);
+		}
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_FONT_SIZE)) {
+			String sFontSize = TiConvert.toString(d, TiC.PROPERTY_FONT_SIZE);
+			fontSize = new Float(TiUIHelper.getSize(sFontSize));
+		}
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_FONT_WEIGHT)) {
+			fontWeight = TiConvert.toString(d, TiC.PROPERTY_FONT_WEIGHT);
+		}
+		if (fontFamily != null) {
+			typeface = TiUIHelper.toTypeface(fontFamily);
+		}
+		Integer typefaceWeight = null;
+		if (fontWeight != null) {
+			typefaceWeight = new Integer(TiUIHelper.toTypefaceStyle(fontWeight, null));
+		}
+
+		boolean dirty = false;
+		if (typeface != null) {
+			dirty = dirty || !typeface.equals(monthWheel.getTypeface());
+			dayWheel.setTypeface(typeface);
+			monthWheel.setTypeface(typeface);
+			yearWheel.setTypeface(typeface);
+		}
+		if (typefaceWeight != null) {
+			dirty = dirty || typefaceWeight.intValue() != monthWheel.getTypefaceWeight();
+			dayWheel.setTypefaceWeight(typefaceWeight);
+			monthWheel.setTypefaceWeight(typefaceWeight);
+			yearWheel.setTypefaceWeight(typefaceWeight);
+		}
+		if (fontSize != null) {
+			int fontSizeInt = fontSize.intValue();
+			dirty = dirty || fontSizeInt != monthWheel.getTextSize();
+			dayWheel.setTextSize(fontSize.intValue());
+			monthWheel.setTextSize(fontSize.intValue());
+			yearWheel.setTextSize(fontSize.intValue());
+		}
+		dayWheel.invalidate();
+		monthWheel.invalidate();
+		yearWheel.invalidate();
+	}
+
 	private void setAdapters()
 	{
 		setYearAdapter();

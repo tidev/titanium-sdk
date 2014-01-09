@@ -42,7 +42,7 @@ import android.widget.DatePicker;
 import android.widget.TimePicker;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
-	"locale", "visibleItems", "value", TiC.PROPERTY_CALENDAR_VIEW_SHOWN
+	"locale", "visibleItems", "value", TiC.PROPERTY_CALENDAR_VIEW_SHOWN, TiC.PROPERTY_FONT
 })
 public class PickerProxy extends TiViewProxy implements PickerColumnListener
 {
