@@ -2731,7 +2731,9 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 							htmlJsFiles[file] = 1;
 						});
 
-						copyFile.call(_t, from, to, next);
+						_t.cli.createHook('build.ios.copyResource', _t, function (from, to, cb) {
+							copyFile.call(_t, from, to, cb);
+						})(from, to, next);
 						break;
 
 					case 'js':
@@ -2849,6 +2851,7 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 	series(this, tasks, function (err, results) {
 		// copy js files into assets directory and minify if needed
 		this.logger.info(__('Processing JavaScript files'));
+
 		series(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
 				var from = jsFiles[id],
@@ -2876,15 +2879,22 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 					// we want to sort by the "to" filename so that we correctly handle file overwriting
 					this.tiSymbols[to] = r.symbols;
 
-					this.logger.debug(this.minifyJS
-						? __('Copying and minifying %s => %s', from.cyan, to.cyan)
-						: __('Copying %s => %s', from.cyan, to.cyan));
-
-					this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb) {
+					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
 						var dir = path.dirname(to);
 						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-						fs.writeFile(to, r.contents, cb);
-					})(r, from, to, done);
+
+						if (this.minifyJS) {
+							this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+
+							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
+								fs.writeFile(to, r.contents, cb2);
+							})(r, from, to, cb);
+						} else {
+							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+
+							fs.writeFile(to, r.contents, cb);
+						}
+					})(from, to, done);
 				} catch (ex) {
 					ex.message.split('\n').forEach(this.logger.error);
 					this.logger.log();
