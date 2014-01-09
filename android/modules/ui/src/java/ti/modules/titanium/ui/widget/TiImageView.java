@@ -444,16 +444,17 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 			imageView.setScaleType(ScaleType.MATRIX);
 			imageView.setAdjustViewBounds(false);
 		} else {
-			if (viewWidthDefined && viewHeightDefined) {
-				imageView.setAdjustViewBounds(false);
-				imageView.setScaleType(ScaleType.FIT_XY);
-			} else if (!enableScale) {
-				imageView.setAdjustViewBounds(false);
-				imageView.setScaleType(ScaleType.CENTER);
-			} else {
+			if ((!viewWidthDefined || !viewHeightDefined) && enableScale) {
 				imageView.setAdjustViewBounds(true);
 				imageView.setScaleType(ScaleType.CENTER_CROP);
+			} else if (viewWidthDefined && viewHeightDefined) {
+				imageView.setAdjustViewBounds(false);
+				imageView.setScaleType(ScaleType.FIT_XY);
+			} else {
+				imageView.setAdjustViewBounds(false);
+				imageView.setScaleType(ScaleType.CENTER);
 			}
+			
 		}
 		requestLayout();
 	}
