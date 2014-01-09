@@ -2276,7 +2276,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							htmlJsFiles[file] = 1;
 						});
 
-						copyFile.call(_t, from, to, next);
+						_t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
+							copyFile.call(_t, from, to, cb);
+						})(from, to, next);
 						break;
 
 					case 'js':
@@ -2300,8 +2302,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 					case 'xml':
 						if (_t.xmlMergeRegExp.test(filename)) {
-							_t.writeXmlFile(from, to);
-							next();
+							_t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
+								_t.writeXmlFile(from, to);
+								cb();
+							})(from, to, next);
 							break;
 						}
 
@@ -2461,35 +2465,33 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 				delete this.lastBuildFiles[to];
 
-				// if we're not minifying the JavaScript and we're not forcing all
-				// Titanium Android modules to be included, then parse the AST and detect
-				// all Titanium symbols
-				if (this.minifyJS || !this.includeAllTiModules) {
-					try {
-						var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+				try {
+					// parse the AST
+					var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
 
-						// we want to sort by the "to" filename so that we correctly handle file overwriting
-						this.tiSymbols[to] = r.symbols;
+					// we want to sort by the "to" filename so that we correctly handle file overwriting
+					this.tiSymbols[to] = r.symbols;
 
-						this.logger.debug(this.minifyJS
-							? __('Copying and minifying %s => %s', from.cyan, to.cyan)
-							: __('Copying %s => %s', from.cyan, to.cyan));
-
-						this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb) {
-							var dir = path.dirname(to);
-							fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-							fs.writeFile(to, r.contents, cb);
-						})(r, from, to, done);
-					} catch (ex) {
-						ex.message.split('\n').forEach(this.logger.error);
-						this.logger.log();
-						process.exit(1);
-					}
-				} else {
-					// no need to parse the AST, so just copy the file
 					this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
-						copyFile.call(this, from, to, cb);
+						var dir = path.dirname(to);
+						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+						if (this.minifyJS) {
+							this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+
+							this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
+								fs.writeFile(to, r.contents, cb2);
+							})(r, from, to, cb);
+						} else {
+							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+
+							fs.writeFile(to, r.contents, cb);
+						}
 					})(from, to, done);
+				} catch (ex) {
+					ex.message.split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
 				}
 			};
 		}), function () {
