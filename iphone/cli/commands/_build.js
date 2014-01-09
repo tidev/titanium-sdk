@@ -2869,32 +2869,26 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 					jsFilesToEncrypt.push(id);
 				}
 
-				// if we're not minifying the JavaScript and we're not forcing all
-				// Titanium modules to be included, then parse the AST and detect
-				// all Titanium symbols
-				if (this.minifyJS || !this.includeAllTiModules) {
-					try {
-						var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+				try {
+					// parse the AST
+					var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
 
-						// we want to sort by the "to" filename so that we correctly handle file overwriting
-						this.tiSymbols[to] = r.symbols;
+					// we want to sort by the "to" filename so that we correctly handle file overwriting
+					this.tiSymbols[to] = r.symbols;
 
-						this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-						this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb) {
-							var dir = path.dirname(to);
-							fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-							fs.writeFile(to, r.contents, cb);
-						})(r, from, to, done);
-					} catch (ex) {
-						ex.message.split('\n').forEach(this.logger.error);
-						this.logger.log();
-						process.exit(1);
-					}
-				} else {
-					// no need to parse the AST, so just copy the file
-					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
-						copyFile.call(this, from, to, cb);
-					})(from, to, done);
+					this.logger.debug(this.minifyJS
+						? __('Copying and minifying %s => %s', from.cyan, to.cyan)
+						: __('Copying %s => %s', from.cyan, to.cyan));
+
+					this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb) {
+						var dir = path.dirname(to);
+						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+						fs.writeFile(to, r.contents, cb);
+					})(r, from, to, done);
+				} catch (ex) {
+					ex.message.split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
 				}
 			};
 		}), function () {
