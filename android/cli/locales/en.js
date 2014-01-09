@@ -200,6 +200,7 @@
 	"Forcing rebuild: Android activites in tiapp.xml changed since last build": "Forcing rebuild: Android activites in tiapp.xml changed since last build",
 	"Forcing rebuild: Android services in tiapp.xml SDK changed since last build": "Forcing rebuild: Android services in tiapp.xml SDK changed since last build",
 	"Forcing rebuild: One or more JSS files changed since last build": "Forcing rebuild: One or more JSS files changed since last build",
+	"Forcing rebuild: mergeCustomAndroidManifest config has changed since last build": "Forcing rebuild: mergeCustomAndroidManifest config has changed since last build",
 	"Symlinking %s => %s": "Symlinking %s => %s",
 	"Copying %s => %s": "Copying %s => %s",
 	"Ignoring %s": "Ignoring %s",
