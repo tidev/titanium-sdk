@@ -138,6 +138,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     _headerViewProxy = [self initWrapperProxy];
     LayoutConstraint* viewLayout = [_headerViewProxy layoutProperties];
     viewLayout->layoutStyle = TiLayoutRuleVertical;
+    [self setHeaderFooter:_headerViewProxy isHeader:YES];
     
     _searchWrapper = [self initWrapperProxy];
     _headerWrapper = [self initWrapperProxy];
@@ -145,7 +146,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [_headerViewProxy add:_searchWrapper];
     [_headerViewProxy add:_headerWrapper];
     
-    [self setHeaderFooter:_headerViewProxy isHeader:YES];
 }
 
 - (UITableView *)tableView
