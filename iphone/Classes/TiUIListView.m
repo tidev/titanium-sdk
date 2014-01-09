@@ -230,6 +230,21 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	}
 }
 
+- (void) updateIndicesForVisibleRows
+{
+    if (_tableView == nil || [self isSearchActive]) {
+        return;
+    }
+    
+    NSArray* visibleRows = [_tableView indexPathsForVisibleRows];
+    [visibleRows enumerateObjectsUsingBlock:^(NSIndexPath *vIndexPath, NSUInteger idx, BOOL *stop) {
+        UITableViewCell* theCell = [_tableView cellForRowAtIndexPath:vIndexPath];
+        if ([theCell isKindOfClass:[TiUIListItem class]]) {
+            ((TiUIListItem*)theCell).proxy.indexPath = vIndexPath;
+        }
+    }];
+}
+
 -(void)proxyDidRelayout:(id)sender
 {
     TiThreadPerformOnMainThread(^{

@@ -141,11 +141,11 @@
 			Block_release(block);
 		} else {
 			[tableView endUpdates];
+			[self.listView updateIndicesForVisibleRows];
 			return;
 		}
 	}
 }
-
 
 - (TiUIListSectionProxy *)sectionForIndex:(NSUInteger)index
 {
@@ -164,6 +164,9 @@
     TiUIListSectionProxy *section = [_sections objectAtIndex:index];
     [_sections removeObjectAtIndex:index];
     section.delegate = nil;
+    [_sections enumerateObjectsUsingBlock:^(TiUIListSectionProxy *section, NSUInteger idx, BOOL *stop) {
+        section.sectionIndex = idx;
+    }];
     [self forgetProxy:section];
 }
 
@@ -294,6 +297,9 @@
 		TiUIListSectionProxy *section = [_sections objectAtIndex:deleteIndex];
 		[_sections removeObjectAtIndex:deleteIndex];
 		section.delegate = nil;
+		[_sections enumerateObjectsUsingBlock:^(TiUIListSectionProxy *section, NSUInteger idx, BOOL *stop) {
+			section.sectionIndex = idx;
+		}];
 		[tableView deleteSections:[NSIndexSet indexSetWithIndex:deleteIndex] withRowAnimation:animation];
 		[self forgetProxy:section];
 	}];
