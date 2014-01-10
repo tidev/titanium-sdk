@@ -867,8 +867,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 			}, conf.options['store-password']);
 			delete conf.options.password.abbr;
 
-			callback(_t.conf = conf);
-		})(function (err, results, result) {
+			callback(null, _t.conf = conf);
+		})(function (err, result) {
 			finished(result);
 		});
 	}.bind(this);
@@ -2564,13 +2564,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				path.join(this.platformPath, titaniumPrep),
 				args,
 				opts,
-				function (err, results, error) {
-					if (!error) {
+				function (err) {
+					if (!err) {
 						return next();
 					}
 
 					if (process.platform != 'win32') {
-						fatal(error);
+						fatal(err);
 					}
 
 					// windows 64-bit failed, try again using 32-bit
@@ -2580,9 +2580,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						path.join(this.platformPath, titaniumPrep),
 						args,
 						opts,
-						function (err, results, error) {
-							if (error) {
-								fatal(error);
+						function (err) {
+							if (err) {
+								fatal(err);
 							}
 							next();
 						}
@@ -3978,9 +3978,7 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 	this.cli.createHook('build.android.writeBuildManifest', this, function (manifest, cb) {
 		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
 		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
-		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), function () {
-			cb();
-		});
+		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
 	})({
 		target: this.target,
 		deployType: this.deployType,
@@ -4014,9 +4012,7 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		servicesHash: this.servicesHash,
 		jssFilesHash: this.jssFilesHash,
 		jarLibHash: this.jarLibHash
-	}, function (err, results, result) {
-		callback();
-	});
+	}, callback);
 };
 
 // create the builder instance and expose the public api
