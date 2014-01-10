@@ -160,9 +160,9 @@ exports.config = function (logger, config, cli) {
 					}, ti.commonOptions(logger, config)),
 					platforms: platformConf
 				};
-				callback(conf);
+				callback(null, conf);
 			});
-		})(function (err, results, result) {
+		})(function (err, result) {
 			finished(result);
 		});
 	};
