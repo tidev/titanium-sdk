@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.Stack;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollEventCallback;
@@ -146,8 +148,18 @@ public class TiWebViewBinding
 	{
 		// Don't try to evaluate js code again if the binding has already been destroyed
 		if (!destroyed) {
-			String code = "_TiReturn.setValue((function(){try{return " + expression
-				+ "+\"\";}catch(ti_eval_err){return '';}})());";
+			// see if this is an expression or a statement block
+			// Match ; followed by 0 or even quotes
+			Pattern pattern = Pattern.compile(";(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+			Matcher matcher = pattern.matcher(expression);
+			if (matcher.find()) {
+				String lastStmt = expression.substring(matcher.end(matcher.groupCount() - 1));
+				String stmtBlock = expression.substring(0, matcher.end(matcher.groupCount() - 1));
+				expression = stmtBlock + " return " + lastStmt;
+			} else {
+				expression = " return " + expression;
+			}
+			String code = "_TiReturn.setValue((function(){try{" + expression + "+\"\";}catch(ti_eval_err){return '';}})());";
 			Log.d(TAG, "getJSValue:" + code, Log.DEBUG_MODE);
 			returnSemaphore.drainPermits();
 			synchronized (codeSnippets) {
