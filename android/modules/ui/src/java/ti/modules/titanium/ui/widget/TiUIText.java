@@ -467,6 +467,9 @@ public class TiUIText extends TiUIView
 		switch(type) {
 			case KEYBOARD_DEFAULT:
 			case KEYBOARD_ASCII:
+				if (!field) {
+					textTypeAndClass |= InputType.TYPE_TEXT_FLAG_MULTI_LINE;
+				}
 				// Don't need a key listener, inputType handles that.
 				break;
 			case KEYBOARD_NUMBERS_PUNCTUATION:
