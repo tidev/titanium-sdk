@@ -169,8 +169,13 @@
         [viewproxy windowWillOpen];
         [viewproxy windowDidOpen];
         [viewproxy layoutChildrenIfNeeded];
-    } else if (!CGRectEqualToRect([viewproxy sandboxBounds], [wrapper bounds])) {
-        [viewproxy parentSizeWillChange];
+    } else {
+        if ([[viewproxy view] superview] != wrapper) {
+            [wrapper addSubview:[viewproxy view]];
+            [viewproxy layoutChildrenIfNeeded];
+        } else if (!CGRectEqualToRect([viewproxy sandboxBounds], [wrapper bounds])) {
+            [viewproxy parentSizeWillChange];
+        }
     }
 }
 
@@ -298,11 +303,6 @@
 	{
 		for (UIView *view in [sv subviews]) {
 			[view removeFromSuperview];
-		}
-        
-		for (TiViewProxy* theView in [[self proxy] views]) {
-			[theView windowWillClose];
-			[theView windowDidClose];
 		}
 	}
 	
