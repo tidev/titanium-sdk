@@ -192,6 +192,7 @@ public class IntentProxy extends KrollProxy
 				String[] stringArray = Arrays.copyOf(objVal, objVal.length, String[].class);
 				intent.putExtra(key, stringArray);
 			} catch (Exception ex) {
+				Log.e(TAG, "Error unimplemented put conversion", ex.getMessage());
 			}
 		} else {
 			Log.w(TAG, "Warning unimplemented put conversion for " + value.getClass().getCanonicalName() + " trying String");
