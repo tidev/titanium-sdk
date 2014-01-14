@@ -42,6 +42,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
+import android.media.ExifInterface;
 
 public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Callback
 {
@@ -57,6 +58,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	private FrameLayout cameraLayout;
 	private boolean previewRunning = false;
 	private int currentRotation;
+	private static int exifOrientation = ExifInterface.ORIENTATION_NORMAL;
 
 	public static TiViewProxy overlayProxy = null;
 	public static TiCameraActivity cameraActivity = null;
@@ -258,6 +260,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					// The "natural" orientation of the device is a portrait orientation, eg. phones.
 					// Need to rotate 90 degrees.
 					camera.setDisplayOrientation(90);
+					exifOrientation = ExifInterface.ORIENTATION_ROTATE_90;
 				} else {
 					// The "natural" orientation of the device is a landscape orientation, eg. tablets.
 					// Set the camera to the starting position (0 degree).
@@ -269,20 +272,27 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					camera.setDisplayOrientation(0);
 				} else {
 					camera.setDisplayOrientation(270);
+					exifOrientation = ExifInterface.ORIENTATION_ROTATE_270;
 				}
 				break;
 			case Surface.ROTATION_180:
 				if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+					exifOrientation = ExifInterface.ORIENTATION_ROTATE_270;
 					camera.setDisplayOrientation(270);
+					
 				} else {
 					camera.setDisplayOrientation(180);
+					exifOrientation = ExifInterface.ORIENTATION_ROTATE_180;
 				}
 				break;
 			case Surface.ROTATION_270:
 				if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
 					camera.setDisplayOrientation(180);
+					exifOrientation = ExifInterface.ORIENTATION_ROTATE_180;
+					
 				} else {
 					camera.setDisplayOrientation(90);
+					exifOrientation = ExifInterface.ORIENTATION_ROTATE_90;
 				}
 				break;
 		}
@@ -413,17 +423,19 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		errorCallback.callAsync(callbackContext, dict);
 	}
 
-	private static void saveToPhotoGallery(byte[] data)
+	private static File saveToPhotoGallery(byte[] data)
 	{
 		File imageFile = MediaModule.createGalleryImageFile();
 		try {
 			FileOutputStream imageOut = new FileOutputStream(imageFile);
 			imageOut.write(data);
 			imageOut.close();
-
+			//Fix the exif orientation data
+			ExifInterface ei = new ExifInterface(imageFile.getAbsolutePath());
+			ei.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(exifOrientation));
+			ei.saveAttributes();
 		} catch (FileNotFoundException e) {
 			Log.e(TAG, "Failed to open gallery image file: " + e.getMessage());
-
 		} catch (IOException e) {
 			Log.e(TAG, "Failed to write image to gallery file: " + e.getMessage());
 		}
@@ -434,6 +446,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		mediaScanIntent.setData(contentUri);
 		Activity activity = TiApplication.getAppCurrentActivity();
 		activity.sendBroadcast(mediaScanIntent);
+		return imageFile;
 	}
 
 	static public void takePicture()
@@ -483,14 +496,21 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	{
 		public void onPictureTaken(byte[] data, Camera camera)
 		{
+			File file;
 			if (saveToPhotoGallery) {
-				saveToPhotoGallery(data);
+				file = saveToPhotoGallery(data);
+			} else {
+				file = null;
 			}
 
 			if (successCallback != null) {
 				TiBlob imageData = TiBlob.blobFromData(data);
 				KrollDict dict = MediaModule.createDictForImage(imageData,
 						"image/jpeg");
+				if (file != null) {
+					dict.put("nativePath", file.getAbsolutePath());
+					dict.put("orientation", exifOrientation);
+				}
 				successCallback.callAsync(callbackContext, dict);
 			}
 
@@ -596,4 +616,16 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		});
 
 	}
+	
+	@Override
+	public void onBackPressed()
+	{
+		//If there is a "cancel" callback associated with this Camera, call it
+		if (cancelCallback != null) {
+			KrollDict dict = new KrollDict();
+			cancelCallback.callAsync(callbackContext, dict);
+		} 
+		super.onBackPressed();
+	}
+	
 }
