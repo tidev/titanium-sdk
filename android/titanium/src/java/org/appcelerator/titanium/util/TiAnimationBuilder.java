@@ -320,19 +320,7 @@ public class TiAnimationBuilder
 	{
 		List<Animator> animators = new ArrayList<Animator>();
 		boolean includesRotation = false;
-		AnimatorUpdateListener updateListener = null;
-		// For pre-Honeycomb, there will be some flicker during animation if we call requestLayout() in AnimatorUpdateListener
-		// Only re-layout for Honeycomb+ when the view is in a vertical or horizontal layout. For now, we only re-layout for
-		// scaling and translation.
-		if (!PRE_HONEYCOMB) {
-			ViewParent parentLayout = view.getParent();
-			if (parentLayout instanceof TiCompositeLayout) {
-				TiCompositeLayout tiLayout = (TiCompositeLayout) parentLayout;
-				if (tiLayout.isVerticalArrangement() || tiLayout.isHorizontalArrangement()) {
-					updateListener = new AnimatorUpdateListener();
-				}
-			}
-		}
+		AnimatorUpdateListener updateListener = new AnimatorUpdateListener();
 
 		if (toOpacity != null) {
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "alpha", toOpacity.floatValue()));
@@ -386,27 +374,19 @@ public class TiAnimationBuilder
 						case Operation.TYPE_SCALE:
 							if (operation.scaleFromValuesSpecified) {
 								ObjectAnimator animX = ObjectAnimator.ofFloat(view, "scaleX", operation.scaleFromX, operation.scaleToX);
-								if (updateListener != null) {
-									animX.addUpdateListener(updateListener);
-								}
+								animX.addUpdateListener(updateListener);
 								addAnimator(animators, animX);
 								addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", operation.scaleFromY,
 										operation.scaleToY));
 
 							} else {
-								ObjectAnimator animX = ObjectAnimator.ofFloat(view, "scaleX", operation.scaleToX);
-								if (updateListener != null) {
-									animX.addUpdateListener(updateListener);
-								}
-								addAnimator(animators, animX);
+								addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleX", operation.scaleToX));
 								addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", operation.scaleToY));
 							}
 							break;
 						case Operation.TYPE_TRANSLATE:
 							ObjectAnimator animX = ObjectAnimator.ofFloat(view, "translationX", operation.translateX);
-							if (updateListener != null) {
-								animX.addUpdateListener(updateListener);
-							}
+							animX.addUpdateListener(updateListener);
 							addAnimator(animators, animX);
 							addAnimator(animators, ObjectAnimator.ofFloat(view, "translationY", operation.translateY));
 					}
@@ -472,9 +452,7 @@ public class TiAnimationBuilder
 			int translationY = vertical[0] - y;
 
 			ObjectAnimator animX = ObjectAnimator.ofFloat(view, "translationX", translationX);
-			if (updateListener != null) {
-				animX.addUpdateListener(updateListener);
-			}
+			animX.addUpdateListener(updateListener);
 			addAnimator(animators, animX);
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "translationY", translationY));
 
@@ -544,9 +522,7 @@ public class TiAnimationBuilder
 			}
 
 			ObjectAnimator animX = ObjectAnimator.ofFloat(view, "scaleX", scaleX);
-			if (updateListener != null) {
-				animX.addUpdateListener(updateListener);
-			}
+			animX.addUpdateListener(updateListener);
 			addAnimator(animators, animX);
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", scaleY));
 

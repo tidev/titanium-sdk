@@ -474,38 +474,6 @@ public class TiCompositeLayout extends ViewGroup
 		return resolveSize(maxHeight, heightSpec);
 	}
 
-	/**
-	 * In Property Animation, the scaling/translation factors may change, so we need to take them
-	 * into account when laying out the view.
-	 * @param child the views
-	 * @return an array with the view's scaling and translation factors, in the form of
-	 * [scaleX, scaleY, translationX, translationY].
-	 */
-	protected float[] getScaleAndTranslation(View child)
-	{
-		float childScaleX = 1f;
-		float childScaleY = 1f;
-		float childTranslationX = 0f;
-		float childTranslationY = 0f;
-
-		if (PRE_HONEYCOMB) {
-			AnimatorProxy animatorProxy = AnimatorProxy.wrap(child);
-			if (animatorProxy != null) {
-				childScaleX = animatorProxy.getScaleX();
-				childScaleY = animatorProxy.getScaleY();
-				childTranslationX = animatorProxy.getTranslationX();
-				childTranslationY = animatorProxy.getTranslationY();
-			}
-		} else {
-			childScaleX = child.getScaleX();
-			childScaleY = child.getScaleY();
-			childTranslationX = child.getTranslationX();
-			childTranslationY = child.getTranslationY();
-		}
-
-		return new float[]{childScaleX, childScaleY, childTranslationX, childTranslationY};
-	}
-
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b)
 	{
@@ -554,13 +522,27 @@ public class TiCompositeLayout extends ViewGroup
 				int childMeasuredHeight = child.getMeasuredHeight();
 				int childMeasuredWidth = child.getMeasuredWidth();
 
-				// In Property Animation, the scaling/translation factors may change, so we need to take them
+				// In Property Animation, the scale/translation factors may change, so we need to take them
 				// into account when calculating the child's position if it's in a vertical/horizontal layout.
-				float[] childScaleAndTranslation = getScaleAndTranslation(child);
-				float childScaleX = childScaleAndTranslation[0];
-				float childScaleY = childScaleAndTranslation[1];
-				float childTranslationX = childScaleAndTranslation[2];
-				float childTranslationY = childScaleAndTranslation[3];
+				float childScaleX = 1f;
+				float childScaleY = 1f;
+				float childTranslationX = 0f;
+				float childTranslationY = 0f;
+
+				if (PRE_HONEYCOMB) {
+					AnimatorProxy animatorProxy = AnimatorProxy.wrap(child);
+					if (animatorProxy != null) {
+						childScaleX = animatorProxy.getScaleX();
+						childScaleY = animatorProxy.getScaleY();
+						childTranslationX = animatorProxy.getTranslationX();
+						childTranslationY = animatorProxy.getTranslationY();
+					}
+				} else {
+					childScaleX = child.getScaleX();
+					childScaleY = child.getScaleY();
+					childTranslationX = child.getTranslationX();
+					childTranslationY = child.getTranslationY();
+				}
 				int childRenderedHeight = (int)(childMeasuredHeight * childScaleY);
 				int childRenderedWidth = (int)(childMeasuredWidth * childScaleX);
 
@@ -573,7 +555,7 @@ public class TiCompositeLayout extends ViewGroup
 						horiztonalLayoutPreviousRight = 0;
 						updateRowForHorizontalWrap(right, i);
 					}
-					computeHorizontalLayoutPosition(params, childRenderedWidth, childRenderedHeight, right, top, bottom, horizontal, vertical, i);
+					computeHorizontalLayoutPosition(params, childRenderedWidth, childMeasuredHeight, right, top, bottom, horizontal, vertical, i);
 					horizontalLayoutCurrentLeft += childTranslationX;
 
 				} else {
@@ -789,17 +771,9 @@ public class TiCompositeLayout extends ViewGroup
 
 		for (i = currentIndex; i < getChildCount(); i++) {
 			View child = getChildAt(i);
-
-			float[] childScaleAndTranslation = getScaleAndTranslation(child);
-			float childScaleX = childScaleAndTranslation[0];
-			float childScaleY = childScaleAndTranslation[1];
-			float childTranslationX = childScaleAndTranslation[2];
-			float childTranslationY = childScaleAndTranslation[3];
-
-			// Calculate row width/height with padding, scaling and translation
-			rowWidth += child.getMeasuredWidth() * childScaleX + getViewWidthPadding(child, getWidth()) + childTranslationX;
-			rowHeight = (int) (child.getMeasuredHeight() * childScaleY) + getViewHeightPadding(child, parentHeight)
-				+ (int) childTranslationY;
+			// Calculate row width/height with padding
+			rowWidth += child.getMeasuredWidth() + getViewWidthPadding(child, getWidth());
+			rowHeight = child.getMeasuredHeight() + getViewHeightPadding(child, parentHeight);
 
 			if (rowWidth > maxRight) {
 				horizontalLayoutLastIndexBeforeWrap = i - 1;
@@ -925,12 +899,12 @@ public class TiCompositeLayout extends ViewGroup
 		}
 	}
 
-	public boolean isVerticalArrangement()
+	protected boolean isVerticalArrangement()
 	{
 		return (arrangement == LayoutArrangement.VERTICAL);
 	}
 
-	public boolean isHorizontalArrangement()
+	protected boolean isHorizontalArrangement()
 	{
 		return (arrangement == LayoutArrangement.HORIZONTAL);
 	}
