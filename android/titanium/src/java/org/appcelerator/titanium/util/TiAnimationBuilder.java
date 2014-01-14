@@ -321,8 +321,7 @@ public class TiAnimationBuilder
 		List<Animator> animators = new ArrayList<Animator>();
 		boolean includesRotation = false;
 		AnimatorUpdateListener updateListener = null;
-		// For pre-Honeycomb, there will be flicker during animation if we update the layout based on the
-		// scaling/translation factors between animation frames.
+		// For pre-Honeycomb, there will be flicker during animation if we call requestLayout() in AnimatorUpdateListener.
 		// Only re-layout for Honeycomb+. For now, we only re-layout for scaling and translation.
 		if (!PRE_HONEYCOMB) {
 			updateListener = new AnimatorUpdateListener();
