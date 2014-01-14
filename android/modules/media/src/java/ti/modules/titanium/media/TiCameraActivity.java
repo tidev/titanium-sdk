@@ -508,7 +508,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				KrollDict dict = MediaModule.createDictForImage(imageData,
 						"image/jpeg");
 				if (file != null) {
-					dict.put("nativePath", file.getAbsolutePath());
+					dict.put("nativePath", "file://" + file.getAbsolutePath());
 					dict.put("orientation", exifOrientation);
 				}
 				successCallback.callAsync(callbackContext, dict);
