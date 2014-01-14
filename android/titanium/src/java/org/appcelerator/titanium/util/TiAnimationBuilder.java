@@ -320,7 +320,6 @@ public class TiAnimationBuilder
 	{
 		List<Animator> animators = new ArrayList<Animator>();
 		boolean includesRotation = false;
-		AnimatorUpdateListener updateListener = new AnimatorUpdateListener();
 
 		if (toOpacity != null) {
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "alpha", toOpacity.floatValue()));
@@ -373,9 +372,8 @@ public class TiAnimationBuilder
 							break;
 						case Operation.TYPE_SCALE:
 							if (operation.scaleFromValuesSpecified) {
-								ObjectAnimator animX = ObjectAnimator.ofFloat(view, "scaleX", operation.scaleFromX, operation.scaleToX);
-								animX.addUpdateListener(updateListener);
-								addAnimator(animators, animX);
+								addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleX", operation.scaleFromX,
+										operation.scaleToX));
 								addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", operation.scaleFromY,
 										operation.scaleToY));
 
@@ -385,9 +383,7 @@ public class TiAnimationBuilder
 							}
 							break;
 						case Operation.TYPE_TRANSLATE:
-							ObjectAnimator animX = ObjectAnimator.ofFloat(view, "translationX", operation.translateX);
-							animX.addUpdateListener(updateListener);
-							addAnimator(animators, animX);
+							addAnimator(animators, ObjectAnimator.ofFloat(view, "translationX", operation.translateX));
 							addAnimator(animators, ObjectAnimator.ofFloat(view, "translationY", operation.translateY));
 					}
 				}
@@ -451,9 +447,7 @@ public class TiAnimationBuilder
 			int translationX = horizontal[0] - x;
 			int translationY = vertical[0] - y;
 
-			ObjectAnimator animX = ObjectAnimator.ofFloat(view, "translationX", translationX);
-			animX.addUpdateListener(updateListener);
-			addAnimator(animators, animX);
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "translationX", translationX));
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "translationY", translationY));
 
 			// Pre-Honeycomb, we will need to update layout params at end of
@@ -521,9 +515,7 @@ public class TiAnimationBuilder
 				view.setLayoutParams(params);
 			}
 
-			ObjectAnimator animX = ObjectAnimator.ofFloat(view, "scaleX", scaleX);
-			animX.addUpdateListener(updateListener);
-			addAnimator(animators, animX);
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleX", scaleX));
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", scaleY));
 
 			setAnchor(w, h);
@@ -1089,17 +1081,6 @@ public class TiAnimationBuilder
 				{
 				}
 			});
-		}
-	}
-
-	/**
-	 * The listener to receive callbacks on every animation frame.
-	 */
-	protected class AnimatorUpdateListener implements ValueAnimator.AnimatorUpdateListener
-	{
-		public void onAnimationUpdate(ValueAnimator animation)
-		{
-			view.requestLayout();
 		}
 	}
 
