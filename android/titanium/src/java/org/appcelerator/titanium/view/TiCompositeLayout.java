@@ -621,6 +621,7 @@ public class TiCompositeLayout extends ViewGroup
 					}
 				}
 
+				//child.layout(horizontal[0], vertical[0], horizontal[1], vertical[1]);
 				int horizontal0 = horizontal[0];
 				int horizontal1 = horizontal[1];
 				int vertical0 = vertical[0];
