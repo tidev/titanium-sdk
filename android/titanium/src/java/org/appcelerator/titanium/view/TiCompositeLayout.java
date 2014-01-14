@@ -618,13 +618,17 @@ public class TiCompositeLayout extends ViewGroup
 					}
 				}
 
+				int horizontal0 = horizontal[0];
+				int horizontal1 = horizontal[1];
+				int vertical0 = vertical[0];
+				int vertical1 = vertical[1];
 				if (childScaleX != 0) {
-					horizontal[1] = (int) (horizontal[0] + newWidth / childScaleX);
+					horizontal1 = (int) (horizontal0 + newWidth * 1.0 / childScaleX);
 				}
 				if (childScaleY != 0) {
-					vertical[1] = (int) (vertical[0] + newHeight / childScaleY);
+					vertical1 = (int) (vertical0 + newHeight * 1.0 / childScaleY);
 				}
-				child.layout(horizontal[0], vertical[0], horizontal[1], vertical[1]);
+				child.layout(horizontal0, vertical0, horizontal1, vertical1);
 
 				currentHeight += newHeight + childTranslationY;
 				if (params.optionTop != null) {
