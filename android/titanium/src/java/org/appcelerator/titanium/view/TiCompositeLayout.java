@@ -582,10 +582,7 @@ public class TiCompositeLayout extends ViewGroup
 					childMeasuredHeight = calculateHeightFromPins(params, top, bottom, getHeight(), childMeasuredHeight);
 					childMeasuredWidth = calculateWidthFromPins(params, left, right, getWidth(), childMeasuredWidth);
 
-					childRenderedHeight = (int)(childMeasuredHeight * childScaleY);
-					childRenderedWidth = (int)(childMeasuredWidth * childScaleX);
-
-					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childRenderedWidth, left, right, horizontal);
+					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
 					if (isVerticalArrangement()) {
 						computeVerticalLayoutPosition(currentHeight, params.optionTop, childRenderedHeight, top, vertical,
 							bottom);
@@ -595,7 +592,7 @@ public class TiCompositeLayout extends ViewGroup
 							currentHeight += optionBottom.getAsPixels(this);
 						}
 					} else {
-						computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childRenderedHeight, top, bottom, vertical);
+						computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
 					}
 				}
 
