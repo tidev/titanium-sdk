@@ -44,7 +44,7 @@
     if ((count == 1) && [type isEqual:@"silentpush"]) {
         NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
         if ([backgroundModes containsObject:@"remote-notification"]) {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveBackgroundFetchNotification:) name:kTiSilentPushNotification object:nil];
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveSilentPushNotification:) name:kTiSilentPushNotification object:nil];
         } else {
             DebugLog(@"[ERROR] Cannot add silentpush eventListener. Please add `remote-notification` to UIBackgroundModes inside info.plist ");
         }
@@ -294,11 +294,9 @@
 {
     ENSURE_TYPE(value, NSNumber);
     if ([TiUtils isIOS7OrGreater]) {
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_7_0
         double fetchInterval = [TiUtils doubleValue:value];
         fetchInterval = MAX(MIN(fetchInterval, UIApplicationBackgroundFetchIntervalNever),UIApplicationBackgroundFetchIntervalMinimum);
         [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:fetchInterval];
-#endif
     } else {
         DebugLog(@"[ERROR] Methond only available on iOS 7 and above.");
     }
@@ -314,6 +312,19 @@
     }
 }
 
+-(NSNumber*)BACKGROUNDFETCHINTERVAL_MIN {
+    if ([TiUtils isIOS7OrGreater]) {
+        return NUMDOUBLE(UIApplicationBackgroundFetchIntervalMinimum);
+    }
+    return nil;
+}
+
+-(NSNumber*)BACKGROUNDFETCHINTERVAL_NEVER {
+    if ([TiUtils isIOS7OrGreater]) {
+        return NUMDOUBLE(UIApplicationBackgroundFetchIntervalNever);
+    }
+    return nil;
+}
 
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_LAYOUT_CHANGED,@"accessibilitylayoutchanged");
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_SCREEN_CHANGED,@"accessibilityscreenchanged");
@@ -322,12 +333,6 @@ MAKE_SYSTEM_PROP(FETCH_NEWDATA, 0); //UIBackgroundFetchResultNewData
 MAKE_SYSTEM_PROP(FETCH_NODATA, 1); //UIBackgroundFetchResultNoData
 MAKE_SYSTEM_PROP(FETCH_FAILED, 2); //UIBackgroundFetchResultFailed
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_7_0
-
-MAKE_SYSTEM_PROP_DBL(BACKGROUNDFETCHINTERVAL_MIN, UIApplicationBackgroundFetchIntervalMinimum);
-MAKE_SYSTEM_PROP_DBL(BACKGROUNDFETCHINTERVAL_NEVER, UIApplicationBackgroundFetchIntervalNever);
-
-#endif
 @end
 
 #endif

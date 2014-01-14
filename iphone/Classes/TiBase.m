@@ -151,7 +151,7 @@ NSString * const kTiURLSessionCompleted = @"TiSessionCompleted";
 NSString * const kTiURLSessionEventsCompleted = @"TiSessionEventsCompleted";
 NSString * const kTiURLDowloadProgress = @"TiDownloadProgress";
 NSString * const kTiURLUploadProgress = @"TiUploadProgress";
-
+NSString * const kTiFrameAdjustNotification = @"TiFrameAdjust";
 NSString * const kTiLocalNotification = @"TiLocalNotification";
 
 NSString* const kTiBehaviorSize = @"SIZE";

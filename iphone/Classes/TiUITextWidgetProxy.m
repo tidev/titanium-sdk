@@ -102,11 +102,11 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 		[self replaceValue:newValue forKey:@"value" notification:NO];
 		[self contentsWillChange];
 		[self fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+        TiThreadPerformOnMainThread(^{
+            //Make sure the text widget is in view when editing.
+            [(TiUITextWidget*)[self view] updateKeyboardStatus];
+        }, NO);
 	}
-    TiThreadPerformOnMainThread(^{
-        //Make sure the text widget is in view when editing.
-        [(TiUITextWidget*)[self view] updateKeyboardStatus];
-    }, NO);
 }
 
 #pragma mark Toolbar

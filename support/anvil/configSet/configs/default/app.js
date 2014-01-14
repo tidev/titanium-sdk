@@ -37,11 +37,12 @@ var suites = [
 	{name: "ui_2dMatrix"},
 	{name: "ui_clipboard"},
 	{name: "ui_controls"},
+	{name: "ui_textfield"},
 	{name: "ui_view"},
 	{name: "ui_searchBar"},
 	{name: "utils/utils"},
 	{name: "yahoo"}
-];
+	];
 
 if (Ti.Platform.osname === 'android') {
 	suites = suites.concat([
@@ -62,6 +63,7 @@ if (Ti.Platform.osname === 'android') {
 		{name: "iphone/iphone_2Dmatrix"},
 		{name: "iphone/iphone_ui"},
 		{name: "iphone/iphone_UI_3DMatrix"},
+		{name: "iphone/iphone_ui_tabbedBar"},		
 		{name: "iphone/iphone_ui_toolbar"}
 	]);
 }

@@ -259,11 +259,13 @@ public class TiMessenger implements Handler.Callback
 						}
 					}
 				} catch (InterruptedException e) {
-					Log.e(TAG, "Interrupted waiting for async result", e);
+					if (Log.isDebugModeEnabled()) {
+						Log.e(TAG, "Interrupted waiting for async result", e);
+					}
 					dispatchPendingMessages();
 				}
 
-				if (exception != null) {
+				if (exception != null && Log.isDebugModeEnabled()) {
 					Log.e(TAG, "Unable to get the result from the blocking message.", exception);
 				}
 

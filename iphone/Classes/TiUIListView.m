@@ -138,6 +138,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     _headerViewProxy = [self initWrapperProxy];
     LayoutConstraint* viewLayout = [_headerViewProxy layoutProperties];
     viewLayout->layoutStyle = TiLayoutRuleVertical;
+    [self setHeaderFooter:_headerViewProxy isHeader:YES];
     
     _searchWrapper = [self initWrapperProxy];
     _headerWrapper = [self initWrapperProxy];
@@ -145,7 +146,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [_headerViewProxy add:_searchWrapper];
     [_headerViewProxy add:_headerWrapper];
     
-    [self setHeaderFooter:_headerViewProxy isHeader:YES];
 }
 
 - (UITableView *)tableView
@@ -228,6 +228,21 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 			[_tableView deselectRowAtIndexPath:indexPath animated:animated];
 		}];
 	}
+}
+
+- (void) updateIndicesForVisibleRows
+{
+    if (_tableView == nil || [self isSearchActive]) {
+        return;
+    }
+    
+    NSArray* visibleRows = [_tableView indexPathsForVisibleRows];
+    [visibleRows enumerateObjectsUsingBlock:^(NSIndexPath *vIndexPath, NSUInteger idx, BOOL *stop) {
+        UITableViewCell* theCell = [_tableView cellForRowAtIndexPath:vIndexPath];
+        if ([theCell isKindOfClass:[TiUIListItem class]]) {
+            ((TiUIListItem*)theCell).proxy.indexPath = vIndexPath;
+        }
+    }];
 }
 
 -(void)proxyDidRelayout:(id)sender

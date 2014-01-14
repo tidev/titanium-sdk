@@ -22,6 +22,55 @@ methods:
         summary: Callback function to execute when the method completes.
         type: Callback<CloudStatusesResponse>
   
+  - name: update
+    summary: Updates a status.
+    description: |
+        Requires user login. 
+        
+        See [Users: Update a Status](http://docs.appcelerator.com/cloud/latest/#!/api/Statuses-method-update)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudStatusesResponse>
+    since: 3.2.0
+
+  - name: show
+    summary: Shows a status.
+    description: |        
+        See [Users: Show a Status](http://docs.appcelerator.com/cloud/latest/#!/api/Statuses-method-show)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudStatusesResponse>
+    since: 3.2.0
+
+  - name: delete
+    summary: Deletes a status.
+    description: |        
+        Requires user login. 
+        
+        See [Users: Delete a Status](http://docs.appcelerator.com/cloud/latest/#!/api/Statuses-method-delete)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudResponse>
+    since: 3.2.0
+
   - name: query
     summary: Retrieve a list of statuses with sorting and pagination.
     description: |

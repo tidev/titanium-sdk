@@ -13,6 +13,7 @@
 @interface TiWindowProxy(Private)
 -(void)openOnUIThread:(id)args;
 -(void)closeOnUIThread:(id)args;
+-(void)rootViewDidForceFrame:(NSNotification *)notification;
 @end
 
 @implementation TiWindowProxy
@@ -51,11 +52,25 @@
     return @"Ti.Window";
 }
 
+-(void)rootViewDidForceFrame:(NSNotification *)notification
+{
+    if (focussed && opened) {
+        if ( (controller == nil) || ([controller navigationController] == nil) ) {
+            return;
+        }
+        UINavigationController* nc = [controller navigationController];
+        BOOL isHidden = [nc isNavigationBarHidden];
+        [nc setNavigationBarHidden:!isHidden animated:NO];
+        [nc setNavigationBarHidden:isHidden animated:NO];
+        [[nc view] setNeedsLayout];
+    }
+}
 
 -(TiUIView*)newView
 {
 	CGRect frame = [self appFrame];
 	TiUIWindow * win = [[TiUIWindow alloc] initWithFrame:frame];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewDidForceFrame:) name:kTiFrameAdjustNotification object:nil];
 	return win;
 }
 
@@ -85,10 +100,10 @@
     opened = YES;
     if ([self _hasListeners:@"open"]) {
         [self fireEvent:@"open" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-        if (focussed && [self handleFocusEvents]) {
-            if ([self _hasListeners:@"focus"]) {
-                [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-            }
+    }
+    if (focussed && [self handleFocusEvents]) {
+        if ([self _hasListeners:@"focus"]) {
+            [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
         }
     }
     [super windowDidOpen];
@@ -104,6 +119,7 @@
     if (tab == nil && (self.isManaged == NO)) {
         [[[[TiApp app] controller] topContainerController] willCloseWindow:self];
     }
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [super windowWillClose];
 }
 
@@ -269,6 +285,7 @@
         default:
             barStyle = UIStatusBarStyleDefault;
     }
+    [self setValue:NUMINT(barStyle) forUndefinedKey:@"statusBarStyle"];
     if(focussed) {
         TiThreadPerformOnMainThread(^{
             [[[TiApp app] controller] updateStatusBar];

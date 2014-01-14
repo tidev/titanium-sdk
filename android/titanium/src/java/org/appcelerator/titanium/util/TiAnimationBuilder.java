@@ -53,6 +53,7 @@ import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ArgbEvaluator;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.animation.ValueAnimator;
+import com.nineoldandroids.view.ViewHelper;
 import com.nineoldandroids.view.animation.AnimatorProxy;
 
 /**
@@ -319,15 +320,16 @@ public class TiAnimationBuilder
 	{
 		List<Animator> animators = new ArrayList<Animator>();
 		boolean includesRotation = false;
+		AnimatorUpdateListener updateListener = null;
+		// For pre-Honeycomb, there will be flicker during animation if we update the layout based on the
+		// scaling/translation factors between animation frames.
+		// Only re-layout for Honeycomb+. For now, we only re-layout for scaling and translation.
+		if (!PRE_HONEYCOMB) {
+			updateListener = new AnimatorUpdateListener();
+		}
 
 		if (toOpacity != null) {
-			addAnimator(
-					animators,
-					ObjectAnimator.ofFloat(view, "alpha",
-							toOpacity.floatValue()));
-			if (PRE_HONEYCOMB && viewProxy.hasProperty(TiC.PROPERTY_OPACITY)) {
-				prepareOpacityForAnimation();
-			}
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "alpha", toOpacity.floatValue()));
 		}
 
 		if (backgroundColor != null) {
@@ -377,18 +379,29 @@ public class TiAnimationBuilder
 							break;
 						case Operation.TYPE_SCALE:
 							if (operation.scaleFromValuesSpecified) {
-								addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleX", operation.scaleFromX,
-										operation.scaleToX));
+								ObjectAnimator animX = ObjectAnimator.ofFloat(view, "scaleX", operation.scaleFromX, operation.scaleToX);
+								if (updateListener != null) {
+									animX.addUpdateListener(updateListener);
+								}
+								addAnimator(animators, animX);
 								addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", operation.scaleFromY,
 										operation.scaleToY));
 
 							} else {
-								addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleX", operation.scaleToX));
+								ObjectAnimator animX = ObjectAnimator.ofFloat(view, "scaleX", operation.scaleToX);
+								if (updateListener != null) {
+									animX.addUpdateListener(updateListener);
+								}
+								addAnimator(animators, animX);
 								addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", operation.scaleToY));
 							}
 							break;
 						case Operation.TYPE_TRANSLATE:
-							addAnimator(animators, ObjectAnimator.ofFloat(view, "translationX", operation.translateX));
+							ObjectAnimator animX = ObjectAnimator.ofFloat(view, "translationX", operation.translateX);
+							if (updateListener != null) {
+								animX.addUpdateListener(updateListener);
+							}
+							addAnimator(animators, animX);
 							addAnimator(animators, ObjectAnimator.ofFloat(view, "translationY", operation.translateY));
 					}
 				}
@@ -452,7 +465,11 @@ public class TiAnimationBuilder
 			int translationX = horizontal[0] - x;
 			int translationY = vertical[0] - y;
 
-			addAnimator(animators, ObjectAnimator.ofFloat(view, "translationX", translationX));
+			ObjectAnimator animX = ObjectAnimator.ofFloat(view, "translationX", translationX);
+			if (updateListener != null) {
+				animX.addUpdateListener(updateListener);
+			}
+			addAnimator(animators, animX);
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "translationY", translationY));
 
 			// Pre-Honeycomb, we will need to update layout params at end of
@@ -520,7 +537,11 @@ public class TiAnimationBuilder
 				view.setLayoutParams(params);
 			}
 
-			addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleX", scaleX));
+			ObjectAnimator animX = ObjectAnimator.ofFloat(view, "scaleX", scaleX);
+			if (updateListener != null) {
+				animX.addUpdateListener(updateListener);
+			}
+			addAnimator(animators, animX);
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", scaleY));
 
 			setAnchor(w, h);
@@ -533,6 +554,20 @@ public class TiAnimationBuilder
 			// Also, don't do it if a rotation is included,
 			// since the re-layout will lose the rotation.
 			relayoutChild = PRE_HONEYCOMB && !includesRotation && (autoreverse == null || !autoreverse.booleanValue());
+		}
+
+		// Because of https://github.com/JakeWharton/NineOldAndroids/issues/54
+		// we add a dummy animator if all of these conditions are met:
+		// 1. There is only one animator so far.
+		// 2. That animator is for the alpha property.
+		// 3. The view has a non-null background.
+		// 4. Pre-Honeycomb (e.g., Gingerbread) is running.
+		if (PRE_HONEYCOMB && animators.size() == 1 && toOpacity != null && view.getBackground() != null) {
+			float currentScaleX = ViewHelper.getScaleX(view);
+			ValueAnimator dummyAnimator = ObjectAnimator.ofFloat(view, "scaleX", currentScaleX + 0.001f);
+			dummyAnimator.setRepeatCount(1);
+			dummyAnimator.setRepeatMode(ValueAnimator.REVERSE);
+			addAnimator(animators, dummyAnimator);
 		}
 
 		AnimatorSet as = new AnimatorSet();
@@ -604,6 +639,8 @@ public class TiAnimationBuilder
 	{
 		view.setPivotX(pivotX);
 		view.setPivotY(pivotY);
+		//invalidate the view to update the canvas after setting pivots [TIMOB-2373].
+		view.invalidate();
 	}
 
 	private void setViewPivot(float pivotX, float pivotY)
@@ -1070,6 +1107,17 @@ public class TiAnimationBuilder
 				{
 				}
 			});
+		}
+	}
+
+	/**
+	 * The listener to receive callbacks on every animation frame.
+	 */
+	protected class AnimatorUpdateListener implements ValueAnimator.AnimatorUpdateListener
+	{
+		public void onAnimationUpdate(ValueAnimator animation)
+		{
+			view.requestLayout();
 		}
 	}
 
