@@ -20,6 +20,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.app.Activity;
@@ -68,6 +69,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public static boolean saveToPhotoGallery = false;
 	public static int whichCamera = MediaModule.CAMERA_REAR;
 	public static boolean autohide = true;
+	public static String flashMode = MediaModule.FLASH_MODE_AUTO;
 
 	private static class PreviewLayout extends FrameLayout
 	{
@@ -250,6 +252,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 		currentRotation = rotation;
 		Parameters param = camera.getParameters();
+	
 		int orientation = TiApplication.getInstance().getResources().getConfiguration().orientation;
 
 		// The camera preview is always displayed in landscape mode. Need to rotate the preview according to
@@ -260,53 +263,71 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					// The "natural" orientation of the device is a portrait orientation, eg. phones.
 					// Need to rotate 90 degrees.
 					camera.setDisplayOrientation(90);
+					param.setRotation(90);
 					exifOrientation = ExifInterface.ORIENTATION_ROTATE_90;
 				} else {
 					// The "natural" orientation of the device is a landscape orientation, eg. tablets.
 					// Set the camera to the starting position (0 degree).
 					camera.setDisplayOrientation(0);
+					param.setRotation(0);
 				}
 				break;
 			case Surface.ROTATION_90:
 				if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
 					camera.setDisplayOrientation(0);
+					param.setRotation(0);
 				} else {
 					camera.setDisplayOrientation(270);
 					exifOrientation = ExifInterface.ORIENTATION_ROTATE_270;
+					param.setRotation(270);
 				}
 				break;
 			case Surface.ROTATION_180:
 				if (orientation == Configuration.ORIENTATION_PORTRAIT) {
 					exifOrientation = ExifInterface.ORIENTATION_ROTATE_270;
 					camera.setDisplayOrientation(270);
-					
+					param.setRotation(270);
 				} else {
 					camera.setDisplayOrientation(180);
+					param.setRotation(180);
 					exifOrientation = ExifInterface.ORIENTATION_ROTATE_180;
 				}
 				break;
 			case Surface.ROTATION_270:
 				if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
 					camera.setDisplayOrientation(180);
+					param.setRotation(180);
 					exifOrientation = ExifInterface.ORIENTATION_ROTATE_180;
 					
 				} else {
 					camera.setDisplayOrientation(90);
+					param.setRotation(90);
 					exifOrientation = ExifInterface.ORIENTATION_ROTATE_90;
 				}
 				break;
 		}
 
-		// Set appropriate focus mode if supported.
-		List<String> supportedFocusModes = param.getSupportedFocusModes();
-		if (supportedFocusModes.contains(MediaModule.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-			param.setFocusMode(MediaModule.FOCUS_MODE_CONTINUOUS_PICTURE);
-		} else if (supportedFocusModes.contains(Parameters.FOCUS_MODE_AUTO)) {
-			param.setFocusMode(Parameters.FOCUS_MODE_AUTO);
-		} else if (supportedFocusModes.contains(Parameters.FOCUS_MODE_MACRO)) {
-			param.setFocusMode(Parameters.FOCUS_MODE_MACRO);
+		
+		String currentFlashMode = param.getFlashMode();
+		//Set FlashMode if Supported
+		if (currentFlashMode != null) {
+			param.setFlashMode(flashMode);
+			camera.setParameters(param);
 		}
-
+		
+		if (currentFlashMode == null || param.getFlashMode() == Camera.Parameters.FLASH_MODE_OFF) {
+			//Set appropriate focus mode if supported.
+			//Only set focus mode if flash is off or unavailable. Causes Crash otherwise.
+			List<String> supportedFocusModes = param.getSupportedFocusModes();
+			if (supportedFocusModes.contains(MediaModule.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+				param.setFocusMode(MediaModule.FOCUS_MODE_CONTINUOUS_PICTURE);
+			} else if (supportedFocusModes.contains(Parameters.FOCUS_MODE_AUTO)) {
+				param.setFocusMode(Parameters.FOCUS_MODE_AUTO);
+			} else if (supportedFocusModes.contains(Parameters.FOCUS_MODE_MACRO)) {
+				param.setFocusMode(Parameters.FOCUS_MODE_MACRO);
+			}	
+		}
+		
 		if (optimalPreviewSize != null) {
 			param.setPreviewSize(optimalPreviewSize.width, optimalPreviewSize.height);
 			List<Size> pictSizes = param.getSupportedPictureSizes();
@@ -316,6 +337,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			}
 			camera.setParameters(param);
 		}
+		
+		
 
 		try {
 			camera.setPreviewDisplay(previewHolder);
@@ -430,10 +453,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			FileOutputStream imageOut = new FileOutputStream(imageFile);
 			imageOut.write(data);
 			imageOut.close();
-			//Fix the exif orientation data
-			ExifInterface ei = new ExifInterface(imageFile.getAbsolutePath());
-			ei.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(exifOrientation));
-			ei.saveAttributes();
 		} catch (FileNotFoundException e) {
 			Log.e(TAG, "Failed to open gallery image file: " + e.getMessage());
 		} catch (IOException e) {
@@ -504,13 +523,18 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			}
 
 			if (successCallback != null) {
-				TiBlob imageData = TiBlob.blobFromData(data);
-				KrollDict dict = MediaModule.createDictForImage(imageData,
-						"image/jpeg");
+				TiBlob imageData;
 				if (file != null) {
-					dict.put("nativePath", "file://" + file.getAbsolutePath());
-					dict.put("orientation", exifOrientation);
+					//Read the saved file, as "TiBlob.blobFromData(data)" does not create an "Orientation aware" blob
+					String[] parts = { file.getAbsolutePath() };
+					imageData = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(parts, false), "image/jpeg");
+				} else {
+					imageData = TiBlob.blobFromData(data);
 				}
+				KrollDict dict = MediaModule.createDictForImage(imageData, "image/jpeg");
+				//If the image wasn't saved to the gallery, there won't be any way to get the proper orientation. 
+				//So we'll still set this, so the developer can decide what to do
+				dict.put("orientation", exifOrientation);
 				successCallback.callAsync(callbackContext, dict);
 			}
 

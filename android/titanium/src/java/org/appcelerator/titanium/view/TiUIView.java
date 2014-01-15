@@ -1471,6 +1471,8 @@ public abstract class TiUIView
 			// so we store the last up event's x,y coordinates (see onTouch above) and use them here.
 			// Note: AdapterView throws an exception if you try to put a click listener on it.
 			doSetClickable(touchable);
+		} else {
+			touchable.setSoundEffectsEnabled(false);
 		}
 	}
 
