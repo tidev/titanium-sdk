@@ -3451,6 +3451,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				var am = new AndroidManifest;
 				am.parse(fill(moduleXml.android.manifest));
 				// we don't want modules to override the <supports-screens> or <uses-sdk> tags
+				delete am.__attr__;
 				delete am['supports-screens'];
 				delete am['uses-sdk'];
 				finalAndroidManifest.merge(am);
