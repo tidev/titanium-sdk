@@ -315,7 +315,18 @@ events:
     properties:
       - name: url
         summary: URL of the web document. 
-
+        
+  - name: sslerror
+    summary: Fired when an SSL error occurred.
+    description: |
+        Android only. Application can set `ignoreSslError` to bypass the error and continue.
+    platforms: [android]
+    since: "3.3.0"
+    properties:
+      - name: code
+        summary: Operating system error code.
+        type: Number
+        
 properties:
 
   - name: data
