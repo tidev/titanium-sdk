@@ -18,7 +18,8 @@ module.exports = new function() {
 		{name: "test_monkeys"},
 		{name: "test_nested"},
 		{name: "test_relative"},
-		{name: "test_transitive"}
+		{name: "test_transitive"},
+		{name: "test_name_utils"}
 	];
 
 	// commonjs test ports - see the commonjs 1.0 test repository
@@ -81,6 +82,13 @@ module.exports = new function() {
 	this.test_transitive = function(testRun) {
 		var test = require('./transitive/program');
 		finish(test.run(testRun, valueOf));
+	}
+
+	//TIMOB-12115
+	this.test_name_utils = function(testRun) {
+		valueOf(testRun, require('suites/commonjs/utils').foo()).shouldBeTrue(); 
+
+		finish(testRun);
 	}
 
 	// TODO: Commonjs 1.1 extension tests
