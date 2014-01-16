@@ -1,6 +1,6 @@
 define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/dom", "Ti/UI"],
 	function(_, browser, Evented, lang, Locale, dom, UI) {
-		
+
 	var doc = document,
 		midName = "ti:mid",
 		matches = doc.cookie.match(new RegExp("(?:^|; )" + midName + "=([^;]*)")),
@@ -20,12 +20,14 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/
 			localStorage.setItem(midName, mid);
 		}
 	}
- 
+
 	on(window, "beforeunload", saveMid);
 	on(window, "unload", saveMid);
 
 	var nav = navigator,
 		battery = nav.battery || nav.webkitBattery || nav.mozBattery,
+		platName = ((~nav.userAgent.indexOf("Windows Phone") || ~nav.userAgent.indexOf("Touch")) &&
+				(!~doc.URL.indexOf("http://") && !~doc.URL.indexOf("https://")) ? "windows" : "mobileweb",
 		Platform = lang.setObject("Ti.Platform", Evented, {
 
 			canOpenURL: function(url) {
@@ -41,7 +43,7 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/
 			openURL: function(url){
 				if (/^([tel|sms|mailto])/.test(url)) {
 					hiddenIFrame.contentWindow.location.href = url;
-				} else { 
+				} else {
 					var win = UI.createWindow({
 							layout: UI._LAYOUT_CONSTRAINING_VERTICAL,
 							backgroundColor: "#888"
@@ -90,9 +92,9 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/
 				locale: Locale,
 				macaddress: void 0,
 				model: nav.userAgent,
-				name: "mobileweb",
+				name: platName,
 				netmask: void 0,
-				osname: "mobileweb",
+				osname: platName,
 				ostype: nav.platform,
 				runtime: browser.runtime,
 				processorCount: void 0,
