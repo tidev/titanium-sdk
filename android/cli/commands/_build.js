@@ -3145,9 +3145,11 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 	this.logger.info(__('Generating i18n files'));
 
 	var data = i18n.load(this.projectDir, this.logger, {
-		ignoreDirs: this.ignoreDirs,
-		ignoreFiles: this.ignoreFiles
-	});
+			ignoreDirs: this.ignoreDirs,
+			ignoreFiles: this.ignoreFiles
+		}),
+		badStringNames = {};
+
 	data.en || (data.en = {});
 	data.en.app || (data.en.app = {});
 	data.en.app.appname || (data.en.app.appname = this.tiapp.name);
@@ -3170,7 +3172,10 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 		root.appendChild(appnameNode);
 
 		data[locale].strings && Object.keys(data[locale].strings).forEach(function (name) {
-			if (name != 'appname') {
+			if (name.indexOf(' ') != -1) {
+				badStringNames[locale] || (badStringNames[locale] = []);
+				badStringNames[locale].push(name);
+			} else if (name != 'appname') {
 				var node = dom.createElement('string');
 				node.setAttribute('name', name);
 				node.setAttribute('formatted', 'false');
@@ -3189,6 +3194,22 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 		}
 		this.writeXmlFile(dom.documentElement, dest);
 	}, this);
+
+	if (Object.keys(badStringNames).length) {
+		this.logger.error(__('Found invalid i18n string names:'));
+		Object.keys(badStringNames).forEach(function (locale) {
+			badStringNames[locale].forEach(function (s) {
+				this.logger.error('  "' + s + '" (' + locale + ')');
+			}, this);
+		}, this);
+		this.logger.error(__('Android does not allow i18n string names with spaces.'));
+		if (!this.config.get('android.excludeInvalidI18nStrings', false)) {
+			this.logger.error(__('To exclude invalid i18n strings from the build, run:'));
+			this.logger.error('    ' + this.cli.argv.$ + ' config android.excludeInvalidI18nStrings true');
+			this.logger.log();
+			process.exit(1);
+		}
+	}
 
 	next();
 };
