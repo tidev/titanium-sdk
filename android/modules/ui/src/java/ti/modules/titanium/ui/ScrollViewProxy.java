@@ -20,6 +20,7 @@ import ti.modules.titanium.ui.widget.TiUIScrollView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_CONTENT_HEIGHT, TiC.PROPERTY_CONTENT_WIDTH,
@@ -38,7 +39,8 @@ public class ScrollViewProxy extends TiViewProxy
 	private static final int MSG_SCROLL_TO = MSG_FIRST_ID + 100;
 	private static final int MSG_SCROLL_TO_BOTTOM = MSG_FIRST_ID + 101;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
-
+	private static final String TAG = "ScrollViewProxy";
+	
 	public ScrollViewProxy()
 	{
 		super();
@@ -118,6 +120,32 @@ public class ScrollViewProxy extends TiViewProxy
 	
 	public void handleScrollToBottom() {
 		getScrollView().scrollToBottom();
+	}
+	
+	@Kroll.method
+	public void removeView(Object viewObject)
+	{
+		try {
+			if (viewObject instanceof Integer) {
+				int rowIndex = (Integer) viewObject;
+
+				TiViewProxy[] rowArray = this.getChildren();
+
+				if (rowArray != null) {
+					if (rowIndex >= 0 && rowIndex < rowArray.length) {
+						this.remove((TiViewProxy) rowArray[rowIndex]);
+					} else {
+						Log.e(TAG, "Unable to remove child. Index out of range. Non-existent child " + rowIndex);
+					}
+				}
+			} else if (viewObject instanceof TiViewProxy) {
+				TiViewProxy tv = ((TiViewProxy) viewObject).getParent();
+				tv.remove((TiViewProxy) viewObject);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			Log.e(TAG, "removeView() ignored. method accepts either a view or an index to a view ");
+		}
 	}
 
 	@Override
