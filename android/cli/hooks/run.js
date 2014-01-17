@@ -72,9 +72,7 @@ exports.init = function (logger, config, cli) {
 				})(builder.deviceId, {
 					logger: logger,
 					checkMounts: builder.debugPort || builder.profilerPort
-				}, function (err, results, opts) {
-					finished();
-				});
+				}, finished);
 
 			} else if (builder.target == 'device') {
 				var adb = new ADB(config);
