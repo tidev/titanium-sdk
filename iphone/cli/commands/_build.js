@@ -767,7 +767,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						}
 					});
 				})(function (err, result) {
-					done(result);
+					done(_t.conf = result);
 				});
 			}.bind(this));
 		}.bind(this));
