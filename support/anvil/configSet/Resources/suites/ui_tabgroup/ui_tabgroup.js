@@ -242,22 +242,25 @@ module.exports = new function() {
 		var tabGroup = Ti.UI.createTabGroup();
 		var tabWin = Ti.UI.createWindow();
 		var tab = Ti.UI.createTab({
+			title: 'blue',
 			window: tabWin
 		});
-		tabGroup.addTab(tab);   
-		setTimeout(function(){
-			for(var i = 0;i<10;i++){
-				valueOf(testRun, function(){
-					tabGroup.open();
-				}).shouldNotThrowException();
-				valueOf(testRun, function(){
-					tabGroup.close();
-				}).shouldNotThrowException();
-			}
+		var count = 0;
+		var timer = setInterval(function(){
+			count ++;
+			tabGroup.open();
+			setTimeout(function(){
+				tabGroup.close();
+			},500);
+			if (count == 4) {
+				clearInterval(timer);
+				valueOf(testRun, win.fullscreen).shouldBeFalse();
+				valueOf(testRun, win.exitOnClose).shouldBeTrue();
 
-			finish(testRun);
+				finish(testRun);
+			}
 		},2000);
-		win.open();
+		tabGroup.addTab(tab); 		
 	}
 
 	//TIMOB-7000
