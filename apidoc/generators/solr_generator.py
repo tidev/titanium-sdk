@@ -3,6 +3,8 @@
 # Copyright (c) 2010-2012 Appcelerator, Inc. All Rights Reserved.
 # Licensed under the Apache Public License (version 2)
 
+solr_category = "platform"
+
 import os, sys, re
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
@@ -92,8 +94,10 @@ def to_solr_property(prop, for_event=False):
 			}
 	else:
 		return {
-			"id": prop.parent.name + "-property-" + prop.name,
+			"id": prop.parent.name + "-property-" + prop.name + "-" + solr_category,
+			"url": prop.parent.name + "-property-" + prop.name,
 			"name": prop.parent.name + "." + prop.name,
+			"type": solr_category,
 			"content": prop.parent.name + " " + prop.name + " " + content +
                 " " + to_solr_description(prop.api_obj["summary"], prop) +
 				" " + to_solr_remarks(prop) + " " + to_solr_examples(prop)
@@ -140,8 +144,10 @@ def to_solr_function(method):
 
 	content += " " + to_solr_examples(method)
 	result = {
-			"id": method.parent.name + "-method-" + method.name,
+			"id": method.parent.name + "-method-" + method.name + "-" + solr_category,
+			"url": method.parent.name + "-method-" + method.name,
 			"name": method.parent.name + "." + method.name,
+			"type": solr_category,
 			"content": method.parent.name + " " + method.name + " " + content
 			}
 	return result
@@ -158,8 +164,10 @@ def to_solr_event(event):
 				content += " " + property["name"]+ " " + property["content"]
 				
 	return {
-			"id": event.parent.name + "-event-" + event.name,
+			"id": event.parent.name + "-event-" + event.name + "-" + solr_category,
+			"url": event.parent.name + "-event-" + event.name,
 			"name": event.parent.name + "." + event.name,
+			"type": solr_category,
 			"content": event.parent.name + " " + event.name + " " + content
 			}
 
@@ -182,8 +190,10 @@ def to_solr_type(api):
 	content = to_solr_description(api.api_obj["summary"], api) + " " + to_solr_remarks(api) + to_solr_examples(api)
 
 	result = [{
-            "id": api.name,
+            "id": api.name + "-" + solr_category,
+            "url": api.name,
 			"name": api.name,
+			"type": solr_category,
 			"content": content
 			}]
 
