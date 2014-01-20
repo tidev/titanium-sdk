@@ -38,8 +38,7 @@ module.exports = new function() {
 	//TIMOB-5192 ios
 	this.events_Navigationbar = function(testRun){
 		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
-			var mainWin = Ti.UI.createWindow();
-			var navGroup = Ti.UI.iPhone.createNavigationGroup();
+			var navGroup = Titanium.UI.iOS.createNavigationWindow();
 			var win1 = Titanium.UI.createWindow();
 			var win2 = Titanium.UI.createWindow();
 			var winOpen = 0;
@@ -50,8 +49,8 @@ module.exports = new function() {
 			win1.addEventListener("focus",function(){
 				winFocus += 1;
 				if(winFocus == 1){
-					navGroup.open(win2);
-					navGroup.close(win2);
+					navGroup.openWindow(win2);
+					navGroup.closeWindow(win2);
 				}
 				else{
 					valueOf(testRun, winFocus).shouldBe(2);
@@ -76,8 +75,7 @@ module.exports = new function() {
 				winBlur+= 1;
 			});
 			navGroup.window = win1;
-			mainWin.add(navGroup);
-			mainWin.open();
+			navGroup.open();
 		}
 		else {
 			finish(testRun);
@@ -170,30 +168,27 @@ module.exports = new function() {
 	//TIMOB-8027
 	this.openEventInNavigationalGroup = function(testRun){
 		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
-			var win = Titanium.UI.createWindow();
-			var win1 = Titanium.UI.createWindow();
-			var firstWinOpen = 0;
-			var secondWinOpen = 0;
-			win1.addEventListener('open', function(e) {
-				firstWinOpen += 1;
-			});
-			var nav = Titanium.UI.iPhone.createNavigationGroup({
-				window: win1
-			});
-			win.add(nav);
 			var win2 = Titanium.UI.createWindow();
-			win2.addEventListener('open', function(e) {
-				secondWinOpen += 1;
+			var f1 = 0; 
+			var f2 = 0;
+			var win1 = Titanium.UI.iOS.createNavigationWindow({
+				window: win2
 			});
+			var win3 = Titanium.UI.createWindow();
+			win2.addEventListener("open", function(){
+				f1 += 1;
+			});
+			win3.addEventListener("open", function(){
+				f2 += 1;
+			});
+			win1.open();
+			win1.openWindow(win3, {animated:true});
 			setTimeout(function(){
-				valueOf(testRun, firstWinOpen).shouldBe(1);
-				valueOf(testRun, secondWinOpen).shouldBe(1);
-				
-				finish(testRun);
-			},2000);
-			win.open();
+				valueOf(testRun, f1).shouldBe(1);
+				valueOf(testRun, f2).shouldBe(1);
 
-			nav.open(win2,{animated: true});
+				finish(testRun);
+			},3000);
 		}
 		else {
 			finish(testRun);
@@ -203,14 +198,12 @@ module.exports = new function() {
 	//TIMOB-8314
 	this.fireCloseEvent = function(testRun){
 		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
-			var win = Titanium.UI.createWindow();
 			var win1 = Titanium.UI.createWindow();
 			var winFocus = 0;
 			var winClose = 0;
-			var nav = Titanium.UI.iPhone.createNavigationGroup({
+			var nav = Titanium.UI.iOS.createNavigationWindow({
 				window: win1
 			});
-			win.add(nav);
 			var win2 = Titanium.UI.createWindow();
 			win2.addEventListener('focus', function(){
 				winFocus += 1;
@@ -219,16 +212,14 @@ module.exports = new function() {
 				winClose += 1;
 			});
 			setTimeout(function(){
-				win2.close()
-			},1000);
-			setTimeout(function(){
 				valueOf(testRun,winFocus).shouldBe(1);
 				valueOf(testRun,winClose).shouldBe(1);
 				
 				finish(testRun);
 			},5000);
-			win.open();
-			nav.open(win2,{animated:true});
+			nav.open();
+			nav.openWindow(win2);
+			nav.closeWindow(win2);
 		}
 		else {
 			finish(testRun);
