@@ -73,26 +73,84 @@ exports.init = function (logger, config, cli) {
 						});
 					});
 				} else {
-					iosDevice.devices(function (err, devices) {
+					iosDevice.devices(function (err, connectedDevices) {
+						var displayStartLog = true,
+							endLog = false,
+							devices = builder.deviceId == 'all' ? connectedDevices : connectedDevices.filter(function (device) { return device.udid == builder.deviceId; }),
+							instances = devices.length,
+							logRegExp = new RegExp(' ' + cli.tiapp.name + '[^:]+: (.*)'),
+							levels = logger.getLevels(),
+							logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
+
 						async.series(devices.map(function (device) {
 							return function (next) {
-								if (builder.deviceId == 'all' || builder.deviceId == device.udid) {
-									logger.info(__('Installing app on device: %s', device.name.cyan));
-									iosDevice.installApp(device.udid, builder.xcodeAppDir, function (err) {
-										if (err) {
-											err = err.message || err;
-											logger.error(err);
-											if (err.indexOf('0xe8008017') != -1) {
-												logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device'));
+								var lastLogger = 'debug',
+									installed = false;
+
+								// if we're silenced, no sense relaying the log to the console
+								if (!cli.argv.quiet) {
+									try {
+										iosDevice.log(device.udid, function (msg) {
+											if (installed) {
+												if (displayStartLog) {
+													logger.log(__('Please manually launch the application or press CTRL-C to quit').magenta + '\n');
+													var startLogTxt = __('Start application log');
+													logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
+													displayStartLog = false;
+												}
+
+												var m = msg.match(logRegExp);
+												if (m) {
+													var line = m[1].trim();
+													m = line.match(logLevelRE);
+													if (m) {
+														lastLogger = m[2].toLowerCase();
+														line = m[4].trim();
+													}
+													if (levels.indexOf(lastLogger) == -1) {
+														logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
+													} else {
+														logger[lastLogger](line);
+													}
+												}
 											}
-										} else {
-											logger.info(__('App successfully installed on device: %s', device.name.cyan));
+										});
+									} catch (ex) {
+										logger.error(ex.toString());
+										if (!displayStartLog && --instances == 0) {
+											// the adb server shutdown, the emulator quit, or the device was unplugged
+											var endLogTxt = __('End application log');
+											logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+											endLog = true;
+											process.exit(1);
 										}
-										next();
+									}
+
+									// listen for ctrl-c
+									process.on('SIGINT', function () {
+										if (!displayStartLog && !endLog) {
+											var endLogTxt = __('End application log');
+											logger.log('\r' + ('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+										}
+										process.exit(0);
 									});
-								} else {
-									next();
 								}
+
+								logger.info(__('Installing app on device: %s', device.name.cyan));
+								iosDevice.installApp(device.udid, builder.xcodeAppDir, function (err) {
+									if (err) {
+										err = err.message || err;
+										logger.error(err);
+										if (err.indexOf('0xe8008017') != -1) {
+											logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device'));
+										}
+									} else {
+										logger.info(__('App successfully installed on device: %s', device.name.cyan));
+										installed = true;
+									}
+
+									next();
+								});
 							};
 						}), finished);
 					});
