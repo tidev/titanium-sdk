@@ -108,9 +108,14 @@ public class TiUIWebView extends TiUIView
 					handled = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(ev));
 				}
 			}
-			
-			boolean swipeHandled = detector.onTouchEvent(ev);
-			
+
+			boolean swipeHandled = false;
+
+			// detect will be null when touch is disabled
+			if (detector != null) {
+				swipeHandled = detector.onTouchEvent(ev);
+			}
+
 			// Don't return here -- must call super.onTouchEvent()
 			
 			boolean superHandled = super.onTouchEvent(ev);
