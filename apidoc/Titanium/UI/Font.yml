@@ -40,7 +40,7 @@ properties:
         value you specify also depends on the platform you are targeting.
 
         * On Android specify the font file name without its file extension (.otf or .ttf).
-        For example, if you werer using the "Burnstown Dam" font whose file name is
+        For example, if you were using the "Burnstown Dam" font whose file name is
         named `burnstown_dam.ttf`, then you specify `fontFamily: 'burnstown_dam'`.
 
         * On iOS you use the font's [PostScript name](http://docs.appcelerator.com/titanium/3.0/#!/guide/Custom_Fonts-section-29004935_CustomFonts-Findingafont%27sPostScriptname).
@@ -74,7 +74,7 @@ properties:
 
         For example, "16dp" specifies a size of 16 density-independent pixels.
 
-        iOS ingores any unit specifier after the size value.
+        iOS ignores any unit specifier after the size value.
     type: [ Number, String ]
     default: 15px
   - name: fontWeight
