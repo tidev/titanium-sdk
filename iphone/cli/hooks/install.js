@@ -80,28 +80,63 @@ exports.init = function (logger, config, cli) {
 							instances = devices.length,
 							logRegExp = new RegExp(' ' + cli.tiapp.name + '[^:]+: (.*)'),
 							levels = logger.getLevels(),
-							logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
+							logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i'),
+							quitRegExp = new RegExp(' backboardd[^:]+: Application .+\\:' + cli.tiapp.id + '\\[');
+
+						logger.debug(__('Waiting for device logs to sync'));
 
 						async.series(devices.map(function (device) {
 							return function (next) {
 								var lastLogger = 'debug',
-									installed = false;
+									lastLineWasOurs = false,
+									PUMPING_LOG = 1,
+									INSTALLING = 2,
+									INSTALLED = 3,
+									state = PUMPING_LOG,
+									timer = null;
 
-								// if we're silenced, no sense relaying the log to the console
-								if (!cli.argv.quiet) {
-									try {
-										iosDevice.log(device.udid, function (msg) {
-											if (installed) {
-												if (displayStartLog) {
-													logger.log(__('Please manually launch the application or press CTRL-C to quit').magenta + '\n');
-													var startLogTxt = __('Start application log');
-													logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
-													displayStartLog = false;
-												}
+								try {
+									iosDevice.log(device.udid, function (msg) {
+										if (state == PUMPING_LOG) {
+											// we create a timer here so that if we haven't received any messages for a
+											// half second, then the log must be caught up and we're ready to install
+											clearTimeout(timer);
+											timer = setTimeout(function () {
+												// logs quieted down, go ahead and install
+												state = INSTALLING;
+												logger.info(__('Installing app on device: %s', device.name.cyan));
+												iosDevice.installApp(device.udid, builder.xcodeAppDir, function (err) {
+													if (err) {
+														err = err.message || err;
+														logger.error(err);
+														if (err.indexOf('0xe8008017') != -1) {
+															logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device'));
+														}
+														next(err);
+													} else {
+														logger.info(__('App successfully installed on device: %s', device.name.cyan));
+														state = INSTALLED;
+														next();
+													}
 
-												var m = msg.match(logRegExp);
+													if (displayStartLog) {
+														logger.log(__('Please manually launch the application or press CTRL-C to quit').magenta + '\n');
+														var startLogTxt = __('Start application log');
+														logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
+														displayStartLog = false;
+													}
+												});
+											}, 500);
+										} else if (state == INSTALLING) {
+											// do nothing
+										} else if (state == INSTALLED) {
+											var m = msg.match(logRegExp);
+											if (m) {
+												// one of our log messages
+												msg = m[1];
+												m = msg.match(logLevelRE);
 												if (m) {
-													var line = m[1].trim();
+													var line = m[0].trim();
 													m = line.match(logLevelRE);
 													if (m) {
 														lastLogger = m[2].toLowerCase();
@@ -112,44 +147,49 @@ exports.init = function (logger, config, cli) {
 													} else {
 														logger[lastLogger](line);
 													}
+													lastLineWasOurs = true;
 												}
+											} else if (/^\s/.test(msg) && lastLineWasOurs) {
+												// one of our multiline log messages
+												msg = msg.replace(/^\t/, '');
+												if (levels.indexOf(lastLogger) == -1) {
+													logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + msg);
+												} else {
+													logger[lastLogger](msg);
+												}
+											} else if (quitRegExp.test(msg)) {
+												// they quit the app
+												if (!displayStartLog && !endLog) {
+													var endLogTxt = __('End application log');
+													logger.log('\r' + ('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+												}
+												process.exit(0);
+											} else {
+												// some other log line
+												lastLineWasOurs = false;
 											}
-										});
-									} catch (ex) {
-										logger.error(ex.toString());
-										if (!displayStartLog && --instances == 0) {
-											// the adb server shutdown, the emulator quit, or the device was unplugged
+										}
+									});
+								} catch (ex) {
+									// something blew up in the ios device library
+									logger.error(ex.message || ex.toString());
+									if (--instances == 0) {
+										if (!displayStartLog) {
 											var endLogTxt = __('End application log');
 											logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
 											endLog = true;
-											process.exit(1);
 										}
+										process.exit(1);
 									}
-
-									// listen for ctrl-c
-									process.on('SIGINT', function () {
-										if (!displayStartLog && !endLog) {
-											var endLogTxt = __('End application log');
-											logger.log('\r' + ('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
-										}
-										process.exit(0);
-									});
 								}
 
-								logger.info(__('Installing app on device: %s', device.name.cyan));
-								iosDevice.installApp(device.udid, builder.xcodeAppDir, function (err) {
-									if (err) {
-										err = err.message || err;
-										logger.error(err);
-										if (err.indexOf('0xe8008017') != -1) {
-											logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device'));
-										}
-									} else {
-										logger.info(__('App successfully installed on device: %s', device.name.cyan));
-										installed = true;
+								// listen for ctrl-c
+								process.on('SIGINT', function () {
+									if (!displayStartLog && !endLog) {
+										var endLogTxt = __('End application log');
+										logger.log('\r' + ('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
 									}
-
-									next();
+									process.exit(0);
 								});
 							};
 						}), finished);
