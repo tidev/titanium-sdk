@@ -28,7 +28,8 @@ import android.os.Message;
 	TiC.PROPERTY_SCROLL_TYPE,
 	TiC.PROPERTY_CONTENT_OFFSET,
 	TiC.PROPERTY_CAN_CANCEL_EVENTS,
-	TiC.PROPERTY_OVER_SCROLL_MODE
+	TiC.PROPERTY_OVER_SCROLL_MODE,
+	TiC.PROPERTY_SCROLLING_ENABLED
 })
 public class ScrollViewProxy extends TiViewProxy
 	implements Handler.Callback
@@ -72,18 +73,6 @@ public class ScrollViewProxy extends TiViewProxy
 		}
 	}
 	
-	@Kroll.setProperty @Kroll.method
-	public void setScrollingEnabled(Object enabled)
-	{
-		getScrollView().setScrollingEnabled(enabled);
-	}
-
-	@Kroll.getProperty @Kroll.method
-	public boolean getScrollingEnabled()
-	{
-		return getScrollView().getScrollingEnabled();
-	}
-
 	@Kroll.method
 	public void scrollToBottom() {
 		if (!TiApplication.isUIThread()) {
