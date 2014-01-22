@@ -951,7 +951,7 @@
 
 -(UIInterfaceOrientation) lastValidOrientation:(BOOL)checkModal
 {
-	if ([self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:checkModal]) {
+    if ([self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:checkModal]) {
         return deviceOrientation;
     }
     for (int i = 0; i<4; i++) {
