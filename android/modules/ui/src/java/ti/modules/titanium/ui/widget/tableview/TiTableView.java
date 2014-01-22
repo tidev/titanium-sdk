@@ -65,6 +65,7 @@ public class TiTableView extends FrameLayout
 	private TableViewProxy proxy;
 	private boolean filterCaseInsensitive = true;
 	private StateListDrawable selector;
+	private TiViewProxy fview ;
 
 	public interface OnItemClickedListener {
 		public void onClick(KrollDict item);
@@ -339,8 +340,8 @@ public class TiTableView extends FrameLayout
 			listView.addHeaderView(layoutHeaderOrFooter(view).getOuterView(), null, false);
 		}
 		if (proxy.hasProperty(TiC.PROPERTY_FOOTER_VIEW)) {
-			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_FOOTER_VIEW);
-			listView.addFooterView(layoutHeaderOrFooter(view).getOuterView(), null, false);
+			fview = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_FOOTER_VIEW);
+			listView.addFooterView(layoutHeaderOrFooter(fview).getOuterView(), null, false);
 		}
 
 		listView.setAdapter(adapter);
@@ -372,6 +373,17 @@ public class TiTableView extends FrameLayout
 			}
 		});
 		addView(listView);
+	}
+
+	public void setFooterView(TiViewProxy view)
+	{
+		this.proxy.getChildren();
+		if (fview != null) {
+			listView.removeFooterView(fview.peekView().getOuterView());
+			fview = null;
+		}
+		listView.addFooterView(layoutHeaderOrFooter(view).getOuterView(), null, false);
+		fview = view;
 	}
 
 	public TiTableView(TiContext tiContext, TableViewProxy proxy)

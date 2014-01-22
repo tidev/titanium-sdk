@@ -244,6 +244,11 @@ public class TiUITableView extends TiUIView
 
 		}
 
+		if (proxy.hasProperty(TiC.PROPERTY_FOOTER_VIEW)) {
+			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_FOOTER_VIEW);
+			tableView.setFooterView(view);
+		}
+
 		if (key.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			tableView.setSeparatorColor(TiConvert.toString(newValue));
 		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
