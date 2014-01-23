@@ -2869,13 +2869,13 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 				}
 
 				try {
-					// parse the AST
-					var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-
-					// we want to sort by the "to" filename so that we correctly handle file overwriting
-					this.tiSymbols[to] = r.symbols;
-
 					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
+						// parse the AST
+						var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+
+						// we want to sort by the "to" filename so that we correctly handle file overwriting
+						this.tiSymbols[to] = r.symbols;
+
 						var dir = path.dirname(to);
 						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
