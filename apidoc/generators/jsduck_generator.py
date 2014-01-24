@@ -491,7 +491,7 @@ def generate(raw_apis, annotated_apis, options):
 							log.warn("returns for %s should be an array or a dict." % obj["name"]);
 					write_utf8(output, "\t * @return %s %s\n" % (type, markdown_to_html(summary)))
 				else:
-					write_utf8(output, "\t * @return void\n")
+					write_utf8(output, "\t * @return {void}\n")
 
 				write_utf8(output, output_properties_for_obj(k))
 				write_utf8(output, "\t*/\n\n")
