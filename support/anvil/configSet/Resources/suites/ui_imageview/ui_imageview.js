@@ -8,28 +8,9 @@ module.exports = new function() {
 
 	this.name = "ui_imageview";
 	this.tests = [
-			{name: "TiNinePatchImage", timeout: 5000},
 			{name: "loadEvent", timeout: 10000},
-			{name: "loadEventForImageState", timeout: 30000}
+			{name: "loadEventForImageState", timeout: 600000}
 	];
-
-	//12961
-	this.TiNinePatchImage = function(testRun){
-		var win = Ti.UI.createWindow();
-		var view = Ti.UI.createView({
-			height: 100,
-			width: 100,
-			backgroundImage: '/suites/ui_imageview/image.png'
-		});
-		view.addEventListener('postlayout', function(){
-			valueOf(testRun, view.getHeight()).shouldBe(100);
-			valueOf(testRun, view.getHeight()).shouldBe(100);
-
-			finish(testRun);
-		});
-		win.add(view);
-		win.open();
-	}
 
 	//TIMOB-1333
 	this.loadEvent = function(testRun){
@@ -57,8 +38,8 @@ module.exports = new function() {
 			image: '/suites/ui_imageview/image.png',
 			height: 100
 		});
-		imgView.addEventListener('load', function(){
-			valueOf(testRun, imgView.touchEnabled).shouldBeFalse();
+		imgView.addEventListener('load', function(e){
+			valueOf(testRun, e.state).shouldBe('image');
 
 			finish(testRun);
 		});
