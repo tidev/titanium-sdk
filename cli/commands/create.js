@@ -6,6 +6,7 @@
  */
 
 var ti = require('titanium-sdk'),
+	fields = require('fields'),
 	fs = require('fs'),
 	path = require('path'),
 	wrench = require('wrench'),
@@ -19,137 +20,274 @@ exports.cliVersion = '>=3.2';
 exports.desc = __('creates a new mobile application or module');
 
 exports.config = function (logger, config, cli) {
-	return {
-		flags: {
-			force: {
-				abbr: 'f',
-				desc: __('force project creation even if path already exists')
+	return function (finished) {
+		cli.createHook('create.config', function (callback) {
+			// figure out all the platforms
+			var availablePlatforms = ti.platforms;
+				platformOptions = [],
+				titaniumSdkPath = (function scan(dir) {
+					var file = path.join(dir, 'manifest.json');
+					if (fs.existsSync(file)) {
+						return dir;
+					}
+					dir = path.dirname(dir);
+					return dir != '/' && scan(dir);
+				}(__dirname)),
+				platformNames = [],
+				hasIOS = false;
+
+			// for each real platform, get the platform's name
+			availablePlatforms.forEach(function (platform) {
+				var pkgJsonFile = path.join(titaniumSdkPath, platform, 'package.json');
+				if (fs.existsSync(pkgJsonFile)) {
+					var deploymentTargets = [ platform ],
+						pkgJson;
+					try {
+						pkgJson = JSON.parse(fs.readFileSync(pkgJsonFile));
+					} catch (ex) {}
+
+					// special check if this is iOS because hopefully someday "iphone" will
+					// be properly renamed "ios"
+					if (platform == 'iphone') {
+						platform = 'ios';
+					}
+					if (platform == 'ios') {
+						hasIOS = true;
+						deploymentTargets = [ 'iphone', 'ipad' ];
+					}
+
+					platformNames.push(pkgJson && pkgJson.title || platform);
+
+					platformOptions.push({
+						label: pkgJson && pkgJson.title || platform,
+						value: platform,
+						deploymentTargets: deploymentTargets
+					});
+				}
+			});
+
+			// if we have iOS, then inject iphone and ipad
+			if (hasIOS) {
+				platformOptions.push({
+					label: 'iPhone',
+					value: 'iphone',
+					deploymentTargets: [ 'iphone' ]
+				});
+				platformOptions.push({
+					label: 'iPad',
+					value: 'ipad',
+					deploymentTargets: [ 'ipad' ]
+				});
 			}
-		},
-		options: appc.util.mix({
-			platforms: {
-				abbr: 'p',
-				desc: __('the target build platform'),
-				prompt: {
-					default: ti.availablePlatformsNames,
-					label: __('Target platforms'),
-					error: __('Invalid list of target platforms'),
-					validator: function (platforms) {
-						var p = ti.scrubPlatforms(platforms);
-						if (p.bad.length) {
-							throw new appc.exception(__('Invalid platforms: %s', p.bad.join(', ')));
+
+			// sort the platforms
+			platformOptions.sort(function (a, b) {
+				return a.label < b.label;
+			});
+
+			// add all platforms
+			platformOptions.unshift({
+				label: __('All'),
+				platform: 'all',
+				deploymentTargets: Array.prototype.concat.apply([], platformOptions.filter(function (p) {
+					// we skip iOS since we've manually added iPhone and iPad above
+					return p.platform != 'ios';
+				}).map(function (p) {
+					return p.deploymentTargets;
+				}))
+			});
+dump(platformOptions);
+			callback(null, {
+				flags: {
+					force: {
+						abbr: 'f',
+						desc: __('force project creation even if path already exists')
+					}
+				},
+				options: appc.util.mix({
+					platforms: {
+						abbr: 'p',
+						callback: function (value) {
+							console.log('platforms set to "' + value + '"');
+						},
+						desc: __('the target build platform'),
+						prompt: function (callback) {
+							var maxLabelLen = 0,
+								deploymentTargets = {};
+							platformOptions.forEach(function (p) {
+								maxLabelLen = Math.max(maxLabelLen, p.label.length);
+								deploymentTargets[p.label.toLowerCase()] = p.deploymentTargets;
+								p.deploymentTargets.forEach(function (t) {
+									deploymentTargets[t] = p.deploymentTargets;
+								});
+							});
+
+							callback(fields.select({
+								title: __('Please select which platforms you wish to target:'),
+								promptLabel: __('Select platforms by number or name'),
+								default: '1', // just default to the first one, whatever that will be
+								formatters: {
+									option: function (opt, idx, num) {
+										return num + appc.string.rpad(opt.label, maxLabelLen).cyan + (opt.deploymentTargets.length > 1 ? ('  (' + opt.deploymentTargets.join(', ') + ')') : '').grey;
+									}
+								},
+								optionLabel: 'label',
+								optionValue: 'value',
+								margin: '',
+								numbered: true,
+								relistOnError: true,
+								complete: true,
+								suggest: true,
+								options: platformOptions,
+								validate: function (value, callback) {
+									var goodNames = {},
+										badNames = {};
+
+									value.split(',').forEach(function (v) {
+										v = v.trim().toLowerCase();
+dump(v);
+dump(deploymentTargets[v]);
+										if (deploymentTargets[v]) {
+											goodNames[v] = 1;
+										} else {
+											badNames[v] = 1;
+										}
+									});
+
+									var badLen = Object.keys(badNames).length;
+									if (badLen) {
+										logger.error(__n('Invalid platform: %s', 'Invalid platforms: %s', badLen, Object.keys(badNames).join(', ')) + '\n');
+										return false;
+									}
+
+									callback(null, Object.keys(goodNames).join(','));
+								}
+							}));
+						},
+						required: true,
+						validate: function (value, callback) {
+							console.log('validating "' + value + '"');
+							callback();
 						}
-						return true;
+						//values: ti.availablePlatformsNames
+						//skipValueCheck: true // we do our own validation
 					},
-				},
-				required: true,
-				values: ti.availablePlatformsNames,
-				skipValueCheck: true // we do our own validation
-			},
-			type: {
-				abbr: 't',
-				default: 'app',
-				desc: __('the type of project to create'),
-				values: ['app', 'module']
-			},
-			id: {
-				desc: __("the App ID in the format 'com.companyname.appname'"),
-				prompt: {
-					label: __('App ID'),
-					error: __('Invalid App ID'),
-					validator: function (id) {
-						if (!id) {
-							throw new appc.exception(__('Invalid app id'));
-						}
+					type: {
+						abbr: 't',
+						default: 'app',
+						desc: __('the type of project to create'),
+						skipValueCheck: true,
+						validate: function (value, callback) {
+							callback(/^app|module$/.test(value) ? null : new Error(__('Invalid project type "%s"', value)));
+						},
+						values: ['app'] // , 'module'],
+					},
+					id: {
+						desc: __("the App ID in the format 'com.companyname.appname'"),
+						prompt: {
+							label: __('App ID'),
+							error: __('Invalid App ID'),
+							validator: function (id) {
+								if (!id) {
+									throw new appc.exception(__('Invalid app id'));
+								}
 
-						// general app id validation
-						if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(id)) {
-							throw new appc.exception(__('Invalid app id "%s"', id), [
-								__('The app id must consist of letters, numbers, dashes, and underscores.'),
-								__('Note: Android does not allow dashes and iOS does not allow underscores.'),
-								__('The first character must be a letter or underscore.'),
-								__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)")
-							]);
-						}
-
-						if (cli.argv.platforms) {
-							var scrubbed = ti.scrubPlatforms(cli.argv.platforms).scrubbed;
-							if (scrubbed.indexOf('android') != -1) {
-								if (id.indexOf('-') != -1) {
+								// general app id validation
+								if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(id)) {
 									throw new appc.exception(__('Invalid app id "%s"', id), [
-										__('For apps targeting %s, the app id must not contain dashes.', 'Android'.cyan)
+										__('The app id must consist of letters, numbers, dashes, and underscores.'),
+										__('Note: Android does not allow dashes and iOS does not allow underscores.'),
+										__('The first character must be a letter or underscore.'),
+										__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)")
 									]);
 								}
 
-								if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(id)) {
-									throw new appc.exception(__('Invalid app id "%s"', id), [
-										__('For apps targeting %s, numbers are not allowed directly after periods.', 'Android'.cyan)
-									]);
-								}
+								if (cli.argv.platforms) {
+									var scrubbed = ti.scrubPlatforms(cli.argv.platforms).scrubbed;
+									if (scrubbed.indexOf('android') != -1) {
+										if (id.indexOf('-') != -1) {
+											throw new appc.exception(__('Invalid app id "%s"', id), [
+												__('For apps targeting %s, the app id must not contain dashes.', 'Android'.cyan)
+											]);
+										}
 
-								if (!ti.validAppId(id)) {
-									throw new appc.exception(__('Invalid app id "%s"', id), [
-										__('For apps targeting %s, the app id must not contain Java reserved words.', 'Android'.cyan)
-									]);
+										if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(id)) {
+											throw new appc.exception(__('Invalid app id "%s"', id), [
+												__('For apps targeting %s, numbers are not allowed directly after periods.', 'Android'.cyan)
+											]);
+										}
+
+										if (!ti.validAppId(id)) {
+											throw new appc.exception(__('Invalid app id "%s"', id), [
+												__('For apps targeting %s, the app id must not contain Java reserved words.', 'Android'.cyan)
+											]);
+										}
+									}
+
+									if (scrubbed.indexOf('ios') != -1 || scrubbed.indexOf('iphone') != -1) {
+										if (id.indexOf('_') != -1) {
+											throw new appc.exception(__('Invalid app id "%s"', id), [
+												__('For apps targeting %s, the app id must not contain underscores.', 'iOS'.cyan)
+											]);
+										}
+									}
 								}
+								return true;
 							}
-
-							if (scrubbed.indexOf('ios') != -1 || scrubbed.indexOf('iphone') != -1) {
-								if (id.indexOf('_') != -1) {
-									throw new appc.exception(__('Invalid app id "%s"', id), [
-										__('For apps targeting %s, the app id must not contain underscores.', 'iOS'.cyan)
-									]);
+						},
+						required: true
+					},
+					template: {
+						desc: __('the name of the project template to use'),
+						default: 'default'
+					},
+					name: {
+						abbr: 'n',
+						desc: __('the name of the project'),
+						prompt: {
+							label: __('Project name'),
+							error: __('Invalid project name')
+						},
+						required: true
+					},
+					url: {
+						abbr: 'u',
+						default: config.app.url || '',
+						desc: __('your company/personal URL'),
+					},
+					'workspace-dir': {
+						abbr: 'd',
+						default: config.app.workspace || '',
+						desc: __('the directory to place the project in'),
+						prompt: {
+							label: __('Directory to place project'),
+							error: __('Invalid directory'),
+							validator: function (dir) {
+								dir = afs.resolvePath(dir);
+								if (!fs.existsSync(dir)) {
+									throw new appc.exception(__('Specified directory does not exist'));
 								}
+								if (!afs.isDirWritable(dir)) {
+									throw new appc.exception(__('Specified directory not writable'));
+								}
+								return true;
 							}
-						}
-						return true;
+						},
+						required: !config.app.workspace || !fs.existsSync(afs.resolvePath(config.app.workspace))
 					}
-				},
-				required: true
-			},
-			template: {
-				desc: __('the name of the project template to use'),
-				default: 'default'
-			},
-			name: {
-				abbr: 'n',
-				desc: __('the name of the project'),
-				prompt: {
-					label: __('Project name'),
-					error: __('Invalid project name')
-				},
-				required: true
-			},
-			url: {
-				abbr: 'u',
-				default: config.app.url || '',
-				desc: __('your company/personal URL'),
-			},
-			'workspace-dir': {
-				abbr: 'd',
-				default: config.app.workspace || '',
-				desc: __('the directory to place the project in'),
-				prompt: {
-					label: __('Directory to place project'),
-					error: __('Invalid directory'),
-					validator: function (dir) {
-						dir = afs.resolvePath(dir);
-						if (!afs.exists(dir)) {
-							throw new appc.exception(__('Specified directory does not exist'));
-						}
-						if (!afs.isDirWritable(dir)) {
-							throw new appc.exception(__('Specified directory not writable'));
-						}
-						return true;
-					}
-				},
-				required: !config.app.workspace || !afs.exists(afs.resolvePath(config.app.workspace))
-			}
-		}, ti.commonOptions(logger, config))
+				}, ti.commonOptions(logger, config))
+			});
+		})(function (err, result) {
+			finished(result);
+		});
 	};
 };
 
 exports.validate = function (logger, config, cli) {
+
+console.log('starting validate()');
+process.exit(0);
+
 	var platforms = ti.scrubPlatforms(cli.argv.platforms);
 
 	if (platforms.bad.length) {
@@ -246,7 +384,7 @@ exports.validate = function (logger, config, cli) {
 	cli.argv['workspace-dir'] = afs.resolvePath(cli.argv['workspace-dir'] || '.');
 
 	var projectDir = path.join(cli.argv['workspace-dir'], cli.argv.name);
-	if (!cli.argv.force && afs.exists(projectDir)) {
+	if (!cli.argv.force && fs.existsSync(projectDir)) {
 		logger.error(__('Project directory already exists: %s', projectDir) + '\n');
 		logger.log(__("Run '%s' to overwrite existing project.", (cli.argv.$ + ' ' + process.argv.slice(2).join(' ') + ' --force').cyan) + '\n');
 		process.exit(1);
@@ -266,7 +404,7 @@ exports.run = function (logger, config, cli) {
 		projectConfig,
 		analyticsPayload;
 
-	afs.exists(projectDir) || wrench.mkdirSyncRecursive(projectDir);
+	fs.existsSync(projectDir) || wrench.mkdirSyncRecursive(projectDir);
 
 	if (type == 'app') {
 		logger.info(__('Creating Titanium Mobile application project'));
@@ -368,7 +506,7 @@ exports.run = function (logger, config, cli) {
 
 	platforms.scrubbed.forEach(function (platform) {
 		var p = afs.resolvePath(path.dirname(module.filename), '..', '..', platform, 'cli', 'commands', '_create.js');
-		if (afs.exists(p)) {
+		if (fs.existsSync(p)) {
 			logger.info(__('Copying "%s" platform resources', platform));
 			require(p).run(logger, config, cli, projectConfig);
 		}
