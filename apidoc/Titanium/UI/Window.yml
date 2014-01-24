@@ -9,7 +9,7 @@ methods:
   - name: close
     summary: Closes the window.
     description: |
-        Android only supports the argument type <closeWindowParams>.
+        Android only supports the argument type [closeWindowParams](closeWindowParams).
     parameters:
       - name: params
         summary: Animation or display properties to use when closing the window.
@@ -690,7 +690,7 @@ properties:
   - name: url
     summary: Loads a JavaScript file from a local URL.
     description: |
-        **Note:** The recommended way of creating windows with its own context is to either use the
+        **Note:** The recommended way of creating windows with their own context is to either use the
         [Alloy Framework](http://docs.appcelerator.com/titanium/latest/#!/guide/Alloy_Framework) or a
         [CommonJS module](http://docs.appcelerator.com/titanium/latest/#!/guide/CommonJS_Modules_in_Titanium)
         than using this property.  One benefit of using a CommonJS module is that it consumes less
@@ -830,7 +830,7 @@ description: |
     window with the get method.
 
     Note that for Alloy projects, you can simply pass the context as the second argument of the
-    <Alloy.createController> method, then retrieve the data with the special variable `arguments[0]`
+    Alloy.createController method, then retrieve the data with the special variable `arguments[0]`
     in the controller code.
 
     `app/lib/foo.js`:
@@ -969,7 +969,7 @@ description: |
     Starting with iOS 7, you can create transition animations when opening and closing windows in
     either a <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
 
-    Use the <Titanium.UI.createTransitionAnimation> method to specify an animation objects to hide and
+    Use the <Titanium.UI.iOS.createTransitionAnimation> method to specify an animation objects to hide and
     show the window, then set the newly created TransitionAnimation object to the window's
     <Titanium.UI.Window.transitionAnimation> property.
 
@@ -1300,7 +1300,7 @@ properties:
   - name: activityEnterAnimation
     summary: Animation resource to run on the activity (heavyweight window) being opened.
     description: |
-      This value will be ignored if <openWindowParams.animated> is set to false.
+      This value will be ignored if `animated` is set to false.
       See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
@@ -1319,7 +1319,7 @@ properties:
     summary: Animation resource to run on the activity that is being put in background
         as a heavyweight window is being opened above it.
     description: |
-      This value will be ignored if <openWindowParams.animated> is set to false.
+      This value will be ignored if `animated` is set to false.
       See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
@@ -1375,7 +1375,7 @@ properties:
   - name: activityEnterAnimation
     summary: Animation resource to use for the incoming activity.
     description: |
-      This value will be ignored if <closeWindowParams.animated> is set to false.
+      This value will be ignored if `animated` is set to false.
       See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
@@ -1383,7 +1383,7 @@ properties:
   - name: activityExitAnimation
     summary: Animation resource to use for the outgoing activity (heavyweight window).
     description: |
-      This value will be ignored if <closeWindowParams.animated> is set to false.
+      This value will be ignored if `animated` is set to false.
       See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
