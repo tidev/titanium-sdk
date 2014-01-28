@@ -22,82 +22,27 @@ exports.desc = __('creates a new mobile application or module');
 exports.config = function (logger, config, cli) {
 	return function (finished) {
 		cli.createHook('create.config', function (callback) {
-			// figure out all the platforms
-			var availablePlatforms = ti.platforms;
-				platformOptions = [],
-				titaniumSdkPath = (function scan(dir) {
-					var file = path.join(dir, 'manifest.json');
-					if (fs.existsSync(file)) {
-						return dir;
-					}
-					dir = path.dirname(dir);
-					return dir != '/' && scan(dir);
-				}(__dirname)),
-				platformNames = [],
-				hasIOS = false;
+			var conf,
+				idPrefix = config.get('app.idprefix'),
+				availablePlatforms = {},
+				validPlatforms = {};
 
-			// for each real platform, get the platform's name
-			availablePlatforms.forEach(function (platform) {
-				var pkgJsonFile = path.join(titaniumSdkPath, platform, 'package.json');
-				if (fs.existsSync(pkgJsonFile)) {
-					var deploymentTargets = [ platform ],
-						pkgJson;
-					try {
-						pkgJson = JSON.parse(fs.readFileSync(pkgJsonFile));
-					} catch (ex) {}
-
-					// special check if this is iOS because hopefully someday "iphone" will
-					// be properly renamed "ios"
-					if (platform == 'iphone') {
-						platform = 'ios';
-					}
-					if (platform == 'ios') {
-						hasIOS = true;
-						deploymentTargets = [ 'iphone', 'ipad' ];
-					}
-
-					platformNames.push(pkgJson && pkgJson.title || platform);
-
-					platformOptions.push({
-						label: pkgJson && pkgJson.title || platform,
-						value: platform,
-						deploymentTargets: deploymentTargets
-					});
+			// build list of all valid platforms
+			ti.platforms.forEach(function (p) {
+				if (/^iphone|ios|ipad$/.test(p)) {
+					validPlatforms['iphone'] = availablePlatforms['iphone'] = 1;
+					validPlatforms['ipad'] = availablePlatforms['ipad'] = 1;
+					validPlatforms['ios'] = 1;
+				} else {
+					validPlatforms[p] = availablePlatforms[p] = 1;
 				}
 			});
 
-			// if we have iOS, then inject iphone and ipad
-			if (hasIOS) {
-				platformOptions.push({
-					label: 'iPhone',
-					value: 'iphone',
-					deploymentTargets: [ 'iphone' ]
-				});
-				platformOptions.push({
-					label: 'iPad',
-					value: 'ipad',
-					deploymentTargets: [ 'ipad' ]
-				});
-			}
+			// add "all"
+			validPlatforms['all'] = 1;
+			availablePlatforms = ['all'].concat(Object.keys(availablePlatforms));
 
-			// sort the platforms
-			platformOptions.sort(function (a, b) {
-				return a.label < b.label;
-			});
-
-			// add all platforms
-			platformOptions.unshift({
-				label: __('All'),
-				platform: 'all',
-				deploymentTargets: Array.prototype.concat.apply([], platformOptions.filter(function (p) {
-					// we skip iOS since we've manually added iPhone and iPad above
-					return p.platform != 'ios';
-				}).map(function (p) {
-					return p.deploymentTargets;
-				}))
-			});
-dump(platformOptions);
-			callback(null, {
+			conf = {
 				flags: {
 					force: {
 						abbr: 'f',
@@ -105,160 +50,204 @@ dump(platformOptions);
 					}
 				},
 				options: appc.util.mix({
-					platforms: {
-						abbr: 'p',
-						callback: function (value) {
-							console.log('platforms set to "' + value + '"');
-						},
-						desc: __('the target build platform'),
+					id: {
+						desc: __("the App ID in the format 'com.companyname.appname'"),
+						order: 150,
 						prompt: function (callback) {
-							var maxLabelLen = 0,
-								deploymentTargets = {};
-							platformOptions.forEach(function (p) {
-								maxLabelLen = Math.max(maxLabelLen, p.label.length);
-								deploymentTargets[p.label.toLowerCase()] = p.deploymentTargets;
-								p.deploymentTargets.forEach(function (t) {
-									deploymentTargets[t] = p.deploymentTargets;
-								});
-							});
-
-							callback(fields.select({
-								title: __('Please select which platforms you wish to target:'),
-								promptLabel: __('Select platforms by number or name'),
-								default: '1', // just default to the first one, whatever that will be
-								formatters: {
-									option: function (opt, idx, num) {
-										return num + appc.string.rpad(opt.label, maxLabelLen).cyan + (opt.deploymentTargets.length > 1 ? ('  (' + opt.deploymentTargets.join(', ') + ')') : '').grey;
-									}
-								},
-								optionLabel: 'label',
-								optionValue: 'value',
-								margin: '',
-								numbered: true,
-								relistOnError: true,
-								complete: true,
-								suggest: true,
-								options: platformOptions,
+							callback(fields.text({
+								default: idPrefix ? idPrefix.replace(/\.$/, '') + '.' + cli.argv.name : undefined,
+								promptLabel: __('App ID'),
 								validate: function (value, callback) {
-									var goodNames = {},
-										badNames = {};
-
-									value.split(',').forEach(function (v) {
-										v = v.trim().toLowerCase();
-dump(v);
-dump(deploymentTargets[v]);
-										if (deploymentTargets[v]) {
-											goodNames[v] = 1;
+									conf.options.name.validate(value, function (err, value) {
+										if (err) {
+											logger.error(err.message + '\n');
+											callback(true);
 										} else {
-											badNames[v] = 1;
+											callback(null, value);
 										}
 									});
-
-									var badLen = Object.keys(badNames).length;
-									if (badLen) {
-										logger.error(__n('Invalid platform: %s', 'Invalid platforms: %s', badLen, Object.keys(badNames).join(', ')) + '\n');
-										return false;
-									}
-
-									callback(null, Object.keys(goodNames).join(','));
 								}
 							}));
 						},
 						required: true,
 						validate: function (value, callback) {
-							console.log('validating "' + value + '"');
-							callback();
+							if (!value) {
+								return callback(new Error(__('Please specify an app id')));
+							}
+/*
+							// general app id validation
+							if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(value)) {
+								throw new appc.exception(__('Invalid app id "%s"', value), [
+									__('The app id must consist of letters, numbers, dashes, and underscores.'),
+									__('Note: Android does not allow dashes and iOS does not allow underscores.'),
+									__('The first character must be a letter or underscore.'),
+									__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)")
+								]);
+							}
+
+							var scrubbed = ti.scrubPlatforms(cli.argv.platforms).scrubbed;
+							if (scrubbed.indexOf('android') != -1) {
+								if (id.indexOf('-') != -1) {
+									throw new appc.exception(__('Invalid app id "%s"', id), [
+										__('For apps targeting %s, the app id must not contain dashes.', 'Android'.cyan)
+									]);
+								}
+
+								if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(id)) {
+									throw new appc.exception(__('Invalid app id "%s"', id), [
+										__('For apps targeting %s, numbers are not allowed directly after periods.', 'Android'.cyan)
+									]);
+								}
+
+								if (!ti.validAppId(id)) {
+									throw new appc.exception(__('Invalid app id "%s"', id), [
+										__('For apps targeting %s, the app id must not contain Java reserved words.', 'Android'.cyan)
+									]);
+								}
+							}
+
+							if (scrubbed.indexOf('ios') != -1 || scrubbed.indexOf('iphone') != -1) {
+								if (id.indexOf('_') != -1) {
+									throw new appc.exception(__('Invalid app id "%s"', id), [
+										__('For apps targeting %s, the app id must not contain underscores.', 'iOS'.cyan)
+									]);
+								}
+							}
+*/
+							callback(null, value);
 						}
-						//values: ti.availablePlatformsNames
-						//skipValueCheck: true // we do our own validation
+					},
+					name: {
+						abbr: 'n',
+						desc: __('the name of the project'),
+						order: 140,
+						prompt: function (callback) {
+							callback(fields.text({
+								promptLabel: __('Project name'),
+								validate: conf.options.name.validate
+								/*
+								function (value, callback) {
+									(value, function (err, value) {
+										if (err) {
+											err.dump ? err.dump(logger.error) : logger.error(err.message);
+											logger.log();
+											callback(true);
+										} else {
+											callback(null, value);
+										}
+									});
+								}
+								*/
+							}));
+						},
+						required: true,
+						validate: function (value, callback) {
+							if (!value) {
+								throw new Error(__('Please specify a project name'));
+							}
+
+							// check the name
+							if (cli.argv.platforms.indexOf('android') != -1 && value.indexOf('&') != -1) {
+								throw new appc.exception(__('Ampersands (&) are not allowed in the project name when targeting Android'), [
+									'sdfhi',
+									'asdfwe'
+								]);
+							}
+
+							callback(null, value);
+						}
+					},
+					platforms: {
+						abbr: 'p',
+						desc: __('the target build platform'),
+						order: 120,
+						prompt: function (callback) {
+							callback(fields.text({
+								promptLabel: __('Target platform (%s)', availablePlatforms.join('|')),
+								default: 'all',
+								validate: function (value, callback) {
+									conf.options.platforms.validate(value, function (err, value) {
+										if (err) {
+											logger.error(err.message + '\n');
+											callback(true);
+										} else {
+											callback(null, value);
+										}
+									});
+								}
+							}));
+						},
+						required: true,
+						validate: function (value, callback) {
+							var goodValues = {},
+								badValues = {};
+
+							// just in case they set -p without a value
+							if (value === true) {
+								value = 'all';
+							}
+
+							value.trim().toLowerCase().split(',').forEach(function (s) {
+								if (s = s.trim()) {
+									if (validPlatforms[s]) {
+										goodValues[s] = 1;
+									} else {
+										badValues[s] = 1;
+									}
+								}
+							});
+
+							var badLen = Object.keys(badValues).length;
+							if (badLen) {
+								return callback(new Error(__n('Invalid platform: %%s', 'Invalid platforms: %%s', badLen, Object.keys(badValues).join(', '))));
+							}
+
+							if (goodValues.ios) {
+								goodValues.iphone = 1;
+								goodValues.ipad = 1;
+								delete goodValues.ios;
+							}
+
+							if (goodValues.all) {
+								goodValues = {};
+								availablePlatforms.forEach(function (p) {
+									if (p != 'all') {
+										goodValues[p] = 1;
+									}
+								});
+							}
+
+							callback(null, Object.keys(goodValues).join(','));
+						}
+					},
+					template: {
+						desc: __('the name of the project template to use'),
+						default: 'default',
+						order: 110,
+						required: true
 					},
 					type: {
 						abbr: 't',
 						default: 'app',
 						desc: __('the type of project to create'),
+						order: 100,
 						skipValueCheck: true,
 						validate: function (value, callback) {
 							callback(/^app|module$/.test(value) ? null : new Error(__('Invalid project type "%s"', value)));
 						},
-						values: ['app'] // , 'module'],
-					},
-					id: {
-						desc: __("the App ID in the format 'com.companyname.appname'"),
-						prompt: {
-							label: __('App ID'),
-							error: __('Invalid App ID'),
-							validator: function (id) {
-								if (!id) {
-									throw new appc.exception(__('Invalid app id'));
-								}
-
-								// general app id validation
-								if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(id)) {
-									throw new appc.exception(__('Invalid app id "%s"', id), [
-										__('The app id must consist of letters, numbers, dashes, and underscores.'),
-										__('Note: Android does not allow dashes and iOS does not allow underscores.'),
-										__('The first character must be a letter or underscore.'),
-										__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)")
-									]);
-								}
-
-								if (cli.argv.platforms) {
-									var scrubbed = ti.scrubPlatforms(cli.argv.platforms).scrubbed;
-									if (scrubbed.indexOf('android') != -1) {
-										if (id.indexOf('-') != -1) {
-											throw new appc.exception(__('Invalid app id "%s"', id), [
-												__('For apps targeting %s, the app id must not contain dashes.', 'Android'.cyan)
-											]);
-										}
-
-										if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(id)) {
-											throw new appc.exception(__('Invalid app id "%s"', id), [
-												__('For apps targeting %s, numbers are not allowed directly after periods.', 'Android'.cyan)
-											]);
-										}
-
-										if (!ti.validAppId(id)) {
-											throw new appc.exception(__('Invalid app id "%s"', id), [
-												__('For apps targeting %s, the app id must not contain Java reserved words.', 'Android'.cyan)
-											]);
-										}
-									}
-
-									if (scrubbed.indexOf('ios') != -1 || scrubbed.indexOf('iphone') != -1) {
-										if (id.indexOf('_') != -1) {
-											throw new appc.exception(__('Invalid app id "%s"', id), [
-												__('For apps targeting %s, the app id must not contain underscores.', 'iOS'.cyan)
-											]);
-										}
-									}
-								}
-								return true;
-							}
-						},
-						required: true
-					},
-					template: {
-						desc: __('the name of the project template to use'),
-						default: 'default'
-					},
-					name: {
-						abbr: 'n',
-						desc: __('the name of the project'),
-						prompt: {
-							label: __('Project name'),
-							error: __('Invalid project name')
-						},
-						required: true
+						values: ['app'] // , 'module']
 					},
 					url: {
 						abbr: 'u',
 						default: config.app.url || '',
 						desc: __('your company/personal URL'),
+						order: 160
 					},
 					'workspace-dir': {
 						abbr: 'd',
 						default: config.app.workspace || '',
 						desc: __('the directory to place the project in'),
+						order: 130,
 						prompt: {
 							label: __('Directory to place project'),
 							error: __('Invalid directory'),
@@ -276,7 +265,8 @@ dump(deploymentTargets[v]);
 						required: !config.app.workspace || !fs.existsSync(afs.resolvePath(config.app.workspace))
 					}
 				}, ti.commonOptions(logger, config))
-			});
+			};
+			callback(null, conf);
 		})(function (err, result) {
 			finished(result);
 		});
