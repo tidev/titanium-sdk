@@ -1540,6 +1540,9 @@ properties:
     
   - name: currentWindow
     summary: The active window associated with the executing JavaScript context.
+    description: |
+        This property is only available when using the <Titanium.UI.Window.url> property to load
+        JavaScript files in their own contexts.
     type: Titanium.UI.Window
     permission: read-only
     exclude-platforms: [blackberry]
