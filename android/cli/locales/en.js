@@ -1,6 +1,7 @@
 {
+	"No valid Android SDK targets found.": "No valid Android SDK targets found.",
 	"No Android SDK targets found.": "No Android SDK targets found.",
-	"Please download SDK targets (api level %s or newer) via Android SDK Manager and try again.": "Please download SDK targets (api level %s or newer) via Android SDK Manager and try again.",
+	"Please download an Android SDK target API level %s or newer from the Android SDK Manager and try again.": "Please download an Android SDK target API level %s or newer from the Android SDK Manager and try again.",
 	"Unable to locate the Java Development Kit": "Unable to locate the Java Development Kit",
 	"You can specify the location by setting the %s environment variable.": "You can specify the location by setting the %s environment variable.",
 	"JDK version %s detected, but only version %s is supported": "JDK version %s detected, but only version %s is supported",
