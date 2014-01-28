@@ -2467,13 +2467,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				delete this.lastBuildFiles[to];
 
 				try {
-					// parse the AST
-					var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-
-					// we want to sort by the "to" filename so that we correctly handle file overwriting
-					this.tiSymbols[to] = r.symbols;
-
 					this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
+						// parse the AST
+						var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+
+						// we want to sort by the "to" filename so that we correctly handle file overwriting
+						this.tiSymbols[to] = r.symbols;
+
 						var dir = path.dirname(to);
 						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
