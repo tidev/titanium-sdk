@@ -19,7 +19,8 @@ module.exports = new function() {
 		{name: "numberTypes"},
 		{name: "booleanType"},
 		{name: "wrappedObjects"},
-		{name: "nativePrototypes"}
+		{name: "nativePrototypes"},
+		{name: "ISO_DateFormatting"}
 	]
 
 	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/1600-android-jsonstringify-incorrectly-handles-dates-including-silently-faiing
@@ -139,6 +140,13 @@ module.exports = new function() {
 		valueOf(testRun, z.boolFunction()).shouldBe(true);
 
 		delete Object.prototype.objFunction;
+		finish(testRun);
+	}
+
+	//TIMOB-1640
+	this.ISO_DateFormatting = function(testRun) {
+		valueOf(testRun, new Date("2010-09-16T12:30:00Z")).shouldBe('Thu Sep 16 2010 18:00:00 GMT+0530 (IST)');
+		
 		finish(testRun);
 	}
 }
