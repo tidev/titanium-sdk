@@ -867,8 +867,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 			}, conf.options['store-password']);
 			delete conf.options.password.abbr;
 
-			callback(_t.conf = conf);
-		})(function (err, results, result) {
+			callback(null, _t.conf = conf);
+		})(function (err, result) {
 			finished(result);
 		});
 	}.bind(this);
@@ -2112,7 +2112,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	var ignoreDirs = this.ignoreDirs,
 		ignoreFiles = this.ignoreFiles,
 		extRegExp = /\.(\w+)$/,
-		drawableRegExp = /^images\/(high|medium|low|res\-[^\/]+)(\/(.*))?/,
+		drawableRegExp = /^images\/(high|medium|low|res\-[^\/]+)(\/(.*))/,
 		drawableDpiRegExp = /^(high|medium|low)$/,
 		drawableExtRegExp = /((\.9)?\.(png|jpg))$/,
 		splashScreenRegExp = /^default\.(9\.png|png|jpg)$/,
@@ -2198,7 +2198,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				var relPath = from.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, ''),
 					m = relPath.match(drawableRegExp),
 					isDrawable = false;
-				if (m && m.length >= 4) {
+
+				if (m && m.length >= 4 && m[3]) {
 					var destFilename = m[3].toLowerCase(),
 						name = destFilename.replace(drawableExtRegExp, ''),
 						extMatch = destFilename.match(drawableExtRegExp),
@@ -2466,13 +2467,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				delete this.lastBuildFiles[to];
 
 				try {
-					// parse the AST
-					var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-
-					// we want to sort by the "to" filename so that we correctly handle file overwriting
-					this.tiSymbols[to] = r.symbols;
-
 					this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
+						// parse the AST
+						var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+
+						// we want to sort by the "to" filename so that we correctly handle file overwriting
+						this.tiSymbols[to] = r.symbols;
+
 						var dir = path.dirname(to);
 						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
@@ -2564,13 +2565,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				path.join(this.platformPath, titaniumPrep),
 				args,
 				opts,
-				function (err, results, error) {
-					if (!error) {
+				function (err) {
+					if (!err) {
 						return next();
 					}
 
 					if (process.platform != 'win32') {
-						fatal(error);
+						fatal(err);
 					}
 
 					// windows 64-bit failed, try again using 32-bit
@@ -2580,9 +2581,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						path.join(this.platformPath, titaniumPrep),
 						args,
 						opts,
-						function (err, results, error) {
-							if (error) {
-								fatal(error);
+						function (err) {
+							if (err) {
+								fatal(err);
 							}
 							next();
 						}
@@ -3145,9 +3146,11 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 	this.logger.info(__('Generating i18n files'));
 
 	var data = i18n.load(this.projectDir, this.logger, {
-		ignoreDirs: this.ignoreDirs,
-		ignoreFiles: this.ignoreFiles
-	});
+			ignoreDirs: this.ignoreDirs,
+			ignoreFiles: this.ignoreFiles
+		}),
+		badStringNames = {};
+
 	data.en || (data.en = {});
 	data.en.app || (data.en.app = {});
 	data.en.app.appname || (data.en.app.appname = this.tiapp.name);
@@ -3170,7 +3173,10 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 		root.appendChild(appnameNode);
 
 		data[locale].strings && Object.keys(data[locale].strings).forEach(function (name) {
-			if (name != 'appname') {
+			if (name.indexOf(' ') != -1) {
+				badStringNames[locale] || (badStringNames[locale] = []);
+				badStringNames[locale].push(name);
+			} else if (name != 'appname') {
 				var node = dom.createElement('string');
 				node.setAttribute('name', name);
 				node.setAttribute('formatted', 'false');
@@ -3189,6 +3195,22 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 		}
 		this.writeXmlFile(dom.documentElement, dest);
 	}, this);
+
+	if (Object.keys(badStringNames).length) {
+		this.logger.error(__('Found invalid i18n string names:'));
+		Object.keys(badStringNames).forEach(function (locale) {
+			badStringNames[locale].forEach(function (s) {
+				this.logger.error('  "' + s + '" (' + locale + ')');
+			}, this);
+		}, this);
+		this.logger.error(__('Android does not allow i18n string names with spaces.'));
+		if (!this.config.get('android.excludeInvalidI18nStrings', false)) {
+			this.logger.error(__('To exclude invalid i18n strings from the build, run:'));
+			this.logger.error('    ' + this.cli.argv.$ + ' config android.excludeInvalidI18nStrings true');
+			this.logger.log();
+			process.exit(1);
+		}
+	}
 
 	next();
 };
@@ -3451,6 +3473,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				var am = new AndroidManifest;
 				am.parse(fill(moduleXml.android.manifest));
 				// we don't want modules to override the <supports-screens> or <uses-sdk> tags
+				delete am.__attr__;
 				delete am['supports-screens'];
 				delete am['uses-sdk'];
 				finalAndroidManifest.merge(am);
@@ -3978,9 +4001,7 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 	this.cli.createHook('build.android.writeBuildManifest', this, function (manifest, cb) {
 		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
 		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
-		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), function () {
-			cb();
-		});
+		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
 	})({
 		target: this.target,
 		deployType: this.deployType,
@@ -4014,9 +4035,7 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		servicesHash: this.servicesHash,
 		jssFilesHash: this.jssFilesHash,
 		jarLibHash: this.jarLibHash
-	}, function (err, results, result) {
-		callback();
-	});
+	}, callback);
 };
 
 // create the builder instance and expose the public api

@@ -132,6 +132,7 @@ public class TiAnimationBuilder
 	@SuppressWarnings("rawtypes")
 	protected HashMap options;
 	protected View view;
+	protected AnimatorHelper animatorHelper;
 	protected TiViewProxy viewProxy;
 
 	public TiAnimationBuilder()
@@ -320,13 +321,6 @@ public class TiAnimationBuilder
 	{
 		List<Animator> animators = new ArrayList<Animator>();
 		boolean includesRotation = false;
-		AnimatorUpdateListener updateListener = null;
-		// For pre-Honeycomb, there will be flicker during animation if we update the layout based on the
-		// scaling/translation factors between animation frames.
-		// Only re-layout for Honeycomb+. For now, we only re-layout for scaling and translation.
-		if (!PRE_HONEYCOMB) {
-			updateListener = new AnimatorUpdateListener();
-		}
 
 		if (toOpacity != null) {
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "alpha", toOpacity.floatValue()));
@@ -342,6 +336,12 @@ public class TiAnimationBuilder
 		}
 
 		if (tdm != null) {
+			AnimatorUpdateListener updateListener = null;
+			// Need to invalidate the parent view for Honeycomb+. Otherwise it will not draw correctly.
+			if (!PRE_HONEYCOMB) {
+				updateListener = new AnimatorUpdateListener();
+			}
+
 			// Derive a set of property Animators from the
 			// operations in the matrix so we can go ahead
 			// and use Honeycomb+ animations rather than
@@ -371,15 +371,24 @@ public class TiAnimationBuilder
 						case Operation.TYPE_ROTATE:
 							includesRotation = true;
 							if (operation.rotationFromValueSpecified) {
-								addAnimator(animators, ObjectAnimator.ofFloat(view, "rotation", operation.rotateFrom,
-										operation.rotateTo));
+								ObjectAnimator anim = ObjectAnimator.ofFloat(view, "rotation", operation.rotateFrom,
+									operation.rotateTo);
+								if (updateListener != null) {
+									anim.addUpdateListener(updateListener);
+								}
+								addAnimator(animators, anim);
 							} else {
-								addAnimator(animators, ObjectAnimator.ofFloat(view, "rotation", operation.rotateTo));
+								ObjectAnimator anim = ObjectAnimator.ofFloat(view, "rotation", operation.rotateTo);
+								if (updateListener != null) {
+									anim.addUpdateListener(updateListener);
+								}
+								addAnimator(animators, anim);
 							}
 							break;
 						case Operation.TYPE_SCALE:
 							if (operation.scaleFromValuesSpecified) {
-								ObjectAnimator animX = ObjectAnimator.ofFloat(view, "scaleX", operation.scaleFromX, operation.scaleToX);
+								ObjectAnimator animX = ObjectAnimator.ofFloat(view, "scaleX", operation.scaleFromX,
+									operation.scaleToX);
 								if (updateListener != null) {
 									animX.addUpdateListener(updateListener);
 								}
@@ -462,15 +471,25 @@ public class TiAnimationBuilder
 			TiCompositeLayout.computePosition(parentView, optionTop, optionCenterY, optionBottom, h, 0, parentHeight,
 					vertical);
 
-			int translationX = horizontal[0] - x;
-			int translationY = vertical[0] - y;
+			// For pre-Honeycomb, there will be flicker during animation if using animatorHelper.
+			if (PRE_HONEYCOMB) {
+				int translationX = horizontal[0] - x;
+				int translationY = vertical[0] - y;
+				addAnimator(animators, ObjectAnimator.ofFloat(view, "translationX", translationX));
+				addAnimator(animators, ObjectAnimator.ofFloat(view, "translationY", translationY));
 
-			ObjectAnimator animX = ObjectAnimator.ofFloat(view, "translationX", translationX);
-			if (updateListener != null) {
-				animX.addUpdateListener(updateListener);
+			// For Honeycomb+, animatorHelper will reset layout parameters so the layout will keep correct (TIMOB-15951).
+			} else {
+				if (animatorHelper == null) {
+					animatorHelper = new AnimatorHelper();
+				}
+				if (left != null || right != null || centerX != null) {
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "left", x, horizontal[0]));
+				}
+				if (top != null || bottom != null || centerY != null) {
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "top", y, vertical[0]));
+				}
 			}
-			addAnimator(animators, animX);
-			addAnimator(animators, ObjectAnimator.ofFloat(view, "translationY", translationY));
 
 			// Pre-Honeycomb, we will need to update layout params at end of
 			// animation so that touch events will be recognized at new location,
@@ -483,7 +502,6 @@ public class TiAnimationBuilder
 		}
 
 		if (tdm == null && (width != null || height != null)) {
-			// A Scale animation *not* done via the 2DMatrix.
 			TiDimension optionWidth, optionHeight;
 
 			if (width != null) {
@@ -508,41 +526,25 @@ public class TiAnimationBuilder
 			int toWidth = optionWidth.getAsPixels(parentView != null ? parentView : view);
 			int toHeight = optionHeight.getAsPixels(parentView != null ? parentView : view);
 
-			float scaleX = (float) toWidth / w;
-			float scaleY = (float) toHeight / h;
+			// For pre-Honeycomb, there will be flicker during animation if using animatorHelper.
+			if (PRE_HONEYCOMB) {
+				float scaleX = (float) toWidth / w;
+				float scaleY = (float) toHeight / h;
+				addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleX", scaleX));
+				addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", scaleY));
 
-			// On Honeycomb+, if the original width/height is 0, we need to set width to a non-zero value so it can be scaled.
-			if (!PRE_HONEYCOMB && (w == 0 || h == 0)) {
-				ViewGroup.LayoutParams params = view.getLayoutParams();
-				TiCompositeLayout.LayoutParams tiParams = null;
-				if (params instanceof TiCompositeLayout.LayoutParams) {
-					tiParams = (TiCompositeLayout.LayoutParams) params;
+			// For Honeycomb+, animatorHelper will reset layout parameters so the layout will keep correct (TIMOB-15951, TIMOB-16087).
+			} else {
+				if (animatorHelper == null) {
+					animatorHelper = new AnimatorHelper();
 				}
-				if (w == 0) {
-					params.width = 1;
-					scaleX = (float) toWidth;
-					if (tiParams != null) {
-						tiParams.optionWidth = new TiDimension(1, TiDimension.TYPE_WIDTH);
-						tiParams.optionWidth.setUnits(TypedValue.COMPLEX_UNIT_PX);
-					}
+				if (width != null) {
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "width", w, toWidth));
 				}
-				if (h == 0) {
-					params.height = 1;
-					scaleY = (float) toHeight;
-					if (tiParams != null) {
-						tiParams.optionHeight = new TiDimension(1, TiDimension.TYPE_WIDTH);
-						tiParams.optionHeight.setUnits(TypedValue.COMPLEX_UNIT_PX);
-					}
+				if (height != null) {
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "height", h, toHeight));
 				}
-				view.setLayoutParams(params);
 			}
-
-			ObjectAnimator animX = ObjectAnimator.ofFloat(view, "scaleX", scaleX);
-			if (updateListener != null) {
-				animX.addUpdateListener(updateListener);
-			}
-			addAnimator(animators, animX);
-			addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", scaleY));
 
 			setAnchor(w, h);
 
@@ -639,8 +641,6 @@ public class TiAnimationBuilder
 	{
 		view.setPivotX(pivotX);
 		view.setPivotY(pivotY);
-		//invalidate the view to update the canvas after setting pivots [TIMOB-2373].
-		view.invalidate();
 	}
 
 	private void setViewPivot(float pivotX, float pivotY)
@@ -1111,13 +1111,91 @@ public class TiAnimationBuilder
 	}
 
 	/**
+	 * A helper class for Honeycomb+ Property Animators to animate width/height/top/bottom/left/right/center.
+	 * Based on the Android doc http://developer.android.com/guide/topics/graphics/prop-animation.html, to have
+	 * the ObjectAnimator update properties correctly, the property must have a setter function.
+	 */
+	protected class AnimatorHelper
+	{
+		public void setWidth(final int w)
+		{
+			ViewGroup.LayoutParams params = view.getLayoutParams();
+			params.width = w;
+
+			if (params instanceof TiCompositeLayout.LayoutParams) {
+				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
+				tiParams.optionWidth = new TiDimension(w, TiDimension.TYPE_WIDTH);
+				tiParams.optionWidth.setUnits(TypedValue.COMPLEX_UNIT_PX);
+			}
+
+			view.setLayoutParams(params);
+			ViewParent vp = view.getParent();
+			if (vp instanceof View) {
+				// Need to invalidate the parent view. Otherwise, it will not draw correctly.
+				((View) vp).invalidate();
+			}
+		}
+
+		public void setHeight(final int h)
+		{
+			ViewGroup.LayoutParams params = view.getLayoutParams();
+			params.height = h;
+
+			if (params instanceof TiCompositeLayout.LayoutParams) {
+				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
+				tiParams.optionHeight = new TiDimension(h, TiDimension.TYPE_HEIGHT);
+				tiParams.optionHeight.setUnits(TypedValue.COMPLEX_UNIT_PX);
+			}
+
+			view.setLayoutParams(params);
+			ViewParent vp = view.getParent();
+			if (vp instanceof View) {
+				((View) vp).invalidate();
+			}
+		}
+
+		public void setLeft(final int l)
+		{
+			ViewGroup.LayoutParams params = view.getLayoutParams();
+			if (params instanceof TiCompositeLayout.LayoutParams) {
+				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
+				tiParams.optionLeft = new TiDimension(l, TiDimension.TYPE_LEFT);
+				tiParams.optionLeft.setUnits(TypedValue.COMPLEX_UNIT_PX);
+			}
+			view.requestLayout();
+			ViewParent vp = view.getParent();
+			if (vp instanceof View) {
+				((View) vp).invalidate();
+			}
+		}
+
+		public void setTop(final int t)
+		{
+			ViewGroup.LayoutParams params = view.getLayoutParams();
+			if (params instanceof TiCompositeLayout.LayoutParams) {
+				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
+				tiParams.optionTop = new TiDimension(t, TiDimension.TYPE_TOP);
+				tiParams.optionTop.setUnits(TypedValue.COMPLEX_UNIT_PX);
+			}
+			view.requestLayout();
+			ViewParent vp = view.getParent();
+			if (vp instanceof View) {
+				((View) vp).invalidate();
+			}
+		}
+	}
+
+	/**
 	 * The listener to receive callbacks on every animation frame.
 	 */
 	protected class AnimatorUpdateListener implements ValueAnimator.AnimatorUpdateListener
 	{
 		public void onAnimationUpdate(ValueAnimator animation)
 		{
-			view.requestLayout();
+			ViewParent vp = view.getParent();
+			if (vp instanceof View) {
+				((View) vp).invalidate();
+			}
 		}
 	}
 

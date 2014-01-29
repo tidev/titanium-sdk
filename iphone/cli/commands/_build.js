@@ -251,7 +251,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 				var provisioningProfileLookup = {};
 
 				cli.createHook('build.ios.config', function (callback) {
-					callback({
+					callback(null, {
 						flags: {
 							'force-copy': {
 								desc: __('forces files to be copied instead of symlinked for %s builds only', 'simulator'.cyan)
@@ -766,7 +766,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							}
 						}
 					});
-				})(function (err, results, result) {
+				})(function (err, result) {
 					done(_t.conf = result);
 				});
 			}.bind(this));
@@ -2090,9 +2090,7 @@ iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 	this.cli.createHook('build.ios.writeBuildManifest', this, function (manifest, cb) {
 		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
 		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
-		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), function () {
-			cb();
-		});
+		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
 	})({
 		target: this.target,
 		deployType: this.deployType,
@@ -2118,9 +2116,7 @@ iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 		forceCopy: !!this.forceCopy,
 		forceCopyAll: !!this.forceCopyAll,
 		encryptJS: !!this.encryptJS
-	}, function (err, results, result) {
-		next();
-	});
+	}, next);
 };
 
 iOSBuilder.prototype.compileI18NFiles = function compileI18NFiles(next) {
@@ -2873,13 +2869,13 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 				}
 
 				try {
-					// parse the AST
-					var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-
-					// we want to sort by the "to" filename so that we correctly handle file overwriting
-					this.tiSymbols[to] = r.symbols;
-
 					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
+						// parse the AST
+						var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+
+						// we want to sort by the "to" filename so that we correctly handle file overwriting
+						this.tiSymbols[to] = r.symbols;
+
 						var dir = path.dirname(to);
 						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
