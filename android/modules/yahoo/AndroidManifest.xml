@@ -5,6 +5,5 @@
 
 	<uses-sdk android:minSdkVersion="8" />
 
-	<application android:label="@string/app_name">
-	</application>
+	<application/>
 </manifest>
