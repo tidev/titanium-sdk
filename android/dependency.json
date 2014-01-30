@@ -2,6 +2,7 @@
 	"min_api_level": "10",
 	"dependencies":
 	{
+		"appcompat":[],
 		"accelerometer":[],
 		"analytics":[],
 		"android":[],
