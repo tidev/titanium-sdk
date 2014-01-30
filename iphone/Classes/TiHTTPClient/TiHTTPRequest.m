@@ -1,17 +1,13 @@
-//
-//  TiRequest.m
-//  HTTPClient
-//
-//  Created by Pedro Enrique on 1/16/14.
-//  Copyright (c) 2014 Pedro Enrique. All rights reserved.
-//
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ *
+ * Special thanks to Pedro Enrique for implementing this.
+ */
 
-#import "TiHTTPRequest.h"
-#import "TiHTTPResponse.h"
-#import "TiHTTPPostForm.h"
-#import "TiHTTPHelper.h"
-#import "TiHTTPOperation.h"
-
+#import "TiHTTPClient.h"
 
 @implementation TiHTTPRequest
 @synthesize url = _url;

@@ -1,12 +1,13 @@
-//
-//  TiHelper.m
-//  HTTPClient
-//
-//  Created by Pedro Enrique on 1/20/14.
-//  Copyright (c) 2014 Pedro Enrique. All rights reserved.
-//
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ *
+ * Special thanks to Pedro Enrique for implementing this.
+ */
 
-#import "TiHTTPHelper.h"
+#import "TiHTTPClient.h"
 
 @implementation TiHTTPHelper
 
@@ -14,6 +15,7 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
 
 +(NSString *)base64encode:(NSData *)plainText
 {
+    
     int encodedLength = (4 * (([plainText length] / 3) + (1 - (3 - ([plainText length] % 3)) / 3))) + 1;
     unsigned char *outputBuffer = malloc(encodedLength);
     unsigned char *inputBuffer = (unsigned char *)[plainText bytes];

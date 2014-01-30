@@ -1,12 +1,13 @@
-//
-//  TiHTTPOperation.m
-//  Titanium
-//
-//  Created by Pedro Enrique on 1/22/14.
-//
-//
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ *
+ * Special thanks to Pedro Enrique for implementing this.
+ */
 
-#import "TiHTTPOperation.h"
+#import "TiHTTPClient.h"
 
 @implementation TiHTTPOperation
 
