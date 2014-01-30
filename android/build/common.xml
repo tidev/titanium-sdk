@@ -652,7 +652,14 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<if>
 				<istrue value="${@{module}.res.avail}"/>
 				<then>
-					<zip.module.res name="@{module}"/>
+					<fileset dir="${modules.dir}/@{module}/res" id="fileset"/>
+  					<pathconvert refid="fileset" property="@{module}.res.empty" setonempty="false"/>
+  					<if>
+  					    <isset property="@{module}.res.empty"/>
+  					    <then>
+							<zip.module.res name="@{module}"/>
+  					    </then>
+  					</if>
 				</then>
 			</if>
 		</sequential>
