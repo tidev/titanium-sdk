@@ -1479,12 +1479,17 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 					if (module.jarFile) {
 						// read in the bindings
-						module.bindings = this.getNativeModuleBindings(module.jarFile);
-						if (!module.bindings) {
-							logger.error(__('Module %s version %s is missing bindings json file', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
+						try {
+							module.bindings = this.getNativeModuleBindings(module.jarFile);
+							if (!module.bindings) {
+								logger.error(__('Module %s version %s is missing bindings json file', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
+								process.exit(1);
+							}
+							bindingsHashes.push(hash(JSON.stringify(module.bindings)));
+						} catch (ex) {
+							logger.error(__('The module "%s" has an invalid jar file: %s', module.id, module.jarFile) + '\n');
 							process.exit(1);
 						}
-						bindingsHashes.push(hash(JSON.stringify(module.bindings)));
 					}
 
 					this.nativeLibModules.push(module);
