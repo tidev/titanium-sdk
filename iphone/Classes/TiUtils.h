@@ -482,6 +482,9 @@ typedef enum
 
 +(UITextAlignment)textAlignmentValue:(id)alignment;
 
++(NSString*)jsonStringify:(id)value;
++(id)jsonParse:(NSString*)value;
+
 /**
  Whether or not the current device orientation is portrait.
  @return _YES_ is the current device orientation is portrait, _NO_ otherwise.

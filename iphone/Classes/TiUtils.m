@@ -1823,4 +1823,33 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 			message,@"error", nil];
 }
 
++(NSString*)jsonStringify:(id)value
+{
+    if(![value isKindOfClass:[NSDictionary class]] && ![value isKindOfClass:[NSArray class]])
+        return @"";
+    NSError *err = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:value
+                                                       options:kNilOptions
+                                                         error:&err];
+    if (jsonData == nil || [jsonData length] == 0 || err != nil) {
+        return @"";
+    } else {
+        NSString *str = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        return [str autorelease];
+    }
+
+}
++(id)jsonParse:(NSString*)value
+{
+    NSError *err = nil;
+    id obj =[NSJSONSerialization JSONObjectWithData: [value dataUsingEncoding:NSUTF8StringEncoding]
+                                              options: NSJSONReadingMutableContainers
+                                                error: &err];
+    if(err != nil) {
+        DeveloperLog(@"Error parsing json string: %@", [err localizedDescription]);
+        return nil;
+    }
+    return obj;
+}
+
 @end

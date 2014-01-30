@@ -8,7 +8,6 @@
 #import "TiApp.h"
 #import "TiBase.h"
 #import "TiHost.h"
-#import "SBJSON.h"
 #import "TiHTTPClient/TiHTTPClient.h"
 
 #import <sys/utsname.h>
@@ -201,16 +200,12 @@ NSString * const TI_DB_VERSION = @"1";
 	
 	NSMutableArray *data = [NSMutableArray array];
 	
-	SBJSON *json = [[[SBJSON alloc] init] autorelease];
-	
 	PLSqliteResultSet *rs = (PLSqliteResultSet*)[database executeQuery:@"SELECT data FROM pending_events"];
 	while ([rs next])
 	{
 		NSString *event = [rs stringForColumn:@"data"];
-		NSError* jsonError = nil;
-		id frag = [json fragmentWithString:event error:&jsonError];
-		if (jsonError) {
-			NSLog(@"[ERROR] Problem sending analytics: %@", [jsonError localizedDescription]);
+		id frag = [TiUtils jsonParse:event];
+		if (frag == nil) {
 			NSLog(@"[ERROR] Dropped event was: %@", event);
 			continue;
 		}
@@ -254,10 +249,8 @@ NSString * const TI_DB_VERSION = @"1";
 		NSString *result = [[request response] responseString];
 		if (result!=nil)
 		{
-			NSData *d = [NSJSONSerialization dataWithJSONObject:data options:NSJSONWritingPrettyPrinted error:nil];
-			NSString *stringifiedData = [NSString stringWithUTF8String: [d bytes]];
 			DeveloperLog(@"[DEBUG] analytics response %@",result);
-			DeveloperLog(@"[DEBUG] We tried to send to %@ the data: %@ ", url, stringifiedData);
+			DeveloperLog(@"[DEBUG] We tried to send to %@ the data: %@ ", url, [TiUtils jsonStringify:data]);
         }
 		
 		// if we get here, it succeeded and we can clean up records in DB
@@ -344,7 +337,7 @@ NSString * const TI_DB_VERSION = @"1";
 		[dict setObject:remoteDeviceUUID forKey:@"rdu"];
 	}
 
-	id value = [SBJSON stringify:dict];
+	id value = [TiUtils jsonStringify:dict];
 	self.lastEvent = value;
 	
 	NSString *sql = [NSString stringWithFormat:@"INSERT INTO pending_events VALUES (?)"];
@@ -594,7 +587,7 @@ NSString * const TI_DB_VERSION = @"1";
 {
 	if (data!=nil && [data isKindOfClass:[NSDictionary class]]==NO)
 	{
-		id value = [SBJSON stringify:data];
+		id value = [TiUtils jsonValue:data];
 		data = [NSDictionary dictionaryWithObject:value forKey:@"data"];
 	}
 	return data;
