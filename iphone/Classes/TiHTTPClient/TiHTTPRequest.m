@@ -29,7 +29,8 @@
     RELEASE_TO_NIL(_requestPassword);
     RELEASE_TO_NIL(_postForm);
     RELEASE_TO_NIL(_operation);
-    RELEASE_TO_NIL(_userInfo)
+    RELEASE_TO_NIL(_userInfo);
+    RELEASE_TO_NIL(_headers)
     [super dealloc];
 }
 - (id)init
@@ -74,6 +75,13 @@
         {
             [_request setValue:[headers valueForKey:key] forHTTPHeaderField:key];
             PELog(@"Header: %@: %@", key, [headers valueForKey:key]);
+        }
+    }
+    if(_headers != nil) {
+        for (NSString* key in _headers)
+        {
+            [_request setValue:[_headers valueForKey:key] forHTTPHeaderField:key];
+            PELog(@"Header: %@: %@", key, [_headers valueForKey:key]);
         }
     }
     PELog(@"URL: %@", [self url]);
@@ -157,7 +165,13 @@
 }
 */
 
-
+-(void)addRequestHeader:(NSString *)key value:(NSString *)value
+{
+    if(_headers == nil) {
+        _headers = [[NSMutableDictionary alloc] init];
+    }
+    [_headers setValue:value forKey:key];
+}
 - (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
 {
     PELog(@"%s %@", __PRETTY_FUNCTION__, [protectionSpace authenticationMethod]);

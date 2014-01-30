@@ -37,6 +37,7 @@ typedef enum {
 {
     long long _expectedDownloadResponseLength;
     NSURLConnection *_connection;
+    NSMutableDictionary *_headers;
 }
 
 @property(nonatomic, readonly) NSMutableURLRequest *request;
@@ -59,4 +60,6 @@ typedef enum {
 @property(nonatomic, retain) NSDictionary *userInfo;
 -(void)send;
 -(void)abort;
+-(void)addRequestHeader:(NSString*)key value:(NSString*)value;
+
 @end

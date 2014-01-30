@@ -20,7 +20,7 @@
 #import <libkern/OSAtomic.h>
 #import "TiExceptionHandler.h"
 #import "Mimetypes.h"
-
+#import "ASIHTTPRequest.h"
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
 #endif
