@@ -31,6 +31,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<fileset dir="${ti.build.dir}/lib" includes="**/*.jar"/>
 	</path>
 	
+	<property name="v7appcompat.project.dir" location="${ti.android.root}/modules/appcompat"/>
 	<property name="titanium.project.dir" location="${ti.android.root}/titanium"/>
 	<property name="kroll.apt.project.dir" location="${ti.android.root}/kroll-apt"/>
 	<property name="kroll.common.project.dir" location="${ti.android.root}/runtime/common"/>
@@ -143,6 +144,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<path id="titanium.path">
 		<pathelement path="${dist.classes.dir}/titanium"/>
 		<fileset dir="${titanium.project.dir}/lib" includes="**/*.jar"/>
+		<fileset dir="${v7appcompat.project.dir}/libs" includes="**/*.jar"/>
 	</path>
 
 	<macrodef name="build.project">
