@@ -18,7 +18,6 @@ module.exports = new function() {
 		{name: "deleterow", timeout: 10000},
 		//{name: "rowHeight", timeout: 5000}, due to TIMOB-15779
 		{name: "percentageHeight", timeout: 5000},
-		{name: "postlayoutEvent", timeout: 5000},
 		{name: "scrollEventFalse", timeout: 5000},
 		{name: "appendRowSupportArrayOfRows", timeout: 5000}
 	];
@@ -29,14 +28,12 @@ module.exports = new function() {
 		var table = Ti.UI.createTableView();
 		win.add(table);
 		var tableData = [];
-		win.addEventListener('focus', function(){
-			var r = Ti.UI.createTableViewRow({
-				height: 80
-			});
-			tableData.push(r);
-			table.setData(tableData);
-			table.deleteRow(0);
+		var r = Ti.UI.createTableViewRow({
+			height: 80
 		});
+		tableData.push(r);
+		table.setData(tableData);
+		table.deleteRow(0);
 		setTimeout(function(){
 			valueOf(testRun, table.data[0].rows.length).shouldBe(0);
 
@@ -60,7 +57,7 @@ module.exports = new function() {
 		win.open();
 	}
 
-	//TIMOB-7612
+	//TIMOB-7612,TIMOB-9640 ,TIMOB-10477
 	this.percentageHeight = function(testRun){
 		var win1 = Titanium.UI.createWindow({  
 			height: 400,
@@ -86,31 +83,6 @@ module.exports = new function() {
 		});
 		win1.add(tableView);
 		win1.open();
-	}
-
-	//TIMOB-9640 ,TIMOB-10477
-	this.postlayoutEvent = function(testRun){
-		var win = Ti.UI.createWindow({
-			modal: true
-		});
-		var data1 = [];
-		var tvr = Ti.UI.createTableViewRow({
-			hasChild: true
-		});
-		data1.push(tvr);
-		var table = Ti.UI.createTableView({
-			width: 200, 
-			height: 200,
-			data : data1
-		});
-		table.addEventListener('postlayout', function() {
-			valueOf(testRun, table.getHeight()).shouldBe(200);
-			valueOf(testRun, table.getWidth()).shouldBe(200);
-
-			finish(testRun);
-		});
-		win.add(table);
-		win.open();
 	}
 
 	//TIMOB-8706
