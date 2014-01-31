@@ -15,7 +15,7 @@ module.exports = new function() {
 
 	this.name = "ui_animation";
 	this.tests = [
-		{name: "animateCallback"},
+		{name: "animateCallback", timeout: 50000},
 		{name: "animationCurves"},
 		{name: "simpleAnimationAppCrash"},
 		{name: "iOS_specific_constants"},
