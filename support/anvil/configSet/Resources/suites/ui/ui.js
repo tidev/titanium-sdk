@@ -568,7 +568,7 @@ module.exports = new function() {
 		win.addEventListener('open',function(e){
 			var email = Ti.UI.createEmailDialog();
 			valueOf(testRun, function(){
-				email.open({animated:true});
+				email.open({animated:false});
 			}).shouldNotThrowException();
 			
 			finish(testRun);
