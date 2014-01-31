@@ -22,9 +22,6 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 @Kroll.proxy(parentModule=ContactsModule.class, propertyAccessors={
-	TiC.PROPERTY_LASTNAME,
-	TiC.PROPERTY_FIRSTNAME,
-	TiC.PROPERTY_MIDDLENAME,
 	TiC.PROPERTY_NICKNAME,
 	TiC.PROPERTY_NOTE,
 	TiC.PROPERTY_ORGANIZATION,
@@ -45,7 +42,12 @@ public class PersonProxy extends KrollProxy
 	private boolean imageFetched; // lazy load these bitmap images
 	protected boolean hasImage = false;
 	private String fullName = "";
-	
+	private String firstName = "";
+	private String lastName = "";
+	private String prefixName = "";
+	private String middleName = "";
+	private String suffixName = "";
+
 	// Contact Modifications
 	private HashMap<String, Boolean> modified = new HashMap<String, Boolean>();
 
@@ -81,6 +83,61 @@ public class PersonProxy extends KrollProxy
 		fullName = fname;
 	}
 	
+	@Kroll.method @Kroll.getProperty
+	public String getFirstName() 
+	{
+		return firstName;
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getLastName() 
+	{
+		return lastName;
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getPrefixName() 
+	{
+		return prefixName;
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getMiddleName() 
+	{
+		return middleName;
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getSuffixName() 
+	{
+		return suffixName;
+	}
+	
+	public void setMiddleName(String mname)
+	{
+		middleName = mname;
+	}
+
+	public void setSuffixName(String sname)
+	{
+		suffixName = sname;
+	}
+
+	public void setPrefixName(String pname)
+	{
+		prefixName = pname;
+	}
+
+	public void setFirstName(String fname)
+	{
+		firstName = fname;
+	}
+
+	public void setLastName(String lname)
+	{
+		lastName = lname;
+	}
+
 	@Kroll.method @Kroll.getProperty
 	public long getId() 
 	{

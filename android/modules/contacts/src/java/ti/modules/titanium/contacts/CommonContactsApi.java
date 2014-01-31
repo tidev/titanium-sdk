@@ -156,6 +156,11 @@ public abstract class CommonContactsApi
 	{
 		long id;
 		String name;
+		String lname;
+		String fname;
+		String mname;
+		String pname;
+		String sname;
 		String notes;
 		String birthday;
 		boolean hasImage = false;
@@ -186,7 +191,7 @@ public abstract class CommonContactsApi
 			} else if (kind.equals(ContactsApiLevel5.KIND_EVENT)) {
 				loadBirthdayFromL5DataRow(cursor);
 			}else if (kind.equals(ContactsApiLevel5.KIND_NAME)) {
-				//loadNameFromL5DataRow(cursor); TODO Structured names
+				loadNameFromL5DataRow(cursor); 
 			} else if (kind.equals(ContactsApiLevel5.KIND_NOTE)) {
 				loadNoteFromL5DataRow(cursor);
 			} else if (kind.equals(ContactsApiLevel5.KIND_PHONE)) {
@@ -208,7 +213,16 @@ public abstract class CommonContactsApi
 			}
 			collection.add(phoneNumber);
 		}
-		
+
+		void loadNameFromL5DataRow(Cursor nameCursor)
+		{
+			this.fname = nameCursor.getString(ContactsApiLevel5.DATA_COLUMN_DATA2);
+			this.lname = nameCursor.getString(ContactsApiLevel5.DATA_COLUMN_DATA3);
+			this.pname = nameCursor.getString(ContactsApiLevel5.DATA_COLUMN_DATA4);
+			this.mname = nameCursor.getString(ContactsApiLevel5.DATA_COLUMN_DATA5);
+			this.sname = nameCursor.getString(ContactsApiLevel5.DATA_COLUMN_DATA6);
+		}
+
 		void loadNoteFromL5DataRow(Cursor cursor)
 		{
 			this.notes = cursor.getString(ContactsApiLevel5.DATA_COLUMN_NOTE);
@@ -258,6 +272,11 @@ public abstract class CommonContactsApi
 		{
 			PersonProxy proxy = new PersonProxy();
 			proxy.setFullName(name);
+			proxy.setFirstName(fname);
+			proxy.setLastName(lname);
+			proxy.setPrefixName(pname);
+			proxy.setMiddleName(mname);
+			proxy.setSuffixName(sname);
 			proxy.setProperty(TiC.PROPERTY_NOTE, notes);
 			proxy.setProperty(TiC.PROPERTY_BIRTHDAY, birthday);
 			proxy.setEmailFromMap(emails);
