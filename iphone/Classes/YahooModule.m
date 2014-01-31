@@ -7,7 +7,6 @@
 #ifdef USE_TI_YAHOO
 
 #import "YahooModule.h"
-#import "ASIHTTPRequest.h"
 #include <CommonCrypto/CommonHMAC.h>
 #include "Base64Transcoder.h"
 #import "SBJSON.h"
@@ -45,16 +44,15 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 
 #pragma mark Delegates
 
-- (void)requestFinished:(ASIHTTPRequest *)request
+- (void)tiRequest:(TiHTTPRequest *)request onLoad:(TiHTTPResponse *)tiResponse
 {
 	[[TiApp app] stopNetwork];
 	
-	NSString *responseString = [request responseString];
-	SBJSON *json = [[[SBJSON alloc] init] autorelease];
-	NSError *error = nil;
-	id result = [json objectWithString:responseString error:&error];
+	NSString *responseString = [tiResponse responseString];
+    NSError *error = nil;
+	id result = [TiUtils jsonParse:responseString error:&error];
 	NSMutableDictionary *event;
-	if (error==nil)
+	if (error == nil)
 	{
 		NSDictionary* errorDict = [result objectForKey:@"error"];
 		int code = (errorDict != nil)?-1:0;
@@ -77,11 +75,11 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 	[self autorelease];
 }
 
-- (void)requestFailed:(ASIHTTPRequest *)request
+- (void)tiRequest:(TiHTTPRequest *)request onError:(TiHTTPResponse *)tiResponse
 {
 	[[TiApp app] stopNetwork];
 	
-	NSError *error = [request error];
+	NSError *error = [tiResponse error];
 	NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 	[module _fireEventToListener:@"yql" withObject:event listener:callback thisObject:nil];
 	[self autorelease];
@@ -187,11 +185,12 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 #endif
 	
 	YQLCallback *job = [[YQLCallback alloc] initWithCallback:callback module:self];
-	ASIHTTPRequest *req = [ASIHTTPRequest requestWithURL:[NSURL URLWithString:theurl]];
+	TiHTTPRequest *req = [[TiHTTPRequest alloc] init];
+    [req setUrl:[NSURL URLWithString:theurl]];
 	[req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
 	[[TiApp app] startNetwork];
 	[req setDelegate:job];
-	[req startAsynchronous];
+	[req send];
 }
 
 @end

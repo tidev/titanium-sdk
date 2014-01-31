@@ -485,6 +485,9 @@ typedef enum
 +(NSString*)jsonStringify:(id)value;
 +(id)jsonParse:(NSString*)value;
 
++(NSString*)jsonStringify:(id)value error:(NSError**)error;
++(id)jsonParse:(NSString*)value error:(NSError**)error;;
+
 /**
  Whether or not the current device orientation is portrait.
  @return _YES_ is the current device orientation is portrait, _NO_ otherwise.

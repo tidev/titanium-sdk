@@ -1823,33 +1823,37 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 			message,@"error", nil];
 }
 
-+(NSString*)jsonStringify:(id)value
++(NSString*)jsonStringify:(id)value error:(NSError**)error
 {
-    if(![value isKindOfClass:[NSDictionary class]] && ![value isKindOfClass:[NSArray class]])
-        return @"";
-    NSError *err = nil;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:value
                                                        options:kNilOptions
-                                                         error:&err];
-    if (jsonData == nil || [jsonData length] == 0 || err != nil) {
-        return @"";
+                                                         error:error];
+    if (jsonData == nil || [jsonData length] == 0 || error != nil) {
+        return nil;
     } else {
         NSString *str = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
         return [str autorelease];
     }
 
 }
-+(id)jsonParse:(NSString*)value
++(id)jsonParse:(NSString*)value error:(NSError**)error;
 {
-    NSError *err = nil;
     id obj =[NSJSONSerialization JSONObjectWithData: [value dataUsingEncoding:NSUTF8StringEncoding]
-                                              options: NSJSONReadingMutableContainers
-                                                error: &err];
-    if(err != nil) {
+                                            options: NSJSONReadingMutableContainers
+                                              error: error];
+    if(error != nil) {
         DeveloperLog(@"Error parsing json string: %@", [err localizedDescription]);
         return nil;
     }
     return obj;
+}
++(NSString*)jsonStringify:(id)value
+{
+    return [self jsonStringify:value error:nil];
+}
++(id)jsonParse:(NSString*)value
+{
+    return [self jsonParse:value error:nil];
 }
 
 @end
