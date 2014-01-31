@@ -336,8 +336,8 @@ NSString * const TI_DB_VERSION = @"1";
 	{
 		[dict setObject:remoteDeviceUUID forKey:@"rdu"];
 	}
-
-	id value = [TiUtils jsonStringify:dict];
+    NSError *err = nil;
+	id value = [TiUtils jsonStringify:dict error:&err];
 	self.lastEvent = value;
 	
 	NSString *sql = [NSString stringWithFormat:@"INSERT INTO pending_events VALUES (?)"];
