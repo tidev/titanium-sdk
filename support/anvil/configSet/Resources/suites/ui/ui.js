@@ -33,7 +33,7 @@ module.exports = new function() {
 		{name: "deleteCorrectRowIndex", timeout: 3000},
 		{name: "childrenArrayEmpty"},
 		{name: "orientationModesReturnNull"},
-		{name: "passingWindow", timeout: 10000}
+		{name: "passingData", timeout: 10000}
 	]
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2583
@@ -561,12 +561,13 @@ module.exports = new function() {
 	}
 
 	//KitchenSink: Platform
-	this.passingWindow = function(testRun) {
+	this.passingData = function(testRun) {
+		var window = require('suites/ui/win_2');
 		var win1 = Titanium.UI.createWindow({  
 			backgroundColor : '#000',
 		});
 		win1.addEventListener('open', function(){
-			w2 = require('suites/ui/win_2').set_prop();
+			w2 = window.set_prop();
 			w2.title = 'Custom Prop Test';			
 			w2.stringProp1 = 'Foo';
 			w2.stringProp2 = 'Bar';
@@ -579,7 +580,7 @@ module.exports = new function() {
 			};
 			w2.open();
 			setTimeout(function() {
-				var win2 = require('suites/ui/win_2').get_prop();
+				var win2 = window.get_prop();
 				valueOf(testRun, win2.title).shouldBe('Custom Prop Test');
 				valueOf(testRun, win2.stringProp1).shouldBe('Foo');
 				valueOf(testRun, win2.stringProp2).shouldBe('Bar');
