@@ -144,7 +144,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<path id="titanium.path">
 		<pathelement path="${dist.classes.dir}/titanium"/>
 		<fileset dir="${titanium.project.dir}/lib" includes="**/*.jar"/>
-		<fileset dir="${v7appcompat.project.dir}/libs" includes="**/*.jar"/>
+		<fileset dir="${v7appcompat.project.dir}/lib" includes="**/*.jar"/>
 	</path>
 
 	<macrodef name="build.project">
