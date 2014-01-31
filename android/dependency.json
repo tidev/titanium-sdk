@@ -34,5 +34,10 @@
 	{
 		"v8":["kroll-v8.jar"],
 		"defaultRuntime":"v8"
+	},
+	"modulepackage":
+	{
+		"appcompat":"android.support.v7.appcompat",
+		"ui":"ti.modules.titanium.ui"
 	}
 }
