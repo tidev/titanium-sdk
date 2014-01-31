@@ -528,6 +528,13 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<zip destfile="${dist.dir}/titanium-@{name}.res.zip">
 				<zipfileset dir="${modules.dir}/@{name}" includes="res/**"/>
 			</zip>
+			<ti.modulePackage json="${dependency.json}" module="@{name}" property="titanium-@{name}.respackage"/>
+			<if>
+  				<isset property="titanium-@{name}.respackage"/>
+  				<then>
+  				    <echo file="${dist.dir}/titanium-@{name}.respackage" append="false">${titanium-@{name}.respackage}</echo>
+				</then>
+ 			</if>
 		</sequential>
 	</macrodef>
 
@@ -625,6 +632,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<taskdef classname="org.appcelerator.titanium.ant.StringTask" name="ti.string" classpathref="ti.build.path"/>
 			<taskdef classname="org.appcelerator.titanium.ant.UpdateModulesJSONTask" name="ti.updateModulesJSON" classpathref="ti.build.path"/>
 			<taskdef classname="org.appcelerator.titanium.ant.JSONMap" name="ti.jsonMap" classpathref="ti.build.path"/>
+			<taskdef classname="org.appcelerator.titanium.ant.ModulePackageTask" name="ti.modulePackage" classpathref="ti.build.path"/>
 		</sequential>
 	</macrodef>
 
