@@ -502,6 +502,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
+	public static final String INTENT_EXTRA_RESTART = "restart";
 	public static final String INTENT_PROPERTY_ENTER_ANIMATION = "activityEnterAnimation";
 	public static final String INTENT_PROPERTY_EXIT_ANIMATION = "activityExitAnimation";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
