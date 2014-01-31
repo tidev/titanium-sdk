@@ -306,8 +306,24 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								relistOnError: true,
 								complete: true,
 								suggest: false,
-								options: _t.keystoreAliases
+								options: _t.keystoreAliases,
+								validate: conf.options.alias.validate
 							}));
+						},
+						validate: function (value, callback) {
+							// if there's a value, then they entered something, otherwise let the cli prompt
+							if (value) {
+								var selectedAlias = value.toLowerCase(),
+									alias = _t.keystoreAlias = _t.keystoreAliases.filter(function (a) { return a.name && a.name.toLowerCase() == selectedAlias; }).shift();
+								if (!alias) {
+									return callback(new Error(__('Invalid "--alias" value "%s"', value)));
+								}
+								if (alias.sigalg && alias.sigalg.toLowerCase() == 'sha256withrsa') {
+									logger.warn(__('The selected alias %s uses the %s signature algorithm which will likely have issues with Android 4.3 and older.', ('"' + value + '"').cyan, ('"' + alias.sigalg + '"').cyan));
+									logger.warn(__('Certificates that use the %s or %s signature algorithm will provide better compatibility.', '"SHA1withRSA"'.cyan, '"MD5withRSA"'.cyan));
+								}
+							}
+							callback(null, value);
 						}
 					},
 					'android-sdk': {
@@ -777,13 +793,19 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 											_t.keystoreAliases.pop();
 										}
 
-										var re = /Alias name\: (.+)/;
-										out.split('\n').forEach(function (line) {
-											var m = line.match(re);
+										var aliasRegExp = /Alias name\: (.+)/,
+											sigalgRegExp = /Signature algorithm name\: (.+)/;
+										out.split('\n\n').forEach(function (chunk) {
+											chunk = chunk.trim();
+											var m = chunk.match(aliasRegExp);
 											if (m) {
-												_t.keystoreAliases.push({ name: m[1] });
+												var sigalg = chunk.match(sigalgRegExp);
+												_t.keystoreAliases.push({
+													name: m[1],
+													sigalg: sigalg && sigalg[1]
+												});
 											}
-										}.bind(_t));
+										});
 
 										if (_t.keystoreAliases.length == 0) {
 											cli.argv.keystore = undefined;
@@ -814,8 +836,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 											], function (code, out, err) {
 												if (code) {
 													if (out.indexOf('Alias <' + alias + '> does not exist') != -1) {
-														// bad alias
-														cli.argv.alias = undefined;
+														// bad alias, we'll let --alias find it again
 														_t.conf.options['alias'].required = true;
 													}
 
@@ -1668,11 +1689,13 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.keystore = argv.keystore;
 	this.keystoreStorePassword = argv['store-password'];
 	this.keystoreKeyPassword = argv['key-password'];
-	this.keystoreAlias = argv.alias;
 	if (!this.keystore) {
 		this.keystore = path.join(this.platformPath, 'dev_keystore');
 		this.keystoreStorePassword = 'tirocks';
-		this.keystoreAlias = 'tidev';
+		this.keystoreAlias = {
+			name: 'tidev',
+			sigalg: 'MD5withRSA'
+		};
 	}
 
 	var loadFromSDCardProp = this.tiapp.properties['ti.android.loadfromsdcard'];
@@ -1723,7 +1746,7 @@ AndroidBuilder.prototype.loginfo = function loginfo(next) {
 
 	this.logger.info(__('Targeting Android SDK: %s', String(this.targetSDK).cyan));
 	this.logger.info(__('Building for the following architectures: %s', this.abis.join(', ').cyan));
-	this.logger.info(__('Signing with keystore: %s', (this.keystore + ' (' + this.keystoreAlias + ')').cyan));
+	this.logger.info(__('Signing with keystore: %s', (this.keystore + ' (' + this.keystoreAlias.name + ')').cyan));
 
 	this.logger.debug(__('App ID: %s', this.appid.cyan));
 	this.logger.debug(__('Classname: %s', this.classname.cyan));
@@ -3898,70 +3921,46 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 };
 
 AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
-	var keytoolArgs = [
-			'-J-Duser.language=en',
-			'-v',
-			'-list',
+	var sigalg = this.keystoreAlias.sigalg || 'MD5withRSA',
+		signerArgs = [
+			'-sigalg', sigalg,
+			'-digestalg', 'SHA1',
 			'-keystore', this.keystore,
-			'-storepass', this.keystoreStorePassword,
-			'-alias', this.keystoreAlias
-		],
-		keytoolArgsSafe = [].concat(keytoolArgs),
-		i = keytoolArgs.indexOf('-storepass') + 1;
+			'-storepass', this.keystoreStorePassword
+		];
 
-	keytoolArgsSafe[i] = keytoolArgsSafe[i].replace(/./g, '*');
+	this.logger.info(__('Using %s signature algorithm', sigalg.cyan));
 
-	this.logger.info(__('Determining signature algorithm: %s', (this.jdkInfo.executables.keytool + ' "' + keytoolArgsSafe.join('" "') + '"').cyan));
+	this.keystoreKeyPassword && signerArgs.push('-keypass', this.keystoreKeyPassword);
+	signerArgs.push('-signedjar', this.apkFile, this.unsignedApkFile, this.keystoreAlias.name);
 
-	appc.subprocess.run(this.jdkInfo.executables.keytool, keytoolArgs, function (code, out, err) {
-		if (code) {
-			this.logger.error(__('Failed to determine signature algorithm:'));
-			err.trim().split('\n').forEach(this.logger.error);
-			this.logger.log();
-			process.exit(1);
-		}
-
-		var m = out.match(/Signature algorithm name: (.+)/m),
-			signerArgs = [
-				'-sigalg', m ? m[1] : 'MD5withRSA',
-				'-digestalg', 'SHA1',
-				'-keystore', this.keystore,
-				'-storepass', this.keystoreStorePassword
-			];
-
-		this.logger.info(__('Using %s signature algorithm', (m ? m[1] : 'MD5withRSA').cyan));
-
-		this.keystoreKeyPassword && signerArgs.push('-keypass', this.keystoreKeyPassword);
-		signerArgs.push('-signedjar', this.apkFile, this.unsignedApkFile, this.keystoreAlias);
-
-		var jarsignerHook = this.cli.createHook('build.android.jarsigner', this, function (exe, args, opts, done) {
-				var safeArgs = [];
-				for (var i = 0, l = args.length; i < l; i++) {
-					safeArgs.push(args[i]);
-					if (args[i] == '-storepass' || args[i] == 'keypass') {
-						safeArgs.push(args[++i].replace(/./g, '*'));
-					}
+	var jarsignerHook = this.cli.createHook('build.android.jarsigner', this, function (exe, args, opts, done) {
+			var safeArgs = [];
+			for (var i = 0, l = args.length; i < l; i++) {
+				safeArgs.push(args[i]);
+				if (args[i] == '-storepass' || args[i] == 'keypass') {
+					safeArgs.push(args[++i].replace(/./g, '*'));
 				}
+			}
 
-				this.logger.info(__('Signing apk: %s', (exe + ' "' + safeArgs.join('" "') + '"').cyan));
-				appc.subprocess.run(exe, args, opts, function (code, out, err) {
-					if (code) {
-						this.logger.error(__('Failed to sign apk:'));
-						out.trim().split('\n').forEach(this.logger.error);
-						this.logger.log();
-						process.exit(1);
-					}
-					done();
-				}.bind(this));
-			});
+			this.logger.info(__('Signing apk: %s', (exe + ' "' + safeArgs.join('" "') + '"').cyan));
+			appc.subprocess.run(exe, args, opts, function (code, out, err) {
+				if (code) {
+					this.logger.error(__('Failed to sign apk:'));
+					out.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
+				done();
+			}.bind(this));
+		});
 
-		jarsignerHook(
-			this.jdkInfo.executables.jarsigner,
-			signerArgs,
-			{},
-			next
-		);
-	}.bind(this));
+	jarsignerHook(
+		this.jdkInfo.executables.jarsigner,
+		signerArgs,
+		{},
+		next
+	);
 };
 
 AndroidBuilder.prototype.zipAlignApk = function zipAlignApk(next) {
