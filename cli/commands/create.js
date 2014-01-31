@@ -58,7 +58,7 @@ exports.config = function config(logger, config, cli) {
 						order: 150,
 						prompt: function (callback) {
 							callback(fields.text({
-								default: idPrefix ? idPrefix.replace(/\.$/, '') + '.' + cli.argv.name : undefined,
+								default: idPrefix ? idPrefix.replace(/\.$/, '') + '.' + cli.argv.name.replace(/[ -]/g, '_').replace(/[^a-zA-Z0-9_]/g, '').replace(/_+/g, '_') : undefined,
 								promptLabel: __('App ID'),
 								validate: conf.options.id.validate
 							}));
@@ -156,10 +156,18 @@ exports.config = function config(logger, config, cli) {
 							}
 
 							if (cli.argv.platforms.indexOf('android') != -1 && value.indexOf('&') != -1) {
-								logger.error(__('Ampersands (&) are not allowed in the project name when targeting Android.'));
-								logger.error(__('In order to use an ampersand, you must define the app name using i18n strings.'));
-								logger.error(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name') + '\n');
-								return callback(true);
+								if (config.get('android.allowAppNameAmpersands', false)) {
+									logger.warn(__('The project name contains an ampersands (&) which will most likely cause problems.'));
+									logger.warn(__('It is recommended that you change the app name in the tiapp.xml or define the app name using i18n strings.'));
+									logger.warn(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'.cyan));
+								} else {
+									logger.error(__('The project name contains an ampersands (&) which will most likely cause problems.'));
+									logger.error(__('It is recommended that you change the app name in the tiapp.xml or define the app name using i18n strings.'));
+									logger.error(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'));
+									logger.error(__('To allow ampersands in the app name, run:'));
+									logger.error('    ti config android.allowAppNameAmpersands true\n');
+									return callback(true);
+								}
 							}
 
 							if (!/^[a-zA-Z]/.test(value)) {
