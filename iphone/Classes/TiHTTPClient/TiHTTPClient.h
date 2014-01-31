@@ -25,6 +25,25 @@
 #define PELog(...) {};
 #endif
 
+#ifndef PEAlert
+#define PEAlert
+#include <UIKit/UIKit.h>
+
+__attribute__((unused))
+static void Alert(NSString* title, NSString* msg, ...) {
+    va_list args;
+    va_start(args, msg);
+    
+    NSString* message = [[[NSString alloc] initWithFormat:msg arguments:args] autorelease];
+    UIAlertView *alert = [[[UIAlertView alloc] init] autorelease];
+    [alert addButtonWithTitle:@"ok!"];
+    [alert setTitle:title];
+    [alert setMessage:message];
+    [alert show];
+    
+    
+}
+#endif
 
 #include "TiHTTPRequest.h"
 #include "TiHTTPResponse.h"

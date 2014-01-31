@@ -8,7 +8,12 @@
  */
 
 #import "HttpClientProxy.h"
+
+#ifndef TI_HTTP_MODULE
 #import "NetworkModule.h"
+#else
+#import "TiHttpModule.h"
+#endif
 
 #import "TiDOMDocumentProxy.h"
 #import "TiUtils.h"
@@ -118,15 +123,21 @@
     if([self valueForUndefinedKey:@"async"]) {
         async = [TiUtils boolValue:[self valueForUndefinedKey:@"async"]];
     }
-    
+    NSOperationQueue *operationQueue =
+#ifndef TI_HTTP_MODULE
+    [NetworkModule operationQueue];
+#else
+    [TiHttpModule operationQueue];
+#endif
+
     if(async) {
-        [[self request] setTheQueue:[NetworkModule operationQueue]];
+        [[self request] setTheQueue:operationQueue];
         [[self request] send];
     } else {
         [[self request] setSynchronous:YES];
         [[self request] send];
         response = [[[self request] response] retain];
-        if([[NetworkModule operationQueue] operationCount] == 0) {
+        if([operationQueue operationCount] == 0) {
             [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
         }
     }
@@ -181,7 +192,14 @@
     if(hasOnload) {
         [self fireCallback:@"onload" withArg:nil withSource:self];
     }
-    if([[NetworkModule operationQueue] operationCount] == 0) {
+    NSOperationQueue *operationQueue =
+#ifndef TI_HTTP_MODULE
+    [NetworkModule operationQueue];
+#else
+    [TiHttpModule operationQueue];
+#endif
+
+    if([operationQueue operationCount] == 0) {
         [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
     }
     [self forgetSelf];
@@ -192,7 +210,14 @@
         [self replaceValue:[[tiResponse error] localizedDescription] forKey:@"error" notification:NO];
         [self fireCallback:@"onerror" withArg:nil withSource:self];
     }
-    if([[NetworkModule operationQueue] operationCount] == 0) {
+    NSOperationQueue *operationQueue =
+#ifndef TI_HTTP_MODULE
+    [NetworkModule operationQueue];
+#else
+    [TiHttpModule operationQueue];
+#endif
+    
+    if([operationQueue operationCount] == 0) {
         [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
     }
     [self forgetSelf];
