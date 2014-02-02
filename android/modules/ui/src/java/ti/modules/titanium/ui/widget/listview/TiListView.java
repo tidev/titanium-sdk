@@ -827,4 +827,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		reFilter(text);
 	}
 	
+	public ListSectionProxy[] getSections()
+	{
+		return sections.toArray(new ListSectionProxy[sections.size()]);
+	}
+	
 }
