@@ -61,5 +61,6 @@ typedef enum {
 -(void)send;
 -(void)abort;
 -(void)addRequestHeader:(NSString*)key value:(NSString*)value;
+-(void)setCachePolicy:(NSURLRequestCachePolicy*)cache;
 
 @end

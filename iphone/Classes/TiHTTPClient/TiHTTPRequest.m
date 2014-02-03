@@ -49,7 +49,7 @@
     [self setValidatesSecureCertificate: YES];
     
     _request = [[NSMutableURLRequest alloc] init];
-    [_request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+    [_request setCachePolicy:NSURLCacheStorageAllowed];
     _response = [[TiHTTPResponse alloc] init];
     [_response setReadyState: TiResponseStateUnsent];
 }
@@ -164,7 +164,10 @@
     }
 }
 */
-
+-(void)setCachePolicy:(NSURLRequestCachePolicy*)cache
+{
+    [_request setCachePolicy:cache];
+}
 -(void)addRequestHeader:(NSString *)key value:(NSString *)value
 {
     if(_headers == nil) {
@@ -309,6 +312,8 @@
     [_response setUploadProgress:1.f];
     [_response setReadyState:TiResponseStateDone];
     [_response setConnected:NO];
+    [_response setEncoding:[TiHTTPHelper parseStringEncodingFromHeaders:[_response headers]]];
+     
     if([_delegate respondsToSelector:@selector(tiRequest:onReadyStateChage:)]) {
         [_delegate tiRequest:self onReadyStateChage:_response];
     }

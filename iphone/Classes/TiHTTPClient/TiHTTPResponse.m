@@ -83,7 +83,22 @@
         return [[self error] localizedDescription];
     }
     if([self responseData] == nil || [[self responseData] length] == 0) return nil;
-    return [NSString stringWithUTF8String: [[self responseData] bytes]];
+    NSData *data =  [self responseData];
+    NSString * result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:[self encoding]] autorelease];
+    if (result==nil) {
+        // encoding failed, probably a bad webserver or content we have to deal
+        // with in a _special_ way
+        NSStringEncoding encoding = NSUTF8StringEncoding;
+        BOOL didExtractEncoding =  [TiHTTPHelper extractEncodingFromData:data result:&encoding];
+        if (didExtractEncoding) {
+            //If I did extract encoding use that
+            result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:encoding] autorelease];
+        } else {
+            result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:NSISOLatin1StringEncoding] autorelease];
+        }
+			
+    }
+    return result;
 }
 
 -(NSDictionary*)responseDictionary

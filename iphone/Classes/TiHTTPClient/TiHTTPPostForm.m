@@ -10,8 +10,6 @@
 #import "TiHTTPClient.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 
-#define FORM_SPACE @"\r\n";
-
 @implementation TiHTTPPostForm
 
 
@@ -24,59 +22,6 @@
     RELEASE_TO_NIL(_jsonData);
     RELEASE_TO_NIL(_stringData);
     [super dealloc];
-}
-
-// Taken from http://stackoverflow.com/questions/4147311/finding-image-type-from-nsdata-or-uiimage
-- (NSString *)contentTypeForImageData:(NSData *)data {
-    uint8_t c;
-    [data getBytes:&c length:1];
-    
-    switch (c) {
-        case 0xFF:
-            return @"image/jpeg";
-        case 0x89:
-            return @"image/png";
-        case 0x47:
-            return @"image/gif";
-        case 0x49:
-        case 0x4D:
-            return @"image/tiff";
-    }
-    return @"application/octet-stream";
-}
-
-// Taken from http://stackoverflow.com/questions/2439020/wheres-the-iphone-mime-type-database
-- (NSString*)fileMIMEType:(NSString*) file
-{
-    CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[file pathExtension], NULL);
-    CFStringRef MIMEType = UTTypeCopyPreferredTagWithClass (UTI, kUTTagClassMIMEType);
-    CFRelease(UTI);
-	if (!MIMEType) {
-		return @"application/octet-stream";
-	}
-    return (__bridge NSString *)MIMEType;
-}
-
-// Taken from http://stackoverflow.com/questions/8088473/url-encode-an-nsstring
-- (NSString*)encodeURL:(NSString *)string
-{
-    NSMutableString *output = [NSMutableString string];
-    const unsigned char *source = (const unsigned char *)[string UTF8String];
-    int sourceLen = strlen((const char *)source);
-    for (int i = 0; i < sourceLen; ++i) {
-        const unsigned char thisChar = source[i];
-        if (thisChar == ' '){
-            [output appendString:@"+"];
-        } else if (thisChar == '.' || thisChar == '-' || thisChar == '_' || thisChar == '~' ||
-                   (thisChar >= 'a' && thisChar <= 'z') ||
-                   (thisChar >= 'A' && thisChar <= 'Z') ||
-                   (thisChar >= '0' && thisChar <= '9')) {
-            [output appendFormat:@"%c", thisChar];
-        } else {
-            [output appendFormat:@"%%%02X", thisChar];
-        }
-    }
-    return output;
 }
 
 
@@ -104,8 +49,8 @@
         }
         NSString *key = [allKeys objectAtIndex:i];
         [self appendStringData:[NSString stringWithFormat:@"%@=%@%@",
-                          [self encodeURL:key],
-                          [self encodeURL: [[self requestFormDictionay] valueForKey:key]],
+                          [TiHTTPHelper encodeURL:key],
+                          [TiHTTPHelper encodeURL: [[self requestFormDictionay] valueForKey:key]],
                           (last ?  @"" : @"&")
                           ]
          ];
@@ -255,7 +200,7 @@
 
 -(void)addFormFile:(NSString*)path fieldName:(NSString*)name;
 {
-    [self addFormFile:path fieldName:name contentType:[self fileMIMEType:path]];
+    [self addFormFile:path fieldName:name contentType:[TiHTTPHelper fileMIMEType:path]];
 }
 
 -(void)addFormFile:(NSString*)path fieldName:(NSString*)name contentType:(NSString*)contentType
@@ -290,7 +235,7 @@
     [self addFormData: data
              fileName: fileName
             fieldName: fieldName
-          contentType: [self contentTypeForImageData:data]
+          contentType: [TiHTTPHelper contentTypeForImageData:data]
      ];
 
 }

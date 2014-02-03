@@ -26,6 +26,7 @@ typedef enum {
 @property(nonatomic, readonly) NSDictionary *headers;
 @property(nonatomic, readonly) NSString *connectionType;
 @property(nonatomic, readonly) NSString *location;
+@property(nonatomic) NSStringEncoding encoding;
 @property(nonatomic, retain) NSError *error;
 @property(nonatomic) float downloadProgress;
 @property(nonatomic) float uploadProgress;
