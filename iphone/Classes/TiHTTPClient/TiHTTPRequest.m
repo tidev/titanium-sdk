@@ -51,7 +51,7 @@
     _request = [[NSMutableURLRequest alloc] init];
     [_request setCachePolicy:NSURLCacheStorageAllowed];
     _response = [[TiHTTPResponse alloc] init];
-    [_response setReadyState: TiResponseStateUnsent];
+    [_response setReadyState: TiHTTPResponseStateUnsent];
 }
 
 -(void)abort
@@ -120,11 +120,11 @@
         [_response setResponse:response];
         [_response setError:error];
         [_response setRequest:_request];
-        [_response setReadyState:TiResponseStateDone];
+        [_response setReadyState:TiHTTPResponseStateDone];
         [_response setConnected:NO];
     } else {
         [_response setRequest:_request];
-        [_response setReadyState:TiResponseStateOpened];
+        [_response setReadyState:TiHTTPResponseStateOpened];
         if([_delegate respondsToSelector:@selector(tiRequest:onReadyStateChage:)]) {
             [_delegate tiRequest:self onReadyStateChage:_response];
         }
@@ -251,7 +251,7 @@
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
     PELog(@"%s", __PRETTY_FUNCTION__);
-    [_response setReadyState:TiResponseStateHeaders];
+    [_response setReadyState:TiHTTPResponseStateHeaders];
     [_response setConnected:YES];
     [_response setResponse: response];
     if([_response status] == 0) {
@@ -274,8 +274,8 @@
 {
     PELog(@"2 %s", __PRETTY_FUNCTION__);
 
-    if([_response readyState] != TiResponseStateLoading) {
-        [_response setReadyState:TiResponseStateLoading];
+    if([_response readyState] != TiHTTPResponseStateLoading) {
+        [_response setReadyState:TiHTTPResponseStateLoading];
         if([_delegate respondsToSelector:@selector(tiRequest:onReadyStateChage:)]) {
             [_delegate tiRequest:self onReadyStateChage:_response];
         }
@@ -290,8 +290,8 @@
 
 -(void)connection:(NSURLConnection *)connection didSendBodyData:(NSInteger)bytesWritten totalBytesWritten:(NSInteger)totalBytesWritten totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 {
-    if([_response readyState] != TiResponseStateLoading) {
-        [_response setReadyState:TiResponseStateLoading];
+    if([_response readyState] != TiHTTPResponseStateLoading) {
+        [_response setReadyState:TiHTTPResponseStateLoading];
         if([_delegate respondsToSelector:@selector(tiRequest:onReadyStateChage:)]) {
             [_delegate tiRequest:self onReadyStateChage:_response];
         }
@@ -310,9 +310,8 @@
     PELog(@"3 %s", __PRETTY_FUNCTION__);
     [_response setDownloadProgress:1.f];
     [_response setUploadProgress:1.f];
-    [_response setReadyState:TiResponseStateDone];
+    [_response setReadyState:TiHTTPResponseStateDone];
     [_response setConnected:NO];
-    [_response setEncoding:[TiHTTPHelper parseStringEncodingFromHeaders:[_response headers]]];
      
     if([_delegate respondsToSelector:@selector(tiRequest:onReadyStateChage:)]) {
         [_delegate tiRequest:self onReadyStateChage:_response];
@@ -342,7 +341,7 @@
         [[self operation] setFinished:YES];
     }
     PELog(@"%s", __PRETTY_FUNCTION__);
-    [_response setReadyState:TiResponseStateDone];
+    [_response setReadyState:TiHTTPResponseStateDone];
     if([_delegate respondsToSelector:@selector(tiRequest:onReadyStateChage:)]) {
         [_delegate tiRequest:self onReadyStateChage:_response];
     }

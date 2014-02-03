@@ -206,11 +206,12 @@
     if([[self request] response] == nil) {
         return NUMBOOL(NO);
     }
-    TiResponseState state = [[[self request] response]readyState];
-    return
-        state == TiResponseStateHeaders ||
-        state == TiResponseStateLoading ||
-        state == TiResponseStateOpened;
+    TiHTTPResponseState state = [[[self request] response]readyState];
+    return NUMBOOL(
+                   state == TiHTTPResponseStateHeaders ||
+                   state == TiHTTPResponseStateLoading ||
+                   state == TiHTTPResponseStateOpened
+                   );
 }
 
 # pragma mark - Callback functions
@@ -219,7 +220,7 @@
 {
     if(hasOndatastream) {
         NSTimeInterval diff = [[NSDate date] timeIntervalSince1970] - _downloadTime;
-        if(_downloadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [tiResponse readyState] == TiResponseStateDone) {
+        if(_downloadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [tiResponse readyState] == TiHTTPResponseStateDone) {
             _downloadTime = 0;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
             [eventDict setValue:[NSNumber numberWithFloat: [tiResponse downloadProgress]] forKey:@"progress"];
@@ -235,7 +236,7 @@
 {
     if(hasOnsendstream) {
         NSTimeInterval diff = [[NSDate date] timeIntervalSince1970] - _uploadTime;
-        if(_uploadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [tiResponse readyState] == TiResponseStateDone) {
+        if(_uploadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [tiResponse readyState] == TiHTTPResponseStateDone) {
             _uploadTime = 0;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
             [eventDict setValue:[NSNumber numberWithFloat: [tiResponse uploadProgress]] forKey:@"progress"];
@@ -432,23 +433,23 @@
 }
 -(NSNumber*)UNSENT
 {
-	return NUMINT(TiResponseStateUnsent);
+	return NUMINT(TiHTTPResponseStateUnsent);
 }
 -(NSNumber*)OPENED
 {
-	return NUMINT(TiResponseStateOpened);
+	return NUMINT(TiHTTPResponseStateOpened);
 }
 -(NSNumber*)HEADERS_RECEIVED
 {
-	return NUMINT(TiResponseStateHeaders);
+	return NUMINT(TiHTTPResponseStateHeaders);
 }
 -(NSNumber*)LOADING
 {
-	return NUMINT(TiResponseStateLoading);
+	return NUMINT(TiHTTPResponseStateLoading);
 }
 -(NSNumber*)DONE
 {
-	return NUMINT(TiResponseStateDone);
+	return NUMINT(TiHTTPResponseStateDone);
 }
 
 

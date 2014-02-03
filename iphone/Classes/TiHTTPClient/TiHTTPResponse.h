@@ -10,12 +10,12 @@
 #import <Foundation/Foundation.h>
 
 typedef enum {
-	TiResponseStateUnsent = 0,
-	TiResponseStateOpened = 1,
-    TiResponseStateHeaders = 2,
-    TiResponseStateLoading = 3,
-    TiResponseStateDone = 4
-} TiResponseState;
+	TiHTTPResponseStateUnsent = 0,
+	TiHTTPResponseStateOpened = 1,
+    TiHTTPResponseStateHeaders = 2,
+    TiHTTPResponseStateLoading = 3,
+    TiHTTPResponseStateDone = 4
+} TiHTTPResponseState;
 
 @interface TiHTTPResponse : NSObject
 {
@@ -38,7 +38,7 @@ typedef enum {
 @property(nonatomic, readonly) NSArray* responseArray;
 
 @property(nonatomic) BOOL connected;
-@property(nonatomic) TiResponseState readyState;
+@property(nonatomic) TiHTTPResponseState readyState;
 
 
 -(void)appenData:(NSData*)data;

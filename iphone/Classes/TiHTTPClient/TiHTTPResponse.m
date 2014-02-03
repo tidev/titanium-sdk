@@ -36,6 +36,10 @@
     if([response isKindOfClass:[NSHTTPURLResponse class]]) {
         _status = [(NSHTTPURLResponse*)response statusCode];
         _headers = [[(NSHTTPURLResponse*)response allHeaderFields] retain];
+        NSStringEncoding encoding = [TiHTTPHelper parseStringEncodingFromHeaders: _headers];
+        encoding = encoding == 0 ? NSUTF8StringEncoding : encoding;
+        [self setEncoding: encoding];
+
     }
 }
 -(void)setRequest:(NSURLRequest*) request
