@@ -49,7 +49,7 @@
     [[self request] setUrl:[NSURL URLWithString:url]];
     
     if([args count] >= 3) {
-        [self replaceValue:[args objectAtIndex:2] forKey:@"async" notification:NO];
+        [self replaceValue:[args objectAtIndex:2] forKey:@"async" notification: YES];
     }
     
     [self replaceValue:url forKey:@"url" notification:NO];
@@ -139,7 +139,7 @@
     
     BOOL async = YES;
     if([self valueForUndefinedKey:@"async"]) {
-        async = ![TiUtils boolValue:[self valueForUndefinedKey:@"async"]];
+        async = [TiUtils boolValue:[self valueForUndefinedKey:@"async"]];
     }
     NSOperationQueue *operationQueue =
 #ifndef TI_HTTP_MODULE
