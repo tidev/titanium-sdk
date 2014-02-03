@@ -29,14 +29,30 @@
 }
 
 
-@property(nonatomic, readonly)NSString* responseText;
-@property(nonatomic, readonly)TiBlob* responseData;
-@property(nonatomic, readonly)TiDOMDocumentProxy* responseXML;
-@property(nonatomic, readonly)NSDictionary* responseDictionary;
-@property(nonatomic, readonly)NSArray* responseArray;
 
-@property(nonatomic, readonly)NSNumber* readyState;
-@property(nonatomic, readonly)NSDictionary* responseHeaders;
+
+// state information
+@property(nonatomic, readonly) NSNumber *status;
+@property(nonatomic, readonly) NSNumber* readyState;
+@property(nonatomic, readonly) NSString* responseText;
+@property(nonatomic, readonly) TiBlob* responseData;
+@property(nonatomic, readonly) NSArray* responseArray;
+@property(nonatomic, readonly) NSDictionary* responseHeaders;
+@property(nonatomic, readonly) NSDictionary* responseDictionary;
+@property(nonatomic, readonly) TiDOMDocumentProxy* responseXML;
+@property(nonatomic, readonly) NSString* connectionType;
+@property(nonatomic, readonly) NSString* location;
+
+//@property(nonatomic, retain, readwrite) NSNumber* validatesSecureCertificate;
+//@property(nonatomic, retain, readwrite) NSNumber* timeout;
+//@property(nonatomic, retain, readwrite) NSNumber* autoRedirect;
+
+// constants
+@property(nonatomic,readonly) NSNumber* UNSENT;
+@property(nonatomic,readonly) NSNumber* OPENED;
+@property(nonatomic,readonly) NSNumber* HEADERS_RECEIVED;
+@property(nonatomic,readonly) NSNumber* LOADING;
+@property(nonatomic,readonly) NSNumber* DONE;
 
 -(void)setOnload:(id)callback;
 -(void)setOnerror:(id)callback;
@@ -45,5 +61,14 @@
 -(void)setOnsendstream:(id)callback;
 -(void)setOnredirect:(id)callback;
 
-
+// public methods
+-(void)abort:(id)args;
+-(void)open:(id)args;
+-(void)setRequestHeader:(id)args;
+-(void)send:(id)args;
+-(void)clearCookies:(id)args;
+-(NSString*)getResponseHeader:(id)args;
+-(NSDictionary*)allResponseHeaders;
+-(NSString*)apiName;
+-(NSNumber*)connected;
 @end

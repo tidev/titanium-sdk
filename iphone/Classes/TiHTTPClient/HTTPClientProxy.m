@@ -62,25 +62,32 @@
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
 
     if([self valueForUndefinedKey:@"timeout"]) {
-        [[self request] setTimeout: [TiUtils intValue:[self valueForUndefinedKey:@"timeout"] def:1000] / 1000 ];
+        [[self request] setTimeout: [TiUtils intValue:[self valueForUndefinedKey:@"timeout"] def:15000] / 1000 ];
     }
     if([self valueForUndefinedKey:@"autoRedirect"]) {
         [[self request] setRedirects:
          [TiUtils boolValue: [self valueForUndefinedKey:@"autoRedirect"] def:YES] ];
     }
+    if([self valueForUndefinedKey:@"cache"]) {
+        [[self request] setCachePolicy:
+         [TiUtils boolValue: [self valueForUndefinedKey:@"autoRedirect"] def:YES] ?
+             NSURLCacheStorageAllowed : NSURLCacheStorageNotAllowed
+         ];
+    }
     if([self valueForUndefinedKey:@"validatesSecureCertificate"]) {
         [[self request] setValidatesSecureCertificate:
          [TiUtils boolValue: [self valueForUndefinedKey:@"validatesSecureCertificate"] def:YES] ];
     }
-
     if([self valueForUndefinedKey:@"username"]) {
         [[self request] setRequestUsername:
          [TiUtils stringValue: [self valueForUndefinedKey:@"username"]]];
     }
-
     if([self valueForUndefinedKey:@"password"]) {
         [[self request] setRequestPassword:
          [TiUtils stringValue: [self valueForUndefinedKey:@"password"]]];
+    }
+    if([self valueForUndefinedKey:@"domain"]) {
+        // TODO: NTLM
     }
 
     TiHTTPPostForm *form = nil;
@@ -96,8 +103,14 @@
                 if([value isKindOfClass:[NSString class]]) {
                     [form addFormKey:key andValue: (NSString*)value];
                 }
-                else if([value isKindOfClass:[TiBlob class]]) {
-                    [form addFormData:[(TiBlob*)value data]
+                else if([value isKindOfClass:[TiBlob class]]|| [value isKindOfClass:[TiFile class]]) {
+                    TiBlob *blob;
+                    if([args isKindOfClass:[TiBlob class]])
+                        blob = (TiBlob*)arg;
+                    else
+                        blob = [(TiFile*)arg blob];
+
+                    [form addFormData:[(TiBlob*)blob data]
                              fileName:[NSString stringWithFormat:@"file%i", dataIndex++]
                             fieldName:key];
                 }
@@ -107,8 +120,13 @@
                             andValue:[NSString stringWithUTF8String:[jsonData bytes]]];
                 }
             }
-        } else if ([arg isKindOfClass:[TiBlob class]]) {
-            TiBlob *blob = (TiBlob*)arg;
+        } else if ([arg isKindOfClass:[TiBlob class]] || [arg isKindOfClass:[TiFile class]]) {
+            TiBlob *blob;
+            if([args isKindOfClass:[TiBlob class]])
+                blob = (TiBlob*)arg;
+            else
+                blob = [(TiFile*)arg blob];
+            
             [form addFormData:[blob data]];
         } else if([arg isKindOfClass:[NSString class]]) {
             [form setStringData:(NSString*)arg];
@@ -121,7 +139,7 @@
     
     BOOL async = YES;
     if([self valueForUndefinedKey:@"async"]) {
-        async = [TiUtils boolValue:[self valueForUndefinedKey:@"async"]];
+        async = ![TiUtils boolValue:[self valueForUndefinedKey:@"async"]];
     }
     NSOperationQueue *operationQueue =
 #ifndef TI_HTTP_MODULE
@@ -148,10 +166,51 @@
     [[self request] abort];
 }
 
+-(void)clearCookies:(id)args
+{
+    ENSURE_ARG_COUNT(args, 1);
+    
+    NSString *host = [TiUtils stringValue:[args objectAtIndex:0]];
+    
+    NSHTTPCookie *cookie;
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSArray* targetCookies = [storage cookiesForURL:[NSURL URLWithString:host]];
+    if ([targetCookies count] > 0) {
+        for (cookie in targetCookies) {
+            [storage deleteCookie:cookie];
+        }
+    }
+}
+
 -(NSString*)getResponseHeader:(id)args
 {
     ENSURE_SINGLE_ARG(args, NSString)
     return [[response headers] valueForKey:args];
+}
+
+-(NSDictionary*)allResponseHeaders
+{
+    return [response headers];
+}
+
+-(NSString*)apiName
+{
+    NSString *className =  NSStringFromClass ([self class]);
+    className = [className stringByReplacingOccurrencesOfString:@"TiNetwork" withString:@""];
+    className = [className stringByReplacingOccurrencesOfString:@"Proxy" withString:@""];
+    return [NSString stringWithFormat:@"Ti.Network.%@", className];
+}
+
+-(NSNumber*)connected
+{
+    if([[self request] response] == nil) {
+        return NUMBOOL(NO);
+    }
+    TiResponseState state = [[[self request] response]readyState];
+    return
+        state == TiResponseStateHeaders ||
+        state == TiResponseStateLoading ||
+        state == TiResponseStateOpened;
 }
 
 # pragma mark - Callback functions
@@ -162,7 +221,8 @@
         NSTimeInterval diff = [[NSDate date] timeIntervalSince1970] - _downloadTime;
         if(_downloadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [tiResponse readyState] == TiResponseStateDone) {
             _downloadTime = 0;
-            NSDictionary *eventDict = @{@"progress": [NSNumber numberWithFloat: [tiResponse downloadProgress]]};
+            NSDictionary *eventDict = [NSMutableDictionary dictionary];
+            [eventDict setValue:[NSNumber numberWithFloat: [tiResponse downloadProgress]] forKey:@"progress"];
             [self fireCallback:@"ondatastream" withArg:eventDict withSource:self];
         }
         if(_downloadTime == 0) {
@@ -177,7 +237,8 @@
         NSTimeInterval diff = [[NSDate date] timeIntervalSince1970] - _uploadTime;
         if(_uploadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [tiResponse readyState] == TiResponseStateDone) {
             _uploadTime = 0;
-            NSDictionary *eventDict = @{@"progress": [NSNumber numberWithFloat: [tiResponse uploadProgress]]};
+            NSDictionary *eventDict = [NSMutableDictionary dictionary];
+            [eventDict setValue:[NSNumber numberWithFloat: [tiResponse uploadProgress]] forKey:@"progress"];
             [self fireCallback:@"onsendstream" withArg:eventDict withSource:self];
         }
         if(_uploadTime == 0) {
@@ -189,8 +250,21 @@
 -(void)tiRequest:(TiHTTPRequest *)request onLoad:(TiHTTPResponse *)tiResponse
 {
     response = [tiResponse retain];
-    if(hasOnload) {
-        [self fireCallback:@"onload" withArg:nil withSource:self];
+    int responseCode = [response status];
+    /**
+     *	Per customer request, successful communications that resulted in an
+     *	4xx or 5xx response is treated as an error instead of an onload.
+     *	For backwards compatibility, if no error handler is provided, even
+     *	an 4xx or 5xx response will fall back onto an onload.
+     */
+    if (hasOnerror && (responseCode >= 400) && (responseCode <= 599)) {
+        NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:@"HTTP error"];
+        [event setObject:@"error" forKey:@"type"];
+        [self fireCallback:@"onerror" withArg:event withSource:self];
+    } else if(hasOnload) {
+        NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+        [event setObject:@"load" forKey:@"type"];
+        [self fireCallback:@"onload" withArg:event withSource:self];
     }
     NSOperationQueue *operationQueue =
 #ifndef TI_HTTP_MODULE
@@ -206,9 +280,16 @@
 }
 -(void)tiRequest:(TiHTTPRequest *)request onError:(TiHTTPResponse *)tiResponse
 {
+    int responseCode = [tiResponse status];
     if([self valueForUndefinedKey:@"onerror"]) {
-        [self replaceValue:[[tiResponse error] localizedDescription] forKey:@"error" notification:NO];
-        [self fireCallback:@"onerror" withArg:nil withSource:self];
+		if (hasOnerror && (responseCode >= 400) && (responseCode <= 599)) {
+            if (hasOnerror) {
+                NSError *error = [tiResponse error];
+                NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+                [event setObject:@"error" forKey:@"type"];
+                [self fireCallback:@"onerror" withArg:event withSource:self];
+            }
+		}
     }
     NSOperationQueue *operationQueue =
 #ifndef TI_HTTP_MODULE
@@ -240,7 +321,7 @@
     }
 }
 
-#pragma mark - Setters
+#pragma mark - Pulbic setters
 
 -(void)setOnload:(id)callback
 {
@@ -279,8 +360,21 @@
     hasOnredirect = YES;
 }
 
+-(void)setRequestHeader:(id)args
+{
+	ENSURE_ARG_COUNT(args,2);
+	
+	NSString *key = [TiUtils stringValue:[args objectAtIndex:0]];
+	NSString *value = [TiUtils stringValue:[args objectAtIndex:1]];
+    [[self request] addRequestHeader:key value:value];
+}
 
 #pragma mark - Public getter properties
+
+-(NSNumber*)status
+{
+    return NUMINT([response status]);
+}
 -(NSString*)method
 {
     if(response == nil) {
@@ -328,15 +422,34 @@
 {
     return [response responseArray];
 }
-
 -(NSNumber*)readyState
 {
     return NUMINT([response readyState]);
 }
-
 -(NSDictionary*)responseHeaders
 {
     return [response headers];
 }
+-(NSNumber*)UNSENT
+{
+	return NUMINT(TiResponseStateUnsent);
+}
+-(NSNumber*)OPENED
+{
+	return NUMINT(TiResponseStateOpened);
+}
+-(NSNumber*)HEADERS_RECEIVED
+{
+	return NUMINT(TiResponseStateHeaders);
+}
+-(NSNumber*)LOADING
+{
+	return NUMINT(TiResponseStateLoading);
+}
+-(NSNumber*)DONE
+{
+	return NUMINT(TiResponseStateDone);
+}
+
 
 @end
