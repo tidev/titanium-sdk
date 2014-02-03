@@ -933,6 +933,22 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		this.minifyJS = false;
 	}
 
+	// check the app name
+	if (cli.tiapp.name.indexOf('&') != -1) {
+		if (config.get('android.allowAppNameAmpersands', false)) {
+			logger.warn(__('The app name "%s" contains an ampersands (&) which will most likely cause problems.', cli.tiapp.name));
+			logger.warn(__('It is recommended that you define the app name using i18n strings.'));
+			logger.warn(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'.cyan));
+		} else {
+			logger.error(__('The app name "%s" contains an ampersands (&) which will most likely cause problems.', cli.tiapp.name));
+			logger.error(__('It is recommended that you define the app name using i18n strings.'));
+			logger.error(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'));
+			logger.error(__('To allow ampersands in the app name, run:'));
+			logger.error('    ti config android.allowAppNameAmpersands true\n');
+			process.exit(1);
+		}
+	}
+
 	// check the Android specific app id rules
 	if (!config.get('app.skipAppIdValidation') && !cli.tiapp.properties['ti.skipAppIdValidation']) {
 		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(cli.tiapp.id)) {
