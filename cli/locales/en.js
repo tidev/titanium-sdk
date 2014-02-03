@@ -56,7 +56,7 @@
 	"the name of the project": "the name of the project",
 	"Project name": "Project name",
 	"Please specify a project name": "Please specify a project name",
-	"The project name contains an ampersands (&) which will most likely cause problems.": "The project name contains an ampersands (&) which will most likely cause problems.",
+	"The project name contains an ampersand (&) which will most likely cause problems.": "The project name contains an ampersand (&) which will most likely cause problems.",
 	"It is recommended that you change the app name in the tiapp.xml or define the app name using i18n strings.": "It is recommended that you change the app name in the tiapp.xml or define the app name using i18n strings.",
 	"Refer to %s for more information.": "Refer to %s for more information.",
 	"To allow ampersands in the app name, run:": "To allow ampersands in the app name, run:",
