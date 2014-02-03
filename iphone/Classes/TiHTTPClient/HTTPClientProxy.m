@@ -106,11 +106,11 @@
                 else if([value isKindOfClass:[TiBlob class]]|| [value isKindOfClass:[TiFile class]]) {
                     TiBlob *blob;
                     if([args isKindOfClass:[TiBlob class]])
-                        blob = (TiBlob*)arg;
+                        blob = (TiBlob*)value;
                     else
-                        blob = [(TiFile*)arg blob];
+                        blob = [(TiFile*)value blob];
 
-                    [form addFormData:[(TiBlob*)blob data]
+                    [form addFormData:[(TiBlob*)value data]
                              fileName:[NSString stringWithFormat:@"file%i", dataIndex++]
                             fieldName:key];
                 }
