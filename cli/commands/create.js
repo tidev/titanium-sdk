@@ -157,11 +157,11 @@ exports.config = function config(logger, config, cli) {
 
 							if (cli.argv.platforms.indexOf('android') != -1 && value.indexOf('&') != -1) {
 								if (config.get('android.allowAppNameAmpersands', false)) {
-									logger.warn(__('The project name contains an ampersands (&) which will most likely cause problems.'));
+									logger.warn(__('The project name contains an ampersand (&) which will most likely cause problems.'));
 									logger.warn(__('It is recommended that you change the app name in the tiapp.xml or define the app name using i18n strings.'));
 									logger.warn(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'.cyan));
 								} else {
-									logger.error(__('The project name contains an ampersands (&) which will most likely cause problems.'));
+									logger.error(__('The project name contains an ampersand (&) which will most likely cause problems.'));
 									logger.error(__('It is recommended that you change the app name in the tiapp.xml or define the app name using i18n strings.'));
 									logger.error(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'));
 									logger.error(__('To allow ampersands in the app name, run:'));
