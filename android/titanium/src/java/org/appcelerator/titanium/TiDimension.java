@@ -212,6 +212,32 @@ public class TiDimension
 		}
 		return -1;
 	}
+	
+	/**
+	 * Calculate and return the number of pixels based on the type
+	 * without rounding or type casting.
+	 * @param parent the parent view used for calculation.
+	 * @return the number of pixels.
+	 */
+	public double getPixelsRaw(View parent)
+	{
+		switch (units) {
+			case TypedValue.COMPLEX_UNIT_PX:
+			case COMPLEX_UNIT_UNDEFINED:
+				return this.value;
+			case COMPLEX_UNIT_PERCENT:
+				return getPercentPixels(parent);
+			case TypedValue.COMPLEX_UNIT_DIP:
+			case TypedValue.COMPLEX_UNIT_SP:
+				return getScaledPixels(parent);
+			case TypedValue.COMPLEX_UNIT_PT:
+			case TypedValue.COMPLEX_UNIT_MM:
+			case COMPLEX_UNIT_CM:
+			case TypedValue.COMPLEX_UNIT_IN:
+				return getSizePixels(parent);
+		}
+		return -1;
+	}
 
 	/**
 	 * Calculates and returns the number of pixels, depending on the type.

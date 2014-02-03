@@ -1173,7 +1173,9 @@ public abstract class TiUIView
 				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
-					float radius = TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS, 0f);
+					TiDimension radiusDim = TiConvert.toTiDimension(d.get(TiC.PROPERTY_BORDER_RADIUS),
+						TiDimension.TYPE_WIDTH);
+					float radius = (float) radiusDim.getPixelsRaw(getNativeView());
 					if (radius > 0f && HONEYCOMB_OR_GREATER) {
 						disableHWAcceleration();
 					}
