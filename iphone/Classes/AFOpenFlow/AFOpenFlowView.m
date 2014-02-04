@@ -251,10 +251,11 @@ const static CGFloat kReflectionFraction = 0.85;
 	int upperBound = MIN(self.numberOfImages - 1, selectedCoverView.number + COVER_BUFFER);
 	
     if (selectedCoverView) {
-        if (selectedCoverView.number < numberOfImages) {
-            [self setSelectedCover:selectedCoverView.number forceCalculation:force];
+        if (!force) {
+            [self layoutCovers:selectedCoverView.number fromCover:lowerBound toCover:upperBound];
         } else {
-            [self setSelectedCover:numberOfImages-1 forceCalculation:force];
+            int newSelected = (selectedCoverView.number < numberOfImages) ? selectedCoverView.number : (numberOfImages - 1);
+            [self setSelectedCover:newSelected forceCalculation:YES];
         }
     }
     else {
