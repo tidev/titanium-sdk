@@ -52,6 +52,18 @@ methods:
             If `true`, the image is scaled to fit the width of the system wallpaper. If
             `false`, the image is not scaled.
         type: Boolean
+properties:
+  - name: appVersionCode
+    summary: |
+        The version number of the application. 
+    type: Number
+    since: 3.2.0
+    
+  - name: appVersionName
+    summary: |
+        The version name of the application. 
+    type: Number
+    since: 3.2.0
 
 ---
 name: MediaScannerResponse
