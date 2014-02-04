@@ -146,6 +146,7 @@ public class TiUIWebView extends TiUIView
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
 		settings.setLoadsImagesAutomatically(true);
 		settings.setDomStorageEnabled(true); // Required by some sites such as Twitter. This is in our iOS WebView too.
+		settings.setRenderPriority(WebSettings.RenderPriority.HIGH);
 		File path = TiApplication.getInstance().getFilesDir();
 		if (path != null) {
 			settings.setDatabasePath(path.getAbsolutePath());
@@ -181,6 +182,7 @@ public class TiUIWebView extends TiUIView
 		webView.setWebChromeClient(chromeClient);
 		client = new TiWebViewClient(this, webView);
 		webView.setWebViewClient(client);
+		webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		webView.client = client;
 
 		if (proxy instanceof WebViewProxy) {
