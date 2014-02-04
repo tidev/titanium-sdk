@@ -46,34 +46,36 @@ methods:
         type: Dictionary<NotificationParams>
 
   - name: setMinimumBackgroundFetchInterval
-    summary: Specifies the minimum amount of time that must elapse between background fetch operations.
+    summary: |
+        Specifies the minimum amount of time that must elapse between background fetch operations.
+        Available only on iOS 7 and later.
     description: |
-        This property has no effect for apps that do not have the UIBackgroundModes key with 
-        the fetch value in its Info.plist file. The default fetch interval for apps is 
-        <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER>. Therefore, you must call this 
+        This property has no effect for apps that do not have the UIBackgroundModes key with
+        the fetch value in its Info.plist file. The default fetch interval for apps is
+        <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER>. Therefore, you must call this
         method and set a fetch interval before your app is given background execution time.
     parameters:
       - name: fetchInterval
         summary: |
-            The minimum number of seconds that must elapse before another background fetch can be initiated. 
-            This value is advisory only and does not indicate the exact amount of time expected between 
+            The minimum number of seconds that must elapse before another background fetch can be initiated.
+            This value is advisory only and does not indicate the exact amount of time expected between
             fetch operations.
-            
-            Two system defined constants for this parameter are 
-            <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER> and <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER>.
+
+            Two system defined constants for this parameter are
+            <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER> and <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_MIN>.
         type: Number
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
   - name: endBackgroundHandler
-    summary: Marks the end of the app execution when a download operation is complete. 
+    summary: Marks the end of the app execution after initiating the download operation. Available only on iOS 7 and later.
     description: |
-        When calling this method, pass in the handlerID value that inititated the background state. 
-        You must call this handler and should do so as soon as possible. 
+        When calling this method, pass in the `handlerID` value that initiated the background state.
+        You must call this handler after initiating the download operation and should do so as soon as possible.
     parameters:
       - name: handlerID
         summary: |
-            Unique string identifer for the event (backgroundfetch, silentpush or backgroundtransfer) 
+            Unique string identifer for the event (`backgroundfetch`, `silentpush` or `backgroundtransfer`)
             that initiated the background opertation mode.
         type: String
     osver: {ios: {min: "7.0"}}
@@ -94,7 +96,7 @@ properties:
     
   - name: BACKGROUNDFETCHINTERVAL_MIN
     summary: |
-        Use with (endBackgroundHandler)[Titanium.App.iOS.endBackgroundHandler] method. 
+        Use with [setMinimumBackgroundFetchInterval](Titanium.App.iOS.setMinimumBackgroundFetchInterval) method.
         Specifies the smallest fetch interval supported by the system.
     type: Number
     permission: read-only
@@ -103,7 +105,7 @@ properties:
 
   - name: BACKGROUNDFETCHINTERVAL_NEVER
     summary: |
-        Use with (endBackgroundHandler)[Titanium.App.iOS.endBackgroundHandler] method. 
+        Use with [setMinimumBackgroundFetchInterval](Titanium.App.iOS.setMinimumBackgroundFetchInterval) method.
         Used to specify a fetch interval large enough to prevent fetch operations from occurring.
     type: Number
     permission: read-only
@@ -148,117 +150,129 @@ events:
         type: Dictionary
 
   - name: backgroundfetch
-    summary: Fired when the application is woken up for a fetch operation. Available only in iOS 7.
+    summary: Fired when the application is woken up for a fetch operation. Available only on iOS 7 and later.
     description: |
-        Add this event if your app supports the `fetch` UIBackground mode. When an opportunity arises to 
-        download data, the system fires this event to give your app a chance to download any data it needs. 
-        Your callback of this event should download the data, prepare that data for use, and call the 
-        [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method with handlerID parameter from this event. 
-        
-        When this event is fired, your app has up to 30 seconds of wall-clock time to perform the download 
-        operation and call the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method. In practice, 
-        your app should call the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method as soon as possible 
-        after downloading the needed data. If you do not call the 
-        [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method in time, your app is suspended. 
-        More importantly, the system uses the elapsed time to calculate power usage and data costs for your 
-        app's background downloads. If your app takes a long time to call 
-        [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method, it may be given fewer 
-        future opportunities to fetch data in the future. 
-        
-        The event returns the dictionary containing the  property handlerID, which is unique handlerID for the 
-        current event. This identifier shoulder passed as the argument to the 
+        Add this event if your app supports the `fetch` UIBackground mode. When an opportunity arises to
+        download data, the system fires this event to give your app a chance to download any data it needs.
+        Your callback of this event should download the data, prepare that data for use, and call the
+        [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method with the `handlerID` parameter from this event.
+
+        When this event is fired, your app has up to 30 seconds of wall-clock time to perform the download
+        operation and call the `endBackgroundHandler` method. In practice,
+        your app should call the `endBackgroundHandler` method as soon as possible
+        after initiating the download. If you do not call the `endBackgroundHandler` method in time, your app is suspended.
+        More importantly, the system uses the elapsed time to calculate power usage and data costs for your
+        app's background downloads. If your app takes a long time to call `endBackgroundHandler` method, it may be given fewer
+        future opportunities to fetch data in the future.
+
+        If you are downloading large content, initiate the download using a
+        [urlSession](Modules.URLSession) background download task, then call the `endBackgroundHandler` method.
+        Listen for the [downloadcompleted](Titanium.App.iOS.downloadcompleted) event to prepare the data for use.
+
+        The event returns the dictionary containing the `handlerID` property, which is a unique handler ID for the
+        current event. This identifier should be passed as the argument to the
         [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
     properties:
       - name: handlerId
         summary: |
-            Unique string identifer for the backgroundfetch event. This identifier shoulder passed as the argument 
+            Unique string identifer for the `backgroundfetch` event. This identifier should be passed as the argument
             to the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
-        type: String.
+        type: String
     platforms: [iphone, ipad]
     osver: {ios: {min: "7.0"}}
     since: '3.2.0'
 
   - name: silentpush
-    summary: Fired when the application is woken up by a silent remote notification. Available only on iOS 7.
+    summary: Fired when the application is woken up by a silent remote notification. Available only on iOS 7 and later.
     description: |
-        Add this event if your app supports the `remote-notification` UIBackground mode. 
-        This event is intended as a means for apps to minimize the time that elapses between 
-        the user seeing a push notification and the app displaying the associated data. 
-        When a push notification arrives, the system displays the notification to the user and 
-        launches the app in the background (if needed) so that it can call this event. 
-        Use this event to download any data related to the push notification. When your method 
-        is done, call the endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method with handlerID parameter from this event.
-        
-        The system fires this event regardless of the state of your app. If your app is suspended 
-        or not running, the system wakes up or launches your app and puts it into the background 
+        Add this event if your app supports the `remote-notification` UIBackground mode.
+        This event is intended as a means for apps to minimize the time that elapses between
+        the user seeing a push notification and the app displaying the associated data.
+        When a push notification arrives, the system displays the notification to the user and
+        launches the app in the background (if needed) so that it can call this event.
+        Use this event to download any data related to the push notification. When your method
+        is done, call the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method with
+        `handlerID` parameter from this event.
+
+        The system fires this event regardless of the state of your app. If your app is suspended
+        or not running, the system wakes up or launches your app and puts it into the background
         running state before firing the event.
-        
-        When this event is fired, your app has up to 30 seconds of wall-clock time to perform 
-        the download operation and call the call the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) 
-        method with given handlerID. In practice, your app should call the call the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method 
-        as soon as possible after downloading the needed data. If you do not call the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method in time, 
-        your app is suspended. More importantly, the system uses the elapsed time to calculate 
-        power usage and data costs for your app's background downloads. 
-        
-        The event returns the dictionary containing the  property handlerID, which is unique handlerID for the 
-        current event. This identifier shoulder passed as the argument to the 
+
+        When this event is fired, your app has up to 30 seconds of wall-clock time to perform the download
+        operation and call the `endBackgroundHandler` method. In practice,
+        your app should call the `endBackgroundHandler` method as soon as possible
+        after initiating the download. If you do not call the `endBackgroundHandler` method in time, your app is suspended.
+        More importantly, the system uses the elapsed time to calculate power usage and data costs for your
+        app's background downloads. If your app takes a long time to call `endBackgroundHandler` method, it may be given fewer
+        future opportunities to fetch data in the future.
+
+        If you are downloading large content, initiate the download using a
+        [urlSession](Modules.URLSession) background download task, then call the `endBackgroundHandler` method.
+        Listen for the [downloadcompleted](Titanium.App.iOS.downloadcompleted) event to prepare the data for use.
+
+        The event returns the dictionary containing the `handlerID` property, which is a unique handler ID for the
+        current event. This identifier should be passed as the argument to the
         [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
     properties:
       - name: handlerId
         summary: |
-            Unique string identifer for the silentpush event. This identifier shoulder passed as the argument 
+            Unique string identifer for the `silentpush` event. This identifier should be passed as the argument
             to the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
-        type: String.
+        type: String
     platforms: [iphone, ipad]
     osver: {ios: {min: "7.0"}}
     since: '3.2.0'
 
-  - name: backgroundTransfer
-    summary: Fired when the events related to a urlSession are waiting to be processed. Available only on iOS 7.
+  - name: backgroundtransfer
+    summary: |
+        Fired when the events related to a [urlSession](Modules.URLSession) are waiting to be processed.
+        Available only on iOS 7 and later.
     description: |
-        The app fires this events when all background transfers associated with an urlSession object 
-        have finished or failed. Use this method to reconnect any urlSessions and to update your 
-        app's user interface. For example, you might use this method to update progress indicators 
-        or to incorporate new content into your views. After processing the events, call the 
-        [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method with the handlerID 
-        parameter. If a urlSession finishes its work when your app is not running, the system 
-        launches your app in the background so that it can process the event. In that situation, 
-        use the provided identifier to create a new urlSessionConfiguration and urlSession object. 
-        Upon creating urlSession object, that object calls the appropriate delegate methods to 
+        The app fires this events when all background transfers associated with a `urlSession` object
+        have finished or failed. Use this method to reconnect any `urlSession`s and to update your
+        app's user interface. For example, you might use this method to update progress indicators
+        or to incorporate new content into your views. After processing the events, call the
+        [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method with the `handlerID`
+        parameter. If a `urlSession` finishes its work when your app is not running, the system
+        launches your app in the background so that it can process the event. In that situation,
+        use the provided identifier to create a new `urlSessionConfiguration` and `urlSession` objects.
+        Upon creating urlSession object, that object calls the appropriate delegate methods to
         process the events.
-        
-        If your app already has a session object with the specified identifier and is running or suspended, 
-        you do not need to create a new session object using this method. Suspended apps are moved into the 
-        background. As soon as the app is running again, the urlSession object with the identifier receives 
+
+        If your app already has a session object with the specified identifier and is running or suspended,
+        you do not need to create a new session object using this method. Suspended apps are moved into the
+        background. As soon as the app is running again, the `urlSession` object with the identifier receives
         the events and processes them normally.
-        
-        At launch time, the app does not call this method if there are uploads or downloads in progress but 
-        not yet finished. If you want to display the current progress of those transfers in your app's user 
-        interface, you must recreate the session object yourself. In that situation, cache the session 
+
+        At launch time, the app does not call this method if there are uploads or downloads in progress.
+        If you want to display the current progress of those transfers in your app's user
+        interface, you must recreate the session object yourself. In that situation, cache the session
         identifier value persistently and use it to recreate your session object.
-        
+
     properties:
       - name: handlerId
         summary: |
-            Unique string identifer for the backgroundtransfer event. This identifier shoulder passed as the argument 
+            Unique string identifer for the `backgroundtransfer` event. This identifier should be passed as the argument
             to the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
-        type: String.
+        type: String
       - name: sessionId
         summary: |
-            The identifier of the URL session requiring attention. If your app was just launched, 
-            you can use this identifier to create a new urlSession object that can receive the events.
+            The identifier of the URL session requiring attention. If your app was just launched,
+            you can use this identifier to create a new `urlSession` object that can receive the events.
         type: String
     platforms: [iphone, ipad]
     osver: {ios: {min: "7.0"}}
     since: '3.2.0'
 
   - name: downloadprogress
-    summary: Fired periodically to informs the app about the download's progress.
+    summary: |
+        Fired periodically to inform the app about the download's progress of a [urlSession](Modules.URLSession).
+        Available only on iOS 7 and later.
     description: |
-        This event only needs to be used if your app is using the urlSession module to download data.
+        This event only needs to be used if your app is using the `urlSession` module to download data.
     properties:
       - name: taskIdentifier
-        summary: The urlSession download task's identifer.
+        summary: The `urlSession` download task's identifer.
         type: Number
 
       - name: bytesWritten
@@ -271,19 +285,21 @@ events:
 
       - name: totalBytesExpectedToWrite
         summary: |
-            The expected length of the file, as provided by the Content-Length header. If this 
+            The expected length of the file, as provided by the Content-Length header. If this
             header was not provided, the value is zero.
         type: Number
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
   - name: downloadcompleted
-    summary: Fired to indicate that a download task has finished downloading. 
+    summary: |
+        Fired to indicate that a [urlSession's](Modules.URLSession) download task has finished downloading.
+        Available only on iOS 7 and later.
     description: |
-        This event only needs to be used if your app is using the urlSession module to download data.
+        This event only needs to be used if your app is using the `urlSession` module to download data.
     properties:
       - name: taskIdentifier
-        summary: The urlSession download task's identifer.
+        summary: The `urlSession` download task's identifer.
         type: Number
 
       - name: data
@@ -293,16 +309,18 @@ events:
     since: "3.2.0"
 
   - name: sessioncompleted
-    summary: Fired to indicate that a session task finished transferring data.
+    summary: |
+        Fired to indicate that a [urlSession](Modules.URLSession) task finished transferring data.
+        Available only on iOS 7 and later.
     description: |
-        This event only needs to be used if your app is using the urlSession module to download data.
-        
-        Server errors are not reported through the error parameter. The only errors event sends 
-        through the error parameter are client-side errors, such as being unable to resolve 
+        This event only needs to be used if your app is using the `urlSession` module to download data.
+
+        Server errors are not reported through the error parameter. The only error events sent
+        through the error parameter are client-side errors, such as being unable to resolve
         the hostname or connect to the host.
     properties:
       - name: taskIdentifier
-        summary: The urlSession download task's identifer.
+        summary: The `urlSession` download task's identifer.
         type: Number
 
       - name: success
@@ -314,27 +332,29 @@ events:
         type: Number
 
       - name: message
-        summary: A string containing the localized description of the error. 
+        summary: A string containing the localized description of the error.
         type: String
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
-    
+
   - name: sessioneventscompleted
-    summary: Fired to indicate that all messages enqueued for a session have been delivered.
+    summary: |
+        Fired to indicate that all messages enqueued for a [urlSession](Modules.URLSession) have been delivered.
+        Available only on iOS 7 and later.
     description: |
-        This event only needs to be used if your app is using the urlSession module to download data.
-        
-        In iOS, when a background transfer completes and if your app is no longer running, your app 
-        is automatically relaunched in the background, and the app fires ['backgroundTransfer' event](Titanium.App.backgroundTransfer). 
-        This event should have contained the identifier of the session that caused your app to be launched. 
-        Your app should then store that handlerID before creating a background session configuration object 
-        with the same identifier, and creating a url session object with that configuration. 
+        This event only needs to be used if your app is using the `urlSession` module to download data.
+
+        In iOS, when a background transfer completes and if your app is no longer running, your app
+        is automatically relaunched in the background, and the app fires the [backgroundtransfer](Titanium.App.iOS.backgroundtransfer) event.
+        This event should contain the identifier of the session that caused your app to be launched.
+        Your app should then store that `handlerID` before creating a background session configuration object
+        with the same identifier, and creating a url session object with that configuration.
         The newly created session is automatically reassociated with ongoing background activity.
-        
-        When your app later receives a 'sessioneventscompleted' event, this indicates that 
-        all messages previously enqueued for this session have been delivered, and that it 
-        is now safe to invoke [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) 
-        method with the handlerID  or to begin any internal updates that may result in invoking 
+
+        When your app later receives a `sessioneventscompleted` event, this indicates that
+        all messages previously enqueued for this session have been delivered, and that it
+        is now safe to invoke [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler)
+        method with the `handlerID` or to begin any internal updates that may result in invoking
         this method.
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"

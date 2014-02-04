@@ -15,8 +15,7 @@ module.exports = new function() {
 
 	this.name = "ui_slider";
 	this.tests = [
-		{name: "sliderInTableViewRow"},
-		{name: "valueOnCreation"}
+		{name: "sliderInTableViewRow"}
 	]
 
 	//TIMOB-9672
@@ -53,27 +52,5 @@ module.exports = new function() {
 		valueOf(testRun, slider.value).shouldBe(40);
 
 		finish(testRun);
-	}
-
-	//TIMOB-10880
-	this.valueOnCreation= function(testRun) {
-		win = Titanium.UI.createWindow({
-			backgroundColor : '#FFFFFF',
-		});
-		var ss = Ti.UI.createSlider({
-			top : 25,
-			value : 20,
-			min : 0,
-			max : 50,
-			left : 0,
-			right : 0
-		});
-		win.add(ss);
-		win.addEventListener('focus', function(){
-			valueOf(testRun, ss.value).shouldBe(20);
-		
-			finish(testRun);
-		});
-		win.open();
 	}
 }

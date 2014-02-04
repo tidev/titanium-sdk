@@ -22,15 +22,15 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.Button;
 
 public class TiUIButton extends TiUIView
 {
 	private static final String TAG = "TiUIButton";
+	private static final float DEFAULT_SHADOW_RADIUS = 0.5f;
 	
 	private int defaultColor;
-	private float shadowRadius = 0f;
+	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
 	private float shadowY = 0f;
 	private int shadowColor = Color.TRANSPARENT;
@@ -112,7 +112,7 @@ public class TiUIButton extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_RADIUS)) {
 			needShadow = true;
-			shadowRadius = TiConvert.toFloat(d.get(TiC.PROPERTY_SHADOW_RADIUS), 0);
+			shadowRadius = TiConvert.toFloat(d.get(TiC.PROPERTY_SHADOW_RADIUS), DEFAULT_SHADOW_RADIUS);
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_COLOR)) {
 			needShadow = true;
@@ -162,7 +162,7 @@ public class TiUIButton extends TiUIView
 				btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 			}
 		} else if (key.equals(TiC.PROPERTY_SHADOW_RADIUS)) {
-			shadowRadius = TiConvert.toFloat(newValue, 0);
+			shadowRadius = TiConvert.toFloat(newValue, DEFAULT_SHADOW_RADIUS);
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
@@ -172,52 +172,4 @@ public class TiUIButton extends TiUIView
 		}
 	}
 
-	public void setOpacityForButton(float opacity)
-	{
-		if (opacity < 0 || opacity > 1) {
-			Log.w(TAG, "Ignoring invalid value for opacity: " + opacity);
-			return;
-		}
-		View view = getNativeView();
-		if (view != null) {
-			TiUIHelper.setPaintOpacity(((Button) view).getPaint(), opacity);
-			Drawable[] drawables = ((Button) view).getCompoundDrawables();
-			if (drawables != null) {
-				for (int i = 0; i < drawables.length; i++) {
-					TiUIHelper.setDrawableOpacity(drawables[i], opacity);
-				}
-			}
-		}
-	}
-
-	public void clearOpacityForButton()
-	{
-		View view = getNativeView();
-		if (view != null) {
-			((Button) view).getPaint().setColorFilter(null);
-			Drawable[] drawables = ((Button) view).getCompoundDrawables();
-			if (drawables != null) {
-				for (int i = 0; i < drawables.length; i++) {
-					Drawable d = drawables[i];
-					if (d != null) {
-						d.clearColorFilter();
-					}
-				}
-			}
-		}
-	}
-
-	@Override
-	protected void setOpacity(View view, float opacity)
-	{
-		setOpacityForButton(opacity);
-		super.setOpacity(view, opacity);
-	}
-
-	@Override
-	public void clearOpacity(View view)
-	{
-		clearOpacityForButton();
-		super.clearOpacity(view);
-	}
 }

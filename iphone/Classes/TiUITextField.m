@@ -194,26 +194,24 @@
 	}
 }
 
--(BOOL)canBecomeFirstResponder
-{
-    return self.isEnabled;
-}
 
 -(BOOL)resignFirstResponder
 {
-	becameResponder = NO;
-	
 	if ([super resignFirstResponder])
 	{
 		[self repaintMode];
-		return YES;
+        if (becameResponder) {
+            becameResponder = NO;
+            [touchHandler makeRootViewFirstResponder];
+        }
+        return YES;
 	}
 	return NO;
 }
 
 -(BOOL)becomeFirstResponder
 {
-    if (self.canBecomeFirstResponder) {
+    if (self.isEnabled) {
         if ([super becomeFirstResponder])
         {
             becameResponder = YES;
@@ -509,8 +507,6 @@
         [self setValue_:curText];
         return NO;
     }
-
-	[(TiUITextFieldProxy *)self.proxy noteValueChange:curText];
 	return YES;
 }
 
