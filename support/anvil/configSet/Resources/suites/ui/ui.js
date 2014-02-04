@@ -36,14 +36,12 @@ module.exports = new function() {
 		{name: "webviewBasedOnURL", timeout: 10000},
 		{name: "setUserAgent", timeout: 10000},
 		{name: "loadEventMultipleTimes", timeout: 30000},
-		{name: "setBuiltInZoomControls", timeout: 10000},
 		{name: "evalJSWebviewCrash", timeout: 10000},
 		{name: "webviewErrorEventCrash", timeout: 10000},
 		{name: "setHtmlMethod", timeout: 10000},
 		{name: "beforeloadEventURL", timeout: 10000},
 		{name: "malformedURL", timeout: 10000},
-		{name: "navigationType", timeout: 10000},
-		{name: "ui_layoutCrash", timeout: 10000}
+		{name: "navigationType", timeout: 10000}
 	]
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2583
@@ -591,21 +589,26 @@ module.exports = new function() {
 
 	//TIMOB-1055
 	this.setUserAgent = function(testRun) {
-		var win = Ti.UI.createWindow({
-			top : 0,
-			left : 0,
-			right : 0,
-			bottom : 0
-		});
-		var webview = Ti.UI.createWebView({
-			url: 'http://www.google.com'
-		});
-		win.add(webview);
-		win.open();
-		webview.setUserAgent("custom user agent");
-		valueOf(testRun, webview.getUserAgent()).shouldBe("custom user agent");
+		if (Ti.Platform.osname === 'android') {
+			var win = Ti.UI.createWindow({
+				top : 0,
+				left : 0,
+				right : 0,
+				bottom : 0
+			});
+			var webview = Ti.UI.createWebView({
+				url: 'http://www.google.com'
+			});
+			win.add(webview);
+			win.open();
+			webview.setUserAgent("custom user agent");
+			valueOf(testRun, webview.getUserAgent()).shouldBe("custom user agent");
 
-		finish(testRun);
+			finish(testRun);
+		} else {
+
+			finish(testRun);
+		}
 	}
 
 	//TIMOB-3370
@@ -629,30 +632,6 @@ module.exports = new function() {
 
 			finish(testRun);
 		}, 30000);
-	}
-	//TIMOB-4844
-	this.setBuiltInZoomControls = function(testRun) {
-		if (Ti.Platform.osname === 'android') {
-			var win = Ti.UI.createWindow({ backgroundColor: '#fff' });
-			var web = Ti.UI.createWebView({
-				url : 'http://appc.me/test/Echo',
-				width : '90%',
-				height : '90%',
-				top : '5%',
-				left : '5%'
-			});
-			win.add(web);
-			win.open();
-			web.setEnableZoomControls(true);
-			valueOf(testRun, web.getEnableZoomControls( )).shouldBeTrue();
-			web.setEnableZoomControls(false);
-			valueOf(testRun, web.getEnableZoomControls( )).shouldBeFalse();
-
-			finish(testRun);
-		} else {
-
-			finish(testRun);
-		}
 	}
 
 	//TIMOB-4885
@@ -692,7 +671,6 @@ module.exports = new function() {
 				var string = String.fromCharCode(i);
 				webView.url = string;
 			}
-			win.remove(webView);
 		}
 		win.open();
 		valueOf(testRun, function(){
@@ -778,25 +756,5 @@ module.exports = new function() {
 
 			finish(testRun);
 		}
-	}
-
-	//TIMOB-9173
-	this.ui_layoutCrash = function(testRun) {
-		var win = Ti.UI.createWindow({
-			backgroundColor : 'white'
-		});
-		var webView = Ti.UI.createWebView({
-			url : 'http://www.appcelerator.com'
-		});
-		var button = Ti.UI.createButton({
-			title : 'Will I Show'
-		});
-		valueOf(testRun, function(){
-			webView.add(button);
-		}).shouldNotThrowException();
-		win.add(webView);
-		win.open();
-
-		finish(testRun);
 	}
 }
