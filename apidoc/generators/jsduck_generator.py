@@ -29,8 +29,8 @@ special_toplevel_types = [ "Global", "Modules" ]
 # Avoid obliterating our four spaces pattern with a careless %s:/    /^I/
 FOUR_SPACES='  ' + '  '
 # compiling REs ahead of time, since we use them heavily.
-link_parts_re = re.compile(r"(?:\[([^\]]+?)\]\(([^\)\s]+?)\)|\<([^\>\s]+)\>)", re.MULTILINE)
-find_links_re = re.compile(r"(\[[^\]]+?\]\([^\)\s]+?\)|\<[^\>\s]+\>)", re.MULTILINE)
+link_parts_re = re.compile(r"(?:\[([^\]]+?)\]\(([^\)\s]+?)\)|\<([^\s]+)\>)", re.MULTILINE)
+find_links_re = re.compile(r"(\[[^\]]+?\]\([^\)\s]+?\)|\<[^\s]+\>)", re.MULTILINE)
 html_scheme_re = re.compile(r"^http:|^https:")
 doc_site_url_re = re.compile(r"http://docs.appcelerator.com/titanium/.*(#!.*)")
 # we use this to distinguish inline HTML tags from Markdown links. Not foolproof, and a
@@ -80,9 +80,11 @@ def convert_string_to_jsduck_link(obj_specifier):
 
 def process_markdown_links(s):
 	new_string = s
+	skip_flag = False
 	results = find_links_re.findall(new_string)
 	if results is not None and len(results) > 0:
 		for link in results:
+
 			match = link_parts_re.match(link)
 			if match == None:
 				print "no match:" + link
@@ -92,9 +94,16 @@ def process_markdown_links(s):
 			if match.group(1) != None and match.group(2)!= None:
 				url = match.group(2)
 				name = match.group(1)
+			# Ignore things enclosed with Alloy tags
+			elif match.group(3) == "Alloy":
+				skip_flag = True
+				continue
+			elif match.group(3) == "/Alloy":
+				skip_flag = False
+				continue
 			# For simple markdown links, such as <Titanium.Analytics> or <www.google.com>
 			# skip links that look like HTML elements (<span>).
-			elif  match.group(3) != None and not html_element_re.match(link, 1):
+			elif match.group(3) != None and not html_element_re.match(link, 1) and not skip_flag:
 				url = match.group(3)
 				name = None
 			# Otherwise, our "link" was probably an HTML tag, so we leave it alone
@@ -491,7 +500,7 @@ def generate(raw_apis, annotated_apis, options):
 							log.warn("returns for %s should be an array or a dict." % obj["name"]);
 					write_utf8(output, "\t * @return %s %s\n" % (type, markdown_to_html(summary)))
 				else:
-					write_utf8(output, "\t * @return void\n")
+					write_utf8(output, "\t * @return {void}\n")
 
 				write_utf8(output, output_properties_for_obj(k))
 				write_utf8(output, "\t*/\n\n")

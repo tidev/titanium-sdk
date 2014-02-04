@@ -15,12 +15,10 @@ module.exports = new function() {
 
 	this.name = "ui_scrollableView";
 	this.tests = [
-		//{name: "showPagingControl"},// remove comment after fixing TIMOB-15700
+		{name: "showPagingControl", timeout: 10000},
 		{name: "removeView"},
-		//{name: "showPagingControlAfterCreation"},// remove comment after fixing TIMOB-15700
-		//{name: "heightProperty"},// remove comment after fixing TIMOB-15700
-		//{name: "scrollingEnabled"}// remove comment after fixing TIMOB-15700
-		{name: "pagingControlCustomization"}
+		{name: "showPagingControlAfterCreation", timeout: 10000},
+		{name: "heightProperty", timeout: 10000}
 	]
 
 	//TIMOB-5170
@@ -35,11 +33,12 @@ module.exports = new function() {
 			top : "50dp"
 		});
 		win.add(scrollableView);
-		win.addEventListener('focus', function(){
-				valueOf(testRun, scrollableView.showPagingControl).shouldBeFalse();
-				finish(testRun);
-		}); 
 		win.open();	
+		setTimeout(function() {
+			valueOf(testRun, scrollableView.showPagingControl).shouldBeFalse();
+			
+			finish(testRun);
+		}, 10000);
 	}
 
 	//TIMOB-5990
@@ -66,16 +65,16 @@ module.exports = new function() {
 			pagingControlColor : 'blue',
 			pagingControlHeight : 20
 		});
-		win.addEventListener('focus', function() {
+		win.add(scrollableView);
+		win.open();
+		setTimeout(function() {
 			scrollableView.setShowPagingControl(true);
 			valueOf(testRun, scrollableView.showPagingControl).shouldBeTrue();
 			scrollableView.setShowPagingControl(false);
 			valueOf(testRun, scrollableView.showPagingControl).shouldBeFalse();
 
 			finish(testRun);
-		});
-		win.add(scrollableView);
-		win.open();
+		}, 10000);	
 	}
 
 	//TIMOB-7847
@@ -91,60 +90,11 @@ module.exports = new function() {
 			height : 'auto'
 		});
 		win.add(ScrollableView);
-		win.addEventListener('focus', function(){
+		win.open();
+		setTimeout(function() {
 			valueOf(testRun, ScrollableView.getHeight()).shouldBe('auto');
 
 			finish(testRun);
-		});
-		win.open();
-	}
-
-	//TIMOB-9019
-	this.scrollingEnabled = function(testRun) {
-		var win = Ti.UI.createWindow({});
-		var scrollableView = Ti.UI.createScrollableView({
-			showPagingControl : true,
-			width : 300,
-			height : 430
-		});
-		win.add(scrollableView);
-		win.addEventListener('focus', function(){
-			scrollableView.scrollingEnabled = true;
-			valueOf(testRun, scrollableView.scrollingEnabled).shouldBeTrue();
-			scrollableView.scrollingEnabled = false;
-			valueOf(testRun, scrollableView.scrollingEnabled).shouldBeFalse();
-
-			finish(testRun);
-		});
-		win.open();
-	}
-
-	//TIMOB-8995
-	this.pagingControlCustomization = function(testRun) {
-		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
-			var win = Ti.UI.createWindow({});
-			var scrollableView = Ti.UI.createScrollableView({
-				showPagingControl : true,
-				width : 300,
-				height : 430
-			});
-			win.add(scrollableView);
-			win.addEventListener('focus', function(){
-				scrollableView.overlayEnabled = true;
-				valueOf(testRun, scrollableView.overlayEnabled).shouldBeTrue();
-				scrollableView.overlayEnabled = false;
-				valueOf(testRun, scrollableView.overlayEnabled).shouldBeFalse();
-				scrollableView.pagingControlOnTop = true;
-				valueOf(testRun, scrollableView.pagingControlOnTop).shouldBeTrue();
-				scrollableView.pagingControlOnTop = false;
-				valueOf(testRun, scrollableView.pagingControlOnTop).shouldBeFalse();			
-
-				finish(testRun);
-			});
-			win.open();
-		} else {
-			
-			finish(testRun);
-		}
+		}, 10000);
 	}
 }

@@ -203,6 +203,7 @@
 
 - (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange
 {
+    BOOL handleLinksSet = ([[self proxy] valueForUndefinedKey:@"handleLinks"] != nil);
     if([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO]) {
         NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                    [URL absoluteString], @"url",
@@ -210,7 +211,11 @@
                                    nil];
         [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
-    return handleLinks;
+    if (handleLinksSet) {
+        return handleLinks;
+    } else {
+        return YES;
+    }
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)tv

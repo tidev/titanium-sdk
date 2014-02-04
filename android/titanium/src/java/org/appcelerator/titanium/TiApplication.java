@@ -71,7 +71,6 @@ public abstract class TiApplication extends Application implements Handler.Callb
 {
 	private static final String SYSTEM_UNIT = "system";
 	private static final String TAG = "TiApplication";
-	private static final long STATS_WAIT = 300000;
 	private static final long TIME_SEPARATION_ANALYTICS = 1000;
 	private static final int MSG_SEND_ANALYTICS = 100;
 	private static final long SEND_ANALYTICS_DELAY = 30000; // Time analytics send request sits in queue before starting service.
@@ -80,7 +79,6 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
 	private static final String PROPERTY_DEFAULT_UNIT = "ti.ui.defaultunit";
 	private static final String PROPERTY_USE_LEGACY_WINDOW = "ti.android.useLegacyWindow";
-	private static long lastAnalyticsTriggered = 0;
 	private static long mainThreadId = 0;
 
 	protected static WeakReference<TiApplication> tiApp = null;
@@ -709,8 +707,6 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			}
 			lastEventID = analyticsModel.addEvent(event);
 			sendAnalytics();
-			lastAnalyticsTriggered = System.currentTimeMillis();
-			return;
 
 		} else if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_END) {
 			lastEventID = analyticsModel.addEvent(event);
@@ -718,11 +714,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 		} else {
 			lastEventID = analyticsModel.addEvent(event);
-			long now = System.currentTimeMillis();
-			if (now - lastAnalyticsTriggered >= STATS_WAIT) {
-				sendAnalytics();
-				lastAnalyticsTriggered = now;
-			}
+			sendAnalytics();
 		}
 	}
 
