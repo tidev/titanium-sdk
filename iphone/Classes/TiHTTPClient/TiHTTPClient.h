@@ -3,8 +3,6 @@
  * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
- *
- * Special thanks to Pedro Enrique for implementing this.
  */
 
 #ifndef TI_HTTP_CLIENT_H
@@ -12,17 +10,17 @@
 
 #define PE_DEBUG 1
 
-#ifdef TI_BASE_H
-#include "TiBase.h"
-#else
+#ifndef RELEASE_TO_NIL
 #define RELEASE_TO_NIL(x) { if (x!=nil) { [x release]; x = nil; } }
 #endif
 
 
+#ifndef DeveloperLog
 #if PE_DEBUG
-#define PELog(...) NSLog(__VA_ARGS__);
+#define DeveloperLog(...) { NSLog(__VA_ARGS__); }
 #else
-#define PELog(...) {};
+#define DeveloperLog(...) {}
+#endif
 #endif
 
 #ifndef PEAlert

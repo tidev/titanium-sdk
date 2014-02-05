@@ -3,8 +3,6 @@
  * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
- *
- * Special thanks to Pedro Enrique for implementing this.
  */
 
 #import "TiHTTPClient.h"
@@ -30,7 +28,7 @@
     RELEASE_TO_NIL(_postForm);
     RELEASE_TO_NIL(_operation);
     RELEASE_TO_NIL(_userInfo);
-    RELEASE_TO_NIL(_headers)
+    RELEASE_TO_NIL(_headers);
     [super dealloc];
 }
 - (id)init
@@ -69,22 +67,22 @@
         if([data length] > 0) {
             [_request setHTTPBody:data];
         }
-        PELog(@"Data: %@", [NSString stringWithUTF8String: [data bytes]]);
+        DeveloperLog(@"Data: %@", [NSString stringWithUTF8String: [data bytes]]);
         NSDictionary *headers = [[self postForm] requestHeaders];
         for (NSString* key in headers)
         {
             [_request setValue:[headers valueForKey:key] forHTTPHeaderField:key];
-            PELog(@"Header: %@: %@", key, [headers valueForKey:key]);
+            DeveloperLog(@"Header: %@: %@", key, [headers valueForKey:key]);
         }
     }
     if(_headers != nil) {
         for (NSString* key in _headers)
         {
             [_request setValue:[_headers valueForKey:key] forHTTPHeaderField:key];
-            PELog(@"Header: %@: %@", key, [_headers valueForKey:key]);
+            DeveloperLog(@"Header: %@: %@", key, [_headers valueForKey:key]);
         }
     }
-    PELog(@"URL: %@", [self url]);
+    DeveloperLog(@"URL: %@", [self url]);
     [_request setURL: [self url]];
     
     if([self timeout] > 0) {
@@ -92,7 +90,7 @@
     }
     if([self method] != nil) {
         [_request setHTTPMethod: [self method]];
-        PELog(@"Method: %@", [self method]);
+        DeveloperLog(@"Method: %@", [self method]);
     }
     [_request setHTTPShouldHandleCookies:[self sendDefaultCookies]];
     
@@ -108,7 +106,7 @@
                                 dataUsingEncoding:NSUTF8StringEncoding
                                 ]];
             [_request setValue: [NSString stringWithFormat:@"Basic: %@", basic] forHTTPHeaderField:@"Authorization"];
-            PELog(@"%@", [NSString stringWithFormat:@"Basic: %@", basic] );
+            DeveloperLog(@"%@", [NSString stringWithFormat:@"Basic: %@", basic] );
         }
     }
     */
@@ -134,7 +132,7 @@
                                                       startImmediately: NO
                                ];
         if([self theQueue]) {
-            RELEASE_TO_NIL(_operation)
+            RELEASE_TO_NIL(_operation);
             _operation = [[TiHTTPOperation alloc] initWithConnection: _connection];
             [_operation setIndex:[[self theQueue] operationCount]];
             [[self theQueue] addOperation: _operation];
@@ -152,10 +150,10 @@
     if([self requestPassword] == nil || [self requestUsername] == nil) return;
     
     if ([challenge previousFailureCount]) {
-        PELog(@"%s %@", __PRETTY_FUNCTION__, @"previousFailureCount");
+        DeveloperLog(@"%s %@", __PRETTY_FUNCTION__, @"previousFailureCount");
         [[challenge sender] cancelAuthenticationChallenge:challenge];
     } else {
-        PELog(@"%s", __PRETTY_FUNCTION__);
+        DeveloperLog(@"%s", __PRETTY_FUNCTION__);
         [[challenge sender] useCredential:
          [NSURLCredential credentialWithUser:[self requestUsername]
                                     password:[self requestPassword]
@@ -177,7 +175,7 @@
 }
 - (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
 {
-    PELog(@"%s %@", __PRETTY_FUNCTION__, [protectionSpace authenticationMethod]);
+    DeveloperLog(@"%s %@", __PRETTY_FUNCTION__, [protectionSpace authenticationMethod]);
 	return
     [[protectionSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodDefault] ||
     [[protectionSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodHTTPBasic] ||
@@ -189,7 +187,7 @@
 
 -(void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-    PELog(@"%s", __PRETTY_FUNCTION__);
+    DeveloperLog(@"%s", __PRETTY_FUNCTION__);
     if ([challenge previousFailureCount]) {
         [[challenge sender] cancelAuthenticationChallenge:challenge];
     }
@@ -217,13 +215,13 @@
 
 -(void)connection:(NSURLConnection *)connection didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-    PELog(@"%s", __PRETTY_FUNCTION__);
+    DeveloperLog(@"%s", __PRETTY_FUNCTION__);
 }
 
 
 -(NSURLRequest*)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response
 {
-    PELog(@"Code %i Redirecting from: %@ to: %@",[(NSHTTPURLResponse*)response statusCode], [_request URL] ,[request URL]);
+    DeveloperLog(@"Code %i Redirecting from: %@ to: %@",[(NSHTTPURLResponse*)response statusCode], [_request URL] ,[request URL]);
     [_response setConnected:YES];
     [_response setResponse: response];
     [_response setRequest:request];
@@ -250,7 +248,7 @@
 }
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
-    PELog(@"%s", __PRETTY_FUNCTION__);
+    DeveloperLog(@"%s", __PRETTY_FUNCTION__);
     [_response setReadyState:TiHTTPResponseStateHeaders];
     [_response setConnected:YES];
     [_response setResponse: response];
@@ -272,7 +270,7 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    PELog(@"2 %s", __PRETTY_FUNCTION__);
+    DeveloperLog(@"2 %s", __PRETTY_FUNCTION__);
 
     if([_response readyState] != TiHTTPResponseStateLoading) {
         [_response setReadyState:TiHTTPResponseStateLoading];
@@ -307,7 +305,7 @@
     if([self operation] != nil) {
         [[self operation] setFinished:YES];
     }
-    PELog(@"3 %s", __PRETTY_FUNCTION__);
+    DeveloperLog(@"3 %s", __PRETTY_FUNCTION__);
     [_response setDownloadProgress:1.f];
     [_response setUploadProgress:1.f];
     [_response setReadyState:TiHTTPResponseStateDone];
@@ -329,7 +327,7 @@
         NSError *error = nil;
         [[_response responseData] writeToFile:[self filePath] options:NSDataWritingAtomic error:&error];
         if(error != nil) {
-            PELog(@"Could not save to file %@ - Error is %@", [self filePath], [error localizedDescription]);
+            DeveloperLog(@"Could not save to file %@ - Error is %@", [self filePath], [error localizedDescription]);
         }
     }
 
@@ -340,7 +338,7 @@
     if([self operation] != nil) {
         [[self operation] setFinished:YES];
     }
-    PELog(@"%s", __PRETTY_FUNCTION__);
+    DeveloperLog(@"%s", __PRETTY_FUNCTION__);
     [_response setReadyState:TiHTTPResponseStateDone];
     if([_delegate respondsToSelector:@selector(tiRequest:onReadyStateChage:)]) {
         [_delegate tiRequest:self onReadyStateChage:_response];

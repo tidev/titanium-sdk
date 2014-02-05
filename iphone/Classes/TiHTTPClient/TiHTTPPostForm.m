@@ -3,8 +3,6 @@
  * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
- *
- * Special thanks to Pedro Enrique for implementing this.
  */
 
 #import "TiHTTPClient.h"
@@ -207,7 +205,7 @@
 {
     NSData *fileData = [NSData dataWithContentsOfFile:path];
     if(fileData == nil) {
-        PELog(@"%s Cannot find file %@", __PRETTY_FUNCTION__, path);
+        DeveloperLog(@"%s Cannot find file %@", __PRETTY_FUNCTION__, path);
         return;
     }
     NSString *fileName = [[path componentsSeparatedByString:@"/"] lastObject];

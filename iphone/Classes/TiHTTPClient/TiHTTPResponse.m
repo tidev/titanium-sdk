@@ -3,8 +3,6 @@
  * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
- *
- * Special thanks to Pedro Enrique for implementing this.
  */
 
 #import "TiHTTPClient.h"
@@ -74,7 +72,7 @@
                                               options: NSJSONReadingAllowFragments
                                                 error: &error];
     if(error != nil) {
-        PELog(@"%s - %@", __PRETTY_FUNCTION__, [error localizedDescription]);
+        DeveloperLog(@"%s - %@", __PRETTY_FUNCTION__, [error localizedDescription]);
         return nil;
     }
     return json;
@@ -83,7 +81,7 @@
 -(NSString*)responseString
 {
     if([self error] != nil) {
-        PELog(@"%s", __PRETTY_FUNCTION__);
+        DeveloperLog(@"%s", __PRETTY_FUNCTION__);
         return [[self error] localizedDescription];
     }
     if([self responseData] == nil || [[self responseData] length] == 0) return nil;
@@ -109,10 +107,10 @@
 {
     id json = [self jsonResponse];
     if([json isKindOfClass:[NSDictionary class]]) {
-        PELog(@"%s", __PRETTY_FUNCTION__);
+        DeveloperLog(@"%s", __PRETTY_FUNCTION__);
         return (NSDictionary*)json;
     }
-    PELog(@"%s - JSON is %@", __PRETTY_FUNCTION__, [[json superclass] description]);
+    DeveloperLog(@"%s - JSON is %@", __PRETTY_FUNCTION__, [[json superclass] description]);
     return nil;
 }
 -(NSArray*)responseArray
@@ -121,7 +119,7 @@
     if([json isKindOfClass:[NSArray class]]) {
         return (NSArray*)json;
     }
-    PELog(@"%s - JSON is %@", __PRETTY_FUNCTION__, [[json superclass] description]);
+    DeveloperLog(@"%s - JSON is %@", __PRETTY_FUNCTION__, [[json superclass] description]);
     return nil;
 }
 
