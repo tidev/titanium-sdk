@@ -324,3 +324,10 @@ properties:
     summary: Size of the buffer used for streaming, in bytes.
     type: Number
     platforms: [iphone, ipad]
+  - name: time
+    summary: Current playback position of the audio.
+    description: |
+        Time is reported in milliseconds.
+    type: Number
+    since: "3.3.0"
+    platforms: [android]

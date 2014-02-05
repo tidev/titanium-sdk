@@ -21,7 +21,7 @@ description: |
 
     On Android, this module requires a Google Maps API v1 key. As of March 3, 2013,
     Google is no longer issuing Maps API v1 keys.  If you want to add native maps support
-    to your Android application, you need to use the [Google Maps v2 module](Modules.Map).
+    to your Android application, you need to use the [ti.map add-on  module](Modules.Map).
 
     Android supports only a **single** map view per application. This limitation is
     imposed by Android, not by Titanium. Attempting to add a second map view results in
@@ -35,6 +35,9 @@ description: |
     default Titanium development keystore.
     
     #### iOS Platform Notes
+
+    Since Release 3.2.0, use the [ti.map add-on module](Modules.Map). Support for this module was
+    removed.
     
     On iOS, you cannot call any methods on a map view until it has been added to a view.
     
@@ -62,6 +65,16 @@ excludes:
     events: [ 'singletap', 'doubletap', 'dblclick', 'focus', 'longclick', 'pinch', 'swipe', 'touchstart', 'touchend', 'touchcancel', 'touchmove', 'twofingertap' ]
     properties: ['enabled']
 since: "0.8"
+deprecated:
+    since: "3.2.0"
+    notes: |
+        For new Android applications or to use Google Maps v2, use the [ti.map add-on module](Modules.Map).
+
+        For the iOS platform, use the [ti.map add-on module](Modules.Map). Support for the
+        `Titanium.Map` module on iOS was removed in Release 3.2.0.
+
+        For all other platforms, continue to use this module.
+
 methods:
 
   - name: addAnnotation
@@ -378,7 +391,7 @@ properties:
   - name: animate
     summary: Indicates if changes to the mapping region should be animated.
     type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
 
   - name: animated
     summary: Indicates if changes to the mapping region should be animated.

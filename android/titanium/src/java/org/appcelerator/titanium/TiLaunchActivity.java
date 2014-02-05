@@ -158,7 +158,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		if (intent != null) {
 			TiProperties systemProperties = getTiApp().getAppProperties();
 			boolean detectionDisabled = systemProperties.getBool("ti.android.bug2373.disableDetection", false) ||
-					systemProperties.getBool("ti.android.bug2373.finishfalseroot", false);
+					systemProperties.getBool("ti.android.bug2373.finishfalseroot", true);
 			if (!detectionDisabled) {
 				return checkInvalidLaunch(intent, savedInstanceState);
 			}
@@ -492,7 +492,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		}
 
 		if (systemProperties != null
-				&& systemProperties.getBool("ti.android.bug2373.finishfalseroot", false)) {
+				&& systemProperties.getBool("ti.android.bug2373.finishfalseroot", true)) {
 			finishing2373 = true;
 		} else if (Build.MODEL.toLowerCase().contains(KINDLE_MODEL)
 				&& creationCounter.getAndIncrement() > 0
