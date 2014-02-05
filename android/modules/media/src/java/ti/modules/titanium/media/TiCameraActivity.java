@@ -67,6 +67,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public static KrollFunction successCallback, errorCallback, cancelCallback;
 	public static boolean saveToPhotoGallery = false;
 	public static int whichCamera = MediaModule.CAMERA_REAR;
+	public static boolean cameraFlashMode = false;
 	public static boolean autohide = true;
 
 	private static class PreviewLayout extends FrameLayout
@@ -198,7 +199,13 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				openCamera();
 			}
 		}
-
+		if (camera != null) {
+			if (cameraFlashMode) {
+				Parameters p = camera.getParameters();
+				p.setFlashMode(Parameters.FLASH_MODE_ON);
+				camera.setParameters(p);
+			}
+		}
 		if (camera == null) {
 			return; // openCamera will have logged error.
 		}

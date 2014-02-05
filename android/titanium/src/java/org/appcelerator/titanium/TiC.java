@@ -1142,6 +1142,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FLAGS = "flags";
+	
+	/**
+	 * @module.api
+	 */	
+	public static final String PROPERTY_FLASH_MODE = "flashMode";
 
 	/**
 	 * @module.api
