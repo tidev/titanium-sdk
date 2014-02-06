@@ -2,9 +2,9 @@
 name: Titanium.UI.iOS.Toolbar
 summary: An iOS toolbar, which can contain buttons and certain other controls.
 description: |
-    The toolbar is created by the <Titanium.UI.iOS.createToolbar> method. 
+    A `Toolbar` is created by the <Titanium.UI.iOS.createToolbar> factory method or `<Toolbar>` Alloy element.
     
-    A toolbar can contain buttons, as well as certain other widgets, including text fields and 
+    A `Toolbar` can contain buttons, as well as certain other widgets, including text fields and 
     labels. 
     
     To provide spacing between items in the toolbar, you can use the special iOS system button types, 
@@ -12,16 +12,17 @@ description: |
     [FLEXIBLE_SPACE](Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE).
     
     Note that toolbars are positioned like other views (using the `top` and `bottom` properties, 
-    for example), but the iOS Human Interface Guidelines have specific requirements for placing 
-    toolbars: on iPhone, a toolbar should be at the bottom of the window. On the iPad, a toolbar 
-    should appear at the top or bottom of a window.
+    for example), but the [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/documentation/userexperience/conceptual/mobilehig/Bars.html#//apple_ref/doc/uid/TP40006556-CH12-SW4) 
+    have specific requirements for placing toolbars, specifically:
+
+    * On iPhone, a toolbar should be at the bottom of the window.
+    * On the iPad, a toolbar should appear at the top or bottom of a window.
 
     You can specify that a border be drawn on the top or bottom of the toolbar, using the
     [borderTop](Titanium.UI.iOS.Toolbar.borderTop) and
-    [borderBottom](Titanium.UI.iOS.Toolbar.borderBottom) properties. While the standard
-    `borderColor`, `borderWidth`, and `borderRadius` properties are supported on toolbars,
-    using these properties adds a border on all four sides of the control, which may be
-    undesirable.
+    [borderBottom](Titanium.UI.iOS.Toolbar.borderBottom) properties. The standard
+    `borderColor`, `borderWidth`, and `borderRadius` properties are also supported but using 
+    them adds a border on all four sides of the control, which may be undesirable.
 
     Due to an iOS limitation, the buttons in the toolbar only support the `click` event.
     The native object underlying a toolbar button does not generate standard view events,
@@ -29,7 +30,7 @@ description: |
 
     See also:
 
-    *  [Toolbar in the iOS Human Interface Guidelines.](http://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW10)
+    *  [Toolbar in the iOS Human Interface Guidelines.](https://developer.apple.com/library/ios/documentation/userexperience/conceptual/mobilehig/Bars.html#//apple_ref/doc/uid/TP40006556-CH12-SW4)
 
 extends: Titanium.UI.View
 excludes: { properties: [ backgroundColor, backgroundDisabledColor, backgroundDisabledImage,         
