@@ -140,7 +140,7 @@ public class MediaModule extends KrollModule
 	{
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
 
-		Log.d(TAG, "showCamera called", Log.DEBUG_MODE);
+		Log.d(TAG, "showCamera called on device: " + Build.MANUFACTURER, Log.DEBUG_MODE);
 
 		KrollFunction successCallback = null;
 		KrollFunction cancelCallback = null;
@@ -433,7 +433,7 @@ public class MediaModule extends KrollModule
 					if (data.getData() != null) {
 						c = activity.getContentResolver().query(data.getData(), projection, null, null, null);
 					}
-					if (c == null) {
+					if (c == null && !Build.MANUFACTURER.equals("Sony Ericsson")) {
 						c = activity.getContentResolver().query(Images.Media.EXTERNAL_CONTENT_URI, projection, null, null,
 							Images.ImageColumns.DATE_TAKEN);
 						isDataValid = false;
