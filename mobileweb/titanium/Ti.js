@@ -276,6 +276,7 @@ define(
 				// setup enroll event
 				analytics.add("ti.enroll", "ti.enroll", {
 					app_name: App.name,
+					app_version: App.version,
 					oscpu: 1,
 					mac_addr: null,
 					deploytype: deployType,

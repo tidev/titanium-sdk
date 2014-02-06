@@ -43,9 +43,7 @@ var ti = require('titanium-sdk'),
 UglifyJS.AST_Node.warn_function = function () {};
 
 exports.config = function (logger, config, cli) {
-	var conf;
 	return function (finished) {
-
 		if (process.platform == 'win32') {
 			wp8.detect(function (env) {
 				wp8Env = env;
@@ -57,7 +55,7 @@ exports.config = function (logger, config, cli) {
 
 		function configure() {
 			cli.createHook('build.mobileweb.config', function (callback) {
-				var opts = {
+				var conf = {
 					options: {
 						'deploy-type': {
 							abbr: 'D',
@@ -80,19 +78,21 @@ exports.config = function (logger, config, cli) {
 						}
 					}
 				};
+
 				if (process.platform == 'win32') {
-					opts.options['wp8-publisher-guid'] = {
+					conf.options['wp8-publisher-guid'] = {
 						desc: __('The publisher GUID, obtained from %s', 'http://developer.windowsphone.com'.cyan),
 						hint: __('GUID')
 					};
-					opts.options['device-id'] = {
+					conf.options['device-id'] = {
 						abbr: 'C',
 						desc: __('On Windows Phone 8, the device-id of the emulator/device to run the app in, "xd" for any emulator, or "de" for any device'),
 					};
 				}
-				callback(opts);
-			})(function (err, results, result) {
-				finished(conf = result);
+
+				callback(conf);
+			})(function (err, result) {
+				finished(result);
 			});
 		}
 	};

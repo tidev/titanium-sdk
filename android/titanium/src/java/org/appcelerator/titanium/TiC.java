@@ -411,6 +411,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_RESUME = "resume";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_RETURN = "return";
 
 	/**
 	 * @module.api

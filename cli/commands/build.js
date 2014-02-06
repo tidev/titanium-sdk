@@ -102,8 +102,10 @@ exports.config = function (logger, config, cli) {
 									process.exit(1);
 								}
 
+								tiapp.properties || (tiapp.properties = {});
+
 								// make sure the tiapp.xml is sane
-								ti.validateTiappXml(logger, tiapp);
+								ti.validateTiappXml(logger, config, tiapp);
 
 								// check that the Titanium SDK version is correct
 								if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
@@ -158,9 +160,9 @@ exports.config = function (logger, config, cli) {
 					}, ti.commonOptions(logger, config)),
 					platforms: platformConf
 				};
-				callback(conf);
+				callback(null, conf);
 			});
-		})(function (err, results, result) {
+		})(function (err, result) {
 			finished(result);
 		});
 	};

@@ -19,6 +19,7 @@ import org.appcelerator.titanium.TiActivityWindows;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiTranslucentActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.DecorViewProxy;
@@ -34,6 +35,7 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Message;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 
@@ -271,10 +273,31 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		// Handle the width and height of the window.
+		// TODO: If width / height is a percentage value, we can not get the dimension in pixel because
+		// the width / height of the decor view is not measured yet at this point. So we can not use the 
+		// getAsPixels() method. Maybe we can use WindowManager.getDefaultDisplay.getRectSize(rect) to
+		// get the application display dimension.
 		if (hasProperty(TiC.PROPERTY_WIDTH) || hasProperty(TiC.PROPERTY_HEIGHT)) {
-			int w = TiConvert.toInt(getProperty(TiC.PROPERTY_WIDTH), LayoutParams.MATCH_PARENT);
-			int h = TiConvert.toInt(getProperty(TiC.PROPERTY_HEIGHT), LayoutParams.MATCH_PARENT);
-			win.setLayout(w, h);
+			Object width = getProperty(TiC.PROPERTY_WIDTH);
+			Object height = getProperty(TiC.PROPERTY_HEIGHT);
+			View decorView = win.getDecorView();
+			if (decorView != null) {
+				int w = LayoutParams.MATCH_PARENT;
+				if (!(width == null || width.equals(TiC.LAYOUT_FILL))) {
+					TiDimension wDimension = TiConvert.toTiDimension(width, TiDimension.TYPE_WIDTH);
+					if (!wDimension.isUnitPercent()) {
+						w = wDimension.getAsPixels(decorView);
+					}
+				}
+				int h = LayoutParams.MATCH_PARENT;
+				if (!(height == null || height.equals(TiC.LAYOUT_FILL))) {
+					TiDimension hDimension = TiConvert.toTiDimension(height, TiDimension.TYPE_HEIGHT);
+					if (!hDimension.isUnitPercent()) {
+						h = hDimension.getAsPixels(decorView);
+					}
+				}
+				win.setLayout(w, h);
+			}
 		}
 
 		activity.getActivityProxy().getDecorView().add(this);
@@ -336,7 +359,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public void onPropertyChanged(String name, Object value)
 	{
-		if (!lightweight) {
+		if ((opening || opened) && !lightweight) {
 			if (TiC.PROPERTY_WINDOW_PIXEL_FORMAT.equals(name)) {
 				getMainHandler().obtainMessage(MSG_SET_PIXEL_FORMAT, value).sendToTarget();
 			} else if (TiC.PROPERTY_TITLE.equals(name)) {
@@ -355,15 +378,15 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Kroll.setProperty(retain=false) @Kroll.method
 	public void setWidth(Object width)
 	{
-		if (!lightweight) {
+		// We know it's a HW window only when it's opening/opened.
+		if ((opening || opened) && !lightweight) {
 			Object current = getProperty(TiC.PROPERTY_WIDTH);
 			if (shouldFireChange(current, width)) {
-				int w = TiConvert.toInt(width, LayoutParams.MATCH_PARENT);
-				int h = TiConvert.toInt(getProperty(TiC.PROPERTY_HEIGHT), LayoutParams.MATCH_PARENT);
+				Object height = getProperty(TiC.PROPERTY_HEIGHT);
 				if (TiApplication.isUIThread()) {
-					setWindowWidthHeight(w, h);
+					setWindowWidthHeight(width, height);
 				} else {
-					getMainHandler().obtainMessage(MSG_SET_WIDTH_HEIGHT, w, h).sendToTarget();
+					getMainHandler().obtainMessage(MSG_SET_WIDTH_HEIGHT, new Object[]{width, height}).sendToTarget();
 				}
 			}
 		}
@@ -374,15 +397,15 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Kroll.setProperty(retain=false) @Kroll.method
 	public void setHeight(Object height)
 	{
-		if (!lightweight) {
+		// We know it's a HW window only when it's opening/opened.
+		if ((opening || opened) && !lightweight) {
 			Object current = getProperty(TiC.PROPERTY_HEIGHT);
 			if (shouldFireChange(current, height)) {
-				int h = TiConvert.toInt(height, LayoutParams.MATCH_PARENT);
-				int w = TiConvert.toInt(getProperty(TiC.PROPERTY_WIDTH), LayoutParams.MATCH_PARENT);
+				Object width = getProperty(TiC.PROPERTY_WIDTH);
 				if (TiApplication.isUIThread()) {
-					setWindowWidthHeight(w, h);
+					setWindowWidthHeight(width, height);
 				} else {
-					getMainHandler().obtainMessage(MSG_SET_WIDTH_HEIGHT, w, h).sendToTarget();
+					getMainHandler().obtainMessage(MSG_SET_WIDTH_HEIGHT, new Object[]{width, height}).sendToTarget();
 				}
 			}
 		}
@@ -412,20 +435,38 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				return true;
 			}
 			case MSG_SET_WIDTH_HEIGHT: {
-				setWindowWidthHeight(msg.arg1, msg.arg2);
+				Object[] obj = (Object[]) msg.obj;
+				setWindowWidthHeight(obj[0], obj[1]);
 				return true;
 			}
 		}
 		return super.handleMessage(msg);
 	}
 
-	private void setWindowWidthHeight(int w, int h)
+	private void setWindowWidthHeight(Object width, Object height)
 	{
 		Activity activity = getWindowActivity();
 		if (activity != null) {
 			Window win = activity.getWindow();
 			if (win != null) {
-				win.setLayout(w, h);
+				View decorView = win.getDecorView();
+				if (decorView != null) {
+					int w = LayoutParams.MATCH_PARENT;
+					if (!(width == null || width.equals(TiC.LAYOUT_FILL))) {
+						TiDimension wDimension = TiConvert.toTiDimension(width, TiDimension.TYPE_WIDTH);
+						if (!wDimension.isUnitPercent()) {
+							w = wDimension.getAsPixels(decorView);
+						}
+					}
+					int h = LayoutParams.MATCH_PARENT;
+					if (!(height == null || height.equals(TiC.LAYOUT_FILL))) {
+						TiDimension hDimension = TiConvert.toTiDimension(height, TiDimension.TYPE_HEIGHT);
+						if (!hDimension.isUnitPercent()) {
+							h = hDimension.getAsPixels(decorView);
+						}
+					}
+					win.setLayout(w, h);
+				}
 			}
 		}
 	}

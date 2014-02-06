@@ -352,6 +352,9 @@ events:
         
   - name: touchend
     summary: Fired when a touch event is completed.
+    description: |
+        On the Android platform, other gesture events, such as `longpress` or `swipe`, cancel touch
+        events, so this event may not be triggered after a `touchstart` event.
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.

@@ -41,6 +41,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.os.Build;
@@ -614,6 +615,14 @@ public abstract class TiBaseActivity extends FragmentActivity
 	public void launchActivityForResult(Intent intent, int code, TiActivityResultHandler resultHandler)
 	{
 		getSupportHelper().launchActivityForResult(intent, code, resultHandler);
+	}
+	
+	/**
+	 * See TiActivitySupport.launchIntentSenderForResult for more details.
+	 */
+	public void launchIntentSenderForResult(IntentSender intent, int requestCode, Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags, Bundle options, TiActivityResultHandler resultHandler)
+	{
+		getSupportHelper().launchIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues, extraFlags, options, resultHandler);
 	}
 
 	@Override
