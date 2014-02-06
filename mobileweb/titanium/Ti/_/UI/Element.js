@@ -578,7 +578,11 @@ define(
 				child,
 				i = 0,
 				len = children.length;
-			setStyle(this.domNode, 'pointerEvents', value ? 'auto' : 'none');
+			//OLD: setStyle(this.domNode, 'pointerEvents', value ? 'auto' : 'none');
+			//The above does not account for the fact that almost any element can be made "clickable"
+			//correct icon should not be "auto" as this would put an i-beam on a clickable label
+			//TODO Modify this as "click" events are added or removed
+			setStyle(this.domNode, 'cursor', value ? 'pointer' : 'none');
 			for (; i < len; i++) {
 				child = children[i];
 				child._setTouchEnabled(value && child.touchEnabled);
