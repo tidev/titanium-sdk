@@ -2703,6 +2703,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		moduleJarMap = {},
 		tiNamespaces = this.tiNamespaces = {}, // map of namespace => titanium functions (i.e. ui => createWindow)
 		jarLibraries = this.jarLibraries = {},
+		resPackages = this.resPackages = {},
 		appModules = this.appModules = [], // also used in the App.java template
 		appModulesMap = {},
 		customModules = this.customModules = [],
@@ -2771,9 +2772,6 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 
 		depMap.dependencies[namespace] && depMap.dependencies[namespace].forEach(addTitaniumLibrary, this);
 	}
-
-	// force the network lib since it's needed for tiverify and analytics
-	addTitaniumLibrary.call(this, 'network');
 
 	// get all required titanium modules
 	depMap.required.forEach(addTitaniumLibrary, this);
@@ -2942,7 +2940,14 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 
 	var tasks = Object.keys(this.jarLibraries).map(function (jarFile) {
 			return function (done) {
-				var resFile = jarFile.replace(/\.jar$/, '.res.zip');
+				var resFile = jarFile.replace(/\.jar$/, '.res.zip'),
+					resPkgFile = jarFile.replace(/\.jar$/, '.respackage');
+
+				if (fs.existsSync(resPkgFile) && fs.existsSync(resFile)) {
+					this.resPackages[resFile] = fs.readFileSync(resPkgFile).toString().split('\n').shift().trim();
+					return done();
+				}
+
 				if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) return done();
 				this.logger.info(__('Extracting module resources: %s', resFile.cyan));
 
@@ -3584,11 +3589,8 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 
 				done();
 			}.bind(this));
-		});
-
-	aaptHook(
-		this.androidInfo.sdk.executables.aapt,
-		[
+		}),
+		args = [
 			'package',
 			'-f',
 			'-m',
@@ -3599,10 +3601,49 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-I', this.androidTargetSDK.androidJar,
 			'-I', path.join(this.platformPath, 'titanium.jar'),
 			'-F', this.ap_File
-		],
-		{},
-		next
-	);
+		];
+
+	function runAapt() {
+		aaptHook(
+			this.androidInfo.sdk.executables.aapt,
+			args,
+			{},
+			next
+		);
+	}
+
+	if (!Object.keys(this.resPackages).length) {
+		return runAapt();
+	}
+
+	args.push('--auto-add-overlay');
+
+	var namespaces = '';
+	Object.keys(this.resPackages).forEach(function(resFile){
+		console.log(resFile);
+		namespaces && (namespaces+=':');
+		namespaces += this.resPackages[resFile];
+	}, this);
+
+	args.push('--extra-packages', namespaces);
+
+	appc.async.series(this, Object.keys(this.resPackages).map(function (resFile) {
+		return function (cb) {
+			var namespace = this.resPackages[resFile],
+				tmp = temp.path();
+
+			appc.zip.unzip(resFile, tmp, {}, function (ex) {
+				if (ex) {
+					this.logger.error(__('Failed to extract module resource zip: %s', resFile.cyan) + '\n');
+					process.exit(1);
+				}
+
+				args.push('-S', tmp+'/res');
+
+				cb();
+			}.bind(this));
+		};
+	}), runAapt);
 };
 
 AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) {
