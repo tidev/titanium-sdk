@@ -200,11 +200,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			}
 		}
 		if (camera != null) {
-			if (cameraFlashMode) {
-				Parameters p = camera.getParameters();
-				p.setFlashMode(Parameters.FLASH_MODE_ON);
-				camera.setParameters(p);
-			}
+			setFlashMode(cameraFlashMode);
 		}
 		if (camera == null) {
 			return; // openCamera will have logged error.
@@ -221,6 +217,20 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		}
 		cameraLayout.addView(overlayView, new FrameLayout.LayoutParams(
 				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+	}
+
+	public static void setFlashMode(Boolean cameraFlashMode)
+	{
+		TiCameraActivity.cameraFlashMode = cameraFlashMode;
+		if (camera != null) {
+			Parameters p = camera.getParameters();
+			if (cameraFlashMode) {
+				p.setFlashMode(Parameters.FLASH_MODE_ON);
+			} else {
+				p.setFlashMode(Parameters.FLASH_MODE_OFF);
+			}
+			camera.setParameters(p);
+		}
 	}
 
 	@Override

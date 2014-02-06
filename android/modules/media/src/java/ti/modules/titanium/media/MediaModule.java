@@ -189,7 +189,7 @@ public class MediaModule extends KrollModule
 			TiCameraActivity.errorCallback = errorCallback;
 			TiCameraActivity.cancelCallback = cancelCallback;
 			TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
-			TiCameraActivity.cameraFlashMode = flashMode;
+			TiCameraActivity.setFlashMode(flashMode);
 			TiCameraActivity.whichCamera = CAMERA_REAR; // default.
 
 			// This option is only applicable when running the custom
@@ -686,6 +686,20 @@ public class MediaModule extends KrollModule
 		}
 	}
 
+	@Kroll.method
+	@Kroll.setProperty
+	public void setFlashMode(Boolean flashMode)
+	{
+		TiCameraActivity.setFlashMode(flashMode);
+	}
+
+	@Kroll.method
+	@Kroll.getProperty
+	public Boolean getFlashMode()
+	{
+		return TiCameraActivity.cameraFlashMode;
+	}
+	
 	@Kroll.method
 	public void openPhotoGallery(KrollDict options)
 	{
