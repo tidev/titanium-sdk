@@ -15,7 +15,7 @@ var ti = require('titanium-sdk'),
 	__n = i18n.__n,
 	afs = appc.fs;
 
-exports.cliVersion = '>=3.2';
+exports.cliVersion = '>=3.2.1';
 exports.desc = __('creates a new mobile application or module');
 
 exports.config = function (logger, config, cli) {
