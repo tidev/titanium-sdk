@@ -151,7 +151,8 @@ public class MediaModule extends KrollModule
 		KrollFunction errorCallback = null;
 		boolean autohide = true;
 		boolean saveToPhotoGallery = false;
-
+		boolean flashMode = false;
+		
 		if (options.containsKey("success")) {
 			successCallback = (KrollFunction) options.get("success");
 		}
@@ -171,6 +172,11 @@ public class MediaModule extends KrollModule
 		if (saveToPhotoGalleryOption != null) {
 			saveToPhotoGallery = TiConvert.toBoolean(saveToPhotoGalleryOption);
 		}
+		
+		Object cameraFlashModeOption = options.get("flashMode");
+		if (cameraFlashModeOption != null) {
+			flashMode = TiConvert.toBoolean(cameraFlashModeOption);
+		}
 
 		// Use our own custom camera activity when an overlay is provided.
 		if (options.containsKey("overlay")) {
@@ -182,6 +188,7 @@ public class MediaModule extends KrollModule
 			TiCameraActivity.errorCallback = errorCallback;
 			TiCameraActivity.cancelCallback = cancelCallback;
 			TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
+			TiCameraActivity.cameraFlashMode = flashMode;
 			TiCameraActivity.whichCamera = CAMERA_REAR; // default.
 
 			// This option is only applicable when running the custom

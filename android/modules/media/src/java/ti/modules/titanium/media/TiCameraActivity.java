@@ -68,7 +68,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public static boolean saveToPhotoGallery = false;
 	public static int whichCamera = MediaModule.CAMERA_REAR;
 	public static boolean autohide = true;
-
+	public static boolean cameraFlashMode = false;
+	
 	private static class PreviewLayout extends FrameLayout
 	{
 		private double aspectRatio = 1;
@@ -198,7 +199,13 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				openCamera();
 			}
 		}
-
+		if (camera != null) {
+			if (cameraFlashMode) {
+				Parameters p = camera.getParameters();
+				p.setFlashMode(Parameters.FLASH_MODE_ON);
+				camera.setParameters(p);
+			}
+		}
 		if (camera == null) {
 			return; // openCamera will have logged error.
 		}
