@@ -117,6 +117,9 @@ public class MediaModule extends KrollModule
 
 	@Kroll.constant public static final int CAMERA_FRONT = 0;
 	@Kroll.constant public static final int CAMERA_REAR = 1;
+	@Kroll.constant public static final int CAMERA_FLASH_OFF = 0;
+	@Kroll.constant public static final int CAMERA_FLASH_ON = 1;
+	@Kroll.constant public static final int CAMERA_FLASH_AUTO = 2;
 
 	public MediaModule()
 	{
@@ -151,7 +154,7 @@ public class MediaModule extends KrollModule
 		KrollFunction cancelCallback = null;
 		KrollFunction errorCallback = null;
 		boolean autohide = true;
-		boolean flashMode = false;
+		int flashMode = CAMERA_FLASH_OFF;
 		boolean saveToPhotoGallery = false;
 
 		if (options.containsKey("success")) {
@@ -176,7 +179,7 @@ public class MediaModule extends KrollModule
 		
 		Object cameraFlashModeOption = options.get(TiC.PROPERTY_FLASH_MODE);
 		if (cameraFlashModeOption != null) {
-			flashMode = TiConvert.toBoolean(cameraFlashModeOption);
+			flashMode = TiConvert.toInt(cameraFlashModeOption);
 		}
 
 		// Use our own custom camera activity when an overlay is provided.
@@ -688,14 +691,14 @@ public class MediaModule extends KrollModule
 
 	@Kroll.method
 	@Kroll.setProperty
-	public void setFlashMode(Boolean flashMode)
+	public void setFlashMode(int flashMode)
 	{
 		TiCameraActivity.setFlashMode(flashMode);
 	}
 
 	@Kroll.method
 	@Kroll.getProperty
-	public Boolean getFlashMode()
+	public int getFlashMode()
 	{
 		return TiCameraActivity.cameraFlashMode;
 	}

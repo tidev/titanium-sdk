@@ -67,7 +67,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public static KrollFunction successCallback, errorCallback, cancelCallback;
 	public static boolean saveToPhotoGallery = false;
 	public static int whichCamera = MediaModule.CAMERA_REAR;
-	public static boolean cameraFlashMode = false;
+	public static int cameraFlashMode = MediaModule.CAMERA_FLASH_OFF;
 	public static boolean autohide = true;
 
 	private static class PreviewLayout extends FrameLayout
@@ -219,23 +219,24 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 	}
 
-	public static void setFlashMode(Boolean cameraFlashMode)
+	public static void setFlashMode(int cameraFlashMode)
 	{
 		TiCameraActivity.cameraFlashMode = cameraFlashMode;
 		if (camera != null) {
 			Parameters p = camera.getParameters();
-			if (cameraFlashMode) {
-				p.setFlashMode(Parameters.FLASH_MODE_ON);
-			} else {
+			if (cameraFlashMode == MediaModule.CAMERA_FLASH_OFF) {
 				p.setFlashMode(Parameters.FLASH_MODE_OFF);
+			} else if (cameraFlashMode == MediaModule.CAMERA_FLASH_ON) {
+				p.setFlashMode(Parameters.FLASH_MODE_ON);
+			} else if (cameraFlashMode == MediaModule.CAMERA_FLASH_AUTO) {
+				p.setFlashMode(Parameters.FLASH_MODE_AUTO);
 			}
 			camera.setParameters(p);
 		}
 	}
 
 	@Override
-	protected void onPause()
-	{
+	protected void onPause(){
 		super.onPause();
 
 		stopPreview();
