@@ -154,6 +154,9 @@ define(['Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/style', 'Ti/_/lang', 
 							index += sections[i].rowCount;
 						}
 					}
+					//Don't fire events from children !touchenabled, instead fire them as the row.
+					//This mimics the behavior found in Android / iOS
+					e.source = !e.source.touchEnabled ? row : e.source;
 					e.row = e.rowData = row;
 					e.index = index;
 					e.section = section;
