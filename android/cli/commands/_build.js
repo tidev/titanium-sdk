@@ -3620,7 +3620,6 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 
 	var namespaces = '';
 	Object.keys(this.resPackages).forEach(function(resFile){
-		console.log(resFile);
 		namespaces && (namespaces+=':');
 		namespaces += this.resPackages[resFile];
 	}, this);
