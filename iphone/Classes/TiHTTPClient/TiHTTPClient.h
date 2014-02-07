@@ -38,8 +38,6 @@ static void Alert(NSString* title, NSString* msg, ...) {
     [alert setTitle:title];
     [alert setMessage:message];
     [alert show];
-    
-    
 }
 #endif
 

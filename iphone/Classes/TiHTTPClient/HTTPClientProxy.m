@@ -103,7 +103,7 @@
                 }
                 else if([value isKindOfClass:[TiBlob class]]|| [value isKindOfClass:[TiFile class]]) {
                     TiBlob *blob;
-                    if([args isKindOfClass:[TiBlob class]])
+                    if([value isKindOfClass:[TiBlob class]])
                         blob = (TiBlob*)value;
                     else
                         blob = [(TiFile*)value blob];
@@ -120,7 +120,7 @@
             }
         } else if ([arg isKindOfClass:[TiBlob class]] || [arg isKindOfClass:[TiFile class]]) {
             TiBlob *blob;
-            if([args isKindOfClass:[TiBlob class]])
+            if([arg isKindOfClass:[TiBlob class]])
                 blob = (TiBlob*)arg;
             else
                 blob = [(TiFile*)arg blob];

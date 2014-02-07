@@ -143,25 +143,6 @@
     }
     
 }
-
-/*
--(void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
-{
-    if([self requestPassword] == nil || [self requestUsername] == nil) return;
-    
-    if ([challenge previousFailureCount]) {
-        DeveloperLog(@"%s %@", __PRETTY_FUNCTION__, @"previousFailureCount");
-        [[challenge sender] cancelAuthenticationChallenge:challenge];
-    } else {
-        DeveloperLog(@"%s", __PRETTY_FUNCTION__);
-        [[challenge sender] useCredential:
-         [NSURLCredential credentialWithUser:[self requestUsername]
-                                    password:[self requestPassword]
-                                 persistence:NSURLCredentialPersistenceForSession]
-               forAuthenticationChallenge:challenge];
-    }
-}
-*/
 -(void)setCachePolicy:(NSURLRequestCachePolicy*)cache
 {
     [_request setCachePolicy:cache];
