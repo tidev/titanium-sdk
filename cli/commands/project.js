@@ -11,7 +11,7 @@ var path = require('path'),
 	__ = appc.i18n(__dirname).__,
 	mix = appc.util.mix;
 
-exports.cliVersion = '>=3.2';
+exports.cliVersion = '>=3.2.1';
 exports.desc = __('get and set tiapp.xml settings'),
 exports.extendedDesc = [
 	__('Get and set tiapp.xml settings.'),
