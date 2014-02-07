@@ -90,7 +90,7 @@ exports.config = function (logger, config, cli) {
 					};
 				}
 
-				callback(conf);
+				callback(null, conf);
 			})(function (err, result) {
 				finished(result);
 			});
