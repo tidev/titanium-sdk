@@ -68,7 +68,7 @@
     }
     if([self valueForUndefinedKey:@"cache"]) {
         [[self request] setCachePolicy:
-         [TiUtils boolValue: [self valueForUndefinedKey:@"autoRedirect"] def:YES] ?
+         [TiUtils boolValue: [self valueForUndefinedKey:@"cache"] def:YES] ?
              NSURLCacheStorageAllowed : NSURLCacheStorageNotAllowed
          ];
     }
@@ -91,11 +91,11 @@
     TiHTTPPostForm *form = nil;
     if(args != nil) {
         ENSURE_ARRAY(args)
+        NSInteger dataIndex = 0;
         form = [[[TiHTTPPostForm alloc] init] autorelease];
         id arg = [args objectAtIndex:0];
         if([arg isKindOfClass:[NSDictionary class]]) {
             NSDictionary *dict = (NSDictionary*)arg;
-            NSInteger dataIndex = 0;
             for(NSString *key in dict) {
                 id value = [dict objectForKey:key];
                 if([value isKindOfClass:[NSString class]]) {
@@ -103,13 +103,16 @@
                 }
                 else if([value isKindOfClass:[TiBlob class]]|| [value isKindOfClass:[TiFile class]]) {
                     TiBlob *blob;
-                    if([value isKindOfClass:[TiBlob class]])
+                    NSString *name;
+                    if([value isKindOfClass:[TiBlob class]]) {
                         blob = (TiBlob*)value;
-                    else
+                        name = [NSString stringWithFormat:@"file%i", dataIndex++];
+                    }else{
                         blob = [(TiFile*)value blob];
-
+                        name = [[(TiFile*)value path] lastPathComponent];
+                    }
                     [form addFormData:[(TiBlob*)value data]
-                             fileName:[NSString stringWithFormat:@"file%i", dataIndex++]
+                             fileName:name
                             fieldName:key];
                 }
                 else if([value isKindOfClass:[NSDictionary class]] || [value isKindOfClass:[NSArray class]]) {
@@ -120,12 +123,15 @@
             }
         } else if ([arg isKindOfClass:[TiBlob class]] || [arg isKindOfClass:[TiFile class]]) {
             TiBlob *blob;
-            if([arg isKindOfClass:[TiBlob class]])
+            NSString *name;
+            if([arg isKindOfClass:[TiBlob class]]) {
                 blob = (TiBlob*)arg;
-            else
+                name = [NSString stringWithFormat:@"file%i", dataIndex++];
+            } else {
                 blob = [(TiFile*)arg blob];
-            
-            [form addFormData:[blob data]];
+                name = [[(TiFile*)arg path] lastPathComponent];
+            }
+            [form addFormData:[blob data] fileName:name];
         } else if([arg isKindOfClass:[NSString class]]) {
             [form setStringData:(NSString*)arg];
         }
