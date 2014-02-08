@@ -11,7 +11,7 @@ description: |
     icon. On iOS, there are button styles which define appearance for each state, even if
     no button images are set.
 
-    Use the <Titanium.UI.createButton> method to create a button.
+    Use the <Titanium.UI.createButton> method or `<Button>` Alloy element to create a button.
 
     #### Android and Mobile Web Platform Notes
 

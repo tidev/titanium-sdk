@@ -27,7 +27,7 @@ description: |
     of individual [Button](Titanium.UI.Button) controls wrapped in a
     [View](Titanium.UI.View) to create the appearance of a button bar.
 
-    Use the <Titanium.UI.createButtonBar> method to create a button bar.
+    Use the <Titanium.UI.createButtonBar> method or `<ButtonBar>` Alloy element to create a button bar.
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [iphone, ipad]
@@ -51,7 +51,9 @@ properties:
         The labels can be specified either using an array of strings, in which case
         each string defines the title for a button, or using an array of simple
         dictionary objects, <BarItemType>, which can specify title, image, width and
-        enabled state for each button.
+        enabled state for each button. 
+
+        In Alloy you specify the labels with a nested `<Labels>` element that contains one or more `<Label>` elements.
     type: [Array<String>, Array<BarItemType>]
   - name: style
     summary: Style of the button bar.
