@@ -497,6 +497,11 @@ public class TiC
 	 */
 	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
 	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROXIMITY = "proximity";
+	
 
 	/**
 	 * @module.api
