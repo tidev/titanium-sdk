@@ -3,7 +3,7 @@
 # Copyright (c) 2011 Appcelerator, Inc. All Rights Reserved.
 # Licensed under the Apache Public License (version 2)
 
-import os, sys, re
+import os, sys, re, json
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(this_dir, "..")))
@@ -134,9 +134,9 @@ def process_markdown_links(s):
 				# [systemId](Titanium.XML.Entity.systemId -> {@link Titanium.XML.Entity#systemId systemId}
 				url = convert_string_to_jsduck_link(url)
 				if name:
-					new_string = new_string.replace(link, "{@link %s %s}" % (url, name))
+					new_string = new_string.replace(link, "<code>{@link %s %s}</code>" % (url, name))
 				else:
-					new_string = new_string.replace(link, "{@link %s}" % url)
+					new_string = new_string.replace(link, "<code>{@link %s}</code>" % url)
 
 	return new_string
 
@@ -244,11 +244,13 @@ def output_example(desc, code, convert_empty_code):
 
 def output_examples_for_obj(obj):
 	res = []
+	anchor = convert_string_to_jsduck_link("examples")
+	# print json.dumps(obj, ensure_ascii=False)
 	if obj.has_key("examples"):
 		if len(obj['examples']) == 1:
-			res.append("<h3>Example</h3>")
+			res.append("<h3 id=\"examples\">Example</h3>")
 		else:
-			res.append("<h3>Examples</h3>")
+			res.append("<h3 id=\"examples\" id=>Examples</h3>")
 
 		for example in obj['examples']:
 			res.append("<h4>%s</h4>" % (example['title']))

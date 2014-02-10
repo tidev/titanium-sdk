@@ -5,11 +5,20 @@ description: |
     A list item is a combination of a <ListDataItem> and <ItemTemplate>.  The list data item
     represents the actual data, while the item template represents the style elements of the item.
 
-    You do not create `ListItem` objects the same way you do other Titanium proxies.
-    A `Ti.UI.createListItem` method does not exist to create list item objects.
+    You do not create `ListItem` objects with a JavaScript factory method, as you do other Titanium proxies.
+    Instead, you pass a <ListDataItem> array to the `setItems` method of a `ListSection`. The list data items 
+    contain the data you want to display in the list.
 
-    Instead, you have to pass a <ListDataItem> array to the `setItems` method of a `ListSection`.
-    The list data items contain the data you want to display in the list.
+    Alloy applications can use `<ListItem>` elements to create `ListItem` objects. `<ListItem>` elements
+    must be nested inside a `<ListSection>` element, which itself is nested in a `<ListView>` element, 
+    as shown below:
+
+        <ListView id="list">
+            <ListSection id="accounts">
+                <ListItem image="images/checking_account.png" title="Checking"/>
+                <ListItem image="images/saving_account.png" title="Savings"/>
+            </ListSection>
+        </ListView>
 
     By default, only the `title`, `image` and `accessoryType` keys of the list data item's
     `properties` dictionary are displayed if an item template is not defined.  See "Default List Item"
@@ -51,9 +60,7 @@ description: |
     #### Eventing
 
     Unlike other views, you cannot use the `addEventListener` method to bind callbacks to events for a
-    ListItem.
-
-    Use list view's [itemclick](Titanium.UI.ListView.itemclick) event to monitor click events on
+    ListItem. Instead, use `ListView`'s [itemclick](Titanium.UI.ListView.itemclick) event to monitor click events on
     items in the list view. Do not rely on the `source` property to determine which item fired the
     event.  Either use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item
     that generated the event, and use the `bindId` to check which child control fired the event.
@@ -250,9 +257,9 @@ examples:
             var listView = Ti.UI.createListView();
 
             var tasks = [
-                {id: 'trash', name: 'Take Out the Trash', icon: 'trash.png'},
-                {id: 'dishes', name: 'Do the Dishes', icon: 'dishes.png'},
-                {id: 'doggie', name: 'Walk the Dog', icon: 'doggie.png'}
+                {id: 'trash', name: 'Take Out the Trash', icon: 'images/trash.png'},
+                {id: 'dishes', name: 'Do the Dishes', icon: 'images/dishes.png'},
+                {id: 'doggie', name: 'Walk the Dog', icon: 'images/doge.png'}
             ];
 
             var data = [];
@@ -285,6 +292,41 @@ examples:
             });
             win.add(listView);
             win.open();
+
+  - title: Default List Items (Alloy version)
+    example: |
+        Alloy version of previous example.
+
+        index.xml
+
+            <!-- views/index.xml -->
+            <Alloy>
+                <Window class="container" title="Some things">
+                    <ListView id="listView">
+                        <ListSection id="section">
+                            <ListItem image="images/trash.jpg" title="Take Out the Trash"/>
+                            <ListItem image="images/dishes.png" title="Do the Dishes"/>
+                            <ListItem image="images/doge.png" title="Walk the Dog"/>
+                        </ListSection>
+                    </ListView>
+                </Window>
+            </Alloy>
+
+        index.js
+
+            <!-- controllers/index.js -->
+            listView.addEventListener('itemclick', function(e){
+                var item = section.getItemAt(e.itemIndex);
+                if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
+                    item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
+                    item.properties.color = 'red';
+                }
+                else {
+                    item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_NONE;
+                    item.properties.color = 'black';
+                }
+                section.updateItemAt(e.itemIndex, item);
+            });
 
   - title: List Items with an Item Template
     example: |

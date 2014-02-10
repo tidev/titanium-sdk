@@ -4,7 +4,8 @@ summary: |
     A dashboard view is an iOS Springboard-like view of <Titanium.UI.DashboardItem> items that may 
     be deleted and reordered by the user using its built-in edit mode.
 description: |
-    The DashboardView is created using the <Titanium.UI.createDashboardView> method.
+    The DashboardView is created using the <Titanium.UI.createDashboardView> method or `<DashboardView>` 
+    Alloy element.
     
     Dashboard view's edit mode may be activated by a longpress of a <Titanium.UI.DashboardItem> item, 
     unless this behavior has been disabled by the [editable](Titanium.UI.DashboardView.editable) 
@@ -287,10 +288,6 @@ examples:
                         Click an item to reset badge\nPress and hold an item to enable edit mode
                     </Label>
 
-                    <!--
-                        Adding DashboardItems to a DashboardView would be easier programmatically,
-                        but the purpose of this example is to show how to do it in markup.
-                    -->
                     <DashboardView id="dashboard" top="100" wobble="true"
                         onClick="resetBadge" onEdit="handleEdit" onCommit="handleCommit">
 

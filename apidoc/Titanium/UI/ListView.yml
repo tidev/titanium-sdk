@@ -10,7 +10,7 @@ description: |
     objects that are, in turn, containers for [ListItem](Titanium.UI.ListItem) objects.
 
     For more instructions and examples of using `ListView`, refer to the
-    [ListViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/ListViews)
+    [ListViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/ListViews).
 
     #### Creating a List
 

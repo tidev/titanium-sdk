@@ -11,7 +11,8 @@ description: |
     icon. On iOS, there are button styles which define appearance for each state, even if
     no button images are set.
 
-    Use the <Titanium.UI.createButton> method or `<Button>` Alloy element to create a button.
+    Use the <Titanium.UI.createButton> method or `<Button>` Alloy element to create a button 
+    (see [Examples](#!/api/Titanium.UI.Button-examples)) .
 
     #### Android and Mobile Web Platform Notes
 
@@ -62,7 +63,11 @@ description: |
 
     For example:
     
-        cancelButton = Ti.UI.createButton({ systemButton: Ti.UI.iPhone.SystemButton.CANCEL });
+        var cancelButton = Ti.UI.createButton({ systemButton: Ti.UI.iPhone.SystemButton.CANCEL });
+
+    In Alloy, you can omit the namespace when setting the `systemButton` property: 
+
+        <Button id="cancelbtn" systemButton="CANCEL"></Button>
 
     Note that the `systemButton` property specifies *appearance*, not behavior. For
     example, to bring up the camera when the user presses the **Camera** button, you must 
@@ -215,6 +220,18 @@ properties:
   - name: systemButton
     summary: Specifies an iOS system button appearance, as defined in 
         <Titanium.UI.iPhone.SystemButton>.
+    description: |
+        In JavaScript:
+
+            var cancelButton = Ti.UI.createButton({ 
+                systemButton: Ti.UI.iPhone.SystemButton.CANCEL 
+            });
+
+        In Alloy, you can omit the namespace when setting the `systemButton` property on a `<Button>`
+        element:
+
+            <Button systemButton="CAMERA"/>
+
     type: Number
     platforms: [iphone,ipad]
 
