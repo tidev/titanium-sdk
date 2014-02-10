@@ -40,7 +40,7 @@ description: |
     
 extends: Titanium.Module
 since: "1.7"
-platforms: [android, iphone, ipad, mobileweb, tizen]
+platforms: [android, iphone, ipad, mobileweb, tizen, blackberry]
 
 properties:
   - name: CHARSET_ASCII
@@ -50,6 +50,8 @@ properties:
         See also: [ASCII](http://en.wikipedia.org/wiki/ASCII) on Wikipedia.
     value: "ascii"
     permission: read-only
+    exclude-platforms: [blackberry]
+
 
   - name: CHARSET_ISO_LATIN_1
     type: String
@@ -58,6 +60,7 @@ properties:
         See also: [ISO/IEC 8859-1](http://en.wikipedia.org/wiki/ISO/IEC_8859-1) on Wikipedia.
     value: "iso-latin-1"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: CHARSET_UTF8
     type: String
@@ -66,6 +69,7 @@ properties:
         See also: [UTF-8](http://en.wikipedia.org/wiki/UTF-8) on Wikipedia.
     value: "utf8"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: CHARSET_UTF16
     type: String
@@ -74,6 +78,7 @@ properties:
         See also: [UTF-16/UCS2](http://en.wikipedia.org/wiki/UTF-16/UCS-2) on Wikipedia.
     value: "utf16"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: CHARSET_UTF16BE
     type: String
@@ -82,6 +87,7 @@ properties:
         See also: [UTF-16/UCS2](http://en.wikipedia.org/wiki/UTF-16/UCS-2) on Wikipedia.
     value: "utf16be"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: CHARSET_UTF16LE
     type: String
@@ -90,42 +96,49 @@ properties:
         See also: [UTF-16/UCS2](http://en.wikipedia.org/wiki/UTF-16/UCS-2) on Wikipedia.
     value: "utf16le"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: TYPE_BYTE
     type: String
     summary: 8-bit integer encoding type.
     value: "byte"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: TYPE_SHORT
     type: String
     summary: 16-bit integer encoding type.
     value: "short"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: TYPE_INT
     type: String
     summary: 32-bit integer encoding type.
     value: "int"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: TYPE_FLOAT
     type: String
     summary: 32-bit single precision floating-point type.
     value: "float"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: TYPE_LONG
     type: String
     summary: 64-bit integer encoding type.
     value: "long"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: TYPE_DOUBLE
     type: String
     summary: 64-bit double precision floating-point type.
     value: "double"
     permission: read-only
+    exclude-platforms: [blackberry]
 
   - name: BIG_ENDIAN
     type: Number
@@ -154,6 +167,7 @@ methods:
     returns:
         type: Number
         summary: OS native byte order.
+    exclude-platforms: [blackberry]
 
   - name: encodeNumber
     summary: Encodes a number and writes it to a buffer.
@@ -204,6 +218,7 @@ methods:
                     type: Ti.Codec.TYPE_INT,
                     byteOrder: Ti.Codec.BIG_ENDIAN
                 });
+    exclude-platforms: [blackberry]
 
   - name: decodeNumber
     summary: |
@@ -257,6 +272,8 @@ methods:
                       type: Ti.Codec.TYPE_INT,
                       byteOrder: Ti.Codec.BIG_ENDIAN
                 });
+    exclude-platforms: [blackberry]
+
   - name: encodeString
     summary: |
         Encodes a string into a series of bytes in a buffer using the specified character set.
@@ -320,6 +337,7 @@ methods:
                     dest: buffer,
                     charset: Ti.Codec.CHARSET_UTF16
                 });
+    exclude-platforms: [blackberry]
 
   - name: decodeString
     summary: |
@@ -368,6 +386,7 @@ methods:
                   source: buffer,
                   charset: Ti.Codec.CHARSET_UTF16
                 });
+    exclude-platforms: [blackberry]
 ---
 name: EncodeNumberDict
 summary: Named parameters for <Titanium.Codec.encodeNumber>.

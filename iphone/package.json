@@ -13,16 +13,20 @@
 	"version": "__VERSION__",
 	"author": "Appcelerator, Inc. <info@appcelerator.com>",
 	"maintainers": [
-		"Blain Hamon <bhamon@appcelerator.com>",
-		"Sabil Rahim <srahim@appcelerator.com>",
-		"Max Stepanov <mstepanov@appcelerator.com>",
+		"Chris Barber <cbarber@appcelerator.com>",
 		"Vishal Duggal <vduggal@appcelerator.com>",
-		"Karl Rowley <krowley@appcelerator.com>",
-		"Chris Barber <cbarber@appcelerator.com>"
+		"Matt Langston <mlangston@appcelerator.com>",
+		"Sabil Rahim <srahim@appcelerator.com>"
 	],
+	"minIosVersion": "6.0",
+	"vendorDependencies": {
+		"xcode": ">=5.0 <=5.0.x",
+		"ios sdk": ">=7.0 <=7.x",
+		"node": ">0.8.0 <=0.10.x"
+	},
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/appcelerator/titanium_mobile_android.git"
+		"url": "git://github.com/appcelerator/titanium_mobile_ios.git"
 	},
 	"license": "Apache Public License v2"
 }

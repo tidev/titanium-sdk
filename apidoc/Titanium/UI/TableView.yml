@@ -185,6 +185,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+    exclude-platforms: [blackberry]
         
   - name: delete
     summary: Fired when a table row is deleted by the user.
@@ -257,6 +258,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+    exclude-platforms: [blackberry]
     
   - name: longpress
     summary: Fired when the device detects a long press.
@@ -298,6 +300,7 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
+    exclude-platforms: [blackberry]
 
   - name: move
     summary: Fired when a table row is moved by the user.
@@ -398,6 +401,7 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         platforms: [mobileweb, tizen]
+    exclude-platforms: [blackberry]
         
   - name: scrollEnd
     deprecated:
@@ -430,6 +434,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+    exclude-platforms: [blackberry]
 
   - name: scrollend
     summary: Fired when the table view stops scrolling.
@@ -460,6 +465,7 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
     since: '3.0.0'
+    exclude-platforms: [blackberry]
         
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
@@ -529,6 +535,7 @@ events:
       - name: y
         summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
+    exclude-platforms: [blackberry]
 
   - name: touchcancel
     summary: Fired when a touch gesture is interrupted by the device.
@@ -763,6 +770,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
+    exclude-platforms: [blackberry]
     
   - name: deleteSection
     summary: Deletes an existing section.
@@ -787,6 +795,7 @@ methods:
         summary: Row index to deselect.
         type: Number
     platforms: [iphone,ipad]
+    exclude-platforms: [blackberry]
     
   - name: insertRowAfter
     summary: Inserts a row after another row.
@@ -809,6 +818,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
+    exclude-platforms: [blackberry]
     
   - name: insertSectionAfter
     summary: Inserts a section after another section.
@@ -857,6 +867,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
+    exclude-platforms: [blackberry]
         
   - name: insertSectionBefore
     summary: Inserts a section before another section.
@@ -934,6 +945,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
+    exclude-platforms: [blackberry]
     
   - name: setContentInsets
     summary: Sets this tableview's content insets.
@@ -1064,6 +1076,8 @@ properties:
         In iOS 6, there is no way to explicitly specify the group tableview background texture. The color
         values <Titanium.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND> or 'stripped' are interpreted as black.
     type: String
+    default: transparent on non-iOS platforms, white on the iOS platform
+    exclude-platforms: [blackberry]
     
   - name: data
     summary: Rows of the table view.
@@ -1121,6 +1135,7 @@ properties:
   - name: footerTitle
     summary: Table view footer title.
     type: String
+    exclude-platforms: [blackberry]
     
   - name: headerPullView
     summary: |
@@ -1130,13 +1145,21 @@ properties:
         A `headerPullView` is a UI control that is often used to provide a convenient way for the 
         user to refresh a table's data.  Typically used with the 
         [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
-        
-        The [TableView Refresh with headerPullView](http://docs.appcelerator.com/titanium/latest/#!/guide/TableView_Refresh_with_headerPullView)
-        guide describes one way a `headerPullView` may be untilized.
+
+        For an example, see the "Pull to refresh" section in the
+        [TableViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/TableViews).
     type: Titanium.UI.View
     platforms: [iphone, ipad]
     since: "2.1.0"
     
+  - name: refreshControl
+    summary: View positioned above the first row that is only revealed when the user drags the list view contents down.
+    description: |
+        An alternate to the headerPullView property. See <Titanium.UI.RefreshControl> for usage and examples.
+    type: Titanium.UI.RefreshControl
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
   - name: hideSearchOnSelection
     summary: Determines whether the search field should hide on completion.
     description: |
@@ -1154,14 +1177,17 @@ properties:
   - name: footerView
     summary: Table view footer as a view that will be rendered instead of a label.
     type: Titanium.UI.View
+    exclude-platforms: [blackberry]
     
   - name: headerTitle
     summary: Table view header title.
     type: String
+    exclude-platforms: [blackberry]
     
   - name: headerView
     summary: Table view header as a view that will be rendered instead of a label.
     type: Titanium.UI.View
+    exclude-platforms: [blackberry]
     
   - name: index
     summary: Array of objects (with `title` and `index` properties) to control the table view index.
@@ -1175,10 +1201,12 @@ properties:
   - name: maxRowHeight
     summary: Maximum row height for table view rows.
     type: Number
+    exclude-platforms: [blackberry]
     
   - name: minRowHeight
     summary: Minimum row height for table view rows.
     type: Number
+    exclude-platforms: [blackberry]
 
   - name: moveable
     summary: |
@@ -1219,6 +1247,7 @@ properties:
   - name: rowHeight
     summary: Default row height for table view rows.
     type: Number
+    exclude-platforms: [blackberry]
     
   - name: scrollable
     summary: If `true`, the tableview can be scrolled.
@@ -1295,6 +1324,19 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     default: platform-specific default color
+    exclude-platforms: [blackberry]
+    
+  - name: separatorInsets
+    summary: The insets for table view separators (applies to all cells). This property is applicable on iOS 7 and greater.
+    description: |
+        In iOS 7 and later, cell separators do not extend all the way to the edge of the table view. 
+        This property sets the default inset for all cells in the table. 
+        
+        Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge. 
+    type: Dictionary
+    since: 3.2.0
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad]
     
   - name: separatorStyle
     summary: Separator style constant. 

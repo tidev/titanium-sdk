@@ -7,7 +7,7 @@
 #if defined(USE_TI_UITABLEVIEW) || defined(USE_TI_UILISTVIEW)
 
 #import "TiSelectedCellbackgroundView.h"
-
+#import "TiUtils.h"
 static void addRoundedRectToPath(CGContextRef context, CGRect rect,
 								 float ovalWidth,float ovalHeight)
 
@@ -133,11 +133,11 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect,
 
 -(void)setPosition:(TiCellBackgroundViewPosition)inPosition
 {
-	if(position != inPosition)
+	if((position != inPosition) && (![TiUtils isIOS7OrGreater]))
 	{
 		position = inPosition;
-		[self setNeedsDisplay];
 	}
+	[self setNeedsDisplay];
 }
 
 @end

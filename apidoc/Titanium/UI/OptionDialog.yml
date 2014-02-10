@@ -15,8 +15,8 @@ description: |
     with the option items represented in a picker. The previously-selected, or default, item can be 
     set on creation.
     
-    Buttons below the picker may be optionally defined. The `click` event returns a Boolean value 
-    to indicate whether either an option item or a button was clicked.
+    Buttons below the picker may be optionally defined using the `buttonNames` property.
+    The `click` event returns a Boolean value to indicate whether either an option item or a button was clicked.
     
     #### iOS
     
@@ -113,7 +113,16 @@ properties:
     summary: View to load inside the message area, to create a custom layout.
     type: Titanium.UI.View
     platforms: [android]
-    
+
+  - name: buttonNames
+    summary: List of button names.
+    description: |
+        This property creates buttons underneath the picker options.
+        The dialog only supports up to three buttons.
+    type: Array<String>
+    platforms: [android]
+    availability: creation
+
   - name: cancel
     summary: Index to define the cancel option.
     description: |
@@ -129,6 +138,7 @@ properties:
         dialog by clicking outside of the dialog. 
     type: Number
     default: undefined (Android), -1 (iOS, Mobile Web, Tizen)
+    exclude-platforms: [blackberry]
 
   - name: destructive
     summary: Index to define the destructive option, indicated by a visual cue when rendered.
@@ -136,12 +146,24 @@ properties:
     default: -1
     platforms: [iphone, ipad, mobileweb, tizen]
     availability: creation
-    
+    exclude-platforms: [blackberry]
+
   - name: options
     summary: List of option names.
     type: Array<String>
     availability: creation
     
+  - name: opaquebackground
+    summary: Boolean value indicating if the option dialog should have an opaque background.
+    description: |
+        This property is useful to ensure that the option dialog will display contents properly
+        on the iPAD idiom without ghosting when scrolling. This property is only respected on the 
+        iPAD idiom on iOS7 and above. 
+    type: Boolean
+    default: false
+    since: "3.2.0"
+    platforms: [iphone, ipad]
+
   - name: persistent
     summary: Boolean value indicating if the option dialog should only be cancelled by user 
         gesture or by hide method.
@@ -155,7 +177,7 @@ properties:
 
   - name: selectedIndex
     summary: Defines the default selected option.
-    platforms: [android]
+    platforms: [android, blackberry]
     type: Number
     availability: creation
     
@@ -166,6 +188,7 @@ properties:
   - name: titleid
     summary: Key identifying a string in the locale file to use for the title text.
     type: String
+    exclude-platforms: [blackberry]
 
 examples:
   - title: Dialog with 3 Options
@@ -211,7 +234,7 @@ examples:
         
         if(isAndroid){
           opts.options = ['Confirm', 'Cancel'];
-          opts.buttonNames = ['Confirm'];
+          opts.buttonNames = ['Help'];
         } else {
           opts.options = ['Confirm', 'Help', 'Cancel'];
         }
@@ -246,7 +269,7 @@ examples:
 
                         <!-- The ButtonNames tag sets the Android-only buttonNames property. -->
                         <ButtonNames>
-                            <ButtonName>Confirm</ButtonName>
+                            <ButtonName>Help</ButtonName>
                         </ButtonNames>
 
                         <!-- Add a View for the androidView property here. -->

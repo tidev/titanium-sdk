@@ -1,6 +1,6 @@
 define(["Ti/_", "Ti/_/Evented", "Ti/_/lang"], function(_, Evented, lang) {
 
-	return lang.mixProps(lang.setObject("Ti.App", Evented), {
+	return lang.setObject("Ti.App", Evented, {
 		constants: require.mix({
 			sessionId: function() {
 				var ss = sessionStorage,
@@ -9,18 +9,18 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/lang"], function(_, Evented, lang) {
 				return sid;
 			}
 		}, require.config.app),
-		
+
 		getID: function() {
 			return this.id;
 		},
-		
+
 		getURL: function() {
 			return this.url;
 		},
-		
+
 		getGUID: function() {
 			return this.guid;
 		}
-	}, true);
+	});
 
 });

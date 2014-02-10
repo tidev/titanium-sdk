@@ -12,6 +12,9 @@ include $(CLEAR_VARS)
 V8_VERSION=3.9.24.29
 LIBV8_DIR := ../../../../../../dist/android/libv8/$(V8_VERSION)
 
+# https://jira.appcelerator.org/browse/TIMOB-15263
+LOCAL_DISABLE_FORMAT_STRING_CHECKS=true
+
 LIBV8 := libv8
 
 ifeq ($(NDK_DEBUG),1)

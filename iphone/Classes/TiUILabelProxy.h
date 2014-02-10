@@ -11,7 +11,6 @@
 @interface TiUILabelProxy : TiViewProxy {
 
 }
-
 @end
 
 #endif

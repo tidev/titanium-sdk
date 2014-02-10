@@ -110,6 +110,8 @@ properties:
         image will appear faded to indicate being disabled. Also on iOS, if backgroundSelectedImage
         is unset, the image will be darkened to indicate being selected.
     type: String
+    exclude-platforms: [blackberry]
+
   - name: backgroundDisabledImage
     summary: |
         Background image for the button in its disabled state, specified as a local file path 
@@ -118,6 +120,8 @@ properties:
         Also sets the background image for the other button states (normal, focused, selected), 
         unless they've been specified explicitly, except for iOS, which requires a backgroundImage.
     type: String
+    platforms: [android, iphone, ipad, mobileweb, tizen]
+
   - name: backgroundFocusedImage
     summary: |
         Background image for the button in its focused state, specified as a local file path 
@@ -126,6 +130,8 @@ properties:
         Focusable must be true for normal views. Sets the background image for the focused 
         state only. For iOS, since there is not a trackball, this does nothing.
     type: String
+    platforms: [android, iphone, ipad, mobileweb, tizen]
+
   - name: backgroundSelectedImage
     summary: |
         Background image for the button in its selected state, specified as a local file 
@@ -134,19 +140,32 @@ properties:
         On Android, Focusable must be true in order to be selected. Sets the background image for the selected 
         state only.
     type: String
+    platforms: [android, iphone, ipad, mobileweb, tizen]
+
   - name: color
     summary: Default button text color, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
+    exclude-platforms: [blackberry]
+
+  - name: disabledColor
+    summary: Text color of the button in its disabled state, as a color name or hex triplet.
+    type: String
+    since: "3.2.0"
+    platforms: [iphone, ipad]
+
   - name: enabled
     summary: Set to `true` to enable the button, `false` to disable the button.
     type: Boolean
     default: true
-    platforms: [android, ipad, iphone, mobileweb, tizen]
+    platforms: [android, ipad, iphone, mobileweb, tizen, blackberry]
+
   - name: font
     summary: Font to use for the button text.
     type: Font
+    exclude-platforms: [blackberry]
+
   - name: image
     summary: Image to display on the button, specified as a local
         path, URL or a `Blob`.
@@ -155,34 +174,68 @@ properties:
 
         Support for using <Titanium.Blob> for this property is only available on Android and iOS.
     type: [String, Titanium.Blob]
+
   - name: selectedColor
     summary: Button text color used to indicate the selected state, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [iphone,ipad,mobileweb, tizen]
+
+  - name: shadowColor
+    summary: Shadow color of the [title](Titanium.UI.Button.title), as a color name or hex triplet.
+    description: |
+        Use in conjunction with [shadowOffset](Titanium.UI.Button.shadowOffset) and [shadowRadius](Titanium.UI.Button.shadowRadius).
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    platforms: [android, mobileweb]
+    since: "3.2.0"
+
+  - name: shadowOffset
+    summary: Shadow offset of the [title](Titanium.UI.Button.title), as a dictionary with the properties `x` and `y`.
+    description: |
+        Use in conjunction with [shadowColor](Titanium.UI.Button.shadowColor) and [shadowRadius](Titanium.UI.Button.shadowRadius).
+    type: Dictionary
+    platforms: [android, mobileweb]
+    since: "3.2.0"
+
+  - name: shadowRadius
+    summary: Shadow radius of the [title](Titanium.UI.Button.title).
+    description: |
+        Use in conjunction with [shadowColor](Titanium.UI.Button.shadowColor) and [shadowOffset](Titanium.UI.Button.shadowOffset).
+    type: Number
+    platforms: [android, mobileweb]
+    since: "3.2.0"
+
   - name: style
     summary: Style constant for the button, as defined in <Titanium.UI.iPhone.SystemButtonStyle>.
     type: Number
     platforms: [iphone,ipad]
+
   - name: systemButton
     summary: Specifies an iOS system button appearance, as defined in 
         <Titanium.UI.iPhone.SystemButton>.
     type: Number
     platforms: [iphone,ipad]
+
   - name: textAlign
     summary: |
         Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
     type: [String,Number]
     default: <Titanium.UI.TEXT_ALIGNMENT_CENTER>
+    exclude-platforms: [blackberry]
+
   - name: title
     summary: Button title.
     type: String
+
   - name: titleid
     summary: Key identifying a string from the locale file to use for the button title. 
     description: Only one of `title` or `titleid` should be specified.
     type: String
     since: "1.5"
+    exclude-platforms: [blackberry]
+
   - name: verticalAlign
     summary: |
         Vertical alignment for the text field, specified using one of the 
@@ -193,6 +246,7 @@ properties:
     type: [Number,String]
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
     platforms: [android, mobileweb, tizen]
+
 examples:
   - title: Simple Button Example
     example: |

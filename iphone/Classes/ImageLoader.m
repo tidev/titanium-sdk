@@ -18,10 +18,6 @@
 #ifdef DEBUG_IMAGE_CACHE
 #import <mach/mach.h>
 #endif
-@protocol TiResizableImageIOS6Support <NSObject>
-@optional
-- (UIImage *)resizableImageWithCapInsets:(UIEdgeInsets)capInsets resizingMode:(NSInteger)resizingMode;
-@end
 
 @interface ImageCacheEntry : NSObject
 {
@@ -127,47 +123,23 @@
                                 maxHeight/2  : 
                                 TiDimensionCalculateValue(topCap, maxHeight);
         
-        if ([TiUtils isIOS5OrGreater]) {
-            
-            if (left >= maxWidth) {
-                left = maxWidth - 2;
-            }
-            if (top >= maxHeight) {
-                top = maxHeight - 2;
-            }
-            
-            NSInteger right = left;
-            NSInteger bottom = top;
-            
-            if ((left + right) >= maxWidth) {
-                right = maxWidth - (left + 1);
-            }
-            if ((top + bottom) >= maxHeight) {
-                bottom = maxHeight - (top + 1);
-            }
-            if ([theImage respondsToSelector:@selector(resizableImageWithCapInsets:resizingMode:)]) {
-                //1 = UIImageResizingModeStretch
-                stretchableImage = [[theImage resizableImageWithCapInsets:UIEdgeInsetsMake(top, left, bottom, right) resizingMode:1] retain];
-            }
-            else {
-                stretchableImage = [[theImage resizableImageWithCapInsets:UIEdgeInsetsMake(top, left, bottom, right)] retain];
-            }
+        if (left >= maxWidth) {
+            left = maxWidth - 2;
         }
-        else
-        {
-            if (left >= maxWidth) {
-                left = maxWidth - 2;
-            }
-            
-            if (top > maxHeight) {
-                top = maxHeight - 2;
-            }
-            
-            stretchableImage = [[theImage stretchableImageWithLeftCapWidth:left
-                                                              topCapHeight:top] retain];
+        if (top >= maxHeight) {
+            top = maxHeight - 2;
         }
-
-        
+            
+        NSInteger right = left;
+        NSInteger bottom = top;
+            
+        if ((left + right) >= maxWidth) {
+            right = maxWidth - (left + 1);
+        }
+        if ((top + bottom) >= maxHeight) {
+            bottom = maxHeight - (top + 1);
+        }
+        stretchableImage = [[theImage resizableImageWithCapInsets:UIEdgeInsetsMake(top, left, bottom, right) resizingMode:UIImageResizingModeStretch] retain];
         recapStretchableImage = NO;
     }
 	return stretchableImage;

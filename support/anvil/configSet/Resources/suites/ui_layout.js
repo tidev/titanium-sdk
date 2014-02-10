@@ -51,6 +51,8 @@ module.exports = new function() {
 		{name: "fourPins"}
 	];
 
+	var event= "postlayout";
+
 	// functional test cases #1010, #1011, #1025, #1025a
 	//rect and size properties should not be undefined
 	this.viewSizeAndRectPx = function(testRun) {
@@ -65,7 +67,7 @@ module.exports = new function() {
 		});
 		win.add(view);
 		win.add(label);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, view.size).shouldNotBeUndefined();
 			valueOf(testRun, view.size.width).shouldNotBeUndefined();
 			valueOf(testRun, view.size.height).shouldNotBeUndefined();
@@ -124,7 +126,7 @@ module.exports = new function() {
 		});
 		win.add(view);
 		win.add(view2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, view.left).shouldBe(10);
 			valueOf(testRun, view.rect.x).shouldBe(10);
 			valueOf(testRun, view.rect.width).shouldBe(10);
@@ -152,7 +154,7 @@ module.exports = new function() {
 		});
 		win.add(view);
 		win.add(view2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, view.top).shouldBe(10);
 			valueOf(testRun, view.rect.y).shouldBe(10);
 			valueOf(testRun, view.rect.height).shouldBe(10);
@@ -178,7 +180,7 @@ module.exports = new function() {
 			height: 40, width: 40
 		});
 		win.add(view);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, view.center.x).shouldBe(50);
 			valueOf(testRun, view.center.y).shouldBe(50);
 			valueOf(testRun, view.rect.x).shouldBe(30);
@@ -197,7 +199,7 @@ module.exports = new function() {
 			width: 10, height: 10
 		});
 		win.add(view);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, view.width).shouldBe(10);
 			valueOf(testRun, view.size.width).shouldBe(10);
 			valueOf(testRun, view.height).shouldBe(10);
@@ -232,7 +234,7 @@ module.exports = new function() {
 		});
 		
 		win.add(view);
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, view.left).shouldBe("leftString");
 			valueOf(testRun, view.right).shouldBe("rightString");
 			valueOf(testRun, view.top).shouldBe("topString");
@@ -270,7 +272,7 @@ module.exports = new function() {
 			right: 10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, view1.width).shouldBeUndefined();
 			valueOf(testRun, view2.width).shouldBeUndefined();
 			valueOf(testRun, view3.width).shouldBeUndefined();
@@ -306,7 +308,7 @@ module.exports = new function() {
 			width: 120
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, view1.left).shouldBeUndefined();
 			valueOf(testRun, view2.left).shouldBeUndefined();
 			valueOf(testRun, view3.left).shouldBeUndefined();
@@ -339,7 +341,7 @@ module.exports = new function() {
 
 		var view = Ti.UI.createView({});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, view.center).shouldBeUndefined();
 			//Dynamic center can be calculated from view.rect
 			valueOf(testRun, view.rect).shouldNotBeUndefined();
@@ -361,7 +363,7 @@ module.exports = new function() {
 			left:10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, view.right).shouldBeUndefined();
 			valueOf(testRun, view.rect.width).shouldBe(80);
 			valueOf(testRun, view.rect.x).shouldBe(10);
@@ -395,7 +397,7 @@ module.exports = new function() {
 			bottom: 10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, view1.height).shouldBeUndefined();
 			valueOf(testRun, view2.height).shouldBeUndefined();
 			valueOf(testRun, view3.height).shouldBeUndefined();
@@ -431,7 +433,7 @@ module.exports = new function() {
 			height: 100
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 			//Static Tops
 			valueOf(testRun, view1.top).shouldBeUndefined();
 			valueOf(testRun, view2.top).shouldBeUndefined();
@@ -471,7 +473,7 @@ module.exports = new function() {
 			top: 10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, view.bottom).shouldBeUndefined();
 			//Dynamic bottom is rect.y + rect.height
 			valueOf(testRun, view.rect.height).shouldNotBeUndefined();
@@ -494,7 +496,7 @@ module.exports = new function() {
 			width: 10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, view.size.width).shouldBe(10);
 
 			finish(testRun);
@@ -515,7 +517,7 @@ module.exports = new function() {
 			center: {x:30}
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, view.size.width).shouldBe(40);
 
 			finish(testRun);
@@ -540,7 +542,7 @@ module.exports = new function() {
 			right: 50
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, viewChild.size.width).shouldBe(100);
 
 			finish(testRun);
@@ -562,7 +564,7 @@ module.exports = new function() {
 			height: 10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, view.size.height).shouldBe(10);
 
 			finish(testRun);
@@ -583,7 +585,7 @@ module.exports = new function() {
 			center: {y: 30}
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, view.size.height).shouldBe(40);
 
 			finish(testRun);
@@ -608,7 +610,7 @@ module.exports = new function() {
 			bottom: 50
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, viewChild.size.height).shouldBe(100);
 
 			finish(testRun);
@@ -666,7 +668,7 @@ module.exports = new function() {
 			showHorizontalScrollIndicator : true
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 
 			var isAndroid = (Ti.Platform.osname === 'android');
 			//LABEL HAS SIZE AUTO BEHAVIOR. 
@@ -724,7 +726,7 @@ module.exports = new function() {
 		var view4 = Ti.UI.createView({backgroundColor:'green', zIndex:3, height: 50, width: 50, top: 40});
 		var view5 = Ti.UI.createView({backgroundColor:'blue', zIndex:4, height: 50, width: 50, top: 50});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, view1.zIndex).shouldBe(0);
 			valueOf(testRun, view2.zIndex).shouldBe(1);
 			valueOf(testRun, view3.zIndex).shouldBe(2);
@@ -754,7 +756,7 @@ module.exports = new function() {
 		});
 		parent.add(child);
 		win.add(parent);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, parent.size.width).shouldBe(40);
 			valueOf(testRun, parent.size.height).shouldBe(50);
 			valueOf(testRun, child.size.width).shouldBe(40);
@@ -790,7 +792,7 @@ module.exports = new function() {
 		parent.add(child1);
 		grandParent.add(parent);
 		win.add(grandParent);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, grandParent.size.width).shouldBe(200);
 			valueOf(testRun, grandParent.size.height).shouldBe(300);
 
@@ -824,7 +826,7 @@ module.exports = new function() {
 		});
 		parent.add(child);
 		win.add(parent);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			if (Ti.Platform.osname === 'android') {
 				valueOf(testRun, parent.size.width).shouldBe(40);
 			} else if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad' ) {
@@ -861,7 +863,7 @@ module.exports = new function() {
 		win.add(child);
 		win.add(child1);
 		win.add(child2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, child.size.width).shouldNotBe(0);
 			valueOf(testRun, child.size.height).shouldNotBe(0);
 			
@@ -892,7 +894,7 @@ module.exports = new function() {
 		var view2 = Ti.UI.createView({
 		});
 		scrollView.add(view2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, view2.size.width).shouldBe(scrollView.size.width);
 			valueOf(testRun, view2.size.height).shouldBe(scrollView.size.height);
 
@@ -914,7 +916,7 @@ module.exports = new function() {
 		var view2 = Ti.UI.createView({
 		});
 		scrollView.add(view2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, view2.size.width).shouldBe(scrollView.size.width);
 			valueOf(testRun, view2.size.height).shouldBe(2000);
 
@@ -936,7 +938,7 @@ module.exports = new function() {
 		var view2 = Ti.UI.createView({
 		});
 		scrollView.add(view2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, view2.size.width).shouldBe(scrollView.size.width);
 			valueOf(testRun, view2.size.height).shouldBe(scrollView.size.height);
 
@@ -959,7 +961,7 @@ module.exports = new function() {
 		var view2 = Ti.UI.createView({
 		});
 		scrollView.add(view2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, view2.size.width).shouldBe(scrollView.size.width);
 			valueOf(testRun, view2.size.height).shouldBe(scrollView.size.height);
 
@@ -982,7 +984,7 @@ module.exports = new function() {
 		var view2 = Ti.UI.createView({
 		});
 		scrollView.add(view2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, view2.size.width).shouldBe(scrollView.size.width);
 			valueOf(testRun, view2.size.height).shouldBe(scrollView.size.height);
 
@@ -1020,7 +1022,7 @@ module.exports = new function() {
 		scrollView.add(button);
 		win.add(NavBarView);
 		win.add(scrollView);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, scrollView.size.height).shouldBe(50);
 			valueOf(testRun, scrollView.size.width).shouldBe(100);
 
@@ -1055,7 +1057,7 @@ module.exports = new function() {
 		        top: 20
 		    }));
 		}
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, innerView.size.height).shouldBe(1200);
 			valueOf(testRun, innerView.size.width).shouldBe(scrollView.size.width);
 
@@ -1115,7 +1117,7 @@ module.exports = new function() {
 			top: 10, bottom: 10
 		});
 		win.add(label);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, label.size.width).shouldBe(80);
 			valueOf(testRun, label.size.height).shouldBe(80);
 			valueOf(testRun, label.left).shouldBe(10);

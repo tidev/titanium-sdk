@@ -50,9 +50,6 @@
 #ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
 	#import "TiUIiPhoneTableViewCellSelectionStyleProxy.h"
 #endif
-#ifdef USE_TI_UIIPHONENAVIGATIONGROUP
-	#import "TiUIiPhoneNavigationGroupProxy.h"
-#endif
 #ifdef USE_TI_UIIPAD
 	#import "TiUIiPadProxy.h"
 #endif
@@ -222,86 +219,14 @@ DEFINE_SUBPROXY_AS(ListViewCellSelectionStyle, TableViewCellSelectionStyle, list
 DEFINE_SUBPROXY_AS(ListViewSeparatorStyle, TableViewSeparatorStyle, listViewSeparatorStyle);
 #endif
 
-#define RESPONDS_TO_3_2_STATUSBAR_SELECTOR \
-[[UIApplication sharedApplication] respondsToSelector:@selector(setStatusBarHidden:withAnimation:)]
-
--(void)hideStatusBar:(id)args
+-(NSString*)apiName
 {
-	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-	ENSURE_UI_THREAD(hideStatusBar,args);
-	
-	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-	
-	BOOL repositionViews = NO;
-	if (RESPONDS_TO_3_2_STATUSBAR_SELECTOR) {
-		int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
-		[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:style];
-	}
-	else {
-		[[UIApplication sharedApplication] setStatusBarHidden:YES];
-		repositionViews = YES;
-	}
-	
-	[[[TiApp app] controller] resizeView];
-	if (repositionViews) {
-		[[[TiApp app] controller] repositionSubviews];
-	}
-}
-
--(void)showStatusBar:(id)args
-{
-	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-	ENSURE_UI_THREAD(showStatusBar,args);
-	
-	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-
-	BOOL repositionViews = NO;
-	if (RESPONDS_TO_3_2_STATUSBAR_SELECTOR) {
-		int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
-		[[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:style];
-	}
-	else {
-		[[UIApplication sharedApplication] setStatusBarHidden:NO];		
-		repositionViews = YES;
-	}
-	
-	[[[TiApp app] controller] resizeView];
-	if (repositionViews) {
-		[[[TiApp app] controller] repositionSubviews];
-	}
-}
-
--(void)setStatusBarHidden:(id)hidden
-{
-	ENSURE_SINGLE_ARG(hidden,NSObject);
-	ENSURE_UI_THREAD(setStatusBarHidden,hidden);
-	
-	BOOL value = [TiUtils boolValue:hidden];
-	
-	BOOL repositionViews = NO;
-	if (RESPONDS_TO_3_2_STATUSBAR_SELECTOR) {
-		[[UIApplication sharedApplication] setStatusBarHidden:value withAnimation:UIStatusBarAnimationNone];
-	}
-	else {
-		[[UIApplication sharedApplication] setStatusBarHidden:value];
-		repositionViews = YES;
-	}
-	
-	[[[TiApp app] controller] resizeView];
-	if (repositionViews) {
-		[[[TiApp app] controller] repositionSubviews];
-	}
+    return @"Ti.UI.iPhone";
 }
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(statusBarHidden,NSNumber)
 result = [NSNumber numberWithBool:[[UIApplication sharedApplication] isStatusBarHidden]];
 END_UI_THREAD_PROTECTED_VALUE(statusBarHidden)
-
--(void)setStatusBarStyle:(NSNumber *)style
-{
-	ENSURE_UI_THREAD(setStatusBarStyle,style);
-	[[UIApplication sharedApplication] setStatusBarStyle:[style intValue]];
-}
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(statusBarStyle,NSNumber)
 result = [NSNumber numberWithInt:[[UIApplication sharedApplication] statusBarStyle]];
@@ -334,14 +259,6 @@ BEGIN_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit,NSNumber)
 result = [NSNumber numberWithBool:[[UIApplication sharedApplication] applicationSupportsShakeToEdit]];
 END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
-#ifdef USE_TI_UIIPHONENAVIGATIONGROUP
--(id)createNavigationGroup:(id)args
-{
-	// don't create a static depedency, do it with lazy binding
-	Class cl = NSClassFromString(@"TiUIiPhoneNavigationGroupProxy");
-	return [[[cl alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
 
 MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_COVER_VERTICAL,UIModalTransitionStyleCoverVertical);
 MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,UIModalTransitionStyleFlipHorizontal);

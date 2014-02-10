@@ -37,11 +37,75 @@ typedef enum {
 } EncodingError;
 
 /**
+ Titanium orientation flags.
+ */
+typedef enum
+{
+	TiOrientationNone = 0,
+	TiOrientationAny = 0xFFFF,
+	
+    /**
+     Portrait orientation flag.
+     */
+	TiOrientationPortrait			= 1 << UIInterfaceOrientationPortrait,
+    
+    /**
+     Upside-down portrait orientation flag.
+     */
+	TiOrientationPortraitUpsideDown	= 1 << UIInterfaceOrientationPortraitUpsideDown,
+	
+    /**
+     Landscape left orientation flag.
+     */
+    TiOrientationLandscapeLeft		= 1 << UIInterfaceOrientationLandscapeLeft,
+	
+    /**
+     Landscape right orientation flag.
+     */
+    TiOrientationLandscapeRight		= 1 << UIInterfaceOrientationLandscapeRight,
+    
+    /**
+     Landscape (left or right) orientation flag.
+     */
+    TiOrientationLandscapeOnly		= TiOrientationLandscapeLeft | TiOrientationLandscapeRight,
+	
+    /**
+     Portrait (normal or upside-down) orientation flag.
+     */
+    TiOrientationPortraitOnly		= TiOrientationPortrait | TiOrientationPortraitUpsideDown,
+	
+} TiOrientationFlags;
+
+#define TI_ORIENTATION_ALLOWED(flag,bit)	(flag & (1<<bit))
+#define TI_ORIENTATION_SET(flag,bit)		(flag |= (1<<bit))
+
+/**
+ The class represent root controller in a view hierarchy.
+ */
+@protocol TiUIViewControllerIOS7Support <NSObject>
+/* Legacy support: UIViewController methods introduced in iOS 7.0
+ * For those still on 5.x and 6.x, we have to declare these methods so the
+ * the compiler knows the right return datatypes.
+ */
+@optional
+@property(nonatomic,assign) NSUInteger edgesForExtendedLayout; // Defaults to UIRectEdgeAll on iOS7. We will set to UIRectEdgeNone
+@property(nonatomic,assign) BOOL extendedLayoutIncludesOpaqueBars; // Defaults to NO, but bars are translucent by default on 7_0.
+@property(nonatomic,assign) BOOL automaticallyAdjustsScrollViewInsets; // Defaults to NO
+@end
+
+@protocol UIImageIOS7Support <NSObject>
+@optional
+- (UIImage *)imageWithRenderingMode:(NSInteger)renderingMode;
+@end
+
+/**
  Utilities class.
  */
 @interface TiUtils : NSObject {
 
 }
+
++(TiOrientationFlags) TiOrientationFlagsFromObject:(id)args;
 
 /**
  Converts date to UTC format.
@@ -359,6 +423,7 @@ typedef enum {
  */
 +(TiDimension)dimensionValue:(NSString*)name properties:(NSDictionary*)properties def:(TiDimension)def exists:(BOOL*) exists;
 
++(NSShadow*)shadowValue:(id)value;
 
 +(int)intValue:(NSString*)name properties:(NSDictionary*)props def:(int)def;
 
@@ -489,6 +554,12 @@ typedef enum {
 +(BOOL)isIOS6OrGreater;
 
 /**
+ Whether or not the current OS version is equal to or greater than 7.0.
+ @return _YES_ if the current OS version is equal to or greater thann 7.0, _NO_ otherwise.
+ */
++(BOOL)isIOS7OrGreater;
+
+/**
  Whether or not the current device is an iPhone 4.
  @return _YES_ if the current device is an iPhone 4, _NO_ otherwise.
  */
@@ -505,6 +576,10 @@ typedef enum {
  @return _YES_ if the current device has a 4 inch retina display, _NO_ otherwise.
  */
 +(BOOL)isRetinaFourInch;
+
++(void)configureController:(id)controller withObject:(id)object;
+
++(CGRect)frameForController:(id)theController;
 
 +(int)dpi;
 

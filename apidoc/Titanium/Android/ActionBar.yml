@@ -9,6 +9,9 @@ description: |
     To access the action bar, you must first open a heavyweight window or tab group that
     uses one of the action bar themes (such as the Android Holo theme). You can then
     access the action bar from the window or tab group's [activity](Titanium.Android.Activity). 
+    In addition, setting the [Window.navBarHidden](Titanium.UI.Window.navBarHidden) or
+    [TabGroup.navBarHidden](Titanium.UI.TabGroup.navBarHidden) property to true disables the
+    Action Bar since it is part of the navigation title bar.
 
     You can add action items to the action bar by defining an Android menu and setting the
     menu items to display as action items. See [Menu](Titanium.Android.Menu) and
@@ -100,6 +103,15 @@ properties:
         in the Android Developer Reference.
     type: String
     permission: write-only
+
+  - name: navigationMode
+    summary: Controls the navigation mode.
+    description: |
+        The navigation mode can be [NAVIGATION_MODE_STANDARD](Titanium.Android.NAVIGATION_MODE_STANDARD), or [NAVIGATION_MODE_TABS](Titanium.Android.NAVIGATION_MODE_TABS). 
+        A TabGroup is initialized by Titanium Mobile with `NAVIGATION_MODE_TABS`, and can be hidden by setting to `NAVIGATION_MODE_STANDARD`. `NAVIGATION_MODE_LIST` is not yet supported.
+        See also: [setNavigationMode](http://developer.android.com/reference/android/app/ActionBar.html#setNavigationMode(int))
+        in the Android Developer Reference.
+    type: Number
 
   - name: onHomeIconItemSelected
     summary: Callback function called when the home icon is clicked.

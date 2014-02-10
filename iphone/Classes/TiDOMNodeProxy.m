@@ -50,6 +50,11 @@ OSSpinLock nodeRegistryLock = OS_SPINLOCK_INIT;
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.XML.Node";
+}
+
 -(NSString *)XMLString
 {
 	return [node XMLString];

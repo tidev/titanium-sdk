@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Photos: Create (Upload) a Photo](http://cloud.appcelerator.com/docs/api/v1/photos/create)
+        See [Photos: Create (Upload) a Photo](http://docs.appcelerator.com/cloud/latest/#!/api/Photos-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `photos` property of the parameter passed to the callback.
@@ -25,7 +25,7 @@ methods:
   - name: query
     summary: Retrieve a list of photos with sorting and pagination.
     description: |
-        See [Photos: Custom Query Photos](http://cloud.appcelerator.com/docs/api/v1/photos/query)
+        See [Photos: Custom Query Photos](http://docs.appcelerator.com/cloud/latest/#!/api/Photos-method-query)
         for the request parameters supported by this method.
         
         Data is returned in the `photos` property of the parameter passed to the callback.
@@ -44,7 +44,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Photos: Delete a Photo](http://cloud.appcelerator.com/docs/api/v1/photos/delete)
+        See [Photos: Delete a Photo](http://docs.appcelerator.com/cloud/latest/#!/api/Photos-method-delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -58,7 +58,7 @@ methods:
   - name: search
     summary: Retrieve a list of photos.
     description: |
-        See [Photos: Search for Photos](http://cloud.appcelerator.com/docs/api/v1/photos/search)
+        See [Photos: Search for Photos](http://docs.appcelerator.com/cloud/latest/#!/api/Photos-method-search)
         for the request parameters supported by this method.
         
         Data is returned in the `photos` property of the parameter passed to the callback.
@@ -74,7 +74,7 @@ methods:
   - name: show
     summary: Retrieve information about a photo.
     description: |
-        See [Photos: Show Photo Info](http://cloud.appcelerator.com/docs/api/v1/photos/show)
+        See [Photos: Show Photo Info](http://docs.appcelerator.com/cloud/latest/#!/api/Photos-method-show)
         for the request parameters supported by this method.
         
         Data is returned in the `photos` property of the parameter passed to the callback.
@@ -92,7 +92,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Photos: Update a Photo](http://cloud.appcelerator.com/docs/api/v1/photos/update)
+        See [Photos: Update a Photo](http://docs.appcelerator.com/cloud/latest/#!/api/Photos-method-update)
         for the request parameters supported by this method.
         
         Data is returned in the `photos` property of the parameter passed to the callback.

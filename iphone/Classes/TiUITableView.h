@@ -12,7 +12,9 @@
 #import "TiUITableViewAction.h"
 #import "TiUISearchBarProxy.h"
 #import "TiDimension.h"
-
+#ifdef USE_TI_UIREFRESHCONTROL
+#import "TiUIRefreshControlProxy.h"
+#endif
 @class TiGradientLayer;
 
 // Overloads hilighting to send touchbegin/touchend events
@@ -70,7 +72,14 @@
 	NSInteger frameChanges;
     TiViewProxy* headerViewProxy;
     TiViewProxy* footerViewProxy;
+    BOOL viewWillDetach;
+#ifdef USE_TI_UIREFRESHCONTROL
+    TiUIRefreshControlProxy* _refreshControlProxy;
+#endif
+    UIEdgeInsets defaultSeparatorInsets;
 }
+
+@property (nonatomic, assign) BOOL viewWillDetach;
 
 #pragma mark Framework
 -(CGFloat)tableRowHeight:(CGFloat)height;

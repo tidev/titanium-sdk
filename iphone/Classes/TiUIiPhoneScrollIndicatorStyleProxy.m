@@ -12,6 +12,11 @@
 
 @implementation TiUIiPhoneScrollIndicatorStyleProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPhone.ScrollIndicatorStyle";
+}
+
 MAKE_SYSTEM_PROP(DEFAULT,UIScrollViewIndicatorStyleDefault);
 MAKE_SYSTEM_PROP(BLACK,UIScrollViewIndicatorStyleBlack);
 MAKE_SYSTEM_PROP(WHITE,UIScrollViewIndicatorStyleWhite);

@@ -50,6 +50,11 @@ static NSString* ARG_KEY = @"arg";
     [super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Network.Socket.TCP";
+}
+
 -(void)_destroy
 {
     internalState = SOCKET_CLOSED;

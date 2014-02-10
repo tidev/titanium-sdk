@@ -140,8 +140,9 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 		db.execSQL(sql);
 	}
 
-	public void addEvent(final TiAnalyticsEvent event)
+	public String addEvent(final TiAnalyticsEvent event)
 	{
+		String eventID = TiPlatformHelper.createEventId();
 		if (Log.isDebugModeEnabled()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("add Analytics Event to db: type=").append(event.getEventType())
@@ -162,7 +163,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 				"insert into Events(EventId, Type, Event, Timestamp, MID, SID, AppGUID, isJSON, Payload) values(?,?,?,?,?,?,?,?,?)"
 				;
 			Object[] args = {
-				TiPlatformHelper.createEventId(),
+				eventID,
 				event.getEventType(),
 				event.getEventEvent(),
 				event.getEventTimestamp(),
@@ -172,6 +173,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 				event.mustExpandPayload() ? 1 : 0,
 				event.getEventPayload()
 			};
+			
 			db.execSQL(sql, args);
 		} catch (SQLException e) {
 			Log.e(TAG, "Error adding event: " + e);
@@ -180,6 +182,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 				db.close();
 			}
 		}
+		return eventID;
 	}
 
 	public void deleteEvents(int records[])

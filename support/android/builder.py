@@ -1606,11 +1606,11 @@ class Builder(object):
 				# the file list file still needs each file escaped apparently
 				debug("adding %s to javac build list" % java_file)
 				src_list.append('"%s"' % java_file.replace("\\", "\\\\"))
-                
+
 		if len(src_list) == 0:
 			# No sources are older than their classfile counterparts, we can skip javac / dex
 			return False
-                
+
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-encoding', 'utf8',
 			'-classpath', classpath, '-d', self.classes_dir, '-proc:none',
@@ -1649,6 +1649,7 @@ class Builder(object):
 			if path.split('/')[-1].startswith('.'): return True
 			if ext == '.class': return True
 			if 'org/appcelerator/titanium/bindings' in path and ext == '.json': return True
+			if 'tiapp' in path and ext =='.xml': return True
 
 		def skip_js_file(path):
 			return self.compile_js is True and \
@@ -1747,9 +1748,6 @@ class Builder(object):
 		for abi in self.abis:
 			lib_source_dir = os.path.join(sdk_native_libs, abi)
 			lib_dest_dir = 'lib/%s/' % abi
-			if abi == 'x86' and ((not os.path.exists(lib_source_dir)) or self.deploy_type == 'production'):
-				# x86 only in non-production builds for now.
-				continue
 
 			# libtiverify is always included
 			apk_zip.write(os.path.join(lib_source_dir, 'libtiverify.so'), lib_dest_dir + 'libtiverify.so')
@@ -2211,7 +2209,7 @@ class Builder(object):
 
 			fastdev_property = "ti.android.fastdev"
 			fastdev_enabled = (self.deploy_type == 'development' and not self.build_only)
-			if self.tiapp.has_app_property(fastdev_property):
+			if self.tiapp.has_app_property(fastdev_property) and self.deploy_type == 'development':
 				fastdev_enabled = self.tiapp.to_bool(self.tiapp.get_app_property(fastdev_property))
 
 			if fastdev_enabled:
@@ -2379,14 +2377,14 @@ class Builder(object):
 				if self.deploy_type != 'production':
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-profiler.jar'))
-					# the verifier depends on Ti.Network classes, so we may need to inject it
-					has_network_jar = False
-					for jar in self.android_jars:
-						if jar.endswith('titanium-network.jar'):
-							has_network_jar = True
-							break
-					if not has_network_jar:
-						dex_args.append(os.path.join(self.support_dir, 'modules', 'titanium-network.jar'))
+				# the verifier depends on Ti.Network classes, so we may need to inject it
+				has_network_jar = False
+				for jar in self.android_jars:
+					if jar.endswith('titanium-network.jar'):
+						has_network_jar = True
+						break
+				if not has_network_jar:
+					dex_args.append(os.path.join(self.support_dir, 'modules', 'titanium-network.jar'))
 
 				info("Compiling Android Resources... This could take some time")
 				# TODO - Document Exit message

@@ -28,6 +28,8 @@ module.exports = new function() {
 		{name: "horizontalWrapWithFILLWidth"}
 	];
 
+	var event= "postlayout";
+
 	this.horizontalTopBottomUndefinedHeight = function(testRun) {
 		var win = Ti.UI.createWindow({ backgroundColor: 'white'});
 		var parent = Ti.UI.createView({backgroundColor:'red',layout:'horizontal', horizontalWrap: true, width:200, height:300});
@@ -40,7 +42,7 @@ module.exports = new function() {
 		parent.add(child2);
 		parent.add(child3);
 
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, child1.rect.height).shouldBe(50);
 			valueOf(testRun, child1.rect.width).shouldBe(40);
 			valueOf(testRun, child1.rect.y).shouldBe(10);
@@ -75,7 +77,7 @@ module.exports = new function() {
 		parent.add(child2);
 		parent.add(child3);
 
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, child1.rect.height).shouldBe(50);
 			valueOf(testRun, child1.rect.width).shouldBe(180);
 			valueOf(testRun, child1.rect.y).shouldBe(0);
@@ -113,7 +115,7 @@ module.exports = new function() {
 		parent.add(child2);
 		parent.add(child3);
 
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, child1.rect.height).shouldBe(50);
 			valueOf(testRun, child1.rect.width).shouldBe(180);
 			// (300-50)/2
@@ -148,7 +150,7 @@ module.exports = new function() {
 		parent.add(child2);
 		parent.add(child3);
 
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, child1.rect.height).shouldBe(50);
 			valueOf(testRun, child1.rect.width).shouldBe(40);
 			valueOf(testRun, child1.rect.y).shouldBe(10);
@@ -188,7 +190,7 @@ module.exports = new function() {
 		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'purple'}));
 		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'orange'}));
 
-		win.addEventListener("postlayout", function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, topView.rect.height).shouldBe(400);
 			finish(testRun);
 		});
@@ -216,7 +218,7 @@ module.exports = new function() {
 		topView.add(Ti.UI.createView({width:50, height: 200, backgroundColor:'purple'}));
 		topView.add(Ti.UI.createView({width: 100, height: 100, backgroundColor:'orange'}));
 
-		win.addEventListener("postlayout", function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, topView.rect.width).shouldBe(250);
 			valueOf(testRun, topView.rect.height).shouldBe(200);
 
@@ -246,7 +248,7 @@ module.exports = new function() {
 		topView.add(Ti.UI.createView({width:50, top: 10, bottom: 25, height: 200, backgroundColor:'purple'}));
 		topView.add(Ti.UI.createView({width: 100, height: 100, backgroundColor:'orange'}));
 
-		win.addEventListener("postlayout", function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, topView.rect.width).shouldBe(250);
 			valueOf(testRun, topView.rect.height).shouldBe(235);
 
@@ -274,7 +276,7 @@ module.exports = new function() {
 		topView.add(Ti.UI.createView({width: 50, top: 50, bottom: 20, height: 100, backgroundColor:'purple'}));
 		topView.add(Ti.UI.createView({width: 50, height: 100, backgroundColor:'orange'}));
 
-		win.addEventListener("postlayout", function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, topView.rect.height).shouldBe(270);
 			finish(testRun);
 		});
@@ -311,7 +313,7 @@ module.exports = new function() {
 			backgroundColor : 'green'
 		})
 
-		win.addEventListener("open", function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, view1.rect.y).shouldBe(5);
 			valueOf(testRun, view2.rect.y).shouldBe(115);
 			valueOf(testRun, container.rect.height).shouldBe(220);
@@ -340,7 +342,7 @@ module.exports = new function() {
 		topView.add(Ti.UI.createView({width: 100, height: 100, backgroundColor:'blue'}));
 		topView.add(Ti.UI.createView({width: 50, height: 100, backgroundColor:'red'}));
 
-		win.addEventListener("postlayout", function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, topView.rect.width).shouldBe(150);
 			finish(testRun);
 		});
@@ -396,7 +398,7 @@ module.exports = new function() {
 		    backgroundColor: 'white'
 		});
 
-		win2.addEventListener("postlayout", function(e){
+		win2.addEventListener(event, function(e){
 			// purple view should be in 2nd row
 			valueOf(testRun, view3.rect.x).shouldBe(30);
 			valueOf(testRun, view3.rect.y).shouldBe(35);

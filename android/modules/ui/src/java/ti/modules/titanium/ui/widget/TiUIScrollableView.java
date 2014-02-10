@@ -22,6 +22,8 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.ScrollableViewProxy;
 import ti.modules.titanium.ui.widget.TiUIScrollView.TiScrollViewLayout;
+import ti.modules.titanium.ui.widget.listview.ListItemProxy;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
@@ -35,6 +37,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+@SuppressLint("NewApi")
 public class TiUIScrollableView extends TiUIView
 {
 	private static final String TAG = "TiUIScrollableView";
@@ -100,6 +103,8 @@ public class TiUIScrollableView extends TiUIView
 			@Override
 			public void onPageScrollStateChanged(int scrollState)
 			{
+				mPager.requestDisallowInterceptTouchEvent(scrollState != ViewPager.SCROLL_STATE_IDLE);
+
 				if ((scrollState == ViewPager.SCROLL_STATE_IDLE) && isValidScroll) {
 					int oldIndex = mCurIndex;
 
@@ -320,6 +325,7 @@ public class TiUIScrollableView extends TiUIView
 	public void addView(TiViewProxy proxy)
 	{
 		if (!mViews.contains(proxy)) {
+			proxy.setActivity(this.proxy.getActivity());
 			mViews.add(proxy);
 			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
 			mAdapter.notifyDataSetChanged();
@@ -424,9 +430,11 @@ public class TiUIScrollableView extends TiUIView
 
 		if (viewsObject instanceof Object[]) {
 			Object[] views = (Object[])viewsObject;
+			Activity activity = this.proxy.getActivity();
 			for (int i = 0; i < views.length; i++) {
 				if (views[i] instanceof TiViewProxy) {
 					TiViewProxy tv = (TiViewProxy)views[i];
+					tv.setActivity(activity);
 					mViews.add(tv);
 					changed = true;
 				}
@@ -535,9 +543,27 @@ public class TiUIScrollableView extends TiUIView
 		public TiViewPagerLayout(Context context)
 		{
 			super(context, proxy);
-			setFocusable(true);
-			setFocusableInTouchMode(true);
+			boolean focusable = true;
+			// Container can't be focusable inside list view, otherwise it will be focused and subsequent layout passes
+			// wont happen.
+			if (isListViewParent(proxy)) {
+				focusable = false;
+			}
+			setFocusable(focusable);
+			setFocusableInTouchMode(focusable);
 			setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+		}
+
+		private boolean isListViewParent(TiViewProxy proxy) {
+			if (proxy instanceof ListItemProxy) {
+				return true;
+			}
+			TiViewProxy parent = proxy.getParent();
+			if (parent == null) {
+				return false;
+			} else {
+				return isListViewParent(parent);
+			}
 		}
 
 		@Override
@@ -548,27 +574,6 @@ public class TiUIScrollableView extends TiUIView
 				showPager();
 			}
 			return super.onTrackballEvent(event);
-		}
-
-		@Override
-		public boolean dispatchTouchEvent(MotionEvent ev)
-		{
-			// If the parent is a scroll view, then we prevent the scroll view from intercepting touch events
-			if (getParent() instanceof TiScrollViewLayout) {
-				int action = ev.getAction();
-				switch (action) {
-					case MotionEvent.ACTION_DOWN:
-						requestDisallowInterceptTouchEvent(true);
-						break;
-
-					case MotionEvent.ACTION_UP:
-					case MotionEvent.ACTION_CANCEL:
-						requestDisallowInterceptTouchEvent(false);
-						break;
-
-				}
-			}
-			return super.dispatchTouchEvent(ev);
 		}
 
 		@Override

@@ -31,6 +31,11 @@
     [super _destroy];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Calendar.Alert";
+}
+
 -(EKAlarm*)alert
 {
     return alert;
@@ -43,7 +48,7 @@
 
 -(NSNumber*)relativeOffset
 {
-    return NUMINT([self alert].relativeOffset * 1000) ;
+    return NUMDOUBLE([self alert].relativeOffset * 1000) ;
 }
 
 

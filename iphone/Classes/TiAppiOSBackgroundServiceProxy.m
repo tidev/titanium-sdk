@@ -21,6 +21,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.App.iOS.BackgroundService";
+}
+
 -(void)beginBackground
 {
 	bridge = [[KrollBridge alloc] initWithHost:[self _host]];

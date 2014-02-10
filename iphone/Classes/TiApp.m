@@ -19,6 +19,7 @@
 #import "ApplicationDefaults.h"
 #import <libkern/OSAtomic.h>
 #import "TiExceptionHandler.h"
+#import "Mimetypes.h"
 
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
@@ -38,6 +39,7 @@ extern void UIColorFlushCache();
 
 #define SHUTDOWN_TIMEOUT_IN_SEC	3
 #define TIV @"TiVerify"
+#define TI_BACKGROUNDFETCH_MAX_INTERVAL 29
 
 BOOL applicationInMemoryPanic = NO;
 
@@ -59,6 +61,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 @synthesize window, remoteNotificationDelegate, controller;
 @synthesize disableNetworkActivityIndicator;
 @synthesize remoteNotification;
+@synthesize pendingCompletionHandlers;
+@synthesize backgroundTransferCompletionHandlers;
 @synthesize localNotification;
 
 +(void)initialize
@@ -130,7 +134,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	
 	// attach our main view controller
 	controller = [[TiRootViewController alloc] init];
-	
 	// attach our main view controller... IF we haven't already loaded the main window.
 	[window setRootViewController:controller];
     [window makeKeyAndVisible];
@@ -155,17 +158,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		[xhrBridge boot:self url:nil preload:nil];
 	}
 #endif
-}
-//To load application Defaults 
-- (void) loadUserDefaults
-{
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	NSDictionary *appDefaults = [ApplicationDefaults copyDefaults];
-	if(appDefaults != nil)
-	{
-		[defaults registerDefaults:appDefaults];
-	}
-	[appDefaults release];
 }
 
 - (void) launchToUrl
@@ -276,6 +268,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		DebugLog(@"[DEBUG] Application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
 		fflush(stderr);
+        appBooted = YES;
 		if (localNotification != nil) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 		}
@@ -287,9 +280,46 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	[TiExceptionHandler defaultExceptionHandler];
 	[self initController];
-	[self loadUserDefaults];
     [self launchToUrl];
 	[self boot];
+}
+
+-(UIImageView*)splashScreenImage
+{
+    if(splashScreenImage == nil) {
+        splashScreenImage = [[UIImageView alloc] init];
+        [splashScreenImage setBackgroundColor:[UIColor yellowColor]];
+        [splashScreenImage setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
+        [splashScreenImage setContentMode:UIViewContentModeScaleToFill];
+        
+        UIDeviceOrientation imageOrientation;
+        UIUserInterfaceIdiom imageIdiom;
+        
+        UIImage * defaultImage = [controller defaultImageForOrientation:
+                                  (UIDeviceOrientation)[[UIApplication sharedApplication] statusBarOrientation]
+                                                   resultingOrientation:&imageOrientation idiom:&imageIdiom];
+        if([TiUtils isIPad]) {
+            CGAffineTransform transform;
+            switch ([[UIApplication sharedApplication] statusBarOrientation]) {
+                case UIInterfaceOrientationPortraitUpsideDown:
+                    transform = CGAffineTransformMakeRotation(M_PI);
+                    break;
+                case UIInterfaceOrientationLandscapeLeft:
+                    transform = CGAffineTransformMakeRotation(-M_PI_2);
+                    break;
+                case UIInterfaceOrientationLandscapeRight:
+                    transform = CGAffineTransformMakeRotation(M_PI_2);
+                    break;
+                default:
+                    transform = CGAffineTransformIdentity;
+                    break;
+            }
+            [splashScreenImage setTransform:transform];
+        }
+        [splashScreenImage setImage: defaultImage];
+        [splashScreenImage setFrame:[[UIScreen mainScreen] bounds]];
+    }
+    return splashScreenImage;
 }
 
 - (void)generateNotification:(NSDictionary*)dict
@@ -354,18 +384,260 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		[self generateNotification:notification];
 	}
     [self launchToUrl];
-	[self loadUserDefaults];
 	[self boot];
 	
 	return YES;
 }
 
-- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
-	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];	
+	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
 	[launchOptions setObject:[url absoluteString] forKey:@"url"];
-    return YES;
+	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
+	[launchOptions setObject:sourceApplication forKey:@"source"];
+	return YES;
 }
+
+#pragma mark
+#pragma mark Background Fetch iOS 7
+
+#ifdef USE_TI_FETCH
+
+-(void)application:(UIApplication*)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+
+    //Only for simulator builds
+    NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+    if ([backgroundModes containsObject:@"fetch"]) {
+
+        // Generate unique key with timestamp.
+        id key = [NSString stringWithFormat:@"Fetch-%f",[[NSDate date] timeIntervalSince1970]];
+
+        // Store the completionhandler till we can come back and send appropriate message.
+        if (pendingCompletionHandlers == nil) {
+            pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
+        }
+
+        [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
+
+        // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
+        // the bridge completes processing of app.js (adding the event into notification center).
+
+        [self postNotificationwithKey:[NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil] withNotificationName:kTiBackgroundFetchNotification] ;
+
+        // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
+        NSTimer*  flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO] ;
+        [[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
+    }
+}
+
+#endif
+
+#pragma mark Helper Methods
+
+-(void)postNotificationwithKey:(NSMutableDictionary*)userInfo withNotificationName:(NSString*)notificationName{
+    
+    //Check to see if the app booted and we still have the completionhandler in the system
+    NSString* key = [userInfo objectForKey:@"handlerId"] ;
+    BOOL shouldContinue = NO;
+    if ([key rangeOfString:@"Session"].location != NSNotFound) {
+        if ([backgroundTransferCompletionHandlers objectForKey:key] != nil) {
+            shouldContinue = YES;
+        }
+    }else if ([pendingCompletionHandlers objectForKey:key] != nil) {
+        shouldContinue = YES;
+    }
+    if (!shouldContinue) {
+        return;
+    }
+    if (appBooted ) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:userInfo];
+    } else {
+        //Try again in 2 sec. TODO: should we reduce this value ?
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_current_queue(), ^{
+            [self postNotificationwithKey:userInfo withNotificationName:notificationName];
+        });
+    }
+}
+
+//Clear out  the pendingCompletionHandlerQueue
+-(void)flushCompletionHandlerQueue
+{
+    //FunctionName();
+    if (pendingCompletionHandlers !=nil) {
+        for (id key in pendingCompletionHandlers) {
+            [self completionHandler:key withResult:2]; //UIBackgroundFetchResultFailed
+        }
+    }
+    RELEASE_TO_NIL(pendingCompletionHandlers);
+}
+
+// This method gets called when the wall clock runs out and the completionhandler is still there.
+-(void)fireCompletionHandler:(NSTimer*)timer
+{
+    //FunctionName();
+    id key = timer.userInfo;
+    if ([pendingCompletionHandlers objectForKey:key]) {
+        [self completionHandler:key withResult:UIBackgroundFetchResultFailed];
+        //Send a event signalling the that backgroundfetch ended.
+    }
+}
+
+// gets called when user ends finishes with backgrounding stuff. By default this would always be called with UIBackgroundFetchResultNoData.
+-(void)completionHandler:(id)key withResult:(int)result
+{
+    //FunctionName();
+    if ([pendingCompletionHandlers objectForKey:key]) {
+        void (^completionHandler)(UIBackgroundFetchResult);
+        completionHandler = [pendingCompletionHandlers objectForKey:key];
+        completionHandler(result);
+        [pendingCompletionHandlers removeObjectForKey:key];
+    } else {
+        DebugLog(@"[ERROR] The specified Completion Handler with ID: %@ has already expired or removed from the system", key);
+    }
+}
+
+//Called to mark the end of background transfer while in the background.
+-(void)completionHandlerForBackgroundTransfer:(id)key
+{
+    if ([backgroundTransferCompletionHandlers objectForKey:key] != nil) {
+        void (^completionHandler)();
+        completionHandler = [backgroundTransferCompletionHandlers objectForKey:key];
+        [backgroundTransferCompletionHandlers removeObjectForKey:key];
+        completionHandler();
+    } else{
+        DebugLog(@"[ERROR] The specified Completion Handler with ID: %@ has already expired or removed from the system", key);
+    }
+}
+
+#pragma mark
+#pragma mark Remote Notifications iOS 7
+
+#ifdef USE_TI_SILENTPUSH
+//Delegate callback for Silent Remote Notification.
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler
+{
+    //FunctionName();
+    //Forward the callback
+    [self application:application didReceiveRemoteNotification:userInfo];
+    
+    //This only here for Simulator builds.
+    
+    NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+    if ([backgroundModes containsObject:@"remote-notification"]) {
+        
+        // Generate unique key with timestamp.
+        id key = [NSString stringWithFormat:@"SilentPush-%f",[[NSDate date] timeIntervalSince1970]];
+        
+        // Store the completionhandler till we can come back and send appropriate message.
+        if (pendingCompletionHandlers == nil) {
+            pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
+        }
+        
+        [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
+        
+        // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
+        // the bridge completes processing of app.js (adding the event into notification center).
+        
+        NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil];
+        [dict addEntriesFromDictionary:userInfo];
+        [self postNotificationwithKey:dict withNotificationName:kTiSilentPushNotification];
+        
+        // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
+        NSTimer*  flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO] ;
+        [[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
+    }
+}
+
+#endif
+
+#pragma mark
+#pragma mark Background Transfer Service iOS 7
+
+//Delegate callback for Background Transfer completes.
+- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
+{
+    //FunctionName();
+    // Generate unique key with timestamp.
+    id key = [NSString stringWithFormat:@"Session-%f",[[NSDate date] timeIntervalSince1970]];
+    
+    // Store the completionhandler till we can come back and send appropriate message.
+    if (backgroundTransferCompletionHandlers == nil) {
+        backgroundTransferCompletionHandlers = [[NSMutableDictionary alloc] init];
+    }
+    
+    [backgroundTransferCompletionHandlers setObject:[completionHandler copy] forKey:key];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:identifier, @"sessionId",
+                                                                             key, @"handlerId", nil];
+    [self postNotificationwithKey:dict withNotificationName:kTiBackgroundTransfer];
+
+}
+
+#pragma mark Background Transfer Service Delegates.
+
+//TODO: Move these delegates to the module post 3.2.0
+
+-(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
+{
+    //FunctionName();
+    TiBlob * downloadedFile =[[[TiBlob alloc] initWithData:[NSData dataWithContentsOfURL:location] mimetype:[Mimetypes mimeTypeForExtension:[location absoluteString]]] autorelease];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier ],@"taskIdentifier",downloadedFile,@"data", nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLDownloadFinished object:self userInfo:dict];
+    
+}
+
+-(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
+{
+
+    //FunctionName();
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                          [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier], @"taskIdentifier",
+                                          [NSNumber numberWithUnsignedLongLong:bytesWritten], @"bytesWritten",
+                                          [NSNumber numberWithUnsignedLongLong:totalBytesWritten], @"totalBytesWritten",
+                                          [NSNumber numberWithUnsignedLongLong:totalBytesExpectedToWrite], @"totalBytesExpectedToWrite", nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLDowloadProgress object:self userInfo:dict];
+
+}
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent
+    totalBytesSent:(int64_t) totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
+{
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMINT(task.taskIdentifier),@"taskIdentifier",
+                                 [NSNumber numberWithUnsignedLongLong:bytesSent], @"bytesSent",
+                                 [NSNumber numberWithUnsignedLongLong:totalBytesSent], @"totalBytesSent",
+                                 [NSNumber numberWithUnsignedLongLong:totalBytesExpectedToSend], @"totalBytesExpectedToSend", nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLUploadProgress object:self userInfo:dict];
+}
+
+-(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
+{
+    //FunctionName();
+    
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                 [NSNumber numberWithUnsignedInteger:task.taskIdentifier], @"taskIdentifier",
+                          nil];
+    if (error) {
+        NSDictionary * errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
+                                                NUMINT([error code]), @"errorCode",
+                                                [error localizedDescription], @"message",
+                                                nil];
+        [dict addEntriesFromDictionary:errorinfo];
+    } else {
+        NSDictionary * success = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
+                                              NUMINT(0), @"errorCode",
+                                              @"", @"message",
+                                              nil];
+        [dict addEntriesFromDictionary:success];
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionCompleted object:self userInfo:dict];
+
+}
+
+- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionEventsCompleted object:self userInfo:nil];
+}
+
+#pragma mark
 
 -(void)waitForKrollProcessing
 {
@@ -424,6 +696,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	RELEASE_TO_NIL(xhrBridge);
 #endif	
 	RELEASE_TO_NIL(remoteNotification);
+    RELEASE_TO_NIL(pendingCompletionHandlers);
+    RELEASE_TO_NIL(backgroundTransferCompletionHandlers);
 	RELEASE_TO_NIL(sessionId);
 }
 
@@ -440,6 +714,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)applicationWillResignActive:(UIApplication *)application
 {
+    if([self forceSplashAsSnapshot]) {
+        [window addSubview:[self splashScreenImage]];
+    }
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
 	
 	// suspend any image loading
@@ -454,6 +731,10 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
+    if(splashScreenImage != nil) {
+        [[self splashScreenImage] removeFromSuperview];
+        RELEASE_TO_NIL(splashScreenImage);
+    }
 	// NOTE: Have to fire a separate but non-'resume' event here because there is SOME information
 	// (like new URL) that is not passed through as part of the normal foregrounding process.
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification object:self];
@@ -464,6 +745,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)applicationDidEnterBackground:(UIApplication *)application
 {
+	//FunctionName();
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification object:self];
 	[TiUtils queueAnalytics:@"ti.background" name:@"ti.background" data:nil];
 
@@ -496,11 +778,14 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
+    //FunctionName(); Uncomment to see function name printed when it is called.
+    [self flushCompletionHandlerQueue];
     [sessionId release];
     sessionId = [[TiUtils createUUID] retain];
     
     //TIMOB-3432. Ensure url is cleared when resume event is fired.
     [launchOptions removeObjectForKey:@"url"];
+    [launchOptions removeObjectForKey:@"source"];
 
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
 	
@@ -601,58 +886,18 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
-	/*
-	 *	In iPad (TIMOB 7839) there is a bug in iOS where a text field having
-	 *	focus during a modal presentation can lead to an edge case.
-	 *	The new view is not attached yet, and any current view will be covered
-	 *	by the new modal controller. Because of this, there is no valid reason
-	 *	to have a text field with focus.
-	 */
-	[controller dismissKeyboard];
-
-	UINavigationController *navController = nil; //[(TiRootViewController *)controller focusedViewController];
-	if (navController==nil)
-	{
-		navController = [controller navigationController];
-	}
-	// if we have a nav controller, use him, otherwise use our root controller
-	if (navController!=nil)
-	{
-		[controller windowFocused:modalController];
-		[self attachModal:modalController toController:navController animated:animated];
-	}
-	else
-	{
-		[self attachModal:modalController toController:controller animated:animated];
-	}
+    [controller showControllerModal:modalController animated:animated];
 }
 
 -(void)hideModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
-	UIViewController *navController = [modalController parentViewController];
-
-	//	As of iOS 5, Apple is phasing out the modal concept in exchange for
-	//	'presenting', making all non-Ti modal view controllers claim to have
-	//	no parent view controller.
-	if (navController==nil && [modalController respondsToSelector:@selector(presentingViewController)])
-	{
-		navController = [modalController presentingViewController];
-	}
-	[controller windowClosed:modalController];
-	if (navController!=nil)
-	{
-		[navController dismissModalViewControllerAnimated:animated];
-	}
-	else 
-	{
-		[controller dismissModalViewControllerAnimated:animated];
-	}
+    [controller hideControllerModal:modalController animated:animated];
 }
 
 - (NSUInteger)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window
 {
     if ([self windowIsKeyWindow]) {
-        return [controller supportedInterfaceOrientations];
+        return [controller supportedOrientationsForAppDelegate];
     }
     
     //UIInterfaceOrientationMaskAll = 30;
@@ -672,6 +917,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	RELEASE_TO_NIL(userAgent);
 	RELEASE_TO_NIL(remoteDeviceUUID);
 	RELEASE_TO_NIL(remoteNotification);
+	RELEASE_TO_NIL(splashScreenImage);
     if ([self debugMode]) {
         TiDebuggerStop();
     }
@@ -804,5 +1050,41 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	return [[event copy] autorelease];
 }
 
+// Returns an NSDictionary with the properties from tiapp.xml
+// this is called from Ti.App.Properties and other places.
++(NSDictionary *)tiAppProperties
+{
+    static NSDictionary* props;
+    
+    if(props == nil) {
+        // Get the props from the encrypted json file
+        NSString *tiAppPropertiesPath = [[TiHost resourcePath] stringByAppendingPathComponent:@"_app_props_.json"];
+        NSData *jsonData = [TiUtils loadAppResource: [NSURL fileURLWithPath:tiAppPropertiesPath]];
+        
+        if (jsonData==nil) {
+            // Not found in encrypted file, this means we're in development mode, get it from the filesystem
+            jsonData = [NSData dataWithContentsOfFile:tiAppPropertiesPath];
+        }
+        
+        NSString *errorString = nil;
+        // Get the JSON data and create the NSDictionary.
+        if(jsonData) {
+            NSError *error = nil;
+            props = [[NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error] retain];
+            errorString = [error localizedDescription];
+        } else {
+            // If we have no data...
+            // This should never happen on a Titanium app using the node.js CLI
+            errorString = @"File not found";
+        }
+        if(errorString != nil) {
+            // Let the developer know that we could not load the tiapp.xml properties.
+            DebugLog(@"[ERROR] Could not load tiapp.xml properties, error was %@", errorString);
+            // Create an empty dictioary to avoid running this code over and over again.
+            props = [[NSDictionary dictionary] retain];
+        }
+    }
+    return props;
+}
 
 @end

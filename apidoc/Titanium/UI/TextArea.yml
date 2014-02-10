@@ -65,6 +65,15 @@ properties:
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
     
+  - name: attributedString
+    summary: TextArea attributed string. 
+    description: |
+        The underlying attributed string drawn by the textArea, if set, the textArea ignores
+        the `value` property
+    type: Titanium.UI.iOS.AttributedString
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 
     description: |
@@ -156,7 +165,6 @@ properties:
     summary: Determines whether this field is enabled.
     type: Boolean
     default: true
-    platforms: [android, ipad, iphone, mobileweb, tizen]
     
   - name: enableReturnKey
     summary: |
@@ -167,7 +175,8 @@ properties:
         automatically enabled as soon as the user types any text in the area.
     type: Boolean
     default: false
-    
+    exclude-platforms: [blackberry]
+   
   - name: font
     summary: Font to use for text.
     type: Font
@@ -185,7 +194,18 @@ properties:
         section of wikipedia, to insert special characters and symbols.
     type: String
     default: No hint text.
-    platforms: [android]
+    platforms: [android, blackberry]
+    
+  - name: handleLinks
+    summary: Specifies if the text area should allow user interaction with the given URL in the given range of text.
+    description: |
+        When the text is specified using an attributed string and the text has an attribute of type [ATTRIBUTE_LINK](Titanium.UI.iOS.ATTRIBUTE_LINK),
+        this property controls if the system should handle that link automatically. Only valid on iOS 7 and above. 
+    type: Boolean
+    default: false
+    platforms: [iphone,ipad]
+    osver: {ios: {min: "7.0"}}
+    since: 3.2.0
     
   - name: keyboardToolbar
     summary: |
@@ -229,7 +249,7 @@ properties:
         address, you should always specify the appropriate keyboard type.
     type: Number
     default: <Titanium.UI.KEYBOARD_DEFAULT>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, blackberry]
     
   - name: maxLength
     summary: Maximum length of text field input. 
@@ -259,7 +279,7 @@ properties:
         or [RETURNKEY_YAHOO](Titanium.UI.RETURNKEY_YAHOO).
     type: Number
     default: <Titanium.UI.RETURNKEY_DEFAULT>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, blackberry]
 
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
@@ -288,6 +308,7 @@ properties:
         or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
     type: [String, Number]
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
+    exclude-platforms: [blackberry]
     
   - name: value
     summary: Value of this text area, which may be set programmatically and modified by the user.
@@ -338,6 +359,25 @@ events:
       - name: value
         summary: Value of this text area.
         type: String
+        
+  - name: link
+    summary: Fired when user interacts with a URL in the text area. See [handleLinks](Titanium.UI.TextArea.handleLinks).
+    description: |
+        The URL is set using the [ATTRIBUTE_LINK](Titanium.UI.iOS.ATTRIBUTE_LINK) property on the [attributedString](Titanium.UI.TextArea.attributedString). 
+        This event is fired even in handleLinks is set to false. Only valid on iOS7 and above.
+    properties:
+      - name: url
+        summary: The URL that is associated with this event.
+        type: String
+      - name: range
+        summary: An array of two numbers [location, length] describing the character range of the text associated with this URL.
+        type: Array
+      - name: bubbles
+        summary: This is false. This event does not bubble.
+        type: Boolean
+    platforms: [iphone,ipad]
+    osver: {ios: {min: "7.0"}}
+    since: 3.2.0
         
   - name: return
     summary: Fired when the return key is pressed on the keyboard.

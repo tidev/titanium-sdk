@@ -88,7 +88,6 @@ excludes:
 events:
   - name: click
     summary: Fired when a table row is clicked by the user.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
     properties:
       - name: detail
         summary: |
@@ -153,7 +152,7 @@ events:
         
         On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb, tizen, blackberry]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -173,7 +172,7 @@ events:
         
         On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb, tizen, blackberry]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -193,7 +192,7 @@ events:
         
         On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb, tizen, blackberry]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -213,7 +212,7 @@ events:
         
         On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
         will fire immediately following the scroll.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, blackberry]
     since: {iphone: "3.0.1", ipad: "3.0.1"}
     properties:
       - name: x
@@ -240,7 +239,7 @@ properties:
         
         This property exists on iOS, Tizen and Mobile Web, but is ignored.
     type: String
-    platforms: [android]
+    platforms: [android, blackberry]
     
   - name: color
     summary: Default text color of the row when not selected, as a color name or hex triplet.
@@ -249,7 +248,8 @@ properties:
         
         On Android, `selectedColor` is not supported, so the text is always displayed in this color.
     type: String
-    
+    exclude-platforms: [blackberry]
+   
   - name: editable
     summary: |
         Determines the rows' editable behavior, which allows them to be deleted by the user when the 
@@ -269,6 +269,7 @@ properties:
     summary: Font to use for the row title.
     type: Font
     default: System default font.
+    exclude-platforms: [blackberry]
     
   - name: hasCheck
     summary: |
@@ -276,6 +277,7 @@ properties:
         the row.
     type: Boolean
     default: false
+    exclude-platforms: [blackberry]
     
   - name: hasChild
     summary: |
@@ -343,10 +345,12 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
+    exclude-platforms: [blackberry]
     
   - name: selectedBackgroundImage
     summary: Background image to render when the row is selected.
     type: String
+    exclude-platforms: [blackberry]
     
   - name: selectedColor
     summary: Color of the row text when the row is selected, as a color name or hex triplet.

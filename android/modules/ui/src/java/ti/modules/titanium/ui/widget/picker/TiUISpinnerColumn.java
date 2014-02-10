@@ -35,6 +35,9 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 	public TiUISpinnerColumn(TiViewProxy proxy)
 	{
 		super(proxy);
+		if (proxy instanceof PickerColumnProxy && ((PickerColumnProxy)proxy).getCreateIfMissing()) {
+			layoutParams.autoFillsWidth = true;
+		}
 		refreshNativeView();
 		preselectRow();
 		((WheelView)nativeView).setItemSelectedListener(this);
@@ -177,7 +180,10 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 			}
 			suppressItemSelected = false;
 		}
-		TextWheelAdapter adapter = new TextWheelAdapter(rows);
+		TextWheelAdapter adapter = null;
+		if (rows != null) {
+			adapter = new TextWheelAdapter(rows);
+		}
 		view.setAdapter(adapter);
 	}
 	

@@ -51,6 +51,7 @@ public class AudioPlayerProxy extends KrollProxy
 		//((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 
 		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
+		defaultValues.put(TiC.PROPERTY_TIME,0);
 	}
 
 	public AudioPlayerProxy(TiContext tiContext)
@@ -114,7 +115,8 @@ public class AudioPlayerProxy extends KrollProxy
 		}
 		return false;
 	}
-
+	
+	
 	// An alias for play so that
 	@Kroll.method
 	public void start() {
@@ -156,6 +158,28 @@ public class AudioPlayerProxy extends KrollProxy
 		TiSound s = getSound();
 		if (s != null) {
 			s.stop();
+		}
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public double getTime() {
+		TiSound s = getSound();
+		if (s != null) {
+			int time = s.getTime();
+			setProperty(TiC.PROPERTY_TIME, time);
+		} 
+		return TiConvert.toDouble(getProperty(TiC.PROPERTY_TIME));
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setTime(Object pos) {
+		if (pos != null) {
+			TiSound s = getSound();
+			if (s != null) {
+				s.setTime(TiConvert.toInt(pos));
+			} else {
+				setProperty(TiC.PROPERTY_TIME, TiConvert.toDouble(pos));
+			}
 		}
 	}
 
@@ -217,5 +241,11 @@ public class AudioPlayerProxy extends KrollProxy
 			}
 			resumeInOnWindowFocusChanged = false;
 		}
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Media.AudioPlayer";
 	}
 }

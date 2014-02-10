@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -105,14 +105,15 @@ public class TiResultSetProxy extends KrollProxy
 		try {
 			if (rs instanceof AbstractWindowedCursor) {
 				AbstractWindowedCursor cursor = (AbstractWindowedCursor) rs;
+				
 				if (cursor.isFloat(index)) {
 					result = cursor.getDouble(index);
 				} else if (cursor.isLong(index)) {
 					result = cursor.getLong(index);
-				} else if (cursor.isBlob(index)) {
-					result = TiBlob.blobFromData(cursor.getBlob(index));
 				} else if (cursor.isNull(index)) {
 					result = null;
+				} else if (cursor.isBlob(index)) {
+					result = TiBlob.blobFromData(cursor.getBlob(index));
 				} else {
 					fromString = true;
 				}
@@ -277,5 +278,11 @@ public class TiResultSetProxy extends KrollProxy
 			Log.w(TAG, "Ignoring next, current row is invalid.");
 		}
 		return false;
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Database.ResultSet";
 	}
 }

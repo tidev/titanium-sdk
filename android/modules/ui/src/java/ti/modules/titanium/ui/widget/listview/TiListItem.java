@@ -33,6 +33,7 @@ public class TiListItem extends TiUIView {
 		layoutParams = p;
 		listItemLayout = item_layout;
 		setNativeView(v);	
+		registerForTouch(v);
 		v.setFocusable(false);
 	}
 	
@@ -41,7 +42,13 @@ public class TiListItem extends TiUIView {
 		if (d.containsKey(TiC.PROPERTY_ACCESSORY_TYPE)) {
 			int accessory = TiConvert.toInt(d.get(TiC.PROPERTY_ACCESSORY_TYPE), -1);
 			handleAccessory(accessory);
-		} 
+		}
+		if (d.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
+			d.put(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, d.get(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR));
+		}
+		if (d.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
+			d.put(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, d.get(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE));
+		}
 		super.processProperties(d);
 	}
 

@@ -1,0 +1,116 @@
+---
+name: Titanium.Network.Socket.UDP
+summary: UDP socket. 
+description: |
+    Most socket operations are asynchronous. When you create a socket, you can define
+    callback funtions to receive the results of API calls, as well as to handle incoming
+    data.
+
+    For example, for a client-side socket, you define 
+    [started](Titanium.Network.Socket.UDP.started) and
+    [error](Titanium.Network.Socket.UDP.error) callback functions.
+    
+    A familiarity with the basics of BSD socket programming is a recommended before using 
+    sockets with Titanium.
+
+    Use the <Titanium.Network.Socket.createUDP> method to create a UDP socket.
+extends: Titanium.IOStream
+since: "3.0.0"
+platforms: [blackberry]
+examples:
+  - title: Simple UDP Socket 
+    example: |
+            var socket = Ti.Network.Socket.createUDP();
+            socket.addEventListener('started', function (e) {
+                 Ti.API.info('Socket started');
+            });
+            socket.addEventListener('data', function (e) {
+                 Ti.API.info('Socket received data: '+e.stringData);
+                 Ti.API.info('bytes: '+e.bytesData);
+                 Ti.API.info('address: '+e.address);
+                 Ti.API.info('port: '+e.port);
+            });
+            socket.addEventListener('error',function (e) {
+                  Ti.API.info('Socket error: '+e);
+            });
+            socket.start({ port: 6100 });
+
+            for (var i = 0; i < 5; ++i) {
+               socket.sendString({ data: "Hello, World!"});
+               socket.sendBytes({ data: [73, 116, 32, 119, 111, 114, 107, 115, 33] });
+            }
+
+methods:
+  - name: start
+    summary: Will start up the local UDP socket.
+    parameters:
+      - name: port
+        summary: The local port number.
+        type: Number
+  - name: stop
+    summary: Will tear down the local UDP socket.
+  - name: sendString
+    summary: Will send the string as a UDP packet to designated host and port.
+    parameters:
+      - name: port
+        summary: The local port number.
+        type: Number
+      - name: host
+        summary: The host address to send the UDP packet to.
+        type: String
+      - name: data
+        summary: The data to send in the UDP packet.
+        type: String
+  - name: sendBytes
+    summary: Will send the bytes as a UDP packet to designated host and port.
+    parameters:
+      - name: port
+        summary: The local port number.
+        type: Number
+      - name: host
+        summary: The host address to send the UDP packet to.
+        type: String
+      - name: data
+        summary: The data to send in the UDP packet.
+        type: Array<Number>      
+
+properties:
+  - name: port
+    type: Number
+    summary: The port to connect to or listen on. 
+    
+  - name: started
+    type: Callback<void>
+    summary: Callback to be fired when the local UDP socket enters the "bound" state. 
+    
+  - name: data
+    type: Callback<DataCallbackArgs>
+    summary: Callback to be fired when data arrives on the UDP socket.
+
+  - name: error
+    type: Callback<FailureResponse>
+    summary: Callback to be fired if an error occurs during the UDP sockect session.
+
+---
+name: DataCallbackArgs
+summary: Argument object passed to the data callback when data arrives on the UDP socket.
+since: "3.0.0"
+
+properties:
+  - name: stringData
+    summary: The data returned as a string.
+    type: String
+
+  - name: bytesData
+    summary: The data returned as an array of bytes.
+    type: Array<Number>  
+
+  - name: address
+    summary: The remote host address where the data came from.
+    type: String
+
+  - name: port
+    summary: The local port on which the data arrived.
+    type: String
+  
+   

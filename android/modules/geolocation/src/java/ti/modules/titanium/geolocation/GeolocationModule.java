@@ -20,6 +20,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 
 import ti.modules.titanium.geolocation.TiLocation.GeocodeResponseHandler;
 import ti.modules.titanium.geolocation.android.AndroidModule;
@@ -159,6 +160,9 @@ public class GeolocationModule extends KrollModule
 	private LocationRuleProxy simpleLocationNetworkRule;
 	private int simpleLocationAccuracyProperty = ACCURACY_LOW;
 	private Location currentLocation;
+	//currentLocation is conditionally updated. lastLocation is unconditionally updated
+	//since currentLocation determines when to send out updates, and lastLocation is passive
+	private Location lastLocation;
 	@Deprecated private HashMap<Integer, Double> legacyLocationAccuracyMap = new HashMap<Integer, Double>();
 	@Deprecated private int legacyLocationAccuracyProperty = ACCURACY_NEAREST_TEN_METERS;
 	@Deprecated private double legacyLocationFrequency = 5000;
@@ -237,6 +241,7 @@ public class GeolocationModule extends KrollModule
 	 */
 	public void onLocationChanged(Location location)
 	{
+		lastLocation = location;
 		if (shouldUseUpdate(location)) {
 			fireEvent(TiC.EVENT_LOCATION, buildLocationEvent(location, tiLocation.locationManager.getProvider(location.getProvider())));
 			currentLocation = location;
@@ -523,10 +528,10 @@ public class GeolocationModule extends KrollModule
 				enableLocationProviders(locationProviders);
 
 				// fire off an initial location fix if one is available
-				Location lastKnownLocation = tiLocation.getLastKnownLocation();
-				if (lastKnownLocation != null) {
-					fireEvent(TiC.EVENT_LOCATION, buildLocationEvent(lastKnownLocation, tiLocation.locationManager.getProvider(lastKnownLocation.getProvider())));
-					doAnalytics(lastKnownLocation);
+				lastLocation = tiLocation.getLastKnownLocation();
+				if (lastLocation != null) {
+					fireEvent(TiC.EVENT_LOCATION, buildLocationEvent(lastLocation, tiLocation.locationManager.getProvider(lastLocation.getProvider())));
+					doAnalytics(lastLocation);
 				}
 			}
 		}
@@ -576,6 +581,17 @@ public class GeolocationModule extends KrollModule
 	public void getCurrentHeading(final KrollFunction listener)
 	{
 		tiCompass.getCurrentHeading(listener);
+	}
+
+	/**
+	 * Retrieves the last obtained location and returns it as JSON.
+	 * 
+	 * @return			String representing the last geolocation event
+	 */
+	@Kroll.method @Kroll.getProperty
+	public String getLastGeolocation()
+	{
+		return TiAnalyticsEventFactory.locationToJSONString(lastLocation);
 	}
 
 	/**
@@ -875,7 +891,11 @@ public class GeolocationModule extends KrollModule
 		return d;
 	}
 
-
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Geolocation";
+	}
 }
 
 

@@ -27,6 +27,16 @@ public class SoundProxy extends KrollProxy
 {
 	private static final String TAG = "SoundProxy";
 
+	@Kroll.constant public static final int STATE_BUFFERING = TiSound.STATE_BUFFERING;
+	@Kroll.constant public static final int STATE_INITIALIZED = TiSound.STATE_INITIALIZED;
+	@Kroll.constant public static final int STATE_PAUSED = TiSound.STATE_PAUSED;
+	@Kroll.constant public static final int STATE_PLAYING = TiSound.STATE_PLAYING;
+	@Kroll.constant public static final int STATE_STARTING = TiSound.STATE_STARTING;
+	@Kroll.constant public static final int STATE_STOPPED = TiSound.STATE_STOPPED;
+	@Kroll.constant public static final int STATE_STOPPING = TiSound.STATE_STOPPING;
+	@Kroll.constant public static final int STATE_WAITING_FOR_DATA = TiSound.STATE_WAITING_FOR_DATA;
+	@Kroll.constant public static final int STATE_WAITING_FOR_QUEUE = TiSound.STATE_WAITING_FOR_QUEUE;
+
 	protected TiSound snd;
 	private boolean windowFocused;
 	private boolean resumeInOnWindowFocusChanged;
@@ -286,4 +296,9 @@ public class SoundProxy extends KrollProxy
 		}
 	}
 
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Media.Sound";
+	}
 }

@@ -1,19 +1,24 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/text!Ti/_/UI/WebViewBridge.js", "Ti/App", "Ti/API", "Ti/UI"],
-	function(declare, Widget, dom, event, lang, bridge, App, API, UI) {
+/*global define, window*/
+define(['Ti/_/declare', 'Ti/_/UI/Widget', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/text!Ti/_/UI/WebViewBridge.js', 'Ti/App', 'Ti/API', 'Ti/UI', 'Ti/_/style'],
+	function(declare, Widget, dom, event, lang, bridge, App, API, UI, style) {
 
 	var on = require.on;
 
-	return declare("Ti.UI.WebView", Widget, {
+	return declare('Ti.UI.WebView', Widget, {
 
 		constructor: function() {
-			App.addEventListener(this.widgetId + ":unload", lang.hitch(this, function() {
+			App.addEventListener(this.widgetId + ':unload', lang.hitch(this, function() {
 				this._loading(1);
 			}));
-			this.backgroundColor = "#fff";
+			this.backgroundColor = '#fff';
+			style.set(this.domNode, {
+				overflow: 'auto',
+				overflowScrolling: 'touch'
+			});
 		},
 
 		destroy: function() {
-			App.removeEventListener(this.widgetId + ":unload");
+			App.removeEventListener(this.widgetId + ':unload');
 			this._destroy();
 			Widget.prototype.destroy.apply(this, arguments);
 		},
@@ -29,27 +34,27 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 			if (this._parent) {
 				this._destroy();
 				this._loading(1);
-
-				var url = this.url || "",
+				var url = this.url || '',
 					match = url.match(/(https?)\:\/\/([^\:\/]*)(:?\d*)(.*)/),
 					loc = window.location,
-					isSameDomain = !match || (match[0] + ":" === loc.protocol && match[1] + match[2] === window.location.host),
-					iframe = this._iframe = dom.create("iframe", {
+					isSameDomain = !match || (match[0] + ':' === loc.protocol && match[1] + match[2] === window.location.host),
+					iframe = this._iframe = dom.create('iframe', {
 						frameborder: 0,
 						marginwidth: 0,
 						marginheight: 0,
 						hspace: 0,
 						vspace: 0,
-						scrolling: this.showScrollbars ? "auto" : "no",
-						src: url || require.toUrl("Ti/_/UI/blank.html"),
+						scrolling: this.showScrollbars ? 'auto' : 'no',
+						src: url || require.toUrl('Ti/_/UI/blank.html'),
 						style: {
-							width: "100%",
-							height: "100%"
+							width: '100%',
+							height: '100%',
+							position: 'absolute'
 						}
 					}, this.domNode);
 
 				this._iframeHandles = [
-					on(iframe, "load", this, function(evt) {
+					on(iframe, 'load', this, function() {
 						var i = Math.max(isSameDomain | 0, 0),
 							cw = iframe.contentWindow,
 							prop,
@@ -69,21 +74,21 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 
 						if (i > 0) {
 							url = cw.location.href;
-							this.evalJS(bridge.replace("WEBVIEW_ID", this.widgetId + ":unload"));
-							(html = this.properties.__values__.html) && this._setContent(html);
+							this.evalJS(bridge.replace('WEBVIEW_ID', this.widgetId + ':unload'));
+							(html = this.__values__.properties.html) && this._setContent(html);
 						} else {
-							API.warn("Unable to inject WebView bridge into cross-domain URL, ignore browser security message");
+							API.warn('Unable to inject WebView bridge into cross-domain URL, ignore browser security message');
 						}
 
 						this._loading();
-						this.fireEvent("load", {
-							url: url ? (this.properties.__values__.url = url) : this.url
+						this.fireEvent('load', {
+							url: url ? (this.__values__.properties.url = url) : this.url
 						});
 					}),
-					on(iframe, "error", this, function() {
+					on(iframe, 'error', this, function() {
 						this._loading();
-						this.fireEvent("error", {
-							message: "Page failed to load",
+						this.fireEvent('error', {
+							message: 'Page failed to load',
 							url: this.url
 						});
 					})
@@ -93,7 +98,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 			}
 		},
 
-		_setParent: function(view) {
+		_setParent: function() {
 			Widget.prototype._setParent.apply(this, arguments);
 
 			// we are being added to a parent, need to manually fire
@@ -113,10 +118,10 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 		},
 
 		_loading: function(v) {
-			this.loading || v && this.fireEvent("beforeload", {
+			this.loading || v && this.fireEvent('beforeload', {
 				url: this.url
 			});
-			this.constants.loading = !!v;
+			this.__values__.constants.loading = !!v;
 		},
 
 		canGoBack: function() {
@@ -171,7 +176,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 		_defaultWidth: UI.FILL,
 
 		_defaultHeight: UI.FILL,
-		
+
 		_getContentSize: function() {
 			return {
 				width: this._iframe ? this._iframe.clientWidth : 0,
@@ -194,9 +199,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 				set: function(value) {
 					var data = value;
 					switch (data && data.declaredClass) {
-						case "Ti.Filesystem.File":
+						case 'Ti.Filesystem.File':
 							data = data.read();
-						case "Ti.Blob":
+						case 'Ti.Blob':
 							data = data.toString();
 						default:
 							this.html = data;
@@ -211,7 +216,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 					return value === void 0 && doc ? doc.documentElement.innerHTML : value;
 				},
 				post: function(value) {
-					var values = this.properties.__values__;
+					var values = this.__values__.properties;
 					values.data = void 0;
 					values.url = void 0;
 					this._createIFrame() && this._setContent(value);
@@ -220,15 +225,15 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 
 			showScrollbars: {
 				set: function(value) {
-					this._iframe && dom.attr.set(this._iframe, "scrolling", value ? "auto" : "no");
+					this._iframe && dom.attr.set(this._iframe, 'scrolling', value ? 'auto' : 'no');
 					return value;
 				},
 				value: true
 			},
 
-			url: { 
-				post: function(value) {
-					var values = this.properties.__values__;
+			url: {
+				post: function() {
+					var values = this.__values__.properties;
 					values.data = void 0;
 					values.html = void 0;
 					this._createIFrame();

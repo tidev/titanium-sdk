@@ -216,4 +216,9 @@ public class AppModule extends KrollModule
 		}
 	}
 
+	@Override
+	public String getApiName()
+	{
+		return "Ti.App";
+	}
 }

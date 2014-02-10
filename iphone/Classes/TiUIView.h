@@ -133,7 +133,10 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
 -(void)configureGestureRecognizer:(UIGestureRecognizer*)gestureRecognizer;
 - (UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event;
-
+-(void)handleListenerRemovedWithEvent:(NSString *)event;
+-(void)handleListenerAddedWithEvent:(NSString *)event;
+-(BOOL)proxyHasGestureListeners;
+-(void)ensureGestureListeners;
 /**
  Returns CA layer for the background image of the view.
  */

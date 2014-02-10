@@ -621,5 +621,14 @@ public class TiUIScrollView extends TiUIView
 			}
 		}
 	}
+	
+	@Override
+	public void resort()
+	{
+		View v = getLayout();
+		if ( v instanceof TiCompositeLayout) {
+			((TiCompositeLayout) v).resort();
+		}
+ 	}
 
 }

@@ -1,6 +1,6 @@
 /*global define window*/
-define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/browser'],
-	function(declare, View, dom, style, UI, browser) {
+define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/has', 'Ti/_/style', 'Ti/UI', 'Ti/_/browser'],
+	function(declare, View, dom, has, style, UI, browser) {
 
 	var setStyle = style.set,
 		is = require.is,
@@ -8,16 +8,10 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/b
 		on = require.on,
 		once = on.once,
 		global = window,
+		transitionEnd = browser.runtime == 'webkit' ? 'webkitTransitionEnd' : 'transitionend',
 
-		transitionEvents = {
-			webkit: 'webkitTransitionEnd',
-			trident: 'msTransitionEnd',
-			gecko: 'transitionend',
-			presto: 'oTransitionEnd'
-		},
-		transitionEnd = transitionEvents[browser.runtime] || 'transitionEnd',
-
-		useTouch = 'ontouchstart' in global,
+		useTouch = has('touch'),
+		usePointer = global.navigator.msPointerEnabled,
 
 		// Maximum time that a gesture can be considered a flick
 		maxFlickTime = 200,
@@ -69,14 +63,15 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/b
 			}));
 
 			// State variables
-			self.properties.__values__.views = [];
+			self.__values__.properties.views = [];
 			self._viewToRemoveAfterScroll = -1;
 
 			on(self, 'postlayout', function() {
 				self._animating || self._setTranslation(self.currentPage * -self._measuredWidth);
 			});
 
-			on(containerDomNode, useTouch ? 'touchstart' : 'mousedown', function(e) {
+			// NOTE: MSPointer* events should be converted to just pointer* once Windows Phone 8.1 is out
+			on(containerDomNode, usePointer ? 'MSPointerDown' : useTouch ? 'touchstart' : 'mousedown', function(e) {
 				var startX = e.touches ? e.touches[0].clientX : e.clientX,
 					currentX = startX,
 					startTime = Date.now(),
@@ -99,10 +94,10 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/b
 							isFlick = now - startTime < maxFlickTime,
 							currentPage = self.currentPage,
 							thresholdMet = Math.abs(startX - currentX) > (isFlick ? flickThreshold : width / 2),
-							props = self.properties.__values__,
+							props = self.__values__.properties,
 							duration = Math.abs(currentX - startX);
-						global.removeEventListener(useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
-						global.removeEventListener(useTouch ? 'touchend' : 'mouseup', mouseUpListener);
+						global.removeEventListener(usePointer ? 'MSPointerMove' : useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
+						global.removeEventListener(usePointer ? 'MSPointerUp' : useTouch ? 'touchend' : 'mouseup', mouseUpListener);
 						width = self._measuredWidth;
 						self._animating = 1;
 						e.preventDefault();
@@ -144,8 +139,8 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/b
 				setStyle(containerDomNode, 'transition', '');
 				self._setTranslation((self.currentPage * -width) + offsetX);
 				self._animating = 0;
-				global.addEventListener(useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
-				global.addEventListener(useTouch ? 'touchend' : 'mouseup', mouseUpListener);
+				global.addEventListener(usePointer ? 'MSPointerMove' : useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
+				global.addEventListener(usePointer ? 'MSPointerUp' : useTouch ? 'touchend' : 'mouseup', mouseUpListener);
 				self.fireEvent('dragstart');
 			});
 		},
@@ -216,7 +211,7 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/b
 				this.views.push(view);
 				this._contentContainer._add(view);
 				if (this.views.length == 1) {
-					this.properties.__values__.currentPage = 0;
+					this.__values__.properties.currentPage = 0;
 				}
 				this._updatePagingControl();
 			}
@@ -246,12 +241,12 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/b
 
 			// Update the current view if necessary once everything has been re-laid out.
 			if (viewIndex < this.currentPage) {
-				self.properties.__values__.currentPage--;
+				self.__values__.properties.currentPage--;
 			}
 
 			// Remove the view and update the paging control
 			contentContainer._remove(self.views.splice(viewIndex,1)[0]);
-			self.views.length || (self.properties.__values__.currentPage = -1);
+			self.views.length || (self.__values__.properties.currentPage = -1);
 			once(UI, 'postlayout', function() {
 				setTimeout(function(){
 					self._setTranslation(self.currentPage * -self._measuredWidth);
@@ -285,14 +280,14 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/b
 
 				if (noAnimation) {
 					self._setTranslation(destination);
-					self.properties.__values__.currentPage = viewIndex;
+					self.__values__.properties.currentPage = viewIndex;
 				} else {
 					setStyle(containerDomNode, 'transition', duration + 'ms ease-out');
 					setTimeout(function(){
 						once(containerDomNode, transitionEnd, function() {
 							setStyle(containerDomNode, 'transition', '');
 							self._animating = 0;
-							self.properties.__values__.currentPage = viewIndex;
+							self.__values__.properties.currentPage = viewIndex;
 							self._updatePagingControl();
 							if (self._viewToRemoveAfterScroll !== -1) {
 								destination += self.views[self._viewToRemoveAfterScroll]._measuredWidth;
@@ -372,7 +367,7 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/b
 						view.height = '100%';
 						contentContainer._add(view);
 					}
-					this.properties.__values__.currentPage = len ? 0 : -1;
+					this.__values__.properties.currentPage = len ? 0 : -1;
 
 					return value;
 				},

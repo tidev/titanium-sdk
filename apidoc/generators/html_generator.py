@@ -196,7 +196,7 @@ def annotate(annotated_obj):
 			if dict_has_non_empty_member(example, "title"):
 				one_example["title"] = example["title"]
 			if dict_has_non_empty_member(example, "example"):
-				html_example = markdown_to_html(example["example"], obj=annotated_obj, suppress_link_warnings=is_inherited)
+				html_example = markdown_to_html(example["example"], obj=annotated_obj, suppress_link_warnings=True)
 				# Suspicious if the example has content (beyond the <p></p>) but not <code>.
 				# This can happen if in the .yml the example starts off immediately with code,
 				# because the yaml parser interprets the leading four spaces (which the programmer
@@ -433,7 +433,7 @@ def replace_with_link(full_string, link_info, suppress_warnings=False):
 
 def process_markdown_links(s, suppress_link_warnings=False):
 	new_string = s
-	patterns = (r"(\[[^\]]+\]\([^\)\s]+\))", r"(\<[^\>\s]+\>)")
+	patterns = (r"(\[[^\]]+\]\([^\)\s]+\))", r"((?!`)\<[^\>\s]+\>(?!`))")
 	for pattern in patterns:
 		prog = re.compile(pattern, re.MULTILINE)
 		results = prog.findall(new_string)

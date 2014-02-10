@@ -347,6 +347,18 @@ public class TiUIVideoView extends TiUIView
 		getPlayerProxy().onPlaying();
 	}
 	
+	@Override
+	public void onSeekingForward()
+	{
+		getPlayerProxy().onSeekingForward();
+	}
+
+	@Override
+	public void onSeekingBackward()
+	{
+		getPlayerProxy().onSeekingBackward();
+	}
+	
 	private VideoPlayerProxy getPlayerProxy()
 	{
 		return ((VideoPlayerProxy) proxy);

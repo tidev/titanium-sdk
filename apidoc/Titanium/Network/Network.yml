@@ -32,7 +32,35 @@ methods:
         summary: Callback function to invoke upon network connectivity changes.
         type: Callback<Object>
     platforms: [iphone, ipad]
-    
+
+  - name: addHTTPCookie
+    summary: |
+        Adds a cookie to the HTTP client cookie store.
+    description: |
+        Any existing cookie with the same domain and name will be replaced with the new cookie. This is a bug
+        in [BasicCookieStore](http://developer.android.com/reference/org/apache/http/impl/cookie/BasicClientCookie.html)
+        because based on `RFC6265`, an existing cookie can be evicted and replaced only when it has the same cookie-name,
+        domain-value and path-value with the new cookie.
+    parameters:
+      - name: cookie
+        summary: The cookie to add
+        type: Titanium.Network.Cookie
+    platforms: [android]
+    since: "3.2.0"
+
+  - name: addSystemCookie
+    summary: |
+        Adds a cookie to the system cookie store.
+    description: |
+        On Android, <Titanium.UI.WebView> uses the system cookie store. Any existing cookie with the same 
+        domain, path and name will be replaced with the new cookie.
+    parameters:
+      - name: cookie
+        summary: The cookie to add
+        type: Titanium.Network.Cookie
+    platforms: [android]
+    since: "3.2.0"
+
   - name: createBonjourBrowser
     summary: Creates and returns a `BonjourBrowser` object.
     platforms: [iphone, ipad]
@@ -52,6 +80,7 @@ methods:
         summary: |
             A dictionary object of properties defined in <Titanium.Network.BonjourBrowser>.
         type: Dictionary<Titanium.Network.BonjourBrowser>
+
   - name: createBonjourService
     summary: Creates and returns a `BonjourService` object.
     platforms: [iphone, ipad]
@@ -74,6 +103,7 @@ methods:
             Dictionary object of properties defined in <Titanium.Network.BonjourService>.
         optional: true
         type: Dictionary<Titanium.Network.BonjourService>
+
   - name: createTCPSocket
     deprecated:
         since: "1.7.0"
@@ -102,14 +132,17 @@ methods:
         summary: |
             Dictionary object with properties defined in <Titanium.Network.TCPSocket>.
         type: Dictionary<Titanium.Network.TCPSocket>
+
   - name: decodeURIComponent
     summary: Returns a decoded version of a URI encoded value.
+    exclude-platforms: [blackberry]
     returns:
         type: String
     parameters:
       - name: value
         summary: URI encoded input value to be decoded.
         type: String
+
   - name: encodeURIComponent
     summary: Returns a URI encoded version of the specified URI component.
     description: |
@@ -124,6 +157,124 @@ methods:
       - name: value
         summary: Input value to be encoded.
         type: String
+
+  - name: getHTTPCookies
+    summary: |
+        Gets all the cookies with the domain, path and name matched with the given values from the HTTP client cookie store.
+    description: |
+        The domain matching and path matching follow `RFC6265`. If name is null, return all the cookies with the domain and
+        path matched.
+    parameters:
+      - name: domain
+        summary: The domain of the cookie to get. It is case-insensitive.
+        type: String
+      - name: path
+        summary: The path of the cookie to get. It is case-sensitive.
+        type: String
+      - name: name
+        summary: The name of the cookie to get. It is case-sensitive.
+        type: String
+    returns:
+        type: Array<Titanium.Network.Cookie>
+    platforms: [android]
+    since: "3.2.0"
+
+  - name: getHTTPCookiesForDomain
+    summary: |
+        Gets all the cookies with the domain matched with the given values from the HTTP client cookie store.
+    description: |
+        The domain matching follows `RFC6265`.
+    parameters:
+      - name: domain
+        summary: The domain of the cookie to get. It is case-insensitive.
+        type: String
+    returns:
+        type: Array<Titanium.Network.Cookie>
+    platforms: [android]
+    since: "3.2.0"
+
+  - name: getSystemCookies
+    summary: |
+        Gets all the cookies with the domain, path and name matched with the given values from the system cookie store.
+    description: |
+        On Android, <Titanium.UI.WebView> uses the system cookie store. The domain matching and path matching follow `RFC6265`.
+        If name is null, return all the cookies with the domain and path matched. The returned cookies only have their
+        [name](Titanium.Network.Cookie.name) and [value](Titanium.Network.Cookie.value) properties returned.
+    parameters:
+      - name: domain
+        summary: The domain of the cookie to get. It is case-insensitive.
+        type: String
+      - name: path
+        summary: The path of the cookie to get. It is case-sensitive.
+        type: String
+      - name: name
+        summary: The name of the cookie to get. It is case-sensitive.
+        type: String
+    returns:
+        type: Array<Titanium.Network.Cookie>
+    platforms: [android]
+    since: "3.2.0"
+
+  - name: removeAllHTTPCookies
+    summary: |
+        Removes all the cookies from the HTTP client cookie store.
+    platforms: [android]
+    since: "3.2.0"
+
+  - name: removeAllSystemCookies
+    summary: |
+        Removes all the cookie from the system client cookie store.
+    description: |
+        On Android, <Titanium.UI.WebView> uses the system cookie store.
+    platforms: [android]
+    since: "3.2.0"
+
+  - name: removeHTTPCookie
+    summary: |
+        Removes the cookie with the domain, path and name exactly the same as the given values from the HTTP client cookie store.
+    parameters:
+      - name: domain
+        summary: The domain of the cookie to remove. It is case-insensitive.
+        type: String
+      - name: path
+        summary: The path of the cookie to remove. It is case-sensitive.
+        type: String
+      - name: name
+        summary: The name of the cookie to remove. It is case-sensitive.
+        type: String
+    platforms: [android]
+    since: "3.2.0"
+
+  - name: removeHTTPCookiesForDomain
+    summary: |
+        Removes the cookies with the domain matched with the given values from the HTTP client cookie store.
+    description: |
+        The domain matching follows `RFC6265`.
+    parameters:
+      - name: domain
+        summary: The domain of the cookie to remove. It is case-insensitive.
+        type: String
+    platforms: [android]
+    since: "3.2.0"
+
+  - name: removeSystemCookie
+    summary: |
+        Removes the cookie with the domain, path and name exactly the same as the given values from the system cookie store.
+    description: |
+        On Android, <Titanium.UI.WebView> uses the system cookie store.
+    parameters:
+      - name: domain
+        summary: The domain of the cookie to remove. It is case-insensitive.
+        type: String
+      - name: path
+        summary: The path of the cookie to remove. It is case-sensitive.
+        type: String
+      - name: name
+        summary: The name of the cookie to remove. It is case-sensitive.
+        type: String
+    platforms: [android]
+    since: "3.2.0"
+
   - name: registerForPushNotifications
     summary: Registers for push notifications with the Apple Push Notification Service.
     description: |
@@ -149,6 +300,7 @@ methods:
     
   - name: unregisterForPushNotifications
     summary: Unregisters the application for push notifications.
+    exclude-platforms: [blackberry]
     description: |
         Per Apple's documentation, it is rarely necessary to call this method. See:
         [unregisterForRemoteNotifications in the UIApplication Class
@@ -179,6 +331,7 @@ properties:
     summary: |
         Special hostname value for listening sockets, representing all
         locally available network interfaces.
+    exclude-platforms: [blackberry]
     type: String
     permission: read-only
     platforms: [iphone, ipad]
@@ -188,6 +341,7 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the device is
         communicating over a local-area network.
+    exclude-platforms: [blackberry]
     description: |
         This network type is only used by the Mobile Web platform, when the application
         is running in a desktop browser attached to a LAN.
@@ -200,6 +354,7 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the device is
         communicating over a mobile network.
+    exclude-platforms: [blackberry]
     description: |
         This constant is also a possible value for the `networkType` property of the 
         [change](Titanium.Network.change) event.
@@ -209,6 +364,7 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that no 
         network is available.
+    exclude-platforms: [blackberry]
     description: |
         This constant is also a possible value for the `networkType` property of the 
         [change](Titanium.Network.change) event.
@@ -218,6 +374,7 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the  
         current network type is unknown.
+    exclude-platforms: [blackberry]
     description: |
         This constant is also a possible value for the `networkType` property of the 
         [change](Titanium.Network.change) event.
@@ -227,6 +384,7 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the  
         device is communicating over a WiFi network.
+    exclude-platforms: [blackberry]
     description: |
         This constant is also a possible value for the `networkType` property of the 
         [change](Titanium.Network.change) event.

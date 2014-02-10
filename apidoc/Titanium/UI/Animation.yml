@@ -54,7 +54,7 @@ description: |
     animation until the matrix transform animation is complete, then jumps to the animated position.
 extends: Titanium.Proxy
 since: "0.9"
-platforms: [android, iphone, ipad, mobileweb, tizen]
+platforms: [android, iphone, ipad, mobileweb, tizen, blackberry]
 
 events:
   - name: complete
@@ -81,6 +81,7 @@ properties:
     summary: Specifies if the animation should be replayed in reverse upon completion.
     type: Boolean
     default: false
+    exclude-platforms: [blackberry]
     
   - name: backgroundColor
     summary: |
@@ -98,6 +99,7 @@ properties:
   - name: center
     summary: Value of the `center` property at the end of the animation.
     type: Object
+    exclude-platforms: [blackberry]
     
   - name: color
     summary: |
@@ -166,6 +168,7 @@ properties:
         
         3D transforms are only supported on iOS.
     type: [Titanium.UI.2DMatrix, Titanium.UI.3DMatrix]
+    exclude-platforms: [blackberry]
     
   - name: transition
     summary: Transition type to use during a transition animation.

@@ -13,33 +13,25 @@ var require = {
 		version: "${app_version | jsQuoteEscapeFilter}"
 	},
 	has: {
-		"declare-property-methods": true,
-		"js-btoa": function(g) {
+		"touch": function (g) {
+			return ${has_allow_touch | jsQuoteEscapeFilter} && 'ontouchstart' in g;
+		},
+		"js-btoa": function (g) {
 			return "btoa" in g;
 		},
-		"json-stringify": function(g) {
-			return ("JSON" in g) && typeof JSON.stringify === "function" && JSON.stringify({a:0}, function(k,v){return v||1;}) === '{"a":1}';
-		},
-		"native-localstorage": function(g) {
+		"native-localstorage": function (g) {
 			return "localStorage" in g && "setItem" in localStorage;
 		},
 		"function-bind": function () {
 			return !!Function.prototype.bind;
-		},
-		"object-defineproperty": function() {
-			return (function (odp, obj) {
-				try {
-					odp && odp(obj, "x", {});
-					return obj.hasOwnProperty("x");
-				} catch (e) {}
-			}(Object.defineProperty, {}));
 		},
 		"opera": typeof opera === "undefined" || opera.toString() != "[object Opera]",
 		"ti-analytics-use-xhr": ${has_analytics_use_xhr | jsQuoteEscapeFilter},
 		"ti-show-errors": ${has_show_errors | jsQuoteEscapeFilter},
 		"ti-instrumentation": function(g) {
 				return ${has_instrumentation | jsQuoteEscapeFilter} && g.instrumentation;
-		}
+		},
+		"winstore_extensions": ${has_winstore_extensions}
 	},
 	locales: ${locales},
 	packages: ${packages},
@@ -62,3 +54,5 @@ var require = {
 		dom: ["", "Webkit", "Moz", "ms", "O", "Khtml"]
 	}
 };
+
+window.hasWP8Extensions = ${has_wp8_extensions};

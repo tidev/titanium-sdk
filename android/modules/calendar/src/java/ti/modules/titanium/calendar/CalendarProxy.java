@@ -204,5 +204,11 @@ public class CalendarProxy extends KrollProxy {
 	{
 		return hidden;
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Calendar.Calendar";
+	}
 }
 
