@@ -6,6 +6,7 @@
  */
 
 #include <execinfo.h>
+#include <libkern/OSAtomic.h>
 #import "TiExceptionHandler.h"
 #import "TiBase.h"
 #import "TiApp.h"
@@ -14,9 +15,73 @@ static void TiUncaughtExceptionHandler(NSException *exception);
 
 static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
+NSString * const UncaughtExceptionHandlerSignalExceptionName = @"UncaughtExceptionHandlerSignalExceptionName";
+NSString * const UncaughtExceptionHandlerSignalKey = @"UncaughtExceptionHandlerSignalKey";
+NSString * const UncaughtExceptionHandlerAddressesKey = @"UncaughtExceptionHandlerAddressesKey";
+
+volatile int32_t UncaughtExceptionCount = 0;
+const int32_t UncaughtExceptionMaximum = 10;
+
+const NSInteger UncaughtExceptionHandlerSkipAddressCount = 4;
+const NSInteger UncaughtExceptionHandlerReportAddressCount = 5;
+
+void SignalHandler(int signal)
+{
+	int32_t exceptionCount = OSAtomicIncrement32(&UncaughtExceptionCount);
+	if (exceptionCount > UncaughtExceptionMaximum)
+	{
+		return;
+	}
+    
+	NSMutableDictionary *userInfo =
+    [NSMutableDictionary
+     dictionaryWithObject:[NSNumber numberWithInt:signal]
+     forKey:UncaughtExceptionHandlerSignalKey];
+    
+	NSArray *callStack = [TiExceptionHandler backtrace];
+	[userInfo
+     setObject:callStack
+     forKey:UncaughtExceptionHandlerAddressesKey];
+    
+    NSException *exception = [NSException
+     exceptionWithName:UncaughtExceptionHandlerSignalExceptionName
+     reason:
+     [NSString stringWithFormat:
+      NSLocalizedString(@"Signal %d was raised", nil),
+      signal]
+     userInfo:
+     [NSDictionary
+      dictionaryWithObject:[NSNumber numberWithInt:signal]
+      forKey:UncaughtExceptionHandlerSignalKey]];
+    
+    TiUncaughtExceptionHandler(exception);
+}
+
 @implementation TiExceptionHandler
 
 @synthesize delegate = _delegate;
+
++ (NSArray *)backtrace
+{
+    void* callstack[128];
+    int frames = backtrace(callstack, 128);
+    char **strs = backtrace_symbols(callstack, frames);
+    
+    int i;
+    NSMutableArray *backtrace = [NSMutableArray arrayWithCapacity:frames];
+    for (
+         i = UncaughtExceptionHandlerSkipAddressCount;
+         i < UncaughtExceptionHandlerSkipAddressCount +
+         UncaughtExceptionHandlerReportAddressCount;
+         i++)
+    {
+	 	[backtrace addObject:[NSString stringWithUTF8String:strs[i]]];
+    }
+    free(strs);
+    
+    return backtrace;
+}
+
 
 + (TiExceptionHandler *)defaultExceptionHandler
 {
@@ -26,6 +91,12 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 		defaultExceptionHandler = [[self alloc] init];
 		prevUncaughtExceptionHandler = NSGetUncaughtExceptionHandler();
 		NSSetUncaughtExceptionHandler(&TiUncaughtExceptionHandler);
+        signal(SIGABRT, SignalHandler);
+        signal(SIGILL, SignalHandler);
+        signal(SIGSEGV, SignalHandler);
+        signal(SIGFPE, SignalHandler);
+        signal(SIGBUS, SignalHandler);
+        signal(SIGPIPE, SignalHandler);
 	});
 	return defaultExceptionHandler;
 }
@@ -61,8 +132,45 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 #pragma mark - TiExceptionHandlerDelegate
 
+- (void)alertView:(UIAlertView *)anAlertView clickedButtonAtIndex:(NSInteger)anIndex
+{
+	if (anIndex == 0)
+	{
+        dismissed = YES;
+	}
+}
+
 - (void)handleUncaughtException:(NSException *)exception withStackTrace:(NSArray *)stackTrace
 {
+    TiThreadPerformOnMainThread(^{
+        
+        UIAlertView *alert =
+        [[[UIAlertView alloc]
+          initWithTitle:NSLocalizedString(@"Unexpected Error", nil)
+          message:NSLocalizedString(@"The application has encountered a fatal error and must exit.",nil)
+          delegate:self
+          cancelButtonTitle:NSLocalizedString(@"Quit", nil)
+          otherButtonTitles:nil, nil]
+         autorelease];
+
+        [alert show];
+        
+    },YES);
+
+    CFRunLoopRef runLoop = CFRunLoopGetMain();
+    CFArrayRef allModes = CFRunLoopCopyAllModes(runLoop);
+    
+    while (!dismissed)
+    {
+        for (NSString *mode in (NSArray *)allModes)
+        {
+            CFRunLoopRunInMode((CFStringRef)mode, 0.001, false);
+        }
+    }
+    
+    CFRelease(allModes);
+    
+    kill(getpid(),0);
 }
 
 - (void)handleScriptError:(TiScriptError *)error
