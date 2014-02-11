@@ -101,6 +101,7 @@ define(
 				node = container.domNode,
 				coefficients = container._layoutCoefficients,
 				useTouch = has('touch'),
+				usePointer = global.navigator.msPointerEnabled,
 				touching = 0;
 
 			coefficients.width.x1 = 1;
@@ -135,9 +136,9 @@ define(
 					elements = evt._elements;
 
 				if (elements && elements.length) {
-					// Convert mouse* events to touch* events
+					// Convert mouse* and pointer* events to touch* events
 					useTouch || require.mix(evt, {
-						touches: evt.type === 'mouseup' ? [] : [evt],
+						touches: ~['mouseup', 'pointerup', 'MSPointerUp'].indexOf(evt.type) ? [] : [evt],
 						targetTouches: [],
 						changedTouches: [evt]
 					});
@@ -159,16 +160,13 @@ define(
 				}
 			}
 
-			// NOTE: This may be unnecessary. We have changed the event propagation system
-			// a few times and we can't remember if this code is actually used. It certainly
-			// may be redundant since each Ti.UI.View instance has it's own event handling,
-			// so we're just not sure if this is the source of the events.
-			on(node, useTouch ? 'touchstart' : 'mousedown', function(evt){
+			// NOTE: MSPointer* events should be converted to just pointer* once Windows Phone 8.1 is out
+			on(node, usePointer ? 'MSPointerDown' : useTouch ? 'touchstart' : 'mousedown', function(evt){
 				var handles = [
-					on(global, useTouch ? 'touchmove' : 'mousemove', function(evt){
+					on(global, usePointer ? 'MSPointerMove' : useTouch ? 'touchmove' : 'mousemove', function(evt){
 						(useTouch || touching) && processTouchEvent('TouchMoveEvent', evt);
 					}),
-					on(global, useTouch ? 'touchend' : 'mouseup', function(evt){
+					on(global, usePointer ? 'MSPointerUp' : useTouch ? 'touchend' : 'mouseup', function(evt){
 						touching = 0;
 						processTouchEvent('TouchEndEvent', evt);
 						event.off(handles);

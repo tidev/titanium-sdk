@@ -15,7 +15,7 @@ var appc = require('node-appc'),
 	wrench = require('wrench'),
 	async = require('async');
 
-exports.cliVersion = '>=3.2';
+exports.cliVersion = '>=3.2.1';
 exports.desc = __('removes previous build directories');
 
 exports.config = function (logger, config, cli) {

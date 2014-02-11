@@ -130,6 +130,16 @@ public class TiUIWebView extends TiUIView
 			super.onLayout(changed, left, top, right, bottom);
 			TiUIHelper.firePostLayoutEvent(proxy);
 		}
+
+		@Override
+		public boolean onCheckIsTextEditor()
+		{
+			if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
+				&& TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
+				return false;
+			}
+			return true;
+		}
 	}
 
 	public TiUIWebView(TiViewProxy proxy)
@@ -181,6 +191,10 @@ public class TiUIWebView extends TiUIView
 		webView.setWebChromeClient(chromeClient);
 		client = new TiWebViewClient(this, webView);
 		webView.setWebViewClient(client);
+		//setLayerType() is supported in API 11+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		}
 		webView.client = client;
 
 		if (proxy instanceof WebViewProxy) {
