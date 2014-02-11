@@ -64,6 +64,7 @@ if (Ti.Platform.osname === 'android') {
 } else if((Ti.Platform.osname === 'iPhone') || (Ti.Platform.osname === 'iPad')) {
 	suites = suites.concat([
 		{name: "iphone/iphone_2Dmatrix"},
+		{name: "iphone/iOS_NavigationWindow"},
 		{name: "iphone/iphone_ui"},
 		{name: "iphone/iphone_UI_3DMatrix"},
 		{name: "iphone/iphone_ui_tabbedBar"},		
