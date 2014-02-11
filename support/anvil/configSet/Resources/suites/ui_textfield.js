@@ -30,20 +30,13 @@ module.exports = new function() {
 			title: 'Bug'
 		});
 		var focus1 = false;
-		var focus2 = false;
 		var textField1 = Ti.UI.createTextField();
-		var textField2 = Ti.UI.createTextField();
 		win1.add(textField1);
-		win1.add(textField2);
 		textField1.addEventListener('change', function() {
 			focus1 = true;  
 		});
-		textField2.addEventListener('change', function() {
-			focus2 = true;  
-		});
 		setTimeout(function(){
 			valueOf(testRun, focus1).shouldBeFalse();
-			valueOf(testRun, focus2).shouldBeFalse();
 
 			finish(testRun);
 		}, 3000);
