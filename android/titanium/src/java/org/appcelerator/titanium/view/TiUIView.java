@@ -1295,26 +1295,24 @@ public abstract class TiUIView
 				@Override
 				public boolean onScale(ScaleGestureDetector sgd)
 				{
-					if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
-						float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
+					float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
 
-						// Suppress scale events (and allow for possible two-finger tap events)
-						// until we've moved at least a few pixels. Without this check, two-finger 
-						// taps are very hard to register on some older devices.
-						if (!didScale) {
-							if (Math.abs(sgd.getCurrentSpan() - startSpan) > SCALE_THRESHOLD) {
-								didScale = true;
-							} 
-						}
+					// Suppress scale events (and allow for possible two-finger tap events)
+					// until we've moved at least a few pixels. Without this check, two-finger 
+					// taps are very hard to register on some older devices.
+					if (!didScale) {
+						if (Math.abs(sgd.getCurrentSpan() - startSpan) > SCALE_THRESHOLD) {
+							didScale = true;
+						} 
+					}
 
-						if (didScale) {
-							KrollDict data = new KrollDict();
-							data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
-							data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
-							data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
-	
-							return fireEvent(TiC.EVENT_PINCH, data);
-						}
+					if (didScale) {
+						KrollDict data = new KrollDict();
+						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
+						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
+						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+
+						return fireEvent(TiC.EVENT_PINCH, data);
 					}
 					return false;
 				}
@@ -1397,10 +1395,12 @@ public abstract class TiUIView
 					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double) event.getY());
 				}
 
-				scaleDetector.onTouchEvent(event);
-				if (scaleDetector.isInProgress()) {
-					pointersDown = 0;
-					return true;
+				if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
+					scaleDetector.onTouchEvent(event);
+					if (scaleDetector.isInProgress()) {
+						pointersDown = 0;
+						return true;
+					}
 				}
 
 				boolean handled = detector.onTouchEvent(event);
