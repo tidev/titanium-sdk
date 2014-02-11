@@ -18,7 +18,7 @@ module.exports = new function() {
 		{name: "uppercaseHTTP"},
 		{name: "xhrcalls"},
 		{name: "getOrCreateAttributeNS"},
-		{name: "ownerDocumentproperty"},
+		//{name: "ownerDocumentproperty"}, TIMOB-15836 SDK 3.2.0
 		{name: "getElementsByTagName"},
 		{name: "documentParsing"},
 		{name: "soap"},
