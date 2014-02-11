@@ -76,7 +76,7 @@ exports.init = function (logger, config, cli) {
 	 */
 	cli.on('build.ios.xcodebuild', {
 		pre: function(data,next) {
-			if (cmds && cmds.length && data.ctx.nativeLibModules) {
+			if (libfile) {
 
 				// set a pre-processor flag for hyperloop
 				var xcode_args = data.args[1];
