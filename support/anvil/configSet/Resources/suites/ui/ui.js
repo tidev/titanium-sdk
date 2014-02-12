@@ -33,6 +33,7 @@ module.exports = new function() {
 		{name: "deleteCorrectRowIndex", timeout: 3000},
 		{name: "childrenArrayEmpty"},
 		{name: "orientationModesReturnNull"},
+		{name: "passingData", timeout: 10000}
 		{name: "webviewBasedOnURL", timeout: 10000},
 		{name: "setUserAgent", timeout: 10000},
 		{name: "loadEventMultipleTimes", timeout: 30000},
@@ -568,6 +569,42 @@ module.exports = new function() {
 		win.open();
 	}
 
+<<<<<<< HEAD
+	//KitchenSink: Platform
+	this.passingData = function(testRun) {
+		var window = require('suites/ui/win_2');
+		var win1 = Titanium.UI.createWindow({  
+			backgroundColor : '#000',
+		});
+		win1.addEventListener('open', function(){
+			w2 = window.set_prop();
+			w2.title = 'Custom Prop Test';			
+			w2.stringProp1 = 'Foo';
+			w2.stringProp2 = 'Bar';
+			w2.numProp1 = 1;
+			w2.numProp2 = 2;
+			w2.objProp1 = {name:'Jane', age:30};
+			w2.myFunc = function()
+			{
+				return 'myFunc was called';
+			};
+			w2.open();
+			setTimeout(function() {
+				var win2 = window.get_prop();
+				valueOf(testRun, win2.title).shouldBe('Custom Prop Test');
+				valueOf(testRun, win2.stringProp1).shouldBe('Foo');
+				valueOf(testRun, win2.stringProp2).shouldBe('Bar');
+				valueOf(testRun, win2.numProp1).shouldBe(1);
+				valueOf(testRun, win2.numProp2).shouldBe(2);
+				valueOf(testRun, win2.objProp1.name).shouldBe('Jane');
+				valueOf(testRun, win2.objProp1.age).shouldBe(30);
+				valueOf(testRun, win2.myFunc()).shouldBe('myFunc was called');
+
+				finish(testRun);
+			}, 10000);
+		});
+		win1.open();	
+=======
 	//TIMOB-974
 	this.webviewBasedOnURL = function(testRun) {
 		var win = Ti.UI.createWindow({ backgroundColor: '#fff' });
@@ -756,5 +793,6 @@ module.exports = new function() {
 
 			finish(testRun);
 		}
+>>>>>>> 5a14f53ca60d425e700a405e927d6c583347a6ba
 	}
 }
