@@ -28,7 +28,7 @@ fields.setup({
 	}
 });
 
-exports.cliVersion = '>=3.2';
+exports.cliVersion = '>=3.2.1';
 exports.title = __('Build');
 exports.desc = __('builds a project');
 exports.extendedDesc = 'Builds an existing app or module project.';
@@ -160,9 +160,9 @@ exports.config = function (logger, config, cli) {
 					}, ti.commonOptions(logger, config)),
 					platforms: platformConf
 				};
-				callback(conf);
+				callback(null, conf);
 			});
-		})(function (err, results, result) {
+		})(function (err, result) {
 			finished(result);
 		});
 	};

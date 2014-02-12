@@ -915,7 +915,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
                 [callbackCell setNeedsDisplay];
             } else if ([key isEqualToString:@"backgroundColor"]) {
                 [callbackCell setBackgroundColor:[[TiUtils colorValue:newValue] color]];
-                [callbackCell setNeedsDisplay];
+                [self triggerRowUpdate];
             } else if ([key isEqualToString:@"accessibilityLabel"]){
                 callbackCell.accessibilityLabel = [TiUtils stringValue:newValue];
             }

@@ -226,6 +226,11 @@ def zip_android(zf, basepath, version):
 		zipname = os.path.split(android_module_res_zip)[1]
 		zf.write(android_module_res_zip, '%s/android/modules/%s' % (basepath, zipname))
 
+	android_module_res_packages = glob.glob(os.path.join(android_dist_dir, 'titanium-*.respackage'))
+	for android_module_res_package in android_module_res_packages:
+		packagename = os.path.split(android_module_res_package)[1]
+		zf.write(android_module_res_package, '%s/android/modules/%s' % (basepath, packagename))
+
 def resolve_source_imports(platform):
 	sys.path.append(iphone_dir)
 	import run,prereq

@@ -427,7 +427,7 @@
 - (void)keyboardDidHide:(NSNotification*)notification
 {
 	startFrame = endFrame;
-    [self performSelector:@selector(adjustKeyboardHeight:) withObject:[NSNumber numberWithBool:NO] afterDelay:leaveDuration];
+    [self performSelector:@selector(adjustKeyboardHeight:) withObject:[NSNumber numberWithBool:NO]];
 }
 
 - (void)keyboardDidShow:(NSNotification*)notification
@@ -951,7 +951,10 @@
 
 -(UIInterfaceOrientation) lastValidOrientation:(BOOL)checkModal
 {
-	for (int i = 0; i<4; i++) {
+    if ([self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:checkModal]) {
+        return deviceOrientation;
+    }
+    for (int i = 0; i<4; i++) {
 		if ([self shouldRotateToInterfaceOrientation:orientationHistory[i] checkModal:checkModal]) {
 			return orientationHistory[i];
 		}

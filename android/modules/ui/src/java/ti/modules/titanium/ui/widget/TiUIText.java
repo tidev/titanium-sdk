@@ -460,9 +460,7 @@ public class TiUIText extends TiUIView
 		if ((autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) && type != KEYBOARD_DECIMAL_PAD) {
 			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 		}
-		if (!field) {
-			tv.setSingleLine(false);
-		}
+
 		tv.setCursorVisible(true);
 		switch(type) {
 			case KEYBOARD_DEFAULT:
@@ -532,6 +530,12 @@ public class TiUIText extends TiUIView
 			tv.setKeyListener(null);
 			tv.setCursorVisible(false);
 		}
+		
+		//setSingleLine() append the flag TYPE_TEXT_FLAG_MULTI_LINE to the current inputType, so we want to call this
+		//after we set inputType.
+		if (!field) {
+			tv.setSingleLine(false);
+		}
 
 	}
 
@@ -583,13 +587,8 @@ public class TiUIText extends TiUIView
 				break;
 		}
 		
-		int currentInputType = tv.getInputType();
-		//FLAG_MULTI_LINE will display enter key, therefore disables our ime options.
-		if (!field && (currentInputType & InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0) {
-			currentInputType &= ~InputType.TYPE_TEXT_FLAG_MULTI_LINE;
-		}
 		//Set input type caches ime options, so whenever we change ime options, we must reset input type
-		tv.setInputType(currentInputType);
+		tv.setInputType(tv.getInputType());
 	}
 
 }
