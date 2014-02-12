@@ -15,13 +15,13 @@ var appc = require('node-appc'),
 	wrench = require('wrench'),
 	async = require('async');
 
-exports.cliVersion = '>=3.2';
+exports.cliVersion = '>=3.2.1';
 exports.desc = __('removes previous build directories');
 
 exports.config = function (logger, config, cli) {
 	return function (finished) {
 		cli.createHook('clean.config', function (callback) {
-			callback({
+			callback(null, {
 				options: appc.util.mix({
 					platform: {
 						// this is for backwards compatibility and eventually should be dropped
@@ -40,7 +40,7 @@ exports.config = function (logger, config, cli) {
 					}
 				}, ti.commonOptions(logger, config))
 			});
-		})(function (err, results, result) {
+		})(function (err, result) {
 			finished(result);
 		});
 	};

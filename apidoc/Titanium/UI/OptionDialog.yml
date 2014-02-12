@@ -153,6 +153,17 @@ properties:
     type: Array<String>
     availability: creation
     
+  - name: opaquebackground
+    summary: Boolean value indicating if the option dialog should have an opaque background.
+    description: |
+        This property is useful to ensure that the option dialog will display contents properly
+        on the iPAD idiom without ghosting when scrolling. This property is only respected on the 
+        iPAD idiom on iOS7 and above. 
+    type: Boolean
+    default: false
+    since: "3.2.0"
+    platforms: [iphone, ipad]
+
   - name: persistent
     summary: Boolean value indicating if the option dialog should only be cancelled by user 
         gesture or by hide method.

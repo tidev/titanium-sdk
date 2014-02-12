@@ -7,11 +7,11 @@ define(["Ti/_/lang"], function(lang) {
 
 		utf8encode: function(str) {
 			var c,
-				str = str.replace(/\r\n/g,"\n");
+				str = str.replace(/\r\n/g,"\n"),
 				i = 0,
 				len = str.length,
 				bytes = [];
-	
+
 			while (i < len) {
 				c = str.charCodeAt(i++);
 

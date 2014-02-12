@@ -196,6 +196,7 @@ public class TiUIText extends TiUIView
 			|| d.containsKey(TiC.PROPERTY_EDITABLE)) {
 			handleKeyboard(d);
 		}
+		
 
 		if (d.containsKey(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
@@ -256,11 +257,7 @@ public class TiUIText extends TiUIView
 			KrollDict d = proxy.getProperties();
 			handleKeyboard(d);
 		} else if (key.equals(TiC.PROPERTY_RETURN_KEY_TYPE)) {
-			// Update the keyboard as well when changing the return key type. This is to account for the scenario when
-			// autocapitalization is enabled during creation and return key type is dynamically changed.
-			KrollDict d = proxy.getProperties();
 			handleReturnKeyType(TiConvert.toInt(newValue));
-			handleKeyboard(d);
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, (HashMap) newValue);
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
@@ -460,12 +457,10 @@ public class TiUIText extends TiUIView
 		int textTypeAndClass = typeModifiers;
 		// For some reason you can't set both TYPE_CLASS_TEXT and TYPE_TEXT_FLAG_NO_SUGGESTIONS together.
 		// Also, we need TYPE_CLASS_TEXT for passwords.
-		if (autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) {
+		if ((autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) && type != KEYBOARD_DECIMAL_PAD) {
 			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 		}
-		if (!field) {
-			tv.setSingleLine(false);
-		}
+
 		tv.setCursorVisible(true);
 		switch(type) {
 			case KEYBOARD_DEFAULT:
@@ -473,12 +468,12 @@ public class TiUIText extends TiUIView
 				// Don't need a key listener, inputType handles that.
 				break;
 			case KEYBOARD_NUMBERS_PUNCTUATION:
-				textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
+				textTypeAndClass |= (InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT);
 				tv.setKeyListener(new NumberKeyListener()
 				{
 					@Override
 					public int getInputType() {
-						return InputType.TYPE_CLASS_NUMBER;
+						return InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT;
 					}
 
 					@Override
@@ -512,11 +507,12 @@ public class TiUIText extends TiUIView
 				textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
 				break;
 		}
+
 		if (passwordMask) {
 			textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_PASSWORD;
 			// Sometimes password transformation does not work properly when the input type is set after the transformation method.
 			// This issue has been filed at http://code.google.com/p/android/issues/detail?id=7092
-			tv.setInputType(tv.getInputType() | textTypeAndClass);
+			tv.setInputType(textTypeAndClass);
 			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
 			//turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in landscape mode.
@@ -525,7 +521,7 @@ public class TiUIText extends TiUIView
 			}
 
 		} else {
-			tv.setInputType(tv.getInputType() | textTypeAndClass);
+			tv.setInputType(textTypeAndClass);
 			if (tv.getTransformationMethod() instanceof PasswordTransformationMethod) {
 				tv.setTransformationMethod(null);
 			}
@@ -533,6 +529,12 @@ public class TiUIText extends TiUIView
 		if (!editable) {
 			tv.setKeyListener(null);
 			tv.setCursorVisible(false);
+		}
+		
+		//setSingleLine() append the flag TYPE_TEXT_FLAG_MULTI_LINE to the current inputType, so we want to call this
+		//after we set inputType.
+		if (!field) {
+			tv.setSingleLine(false);
 		}
 
 	}
@@ -549,9 +551,6 @@ public class TiUIText extends TiUIView
 
 	public void handleReturnKeyType(int type)
 	{
-		if (!field) {
-			tv.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
-		}
 		switch(type) {
 			case RETURNKEY_GO:
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
@@ -587,6 +586,9 @@ public class TiUIText extends TiUIView
 				tv.setImeOptions(EditorInfo.IME_ACTION_SEND);
 				break;
 		}
+		
+		//Set input type caches ime options, so whenever we change ime options, we must reset input type
+		tv.setInputType(tv.getInputType());
 	}
 
 }

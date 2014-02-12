@@ -17,13 +17,23 @@ define(function() {
 				c = cache[url] || require.cache(url);
 
 			if (!c) {
-				x = new XMLHttpRequest;
-				x.open("GET", url, false);
-				x.send(null);
-				if (x.status === 200) {
-					c = x.responseText;
+				if (window.hasWP8Extensions) {
+					require.getFileFromNative(url, 0, function (success, content) {
+						if (success) {
+							c = content;
+						} else {
+							throw new Error("Failed to load test \"" + url + "\"");
+						}
+					});
 				} else {
-					throw new Error("Failed to load text \"" + url + "\": " + x.status);
+					x = new XMLHttpRequest;
+					x.open("GET", url, false);
+					x.send(null);
+					if (x.status === 200) {
+						c = x.responseText;
+					} else {
+						throw new Error("Failed to load text \"" + url + "\": " + x.status);
+					}
 				}
 			}
 

@@ -422,10 +422,12 @@ public class WebViewProxy extends ViewProxy
 
 	@Override
 	public void onResume(Activity activity) {
+		resume();
 	}
 
 	@Override
 	public void onPause(Activity activity) {
+		pause();
 	}
 
 	@Override

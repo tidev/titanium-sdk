@@ -34,6 +34,15 @@ module.exports = new function() {
 		{name: "childrenArrayEmpty"},
 		{name: "orientationModesReturnNull"},
 		{name: "emailDialogAnimated"}
+		{name: "webviewBasedOnURL", timeout: 10000},
+		{name: "setUserAgent", timeout: 10000},
+		{name: "loadEventMultipleTimes", timeout: 30000},
+		{name: "evalJSWebviewCrash", timeout: 10000},
+		{name: "webviewErrorEventCrash", timeout: 10000},
+		{name: "setHtmlMethod", timeout: 10000},
+		{name: "beforeloadEventURL", timeout: 10000},
+		{name: "malformedURL", timeout: 10000},
+		{name: "navigationType", timeout: 10000}
 	]
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2583
@@ -560,6 +569,7 @@ module.exports = new function() {
 		win.open();
 	}
 
+<<<<<<< HEAD
 	//TIMOB-5855
 	this.emailDialogAnimated = function(testRun) {
 		var win = Ti.UI.createWindow({
@@ -574,5 +584,195 @@ module.exports = new function() {
 			finish(testRun);
 		});
 		win.open();
+=======
+	//TIMOB-974
+	this.webviewBasedOnURL = function(testRun) {
+		var win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+		var web = Ti.UI.createWebView({
+			url : 'http://appc.me/test/Echo',
+			width : '90%',
+			height : '90%',
+			top : '5%',
+			left : '5%'
+		});
+		win.add(web);
+		win.open();
+		web.addEventListener('load', function() {
+			valueOf(testRun, web.html).shouldBe('<html><head></head><body>GET</body></html>');
+			
+			finish(testRun);
+		});
+	}
+
+	//TIMOB-1055
+	this.setUserAgent = function(testRun) {
+		if (Ti.Platform.osname === 'android') {
+			var win = Ti.UI.createWindow({
+				top : 0,
+				left : 0,
+				right : 0,
+				bottom : 0
+			});
+			var webview = Ti.UI.createWebView({
+				url: 'http://www.google.com'
+			});
+			win.add(webview);
+			win.open();
+			webview.setUserAgent("custom user agent");
+			valueOf(testRun, webview.getUserAgent()).shouldBe("custom user agent");
+
+			finish(testRun);
+		} else {
+
+			finish(testRun);
+		}
+	}
+
+	//TIMOB-3370
+	this.loadEventMultipleTimes = function(testRun) {
+		var win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+		var web = Ti.UI.createWebView({
+			url : 'http://appc.me/test/Echo',
+			width : '90%',
+			height : '90%',
+			top : '5%',
+			left : '5%'
+		});
+		win.add(web);
+		win.open();
+		var count = 0;
+		web.addEventListener('load', function() {
+			count++;
+		});
+		setTimeout(function(){
+			valueOf(testRun, count).shouldBe(1);
+
+			finish(testRun);
+		}, 30000);
+	}
+
+	//TIMOB-4885
+	this.evalJSWebviewCrash = function(testRun) {
+		var win = Ti.UI.createWindow({
+			backgroundColor : '#cccccc'
+		});
+		var webView = Ti.UI.createWebView({
+			width : 300,
+			height : 200,
+			top : 0,
+			left : 0,
+			backgroundColor : 'white', 
+			url : '/suites/ui/test_evalJS.html'
+		});
+		win.add(webView);
+		webView.addEventListener('load', function(){
+			valueOf(testRun, webView.evalJS("foo('Hi')")).shouldBe('Hi!!!');
+
+			finish(testRun);
+		});
+		win.open();
+	}
+
+	//TIMOB-6387
+	this.webviewErrorEventCrash = function(testRun) {
+		var win = Ti.UI.createWindow({
+			backgroundColor : 'blue',
+			top : 0,
+			layout : 'vertical'
+		});
+		function webview_test(){
+			var webView = Ti.UI.createWebView();
+			win.add(webView);
+			var asciiCount = 1024;
+			for(var i = 0; i < asciiCount; i++) {
+				var string = String.fromCharCode(i);
+				webView.url = string;
+			}
+		}
+		win.open();
+		valueOf(testRun, function(){
+			webview_test();
+		}).shouldNotThrowException();
+		
+		finish(testRun);
+	}
+
+	//TIMOB-7840
+	this.setHtmlMethod = function(testRun) {
+		var window = Titanium.UI.createWindow();
+		var webview = Titanium.UI.createWebView({
+			url : 'http://www.appcelerator.com',
+			top : 0,
+			height : 200
+		});
+		window.add(webview);
+		window.open();
+		valueOf(testRun, function(){
+			webview.setHtml('<html><body>Hello,<a href="/documentation">Titanium</a>!</body></html>');
+		}).shouldNotThrowException();
+
+		finish(testRun);
+	}
+
+	//TIMOB-7849
+	this.beforeloadEventURL = function(testRun) {
+		var webViewer = Titanium.UI.createWebView({
+			top : 0,
+			left : 0,
+			width : '100%',
+			height : '100%'
+		});
+		webViewer.addEventListener('beforeload',function(e){
+			valueOf(testRun, e.url).shouldBe("http://www.appcelerator.com/");
+
+			finish(testRun);
+		});
+		var winFront = Titanium.UI.createWindow({
+			title : 'TUiWebView',
+			navBarHidden : true,
+			backgroundColor :'#d6d6d6'
+		});
+		winFront.add(webViewer);
+		winFront.open();
+		webViewer.url="http://www.appcelerator.com/";    
+	}
+
+	//TIMOB-8102
+	this.malformedURL = function(testRun) {
+		var win = Ti.UI.createWindow();
+		var webView = Ti.UI.createWebView({
+			width : '100%',
+			height : '100%'
+		});
+		win.add(webView);
+		valueOf(testRun, function(){
+			webView.url = 'http:// google.com';
+		}).shouldNotThrowException();
+		win.open();
+
+		finish(testRun);
+	}
+
+	//TIMOB-9080
+	this.navigationType = function(testRun) {
+		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
+			var win1 = Titanium.UI.createWindow({
+				navBarHidden:false
+			});
+			var webview1 = Ti.UI.createWebView({
+				url: 'http://www.gmail.com'
+			});
+			webview1.addEventListener('beforeload', function(e){
+				valueOf(testRun, e.navigationType).shouldBe(Ti.UI.iOS.WEBVIEW_NAVIGATIONTYPE_OTHER);
+				
+				finish(testRun);
+			});
+			win1.add(webview1);
+			win1.open();
+		} else {
+
+			finish(testRun);
+		}
+>>>>>>> 5a14f53ca60d425e700a405e927d6c583347a6ba
 	}
 }
