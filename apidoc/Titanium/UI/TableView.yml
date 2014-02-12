@@ -1140,6 +1140,16 @@ properties:
 
         For an example, see the "Pull to refresh" section in the
         [TableViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/TableViews).
+
+        Alloy applications can use a `<HeaderPullView>` element inside a `<TableView>` element.
+
+            <TableView>
+                <HeaderPullView platform="ios">
+                    <View class="pull">
+                        <Label color="#F2F4F4" bottom="25dp">Header pull view</Label>
+                    </View>
+                </HeaderPullView>
+            </TableView>
     type: Titanium.UI.View
     platforms: [iphone, ipad]
     since: "2.1.0"
@@ -1168,6 +1178,17 @@ properties:
 
   - name: footerView
     summary: Table view footer as a view that will be rendered instead of a label.
+    description: |
+        In Alloy you can use a `<FooterView>` element nested in a `<TableView>` element:
+
+            <TableView>
+                <FooterView>
+                    <View backgroundColor="#a00" height="50dp"/>
+                </FooterView>
+                <TableViewRow><Label>Row 1</Label></TableViewRow>
+                <TableViewRow><Label>Row 2</Label></TableViewRow>
+            </TableView>
+
     type: Titanium.UI.View
     exclude-platforms: [blackberry]
     
@@ -1178,6 +1199,17 @@ properties:
     
   - name: headerView
     summary: Table view header as a view that will be rendered instead of a label.
+    description: |
+        In Alloy you can use a `<HeaderView>` element nested in a `<TableView>` element:
+
+            <TableView>
+                <HeaderView>
+                    <View backgroundColor="#a00" height="50dp"/>
+                </HeaderView>
+                <TableViewRow><Label>Row 1</Label></TableViewRow>
+                <TableViewRow><Label>Row 2</Label></TableViewRow>
+            </TableView>
+
     type: Titanium.UI.View
     exclude-platforms: [blackberry]
     
@@ -1271,6 +1303,16 @@ properties:
 
   - name: search
     summary: Search field to use for the table view.
+    description: |
+        In an Alloy application, you can use a `<SearchView>` or `<SearchBar>` element inside a `<TableView>` element.
+
+            <TableView>
+              <!-- search, shorthand with Ti.UI.SearchBar -->
+              <SearchBar class="search" platform="ios"/>
+              <!-- search, shorthand with Ti.UI.Android.SearchView -->
+              <SearchView ns="Ti.UI.Android" class="search" platform="android"/>
+            </TableView>
+
     type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
     platforms: [android, iphone, ipad]
     

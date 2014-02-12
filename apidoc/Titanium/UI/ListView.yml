@@ -436,8 +436,23 @@ properties:
         A `pullView` is a UI control that is often used to provide a convenient way for the user to refresh a table's data. 
         Typically used in conjunction with [setContentInsets](Titanium.UI.ListView.setContentInsets) method and [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events.
 
-        In Alloy you can specify this property with a `<PullView>` child element of a `<ListView>`
-        element (see Examples).
+        In Alloy you can assign this property with a `<PullView>` child element of a `<ListView>`
+        element:
+
+            <Alloy>
+              <ListView>
+                <ListSection>
+                  <ListItem title="Item a"></ListItem>
+                  <ListItem title=  "Item b"></ListItem>
+                  <ListItem title="Item c"></ListItem>
+                </ListSection>
+                <PullView>
+                  <View height="50" backgroundColor="black">
+                    <Label/>
+                  </View>
+                </PullView>
+              </ListView>
+            </Alloy>
 
         See the code example on `pullView` to  see how it may be utilized.
     type: Titanium.UI.View
@@ -459,7 +474,14 @@ properties:
         Used in conjunction with [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
         On Android, you can either specify <Titanium.UI.SearchBar> or <Titanium.UI.Android.SearchView>, while on iOS only <Titanium.UI.SearchBar> is supported.
 
-        In an Alloy application, you can assign a view to `searchView` with either a `<SearchView>` or `<SearchBar>` element inside the `<ListView>` element. 
+        In an Alloy application, you can use a `<SearchView>` or `<SearchBar>` element inside a `<ListView>` element.
+
+            <ListView>
+              <!-- search, shorthand with Ti.UI.SearchBar -->
+              <SearchBar class="search" platform="ios"/>
+              <!-- search, shorthand with Ti.UI.Android.SearchView -->
+              <SearchView ns="Ti.UI.Android" class="search" platform="android"/>
+            </ListView>
 
     type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
     platforms: [android, iphone, ipad]

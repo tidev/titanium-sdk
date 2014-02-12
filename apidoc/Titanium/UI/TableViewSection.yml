@@ -126,7 +126,24 @@ properties:
     description: |
         Using this property and `headerTitle` together is not supported. Use one or the other. 
         
-        On Android, must be set at creation.
+        On Android, must be set at creation. 
+
+        In Alloy, you can use a `<HeaderView>` element inside a `<TableViewSEction>` element:
+
+            <TableView filterAttribute="title">
+                <SearchBar platform="android,ios"/>
+                <TableViewSection>
+                    <HeaderView>
+                        <View backgroundColor="#a00" height="50dp"/>
+                    </HeaderView>
+                    <FooterView>
+                        <View backgroundColor="#0a0" height="50dp"/>
+                    </FooterView>
+                    <TableViewRow title="Row 1"/>
+                    <TableViewRow title="Row 2"/>
+                    <TableViewRow title="Row 3"/>
+                </TableViewSection>
+
     type: Titanium.UI.View
     exclude-platforms: [blackberry]
     
