@@ -17,6 +17,7 @@ var suites = [
 	{name: "facebook"},
 	{name: "filesystem/filesystem"},
 	{name: "geolocation"},
+	{name: "js_string"},
 	{name: "json"},
 	{name: "jss"},
 	{name: "kroll"},
@@ -40,6 +41,7 @@ var suites = [
 	{name: "ui_controls"},
 	{name: "ui_picker"},
 	{name: "ui_scrollView"},
+	{name: "ui_slider"},
 	{name: "ui_tabgroup/ui_tabgroup"},
 	{name: "ui_textfield"},
 	{name: "ui_view"},
@@ -65,6 +67,7 @@ if (Ti.Platform.osname === 'android') {
 } else if((Ti.Platform.osname === 'iPhone') || (Ti.Platform.osname === 'iPad')) {
 	suites = suites.concat([
 		{name: "iphone/iphone_2Dmatrix"},
+		{name: "iphone/iOS_NavigationWindow"},
 		{name: "iphone/iphone_ui"},
 		{name: "iphone/iphone_UI_3DMatrix"},
 		{name: "iphone/iphone_ui_tabbedBar"},		
