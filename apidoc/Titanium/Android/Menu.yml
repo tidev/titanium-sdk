@@ -21,13 +21,16 @@ description: |
     [onCreateOptionsMenu](Titanium.Android.Activity.onCreateOptionsMenu) property. 
     The activity's menu object is passed in to the `onCreateOptionsMenu` function when the menu is created.
 
-    In Alloy you can use `<Menu>` and `<MenuItem>` elements to create an options menu.
+    In Alloy you can use **`<Menu>`** and **`<MenuItem>`** elements to create an options menu.
 
-            <Menu id="menu" platform="android">
-                <!-- Cannot specify node text.  Use attributes only. -->
-                <MenuItem id="saveitem" title="Save" icon="item1.png" onClick="doSave" />
-                <MenuItem id="closeitem" title="Close" icon="item1.png" onClick="doClose" />
-            </Menu>    
+        <Menu id="menu" platform="android">
+            <!-- Cannot specify node text.  Use attributes only. -->
+            <MenuItem id="saveitem" title="Save" icon="item1.png" onClick="doSave" />
+            <MenuItem id="closeitem" title="Close" icon="item1.png" onClick="doClose" />
+        </Menu>    
+
+    You must call `invalidateOptionsMenu` from the `open` event listener of the window or tab group
+        where the menu is defined.
 
     For menu items displayed in the menu, the `onCreateOptionsMenu` function is called
     once, and the [onPrepareOptionsMenu](Titanium.Android.Activity.onPrepareOptionsMenu) callback function is called each

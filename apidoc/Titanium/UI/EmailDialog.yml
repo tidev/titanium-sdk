@@ -3,7 +3,7 @@ name: Titanium.UI.EmailDialog
 summary: |
     An email dialog is a modal window that allows users to compose and send an email.
 description: |
-    The Email Dialog is created by <Titanium.UI.createEmailDialog> or `<EmailDialog>` Alloy element.
+    The Email Dialog is created by <Titanium.UI.createEmailDialog> or **`<EmailDialog>`** Alloy element.
     
     On Mobile Web and Tizen, the `to` addresses, `cc` addresses, `bcc` addresses, `subject`, and `body` are 
     appended together and formatted into a `mailto:` URL. This URL typically has a limit of 

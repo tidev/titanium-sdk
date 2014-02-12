@@ -4,7 +4,7 @@ summary: |
     A dashboard view is an iOS Springboard-like view of <Titanium.UI.DashboardItem> items that may 
     be deleted and reordered by the user using its built-in edit mode.
 description: |
-    The DashboardView is created using the <Titanium.UI.createDashboardView> method or `<DashboardView>` 
+    The DashboardView is created using the <Titanium.UI.createDashboardView> method or **`<DashboardView>`** 
     Alloy element.
     
     Dashboard view's edit mode may be activated by a longpress of a <Titanium.UI.DashboardItem> item, 

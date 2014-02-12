@@ -4,7 +4,7 @@ summary: |
     An alert dialog is a modal view that includes an optional title, a message and buttons, 
     positioned in the middle of the display.
 description: |
-    An alert dialog is created using <Titanium.UI.createAlertDialog> or `<AlertDialog>` Alloy element.
+    An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.
     
     Although this dialog always appears in the middle of the display (not touching the edges), 
     other aspects of its aesthetics and the way the user interacts with it are different for each 

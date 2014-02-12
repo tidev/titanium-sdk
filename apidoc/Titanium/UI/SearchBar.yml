@@ -12,7 +12,7 @@ description: |
 
     A search bar can also be used without a table view.
 
-    Use the <Titanium.UI.createSearchBar> method or Alloy `<SearchBar>` element to create a search bar.
+    Use the <Titanium.UI.createSearchBar> method or Alloy **`<SearchBar>`** element to create a search bar.
 
     #### Android Platform Implementation Notes
 

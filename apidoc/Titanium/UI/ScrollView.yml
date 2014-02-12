@@ -3,7 +3,7 @@ name: Titanium.UI.ScrollView
 summary: |
     A view that contains a horizontally and/or vertically-scrollable region of content.  
 description: |
-    Use the <Titanium.UI.createScrollView> method or `<ScrollView>` Alloy element to create a scroll view.
+    Use the <Titanium.UI.createScrollView> method or **`<ScrollView>`** Alloy element to create a scroll view.
     
     Views added to the scroll view will be scrolled based on the size of the scrollable region of 
     content. If a scrollable region fits within the size of its scroll view, the view will not 

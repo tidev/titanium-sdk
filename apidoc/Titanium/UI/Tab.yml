@@ -5,7 +5,7 @@ description: |
     A `TabGroup` tab instance. Each tab includes a button and one or more windows, which 
     holds the "contents" of the tab. Users can select a tab by clicking on the tab button.
 
-    Use the <Titanium.UI.createTab> method or `<Tab>` Alloy element to create a tab.
+    Use the <Titanium.UI.createTab> method or **`<Tab>`** Alloy element to create a tab.
 
     Use [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab) to switch between tabs 
     in a tab group. The <Titanium.UI.currentTab> property provides a global reference to 

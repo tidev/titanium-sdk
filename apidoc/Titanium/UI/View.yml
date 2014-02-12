@@ -4,7 +4,7 @@ summary: An empty drawing surface or container
 description: |
     The `View` is the base type for all UI widgets in Titanium.
 
-    You use the <Titanium.UI.createView> method or `<View>` Alloy element to create a View.
+    You use the <Titanium.UI.createView> method or **`<View>`** Alloy element to create a View.
     
     #### Units and Coordinates
     

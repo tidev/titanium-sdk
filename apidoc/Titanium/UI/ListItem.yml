@@ -9,8 +9,8 @@ description: |
     Instead, you pass a <ListDataItem> array to the `setItems` method of a `ListSection`. The list data items 
     contain the data you want to display in the list.
 
-    Alloy applications can use `<ListItem>` elements to create `ListItem` objects. `<ListItem>` elements
-    must be nested inside a `<ListSection>` element, which itself is nested in a `<ListView>` element, 
+    Alloy applications can use **`<ListItem>`** elements to create `ListItem` objects. `<ListItem>` elements
+    must be nested inside a **`<ListSection>`** element, which itself is nested in a `<ListView>` element, 
     as shown below:
 
         <ListView id="list">

@@ -2,7 +2,7 @@
 name: Titanium.UI.iOS.Toolbar
 summary: An iOS toolbar, which can contain buttons and certain other controls.
 description: |
-    A `Toolbar` is created by the <Titanium.UI.iOS.createToolbar> factory method or `<Toolbar>` Alloy element.
+    A `Toolbar` is created by the <Titanium.UI.iOS.createToolbar> factory method or **`<Toolbar>`** Alloy element.
     
     A `Toolbar` can contain buttons, as well as certain other widgets, including text fields and 
     labels. 

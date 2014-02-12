@@ -5,7 +5,7 @@ summary: |
     consistent with the cover flow presentation style used for iPod, iTunes, and file browsing.
 description: |
     The cover flow view is created by the <Titanium.UI.iOS.createCoverFlowView> method or 
-    `<CoverFlowView>` element in an Alloy application.
+    **`<CoverFlowView>`** element in an Alloy application.
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [iphone, ipad]

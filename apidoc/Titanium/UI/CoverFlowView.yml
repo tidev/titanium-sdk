@@ -4,7 +4,7 @@ summary: |
     The cover flow view is a container showing animated three-dimensional images in a style
     consistent with the cover flow presentation used for iPod, iTunes, and file browsing.
 description: |
-    Use the <Titanium.UI.createCoverFlowView> method to create a cover flow view.
+    Use the <Titanium.UI.createCoverFlowView> or method **`<CoverFlowView>`** to create a cover flow view.
 extends: Titanium.UI.View
 since: "0.8"
 deprecated:

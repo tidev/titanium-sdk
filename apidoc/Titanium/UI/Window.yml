@@ -831,8 +831,7 @@ properties:
   - name: windowPixelFormat
     summary: Set the pixel format for the Activity's Window.
     description: |
-        The property is ignored on a Titanium "lightweight" Window. Use one of the
-        <Titanium.UI.Android>.PIXEL_FORMAT constants to set the format.
+        Use one of the <Titanium.UI.Android>.PIXEL_FORMAT constants to set the format.
 
         For more information on pixel formats, see 
         [Android SDK Window.setFormat](http://developer.android.com/reference/android/view/Window.html#setFormat(int))
@@ -841,6 +840,8 @@ properties:
     since: "1.8.0"
 
 description: |
+    To create a window, use the <Titanium.UI.createWindow> method or a **`<Window>`** Alloy element.
+
     A window is a top-level container which can contain other views. Windows can
     be *opened* and *closed*.  Opening a window causes the window and its child 
     views to be added to the application's render stack, on top of any previously opened 
@@ -859,8 +860,6 @@ description: |
     status bar, and in the case of windows contained in tab groups, the tab bar.
     To take up the entire screen, covering any other UI, specify `fullscreen:true`
     when creating the window.
-
-    To create a window, use the <Titanium.UI.createWindow> method of the `<Window>` Alloy element.
 
     ### Pass Context Between Windows
 

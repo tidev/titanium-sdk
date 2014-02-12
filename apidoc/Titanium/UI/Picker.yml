@@ -3,7 +3,7 @@ name: Titanium.UI.Picker
 summary: |
     A control used to select one or more fixed values.
 description: |
-    Use the <Titanium.UI.createPicker> method or Alloy `<Picker>` element to create a picker control.
+    Use the <Titanium.UI.createPicker> method or Alloy **`<Picker>`** element to create a picker control.
 
     On Android, the `useSpinner` property must be enabled to support multiple columns.
     By default, the spinner is automatically sized to fit its content and can overflow

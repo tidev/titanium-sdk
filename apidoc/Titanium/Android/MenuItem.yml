@@ -3,12 +3,12 @@ name: Titanium.Android.MenuItem
 summary: The Titanium binding of an Android menu item.
 description: |
     A menu item for an Android menu. Use [Menu.add](Titanium.Android.Menu.add) to create 
-    a new menu item. In Alloy you can define `<MenuItem>` elements inside a `<Menu>` element.
+    a new menu item. In Alloy you can define **`<MenuItem>`** elements inside a `<Menu>` element.
 
-            <Menu id="menu" platform="android">
-                <MenuItem id="saveitem" title="Save" icon="item1.png" onClick="doSave" />
-                <MenuItem id="closeitem" title="Close" icon="item1.png" onClick="doClose" />
-            </Menu>    
+        <Menu id="menu" platform="android">
+            <MenuItem id="saveitem" title="Save" icon="item1.png" onClick="doSave" />
+            <MenuItem id="closeitem" title="Close" icon="item1.png" onClick="doClose" />
+        </Menu>    
 
     See the <Titanium.Android.Menu> reference page for additional code examples.
 

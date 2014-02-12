@@ -14,7 +14,7 @@ description: |
     * On Mobile Web and Tizen, a switch always has text associated with it, and appears as a toggle button, 
     similar to Android.
     
-    Use the <Titanium.UI.createSwitch> method or `<Switch>` Alloy element to create a switch.
+    Use the <Titanium.UI.createSwitch> method or **`<Switch>`** Alloy element to create a switch.
 extends: Titanium.UI.View
 since: "0.8"
 methods:

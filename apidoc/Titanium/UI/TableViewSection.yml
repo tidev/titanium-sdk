@@ -3,7 +3,7 @@ name: Titanium.UI.TableViewSection
 summary: |
     A table view section is a container within a table used to organize table view rows.
 description: |
-    Use the <Titanium.UI.createTableViewSection> method or `<TableViewSection>` Alloy element to 
+    Use the <Titanium.UI.createTableViewSection> method or **`<TableViewSection>`** Alloy element to 
     create a `TableViewSection`.
     
     Before the table is rendered, the `TableViewSection` [add](Titanium.UI.TableViewSection.add) 

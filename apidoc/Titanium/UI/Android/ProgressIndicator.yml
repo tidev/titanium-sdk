@@ -7,7 +7,7 @@ description:  |
     user know that some action is taking place. It is used to indicate an ongoing activity of
     determinate or indeterminate length.
 
-    Use the <Titanium.UI.Android.createProgressIndicator> method or `<ProgressIndicator>` Alloy
+    Use the <Titanium.UI.Android.createProgressIndicator> method or **`<ProgressIndicator>`** Alloy
     element to create a progress indicator.
 
     A progress indicator can be either a progress dialog or a horizontal progress bar in the title 

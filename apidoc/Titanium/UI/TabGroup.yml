@@ -5,7 +5,7 @@ description: |
     A tab group can contain one or more [Tab](Titanium.UI.Tab) objects, each of which has an 
     associated tab control that is used to bring it into focus.
 
-    Use the <Titanium.UI.createTabGroup> method or `<TabGroup>` Alloy element to create a tab group 
+    Use the <Titanium.UI.createTabGroup> method or **`<TabGroup>`** Alloy element to create a tab group 
     that, in turn, contains one or more `<Tab>` elements.
     
     You can add tabs to the group using [addTab](Titanium.UI.TabGroup.addTab), and programmatically 

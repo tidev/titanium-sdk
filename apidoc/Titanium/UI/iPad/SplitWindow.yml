@@ -13,7 +13,7 @@ description: |
     can click a button to bring up the master view as floating, "popover" view. (To show the master 
     view in both orientations, set `showMasterInPortrait` to `true`.) 
     
-    Use the <Titanium.UI.iPad.createSplitWindow> method or `<SplitWindow>` Alloy element to create a
+    Use the <Titanium.UI.iPad.createSplitWindow> method or **`<SplitWindow>`** Alloy element to create a
     SplitWindow. A `<SplitWindow>` element only accepts a `<Window>` or `<NavigationWindow>` element
     as children.
 

@@ -7,7 +7,7 @@ description:  |
     animation and an optional text message, and is used to indicate an ongoing activity of 
     indeterminate length. To show progress, use <Titanium.UI.ProgressBar> instead.
 
-    Use the <Titanium.UI.createActivityIndicator> method or `<ActivityIndicator>` Alloy element to
+    Use the <Titanium.UI.createActivityIndicator> method or **`<ActivityIndicator>`** Alloy element to
     create an `ActivityIndicator` object.
     
     `ActivityIndicator` is a view and, like any view, must be added to a window or other top-level

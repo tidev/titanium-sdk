@@ -3,7 +3,7 @@ name: Titanium.UI.iPad.Popover
 platforms: [ipad]
 summary: A Popover is used to manage the presentation of content in a popover. 
 description: |
-    A popover is created using the <Titanium.UI.iPad.createPopover> method or `<Popover>` Alloy element.
+    A popover is created using the <Titanium.UI.iPad.createPopover> method or **`<Popover>`** Alloy element.
     
     Popovers are used to present information temporarily, but in a way that does not take over 
     the entire screen in the way that a modal view does. The popover content is layered on top of 
