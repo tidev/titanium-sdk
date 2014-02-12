@@ -70,10 +70,6 @@ module.exports = new function() {
 		valueOf(testRun, cropped.width).shouldBe(100);
 		valueOf(testRun, reSized.height).shouldBe(200);
 		valueOf(testRun, reSized.width).shouldBe(200);
-		valueOf(testRun, thumb).shouldNotBeNull();
-		valueOf(testRun, aplpha).shouldNotBeNull();
-		valueOf(testRun, roundCorner).shouldNotBeNull();
-		valueOf(testRun, transparent).shouldNotBeNull();
 
 		finish(testRun);
 	}
