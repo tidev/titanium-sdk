@@ -3277,7 +3277,7 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 	if (!fs.existsSync(themeFile)) {
 		this.logger.info(__('Generating %s', themeFile.cyan));
 
-		var flags = 'Theme';
+		var flags = 'Theme.AppCompat';
 		if ((this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) && this.tiapp['navbar-hidden']) {
 			flags += '.NoTitleBar.Fullscreen';
 		} else if (this.tiapp['navbar-hidden']) {
@@ -3362,7 +3362,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				'activity': {
 					'name': 'ti.modules.titanium.media.TiVideoActivity',
 					'configChanges': ['keyboardHidden', 'orientation'],
-					'theme': '@android:style/Theme.NoTitleBar.Fullscreen',
+					'theme': '@style/Theme.AppCompat.NoTitleBar.Fullscreen',
 					'launchMode': 'singleTask'
 				}
 			},
@@ -3370,7 +3370,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				'activity': {
 					'name': 'ti.modules.titanium.media.TiCameraActivity',
 					'configChanges': ['keyboardHidden', 'orientation'],
-					'theme': '@android:style/Theme.Translucent.NoTitleBar.Fullscreen'
+					'theme': '@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen'
 				}
 			}
 		},
