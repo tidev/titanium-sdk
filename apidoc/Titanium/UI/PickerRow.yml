@@ -3,9 +3,11 @@ name: Titanium.UI.PickerRow
 summary: |
     A picker row, representing a selectable item in a <Titanium.UI.Picker>. 
 description: |
-    Use the <Titanium.UI.createPickerRow> method to create a picker row control.
+    Use the <Titanium.UI.createPickerRow> method to create a picker row control. In an Alloy application,
+    you can use a `<PickerRow>` element () inside a `<PickerColumn>` element. You can also use `<Row>`
+    as a shorthand for `<PickerRow>` (see Examples).
     
-    Views added to picker rows is only supported on iOS.
+    On iOS, a you can add views added to picker rows is only supported on iOS.
 platforms: [android, iphone, ipad, mobileweb, tizen]
 extends: Titanium.UI.View
 since: "0.9"

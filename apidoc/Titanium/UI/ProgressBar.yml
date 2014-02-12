@@ -8,7 +8,7 @@ description: |
     Unlike most views, progress bars are hidden by default, so you must explicitly 
     show the progress bar.
 
-    Use the <Titanium.UI.createProgressBar> method to create a progress bar.
+    Use the <Titanium.UI.createProgressBar> method or `<ProgressBar>` Alloy element to create a progress bar.
 
     #### Android Platform Notes
 

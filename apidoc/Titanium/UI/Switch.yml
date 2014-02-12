@@ -2,15 +2,19 @@
 name: Titanium.UI.Switch
 summary: An on/off switch control.
 description: |
-    On Android, a switch can have text associated with it, and appears as either a checkbox or 
-    toggle button.
     
-    On iOS, the switch appears as an iOS on/off switch and doesn't have any text associated with it. 
+    The appearance of a `Switch` control varies by platform: 
+
+    * On Android, a Switch object can be styled either as a checkbox or 
+    toggle button (see [Titanium.UI.Switch.style](Titanium.UI.Switch.style)). The checkbox style
+    can optionally display a label next to the control.
     
-    On Mobile Web and Tizen, a switch always has text associated with it, and appears as a toggle button, 
+    * On iOS, a Switch appears as an iOS on/off switch and doesn't have any text associated with it. 
+    
+    * On Mobile Web and Tizen, a switch always has text associated with it, and appears as a toggle button, 
     similar to Android.
     
-    Use the <Titanium.UI.createSwitch> method to create a switch.
+    Use the <Titanium.UI.createSwitch> method or `<Switch>` Alloy element to create a switch.
 extends: Titanium.UI.View
 since: "0.8"
 methods:

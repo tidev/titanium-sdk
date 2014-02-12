@@ -20,7 +20,7 @@ description: |
     to execute a JavaScript expression inside the web view, and retrieve the value 
     of an expression.
     
-    Use the <Titanium.UI.createWebView> method to create a web view.
+    Use the <Titanium.UI.createWebView> method or `<WebView>` Alloy element to create a web view.
 
     Web views are more expensive to create than other native views because of the requirement to
     load the HTML browser into memory.

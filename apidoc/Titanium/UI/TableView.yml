@@ -3,15 +3,17 @@ name: Titanium.UI.TableView
 summary: |
     A table view is used to present information, organized in sections and rows, in a 
     vertically-scrolling view.
-description: |
-    Use the <Titanium.UI.createTableView> method to create a `TableView`.
-    
+description: |    
     A `TableView` object is a container for [TableViewSection](Titanium.UI.TableViewSection) 
     objects that are, in turn, containers for [TableViewRow](Titanium.UI.TableViewRow) objects. 
+
+    Use the <Titanium.UI.createTableView> method or **`<TableView>`** Alloy element to create a `TableView`.
+
+    Also see the [TableViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/TableViews).
     
     #### Creating Tables
     
-    Tables may be created in the following ways.
+    There are few approaches to creating and using `TableView` object.
     
     The simplest approach is to pass dictionaries of `TableViewRow` properties, such as 
     [backgroundColor](Titanium.UI.TableViewRow.backgroundColor), 
@@ -55,18 +57,8 @@ description: |
     There are known issues with the `sections` property and associated methods added in
     Release 3.0:
 
-    *   On iOS, event listeners do not fire correctly when table view sections are added or
-        updated using the `sections` property or `appendSection`, `insertSectionBefore`,
-        `insertSectionAfter`, or `updateSection` methods. Adding sections using the `data` 
-        property is recommended for Release 3.0.x.  This issue has been fixed as of Release
-        3.1.0.
-        ([TIMOB-12616](https://jira.appcelerator.org/browse/TIMOB-12616))
-
     *   On iOS, the first two arguments to the `updateSection` method are reversed.
         ([TIMOB-12625](https://jira.appcelerator.org/browse/TIMOB-12625))
-
-    *   On Android, the `sections` property is a read-only property.
-        ([TIMOB-12620](https://jira.appcelerator.org/browse/TIMOB-12620))
 
     *   On Mobile Web, click events fail to fire after calling the `updateSection` method.
         ([TIMOB-12630](https://jira.appcelerator.org/browse/TIMOB-12630))

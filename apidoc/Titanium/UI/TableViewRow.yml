@@ -3,8 +3,10 @@ name: Titanium.UI.TableViewRow
 summary: |
     A table view row is an individual item in a table, organized into table view sections.
 description: |
-    Use the <Titanium.UI.createTableViewRow> method to create a table view row. These may be 
-    explicitly added to [TableViewSection](Titanium.UI.TableViewSection) objects, which are applied 
+    Use the <Titanium.UI.createTableViewRow> method or `<TableViewRow>` Alloy element to create 
+    a table view row. 
+
+    These may be explicitly added to [TableViewSection](Titanium.UI.TableViewSection) objects, which are applied 
     to a [TableView](Titanium.UI.TableView). If a table section is not specified, one will be 
     automatically created. 
     

@@ -2,12 +2,10 @@
 name: Titanium.UI.ListSection
 summary: A list section is a container within a list view used to organize list items.
 description: |
-    Use the <Titanium.UI.createListSection> method to create a `ListSection`.
+    Use the <Titanium.UI.createListSection> method or `<ListSection>` Alloy element to create a `ListSection`.
 
-    List sections are used to manipulate and organize list items contained within it.
-
-    For examples of using list sections, see the examples in <Titanium.UI.ListView> and
-    <Titanium.UI.ListItem>.
+    List sections are used to manipulate and organize list items contained within it. For examples 
+    of using list sections, see the examples in <Titanium.UI.ListView> and <Titanium.UI.ListItem>.
 platforms: [android, ipad, iphone]
 since: '3.1.0'
 extends: Titanium.Proxy
@@ -26,6 +24,8 @@ properties:
     summary: View to use for this section footer.
     description: |
         Using this property and `footerTitle` together is not supported. Use one or the other. 
+        In Alloy you can specify this property with a `<FooterView>` child element of a `<ListSection>`
+        element (see Examples).
     type: Titanium.UI.View
     since: 3.2.0
     platforms: [android, iphone, ipad]
@@ -40,6 +40,8 @@ properties:
     summary: View to use for this section header.
     description: |
         Using this property and `headerTitle` together is not supported. Use one or the other. 
+        In Alloy you can specify this property with a `<HeaderView>` child element of a `<ListSection>`
+        element (see Examples).
     type: Titanium.UI.View
     since: 3.2.0
     platforms: [android, iphone, ipad]
@@ -169,7 +171,7 @@ methods:
 examples:
   - title: Alloy XML Markup
     example: |
-        ListSection is supported on Alloy 1.2.0 and later.
+        ListSection is supported by Alloy 1.2.0 and later.
 
         HeaderView and FooterView are supported on Alloy 1.3.0 and later.
 
