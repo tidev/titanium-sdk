@@ -15,8 +15,7 @@ module.exports = new function() {
 
 	this.name = "string";
 	this.tests = [
-		{name: "string"},
-		
+		{name: "string"},//The ticket is reopened & test passes on diffrent devices and fails on some version on android.
 	]
 
 	//TIMOB-11709
