@@ -14,8 +14,8 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
-import android.app.ActionBar;
-import android.app.Activity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Message;
@@ -46,10 +46,10 @@ public class ActionBarProxy extends KrollProxy
 
 	private ActionBar actionBar;
 
-	public ActionBarProxy(Activity activity)
+	public ActionBarProxy(ActionBarActivity activity)
 	{
 		super();
-		actionBar = activity.getActionBar();
+		actionBar = activity.getSupportActionBar();
 	}
 
 	@Kroll.method @Kroll.setProperty

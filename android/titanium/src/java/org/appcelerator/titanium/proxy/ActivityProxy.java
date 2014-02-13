@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 
+import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
@@ -245,11 +246,8 @@ public class ActivityProxy extends KrollProxy
 	@Kroll.method @Kroll.getProperty
 	public ActionBarProxy getActionBar()
 	{
-		Activity activity = getWrappedActivity();
-		if (actionBarProxy == null && activity != null && Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
-			actionBarProxy = new ActionBarProxy(activity);
-		}
-
+		ActionBarActivity activity = (ActionBarActivity) getWrappedActivity();
+		actionBarProxy = new ActionBarProxy(activity);
 		return actionBarProxy;
 	}
 
