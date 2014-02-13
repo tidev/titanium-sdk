@@ -305,7 +305,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		activity.setLayoutProxy(this);
 		setActivity(activity);
 
-		view = new TiUIActionBarTabGroup(this, activity);
+		if (activity.getSupportActionBar() != null) {
+			view = new TiUIActionBarTabGroup(this, activity);
+		} else {
+			view = new TiUITabHostGroup(this, activity);
+		}
 
 		setModelListener(view);
 

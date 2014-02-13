@@ -247,7 +247,9 @@ public class ActivityProxy extends KrollProxy
 	public ActionBarProxy getActionBar()
 	{
 		ActionBarActivity activity = (ActionBarActivity) getWrappedActivity();
-		actionBarProxy = new ActionBarProxy(activity);
+		if (actionBarProxy == null && activity != null) {
+			actionBarProxy = new ActionBarProxy(activity);
+		}
 		return actionBarProxy;
 	}
 
