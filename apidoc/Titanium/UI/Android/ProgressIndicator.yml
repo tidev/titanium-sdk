@@ -15,7 +15,7 @@ description:  |
     <Titanium.UI.Android.PROGRESS_INDICATOR_DIALOG>,
     <Titanium.UI.Android.PROGRESS_INDICATOR_STATUS_BAR>.
 
-    Calling [`show()`]<Titanium.UI.Android.ProgressIndicator-method-show> displays the indicator, and calling `hide` removes it.
+    Calling <Titanium.UI.Android.ProgressIndicator-method-show> displays the indicator, and calling <Titanium.UI.Android.ProgressIndicator-method-hide removes it.
 
     To display a horizontal progress bar in the title of a heavyweight window,
     wait for the window to open before creating the progress bar.
