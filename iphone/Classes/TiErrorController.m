@@ -78,7 +78,7 @@
     [footer setTextColor:[UIColor blackColor]];
     [view addSubview:footer];
     
-    UILabel *message = [self dynamicLabel:error width:view.bounds.size.width height:view.bounds.size.height fontSize:20.0f bottom:285];
+    UILabel *message = [self dynamicLabel:error width:view.bounds.size.width height:view.bounds.size.height fontSize:20.0f bottom:view.bounds.size.height * 0.65];
     [message setTextColor:[UIColor whiteColor]];
     [message setShadowColor:[UIColor blackColor]];
     [view addSubview:message];
@@ -86,7 +86,7 @@
     UIButton *button = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     [button setTitle:@"Dismiss" forState:UIControlStateNormal];
     CGFloat left = ( view.bounds.size.width / 2 ) - 70;
-    [TiUtils setView:button positionRect:CGRectMake(left, view.bounds.size.height-170, 140, 40)];
+    [TiUtils setView:button positionRect:CGRectMake(left, view.bounds.size.height * 0.6, 140, 40)];
     [button setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
     [view addSubview:button];
     
