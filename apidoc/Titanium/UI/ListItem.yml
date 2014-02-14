@@ -13,12 +13,14 @@ description: |
     must be nested inside a **`<ListSection>`** element, which itself is nested in a `<ListView>` element, 
     as shown below:
 
-        <ListView id="list">
-            <ListSection id="accounts">
-                <ListItem image="images/checking_account.png" title="Checking"/>
-                <ListItem image="images/saving_account.png" title="Savings"/>
-            </ListSection>
-        </ListView>
+        <Alloy>
+            <ListView id="list">
+                <ListSection id="accounts">
+                    <ListItem image="images/checking_account.png" title="Checking"/>
+                    <ListItem image="images/saving_account.png" title="Savings"/>
+                </ListSection>
+            </ListView>
+        </Alloy>
 
     By default, only the `title`, `image` and `accessoryType` keys of the list data item's
     `properties` dictionary are displayed if an item template is not defined.  See "Default List Item"
@@ -62,7 +64,9 @@ description: |
     #### Eventing
 
     Unlike other views, you cannot use the `addEventListener` method to bind callbacks to events for a
-    ListItem. Instead, use `ListView`'s [itemclick](Titanium.UI.ListView.itemclick) event to monitor click events on
+    ListItem.
+
+    Use list view's [itemclick](Titanium.UI.ListView.itemclick) event to monitor click events on
     items in the list view. Do not rely on the `source` property to determine which item fired the
     event.  Either use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item
     that generated the event, and use the `bindId` to check which child control fired the event.
@@ -253,15 +257,15 @@ examples:
   - title: Default List Items
     example: |
         Creates a list without using an item template. Monitors the `itemclick` event to check and
-        uncheck tasks. 
+        uncheck tasks.
 
             var win = Ti.UI.createWindow({backgroundColor: 'white'});
             var listView = Ti.UI.createListView();
 
             var tasks = [
-                {id: 'trash', name: 'Take Out the Trash', icon: 'images/trash.png'},
-                {id: 'dishes', name: 'Do the Dishes', icon: 'images/dishes.png'},
-                {id: 'doggie', name: 'Walk the Dog', icon: 'images/doge.png'}
+                {id: 'trash', name: 'Take Out the Trash', icon: 'trash.png'},
+                {id: 'dishes', name: 'Do the Dishes', icon: 'dishes.png'},
+                {id: 'doggie', name: 'Walk the Dog', icon: 'doggie.png'}
             ];
 
             var data = [];
@@ -329,6 +333,116 @@ examples:
                 }
                 section.updateItemAt(e.itemIndex, item);
             });
+
+  - title: List Items with an Item Template
+    example: |
+        Previous example modified to use an item template.  The template defines a small icon on the
+        far left, a title label to the right of the icon and a subtitle below the title label in
+        smaller text.
+
+        Monitors the `click` event of the item rather than the `itemclick` event of the list view.
+
+            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+
+            var plainTemplate = {
+                childTemplates: [
+                    {                            // Image justified left
+                        type: 'Ti.UI.ImageView', // Use an image view for the image
+                        bindId: 'pic',           // Maps to a custom pic property of the item data
+                        properties: {            // Sets the image view properties
+                            width: '50dp', height: '50dp', left: 0
+                        }
+                    },
+                    {                            // Title
+                        type: 'Ti.UI.Label',     // Use a label for the title
+                        bindId: 'title',         // Maps to a custom title property of the item data
+                        properties: {            // Sets the label properties
+                            color: 'black',
+                            font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
+                            left: '60dp', top: 0,
+                        },
+                    },
+                    {                            // Subtitle
+                        type: 'Ti.UI.Label',     // Use a label for the subtitle
+                        bindId: 'subtitle',      // Maps to a custom subtitle property of the item data
+                        properties: {            // Sets the label properties
+                            color: 'gray',
+                            font: { fontFamily:'Arial', fontSize: '14dp' },
+                            left: '60dp', top: '25dp',
+                        }
+                    }
+                ],
+                // Binds a callback to the click event, which catches events bubbled by the view subcomponents.
+                events: {click: toggleCheck }
+            };
+
+            /*
+               The following JSON API calls copy the plainTemplate object minus functions.
+               This method of copying an object is simple but not quick.
+               If performance is a factor, create your own method to copy an object.
+            */
+            var redTemplate = JSON.parse(JSON.stringify(plainTemplate));
+            // Change the text color to red
+            redTemplate.childTemplates[1].properties.color = 'red';
+            redTemplate.childTemplates[2].properties.color = 'red';
+            // Rebind the click event callback
+            redTemplate.events.click = toggleCheck;
+
+            var listView = Ti.UI.createListView({
+                // Maps plainTemplate to 'uncheck' and redTemplate to 'check' 
+                templates: { 'uncheck': plainTemplate, 'check': redTemplate },
+                // Use 'uncheck', that is, the plainTemplate created earlier for all items
+                // Can be overridden by the item's template property
+                defaultItemTemplate: 'uncheck'
+            });
+
+            var tasks = [
+                {id: 'trash', name: 'Take Out the Trash', person: 'Yakko', icon: 'trash.png'},
+                {id: 'dishes', name: 'Do the Dishes', person: 'Wakko', icon: 'dishes.png'},
+                {id: 'doggie', name: 'Walk the Dog', person: 'Dot', icon: 'doggie.png'}
+            ];
+
+            var data = [];
+            for (var i = 0; i < tasks.length; i++) {
+                data.push({
+                    // Maps to the title component in the template
+                    // Sets the text property of the Label component
+                    title : { text: tasks[i].name },
+                    // Maps to the subtitle component in the template
+                    // Sets the text property of the Label component
+                    subtitle : { text : tasks[i].person },
+                    // Maps to the pic component in the template
+                    // Sets the image property of the ImageView component
+                    pic : { image : tasks[i].icon },
+                    // Sets the regular list data properties
+                    properties : {
+                        itemId: tasks[i].id,
+                        accessoryType: Ti.UI.LIST_ACCESSORY_TYPE_NONE,
+                    }
+                });
+            }
+
+            var section = Ti.UI.createListSection();
+            section.setItems(data);
+            listView.sections = [section];
+
+            // Modified version of the `itemclick` event listener
+            // Changes the item template rather than the list item's color property
+            function toggleCheck (e) {
+                var item = section.getItemAt(e.itemIndex);
+                if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
+                    item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
+                    item.template = 'check';
+                }
+                else {
+                    item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_NONE;
+                    item.template = 'uncheck';
+                }
+                section.updateItemAt(e.itemIndex, item);
+            } 
+
+            win.add(listView);
+            win.open();
 
 ---
 name: ItemTemplate

@@ -19,8 +19,6 @@ description: |
     Buttons are shown if the `buttonNames` property is defined, and are rendered horizontally below 
     the message.
 
-    <img src="api_images/alertdialog/android.png"/>
-
     To create a custom layout, a view may be added and, in turn, a hierarchy of views added to that 
     child view.
     
@@ -31,8 +29,6 @@ description: |
     
     Buttons are defined using the `buttonNames` property and are rendered vertically below 
     the message.
-
-    <img src="api_images/alertdialog/iphone.png"/>
 
     On iOS 4.0 and later, alert dialogs are automatically cancelled when the application is 
     paused/suspended. This behavior can avoided by setting `persistent` property on alert dialog 
@@ -131,14 +127,15 @@ properties:
         Alloy applications can specify this property with a `<ButtonNames>` element containing
         one or more `<ButtonName>` elements (see example).
 
-            <AlertDialog id="dialog" onClick="doClick" title="Decide!"
-                message="Do you really want to do that?" cancel="1">
-                <ButtonNames>
-                    <ButtonName>Confirm</ButtonName>
-                    <ButtonName>Cancel</ButtonName>
-                    <ButtonName>Help</ButtonName>
-                </ButtonNames>
-            </AlertDialog>
+            <Alloy>
+                <AlertDialog id="dialog" onClick="doClick" title="Decide!"message="Do you really want to do that?" cancel="1">
+                    <ButtonNames id="names">
+                        <ButtonName id="btn1">Confirm</ButtonName>
+                        <ButtonName id="btn2">Cancel</ButtonName>
+                        <ButtonName id="btn3">Help</ButtonName>
+                    </ButtonNames>
+                </AlertDialog>
+            </Alloy>
 
     type: Array<String>
     default: No buttons (Android), Single "OK" button (iOS, Mobile Web)
