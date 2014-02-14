@@ -32,6 +32,7 @@ var suites = [
 	{name: "platform"},
 	{name: "properties"},
 	{name: "stream"},
+	{name: "string"},
 	{name: "titanium"},
 	{name: "ui/ui_animation"},
 	{name: "ui/ui"},
