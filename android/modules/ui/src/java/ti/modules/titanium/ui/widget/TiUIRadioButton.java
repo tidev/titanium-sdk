@@ -1,6 +1,9 @@
 package ti.modules.titanium.ui.widget;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -31,6 +34,7 @@ public class TiUIRadioButton extends TiUIView
 		setNativeView(rdo);
 	}
 
+	
 	@Override
 	public void processProperties(KrollDict d)
 	{
@@ -47,7 +51,23 @@ public class TiUIRadioButton extends TiUIView
 			rdo.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
 		}
 	}
-
+	
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
+		rdo = (RadioButton) getNativeView();
+		if (key.equals(TiC.PROPERTY_TEXT)) {
+			rdo.setText((String) newValue);
+		} else if (key.equals(TiC.PROPERTY_COLOR)) {
+			rdo.setTextColor(TiConvert.toColor(TiConvert.toString(newValue)));
+		} else if (key.equals(TiC.PROPERTY_FONT)) {
+			TiUIHelper.styleText(rdo, (HashMap) newValue);
+		}
+		else {
+		super.propertyChanged(key, oldValue, newValue, proxy);
+		}
+	}
+	
 	public void setTextColor(String color)
 	{
 		rdo.setTextColor(TiConvert.toColor(color));
@@ -57,4 +77,10 @@ public class TiUIRadioButton extends TiUIView
 	{
 		return rdo.isChecked();
 	}
+	
+	public String getText()
+	{
+		return TiConvert.toString(rdo.getText());
+	}
+ 
 }

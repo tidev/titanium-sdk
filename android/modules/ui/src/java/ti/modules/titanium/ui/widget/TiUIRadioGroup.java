@@ -3,13 +3,14 @@ package ti.modules.titanium.ui.widget;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
+
 import android.view.Gravity;
-import android.view.View;
 import android.widget.RadioGroup;
 
 public class TiUIRadioGroup extends TiUIView
 {
 	RadioGroup rdg = null;
+
 	public TiUIRadioGroup(final TiViewProxy proxy)
 	{
 		super(proxy);
@@ -20,19 +21,10 @@ public class TiUIRadioGroup extends TiUIView
 			{
 				super.onLayout(changed, left, top, right, bottom);
 				TiUIHelper.firePostLayoutEvent(proxy);
-
 			}
 
 		};
 		rdg.setGravity(Gravity.CENTER);
 		setNativeView(rdg);
-	}
-
-	public View getCheckedRadioButtonId()
-	{
-
-		int radioButtonID = rdg.getCheckedRadioButtonId();
-		View radioButton = rdg.findViewById(radioButtonID);
-		return radioButton;
 	}
 }
