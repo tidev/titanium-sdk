@@ -92,11 +92,11 @@ public class TiTableView extends FrameLayout
 			}
 		}
 
-		public void reIndexItems() {
+		public void reIndexItems()
+		{
 			ArrayList<Item> items = viewModel.getViewModel();
 			int count = items.size();
 			index.clear();
-
 			filtered = false;
 			if (filterAttribute != null && filterText != null && filterAttribute.length() > 0 && filterText.length() > 0) {
 				filtered = true;
@@ -104,32 +104,54 @@ public class TiTableView extends FrameLayout
 				if (filterCaseInsensitive) {
 					filter = filterText.toLowerCase();
 				}
-				for(int i = 0; i < count; i++) {
+				for (int i = 0; i < count; i++) {
 					boolean keep = true;
 					Item item = items.get(i);
 					registerClassName(item.className);
-					if (item.proxy.hasProperty(filterAttribute)) {
-						String t = TiConvert.toString(item.proxy.getProperty(filterAttribute));
-						if (filterCaseInsensitive) {
-							t = t.toLowerCase();
+					if (item.proxy.hasProperty(TiC.PROPERTY_HEADER_TITLE)) {
+						if (item.footerText == null) {
+							Item itmNextValue = items.get(i + 1);
+							keep = filterText(filter, itmNextValue);
+						} else {
+							if (i > 0) {
+								Item itmPreValue = items.get(i - 1);
+								keep = filterText(filter, itmPreValue);
+							}
 						}
-						if(t.indexOf(filter) < 0) {
-							keep = false;
-						}
+					} else {
+						keep = filterText(filter, item);
 					}
+
 					if (keep) {
 						index.add(i);
+
 					}
 				}
 			} else {
-				for(int i = 0; i < count; i++) {
+				for (int i = 0; i < count; i++) {
 					Item item = items.get(i);
 					registerClassName(item.className);
 					index.add(i);
 				}
 			}
-		}
 
+		}
+		
+		private boolean filterText(String filter, Item itm)
+		{
+			boolean keep = false;
+			if (itm.proxy.hasProperty(filterAttribute)) {
+				String t = TiConvert.toString(itm.proxy.getProperty(filterAttribute));
+				if (filterCaseInsensitive) {
+					t = t.toLowerCase();
+				}
+				if (t.indexOf(filter) != -1) {
+					keep = true;
+				}
+			}
+			return keep;
+		}
+		
 		public int getCount() {
 			//return viewModel.getViewModel().length();
 			return index.size();
