@@ -130,7 +130,16 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 
 	@Override
 	public TabProxy getSelectedTab() {
-		ActionBar.Tab tab = actionBar.getSelectedTab();
+		ActionBar.Tab tab;
+		try {
+			tab = actionBar.getSelectedTab();
+		} catch (NullPointerException e) {
+			//This is a hack for AppCompat actionbar for 4.0+, b/c the source code is flawed
+			//and it will throw a null pointer exception if no tab is selected instead of returning null. See source at:
+			//https://android.googlesource.com/platform/frameworks/support/+/89208232f3b5d1451408d787872504a190bc7ee0/v7/appcompat/src/android/support/v7/app/ActionBarImplICS.java
+			//line 259.
+			tab = null;
+		}
 		if (tab == null) {
 			// There is no selected tab currently for this action bar.
 			// This probably means the tab group contains no tabs.
