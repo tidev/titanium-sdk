@@ -90,15 +90,26 @@ exports.init = function (logger, config, cli) {
 				}
 				cmd = cmd.join(' ');
 
+				var preProcessCmd = [
+						'install_name_tool',
+						'-add_rpath',
+						'"' + path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Library', 'PrivateFrameworks') + '"',
+						'-add_rpath',
+						afs.resolvePath(build.xcodeEnv.path, '..', 'SharedFrameworks') + '"',
+						'"' + path.join(build.titaniumIosSdkPath, 'ios-sim') + '"'
+					];
+				preProcessCmd = preProcessCmd.join(' ');
+
+				iossimPreProcess = spawn('/bin/sh',['-c', preProcessCmd], {
+					cwd: build.titaniumIosSdkPath
+				});
+
 				logger.info(__('Launching application in iOS Simulator'));
-				logger.trace(__('Simulator environment: %s', ('DYLD_FRAMEWORK_PATH=' + simEnv).cyan));
+
 				logger.debug(__('Simulator command: %s', cmd.cyan));
 
 				simProcess = spawn('/bin/sh', ['-c', cmd], {
-					cwd: build.titaniumIosSdkPath,
-					env: {
-						DYLD_FRAMEWORK_PATH: simEnv
-					}
+					cwd: build.titaniumIosSdkPath
 				});
 
 				simProcess.stderr.on('data', function (data) {
