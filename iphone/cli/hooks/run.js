@@ -95,7 +95,7 @@ exports.init = function (logger, config, cli) {
 						'-add_rpath',
 						'"' + path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Library', 'PrivateFrameworks') + '"',
 						'-add_rpath',
-						afs.resolvePath(build.xcodeEnv.path, '..', 'SharedFrameworks') + '"',
+						'"' + afs.resolvePath(build.xcodeEnv.path, '..', 'SharedFrameworks') + '"',
 						'"' + path.join(build.titaniumIosSdkPath, 'ios-sim') + '"'
 					];
 				preProcessCmd = preProcessCmd.join(' ');
@@ -104,36 +104,37 @@ exports.init = function (logger, config, cli) {
 					cwd: build.titaniumIosSdkPath
 				});
 
-				logger.info(__('Launching application in iOS Simulator'));
+				iossimPreProcess.on('exit', function () {
+					logger.info(__('Launching application in iOS Simulator'));
 
-				logger.debug(__('Simulator command: %s', cmd.cyan));
+					logger.debug(__('Simulator command: %s', cmd.cyan));
 
-				simProcess = spawn('/bin/sh', ['-c', cmd], {
-					cwd: build.titaniumIosSdkPath
+					simProcess = spawn('/bin/sh', ['-c', cmd], {
+						cwd: build.titaniumIosSdkPath
+					});
+
+					simProcess.stderr.on('data', function (data) {
+						data.toString().split('\n').forEach(function (line) {
+							line.length && simErr.push(line.replace(stripLogLevelRE, ''));
+						}, this);
+					}.bind(this));
+
+					simProcess.on('exit', function (code, signal) {
+						clearTimeout(findLogTimer);
+
+						if (simStarted) {
+							var endLogTxt = __('End simulator log');
+							logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey);
+						}
+
+						if (code || simErr.length) {
+							finished(new appc.exception(__('An error occurred running the iOS Simulator'), simErr));
+						} else {
+							logger.info(__('Application has exited from iOS Simulator'));
+							finished();
+						}
+					}.bind(this));
 				});
-
-				simProcess.stderr.on('data', function (data) {
-					data.toString().split('\n').forEach(function (line) {
-						line.length && simErr.push(line.replace(stripLogLevelRE, ''));
-					}, this);
-				}.bind(this));
-
-				simProcess.on('exit', function (code, signal) {
-					clearTimeout(findLogTimer);
-
-					if (simStarted) {
-						var endLogTxt = __('End simulator log');
-						logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey);
-					}
-
-					if (code || simErr.length) {
-						finished(new appc.exception(__('An error occurred running the iOS Simulator'), simErr));
-					} else {
-						logger.info(__('Application has exited from iOS Simulator'));
-						finished();
-					}
-				}.bind(this));
-
 				// focus the simulator
 				logger.info(__('Focusing the iOS Simulator'));
 				exec([
