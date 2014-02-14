@@ -33,6 +33,7 @@ module.exports = new function() {
 		{name: "deleteCorrectRowIndex", timeout: 3000},
 		{name: "childrenArrayEmpty"},
 		{name: "orientationModesReturnNull"},
+		{name: "emailDialogAnimated"}
 		{name: "passingData", timeout: 10000}
 		{name: "webviewBasedOnURL", timeout: 10000},
 		{name: "setUserAgent", timeout: 10000},
@@ -570,6 +571,22 @@ module.exports = new function() {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+	//TIMOB-5855
+	this.emailDialogAnimated = function(testRun) {
+		var win = Ti.UI.createWindow({
+			backgroundColor:'blue'
+		});
+		win.addEventListener('open',function(e){
+			var email = Ti.UI.createEmailDialog();
+			valueOf(testRun, function(){
+				email.open({animated:false});
+			}).shouldNotThrowException();
+			
+			finish(testRun);
+		});
+		win.open();
+=======
 	//KitchenSink: Platform
 	this.passingData = function(testRun) {
 		var window = require('suites/ui/win_2');
@@ -604,6 +621,7 @@ module.exports = new function() {
 			}, 10000);
 		});
 		win1.open();	
+>>>>>>> 98a34fbf6cc4d45a6326aed91ba136303424eae0
 =======
 	//TIMOB-974
 	this.webviewBasedOnURL = function(testRun) {
