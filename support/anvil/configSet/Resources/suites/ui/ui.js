@@ -33,8 +33,8 @@ module.exports = new function() {
 		{name: "deleteCorrectRowIndex", timeout: 3000},
 		{name: "childrenArrayEmpty"},
 		{name: "orientationModesReturnNull"},
-		{name: "emailDialogAnimated"}
-		{name: "passingData", timeout: 10000}
+		{name: "emailDialogAnimated"},
+		{name: "passingData", timeout: 10000},
 		{name: "webviewBasedOnURL", timeout: 10000},
 		{name: "setUserAgent", timeout: 10000},
 		{name: "loadEventMultipleTimes", timeout: 30000},
@@ -44,7 +44,7 @@ module.exports = new function() {
 		{name: "beforeloadEventURL", timeout: 10000},
 		{name: "malformedURL", timeout: 10000},
 		{name: "navigationType", timeout: 10000}
-	]
+	];
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2583
 	this.webviewEvalJSLockup = function(testRun) {
@@ -487,7 +487,7 @@ module.exports = new function() {
 
 				finish(testRun);
 			};
-			btn.addEventListener("load", listener)
+			btn.addEventListener("load", listener);
 			w.add(btn);
 			w.open();
 		} else {
@@ -570,8 +570,6 @@ module.exports = new function() {
 		win.open();
 	}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 	//TIMOB-5855
 	this.emailDialogAnimated = function(testRun) {
 		var win = Ti.UI.createWindow({
@@ -586,7 +584,8 @@ module.exports = new function() {
 			finish(testRun);
 		});
 		win.open();
-=======
+	}
+	
 	//KitchenSink: Platform
 	this.passingData = function(testRun) {
 		var window = require('suites/ui/win_2');
@@ -620,9 +619,8 @@ module.exports = new function() {
 				finish(testRun);
 			}, 10000);
 		});
-		win1.open();	
->>>>>>> 98a34fbf6cc4d45a6326aed91ba136303424eae0
-=======
+		win1.open();
+	}	
 	//TIMOB-974
 	this.webviewBasedOnURL = function(testRun) {
 		var win = Ti.UI.createWindow({ backgroundColor: '#fff' });
@@ -811,6 +809,5 @@ module.exports = new function() {
 
 			finish(testRun);
 		}
->>>>>>> 5a14f53ca60d425e700a405e927d6c583347a6ba
 	}
 }
