@@ -63,6 +63,8 @@ exports.init = function (logger, config, cli) {
 						'"' + path.join(build.titaniumIosSdkPath, 'ios-sim') + '"',
 						'launch',
 						'"' + build.xcodeAppDir + '"',
+						'--xcode-dir',
+						'"' + build.xcodeEnv.path + '"',
 						'--sdk',
 						appc.version.format(build.iosSimVersion, 2, 2),
 						'--family',
@@ -72,9 +74,7 @@ exports.init = function (logger, config, cli) {
 					simProcess,
 					simErr = [],
 					stripLogLevelRE = new RegExp('\\[(?:' + logger.getLevels().join('|') + ')\\] '),
-					simStarted = false,
-					simEnv = path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Library', 'PrivateFrameworks') +
-							':' + afs.resolvePath(build.xcodeEnv.path, '..', 'OtherFrameworks');
+					simStarted = false;
 
 				if (appc.version.gte(build.iosSimVersion, '7.0.0') && cli.argv['sim-64bit']) {
 					cmd.push('--retina');
@@ -90,51 +90,36 @@ exports.init = function (logger, config, cli) {
 				}
 				cmd = cmd.join(' ');
 
-				var preProcessCmd = [
-						'install_name_tool',
-						'-add_rpath',
-						'"' + path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Library', 'PrivateFrameworks') + '"',
-						'-add_rpath',
-						'"' + afs.resolvePath(build.xcodeEnv.path, '..', 'SharedFrameworks') + '"',
-						'"' + path.join(build.titaniumIosSdkPath, 'ios-sim') + '"'
-					];
-				preProcessCmd = preProcessCmd.join(' ');
+				logger.info(__('Launching application in iOS Simulator'));
 
-				iossimPreProcess = spawn('/bin/sh',['-c', preProcessCmd], {
+				logger.debug(__('Simulator command: %s', cmd.cyan));
+
+				simProcess = spawn('/bin/sh', ['-c', cmd], {
 					cwd: build.titaniumIosSdkPath
 				});
 
-				iossimPreProcess.on('exit', function () {
-					logger.info(__('Launching application in iOS Simulator'));
+				simProcess.stderr.on('data', function (data) {
+					data.toString().split('\n').forEach(function (line) {
+						line.length && simErr.push(line.replace(stripLogLevelRE, ''));
+					}, this);
+				}.bind(this));
 
-					logger.debug(__('Simulator command: %s', cmd.cyan));
+				simProcess.on('exit', function (code, signal) {
+					clearTimeout(findLogTimer);
 
-					simProcess = spawn('/bin/sh', ['-c', cmd], {
-						cwd: build.titaniumIosSdkPath
-					});
+					if (simStarted) {
+						var endLogTxt = __('End simulator log');
+						logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey);
+					}
 
-					simProcess.stderr.on('data', function (data) {
-						data.toString().split('\n').forEach(function (line) {
-							line.length && simErr.push(line.replace(stripLogLevelRE, ''));
-						}, this);
-					}.bind(this));
+					if (code || simErr.length) {
+						finished(new appc.exception(__('An error occurred running the iOS Simulator'), simErr));
+					} else {
+						logger.info(__('Application has exited from iOS Simulator'));
+						finished();
+					}
+				}.bind(this));
 
-					simProcess.on('exit', function (code, signal) {
-						clearTimeout(findLogTimer);
-
-						if (simStarted) {
-							var endLogTxt = __('End simulator log');
-							logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey);
-						}
-
-						if (code || simErr.length) {
-							finished(new appc.exception(__('An error occurred running the iOS Simulator'), simErr));
-						} else {
-							logger.info(__('Application has exited from iOS Simulator'));
-							finished();
-						}
-					}.bind(this));
-				});
 				// focus the simulator
 				logger.info(__('Focusing the iOS Simulator'));
 				exec([
