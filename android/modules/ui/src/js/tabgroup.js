@@ -27,6 +27,8 @@ exports.bootstrap = function(Titanium) {
 
 		// Keeps track of the current tab group state
 		tabGroup.currentState = tabGroup.state.closed;
+		
+		tabGroup._activeTab = -1;
 
 		// Set the activity property here since we bind it to _internalActivity for window proxies by default
 		Object.defineProperty(TabGroup.prototype, "activity", { get: tabGroup.getActivity});
@@ -66,6 +68,9 @@ exports.bootstrap = function(Titanium) {
 		});
 
 		this.setTabs(this._tabs);
+		if (this._activeTab != -1) {
+			this.setActiveTab(this._activeTab);
+		}
 		_open.call(this, options);
 
 		this.currentState = this.state.opened;
@@ -78,7 +83,37 @@ exports.bootstrap = function(Titanium) {
 			_addTab.call(this, tab);
 		}
 	}
+	
+	var _setActiveTab = TabGroup.prototype.setActiveTab;
+	
+	TabGroup.prototype.setActiveTab = function(taborindex) {
+		if ( (this.currentState == this.state.opened) ||
+			(this.currentState == this.state.opening) ){
+			_setActiveTab.call(this,taborindex);
+		} else {
+			if (!isNaN(parseFloat(taborindex)) && isFinite(taborindex)) {
+				if (taborindex >= 0 && taborindex < this._tabs.length) {
+					this._activeTab = this._tabs[taborindex];
+				}
+			} else {
+				this._activeTab = taborindex;
+			}
+			
+		}
+	}
 
+	var _getActiveTab = TabGroup.prototype.getActiveTab;
+	
+	TabGroup.prototype.getActiveTab = function() {
+		if (this.currentState == this.state.opened) {
+			return _getActiveTab.call(this);
+		}
+		if (this._activeTab != -1) {
+			return this._activeTab;
+		}
+		return null;
+	}
+	
 	TabGroup.prototype.getTabs = function() {
 		return this._tabs;
 	}
