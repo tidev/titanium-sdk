@@ -809,13 +809,26 @@ build.prototype = {
 		});
 
 		// detect any fonts and add font face rules to the css file
+		// detect any fonts and add font face rules to the css file
 		var fonts = {};
+		//TODO Don't search directories for other platforms
 		wrench.readdirSyncRecursive(this.projectResDir).forEach(function (file) {
-			var match = file.match(/^(.+)\.(otf|woff|ttf)$/),
-				name = match && match[1].split('/').pop();
-			if (name) {
-				fonts[name] || (fonts[name] = []);
-				fonts[name].push(file);
+			if (file.indexOf("android") == -1 &&
+				file.indexOf("iphone") == -1 &&
+				file.indexOf("tizen") == -1 &&
+				file.indexOf("blackberry") == -1 &&
+				//TODO Check that this will be the path for Windows
+				file.indexOf("windows") == -1 
+				)
+			{
+				var match = file.match(/^(.+)\.(otf|woff|ttf)$/);
+				var DS = file.indexOf("\\") != -1 ? "\\" : "/";
+				var name = match && match[1].split(DS).pop();
+				file = file.split("mobileweb").join("").split(DS).join("/");
+				if (name) {
+					fonts[name] || (fonts[name] = []);
+					fonts[name].push(file);
+				}
 			}
 		});
 		Object.keys(fonts).forEach(function (name) {

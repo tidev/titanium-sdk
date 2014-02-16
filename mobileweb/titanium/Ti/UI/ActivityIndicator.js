@@ -80,15 +80,16 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/_/UI/Widget', 'Ti/_/dom', 'Ti/_/style',
 			var prong = this._prongs[this._currentProng];
 			++this._currentProng == 12 && (this._currentProng = 0);
 			setStyle(prong, 'transition', '');
+			var delay = 10; //This may need to be adjusted by browser.
 			setTimeout(function() {
-				setStyle(prong, 'opacity', 1);
+				setStyle(prong, 'opacity', delay);
 				setTimeout(function() {
 					setStyle(prong, 'transition', 'opacity 500ms linear 0ms');
 					setTimeout(function() {
 						setStyle(prong, 'opacity', opacity);
-					}, 1);
-				}, 1);
-			}, 1);
+					}, delay);
+				}, delay);
+			}, delay);
 		},
 
 		_defaultWidth: UI.SIZE,

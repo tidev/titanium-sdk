@@ -35,7 +35,8 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 				numSamples,
 				velocityX,
 				velocityY,
-				scrollbarTimeout;
+				scrollbarTimeout,
+				scrollbarsHidden;
 			self._currentTranslationX = 0;
 			self._currentTranslationY = 0;
 			self._horizontalElastic = elasticity === "horizontal" || elasticity === "both";
@@ -67,7 +68,23 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 				minTranslationX = self._minTranslationX = Math.min(0, self._measuredWidth - self._borderLeftWidth - self._borderRightWidth - self._contentContainer._measuredWidth);
 				minTranslationY = self._minTranslationY = Math.min(0, self._measuredHeight - self._borderTopWidth - self._borderBottomWidth - self._contentContainer._measuredHeight);
 			}
-			
+
+			function onDragShowScrollBars() {
+				var width = self._measuredWidth,
+					height = self._measuredHeight,
+					contentWidth = contentContainer._measuredWidth,
+					contentHeight = contentContainer._measuredHeight;
+
+				self._startScrollBars({
+					x: -self._currentTranslationX / (contentWidth - width),
+					y: -self._currentTranslationY / (contentHeight - height)
+				},
+				{
+					x: width / contentWidth,
+					y: height / contentHeight
+				});
+			}
+
 			on(self._contentContainer, "postlayout", function() {
 				setMinTranslations();
 				self._setTranslation(self._currentTranslationX, self._currentTranslationY);
@@ -75,6 +92,8 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 
 			on(self, "draggingstart", function(e) {
 				if (self.scrollingEnabled) {
+					scrollbarsHidden = true;
+
 					self._cancelAnimations();
 
 					// Initialize the velocity calculations
@@ -87,20 +106,6 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 
 					setMinTranslations();
 
-					// Start the scroll bars
-					var width = self._measuredWidth,
-						height = self._measuredHeight,
-						contentWidth = contentContainer._measuredWidth,
-						contentHeight = contentContainer._measuredHeight;
-					self._startScrollBars({
-						x: -self._currentTranslationX / (contentWidth - width),
-						y: -self._currentTranslationY / (contentHeight - height)
-					},
-					{
-						x: width / contentWidth,
-						y: height / contentHeight
-					});
-
 					// Call the callback
 					self._handleDragStart && self._handleDragStart(e);
 				}
@@ -108,6 +113,12 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 
 			on(self, "dragging", function(e) {
 				if (self.scrollingEnabled) {
+					if (scrollbarsHidden) {
+						//Show the scrollbars now that we are dragging.
+						//Don't want to show the scrollbars if we just click on an item (eg tableRow)
+						onDragShowScrollBars();
+						scrollbarsHidden = false;
+					}
 					// Update the velocity calculations
 					translationX = startTranslationX + e.distanceX;
 					translationY = startTranslationY + e.distanceY;
@@ -115,18 +126,23 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 
 					// Update the translation
 					self._setTranslation(previousTranslationX = translationX, previousTranslationY = translationY);
-					
 					self._handleDrag && self._handleDrag(e);
 				}
 			});
 
 			on(self, "draggingcancel", function(e) {
 				if (self.scrollingEnabled) {
-					self._animateToPosition(startTranslationX, startTranslationY, 400 + 0.3 * calculateDistance(
-							startTranslationX, startTranslationY, self._currentTranslationX, self._currentTranslationY),
-						UI.ANIMATION_CURVE_EASE_IN_OUT, function(){
+					var distance = calculateDistance(
+						startTranslationX, startTranslationY, self._currentTranslationX, self._currentTranslationY);
+
+					self._animateToPosition(
+						startTranslationX,
+						startTranslationY,
+						Math.max(100, 250 + 0.3 * distance),
+						UI.ANIMATION_CURVE_EASE_OUT, function(){
 							self._handleDragCancel && self._handleDragCancel(e);
 						});
+
 					self._endScrollBars();
 					self._handleDragCancel && self._handleDragCancel(e);
 				}
@@ -136,6 +152,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 				if (self.scrollingEnabled) {
 					translationX = startTranslationX + e.distanceX;
 					translationY = startTranslationY + e.distanceY;
+
 					calculateVelocity();
 					var x = self._currentTranslationX,
 						y = self._currentTranslationY,
@@ -158,10 +175,12 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 					}
 
 					if (springBack) {
-						self._animateToPosition(x, y, 200, UI.ANIMATION_CURVE_EASE_OUT, function(){
-							self._handleDragEnd && self._handleDragEnd(e);
-							self._endScrollBars();
-						});
+						self._animateToPosition(x, y, 200, UI.ANIMATION_CURVE_EASE_OUT,
+							function(){
+								self._handleDragEnd && self._handleDragEnd(e);
+								self._endScrollBars();
+							}
+						);
 					} else {
 						self._handleDragEnd && self._handleDragEnd(e, velocityX, velocityY);
 					}
@@ -169,8 +188,27 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			});
 
 			// Handle mouse wheel scrolling
-			enableMouseWheel && (this._disconnectMouseWheelEvent = on(self.domNode, "mousewheel",function(e) {
+			// Firefox needs DOMMouseScroll, so check userAgent to pick the correct event
+			var mouseWheelEvent = navigator.userAgent.indexOf("Firefox") != -1 ? "DOMMouseScroll" : "mousewheel";
+			enableMouseWheel && (this._disconnectMouseWheelEvent = on(self.domNode, mouseWheelEvent,function(e) {
 				if (self.scrollingEnabled) {
+
+					if (mouseWheelEvent == "DOMMouseScroll") { //Patch Firefox
+						e.wheelDeltaY = - e.detail * 40; //Normalize Value (FF "detail" is either 3 or -3)
+						e.wheelDeltaX = 0;
+					} else if (e.wheelDelta && !e.wheelDeltaX) { //Patch IE as it only has e.wheelDelta
+						e.wheelDeltaY = e.wheelDelta;
+						e.wheelDeltaX = 0;
+					}
+					if (e.shiftKey) { //Translate the scroll direction by 90 degrees for shift + scroll
+						e.wheelDeltaX = e.wheelDeltaY;
+						e.wheelDeltaY = 0;
+					} else if (e.ctrlKey) {
+						//TODO turn control + mousewheel into zoom/pinch
+						e.preventDefault(); //For now, prevent standard browser ctrl + scroll zoom
+						return false;
+					}
+
 					self._cancelAnimations();
 					var distanceX = contentContainer._measuredWidth - self._measuredWidth,
 						distanceY = contentContainer._measuredHeight - self._measuredHeight,
@@ -181,13 +219,13 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 
 					// Start the scrollbar
 					self._startScrollBars({
-						x: currentPositionX / distanceX,
-						y: currentPositionY / distanceY
-					},
-					{
-						x: self._measuredWidth / contentContainer._measuredWidth,
-						y: self._measuredHeight / contentContainer._measuredHeight
-					});
+							x: currentPositionX / distanceX,
+							y: currentPositionY / distanceY
+						},
+						{
+							x: self._measuredWidth / contentContainer._measuredWidth,
+							y: self._measuredHeight / contentContainer._measuredHeight
+						});
 
 					// Set the scroll position
 					self._setTranslation(Math.min(0, Math.max(self._minTranslationX,-currentPositionX + e.wheelDeltaX)),
@@ -220,14 +258,21 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 				self._setTranslation(destinationTranslationX, destinationTranslationY);
 				callback();
 			} else {
-
 				// Animate the contents
 				destination = self._setTranslation(destinationTranslationX, destinationTranslationY, 1);
 				self._contentAnimation = contentContainer.animate({
 					transform: self._kineticTransform.translate(destination.translationX, destination.translationY),
 					duration: Math.round(duration),
 					curve: curve
-				}, callback);
+				},
+				function() {
+					self._updateCurrentTranslations();
+					if (callback) {
+						callback();
+					}
+				}
+
+			);
 
 				// Animate the scroll bars
 				self._horizontalScrollBarAnimation = horizontalScrollBar && horizontalScrollBar.animate({
@@ -248,7 +293,6 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 		},
 
 		_setTranslation: function(translationX, translationY, dontSet) {
-
 			// Check if the translation is outside the limits of the view and apply elasticity
 			function elastize(value) {
 				return elasticityLimit * (-1 / (value / elasticityDrag + 1) + 1);
@@ -304,10 +348,49 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			}
 		},
 
+		_updateCurrentTranslations : function() {
+			var o = this._getCurrentTranslation();
+			if (o) {
+				this._currentTranslationX = o.tx;
+				this._currentTranslationY = o.ty;
+			}
+		},
+
+		_getCurrentTranslation : function() {
+			//Adapted from http://stackoverflow.com/questions/3432446/how-to-read-individual-webkit-transform-values-in-javascript
+			if (!this._contentContainer || !this._contentContainer.domNode) {
+				return null;
+			}
+			var elementStyle = window.getComputedStyle(this._contentContainer.domNode, null);
+			var matrix = elementStyle.getPropertyValue('transform')
+				|| elementStyle.getPropertyValue('-moz-transform')
+				|| elementStyle.getPropertyValue('-webkit-transform')
+				|| elementStyle.getPropertyValue('-ms-transform')
+				|| elementStyle.getPropertyValue('-o-transform');
+
+			var matrixCopy = matrix.replace(/^\w*\(/, '').replace(')', '');
+			var matrixValue = matrixCopy.split(/\s*,\s*/);
+			if (matrixValue.length == 6) {
+				var o = {};
+				o.a = parseFloat(matrixValue[0]);
+				o.b = parseFloat(matrixValue[1]);
+				o.c = parseFloat(matrixValue[2]);
+				o.d = parseFloat(matrixValue[3]);
+				o.tx = parseFloat(matrixValue[4]);
+				o.ty = parseFloat(matrixValue[5]);
+				return o;
+			} else if (matrixValue.length == 16) {
+				//TODO Update this to support matrix3d also
+			}
+			return null;
+		},
+
 		_cancelAnimations: function() {
 			this._horizontalScrollBarAnimation && this._horizontalScrollBarAnimation.cancel();
 			this._verticalScrollBarAnimation && this._verticalScrollBarAnimation.cancel();
 			this._contentAnimation && this._contentAnimation.cancel();
+
+			this._updateCurrentTranslations();
 		},
 
 		_createHorizontalScrollBar: function() {
