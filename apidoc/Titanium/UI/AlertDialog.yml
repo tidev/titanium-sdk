@@ -128,11 +128,11 @@ properties:
         one or more `<ButtonName>` elements (see example).
 
             <Alloy>
-                <AlertDialog id="dialog" onClick="doClick" title="Decide!"message="Do you really want to do that?" cancel="1">
-                    <ButtonNames id="names">
-                        <ButtonName id="btn1">Confirm</ButtonName>
-                        <ButtonName id="btn2">Cancel</ButtonName>
-                        <ButtonName id="btn3">Help</ButtonName>
+                <AlertDialog id="dialog" onClick="doClick" title="Decide!" message="Do you really want to do that?" cancel="1">
+                    <ButtonNames>
+                        <ButtonName>Confirm</ButtonName>
+                        <ButtonName>Cancel</ButtonName>
+                        <ButtonName>Help</ButtonName>
                     </ButtonNames>
                 </AlertDialog>
             </Alloy>

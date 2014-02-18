@@ -660,6 +660,7 @@ properties:
         In an Alloy application you can specify this property using a `<TitleControl>` element inside 
         `<Window>`, for example:
 
+            <Alloy>
                 <RightNavButton>
                     <Button title="Back" />                 
                 </RightNavButton>
@@ -668,7 +669,8 @@ properties:
                 </LeftNavButton>
                 <TitleControl>
                     <View backgroundColor="blue" height="100%" width="100%"></View>
-                </TitleControl>            
+                </TitleControl>
+            </Alloy>
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
 

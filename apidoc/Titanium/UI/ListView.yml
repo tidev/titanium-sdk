@@ -443,7 +443,7 @@ properties:
               <ListView>
                 <ListSection>
                   <ListItem title="Item a"></ListItem>
-                  <ListItem title=  "Item b"></ListItem>
+                  <ListItem title="Item b"></ListItem>
                   <ListItem title="Item c"></ListItem>
                 </ListSection>
                 <PullView>
@@ -476,12 +476,14 @@ properties:
 
         In an Alloy application, you can use a `<SearchView>` or `<SearchBar>` element inside a `<ListView>` element.
 
-            <ListView>
-              <!-- search, shorthand with Ti.UI.SearchBar -->
-              <SearchBar class="search" platform="ios"/>
-              <!-- search, shorthand with Ti.UI.Android.SearchView -->
-              <SearchView ns="Ti.UI.Android" class="search" platform="android"/>
-            </ListView>
+            <Alloy>
+                <ListView>
+                   <!-- search, shorthand with Ti.UI.SearchBar -->
+                  <SearchBar class="search" platform="ios"/>
+                  <!-- search, shorthand with Ti.UI.Android.SearchView -->
+                  <SearchView ns="Ti.UI.Android" class="search" platform="android"/>
+                </ListView>
+            </Alloy>
 
     type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
     platforms: [android, iphone, ipad]

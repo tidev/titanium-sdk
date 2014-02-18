@@ -234,18 +234,20 @@ properties:
         In Alloy, you can use a `<KeyboardToolbar>` element inside a `<TextField>` element to create 
         a `KeyboardToolbar`.
 
-            <TextField id="textfield" platform="ios" hintText="Tap here...">    
-                <!-- even nested proxy properties -->
-                <KeyboardToolbar>
-                    <Toolbar>
-                        <Items>
-                            <Button>button 1</Button>
-                            <FlexSpace/>
-                            <Button>button 2</Button>
-                        </Items>
-                    </Toolbar>
-                </KeyboardToolbar>
-            </TextField>        
+            <Alloy>
+                <TextField id="textfield" platform="ios" hintText="Tap here...">    
+                    <!-- even nested proxy properties -->
+                    <KeyboardToolbar >
+                        <Toolbar >
+                            <Items >
+                                <Button>button 1</Button>
+                                <FlexSpace/>
+                                <Button>button 2</Button>
+                            </Items>
+                        </Toolbar>
+                    </KeyboardToolbar>
+                </TextField>
+            </Alloy>
     type: [Array<Titanium.UI.View>, Titanium.UI.iOS.Toolbar]
     platforms: [iphone, ipad]
     

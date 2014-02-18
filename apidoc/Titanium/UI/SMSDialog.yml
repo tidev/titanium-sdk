@@ -79,10 +79,3 @@ examples:
             smsDialog.toRecipients = ['5550122'];
             smsDialog.messageBody = 'Appcelerator Titanium Rocks!';
             smsDialog.open();  
-
-        Alloy version of previous example.
-        
-            var smsDialog = Ti.UI.createSMSDialog();
-            smsDialog.toRecipients = ['5550122'];
-            smsDialog.messageBody = 'Appcelerator Titanium Rocks!';
-            smsDialog.open();  

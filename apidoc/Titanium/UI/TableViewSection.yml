@@ -130,19 +130,22 @@ properties:
 
         In Alloy, you can use a `<HeaderView>` element inside a `<TableViewSEction>` element:
 
-            <TableView filterAttribute="title">
-                <SearchBar platform="android,ios"/>
-                <TableViewSection>
-                    <HeaderView>
-                        <View backgroundColor="#a00" height="50dp"/>
-                    </HeaderView>
-                    <FooterView>
-                        <View backgroundColor="#0a0" height="50dp"/>
-                    </FooterView>
-                    <TableViewRow title="Row 1"/>
-                    <TableViewRow title="Row 2"/>
-                    <TableViewRow title="Row 3"/>
-                </TableViewSection>
+            <Alloy>
+                <TableView filterAttribute="title">
+                    <SearchBar platform="android,ios"/>
+                    <TableViewSection>
+                        <HeaderView>
+                            <View backgroundColor="#a00" height="50dp"/>
+                        </HeaderView>
+                        <FooterView>
+                            <View backgroundColor="#0a0" height="50dp"/>
+                        </FooterView>
+                        <TableViewRow title="Row 1"/>
+                        <TableViewRow title="Row 2"/>
+                        <TableViewRow title="Row 3"/>
+                    </TableViewSection>
+                </TableView>
+            </Alloy>
 
     type: Titanium.UI.View
     exclude-platforms: [blackberry]

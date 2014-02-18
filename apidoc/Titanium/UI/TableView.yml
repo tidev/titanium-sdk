@@ -1181,13 +1181,15 @@ properties:
     description: |
         In Alloy you can use a `<FooterView>` element nested in a `<TableView>` element:
 
-            <TableView>
-                <FooterView>
-                    <View backgroundColor="#a00" height="50dp"/>
-                </FooterView>
-                <TableViewRow><Label>Row 1</Label></TableViewRow>
-                <TableViewRow><Label>Row 2</Label></TableViewRow>
-            </TableView>
+            <Alloy>
+                <TableView>
+                    <FooterView>
+                        <View backgroundColor="#a00" height="50dp"/>
+                    </FooterView>
+                    <TableViewRow><Label>Row 1</Label></TableViewRow>
+                    <TableViewRow><Label>Row 2</Label></TableViewRow>
+                </TableView>
+            </Alloy>
 
     type: Titanium.UI.View
     exclude-platforms: [blackberry]
@@ -1202,13 +1204,15 @@ properties:
     description: |
         In Alloy you can use a `<HeaderView>` element nested in a `<TableView>` element:
 
-            <TableView>
-                <HeaderView>
-                    <View backgroundColor="#a00" height="50dp"/>
-                </HeaderView>
-                <TableViewRow><Label>Row 1</Label></TableViewRow>
-                <TableViewRow><Label>Row 2</Label></TableViewRow>
-            </TableView>
+            <Alloy>
+                <TableView>
+                    <HeaderView>
+                        <View backgroundColor="#a00" height="50dp"/>
+                    </HeaderView>
+                    <TableViewRow><Label>Row 1</Label></TableViewRow>
+                    <TableViewRow><Label>Row 2</Label></TableViewRow>
+                </TableView>
+            </Alloy>
 
     type: Titanium.UI.View
     exclude-platforms: [blackberry]
@@ -1306,12 +1310,14 @@ properties:
     description: |
         In an Alloy application, you can use a `<SearchView>` or `<SearchBar>` element inside a `<TableView>` element.
 
-            <TableView>
-              <!-- search, shorthand with Ti.UI.SearchBar -->
-              <SearchBar class="search" platform="ios"/>
-              <!-- search, shorthand with Ti.UI.Android.SearchView -->
-              <SearchView ns="Ti.UI.Android" class="search" platform="android"/>
-            </TableView>
+            <Alloy>
+                <TableView>
+                  <!-- search, shorthand with Ti.UI.SearchBar -->
+                  <SearchBar platform="ios"/>
+                  <!-- search, shorthand with Ti.UI.Android.SearchView -->
+                  <SearchView ns="Ti.UI.Android" platform="android"/>
+                </TableView>
+            </Alloy>
 
     type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
     platforms: [android, iphone, ipad]

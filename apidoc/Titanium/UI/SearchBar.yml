@@ -43,8 +43,6 @@ description: |
                 mySearchBar.show();
             }
             // standard click event handling here
-
-    The 
     
 extends: Titanium.UI.View
 excludes: { methods: [ add, removeAllChildren ] }
