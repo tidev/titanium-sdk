@@ -363,7 +363,7 @@ public class TiAnimationBuilder
 
 				// Relayout child in pre-Honeycomb so that touch targets get
 				// updated.
-				relayoutChild = PRE_HONEYCOMB && (autoreverse == null || !autoreverse.booleanValue());
+				relayoutChild = (autoreverse == null || !autoreverse.booleanValue());
 
 			} else {
 
@@ -502,7 +502,7 @@ public class TiAnimationBuilder
 			// orientation. But if autoreversing to original layout, no
 			// need to re-layout. Also, don't do it if a rotation is included,
 			// since the re-layout will lose the rotation.
-			relayoutChild = PRE_HONEYCOMB && !includesRotation && (autoreverse == null || !autoreverse.booleanValue());
+			relayoutChild = !includesRotation && (autoreverse == null || !autoreverse.booleanValue());
 
 		}
 
@@ -560,7 +560,7 @@ public class TiAnimationBuilder
 			// to original layout, no need to re-layout.
 			// Also, don't do it if a rotation is included,
 			// since the re-layout will lose the rotation.
-			relayoutChild = PRE_HONEYCOMB && !includesRotation && (autoreverse == null || !autoreverse.booleanValue());
+			relayoutChild = !includesRotation && (autoreverse == null || !autoreverse.booleanValue());
 		}
 
 		AnimatorSet as = new AnimatorSet();
@@ -1206,17 +1206,19 @@ public class TiAnimationBuilder
 		@SuppressWarnings("unchecked")
 		public void onAnimationEnd(Animator animator)
 		{
-			if (relayoutChild && PRE_HONEYCOMB) {
-				LayoutParams params = null;
-				View viewToSetParams = view;
-				if (view.getParent() instanceof TiBorderWrapperView) {
-					viewToSetParams = (View) view.getParent();
+			if (relayoutChild) {
+				if (PRE_HONEYCOMB) {
+					LayoutParams params = null;
+					View viewToSetParams = view;
+					if (view.getParent() instanceof TiBorderWrapperView) {
+						viewToSetParams = (View) view.getParent();
+					}
+					params = (LayoutParams) viewToSetParams.getLayoutParams();
+					TiConvert.fillLayout(options, params);
+					viewToSetParams.setLayoutParams(params);
+					view.clearAnimation();
+					relayoutChild = false;
 				}
-				params = (LayoutParams) viewToSetParams.getLayoutParams();
-				TiConvert.fillLayout(options, params);
-				viewToSetParams.setLayoutParams(params);
-				view.clearAnimation();
-				relayoutChild = false;
 				// TIMOB-11298 Propagate layout property changes to proxy
 				for (Object key : options.keySet()) {
 					if (TiC.PROPERTY_TOP.equals(key)
