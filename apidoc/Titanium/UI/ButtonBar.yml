@@ -55,6 +55,22 @@ properties:
         enabled state for each button. 
 
         In Alloy you specify the labels with a nested `<Labels>` element that contains one or more `<Label>` elements.
+
+            <Alloy>
+                <ButtonBar platform="ios">
+                    <Labels>
+                        <!-- Specify text with node text or "title" attribute. -->
+                        <Label>button 1</Label>
+                        <Label title="button 2"/>
+                        <!-- uses images and/or widths -->
+                        <Label width="40" image="/KS_nav_ui.png"/>
+                        <!-- set as disabled -->
+                        <Label enabled="false">disabled</Label>
+                        <!-- empty labels will print a warning (no properties) -->
+                        <!-- <Label/> -->
+                    </Labels>
+                </ButtonBar>
+            </Alloy>
     type: [Array<String>, Array<BarItemType>]
   - name: style
     summary: Style of the button bar.

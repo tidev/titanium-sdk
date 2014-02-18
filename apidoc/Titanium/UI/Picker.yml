@@ -184,6 +184,27 @@ events:
 properties:
   - name: columns
     summary: Columns used for this picker, as an array of <Titanium.UI.PickerColumn> objects.
+    description: |
+        In an Alloy application you can specify this property with a `<PickerColumn>` (or `<Column>`)
+        element that contains one or more `<PickerRow>` (or `<Row>`) elements, as shown below:
+
+            <Alloy>
+                <Window>
+                    <Picker useSpinner="true">
+                        <PickerColumn id="column1">
+                            <PickerRow title="Bananas"/>
+                            <PickerRow title="Strawberries"/>
+                            <PickerRow title="Mangos"/>
+                        </PickerColumn>
+                        <!-- Picker shorthand notation -->
+                        <Column id="column2">
+                            <Row title="red"/>
+                            <Row title="green"/>
+                            <Row title="blue"/>
+                        </Column>
+                    </Picker>
+                </Window>
+            </Alloy>
     type: Array<Titanium.UI.PickerColumn>
     
   - name: countDownDuration

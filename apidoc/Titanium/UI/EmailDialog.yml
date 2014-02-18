@@ -3,7 +3,7 @@ name: Titanium.UI.EmailDialog
 summary: |
     An email dialog is a modal window that allows users to compose and send an email.
 description: |
-    The Email Dialog is created by <Titanium.UI.createEmailDialog> or **`<EmailDialog>`** Alloy element.
+    The Email Dialog is created with the <Titanium.UI.createEmailDialog> method.
     
     On Mobile Web and Tizen, the `to` addresses, `cc` addresses, `bcc` addresses, `subject`, and `body` are 
     appended together and formatted into a `mailto:` URL. This URL typically has a limit of 
@@ -163,19 +163,3 @@ examples:
             var f = Ti.Filesystem.getFile('cricket.wav');
             emailDialog.addAttachment(f);
             emailDialog.open();
-
-  - title: Alloy XML Markup
-    example: |
-        Previous example as an Alloy view.
-
-        emaildialog.xml:
-
-            <Alloy>
-                <EmailDialog id="emailDialog" subject="Hello from Titanium" messageBody="<b>Appcelerator Titanium Rocks!</b>" />
-            </Alloy>
-
-        emaildialog.js:
-
-            $.emailDialog.toRecipients = ['foo@yahoo.com'];
-            var f = Ti.Filesystem.getFile('cricket.wav');
-            $.emailDialog.addAttachment(f);
