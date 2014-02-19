@@ -113,6 +113,12 @@ public class MediaModule extends KrollModule
 
 	@Kroll.constant public static final String MEDIA_TYPE_PHOTO = "public.image";
 	@Kroll.constant public static final String MEDIA_TYPE_VIDEO = "public.video";
+	
+	@Kroll.constant public static final String FLASH_MODE_AUTO = "auto";
+	@Kroll.constant public static final String FLASH_MODE_OFF = "off";
+	@Kroll.constant public static final String FLASH_MODE_ON = "on";
+	@Kroll.constant public static final String FLASH_MODE_TORCH = "torch";
+	@Kroll.constant public static final String FLASH_MODE_RED_EYE = "red-eye";
 
 	@Kroll.constant public static final int CAMERA_FRONT = 0;
 	@Kroll.constant public static final int CAMERA_REAR = 1;
@@ -151,6 +157,7 @@ public class MediaModule extends KrollModule
 		KrollFunction errorCallback = null;
 		boolean autohide = true;
 		boolean saveToPhotoGallery = false;
+		String flashMode = FLASH_MODE_AUTO;
 
 		if (options.containsKey("success")) {
 			successCallback = (KrollFunction) options.get("success");
@@ -160,6 +167,11 @@ public class MediaModule extends KrollModule
 		}
 		if (options.containsKey("error")) {
 			errorCallback = (KrollFunction) options.get("error");
+		}
+		
+		Object flashModeOption = options.get("flashMode");
+		if (flashModeOption != null) {
+			flashMode = TiConvert.toString(flashModeOption);
 		}
 
 		Object autohideOption = options.get("autohide");
@@ -192,6 +204,7 @@ public class MediaModule extends KrollModule
 				TiCameraActivity.whichCamera = TiConvert.toInt(whichCamera);
 			}
 			TiCameraActivity.autohide = autohide;
+			TiCameraActivity.flashMode = flashMode;
 
 			Intent intent = new Intent(activity, TiCameraActivity.class);
 			activity.startActivity(intent);
