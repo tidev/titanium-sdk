@@ -24,6 +24,7 @@ import org.appcelerator.titanium.util.TiUrl;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Message;
+import android.support.v4.view.MenuItemCompat;
 import android.view.MenuItem;
 import android.view.MenuItem.OnActionExpandListener;
 import android.view.View;
@@ -384,6 +385,11 @@ public class MenuItemProxy extends KrollProxy
 			});
 
 		} else {
+			TiMessenger.postOnMain(new Runnable() {
+				public void run() {
+					MenuItemCompat.setShowAsAction(item, flag);
+				}
+			});
 			Log.i(TAG, "Action bar unsupported by this device. Ignoring showAsAction property.", Log.DEBUG_MODE);
 		}
 	}

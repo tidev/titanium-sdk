@@ -266,12 +266,10 @@ public class ActivityProxy extends KrollProxy
 	@Kroll.method
 	public void invalidateOptionsMenu()
 	{
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
-			if (TiApplication.isUIThread()) {
+		if (TiApplication.isUIThread()) {
 				handleInvalidateOptionsMenu();
-			} else {
+		} else {
 				getMainHandler().obtainMessage(MSG_INVALIDATE_OPTIONS_MENU).sendToTarget();
-			}
 		}
 	}
 
@@ -286,8 +284,8 @@ public class ActivityProxy extends KrollProxy
 	private void handleInvalidateOptionsMenu()
 	{
 		Activity activity = getWrappedActivity();
-		if (activity != null) {
-			activity.invalidateOptionsMenu();
+		if (activity != null && activity instanceof ActionBarActivity) {
+			((ActionBarActivity)activity).supportInvalidateOptionsMenu();
 		}
 	}
 
