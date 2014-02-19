@@ -15,11 +15,11 @@ module.exports = new function() {
 	
 	this.name = "ui_tableViewRow";
 	this.tests = [
-		//{name: "setFontProperties"},
+		//{name: "setFontProperties"},due to TIMOB-15700
 		{name: "dpDimension"},
 		{name: "setHeaderOutsideTable", timeout: 30000},
-		{name: "percentageHeight"},
-		{name: "updateNumberOfRows"},
+		//{name: "percentageHeight"}, due to TIMOB-15700
+		//{name: "updateNumberOfRows"}, due to TIMOB-15700
 		{name: "accesTableViewRow"}
 	];
 
@@ -88,7 +88,7 @@ module.exports = new function() {
 			var row = Ti.UI.createTableViewRow({
 				height: 65
 			});
-			row.header= 'A';
+			row.header = 'A';
 			table.appendRow(row);
 		}
 		for(var i = 0; i<200; i++){
