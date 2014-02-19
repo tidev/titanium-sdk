@@ -24,6 +24,7 @@ define(
 		},
 		pixelUnits = 'px',
 		useTouch = has('touch'),
+		usePointer = global.navigator.msPointerEnabled,
 		gestureEvents = [
 			'touchstart',
 			'touchend',
@@ -57,12 +58,14 @@ define(
 			on(self, 'touchstart', self, '_doBackground');
 			on(self, 'touchend', self, '_doBackground');
 
-			on(self.domNode, useTouch ? 'touchstart' : 'mousedown', function(evt){
+			// NOTE: this code signifies that a given element was involved in the event, but doesn't actually handle it.
+			// The code to actually handle the event is in UI.js
+			on(self.domNode, usePointer ? 'MSPointerDown' : useTouch ? 'touchstart' : 'mousedown', function(evt){
 				var handles = [
-					on(global, useTouch ? 'touchmove' : 'mousemove', function(evt){
+					on(global, usePointer ? 'MSPointerMove' : useTouch ? 'touchmove' : 'mousemove', function(evt){
 						(useTouch || touching) && (evt._elements || (evt._elements = [])).push(self);
 					}),
-					on(global, useTouch ? 'touchend' : 'mouseup', function(evt){
+					on(global, usePointer ? 'MSPointerUp' : useTouch ? 'touchend' : 'mouseup', function(evt){
 						touching = 0;
 						(evt._elements || (evt._elements = [])).push(self);
 						event.off(handles);
@@ -364,10 +367,10 @@ define(
 					}
 
 					// Compute the angle, start location, and end location of the gradient
-					var angle = Math.atan2(endPointY - startPointY, endPointX - startPointX)
+					var angle = Math.atan2(endPointY - startPointY, endPointX - startPointX),
 						tanAngle = Math.tan(angle),
 						cosAngle = Math.cos(angle),
-						originLineIntersection = centerY - centerX * tanAngle;
+						originLineIntersection = centerY - centerX * tanAngle,
 						userDistance = (startPointY - startPointX * tanAngle - originLineIntersection) * cosAngle,
 						userXOffset = userDistance * Math.sin(angle),
 						userYOffset = userDistance * cosAngle,
@@ -424,7 +427,7 @@ define(
 
 					for (var i = 0; i <= (numColors - 2) / 2; i++) {
 						var mirroredPosition = numColors - i - 1;
-						colorList[i] = colors[mirroredPosition],
+						colorList[i] = colors[mirroredPosition];
 						colorList[mirroredPosition] = colors[i];
 					}
 					if (numColors % 2 === 1) {

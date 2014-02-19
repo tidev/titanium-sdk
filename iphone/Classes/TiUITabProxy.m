@@ -28,6 +28,9 @@
 
 -(void)_destroy
 {
+    if (rootWindow != nil) {
+        [self cleanNavStack:YES];
+    }
     RELEASE_TO_NIL(controllerStack);
     RELEASE_TO_NIL(rootWindow);
     RELEASE_TO_NIL(controller);

@@ -9,7 +9,8 @@ define(['Ti/_/Evented', 'Ti/_/lang'], function(Evented, lang) {
 
 		// the order of these DOES matter... it uses the last known function
 		// (i.e. if trace() does not exist, it'll use debug() for trace)
-	fns = ['debug', 'trace', 'error', 'fatal', 'critical', 'notice', 'warn', 'info'];
+		fns = ['debug', 'trace', 'error', 'fatal', 'critical', 'notice', 'warn', 'info'];
+
 	// console.*() shim
 	con === void 0 && (con = global.console = {});
 
@@ -29,9 +30,10 @@ define(['Ti/_/Evented', 'Ti/_/lang'], function(Evented, lang) {
 		(function(fn) {
 			var ls = last = console[fn] ? fn : last;
 			api[fn] = function() {
-				console[ls]('[' + fn.toUpperCase() + '] ' + lang.toArray(arguments).map(function(a) {
+				var m = '[' + fn.toUpperCase() + '] ' + lang.toArray(arguments).map(function(a) {
 					return require.is(a, 'Object') ? a.hasOwnProperty('toString') ? a.toString() : JSON.stringify(a) : a === null ? 'null' : a === void 0 ? 'undefined' : a;
-				}).join(' '));
+				}).join(' ');
+				global.hasWP8Extensions ? require.sendNativeMessage('l', m) : console[ls](m);
 			};
 		})(fns[i]);
 	}

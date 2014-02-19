@@ -32,6 +32,10 @@ public class TiModuleDependencies {
 		return (Map<String, List<String>>)map.get("dependencies");
 	}
 	
+	public Map<String, String> getModulePackages() {
+		return (Map<String, String>)map.get("modulepackage");
+	}
+
 	public Collection<String> getModules() {
 		return getDependencies().keySet();
 	}

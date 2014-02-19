@@ -171,6 +171,7 @@ public class TiWebViewBinding
 	@SuppressWarnings("unused")
 	private class TiReturn
 	{
+		@JavascriptInterface
 		public void setValue(String value)
 		{
 			if (value != null) {

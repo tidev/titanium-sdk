@@ -30,7 +30,8 @@ var require = {
 		"ti-show-errors": ${has_show_errors | jsQuoteEscapeFilter},
 		"ti-instrumentation": function(g) {
 				return ${has_instrumentation | jsQuoteEscapeFilter} && g.instrumentation;
-		}
+		},
+		"winstore_extensions": ${has_winstore_extensions}
 	},
 	locales: ${locales},
 	packages: ${packages},
@@ -53,3 +54,5 @@ var require = {
 		dom: ["", "Webkit", "Moz", "ms", "O", "Khtml"]
 	}
 };
+
+window.hasWP8Extensions = ${has_wp8_extensions};

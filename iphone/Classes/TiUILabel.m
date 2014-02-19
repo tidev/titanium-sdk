@@ -100,7 +100,7 @@
             alignment = UIControlContentVerticalAlignmentTop;
         }
     }
-    if (alignment != UIControlContentVerticalAlignmentFill) {
+    if (alignment != UIControlContentVerticalAlignmentFill && ([label numberOfLines] != 1)) {
         CGFloat originX = 0;
         switch (label.textAlignment) {
             case UITextAlignmentRight:

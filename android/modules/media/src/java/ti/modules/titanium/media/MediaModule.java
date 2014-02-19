@@ -60,6 +60,7 @@ import android.os.Message;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
+import android.provider.MediaStore.MediaColumns;
 import android.view.Window;
 
 @Kroll.module @ContextSpecific
@@ -308,6 +309,21 @@ public class MediaModule extends KrollModule
 			return;
 		}
 
+		// Get the taken date for the last image in EXTERNAL_CONTENT_URI.
+		String[] projection = {
+			Images.ImageColumns.DATE_TAKEN
+		};
+		String dateTaken = null;
+		Cursor c = activity.getContentResolver().query(Images.Media.EXTERNAL_CONTENT_URI, projection, null, null,
+				Images.ImageColumns.DATE_TAKEN);
+		if (c != null) {
+			if (c.moveToLast()) {
+				dateTaken = c.getString(0);
+			}
+			c.close();
+			c = null;
+		}
+
 		CameraResultHandler resultHandler = new CameraResultHandler();
 		resultHandler.imageFile = imageFile;
 		resultHandler.saveToPhotoGallery = saveToPhotoGallery;
@@ -316,6 +332,7 @@ public class MediaModule extends KrollModule
 		resultHandler.errorCallback = errorCallback;
 		resultHandler.activitySupport = activitySupport;
 		resultHandler.cameraIntent = cameraIntent.getIntent();
+		resultHandler.dateTaken_lastImageInExternalContentURI = dateTaken;
 
 		if (imageFile != null) {
 			String imageUrl = "file://" + imageFile.getAbsolutePath();
@@ -432,6 +449,7 @@ public class MediaModule extends KrollModule
 		protected KrollFunction successCallback, cancelCallback, errorCallback;
 		protected TiActivitySupport activitySupport;
 		protected Intent cameraIntent;
+		protected String dateTaken_lastImageInExternalContentURI;
 
 		@Override
 		public void run()
@@ -467,7 +485,7 @@ public class MediaModule extends KrollModule
 						Images.Media.MIME_TYPE,
 						Images.ImageColumns.BUCKET_ID,
 						Images.ImageColumns.BUCKET_DISPLAY_NAME,
-						"_data",
+						MediaColumns.DATA,
 						Images.ImageColumns.DATE_TAKEN
 					};
 
@@ -481,8 +499,10 @@ public class MediaModule extends KrollModule
 
 					Cursor c = null;
 					boolean isDataValid = true;
-					if (data.getData() != null) {
-						c = activity.getContentResolver().query(data.getData(), projection, null, null, null);
+					boolean isQueriedPhotoValid = true;
+					Uri uriData = data.getData();
+					if (uriData != null) {
+						c = activity.getContentResolver().query(uriData, projection, null, null, null);
 					}
 					if (c == null) {
 						c = activity.getContentResolver().query(Images.Media.EXTERNAL_CONTENT_URI, projection, null, null,
@@ -492,7 +512,7 @@ public class MediaModule extends KrollModule
 					if (c != null) {
 						try {
 							boolean isCursorValid = false;
-							if (data.getData() != null && isDataValid) {
+							if (uriData != null && isDataValid) {
 								isCursorValid = c.moveToNext();
 							} else {
 								isCursorValid = c.moveToLast();
@@ -506,24 +526,30 @@ public class MediaModule extends KrollModule
 								dataPath = c.getString(5);
 								dateTaken = c.getString(6);
 								
+								if (!isDataValid && dateTaken.equals(dateTaken_lastImageInExternalContentURI)) {
+									isQueriedPhotoValid = false;
+								}
+
 								Log.d(TAG, "Image { title: " + title + " displayName: " + displayName + " mimeType: "
 									+ mimeType + " bucketId: " + bucketId + " bucketDisplayName: " + bucketDisplayName
 									+ " path: " + dataPath + " }", Log.DEBUG_MODE);
 							}
 						} finally {
-							if (c != null) {
-								c.close();
-								c = null;
-							}
+							c.close();
+							c = null;
 						}
 					} else {
 						// If we can't get query the image, process it from the imageFile
 						processImage(activity);
 						return;
 					}
+					if (!isQueriedPhotoValid) {
+						// If the queried image is not the one we just captured, process it from the imageFile
+						processImage(activity);
+						return;
+					}
 
 					String localImageUrl = dataPath;
-
 					URL url;
 					try {
 						if (!saveToPhotoGallery) {
@@ -533,8 +559,8 @@ public class MediaModule extends KrollModule
 							moveImage(dataPath, url.getPath());
 
 							// Delete the saved the image entry from the gallery DB.
-							if (data.getData() != null && isDataValid) {
-								activity.getContentResolver().delete(data.getData(), null, null);
+							if (uriData != null && isDataValid) {
+								activity.getContentResolver().delete(uriData, null, null);
 							} else {
 								activity.getContentResolver().delete(Images.Media.EXTERNAL_CONTENT_URI, "datetaken = ?", new String[] { dateTaken });
 							}
