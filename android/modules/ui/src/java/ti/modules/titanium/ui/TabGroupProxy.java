@@ -28,10 +28,10 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIActionBarTabGroup;
 import ti.modules.titanium.ui.widget.tabgroup.TiUITabHostGroup;
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Message;
+import android.support.v7.app.ActionBarActivity;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_TABS_BACKGROUND_COLOR,
@@ -287,15 +287,20 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handleOpen(KrollDict options)
 	{
-		ActionBarActivity topActivity = (ActionBarActivity) TiApplication.getAppCurrentActivity();
-		Intent intent = new Intent(topActivity, TiActivity.class);
-		fillIntent(topActivity, intent);
+		Activity activity = TiApplication.getAppCurrentActivity();
+		if (activity instanceof ActionBarActivity) {
+			ActionBarActivity topActivity = (ActionBarActivity) TiApplication.getAppCurrentActivity();
+			Intent intent = new Intent(topActivity, TiActivity.class);
+			fillIntent(topActivity, intent);
 
-		int windowId = TiActivityWindows.addWindow(this);
-		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
-		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
+			int windowId = TiActivityWindows.addWindow(this);
+			intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
+			intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 
-		topActivity.startActivity(intent);
+			topActivity.startActivity(intent);
+		} else {
+			Log.e(TAG, "TabGroupProxy requires an activity that is a descendent of ActionBarActivity to work with AppCompat", Log.DEBUG_MODE);
+		}
 	}
 
 	@Override
