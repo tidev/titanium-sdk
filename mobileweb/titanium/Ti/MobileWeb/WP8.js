@@ -20,7 +20,6 @@ define(['Ti/_/lang'], function(lang) {
     }
 
     handleError = function (x) {
-        var payload = JSON.parse(x);
         Ti.API.error(x);
         throw x;
     }
