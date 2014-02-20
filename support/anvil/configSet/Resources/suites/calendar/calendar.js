@@ -18,7 +18,7 @@ module.exports = new function() {
 		{name: "moduleReachable"},
 		{name: "eventLocation"},
 		{name: "noSuchColumnError"},
-		//{name: "eventsBetweenTwoDates"}
+		{name: "eventsBetweenTwoDates"}
 	]
 
 	this.moduleReachable = function(testRun) {
