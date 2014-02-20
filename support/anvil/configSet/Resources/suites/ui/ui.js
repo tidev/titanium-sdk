@@ -15,6 +15,8 @@ module.exports = new function() {
 
 	this.name = "ui";
 	this.tests = [
+		{name: "pdfLoad"},
+		{name: "evalJS"},
 		{name: "webviewEvalJSLockup", timeout: 10000},
 		{name: "webviewBindingUnavailable", timeout: 15000},
 		{name: "webviewBindingAvailable", timeout: 10000},
@@ -45,6 +47,56 @@ module.exports = new function() {
 		{name: "malformedURL", timeout: 10000},
 		{name: "navigationType", timeout: 10000}
 	];
+	
+	//TIMOB-1563
+	this.pdfLoad = function(testRun){
+		var win = Ti.UI.createWindow();
+		var webView = Titanium.UI.createWebView({ 
+			top : 5,
+			height:'auto', 
+			url: "http://www.bartleby.com/ebook/adobe/3134.pdf",
+			backgroundColor: 'transparent',
+			loading: true });
+		var loadEvent = false;
+		var errorEvent = false;
+		win.add(webView); 
+		webView.addEventListener('load', function(){
+			loadEvent = true;
+		});
+		webView.addEventListener('error', function(){
+			errorEvent = true;
+		});
+		setTimeout(function(){
+
+            var log=Titanium.Filesystem.getFile('file://localhost/Users/mac/Desktop','test.txt');
+            log.write(errorEvent+"============"+loadEvent);
+			valueOf(testRun, errorEvent).shouldBeFalse();
+			valueOf(testRun, loadEvent).shouldBeTrue();
+
+			finish(testRun);
+		},5000)
+		win.open();
+	}
+
+	//TIMOB-16150
+	this.evalJS = function(testRun){
+		var win = Titanium.UI.createWindow();
+		var webview = Titanium.UI.createWebView({
+			top: 100,
+			url: '/test.html' 
+		});
+		win.add(webview);
+		setTimeout(function() {
+			var something = webview.evalJS("returnSomething()");
+			setTimeout(function() {
+				valueOf(testRun, something).shouldNotBeNull();
+				valueOf(testRun, something).shouldBeString();
+
+				finish(testRun);
+			},3000);
+		},1000);
+		win.open();
+	}
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2583
 	this.webviewEvalJSLockup = function(testRun) {
