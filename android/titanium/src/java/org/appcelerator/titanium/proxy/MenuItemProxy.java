@@ -6,9 +6,6 @@
  */
 package org.appcelerator.titanium.proxy;
 
-import java.util.HashMap;
-
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
@@ -71,6 +68,18 @@ public class MenuItemProxy extends KrollProxy
 			return true;
 		}
 	}
+	
+	private final class CompatActionExpandListener implements MenuItemCompat.OnActionExpandListener {
+		public boolean onMenuItemActionCollapse(MenuItem item) {
+			fireEvent(TiC.EVENT_COLLAPSE, null);
+			return true;
+		}
+
+		public boolean onMenuItemActionExpand(MenuItem item) {
+			fireEvent(TiC.EVENT_EXPAND, null);
+			return true;
+		}
+	}
 
 	protected MenuItemProxy(MenuItem item)
 	{
@@ -78,6 +87,8 @@ public class MenuItemProxy extends KrollProxy
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			item.setOnActionExpandListener(new ActionExpandListener());
+		} else {
+			MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
 		}
 	}
 
@@ -163,7 +174,7 @@ public class MenuItemProxy extends KrollProxy
 				return true;
 			}
 			case MSG_ACTION_VIEW_EXPANDED: {
-				result.setResult(item.isActionViewExpanded());
+				result.setResult(isAppCompatActionViewExpanded());
 				return true;
 			}
 			
@@ -359,8 +370,8 @@ public class MenuItemProxy extends KrollProxy
 	public void setActionView(Object view)
 	{
 		if (view instanceof TiViewProxy) {
+			final View v = ((TiViewProxy) view).getOrCreateView().getNativeView();
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-				final View v = ((TiViewProxy) view).getOrCreateView().getNativeView();
 				TiMessenger.postOnMain(new Runnable() {
 					public void run() {
 						item.setActionView(v);
@@ -368,7 +379,11 @@ public class MenuItemProxy extends KrollProxy
 				});
 
 			} else {
-				Log.i(TAG, "Action bar is not available on this device. Ignoring actionView property.", Log.DEBUG_MODE);
+				TiMessenger.postOnMain(new Runnable() {
+					public void run() {
+						MenuItemCompat.setActionView(item, v);
+					}
+				});
 			}
 		} else {
 			Log.w(TAG, "Invalid type for actionView", Log.DEBUG_MODE);
@@ -404,7 +419,11 @@ public class MenuItemProxy extends KrollProxy
 			});
 
 		} else {
-			Log.i(TAG, "This device does not support collapsing action views. No operation performed.", Log.DEBUG_MODE);
+			TiMessenger.postOnMain(new Runnable() {
+				public void run() {
+					MenuItemCompat.collapseActionView(item);
+				}
+			});
 		}
 	}
 
@@ -418,7 +437,19 @@ public class MenuItemProxy extends KrollProxy
 			});
 
 		} else {
-			Log.i(TAG, "This device does not support expanding action views. No operation performed.", Log.DEBUG_MODE);
+			TiMessenger.postOnMain(new Runnable() {
+				public void run() {
+					MenuItemCompat.expandActionView(item);
+				}
+			});
+		}
+	}
+
+	private boolean isAppCompatActionViewExpanded() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			return item.isActionViewExpanded();
+		} else {
+			return MenuItemCompat.isActionViewExpanded(item);
 		}
 	}
 
@@ -426,7 +457,7 @@ public class MenuItemProxy extends KrollProxy
 	public boolean isActionViewExpanded() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			if (TiApplication.isUIThread()) {
-				return item.isActionViewExpanded();
+				isAppCompatActionViewExpanded();
 			}
 
 			return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ACTION_VIEW_EXPANDED));

@@ -329,8 +329,7 @@ public class ActionBarProxy extends KrollProxy
 	@Override
 	public void onPropertyChanged(String name, Object value)
 	{
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH
-			&& TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED.equals(name)) {
+		if (TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED.equals(name)) {
 			// If we have a listener on the home icon item, then enable the home button (we need to do this for ICS and
 			// above)
 			if (TiApplication.isUIThread()) {
