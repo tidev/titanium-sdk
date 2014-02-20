@@ -1,4 +1,5 @@
-﻿<phone:PhoneApplicationPage
+<phone:PhoneApplicationPage
+    Name="app"
     x:Class="<%= projectName %>.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
