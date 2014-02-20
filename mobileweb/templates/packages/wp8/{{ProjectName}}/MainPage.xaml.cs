@@ -515,6 +515,13 @@ namespace <%= projectName %>
                     dispose.Invoke(instances[payload.hnd], null);
                 }
 
+                // Call Finalize method
+                var finalize = instances[payload.hnd].GetType().GetMethod("Finalize");
+                if (finalize != null)
+                {
+                    finalize.Invoke(instances[payload.hnd], null);
+                }
+
                 // Remove global reference
                 instances.Remove(payload.hnd);
             }
