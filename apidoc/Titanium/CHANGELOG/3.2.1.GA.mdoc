@@ -1,0 +1,203 @@
+# Titanium SDK 3.2.1 General Availability - 02/10/2014
+
+##### Contents
+
+  * [About This Release](#about)
+  * [Alloy 1.3.1](#alloy)
+  * [Studio 3.2.1](#studio)
+  * [Installation Notes](#install)
+  * [Notice of Feature and Behavior Changes](#changes)
+    * [Tizen Support](#tizen)
+    * [Android Lightweight Windows](#lightweight)
+    * [Default Android SDK](#android_sdk) 
+  * [Fixed Issues](#issues)
+    * [Fixed Android Issues](#android_issues)
+    * [Fixed BlackBerry Issues](#bb_issues)
+    * [Fixed CLI Issues](#cli_issues)
+    * [Fixed iOS Issues](#ios_issues)
+  * [API Changes](#apichanges)
+
+<a name="about"></a>
+
+## About This Release
+
+Titanium SDK Release 3.2.1 is a service pack release of the Titanium SDK, addressing high-priority
+issues in previous releases.
+
+Note that this release includes some feature and behavior changes.
+See <a href="#changes">Notice of Feature and Behavior Changes</a> for details.
+
+<a name="alloy"></a>
+
+## Alloy 1.3.1
+
+This Release coincides with the release of Alloy 1.3.1.  Alloy 1.3.1 reintroduces support for Titanium SDK 3.0.0
+and later. 
+
+Previously, SDK compatibilty was broken with Alloy 1.3.0, which only supported Titanium SDK 3.2.0
+and later.
+
+For a complete list of issues addressed in Alloy 1.3.1, see the Alloy
+[Changelog](https://github.com/appcelerator/alloy/blob/1_3_X/CHANGELOG.md).
+
+## Studio 3.2.1
+
+This Release coincides with the release of Studio 3.2.1.
+
+For a complete list of issues addressed in Studio 3.2.1, see the Studio
+[Release Notes](http://docs.appcelerator.com/titanium/latest/#!/guide/Titanium_Studio_Release_Notes).
+
+<a name="install"></a>
+
+## Installation Notes
+
+If you previously installed the Beta version of the Titanium CLI and Alloy,
+you need to first uninstall these components before installing or updating to 3.2.1.GA.
+
+To check the current versions run the following commands:
+
+    npm list -g titanium
+    npm list -g alloy
+
+If either package has a version number ending in `-alpha`, `-beta`, or `-cr`, you should uninstall
+the package manually before installing 3.2.1.GA.
+
+To uninstall these packages:
+
+    npm remove -g titanium
+    npm remove -g alloy
+
+Note: You may need to use <code>sudo</code> before these terminal commands on OS X and Linux.
+
+If you are using Titanium Studio, these components will be updated if you chose to install
+additional Titanium updates or from the **Help** menu, select **Check for Titanium Updates**.
+
+If you are using the Titainium CLI, you need to reinstall the CLI and Alloy from the terminal:
+
+    npm install -g titanium
+    npm install -g alloy
+
+If you should run into any issues, run `npm cache clean` and then retry the steps above.
+
+<a name="changes"></a>
+
+## Notice of Feature and Behavior Changes
+
+
+<a name="tizen"></a>
+
+### Tizen Support
+
+As of this Release, Tizen support is deprecated.  Tizen support will be removed in Spring 2014.
+
+<a name="lightweight"></a>
+
+### Android Lightweight Windows
+
+Support for lightweight windows is deprecated in this Release and will be removed in Release 3.3.0.
+
+As [noted](http://docs.appcelerator.com/titanium/release-notes/?version=3.2.0.GA#lightweight_windows)
+in Release 3.2.0, all windows are heavyweight and you cannot control the type of window created.
+
+To re-add support for lightweight windows in Release 3.2.x, add the following to your tiapp.xml file:
+
+    <property name="ti.android.useLegacyWindow" type="bool">true</property> 
+
+<a name="android_sdk"></a>
+
+### Default Android SDK
+
+As [noted](http://docs.appcelerator.com/titanium/release-notes/?version=3.2.0.GA#build_command)
+in Release 3.2.0, the latest installed Android SDK is used to build your application unless otherwise
+specified in your `tiapp.xml` file.  Previously, the minimum required SDK was used (Android
+2.3.x/API level 10).
+
+Because of this change, the appearance and behavior of your application will change if you did not
+specify an Android SDK to build against.  For examples of these changes, see
+[Android UI Differences](http://docs.appcelerator.com/titanium/latest/#!/guide/Android_UI_Differences).
+
+If you want to keep the appearance or behavior of a specific Android SDK, add the `uses-sdk` element
+to the Android manifest section of the `tiapp.xml` file with the `android:targetSdkVersion` attribute
+specifying the API level to use.
+
+For example, the following code specifies to use API level 16 (Android 4.1.x):
+
+    <android xmlns:android="http://schemas.android.com/apk/res/android">
+        <manifest>
+            <uses-sdk android:targetSdkVersion="16"/>
+        </manifest>
+    </android>  
+
+
+<a name="issues"></a>
+
+## Fixed Issues and Enhancements
+
+  * [Full list of Issues that were addressed in Release 3.2.1](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=15691)
+
+<a name="android_issues"></a>
+
+### Fixed Android Issues
+
+  * [TIMOB-974](https://jira.appcelerator.org/browse/TIMOB-974) Android: Webview.html returns null if webview is based on URL
+  * [TIMOB-15535](https://jira.appcelerator.org/browse/TIMOB-15535) Android: TextArea won't go multiline
+  * [TIMOB-15868](https://jira.appcelerator.org/browse/TIMOB-15868) Android: Few analytics events are not seen till a ti.end or ti.start event is fired
+  * [TIMOB-16044](https://jira.appcelerator.org/browse/TIMOB-16044) Android: Plugins keep playing after closing WebView
+  * [TIMOB-16048](https://jira.appcelerator.org/browse/TIMOB-16048) Only first Image is showing on a tableview when taking a picture from camera
+  * [TIMOB-16063](https://jira.appcelerator.org/browse/TIMOB-16063) Android: Field Service App crashes with java.lang.ClassCastException: java.lang.String cannot be cast to java.lang.Boolean
+  * [TIMOB-16073](https://jira.appcelerator.org/browse/TIMOB-16073) Android: Failed to encrypt JavaScript files (Windows)
+  * [TIMOB-16088](https://jira.appcelerator.org/browse/TIMOB-16088) Android: Remove lines from Android manifest that are autogenerated
+  * [TIMOB-16092](https://jira.appcelerator.org/browse/TIMOB-16092) Android: Couldn't load sqlcipher_android: findLibrary returned null
+  * [TIMOB-16187](https://jira.appcelerator.org/browse/TIMOB-16187) Android: node attributes inside timodule.xml overwrite the attribute inside AndroidManifest.xml
+  * [TIMOB-16204](https://jira.appcelerator.org/browse/TIMOB-16204) Android: ScrollView: App crashes while scrolling horizontally having views and webviews in scrollview
+  * [TIMOB-16230](https://jira.appcelerator.org/browse/TIMOB-16230) Samples: Sample projects imported from Studio have minimum Android SDK set 11
+  * [TIMOB-16269](https://jira.appcelerator.org/browse/TIMOB-16269) Android: Javascript files used in HTML files not included in the package
+  * [TIMOB-16270](https://jira.appcelerator.org/browse/TIMOB-16270) Android: Module API - Expose access to startIntentSenderForResult like startActivityForResult
+  * [TIMOB-16360](https://jira.appcelerator.org/browse/TIMOB-16360) Android: trayClickFocusedApp event not fired when push notification clicked in tray
+
+<a name="bb_issues"></a>
+
+### Fixed BlackBerry Issues
+
+  * [TIMOB-13971](https://jira.appcelerator.org/browse/TIMOB-13971) BlackBerry: Changes in the DPI are needed to keep the parity of controls layout across platforms
+  * [TIMOB-15959](https://jira.appcelerator.org/browse/TIMOB-15959) BlackBerry: KitchenSink: Controls > Text Field > Keyboard, appropriate keyboard is not invoked
+  * [TIMOB-15960](https://jira.appcelerator.org/browse/TIMOB-15960) Blackberry: Layout Engine Vertical Layout - Error on method 'createButton'
+
+<a name="cli_issues"></a>
+
+### Fixed CLI Issues
+
+  * [TIMOB-15735](https://jira.appcelerator.org/browse/TIMOB-15735) CLI: New 'cli:go' hook to manipulate incoming arguments
+  * [TIMOB-15804](https://jira.appcelerator.org/browse/TIMOB-15804) CLI: All commands fail if "node" executable is not actually called "node"
+  * [TIMOB-15962](https://jira.appcelerator.org/browse/TIMOB-15962) CLI: npm version doesn't show in "ti info"
+  * [TIMOB-16130](https://jira.appcelerator.org/browse/TIMOB-16130) If you do not have Xcode, you cannot launch the Android emulator with Titanium SDK 3.2.0.GA
+  * [TIMOB-16151](https://jira.appcelerator.org/browse/TIMOB-16151) Android: Ti.Media.vibrate required permission not being added to androidManifest.xml 
+  * [TIMOB-16153](https://jira.appcelerator.org/browse/TIMOB-16153) CLI: Hook system has wrong callback signatures and poor error handling
+  * [TIMOB-16214](https://jira.appcelerator.org/browse/TIMOB-16214) "Unsupported zip format" thrown by CLI
+  * [TIMOB-16232](https://jira.appcelerator.org/browse/TIMOB-16232) CLI: TypeError: Cannot read property 'options' of undefined
+  * [TIMOB-16354](https://jira.appcelerator.org/browse/TIMOB-16354) CLI: Android: Keystore password not being properly set
+
+
+<a name="ios_issues"></a>
+
+### Fixed iOS Issues
+
+  * [TIMOB-14290](https://jira.appcelerator.org/browse/TIMOB-14290) iOS: ListView: scrollToItem lags with large lists
+  * [TIMOB-15544](https://jira.appcelerator.org/browse/TIMOB-15544) iOS7: info.plist key 'Application does not run in background' causes the application to crash when is set to 'YES'
+  * [TIMOB-15848](https://jira.appcelerator.org/browse/TIMOB-15848) iOS: Clearing listView doesn't work properly when use with scrollToItem(i,i,animation:false)
+  * [TIMOB-15940](https://jira.appcelerator.org/browse/TIMOB-15940) iOS: keyboardToolbar disappears after multiple displays
+  * [TIMOB-15967](https://jira.appcelerator.org/browse/TIMOB-15967) iOS: keyboardToolbar fails to disappear
+  * [TIMOB-15991](https://jira.appcelerator.org/browse/TIMOB-15991) ListView eventing breaks if a ChildTemplate contains other children
+  * [TIMOB-16126](https://jira.appcelerator.org/browse/TIMOB-16126) iOS: listView and listItem index not being updated after delete
+  * [TIMOB-16143](https://jira.appcelerator.org/browse/TIMOB-16143) iOS 7: Items linked with Ti.UI.AUTOLINK_ALL do not open when clicked upon
+  * [TIMOB-16157](https://jira.appcelerator.org/browse/TIMOB-16157) ListView Phase 2 - Templates and Search not working together
+  * [TIMOB-16312](https://jira.appcelerator.org/browse/TIMOB-16312) iOS 7: TextArea: Maps app is not launched if you select an address in a TextArea with property Ti.UI.AUTOLINK_ALL
+  * [TIMOB-16317](https://jira.appcelerator.org/browse/TIMOB-16317) iOS: BackgroundColor is not visible for entire tableViewRow
+  * [TIMOB-16338](https://jira.appcelerator.org/browse/TIMOB-16338) Kitchen Sink: Window barImage not working properly on iOS6
+
+
+<a name="apichanges"></a>
+
+## API Changes
+
+No APIs were modified for this release.

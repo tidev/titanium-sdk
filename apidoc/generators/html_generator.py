@@ -433,7 +433,7 @@ def replace_with_link(full_string, link_info, suppress_warnings=False):
 
 def process_markdown_links(s, suppress_link_warnings=False):
 	new_string = s
-	patterns = (r"(\[[^\]]+\]\([^\)\s]+\))", r"(\<[^\>\s]+\>)")
+	patterns = (r"(\[[^\]]+\]\([^\)\s]+\))", r"((?!`)\<[^\>\s]+\>(?!`))")
 	for pattern in patterns:
 		prog = re.compile(pattern, re.MULTILINE)
 		results = prog.findall(new_string)

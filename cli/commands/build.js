@@ -28,7 +28,7 @@ fields.setup({
 	}
 });
 
-exports.cliVersion = '>=3.2';
+exports.cliVersion = '>=3.2.1';
 exports.title = __('Build');
 exports.desc = __('builds a project');
 exports.extendedDesc = 'Builds an existing app or module project.';
