@@ -312,7 +312,7 @@ properties:
     
   - name: flagSecure
     summary: |
-        treat the content of the window as secure, preventing it from appearing in screenshots or from being viewed on non-secure displays
+        Treat the content of the window as secure, preventing it from appearing in screenshots or from being viewed on non-secure displays
     description: |
         When the value is true, preventing it from appearing in screenshots or from being viewed on non-secure displays.
     platforms: [android]
