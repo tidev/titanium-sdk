@@ -50,7 +50,6 @@
 -(void)send:(id)args
 {
     [self rememberSelf];
-    [[TiApp app] startNetwork];
     
     if([self valueForUndefinedKey:@"timeout"]) {
         [[self request] setTimeout: [TiUtils intValue:[self valueForUndefinedKey:@"timeout"] def:15000] / 1000 ];
@@ -62,7 +61,7 @@
     if([self valueForUndefinedKey:@"cache"]) {
         [[self request] setCachePolicy:
          [TiUtils boolValue: [self valueForUndefinedKey:@"cache"] def:YES] ?
-             NSURLCacheStorageAllowed : NSURLCacheStorageNotAllowed
+             NSURLRequestUseProtocolCachePolicy : NSURLRequestReloadIgnoringLocalAndRemoteCacheData
          ];
     }
     if([self valueForUndefinedKey:@"validatesSecureCertificate"]) {
@@ -80,6 +79,7 @@
     if([self valueForUndefinedKey:@"domain"]) {
         // TODO: NTLM
     }
+        
     
     TiHTTPPostForm *form = nil;
     if(args != nil) {
@@ -136,9 +136,9 @@
     
     BOOL async = [TiUtils boolValue:[self valueForUndefinedKey:@"async"] def:YES];
     
-    NSOperationQueue *operationQueue =
-    [NetworkModule operationQueue];
+    NSOperationQueue *operationQueue = [NetworkModule operationQueue];
     
+    [[TiApp app] startNetwork];
     if(async) {
         [[self request] setTheQueue:operationQueue];
         [[self request] send];
@@ -146,9 +146,7 @@
         [[self request] setSynchronous:YES];
         [[self request] send];
         response = [[[self request] response] retain];
-        if([operationQueue operationCount] == 0) {
-            [[TiApp app] stopNetwork];
-        }
+        [[TiApp app] stopNetwork];
     }
 }
 
@@ -243,12 +241,9 @@
 
 -(void)tiRequest:(TiHTTPRequest *)request onLoad:(TiHTTPResponse *)tiResponse
 {
-    NSOperationQueue *operationQueue = [NetworkModule operationQueue];
 
+    [[TiApp app] stopNetwork];
     if([request cancelled]) {
-        if([operationQueue operationCount] == 0) {
-            [[TiApp app] stopNetwork];
-        }
         return;
     }
     response = [tiResponse retain];
@@ -269,23 +264,15 @@
         [self fireCallback:@"onload" withArg:event withSource:self];
     }
     
-    if([operationQueue operationCount] == 0) {
-        [[TiApp app] stopNetwork];
-    }
     [self forgetSelf];
 }
 
 -(void)tiRequest:(TiHTTPRequest *)request onError:(TiHTTPResponse *)tiResponse
 {
-    NSOperationQueue *operationQueue = [NetworkModule operationQueue];
-    
+    [[TiApp app] stopNetwork];
     if([request cancelled]) {
-        if([operationQueue operationCount] == 0) {
-            [[TiApp app] stopNetwork];
-        }
         return;
     }
-    int responseCode = [tiResponse status];
     if(hasOnerror) {
         NSError *error = [tiResponse error];
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
@@ -293,9 +280,6 @@
         [self fireCallback:@"onerror" withArg:event withSource:self];
     }
     
-    if([operationQueue operationCount] == 0) {
-        [[TiApp app] stopNetwork];
-    }
     [self forgetSelf];
 }
 
