@@ -6,18 +6,16 @@
  */
 
 #import <Foundation/Foundation.h>
-
-
-@class TiHTTPRequest;
+#import "TiHTTPRequest.h"
 
 @interface TiHTTPOperation : NSOperation
 
-@property(nonatomic, readonly) NSURLConnection *connection;
+@property(nonatomic, readonly) TiHTTPRequest *request;
 @property(nonatomic) BOOL cancelled;
 @property(nonatomic) BOOL executing;
 @property(nonatomic) BOOL ready;
 @property(nonatomic) BOOL finished;
 @property(nonatomic) NSInteger index;
 
--(id)initWithConnection:(NSURLConnection*)connection;
+-(id)initWithConnection:(TiHTTPRequest*)request;
 @end

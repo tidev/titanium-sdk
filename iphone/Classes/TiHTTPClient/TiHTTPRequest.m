@@ -47,17 +47,29 @@
     [self setValidatesSecureCertificate: YES];
     
     _request = [[NSMutableURLRequest alloc] init];
-    [_request setCachePolicy:NSURLCacheStorageAllowed];
+    [_request setCachePolicy:NSURLCacheStorageNotAllowed];
     _response = [[TiHTTPResponse alloc] init];
     [_response setReadyState: TiHTTPResponseStateUnsent];
 }
 
 -(void)abort
 {
-    if(_connection != nil)
-        [_connection cancel];
-    if(_operation != nil)
+    [self setCancelled:YES];
+    if(_operation != nil) {
         [_operation cancel];
+    } else if(_connection != nil) {
+        [_connection cancel];
+        [self connection:_connection didFailWithError:
+         [NSError errorWithDomain:@"TiHTTPErrorDomain"
+                             code:TiRequestErrorCancel
+                         userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"The request was cancelled",NSLocalizedDescriptionKey,nil]]
+         ];
+    }
+}
+
+-(NSURLConnection*)connection
+{
+    return _connection;
 }
 
 -(void)send
@@ -133,7 +145,7 @@
                                ];
         if([self theQueue]) {
             RELEASE_TO_NIL(_operation);
-            _operation = [[TiHTTPOperation alloc] initWithConnection: _connection];
+            _operation = [[TiHTTPOperation alloc] initWithConnection: self];
             [_operation setIndex:[[self theQueue] operationCount]];
             [[self theQueue] addOperation: _operation];
            

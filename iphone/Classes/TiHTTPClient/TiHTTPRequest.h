@@ -14,6 +14,10 @@ typedef enum {
     TiRequestAuthChallange = 3
 } TiRequestAuth;
 
+typedef enum {
+	TiRequestErrorCancel = 0
+} TiRequestError;
+
 
 @class TiHTTPResponse;
 @class TiHTTPRequest;
@@ -53,6 +57,7 @@ typedef enum {
 @property(nonatomic) BOOL redirects;
 @property(nonatomic) BOOL synchronous;
 @property(nonatomic) BOOL validatesSecureCertificate;
+@property(nonatomic) BOOL cancelled;
 @property(nonatomic) TiRequestAuth authType;
 @property(nonatomic, retain) NSOperationQueue *theQueue;
 @property(nonatomic, retain) NSDictionary *userInfo;
@@ -60,5 +65,6 @@ typedef enum {
 -(void)abort;
 -(void)addRequestHeader:(NSString*)key value:(NSString*)value;
 -(void)setCachePolicy:(NSURLRequestCachePolicy*)cache;
-
+-(void)connection:(NSURLConnection*)connection didFailWithError:(NSError*)error;
+-(NSURLConnection*)connection;
 @end

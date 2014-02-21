@@ -11,15 +11,15 @@
 
 - (void)dealloc
 {
-    RELEASE_TO_NIL(_connection);
+    RELEASE_TO_NIL(_request);
     [super dealloc];
 }
 
-- (id)initWithConnection:(NSURLConnection *)connection
+- (id)initWithConnection:(TiHTTPRequest *)request
 {
     self = [super init];
     if (self) {
-        _connection = [connection retain];
+        _request = [request retain];
         _cancelled = NO;
         _executing = NO;
         _finished = NO;
@@ -39,7 +39,7 @@
     [self didChangeValueForKey: @"isExecuting"];
 
     if(!_cancelled) {
-        [[self connection] start];
+        [[[self request] connection] start];
         // Keep running the run loop until all asynchronous operations are completed
         while (![self isFinished]) {
             [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
@@ -54,7 +54,13 @@
     [self didChangeValueForKey: @"isCancelled"];
     
     if(_executing) {
-        [[self connection] cancel];
+        [[self request] setCancelled:YES];
+        [[[self request] connection] cancel];
+        [[self request] connection:[[self request] connection] didFailWithError:
+         [NSError errorWithDomain:@"TiHTTPErrorDomain"
+                             code:TiRequestErrorCancel
+                         userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"The request was cancelled",NSLocalizedDescriptionKey,nil]]
+         ];
     } else {
         [self start];
     }
