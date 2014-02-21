@@ -144,10 +144,10 @@ public class TiHTTPClient
 	private LocalResponseHandler handler;
 	private Credentials credentials;
 	private TiBlob responseData;
-	private OutputStream responseOut;
+	protected OutputStream responseOut;
 	private String charset;
-	private String contentType;
-	private long maxBufferSize;
+	protected String contentType;
+	protected long maxBufferSize;
 	private ArrayList<NameValuePair> nvPairs;
 	private HashMap<String, ContentBody> parts;
 	private Object data;
@@ -313,7 +313,7 @@ public class TiHTTPClient
 			return clientResponse;
 		}
 
-		private TiFile createFileResponseData(boolean dumpResponseOut) throws IOException
+		protected TiFile createFileResponseData(boolean dumpResponseOut) throws IOException
 		{
 			File outFile;
 			TiApplication app = TiApplication.getInstance();
@@ -335,7 +335,7 @@ public class TiHTTPClient
 			return tiFile;
 		}
 		
-		private void handleEntityData(byte[] data, int size, long totalSize, long contentLength) throws IOException
+		protected void handleEntityData(byte[] data, int size, long totalSize, long contentLength) throws IOException
 		{
 			if (responseOut == null) {
 				if (contentLength > maxBufferSize) {
@@ -927,7 +927,7 @@ public class TiHTTPClient
 		}
 	}
 
-	private void dispatchCallback(String name, KrollDict data) {
+	protected void dispatchCallback(String name, KrollDict data) {
 		if (data == null) {
 			data = new KrollDict();
 		}

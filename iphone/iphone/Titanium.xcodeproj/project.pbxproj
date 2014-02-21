@@ -640,6 +640,9 @@
 		D93DAA6C16CBFD6400AD64C9 /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */; };
 		D93DAA6D16CBFD7100AD64C9 /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93DAA6716CBFD5600AD64C9 /* EventKit.framework */; };
 		D93DAA6E16CBFD7100AD64C9 /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */; };
+		D5EFC97D15DA460400DB056D /* TiNetworkPersistentHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EFC97C15DA460400DB056D /* TiNetworkPersistentHTTPClientProxy.m */; };
+		D5EFC97E15DA460400DB056D /* TiNetworkPersistentHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EFC97C15DA460400DB056D /* TiNetworkPersistentHTTPClientProxy.m */; };
+		D5EFC97F15DA460400DB056D /* TiNetworkPersistentHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EFC97C15DA460400DB056D /* TiNetworkPersistentHTTPClientProxy.m */; };
 		DA2556441353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */; };
 		DA2556451353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */; };
 		DA2556461353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */; };
@@ -1522,6 +1525,8 @@
 		D93DAA6316CBFC7C00AD64C9 /* TiCalendarReminder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiCalendarReminder.m; sourceTree = "<group>"; };
 		D93DAA6716CBFD5600AD64C9 /* EventKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKit.framework; path = System/Library/Frameworks/EventKit.framework; sourceTree = SDKROOT; };
 		D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKitUI.framework; path = System/Library/Frameworks/EventKitUI.framework; sourceTree = SDKROOT; };
+		D5EFC97B15DA460400DB056D /* TiNetworkPersistentHTTPClientProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkPersistentHTTPClientProxy.h; sourceTree = "<group>"; };
+		D5EFC97C15DA460400DB056D /* TiNetworkPersistentHTTPClientProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkPersistentHTTPClientProxy.m; sourceTree = "<group>"; };
 		DA2556421353D2FC005D459C /* TiNetworkSocketProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkSocketProxy.h; sourceTree = "<group>"; };
 		DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkSocketProxy.m; sourceTree = "<group>"; };
 		DA2B35C0134514FE00056705 /* TiNetworkSocketTCPProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkSocketTCPProxy.h; sourceTree = "<group>"; };
@@ -2177,6 +2182,8 @@
 				248133A6115761DE00E3A9BA /* TiNetworkTCPSocketProxy.m */,
 				24CA8B00111161FE0084E2DE /* NetworkModule.m */,
 				24CA8B01111161FE0084E2DE /* NetworkModule.h */,
+				D5EFC97C15DA460400DB056D /* TiNetworkPersistentHTTPClientProxy.m */,
+				D5EFC97B15DA460400DB056D /* TiNetworkPersistentHTTPClientProxy.h */,
 				24CA8AB4111161FD0084E2DE /* TiNetworkHTTPClientResultProxy.m */,
 				24CA8AB5111161FD0084E2DE /* TiNetworkHTTPClientResultProxy.h */,
 				24CA8AB6111161FD0084E2DE /* TiNetworkHTTPClientProxy.m */,
@@ -4080,6 +4087,7 @@
 				502A68E816EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */,
 				502A68ED16F0428500661EF6 /* TiViewTemplate.m in Sources */,
 				84C3870417417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */,
+				D5EFC97F15DA460400DB056D /* TiNetworkPersistentHTTPClientProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
