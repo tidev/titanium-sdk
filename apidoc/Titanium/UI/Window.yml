@@ -309,7 +309,17 @@ properties:
     type: Array<Number>
     since: 3.1.3
     osver: {ios: {min: "7.0"}}
-
+    
+  - name: flagSecure
+    summary: |
+        treat the content of the window as secure, preventing it from appearing in screenshots or from being viewed on non-secure displays
+    description: |
+        When the value is true, preventing it from appearing in screenshots or from being viewed on non-secure displays.
+    platforms: [android]
+    type: Boolean
+    default: false
+    availability: creation
+    
   - name: includeOpaqueBars
     summary: |
         Specifies if the edges should extend beyond opaque bars (navigation bar, tab bar, toolbar). Valid on iOS 7 and greater.
