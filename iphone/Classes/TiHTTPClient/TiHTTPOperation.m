@@ -11,7 +11,6 @@
 
 - (void)dealloc
 {
-    RELEASE_TO_NIL(_request);
     [super dealloc];
 }
 
@@ -19,15 +18,16 @@
 {
     self = [super init];
     if (self) {
-        _request = [request retain];
+        // Assign it! it will be released with the request itself
+        _request = request;
         _cancelled = NO;
         _executing = NO;
         _finished = NO;
         _ready = NO;
+        [self willChangeValueForKey: @"isReady"];
+        _ready = YES;
+        [self didChangeValueForKey: @"isReady"];
     }
-    [self willChangeValueForKey: @"isReady"];
-    _ready = YES;
-    [self didChangeValueForKey: @"isReady"];
 
     return self;
 }

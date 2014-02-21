@@ -47,7 +47,7 @@
     [self setValidatesSecureCertificate: YES];
     
     _request = [[NSMutableURLRequest alloc] init];
-    [_request setCachePolicy:NSURLCacheStorageNotAllowed];
+    [_request setCachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData];
     _response = [[TiHTTPResponse alloc] init];
     [_response setReadyState: TiHTTPResponseStateUnsent];
 }
@@ -143,6 +143,7 @@
                                                               delegate: self
                                                       startImmediately: NO
                                ];
+        
         if([self theQueue]) {
             RELEASE_TO_NIL(_operation);
             _operation = [[TiHTTPOperation alloc] initWithConnection: self];
@@ -295,8 +296,8 @@
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-    if([self operation] != nil) {
-        [[self operation] setFinished:YES];
+    if(_operation != nil) {
+        [_operation setFinished:YES];
     }
     DeveloperLog(@"3 %s", __PRETTY_FUNCTION__);
     [_response setDownloadProgress:1.f];
@@ -328,8 +329,8 @@
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
-    if([self operation] != nil) {
-        [[self operation] setFinished:YES];
+    if(_operation != nil) {
+        [_operation setFinished:YES];
     }
     DeveloperLog(@"%s", __PRETTY_FUNCTION__);
     [_response setReadyState:TiHTTPResponseStateDone];

@@ -40,6 +40,7 @@ typedef enum {
     long long _expectedDownloadResponseLength;
     NSURLConnection *_connection;
     NSMutableDictionary *_headers;
+    TiHTTPOperation* _operation;
 }
 
 @property(nonatomic, readonly) NSMutableURLRequest *request;
@@ -49,7 +50,6 @@ typedef enum {
 @property(nonatomic, retain) NSString *requestUsername;
 @property(nonatomic, retain) NSString *requestPassword;
 @property(nonatomic, retain) TiHTTPPostForm *postForm;
-@property(nonatomic, retain) TiHTTPOperation* operation;
 @property(nonatomic, readonly) TiHTTPResponse* response;
 @property(nonatomic, assign) NSObject<TiHTTPRequestDelegate>* delegate;
 @property(nonatomic) NSTimeInterval timeout;
