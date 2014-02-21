@@ -204,11 +204,13 @@ NSString * const TI_DB_VERSION = @"1";
 	while ([rs next])
 	{
 		NSString *event = [rs stringForColumn:@"data"];
-		id frag = [TiUtils jsonParse:event];
-		if (frag == nil) {
+        NSError *jsonError = nil;
+		id frag = [TiUtils jsonParse:event error:&jsonError];
+        if(jsonError != nil) {
+            NSLog(@"[ERROR] Problem sending analytics: %@", [jsonError localizedDescription]);
 			NSLog(@"[ERROR] Dropped event was: %@", event);
 			continue;
-		}
+        }
 		[data addObject:frag];
 	}
 	[rs close];
@@ -226,6 +228,7 @@ NSString * const TI_DB_VERSION = @"1";
     
     TiHTTPRequest *request = [[[TiHTTPRequest alloc] init] autorelease];
     [request setUrl:url];
+    [request setPostForm:form];
     [request setMethod:@"POST"];
     [request setTimeout: timeout];
     [request setSynchronous:YES];
