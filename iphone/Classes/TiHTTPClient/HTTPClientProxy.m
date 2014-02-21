@@ -33,7 +33,7 @@
 
 -(void)open:(id)args
 {
-    ENSURE_ARRAY(args)
+    ENSURE_ARRAY(args);
     NSString *method = [TiUtils stringValue:[args objectAtIndex:0]];
     NSString *url = [TiUtils stringValue:[args objectAtIndex:1]];
     [[self request] setMethod: method];
@@ -80,10 +80,10 @@
     if([self valueForUndefinedKey:@"domain"]) {
         // TODO: NTLM
     }
-
+    
     TiHTTPPostForm *form = nil;
     if(args != nil) {
-        ENSURE_ARRAY(args)
+        ENSURE_ARRAY(args);
         NSInteger dataIndex = 0;
         form = [[[TiHTTPPostForm alloc] init] autorelease];
         id arg = [args objectAtIndex:0];
@@ -104,7 +104,7 @@
                         blob = [(TiFile*)value blob];
                         name = [[(TiFile*)value path] lastPathComponent];
                     }
-                    [form addFormData:[(TiBlob*)value data]
+                    [form addFormData:[(TiBlob*)blob data]
                              fileName:name
                             fieldName:key];
                 }
@@ -197,7 +197,7 @@
     if([[self request] response] == nil) {
         return NUMBOOL(NO);
     }
-    TiHTTPResponseState state = [[[self request] response]readyState];
+    TiHTTPResponseState state = [[[self request] response] readyState];
     return NUMBOOL(
                    state == TiHTTPResponseStateHeaders ||
                    state == TiHTTPResponseStateLoading ||
@@ -210,7 +210,8 @@
 -(void)tiRequest:(TiHTTPRequest *)request onDataStream:(TiHTTPResponse *)tiResponse
 {
     if(hasOndatastream) {
-        NSTimeInterval diff = [[NSDate date] timeIntervalSince1970] - _downloadTime;
+        NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
+        NSTimeInterval diff = currentTime - _downloadTime;
         if(_downloadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [tiResponse readyState] == TiHTTPResponseStateDone) {
             _downloadTime = 0;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
@@ -218,7 +219,7 @@
             [self fireCallback:@"ondatastream" withArg:eventDict withSource:self];
         }
         if(_downloadTime == 0) {
-            _downloadTime = [[NSDate date] timeIntervalSince1970];
+            _downloadTime = currentTime;
         }
     }
 }
@@ -226,7 +227,8 @@
 -(void)tiRequest:(TiHTTPRequest *)request onSendStream:(TiHTTPResponse *)tiResponse
 {
     if(hasOnsendstream) {
-        NSTimeInterval diff = [[NSDate date] timeIntervalSince1970] - _uploadTime;
+        NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
+        NSTimeInterval diff = currentTime - _uploadTime;
         if(_uploadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [tiResponse readyState] == TiHTTPResponseStateDone) {
             _uploadTime = 0;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
@@ -234,20 +236,28 @@
             [self fireCallback:@"onsendstream" withArg:eventDict withSource:self];
         }
         if(_uploadTime == 0) {
-            _uploadTime = [[NSDate date] timeIntervalSince1970];
+            _uploadTime = currentTime;
         }
     }
 }
 
 -(void)tiRequest:(TiHTTPRequest *)request onLoad:(TiHTTPResponse *)tiResponse
 {
+    NSOperationQueue *operationQueue = [NetworkModule operationQueue];
+
+    if([request cancelled]) {
+        if([operationQueue operationCount] == 0) {
+            [[TiApp app] stopNetwork];
+        }
+        return;
+    }
     response = [tiResponse retain];
     int responseCode = [response status];
     /**
-     *	Per customer request, successful communications that resulted in an
-     *	4xx or 5xx response is treated as an error instead of an onload.
-     *	For backwards compatibility, if no error handler is provided, even
-     *	an 4xx or 5xx response will fall back onto an onload.
+     *    Per customer request, successful communications that resulted in an
+     *    4xx or 5xx response is treated as an error instead of an onload.
+     *    For backwards compatibility, if no error handler is provided, even
+     *    an 4xx or 5xx response will fall back onto an onload.
      */
     if (hasOnerror && (responseCode >= 400) && (responseCode <= 599)) {
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:@"HTTP error"];
@@ -310,47 +320,47 @@
 
 -(void)setOnload:(id)callback
 {
-	ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onload" notification:NO];
     hasOnload = YES;
 }
 -(void)setOnerror:(id)callback
 {
-	ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onerror" notification:NO];
     hasOnerror = YES;
 }
 -(void)setOnreadystatechange:(id)callback
 {
-	ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onreadystatechange" notification:NO];
     hasOnreadystatechange = YES;
 }
 -(void)setOndatastream:(id)callback
 {
-	ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG(callback, KrollCallback)
     [self replaceValue:callback forKey:@"ondatastream" notification:NO];
     hasOndatastream = YES;
 }
 -(void)setOnsendstream:(id)callback
 {
-	ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onsendstream" notification:NO];
     hasOnsendstream = YES;
 }
 -(void)setOnredirect:(id)callback
 {
-	ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onredirect" notification:NO];
     hasOnredirect = YES;
 }
 
 -(void)setRequestHeader:(id)args
 {
-	ENSURE_ARG_COUNT(args,2);
-	
-	NSString *key = [TiUtils stringValue:[args objectAtIndex:0]];
-	NSString *value = [TiUtils stringValue:[args objectAtIndex:1]];
+    ENSURE_ARG_COUNT(args,2);
+    
+    NSString *key = [TiUtils stringValue:[args objectAtIndex:0]];
+    NSString *value = [TiUtils stringValue:[args objectAtIndex:1]];
     [[self request] addRequestHeader:key value:value];
 }
 
@@ -415,26 +425,12 @@
 {
     return [response headers];
 }
--(NSNumber*)UNSENT
-{
-	return NUMINT(TiHTTPResponseStateUnsent);
-}
--(NSNumber*)OPENED
-{
-	return NUMINT(TiHTTPResponseStateOpened);
-}
--(NSNumber*)HEADERS_RECEIVED
-{
-	return NUMINT(TiHTTPResponseStateHeaders);
-}
--(NSNumber*)LOADING
-{
-	return NUMINT(TiHTTPResponseStateLoading);
-}
--(NSNumber*)DONE
-{
-	return NUMINT(TiHTTPResponseStateDone);
-}
+
+MAKE_SYSTEM_NUMBER(UNSENT, NUMINT(TiHTTPResponseStateUnsent))
+MAKE_SYSTEM_NUMBER(OPENED, NUMINT(TiHTTPResponseStateOpened))
+MAKE_SYSTEM_NUMBER(HEADERS_RECEIVED, NUMINT(TiHTTPResponseStateHeaders))
+MAKE_SYSTEM_NUMBER(LOADING, NUMINT(TiHTTPResponseStateLoading))
+MAKE_SYSTEM_NUMBER(DONE, NUMINT(TiHTTPResponseStateDone))
 
 
 @end

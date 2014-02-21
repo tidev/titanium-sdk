@@ -14,7 +14,6 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
 
 +(NSString *)base64encode:(NSData *)plainText
 {
-    
     int encodedLength = (4 * (([plainText length] / 3) + (1 - (3 - ([plainText length] % 3)) / 3))) + 1;
     unsigned char *outputBuffer = malloc(encodedLength);
     unsigned char *inputBuffer = (unsigned char *)[plainText bytes];
@@ -159,7 +158,7 @@ if((remainingSize > nameSize)&&([self caselessCompareFirstString:data secondStri
 	if (!MIMEType) {
 		return @"application/octet-stream";
 	}
-    return (__bridge NSString *)MIMEType;
+    return [(NSString *)MIMEType autorelease];
 }
 
 // Taken from http://stackoverflow.com/questions/8088473/url-encode-an-nsstring
