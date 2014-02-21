@@ -6,16 +6,9 @@
  */
 
 #import "HttpClientProxy.h"
-
-#ifndef TI_HTTP_MODULE
 #import "NetworkModule.h"
-#else
-#import "TiHttpModule.h"
-#endif
-
-#import "TiDOMDocumentProxy.h"
 #import "TiUtils.h"
-#import "TiBlob.h"
+#import "TiApp.h"
 
 #define TI_HTTP_REQUEST_PROGRESS_INTERVAL 0.03f
 
@@ -57,8 +50,8 @@
 -(void)send:(id)args
 {
     [self rememberSelf];
-    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
-
+    [[TiApp app] startNetwork];
+    
     if([self valueForUndefinedKey:@"timeout"]) {
         [[self request] setTimeout: [TiUtils intValue:[self valueForUndefinedKey:@"timeout"] def:15000] / 1000 ];
     }
@@ -141,17 +134,11 @@
         [[self request] setPostForm:form];
     }
     
-    BOOL async = YES;
-    if([self valueForUndefinedKey:@"async"]) {
-        async = [TiUtils boolValue:[self valueForUndefinedKey:@"async"]];
-    }
+    BOOL async = [TiUtils boolValue:[self valueForUndefinedKey:@"async"] def:YES];
+    
     NSOperationQueue *operationQueue =
-#ifndef TI_HTTP_MODULE
     [NetworkModule operationQueue];
-#else
-    [TiHttpModule operationQueue];
-#endif
-
+    
     if(async) {
         [[self request] setTheQueue:operationQueue];
         [[self request] send];
@@ -160,7 +147,7 @@
         [[self request] send];
         response = [[[self request] response] retain];
         if([operationQueue operationCount] == 0) {
-            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+            [[TiApp app] stopNetwork];
         }
     }
 }
@@ -271,40 +258,33 @@
         [event setObject:@"load" forKey:@"type"];
         [self fireCallback:@"onload" withArg:event withSource:self];
     }
-    NSOperationQueue *operationQueue =
-#ifndef TI_HTTP_MODULE
-    [NetworkModule operationQueue];
-#else
-    [TiHttpModule operationQueue];
-#endif
-
+    
     if([operationQueue operationCount] == 0) {
-        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+        [[TiApp app] stopNetwork];
     }
     [self forgetSelf];
 }
+
 -(void)tiRequest:(TiHTTPRequest *)request onError:(TiHTTPResponse *)tiResponse
 {
-    int responseCode = [tiResponse status];
-    if([self valueForUndefinedKey:@"onerror"]) {
-		if (hasOnerror && (responseCode >= 400) && (responseCode <= 599)) {
-            if (hasOnerror) {
-                NSError *error = [tiResponse error];
-                NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
-                [event setObject:@"error" forKey:@"type"];
-                [self fireCallback:@"onerror" withArg:event withSource:self];
-            }
-		}
+    NSOperationQueue *operationQueue = [NetworkModule operationQueue];
+    
+    if([request cancelled]) {
+        if([operationQueue operationCount] == 0) {
+            [[TiApp app] stopNetwork];
+        }
+        return;
     }
-    NSOperationQueue *operationQueue =
-#ifndef TI_HTTP_MODULE
-    [NetworkModule operationQueue];
-#else
-    [TiHttpModule operationQueue];
-#endif
+    int responseCode = [tiResponse status];
+    if(hasOnerror) {
+        NSError *error = [tiResponse error];
+        NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+        [event setObject:@"error" forKey:@"type"];
+        [self fireCallback:@"onerror" withArg:event withSource:self];
+    }
     
     if([operationQueue operationCount] == 0) {
-        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+        [[TiApp app] stopNetwork];
     }
     [self forgetSelf];
 }

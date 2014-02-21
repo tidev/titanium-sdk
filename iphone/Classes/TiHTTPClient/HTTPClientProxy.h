@@ -7,9 +7,8 @@
 
 #import "TiHTTPClient.h"
 #import "TiProxy.h"
-
-@class TiDOMDocumentProxy;
-@class TiBlob;
+#import "TiDOMDocumentProxy.h"
+#import "TiBlob.h"
 
 @interface HTTPClientProxy : TiProxy<TiHTTPRequestDelegate>
 {
@@ -25,9 +24,6 @@
     BOOL hasOnsendstream;
     BOOL hasOnredirect;
 }
-
-
-
 
 // state information
 @property(nonatomic, readonly) NSNumber *status;
