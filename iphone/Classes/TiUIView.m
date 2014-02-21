@@ -184,6 +184,7 @@ DEFINE_EXCEPTIONS
 	[animation release];
 	[backgroundImage release];
 	[gradientLayer release];
+	[bgdImageLayer release];
 	[singleTapRecognizer release];
 	[doubleTapRecognizer release];
 	[twoFingerTapRecognizer release];
@@ -368,6 +369,7 @@ DEFINE_EXCEPTIONS
     if (backgroundRepeat) {
         [self renderRepeatedBackground:backgroundImage];
     }
+    [self updateViewShadowPath];
 }
 
 
@@ -608,7 +610,6 @@ DEFINE_EXCEPTIONS
         }
     }
     
-    self.clipsToBounds = bgImage!=nil;
     self.backgroundImage = bgImage;
 }
 
@@ -646,7 +647,7 @@ DEFINE_EXCEPTIONS
     if (gradientLayer != nil) {
         gradientLayer.cornerRadius = self.layer.cornerRadius;
     }
-    self.clipsToBounds = YES;
+    [self updateClipping];
 }
 
 -(void)setAnchorPoint_:(id)point
@@ -716,6 +717,84 @@ DEFINE_EXCEPTIONS
 		[(TiGradientLayer *)gradientLayer setGradient:arg];
 		[gradientLayer setNeedsDisplay];
 	}
+}
+
+-(void)updateClipping
+{
+    if (clipMode != 0) {
+        //Explicitly overridden
+        self.clipsToBounds = (clipMode > 0);
+    } else {
+        if (self.layer.cornerRadius > 0) {
+            //If borderRadius > 0, enable clipping
+            self.clipsToBounds = YES;
+        } else if ([self shadowLayer].shadowOpacity > 0) {
+            //If shadow is visible, disble clipping
+            self.clipsToBounds = NO;
+        } else if ([[self proxy] isKindOfClass:[TiViewProxy class]]){
+            self.clipsToBounds = ( [[((TiViewProxy*)self.proxy) children] count] > 0 );
+        } else {
+            DeveloperLog(@"[WARN] Proxy is nil or not of kind TiViewProxy. Check");
+            self.clipsToBounds = NO;
+        }
+    }
+}
+
+-(void)setClipMode_:(id)arg
+{
+    [[self proxy] replaceValue:arg forKey:@"clipMode" notification:NO];
+    clipMode = [TiUtils intValue:arg def:0];
+    [self updateClipping];
+}
+
+/**
+ This section of code for shadow support adapted from contributions by Martin Guillon
+ See https://github.com/appcelerator/titanium_mobile/pull/2996
+ */
+-(CALayer *)shadowLayer
+{
+    return [self layer];
+}
+
+
+-(void)setViewShadowOffset_:(id)arg
+{
+    [[self proxy] replaceValue:arg forKey:@"viewShadowOffset" notification:NO];
+    CGPoint p = [TiUtils pointValue:arg];
+    [[self shadowLayer] setShadowOffset:CGSizeMake(p.x, p.y)];
+}
+
+-(void)setViewShadowRadius_:(id)arg
+{
+    [[self proxy] replaceValue:arg forKey:@"viewShadowRedius" notification:NO];
+    [[self shadowLayer] setShadowRadius:[TiUtils floatValue:arg def:0.0]];
+    
+}
+
+-(void)setViewShadowColor_:(id)arg
+{
+    [[self proxy] replaceValue:arg forKey:@"viewShadowColor" notification:NO];
+    TiColor* theColor = [TiUtils colorValue:arg];
+    
+    if (theColor == nil) {
+        [[self shadowLayer] setShadowColor:nil];
+        [[self shadowLayer] setShadowOpacity:0.0];
+    } else {
+        CGFloat alpha = CGColorGetAlpha([[theColor color] CGColor]);
+        [[self shadowLayer] setShadowColor:[[theColor color] CGColor]];
+        [[self shadowLayer] setShadowOpacity:alpha];
+        [[self shadowLayer] setShouldRasterize:YES];
+        [self updateViewShadowPath];
+    }
+    [self updateClipping];
+}
+
+-(void)updateViewShadowPath
+{
+    if ([self shadowLayer].shadowOpacity > 0.0f) {
+        //to speedup things
+        [self shadowLayer].shadowPath =[UIBezierPath bezierPathWithRoundedRect:[self bounds] cornerRadius:self.layer.cornerRadius].CGPath;
+    }
 }
 
 -(void)didAddSubview:(UIView*)view
