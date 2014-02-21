@@ -506,7 +506,7 @@ DEFINE_EXCEPTIONS
 
 -(CALayer *)backgroundImageLayer
 {
-	return [self layer];
+	return bgdImageLayer;
 }
 
 -(CALayer *)gradientLayer
@@ -574,6 +574,24 @@ DEFINE_EXCEPTIONS
 {
     UIImage* bgImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
     
+    if (bgImage == nil) {
+        [bgdImageLayer removeFromSuperlayer];
+        RELEASE_TO_NIL(bgdImageLayer);
+        return;
+    }
+    
+    if (bgdImageLayer == nil) {
+        bgdImageLayer = [[CALayer alloc] init];
+        [bgdImageLayer setFrame:[self bounds]];
+        bgdImageLayer.masksToBounds = YES;
+        bgdImageLayer.cornerRadius = self.layer.cornerRadius;
+        if (gradientLayer != nil) {
+            [[self gradientWrapperView].layer insertSublayer:bgdImageLayer above:gradientLayer];
+        } else {
+            [[self gradientWrapperView].layer insertSublayer:bgdImageLayer atIndex:0];
+        }
+    }
+    
     if (backgroundRepeat) {
         [self renderRepeatedBackground:bgImage];
     }
@@ -621,8 +639,14 @@ DEFINE_EXCEPTIONS
 
 -(void)setBorderRadius_:(id)radius
 {
-	self.layer.cornerRadius = [TiUtils floatValue:radius];
-	self.clipsToBounds = YES;
+    self.layer.cornerRadius = MAX([TiUtils floatValue:radius def:0],0);
+    if (bgdImageLayer != nil) {
+        bgdImageLayer.cornerRadius = self.layer.cornerRadius;
+    }
+    if (gradientLayer != nil) {
+        gradientLayer.cornerRadius = self.layer.cornerRadius;
+    }
+    self.clipsToBounds = YES;
 }
 
 -(void)setAnchorPoint_:(id)point
@@ -663,6 +687,7 @@ DEFINE_EXCEPTIONS
 	return touchEnabled;
 }
 
+
 -(UIView *)gradientWrapperView
 {
 	return self;
@@ -682,7 +707,9 @@ DEFINE_EXCEPTIONS
 		[gradientLayer setNeedsDisplayOnBoundsChange:YES];
 		[gradientLayer setFrame:[self bounds]];
 		[gradientLayer setNeedsDisplay];
-		[[[self gradientWrapperView] layer] insertSublayer:gradientLayer atIndex:0];
+		gradientLayer.cornerRadius = self.layer.cornerRadius;
+		gradientLayer.masksToBounds = YES;
+		[[self gradientWrapperView].layer insertSublayer:gradientLayer atIndex:0];
 	}
 	else
 	{
@@ -693,11 +720,16 @@ DEFINE_EXCEPTIONS
 
 -(void)didAddSubview:(UIView*)view
 {
-	// So, it turns out that adding a subview places it beneath the gradient layer.
-	// Every time we add a new subview, we have to make sure the gradient stays where it belongs...
-	if (gradientLayer != nil) {
-		[[[self gradientWrapperView] layer] insertSublayer:gradientLayer atIndex:0];
-	}
+    // So, it turns out that adding a subview places it beneath the gradient layer.
+    // Every time we add a new subview, we have to make sure the gradient stays where it belongs...
+    if (gradientLayer != nil) {
+        [[self gradientWrapperView].layer insertSublayer:gradientLayer atIndex:0];
+        if (bgdImageLayer != nil) {
+            [[self gradientWrapperView].layer insertSublayer:bgdImageLayer above:gradientLayer];
+        }
+    } else if (bgdImageLayer != nil) {
+        [[self gradientWrapperView].layer insertSublayer:bgdImageLayer atIndex:0];
+    }
 }
 
 -(void)animate:(TiAnimation *)newAnimation
