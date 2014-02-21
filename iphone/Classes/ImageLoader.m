@@ -626,11 +626,6 @@ DEFINE_EXCEPTIONS
 	{
 		queue = [[NSOperationQueue alloc] init];
 		[queue setMaxConcurrentOperationCount:4];
-//		[queue setShouldCancelAllRequestsOnFailure:NO];
-//		[queue setDelegate:self];
-//		[queue setRequestDidFailSelector:@selector(queueRequestDidFail:)];
-//		[queue setRequestDidFinishSelector:@selector(queueRequestDidFinish:)];
-//		[queue go];
 	}
 	
 	NSDictionary *dict = [NSDictionary dictionaryWithObject:request forKey:@"request"];
@@ -688,7 +683,7 @@ DEFINE_EXCEPTIONS
 	[lock lock];
 	if (queue!=nil)
 	{
-//		[queue reset];
+		[queue cancelAllOperations];
 	}
 	[lock unlock];
 }
@@ -811,7 +806,7 @@ DEFINE_EXCEPTIONS
     
 	else
 	{
-		if ([[req delegate] respondsToSelector:@selector(imageLoadCancelled:)]){
+		if ([[req delegate] respondsToSelector:@selector(imageLoadCancelled:)]) {
 			[[req delegate] performSelector:@selector(imageLoadCancelled:) withObject:req];
 		}
 	}
@@ -824,17 +819,12 @@ DEFINE_EXCEPTIONS
 	[[TiApp app] stopNetwork];
 	ImageLoaderRequest *req = [[request userInfo] objectForKey:@"request"];
 	NSError *error = [tiResponse error];
-    /*
-	if ([error code] == ASIRequestCancelledErrorType && [error domain] == NetworkRequestErrorDomain)
-	{
-		if ([[req delegate] respondsToSelector:@selector(imageLoadCancelled:)])
-		{
-			[[req delegate] performSelector:@selector(imageLoadCancelled:) withObject:req];
-		}
-	}
-	else 
-     */
-	{
+    
+	if ([request cancelled]) {
+        if ([[req delegate] respondsToSelector:@selector(imageLoadCancelled:)]) {
+            [[req delegate] performSelector:@selector(imageLoadCancelled:) withObject:req];
+        }
+	} else {
 		[[req delegate] imageLoadFailed:req error:[tiResponse error]];
 	}
 	[request setUserInfo:nil];
