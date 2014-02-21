@@ -15,12 +15,46 @@ module.exports = new function() {
 
 	this.name = "ui_2dMatrix";
 	this.tests = [
+		{name: "testTransform"},
 		{name: "testInvert"},
 		{name: "testMultiply"},
 		{name: "testRotate"},
 		{name: "testScale"},
 		{name: "testTranslate"},
 	]
+
+	//TIMOB-4813
+	this.testTransform = function(testRun) {
+		var win = Titanium.UI.createWindow();
+		var View = Ti.UI.createView({
+			width: 100,
+			height: 100
+		});
+		var animation_flag = false;
+		var matrix1 = Ti.UI.create2DMatrix();
+		var matrix2 = Ti.UI.create2DMatrix();
+		matrix1 = matrix1.rotate(-180);
+		matrix2 = matrix2.rotate(-90);
+		matrix1 = matrix1.multiply(matrix2);
+		var animation = Ti.UI.createAnimation({
+			transform : matrix1,
+			duration : 1000
+		});
+		animation.addEventListener('complete', function(){
+			animation_flag = true;
+		});
+		setTimeout(function(){
+			View.animate(animation,function(){
+				setTimeout(function(){
+					valueOf(testRun, animation_flag).shouldBeTrue();
+
+					finish(testRun);
+				}, 3000);
+			});
+		},1000);
+		win.add(View);
+		win.open();
+	}
 
 	this.testInvert = function(testRun) {
 		var matrix1 = Ti.UI.create2DMatrix();
