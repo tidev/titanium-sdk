@@ -161,7 +161,6 @@
 
 -(void)scrollToView:(id)args
 {	//TODO: Refactor this properly.
-	ENSURE_SINGLE_ARG(args,NSObject);
 	[self makeViewPerformSelector:@selector(scrollToView:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
@@ -258,6 +257,18 @@
     if ([self viewAttached]) {
         [(TiUIScrollableView*)[self view] manageRotation];
     }
+}
+
+-(void)moveNext:(id)args
+{
+	ENSURE_SINGLE_ARG(args,NSNumber);
+	[self makeViewPerformSelector:@selector(moveNext:) withObject:args createIfNeeded:YES waitUntilDone:NO];
+}
+
+-(void)movePrevious:(id)args
+{
+	ENSURE_SINGLE_ARG(args,NSNumber);
+	[self makeViewPerformSelector:@selector(movePrevious:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
 @end

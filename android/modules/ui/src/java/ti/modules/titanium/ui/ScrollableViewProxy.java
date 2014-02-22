@@ -84,19 +84,19 @@ public class ScrollableViewProxy extends TiViewProxy
 				break;
 			case MSG_MOVE_PREV:
 				inScroll.set(true);
-				getView().movePrevious();
+				getView().movePrevious(msg.arg1 == 1);
 				inScroll.set(false);
 				handled = true;
 				break;
 			case MSG_MOVE_NEXT:
 				inScroll.set(true);
-				getView().moveNext();
+				getView().moveNext(msg.arg1 == 1);
 				inScroll.set(false);
 				handled = true;
 				break;
 			case MSG_SCROLL_TO:
 				inScroll.set(true);
-				getView().scrollTo(msg.obj);
+				getView().scrollTo(msg.obj, msg.arg1 == 1);
 				inScroll.set(false);
 				handled = true;
 				break;
@@ -129,6 +129,9 @@ public class ScrollableViewProxy extends TiViewProxy
 				Object view = holder.getArg(); 
 				if (view instanceof TiViewProxy) {
 					getView().removeView((TiViewProxy) view);
+					handled = true;
+				} else if (view instanceof Integer) {
+					getView().removeView((Integer) view);
 					handled = true;
 				} else if (view != null) {
 					Log.w(TAG, "removeView() ignored. Expected a Titanium view object, got " + view.getClass().getSimpleName());
@@ -174,29 +177,45 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void scrollToView(Object view)
+	public void scrollToView(Object view, @Kroll.argument(optional = true) Object obj)
 	{
 		if (inScroll.get()) return;
 
-		getMainHandler().obtainMessage(MSG_SCROLL_TO, view).sendToTarget();
+		Boolean animated = true;
+		if (obj != null) {
+			animated = TiConvert.toBoolean(obj);
+		}
+
+		getMainHandler().obtainMessage(MSG_SCROLL_TO, animated?1:0, 0, view).sendToTarget();
 	}
 
 	@Kroll.method
-	public void movePrevious()
+	public void movePrevious(@Kroll.argument(optional = true) Object obj)
 	{
 		if (inScroll.get()) return;
+
+
+		Boolean animated = true;
+		if (obj != null) {
+			animated = TiConvert.toBoolean(obj);
+		}
 
 		getMainHandler().removeMessages(MSG_MOVE_PREV);
-		getMainHandler().sendEmptyMessage(MSG_MOVE_PREV);
+		getMainHandler().obtainMessage(MSG_MOVE_PREV, animated?1:0, 0, null).sendToTarget();
 	}
 
 	@Kroll.method
-	public void moveNext()
+	public void moveNext(@Kroll.argument(optional = true) Object obj)
 	{
 		if (inScroll.get()) return;
 
+		Boolean animated = true;
+		if (obj != null) {
+			animated = TiConvert.toBoolean(obj);
+		}
+
 		getMainHandler().removeMessages(MSG_MOVE_NEXT);
-		getMainHandler().sendEmptyMessage(MSG_MOVE_NEXT);
+		getMainHandler().obtainMessage(MSG_MOVE_NEXT, animated?1:0, 0, null).sendToTarget();
 	}
 
 	public void setPagerTimeout()
