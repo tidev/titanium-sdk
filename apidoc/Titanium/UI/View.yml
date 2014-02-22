@@ -997,6 +997,13 @@ properties:
     type: Boolean
     platforms: [android, blackberry]
     
+  - name: clipChildren
+    summary: Determines whether view should clip its children drawing within its bounds.
+    description: If false, children will be able to draw outside the view bounds.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+    
   - name: focusable
     summary: Whether view should be focusable while navigating with the trackball.
     type: Boolean

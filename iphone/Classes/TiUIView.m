@@ -215,7 +215,7 @@ DEFINE_EXCEPTIONS
 	self = [super init];
 	if (self != nil)
 	{
-
+		self.clipsToBounds = YES;
 	}
 	return self;
 }
@@ -590,7 +590,7 @@ DEFINE_EXCEPTIONS
         }
     }
     
-    self.clipsToBounds = bgImage!=nil;
+    self.layer.masksToBounds = bgImage!=nil;
     self.backgroundImage = bgImage;
 }
 
@@ -622,7 +622,7 @@ DEFINE_EXCEPTIONS
 -(void)setBorderRadius_:(id)radius
 {
 	self.layer.cornerRadius = [TiUtils floatValue:radius];
-	self.clipsToBounds = YES;
+    self.layer.masksToBounds = YES;
 }
 
 -(void)setAnchorPoint_:(id)point
@@ -689,6 +689,16 @@ DEFINE_EXCEPTIONS
 		[(TiGradientLayer *)gradientLayer setGradient:arg];
 		[gradientLayer setNeedsDisplay];
 	}
+}
+
+-(void)setClipChildren_:(id)arg
+{
+    self.clipsToBounds = [TiUtils boolValue:arg];
+}
+
+-(BOOL)clipChildren
+{
+    return self.clipsToBounds;
 }
 
 -(void)didAddSubview:(UIView*)view
