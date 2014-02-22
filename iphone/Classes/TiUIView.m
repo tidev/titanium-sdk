@@ -399,7 +399,9 @@ DEFINE_EXCEPTIONS
             [CATransaction begin];
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
         }
-        [gradientLayer setFrame:newBounds];
+        if ([self gradientLayer] != self.layer) {
+            [[self gradientLayer] setFrame:newBounds];
+        }
         if ([self backgroundImageLayer] != self.layer) {
             [[self backgroundImageLayer] setFrame:newBounds];
         }
@@ -725,12 +727,12 @@ DEFINE_EXCEPTIONS
         //Explicitly overridden
         self.clipsToBounds = (clipMode > 0);
     } else {
-        if (self.layer.cornerRadius > 0) {
-            //If borderRadius > 0, enable clipping
-            self.clipsToBounds = YES;
-        } else if ([self shadowLayer].shadowOpacity > 0) {
+        if ([self shadowLayer].shadowOpacity > 0) {
             //If shadow is visible, disble clipping
             self.clipsToBounds = NO;
+        } else if (self.layer.borderWidth > 0 || self.layer.cornerRadius > 0) {
+            //If borderWidth > 0, or borderRadius > 0 enable clipping
+            self.clipsToBounds = YES;
         } else if ([[self proxy] isKindOfClass:[TiViewProxy class]]){
             self.clipsToBounds = ( [[((TiViewProxy*)self.proxy) children] count] > 0 );
         } else {
@@ -783,7 +785,6 @@ DEFINE_EXCEPTIONS
         CGFloat alpha = CGColorGetAlpha([[theColor color] CGColor]);
         [[self shadowLayer] setShadowColor:[[theColor color] CGColor]];
         [[self shadowLayer] setShadowOpacity:alpha];
-        [[self shadowLayer] setShouldRasterize:YES];
         [self updateViewShadowPath];
     }
     [self updateClipping];
