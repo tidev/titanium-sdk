@@ -481,7 +481,8 @@ DEFINE_EXCEPTIONS
  
 -(void)setBorderWidth_:(id)w
 { 
-	self.layer.borderWidth = [TiUtils sizeValue:w];
+    self.layer.borderWidth = [TiUtils sizeValue:w];
+    [self updateClipping];
 }
 
 -(void)setBackgroundColor_:(id)color
