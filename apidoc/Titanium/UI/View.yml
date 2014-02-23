@@ -175,6 +175,31 @@ description: |
 
     For best results on ImageView set up the `backgroundLeftCap` and `backgroundTopCap` properties such that the stretchable portion is always a 1x1 box.
 
+    #### iOS Clipping Behavior
+
+    Four new view related properties became available in Titanium Mobile 3.3.0 for iOS.
+
+    * <Titanium.UI.View.viewShadowRadius>
+    * <Titanium.UI.View.viewShadowColor>
+    * <Titanium.UI.View.viewShadowOffset>
+    * <Titanium.UI.View.clipMode>
+
+    The first three, `viewShadowColor`, `viewShadowRadius` and `viewShadowOffset` control the shadow associated with the view. 
+    The shadow of the view is drawn using a rounded rectangle with the arc radius set to the `borderRadius` property.
+
+    The `clipMode` property lets the user control the clipping behavior of the View.
+    Setting this to <Titanium.UI.iOS.CLIP_MODE_ENABLED> enforces all child views to be clipped to this views bounds.
+    Setting this to <Titanium.UI.iOS.CLIP_MODE_DISABLED> allows child views to be drawn outside the bounds of this view.
+    When set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT> or when this property is not set, clipping behavior is defined by the following rules applied in order.
+
+    * If the `viewShadowColor` is defined to be a color with alpha > 0, clipping is disabled.
+    * If the `borderWidth` or `borderRadius` of the view is set to a value > 0, clipping is enabled.
+    * If the view has one or more `children` clipping is enabled.
+    * If none of the conditions are met, clipping is disabled.
+
+    In earlier versions of Titanium Mobile Views had clipping enabled by default.
+
+
 extends: Titanium.Proxy
 since: "0.9"
 
@@ -990,6 +1015,18 @@ properties:
     type: Array<Titanium.UI.View>
     permission: read-only
 
+  - name: clipMode
+    summary: View's clipping behavior. 
+    description: |
+        Setting this to <Titanium.UI.iOS.CLIP_MODE_ENABLED> enforces all child views to be clipped to this views bounds.
+        Setting this to <Titanium.UI.iOS.CLIP_MODE_DISABLED> allows child views to be drawn outside the bounds of this view.
+        When set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT> or when this property is not set, clipping behavior is inferred. 
+        See section on iOS Clipping Behavior in <Titanium.UI.View>.
+    type: Number
+    default: Undefined. Behaves as if set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT>.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+
   - name: enabled
     summary: Determines if the view is enabled or disabled.
     description: Set to `true` to enable or `false` to disable the view.
@@ -1256,6 +1293,27 @@ properties:
     type: [ Titanium.UI.2DMatrix, Titanium.UI.3DMatrix ]
     default: Identity matrix
     exclude-platforms: [blackberry]
+    
+  - name: viewShadowRadius
+    summary: Determines the blur radius used to create the shadow.
+    type: Number
+    default: Undefined. Behaves as if set to 3.
+    platforms: [iphone,ipad]
+    since: "3.3.0"
+    
+  - name: viewShadowColor
+    summary: Determines the color of the shadow.
+    type: String
+    default: Undefined. Behaves as if transparent.
+    platforms: [iphone,ipad]
+    since: "3.3.0"
+    
+  - name: viewShadowOffset
+    summary: Determines the offset for the shadow of the view.
+    type: Point
+    default: Undefined. Behaves as if set to (0,-3)
+    platforms: [iphone,ipad]
+    since: "3.3.0"
     
   - name: visible
     summary: Determines whether the view is visible.
