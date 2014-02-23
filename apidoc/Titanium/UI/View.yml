@@ -197,7 +197,7 @@ description: |
     * If the view has one or more `children` clipping is enabled.
     * If none of the conditions are met, clipping is disabled.
 
-    In earlier versions of Titanium Mobile Views had clipping enabled by default.
+    In earlier versions of Titanium Mobile, views had clipping enabled by default.
 
 
 extends: Titanium.Proxy
