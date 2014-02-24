@@ -132,7 +132,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public void onCreate(Bundle savedInstanceState)
 	{
 		setFullscreen(true);
-		setNavBarHidden(true);
 		
 		super.onCreate(savedInstanceState);
 

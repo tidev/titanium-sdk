@@ -19,6 +19,5 @@ public interface ITiAppInfo
 	public boolean isAnalyticsEnabled();
 	public String getGUID();
 	public boolean isFullscreen();
-	public boolean isNavBarHidden();
 	public String getDeployType();
 }
