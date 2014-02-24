@@ -810,22 +810,51 @@ build.prototype = {
 
 		// detect any fonts and add font face rules to the css file
 		var fonts = {};
+		//TODO Don't search directories for other platforms
 		wrench.readdirSyncRecursive(this.projectResDir).forEach(function (file) {
-			var match = file.match(/^(.+)\.(otf|woff|ttf)$/),
-				name = match && match[1].split('/').pop();
-			if (name) {
-				fonts[name] || (fonts[name] = []);
-				fonts[name].push(file);
+			if (file.indexOf("android") == -1 &&
+				file.indexOf("iphone") == -1 &&
+				file.indexOf("tizen") == -1 &&
+				file.indexOf("blackberry") == -1 &&
+				file.indexOf("windows") == -1 //TODO Check that this will be the path for Windows
+				)
+			{
+				var match = file.match(/^(.+)\.(otf|woff|ttf|svg)$/);
+				var DS = file.indexOf("\\") != -1 ? "\\" : "/";
+				var name = match && match[1].split(DS).pop();
+				file = file.split("mobileweb").join("").split(DS).join("/");
+				if (name) {
+					fonts[name] || (fonts[name] = []);
+					fonts[name].push(file);
+				}
 			}
 		});
 		Object.keys(fonts).forEach(function (name) {
-			this.logger.debug(__('Found font: %s', name.cyan));
-			tiCSS.push('@font-face{font-family:"' + name + '";src:url("' + fonts[name] + '");}\n');
+			var fontFace = '@font-face{font-family:"' + name + '";src:';
+			for (i = 0; i < fonts[name].length; i++) {
+				fontFace += "url(\"" + fonts[name][i] + "\")" ;
+				fontFace += getFormat(fonts[name][i]);
+				HTML_HEADER += "\n<link rel='prefetch' href='" + fonts[name][i] + "' />"; //Important for webkit
+				if (i + 1 < fonts[name].length) {
+					fontFace += ",\n";
+				}
+			}
+			fontFace += "}";
+			this.logger.info("Adding Font " + fontFace);
+			tiCSS.push(fontFace);
 		}, this);
+
+		function getFormat(path) {
+			var parts = path.split(".");
+			var ext = parts[parts.length-1];
+			switch (ext) {
+				case "ttf" : return " format('truetype')"; break;
+				default  : return " format('" + ext + "')";
+			}
+		}
 
 		// write the titanium.css
 		fs.writeFileSync(this.buildDir + '/titanium.css', this.deployType == 'production' ? cleanCSS.process(tiCSS.join('')) : tiCSS.join(''));
-
 		callback();
 	},
 
