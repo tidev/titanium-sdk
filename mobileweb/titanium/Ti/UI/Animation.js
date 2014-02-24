@@ -423,6 +423,7 @@ define(['Ti/_/declare', 'Ti/_/Evented', 'Ti/_/style', 'Ti/UI'], function(declare
 
 		promise.pause = function() {
 			var a = findAnimation();
+			updateRect(a.elem);
 			a = !!a && (a.paused || (a.paused = now()));
 			anim.fireEvent('pause');
 			return a;
@@ -476,6 +477,7 @@ define(['Ti/_/declare', 'Ti/_/Evented', 'Ti/_/style', 'Ti/UI'], function(declare
 							style.set(node, prop, positionOptions[prop] && prop !== 'opacity' ? j + 'px' : j);
 						}
 					}
+					updateRect(ani.elem);
 
 					anis.splice(i, 1);
 					if (!anis.length && !anis.activeCount) {
@@ -494,11 +496,46 @@ define(['Ti/_/declare', 'Ti/_/Evented', 'Ti/_/style', 'Ti/UI'], function(declare
 			return result;
 		};
 
+		/**
+		 * Update the View position from either a transform or top/left
+		 * @param {Element} target
+		 */
+		function updateRect(target) {
+			var elementStyle = window.getComputedStyle(target.domNode, null);
+			var matrix = elementStyle.getPropertyValue('transform')
+				|| elementStyle.getPropertyValue('-moz-transform')
+				|| elementStyle.getPropertyValue('-webkit-transform')
+				|| elementStyle.getPropertyValue('-ms-transform')
+				|| elementStyle.getPropertyValue('-o-transform');
+
+			var matrixCopy = matrix.replace(/^\w*\(/, '').replace(')', '');
+			var matrixValue = matrixCopy.split(/\s*,\s*/);
+			//TODO Do we need to accomodate current rotation also?
+			if (matrixValue.length == 6) {
+				var o = {};
+				o.tx = parseFloat(matrixValue[4]);
+				o.ty = parseFloat(matrixValue[5]);
+				return o;
+			} else if (matrixValue.length == 16) {
+				o.tx = parseFloat(matrixValue[13]);
+				o.ty = parseFloat(matrixValue[14]);
+				o.tz = parseFloat(matrixValue[15]);
+			}
+			if (o) {
+				target._measuredLeft = o.tx
+				target._measuredTop = o.ty;
+			} else {
+				target._measuredTop = parseFloat(elementStyle.getPropertyValue("top").replace("px",""));
+				target._measuredLeft  = parseFloat(elementStyle.getPropertyValue("left").replace("px",""));
+			}
+		}
+
 		return promise.then(function() {
 			properties.visible !== void 0 && (elem.visible = visible);
 			properties.zIndex !== void 0 && (elem.zIndex = zIndex);
 
 			// TODO: update View.rect here: TIMOB-8930
+			updateRect(elem);//Fix for the above
 
 			anis.activeCount--;
 
