@@ -140,6 +140,10 @@ methods:
         type: Titanium.Android.BroadcastReceiver
     since: "3.1.0"
 
+  - name: getRootActivity
+    summary: Return the main activity of the application if exists.
+    since: "3.3.0"
+
   - name: startService
     summary: Starts a simple service.
     parameters:
