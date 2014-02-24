@@ -73,7 +73,7 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 	value: function(type) {
 		var handled = false,
 			data = arguments[1],
-			handled,
+			handler,
 			listeners;
 
 		// Set the "bubbles" and "cancelBubble" properties for event data.

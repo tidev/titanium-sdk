@@ -10,6 +10,14 @@ package ti.modules.titanium.media;
 public interface TiPlaybackListener
 {
 	public void onStartPlayback();
+
 	public void onPausePlayback();
+
 	public void onStopPlayback();
+
+	public void onPlayingPlayback();
+	
+	public void onSeekingBackward();
+	
+	public void onSeekingForward();
 }

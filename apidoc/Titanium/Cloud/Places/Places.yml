@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Places: Create a Place](http://cloud.appcelerator.com/docs/api/v1/places/create)
+        See [Places: Create a Place](http://docs.appcelerator.com/cloud/latest/#!/api/Places-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `places` property of the parameter passed to the callback.
@@ -25,7 +25,7 @@ methods:
   - name: query
     summary: Retrieve a list of places with sorting and pagination.
     description: |
-        See [Places: Custom Query Places](http://cloud.appcelerator.com/docs/api/v1/places/query)
+        See [Places: Custom Query Places](http://docs.appcelerator.com/cloud/latest/#!/api/Places-method-query)
         for the request parameters supported by this method.
         
         Data is returned in the `places` property of the parameter passed to the callback.
@@ -44,7 +44,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Places: Delete a Place](http://cloud.appcelerator.com/docs/api/v1/places/delete)
+        See [Places: Delete a Place](http://docs.appcelerator.com/cloud/latest/#!/api/Places-method-delete)
         for the request parameters supported by this method.
         
         Only the user who created the place can delete it.
@@ -60,7 +60,7 @@ methods:
   - name: search
     summary: Retrieve a list of places.
     description: |
-        See [Places: Search Places](http://cloud.appcelerator.com/docs/api/v1/places/search)
+        See [Places: Search Places](http://docs.appcelerator.com/cloud/latest/#!/api/Places-method-search)
         for the request parameters supported by this method.
         
         Data is returned in the `places` property of the parameter passed to the callback.
@@ -77,7 +77,7 @@ methods:
   - name: show
     summary: Retrieve information about a place.
     description: |
-        See [Places: Show a Place](http://cloud.appcelerator.com/docs/api/v1/places/show)
+        See [Places: Show a Place](http://docs.appcelerator.com/cloud/latest/#!/api/Places-method-show)
         for the request parameters supported by this method.
         
         Data is returned in the `places` property of the parameter passed to the callback.
@@ -95,7 +95,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Places: Update a Place](http://cloud.appcelerator.com/docs/api/v1/places/update)
+        See [Places: Update a Place](http://docs.appcelerator.com/cloud/latest/#!/api/Places-method-update)
         for the request parameters supported by this method.
         
         Only the user who created the place can update it.
@@ -122,12 +122,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var place = e.places[0];
-                    alert('Success:\\n' +
-                        'id: ' + place.id + '\\n' +
-                        'name: ' + place.name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + place.id + '\n' +
+                        'name: ' + place.name + '\n' +
                         'updated_at: ' + place.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -141,12 +141,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var place = e.places[0];
-                    alert('Success:\\n' +
-                        'id: ' + place.id + '\\n' +
-                        'name: ' + place.name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + place.id + '\n' +
+                        'name: ' + place.name + '\n' +
                         'updated_at: ' + place.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -160,18 +160,18 @@ examples:
                 longitude: lon
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.places.length);
                     for (var i = 0; i < e.places.length; i++) {
                         var place = e.places[i];
-                        alert('id: ' + place.id + '\\n' +
-                              'name: ' + place.name + '\\n' +
-                              'longitude: ' + place.longitude + '\\n' +
-                              'latitude: ' + place.latitude + '\\n' +
+                        alert('id: ' + place.id + '\n' +
+                              'name: ' + place.name + '\n' +
+                              'longitude: ' + place.longitude + '\n' +
+                              'latitude: ' + place.latitude + '\n' +
                               'updated_at: ' + place.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -191,18 +191,18 @@ examples:
                 }
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.places.length);
                     for (var i = 0; i < e.places.length; i++) {
                         var place = e.places[i];
-                        alert('id: ' + place.id + '\\n' +
-                              'name: ' + place.name + '\\n' +
-                              'longitude: ' + place.longitude + '\\n' +
-                              'latitude: ' + place.latitude + '\\n' +
+                        alert('id: ' + place.id + '\n' +
+                              'name: ' + place.name + '\n' +
+                              'longitude: ' + place.longitude + '\n' +
+                              'latitude: ' + place.latitude + '\n' +
                               'updated_at: ' + place.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -217,12 +217,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var place = e.places[0];
-                    alert('Success:\\n' +
-                        'id: ' + place.id + '\\n' +
-                        'name: ' + place.name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + place.id + '\n' +
+                        'name: ' + place.name + '\n' +
                         'updated_at: ' + place.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -237,7 +237,7 @@ examples:
                 if (e.success) {
                     alert('Success');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

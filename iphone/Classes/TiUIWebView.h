@@ -26,6 +26,8 @@
 	SEL reloadMethod;
     
     BOOL willHandleTouches;
+    
+    NSString* lastValidLoad;
 }
 
 @property(nonatomic,readonly) id url;

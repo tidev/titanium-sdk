@@ -27,7 +27,7 @@ public class TiGradientDrawable extends ShapeDrawable {
 	}
 
 	private static final TiPoint DEFAULT_START_POINT = new TiPoint(0, 0);
-	private static final TiPoint DEFAULT_END_POINT = new TiPoint(0, 1);
+	private static final TiPoint DEFAULT_END_POINT = new TiPoint("0", "100%");
 	private static final TiDimension DEFAULT_RADIUS = new TiDimension(1.0, TiDimension.TYPE_UNDEFINED);
 	private static final String TAG = "TiGradientDrawable";
 
@@ -38,6 +38,7 @@ public class TiGradientDrawable extends ShapeDrawable {
 	private float[] offsets;
 	private View view;
 
+	@SuppressWarnings("rawtypes")
 	public TiGradientDrawable(View view, KrollDict properties) {
 		super(new RectShape());
 
@@ -100,6 +101,7 @@ public class TiGradientDrawable extends ShapeDrawable {
 		for (int i = 0; i < colors.length; i++) {
 			Object color = colors[i];
 			if (color instanceof HashMap) {
+				@SuppressWarnings({ "rawtypes", "unchecked" })
 				HashMap<String, Object> colorRefObject = (HashMap)color;
 				this.colors[i] = TiConvert.toColor(colorRefObject, "color");
 
@@ -142,5 +144,10 @@ public class TiGradientDrawable extends ShapeDrawable {
 				throw new AssertionError("No valid gradient type set.");
 			}
 		}
+	}
+
+	public int[] getColors()
+	{
+		return colors;
 	}
 }

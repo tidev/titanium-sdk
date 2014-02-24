@@ -109,6 +109,11 @@
 	return result;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Database.ResultSet";
+}
+
 #pragma mark Public API
 
 -(void)close:(id)args
@@ -199,7 +204,7 @@
 	return nil;
 }
 
--(NSNumber*)fieldCount
+-(NSNumber*)fieldCount:(id)unused
 {
 	if (results!=nil)
 	{

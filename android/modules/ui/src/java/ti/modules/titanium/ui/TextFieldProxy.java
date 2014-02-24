@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,6 +13,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIText;
@@ -72,10 +73,7 @@ public class TextFieldProxy extends TiViewProxy
 	public Boolean hasText()
 	{
 		Object text = getProperty(TiC.PROPERTY_VALUE);
-		if (text != null && text instanceof String) {
-			return (((String)text).length() > 0);
-		}
-		return false;
+		return (TiConvert.toString(text, "").length() > 0);
 	}
 	
 	@Kroll.method
@@ -114,5 +112,10 @@ public class TextFieldProxy extends TiViewProxy
 			}
 		}
 	}
-	
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.TextField";
+	}
 }

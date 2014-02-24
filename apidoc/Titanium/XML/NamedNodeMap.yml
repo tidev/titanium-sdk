@@ -10,7 +10,7 @@ summary: >
     [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-1780488922) implementation on Mobile Web.
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: getNamedItem
     summary: Retrieves a node specified by name. 

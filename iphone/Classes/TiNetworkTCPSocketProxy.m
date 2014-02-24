@@ -129,6 +129,11 @@ const CFOptionFlags writeStreamEventFlags =
     CFSocketSetSocketFlags(socket, CFSocketGetSocketFlags(socket) & ~kCFSocketCloseOnInvalidate);
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Network.TCPSocket";
+}
+
 -(void)handleError:(NSStream*)stream
 {
     NSError* error = [stream streamError];
@@ -140,10 +145,7 @@ const CFOptionFlags writeStreamEventFlags =
     [configureCondition signal];
     [configureCondition unlock];
     
-    [self fireEvent:event
-         withObject:[NSDictionary dictionaryWithObjectsAndKeys:[error localizedDescription], @"error", 
-                     [NSNumber numberWithInt:[error code]], @"code", 
-                     nil]];
+    [self fireEvent:event withObject:nil errorCode:[error code] message:[TiUtils messageFromError:error]];
 }
 
 -(CFSocketNativeHandle)getHandleFromStream:(NSStream*)stream

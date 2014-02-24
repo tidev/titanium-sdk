@@ -51,6 +51,10 @@ void APIModule::Initialize(Handle<Object> target)
 	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "critical", logCritical);
 	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "fatal", logFatal);
 	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "log", log);
+	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "getApiName", APIModule::getApiName);
+
+	Local<ObjectTemplate> instanceTemplate = constructorTemplate->InstanceTemplate();
+	instanceTemplate->SetAccessor(String::NewSymbol("apiName"), APIModule::getter_apiName);
 
 	// Expose a method for terminating the application for the debugger.
 	// Debugger will send an evaluation request calling this method
@@ -165,6 +169,9 @@ void APIModule::logInternal(int logLevel, const char *messageTag, const char *me
 	if (logLevel == LOG_LEVEL_TRACE) {
 		__android_log_write(ANDROID_LOG_VERBOSE, messageTag, message);
 	} else if (logLevel < LOG_LEVEL_INFO) {
+        if (!V8Runtime::DBG) {
+            return;
+        }
 		__android_log_write(ANDROID_LOG_DEBUG, messageTag, message);
 	} else if (logLevel < LOG_LEVEL_WARN) {
 		__android_log_write(ANDROID_LOG_INFO, messageTag, message);
@@ -229,6 +236,16 @@ Handle<Value> APIModule::combineLogMessages(const Arguments& args, int startInde
     }
     
     return message;
+}
+
+Handle<Value> APIModule::getApiName(const Arguments& args)
+{
+	return String::New("Ti.API");
+}
+
+Handle<Value> APIModule::getter_apiName(Local<String> property, const AccessorInfo& info)
+{
+	return String::New("Ti.API");
 }
 
 Handle<Value> APIModule::terminate(const Arguments& args)

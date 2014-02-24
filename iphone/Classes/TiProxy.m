@@ -185,9 +185,26 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	}
 }
 
+typedef struct {
+	Class class;
+	SEL selector;
+} TiClassSelectorPair;
 
+void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
+{
+	TiClassSelectorPair * pair = payload;
+	[(Class)(pair->class) performSelector:(SEL)(pair->selector) withObject:runloop];
+}
 
 @implementation TiProxy
+
++(void)performSelectorDuringRunLoopStart:(SEL)selector
+{
+	TiClassSelectorPair * pair = malloc(sizeof(TiClassSelectorPair));
+	pair->class = [self class];
+	pair->selector = selector;
+	TiBindingRunLoopCallOnStart(TiClassSelectorFunction,pair);
+}
 
 @synthesize pageContext, executionContext;
 @synthesize modelDelegate;
@@ -199,7 +216,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	if (self = [super init])
 	{
-		bubbleParent = YES;
+		_bubbleParent = YES;
 #if PROXY_MEMORY_TRACK == 1
 		NSLog(@"[DEBUG] INIT: %@ (%d)",self,[self hash]);
 #endif
@@ -563,8 +580,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 #pragma mark Public
 
-@synthesize bubbleParent;
-
 -(id<NSFastEnumeration>)allKeys
 {
 	pthread_rwlock_rdlock(&dynpropsLock);
@@ -572,6 +587,16 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	pthread_rwlock_unlock(&dynpropsLock);
 	
 	return keys;
+}
+
+-(NSNumber*)bubbleParent
+{
+    return NUMBOOL(_bubbleParent);
+}
+
+-(void)setBubbleParent:(id)arg
+{
+    _bubbleParent = [TiUtils boolValue:arg def:YES];
 }
 
 /*
@@ -590,9 +615,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		return pageKrollObject;
 	}
 
-	if (bridgeCount < 2) {
-		//By this time, the only valid response would have been pageKrollObject,
-		//and we know that isn't the case.
+	if (bridgeCount == 0) {
 		return nil;
 	}
 
@@ -611,12 +634,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		return pageKrollObject;
 	}
 
-	if (bridgeCount < 2) {
-		//By this time, the only valid response would have been pageKrollObject,
-		//and we know that isn't the case.
+	if (bridgeCount == 0) {
 		return nil;
 	}
-	
+    
 	KrollBridge * ourBridge = (KrollBridge *)[context delegate];
 	
 	if(![ourBridge usesProxy:self])
@@ -633,7 +654,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 }
 - (TiBindingRunLoop) primaryBindingRunLoop
 {
-	return [pageContext krollContext];
+    if (pageKrollObject != nil) {
+        return [pageContext krollContext];
+    }
+    return nil;
 }
 - (NSArray *) bindingRunLoopArray
 {
@@ -792,10 +816,13 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)addEventListener:(NSArray*)args
 {
 	NSString *type = [args objectAtIndex:0];
-	KrollCallback* listener = [args objectAtIndex:1];
-	ENSURE_TYPE(listener,KrollCallback);
+	id listener = [args objectAtIndex:1];
+	if (![listener isKindOfClass:[KrollWrapper class]] &&
+		![listener isKindOfClass:[KrollCallback class]]) {
+		ENSURE_TYPE(listener,KrollCallback);
+	}
 
-	KrollObject * ourObject = [self krollObjectForContext:[listener context]];
+	KrollObject * ourObject = [self krollObjectForContext:([listener isKindOfClass:[KrollCallback class]] ? [(KrollCallback *)listener context] : [(KrollWrapper *)listener bridge].krollContext)];
 	[ourObject storeListener:listener forEvent:type];
 
 	//TODO: You know, we can probably nip this in the bud and do this at a lower level,
@@ -834,6 +861,13 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	[self _listenerRemoved:type count:ourCallbackCount];
 }
 
+-(BOOL)doesntOverrideFireEventWithSource
+{
+	IMP proxySourceImp = [[TiProxy class] instanceMethodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
+	IMP subclassSourceImp = [self methodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
+	return proxySourceImp == subclassSourceImp;
+}
+
 -(void)fireEvent:(id)args
 {
 	NSString *type = nil;
@@ -844,6 +878,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		if ([args count] > 1)
 		{
 			params = [args objectAtIndex:1];
+		}
+		if ([params isKindOfClass:[NSNull class]]) {
+			DebugLog(@"[WARN]fireEvent of type %@ called with two parameters but second parameter is null. Ignoring. Check your code",type);
+			params = nil;
 		}
 	}
 	else if ([args isKindOfClass:[NSString class]])
@@ -856,37 +894,107 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	if((bubbleObject != nil) && ([params count]==1)){
 		params = nil; //No need to propagate when we already have this information
 	}
-	[self fireEvent:type withObject:params withSource:self propagate:bubble];
+	if ([self doesntOverrideFireEventWithSource]){
+		//TODO: Once the deprecated methods are removed, we can use the following line without checking to see if we'd shortcut.
+		// For now, we're shortcutting to suppress false warnings.
+		[self fireEvent:type withObject:params propagate:bubble reportSuccess:NO errorCode:0 message:nil];
+		return;
+	}
+	DebugLog(@"[WARN] The Objective-C class %@ has overridden -[fireEvent:withObject:withSource:propagate:].",[self class]);
+	[self fireEvent:type withObject:params withSource:self propagate:bubble];	//In case of not debugging, we don't change behavior, just in case.
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj
 {
-	[self fireEvent:type withObject:obj withSource:self propagate:YES];
+	if ([self doesntOverrideFireEventWithSource]){
+		//TODO: Once the deprecated methods are removed, we can use the following line without checking to see if we'd shortcut.
+		// For now, we're shortcutting to suppress false warnings.
+		[self fireEvent:type withObject:obj propagate:YES reportSuccess:NO errorCode:0 message:nil];
+		return;
+	}
+	DebugLog(@"[WARN] The Objective-C class %@ has overridden -[fireEvent:withObject:withSource:propagate:].",[self class]);
+	[self fireEvent:type withObject:obj withSource:self propagate:YES];	//In case of not debugging, we don't change behavior, just in case.
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source
 {
+	//The warning for this is in the propagate version.
 	[self fireEvent:type withObject:obj withSource:source propagate:YES];
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn
 {
+	if ([self doesntOverrideFireEventWithSource]){
+		//TODO: Once the deprecated methods are removed, we can use the following line without checking to see if we'd shortcut.
+		// For now, we're shortcutting to suppress false warnings.
+		[self fireEvent:type withObject:obj propagate:yn reportSuccess:NO errorCode:0 message:nil];
+		return;
+	}
+	DebugLog(@"[WARN] The Objective-C class %@ has overridden -[fireEvent:withObject:withSource:propagate:].",[self class]);
 	[self fireEvent:type withObject:obj withSource:self propagate:yn];
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
+	DebugLog(@"[WARN] The methods -[fireEvent:withObject:withSource:] and [fireEvent:withObject:withSource:propagate:] are deprecated. Please use -[fireEvent:withObject:propagate:reportSuccess:errorCode:message:] instead.");
+	if (self != source) {
+		NSLog(@"[WARN] Source is not the same as self. (Perhaps this edge case is still valid?)");
+	}
+	[self fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:NO errorCode:0 message:nil];
+}
+
+
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj errorCode:(int)code message:(NSString*)message;
+{
+	[self fireEvent:type withObject:obj propagate:YES reportSuccess:YES errorCode:code message:message];
+}
+
+//What classes should actually use.
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+{
 	if (![self _hasListeners:type])
 	{
 		return;
 	}
-
+	
 	TiBindingEvent ourEvent;
 	
-	ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+	ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
+	if (report || (code != 0))
+	{
+		TiBindingEventSetErrorCode(ourEvent, code);
+	}
+	if (message != nil)
+	{
+		TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+	}
 	TiBindingEventSetBubbles(ourEvent, propagate);
 	TiBindingEventFire(ourEvent);
 }
+
+//Temporary method until source is removed, for our subclasses.
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+{
+	if (![self _hasListeners:type])
+	{
+		return;
+	}
+	
+	TiBindingEvent ourEvent;
+	
+	ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+	if (report || (code != 0)) {
+		TiBindingEventSetErrorCode(ourEvent, code);
+	}
+	if (message != nil)
+	{
+		TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+	}
+	TiBindingEventSetBubbles(ourEvent, propagate);
+	TiBindingEventFire(ourEvent);
+}
+
 
 - (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues
 {
@@ -997,6 +1105,7 @@ DEFINE_EXCEPTIONS
 		KrollWrapper * newValue = [[[KrollWrapper alloc] init] autorelease];
 		[newValue setBridge:(KrollBridge*)[[(KrollCallback*)value context] delegate]];
 		[newValue setJsobject:[(KrollCallback*)value function]];
+		[newValue protectJsobject];
 		value = newValue;
 	}
     
@@ -1164,5 +1273,41 @@ DEFINE_EXCEPTIONS
 	// since you can't serialize a proxy as JSON, just return null
 	return [NSNull null];
 }
+
+//For subclasses to override
+-(NSString*)apiName
+{
+    DebugLog(@"[ERROR] Subclasses must override the apiName API endpoint.");
+    return @"Ti.Proxy";
+}
+
++ (id)createProxy:(NSString*)qualifiedName withProperties:(NSDictionary*)properties inContext:(id<TiEvaluator>)context
+{
+	static dispatch_once_t onceToken;
+	static CFMutableDictionaryRef classNameLookup;
+	dispatch_once(&onceToken, ^{
+		classNameLookup = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, NULL);
+	});
+	Class proxyClass = (Class)CFDictionaryGetValue(classNameLookup, qualifiedName);
+	if (proxyClass == nil) {
+		NSString *titanium = [NSString stringWithFormat:@"%@%s",@"Ti","tanium."];
+		if ([qualifiedName hasPrefix:titanium]) {
+			qualifiedName = [qualifiedName stringByReplacingCharactersInRange:NSMakeRange(2, 6) withString:@""];
+		}
+		NSString *className = [[qualifiedName stringByReplacingOccurrencesOfString:@"." withString:@""] stringByAppendingString:@"Proxy"];
+		proxyClass = NSClassFromString(className);
+		if (proxyClass==nil) {
+			DebugLog(@"[WARN] Attempted to load %@: Could not find class definition.", className);
+			@throw [NSException exceptionWithName:@"org.appcelerator.module"
+										reason:[NSString stringWithFormat:@"Class not found: %@", qualifiedName]
+										userInfo:nil];
+		}
+		CFDictionarySetValue(classNameLookup, qualifiedName, proxyClass);
+	}
+	NSArray *args = properties != nil ? [NSArray arrayWithObject:properties] : nil;
+	return [[[proxyClass alloc] _initWithPageContext:context args:args
+			 ] autorelease];
+}
+
 
 @end

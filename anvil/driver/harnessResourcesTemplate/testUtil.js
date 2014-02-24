@@ -115,7 +115,7 @@ module.exports = new function() {
 			return;
 		}
 
-		if (this.obj !== expected) {
+		if (!(this.obj === expected)) {
 			self.reportError(this.testRun, "should be exactly: " + expected + ", was: " + this.obj);
 		}
 	};
@@ -205,7 +205,7 @@ module.exports = new function() {
 			return;
 		}
 
-		if (this.obj !== true) {
+		if (!(this.obj === true)) {
 			self.reportError(this.testRun, "should be true, was: " + this.obj);
 		}
 	};
@@ -215,7 +215,7 @@ module.exports = new function() {
 			return;
 		}
 
-		if (this.obj !== false) {
+		if (!(this.obj === false)) {
 			self.reportError(this.testRun, "should be false, was: " + this.obj);
 		}
 	};
@@ -283,7 +283,7 @@ module.exports = new function() {
 			return;
 		}
 
-		if (this.obj <= expected) {
+		if (!(this.obj > expected)) {
 			self.reportError(this.testRun, "should be greater than, was " + this.obj + " <= " + expected);
 		}
 	};
@@ -293,7 +293,7 @@ module.exports = new function() {
 			return;
 		}
 
-		if (this.obj >= expected) {
+		if (!(this.obj < expected)) {
 			self.reportError(this.testRun, "should be less than, was " + this.obj + " >= " + expected);
 		}
 	};
@@ -303,7 +303,7 @@ module.exports = new function() {
 			return;
 		}
 
-		if (this.obj < expected) {
+		if (!(this.obj >= expected)) {
 			self.reportError(this.testRun, "should be greater than equal, was " + this.obj + " < " + expected);
 		}
 	};
@@ -313,7 +313,7 @@ module.exports = new function() {
 			return;
 		}
 
-		if (this.obj > expected) {
+		if (!(this.obj <= expected)) {
 			self.reportError(this.testRun, "should be greater than, was " + this.obj + " > " + expected);
 		}
 	};

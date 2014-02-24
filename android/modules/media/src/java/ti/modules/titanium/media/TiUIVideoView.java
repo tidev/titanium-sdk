@@ -149,9 +149,13 @@ public class TiUIVideoView extends TiUIView
 		}
 
 		if (key.equals(TiC.PROPERTY_URL) || key.equals(TiC.PROPERTY_CONTENT_URL)) {
-			getPlayerProxy().fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
-			videoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, TiConvert.toString(newValue))));
-			seekIfNeeded();
+			if (newValue != null) {
+				getPlayerProxy().fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
+				videoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, TiConvert.toString(newValue))));
+				seekIfNeeded();
+			} else {
+				videoView.stopPlayback();
+			}
 			if (key.equals(TiC.PROPERTY_CONTENT_URL)) {
 				Log.w(TAG, "contentURL is deprecated, use url instead");
 				proxy.setProperty(TiC.PROPERTY_URL, newValue);
@@ -341,6 +345,24 @@ public class TiUIVideoView extends TiUIView
 		getPlayerProxy().onPlaybackStopped();
 	}
 
+	@Override
+	public void onPlayingPlayback()
+	{
+		getPlayerProxy().onPlaying();
+	}
+	
+	@Override
+	public void onSeekingForward()
+	{
+		getPlayerProxy().onSeekingForward();
+	}
+
+	@Override
+	public void onSeekingBackward()
+	{
+		getPlayerProxy().onSeekingBackward();
+	}
+	
 	private VideoPlayerProxy getPlayerProxy()
 	{
 		return ((VideoPlayerProxy) proxy);

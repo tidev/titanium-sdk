@@ -76,7 +76,7 @@ public class TiBorderWrapperView extends FrameLayout
 		int maxPadding = 0;
 		// cap padding to current bounds
 		maxPadding = (int) Math.min(outerRect.right / 2, outerRect.bottom / 2);
-		padding = (int) Math.min(getBorderWidth(), maxPadding);
+		padding = (int) Math.min(borderWidth, maxPadding);
 		innerRect.set(bounds.left + padding, bounds.top + padding, bounds.right - padding, bounds.bottom - padding);
 
 		if (radius > 0) {
@@ -90,32 +90,27 @@ public class TiBorderWrapperView extends FrameLayout
 			if (radius - padding > 0) {
 				float innerRadii[] = new float[8];
 				Arrays.fill(innerRadii, radius - padding);
-				borderPath.addRoundRect(innerRect, innerRadii, Direction.CW);
+				borderPath.addRoundRect(innerRect, innerRadii, Direction.CCW);
 				innerPath.addRoundRect(innerRect, innerRadii, Direction.CW);
 			} else {
-				borderPath.addRect(innerRect, Direction.CW);
+				borderPath.addRect(innerRect, Direction.CCW);
 				innerPath.addRect(innerRect, Direction.CW);
 			}
 		} else {
 			borderPath = new Path();
 			borderPath.addRect(outerRect, Direction.CW);
-			borderPath.addRect(innerRect, Direction.CW);
+			borderPath.addRect(innerRect, Direction.CCW);
 			borderPath.setFillType(FillType.EVEN_ODD);
 		}
 	}
 
 	private void drawBorder(Canvas canvas)
 	{
-		paint.setColor(getColor());
-		if (getBorderAlpha() > -1) {
-			paint.setAlpha(getBorderAlpha());
+		paint.setColor(color);
+		if (alpha > -1) {
+			paint.setAlpha(alpha);
 		}
 		canvas.drawPath(borderPath, paint);
-	}
-
-	public int getColor()
-	{
-		return color;
 	}
 
 	public void setColor(int color)
@@ -123,19 +118,9 @@ public class TiBorderWrapperView extends FrameLayout
 		this.color = color;
 	}
 
-	public float getRadius()
-	{
-		return radius;
-	}
-
 	public void setRadius(float radius)
 	{
 		this.radius = radius;
-	}
-
-	public float getBorderWidth()
-	{
-		return borderWidth;
 	}
 
 	public void setBorderWidth(float borderWidth)
@@ -146,10 +131,5 @@ public class TiBorderWrapperView extends FrameLayout
 	public void setBorderAlpha(int alpha)
 	{
 		this.alpha = alpha;
-	}
-
-	public int getBorderAlpha()
-	{
-		return alpha;
 	}
 }

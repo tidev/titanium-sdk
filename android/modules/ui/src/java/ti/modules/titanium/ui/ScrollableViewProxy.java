@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -25,7 +25,10 @@ import ti.modules.titanium.ui.widget.TiUIScrollableView;
 import android.app.Activity;
 import android.os.Message;
 
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={TiC.PROPERTY_SHOW_PAGING_CONTROL})
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
+	TiC.PROPERTY_SHOW_PAGING_CONTROL,
+	TiC.PROPERTY_OVER_SCROLL_MODE
+})
 public class ScrollableViewProxy extends TiViewProxy
 {
 	private static final String TAG = "TiScrollableView";
@@ -51,6 +54,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		super();
 		inScroll = new AtomicBoolean(false);
 		defaultValues.put(TiC.PROPERTY_SHOW_PAGING_CONTROL, false);
+		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 	}
 
 	public ScrollableViewProxy(TiContext context)
@@ -284,5 +288,21 @@ public class ScrollableViewProxy extends TiViewProxy
 	{
 		getMainHandler().removeMessages(MSG_HIDE_PAGER);
 		super.releaseViews();
+	}
+	
+	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+		ArrayList<TiViewProxy> list = getView().getViews();
+		for (TiViewProxy proxy : list) {
+			proxy.setActivity(activity);
+		}
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.ScrollableView";
 	}
 }

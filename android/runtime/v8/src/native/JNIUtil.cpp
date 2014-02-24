@@ -28,6 +28,7 @@ jclass JNIUtil::longClass = NULL;
 jclass JNIUtil::floatClass = NULL;
 jclass JNIUtil::doubleClass = NULL;
 jclass JNIUtil::booleanClass = NULL;
+jclass JNIUtil::stringArrayClass = NULL;
 jclass JNIUtil::objectArrayClass = NULL;
 jclass JNIUtil::shortArrayClass = NULL;
 jclass JNIUtil::intArrayClass = NULL;
@@ -47,6 +48,7 @@ jclass JNIUtil::v8ObjectClass = NULL;
 jclass JNIUtil::v8FunctionClass = NULL;
 jclass JNIUtil::krollRuntimeClass = NULL;
 jclass JNIUtil::krollInvocationClass = NULL;
+jclass JNIUtil::krollExceptionClass = NULL;
 jclass JNIUtil::krollObjectClass = NULL;
 jclass JNIUtil::krollProxyClass = NULL;
 jclass JNIUtil::krollAssetHelperClass = NULL;
@@ -86,6 +88,7 @@ jmethodID JNIUtil::referenceTableGetReferenceMethod = NULL;
 
 jint JNIUtil::krollRuntimeDontIntercept = -1;
 jmethodID JNIUtil::krollInvocationInitMethod = NULL;
+jmethodID JNIUtil::krollExceptionInitMethod = NULL;
 jmethodID JNIUtil::krollObjectSetHasListenersForEventTypeMethod = NULL;
 jmethodID JNIUtil::krollObjectOnEventFiredMethod = NULL;
 jmethodID JNIUtil::krollProxyCreateProxyMethod = NULL;
@@ -274,6 +277,7 @@ void JNIUtil::initCache()
 	floatArrayClass = findClass("[F");
 	doubleArrayClass = findClass("[D");
 	booleanArrayClass = findClass("[Z");
+	stringArrayClass = findClass("[Ljava/lang/String;");
 	objectArrayClass = findClass("[Ljava/lang/Object;");
 	arrayListClass = findClass("java/util/ArrayList");
 	hashMapClass = findClass("java/util/HashMap");
@@ -291,6 +295,7 @@ void JNIUtil::initCache()
 	krollProxyClass = findClass("org/appcelerator/kroll/KrollProxy");
 	krollAssetHelperClass = findClass("org/appcelerator/kroll/util/KrollAssetHelper");
 	krollLoggingClass = findClass("org/appcelerator/kroll/KrollLogging");
+	krollExceptionClass = findClass("org/appcelerator/kroll/KrollException");
 	referenceTableClass = findClass("org/appcelerator/kroll/runtime/v8/ReferenceTable");
 
 	classGetNameMethod = getMethodID(classClass, "getName", "()Ljava/lang/String;", false);
@@ -332,6 +337,7 @@ void JNIUtil::initCache()
 	krollRuntimeDontIntercept = env->GetStaticIntField(krollRuntimeClass, dontInterceptField);
 
 	krollInvocationInitMethod = getMethodID(krollInvocationClass, "<init>", "(Ljava/lang/String;)V", false);
+	krollExceptionInitMethod = getMethodID(krollExceptionClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;)V", false);
 	krollObjectSetHasListenersForEventTypeMethod = getMethodID(krollObjectClass, "setHasListenersForEventType",
 		"(Ljava/lang/String;Z)V");
 	krollObjectOnEventFiredMethod = getMethodID(krollObjectClass, "onEventFired", "(Ljava/lang/String;Ljava/lang/Object;)V");

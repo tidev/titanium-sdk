@@ -1,13 +1,12 @@
-<img src="http://www.appcelerator.com/wp-content/themes/app/images/ti-logo.png"> Appcelerator Titanium Mobile  
+Appcelerator Titanium Mobile  
 ============================
 
-Welcome to the Appcelerator Titanium Mobile open source project.  Titanium provides
+Welcome to the Titanium open source project.  Titanium provides
 a platform for web developers to build cross-platform, native mobile applications
-using web technologies such as HTML, JavaScript and CSS.
+using JavaScript.
 
-Currently, Titanium supports mobile smartphone operating systems such as Apple iPhone 
-and Google's Android. However, we plan to support the RIM Blackberry and other 
-platforms.
+Currently, Titanium supports mobile smartphone operating systems such as Apple iPhone, Google's Android, Tizen and Mobile Web. [RIM Blackberry 10](https://github.com/appcelerator/titanium_mobile_blackberry) support is currently in development. Other platforms 
+will eventually be supported such as Windows 8.
 
 Titanium is licensed under the OSI approved Apache Public License (version 2). Please
 see the LICENSE file for specific details.
@@ -49,11 +48,21 @@ Titanium writes native code so you don't have to. :)
 
 And much, much more.  
 
+Alloy
+-----
+
+[Alloy](http://docs.appcelerator.com/titanium/latest/#!/guide/Alloy_Quick_Start) is the MVC application framework built on top of Titanium.  It is optional. It rocks. Check it out if you're considering using Titanium. It is also a separate [open source project](https://github.com/appcelerator/alloy) available under Apache Public License.
+
+
 
 Getting Help
 ------------
 
 There are a number of ways to get help with Titanium.
+
+### Official Documentation, Tutorials and Videos
+
+Please visit the official documentation site at [http://docs.appcelerator.com/](http://docs.appcelerator.com/) for the latest and historical documentation on Titanium, Alloy and the various products built by Appcelerator.
 
 ### Developer Community 
 
@@ -75,7 +84,7 @@ team for updates.
 
 ### Blog
 
-The Appcelerator corporate blog is called [Appcelerant](http://www.appcelerant.com). 
+The Appcelerator corporate blog is called [Think Mobile](http://thinkmobile.appcelerator.com/blog).
 The Appcelerator developer blog is located at (http://developer.appcelerator.com/blog).
 
 ### Commercial Support, Licensing
@@ -91,16 +100,20 @@ email [info@appcelerator.com](mailto:info@appcelerator.com).
 Contributing
 ------------
 
-Titanium is an open source project.  Please help us by contributing to documentation,
-reporting bugs, forking the code to add features or make bug fixes or promoting 
-Titanium on twitter, etc.
+Titanium is an open source project.  Titanium wouldn't be where it is now without contributions by the community. Please consider forking Titanium to improve, enhance or fix issues. If you feel like the community will benefit from your fork, please open a pull request. 
+
+To protect the interests of the Titanium contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once. 
+
+[You can digitally sign the CLA](http://bit.ly/app_cla) online. Please indicate your email address in your first pull request so that we can make sure that will locate your CLA.  Once you've submitted it, you no longer need to send one for subsequent submissions.
+
 
 
 Legal Stuff
 -----------
 
-Appcelerator is a registered trademark of Appcelerator, Inc.  Appcelerator Titanium is 
-a trademark of Appcelerator, Inc.  
+Appcelerator is a registered trademark of Appcelerator, Inc. Titanium is 
+a registered trademark of Appcelerator, Inc.  Please see the LEGAL information about using our trademarks,
+privacy policy, terms of usage and other legal information at [http://www.appcelerator.com/legal](http://www.appcelerator.com/legal).
 
 
 

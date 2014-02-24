@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -121,7 +121,7 @@ public class ContactsModule extends KrollModule
 	public void requestAuthorization(KrollFunction function) 
 	{
 		KrollDict dict = new KrollDict();
-		dict.put(TiC.PROPERTY_SUCCESS, true);
+		dict.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
 		function.callAsync(getKrollObject(), dict);
 	}
 	
@@ -215,5 +215,11 @@ public class ContactsModule extends KrollModule
 			request.clear();
 			requests.remove(rcode);
 		}
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Contacts";
 	}
 }

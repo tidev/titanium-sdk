@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,6 +14,7 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiApplication.ActivityTransitionListener;
 import org.appcelerator.titanium.TiBlob;
@@ -168,7 +169,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 					// see http://code.google.com/p/android/issues/detail?id=5512
 					KrollDict result = new KrollDict();
 					result.put("result", SENT); // TODO fix this when figure out above
-					result.put("success", true);
+					result.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
 					fireEvent("complete", result);
 				}
 
@@ -176,8 +177,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 				public void onError(Activity activity, int requestCode, Exception e) {
 					KrollDict result = new KrollDict();
 					result.put("result", FAILED);
-					result.put("error", e.getMessage());
-					result.put("success", false);
+					result.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, e.getMessage());
 					fireEvent("complete", result);
 				}
 			});
@@ -348,5 +348,11 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 			doOpen();
 			TiApplication.removeActivityTransitionListener(this);
 		}
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.EmailDialog";
 	}
 }

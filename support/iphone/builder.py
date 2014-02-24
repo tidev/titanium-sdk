@@ -407,6 +407,9 @@ DEFAULTS_IMPL_HEADER= """#import "TiUtils.h"
 #import "ApplicationDefaults.h"
  
 @implementation ApplicationDefaults
++(NSDictionary*)launchUrl {
+    return nil;
+}
   
 + (NSMutableDictionary*) copyDefaults
 {
@@ -870,7 +873,7 @@ def main(args):
 				print "[INFO] iPhone simulated device: %s" % simtype
 				# during simulator we need to copy in standard built-in module files
 				# since we might not run the compiler on subsequent launches
-				for module_name in ('facebook','ui'):
+				for module_name in ('ui'):
 					img_dir = os.path.join(template_dir,'modules',module_name,'images')
 					dest_img_dir = os.path.join(app_dir,'modules',module_name,'images')
 					if not os.path.exists(dest_img_dir):
@@ -1041,6 +1044,8 @@ def main(args):
 
 			if not os.path.exists(os.path.join(iphone_dir,'lib','libti_ios_debugger.a')):
 				shutil.copy(os.path.join(template_dir,'libti_ios_debugger.a'),os.path.join(iphone_dir,'lib','libti_ios_debugger.a'))
+			if not os.path.exists(os.path.join(iphone_dir,'lib','libti_ios_profiler.a')):
+				shutil.copy(os.path.join(template_dir,'libti_ios_profiler.a'),os.path.join(iphone_dir,'lib','libti_ios_profiler.a'))
 
 			# compile JSS files
 			cssc = csscompiler.CSSCompiler(os.path.join(project_dir,'Resources'),devicefamily,appid)

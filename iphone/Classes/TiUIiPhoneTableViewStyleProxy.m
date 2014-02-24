@@ -4,11 +4,16 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIPHONETABLEVIEWSTYLE
+#if defined(USE_TI_UIIPHONETABLEVIEWSTYLE) || defined(USE_TI_UIIPHONELISTVIEWSTYLE)
 
 #import "TiUIiPhoneTableViewStyleProxy.h"
 
 @implementation TiUIiPhoneTableViewStyleProxy
+
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPhone.TableViewStyle";
+}
 
 MAKE_SYSTEM_PROP(PLAIN,UITableViewStylePlain);
 MAKE_SYSTEM_PROP(GROUPED,UITableViewStyleGrouped);

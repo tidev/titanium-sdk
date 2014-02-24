@@ -1,0 +1,134 @@
+---
+name: Titanium.UI.iOS.NavigationWindow
+summary: |
+    A Navigation Window implements a specialized view that manages the navigation of hierarchical 
+    content. 
+description: |
+    The navigation window is created with the method <Titanium.UI.iOS.createNavigationWindow>.
+    
+    The `window` property must be set initially in the constructor when creating a navigation window 
+    to the root level window.  All navigation windows must have at least one root window that cannot 
+    be removed.
+
+    This class replaces the Titanium.UI.iPhone.NavigationGroup class. Please note that this object 
+    is a window and is supposed to be used as a top level container. This can not be added to other windows.
+    However this class can be used within the <Titanium.UI.iPad.SplitWindow>
+platforms: [iphone, ipad]
+extends: Titanium.UI.Window
+since: "3.1.3"
+excludes:
+    methods: [removeAllChildren, setToolbar, hideTabBar]
+    properties: [navBarHidden, tabBarHidden, navTintColor, translucent, toolbar,
+                barColor, barImage, leftNavButton, rightNavButton, title, titleControl,
+                titlePrompt, titleImage, titleid, titlepromptid, url, backButtonTitle,
+                backButtonTitleImage, shadowImage, hideShadow, transitionAnimation]
+
+properties:
+  - name: window
+    summary: Window to add to this navigation group.
+    type: Titanium.UI.Window
+    availability: creation
+    optional: false
+
+methods:
+  - name: closeWindow
+    summary: Closes a window and removes it from the navigation group.
+    parameters:
+      - name: window
+        summary: Window to close.
+        type: Titanium.UI.Window
+        
+      - name: options
+        summary: |
+            Options supporting a single `animated` boolean property to determine whether the window 
+            will be animated (default) while being closed.
+        type: Dictionary
+        
+  - name: openWindow
+    summary: Opens a window within the navigation group.
+    parameters:
+      - name: window
+        summary: Window to open.
+        type: Titanium.UI.Window
+        
+      - name: options
+        summary: |
+            Options supporting a single `animated` boolean property to determine whether the window 
+            will be animated (default) while being closed.
+        type: Dictionary
+
+examples:
+  - title: Simple Navigation Group
+    example: |
+        Creates a navigation group with the first window colored red.
+        Press the button to open the blue window.
+        Use the back button to return to the red root window.
+
+            var win2 = Titanium.UI.createWindow({
+                backgroundColor: 'red',
+                title: 'Red Window'
+            });
+
+            var win1 = Titanium.UI.iOS.createNavigationWindow({
+               window: win2
+            });
+
+            var win3 = Titanium.UI.createWindow({
+                backgroundColor: 'blue',
+                title: 'Blue Window'
+            });
+
+            var button = Titanium.UI.createButton({
+                title: 'Open Blue Window'
+            });
+            button.addEventListener('click', function(){
+                win1.openWindow(win3, {animated:true});
+            });
+
+            win2.add(button);
+            var button2 = Titanium.UI.createButton({
+                title: 'Close Blue Window'
+            });
+            button2.addEventListener('click', function(){
+                win1.closeWindow(win3, {animated:false}); //win3.close() will also work!!
+            });
+
+            win3.add(button2);
+            win1.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as two Alloy view-controllers.  Requires Alloy 1.2.2 and later.
+
+        app/views/index.xml:
+
+            <Alloy>
+                <NavigationWindow id="win1" platform="ios">
+                    <Window id="win2" title="Red Window" backgroundColor="red">
+                        <Button id="button" onClick="openBlueWindow">Open Blue Window</Button>
+                    </Window>
+                </NavigationWindow>
+            </Alloy>
+
+        app/controllers/index.js:
+
+            function openBlueWindow(e) {
+                var win3 = Alloy.createController('bluewin').getView();
+                $.win1.openWindow(win3);
+            }
+
+            $.win1.open();
+
+        app/views/bluewin.xml:
+
+            <Alloy>
+                <Window id="win3" title="Blue Window" backgroundColor="blue">
+                    <Button onClick="closeWindow">Close Window</Button>
+                </Window>
+            </Alloy>
+
+        app/controllers/bluewin.js:
+
+            function closeWindow(){
+                $.win3.close();
+            }

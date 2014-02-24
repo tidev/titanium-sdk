@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.location.Location;
 import android.location.LocationListener;
@@ -196,13 +197,13 @@ public class LocationProviderProxy extends KrollProxy
 	public double getMinUpdateDistance()
 	{
 		Object property = getProperty(TiC.PROPERTY_MIN_UPDATE_DISTANCE);
-		if (property == null || !(property instanceof Double)) {
-			Log.e(TAG, "Invalid value [" + property + "] found for minUpdateDistance, returning default");
 
+		try {
+			return TiConvert.toDouble(property);
+		} catch (NumberFormatException e) {
+			Log.e(TAG, "Invalid value [" + property + "] found for minUpdateDistance, returning default");
 			return defaultMinUpdateDistance;
 		}
-
-		return (Double) property;
 	}
 
 	/**
@@ -226,13 +227,13 @@ public class LocationProviderProxy extends KrollProxy
 	public double getMinUpdateTime()
 	{
 		Object property = getProperty(TiC.PROPERTY_MIN_UPDATE_TIME);
-		if (property == null || !(property instanceof Double)) {
-			Log.e(TAG, "Invalid value [" + property + "] found for minUpdateTime, returning default");
 
+		try {
+			return TiConvert.toDouble(property);
+		} catch (NumberFormatException e) {
+			Log.e(TAG, "Invalid value [" + property + "] found for minUpdateTime, returning default");
 			return defaultMinUpdateTime;
 		}
-
-		return (Double) property;
 	}
 
 	/**
@@ -245,6 +246,12 @@ public class LocationProviderProxy extends KrollProxy
 	{
 		setProperty(TiC.PROPERTY_MIN_UPDATE_TIME, value);
 		providerListener.onProviderUpdated(this);
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Geolocation.Android.LocationProvider";
 	}
 }
 

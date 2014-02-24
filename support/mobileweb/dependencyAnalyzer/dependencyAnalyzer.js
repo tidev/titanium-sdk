@@ -10,7 +10,6 @@ var path = require('path'),
 	dependencies,
 	dependencyMap = {},
 	i, j, len,
-	ast,
 	temp,
 	jsExtensionRegex = /^(.*)\.js$/,
 	startTime = Date.now();
@@ -19,11 +18,13 @@ for (i = 0, len = fileList.length; i < len; i++) {
 	match = fileList[i].match(jsExtensionRegex);
 	if (match) {
 		try {
+			var foundDefine = false;
 			dependencyMap[match[1]] = [];
 			dependencies = uglify.parser.parse(fs.readFileSync(path.join(sourceDir, match[0])).toString(), false, true)[1][0];
 			if (dependencies[0].name === 'stat') {
 				dependencies = dependencies[1];
 				if (dependencies[0].name === 'call' && dependencies[1][1] === 'define') {
+					foundDefine = true;
 					dependencies = dependencies[2]; // This is the arguments being passed
 					if (dependencies[0] && dependencies[0][0].name === 'array') {
 						dependencies = dependencies[0][1];
@@ -36,16 +37,18 @@ for (i = 0, len = fileList.length; i < len; i++) {
 						dependencies[j] = dependencies[j][1];
 						if (~dependencies[j].indexOf('!')) {
 							temp = dependencies[j].split('!');
-							dependencies.splice(j, 1, temp[0], temp[1]);
-							j++;
-							dependencies[j - 1] = dependencies[j - 1].replace(/\.js$/, '');
-							dependencies[j] = dependencies[j].replace(/\.js$/, '');
+							if (temp[0] == 'Ti/_/text') {
+								dependencyMap[dependencies[j]] = [];
+							}
 						} else {
 							dependencies[j] = dependencies[j].replace(/\.js$/, '');
 						}
 					}
 					dependencyMap[match[1]] = dependencies;
 				}
+			}
+			if (!foundDefine) {
+				delete dependencyMap[match[1]];
 			}
 		} catch (e) {
 			console.error('Parse error in ' + match[0] + ': ' + e.message);

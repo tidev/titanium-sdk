@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Custom Objects: Create Custom Object](http://cloud.appcelerator.com/docs/api/v1/custom_objects/create)
+        See [Custom Objects: Create Custom Objects](http://docs.appcelerator.com/cloud/latest/#!/api/CustomObjects-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `classname` property of the parameter passed to the callback.
@@ -25,7 +25,7 @@ methods:
   - name: query
     summary: Retrieve a list of custom objects of type `classname`.
     description: |
-        See [Custom Objects: Query Custom Objects](http://cloud.appcelerator.com/docs/api/v1/custom_objects/query)
+        See [Custom Objects: Query Custom Objects](http://docs.appcelerator.com/cloud/latest/#!/api/CustomObjects-method-query)
         for the request parameters supported by this method.
         
         Data is returned in the `classname` property of the parameter passed to the callback.
@@ -44,7 +44,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Custom Objects: Delete Custom Object](http://cloud.appcelerator.com/docs/api/v1/custom_objects/delete)
+        See [Custom Objects: Delete Custom Objects](http://docs.appcelerator.com/cloud/latest/#!/api/CustomObjects-method-delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -58,7 +58,7 @@ methods:
   - name: show
     summary: Retrieve a list of custom objects of type `classname`.
     description: |
-        See [Custom Objects: Show Custom Object(s)](http://cloud.appcelerator.com/docs/api/v1/custom_objects/show)
+        See [Custom Objects: Show Custom Objects(s)](http://docs.appcelerator.com/cloud/latest/#!/api/CustomObjects-method-show)
         for the request parameters supported by this method.
         
         Data is returned in the `classname` property of the parameter passed to the callback.
@@ -77,7 +77,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Custom Objects: Update Custom Object](http://cloud.appcelerator.com/docs/api/v1/custom_objects/update)
+        See [Custom Objects: Update Custom Objects](http://docs.appcelerator.com/cloud/latest/#!/api/CustomObjects-method-update)
         for the request parameters supported by this method.
         
         Data is returned in the `classname` property of the parameter passed to the callback.
@@ -105,14 +105,14 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var car = e.cars[0];
-                    alert('Success:\\n' +
-                        'id: ' + car.id + '\\n' +
-                        'make: ' + car.make + '\\n' +
-                        'color: ' + car.color + '\\n' +
-                        'year: ' + car.year + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + car.id + '\n' +
+                        'make: ' + car.make + '\n' +
+                        'color: ' + car.color + '\n' +
+                        'year: ' + car.year + '\n' +
                         'created_at: ' + car.created_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -126,18 +126,18 @@ examples:
                 ids: [ savedCar1.id, savedCar2.id ]
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.cars.length);
                     for (var i = 0; i < e.cars.length; i++) {
                         var car = e.cars[i];
-                        alert('id: ' + cars.id + '\\n' +
-                            'make: ' + car.make + '\\n' +
-                            'color: ' + car.color + '\\n' +
-                            'year: ' + car.year + '\\n' +
+                        alert('id: ' + cars.id + '\n' +
+                            'make: ' + car.make + '\n' +
+                            'color: ' + car.color + '\n' +
+                            'year: ' + car.year + '\n' +
                             'created_at: ' + car.created_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -156,15 +156,15 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var car = e.cars[0];
-                    alert('Success:\\n' +
-                        'id: ' + car.id + '\\n' +
-                        'make: ' + car.make + '\\n' +
-                        'color: ' + car.color + '\\n' +
-                        'year: ' + car.year + '\\n' +
-                        'mileage: ' + car.mileage + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + car.id + '\n' +
+                        'make: ' + car.make + '\n' +
+                        'color: ' + car.color + '\n' +
+                        'year: ' + car.year + '\n' +
+                        'mileage: ' + car.mileage + '\n' +
                         'updated_at: ' + car.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -180,7 +180,7 @@ examples:
                 if (e.success) {
                     alert('Success');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -198,18 +198,18 @@ examples:
                 }
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.cars.length);
                     for (var i = 0; i < e.cars.length; i++) {
                         var car = e.cars[i];
-                        alert('id: ' + cars.id + '\\n' +
-                            'make: ' + car.make + '\\n' +
-                            'color: ' + car.color + '\\n' +
-                            'year: ' + car.year + '\\n' +
+                        alert('id: ' + cars.id + '\n' +
+                            'make: ' + car.make + '\n' +
+                            'color: ' + car.color + '\n' +
+                            'year: ' + car.year + '\n' +
                             'created_at: ' + car.created_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

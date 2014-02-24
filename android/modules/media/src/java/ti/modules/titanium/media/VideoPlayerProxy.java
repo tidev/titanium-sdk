@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -542,7 +542,19 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	{
 		KrollDict args = new KrollDict();
 		args.put(TiC.EVENT_PROPERTY_REASON, reason);
+		if (reason == MediaModule.VIDEO_FINISH_REASON_PLAYBACK_ERROR) {
+			args.putCodeAndMessage(-1,"Video Playback encountered an error");
+		} else {
+			args.putCodeAndMessage(0,null);
+		}
 		fireEvent(TiC.EVENT_COMPLETE, args);
+	}
+	
+	public void firePlaying()
+	{
+		KrollDict args = new KrollDict();
+		args.put(TiC.EVENT_PROPERTY_URL, getProperty(TiC.PROPERTY_URL));
+		fireEvent(TiC.EVENT_PLAYING, args);
 	}
 
 	public void onPlaybackReady(int duration)
@@ -571,6 +583,11 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	public void onPlaybackStarted()
 	{
 		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_PLAYING);
+	}
+	
+	public void onPlaying()
+	{
+		firePlaying();
 	}
 
 	public void onPlaybackPaused()
@@ -604,9 +621,20 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_INTERRUPTED);
 		KrollDict data = new KrollDict();
 		data.put(TiC.EVENT_PROPERTY_MESSAGE, message);
+		data.putCodeAndMessage(what, message);
 		fireEvent(TiC.EVENT_ERROR, data);
 		fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 		fireComplete(MediaModule.VIDEO_FINISH_REASON_PLAYBACK_ERROR);
+	}
+	
+	public void onSeekingForward()
+	{
+		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_SEEKING_FORWARD);
+	}
+
+	public void onSeekingBackward()
+	{
+		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD);
 	}
 
 	private String getActionName(int action)
@@ -684,5 +712,11 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	private TiUIVideoView getVideoView()
 	{
 		return (TiUIVideoView) view;
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Media.VideoPlayer";
 	}
 }

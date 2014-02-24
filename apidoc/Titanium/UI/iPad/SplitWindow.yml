@@ -18,12 +18,17 @@ description: |
     changed once set. 
     
     The SplitWindow inherits its methods and properties from <Titanium.UI.Window>. 
+
+    To add a navigation bar to either the master or detail view of the split window,
+    use a <Titanium.UI.iOS.NavigationWindow>.  See the example below.
     
     The SplitWindow is a top-level window and cannot be contained within another window or view.
     ![splitview](http://img.skitch.com/20100406-1f85bm9cx8t768xgsjqax1ng6y.png)
 extends: Titanium.UI.Window
 platforms: [ipad]
 since: "1.2"
+excludes:
+    properties: [transitionAnimation]
 
 events:
   - name: visible
@@ -64,37 +69,40 @@ examples:
   - title: Split Window
     example: |
         This is an example of a Split Window.
-        
-            var win = Ti.UI.createWindow();
-            
-            var nav = Ti.UI.iPhone.createNavigationGroup({
-               window: win
-            });
-            
-            var splitwin = Ti.UI.iPad.createSplitWindow({
-            	detailView: nav,
-            	masterView: masterView
-            });
-            
-            splitwin.addEventListener('visible',function(e){
-            	if (e.view == 'detail'){
-            		e.button.title = "Master";
-            		win.leftNavButton = e.button;
-            	} else if (e.view == 'master'){
-            		win.leftNavButton = null;
-            	}
-            });
-            
-            splitwin.open();
 
+            var detail = Ti.UI.createWindow({backgroundColor: 'white'});
+            var label1 = Ti.UI.createLabel({text: 'Detail View'});
+            detail.add(label1);
+            var detailNav = Ti.UI.iOS.createNavigationWindow({window: detail});
+            
+            var master = Ti.UI.createWindow({backgroundColor: 'gray'});
+            var label2 = Ti.UI.createLabel({text: 'Master View'});
+            master.add(label2);
+            var masterNav = Ti.UI.iOS.createNavigationWindow({window: master});
+
+            var splitWin = Ti.UI.iPad.createSplitWindow({
+                detailView: detailNav,
+                masterView: masterNav
+            });
+
+            splitWin.addEventListener('visible',function(e){
+                if (e.view == 'detail'){
+                    e.button.title = "Master";
+                    detail.leftNavButton = e.button;
+                } else if (e.view == 'master'){
+                    detail.leftNavButton = null;
+                }
+            });
+
+            splitWin.open();
 
   - title: Alloy XML Markup
     example: |
         This is an example of a Split Window as an Alloy view.
 
-        Note that the SplitWindow element will only accept two Windows as children.
+        Note that the SplitWindow element will only accept a Window or NavigationWindow as children.
         The first window is the `masterView` and the second window is the `detailView`.
-        It can also accept the Require tag to include a Ti.UI.Window view.
+        You can also use the Require tag to add a Window or NavigationWindow.
 
             <Alloy>
                 <SplitWindow>

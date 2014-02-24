@@ -746,10 +746,15 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	{
 		if (isInPlaybackState()) {
 			mMediaPlayer.start();
+			int oldState = mCurrentState;
 			mCurrentState = STATE_PLAYING;
 			// TITANIUM
 			if (mPlaybackListener != null) {
 				mPlaybackListener.onStartPlayback();
+				// Fired after a stop or play is called after a after url change.
+				if (oldState == STATE_PREPARED || oldState == STATE_PREPARING) {
+					mPlaybackListener.onPlayingPlayback();
+				}
 			}
 		}
 		mTargetState = STATE_PLAYING;
@@ -833,11 +838,20 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 
 	public void seekTo(int msec)
 	{
+		int currPosition = getCurrentPosition();
 		if (isInPlaybackState()) {
 			mMediaPlayer.seekTo(msec);
 			mSeekWhenPrepared = 0;
 		} else {
 			mSeekWhenPrepared = msec;
+		}
+		
+		if (mPlaybackListener != null) {
+			if (msec > currPosition) {
+				mPlaybackListener.onSeekingForward();
+			} else if (msec < currPosition) {
+				mPlaybackListener.onSeekingBackward();
+			}
 		}
 	}
 

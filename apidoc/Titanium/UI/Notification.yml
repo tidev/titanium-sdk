@@ -26,14 +26,18 @@ examples:
     example: |
         Previous example as an Alloy view.
 
-        Set the `duration` property in the TSS file or controller.
-
-        Note that a separate controller will need to create an instance of this view
-        and call the `show` method to make the notification appear.
+        index.xml
 
             <Alloy>
-                <Notification id="toast" message="Please Stand By" platform="android"/>
+                <Window>
+                    <Notification id="toast" platform="android" message="Please Stand By" duration="Ti.UI.NOTIFICATION_DURATION_LONG" />
+                </Window>
             </Alloy>
+
+        index.js
+
+            $.index.open();
+            $.toast.show();
 
 methods:
 - name: show 

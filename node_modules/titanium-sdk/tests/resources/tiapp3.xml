@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:app xmlns:ti="http://ti.appcelerator.org">
+	<android xmlns:android="http://schemas.android.com/apk/res/android">
+		<manifest>
+			<uses-sdk android:minSdkVersion="10" android:targetSdkVersion="17"/>
+			<supports-screens android:anyDensity="false" android:xlargeScreens="true"/>
+			<application>
+				<activity android:alwaysRetainTaskState="true"
+					android:configChanges="keyboardHidden|orientation"
+					android:label="testapp"
+					android:name=".TestappActivity" android:theme="@style/Theme.Titanium">
+					<intent-filter>
+						<action android:name="android.intent.action.MAIN"/>
+						<category android:name="android.intent.category.LAUNCHER"/>
+					</intent-filter>
+				</activity>
+				<activity android:screenOrientation="landscape" android:name="ti.modules.titanium.facebook.FBActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+				<activity android:screenOrientation="landscape" android:name="org.appcelerator.titanium.TiActivity" android:configChanges="keyboardHidden|orientation"/>
+				<activity android:screenOrientation="landscape" android:name="org.appcelerator.titanium.TiModalActivity" android:configChanges="keyboardHidden|orientation" android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"/>
+				<activity android:screenOrientation="landscape" android:name="ti.modules.titanium.ui.TiTabActivity" android:configChanges="keyboardHidden|orientation"/>
+				<activity android:screenOrientation="landscape" android:name="ti.modules.titanium.media.TiVideoActivity" android:configChanges="keyboardHidden|orientation" android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
+				<activity android:screenOrientation="landscape" android:name="ti.modules.titanium.ui.android.TiPreferencesActivity"/>
+				<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity"/>
+			</application>
+		</manifest>
+		<activities>
+			<activity url="activity.js" extra="foo"/>
+			<activity extra="foo">activity2.js</activity>
+			<activity>activity3.js</activity>
+		</activities>
+		<tool-api-level>10</tool-api-level>
+		<proguard>true</proguard>
+		<abi>armeabi,armeabi-v7a,x86</abi> <!-- or "all" -->
+		<services>
+			<service type="interval" url="testservice.js"/>
+			<service type="standard" url="testservice2.js"/>
+			<service>testservice3.js</service>
+		</services>
+	</android>
+</ti:app>

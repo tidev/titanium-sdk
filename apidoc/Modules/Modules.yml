@@ -1,0 +1,11 @@
+---
+name: Modules
+summary: Optional Titanium modules.
+description: |
+    Modules in this section are optional modules that may be packaged with the Titanium SDK.
+    These modules are not part of the Titanium namespace, and must be added to the `tiapp.xml`
+    file and imported using [require](Global.require).
+
+    Each of the modules in this section is either packaged with the Titanium SDK or
+    available for free through the [Appcelerator Marketplace](https://marketplace.appcelerator.com).
+

@@ -35,7 +35,7 @@ description: |
     can, but when memory runs low it terminates suspended apps to reclaim that memory. Apps 
     that consume large amounts of memory while in the background are the first apps to be terminated.
     
-    **Responding To interruptions**
+    **Responding To Interruptions**
     
     ***System Alerts***
     
@@ -83,6 +83,14 @@ description: |
     <tr><th rowspan="2" align="left">Sleep/Wake Button</th><td> iOS 4.X</td><td align="center">pause</td><td  align="center"><td align="center"><td align="center"> resumed</tr >
     <tr><td>iOS 5.0 +</td><td align="center">pause</td><td align="center">paused</td><td align="center">resume<td align="center">resumed</td></tr>
     <tr><th colspan="2" align="left">Home Button (backgrounding)<td align="center">pause<td align="center">paused<td align="center"> resume<td align="center">resumed</tr></table>
+
+    ***Blur and Focus Events***
+
+    When using the iOS pause/resume feature, the `blur` and `focus` events do not fire
+    before the application enters the background or after it returns to the foreground,
+    respectively.  Instead, the application needs to monitor the `pause` and `resumed` events,
+    which relies on the underlying iOS events to determine the application state rather than the
+    UI events.
     
     #### Application Level Events
 
@@ -192,7 +200,10 @@ events:
   - name: paused
     summary: Fired when the application transitions to the background on a multitasked system.
     description: |
-        Available on iOS 4.0 and later.
+        On iOS 4.0 and later, this event only fires when putting the application in the background
+        using the home button.
+
+        On iOS 5.0 and later, this event also fires when using the sleep/wake or power button.
         
         This event fires when the user leaves the application.
         
@@ -219,7 +230,10 @@ events:
   - name: resume
     summary: Fired when the application returns to the foreground on a multitasked system.
     description: |
-        Available on iOS 4.0 and later.
+        On iOS 4.0 and later, this event only fires when putting the application in the background
+        using the home button.
+
+        On iOS 5.0 and later, this event also fires when using the sleep/wake or power button.
         
         Note that this event does not fire for pauses resulting from notifications or incoming phone 
         calls.
@@ -270,7 +284,17 @@ events:
         is being dissmissed.
     platforms: [iphone, ipad]
     since: '3.0.0'
-    
+
+  - name: significanttimechange
+    summary: Fired when there is a significant change in the time.
+    description: |
+        Examples of significant time changes include the arrival of midnight, an update to the time by a carrier, 
+        and the change to daylight savings time. If your application is currently in `paused` state, this message 
+        will be is queued until your application returns to the foreground, at which point it is delievered. If multiple 
+        changes occur, only the most recent one is delievered.
+    platforms: [iphone, ipad]
+    since: '3.1.0'
+
 methods:
   - name: fireSystemEvent
     summary: Fire a system-level event such as <Titanium.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT>.
@@ -287,9 +311,12 @@ methods:
 
   - name: getArguments
     summary: Returns the arguments passed to the application on startup.
+    description : |
+        On Android, use the [intent](Titanium.Android.Activity.intent) property of the activity to
+        retrieve the parameters passed to launch the application activity.
     platforms: [iphone, ipad]
     returns:
-        type: Dictionary
+        type: launchOptions
 
 properties:
   - name: EVENT_ACCESSIBILITY_ANNOUNCEMENT
@@ -298,6 +325,7 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
     since: "3.0.0"
+    exclude-platforms: [blackberry]
 
   - name: EVENT_ACCESSIBILITY_CHANGED
     summary: Convenience constant for system event "accessibilitychanged".
@@ -310,16 +338,19 @@ properties:
     summary: Indicates whether Accessibility is enabled by the system.
     type: Boolean
     permission: read-only
+    exclude-platforms: [blackberry]
  
   - name: analytics
     summary: Indicates whether Analytics is enabled, determined by `tiapp.xml`.
     type: Boolean
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: copyright
     summary: Application copyright statement, determined by `tiapp.xml`.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: deployType
     summary: |
@@ -327,24 +358,38 @@ properties:
         `production`.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: description
     summary: Application description, determined by `tiapp.xml`.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: guid
     summary: Application globally-unique ID, determined by `tiapp.xml`.
     description: This value is system-generated and consistent through all versions.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
+  - name: forceSplashAsSnapshot
+    summary: Shows the application's splash screen on app resume.
+    description: |
+        Note: This only works on device.
+        When the app goes to the background a screenshot of the current app state is taken. When
+        the app resumes that screenshot is shown for brief moment. To disable this behavior, set
+        this property to `true` and the default splash screen will show on app resume instead.
+    type: Boolean
+    platforms: [iphone, ipad]
+
   - name: id
     summary: Application ID, from `tiapp.xml`. 
     description: |
         The application ID is a required property that must be specified when creating a new project.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: installId
     summary: The install ID for this application.
@@ -368,6 +413,7 @@ properties:
     summary: Application name, determined by `tiapp.xml`.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: proximityDetection
     summary: Determines whether proximity detection is enabled. 
@@ -406,24 +452,53 @@ properties:
     summary: Application publisher, from `tiapp.xml`.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: sessionId
     summary: Unique session identifier for the current continuous run of the application.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: url
     summary: Application URL, from `tiapp.xml`.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: version
     summary: Application version, from `tiapp.xml`.
     type: String
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: keyboardVisible
     summary: Indicates whether or not the soft keyboard is visible.
     type: Boolean
     permission: read-only
     platforms: [iphone, ipad]
+
+---
+name: launchOptions
+summary: |
+    Dictionary describing the arguments passed to the application on startup.
+    Use the [getArguments](Titanium.App.getArguments) method to retrieve the launch options.
+properties:
+  - name: url
+    summary: |
+        This key indicates that the application was launched in order to open
+        the specified URL.
+    type: String
+
+  - name: source
+    summary: |
+        This key indicates that the application was launched by another
+        application with the specified bundle ID.
+    type: String
+
+  - name: launchOptionsLocationKey
+    summary: |
+        If set to `true`, this key indicates that the application was launched in response to an
+        incoming location event.
+    type: Boolean
+    default: false

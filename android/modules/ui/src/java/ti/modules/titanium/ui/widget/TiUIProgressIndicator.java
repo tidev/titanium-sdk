@@ -259,6 +259,6 @@ public class TiUIProgressIndicator extends TiUIView
 	@Override
 	public void onCancel(DialogInterface dialog) {
 		visible = false;
-		proxy.fireEvent(TiC.EVENT_CANCEL, null);
+		fireEvent(TiC.EVENT_CANCEL, null);
 	}
 }

@@ -23,11 +23,15 @@ log = TiLogger(None)
 all_annotated_apis = None
 apis = None
 
+# These top-level namespaces are added for documentation purposes
+special_toplevel_types = [ "Global", "Modules" ]
+
 # Avoid obliterating our four spaces pattern with a careless %s:/    /^I/
 FOUR_SPACES='  ' + '  '
 # compiling REs ahead of time, since we use them heavily.
-link_parts_re = re.compile(r"(?:\[([^\]]+?)\]\(([^\)\s]+?)\)|\<([^\>\s]+)\>)", re.MULTILINE)
-find_links_re = re.compile(r"(\[[^\]]+?\]\([^\)\s]+?\)|\<[^\>\s]+\>)", re.MULTILINE)
+link_parts_re = re.compile(r"(?:\[([^\]]+?)\]\(([^\)\s]+?)\)|\<([^\s]+)\>)", re.MULTILINE)
+# To add Alloy tags in the description, use backticks around the tag (`<Button>`, e.g.).
+find_links_re = re.compile(r"(\[[^\]]+?\]\([^\)\s]+?\)|(?!`)\<[^\s]+\>(?!`))", re.MULTILINE)
 html_scheme_re = re.compile(r"^http:|^https:")
 doc_site_url_re = re.compile(r"http://docs.appcelerator.com/titanium/.*(#!.*)")
 # we use this to distinguish inline HTML tags from Markdown links. Not foolproof, and a
@@ -47,7 +51,7 @@ except:
 
 # write unicode strings safely
 def write_utf8(file, string):
-    file.write(string.encode('utf8', 'replace'))
+	file.write(string.encode('utf8', 'replace'))
 
 def convert_string_to_jsduck_link(obj_specifier):
 	global all_annotated_apis
@@ -77,9 +81,11 @@ def convert_string_to_jsduck_link(obj_specifier):
 
 def process_markdown_links(s):
 	new_string = s
+	skip_flag = False
 	results = find_links_re.findall(new_string)
 	if results is not None and len(results) > 0:
 		for link in results:
+
 			match = link_parts_re.match(link)
 			if match == None:
 				print "no match:" + link
@@ -89,9 +95,16 @@ def process_markdown_links(s):
 			if match.group(1) != None and match.group(2)!= None:
 				url = match.group(2)
 				name = match.group(1)
+			# Ignore things enclosed with Alloy tags
+			elif match.group(3) == "Alloy":
+				skip_flag = True
+				continue
+			elif match.group(3) == "/Alloy":
+				skip_flag = False
+				continue
 			# For simple markdown links, such as <Titanium.Analytics> or <www.google.com>
 			# skip links that look like HTML elements (<span>).
-			elif  match.group(3) != None and not html_element_re.match(link, 1):
+			elif match.group(3) != None and not html_element_re.match(link, 1) and not skip_flag:
 				url = match.group(3)
 				name = None
 			# Otherwise, our "link" was probably an HTML tag, so we leave it alone
@@ -133,6 +146,16 @@ def markdown_to_html(s, obj=None):
 	if "<" in s or "[" in s:
 		s = process_markdown_links(s)
 	return markdown.markdown(s)
+
+# remove <p> and </p> if a string is enclosed with them
+def remove_p_tags(str):
+	if str is None or len(str) == 0:
+		return ""
+	if str.startswith("<p>"):
+		str = str[3:]
+	if str.endswith("</p>"):
+		str = str[:-4]
+	return str
 
 # Print two digit version if third digit is 0.
 def format_version(version_str):
@@ -285,26 +308,11 @@ def transform_type(type):
 		type = "Callback<%s>" % (type)
 	return type
 
-def has_ancestor(one_type, ancestor_name):
-	if one_type["name"] == ancestor_name:
-		return True
-	if "extends" in one_type and one_type["extends"] == ancestor_name:
-		return True
-	elif "extends" not in one_type:
-		if ancestor_name == 'Global':
-			# special case for "Global" types - they do not have @extends statement
-			return one_type["name"].find('Global') == 0
-		return False
-	else:
-		parent_type_name = one_type["extends"]
-		if (parent_type_name is None or not isinstance(parent_type_name, basestring) or
-			parent_type_name.lower() == "object"):
-			return False
-		if not parent_type_name in apis:
-			log.warn("%s extends %s but %s type information not found" % (one_type["name"],
-																		  parent_type_name, parent_type_name))
-			return False
-		return has_ancestor(apis[parent_type_name], ancestor_name)
+def is_special_toplevel_type(one_type):
+	for special_type in special_toplevel_types:
+		if one_type["name"].find(special_type) == 0:
+			return True
+	return False
 
 def get_summary_and_description(api_obj):
 	summary = None
@@ -323,6 +331,41 @@ def get_summary_and_description(api_obj):
 		# use description if there is no summary
 		res = u"\t * " + desc
 	return res
+
+# Side effect of hiding properties is that the accessors do not get hidden
+# Explicitly hide accessors for JSDuck
+def hide_accessors(parent_name, property_name):
+	res = ""
+	parent_obj = all_annotated_apis[parent_name].api_obj
+	if "properties" in parent_obj:
+		parent_properties = parent_obj["properties"]
+		property_dict = dict((p["name"], p) for p in parent_properties)
+		if property_name in property_dict:
+			setter = True;
+			getter = True;
+			if "accessors" in property_dict[property_name] and not property_dict[property_name]["accessors"]:
+				return res
+			if "availability" in property_dict[property_name] and property_dict[property_name]["availability"] == "creation":
+				setter = False;
+			if "permission" in property_dict[property_name]:
+				if property_dict[property_name]["permission"] == "read-only":
+					setter = False;
+				elif property_dict[property_name]["permission"] == "write-only":
+					getter = False;
+
+			upperFirst = property_name[0].upper() + property_name[1:]
+			if getter:
+				getter = "get" + upperFirst
+				res +=  "/**\n\t * @method " + getter + " \n\t * @hide\n*/\n"
+			if setter:
+				setter = "set" + upperFirst
+				res += "/**\n\t * @method " + setter + " \n\t * @hide\n*/\n"
+
+	if "extends" in parent_obj:
+		parent_name = parent_obj["extends"]
+		return res + hide_accessors(parent_name, property_name)
+	else:
+		return res
 
 def generate(raw_apis, annotated_apis, options):
 	global all_annotated_apis, apis
@@ -365,7 +408,7 @@ def generate(raw_apis, annotated_apis, options):
 				else:
 					write_utf8(output, '\t * @typestr %s\n' % (typestr))
 			
-			if not (has_ancestor(raw_apis[name], "Titanium.Proxy") or has_ancestor(raw_apis[name], "Global")):
+			if annotated_obj.is_pseudotype and not is_special_toplevel_type(annotated_obj.api_obj):
 				write_utf8(output, "\t * @pseudo\n")
 			write_utf8(output, output_properties_for_obj(annotated_obj))
 			write_utf8(output, get_summary_and_description(annotated_obj.api_obj))
@@ -389,14 +432,18 @@ def generate(raw_apis, annotated_apis, options):
 					getter_ok = setter_ok = False
 
 				if k.default is not None:
-					write_utf8(output, '/**\n\t * @property [%s=%s]\n' % (k.name, k.default))
+					default_val = remove_p_tags(markdown_to_html(str(k.default)))
+					write_utf8(output, '/**\n\t * @property [%s=%s]\n' % (k.name, default_val))
 				else:
 					write_utf8(output, "/**\n\t * @property %s\n" % (k.name))
 
 				if obj.has_key('type'):
 					write_utf8(output, "\t * @type %s\n" % (transform_type(obj["type"])))
-				if obj.has_key('permission') and obj["permission"] == "read-only":
-					write_utf8(output, "\t * @readonly\n")
+				if obj.has_key('permission'):
+					if obj["permission"] == "read-only":
+						write_utf8(output, "\t * @readonly\n")
+					elif obj["permission"] == "write-only":
+						write_utf8(output, "\t * @writeonly\n")
 				write_utf8(output, output_properties_for_obj(k))
 				write_utf8(output, get_summary_and_description(obj))
 				write_utf8(output, output_examples_for_obj(obj))
@@ -425,7 +472,8 @@ def generate(raw_apis, annotated_apis, options):
 						type = "{" + transform_type(param["type"]) + repeatable + "}" if param.has_key("type") else ""
 						optional = "(optional)" if param.has_key('optional') and param["optional"] == True else ""
 						if param.has_key('default'):
-							write_utf8(output, "\t * @param %s [%s=%s] %s\n\t * %s\n" % (type, param['name'], param['default'], optional, markdown_to_html(summary)))
+							default_val = remove_p_tags(markdown_to_html(str(param['default'])))
+							write_utf8(output, "\t * @param %s [%s=%s] %s\n\t * %s\n" % (type, param['name'], default_val, optional, markdown_to_html(summary)))
 						else:
 							write_utf8(output, "\t * @param %s %s %s\n\t * %s\n" % (type, param['name'], optional, markdown_to_html(summary)))
 
@@ -453,7 +501,7 @@ def generate(raw_apis, annotated_apis, options):
 							log.warn("returns for %s should be an array or a dict." % obj["name"]);
 					write_utf8(output, "\t * @return %s %s\n" % (type, markdown_to_html(summary)))
 				else:
-					write_utf8(output, "\t * @return void\n")
+					write_utf8(output, "\t * @return {void}\n")
 
 				write_utf8(output, output_properties_for_obj(k))
 				write_utf8(output, "\t*/\n\n")
@@ -467,6 +515,7 @@ def generate(raw_apis, annotated_apis, options):
 				write_utf8(output, "/**\n\t * @event %s\n" % (k.name))
 				write_utf8(output, get_summary_and_description(obj))
 				write_utf8(output, output_examples_for_obj(obj))
+				write_utf8(output, output_deprecation_for_obj(k))
 
 				if k.properties is not None:
 					for param in k.properties:
@@ -495,5 +544,12 @@ def generate(raw_apis, annotated_apis, options):
 						excluded_members = api_obj["excludes"][member_type]
 						for one_member in excluded_members:
 							write_utf8(output, "/**\n\t * %s %s \n\t * @hide\n*/\n" % (annotation_string, one_member))
+							# Explicitly hide accessors
+							if member_type == "properties" and "extends" in api_obj:
+								parent_name = api_obj["extends"]
+								hide_methods = hide_accessors(parent_name, one_member)
+								if hide_methods:
+									write_utf8(output, "%s" % (hide_methods))
+
 
 		output.close()

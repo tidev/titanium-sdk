@@ -133,9 +133,9 @@ static void onPropertyChangedForProxy(Local<String> property, Local<Value> value
 		return;
 	}
 
-	jstring javaProperty = TypeConverter::jsStringToJavaString(property);
+	jstring javaProperty = TypeConverter::jsStringToJavaString(env, property);
 	bool javaValueIsNew;
-	jobject javaValue = TypeConverter::jsValueToJavaObject(value, &javaValueIsNew);
+	jobject javaValue = TypeConverter::jsValueToJavaObject(env, value, &javaValueIsNew);
 
 	jobject javaProxy = proxy->getJavaObject();
 	env->CallVoidMethod(javaProxy,
@@ -191,7 +191,7 @@ Handle<Value> Proxy::getIndexedProperty(uint32_t index, const AccessorInfo& info
 		env->DeleteLocalRef(javaProxy);
 	}
 
-	Handle<Value> result = TypeConverter::javaObjectToJsValue(value);
+	Handle<Value> result = TypeConverter::javaObjectToJsValue(env, value);
 	env->DeleteLocalRef(value);
 
 	return result;
@@ -208,7 +208,7 @@ Handle<Value> Proxy::setIndexedProperty(uint32_t index, Local<Value> value, cons
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(info.Holder());
 
 	bool javaValueIsNew;
-	jobject javaValue = TypeConverter::jsValueToJavaObject(value, &javaValueIsNew);
+	jobject javaValue = TypeConverter::jsValueToJavaObject(env, value, &javaValueIsNew);
 	jobject javaProxy = proxy->getJavaObject();
 	env->CallVoidMethod(javaProxy,
 		JNIUtil::krollProxySetIndexedPropertyMethod,
@@ -239,7 +239,7 @@ Handle<Value> Proxy::hasListenersForEventType(const Arguments& args)
 
 	jobject javaProxy = proxy->getJavaObject();
 	jobject krollObject = env->GetObjectField(javaProxy, JNIUtil::krollProxyKrollObjectField);
-	jstring javaEventType = TypeConverter::jsStringToJavaString(eventType);
+	jstring javaEventType = TypeConverter::jsStringToJavaString(env, eventType);
 
 	if (!JavaObject::useGlobalRefs) {
 		env->DeleteLocalRef(javaProxy);
@@ -271,8 +271,8 @@ Handle<Value> Proxy::onEventFired(const Arguments& args)
 	jobject javaProxy = proxy->getJavaObject();
 	jobject krollObject = env->GetObjectField(javaProxy, JNIUtil::krollProxyKrollObjectField);
 
-	jstring javaEventType = TypeConverter::jsStringToJavaString(eventType);
-	jobject javaEventData = TypeConverter::jsValueToJavaObject(eventData);
+	jstring javaEventType = TypeConverter::jsStringToJavaString(env, eventType);
+	jobject javaEventData = TypeConverter::jsValueToJavaObject(env, eventData);
 
 
 	if (!JavaObject::useGlobalRefs) {
@@ -437,18 +437,18 @@ Handle<Value> Proxy::proxyOnPropertiesChanged(const Arguments& args)
 
 		jobjectArray jChange = env->NewObjectArray(3, JNIUtil::objectClass, NULL);
 
-		jstring jName = TypeConverter::jsStringToJavaString(name);
+		jstring jName = TypeConverter::jsStringToJavaString(env, name);
 		env->SetObjectArrayElement(jChange, INDEX_NAME, jName);
 		env->DeleteLocalRef(jName);
 
 		bool isNew;
-		jobject jOldValue = TypeConverter::jsValueToJavaObject(oldValue, &isNew);
+		jobject jOldValue = TypeConverter::jsValueToJavaObject(env, oldValue, &isNew);
 		env->SetObjectArrayElement(jChange, INDEX_OLD_VALUE, jOldValue);
 		if (isNew) {
 			env->DeleteLocalRef(jOldValue);
 		}
 
-		jobject jValue = TypeConverter::jsValueToJavaObject(value, &isNew);
+		jobject jValue = TypeConverter::jsValueToJavaObject(env, value, &isNew);
 		env->SetObjectArrayElement(jChange, INDEX_VALUE, jValue);
 		if (isNew) {
 			env->DeleteLocalRef(jValue);

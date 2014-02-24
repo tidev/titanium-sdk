@@ -3,7 +3,7 @@ name: Titanium.Network.Socket
 summary: Socket module, used for creating sockets.
 extends: Titanium.Module
 since: "1.7"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, blackberry]
 
 properties:
   - name: INITIALIZED
@@ -44,4 +44,20 @@ methods:
         summary: Creation parameters.
         type: Dictionary<Titanium.Network.Socket.TCP>
         optional: true
+  - name: createUDP
+    returns:
+        type: Titanium.Network.Socket.UDP
+        summary: New UDP socket.
+    summary: Returns a new UDP socket object.
+    platforms: [blackberry]
+    description: |
+         Takes a dictionary containing properties defined in <Titanium.Network.Socket.UDP>.  
+         Some properties are only needed based on whether the socket will be a connecting 
+         (client) socket or a listening (server) socket.
+    parameters:
+      - name: params
+        summary: Creation parameters.
+        type: Dictionary<Titanium.Network.Socket.UDP>
+        optional: true
+
 

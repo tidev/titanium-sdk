@@ -11,6 +11,11 @@
 
 @implementation TiUIiPhoneActivityIndicatorStyleProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPhone.ActivityIndicatorStyle";
+}
+
 MAKE_SYSTEM_PROP(PLAIN,UIActivityIndicatorViewStyleWhite);
 MAKE_SYSTEM_PROP(BIG,UIActivityIndicatorViewStyleWhiteLarge);
 MAKE_SYSTEM_PROP(DARK,UIActivityIndicatorViewStyleGray);

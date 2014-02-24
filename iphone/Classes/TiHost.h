@@ -20,6 +20,7 @@
     BOOL debugMode;
 }
 @property (nonatomic,assign) BOOL debugMode;
+@property (nonatomic,assign) BOOL profileMode;
 
 -(NSString*)appID;
 -(NSURL*)baseURL;

@@ -1,0 +1,308 @@
+# Titanium SDK 3.0.2 - 02/19/2013
+
+##### Contents
+
+  * [About This Release](#about)
+    * [Installation Instructions](#install)
+    * [Support for iOS 6.1](#ios61support)
+    * [Alloy Framework GA Release](#alloyrelease)
+  * [New Features](#features)
+    * [iPhone 5 Graphic Assets](#iphone5graphics)
+    * [iOS Localized Splash Screen](#ioslocalizedsplashscreen)
+    * [Android SearchView Widget](#androidsearchview)
+    * [Access to Assets in the Android res/raw Directory](#androidresrawdirectory)
+  * [Fixed Issues and Enhancements](#issues)
+    * [Fixed Android Issues and Enhancements](#android)
+    * [Fixed CLI Issues and Enhancements](#cli)
+    * [Fixed iOS Issues and Enhancements](#ios)
+    * [Fixed Mobile Web Issues and Enhancements](#mobileweb)
+  * [API Changes](#apichanges)
+    * [New APIs](#newapis)
+
+<a name="about"></a>
+
+## About This Release
+
+Titanium SDK Release 3.0.2 is a service pack release of the Titanium SDK,
+addressing high-priority issues in previous releases.
+
+<a name="install"></a>
+
+## Installation Instructions
+
+If you previously installed the Release Candidate versions of the Titanium CLI
+and Alloy, that is, `npm install titanium@3.0.24-cr` and `npm install alloy@1.0.0-cr`,
+you need to first uninstall these components before installing or updating to 3.0.2.GA.
+
+Note: You may need to use <code>sudo</code> before these terminal commands on OSX and Linux.
+
+To uninstall these components:
+
+    npm remove -g titanium
+    npm remove -g alloy
+
+If you are using Titanium Studio, these components will be updated if you chose to install
+additional Titanium updates or from the **Help** menu, select **Check for Titanium Updates**.
+
+If you are using the Titainium CLI, you need to reinstall the CLI and Alloy from the terminal:
+
+    npm install -g titanium
+    npm install -g alloy
+
+If you should run into any issues, run `npm cache clean` and then retry the steps above.
+
+<a name="ios61support"></a>
+
+### Support for iOS 6.1
+
+This release includes provisional support for iOS 6.1 and Xcode 4.6.
+It has been tested using Xcode 4.6 and using iOS 6.1 on the iPhone 5 as well
+as earlier devices.
+
+<a name="alloyrelease"></a>
+
+### Alloy Framework GA Release
+
+This release coincides with the general availability (GA) release of Alloy, a
+model-view-controller (MVC) framework for Titanium.
+
+Alloy 1.0 GA only supports Titanium SDK 3.0 and later. Previous versions of
+Alloy supported Titanium SDK 2.1.x and later.
+
+Alloy is installed automatically if you install Titanium Studio 3.0.0 and
+select to install additional Titanium updates. If you are using Titanium from
+the command line, you can install Alloy manually using `npm`.
+
+For installation instructions and an introduction to the Alloy framework, see:
+
+  * [Alloy Quick Start](http://docs.appcelerator.com/titanium/latest/#!/guide/Alloy_Quick_Start)
+  * [Alloy Framework](http://docs.appcelerator.com/titanium/latest/#!/guide/Alloy_Framework)
+
+<a name="features"></a>
+
+## New Features
+
+<a name="iphone5graphics"></a>
+
+### iPhone 5 Assets
+
+To use assets specific to the new iPhone 5 screen (1136 x 640 pixels), add the
+suffix `-568h@2x` to the asset filename, for example, `Resources/iphone
+/myimage-568h@2x.png`. Previously, only the splash screen file, `Default.png`,
+supported this suffix.
+
+<a name="ioslocalizedsplashscreen"></a>
+
+### iOS Localized Splash Screen
+
+On iOS, you can include localized splash screen images in the language
+subfolders of the `i18n` directory. The file name needs to follow the same
+convention as the regular splash screen names. Currently, the default splash
+screen in the `Resources/iphone` directory takes precedence over the localized
+splash screen images. This issue will be fixed in the future, where the
+localized splash screen image takes precedence over the default splash screen
+image.
+
+For more information, see the "Localized Splash Screen" section in the [Icon
+and Splash Screens guide](http://docs.appcelerator.com/titanium/latest/#!/guid
+e/Icons_and_Splash_Screens).
+
+<a name="androidsearchview"></a>
+
+### Android SearchView Widget
+
+A new Titanium proxy, Titanium.UI.Android.SearchView, implements the [Android
+SearchView
+class](http://developer.android.com/reference/android/widget/SearchView.html),
+which provides a user interface for the user to enter a search query and
+submit a request to a search provider.
+
+This new proxy can be used the same as the Titanium.UI.SearchBar, except it
+can also be used with a table to filter results or be displayed in the action
+bar as an action view for a collapsible menu item. This new proxy requires
+Google API Level 11 (Android 3.0) and later, and the Android manifest
+`targetSDKVersion` key must be set in the `tiapp.xml` file.
+
+For more information and an example, see the [Titanium.UI.Android.SearchView](
+http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Android.Search
+View) reference page.
+
+<a name="androidresrawdirectory"></a>
+
+### Access to Assets in the Android res/raw Directory
+
+Assets stored in the `platform/android/res/raw` directory can be accessed by
+the application during runtime using the `Ti.Filesystem.resRawDirectory`
+property to retrieve the Android resource URL to the asset.
+
+For example, the code below loads the WAVE file that is stored in
+`platform/android/res/raw/cricket.wav`:
+
+    var sound = Titanium.Media.createSound({url:Ti.Filesystem.resRawDirectory + 'cricket.wav'});
+
+Previously, you had to copy sounds from the `Resources` directory into the
+external storage directory.
+
+For more information, see the [resRawDirectory
+property](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium
+.Filesystem-property-resRawDirectory).
+
+<a name="issues"></a>
+
+## Fixed Issues and Enhancements
+
+  * [Full list of issues that were addressed in Release 3.0.2 RC](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=14693)
+
+<a name="android"></a>
+
+### Fixed Android Issues and Enhancements
+
+  * [TIMOB-1512](https://jira.appcelerator.org/browse/TIMOB-1512) OptionMenu is not working with TabGroup.
+  * [TIMOB-4982](https://jira.appcelerator.org/browse/TIMOB-4982) Geolocation not working consistently on Android WebView.
+  * [TIMOB-5239](https://jira.appcelerator.org/browse/TIMOB-5239) If you add a sound to a notification the sound is not found.
+  * [TIMOB-9448](https://jira.appcelerator.org/browse/TIMOB-9448) Missing "B2" button in Button states.
+  * [TIMOB-9593](https://jira.appcelerator.org/browse/TIMOB-9593) WebView with HTML property having HTML content does not reload.
+  * [TIMOB-10505](https://jira.appcelerator.org/browse/TIMOB-10505) New Feature: Expose runtime errors to module developers.
+  * [TIMOB-10824](https://jira.appcelerator.org/browse/TIMOB-10540) backgroundColor/backgroundImage/backgroundRepeat compositing not working with heavyweight windows.
+  * [TIMOB-11269](https://jira.appcelerator.org/browse/TIMOB-11269) KitchenSink: Base UI:Window Properties->Toggling height/width changing opacity of window.
+  * [TIMOB-11282](https://jira.appcelerator.org/browse/TIMOB-11282) Android TableView with remote images is very slow.
+  * [TIMOB-11288](https://jira.appcelerator.org/browse/TIMOB-11288) KitchenSink: Menu(Android)->Menu handlers(Activity Property) crashes app on second time invoked.
+  * [TIMOB-11487](https://jira.appcelerator.org/browse/TIMOB-11487) Text of the button spills over to the parent view if it is too long.
+  * [TIMOB-11569](https://jira.appcelerator.org/browse/TIMOB-11569) Picker does not work if put inside an AlertDialog.
+  * [TIMOB-11604](https://jira.appcelerator.org/browse/TIMOB-11604) New Feature: Support search widget in action bar.
+  * [TIMOB-11752](https://jira.appcelerator.org/browse/TIMOB-11752) Globals not accessible in CommonJS modules.
+  * [TIMOB-11762](https://jira.appcelerator.org/browse/TIMOB-11762) Cannot update image inside a TableViewRow.
+  * [TIMOB-11796](https://jira.appcelerator.org/browse/TIMOB-11796) ActionBar not getting set on Tab windows.
+  * [TIMOB-11971](https://jira.appcelerator.org/browse/TIMOB-11971) ImageView shows blank image for web content.
+  * [TIMOB-11975](https://jira.appcelerator.org/browse/TIMOB-11975) New Feature: API to expose res/raw directory.
+  * [TIMOB-12202](https://jira.appcelerator.org/browse/TIMOB-12202) Section header views are redrawn when a TabGroup is used.
+  * [TIMOB-12286](https://jira.appcelerator.org/browse/TIMOB-12286) Memory leak when backing out and coming back to an app.
+  * [TIMOB-12307](https://jira.appcelerator.org/browse/TIMOB-12307) Refactor MenuItemProxy.
+  * [TIMOB-12326](https://jira.appcelerator.org/browse/TIMOB-12326) Ti.UI.Android.hideSoftKeyboard not working.
+  * [TIMOB-12356](https://jira.appcelerator.org/browse/TIMOB-12356) ACS callback not received.
+  * [TIMOB-12487](https://jira.appcelerator.org/browse/TIMOB-12487) IndexOutOfBoundsException when backing out of an app after install from app store.
+
+<a name="cli"></a>
+
+### Fixed CLI Issues and Enhancements
+
+  * [TIMOB-10072](https://jira.appcelerator.org/browse/TIMOB-10072) Android: CLI will not launch Android Emulator.
+  * [TIMOB-11542](https://jira.appcelerator.org/browse/TIMOB-11542) CLI does not honor xcode select path.
+  * [TIMOB-11599](https://jira.appcelerator.org/browse/TIMOB-11599) Using XCode to run app on device will not work.
+  * [TIMOB-11919](https://jira.appcelerator.org/browse/TIMOB-11919) Creating MobileWeb module with ti.cloud as appid prohibits any MW Project to run on MWBrowser or Emulator.
+  * [TIMOB-12033](https://jira.appcelerator.org/browse/TIMOB-12033) Developer names with Chinese characters appear as octal escape sequence in titanium info.
+  * [TIMOB-12093](https://jira.appcelerator.org/browse/TIMOB-12093) iOS distribution name from CLI config isn't properly used if not all lower case.
+  * [TIMOB-12094](https://jira.appcelerator.org/browse/TIMOB-12094) iOS: When invalid code is used in an app.js the pre-compilation phase will fail on iOS device builds.
+  * [TIMOB-12103](https://jira.appcelerator.org/browse/TIMOB-12103) iOS: Simulator 6.0: Session could not be started crash on launch on some machines.
+  * [TIMOB-12105](https://jira.appcelerator.org/browse/TIMOB-12105) iOS: plist entries that contain dictionary values cause error.
+  * [TIMOB-12106](https://jira.appcelerator.org/browse/TIMOB-12106) App name is not validated when passed in from command line.
+  * [TIMOB-12107](https://jira.appcelerator.org/browse/TIMOB-12107) Check tiapp.xml for sane values during build.
+  * [TIMOB-12113](https://jira.appcelerator.org/browse/TIMOB-12113) SDK command's help does not show select subcommand.
+  * [TIMOB-12123](https://jira.appcelerator.org/browse/TIMOB-12123) iOS: Building older 2.x projects with 3.0 only works for simulator builds.
+  * [TIMOB-12127](https://jira.appcelerator.org/browse/TIMOB-12127) iOS: Upgrade build command from Uglify 1 to Uglify 2.
+  * [TIMOB-12135](https://jira.appcelerator.org/browse/TIMOB-12135) Titanium.App.getVersion() returns the bundle version on device, not the tiapp.xml version.
+  * [TIMOB-12142](https://jira.appcelerator.org/browse/TIMOB-12142) Allow Modules to request build not be minified.
+  * [TIMOB-12146](https://jira.appcelerator.org/browse/TIMOB-12146) iOS certs not displaying due to insufficient buffer size.
+  * [TIMOB-12167](https://jira.appcelerator.org/browse/TIMOB-12167) Build fails if custom Info.plist contains empty string value.
+  * [TIMOB-12241](https://jira.appcelerator.org/browse/TIMOB-12241) iOS: myapp/build/iphone/Resources folder is redundant and unneeded.
+  * [TIMOB-12242](https://jira.appcelerator.org/browse/TIMOB-12242) iOS: Xcode build fails when iphone build folder path is changed.
+  * [TIMOB-12265](https://jira.appcelerator.org/browse/TIMOB-12265) Analytics isn't working when offline.
+  * [TIMOB-12268](https://jira.appcelerator.org/browse/TIMOB-12268) Setup wizard fails when an existing configuration has an invalid SDK version.
+  * [TIMOB-12277](https://jira.appcelerator.org/browse/TIMOB-12277) Titanium login does not work when behind a proxy.
+  * [TIMOB-12280](https://jira.appcelerator.org/browse/TIMOB-12280) Log messages lost when logging commands are placed in a loop.
+  * [TIMOB-12282](https://jira.appcelerator.org/browse/TIMOB-12282) Setup wizard throws an error while input is provided to iOS distribution certificate prompt.
+  * [TIMOB-12283](https://jira.appcelerator.org/browse/TIMOB-12283) When entering data prompted by the CLI in the setup wizard, entered data is not correctly placed on the screen.
+  * [TIMOB-12312](https://jira.appcelerator.org/browse/TIMOB-12312) Setup wizard does not save the default SDK; on the Next run of Setup wizard, configuration changes automatically.
+  * [TIMOB-12313](https://jira.appcelerator.org/browse/TIMOB-12313) iOS Debugger: Error connecting to debugger: Error Domain=NSPOSIXErrorDomain Code=61.
+  * [TIMOB-12347](https://jira.appcelerator.org/browse/TIMOB-12347) Add terminal character encoding detection.
+  * [TIMOB-12348](https://jira.appcelerator.org/browse/TIMOB-12348) iOS: Compiled i18n and JSS files not generated during Xcode builds.
+  * [TIMOB-12360](https://jira.appcelerator.org/browse/TIMOB-12360) Allow platform specific App IDs.
+  * [TIMOB-12364](https://jira.appcelerator.org/browse/TIMOB-12364) iOS: build fails if using latest 3.0.2.v20130121114704 on iOS simulator.
+  * [TIMOB-12365](https://jira.appcelerator.org/browse/TIMOB-12365) Remove "iPad" and "iphone" from clean command platform options.
+  * [TIMOB-12373](https://jira.appcelerator.org/browse/TIMOB-12373) Authentication library errors if ~/.titanium folder does not exist.
+  * [TIMOB-12375](https://jira.appcelerator.org/browse/TIMOB-12375) Selecting iOS platform returns only iPhone as a Deployment Target.
+  * [TIMOB-12400](https://jira.appcelerator.org/browse/TIMOB-12400) iOS sim builds about twice as slow in new CLI than with old one.
+  * [TIMOB-12419](https://jira.appcelerator.org/browse/TIMOB-12419) Provide option for full simulator builds.
+  * [TIMOB-12420](https://jira.appcelerator.org/browse/TIMOB-12420) Change iOS logging calls from debug() to info() on full rebuilds.
+  * [TIMOB-12422](https://jira.appcelerator.org/browse/TIMOB-12422) iOS build using deploy-type parameter does not exclude/include modules.
+  * [TIMOB-12423](https://jira.appcelerator.org/browse/TIMOB-12423) Switch authentication library to use request module.
+  * [TIMOB-12435](https://jira.appcelerator.org/browse/TIMOB-12435) Debug console output is trimmed into one line when using SDK 3.0.0.GA but not in 2.1.4.GA.
+  * [TIMOB-12436](https://jira.appcelerator.org/browse/TIMOB-12436) Log output should be padded so that output is aligned.
+  * [TIMOB-12437](https://jira.appcelerator.org/browse/TIMOB-12437) Config fails to save if ~/.titanium directory does not exist.
+  * [TIMOB-12439](https://jira.appcelerator.org/browse/TIMOB-12439) Remove deprecated AST walker from node-appc.
+  * [TIMOB-12470](https://jira.appcelerator.org/browse/TIMOB-12470) SDK build needs to include updated components from node-appc.
+  * [TIMOB-12514](https://jira.appcelerator.org/browse/TIMOB-12514) Mobile Web build not passing in correct deploy-type to timodule library.
+  * [TIMOB-12613](https://jira.appcelerator.org/browse/TIMOB-12613) Second build of App fails to install on iOS device with code signing error.</li>
+  * [TIMOB-12617](https://jira.appcelerator.org/browse/TIMOB-12617) Build once, then build again with different provision results in code sign error.</li>
+  * [TIMOB-12638](https://jira.appcelerator.org/browse/TIMOB-12638) The creator user ID of an application created from CLI is NULL.</li>
+  * [TIMOB-12653](https://jira.appcelerator.org/browse/TIMOB-12653) Analytics missing uid cookie and should not set app_id.</li>
+
+<a name="ios"></a>
+
+### Fixed iOS Issues and Enhancements
+
+  * [TIMOB-7965](https://jira.appcelerator.org/browse/TIMOB-7965) canGoBack/canGoForward does not work for local files.
+  * [TIMOB-8358](https://jira.appcelerator.org/browse/TIMOB-8358) New Feature: Localize the Default splash screen image.
+  * [TIMOB-10280](https://jira.appcelerator.org/browse/TIMOB-10280) View: Hiding a view does not shift all the views below on the screen.
+  * [TIMOB-11103](https://jira.appcelerator.org/browse/TIMOB-11103) TableView: Touchmove event is not fired.
+  * [TIMOB-11197](https://jira.appcelerator.org/browse/TIMOB-11197) New Feature: Request to support iPhone5 specific images (-568h@2x suffix) in the resources other than the splash screen.
+  * [TIMOB-11203](https://jira.appcelerator.org/browse/TIMOB-11203) Views: View on window with vertical layout first drawn from left top then to the center (top).
+  * [TIMOB-11335](https://jira.appcelerator.org/browse/TIMOB-11335) TableViewRow selected background does not fade out when backgroundGradient is set.
+  * [TIMOB-11359](https://jira.appcelerator.org/browse/TIMOB-11359) Map: Device rotation returns default map view.
+  * [TIMOB-11386](https://jira.appcelerator.org/browse/TIMOB-11386) iOS 6: Statusbar overlaps iAd.
+  * [TIMOB-11406](https://jira.appcelerator.org/browse/TIMOB-11406) Animation: Orientation during animation will cause objects to change size and position.
+  * [TIMOB-11458](https://jira.appcelerator.org/browse/TIMOB-11458) Accessibility: Text for TableView, behind an open window, is spoken when touched on section header with view on TableView on window.
+  * [TIMOB-11509](https://jira.appcelerator.org/browse/TIMOB-11509) Touch events not fired outside subview in TableViewRow.
+  * [TIMOB-11623](https://jira.appcelerator.org/browse/TIMOB-11623) Animation: Controls are not rendered correctly if second animation is started before the completion of first one.
+  * [TIMOB-11652](https://jira.appcelerator.org/browse/TIMOB-11652) Add script errors/stack trace to TiExceptionHandler data.
+  * [TIMOB-11698](https://jira.appcelerator.org/browse/TIMOB-11698) KitchenSink: Inconsistency in displaying Photo Gallery.
+  * [TIMOB-11777](https://jira.appcelerator.org/browse/TIMOB-11777) KitchenSink: Views - Auto Size unexpected behavior on continuous device rotation.
+  * [TIMOB-11866](https://jira.appcelerator.org/browse/TIMOB-11866) Click event in UIView is firing immediately.
+  * [TIMOB-11998](https://jira.appcelerator.org/browse/TIMOB-11998) Layout bug: horizontal layout Views with height=Ti.UI.SIZE are drawn with wrong height.
+  * [TIMOB-12037](https://jira.appcelerator.org/browse/TIMOB-12037) Label inside a table is not updated correctly.
+  * [TIMOB-12111](https://jira.appcelerator.org/browse/TIMOB-12111) Common JS module whose first folder segment is the name of a module will have the leading character removed.
+  * [TIMOB-12147](https://jira.appcelerator.org/browse/TIMOB-12147) Regression: button created in required unit won't fire click event. This was a regression in 3.0.0.GA. 
+  * [TIMOB-12173](https://jira.appcelerator.org/browse/TIMOB-12173) Build fails if a project's id contains capital letters.
+  * [TIMOB-12189](https://jira.appcelerator.org/browse/TIMOB-12189) imageWithRoundedCorner() makes opaque corners instead of transparent corners.
+  * [TIMOB-12244](https://jira.appcelerator.org/browse/TIMOB-12244) TabGroup.setActiveTab() calls ignored on a previously opened tabgroup.
+  * [TIMOB-12275](https://jira.appcelerator.org/browse/TIMOB-12275) Setting ti.facebook.appid property in tiapp.xml creates an invalid Info.plist file.
+  * [TIMOB-12349](https://jira.appcelerator.org/browse/TIMOB-12349) Allow Android builds to disable minification.
+  * [TIMOB-12397](https://jira.appcelerator.org/browse/TIMOB-12397) Label inside a button does not show.
+  * [TIMOB-12558](https://jira.appcelerator.org/browse/TIMOB-12558) Allow external modules to use ARC.
+
+<a name="mobileweb"></a>
+
+### Fixed Mobile Web Issues and Enhancements
+
+  * [TIMOB-9858](https://jira.appcelerator.org/browse/TIMOB-9858) Performance Issues with ScrollView on Blackberry OS7.
+  * [TIMOB-10380](https://jira.appcelerator.org/browse/TIMOB-10380) TabGroup: addTab results in Uncaught TypeError: Cannot read property of 'rightNavButton of undefined'.
+  * [TIMOB-10464](https://jira.appcelerator.org/browse/TIMOB-10464) Implement new bubbling architecture.
+  * [TIMOB-10723](https://jira.appcelerator.org/browse/TIMOB-10723) ScrollableView "addView" method not working.
+  * [TIMOB-11558](https://jira.appcelerator.org/browse/TIMOB-11558) Hiding activity indicator doesn't hide the root DIV.
+  * [TIMOB-11794](https://jira.appcelerator.org/browse/TIMOB-11794) New Feature: Add RTL as a property in Labels to display Arabic text properly.
+  * [TIMOB-11896](https://jira.appcelerator.org/browse/TIMOB-11896) PagingControl not working in ScrollableView.
+  * [TIMOB-11960](https://jira.appcelerator.org/browse/TIMOB-11960) NavigationGroup back button is getting truncated.
+  * [TIMOB-11997](https://jira.appcelerator.org/browse/TIMOB-11997) No padding between leftImage and title in a TableViewRow.
+  * [TIMOB-12067](https://jira.appcelerator.org/browse/TIMOB-12067) Update ScrollableView to use a custom simple but fast gesture mechanism.
+  * [TIMOB-12098](https://jira.appcelerator.org/browse/TIMOB-12098) Add shim for Function.bind().
+  * [TIMOB-12279](https://jira.appcelerator.org/browse/TIMOB-12279) JS files are not copied over if you put them in the mobileweb directory.
+
+<a name="apichanges"></a>
+
+## API Changes
+
+<a name="newapis"></a>
+
+### New APIs
+
+The following APIs are new or have expanded platform support in Release 3.0.2.
+
+| API | Type | Notes |
+|-----|------|-------|
+| Titanium.Filesystem.getResRawDirectory | method | Gets the value of the resRawDirectory property. (New API, supported on Android.) |
+| Titanium.Filesystem.resRawDirectory | property | Path to the application's raw resource directory. (New API, supported on Android.) |
+| Titanium.UI.Android.SearchView | object | A specialized text field for entering search text. (New API, supported on Android.) |
+| Titanium.UI.Android.createSearchView | method | Creates and returns an instance of Titanium.UI.Android.SearchView. (New API, supported on Android.) |
+| Titanium.UI.TableView.getSearchAsChild | method Gets the value of the searchAsChild property. (New API, supported on Android.) |
+| Titanium.UI.TableView.searchAsChild | property | Determines whether the SearchBar or SearchView appears as part of the TableView. (New API, supported on Android.) |
+| Titanium.UI.TableView.setSearchAsChild | method | Sets the value of the searchAsChild property. (New API, supported on Android.) |

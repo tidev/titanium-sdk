@@ -11,6 +11,11 @@
 
 @implementation TiUIiPhoneSystemIconProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPhone.SystemIcon";
+}
+
 MAKE_SYSTEM_PROP(BOOKMARKS,UITabBarSystemItemBookmarks);
 MAKE_SYSTEM_PROP(CONTACTS,UITabBarSystemItemContacts);
 MAKE_SYSTEM_PROP(DOWNLOADS,UITabBarSystemItemDownloads);

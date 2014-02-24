@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -90,6 +90,12 @@ public class FilesystemModule extends KrollModule
 	{
 		return "appdata-private://";
 	}
+	
+	@Kroll.getProperty @Kroll.method
+	public String getResRawDirectory()
+	{
+		return "android.resource://" + TiApplication.getInstance().getPackageName() + "/raw/";
+	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getApplicationCacheDirectory()
@@ -149,5 +155,11 @@ public class FilesystemModule extends KrollModule
 		fileProxy.getBaseFile().open(mode, true);
 
 		return new FileStreamProxy(fileProxy);
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Filesystem";
 	}
 }

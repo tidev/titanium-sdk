@@ -1,23 +1,22 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/_/Gestures/GestureRecognizer"], function(declare,lang,GestureRecognizer) {
+/*global define*/
+define(['Ti/_/declare', 'Ti/_/lang'], function (declare, lang) {
 
-	return declare("Ti._.Gestures.TouchEnd", GestureRecognizer, {
+	return lang.setObject('Ti._.Gestures.TouchEnd', {
 
-		name: "touchend",
-
-		processTouchEndEvent: function(e, element){
-			if (!element._isGestureBlocked(this.name)) {
-				var changed = e.changedTouches,
-					i = 0,
-					l = changed.length,
-					src = this.getSourceNode(e, element);
-				for (; i < l; i++) {
-					element._handleTouchEvent(this.name, {
-						x: changed[i].clientX,
-						y: changed[i].clientY,
-						source: src
-					});
-				}
+		processTouchEndEvent: function (e) {
+			var changed = e.changedTouches,
+				i = 0,
+				l = changed.length,
+				events = {
+					'touchend': []
+				};
+			for (; i < l; i++) {
+				events.touchend.push({
+					x: changed[i].clientX,
+					y: changed[i].clientY
+				});
 			}
+			return events;
 		}
 
 	});

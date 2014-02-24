@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.media;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
@@ -19,16 +20,18 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.webkit.URLUtil;
 
 public class TiSound
 	implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, KrollProxyListener,
-	MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener
+	MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener, MediaPlayer.OnPreparedListener
 {
 	private static final String TAG = "TiSound";
 
@@ -68,6 +71,11 @@ public class TiSound
 	protected boolean playOnResume;
 	protected boolean remote;
 	protected Timer progressTimer;
+	
+	private boolean pausePending = false;
+	private boolean stopPending = false;
+	private boolean playPending = false;
+	private boolean prepareRequired = false;
 
 	public TiSound(KrollProxy proxy)
 	{
@@ -76,18 +84,24 @@ public class TiSound
 		this.remote = false;
 	}
 
-	protected void initialize()
+	protected void initializeAndPlay()
 		throws IOException
 	{
 		try {
 			mp = new MediaPlayer();
 			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
-			if (URLUtil.isAssetUrl(url)) {
+			boolean isAsset = URLUtil.isAssetUrl(url);
+			if (isAsset || url.startsWith("android.resource")) {
 				Context context = TiApplication.getInstance();
-				String path = url.substring(TiConvert.ASSET_URL.length());
 				AssetFileDescriptor afd = null;
 				try {
-					afd = context.getAssets().openFd(path);
+					if (isAsset) {
+						String path = url.substring(TiConvert.ASSET_URL.length());
+						afd = context.getAssets().openFd(path);
+					} else {
+						Uri uri = Uri.parse(url);
+						afd = context.getResources().openRawResourceFd(TiRHelper.getResource("raw." + uri.getLastPathSegment()));
+					}
 					// Why mp.setDataSource(afd) doesn't work is a problem for another day.
 					// http://groups.google.com/group/android-developers/browse_thread/thread/225c4c150be92416
 					mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
@@ -101,26 +115,54 @@ public class TiSound
 			} else {
 				Uri uri = Uri.parse(url);
 				if (uri.getScheme().equals(TiC.PROPERTY_FILE)) {
-					mp.setDataSource(uri.getPath());
+					if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
+						mp.setDataSource(uri.getPath());
+					} else {
+						// For 2.2 and below, MediaPlayer uses the native player which requires
+						// files to have worldreadable access, workaround is to open an input
+						// stream to the file and give that to the player.
+						FileInputStream fis = null;
+						try {
+							fis = new FileInputStream(uri.getPath());
+							mp.setDataSource(fis.getFD());
+						} catch (IOException e) {
+							Log.e(TAG, "Error setting file descriptor: ", e);
+						} finally {
+							if (fis != null) {
+								fis.close();
+							}
+						}
+					}
 				} else {
 					remote = true;
 					mp.setDataSource(url);
 				}
 			}
-
-			mp.setLooping(looping);
+			
+			String loop = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_LOOPING));
+			if (loop != null) {
+				looping = Boolean.parseBoolean(loop);
+				mp.setLooping(looping);
+			}
 			mp.setOnCompletionListener(this);
 			mp.setOnErrorListener(this);
 			mp.setOnInfoListener(this);
 			mp.setOnBufferingUpdateListener(this);
 			
-			mp.prepare(); // Probably need to allow for Async
-			setState(STATE_INITIALIZED);
-
-			setVolume(volume);
-			if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
-				setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
+			if (remote) { // try async
+				mp.setOnPreparedListener(this);
+				mp.prepareAsync();
+				playPending = true;
+			} else {
+				mp.prepare();
+				setState(STATE_INITIALIZED);
+				setVolume(volume);
+				if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
+					setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
+				}
+				startPlaying();
 			}
+
 		} catch (Throwable t) {
 			Log.w(TAG, "Issue while initializing : " , t);
 			release();
@@ -151,14 +193,14 @@ public class TiSound
 	{
 		try {
 			if (mp != null) {
-				if(mp.isPlaying()) {
+				if (mp.isPlaying()) {
 					Log.d(TAG, "audio is playing, pause", Log.DEBUG_MODE);
-					if (remote) {
-						stopProgressTimer();
-					}
+					stopProgressTimer();
 					mp.pause();
 					paused = true;
 					setState(STATE_PAUSED);
+				} else if (playPending) {
+					pausePending = true;
 				}
 			}
 		} catch (Throwable t) {
@@ -171,21 +213,13 @@ public class TiSound
 		try {
 			if (mp == null) {
 				setState(STATE_STARTING);
-				initialize();
-			}
-
-			if (mp != null) {
-				if (!isPlaying()) {
-					Log.d(TAG, "audio is not playing, starting.", Log.DEBUG_MODE);
-					Log.d(TAG, "Play: Volume set to " + volume, Log.DEBUG_MODE);
-					mp.start();
-					setState(STATE_PLAYING);
-					paused = false;
-					if (remote) {
-						startProgressTimer();
-					}
+				initializeAndPlay();
+			} else {
+				if (prepareRequired) {
+					prepareAndPlay();
+				} else {
+					startPlaying();
 				}
-				setState(STATE_PLAYING);
 			}
 		} catch (Throwable t) {
 			Log.w(TAG, "Issue while playing : " , t);
@@ -193,13 +227,39 @@ public class TiSound
 		}
 	}
 
+	private void prepareAndPlay() throws IllegalStateException, IOException
+	{
+		prepareRequired = false;
+		if (remote) {
+			playPending = true;
+			mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener()
+			{
+				@Override
+				public void onPrepared(MediaPlayer mp)
+				{
+					mp.setOnPreparedListener(null);
+					mp.seekTo(0);
+					playPending = false;
+					if (!stopPending && !pausePending) {
+						startPlaying();
+					}
+					pausePending = false;
+					stopPending = false;
+				}
+			});
+			mp.prepareAsync();
+		} else {
+			mp.prepare();
+			mp.seekTo(0);
+			startPlaying();
+		}
+	}
+	
 	public void reset()
 	{
 		try {
-			if (mp != null) {
-				if (remote) {
-					stopProgressTimer();
-				}
+			if (mp != null && (mp.isPlaying() || isPaused())) {
+				stopProgressTimer();
 
 				setState(STATE_STOPPING);
 				mp.seekTo(0);
@@ -208,7 +268,7 @@ public class TiSound
 				setState(STATE_STOPPED);
 			}
 		} catch (Throwable t) {
-			Log.w(TAG, "Issue while resetting : " , t);
+			Log.w(TAG, "Issue while resetting : ", t);
 		}
 	}
 
@@ -271,8 +331,8 @@ public class TiSound
 	public int getDuration()
 	{
 		int duration = 0;
-		if (mp != null) {
-			duration = mp.getDuration();
+		if (mp != null && !playPending) {
+			duration = mp.getDuration(); // Can only get duration after the media player is initialized.
 		}
 		return duration;
 	}
@@ -367,31 +427,26 @@ public class TiSound
 					setState(STATE_STOPPING);
 					mp.stop();
 					setState(STATE_STOPPED);
-					if (remote) {
-						stopProgressTimer();
-					}
-					try {
-						mp.prepare();
-						mp.seekTo(0);
-					} catch (IOException e) {
-						Log.e(TAG, "Error while preparing audio after stop(). Ignoring.", Log.DEBUG_MODE);
-					} catch (IllegalStateException e) {
-						Log.w(TAG, "Error while preparing audio after stop(). Ignoring.", Log.DEBUG_MODE);
-					}
+					stopProgressTimer();
+					prepareRequired = true;
+				} else if (playPending) {
+					stopPending = true;
 				}
 
-				if(isPaused()) {
+				if (isPaused()) {
 					paused = false;
 				}
 			}
 		} catch (Throwable t) {
-			Log.e(TAG, "Error : " , t);
+			Log.e(TAG, "Error : ", t);
 		}
 	}
 
 	public void onCompletion(MediaPlayer mp)
 	{
-		proxy.fireEvent(EVENT_COMPLETE, null);
+		KrollDict data = new KrollDict();
+		data.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
+		proxy.fireEvent(EVENT_COMPLETE, data);
 		stop();
 	}
 
@@ -416,8 +471,7 @@ public class TiSound
 		}
 
 		KrollDict data = new KrollDict();
-		data.put(TiC.PROPERTY_CODE, 0);
-		data.put(TiC.PROPERTY_MESSAGE, msg);
+		data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, msg);
 		proxy.fireEvent(EVENT_ERROR, data);
 
 		return true;
@@ -426,7 +480,10 @@ public class TiSound
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra)
 	{
-		int code = 0;
+		int code = what;
+		if(what == 0) {
+			code = -1;
+		}
 		String msg = "Unknown media error.";
 		if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
 			msg = "Media server died";
@@ -434,7 +491,7 @@ public class TiSound
 		release();
 
 		KrollDict data = new KrollDict();
-		data.put(TiC.PROPERTY_CODE, code);
+		data.putCodeAndMessage(code, msg);
 		data.put(TiC.PROPERTY_MESSAGE, msg);
 		proxy.fireEvent(EVENT_ERROR, data);
 
@@ -537,5 +594,41 @@ public class TiSound
 		for (KrollPropertyChange change : changes) {
 			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
 		}
-	}	
+	}
+	
+	private void startPlaying()
+	{
+		if (mp != null) {
+			if (!isPlaying() && !playPending) {
+				Log.d(TAG, "audio is not playing, starting.", Log.DEBUG_MODE);
+				Log.d(TAG, "Play: Volume set to " + volume, Log.DEBUG_MODE);
+				mp.start();
+				paused = false;
+				startProgressTimer();
+			}
+			setState(STATE_PLAYING);
+		}
+	}
+
+	@Override
+	public void onPrepared(MediaPlayer mp)
+	{
+		mp.setOnPreparedListener(null);
+		setState(STATE_INITIALIZED);
+		setVolume(volume);
+		if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
+			setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
+		}
+		playPending = false;
+		if (!pausePending && !stopPending) {
+			try {
+				startPlaying();
+			} catch (Throwable t) {
+				Log.w(TAG, "Issue while playing : ", t);
+				reset();
+			}
+		}
+		pausePending = false;
+		stopPending = false;
+	}
 }

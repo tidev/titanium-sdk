@@ -137,7 +137,7 @@ NSObject * TiBindingTiValueToNSObject(TiContextRef jsContext, TiValueRef objRef)
 
 //
 // function for converting a TiValue to an NSObject* (as ID)
-//
+// Note that if obj is nil, this returns an empty object. This is intentional.
 TiObjectRef TiBindingTiValueFromNSDictionary(TiContextRef jsContext,NSDictionary *obj)
 {
 	TiObjectRef objRef = TiObjectMake(jsContext, NULL, NULL);
@@ -236,7 +236,25 @@ TiValueRef TiBindingTiValueFromNSObject(TiContextRef jsContext, NSObject * obj)
 		TiStringRef jsString = TiStringCreateWithCFString((CFStringRef) [(NSException *)obj reason]);
 		TiValueRef result = TiValueMakeString(jsContext,jsString);
 		TiStringRelease(jsString);
-		return TiObjectMakeError(jsContext, 1, &result, NULL);
+		TiObjectRef excObject = TiObjectMakeError(jsContext, 1, &result, NULL);
+		NSDictionary *details = [(NSException *)obj userInfo];
+		NSString *subreason = [details objectForKey:kTiExceptionSubreason];
+		if (subreason != nil) {
+			TiStringRef propertyName = TiStringCreateWithUTF8CString("nativeReason");
+			TiStringRef valueString = TiStringCreateWithCFString((CFStringRef) subreason);
+			TiObjectSetProperty(jsContext, excObject, propertyName, TiValueMakeString(jsContext, valueString), kTiPropertyAttributeReadOnly, NULL);
+			TiStringRelease(propertyName);
+			TiStringRelease(valueString);
+		}
+		NSString *location = [details objectForKey:kTiExceptionLocation];
+		if (location != nil) {
+			TiStringRef propertyName = TiStringCreateWithUTF8CString("nativeLocation");
+			TiStringRef valueString = TiStringCreateWithCFString((CFStringRef) location);
+			TiObjectSetProperty(jsContext, excObject, propertyName, TiValueMakeString(jsContext, valueString), kTiPropertyAttributeReadOnly, NULL);
+			TiStringRelease(propertyName);
+			TiStringRelease(valueString);
+		}
+		return excObject;
 	}
 	if ([obj isKindOfClass:[KrollMethod class]])
 	{

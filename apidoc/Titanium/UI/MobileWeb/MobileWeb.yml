@@ -5,4 +5,4 @@ summary: |
     will only work on this platform.
 extends: Titanium.Module
 since: "1.8"
-platforms: [mobileweb]
+platforms: [mobileweb, tizen]

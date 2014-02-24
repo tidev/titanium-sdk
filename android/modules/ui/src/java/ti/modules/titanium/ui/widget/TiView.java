@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -40,13 +39,6 @@ public class TiView extends TiUIView
 		super.setOpacity(view, opacity);
 		TiCompositeLayout layout = (TiCompositeLayout) nativeView;
 		layout.setAlphaCompat(opacity);
-	}
-
-	@Override
-	public void processProperties(KrollDict d)
-	{
-
-		super.processProperties(d);
 	}
 
 }

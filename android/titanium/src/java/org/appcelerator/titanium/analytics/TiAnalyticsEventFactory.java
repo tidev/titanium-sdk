@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -68,6 +68,7 @@ public class TiAnalyticsEventFactory
 			json.put("oscpu", TiPlatformHelper.getProcessorCount());
 			json.put("platform", TiPlatformHelper.getName());
 			json.put("app_id", tiApp.getAppInfo().getId());
+			json.put("app_version", tiApp.getAppInfo().getVersion());
 			json.put("ostype", TiPlatformHelper.getOstype());
 			json.put("osarch", TiPlatformHelper.getArchitecture());
 			json.put("model", TiPlatformHelper.getModel());
@@ -252,6 +253,20 @@ public class TiAnalyticsEventFactory
 			}
 		}
 		return result;
+	}
+
+	public static String locationToJSONString(Location loc)
+	{
+		if (loc == null)
+		{
+			return null;
+		}
+		try {
+			JSONObject result = locationToJSONObject(loc);
+			return result.toString();
+		} catch (JSONException e) {
+		}
+		return null;
 	}
 
 	protected static JSONObject locationToJSONObject(Location loc) throws JSONException

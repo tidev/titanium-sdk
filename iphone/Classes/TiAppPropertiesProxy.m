@@ -8,8 +8,11 @@
 
 #import "TiAppPropertiesProxy.h"
 #import "TiUtils.h"
+#import "TiApp.h"
 
-@implementation TiAppPropertiesProxy
+@implementation TiAppPropertiesProxy {
+	NSData *_defaultsNull;
+}
 
 -(void)dealloc
 {
@@ -17,7 +20,13 @@
 		[[NSNotificationCenter defaultCenter] removeObserver:self];
 	}, YES);
 	RELEASE_TO_NIL(defaultsObject);
+	RELEASE_TO_NIL(_defaultsNull);
 	[super dealloc];
+}
+
+-(NSString*)apiName
+{
+    return @"Ti.App.Properties";
 }
 
 -(void)_listenerAdded:(NSString*)type count:(int)count
@@ -43,6 +52,7 @@
 -(void)_configure
 {
 	defaultsObject = [[NSUserDefaults standardUserDefaults] retain];
+	_defaultsNull = [[NSData alloc] initWithBytes:"NULL" length:4];
 	[super _configure];
 }
 
@@ -56,6 +66,10 @@
 #define GETPROP \
 ENSURE_TYPE(args,NSArray);\
 NSString *key = [args objectAtIndex:0];\
+id appProp = [[TiApp tiAppProperties] objectForKey:key]; \
+if(appProp) { \
+    return appProp; \
+} \
 id defaultValue = [args count] > 1 ? [args objectAtIndex:1] : [NSNull null];\
 if (![self propertyExists:key]) return defaultValue; \
 
@@ -86,18 +100,38 @@ if (![self propertyExists:key]) return defaultValue; \
 -(id)getList:(id)args
 {
 	GETPROP
-	return [defaultsObject arrayForKey:key];
+	NSArray *value = [defaultsObject arrayForKey:key];
+	NSMutableArray *array = [[[NSMutableArray alloc] initWithCapacity:[value count]] autorelease];
+	[(NSArray *)value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+		if ([obj isKindOfClass:[NSData class]] && [_defaultsNull isEqualToData:obj]) {
+			obj = [NSNull null];
+		}
+		[array addObject:obj];
+	}];
+	return array;
 }
 
 -(id)getObject:(id)args
 {
-	GETPROP
-	return [defaultsObject dictionaryForKey:key];
+    GETPROP
+    id theObject = [defaultsObject objectForKey:key];
+    if ([theObject isKindOfClass:[NSData class]]) {
+        return [NSKeyedUnarchiver unarchiveObjectWithData:theObject];
+    }
+    else {
+        return theObject;
+    }
+    
 }
 
 #define SETPROP \
 ENSURE_TYPE(args,NSArray);\
 NSString *key = [args objectAtIndex:0];\
+id appProp = [[TiApp tiAppProperties] objectForKey:key]; \
+if(appProp) { \
+    DebugLog(@"[ERROR] Property \"%@\" already exist and cannot be overwritten", key); \
+    return; \
+} \
 id value = [args count] > 1 ? [args objectAtIndex:1] : nil;\
 if (value==nil || value==[NSNull null]) {\
     [defaultsObject removeObjectForKey:key];\
@@ -141,20 +175,35 @@ if ([self propertyExists:key] && [ [defaultsObject objectForKey:key] isEqual:val
 -(void)setList:(id)args
 {
 	SETPROP
+	if ([value isKindOfClass:[NSArray class]]) {
+		NSMutableArray *array = [[[NSMutableArray alloc] initWithCapacity:[value count]] autorelease];
+		[(NSArray *)value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+			if ([obj isKindOfClass:[NSNull class]]) {
+				obj = _defaultsNull;
+			}
+			[array addObject:obj];
+		}];
+		value = array;
+	}
 	[defaultsObject setObject:value forKey:key];
 	[defaultsObject synchronize];
 }
 
 -(void)setObject:(id)args
 {
-	SETPROP
-	[defaultsObject setObject:value forKey:key];
-	[defaultsObject synchronize];
+    SETPROP
+    NSData* encoded = [NSKeyedArchiver archivedDataWithRootObject:value];
+    [defaultsObject setObject:encoded forKey:key];
+    [defaultsObject synchronize];
 }
 
 -(void)removeProperty:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSString);
+    if([[TiApp tiAppProperties] objectForKey:args] != nil) {
+        DebugLog(@"[ERROR] Cannot remove property \"%@\", it is read-only.", args);
+        return;
+    }
 	[defaultsObject removeObjectForKey:[TiUtils stringValue:args]];
 	[defaultsObject synchronize];
 }
@@ -168,13 +217,18 @@ if ([self propertyExists:key] && [ [defaultsObject objectForKey:key] isEqual:val
 
 -(id)hasProperty:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSString);
-	return [NSNumber numberWithBool:[self propertyExists:[TiUtils stringValue:args]]];
+    ENSURE_SINGLE_ARG(args,NSString);
+    BOOL inUserDefaults = [self propertyExists:[TiUtils stringValue:args]];
+    BOOL inTiAppProperties = [[TiApp tiAppProperties] objectForKey:args] != nil;
+    return NUMBOOL(inUserDefaults || inTiAppProperties);
 }
 
 -(id)listProperties:(id)args
 {
-	return [[defaultsObject dictionaryRepresentation] allKeys];
+    NSMutableArray *array = [NSMutableArray array];
+    [array addObjectsFromArray:[[defaultsObject dictionaryRepresentation] allKeys]];
+    [array addObjectsFromArray:[[TiApp tiAppProperties] allKeys]];
+    return array;
 }
 
 -(void) NSUserDefaultsDidChange

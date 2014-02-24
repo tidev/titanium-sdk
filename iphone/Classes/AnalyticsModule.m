@@ -43,7 +43,7 @@ NSString * const TI_DB_VERSION = @"1";
 
 
 @implementation AnalyticsModule
-
+@synthesize lastEvent;
 -(id)init
 {
 	if ((self = [super init]))
@@ -73,7 +73,13 @@ NSString * const TI_DB_VERSION = @"1";
 	RELEASE_TO_NIL(flushTimer);
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(lock);
+	[lastEvent release];
 	[super dealloc];
+}
+
+-(NSString*)apiName
+{
+    return @"Ti.Analytics";
 }
 
 -(void)enqueueBlock:(void (^)(void))block
@@ -213,9 +219,8 @@ NSString * const TI_DB_VERSION = @"1";
 	
 	if (url == nil)
 	{
-		//https://api.appcelerator.net/p/v2/mobile-track
-		NSString * kTiAnalyticsUrl = stringWithHexString(@"68747470733a2f2f6170692e61707063656c657261746f722e6e65742f702f76322f6d6f62696c652d747261636b");
-		url = [[NSURL URLWithString:kTiAnalyticsUrl] retain];
+		NSString * kTiAnalyticsUrl = stringWithHexString(@"68747470733a2f2f6170692e61707063656c657261746f722e6e65742f702f76332f6d6f62696c652d747261636b2f");
+		url = [[NSURL URLWithString:[kTiAnalyticsUrl stringByAppendingString:TI_APPLICATION_GUID]] retain];
 	}
 	
 	ASIHTTPRequest* request = [ASIHTTPRequest requestWithURL:url];
@@ -346,6 +351,7 @@ NSString * const TI_DB_VERSION = @"1";
 	}
 
 	id value = [SBJSON stringify:dict];
+	self.lastEvent = value;
 	
 	NSString *sql = [NSString stringWithFormat:@"INSERT INTO pending_events VALUES (?)"];
 	NSError *error = nil;
@@ -471,6 +477,7 @@ NSString * const TI_DB_VERSION = @"1";
 		[enrollment setObject:TI_APPLICATION_NAME forKey:@"app_name"];
 		[enrollment setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
 		[enrollment setObject:TI_APPLICATION_ID forKey:@"app_id"];
+		[enrollment setObject:TI_APPLICATION_VERSION forKey:@"app_version"];
 		[enrollment setObject:@"iphone" forKey:@"platform"];
 		
 		[self queueEvent:@"ti.enroll" name:@"ti.enroll" data:enrollment immediate:NO];

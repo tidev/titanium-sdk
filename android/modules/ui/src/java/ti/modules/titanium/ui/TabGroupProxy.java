@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -30,8 +30,8 @@ import ti.modules.titanium.ui.widget.tabgroup.TiUIActionBarTabGroup;
 import ti.modules.titanium.ui.widget.tabgroup.TiUITabHostGroup;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Message;
+import android.support.v7.app.ActionBarActivity;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_TABS_BACKGROUND_COLOR,
@@ -47,11 +47,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private static final int MSG_REMOVE_TAB = MSG_FIRST_ID + 101;
 	private static final int MSG_SET_ACTIVE_TAB = MSG_FIRST_ID + 102;
 	private static final int MSG_GET_ACTIVE_TAB = MSG_FIRST_ID + 103;
+	private static final int MSG_SET_TABS = MSG_FIRST_ID + 104;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private ArrayList<TabProxy> tabs = new ArrayList<TabProxy>();
-	private WeakReference<Activity> tabGroupActivity;
+	private WeakReference<ActionBarActivity> tabGroupActivity;
 	private TabProxy selectedTab;
 	private boolean isFocused;
 
@@ -69,13 +70,13 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
-			case MSG_ADD_TAB : {
+			case MSG_ADD_TAB: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleAddTab((TabProxy) result.getArg());
 				result.setResult(null);
 				return true;
 			}
-			case MSG_REMOVE_TAB : {
+			case MSG_REMOVE_TAB: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleRemoveTab((TabProxy) result.getArg());
 				result.setResult(null);
@@ -90,6 +91,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			case MSG_GET_ACTIVE_TAB: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				result.setResult(handleGetActiveTab());
+				return true;
+			}
+			case MSG_SET_TABS: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleSetTabs(result.getArg());
+				result.setResult(null);
 				return true;
 			}
 			default : {
@@ -210,6 +217,30 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
+	@Kroll.method
+	public void setTabs(Object obj)
+	{
+		if (TiApplication.isUIThread()) {
+			handleSetTabs(obj);
+			return;
+		}
+
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_TABS), obj);
+	}
+
+	private void handleSetTabs(Object obj)
+	{
+		tabs.clear();
+		if (obj instanceof Object[]) {
+			Object[] objArray = (Object[]) obj;
+			for (Object tabProxy : objArray) {
+				if (tabProxy instanceof TabProxy) {
+					handleAddTab((TabProxy) tabProxy);
+				}
+			}
+		}
+	}
+
 	@Override
 	public void handleCreationDict(KrollDict options) {
 		super.handleCreationDict(options);
@@ -256,28 +287,31 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handleOpen(KrollDict options)
 	{
-		Activity topActivity = TiApplication.getAppCurrentActivity();
-		Intent intent = new Intent(topActivity, TiActivity.class);
-		fillIntent(topActivity, intent);
+		Activity activity = TiApplication.getAppCurrentActivity();
+		if (activity instanceof ActionBarActivity) {
+			ActionBarActivity topActivity = (ActionBarActivity) TiApplication.getAppCurrentActivity();
+			Intent intent = new Intent(topActivity, TiActivity.class);
+			fillIntent(topActivity, intent);
 
-		int windowId = TiActivityWindows.addWindow(this);
-		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
-		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
+			int windowId = TiActivityWindows.addWindow(this);
+			intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
+			intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 
-		topActivity.startActivity(intent);
+			topActivity.startActivity(intent);
+		} else {
+			Log.e(TAG, "TabGroupProxy requires an activity that is a descendent of ActionBarActivity to work with AppCompat", Log.DEBUG_MODE);
+		}
 	}
 
 	@Override
 	public void windowCreated(TiBaseActivity activity) {
-		tabGroupActivity = new WeakReference<Activity>(activity);
+		tabGroupActivity = new WeakReference<ActionBarActivity>(activity);
 		activity.setWindowProxy(this);
+		activity.setLayoutProxy(this);
 		setActivity(activity);
 
-		// Use the navigation tabs if this platform supports the action bar.
-		// Otherwise we will fall back to using the TabHost implementation.
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && activity.getActionBar() != null) {
+		if (activity.getSupportActionBar() != null) {
 			view = new TiUIActionBarTabGroup(this, activity);
-
 		} else {
 			view = new TiUITabHostGroup(this, activity);
 		}
@@ -298,6 +332,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		super.handlePostOpen();
 
 		opened = true;
+		opening = false;
 
 		// First open before we load and focus our first tab.
 		fireEvent(TiC.EVENT_OPEN, null);
@@ -338,24 +373,22 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		releaseViews();
 		view = null;
 
-		opened = false;
-
-		Activity activity = tabGroupActivity.get();
+		ActionBarActivity activity = tabGroupActivity.get();
 		if (activity != null && !activity.isFinishing()) {
 			activity.finish();
 		}
 	}
 
 	@Override
-	public void closeFromActivity() {
+	public void closeFromActivity(boolean activityIsFinishing) {
 		// Allow each tab to close its window before the tab group closes.
 		for (TabProxy tab : tabs) {
-			tab.close();
+			tab.close(activityIsFinishing);
 		}
 
 		// Call super to fire the close event on the tab group.
 		// This event must fire after each tab has been closed.
-		super.closeFromActivity();
+		super.closeFromActivity(activityIsFinishing);
 	}
 
 	@Override
@@ -415,7 +448,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		selectedTab.onFocusChanged(true, focusEventData);
 	}
 
-	private void fillIntent(Activity activity, Intent intent)
+	private void fillIntent(ActionBarActivity activity, Intent intent)
 	{
 		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
 			intent.putExtra(TiC.PROPERTY_FULLSCREEN, TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN)));
@@ -456,16 +489,29 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	protected Activity getWindowActivity()
+	public void releaseViewsForActivityForcedToDestroy()
+	{
+		super.releaseViews();
+		if (tabs != null) {
+			synchronized (tabs) {
+				for (TabProxy t : tabs) {
+					// Need to keep the relationship between tabgroup and tabs, window and tab, window and tabgroup,
+					// in order to recover from forced-destroy activity.
+					t.releaseViewsForActivityForcedToDestroy();
+				}
+			}
+		}
+	}
+
+	@Override
+	protected ActionBarActivity getWindowActivity()
 	{
 		return (tabGroupActivity != null) ? tabGroupActivity.get() : null;
 	}
 
-	@Kroll.method @Kroll.setProperty
 	@Override
-	public void setOrientationModes(int[] modes) {
-		// Unlike Windows this setter is not defined in JavaScript.
-		// We need to expose it here with an annotation.
-		super.setOrientationModes(modes);
+	public String getApiName()
+	{
+		return "Ti.UI.TabGroup";
 	}
 }

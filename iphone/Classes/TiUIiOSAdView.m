@@ -113,14 +113,15 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 
 - (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
 {
+	TiProxy * selfProxy = [self proxy];
 	// per Apple, we must hide the banner view if there's no ad
-	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
+	[selfProxy replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
 	
-	if ([self.proxy _hasListeners:@"error"])
+	if ([selfProxy _hasListeners:@"error"])
 	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[event setObject:[error description] forKey:@"message"];
-		[self.proxy fireEvent:@"error" withObject:event];
+		NSString * message = [TiUtils messageFromError:error];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:message forKey:@"message"];
+		[selfProxy fireEvent:@"error" withObject:event errorCode:[error code] message:message];
 	}
 }
 

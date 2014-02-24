@@ -1,0 +1,41 @@
+---
+name: Titanium.Android.BroadcastReceiver
+summary: | 
+    The Titanium binding of an 
+    [Android Broadcast Receiver](http://developer.android.com/reference/android/content/BroadcastReceiver.html).
+description: |
+    This object is used for broadcast receivers.
+
+    See the official Android documentation on 
+    [Broadcast Receivers](http://developer.android.com/reference/android/content/BroadcastReceiver.html).
+    for an overview of how broadcast receivers are used.
+
+    Broadcast receivers can be created with an onReceived callback or a url property that refers to a js file
+    with code to handle broadcasts. If both url and onReceived properties are defined, the url property takes precedence.
+
+extends: Titanium.Proxy
+since: "3.1.0"
+platforms: [android]
+
+properties:
+
+  - name: onReceived
+    summary: The function called when a broadcast is received.
+    type: Callback<Object>
+
+  - name: url
+    summary: The url of js file to handle the broadcast
+    type: String
+
+examples:
+  - title: Create and register and broadcast receiver
+    example: |
+        This example creates a broadcast receiver and registers it to handle the airplane mode broadcast.
+
+            var bc = Ti.Android.createBroadcastReceiver({
+                onReceived: function() {
+                    Ti.API.info('Handling broadcast.');
+                }
+            });
+            
+            Ti.Android.registerBroadcastReceiver(bc, [Ti.Android.ACTION_AIRPLANE_MODE_CHANGED]);

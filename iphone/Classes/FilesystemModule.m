@@ -28,11 +28,16 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	return [TiUtils stringValue:arg];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Filesystem";
+}
+
 -(NSString*)pathFromComponents:(NSArray*)args
 {
 	NSString * newpath;
 	id first = [args objectAtIndex:0];
-	if ([first hasPrefix:@"file://localhost/"])
+	if ([first hasPrefix:@"file://"])
 	{
 		NSURL * fileUrl = [NSURL URLWithString:first];
 		//Why not just crop? Because the url may have some things escaped that need to be unescaped.

@@ -10,11 +10,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.util.KrollStreamHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Application;
+import android.content.ContextWrapper;
 import android.os.Environment;
 
 /**
@@ -27,19 +28,23 @@ public class TiDeployData
 
 	protected static final String DEBUGGER_ENABLED = "debuggerEnabled";
 	protected static final String DEBUGGER_PORT = "debuggerPort";
+	protected static final String PROFILER_ENABLED = "profilerEnabled";
+	protected static final String PROFILER_PORT = "profilerPort";
 	protected static final String FASTDEV_PORT = "fastdevPort";
 	protected static final String FASTDEV_LISTEN = "fastdevListen";
 
+	private KrollApplication krollApp;
 	private JSONObject deployData;
 
 	/**
 	 * Parses the deploy.json file if it exists
 	 */
-	public TiDeployData(Application app)
+	public TiDeployData(KrollApplication app)
 	{
 		File extStorage = Environment.getExternalStorageDirectory();
-		File deployJson = new File(new File(extStorage, app.getPackageName()), "deploy.json");
+		File deployJson = new File(new File(extStorage, ((ContextWrapper) app).getPackageName()), "deploy.json");
 
+		krollApp = app;
 		if (deployJson.exists()) {
 			readDeployData(deployJson);
 		}
@@ -65,7 +70,7 @@ public class TiDeployData
 	 */
 	public boolean isDebuggerEnabled()
 	{
-		if (deployData == null) {
+		if (isDeployTypeDisabled()) {
 			return false;
 		}
 
@@ -77,7 +82,7 @@ public class TiDeployData
 	 */
 	public int getDebuggerPort()
 	{
-		if (deployData == null) {
+		if (isDeployTypeDisabled()) {
 			return -1;
 		}
 
@@ -85,11 +90,35 @@ public class TiDeployData
 	}
 
 	/**
+	 * @return Whether or not the profiler server is enabled
+	 */
+	public boolean isProfilerEnabled()
+	{
+		if (isDeployTypeDisabled()) {
+			return false;
+		}
+
+		return deployData.optBoolean(PROFILER_ENABLED, false);
+	}
+
+	/**
+	 * @return The profiler server port, or -1
+	 */
+	public int getProfilerPort()
+	{
+		if (isDeployTypeDisabled()) {
+			return -1;
+		}
+
+		return deployData.optInt(PROFILER_PORT, -1);
+	}
+
+	/**
 	 * @return The "fastdev" http server port, or -1
 	 */
 	public int getFastDevPort()
 	{
-		if (deployData == null) {
+		if (isDeployTypeDisabled()) {
 			return -1;
 		}
 
@@ -102,10 +131,20 @@ public class TiDeployData
 	 */
 	public boolean getFastDevListen()
 	{
-		if (deployData == null) {
+		if (isDeployTypeDisabled()) {
 			return false;
 		}
 
 		return deployData.optBoolean(FASTDEV_LISTEN, false);
+	}
+
+	private boolean isDeployTypeDisabled()
+	{
+		String deployType = null;
+		if (krollApp != null) {
+			deployType = krollApp.getDeployType();
+		}
+
+		return (deployData == null || "production".equals(deployType));
 	}
 }

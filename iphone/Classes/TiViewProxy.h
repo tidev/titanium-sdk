@@ -7,6 +7,7 @@
 #import "TiProxy.h"
 #import "TiUIView.h"
 #import "TiRect.h"
+#import "TiViewTemplate.h"
 #import <pthread.h>
 
 /**
@@ -36,7 +37,7 @@
 /**
  Tells if this proxy is currently focused
  */
-- (BOOL)focused;
+- (BOOL)focused:(id)unused;
 
 #pragma mark Private internal APIs.
 
@@ -62,6 +63,11 @@
 
 @end
 
+@protocol TiViewEventOverrideDelegate <NSObject>
+@required
+- (NSDictionary *)overrideEventObject:(NSDictionary *)eventObject forEvent:(NSString *)eventType fromViewProxy:(TiViewProxy *)viewProxy;
+
+@end
 
 #pragma mark dirtyflags used by TiViewProxy
 #define NEEDS_LAYOUT_CHILDREN	1
@@ -142,6 +148,7 @@ enum
     NSMutableDictionary *layoutPropDictionary;
     
     id observer;
+	id<TiViewEventOverrideDelegate> eventOverrideDelegate;
 }
 
 #pragma mark public API
@@ -167,7 +174,7 @@ enum
 -(void)updateLayout:(id)arg;//Deprecated since 3.0.0
 -(void)setTempProperty:(id)propVal forKey:(id)propName;
 -(void)processTempProperties:(NSDictionary*)arg;
-
+-(BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check;
 -(void)setProxyObserver:(id)arg;
 
 /**
@@ -181,6 +188,12 @@ enum
  @param arg A single proxy to remove.
  */
 -(void)remove:(id)arg;
+
+/**
+ Tells the view proxy to remove all child proxies.
+ @param arg Ignored.
+ */
+-(void)removeAllChildren:(id)arg;
 
 /**
  Tells the view proxy to set visibility on a child proxy to _YES_.
@@ -249,6 +262,8 @@ enum
 
 //NOTE: DO NOT SET VIEW UNLESS IN A TABLE VIEW, AND EVEN THEN.
 @property(nonatomic,readwrite,retain)TiUIView * view;
+
+@property (nonatomic,readwrite,assign) id<TiViewEventOverrideDelegate> eventOverrideDelegate;
 
 /**
  Returns language conversion table.
@@ -371,26 +386,6 @@ enum
  @see viewWillDetach
  */
 -(void)viewDidDetach;
-/**
- Tells the view proxy that parent will appear 
- @see UIViewController viewWillAppear.
- */
--(void)parentWillAppear:(id)args;
-/**
- Tells the view proxy that parent did appear 
- @see UIViewController viewDidAppear.
- */
--(void)parentDidAppear:(id)args;
-/**
- Tells the view proxy that parent will disappear 
- @see UIViewController viewWillDisappear.
- */
--(void)parentWillDisappear:(id)args;
-/**
- Tells the view proxy that parent did appear 
- @see UIViewController viewDidDisappear.
- */
--(void)parentDidDisappear:(id)args;
 
 #pragma mark Housecleaning state accessors
 //TODO: Sounds like the redundancy department of redundancy was here.
@@ -576,13 +571,15 @@ enum
 -(void)relayout;
 
 -(void)reposition;	//Todo: Replace
-
--(BOOL)willBeRelaying;	//Todo: Replace
+/**
+ Tells if the view is enqueued in the LayoutQueue
+ */
+-(BOOL)willBeRelaying;
 
 -(BOOL) widthIsAutoFill;
 -(BOOL) widthIsAutoSize;
 -(BOOL) heightIsAutoFill;
--(BOOL) heightIsAutoFill;
+-(BOOL) heightIsAutoSize;
 -(BOOL) belongsToContext:(id<TiEvaluator>) context;
 
 /**
@@ -590,6 +587,9 @@ enum
  @param child The child view
  */
 -(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
+
+- (void)unarchiveFromTemplate:(id)viewTemplate;
++ (TiViewProxy *)unarchiveFromTemplate:(id)viewTemplate inContext:(id<TiEvaluator>)context;
 
 @end
 

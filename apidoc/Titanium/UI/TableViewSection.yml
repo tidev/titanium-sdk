@@ -16,9 +16,22 @@ description: |
     
     In order for a section to be visible, either its `headerTitle` or `headerView` property must be 
     configured. 
-    
-    Be aware that adding or removing sections individually is not supported. Instead, use the 
-    `TableView` [setData](Titanium.UI.TableView.setData) method to refresh the whole table with a 
+
+    Starting in Release 3.0, you can directly manipulate the sections in a table using the
+    following `TableView` APIs:
+
+    * To set all sections in a table view at one time, use the `TableView`
+    [sections](Titanium.UI.TableView.sections) property.
+    * To add an individual section after a table view is rendered, use either the `TableView`
+    [insertSectionBefore](Titanium.UI.TableView.insertSectionBefore)
+    or [insertSectionAfter](Titanium.UI.TableView.insertSectionAfter) method.
+    * To add one or more sections to the end of a table view after it is rendered, use the `TableView`
+    [appendSection](Titanium.UI.TableView.appendSection) method.
+    * To remove an individual section after a table view is rendered, use the `TableView`
+    [deleteSection](Titanium.UI.TableView.deleteSection) method.
+
+    Prior to Release 3.0, adding or removing sections individually is not supported. Instead, use the
+    `TableView` [data](Titanium.UI.TableView.data) property to refresh the whole table with a
     new section layout. 
     
     See the description and examples sections of [TableView](Titanium.UI.TableView) for more details 
@@ -78,6 +91,7 @@ methods:
       - name: index
         summary: Section index of a row.
         type: Number
+    exclude-platforms: [blackberry]
 
 properties:
   - name: footerTitle
@@ -87,6 +101,7 @@ properties:
         
         On Android, must be set at creation.
     type: String
+    exclude-platforms: [blackberry]
     
   - name: footerView
     summary: View to use for this section footer.
@@ -95,6 +110,7 @@ properties:
         
         On Android, must be set at creation. 
     type: Titanium.UI.View
+    exclude-platforms: [blackberry]
     
   - name: headerTitle
     summary: Title of this section header.
@@ -111,13 +127,16 @@ properties:
         
         On Android, must be set at creation.
     type: Titanium.UI.View
+    exclude-platforms: [blackberry]
     
   - name: rowCount
     summary: Number of rows in this section.
     type: Number
     permission: read-only
+    exclude-platforms: [blackberry]
     
   - name: rows
     summary: Rows in this section.
     type: Array<Titanium.UI.TableViewRow>
     permission: read-only
+    exclude-platforms: [blackberry]

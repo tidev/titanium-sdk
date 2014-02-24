@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -158,6 +158,14 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
+	public void releaseViewsForActivityForcedToDestroy()
+	{
+		super.releaseViews();
+		if (window != null) {
+			window.releaseViews();
+		}
+	}
+
 	/**
 	 * Get the color of the tab when it is active.
 	 *
@@ -200,6 +208,8 @@ public class TabProxy extends TiViewProxy
 	{
 		// Windows are lazily opened when the tab is first focused.
 		if (window != null && !windowOpened) {
+			// Need to handle the url window in the JS side.
+			window.callPropertySync(TiC.PROPERTY_LOAD_URL, null);
 			windowOpened = true;
 			window.fireEvent(TiC.EVENT_OPEN, null, false);
 		}
@@ -223,10 +233,15 @@ public class TabProxy extends TiViewProxy
 		
 	}
 
-	void close() {
+	void close(boolean activityIsFinishing) {
 		if (windowOpened && window != null) {
 			windowOpened = false;
-			window.fireSyncEvent(TiC.EVENT_CLOSE, null);
+			KrollDict data = null;
+			if (!activityIsFinishing) {
+				data = new KrollDict();
+				data.put("_closeFromActivityForcedToDestroy", true);
+			}
+			window.fireSyncEvent(TiC.EVENT_CLOSE, data);
 		}
 	}
 
@@ -235,4 +250,9 @@ public class TabProxy extends TiViewProxy
 		((TiUIAbstractTab) view).onSelectionChange(selected);
 	}
 
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.Tab";
+	}
 }

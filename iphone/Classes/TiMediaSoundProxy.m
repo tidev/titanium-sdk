@@ -48,6 +48,11 @@
     });
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Media.Sound";
+}
+
 -(void)_destroy
 {
 	if (player != nil) {
@@ -73,7 +78,7 @@
 -(void)play:(id)args
 {
     [self rememberSelf];
-    dispatch_async(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread(^{
         // indicate we're going to start playback
         if (![[TiMediaAudioSession sharedSession] canPlayback]) {
             [self throwException:@"Improper audio session mode for playback"
@@ -86,12 +91,12 @@
         }
         [[self player] play];
         paused = NO;
-    });
+    }, NO);
 }
 
 -(void)stop:(id)args
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread(^{
         if (player != nil) {
             if ([player isPlaying] || paused) {
                 [player stop];
@@ -101,24 +106,24 @@
         }
         resumeTime = 0;
         paused = NO;
-    });
+    }, NO);
 }
 
 -(void)pause:(id)args
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread(^{
         if (player != nil) {
             if ([player isPlaying]) {
                 [player pause];
                 paused = YES;
             }
         }
-    });
+    }, NO);
 }
 
 -(void)reset:(id)args
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread(^{
         if (player != nil) {
             if (!([player isPlaying] || paused)) {
                 [[TiMediaAudioSession sharedSession] startAudioSession];
@@ -130,7 +135,7 @@
         }
         resumeTime = 0;
         paused = NO;
-    });
+    }, NO);
 }
 
 -(void)release:(id)args
@@ -303,8 +308,8 @@
 - (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag
 {
 	if ([self _hasListeners:@"complete"]) {
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(flag),@"success",nil];
-		[self fireEvent:@"complete" withObject:event];
+		NSString * message = flag?nil:@"could not decode the audio data";
+		[self fireEvent:@"complete" withObject:nil errorCode:(flag?0:-1) message:message];
 	}
 	if (flag) {
 		[[TiMediaAudioSession sharedSession] stopAudioSession];
@@ -330,8 +335,9 @@
 - (void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player error:(NSError *)error
 {
 	if ([self _hasListeners:@"error"]) {
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[error description],@"message",nil];
-		[self fireEvent:@"error" withObject:event];
+		NSString * message = [TiUtils messageFromError:error];
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:message,@"message",nil];
+		[self fireEvent:@"error" withObject:event errorCode:[error code] message:message];
 	}
     [self forgetSelf];
 }

@@ -14,6 +14,7 @@
 
 namespace titanium {
 
+// The base class for all Titanium proxy objects.
 class Proxy : public JavaObject
 {
 public:

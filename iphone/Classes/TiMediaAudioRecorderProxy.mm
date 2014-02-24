@@ -10,6 +10,7 @@
 #import "TiUtils.h"
 #import "TiFile.h"
 #import "TiMediaAudioSession.h"
+#import "TiFilesystemFileProxy.h"
 
 @implementation TiMediaAudioRecorderProxy
 
@@ -53,6 +54,11 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionInterruptionBegin object:[TiMediaAudioSession sharedSession]];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionInterruptionEnd object:[TiMediaAudioSession sharedSession]];
 	[super _destroy];
+}
+
+-(NSString*)apiName
+{
+    return @"Ti.Media.AudioRecorder";
 }
 
 -(AQRecorder*)recorder
@@ -148,7 +154,7 @@
 			recorder->StopRecord();
 			[[TiMediaAudioSession sharedSession] stopAudioSession];
 		}
-		return file;
+		return [[[TiFilesystemFileProxy alloc] initWithFile:[file path]] autorelease];
 	}
 	
 	return nil;

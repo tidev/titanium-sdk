@@ -7,7 +7,7 @@ methods:
   - name: geolocate
     summary: Locate a mobile device based on the IP address of the device.
     description: |
-        See [Clients: Geolocate a Client](http://cloud.appcelerator.com/docs/api/v1/clients/geolocate)
+        See [Clients: Geolocate a Client](http://docs.appcelerator.com/cloud/latest/#!/api/Clients-method-geolocate)
         for the request parameters supported by this method.
         
         Data is returned in the properties of the parameter passed to the callback.
@@ -30,12 +30,12 @@ examples:
                 ip_address: clientIPAddress
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
-                        'ip_address: ' + e.ip_address + '\\n' +
-                        'latitude: ' + e.location.latitude + '\\n' +
+                    alert('Success:\n' +
+                        'ip_address: ' + e.ip_address + '\n' +
+                        'latitude: ' + e.location.latitude + '\n' +
                         'longitude: ' + e.location.longitude);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

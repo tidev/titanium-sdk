@@ -7,7 +7,7 @@ summary: Represents a notation declared in the DTD.  Implements the
     [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-5431D1B9) implementation on Mobile Web.
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 properties:
   - name: publicId
     summary: The public identifier of this notation. If the public identifier was not specified, this is `null`.

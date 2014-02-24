@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,12 +18,15 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 
+import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
+import android.os.Message;
 
 @Kroll.proxy(propertyAccessors = {
-	"onCreateOptionsMenu",
-	"onPrepareOptionsMenu"
+	TiC.PROPERTY_ON_CREATE_OPTIONS_MENU,
+	TiC.PROPERTY_ON_PREPARE_OPTIONS_MENU
 })
 /**
  * This is a proxy representation of the Android Activity type.
@@ -34,10 +37,14 @@ public class ActivityProxy extends KrollProxy
 	implements TiActivityResultHandler
 {
 	private static final String TAG = "ActivityProxy";
+	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
+	private static final int MSG_INVALIDATE_OPTIONS_MENU = MSG_FIRST_ID + 100;
+	private static final int MSG_OPEN_OPTIONS_MENU = MSG_FIRST_ID + 101;
 
 	protected Activity wrappedActivity;
 	protected IntentProxy intentProxy;
 	protected DecorViewProxy savedDecorViewProxy;
+	protected ActionBarProxy actionBarProxy;
 
 	private KrollFunction resultCallback;
 	
@@ -145,6 +152,24 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
+	public void sendBroadcast(IntentProxy intent)
+	{
+		Activity activity = getWrappedActivity();
+		if (activity != null) {
+			activity.sendBroadcast(intent.getIntent());
+		}
+	}
+
+	@Kroll.method
+	public void sendBroadcastWithPermission(IntentProxy intent, @Kroll.argument(optional = true) String receiverPermission)
+	{
+		Activity activity = getWrappedActivity();
+		if (activity != null) {
+			activity.sendBroadcast(intent.getIntent(), receiverPermission);
+		}
+	}
+	
+	@Kroll.method
 	public String getString(int resId, Object[] formatArgs)
 	{
 		Activity activity = getWrappedActivity();
@@ -217,15 +242,53 @@ public class ActivityProxy extends KrollProxy
 		TiBaseActivity tiActivity = (TiBaseActivity) activity;
 		return tiActivity.getWindowProxy();
 	}
-    
-    @Kroll.method
-    public void openOptionsMenu()
-    {
-        Activity activity = getWrappedActivity();
-        activity.openOptionsMenu();
-    }
 
-	
+	@Kroll.method @Kroll.getProperty
+	public ActionBarProxy getActionBar()
+	{
+		ActionBarActivity activity = (ActionBarActivity) getWrappedActivity();
+		if (actionBarProxy == null && activity != null) {
+			actionBarProxy = new ActionBarProxy(activity);
+		}
+		return actionBarProxy;
+	}
+
+	@Kroll.method
+	public void openOptionsMenu()
+	{
+		if (TiApplication.isUIThread()) {
+			handleOpenOptionsMenu();
+		} else {
+			getMainHandler().obtainMessage(MSG_OPEN_OPTIONS_MENU).sendToTarget();
+		}
+	}
+
+	@Kroll.method
+	public void invalidateOptionsMenu()
+	{
+		if (TiApplication.isUIThread()) {
+				handleInvalidateOptionsMenu();
+		} else {
+				getMainHandler().obtainMessage(MSG_INVALIDATE_OPTIONS_MENU).sendToTarget();
+		}
+	}
+
+	private void handleOpenOptionsMenu()
+	{
+		Activity activity = getWrappedActivity();
+		if (activity != null) {
+			activity.openOptionsMenu();
+		}
+	}
+
+	private void handleInvalidateOptionsMenu()
+	{
+		Activity activity = getWrappedActivity();
+		if (activity != null && activity instanceof ActionBarActivity) {
+			((ActionBarActivity)activity).supportInvalidateOptionsMenu();
+		}
+	}
+
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 	{
 		IntentProxy intent = null;
@@ -245,7 +308,7 @@ public class ActivityProxy extends KrollProxy
 	{
 		KrollDict event = new KrollDict();
 		event.put(TiC.EVENT_PROPERTY_REQUEST_CODE, requestCode);
-		event.put(TiC.EVENT_PROPERTY_ERROR, e.getMessage());
+		event.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, e.getMessage());
 		event.put(TiC.EVENT_PROPERTY_SOURCE, this);
 		this.resultCallback.callAsync(krollObject, event);
 	}
@@ -254,5 +317,27 @@ public class ActivityProxy extends KrollProxy
 	{
 		super.release();
 		wrappedActivity = null;
+	}
+
+	@Override
+	public boolean handleMessage(Message msg)
+	{
+		switch (msg.what) {
+			case MSG_INVALIDATE_OPTIONS_MENU: {
+				handleInvalidateOptionsMenu();
+				return true;
+			}
+			case MSG_OPEN_OPTIONS_MENU: {
+				handleOpenOptionsMenu();
+				return true;
+			}
+		}
+		return super.handleMessage(msg);
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Android.Activity";
 	}
 }

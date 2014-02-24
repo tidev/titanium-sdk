@@ -256,28 +256,38 @@ module.exports = new function() {
 		return tabs;
 	};
 
-	this.setCurrentTiSdk = function() {
+	this.setTargetTiSdk = function() {
 		var latestTime = 0,
-		latestDir;
+			versionDir,
+			requestedVersion = this.getArgument(process.argv, "--sdk-version"),
+			files = fs.readdirSync(path.resolve(driverGlobal.config.tiSdkDirs)),
+			i = 0;
 
-		var files = fs.readdirSync(path.resolve(driverGlobal.config.tiSdkDirs));
-		for (var i = 0; i < files.length; i++) {
+		for (; i < files.length; i++) {
+			if (files[i] === requestedVersion) {
+				versionDir = requestedVersion;
+				break;
+			}
 			var stat = fs.statSync(path.resolve(driverGlobal.config.tiSdkDirs, files[i])),
 			modifiedTime = stat.mtime.getTime();
 
 			if (modifiedTime > latestTime) {
 				latestTime = modifiedTime;
-				latestDir = files[i];
+				versionDir = files[i];
 			}
 		}
 
-		if (typeof latestDir === "undefined") {
+		if (typeof versionDir === "undefined") {
 			console.log("unable to find a valid SDK");
 			process.exit(1);
 
 		} else {
-			console.log("using Titanium SDK version <" + latestDir + ">");
-			driverGlobal.config.currentTiSdkDir = path.resolve(driverGlobal.config.tiSdkDirs, latestDir);
+			if (requestedVersion && requestedVersion !== versionDir) {
+				console.log("Titanium SDK version <" + requestedVersion + "> was requested but not found");
+			}
+
+			console.log("using Titanium SDK version <" + versionDir + ">");
+			driverGlobal.config.targetTiSdkDir = path.resolve(driverGlobal.config.tiSdkDirs, versionDir);
 		}
 	};
 
@@ -310,14 +320,20 @@ module.exports = new function() {
 			callback(null);
 		});
 		sourceStream.on("error", function(exception) {
-			console.log("error occurred when reading from source stream");
+			console.log("error occurred when reading from source stream for file " + sourceFilePath);
 			callback(exception);
 		});
 
 		destStream = fs.createWriteStream(destFilePath);
 		destStream.on("error", function() {
-			console.log("error occurred when writing to source stream");
+			console.log("error occurred when writing to destination stream for file " + destFilePath);
 		});
 		sourceStream.pipe(destStream);
+	};
+
+	this.copyFileSync = function(sourceFilePath, destFilePath) {
+		// It's the caller's responsibility to ensure that the containing
+		// directory of destFilePath exists.
+		fs.writeFileSync(destFilePath, fs.readFileSync(sourceFilePath));
 	};
 };

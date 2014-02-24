@@ -17,6 +17,8 @@ def generateJSON(projectDir, outFile):
 	index = {}
 	for dirpath, dirnames, filenames in os.walk(projectDir):
 		for name in filenames:
+			if os.environ.has_key('LIVEVIEW') and name == 'liveview.js':
+				name = '_app.js'
 			relative_path = dirpath[len(projectDir)+1:].replace("\\", "/")
 			file_path = "/".join([relative_path , name])
 			index[file_path] = 1

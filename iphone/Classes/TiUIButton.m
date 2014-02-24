@@ -91,9 +91,9 @@
 	[button setBackgroundImage:backgroundImageUnstretchedCache forState:UIControlStateNormal];	
 }
 
--(void)layoutSubviews
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	[super layoutSubviews];
+	[super frameSizeChanged:frame bounds:bounds];
 	[self updateBackgroundImage];
 }
 
@@ -117,7 +117,7 @@
             touchStarted = NO;
             fireEvent = @"touchend";
             if (button.highlighted) {
-                fireActionEvent = [touch tapCount] < 2 ? @"click" : @"dblclick";
+                fireActionEvent = [touch tapCount] == 1 ? @"click" : ([touch tapCount] == 2 ? @"dblclick" : nil);
             }
             break;
         case UITouchPhaseCancelled:
@@ -304,6 +304,34 @@
 			[b setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
 		}
 	}
+}
+
+-(void)setDisabledColor_:(id)color
+{
+    if (color!=nil) {
+        TiColor *selColor = [TiUtils colorValue:color];
+        UIButton *b = [self button];
+        if (selColor!=nil) {
+            [b setTitleColor:[selColor _color] forState:UIControlStateDisabled];
+        }
+    }
+}
+
+-(void)setShadowColor_:(id)color
+{
+    if (color==nil) {
+        [[self button] setTitleShadowColor:nil forState:UIControlStateNormal];
+    } else {
+        color = [TiUtils colorValue:color];
+        [[self button] setTitleShadowColor:[color color] forState:UIControlStateNormal];
+    }
+}
+
+-(void)setShadowOffset_:(id)value
+{
+	CGPoint p = [TiUtils pointValue:value];
+	CGSize size = {p.x,p.y};
+	[[[self button] titleLabel] setShadowOffset:size];
 }
 
 -(void)setTextAlign_:(id)align

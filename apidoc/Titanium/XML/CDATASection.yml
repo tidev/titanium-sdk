@@ -10,4 +10,4 @@ description: |
     [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-667469212) implementation on Mobile Web. On Mobile
     Web, there is no Titanium.XML.CDATASection object. A string object containing the data is used directly instead.
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]

@@ -6,13 +6,16 @@
  */
 package org.appcelerator.titanium.util;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.appcelerator.kroll.common.Log;
 
 import android.graphics.Color;
+import android.os.Build;
 
 /**
  * This class contain utility methods that converts a String color, like "red", into its corresponding RGB/RGBA representation.
@@ -25,6 +28,8 @@ public class TiColorHelper
 
 	private static final String TAG = "TiColorHelper";
 	private static HashMap<String, Integer> colorTable;
+	private static List<String> alphaMissingColors = Arrays.asList(new String[] {"aqua", "fuchsia", "lime", "maroon", "navy", "olive", "purple", "silver", "teal"});
+	
 
 	/**
 	 * Convert string representations of colors, like "red" into the corresponding RGB/RGBA representation.
@@ -32,7 +37,7 @@ public class TiColorHelper
 	 * @return the RGB/RGBA representation (int) of the color.
 	 */
 	public static int parseColor(String value) {
-		int color = Color.YELLOW; // Something noticeable
+		int color = Color.TRANSPARENT;
 		if (value != null) {
 			String lowval = value.trim().toLowerCase();
 
@@ -62,7 +67,15 @@ public class TiColorHelper
 			} else {
 				// Try the parser, will throw illegalArgument if it can't parse it.
 				try {
-					color = Color.parseColor(lowval);
+					// In 4.3, Google introduced some new string color constants and they forgot to
+					// add the alpha bits to them! This is a temporary workaround 
+					// until they fix it. I've created a Google ticket for this:
+					// https://code.google.com/p/android/issues/detail?id=58352&thanks=58352
+					if (Build.VERSION.SDK_INT > 17 && alphaMissingColors.contains(lowval)) {
+						color = Color.parseColor(lowval) | 0xFF000000;
+					} else {
+						color = Color.parseColor(lowval);
+					}
 				} catch (IllegalArgumentException e) {
 					if (colorTable == null) {
 						buildColorTable();
@@ -81,7 +94,7 @@ public class TiColorHelper
 
 	private static void buildColorTable() {
 		synchronized(TiColorHelper.class) {
-			colorTable = new HashMap<String, Integer>(16);
+			colorTable = new HashMap<String, Integer>(20);
 
 			colorTable.put("black", Color.BLACK);
 			colorTable.put("red", Color.RED);
@@ -102,6 +115,7 @@ public class TiColorHelper
 			colorTable.put("silver", Color.rgb(0xc0, 0xc0, 0xc0));
 			colorTable.put("olive", Color.rgb(0x80, 0x80, 0));
 			colorTable.put("teal", Color.rgb(0x0, 0x80, 0x80));
+			colorTable.put("brown", Color.rgb(0x99, 0x66, 0x33));
 		}
 	}
 }

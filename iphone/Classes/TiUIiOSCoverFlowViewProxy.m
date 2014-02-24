@@ -17,6 +17,11 @@ NSArray* coverflowKeySequence;
 
 DEFINE_DEF_INT_PROP(selected, 0);
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iOS.CoverFlowView";
+}
+
 -(NSArray*)keySequence
 {
 	if (coverflowKeySequence == nil) {

@@ -6,6 +6,7 @@
  */
 
 #import "TiDataStream.h"
+#import "TiUtils.h"
 
 @implementation TiDataStream
 @synthesize data, mode;
@@ -41,7 +42,11 @@
     // TODO: Codify in read() and write() when we have every method calling the wrappers... like it should.
     if ([[toBuffer data] length] == 0  && length != 0) {
         if (callback != nil) {
-            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(0),@"bytesProcessed", NUMINT(0),@"errorState",@"",@"errorDescription", nil];
+			NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+			[event setObject:self forKey:@"source"];
+			[event setObject:NUMINT(0) forKey:@"bytesProcessed"];
+			[event setObject:NUMINT(0) forKey:@"errorState"];
+			[event setObject:@"" forKey:@"errorDescription"];
             [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
         }
         return 0;
@@ -50,7 +55,11 @@
     // TODO: Throw exception, or no-op?  For now, assume NO-OP
     if (position >= [data length]) {
         if (callback != nil) {
-            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(-1),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription", nil];
+			NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+			[event setObject:self forKey:@"source"];
+			[event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
+			[event setObject:NUMINT(0) forKey:@"errorState"];
+			[event setObject:@"" forKey:@"errorDescription"];
             [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
         }        
         return -1;
@@ -70,7 +79,11 @@
     position += bytesToWrite;
     
     if (callback != nil) {
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(bytesToWrite),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription", nil];
+		NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:self forKey:@"source"];
+		[event setObject:NUMINT(bytesToWrite) forKey:@"bytesProcessed"];
+		[event setObject:NUMINT(0) forKey:@"errorState"];
+		[event setObject:@"" forKey:@"errorDescription"];
         [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
     }
     
@@ -91,7 +104,11 @@
         NSString* errorStr = [NSString stringWithFormat:@"[ERROR] Attempt to write to unwritable stream"];
         DebugLog(errorStr);
         if (callback != nil) {
-            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(-1),@"bytesProcessed",errorStr,@"errorDescription",NUMINT(-1),@"errorState", nil];
+			NSMutableDictionary* event = [TiUtils dictionaryWithCode:-1 message:errorStr];
+			[event setObject:self forKey:@"source"];
+			[event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
+			[event setObject:errorStr forKey:@"errorDescription"];
+			[event setObject:NUMINT(-1) forKey:@"errorState"];
             [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
         }
         return -1;   
@@ -100,7 +117,11 @@
     // TODO: Codify in read() and write() when we have every method calling the wrappers... like it should.
     if ([[fromBuffer data] length] == 0) {
         if (callback != nil) {
-            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(0),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription", nil];
+			NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+			[event setObject:self forKey:@"source"];
+			[event setObject:NUMINT(0) forKey:@"bytesProcessed"];
+			[event setObject:NUMINT(0) forKey:@"errorState"];
+			[event setObject:@"" forKey:@"errorDescription"];
             [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
         }
         return 0;
@@ -128,7 +149,11 @@
 
     
     if (callback != nil) {
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(length),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription",nil];
+		NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:self forKey:@"source"];
+		[event setObject:NUMINT(length) forKey:@"bytesProcessed"];
+		[event setObject:NUMINT(0) forKey:@"errorState"];
+		[event setObject:@"" forKey:@"errorDescription"];
         [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
     }
     
@@ -167,7 +192,12 @@
             // 2. # bytes produced as part of the write
             // In the exception.
             if (callback != nil) {
-                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"fromStream",output,@"toStream",NUMINT(totalBytes),@"bytesWritten",[e reason],@"errorDescription", NUMINT(-1),@"errorState",nil];
+				NSMutableDictionary* event = [TiUtils dictionaryWithCode:-1 message:[e reason]];
+				[event setObject:self forKey:@"fromStream"];
+				[event setObject:output forKey:@"toStream"];
+				[event setObject:NUMINT(totalBytes) forKey:@"bytesWritten"];
+				[event setObject:[e reason] forKey:@"errorDescription"];
+				[event setObject:NUMINT(-1) forKey:@"errorState"];
                 [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
             }
             else {
@@ -183,7 +213,12 @@
     }
     
     if (callback != nil) {
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"fromStream",output,@"toStream",NUMINT(totalBytes),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription",nil];
+		NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:self forKey:@"fromStream"];
+		[event setObject:output forKey:@"toStream"];
+		[event setObject:NUMINT(totalBytes) forKey:@"bytesProcessed"];
+		[event setObject:NUMINT(0) forKey:@"errorState"];
+		[event setObject:@"" forKey:@"errorDescription"];
         [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
     }
     
@@ -210,7 +245,14 @@
         int bytesToWrite = MIN(size, length-position);
         void* destination = malloc(bytesToWrite);
 		if (destination == NULL) {
-			NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",[NSNull null],@"buffer",NUMINT(-1),@"bytesProcessed",NUMINT(totalBytes),@"totalBytesProcessed", NUMINT(1),@"errorState",@"Memory allocation failure",@"errorDescription", nil];
+			NSString * message = @"Memory allocation failure";
+			NSMutableDictionary* event = [TiUtils dictionaryWithCode:-1 message:message];
+			[event setObject:self forKey:@"source"];
+			[event setObject:[NSNull null] forKey:@"buffer"];
+			[event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
+			[event setObject:NUMINT(totalBytes) forKey:@"totalBytesProcessed"];
+			[event setObject:NUMINT(1) forKey:@"errorState"];
+			[event setObject:message forKey:@"errorDescription"];
 			[self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
 			break;
 		}
@@ -220,12 +262,24 @@
         totalBytes += bytesToWrite;
         position += bytesToWrite;
         
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",tempBuffer,@"buffer",NUMINT(bytesToWrite),@"bytesProcessed",NUMINT(totalBytes),@"totalBytesProcessed", NUMINT(0),@"errorState",@"",@"errorDescription",nil];
+		NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:self forKey:@"source"];
+		[event setObject:tempBuffer forKey:@"buffer"];
+		[event setObject:NUMINT(bytesToWrite) forKey:@"bytesProcessed"];
+		[event setObject:NUMINT(totalBytes) forKey:@"totalBytesProcessed"];
+		[event setObject:NUMINT(0) forKey:@"errorState"];
+		[event setObject:@"" forKey:@"errorDescription"];
         [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
     }
     
     // We've reached the end of the stream - so we need to pump the -1 EOF
-    NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",[NSNull null],@"buffer",NUMINT(-1),@"bytesProcessed",NUMINT(totalBytes),@"totalBytesProcessed", NUMINT(0),@"errorState",@"",@"errorDescription", nil];
+	NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+	[event setObject:self forKey:@"source"];
+	[event setObject:[NSNull null] forKey:@"buffer"];
+	[event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
+	[event setObject:NUMINT(totalBytes) forKey:@"totalBytesProcessed"];
+	[event setObject:NUMINT(0) forKey:@"errorState"];
+	[event setObject:@"" forKey:@"errorDescription"];
     [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
 }
 

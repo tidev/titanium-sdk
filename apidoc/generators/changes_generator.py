@@ -8,7 +8,7 @@ import os, sys, re
 this_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(this_dir, "..")))
 
-from common import dict_has_non_empty_member
+from common import dict_has_non_empty_member, DEFAULT_PLATFORMS, pretty_platform_name, first_version_for_platform
 
 # We package the python markdown and mako modules already in /support/common
 common_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "common"))
@@ -129,13 +129,13 @@ def platforms_list_to_dict(platforms_list):
 	return platform_dict
 
 def is_new_api(annotated_obj, this_version):
+	global platform_list
+
 	# Checking for none here lets us call is_new_api(find_supertype_member(foo)) without additional checking
 	if annotated_obj is None:
 		return None
 
 	obj = annotated_obj.api_obj
-	platforms = [ "android", "iphone", "ipad", "mobileweb" ]
-	platform_names = { "android": "Android", "iphone": "iPhone", "ipad": "iPad", "mobileweb": "Mobile Web" }
 
 	if hasattr(annotated_obj, "platforms") and len(annotated_obj.platforms) > 0:
 		since = annotated_obj.platforms
@@ -160,12 +160,15 @@ def is_new_api(annotated_obj, this_version):
 
 	for platform_since in since:
 		platform_name = platform_since["name"]
+		# Omit platforms that are new this release
+		if platform_name not in platform_list:
+			continue
 		platform_version = normalize_version(platform_since["since"])
 		if platform_version == this_version:
 			if super_platforms is not None and platform_name in super_platforms and super_platforms[platform_name] == this_version:
 				existing_api = True
 			else:
-				new_for_platform.append(platform_names[platform_since["name"]])
+				new_for_platform.append(pretty_platform_name(platform_since["name"]))
 		elif platform_version < this_version:
 			existing_api = True
 
@@ -236,7 +239,7 @@ def render_template(list, type, version):
 	return output
 
 def generate(raw_apis, annotated_apis, options):
-	global all_annotated_apis, apis
+	global all_annotated_apis, apis, platform_list
 	all_annotated_apis = annotated_apis
 	apis = raw_apis
 
@@ -253,6 +256,17 @@ def generate(raw_apis, annotated_apis, options):
 	version = normalize_version(options.version)
 	outfile = "changes_%s.html" % ".".join(version)
 
+	platform_list = []
+	for platform in DEFAULT_PLATFORMS:
+		first_platform_version = first_version_for_platform(platform)
+		if first_platform_version is not None:
+			if version <= normalize_version(first_platform_version):
+				print "Skipping new platform, " + platform
+				continue
+		platform_list.append(platform)
+
+	print "Platform list is: " + str(platform_list)
+
 	# Write the output files
 	deprecated = []
 	removed = []
@@ -260,6 +274,8 @@ def generate(raw_apis, annotated_apis, options):
 	if options is not None:
 		for name in annotated_apis:
 			annotated_obj = annotated_apis[name]
+			if annotated_obj.is_pseudotype:
+				continue
 			supertype = find_supertype(annotated_obj)
 			list_names = [ "methods", "properties", "events" ]
 			

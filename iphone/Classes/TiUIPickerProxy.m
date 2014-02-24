@@ -20,7 +20,7 @@ NSArray* pickerKeySequence;
 {
 	if (pickerKeySequence == nil)
 	{
-		pickerKeySequence = [[NSArray arrayWithObjects:@"type",@"minDate",@"maxDate",nil] retain];
+		pickerKeySequence = [[NSArray arrayWithObjects:@"type",@"minDate",@"maxDate",@"minuteInterval",nil] retain];
 	}
 	return pickerKeySequence;
 }
@@ -30,6 +30,11 @@ NSArray* pickerKeySequence;
 	[self replaceValue:NUMINT(-1) forKey:@"type" notification:NO];
 	[self replaceValue:nil forKey:@"value" notification:NO];
 	[super _configure];
+}
+
+-(NSString*)apiName
+{
+    return @"Ti.UI.Picker";
 }
 
 -(void)_destroy
@@ -197,6 +202,16 @@ NSArray* pickerKeySequence;
 }
 
 #pragma mark Public APIs 
+
+- (id)value
+{
+    if (![NSThread isMainThread]) {
+		__block id result = nil;
+		TiThreadPerformOnMainThread(^{result = [[[self picker] value_] retain];}, YES);
+		return [result autorelease];
+	}
+	return [[self picker] value_];
+}
 
 -(void)add:(id)args
 {

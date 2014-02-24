@@ -19,6 +19,7 @@
 #import "TiFile.h"
 #import "TiBlob.h"
 #import "Base64Transcoder.h"
+#import "TiExceptionHandler.h"
 
 // for checking version
 #import <sys/utsname.h>
@@ -61,6 +62,40 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 
 @implementation TiUtils
 
++(TiOrientationFlags) TiOrientationFlagsFromObject:(id)args
+{
+    if (![args isKindOfClass:[NSArray class]]) {
+        return TiOrientationNone;
+    }
+    
+    TiOrientationFlags result = TiOrientationNone;
+    for (id mode in args) {
+        UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:mode def:-1];
+        switch ((int)orientation)
+        {
+            case UIDeviceOrientationPortrait:
+            case UIDeviceOrientationPortraitUpsideDown:
+            case UIDeviceOrientationLandscapeLeft:
+            case UIDeviceOrientationLandscapeRight:
+                TI_ORIENTATION_SET(result,orientation);
+                break;
+            case UIDeviceOrientationUnknown:
+                DebugLog(@"[WARN] Ti.Gesture.UNKNOWN / Ti.UI.UNKNOWN is an invalid orientation mode.");
+                break;
+            case UIDeviceOrientationFaceDown:
+                DebugLog(@"[WARN] Ti.Gesture.FACE_DOWN / Ti.UI.FACE_DOWN is an invalid orientation mode.");
+                break;
+            case UIDeviceOrientationFaceUp:
+                DebugLog(@"[WARN] Ti.Gesture.FACE_UP / Ti.UI.FACE_UP is an invalid orientation mode.");
+                break;
+            default:
+                DebugLog(@"[WARN] An invalid orientation was requested. Ignoring.");
+                break;
+        }
+    }
+    return result;
+}
+
 +(int) dpi
 {
     if ([TiUtils isIPad]) {
@@ -75,6 +110,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
         }
         return 160;
     }    
+}
+
++(BOOL)isRetinaFourInch
+{
+    return ([[UIScreen mainScreen] bounds].size.height == 568);
 }
 
 +(BOOL)isRetinaDisplay
@@ -120,6 +160,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 +(BOOL)isIOS6OrGreater
 {
     return [UIViewController instancesRespondToSelector:@selector(shouldAutomaticallyForwardRotationMethods)];
+}
+
++(BOOL)isIOS7OrGreater
+{
+    return [UIViewController instancesRespondToSelector:@selector(childViewControllerForStatusBarStyle)];
 }
 
 +(BOOL)isIPad
@@ -450,6 +495,39 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 	return [self floatValue:value def:NSNotFound];
 }
 
+/* Example:
+ shadow = {
+    offset: {
+        width: 10,
+        height: 10
+    },
+    blurRadius: 10,
+    color: 'red'
+ }
+ */
++(NSShadow*)shadowValue:(id)value
+{
+    if(![value isKindOfClass:[NSDictionary class]]) return nil;
+    
+    NSShadow *shadow = [[NSShadow alloc] init];
+
+    id offset = [value objectForKey:@"offset"];
+    if (offset != nil && [offset isKindOfClass:[NSDictionary class]]) {
+        id w = [offset objectForKey:@"width"];
+        id h = [offset objectForKey:@"height"];
+        [shadow setShadowOffset: CGSizeMake([TiUtils floatValue:w def:0], [TiUtils floatValue:h def:0])];
+    }
+    id blurRadius = [value objectForKey:@"blurRadius"];
+    if (blurRadius != nil) {
+        [shadow setShadowBlurRadius:[TiUtils floatValue:blurRadius def:0]];
+    }
+    id color = [value objectForKey:@"color"];
+    if(color != nil) {
+        [shadow setShadowColor:[[TiUtils colorValue:color] _color]];
+    }
+    return [shadow autorelease];
+}
+
 +(int)intValue:(id)value def:(int)def valid:(BOOL *) isValid {
 	if ([value respondsToSelector:@selector(intValue)])
 	{	
@@ -590,7 +668,7 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 
 	NSString *ext = [path pathExtension];
 
-	if(![ext isEqualToString:@"png"] && ![ext isEqualToString:@"jpg"])
+	if(![ext isEqualToString:@"png"] && ![ext isEqualToString:@"jpg"] && ![ext isEqualToString:@"jpeg"])
 	{ //It's not an image.
 		return url;
 	}
@@ -603,6 +681,13 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 	NSString *os = [TiUtils isIPad] ? @"~ipad" : @"~iphone";
 
 	if([TiUtils isRetinaDisplay]){
+		if ([TiUtils isRetinaFourInch]) {
+			// first try -568h@2x iphone5 specific
+			NSString *testpath = [NSString stringWithFormat:@"%@-568h@2x.%@",partial,ext];
+			if ([fm fileExistsAtPath:testpath]) {
+				return [NSURL fileURLWithPath:testpath];
+			}
+		}
 		// first try 2x device specific
 		NSString *testpath = [NSString stringWithFormat:@"%@@2x%@.%@",partial,os,ext];
 		if ([fm fileExistsAtPath:testpath])
@@ -1054,6 +1139,20 @@ If the new path starts with / and the base url is app://..., we have to massage 
 	return result;
 }
 
++(TiScriptError*) scriptErrorValue:(id)value;
+{
+	if ((value == nil) || (value == [NSNull null])){
+		return nil;
+	}
+	if ([value isKindOfClass:[TiScriptError class]]){
+		return value;
+	}
+	if ([value isKindOfClass:[NSDictionary class]]) {
+		return [[[TiScriptError alloc] initWithDictionary:value] autorelease];
+	}
+	return [[[TiScriptError alloc] initWithMessage:[value description] sourceURL:nil lineNo:0] autorelease];
+}
+
 +(UITextAlignment)textAlignmentValue:(id)alignment
 {
 	UITextAlignment align = UITextAlignmentLeft;
@@ -1306,22 +1405,96 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 	return UIBarStyleDefault;
 }
 
++(NSUInteger)extendedEdgesFromProp:(id)prop
+{
+    if (![prop isKindOfClass:[NSArray class]]) {
+        return 0;
+    }
+    
+    NSUInteger result = 0;
+    for (id mode in prop) {
+        int value = [TiUtils intValue:mode def:0];
+        switch (value) {
+            case 0:
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+            case 15:
+                result = result | value;
+                break;
+            default:
+                DebugLog(@"Invalid value passed for extendEdges %d",value);
+                break;
+        }
+    }
+    return result;
+}
+
++(void)configureController:(id)controller withObject:(id)object
+{
+    if ([self isIOS7OrGreater]) {
+        id edgesValue = nil;
+        id includeOpaque = nil;
+        id autoAdjust = nil;
+        if ([object isKindOfClass:[TiProxy class]]) {
+            edgesValue = [(TiProxy*)object valueForUndefinedKey:@"extendEdges"];
+            includeOpaque = [(TiProxy*)object valueForUndefinedKey:@"includeOpaqueBars"];
+            autoAdjust = [(TiProxy*)object valueForUndefinedKey:@"autoAdjustScrollViewInsets"];
+        } else if ([object isKindOfClass:[NSDictionary class]]){
+            edgesValue = [(NSDictionary*)object objectForKey:@"extendEdges"];
+            includeOpaque = [(NSDictionary*)object objectForKey:@"includeOpaqueBars"];
+            autoAdjust = [(NSDictionary*)object objectForKey:@"autoAdjustScrollViewInsets"];
+        } 
+        id<TiUIViewControllerIOS7Support> theController = controller;
+        
+        [theController setEdgesForExtendedLayout:[self extendedEdgesFromProp:edgesValue]];
+        [theController setExtendedLayoutIncludesOpaqueBars:[self boolValue:includeOpaque def:NO]];
+        [theController setAutomaticallyAdjustsScrollViewInsets:[self boolValue:autoAdjust def:NO]];
+    }
+}
+
+
++(CGRect)frameForController:(id)theController
+{
+    CGRect mainScreen = [[UIScreen mainScreen] bounds];
+    CGRect rect = [[UIScreen mainScreen] applicationFrame];
+    if ([TiUtils isIOS7OrGreater]) {
+        NSUInteger edges = [(id<TiUIViewControllerIOS7Support>)theController edgesForExtendedLayout];
+        //Check if I cover status bar
+        if ( ((edges & 1/*UIRectEdgeTop*/) != 0) ){
+            return mainScreen;
+        }
+    }
+    return rect;
+}
 
 +(void)applyColor:(TiColor *)color toNavigationController:(UINavigationController *)navController
 {
-	UIColor * barColor = [self barColorForColor:color];
-	UIBarStyle barStyle = [self barStyleForColor:color];
-	BOOL isTranslucent = [self barTranslucencyForColor:color];
+    UIColor * barColor = [self barColorForColor:color];
+    UIBarStyle barStyle = [self barStyleForColor:color];
+    BOOL isTranslucent = [self barTranslucencyForColor:color];
 
-	UINavigationBar * navBar = [navController navigationBar];
-	[navBar setBarStyle:barStyle];
-	[navBar setTranslucent:isTranslucent];
-	[navBar setTintColor:barColor];
+    BOOL isIOS7 = [self isIOS7OrGreater];
 
-	UIToolbar * toolBar = [navController toolbar];
-	[toolBar setBarStyle:barStyle];
-	[toolBar setTranslucent:isTranslucent];
-	[toolBar setTintColor:barColor];
+    UINavigationBar * navBar = [navController navigationBar];
+    [navBar setBarStyle:barStyle];
+    [navBar setTranslucent:isTranslucent];
+    if(isIOS7) {
+        [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
+    } else {
+        [navBar setTintColor:barColor];
+    }
+    
+    //This should not be here but in setToolBar. But keeping in place. Clean in 3.2.0
+    UIToolbar * toolBar = [navController toolbar];
+    [toolBar setBarStyle:barStyle];
+    [toolBar setTranslucent:isTranslucent];
+    if(isIOS7) {
+        [toolBar performSelector:@selector(setBarTintColor:) withObject:barColor];
+    } else {
+        [toolBar setTintColor:barColor];
+    }
 }
 
 +(NSString*)replaceString:(NSString *)string characters:(NSCharacterSet *)characterSet withString:(NSString *)replacementString
@@ -1622,6 +1795,32 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         resultImage = [image image];
     }
     return resultImage;
+}
+
++ (NSString*)messageFromError:(NSError *)error
+{
+	if (error == nil) {
+		return nil;
+	}
+	NSString * result = [error localizedDescription];
+	NSString * userInfoMessage = [[error userInfo] objectForKey:@"message"];
+	if (result == nil)
+	{
+		result = userInfoMessage;
+	}
+	else if(userInfoMessage != nil)
+	{
+		result = [result stringByAppendingFormat:@" %@",userInfoMessage];
+	}
+	return result;
+}
+
++ (NSMutableDictionary *)dictionaryWithCode:(int)code message:(NSString *)message
+{
+	return [NSMutableDictionary dictionaryWithObjectsAndKeys:
+			NUMBOOL(code==0), @"success",
+			NUMINT(code), @"code",
+			message,@"error", nil];
 }
 
 @end

@@ -149,7 +149,7 @@ public class TiFileFactory
 
 		scheme = scheme.toLowerCase();
 		if ("app".equals(scheme) || "appdata".equals(scheme) || "appdata-private".equals(scheme) ||
-			"file".equals(scheme) || "content".equals(scheme))
+			"file".equals(scheme) || "content".equals(scheme) || "android.resource".equals(scheme))
 		{
 			return true;
 		}

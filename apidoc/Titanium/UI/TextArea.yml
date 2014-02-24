@@ -65,6 +65,15 @@ properties:
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
     
+  - name: attributedString
+    summary: TextArea attributed string. 
+    description: |
+        The underlying attributed string drawn by the textArea, if set, the textArea ignores
+        the `value` property
+    type: Titanium.UI.iOS.AttributedString
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 
     description: |
@@ -87,25 +96,43 @@ properties:
         On Android and iOS, the returned default value is undefined, and on Mobile Web, the returned
         default value is `false`, but all behave as if the value is `true`.
     type: Boolean
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     
   - name: autoLink
     summary: Automatically convert text to clickable links. 
     description: |
-        In iOS, use one of the <Titanium.UI.iOS> auto-detect constants: 
+        Specify which types of items to convert by setting `autoLink` to one of the 
+        <Titanium.UI> `AUTOLINK` constants: 
+        [AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL),
+        [AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES),
+        [AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES),
+        [AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE),
+        [AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS),
+        or [AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS).
+
+        iOS supports an additional autolink type, [AUTOLINK_CALENDAR](Titanium.UI.AUTOLINK_CALENDAR).
+        
+        Multiple autolink values can be combined with a bitwise OR. For example:
+            
+            textArea.autoLink = AUTOLINK_MAP_ADDRESSES|AUTOLINK_PHONE_NUMBERS;
+
+        Prior to Release 3.0, this field used platform-specific constants. These are now
+        deprecated in favor of the `AUTOLINK` constants listed above.
+        
+        On iOS, the legacy constants are defined in <Titanium.UI.iOS>: 
         [AUTODETECT_ADDRESS](Titanium.UI.iOS.AUTODETECT_ADDRESS), 
         [AUTODETECT_ALL](Titanium.UI.iOS.AUTODETECT_ALL), 
         [AUTODETECT_CALENDAR](Titanium.UI.iOS.AUTODETECT_CALENDAR), 
         [AUTODETECT_LINK](Titanium.UI.iOS.AUTODETECT_LINK), 
         [AUTODETECT_NONE](Titanium.UI.iOS.AUTODETECT_NONE), 
-        or [AUTODETECT_PHONE](Titanium.UI.iOS.AUTODETECT_PHONE).
+        and [AUTODETECT_PHONE](Titanium.UI.iOS.AUTODETECT_PHONE).
         
-        In Android, use one of the <Titanium.UI.Android> linkify constants:
+        On Android, the legacy constants are defined in <Titanium.UI.Android>:
         [LINKIFY_ALL](Titanium.UI.Android.LINKIFY_ALL),
         [LINKIFY_EMAIL_ADDRESSES](Titanium.UI.Android.LINKIFY_EMAIL_ADDRESSES),
         [LINKIFY_MAP_ADDRESSES](Titanium.UI.Android.LINKIFY_MAP_ADDRESSES),
         [LINKIFY_PHONE_NUMBERS](Titanium.UI.Android.LINKIFY_PHONE_NUMBERS),
-        or [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
+        and [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
     type: Number
     default: <Titanium.UI.iOS.AUTODETECT_NONE> in iOS, undefined in Android
     since: {android: "3.0.0"}
@@ -148,7 +175,8 @@ properties:
         automatically enabled as soon as the user types any text in the area.
     type: Boolean
     default: false
-    
+    exclude-platforms: [blackberry]
+   
   - name: font
     summary: Font to use for text.
     type: Font
@@ -166,7 +194,18 @@ properties:
         section of wikipedia, to insert special characters and symbols.
     type: String
     default: No hint text.
-    platforms: [android]
+    platforms: [android, blackberry]
+    
+  - name: handleLinks
+    summary: Specifies if the text area should allow user interaction with the given URL in the given range of text.
+    description: |
+        When the text is specified using an attributed string and the text has an attribute of type [ATTRIBUTE_LINK](Titanium.UI.iOS.ATTRIBUTE_LINK),
+        this property controls if the system should handle that link automatically. Only valid on iOS 7 and above. 
+    type: Boolean
+    default: false
+    platforms: [iphone,ipad]
+    osver: {ios: {min: "7.0"}}
+    since: 3.2.0
     
   - name: keyboardToolbar
     summary: |
@@ -210,7 +249,7 @@ properties:
         address, you should always specify the appropriate keyboard type.
     type: Number
     default: <Titanium.UI.KEYBOARD_DEFAULT>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, blackberry]
     
   - name: maxLength
     summary: Maximum length of text field input. 
@@ -240,7 +279,7 @@ properties:
         or [RETURNKEY_YAHOO](Titanium.UI.RETURNKEY_YAHOO).
     type: Number
     default: <Titanium.UI.RETURNKEY_DEFAULT>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, blackberry]
 
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
@@ -258,7 +297,7 @@ properties:
   - name: suppressReturn
     summary: Determines if the return key should be suppressed during text entry.
     type: Boolean
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: textAlign
     summary: Text alignment within this text area.
@@ -269,6 +308,7 @@ properties:
         or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
     type: [String, Number]
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
+    exclude-platforms: [blackberry]
     
   - name: value
     summary: Value of this text area, which may be set programmatically and modified by the user.
@@ -319,6 +359,25 @@ events:
       - name: value
         summary: Value of this text area.
         type: String
+        
+  - name: link
+    summary: Fired when user interacts with a URL in the text area. See [handleLinks](Titanium.UI.TextArea.handleLinks).
+    description: |
+        The URL is set using the [ATTRIBUTE_LINK](Titanium.UI.iOS.ATTRIBUTE_LINK) property on the [attributedString](Titanium.UI.TextArea.attributedString). 
+        This event is fired even in handleLinks is set to false. Only valid on iOS7 and above.
+    properties:
+      - name: url
+        summary: The URL that is associated with this event.
+        type: String
+      - name: range
+        summary: An array of two numbers [location, length] describing the character range of the text associated with this URL.
+        type: Array
+      - name: bubbles
+        summary: This is false. This event does not bubble.
+        type: Boolean
+    platforms: [iphone,ipad]
+    osver: {ios: {min: "7.0"}}
+    since: 3.2.0
         
   - name: return
     summary: Fired when the return key is pressed on the keyboard.

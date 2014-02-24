@@ -38,6 +38,7 @@ private:
 	static std::map<std::string, jobject> externalCommonJsModules;
 	static std::map<std::string, jmethodID> commonJsSourceRetrievalMethods;
 	static std::vector<LookupFunction> externalLookups;
+	static std::map<std::string, bindings::BindEntry*> externalLookupBindings;
 
 public:
 	static void initFunctions(v8::Handle<v8::Object> exports);

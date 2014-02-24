@@ -10,7 +10,7 @@ summary: An interface extending <Titanium.XML.Node> with a set of
     [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-FF21A306) implementation on Mobile Web.
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: appendData
     summary: Append the string to the end of the character data of the node. 
