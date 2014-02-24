@@ -23,6 +23,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.widget.Button;
+import android.graphics.drawable.ScaleDrawable;
 
 public class TiUIButton extends TiUIView
 {
@@ -72,7 +73,17 @@ public class TiUIButton extends TiUIView
 
 			if (drawableRef != null) {
 				Drawable image = drawableRef.getDrawable();
-				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
+				if (d.containsKey(TiC.PROPERTY_HEIGHT) && d.getInt(TiC.PROPERTY_HEIGHT) < image.getIntrinsicHeight()) {
+					float s = (float)d.getInt(TiC.PROPERTY_HEIGHT) / image.getIntrinsicHeight();
+					int w = Math.round(image.getIntrinsicWidth()*s);
+					int h = Math.round(image.getIntrinsicHeight()*s);
+					image.setBounds(0,0,w,h);
+					ScaleDrawable sd = new ScaleDrawable(image, 0, w, h);					
+					sd.setLevel(1);
+					btn.setCompoundDrawables(sd.getDrawable(), null, null, null);
+				} else {
+					btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
+				}
 			}
 		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) || d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
 			// Reset the padding here if the background color/image is set. By default the padding will be calculated
@@ -152,7 +163,17 @@ public class TiUIButton extends TiUIView
 			}
 			if (drawableRef != null) {
 				Drawable image = drawableRef.getDrawable();
-				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
+				if (btn.getHeight() < image.getIntrinsicHeight()) {
+					float s = (float)btn.getHeight() / image.getIntrinsicHeight();		
+					int w = Math.round(image.getIntrinsicWidth()*s);
+					int h = Math.round(image.getIntrinsicHeight()*s);
+					image.setBounds(0,0,w,h);
+					ScaleDrawable sd = new ScaleDrawable(image, 0, w, h);					
+					sd.setLevel(1);
+					btn.setCompoundDrawables(sd.getDrawable(), null, null, null);
+				} else {
+					btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
+				}
 			}
 		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
 			if (newValue instanceof HashMap) {
