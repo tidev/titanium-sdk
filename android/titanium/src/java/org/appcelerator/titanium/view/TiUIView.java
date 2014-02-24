@@ -1720,11 +1720,11 @@ public abstract class TiUIView
 			return;
 		}
 
+		boolean enabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
+
 		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
-			boolean enabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
-			if (!enabled) {
-				touchable.setEnabled(false);
-			}
+			touchable.setSoundEffectsEnabled(enabled);
+			touchable.setEnabled(enabled);
 		}
 		registerTouchEvents(touchable);
 
