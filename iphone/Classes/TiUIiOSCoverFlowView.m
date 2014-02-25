@@ -140,10 +140,6 @@
 	ENSURE_TYPE_OR_NIL(args, NSArray);
 	AFOpenFlowView* flow = [self view];
 
-	if (previous >= [args count]) {
-		[self setSelected_:[NSNumber numberWithInt:[args count]-1]];
-	}
-
 	[flow setNumberOfImages:[args count]];
 	for (int i=0; i < [flow numberOfImages]; i++) {
 		[self setImage:[args objectAtIndex:i] forIndex:i];

@@ -1,6 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<style name="Theme.Titanium" parent="android:<%- flags %>">
+	<style name="Theme.AppCompat.NoTitleBar">
+		<item name="android:windowNoTitle">true</item>
+	</style>
+
+	<style name="Theme.AppCompat.NoTitleBar.Fullscreen">
+		<item name="android:windowFullscreen">true</item>
+		<item name="android:windowContentOverlay">@null</item>
+	</style>
+	
+	<style name="Theme.Titanium" parent="@style/<%- flags %>">
 		<item name="android:windowBackground">@drawable/background</item>
+		<item name="android:windowActionBar">false</item>
+	</style>
+
+	<style name="Theme.AppCompat.Translucent">
+		<item name="android:windowBackground">@android:color/transparent</item>
+		<item name="android:colorBackgroundCacheHint">@null</item>
+		<item name="android:windowIsTranslucent">true</item>
+		<item name="android:actionBarStyle">@style/Widget.AppCompat.Base.ActionBar.Solid</item>
+		<!-- AppCompat Compatibility -->
+		<item name="actionBarStyle">@style/Widget.AppCompat.Base.ActionBar.Solid</item>
+	</style>
+	
+	<style name="Theme.AppCompat.Translucent.NoTitleBar">
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowContentOverlay">@null</item>
+	</style>
+	
+	<style name="Theme.AppCompat.Translucent.NoTitleBar.Fullscreen">
+		<item name="android:windowFullscreen">true</item>
 	</style>
 </resources>

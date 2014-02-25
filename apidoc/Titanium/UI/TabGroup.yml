@@ -329,7 +329,13 @@ properties:
     default: null
     osver: {ios: {min: "7.0"}}
     platforms: [iphone,ipad]
-    
+
+  - name: title
+    summary: Title for this tabGroup.
+    type: String
+    since: '3.3.0'
+    platforms: [android]  
+ 
   - name: tabsBackgroundImage
     summary: Default background image for tabs.
     description: |

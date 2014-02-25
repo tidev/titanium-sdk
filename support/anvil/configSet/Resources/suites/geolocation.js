@@ -19,7 +19,8 @@ module.exports = new function() {
 		{name: "getPreferredProviderAppCrash"},
 		{name: "shouldBeLessThan360", timeout: 50000},
 		{name: "trueHeadingNotGenerated", timeout: 50000},
-		{name: "invalidValue"}
+		{name: "invalidValue"},
+		{name: "reverseGeocoder"}
 	]
 
 	this.getCurrentPositionException = function(testRun) {
@@ -84,5 +85,17 @@ module.exports = new function() {
 		else
 
 			finish(testRun);
+	}
+
+	//TIMOB-12598
+	this.reverseGeocoder = function(testRun) {
+		Ti.Geolocation.reverseGeocoder(51.5171, -0.1062, function (e) {
+			valueOf(testRun, e.places[0].address).shouldBe("Saint Andrew, Shoe Lane, City of London, Greater London, England, EC4A 3AB, United Kingdom, European Union");
+		});
+		Ti.Geolocation.reverseGeocoder(40.7142, -74.0064, function (e) {
+			valueOf(testRun, e.places[0].address).shouldBe("Tower 270, 270, Broadway, Tribeca, NYC, New York, 10003, United States of America");
+		});
+		
+		finish(testRun);
 	}
 }

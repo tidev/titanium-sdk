@@ -1,7 +1,7 @@
 {
 	"name": "titanium-mobile",
 	"description": "Appcelerator Titanium Mobile",
-	"version": "3.2.0",
+	"version": "3.3.0",
 	"keywords": [
 		"appcelerator",
 		"titanium",
@@ -24,7 +24,7 @@
 		"fields": "~0.1.11",
 		"humanize": "~0.0.9",
 		"moment": "~2.4.0",
-		"node-appc": ">=0.1.17",
+		"node-appc": "git://github.com/appcelerator/node-appc.git",
 		"node-forge": "~0.2.17",
 		"node-ios-device": "~0.1.3",
 		"node-uuid": "~1.4.1",

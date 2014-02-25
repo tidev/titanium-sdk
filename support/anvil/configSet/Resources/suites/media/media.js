@@ -27,8 +27,7 @@ module.exports = new function() {
 		{name: "videoResize", timeout: 60000},
 		{name: "mediaControlStyle", timeout: 60000},
 		{name: "changeState", timeout: 100000},
-		{name: "stopMethdAftercomplete", timeout: 60000},
-		{name: "modifyContact", timeout: 5000}
+		{name: "stopMethdAftercomplete", timeout: 60000}
 	];
 
 	this.constants = function(testRun) {
@@ -330,26 +329,5 @@ module.exports = new function() {
 			}, 2000);
 		}, 45000);
 		win.open();
-	}
-
-	//TIMOB-9589
-	this.modifyContact = function(testRun){
-		var person = Ti.Contacts.createPerson({
-			firstName: 'Aaron',
-			lastName: 'Smith'
-		}); 
-		person.organization = "yahoo";
-		valueOf(testRun, person.getFirstName()).shouldBe('Aaron');
-		valueOf(testRun, person.getLastName()).shouldBe('Smith');
-		valueOf(testRun, person.getOrganization()).shouldBe('yahoo');
-		person.firstName = "Ade";
-		person.lastName = "Crude";
-		person.organization = "google";
-		Ti.Contacts.save([person]);
-		valueOf(testRun, person.getFirstName()).shouldBe('Ade');
-		valueOf(testRun, person.getLastName()).shouldBe('Crude');
-		valueOf(testRun, person.getOrganization()).shouldBe('google');
-
-		finish(testRun);
 	}
 }

@@ -349,11 +349,26 @@ function toJS(obj, doc) {
 				});
 				break;
 
+			case 'uses-feature':
+				// array of features that if it has a name, must be unique
+				var tmp = obj[node.tagName] || (obj[node.tagName] = []),
+					a = attrsToObj(node);
+
+				// remove old one to prevent dupe
+				if (a.name) {
+					for (var i = 0; i < tmp.length; i++) {
+						if (tmp[i].name && tmp[i].name == a.name) {
+							tmp.splice(i--, 1);
+						}
+					}
+				}
+				tmp.push(a);
+				break;
+
 			case 'instrumentation':
 			case 'permission':
 			case 'permission-group':
 			case 'permission-tree':
-			case 'uses-feature':
 			case 'uses-library':
 				// object with objects keyed by name
 				initObjectByName(node, obj);

@@ -20,6 +20,7 @@
 - (void)setDictTemplates_:(id)args;
 - (void)setContentInsets_:(id)value withObject:(id)props;
 - (void)deselectAll:(BOOL)animated;
+- (void)updateIndicesForVisibleRows;
 
 + (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
 

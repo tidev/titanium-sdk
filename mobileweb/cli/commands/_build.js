@@ -18,6 +18,8 @@ var ti = require('titanium-sdk'),
 	path = require('path'),
 	wrench = require('wrench'),
 	jsExtRegExp = /\.js$/,
+	wp8 = require('titanium-sdk/lib/wp8'),
+	wp8Env,
 	HTML_HEADER = [
 		'<!--',
 		'	WARNING: this is generated code and will be lost if changes are made.',
@@ -42,26 +44,85 @@ UglifyJS.AST_Node.warn_function = function () {};
 
 exports.config = function (logger, config, cli) {
 	return function (finished) {
-		cli.createHook('build.mobileweb.config', function (callback) {
-			callback({
-				options: {
-					'deploy-type': {
-						abbr: 'D',
-						default: 'development',
-						desc: __('the type of deployment; production performs optimizations'),
-						hint: __('type'),
-						values: ['production', 'development']
-					}
-				}
+		if (process.platform == 'win32') {
+			wp8.detect(function (env) {
+				wp8Env = env;
+				configure();
 			});
-		})(function (err, results, result) {
-			finished(result);
-		});
+		} else {
+			configure();
+		}
+
+		function configure() {
+			cli.createHook('build.mobileweb.config', function (callback) {
+				var conf = {
+					options: {
+						'deploy-type': {
+							abbr: 'D',
+							default: 'development',
+							desc: __('the type of deployment; production performs optimizations'),
+							hint: __('type'),
+							values: ['production', 'development']
+						},
+						target: {
+							abbr: 'T',
+							default: 'web',
+							desc: __('the target to build for'),
+							values: process.platform == 'win32' ? [ 'web', 'wp8', 'winstore' ] : [ 'web' ],
+							callback: function (value) {
+								if (value == 'wp8') {
+									conf.options['wp8-publisher-guid'].required = true;
+									conf.options['device-id'].required = true;
+								}
+							}
+						}
+					}
+				};
+
+				if (process.platform == 'win32') {
+					conf.options['wp8-publisher-guid'] = {
+						desc: __('The publisher GUID, obtained from %s', 'http://developer.windowsphone.com'.cyan),
+						hint: __('GUID')
+					};
+					conf.options['device-id'] = {
+						abbr: 'C',
+						desc: __('On Windows Phone 8, the device-id of the emulator/device to run the app in, "xd" for any emulator, or "de" for any device'),
+					};
+				}
+
+				callback(null, conf);
+			})(function (err, result) {
+				finished(result);
+			});
+		}
 	};
 };
 
 exports.validate = function (logger, config, cli) {
-	// nothing to do!
+
+	// If this is a Windows Phone 8 target, validate the wp8 specific parameters
+	if (cli.argv.target == 'wp8') {
+		if (wp8Env.issues.length) {
+			logger.error(__('There are Windows Phone configuration issues preventing the app from being built') + '\n');
+			logger.log(__('Run "titanium info" to get more information on this error') + '\n');
+			process.exit(1);
+		}
+		if (cli.argv['wp8-publisher-guid']) {
+			if (!(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).test(
+					cli.argv['wp8-publisher-guid'])) {
+				logger.error(__('Invalid publisher GUID "%s"', cli.argv['wp8-publisher-guid']) + '\n');
+				logger.log(__('Obtain your published GUID from %s', 'https://developer.windowsphone.com/'.cyan) + '\n');
+				process.exit(1);
+			}
+		}
+		if (cli.argv['device-id']) {
+			if (cli.argv['device-id'] != 'xd' && cli.argv['device-id'] != 'de' && !wp8Env.devices[cli.argv['device-id']]) {
+				logger.error(__('Invalid device id "%s"', cli.argv['device-id']) + '\n');
+				logger.log(__('The device id must be "xd", "de", or the numerical value of a specific device or emulator') + '\n');
+				process.exit(1);
+			}
+		}
+	}
 };
 
 exports.run = function (logger, config, cli, finished) {
@@ -105,6 +166,7 @@ function build(logger, config, cli, finished) {
 	this.deployType = cli.argv['deploy-type'];
 	this.os = cli.env.os;
 	this.tiapp = cli.tiapp;
+	this.target = cli.argv.target;
 
 	this.titaniumSdkVersion = ti.manifest.version;
 	this.projectDir = afs.resolvePath(cli.argv['project-dir']);
@@ -506,7 +568,9 @@ build.prototype = {
 					has_analytics_use_xhr: tiapp.mobileweb.analytics ? tiapp.mobileweb.analytics['use-xhr'] === true : false,
 					has_show_errors: this.deployType != 'production' && tiapp.mobileweb['disable-error-screen'] !== true,
 					has_instrumentation: !!tiapp.mobileweb.instrumentation,
-					has_allow_touch: tiapp.mobileweb.hasOwnProperty('allow-touch') ? !!tiapp.mobileweb['allow-touch'] : true
+					has_allow_touch: tiapp.mobileweb.hasOwnProperty('allow-touch') ? !!tiapp.mobileweb['allow-touch'] : true,
+					has_wp8_extensions: this.target == 'wp8',
+					has_winstore_extensions: this.target == 'winstore'
 				}),
 
 				'\n', '\n'
@@ -855,7 +919,11 @@ build.prototype = {
 			ti_statusbar_style: statusBarStyle,
 			ti_css: fs.readFileSync(this.buildDir + '/titanium.css').toString(),
 			splash_screen: this.splashHtml,
-			ti_js: fs.readFileSync(this.buildDir + '/titanium.js').toString()
+			ti_js: fs.readFileSync(this.buildDir + '/titanium.js').toString(),
+			winstore_headers: this.target == 'winstore' ? '<!-- WinJS references -->\n' +
+				'\t<link href="//Microsoft.WinJS.2.0/css/ui-dark.css" rel="stylesheet" />\n' +
+				'\t<script src="//Microsoft.WinJS.2.0/js/base.js"></script>\n' +
+				'\t<script src="//Microsoft.WinJS.2.0/js/ui.js"></script>\n' : ''
 		}));
 	},
 
