@@ -117,7 +117,7 @@ properties:
   - name: androidView
     summary: View to load inside the message area, to create a custom layout.
     description: |
-        On Android you can either define a custom view, or you can assign a set of options to the
+        On Android you can either define a custom view with this property, or you can assign a set of options to the
         <Titanium.UI.OptionDialog.options> property, but not both. If you do, the custom view will appear
         but not the options you defined.
     type: Titanium.UI.View
@@ -160,9 +160,9 @@ properties:
   - name: options
     summary: List of option names to display in the dialog.
     description: |
-        On Android you can assign a set of options, or assign a custom view to the 
-        <Titanium.UI.OptionDialog.androidView> property, but not both. If you do, the custom view will appear
-        but not the options you defined.
+        On Android you can assign a set of options to the `OptionDialog` with this property, or 
+        assign a custom view to the  <Titanium.UI.OptionDialog.androidView> property, but not both. 
+        If you do, the custom view will appear but not the options you defined.
     type: Array<String>
     availability: creation
     
