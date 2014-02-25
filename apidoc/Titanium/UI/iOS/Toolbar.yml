@@ -61,14 +61,27 @@ properties:
     type: Array<Titanium.UI.View>
     
   - name: borderTop
-    summary: If `true`, a border is drawn on the top of the toolbar.
+    summary: If `true`, a border is drawn on the top of the toolbar. This property is ignored on iOS 7 and above.
     type: Boolean
     default: true
     
   - name: borderBottom
-    summary: If `true`, a border is drawn on the bottom of the toolbar.
+    summary: If `true`, a border is drawn on the bottom of the toolbar. This property is ignored on iOS 7 and above.
     type: Boolean
     default: true
+    
+  - name: extendBackground
+    summary: If `true`, the background of the toolbar extends upwards.
+    description: |
+        This property allows the user to specify that the toolbar's background show through the status bar on iOS 7. This property is 
+        only intended to be used with toolbars hosted in windows with **no navigation controllers**. The toolbar must be placed at the
+        top of the screen just below the status bar for this property to work as expected. This **must** be specified at creation.
+    type: Boolean
+    default: Undefined. Behaves as if set to false.
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad]
+    since: "3.3.0"
+    availability: creation
     
   - name: translucent
     summary: If `true`, a translucent background color is used for the toolbar.
@@ -115,9 +128,39 @@ examples:
         flexible space buttons in the toolbar. Without the flexible spaces in this example, 
         the toolbar buttons would be grouped tightly together on the left side of the toolbar.
 
+  - title: Toolbar with extended background
+    example: |
+        The following code excerpt creates a simple toolbar, placed at the top of the window which extends its background under the status bar (**iOS 7 only**). 
+        
+            var send = Titanium.UI.createButton({
+                title: 'Send',
+                style: Titanium.UI.iPhone.SystemButtonStyle.DONE,
+            });
+            
+            var camera = Titanium.UI.createButton({
+                systemButton: Titanium.UI.iPhone.SystemButton.CAMERA,
+            });
+            
+            var cancel = Titanium.UI.createButton({
+                systemButton: Titanium.UI.iPhone.SystemButton.CANCEL
+            });
+            
+            flexSpace = Titanium.UI.createButton({
+                systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+            });
+            
+            var toolbar = Titanium.UI.iOS.createToolbar({
+                items:[send, flexSpace, camera, flexSpace, cancel],
+                top:20,
+                extendBackground:true
+            }); 
+            var win = Ti.UI.createWindow({backgroundColor:'red'});
+            win.add(toolbar);
+            win.open();
+
   - title: Alloy XML Markup
     example: |
-        Previous example as an Alloy view.
+        Simple Toolbar example as an Alloy view.
 
             <Alloy>
                 <Window id="win">
