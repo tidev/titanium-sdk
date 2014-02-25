@@ -5,6 +5,8 @@ summary: |
 description: |
     The web view content can be any valid web content such as HTML, PDF, SVG or other WebKit supported 
     content types. 
+    
+    Use the <Titanium.UI.createWebView> method or **`<WebView>`** Alloy element to create a web view.
 
     JavaScript in the web view executes in its own context. When running local web content
     (that is, content that is included in the application's resources), scripts have
@@ -20,8 +22,6 @@ description: |
     to execute a JavaScript expression inside the web view, and retrieve the value 
     of an expression.
     
-    Use the <Titanium.UI.createWebView> method to create a web view.
-
     Web views are more expensive to create than other native views because of the requirement to
     load the HTML browser into memory.
 

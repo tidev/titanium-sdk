@@ -3,7 +3,7 @@ name: Titanium.UI.ScrollView
 summary: |
     A view that contains a horizontally and/or vertically-scrollable region of content.  
 description: |
-    Use the <Titanium.UI.createScrollView> method to create a scroll view.
+    Use the <Titanium.UI.createScrollView> method or **`<ScrollView>`** Alloy element to create a scroll view.
     
     Views added to the scroll view will be scrolled based on the size of the scrollable region of 
     content. If a scrollable region fits within the size of its scroll view, the view will not 
@@ -11,22 +11,23 @@ description: |
     
     #### Android Platform Notes
     
-    On Android, a scroll view can only scroll in one direction, either vertical or horizontal, 
-    and not both at the same time. Hence, the <Titanium.UI.ScrollView.scrollType> property may be 
-    used to set the scroll direction explicitly.
-    
-    If the `scrollType` property is not defined, the scroll view attempts to deduce the scroll 
-    direction based on some of the other properties that have been set. Specifically, if 
-    `contentWidth` and `width` are both set and are equal to each other, or if they are both set 
-    *and* `showVerticalScrollIndicator` is set to `true`, then the scroll direction is set to 
-    "vertical".  If `contentHeight` and `height` are both set and are equal, or if they are both 
-    set and `showHorizontalScrollIndicator` is set to `true`, then the scroll direction is set 
-    to "horizontal".  If `scrollType` is set, it overrides the deduced setting.
+    On Android, a scroll view can only scroll in one direction, either vertically or horizontally, 
+    and not both at the same time. The <Titanium.UI.ScrollView.scrollType> property sets the scroll 
+    direction explicitly. If the `scrollType` property is not assigned a value, the scroll view 
+    attempts to determine the scroll direction based on some the following rules:
 
-    Pinching the view to zoom in and out of content is not supported on Android as opposed to iOS.
-    On iOS, this action is natively supported by the UIScrollView class, but on Android, the
-    native ScrollView class does not support this action. Parity between the two platforms cannot be
-    achieved with this feature.
+    * If <Titanium.UI.ScrollView.contentWidth> and <Titanium.UI.ScrollView.width> are both 
+    set and are equal to each other, or if they are both set 
+    *and* `showVerticalScrollIndicator` is set to `true`, then the scroll direction is set to 
+    "vertical".  
+
+    * If <Titanium.UI.ScrollView.contentHeight> and <Titanium.UI.ScrollView.height> are 
+    both set and are equal, or if they are both set and <Titanium.UI.ScrollView.showHorizontalScrollIndicator> is set to 
+    `true`, then the scroll direction is set to "horizontal".
+
+    Pinching a `ScrollableView` to zoom in and out of content is not supported on Android. On iOS, this action 
+    is natively supported by the UIScrollView class, but on Android, the native ScrollView class does
+    not support this action. Parity between the two platforms cannot be achieved with this feature.
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
