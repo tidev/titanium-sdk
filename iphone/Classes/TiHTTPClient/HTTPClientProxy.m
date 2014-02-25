@@ -79,7 +79,20 @@
     if([self valueForUndefinedKey:@"domain"]) {
         // TODO: NTLM
     }
-        
+    id file = [self valueForUndefinedKey:@"file"];
+    if(file) {
+        NSString *filePath = nil;
+        if([file isKindOfClass:[TiFile class]]) {
+            filePath = [(TiFile*)file path];
+        }
+        if([file isKindOfClass:[NSString class]]) {
+            filePath = [TiUtils stringValue:file];
+        }
+        if(filePath != nil) {
+            [[self request] setFilePath:filePath];
+        }
+    }
+    
     
     TiHTTPPostForm *form = nil;
     if(args != nil) {
@@ -294,7 +307,7 @@
 -(void)tiRequest:(TiHTTPRequest *)request onRedirect:(TiHTTPResponse *)tiResponse
 {
     if(hasOnredirect) {
-        RELEASE_AND_REPLACE(response, tiResponse)
+        RELEASE_TO_NIL(response);
         response = [tiResponse retain];
         [self fireCallback:@"onredirect" withArg:nil withSource:self];
     }
