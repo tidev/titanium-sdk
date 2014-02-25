@@ -16,8 +16,8 @@ description: |
     set on creation.
 
     You can assign a [View](Titanium.UI.View) to the <Titanium.UI.OptionDialog.androidView> property
-    to define a custom UI and layout for the dialog contents, or you can assign a set of options to the
-    <Titanium.UI.OptionDialog.options> property, but not both. If both properties are set, the custom view
+    to define a custom dialog UI and layout, or you can assign a set of options to the
+    <Titanium.UI.OptionDialog.options> property, but not both. If both of these properties are set, the custom view
     will appear but the options will be hidden.
 
     Buttons below the picker may be optionally defined using the `buttonNames` property.
