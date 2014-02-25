@@ -448,4 +448,6 @@ examples:
                         <Label>View 3</Label>
                         </View>
                    </ScrollableView>
-               </Window>           </Alloy>
+               </Window>
+            </Alloy>
+            

@@ -1143,13 +1143,15 @@ properties:
 
         Alloy applications can use a `<HeaderPullView>` element inside a `<TableView>` element.
 
-            <TableView>
-                <HeaderPullView platform="ios">
-                    <View class="pull">
-                        <Label color="#F2F4F4" bottom="25dp">Header pull view</Label>
-                    </View>
-                </HeaderPullView>
-            </TableView>
+            <Alloy>
+                <TableView>
+                    <HeaderPullView platform="ios">
+                        <View class="pull">
+                            <Label color="#F2F4F4" bottom="25dp">Header pull view</Label>
+                        </View>
+                    </HeaderPullView>
+                </TableView>
+            </Alloy>
     type: Titanium.UI.View
     platforms: [iphone, ipad]
     since: "2.1.0"
