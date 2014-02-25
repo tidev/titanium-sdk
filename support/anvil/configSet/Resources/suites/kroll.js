@@ -23,7 +23,8 @@ module.exports = new function() {
 		{name: "varArgs"},
 		{name: "arrayMixedTypeAndConstructor"},
 		{name: "iteration"},
-		{name: "optionalParam"}
+		{name: "optionalParam"},
+		{name: "krollNamespace"},
 	]
 
 	this.tiSanity = function(testRun) {
@@ -223,6 +224,14 @@ module.exports = new function() {
 		}).shouldNotThrowException();
 		//TIMOB-5276
 		valueOf(testRun, getList("key")).shouldBeNull();
+
+		finish(testRun);
+	}
+
+	//TIMOB-6684
+	this.krollNamespace = function(testRun) {
+		var x = {};
+		valueOf(testRun, x.extend).shouldBeUndefined();
 
 		finish(testRun);
 	}

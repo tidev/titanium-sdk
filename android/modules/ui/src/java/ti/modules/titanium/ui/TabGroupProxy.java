@@ -30,8 +30,8 @@ import ti.modules.titanium.ui.widget.tabgroup.TiUIActionBarTabGroup;
 import ti.modules.titanium.ui.widget.tabgroup.TiUITabHostGroup;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Message;
+import android.support.v7.app.ActionBarActivity;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_TABS_BACKGROUND_COLOR,
@@ -52,7 +52,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private ArrayList<TabProxy> tabs = new ArrayList<TabProxy>();
-	private WeakReference<Activity> tabGroupActivity;
+	private WeakReference<ActionBarActivity> tabGroupActivity;
 	private TabProxy selectedTab;
 	private boolean isFocused;
 
@@ -287,29 +287,31 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handleOpen(KrollDict options)
 	{
-		Activity topActivity = TiApplication.getAppCurrentActivity();
-		Intent intent = new Intent(topActivity, TiActivity.class);
-		fillIntent(topActivity, intent);
+		Activity activity = TiApplication.getAppCurrentActivity();
+		if (activity instanceof ActionBarActivity) {
+			ActionBarActivity topActivity = (ActionBarActivity) TiApplication.getAppCurrentActivity();
+			Intent intent = new Intent(topActivity, TiActivity.class);
+			fillIntent(topActivity, intent);
 
-		int windowId = TiActivityWindows.addWindow(this);
-		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
-		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
+			int windowId = TiActivityWindows.addWindow(this);
+			intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
+			intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 
-		topActivity.startActivity(intent);
+			topActivity.startActivity(intent);
+		} else {
+			Log.e(TAG, "TabGroupProxy requires an activity that is a descendent of ActionBarActivity to work with AppCompat", Log.DEBUG_MODE);
+		}
 	}
 
 	@Override
 	public void windowCreated(TiBaseActivity activity) {
-		tabGroupActivity = new WeakReference<Activity>(activity);
+		tabGroupActivity = new WeakReference<ActionBarActivity>(activity);
 		activity.setWindowProxy(this);
 		activity.setLayoutProxy(this);
 		setActivity(activity);
 
-		// Use the navigation tabs if this platform supports the action bar.
-		// Otherwise we will fall back to using the TabHost implementation.
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && activity.getActionBar() != null) {
+		if (activity.getSupportActionBar() != null) {
 			view = new TiUIActionBarTabGroup(this, activity);
-
 		} else {
 			view = new TiUITabHostGroup(this, activity);
 		}
@@ -371,7 +373,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		releaseViews();
 		view = null;
 
-		Activity activity = tabGroupActivity.get();
+		ActionBarActivity activity = tabGroupActivity.get();
 		if (activity != null && !activity.isFinishing()) {
 			activity.finish();
 		}
@@ -446,7 +448,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		selectedTab.onFocusChanged(true, focusEventData);
 	}
 
-	private void fillIntent(Activity activity, Intent intent)
+	private void fillIntent(ActionBarActivity activity, Intent intent)
 	{
 		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
 			intent.putExtra(TiC.PROPERTY_FULLSCREEN, TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN)));
@@ -502,7 +504,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	protected Activity getWindowActivity()
+	protected ActionBarActivity getWindowActivity()
 	{
 		return (tabGroupActivity != null) ? tabGroupActivity.get() : null;
 	}

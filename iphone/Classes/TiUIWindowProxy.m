@@ -434,7 +434,14 @@
     id barImageValue = [self valueForUndefinedKey:@"barImage"];
     
     UINavigationBar* ourNB = [[controller navigationController] navigationBar];
-    UIImage* theImage = [TiUtils toImage:barImageValue proxy:self];
+    UIImage* theImage = nil;
+    if ([TiUtils isIOS7OrGreater]) {
+        //TIMOB-16490
+        theImage = [TiUtils toImage:barImageValue proxy:self];
+    } else {
+        //TIMOB-16338
+        theImage = [TiUtils toImage:barImageValue proxy:self size:[ourNB bounds].size];
+    }
     
     if (theImage == nil) {
         [ourNB setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
@@ -912,7 +919,7 @@ else{\
     
     [[controller navigationController] setToolbarHidden:!hasToolbar animated:YES];
     //Need to clear title for titleAttributes to apply correctly on iOS6.
-    [[controller navigationItem] setTitle:@""];
+    [[controller navigationItem] setTitle:nil];
     SETPROP(@"titleAttributes",setTitleAttributes);
     SETPROP(@"title",setTitle);
     SETPROP(@"titlePrompt",setTitlePrompt);

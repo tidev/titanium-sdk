@@ -31,7 +31,6 @@ import org.appcelerator.titanium.util.TiImageLruCache;
 import org.appcelerator.titanium.util.TiLoadImageListener;
 import org.appcelerator.titanium.util.TiLoadImageManager;
 import org.appcelerator.titanium.util.TiResponseCache;
-import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
@@ -916,25 +915,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		return null;
 	}
 
-	@Override
-	protected void setOpacity(View view, float opacity)
-	{
-		TiImageView iview = getView();
-		if (iview != null) {
-			iview.setColorFilter(TiUIHelper.createColorFilterForOpacity(opacity));
-		}
-		super.setOpacity(view, opacity);
-	}
-
-	@Override
-	public void clearOpacity(View view)
-	{
-		super.clearOpacity(view);
-		TiImageView iview = getView();
-		if (iview != null) {
-			iview.setColorFilter(null);
-		}
-	}
 
 	@Override
 	public void release()

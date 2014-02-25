@@ -40,6 +40,8 @@ import android.view.Gravity;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 
@@ -204,8 +206,13 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		cameraActivity = this;
 		previewLayout.addView(preview, new FrameLayout.LayoutParams(
 				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-		cameraLayout.addView(localOverlayProxy.getOrCreateView()
-				.getNativeView(), new FrameLayout.LayoutParams(
+		View overlayView = localOverlayProxy.getOrCreateView().getNativeView();
+		ViewGroup parent = (ViewGroup) overlayView.getParent();
+		// Detach from the parent if applicable
+		if (parent != null) {
+			parent.removeView(overlayView);
+		}
+		cameraLayout.addView(overlayView, new FrameLayout.LayoutParams(
 				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 	}
 

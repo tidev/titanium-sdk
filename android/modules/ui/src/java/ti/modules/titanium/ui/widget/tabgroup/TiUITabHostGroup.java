@@ -20,6 +20,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
@@ -177,6 +178,11 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 				e.getValue().setBackgroundColor(color);
 			}
 
+		} else if (key.equals(TiC.PROPERTY_TITLE)) {
+			Activity activity = proxy.getActivity();
+			if (activity != null) {
+				activity.setTitle(TiConvert.toString(newValue));
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

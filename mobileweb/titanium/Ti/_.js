@@ -26,7 +26,7 @@ define(["Ti/_/lang"], function(lang) {
 			return /^\/\//.test(path) || ~path.indexOf("://") ? path : location.pathname.replace(/(.*)\/.*/, "$1") + "/" + path;
 		},
 		isBinaryMimeType: function(type) {
-			return /^(application|image|audio|video)\/(?!javascript|x\-javascript|atom\+xml|rss\+xml)/.test(type);
+			return /^(application|image|audio|video)\/(?!javascript|x\-javascript|atom\+xml|rss\+xml|json)/.test(type);
 		},
 		uuid: function() {
 			/**

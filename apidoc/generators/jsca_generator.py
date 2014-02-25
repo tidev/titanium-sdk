@@ -91,6 +91,12 @@ def to_jsca_examples(api):
 	else:
 		return []
 
+def to_jsca_inherits(api):
+	if dict_has_non_empty_member(api.api_obj, "extends"):
+		return api.api_obj["extends"]
+	else:
+		return 'Object'
+
 def to_jsca_type_name(type_info):
 	if isinstance(type_info, list) or isinstance(type_info, tuple) and len(type_info) > 0:
 		# Currently the JSCA spec allows for just one type per parameter/property/returnType.
@@ -240,7 +246,8 @@ def to_jsca_type(api):
 			"events": to_jsca_events(api.events),
 			"remarks": to_jsca_remarks(api),
 			"userAgents": to_jsca_userAgents(api.platforms),
-			"since": to_jsca_since(api.platforms)
+			"since": to_jsca_since(api.platforms),
+			"inherits": to_jsca_inherits(api)
 			}
 	# TIMOB-7169. If it's a proxy (non-module) and it has no "class properties",
 	# mark it as internal.  This avoids it being displayed in Code Assist.
