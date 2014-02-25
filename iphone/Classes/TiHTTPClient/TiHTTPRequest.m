@@ -126,7 +126,7 @@
         NSURLResponse *response;
         NSError *error = nil;
         NSData *responseData = [NSURLConnection sendSynchronousRequest:_request returningResponse:&response error:&error];
-        [_response appenData:responseData];
+        [_response appendData:responseData];
         [_response setResponse:response];
         [_response setError:error];
         [_response setRequest:_request];
@@ -156,10 +156,12 @@
     }
     
 }
+
 -(void)setCachePolicy:(NSURLRequestCachePolicy*)cache
 {
     [_request setCachePolicy:cache];
 }
+
 -(void)addRequestHeader:(NSString *)key value:(NSString *)value
 {
     if(_headers == nil) {
@@ -167,19 +169,8 @@
     }
     [_headers setValue:value forKey:key];
 }
-- (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
-{
-    DeveloperLog(@"%s %@", __PRETTY_FUNCTION__, [protectionSpace authenticationMethod]);
-	return
-    [[protectionSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodDefault] ||
-    [[protectionSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodHTTPBasic] ||
-    [[protectionSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodHTTPDigest] ||
-    [[protectionSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodServerTrust] ||
-    [[protectionSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodNTLM];
-}
 
-
--(void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+-(void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
     DeveloperLog(@"%s", __PRETTY_FUNCTION__);
     if ([challenge previousFailureCount]) {
@@ -190,9 +181,9 @@
             [[[challenge protectionSpace] authenticationMethod] isEqualToString:NSURLAuthenticationMethodServerTrust] &&
             [challenge.protectionSpace.host isEqualToString:[[self url] host]]
             ) {
-                [[challenge sender] useCredential:
-                 [NSURLCredential credentialForTrust: [[challenge protectionSpace] serverTrust]]
-                       forAuthenticationChallenge: challenge];
+            [[challenge sender] useCredential:
+             [NSURLCredential credentialForTrust: [[challenge protectionSpace] serverTrust]]
+                   forAuthenticationChallenge: challenge];
         }
     }
     
@@ -202,16 +193,10 @@
                                     password:[self requestPassword]
                                  persistence:NSURLCredentialPersistenceForSession]
                forAuthenticationChallenge:challenge];
-
+        
     }
     [[challenge sender] continueWithoutCredentialForAuthenticationChallenge:challenge];
 }
-
--(void)connection:(NSURLConnection *)connection didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
-{
-    DeveloperLog(@"%s", __PRETTY_FUNCTION__);
-}
-
 
 -(NSURLRequest*)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response
 {
@@ -240,6 +225,7 @@
         return request;
     }
 }
+
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
     DeveloperLog(@"%s", __PRETTY_FUNCTION__);
@@ -264,7 +250,7 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    DeveloperLog(@"2 %s", __PRETTY_FUNCTION__);
+    DeveloperLog(@"%s", __PRETTY_FUNCTION__);
 
     if([_response readyState] != TiHTTPResponseStateLoading) {
         [_response setReadyState:TiHTTPResponseStateLoading];
@@ -272,7 +258,7 @@
             [_delegate tiRequest:self onReadyStateChage:_response];
         }
     }
-    [_response appenData:data];
+    [_response appendData:data];
     [_response setDownloadProgress: (float)[[_response responseData] length] / (float)_expectedDownloadResponseLength];
     if([_delegate respondsToSelector:@selector(tiRequest:onDataStream:)]) {
         [_delegate tiRequest:self onDataStream:_response];
@@ -299,7 +285,7 @@
     if(_operation != nil) {
         [_operation setFinished:YES];
     }
-    DeveloperLog(@"3 %s", __PRETTY_FUNCTION__);
+    DeveloperLog(@"%s", __PRETTY_FUNCTION__);
     [_response setDownloadProgress:1.f];
     [_response setUploadProgress:1.f];
     [_response setReadyState:TiHTTPResponseStateDone];

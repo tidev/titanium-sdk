@@ -8,8 +8,8 @@
 #import <Foundation/Foundation.h>
 
 typedef enum {
-	TiHTTPResponseStateUnsent = 0,
-	TiHTTPResponseStateOpened = 1,
+    TiHTTPResponseStateUnsent = 0,
+    TiHTTPResponseStateOpened = 1,
     TiHTTPResponseStateHeaders = 2,
     TiHTTPResponseStateLoading = 3,
     TiHTTPResponseStateDone = 4
@@ -29,7 +29,6 @@ typedef enum {
 @property(nonatomic) float downloadProgress;
 @property(nonatomic) float uploadProgress;
 
-
 @property(nonatomic, readonly) NSData* responseData;
 @property(nonatomic, readonly) NSString*responseString;
 @property(nonatomic, readonly) NSDictionary*responseDictionary;
@@ -38,8 +37,7 @@ typedef enum {
 @property(nonatomic) BOOL connected;
 @property(nonatomic) TiHTTPResponseState readyState;
 
-
--(void)appenData:(NSData*)data;
+-(void)appendData:(NSData*)data;
 -(void)setResponse:(NSURLResponse*) response;
 -(void)setRequest:(NSURLRequest*) request;
 @end

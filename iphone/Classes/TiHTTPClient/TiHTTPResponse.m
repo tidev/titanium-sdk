@@ -48,7 +48,7 @@
     _location = [[[request URL] absoluteString] retain];
 }
 
--(void)appenData:(NSData *)data
+-(void)appendData:(NSData *)data
 {
     if(_data == nil) {
         _data = [[NSMutableData alloc] init];

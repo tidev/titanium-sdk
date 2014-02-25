@@ -1845,7 +1845,11 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 +(NSString*)jsonStringify:(id)value
 {
     NSError *error;
-    return [self jsonStringify:value error:&error];
+    NSString *r = [self jsonStringify:value error:&error];
+    if(error != nil) {
+        NSLog(@"Could not stringify JSON. Error: %@", error);
+    }
+    return r;
 }
 +(id)jsonParse:(NSString*)value
 {
