@@ -11,10 +11,15 @@ description: |
     
     #### Android
     
-    On Android, this dialog is shown in the middle of the display (not touching the edges), 
+    On Android, the dialog is shown in the middle of the display (not touching the edges), 
     with the option items represented in a picker. The previously-selected, or default, item can be 
     set on creation.
-    
+
+    You can assign a [View](Titanium.UI.View) to the <Titanium.UI.OptionDialog.androidView> property
+    to define a custom UI and layout for the dialog contents, or you can assign a set of options to the
+    <Titanium.UI.OptionDialog.options> property, but not both. If both properties are set, the custom view
+    will appear but the options will be hidden.
+
     Buttons below the picker may be optionally defined using the `buttonNames` property.
     The `click` event returns a Boolean value to indicate whether either an option item or a button was clicked.
     
@@ -111,6 +116,10 @@ methods:
 properties:
   - name: androidView
     summary: View to load inside the message area, to create a custom layout.
+    description: |
+        On Android you can either define a custom view, or you can assign a set of options to the
+        <Titanium.UI.OptionDialog.options> property, but not both. If you do, the custom view will appear
+        but not the options you defined.
     type: Titanium.UI.View
     platforms: [android]
 
@@ -149,7 +158,11 @@ properties:
     exclude-platforms: [blackberry]
 
   - name: options
-    summary: List of option names.
+    summary: List of option names to display in the dialog.
+    description: |
+        On Android you can assign a set of options, or assign a custom view to the 
+        <Titanium.UI.OptionDialog.androidView> property, but not both. If you do, the custom view will appear
+        but not the options you defined.
     type: Array<String>
     availability: creation
     
