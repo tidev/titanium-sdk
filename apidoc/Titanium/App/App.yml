@@ -1,7 +1,7 @@
 ---
 name: Titanium.App
 summary: |
-    The top-level App module mainly used for accessing information about the
+    The top-level App module is mainly used for accessing information about the
     application at runtime, and for sending or listening for system events.
 description: |
     The `App` module exposes a number of properties set in the `tiapp.xml` file.  
