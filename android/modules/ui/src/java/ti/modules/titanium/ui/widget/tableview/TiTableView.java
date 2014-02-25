@@ -373,7 +373,45 @@ public class TiTableView extends FrameLayout
 		});
 		addView(listView);
 	}
+	
+	public void removeHeaderView(TiViewProxy viewProxy)
+	{
+		TiUIView peekView = viewProxy.peekView();
+		View outerView = (peekView == null) ? null : peekView.getOuterView();
+		if (outerView != null) {
+			listView.removeHeaderView(outerView);
+		}
+	}
 
+	public void setHeaderView()
+	{
+		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
+			listView.setAdapter(null);
+			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_HEADER_VIEW);
+			listView.addHeaderView(layoutHeaderOrFooter(view).getOuterView(), null, false);
+			listView.setAdapter(adapter);
+		}
+	}
+
+	public void removeFooterView(TiViewProxy viewProxy)
+	{
+		TiUIView peekView = viewProxy.peekView();
+		View outerView = (peekView == null) ? null : peekView.getOuterView();
+		if (outerView != null) {
+			listView.removeFooterView(outerView);
+		}
+	}
+
+	public void setFooterView()
+	{
+		if (proxy.hasProperty(TiC.PROPERTY_FOOTER_VIEW)) {
+			listView.setAdapter(null);
+			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_FOOTER_VIEW);
+			listView.addFooterView(layoutHeaderOrFooter(view).getOuterView(), null, false);
+			listView.setAdapter(adapter);
+		}
+	}
+	
 	public TiTableView(TiContext tiContext, TableViewProxy proxy)
 	{
 		this(proxy);

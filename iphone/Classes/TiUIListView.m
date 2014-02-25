@@ -18,6 +18,7 @@
 
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
+@property (nonatomic,copy,readwrite) NSString * searchString;
 @end
 
 static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint point);
@@ -55,11 +56,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     BOOL pruneSections;
 
     BOOL caseInsensitiveSearch;
-    NSString* searchString;
+    NSString* _searchString;
     BOOL searchActive;
     BOOL keepSectionsInSearch;
     NSMutableArray* _searchResults;
     UIEdgeInsets _defaultSeparatorInsets;
+    
+    NSMutableDictionary* _measureProxies;
 }
 
 - (id)init
@@ -79,6 +82,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [_tableView release];
     [_templates release];
     [_defaultItemTemplate release];
+    RELEASE_TO_NIL(_searchString);
     RELEASE_TO_NIL(_searchResults);
     RELEASE_TO_NIL(_pullViewWrapper);
     RELEASE_TO_NIL(_pullViewProxy);
@@ -93,6 +97,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     RELEASE_TO_NIL(sectionIndices);
     RELEASE_TO_NIL(filteredTitles);
     RELEASE_TO_NIL(filteredIndices);
+    RELEASE_TO_NIL(_measureProxies);
 #ifdef USE_TI_UIREFRESHCONTROL
     RELEASE_TO_NIL(_refreshControlProxy);
 #endif
@@ -135,6 +140,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     _headerViewProxy = [self initWrapperProxy];
     LayoutConstraint* viewLayout = [_headerViewProxy layoutProperties];
     viewLayout->layoutStyle = TiLayoutRuleVertical;
+    [self setHeaderFooter:_headerViewProxy isHeader:YES];
     
     _searchWrapper = [self initWrapperProxy];
     _headerWrapper = [self initWrapperProxy];
@@ -142,7 +148,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [_headerViewProxy add:_searchWrapper];
     [_headerViewProxy add:_headerWrapper];
     
-    [self setHeaderFooter:_headerViewProxy isHeader:YES];
 }
 
 - (UITableView *)tableView
@@ -186,6 +191,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     if (![searchController isActive]) {
         [searchViewProxy ensureSearchBarHeirarchy];
+        if (_searchWrapper != nil) {
+            CGFloat rowWidth = [self computeRowWidth:_tableView];
+            if (rowWidth > 0) {
+                CGFloat right = _tableView.bounds.size.width - rowWidth;
+                [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
+            }
+        }
     }
     [super frameSizeChanged:frame bounds:bounds];
     
@@ -218,6 +230,21 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 			[_tableView deselectRowAtIndexPath:indexPath animated:animated];
 		}];
 	}
+}
+
+- (void) updateIndicesForVisibleRows
+{
+    if (_tableView == nil || [self isSearchActive]) {
+        return;
+    }
+    
+    NSArray* visibleRows = [_tableView indexPathsForVisibleRows];
+    [visibleRows enumerateObjectsUsingBlock:^(NSIndexPath *vIndexPath, NSUInteger idx, BOOL *stop) {
+        UITableViewCell* theCell = [_tableView cellForRowAtIndexPath:vIndexPath];
+        if ([theCell isKindOfClass:[TiUIListItem class]]) {
+            ((TiUIListItem*)theCell).proxy.indexPath = vIndexPath;
+        }
+    }];
 }
 
 -(void)proxyDidRelayout:(id)sender
@@ -259,6 +286,22 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	[[self proxy] replaceValue:args forKey:@"dictTemplates" notification:NO];
 	[_templates release];
 	_templates = [args copy];
+    RELEASE_TO_NIL(_measureProxies);
+    _measureProxies = [[NSMutableDictionary alloc] init];
+    NSEnumerator *enumerator = [_templates keyEnumerator];
+    id key;
+    while ((key = [enumerator nextObject])) {
+        id template = [_templates objectForKey:key];
+        if (template != nil) {
+            TiUIListItemProxy *theProxy = [[TiUIListItemProxy alloc] initWithListViewProxy:self.listViewProxy inContext:self.listViewProxy.pageContext];
+            TiUIListItem* cell = [[TiUIListItem alloc] initWithProxy:theProxy reuseIdentifier:@"__measurementCell__"];
+            [theProxy unarchiveFromTemplate:template];
+            [_measureProxies setObject:cell forKey:key];
+            [theProxy setIndexPath:[NSIndexPath indexPathForRow:-1 inSection:-1]];
+            [cell release];
+            [theProxy release];
+        }
+    }
 	if (_tableView != nil) {
 		[_tableView reloadData];
 	}
@@ -292,6 +335,38 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 #pragma mark - Helper Methods
 
+-(CGFloat)computeRowWidth:(UITableView*)tableView
+{
+    if (tableView == nil) {
+        return 0;
+    }
+    CGFloat rowWidth = tableView.bounds.size.width;
+    
+    // Apple does not provide a good way to get information about the index sidebar size
+    // in the event that it exists - it silently resizes row content which is "flexible width"
+    // but this is not useful for us. This is a problem when we have Ti.UI.SIZE/FILL behavior
+    // on row contents, which rely on the height of the row to be accurately precomputed.
+    //
+    // The following is unreliable since it uses a private API name, but one which has existed
+    // since iOS 3.0. The alternative is to grab a specific subview of the tableview itself,
+    // which is more fragile.
+    if ((sectionTitles == nil) || (tableView != _tableView) ) {
+        return rowWidth;
+    }
+    NSArray* subviews = [tableView subviews];
+    if ([subviews count] > 0) {
+        // Obfuscate private class name
+        Class indexview = NSClassFromString([@"UITableView" stringByAppendingString:@"Index"]);
+        for (UIView* view in subviews) {
+            if ([view isKindOfClass:indexview]) {
+                rowWidth -= [view frame].size.width;
+            }
+        }
+    }
+    
+    return floorf(rowWidth);
+}
+
 -(id)valueWithKey:(NSString*)key atIndexPath:(NSIndexPath*)indexPath
 {
     NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
@@ -314,7 +389,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)buildResultsForSearchText
 {
-    searchActive = ([searchString length] > 0);
+    searchActive = ([self.searchString length] > 0);
     RELEASE_TO_NIL(filteredIndices);
     RELEASE_TO_NIL(filteredTitles);
     if (searchActive) {
@@ -336,7 +411,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             for (int j = 0; j < maxItems; j++) {
                 NSIndexPath* thePath = [NSIndexPath indexPathForRow:j inSection:i];
                 id theValue = [self valueWithKey:@"searchableText" atIndexPath:thePath];
-                if (theValue!=nil && [[TiUtils stringValue:theValue] rangeOfString:searchString options:searchOpts].location != NSNotFound) {
+                if (theValue!=nil && [[TiUtils stringValue:theValue] rangeOfString:self.searchString options:searchOpts].location != NSNotFound) {
                     (thisSection != nil) ? [thisSection addObject:thePath] : [singleSection addObject:thePath];
                 }
             }
@@ -659,7 +734,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         DebugLog(@"Can not use searchText with searchView. Ignoring call.");
         return;
     }
-    searchString = [TiUtils stringValue:args];
+    self.searchString = [TiUtils stringValue:args];
     [self buildResultsForSearchText];
     [_tableView reloadData];
 }
@@ -1380,6 +1455,52 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     if (TiDimensionIsDip(height)) {
         return height.value;
+    } else if (TiDimensionIsAutoSize(height)) {
+        TiUIListSectionProxy* theSection = [self.listViewProxy sectionForIndex:realPath.section];
+        NSDictionary *item = [theSection itemAtIndex:realPath.row]; //get the item data
+        id templateId = [item objectForKey:@"template"];
+        if (templateId == nil) {
+            templateId = _defaultItemTemplate;
+        }
+        //Ignore built in templates
+        if (![templateId isKindOfClass:[NSNumber class]]) {
+            TiUIListItem* theCell = [_measureProxies objectForKey:templateId];
+            if (theCell != nil) {
+                if (item != nil) {
+                    theCell.dataItem = item;
+                    CGFloat maxWidth = [self computeRowWidth:tableView];
+                    if (maxWidth > 0) {
+                        if ((tableView.style == UITableViewStyleGrouped) && (![TiUtils isIOS7OrGreater]) ){
+                            maxWidth -= 20;
+                        }
+
+                        CGFloat accessoryAdjustment = 0;
+                        int accessoryTypeValue = [TiUtils intValue:[self valueWithKey:@"accessoryType" atIndexPath:realPath] def:0];
+                        if (accessoryTypeValue > 0) {
+                            if (accessoryTypeValue == UITableViewCellAccessoryDetailDisclosureButton) {
+                                accessoryAdjustment = 33.0;
+                            } else {
+                                accessoryAdjustment = 20.0;
+                            }
+                            if ([TiUtils isIOS7OrGreater]) {
+                                accessoryAdjustment += 15.0;
+                            }
+                            maxWidth -= accessoryAdjustment;
+                        }
+                    }
+                    if (maxWidth > 0) {
+                        TiUIListItemProxy* theProxy = [theCell proxy];
+                        [theProxy layoutProperties]->height = TiDimensionAutoSize;
+                        [theProxy layoutProperties]->width = TiDimensionAutoFill;
+                        CGFloat result =  [theProxy minimumParentHeightForSize:CGSizeMake(maxWidth, self.bounds.size.height)];
+                        return result;
+                    }
+                }
+                
+            } else {
+                DebugLog(@"[WARN] Could not retrieve template for SIZE measurement");
+            }
+        }
     }
     return 44;
 }
@@ -1443,9 +1564,17 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 }
 
 #pragma mark - UISearchBarDelegate Methods
+- (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
+{
+    if (_searchWrapper != nil) {
+        [_searchWrapper layoutProperties]->right = TiDimensionDip(0);
+        [_searchWrapper refreshView:nil];
+    }
+}
+
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
 {
-    searchString = (searchBar.text == nil) ? @"" : searchBar.text;
+    self.searchString = (searchBar.text == nil) ? @"" : searchBar.text;
     [self buildResultsForSearchText];
     [[searchController searchResultsTableView] reloadData];
 }
@@ -1453,7 +1582,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
 {
     if ([searchBar.text length] == 0) {
-        searchString = @"";
+        self.searchString = @"";
         [self buildResultsForSearchText];
         if ([searchController isActive]) {
             [searchController setActive:NO animated:YES];
@@ -1463,7 +1592,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
-    searchString = (searchText == nil) ? @"" : searchText;
+    self.searchString = (searchText == nil) ? @"" : searchText;
     [self buildResultsForSearchText];
 }
 
@@ -1475,8 +1604,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
 {
-    searchString = @"";
-    [searchBar setText:searchString];
+    self.searchString = @"";
+    [searchBar setText:self.searchString];
     [self buildResultsForSearchText];
 }
 
@@ -1484,13 +1613,21 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
-    searchString = @"";
+    self.searchString = @"";
     [self buildResultsForSearchText];
     if ([searchController isActive]) {
         [searchController setActive:NO animated:YES];
     }
     //IOS7 DP3. TableView seems to be adding the searchView to
     //tableView. Bug on IOS7?
+    if (_searchWrapper != nil) {
+        CGFloat rowWidth = floorf([self computeRowWidth:_tableView]);
+        if (rowWidth > 0) {
+            CGFloat right = _tableView.bounds.size.width - rowWidth;
+            [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
+            [_searchWrapper refreshView:nil];
+        }
+    }
     [searchViewProxy ensureSearchBarHeirarchy];
     [_tableView reloadData];
 }

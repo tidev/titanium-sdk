@@ -29,7 +29,6 @@ import android.os.Message;
 import android.view.Window;
 
 @Kroll.proxy(creatableInModule = MapModule.class, propertyAccessors = {
-	TiC.PROPERTY_ANIMATE,
 	TiC.PROPERTY_ANNOTATIONS,
 	TiC.PROPERTY_MAP_TYPE,
 	TiC.PROPERTY_REGION,

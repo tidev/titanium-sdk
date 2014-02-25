@@ -31,6 +31,8 @@ exports.init = function (logger, config, cli) {
 					emulator.start(deviceId, opts, function (err, emu) {
 						if (err) {
 							logger.error(__('Unable to start emulator "%s"', deviceId) + '\n');
+							logger.error(err.message || err);
+							logger.log();
 							process.exit(1);
 						}
 
@@ -39,11 +41,38 @@ exports.init = function (logger, config, cli) {
 							deviceInfo = [ device ];
 						});
 
+						var stdout = '';
+						emu.on('stdout', function (data) {
+							stdout += data.toString();
+						});
+
+						var stderr = '';
+						emu.on('stderr', function (data) {
+							stderr += data.toString();
+						});
+
+						emu.on('error', function (err) {
+							logger.error(__('An emulator error occurred'));
+							logger.error(err);
+							logger.log();
+							process.exit(1);
+						});
+
+						emu.on('exit', function (code) {
+							if (code) {
+								logger.error(__('Emulator exited with error: %s', code));
+								stderr.trim().split('\n').forEach(logger.error);
+								logger.log();
+								process.exit(1);
+							}
+						});
+
 						cb();
 					});
-				})(builder.deviceId, {}, function (err, results, opts) {
-					finished();
-				});
+				})(builder.deviceId, {
+					logger: logger,
+					checkMounts: builder.debugPort || builder.profilerPort
+				}, finished);
 
 			} else if (builder.target == 'device') {
 				var adb = new ADB(config);
@@ -92,10 +121,10 @@ exports.init = function (logger, config, cli) {
 
 			var adb = new ADB(config),
 				deployData = {
-					debuggerEnabled: builder.allowDebugging && builder.debugPort,
-					debuggerPort: builder.allowDebugging && builder.debugPort || -1,
-					profilerEnabled: builder.allowProfiling && builder.profilePort,
-					profilerPort: builder.allowProfiling && builder.profilePort || -1
+					debuggerEnabled: !!builder.debugPort,
+					debuggerPort: builder.debugPort || -1,
+					profilerEnabled: !!builder.profilerPort,
+					profilerPort: builder.profilerPort || -1
 				};
 
 			async.series([
@@ -133,13 +162,32 @@ exports.init = function (logger, config, cli) {
 								// push deploy.json
 								var deployJsonFile = path.join(builder.buildDir, 'bin', 'deploy.json');
 								fs.writeFileSync(deployJsonFile, JSON.stringify(deployData));
-								logger.info(__('Pushing %s to sdcard', deployJsonFile.cyan));
-								adb.shell(device.id, 'mkdir /sdcard/' + builder.appid + ' || echo', function () {
+								logger.info(__('Pushing %s to SD card', deployJsonFile.cyan));
+								adb.shell(device.id, [
+									'if [ -d "/sdcard/' + builder.appid + '" ]; then',
+									'	echo "SUCCESS"',
+									'else',
+									'	mkdir "/sdcard/' + builder.appid + '"',
+									'	if [ $? -ne 0 ]; then',
+									'		echo "FAILED"',
+									'	else',
+									'		echo "SUCCESS"',
+									'	fi',
+									'fi'
+								].join('\n'), function (err, output) {
+									if (err || output.toString().trim().split('\n').shift().trim() == 'FAILED') {
+										if (builder.target == 'device') {
+											logger.error(__('Failed to copy "deploy.json" to Android device\'s SD card. Perhaps it\'s read only or out of space.') + '\n');
+										} else {
+											logger.error(__('Failed to copy "deploy.json" to Android emulator\'s SD card. Perhaps it\'s read only or out of space.') + '\n');
+										}
+										process.exit(1);
+									}
 									adb.push(device.id, deployJsonFile, '/sdcard/' + builder.appid + '/deploy.json', cb);
 								});
 							} else {
-								logger.info(__('Removing %s from sdcard', 'deploy.json'.cyan));
-								adb.shell(device.id, '[ -f "/sdcard/' + builder.appid + '/deploy.json"] && rm -f "/sdcard/' + builder.appid + '/deploy.json" || echo ""', cb);
+								logger.info(__('Removing %s from SD card', 'deploy.json'.cyan));
+								adb.shell(device.id, '[ -f "/sdcard/' + builder.appid + '/deploy.json" ] && rm -f "/sdcard/' + builder.appid + '/deploy.json"\necho "DONE"', cb);
 							}
 						};
 					}), next);
@@ -156,7 +204,11 @@ exports.init = function (logger, config, cli) {
 							adb.installApp(device.id, builder.apkFile, function (err) {
 								if (err) {
 									logger.error(__('Failed to install apk on "%s"', device.id));
-									err.toString().split('\n').forEach(logger.error);
+									err = err.toString();
+									err.split('\n').forEach(logger.error);
+									if (err.indexOf('INSTALL_PARSE_FAILED_NO_CERTIFICATES') != -1) {
+										logger.error(__('Make sure your keystore is signed with a compatible signature algorithm such as "SHA1withRSA" or "MD5withRSA".'));
+									}
 									logger.log();
 									process.exit(1);
 								}
@@ -305,8 +357,8 @@ exports.init = function (logger, config, cli) {
 
 				function (next) {
 					if (deployData.profilerEnabled) {
-						logger.info(__('Forwarding host port %s:%s to device for profiling', builder.profilePort));
-						var forwardPort = 'tcp:' + builder.profilePort;
+						logger.info(__('Forwarding host port %s to device for profiling', builder.profilerPort));
+						var forwardPort = 'tcp:' + builder.profilerPort;
 						async.series(deviceInfo.map(function (device) {
 							return function (cb) {
 								adb.forward(device.id, forwardPort, forwardPort, cb);

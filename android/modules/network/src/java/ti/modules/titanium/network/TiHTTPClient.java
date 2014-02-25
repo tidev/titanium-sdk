@@ -264,7 +264,7 @@ public class TiHTTPClient
 					if (entity.getContentType() != null) {
 						contentType = entity.getContentType().getValue();
 					}
-					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip") && entity.getContentLength() > 0) {
 						is = new GZIPInputStream(entity.getContent());
 					} else {
 						is = entity.getContent();
@@ -471,9 +471,12 @@ public class TiHTTPClient
 		@Override
 		public void write(int b) throws IOException
 		{
-			super.write(b);
-			transferred++;
-			fireProgress();
+			//Donot write if request is aborted
+			if (!aborted) {	
+				super.write(b);
+				transferred++;
+				fireProgress();
+			}
 		}
 	}
 

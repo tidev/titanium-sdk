@@ -46,8 +46,7 @@
 	return NO;
 }
 
-/*
- //No longer used since sizeThatFits seems to return correct values
+
 -(CGSize)sizeForFont:(CGFloat)suggestedWidth
 {
 	NSString *value = [label text];
@@ -70,11 +69,18 @@
 
 	return size;
 }
- */
+
 
 -(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
-	return [[self label] sizeThatFits:CGSizeMake(suggestedWidth, 0)].width;
+    /*
+     Why both? sizeThatFits returns the width with line break mode tail truncation and we like to 
+     have atleast enough space to display one word. On the otherhand font measurement is unsuitable for 
+     attributed strings till we move to the new measurement API. Hence take both and return MAX.
+     */
+    CGFloat sizeThatFitsResult = [[self label] sizeThatFits:CGSizeMake(suggestedWidth, 0)].width;
+    CGFloat fontMeasurementResult = [self sizeForFont:suggestedWidth].width;
+    return (MAX(sizeThatFitsResult, fontMeasurementResult));
 }
 
 -(CGFloat)contentHeightForWidth:(CGFloat)width
@@ -94,7 +100,7 @@
             alignment = UIControlContentVerticalAlignmentTop;
         }
     }
-    if (alignment != UIControlContentVerticalAlignmentFill) {
+    if (alignment != UIControlContentVerticalAlignmentFill && ([label numberOfLines] != 1)) {
         CGFloat originX = 0;
         switch (label.textAlignment) {
             case UITextAlignmentRight:

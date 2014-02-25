@@ -1,0 +1,1275 @@
+# Titanium SDK 3.2.0 General Availability - 12/20/2013
+
+<div class="note" style="color: #31708f; 
+background-color: #d9edf7; 
+border-color: #bce8f1; 
+border-width: 5px;
+padding: 15px;
+margin-bottom: 20px;
+border: 5px solid;
+border-radius: 4px;">
+
+<p>
+<strong>Please note</strong>: Once you upgrade to this version of Studio, all of your existing Alloy-based apps <strong>will need to be re-compiled with the 3.2.0 SDK and Alloy 1.3.0.</strong>. 
+</p>
+
+<p>If you do not want to upgrade your Alloy applications at this time, you should decline this update.</p>
+
+<p>For information, see the <a href="#support_matrix">Support Matrix</a>.</p>
+</div>
+
+### Contents
+
+  * [About This Release](#about)
+    * [Alloy 1.3.0](#alloy) 
+    * [Android 4.4 Support](#android4_4)
+    * [iOS 7.1 Support](#ios7_1) 
+    * [Studio 3.2.0](#studio3_2)
+    * [Tizen 2.2.1 Support](#tizen2_2)
+  * [Installation Notes](#install)
+  * [Deploying to the iTunes Store with Mavericks](#mavericks)
+  * [Notice of Breaking Changes](#changes)
+    * [Android Platform](#deprecated_android)
+      * [Build Command](#build_command)
+      * [CloudPush Module](#deprecated_cloudpush)
+      * [Fastdev Support](#fastdev)
+      * [Lightweight Windows](#lightweight_windows)
+      * [Tiapp.xml Settings](#tiapp_xml)
+    * [iOS Platform](#deprecated_ios)
+      * [iOS 5.x Support and iPhone Navigation Group](#ios_5x_support)
+      * [Native Map Support](#map_support)
+    * [JavaScript Style Sheet (JSS) Support](#jss_support) 
+    * [Studio](#studio)
+      * [App Explorer View](#app_explorer)
+      * [Launch Modes](#launch_modes)
+      * [Studio Updates](#studio_updates)
+  * [New Features](#features)
+    * [Android Platform](#new_android)
+      * [Animation Improvements](#animation_improvements)
+      * [Broadcast Intents](#broadcast_intents)
+      * [Build Command](#new_build_command)
+      * [Camera Improvements](#camera_improvements)
+      * [CloudPush Module](#cloudpush)
+      * [Cookie Management](#cookie_management)
+      * [Extra, Extra High Density Support](#xxhdpi)
+      * [ListView Phase 2](#android_listview)
+      * [Map Module](#android_map_module)
+      * [WebView WebSettings](#webview_websettings)
+    * [Cloud Module](#cloud)
+    * [iOS Platform](#new_ios)
+      * [Attributed Strings](#atttributed_strings)
+      * [Build Directly to Device](#build_to_device)
+      * [Dynamic Animations](#dynamic_animations)
+      * [Font Text Styles](#font_text_styles)
+      * [iOS 7 Animated Transitions](#animated_transitions)
+      * [iOS 7 Background Services](#background_services)
+      * [ListView Phase 2](#ios_listview)
+      * [Map Module](#ios_map_module)
+      * [Popover Content](#popover_content)
+      * [Refresh Control](#refresh_control)
+      * [StoreKit Module](#storekit_module)
+      * [Window Title Attributes](#window_title)
+    * [Shadow Text Effect](#shadow_text_effect)
+  * [Known Issues](#known)
+  * [API Changes](#apis) 
+    * [New APIs](#new_apis)
+    * [Removed APIs](#removed_apis)
+
+<a name="about"></a>
+
+## About This Release
+
+This is the general release (GA) version of the Titanium SDK 3.2.0. This release 
+introduces a number of new features. See [New Features](#features) for a summary of new features in
+this release.
+
+Note that this release includes breaking changes. See [Notice of Breaking Changes in Release
+3.2.0](#changes) for details.
+
+This release includes over 700 bug fixes and improvements:
+
+  * [Full list of Issues that were addressed in Release 3.2.0](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=15579)
+
+  * [Fixed Android Issues](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=15576)
+
+  * [Fixed BlackBerry Issues](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=15578)
+
+  * [Fixed iOS Issues](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=15577)
+
+  * [Fixed CLI Issues](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=15593)
+
+<a name="alloy"></a>
+### Alloy 1.3
+
+This release coincides with the release of Alloy 1.3.  **Alloy 1.3 only supports Titanium SDK 3.2
+and later**.
+
+Summary of New Features:
+
+  * Support child view elements under the Widget and Require elements
+  * Support properties as XML elements for ListView, ListSection and TextField
+  * Support bit operators in TSS files
+  * New Animation built-in API to support flipping a view on iOS
+  * Alloy samples in Studio
+
+For more details, see the Alloy
+[Changelog](https://github.com/appcelerator/alloy/blob/1_3_X/CHANGELOG.md).
+
+<a name="android4_4"></a>
+### Android 4.4 Support
+
+This release includes support for Android 4.4 (KitKat).
+
+<a name="ios7_1"></a>
+### iOS 7.1 Support
+
+This release includes preliminary support for iOS 7.1 Beta. A complete testing pass is being
+performed against Release 3.2. The following issues were discovered:
+
+  * [TIMOB-15741](https://jira.appcelerator.org/browse/TIMOB-15741): Cannot launch the application on the iOS 7.1 simulator
+
+<a name="studio3_2"></a>
+### Studio 3.2.0
+
+This release coincides with the release of Studio 3.2.  **Studio 3.2.0 requires Titanium CLI 3.2.0 or
+later.**
+
+**Summary of New Features:**
+
+  * Brand new platform installation and configuration wizard
+  * Asynchronous login to speed up startup time
+  * Auto-detection of connected devices with a streamlined launch mode interface
+  * Overhaul of the user interface
+  * Upgrade from Eclipse 3.7 (Indigo) to 4.3 (Kepler) to support Mac OS X 10.9 (Mavericks)
+  * Support for creating Github forks
+
+For more details, see [Studio 3.2.0 Changes](http://docs.appcelerator.com/titanium/latest/#!/guide/Studio_3.2.0_Changes)
+and [Titanium Studio Release Notes](http://docs.appcelerator.com/titanium/latest/#!/guide/Titanium_Studio_Release_Notes).
+
+<a name="tizen2_2"></a>
+### Tizen 2.2.1 Support
+
+This release includes support for Tizen 2.2.1.
+
+<a name="support_matrix"></a>
+## Support Matrix
+
+Due to changes with Xcode introduced in version 5.0.1, only certain combinations of the Titanium
+toolchain and Xcode are supported.
+
+<table>
+<tr><th>SDK</th><th>CLI</th><th>Studio</th><th>Alloy</th><th>Xcode</th><th>Notes</th>
+<tr><td>3.2.0</td><td>3.2.0</td><td>3.2.0</td><td>1.3.0</td><td>Xcode 5.0.1+</td><td> </td></tr>
+<tr><td>3.1.X*</td><td>3.2.0</td><td>3.2.0</td><td>1.3.0</td><td>Xcode 5.0.1+</td><td>Alloy apps must be converted to SDK 3.2.0</td></tr>
+<tr><td>3.1.3</td><td>3.1.2</td><td>3.1.3</td><td>1.2.X</td><td>Xcode 5.0.0</td><td> </td></tr>
+<tr><td>3.1.X*</td><td>3.1.4**</td><td>3.1.3</td><td>1.2.X</td><td>Xcode 5.0.1+</td><td></td><td> </td></tr>
+</table>
+
+(\*) 3.1.X indicates a build from the 3\_1\_X branch of the Titanium SDK not version 3.1.0, 3.1.1,
+3.1.2 or 3.1.3. <br/>
+(\*\*) Not yet released.
+
+To continue using SDK 3.1.3, you can only use Xcode 5.0.
+
+<a name="install"></a>
+## Installation Notes
+
+If you previously installed the Beta or Release Candidate versions of the Titanium CLI and Alloy, you need
+to first uninstall these components before installing or updating to
+3.2.0.GA.
+
+To check the current versions run the following commands:
+
+    npm list -g titanium
+    npm list -g alloy
+
+If either package has a version number ending in `-alpha`, `-beta`, or `-cr`, you should uninstall
+the package manually before installing 3.2.0.GA.
+
+To uninstall these packages:
+
+    npm remove -g titanium
+    npm remove -g alloy
+
+Note: You may need to use <code>sudo</code> before these terminal commands on OS X and Linux.
+
+If you are using Titanium Studio, these components will be updated if you chose to install
+additional Titanium updates or from the **Help** menu, select **Check for Titanium Updates**.
+
+If you are using the Titainium CLI, you need to reinstall the CLI and Alloy from the terminal:
+
+    npm install -g titanium
+    npm install -g alloy
+
+If you should run into any issues, run `npm cache clean` and then retry the steps above.
+
+<a name="mavericks"></a>
+## Deploying to the iTunes Store with Mavericks
+
+If you are using Mac OS X 10.9 (Mavericks) and packaging an iOS application to the iTunes Stores,
+after the Xcode Organizer is launched, a dialog from OS X may open stating, 'UI element scripting is not
+enabled. Check "Enable access for assitive devices"'.
+
+This message is misleading as this was the name of the setting in previous versions of Mac OS X, which
+is already enabled by default on the older versions.
+
+On Mavericks, to fix this issue:
+
+  1. Open **System Preferences** from the Apple Menu.
+  2. Click **Security & Privacy**.
+  3. Click the **Privacy** tab.
+  4. If the dialog is locked (bottom-left corner), unlock it.
+  5. Click **Accessibility** from the left list.
+  6. Enable **TitaniumStudio** or **AppceleratorStudio**.
+  7. Close the **System Preferences**.
+
+
+<a name="changes"></a>
+## Notice of Breaking Changes in Release 3.2
+
+
+<a name="deprecated_android"></a>
+### Android Platform
+
+This section lists breaking changes for the Android platform.
+
+<a name="build_command"></a>
+#### Build Command
+
+The new Android build command for the Titanium CLI was rewritten and deprecated flags used to
+specify launching the application on the emulator, including `--avd-abi`, `--avd-id` and
+`--avd-skin`.
+
+Use the `--device-id` flag with the AVD name to launch the application on the emulator.
+
+The `--password` option, used to specify the keystore password, was renamed to `--store-password` to
+clarify its usage from the new `--key-password` option, used to specify the password for the
+keystore private key.
+
+<a name="deprecated_cloudpush"></a>
+#### CloudPush Module
+
+The ti.cloudpush module no longer supports push notifications with MQTT. Please upgrade your
+application to use the GCM protocol.
+
+<a name="fastdev"></a>
+#### Fastdev Support
+
+As of this Release, Fastdev support is deprecated and is disabled by default.  To re-enable Fastdev,
+follow the directions in the [Fastdev Reference guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Fastdev_Reference_for_Android).
+
+<a name="lightweight_windows"></a>
+#### Lightweight Windows
+
+As of this Release, all windows are heavyweight. You cannot control the type of window created.
+
+The Android windowing system was re-architected to improve performance and simplify the previous
+windowing system.  As part of this performance improvement, all windows are heavyweight.
+
+Previously, all windows were lightweight and to create a heavyweight window, you had to specify the
+state of one of the following properties: `fullscreen `, `navBarHidden`, `modal`, or
+`windowSoftInputMode`.
+
+To enable the old behavior, add the following to your `tiapp.xml` file:
+
+    <property name="ti.android.useLegacyWindow" type="bool">true</property>
+
+By default, the latest installed Android SDK is used to build your application unless otherwise
+specified in your `tiapp.xml` file with the `android:targetSdkVersion` attribute of the `uses-sdk` element.
+For example, the following code specifies to use API level 16 (Android 4.1.x):
+
+    <android xmlns:android="http://schemas.android.com/apk/res/android">
+        <manifest>
+            <uses-sdk android:targetSdkVersion="16"/>
+        </manifest>
+    </android>
+
+Previously, the minimum required SDK was used.
+    
+    
+<a name="tiapp_xml"></a>
+#### Tiapp.xml settings
+
+The settings of two tiapp.xml settings used by Android has changed.
+
+The default value for the `ti.android.bug2373.finishfalseroot` application property is now set to
+`true` by default.  This property suppresses a dialog asking the user to restart the application
+after it has been installed or updated after the first launch.  Previously, the default value for
+this property was `false`.  To enable the old behavior, add the following under the `ti:app` element
+in your tiapp.xml file:
+
+    <property name="ti.android.bug2373.finishfalseroot">false</property>
+
+The `tool-api-level` element in the Android manifest section is deprecated and now sets the
+`targetSdkVersion` attribute in the generated Android manifest file to the same value if set.
+Previously, the `minSdkVersion` attribute would be set to the same value in the generated Android
+manifest file.
+
+<a name="deprecated_ios"></a>
+### iOS Platform
+
+This section lists breaking changes for the iOS platform.
+
+<a name="ios_5x_support"></a>
+#### iOS 5.x Support and iPhone Navigation Group
+
+As of this Release, the Titanium SDK no longer supports iOS 5.x and the
+`Titanium.UI.iPhone.NavigationGroup` class has been removed.
+
+<a name="map_support"></a>
+#### Native Map Support
+
+The `Titanium.Map` namespace no longer supports native maps on the iOS platform.  This functionality
+is now available on the [ti.map add-on module](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map)
+with additional features only available for iOS 7.
+
+The API calls are similar except the `addRoute` method no longer accepts a dictionary as a
+parameter. Pass a Route object to this method instead.
+
+<a name="jss_support"></a>
+### JavaScript Style Sheet (JSS) Support
+
+As of this Release, JSS support is deprecated.
+
+<a name="studio"></a>
+### Studio
+
+This section lists breaking changes in Studio 3.2.
+
+<a name="app_explorer"></a>
+#### App Explorer View
+
+The **App Explorer** view is deprecated and will be removed in a future release of Studio. Use the
+**Project Explorer** view instead.
+
+<a name="launch_modes"></a>
+#### Launch Modes
+
+The launch mode buttons (Run, Debug, Package, etc.) have been removed from the **App Explorer** and
+**Project Explorer** views.
+
+To launch a project:
+
+  1. Select the project in the **Project Explorer** view.
+  2. In the global tool bar, select the launch mode and device to launch the application on from the
+     **Launch Mode** drop-down list and **Target** drop-down list, respectively.
+  3. If the **Launch Automatically** option is enabled under the **Target** drop-down list, the
+     application will be automatically launched after the target is selected.  If not, you need to click
+     the **Launch** button to start the build process.
+
+To use a launch configuration, first select the launch mode, then select the **&lt;Launch&gt;
+Configuration...** option under the **Target** drop-down list to open the **Launch Configuration**
+dialog.  Select and run your launch configuration.
+
+<a name="studio_updates"></a>
+#### Studio Updates
+
+The mechanism to check for Studio updates has been grouped with the updates for the other Titanium
+components.  To check for Studio updates, from the menu bar, select **Help** > **Check for Titanium
+Updates** or **Check for Appcelerator Updates**.
+
+Previously, to check for Studio updates, select **Help** > **Check for Updates**.
+
+
+<a name="features"></a>
+
+## New Features
+
+This section describes new features introduced in Release 3.2.
+
+<a name="new_android"></a>
+### Android Platform
+
+This section lists new features and improvements only available on the Android platform.
+
+<a name="animation_improvements"></a>
+#### Animation Improvements
+
+This Release fixes many bugs with 2D matrix transformations, and incorporates a new library
+to achieve parity closer to the performance of the iOS platform
+([TIMOB-11811](https://jira.appcelerator.org/browse/TIMOB-11811)).
+
+No additions or changes were made to the existing APIs.
+
+<a name="broadcast_intents"></a>
+#### Broadcast Intents
+
+As of this Release, the application can create broadcast intents to pass to broadcast receivers.  To
+create a BroadcastIntent, use the
+[Titanium.Android.createBroadcastIntent](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android-method-createBroadcastIntent)
+method, then use either the
+[Titanium.Android.sendBroadcast](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.Activity-method-sendBroadcast)
+or
+[Titanium.Android.sendBroadcastWithPermission](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.Activity-method-sendBroadcastWithPermission)
+method to pass the intent to a BroadcastReceiver.
+
+If you are using the `sendBroadcastWithPermssion` method, modify the `tiapp.xml` file to declare a
+permission with the Android manifest `permission` element and allow the application to use that
+permission with the Android manifest `uses-permission` element. Pass the permission name as the
+second parameter to the `sendBroadcastWithPermission` method.  Below is an example of how the
+Android manifest section should look like:
+
+    <android xmlns:android="http://schemas.android.com/apk/res/android">
+        <manifest>
+            <permission
+                android:name="com.appcelerator.test.withPermission" />
+            <uses-permission android:name="com.appcelerator.test.withPermission"/>
+        </manifest>
+    </android>
+
+<a name="new_build_command"></a>
+#### Build Command
+
+The Titanium CLI build for Android is now written in JavaScript with many, many bug fixes and
+improvements ([TIMOB-9028](https://jira.appcelerator.org/browse/TIMOB-9028)).
+
+The rewritten build command works the same as the old Python build script except for the ones
+mentioned in the ["Breaking Changes" section](#build_command).
+
+Summary of Improvements:
+
+  * Support installing the application to a specific device or emulator with the `--device-id` option
+  * Add AVD information to the `ti info` report
+  * Support x86 distribution builds
+  * Support custom keystores when running on device and creating an APK with a development keystore
+  * Improve SDK and NDK detection and remove the requirement that the minimum SDK needs to be installed
+  * Support the ADB and Android Emulator libraries
+
+<a name="camera_improvements"></a>
+#### Camera Improvements
+
+This Release fixes a number of issues with using the device's camera and achieves parity with the
+iOS platform by adding support for additional APIs.
+
+  * Add Android platform support for the `Titanium.Media.availableCameras`,
+    `Titanium.Media.hideCamera` and `Titanium.Media.switchCamera` methods.  Previously, these were
+    only available for iOS.
+  * Fix issues when using overlays where the camera would only take low-resolution images and
+    landscape-oriented images, and the application crashed when switching orientation modes.  When
+    using overlays, the camera will only take high-resolution images, and support both portrait and
+    landscape orientation modes without crashing.
+  * Fix an issue where after taking a picture, the last picture in the photo gallery is shown and
+    not the one just captured.
+
+<a name="cloudpush"></a>
+#### CloudPush Module
+
+The ti.cloudpush mode now supports grouped notifications, allowing the application to collapse
+multiple notifications into one.
+
+The ti.cloudpush module version number changed to 3.2.0 to match the SDK version.
+
+
+<a name="cookie_management"></a>
+#### Cookie Management
+
+This Release introduces the
+[Titanium.Network.Cookie](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Network.Cookie)
+object and a number of new Titanium.Network methods to help the application manage cookies between
+the Android system cookie store, utilized by WebViews, and the HTTPClient's cookie store.
+
+For more information, see the "Android Platform Implementation Notes" in either
+[Titanium.Network.HTTPClient](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Network.HTTPClient)
+or [Titanium.UI.WebView](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.WebView).
+
+<a name="xxhdpi"></a>
+#### Extra, Extra High Density Support
+
+As of this Release, the Titanium SDK supports extra, extra high density assets (480 dpi) for Android
+applications.  Place these assets in an Android resource folder with the `-xxhdpi` suffix, for
+example, `Resources/android/res-xxhdpi` or `app/assets/android/res-xxhdpi`.
+
+
+<a name="android_listview"></a>
+#### ListView Phase 2
+
+The following ListView features were completed in this Release:
+
+  * Custom list and section headers and footers
+  * Custom row selection
+  * Dynamic item loading
+  * Search support
+
+For more information, see the [ListViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/ListViews)
+and [Titanium.UI.ListView API reference](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ListView). 
+
+<a name="android_map_module"></a>
+#### Map Module
+
+The ti.map module supports the following new APIs:
+
+  * [Map.Annotation.showInfoWindow](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.Annotation-property-showInfoWindow)
+    property. Shows or hides the view that is displayed on the annotation when clicked.
+  * [Map.View.longclick](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-event-longclick)
+    event. Fired when the user makes a long gesture on the map view.
+  * [Map.View.zOrderOnTop](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-property-zOrderOnTop)
+    property.  Controls whether the map view's surface is placed on top of its window. Note that
+    this will cover all other views that could appear on the map (e.g., the zoom controls, the my
+    location button).
+
+
+<a name="webview_websettings"></a>
+#### WebView WebSettings
+
+The `Titanium.UI.WebView` class exposes two Android WebSettings APIs as two new properties: 
+
+  * [cacheMode](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.WebView-property-cacheMode):
+    assign a `Titanium.Android.WEBVIEW_*` constant to this property to override how the cache is used.
+  * [lightTouchEnabled](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.WebView-property-lightTouchEnabled):
+    controls using light touches to make a selection and activate mouseovers, for example,
+    highlighting links in response to user interaction. Enabled by default (set to `true`).  To
+    workaround [Android Issue 33651](https://code.google.com/p/android/issues/detail?id=33651), set
+    this property to `false`.  This property has no effect on Android API 18 and later.
+
+<a name="cloud"></a>
+### Cloud Module
+
+The ti.cloud module supports the following new APIs:
+
+  * Chats (remove and queryChatGroups)
+  * Likes (create and remove)
+  * PushNotifications (query, queryChannels and showChannels)
+  * Statuses (update, show and delete)
+  * Users (resendConfirmation)
+
+The ti.cloud module version number changed to 3.2.0 to match the version of the SDK.
+
+
+<a name="new_ios"></a>
+### iOS Platform
+
+This section lists new features and improvements only available on the iOS platform.
+
+<a name="atttributed_strings"></a>
+#### Attributed Strings
+
+As of this Release, the Titanium SDK supports attributed strings allowing the application to manage
+and apply specific attributes, such as font and kerning, to characters or range of characters in a
+string.
+
+Create a
+[Titanium.UI.iOS.AttributedString](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.iOS.AttributedString)
+object and assign it to one of the following properties:
+
+  * [Titanium.UI.Label.attributedString](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Label-property-attributedString)
+  * [Titanium.UI.TextArea.attributedString](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TextArea-property-attributedString)
+  * [Titanium.UI.TextField.attributedString](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TextField-property-attributedString)
+  * [Titanium.UI.TextField.attributedHintText](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TextField-property-attributedHintText)
+
+
+<a name="build_to_device"></a>
+#### Build Directly to Device
+
+You can now directly install your iOS application to the iOS device without using iTunes.  First,
+make sure your device is connected to your computer with the USB cable.
+
+Using Titanium Studio 3.2.0 and later:
+
+  1. Select the project in the **Project Explorer** view.
+  2. In the global tool bar, select **Run** from the **Launch Mode** drop-down list.
+  3. In the **Target** drop-down list, select **iOS Device**, then select a device (not **iTunes
+     Sync**) to directly install your application to it.
+  4. If the **Launch Automatically** option is enabled under the **Target** drop-down list, the
+     application will be automatically launched after the device is selected.  If not, you
+     need to click the **Launch** button to start the build process.
+
+Using the Titanium CLI 3.2.0 and later, run the following command:
+
+    ti build -p ios -T device -C <DEVICE_UDID> [-V "<DEVELOPER_CERTIFICATE_NAME>"  -P <PROVISIONING_PROFILE_UUID>]
+
+If you omit the optional parameters, the CLI will prompt your for the information with options.  You
+can obtain the missing information from Xcode's Organizer or running the `ti info -t ios` command.
+    
+You can still install your device to iTunes, then install the application from iTunes to the device.
+
+  * For Studio, select **iTunes Sync** when selecting a device from the target drop-down.
+  * For the CLI, use `-C itunes` instead of `-C <DEVICE_UDID>`.
+
+<a name="dynamic_animations"></a>
+#### Dynamic Animations
+
+The `Titanium.UI.iOS.Animator` object provides support for the built-in iOS dynamic animations,
+which are supported on iOS 7 and later. The animator provides physics-related capabilities and
+animations using the iOS physics engine.
+
+For more information, see the [Titanium.UI.iOS.Animator API reference](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.iOS.Animator).
+
+<a name="font_text_styles"></a>
+#### Font Text Styles
+
+The `Font` object supports a new property,
+[textStyle](http://docs.appcelerator.com/titanium/latest/#!/api/Font-property-textStyle), available
+for iOS 7 and later.  Assign this property a `Titanium.UI.TEXT_STYLE_*` constant to use a predefined
+text style.  If this property is assigned a valid value, all other font properties are ignored.
+
+<a name="animated_transitions"></a>
+#### iOS 7 Animated Transitions
+
+iOS 7 introduced new animation capabilities for transitioning Windows in a NavigationWindow or Tab.
+Create a transition animation object with the
+[Titanium.UI.iOS.createTransitionAnimation](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.iOS-method-createTransitionAnimation)
+method to specify animation objects to hide the current window and show the new window, then assign
+the transition animation object to the Window's
+[transitionAnimation](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Window-property-transitionAnimation)
+property. 
+
+<a name="background_services"></a>
+#### iOS 7 Background Services
+
+iOS 7 introduced new background execution modes allowing the application to download large content
+while its in the background. These background modes are exposed as the following Titanium APIs:
+
+  * [URL session module](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.URLSession): a
+    wrapper for the NSURLSession class that allows the application to download large content in the
+    background.  This module provides the main functionality for the background execution modes,
+    such as creating the background download task and monitoring the download once it starts. 
+  * [backgroundfetch](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App.iOS-event-backgroundfetch)
+    event: use to monitor signals from iOS to update the application while in the background.
+  * [silentpush](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App.iOS-event-silentpush)
+    event: use to monitor a push notification to tell the application there is content to download.
+
+For more information, see the [iOS Background Services guide](http://docs.appcelerator.com/titanium/latest/#!/guide/iOS_Background_Services).
+
+<a name="ios_listview"></a>
+#### ListView Phase 2
+
+The following ListView features were completed in this Release:
+
+  * Custom list and section headers and footers
+  * Dynamic item loading
+  * Native editing support
+  * Pull-to-refresh support
+  * Search support
+
+For more information, see the [ListViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/ListViews)
+and [Titanium.UI.ListView API reference](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ListView). 
+
+<a name="ios_map_module"></a>
+#### Map Module
+
+As of this Release, the ti.map module provides native map support on the iOS platform and includes a
+new iOS 7 feature that allows the map to be viewed in a 3D perspective.
+
+For more information, see
+[iOS Map Kit](http://docs.appcelerator.com/titanium/latest/#!/guide/iOS_Map_Kit).
+
+<a name="popover_content"></a>
+#### Popover Content
+
+The `Titanium.UI.iPad.Popover` class supports a new property,
+[contentView](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.iPad.Popover-property-contentView),
+used to assign a view object as the content area of the popover before showing the popover.  This is
+now the preferred way to set the content area of a popover instead of using the `add` method.
+
+This property does not support the `Titanium.UI.iPad.SplitWindow` or `Titanium.UI.TabGroup` objects.
+Use a  `Titanium.UI.iOS.NavigationWindow` object to display and manage content with a navigation
+controller.
+
+
+<a name="refresh_control"></a>
+#### Refresh Control
+
+iOS 6 introduced a new refresh control that can be used to implement the pull-to-refresh mechanism
+for `ListView` and `TableView`.  The Titanium SDK exposes this control as the
+[Titanium.UI.RefreshControl](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.RefreshControl)
+object.
+
+#### StoreKit Module
+
+The ti.storekit module now supports the new iOS 7 receipt validation system and Apple-hosted, in-app
+purchase downloads.
+
+Note that the ti.storekit module cannot be tested on the iOS simulator.
+
+
+<a name="window_title"></a>
+#### Window Title Attributes
+
+The `Titanium.UI.Window` class supports a new property,
+[titleAttributes](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Window-property-titleAttributes),
+used to specify the color, font, and shadow of the window's title.
+
+Previously, the only way to specify these attributes was to create a custom Label object and assign
+it to the window's `titleControl` property.
+
+
+
+
+<a name="shadow_text_effect"></a>
+### Shadow Text Effect
+
+On the Android and Mobile Web platforms, you can now add a shadow effect to a Button's `title` or
+Label's `text` property using the `shadowColor`, `shadowOffset` and `shadowRadius` properties.
+
+Previously, these were iOS-only properties.
+
+
+<a name="known"></a>
+## Known Issues
+
+The following issues are known with this release.
+
+**Field Service sample crashes on Android** -- On Android, the Field Service sample application crashes with `java.lang.ClassCastException: java.lang.String cannot be cast to java.lang.Boolean` error. To fix, this issue:
+
+  1. In Studio, open **app/styles/my-service-outlets/placard.tss**.
+  2. Locate the **"#statusView"** style rule and change **`touchEnabled: "true"`** to **`touchEnabled: true`**:
+
+```
+    "#statusView": {
+      width: Ti.UI.SIZE,
+      backgroundImage: "/common/btn-light-flex.png",
+      backgroundLeftCap: 6,
+      height: 36,
+      top: 12,
+      layout: "horizontal",
+      touchEnabled: true
+    }
+```
+
+**Issue animating view's height and width on Samsung S3** -- On a Samsung S3, animating a view's height and width may produce unexpected results ([TIMOB-15719](https://jira.appcelerator.org/browse/TIMOB-15719)). To workaround this issue, enable hardware acceleration in the `<application/>` element of the Android manifest in your project's tiapp.xml file:
+
+```
+<ti:app xmlns:ti="http://ti.appcelerator.org">
+    <android xmlns:android="http://schemas.android.com/apk/res/android">
+        <manifest>
+            <application android:hardwareAccelerated="true">
+              ...
+            </application>
+        </manifest>
+    </android>
+</ti:app>    
+```
+
+
+<a name="apis"></a>
+## API Changes
+
+This section lists new APIs, deprecated APIs, and APIs that have been removed from the SDK.
+
+
+<a name="new_apis"></a>
+<h2>New APIs</h2>
+
+The following APIs are new or have expanded platform support in Release
+3.2.0.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.Android.ActionBar.navigationMode</td><td>method</td><td><p>Controls the
+navigation mode. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.Activity.sendBroadcast</td><td>method</td><td><p>Broadcast the passed in
+<code>Intent</code> to all <code>BroadcastReceiver</code>s. (New API, supported on
+Android.)</p></td></tr>
+  <tr><td>Titanium.Android.Activity.sendBroadcastWithPermission</td><td>method</td><td><p>Broadcast
+the passed in <code>Intent</code> to all <code>BroadcastReceiver</code>s with an optional
+permission. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.Activity.userleavehint</td><td>event</td><td><p>Fired when the activity
+is about to go into the background as a result of user choice. (New API, supported on
+Android.)</p></td></tr>
+  <tr><td>Titanium.Android.NAVIGATION_MODE_STANDARD</td><td>property</td><td><p>Standard Action Bar
+navigation mode (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.NAVIGATION_MODE_TABS</td><td>property</td><td><p>Action Bar tab
+navigation mode (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.createBroadcastIntent</td><td>method</td><td><p>Create an
+<code>Intent</code> to be used in a broadcast. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_MIN</td><td>property</td><td><p>Use with
+(endBackgroundHandler)[Titanium.App.iOS.endBackgroundHandler] method. 
+Specifies the smallest fetch interval supported by the system.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER</td><td>property</td><td><p>Use with
+(endBackgroundHandler)[Titanium.App.iOS.endBackgroundHandler] method. 
+Used to specify a fetch interval large enough to prevent fetch operations from occurring.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.iOS.backgroundTransfer</td><td>event</td><td><p>Fired when the events related
+to a urlSession are waiting to be processed. Available only on iOS 7. (New API, supported on iPhone
+and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.iOS.backgroundfetch</td><td>event</td><td><p>Fired when the application is
+woken up for a fetch operation. Available only in iOS 7. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.App.iOS.downloadcompleted</td><td>event</td><td><p>Fired to indicate that a
+download task has finished downloading. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.iOS.downloadprogress</td><td>event</td><td><p>Fired periodically to informs
+the app about the download's progress. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.iOS.endBackgroundHandler</td><td>method</td><td><p>Marks the end of the app
+execution when a download operation is complete. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.App.iOS.sessioncompleted</td><td>event</td><td><p>Fired to indicate that a
+session task finished transferring data. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.iOS.sessioneventscompleted</td><td>event</td><td><p>Fired to indicate that
+all messages enqueued for a session have been delivered. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.App.iOS.setMinimumBackgroundFetchInterval</td><td>method</td><td><p>Specifies the
+minimum amount of time that must elapse between background fetch operations. (New API, supported on
+iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.iOS.silentpush</td><td>event</td><td><p>Fired when the application is woken
+up by a silent remote notification. Available only on iOS 7. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.CAMERA_FRONT</td><td>property</td><td><p>Constant specifying the front
+camera. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Media.CAMERA_REAR</td><td>property</td><td><p>Constant indicating the rear
+camera. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Media.availableCameras</td><td>property</td><td><p>Array indicating which cameras
+are available, <code>CAMERA_FRONT</code>, <code>CAMERA_REAR</code> or both. (Added support for
+Android.)</p></td></tr>
+  <tr><td>Titanium.Media.hideCamera</td><td>method</td><td><p>Hides the device camera UI. (Added
+support for Android.)</p></td></tr>
+  <tr><td>Titanium.Media.switchCamera</td><td>method</td><td><p>Switches between front and
+rear-facing cameras. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Network.Cookie</td><td>object</td><td><p>Cookie object used to manage the system
+cookie store and HTTP client cookie store. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Network.addHTTPCookie</td><td>method</td><td><p>Adds a cookie to the HTTP client
+cookie store.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Network.addSystemCookie</td><td>method</td><td><p>Adds a cookie to the system
+cookie store.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Network.createCookie</td><td>method</td><td><p>Creates and returns an instance of
+Titanium.Network.Cookie. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Network.getHTTPCookies</td><td>method</td><td><p>Gets all the cookies with the
+domain, path and name matched with the given values from the HTTP client cookie store.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Network.getHTTPCookiesForDomain</td><td>method</td><td><p>Gets all the cookies
+with the domain matched with the given values from the HTTP client cookie store.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Network.getSystemCookies</td><td>method</td><td><p>Gets all the cookies with the
+domain, path and name matched with the given values from the system cookie store.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Network.removeAllHTTPCookies</td><td>method</td><td><p>Removes all the cookies
+from the HTTP client cookie store.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Network.removeAllSystemCookies</td><td>method</td><td><p>Removes all the cookie
+from the system client cookie store.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Network.removeHTTPCookie</td><td>method</td><td><p>Removes the cookie with the
+domain, path and name exactly the same as the given values from the HTTP client cookie store.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Network.removeHTTPCookiesForDomain</td><td>method</td><td><p>Removes the cookies
+with the domain matched with the given values from the HTTP client cookie store.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Network.removeSystemCookie</td><td>method</td><td><p>Removes the cookie with the
+domain, path and name exactly the same as the given values from the system cookie store.
+ (New API, supported on Android.)</p></td></tr>
+   <tr><td>Titanium.Proxy.apiName</td><td>property</td><td><p>The name of the API that this proxy
+corresponds to. (New API, supported on all platforms.)</p></td></tr>
+  <tr><td>Titanium.Proxy.getApiName</td><td>method</td><td><p>Gets the value of the apiName
+property. (New API, supported on all platforms.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.WEBVIEW_LOAD_CACHE_ELSE_NETWORK</td><td>property</td><td><p>Use with
+WebView.cacheMode to override how the cache is used in a web view.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.WEBVIEW_LOAD_CACHE_ONLY</td><td>property</td><td><p>Use with
+WebView.cacheMode to override how the cache is used in a web view.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.WEBVIEW_LOAD_DEFAULT</td><td>property</td><td><p>Use with
+WebView.cacheMode to override how the cache is used in a web view.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.WEBVIEW_LOAD_NO_CACHE</td><td>property</td><td><p>Use with
+WebView.cacheMode to override how the cache is used in a web view.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Button.disabledColor</td><td>property</td><td><p>Text color when the button is
+in the disabled state, as a color name or hex triplet. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Button.getShadowColor</td><td>method</td><td><p>Gets the value of the
+shadowColor property. (New API, supported on Android and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.Button.getShadowOffset</td><td>method</td><td><p>Gets the value of the
+shadowOffset property. (New API, supported on Android and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.Button.getShadowRadius</td><td>method</td><td><p>Gets the value of the
+shadowRadius property. (New API, supported on Android and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.Button.setShadowColor</td><td>method</td><td><p>Sets the value of the
+shadowColor property. (New API, supported on Android and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.Button.setShadowOffset</td><td>method</td><td><p>Sets the value of the
+shadowOffset property. (New API, supported on Android and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.Button.setShadowRadius</td><td>method</td><td><p>Sets the value of the
+shadowRadius property. (New API, supported on Android and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.Button.shadowColor</td><td>property</td><td><p>Shadow color of the title, as a
+color name or hex triplet. (New API, supported on Android and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.Button.shadowOffset</td><td>property</td><td><p>Shadow offset of the title, as
+a dictionary with the properties <code>x</code> and <code>y</code>. (New API, supported on Android
+and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.Button.shadowRadius</td><td>property</td><td><p>Shadow radius of the title.
+(New API, supported on Android and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.Label.attributedString</td><td>property</td><td><p>Specify an attributed
+string for the label. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Label.getAttributedString</td><td>method</td><td><p>Gets the value of the
+attributedString property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Label.getShadowRadius</td><td>method</td><td><p>Gets the value of the
+shadowRadius property. (New API, supported on Android and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.Label.link</td><td>event</td><td><p>Fired when user performs a long press on a
+URL in the text area. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Label.setAttributedString</td><td>method</td><td><p>Sets the value of the
+attributedString property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Label.setShadowRadius</td><td>method</td><td><p>Sets the value of the
+shadowRadius property. (New API, supported on Android and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.Label.shadowColor</td><td>property</td><td><p>Shadow color of the text, as a
+color name or hex triplet. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Label.shadowOffset</td><td>property</td><td><p>Shadow offset of the text, as a
+dictionary with the properties <code>x</code> and <code>y</code>. (Added support for
+Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Label.shadowRadius</td><td>property</td><td><p>Shadow radius of the text. (New
+API, supported on Android and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.ListItem.backgroundGradient</td><td>property</td><td><p>Background gradient to
+render when the item is not selected. (New API, supported on Android, iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListItem.backgroundImage</td><td>property</td><td><p>Background image to
+render when the item is not selected. (New API, supported on Android, iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListItem.canEdit</td><td>property</td><td><p>Specifies if the item can be
+deleted by a user initiated action. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListItem.canMove</td><td>property</td><td><p>Specifies if the item can be
+reordered within the list view by a user initiated action. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListItem.searchableText</td><td>property</td><td><p>The text to match against
+when the ListView is performing a search. (New API, supported on Android, iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListItem.selectedBackgroundColor</td><td>property</td><td><p>Background color
+of the view, as a color name or hex triplet when item is selected. (New API, supported on Android,
+iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListItem.selectedBackgroundGradient</td><td>property</td><td><p>Background
+gradient to render when the item is selected. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListItem.selectedBackgroundImage</td><td>property</td><td><p>Background image
+to render when the item is selected. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListSection.footerView</td><td>property</td><td><p>View to use for this
+section footer. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListSection.getFooterView</td><td>method</td><td><p>Gets the value of the
+footerView property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListSection.getHeaderView</td><td>method</td><td><p>Gets the value of the
+headerView property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListSection.headerView</td><td>property</td><td><p>View to use for this
+section header. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListSection.setFooterView</td><td>method</td><td><p>Sets the value of the
+footerView property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListSection.setHeaderView</td><td>method</td><td><p>Sets the value of the
+headerView property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.canScroll</td><td>property</td><td><p>Determines if the list view can
+scroll in response to user actions. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.caseInsensitiveSearch</td><td>property</td><td><p>Determines if the
+search performed is case insensitive. (New API, supported on Android, iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.delete</td><td>event</td><td><p>Fired when a list row is deleted by
+the user. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.deselectItem</td><td>method</td><td><p>Deselects a specific item.
+(New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.editing</td><td>property</td><td><p>Determines if the list view is
+currently in editing mode. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.footerView</td><td>property</td><td><p>List view footer as a view
+that will be rendered instead of a label. (New API, supported on Android, iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.getCanScroll</td><td>method</td><td><p>Gets the value of the
+canScroll property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.getCaseInsensitiveSearch</td><td>method</td><td><p>Gets the value of
+the caseInsensitiveSearch property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.getEditing</td><td>method</td><td><p>Gets the value of the editing
+property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.getFooterView</td><td>method</td><td><p>Gets the value of the
+footerView property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.getHeaderView</td><td>method</td><td><p>Gets the value of the
+headerView property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.getKeepSectionsInSearch</td><td>method</td><td><p>Gets the value of
+the keepSectionsInSearch property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.getPruneSectionsOnEdit</td><td>method</td><td><p>Gets the value of
+the pruneSectionsOnEdit property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.getPullView</td><td>method</td><td><p>Gets the value of the pullView
+property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.getRefreshControl</td><td>method</td><td><p>Gets the value of the
+refreshControl property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.getSearchText</td><td>method</td><td><p>Gets the value of the
+searchText property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.getSearchView</td><td>method</td><td><p>Gets the value of the
+searchView property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.getSectionIndexTitles</td><td>method</td><td><p>Gets the value of the
+sectionIndexTitles property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.getSeparatorColor</td><td>method</td><td><p>Gets the value of the
+separatorColor property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.getSeparatorInsets</td><td>method</td><td><p>Gets the value of the
+separatorInsets property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.getSeparatorStyle</td><td>method</td><td><p>Gets the value of the
+separatorStyle property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.headerView</td><td>property</td><td><p>List view header as a view
+that will be rendered instead of a label. (New API, supported on Android, iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.keepSectionsInSearch</td><td>property</td><td><p>Determines if the
+section information is displayed in the search results when using the <code>searchText</code>
+property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.marker</td><td>event</td><td><p>Fired when the list view displays the
+reference item or an item beyond the reference item. (New API, supported on iPhone, iPad and
+Android.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.move</td><td>event</td><td><p>Fired when a list row is moved to a
+different location by the user. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.pruneSectionsOnEdit</td><td>property</td><td><p>Determines if empty
+sections are retained when the user completes editing the list view. (New API, supported on iPhone
+and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.pull</td><td>event</td><td><p>Fired when the user drags the list view
+past the top edge of the pullView. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.pullView</td><td>property</td><td><p>View positioned above the first
+row that is only revealed when the user drags the list view contents down. (New API, supported on
+iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.pullend</td><td>event</td><td><p>Fired when the user stops dragging
+the list view and the pullView is completely visible. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.refreshControl</td><td>property</td><td><p>View positioned above the
+first row that is only revealed when the user drags the list view contents down. (New API, supported
+on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.searchText</td><td>property</td><td><p>The string to use as the
+search parameter. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.searchView</td><td>property</td><td><p>Search field to use for the
+list view. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.sectionIndexTitles</td><td>property</td><td><p>Array of objects (with
+<code>title</code> and <code>index</code> properties) to control the list view index. (New API,
+supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.separatorColor</td><td>property</td><td><p>Separator line color
+between rows, as a color name or hex triplet. (New API, supported on Android, iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.separatorInsets</td><td>property</td><td><p>The insets for list view
+separators (applies to all cells). This property is applicable on iOS 7 and greater. (New API,
+supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.separatorStyle</td><td>property</td><td><p>Separator style constant.
+(New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setCanScroll</td><td>method</td><td><p>Sets the value of the
+canScroll property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setCaseInsensitiveSearch</td><td>method</td><td><p>Sets the value of
+the caseInsensitiveSearch property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setContentInsets</td><td>method</td><td><p>Sets this list view's
+content insets. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setEditing</td><td>method</td><td><p>Sets the value of the editing
+property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setFooterView</td><td>method</td><td><p>Sets the value of the
+footerView property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setHeaderView</td><td>method</td><td><p>Sets the value of the
+headerView property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setKeepSectionsInSearch</td><td>method</td><td><p>Sets the value of
+the keepSectionsInSearch property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setMarker</td><td>method</td><td><p>Sets a reference item in the list
+view. (New API, supported on iPhone, iPad and Android.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setPruneSectionsOnEdit</td><td>method</td><td><p>Sets the value of
+the pruneSectionsOnEdit property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setPullView</td><td>method</td><td><p>Sets the value of the pullView
+property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setRefreshControl</td><td>method</td><td><p>Sets the value of the
+refreshControl property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setSearchText</td><td>method</td><td><p>Sets the value of the
+searchText property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setSearchView</td><td>method</td><td><p>Sets the value of the
+searchView property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setSectionIndexTitles</td><td>method</td><td><p>Sets the value of the
+sectionIndexTitles property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setSeparatorColor</td><td>method</td><td><p>Sets the value of the
+separatorColor property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setSeparatorInsets</td><td>method</td><td><p>Sets the value of the
+separatorInsets property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView.setSeparatorStyle</td><td>method</td><td><p>Sets the value of the
+separatorStyle property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.RefreshControl</td><td>object</td><td><p>The RefreshControl is a
+representation of the native UIRefreshControl. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TEXT_STYLE_BODY</td><td>property</td><td><p>Specifies the text style for the
+Font Object. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TEXT_STYLE_CAPTION1</td><td>property</td><td><p>Specifies the text style for
+the Font Object. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TEXT_STYLE_CAPTION2</td><td>property</td><td><p>Specifies the text style for
+the Font Object. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TEXT_STYLE_FOOTNOTE</td><td>property</td><td><p>Specifies the text style for
+the Font Object. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TEXT_STYLE_HEADLINE</td><td>property</td><td><p>Specifies the text style for
+the Font Object. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TEXT_STYLE_SUBHEADLINE</td><td>property</td><td><p>Specifies the text style
+for the Font Object. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.getRefreshControl</td><td>method</td><td><p>Gets the value of the
+refreshControl property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.getSeparatorInsets</td><td>method</td><td><p>Gets the value of the
+separatorInsets property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.refreshControl</td><td>property</td><td><p>View positioned above the
+first row that is only revealed when the user drags the list view contents down. (New API, supported
+on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.separatorInsets</td><td>property</td><td><p>The insets for table
+view separators (applies to all cells). This property is applicable on iOS 7 and greater. (New API,
+supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.setRefreshControl</td><td>method</td><td><p>Sets the value of the
+refreshControl property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.setSeparatorInsets</td><td>method</td><td><p>Sets the value of the
+separatorInsets property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextArea.attributedString</td><td>property</td><td><p>TextArea attributed
+string. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextArea.getAttributedString</td><td>method</td><td><p>Gets the value of the
+attributedString property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextArea.getHandleLinks</td><td>method</td><td><p>Gets the value of the
+handleLinks property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextArea.handleLinks</td><td>property</td><td><p>Specifies if the text area
+should allow user interaction with the given URL in the given range of text. (New API, supported on
+iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextArea.link</td><td>event</td><td><p>Fired when user interacts with a URL in
+the text area. See handleLinks. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextArea.setAttributedString</td><td>method</td><td><p>Sets the value of the
+attributedString property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextArea.setHandleLinks</td><td>method</td><td><p>Sets the value of the
+handleLinks property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextField.attributedHintText</td><td>property</td><td><p>Hint text attributed
+string. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextField.attributedString</td><td>property</td><td><p>TextField attributed
+string. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextField.getAttributedHintText</td><td>method</td><td><p>Gets the value of
+the attributedHintText property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextField.getAttributedString</td><td>method</td><td><p>Gets the value of the
+attributedString property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextField.setAttributedHintText</td><td>method</td><td><p>Sets the value of
+the attributedHintText property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextField.setAttributedString</td><td>method</td><td><p>Sets the value of the
+attributedString property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.WebView.cacheMode</td><td>property</td><td><p>Determines how a cache is used
+in this web view. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.WebView.getCacheMode</td><td>method</td><td><p>Gets the value of the cacheMode
+property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.WebView.getLightTouchEnabled</td><td>method</td><td><p>Gets the value of the
+lightTouchEnabled property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.WebView.lightTouchEnabled</td><td>property</td><td><p>Enables using light
+touches to make a selection and activate mouseovers. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.WebView.setCacheMode</td><td>method</td><td><p>Sets the value of the cacheMode
+property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.WebView.setLightTouchEnabled</td><td>method</td><td><p>Sets the value of the
+lightTouchEnabled property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.getHideShadow</td><td>method</td><td><p>Gets the value of the
+hideShadow property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.getShadowImage</td><td>method</td><td><p>Gets the value of the
+shadowImage property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.getTitleAttributes</td><td>method</td><td><p>Gets the value of the
+titleAttributes property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.getTransitionAnimation</td><td>method</td><td><p>Gets the value of the
+transitionAnimation property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.hideShadow</td><td>property</td><td><p>Set this to true to hide the
+shadow image of the navigation bar. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.setHideShadow</td><td>method</td><td><p>Sets the value of the
+hideShadow property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.setShadowImage</td><td>method</td><td><p>Sets the value of the
+shadowImage property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.setTitleAttributes</td><td>method</td><td><p>Sets the value of the
+titleAttributes property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.setTransitionAnimation</td><td>method</td><td><p>Sets the value of the
+transitionAnimation property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.shadowImage</td><td>property</td><td><p>Shadow image for the navigation
+bar, specified as a URL to a local image.. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.titleAttributes</td><td>property</td><td><p>Title text attributes of
+the window. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.transitionAnimation</td><td>property</td><td><p>Use a transition
+animation when opening or closing windows in a
+Titanium.UI.iOS.NavigationWindow or Titanium.UI.Tab.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.createRefreshControl</td><td>method</td><td><p>Creates and returns an instance
+of Titanium.UI.RefreshControl. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.AnchorAttachmentBehavior</td><td>object</td><td><p>Dynamic behavior to
+support connections between an anchor point and an item. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.Animator</td><td>object</td><td><p>Provides support for the built-in iOS
+dynamic animations (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.AttributedString</td><td>object</td><td><p>An attributed string proxy
+manages character strings and associated sets of attributes (for example,
+font and kerning) that apply to individual characters or ranges of characters in the string.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.COLLISION_MODE_ALL</td><td>property</td><td><p>Use with
+Titanium.UI.iOS.CollisionBehavior.collisionMode to specify collisions with both items and
+boundaries.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.COLLISION_MODE_BOUNDARY</td><td>property</td><td><p>Use with
+Titanium.UI.iOS.CollisionBehavior.collisionMode to specify collisions with
+boundaries only.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.COLLISION_MODE_ITEM</td><td>property</td><td><p>Use with
+Titanium.UI.iOS.CollisionBehavior.collisionMode to specify collisions with items only.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.CollisionBehavior</td><td>object</td><td><p>Dynamic behavior to support
+collisions between items and boundaries. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.DynamicItemBehavior</td><td>object</td><td><p>Base dynamic configuration
+for an item. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.GravityBehavior</td><td>object</td><td><p>Gravitational force to apply to
+an item. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.PUSH_MODE_CONTINUOUS</td><td>property</td><td><p>Use with
+Titanium.UI.iOS.PushBehavior.pushMode to specifiy a continuous force.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.PUSH_MODE_INSTANTANEOUS</td><td>property</td><td><p>Use with
+Titanium.UI.iOS.PushBehavior.pushMode to specifiy an instantaneous force.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.PushBehavior</td><td>object</td><td><p>Continuous or instantaneous force
+to apply to an item. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.SnapBehavior</td><td>object</td><td><p>Dynamic behavior defining an item's
+movement to a specific point. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ViewAttachmentBehavior</td><td>object</td><td><p>Dynamic behavior to
+support connections between two items. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.createAnchorAttachmentBehavior</td><td>method</td><td><p>Creates and
+returns an instance of Titanium.UI.iOS.AnchorAttachmentBehavior. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.createAnimator</td><td>method</td><td><p>Creates and returns an instance
+of Titanium.UI.iOS.Animator. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.createAttributedString</td><td>method</td><td><p>Creates and returns an
+instance of Titanium.UI.iOS.AttributedString. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.createCollisionBehavior</td><td>method</td><td><p>Creates and returns an
+instance of Titanium.UI.iOS.CollisionBehavior. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.createDynamicItemBehavior</td><td>method</td><td><p>Creates and returns an
+instance of Titanium.UI.iOS.DynamicItemBehavior. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.createGravityBehavior</td><td>method</td><td><p>Creates and returns an
+instance of Titanium.UI.iOS.GravityBehavior. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.createPushBehavior</td><td>method</td><td><p>Creates and returns an
+instance of Titanium.UI.iOS.PushBehavior. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.createSnapBehavior</td><td>method</td><td><p>Creates and returns an
+instance of Titanium.UI.iOS.SnapBehavior. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.createTransitionAnimation</td><td>method</td><td><p>Creates a transition
+animation when opening or closing windows in a
+Titanium.UI.iOS.NavigationWindow or Titanium.UI.Tab.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.createViewAttachmentBehavior</td><td>method</td><td><p>Creates and returns
+an instance of Titanium.UI.iOS.ViewAttachmentBehavior. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iPad.Popover.contentView</td><td>property</td><td><p>The View to use for
+popover content instead of the popover. Must be set before calling <code>show</code> method. (New
+API, supported on iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iPad.Popover.getContentView</td><td>method</td><td><p>Gets the value of the
+contentView property. (New API, supported on iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iPad.Popover.setContentView</td><td>method</td><td><p>Sets the value of the
+contentView property. (New API, supported on iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iPhone.ListViewSeparatorStyle</td><td>object</td><td><p>A set of constants for
+the style that can be used for the <code>separatorStyle</code> property of 
+Titanium.UI.ListView.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+<tr>
+</table>
+
+<a name="removed_apis"></a>
+
+<h2>Removed APIs</h2>
+
+The following APIs have been removed in Release 3.2.0.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.Calendar.Event.getRecurenceRule</td><td>method</td><td>No replacement API. Not
+supported on iOS 6 or later.</td></tr>
+  <tr><td>Titanium.Calendar.Event.recurenceRule</td><td>property</td><td>No replacement API. Not
+supported on iOS 6 or later.</td></tr>
+  <tr><td>Titanium.Calendar.Event.setRecurenceRule</td><td>method</td><td>No replacement API. Not
+supported on iOS 6 or later.</td></tr>
+    <tr><td>Titanium.Map</td><td>module</td><td><p>For new Android applications or to use Google
+Maps v2, use the ti.map add-on module.</p>
+<p>For the iOS platform, use the ti.map add-on module. Support for the <code>Titanium.Map</code>
+module
+on iOS was removed in Release 3.2.0.</p>
+<p>For all other platforms, continue to use this module.</p></td></tr>
+  <tr><td>Titanium.Map.Annotation</td><td>object</td><td><p>For new Android applications or to use
+Google Maps v2, use the ti.map add-on module.</p>
+<p>For the iOS platform, use the ti.map add-on module. Support for the
+<code>Titanium.Map</code> module on iOS was removed in Release 3.2.0.</p>
+<p>For all other platforms, continue to use this module.</p></td></tr>
+  <tr><td>Titanium.Map.View</td><td>object</td><td><p>For new Android applications or to use Google
+Maps v2, use the ti.map add-on module.</p>
+<p>For the iOS platform, use the ti.map add-on module. Support for the
+<code>Titanium.Map</code> module on iOS was removed in Release 3.2.0.</p>
+<p>For all other platforms, continue to use this module.</p></td></tr>
+<tr>
+  <tr><td>Titanium.UI.iPhone.NavigationGroup</td><td>object</td><td><p>Use the
+Titanium.UI.iOS.NavigationWindow class instead.</p></td></tr>
+  <tr><td>Titanium.UI.iPhone.createNavigationGroup</td><td>method</td><td><p>Use the
+Titanium.UI.iOS.NavigationWindow class instead.</p></td></tr>
+  <tr><td>Titanium.UI.iPhone.hideStatusBar</td><td>method</td><td><p>This method does not work on
+iOS 7 and is deprecated on earlier versions. Use the fullscreen 
+property of the window to control if the staus bar is shown or not.</p></td></tr>
+  <tr><td>Titanium.UI.iPhone.showStatusBar</td><td>method</td><td><p>This method does not work on
+iOS 7 and is deprecated on earlier versions. Use the fullscreen 
+property of the window to control if the staus bar is shown or not.</p></td></tr>
+<tr>
+</table>

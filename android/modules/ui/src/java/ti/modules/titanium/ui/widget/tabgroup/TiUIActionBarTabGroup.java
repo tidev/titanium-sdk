@@ -6,17 +6,21 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
-import android.app.ActionBar;
-import android.app.ActionBar.Tab;
-import android.app.ActionBar.TabListener;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.Tab;
+import android.support.v7.app.ActionBar.TabListener;
 import android.app.Activity;
-import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentTransaction;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -34,6 +38,8 @@ import android.widget.FrameLayout;
 public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabListener, OnLifecycleEvent {
 	private ActionBar actionBar;
 	private boolean activityPaused = false;
+	// Default value is true. Set it to false if the tab is selected using the selectTab() method.
+	private boolean tabClicked = true;
 
 	// The tab to be selected once the activity resumes.
 	private Tab selectedTabOnResume;
@@ -44,9 +50,9 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		activity.addOnLifecycleEventListener(this);
 
 		// Setup the action bar for navigation tabs.
-		actionBar = activity.getActionBar();
+		actionBar = activity.getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		actionBar.setDisplayShowTitleEnabled(false);
+		actionBar.setDisplayShowTitleEnabled(true);
 
 		// Create a view to present the contents of the currently selected tab.
 		FrameLayout tabContent = new FrameLayout(activity);
@@ -60,6 +66,28 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		// Note: since the tab bar is NOT part of the content, animations
 		// will not transform it along with the rest of the group.
 		setNativeView(tabContent);
+	}
+	
+	@Override
+	public void processProperties(KrollDict d)
+	{
+		// TODO Auto-generated method stub
+		super.processProperties(d);
+		if (d.containsKey(TiC.PROPERTY_TITLE)) {
+			actionBar.setTitle(d.getString(TiC.PROPERTY_TITLE));
+		}
+
+	}
+
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
+		// TODO Auto-generated method stub
+		if (key.equals(TiC.PROPERTY_TITLE)) {
+			actionBar.setTitle(TiConvert.toString(newValue));
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
 	}
 
 	@Override
@@ -89,6 +117,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			return;
 		}
 
+		tabClicked = false;
 		if (activityPaused) {
 			// Action bar does not allow tab selection if the activity is paused.
 			// Postpone the tab selection until the activity resumes.
@@ -101,7 +130,16 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 
 	@Override
 	public TabProxy getSelectedTab() {
-		ActionBar.Tab tab = actionBar.getSelectedTab();
+		ActionBar.Tab tab;
+		try {
+			tab = actionBar.getSelectedTab();
+		} catch (NullPointerException e) {
+			//This is a workaround for AppCompat actionbar 4.0+. There is a bug in AppCompat source that
+			//will cause a null pointer exception if no tab is selected instead of returning null. See source at:
+			//https://android.googlesource.com/platform/frameworks/support/+/89208232f3b5d1451408d787872504a190bc7ee0/v7/appcompat/src/android/support/v7/app/ActionBarImplICS.java
+			//line 259.
+			tab = null;
+		}
 		if (tab == null) {
 			// There is no selected tab currently for this action bar.
 			// This probably means the tab group contains no tabs.
@@ -130,6 +168,12 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 
 		TabProxy tabProxy = (TabProxy) tabView.getProxy();
 		((TabGroupProxy) proxy).onTabSelected(tabProxy);
+		if (tabClicked) {
+			tabProxy.fireEvent(TiC.EVENT_CLICK, null);
+		} else {
+			tabClicked = true;
+		}
+
 	}
 
 	@Override
