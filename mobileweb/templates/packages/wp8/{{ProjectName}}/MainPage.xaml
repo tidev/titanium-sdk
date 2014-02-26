@@ -16,6 +16,7 @@
     <Grid Name="root">
         <phone:WebBrowser
             Name="browser"
+            Base="App"
             IsScriptEnabled="True"
             IsGeolocationEnabled="True"
             Loaded="browser_Loaded"
