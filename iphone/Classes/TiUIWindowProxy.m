@@ -434,7 +434,14 @@
     id barImageValue = [self valueForUndefinedKey:@"barImage"];
     
     UINavigationBar* ourNB = [[controller navigationController] navigationBar];
-    UIImage* theImage = [TiUtils toImage:barImageValue proxy:self size:[ourNB bounds].size];
+    UIImage* theImage = nil;
+    if ([TiUtils isIOS7OrGreater]) {
+        //TIMOB-16490
+        theImage = [TiUtils toImage:barImageValue proxy:self];
+    } else {
+        //TIMOB-16338
+        theImage = [TiUtils toImage:barImageValue proxy:self size:[ourNB bounds].size];
+    }
     
     if (theImage == nil) {
         [ourNB setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
