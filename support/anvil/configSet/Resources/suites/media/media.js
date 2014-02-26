@@ -20,8 +20,14 @@ module.exports = new function() {
 		{name: "audioPlayerAPIs"},
 		{name: "videoPlayerAPIs"},
 		{name: "audioTimeValidation", timeout: 5000},
-		{name: "screenshot", timeout: 2000}
-	]
+		{name: "screenshot", timeout: 2000},
+		{name: "mediaPlayer", timeout: 60000},
+		{name: "Media_Android_scanMediaFiles", timeout: 60000},
+		{name: "getUrlMethod", timeout: 60000},
+		{name: "videoResize", timeout: 60000},
+		{name: "changeState", timeout: 100000},
+		{name: "stopMethdAftercomplete", timeout: 60000}
+	];
 
 	this.constants = function(testRun) {
 		valueOf(testRun, Ti.Media).shouldNotBeNull();
@@ -105,7 +111,7 @@ module.exports = new function() {
 	}
 
 	this.audioTimeValidation = function(testRun) {
-		var sound = Ti.Media.createSound({ url : "sound.wav" });
+		var sound = Ti.Media.createSound({ url : "/suites/media/sound.wav" });
 		var initial_pos = 3000;
 		sound.time = initial_pos;
 		sound.setTime(initial_pos);
@@ -136,5 +142,182 @@ module.exports = new function() {
 		valueOf(testRun, function() {
 			Titanium.Media.takeScreenshot(callback);
 		}).shouldNotThrowException();
+	}
+
+	//TIMOB-7235
+	this.mediaPlayer = function(testRun){
+		var win = Titanium.UI.createWindow({
+			navBarHidden: false
+		});
+		var  sound = Ti.Media.createSound({
+			url : '/suites/media/sound.wav'
+		});
+		var completeEvent = 0;
+		function playNext2() {
+			sound.play();
+		};
+		function playNext() {
+			sound.time= 1000;
+			sound.play();
+		};
+		sound.addEventListener("complete", function(){
+			completeEvent += 1;
+			if(completeEvent == 1){
+				win.fullscreen = false;
+				playNext2();
+			}
+			else if(completeEvent == 2){
+				finish(testRun);
+			}
+		});
+		setTimeout(function(){
+			playNext();
+		},2000);
+		win.open();
+	}
+
+	//TIMOB-6809
+	this.Media_Android_scanMediaFiles = function(testRun){
+		if (Ti.Platform.osname === 'android') {
+			var win = Titanium.UI.createWindow({  
+				exitOnClose: true
+			});
+			var lbl = Ti.UI.createLabel({
+				height: '80dp',
+				left: '5dp',
+				right: '5dp'
+			});
+			win.add(lbl);
+			win.addEventListener('open', function(){
+				var f = Ti.Filesystem.getFile('image.png');
+				f.copy("appdata://image.png");
+				f = Ti.Filesystem.getFile("appdata://image.png");
+				valueOf(testRun, function(){
+					Ti.Media.Android.scanMediaFiles([ f.nativePath ], null, function(e) {
+						lbl.text = e.uri;
+					})
+				}).shouldNotThrowException();
+				finish(testRun);
+			});
+			win.open();
+		}
+		else {
+			finish(testRun);
+		}
+	}
+
+	//TIMOB-7365
+	this.getUrlMethod = function(testRun){
+		var audioPlayer = Ti.Media.createAudioPlayer({ 
+			url: 'www.example.com/podcast.mp3',
+			allowBackground: true
+		});
+		valueOf(testRun, audioPlayer.getUrl()).shouldNotBeNull();
+
+		finish(testRun);
+	}
+
+	//TIMOB-2903
+	this.videoResize = function(testRun){
+		var win = Titanium.UI.createWindow({title:'Test'});
+		setTimeout(function(){
+			var activeMovie = Titanium.Media.createVideoPlayer({ width: 640/4, 
+				autoplay: false, 
+				url: '/suites/media/movie.mp4',
+				mediaControlMode:Ti.Media.VIDEO_CONTROL_DEFAULT
+			});
+			win.add(activeMovie);
+			valueOf(testRun , function(){
+				activeMovie.play();
+			}).shouldNotThrowException();
+			activeMovie.addEventListener('complete', function(e){
+				finish(testRun);
+			});
+		}, 2000);
+		win.open();
+	}
+
+	//TIMOB-2135
+	this.changeState = function(testRun){
+		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
+			var win = Ti.UI.createWindow();
+			Ti.Media.audioSessionMode = Ti.Media.AUDIO_SESSION_MODE_PLAYBACK;
+			var streamer = Ti.Media.createAudioPlayer({
+				url : 'http://www.archive.org/download/jungle_book_mh_0808_librivox/junglebook_kipling_01.mp3'
+			});
+			win.addEventListener('open', function(){
+				streamer.start();
+				setTimeout(function(){
+					streamer.stop();
+				}, 5000);
+			});
+			var starting = false;
+			var waiting_for_data = false;
+			var waiting_for_queue = false;
+			var playing = false;
+			var stopping = false;
+			var stopped = false;
+			streamer.addEventListener('change', function(e) {
+				if(e.state == 1){
+					starting = true;
+				} 
+				else if(e.state == 2){
+					waiting_for_data = true;
+				} 
+				else if(e.state == 3){
+					waiting_for_queue =true;
+				} 	
+				else if(e.state == 4){
+					playing = true;
+				}
+				else if(e.state == 6){
+					stopping = true;
+				} 	
+				else if(e.state == 7){
+					stopped = true;
+					valueOf(testRun,stopped ).shouldBeTrue();
+					valueOf(testRun,stopping ).shouldBeTrue();
+					valueOf(testRun,playing ).shouldBeTrue();
+					valueOf(testRun,waiting_for_data ).shouldBeTrue();
+					valueOf(testRun,starting ).shouldBeTrue();
+					valueOf(testRun,waiting_for_queue ).shouldBeTrue();
+
+					finish(testRun);
+				} 
+			});
+			win.open();
+		}
+		else {
+			finish(testRun);
+		}
+	}
+
+	//TIMOB-7866
+	this.stopMethdAftercomplete = function(testRun){
+		var win = Ti.UI.createWindow();
+		var video = Ti.Media.createVideoPlayer({
+			url: '/suites/media/movie.mp4',
+			mediaControlMode: Ti.Media.VIDEO_CONTROL_DEFAULT,
+			top: 100,
+			bottom: 100,
+			autoplay: true
+		});
+		win.add(video);
+		var count = 0;
+		video.addEventListener('complete', function(){
+			count += 1;
+			if(count == 1){
+				video.start();
+				setTimeout(function(){
+					video.stop();
+				}, 2000);
+			}
+			else if(count == 2){
+				valueOf(testRun, video.getAutoplay()).shouldBeTrue();
+
+				finish(testRun);
+			}
+		});
+		win.open();
 	}
 }
