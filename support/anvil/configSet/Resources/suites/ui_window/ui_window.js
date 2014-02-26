@@ -21,7 +21,7 @@ module.exports = new function() {
 		{name: "exposePixelFormat", timeout: 5000},
 		{name: "openEventInNavigationalGroup", timeout: 5000},
 		{name: "fireCloseEvent", timeout: 5000},
-		//{name: "openAndFocusOnFirstWindow", timeout: 5000}, due to TIMOB-15852
+		{name: "openAndFocusOnFirstWindow", timeout: 5000}, 
 		{name: "removeChildren", timeout: 10000},
 		{name: "parentwindowFocus"},
 		{name: "closeEventHW"},
