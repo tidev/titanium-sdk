@@ -1138,6 +1138,8 @@ properties:
         user to refresh a table's data.  Typically used with the 
         [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
 
+        To specify the wrapper color see <Titanium.UI.View.pullBackgroundColor>.
+
         For an example, see the "Pull to refresh" section in the
         [TableViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/TableViews).
 
