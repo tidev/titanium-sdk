@@ -3,7 +3,7 @@ name: Titanium.UI.iPad.Popover
 platforms: [ipad]
 summary: A Popover is used to manage the presentation of content in a popover. 
 description: |
-    A popover is created using the <Titanium.UI.iPad.createPopover> method. 
+    A popover is created using the <Titanium.UI.iPad.createPopover> method or **`<Popover>`** Alloy element.
     
     Popovers are used to present information temporarily, but in a way that does not take over 
     the entire screen in the way that a modal view does. The popover content is layered on top of 
@@ -80,13 +80,36 @@ properties:
   - name: leftNavButton
     summary: Left button in the navigation area of the popover.
     description: |
-        Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
+        Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set. 
+
+        In an Alloy application, you can specify this property as a `<LeftNavButton>` child element
+        of the `<Popover>` element:
+
+            <Alloy>
+                <Popover>
+                    <LeftNavButton>
+                        <Button onClick='showAlert'>Alert</Button>
+                    </LeftNavButton>
+                </Popover>
+            </Alloy>
+
     type: Object
     
   - name: rightNavButton
     summary: Right button in the navigation area of the popover.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
+
+        In an Alloy application, you can specify this property as a `<RightNavButton>` child element
+        of the `<Popover>` element:
+
+            <Alloy>
+                <Popover>
+                    <RightNavButton>
+                        <Button onClick='showAlert'>Alert</Button>
+                    </RightNavButton>
+                </Popover>
+            </Alloy>
     type: Object
 
   - name: title

@@ -232,16 +232,35 @@ const static CGFloat kReflectionFraction = 0.85;
 }
 
 - (void)setNumberOfImages:(int)newNumberOfImages {
+    
+    BOOL force = (newNumberOfImages != numberOfImages);
+    if (newNumberOfImages < numberOfImages) {
+        int current = newNumberOfImages;
+        while (current < numberOfImages) {
+            NSNumber *coverNumber = [NSNumber numberWithInt:current];
+            [coverImages removeObjectForKey:coverNumber];
+            [coverImageHeights removeObjectForKey:coverNumber];
+            current ++;
+        }
+    }
+    
 	numberOfImages = newNumberOfImages;
 	scrollView.contentSize = CGSizeMake(newNumberOfImages * COVER_SPACING + self.bounds.size.width, self.bounds.size.height);
 
 	int lowerBound = MAX(0, selectedCoverView.number - COVER_BUFFER);
 	int upperBound = MIN(self.numberOfImages - 1, selectedCoverView.number + COVER_BUFFER);
 	
-	if (selectedCoverView)
-		[self layoutCovers:selectedCoverView.number fromCover:lowerBound toCover:upperBound];
-	else
-		[self setSelectedCover:0];
+    if (selectedCoverView) {
+        if (!force) {
+            [self layoutCovers:selectedCoverView.number fromCover:lowerBound toCover:upperBound];
+        } else {
+            int newSelected = (selectedCoverView.number < numberOfImages) ? selectedCoverView.number : (numberOfImages - 1);
+            [self setSelectedCover:newSelected forceCalculation:YES];
+        }
+    }
+    else {
+        [self setSelectedCover:0];
+    }
 	
 	[self centerOnSelectedCover:NO];
 }
@@ -343,13 +362,19 @@ const static CGFloat kReflectionFraction = 0.85;
 }
 
 - (void)setSelectedCover:(int)newSelectedCover {
-	if (selectedCoverView && (newSelectedCover == selectedCoverView.number))
+    [self setSelectedCover:newSelectedCover forceCalculation:NO];
+}
+
+- (void)setSelectedCover:(int)newSelectedCover forceCalculation:(BOOL)force{
+	if (!force && selectedCoverView && (newSelectedCover == selectedCoverView.number))
 		return;
 	
 	AFItemView *cover;
 	int newLowerBound = MAX(0, newSelectedCover - COVER_BUFFER);
 	int newUpperBound = MIN(self.numberOfImages - 1, newSelectedCover + COVER_BUFFER);
-	if (!selectedCoverView) {
+	if (!selectedCoverView || force) {
+		[offscreenCovers removeAllObjects];
+		[onscreenCovers removeAllObjects];
 		// Allocate and display covers from newLower to newUpper bounds.
 		for (int i=newLowerBound; i <= newUpperBound; i++) {
 			cover = [self coverForIndex:i];
@@ -374,9 +399,11 @@ const static CGFloat kReflectionFraction = 0.85;
 		AFItemView *cover;
 		for (int i = lowerVisibleCover; i <= upperVisibleCover; i++) {
 			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
-			[offscreenCovers addObject:cover];
-			[cover.layer removeFromSuperlayer];
-			[onscreenCovers removeObjectForKey:[NSNumber numberWithInt:cover.number]];
+			if (cover) {
+				[offscreenCovers addObject:cover];
+				[cover.layer removeFromSuperlayer];
+				[onscreenCovers removeObjectForKey:[NSNumber numberWithInt:cover.number]];
+			}
 		}
 			
 		// Move all available covers to new location.
@@ -406,9 +433,10 @@ const static CGFloat kReflectionFraction = 0.85;
 				[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:cover.number]];
 				[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
 			} else {
-				// Recycle this cover.
-				[offscreenCovers addObject:cover];
-				[cover.layer removeFromSuperlayer];
+				if (cover) {
+					[offscreenCovers addObject:cover];
+					[cover.layer removeFromSuperlayer];
+				}
 			}
 			[onscreenCovers removeObjectForKey:[NSNumber numberWithInt:i]];
 		}
@@ -437,8 +465,10 @@ const static CGFloat kReflectionFraction = 0.85;
 				[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
 			} else {
 				// Recycle this cover.
-				[offscreenCovers addObject:cover];
-				[cover.layer removeFromSuperlayer];
+				if (cover) {
+					[offscreenCovers addObject:cover];
+					[cover.layer removeFromSuperlayer];
+				}
 			}
 			[onscreenCovers removeObjectForKey:[NSNumber numberWithInt:i]];
 		}

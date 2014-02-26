@@ -943,7 +943,7 @@ public abstract class TiUIView
 					}
 				}
 			}
-			nativeView.setBackgroundDrawable(background);
+			getOuterView().setBackgroundDrawable(background);
 		}
 	}
 
@@ -1187,12 +1187,14 @@ public abstract class TiUIView
 							borderView.setColor(bgColor);
 						}
 					}
+					Object borderWidth = "1";
 					if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-						TiDimension width = TiConvert
-							.toTiDimension(d.get(TiC.PROPERTY_BORDER_WIDTH), TiDimension.TYPE_WIDTH);
-						if (width != null) {
-							borderView.setBorderWidth(width.getAsPixels(getNativeView()));
-						}
+						borderWidth = d.get(TiC.PROPERTY_BORDER_WIDTH);
+					}
+
+					TiDimension width = TiConvert.toTiDimension(borderWidth, TiDimension.TYPE_WIDTH);
+					if (width != null) {
+						borderView.setBorderWidth(width.getAsPixels(getNativeView()));
 					}
 				}
 			}
@@ -1203,6 +1205,9 @@ public abstract class TiUIView
 	{
 		if (TiC.PROPERTY_BORDER_COLOR.equals(property)) {
 			borderView.setColor(value != null ? TiConvert.toColor(value.toString()) : Color.TRANSPARENT);
+			if (!proxy.hasProperty(TiC.PROPERTY_BORDER_WIDTH)) {
+				borderView.setBorderWidth(1);
+			}
 		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
 			float radius = TiConvert.toFloat(value, 0f);
 			if (radius > 0f && HONEYCOMB_OR_GREATER) {

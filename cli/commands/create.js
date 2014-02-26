@@ -16,7 +16,7 @@ var appc = require('node-appc'),
 	__ = i18n.__,
 	__n = i18n.__n;
 
-exports.cliVersion = '>=3.2';
+exports.cliVersion = '>=3.2.1';
 exports.desc = __('creates a new mobile application'); // or module
 
 exports.config = function config(logger, config, cli) {

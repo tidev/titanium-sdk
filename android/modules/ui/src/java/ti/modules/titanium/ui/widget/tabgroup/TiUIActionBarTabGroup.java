@@ -16,11 +16,11 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
-import android.app.ActionBar;
-import android.app.ActionBar.Tab;
-import android.app.ActionBar.TabListener;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.Tab;
+import android.support.v7.app.ActionBar.TabListener;
 import android.app.Activity;
-import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentTransaction;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -50,7 +50,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		activity.addOnLifecycleEventListener(this);
 
 		// Setup the action bar for navigation tabs.
-		actionBar = activity.getActionBar();
+		actionBar = activity.getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.setDisplayShowTitleEnabled(true);
 
@@ -130,7 +130,16 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 
 	@Override
 	public TabProxy getSelectedTab() {
-		ActionBar.Tab tab = actionBar.getSelectedTab();
+		ActionBar.Tab tab;
+		try {
+			tab = actionBar.getSelectedTab();
+		} catch (NullPointerException e) {
+			//This is a workaround for AppCompat actionbar 4.0+. There is a bug in AppCompat source that
+			//will cause a null pointer exception if no tab is selected instead of returning null. See source at:
+			//https://android.googlesource.com/platform/frameworks/support/+/89208232f3b5d1451408d787872504a190bc7ee0/v7/appcompat/src/android/support/v7/app/ActionBarImplICS.java
+			//line 259.
+			tab = null;
+		}
 		if (tab == null) {
 			// There is no selected tab currently for this action bar.
 			// This probably means the tab group contains no tabs.

@@ -1,18 +1,18 @@
 ---
 name: Titanium.UI.iOS.NavigationWindow
 summary: |
-    A Navigation Window implements a specialized view that manages the navigation of hierarchical 
+    A `NavigationWindow` implements a specialized view that manages the navigation of hierarchical 
     content. 
 description: |
-    The navigation window is created with the method <Titanium.UI.iOS.createNavigationWindow>.
+    You create a `NavigationWindow` with the <Titanium.UI.iOS.createNavigationWindow> factory method, or 
+    a `<NavigationWindow>` Alloy element.
     
-    The `window` property must be set initially in the constructor when creating a navigation window 
-    to the root level window.  All navigation windows must have at least one root window that cannot 
-    be removed.
+    All `NavigationWindow` objects must have at least one root window that cannot be removed. When
+    creating a `NavigationWindow` with the factory method, you must set its `window` property to the
+    root level window. Equivalently, in an Alloy application, insert a `<Window>` element as a child of the
+    `<NavigationWindow>` element. See examples below.
 
-    This class replaces the Titanium.UI.iPhone.NavigationGroup class. Please note that this object 
-    is a window and is supposed to be used as a top level container. This can not be added to other windows.
-    However this class can be used within the <Titanium.UI.iPad.SplitWindow>
+    This object is not meant to be added to other windows. However, it can be used within a <Titanium.UI.iPad.SplitWindow>.
 platforms: [iphone, ipad]
 extends: Titanium.UI.Window
 since: "3.1.3"
