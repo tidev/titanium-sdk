@@ -421,6 +421,8 @@ public class TiAnimationBuilder
 			TiDimension optionTop = null, optionBottom = null;
 			TiDimension optionLeft = null, optionRight = null;
 			TiDimension optionCenterX = null, optionCenterY = null;
+			TiDimension optionHeight = null, optionWidth=null;
+			int newHeight = h, newWidth=w;
 
 			// Note that we're stringifying the values to make sure we
 			// use the correct TiDimension constructor, except when
@@ -466,9 +468,19 @@ public class TiAnimationBuilder
 				parentView = (View) parent;
 			}
 
-			TiCompositeLayout.computePosition(parentView, optionLeft, optionCenterX, optionRight, w, 0, parentWidth,
+			if (height != null) {
+				optionHeight = new TiDimension(height, TiDimension.TYPE_HEIGHT);
+				newHeight = optionHeight.getAsPixels(parentView);
+			}
+
+			if (width != null) {
+				optionWidth = new TiDimension(width, TiDimension.TYPE_WIDTH);
+				newWidth = optionWidth.getAsPixels(parentView);
+			}
+
+			TiCompositeLayout.computePosition(parentView, optionLeft, optionCenterX, optionRight, newWidth, 0, parentWidth,
 					horizontal);
-			TiCompositeLayout.computePosition(parentView, optionTop, optionCenterY, optionBottom, h, 0, parentHeight,
+			TiCompositeLayout.computePosition(parentView, optionTop, optionCenterY, optionBottom, newHeight, 0, parentHeight,
 					vertical);
 
 			// For pre-Honeycomb, there will be flicker during animation if using animatorHelper.
