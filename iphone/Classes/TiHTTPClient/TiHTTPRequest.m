@@ -106,23 +106,11 @@
     }
     [_request setHTTPShouldHandleCookies:[self sendDefaultCookies]];
     
-    /*
-     
-    // Is this needed? Should the developer do it himself?
-     
-    if([self requestUsername] != nil && [self requestPassword] != nil) {
-        if([_request valueForHTTPHeaderField:@"Authorization"] == nil) {
-            
-            NSString *basic = [TiHTTPHelper base64encode:
-                               [[NSString stringWithFormat:@"%@:%@", [self requestUsername],[self requestPassword]]
-                                dataUsingEncoding:NSUTF8StringEncoding
-                                ]];
-            [_request setValue: [NSString stringWithFormat:@"Basic: %@", basic] forHTTPHeaderField:@"Authorization"];
-            DeveloperLog(@"%@", [NSString stringWithFormat:@"Basic: %@", basic] );
-        }
-    }
-    */
     if([self synchronous]) {
+        if([self requestUsername] != nil && [self requestPassword] != nil && [_request valueForHTTPHeaderField:@"Authorization"] == nil) {
+            NSString *authString = [TiHTTPHelper base64encode:[[NSString stringWithFormat:@"%@:%@",[self requestUsername], [self requestPassword]] dataUsingEncoding:NSUTF8StringEncoding]];
+            [_request setValue:[NSString stringWithFormat:@"Basic %@", authString] forHTTPHeaderField:@"Authorization"];
+        }
         NSURLResponse *response;
         NSError *error = nil;
         NSData *responseData = [NSURLConnection sendSynchronousRequest:_request returningResponse:&response error:&error];
@@ -140,8 +128,8 @@
         }
         
         _connection = [[NSURLConnection alloc] initWithRequest: _request
-                                                              delegate: self
-                                                      startImmediately: NO
+                                                      delegate: self
+                                              startImmediately: NO
                                ];
         
         if([self theQueue]) {

@@ -8,9 +8,12 @@
 #import "HttpClientProxy.h"
 #import "NetworkModule.h"
 #import "TiUtils.h"
+#import "TiBase.h"
 #import "TiApp.h"
 
 #define TI_HTTP_REQUEST_PROGRESS_INTERVAL 0.03f
+
+extern NSString * const TI_APPLICATION_GUID;
 
 @implementation HTTPClientProxy
 
@@ -25,7 +28,10 @@
     if(httpRequest == nil) {
         httpRequest = [[TiHTTPRequest alloc] init];
         [httpRequest setDelegate:self];
-    }
+    	[httpRequest addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
+        [httpRequest addRequestHeader:[NSString stringWithFormat:@"%s-%s%s-%s", "X","Tita","nium","Id"] value:TI_APPLICATION_GUID];
+        
+}
     return httpRequest;
 }
 
@@ -79,6 +85,13 @@
     if([self valueForUndefinedKey:@"domain"]) {
         // TODO: NTLM
     }
+	// twitter specifically disallows X-Requested-With so we only add this normal
+	// XHR header if not going to twitter. however, other services generally expect
+	// this header to indicate an XHR request (such as RoR)
+	if ([[self valueForUndefinedKey:@"url"] rangeOfString:@"twitter.com"].location==NSNotFound)
+	{
+		[[self request] addRequestHeader:@"X-Requested-With" value:@"XMLHttpRequest"];
+	}
     id file = [self valueForUndefinedKey:@"file"];
     if(file) {
         NSString *filePath = nil;
@@ -188,32 +201,6 @@
 {
     ENSURE_SINGLE_ARG(args, NSString)
     return [[response headers] valueForKey:args];
-}
-
--(NSDictionary*)allResponseHeaders
-{
-    return [response headers];
-}
-
--(NSString*)apiName
-{
-    NSString *className =  NSStringFromClass ([self class]);
-    className = [className stringByReplacingOccurrencesOfString:@"TiNetwork" withString:@""];
-    className = [className stringByReplacingOccurrencesOfString:@"Proxy" withString:@""];
-    return [NSString stringWithFormat:@"Ti.Network.%@", className];
-}
-
--(NSNumber*)connected
-{
-    if([[self request] response] == nil) {
-        return NUMBOOL(NO);
-    }
-    TiHTTPResponseState state = [[[self request] response] readyState];
-    return NUMBOOL(
-                   state == TiHTTPResponseStateHeaders ||
-                   state == TiHTTPResponseStateLoading ||
-                   state == TiHTTPResponseStateOpened
-                   );
 }
 
 # pragma mark - Callback functions
@@ -363,31 +350,46 @@
 
 #pragma mark - Public getter properties
 
+-(NSDictionary*)allResponseHeaders
+{
+    return [response headers];
+}
+
+-(NSString*)apiName
+{
+    return @"Ti.Network.HTTPClient";
+}
+
+-(NSNumber*)connected
+{
+    if([[self request] response] == nil) {
+        return NUMBOOL(NO);
+    }
+    TiHTTPResponseState state = [[[self request] response] readyState];
+    return NUMBOOL(
+                   state == TiHTTPResponseStateHeaders ||
+                   state == TiHTTPResponseStateLoading ||
+                   state == TiHTTPResponseStateOpened
+                   );
+}
+
 -(NSNumber*)status
 {
     return NUMINT([response status]);
 }
--(NSString*)method
-{
-    if(response == nil) {
-        return [self valueForUndefinedKey:@"method"];
-    }
-    return [response connectionType];
-}
--(NSString*)url
+-(NSString*)location
 {
     if(response == nil) {
         return [self valueForUndefinedKey:@"url"];
     }
     return [response location];
 }
--(NSString*)location
-{
-    return [self url];
-}
 -(NSString*)connectionType
 {
-    return [self method];
+    if(response == nil) {
+        return [self valueForUndefinedKey:@"method"];
+    }
+    return [response connectionType];
 }
 -(NSString*)responseText
 {
