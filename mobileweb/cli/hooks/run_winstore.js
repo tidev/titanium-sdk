@@ -5,19 +5,16 @@
  * See the LICENSE file for more information.
  */
 
-var path = require('path'),
-	spawn = require('child_process').spawn,
-	exec = require('child_process').exec,
-	appc = require('node-appc'),
-	i18n = appc.i18n(__dirname),
-	__ = i18n.__,
+var appc = require('node-appc'),
 	async = require('async'),
-	winstore = require('titanium-sdk/lib/winstore');
+	path = require('path'),
+	spawn = require('child_process').spawn,
+	windows = require('titanium-sdk/lib/windows'),
+	__ = appc.i18n(__dirname).__;
 
 exports.cliVersion = '>=3.X';
 
 exports.init = function (logger, config, cli) {
-
 	if (process.platform != 'win32') {
 		return;
 	}
@@ -30,42 +27,32 @@ exports.init = function (logger, config, cli) {
 				return;
 			}
 
-
 			logger.info(__('Installing and launching the application'));
-			winstore.detect(function (env) {
 
-				if (env.issues.length) {
-					console.error(__('There were issues detected with the Windows Store development environment setup. ' +
-						'Please run "titanium info" for more information'));
-					process.exit(1);
-				}
-
-				var tiapp = build.tiapp,
+			winstore.detect(config, null, function (env) {
+				var powershell = config.get('windows.executables.powershell', 'powershell'),
+					tiapp = build.tiapp,
 					previousPackageFullName;
 
 				async.series([
-
 					// Check if the app is already running
 					function (next) {
-						logger.debug(__('Checking to see if the application is already installed'));
-						exec('powershell.exe -command "Get-AppxPackage"', function (code, stdout, stderr) {
-							var lines,
-								i, len,
-								packageFullNameLineRegex = new RegExp('PackageFullName[\\s]*:[\\s]*(' + tiapp.id + '.*)'),
-								match;
+						logger.info(__('Checking to see if the application is already installed'));
+						appc.subprocess.run(powershell, [ '-command', 'Get-AppxPackage' ], function (code, out, err) {
 							if (code) {
-								logger.error(__('Could not query the list of installed Windows Store apps: %s', stderr || code));
-								next(code);
+								logger.error(__('Could not query the list of installed Windows Store apps: %s', err || code));
 							} else {
-								lines = stdout.split('\r\n');
-								for (i = 0, len = lines.length; i < len; i++) {
-									match = packageFullNameLineRegex.exec(lines[i]);
-									if (match) {
-										previousPackageFullName = match[1];
+								var packageFullNameLineRegex = new RegExp('PackageFullName[\\s]*:[\\s]*(' + tiapp.id + '.*)');
+
+								out.split(/\r\n|\n/).forEach(function (line) {
+									line = line.trim();
+									var m = line.match(packageFullNameLineRegex);
+									if (m) {
+										previousPackageFullName = m[1];
 									}
-								}
-								next();
+								});
 							}
+							next(code);
 						});
 					},
 
@@ -73,14 +60,13 @@ exports.init = function (logger, config, cli) {
 					function (next) {
 						if (previousPackageFullName) {
 							logger.debug(__('App is already installed, uninstalling now'));
-							exec('powershell.exe -command "Remove-AppxPackage \\"' + previousPackageFullName + '\\"',
-								function (code, stdout, stderr) {
-									if (code) {
-										logger.error(__('Could not remove the previously installed app: %s', stderr || code));
-									} else {
-										logger.debug(__('Successfully removed the previously installed app'));
-									}
-									next(code);
+							appc.subprocess.run(powershell, [ '-command', 'Remove-AppxPackage', previousPackageFullName ], function (code, out, err) {
+								if (code) {
+									logger.error(__('Could not remove the previously installed app: %s', err || code));
+								} else {
+									logger.debug(__('Successfully removed the previously installed app'));
+								}
+								next(code);
 							});
 						} else {
 							next();
@@ -91,7 +77,7 @@ exports.init = function (logger, config, cli) {
 					function (next) {
 						var buildType = cli.argv['deploy-type'] == 'production' ? 'Release' : 'Debug';
 
-						appc.subprocess.getRealName(path.join(
+						appc.subprocess.getRealName(path.resolve(
 							build.buildDir,
 							'..',
 							'mobileweb-winstore',
@@ -104,8 +90,8 @@ exports.init = function (logger, config, cli) {
 								args = [ '-command', psScript + ' -Force' ];
 
 							logger.info(__('Installing the app'));
-							logger.debug(__('Running: %s', ('powershell.exe "' + args.join('" "') + '"').cyan));
-							appc.subprocess.run('powershell.exe', args, function (code, out, err) {
+							logger.debug(__('Running: %s', (powershell + ' "' + args.join('" "') + '"').cyan));
+							appc.subprocess.run(powershell, args, function (code, out, err) {
 								if (!code) {
 									logger.debug(__('Finished deploying the application'));
 									return next();
@@ -116,17 +102,16 @@ exports.init = function (logger, config, cli) {
 									process.exit(1);
 								}
 
-								args = [ '-command', psScript ];
+								var args = [ '-command', psScript ];
 								logger.debug(__('Failed, trying again without -Force'));
-								logger.debug(__('Running: %s', ('powershell.exe "' + args.join('" "') + '"').cyan));
-								appc.subprocess.run('powershell.exe', args, function (code, out, err) {
+								logger.debug(__('Running: %s', (powershell + ' "' + args.join('" "') + '"').cyan));
+								appc.subprocess.run(powershell, args, function (code, out, err) {
 									if (code) {
 										logger.error(__('There were errors deploying the application') + '\n');
-										process.exit(1);
 									} else {
-										logger.debug(__('Finished deploying the application'));
-										next();
+										logger.info(__('Finished deploying the application'));
 									}
+									next(code);
 								});
 							});
 						});
@@ -134,41 +119,38 @@ exports.init = function (logger, config, cli) {
 
 					// Launch the app
 					function (next) {
-						var launchProcess;
+						var cmd = path.resolve(__dirname, '..', '..', '..', 'common', 'Win8AppLauncher', 'AppLauncher.exe'),
+							args = [
+								tiapp.id,
+								tiapp._windowsVersion // this is the cleaned up tiapp.version from package_windows.js
+							];
 
 						logger.info(__('Launching the application'));
+						logger.debug(__('Running: %s', (cmd + ' ' + args.join(' ')).cyan));
 
-						launchProcess = spawn(path.join(__dirname, '..', '..', '..', 'common', 'Win8AppLauncher', 'AppLauncher.exe'),
-							[ tiapp.id, tiapp._windowsVersion ]);
-						launchProcess.stdout.on('data', function (data) {
-							data.toString().split('\r\n').forEach(function (line) {
-								line = line.trim();
-								if (line.length) {
-									logger.trace(line);
-								}
-							});
-						});
-						launchProcess.stderr.on('data', function (data) {
-							data.toString().split('\r\n').forEach(function (line) {
-								line = line.trim();
-								if (line.length) {
-									logger.error(line);
-								}
-							});
-						});
-						launchProcess.on('close', function (code) {
+						function makePipe(log) {
+							return function (data) {
+								data.toString().split(/\r\n|\n/).forEach(function (line) {
+									line = line.trim();
+									line.length && log(line);
+								});
+							};
+						}
+
+						var child = spawn(cmd, args);
+						child.stdout.on('data', makePipe(logger.trace));
+						child.stderr.on('data', makePipe(logger.error));
+						child.on('close', function (code) {
 							if (code) {
-								logger.error(__('There were errors launching the application. ' +
-									'You may need to enable script execution by running "Set-ExecutionPolicy AllSigned" from within PowerShell'));
+								logger.error(__('There were errors launching the application.'));
+								logger.error(__('You may need to enable script execution by running "Set-ExecutionPolicy AllSigned" from within PowerShell'));
 							} else {
 								logger.info(__('Finished launching the application'));
 							}
 							next(code);
 						});
 					}
-				], function (err) {
-					finished(err);
-				});
+				], finished);
 			});
 		}
 	});
