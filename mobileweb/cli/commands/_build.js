@@ -5,21 +5,21 @@
  * See the LICENSE file for more information.
  */
 
-var ti = require('titanium-sdk'),
-	appc = require('node-appc'),
+var appc = require('node-appc'),
+	cleanCSS = require('clean-css'),
+	fs = require('fs'),
 	i18n = appc.i18n(__dirname),
+	path = require('path'),
+	ti = require('titanium-sdk'),
+	wrench = require('wrench'),
 	__ = i18n.__,
 	__n = i18n.__n,
-	cleanCSS = require('clean-css'),
 	afs = appc.fs,
 	parallel = appc.async.parallel,
 	UglifyJS = require('uglify-js'),
-	fs = require('fs'),
-	path = require('path'),
-	wrench = require('wrench'),
+	windows = require('titanium-sdk/lib/windows'),
+	windowsEnv,
 	jsExtRegExp = /\.js$/,
-	wp8 = require('titanium-sdk/lib/wp8'),
-	wp8Env,
 	HTML_HEADER = [
 		'<!--',
 		'	WARNING: this is generated code and will be lost if changes are made.',
@@ -45,8 +45,8 @@ UglifyJS.AST_Node.warn_function = function () {};
 exports.config = function (logger, config, cli) {
 	return function (finished) {
 		if (process.platform == 'win32') {
-			wp8.detect(function (env) {
-				wp8Env = env;
+			windows.detect(config, null, function (env) {
+				windowsEnv = env;
 				configure();
 			});
 		} else {
@@ -99,10 +99,9 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-
 	// If this is a Windows Phone 8 target, validate the wp8 specific parameters
 	if (cli.argv.target == 'wp8') {
-		if (wp8Env.issues.length) {
+		if (windowsEnv.issues.length) {
 			logger.error(__('There are Windows Phone configuration issues preventing the app from being built') + '\n');
 			logger.log(__('Run "titanium info" to get more information on this error') + '\n');
 			process.exit(1);
@@ -116,7 +115,7 @@ exports.validate = function (logger, config, cli) {
 			}
 		}
 		if (cli.argv['device-id']) {
-			if (cli.argv['device-id'] != 'xd' && cli.argv['device-id'] != 'de' && !wp8Env.devices[cli.argv['device-id']]) {
+			if (cli.argv['device-id'] != 'xd' && cli.argv['device-id'] != 'de' && !windowsEnv.devices[cli.argv['device-id']]) {
 				logger.error(__('Invalid device id "%s"', cli.argv['device-id']) + '\n');
 				logger.log(__('The device id must be "xd", "de", or the numerical value of a specific device or emulator') + '\n');
 				process.exit(1);
@@ -285,7 +284,7 @@ build.prototype = {
 	readTiPackageJson: function () {
 		this.logger.info(__('Reading Titanium Mobile Web package.json file'));
 		var mwPackageFile = this.mobilewebSdkPath + '/titanium/package.json';
-		afs.exists(mwPackageFile) || badInstall(__('Unable to find Titanium Mobile Web package.json file'));
+		fs.existsSync(mwPackageFile) || badInstall(__('Unable to find Titanium Mobile Web package.json file'));
 		try {
 			return JSON.parse(fs.readFileSync(mwPackageFile));
 		} catch (e) {
@@ -296,7 +295,7 @@ build.prototype = {
 	validateTheme: function () {
 		this.logger.info(__('Validating theme'));
 		this.theme = this.tiapp.mobileweb.theme || 'default';
-		if (!afs.exists(this.mobilewebThemeDir + '/' + this.theme)) {
+		if (!fs.existsSync(this.mobilewebThemeDir + '/' + this.theme)) {
 			logger.error(__('Unable to find the "%s" theme. Please verify the theme setting in the tiapp.xml.', this.theme) + '\n');
 			process.exit(1);
 		}
@@ -305,7 +304,7 @@ build.prototype = {
 
 	copyFiles: function (callback) {
 		this.logger.info(__('Copying project files'));
-		if (afs.exists(this.buildDir)) {
+		if (fs.existsSync(this.buildDir)) {
 			this.logger.debug(__('Deleting existing build directory'));
 			try {
 				wrench.rmdirSyncRecursive(this.buildDir);
@@ -320,15 +319,23 @@ build.prototype = {
 				process.exit(1);
 			}
 		}
-		wrench.mkdirSyncRecursive(this.buildDir);
+
+		try {
+			wrench.mkdirSyncRecursive(this.buildDir);
+		} catch (e) {
+			dump(e);
+			throw e;
+		}
+
 		afs.copyDirSyncRecursive(this.mobilewebThemeDir, this.buildDir + '/themes', { preserve: true, logger: this.logger.debug });
 		afs.copyDirSyncRecursive(this.mobilewebTitaniumDir, this.buildDir + '/titanium', { preserve: true, logger: this.logger.debug });
 		afs.copyDirSyncRecursive(this.projectResDir, this.buildDir, { preserve: true, logger: this.logger.debug, rootIgnore: ti.filterPlatforms('mobileweb') });
-		if (afs.exists(this.projectResDir, 'mobileweb')) {
+
+		if (fs.existsSync(this.projectResDir, 'mobileweb')) {
 			afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir, { preserve: true, logger: this.logger.debug, rootIgnore: ['apple_startup_images', 'splash'] });
 			['Default.jpg', 'Default-Portrait.jpg', 'Default-Landscape.jpg'].forEach(function (file) {
 				file = this.projectResDir + '/mobileweb/apple_startup_images/' + file;
-				if (afs.exists(file)) {
+				if (fs.existsSync(file)) {
 					afs.copyFileSync(file, this.buildDir, { logger: this.logger.debug });
 					afs.copyFileSync(file, this.buildDir + '/apple_startup_images', { logger: this.logger.debug });
 				}
@@ -453,7 +460,7 @@ build.prototype = {
 				var moduleDir = module.modulePath,
 					pkgJson,
 					pkgJsonFile = path.join(moduleDir, 'package.json');
-				if (!afs.exists(pkgJsonFile)) {
+				if (!fs.existsSync(pkgJsonFile)) {
 					this.logger.error(__('Invalid Titanium Mobile Module "%s": missing package.json', module.id) + '\n');
 					process.exit(1);
 				}
@@ -468,7 +475,7 @@ build.prototype = {
 				var libDir = ((pkgJson.directories && pkgJson.directories.lib) || '').replace(/^\//, '');
 
 				var mainFilePath = path.join(moduleDir, libDir, (pkgJson.main || '').replace(jsExtRegExp, '') + '.js');
-				if (!afs.exists(mainFilePath)) {
+				if (!fs.existsSync(mainFilePath)) {
 					this.logger.error(__('Invalid Titanium Mobile Module "%s": unable to find main file "%s"', module.id, pkgJson.main) + '\n');
 					process.exit(1);
 				}
@@ -660,7 +667,7 @@ build.prototype = {
 				m = img.match(/(\.[a-zA-Z]{3,4})$/),
 				type = m && imageMimeTypes[m[1]];
 
-			if (type && afs.exists(img)) {
+			if (type && fs.existsSync(img)) {
 				if (!requireCacheWritten) {
 					tiJS.push('require.cache({');
 					requireCacheWritten = true;
@@ -758,10 +765,10 @@ build.prototype = {
 			var splashDir = this.projectResDir + '/mobileweb/splash',
 				splashHtmlFile = splashDir + '/splash.html',
 				splashCssFile = splashDir + '/splash.css';
-			if (afs.exists(splashDir)) {
+			if (fs.existsSync(splashDir)) {
 				this.logger.info(__('Processing splash screen'));
-				afs.exists(splashHtmlFile) && (this.splashHtml = fs.readFileSync(splashHtmlFile));
-				if (afs.exists(splashCssFile)) {
+				fs.existsSync(splashHtmlFile) && (this.splashHtml = fs.readFileSync(splashHtmlFile));
+				if (fs.existsSync(splashCssFile)) {
 					var css = fs.readFileSync(splashCssFile).toString();
 					if (this.tiapp.mobileweb.splash['inline-css-images']) {
 						var parts = css.split('url('),
@@ -774,7 +781,7 @@ build.prototype = {
 								if (!/^data\:/.test(img)) {
 									imgPath = img.charAt(0) == '/' ? this.projectResDir + img : splashDir + '/' + img;
 									imgType = imageMimeTypes[imgPath.match(/(\.[a-zA-Z]{3})$/)[1]];
-									if (afs.exists(imgPath) && imgType) {
+									if (fs.existsSync(imgPath) && imgType) {
 										parts[i] = 'data:' + imgType + ';base64,' + fs.readFileSync(imgPath).toString('base64') + parts[i].substring(p);
 									}
 								}
@@ -790,16 +797,16 @@ build.prototype = {
 		this.logger.info(__('Assembling titanium.css'));
 
 		var commonCss = this.mobilewebThemeDir + '/common.css';
-		afs.exists(commonCss) && tiCSS.push(fs.readFileSync(commonCss).toString());
+		fs.existsSync(commonCss) && tiCSS.push(fs.readFileSync(commonCss).toString());
 
 		// TODO: need to rewrite absolute paths for urls
 
 		// TODO: code below does NOT inline imports, nor remove them... do NOT use imports until themes are fleshed out
 
 		var themePath = this.projectResDir + '/themes/' + this.theme;
-		afs.exists(themePath) || (themePath = this.projectResDir + '/' + this.theme);
-		afs.exists(themePath) || (themePath = this.mobilewebSdkPath + '/themes/' + this.theme);
-		if (!afs.exists(themePath)) {
+		fs.existsSync(themePath) || (themePath = this.projectResDir + '/' + this.theme);
+		fs.existsSync(themePath) || (themePath = this.mobilewebSdkPath + '/themes/' + this.theme);
+		if (!fs.existsSync(themePath)) {
 			this.logger.error(__('Unable to locate theme "%s"', this.theme) + '\n');
 			process.exit(1);
 		}
@@ -833,11 +840,11 @@ build.prototype = {
 		this.logger.info(__('Creating favicon and Apple touch icons'));
 
 		var file = path.join(this.projectResDir, this.tiapp.icon);
-		if (!/\.(png|jpg|gif)$/.test(file) || !afs.exists(file)) {
+		if (!/\.(png|jpg|gif)$/.test(file) || !fs.existsSync(file)) {
 			file = path.join(this.projectResDir, 'mobileweb', 'appicon.png');
 		}
 
-		if (afs.exists(file)) {
+		if (fs.existsSync(file)) {
 			afs.copyFileSync(file, this.buildDir, { logger: this.logger.debug });
 
 			var params = [
