@@ -373,6 +373,21 @@ properties:
 
   - name: leftNavButton
     summary: View to show in the left nav bar area.
+    description: |
+        In an Alloy application you can specify this property with a `<LeftNavButton>` element inside the
+        `<Window>` element, for example:
+
+            <Alloy>
+                <TabGroup>
+                    <Tab>
+                        <Window class="container">
+                            <LeftNavButton platform=ios>
+                                <Button title="Back" onClick="closeWindow" />
+                            </LeftNavButton>
+                        </Window>
+                    </Tab>
+                </TabGroup>
+            </Alloy>
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
 
@@ -576,6 +591,22 @@ properties:
 
   - name: rightNavButton
     summary: View to show in the right nav bar area.
+    description: |
+        In an Alloy application you can specify this property with a `<RightNavButton>` element in the
+        `<Window>` element, for example:
+
+            <Alloy>
+                <TabGroup>
+                    <Tab>
+                        <Window class="container">
+                            <RightNavButton platform=ios>
+                                <Button title="Back" onClick="closeWindow" />
+                            </RightNavButton>
+                        </Window>
+                    </Tab>
+                </TabGroup>
+            </Alloy>
+
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
     
@@ -625,6 +656,21 @@ properties:
 
   - name: titleControl
     summary: View to show in the title area of the nav bar.
+    description: |
+        In an Alloy application you can specify this property using a `<TitleControl>` element inside 
+        `<Window>`, for example:
+
+            <Alloy>
+                <RightNavButton>
+                    <Button title="Back" />                 
+                </RightNavButton>
+                <LeftNavButton>
+                    <Button title="Back" />
+                </LeftNavButton>
+                <TitleControl>
+                    <View backgroundColor="blue" height="100%" width="100%"></View>
+                </TitleControl>
+            </Alloy>
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
 
@@ -787,8 +833,7 @@ properties:
   - name: windowPixelFormat
     summary: Set the pixel format for the Activity's Window.
     description: |
-        The property is ignored on a Titanium "lightweight" Window. Use one of the
-        <Titanium.UI.Android>.PIXEL_FORMAT constants to set the format.
+        Use one of the <Titanium.UI.Android>.PIXEL_FORMAT constants to set the format.
 
         For more information on pixel formats, see 
         [Android SDK Window.setFormat](http://developer.android.com/reference/android/view/Window.html#setFormat(int))
@@ -797,6 +842,8 @@ properties:
     since: "1.8.0"
 
 description: |
+    To create a window, use the <Titanium.UI.createWindow> method or a **`<Window>`** Alloy element.
+
     A window is a top-level container which can contain other views. Windows can
     be *opened* and *closed*.  Opening a window causes the window and its child 
     views to be added to the application's render stack, on top of any previously opened 
@@ -815,9 +862,6 @@ description: |
     status bar, and in the case of windows contained in tab groups, the tab bar.
     To take up the entire screen, covering any other UI, specify `fullscreen:true`
     when creating the window.
-
-    To create a window, use the <Titanium.UI.createWindow> method in your JavaScript files
-    or the &lt;Window&gt; XML element for Alloy views.
 
     ### Pass Context Between Windows
 

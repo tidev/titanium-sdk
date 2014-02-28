@@ -7,11 +7,12 @@ description:  |
     animation and an optional text message, and is used to indicate an ongoing activity of 
     indeterminate length. To show progress, use <Titanium.UI.ProgressBar> instead.
 
-    Use the <Titanium.UI.createActivityIndicator> method to create an Activity Indicator. 
+    Use the <Titanium.UI.createActivityIndicator> method or **`<ActivityIndicator>`** Alloy element to
+    create an `ActivityIndicator` object.
     
-    The activity indicator is a view like any other view, and must be
-    added to a window or other top-level view before it can be shown. Note that, unlike most views, 
-    the activity indicator is hidden by default and must be shown explicitly.
+    `ActivityIndicator` is a view and, like any view, must be added to a window or other top-level
+    view before it can be shown. Unlike most views, `ActivityIndicator` is hidden by
+    default and must be shown explicitly by calling its <Titanium.UI.ActivityIndicator.show> method.
 
     #### Android Platform Notes
 
