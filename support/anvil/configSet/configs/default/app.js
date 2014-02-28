@@ -33,6 +33,7 @@ var suites = [
 	{name: "properties"},
 	{name: "stream"},
 	{name: "string"},
+	{name: "TiNinePatchImage/TiNinePatchImage"},
 	{name: "titanium"},
 	{name: "ui/ui_animation"},
 	{name: "ui/ui"},
