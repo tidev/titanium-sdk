@@ -116,7 +116,7 @@ static NSString* ARG_KEY = @"arg";
 -(void)socketRunLoop
 {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    [socketThread setName:[NSString stringWithFormat:@"Ti.Network.Socket.TCP (%x)",self]];
+    [socketThread setName:[NSString stringWithFormat:@"Ti.Network.Socket.TCP (%@)",self]];
     // Begin the run loop for the socket
     int counter=0;
     while (!(internalState & (SOCKET_CLOSED | SOCKET_ERROR)) &&

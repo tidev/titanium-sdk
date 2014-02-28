@@ -501,8 +501,7 @@ NSArray* moviePlayerKeys = nil;
 -(void)setVolume:(NSNumber *)newVolume
 {
 	double volume = [TiUtils doubleValue:newVolume def:-1.0];
-	ENSURE_VALUE_RANGE(volume, 0.0, 1.0);
-
+    volume = MAX(0.0, MIN(volume, 1.0));
 	TiThreadPerformOnMainThread(^{
 		[[MPMusicPlayerController applicationMusicPlayer] setVolume:volume];
 	}, NO);
@@ -861,7 +860,7 @@ NSArray* moviePlayerKeys = nil;
 			NSMutableDictionary *event;
 			if (reason!=nil)
 			{
-				event = [NSDictionary dictionaryWithObject:reason forKey:@"reason"];
+				event = [NSMutableDictionary dictionaryWithObject:reason forKey:@"reason"];
 			}
 			else
 			{
