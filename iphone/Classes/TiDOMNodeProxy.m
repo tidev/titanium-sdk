@@ -377,7 +377,7 @@ CFHashCode	simpleHash(const void *value)
 
 -(void)setNodeValue:(NSString *)data
 {
-	[self throwException:[NSString stringWithFormat:@"Setting NodeValue not supported for %d type of Node",[self nodeType]] subreason:nil location:CODELOCATION];
+	[self throwException:[NSString stringWithFormat:@"Setting NodeValue not supported for %d type of Node",[[self nodeType] intValue]] subreason:nil location:CODELOCATION];
 }
 
 - (id)textContent
