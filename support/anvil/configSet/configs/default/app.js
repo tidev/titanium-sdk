@@ -48,6 +48,7 @@ var suites = [
 	{name: "ui_textfield"},
 	{name: "ui_view"},
 	{name: "ui_searchBar"},
+	{name: "ui_window/ui_window"},
 	{name: "ui_switch"},
 	{name: "utils/utils"},
 	{name: "yahoo"}
