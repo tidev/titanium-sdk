@@ -480,8 +480,13 @@ DEFINE_EXCEPTIONS
 }
  
 -(void)setBorderWidth_:(id)w
-{ 
-    self.layer.borderWidth = [TiUtils sizeValue:w];
+{
+    TiDimension theDim = TiDimensionFromObject(w);
+    if (TiDimensionIsDip(theDim)) {
+        self.layer.borderWidth = MAX(theDim.value, 0);
+    } else {
+        self.layer.borderWidth = 0;
+    }
     [self updateClipping];
 }
 
@@ -643,7 +648,12 @@ DEFINE_EXCEPTIONS
 
 -(void)setBorderRadius_:(id)radius
 {
-    self.layer.cornerRadius = MAX([TiUtils floatValue:radius def:0],0);
+    TiDimension theDim = TiDimensionFromObject(radius);
+    if (TiDimensionIsDip(theDim)) {
+        self.layer.cornerRadius = MAX(theDim.value,0);
+    } else {
+        self.layer.cornerRadius = 0;
+    }
     if (bgdImageLayer != nil) {
         bgdImageLayer.cornerRadius = self.layer.cornerRadius;
     }
