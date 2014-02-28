@@ -1376,7 +1376,11 @@ properties:
         In iOS 7 and later, cell separators do not extend all the way to the edge of the table view. 
         This property sets the default inset for all cells in the table. 
         
-        Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge. 
+        Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge.
+        For example
+        
+        setSeparatorInsets({left:10,right:10})
+
     type: Dictionary
     since: 3.2.0
     osver: {ios: {min: "7.0"}}
