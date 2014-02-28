@@ -727,7 +727,7 @@ DEFINE_EXCEPTIONS
 	[request retain];
 	
 	[[TiApp app] stopNetwork];
-	ImageLoaderRequest *req = [[request userInfo] objectForKey:@"request"];
+	ImageLoaderRequest *req = [[[request userInfo] objectForKey:@"request"] retain];
 	if ([req cancelled]==NO)
 	{
 		NSData *data = [tiResponse responseData];
@@ -739,6 +739,7 @@ DEFINE_EXCEPTIONS
 			[[req delegate] imageLoadFailed:req error:error];
 			[request setUserInfo:nil];
 			[request release];
+			[req release];
 			return;
 		}
 		
@@ -778,7 +779,7 @@ DEFINE_EXCEPTIONS
 		{
 			BOOL hires = [TiUtils boolValue:[[req userInfo] valueForKey:@"hires"] def:NO];
             
-		    [self cache:data forURL:[req url] size:CGSizeZero hires:hires];
+			[self cache:data forURL:[req url] size:CGSizeZero hires:hires];
 			ImageCacheEntry *entry = [self entryForKey:[req url]];
             
             image = [entry fullImage];
@@ -799,6 +800,7 @@ DEFINE_EXCEPTIONS
 			[[req delegate] imageLoadFailed:req error:error];
 			[request setUserInfo:nil];
 			[request release];
+			[req release];
 			return;
 		}
         [self notifyRequest:req imageCompleted:image];
@@ -812,6 +814,7 @@ DEFINE_EXCEPTIONS
 	}
 	[request setUserInfo:nil];
 	[request release];
+	[req release];
 }
 
 -(void)tiRequest:(TiHTTPRequest *)request onError:(TiHTTPResponse *)tiResponse
