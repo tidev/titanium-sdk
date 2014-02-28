@@ -1192,6 +1192,13 @@ properties:
     type: Number
     default: 1.0 (opaque)
 
+  - name: pullBackgroundColor
+    summary: Background color of the wrapper view when this view is used as either <Titanium.UI.ListView.pullView> or <Titanium.UI.TableView.headerPullView>.
+    type: String
+    default: Undefined. Results in a light grey background color on the wrapper view.
+    since: "3.3.0"
+    platforms: [iphone,ipad]
+
   - name: right
     summary: View's right position, in platform-specific units.
     description: |
