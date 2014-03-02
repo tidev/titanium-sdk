@@ -37,7 +37,7 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 
 	// Visual Studio
 	logger.log(styleHeading(__('Microsoft (R) Visual Studio')));
-	if (Object.keys(data.visualstudio).length) {
+	if (data.visualstudio && Object.keys(data.visualstudio).length) {
 		Object.keys(data.visualstudio).sort().forEach(function (ver) {
 			var supported = data.visualstudio[ver].supported ? '' : styleBad(' **' + __('Not supported by Titanium SDK %s', data.tisdk) + '**');
 			logger.log(
@@ -53,7 +53,7 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	}
 
 	logger.log(styleHeading(__('Microsoft (R) Windows Phone SDK')));
-	if (Object.keys(data.windowsphone).length) {
+	if (data.windowsphone && Object.keys(data.windowsphone).length) {
 		Object.keys(data.windowsphone).sort().forEach(function (ver) {
 			var supported = data.windowsphone[ver].supported ? '' : styleBad(' **' + __('Not supported by Titanium SDK %s', data.tisdk) + '**');
 			logger.log(

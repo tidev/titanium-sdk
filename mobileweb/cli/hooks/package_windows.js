@@ -23,7 +23,17 @@ exports.init = function (logger, config, cli) {
 		return;
 	}
 
-	cli.addHook('build.post.compile', {
+	cli.on('build.mobileweb.processConfigTemplate', {
+		pre: function (data, callback) {
+			var options = data.args[1];
+			options.tiAnalyticsPlatformName = 'windows';
+			options.tiOsName = 'mobileweb';
+			options.tiPlatformName = 'Windows Hybrid';
+			callback();
+		}
+	});
+
+	cli.on('build.post.compile', {
 		priority: 8000,
 		post: function (build, finished) {
 			var target = cli.argv.target,
