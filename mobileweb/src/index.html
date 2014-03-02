@@ -3,12 +3,12 @@
 <head>
 	<meta charset="utf-8">
 
-	${ti_header}
+	<%- tiHeader %>
 
-	<title>${project_name | h,trim}</title>
-	<meta name="description" content="${app_description | h,trim}">
-	<meta name="author" content="${app_publisher | h,trim}">
-	<meta name="generator" content="${ti_generator | h,trim}">
+	<title><%- projectName %></title>
+	<meta name="description" content="<%= appDescription %>">
+	<meta name="author" content="<%= appPublisher %>">
+	<meta name="generator" content="<%= tiGenerator %>">
 
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
 	<meta name="HandheldFriendly" content="True">
@@ -22,7 +22,7 @@
 
 	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="${ti_statusbar_style | h,trim}">
+	<meta name="apple-mobile-web-app-status-bar-style" content="<%= tiStatusbarStyle  %>">
 
 	<link rel="apple-touch-icon-precomposed" sizes="114x114" href="apple-touch-icon-114x114-precomposed.png">
 	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="apple-touch-icon-72x72-precomposed.png">
@@ -32,12 +32,16 @@
 	<link rel="apple-touch-startup-image" href="Default-Portrait.jpg" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait)">
 	<link rel="apple-touch-startup-image" href="Default.jpg" media="screen and (max-device-width: 320px)">
 
-	${winstore_headers}
+<% if (target == 'winstore') { -%>
+	<link href="//Microsoft.WinJS.2.0/css/ui-dark.css" rel="stylesheet"/>
+	<script src="//Microsoft.WinJS.2.0/js/base.js"></script>
+	<script src="//Microsoft.WinJS.2.0/js/ui.js"></script>
+<% } -%>
 
-	<style>${ti_css}</style>
+	<style><%- tiCss %></style>
 </head>
 <body>
-	<div id="splash">${splash_screen}</div>
-	<script>${ti_js}</script>
+	<div id="splash"><%- splashScreen %></div>
+	<script><%- tiJs %></script>
 </body>
 </html>
