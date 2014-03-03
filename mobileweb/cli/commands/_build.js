@@ -57,6 +57,8 @@ function MobileWebBuilder() {
 		'.jpeg': 'image/jpg'
 	};
 
+	this.prefetch = [];
+
 	this.windowsInfo = null;
 }
 
@@ -985,18 +987,48 @@ MobileWebBuilder.prototype.assembleTitaniumCSS = function assembleTitaniumCSS(ne
 	});
 
 	// detect any fonts and add font face rules to the css file
-	var fonts = {};
-	wrench.readdirSyncRecursive(this.projectResDir).forEach(function (file) {
-		var match = file.match(/^(.+)\.(otf|woff|ttf)$/),
-			name = match && match[1].split('/').pop();
-		if (name) {
-			fonts[name] || (fonts[name] = []);
-			fonts[name].push(file);
-		}
-	});
+	var fonts = {},
+		fontFormats = {
+			'ttf': 'truetype'
+		},
+		prefix = this.projectResDir + '/';
+
+	(function walk(dir, isMobileWebDir, isRoot) {
+		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
+			var file = path.join(dir, name);
+			if (fs.statSync(file).isDirectory()) {
+				if (!isRoot || name == 'mobileweb' || ti.availablePlatformsNames.indexOf(name) == -1) {
+					walk(file, isMobileWebDir || name == 'mobileweb');
+				}
+				return;
+			}
+
+			var m = name.match(/^(.+)\.(otf|woff|ttf|svg)$/);
+			if (m) {
+				var p = file.replace(prefix, '').replace(/\\/g, '/');
+				fonts[m[1]] || (fonts[m[1]] = []);
+				fonts[m[1]].push({
+					path: isMobileWebDir ? p.replace('mobileweb/', '') : p,
+					format: fontFormats[m[2]] || m[2]
+				});
+			}
+		});
+	}(this.projectResDir, false, true));
+
 	Object.keys(fonts).forEach(function (name) {
+		var font = fonts[name],
+			i = 0,
+			l = font.length,
+			src = [];
+
 		this.logger.debug(__('Found font: %s', name.cyan));
-		tiCSS.push('@font-face{font-family:"' + name + '";src:url("' + fonts[name] + '");}\n');
+
+		for (; i < l; i++) {
+			this.prefetch.push(font[i].path);
+			src.push('url("' + font[i].path + '") format("' + font[i].format + '")');
+		}
+
+		tiCSS.push('@font-face{font-family:"' + name + '";' + src.join(',') + ';}\n');
 	}, this);
 
 	// write the titanium.css
@@ -1115,7 +1147,8 @@ MobileWebBuilder.prototype.createIndexHtml = function createIndexHtml(next) {
 				tiStatusbarStyle: statusBarStyle,
 				tiCss: fs.readFileSync(path.join(this.buildDir, 'titanium.css')).toString(),
 				splashScreen: this.splashHtml,
-				tiJs: fs.readFileSync(path.join(this.buildDir, 'titanium.js')).toString()
+				tiJs: fs.readFileSync(path.join(this.buildDir, 'titanium.js')).toString(),
+				prefetch: this.prefetch
 			}
 		),
 		next
