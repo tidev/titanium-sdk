@@ -16,8 +16,6 @@ module.exports = new function() {
 	this.name = "calendar";
 	this.tests = [
 		{name: "moduleReachable"},
-		{name: "eventLocation"},
-		{name: "noSuchColumnError"},
 		{name: "eventsBetweenTwoDates"}
 	]
 
@@ -44,52 +42,6 @@ module.exports = new function() {
 		valueOf(testRun, Ti.Calendar.STATUS_CONFIRMED).shouldBeNumber();
 		valueOf(testRun, Ti.Calendar.STATUS_TENTATIVE).shouldBeNumber();
 		valueOf(testRun, Ti.Calendar.allCalendars).shouldBeArray();
-
-		finish(testRun);
-	}
-
-
-	//TIMOB-10415
-	this.eventLocation = function(testRun) {
-		var eventBegins = new Date(2010, 11, 26, 12, 0, 0);
-		var eventEnds = new Date(2010, 11, 26, 14, 0, 0);
-		var details = {
-			title : 'Do some stuff',
-			description : "I'm going to do some stuff at this time.",
-			begin : eventBegins,
-			end : eventEnds,
-			location : 'my_location'
-		};
-		if (Ti.Platform.osname === 'android') {
-			var event = Ti.Calendar.selectableCalendars[0].createEvent(details);
-		}
-		else {
-			var event = Ti.Calendar.allCalendars[0].createEvent(details);
-		}
-		valueOf(testRun, event.getLocation( )).shouldBe('my_location');
-
-		finish(testRun);
-	}
-
-	//TIMOB-7959
-	this.noSuchColumnError = function(testRun) {
-		if (Ti.Platform.osname === 'android') {
-			var calendar = Ti.Calendar.getCalendarById(1);
-		} else {
-			var calendar = Ti.Calendar.allCalendars[0];
-		}
-		var eventBegins = new Date(2012, 03, 26, 12, 0, 0);
-		var eventEnds = new Date(2012, 03, 26, 14, 0, 0);
-		var details = {
-			title : 'Do some stuff',
-			description : "I'm going to do some stuff at this time.",
-			begin : eventBegins,
-			end : eventEnds
-		};
-		var event = calendar.createEvent(details);
-		valueOf(testRun, function() {
-			var events = calendar.getEventsInYear(2012);
-		}).shouldNotThrowException();
 
 		finish(testRun);
 	}
