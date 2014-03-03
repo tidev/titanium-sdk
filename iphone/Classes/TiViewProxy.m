@@ -282,70 +282,36 @@
 
 -(void)removeAllChildren:(id)arg
 {
-	ENSURE_UI_THREAD_1_ARG(arg);
+    ENSURE_UI_THREAD_1_ARG(arg);
+    pthread_rwlock_wrlock(&childrenLock);
+    NSMutableArray* childrenCopy = [children mutableCopy];
+    NSMutableArray* pendingChildrenCopy = [pendingAdds mutableCopy];
+    [children removeAllObjects];
+    [pendingAdds removeAllObjects];
+    RELEASE_TO_NIL(children);
+    RELEASE_TO_NIL(pendingAdds);
+    pthread_rwlock_unlock(&childrenLock);
+    for (TiViewProxy* theChild in childrenCopy) {
+        [theChild windowWillClose];
+        [theChild setParentVisible:NO];
+        [theChild setParent:nil];
+        [theChild windowDidClose];
+        [self forgetProxy:theChild];
+    }
     
+    for (TiViewProxy* theChild in pendingChildrenCopy) {
+        [theChild windowWillClose];
+        [theChild setParentVisible:NO];
+        [theChild setParent:nil];
+        [theChild windowDidClose];
+        [self forgetProxy:theChild];
+    }
     
-	if (children != nil) {
-		pthread_rwlock_wrlock(&childrenLock);
-
-		for (TiViewProxy* child in children)
-		{
-			if ([pendingAdds containsObject:child])
-			{
-				[pendingAdds removeObject:child];
-			}
-
-			[child setParent:nil];
-			[self forgetProxy:child];
-
-			if (view!=nil)
-			{
-				TiUIView *childView = [(TiViewProxy *)child view];
-				if ([NSThread isMainThread])
-				{
-					[childView removeFromSuperview];
-				}
-				else
-				{
-					TiThreadPerformOnMainThread(^{
-						[childView removeFromSuperview];
-					}, NO);
-				}
-			}
-		}
-
-		[self contentsWillChange];
-		if(parentVisible && !hidden)
-		{
-			[arg parentWillHide];
-		}
-
-		[children removeAllObjects];
-		RELEASE_TO_NIL(children);
-
-		pthread_rwlock_unlock(&childrenLock);
-
-		if (view!=nil)
-		{
-			BOOL layoutNeedsRearranging = !TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle);
-			if ([NSThread isMainThread])
-			{
-				if (layoutNeedsRearranging)
-				{
-					[self layoutChildren:NO];
-				}
-			}
-			else
-			{
-				TiThreadPerformOnMainThread(^{
-					if (layoutNeedsRearranging)
-					{
-						[self layoutChildren:NO];
-					}
-				}, NO);
-			}
-		}
-	}
+    [childrenCopy removeAllObjects];
+    [pendingChildrenCopy removeAllObjects];
+    RELEASE_TO_NIL(childrenCopy);
+    RELEASE_TO_NIL(pendingChildrenCopy);
+    [self contentsWillChange];
 }
 
 -(void)show:(id)arg
