@@ -32,6 +32,10 @@
 	<link rel="apple-touch-startup-image" href="Default-Portrait.jpg" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait)">
 	<link rel="apple-touch-startup-image" href="Default.jpg" media="screen and (max-device-width: 320px)">
 
+<% prefetch.forEach(function (url) { %>
+	<link rel="prefetch" href="<%- url %>"/>
+<% }); %>
+
 <% if (target == 'winstore') { -%>
 	<link href="//Microsoft.WinJS.2.0/css/ui-dark.css" rel="stylesheet"/>
 	<script src="//Microsoft.WinJS.2.0/js/base.js"></script>
