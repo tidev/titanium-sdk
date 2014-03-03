@@ -683,6 +683,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		return YES;
 	}
 	
+    if([TiUtils boolValue: [[self proxy] valueForUndefinedKey:@"handlePlatformUrl"] def:NO]) {
+        return YES;
+    }
 	UIApplication * uiApp = [UIApplication sharedApplication];
 	
 	if ([uiApp canOpenURL:newUrl])

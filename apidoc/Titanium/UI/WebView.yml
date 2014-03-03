@@ -339,6 +339,16 @@ properties:
     default: false
     platforms: [iphone, ipad]
 
+  - name: handlePlatformUrl
+    summary: Lets the platform handle the url in a link from the webview
+    description: |
+        Set to `true` to let the platform handle the url automatically. This is necessary, for example, if the url
+        links to a telephone number and you wish to promt the user before making a call.
+    type: Boolean
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    default: false
+
   - name: hideLoadIndicator
     summary: Hides activity indicator when loading remote URL.
     type: Boolean
