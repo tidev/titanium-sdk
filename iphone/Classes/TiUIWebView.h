@@ -26,7 +26,7 @@
 	SEL reloadMethod;
     
     BOOL willHandleTouches;
-    
+    BOOL willHandleUrl;
     NSString* lastValidLoad;
 }
 

@@ -340,14 +340,17 @@ properties:
     platforms: [iphone, ipad]
 
   - name: handlePlatformUrl
-    summary: Lets the platform handle the url in a link from the webview
+    summary: Lets the webview handle platform supported urls
     description: |
-        Set to `true` to let the platform handle the url automatically. This is necessary, for example, if the url
-        links to a telephone number and you wish to promt the user before making a call.
+        By default any urls that are not handled by the Titanium platform but can be handled by the 
+        shared application are automatically sent to the shared application and the webview does not
+        open these. When this property is set to `true` the webview will attempt to handle these 
+        urls and they will not be sent to the shared application. An example is links to telephone
+        numbers.
     type: Boolean
     platforms: [iphone, ipad]
     since: "3.3.0"
-    default: false
+    default: undefined. Behaves as if false
 
   - name: hideLoadIndicator
     summary: Hides activity indicator when loading remote URL.

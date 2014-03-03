@@ -495,6 +495,12 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	}
 }
 
+-(void)setHandlePlatformUrl_:(id)arg
+{
+    [[self proxy] replaceValue:arg forKey:@"handlePlatformUrl" notification:NO];
+    willHandleUrl = [TiUtils boolValue:arg];
+}
+
 - (void)ensureLocalProtocolHandler
 {
 	static dispatch_once_t onceToken;
@@ -683,12 +689,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		return YES;
 	}
 	
-    if([TiUtils boolValue: [[self proxy] valueForUndefinedKey:@"handlePlatformUrl"] def:NO]) {
-        return YES;
-    }
 	UIApplication * uiApp = [UIApplication sharedApplication];
 	
-	if ([uiApp canOpenURL:newUrl])
+	if ([uiApp canOpenURL:newUrl] && !willHandleUrl)
 	{
 		[uiApp openURL:newUrl];
 		return NO;
