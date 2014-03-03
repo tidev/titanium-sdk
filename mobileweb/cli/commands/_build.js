@@ -18,7 +18,6 @@ var appc = require('node-appc'),
 	UglifyJS = require('uglify-js'),
 	util = require('util'),
 	windows = require('titanium-sdk/lib/windows'),
-	windowsEnv,
 	wrench = require('wrench'),
 	__ = i18n.__,
 	__n = i18n.__n,
@@ -32,6 +31,20 @@ ejs.filters.escapeQuotes = function escapeQuotes(s) {
 	return String(s).replace(/"/g, '\\"');
 };
 
+function assertIssue(logger, issues, name, exit) {
+	var i = 0,
+		len = issues.length;
+	for (; i < len; i++) {
+		if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
+			issues[i].message.split('\n').forEach(function (line) {
+				logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
+			});
+			logger.log();
+			exit && process.exit(1);
+		}
+	}
+}
+
 function MobileWebBuilder() {
 	Builder.apply(this, arguments);
 
@@ -43,6 +56,8 @@ function MobileWebBuilder() {
 		'.jpg': 'image/jpg',
 		'.jpeg': 'image/jpg'
 	};
+
+	this.windowsInfo = null;
 }
 
 util.inherits(MobileWebBuilder, Builder);
@@ -50,10 +65,36 @@ util.inherits(MobileWebBuilder, Builder);
 MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 	Builder.prototype.config.apply(this, arguments);
 
+	var _t = this;
+
+	cli.on('cli:pre-validate', function (obj, callback) {
+		if (cli.argv.platform && cli.argv.platform != 'mobileweb') {
+			return callback();
+		}
+
+		appc.jdk.detect(config, null, function (jdkInfo) {
+			if (!jdkInfo.executables.java) {
+				logger.error(__('Unable to locate Java'));
+				logger.error(__("If you already have Java installed, make sure it's in the system PATH"));
+				logger.error(__('Java can be downloaded and installed from %s', 'http://appcelerator.com/jdk') + '\n');
+				process.exit(1);
+			}
+			callback();
+		});
+	});
+
 	return function (finished) {
+		var targets = ['web'];
+
 		if (process.platform == 'win32') {
-			windows.detect(config, null, function (env) {
-				windowsEnv = env;
+			windows.detect(config, null, function (windowsInfo) {
+				_t.windowsInfo = windowsInfo;
+				if (windowsInfo.visualstudio) {
+					if (windowsInfo.windowsphone) {
+						targets.push('wp8');
+					}
+					targets.push('winstore');
+				}
 				configure();
 			});
 		} else {
@@ -75,15 +116,28 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 						'target': {
 							abbr: 'T',
 							callback: function (value) {
-								if (value == 'wp8') {
-									conf.options['wp8-publisher-guid'].required = true;
-									conf.options['device-id'].required = true;
+								if (process.platform == 'win32' && targets.indexOf(value) != -1) {
+									if (value == 'wp8' || value == 'winstore') {
+										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_VISUAL_STUDIO_NOT_INSTALLED', true);
+										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_MSBUILD_ERROR', true);
+										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_MSBUILD_TOO_OLD', true);
+									}
+
+									// if this is a Windows Phone 8 target, validate the wp8 specific parameters
+									if (value == 'wp8') {
+										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_SDK_NOT_INSTALLED', true);
+										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_SDK_MISSING_XAP_DEPLOY_CMD', true);
+										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_ENUMERATE_DEVICES_FAILED', true);
+
+										conf.options['wp8-publisher-guid'].required = true;
+										conf.options['device-id'].required = true;
+									}
 								}
 							},
 							default: 'web',
 							desc: __('the target to build for'),
 							order: 110,
-							values: process.platform == 'win32' ? [ 'web', 'wp8', 'winstore' ] : [ 'web' ]
+							values: targets
 						}
 					}
 				};
@@ -92,10 +146,10 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 					conf.options['device-id'] = {
 						abbr: 'C',
 						callback: function (value) {
-							if (value != 'xd' && value != 'de' && !windowsEnv.devices[value]) {
+							if (value != 'xd' && value != 'de' && _t.windowsInfo.devices && !_t.windowsInfo.devices[value]) {
 								// maybe it's a device name?
-								for (var i = 0, k = Object.keys(windowsEnv.devices), l = k.length; i < l; i++) {
-									if (windowsEnv.devices[k[i]] == value) {
+								for (var i = 0, k = Object.keys(_t.windowsInfo.devices), l = k.length; i < l; i++) {
+									if (_t.windowsInfo.devices[k[i]] == value) {
 										value = k[i];
 									}
 								}
@@ -113,16 +167,16 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 								relistOnError: true,
 								complete: true,
 								suggest: true,
-								options: Object.keys(windowsEnv.devices).map(function (id) {
+								options: Object.keys(_t.windowsInfo.devices).map(function (id) {
 									return {
-										label: windowsEnv.devices[id],
+										label: _t.windowsInfo.devices[id],
 										value: id
 									};
 								})
 							}));
 						},
 						validate: function (value, callback) {
-							if (!value || (value != 'xd' && value != 'de' && !windowsEnv.devices[value])) {
+							if (!value || (value != 'xd' && value != 'de' && _t.windowsInfo.devices && !_t.windowsInfo.devices[value])) {
 								return callback(new Error(__('Invalid device id: %s', value)));
 							}
 							callback(null, value);
@@ -132,7 +186,7 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 					conf.options['wp8-publisher-guid'] = {
 						default: config.get('windows.wp8PublisherGuid'),
 						desc: __('your publisher GUID, obtained from %s', 'http://appcelerator.com/windowsphone'.cyan),
-						hint: __('GUID'),
+						hint: __('guid'),
 						order: 120,
 						prompt: function (callback) {
 							callback(fields.text({
@@ -153,40 +207,15 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 			})(function (err, result) {
 				finished(result);
 			});
-		}
-	};
+		};
+	}
 };
 
 MobileWebBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.target = cli.argv.target;
 	this.deployType = cli.argv['deploy-type'];
 
-	function assertIssue(logger, issues, name, exit) {
-		var i = 0,
-			len = issues.length;
-		for (; i < len; i++) {
-			if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
-				issues[i].message.split('\n').forEach(function (line) {
-					logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-				});
-				logger.log();
-				exit && process.exit(1);
-			}
-		}
-	}
-
-	if (this.target == 'wp8' || this.target == 'winstore') {
-		assertIssue(logger, windowsEnv.issues, 'WINDOWS_VISUAL_STUDIO_NOT_INSTALLED', true);
-		assertIssue(logger, windowsEnv.issues, 'WINDOWS_MSBUILD_ERROR', true);
-		assertIssue(logger, windowsEnv.issues, 'WINDOWS_MSBUILD_TOO_OLD', true);
-	}
-
-	// if this is a Windows Phone 8 target, validate the wp8 specific parameters
-	if (this.target == 'wp8') {
-		assertIssue(logger, windowsEnv.issues, 'WINDOWS_PHONE_SDK_NOT_INSTALLED', true);
-		assertIssue(logger, windowsEnv.issues, 'WINDOWS_PHONE_SDK_MISSING_XAP_DEPLOY_CMD', true);
-		assertIssue(logger, windowsEnv.issues, 'WINDOWS_PHONE_ENUMERATE_DEVICES_FAILED', true);
-	}
+	// TODO: validate modules here
 };
 
 MobileWebBuilder.prototype.run = function run(logger, config, cli, finished) {
