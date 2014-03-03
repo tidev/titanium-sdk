@@ -144,7 +144,7 @@ module.exports = new function() {
 		}).shouldNotThrowException();
 	}
 
-	//TIMOB-7235
+	//TIMOB-7235  TIMOB-7502
 	this.mediaPlayer = function(testRun){
 		var win = Titanium.UI.createWindow({
 			navBarHidden: false
