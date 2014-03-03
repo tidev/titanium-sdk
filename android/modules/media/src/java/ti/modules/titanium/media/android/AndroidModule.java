@@ -24,8 +24,6 @@ import ti.modules.titanium.media.MediaModule;
 import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.MediaScannerConnectionClient;
@@ -37,9 +35,6 @@ public class AndroidModule extends KrollModule
 	private static final String TAG = "TiMedia.Android";
 
 	protected static AndroidModule _instance = null;
-	
-	private int appVersionCode = -1;
-	private String appVersionName;
 
 
 	public AndroidModule()
@@ -157,39 +152,6 @@ public class AndroidModule extends KrollModule
 
 			connection = new MediaScannerConnection(activity, this);
 			connection.connect();
-		}
-	}
-	
-	@Kroll.getProperty
-	@Kroll.method
-	public int getAppVersionCode()
-	{
-		if (appVersionCode == -1) {
-			initializeVersionValues();
-		}
-		return appVersionCode;
-	}
-
-	@Kroll.getProperty
-	@Kroll.method
-	public String getAppVersionName()
-	{
-		if (appVersionName == null) {
-			initializeVersionValues();
-		}
-		return appVersionName;
-	}
-
-	private void initializeVersionValues()
-	{
-		PackageInfo pInfo;
-		try {
-			pInfo = TiApplication.getInstance().getPackageManager()
-				.getPackageInfo(TiApplication.getInstance().getPackageName(), 0);
-			appVersionCode = pInfo.versionCode;
-			appVersionName = pInfo.versionName;
-		} catch (NameNotFoundException e) {
-			Log.e(TAG, "Unable to get package info", e);
 		}
 	}
 
