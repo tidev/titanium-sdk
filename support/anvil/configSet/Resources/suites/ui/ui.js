@@ -47,7 +47,7 @@ module.exports = new function() {
 		{name: "malformedURL", timeout: 10000},
 		{name: "navigationType", timeout: 10000}
 	];
-	
+
 	//TIMOB-1563
 	this.pdfLoad = function(testRun){
 		var win = Ti.UI.createWindow();
@@ -67,9 +67,6 @@ module.exports = new function() {
 			errorEvent = true;
 		});
 		setTimeout(function(){
-
-            var log=Titanium.Filesystem.getFile('file://localhost/Users/mac/Desktop','test.txt');
-            log.write(errorEvent+"============"+loadEvent);
 			valueOf(testRun, errorEvent).shouldBeFalse();
 			valueOf(testRun, loadEvent).shouldBeTrue();
 
@@ -83,7 +80,7 @@ module.exports = new function() {
 		var win = Titanium.UI.createWindow();
 		var webview = Titanium.UI.createWebView({
 			top: 100,
-			url: '/test.html' 
+			url: '/suites/ui/test.html' 
 		});
 		win.add(webview);
 		setTimeout(function() {
