@@ -161,7 +161,7 @@ define(
 	}
 
 	// Shim out alert()
-	if (has("winstore_extensions")) {
+	if (has("winstore-extensions")) {
 		global.alert = function (msg) {
 			if (alertShowing) {
 				API.warn('Cannot show more than one alert at a time');
@@ -296,7 +296,7 @@ define(
 				os: Platform.osname,
 				osver: Platform.ostype,
 				version: cfg.ti.version,
-				platform: Platform.name,
+				platform: require.config.ti.analyticsPlatformName,
 				model: Platform.model,
 				un: null,
 				app_version: App.version,
