@@ -283,14 +283,14 @@
 -(void)removeAllChildren:(id)arg
 {
     ENSURE_UI_THREAD_1_ARG(arg);
-    
+    pthread_rwlock_wrlock(&childrenLock);
     NSMutableArray* childrenCopy = [children mutableCopy];
     NSMutableArray* pendingChildrenCopy = [pendingAdds mutableCopy];
     [children removeAllObjects];
     [pendingAdds removeAllObjects];
     RELEASE_TO_NIL(children);
     RELEASE_TO_NIL(pendingAdds);
-    
+    pthread_rwlock_unlock(&childrenLock);
     for (TiViewProxy* theChild in childrenCopy) {
         [theChild windowWillClose];
         [theChild setParentVisible:NO];
