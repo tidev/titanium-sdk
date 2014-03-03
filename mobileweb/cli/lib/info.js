@@ -27,7 +27,18 @@ exports.detect = function (types, config, next) {
 			return dir != '/' && scan(dir);
 		}(__dirname)));
 
-		next(null, this.data = results);
+		appc.jdk.detect(config, null, function (jdkInfo) {
+			if (!jdkInfo.executables.java) {
+				this.issues.push({
+					id: 'MOBILEWEB_JAVA_NOT_FOUND',
+					type: 'error',
+					message: __('Java not found.') + '\n'
+						+ __("If you already have Java installed, make sure it's in the system PATH.") + '\n'
+						+ __('Java can be downloaded and installed from %s.', '__http://appcelerator.com/jdk__')
+				});
+			}
+			next(null, this.data = results);
+		}.bind(this));
 	}.bind(this));
 };
 
@@ -37,7 +48,7 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 
 	// Visual Studio
 	logger.log(styleHeading(__('Microsoft (R) Visual Studio')));
-	if (Object.keys(data.visualstudio).length) {
+	if (data.visualstudio && Object.keys(data.visualstudio).length) {
 		Object.keys(data.visualstudio).sort().forEach(function (ver) {
 			var supported = data.visualstudio[ver].supported ? '' : styleBad(' **' + __('Not supported by Titanium SDK %s', data.tisdk) + '**');
 			logger.log(
@@ -53,7 +64,7 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	}
 
 	logger.log(styleHeading(__('Microsoft (R) Windows Phone SDK')));
-	if (Object.keys(data.windowsphone).length) {
+	if (data.windowsphone && Object.keys(data.windowsphone).length) {
 		Object.keys(data.windowsphone).sort().forEach(function (ver) {
 			var supported = data.windowsphone[ver].supported ? '' : styleBad(' **' + __('Not supported by Titanium SDK %s', data.tisdk) + '**');
 			logger.log(
@@ -74,7 +85,7 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	}
 
 	logger.log(styleHeading(__('Windows Phone 8 Devices')));
-	if (Object.keys(data.devices).length) {
+	if (data.devices && Object.keys(data.devices).length) {
 		logger.log(Object.keys(data.devices).map(function (id) {
 			return '  ' + data.devices[id].cyan + '\n' +
 				'  ' + rpad('  ' + __('ID')) + ' = ' + styleValue(id);
