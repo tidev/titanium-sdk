@@ -5,9 +5,10 @@ summary: |
     in the middle of the display on Android and at the bottom edge on iOS. On Android, buttons may 
     be added below the options.
 description: |
-    An option dialog is created using <Titanium.UI.createOptionDialog>.
+    An option dialog is created using <Titanium.UI.createOptionDialog> or Alloy `<OptionDialog>`
+    element. See Examples below for usage.
     
-    This dialog is considerably different on each platform, as described below.
+    This dialog is presented differently on each platform, as described below.
     
     #### Android
     

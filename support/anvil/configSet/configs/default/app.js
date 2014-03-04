@@ -41,12 +41,14 @@ var suites = [
 	{name: "ui_clipboard"},
 	{name: "ui_controls"},
 	{name: "ui_picker"},
+	{name: "ui_scrollableView"},
 	{name: "ui_scrollView"},
 	{name: "ui_slider"},
 	{name: "ui_tabgroup/ui_tabgroup"},
 	{name: "ui_textfield"},
 	{name: "ui_view"},
 	{name: "ui_searchBar"},
+	{name: "ui_window/ui_window"},
 	{name: "ui_switch"},
 	{name: "utils/utils"},
 	{name: "yahoo"}
@@ -54,6 +56,7 @@ var suites = [
 
 if (Ti.Platform.osname === 'android') {
 	suites = suites.concat([
+		{name: "android/android/android"},
 		{name: "android/android_activityIndicator"},
 		{name: "android/android_database/android_database"},
 		{name: "android/android_filesystem"},

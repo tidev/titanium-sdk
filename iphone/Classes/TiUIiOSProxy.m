@@ -163,6 +163,20 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
     return ([TiUtils isIOS7OrGreater] ? NSTextEffectLetterpressStyle : @"");
 }
 
+-(NSNumber*)CLIP_MODE_DEFAULT
+{
+    return NUMINT(0);
+}
+-(NSNumber*)CLIP_MODE_ENABLED
+{
+    return NUMINT(1);
+}
+-(NSNumber*)CLIP_MODE_DISABLED
+{
+    return NUMINT(-1);
+}
+
+
 #endif
 
 #ifdef USE_TI_UIIOSADVIEW
