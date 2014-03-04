@@ -29,7 +29,7 @@ exports.init = function (logger, config, cli) {
 
 			logger.info(__('Installing and launching the application'));
 
-			winstore.detect(config, null, function (env) {
+			windows.detect(config, null, function (env) {
 				var powershell = config.get('windows.executables.powershell', 'powershell'),
 					tiapp = build.tiapp,
 					previousPackageFullName;
