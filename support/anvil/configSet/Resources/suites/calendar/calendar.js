@@ -15,8 +15,7 @@ module.exports = new function() {
 
 	this.name = "calendar";
 	this.tests = [
-		{name: "moduleReachable"},
-		{name: "eventsBetweenTwoDates"}
+		{name: "moduleReachable"}
 	]
 
 	this.moduleReachable = function(testRun) {
@@ -42,24 +41,6 @@ module.exports = new function() {
 		valueOf(testRun, Ti.Calendar.STATUS_CONFIRMED).shouldBeNumber();
 		valueOf(testRun, Ti.Calendar.STATUS_TENTATIVE).shouldBeNumber();
 		valueOf(testRun, Ti.Calendar.allCalendars).shouldBeArray();
-
-		finish(testRun);
-	}
-
-	//TIMOB-8085
-	this.eventsBetweenTwoDates = function(testRun) {
-		valueOf(testRun, function() {
-			var startDate = new Date(2012, 03, 10, 12, 0, 0);
-			var endDate = new Date(2012, 03, 19, 14, 0, 0);
-			var out = [];
-			var calendars = Ti.Calendar.allCalendars;
-			for (var i=0; i < calendars.length; i++) {
-				var cal_events = calendars[i].getEventsBetweenDates(startDate,endDate);
-				for (var j=0; j < cal_events.length; j++) {
-					out.push(cal_events[j]);
-				};
-			};
-		}).shouldNotThrowException();
 
 		finish(testRun);
 	}
