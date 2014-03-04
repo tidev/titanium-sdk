@@ -25,6 +25,12 @@
 
 -(void)dealloc
 {
+    RELEASE_TO_NIL(titleLabel);
+    RELEASE_TO_NIL(messageLabel);
+    RELEASE_TO_NIL(disclosureLabel);
+    RELEASE_TO_NIL(centerView);
+    RELEASE_TO_NIL(messageLabel);
+    RELEASE_TO_NIL(disclosureLabel);
 	RELEASE_TO_NIL(error);
 	[super dealloc];
 }
@@ -36,19 +42,25 @@
 
 - (void)loadView
 {
+    [super loadView];
     self.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-    
-    UIView *view = [[UIView alloc] init];
-    view.backgroundColor = [UIColor redColor];
+    UIView *view = [self view];
     [view setBackgroundColor:[UIColor redColor]];
-    [self setView:view];
     
-    UIButton *dismissButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    dismissButton.backgroundColor = [UIColor whiteColor];
+    RELEASE_TO_NIL(titleLabel)
+    RELEASE_TO_NIL(messageLabel)
+    RELEASE_TO_NIL(disclosureLabel)
+    RELEASE_TO_NIL(centerView)
+    RELEASE_TO_NIL(messageLabel)
+    RELEASE_TO_NIL(disclosureLabel)
+
+    dismissButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    dismissButton.backgroundColor = [TiUtils isIOS7OrGreater] ? [UIColor whiteColor] : [UIColor clearColor];
     dismissButton.translatesAutoresizingMaskIntoConstraints = NO;
     [dismissButton setTitle:@"Dismiss" forState:UIControlStateNormal];
     
-    UILabel *disclosureLabel = [[UILabel alloc] init];
+    disclosureLabel = [[UILabel alloc] init];
+    disclosureLabel.backgroundColor = [UIColor clearColor];
     disclosureLabel.font = [UIFont boldSystemFontOfSize:14];
     disclosureLabel.numberOfLines = 0;
     disclosureLabel.shadowOffset = CGSizeMake(0.0, -1.0);
@@ -56,10 +68,11 @@
     disclosureLabel.textColor = [UIColor blackColor];
     disclosureLabel.translatesAutoresizingMaskIntoConstraints = NO;
     
-    UIView *centerView = [[UIView alloc] init];
+    centerView = [[UIView alloc] init];
     centerView.translatesAutoresizingMaskIntoConstraints = NO;
     
-    UILabel *titleLabel = [[UILabel alloc] init];
+    titleLabel = [[UILabel alloc] init];
+    titleLabel.backgroundColor = [UIColor clearColor];
     titleLabel.font = [UIFont boldSystemFontOfSize:32];
     titleLabel.shadowColor = [UIColor darkGrayColor];
     titleLabel.shadowOffset = CGSizeMake(2.0, 1.0);
@@ -68,7 +81,8 @@
     titleLabel.textColor = [UIColor greenColor];
     titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
     
-    UILabel *messageLabel = [[UILabel alloc] init];
+    messageLabel = [[UILabel alloc] init];
+    messageLabel.backgroundColor = [UIColor clearColor];
     messageLabel.font = [UIFont boldSystemFontOfSize:20];
     messageLabel.numberOfLines = 0;
     messageLabel.shadowColor = [UIColor blackColor];
@@ -80,15 +94,9 @@
     
     [centerView addSubview:messageLabel];
     [centerView addSubview:dismissButton];
-    [view addSubview:titleLabel];
-    [view addSubview:centerView];
-    [view addSubview:disclosureLabel];
-    
-    [titleLabel release];
-    [centerView release];
-    [messageLabel release];
-    [disclosureLabel release];
-    [view release];
+    [[self view] addSubview:titleLabel];
+    [[self view] addSubview:centerView];
+    [[self view] addSubview:disclosureLabel];
     
     NSLayoutConstraint *disclosureContraint1 =
     [NSLayoutConstraint constraintWithItem:disclosureLabel
@@ -193,7 +201,7 @@
                                     toItem:messageLabel
                                  attribute:NSLayoutAttributeBottom
                                 multiplier:1
-                                  constant:40];
+                                  constant:20];
     NSLayoutConstraint *centerConstraint1 =
     [NSLayoutConstraint constraintWithItem:view
                                  attribute:NSLayoutAttributeCenterX
@@ -233,7 +241,7 @@
                                     toItem:titleLabel
                                  attribute:NSLayoutAttributeBottom
                                 multiplier:1
-                                  constant:20];
+                                  constant:10];
     NSLayoutConstraint *centerConstraint6 =
     [NSLayoutConstraint constraintWithItem:disclosureLabel
                                  attribute:NSLayoutAttributeTop
@@ -241,7 +249,7 @@
                                     toItem:centerView
                                  attribute:NSLayoutAttributeBottom
                                 multiplier:1
-                                  constant:20];
+                                  constant:10];
     
     [centerView addConstraint:messageConstraint1];
     [centerView addConstraint:messageConstraint2];
@@ -265,6 +273,15 @@
     [[self view] addConstraint:disclosureContraint3];
     
     [dismissButton addTarget:self action:@selector(dismiss:) forControlEvents:UIControlEventTouchUpInside];
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    disclosureLabel.preferredMaxLayoutWidth = disclosureLabel.frame.size.width;
+    messageLabel.preferredMaxLayoutWidth = messageLabel.frame.size.width;
+    titleLabel.preferredMaxLayoutWidth = titleLabel.frame.size.width;
+    [self.view layoutIfNeeded];
 }
 
 @end
