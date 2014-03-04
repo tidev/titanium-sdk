@@ -534,8 +534,8 @@ define(
 				bc = bc || (bi && bi !== 'none' ? 'transparent' : '');
 				nodeStyle.backgroundColor.toLowerCase() !== bc.toLowerCase() && (nodeStyle.backgroundColor = bc);
 
-				bi = style.url(bi);
-				nodeStyle.backgroundImage.replace(/'|"/g, '').toLowerCase() !== bi.toLowerCase() && (nodeStyle.backgroundImage = bi);
+				bi != 'none' && (bi = style.url(bi));
+				nodeStyle.backgroundImage.replace(/'|"/g, '').toLowerCase() !== bi.toLowerCase() && (nodeStyle.backgroundImage = (bi == 'none' ? '' : bi));
 
 				if (bi) {
 					tmp = repeat ? 'repeat' : 'no-repeat';

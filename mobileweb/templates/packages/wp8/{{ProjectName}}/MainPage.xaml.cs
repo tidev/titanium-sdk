@@ -34,7 +34,7 @@ namespace <%= projectName %>
 
         private void browser_Loaded(object sender, RoutedEventArgs e)
         {
-            browser.Navigate(new Uri("App/index.html", UriKind.Relative));
+            browser.Navigate(new Uri("index.html", UriKind.Relative));
         }
 
         private void exceptionDelegate(Exception e)
