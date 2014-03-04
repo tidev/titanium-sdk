@@ -16,9 +16,6 @@ var require = {
 		"native-localstorage": function (g) {
 			return "localStorage" in g && "setItem" in localStorage;
 		},
-		"function-bind": function () {
-			return !!Function.prototype.bind;
-		},
 		"js-btoa": function (g) {
 			return "btoa" in g;
 		},
