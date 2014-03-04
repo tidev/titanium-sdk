@@ -2077,6 +2077,11 @@ return result;	\
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)ourTableView
 {
+    //TIMOB-15526
+    if (ourTableView != tableview && ourTableView.backgroundColor == [UIColor clearColor]) {
+        ourTableView.backgroundColor = [UIColor whiteColor];
+    }
+
 	RETURN_IF_SEARCH_TABLE_VIEW(1);
     // One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
 	int result = [(TiUITableViewProxy *)[self proxy] sectionCount];
