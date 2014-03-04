@@ -58,6 +58,7 @@ if (Ti.Platform.osname === 'android') {
 	suites = suites.concat([
 		{name: "android/android/android"},
 		{name: "android/android_activityIndicator"},
+		{name: "android/android_contacts"},
 		{name: "android/android_database/android_database"},
 		{name: "android/android_filesystem"},
 		{name: "android/android_kroll"},
