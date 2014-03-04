@@ -92,12 +92,12 @@ define(['Ti/_/css', 'Ti/_/declare', 'Ti/UI/View', 'Ti/UI', 'Ti/_/lang'],
 			}
 			if (leftContainer._children[0] !== leftView) {
 				leftContainer._removeAllChildren();
-				leftView && leftContainer._add(leftView);
+				leftView && leftContainer.add(leftView);
 			}
 
 			if (rightContainer._children[0] !== rightView) {
 				rightContainer._removeAllChildren();
-				rightView && rightContainer._add(rightView);
+				rightView && rightContainer.add(rightView);
 			}
 
 			navBarContainer.backgroundColor = activeWin.barColor;
@@ -121,7 +121,7 @@ define(['Ti/_/css', 'Ti/_/declare', 'Ti/UI/View', 'Ti/UI', 'Ti/_/lang'],
 			}
 			if (centerContainer._children[0] !== centerView) {
 				centerContainer._removeAllChildren();
-				centerView && centerContainer._add(centerView);
+				centerView && centerContainer.add(centerView);
 			}
 		},
 
