@@ -177,6 +177,19 @@ methods:
         POST data. You can also send an arbitrary string or binary data (in the form of a
         <Titanium.Blob>).
 
+        To send array data, specify each array element individually as a property of the object.
+        For example, normally, you specify an array in an object as:
+
+            var payload = { myArray: [1, 2, 3] };
+
+        Instead, for the HTTP client to encode the data correctly, you need to send the data as:
+
+            var payload = {
+                "myArray[0]" : 1,
+                "myArray[1]" : 2,
+                "myArray[2]" : 3
+            };
+
         On iOS, you can specify a synchronous request when you call `open` by passing `false` for
         the `async` parameter. In the case of a synchronous request, `send` blocks until the request
         is complete.
