@@ -208,6 +208,8 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)tiRequest:(TiHTTPRequest *)request onDataStream:(TiHTTPResponse *)tiResponse
 {
     if(hasOndatastream) {
+        RELEASE_TO_NIL(response);
+        response = [tiResponse retain];
         NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
         NSTimeInterval diff = currentTime - _downloadTime;
         if(_downloadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [tiResponse readyState] == TiHTTPResponseStateDone) {
@@ -225,6 +227,8 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)tiRequest:(TiHTTPRequest *)request onSendStream:(TiHTTPResponse *)tiResponse
 {
     if(hasOnsendstream) {
+        RELEASE_TO_NIL(response);
+        response = [tiResponse retain];
         NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
         NSTimeInterval diff = currentTime - _uploadTime;
         if(_uploadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [tiResponse readyState] == TiHTTPResponseStateDone) {
@@ -241,11 +245,11 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)tiRequest:(TiHTTPRequest *)request onLoad:(TiHTTPResponse *)tiResponse
 {
-
     [[TiApp app] stopNetwork];
     if([request cancelled]) {
         return;
     }
+    RELEASE_TO_NIL(response);
     response = [tiResponse retain];
     int responseCode = [response status];
     /**
@@ -269,6 +273,8 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)tiRequest:(TiHTTPRequest *)request onError:(TiHTTPResponse *)tiResponse
 {
+    RELEASE_TO_NIL(response);
+    response = [tiResponse retain];
     [[TiApp app] stopNetwork];
     if([request cancelled]) {
         return;
@@ -287,6 +293,8 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)tiRequest:(TiHTTPRequest *)request onReadyStateChage:(TiHTTPResponse *)tiResponse
 {
     if(hasOnreadystatechange) {
+        RELEASE_TO_NIL(response);
+        response = [tiResponse retain];
         [self fireCallback:@"onreadystatechange" withArg:nil withSource:self];
     }
 }
