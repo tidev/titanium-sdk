@@ -10,21 +10,7 @@ define(['Ti/_/lang'], function(lang) {
 		this._listeners = {};
 	}
 
-	handleEvent = function (x) {
-		var payload = JSON.parse(x);
-		payload.source = proxyList[payload._hnd];
-		var cbs = proxyList[payload._hnd]._listeners[payload.type];
-		cbs.forEach(function(cb){
-			cb(payload);
-		});
-	}
-
-	handleError = function (x) {
-		Ti.API.error(x);
-		throw x;
-	}
-
-	_send = function (action, data) {
+	function _send(action, data) {
 		var res;
 		global.handleProxyResponse = function (r) {
 			res = r;
@@ -37,6 +23,19 @@ define(['Ti/_/lang'], function(lang) {
 		} else if (res.hnd) {
 			return proxyList[res.hnd] || (proxyList[res.hnd] = new Handle(res.hnd));
 		}
+	};
+
+	global.handleEvent = function (evt) {
+		var payload = JSON.parse(evt),
+			src = payload.source = proxyList[payload._hnd];
+		src._listeners[payload.type].forEach(function (cb) {
+			cb(payload);
+		});
+	};
+
+	global.handleError = function (err) {
+		Ti.API.error(err);
+		throw err;
 	};
 
 	Handle.prototype.invoke = function (name, argTypes, argValues) {
@@ -112,15 +111,15 @@ define(['Ti/_/lang'], function(lang) {
 	};
 
 	Handle.prototype.removeEventListener = function (name, cb) {
-		var idx = this._listeners[name].indexOf(cb) + 1;
-		if (!this._listeners[name] || !~idx) {
-			return;
+		if (!(name in this._listeners)) return;
+		var idx = this._listeners[name].indexOf(cb);
+		if (this._listeners[name] && ~idx) {
+			this._listeners[name].splice(idx, 1);
+			this._listeners[name].length || sendNativeMessage('r', 're' + JSON.stringify({
+				hnd: this._hnd,
+				name: name
+			}));
 		}
-		this._listeners[name] = this._listeners[name].splice(idx, 1);
-		this._listeners[name].length || sendNativeMessage('r', 're' + JSON.stringify({
-			hnd: this._hnd,
-			name: name
-		}));
 	};
 
 	return lang.setObject('Ti.MobileWeb.WP8', {
@@ -145,7 +144,7 @@ define(['Ti/_/lang'], function(lang) {
 		},
 
 		getEnum: function (name, value) {
-			return _send ('ge', { name: name, value: value });
+			return _send('ge', { name: name, value: value });
 		},
 
 		getRootGrid: function () {
@@ -187,6 +186,6 @@ define(['Ti/_/lang'], function(lang) {
 			return proxyList[hnd] = new Handle(hnd);
 		},
 
-		getProxyList: function () { return proxyList;}
+		getProxyList: function () { return proxyList; }
 	});
 });
