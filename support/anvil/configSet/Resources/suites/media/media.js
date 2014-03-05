@@ -21,7 +21,6 @@ module.exports = new function() {
 		{name: "videoPlayerAPIs"},
 		{name: "audioTimeValidation", timeout: 5000},
 		{name: "screenshot", timeout: 2000},
-		{name: "mediaPlayer", timeout: 60000},
 		{name: "Media_Android_scanMediaFiles", timeout: 60000},
 		{name: "getUrlMethod", timeout: 60000},
 		{name: "videoResize", timeout: 60000},
@@ -142,38 +141,6 @@ module.exports = new function() {
 		valueOf(testRun, function() {
 			Titanium.Media.takeScreenshot(callback);
 		}).shouldNotThrowException();
-	}
-
-	//TIMOB-7235  TIMOB-7502
-	this.mediaPlayer = function(testRun){
-		var win = Titanium.UI.createWindow({
-			navBarHidden: false
-		});
-		var  sound = Ti.Media.createSound({
-			url : '/suites/media/sound.wav'
-		});
-		var completeEvent = 0;
-		function playNext2() {
-			sound.play();
-		};
-		function playNext() {
-			sound.time= 1000;
-			sound.play();
-		};
-		sound.addEventListener("complete", function(){
-			completeEvent += 1;
-			if(completeEvent == 1){
-				win.fullscreen = false;
-				playNext2();
-			}
-			else if(completeEvent == 2){
-				finish(testRun);
-			}
-		});
-		setTimeout(function(){
-			playNext();
-		},2000);
-		win.open();
 	}
 
 	//TIMOB-6809
