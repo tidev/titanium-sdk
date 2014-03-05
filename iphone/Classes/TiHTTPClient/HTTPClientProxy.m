@@ -117,10 +117,7 @@ extern NSString * const TI_APPLICATION_GUID;
             NSDictionary *dict = (NSDictionary*)arg;
             for(NSString *key in dict) {
                 id value = [dict objectForKey:key];
-                if([value isKindOfClass:[NSString class]]) {
-                    [form addFormKey:key andValue: (NSString*)value];
-                }
-                else if([value isKindOfClass:[TiBlob class]]|| [value isKindOfClass:[TiFile class]]) {
+                if([value isKindOfClass:[TiBlob class]]|| [value isKindOfClass:[TiFile class]]) {
                     TiBlob *blob;
                     NSString *name;
                     if([value isKindOfClass:[TiBlob class]]) {
@@ -134,10 +131,9 @@ extern NSString * const TI_APPLICATION_GUID;
                              fileName:name
                             fieldName:key];
                 }
-                else if([value isKindOfClass:[NSDictionary class]] || [value isKindOfClass:[NSArray class]]) {
-                    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:value options:kNilOptions error:nil];
+                else {
                     [form addFormKey:key
-                            andValue:[NSString stringWithUTF8String:[jsonData bytes]]];
+                            andValue:[TiUtils stringValue:value]];
                 }
             }
         } else if ([arg isKindOfClass:[TiBlob class]] || [arg isKindOfClass:[TiFile class]]) {
@@ -151,8 +147,8 @@ extern NSString * const TI_APPLICATION_GUID;
                 name = [[(TiFile*)arg path] lastPathComponent];
             }
             [form addFormData:[blob data] fileName:name];
-        } else if([arg isKindOfClass:[NSString class]]) {
-            [form setStringData:(NSString*)arg];
+        } else {
+            [form setStringData:[TiUtils stringValue:arg]];
         }
     }
     
