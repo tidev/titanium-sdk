@@ -273,7 +273,7 @@ def to_jsca_type(api):
 			"remarks": to_jsca_remarks(api),
 			"userAgents": to_jsca_userAgents(api),
 			"since": to_jsca_since(api.platforms),
-			"inherits": to_jsca_inherits(api),
+			"inherits": to_jsca_inherits(api)
 			}
 	# TIMOB-7169. If it's a proxy (non-module) and it has no "class properties",
 	# mark it as internal.  This avoids it being displayed in Code Assist.
