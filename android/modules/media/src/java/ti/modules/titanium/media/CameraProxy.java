@@ -9,10 +9,11 @@ package ti.modules.titanium.media;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 
 
-@Kroll.proxy(creatableInModule=MediaModule.class)
+@Kroll.proxy(creatableInModule = MediaModule.class, propertyAccessors = { TiC.PROPERTY_FLASH_MODE })
 public class CameraProxy extends KrollProxy
 {
 	private static TiCamera camera = null;
