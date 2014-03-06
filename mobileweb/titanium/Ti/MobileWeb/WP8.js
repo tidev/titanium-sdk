@@ -25,19 +25,6 @@ define(['Ti/_/lang'], function(lang) {
 		}
 	};
 
-	global.handleEvent = function (evt) {
-		var payload = JSON.parse(evt),
-			src = payload.source = proxyList[payload._hnd];
-		src._listeners[payload.type].forEach(function (cb) {
-			cb(payload);
-		});
-	};
-
-	global.handleError = function (err) {
-		Ti.API.error(err);
-		throw err;
-	};
-
 	Handle.prototype.invoke = function (name, argTypes, argValues) {
 		return _send('in', {
 			hnd: this._hnd,
@@ -141,6 +128,18 @@ define(['Ti/_/lang'], function(lang) {
 			}));
 			global.handleProxyResponse = void 0;
 			return proxyList[hnd] = new Handle(hnd);
+		},
+
+		handleEvent: function (payload) {
+			var src = payload.source = proxyList[payload._hnd];
+			src._listeners[payload.type].forEach(function (cb) {
+				cb(payload);
+			});
+		},
+
+		handleError: function (err) {
+			Ti.API.error(err);
+			throw err;
 		},
 
 		getEnum: function (name, value) {
