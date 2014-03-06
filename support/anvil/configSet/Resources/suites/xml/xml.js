@@ -15,6 +15,11 @@ module.exports = new function() {
 
 	this.name = "xml";
 	this.tests = [
+		{name: "uppercaseHTTP"},
+		{name: "xhrcalls"},
+		{name: "getOrCreateAttributeNS"},
+		//{name: "ownerDocumentproperty"}, TIMOB-15836 SDK 3.2.0
+		{name: "getElementsByTagName"},
 		{name: "documentParsing"},
 		{name: "soap"},
 		{name: "xpath"},
@@ -85,6 +90,91 @@ module.exports = new function() {
 
 	for (var i = 0; i < invalidFiles.length; i++) {
 		invalidSource[invalidFiles[i]] = Ti.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, "suites/xml/" + invalidFiles[i]).read().toString();
+	}
+
+	//TIMOB-10350
+	this.uppercaseHTTP = function(testRun){
+		var xhr = Ti.Network.createHTTPClient({
+			onload: function () {
+				finish(testRun);
+			},
+		});
+		xhr.open('GET', "HTTP://www.appcelerator.com:80");
+		xhr.send({});
+	}
+
+	//TIMOB-9558
+	this.xhrcalls = function(testRun){
+		var win = Titanium.UI.createWindow();
+		var xhr = Titanium.Network.createHTTPClient({
+			enableKeepAlive: true,
+		});
+		var readyState= false;
+		var errorState= false;
+		var loadState=false;
+		xhr.onerror = function() {
+			errorState= true;
+			valueOf(testRun, errorState).shouldBeTrue();   
+			valueOf(testRun, readyState).shouldBeTrue();  
+			valueOf(testRun, loadState).shouldBeFalse();   
+
+			finish(testRun);
+		};
+		xhr.onreadystatechange = function(e) {
+			readyState = true;
+		};
+		xhr.onload = function(e) {
+			if(this.status == 200) {
+				loadState= true;
+			}
+		};
+		// xhr.open('GET', "SEE COMMENT FOR URLs");
+		xhr.open('GET', "http://www.loreal-finance.com/site/us/contenu/communique_rss.asp?ID_PAGE=810&LG=us");
+		xhr.send();
+		win.open();
+	}
+
+	//TIMOB-9071
+	this.getOrCreateAttributeNS = function(testRun){
+		var xmlDoc = Ti.XML.parseString('<html><head></head><body><a href="http://appcelerator.com/" /></body></html>');
+		var anchor = xmlDoc.getElementsByTagName('a').item(0);
+		valueOf(testRun, function(){
+			anchor.getAttributeNS(null, 'href');
+		}).shouldNotThrowException();
+		valueOf(testRun, function(){
+			xmlDoc.createAttributeNS(null, 'id')
+		}).shouldNotThrowException();
+
+		finish(testRun);
+	}
+
+	//TIMOB-8551
+	this.ownerDocumentproperty = function(testRun){
+		var doc = Ti.XML.parseString('<?xml version="1.0"?><root><test>data</test></root>');
+		var e1 = doc.firstChild;
+		var e2 = doc.createElement("test");
+		if (e1.ownerDocument === e2.ownerDocument)
+		{
+			valueOf(e2.ownerDocument).shouldNotBeNull();
+
+			finish(testRun);
+		}
+	}
+
+	//TIMOB-5112
+	this.getElementsByTagName = function(testRun){
+		var win = Titanium.UI.createWindow({ title:'window' });
+		var xmlString = "<benny/>";
+		var doc = Ti.XML.parseString(xmlString);
+		var elem ;
+		win.addEventListener('focus', function(){
+			valueOf(testRun, function(){
+				elem= doc.getElementsByTagName("mickey").item(0);
+			}).shouldNotThrowException();
+
+			finish(testRun);
+		});
+		win.open();
 	}
 
 	this.documentParsing = function(testRun) {
