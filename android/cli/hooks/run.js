@@ -204,7 +204,11 @@ exports.init = function (logger, config, cli) {
 							adb.installApp(device.id, builder.apkFile, function (err) {
 								if (err) {
 									logger.error(__('Failed to install apk on "%s"', device.id));
-									err.toString().split('\n').forEach(logger.error);
+									err = err.toString();
+									err.split('\n').forEach(logger.error);
+									if (err.indexOf('INSTALL_PARSE_FAILED_NO_CERTIFICATES') != -1) {
+										logger.error(__('Make sure your keystore is signed with a compatible signature algorithm such as "SHA1withRSA" or "MD5withRSA".'));
+									}
 									logger.log();
 									process.exit(1);
 								}

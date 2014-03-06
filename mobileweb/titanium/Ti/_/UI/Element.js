@@ -24,6 +24,7 @@ define(
 		},
 		pixelUnits = 'px',
 		useTouch = has('touch'),
+		usePointer = global.navigator.msPointerEnabled,
 		gestureEvents = [
 			'touchstart',
 			'touchend',
@@ -57,12 +58,14 @@ define(
 			on(self, 'touchstart', self, '_doBackground');
 			on(self, 'touchend', self, '_doBackground');
 
-			on(self.domNode, useTouch ? 'touchstart' : 'mousedown', function(evt){
+			// NOTE: this code signifies that a given element was involved in the event, but doesn't actually handle it.
+			// The code to actually handle the event is in UI.js
+			on(self.domNode, usePointer ? 'MSPointerDown' : useTouch ? 'touchstart' : 'mousedown', function(evt){
 				var handles = [
-					on(global, useTouch ? 'touchmove' : 'mousemove', function(evt){
+					on(global, usePointer ? 'MSPointerMove' : useTouch ? 'touchmove' : 'mousemove', function(evt){
 						(useTouch || touching) && (evt._elements || (evt._elements = [])).push(self);
 					}),
-					on(global, useTouch ? 'touchend' : 'mouseup', function(evt){
+					on(global, usePointer ? 'MSPointerUp' : useTouch ? 'touchend' : 'mouseup', function(evt){
 						touching = 0;
 						(evt._elements || (evt._elements = [])).push(self);
 						event.off(handles);
@@ -531,8 +534,8 @@ define(
 				bc = bc || (bi && bi !== 'none' ? 'transparent' : '');
 				nodeStyle.backgroundColor.toLowerCase() !== bc.toLowerCase() && (nodeStyle.backgroundColor = bc);
 
-				bi = style.url(bi);
-				nodeStyle.backgroundImage.replace(/'|"/g, '').toLowerCase() !== bi.toLowerCase() && (nodeStyle.backgroundImage = bi);
+				bi != 'none' && (bi = style.url(bi));
+				nodeStyle.backgroundImage.replace(/'|"/g, '').toLowerCase() !== bi.toLowerCase() && (nodeStyle.backgroundImage = (bi == 'none' ? '' : bi));
 
 				if (bi) {
 					tmp = repeat ? 'repeat' : 'no-repeat';

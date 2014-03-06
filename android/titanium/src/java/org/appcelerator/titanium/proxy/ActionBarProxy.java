@@ -14,8 +14,8 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
-import android.app.ActionBar;
-import android.app.Activity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Message;
@@ -46,10 +46,10 @@ public class ActionBarProxy extends KrollProxy
 
 	private ActionBar actionBar;
 
-	public ActionBarProxy(Activity activity)
+	public ActionBarProxy(ActionBarActivity activity)
 	{
 		super();
-		actionBar = activity.getActionBar();
+		actionBar = activity.getSupportActionBar();
 	}
 
 	@Kroll.method @Kroll.setProperty
@@ -164,29 +164,27 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.method @Kroll.setProperty
 	public void setLogo(String url)
 	{
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
-			if (TiApplication.isUIThread()) {
-				handleSetLogo(url);
-			} else {
-				Message message = getMainHandler().obtainMessage(MSG_SET_LOGO, url);
-				message.getData().putString(LOGO, url);
-				message.sendToTarget();
-			}
+		if (TiApplication.isUIThread()) {
+			handleSetLogo(url);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_LOGO, url);
+			message.getData().putString(LOGO, url);
+			message.sendToTarget();
 		}
+		
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setIcon(String url)
 	{
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
-			if (TiApplication.isUIThread()) {
-				handleSetIcon(url);
-			} else {
-				Message message = getMainHandler().obtainMessage(MSG_SET_ICON, url);
-				message.getData().putString(ICON, url);
-				message.sendToTarget();
-			}
+		if (TiApplication.isUIThread()) {
+			handleSetIcon(url);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_ICON, url);
+			message.getData().putString(ICON, url);
+			message.sendToTarget();
 		}
+		
 	}
 
 	private void handleSetIcon(String url)
@@ -331,8 +329,7 @@ public class ActionBarProxy extends KrollProxy
 	@Override
 	public void onPropertyChanged(String name, Object value)
 	{
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH
-			&& TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED.equals(name)) {
+		if (TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED.equals(name)) {
 			// If we have a listener on the home icon item, then enable the home button (we need to do this for ICS and
 			// above)
 			if (TiApplication.isUIThread()) {

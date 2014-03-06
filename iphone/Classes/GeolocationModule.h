@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiModule.h"
+#import "TiHTTPClient/TiHTTPClient.h"
 
 #ifdef USE_TI_GEOLOCATION
 

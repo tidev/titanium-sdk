@@ -19,7 +19,8 @@ module.exports = new function() {
 		{name: "numberTypes"},
 		{name: "booleanType"},
 		{name: "wrappedObjects"},
-		{name: "nativePrototypes"}
+		{name: "nativePrototypes"},
+		{name: "jsonParse"}
 	]
 
 	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/1600-android-jsonstringify-incorrectly-handles-dates-including-silently-faiing
@@ -141,4 +142,24 @@ module.exports = new function() {
 		delete Object.prototype.objFunction;
 		finish(testRun);
 	}
+
+	//KitchenSink: Platform
+	this.jsonParse = function(testRun) {
+		var obj1 = JSON.parse("{\"a\": {\"b\": 1}}");
+		valueOf(testRun, obj1.a.b).shouldBe(1);
+
+		var obj2 = JSON.parse("[1, 2, 3]");
+		valueOf(testRun, obj2[0]).shouldBe(1);
+		valueOf(testRun, obj2[1]).shouldBe(2);
+		valueOf(testRun, obj2[2]).shouldBe(3);
+
+		var obj3 = JSON.parse("123");
+		valueOf(testRun, obj3).shouldBe(123);
+
+		var obj4 = JSON.parse("123.456");
+		valueOf(testRun, obj4).shouldBe(123.456);
+
+		finish(testRun);
+	}
+
 }

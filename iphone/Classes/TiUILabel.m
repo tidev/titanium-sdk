@@ -22,7 +22,6 @@
 -(id)init
 {
     if (self = [super init]) {
-        bgdLayer = nil;
         padding = CGRectZero;
         initialLabelFrame = CGRectZero;
         verticalAlign = UIControlContentVerticalAlignmentFill;
@@ -33,7 +32,6 @@
 -(void)dealloc
 {
     RELEASE_TO_NIL(label);
-    RELEASE_TO_NIL(bgdLayer);
     RELEASE_TO_NIL(wrapperView);
     [super dealloc];
 }
@@ -140,7 +138,7 @@
         [label setFrame:initialLabelFrame];
     }
 
-    if (bgdLayer != nil && !CGRectIsEmpty(initialLabelFrame))
+    if ([self backgroundImageLayer] != nil && !CGRectIsEmpty(initialLabelFrame))
     {
         [self updateBackgroundImageFrameWithPadding];
     }
@@ -432,16 +430,7 @@
 
 }
 
--(CALayer *)backgroundImageLayer
-{
-    if (bgdLayer == nil)
-    {
-        bgdLayer = [[CALayer alloc]init];
-        bgdLayer.frame = self.layer.bounds;
-        [self.layer insertSublayer:bgdLayer atIndex:0];
-    }
-	return bgdLayer;
-}
+
 -(void) updateBackgroundImageFrameWithPadding
 {
     CGRect backgroundFrame = CGRectMake(self.bounds.origin.x - padding.origin.x,

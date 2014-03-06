@@ -27,6 +27,7 @@ define(
 		unloaded,
 		showingError,
 		waiting = [],
+		alertShowing,
 		Ti = lang.setObject("Ti", Evented, {
 			constants: {
 				buildDate: cfg.ti.buildDate,
@@ -70,37 +71,6 @@ define(
 			}
 		}),
 		loadAppjs = Ti.deferStart();
-
-	if (!has("function-bind")) {
-		function Empty(){}
-
-		Function.prototype.bind = function bind(that) {
-			var target = this,
-				slice = Array.prototype.slice,
-				args = slice.call(arguments, 1),
-				bound = function () {
-					var a = args.concat(slice.call(arguments)),
-						result;
-					if (this instanceof bound) {
-						result = target.apply(this, a);
-						if (Object(result) === result) {
-							return result;
-						}
-						return this;
-					} else {
-						return target.apply(that, a);
-					}
-				};
-
-			if (target.prototype) {
-				Empty.prototype = target.prototype;
-				bound.prototype = new Empty();
-				Empty.prototype = null;
-			}
-
-			return bound;
-		};
-	}
 
 	if (!has("js-btoa")) {
 		var tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
@@ -156,6 +126,20 @@ define(
 			}
 
 			return bytes.join('');
+		};
+	}
+
+	// Shim out alert()
+	if (has("winstore-extensions")) {
+		global.alert = function (msg) {
+			if (alertShowing) {
+				API.warn('Cannot show more than one alert at a time');
+			} else {
+				alertShowing = 1;
+				new Windows.UI.Popups.MessageDialog(msg).showAsync().done(function () {
+					alertShowing = 0;
+				});
+			}
 		};
 	}
 
@@ -245,6 +229,7 @@ define(
 
 				win.open();
 			}
+			return true; // This prevents windows store applications from exiting entirely on error, and it must be true, not just something truthy
 		});
 	}
 
@@ -280,7 +265,7 @@ define(
 				os: Platform.osname,
 				osver: Platform.ostype,
 				version: cfg.ti.version,
-				platform: Platform.name,
+				platform: require.config.ti.analyticsPlatformName,
 				model: Platform.model,
 				un: null,
 				app_version: App.version,
