@@ -63,9 +63,6 @@ static void MyPacketsProcCUR(				void *							inClientData,
 								AudioStreamPacketDescription	*inPacketDescriptions);
 OSStatus MyEnqueueBufferCUR(AudioStreamerCUR* myData);
 
-#ifdef TARGET_OS_IPHONE			
-static void MyAudioSessionInterruptionListenerCUR(void *inClientData, UInt32 inInterruptionState);
-#endif
 
 #pragma mark Audio Callback Function Implementations
 
@@ -151,19 +148,7 @@ void MyAudioQueueIsRunningCallbackCUR(void *inUserData, AudioQueueRef inAQ, Audi
 	[streamer handlePropertyChangeForQueue:inAQ propertyID:inID];
 }
 
-#ifdef TARGET_OS_IPHONE			
-//
-// MyAudioSessionInterruptionListener
-//
-// Invoked if the audio session is interrupted (like when the phone rings)
-//
-// TODO: Need to add this into the interruption framework, it's a bug!
-void MyAudioSessionInterruptionListenerCUR(void *inClientData, UInt32 inInterruptionState)
-{
-	AudioStreamerCUR* streamer = (AudioStreamerCUR *)inClientData;
-	[streamer handleInterruptionChangeToState:inInterruptionState];
-}
-#endif
+
 
 #pragma mark CFReadStream Callback Function Implementations
 
@@ -522,7 +507,7 @@ static void ASReadStreamCallBackCUR
 		if (fileLength > 0 && seekByteOffset > 0)
 		{
 			CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Range"),
-				(CFStringRef)[NSString stringWithFormat:@"bytes=%ld-%ld", seekByteOffset, fileLength]);
+				(CFStringRef)[NSString stringWithFormat:@"bytes=%ld-%ld", (long)seekByteOffset, (long)fileLength]);
 			discontinuous = YES;
 		}
 		
