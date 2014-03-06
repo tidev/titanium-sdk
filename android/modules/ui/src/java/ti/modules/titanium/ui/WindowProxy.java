@@ -38,11 +38,13 @@ import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
+import android.view.WindowManager;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_MODAL,
 	TiC.PROPERTY_URL,
-	TiC.PROPERTY_WINDOW_PIXEL_FORMAT
+	TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
+	TiC.PROPERTY_FLAG_SECURE
 })
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 {
@@ -257,6 +259,13 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		Window win = activity.getWindow();
+		boolean flagSecure = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
+		if (flagSecure) {
+			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
+				activity.getWindow()
+					.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+			}
+		}
 		// Handle the background of the window activity if it is a translucent activity.
 		// If it is a modal window, set a translucent dimmed background to the window.
 		// If the opacity is given, set a transparent background to the window. In this case, if no backgroundColor or
@@ -273,15 +282,29 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		// Handle the width and height of the window.
+		// TODO: If width / height is a percentage value, we can not get the dimension in pixel because
+		// the width / height of the decor view is not measured yet at this point. So we can not use the 
+		// getAsPixels() method. Maybe we can use WindowManager.getDefaultDisplay.getRectSize(rect) to
+		// get the application display dimension.
 		if (hasProperty(TiC.PROPERTY_WIDTH) || hasProperty(TiC.PROPERTY_HEIGHT)) {
 			Object width = getProperty(TiC.PROPERTY_WIDTH);
 			Object height = getProperty(TiC.PROPERTY_HEIGHT);
 			View decorView = win.getDecorView();
 			if (decorView != null) {
-				int w = (width == null || width.equals(TiC.LAYOUT_FILL)) ? LayoutParams.MATCH_PARENT : TiConvert
-					.toTiDimension(width, TiDimension.TYPE_WIDTH).getAsPixels(decorView);
-				int h = (height == null || height.equals(TiC.LAYOUT_FILL)) ? LayoutParams.MATCH_PARENT : TiConvert
-					.toTiDimension(height, TiDimension.TYPE_HEIGHT).getAsPixels(decorView);
+				int w = LayoutParams.MATCH_PARENT;
+				if (!(width == null || width.equals(TiC.LAYOUT_FILL))) {
+					TiDimension wDimension = TiConvert.toTiDimension(width, TiDimension.TYPE_WIDTH);
+					if (!wDimension.isUnitPercent()) {
+						w = wDimension.getAsPixels(decorView);
+					}
+				}
+				int h = LayoutParams.MATCH_PARENT;
+				if (!(height == null || height.equals(TiC.LAYOUT_FILL))) {
+					TiDimension hDimension = TiConvert.toTiDimension(height, TiDimension.TYPE_HEIGHT);
+					if (!hDimension.isUnitPercent()) {
+						h = hDimension.getAsPixels(decorView);
+					}
+				}
 				win.setLayout(w, h);
 			}
 		}
@@ -437,10 +460,20 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			if (win != null) {
 				View decorView = win.getDecorView();
 				if (decorView != null) {
-					int w = (width == null || width.equals(TiC.LAYOUT_FILL)) ? LayoutParams.MATCH_PARENT : TiConvert
-						.toTiDimension(width, TiDimension.TYPE_WIDTH).getAsPixels(decorView);
-					int h = (height == null || height.equals(TiC.LAYOUT_FILL)) ? LayoutParams.MATCH_PARENT : TiConvert
-						.toTiDimension(height, TiDimension.TYPE_HEIGHT).getAsPixels(decorView);
+					int w = LayoutParams.MATCH_PARENT;
+					if (!(width == null || width.equals(TiC.LAYOUT_FILL))) {
+						TiDimension wDimension = TiConvert.toTiDimension(width, TiDimension.TYPE_WIDTH);
+						if (!wDimension.isUnitPercent()) {
+							w = wDimension.getAsPixels(decorView);
+						}
+					}
+					int h = LayoutParams.MATCH_PARENT;
+					if (!(height == null || height.equals(TiC.LAYOUT_FILL))) {
+						TiDimension hDimension = TiConvert.toTiDimension(height, TiDimension.TYPE_HEIGHT);
+						if (!hDimension.isUnitPercent()) {
+							h = hDimension.getAsPixels(decorView);
+						}
+					}
 					win.setLayout(w, h);
 				}
 			}

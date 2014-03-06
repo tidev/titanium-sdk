@@ -4,7 +4,7 @@ summary: A slider component with a draggable thumb.
 description: |
     A slider lets the user select from a range of values by dragging the slider thumb. 
     
-    Use the <Titanium.UI.createSlider> method to create a slider.
+    Use the <Titanium.UI.createSlider> method or **`<Slider>`** Alloy element to create a slider.
     
     #### Android Platform Implementation Notes
 

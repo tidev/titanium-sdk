@@ -12,26 +12,12 @@ description: |
     #### Push Protocols
 
     As of Release 3.2.0, the CloudPush module only supports Google Cloud Messaging (GCM) for push
-    notifications. MQTT support is deprecated and support was removed in Release 3.2.0.  Refer to
-    the next section for MQTT support.
-
-    Since Release 3.1.2, GCM is the default method to send push notifications. If you
-    have an existing application that uses the MQTT protocol, you either need to transition your
-    application to use GCM or set the `acs-push-type` key in the `tiapp.xml` file to `mqtt`.
-    Any new application should use GCM.
+    notifications. MQTT support is deprecated and support was removed in Release 3.2.0. Upgrade your
+    application to use the GCM protocol.
 
     GCM supports devices that run Android 2.2 and later, and requires that the Google Play Store
     application be installed. For pre-4.0 devices, the user is required to set up their Google
     account.
-
-    GCM is available for both the community edition of the Titanium platform and the paid,
-    enterprise version of the Appcelerator Platform.
-
-    #### MQTT Legacy Support
-
-    From Release 3.2.0, you need to download and use the `ti.cloudpush.mqtt` module from the
-    Appcelerator Marketplace if you wish to continue to support MQTT or use an older version of the
-    module.
 
     #### Getting Started
 

@@ -36,7 +36,7 @@ module.exports = new function() {
 		view.addEventListener('postlayout', function(){
 			valueOf(testRun, view.getHeight()).shouldBe(100);
 			valueOf(testRun, view.getHeight()).shouldBe(100);
-			valueOf(testRun, dialog.getCancel()).shouldBe(1);
+			valueOf(testRun, dialogShow).shouldBe(2);
 
 			finish(testRun);
 		});

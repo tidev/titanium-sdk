@@ -328,6 +328,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
+    if([self _hasListeners:@"memorywarning"]) {
+        [self fireEvent:@"memorywarning" withObject:nil];
+    }
+
 	RELEASE_TO_NIL(properties);
 #ifdef USE_TI_APPIOS
     [self forgetProxy:iOS];

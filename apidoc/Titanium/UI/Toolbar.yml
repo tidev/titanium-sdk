@@ -6,7 +6,7 @@ deprecated:
         Use <Titanium.UI.iOS.Toolbar> instead.
 summary: An iOS toolbar, which can contain buttons and other controls.
 description: |
-    The toolbar is created by the <Titanium.UI.createToolbar> method. 
+    The toolbar is created by the <Titanium.UI.createToolbar> method or **`<Toolbar>`** Alloy element.
     
     A toolbar can contain buttons, as well as certain other widgets, including text fields and 
     labels. 

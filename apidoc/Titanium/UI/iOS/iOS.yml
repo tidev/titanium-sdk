@@ -758,6 +758,27 @@ properties:
     permission: read-only
     since: "1.8.1"
 
+  - name: CLIP_MODE_DEFAULT
+    summary: |
+        Use with <Titanium.UI.View.clipMode> to specify clipping behavior.
+    type: Number
+    permission: read-only
+    since: "3.3.0"
+
+  - name: CLIP_MODE_DISABLED
+    summary: |
+        Use with <Titanium.UI.View.clipMode> to specify clipping behavior.
+    type: Number
+    permission: read-only
+    since: "3.3.0"
+
+  - name: CLIP_MODE_ENABLED
+    summary: |
+        Use with <Titanium.UI.View.clipMode> to specify clipping behavior.
+    type: Number
+    permission: read-only
+    since: "3.3.0"
+
   - name: COLLISION_MODE_ALL
     summary: |
         Use with <Titanium.UI.iOS.CollisionBehavior.collisionMode> to specify collisions with both items and

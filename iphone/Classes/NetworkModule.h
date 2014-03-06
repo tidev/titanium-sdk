@@ -60,6 +60,8 @@ typedef enum {
 #pragma mark Private
 -(void)updateReachabilityStatus;
 
++(NSOperationQueue*)operationQueue;
+
 @end
 
 #endif
