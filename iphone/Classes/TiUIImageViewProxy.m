@@ -9,7 +9,6 @@
 #import "TiUIImageViewProxy.h"
 #import "TiUIImageView.h"
 #import "OperationQueue.h"
-#import "ASIHTTPRequest.h"
 #import "TiApp.h"
 #import "TiFile.h"
 #import "TiBlob.h"

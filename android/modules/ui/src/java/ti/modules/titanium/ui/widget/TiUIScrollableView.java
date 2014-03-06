@@ -21,7 +21,6 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.ScrollableViewProxy;
-import ti.modules.titanium.ui.widget.TiUIScrollView.TiScrollViewLayout;
 import ti.modules.titanium.ui.widget.listview.ListItemProxy;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -326,6 +325,7 @@ public class TiUIScrollableView extends TiUIView
 	{
 		if (!mViews.contains(proxy)) {
 			proxy.setActivity(this.proxy.getActivity());
+			proxy.setParent(this.proxy);
 			mViews.add(proxy);
 			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
 			mAdapter.notifyDataSetChanged();
@@ -336,6 +336,7 @@ public class TiUIScrollableView extends TiUIView
 	{
 		if (mViews.contains(proxy)) {
 			mViews.remove(proxy);
+			proxy.setParent(null);
 			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
 			mAdapter.notifyDataSetChanged();
 		}
@@ -419,6 +420,7 @@ public class TiUIScrollableView extends TiUIView
 		}
 		for (TiViewProxy viewProxy : mViews) {
 			viewProxy.releaseViews();
+			viewProxy.setParent(null);
 		}
 		mViews.clear();
 	}
@@ -435,6 +437,7 @@ public class TiUIScrollableView extends TiUIView
 				if (views[i] instanceof TiViewProxy) {
 					TiViewProxy tv = (TiViewProxy)views[i];
 					tv.setActivity(activity);
+					tv.setParent(this.proxy);
 					mViews.add(tv);
 					changed = true;
 				}
@@ -461,6 +464,7 @@ public class TiUIScrollableView extends TiUIView
 		if (mViews != null) {
 			for (TiViewProxy viewProxy : mViews) {
 				viewProxy.releaseViews();
+				viewProxy.setParent(null);
 			}
 			mViews.clear();
 		}

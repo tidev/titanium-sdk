@@ -11,22 +11,9 @@
 
 - (void) dealloc
 {
-	RELEASE_TO_NIL(gradientWrapperView);
 	[super dealloc];
 }
 
-
--(UIView *)gradientWrapperView
-{
-	if (gradientWrapperView == nil)
-	{
-		gradientWrapperView = [[UIView alloc] initWithFrame:[self bounds]];
-		[gradientWrapperView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-		[self insertSubview:gradientWrapperView atIndex:0];
-	}
-
-	return gradientWrapperView;
-}
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {

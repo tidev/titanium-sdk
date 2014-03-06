@@ -112,7 +112,7 @@ public class TiUITableView extends TiUIView
 
 		boolean clickable = true;
 		if (d.containsKey(TiC.PROPERTY_TOUCH_ENABLED)) {
-			clickable = (Boolean) d.get(TiC.PROPERTY_TOUCH_ENABLED);
+			clickable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
 		}
 		if (clickable) {
 			tableView.setOnItemClickListener(this);
@@ -252,6 +252,16 @@ public class TiUITableView extends TiUIView
 			}
 		} else if (TiC.PROPERTY_MIN_ROW_HEIGHT.equals(key)) {
 			updateView();
+		} else if (TiC.PROPERTY_HEADER_VIEW.equals(key)) {
+			if (oldValue != null) {
+				tableView.removeHeaderView((TiViewProxy) oldValue);
+			}
+			tableView.setHeaderView();
+		} else if (TiC.PROPERTY_FOOTER_VIEW.equals(key)) {
+			if (oldValue != null) {
+				tableView.removeFooterView((TiViewProxy) oldValue);
+			}
+			tableView.setFooterView();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

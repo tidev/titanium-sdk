@@ -184,6 +184,7 @@ DEFINE_EXCEPTIONS
 	[animation release];
 	[backgroundImage release];
 	[gradientLayer release];
+	[bgdImageLayer release];
 	[singleTapRecognizer release];
 	[doubleTapRecognizer release];
 	[twoFingerTapRecognizer release];
@@ -368,6 +369,7 @@ DEFINE_EXCEPTIONS
     if (backgroundRepeat) {
         [self renderRepeatedBackground:backgroundImage];
     }
+    [self updateViewShadowPath];
 }
 
 
@@ -397,7 +399,9 @@ DEFINE_EXCEPTIONS
             [CATransaction begin];
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
         }
-        [gradientLayer setFrame:newBounds];
+        if ([self gradientLayer] != self.layer) {
+            [[self gradientLayer] setFrame:newBounds];
+        }
         if ([self backgroundImageLayer] != self.layer) {
             [[self backgroundImageLayer] setFrame:newBounds];
         }
@@ -476,8 +480,14 @@ DEFINE_EXCEPTIONS
 }
  
 -(void)setBorderWidth_:(id)w
-{ 
-	self.layer.borderWidth = [TiUtils sizeValue:w];
+{
+    TiDimension theDim = TiDimensionFromObject(w);
+    if (TiDimensionIsDip(theDim)) {
+        self.layer.borderWidth = MAX(theDim.value, 0);
+    } else {
+        self.layer.borderWidth = 0;
+    }
+    [self updateClipping];
 }
 
 -(void)setBackgroundColor_:(id)color
@@ -506,7 +516,7 @@ DEFINE_EXCEPTIONS
 
 -(CALayer *)backgroundImageLayer
 {
-	return [self layer];
+	return bgdImageLayer;
 }
 
 -(CALayer *)gradientLayer
@@ -574,6 +584,24 @@ DEFINE_EXCEPTIONS
 {
     UIImage* bgImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
     
+    if (bgImage == nil) {
+        [bgdImageLayer removeFromSuperlayer];
+        RELEASE_TO_NIL(bgdImageLayer);
+        return;
+    }
+    
+    if (bgdImageLayer == nil) {
+        bgdImageLayer = [[CALayer alloc] init];
+        [bgdImageLayer setFrame:[self bounds]];
+        bgdImageLayer.masksToBounds = YES;
+        bgdImageLayer.cornerRadius = self.layer.cornerRadius;
+        if (gradientLayer != nil) {
+            [[self gradientWrapperView].layer insertSublayer:bgdImageLayer above:gradientLayer];
+        } else {
+            [[self gradientWrapperView].layer insertSublayer:bgdImageLayer atIndex:0];
+        }
+    }
+    
     if (backgroundRepeat) {
         [self renderRepeatedBackground:bgImage];
     }
@@ -590,7 +618,6 @@ DEFINE_EXCEPTIONS
         }
     }
     
-    self.clipsToBounds = bgImage!=nil;
     self.backgroundImage = bgImage;
 }
 
@@ -621,8 +648,19 @@ DEFINE_EXCEPTIONS
 
 -(void)setBorderRadius_:(id)radius
 {
-	self.layer.cornerRadius = [TiUtils floatValue:radius];
-	self.clipsToBounds = YES;
+    TiDimension theDim = TiDimensionFromObject(radius);
+    if (TiDimensionIsDip(theDim)) {
+        self.layer.cornerRadius = MAX(theDim.value,0);
+    } else {
+        self.layer.cornerRadius = 0;
+    }
+    if (bgdImageLayer != nil) {
+        bgdImageLayer.cornerRadius = self.layer.cornerRadius;
+    }
+    if (gradientLayer != nil) {
+        gradientLayer.cornerRadius = self.layer.cornerRadius;
+    }
+    [self updateClipping];
 }
 
 -(void)setAnchorPoint_:(id)point
@@ -663,6 +701,7 @@ DEFINE_EXCEPTIONS
 	return touchEnabled;
 }
 
+
 -(UIView *)gradientWrapperView
 {
 	return self;
@@ -682,7 +721,9 @@ DEFINE_EXCEPTIONS
 		[gradientLayer setNeedsDisplayOnBoundsChange:YES];
 		[gradientLayer setFrame:[self bounds]];
 		[gradientLayer setNeedsDisplay];
-		[[[self gradientWrapperView] layer] insertSublayer:gradientLayer atIndex:0];
+		gradientLayer.cornerRadius = self.layer.cornerRadius;
+		gradientLayer.masksToBounds = YES;
+		[[self gradientWrapperView].layer insertSublayer:gradientLayer atIndex:0];
 	}
 	else
 	{
@@ -691,13 +732,95 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(void)updateClipping
+{
+    if (clipMode != 0) {
+        //Explicitly overridden
+        self.clipsToBounds = (clipMode > 0);
+    } else {
+        if ([self shadowLayer].shadowOpacity > 0) {
+            //If shadow is visible, disble clipping
+            self.clipsToBounds = NO;
+        } else if (self.layer.borderWidth > 0 || self.layer.cornerRadius > 0) {
+            //If borderWidth > 0, or borderRadius > 0 enable clipping
+            self.clipsToBounds = YES;
+        } else if ([[self proxy] isKindOfClass:[TiViewProxy class]]){
+            self.clipsToBounds = ( [[((TiViewProxy*)self.proxy) children] count] > 0 );
+        } else {
+            DeveloperLog(@"[WARN] Proxy is nil or not of kind TiViewProxy. Check");
+            self.clipsToBounds = NO;
+        }
+    }
+}
+
+-(void)setClipMode_:(id)arg
+{
+    [[self proxy] replaceValue:arg forKey:@"clipMode" notification:NO];
+    clipMode = [TiUtils intValue:arg def:0];
+    [self updateClipping];
+}
+
+/**
+ This section of code for shadow support adapted from contributions by Martin Guillon
+ See https://github.com/appcelerator/titanium_mobile/pull/2996
+ */
+-(CALayer *)shadowLayer
+{
+    return [self layer];
+}
+
+
+-(void)setViewShadowOffset_:(id)arg
+{
+    [[self proxy] replaceValue:arg forKey:@"viewShadowOffset" notification:NO];
+    CGPoint p = [TiUtils pointValue:arg];
+    [[self shadowLayer] setShadowOffset:CGSizeMake(p.x, p.y)];
+}
+
+-(void)setViewShadowRadius_:(id)arg
+{
+    [[self proxy] replaceValue:arg forKey:@"viewShadowRadius" notification:NO];
+    [[self shadowLayer] setShadowRadius:[TiUtils floatValue:arg def:0.0]];
+    
+}
+
+-(void)setViewShadowColor_:(id)arg
+{
+    [[self proxy] replaceValue:arg forKey:@"viewShadowColor" notification:NO];
+    TiColor* theColor = [TiUtils colorValue:arg];
+    
+    if (theColor == nil) {
+        [[self shadowLayer] setShadowColor:nil];
+        [[self shadowLayer] setShadowOpacity:0.0];
+    } else {
+        CGFloat alpha = CGColorGetAlpha([[theColor color] CGColor]);
+        [[self shadowLayer] setShadowColor:[[theColor color] CGColor]];
+        [[self shadowLayer] setShadowOpacity:alpha];
+        [self updateViewShadowPath];
+    }
+    [self updateClipping];
+}
+
+-(void)updateViewShadowPath
+{
+    if ([self shadowLayer].shadowOpacity > 0.0f) {
+        //to speedup things
+        [self shadowLayer].shadowPath =[UIBezierPath bezierPathWithRoundedRect:[self bounds] cornerRadius:self.layer.cornerRadius].CGPath;
+    }
+}
+
 -(void)didAddSubview:(UIView*)view
 {
-	// So, it turns out that adding a subview places it beneath the gradient layer.
-	// Every time we add a new subview, we have to make sure the gradient stays where it belongs...
-	if (gradientLayer != nil) {
-		[[[self gradientWrapperView] layer] insertSublayer:gradientLayer atIndex:0];
-	}
+    // So, it turns out that adding a subview places it beneath the gradient layer.
+    // Every time we add a new subview, we have to make sure the gradient stays where it belongs...
+    if (gradientLayer != nil) {
+        [[self gradientWrapperView].layer insertSublayer:gradientLayer atIndex:0];
+        if (bgdImageLayer != nil) {
+            [[self gradientWrapperView].layer insertSublayer:bgdImageLayer above:gradientLayer];
+        }
+    } else if (bgdImageLayer != nil) {
+        [[self gradientWrapperView].layer insertSublayer:bgdImageLayer atIndex:0];
+    }
 }
 
 -(void)animate:(TiAnimation *)newAnimation

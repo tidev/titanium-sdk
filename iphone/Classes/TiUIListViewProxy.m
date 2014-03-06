@@ -141,11 +141,11 @@
 			Block_release(block);
 		} else {
 			[tableView endUpdates];
+			[self.listView updateIndicesForVisibleRows];
 			return;
 		}
 	}
 }
-
 
 - (TiUIListSectionProxy *)sectionForIndex:(NSUInteger)index
 {
@@ -164,6 +164,9 @@
     TiUIListSectionProxy *section = [_sections objectAtIndex:index];
     [_sections removeObjectAtIndex:index];
     section.delegate = nil;
+    [_sections enumerateObjectsUsingBlock:^(TiUIListSectionProxy *section, NSUInteger idx, BOOL *stop) {
+        section.sectionIndex = idx;
+    }];
     [self forgetProxy:section];
 }
 
@@ -294,6 +297,9 @@
 		TiUIListSectionProxy *section = [_sections objectAtIndex:deleteIndex];
 		[_sections removeObjectAtIndex:deleteIndex];
 		section.delegate = nil;
+		[_sections enumerateObjectsUsingBlock:^(TiUIListSectionProxy *section, NSUInteger idx, BOOL *stop) {
+			section.sectionIndex = idx;
+		}];
 		[tableView deleteSections:[NSIndexSet indexSetWithIndex:deleteIndex] withRowAnimation:animation];
 		[self forgetProxy:section];
 	}];
@@ -375,63 +381,68 @@
 
 - (void)scrollToItem:(id)args
 {
-	ENSURE_ARG_COUNT(args, 2);
-	NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
-	NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
-	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
-	UITableViewScrollPosition scrollPosition = [TiUtils intValue:@"position" properties:properties def:UITableViewScrollPositionNone];
-	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-
-	[self dispatchUpdateAction:^(UITableView *tableView) {
-		if ([_sections count] <= sectionIndex) {
-			DebugLog(@"[WARN] ListView: Scroll to section index is out of range");
-			return;
-		}
-		TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
-		NSIndexPath *indexPath = [NSIndexPath indexPathForRow:MIN(itemIndex, section.itemCount) inSection:sectionIndex];
-		[tableView scrollToRowAtIndexPath:indexPath atScrollPosition:scrollPosition animated:animated];
-	}];
+    if (view != nil) {
+        ENSURE_ARG_COUNT(args, 2);
+        NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
+        NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
+        NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
+        UITableViewScrollPosition scrollPosition = [TiUtils intValue:@"position" properties:properties def:UITableViewScrollPositionNone];
+        BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+        TiThreadPerformOnMainThread(^{
+            if ([_sections count] <= sectionIndex) {
+                DebugLog(@"[WARN] ListView: Scroll to section index is out of range");
+                return;
+            }
+            TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:MIN(itemIndex, section.itemCount) inSection:sectionIndex];
+            [self.listView.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:scrollPosition animated:animated];
+        }, NO);
+    }
 }
 
 - (void)selectItem:(id)args
 {
-	ENSURE_ARG_COUNT(args, 2);
-	NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
-	NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
-	[self dispatchUpdateAction:^(UITableView *tableView) {
-		if ([_sections count] <= sectionIndex) {
-			DebugLog(@"[WARN] ListView: Select section index is out of range");
-			return;
-		}
-		TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
-		if (section.itemCount <= itemIndex) {
-			DebugLog(@"[WARN] ListView: Select item index is out of range");
-			return;
-		}
-		NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
-		[tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
-		[tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
-	}];
+    if (view != nil) {
+        ENSURE_ARG_COUNT(args, 2);
+        NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
+        NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
+        TiThreadPerformOnMainThread(^{
+            if ([_sections count] <= sectionIndex) {
+                DebugLog(@"[WARN] ListView: Select section index is out of range");
+                return;
+            }
+            TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
+            if (section.itemCount <= itemIndex) {
+                DebugLog(@"[WARN] ListView: Select item index is out of range");
+                return;
+            }
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
+            [self.listView.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
+            [self.listView.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
+        }, NO);
+    }
 }
 
 - (void)deselectItem:(id)args
 {
-	ENSURE_ARG_COUNT(args, 2);
-	NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
-	NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
-	[self dispatchUpdateAction:^(UITableView *tableView) {
-		if ([_sections count] <= sectionIndex) {
-			DebugLog(@"[WARN] ListView: Select section index is out of range");
-			return;
-		}
-		TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
-		if (section.itemCount <= itemIndex) {
-			DebugLog(@"[WARN] ListView: Select item index is out of range");
-			return;
-		}
-		NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
-		[tableView deselectRowAtIndexPath:indexPath animated:YES];
-	}];
+    if (view != nil) {
+        ENSURE_ARG_COUNT(args, 2);
+        NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
+        NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
+        TiThreadPerformOnMainThread(^{
+            if ([_sections count] <= sectionIndex) {
+                DebugLog(@"[WARN] ListView: Select section index is out of range");
+                return;
+            }
+            TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
+            if (section.itemCount <= itemIndex) {
+                DebugLog(@"[WARN] ListView: Select item index is out of range");
+                return;
+            }
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
+            [self.listView.tableView deselectRowAtIndexPath:indexPath animated:YES];
+        }, NO);
+    }
 }
 
 -(void)setContentInsets:(id)args

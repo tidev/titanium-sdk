@@ -25,7 +25,9 @@ module.exports = new function() {
 		{name: "testDatabaseLH2917"},
 		{name: "testTypedGettersAndSetters"},
 		{name: "testDatabaseExceptions"},
-		{name: "testDatabaseResultsetDotNext"}
+		{name: "testDatabaseResultsetDotNext"},
+		{name: "DBIn2ndContext"},
+		{name: "prePackagedDB"}
 	]
 
 	this.testModuleMethodsAndConstants = function(testRun) {
@@ -461,5 +463,52 @@ module.exports = new function() {
         db.close();
         
         finish(testRun);
+	}
+
+	//KitchenSink: Platform
+	this.DBIn2ndContext = function(testRun) {
+		var db = Titanium.Database.open('mydb');
+		db.execute('CREATE TABLE IF NOT EXISTS DATABASETEST  (ID INTEGER, NAME TEXT)');
+		db.execute('INSERT INTO DATABASETEST (ID, NAME ) VALUES(?,?)',5,'Name 5');
+		db.execute('INSERT INTO DATABASETEST (ID, NAME ) VALUES(?,?)',6,'Name 6');
+		db.execute('INSERT INTO DATABASETEST (ID, NAME ) VALUES(?,?)',7,'Name 7');
+		db.execute('INSERT INTO DATABASETEST (ID, NAME ) VALUES(?,?)',8,'Name 8');
+		valueOf(testRun, db.rowsAffected).shouldBe(1);
+		var lastRow=db.lastInsertRowId;
+		var rows = db.execute('SELECT * FROM DATABASETEST');
+		for(i=0; i<lastRow-4; i++)
+		{
+			rows.next();
+		}
+		valueOf(testRun, rows.field(0)).shouldBe(5);
+		valueOf(testRun, rows.fieldByName('name')).shouldBe('Name 5');
+		rows.next();
+		valueOf(testRun, rows.field(0)).shouldBe(6);
+		valueOf(testRun, rows.fieldByName('name')).shouldBe('Name 6');
+		rows.next();
+		valueOf(testRun, rows.field(0)).shouldBe(7);
+		valueOf(testRun, rows.fieldByName('name')).shouldBe('Name 7');
+		rows.next();
+		valueOf(testRun, rows.field(0)).shouldBe(8);
+		valueOf(testRun, rows.fieldByName('name')).shouldBe('Name 8');
+		rows.close();
+		db.close();
+		
+
+		finish(testRun);
+	}
+
+	//KitchenSink: Platform
+	this.prePackagedDB = function(testRun) {
+		var db = Titanium.Database.install('/testdb.db','quotes');
+		var rows = db.execute('SELECT * FROM TIPS');
+		db.execute('UPDATE TIPS SET TITLE="UPDATED TITLE" WHERE TITLE = "FOO"');
+		db.execute('INSERT INTO TIPS VALUES("FOO", "BAR")');
+		valueOf(testRun, rows.field(1)).shouldBe("A team will always appreciate a great individual if he's willing to sacrifice for the group.");
+		valueOf(testRun, rows.field(0)).shouldBe("Kareem Abdul-Jabbar");
+		valueOf(testRun, rows.fieldName(0)).shouldBe("title");
+		valueOf(testRun, rows.fieldName(1)).shouldBe("tip");
+		
+		finish(testRun);
 	}
 }

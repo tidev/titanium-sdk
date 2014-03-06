@@ -1,7 +1,7 @@
 ---
 name: Titanium.UI.TextField
 summary: A single line text field. 
-description: Use the <Titanium.UI.createTextField> method to create a text field.
+description: Use the <Titanium.UI.createTextField> method or **`<TextField>`** Alloy element to create a text field.
 extends: Titanium.UI.View
 since: "0.8"
 
@@ -230,6 +230,24 @@ properties:
         once, developers desiring textAreas or [textFields](Titanium.UI.TextField) to share a toolbar
         can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
         toolbar buttons.
+
+        In Alloy, you can use a `<KeyboardToolbar>` element inside a `<TextField>` element to create 
+        a `KeyboardToolbar`.
+
+            <Alloy>
+                <TextField id="textfield" platform="ios" hintText="Tap here...">    
+                    <!-- even nested proxy properties -->
+                    <KeyboardToolbar >
+                        <Toolbar >
+                            <Items >
+                                <Button>button 1</Button>
+                                <FlexSpace/>
+                                <Button>button 2</Button>
+                            </Items>
+                        </Toolbar>
+                    </KeyboardToolbar>
+                </TextField>
+            </Alloy>
     type: [Array<Titanium.UI.View>, Titanium.UI.iOS.Toolbar]
     platforms: [iphone, ipad]
     
@@ -266,12 +284,28 @@ properties:
     default: <Titanium.UI.KEYBOARD_DEFAULT>
     
   - name: leftButton
-    summary: Left button view.
+    summary: Left button view to display in the `TextField`.
     description: |
         Set the `width` and `height` properties of the button or else it does not display in the
         text field.
 
         Using an object other than a [Button](Titanium.UI.Button) may have unpredictable results.
+
+        In Alloy you can use a `<LeftButton>` element inside the `<TextField>` element.
+
+            <Alloy>
+                <Window>
+                  <!-- iOS TextField proxy properties -->
+                  <TextField id="textfield" platform="ios">
+                    <LeftButton>
+                      <Button onClick="sayHi" class="textButton">left</Button>
+                    </LeftButton>
+                    <RightButton>
+                      <Button onClick="doAlert" class="textButton">right</Button>
+                    </RightButton>
+                  </TextField>
+                </Window>
+            </Alloy>        
     type: Object
     platforms: [iphone, ipad]
     
@@ -352,6 +386,21 @@ properties:
         text field.
 
         Using an object other than a [Button](Titanium.UI.Button) may have unpredictable results.
+        In Alloy you can use a `<RightButton>` element inside the `<TextField>` element.
+
+            <Alloy>
+                <Window>
+                  <!-- iOS TextField proxy properties -->
+                  <TextField id="textfield" platform="ios">
+                    <LeftButton>
+                      <Button onClick="sayHi" class="textButton">left</Button>
+                    </LeftButton>
+                    <RightButton>
+                      <Button onClick="doAlert" class="textButton">right</Button>
+                    </RightButton>
+                  </TextField>
+                </Window>
+            </Alloy>
     type: Object
     platforms: [iphone, ipad]
     

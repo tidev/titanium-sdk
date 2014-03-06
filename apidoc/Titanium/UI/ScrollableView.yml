@@ -4,7 +4,8 @@ summary: |
     A view that encapsulates a horizontally-scrolling set of child views, known as pages, navigable 
     using its built-in horizontal swipe gestures.
 description: |
-    Use the <Titanium.UI.createScrollableView> method to create a scrollable view.
+    Use the <Titanium.UI.createScrollableView> method or **`<ScrollableView>`** Alloy element to create 
+    a scrollable view.
     
     The `ScrollableView` supports an on-screen paging control to indicate whether a previous or next 
     page exists. When the paging control is enabled on iOS or Mobile Web, by default it appears as 
@@ -437,9 +438,16 @@ examples:
            <Alloy>
                <Window id="win">
                    <ScrollableView id="scrollableView" showPagingControl="true">
-                       <View id="view1" backgroundColor="#123" />
-                       <View id="view2" backgroundColor="#246" />
-                       <View id="view3" backgroundColor="#48b" />
+                       <View id="view1" backgroundColor="#123">
+                          <Label>View 1</Label>
+                       </View>
+                       <View id="view2" backgroundColor="#246">
+                        <Label>View 2</Label>
+                        </View>
+                       <View id="view3" backgroundColor="#48b">
+                        <Label>View 3</Label>
+                        </View>
                    </ScrollableView>
                </Window>
-           </Alloy>
+            </Alloy>
+            

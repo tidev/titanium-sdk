@@ -1137,6 +1137,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FIRSTNAME = "firstName";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FLAG_SECURE = "flagSecure";
 
 	/**
 	 * @module.api
@@ -1400,6 +1405,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LOAD_URL = "loadUrl";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LOOPING = "looping";
 
 	/**
 	 * @module.api

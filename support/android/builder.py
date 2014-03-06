@@ -1606,11 +1606,11 @@ class Builder(object):
 				# the file list file still needs each file escaped apparently
 				debug("adding %s to javac build list" % java_file)
 				src_list.append('"%s"' % java_file.replace("\\", "\\\\"))
-                
+
 		if len(src_list) == 0:
 			# No sources are older than their classfile counterparts, we can skip javac / dex
 			return False
-                
+
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-encoding', 'utf8',
 			'-classpath', classpath, '-d', self.classes_dir, '-proc:none',
@@ -1748,9 +1748,6 @@ class Builder(object):
 		for abi in self.abis:
 			lib_source_dir = os.path.join(sdk_native_libs, abi)
 			lib_dest_dir = 'lib/%s/' % abi
-			if abi == 'x86' and ((not os.path.exists(lib_source_dir)) or self.deploy_type == 'production'):
-				# x86 only in non-production builds for now.
-				continue
 
 			# libtiverify is always included
 			apk_zip.write(os.path.join(lib_source_dir, 'libtiverify.so'), lib_dest_dir + 'libtiverify.so')

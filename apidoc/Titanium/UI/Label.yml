@@ -1,7 +1,7 @@
 ---
 name: Titanium.UI.Label
 summary: A text label, with optional background image. 
-description: Use the <Titanium.UI.createLabel> method to create a label. 
+description: Use the <Titanium.UI.createLabel> method or **`<Label>`** Alloy element to create a label. 
 extends: Titanium.UI.View
 since: "0.8"
 

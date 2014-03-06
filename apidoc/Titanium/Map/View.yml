@@ -391,7 +391,7 @@ properties:
   - name: animate
     summary: Indicates if changes to the mapping region should be animated.
     type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
 
   - name: animated
     summary: Indicates if changes to the mapping region should be animated.
