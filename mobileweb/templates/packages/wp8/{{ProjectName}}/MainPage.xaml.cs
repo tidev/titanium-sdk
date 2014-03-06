@@ -41,7 +41,7 @@ namespace <%= projectName %>
         {
             try
             {
-                browser.InvokeScript("handleError", parseObject(e));
+                browser.InvokeScript("execScript", new string[] { "Ti.MobileWeb.WP8.handleError(" + parseObject(e) + ")" });
             }
             catch {  }
         }
@@ -624,7 +624,7 @@ namespace <%= projectName %>
 
             try
             {
-                wb.InvokeScript("handleEvent", payload);
+                wb.InvokeScript("execScript", new string[] { "Ti.MobileWeb.WP8.handleEvent(" + payload + ")" });
             }
             catch (Exception) {}
         }
