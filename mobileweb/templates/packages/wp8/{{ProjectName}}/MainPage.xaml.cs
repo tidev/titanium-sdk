@@ -41,7 +41,7 @@ namespace <%= projectName %>
         {
             try
             {
-                browser.InvokeScript("handleError", parseObject(e));
+                browser.InvokeScript("execScript", new string[] { "Ti.MobileWeb.WP8.handleError(" + parseObject(e) + ")" });
             }
             catch {  }
         }
@@ -183,7 +183,14 @@ namespace <%= projectName %>
             string result;
             if (type.IsPrimitive || type == typeof(decimal) || value == null)
             {
-                result = "{ \"primitiveValue\": " + value.ToString() + " }";
+                if (type == typeof(bool))
+                {
+                    result = "{ \"primitiveValue\": " + value.ToString().ToLower() + " }";
+                }
+                else
+                {
+                    result = "{ \"primitiveValue\": " + value.ToString() + " }";
+                }
             }
             else if (type == typeof(string))
             {
@@ -624,7 +631,7 @@ namespace <%= projectName %>
 
             try
             {
-                wb.InvokeScript("handleEvent", payload);
+                wb.InvokeScript("execScript", new string[] { "Ti.MobileWeb.WP8.handleEvent(" + payload + ")" });
             }
             catch (Exception) {}
         }
