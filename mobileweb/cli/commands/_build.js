@@ -783,7 +783,7 @@ MobileWebBuilder.prototype.assembleTitaniumJS = function assembleTitaniumJS(next
 		// 3) copy in the wp8 shim if building for windows phone 8
 		function (tiJS, next) {
 			if (this.target == 'wp8') {
-				next(null, tiJS + fs.readFileSync(path.join(this.platformPath, 'src', 'wp8-shim.js')).toString() + '\n');
+				next(null, tiJS + fs.readFileSync(path.join(this.platformPath, 'src', 'wp8.js')).toString() + '\n');
 			} else {
 				next(null, tiJS);
 			}
