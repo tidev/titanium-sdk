@@ -113,6 +113,16 @@ public class SoundProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method @Kroll.setProperty
+	public void setPaused(boolean value)
+	{
+		if (value) {
+			pause();
+		} else {
+			play();
+		}
+	}
+	 	
 	@Kroll.method @Kroll.getProperty
 	public boolean isPlaying() {
 		TiSound s = getSound();
