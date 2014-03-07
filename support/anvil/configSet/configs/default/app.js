@@ -47,6 +47,7 @@ var suites = [
 	{name: "ui_scrollView"},
 	{name: "ui_slider"},
 	{name: "ui_tabgroup/ui_tabgroup"},
+	{name: "ui_tableview"},
 	{name: "ui_textfield"},
 	{name: "ui_view"},
 	{name: "ui_searchBar"},
