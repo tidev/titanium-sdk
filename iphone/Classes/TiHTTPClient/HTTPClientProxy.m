@@ -120,16 +120,24 @@ extern NSString * const TI_APPLICATION_GUID;
                 if([value isKindOfClass:[TiBlob class]]|| [value isKindOfClass:[TiFile class]]) {
                     TiBlob *blob;
                     NSString *name;
+                    NSString *mime;
                     if([value isKindOfClass:[TiBlob class]]) {
                         blob = (TiBlob*)value;
-                        name = [NSString stringWithFormat:@"file%i", dataIndex++];
+                        if([blob path] != nil) {
+                            name = [[blob path] lastPathComponent];
+                        } else {
+                            name = [NSString stringWithFormat:@"file%i", dataIndex++];
+                        }
                     }else{
                         blob = [(TiFile*)value blob];
                         name = [[(TiFile*)value path] lastPathComponent];
                     }
-                    [form addFormData:[(TiBlob*)blob data]
-                             fileName:name
-                            fieldName:key];
+                    mime = [blob mimeType];
+                    if(mime != nil) {
+                        [form addFormData:[blob data] fileName:name fieldName:key contentType:mime];
+                    } else {
+                        [form addFormData:[blob data] fileName:name fieldName:key];
+                    }
                 }
                 else {
                     [form addFormKey:key
@@ -139,14 +147,25 @@ extern NSString * const TI_APPLICATION_GUID;
         } else if ([arg isKindOfClass:[TiBlob class]] || [arg isKindOfClass:[TiFile class]]) {
             TiBlob *blob;
             NSString *name;
+            NSString *mime;
             if([arg isKindOfClass:[TiBlob class]]) {
                 blob = (TiBlob*)arg;
-                name = [NSString stringWithFormat:@"file%i", dataIndex++];
+                if([blob path] != nil) {
+                    name = [[blob path] lastPathComponent];
+                } else {
+                    name = [NSString stringWithFormat:@"file%i", dataIndex++];
+                }
+
             } else {
                 blob = [(TiFile*)arg blob];
                 name = [[(TiFile*)arg path] lastPathComponent];
             }
-            [form addFormData:[blob data] fileName:name];
+            mime = [blob mimeType];
+            if(mime != nil) {
+                [form addFormData:[blob data] fileName:name fieldName:@"file" contentType:mime];
+            } else {
+                [form addFormData:[blob data] fileName:name fieldName:@"file"];
+            }
         } else {
             [form setStringData:[TiUtils stringValue:arg]];
         }

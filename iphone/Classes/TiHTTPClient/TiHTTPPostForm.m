@@ -84,7 +84,7 @@
          
          // Content-Disposition: form-data; name="username"
          //
-         // pec1095
+         // pec1995
          // --0xTibOuNdArY
     }
 
@@ -100,8 +100,8 @@
         [self appendData:[dict valueForKey:@"fileData"]];
         [self appendStringData:[NSString stringWithFormat:@"\r\n--%@\r\n", last ? [boundry stringByAppendingString:@"--"] : boundry]];
 
-        // Content-Disposition: form-data; name="file0"; filename="image.jpg"
-        // Content-Type: application/octet-stream
+        // Content-Disposition: form-data; name="file[0]"; filename="image.jpg"
+        // Content-Type: imgae/jpeg
         //
         // [binary data]
         // --0xTibOuNdArY
@@ -217,14 +217,14 @@
 -(void)addFormData:(NSData*)data
 {
     [self addFormData:data
-             fileName:[NSString stringWithFormat:@"file%i", (unsigned int)[[self requestFilesArray] count]]
+             fileName:[NSString stringWithFormat:@"file[%i]", (unsigned int)[[self requestFilesArray] count]]
      ];
 }
 -(void)addFormData:(NSData*)data fileName:(NSString*)fileName
 {
     [self addFormData: data
              fileName: fileName
-            fieldName: [NSString stringWithFormat:@"file_%i", (unsigned int)[[self requestFilesArray] count]]
+            fieldName: [NSString stringWithFormat:@"file[%i]", (unsigned int)[[self requestFilesArray] count]]
      ];
 
 }
