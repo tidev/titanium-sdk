@@ -19,7 +19,6 @@ extern NSString * const TI_APPLICATION_GUID;
 
 - (void)dealloc
 {
-    RELEASE_TO_NIL(response);
     RELEASE_TO_NIL(httpRequest);
     [super dealloc];
 }
@@ -31,8 +30,13 @@ extern NSString * const TI_APPLICATION_GUID;
     	[httpRequest addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
         [httpRequest addRequestHeader:[NSString stringWithFormat:@"%s-%s%s-%s", "X","Tita","nium","Id"] value:TI_APPLICATION_GUID];
         
-}
+    }
     return httpRequest;
+}
+
+-(TiHTTPResponse*)response
+{
+    return [[self request] response];
 }
 
 #pragma mark - Public methods
@@ -186,8 +190,8 @@ extern NSString * const TI_APPLICATION_GUID;
     } else {
         [[self request] setSynchronous:YES];
         [[self request] send];
-        response = [[[self request] response] retain];
         [[TiApp app] stopNetwork];
+        [self forgetSelf];
     }
 }
 
@@ -215,7 +219,7 @@ extern NSString * const TI_APPLICATION_GUID;
 -(NSString*)getResponseHeader:(id)args
 {
     ENSURE_SINGLE_ARG(args, NSString)
-    return [[response headers] valueForKey:args];
+    return [[[self response] headers] valueForKey:args];
 }
 
 # pragma mark - Callback functions
@@ -256,13 +260,11 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)tiRequest:(TiHTTPRequest *)request onLoad:(TiHTTPResponse *)tiResponse
 {
-
     [[TiApp app] stopNetwork];
     if([request cancelled]) {
         return;
     }
-    response = [tiResponse retain];
-    int responseCode = [response status];
+    int responseCode = [tiResponse status];
     /**
      *    Per customer request, successful communications that resulted in an
      *    4xx or 5xx response is treated as an error instead of an onload.
@@ -309,8 +311,6 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)tiRequest:(TiHTTPRequest *)request onRedirect:(TiHTTPResponse *)tiResponse
 {
     if(hasOnredirect) {
-        RELEASE_TO_NIL(response);
-        response = [tiResponse retain];
         [self fireCallback:@"onredirect" withArg:nil withSource:self];
     }
 }
@@ -367,7 +367,7 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(NSDictionary*)allResponseHeaders
 {
-    return [response headers];
+    return [[self response] headers];
 }
 
 -(NSString*)apiName
@@ -377,7 +377,7 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(NSNumber*)connected
 {
-    if([[self request] response] == nil) {
+    if([self response] == nil) {
         return NUMBOOL(NO);
     }
     TiHTTPResponseState state = [[[self request] response] readyState];
@@ -390,29 +390,30 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(NSNumber*)status
 {
-    return NUMINT([response status]);
+    return NUMINT([[self response] status]);
 }
 -(NSString*)location
 {
-    if(response == nil) {
+    if([self response] == nil) {
         return [self valueForUndefinedKey:@"url"];
     }
-    return [response location];
+    return [[self response] location];
 }
 -(NSString*)connectionType
 {
-    if(response == nil) {
+    if([self response] == nil) {
         return [self valueForUndefinedKey:@"method"];
     }
-    return [response connectionType];
+    return [[self response] connectionType];
 }
 -(NSString*)responseText
 {
-    return [response responseString];
+    return [[self response] responseString];
 }
 -(TiBlob*)responseData
 {
-    return [[[TiBlob alloc] initWithData:[response responseData] mimetype:@""] autorelease];
+    NSString *contentType = [TiUtils stringValue: [[self responseHeaders] valueForKey:@"Content-Type"]];
+    return [[[TiBlob alloc] initWithData:[[self response] responseData] mimetype:contentType] autorelease];
 }
 -(TiDOMDocumentProxy*)responseXML
 {
@@ -425,19 +426,19 @@ extern NSString * const TI_APPLICATION_GUID;
 }
 -(NSDictionary*)responseDictionary
 {
-    return [response responseDictionary];
+    return [[self response] responseDictionary];
 }
 -(NSArray*)responseArray
 {
-    return [response responseArray];
+    return [[self response] responseArray];
 }
 -(NSNumber*)readyState
 {
-    return NUMINT([response readyState]);
+    return NUMINT([[self response] readyState]);
 }
 -(NSDictionary*)responseHeaders
 {
-    return [response headers];
+    return [[self response] headers];
 }
 
 MAKE_SYSTEM_NUMBER(UNSENT, NUMINT(TiHTTPResponseStateUnsent))
