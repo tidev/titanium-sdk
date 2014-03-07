@@ -14,6 +14,18 @@ properties:
     type: Titanium.App.Android.R
     permission: read-only
 
+  - name: appVersionCode
+    summary: |
+        The version number of the application. 
+    type: Number
+    since: 3.3.0
+    
+  - name: appVersionName
+    summary: |
+        The version name of the application. 
+    type: String
+    since: 3.3.0
+
 examples:
   - title: Custom String Resource
     example: |
