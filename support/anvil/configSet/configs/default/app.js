@@ -42,6 +42,7 @@ var suites = [
 	{name: "ui_clipboard"},
 	{name: "ui_controls"},
 	{name: "ui_picker"},
+	{name: "ui_optionDialog"},
 	{name: "ui_scrollableView"},
 	{name: "ui_scrollView"},
 	{name: "ui_slider"},
