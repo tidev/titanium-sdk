@@ -352,8 +352,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (!modal && hasProperty(TiC.PROPERTY_OPACITY)) {
 			intent.setClass(activity, TiTranslucentActivity.class);
 		} else if (hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			Integer bgColor = TiConvert.toColor(properties, TiC.PROPERTY_BACKGROUND_COLOR);
-			if (bgColor == Color.TRANSPARENT || Color.alpha(bgColor) < 0xFF) {
+			int bgColor = TiConvert.toColor(properties, TiC.PROPERTY_BACKGROUND_COLOR);
+			if (Color.alpha(bgColor) < 0xFF) {
 				intent.setClass(activity, TiTranslucentActivity.class);
 			}
 		}
