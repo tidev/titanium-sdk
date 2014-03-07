@@ -409,7 +409,7 @@ public class TiPlatformHelper
 	public static String getNetworkTypeName() {
 		return networkTypeToTypeName(getNetworkType());
 	}
-
+	
 	private static int getNetworkType() {
 		int type = -1;
 

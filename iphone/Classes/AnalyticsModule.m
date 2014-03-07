@@ -590,7 +590,7 @@ NSString * const TI_DB_VERSION = @"1";
 {
 	if (data!=nil && [data isKindOfClass:[NSDictionary class]]==NO)
 	{
-		id value = [TiUtils jsonValue:data];
+		id value = [TiUtils jsonParse:data];
 		data = [NSDictionary dictionaryWithObject:value forKey:@"data"];
 	}
 	return data;
