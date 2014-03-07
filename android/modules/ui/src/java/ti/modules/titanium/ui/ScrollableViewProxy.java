@@ -48,7 +48,6 @@ public class ScrollableViewProxy extends TiViewProxy
 	private static final int DEFAULT_PAGING_CONTROL_TIMEOUT = 3000;
 
 	protected AtomicBoolean inScroll;
-
 	public ScrollableViewProxy()
 	{
 		super();
@@ -168,9 +167,28 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void removeView(Object viewObject)
-	{
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_VIEW), viewObject);
+	public void removeView(Object viewObject) {
+		try {
+			if (viewObject instanceof Integer) {
+				int rowIndex = (Integer) viewObject;
+
+				TiViewProxy[] rowArray = this.getChildren();
+
+				if (rowArray != null) {
+					if (rowIndex >= 0 && rowIndex < rowArray.length) {
+						this.remove((TiViewProxy) rowArray[rowIndex]);
+					} else {
+						Log.e(TAG, "Unable to remove child. Index out of range. Non-existent child "+ rowIndex);
+					}
+				}
+			} else if (viewObject instanceof TiViewProxy) {
+				TiViewProxy tv = ((TiViewProxy) viewObject).getParent();
+				tv.remove((TiViewProxy) viewObject);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			Log.e(TAG, "removeView() ignored. method accepts either a view or an index to a view ");
+		}
 	}
 
 	@Kroll.method
@@ -299,7 +317,7 @@ public class ScrollableViewProxy extends TiViewProxy
 			proxy.setActivity(activity);
 		}
 	}
-
+	
 	@Override
 	public String getApiName()
 	{

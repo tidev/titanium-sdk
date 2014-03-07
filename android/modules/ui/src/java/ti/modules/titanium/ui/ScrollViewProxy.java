@@ -39,7 +39,6 @@ public class ScrollViewProxy extends TiViewProxy
 	private static final int MSG_SCROLL_TO = MSG_FIRST_ID + 100;
 	private static final int MSG_SCROLL_TO_BOTTOM = MSG_FIRST_ID + 101;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
-	private static final String TAG = "ScrollViewProxy";
 	
 	public ScrollViewProxy()
 	{
@@ -122,31 +121,6 @@ public class ScrollViewProxy extends TiViewProxy
 		getScrollView().scrollToBottom();
 	}
 	
-	@Kroll.method
-	public void removeView(Object viewObject)
-	{
-		try {
-			if (viewObject instanceof Integer) {
-				int rowIndex = (Integer) viewObject;
-
-				TiViewProxy[] rowArray = this.getChildren();
-
-				if (rowArray != null) {
-					if (rowIndex >= 0 && rowIndex < rowArray.length) {
-						this.remove((TiViewProxy) rowArray[rowIndex]);
-					} else {
-						Log.e(TAG, "Unable to remove child. Index out of range. Non-existent child " + rowIndex);
-					}
-				}
-			} else if (viewObject instanceof TiViewProxy) {
-				TiViewProxy tv = ((TiViewProxy) viewObject).getParent();
-				tv.remove((TiViewProxy) viewObject);
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			Log.e(TAG, "removeView() ignored. method accepts either a view or an index to a view ");
-		}
-	}
 
 	@Override
 	public String getApiName()
