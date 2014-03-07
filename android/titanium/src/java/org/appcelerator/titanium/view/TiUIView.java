@@ -1461,6 +1461,10 @@ public abstract class TiUIView
 		boolean clickable = true;
 		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
 			clickable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
+			//If touchEnabled is specifically set, enable or disable touch sound
+			touchable.setSoundEffectsEnabled(clickable);
+		} else {
+			touchable.setSoundEffectsEnabled(false);
 		}
 
 		if (clickable) {
