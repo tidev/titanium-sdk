@@ -10,9 +10,8 @@ define(['Ti/_/lang'], function(lang) {
 		this._listeners = {};
 	}
 
-	Handle.prototype._send = function (action, data) {
+	function _send(action, data) {
 		var res;
-		data.hnd = this._hnd;
 		global.handleProxyResponse = function (r) {
 			res = r;
 		};
@@ -27,7 +26,8 @@ define(['Ti/_/lang'], function(lang) {
 	};
 
 	Handle.prototype.invoke = function (name, argTypes, argValues) {
-		return this._send('in', {
+		return _send('in', {
+			hnd: this._hnd,
 			name: name,
 			argTypes: argTypes,
 			argValues: argValues.map(function (value) {
@@ -41,7 +41,8 @@ define(['Ti/_/lang'], function(lang) {
 	};
 
 	Handle.prototype.getProp = function (name, isAttached) {
-		return this._send('gp', {
+		return _send('gp', {
+			hnd: this._hnd,
 			name: name,
 			isAttached: isAttached
 		});
@@ -49,7 +50,8 @@ define(['Ti/_/lang'], function(lang) {
 
 	Handle.prototype.setProp = function (name, value, isAttached) {
 		var isHandle = value instanceof Handle;
-		return this._send('sp', {
+		return _send('sp', {
+			hnd: this._hnd,
 			name: name,
 			valueHnd: isHandle ? value._hnd : void 0,
 			valuePrimitive: isHandle ? void 0 : value,
@@ -58,29 +60,30 @@ define(['Ti/_/lang'], function(lang) {
 	};
 
 	Handle.prototype.getAtIndex = function (name, index) {
-		return this._send('gi', {
+		return _send('gi', {
+			hnd: this._hnd,
 			name: name,
 			index: index
 		});
 	};
 
 	Handle.prototype.setAtIndex = function (name, value, index) {
-		return this._send('si', {
+		return _send('si', {
+			hnd: this._hnd,
 			name: name,
 			value: value,
 			index: index
 		});
 	};
 
-	Handle.prototype.getEnum = function (name, value) {
-		return this._send('ge', {
-			name: name,
-			value: value
-		});
-	};
-
-	Handle.prototype.destory = function () {
-		this._send('de', {});
+	Handle.prototype.destroy = function () {
+		for (var evt in this._listeners) {
+			for (var cb in this._listeners[evt]) {
+				this.removeEventListener(evt, this._listeners[evt][cb]);
+			}
+		}
+		_send('de', { hnd: this._hnd });
+		delete proxyList[this._hnd];
 	};
 
 	Handle.prototype.addEventListener = function(name, cb) {
@@ -95,15 +98,14 @@ define(['Ti/_/lang'], function(lang) {
 	};
 
 	Handle.prototype.removeEventListener = function (name, cb) {
-		var idx = this._listeners[name].indexOf(cb);
-		if (!this._listeners[name] || !~idx) {
-			return;
+		var idx;
+		if (this._listeners[name] && ~(idx = this._listeners[name].indexOf(cb))) {
+			this._listeners[name].splice(idx, 1);
+			this._listeners[name].length || sendNativeMessage('r', 're' + JSON.stringify({
+				hnd: this._hnd,
+				name: name
+			}));
 		}
-		this._listeners[name] = this._listeners[name].splice(idx, 1);
-		this._listeners[name].length || sendNativeMessage('r', 're' + JSON.stringify({
-			hnd: this._hnd,
-			name: name
-		}));
 	};
 
 	return lang.setObject('Ti.MobileWeb.WP8', {
@@ -127,6 +129,22 @@ define(['Ti/_/lang'], function(lang) {
 			return proxyList[hnd] = new Handle(hnd);
 		},
 
+		handleEvent: function (payload) {
+			var src = payload.source = proxyList[payload._hnd];
+			src._listeners[payload.type].forEach(function (cb) {
+				cb(payload);
+			});
+		},
+
+		handleError: function (err) {
+			Ti.API.error(err);
+			throw err;
+		},
+
+		getEnum: function (name, value) {
+			return _send('ge', { name: name, value: value });
+		},
+
 		getRootGrid: function () {
 			if (proxyList.root) {
 				return proxyList.root;
@@ -138,6 +156,34 @@ define(['Ti/_/lang'], function(lang) {
 			sendNativeMessage('r', 'gr');
 			global.handleProxyResponse = void 0;
 			return proxyList[hnd] = new Handle(hnd);
-		}
+		},
+
+		getPhoneApplicationPage: function () {
+			if (proxyList.app) {
+				return proxyList.app;
+			}
+			var hnd;
+			global.handleProxyResponse = function (r) {
+				hnd = r;
+			};
+			sendNativeMessage('r', 'ga');
+			global.handleProxyResponse = void 0;
+			return proxyList[hnd] = new Handle(hnd);
+		},
+
+		getWebBrowser: function () {
+			if (proxyList.browser) {
+				return proxyList.browser;
+			}
+			var hnd;
+			global.handleProxyResponse = function (r) {
+				hnd = r;
+			};
+			sendNativeMessage('r', 'gw');
+			global.handleProxyResponse = void 0;
+			return proxyList[hnd] = new Handle(hnd);
+		},
+
+		getProxyList: function () { return proxyList; }
 	});
 });
