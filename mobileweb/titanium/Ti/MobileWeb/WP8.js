@@ -98,9 +98,8 @@ define(['Ti/_/lang'], function(lang) {
 	};
 
 	Handle.prototype.removeEventListener = function (name, cb) {
-		if (!(name in this._listeners)) return;
-		var idx = this._listeners[name].indexOf(cb);
-		if (this._listeners[name] && ~idx) {
+		var idx;
+		if (this._listeners[name] && ~(idx = this._listeners[name].indexOf(cb))) {
 			this._listeners[name].splice(idx, 1);
 			this._listeners[name].length || sendNativeMessage('r', 're' + JSON.stringify({
 				hnd: this._hnd,
