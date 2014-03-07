@@ -22,9 +22,8 @@ exports.init = function (logger, config, cli) {
 	cli.addHook('build.post.compile', {
 		priority: 10000,
 		post: function (builder, finished) {
-			if (cli.argv.target != 'wp8') {
-				finished();
-				return;
+			if (builder.buildOnly || cli.argv.target != 'wp8') {
+				return finished();
 			}
 
 			windows.detect(config, null, function (env) {
