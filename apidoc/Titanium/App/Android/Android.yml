@@ -23,7 +23,7 @@ properties:
   - name: appVersionName
     summary: |
         The version name of the application. 
-    type: Number
+    type: String
     since: 3.3.0
 
 examples:
