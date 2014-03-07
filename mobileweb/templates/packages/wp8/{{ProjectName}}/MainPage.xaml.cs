@@ -183,7 +183,14 @@ namespace <%= projectName %>
             string result;
             if (type.IsPrimitive || type == typeof(decimal) || value == null)
             {
-                result = "{ \"primitiveValue\": " + value.ToString() + " }";
+                if (type == typeof(bool))
+                {
+                    result = "{ \"primitiveValue\": " + value.ToString().ToLower() + " }";
+                }
+                else
+                {
+                    result = "{ \"primitiveValue\": " + value.ToString() + " }";
+                }
             }
             else if (type == typeof(string))
             {
