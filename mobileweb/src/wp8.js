@@ -1,5 +1,81 @@
 (function (global) {
 
+	function sendMessage(type, payload) {
+		global.external.notify(type + payload);
+	}
+
+	/**
+	 * console shim
+	 */
+	var console = global.console = {
+			log: function () {
+				sendMessage('l', Array.prototype.slice.call(arguments).join(' '));
+			}
+		},
+		fileCallbacks = {};
+
+	function log(type) {
+		type = '[' + type.toUpperCase() + ']';
+		console.log.call(null, arguments);
+	}
+
+	/**
+	 * tiwp8 - Titanium Windows Phone 8 namespace
+	 */
+	global.tiwp8 = {
+		createInstance: function (className, argTypes, argValues) {
+			var hnd;
+			global.handleProxyResponse = function (r) {
+				hnd = r;
+			};
+			sendNativeMessage('r', 'ci' + JSON.stringify({
+				className: className,
+				argTypes: argTypes,
+				argValues: argValues.map(function (value) {
+					var isHandle = value instanceof Handle;
+					return {
+						valueHnd: isHandle ? value._hnd : void 0,
+						valuePrimitive: isHandle ? void 0 : value,
+					};
+				})
+			}));
+			global.handleProxyResponse = void 0;
+			return proxyList[hnd] = new Handle(hnd);
+		},
+
+		handleError: function (err) {
+			log('error', err);
+			throw err;
+		},
+
+		handleFileResponse: function (data) {
+			try {
+				fileCallbacks[data.path](data.success, data.contents);
+			} catch (e) {
+				// If an error is thrown in a call from native wp8, the entire app crashes.
+				// setTimeout allows us to throw and show the red screen of death, but not
+				// kill the entire app
+				setTimeout(function () {
+					throw e;
+				});
+			}
+		},
+
+		handleProxyResponse: function (data) {
+		},
+
+		getFile: function (path, isBinary, callback) {
+			// this call is synchronous
+			fileCallbacks[path] = callback;
+			sendMessage('f', (isBinary ? 'b' : 't') + path);
+		},
+
+		sendMessage: sendMessage
+	};
+
+	/**
+	 * XMLHttpRequest
+	 */
 	function InvalidAccessError() {
 		Error.prototype.constructor.apply(arguments);
 		this.code = 15;
@@ -26,10 +102,11 @@
 		return "Failed to set '" + name + "' on 'XMLHttpRequest': " + msg;
 	}
 
-	global.XMLHttpRequest = Object.create({
-		abort: function () {
-			// TODO: terminate the request
+	function XMLHttpRequest() {}
+	global.XMLHttpRequest = XMLHttpRequest;
 
+	XMLHttpRequest.prototype = Object.create({
+		abort: function () {
 			var _ = this._;
 
 			if (_.webHttpRequest) {
