@@ -2,6 +2,8 @@
 
 	function sendMessage(type, payload) {
 		global.external.notify(type + payload);
+
+		// TODO: wait for message
 	}
 
 	/**
@@ -28,7 +30,7 @@
 			global.handleProxyResponse = function (r) {
 				hnd = r;
 			};
-			sendNativeMessage('r', 'ci' + JSON.stringify({
+			sendMessage('r', 'ci' + JSON.stringify({
 				className: className,
 				argTypes: argTypes,
 				argValues: argValues.map(function (value) {
@@ -255,7 +257,7 @@
 				requestHeaders: null,
 				responseHeaders: null,
 				sent: 0
-			};
+			}
 		},
 		UNSENT: {
 			enumerable: true,
