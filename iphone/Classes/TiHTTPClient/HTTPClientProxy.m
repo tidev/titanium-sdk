@@ -121,42 +121,47 @@ extern NSString * const TI_APPLICATION_GUID;
             NSDictionary *dict = (NSDictionary*)arg;
             for(NSString *key in dict) {
                 id value = [dict objectForKey:key];
-                if([value isKindOfClass:[NSString class]]) {
-                    [form addFormKey:key andValue: (NSString*)value];
-                }
-                else if([value isKindOfClass:[TiBlob class]]|| [value isKindOfClass:[TiFile class]]) {
+                if([value isKindOfClass:[TiBlob class]]|| [value isKindOfClass:[TiFile class]]) {
                     TiBlob *blob;
                     NSString *name;
+                    NSString *mime;
                     if([value isKindOfClass:[TiBlob class]]) {
                         blob = (TiBlob*)value;
-                        name = [NSString stringWithFormat:@"file%i", dataIndex++];
+                        if([blob path] != nil) {
+                            name = [[blob path] lastPathComponent];
+                        } else {
+                            name = [NSString stringWithFormat:@"file%i", dataIndex++];
+                        }
                     }else{
                         blob = [(TiFile*)value blob];
                         name = [[(TiFile*)value path] lastPathComponent];
                     }
-                    [form addFormData:[(TiBlob*)blob data]
-                             fileName:name
-                            fieldName:key];
+                    mime = [blob mimeType];
+                    if(mime != nil) {
+                        [form addFormData:[blob data] fileName:name fieldName:key contentType:mime];
+                    } else {
+                        [form addFormData:[blob data] fileName:name fieldName:key];
+                    }
                 }
-                else if([value isKindOfClass:[NSDictionary class]] || [value isKindOfClass:[NSArray class]]) {
-                    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:value options:kNilOptions error:nil];
+                else {
                     [form addFormKey:key
-                            andValue:[NSString stringWithUTF8String:[jsonData bytes]]];
+                            andValue:[TiUtils stringValue:value]];
                 }
             }
         } else if ([arg isKindOfClass:[TiBlob class]] || [arg isKindOfClass:[TiFile class]]) {
             TiBlob *blob;
-            NSString *name;
             if([arg isKindOfClass:[TiBlob class]]) {
                 blob = (TiBlob*)arg;
-                name = [NSString stringWithFormat:@"file%i", dataIndex++];
             } else {
                 blob = [(TiFile*)arg blob];
-                name = [[(TiFile*)arg path] lastPathComponent];
             }
-            [form addFormData:[blob data] fileName:name];
-        } else if([arg isKindOfClass:[NSString class]]) {
-            [form setStringData:(NSString*)arg];
+            NSString *mime = [blob mimeType];
+            if(mime == nil) {
+                mime = @"application/octet-stream";
+            }
+            [form appendData:[blob data] withContentType:mime];
+        } else {
+            [form setStringData:[TiUtils stringValue:arg]];
         }
     }
     
