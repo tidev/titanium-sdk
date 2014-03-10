@@ -19,6 +19,7 @@
     RELEASE_TO_NIL(_requestFilesArray);
     RELEASE_TO_NIL(_jsonData);
     RELEASE_TO_NIL(_stringData);
+    RELEASE_TO_NIL(_contentType);
     [super dealloc];
 }
 
@@ -30,6 +31,12 @@
 
 -(void)appendData:(NSData*)data
 {
+    [[self postFormData] appendData: data];
+}
+-(void)appendData:(NSData *)data withContentType:(NSString *)contentType
+{
+    RELEASE_TO_NIL(_contentType);
+    _contentType = [contentType retain];
     [[self postFormData] appendData: data];
 }
 
@@ -112,8 +119,12 @@
 
 -(NSData*)requestData
 {
+    if(_postFormData != nil && _contentType != nil) {
+        [self addHeaderKey:@"Content-Type" andHeaderValue:_contentType];
+        [self addHeaderKey:@"Content-Length" andHeaderValue:[NSString stringWithFormat:@"%i", [_postFormData length]]];
+        return _postFormData;
+    }
     NSInteger fileCount = [[self requestFilesArray] count];
-    RELEASE_TO_NIL(_postFormData);
     if(_stringData != nil) {
         [self appendData:_stringData];
     }

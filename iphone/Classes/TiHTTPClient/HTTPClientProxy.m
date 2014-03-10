@@ -150,26 +150,16 @@ extern NSString * const TI_APPLICATION_GUID;
             }
         } else if ([arg isKindOfClass:[TiBlob class]] || [arg isKindOfClass:[TiFile class]]) {
             TiBlob *blob;
-            NSString *name;
-            NSString *mime;
             if([arg isKindOfClass:[TiBlob class]]) {
                 blob = (TiBlob*)arg;
-                if([blob path] != nil) {
-                    name = [[blob path] lastPathComponent];
-                } else {
-                    name = [NSString stringWithFormat:@"file%i", dataIndex++];
-                }
-
             } else {
                 blob = [(TiFile*)arg blob];
-                name = [[(TiFile*)arg path] lastPathComponent];
             }
-            mime = [blob mimeType];
-            if(mime != nil) {
-                [form addFormData:[blob data] fileName:name fieldName:@"file" contentType:mime];
-            } else {
-                [form addFormData:[blob data] fileName:name fieldName:@"file"];
+            NSString *mime = [blob mimeType];
+            if(mime == nil) {
+                mime = @"application/octet-stream";
             }
+            [form appendData:[blob data] withContentType:mime];
         } else {
             [form setStringData:[TiUtils stringValue:arg]];
         }
