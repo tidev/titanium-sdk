@@ -120,24 +120,22 @@
 -(NSData*)requestData
 {
     if(_postFormData != nil && _contentType != nil) {
-        [self addHeaderKey:@"Content-Type" andHeaderValue:_contentType];
-        [self addHeaderKey:@"Content-Length" andHeaderValue:[NSString stringWithFormat:@"%i", [_postFormData length]]];
-        return _postFormData;
-    }
-    NSInteger fileCount = [[self requestFilesArray] count];
-    if(_stringData != nil) {
+        [self addHeaderKey:@"Content-Type" andHeaderValue: _contentType];
+    } else if(_stringData != nil) {
         [self appendData:_stringData];
-    }
-    if(_jsonData != nil) {
-        NSString *charset = (NSString *)CFStringConvertEncodingToIANACharSetName(CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
-        [self appendData:_jsonData];
-        [self addHeaderKey:@"Content-Type" andHeaderValue:[NSString stringWithFormat: @"application/json;charset=%@", charset]];
-    } else if(fileCount == 0) {
-        [self buildStringPostData];
     } else {
-        [self buildFilePostData];
+        NSInteger fileCount = [[self requestFilesArray] count];
+        if(_jsonData != nil) {
+            NSString *charset = (NSString *)CFStringConvertEncodingToIANACharSetName(CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
+            [self appendData:_jsonData];
+            [self addHeaderKey:@"Content-Type" andHeaderValue:@"application/json;charset=utf-8"];
+        } else if(fileCount == 0) {
+            [self buildStringPostData];
+        } else {
+            [self buildFilePostData];
+        }
     }
-    [self addHeaderKey:@"Content-Length" andHeaderValue:[NSString stringWithFormat:@"%i", [[self postFormData] length]]];
+    [self addHeaderKey:@"Content-Length" andHeaderValue:[NSString stringWithFormat:@"%i", [_postFormData length]]];
     return [self postFormData];
 }
 -(NSMutableData*)postFormData
