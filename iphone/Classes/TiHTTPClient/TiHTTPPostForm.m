@@ -137,7 +137,6 @@
     } else {
         [self buildFilePostData];
     }
-    [self addHeaderKey:@"Connection" andHeaderValue:@"close"];
     [self addHeaderKey:@"Content-Length" andHeaderValue:[NSString stringWithFormat:@"%i", [[self postFormData] length]]];
     return [self postFormData];
 }
