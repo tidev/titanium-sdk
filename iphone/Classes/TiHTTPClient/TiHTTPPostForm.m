@@ -123,13 +123,12 @@
         [self addHeaderKey:@"Content-Type" andHeaderValue: _contentType];
     } else if(_stringData != nil) {
         [self appendData:_stringData];
+    } else if(_jsonData != nil) {
+        [self appendData:_jsonData];
+        [self addHeaderKey:@"Content-Type" andHeaderValue:@"application/json;charset=utf-8"];
     } else {
         NSInteger fileCount = [[self requestFilesArray] count];
-        if(_jsonData != nil) {
-            NSString *charset = (NSString *)CFStringConvertEncodingToIANACharSetName(CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
-            [self appendData:_jsonData];
-            [self addHeaderKey:@"Content-Type" andHeaderValue:@"application/json;charset=utf-8"];
-        } else if(fileCount == 0) {
+        if(fileCount == 0) {
             [self buildStringPostData];
         } else {
             [self buildFilePostData];
