@@ -1,3 +1,10 @@
+/*
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+ 
 module.exports = new function() {
 	var finish;
 	var valueOf;
@@ -8,7 +15,7 @@ module.exports = new function() {
 	
 	this.name = "ui_optionDialog";
 	this.tests = [
-		{name: "dialogBox", timeout: 5000}
+		{name: "dialogBox", timeout: 60000}
 	];
 
 	//TIMOB-7548
@@ -16,30 +23,20 @@ module.exports = new function() {
 		var win = Ti.UI.createWindow();
 		var dialog = Titanium.UI.createOptionDialog({
 			options: ['Option 1','Option 2'],
-			cancel: 1
+			cancel:1
 		});
-		var dialogShow = 0; 
-		var view = Ti.UI.createView({
-			backgroundColor:'red',
-			height: 100,
-			width: 100
-		});
-		win.addEventListener('focus', function(){
-			for (var i=0;i<2;i++){
-				dialogShow += 1; 
-				dialog.show();
-			}
-			if(dialogShow == 2){
-				win.add(view);
-			}
-		});
-		view.addEventListener('postlayout', function(){
-			valueOf(testRun, view.getHeight()).shouldBe(100);
-			valueOf(testRun, view.getHeight()).shouldBe(100);
-			valueOf(testRun, dialogShow).shouldBe(2);
+		var fun = function(){ 
+			dialog.show();
+			dialog.hide();
+			setTimeout(function(){
+				valueOf(testRun, function(){
+					dialog.show();
+				}).shouldNotThrowException();
 
-			finish(testRun);
-		});
+				finish(testRun);
+			},2000);
+		};
+		win.addEventListener('focus', fun);
 		win.open();
 	}
 }
