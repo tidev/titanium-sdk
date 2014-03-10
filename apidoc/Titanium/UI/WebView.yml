@@ -319,12 +319,13 @@ events:
   - name: sslerror
     summary: Fired when an SSL error occurred.
     description: |
-        Android only. Application can set `ignoreSslError` to bypass the error and continue.
+        Android only. This is a synchronous event and the developer can change the value of `ignoreSslError` 
+        to control if the request should proceed or fail.
     platforms: [android]
     since: "3.3.0"
     properties:
       - name: code
-        summary: Operating system error code.
+        summary: SSL error code.
         type: Number
         
 properties:
