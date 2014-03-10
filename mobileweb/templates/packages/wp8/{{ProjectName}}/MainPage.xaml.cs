@@ -585,7 +585,7 @@ namespace <%= projectName %>
 		private void dummyHandler(Object sender, EventArgs e, String eventName, String handle, WebBrowser wb) {
 			try {
 				wb.InvokeScript("execScript", new string[] {
-					"Ti.MobileWeb.WP8.handleEvent({\"_hnd\": \"" + handle + "\", \"type\": \"" + eventName + "\", \"sender\": " + parseObject(sender) + ", \"eventArgs\": " + parseObject(e) + "})"
+					"tiwp8.handleEvent({\"_hnd\": \"" + handle + "\", \"type\": \"" + eventName + "\", \"sender\": " + parseObject(sender) + ", \"eventArgs\": " + parseObject(e) + "})"
 				});
 			} catch {}
 		}
