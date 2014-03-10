@@ -19,7 +19,7 @@ module.exports = new function() {
 		{name: "editableFalse"}, //due to TIMOB-15700
 		{name: "hasText"},
 		{name: "hasTextInIfStatement"}, //due to TIMOB-15700
-		//{name: "focusAndBlurEvents"}, //due to TIMOB-15700
+		{name: "focusAndBlurEvents"}, //due to TIMOB-15700
 		{name: "setProperties"}, //due to TIMOB-15700
 		{name: "setSelectionMethod"} //due to TIMOB-15700
 	];
@@ -196,11 +196,12 @@ module.exports = new function() {
 			data : data,
 		});
 		win.add(tableView);
-		win.addEventListener('focus', function(){
+		var fun = function(){
 			tf1.focus();
 			tf2.focus();
-			tf3.focus();
-		});
+			tf3.focus();	
+		}
+		win.addEventListener('focus', fun);
 		win.open();
 	}
 	
