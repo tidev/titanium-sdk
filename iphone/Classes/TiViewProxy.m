@@ -2136,7 +2136,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
     sortedArray = [children sortedArrayUsingComparator:^NSComparisonResult(id a, id b) {
         int first = [(TiViewProxy*)a vzIndex];
         int second = [(TiViewProxy*)b vzIndex];
-        return (first > second) ? 1 : ( first < second ? -1 : 0 );
+        return (first > second) ? NSOrderedDescending : ( first < second ? NSOrderedAscending : NSOrderedSame );
     }];
     
     for (TiViewProxy * thisChildProxy in sortedArray) {
