@@ -5,7 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "HttpClientProxy.h"
+#ifdef USE_TI_NETWORK
+
+#import "TiNetworkHTTPClientProxy.h"
 #import "NetworkModule.h"
 #import "TiUtils.h"
 #import "TiBase.h"
@@ -15,7 +17,7 @@
 
 extern NSString * const TI_APPLICATION_GUID;
 
-@implementation HTTPClientProxy
+@implementation TiNetworkHTTPClientProxy
 
 - (void)dealloc
 {
@@ -439,3 +441,5 @@ MAKE_SYSTEM_NUMBER(DONE, NUMINT(TiHTTPResponseStateDone))
 
 
 @end
+
+#endif

@@ -20,7 +20,6 @@
 #import <libkern/OSAtomic.h>
 #import "TiExceptionHandler.h"
 #import "Mimetypes.h"
-#import "ASIHTTPRequest.h"
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
 #endif
@@ -119,7 +118,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)setDisableNetworkActivityIndicator:(BOOL)value
 {
 	disableNetworkActivityIndicator = value;
-	[ASIHTTPRequest setShouldUpdateNetworkActivityIndicator: !disableNetworkActivityIndicator];
 	[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:(!disableNetworkActivityIndicator && (networkActivityCount > 0))];
 }
 
