@@ -23,7 +23,6 @@ module.exports = new function() {
 		{name: "screenshot", timeout: 2000},
 		{name: "Media_Android_scanMediaFiles", timeout: 60000},
 		{name: "getUrlMethod", timeout: 60000},
-		{name: "videoResize", timeout: 60000},
 		{name: "changeState", timeout: 100000},
 		{name: "stopMethdAftercomplete", timeout: 60000}
 	];
@@ -184,26 +183,6 @@ module.exports = new function() {
 		finish(testRun);
 	}
 
-	//TIMOB-2903
-	this.videoResize = function(testRun){
-		var win = Titanium.UI.createWindow({title:'Test'});
-		setTimeout(function(){
-			var activeMovie = Titanium.Media.createVideoPlayer({ width: 640/4, 
-				autoplay: false, 
-				url: '/suites/media/movie.mp4',
-				mediaControlMode:Ti.Media.VIDEO_CONTROL_DEFAULT
-			});
-			win.add(activeMovie);
-			valueOf(testRun , function(){
-				activeMovie.play();
-			}).shouldNotThrowException();
-			activeMovie.addEventListener('complete', function(e){
-				finish(testRun);
-			});
-		}, 2000);
-		win.open();
-	}
-
 	//TIMOB-2135
 	this.changeState = function(testRun){
 		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
@@ -280,8 +259,6 @@ module.exports = new function() {
 				}, 2000);
 			}
 			else if(count == 2){
-				valueOf(testRun, video.getAutoplay()).shouldBeTrue();
-
 				finish(testRun);
 			}
 		});
