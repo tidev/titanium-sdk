@@ -476,8 +476,13 @@ DEFINE_EXCEPTIONS
 }
  
 -(void)setBorderWidth_:(id)w
-{ 
-	self.layer.borderWidth = [TiUtils sizeValue:w];
+{
+    TiDimension theDim = TiDimensionFromObject(w);
+    if (TiDimensionIsDip(theDim)) {
+        self.layer.borderWidth = MAX(theDim.value, 0);
+    } else {
+        self.layer.borderWidth = 0;
+    }
 }
 
 -(void)setBackgroundColor_:(id)color
@@ -621,8 +626,13 @@ DEFINE_EXCEPTIONS
 
 -(void)setBorderRadius_:(id)radius
 {
-	self.layer.cornerRadius = [TiUtils floatValue:radius];
-	self.clipsToBounds = YES;
+    TiDimension theDim = TiDimensionFromObject(radius);
+    if (TiDimensionIsDip(theDim)) {
+        self.layer.cornerRadius = MAX(theDim.value, 0);
+    } else {
+        self.layer.cornerRadius = 0;
+    }
+    self.clipsToBounds = YES;
 }
 
 -(void)setAnchorPoint_:(id)point
