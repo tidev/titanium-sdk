@@ -47,15 +47,15 @@ extern NSString * const TI_APPLICATION_GUID;
 {
     ENSURE_ARRAY(args);
     NSString *method = [TiUtils stringValue:[args objectAtIndex:0]];
-    NSString *url = [TiUtils stringValue:[args objectAtIndex:1]];
+    NSURL *url = [TiUtils toURL:[args objectAtIndex:1] proxy:self];
     [[self request] setMethod: method];
-    [[self request] setUrl:[NSURL URLWithString:url]];
+    [[self request] setUrl:url];
     
     if([args count] >= 3) {
         [self replaceValue:[args objectAtIndex:2] forKey:@"async" notification: YES];
     }
     
-    [self replaceValue:url forKey:@"url" notification:NO];
+    [self replaceValue:[url description] forKey:@"url" notification:NO];
     [self replaceValue:method forKey:@"method" notification:NO];
 }
 
