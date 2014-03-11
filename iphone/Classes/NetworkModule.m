@@ -15,6 +15,7 @@
 #import "ASIHTTPRequest.h"
 #import "TiUtils.h"
 #import "TiHTTPClient/HTTPClientProxy.h"
+#import "TiNetworkCookieProxy.h"
 
 NSString* const INADDR_ANY_token = @"INADDR_ANY";
 static NSOperationQueue *_operationQueue = nil;
@@ -364,6 +365,61 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 }
 
 #endif
+
+#pragma mark Cookies
+
+-(NSArray*)getHTTPCookiesForDomain:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSString);
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSArray *allCookies = [storage cookiesForURL: [NSURL URLWithString:args]];
+    
+    NSMutableArray *returnArray = [NSMutableArray array];
+    for(NSHTTPCookie *cookie in allCookies)
+    {
+        [returnArray addObject:[[[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self executionContext]] autorelease]];
+    }
+    return returnArray;
+}
+
+-(NSNumber*)addHTTPCookie:(id)args;
+{
+    ENSURE_SINGLE_ARG(args, TiNetworkCookieProxy);
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSHTTPCookie* cookie = [args newCookie];
+    if(cookie == nil)
+    {
+        return NUMBOOL(NO);
+    }
+    [storage setCookie:cookie];
+    return NUMBOOL(YES);
+}
+
+-(NSArray*)getHTTPCookies:(id)args
+{
+    NSString* domain = [TiUtils stringValue:[args objectAtIndex:0]];
+    NSString*   path = [TiUtils stringValue:[args objectAtIndex:1]];
+    NSString*   name = [TiUtils stringValue:[args objectAtIndex:2]];
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    
+    NSArray *allCookies = [storage cookies];
+    NSMutableArray *returnArray = [NSMutableArray array];
+    NSHTTPCookie *c = [[NSHTTPCookie alloc] initWithProperties:@{}];
+    for(NSHTTPCookie *cookie in allCookies)
+    {
+        if([[cookie domain] isEqualToString:domain] &&
+           [[cookie path] isEqualToString:path] &&
+           [[cookie name] isEqualToString:name]) {
+            [returnArray addObject:[[[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self executionContext]] autorelease]];
+        }
+    }
+    return returnArray;
+}
+
+-(NSArray*)getSystemCookies:(id)args
+{
+    return [self getHTTPCookies:args];
+}
 
 +(NSOperationQueue*)operationQueue;
 {
