@@ -561,7 +561,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 							NSData *data = [blob data];
 							// give it a generated file name for the attachment so you can look at the extension at least to 
 							// attempt to figure out what it is (as well as mime)
-							NSString *filename = [NSString stringWithFormat:@"%x.%@",data,[Mimetypes extensionForMimeType:[blob mimeType]]];
+							NSString *filename = [NSString stringWithFormat:@"%@.%@",data,[Mimetypes extensionForMimeType:[blob mimeType]]];
 							[request setData:data withFileName:filename andContentType:[blob mimeType] forKey:key];
 						}
 					}

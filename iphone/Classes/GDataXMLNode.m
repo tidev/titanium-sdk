@@ -817,7 +817,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 						int result = xmlXPathRegisterNs(xpathCtx, prefix, nsPtr->href);
 						if (result != 0) {
 #if DEBUG
-							NSCAssert1(result == 0, @"GDataXMLNode XPath namespace %@ issue",
+							NSCAssert1(result == 0, @"GDataXMLNode XPath namespace %s issue",
 									   prefix);
 #endif
 						}
