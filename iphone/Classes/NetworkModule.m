@@ -6,6 +6,7 @@
  */
 #ifdef USE_TI_NETWORK
 
+#import "TiNetworkCookieProxy.h"
 #import "NetworkModule.h"
 #import "Reachability.h"
 #import "TiApp.h"
@@ -15,7 +16,6 @@
 #import "ASIHTTPRequest.h"
 #import "TiUtils.h"
 #import "TiHTTPClient/HTTPClientProxy.h"
-#import "TiNetworkCookieProxy.h"
 
 NSString* const INADDR_ANY_token = @"INADDR_ANY";
 static NSOperationQueue *_operationQueue = nil;
