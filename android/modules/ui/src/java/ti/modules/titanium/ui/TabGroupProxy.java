@@ -177,8 +177,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		TabProxy tab;
 		if (tabOrIndex instanceof Number) {
 			int tabIndex = ((Number) tabOrIndex).intValue();
-			if (tabIndex < 0 || tabIndex >= tabs.size()) {
+			if (!this.opened && tabIndex > 0) {
 				setTabOrIndex = tabIndex;
+				return;
+			} else if (tabIndex < 0 || tabIndex >= tabs.size()) {
+				Log.e(TAG, "Invalid tab index.");
 				return;
 			}
 			tab = tabs.get(tabIndex);
