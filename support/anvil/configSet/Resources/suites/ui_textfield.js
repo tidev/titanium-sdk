@@ -16,12 +16,12 @@ module.exports = new function() {
 	this.name = "ui_textfield";
 	this.tests = [
 		{name: "changeEvent"},
-		{name: "editableFalse"}, //due to TIMOB-15700
+		{name: "editableFalse"}, 
 		{name: "hasText"},
-		{name: "hasTextInIfStatement"}, //due to TIMOB-15700
-		{name: "focusAndBlurEvents"}, //due to TIMOB-15700
-		{name: "setProperties"}, //due to TIMOB-15700
-		{name: "setSelectionMethod"} //due to TIMOB-15700
+		{name: "hasTextInIfStatement"}, 
+		{name: "focusAndBlurEvents"}, 
+		{name: "setProperties"}, 
+		{name: "setSelectionMethod"} 
 	];
 
 	//TIMOB-10596
