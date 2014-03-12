@@ -23,8 +23,7 @@ module.exports = new function() {
 		{name: "screenshot", timeout: 2000},
 		{name: "Media_Android_scanMediaFiles", timeout: 60000},
 		{name: "getUrlMethod", timeout: 60000},
-		{name: "changeState", timeout: 100000},
-		{name: "stopMethdAftercomplete", timeout: 60000}
+		{name: "changeState", timeout: 100000}
 	];
 
 	this.constants = function(testRun) {
@@ -236,32 +235,5 @@ module.exports = new function() {
 		else {
 			finish(testRun);
 		}
-	}
-
-	//TIMOB-7866
-	this.stopMethdAftercomplete = function(testRun){
-		var win = Ti.UI.createWindow();
-		var video = Ti.Media.createVideoPlayer({
-			url: '/suites/media/movie.mp4',
-			mediaControlMode: Ti.Media.VIDEO_CONTROL_DEFAULT,
-			top: 100,
-			bottom: 100,
-			autoplay: true
-		});
-		win.add(video);
-		var count = 0;
-		video.addEventListener('complete', function(){
-			count += 1;
-			if(count == 1){
-				video.start();
-				setTimeout(function(){
-					video.stop();
-				}, 2000);
-			}
-			else if(count == 2){
-				finish(testRun);
-			}
-		});
-		win.open();
 	}
 }
