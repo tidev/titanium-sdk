@@ -17,6 +17,13 @@ typedef enum {
 	READ_WRITE_MODE = 3 // Alias for READ | WRITE
 } SocketMode;
 
+typedef enum {
+    // DEFAULT TLS is 0
+    TLS_VERSION_1_0 = 1,
+    TLS_VERSION_1_1,
+    TLS_VERSION_1_2
+} TLSVersion;
+
 @interface NetworkModule : TiModule {
 @private
 	TiNetworkConnectionState state;
