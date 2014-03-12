@@ -55,7 +55,7 @@ extern NSString * const TI_APPLICATION_GUID;
         [self replaceValue:[args objectAtIndex:2] forKey:@"async" notification: YES];
     }
     
-    [self replaceValue:[url description] forKey:@"url" notification:NO];
+    [self replaceValue:[url absoluteString] forKey:@"url" notification:NO];
     [self replaceValue:method forKey:@"method" notification:NO];
 }
 
