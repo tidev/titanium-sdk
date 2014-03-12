@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import java.lang.ref.WeakReference;
+
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
@@ -24,15 +26,19 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 
 	private static final String TAG = "TiUIActionBarTab";
 	public static class TabFragment extends Fragment {
-		private View contentView;
+		private WeakReference<TiUIActionBarTab> tab;
 
-		public void setContentView(View view) {
-			contentView = view;
+		public TabFragment(TiUIActionBarTab tab) {
+			this.tab = new WeakReference<TiUIActionBarTab>(tab);
 		}
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			return contentView;
+			if (tab == null) {
+				return null;
+			} else {
+				return tab.get().getContentView();
+			}
 		}
 	}
 
@@ -88,8 +94,7 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 	 * will display the tab's content view.
 	 */
 	void initializeFragment() {
-		fragment = new TabFragment();
-		fragment.setContentView(getContentView());
+		fragment = new TabFragment(this);
 	}
 
 }
