@@ -30,7 +30,7 @@ special_toplevel_types = [ "Global", "Modules" ]
 FOUR_SPACES='  ' + '  '
 # compiling REs ahead of time, since we use them heavily.
 link_parts_re = re.compile(r"(?:\[([^\]]+?)\]\(([^\)\s]+?)\)|\<([^\s]+)\>)", re.MULTILINE)
-find_links_re = re.compile(r"(\[[^\]]+?\]\([^\)\s]+?\)|\<[^\s]+\>)", re.MULTILINE)
+find_links_re = re.compile(r"(\[[^\]]+?\]\([^\)\s]+?\)|(?!`)\<[^\s]+\>(?!`))", re.MULTILINE)
 html_scheme_re = re.compile(r"^http:|^https:")
 doc_site_url_re = re.compile(r"http://docs.appcelerator.com/titanium/.*(#!.*)")
 # we use this to distinguish inline HTML tags from Markdown links. Not foolproof, and a
