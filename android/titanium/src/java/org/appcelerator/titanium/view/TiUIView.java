@@ -697,6 +697,7 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_FOCUSABLE) && newValue != null) {
 			registerForKeyPress(nativeView, TiConvert.toBoolean(newValue, false));
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
+			nativeView.setEnabled(TiConvert.toBoolean(newValue));
 			doSetClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
 			newValue = (newValue == null) ? false : newValue;
@@ -1458,25 +1459,25 @@ public abstract class TiUIView
 			return;
 		}
 		
-		boolean clickable = true;
 		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
-			clickable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
+			boolean enabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
+			if (!enabled) {
+				touchable.setEnabled(false);
+			}
 		}
+		registerTouchEvents(touchable);
 
-		if (clickable) {
-			registerTouchEvents(touchable);
+		// Previously, we used the single tap handling above to fire our click event. It doesn't
+		// work: a single tap is not the same as a click. A click can be held for a while before
+		// lifting the finger; a single-tap is only generated from a quick tap (which will also cause
+		// a click.) We wanted to do it in single-tap handling presumably because the singletap
+		// listener gets a MotionEvent, which gives us the information we want to provide to our
+		// users in our click event, whereas Android's standard OnClickListener does _not_ contain
+		// that info. However, an "up" seems to always occur before the click listener gets invoked,
+		// so we store the last up event's x,y coordinates (see onTouch above) and use them here.
+		// Note: AdapterView throws an exception if you try to put a click listener on it.
+		doSetClickable(touchable);
 
-			// Previously, we used the single tap handling above to fire our click event. It doesn't
-			// work: a single tap is not the same as a click. A click can be held for a while before
-			// lifting the finger; a single-tap is only generated from a quick tap (which will also cause
-			// a click.) We wanted to do it in single-tap handling presumably because the singletap
-			// listener gets a MotionEvent, which gives us the information we want to provide to our
-			// users in our click event, whereas Android's standard OnClickListener does _not_ contain
-			// that info. However, an "up" seems to always occur before the click listener gets invoked,
-			// so we store the last up event's x,y coordinates (see onTouch above) and use them here.
-			// Note: AdapterView throws an exception if you try to put a click listener on it.
-			doSetClickable(touchable);
-		}
 	}
 
 

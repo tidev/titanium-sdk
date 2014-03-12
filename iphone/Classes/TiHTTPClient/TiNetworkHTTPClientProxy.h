@@ -5,12 +5,14 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifdef USE_TI_NETWORK
+
 #import "TiHTTPClient.h"
 #import "TiProxy.h"
 #import "TiDOMDocumentProxy.h"
 #import "TiBlob.h"
 
-@interface HTTPClientProxy : TiProxy<TiHTTPRequestDelegate>
+@interface TiNetworkHTTPClientProxy : TiProxy<TiHTTPRequestDelegate>
 {
     TiHTTPRequest *httpRequest;
     NSTimeInterval _uploadTime;
@@ -63,3 +65,5 @@
 -(NSString*)apiName;
 -(NSNumber*)connected;
 @end
+
+#endif

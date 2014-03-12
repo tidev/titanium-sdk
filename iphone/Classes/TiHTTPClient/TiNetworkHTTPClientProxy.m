@@ -5,7 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "HttpClientProxy.h"
+#ifdef USE_TI_NETWORK
+
+#import "TiNetworkHTTPClientProxy.h"
 #import "NetworkModule.h"
 #import "TiUtils.h"
 #import "TiBase.h"
@@ -15,7 +17,7 @@
 
 extern NSString * const TI_APPLICATION_GUID;
 
-@implementation HTTPClientProxy
+@implementation TiNetworkHTTPClientProxy
 
 - (void)dealloc
 {
@@ -45,15 +47,15 @@ extern NSString * const TI_APPLICATION_GUID;
 {
     ENSURE_ARRAY(args);
     NSString *method = [TiUtils stringValue:[args objectAtIndex:0]];
-    NSString *url = [TiUtils stringValue:[args objectAtIndex:1]];
+    NSURL *url = [TiUtils toURL:[args objectAtIndex:1] proxy:self];
     [[self request] setMethod: method];
-    [[self request] setUrl:[NSURL URLWithString:url]];
+    [[self request] setUrl:url];
     
     if([args count] >= 3) {
         [self replaceValue:[args objectAtIndex:2] forKey:@"async" notification: YES];
     }
     
-    [self replaceValue:url forKey:@"url" notification:NO];
+    [self replaceValue:[url absoluteString] forKey:@"url" notification:NO];
     [self replaceValue:method forKey:@"method" notification:NO];
 }
 
@@ -439,3 +441,5 @@ MAKE_SYSTEM_NUMBER(DONE, NUMINT(TiHTTPResponseStateDone))
 
 
 @end
+
+#endif

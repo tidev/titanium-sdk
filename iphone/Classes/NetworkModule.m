@@ -13,9 +13,7 @@
 #import "SBJSON.h"
 #import "TiBlob.h"
 #import "TiNetworkSocketProxy.h"
-#import "ASIHTTPRequest.h"
 #import "TiUtils.h"
-#import "TiHTTPClient/HTTPClientProxy.h"
 
 NSString* const INADDR_ANY_token = @"INADDR_ANY";
 static NSOperationQueue *_operationQueue = nil;
@@ -211,11 +209,6 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_NEWSSTAND, 4);
 MAKE_SYSTEM_PROP(TLS_VERSION_1_0, TLS_VERSION_1_0);
 MAKE_SYSTEM_PROP(TLS_VERSION_1_1, TLS_VERSION_1_1);
 MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
-
--(HTTPClientProxy*)createNewHTTPClient:(id)args
-{
-    return [[[HTTPClientProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
 
 #pragma mark Push Notifications 
 

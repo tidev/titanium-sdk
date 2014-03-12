@@ -81,12 +81,6 @@
 		24CA895B111161050084E2DE /* AFItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890B111161050084E2DE /* AFItemView.m */; };
 		24CA895C111161050084E2DE /* AFOpenFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890E111161050084E2DE /* AFOpenFlowView.m */; };
 		24CA895D111161050084E2DE /* AFUIImageReflection.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8910111161050084E2DE /* AFUIImageReflection.m */; };
-		24CA895E111161050084E2DE /* ASIAuthenticationDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8913111161050084E2DE /* ASIAuthenticationDialog.m */; };
-		24CA895F111161050084E2DE /* ASIFormDataRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8915111161050084E2DE /* ASIFormDataRequest.m */; };
-		24CA8960111161050084E2DE /* ASIHTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8917111161050084E2DE /* ASIHTTPRequest.m */; };
-		24CA8961111161050084E2DE /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891A111161050084E2DE /* ASIInputStream.m */; };
-		24CA8962111161050084E2DE /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891C111161050084E2DE /* ASINetworkQueue.m */; };
-		24CA8967111161050084E2DE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8926111161050084E2DE /* Reachability.m */; };
 		24CA8968111161050084E2DE /* AudioStreamer.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8929111161050084E2DE /* AudioStreamer.m */; };
 		24CA8969111161050084E2DE /* Base64Transcoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 24CA892A111161050084E2DE /* Base64Transcoder.c */; };
 		24CA897D111161050084E2DE /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA894F111161050084E2DE /* PlausibleDatabase.m */; };
@@ -158,8 +152,6 @@
 		24CA8BB5111161FE0084E2DE /* TiRect.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AAC111161FD0084E2DE /* TiRect.m */; };
 		24CA8BB7111161FE0084E2DE /* TiProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB0111161FD0084E2DE /* TiProxy.m */; };
 		24CA8BB8111161FE0084E2DE /* TiPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB2111161FD0084E2DE /* TiPoint.m */; };
-		24CA8BB9111161FE0084E2DE /* TiNetworkHTTPClientResultProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB4111161FD0084E2DE /* TiNetworkHTTPClientResultProxy.m */; };
-		24CA8BBA111161FE0084E2DE /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB6111161FD0084E2DE /* TiNetworkHTTPClientProxy.m */; };
 		24CA8BBB111161FE0084E2DE /* TiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB8111161FD0084E2DE /* TiModule.m */; };
 		24CA8BBC111161FE0084E2DE /* TiMediaVideoPlayerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABA111161FD0084E2DE /* TiMediaVideoPlayerProxy.m */; };
 		24CA8BBD111161FE0084E2DE /* TiMediaSoundProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABC111161FD0084E2DE /* TiMediaSoundProxy.m */; };
@@ -225,17 +217,11 @@
 		24D8E3BF119B9D8A00F8CAA6 /* AFItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890B111161050084E2DE /* AFItemView.m */; };
 		24D8E3C0119B9D8A00F8CAA6 /* AFOpenFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890E111161050084E2DE /* AFOpenFlowView.m */; };
 		24D8E3C1119B9D8A00F8CAA6 /* AFUIImageReflection.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8910111161050084E2DE /* AFUIImageReflection.m */; };
-		24D8E3C2119B9D8A00F8CAA6 /* ASIAuthenticationDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8913111161050084E2DE /* ASIAuthenticationDialog.m */; };
-		24D8E3C3119B9D8A00F8CAA6 /* ASIFormDataRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8915111161050084E2DE /* ASIFormDataRequest.m */; };
-		24D8E3C4119B9D8A00F8CAA6 /* ASIHTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8917111161050084E2DE /* ASIHTTPRequest.m */; };
 		24D8E3C5119B9D8A00F8CAA6 /* TiUIiPhoneScrollIndicatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97C57111BAD4700E2F72C /* TiUIiPhoneScrollIndicatorStyleProxy.m */; };
-		24D8E3C6119B9D8A00F8CAA6 /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891A111161050084E2DE /* ASIInputStream.m */; };
-		24D8E3C7119B9D8A00F8CAA6 /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891C111161050084E2DE /* ASINetworkQueue.m */; };
 		24D8E3C8119B9D8A00F8CAA6 /* TiUITextWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */; };
 		24D8E3CA119B9D8A00F8CAA6 /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
 		24D8E3CB119B9D8A00F8CAA6 /* TiUIiPhoneTableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC9691126632700639DF4 /* TiUIiPhoneTableViewStyleProxy.m */; };
 		24D8E3CC119B9D8A00F8CAA6 /* TiUIiPhoneTableViewSeparatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ECB2411267CC100639DF4 /* TiUIiPhoneTableViewSeparatorStyleProxy.m */; };
-		24D8E3CD119B9D8A00F8CAA6 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8926111161050084E2DE /* Reachability.m */; };
 		24D8E3CE119B9D8A00F8CAA6 /* AudioStreamer.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8929111161050084E2DE /* AudioStreamer.m */; };
 		24D8E3CF119B9D8A00F8CAA6 /* Base64Transcoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 24CA892A111161050084E2DE /* Base64Transcoder.c */; };
 		24D8E3D0119B9D8A00F8CAA6 /* TiUITextWidget.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829611264FF500A6B66C /* TiUITextWidget.m */; };
@@ -308,8 +294,6 @@
 		24D8E426119B9D8A00F8CAA6 /* TiRect.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AAC111161FD0084E2DE /* TiRect.m */; };
 		24D8E428119B9D8A00F8CAA6 /* TiProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB0111161FD0084E2DE /* TiProxy.m */; };
 		24D8E429119B9D8A00F8CAA6 /* TiPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB2111161FD0084E2DE /* TiPoint.m */; };
-		24D8E42A119B9D8A00F8CAA6 /* TiNetworkHTTPClientResultProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB4111161FD0084E2DE /* TiNetworkHTTPClientResultProxy.m */; };
-		24D8E42B119B9D8A00F8CAA6 /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB6111161FD0084E2DE /* TiNetworkHTTPClientProxy.m */; };
 		24D8E42C119B9D8A00F8CAA6 /* TiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB8111161FD0084E2DE /* TiModule.m */; };
 		24D8E42D119B9D8A00F8CAA6 /* TiMediaVideoPlayerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABA111161FD0084E2DE /* TiMediaVideoPlayerProxy.m */; };
 		24D8E42E119B9D8A00F8CAA6 /* TiMediaSoundProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABC111161FD0084E2DE /* TiMediaSoundProxy.m */; };
@@ -620,9 +604,12 @@
 		B610BB011899CE2000B178C3 /* TiHTTPResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B610BAEE1899CE2000B178C3 /* TiHTTPResponse.m */; };
 		B610BB021899CE2000B178C3 /* TiHTTPResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B610BAEE1899CE2000B178C3 /* TiHTTPResponse.m */; };
 		B610BB031899CE2000B178C3 /* TiHTTPResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B610BAEE1899CE2000B178C3 /* TiHTTPResponse.m */; };
-		B610BB071899D15B00B178C3 /* HTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B610BB061899D15B00B178C3 /* HTTPClientProxy.m */; };
-		B610BB081899D15B00B178C3 /* HTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B610BB061899D15B00B178C3 /* HTTPClientProxy.m */; };
-		B610BB091899D15B00B178C3 /* HTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B610BB061899D15B00B178C3 /* HTTPClientProxy.m */; };
+		B610BB071899D15B00B178C3 /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B610BB061899D15B00B178C3 /* TiNetworkHTTPClientProxy.m */; };
+		B610BB081899D15B00B178C3 /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B610BB061899D15B00B178C3 /* TiNetworkHTTPClientProxy.m */; };
+		B610BB091899D15B00B178C3 /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B610BB061899D15B00B178C3 /* TiNetworkHTTPClientProxy.m */; };
+		B6965E5318CF830B00CB0BE8 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B6965E5218CF830B00CB0BE8 /* Reachability.m */; };
+		B6965E5418CF830B00CB0BE8 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B6965E5218CF830B00CB0BE8 /* Reachability.m */; };
+		B6965E5518CF830B00CB0BE8 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B6965E5218CF830B00CB0BE8 /* Reachability.m */; };
 		B69A9C62180C738600A68F64 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		B69A9C63180C738600A68F64 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		B69A9C64180C738600A68F64 /* (null) in Sources */ = {isa = PBXBuildFile; };
@@ -691,17 +678,11 @@
 		DABB36A512E8CB280026A6EA /* AFItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890B111161050084E2DE /* AFItemView.m */; };
 		DABB36A612E8CB280026A6EA /* AFOpenFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890E111161050084E2DE /* AFOpenFlowView.m */; };
 		DABB36A712E8CB280026A6EA /* AFUIImageReflection.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8910111161050084E2DE /* AFUIImageReflection.m */; };
-		DABB36A812E8CB280026A6EA /* ASIAuthenticationDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8913111161050084E2DE /* ASIAuthenticationDialog.m */; };
-		DABB36A912E8CB280026A6EA /* ASIFormDataRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8915111161050084E2DE /* ASIFormDataRequest.m */; };
-		DABB36AA12E8CB280026A6EA /* ASIHTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8917111161050084E2DE /* ASIHTTPRequest.m */; };
 		DABB36AB12E8CB280026A6EA /* TiUIiPhoneScrollIndicatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97C57111BAD4700E2F72C /* TiUIiPhoneScrollIndicatorStyleProxy.m */; };
-		DABB36AC12E8CB280026A6EA /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891A111161050084E2DE /* ASIInputStream.m */; };
-		DABB36AD12E8CB280026A6EA /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891C111161050084E2DE /* ASINetworkQueue.m */; };
 		DABB36AE12E8CB280026A6EA /* TiUITextWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */; };
 		DABB36B012E8CB280026A6EA /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
 		DABB36B112E8CB280026A6EA /* TiUIiPhoneTableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC9691126632700639DF4 /* TiUIiPhoneTableViewStyleProxy.m */; };
 		DABB36B212E8CB280026A6EA /* TiUIiPhoneTableViewSeparatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ECB2411267CC100639DF4 /* TiUIiPhoneTableViewSeparatorStyleProxy.m */; };
-		DABB36B312E8CB280026A6EA /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8926111161050084E2DE /* Reachability.m */; };
 		DABB36B412E8CB280026A6EA /* AudioStreamer.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8929111161050084E2DE /* AudioStreamer.m */; };
 		DABB36B512E8CB280026A6EA /* Base64Transcoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 24CA892A111161050084E2DE /* Base64Transcoder.c */; };
 		DABB36B612E8CB280026A6EA /* TiUITextWidget.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829611264FF500A6B66C /* TiUITextWidget.m */; };
@@ -774,8 +755,6 @@
 		DABB370112E8CB280026A6EA /* TiRect.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AAC111161FD0084E2DE /* TiRect.m */; };
 		DABB370312E8CB280026A6EA /* TiProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB0111161FD0084E2DE /* TiProxy.m */; };
 		DABB370412E8CB280026A6EA /* TiPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB2111161FD0084E2DE /* TiPoint.m */; };
-		DABB370512E8CB280026A6EA /* TiNetworkHTTPClientResultProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB4111161FD0084E2DE /* TiNetworkHTTPClientResultProxy.m */; };
-		DABB370612E8CB280026A6EA /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB6111161FD0084E2DE /* TiNetworkHTTPClientProxy.m */; };
 		DABB370712E8CB280026A6EA /* TiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB8111161FD0084E2DE /* TiModule.m */; };
 		DABB370812E8CB280026A6EA /* TiMediaVideoPlayerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABA111161FD0084E2DE /* TiMediaVideoPlayerProxy.m */; };
 		DABB370912E8CB280026A6EA /* TiMediaSoundProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABC111161FD0084E2DE /* TiMediaSoundProxy.m */; };
@@ -935,12 +914,6 @@
 		DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DAE541E413577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DAE541E513577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
-		EF03EFF313E3665100BD4FF7 /* ASIDataCompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF013E3665100BD4FF7 /* ASIDataCompressor.m */; };
-		EF03EFF413E3665100BD4FF7 /* ASIDataCompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF013E3665100BD4FF7 /* ASIDataCompressor.m */; };
-		EF03EFF513E3665100BD4FF7 /* ASIDataCompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF013E3665100BD4FF7 /* ASIDataCompressor.m */; };
-		EF03EFF613E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF213E3665100BD4FF7 /* ASIDataDecompressor.m */; };
-		EF03EFF713E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF213E3665100BD4FF7 /* ASIDataDecompressor.m */; };
-		EF03EFF813E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF213E3665100BD4FF7 /* ASIDataDecompressor.m */; };
 		EF0ADCFA143F9ABF00977386 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */; };
 		EF0ADCFB143F9ABF00977386 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */; };
 		EF0ADCFC143F9ABF00977386 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */; };
@@ -950,9 +923,6 @@
 		EF0ADD1F143FA0E200977386 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADD1E143FA0E200977386 /* AnalyticsModule.m */; };
 		EF0ADD20143FA0E200977386 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADD1E143FA0E200977386 /* AnalyticsModule.m */; };
 		EF0ADD21143FA0E200977386 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADD1E143FA0E200977386 /* AnalyticsModule.m */; };
-		EF8339D313E3643C001F2A97 /* ASIDownloadCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EF8339D213E3643C001F2A97 /* ASIDownloadCache.m */; };
-		EF8339D413E3643C001F2A97 /* ASIDownloadCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EF8339D213E3643C001F2A97 /* ASIDownloadCache.m */; };
-		EF8339D513E3643C001F2A97 /* ASIDownloadCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EF8339D213E3643C001F2A97 /* ASIDownloadCache.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1009,8 +979,6 @@
 		2467310611E2549300D39AF7 /* Webcolor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Webcolor.m; sourceTree = "<group>"; };
 		2478B2A311C447A4005814DF /* ApplicationMods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ApplicationMods.h; path = ../Classes/ApplicationMods.h; sourceTree = SOURCE_ROOT; };
 		2478B2A411C447A4005814DF /* ApplicationMods.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ApplicationMods.m; path = ../Classes/ApplicationMods.m; sourceTree = SOURCE_ROOT; };
-		247FC32811CD5B6B00F97C4E /* ASIHTTPRequestDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ASIHTTPRequestDelegate.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		247FC32911CD5B6B00F97C4E /* ASIProgressDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ASIProgressDelegate.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		248133A1115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkBonjourBrowserProxy.h; sourceTree = "<group>"; };
 		248133A2115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkBonjourBrowserProxy.m; sourceTree = "<group>"; };
 		248133A3115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkBonjourServiceProxy.h; sourceTree = "<group>"; };
@@ -1052,19 +1020,6 @@
 		24CA890E111161050084E2DE /* AFOpenFlowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFOpenFlowView.m; sourceTree = "<group>"; };
 		24CA890F111161050084E2DE /* AFUIImageReflection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFUIImageReflection.h; sourceTree = "<group>"; };
 		24CA8910111161050084E2DE /* AFUIImageReflection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFUIImageReflection.m; sourceTree = "<group>"; };
-		24CA8912111161050084E2DE /* ASIAuthenticationDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIAuthenticationDialog.h; sourceTree = "<group>"; };
-		24CA8913111161050084E2DE /* ASIAuthenticationDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIAuthenticationDialog.m; sourceTree = "<group>"; };
-		24CA8914111161050084E2DE /* ASIFormDataRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIFormDataRequest.h; sourceTree = "<group>"; };
-		24CA8915111161050084E2DE /* ASIFormDataRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIFormDataRequest.m; sourceTree = "<group>"; };
-		24CA8916111161050084E2DE /* ASIHTTPRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIHTTPRequest.h; sourceTree = "<group>"; };
-		24CA8917111161050084E2DE /* ASIHTTPRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIHTTPRequest.m; sourceTree = "<group>"; };
-		24CA8918111161050084E2DE /* ASIHTTPRequestConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIHTTPRequestConfig.h; sourceTree = "<group>"; };
-		24CA8919111161050084E2DE /* ASIInputStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIInputStream.h; sourceTree = "<group>"; };
-		24CA891A111161050084E2DE /* ASIInputStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIInputStream.m; sourceTree = "<group>"; };
-		24CA891B111161050084E2DE /* ASINetworkQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASINetworkQueue.h; sourceTree = "<group>"; };
-		24CA891C111161050084E2DE /* ASINetworkQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASINetworkQueue.m; sourceTree = "<group>"; };
-		24CA8925111161050084E2DE /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
-		24CA8926111161050084E2DE /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		24CA8928111161050084E2DE /* AudioStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioStreamer.h; sourceTree = "<group>"; };
 		24CA8929111161050084E2DE /* AudioStreamer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioStreamer.m; sourceTree = "<group>"; };
 		24CA892A111161050084E2DE /* Base64Transcoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Base64Transcoder.c; path = ../Classes/Base64Transcoder.c; sourceTree = SOURCE_ROOT; };
@@ -1222,10 +1177,6 @@
 		24CA8AB1111161FD0084E2DE /* TiProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiProxy.h; path = ../Classes/TiProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8AB2111161FD0084E2DE /* TiPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiPoint.m; path = ../Classes/TiPoint.m; sourceTree = SOURCE_ROOT; };
 		24CA8AB3111161FD0084E2DE /* TiPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiPoint.h; path = ../Classes/TiPoint.h; sourceTree = SOURCE_ROOT; };
-		24CA8AB4111161FD0084E2DE /* TiNetworkHTTPClientResultProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiNetworkHTTPClientResultProxy.m; path = ../Classes/TiNetworkHTTPClientResultProxy.m; sourceTree = SOURCE_ROOT; };
-		24CA8AB5111161FD0084E2DE /* TiNetworkHTTPClientResultProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiNetworkHTTPClientResultProxy.h; path = ../Classes/TiNetworkHTTPClientResultProxy.h; sourceTree = SOURCE_ROOT; };
-		24CA8AB6111161FD0084E2DE /* TiNetworkHTTPClientProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiNetworkHTTPClientProxy.m; path = ../Classes/TiNetworkHTTPClientProxy.m; sourceTree = SOURCE_ROOT; };
-		24CA8AB7111161FD0084E2DE /* TiNetworkHTTPClientProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiNetworkHTTPClientProxy.h; path = ../Classes/TiNetworkHTTPClientProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8AB8111161FD0084E2DE /* TiModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiModule.m; path = ../Classes/TiModule.m; sourceTree = SOURCE_ROOT; };
 		24CA8AB9111161FD0084E2DE /* TiModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiModule.h; path = ../Classes/TiModule.h; sourceTree = SOURCE_ROOT; };
 		24CA8ABA111161FD0084E2DE /* TiMediaVideoPlayerProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiMediaVideoPlayerProxy.m; path = ../Classes/TiMediaVideoPlayerProxy.m; sourceTree = SOURCE_ROOT; };
@@ -1531,8 +1482,10 @@
 		B610BAED1899CE2000B178C3 /* TiHTTPResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiHTTPResponse.h; sourceTree = "<group>"; };
 		B610BAEE1899CE2000B178C3 /* TiHTTPResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiHTTPResponse.m; sourceTree = "<group>"; };
 		B610BB041899CE9E00B178C3 /* TiHTTPClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiHTTPClient.h; sourceTree = "<group>"; };
-		B610BB051899D15B00B178C3 /* HTTPClientProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPClientProxy.h; sourceTree = "<group>"; };
-		B610BB061899D15B00B178C3 /* HTTPClientProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPClientProxy.m; sourceTree = "<group>"; };
+		B610BB051899D15B00B178C3 /* TiNetworkHTTPClientProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiNetworkHTTPClientProxy.h; path = TiHTTPClient/TiNetworkHTTPClientProxy.h; sourceTree = "<group>"; };
+		B610BB061899D15B00B178C3 /* TiNetworkHTTPClientProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiNetworkHTTPClientProxy.m; path = TiHTTPClient/TiNetworkHTTPClientProxy.m; sourceTree = "<group>"; };
+		B6965E5118CF830B00CB0BE8 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		B6965E5218CF830B00CB0BE8 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTransitionAnimationProxy.h; sourceTree = "<group>"; };
 		B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTransitionAnimationProxy.m; sourceTree = "<group>"; };
 		B6C5205F18035AF3002471C6 /* TiUIiOSAttributedStringProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSAttributedStringProxy.h; sourceTree = "<group>"; };
@@ -1584,16 +1537,9 @@
 		DADE76D313D65C590079FC75 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		DAE541E113577BEC00A65123 /* TiDataStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDataStream.h; sourceTree = "<group>"; };
 		DAE541E213577BEC00A65123 /* TiDataStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDataStream.m; sourceTree = "<group>"; };
-		EF03EFEF13E3665100BD4FF7 /* ASIDataCompressor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIDataCompressor.h; sourceTree = "<group>"; };
-		EF03EFF013E3665100BD4FF7 /* ASIDataCompressor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIDataCompressor.m; sourceTree = "<group>"; };
-		EF03EFF113E3665100BD4FF7 /* ASIDataDecompressor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIDataDecompressor.h; sourceTree = "<group>"; };
-		EF03EFF213E3665100BD4FF7 /* ASIDataDecompressor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIDataDecompressor.m; sourceTree = "<group>"; };
 		EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+Additions.m"; path = "../Classes/NSData+Additions.m"; sourceTree = "<group>"; };
 		EF0ADD19143FA0CD00977386 /* GeolocationModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeolocationModule.m; sourceTree = "<group>"; };
 		EF0ADD1E143FA0E200977386 /* AnalyticsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnalyticsModule.m; sourceTree = "<group>"; };
-		EF8339D113E3643C001F2A97 /* ASIDownloadCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIDownloadCache.h; sourceTree = "<group>"; };
-		EF8339D213E3643C001F2A97 /* ASIDownloadCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIDownloadCache.m; sourceTree = "<group>"; };
-		EF8339D713E364A0001F2A97 /* ASICacheDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASICacheDelegate.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1807,7 +1753,6 @@
 				24CA8909111161050084E2DE /* AFOpenFlow */,
 				24CA89A6111161230084E2DE /* Misc */,
 				24CA89A7111161460084E2DE /* Kroll */,
-				24CA8911111161050084E2DE /* ASI */,
 				24CA8927111161050084E2DE /* AudioStreamer */,
 				24CA894D111161050084E2DE /* PlausibleDatabase */,
 				50115A9315D5DE0500122055 /* ThirdpartyNS.h */,
@@ -1830,36 +1775,6 @@
 			);
 			name = AFOpenFlow;
 			path = ../Classes/AFOpenFlow;
-			sourceTree = SOURCE_ROOT;
-		};
-		24CA8911111161050084E2DE /* ASI */ = {
-			isa = PBXGroup;
-			children = (
-				EF03EFEF13E3665100BD4FF7 /* ASIDataCompressor.h */,
-				EF03EFF013E3665100BD4FF7 /* ASIDataCompressor.m */,
-				EF03EFF113E3665100BD4FF7 /* ASIDataDecompressor.h */,
-				EF03EFF213E3665100BD4FF7 /* ASIDataDecompressor.m */,
-				EF8339D713E364A0001F2A97 /* ASICacheDelegate.h */,
-				EF8339D113E3643C001F2A97 /* ASIDownloadCache.h */,
-				EF8339D213E3643C001F2A97 /* ASIDownloadCache.m */,
-				247FC32811CD5B6B00F97C4E /* ASIHTTPRequestDelegate.h */,
-				247FC32911CD5B6B00F97C4E /* ASIProgressDelegate.h */,
-				24CA8912111161050084E2DE /* ASIAuthenticationDialog.h */,
-				24CA8913111161050084E2DE /* ASIAuthenticationDialog.m */,
-				24CA8914111161050084E2DE /* ASIFormDataRequest.h */,
-				24CA8915111161050084E2DE /* ASIFormDataRequest.m */,
-				24CA8916111161050084E2DE /* ASIHTTPRequest.h */,
-				24CA8917111161050084E2DE /* ASIHTTPRequest.m */,
-				24CA8918111161050084E2DE /* ASIHTTPRequestConfig.h */,
-				24CA8919111161050084E2DE /* ASIInputStream.h */,
-				24CA891A111161050084E2DE /* ASIInputStream.m */,
-				24CA891B111161050084E2DE /* ASINetworkQueue.h */,
-				24CA891C111161050084E2DE /* ASINetworkQueue.m */,
-				24CA8925111161050084E2DE /* Reachability.h */,
-				24CA8926111161050084E2DE /* Reachability.m */,
-			);
-			name = ASI;
-			path = ../Classes/ASI;
 			sourceTree = SOURCE_ROOT;
 		};
 		24CA8927111161050084E2DE /* AudioStreamer */ = {
@@ -2201,6 +2116,8 @@
 			children = (
 				B610BADF1899CE2000B178C3 /* TiHTTPClient */,
 				DA2556411353D24C005D459C /* Sockets */,
+				B610BB051899D15B00B178C3 /* TiNetworkHTTPClientProxy.h */,
+				B610BB061899D15B00B178C3 /* TiNetworkHTTPClientProxy.m */,
 				248133A1115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.h */,
 				248133A2115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m */,
 				248133A3115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.h */,
@@ -2209,10 +2126,6 @@
 				248133A6115761DE00E3A9BA /* TiNetworkTCPSocketProxy.m */,
 				24CA8B00111161FE0084E2DE /* NetworkModule.m */,
 				24CA8B01111161FE0084E2DE /* NetworkModule.h */,
-				24CA8AB4111161FD0084E2DE /* TiNetworkHTTPClientResultProxy.m */,
-				24CA8AB5111161FD0084E2DE /* TiNetworkHTTPClientResultProxy.h */,
-				24CA8AB6111161FD0084E2DE /* TiNetworkHTTPClientProxy.m */,
-				24CA8AB7111161FD0084E2DE /* TiNetworkHTTPClientProxy.h */,
 				DA2556421353D2FC005D459C /* TiNetworkSocketProxy.h */,
 				DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */,
 			);
@@ -3001,8 +2914,8 @@
 		B610BADF1899CE2000B178C3 /* TiHTTPClient */ = {
 			isa = PBXGroup;
 			children = (
-				B610BB051899D15B00B178C3 /* HTTPClientProxy.h */,
-				B610BB061899D15B00B178C3 /* HTTPClientProxy.m */,
+				B6965E5118CF830B00CB0BE8 /* Reachability.h */,
+				B6965E5218CF830B00CB0BE8 /* Reachability.m */,
 				B610BAE51899CE2000B178C3 /* TiHTTPHelper.h */,
 				B610BAE61899CE2000B178C3 /* TiHTTPHelper.m */,
 				B610BAE71899CE2000B178C3 /* TiHTTPOperation.h */,
@@ -3284,19 +3197,13 @@
 				24CA895B111161050084E2DE /* AFItemView.m in Sources */,
 				24CA895C111161050084E2DE /* AFOpenFlowView.m in Sources */,
 				24CA895D111161050084E2DE /* AFUIImageReflection.m in Sources */,
-				24CA895E111161050084E2DE /* ASIAuthenticationDialog.m in Sources */,
-				24CA895F111161050084E2DE /* ASIFormDataRequest.m in Sources */,
-				24CA8960111161050084E2DE /* ASIHTTPRequest.m in Sources */,
 				243ECCB81126988200639DF4 /* TiUIiPhoneScrollIndicatorStyleProxy.m in Sources */,
-				24CA8961111161050084E2DE /* ASIInputStream.m in Sources */,
-				24CA8962111161050084E2DE /* ASINetworkQueue.m in Sources */,
 				84A00FF517FB675E00D4BF94 /* TiSnapBehavior.m in Sources */,
 				243ECCBE112698AA00639DF4 /* TiUITextWidgetProxy.m in Sources */,
 				243ECCAA1126981C00639DF4 /* TiUITableViewSectionProxy.m in Sources */,
 				B610BAFB1899CE2000B178C3 /* TiHTTPPostForm.m in Sources */,
 				243ECCAB1126981C00639DF4 /* TiUIiPhoneTableViewStyleProxy.m in Sources */,
 				243ECCAC1126981C00639DF4 /* TiUIiPhoneTableViewSeparatorStyleProxy.m in Sources */,
-				24CA8967111161050084E2DE /* Reachability.m in Sources */,
 				24CA8968111161050084E2DE /* AudioStreamer.m in Sources */,
 				24CA8969111161050084E2DE /* Base64Transcoder.c in Sources */,
 				243ECCB91126989700639DF4 /* TiUITextWidget.m in Sources */,
@@ -3323,7 +3230,7 @@
 				24CA8B70111161FE0084E2DE /* TiUtils.m in Sources */,
 				24CA8B71111161FE0084E2DE /* TiUIWindowProxy.m in Sources */,
 				24CA8B72111161FE0084E2DE /* TiUIWindow.m in Sources */,
-				B610BB071899D15B00B178C3 /* HTTPClientProxy.m in Sources */,
+				B610BB071899D15B00B178C3 /* TiNetworkHTTPClientProxy.m in Sources */,
 				24CA8B74111161FE0084E2DE /* TiUIWebViewProxy.m in Sources */,
 				24CA8B75111161FE0084E2DE /* TiUIViewProxy.m in Sources */,
 				84A0100417FC8D3500D4BF94 /* TiGravityBehavior.m in Sources */,
@@ -3374,8 +3281,6 @@
 				24CA8BB5111161FE0084E2DE /* TiRect.m in Sources */,
 				24CA8BB7111161FE0084E2DE /* TiProxy.m in Sources */,
 				24CA8BB8111161FE0084E2DE /* TiPoint.m in Sources */,
-				24CA8BB9111161FE0084E2DE /* TiNetworkHTTPClientResultProxy.m in Sources */,
-				24CA8BBA111161FE0084E2DE /* TiNetworkHTTPClientProxy.m in Sources */,
 				24CA8BBB111161FE0084E2DE /* TiModule.m in Sources */,
 				24CA8BBC111161FE0084E2DE /* TiMediaVideoPlayerProxy.m in Sources */,
 				24CA8BBD111161FE0084E2DE /* TiMediaSoundProxy.m in Sources */,
@@ -3517,9 +3422,6 @@
 				4D3033A3136239B30034640F /* TiFilesystemFileStreamProxy.m in Sources */,
 				ABD472F413BB73BF00502912 /* KrollCoverage.m in Sources */,
 				DADD76E913CCF4FF00CD03AC /* MGSplitView.m in Sources */,
-				EF8339D313E3643C001F2A97 /* ASIDownloadCache.m in Sources */,
-				EF03EFF313E3665100BD4FF7 /* ASIDataCompressor.m in Sources */,
-				EF03EFF613E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
 				2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603713F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
 				1DCC542F13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */,
@@ -3535,6 +3437,7 @@
 				848C2594145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m in Sources */,
 				848C259A145F3FE200E1B0F1 /* TiDOMCommentProxy.m in Sources */,
 				848C259F145F46C300E1B0F1 /* TiDOMPIProxy.m in Sources */,
+				B6965E5318CF830B00CB0BE8 /* Reachability.m in Sources */,
 				848C25A4145F501700E1B0F1 /* TiDOMDocFragProxy.m in Sources */,
 				84D541A31460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */,
 				84D541A81460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */,
@@ -3579,19 +3482,13 @@
 				24D8E3BF119B9D8A00F8CAA6 /* AFItemView.m in Sources */,
 				24D8E3C0119B9D8A00F8CAA6 /* AFOpenFlowView.m in Sources */,
 				24D8E3C1119B9D8A00F8CAA6 /* AFUIImageReflection.m in Sources */,
-				24D8E3C2119B9D8A00F8CAA6 /* ASIAuthenticationDialog.m in Sources */,
-				24D8E3C3119B9D8A00F8CAA6 /* ASIFormDataRequest.m in Sources */,
-				24D8E3C4119B9D8A00F8CAA6 /* ASIHTTPRequest.m in Sources */,
 				84A00FF617FB675E00D4BF94 /* TiSnapBehavior.m in Sources */,
 				24D8E3C5119B9D8A00F8CAA6 /* TiUIiPhoneScrollIndicatorStyleProxy.m in Sources */,
-				24D8E3C6119B9D8A00F8CAA6 /* ASIInputStream.m in Sources */,
-				24D8E3C7119B9D8A00F8CAA6 /* ASINetworkQueue.m in Sources */,
 				B610BAFC1899CE2000B178C3 /* TiHTTPPostForm.m in Sources */,
 				24D8E3C8119B9D8A00F8CAA6 /* TiUITextWidgetProxy.m in Sources */,
 				24D8E3CA119B9D8A00F8CAA6 /* TiUITableViewSectionProxy.m in Sources */,
 				24D8E3CB119B9D8A00F8CAA6 /* TiUIiPhoneTableViewStyleProxy.m in Sources */,
 				24D8E3CC119B9D8A00F8CAA6 /* TiUIiPhoneTableViewSeparatorStyleProxy.m in Sources */,
-				24D8E3CD119B9D8A00F8CAA6 /* Reachability.m in Sources */,
 				24D8E3CE119B9D8A00F8CAA6 /* AudioStreamer.m in Sources */,
 				24D8E3CF119B9D8A00F8CAA6 /* Base64Transcoder.c in Sources */,
 				24D8E3D0119B9D8A00F8CAA6 /* TiUITextWidget.m in Sources */,
@@ -3616,7 +3513,7 @@
 				24D8E3EC119B9D8A00F8CAA6 /* UIModule.m in Sources */,
 				24D8E3EE119B9D8A00F8CAA6 /* TiViewProxy.m in Sources */,
 				24D8E3F0119B9D8A00F8CAA6 /* TiUtils.m in Sources */,
-				B610BB081899D15B00B178C3 /* HTTPClientProxy.m in Sources */,
+				B610BB081899D15B00B178C3 /* TiNetworkHTTPClientProxy.m in Sources */,
 				24D8E3F1119B9D8A00F8CAA6 /* TiUIWindowProxy.m in Sources */,
 				84A0100517FC8D3500D4BF94 /* TiGravityBehavior.m in Sources */,
 				24D8E3F2119B9D8A00F8CAA6 /* TiUIWindow.m in Sources */,
@@ -3669,8 +3566,6 @@
 				24D8E426119B9D8A00F8CAA6 /* TiRect.m in Sources */,
 				24D8E428119B9D8A00F8CAA6 /* TiProxy.m in Sources */,
 				24D8E429119B9D8A00F8CAA6 /* TiPoint.m in Sources */,
-				24D8E42A119B9D8A00F8CAA6 /* TiNetworkHTTPClientResultProxy.m in Sources */,
-				24D8E42B119B9D8A00F8CAA6 /* TiNetworkHTTPClientProxy.m in Sources */,
 				24D8E42C119B9D8A00F8CAA6 /* TiModule.m in Sources */,
 				24D8E42D119B9D8A00F8CAA6 /* TiMediaVideoPlayerProxy.m in Sources */,
 				24D8E42E119B9D8A00F8CAA6 /* TiMediaSoundProxy.m in Sources */,
@@ -3812,9 +3707,6 @@
 				B415067A136745E20084074A /* TiFilesystemFileStreamProxy.m in Sources */,
 				ABD472F513BB73BF00502912 /* KrollCoverage.m in Sources */,
 				DADD76EA13CCF4FF00CD03AC /* MGSplitView.m in Sources */,
-				EF8339D413E3643C001F2A97 /* ASIDownloadCache.m in Sources */,
-				EF03EFF413E3665100BD4FF7 /* ASIDataCompressor.m in Sources */,
-				EF03EFF713E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
 				2B94603813F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603913F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
 				1DCC543013FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */,
@@ -3828,6 +3720,7 @@
 				848C2595145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m in Sources */,
 				848C259B145F3FE200E1B0F1 /* TiDOMCommentProxy.m in Sources */,
 				848C25A0145F46C300E1B0F1 /* TiDOMPIProxy.m in Sources */,
+				B6965E5418CF830B00CB0BE8 /* Reachability.m in Sources */,
 				848C25A5145F501700E1B0F1 /* TiDOMDocFragProxy.m in Sources */,
 				84D541A41460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */,
 				84D541A91460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */,
@@ -3872,19 +3765,13 @@
 				DABB36A512E8CB280026A6EA /* AFItemView.m in Sources */,
 				DABB36A612E8CB280026A6EA /* AFOpenFlowView.m in Sources */,
 				DABB36A712E8CB280026A6EA /* AFUIImageReflection.m in Sources */,
-				DABB36A812E8CB280026A6EA /* ASIAuthenticationDialog.m in Sources */,
-				DABB36A912E8CB280026A6EA /* ASIFormDataRequest.m in Sources */,
-				DABB36AA12E8CB280026A6EA /* ASIHTTPRequest.m in Sources */,
 				84A00FF717FB675E00D4BF94 /* TiSnapBehavior.m in Sources */,
 				DABB36AB12E8CB280026A6EA /* TiUIiPhoneScrollIndicatorStyleProxy.m in Sources */,
-				DABB36AC12E8CB280026A6EA /* ASIInputStream.m in Sources */,
-				DABB36AD12E8CB280026A6EA /* ASINetworkQueue.m in Sources */,
 				B610BAFD1899CE2000B178C3 /* TiHTTPPostForm.m in Sources */,
 				DABB36AE12E8CB280026A6EA /* TiUITextWidgetProxy.m in Sources */,
 				DABB36B012E8CB280026A6EA /* TiUITableViewSectionProxy.m in Sources */,
 				DABB36B112E8CB280026A6EA /* TiUIiPhoneTableViewStyleProxy.m in Sources */,
 				DABB36B212E8CB280026A6EA /* TiUIiPhoneTableViewSeparatorStyleProxy.m in Sources */,
-				DABB36B312E8CB280026A6EA /* Reachability.m in Sources */,
 				DABB36B412E8CB280026A6EA /* AudioStreamer.m in Sources */,
 				DABB36B512E8CB280026A6EA /* Base64Transcoder.c in Sources */,
 				DABB36B612E8CB280026A6EA /* TiUITextWidget.m in Sources */,
@@ -3909,7 +3796,7 @@
 				DABB36C712E8CB280026A6EA /* UIModule.m in Sources */,
 				DABB36C912E8CB280026A6EA /* TiViewProxy.m in Sources */,
 				DABB36CB12E8CB280026A6EA /* TiUtils.m in Sources */,
-				B610BB091899D15B00B178C3 /* HTTPClientProxy.m in Sources */,
+				B610BB091899D15B00B178C3 /* TiNetworkHTTPClientProxy.m in Sources */,
 				DABB36CC12E8CB280026A6EA /* TiUIWindowProxy.m in Sources */,
 				84A0100617FC8D3500D4BF94 /* TiGravityBehavior.m in Sources */,
 				DABB36CD12E8CB280026A6EA /* TiUIWindow.m in Sources */,
@@ -3962,8 +3849,6 @@
 				DABB370112E8CB280026A6EA /* TiRect.m in Sources */,
 				DABB370312E8CB280026A6EA /* TiProxy.m in Sources */,
 				DABB370412E8CB280026A6EA /* TiPoint.m in Sources */,
-				DABB370512E8CB280026A6EA /* TiNetworkHTTPClientResultProxy.m in Sources */,
-				DABB370612E8CB280026A6EA /* TiNetworkHTTPClientProxy.m in Sources */,
 				DABB370712E8CB280026A6EA /* TiModule.m in Sources */,
 				DABB370812E8CB280026A6EA /* TiMediaVideoPlayerProxy.m in Sources */,
 				DABB370912E8CB280026A6EA /* TiMediaSoundProxy.m in Sources */,
@@ -4105,9 +3990,6 @@
 				B415067D136745FE0084074A /* TiFilesystemFileStreamProxy.m in Sources */,
 				ABD472F613BB73BF00502912 /* KrollCoverage.m in Sources */,
 				DADD76EB13CCF4FF00CD03AC /* MGSplitView.m in Sources */,
-				EF8339D513E3643C001F2A97 /* ASIDownloadCache.m in Sources */,
-				EF03EFF513E3665100BD4FF7 /* ASIDataCompressor.m in Sources */,
-				EF03EFF813E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
 				2B94603A13F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603B13F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
 				1DCC543113FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */,
@@ -4121,6 +4003,7 @@
 				848C2596145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m in Sources */,
 				848C259C145F3FE200E1B0F1 /* TiDOMCommentProxy.m in Sources */,
 				848C25A1145F46C300E1B0F1 /* TiDOMPIProxy.m in Sources */,
+				B6965E5518CF830B00CB0BE8 /* Reachability.m in Sources */,
 				848C25A6145F501700E1B0F1 /* TiDOMDocFragProxy.m in Sources */,
 				84D541A51460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */,
 				84D541AA1460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */,
