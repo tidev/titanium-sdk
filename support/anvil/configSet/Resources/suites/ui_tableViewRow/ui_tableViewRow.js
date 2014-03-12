@@ -15,35 +15,11 @@ module.exports = new function() {
 	
 	this.name = "ui_tableViewRow";
 	this.tests = [
-		//{name: "setFontProperties"},due to TIMOB-15700
 		{name: "dpDimension"},
 		{name: "setHeaderOutsideTable", timeout: 30000},
-		//{name: "percentageHeight"}, due to TIMOB-15700
-		//{name: "updateNumberOfRows"}, due to TIMOB-15700
+		{name: "updateNumberOfRows"}, 
 		{name: "accesTableViewRow"}
 	];
-
-	//TIMOB-1135
-	this.setFontProperties = function(testRun){
-		var win = Ti.UI.createWindow();
-		var table = Titanium.UI.createTableView();
-		var row1 = Titanium.UI.createTableViewRow({
-			title: 'Custom font #1',
-			font: {
-				fontSize: 19,
-				fontWeight: 'bold'
-			},
-		});
-		win.addEventListener('focus', function(){
-			valueOf(testRun, row1.getFont().fontSize).shouldBe(19);
-			valueOf(testRun, row1.getFont().fontWeight).shouldBe('bold');
-
-			finish(testRun);
-		});
-		table.setData([row1]);
-		win.add(table);
-		win.open();
-	}
 
 	//TIMOB-5089
 	this.dpDimension = function(testRun){
@@ -104,25 +80,6 @@ module.exports = new function() {
 		win.open();
 	}
 
-	//TIMOB-6769
-	this.percentageHeight = function(testRun){
-		var win = Ti.UI.createWindow();
-		var tableview = Ti.UI.createTableView({
-			height: 200
-		});
-		var tableviewrow = Ti.UI.createTableViewRow({
-			height: '100%',
-		});
-		tableview.setData([tableviewrow]);
-		win.add(tableview);
-		win.addEventListener('focus', function(){
-			valueOf(testRun, tableviewrow.getHeight()).shouldBe('100%');
-
-			finish(testRun);
-		});
-		win.open();
-	}
-
 	//TIMOB-9890
 	this.updateNumberOfRows = function(testRun){
 		var win1 = Titanium.UI.createWindow();
@@ -130,14 +87,14 @@ module.exports = new function() {
 			top: 0
 		});
 		win1.add(table);
-		win1.addEventListener('focus', function(){
+		function fun(){
 			addRows(5);
 			assertRowCount(5);
 			removeRows(1);
 			assertRowCount(4);
 
 			finish(testRun);
-		});
+		};
 		function assertRowCount(expectedCount) {
 			var actualCount = 0;
 			if (table.data[0].rows) {
@@ -168,6 +125,7 @@ module.exports = new function() {
 			}
 			table.data = tableData;
 		}
+		win1.addEventListener('focus', fun);
 		win1.open();
 	}
 
