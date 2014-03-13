@@ -81,6 +81,11 @@
     return [NSHTTPCookie cookieWithProperties:dict];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Network.Cookie";
+}
+
 -(NSNumber*)isValid:(id)args
 {
     return NUMBOOL([self newCookie] != nil);

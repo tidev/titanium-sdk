@@ -375,17 +375,15 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
     return returnArray;
 }
 
--(NSNumber*)addHTTPCookie:(id)args;
+-(void)addHTTPCookie:(id)args;
 {
     ENSURE_SINGLE_ARG(args, TiNetworkCookieProxy);
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
     NSHTTPCookie* cookie = [args newCookie];
-    if(cookie == nil)
+    if(cookie != nil)
     {
-        return NUMBOOL(NO);
+        [storage setCookie:cookie];
     }
-    [storage setCookie:cookie];
-    return NUMBOOL(YES);
 }
 
 -(NSArray*)getHTTPCookies:(id)args
