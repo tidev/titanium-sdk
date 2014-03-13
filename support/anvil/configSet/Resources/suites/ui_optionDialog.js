@@ -36,7 +36,7 @@ module.exports = new function() {
 				finish(testRun);
 			},2000);
 		};
-		win.addEventListener('focus', fun);
+		win.addEventListener('postlayout', fun);
 		win.open();
 	}
 }
