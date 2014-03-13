@@ -365,8 +365,14 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 {
     ENSURE_SINGLE_ARG(args, NSString);
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    NSArray *allCookies = [storage cookiesForURL: [NSURL URLWithString:args]];
-    
+    NSMutableArray *allCookies = [NSMutableArray array];
+    for(NSHTTPCookie* cookie in [storage cookies])
+    {
+        if([[cookie domain] isEqualToString: args])
+        {
+            [allCookies addObject:cookie];
+        }
+    }
     NSMutableArray *returnArray = [NSMutableArray array];
     for(NSHTTPCookie *cookie in allCookies)
     {
@@ -391,11 +397,9 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
     NSString* domain = [TiUtils stringValue:[args objectAtIndex:0]];
     NSString*   path = [TiUtils stringValue:[args objectAtIndex:1]];
     NSString*   name = [TiUtils stringValue:[args objectAtIndex:2]];
-
     if (path == nil || [path isEqual:@""]) {
         path = @"/";
     }
-
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
     
     NSArray *allCookies = [storage cookies];
@@ -436,6 +440,17 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
     for(TiNetworkCookieProxy* cookie in cookies) {
         [storage deleteCookie: [cookie newCookie]];
     }
+}
+
+-(NSArray*)allHTTPCookies
+{
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSMutableArray *array = [NSMutableArray array];
+    for(NSHTTPCookie* cookie in [storage cookies])
+    {
+        [array addObject:[[[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self executionContext]] autorelease]];
+    }
+    return array;
 }
 
 +(NSOperationQueue*)operationQueue;

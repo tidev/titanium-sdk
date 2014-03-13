@@ -527,6 +527,12 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     since: "1.8.0.1"
+  - name: allHTTPCookies
+    summary: A list of all cookies in the cookie storage.
+    type: Array<Titanium.Network.Cookie>
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "3.3.0"
   - name: networkType
     summary: Network type value as a constant.
     description: |
