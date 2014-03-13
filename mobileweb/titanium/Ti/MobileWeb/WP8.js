@@ -10,21 +10,7 @@ define(['Ti/_/lang'], function(lang) {
 		this._listeners = {};
 	}
 
-	handleEvent = function (x) {
-		var payload = JSON.parse(x);
-		payload.source = proxyList[payload._hnd];
-		var cbs = proxyList[payload._hnd]._listeners[payload.type];
-		cbs.forEach(function(cb){
-			cb(payload);
-		});
-	}
-
-	handleError = function (x) {
-		Ti.API.error(x);
-		throw x;
-	}
-
-	_send = function (action, data) {
+	function _send(action, data) {
 		var res;
 		global.handleProxyResponse = function (r) {
 			res = r;
@@ -112,15 +98,14 @@ define(['Ti/_/lang'], function(lang) {
 	};
 
 	Handle.prototype.removeEventListener = function (name, cb) {
-		var idx = this._listeners[name].indexOf(cb) + 1;
-		if (!this._listeners[name] || !~idx) {
-			return;
+		var idx;
+		if (this._listeners[name] && ~(idx = this._listeners[name].indexOf(cb))) {
+			this._listeners[name].splice(idx, 1);
+			this._listeners[name].length || sendNativeMessage('r', 're' + JSON.stringify({
+				hnd: this._hnd,
+				name: name
+			}));
 		}
-		this._listeners[name] = this._listeners[name].splice(idx, 1);
-		this._listeners[name].length || sendNativeMessage('r', 're' + JSON.stringify({
-			hnd: this._hnd,
-			name: name
-		}));
 	};
 
 	return lang.setObject('Ti.MobileWeb.WP8', {
@@ -144,8 +129,20 @@ define(['Ti/_/lang'], function(lang) {
 			return proxyList[hnd] = new Handle(hnd);
 		},
 
+		handleEvent: function (payload) {
+			var src = payload.source = proxyList[payload._hnd];
+			src._listeners[payload.type].forEach(function (cb) {
+				cb(payload);
+			});
+		},
+
+		handleError: function (err) {
+			Ti.API.error(err);
+			throw err;
+		},
+
 		getEnum: function (name, value) {
-			return _send ('ge', { name: name, value: value });
+			return _send('ge', { name: name, value: value });
 		},
 
 		getRootGrid: function () {
@@ -187,6 +184,6 @@ define(['Ti/_/lang'], function(lang) {
 			return proxyList[hnd] = new Handle(hnd);
 		},
 
-		getProxyList: function () { return proxyList;}
+		getProxyList: function () { return proxyList; }
 	});
 });

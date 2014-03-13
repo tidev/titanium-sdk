@@ -681,11 +681,11 @@ doReposition = YES;\
                                 //AnimationStarted needs to be called here, otherwise the animation flags for 
                                 //the view being transitioned will end up in a improper state, resulting in 
                                 //layout warning.
-                                [self animationStarted:[NSString stringWithFormat:@"%X",(void *)theview] 
+                                [self animationStarted:[NSString stringWithFormat:@"%@",(void *)theview]
                                                context:self];                               
                             }
                             completion:^(BOOL finished) {
-                                [self animationCompleted:[NSString stringWithFormat:@"%X",(void *)theview]
+                                [self animationCompleted:[NSString stringWithFormat:@"%@",(void *)theview]
                                                 finished:[NSNumber numberWithBool:finished]
                                                  context:self];
                                 

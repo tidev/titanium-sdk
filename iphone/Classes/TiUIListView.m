@@ -1156,6 +1156,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     NSUInteger sectionCount = 0;
     
+    //TIMOB-15526
+    if (tableView != _tableView && tableView.backgroundColor == [UIColor clearColor]) {
+        tableView.backgroundColor = [UIColor whiteColor];
+    }
+
     if (_searchResults != nil) {
         sectionCount = [_searchResults count];
     } else {

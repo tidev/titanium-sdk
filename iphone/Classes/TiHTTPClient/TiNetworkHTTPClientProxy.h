@@ -5,15 +5,16 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifdef USE_TI_NETWORK
+
 #import "TiHTTPClient.h"
 #import "TiProxy.h"
 #import "TiDOMDocumentProxy.h"
 #import "TiBlob.h"
 
-@interface HTTPClientProxy : TiProxy<TiHTTPRequestDelegate>
+@interface TiNetworkHTTPClientProxy : TiProxy<TiHTTPRequestDelegate>
 {
     TiHTTPRequest *httpRequest;
-    TiHTTPResponse* response;
     NSTimeInterval _uploadTime;
     NSTimeInterval _downloadTime;
     
@@ -24,6 +25,8 @@
     BOOL hasOnsendstream;
     BOOL hasOnredirect;
 }
+
+@property(nonatomic, readonly) TiHTTPResponse* response;
 
 // state information
 @property(nonatomic, readonly) NSNumber *status;
@@ -36,10 +39,6 @@
 @property(nonatomic, readonly) TiDOMDocumentProxy* responseXML;
 @property(nonatomic, readonly) NSString* connectionType;
 @property(nonatomic, readonly) NSString* location;
-
-//@property(nonatomic, retain, readwrite) NSNumber* validatesSecureCertificate;
-//@property(nonatomic, retain, readwrite) NSNumber* timeout;
-//@property(nonatomic, retain, readwrite) NSNumber* autoRedirect;
 
 // constants
 @property(nonatomic,readonly) NSNumber* UNSENT;
@@ -66,3 +65,5 @@
 -(NSString*)apiName;
 -(NSNumber*)connected;
 @end
+
+#endif
