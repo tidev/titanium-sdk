@@ -66,7 +66,7 @@ module.exports = new function() {
 
 	//TIMOB-5807
 	this.getResponseHeaderReturnsNull = function(testRun) {
-		var url = 'http://tools.dynamicdrive.com/password/example/';
+		var url = 'https://api.cloud.appcelerator.com/v1/checkins/show.json';
 		var request = Titanium.Network.createHTTPClient();
 		request.open('GET',url);
 		request.send();
