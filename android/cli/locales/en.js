@@ -194,7 +194,6 @@
 	"Forcing rebuild: tiapp.xml guid changed since last build": "Forcing rebuild: tiapp.xml guid changed since last build",
 	"Forcing rebuild: tiapp.xml icon changed since last build": "Forcing rebuild: tiapp.xml icon changed since last build",
 	"Forcing rebuild: tiapp.xml fullscreen changed since last build": "Forcing rebuild: tiapp.xml fullscreen changed since last build",
-	"Forcing rebuild: tiapp.xml navbar-hidden changed since last build": "Forcing rebuild: tiapp.xml navbar-hidden changed since last build",
 	"Forcing rebuild: Android minimum SDK changed since last build": "Forcing rebuild: Android minimum SDK changed since last build",
 	"Forcing rebuild: Android target SDK changed since last build": "Forcing rebuild: Android target SDK changed since last build",
 	"Forcing rebuild: tiapp.xml properties changed since last build": "Forcing rebuild: tiapp.xml properties changed since last build",

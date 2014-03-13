@@ -85,7 +85,4 @@ public final class ${config['classname']}AppInfo implements ITiAppInfo
 		return ${app_info['fullscreen']};
 	}
 
-	public boolean isNavBarHidden() {
-		return ${app_info['navbar-hidden']};
-	}
 }
