@@ -2023,13 +2023,6 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
-	if (this.tiapp['navbar-hidden'] != manifest['navbar-hidden']) {
-		this.logger.info(__('Forcing rebuild: tiapp.xml navbar-hidden changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest['navbar-hidden']));
-		this.logger.info('  ' + __('Now: %s', this.tiapp['navbar-hidden']));
-		return true;
-	}
-
 	if (this.minSDK != manifest.minSDK) {
 		this.logger.info(__('Forcing rebuild: Android minimum SDK changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.minSDK));
@@ -4089,7 +4082,6 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		guid: this.tiapp.guid,
 		icon: this.tiapp.icon,
 		fullscreen: this.tiapp.fullscreen,
-		'navbar-hidden': this.tiapp['navbar-hidden'],
 		skipJSMinification: !!this.cli.argv['skip-js-minify'],
 		mergeCustomAndroidManifest: this.config.get('android.mergeCustomAndroidManifest', false),
 		encryptJS: this.encryptJS,
