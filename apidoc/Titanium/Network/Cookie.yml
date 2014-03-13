@@ -4,8 +4,16 @@ summary: Cookie object used to manage the system cookie store and HTTP client co
 description: |
     Use <Titanium.Network.createCookie> to create a new `Cookie` object.
 extends: Titanium.Proxy
-since: "3.2.0"
-platforms: [android]
+since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
+platforms: [android, iphone, ipad]
+
+methods:
+  - name: isValid
+    summary: Creates a temporary cookie to verify that it is valid.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    returns:
+        type: String
 
 properties:
   - name: comment
@@ -25,7 +33,8 @@ properties:
   - name: httponly
     summary: The httponly attribute of the cookie.
     description: |
-        When this property is set to `true`, the cookie will be used only when transmitting HTTP (or HTTPS) requests.
+        On iOS this property cannot be set. On Android, when this property is set to `true`, the cookie will
+        be used only when transmitting HTTP (or HTTPS) requests.
     type: Boolean
     default: false
 
@@ -34,6 +43,14 @@ properties:
     type: String
     permission: read-only
     availability: creation
+
+  - name: originalUrl
+    summary: The origual url attribute of the cookie.
+    type: String
+    permission: read-only
+    availability: creation
+    platforms: [iphone, ipad]
+    since: "3.3.0"
 
   - name: path
     summary: The path attribute of the cookie.

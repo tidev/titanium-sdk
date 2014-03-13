@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -393,6 +393,11 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
     NSString* domain = [TiUtils stringValue:[args objectAtIndex:0]];
     NSString*   path = [TiUtils stringValue:[args objectAtIndex:1]];
     NSString*   name = [TiUtils stringValue:[args objectAtIndex:2]];
+
+    if (path == nil || [path isEqual:@""]) {
+        path = @"/";
+    }
+
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
     
     NSArray *allCookies = [storage cookies];
@@ -402,16 +407,37 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
     {
         if([[cookie domain] isEqualToString:domain] &&
            [[cookie path] isEqualToString:path] &&
-           [[cookie name] isEqualToString:name]) {
+           ([[cookie name] isEqualToString:name] || name == nil)) {
             [returnArray addObject:[[[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self executionContext]] autorelease]];
         }
     }
     return returnArray;
 }
 
--(NSArray*)getSystemCookies:(id)args
+-(void)removeAllHTTPCookies:(id)args
 {
-    return [self getHTTPCookies:args];
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    while ([[storage cookies] count] > 0) {
+        [storage deleteCookie: [[storage cookies] objectAtIndex:0]];
+    }
+}
+
+-(void)removeHTTPCookie:(id)args
+{
+    NSArray* cookies = [self getHTTPCookies:args];
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for(TiNetworkCookieProxy* cookie in cookies) {
+        [storage deleteCookie: [cookie newCookie]];
+    }
+}
+
+-(void)removeHTTPCookiesForDomain:(id)args
+{
+    NSArray* cookies = [self getHTTPCookiesForDomain:args];
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for(TiNetworkCookieProxy* cookie in cookies) {
+        [storage deleteCookie: [cookie newCookie]];
+    }
 }
 
 +(NSOperationQueue*)operationQueue;

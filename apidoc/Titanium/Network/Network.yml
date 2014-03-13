@@ -37,7 +37,10 @@ methods:
     summary: |
         Adds a cookie to the HTTP client cookie store.
     description: |
-        Any existing cookie with the same domain and name will be replaced with the new cookie. This is a bug
+        On iOS, the cookie will override an existing cookie with the same name, domain and path, if any. The cookie's
+        `expiryDate` property must be a date older than the creating date, otherwise the cookie will not persist in the
+        cookie storage.
+        On Android, any existing cookie with the same domain and name will be replaced with the new cookie. This is a bug
         in [BasicCookieStore](http://developer.android.com/reference/org/apache/http/impl/cookie/BasicClientCookie.html)
         because based on `RFC6265`, an existing cookie can be evicted and replaced only when it has the same cookie-name,
         domain-value and path-value with the new cookie.
@@ -45,8 +48,8 @@ methods:
       - name: cookie
         summary: The cookie to add
         type: Titanium.Network.Cookie
-    platforms: [android]
-    since: "3.2.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: addSystemCookie
     summary: |
@@ -176,8 +179,8 @@ methods:
         type: String
     returns:
         type: Array<Titanium.Network.Cookie>
-    platforms: [android]
-    since: "3.2.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: getHTTPCookiesForDomain
     summary: |
@@ -190,8 +193,8 @@ methods:
         type: String
     returns:
         type: Array<Titanium.Network.Cookie>
-    platforms: [android]
-    since: "3.2.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: getSystemCookies
     summary: |
@@ -218,8 +221,8 @@ methods:
   - name: removeAllHTTPCookies
     summary: |
         Removes all the cookies from the HTTP client cookie store.
-    platforms: [android]
-    since: "3.2.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: removeAllSystemCookies
     summary: |
@@ -242,8 +245,8 @@ methods:
       - name: name
         summary: The name of the cookie to remove. It is case-sensitive.
         type: String
-    platforms: [android]
-    since: "3.2.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: removeHTTPCookiesForDomain
     summary: |
@@ -254,8 +257,8 @@ methods:
       - name: domain
         summary: The domain of the cookie to remove. It is case-insensitive.
         type: String
-    platforms: [android]
-    since: "3.2.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: removeSystemCookie
     summary: |

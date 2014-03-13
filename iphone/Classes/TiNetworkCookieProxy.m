@@ -1,10 +1,22 @@
-//
-//  TiNetworkCookieProxy.cpp
-//  Titanium
-//
-//  Created by Pedro Enrique on 3/11/14.
-//
-//
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+/*
+ // http://stackoverflow.com/a/1072659/795295
+ var cookie = Ti.Network.createCookie({
+    domain : 'example.com',
+    name   : 'test_cookie',
+    value  : '12',
+    path   : '/'
+ });
+
+ // check!
+ alert(cookie.isValid());
+ */
 
 #include "TiNetworkCookieProxy.h"
 #include "TiUtils.h"
@@ -65,7 +77,8 @@
 
 -(NSHTTPCookie*)newCookie
 {
-    return [NSHTTPCookie cookieWithProperties:[self mergeDictionaryWithCookie]];
+    NSDictionary *dict = [self mergeDictionaryWithCookie];
+    return [NSHTTPCookie cookieWithProperties:dict];
 }
 
 -(NSNumber*)isValid:(id)args
@@ -76,79 +89,88 @@
 {
 	return [self cookieValue: NSHTTPCookieName];
 }
--(void) setName:(id)args
+- (void)setName:(id)args
 {
     [[self cookieDictionary] setValue:[TiUtils stringValue:args] forKeyPath:NSHTTPCookieName];
 }
--(NSString*) comment
+- (NSString*)comment
 {
 	return [self cookieValue: NSHTTPCookieComment];
 }
--(void) setComment:(id)args
+- (void)setComment:(id)args
 {
     [[self cookieDictionary] setValue:[TiUtils stringValue:args] forKeyPath:NSHTTPCookieComment];
 
 }
--(NSString*) domain
+- (NSString*)domain
 {
 	return [self cookieValue: NSHTTPCookieDomain];
 }
--(void) setDomain:(id)args
+- (void)setDomain:(id)args
 {
     [[self cookieDictionary] setValue:[TiUtils stringValue:args] forKeyPath:NSHTTPCookieDomain];
 
 }
--(NSDate*) expiryDate
+- (NSDate*)expiryDate
 {
 	return [self cookieValue: NSHTTPCookieExpires];
 }
--(void) setExpiryDate:(id)args
+- (void)setExpiryDate:(id)args
 {
     [[self cookieDictionary] setValue:[TiUtils dateForUTCDate:args] forKeyPath:NSHTTPCookieExpires];
 
 }
--(NSString*) path
+- (NSString*)path
 {
 	return [self cookieValue: NSHTTPCookiePath];
 }
--(void) setPath:(id)args
+- (void)setPath:(id)args
 {
     [[self cookieDictionary] setValue:[TiUtils stringValue:args] forKeyPath:NSHTTPCookiePath];
 
 }
--(NSString*) value
+- (NSString*)value
 {
 	return [self cookieValue: NSHTTPCookieValue];
 }
--(void) setValue:(id)args
+- (void)setValue:(id)args
 {
     [[self cookieDictionary] setValue:[TiUtils stringValue:args] forKeyPath:NSHTTPCookieValue];
 }
--(NSNumber*) httponly
+- (NSNumber*)httponly
 {
     if(_cookie == nil) {
         return nil;
     }
 	return NUMBOOL([_cookie isHTTPOnly]);
 }
--(NSNumber*) secure
+- (NSNumber*)secure
 {
 	return NUMBOOL([self cookieValue: NSHTTPCookieSecure]);
 }
--(void) setSecure:(id)args
+- (void)setSecure:(id)args
 {
     BOOL v = [TiUtils boolValue:args def:NO];
     NSString* val = v ? @"1" : @"0";
     [[self cookieDictionary] setValue:val forKeyPath:NSHTTPCookieSecure];
 }
--(NSNumber*) version
+- (NSNumber*)version
 {
 	return NUMINT([self cookieValue: NSHTTPCookieVersion]);
 }
--(void) setVersion:(id)args
+- (void)setVersion:(id)args
 {
     [[self cookieDictionary] setValue:[TiUtils stringValue:args] forKeyPath:NSHTTPCookieVersion];
 }
 
+- (void)setOriginalUrl:(id)args
+{
+    [[self cookieDictionary] setValue:[TiUtils stringValue:args] forKeyPath:NSHTTPCookieOriginURL];
+}
+
+- (NSString*)originalUrl
+{
+	return [self cookieValue: NSHTTPCookieOriginURL];
+}
 
 @end
