@@ -7,7 +7,9 @@
 			log: function () {
 				sendRequest('log', {
 					message: Array.prototype.slice.call(arguments).map(function (it) {
-						return it && objToString.call(it) == '[object Object]' ? JSON.stringify(it) : it;
+						return it === void 0 ? 'undefined' : it === null ? 'null' : Array.isArray(it) ? JSON.stringify(it.map(function (f) {
+							return typeof f == 'function' ? f.toString() : f;
+						})) : objToString.call(it) == '[object Object]' ? JSON.stringify(it) : it;
 					}).join(' ')
 				});
 			}
@@ -15,17 +17,12 @@
 		requests = {},
 		handles = {};
 
-	function log(type) {
-		type = '[' + type.toUpperCase() + ']';
-		console.log.apply(null, arguments);
-	}
-
 	function processResponse(data) {
 		var tmp = data.primitiveValue;
 		return tmp !== void 0 ? tmp : (tmp = data.handle) ? handles[tmp] || (handles[tmp] = new Handle(tmp)) : data;
 	}
 
-	// WARNING: Do NOT use console.log() inside this function!
+	// WARNING: Do NOT use console.log() inside this function when type == 'log'!
 	function sendRequest(type, data, callback) {
 		callback || (callback = processResponse);
 		var token = '' + Math.round(Math.random() * 1e9).toString(16),
@@ -38,8 +35,8 @@
 		}));
 		tmp = requests[token];
 		delete requests[token];
-		if (tmp instanceof Error) {
-			tmp.toString().split(/\r\n|\n/).forEach(function (s) { log('error', s); });
+		if (tmp instanceof Error && type != 'log') {
+			tmp.toString().split(/\r\n|\n/).forEach(function (s) { console.log('[ERROR] ', s); });
 			throw tmp;
 		}
 		return tmp;
@@ -63,9 +60,8 @@
 
 	Handle.prototype = Object.create({
 		addEventListener: function (name, callback) {
-			var listeners = this._listeners[name];
-			if (!listeners) {
-				listeners = this._listeners[name] = [];
+			var listeners = this._listeners[name] || (this._listeners[name] = []);
+			if (!listeners.length) {
 				sendRequest('reflection', {
 					action: 'addEventListener',
 					handle: this._hnd,
