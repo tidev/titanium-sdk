@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Phone.Controls;
 using Newtonsoft.Json;
@@ -109,24 +110,27 @@ namespace TitaniumApp.TiRequestHandlers
 
 			// create an array of parameters based on the event info
 			var parameters = eventInfo.EventHandlerType.GetMethod("Invoke").GetParameters().
-					Select((p, i) => System.Linq.Expressions.Expression.Parameter(p.ParameterType, "p" + i)).ToArray();
+					Select((p, i) => Expression.Parameter(p.ParameterType, "p" + i)).ToArray();
 
 			// construct a new array of parameters to the method we are actually going to call
 			// need to pass in extra information so the Proxy knows which callback to fire
-			System.Linq.Expressions.Expression[] pass = new System.Linq.Expressions.Expression[5];
+			Expression[] pass = new Expression[5];
 			parameters.CopyTo(pass, 0);
-			pass[2] = System.Linq.Expressions.Expression.Constant(eventInfo.Name);
-			pass[3] = System.Linq.Expressions.Expression.Constant(handle);
-			pass[4] = System.Linq.Expressions.Expression.Constant(instances["browser"]);
+			pass[2] = Expression.Constant(eventInfo.Name);
+			pass[3] = Expression.Constant(handle);
+			pass[4] = Expression.Constant(instances["browser"]);
 
 			// Get method info of the handler we want to call
-			var methodInfo = typeof(ReflectionRequestHandler).GetMethod("dummyHandler", BindingFlags.NonPublic | BindingFlags.Instance);
+			MethodInfo methodInfo = this.GetType().GetMethod("eventHandler", BindingFlags.NonPublic | BindingFlags.Instance);
+			MethodCallExpression methodCall = Expression.Call(Expression.Constant(this), methodInfo, pass);
 
 			// Construct a delegate using a lambda expression
 			// (Object, EventArgs) => dummyHandler(Object, EventArgs, String, String, WebBrowser)
-			var lambda = System.Linq.Expressions.Expression.Lambda(eventInfo.EventHandlerType,
-					System.Linq.Expressions.Expression.Call(System.Linq.Expressions.Expression.New(typeof(ReflectionRequestHandler)), methodInfo, pass),
-					parameters).Compile();
+			var lambda = Expression.Lambda(
+				eventInfo.EventHandlerType,
+				methodCall,
+				parameters
+			).Compile();
 
 			// Hook the event to the delegate
 			eventInfo.AddEventHandler(instance, lambda);
@@ -137,39 +141,27 @@ namespace TitaniumApp.TiRequestHandlers
 			return null;
 		}
 
-		// helper to shallow parse an object to a JSON string
-		private Dictionary<string, object> parseObject(Object parseme) {
-			Dictionary<string, object> result = new Dictionary<string, object>();
-			PropertyInfo[] props = parseme.GetType().GetProperties();
-
-			for (int i = 0; i < props.Length; i++) {
-				if (props[i].CanRead != false) {
-					try {
-						var obj = props[i].GetValue(parseme);
-						if (obj != null) {
-							var type = props[i].PropertyType;
-							string val = obj.ToString();
-							string prop = props[i].ToString();
-							string[] keys = prop.Split(' ');
-							result[keys[1]] = val;
-						}
-					} catch { }
-				}
-			}
-
-			return result;
-		}
-
-		private void dummyHandler(Object sender, EventArgs e, String eventName, String handle, WebBrowser browser) {
+		private void eventHandler(Object sender, EventArgs e, String eventName, String handle, WebBrowser browser) {
 			TiResponse response = new TiResponse();
 			response["_hnd"] = handle;
 			response["type"] = eventName;
-			response["sender"] = parseObject(sender);
-			response["eventArgs"] = parseObject(e);
 
-			try {
-				browser.InvokeScript("execScript", new string[] { "tiwp8.fireEvent(" + JsonConvert.SerializeObject(response, Formatting.None) + ")" });
-			} catch { }
+			if ((uint)instanceCount + 1 > UInt32.MaxValue) {
+				throw new Exception("Reflection Handler Exception: Maximum instance count exceeded");
+			}
+
+			string senderHandle = instanceCount++.ToString();
+			instances[senderHandle] = sender;
+			response["sender"] = senderHandle;
+
+			string eventArgsHandle = instanceCount++.ToString();
+			instances[eventArgsHandle] = e;
+			response["eventArgs"] = eventArgsHandle;
+
+			browser.InvokeScript("execScript", new string[] { "tiwp8.fireEvent(" + JsonConvert.SerializeObject(response, Formatting.None) + ")" });
+
+			instances.Remove(senderHandle);
+			instances.Remove(eventArgsHandle);
 		}
 
 		private TiResponse createInstance(TiRequestParams data) {

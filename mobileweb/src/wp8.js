@@ -160,6 +160,8 @@
 				listeners = src._listeners[data.type],
 				i = 0,
 				len = listeners ? listeners.length : 0;
+			data.sender = new Handle(data.sender);
+			data.eventArgs = new Handle(data.eventArgs);
 			for (; i < len; i++) {
 				listeners[i](data);
 			}
