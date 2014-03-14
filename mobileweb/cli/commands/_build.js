@@ -182,6 +182,9 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 								return callback(new Error(__('Invalid device id: %s', value)));
 							}
 							callback(null, value);
+						},
+						verifyIfRequired: function (callback) {
+							return callback(!cli.argv['build-only']);
 						}
 					};
 
@@ -332,6 +335,8 @@ MobileWebBuilder.prototype.initialize = function initialize(next) {
 	this.appNames = {};
 	this.splashHtml = '';
 
+	this.buildOnly = this.cli.argv['build-only'];
+
 	this.logger.info(__('Reading Titanium Mobile Web package.json file'));
 	var mwPackageFile = path.join(this.platformPath, 'titanium', 'package.json');
 
@@ -356,9 +361,7 @@ MobileWebBuilder.prototype.initialize = function initialize(next) {
 		main: pkgJson.main
 	}];
 
-	if (!this.dependenciesMap) {
-		this.dependenciesMap = JSON.parse(fs.readFileSync(path.join(this.mobilewebTitaniumDir, 'dependencies.json')));
-	}
+	this.dependenciesMap = JSON.parse(fs.readFileSync(path.join(this.mobilewebTitaniumDir, 'dependencies.json')));
 
 	// read the tiapp.xml and initialize some sensible defaults
 	(function applyDefaults(dest, src) {
@@ -777,7 +780,16 @@ MobileWebBuilder.prototype.assembleTitaniumJS = function assembleTitaniumJS(next
 			);
 		}.bind(this),
 
-		// 3) copy in instrumentation if it's enabled
+		// 3) copy in the wp8 shim if building for windows phone 8
+		function (tiJS, next) {
+			if (this.target == 'wp8') {
+				next(null, tiJS + fs.readFileSync(path.join(this.platformPath, 'src', 'wp8.js')).toString() + '\n');
+			} else {
+				next(null, tiJS);
+			}
+		}.bind(this),
+
+		// 4) copy in instrumentation if it's enabled
 		function (tiJS, next) {
 			if (tiapp.mobileweb.instrumentation) {
 				next(null, tiJS + fs.readFileSync(path.join(this.platformPath, 'src', 'instrumentation.js')).toString() + '\n');
@@ -786,12 +798,12 @@ MobileWebBuilder.prototype.assembleTitaniumJS = function assembleTitaniumJS(next
 			}
 		}.bind(this),
 
-		// 4) copy in the loader
+		// 5) copy in the loader
 		function (tiJS, next) {
 			next(null, tiJS + fs.readFileSync(path.join(this.platformPath, 'src', 'loader.js')).toString() + '\n\n');
 		}.bind(this),
 
-		// 5) cache the dependencies
+		// 6) cache the dependencies
 		function (tiJS, next) {
 			var first = true,
 				requireCacheWritten = false,
@@ -895,7 +907,7 @@ MobileWebBuilder.prototype.assembleTitaniumJS = function assembleTitaniumJS(next
 			next(null, tiJS);
 		}.bind(this),
 
-		// 6) write the ti.app.properties
+		// 7) write the ti.app.properties
 		function (tiJS, next) {
 			var props = this.tiapp.properties || {};
 			this.tiapp.mobileweb.filesystem.backend && (props['ti.fs.backend'] = { type: 'string', value: this.tiapp.mobileweb.filesystem.backend });
@@ -914,7 +926,7 @@ MobileWebBuilder.prototype.assembleTitaniumJS = function assembleTitaniumJS(next
 			next(null, tiJS);
 		}.bind(this),
 
-		// 7) write require() to load all Ti modules
+		// 8) write require() to load all Ti modules
 		function (tiJS, next) {
 			this.modulesToLoad.sort();
 			this.modulesToLoad = this.modulesToLoad.concat(this.tiModulesToLoad);

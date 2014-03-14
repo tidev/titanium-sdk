@@ -1,5 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
   <DefaultLanguage xmlns="" code="en-US"/>
   <App xmlns="" ProductID="{54fd8b9d-5e82-41e8-b2db-1abaf17746ab}" Title="<%= projectDisplayName %>" RuntimeType="Silverlight" Version="<%= projectVersion %>" Genre="apps.normal"  Author="<%= author %>" Description="<%= projectDescription%>" Publisher="<%= projectName %>" PublisherID="{<%= publisherGUID %>}">
@@ -12,7 +11,7 @@
       <Capability Name="ID_CAP_WEBBROWSERCOMPONENT"/>
     </Capabilities>
     <Tasks>
-      <DefaultTask  Name ="_default" NavigationPage="MainPage.xaml"/>
+      <DefaultTask Name ="_default" NavigationPage="MainPage.xaml"/>
     </Tasks>
     <Tokens>
       <PrimaryToken TokenID="<%= projectName %>Token" TaskName="_default">
