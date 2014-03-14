@@ -4,7 +4,7 @@
 var path = require('path'),
 	fs = require('fs'),
 	uglify = require('uglify-js'),
-	sourceDir = path.resolve(path.join(__dirname,'..','..','..','mobileweb','titanium')),
+	sourceDir = path.resolve(path.join(__dirname, '..', '..', 'titanium')),
 	fileList = require('wrench').readdirSyncRecursive(sourceDir),
 	match,
 	dependencies,
