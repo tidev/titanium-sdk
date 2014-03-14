@@ -85,6 +85,11 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 	return nil;
 }
 
+-(BOOL)viewAttached
+{
+    return _listItem != nil;
+}
+
 -(UIView *)parentViewForChild:(TiViewProxy *)child
 {
 	return _listItem.contentView;

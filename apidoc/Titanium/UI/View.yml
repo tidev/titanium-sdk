@@ -1058,6 +1058,9 @@ properties:
     description: Set to `true` to enable or `false` to disable the view.
     default: Enabled by default. (Property value may be undefined.)
     type: Boolean
+    deprecated:
+        since: "3.3.0"
+        notes: This is deprecated on Android. Use [touchEnabled](Titanium.UI.View.enabled) property instead.
     platforms: [android, blackberry]
     
   - name: focusable

@@ -15,13 +15,33 @@ module.exports = new function() {
 	
 	this.name = "ui_textfield";
 	this.tests = [
-		//{name: "editableFalse"}, //due to TIMOB-15700
+		{name: "changeEvent"},
+		{name: "editableFalse"}, 
 		{name: "hasText"},
-		//{name: "hasTextInIfStatement"}, //due to TIMOB-15700
-		//{name: "focusAndBlurEvents"}, //due to TIMOB-15700
-		//{name: "setProperties"}, //due to TIMOB-15700
-		//{name: "setSelectionMethod"} //due to TIMOB-15700
+		{name: "hasTextInIfStatement"}, 
+		{name: "focusAndBlurEvents"}, 
+		{name: "setProperties"}, 
+		{name: "setSelectionMethod"} 
 	];
+
+	//TIMOB-10596
+	this.changeEvent = function(testRun){
+		var win1 = Ti.UI.createWindow({
+			title: 'Bug'
+		});
+		var focus1 = false;
+		var textField1 = Ti.UI.createTextField();
+		win1.add(textField1);
+		textField1.addEventListener('change', function() {
+			focus1 = true;  
+		});
+		setTimeout(function(){
+			valueOf(testRun, focus1).shouldBeFalse();
+
+			finish(testRun);
+		}, 3000);
+		win1.open();
+	}
 	
 	//TIMOB-877
 	this.editableFalse = function(testRun) {
@@ -52,9 +72,10 @@ module.exports = new function() {
 			finish(testRun);
 		});
 		w.add(tf);
-		w.addEventListener('focus',function(){
+		var fun = function(){
 			tf.focus();
-		});
+		}
+		w.addEventListener('focus',fun);
 		w.open();
 	}
 	
@@ -102,9 +123,10 @@ module.exports = new function() {
 			finish(testRun);
 		});
 		win.add(textField);
-		win.addEventListener('focus', function(){
+		var fun = function(){
 			textField.focus();
-		});
+		}
+		win.addEventListener('focus', fun);
 		win.open();
 	}
 			
@@ -174,11 +196,12 @@ module.exports = new function() {
 			data : data,
 		});
 		win.add(tableView);
-		win.addEventListener('focus', function(){
+		var fun = function(){
 			tf1.focus();
 			tf2.focus();
-			tf3.focus();
-		});
+			tf3.focus();	
+		}
+		win.addEventListener('focus', fun);
 		win.open();
 	}
 	
@@ -201,9 +224,10 @@ module.exports = new function() {
 			finish(testRun);
 		});
 		win.add(textField);
-		win.addEventListener('focus', function(){
+		var fun = function(){
 			textField.focus();
-		});
+		}
+		win.addEventListener('focus', fun);
 		win.open();
 	}
 	
@@ -216,7 +240,7 @@ module.exports = new function() {
 			backgroundColor :'red'
 		});
 		var win = Ti.UI.createWindow({backgroundColor: "#fff"});
-		win.addEventListener('focus', function(e) {
+		var fun = function(){
 			valueOf(testRun, function(){
 				text.setSelection(0, 4);
 			}).shouldNotThrowException();
@@ -225,7 +249,8 @@ module.exports = new function() {
 			valueOf(testRun, text.getBackgroundColor()).shouldBe('red');
 			
 			finish(testRun);
-		});
+		};
+		win.addEventListener('focus', fun);
 		win.add(text);
 		win.open();
 	}

@@ -19,6 +19,7 @@
     RELEASE_TO_NIL(_requestFilesArray);
     RELEASE_TO_NIL(_jsonData);
     RELEASE_TO_NIL(_stringData);
+    RELEASE_TO_NIL(_contentType);
     [super dealloc];
 }
 
@@ -30,6 +31,12 @@
 
 -(void)appendData:(NSData*)data
 {
+    [[self postFormData] appendData: data];
+}
+-(void)appendData:(NSData *)data withContentType:(NSString *)contentType
+{
+    RELEASE_TO_NIL(_contentType);
+    _contentType = [contentType retain];
     [[self postFormData] appendData: data];
 }
 
@@ -84,7 +91,7 @@
          
          // Content-Disposition: form-data; name="username"
          //
-         // pec1095
+         // pec1985
          // --0xTibOuNdArY
     }
 
@@ -100,8 +107,8 @@
         [self appendData:[dict valueForKey:@"fileData"]];
         [self appendStringData:[NSString stringWithFormat:@"\r\n--%@\r\n", last ? [boundry stringByAppendingString:@"--"] : boundry]];
 
-        // Content-Disposition: form-data; name="file0"; filename="image.jpg"
-        // Content-Type: application/octet-stream
+        // Content-Disposition: form-data; name="file[0]"; filename="image.jpg"
+        // Content-Type: imgae/jpeg
         //
         // [binary data]
         // --0xTibOuNdArY
@@ -112,22 +119,22 @@
 
 -(NSData*)requestData
 {
-    NSInteger fileCount = [[self requestFilesArray] count];
-    RELEASE_TO_NIL(_postFormData);
-    if(_stringData != nil) {
+    if(_postFormData != nil && _contentType != nil) {
+        [self addHeaderKey:@"Content-Type" andHeaderValue: _contentType];
+    } else if(_stringData != nil) {
         [self appendData:_stringData];
-    }
-    if(_jsonData != nil) {
-        NSString *charset = (NSString *)CFStringConvertEncodingToIANACharSetName(CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
+    } else if(_jsonData != nil) {
         [self appendData:_jsonData];
-        [self addHeaderKey:@"Content-Type" andHeaderValue:[NSString stringWithFormat: @"application/json;charset=%@", charset]];
-    } else if(fileCount == 0) {
-        [self buildStringPostData];
+        [self addHeaderKey:@"Content-Type" andHeaderValue:@"application/json;charset=utf-8"];
     } else {
-        [self buildFilePostData];
+        NSInteger fileCount = [[self requestFilesArray] count];
+        if(fileCount == 0) {
+            [self buildStringPostData];
+        } else {
+            [self buildFilePostData];
+        }
     }
-    [self addHeaderKey:@"Connection" andHeaderValue:@"close"];
-    [self addHeaderKey:@"Content-Length" andHeaderValue:[NSString stringWithFormat:@"%i", [[self postFormData] length]]];
+    [self addHeaderKey:@"Content-Length" andHeaderValue:[NSString stringWithFormat:@"%i", [_postFormData length]]];
     return [self postFormData];
 }
 -(NSMutableData*)postFormData
@@ -217,14 +224,14 @@
 -(void)addFormData:(NSData*)data
 {
     [self addFormData:data
-             fileName:[NSString stringWithFormat:@"file%i", (unsigned int)[[self requestFilesArray] count]]
+             fileName:[NSString stringWithFormat:@"file[%i]", (unsigned int)[[self requestFilesArray] count]]
      ];
 }
 -(void)addFormData:(NSData*)data fileName:(NSString*)fileName
 {
     [self addFormData: data
              fileName: fileName
-            fieldName: [NSString stringWithFormat:@"file_%i", (unsigned int)[[self requestFilesArray] count]]
+            fieldName: [NSString stringWithFormat:@"file[%i]", (unsigned int)[[self requestFilesArray] count]]
      ];
 
 }

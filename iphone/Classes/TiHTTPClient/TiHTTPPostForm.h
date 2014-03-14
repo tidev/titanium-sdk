@@ -18,9 +18,11 @@
 }
 @property(nonatomic, readonly) NSData *requestData;
 @property(nonatomic, readonly) NSDictionary *requestHeaders;
+@property(nonatomic, readonly) NSString *contentType;
 
 -(void)setJSONData:(id)json;
 -(void)setStringData:(NSString*)str;
+-(void)appendData:(NSData*)data withContentType:(NSString*)contentType;
 
 -(void)addDictionay:(NSDictionary*)dict;
 -(void)addFormKey:(NSString*)key andValue:(NSString*)value;
