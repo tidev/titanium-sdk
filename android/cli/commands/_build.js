@@ -3353,7 +3353,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				'activity': {
 					'name': 'ti.modules.titanium.media.TiVideoActivity',
 					'configChanges': ['keyboardHidden', 'orientation'],
-					'theme': '@style/Theme.AppCompat.NoTitleBar.Fullscreen',
+					'theme': '@style/Theme.AppCompat.Fullscreen',
 					'launchMode': 'singleTask'
 				}
 			},
