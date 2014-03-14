@@ -12,6 +12,10 @@
 #import "TiWindowProxy.h"
 #import <libkern/OSAtomic.h>
 
+#ifdef USE_TI_UITABLEVIEW
+#import "TiUITableViewRowProxy.h"
+#endif
+
 TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
 @implementation TiUIiPadPopoverProxy
@@ -405,6 +409,11 @@ static NSArray* popoverSequence;
 	else
 	{
 		UIView *view_ = [popoverView view];
+#ifdef USE_TI_UITABLEVIEW
+        if (view_ == nil && [popoverView isKindOfClass:[TiUITableViewRowProxy class]] && [popoverView viewAttached]) {
+            view_ = [[(TiUITableViewRowProxy*)popoverView callbackCell] contentView];
+        }
+#endif
 		if ([view_ window] == nil) {
 			// No window, so we can't display the popover...
 			DebugLog(@"[WARN] Unable to display popover; view is not attached to the current window");
