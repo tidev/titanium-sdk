@@ -1,6 +1,6 @@
-﻿using <%= projectName %>.Resources;
+﻿using TitaniumApp.Resources;
 
-namespace <%= projectName %>
+namespace TitaniumApp
 {
     /// <summary>
     /// Provides access to string resources.
