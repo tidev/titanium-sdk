@@ -56,7 +56,3 @@ var require = {
 		dom: ["", "Webkit", "Moz", "ms", "O", "Khtml"]
 	}
 };
-
-<% if (target == 'wp8') { -%>
-window.hasWP8Extensions = true;
-<% } %>
