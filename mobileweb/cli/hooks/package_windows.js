@@ -1,8 +1,13 @@
-/*
- * package_windows.js: Titanium Mobile Web CLI library for packaging in a Windows Store or Windows Phone app
+/**
+ * Packages Windows Phone 8 and Windows Store resources for Titanium Mobile Web
+ * apps.
  *
- * Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved.
- * See the LICENSE file for more information.
+ * @copyright
+ * Copyright (c) 2013-2014 by Appcelerator, Inc. All Rights Reserved.
+ *
+ * @license
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
  */
 
 var appc = require('node-appc'),

@@ -197,9 +197,6 @@
 		"Ti/Media",
 		"Ti/UI/View"
 	],
-	"Ti/MobileWeb/WP8": [
-		"Ti/_/lang"
-	],
 	"Ti/Network/HTTPClient": [
 		"Ti/_",
 		"Ti/_/declare",
@@ -438,7 +435,7 @@
 	],
 	"Ti/UI/WebView": [
 		"Ti/_/declare",
-		"Ti/_/UI/Widget",
+		"Ti/UI/View",
 		"Ti/_/dom",
 		"Ti/_/event",
 		"Ti/_/lang",

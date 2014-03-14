@@ -152,10 +152,6 @@ define(
 	// make sure we have some vendor prefixes defined
 	cfg.vendorPrefixes || (cfg.vendorPrefixes = ["", "Moz", "Webkit", "O", "ms"]);
 
-	// expose JSON functions to Ti namespace
-	Ti.parse = JSON.parse;
-	Ti.stringify = JSON.stringify;
-
 	function shutdown() {
 		if (!unloaded) {
 			unloaded = 1;

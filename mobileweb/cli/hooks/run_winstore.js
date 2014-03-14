@@ -21,17 +21,16 @@ exports.init = function (logger, config, cli) {
 
 	cli.addHook('build.post.compile', {
 		priority: 10000,
-		post: function (build, finished) {
-			if (cli.argv.target != 'winstore') {
-				finished();
-				return;
+		post: function (builder, finished) {
+			if (builder.buildOnly || cli.argv.target != 'winstore') {
+				return finished();
 			}
 
 			logger.info(__('Installing and launching the application'));
 
 			windows.detect(config, null, function (env) {
 				var powershell = config.get('windows.executables.powershell', 'powershell'),
-					tiapp = build.tiapp,
+					tiapp = builder.tiapp,
 					previousPackageFullName;
 
 				async.series([
@@ -78,7 +77,7 @@ exports.init = function (logger, config, cli) {
 						var buildType = cli.argv['deploy-type'] == 'production' ? 'Release' : 'Debug';
 
 						appc.subprocess.getRealName(path.resolve(
-							build.buildDir,
+							builder.buildDir,
 							'..',
 							'mobileweb-winstore',
 							tiapp.id,
