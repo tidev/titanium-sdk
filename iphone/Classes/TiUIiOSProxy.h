@@ -45,6 +45,10 @@ typedef enum {
 @private
 
 }
+
+@property (nonatomic,readonly) NSNumber* SCROLL_DECELERATION_RATE_NORMAL;
+@property (nonatomic,readonly) NSNumber* SCROLL_DECELERATION_RATE_FAST;
+
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE;

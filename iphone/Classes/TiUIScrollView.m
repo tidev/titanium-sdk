@@ -269,6 +269,12 @@
     
 }
 
+-(void)setDecelerationRate_:(id)value
+{
+	[self.proxy replaceValue:value forKey:@"decelerationRate" notification:NO];
+	[[self scrollView] setDecelerationRate:[TiUtils floatValue:value def:UIScrollViewDecelerationRateNormal]];
+}
+
 -(void)setContentWidth_:(id)value
 {
 	contentWidth = [TiUtils dimensionValue:value];
