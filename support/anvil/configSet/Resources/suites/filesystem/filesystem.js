@@ -691,9 +691,6 @@ module.exports = new function() {
 	//TIMOB-6080
 	this.jssErrorDialog = function(testRun) {
 		valueOf(testRun, function() {
-			var stream1 = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
-			var stream2 = Ti.Filesystem.openStream(Ti.Filesystem.MODE_APPEND, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
-			var resourceFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
 			resourceFileStream.close();
 		}).shouldThrowException();
 
