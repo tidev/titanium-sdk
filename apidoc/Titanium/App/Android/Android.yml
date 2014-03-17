@@ -18,12 +18,14 @@ properties:
     summary: |
         The version number of the application. 
     type: Number
+    permission: read-only
     since: 3.3.0
     
   - name: appVersionName
     summary: |
         The version name of the application. 
     type: String
+    permission: read-only
     since: 3.3.0
 
 examples:
