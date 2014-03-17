@@ -9,7 +9,6 @@
 
 @interface TiNetworkCookieProxy : TiProxy
 {
-    NSHTTPCookie *_cookie;
     NSMutableDictionary *_cookieDict;
 }
 

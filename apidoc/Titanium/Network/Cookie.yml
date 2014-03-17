@@ -9,11 +9,14 @@ platforms: [android, iphone, ipad]
 
 methods:
   - name: isValid
-    summary: Creates a temporary cookie to verify that it is valid.
+    summary: Returns true if the cookie is valid.
+    description: |
+        This method checks wheather the cookie is valid. For a cookie to be valid the
+        minimum properties requiered are `domain`, `name`, `value`, and `path`
     platforms: [iphone, ipad]
     since: "3.3.0"
     returns:
-        type: String
+        type: Boolean
 
 properties:
   - name: comment
@@ -47,8 +50,6 @@ properties:
   - name: originalUrl
     summary: The origual url attribute of the cookie.
     type: String
-    permission: read-only
-    availability: creation
     platforms: [iphone, ipad]
     since: "3.3.0"
 

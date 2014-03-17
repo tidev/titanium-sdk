@@ -25,7 +25,6 @@
 
 -(void)dealloc
 {
-    RELEASE_TO_NIL(_cookie);
     RELEASE_TO_NIL(_cookieDict);
     [super dealloc];
 }
@@ -33,52 +32,37 @@
 {
     if(self = [super _initWithPageContext:context])
     {
-        _cookie = [cookie retain];
+        for(NSString *key in [cookie properties])
+        {
+            [[self cookieDict] setValue:[[cookie properties] valueForKey:key] forKey:key];
+        }
     }
     return self;
 }
-
--(NSMutableDictionary *)cookieDictionary
+-(NSMutableDictionary *)cookieDict
 {
     if(_cookieDict == nil) {
         _cookieDict = [[NSMutableDictionary alloc] init];
     }
     return _cookieDict;
 }
-
--(NSDictionary*)mergeDictionaryWithCookie
+-(void)setCookieValue:(id)value forKey:(NSString*)key
 {
-    // Check if we have a real cookie, otherwise return the custom cookie
-    if(_cookie == nil) {
-        return [self cookieDictionary];
+    if(value == nil || [value isEqual:[NSNull null]]) {
+        [[self cookieDict] removeObjectForKey:key];
+    } else {
+        [[self cookieDict] setObject:value forKey:key];
     }
-    // Get the cookie's dictionary and replace whatever value we have set.
-    NSMutableDictionary *dict = [[_cookie properties] mutableCopy];
-    for(NSString* key in [self cookieDictionary])
-    {
-        [dict setValue:[[self cookieDictionary] valueForKey:key] forKey:key];
-    }
-    return [dict autorelease];
 }
 
 -(id)cookieValue:(NSString*)val
 {
-    // In case we are creating a new cookie, get the values from the custom cookie dictionary
-    if(_cookieDict != nil && [_cookieDict valueForKey:val]) {
-        return [_cookieDict valueForKey:val];
-    }
-    // If the above is not available, try to get the value of the real cookie
-    if(_cookie != nil) {
-        return [[_cookie properties] valueForKey:val];
-    }
-    // Meh... fail
-    return nil;
+    return [[self cookieDict] valueForKey:val];
 }
 
 -(NSHTTPCookie*)newCookie
 {
-    NSDictionary *dict = [self mergeDictionaryWithCookie];
-    return [NSHTTPCookie cookieWithProperties:dict];
+    return [NSHTTPCookie cookieWithProperties: [self cookieDict]];
 }
 
 -(NSString*)apiName
@@ -96,7 +80,7 @@
 }
 - (void)setName:(id)args
 {
-    [[self cookieDictionary] setValue:[TiUtils stringValue:args] forKeyPath:NSHTTPCookieName];
+    [self setCookieValue:args forKey:NSHTTPCookieName];
 }
 - (NSString*)comment
 {
@@ -104,8 +88,7 @@
 }
 - (void)setComment:(id)args
 {
-    [[self cookieDictionary] setValue:[TiUtils stringValue:args] forKeyPath:NSHTTPCookieComment];
-
+    [self setCookieValue:args forKey:NSHTTPCookieComment];
 }
 - (NSString*)domain
 {
@@ -113,8 +96,7 @@
 }
 - (void)setDomain:(id)args
 {
-    [[self cookieDictionary] setValue:[TiUtils stringValue:args] forKeyPath:NSHTTPCookieDomain];
-
+    [self setCookieValue:args forKey:NSHTTPCookieDomain];
 }
 - (NSDate*)expiryDate
 {
@@ -123,8 +105,15 @@
 }
 - (void)setExpiryDate:(id)args
 {
-    NSDate *date = (NSDate*)args;
-    [[self cookieDictionary] setValue:date forKeyPath:NSHTTPCookieExpires];
+    NSDate *date;
+    if([args isKindOfClass:[NSDate class]]) {
+        date = (NSDate*)args;
+    } else {
+        NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+        [dateFormat setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000"];
+        date = [dateFormat dateFromString:[TiUtils stringValue:args]];
+    }
+    [self setCookieValue:date forKey:NSHTTPCookieExpires];
 }
 - (NSString*)path
 {
@@ -132,8 +121,7 @@
 }
 - (void)setPath:(id)args
 {
-    [[self cookieDictionary] setValue:[TiUtils stringValue:args] forKeyPath:NSHTTPCookiePath];
-
+    [self setCookieValue:args forKey:NSHTTPCookiePath];
 }
 - (NSString*)value
 {
@@ -141,14 +129,15 @@
 }
 - (void)setValue:(id)args
 {
-    [[self cookieDictionary] setValue:[TiUtils stringValue:args] forKeyPath:NSHTTPCookieValue];
+    [self setCookieValue:args forKey:NSHTTPCookieValue];
 }
 - (NSNumber*)httponly
 {
-    if(_cookie == nil) {
-        return nil;
-    }
-    return NUMBOOL([_cookie isHTTPOnly]);
+    return NUMBOOL([[self newCookie] isHTTPOnly]);
+}
+-(void)setHttponly:(id)args
+{
+    // not used
 }
 - (NSNumber*)secure
 {
@@ -157,8 +146,8 @@
 - (void)setSecure:(id)args
 {
     BOOL v = [TiUtils boolValue:args def:NO];
-    NSString* val = v ? @"1" : @"0";
-    [[self cookieDictionary] setValue:val forKeyPath:NSHTTPCookieSecure];
+    NSString* val = v ? @"TRUE" : nil;
+    [self setCookieValue:val forKey:NSHTTPCookieSecure];
 }
 - (NSString*)version
 {
@@ -166,18 +155,16 @@
 }
 - (void)setVersion:(id)args
 {
-    id a = [TiUtils stringValue:args];
-    [[self cookieDictionary] setValue:a forKeyPath:NSHTTPCookieVersion];
+    id str = [TiUtils stringValue:args];
+    [self setCookieValue:str forKey:NSHTTPCookieVersion];
 }
-
-- (void)setOriginalUrl:(id)args
-{
-    [[self cookieDictionary] setValue:[TiUtils stringValue:args] forKeyPath:NSHTTPCookieOriginURL];
-}
-
 - (NSString*)originalUrl
 {
     return [self cookieValue: NSHTTPCookieOriginURL];
+}
+- (void)setOriginalUrl:(id)args
+{
+    [self setCookieValue:args forKey:NSHTTPCookieOriginURL];
 }
 
 @end
