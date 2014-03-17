@@ -112,7 +112,22 @@ events:
             the result of scrolling momentum.
         type: Boolean
         platforms: [iphone, ipad, mobileweb, tizen]
-        
+
+      - name: zooming
+        summary: |
+            Indicates whether the event was fired during a zooming operation. This is only available
+            from Release 3.2.3 of the Titanium Mobile SDK.
+        type: Boolean
+        platforms: [iphone, ipad]
+
+      - name: curZoomScale
+        summary: |
+            The current scaling factor of the scroll view content. This might not be equal to 
+            the `zoomScale` property or be within the range specified by `minZoomScale` and `maxZoomScale`.
+            This is only available from Release 3.2.3 of the Titanium Mobile SDK.
+        type: Number
+        platforms: [iphone, ipad]
+
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
