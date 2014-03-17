@@ -74,9 +74,9 @@
 
 -(void)send
 {
-	if([self filePath]) {
-		[_response setFilePath:[self filePath]];
-	}
+    if([self filePath]) {
+        [_response setFilePath:[self filePath]];
+    }
     if([self postForm] != nil) {
         NSData *data = [[self postForm] requestData];
         if([data length] > 0) {
