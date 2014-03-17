@@ -25,6 +25,7 @@
     RELEASE_TO_NIL(_connectionType);
     RELEASE_TO_NIL(_headers);
     RELEASE_TO_NIL(_error);
+    RELEASE_TO_NIL(_filePath);
     
     [super dealloc];
 }
@@ -50,20 +51,53 @@
 
 -(void)appendData:(NSData *)data
 {
-    if(_data == nil) {
-        _data = [[NSMutableData alloc] init];
+    if([self saveToFile]) {
+        NSFileHandle *fileHandle = [NSFileHandle fileHandleForUpdatingAtPath:[self filePath]];
+        [fileHandle seekToEndOfFile];
+        [fileHandle writeData:data];
+        [fileHandle closeFile];
+    } else {
+        if(_data == nil) {
+            _data = [[NSMutableData alloc] init];
+        }
+        [_data appendData:data];
     }
-    [_data appendData:data];
 }
 
+-(void)setFilePath:(NSString *)filePath
+{
+    RELEASE_TO_NIL(_filePath);
+    _filePath = [filePath retain];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if (![fileManager fileExistsAtPath:filePath]) {
+        BOOL created = [fileManager createFileAtPath:filePath contents:nil attributes:nil];
+        [self setSaveToFile: created];
+    } else {
+        BOOL deleted = [fileManager removeItemAtPath:filePath error:nil];
+        if(deleted) {
+            [self setFilePath:filePath];
+        }
+    }
+}
 -(NSData *)responseData
 {
+    if([self saveToFile]) {
+        RELEASE_TO_NIL(_data);
+        _data = [[[NSFileManager defaultManager] contentsAtPath:[self filePath]] mutableCopy];
+    }
     if(_data == nil) {
         return nil;
     }
     return [[_data copy] autorelease];
 }
-
+-(NSInteger)responseLength
+{
+    if([self saveToFile])
+    {
+        return [[[NSFileManager defaultManager] attributesOfItemAtPath:[self filePath] error:nil] fileSize];
+    }
+    return [[self responseData] length];
+}
 -(id)jsonResponse
 {
     if([self responseData] == nil) return nil;
@@ -77,14 +111,13 @@
     }
     return json;
 }
-
 -(NSString*)responseString
 {
     if([self error] != nil) {
         DeveloperLog(@"%s", __PRETTY_FUNCTION__);
         return [[self error] localizedDescription];
     }
-    if([self responseData] == nil || [[self responseData] length] == 0) return nil;
+    if([self responseData] == nil || [self responseLength] == 0) return nil;
     NSData *data =  [self responseData];
     NSString * result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:[self encoding]] autorelease];
     if (result==nil) {
@@ -98,11 +131,10 @@
         } else {
             result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:NSISOLatin1StringEncoding] autorelease];
         }
-			
+            
     }
     return result;
 }
-
 -(NSDictionary*)responseDictionary
 {
     id json = [self jsonResponse];

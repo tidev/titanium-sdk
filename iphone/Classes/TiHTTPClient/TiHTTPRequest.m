@@ -74,6 +74,9 @@
 
 -(void)send
 {
+	if([self filePath]) {
+		[_response setFilePath:[self filePath]];
+	}
     if([self postForm] != nil) {
         NSData *data = [[self postForm] requestData];
         if([data length] > 0) {
@@ -247,7 +250,7 @@
         }
     }
     [_response appendData:data];
-    [_response setDownloadProgress: (float)[[_response responseData] length] / (float)_expectedDownloadResponseLength];
+    [_response setDownloadProgress: (float)[_response responseLength] / (float)_expectedDownloadResponseLength];
     if([_delegate respondsToSelector:@selector(tiRequest:onDataStream:)]) {
         [_delegate tiRequest:self onDataStream:_response];
     }
@@ -291,14 +294,6 @@
     if([_delegate respondsToSelector:@selector(tiRequest:onLoad:)]) {
         [_delegate tiRequest:self onLoad:_response];
     }
-    if([self filePath] != nil) {
-        NSError *error = nil;
-        [[_response responseData] writeToFile:[self filePath] options:NSDataWritingAtomic error:&error];
-        if(error != nil) {
-            DeveloperLog(@"Could not save to file %@ - Error is %@", [self filePath], [error localizedDescription]);
-        }
-    }
-
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
