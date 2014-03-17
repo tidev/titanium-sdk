@@ -13,8 +13,10 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
@@ -298,6 +300,19 @@ public class AndroidModule extends KrollModule
 			r = new RProxy(RProxy.RESOURCE_TYPE_ANDROID);
 		}
 		return r;
+	}
+	
+	@Kroll.method
+	public ActivityProxy getRootActivity()
+	{
+		TiApplication app = TiApplication.getInstance();
+		if (app != null) {
+			TiBaseActivity rootActivity = app.getRootActivity();
+			if (rootActivity != null) {
+				return rootActivity.getActivityProxy();
+			}
+		}
+		return null;
 	}
 
 	@Kroll.method
