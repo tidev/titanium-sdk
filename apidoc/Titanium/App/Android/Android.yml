@@ -14,23 +14,29 @@ properties:
     type: Titanium.App.Android.R
     permission: read-only
 
-examples:
-  - title: Custom String Resource
-    example: |
+    examples:
+      - title: Custom String Resource
+        example: |
         
-        Custom Android resources may be placed in `platform/android` in the project root.  
-        For example, to utilize a custom localization file, create and populate 
-        `platform/android/res/values/mystrings.xml` with the following data.
+            Custom Android resources may be placed in `platform/android` in the project root.  
+            For example, to utilize a custom localization file, create and populate 
+            `platform/android/res/values/mystrings.xml` with the following data.
         
-            <?xml version="1.0" encoding="utf-8"?>
-            <resources>
-                <string name="mystring">testing 1 2 3</string>
-            </resources>
+              <?xml version="1.0" encoding="utf-8"?>
+              <resources>
+                  <string name="mystring">testing 1 2 3</string>
+              </resources>
         
-        In Javascript, this can be accessed as follows.
+            In Javascript, this can be accessed as follows.
     
-            var activity = Ti.Android.currentActivity;
-            var R = Ti.App.Android.R;
+              var activity = Ti.Android.currentActivity;
+              var R = Ti.App.Android.R;
             
-            var mystring = activity.getString(R.string.mystring);
-            Ti.API.debug("mystring = " + mystring);
+              var mystring = activity.getString(R.string.mystring);
+               Ti.API.debug("mystring = " + mystring);
+
+  - name: LaunchIntent
+    summary: Return the intent that was used to launch the application.
+    type: Titanium.Android.Intent
+    permission: read-only
+    since: "3.3.0"
