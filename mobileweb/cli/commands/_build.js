@@ -220,6 +220,18 @@ MobileWebBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.target = cli.argv.target;
 	this.deployType = cli.argv['deploy-type'];
 
+	switch (this.deployType) {
+		case 'production':
+			this.minifyJS = true;
+			this.enableLogging = false;
+			break;
+
+		case 'development':
+		default:
+			this.minifyJS = false;
+			this.enableLogging = true;
+	}
+
 	// TODO: validate modules here
 };
 
@@ -409,9 +421,6 @@ MobileWebBuilder.prototype.initialize = function initialize(next) {
 		process.exit(1);
 	}
 	this.logger.debug(__('Using %s theme', this.theme.cyan));
-
-	var mwBuildSettings = this.tiapp.mobileweb.build[this.deployType];
-	this.minifyJS = mwBuildSettings && mwBuildSettings.js ? !!mwBuildSettings.js.minify : this.deployType == 'production';
 
 	// Note: code processor is a pre-compile hook
 	this.codeProcessor = this.cli.codeProcessor;

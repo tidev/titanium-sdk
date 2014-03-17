@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
@@ -13,16 +14,46 @@ namespace TitaniumApp
 	{
 		private Dictionary<string, IRequestHandler> requestHandlers = new Dictionary<string, IRequestHandler>();
 		private XHRProxy xhrProxy;
+		public TiSettings settings = new TiSettings();
 
 		// Constructor
 		public MainPage() {
 			InitializeComponent();
+
+			initTiSettings();
+
+			Logger.init(settings);
 
 			requestHandlers["file"] = new FileRequestHandler();
 			requestHandlers["log"]  = new LogRequestHandler();
 			requestHandlers["reflection"] = new ReflectionRequestHandler(app, browser, root);
 
 			xhrProxy = new XHRProxy(9999);
+		}
+
+		void initTiSettings() {
+			string tiAppSettingsFile = "titanium_settings.ini";
+			if (File.Exists(tiAppSettingsFile)) {
+				StreamReader sr = new StreamReader(tiAppSettingsFile);
+				string line, key, value;
+				int p;
+				while (true) {
+					line = sr.ReadLine();
+					if (line == null) {
+						break;
+					}
+
+					line = line.Trim();
+					if (line.Length > 0 && !line.StartsWith("#") && !line.StartsWith(";")) {
+						p = line.IndexOf('=');
+						if (p != -1) {
+							key = line.Substring(0, p).Trim();
+							value = line.Substring(p + 1).Trim();
+							settings[key] = value;
+						}
+					}
+				}
+			}
 		}
 
 		protected override void OnNavigatedTo(NavigationEventArgs e) {

@@ -12,8 +12,10 @@
 
 var appc = require('node-appc'),
 	async = require('async'),
+	crypto = require('crypto'),
 	ejs = require('ejs'),
 	fs = require('fs'),
+	os = require('os'),
 	path = require('path'),
 	spawn = require('child_process').spawn,
 	uuid = require('node-uuid'),
@@ -38,13 +40,22 @@ exports.init = function (logger, config, cli) {
 		}
 	});
 
+	cli.on('build.pre.compile', function(builder, finished) {
+		var session = appc.auth.status();
+		builder.logToken = '';
+		if (builder.enableLogging) {
+			builder.logToken = crypto.createHash('md5').update((session.loggedIn && session.email || '') + ':' + os.hostname()).digest('hex');
+		}
+		finished();
+	});
+
 	cli.on('build.post.compile', {
 		priority: 8000,
-		post: function (build, finished) {
+		post: function (builder, finished) {
 			var target = cli.argv.target,
-				tiapp = build.tiapp,
+				tiapp = builder.tiapp,
 				displayName = target == 'wp8' ? __('Windows Phone 8') : __('Windows Store'),
-				certificatePathRoot = path.join(build.projectDir, tiapp.name + '_WindowsCodeSigningCert');
+				certificatePathRoot = path.join(builder.projectDir, tiapp.name + '_WindowsCodeSigningCert');
 
 			if (process.platform != 'win32' || target != 'winstore' && target != 'wp8') {
 				finished();
@@ -157,7 +168,7 @@ exports.init = function (logger, config, cli) {
 				}
 
 				function packageApp() {
-					var source = path.resolve(build.buildDir),
+					var source = path.resolve(builder.buildDir),
 						destination = path.resolve(source, '..', 'mobileweb-' + target),
 						version = tiapp.version,
 						templateData = {
@@ -174,6 +185,7 @@ exports.init = function (logger, config, cli) {
 							publisherGUID: cli.argv['wp8-publisher-guid'],
 							company: 'not specified', // Hopefully we can support this some day
 							copyright: tiapp.copyright || ('Copyright © ' + new Date().getFullYear()),
+							logToken: builder.logToken,
 
 							// windows store specific
 							visualStudioVersion: env.visualStudioVersion,
@@ -189,11 +201,7 @@ exports.init = function (logger, config, cli) {
 						templateFiles = [
 							'{{ProjectName}}.sln',
 							path.join('{{ProjectName}}', '{{ProjectName}}.csproj'),
-							path.join('{{ProjectName}}', 'MainPage.xaml'),
-							path.join('{{ProjectName}}', 'MainPage.xaml.cs'),
-							path.join('{{ProjectName}}', 'LocalizedStrings.cs'),
-							path.join('{{ProjectName}}', 'App.xaml'),
-							path.join('{{ProjectName}}', 'App.xaml.cs'),
+							path.join('{{ProjectName}}', 'titanium_settings.ini'),
 							path.join('{{ProjectName}}', 'Resources', 'AppResources.Designer.cs'),
 							path.join('{{ProjectName}}', 'Properties', 'AssemblyInfo.cs'),
 							path.join('{{ProjectName}}', 'Properties', 'WMAppManifest.xml')
