@@ -75,6 +75,16 @@
     return @"Ti.UI.iOS";
 }
 
+-(NSNumber*)SCROLL_DECELERATION_RATE_NORMAL
+{
+    return NUMFLOAT(UIScrollViewDecelerationRateNormal);
+}
+
+-(NSNumber*)SCROLL_DECELERATION_RATE_FAST
+{
+    return NUMFLOAT(UIScrollViewDecelerationRateFast);
+}
+
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 MAKE_SYSTEM_PROP(ATTRIBUTE_FONT, AttributeNameFont);
 MAKE_SYSTEM_PROP(ATTRIBUTE_PARAGRAPH_STYLE, AttributeNameParagraphStyle);
