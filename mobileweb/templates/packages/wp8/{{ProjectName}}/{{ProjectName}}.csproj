@@ -111,6 +111,7 @@
       <DependentUpon>AppResources.resx</DependentUpon>
     </Compile>
     <Compile Include="TiResponse.cs" />
+    <Compile Include="TiSettings.cs" />
     <Compile Include="XHRProxy.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -125,11 +126,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\mime.types">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="titanium_settings.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>

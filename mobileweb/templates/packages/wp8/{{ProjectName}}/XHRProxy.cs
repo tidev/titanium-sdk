@@ -339,11 +339,15 @@ namespace TitaniumApp
 									// check if we have an expired or self-signed cert
 									if (ex.Status == WebExceptionStatus.UnknownError) {
 										if (ex.Response.Headers.Count == 0) {
+											Logger.log("XHRProxy", "Invalid SSL certificate, returning a 400 Bad Request");
 											requestError(writer, socket, "400 Bad Request", "Invalid SSL certificate");
 										} else {
+											Logger.log("XHRProxy", "File not found, returning a 404");
 											requestError(writer, socket, "404 File Not Found", "File Not Found");
 										}
 									} else {
+										Logger.log("XHRProxy", "400 Bad Request");
+										Logger.log("XHRProxy", ex.Status.ToString());
 										requestError(writer, socket, "400 Bad Request", ex.Status.ToString());
 									}
 									return;
@@ -368,7 +372,7 @@ namespace TitaniumApp
 			List<string> tmp = new List<string>();
 			string segment = "";
 			string lastSegment = "";
-			
+
 			for (i = 0; i < parts.Length; i++) {
 				segment = parts[i];
 				if (segment == ".." && tmp.Count > 0 && lastSegment != "..") {
