@@ -220,7 +220,8 @@ properties:
     description: |
         Use one of <Titanium.UI.iOS.SCROLL_DECELERATION_RATE_FAST> or <Titanium.UI.iOS.SCROLL_DECELERATION_RATE_NORMAL> 
         constants to control deceleration rate of ScrollView.
-    type: [Number]
+    type: Number
+    default: Undefined.
     platforms: [iphone, ipad]
     since: "3.2.3"
     
