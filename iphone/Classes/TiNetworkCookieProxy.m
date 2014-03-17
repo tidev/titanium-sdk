@@ -92,7 +92,7 @@
 }
 -(NSString*)name
 {
-	return [self cookieValue: NSHTTPCookieName];
+    return [self cookieValue: NSHTTPCookieName];
 }
 - (void)setName:(id)args
 {
@@ -100,7 +100,7 @@
 }
 - (NSString*)comment
 {
-	return [self cookieValue: NSHTTPCookieComment];
+    return [self cookieValue: NSHTTPCookieComment];
 }
 - (void)setComment:(id)args
 {
@@ -109,7 +109,7 @@
 }
 - (NSString*)domain
 {
-	return [self cookieValue: NSHTTPCookieDomain];
+    return [self cookieValue: NSHTTPCookieDomain];
 }
 - (void)setDomain:(id)args
 {
@@ -118,16 +118,17 @@
 }
 - (NSDate*)expiryDate
 {
-	return [self cookieValue: NSHTTPCookieExpires];
+    id a = [self cookieValue: NSHTTPCookieExpires];
+    return a;
 }
 - (void)setExpiryDate:(id)args
 {
-    [[self cookieDictionary] setValue:[TiUtils dateForUTCDate:args] forKeyPath:NSHTTPCookieExpires];
-
+    NSDate *date = (NSDate*)args;
+    [[self cookieDictionary] setValue:date forKeyPath:NSHTTPCookieExpires];
 }
 - (NSString*)path
 {
-	return [self cookieValue: NSHTTPCookiePath];
+    return [self cookieValue: NSHTTPCookiePath];
 }
 - (void)setPath:(id)args
 {
@@ -136,7 +137,7 @@
 }
 - (NSString*)value
 {
-	return [self cookieValue: NSHTTPCookieValue];
+    return [self cookieValue: NSHTTPCookieValue];
 }
 - (void)setValue:(id)args
 {
@@ -147,11 +148,11 @@
     if(_cookie == nil) {
         return nil;
     }
-	return NUMBOOL([_cookie isHTTPOnly]);
+    return NUMBOOL([_cookie isHTTPOnly]);
 }
 - (NSNumber*)secure
 {
-	return NUMBOOL([self cookieValue: NSHTTPCookieSecure]);
+    return NUMBOOL([self cookieValue: NSHTTPCookieSecure]);
 }
 - (void)setSecure:(id)args
 {
@@ -159,13 +160,14 @@
     NSString* val = v ? @"1" : @"0";
     [[self cookieDictionary] setValue:val forKeyPath:NSHTTPCookieSecure];
 }
-- (NSNumber*)version
+- (NSString*)version
 {
-	return NUMINT([self cookieValue: NSHTTPCookieVersion]);
+    return [self cookieValue: NSHTTPCookieVersion];
 }
 - (void)setVersion:(id)args
 {
-    [[self cookieDictionary] setValue:[TiUtils stringValue:args] forKeyPath:NSHTTPCookieVersion];
+    id a = [TiUtils stringValue:args];
+    [[self cookieDictionary] setValue:a forKeyPath:NSHTTPCookieVersion];
 }
 
 - (void)setOriginalUrl:(id)args
@@ -175,7 +177,7 @@
 
 - (NSString*)originalUrl
 {
-	return [self cookieValue: NSHTTPCookieOriginURL];
+    return [self cookieValue: NSHTTPCookieOriginURL];
 }
 
 @end
