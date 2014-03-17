@@ -3,19 +3,23 @@
 	 * console shim
 	 */
 	var objToString = Object.prototype.toString,
-		console = global.console = {
-			log: function () {
-				sendRequest('log', {
-					message: Array.prototype.slice.call(arguments).map(function (it) {
-						return it === void 0 ? 'undefined' : it === null ? 'null' : Array.isArray(it) ? JSON.stringify(it.map(function (f) {
-							return typeof f == 'function' ? f.toString() : f;
-						})) : objToString.call(it) == '[object Object]' ? JSON.stringify(it) : it;
-					}).join(' ')
-				});
-			}
-		},
+		console = global.console = {},
 		requests = {},
 		handles = {};
+
+	function log() {
+		sendRequest('log', {
+			message: Array.prototype.slice.call(arguments).map(function (it) {
+				return it === void 0 ? 'undefined' : it === null ? 'null' : Array.isArray(it) ? JSON.stringify(it.map(function (f) {
+					return typeof f == 'function' ? f.toString() : f;
+				})) : objToString.call(it) == '[object Object]' ? JSON.stringify(it) : it;
+			}).join(' ')
+		});
+	}
+
+	['log', 'debug', 'info', 'warn', 'error'].forEach(function (level) {
+		console[level] = log;
+	});
 
 	function processResponse(data) {
 		var tmp = data.primitiveValue;
@@ -28,11 +32,19 @@
 		var token = '' + Math.round(Math.random() * 1e9).toString(16),
 			tmp;
 		requests[token] = callback;
-		global.external.notify(JSON.stringify({
-			type: type,
-			token: token,
-			data: data
-		}));
+
+		// window.external.notify() is real finicky, so we have to wrap it in a function
+		// otherwise the code minifier will optimize it by putting it in the middle of
+		// a comma-separated list of instructions and it freaks out at run time with a
+		// "Object doesn't support this action" error. Sigh.
+		(function () {
+			global.external.notify(JSON.stringify({
+				type: type,
+				token: token,
+				data: data
+			}));
+		}());
+
 		tmp = requests[token];
 		delete requests[token];
 		if (tmp instanceof Error && type != 'log') {
