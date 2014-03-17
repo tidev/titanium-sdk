@@ -229,6 +229,16 @@ properties:
         While `auto` and absolute dimensions are supported, relative values, such as those provided 
         in percentages, are not. The minimum value for contentWidth is the width of the scroll view.
     type: [Number, String]
+
+  - name: decelerationRate
+    summary: The deceleration rate of the ScrollView.
+    description: |
+        Use one of <Titanium.UI.iOS.SCROLL_DECELERATION_RATE_FAST> or <Titanium.UI.iOS.SCROLL_DECELERATION_RATE_NORMAL> 
+        constants to control deceleration rate of ScrollView.
+    type: Number
+    default: Undefined.
+    platforms: [iphone, ipad]
+    since: "3.2.3"
     
   - name: disableBounce
     summary: Determines whether scroll bounce of the scrollable region is enabled.

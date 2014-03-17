@@ -866,6 +866,20 @@ properties:
     since: "3.2.0"
     osver: {ios: {min: "7.0"}}
 
+  - name: SCROLL_DECELERATION_RATE_FAST
+    summary: |
+        Use with <Titanium.UI.ScrollView.decelerationRate> to control deceleration rate.
+    type: Number
+    permission: read-only
+    since: "3.2.3"
+    
+  - name: SCROLL_DECELERATION_RATE_NORMAL
+    summary: |
+        Use with <Titanium.UI.ScrollView.decelerationRate> to control deceleration rate.
+    type: Number
+    permission: read-only
+    since: "3.2.3"
+
   - name: WEBVIEW_NAVIGATIONTYPE_LINK_CLICKED
     summary: User tapped a link.
     description: |
