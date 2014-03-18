@@ -69,22 +69,33 @@
     RELEASE_TO_NIL(_filePath);
     _filePath = [filePath retain];
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    if (![fileManager fileExistsAtPath:filePath]) {
-        BOOL created = [fileManager createFileAtPath:filePath contents:nil attributes:nil];
-        [self setSaveToFile: created];
-    } else {
-        BOOL deleted = [fileManager removeItemAtPath:filePath error:nil];
-        if(deleted) {
-            [self setFilePath:filePath];
+    
+    BOOL isWritable = NO;
+    BOOL isDirectory = NO;
+    BOOL fileExists = [fileManager fileExistsAtPath:filePath isDirectory:&isDirectory];
+    if(isDirectory) {
+        DebugLog(@"[ERROR] %@ is directory, ignoring", filePath); // file path
+        return;
+    }
+    if(fileExists) {
+        isWritable = [fileManager isWritableFileAtPath:filePath];
+        if(!isWritable) {
+            DebugLog(@"[ERROR] %@ is not writable, ignoring", filePath);
+            return;
+        }
+        DebugLog(@"[WARN] %@ already exists, replacing", filePath);
+        NSError *deleteError = nil;
+        [fileManager removeItemAtPath:filePath error:&deleteError];
+        if(deleteError != nil) {
+            DebugLog(@"[WARN] Cannot delete %@, error was %@", filePath, [deleteError localizedDescription]);
+            return;
         }
     }
+    isWritable = [fileManager createFileAtPath:filePath contents:nil attributes:nil];
+    [self setSaveToFile: isWritable];
 }
 -(NSData *)responseData
 {
-    if([self saveToFile]) {
-        RELEASE_TO_NIL(_data);
-        _data = [[[NSFileManager defaultManager] contentsAtPath:[self filePath]] mutableCopy];
-    }
     if(_data == nil) {
         return nil;
     }
