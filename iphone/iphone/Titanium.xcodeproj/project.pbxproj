@@ -607,6 +607,9 @@
 		B610BB071899D15B00B178C3 /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B610BB061899D15B00B178C3 /* TiNetworkHTTPClientProxy.m */; };
 		B610BB081899D15B00B178C3 /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B610BB061899D15B00B178C3 /* TiNetworkHTTPClientProxy.m */; };
 		B610BB091899D15B00B178C3 /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B610BB061899D15B00B178C3 /* TiNetworkHTTPClientProxy.m */; };
+		B6465C2318D1011C003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
+		B6465C2418D10126003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
+		B6465C2518D10126003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
 		B6965E5318CF830B00CB0BE8 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B6965E5218CF830B00CB0BE8 /* Reachability.m */; };
 		B6965E5418CF830B00CB0BE8 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B6965E5218CF830B00CB0BE8 /* Reachability.m */; };
 		B6965E5518CF830B00CB0BE8 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B6965E5218CF830B00CB0BE8 /* Reachability.m */; };
@@ -1484,6 +1487,8 @@
 		B610BB041899CE9E00B178C3 /* TiHTTPClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiHTTPClient.h; sourceTree = "<group>"; };
 		B610BB051899D15B00B178C3 /* TiNetworkHTTPClientProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiNetworkHTTPClientProxy.h; path = TiHTTPClient/TiNetworkHTTPClientProxy.h; sourceTree = "<group>"; };
 		B610BB061899D15B00B178C3 /* TiNetworkHTTPClientProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiNetworkHTTPClientProxy.m; path = TiHTTPClient/TiNetworkHTTPClientProxy.m; sourceTree = "<group>"; };
+		B6465C2118D1011C003C51A8 /* TiNetworkCookieProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkCookieProxy.h; sourceTree = "<group>"; };
+		B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkCookieProxy.m; sourceTree = "<group>"; };
 		B6965E5118CF830B00CB0BE8 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		B6965E5218CF830B00CB0BE8 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTransitionAnimationProxy.h; sourceTree = "<group>"; };
@@ -2122,6 +2127,8 @@
 				248133A2115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m */,
 				248133A3115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.h */,
 				248133A4115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m */,
+				B6465C2118D1011C003C51A8 /* TiNetworkCookieProxy.h */,
+				B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */,
 				248133A5115761DE00E3A9BA /* TiNetworkTCPSocketProxy.h */,
 				248133A6115761DE00E3A9BA /* TiNetworkTCPSocketProxy.m */,
 				24CA8B00111161FE0084E2DE /* NetworkModule.m */,
@@ -3442,6 +3449,7 @@
 				84D541A31460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */,
 				84D541A81460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */,
 				84D541AD1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */,
+				B6465C2318D1011C003C51A8 /* TiNetworkCookieProxy.m in Sources */,
 				2BDEA4F31448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */,
 				844E1F7E14883A3700F5424C /* TiDOMValidator.m in Sources */,
 				DAA72343156D642400757987 /* TiConsole.m in Sources */,
@@ -3725,6 +3733,7 @@
 				84D541A41460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */,
 				84D541A91460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */,
 				84D541AE1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */,
+				B6465C2418D10126003C51A8 /* TiNetworkCookieProxy.m in Sources */,
 				2BDEA4F514490546004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */,
 				844E1F7F14883A3700F5424C /* TiDOMValidator.m in Sources */,
 				DAA72344156D642400757987 /* TiConsole.m in Sources */,
@@ -4008,6 +4017,7 @@
 				84D541A51460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */,
 				84D541AA1460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */,
 				84D541AF1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */,
+				B6465C2518D10126003C51A8 /* TiNetworkCookieProxy.m in Sources */,
 				2BDEA4F614490547004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */,
 				844E1F8014883A3700F5424C /* TiDOMValidator.m in Sources */,
 				DAA72345156D642400757987 /* TiConsole.m in Sources */,
