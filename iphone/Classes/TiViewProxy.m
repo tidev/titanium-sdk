@@ -2103,65 +2103,50 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 -(void)refreshPosition
 {
 	OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags);
-
 }
 
 -(void)refreshSize
 {
 	OSAtomicTestAndClearBarrier(TiRefreshViewSize, &dirtyflags);
-
-
 }
 
 -(void)insertSubview:(UIView *)childView forProxy:(TiViewProxy *)childProxy
 {
-	
-	int result = 0;
-	int childZindex = [childProxy vzIndex];
-	BOOL earlierSibling = YES;
-	UIView * ourView = [self parentViewForChild:childProxy];
-
+    NSUInteger result = 0;
+    UIView * ourView = [self parentViewForChild:childProxy];
+    
+    if (ourView==nil || childView == nil) {
+        return;
+    }
+    
     if (![self optimizeSubviewInsertion]) {
-        for (UIView* subview in [ourView subviews]) 
-        {
+        NSArray* subViews = [[ourView subviews] retain];
+        
+        for (UIView* subview in subViews) {
             if (![subview isKindOfClass:[TiUIView class]]) {
                 result++;
             }
         }
+        [subViews release];
     }
-	pthread_rwlock_rdlock(&childrenLock);
-	for (TiViewProxy * thisChildProxy in children)
-	{
-		if(thisChildProxy == childProxy)
-		{
-			earlierSibling = NO;
-			continue;
-		}
-		
-		if(![thisChildProxy viewHasSuperview:ourView])
-		{
-			continue;
-		}
-		
-		int thisChildZindex = [thisChildProxy vzIndex];
-		if((thisChildZindex < childZindex) ||
-				(earlierSibling && (thisChildZindex == childZindex)))
-		{
-			result ++;
-		}
-	}
-	pthread_rwlock_unlock(&childrenLock);
-    if (result == 0) {
-        [ourView insertSubview:childView atIndex:result];
+    
+    pthread_rwlock_rdlock(&childrenLock);
+    
+    NSArray *sortedArray;
+    sortedArray = [children sortedArrayUsingComparator:^NSComparisonResult(id a, id b) {
+        int first = [(TiViewProxy*)a vzIndex];
+        int second = [(TiViewProxy*)b vzIndex];
+        return (first > second) ? NSOrderedDescending : ( first < second ? NSOrderedAscending : NSOrderedSame );
+    }];
+    
+    for (TiViewProxy * thisChildProxy in sortedArray) {
+        if ([thisChildProxy viewInitialized] ) {
+            [ourView insertSubview:[thisChildProxy view] atIndex:result];
+            result ++;
+        }
     }
-    else {
-        //Doing a blind insert at index messes up the underlying sublayer indices
-        //if there are layers which do not belong to subviews (backgroundGradient)
-        //So ensure the subview layer goes at the right index
-        //See TIMOB-11586 for fail case
-        UIView *sibling = [[ourView subviews] objectAtIndex:result-1];
-        [ourView insertSubview:childView aboveSubview:sibling];
-    }
+    pthread_rwlock_unlock(&childrenLock);
+    
 }
 
 
@@ -2201,8 +2186,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		[view setAutoresizingMask:autoresizeCache];
 		[view setCenter:positionCache];
 		[view setBounds:sizeCache];
-
-		[parent insertSubview:view forProxy:self];
+		if ([view superview] != parentView) {
+			[parent insertSubview:view forProxy:self];
+		}
 
 		[self refreshSize];
 		[self refreshPosition];
@@ -2712,50 +2698,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	if (optimize==NO)
 	{
 		TiUIView *childView = [child view];
-		if ([childView superview]!=ourView)
-		{	
-			//TODO: Optimize!
-			int insertPosition = 0;
-			int childZIndex = [child vzIndex];
-			
-			pthread_rwlock_rdlock(&childrenLock);
-			int childProxyIndex = [children indexOfObject:child];
-            
-			BOOL optimizeInsertion = [self optimizeSubviewInsertion];
-
-			for (TiUIView * thisView in [ourView subviews])
-			{
-				if ( (!optimizeInsertion) && (![thisView isKindOfClass:[TiUIView class]]) )
-				{
-					insertPosition ++;
-					continue;
-				}
-                
-				int thisZIndex=[(TiViewProxy *)[thisView proxy] vzIndex];
-				if (childZIndex < thisZIndex) //We've found our stop!
-				{
-					break;
-				}
-				if (childZIndex == thisZIndex)
-				{
-					TiProxy * thisProxy = [thisView proxy];
-					if (childProxyIndex <= [children indexOfObject:thisProxy])
-					{
-						break;
-					}
-				}
-				insertPosition ++;
-			}
-			
-			[ourView insertSubview:childView atIndex:insertPosition];
-			pthread_rwlock_unlock(&childrenLock); // must release before calling resize
-			
-//            TIMOB-14488. This is a bad message. We should not be signalling a child
-//            resize to the parent when the parent is laying out the child.
-//            if ( !CGSizeEqualToSize(child.sandboxBounds.size, bounds.size) ) {
-//                //Child will not resize if sandbox size does not change
-//                [self childWillResize:child];
-//            }
+		if ([childView superview]!=ourView) {
+			[self insertSubview:childView forProxy:child];
 		}
 	}
 	[child setSandboxBounds:bounds];
