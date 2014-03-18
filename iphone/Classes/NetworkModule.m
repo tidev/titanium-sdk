@@ -361,6 +361,15 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 
 #pragma mark Cookies
 
+-(id<TiEvaluator>)evaluationContext
+{
+	id<TiEvaluator> context = [self executionContext];
+	if(context == nil) {
+		context = [self pageContext];
+	}
+	return context;
+}
+
 -(NSArray*)getHTTPCookiesForDomain:(id)args
 {
     ENSURE_SINGLE_ARG(args, NSString);
@@ -376,7 +385,7 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
     NSMutableArray *returnArray = [NSMutableArray array];
     for(NSHTTPCookie *cookie in allCookies)
     {
-        [returnArray addObject:[[[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self executionContext]] autorelease]];
+        [returnArray addObject:[[[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self evaluationContext]] autorelease]];
     }
     return returnArray;
 }
@@ -410,7 +419,7 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
         if([[cookie domain] isEqualToString:domain] &&
            [[cookie path] isEqualToString:path] &&
            ([[cookie name] isEqualToString:name] || name == nil)) {
-            [returnArray addObject:[[[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self executionContext]] autorelease]];
+            [returnArray addObject:[[[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self evaluationContext]] autorelease]];
         }
     }
     return returnArray;
@@ -448,7 +457,7 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
     NSMutableArray *array = [NSMutableArray array];
     for(NSHTTPCookie* cookie in [storage cookies])
     {
-        [array addObject:[[[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self executionContext]] autorelease]];
+        [array addObject:[[[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self evaluationContext]] autorelease]];
     }
     return array;
 }

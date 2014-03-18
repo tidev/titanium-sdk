@@ -11,8 +11,8 @@ methods:
   - name: isValid
     summary: Returns true if the cookie is valid.
     description: |
-        This method checks wheather the cookie is valid. For a cookie to be valid the
-        minimum properties requiered are `domain`, `name`, `value`, and `path`
+        This method checks if the cookie is valid. For a cookie to be valid the minimum
+        properties requiered are `name`, `value`, `path` and either `domain` or `originalUrl`
     platforms: [iphone, ipad]
     since: "3.3.0"
     returns:
