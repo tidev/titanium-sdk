@@ -29,7 +29,7 @@ extern NSString * const TI_APPLICATION_GUID;
     if(httpRequest == nil) {
         httpRequest = [[TiHTTPRequest alloc] init];
         [httpRequest setDelegate:self];
-    	[httpRequest addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
+        [httpRequest addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
         [httpRequest addRequestHeader:[NSString stringWithFormat:@"%s-%s%s-%s", "X","Tita","nium","Id"] value:TI_APPLICATION_GUID];
         
     }
@@ -91,13 +91,13 @@ extern NSString * const TI_APPLICATION_GUID;
     if([self valueForUndefinedKey:@"domain"]) {
         // TODO: NTLM
     }
-	// twitter specifically disallows X-Requested-With so we only add this normal
-	// XHR header if not going to twitter. however, other services generally expect
-	// this header to indicate an XHR request (such as RoR)
-	if ([[self valueForUndefinedKey:@"url"] rangeOfString:@"twitter.com"].location==NSNotFound)
-	{
-		[[self request] addRequestHeader:@"X-Requested-With" value:@"XMLHttpRequest"];
-	}
+    // twitter specifically disallows X-Requested-With so we only add this normal
+    // XHR header if not going to twitter. however, other services generally expect
+    // this header to indicate an XHR request (such as RoR)
+    if ([[self valueForUndefinedKey:@"url"] rangeOfString:@"twitter.com"].location==NSNotFound)
+    {
+        [[self request] addRequestHeader:@"X-Requested-With" value:@"XMLHttpRequest"];
+    }
     id file = [self valueForUndefinedKey:@"file"];
     if(file) {
         NSString *filePath = nil;
@@ -404,8 +404,14 @@ extern NSString * const TI_APPLICATION_GUID;
 }
 -(TiBlob*)responseData
 {
-    NSString *contentType = [TiUtils stringValue: [[self responseHeaders] valueForKey:@"Content-Type"]];
-    return [[[TiBlob alloc] initWithData:[[self response] responseData] mimetype:contentType] autorelease];
+    TiBlob *blob;
+    if([[self response] saveToFile]) {
+        blob = [[TiBlob alloc] initWithFile:[[self response] filePath]];
+    } else {
+        NSString *contentType = [TiUtils stringValue: [[self responseHeaders] valueForKey:@"Content-Type"]];
+        blob = [[TiBlob alloc] initWithData:[[self response] responseData] mimetype:contentType];
+    }
+    return [blob autorelease];
 }
 -(TiDOMDocumentProxy*)responseXML
 {
