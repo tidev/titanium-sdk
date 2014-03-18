@@ -340,6 +340,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "1.7.0"
+
   - name: NETWORK_LAN
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the device is
@@ -353,6 +354,7 @@ properties:
         [change](Titanium.Network.change) event.
     type: Number
     permission: read-only
+
   - name: NETWORK_MOBILE
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the device is
@@ -363,6 +365,7 @@ properties:
         [change](Titanium.Network.change) event.
     type: Number
     permission: read-only
+
   - name: NETWORK_NONE
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that no 
@@ -373,6 +376,7 @@ properties:
         [change](Titanium.Network.change) event.
     type: Number
     permission: read-only
+
   - name: NETWORK_UNKNOWN
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the  
@@ -383,6 +387,7 @@ properties:
         [change](Titanium.Network.change) event.
     type: Number
     permission: read-only
+
   - name: NETWORK_WIFI
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the  
@@ -393,26 +398,31 @@ properties:
         [change](Titanium.Network.change) event.
     type: Number
     permission: read-only
+
   - name: NOTIFICATION_TYPE_ALERT
     summary: Constant value for an Alert style push notification.
     platforms: [iphone, ipad]
     permission: read-only
     type: Number
+
   - name: NOTIFICATION_TYPE_BADGE
     summary: Constant value for a Badge style push notification.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
   - name: NOTIFICATION_TYPE_SOUND
     summary: Constant value for a Sound style push notification.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
   - name: NOTIFICATION_TYPE_NEWSSTAND
     summary: Constant value for a Newsstand style push notification. Only available on iOS5 and later
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
   - name: READ_MODE
     deprecated:
         since: "1.7.0"
@@ -425,6 +435,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
   - name: READ_WRITE_MODE
     deprecated:
         since: "1.7.0"
@@ -437,6 +448,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
   - name: SOCKET_CLOSED
     deprecated:
         since: "1.7.0"
@@ -449,6 +461,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
   - name: SOCKET_CONNECTED
     deprecated:
         since: "1.7.0"
@@ -461,6 +474,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
   - name: SOCKET_ERROR
     deprecated:
         since: "1.7.0"
@@ -473,6 +487,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
   - name: SOCKET_INITIALIZED
     deprecated:
         since: "1.7.0"
@@ -485,6 +500,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
   - name: SOCKET_LISTENING
     deprecated:
         since: "1.7.0"
@@ -497,6 +513,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
   - name: WRITE_MODE
     deprecated:
         since: "1.7.0"
@@ -509,40 +526,47 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
   - name: TLS_VERSION_1_0
     summary: Constant value specifying TLS version 1.0 for SSL.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
     since: "1.8.0.1"
+
   - name: TLS_VERSION_1_1
     summary: Constant value specifying TLS version 1.1 for SSL.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
     since: "1.8.0.1"
+
   - name: TLS_VERSION_1_2
     summary: Constant value specifying TLS version 1.2 for SSL.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
     since: "1.8.0.1"
+
   - name: allHTTPCookies
     summary: A list of all cookies in the cookie storage.
     type: Array<Titanium.Network.Cookie>
     permission: read-only
     platforms: [iphone, ipad]
     since: "3.3.0"
+
   - name: networkType
     summary: Network type value as a constant.
     description: |
         One of the `NETWORK` constants defined in <Titanium.Network>.
     type: Number
     permission: read-only
+
   - name: networkTypeName
     summary: Network type as a String. Returns one of `NONE`, `WIFI`, `LAN`, `MOBILE`, or `UNKNOWN`.
     type: String
     permission: read-only
+
   - name: online
     summary: Boolean value indicating if the device can reach the Internet.
     description: |
@@ -550,6 +574,7 @@ properties:
         using either WiFi, mobile network or LAN.
     type: Boolean
     permission: read-only
+
   - name: remoteDeviceUUID
     summary: |
         Remote device UUID if the device is registered with the Apple Push Notification
@@ -557,11 +582,13 @@ properties:
     platforms: [iphone, ipad]
     type: String
     permission: read-only
+
   - name: remoteNotificationTypes
     summary: Array of push notification type constants enabled for the application.
     platforms: [iphone, ipad]
     type: Array<Number>
     permission: read-only
+
   - name: remoteNotificationsEnabled
     summary: |
         Indicates whether push  notifications have been enabled using 
@@ -569,6 +596,7 @@ properties:
     platforms: [iphone, ipad]
     type: Boolean
     permission: read-only
+
   - name: httpURLFormatter
     summary: User-defined function that is called everytime HTTPClient connects to a remote resource. 
     description: |

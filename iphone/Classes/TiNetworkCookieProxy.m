@@ -32,10 +32,8 @@
 {
     if(self = [super _initWithPageContext:context])
     {
-        for(NSString *key in [cookie properties])
-        {
-            [[self cookieDict] setValue:[[cookie properties] valueForKey:key] forKey:key];
-        }
+        [self setIsHTTPOnly:[cookie isHTTPOnly]];
+        _cookieDict = [[NSMutableDictionary dictionaryWithDictionary:[cookie properties]] retain];
     }
     return self;
 }
@@ -59,17 +57,14 @@
 {
     return [[self cookieDict] valueForKey:val];
 }
-
 -(NSHTTPCookie*)newCookie
 {
     return [NSHTTPCookie cookieWithProperties: [self cookieDict]];
 }
-
 -(NSString*)apiName
 {
     return @"Ti.Network.Cookie";
 }
-
 -(NSNumber*)isValid:(id)args
 {
     return NUMBOOL([self newCookie] != nil);
@@ -80,7 +75,7 @@
 }
 - (void)setName:(id)args
 {
-    [self setCookieValue:args forKey:NSHTTPCookieName];
+    [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieName];
 }
 - (NSString*)comment
 {
@@ -88,7 +83,7 @@
 }
 - (void)setComment:(id)args
 {
-    [self setCookieValue:args forKey:NSHTTPCookieComment];
+    [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieComment];
 }
 - (NSString*)domain
 {
@@ -96,7 +91,7 @@
 }
 - (void)setDomain:(id)args
 {
-    [self setCookieValue:args forKey:NSHTTPCookieDomain];
+    [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieDomain];
 }
 - (NSDate*)expiryDate
 {
@@ -121,7 +116,7 @@
 }
 - (void)setPath:(id)args
 {
-    [self setCookieValue:args forKey:NSHTTPCookiePath];
+    [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookiePath];
 }
 - (NSString*)value
 {
@@ -129,11 +124,11 @@
 }
 - (void)setValue:(id)args
 {
-    [self setCookieValue:args forKey:NSHTTPCookieValue];
+    [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieValue];
 }
 - (NSNumber*)httponly
 {
-    return NUMBOOL([[self newCookie] isHTTPOnly]);
+    return NUMBOOL([self isHTTPOnly]);
 }
 -(void)setHttponly:(id)args
 {
@@ -155,8 +150,7 @@
 }
 - (void)setVersion:(id)args
 {
-    id str = [TiUtils stringValue:args];
-    [self setCookieValue:str forKey:NSHTTPCookieVersion];
+    [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieVersion];
 }
 - (NSString*)originalUrl
 {
@@ -164,7 +158,7 @@
 }
 - (void)setOriginalUrl:(id)args
 {
-    [self setCookieValue:args forKey:NSHTTPCookieOriginURL];
+    [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieOriginURL];
 }
 
 @end
