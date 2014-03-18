@@ -95,8 +95,7 @@
 }
 - (NSDate*)expiryDate
 {
-    id a = [self cookieValue: NSHTTPCookieExpires];
-    return a;
+    return [self cookieValue: NSHTTPCookieExpires];
 }
 - (void)setExpiryDate:(id)args
 {
@@ -136,7 +135,7 @@
 }
 - (NSNumber*)secure
 {
-    return NUMBOOL([self cookieValue: NSHTTPCookieSecure]);
+    return NUMBOOL([self cookieValue: NSHTTPCookieSecure] != nil);
 }
 - (void)setSecure:(id)args
 {

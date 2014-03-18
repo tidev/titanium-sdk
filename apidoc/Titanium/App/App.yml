@@ -186,7 +186,7 @@ events:
   - name: memorywarning
     summary: Fired when the app receives a warning from the operating system about low memory availability.
     platforms: [iphone, ipad]
-    since: "3.3.0"
+    since: "3.2.3"
 
   - name: pause
     summary: Fired when the application transitions from active to inactive state on a multitasked system.
