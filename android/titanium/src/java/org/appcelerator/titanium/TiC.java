@@ -1684,6 +1684,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_PADDING_LEFT = "paddingLeft";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PADDING_RIGHT = "paddingRight";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_PAGING_CONTROL_TIMEOUT = "pagingControlTimeout";
 
 	/**

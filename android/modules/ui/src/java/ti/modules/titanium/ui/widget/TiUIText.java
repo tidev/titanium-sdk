@@ -201,6 +201,13 @@ public class TiUIText extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
 		}
+
+		if (d.containsKey(TiC.PROPERTY_PADDING_LEFT)) {
+			tv.setPadding(0, 0, TiConvert.toInt(d, TiC.PROPERTY_PADDING_LEFT),0);
+		}
+		if (d.containsKey(TiC.PROPERTY_PADDING_RIGHT)) {
+			tv.setPadding(0, 0, TiConvert.toInt(d, TiC.PROPERTY_PADDING_RIGHT),0);
+		}
 	}
 
 
@@ -262,6 +269,10 @@ public class TiUIText extends TiUIView
 			TiUIHelper.styleText(tv, (HashMap) newValue);
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, newValue);
+		} else if (key.equals(TiC.PROPERTY_PADDING_LEFT)) {
+			tv.setPadding(TiConvert.toInt(newValue), 0, 0, 0);
+		} else if (key.equals(TiC.PROPERTY_PADDING_RIGHT)) {
+			tv.setPadding(0, 0, TiConvert.toInt(newValue), 0);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
