@@ -1400,8 +1400,9 @@ public class TiAnimationBuilder
 	public void start(TiViewProxy viewProxy, View view)
 	{
 		if (isAnimationRunningFor(view)) {
-			//clear current animation
-			view.clearAnimation();
+			// This brings in parity with Titanium iOS, which appears to
+			// ignore requests to animate when an animation is in in progress.
+			return;
 		}
 		// Indicate that an animation is running on this view.
 		setAnimationRunningFor(view);
