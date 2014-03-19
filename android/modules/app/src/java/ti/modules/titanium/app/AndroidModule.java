@@ -14,9 +14,11 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 
@@ -82,6 +84,22 @@ public class AndroidModule extends KrollModule
 			initializeVersionValues();
 		}
 		return appVersionCode;
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public IntentProxy getLaunchIntent()
+	{
+		TiApplication app = TiApplication.getInstance();
+		if (app != null) {
+			TiBaseActivity rootActivity = app.getRootActivity();
+			if (rootActivity != null) {
+				Intent intent = rootActivity.getIntent();
+				if (intent != null) {
+					return new IntentProxy(intent);
+				}
+			}
+		}
+		return null;
 	}
 
 	@Kroll.getProperty
