@@ -28,6 +28,13 @@ properties:
     permission: read-only
     since: 3.3.0
 
+  - name: launchIntent
+    summary: |
+        Return the intent that was used to launch the application. 
+    type: Titanium.Android.Intent
+    permission: read-only
+    since: 3.3.0
+
 examples:
   - title: Custom String Resource
     example: |
