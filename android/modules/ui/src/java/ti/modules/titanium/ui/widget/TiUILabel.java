@@ -102,6 +102,10 @@ public class TiUILabel extends TiUIView
 			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TITLE));
 		}
 
+		if (d.containsKey(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
+			tv.setIncludeFontPadding(TiConvert.toBoolean(d, TiC.PROPERTY_INCLUDE_FONT_PADDING, true));
+		}
+
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			Object color = d.get(TiC.PROPERTY_COLOR);
 			if (color == null) {
@@ -170,6 +174,8 @@ public class TiUILabel extends TiUIView
 			tv.setText(TiConvert.toString(newValue));
 			TiUIHelper.linkifyIfEnabled(tv, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
 			tv.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
+			tv.setIncludeFontPadding(TiConvert.toBoolean(newValue, true));
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			if (newValue == null) {
 				tv.setTextColor(defaultColor);
