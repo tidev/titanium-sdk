@@ -120,7 +120,6 @@
 {
 	UITableView *tableView = self.listView.tableView;
 	BOOL removeHead = NO;
-	BOOL begin = YES;
 	while (YES) {
 		void (^block)(UITableView *) = nil;
 		pthread_mutex_lock(&_operationQueueMutex);
@@ -133,14 +132,11 @@
 		}
 		pthread_mutex_unlock(&_operationQueueMutex);
 		if (block != nil) {
-			if (begin) {
-				[tableView beginUpdates];
-				begin = NO;
-			}
+			[tableView beginUpdates];
 			block(tableView);
+			[tableView endUpdates];
 			Block_release(block);
 		} else {
-			[tableView endUpdates];
 			[self.listView updateIndicesForVisibleRows];
 			return;
 		}
