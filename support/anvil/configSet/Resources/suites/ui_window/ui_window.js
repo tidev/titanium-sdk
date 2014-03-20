@@ -15,6 +15,10 @@ module.exports = new function() {
 
 	this.name = "ui_window";
 	this.tests = [
+		{name: "windowRelativeUrl", timeout:10000},
+		{name: "closeEventListenerInOpenEvent", timeout: 10000},
+		{name: "borderWidthWindowInTabgroup", timeout: 30000},
+		{name: "modalAndExitoncloseTogether", timeout:60000},
 		{name: "events_Navigationbar", timeout: 5000},
 		{name: "openAndFocusEventOrder", timeout: 5000},
 		//{name: "postlyoutEvent", timeout: 5000}, due to TIMOB-15853
@@ -34,6 +38,85 @@ module.exports = new function() {
 		{name: "barimageForNavbar"},
 		{name: "openEventOfNormalwindow"}
 	];
+
+	//TIMOB-11525
+	this.windowRelativeUrl = function(testRun){
+		var w = Ti.UI.createWindow({
+			url : 'dir/relative.js'
+		});
+		w.addEventListener("close", function() {
+			valueOf(testRun, w.getBackgroundColor()).shouldBe("blue");
+			valueOf(testRun, w.getTitle()).shouldBe("relativeWindow");
+
+			finish(testRun);
+		});
+		w.open();
+	}
+
+	//TIMOB-9482
+	this.closeEventListenerInOpenEvent = function(testRun){
+		var win = Ti.UI.createWindow ();
+		var win2 = Ti.UI.createWindow ({
+			layout: 'vertical'
+		});
+		win2.addEventListener ('open', function () {
+			win2.title = "win2";
+			win2.addEventListener ('close', function () {
+				valueOf(testRun, win2.getTitle()).shouldBe("win2");
+
+				finish(testRun);
+			});
+		});
+		setTimeout(function(){
+			win2.open();
+			setTimeout(function(){
+				win2.close();
+			},4000);
+		},2000);
+		win.open();
+	}
+
+	//TIMOB-12134
+	this.borderWidthWindowInTabgroup = function(testRun){
+		var tabGroup = Titanium.UI.createTabGroup();
+		var openEvent =false;
+		var win1 = Titanium.UI.createWindow({  
+			borderWidth : 1,
+			borderColor: 'red'
+		});
+		var tab1 = Titanium.UI.createTab({  
+			window:win1
+		});
+		tabGroup.addTab(tab1); 
+		win1.addEventListener("open", function(){
+			openEvent = true;
+		});
+		tabGroup.open();
+		setTimeout(function(){
+			valueOf(testRun, openEvent).shouldBeTrue();
+
+			finish(testRun);	
+		},4000);
+	}
+
+	//TIMOB-9462
+	this.modalAndExitoncloseTogether = function(testRun){
+		var win = Ti.UI.createWindow({
+			modal: true,
+			exitOnClose: true
+		});
+		var webview = Titanium.UI.createWebView({url:'http://www.appcelerator.com'});
+		win.add(webview);
+		win.addEventListener('close', function(){
+			finish(testRun);
+		});
+		setTimeout(function(){
+			valueOf(testRun, function(){
+				win.close();
+			}).shouldNotThrowException();
+		},5000);
+		win.open();
+	}
 
 	//TIMOB-5192 ios
 	this.events_Navigationbar = function(testRun){
