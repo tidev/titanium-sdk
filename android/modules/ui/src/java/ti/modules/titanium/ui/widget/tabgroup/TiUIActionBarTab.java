@@ -6,17 +6,15 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import java.lang.ref.WeakReference;
-
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.TabProxy;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
