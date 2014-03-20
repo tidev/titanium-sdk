@@ -25,19 +25,16 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 
 	private static final String TAG = "TiUIActionBarTab";
 	public static class TabFragment extends Fragment {
-		private WeakReference<TiUIActionBarTab> tab;
+		private TiUIActionBarTab tab;
 
 		public TabFragment(TiUIActionBarTab tab) {
-			this.tab = new WeakReference<TiUIActionBarTab>(tab);
+			this.tab = tab;
 		}
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			if (tab == null) {
-				return null;
-			} else {
-				return tab.get().getContentView();
-			}
+
+			return tab.getContentView();
 		}
 	}
 
