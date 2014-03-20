@@ -123,6 +123,13 @@ properties:
     platforms: [android, mobileweb, tizen]
     type: String
     
+  - name: includeFontPadding
+    summary: Includes extra top and bottom padding to make room for accents that go above normal ascent and descent.
+    platforms: [android]
+    type: Boolean
+    default: undefined but behaves as true
+    since: "3.3.0"
+
   - name: minimumFontSize
     summary: Minimum font size when the font is sized based on the contents. 
     description: |

@@ -1339,6 +1339,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_INCLUDE_FONT_PADDING = "includeFontPadding";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_INITIAL_PLAYBACK_TIME = "initialPlaybackTime";
 	
 	/**
