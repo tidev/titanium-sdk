@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
