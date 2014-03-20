@@ -127,7 +127,7 @@ properties:
     summary: Includes extra top and bottom padding to make room for accents that go above normal ascent and descent.
     platforms: [android]
     type: Boolean
-    default: true
+    default: undefined but behaves as true
     since: "3.3.0"
 
   - name: minimumFontSize
