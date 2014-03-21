@@ -88,19 +88,19 @@ namespace TitaniumApp
 		}
 
 		[Conditional("DEBUG")]
-		public static void log(string message) {
+		public async static void log(string message) {
 			Debug.WriteLine(message);
 
 			// send message to Titanium CLI log proxy
 			if (tcpSocket != null && tcpWriter != null) {
 				tcpWriter.WriteString(message + "\n");
-				tcpWriter.StoreAsync();
+				await tcpWriter.StoreAsync();
 			}
 		}
 
 		[Conditional("DEBUG")]
 		public static void log(string type, string message) {
-			log("[" + type + "] " + message);
+			log(("[" + type + "]").PadRight(7) + " " + message);
 		}
 	}
 }

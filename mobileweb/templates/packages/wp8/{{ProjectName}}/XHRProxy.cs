@@ -62,7 +62,7 @@ namespace TitaniumApp
 
 		async void ConnectionReceived(StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args) {
 			await Task.Run(() => {
-				HandleRequest(args.Socket);
+				handleRequest(args.Socket);
 			});
 		}
 
@@ -75,7 +75,7 @@ namespace TitaniumApp
 			socket.Dispose();
 		}
 
-		private async void HandleRequest(StreamSocket socket) {
+		private async void handleRequest(StreamSocket socket) {
 			Logger.log("XHRProxy", "Received incoming HTTP request");
 
 			DataWriter writer = new DataWriter(socket.OutputStream);
@@ -249,7 +249,6 @@ namespace TitaniumApp
 						case RequestParseState.CreateRequest:
 							httpUri = new Uri(url, UriKind.Absolute);
 							request = (HttpWebRequest)WebRequest.CreateHttp(httpUri);
-							request.CookieContainer = new CookieContainer();
 							request.Method = httpMethod;
 
 							Logger.log("XHRProxy", "Actual HTTP headers being sent:");

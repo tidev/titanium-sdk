@@ -90,7 +90,7 @@ namespace TitaniumApp
 		// Code to execute on Unhandled Exceptions
 		private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e) {
 			foreach (string s in e.ExceptionObject.ToString().Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None)) {
-				Logger.log("tiwp8", s);
+				Logger.log("ERROR", s);
 			}
 
 			if (Debugger.IsAttached) {
