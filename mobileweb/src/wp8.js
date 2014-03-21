@@ -7,23 +7,22 @@
 		requests = {},
 		handles = {};
 
-	function log() {
-		sendRequest('log', {
-			message: Array.prototype.slice.call(arguments).map(function (it) {
-				return it === void 0 ? 'undefined' : it === null ? 'null' : Array.isArray(it) ? JSON.stringify(it.map(function (f) {
-					return typeof f == 'function' ? f.toString() : f;
-				})) : objToString.call(it) == '[object Object]' ? JSON.stringify(it) : it;
-			}).join(' ')
-		});
-	}
-
 	['log', 'debug', 'info', 'warn', 'error'].forEach(function (level) {
-		console[level] = log;
+		console[level] = function () {
+			sendRequest('log', {
+				level: level,
+				message: Array.prototype.slice.call(arguments).map(function (it) {
+					return it === void 0 ? 'undefined' : it === null ? 'null' : Array.isArray(it) ? JSON.stringify(it.map(function (f) {
+						return typeof f == 'function' ? f.toString() : f;
+					})) : objToString.call(it) == '[object Object]' ? JSON.stringify(it) : it;
+				}).join(' ')
+			});
+		};
 	});
 
 	function processResponse(data) {
-		var tmp = data.primitiveValue;
-		return tmp !== void 0 ? tmp : (tmp = data.handle) ? handles[tmp] || (handles[tmp] = new Handle(tmp)) : data;
+		var tmp = data.handle;
+		return tmp ? handles[tmp] || (handles[tmp] = new Handle(tmp)) : (tmp = data.primitiveValue) !== void 0 ? tmp : data;
 	}
 
 	// WARNING: Do NOT use console.log() inside this function when type == 'log'!
@@ -97,6 +96,9 @@
 		},
 
 		invoke: function (method, args) {
+			if (!method) {
+				throw new Error('invoke requires a "method"');
+			}
 			return sendRequest('reflection', {
 				action: 'invokeMethod',
 				handle: this._hnd,
@@ -104,6 +106,32 @@
 				args: Array.isArray(args) ? args.map(function (a, i) {
 						return i % 2 == 0 ? a : valueify(a);
 					}) : []
+			});
+		},
+
+		invokeAsync: function (method, args, callback) {
+			if (!method) {
+				throw new Error('invokeAsync requires a "method"');
+			}
+			if (!args && !callback) {
+				throw new Error('invokeAsync requires a "callback"');
+			}
+			if (typeof args == 'function') {
+				callback = args;
+				args = 0;
+			}
+			var r = sendRequest('reflection', {
+				action: 'invokeMethodAsync',
+				handle: this._hnd,
+				method: method,
+				args: Array.isArray(args) ? args.map(function (a, i) {
+						return i % 2 == 0 ? a : valueify(a);
+					}) : []
+			});
+			r.addEventListener('complete', function (e) {
+				var data = e.eventArgs.property(['handle', 'primitiveValue']);
+				r.destroy();
+				callback(processResponse(data));
 			});
 		},
 
@@ -135,11 +163,14 @@
 				listeners = this._listeners[name];
 			if (listeners && ~(idx = listeners.indexOf(callback))) {
 				listeners.splice(idx, 1);
-				listeners.length || sendRequest('reflection', {
-					action: 'removeEventListener',
-					handle: this._hnd,
-					name: name
-				});
+				if (!listeners.length) {
+					sendRequest('reflection', {
+						action: 'removeEventListener',
+						handle: this._hnd,
+						name: name
+					});
+					delete this._listeners[name];
+				}
 			}
 		}
 	});
@@ -160,6 +191,26 @@
 				args: Array.isArray(args) ? args.map(function (a, i) {
 						return i % 2 == 0 ? a : valueify(a);
 					}) : []
+			});
+		},
+
+		downloadFile: function (url, opts, callback) {
+			if (!url) {
+				throw new Error('downloadFile requires a "url"');
+			}
+			if (!opts && !callback) {
+				throw new Error('downloadFile requires a "callback"');
+			}
+			if (typeof opts == 'function') {
+				callback = opts;
+				opts = 0;
+			}
+			opts || (opts = {});
+			opts.url = url;
+			var r = sendRequest('download', opts);
+			r.addEventListener('complete', function (e) {
+				r.destroy();
+				callback(e);
 			});
 		},
 
@@ -230,7 +281,44 @@
 			});
 		},
 
-		sendRequest: sendRequest
+		invokeStaticAsync: function (className, method, args, callback) {
+			if (!className) {
+				throw new Error('invokeStaticAsync requires a "className"');
+			}
+			if (!method) {
+				throw new Error('invokeStaticAsync requires a "method"');
+			}
+			if (!args && !callback) {
+				throw new Error('invokeStaticAsync requires a "callback"');
+			}
+			if (typeof args == 'function') {
+				callback = args;
+				args = 0;
+			}
+			var r = sendRequest('reflection', {
+				action: 'invokeStaticAsync',
+				className: className,
+				method: method,
+				args: Array.isArray(args) ? args.map(function (a, i) {
+						return i % 2 == 0 ? a : valueify(a);
+					}) : []
+			});
+			r.addEventListener('complete', function (e) {
+				var data = e.eventArgs.property(['handle', 'primitiveValue']);
+				r.destroy();
+				callback(processResponse(data));
+			});
+		},
+
+		sendRequest: sendRequest,
+
+		staticProperty: function (className, prop) {
+			return sendRequest('reflection', {
+				action: 'staticProperty',
+				className: className,
+				property: prop
+			});
+		}
 	};
 
 	/**

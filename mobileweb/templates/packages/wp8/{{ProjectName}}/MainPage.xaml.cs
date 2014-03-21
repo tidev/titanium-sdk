@@ -24,6 +24,7 @@ namespace TitaniumApp
 
 			Logger.init(settings);
 
+			requestHandlers["download"] = new DownloadRequestHandler();
 			requestHandlers["file"] = new FileRequestHandler();
 			requestHandlers["log"]  = new LogRequestHandler();
 			requestHandlers["reflection"] = new ReflectionRequestHandler(app, browser, root);

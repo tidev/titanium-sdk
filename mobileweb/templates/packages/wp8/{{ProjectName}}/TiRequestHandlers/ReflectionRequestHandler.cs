@@ -3,25 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using Windows.Foundation;
 using Microsoft.Phone.Controls;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace TitaniumApp.TiRequestHandlers
 {
+	public static class Caster {
+		public static async Task<object> CastTo<X>(this object obj) {
+			IAsyncOperation<X> asyncOp = (IAsyncOperation<X>)obj;
+			var result = await asyncOp;
+			return (X)result;
+		}
+	}
+
 	class ReflectionRequestHandler : IRequestHandler
 	{
-		private Dictionary<string, Type> cachedTypes = new Dictionary<string, Type>();
-		private Dictionary<string, object> instances = new Dictionary<string, object>();
-		private Int32 instanceCount = 0;
-		private Dictionary<string, Delegate> delegates = new Dictionary<string, Delegate>();
-
 		public ReflectionRequestHandler() {}
 
 		public ReflectionRequestHandler(Microsoft.Phone.Controls.PhoneApplicationPage app, WebBrowser browser, System.Windows.Controls.Grid root) {
-			instances["app"] = app;
-			instances["browser"] = browser;
-			instances["root"] = root;
+			InstanceRegistry.addInstance("app", app);
+			InstanceRegistry.addInstance("browser", browser);
+			InstanceRegistry.addInstance("root", root);
 		}
 
 		public TiResponse process(TiRequestParams data) {
@@ -37,56 +43,15 @@ namespace TitaniumApp.TiRequestHandlers
 				case "destroy":				return destroy(data);
 				case "getEnum":				return getEnum(data);
 				case "invokeMethod":		return invokeMethod(data);
+				case "invokeMethodAsync":	return invokeMethodAsync(data);
 				case "invokeStatic":		return invokeStatic(data);
+				case "invokeStaticAsync":	return invokeStaticAsync(data);
 				case "property":			return property(data);
 				case "removeEventListener":	return removeEventListener(data);
+				case "staticProperty":		return staticProperty(data);
 				default:
 					throw new Exception("Reflection Handler Exception: Invalid action \"" + action + "\"");
 			}
-		}
-
-		private Type lookupType(string className) {
-			if (cachedTypes.ContainsKey(className)) {
-				return cachedTypes[className];
-			}
-
-			if (Type.GetType(className) != null) {
-				// Do nothing
-			} else if (className.StartsWith("System.Windows")) {
-				className += ", System.Windows, Version=2.0.6.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e";
-			} else if (className.StartsWith("Microsoft.Phone") || className.StartsWith("Microsoft.Devices")) {
-				className += ", Microsoft.Phone, Version=8.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e";
-			} else if (className.StartsWith("System.Net")) {
-				className += ", System.Net, Version=2.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e";
-			} else if (className.StartsWith("System.")) {
-				className += ", System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e";
-			}
-
-			return cachedTypes[className] = Type.GetType(className);
-		}
-
-		private TiResponse createReturnType(Type type, object value) {
-			TiResponse response = new TiResponse();
-
-			if (value == null || type.IsPrimitive || type == typeof(string) || type == typeof(decimal)) {
-				response["primitiveValue"] = value;
-				return response;
-			}
-
-			if (instances.ContainsValue(value)) {
-				response["handle"] = instances.FirstOrDefault(x => x.Value == value).Key;
-				return response;
-			}
-
-			if ((uint)instanceCount > UInt32.MaxValue) {
-				throw new Exception("Reflection Handler Exception: Maximum instance count exceeded");
-			}
-
-			string handle = instanceCount++.ToString();
-			instances[handle] = value;
-
-			response["handle"] = handle;
-			return response;
 		}
 
 		private TiResponse addEventListener(TiRequestParams data) {
@@ -95,8 +60,9 @@ namespace TitaniumApp.TiRequestHandlers
 			}
 
 			string handle = (string)data["handle"];
+			object instance = InstanceRegistry.getInstance(handle);
 
-			if (!instances.ContainsKey(handle)) {
+			if (instance == null) {
 				throw new Exception("Reflection Handler Exception: \"addEventListener\" request invalid handle \"" + handle + "\"");
 			}
 
@@ -105,7 +71,6 @@ namespace TitaniumApp.TiRequestHandlers
 			}
 
 			string eventName = (string)data["name"];
-			var instance = instances[handle];
 			var eventInfo = instance.GetType().GetEvent(eventName);
 
 			// create an array of parameters based on the event info
@@ -118,7 +83,7 @@ namespace TitaniumApp.TiRequestHandlers
 			parameters.CopyTo(pass, 0);
 			pass[2] = Expression.Constant(eventInfo.Name);
 			pass[3] = Expression.Constant(handle);
-			pass[4] = Expression.Constant(instances["browser"]);
+			pass[4] = Expression.Constant(InstanceRegistry.getInstance("browser"));
 
 			// Get method info of the handler we want to call
 			MethodInfo methodInfo = this.GetType().GetMethod("eventHandler", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -136,7 +101,7 @@ namespace TitaniumApp.TiRequestHandlers
 			eventInfo.AddEventHandler(instance, lambda);
 
 			// Store the delegate to remove it later
-			delegates[handle + "." + eventName] = lambda;
+			InstanceRegistry.addDelegate(handle + "." + eventName, lambda);
 
 			return null;
 		}
@@ -146,22 +111,28 @@ namespace TitaniumApp.TiRequestHandlers
 			response["_hnd"] = handle;
 			response["type"] = eventName;
 
-			if ((uint)instanceCount + 1 > UInt32.MaxValue) {
-				throw new Exception("Reflection Handler Exception: Maximum instance count exceeded");
+			string senderHandle = "";
+			bool senderExists = InstanceRegistry.containsInstance(sender);
+			if (senderExists) {
+				senderHandle = InstanceRegistry.getInstanceHandleByValue(sender);
+			} else {
+				senderHandle = InstanceRegistry.createHandle(sender);
 			}
-
-			string senderHandle = instanceCount++.ToString();
-			instances[senderHandle] = sender;
 			response["sender"] = senderHandle;
 
-			string eventArgsHandle = instanceCount++.ToString();
-			instances[eventArgsHandle] = e;
+			string eventArgsHandle = "";
+			bool eventArgsExists = InstanceRegistry.containsInstance(e);
+			if (eventArgsExists) {
+				eventArgsHandle = InstanceRegistry.getInstanceHandleByValue(e);
+			} else {
+				eventArgsHandle = InstanceRegistry.createHandle(e);
+			}
 			response["eventArgs"] = eventArgsHandle;
 
 			browser.InvokeScript("execScript", new string[] { "tiwp8.fireEvent(" + JsonConvert.SerializeObject(response, Formatting.None) + ")" });
 
-			instances.Remove(senderHandle);
-			instances.Remove(eventArgsHandle);
+			if (!senderExists) InstanceRegistry.removeInstance(senderHandle);
+			if (!eventArgsExists) InstanceRegistry.removeInstance(eventArgsHandle);
 		}
 
 		private TiResponse createInstance(TiRequestParams data) {
@@ -170,7 +141,7 @@ namespace TitaniumApp.TiRequestHandlers
 			}
 
 			string className = (string)data["className"];
-			var classType = lookupType(className);
+			var classType = InstanceRegistry.lookupType(className);
 			if (classType == null) {
 				throw new Exception("Reflection Handler Exception: \"createInstance\" request invalid classname \"" + classType + "\"");
 			}
@@ -187,7 +158,7 @@ namespace TitaniumApp.TiRequestHandlers
 			// create the argument types array
 			Type[] ctorArgumentTypes = new Type[args.Count / 2];
 			for (int i = 0, j = 0; i < args.Count; i += 2, j++) {
-				ctorArgumentTypes[j] = lookupType((string)args[i]);
+				ctorArgumentTypes[j] = InstanceRegistry.lookupType((string)args[i]);
 			}
 
 			// create the argument values array
@@ -195,7 +166,7 @@ namespace TitaniumApp.TiRequestHandlers
 			for (int i = 1, j = 0; i < args.Count; i += 2, j++) {
 				JObject arg = (JObject)args[i];
 				if (arg["valueHnd"] != null) {
-					ctorArguments[j] = instances[(string)arg["valueHnd"]];
+					ctorArguments[j] = InstanceRegistry.getInstance((string)arg["valueHnd"]);
 				} else if (ctorArgumentTypes[j] == typeof(Uri)) {
 					ctorArguments[j] = new Uri((string)arg["valuePrimitive"], UriKind.RelativeOrAbsolute);
 				} else {
@@ -206,18 +177,11 @@ namespace TitaniumApp.TiRequestHandlers
 				}
 			}
 
-			if ((uint)instanceCount > UInt32.MaxValue) {
-				throw new Exception("Reflection Handler Exception: Maximum instance count exceeded");
-			}
-
 			// Invoke the constructor and return the result
 			var instance = classType.GetConstructor(ctorArgumentTypes).Invoke(ctorArguments);
 
-			string handle = instanceCount++.ToString();
-			instances[handle] = instance;
-
 			TiResponse response = new TiResponse();
-			response["handle"] = handle;
+			response["handle"] = InstanceRegistry.createHandle(instance);
 			return response;
 		}
 
@@ -227,12 +191,11 @@ namespace TitaniumApp.TiRequestHandlers
 			}
 
 			string handle = (string)data["handle"];
+			object instance = InstanceRegistry.getInstance(handle);
 
-			if (!instances.ContainsKey(handle)) {
+			if (instance == null) {
 				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request invalid handle \"" + handle + "\"");
 			}
-
-			var instance = instances[handle];
 
 			// remove from parent view
 			var propertyInfo = instance.GetType().GetProperty("Parent");
@@ -261,7 +224,7 @@ namespace TitaniumApp.TiRequestHandlers
 			}
 
 			// remove global reference
-			instances.Remove(handle);
+			InstanceRegistry.removeInstance(handle);
 
 			return null;
 		}
@@ -278,7 +241,7 @@ namespace TitaniumApp.TiRequestHandlers
 			string name = (string)data["name"];
 			string value = (string)data["value"];
 
-			Type t = lookupType(name);
+			Type t = InstanceRegistry.lookupType(name);
 			if (t == null) {
 				throw new Exception("Reflection Handler Exception: \"getEnum\" request failed because \"" + name + "\" is an invalid class name");
 			}
@@ -294,7 +257,7 @@ namespace TitaniumApp.TiRequestHandlers
 				}
 			}
 
-			return createReturnType(val.GetType(), val);
+			return InstanceRegistry.createReturnType(val);
 		}
 
 		private TiResponse invokeMethod(TiRequestParams data) {
@@ -303,8 +266,9 @@ namespace TitaniumApp.TiRequestHandlers
 			}
 
 			string handle = (string)data["handle"];
+			object instance = InstanceRegistry.getInstance(handle);
 
-			if (!instances.ContainsKey(handle)) {
+			if (instance == null) {
 				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request invalid handle \"" + handle + "\"");
 			}
 
@@ -324,7 +288,14 @@ namespace TitaniumApp.TiRequestHandlers
 			// create the argument types array
 			Type[] fnArgumentTypes = new Type[args.Count / 2];
 			for (int i = 0, j = 0; i < args.Count; i += 2, j++) {
-				fnArgumentTypes[j] = lookupType((string)args[i]);
+				fnArgumentTypes[j] = InstanceRegistry.lookupType((string)args[i]);
+			}
+
+			// get the method info
+			MethodInfo methodInfo = instance.GetType().GetMethod((string)data["method"], fnArgumentTypes);
+
+			if (methodInfo.ReturnType.GetInterfaces().Contains(typeof(IAsyncInfo))) {
+				throw new Exception("Use invokeMethodAsync() to call this method");
 			}
 
 			// create the argument values array
@@ -332,21 +303,19 @@ namespace TitaniumApp.TiRequestHandlers
 			for (int i = 1, j = 0; i < args.Count; i += 2, j++) {
 				JObject arg = (JObject)args[i];
 				if (arg["valueHnd"] != null) {
-					fnArguments[j] = instances[(string)arg["valueHnd"]];
+					fnArguments[j] = InstanceRegistry.getInstance((string)arg["valueHnd"]);
 				} else if (fnArgumentTypes[j] == typeof(Uri)) {
 					fnArguments[j] = new Uri((string)arg["valuePrimitive"], UriKind.RelativeOrAbsolute);
 				} else {
 					fnArguments[j] = ((JValue)arg["valuePrimitive"]).Value;
 				}
 				if (fnArguments[j] != null) {
-					fnArguments[j] = Convert.ChangeType(fnArguments[j], fnArgumentTypes[j]);
+					IConvertible convertible = fnArguments[j] as IConvertible;
+					if (convertible != null) {
+						fnArguments[j] = Convert.ChangeType(fnArguments[j], fnArgumentTypes[j]);
+					}
 				}
 			}
-
-			var instance = instances[handle];
-
-			// get the method info
-			MethodInfo methodInfo = instance.GetType().GetMethod((string)data["method"], fnArgumentTypes);
 
 			// invoke the method
 			var result = methodInfo.Invoke(instance, fnArguments);
@@ -355,7 +324,68 @@ namespace TitaniumApp.TiRequestHandlers
 				result = null;
 			}
 
-			return createReturnType(result == null ? null : result.GetType(), result);
+			return InstanceRegistry.createReturnType(result);
+		}
+
+		private TiResponse invokeMethodAsync(TiRequestParams data) {
+			if (!data.ContainsKey("handle")) {
+				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request missing \"handle\" param");
+			}
+
+			string handle = (string)data["handle"];
+			object instance = InstanceRegistry.getInstance(handle);
+
+			if (instance == null) {
+				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request invalid handle \"" + handle + "\"");
+			}
+
+			if (!data.ContainsKey("method")) {
+				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request missing \"method\" param");
+			}
+
+			if (!data.ContainsKey("args")) {
+				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request missing \"args\" param");
+			}
+
+			JArray args = (JArray)data["args"];
+			if (args.Count % 2 != 0) {
+				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request arguments must contain an even number of type-values");
+			}
+
+			// create the argument types array
+			Type[] fnArgumentTypes = new Type[args.Count / 2];
+			for (int i = 0, j = 0; i < args.Count; i += 2, j++) {
+				fnArgumentTypes[j] = InstanceRegistry.lookupType((string)args[i]);
+			}
+
+			// get the method info
+			MethodInfo methodInfo = instance.GetType().GetMethod((string)data["method"], fnArgumentTypes);
+
+			// create the argument values array
+			object[] fnArguments = new object[args.Count / 2];
+			for (int i = 1, j = 0; i < args.Count; i += 2, j++) {
+				JObject arg = (JObject)args[i];
+				if (arg["valueHnd"] != null) {
+					fnArguments[j] = InstanceRegistry.getInstance((string)arg["valueHnd"]);
+				} else if (fnArgumentTypes[j] == typeof(Uri)) {
+					fnArguments[j] = new Uri((string)arg["valuePrimitive"], UriKind.RelativeOrAbsolute);
+				} else {
+					fnArguments[j] = ((JValue)arg["valuePrimitive"]).Value;
+				}
+				if (fnArguments[j] != null) {
+					IConvertible convertible = fnArguments[j] as IConvertible;
+					if (convertible != null) {
+						fnArguments[j] = Convert.ChangeType(fnArguments[j], fnArgumentTypes[j]);
+					}
+				}
+			}
+
+			TiResponse response = new TiResponse();
+			InvokeAsync ia = new InvokeAsync();
+			response["handle"] = InstanceRegistry.createHandle(ia);
+			ia.run(instance, methodInfo, fnArguments);
+
+			return response;
 		}
 
 		private TiResponse invokeStatic(TiRequestParams data) {
@@ -364,9 +394,9 @@ namespace TitaniumApp.TiRequestHandlers
 			}
 
 			string className = (string)data["className"];
-			var classType = lookupType(className);
+			var classType = InstanceRegistry.lookupType(className);
 			if (classType == null) {
-				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request invalid classname \"" + classType + "\"");
+				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request invalid classname \"" + className + "\"");
 			}
 
 			if (!data.ContainsKey("method")) {
@@ -385,7 +415,14 @@ namespace TitaniumApp.TiRequestHandlers
 			// create the argument types array
 			Type[] fnArgumentTypes = new Type[args.Count / 2];
 			for (int i = 0, j = 0; i < args.Count; i += 2, j++) {
-				fnArgumentTypes[j] = lookupType((string)args[i]);
+				fnArgumentTypes[j] = InstanceRegistry.lookupType((string)args[i]);
+			}
+
+			// get the method info
+			MethodInfo methodInfo = classType.GetMethod((string)data["method"], fnArgumentTypes);
+
+			if (methodInfo.ReturnType.GetInterfaces().Contains(typeof(IAsyncInfo))) {
+				throw new Exception("Use invokeMethodAsync() to call this method");
 			}
 
 			// create the argument values array
@@ -393,19 +430,19 @@ namespace TitaniumApp.TiRequestHandlers
 			for (int i = 1, j = 0; i < args.Count; i += 2, j++) {
 				JObject arg = (JObject)args[i];
 				if (arg["valueHnd"] != null) {
-					fnArguments[j] = instances[(string)arg["valueHnd"]];
+					fnArguments[j] = InstanceRegistry.getInstance((string)arg["valueHnd"]);
 				} else if (fnArgumentTypes[j] == typeof(Uri)) {
 					fnArguments[j] = new Uri((string)arg["valuePrimitive"], UriKind.RelativeOrAbsolute);
 				} else {
 					fnArguments[j] = ((JValue)arg["valuePrimitive"]).Value;
 				}
 				if (fnArguments[j] != null) {
-					fnArguments[j] = Convert.ChangeType(fnArguments[j], fnArgumentTypes[j]);
+					IConvertible convertible = fnArguments[j] as IConvertible;
+					if (convertible != null) {
+						fnArguments[j] = Convert.ChangeType(fnArguments[j], fnArgumentTypes[j]);
+					}
 				}
 			}
-
-			// get the method info
-			MethodInfo methodInfo = classType.GetMethod((string)data["method"], fnArgumentTypes);
 
 			// invoke the method
 			var result = methodInfo.Invoke(null, fnArguments);
@@ -414,7 +451,67 @@ namespace TitaniumApp.TiRequestHandlers
 				result = null;
 			}
 
-			return createReturnType(result == null ? null : result.GetType(), result);
+			return InstanceRegistry.createReturnType(result);
+		}
+
+		private TiResponse invokeStaticAsync(TiRequestParams data) {
+			if (!data.ContainsKey("className")) {
+				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request missing \"className\" param");
+			}
+
+			string className = (string)data["className"];
+			var classType = InstanceRegistry.lookupType(className);
+			if (classType == null) {
+				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request invalid classname \"" + className + "\"");
+			}
+
+			if (!data.ContainsKey("method")) {
+				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request missing \"method\" param");
+			}
+
+			if (!data.ContainsKey("args")) {
+				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request missing \"args\" param");
+			}
+
+			JArray args = (JArray)data["args"];
+			if (args.Count % 2 != 0) {
+				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request arguments must contain an even number of type-values");
+			}
+
+			// create the argument types array
+			Type[] fnArgumentTypes = new Type[args.Count / 2];
+			for (int i = 0, j = 0; i < args.Count; i += 2, j++) {
+				fnArgumentTypes[j] = InstanceRegistry.lookupType((string)args[i]);
+			}
+
+			// get the method info
+			MethodInfo methodInfo = classType.GetMethod((string)data["method"], fnArgumentTypes);
+
+			// create the argument values array
+			object[] fnArguments = new object[args.Count / 2];
+			for (int i = 1, j = 0; i < args.Count; i += 2, j++) {
+				JObject arg = (JObject)args[i];
+				if (arg["valueHnd"] != null) {
+					fnArguments[j] = InstanceRegistry.getInstance((string)arg["valueHnd"]);
+				} else if (fnArgumentTypes[j] == typeof(Uri)) {
+					fnArguments[j] = new Uri((string)arg["valuePrimitive"], UriKind.RelativeOrAbsolute);
+				} else {
+					fnArguments[j] = ((JValue)arg["valuePrimitive"]).Value;
+				}
+				if (fnArguments[j] != null) {
+					IConvertible convertible = fnArguments[j] as IConvertible;
+					if (convertible != null) {
+						fnArguments[j] = Convert.ChangeType(fnArguments[j], fnArgumentTypes[j]);
+					}
+				}
+			}
+
+			TiResponse response = new TiResponse();
+			InvokeAsync ia = new InvokeAsync();
+			response["handle"] = InstanceRegistry.createHandle(ia);
+			ia.run(null, methodInfo, fnArguments);
+
+			return response;
 		}
 
 		private TiResponse property(TiRequestParams data) {
@@ -423,8 +520,9 @@ namespace TitaniumApp.TiRequestHandlers
 			}
 
 			string handle = (string)data["handle"];
+			object instance = InstanceRegistry.getInstance(handle);
 
-			if (!instances.ContainsKey(handle)) {
+			if (instance == null) {
 				throw new Exception("Reflection Handler Exception: \"property\" request invalid handle \"" + handle + "\"");
 			}
 
@@ -437,7 +535,6 @@ namespace TitaniumApp.TiRequestHandlers
 				throw new Exception("Reflection Handler Exception: \"property\" request \"name\" is null");
 			}
 
-			var instance = instances[handle];
 			Type instanceType = instance.GetType();
 			Type propType = instanceType.GetType();
 
@@ -453,7 +550,7 @@ namespace TitaniumApp.TiRequestHandlers
 						for (var i = 0; i < arr.Count; i++) {
 							string propName = arr[i].ToString();
 							object val = instanceType.GetProperty(propName).GetValue(instance);
-							value[propName] = createReturnType(val.GetType(), val);
+							value[propName] = InstanceRegistry.createReturnType(val);
 						}
 						response["value"] = value;
 						return response;
@@ -467,7 +564,7 @@ namespace TitaniumApp.TiRequestHandlers
 							var propertyInfo = instanceType.GetProperty(prop.Name);
 							JObject value = (JObject)prop.Value;
 							if (value["valueHnd"] != null) {
-								propertyInfo.SetValue(instance, instances[(string)value["valueHnd"]]);
+								propertyInfo.SetValue(instance, InstanceRegistry.getInstance((string)value["valueHnd"]));
 							} else if (value["valuePrimitive"] != null) {
 								var valuePrimitive = value["valuePrimitive"];
 								if (propertyInfo.PropertyType == typeof(Uri)) {
@@ -488,7 +585,7 @@ namespace TitaniumApp.TiRequestHandlers
 
 						// setting a single prop
 						if (data.ContainsKey("valueHnd") && data["valueHnd"] != null) {
-							propertyInfo.SetValue(instance, instances[(string)data["valueHnd"]]);
+							propertyInfo.SetValue(instance, InstanceRegistry.getInstance((string)data["valueHnd"]));
 							return null;
 						} else if (data.ContainsKey("valuePrimitive")) {
 							var valuePrimitive = data["valuePrimitive"];
@@ -501,7 +598,7 @@ namespace TitaniumApp.TiRequestHandlers
 
 						// getting a single prop
 						object val = propertyInfo.GetValue(instance);
-						return createReturnType(val.GetType(), val);
+						return InstanceRegistry.createReturnType(val);
 					}
 			}
 
@@ -514,8 +611,9 @@ namespace TitaniumApp.TiRequestHandlers
 			}
 
 			string handle = (string)data["handle"];
+			object instance = InstanceRegistry.getInstance(handle);
 
-			if (!instances.ContainsKey(handle)) {
+			if (instance == null) {
 				throw new Exception("Reflection Handler Exception: \"addEventListener\" request invalid handle \"" + handle + "\"");
 			}
 
@@ -524,13 +622,117 @@ namespace TitaniumApp.TiRequestHandlers
 			}
 
 			string eventName = (string)data["name"];
-			var instance = instances[handle];
 			var eventInfo = instance.GetType().GetEvent(eventName);
-			var handler = delegates[handle + "." + eventName];
-			eventInfo.RemoveEventHandler(instances[handle], handler);
-			delegates.Remove(handle + "." + eventName);
+			Delegate handler = InstanceRegistry.getDelegate(handle + "." + eventName);
+			if (handler != null) {
+				eventInfo.RemoveEventHandler(instance, handler);
+				InstanceRegistry.removeDelegate(handle + "." + eventName);
+			}
 
 			return null;
 		}
+
+		private TiResponse staticProperty(TiRequestParams data) {
+			if (!data.ContainsKey("className")) {
+				throw new Exception("Reflection Handler Exception: \"staticProperty\" request missing \"className\" param");
+			}
+
+			string className = (string)data["className"];
+			var classType = InstanceRegistry.lookupType(className);
+			if (classType == null) {
+				throw new Exception("Reflection Handler Exception: \"staticProperty\" request invalid classname \"" + className + "\"");
+			}
+
+			if (!data.ContainsKey("property")) {
+				throw new Exception("Reflection Handler Exception: \"staticProperty\" request missing \"property\" param");
+			}
+
+			PropertyInfo propertyInfo = classType.GetProperty((string)data["property"]);
+			if (propertyInfo == null) {
+				throw new Exception("Reflection Handler Exception: \"staticProperty\" request invalid property \"" + data["property"] + "\"");
+			}
+
+			object val = propertyInfo.GetValue(null);
+			return InstanceRegistry.createReturnType(val);
+		}
+	}
+
+	public class InvokeAsync
+	{
+		public event EventHandler<InvokeAsyncEventArgs> complete;
+
+		public async void run(object instance, MethodInfo methodInfo, object[] fnArguments) {
+			SynchronizationContext ctx = SynchronizationContext.Current;
+
+			if (!methodInfo.ReturnType.GetInterfaces().Contains(typeof(IAsyncInfo))) {
+				// this should be easy, just run it as if it was synchronous
+				var result = methodInfo.Invoke(instance, fnArguments);
+
+				InvokeAsyncEventArgs eventArgs = new InvokeAsyncEventArgs();
+
+				if (methodInfo.ReturnType == typeof(void)) {
+					eventArgs.primitiveValue = null;
+				} else {
+					Type type = result.GetType();
+					if (type.IsPrimitive || type == typeof(string) || type == typeof(decimal)) {
+						eventArgs.primitiveValue = result;
+					} else if (InstanceRegistry.containsInstance(result)) {
+						eventArgs.handle = InstanceRegistry.getInstanceHandleByValue(result);
+					} else {
+						string handle = InstanceRegistry.createHandle(result);
+						eventArgs.handle = handle;
+					}
+				}
+
+				this.OnComplete(eventArgs);
+				return;
+			}
+
+			MethodInfo castMethod = Type.GetType("TitaniumApp.TiRequestHandlers.Caster").GetMethod("CastTo");
+			castMethod = castMethod.MakeGenericMethod(methodInfo.ReturnType.GenericTypeArguments[0]);
+
+			InvokeAsync _this = this;
+
+			Task.Run(() => {
+				var comObject = methodInfo.Invoke(instance, fnArguments);
+
+				Task<object> obj = (Task<object>)castMethod.Invoke(null, new object[] { comObject });
+				obj.Wait();
+				var result = obj.Result;
+
+				InvokeAsyncEventArgs eventArgs = new InvokeAsyncEventArgs();
+
+				if (methodInfo.ReturnType == typeof(void)) {
+					eventArgs.primitiveValue = null;
+				} else {
+					Type type = result.GetType();
+					if (type.IsPrimitive || type == typeof(string) || type == typeof(decimal)) {
+						eventArgs.primitiveValue = result;
+					} else if (InstanceRegistry.containsInstance(result)) {
+						eventArgs.handle = InstanceRegistry.getInstanceHandleByValue(result);
+					} else {
+						string handle = InstanceRegistry.createHandle(result);
+						eventArgs.handle = handle;
+					}
+				}
+
+				ctx.Post(args => {
+					_this.OnComplete((InvokeAsyncEventArgs)args);
+				}, eventArgs);
+			});
+		}
+
+		protected virtual void OnComplete(InvokeAsyncEventArgs e) {
+			EventHandler<InvokeAsyncEventArgs> handler = complete;
+			if (handler != null) {
+				handler(this, e);
+			}
+		}
+	}
+
+	public class InvokeAsyncEventArgs : EventArgs
+	{
+		public object primitiveValue { get; set; }
+		public string handle { get; set; }
 	}
 }

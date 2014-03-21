@@ -140,7 +140,7 @@ exports.init = function (logger, config, cli) {
 												logger[lastLogger](m[4].trim());
 											}
 										} else {
-											logger[lastLogger](line);
+											(logger[lastLogger] || logger.info)(line);
 										}
 									}
 								}
