@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TitaniumApp
 {
-	class TiResponse : Dictionary<string, object>
+	public class TiResponse : Dictionary<string, object>
 	{
 	}
 }
