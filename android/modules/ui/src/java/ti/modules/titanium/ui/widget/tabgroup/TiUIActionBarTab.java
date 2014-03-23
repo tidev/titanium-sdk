@@ -6,8 +6,8 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiUIHelper;
 
@@ -24,15 +24,16 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 
 	private static final String TAG = "TiUIActionBarTab";
 	public static class TabFragment extends Fragment {
-		private View contentView;
+		private TiUIActionBarTab tab;
 
-		public void setContentView(View view) {
-			contentView = view;
+		public TabFragment(TiUIActionBarTab tab) {
+			this.tab = tab;
 		}
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			return contentView;
+
+			return tab.getContentView();
 		}
 	}
 
@@ -88,8 +89,7 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 	 * will display the tab's content view.
 	 */
 	void initializeFragment() {
-		fragment = new TabFragment();
-		fragment.setContentView(getContentView());
+		fragment = new TabFragment(this);
 	}
 
 }
