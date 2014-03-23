@@ -55,7 +55,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private WeakReference<ActionBarActivity> tabGroupActivity;
 	private TabProxy selectedTab;
 	private boolean isFocused;
-
+	private int setTabOrIndex;
+	
 	public TabGroupProxy()
 	{
 		super();
@@ -176,7 +177,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		TabProxy tab;
 		if (tabOrIndex instanceof Number) {
 			int tabIndex = ((Number) tabOrIndex).intValue();
-			if (tabIndex < 0 || tabIndex >= tabs.size()) {
+			if (!this.opened && tabIndex > 0) {
+				setTabOrIndex = tabIndex;
+				return;
+			} else if (tabIndex < 0 || tabIndex >= tabs.size()) {
 				Log.e(TAG, "Invalid tab index.");
 				return;
 			}
@@ -342,7 +346,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		for (TabProxy tab : tabs) {
 			tg.addTab(tab);
 		}
-
+		if (setTabOrIndex < 0 || setTabOrIndex >= tabs.size()) {
+			Log.e(TAG, "Invalid tab index.");
+		} else {
+			setActiveTab(setTabOrIndex);
+		}
 		TabProxy activeTab = handleGetActiveTab();
 		if (activeTab != null) {
 			selectedTab = null;
