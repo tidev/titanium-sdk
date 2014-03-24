@@ -173,10 +173,15 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						// make sure we have an Android SDK and some Android targets
 						if (!Object.keys(androidInfo.targets).filter(function (id) {
 								var t = androidInfo.targets[id];
-								return t.type == 'platform' && t['api-level'] > _t.minSupportedApiLevel;
+								return t.type == 'platform' && t['api-level'] >= _t.minSupportedApiLevel;
 						}).length) {
-							logger.error(__('No Android SDK targets found.') + '\n');
-							logger.log(__('Please download SDK targets (api level %s or newer) via Android SDK Manager and try again.', _t.minSupportedApiLevel) + '\n');
+							if (Object.keys(androidInfo.targets).length) {
+								logger.error(__('No valid Android SDK targets found.'));
+							} else {
+								logger.error(__('No Android SDK targets found.'));
+							}
+							logger.error(__('Please download an Android SDK target API level %s or newer from the Android SDK Manager and try again.', _t.minSupportedApiLevel) + '\n');
+							process.exit(1);
 						}
 					}
 
