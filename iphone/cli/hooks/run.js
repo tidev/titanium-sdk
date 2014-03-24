@@ -76,14 +76,17 @@ exports.init = function (logger, config, cli) {
 					stripLogLevelRE = new RegExp('\\[(?:' + logger.getLevels().join('|') + ')\\] '),
 					simStarted = false;
 
-				if (cli.argv.retina) {
+				if (appc.version.gte(build.iosSimVersion, '7.0.0') && cli.argv['sim-64bit']) {
+					cmd.push('--retina');
+					if (build.iosSimType == 'iphone') {
+						cmd.push('--tall');
+					}
+					cmd.push('--sim-64bit');
+				} else if (cli.argv.retina) {
 					cmd.push('--retina');
 					if (appc.version.gte(build.iosSimVersion, '6.0.0') && build.iosSimType == 'iphone' && cli.argv.tall) {
 						cmd.push('--tall');
 					}
-				}
-				if (appc.version.gte(build.iosSimVersion, '7.0.0') && cli.argv['sim-64bit']) {
-					cmd.push('--sim-64bit');
 				}
 				cmd = cmd.join(' ');
 
