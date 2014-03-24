@@ -191,6 +191,10 @@ public class TiUIWebView extends TiUIView
 		webView.setWebChromeClient(chromeClient);
 		client = new TiWebViewClient(this, webView);
 		webView.setWebViewClient(client);
+		//setLayerType() is supported in API 11+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		}
 		webView.client = client;
 
 		if (proxy instanceof WebViewProxy) {
