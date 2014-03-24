@@ -262,7 +262,7 @@ exports.config = function config(logger, config, cli) {
 								promptLabel: __('Your company/personal URL')
 							}));
 						},
-						required: true,
+						required: !!cli.argv.prompt,
 						validate: function (value, callback) {
 							callback(null, value);
 						}
