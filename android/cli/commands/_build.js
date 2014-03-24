@@ -1387,6 +1387,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	return function (finished) {
 		// validate modules
 		var moduleSearchPaths = [ cli.argv['project-dir'] ],
+			customSDKPaths = config.get('paths.sdks'),
 			customModulePaths = config.get('paths.modules'),
 			addSearchPath = function (p) {
 				p = afs.resolvePath(p);
@@ -1395,6 +1396,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 				}
 			};
 		cli.env.os.sdkPaths.forEach(addSearchPath);
+		Array.isArray(customSDKPaths) && customSDKPaths.forEach(addSearchPath);
 		Array.isArray(customModulePaths) && customModulePaths.forEach(addSearchPath);
 
 		appc.timodule.find(cli.tiapp.modules, 'android', this.deployType, this.titaniumSdkVersion, moduleSearchPaths, logger, function (modules) {
