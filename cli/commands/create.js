@@ -283,7 +283,7 @@ exports.config = function config(logger, config, cli) {
 								validate: conf.options['workspace-dir'].validate
 							}));
 						},
-						required: true,
+						required: !!cli.argv.prompt,
 						validate: function (dir, callback) {
 							if (!dir) {
 								logger.error(__('Please specify the workspace directory') + '\n');
