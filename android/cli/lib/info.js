@@ -90,12 +90,17 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 					'  ' + rpad('  ' + __('Description')) + ' = ' + styleValue(target.description) + '\n' +
 					'  ' + rpad('  ' + __('Skins'))       + ' = ' + styleValue(target.skins.join(', ')) + '\n' +
 					'  ' + rpad('  ' + __('ABIs'))        + ' = ' + styleValue(target.abis.join(', ')) + '\n' +
-					'  ' + rpad('  ' + __('Path'))        + ' = ' + styleValue(target.path) + '\n' +
-					'  ' + rpad('  ' + __('Libraries'))   + ' = ' + styleValue(target.libraries && Object.keys(target.libraries).length
-						? Object.keys(target.libraries).map(function (lib) {
-								return lib + ': ' + target.libraries[lib].description + ' (' + target.libraries[lib].jar + ')';
-							}).join(', ')
-						: 'none') + '\n';
+					'  ' + rpad('  ' + __('Path'))        + ' = ' + styleValue(target.path) + '\n';
+
+				if (target.libraries && Object.keys(target.libraries).length) {
+					Object.keys(target.libraries).map(function (lib, i) {
+						androidAddons += '  ' + (i == 0 ? rpad('  ' + __('Libraries'))   + ' = ' : rpad('') + '   ') +
+							styleValue(lib + ': ' + target.libraries[lib].description + ' (' + target.libraries[lib].jar + ')') + '\n';
+					});
+					androidAddons += '\n';
+				} else {
+					androidAddons += '  ' + rpad('  ' + __('Libraries'))   + ' = ' + styleValue(__('none')) + '\n';
+				}
 			}
 		});
 	}
