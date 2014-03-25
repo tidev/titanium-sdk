@@ -549,7 +549,11 @@ namespace TitaniumApp.TiRequestHandlers
 						Dictionary<string, TiResponse> value = new Dictionary<string, TiResponse>();
 						for (var i = 0; i < arr.Count; i++) {
 							string propName = arr[i].ToString();
-							object val = instanceType.GetProperty(propName).GetValue(instance);
+							var propertyInfo = instanceType.GetProperty(propName);
+							if (propertyInfo == null) {
+								throw new Exception("Reflection Handler Exception: Invalid property \"" + propName + "\"");
+							}
+							object val = propertyInfo.GetValue(instance);
 							value[propName] = InstanceRegistry.createReturnType(val);
 						}
 						response["value"] = value;
@@ -562,6 +566,9 @@ namespace TitaniumApp.TiRequestHandlers
 						JObject props = (JObject)obj;
 						foreach (JProperty prop in props.Properties()) {
 							var propertyInfo = instanceType.GetProperty(prop.Name);
+							if (propertyInfo == null) {
+								throw new Exception("Reflection Handler Exception: Invalid property \"" + prop.Name + "\"");
+							}
 							JObject value = (JObject)prop.Value;
 							if (value["valueHnd"] != null) {
 								propertyInfo.SetValue(instance, InstanceRegistry.getInstance((string)value["valueHnd"]));
@@ -582,6 +589,9 @@ namespace TitaniumApp.TiRequestHandlers
 					{
 						string name = (string)obj;
 						var propertyInfo = instanceType.GetProperty(name);
+						if (propertyInfo == null) {
+							throw new Exception("Reflection Handler Exception: Invalid property \"" + name + "\"");
+						}
 
 						// setting a single prop
 						if (data.ContainsKey("valueHnd") && data["valueHnd"] != null) {
