@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -111,21 +111,26 @@ namespace TitaniumApp
 		public static TiResponse createReturnType(object value) {
 			Type type = value == null ? null : value.GetType();
 			TiResponse response = new TiResponse();
+			string handle = null;
 
 			if (value == null || type.IsPrimitive || type == typeof(string) || type == typeof(decimal)) {
 				response["primitiveValue"] = value;
 				return response;
 			}
 
-			if (instances.ContainsValue(value)) {
-				response["handle"] = instances.FirstOrDefault(x => x.Value == value).Key;
-				return response;
+			foreach (string key in instances.Keys) {
+				if (instances[key].Equals(value)) {
+					handle = key;
+					break;
+				}
 			}
 
-			string handle = createHandle(value);
+			if (handle == null) {
+				handle = createHandle(value);
+			}
+
 			response["handle"] = handle;
 			return response;
 		}
-		
 	}
 }
