@@ -93,6 +93,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ErrorEventArgs.cs" />
     <Compile Include="InstanceRegistry.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="TiRequestHandlers\DownloadRequestHandler.cs" />
