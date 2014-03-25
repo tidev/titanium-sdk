@@ -1,24 +1,33 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
 namespace TitaniumApp.TiRequestHandlers
 {
-	class FileRequestHandler : IRequestHandler
+	public class FileRequestException : Exception
+	{
+		public string Type = "FileRequestException";
+
+		public FileRequestException() {}
+		public FileRequestException(string message) : base(message) {}
+		public FileRequestException(string message, Exception inner) : base(message, inner) {}
+	}
+
+	public class FileRequestHandler : IRequestHandler
 	{
 		public TiResponse process(TiRequestParams data) {
 			if (!data.ContainsKey("file")) {
-				throw new Exception("File Handler Exception: Request missing 'file' param");
+				throw new FileRequestException("Request missing 'file' param");
 			}
 
 			string file = collapsePath((string)data["file"]);
 			if (file.IndexOf("..") == 0) {
-				throw new Exception("File Handler Exception: The requested file must not begin with \"..\"");
+				throw new FileRequestException("The requested file must not begin with \"..\"");
 			}
 			file = "App/" + file;
-			
+
 			if (!File.Exists(file)) {
-				throw new Exception("File Handler Exception: File \"" + file + "\" does not exist");
+				throw new FileRequestException("File \"" + file + "\" does not exist");
 			}
 
 			bool isBinary = false;
@@ -48,7 +57,7 @@ namespace TitaniumApp.TiRequestHandlers
 			List<string> tmp = new List<string>();
 			string segment = "";
 			string lastSegment = "";
-			
+
 			for (i = 0; i < parts.Length; i++) {
 				segment = parts[i];
 				if (segment == ".." && tmp.Count > 0 && lastSegment != "..") {

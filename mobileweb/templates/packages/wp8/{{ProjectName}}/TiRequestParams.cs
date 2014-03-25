@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TitaniumApp
 {
-	class TiRequestParams : Dictionary<string, object>
+	public class TiRequestParams : Dictionary<string, object>
 	{
 	}
 }

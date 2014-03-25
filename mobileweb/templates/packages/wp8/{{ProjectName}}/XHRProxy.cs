@@ -337,7 +337,7 @@ namespace TitaniumApp
 								} catch (WebException ex) {
 									// check if we have an expired or self-signed cert
 									if (ex.Status == WebExceptionStatus.UnknownError) {
-										if (ex.Response.Headers.Count == 0) {
+										if (ex.Response.Headers.Count == 0 && httpUri.Scheme == "https") {
 											Logger.log("XHRProxy", "Invalid SSL certificate, returning a 400 Bad Request");
 											requestError(writer, socket, "400 Bad Request", "Invalid SSL certificate");
 										} else {
