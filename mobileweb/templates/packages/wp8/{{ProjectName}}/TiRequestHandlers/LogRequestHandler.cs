@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace TitaniumApp.TiRequestHandlers
 {
-	class LogRequestHandler : IRequestHandler
+	public class LogRequestHandler : IRequestHandler
 	{
 		private Regex logLevelRegex = new Regex(@"^\[(\w+)\]\s(.*)?$", RegexOptions.Compiled);
 

@@ -5,6 +5,15 @@ using System.Linq;
 
 namespace TitaniumApp
 {
+	public class InstanceRegistryException : Exception
+	{
+		public string Type = "InstanceRegistryException";
+
+		public InstanceRegistryException() {}
+		public InstanceRegistryException(string message) : base(message) {}
+		public InstanceRegistryException(string message, Exception inner) : base(message, inner) {}
+	}
+
 	public static class InstanceRegistry
 	{
 		private static Dictionary<string, Type> cachedTypes = new Dictionary<string, Type>();
@@ -88,7 +97,7 @@ namespace TitaniumApp
 		public static string createHandle(object instance) {
 			string handle = instanceCount++.ToString();
 			if (instanceCount > UInt64.MaxValue) {
-				throw new Exception("Reflection Handler Exception: Maximum instance count exceeded");
+				throw new InstanceRegistryException("Maximum instance count exceeded");
 			}
 			Logger.log("InstanceRegistry", "Creating instance handle " + handle + ": " + instance.ToString());
 			instances[handle] = instance;
