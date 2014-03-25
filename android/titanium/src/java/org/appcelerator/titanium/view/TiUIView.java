@@ -1171,7 +1171,11 @@ public abstract class TiUIView
 				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
-					float radius = TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS, 0f);
+					float radius = 0;
+					TiDimension radiusDim = TiConvert.toTiDimension(d.get(TiC.PROPERTY_BORDER_RADIUS), TiDimension.TYPE_WIDTH);
+					if (radiusDim != null) {
+						radius = (float) radiusDim.getPixels(getNativeView());
+					}
 					if (radius > 0f && HONEYCOMB_OR_GREATER) {
 						disableHWAcceleration();
 					}
@@ -1189,7 +1193,7 @@ public abstract class TiUIView
 						TiDimension width = TiConvert
 							.toTiDimension(d.get(TiC.PROPERTY_BORDER_WIDTH), TiDimension.TYPE_WIDTH);
 						if (width != null) {
-							borderView.setBorderWidth(width.getAsPixels(getNativeView()));
+							borderView.setBorderWidth((float)width.getPixels(getNativeView()));
 						}
 					}
 				}
@@ -1202,13 +1206,22 @@ public abstract class TiUIView
 		if (TiC.PROPERTY_BORDER_COLOR.equals(property)) {
 			borderView.setColor(value != null ? TiConvert.toColor(value.toString()) : Color.TRANSPARENT);
 		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
-			float radius = TiConvert.toFloat(value, 0f);
+			float radius = 0;
+			TiDimension radiusDim = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
+			if (radiusDim != null) {
+				radius = (float) radiusDim.getPixels(getNativeView());
+			}
 			if (radius > 0f && HONEYCOMB_OR_GREATER) {
 				disableHWAcceleration();
 			}
 			borderView.setRadius(radius);
 		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
-			borderView.setBorderWidth(TiConvert.toFloat(value, 0f));
+			float width = 0;
+			TiDimension bwidth = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
+			if (bwidth != null) {
+				width = (float)bwidth.getPixels(getNativeView());
+			}
+			borderView.setBorderWidth(width);
 		}
 		borderView.postInvalidate();
 	}
