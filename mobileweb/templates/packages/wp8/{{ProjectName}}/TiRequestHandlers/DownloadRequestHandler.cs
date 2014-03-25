@@ -1,25 +1,34 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Phone.Net.NetworkInformation;
 using Windows.Storage;
 
 namespace TitaniumApp.TiRequestHandlers
 {
-	class DownloadRequestHandler : IRequestHandler
+	public class DownloadException : Exception
+	{
+		public string Type = "DownloadException";
+		public DownloadException() {}
+		public DownloadException(string message) : base(message) {}
+		public DownloadException(string message, Exception inner) : base(message, inner) {}
+	}
+
+	public class DownloadRequestHandler : IRequestHandler
 	{
 		public TiResponse process(TiRequestParams data) {
 			if (!data.ContainsKey("url")) {
-				throw new Exception("Download Handler Exception: Request missing 'url' param");
+				throw new DownloadException("Request missing 'url' param");
 			}
 
 			string url = (string)data["url"];
 
 			if (!url.StartsWith("http://") && !url.StartsWith("https://")) {
-				throw new Exception("Download Handler Exception: 'url' param must start with 'http://' or 'https://'");
+				throw new DownloadException("'url' param must start with 'http://' or 'https://'");
 			}
 
 			string saveTo = "";
@@ -33,12 +42,12 @@ namespace TitaniumApp.TiRequestHandlers
 				if (p > 8 && p != -1) { // make sure the last / is after the ://
 					saveTo = url.Substring(p + 1);
 				} else {
-					throw new Exception("Download Handler Exception: Request missing 'saveTo' param");
+					throw new DownloadException("Request missing 'saveTo' param");
 				}
 			}
 
 			if (saveTo == null || saveTo == "") {
-				throw new Exception("Download Handler Exception: Invalid 'saveTo' param");
+				throw new DownloadException("Invalid 'saveTo' param");
 			}
 
 			saveTo = saveTo.Replace('\\', '/');
@@ -53,7 +62,7 @@ namespace TitaniumApp.TiRequestHandlers
 						isf.CreateDirectory(dir);
 					}
 				} catch (IsolatedStorageException ise) {
-					throw new Exception("Download Handler Exception: Unable to create destination directory '" + dir + "' because of insufficient permissions or the isolated storage has been disabled or removed");
+					throw new DownloadException("Unable to create destination directory '" + dir + "' because of insufficient permissions or the isolated storage has been disabled or removed");
 				}
 			}
 
@@ -61,7 +70,7 @@ namespace TitaniumApp.TiRequestHandlers
 				if (data.ContainsKey("overwrite") && (bool)data["overwrite"]) {
 					isf.DeleteFile(saveTo);
 				} else {
-					throw new Exception("Download Handler Exception: File '" + saveTo + "' already exists");
+					throw new DownloadException("File '" + saveTo + "' already exists");
 				}
 			}
 
@@ -70,17 +79,16 @@ namespace TitaniumApp.TiRequestHandlers
 			try {
 				fileStream = isf.CreateFile(saveTo);
 			} catch (IsolatedStorageException ise) {
-				throw new Exception("Download Handler Exception: Unable to create file '" + saveTo + "' because the isolated storage has been disabled or removed");
+				throw new DownloadException("Unable to create file '" + saveTo + "' because the isolated storage has been disabled or removed");
 			} catch (DirectoryNotFoundException dnfe) {
-				throw new Exception("Download Handler Exception: Unable to create file '" + saveTo + "' because the directory does not exist");
+				throw new DownloadException("Unable to create file '" + saveTo + "' because the directory does not exist");
 			} catch (ObjectDisposedException dnfe) {
-				throw new Exception("Download Handler Exception: Unable to create file '" + saveTo + "' because the isolated storage has been disposed");
+				throw new DownloadException("Unable to create file '" + saveTo + "' because the isolated storage has been disposed");
 			}
 
 			TiResponse response = new TiResponse();
-			DownloadFile df = new DownloadFile();
+			DownloadFile df = new DownloadFile(SynchronizationContext.Current, new Uri(url), fileStream);
 			response["handle"] = InstanceRegistry.createHandle(df);
-			df.downloadFileAsync(url, fileStream);
 
 			return response;
 		}
@@ -88,15 +96,41 @@ namespace TitaniumApp.TiRequestHandlers
 		public class DownloadFile
 		{
 			public event EventHandler<DownloadFileEventArgs> complete;
+			public event EventHandler<ErrorEventArgs> error;
 
-			public async void downloadFileAsync(string url, IsolatedStorageFileStream filestream) {
-				SynchronizationContext ctx = SynchronizationContext.Current;
-				HttpWebRequest request = (HttpWebRequest)WebRequest.CreateHttp(new Uri(url));
+			private SynchronizationContext ctx;
+			private Uri uri;
+			private IsolatedStorageFileStream filestream = null;
+
+			public DownloadFile(SynchronizationContext c, Uri u, IsolatedStorageFileStream f) {
+				this.ctx = c;
+				this.uri = u;
+				this.filestream = f;
+			}
+
+			public async void send() {
+				DeviceNetworkInformation.ResolveHostNameAsync(new DnsEndPoint(uri.Host, 0), OnNameResolved, null);
+			}
+
+			private void OnNameResolved(NameResolutionResult dnsResult) {
+				if (dnsResult.NetworkInterface == null) {
+					if (filestream != null) {
+						filestream.Close();
+					}
+					ctx.Post(result => {
+						this.OnError(new ErrorEventArgs(new DownloadException("Network not available")));
+					}, null);
+					return;
+				}
+
+				HttpWebRequest request = (HttpWebRequest)WebRequest.CreateHttp(uri);
 				request.Method = "GET";
 
-				Logger.log("DownloadRequestHandler", "Downloading " + url + " asynchronously...");
+				Logger.log("DownloadRequestHandler", "Downloading " + uri.AbsoluteUri + " asynchronously...");
 
 				request.BeginGetResponse(async callbackResult => {
+					DownloadFile df = (DownloadFile)callbackResult.AsyncState;
+
 					try {
 						HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(callbackResult);
 						Logger.log("DownloadRequestHandler", "Status: " + (int)response.StatusCode + " " + response.StatusDescription);
@@ -121,36 +155,42 @@ namespace TitaniumApp.TiRequestHandlers
 
 						Logger.log("DownloadRequestHandler", "Wrote " + responseTotalBytesRead + " bytes");
 
-						DownloadFileEventArgs args = new DownloadFileEventArgs();
-						args.file = filestream.Name;
-						args.size = responseTotalBytesRead;
-
 						ctx.Post(result => {
-							DownloadFile df = (DownloadFile)callbackResult.AsyncState;
 							df.OnComplete((DownloadFileEventArgs)result);
-						}, args);
+						}, new DownloadFileEventArgs(filestream.Name, responseTotalBytesRead));
 
 					} catch (WebException ex) {
+						DownloadException de;
 						// check if we have an expired or self-signed cert
 						if (ex.Status == WebExceptionStatus.UnknownError) {
-							if (ex.Response.Headers.Count == 0) {
-								Logger.log("DownloadRequestHandler", "Invalid SSL certificate, returning a 400 Bad Request");
-								throw new Exception("Download Handler Exception: Invalid SSL certificate, returning a 400 Bad Request");
+							if (ex.Response.Headers.Count == 0 && uri.Scheme == "https") {
+								de = new DownloadException("Invalid SSL certificate, returning a 400 Bad Request");
 							} else {
-								Logger.log("DownloadRequestHandler", "File not found, returning a 404");
-								throw new Exception("Download Handler Exception: File not found, returning a 404");
+								de = new DownloadException("File not found, returning a 404");
 							}
 						} else {
-							Logger.log("DownloadRequestHandler", "400 Bad Request");
-							Logger.log("DownloadRequestHandler", ex.Status.ToString());
-							throw;
+							de = new DownloadException("400 Bad Request: " + ex.Status.ToString());
 						}
+						if (filestream != null) {
+							filestream.Close();
+						}
+						ctx.Post(result => {
+							df.OnError(new ErrorEventArgs(de));
+						}, null);
+						Logger.log("DownloadRequestHandler", de.Message);
 					}
 				}, this);
 			}
 
-			protected virtual void OnComplete(DownloadFileEventArgs e) {
+			public virtual void OnComplete(DownloadFileEventArgs e) {
 				EventHandler<DownloadFileEventArgs> handler = complete;
+				if (handler != null) {
+					handler(this, e);
+				}
+			}
+
+			public virtual void OnError(ErrorEventArgs e) {
+				EventHandler<ErrorEventArgs> handler = error;
 				if (handler != null) {
 					handler(this, e);
 				}
@@ -159,8 +199,22 @@ namespace TitaniumApp.TiRequestHandlers
 
 		public class DownloadFileEventArgs : EventArgs
 		{
-			public string file { get; set; }
-			public int size { get; set; }
+			public DownloadFileEventArgs(string f, int s) {
+				this.file = f;
+				this.size = s;
+			}
+
+			public string file { get; private set; }
+			public int size { get; private set; }
+		}
+
+		public class DownloadFileErrorEventArgs : EventArgs
+		{
+			public DownloadFileErrorEventArgs(string ex) {
+				this.error = ex;
+			}
+
+			public string error { get; private set; }
 		}
 	}
 }

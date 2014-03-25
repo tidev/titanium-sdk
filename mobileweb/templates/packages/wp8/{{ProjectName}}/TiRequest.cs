@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 
 namespace TitaniumApp
 {
-	class TiRequest
+	public class TiRequest
 	{
 		public string type { get; set; }
 		public string token { get; set; }

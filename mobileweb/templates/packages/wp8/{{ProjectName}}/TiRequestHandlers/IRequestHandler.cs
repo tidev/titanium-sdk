@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TitaniumApp.TiRequestHandlers
 {
-	interface IRequestHandler
+	public interface IRequestHandler
 	{
 		TiResponse process(TiRequestParams data);
 	}

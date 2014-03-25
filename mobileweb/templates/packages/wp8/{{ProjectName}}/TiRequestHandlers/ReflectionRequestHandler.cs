@@ -12,15 +12,24 @@ using Newtonsoft.Json.Linq;
 
 namespace TitaniumApp.TiRequestHandlers
 {
-	public static class Caster {
-		public static async Task<object> CastTo<X>(this object obj) {
+	public static class AsyncAwaiter
+	{
+		public static async Task<object> awaitTask<X>(this object obj) {
 			IAsyncOperation<X> asyncOp = (IAsyncOperation<X>)obj;
 			var result = await asyncOp;
 			return (X)result;
 		}
 	}
 
-	class ReflectionRequestHandler : IRequestHandler
+	public class ReflectionException : Exception
+	{
+		public string Type = "ReflectionException";
+		public ReflectionException() {}
+		public ReflectionException(string message) : base(message) {}
+		public ReflectionException(string message, Exception inner) : base(message, inner) {}
+	}
+
+	public class ReflectionRequestHandler : IRequestHandler
 	{
 		public ReflectionRequestHandler() {}
 
@@ -32,7 +41,7 @@ namespace TitaniumApp.TiRequestHandlers
 
 		public TiResponse process(TiRequestParams data) {
 			if (!data.ContainsKey("action")) {
-				throw new Exception("Reflection Handler Exception: Request missing 'action' param");
+				throw new ReflectionException("Request missing 'action' param");
 			}
 
 			string action = (string)data["action"];
@@ -50,24 +59,24 @@ namespace TitaniumApp.TiRequestHandlers
 				case "removeEventListener":	return removeEventListener(data);
 				case "staticProperty":		return staticProperty(data);
 				default:
-					throw new Exception("Reflection Handler Exception: Invalid action \"" + action + "\"");
+					throw new ReflectionException("Invalid action \"" + action + "\"");
 			}
 		}
 
 		private TiResponse addEventListener(TiRequestParams data) {
 			if (!data.ContainsKey("handle")) {
-				throw new Exception("Reflection Handler Exception: \"addEventListener\" request missing \"handle\" param");
+				throw new ReflectionException("\"addEventListener\" request missing \"handle\" param");
 			}
 
 			string handle = (string)data["handle"];
 			object instance = InstanceRegistry.getInstance(handle);
 
 			if (instance == null) {
-				throw new Exception("Reflection Handler Exception: \"addEventListener\" request invalid handle \"" + handle + "\"");
+				throw new ReflectionException("\"addEventListener\" request invalid handle \"" + handle + "\"");
 			}
 
 			if (!data.ContainsKey("name")) {
-				throw new Exception("Reflection Handler Exception: \"addEventListener\" request missing \"name\" param");
+				throw new ReflectionException("\"addEventListener\" request missing \"name\" param");
 			}
 
 			string eventName = (string)data["name"];
@@ -129,6 +138,11 @@ namespace TitaniumApp.TiRequestHandlers
 			}
 			response["eventArgs"] = eventArgsHandle;
 
+			response["error"] = null;
+			if (e.GetType() == typeof(ErrorEventArgs)) {
+				response["error"] = ((ErrorEventArgs)e).error;
+			}
+
 			browser.InvokeScript("execScript", new string[] { "tiwp8.fireEvent(" + JsonConvert.SerializeObject(response, Formatting.None) + ")" });
 
 			if (!senderExists) InstanceRegistry.removeInstance(senderHandle);
@@ -137,22 +151,22 @@ namespace TitaniumApp.TiRequestHandlers
 
 		private TiResponse createInstance(TiRequestParams data) {
 			if (!data.ContainsKey("className")) {
-				throw new Exception("Reflection Handler Exception: \"createInstance\" request missing \"className\" param");
+				throw new ReflectionException("\"createInstance\" request missing \"className\" param");
 			}
 
 			string className = (string)data["className"];
 			var classType = InstanceRegistry.lookupType(className);
 			if (classType == null) {
-				throw new Exception("Reflection Handler Exception: \"createInstance\" request invalid classname \"" + classType + "\"");
+				throw new ReflectionException("\"createInstance\" request invalid classname \"" + classType + "\"");
 			}
 
 			if (!data.ContainsKey("args")) {
-				throw new Exception("Reflection Handler Exception: \"createInstance\" request missing \"args\" param");
+				throw new ReflectionException("\"createInstance\" request missing \"args\" param");
 			}
 
 			JArray args = (JArray)data["args"];
 			if (args.Count % 2 != 0) {
-				throw new Exception("Reflection Handler Exception: \"createInstance\" request arguments must contain an even number of type-values");
+				throw new ReflectionException("\"createInstance\" request arguments must contain an even number of type-values");
 			}
 
 			// create the argument types array
@@ -187,14 +201,14 @@ namespace TitaniumApp.TiRequestHandlers
 
 		private TiResponse destroy(TiRequestParams data) {
 			if (!data.ContainsKey("handle")) {
-				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request missing \"handle\" param");
+				throw new ReflectionException("\"invokeMethod\" request missing \"handle\" param");
 			}
 
 			string handle = (string)data["handle"];
 			object instance = InstanceRegistry.getInstance(handle);
 
 			if (instance == null) {
-				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request invalid handle \"" + handle + "\"");
+				throw new ReflectionException("\"invokeMethod\" request invalid handle \"" + handle + "\"");
 			}
 
 			// remove from parent view
@@ -231,11 +245,11 @@ namespace TitaniumApp.TiRequestHandlers
 
 		private TiResponse getEnum(TiRequestParams data) {
 			if (!data.ContainsKey("name")) {
-				throw new Exception("Reflection Handler Exception: \"getEnum\" request missing \"name\" param");
+				throw new ReflectionException("\"getEnum\" request missing \"name\" param");
 			}
 
 			if (!data.ContainsKey("value")) {
-				throw new Exception("Reflection Handler Exception: \"getEnum\" request missing \"value\" param");
+				throw new ReflectionException("\"getEnum\" request missing \"value\" param");
 			}
 
 			string name = (string)data["name"];
@@ -243,7 +257,7 @@ namespace TitaniumApp.TiRequestHandlers
 
 			Type t = InstanceRegistry.lookupType(name);
 			if (t == null) {
-				throw new Exception("Reflection Handler Exception: \"getEnum\" request failed because \"" + name + "\" is an invalid class name");
+				throw new ReflectionException("\"getEnum\" request failed because \"" + name + "\" is an invalid class name");
 			}
 
 			object val = null;
@@ -262,27 +276,27 @@ namespace TitaniumApp.TiRequestHandlers
 
 		private TiResponse invokeMethod(TiRequestParams data) {
 			if (!data.ContainsKey("handle")) {
-				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request missing \"handle\" param");
+				throw new ReflectionException("\"invokeMethod\" request missing \"handle\" param");
 			}
 
 			string handle = (string)data["handle"];
 			object instance = InstanceRegistry.getInstance(handle);
 
 			if (instance == null) {
-				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request invalid handle \"" + handle + "\"");
+				throw new ReflectionException("\"invokeMethod\" request invalid handle \"" + handle + "\"");
 			}
 
 			if (!data.ContainsKey("method")) {
-				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request missing \"method\" param");
+				throw new ReflectionException("\"invokeMethod\" request missing \"method\" param");
 			}
 
 			if (!data.ContainsKey("args")) {
-				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request missing \"args\" param");
+				throw new ReflectionException("\"invokeMethod\" request missing \"args\" param");
 			}
 
 			JArray args = (JArray)data["args"];
 			if (args.Count % 2 != 0) {
-				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request arguments must contain an even number of type-values");
+				throw new ReflectionException("\"invokeMethod\" request arguments must contain an even number of type-values");
 			}
 
 			// create the argument types array
@@ -329,27 +343,27 @@ namespace TitaniumApp.TiRequestHandlers
 
 		private TiResponse invokeMethodAsync(TiRequestParams data) {
 			if (!data.ContainsKey("handle")) {
-				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request missing \"handle\" param");
+				throw new ReflectionException("\"invokeMethod\" request missing \"handle\" param");
 			}
 
 			string handle = (string)data["handle"];
 			object instance = InstanceRegistry.getInstance(handle);
 
 			if (instance == null) {
-				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request invalid handle \"" + handle + "\"");
+				throw new ReflectionException("\"invokeMethod\" request invalid handle \"" + handle + "\"");
 			}
 
 			if (!data.ContainsKey("method")) {
-				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request missing \"method\" param");
+				throw new ReflectionException("\"invokeMethod\" request missing \"method\" param");
 			}
 
 			if (!data.ContainsKey("args")) {
-				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request missing \"args\" param");
+				throw new ReflectionException("\"invokeMethod\" request missing \"args\" param");
 			}
 
 			JArray args = (JArray)data["args"];
 			if (args.Count % 2 != 0) {
-				throw new Exception("Reflection Handler Exception: \"invokeMethod\" request arguments must contain an even number of type-values");
+				throw new ReflectionException("\"invokeMethod\" request arguments must contain an even number of type-values");
 			}
 
 			// create the argument types array
@@ -390,26 +404,26 @@ namespace TitaniumApp.TiRequestHandlers
 
 		private TiResponse invokeStatic(TiRequestParams data) {
 			if (!data.ContainsKey("className")) {
-				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request missing \"className\" param");
+				throw new ReflectionException("\"invokeStatic\" request missing \"className\" param");
 			}
 
 			string className = (string)data["className"];
 			var classType = InstanceRegistry.lookupType(className);
 			if (classType == null) {
-				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request invalid classname \"" + className + "\"");
+				throw new ReflectionException("\"invokeStatic\" request invalid classname \"" + className + "\"");
 			}
 
 			if (!data.ContainsKey("method")) {
-				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request missing \"method\" param");
+				throw new ReflectionException("\"invokeStatic\" request missing \"method\" param");
 			}
 
 			if (!data.ContainsKey("args")) {
-				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request missing \"args\" param");
+				throw new ReflectionException("\"invokeStatic\" request missing \"args\" param");
 			}
 
 			JArray args = (JArray)data["args"];
 			if (args.Count % 2 != 0) {
-				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request arguments must contain an even number of type-values");
+				throw new ReflectionException("\"invokeStatic\" request arguments must contain an even number of type-values");
 			}
 
 			// create the argument types array
@@ -456,26 +470,26 @@ namespace TitaniumApp.TiRequestHandlers
 
 		private TiResponse invokeStaticAsync(TiRequestParams data) {
 			if (!data.ContainsKey("className")) {
-				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request missing \"className\" param");
+				throw new ReflectionException("\"invokeStatic\" request missing \"className\" param");
 			}
 
 			string className = (string)data["className"];
 			var classType = InstanceRegistry.lookupType(className);
 			if (classType == null) {
-				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request invalid classname \"" + className + "\"");
+				throw new ReflectionException("\"invokeStatic\" request invalid classname \"" + className + "\"");
 			}
 
 			if (!data.ContainsKey("method")) {
-				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request missing \"method\" param");
+				throw new ReflectionException("\"invokeStatic\" request missing \"method\" param");
 			}
 
 			if (!data.ContainsKey("args")) {
-				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request missing \"args\" param");
+				throw new ReflectionException("\"invokeStatic\" request missing \"args\" param");
 			}
 
 			JArray args = (JArray)data["args"];
 			if (args.Count % 2 != 0) {
-				throw new Exception("Reflection Handler Exception: \"invokeStatic\" request arguments must contain an even number of type-values");
+				throw new ReflectionException("\"invokeStatic\" request arguments must contain an even number of type-values");
 			}
 
 			// create the argument types array
@@ -516,23 +530,23 @@ namespace TitaniumApp.TiRequestHandlers
 
 		private TiResponse property(TiRequestParams data) {
 			if (!data.ContainsKey("handle")) {
-				throw new Exception("Reflection Handler Exception: \"property\" request missing \"handle\" param");
+				throw new ReflectionException("\"property\" request missing \"handle\" param");
 			}
 
 			string handle = (string)data["handle"];
 			object instance = InstanceRegistry.getInstance(handle);
 
 			if (instance == null) {
-				throw new Exception("Reflection Handler Exception: \"property\" request invalid handle \"" + handle + "\"");
+				throw new ReflectionException("\"property\" request invalid handle \"" + handle + "\"");
 			}
 
 			if (!data.ContainsKey("name")) {
-				throw new Exception("Reflection Handler Exception: \"property\" request missing \"name\" param");
+				throw new ReflectionException("\"property\" request missing \"name\" param");
 			}
 
 			var obj = data["name"];
 			if (obj == null) {
-				throw new Exception("Reflection Handler Exception: \"property\" request \"name\" is null");
+				throw new ReflectionException("\"property\" request \"name\" is null");
 			}
 
 			Type instanceType = instance.GetType();
@@ -551,7 +565,7 @@ namespace TitaniumApp.TiRequestHandlers
 							string propName = arr[i].ToString();
 							var propertyInfo = instanceType.GetProperty(propName);
 							if (propertyInfo == null) {
-								throw new Exception("Reflection Handler Exception: Invalid property \"" + propName + "\"");
+								throw new ReflectionException("Invalid property \"" + propName + "\"");
 							}
 							object val = propertyInfo.GetValue(instance);
 							value[propName] = InstanceRegistry.createReturnType(val);
@@ -567,7 +581,7 @@ namespace TitaniumApp.TiRequestHandlers
 						foreach (JProperty prop in props.Properties()) {
 							var propertyInfo = instanceType.GetProperty(prop.Name);
 							if (propertyInfo == null) {
-								throw new Exception("Reflection Handler Exception: Invalid property \"" + prop.Name + "\"");
+								throw new ReflectionException("Invalid property \"" + prop.Name + "\"");
 							}
 							JObject value = (JObject)prop.Value;
 							if (value["valueHnd"] != null) {
@@ -590,7 +604,7 @@ namespace TitaniumApp.TiRequestHandlers
 						string name = (string)obj;
 						var propertyInfo = instanceType.GetProperty(name);
 						if (propertyInfo == null) {
-							throw new Exception("Reflection Handler Exception: Invalid property \"" + name + "\"");
+							throw new ReflectionException("Invalid property \"" + name + "\"");
 						}
 
 						// setting a single prop
@@ -617,18 +631,18 @@ namespace TitaniumApp.TiRequestHandlers
 
 		private TiResponse removeEventListener(TiRequestParams data) {
 			if (!data.ContainsKey("handle")) {
-				throw new Exception("Reflection Handler Exception: \"addEventListener\" request missing \"handle\" param");
+				throw new ReflectionException("\"addEventListener\" request missing \"handle\" param");
 			}
 
 			string handle = (string)data["handle"];
 			object instance = InstanceRegistry.getInstance(handle);
 
 			if (instance == null) {
-				throw new Exception("Reflection Handler Exception: \"addEventListener\" request invalid handle \"" + handle + "\"");
+				throw new ReflectionException("\"addEventListener\" request invalid handle \"" + handle + "\"");
 			}
 
 			if (!data.ContainsKey("name")) {
-				throw new Exception("Reflection Handler Exception: \"addEventListener\" request missing \"name\" param");
+				throw new ReflectionException("\"addEventListener\" request missing \"name\" param");
 			}
 
 			string eventName = (string)data["name"];
@@ -644,22 +658,22 @@ namespace TitaniumApp.TiRequestHandlers
 
 		private TiResponse staticProperty(TiRequestParams data) {
 			if (!data.ContainsKey("className")) {
-				throw new Exception("Reflection Handler Exception: \"staticProperty\" request missing \"className\" param");
+				throw new ReflectionException("\"staticProperty\" request missing \"className\" param");
 			}
 
 			string className = (string)data["className"];
 			var classType = InstanceRegistry.lookupType(className);
 			if (classType == null) {
-				throw new Exception("Reflection Handler Exception: \"staticProperty\" request invalid classname \"" + className + "\"");
+				throw new ReflectionException("\"staticProperty\" request invalid classname \"" + className + "\"");
 			}
 
 			if (!data.ContainsKey("property")) {
-				throw new Exception("Reflection Handler Exception: \"staticProperty\" request missing \"property\" param");
+				throw new ReflectionException("\"staticProperty\" request missing \"property\" param");
 			}
 
 			PropertyInfo propertyInfo = classType.GetProperty((string)data["property"]);
 			if (propertyInfo == null) {
-				throw new Exception("Reflection Handler Exception: \"staticProperty\" request invalid property \"" + data["property"] + "\"");
+				throw new ReflectionException("\"staticProperty\" request invalid property \"" + data["property"] + "\"");
 			}
 
 			object val = propertyInfo.GetValue(null);
@@ -698,7 +712,7 @@ namespace TitaniumApp.TiRequestHandlers
 				return;
 			}
 
-			MethodInfo castMethod = Type.GetType("TitaniumApp.TiRequestHandlers.Caster").GetMethod("CastTo");
+			MethodInfo castMethod = Type.GetType("TitaniumApp.TiRequestHandlers.AsyncAwaiter").GetMethod("awaitTask");
 			castMethod = castMethod.MakeGenericMethod(methodInfo.ReturnType.GenericTypeArguments[0]);
 
 			InvokeAsync _this = this;

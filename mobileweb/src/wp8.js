@@ -194,24 +194,26 @@
 			});
 		},
 
-		downloadFile: function (url, opts, callback) {
-			if (!url) {
-				throw new Error('downloadFile requires a "url"');
+		downloadFile: function (opts) {
+			if (!opts.url) {
+				throw new Error('Missing required "url"');
 			}
-			if (!opts && !callback) {
-				throw new Error('downloadFile requires a "callback"');
-			}
-			if (typeof opts == 'function') {
-				callback = opts;
-				opts = 0;
-			}
-			opts || (opts = {});
-			opts.url = url;
-			var r = sendRequest('download', opts);
-			r.addEventListener('complete', function (e) {
+			var r = sendRequest('download', {
+					url: opts.url,
+					saveTo: opts.saveTo,
+					overwrite: opts.overwrite
+				}),
+				oncomplete = opts.oncomplete,
+				onerror = opts.onerror;
+			r.addEventListener('complete', function (evt) {
 				r.destroy();
-				callback(e);
+				oncomplete && typeof oncomplete == 'function' && oncomplete(evt);
 			});
+			r.addEventListener('error', function (evt) {
+				r.destroy();
+				onerror && typeof onerror == 'function' && onerror(new Error(evt.error && evt.error.Message || "Unknown error"));
+			});
+			r.invoke('send');
 		},
 
 		fireEvent: function (data) {
