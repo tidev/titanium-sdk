@@ -198,7 +198,7 @@ public class TiDimension
 		switch (units) {
 			case TypedValue.COMPLEX_UNIT_PX:
 			case COMPLEX_UNIT_UNDEFINED:
-				return (int) this.value;
+				return this.value;
 			case COMPLEX_UNIT_PERCENT:
 				return getPercentPixels(parent);
 			case TypedValue.COMPLEX_UNIT_DIP:
