@@ -197,7 +197,7 @@ exports.config = function config(logger, config, cli) {
 
 							// just in case they set -p without a value
 							if (value === true) {
-								value = 'all';
+								return callback(true);
 							}
 
 							value.trim().toLowerCase().split(',').forEach(function (s) {
