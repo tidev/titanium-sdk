@@ -193,7 +193,7 @@ public class TiDimension
 		this.units = units;
 	}
 
-	protected double getPixels(View parent)
+	public double getPixels(View parent)
 	{
 		switch (units) {
 			case TypedValue.COMPLEX_UNIT_PX:
