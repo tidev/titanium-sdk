@@ -20,6 +20,8 @@ namespace TitaniumApp
 		private StreamSocketListener listener;
 		Dictionary<string, string> mimeTypes = new Dictionary<string,string>();
 
+		public string securityToken { get; set; }
+
 		public XHRProxy(int port) {
 			this.port = port;
 
@@ -92,6 +94,7 @@ namespace TitaniumApp
 			reader.InputStreamOptions = InputStreamOptions.Partial;
 
 			RequestParseState state = RequestParseState.GetRequest;
+			string urlPrefix = "/fetch/" + this.securityToken + "/";
 			UInt32 numBytesRead = 0;
 			UInt32 requestBufferSize = 4096;
 			string buffer = "";
@@ -135,13 +138,17 @@ namespace TitaniumApp
 								Logger.log("XHRProxy", "Method = " + httpMethod);
 
 								url = tokens[1];
-								q = url.IndexOf("/fetch/");
-								if (q == 0) {
-									byte[] data = Convert.FromBase64String(HttpUtility.UrlDecode(url.Substring(q + 7)));
-									url = Encoding.UTF8.GetString(data, 0, data.Length);
-									if (url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0) {
-										isLocalFile = false;
-									}
+								q = url.IndexOf(urlPrefix);
+								if (q != 0) {
+									Logger.log("XHRProxy", "400 Bad Request");
+									requestError(writer, socket, "400 Bad Request", "Bad Request");
+									return;
+								}
+
+								byte[] data = Convert.FromBase64String(HttpUtility.UrlDecode(url.Substring(q + urlPrefix.Length)));
+								url = Encoding.UTF8.GetString(data, 0, data.Length);
+								if (url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0) {
+									isLocalFile = false;
 								}
 								Logger.log("XHRProxy", "URL = " + url);
 
