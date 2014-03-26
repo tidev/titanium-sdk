@@ -22,12 +22,13 @@
         <phone:WebBrowser
             Name="browser"
             Base="App"
-            Background="Magenta"
+            Background="Black"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             IsScriptEnabled="True"
             IsGeolocationEnabled="True"
             Loaded="browser_Loaded"
+            Navigating="browser_Navigating"
             ScriptNotify="browser_ScriptNotify"/>
     </Grid>
 

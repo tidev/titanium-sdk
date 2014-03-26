@@ -5,7 +5,15 @@
 	var objToString = Object.prototype.toString,
 		console = global.console = {},
 		requests = {},
-		handles = {};
+		handles = {},
+		stoken = location.hash.replace(/^#/, '');
+
+	if (stoken) {
+		location.replace('#');
+		localStorage.setItem("stoken", stoken);
+	} else {
+		stoken = localStorage.getItem("stoken");
+	}
 
 	['log', 'debug', 'info', 'warn', 'error'].forEach(function (level) {
 		console[level] = function () {
@@ -28,9 +36,9 @@
 	// WARNING: Do NOT use console.log() inside this function when type == 'log'!
 	function sendRequest(type, data, callback) {
 		callback || (callback = processResponse);
-		var token = '' + Math.round(Math.random() * 1e9).toString(16),
+		var rtoken = '' + Math.round(Math.random() * 1e9).toString(16),
 			tmp;
-		requests[token] = callback;
+		requests[rtoken] = callback;
 
 		// window.external.notify() is real finicky, so we have to wrap it in a function
 		// otherwise the code minifier will optimize it by putting it in the middle of
@@ -39,13 +47,14 @@
 		(function () {
 			global.external.notify(JSON.stringify({
 				type: type,
-				token: token,
+				rtoken: rtoken,
+				stoken: stoken,
 				data: data
 			}));
 		}());
 
-		tmp = requests[token];
-		delete requests[token];
+		tmp = requests[rtoken];
+		delete requests[rtoken];
 		if (tmp instanceof Error && type != 'log') {
 			tmp.toString().split(/\r\n|\n/).forEach(function (s) { console.log('[ERROR] ', s); });
 			throw tmp;
@@ -261,14 +270,14 @@
 
 		handleResponse: function (data) {
 			var err = data.error,
-				token = data.token;
+				rtoken = data.rtoken;
 			try {
 				if (err) {
 					throw new Error(err);
 				}
-				token && requests[token] && (requests[token] = requests[token](data));
+				rtoken && requests[rtoken] && (requests[rtoken] = requests[rtoken](data));
 			} catch (ex) {
-				token && (requests[token] = ex);
+				rtoken && (requests[rtoken] = ex);
 			}
 		},
 
@@ -328,7 +337,7 @@
 	 */
 	var open = XMLHttpRequest.prototype.open;
 	XMLHttpRequest.prototype.open = function (method, url) {
-		url = 'http://localhost:9999/fetch/' + escape(btoa(url));
+		url = 'http://localhost:9999/fetch/' + stoken + '/' + escape(btoa(url));
 		open.apply(this, arguments);
 	};
 }(window));
