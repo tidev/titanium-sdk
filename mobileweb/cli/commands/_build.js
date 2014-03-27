@@ -232,6 +232,12 @@ MobileWebBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.enableLogging = true;
 	}
 
+	if (!cli.tiapp.icon || !['Resources', 'Resources/android'].some(function (p) {
+			return fs.existsSync(cli.argv['project-dir'], p, cli.tiapp.icon);
+		})) {
+		cli.tiapp.icon = 'appicon.png';
+	}
+
 	// TODO: validate modules here
 };
 
@@ -332,6 +338,9 @@ MobileWebBuilder.prototype.initialize = function initialize(next) {
 	if (this.config.paths && Array.isArray(this.config.paths.modules)) {
 		this.moduleSearchPaths = this.moduleSearchPaths.concat(this.config.paths.modules);
 	}
+
+	this.ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs'));
+	this.ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles'));
 
 	this.projectDependencies = [];
 	this.modulesToLoad = [];
@@ -477,26 +486,33 @@ MobileWebBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 };
 
 MobileWebBuilder.prototype.copyFiles = function copyFiles(next) {
-	this.logger.info(__('Copying project files'));
+	var logger = this.logger;
 
-	afs.copyDirSyncRecursive(this.mobilewebThemeDir, path.join(this.buildDir, 'themes'), { preserve: true, logger: this.logger.debug });
-	afs.copyDirSyncRecursive(this.mobilewebTitaniumDir, path.join(this.buildDir, 'titanium'), { preserve: true, logger: this.logger.debug });
-	afs.copyDirSyncRecursive(this.projectResDir, this.buildDir, { preserve: true, logger: this.logger.debug, rootIgnore: ti.filterPlatforms('mobileweb') });
+	logger.info(__('Copying project files'));
+
+	var copyOpts = {
+		preserve: true,
+		ignoreDirs: this.ignoreDirs,
+		ignoreFiles: this.ignoreFiles,
+		callback: function (src, dest, contents) {
+			logger.debug(__('Copying %s => %s', src.cyan, dest.cyan));
+			return contents;
+		}
+	};
+
+	afs.copyDirSyncRecursive(this.mobilewebTitaniumDir, path.join(this.buildDir, 'titanium'), copyOpts);
+	afs.copyDirSyncRecursive(this.mobilewebThemeDir, path.join(this.buildDir, 'themes'), copyOpts);
+
+	copyOpts.rootIgnore = ti.availablePlatformsNames;
+	afs.copyDirSyncRecursive(this.projectResDir, this.buildDir, copyOpts);
 
 	var mobilewebDir = path.join(this.projectResDir, 'mobileweb');
-
 	if (fs.existsSync(mobilewebDir)) {
-		afs.copyDirSyncRecursive(mobilewebDir, this.buildDir, { preserve: true, logger: this.logger.debug, rootIgnore: ['apple_startup_images', 'splash'] });
-		['Default.jpg', 'Default-Portrait.jpg', 'Default-Landscape.jpg'].forEach(function (file) {
-			file = path.join(mobilewebDir, 'apple_startup_images', file);
-			if (fs.existsSync(file)) {
-				afs.copyFileSync(file, this.buildDir, { logger: this.logger.debug });
-				afs.copyFileSync(file, path.join(this.buildDir, 'apple_startup_images'), { logger: this.logger.debug });
-			}
-		}, this);
+		copyOpts.rootIgnore = ['apple_startup_images', 'splash'];
+		afs.copyDirSyncRecursive(mobilewebDir, this.buildDir, copyOpts);
 	}
 
-	next();
+	this.cli.emit('build.mobileweb.copyFiles', this, next);
 };
 
 MobileWebBuilder.prototype.findProjectDependencies = function findProjectDependencies(next) {
@@ -531,42 +547,7 @@ MobileWebBuilder.prototype.findProjectDependencies = function findProjectDepende
 };
 
 MobileWebBuilder.prototype.createIcons = function createIcons(next) {
-	this.logger.info(__('Creating favicon and Apple touch icons'));
-
-	var file = path.join(this.projectResDir, this.tiapp.icon);
-	if (!/\.(png|jpg|gif)$/.test(file) || !fs.existsSync(file)) {
-		file = path.join(this.projectResDir, 'mobileweb', 'appicon.png');
-	}
-
-	if (!fs.existsSync(file)) {
-		return next();
-	}
-
-	afs.copyFileSync(file, this.buildDir, { logger: this.logger.debug });
-
-	var params = [
-		{ file: path.join(this.buildDir, 'favicon.ico'), width: 16, height: 16 },
-		{ file: path.join(this.buildDir, 'apple-touch-icon-precomposed.png'), width: 57, height: 57 },
-		{ file: path.join(this.buildDir, 'apple-touch-icon-57x57-precomposed.png'), width: 57, height: 57 },
-		{ file: path.join(this.buildDir, 'apple-touch-icon-72x72-precomposed.png'), width: 72, height: 72 },
-		{ file: path.join(this.buildDir, 'apple-touch-icon-114x114-precomposed.png'), width: 114, height: 114 },
-		{ file: path.join(this.buildDir, 'appicon144.png'), width: 144, height: 144 }
-	];
-
-	appc.image.resize(file, params, function (err, stdout, stderr) {
-		if (err) {
-			this.logger.error(__('Failed to create icons'));
-			stdout && stdout.toString().split('\n').forEach(function (line) {
-				line && this.logger.error(line.replace(/^\[ERROR\]/i, '').trim());
-			}, this);
-			stderr && stderr.toString().split('\n').forEach(function (line) {
-				line && this.logger.error(line.replace(/^\[ERROR\]/i, '').trim());
-			}, this);
-			this.logger.log('');
-			process.exit(1);
-		}
-		next();
-	}.bind(this), this.logger);
+	this.cli.emit('build.mobileweb.createIcons', this, next);
 };
 
 MobileWebBuilder.prototype.findModulesToCache = function findModulesToCache(next) {
@@ -751,7 +732,7 @@ MobileWebBuilder.prototype.assembleTitaniumJS = function assembleTitaniumJS(next
 
 		// 2) read in the config.js and fill in the template
 		function (tiJS, next) {
-			this.cli.createHook('build.mobileweb.processConfigTemplate', this, function (template, options, callback) {
+			this.cli.createHook('build.mobileweb.assembleConfigTemplate', this, function (template, options, callback) {
 				callback(null, tiJS + ejs.render(template, options) + '\n\n');
 			})(
 				fs.readFileSync(path.join(this.platformPath, 'src', 'config.js')).toString(),
@@ -789,13 +770,11 @@ MobileWebBuilder.prototype.assembleTitaniumJS = function assembleTitaniumJS(next
 			);
 		}.bind(this),
 
-		// 3) copy in the wp8 shim if building for windows phone 8
+		// 3) copy platform specific functionality
 		function (tiJS, next) {
-			if (this.target == 'wp8') {
-				next(null, tiJS + fs.readFileSync(path.join(this.platformPath, 'src', 'wp8.js')).toString() + '\n');
-			} else {
-				next(null, tiJS);
-			}
+			this.cli.createHook('build.mobileweb.assemblePlatformImplementation', this, function (contents, callback) {
+				callback(null, contents);
+			})(tiJS, next);
 		}.bind(this),
 
 		// 4) copy in instrumentation if it's enabled
@@ -1154,24 +1133,23 @@ MobileWebBuilder.prototype.createIndexHtml = function createIndexHtml(next) {
 	}
 
 	// write the index.html
-	fs.writeFile(
-		path.join(this.buildDir, 'index.html'),
-		ejs.render(
-			fs.readFileSync(path.join(this.platformPath, 'src', 'index.html')).toString(),
-			{
-				target: this.target,
-				tiHeader: ejs.render(fs.readFileSync(path.join(this.templatesDir, 'header.html.ejs')).toString()),
-				projectName: this.tiapp.name || '',
-				appDescription: this.tiapp.description || '',
-				appPublisher: this.tiapp.publisher || '',
-				tiGenerator: 'Appcelerator Titanium Mobile ' + ti.manifest.version,
-				tiStatusbarStyle: statusBarStyle,
-				tiCss: fs.readFileSync(path.join(this.buildDir, 'titanium.css')).toString(),
-				splashScreen: this.splashHtml,
-				tiJs: fs.readFileSync(path.join(this.buildDir, 'titanium.js')).toString(),
-				prefetch: this.prefetch
-			}
-		),
+	this.cli.createHook('build.mobileweb.createIndexHtml', this, function (template, options, callback) {
+		fs.writeFile(path.join(this.buildDir, 'index.html'), ejs.render(template, options), callback);
+	})(
+		fs.readFileSync(path.join(this.platformPath, 'src', 'index.html')).toString(),
+		{
+			target: this.target,
+			tiHeader: ejs.render(fs.readFileSync(path.join(this.templatesDir, 'header.html.ejs')).toString()),
+			projectName: this.tiapp.name || '',
+			appDescription: this.tiapp.description || '',
+			appPublisher: this.tiapp.publisher || '',
+			tiGenerator: 'Appcelerator Titanium Mobile ' + ti.manifest.version,
+			tiStatusbarStyle: statusBarStyle,
+			tiCss: fs.readFileSync(path.join(this.buildDir, 'titanium.css')).toString(),
+			splashScreen: this.splashHtml,
+			tiJs: fs.readFileSync(path.join(this.buildDir, 'titanium.js')).toString(),
+			prefetch: this.prefetch
+		},
 		next
 	);
 };
