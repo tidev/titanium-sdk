@@ -508,30 +508,6 @@
 }
 
 
-
--(int)pageNumFromArg:(id)args
-{
-	int pageNum = 0;
-	if ([args isKindOfClass:[TiViewProxy class]])
-	{
-		[[self proxy] lockViews];
-		pageNum = [[[self proxy] viewProxies] indexOfObject:args];
-		[[self proxy] unlockViews];
-	}
-	else
-	{
-		pageNum = [TiUtils intValue:args];
-	}
-	
-	return pageNum;
-}
-
--(void)scrollToView:(id)args
-{
-    int pageNum = [self pageNumFromArg:args];
-    [self setCurrentPage:NUMINT(pageNum) animated:NUMBOOL(YES)];
-}
-
 -(void)setCurrentPage:(id)page animated:(NSNumber*)animate {
     int newPage = [TiUtils intValue:page];
     int viewsCount = [[self proxy] viewCount];
