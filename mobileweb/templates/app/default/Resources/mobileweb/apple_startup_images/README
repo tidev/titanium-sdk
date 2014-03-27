@@ -6,3 +6,7 @@ modifying the files in the adjacent "splash" folder, then take screenshots of
 device, crop, and save into this directory. This is the best way to avoid visual
 artifacts when the app transitions from the Apple startup images to the splash
 screen assets.
+
+IMPORTANT! Only one file format of each unique filename will be copied. PNG is
+preferred over JPG. In other words, if "Default.png" exists, it will be copied
+instead of "Default.jpg".

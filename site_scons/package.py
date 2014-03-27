@@ -12,7 +12,7 @@ if platform.system() == 'Darwin':
 	import importresolver
 
 packaging_all = False
-os_names = { "Windows":"win32", "Linux":"linux", "Darwin":"osx" }
+os_names = { "Windows":"win32" }
 cur_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 top_dir = os.path.abspath(os.path.join(os.path.dirname(sys._getframe(0).f_code.co_filename),'..'))
 template_dir = os.path.join(top_dir,'support')

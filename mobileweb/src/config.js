@@ -25,9 +25,6 @@ var require = {
 		"ti-instrumentation": function(g) {
 				return <%- hasInstrumentation %> && g.instrumentation;
 		},
-<% if (target == 'winstore') { -%>
-		"winstore-extensions": true,
-<% } %>
 		"touch": function (g) {
 			return <%- hasAllowTouch %> && 'ontouchstart' in g;
 		}
