@@ -347,10 +347,7 @@ MobileWebBuilder.prototype.initialize = function initialize(next) {
 	this.tiModulesToLoad = [];
 	this.requireCache = {};
 	this.moduleMap = {};
-	this.modulesToCache = [
-		'Ti/_/image',
-		'Ti/_/include'
-	];
+	this.modulesToCache = [];
 	this.precacheImages = [];
 	this.locales = [];
 	this.appNames = {};
