@@ -51,9 +51,7 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "T
 
 	function getRemote(path) {
 		var xhr = new XMLHttpRequest;
-		if( xhr.overrideMimeType) {
-			xhr.overrideMimeType('text/plain; charset=x-user-defined');
-		}
+		xhr.overrideMimeType && xhr.overrideMimeType('text/plain; charset=x-user-defined');
 		xhr.open("GET", '.' + path, false);
 		xhr.send(null);
 		return xhr.status === 200 ? { data: xhr.responseText, mimeType: xhr.getResponseHeader("Content-Type") } : null;
