@@ -145,7 +145,8 @@ namespace TitaniumApp
 									return;
 								}
 
-								byte[] data = Convert.FromBase64String(HttpUtility.UrlDecode(url.Substring(q + urlPrefix.Length)));
+								string decodedUrl = url.Substring(q + urlPrefix.Length);
+								byte[] data = Convert.FromBase64String(decodedUrl);
 								url = Encoding.UTF8.GetString(data, 0, data.Length);
 								if (url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0) {
 									isLocalFile = false;
