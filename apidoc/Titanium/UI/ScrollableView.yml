@@ -38,12 +38,14 @@ methods:
   - name: moveNext
     summary: |
         Sets the current page to the next consecutive page in <Titanium.UI.ScrollableView.views>.
-    platforms: [android, blackberry]
+    platforms: [android, blackberry, iphone, ipad]
+    since: {iphone: "3.3.0", ipad: "3.3.0"}
     
   - name: movePrevious
     summary: |
         Sets the current page to the previous consecutive page in <Titanium.UI.ScrollableView.views>.
-    platforms: [android, blackberry]
+    platforms: [android, blackberry, iphone, ipad]
+    since: {iphone: "3.3.0", ipad: "3.3.0"}
     
   - name: removeView
     summary: Removes an existing page from this Scrollable View.
