@@ -10,9 +10,9 @@
 
 	if (stoken) {
 		location.replace('#');
-		localStorage.setItem("stoken", stoken);
+		sessionStorage.setItem("stoken", stoken);
 	} else {
-		stoken = localStorage.getItem("stoken");
+		stoken = sessionStorage.getItem("stoken");
 	}
 
 	['log', 'debug', 'info', 'warn', 'error'].forEach(function (level) {
@@ -28,6 +28,9 @@
 		};
 	});
 
+	/**
+	 * request handling functions
+	 */
 	function processResponse(data) {
 		var tmp = data.handle;
 		return tmp ? handles[tmp] || (handles[tmp] = new Handle(tmp)) : (tmp = data.primitiveValue) !== void 0 ? tmp : data;

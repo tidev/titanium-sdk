@@ -30,21 +30,98 @@ exports.init = function (logger, config, cli) {
 		return;
 	}
 
-	cli.on('build.mobileweb.processConfigTemplate', {
+	cli.on('build.mobileweb.createIcons', function (builder, callback) {
+		if (builder.target != 'wp8' && builder.target != 'winstore') return callback();
+
+		logger.info(__('Creating favicon'));
+
+		var buildDir = builder.buildDir,
+			iconFilename = /\.(png|jpg|gif)$/.test(builder.tiapp.icon) ? builder.tiapp.icon : 'appicon.png',
+			file = path.join(builder.projectResDir, 'mobileweb', iconFilename),
+			resizeImages = [];
+
+		if (!fs.existsSync(file)) {
+			// try in the root
+			file = path.join(builder.projectResDir, iconFilename);
+		}
+
+		// if they don't have a appicon, copy it from the sdk
+		if (!fs.existsSync(file)) {
+			file = path.join(builder.platformPath, 'templates', 'app', 'default', 'Resources', 'mobileweb', 'appicon.png');
+		}
+
+		// copy the appicon.png
+		appc.fs.copyFileSync(file, buildDir, { logger: logger.debug });
+
+		function copyIcon(filename, width, height) {
+			var file = path.join(builder.projectResDir, 'mobileweb', filename);
+			if (!fs.existsSync(file)) {
+				file = path.join(builder.projectResDir, filename);
+			}
+			if (fs.existsSync(file)) {
+				appc.fs.copyFileSync(file, buildDir, { logger: logger.debug });
+			} else {
+				resizeImages.push({
+					file: path.join(buildDir, filename).replace(/\.ico$/, '.png'),
+					width: width,
+					height: height
+				});
+			}
+		}
+
+		copyIcon('favicon.png', 16, 16);
+
+		// if there are no images to resize, just return
+		if (!resizeImages.length) return callback();
+
+		appc.image.resize(file, resizeImages, function (err, stdout, stderr) {
+			if (err) {
+				logger.error(__('Failed to create icons'));
+				stdout && stdout.toString().split('\n').forEach(function (line) {
+					line && logger.error(line.replace(/^\[ERROR\]/i, '').trim());
+				});
+				stderr && stderr.toString().split('\n').forEach(function (line) {
+					line && logger.error(line.replace(/^\[ERROR\]/i, '').trim());
+				});
+				logger.log('');
+				process.exit(1);
+			}
+
+			// rename the favicon
+			fs.renameSync(path.join(buildDir, 'favicon.png'), path.join(buildDir, 'favicon.ico'));
+
+			callback();
+		}, logger);
+	});
+
+	cli.on('build.mobileweb.assembleConfigTemplate', {
 		pre: function (data, callback) {
-			var options = data.args[1];
-			options.tiAnalyticsPlatformName = 'windows';
-			options.tiOsName = 'mobileweb';
-			options.tiPlatformName = 'Windows Hybrid';
+			if (this.target == 'wp8' || this.target == 'winstore') {
+				var options = data.args[1];
+				options.tiAnalyticsPlatformName = 'windows';
+				options.tiOsName = 'mobileweb';
+				options.tiPlatformName = 'Windows Hybrid';
+			}
+			callback();
+		}
+	});
+
+	cli.on('build.mobileweb.assemblePlatformImplementation', {
+		pre: function (data, callback) {
+			if (this.target == 'wp8' || this.target == 'winstore') {
+				data.args[0] += fs.readFileSync(path.join(this.platformPath, 'src', this.target + '.js')).toString() + '\n';
+			}
 			callback();
 		}
 	});
 
 	cli.on('build.pre.compile', function(builder, finished) {
-		var session = appc.auth.status();
-		builder.logToken = '';
-		if (builder.enableLogging) {
-			builder.logToken = crypto.createHash('md5').update((session.loggedIn && session.email || '') + ':' + os.hostname()).digest('hex');
+		if (this.target == 'wp8' || this.target == 'winstore') {
+			var session = appc.auth.status();
+			builder.logToken = '';
+			if (builder.enableLogging) {
+				builder.logToken = crypto.createHash('md5').update((session.loggedIn && session.email || '') + ':' + os.hostname()).digest('hex');
+			}
 		}
 		finished();
 	});
@@ -282,6 +359,34 @@ exports.init = function (logger, config, cli) {
 							}
 						}
 					});
+
+					// copy the tile icons
+					logger.info(__('Copying tile icons'));
+
+					var buildDir = builder.buildDir,
+						m = builder.tiapp.icon.match(/^(.*)(?:\.(?:png|jpg|gif))$/),
+						iconPrefix = m && m[1] != 'appicon' && m[1];
+
+					function copyTile(suffix, destFilename) {
+						var file = path.join(builder.projectResDir, 'mobileweb', iconPrefix + suffix);
+						if (!fs.existsSync(file)) {
+							file = path.join(builder.projectResDir, iconPrefix + suffix);
+						}
+						if (!fs.existsSync(file)) {
+							file = path.join(builder.projectResDir, 'mobileweb', 'appicon' + suffix);
+						}
+						if (!fs.existsSync(file)) {
+							file = path.join(builder.projectResDir, 'appicon' + suffix);
+						}
+						if (fs.existsSync(file)) {
+							appc.fs.copyFileSync(file, path.join(destination, tiapp.id, 'Assets', destFilename), { logger: logger.debug });
+						}
+					}
+
+					copyTile('.png', 'ApplicationIcon.png');
+					copyTile('-tile-small.png', 'Tiles\\FlipCycleTileSmall.png');
+					copyTile('-tile-medium.png', 'Tiles\\FlipCycleTileMedium.png');
+					copyTile('-tile-large.png', 'Tiles\\FlipCycleTileLarge.png');
 
 					// Compile the app
 					var cmd = [

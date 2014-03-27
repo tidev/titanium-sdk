@@ -27,7 +27,6 @@ define(
 		unloaded,
 		showingError,
 		waiting = [],
-		alertShowing,
 		Ti = lang.setObject("Ti", Evented, {
 			constants: {
 				buildDate: cfg.ti.buildDate,
@@ -129,20 +128,6 @@ define(
 		};
 	}
 
-	// Shim out alert()
-	if (has("winstore-extensions")) {
-		global.alert = function (msg) {
-			if (alertShowing) {
-				API.warn('Cannot show more than one alert at a time');
-			} else {
-				alertShowing = 1;
-				new Windows.UI.Popups.MessageDialog(msg).showAsync().done(function () {
-					alertShowing = 0;
-				});
-			}
-		};
-	}
-
 	// protect global titanium object
 	Object.defineProperty(global, "Ti", { value: Ti, writable: false });
 	Object.defineProperty(global, "Titanium", { value: Ti, writable: false });
@@ -225,7 +210,7 @@ define(
 
 				win.open();
 			}
-			return true; // This prevents windows store applications from exiting entirely on error, and it must be true, not just something truthy
+			return true;
 		});
 	}
 
