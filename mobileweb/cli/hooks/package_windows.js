@@ -116,7 +116,7 @@ exports.init = function (logger, config, cli) {
 	});
 
 	cli.on('build.pre.compile', function(builder, finished) {
-		if (this.target == 'wp8' || this.target == 'winstore') {
+		if (builder.target == 'wp8' || builder.target == 'winstore') {
 			var session = appc.auth.status();
 			builder.logToken = '';
 			if (builder.enableLogging) {
