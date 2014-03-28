@@ -1590,11 +1590,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NAME = "name";
-
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_NAV_BAR_HIDDEN = "navBarHidden";
 	
 	/**
 	 * @module.api

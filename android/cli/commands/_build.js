@@ -2023,13 +2023,6 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
-	if (this.tiapp['navbar-hidden'] != manifest['navbar-hidden']) {
-		this.logger.info(__('Forcing rebuild: tiapp.xml navbar-hidden changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest['navbar-hidden']));
-		this.logger.info('  ' + __('Now: %s', this.tiapp['navbar-hidden']));
-		return true;
-	}
-
 	if (this.minSDK != manifest.minSDK) {
 		this.logger.info(__('Forcing rebuild: Android minimum SDK changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.minSDK));
@@ -3278,11 +3271,9 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 		this.logger.info(__('Generating %s', themeFile.cyan));
 
 		var flags = 'Theme.AppCompat';
-		if ((this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) && this.tiapp['navbar-hidden']) {
-			flags += '.NoTitleBar.Fullscreen';
-		} else if (this.tiapp['navbar-hidden']) {
-			flags += '.NoTitleBar';
-		}
+		if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden'] ) {
+			flags += '.Fullscreen';
+		} 
 
 		fs.writeFileSync(themeFile, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
 			flags: flags
@@ -3362,7 +3353,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				'activity': {
 					'name': 'ti.modules.titanium.media.TiVideoActivity',
 					'configChanges': ['keyboardHidden', 'orientation'],
-					'theme': '@style/Theme.AppCompat.NoTitleBar.Fullscreen',
+					'theme': '@style/Theme.AppCompat.Fullscreen',
 					'launchMode': 'singleTask'
 				}
 			},
@@ -4091,7 +4082,6 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		guid: this.tiapp.guid,
 		icon: this.tiapp.icon,
 		fullscreen: this.tiapp.fullscreen,
-		'navbar-hidden': this.tiapp['navbar-hidden'],
 		skipJSMinification: !!this.cli.argv['skip-js-minify'],
 		mergeCustomAndroidManifest: this.config.get('android.mergeCustomAndroidManifest', false),
 		encryptJS: this.encryptJS,
