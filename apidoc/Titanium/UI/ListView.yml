@@ -414,6 +414,14 @@ properties:
     type: [String, Number]
     default: Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT
 
+  - name: footerDividersEnabled
+    summary: When set to false, the ListView will not draw the divider before the footer view.
+    type: Boolean
+    availability: creation
+    default: undefined but behaves as false
+    platforms: [android]
+    since: "3.3.0"
+
   - name: footerTitle
     summary: List view footer title.
     type: String
@@ -430,6 +438,14 @@ properties:
     since: 3.2.0
     platforms: [android, iphone, ipad]
 
+  - name: headerDividersEnabled
+    summary: When set to false, the ListView will not draw the divider after the header view.
+    type: Boolean
+    availability: creation
+    default: undefined but behaves as false
+    platforms: [android]
+    since: "3.3.0"
+    
   - name: headerTitle
     summary: List view header title.
     type: String
