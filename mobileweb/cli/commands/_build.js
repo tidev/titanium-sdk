@@ -1117,16 +1117,11 @@ MobileWebBuilder.prototype.createIndexHtml = function createIndexHtml(next) {
 	this.logger.info(__('Creating the index.html'));
 
 	// get status bar style
-	var statusBarStyle = 'default';
-	if (this.tiapp['statusbar-style']) {
-		statusBarStyle = this.tiapp['statusbar-style'];
-		if (/^opaque_black|opaque$/.test(statusBarStyle)) {
-			statusBarStyle = 'black';
-		} else if (/^translucent_black|transparent|translucent$/.test(statusBarStyle)) {
-			statusBarStyle = 'black-translucent';
-		} else {
-			statusBarStyle = 'default';
-		}
+	var statusBarStyle = this.tiapp['statusbar-style'];
+	if (statusBarStyle && /^(?:black\-translucent|translucent_black|transparent|translucent)$/.test(statusBarStyle)) {
+		statusBarStyle = 'black-translucent';
+	} else {
+		statusBarStyle = 'black';
 	}
 
 	// write the index.html
