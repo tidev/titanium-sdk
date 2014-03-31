@@ -189,7 +189,7 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 					};
 
 					conf.options['wp8-publisher-guid'] = {
-						default: config.get('windows.wp8PublisherGuid'),
+						default: config.get('wp8.publisherGuid'),
 						desc: __('your publisher GUID, obtained from %s', 'http://appcelerator.com/windowsphone'.cyan),
 						hint: __('guid'),
 						order: 120,
