@@ -396,6 +396,20 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			setSeparatorColor(color);
 		}
 
+		if (d.containsKey(TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED)) {
+			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED, false);
+			listView.setFooterDividersEnabled(enabled);
+		} else {
+			listView.setFooterDividersEnabled(false);
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_HEADER_DIVIDERS_ENABLED)) {
+			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_HEADER_DIVIDERS_ENABLED, false);
+			listView.setHeaderDividersEnabled(enabled);
+		} else {
+			listView.setHeaderDividersEnabled(false);
+		}
+		
 		if (d.containsKey(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
 			listView.setVerticalScrollBarEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR, true));
 		}
@@ -450,11 +464,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		}
 
 		//Have to add header and footer before setting adapter
-		listView.addHeaderView(headerView);
-		listView.addFooterView(footerView);
+		listView.addHeaderView(headerView, null, false);
+		listView.addFooterView(footerView, null, false);
 
 		listView.setAdapter(adapter);
-
 		super.processProperties(d);
 		
 	}

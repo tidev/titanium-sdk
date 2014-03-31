@@ -1181,6 +1181,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_FOOTER_DIVIDERS_ENABLED = "footerDividersEnabled";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FOOTER = "footer";
 
 	/**
@@ -1239,6 +1244,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HEADER = "header";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HEADER_DIVIDERS_ENABLED = "headerDividersEnabled";
 
 	/**
 	 * @module.api

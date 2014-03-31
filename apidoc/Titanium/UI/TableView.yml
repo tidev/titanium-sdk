@@ -1123,7 +1123,15 @@ properties:
     type: Boolean
     default: true
     platforms: [android, iphone, ipad]
-    
+  
+  - name: footerDividersEnabled
+    summary: When set to false, the ListView will not draw the divider before the footer view.
+    type: Boolean
+    availability: creation
+    default: undefined but behaves as false
+    platforms: [android]
+    since: "3.3.0"
+
   - name: footerTitle
     summary: Table view footer title.
     type: String
@@ -1197,6 +1205,14 @@ properties:
 
     type: Titanium.UI.View
     exclude-platforms: [blackberry]
+    
+  - name: headerDividersEnabled
+    summary: When set to false, the ListView will not draw the divider after the header view.
+    type: Boolean
+    availability: creation
+    default: undefined but behaves as false
+    platforms: [android]
+    since: "3.3.0"
     
   - name: headerTitle
     summary: Table view header title.
