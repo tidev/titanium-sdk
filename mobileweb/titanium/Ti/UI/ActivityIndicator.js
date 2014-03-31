@@ -82,7 +82,7 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/_/UI/Widget', 'Ti/_/dom', 'Ti/_/style',
 			setStyle(prong, 'transition', '');
 			var delay = 10; //This may need to be adjusted by browser.
 			setTimeout(function() {
-				setStyle(prong, 'opacity', delay);
+				setStyle(prong, 'opacity', 1);
 				setTimeout(function() {
 					setStyle(prong, 'transition', 'opacity 500ms linear 0ms');
 					setTimeout(function() {
