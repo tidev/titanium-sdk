@@ -1341,7 +1341,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			if (!emu) {
 				logger.error(__('Unable find emulator "%s"', deviceId) + '\n');
 				process.exit(1);
-			} else if (!emu.sdcard) {
+			} else if (!emu.sdcard && emu.type != 'genymotion') {
 				logger.error(__('The selected emulator "%s" does not have an SD card.', emu.name));
 				if (this.profilerPort) {
 					logger.error(__('An SD card is required for profiling.') + '\n');
@@ -3273,7 +3273,7 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 		var flags = 'Theme.AppCompat';
 		if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden'] ) {
 			flags += '.Fullscreen';
-		} 
+		}
 
 		fs.writeFileSync(themeFile, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
 			flags: flags
