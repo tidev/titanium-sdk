@@ -691,14 +691,14 @@ public class MediaModule extends KrollModule
 
 	@Kroll.method
 	@Kroll.setProperty
-	public void setFlashMode(int flashMode)
+	public void setCameraFlashMode(int flashMode)
 	{
 		TiCameraActivity.setFlashMode(flashMode);
 	}
 
 	@Kroll.method
 	@Kroll.getProperty
-	public int getFlashMode()
+	public int getCameraFlashMode()
 	{
 		return TiCameraActivity.cameraFlashMode;
 	}
