@@ -1117,11 +1117,11 @@ properties:
         overlay is not set, the default Android Camera Activity is used, which is only
         capable of reporting back the results of one taken photo, making `autohide`
         meaningless in that context.
-  - name: flashMode
+  - name: cameraFlashMode
     summary: set camera flash on or off for custom overlays.
     type: Boolean
     default: false
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: {android: "3.3.0"}
   - name: animated 
     summary: Specifies if the dialog should be animated upon showing and hiding.
