@@ -459,6 +459,24 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+  - name: CAMERA_FLASH_AUTO
+    summary: Constant specifying to have the device determine to use the flash or not.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, android]
+    since: {android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0" }
+  - name: CAMERA_FLASH_OFF
+    summary: Constant specifying to never fire the flash.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, android]
+    since: {android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0" }
+  - name: CAMERA_FLASH_ON
+    summary: Constant specifying to always fire the flash.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, android]
+    since: {android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0" }
   - name: CAMERA_FRONT
     summary: Constant specifying the front camera.
     type: Number
@@ -943,6 +961,18 @@ properties:
         [stopMicrophoneMonitor](Titanium.Media.stopMicrophoneMonitor).
     type: Number
     platforms: [iphone, ipad]
+  - name: cameraFlashMode
+    summary: Determines how the flash is fired when using the device's camera.
+    description: |
+        Set to one of the following constants:
+
+          * <Titanium.Media.CAMERA_FLASH_AUTO>
+          * <Titanium.Media.CAMERA_FLASH_OFF>
+          * <Titanium.Media.CAMERA_FLASH_ON>
+    type: Number
+    platforms: [iphone, ipad]
+    since: {iphone: "1.4.0", ipad: "1.4.0"}
+    default: Titanium.Media.CAMERA_FLASH_AUTO
   - name: canRecord
     summary: |
         `true` if the device has a recording input device available.
