@@ -1,7 +1,7 @@
 ---
 name: Titanium.UI.TextArea
 summary: A multiline text field that supports editing and scrolling. 
-description: Use the <Titanium.UI.createTextArea> method or **`<TextArea>`** Alloy element to create a text area. 
+description: Use the <Titanium.UI.createTextArea> method or **&lt;TextArea&gt;** Alloy element to create a text area. 
 extends: Titanium.UI.View
 since: "0.8"
 
