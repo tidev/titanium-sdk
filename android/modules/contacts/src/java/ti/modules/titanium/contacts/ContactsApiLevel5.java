@@ -115,14 +115,28 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	protected static int DATA_COLUMN_ADDRESS_STATE = DATA_COLUMN_DATA8;
 	protected static int DATA_COLUMN_ADDRESS_POSTCODE = DATA_COLUMN_DATA9;
 	protected static int DATA_COLUMN_ADDRESS_COUNTRY = DATA_COLUMN_DATA10;
-
+	protected static int DATA_COLUMN_NICK_NAME = DATA_COLUMN_DATA1;
+	protected static int DATA_COLUMN_ORGANIZATION = DATA_COLUMN_DATA1;
+	protected static int DATA_COLUMN_JOB_TITLE = DATA_COLUMN_DATA4;
+	protected static int DATA_COLUMN_DEPARTMENT = DATA_COLUMN_DATA2;
+	protected static int DATA_COLUMN_IM = DATA_COLUMN_DATA1;
+	protected static int DATA_COLUMN_IM_TYPE = DATA_COLUMN_DATA5;
+	protected static int DATA_COLUMN_RELATED_NAME = DATA_COLUMN_DATA1;
+	protected static int DATA_COLUMN_RELATED_NAME_TYPE = DATA_COLUMN_DATA2;
+	protected static int DATA_COLUMN_WEBSITE_ADDR = DATA_COLUMN_DATA1;
+	protected static int DATA_COLUMN_WEBSITE_TYPE = DATA_COLUMN_DATA2;
+	
+	protected static String KIND_ORGANIZE = "vnd.android.cursor.item/organization";
 	protected static String KIND_NAME = "vnd.android.cursor.item/name";
 	protected static String KIND_EMAIL = "vnd.android.cursor.item/email_v2";
 	protected static String KIND_EVENT = "vnd.android.cursor.item/contact_event";
 	protected static String KIND_NOTE = "vnd.android.cursor.item/note";
 	protected static String KIND_PHONE = "vnd.android.cursor.item/phone_v2";
 	protected static String KIND_ADDRESS = "vnd.android.cursor.item/postal-address_v2";
-
+	protected static String KIND_NICKNAME = "vnd.android.cursor.item/nickname";
+	protected static String KIND_IM = "vnd.android.cursor.item/im";
+	protected static String KIND_RELATED_NAME = "vnd.android.cursor.item/relation";
+	protected static String KIND_WEBSITE = "vnd.android.cursor.item/website";
 	protected static String BASE_SELECTION = Data.RAW_CONTACT_ID + "=? AND " + Data.MIMETYPE + "=?";
 	protected static String[] RELATED_NAMES_TYPE = {TiC.PROPERTY_ASSISTANT, TiC.PROPERTY_BROTHER, TiC.PROPERTY_CHILD, TiC.PROPERTY_DOMESTIC_PARTNER,
 		TiC.PROPERTY_FATHER, TiC.PROPERTY_FRIEND, TiC.PROPERTY_MANAGER, TiC.PROPERTY_MOTHER, TiC.PROPERTY_PARENT,
@@ -139,7 +153,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 	private static String INConditionForKinds =
 			"('" + KIND_ADDRESS + "','" + KIND_EMAIL + "','" + KIND_EVENT + "','" +
-					KIND_NAME + "','" + KIND_NOTE + "','" + KIND_PHONE + "')";
+					KIND_NAME + "','" + KIND_NOTE + "','" + KIND_PHONE + "','"+ KIND_NICKNAME +"','"+KIND_ORGANIZE+"','"+KIND_IM+"','"+KIND_RELATED_NAME+"','"+KIND_WEBSITE+"')";
 
 	protected ContactsApiLevel5()
 	{
@@ -209,9 +223,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			}
 			person.addDataFromL5Cursor(cursor);
 		}
-
 		cursor.close();
-
 		return proxifyPeople(persons);
 	}
 
@@ -700,11 +712,11 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	protected PersonProxy getPersonById(long id)
 	{
 		/*
-		TiContext tiContext = weakContext.get();
-		if (tiContext == null) {
-			Log.d(LCAT , "Could not getPersonById, context is GC'd");
-			return null;
-		}
+		 * TiContext tiContext = weakContext.get();
+		 * if (tiContext == null) {
+		 * Log.d(LCAT , "Could not getPersonById, context is GC'd");
+		 * return null;
+		 * }
 		 */
 
 		if (TiApplication.getInstance() == null) {
@@ -721,30 +733,34 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		CommonContactsApi.LightPerson person = null;
 
 		// Basic person data.
-		Cursor cursor = activity.getContentResolver().query(
-				ContentUris.withAppendedId(ContactsUri, id),
-				PEOPLE_PROJECTION, null, null, null);
+		Cursor cursor = activity.getContentResolver().query(ContentUris.withAppendedId(ContactsUri, id), PEOPLE_PROJECTION,
+			null, null, null);
 
 		if (cursor.moveToFirst()) {
 			person = new CommonContactsApi.LightPerson();
-			person.addPersonInfoFromL5PersonRow(cursor);
+			person.addPeresonInfoFromL5PersonRow(cursor);
 		}
 
 		cursor.close();
 
+		Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+		String[] projection = new String[] { ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+			ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.CONTACT_STATUS_TIMESTAMP };
+
+		Cursor c = activity.getContentResolver().query(uri, projection, null, null,
+			ContactsContract.CommonDataKinds.Phone.CONTACT_STATUS_TIMESTAMP);
 		if (person == null) {
 			return null;
 		}
 
 		// Extended data (emails, phones, etc.)
-		String condition = "mimetype IN " + INConditionForKinds +
-				" AND contact_id = ?";
+		String condition = "mimetype IN " + INConditionForKinds + " AND contact_id = ?";
 
 		cursor = activity.getContentResolver().query(
-				DataUri, 
-				DATA_PROJECTION, 
-				condition, 
-				new String[]{String.valueOf(id)}, 
+				DataUri,
+				DATA_PROJECTION,
+				condition,
+				new String[]{String.valueOf(id)},
 				"mimetype asc, is_super_primary desc, is_primary desc");
 
 		while (cursor.moveToNext()) {
