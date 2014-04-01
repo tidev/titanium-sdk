@@ -235,7 +235,7 @@ exports.config = function config(logger, config, cli) {
 						}
 					},
 					template: {
-						desc: __('the name of the project template to use'),
+						desc: __('the name of the project template, path to template dir, path to zip file, or url to zip file'),
 						default: 'default',
 						order: 110,
 						required: true

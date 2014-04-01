@@ -47,7 +47,6 @@ function Creator(logger, config, cli) {
 	this.url = cli.argv.url || '';
 	this.sdk = cli.env.getSDK(cli.argv.sdk);
 	this.projectDir = appc.fs.resolvePath(cli.argv['workspace-dir'], this.projectName);
-	this.templateDir = appc.fs.resolvePath(this.sdk.path, 'templates', cli.argv.type, cli.argv.template);
 	this.projectConfig = null;
 }
 
