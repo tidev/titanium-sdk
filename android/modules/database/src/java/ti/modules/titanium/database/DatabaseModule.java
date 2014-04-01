@@ -22,6 +22,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUrl;
@@ -96,6 +97,15 @@ public class DatabaseModule extends KrollModule
 				}
 			}
 			// open an empty one to get the full path and then close and delete it
+			if (name.startsWith("appdata://")) {
+				String path = name.substring(10);
+				if (path != null && path.length() > 0 && path.charAt(0) == '/') {
+					path = path.substring(1);
+				}
+				File f = new File(TiFileFactory.getDataDirectory(false), path);
+				name = f.getAbsolutePath();
+			}
+			
 			File dbPath = ctx.getDatabasePath(name);
 
 			Log.d(TAG, "db path is = " + dbPath, Log.DEBUG_MODE);
@@ -108,26 +118,27 @@ public class DatabaseModule extends KrollModule
 
 			Log.d(TAG, "new url is = " + url, Log.DEBUG_MODE);
 
-			InputStream is = null;
-			OutputStream os = null;
-
-			byte[] buf = new byte[8096];
-			int count = 0;
-			try
-			{
-				is = new BufferedInputStream(srcDb.getInputStream());
-				os = new BufferedOutputStream(new FileOutputStream(dbPath));
-
-				while((count = is.read(buf)) != -1) {
-					os.write(buf, 0, count);
+			if (srcDb.isFile()) {
+				InputStream is = null;
+				OutputStream os = null;
+	
+				byte[] buf = new byte[8096];
+				int count = 0;
+				try
+				{
+					is = new BufferedInputStream(srcDb.getInputStream());
+					os = new BufferedOutputStream(new FileOutputStream(dbPath));
+	
+					while((count = is.read(buf)) != -1) {
+						os.write(buf, 0, count);
+					}
+				}
+				finally
+				{
+					try { is.close(); } catch (Exception ig) { }
+					try { os.close(); } catch (Exception ig) { }
 				}
 			}
-			finally
-			{
-				try { is.close(); } catch (Exception ig) { }
-				try { os.close(); } catch (Exception ig) { }
-			}
-
 			return open(name);
 
 		} catch (SQLException e) {

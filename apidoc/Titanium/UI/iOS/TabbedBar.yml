@@ -2,13 +2,11 @@
 name: Titanium.UI.iOS.TabbedBar
 summary: A button bar that maintains a selected state.
 description: |
-    The tabbed bar is created by the <Titanium.UI.iOS.createTabbedBar> method. 
-    
-    A tabbed bar is a button bar that maintains a state (visually distinguished as a pressed or 
-    selected look). 
-    
-    It is closely related to the `ButtonBar` control. See the description of 
-    [ButtonBar](Titanium.UI.ButtonBar) for information on styling tabbed bars and buttons bars.
+    A `TabbedBar` is a `ButtonBar` that maintains its state (visually distinguished as a pressed or 
+    selected look). See [ButtonBar](Titanium.UI.ButtonBar) for information on styling both tabbed bars and buttons bars.
+
+    You create a `TabbedBar` with the <Titanium.UI.iOS.createTabbedBar> factory method, or **`<TabbedBar>`** Alloy element.
+
 extends: Titanium.UI.View
 platforms: [iphone, ipad]
 since: "0.8"

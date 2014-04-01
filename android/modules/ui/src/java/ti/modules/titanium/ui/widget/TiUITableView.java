@@ -119,7 +119,22 @@ public class TiUITableView extends TiUIView
 			tableView.setOnItemLongClickListener(this);
 
 		}
-
+		
+		ListView list = getListView();
+		if (d.containsKey(TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED)) {
+			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED, false);
+			list.setFooterDividersEnabled(enabled);
+		} else {
+			list.setFooterDividersEnabled(false);
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_HEADER_DIVIDERS_ENABLED)) {
+			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_HEADER_DIVIDERS_ENABLED, false);
+			list.setHeaderDividersEnabled(enabled);
+		} else {
+			list.setHeaderDividersEnabled(false);
+		}
+	
 		if (d.containsKey(TiC.PROPERTY_SEARCH)) {
 			TiViewProxy searchView = (TiViewProxy) d.get(TiC.PROPERTY_SEARCH);
 			TiUIView search = searchView.getOrCreateView();
@@ -252,6 +267,16 @@ public class TiUITableView extends TiUIView
 			}
 		} else if (TiC.PROPERTY_MIN_ROW_HEIGHT.equals(key)) {
 			updateView();
+		} else if (TiC.PROPERTY_HEADER_VIEW.equals(key)) {
+			if (oldValue != null) {
+				tableView.removeHeaderView((TiViewProxy) oldValue);
+			}
+			tableView.setHeaderView();
+		} else if (TiC.PROPERTY_FOOTER_VIEW.equals(key)) {
+			if (oldValue != null) {
+				tableView.removeFooterView((TiViewProxy) oldValue);
+			}
+			tableView.setFooterView();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

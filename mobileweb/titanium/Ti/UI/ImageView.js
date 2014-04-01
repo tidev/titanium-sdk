@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI", "Ti/Filesystem"], 
+define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI", "Ti/Filesystem"],
 	function(declare, event, lang, style, Widget, UI, Filesystem) {
 
 	var setStyle = style.set,
@@ -70,6 +70,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget
 							});
 
 						if (value) {
+							value = value.replace(/^(\/|\.\/)/, '');
 							disp = "inherit";
 							handles = [
 								on(node, "load", this, function() {
@@ -198,7 +199,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget
 		},
 
 		constants: {
-			animating: false, 
+			animating: false,
 			paused: false
 		},
 
@@ -214,8 +215,9 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget
 				set: function(value) {
 					this._removeAllChildren();
 					this._images = void 0;
+					var self = this; //Need to get event context
 					this._add(this._createImage(value, function() {
-						this.fireEvent("load", {
+						self.fireEvent("load", {
 							state: "image"
 						});
 					}, function(e) {

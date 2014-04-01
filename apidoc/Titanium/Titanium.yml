@@ -44,7 +44,7 @@ properties:
         On Mobile Web, the browser's user agent cannot be overridden. Writing to this property has no 
         effect and reading the property will always return the browser's user agent.
   - name: version
-    type: Number
+    type: String
     summary: Version of Titanium that is executing.
     permission: read-only
   - name: buildDate

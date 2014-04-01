@@ -20,7 +20,7 @@
 	],
 	"minIosVersion": "6.0",
 	"vendorDependencies": {
-		"xcode": ">=5.0 <=5.0.x",
+		"xcode": ">=5.0 <=5.1.x",
 		"ios sdk": ">=7.0 <=7.x",
 		"node": ">0.8.0 <=0.10.x"
 	},

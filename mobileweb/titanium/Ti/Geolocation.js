@@ -94,7 +94,7 @@ define(['Ti/_/Evented', 'Ti/_/lang', 'Ti/Network'], function(Evented, lang, Netw
 						success: true,
 						code: 0,
 						latitude: parseFloat(responseParts[2]),
-						longitude: parseFloat(responseParts[3]),
+						longitude: parseFloat(responseParts[3])
 					});
 				},
 				onerror : function(e) {

@@ -3,7 +3,7 @@ name: Titanium.UI.SMSDialog
 summary: |
     An SMS dialog is a modal window that allows users to compose and send an SMS.
 description: |
-    Use [createSMSDialog](Titanium.UI.createSMSDialog) to create an SMS dialog.
+    Use [createSMSDialog](Titanium.UI.createSMSDialog) method to create an SMS dialog.
 
 extends: Titanium.Proxy
 since: "0.8"

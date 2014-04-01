@@ -2,19 +2,24 @@
 name: Titanium.UI.Android.SearchView
 summary: A specialized text field for entering search text.
 description: |
-    A widget that provides a user interface for the user to enter a search query and submit a request to a search provider.
+    `SearchView` provides a user interface to enter a search query and submit a request to a search provider.
     
     Search views are most commonly used for filtering the rows in a [TableView](Titanium.UI.TableView).
     Similar to [SearchBar](Titanium.UI.SearchBar), you can add a search view to a table view by setting the table view's 
-    [search](Titanium.UI.TableView.search) property. 
+    [search](Titanium.UI.TableView.search) property. A search view can be used without a `TableView`. 
+
+    You can also use a `SearchView` object as the <Titanium.UI.ListView.searchView>
+    property of a [ListView](Titanium.UI.ListView) object.
     
-    You can also add search view in an action bar as an action view.
+    You can also add `SearchView` to an `ActionBar` as a view (see example below).
 
-    A search view can be used without a table view.
+    Use the <Titanium.UI.Android.createSearchView> method or **`<SearchView>`** Alloy element to create
+    a search view. You must set the Alloy element's `ns` attribute to **Ti.UI.Android**:
 
-    Use the <Titanium.UI.Android.createSearchView> method to create a search view. This is only
-    supported on Google API 11 (Android 3.0) and later, and the Android manifest `targetSDKVersion`
-    key must be set in the `tiapp.xml` file.
+        <SearchView ns="Ti.UI.Android" platform="android"/>
+
+    `SearchView` is supported on Google API 11 (Android 3.0) and later. Your project's `tiapp.xml` file
+    must specify that version (or later) as the `targetSDKVersion` key in the Android manifest section.
     
 extends: Titanium.UI.View
 excludes: { methods: [ add ] }

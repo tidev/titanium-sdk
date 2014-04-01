@@ -4,19 +4,30 @@ summary: |
     A list view is used to present information, organized in to sections and items,
     in a vertically-scrolling view.
 description: |
-    Use the <Titanium.UI.createListView> method to create a `ListView`.
+    Use the <Titanium.UI.createListView> method or **`<ListView>`** Alloy element to create a `ListView`.
     
     A `ListView` object is a container for [ListSection](Titanium.UI.ListSection) 
-    objects that are, in turn, containers for [ListItem](Titanium.UI.ListItem) objects.
+    objects that are, in turn, containers for [ListItem](Titanium.UI.ListItem) objects. This is 
+    easily visualized as an Alloy view:
+
+        <Alloy>
+            <ListView id="list">
+                <ListSection>
+                    <ListItem title="List item 1"></ListItem>
+                    <ListItem title="List item 2"></ListItem>
+                    <ListItem title="List item 3"></ListItem>
+                </ListSection>
+            </ListView>
+        </Alloy>        
 
     For more instructions and examples of using `ListView`, refer to the
-    [ListViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/ListViews)
+    [ListViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/ListViews).
 
     #### Creating a List
 
-    To create a list, pass an array of <ListDataItem> objects to the list section's
+    To create a `ListView` object using JavaScript, pass an array of <ListDataItem> objects to the list section's
     [items](Titanium.UI.ListSection.items) property, which creates and adds each array
-    element as a row to a single [ListSection](Titanium.UI.ListSection). Use the list view's
+    element as a row to a single [ListSection](Titanium.UI.ListSection). Use the `ListView`'s
     [sections](Titanium.UI.ListView.sections) property to add the section(s) to the list view.
 
     By default, only the `image`, `title` and `accessoryType` of a list data item
@@ -297,6 +308,21 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
+  - name: noresults
+    summary: Fired when the search using either [searchView](Titanium.UI.ListView.searchView) or [searchText](Titanium.UI.ListView.searchText) has no results.
+    description: |
+        When items are filtered in a list view using either the `searchView` or `searchText`, it is possible that the search
+        returns an empty set.
+
+        While the `searchView` API automatically shows a **No Results** cell in the list view, the `searchText` API does not do so.
+        Developers can listen to this event and perform appropriate actions when the search result set is empty.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    properties:
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
   - name: pull
     summary: Fired when the user drags the list view past the top edge of the [pullView](Titanium.UI.ListView.pullView).
     platforms: [iphone, ipad]
@@ -388,18 +414,38 @@ properties:
     type: [String, Number]
     default: Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT
 
+  - name: footerDividersEnabled
+    summary: When set to false, the ListView will not draw the divider before the footer view.
+    type: Boolean
+    availability: creation
+    default: undefined but behaves as false
+    platforms: [android]
+    since: "3.3.0"
+
   - name: footerTitle
     summary: List view footer title.
     type: String
 
   - name: footerView
     summary: List view footer as a view that will be rendered instead of a label.
+    description: |
+        In Alloy you can specify this property with a `<FooterView>` child element of a `<ListView>`
+        element (see Examples).
+
     type: Titanium.UI.View
     description: |
         On Android, this is a creation only property.
     since: 3.2.0
     platforms: [android, iphone, ipad]
 
+  - name: headerDividersEnabled
+    summary: When set to false, the ListView will not draw the divider after the header view.
+    type: Boolean
+    availability: creation
+    default: undefined but behaves as false
+    platforms: [android]
+    since: "3.3.0"
+    
   - name: headerTitle
     summary: List view header title.
     type: String
@@ -407,7 +453,10 @@ properties:
   - name: headerView
     summary: List view header as a view that will be rendered instead of a label.
     description: |
-        On Android, this is a creation only property.
+        On Android, this is a creation only property. 
+        In Alloy you can specify this property with a `<HeaderView>` child element of a `<ListView>`
+        element (see Examples).
+
     type: Titanium.UI.View
     since: 3.2.0
     platforms: [android, iphone, ipad]
@@ -417,6 +466,26 @@ properties:
     description: |
         A `pullView` is a UI control that is often used to provide a convenient way for the user to refresh a table's data. 
         Typically used in conjunction with [setContentInsets](Titanium.UI.ListView.setContentInsets) method and [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events.
+
+        To specify the wrapper color see <Titanium.UI.View.pullBackgroundColor>.
+
+        In Alloy you can assign this property with a `<PullView>` child element of a `<ListView>`
+        element:
+
+            <Alloy>
+              <ListView>
+                <ListSection>
+                  <ListItem title="Item a"></ListItem>
+                  <ListItem title="Item b"></ListItem>
+                  <ListItem title="Item c"></ListItem>
+                </ListSection>
+                <PullView>
+                  <View height="50" backgroundColor="black">
+                    <Label/>
+                  </View>
+                </PullView>
+              </ListView>
+            </Alloy>
 
         See the code example on `pullView` to  see how it may be utilized.
     type: Titanium.UI.View
@@ -437,6 +506,18 @@ properties:
         Provides the same functionality as the [search](Titanium.UI.TableView.search) property in [TableView](Titanium.UI.TableView).
         Used in conjunction with [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
         On Android, you can either specify <Titanium.UI.SearchBar> or <Titanium.UI.Android.SearchView>, while on iOS only <Titanium.UI.SearchBar> is supported.
+
+        In an Alloy application, you can use a `<SearchView>` or `<SearchBar>` element inside a `<ListView>` element.
+
+            <Alloy>
+                <ListView>
+                   <!-- search, shorthand with Ti.UI.SearchBar -->
+                  <SearchBar class="search" platform="ios"/>
+                  <!-- search, shorthand with Ti.UI.Android.SearchView -->
+                  <SearchView ns="Ti.UI.Android" class="search" platform="android"/>
+                </ListView>
+            </Alloy>
+
     type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
     platforms: [android, iphone, ipad]
     since: 3.2.0
@@ -1039,7 +1120,7 @@ examples:
                 left: '60dp', top: '25dp'
             }
 
-  - title: ListView Properties as XML Elements
+  - title: Alloy example of ListView properties
     example: |
         Supported in Alloy 1.3.0 and later.
 
@@ -1082,6 +1163,26 @@ examples:
                 </Window>
             </Alloy>
 
+  - title: Alloy example of `<PullView>` element
+    example: |
+        The example below demonstrates how to use a `<PullView>` Alloy element.
+
+            <!-- views/index.xml -->
+            <Alloy>
+                <Window class="container" >
+                    <ListView id="list">
+                        <ListSection>
+                            <ListItem title="Number 1"></ListItem>
+                            <ListItem title="Number 2"></ListItem>
+                        </ListSection>
+                        <PullView>
+                            <View backgroundColor="red" height="50">
+                                <Label>Release to reload</Label>
+                            </View>
+                        </PullView>
+                    </ListView>
+                </Window>
+            </Alloy>
 ---
 name: ListViewAnimationProperties
 summary: |

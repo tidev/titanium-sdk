@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 
+import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
@@ -245,11 +246,10 @@ public class ActivityProxy extends KrollProxy
 	@Kroll.method @Kroll.getProperty
 	public ActionBarProxy getActionBar()
 	{
-		Activity activity = getWrappedActivity();
-		if (actionBarProxy == null && activity != null && Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
+		ActionBarActivity activity = (ActionBarActivity) getWrappedActivity();
+		if (actionBarProxy == null && activity != null) {
 			actionBarProxy = new ActionBarProxy(activity);
 		}
-
 		return actionBarProxy;
 	}
 
@@ -266,12 +266,10 @@ public class ActivityProxy extends KrollProxy
 	@Kroll.method
 	public void invalidateOptionsMenu()
 	{
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
-			if (TiApplication.isUIThread()) {
+		if (TiApplication.isUIThread()) {
 				handleInvalidateOptionsMenu();
-			} else {
+		} else {
 				getMainHandler().obtainMessage(MSG_INVALIDATE_OPTIONS_MENU).sendToTarget();
-			}
 		}
 	}
 
@@ -286,8 +284,8 @@ public class ActivityProxy extends KrollProxy
 	private void handleInvalidateOptionsMenu()
 	{
 		Activity activity = getWrappedActivity();
-		if (activity != null) {
-			activity.invalidateOptionsMenu();
+		if (activity != null && activity instanceof ActionBarActivity) {
+			((ActionBarActivity)activity).supportInvalidateOptionsMenu();
 		}
 	}
 
