@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll.getProperty;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -112,6 +113,19 @@ public abstract class CommonContactsApi
 			key = "home";
 		} else if (type == ContactsContract.CommonDataKinds.Email.TYPE_WORK) {
 			key = "work";
+		}
+		return key;
+	}
+	
+	protected static String getDateTextType(int type)
+	{
+		String key = "other";
+		if (type == ContactsContract.CommonDataKinds.Event.TYPE_ANNIVERSARY) {
+			key = "anniversary";
+		} else if (type == ContactsContract.CommonDataKinds.Event.TYPE_BIRTHDAY) {
+			key = "birthDay";
+		} else if (type == ContactsContract.CommonDataKinds.Event.TYPE_CUSTOM) {
+			key = "custom";
 		}
 		return key;
 	}
@@ -242,6 +256,7 @@ public abstract class CommonContactsApi
 		Map<String, ArrayList<String>> instantMessages = new HashMap<String, ArrayList<String>>();
 		Map<String, ArrayList<String>> relatedNames = new HashMap<String, ArrayList<String>>();
 		Map<String, ArrayList<String>> websites = new HashMap<String, ArrayList<String>>();
+		Map<String, ArrayList<String>> dates = new HashMap<String, ArrayList<String>>();
 		void addPersonInfoFromL5DataRow(Cursor cursor)
 		{
 			this.id = cursor.getLong(ContactsApiLevel5.DATA_COLUMN_CONTACT_ID);
@@ -360,6 +375,7 @@ public abstract class CommonContactsApi
 			if (type == ContactsContract.CommonDataKinds.Event.TYPE_BIRTHDAY) {
 				this.birthday = cursor.getString(ContactsApiLevel5.DATA_COLUMN_EVENT_DATE);
 			}
+			loadDatesL5DataRow(cursor);
 		}
 
 		void loadEmailFromL5DataRow(Cursor emailsCursor)
@@ -392,6 +408,21 @@ public abstract class CommonContactsApi
 			}
 			
 			collection.add(website);
+		}
+		
+		void loadDatesL5DataRow(Cursor datesCursor)
+		{
+			ArrayList<String>  collection;
+			String date =datesCursor.getString(ContactsApiLevel5.DATA_COLUMN_DATE_ADDR);
+			int type = datesCursor.getInt(ContactsApiLevel5.DATA_COLUMN_DATE_TYPE);
+			String key = getDateTextType(type);
+			if (dates.containsKey(key)) {
+				collection = dates.get(key);
+			} else {
+				collection = new ArrayList<String>();
+				dates.put(key, collection);
+			}
+			collection.add(date);
 		}
 		
 		void loadNameFromL5DataRow(Cursor nameCursor)
@@ -428,12 +459,13 @@ public abstract class CommonContactsApi
 			proxy.setFullName(name);
 			proxy.setFirstName(fname);
 			proxy.setLastName(lname);
-			proxy.setPrefixName(pname);
+			proxy.setPrefix(pname);
 			proxy.setMiddleName(mname);
-			proxy.setSuffixName(sname);
+			proxy.setSuffix(sname);
 			proxy.setFirstPhonetic(fphonetic);
 			proxy.setMiddlePhonetic(mphonetic);
 			proxy.setLastPhonetic(lphonetic);
+			proxy.setBirthDay(birthday);
 			proxy.setOrganization(organization);
 			proxy.setJobTitle(jobTitle);
 			proxy.setDepartment(department);
@@ -444,6 +476,7 @@ public abstract class CommonContactsApi
 			proxy.setProperty(TiC.PROPERTY_NOTE, notes);
 			proxy.setProperty(TiC.PROPERTY_BIRTHDAY, birthday);
 			proxy.setEmailFromMap(emails);
+			proxy.setDateFromMap(dates);
 			proxy.setPhoneFromMap(phones);
 			proxy.setAddressFromMap(addresses);
 			proxy.setProperty(TiC.PROPERTY_KIND,

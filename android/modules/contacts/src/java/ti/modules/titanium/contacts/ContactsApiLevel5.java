@@ -123,9 +123,10 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	protected static int DATA_COLUMN_IM_TYPE = DATA_COLUMN_DATA5;
 	protected static int DATA_COLUMN_RELATED_NAME = DATA_COLUMN_DATA1;
 	protected static int DATA_COLUMN_RELATED_NAME_TYPE = DATA_COLUMN_DATA2;
+	protected static int DATA_COLUMN_DATE_ADDR = DATA_COLUMN_DATA1;
+ 	protected static int DATA_COLUMN_DATE_TYPE = DATA_COLUMN_DATA2;
 	protected static int DATA_COLUMN_WEBSITE_ADDR = DATA_COLUMN_DATA1;
 	protected static int DATA_COLUMN_WEBSITE_TYPE = DATA_COLUMN_DATA2;
-	
 	protected static String KIND_ORGANIZE = "vnd.android.cursor.item/organization";
 	protected static String KIND_NAME = "vnd.android.cursor.item/name";
 	protected static String KIND_EMAIL = "vnd.android.cursor.item/email_v2";
@@ -203,7 +204,6 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		if (additionalCondition != null) {
 			condition += " AND " + additionalCondition;
 		}
-
 		Cursor cursor = activity.getContentResolver().query(
 				DataUri, 
 				DATA_PROJECTION, 
@@ -743,12 +743,6 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 		cursor.close();
 
-		Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-		String[] projection = new String[] { ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-			ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.CONTACT_STATUS_TIMESTAMP };
-
-		Cursor c = activity.getContentResolver().query(uri, projection, null, null,
-			ContactsContract.CommonDataKinds.Phone.CONTACT_STATUS_TIMESTAMP);
 		if (person == null) {
 			return null;
 		}

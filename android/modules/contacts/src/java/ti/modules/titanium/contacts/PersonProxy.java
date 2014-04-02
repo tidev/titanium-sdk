@@ -43,10 +43,9 @@ public class PersonProxy extends KrollProxy
 	private String fullName = "";
 	private String firstName = "";
 	private String lastName = "";
-	private String prefixName = "";
+	private String prefix = "";
 	private String middleName = "";
-	private String suffixName = "";
-	private String birthDay = "";
+	private String suffix = "";
 	private String nickName = "";
 	private String firstPhonetic = "";
 	private String middlePhonetic = "";
@@ -54,12 +53,12 @@ public class PersonProxy extends KrollProxy
 	private String organization = "";
 	private String jobTitle = "";
 	private String department = "";
-		
+	private String birthDay = "";	
 	// Contact Modifications
 	private HashMap<String, Boolean> modified = new HashMap<String, Boolean>();
 
 	public PersonProxy()
-	{
+	{ 
 		super();
 	}
 
@@ -103,9 +102,9 @@ public class PersonProxy extends KrollProxy
 	}
 
 	@Kroll.method @Kroll.getProperty
-	public String getPrefixName()
+	public String getPrefix()
 	{
-		return prefixName;
+		return prefix;
 	}
 
 	@Kroll.method @Kroll.getProperty
@@ -115,9 +114,9 @@ public class PersonProxy extends KrollProxy
 	}
 
 	@Kroll.method @Kroll.getProperty
-	public String getSuffixName()
+	public String getSuffix()
 	{
-		return suffixName;
+		return suffix;
 	}
 
 	public void setMiddleName(String mname)
@@ -125,14 +124,14 @@ public class PersonProxy extends KrollProxy
 		middleName = mname;
 	}
 
-	public void setSuffixName(String sname)
+	public void setSuffix(String sname)
 	{
-		suffixName = sname;
+		suffix = sname;
 	}
 
-	public void setPrefixName(String pname)
+	public void setPrefix(String pname)
 	{
-		prefixName = pname;
+		prefix = pname;
 	}
 
 	public void setFirstName(String fname)
@@ -180,7 +179,7 @@ public class PersonProxy extends KrollProxy
 
 	public void setBirthDay(String birthday)
 	{
-		birthDay = birthday;
+		this.birthDay = birthday;
 	}
 
 	@Kroll.method @Kroll.getProperty
@@ -232,6 +231,12 @@ public class PersonProxy extends KrollProxy
 	{
 		return (Long) getProperty(TiC.PROPERTY_ID);
 	}
+	
+	@Kroll.method @Kroll.getProperty
+	public long getRecordId()
+	{
+		return (Long) getProperty(TiC.PROPERTY_ID);
+	}
 
 	public boolean isFieldModified(String field)
 	{
@@ -278,7 +283,12 @@ public class PersonProxy extends KrollProxy
 	{
 		setProperty(TiC.PROPERTY_EMAIL, contactMethodMapToDict(map));
 	}
-	
+
+	protected void setDateFromMap(Map<String, ArrayList<String>> map)
+	{
+		setProperty(TiC.PROPERTY_DATE, contactMethodMapToDict(map));
+	}
+
 	protected void setIMFromMap(Map<String, ArrayList<String>> map)
 	{
 		setProperty(TiC.PROPERTY_INSTANTMSG, contactMethodMapToDict(map));
