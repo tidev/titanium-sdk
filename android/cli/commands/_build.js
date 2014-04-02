@@ -1437,8 +1437,18 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 				jarHashes = {},
 				ignoreDirs = this.ignoreDirs;
 
+			// Define the New Relic variable before the loop
+			nrModuleAvailable = false;
+
 			modules.found.forEach(function (module) {
 				manifestHashes.push(hash(JSON.stringify(module.manifest)));
+
+				// Search for New Relic module
+				var nrSearch = module.modulePath.search("ti.newrelic");
+				if (nrSearch > 0) {
+					nrModuleAvailable = true;
+					nrPath = module.modulePath;
+				}
 
 				if (module.platform.indexOf('commonjs') != -1) {
 					module.native = false;
@@ -3796,17 +3806,34 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 				}
 				done();
 			}.bind(this));
-		}),
-		dexArgs = [
-			'-Xmx' + this.dxMaxMemory,
-			'-XX:-UseGCOverheadLimit',
-			'-Djava.ext.dirs=' + this.androidInfo.sdk.platformTools.path,
-			'-jar', this.androidInfo.sdk.dx,
-			'--dex',
-			'--output=' + this.buildBinClassesDex,
-			this.buildBinClassesDir,
-			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
-		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+		})
+		// Check for New Relic module and if it's present, add additional required dexArgs
+		if (nrModuleAvailable) {
+			this.logger.info(__('Adding New Relic support'));
+			dexArgs = [
+				'-Xmx' + this.dxMaxMemory,
+				'-XX:-UseGCOverheadLimit',
+				'-Djava.ext.dirs=' + this.androidInfo.sdk.platformTools.path,
+				'-javaagent:' + path.join(nrPath, 'class.rewriter.jar'),
+				'-jar', this.androidInfo.sdk.dx,
+				'--dex',
+				'--output=' + this.buildBinClassesDex,
+				this.buildBinClassesDir,
+				path.join(this.platformPath, 'lib', 'titanium-verify.jar')
+			].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+		}
+		else {
+			dexArgs = [
+				'-Xmx' + this.dxMaxMemory,
+				'-XX:-UseGCOverheadLimit',
+				'-Djava.ext.dirs=' + this.androidInfo.sdk.platformTools.path,
+				'-jar', this.androidInfo.sdk.dx,
+				'--dex',
+				'--output=' + this.buildBinClassesDex,
+				this.buildBinClassesDir,
+				path.join(this.platformPath, 'lib', 'titanium-verify.jar')
+			].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+		}
 
 	if (this.allowDebugging && this.debugPort) {
 		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
