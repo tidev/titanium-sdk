@@ -989,17 +989,18 @@ else{\
     if ((controller == nil) || ([controller navigationController] == nil)) {
         return;
     }
-    UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
-    if ([item respondsToSelector:@selector(proxy)]) {
-        TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
-        [p removeBarButtonView];
+    NSArray* curValues = [self valueForUndefinedKey:@"leftNavButtons"];
+    ENSURE_TYPE_OR_NIL(curValues, NSArray);
+    for (TiViewProxy* curProxy in curValues) {
+        [curProxy removeBarButtonView];
+    }
+    
+    NSArray* curValues2 = [self valueForUndefinedKey:@"rightNavButtons"];
+    ENSURE_TYPE_OR_NIL(curValues2, NSArray);
+    for (TiViewProxy* curProxy in curValues2) {
+        [curProxy removeBarButtonView];
     }
 
-    item = controller.navigationItem.rightBarButtonItem;
-    if ([item respondsToSelector:@selector(proxy)]) {
-        TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
-        [p removeBarButtonView];
-    }
     if (barImageView != nil) {
         [barImageView removeFromSuperview];
     }
