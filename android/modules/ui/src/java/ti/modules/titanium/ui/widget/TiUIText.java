@@ -203,10 +203,10 @@ public class TiUIText extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_PADDING_LEFT)) {
-			tv.setPadding(0, 0, TiConvert.toInt(d, TiC.PROPERTY_PADDING_LEFT),0);
+			tv.setPadding(TiConvert.toInt(d, TiC.PROPERTY_PADDING_LEFT), 0, 0, 0);
 		}
 		if (d.containsKey(TiC.PROPERTY_PADDING_RIGHT)) {
-			tv.setPadding(0, 0, TiConvert.toInt(d, TiC.PROPERTY_PADDING_RIGHT),0);
+			tv.setPadding(0, 0, TiConvert.toInt(d, TiC.PROPERTY_PADDING_RIGHT), 0);
 		}
 	}
 
