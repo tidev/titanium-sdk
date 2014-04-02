@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.annotations.Kroll.getProperty;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -264,7 +263,7 @@ public abstract class CommonContactsApi
 			this.hasImage = (cursor.getInt(ContactsApiLevel5.DATA_COLUMN_PHOTO_ID) > 0);
 		}
 		
-		void addPeresonInfoFromL5PersonRow(Cursor cursor)
+		void addPersonInfoFromL5PersonRow(Cursor cursor)
 		{
 			this.id = cursor.getLong(ContactsApiLevel5.PEOPLE_COL_ID);
 			this.name = cursor.getString(ContactsApiLevel5.PEOPLE_COL_NAME);

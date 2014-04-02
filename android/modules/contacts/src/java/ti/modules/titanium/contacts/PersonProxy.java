@@ -58,7 +58,7 @@ public class PersonProxy extends KrollProxy
 	private HashMap<String, Boolean> modified = new HashMap<String, Boolean>();
 
 	public PersonProxy()
-	{ 
+	{
 		super();
 	}
 
