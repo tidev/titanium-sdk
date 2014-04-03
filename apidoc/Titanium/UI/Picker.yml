@@ -331,6 +331,7 @@ properties:
   - name: font
     summary: Font to use for text.
     type: Font
+    
 examples:
   - title: Basic Single Column Picker
     example: |
