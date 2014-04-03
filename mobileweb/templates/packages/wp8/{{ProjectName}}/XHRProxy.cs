@@ -145,7 +145,8 @@ namespace TitaniumApp
 									return;
 								}
 
-								string decodedUrl = url.Substring(q + urlPrefix.Length);
+								string encodedUrl = url.Substring(q + urlPrefix.Length);
+								string decodedUrl = HttpUtility.UrlDecode(encodedUrl).Replace(' ', '+');
 								byte[] data = Convert.FromBase64String(decodedUrl);
 								url = Encoding.UTF8.GetString(data, 0, data.Length);
 								if (url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0) {
