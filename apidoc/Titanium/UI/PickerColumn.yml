@@ -46,6 +46,10 @@ properties:
     summary: The selected row in this column.
     type: Titanium.UI.PickerRow
     platforms: [mobileweb, tizen]
+  
+  - name: font
+    summary: Font to use for text.
+    type: Font
     
 examples:
   - title: Multi-Column Picker

@@ -150,7 +150,7 @@ public class TiUIDateSpinner extends TiUIView
         	numericMonths = TiConvert.toBoolean(d, "numericMonths");
         }
         
-        if (d.containsKeyStartingWith("font")) {
+        if (d.containsKey("font")) {
 			setFontProperties();
 		}
         
@@ -196,7 +196,6 @@ public class TiUIDateSpinner extends TiUIView
 		String fontWeight = null;
 		Typeface typeface = null;
 		KrollDict d = proxy.getProperties();
-		// KrollDict d = new KrollDict();
 		if (d.containsKey(TiC.PROPERTY_FONT) && d.get(TiC.PROPERTY_FONT) instanceof HashMap) {
 			KrollDict font = d.getKrollDict(TiC.PROPERTY_FONT);
 			if (font.containsKey("fontSize")) {
@@ -228,22 +227,17 @@ public class TiUIDateSpinner extends TiUIView
 			typefaceWeight = new Integer(TiUIHelper.toTypefaceStyle(fontWeight, null));
 		}
 
-		boolean dirty = false;
 		if (typeface != null) {
-			dirty = dirty || !typeface.equals(monthWheel.getTypeface());
 			dayWheel.setTypeface(typeface);
 			monthWheel.setTypeface(typeface);
 			yearWheel.setTypeface(typeface);
 		}
 		if (typefaceWeight != null) {
-			dirty = dirty || typefaceWeight.intValue() != monthWheel.getTypefaceWeight();
 			dayWheel.setTypefaceWeight(typefaceWeight);
 			monthWheel.setTypefaceWeight(typefaceWeight);
 			yearWheel.setTypefaceWeight(typefaceWeight);
 		}
 		if (fontSize != null) {
-			int fontSizeInt = fontSize.intValue();
-			dirty = dirty || fontSizeInt != monthWheel.getTextSize();
 			dayWheel.setTextSize(fontSize.intValue());
 			monthWheel.setTextSize(fontSize.intValue());
 			yearWheel.setTextSize(fontSize.intValue());
