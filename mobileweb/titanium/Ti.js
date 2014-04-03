@@ -221,6 +221,8 @@ define(
 		});
 
 		if (App.analytics) {
+			var analyticsPlatformName = require.config.ti.analyticsPlatformName;
+
 			// enroll event
 			if (localStorage.getItem("ti:enrolled") === null) {
 				// setup enroll event
@@ -233,7 +235,7 @@ define(
 					ostype: Platform.osname,
 					osarch: null,
 					app_id: App.id,
-					platform: Platform.name,
+					platform: analyticsPlatformName,
 					model: Platform.model
 				});
 				localStorage.setItem("ti:enrolled", true)
@@ -246,7 +248,7 @@ define(
 				os: Platform.osname,
 				osver: Platform.ostype,
 				version: cfg.ti.version,
-				platform: require.config.ti.analyticsPlatformName,
+				platform: analyticsPlatformName,
 				model: Platform.model,
 				un: null,
 				app_version: App.version,
