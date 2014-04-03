@@ -1156,6 +1156,21 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_FONTFAMILY = "fontFamily";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FONTWEIGHT = "fontWeight";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FONTSIZE = "fontSize";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FONT_FAMILY = "font-family";
 
 	/**

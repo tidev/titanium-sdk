@@ -58,7 +58,7 @@ import android.view.View;
 
 	// accessibility
 	TiC.PROPERTY_ACCESSIBILITY_HINT, TiC.PROPERTY_ACCESSIBILITY_LABEL, TiC.PROPERTY_ACCESSIBILITY_VALUE,
-	TiC.PROPERTY_ACCESSIBILITY_HIDDEN, TiC.PROPERTY_FONT, 
+	TiC.PROPERTY_ACCESSIBILITY_HIDDEN,
 
 	// others
 	"focusable", "touchEnabled", "visible", "enabled", "opacity",

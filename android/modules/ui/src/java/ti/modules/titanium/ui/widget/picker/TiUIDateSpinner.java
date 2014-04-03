@@ -146,17 +146,17 @@ public class TiUIDateSpinner extends TiUIView
         	dayBeforeMonth = TiConvert.toBoolean(d, "dayBeforeMonth");
         }
         
-        if (d.containsKey("numericMonths")) {
-        	numericMonths = TiConvert.toBoolean(d, "numericMonths");
-        }
-        
-        if (d.containsKey("font")) {
+		if (d.containsKey("numericMonths")) {
+			numericMonths = TiConvert.toBoolean(d, "numericMonths");
+		}
+
+		if (d.containsKey(TiC.PROPERTY_FONT)) {
 			setFontProperties();
 		}
-        
-        if (maxDate.before(minDate)) {
-        	maxDate.setTime(minDate.getTime());
-        }
+
+		if (maxDate.before(minDate)) {
+			maxDate.setTime(minDate.getTime());
+		}
         
         // If initial value is out-of-bounds, set date to nearest bound
         if (calendar.after(maxDate)) {
@@ -176,10 +176,10 @@ public class TiUIDateSpinner extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if ("font".equals(key)) {
+		if (TiC.PROPERTY_FONT.equals(key)) {
 			setFontProperties();
 
-		} else if ("value".equals(key)) {
+		} else if (TiC.PROPERTY_VALUE.equals(key)) {
 			Date date = (Date) newValue;
 			setValue(date.getTime());
 		} else if ("locale".equals(key)) {
@@ -198,15 +198,15 @@ public class TiUIDateSpinner extends TiUIView
 		KrollDict d = proxy.getProperties();
 		if (d.containsKey(TiC.PROPERTY_FONT) && d.get(TiC.PROPERTY_FONT) instanceof HashMap) {
 			KrollDict font = d.getKrollDict(TiC.PROPERTY_FONT);
-			if (font.containsKey("fontSize")) {
-				String sFontSize = TiConvert.toString(font, "fontSize");
+			if (font.containsKey(TiC.PROPERTY_FONTSIZE)) {
+				String sFontSize = TiConvert.toString(font, TiC.PROPERTY_FONTSIZE);
 				fontSize = new Float(TiUIHelper.getSize(sFontSize));
 			}
-			if (font.containsKey("fontFamily")) {
-				fontFamily = TiConvert.toString(font, "fontFamily");
+			if (font.containsKey(TiC.PROPERTY_FONTFAMILY)) {
+				fontFamily = TiConvert.toString(font, TiC.PROPERTY_FONTFAMILY);
 			}
-			if (font.containsKey("fontWeight")) {
-				fontWeight = TiConvert.toString(font, "fontWeight");
+			if (font.containsKey(TiC.PROPERTY_FONTWEIGHT)) {
+				fontWeight = TiConvert.toString(font, TiC.PROPERTY_FONTWEIGHT);
 			}
 		}
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_FONT_FAMILY)) {
