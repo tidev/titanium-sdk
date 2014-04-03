@@ -160,11 +160,6 @@
     }
 }
 
--(BOOL)optimizeSubviewInsertion
-{
-    return YES;
-}
-
 -(NSMutableDictionary*)langConversionTable
 {
 	return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"title",@"titleid",@"titlePrompt",@"titlepromptid",nil];
