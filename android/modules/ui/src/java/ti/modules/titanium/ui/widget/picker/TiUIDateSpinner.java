@@ -146,17 +146,17 @@ public class TiUIDateSpinner extends TiUIView
         	dayBeforeMonth = TiConvert.toBoolean(d, "dayBeforeMonth");
         }
         
-		if (d.containsKey("numericMonths")) {
-			numericMonths = TiConvert.toBoolean(d, "numericMonths");
-		}
+        if (d.containsKey("numericMonths")) {
+        	numericMonths = TiConvert.toBoolean(d, "numericMonths");
+        }
 
-		if (d.containsKey(TiC.PROPERTY_FONT)) {
-			setFontProperties();
-		}
+        if (d.containsKey(TiC.PROPERTY_FONT)) {
+        	setFontProperties();
+        }
 
-		if (maxDate.before(minDate)) {
-			maxDate.setTime(minDate.getTime());
-		}
+        if (maxDate.before(minDate)) {
+        	maxDate.setTime(minDate.getTime());
+        }
         
         // If initial value is out-of-bounds, set date to nearest bound
         if (calendar.after(maxDate)) {
