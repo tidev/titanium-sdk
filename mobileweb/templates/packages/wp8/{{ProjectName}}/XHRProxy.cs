@@ -1,4 +1,4 @@
-﻿/**
+/**
  * This file contains portions of code from http://developer.nokia.com/community/wiki/A_simplistic_HTTP_Server_on_Windows_Phone
  */
 
@@ -335,9 +335,11 @@ namespace TitaniumApp
 
 									Stream responseStream = response.GetResponseStream();
 									BinaryReader br = new BinaryReader(responseStream);
-									while ((responseBytesRead = br.Read(responseBuffer, 0, responseBuffer.Length)) > 0) {
-										responseTotalBytesRead += responseBytesRead;
-										writer.WriteBytes(responseBuffer);
+									byte[] responseBytes = br.ReadBytes(4096);
+									while (responseBytes.Length > 0) {
+										responseTotalBytesRead += responseBytes.Length;
+										writer.WriteBytes(responseBytes);
+										responseBytes = br.ReadBytes(4096);
 									}
 									Logger.log("XHRProxy", "Returned " + responseTotalBytesRead + " bytes");
 
