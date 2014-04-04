@@ -822,20 +822,23 @@ MobileWebBuilder.prototype.assembleTitaniumJS = function assembleTitaniumJS(next
 
 				if (/^url\:/.test(moduleName)) {
 					if (this.minifyJS) {
-						var source = file + '.uncompressed.js';
-						fs.renameSync(file, source);
+						//var source = file + '.uncompressed.js';
+						//fs.renameSync(file, source);
 						this.logger.debug(__('Minifying include %s', file));
 						try {
-							fs.writeFileSync(file, UglifyJS.minify(source).code);
+							fs.writeFileSync(file, UglifyJS.minify(file).code);
+							//fs.writeFileSync(file, UglifyJS.minify(source).code);
 						} catch (ex) {
-							this.logger.error(__('Failed to minify %s', source));
+							this.logger.error(__('Failed to minify %s', file));
+							//this.logger.error(__('Failed to minify %s', source));
 							if (ex.line) {
 								this.logger.error(__('%s [line %s, column %s]', ex.message, ex.line, ex.col));
 							} else {
 								this.logger.error(__('%s', ex.message));
 							}
 							try {
-								var contents = fs.readFileSync(source).toString().split('\n');
+								var contents = fs.readFileSync(file).toString().split('\n');
+								//var contents = fs.readFileSync(source).toString().split('\n');
 								if (ex.line && ex.line <= contents.length) {
 									this.logger.error('');
 									this.logger.error('    ' + contents[ex.line-1]);
@@ -1047,11 +1050,12 @@ MobileWebBuilder.prototype.minifyJavaScript = function minifyJavaScript(next) {
 			if (stat.isDirectory()) {
 				walk(file);
 			} else if (/\.js$/.test(filename)) {
-				var source = file + '.uncompressed.js';
-				fs.renameSync(file, source);
+				//var source = file + '.uncompressed.js';
+				//fs.renameSync(file, source);
 				self.logger.debug(__('Minifying include %s', file));
 				try {
-					fs.writeFileSync(file, UglifyJS.minify(source).code);
+					fs.writeFileSync(file, UglifyJS.minify(file).code);
+					//fs.writeFileSync(file, UglifyJS.minify(source).code);
 				} catch (ex) {
 					self.logger.error(__('Failed to minify %s', file));
 					if (ex.line) {
@@ -1060,7 +1064,8 @@ MobileWebBuilder.prototype.minifyJavaScript = function minifyJavaScript(next) {
 						self.logger.error(__('%s', ex.message));
 					}
 					try {
-						var contents = fs.readFileSync(source).toString().split('\n');
+						var contents = fs.readFileSync(file).toString().split('\n');
+						//var contents = fs.readFileSync(source).toString().split('\n');
 						if (ex.line && ex.line <= contents.length) {
 							self.logger.error('');
 							self.logger.error('    ' + contents[ex.line-1]);
