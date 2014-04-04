@@ -146,7 +146,7 @@ namespace TitaniumApp.TiRequestHandlers
 						byte[] responseBuffer = br.ReadBytes(4096);
 
 						while (responseBuffer.Length > 0) {
-							responseTotalBytesRead += responseBytesRead;
+							responseTotalBytesRead += responseBuffer.Length;
 							await filestream.WriteAsync(responseBuffer, 0, responseBuffer.Length);
 							responseBuffer = br.ReadBytes(4096);
 						}
