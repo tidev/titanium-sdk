@@ -65,12 +65,8 @@ properties:
 
   - name: pushMode
     summary: Specifies the push mode.
-    description: |
-        Specifiy one of the following constants:
-
-          * <Titanium.UI.iOS.PUSH_MODE_CONTINUOUS> for a continuous force
-          * <Titanium.UI.iOS.PUSH_MODE_INSTANTANEOUS> for an instantaneous force
     type: Number
+    constants: Titanium.UI.iOS.PUSH_MODE_*
     default: <Titanium.UI.iOS.PUSH_MODE_CONTINUOUS>
 
 methods:

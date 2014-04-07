@@ -77,4 +77,5 @@ properties:
         recommended that the `auto` value is used for these properties instead, to compute the 
         view's size from the adSize.
     type: String
+    constants: Titanium.UI.iOS.AD_SIZE_*
     since: "2.0.0"

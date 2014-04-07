@@ -18,12 +18,8 @@ properties:
   - name: frequency
     summary: |
         Frequency of the recurrence rule.
-        
-        Can be [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY), 
-        [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY), 
-        [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY), or 
-        [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Number
+    constants: Titanium.Calendar.RECURRENCEFREQUENCY_*
     permission: read-only
 
   - name: interval

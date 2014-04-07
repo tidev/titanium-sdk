@@ -49,8 +49,9 @@ methods:
             Media source specified as a string: `camera` for Camera or `photo` for Photo Library.
         type: String
       - name: type
-        summary: Media type to check, either `MEDIA_TYPE_PHOTO` or `MEDIA_TYPE_VIDEO`.
+        summary: Media type to check.
         type: String
+        constants: Titanium.Media.MEDIA_TYPE_*
     platforms: [iphone, ipad]
   - name: openMusicLibrary
     summary: Shows the music library and allows the user to select one or more tracks.
@@ -118,19 +119,17 @@ methods:
   - name: setOverrideAudioRoute
     summary: Overrides the default audio route when using the <Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD> session mode.
     description: | 
-        By default, when using the <Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD> session mode, the audio output is routed to the speaker in the receiver. This method lets you specify that audio should be routed to the built-in speaker.
-
-        The method can take one of the following values:
-
-        * <Titanium.Media.AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER> sends output audio to the built-in speaker. 
-        * <Titanium.Media.AUDIO_SESSION_OVERRIDE_ROUTE_NONE> sends output to the default audio route.
+        By default, when using the <Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD> session mode,
+        the audio output is routed to the speaker in the receiver. This method lets you specify
+        that audio should be routed to the built-in speaker.
 
         If you override the audio route while audio is playing the changes won't not take effect until  the audio is restarted.
     platforms: [iphone, ipad]
     parameters: 
       - name: route
-        summary: The specified audio route. Can either be <Titanium.Media.AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER> or <Titanium.Media.AUDIO_SESSION_OVERRIDE_ROUTE_NONE>.
+        summary: The specified audio route.
         type: Number
+        constants: Titanium.Media.AUDIO_SESSION_OVERRIDE_ROUTE_*
   - name: showCamera
     summary: Shows the camera.
     description: |
@@ -195,8 +194,9 @@ methods:
     platforms: [iphone, ipad, android]
     parameters:
       - name: camera
-        summary: The camera to switch to, <Titanium.Media.CAMERA_FRONT> or <Titanium.Media.CAMERA_REAR>.
+        summary: The camera to switch to.
         type: Number
+        constants: Titanium.Media.CAMERA_*
     since:
         android: 3.2.0
         iphone: 1.8.1
@@ -916,6 +916,7 @@ properties:
         Must be set while the audio session is inactive (no sounds are playing, no listeners 
         for audio properties on the Media module, but the iPod may be active).
     type: Number
+    constants: Titanium.Media.AUDIO_SESSION*
     platforms: [iphone, ipad]
   - name: availableCameras
     summary: Array indicating which cameras are available, `CAMERA_FRONT`, `CAMERA_REAR` or both.
@@ -1000,7 +1001,7 @@ properties:
   - name: mediaTypes
     summary: An array of media type constants defining selectable media.
     description: |
-        Specify one or more of the see `MUSIC_MEDIA_TYPE` constants from <Titanium.Media>. To
+        Specify one or more of the `MUSIC_MEDIA_TYPE` constants from <Titanium.Media>. To
         specify multiple types, either pass an array of values, or pass a 
         single value that represents the bitwise-OR of the desired media types. For example,
         the following values are equivalent:
@@ -1011,6 +1012,7 @@ properties:
 
             mediaTypes: Titanium.Media.MUSIC_MEDIA_TYPE_MUSIC|Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST
     type: [Number, Array<Number>]
+    constants: Titanium.Media.MUSIC_MEDIA_TYPE_*
     default: All available types.
   - name: allowMultipleSelections 
     summary: Set to `true` to allow the user to select multiple items from the library.
@@ -1049,9 +1051,9 @@ properties:
         <Titanium.Media> module.
     type: Number
   - name: mediaType
-    summary: The media type to filter on. Value should be one of the
-        `MUSIC_MEDIA_TYPE_` constants on <Titanium.Media>.
+    summary: The media type to filter on.
     type: [MediaQueryInfoType, Number]
+    constants: Titanium.Media.MUSIC_MEDIA_TYPE_*
   - name: title
     summary: The title to filter on. Value should be a String.
     type: [MediaQueryInfoType, String]
@@ -1138,8 +1140,8 @@ properties:
     platforms: [iphone, ipad]
     default: false
   - name: mediaTypes 
-    summary: |
-        Array of media type constants to allow: `MEDIA_TYPE_PHOTO` or `MEDIA_TYPE_VIDEO`.
+    summary: Array of media type constants to allow.
+    constants: Titanium.Media.MEDIA_TYPE_*
     type: Array<String>
     default: Both photo and video allowed.
     platforms: [iphone, ipad]
@@ -1188,11 +1190,10 @@ properties:
   - name: arrowDirection
     summary: Controls the type of arrow and position of the popover.
     description: |
-        Specify one of the `POPOVER_ARROW_DIRECTION` constants from <Titanium.UI.iPad>.
-
         This property is only used if the camera is displayed in a 
         popover (`inPopOver` is `true`).
     type: Number
+    constants: Titanium.UI.iPad.POPOVER_ARROW_DIRECTION*
     platforms: [ipad]
 
 # Photo Gallery options pseudo-type. Much like the camera one.
@@ -1228,8 +1229,9 @@ properties:
     platforms: [iphone, ipad]
   - name: mediaTypes 
     summary: |
-        Array of media type constants to allow: `MEDIA_TYPE_PHOTO` or `MEDIA_TYPE_VIDEO`.
+        Array of media type constants to allow.
     type: Array<String>
+    constants: Titanium.Media.MEDIA_TYPE_*
     default: Both photo and video allowed.
     platforms: [iphone, ipad]
   - name: popoverView 
@@ -1238,9 +1240,8 @@ properties:
     platforms: [ipad]
   - name: arrowDirection
     summary: Controls the type of arrow and position of the popover.
-    description: |
-        Specify one of the `POPOVER_ARROW_DIRECTION` constants from <Titanium.UI.iPad>.
     type: Number
+    constants: Titanium.UI.iPad.POPOVER_ARROW_DIRECTION*
     platforms: [ipad]
 
 ---
@@ -1320,8 +1321,9 @@ properties:
     deprecated:
         since: "3.1.0"
   - name: code
-    summary: Error code, if applicable. See <Titanium.Media> constants such as [DEVICE_BUSY](Titanium.Media.DEVICE_BUSY).
+    summary: Error code, if applicable.
     type: Number
+    constants: [Titanium.Media.DEVICE_BUSY, Titanium.Media.NO_CAMERA, Titanium.Media.NO_MEDIA, Titanium.Media.UNKNOWN_ERROR]
     accessors: false
   - name: success
     summary: Indicates if the operation succeeded. Returns `false`.

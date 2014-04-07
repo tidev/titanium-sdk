@@ -232,10 +232,8 @@ properties:
 
   - name: decelerationRate
     summary: The deceleration rate of the ScrollView.
-    description: |
-        Use one of <Titanium.UI.iOS.SCROLL_DECELERATION_RATE_FAST> or <Titanium.UI.iOS.SCROLL_DECELERATION_RATE_NORMAL> 
-        constants to control deceleration rate of ScrollView.
     type: Number
+    constants: Titanium.UI.iOS.SCROLL_DECELERATION_RATE_*
     default: Undefined.
     platforms: [iphone, ipad]
     since: "3.2.3"
@@ -288,9 +286,9 @@ properties:
     platforms: [iphone, ipad]
 
   - name: overScrollMode
-    summary: |
-      One of <Titanium.UI.Android.OVER_SCROLL_ALWAYS>, <Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS>, or <Titanium.UI.Android.OVER_SCROLL_NEVER>. 
+    summary: Determines the behavior when the user overscolls the view.
     type: Number
+    constants: Titanium.UI.Android.OVER_SCROLL_*
     default: Titanium.UI.Android.OVER_SCROLL_ALWAYS
     platforms: [android]
     since: "3.1.0"
@@ -309,10 +307,9 @@ properties:
     since: 2.0.0
 
   - name: scrollIndicatorStyle
-    summary: |
-        Style of the scrollbar, specified using one of the constants from 
-        <Titanium.UI.iPhone.ScrollIndicatorStyle>.
+    summary: Style of the scrollbar.
     type: Number
+    constants: <Titanium.UI.iPhone.ScrollIndicatorStyle.*
     default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
     platforms: [iphone, ipad]
 

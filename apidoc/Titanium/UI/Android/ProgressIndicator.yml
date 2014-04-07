@@ -65,21 +65,18 @@ properties:
 
   - name: location
     summary: Location for the progress indicator.
-    description: |
-        One of the constants:
-        <Titanium.UI.Android.PROGRESS_INDICATOR_DIALOG>,
-        <Titanium.UI.Android.PROGRESS_INDICATOR_STATUS_BAR>.
     type: Number
+    constants: [ Titanium.UI.Android.PROGRESS_INDICATOR_DIALOG,
+                 Titanium.UI.Android.PROGRESS_INDICATOR_STATUS_BAR ]
     default: <Titanium.UI.Android.PROGRESS_INDICATOR_DIALOG>
     platforms: [android]
 
   - name: type
     summary: Type for the progress indicator.
     description: |
-        One of the constants:
-        <Titanium.UI.Android.PROGRESS_INDICATOR_INDETERMINANT>,
-        <Titanium.UI.Android.PROGRESS_INDICATOR_DETERMINANT>.
     type: Number
+    constants: [ Titanium.UI.Android.PROGRESS_INDICATOR_INDETERMINANT,
+                 Titanium.UI.Android.PROGRESS_INDICATOR_DETERMINANT ]
     default: <Titanium.UI.Android.PROGRESS_INDICATOR_INDETERMINANT>
     platforms: [android]
 

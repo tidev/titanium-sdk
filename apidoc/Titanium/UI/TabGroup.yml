@@ -294,13 +294,10 @@ properties:
         Determines how the tab group is treated when a soft input method (such as a virtual keyboard) 
         is displayed.
     description: |
-        One of [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN), 
-        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), 
-        or [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED).
-        
         For more information see the official Android API Reference, 
         [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
     type: Number
+    constants: Titanium.UI.Android.SOFT_INPUT_ADJUST_*
     availability: creation
     platforms: [android]
     

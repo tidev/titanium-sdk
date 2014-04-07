@@ -215,12 +215,9 @@ properties:
     type: Number
     permission: read-only
     summary: Current state of the socket.
-    description: |
-        One of: [INITIALIZED](Titanium.Network.Socket.INITIALIZED), 
-        [CONNECTED](Titanium.Network.Socket.CONNECTED), 
-        [LISTENING](Titanium.Network.Socket.LISTENING), 
-        [CLOSED](Titanium.Network.Socket.CLOSED), or
-        [ERROR](Titanium.Network.Socket.ERROR).
+    constants: [ Titanium.Network.Socket.INITIALIZED, Titanium.Network.Socket.CONNECTED,
+                 Titanium.Network.Socket.LISTENING, Titanium.Network.Socket.CLOSED,
+                 Titanium.Network.Socket.ERROR ]
 
 
 methods:
