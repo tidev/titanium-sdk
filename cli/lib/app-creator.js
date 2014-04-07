@@ -13,6 +13,7 @@
 var appc = require('node-appc'),
 	Creator = require('./creator'),
 	fs = require('fs'),
+	http = require('http'),
 	path = require('path'),
 	request = require('request'),
 	temp = require('temp'),
@@ -54,7 +55,7 @@ AppCreator.prototype.run = function run(callback) {
 
 	if (fs.existsSync(template)) {
 		if (fs.statSync(template).isDirectory()) {
-			copyFiles.call(this, this.templateDir, callback);
+			copyFiles.call(this, template, callback);
 			return;
 		}
 
@@ -194,8 +195,7 @@ function downloadFile(url, alldone) {
 	req.on('response', function (req) {
 		if (req.statusCode >= 400) {
 			// something went wrong, abort
-			_t.logger.log();
-			_t.logger.error(__('Request failed with HTTP status code %s %s', req.statusCode, http.STATUS_CODES[req.statusCode] || '') + '\n');
+			_t.logger.error(__('Request failed with HTTP status code %s %s', req.statusCode, http.STATUS_CODES[req.statusCode] || ''));
 			alldone(true);
 			return;
 		}
