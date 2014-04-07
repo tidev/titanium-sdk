@@ -71,7 +71,7 @@ AppCreator.prototype.run = function run(callback) {
 
 		for (i = 0, l = searchPaths.length; i < l; i++) {
 			if (fs.existsSync(dir = path.join(searchPaths[i], template))) {
-				copyFiles.call(this, dir);
+				copyFiles.call(this, dir, callback);
 				return;
 			}
 		}
