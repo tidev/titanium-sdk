@@ -32,6 +32,7 @@ ModuleCreator.prototype.run = function run(callback) {
 	this.logger.log('WARNING! This functionality is incomplete.'.red);
 	this.logger.log('Please use titanium.py to create module projects.'.red + '\n');
 
+	this.templateDir = appc.fs.resolvePath(this.sdk.path, 'templates', cli.argv.type, cli.argv.template);
 	appc.fs.copyDirSyncRecursive(this.templateDir, this.projectDir, { logger: this.logger.debug });
 
 	var year = (new Date).getFullYear();
