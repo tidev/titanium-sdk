@@ -497,6 +497,12 @@ public class TiC
 	 */
 	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
 	
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_SSL_ERROR = "sslerror";
+	
 
 	/**
 	 * @module.api
@@ -1181,6 +1187,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_FOOTER_DIVIDERS_ENABLED = "footerDividersEnabled";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FOOTER = "footer";
 
 	/**
@@ -1239,6 +1250,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HEADER = "header";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HEADER_DIVIDERS_ENABLED = "headerDividersEnabled";
 
 	/**
 	 * @module.api
@@ -1590,11 +1606,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NAME = "name";
-
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_NAV_BAR_HIDDEN = "navBarHidden";
 	
 	/**
 	 * @module.api
