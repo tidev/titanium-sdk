@@ -366,30 +366,32 @@ public class TiUIScrollableView extends TiUIView
 
 	public void moveNext()
 	{
-		move(mCurIndex + 1);
+		move(mCurIndex + 1, true);
 	}
 
 	public void movePrevious()
 	{
-		move(mCurIndex - 1);
+		move(mCurIndex - 1, true);
 	}
 
-	private void move(int index)
+	private void move(int index, boolean smoothScroll)
 	{
 		if (index < 0 || index >= mViews.size()) {
-			Log.w(TAG, "Request to move to index " + index+ " ignored, as it is out-of-bounds.");
+			if (Log.isDebugModeEnabled()) {
+				Log.w(TAG, "Request to move to index " + index+ " ignored, as it is out-of-bounds.", Log.DEBUG_MODE);
+			}
 			return;
 		}
 		mCurIndex = index;
-		mPager.setCurrentItem(index);
+		mPager.setCurrentItem(index, smoothScroll);
 	}
 
 	public void scrollTo(Object view)
 	{
 		if (view instanceof Number) {
-			move(((Number) view).intValue());
+			move(((Number) view).intValue(), true);
 		} else if (view instanceof TiViewProxy) {
-			move(mViews.indexOf(view));
+			move(mViews.indexOf(view), true);
 		}
 	}
 
@@ -400,7 +402,11 @@ public class TiUIScrollableView extends TiUIView
 
 	public void setCurrentPage(Object view)
 	{
-		scrollTo(view);
+		if (view instanceof Number) {
+			move(((Number) view).intValue(), false);
+		} else if (Log.isDebugModeEnabled()) {
+			Log.w(TAG, "Request to set current page is ignored, as it is not a number.", Log.DEBUG_MODE);
+		}
 	}
 
 	public void setEnabled(Object value)
