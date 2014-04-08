@@ -9,6 +9,8 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.AsyncResult;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -43,6 +45,7 @@ public class TextFieldProxy extends TiViewProxy
 {
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SET_SELECTION = MSG_FIRST_ID + 201;
+	private static final int MSG_GET_SELECTION = MSG_FIRST_ID + 202;
 
 	public TextFieldProxy()
 	{
@@ -92,6 +95,22 @@ public class TextFieldProxy extends TiViewProxy
 		}
 	}
 	
+	@Kroll.method @Kroll.getProperty
+	public KrollDict getSelection()
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			if (TiApplication.isUIThread()) {
+				return ((TiUIText)v).getSelection();
+			} else {
+				return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_SELECTION));
+			}
+		} else {
+			return null;
+		}
+	}
+	
+
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
@@ -106,7 +125,17 @@ public class TextFieldProxy extends TiViewProxy
 				}
 				return true;
 			}
-			
+			case MSG_GET_SELECTION: {
+				AsyncResult result = null;
+				result = (AsyncResult) msg.obj;
+				TiUIView v = peekView();
+				if (v != null) {
+					result.setResult(((TiUIText)v).getSelection());
+				} else {
+					result.setResult(null);
+				}
+				return true;
+			}
 			default: {
 				return super.handleMessage(msg);
 			}

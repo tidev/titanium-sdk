@@ -363,6 +363,20 @@ properties:
     type: Boolean
     platforms: [iphone, ipad, mobileweb, tizen]
     
+  - name: selection
+    summary: Returns the currently selected text of the text field.
+    description: |
+        This property is useful to track the current cursor position of the text field. On iOS this property 
+        can only be used when the text field has focus. Accessing this property when text field does not have
+        focus will return an undefined value.
+
+        This method will return null on android and undefined on iOS if the view has not yet been attached 
+        to the window.
+    type: textFieldSelectedParams
+    permission: read-only
+    platforms: [iphone, ipad, android]
+    since: "3.3.0"
+    
   - name: textAlign
     summary: Text alignment within this text field.
     type: [String, Number]
@@ -536,3 +550,16 @@ examples:
                 </Window>
             </Alloy>
 
+---
+name: textFieldSelectedParams
+summary: |
+    Dictionary object of parameters for the <Titanium.UI.TextField.selection> property that describes 
+    position and length of the selected text.
+properties:
+  - name: location
+    summary: Starting position of selected text.
+    type: Number
+    
+  - name: length
+    summary: Number of characters selected.
+    type: Number

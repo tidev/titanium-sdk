@@ -1,7 +1,7 @@
 ---
 name: Titanium.UI.TextArea
 summary: A multiline text field that supports editing and scrolling. 
-description: Use the <Titanium.UI.createTextArea> method or **`<TextArea>`** Alloy element to create a text area. 
+description: Use the <Titanium.UI.createTextArea> method or **&lt;TextArea&gt;** Alloy element to create a text area. 
 extends: Titanium.UI.View
 since: "0.8"
 
@@ -275,6 +275,19 @@ properties:
     default: true
     platforms: [iphone, ipad]
     
+  - name: selection
+    summary: Returns the currently selected text of the text area.
+    description: |
+        This property is useful to track the current cursor position of the text area. On iOS this property 
+        can be used in lieu of the [selected](Titanium.UI.TextArea.selected) event.
+
+        This method will return null on android and undefined on iOS if the view has not yet been attached 
+        to the window.
+    type: textAreaSelectedParams
+    permission: read-only
+    platforms: [iphone, ipad, android]
+    since: "3.3.0"
+    
   - name: verticalAlign
     summary: Vertical alignment within this text area.
     type: [Number, String]
@@ -416,7 +429,7 @@ examples:
 ---
 name: textAreaSelectedParams
 summary: |
-    Dictionary object of parameters for the <Titanium.UI.TextArea.selected> event that describes 
+    Dictionary object of parameters for the <Titanium.UI.TextArea.selected> event and <Titanium.UI.TextArea.selection> property that describes 
     position and length of the selected text.
 properties:
   - name: location
