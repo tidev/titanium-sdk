@@ -406,6 +406,12 @@ properties:
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
 
+  - name: leftNavButtons
+    summary: An Array of views to show in the left nav bar area.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    type: Array<Titanium.UI.View>
+
   - name: modal
     summary: Boolean to indicate if the window should be opened modal in front of other windows.
     description: |
@@ -625,6 +631,12 @@ properties:
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
     
+  - name: rightNavButtons
+    summary: An Array of views to show in the right nav bar area.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    type: Array<Titanium.UI.View>
+
   - name: shadowImage
     summary: Shadow image for the navigation bar, specified as a URL to a local image..
     description: |
