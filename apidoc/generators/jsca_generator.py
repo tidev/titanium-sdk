@@ -134,6 +134,28 @@ def to_jsca_type_name(type_info):
 		type_test = "Object"
 	return clean_namespace(type_test)
 
+def to_jsca_constants(constants_list):
+	global all_annotated_apis
+	rv = []
+	if type(constants_list) is not list:
+		a = [constants_list]
+		constants_list = a
+	for item in constants_list:
+		namespace = item.rsplit('.', 1)[0]
+		token = item.rsplit('.', 1)[-1]
+		if item[-1] == '*':
+			token = token[:-1]
+
+		if namespace in all_annotated_apis:
+			for property in all_annotated_apis[namespace].api_obj["properties"]:
+				if (token and property["name"].startswith(token)) or (not token and re.match(r"[_A-Z]+", property["name"])):
+					rv.append(namespace + "." + property["name"])
+				if property["name"] == token:
+					break
+	return rv
+
+
+
 def to_jsca_property(prop, for_event=False):
 	result = {
 			"name": prop.name,
@@ -150,6 +172,8 @@ def to_jsca_property(prop, for_event=False):
 		result["examples"] = to_jsca_examples(prop)
 		result["availability"] = to_jsca_availability(prop)
 		result["permission"] = to_jsca_permission(prop)
+	if "constants" in prop.api_obj:
+		result["constants"] = to_jsca_constants(prop.api_obj["constants"])
 	return to_ordered_dict(result, ("name",))
 
 def to_jsca_properties(props, for_event=False):
@@ -188,6 +212,8 @@ def to_jsca_method_parameter(p):
 			"type": data_type,
 			"usage": usage
 			}
+	if "constants" in p.api_obj:
+		result["constants"] = to_jsca_constants(p.api_obj["constants"])
 	return to_ordered_dict(result, ('name',))
 
 def to_jsca_function(method):

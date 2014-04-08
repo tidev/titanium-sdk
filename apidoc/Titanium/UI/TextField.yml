@@ -60,11 +60,8 @@ methods:
 properties:
   - name: appearance
     summary: Determines the appearance of the keyboard displayed when this field is focused.
-    description: |
-        One of the <Titanium.UI> keyboard appearance constants, 
-        [KEYBOARD_APPEARANCE_ALERT](Titanium.UI.KEYBOARD_APPEARANCE_ALERT),
-        or [KEYBOARD_APPEARANCE_DEFAULT](Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT).
     type: Number
+    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
     
@@ -88,13 +85,8 @@ properties:
 
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 
-    description: |
-        One of the <Titanium.UI> auto-capitalization constants, 
-        [TEXT_AUTOCAPITALIZATION_NONE](Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE), 
-        [TEXT_AUTOCAPITALIZATION_WORDS](Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS), 
-        [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES),
-        or [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
     type: Number
+    constants: Titanium.UI.TEXT_AUTOCAPITALIZATION_*
     default: <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>
     exclude-platforms: [blackberry]    
   - name: autocorrect
@@ -113,15 +105,6 @@ properties:
   - name: autoLink
     summary: Automatically convert text to clickable links. 
     description: |     
-        Specify which types of items to convert by setting `autoLink` to one of the 
-        <Titanium.UI> `AUTOLINK` constants: 
-        [AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL),
-        [AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES),
-        [AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES),
-        [AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE),
-        [AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS),
-        or [AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS).
-
         Multiple autolink values can be combined with a bitwise OR. For example:
             
             textField.autoLink = AUTOLINK_MAP_ADDRESSES|AUTOLINK_PHONE_NUMBERS;
@@ -129,38 +112,24 @@ properties:
         Prior to Release 3.0, this field used platform-specific constants. These are now
         deprecated in favor of the `AUTOLINK` constants listed above.
         
-        The Android-specific legacy constants are defined in <Titanium.UI.Android>:
-        [LINKIFY_ALL](Titanium.UI.Android.LINKIFY_ALL),
-        [LINKIFY_EMAIL_ADDRESSES](Titanium.UI.Android.LINKIFY_EMAIL_ADDRESSES),
-        [LINKIFY_MAP_ADDRESSES](Titanium.UI.Android.LINKIFY_MAP_ADDRESSES),
-        [LINKIFY_PHONE_NUMBERS](Titanium.UI.Android.LINKIFY_PHONE_NUMBERS),
-        and [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
+        The Android-specific `LINKIFY` legacy constants are defined in <Titanium.UI.Android>.
     type: Number
+    constants: Titanium.UI.AUTOLINK_*
     default: undefined
     since: 3.0.0
     platforms: [android]
     
   - name: borderStyle
     summary: Border style for the field. 
-    description: |
-        One of the <Titanium.UI> border style constants, 
-        [INPUT_BORDERSTYLE_BEZEL](Titanium.UI.INPUT_BORDERSTYLE_BEZEL), 
-        [INPUT_BORDERSTYLE_LINE](Titanium.UI.INPUT_BORDERSTYLE_LINE), 
-        [INPUT_BORDERSTYLE_NONE](Titanium.UI.INPUT_BORDERSTYLE_NONE), 
-        or [INPUT_BORDERSTYLE_ROUNDED](Titanium.UI.INPUT_BORDERSTYLE_ROUNDED).
     type: Number
+    constants: Titainium.UI.INPUT_BORDERSTYLE_*
     default: <Titanium.UI.INPUT_BORDERSTYLE_NONE>
     platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: clearButtonMode
     summary: Determines when the clear button is displayed.
-    description: |
-        One of the <Titanium.UI> button mode constants, 
-        [INPUT_BUTTONMODE_ALWAYS](Titanium.UI.INPUT_BUTTONMODE_ALWAYS), 
-        [INPUT_BUTTONMODE_NEVER](Titanium.UI.INPUT_BUTTONMODE_NEVER), 
-        [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR),
-        or [INPUT_BUTTONMODE_ONFOCUS](Titanium.UI.INPUT_BUTTONMODE_ONFOCUS).
     type: Number
+    constants: Titanium.UI.INPUT_BUTTONMODE_*
     default: Titanium.UI.INPUT_BUTTONMODE_NEVER
     platforms: [iphone, ipad]
     
@@ -267,20 +236,10 @@ properties:
   - name: keyboardType
     summary: Keyboard type to display when this text field is focused.
     description: |
-        One of the `KEYBOARD` constants from <Titanium.UI>, 
-        [KEYBOARD_ASCII](Titanium.UI.KEYBOARD_ASCII),
-        [KEYBOARD_DECIMAL_PAD](Titanium.UI.KEYBOARD_DECIMAL_PAD),
-        [KEYBOARD_DEFAULT](Titanium.UI.KEYBOARD_DEFAULT),
-        [KEYBOARD_EMAIL](Titanium.UI.KEYBOARD_EMAIL),
-        [KEYBOARD_NAMEPHONE_PAD](Titanium.UI.KEYBOARD_NAMEPHONE_PAD),
-        [KEYBOARD_NUMBERS_PUNCTUATION](Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION),
-        [KEYBOARD_NUMBER_PAD](Titanium.UI.KEYBOARD_NUMBER_PAD),
-        [KEYBOARD_PHONE_PAD](Titanium.UI.KEYBOARD_PHONE_PAD),
-        or [KEYBOARD_URL](Titanium.UI.KEYBOARD_URL).
-        
         When asking for a specific kind of user input, such as a phone number or email 
         address, you should always specify the appropriate keyboard type.
     type: Number
+    constants: Titanium.UI.KEYBOARD_*
     default: <Titanium.UI.KEYBOARD_DEFAULT>
     
   - name: leftButton
@@ -311,13 +270,8 @@ properties:
     
   - name: leftButtonMode
     summary: Determines when to display the left button view. 
-    description: |
-        One of the <Titanium.UI> button mode constants, 
-        [INPUT_BUTTONMODE_ALWAYS](Titanium.UI.INPUT_BUTTONMODE_ALWAYS), 
-        [INPUT_BUTTONMODE_NEVER](Titanium.UI.INPUT_BUTTONMODE_NEVER), 
-        [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR),
-        or [INPUT_BUTTONMODE_ONFOCUS](Titanium.UI.INPUT_BUTTONMODE_ONFOCUS).
     type: Number
+    constants: Titanium.UI.INPUT_BUTTONMODE_*
     default: <Titanium.UI.INPUT_BUTTONMODE_NEVER>
     platforms: [iphone, ipad]
     
@@ -358,25 +312,13 @@ properties:
   - name: returnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
     description: |
-        One of the <Titanium.UI> return key constants, 
-        [RETURNKEY_DEFAULT](Titanium.UI.RETURNKEY_DEFAULT), 
-        [RETURNKEY_DONE](Titanium.UI.RETURNKEY_DONE), 
-        [RETURNKEY_EMERGENCY_CALL](Titanium.UI.RETURNKEY_EMERGENCY_CALL), 
-        [RETURNKEY_GO](Titanium.UI.RETURNKEY_GO), 
-        [RETURNKEY_GOOGLE](Titanium.UI.RETURNKEY_GOOGLE), 
-        [RETURNKEY_JOIN](Titanium.UI.RETURNKEY_JOIN), 
-        [RETURNKEY_NEXT](Titanium.UI.RETURNKEY_NEXT), 
-        [RETURNKEY_ROUTE](Titanium.UI.RETURNKEY_ROUTE), 
-        [RETURNKEY_SEARCH](Titanium.UI.RETURNKEY_SEARCH), 
-        [RETURNKEY_SEND](Titanium.UI.RETURNKEY_SEND), 
-        or [RETURNKEY_YAHOO](Titanium.UI.RETURNKEY_YAHOO).
-        
-        Mobile Web on iOS devices only supports `RETURNKEY_DEFAULT`, `RETURNKEY_DEFAULT`, 
-        `RETURNKEY_GO`, `RETURNKEY_GOOGLE`, `RETURNKEY_SEARCH`, `RETURNKEY_YAHOO`. Note that 
+        Mobile Web on iOS devices only supports `RETURNKEY_DEFAULT`,
+        `RETURNKEY_GO`, `RETURNKEY_GOOGLE`, `RETURNKEY_SEARCH`, and `RETURNKEY_YAHOO`. Note that
         `RETURNKEY_GOOGLE`, `RETURNKEY_SEARCH`, and `RETURNKEY_YAHOO` all display the word "Search".
         
         Mobile Web on Android devices will only display "Go" regardless of this property's value.
     type: Number
+    constants: Titanium.UI.RETURNKEY_*
     default: <Titanium.UI.RETURNKEY_DEFAULT>
     
   - name: rightButton
@@ -406,13 +348,8 @@ properties:
     
   - name: rightButtonMode
     summary: Determines when to display the right button view. 
-    description: |
-        One of the <Titanium.UI> button mode constants, 
-        [INPUT_BUTTONMODE_ALWAYS](Titanium.UI.INPUT_BUTTONMODE_ALWAYS), 
-        [INPUT_BUTTONMODE_NEVER](Titanium.UI.INPUT_BUTTONMODE_NEVER), 
-        [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR),
-        or [INPUT_BUTTONMODE_ONFOCUS](Titanium.UI.INPUT_BUTTONMODE_ONFOCUS).
     type: Number
+    constants: Titanium.UI.INPUT_BUTTONMODE_*
     default: Titanium.UI.INPUT_BUTTONMODE_NEVER
     platforms: [iphone, ipad]
     
@@ -428,12 +365,8 @@ properties:
     
   - name: textAlign
     summary: Text alignment within this text field.
-    description: |
-        One of the <Titanium.UI> text alignment constants, 
-        [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), 
-        [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), 
-        or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
     type: [String, Number]
+    constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
     exclude-platforms: [blackberry]    
     
@@ -450,12 +383,8 @@ properties:
     
   - name: verticalAlign
     summary: Vertical alignment within this text field.
-    description: |
-        One of the <Titanium.UI> vertical alignment constants, 
-        [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
-        [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER),
-        or [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     type: [Number, String]
+    constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: <Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER>
     platforms: [iphone, ipad, android]
     

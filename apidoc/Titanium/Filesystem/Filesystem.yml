@@ -68,8 +68,8 @@ methods:
     parameters:
       - name: mode
         summary: |
-            Access mode. Either <Titanium.Filesystem.MODE_READ>, <Titanium.Filesystem.MODE_WRITE>, or 
-            <Titanium.Filesystem.MODE_APPEND>.
+            Access mode.
+        constants: Titanium.Filesystem.MODE_*
         type: Number
         
       - name: path

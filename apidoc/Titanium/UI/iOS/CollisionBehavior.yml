@@ -27,14 +27,8 @@ properties:
 
   - name: collisionMode
     summary: Specifies the collision behavior.
-    description: |
-        Set to one of the following:
-
-          * <Titanium.UI.iOS.COLLISION_MODE_ITEM> for collisions with items.
-          * <Titanium.UI.iOS.COLLISION_MODE_BOUNDARY> for collisions with boundaries.
-          * <Titanium.UI.iOS.COLLISION_MODE_ALL> for collisions with either boundaries or items.
-
     type: Number
+    constants: Titanium.UI.iOS.COLLISION_MODE_*
     default: <Titanium.UI.iOS.COLLISION_MODE_ALL>
 
   - name: items

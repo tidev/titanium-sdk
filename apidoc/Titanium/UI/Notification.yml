@@ -49,10 +49,8 @@ properties:
     type: String
   - name: duration
     summary: Determines how long the notification stays on screen.
-    description: |
-        Specify either [NOTIFICATION_DURATION_SHORT](Titanium.UI.NOTIFICATION_DURATION_SHORT) or 
-        [NOTIFICATION_DURATION_LONG](Titanium.UI.NOTIFICATION_DURATION_LONG).
     type: Number
+    constants: Titanium.UI.NOTIFICATION_DURATION_*
     default: <Titanium.UI.NOTIFICATION_DURATION_SHORT>
   - name: xOffset
     summary: X offset from the default position, in pixels.

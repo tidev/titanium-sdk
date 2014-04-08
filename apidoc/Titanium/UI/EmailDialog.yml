@@ -77,13 +77,14 @@ events:
 
       - name: result
         summary: |
-            Status of the email send process. One of [SENT](Titanium.UI.EmailDialog.SENT), 
-            [FAILED](Titanium.UI.EmailDialog.FAILED), [SAVED](Titanium.UI.EmailDialog.SAVED) (iOS only) 
-            or [CANCELLED](Titanium.UI.EmailDialog.CANCELLED) (iOS only).
-            
-            Note that on Android this property will return `SENT` when the user discards or saves 
+            Status of the email send process.
+
+            The `SAVED` and `CANCELLED` constants are iOS only.
+
+            On Android, this property will return `SENT` when the user discards or saves
             a message.
         type: Number
+        constants: Titanium.UI.EmailDialog.*
         
 properties:
   - name: CANCELLED

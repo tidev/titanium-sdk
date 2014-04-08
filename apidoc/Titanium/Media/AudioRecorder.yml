@@ -26,16 +26,14 @@ properties:
 
   - name: compression
     summary: Audio compression to be used for the recording.
-    description: |
-        Specify one of the `AUDIO_FORMAT_` constants from <Titanium.Media>.
     type: Number
+    constants: Titanium.Media.AUDIO_FORMAT_*
     default: <Titanium.Media.AUDIO_FORMAT_LINEAR_PCM>
 
   - name: format
     summary: Audio format to be used for the recording.
-    description: |
-        Specify one of the `AUDIO_FILEFORMAT_` constants from <Titanium.Media>.
     type: Number
+    constants: Titanium.Media.AUDIO_FILEFORMAT_*
     default: <Titanium.Media.AUDIO_FILEFORMAT_CAF>
 
   - name: paused

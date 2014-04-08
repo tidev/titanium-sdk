@@ -61,10 +61,8 @@ properties:
     
   - name: style
     summary: Style of the switch. Enables either the toggle button (default) or checkbox.
-    description: |
-        Specify one of <Titanium.UI.Android.SWITCH_STYLE_CHECKBOX> 
-        or <Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>.
     type: Number
+    constants: Titanium.UI.Android.SWITCH_STYLE_*
     platforms: [android]
     default: Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON
     
@@ -78,12 +76,8 @@ properties:
         [title](Titanium.UI.Switch.title) contents. 
         
         On Mobile Web and Tizen this property is always supported, as the `style` property is not supported. 
-        
-        One of the <Titanium.UI> text alignment constants, 
-        [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), 
-        [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), 
-        or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
     type: [String, Number]
+    constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: |
         <Titanium.UI.TEXT_ALIGNMENT_CENTER> (toggle button, Android), 
         <Titanium.UI.TEXT_ALIGNMENT_LEFT> (checkbox, Android), 
@@ -140,12 +134,8 @@ properties:
     
   - name: verticalAlign
     summary: Vertical alignment for the text field.
-    description: |
-        One of the <Titanium.UI> vertical alignment constants, 
-        [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
-        [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), 
-        or [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     type: [Number,String]
+    constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
     platforms: [android, mobileweb, tizen]
 
