@@ -31,6 +31,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.RectF;
@@ -515,13 +516,21 @@ public class TiBlob extends KrollProxy
 			return null;
 		}
 
+		int rotation = 0;
+		if (type == TYPE_FILE) {
+			rotation = TiImageHelper.getOrientation(getNativePath());
+		}
+		
 		KrollDict options = new KrollDict((HashMap) params);
 		int widthCropped = options.optInt(TiC.PROPERTY_WIDTH, width);
 		int heightCropped = options.optInt(TiC.PROPERTY_HEIGHT, height);
 		int x = options.optInt(TiC.PROPERTY_X, (width - widthCropped) / 2);
 		int y = options.optInt(TiC.PROPERTY_Y, (height - heightCropped) / 2);
 		try {
-			Bitmap imageCropped = Bitmap.createBitmap(img, x, y, widthCropped, heightCropped);
+			Matrix matrix = new Matrix();
+			//rotate
+			matrix.postRotate(rotation);
+			Bitmap imageCropped = Bitmap.createBitmap(img, x, y, widthCropped, heightCropped, matrix, true);
 			return blobFromImage(imageCropped);
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to crop the image. Not enough memory: " + e.getMessage(), e);
@@ -537,10 +546,29 @@ public class TiBlob extends KrollProxy
 			return null;
 		}
 
+		int rotation = 0;
+		if (type == TYPE_FILE) {
+			rotation = TiImageHelper.getOrientation(getNativePath());
+		}
+		
 		int dstWidth = width.intValue();
 		int dstHeight = height.intValue();
+		int imgWidth = img.getWidth();
+		int imgHeight = img.getHeight();
 		try {
-			Bitmap imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
+			Bitmap imageResized = null;
+			if (rotation != 0) {
+				float scaleWidth = (float)dstWidth/imgWidth;
+				float scaleHeight = (float)dstHeight/imgHeight;
+				Matrix matrix = new Matrix();
+				//resize
+				matrix.postScale(scaleWidth, scaleHeight);
+				//rotate
+				matrix.postRotate(rotation);
+				imageResized = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+			} else {
+				imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
+			}
 			return blobFromImage(imageResized);
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to resize the image. Not enough memory: " + e.getMessage(), e);
@@ -556,6 +584,11 @@ public class TiBlob extends KrollProxy
 		if (img == null) {
 			return null;
 		}
+		
+		int rotation = 0;
+		if (type == TYPE_FILE) {
+			rotation = TiImageHelper.getOrientation(getNativePath());
+		}
 
 		int thumbnailSize = size.intValue();
 
@@ -569,14 +602,19 @@ public class TiBlob extends KrollProxy
 		}
 
 		try {
+			Bitmap imageFinal = null;
 			Bitmap imageThumbnail = ThumbnailUtils.extractThumbnail(img, thumbnailSize, thumbnailSize);
 
 			if (border == 0 && radius == 0) {
-				return blobFromImage(imageThumbnail);
+				imageFinal = imageThumbnail;
+			} else {
+				imageFinal = TiImageHelper.imageWithRoundedCorner(imageThumbnail, radius, border);
 			}
-
-			Bitmap imageThumbnailBorder = TiImageHelper.imageWithRoundedCorner(imageThumbnail, radius, border);
-			return blobFromImage(imageThumbnailBorder);
+			
+			if (rotation != 0) {
+				return blobFromImage(TiImageHelper.rotateImage(imageFinal, rotation));
+			}
+			return blobFromImage(imageFinal);
 
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to get the thumbnail image. Not enough memory: " + e.getMessage(), e);
@@ -591,9 +629,16 @@ public class TiBlob extends KrollProxy
 		if (img == null) {
 			return null;
 		}
-
+		int rotation = 0;
+		if (type == TYPE_FILE) {
+			rotation = TiImageHelper.getOrientation(getNativePath());
+		}
+		
 		try {
 			Bitmap imageWithAlpha = TiImageHelper.imageWithAlpha(img);
+			if (rotation != 0) {
+			    return blobFromImage(TiImageHelper.rotateImage(imageWithAlpha, rotation));
+			}
 			return blobFromImage(imageWithAlpha);
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to get the image with alpha. Not enough memory: " + e.getMessage(), e);
@@ -609,6 +654,11 @@ public class TiBlob extends KrollProxy
 			return null;
 		}
 
+		int rotation = 0;
+		if (type == TYPE_FILE) {
+			rotation = TiImageHelper.getOrientation(getNativePath());
+		}
+		
 		float radius = cornerRadius.floatValue();
 		float border = 1f;
 		if (borderSize != null) {
@@ -617,6 +667,9 @@ public class TiBlob extends KrollProxy
 
 		try {
 			Bitmap imageRoundedCorner = TiImageHelper.imageWithRoundedCorner(img, radius, border);
+			if (rotation != 0) {
+			    return blobFromImage(TiImageHelper.rotateImage(imageRoundedCorner, rotation));
+			}
 			return blobFromImage(imageRoundedCorner);
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to get the image with rounded corner. Not enough memory: " + e.getMessage(), e);
@@ -632,9 +685,17 @@ public class TiBlob extends KrollProxy
 			return null;
 		}
 
+		int rotation = 0;
+		if (type == TYPE_FILE) {
+			rotation = TiImageHelper.getOrientation(getNativePath());
+		}
+		
 		int borderSize = size.intValue();
 		try {
 			Bitmap imageWithBorder = TiImageHelper.imageWithTransparentBorder(img, borderSize);
+			if (rotation != 0) {
+				return blobFromImage(TiImageHelper.rotateImage(imageWithBorder, rotation));
+			}
 			return blobFromImage(imageWithBorder);
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to get the image with transparent border. Not enough memory: " + e.getMessage(), e);
