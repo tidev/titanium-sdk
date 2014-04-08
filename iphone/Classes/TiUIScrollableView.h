@@ -31,11 +31,13 @@
     BOOL pageChanged;
 }
 
+#pragma mark - Titanium Internal Use Only
 -(void)manageRotation;
 -(UIScrollView*)scrollview;
--(void)setCurrentPage_:(id)page;
--(void)setScrollingEnabled_:(id)enabled;
 -(void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd;
+-(void)setCurrentPage:(id)page animated:(NSNumber*)animate;
+-(void)addView:(id)viewproxy;
+-(void)removeView:(id)args;
 @end
 
 #endif

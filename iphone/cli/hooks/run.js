@@ -163,7 +163,7 @@ exports.init = function (logger, config, cli) {
 							(function readChanges () {
 								try {
 									var stats = fs.statSync(file),
-										fd, bytesRead, lines, m,line, i, len;
+										fd, bytesRead, lines, m, line, i, len;
 
 									if (position < stats.size) {
 										fd = fs.openSync(file, 'r');

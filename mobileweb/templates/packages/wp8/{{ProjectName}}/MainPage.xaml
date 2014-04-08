@@ -1,6 +1,6 @@
 <phone:PhoneApplicationPage
     Name="app"
-    x:Class="<%= projectName %>.MainPage"
+    x:Class="TitaniumApp.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
@@ -14,13 +14,21 @@
     SupportedOrientations="Portrait" Orientation="Portrait"
     shell:SystemTray.IsVisible="True">
 
-    <Grid Name="root">
+    <Grid Name="root" HorizontalAlignment="Stretch" Background="Aqua">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
         <phone:WebBrowser
             Name="browser"
             Base="App"
+            Background="Black"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
             IsScriptEnabled="True"
             IsGeolocationEnabled="True"
             Loaded="browser_Loaded"
+            Navigating="browser_Navigating"
             ScriptNotify="browser_ScriptNotify"/>
     </Grid>
 

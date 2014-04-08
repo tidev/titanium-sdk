@@ -762,7 +762,8 @@ properties:
     summary: Briefly describes what performing an action (such as a click) on the view will do.
     description: |
         On iOS this is a direct analog of the `accessibilityHint` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html). On Android, it is concatenated together with
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityLabel> and <Titanium.UI.View.accessibilityValue> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
         argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
@@ -775,7 +776,8 @@ properties:
     summary: A succint label identifying the view for the device's accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityLabel` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html). On Android, it is concatenated together with
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityValue> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
         argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
@@ -788,7 +790,8 @@ properties:
     summary: A string describing the value (if any) of the view for the device's accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityValue` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html). On Android, it is concatenated together with
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityLabel> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
         argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
@@ -1058,6 +1061,9 @@ properties:
     description: Set to `true` to enable or `false` to disable the view.
     default: Enabled by default. (Property value may be undefined.)
     type: Boolean
+    deprecated:
+        since: "3.3.0"
+        notes: This is deprecated on Android. Use [touchEnabled](Titanium.UI.View.enabled) property instead.
     platforms: [android, blackberry]
     
   - name: focusable
@@ -1087,6 +1093,7 @@ properties:
         This is an input property for specifying the view's height dimension. To determine the 
         view's size once rendered, use the [rect](Titanium.UI.View.rect) or 
         [size](Titanium.UI.View.size) properties.
+    constants: [Titanium.UI.FILL, Titanium.UI.SIZE]
     type: [Number,String]
     
   - name: left
@@ -1284,11 +1291,8 @@ properties:
     
   - name: softKeyboardOnFocus
     summary: Determines keyboard behavior when this view is focused.
-    description: |
-        One of <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>, 
-        <Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS>, or 
-        <Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS>.
     type: Number
+    constants: Titanium.UI.Android.SOFT_KEYBOARD_*
     default: <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>
     platforms: [android]
     
@@ -1375,6 +1379,7 @@ properties:
         the view's size once rendered, use the [rect](Titanium.UI.View.rect) or
         [size](Titanium.UI.View.size) properties.
     type: [Number,String]
+    constants: [Titanium.UI.FILL, Titanium.UI.SIZE]
 
   - name: horizontalWrap
     summary: Determines whether the layout has wrapping behavior.

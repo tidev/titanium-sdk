@@ -143,34 +143,22 @@ properties:
 
   - name: playbackState
     summary: |
-        Playback state: one of
-        [MUSIC_PLAYER_STATE_STOPPED](Titanium.Media.MUSIC_PLAYER_STATE_STOPPED),
-        [MUSIC_PLAYER_STATE_PLAYING](Titanium.Media.MUSIC_PLAYER_STATE_PLAYING),
-        [MUSIC_PLAYER_STATE_PAUSED](Titanium.Media.MUSIC_PLAYER_STATE_PAUSED),
-        [MUSIC_PLAYER_STATE_INTERRUPTED](Titanium.Media.MUSIC_PLAYER_STATE_INTERRUPTED),
-        [MUSIC_PLAYER_STATE_SEEK_FORWARD](Titanium.Media.MUSIC_PLAYER_STATE_SEEK_FORWARD),
-        or
-        [MUSIC_PLAYER_STATE_SEEK_BACKWARD](Titanium.Media.MUSIC_PLAYER_STATE_SEEK_BACKWARD).
+        Playback state.
     type: Number
+    constants: Titanium.Media.MUSIC_PLAYER_STATE_*
     permission: read-only
 
   - name: repeatMode
     summary: |
-        Repeat setting: one of
-        [MUSIC_PLAYER_REPEAT_DEFAULT](Titanium.Media.MUSIC_PLAYER_REPEAT_DEFAULT),
-        [MUSIC_PLAYER_REPEAT_NONE](Titanium.Media.MUSIC_PLAYER_REPEAT_NONE),
-        [MUSIC_PLAYER_REPEAT_ONE](Titanium.Media.MUSIC_PLAYER_REPEAT_ONE), or
-        [MUSIC_PLAYER_REPEAT_ALL](Titanium.Media.MUSIC_PLAYER_REPEAT_ALL).
+        Repeat setting.
     type: Number
+    constants: Titanium.Media.MUSIC_PLAYER_REPEAT_*
 
   - name: shuffleMode
     summary: |
-        Shuffle setting: one of
-        [MUSIC_PLAYER_SHUFFLE_DEFAULT](Titanium.Media.MUSIC_PLAYER_SHUFFLE_DEFAULT),
-        [MUSIC_PLAYER_SHUFFLE_NONE](Titanium.Media.MUSIC_PLAYER_SHUFFLE_NONE),
-        [MUSIC_PLAYER_SHUFFLE_SONGS](Titanium.Media.MUSIC_PLAYER_SHUFFLE_SONGS), or
-        [MUSIC_PLAYER_SHUFFLE_ALBUMS](Titanium.Media.MUSIC_PLAYER_SHUFFLE_ALBUMS).
+        Shuffle setting.
     type: Number
+    constants: Titanium.Media.MUSIC_PLAYER_SHUFFLE_*
 
   - name: volume
     summary: Volume level for the music player from 0.0 (muted) to 1.0 (loudest).

@@ -254,6 +254,7 @@ properties:
 
     type: Number
     since: "3.0.0"
+    constants: Titanium.Android.SHOW_AS_ACTION_*
     osver: {android: {min: "11"}}
     permission: write-only
 

@@ -26,14 +26,17 @@ typedef enum {
 @property(nonatomic, readonly) NSString *location;
 @property(nonatomic) NSStringEncoding encoding;
 @property(nonatomic, retain) NSError *error;
+@property(nonatomic, retain) NSString *filePath;
 @property(nonatomic) float downloadProgress;
 @property(nonatomic) float uploadProgress;
 
 @property(nonatomic, readonly) NSData* responseData;
+@property(nonatomic, readonly) NSInteger responseLength;
 @property(nonatomic, readonly) NSString*responseString;
 @property(nonatomic, readonly) NSDictionary*responseDictionary;
 @property(nonatomic, readonly) NSArray* responseArray;
 
+@property(nonatomic) BOOL saveToFile;
 @property(nonatomic) BOOL connected;
 @property(nonatomic) TiHTTPResponseState readyState;
 

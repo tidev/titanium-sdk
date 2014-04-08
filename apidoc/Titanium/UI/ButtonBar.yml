@@ -82,6 +82,7 @@ properties:
         The `BAR` style specifies a more compact style and allows the bar's background
         color or gradient to show through.
     type: Number
+    constants: Titanium.UI.iPhone.SystemButtonStyle.*
     default: Titanium.UI.iPhone.SystemButtonStyle.PLAIN
 examples:
   - title: Simple 3 button button bar

@@ -40,12 +40,10 @@ properties:
   - name: style
     summary: Style of the tabbed bar.
     description: |
-        Specify one of the constants defined in 
-        <Titanium.UI.iPhone.SystemButtonStyle>, either `PLAIN`, `BORDERED`, or `BAR`.
-        
         The `BAR` style specifies a more compact style and allows the bar's background color or 
         gradient to show through.
     type: Number
+    constants: Titanium.UI.iPhone.SystemButtonStyle.*
     default: Titanium.UI.iPhone.SystemButtonStyle.PLAIN
 
 examples:

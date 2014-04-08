@@ -112,7 +112,22 @@ events:
             the result of scrolling momentum.
         type: Boolean
         platforms: [iphone, ipad, mobileweb, tizen]
-        
+
+      - name: zooming
+        summary: |
+            Indicates whether the event was fired during a zooming operation. This is only available
+            from Release 3.2.3 of the Titanium Mobile SDK.
+        type: Boolean
+        platforms: [iphone, ipad]
+
+      - name: curZoomScale
+        summary: |
+            The current scaling factor of the scroll view content. This might not be equal to 
+            the `zoomScale` property or be within the range specified by `minZoomScale` and `maxZoomScale`.
+            This is only available from Release 3.2.3 of the Titanium Mobile SDK.
+        type: Number
+        platforms: [iphone, ipad]
+
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -214,6 +229,14 @@ properties:
         While `auto` and absolute dimensions are supported, relative values, such as those provided 
         in percentages, are not. The minimum value for contentWidth is the width of the scroll view.
     type: [Number, String]
+
+  - name: decelerationRate
+    summary: The deceleration rate of the ScrollView.
+    type: Number
+    constants: Titanium.UI.iOS.SCROLL_DECELERATION_RATE_*
+    default: Undefined.
+    platforms: [iphone, ipad]
+    since: "3.2.3"
     
   - name: disableBounce
     summary: Determines whether scroll bounce of the scrollable region is enabled.
@@ -263,9 +286,9 @@ properties:
     platforms: [iphone, ipad]
 
   - name: overScrollMode
-    summary: |
-      One of <Titanium.UI.Android.OVER_SCROLL_ALWAYS>, <Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS>, or <Titanium.UI.Android.OVER_SCROLL_NEVER>. 
+    summary: Determines the behavior when the user overscolls the view.
     type: Number
+    constants: Titanium.UI.Android.OVER_SCROLL_*
     default: Titanium.UI.Android.OVER_SCROLL_ALWAYS
     platforms: [android]
     since: "3.1.0"
@@ -284,10 +307,9 @@ properties:
     since: 2.0.0
 
   - name: scrollIndicatorStyle
-    summary: |
-        Style of the scrollbar, specified using one of the constants from 
-        <Titanium.UI.iPhone.ScrollIndicatorStyle>.
+    summary: Style of the scrollbar.
     type: Number
+    constants: <Titanium.UI.iPhone.ScrollIndicatorStyle.*
     default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
     platforms: [iphone, ipad]
 

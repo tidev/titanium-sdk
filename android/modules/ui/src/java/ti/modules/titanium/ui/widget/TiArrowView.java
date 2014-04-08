@@ -19,12 +19,18 @@ public class TiArrowView extends View
 
 	private boolean leftArrow;
 	private Path path;
+	private Paint p;
 
 	public TiArrowView(Context context) {
 		super(context);
 		leftArrow = true;
 		setFocusable(false);
 		setFocusableInTouchMode(false);
+		if(android.os.Build.VERSION.SDK_INT >= 11) {
+			//Paint.setStrokeCap not supported for lines in HW acceleration mode.
+			this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		}
+		p = new Paint();
 		configureDrawable();
 	}
 
@@ -69,7 +75,7 @@ public class TiArrowView extends View
 			if (!leftArrow) {
 				canvas.translate(1, 0);
 			}
-			Paint p = new Paint();
+			
 			p.setAntiAlias(false);
 			p.setARGB(175, 216, 216, 216);
 			p.setStyle(Paint.Style.FILL);

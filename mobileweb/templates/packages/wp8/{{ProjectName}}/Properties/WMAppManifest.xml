@@ -1,5 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
   <DefaultLanguage xmlns="" code="en-US"/>
   <App xmlns="" ProductID="{54fd8b9d-5e82-41e8-b2db-1abaf17746ab}" Title="<%= projectDisplayName %>" RuntimeType="Silverlight" Version="<%= projectVersion %>" Genre="apps.normal"  Author="<%= author %>" Description="<%= projectDescription%>" Publisher="<%= projectName %>" PublisherID="{<%= publisherGUID %>}">
@@ -12,7 +11,7 @@
       <Capability Name="ID_CAP_WEBBROWSERCOMPONENT"/>
     </Capabilities>
     <Tasks>
-      <DefaultTask  Name ="_default" NavigationPage="MainPage.xaml"/>
+      <DefaultTask Name ="_default" NavigationPage="MainPage.xaml"/>
     </Tasks>
     <Tokens>
       <PrimaryToken TokenID="<%= projectName %>Token" TaskName="_default">
@@ -20,12 +19,15 @@
           <SmallImageURI IsRelative="true" IsResource="false">Assets\Tiles\FlipCycleTileSmall.png</SmallImageURI>
           <Count>0</Count>
           <BackgroundImageURI IsRelative="true" IsResource="false">Assets\Tiles\FlipCycleTileMedium.png</BackgroundImageURI>
-          <Title><%= projectName %></Title>
+          <Title></Title>
           <BackContent></BackContent>
-          <BackBackgroundImageURI></BackBackgroundImageURI>
+          <BackBackgroundImageURI IsRelative="true" IsResource="false"></BackBackgroundImageURI>
           <BackTitle></BackTitle>
-          <DeviceLockImageURI></DeviceLockImageURI>
-          <HasLarge></HasLarge>
+          <LargeBackgroundImageURI IsRelative="true" IsResource="false">Assets\Tiles\FlipCycleTileLarge.png</LargeBackgroundImageURI>
+          <LargeBackContent />
+          <LargeBackBackgroundImageURI IsRelative="true" IsResource="false"></LargeBackBackgroundImageURI>
+          <DeviceLockImageURI IsRelative="true" IsResource="false"></DeviceLockImageURI>
+          <HasLarge>True</HasLarge>
         </TemplateFlip>
       </PrimaryToken>
     </Tokens>

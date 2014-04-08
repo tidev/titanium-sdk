@@ -367,6 +367,36 @@ def hide_accessors(parent_name, property_name):
 	else:
 		return res
 
+
+def get_constants(constants_list, raw_apis, api_type="props"):
+
+	if api_type == "params":
+		rv = "\nThis parameter accepts the following constants:\n\n"
+	elif api_type == "returns":
+		rv = "\nCan return one of the following constants:\n\n"
+	else:
+		rv = "\nThis property can be assigned the following constants:\n\n"
+
+	if type(constants_list) is not list:
+		a = [constants_list]
+		constants_list = a
+	for item in constants_list:
+		namespace = item.rsplit('.', 1)[0]
+		token = item.rsplit('.', 1)[-1]
+		if item[-1] == '*':
+			token = token[:-1]
+
+		if namespace in raw_apis:
+			for property in raw_apis[namespace]["properties"]:
+				if (token and property["name"].startswith(token)) or (not token and re.match(r"[_A-Z]+", property["name"])):
+					prop = namespace + "." + property["name"]
+					rv += "   * [" + prop + "](" + prop + ")\n"
+				if property["name"] == token:
+					break
+
+	return rv
+
+
 def generate(raw_apis, annotated_apis, options):
 	global all_annotated_apis, apis
 	all_annotated_apis = annotated_apis
@@ -446,6 +476,8 @@ def generate(raw_apis, annotated_apis, options):
 						write_utf8(output, "\t * @writeonly\n")
 				write_utf8(output, output_properties_for_obj(k))
 				write_utf8(output, get_summary_and_description(obj))
+				if obj.has_key('constants'):
+					write_utf8(output, markdown_to_html(get_constants(obj["constants"], raw_apis)))
 				write_utf8(output, output_examples_for_obj(obj))
 				write_utf8(output, output_deprecation_for_obj(k))
 				write_utf8(output, " */\n\n")
@@ -469,6 +501,8 @@ def generate(raw_apis, annotated_apis, options):
 								repeatable = "..."
 							else:
 								repeatable = ""
+							if "constants" in param:
+								summary += get_constants(param["constants"], raw_apis, "params")
 						type = "{" + transform_type(param["type"]) + repeatable + "}" if param.has_key("type") else ""
 						optional = "(optional)" if param.has_key('optional') and param["optional"] == True else ""
 						if param.has_key('default'):
@@ -499,6 +533,8 @@ def generate(raw_apis, annotated_apis, options):
 							type = type + "}"
 						else:
 							log.warn("returns for %s should be an array or a dict." % obj["name"]);
+					if "constants" in returntypes:
+						summary += get_constants(returntypes["constants"], raw_apis, "returns")
 					write_utf8(output, "\t * @return %s %s\n" % (type, markdown_to_html(summary)))
 				else:
 					write_utf8(output, "\t * @return {void}\n")
@@ -529,6 +565,8 @@ def generate(raw_apis, annotated_apis, options):
 						else:
 							write_utf8(output, "\t * @param %s %s %s\n" % (deprecated, platforms, param.name))
 						write_utf8(output, get_summary_and_description(param.api_obj))
+						if "constants" in param.api_obj:
+							write_utf8(output, markdown_to_html(get_constants(param.api_obj["constants"], raw_apis)))
 
 
 				write_utf8(output, output_properties_for_obj(k))

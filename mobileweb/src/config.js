@@ -25,9 +25,6 @@ var require = {
 		"ti-instrumentation": function(g) {
 				return <%- hasInstrumentation %> && g.instrumentation;
 		},
-<% if (target == 'winstore') { -%>
-		"winstore-extensions": true,
-<% } %>
 		"touch": function (g) {
 			return <%- hasAllowTouch %> && 'ontouchstart' in g;
 		}
@@ -56,7 +53,3 @@ var require = {
 		dom: ["", "Webkit", "Moz", "ms", "O", "Khtml"]
 	}
 };
-
-<% if (target == 'wp8') { -%>
-window.hasWP8Extensions = true;
-<% } %>

@@ -38,10 +38,9 @@ events:
         type: Boolean
       
       - name: result
-        summary: |
-            Status of the SMS send process: either [SENT](Titanium.UI.SMSDialog.SENT),  
-            [CANCELLED](Titanium.UI.SMSDialog.CANCELLED), or [FAILED](Titanium.UI.SMSDialog.FAILED).
+        summary: Status of the SMS send process.
         type: Number
+        constants: Titanium.UI.SMSDialog.*
         
 properties:
   - name: CANCELLED

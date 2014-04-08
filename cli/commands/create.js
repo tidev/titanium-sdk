@@ -197,7 +197,7 @@ exports.config = function config(logger, config, cli) {
 
 							// just in case they set -p without a value
 							if (value === true) {
-								value = 'all';
+								return callback(true);
 							}
 
 							value.trim().toLowerCase().split(',').forEach(function (s) {
@@ -235,7 +235,7 @@ exports.config = function config(logger, config, cli) {
 						}
 					},
 					template: {
-						desc: __('the name of the project template to use'),
+						desc: __('the name of the project template, path to template dir, path to zip file, or url to zip file'),
 						default: 'default',
 						order: 110,
 						required: true
@@ -262,7 +262,7 @@ exports.config = function config(logger, config, cli) {
 								promptLabel: __('Your company/personal URL')
 							}));
 						},
-						required: true,
+						required: !!cli.argv.prompt,
 						validate: function (value, callback) {
 							callback(null, value);
 						}

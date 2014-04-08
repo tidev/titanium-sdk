@@ -72,7 +72,6 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 		},
 
 		_onError: function(error) {
-			this.abort();
 			is(error, "Object") || (error = { message: error });
 			error.source = this;
 			error.type = "error";

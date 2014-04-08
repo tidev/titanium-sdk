@@ -35,9 +35,8 @@ since: "1.5"
 properties:
   - name: flags
     summary: Flags used for creating the Pending Intent. 
-    description: |
-        Possible values are <Titanium.Android.FLAG_CANCEL_CURRENT>, <Titanium.Android.FLAG_NO_CREATE>, 
-        <Titanium.Android.FLAG_ONE_SHOT>, and <Titanium.Android.FLAG_UPDATE_CURRENT>.
+    constants: [ Titanium.Android.FLAG_CANCEL_CURRENT, Titanium.Android.FLAG_NO_CREATE,
+        Titanium.Android.FLAG_ONE_SHOT, Titanium.Android.FLAG_UPDATE_CURRENT ]
     type: Number
     availability: creation
 

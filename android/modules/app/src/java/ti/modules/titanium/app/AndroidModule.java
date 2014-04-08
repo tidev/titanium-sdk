@@ -14,15 +14,21 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 
 @Kroll.module(parentModule=AppModule.class)
 public class AndroidModule extends KrollModule
 {
 	protected RProxy r;
 	private static final String TAG = "App.AndroidModule";
+	private int appVersionCode = -1;
+	private String appVersionName;
 
 	public AndroidModule()
 	{
@@ -67,6 +73,55 @@ public class AndroidModule extends KrollModule
 			return ((TiBaseActivity)activity).getActivityProxy();
 		} else {
 			return null;
+		}
+	}
+	
+	@Kroll.getProperty
+	@Kroll.method
+	public int getAppVersionCode()
+	{
+		if (appVersionCode == -1) {
+			initializeVersionValues();
+		}
+		return appVersionCode;
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public IntentProxy getLaunchIntent()
+	{
+		TiApplication app = TiApplication.getInstance();
+		if (app != null) {
+			TiBaseActivity rootActivity = app.getRootActivity();
+			if (rootActivity != null) {
+				Intent intent = rootActivity.getIntent();
+				if (intent != null) {
+					return new IntentProxy(intent);
+				}
+			}
+		}
+		return null;
+	}
+
+	@Kroll.getProperty
+	@Kroll.method
+	public String getAppVersionName()
+	{
+		if (appVersionName == null) {
+			initializeVersionValues();
+		}
+		return appVersionName;
+	}
+
+	private void initializeVersionValues()
+	{
+		PackageInfo pInfo;
+		try {
+			pInfo = TiApplication.getInstance().getPackageManager()
+				.getPackageInfo(TiApplication.getInstance().getPackageName(), 0);
+			appVersionCode = pInfo.versionCode;
+			appVersionName = pInfo.versionName;
+		} catch (NameNotFoundException e) {
+			Log.e(TAG, "Unable to get package info", e);
 		}
 	}
 

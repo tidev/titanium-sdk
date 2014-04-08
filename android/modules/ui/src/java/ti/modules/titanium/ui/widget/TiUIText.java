@@ -386,7 +386,7 @@ public class TiUIText extends TiUIView
 			fireEvent(TiC.EVENT_RETURN, data);
 		}
 
-		Boolean enableReturnKey = (Boolean) proxy.getProperty(TiC.PROPERTY_ENABLE_RETURN_KEY);
+		Boolean enableReturnKey = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_RETURN_KEY));
 		if (enableReturnKey != null && enableReturnKey && v.getText().length() == 0) {
 			return true;
 		}
@@ -547,6 +547,20 @@ public class TiUIText extends TiUIView
 			return;
 		}
 		tv.setSelection(start, end);
+	}
+	
+	public KrollDict getSelection() {
+		KrollDict result = new KrollDict(2);
+		int start = tv.getSelectionStart();
+		result.put(TiC.PROPERTY_LOCATION, start);
+		if (start != -1) {
+			int end = tv.getSelectionEnd();
+			result.put(TiC.PROPERTY_LENGTH, end - start);
+		} else {
+			result.put(TiC.PROPERTY_LENGTH, -1);
+		}
+		
+		return result;
 	}
 
 	public void handleReturnKeyType(int type)

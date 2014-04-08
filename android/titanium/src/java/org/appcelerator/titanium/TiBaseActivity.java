@@ -406,35 +406,19 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		}
 	}
 
-	protected void setNavBarHidden(boolean hidden)
-	{
-		if (!hidden) {
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-				// Do not enable these features on Honeycomb or later since it will break the action bar.
-				this.requestWindowFeature(Window.FEATURE_LEFT_ICON);
-				this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
-			}
-
-			this.requestWindowFeature(Window.FEATURE_PROGRESS);
-			this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-
-		} else {
-			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		}
-	}
-
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
 	protected void windowCreated()
 	{
 		boolean fullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
-		boolean navBarHidden = getIntentBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, false);
 		boolean modal = getIntentBoolean(TiC.PROPERTY_MODAL, false);
 		int softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, -1);
 		boolean hasSoftInputMode = softInputMode != -1;
 		
 		setFullscreen(fullscreen);
-		setNavBarHidden(navBarHidden);
 
+		this.requestWindowFeature(Window.FEATURE_PROGRESS);
+		this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		
 		if (modal) {
 			if (Build.VERSION.SDK_INT < TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
 				// This flag is deprecated in API 14. On ICS, the background is not blurred but straight black.
@@ -529,8 +513,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		windowCreated();
 
 		if (activityProxy != null) {
-			// Fire the sync event with a timeout, so the main thread won't be blocked too long to get an ANR. (TIMOB-13253)
-			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null, 4000);
+			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
 		}
 
 		// set the current activity back to what it was originally
@@ -973,7 +956,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		}
 
 		if (activityProxy != null) {
-			activityProxy.fireSyncEvent(TiC.EVENT_PAUSE, null);
+			activityProxy.fireEvent(TiC.EVENT_PAUSE, null);
 		}
 
 		synchronized (lifecycleListeners.synchronizedList()) {
@@ -1024,8 +1007,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		TiApplication.updateActivityTransitionState(false);
 		
 		if (activityProxy != null) {
-			// Fire the sync event with a timeout, so the main thread won't be blocked too long to get an ANR. (TIMOB-13253)
-			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null, 4000);
+			activityProxy.fireEvent(TiC.EVENT_RESUME, null);
 		}
 
 		synchronized (lifecycleListeners.synchronizedList()) {
@@ -1084,8 +1066,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
 
-			// Fire the sync event with a timeout, so the main thread won't be blocked too long to get an ANR. (TIMOB-13253)
-			activityProxy.fireSyncEvent(TiC.EVENT_START, null, 4000);
+			activityProxy.fireEvent(TiC.EVENT_START, null);
 
 			// set the current activity back to what it was originally
 			tiApp.setCurrentActivity(this, tempCurrentActivity);
@@ -1126,7 +1107,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		}
 
 		if (activityProxy != null) {
-			activityProxy.fireSyncEvent(TiC.EVENT_STOP, null);
+			activityProxy.fireEvent(TiC.EVENT_STOP, null);
 		}
 
 		synchronized (lifecycleListeners.synchronizedList()) {
@@ -1170,7 +1151,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
 
-			activityProxy.fireSyncEvent(TiC.EVENT_RESTART, null);
+			activityProxy.fireEvent(TiC.EVENT_RESTART, null);
 
 			// set the current activity back to what it was originally
 			tiApp.setCurrentActivity(this, tempCurrentActivity);
@@ -1194,7 +1175,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		}
 
 		if (activityProxy != null) {
-			activityProxy.fireSyncEvent(TiC.EVENT_USER_LEAVE_HINT, null);
+			activityProxy.fireEvent(TiC.EVENT_USER_LEAVE_HINT, null);
 		}
 
 		super.onUserLeaveHint();
@@ -1312,7 +1293,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	{
 		if (!onDestroyFired) {
 			if (activityProxy != null) {
-				activityProxy.fireSyncEvent(TiC.EVENT_DESTROY, null);
+				activityProxy.fireEvent(TiC.EVENT_DESTROY, null);
 			}
 			onDestroyFired = true;
 		}

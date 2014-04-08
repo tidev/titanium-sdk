@@ -1,14 +1,21 @@
-/*
- * package_windows.js: Titanium Mobile Web CLI library for packaging in a Windows Store or Windows Phone app
+/**
+ * Packages Windows Phone 8 and Windows Store resources for Titanium Mobile Web
+ * apps.
  *
- * Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved.
- * See the LICENSE file for more information.
+ * @copyright
+ * Copyright (c) 2013-2014 by Appcelerator, Inc. All Rights Reserved.
+ *
+ * @license
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
  */
 
 var appc = require('node-appc'),
 	async = require('async'),
+	crypto = require('crypto'),
 	ejs = require('ejs'),
 	fs = require('fs'),
+	os = require('os'),
 	path = require('path'),
 	spawn = require('child_process').spawn,
 	uuid = require('node-uuid'),
@@ -23,23 +30,109 @@ exports.init = function (logger, config, cli) {
 		return;
 	}
 
-	cli.on('build.mobileweb.processConfigTemplate', {
+	cli.on('build.mobileweb.createIcons', function (builder, callback) {
+		if (builder.target != 'wp8' && builder.target != 'winstore') return callback();
+
+		logger.info(__('Creating favicon'));
+
+		var buildDir = builder.buildDir,
+			iconFilename = /\.(png|jpg|gif)$/.test(builder.tiapp.icon) ? builder.tiapp.icon : 'appicon.png',
+			file = path.join(builder.projectResDir, 'mobileweb', iconFilename),
+			resizeImages = [];
+
+		if (!fs.existsSync(file)) {
+			// try in the root
+			file = path.join(builder.projectResDir, iconFilename);
+		}
+
+		// if they don't have a appicon, copy it from the sdk
+		if (!fs.existsSync(file)) {
+			file = path.join(builder.platformPath, 'templates', 'app', 'default', 'Resources', 'mobileweb', 'appicon.png');
+		}
+
+		// copy the appicon.png
+		appc.fs.copyFileSync(file, buildDir, { logger: logger.debug });
+
+		function copyIcon(filename, width, height) {
+			var file = path.join(builder.projectResDir, 'mobileweb', filename);
+			if (!fs.existsSync(file)) {
+				file = path.join(builder.projectResDir, filename);
+			}
+			if (fs.existsSync(file)) {
+				appc.fs.copyFileSync(file, buildDir, { logger: logger.debug });
+			} else {
+				resizeImages.push({
+					file: path.join(buildDir, filename).replace(/\.ico$/, '.png'),
+					width: width,
+					height: height
+				});
+			}
+		}
+
+		copyIcon('favicon.png', 16, 16);
+
+		// if there are no images to resize, just return
+		if (!resizeImages.length) return callback();
+
+		appc.image.resize(file, resizeImages, function (err, stdout, stderr) {
+			if (err) {
+				logger.error(__('Failed to create icons'));
+				stdout && stdout.toString().split('\n').forEach(function (line) {
+					line && logger.error(line.replace(/^\[ERROR\]/i, '').trim());
+				});
+				stderr && stderr.toString().split('\n').forEach(function (line) {
+					line && logger.error(line.replace(/^\[ERROR\]/i, '').trim());
+				});
+				logger.log('');
+				process.exit(1);
+			}
+
+			// rename the favicon
+			fs.renameSync(path.join(buildDir, 'favicon.png'), path.join(buildDir, 'favicon.ico'));
+
+			callback();
+		}, logger);
+	});
+
+	cli.on('build.mobileweb.assembleConfigTemplate', {
 		pre: function (data, callback) {
-			var options = data.args[1];
-			options.tiAnalyticsPlatformName = 'windows';
-			options.tiOsName = 'mobileweb';
-			options.tiPlatformName = 'Windows Hybrid';
+			if (this.target == 'wp8' || this.target == 'winstore') {
+				var options = data.args[1];
+				options.tiAnalyticsPlatformName = 'windows';
+				options.tiOsName = 'mobileweb';
+				options.tiPlatformName = 'Windows Hybrid';
+			}
 			callback();
 		}
 	});
 
+	cli.on('build.mobileweb.assemblePlatformImplementation', {
+		pre: function (data, callback) {
+			if (this.target == 'wp8' || this.target == 'winstore') {
+				data.args[0] += fs.readFileSync(path.join(this.platformPath, 'src', this.target + '.js')).toString() + '\n';
+			}
+			callback();
+		}
+	});
+
+	cli.on('build.pre.compile', function(builder, finished) {
+		if (builder.target == 'wp8' || builder.target == 'winstore') {
+			var session = appc.auth.status();
+			builder.logToken = '';
+			if (builder.enableLogging) {
+				builder.logToken = crypto.createHash('md5').update((session.loggedIn && session.email || '') + ':' + os.hostname()).digest('hex');
+			}
+		}
+		finished();
+	});
+
 	cli.on('build.post.compile', {
 		priority: 8000,
-		post: function (build, finished) {
+		post: function (builder, finished) {
 			var target = cli.argv.target,
-				tiapp = build.tiapp,
+				tiapp = builder.tiapp,
 				displayName = target == 'wp8' ? __('Windows Phone 8') : __('Windows Store'),
-				certificatePathRoot = path.join(build.projectDir, tiapp.name + '_WindowsCodeSigningCert');
+				certificatePathRoot = path.join(builder.projectDir, tiapp.name + '_WindowsCodeSigningCert');
 
 			if (process.platform != 'win32' || target != 'winstore' && target != 'wp8') {
 				finished();
@@ -152,7 +245,7 @@ exports.init = function (logger, config, cli) {
 				}
 
 				function packageApp() {
-					var source = path.resolve(build.buildDir),
+					var source = path.resolve(builder.buildDir),
 						destination = path.resolve(source, '..', 'mobileweb-' + target),
 						version = tiapp.version,
 						templateData = {
@@ -169,6 +262,7 @@ exports.init = function (logger, config, cli) {
 							publisherGUID: cli.argv['wp8-publisher-guid'],
 							company: 'not specified', // Hopefully we can support this some day
 							copyright: tiapp.copyright || ('Copyright © ' + new Date().getFullYear()),
+							logToken: builder.logToken,
 
 							// windows store specific
 							visualStudioVersion: env.visualStudioVersion,
@@ -184,11 +278,7 @@ exports.init = function (logger, config, cli) {
 						templateFiles = [
 							'{{ProjectName}}.sln',
 							path.join('{{ProjectName}}', '{{ProjectName}}.csproj'),
-							path.join('{{ProjectName}}', 'MainPage.xaml'),
-							path.join('{{ProjectName}}', 'MainPage.xaml.cs'),
-							path.join('{{ProjectName}}', 'LocalizedStrings.cs'),
-							path.join('{{ProjectName}}', 'App.xaml'),
-							path.join('{{ProjectName}}', 'App.xaml.cs'),
+							path.join('{{ProjectName}}', 'titanium_settings.ini'),
 							path.join('{{ProjectName}}', 'Resources', 'AppResources.Designer.cs'),
 							path.join('{{ProjectName}}', 'Properties', 'AssemblyInfo.cs'),
 							path.join('{{ProjectName}}', 'Properties', 'WMAppManifest.xml')
@@ -269,6 +359,34 @@ exports.init = function (logger, config, cli) {
 							}
 						}
 					});
+
+					// copy the tile icons
+					logger.info(__('Copying tile icons'));
+
+					var buildDir = builder.buildDir,
+						m = builder.tiapp.icon.match(/^(.*)(?:\.(?:png|jpg|gif))$/),
+						iconPrefix = m && m[1] != 'appicon' && m[1];
+
+					function copyTile(suffix, destFilename) {
+						var file = path.join(builder.projectResDir, 'mobileweb', iconPrefix + suffix);
+						if (!fs.existsSync(file)) {
+							file = path.join(builder.projectResDir, iconPrefix + suffix);
+						}
+						if (!fs.existsSync(file)) {
+							file = path.join(builder.projectResDir, 'mobileweb', 'appicon' + suffix);
+						}
+						if (!fs.existsSync(file)) {
+							file = path.join(builder.projectResDir, 'appicon' + suffix);
+						}
+						if (fs.existsSync(file)) {
+							appc.fs.copyFileSync(file, path.join(destination, tiapp.id, 'Assets', destFilename), { logger: logger.debug });
+						}
+					}
+
+					copyTile('.png', 'ApplicationIcon.png');
+					copyTile('-tile-small.png', 'Tiles\\FlipCycleTileSmall.png');
+					copyTile('-tile-medium.png', 'Tiles\\FlipCycleTileMedium.png');
+					copyTile('-tile-large.png', 'Tiles\\FlipCycleTileLarge.png');
 
 					// Compile the app
 					var cmd = [

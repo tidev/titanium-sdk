@@ -109,6 +109,7 @@ extern NSString * const ASStatusChangedNotification;
 @property AudioStreamerErrorCode errorCode;
 @property (nonatomic, readonly) AudioStreamerState state;
 @property (readonly) double progress;
+@property (readonly) double duration; 
 @property (readwrite) UInt32 bitRate;
 @property (readwrite) double volume;
 @property (readwrite,assign) id<AudioStreamerDelegate> delegate;
