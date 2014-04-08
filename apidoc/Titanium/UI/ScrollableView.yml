@@ -38,12 +38,16 @@ methods:
   - name: moveNext
     summary: |
         Sets the current page to the next consecutive page in <Titanium.UI.ScrollableView.views>.
+    description: |
+        Since Titanium Mobile Release 3.3.0, using this method to change current page animates the change on iOS and Android.
     platforms: [android, blackberry, iphone, ipad]
     since: {iphone: "3.3.0", ipad: "3.3.0"}
     
   - name: movePrevious
     summary: |
         Sets the current page to the previous consecutive page in <Titanium.UI.ScrollableView.views>.
+    description: |
+        Since Titanium Mobile Release 3.3.0, using this method to change current page animates the change on iOS and Android.
     platforms: [android, blackberry, iphone, ipad]
     since: {iphone: "3.3.0", ipad: "3.3.0"}
     
@@ -275,6 +279,9 @@ properties:
     
   - name: currentPage
     summary: Index of the active page.
+    description: |
+        Since Titanium Mobile Release 3.3.0, using this property to change current page changes the 
+        page without animation on iOS and Android.
     type: Number
     
   - name: disableBounce

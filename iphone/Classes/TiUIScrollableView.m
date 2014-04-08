@@ -512,11 +512,11 @@
     int newPage = [TiUtils intValue:page];
     int viewsCount = [[self proxy] viewCount];
     
-	if (newPage >=0 && newPage < viewsCount) {
+    if (newPage >=0 && newPage < viewsCount) {
         [scrollview setContentOffset:CGPointMake([self bounds].size.width * newPage, 0) animated:[animate boolValue]];
         currentPage = newPage;
         pageControl.currentPage = newPage;
-		[self manageCache:newPage];
+        [self manageCache:newPage];
         [self.proxy replaceValue:NUMINT(newPage) forKey:@"currentPage" notification:NO];
     }
 }
