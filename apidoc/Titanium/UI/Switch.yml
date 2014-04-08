@@ -118,6 +118,29 @@ properties:
     default: On
     platforms: [android, mobileweb, tizen]
     
+  - name: tintColor
+    summary: The color used to tint the outline of the switch when it is turned off.
+    description: |
+        This property is supported on iOS 6 and above unlike the [tintColor](Titanium.UI.View.tintColor) property defined on <Titanium.UI.View>.
+    type: String
+    default: Undefined.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    
+  - name: onTintColor
+    summary: The color used to tint the appearance of the switch when it is turned on.
+    type: String
+    default: Undefined.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    
+  - name: thumbTintColor
+    summary: The color used to tint the appearance of the thumb.
+    type: String
+    default: Undefined.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    
   - name: value
     summary: |
         Indicates whether the switch has been turned on or off by the user. May also be set 
