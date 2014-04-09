@@ -629,6 +629,14 @@ public class TableViewProxy extends TiViewProxy
 			Object o = data[i];
 			if (o instanceof HashMap || o instanceof TableViewRowProxy) {
 				TableViewRowProxy rowProxy = rowProxyFor(o);
+				if (rowProxy.hasProperty(TiC.PROPERTY_FOOTER)) {
+					 
+ 					currentSection = new TableViewSectionProxy();
+  					currentSection.setActivity(getActivity());
+  					sections.add(currentSection);
+  					currentSection.setParent(this);
+  					currentSection.setProperty(TiC.PROPERTY_FOOTER_TITLE, getProperty(TiC.PROPERTY_FOOTER_TITLE));
+				}
 				TableViewSectionProxy addedToSection = addRowToSection(rowProxy, currentSection);
 				if (currentSection == null || !currentSection.equals(addedToSection)) {
 					currentSection = addedToSection;
