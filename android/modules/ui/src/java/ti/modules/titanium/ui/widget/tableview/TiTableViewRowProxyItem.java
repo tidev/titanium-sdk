@@ -267,7 +267,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 					applyChildProperties(newProxy, view);
 				}
 			}
-			
+			//Reset the content height and width so that it is calculated based on the children
+			LayoutParams p = content.getLayoutParams();
+			p.height = -1;
+			p.width = -1;
+			content.setLayoutParams(p);
 		}
 	}
 

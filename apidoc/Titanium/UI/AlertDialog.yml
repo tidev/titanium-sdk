@@ -4,7 +4,7 @@ summary: |
     An alert dialog is a modal view that includes an optional title, a message and buttons, 
     positioned in the middle of the display.
 description: |
-    An alert dialog is created using <Titanium.UI.createAlertDialog>.
+    An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.
     
     Although this dialog always appears in the middle of the display (not touching the edges), 
     other aspects of its aesthetics and the way the user interacts with it are different for each 
@@ -18,7 +18,7 @@ description: |
     
     Buttons are shown if the `buttonNames` property is defined, and are rendered horizontally below 
     the message.
-    
+
     To create a custom layout, a view may be added and, in turn, a hierarchy of views added to that 
     child view.
     
@@ -29,7 +29,7 @@ description: |
     
     Buttons are defined using the `buttonNames` property and are rendered vertically below 
     the message.
-    
+
     On iOS 4.0 and later, alert dialogs are automatically cancelled when the application is 
     paused/suspended. This behavior can avoided by setting `persistent` property on alert dialog 
     to be `true`.
@@ -123,6 +123,20 @@ properties:
         buttons may be created on Android, as the hardware `back` button may be used instead.
         
         A maximum of 3 buttons is supported on Android.
+
+        Alloy applications can specify this property with a `<ButtonNames>` element containing
+        one or more `<ButtonName>` elements (see example).
+
+            <Alloy>
+                <AlertDialog id="dialog" onClick="doClick" title="Decide!" message="Do you really want to do that?" cancel="1">
+                    <ButtonNames>
+                        <ButtonName>Confirm</ButtonName>
+                        <ButtonName>Cancel</ButtonName>
+                        <ButtonName>Help</ButtonName>
+                    </ButtonNames>
+                </AlertDialog>
+            </Alloy>
+
     type: Array<String>
     default: No buttons (Android), Single "OK" button (iOS, Mobile Web)
     availability: creation

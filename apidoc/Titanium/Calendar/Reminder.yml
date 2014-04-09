@@ -21,12 +21,8 @@ properties:
 
   - name: method
     summary: Method by which this reminder will be delivered.
-    description: |
-        One of [METHOD_ALERT](Titanium.Calendar.METHOD_ALERT),
-        [METHOD_DEFAULT](Titanium.Calendar.METHOD_DEFAULT),
-        [METHOD_EMAIL](Titanium.Calendar.METHOD_EMAIL),
-        or [METHOD_SMS](Titanium.Calendar.METHOD_SMS).
     type: Number
+    constants: Titanium.Calendar.METHOD_*
     permission: read-only
 
   - name: minutes

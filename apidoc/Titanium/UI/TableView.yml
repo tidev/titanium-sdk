@@ -3,15 +3,17 @@ name: Titanium.UI.TableView
 summary: |
     A table view is used to present information, organized in sections and rows, in a 
     vertically-scrolling view.
-description: |
-    Use the <Titanium.UI.createTableView> method to create a `TableView`.
-    
+description: |    
     A `TableView` object is a container for [TableViewSection](Titanium.UI.TableViewSection) 
     objects that are, in turn, containers for [TableViewRow](Titanium.UI.TableViewRow) objects. 
+
+    Use the <Titanium.UI.createTableView> method or **`<TableView>`** Alloy element to create a `TableView`.
+
+    Also see the [TableViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/TableViews).
     
     #### Creating Tables
     
-    Tables may be created in the following ways.
+    There are few approaches to creating and using `TableView` object.
     
     The simplest approach is to pass dictionaries of `TableViewRow` properties, such as 
     [backgroundColor](Titanium.UI.TableViewRow.backgroundColor), 
@@ -55,18 +57,8 @@ description: |
     There are known issues with the `sections` property and associated methods added in
     Release 3.0:
 
-    *   On iOS, event listeners do not fire correctly when table view sections are added or
-        updated using the `sections` property or `appendSection`, `insertSectionBefore`,
-        `insertSectionAfter`, or `updateSection` methods. Adding sections using the `data` 
-        property is recommended for Release 3.0.x.  This issue has been fixed as of Release
-        3.1.0.
-        ([TIMOB-12616](https://jira.appcelerator.org/browse/TIMOB-12616))
-
     *   On iOS, the first two arguments to the `updateSection` method are reversed.
         ([TIMOB-12625](https://jira.appcelerator.org/browse/TIMOB-12625))
-
-    *   On Android, the `sections` property is a read-only property.
-        ([TIMOB-12620](https://jira.appcelerator.org/browse/TIMOB-12620))
 
     *   On Mobile Web, click events fail to fire after calling the `updateSection` method.
         ([TIMOB-12630](https://jira.appcelerator.org/browse/TIMOB-12630))
@@ -1131,7 +1123,15 @@ properties:
     type: Boolean
     default: true
     platforms: [android, iphone, ipad]
-    
+  
+  - name: footerDividersEnabled
+    summary: When set to false, the ListView will not draw the divider before the footer view.
+    type: Boolean
+    availability: creation
+    default: undefined but behaves as false
+    platforms: [android]
+    since: "3.3.0"
+
   - name: footerTitle
     summary: Table view footer title.
     type: String
@@ -1146,8 +1146,22 @@ properties:
         user to refresh a table's data.  Typically used with the 
         [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
 
+        To specify the wrapper color see <Titanium.UI.View.pullBackgroundColor>.
+
         For an example, see the "Pull to refresh" section in the
         [TableViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/TableViews).
+
+        Alloy applications can use a `<HeaderPullView>` element inside a `<TableView>` element.
+
+            <Alloy>
+                <TableView>
+                    <HeaderPullView platform="ios">
+                        <View class="pull">
+                            <Label color="#F2F4F4" bottom="25dp">Header pull view</Label>
+                        </View>
+                    </HeaderPullView>
+                </TableView>
+            </Alloy>
     type: Titanium.UI.View
     platforms: [iphone, ipad]
     since: "2.1.0"
@@ -1176,8 +1190,29 @@ properties:
 
   - name: footerView
     summary: Table view footer as a view that will be rendered instead of a label.
+    description: |
+        In Alloy you can use a `<FooterView>` element nested in a `<TableView>` element:
+
+            <Alloy>
+                <TableView>
+                    <FooterView>
+                        <View backgroundColor="#a00" height="50dp"/>
+                    </FooterView>
+                    <TableViewRow><Label>Row 1</Label></TableViewRow>
+                    <TableViewRow><Label>Row 2</Label></TableViewRow>
+                </TableView>
+            </Alloy>
+
     type: Titanium.UI.View
     exclude-platforms: [blackberry]
+    
+  - name: headerDividersEnabled
+    summary: When set to false, the ListView will not draw the divider after the header view.
+    type: Boolean
+    availability: creation
+    default: undefined but behaves as false
+    platforms: [android]
+    since: "3.3.0"
     
   - name: headerTitle
     summary: Table view header title.
@@ -1186,6 +1221,19 @@ properties:
     
   - name: headerView
     summary: Table view header as a view that will be rendered instead of a label.
+    description: |
+        In Alloy you can use a `<HeaderView>` element nested in a `<TableView>` element:
+
+            <Alloy>
+                <TableView>
+                    <HeaderView>
+                        <View backgroundColor="#a00" height="50dp"/>
+                    </HeaderView>
+                    <TableViewRow><Label>Row 1</Label></TableViewRow>
+                    <TableViewRow><Label>Row 2</Label></TableViewRow>
+                </TableView>
+            </Alloy>
+
     type: Titanium.UI.View
     exclude-platforms: [blackberry]
     
@@ -1237,9 +1285,9 @@ properties:
     platforms: [iphone, ipad]
     
   - name: overScrollMode
-    summary: |
-      One of <Titanium.UI.Android.OVER_SCROLL_ALWAYS>, <Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS>, or <Titanium.UI.Android.OVER_SCROLL_NEVER>. 
+    summary: Determines the behavior when the user overscrolls the view.
     type: Number
+    constants: Titanium.UI.Android.OVER_SCROLL_*
     default: Titanium.UI.Android.OVER_SCROLL_ALWAYS
     platforms: [android]
     since: "3.1.0"
@@ -1256,10 +1304,9 @@ properties:
     platforms: [iphone,ipad]
     
   - name: scrollIndicatorStyle
-    summary: |
-        Style of the scrollbar, specified using one of the constants from 
-        <Titanium.UI.iPhone.ScrollIndicatorStyle>.
+    summary: Style of the scrollbar.
     type: Number
+    constants: Titanium.UI.iPhone.ScrollIndicatorStyle.*
     default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
     since: 2.1.0
     platforms: [iphone, ipad]
@@ -1279,6 +1326,18 @@ properties:
 
   - name: search
     summary: Search field to use for the table view.
+    description: |
+        In an Alloy application, you can use a `<SearchView>` or `<SearchBar>` element inside a `<TableView>` element.
+
+            <Alloy>
+                <TableView>
+                  <!-- search, shorthand with Ti.UI.SearchBar -->
+                  <SearchBar platform="ios"/>
+                  <!-- search, shorthand with Ti.UI.Android.SearchView -->
+                  <SearchView ns="Ti.UI.Android" platform="android"/>
+                </TableView>
+            </Alloy>
+
     type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
     platforms: [android, iphone, ipad]
     
@@ -1330,9 +1389,17 @@ properties:
     summary: The insets for table view separators (applies to all cells). This property is applicable on iOS 7 and greater.
     description: |
         In iOS 7 and later, cell separators do not extend all the way to the edge of the table view. 
-        This property sets the default inset for all cells in the table. 
+        This property sets the default inset for all cells in the table. Set this to a dictionary 
+        with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge. 
+
+        For example:
+         
+            tableView1.setSeparatorInsets({
+                left:10,
+                right:10
+            });
         
-        Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge. 
+        
     type: Dictionary
     since: 3.2.0
     osver: {ios: {min: "7.0"}}
@@ -1534,17 +1601,17 @@ properties:
     default: true
     
   - name: animationStyle
-    summary: Type of animation to use for row insertions and deletions. One of the animation style constants defined in <Titanium.UI.iPhone.RowAnimationStyle>.
+    summary: Type of animation to use for row insertions and deletions.
     type: Number
+    constants: Titanium.UI.iPhone.RowAnimationStyle.*
     default: |
         If `animated` is `true` but no `animationStyle` is specified, the style defaults to 
         [FADE](Titanium.UI.iPhone.RowAnimationStyle.FADE).
         
   - name: position
-    summary: |
-        Specifies what position to scroll the selected row to. One of the position constants from 
-        <Titanium.UI.iPhone.TableViewScrollPosition>.
+    summary: Specifies what position to scroll the selected row to.
     type: Number
+    constants: Titanium.UI.iPhone.TableViewScrollPosition.*
     default: <Titanium.UI.iPhone.TableViewScrollPosition.NONE>
 
 ---

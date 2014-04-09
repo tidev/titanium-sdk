@@ -24,14 +24,37 @@
 
 -(UIToolbar *)toolBar
 {
-	if (toolBar == nil)
-	{
-		toolBar = [[UIToolbar alloc] initWithFrame:[self bounds]];
-		[toolBar setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleBottomMargin];
-		[self addSubview:toolBar];
-		[self setClipsToBounds:YES];
-	}
-	return toolBar;
+    if (toolBar == nil) {
+        toolBar = [[UIToolbar alloc] initWithFrame:[self bounds]];
+        [toolBar setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleBottomMargin];
+        [self addSubview:toolBar];
+        if ([TiUtils isIOS7OrGreater]) {
+            id extendVal = [[self proxy] valueForUndefinedKey:@"extendBackground"];
+            extendsBackground = [TiUtils boolValue:extendVal def:NO];
+            if (extendsBackground) {
+                [toolBar setDelegate:(id<UIToolbarDelegate>)self];
+                [self setClipsToBounds:NO];
+                return toolBar;
+            }
+        }
+
+        [self setClipsToBounds:YES];
+    }
+    return toolBar;
+}
+
+- (NSInteger)positionForBar:(id)bar
+{
+    if (extendsBackground) {
+#if defined(DEBUG) || defined(DEVELOPER)
+        TiDimension myTop = ((TiViewProxy*)[self proxy]).layoutProperties->top;
+        if (!TiDimensionEqual(myTop, TiDimensionMake(TiDimensionTypeDip, 20))) {
+            NSLog(@"extendBackground is true but top is not 20");
+        }
+#endif
+        return UIBarPositionTopAttached;
+    }
+    return UIBarPositionAny;
 }
 
 - (id)accessibilityElement
@@ -61,7 +84,7 @@
 -(void)drawRect:(CGRect)rect
 {
 	[super drawRect:rect];
-	if (!showBottomBorder)
+	if (!showBottomBorder || [TiUtils isIOS7OrGreater])
 	{
 		return;
 	}
@@ -131,16 +154,29 @@
 
 -(void)setBorderTop_:(id)value
 {
-	hideTopBorder = ![TiUtils boolValue:value def:YES];
-	[(TiViewProxy *)[self proxy] willChangeSize];
-	//The default is that a top border exists.
+    if (![TiUtils isIOS7OrGreater]) {
+        hideTopBorder = ![TiUtils boolValue:value def:YES];
+        [(TiViewProxy *)[self proxy] willChangeSize];
+    }
 }
 
 -(void)setBorderBottom_:(id)value
 {
-	showBottomBorder = [TiUtils boolValue:value def:NO];
-	[(TiViewProxy *)[self proxy] willChangeSize];
-	//The default is that there is no bottom border.
+    if (![TiUtils isIOS7OrGreater]) {
+        showBottomBorder = [TiUtils boolValue:value def:NO];
+        [(TiViewProxy *)[self proxy] willChangeSize];
+    }
+}
+
+-(void)setBackgroundImage_:(id)arg
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        UIImage *image = [self loadImage:arg];
+        [[self toolBar] setBackgroundImage:image forToolbarPosition:(extendsBackground?UIBarPositionTopAttached:UIBarPositionAny) barMetrics:UIBarMetricsDefault];
+        self.backgroundImage = arg;
+    } else {
+        [super setBackgroundImage_:arg];
+    }
 }
 
 -(void)setBarColor_:(id)value

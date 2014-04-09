@@ -49,23 +49,12 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "T
 		return value.length;
 	}
 
-	function getRemote(path, isBinary) {
-		if (window.hasWP8Extensions) {
-			var r;
-			require.getFileFromNative(path, isBinary, function (success, content) {
-				r = success ? content : null;
-			});
-			return {
-				data: r,
-				mimeType: null
-			};
-		} else {
-			var xhr = new XMLHttpRequest;
-			xhr.overrideMimeType && xhr.overrideMimeType('text/plain; charset=x-user-defined');
-			xhr.open("GET", '.' + path, false);
-			xhr.send(null);
-			return xhr.status === 200 ? { data: xhr.responseText, mimeType: xhr.getResponseHeader("Content-Type") } : null;
-		}
+	function getRemote(path) {
+		var xhr = new XMLHttpRequest;
+		xhr.overrideMimeType && xhr.overrideMimeType('text/plain; charset=x-user-defined');
+		xhr.open("GET", '.' + path, false);
+		xhr.send(null);
+		return xhr.status === 200 ? { data: xhr.responseText, mimeType: xhr.getResponseHeader("Content-Type") } : null;
 	}
 
 	function registry(path) {
@@ -402,10 +391,9 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "T
 			if (this.exists() && this.isFile()) {
 				var path = this.nativePath,
 					obj,
+					data = this._remote ? (obj = getRemote(path)).data : getLocal(path) || "",
 					defaultMimeType =  mimeTypes[mimeExtentions[this.extension()] || 0],
 					type = obj && obj.mimeType || this._mimeType || defaultMimeType,
-					isBinary = _.isBinaryMimeType(type),
-					data = this._remote ? (obj = getRemote(path, isBinary)).data : getLocal(path) || "",
 					i = 0,
 					len = data.length,
 					binaryData = '',
@@ -417,7 +405,7 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "T
 						nativePath: path
 					};
 
-				if (this._remote && isBinary && !window.hasWP8Extensions) {
+				if (this._remote && _.isBinaryMimeType(type)) {
 					while (i < len) {
 						binaryData += String.fromCharCode(data.charCodeAt(i++) & 0xff);
 					}

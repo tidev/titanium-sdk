@@ -78,9 +78,7 @@
 		modules = {},
 
 		// mixin of common functions
-		fnMixin,
-
-		bridgeFileCache = {};
+		fnMixin;
 
 	/******************************************************************************
 	 * Utility functions
@@ -182,39 +180,6 @@
 		return result.join("/");
 	}
 
-	// Current types are 'f' for fetching a native file, 'r' for reflection, and 'l' for logging
-	function sendNativeMessage(type, payload) {
-		if (global.hasWP8Extensions) {
-			global.external.notify(type + payload);
-		}
-	}
-
-	// Note: although it takes a callback, this function is actually synchronous
-	function getFileFromNative(path, isBinary, callback) {
-		if (typeof bridgeFileCache[path] == 'string') {
-			callback(1, bridgeFileCache[path]);
-		} else {
-			bridgeFileCache[path] = callback;
-			sendNativeMessage('f', (isBinary ? 'b' : 't') + path);
-		}
-	}
-
-	global.handleFileResponse = function handleFileResponse(path, contents) {
-		var success = contents[0] == 's',
-			data = contents.slice(1),
-			cb = bridgeFileCache[path];
-		try {
-			cb(success, bridgeFileCache[path] = success ? data : void 0);
-		} catch(e) {
-			// If an error is thrown in a call from native wp8, the entire app crashes.
-			// setTimeout allows us to throw and show the red screen of death, but not
-			// kill the entire app
-			setTimeout(function () {
-				throw e;
-			});
-		}
-	};
-
 	/******************************************************************************
 	 * Event handling
 	 *****************************************************************************/
@@ -308,7 +273,7 @@
 
 		_complete: function promiseComplete(fnIdx, result) {
 			this.then = fnIdx ? function promiseCompleteReject(resolved, rejected) { rejected && rejected(result); }
-							   : function promiseCompleteResolve(resolved) { resolved && resolved.apply(null, result); };
+			                   : function promiseCompleteResolve(resolved) { resolved && resolved.apply(null, result); };
 			this._complete = noop;
 
 			for (var i = 0, thens = this.thens, len = thens.length, fn; i < len;) {
@@ -593,20 +558,14 @@
 				}, timeout));
 
 				if (_t.sync = sync) {
-					if (global.hasWP8Extensions) {
-						getFileFromNative(_t.url, 0, function (success, data) {
-							(s = success) && onload(data);
-						});
-					}
-					if (!s) {
-						xhr = new XMLHttpRequest;
-						xhr.open("GET", _t.url, false);
-						xhr.send(null);
-						if (xhr.status === 200) {
-							onload(xhr.responseText);
-						} else {
-							onfail(xhr.status);
-						}
+					xhr = new XMLHttpRequest;
+					xhr.open("GET", _t.url, false);
+					xhr.send(null);
+
+					if (xhr.status === 200) {
+						onload(xhr.responseText);
+					} else {
+						onfail(xhr.status);
 					}
 				} else {
 					// insert the script tag, attach onload, wait
@@ -630,7 +589,7 @@
 					});
 
 					// set the source url last
-					scriptTag.src = !~['http:', 'https:'].indexOf(global.location.protocol) && /^\/\//.test(_t.url) ? 'http:' + _t.url : _t.url;
+					scriptTag.src = _t.url;
 
 					s = doc.getElementsByTagName("script")[0];
 					s.parentNode.insertBefore(scriptTag, s);
@@ -1042,9 +1001,7 @@
 		isEmpty: isEmpty,
 		mix: mix,
 		on: on,
-		Promise: Promise,
-		getFileFromNative: getFileFromNative,
-		sendNativeMessage: sendNativeMessage
+		Promise: Promise
 	});
 
 	req.cache = function requireCache(subject) {

@@ -1341,7 +1341,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			if (!emu) {
 				logger.error(__('Unable find emulator "%s"', deviceId) + '\n');
 				process.exit(1);
-			} else if (!emu.sdcard) {
+			} else if (!emu.sdcard && emu.type != 'genymotion') {
 				logger.error(__('The selected emulator "%s" does not have an SD card.', emu.name));
 				if (this.profilerPort) {
 					logger.error(__('An SD card is required for profiling.') + '\n');
@@ -2020,13 +2020,6 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		this.logger.info(__('Forcing rebuild: tiapp.xml fullscreen changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.fullscreen));
 		this.logger.info('  ' + __('Now: %s', this.tiapp.fullscreen));
-		return true;
-	}
-
-	if (this.tiapp['navbar-hidden'] != manifest['navbar-hidden']) {
-		this.logger.info(__('Forcing rebuild: tiapp.xml navbar-hidden changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest['navbar-hidden']));
-		this.logger.info('  ' + __('Now: %s', this.tiapp['navbar-hidden']));
 		return true;
 	}
 
@@ -3277,11 +3270,9 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 	if (!fs.existsSync(themeFile)) {
 		this.logger.info(__('Generating %s', themeFile.cyan));
 
-		var flags = 'Theme';
-		if ((this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) && this.tiapp['navbar-hidden']) {
-			flags += '.NoTitleBar.Fullscreen';
-		} else if (this.tiapp['navbar-hidden']) {
-			flags += '.NoTitleBar';
+		var flags = 'Theme.AppCompat';
+		if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden'] ) {
+			flags += '.Fullscreen';
 		}
 
 		fs.writeFileSync(themeFile, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
@@ -3362,7 +3353,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				'activity': {
 					'name': 'ti.modules.titanium.media.TiVideoActivity',
 					'configChanges': ['keyboardHidden', 'orientation'],
-					'theme': '@android:style/Theme.NoTitleBar.Fullscreen',
+					'theme': '@style/Theme.AppCompat.Fullscreen',
 					'launchMode': 'singleTask'
 				}
 			},
@@ -3370,7 +3361,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				'activity': {
 					'name': 'ti.modules.titanium.media.TiCameraActivity',
 					'configChanges': ['keyboardHidden', 'orientation'],
-					'theme': '@android:style/Theme.Translucent.NoTitleBar.Fullscreen'
+					'theme': '@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen'
 				}
 			}
 		},
@@ -4091,7 +4082,6 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		guid: this.tiapp.guid,
 		icon: this.tiapp.icon,
 		fullscreen: this.tiapp.fullscreen,
-		'navbar-hidden': this.tiapp['navbar-hidden'],
 		skipJSMinification: !!this.cli.argv['skip-js-minify'],
 		mergeCustomAndroidManifest: this.config.get('android.mergeCustomAndroidManifest', false),
 		encryptJS: this.encryptJS,

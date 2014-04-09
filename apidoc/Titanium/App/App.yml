@@ -1,8 +1,8 @@
 ---
 name: Titanium.App
 summary: |
-    The top level App module. The App module is mainly used for accessing information about the 
-    application at runtime and for sending or listening for system events.
+    The top-level App module is mainly used for accessing information about the
+    application at runtime, and for sending or listening for system events.
 description: |
     The `App` module exposes a number of properties set in the `tiapp.xml` file.  
     
@@ -11,6 +11,9 @@ description: |
     
     While most values may be changed by editing the `tiapp.xml` file after creating the project, 
     the GUID is automatically generated and should not be changed.
+
+    To access other application properties set in the `tiapp.xml` file not exposed by the
+    `Titanium.App` module, see <Titanium.App.Properties>.
 
     #### iOS Application Life Cycle
 
@@ -179,6 +182,11 @@ events:
       - name: enabled
         summary: Whether accessibility is now enabled or disabled.
         type: Boolean
+
+  - name: memorywarning
+    summary: Fired when the app receives a warning from the operating system about low memory availability.
+    platforms: [iphone, ipad]
+    since: "3.2.3"
 
   - name: pause
     summary: Fired when the application transitions from active to inactive state on a multitasked system.

@@ -484,6 +484,8 @@ public class TiTableView extends FrameLayout
 		}
 		if (longClick && !longClickFired) {
 			return itemLongClickListener.onLongClick(event);
+		} else if (longClickFired) {
+			return true;
 		} else {
 			return false; // standard (not-long) click handling has no return value.
 		}

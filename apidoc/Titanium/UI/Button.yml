@@ -11,7 +11,8 @@ description: |
     icon. On iOS, there are button styles which define appearance for each state, even if
     no button images are set.
 
-    Use the <Titanium.UI.createButton> method to create a button.
+    Use the <Titanium.UI.createButton> method or a **`<Button>`** Alloy element to create a button 
+    (see [Examples](#!/api/Titanium.UI.Button-examples)) .
 
     #### Android and Mobile Web Platform Notes
 
@@ -62,7 +63,11 @@ description: |
 
     For example:
     
-        cancelButton = Ti.UI.createButton({ systemButton: Ti.UI.iPhone.SystemButton.CANCEL });
+        var cancelButton = Ti.UI.createButton({ systemButton: Ti.UI.iPhone.SystemButton.CANCEL });
+
+    In Alloy, you can omit the namespace when setting the `systemButton` property: 
+
+        <Button id="cancelbtn" systemButton="CANCEL"></Button>
 
     Note that the `systemButton` property specifies *appearance*, not behavior. For
     example, to bring up the camera when the user presses the **Camera** button, you must 
@@ -215,13 +220,27 @@ properties:
   - name: systemButton
     summary: Specifies an iOS system button appearance, as defined in 
         <Titanium.UI.iPhone.SystemButton>.
+    description: |
+        In JavaScript:
+
+            var cancelButton = Ti.UI.createButton({ 
+                systemButton: Ti.UI.iPhone.SystemButton.CANCEL 
+            });
+
+        In Alloy, you can omit the namespace when setting the `systemButton` property on a `<Button>`
+        element:
+
+            <Button systemButton="CAMERA"/>
+
     type: Number
+    constants: Titanium.UI.iPhone.SystemButton.*
     platforms: [iphone,ipad]
 
   - name: textAlign
     summary: |
-        Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
+        Text alignment, specified using one of the <Titanium.UI> text alignment constants.
     type: [String,Number]
+    constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: <Titanium.UI.TEXT_ALIGNMENT_CENTER>
     exclude-platforms: [blackberry]
 
@@ -239,11 +258,9 @@ properties:
   - name: verticalAlign
     summary: |
         Vertical alignment for the text field, specified using one of the 
-        vertical alignment constants from <Titanium.UI>: 
-        [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
-        [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or 
-        [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
+        vertical alignment constants from <Titanium.UI>.
     type: [Number,String]
+    constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
     platforms: [android, mobileweb, tizen]
 

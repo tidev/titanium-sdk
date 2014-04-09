@@ -446,6 +446,7 @@ properties:
     description: |
          Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0.
     type: Number
+    constants: Titanium.Calendar.AUTHORIZATION_*
     permission: read-only
     platforms: [iphone, ipad]
 

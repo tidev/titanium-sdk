@@ -5,43 +5,30 @@ description: |
     Attributes are added to the <Titanium.UI.iOS.AttributedString> object to create
     styled text. The attribute is a JavaScript Object containing three properties:
     `type`, `value` and `range`.
+
+    For examples of using Attributed Strings, see the
+    [Attributed Strings guide](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.iOS.AttributedString).
 platforms: [iphone, ipad]
 since: "3.2.0"
 
 properties:
   - name: type
-    summary: Attribute name
-    description: |
-        The AttributedString expects a number value for the name. Use any of these:
-
-          * <Titanium.UI.iOS.ATTRIBUTE_FONT>
-          * <Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR>
-          * <Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR>
-          * <Titanium.UI.iOS.ATTRIBUTE_LIGATURE>
-          * <Titanium.UI.iOS.ATTRIBUTE_KERN>
-          * <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>
-          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE>
-          * <Titanium.UI.iOS.ATTRIBUTE_STROKE_COLOR>
-          * <Titanium.UI.iOS.ATTRIBUTE_STROKE_WIDTH>
-          * <Titanium.UI.iOS.ATTRIBUTE_SHADOW>
-
-        For iOS 7 and above you can also use the following:
-
-          * <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>
-          * <Titanium.UI.iOS.ATTRIBUTE_TEXT_EFFECT>
-          * <Titanium.UI.iOS.ATTRIBUTE_LINK>
-          * <Titanium.UI.iOS.ATTRIBUTE_BASELINE_OFFSET>
-          * <Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_COLOR>
-          * <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_COLOR>
-          * <Titanium.UI.iOS.ATTRIBUTE_OBLIQUENESS>
-          * <Titanium.UI.iOS.ATTRIBUTE_EXPANSION>
-
+    summary: Attribute to apply to the text.
     type: Number
+    constants: [ Titanium.UI.iOS.ATTRIBUTE_FONT, Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR,
+                 Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR, Titanium.UI.iOS.ATTRIBUTE_LIGATURE,
+                 Titanium.UI.iOS.ATTRIBUTE_KERN, Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE,
+                 Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE, Titanium.UI.iOS.ATTRIBUTE_STROKE_COLOR,
+                 Titanium.UI.iOS.ATTRIBUTE_STROKE_WIDTH, Titanium.UI.iOS.ATTRIBUTE_SHADOW,
+                 Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION, Titanium.UI.iOS.ATTRIBUTE_TEXT_EFFECT,
+                 Titanium.UI.iOS.ATTRIBUTE_LINK, Titanium.UI.iOS.ATTRIBUTE_BASELINE_OFFSET,
+                 Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_COLOR, Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_COLOR,
+                 Titanium.UI.iOS.ATTRIBUTE_OBLIQUENESS, Titanium.UI.iOS.ATTRIBUTE_EXPANSION ]
     optional: false
   - name: value
     summary: Attribute value.
     description: |
-        The `value` parameter has to match the `type` paramenter. For example, to
+        The `value` parameter depends on the `type` parameter. For example, to
         use the foreground color on the text you would use <Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR>
         for the `type` and a color value for the `value`:
 
@@ -100,6 +87,9 @@ properties:
         <Titanium.UI.iOS.ATTRIBUTE_LETTERPRESS_STYLE>.
 
     type: Number
+    constants: [ Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_*,
+                 Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_*,
+                 Titanium.UI.iOS.ATTRIBUTE_LETTERPRESS_STYLE ]
     optional: false
   - name: range
     summary: Attribute range. 

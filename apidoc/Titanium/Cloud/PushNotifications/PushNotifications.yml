@@ -60,6 +60,46 @@ methods:
         type: Callback<CloudPushNotificationsResponse>
     since: 3.1.2
 
+  - name: resetBadge
+    summary: Resets the badge value to zero but does not update it on the device.
+    description: |
+        To update the badge in the device's UI, send a push notification to the device with the
+        `badge` field defined.
+
+        The REST API call supports calling this method as either a PUT request or a GET request.
+        This method only supports the PUT request, which means a device token must be passed to this
+        method.
+
+        See [push_notifications/reset_badge.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-reset_badge_put)
+        for the request parameter supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+    since: 3.2.1
+
+  - name: setBadge
+    summary: Sets the badge value but does not update it on the device.
+    description: |
+        To update the badge in the device's UI, send a push notification to the device with the
+        `badge` field defined.
+
+        See [push_notifications/set_badge.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-set_badge)
+        for the request parameter supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+    since: 3.2.1
+
   - name: subscribe
     summary: Subscribe a mobile device to a push notification channel.
     description: |

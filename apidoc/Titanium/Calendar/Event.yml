@@ -82,10 +82,9 @@ methods:
       - name: span
         summary: |
             The span to use. Indicates whether the save affects future instances of the 
-            event in the case of a recurring event. Use 
-            [SPAN_THISEVENT](Titanium.Calendar.SPAN_THISEVENT) or
-            [SPAN_FUTUREEVENTS](Titanium.Calendar.SPAN_FUTUREEVENTS).
+            event in the case of a recurring event.
         type: Number
+        constants: Titanium.Calendar.SPAN_*
         default: <Titanium.Calendar.SPAN_THISEVENT>
     platforms: [iphone, ipad]
 
@@ -99,10 +98,9 @@ methods:
       - name: span
         summary: |
             The span to use. Indicates whether to remove future instances of the event in 
-            the case of a recurring event.  Use 
-            [SPAN_THISEVENT](Titanium.Calendar.SPAN_THISEVENT) or
-            [SPAN_FUTUREEVENTS](Titanium.Calendar.SPAN_FUTUREEVENTS).
+            the case of a recurring event.
         type: Number
+        constants: Titanium.Calendar.SPAN_*
         default: <Titanium.Calendar.SPAN_THISEVENT>
     platforms: [iphone, ipad]
 
@@ -209,24 +207,15 @@ properties:
 
   - name: status
     summary: Status of this event.
-    description: |
-        One of [STATUS_NONE](Titanium.Calendar.STATUS_NONE), 
-        [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED), 
-        [STATUS_CONFIRMED](Titanium.Calendar.STATUS_CONFIRMED), 
-        and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
     type: Number
+    constants: Titanium.Calendar.STATUS_*
     permission: read-only
     platforms: [android, iphone, ipad]
 
   - name: availability
     summary: Availability of this event.
-    description: |
-        One of [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED), 
-        [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY), 
-        [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE), 
-        [AVAILABILITY_TENTATIVE](Titanium.Calendar.AVAILABILITY_TENTATIVE), 
-        and [AVAILABILITY_UNAVAILABLE](Titanium.Calendar.AVAILABILITY_UNAVAILABLE).
     type: Number
+    constants: Titanium.Calendar.AVAILABILITY_*
     permission: read-only
     platforms: [iphone, ipad]
 
@@ -266,11 +255,7 @@ properties:
 
   - name: visibility
     summary: Visibility of this event.
-    description: |
-        One of [VISIBILITY_CONFIDENTIAL](Titanium.Calendar.VISIBILITY_CONFIDENTIAL),
-        [VISIBILITY_DEFAULT](Titanium.Calendar.VISIBILITY_DEFAULT),
-        [VISIBILITY_PRIVATE](Titanium.Calendar.VISIBILITY_PRIVATE),
-        and [VISIBILITY_PUBLIC](Titanium.Calendar.VISIBILITY_PUBLIC).
     type: Number
+    constants: Titanium.Calendar.VISIBILITY_*
     permission: read-only
     platforms: [android]

@@ -204,7 +204,7 @@ public class PlatformModule extends KrollModule
 	{
 		return KrollRuntime.getInstance().getRuntimeName();
 	}
-
+	
 	protected void registerBatteryStateReceiver()
 	{
 		batteryStateReceiver = new BroadcastReceiver() {

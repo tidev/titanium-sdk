@@ -615,6 +615,7 @@ properties:
         This usage is deprecated. Applications using one of the iOS constants should
         migrate to using `ACCURACY_HIGH`, `ACCURACY_LOW`, or Android manual mode.
     type: Number
+    constants: Titanium.Geolocation.ACCURACY_*
     exclude-platforms: [blackberry]
     
   - name: distanceFilter
@@ -669,6 +670,7 @@ properties:
          If `locationServicesAuthorization` is `AUTHORIZATION_RESTRICTED`, you should not
          attempt to re-authorize: this will lead to issues.
     type: Number
+    constants: Titanium.Geolocation.AUTHORIZATION_*
     platforms: [iphone, ipad]
     osver:
         ios:
@@ -693,10 +695,7 @@ properties:
             either simple mode or manual mode. See "Configurating Location Updates on Android"
             in the main description of this class for more information.
     summary: |
-        Determines the preferred location provider, either
-        [PROVIDER_GPS](Titanium.Geolocation.PROVIDER_GPS),
-        [PROVIDER_NETWORK](Titanium.Geolocation.PROVIDER_NETWORK],
-        or [PROVIDER_PASSIVE](Titanium.Geolocation.PROVIDER_PASSIVE).
+        Determines the preferred location provider.
     description: |
         Setting a preferred provider enables legacy location mode on Android.
         Note that only a single provider can be active at one time in legacy mode.
@@ -706,6 +705,7 @@ properties:
 
         If `undefined`, the preferred provider is auto-detected.
     type: String
+    constants: Titanium.Geolocation.PROVIDER_*
     platforms: [android]
     default: <Titanium.Geolocation.PROVIDER_NETWORK>
 
@@ -750,17 +750,6 @@ properties:
     summary: |
         The type of user activity to be associated with the location updates. Available in iOS 6.0 and later.
     description: |
-        Set the activiyType of location updates to either:
-
-        *   [ACTIVITYTYPE_OTHER](Titanium.Geolocation.ACTIVITYTYPE_OTHER) for an unknown activity
-        *   [ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION](Titanium.Geolocation.ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION) 
-            for tracking location changes to the automobile specifically during vehicular navigation.
-        *   [ACTIVITYTYPE_FITNESS](Titanium.Geolocation.ACTIVITYTYPE_FITNESS) for tracking 
-            any pedestrian-related activity.
-        *   [ACTIVITYTYPE_OTHER_NAVIGATION](Titanium.Geolocation.ACTIVITYTYPE_OTHER_NAVIGATION) 
-            for tracking movements of other types of vehicular navigation that are not 
-            automobile related.
-
         The information in this property is used as a cue to determine when location 
         updates may be automatically paused. Pausing updates gives the system the 
         opportunity to save power in situations where the user's location is not likely 
@@ -769,6 +758,7 @@ properties:
         and no location changes have occurred recently, the radios might be powered down 
         until movement is detected again. 
     type: Number
+    constants: Titanium.Geolocation.ACTIVITYTYPE_*
     default: <Titanium.Geolocation.ACTIVITYTYPE_OTHER>
     since: "3.1.0"
     platforms: [iphone,ipad]

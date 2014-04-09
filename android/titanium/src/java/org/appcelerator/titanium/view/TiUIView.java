@@ -697,6 +697,7 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_FOCUSABLE) && newValue != null) {
 			registerForKeyPress(nativeView, TiConvert.toBoolean(newValue, false));
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
+			nativeView.setEnabled(TiConvert.toBoolean(newValue));
 			doSetClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
 			newValue = (newValue == null) ? false : newValue;
@@ -1173,7 +1174,11 @@ public abstract class TiUIView
 				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
-					float radius = TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS, 0f);
+					float radius = 0;
+					TiDimension radiusDim = TiConvert.toTiDimension(d.get(TiC.PROPERTY_BORDER_RADIUS), TiDimension.TYPE_WIDTH);
+					if (radiusDim != null) {
+						radius = (float) radiusDim.getPixels(getNativeView());
+					}
 					if (radius > 0f && HONEYCOMB_OR_GREATER) {
 						disableHWAcceleration();
 					}
@@ -1194,7 +1199,7 @@ public abstract class TiUIView
 
 					TiDimension width = TiConvert.toTiDimension(borderWidth, TiDimension.TYPE_WIDTH);
 					if (width != null) {
-						borderView.setBorderWidth(width.getAsPixels(getNativeView()));
+						borderView.setBorderWidth((float)width.getPixels(getNativeView()));
 					}
 				}
 			}
@@ -1209,13 +1214,22 @@ public abstract class TiUIView
 				borderView.setBorderWidth(1);
 			}
 		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
-			float radius = TiConvert.toFloat(value, 0f);
+			float radius = 0;
+			TiDimension radiusDim = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
+			if (radiusDim != null) {
+				radius = (float) radiusDim.getPixels(getNativeView());
+			}
 			if (radius > 0f && HONEYCOMB_OR_GREATER) {
 				disableHWAcceleration();
 			}
 			borderView.setRadius(radius);
 		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
-			borderView.setBorderWidth(TiConvert.toFloat(value, 0f));
+			float width = 0;
+			TiDimension bwidth = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
+			if (bwidth != null) {
+				width = (float)bwidth.getPixels(getNativeView());
+			}
+			borderView.setBorderWidth(width);
 		}
 		borderView.postInvalidate();
 	}
@@ -1295,26 +1309,24 @@ public abstract class TiUIView
 				@Override
 				public boolean onScale(ScaleGestureDetector sgd)
 				{
-					if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
-						float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
+					float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
 
-						// Suppress scale events (and allow for possible two-finger tap events)
-						// until we've moved at least a few pixels. Without this check, two-finger 
-						// taps are very hard to register on some older devices.
-						if (!didScale) {
-							if (Math.abs(sgd.getCurrentSpan() - startSpan) > SCALE_THRESHOLD) {
-								didScale = true;
-							} 
-						}
+					// Suppress scale events (and allow for possible two-finger tap events)
+					// until we've moved at least a few pixels. Without this check, two-finger 
+					// taps are very hard to register on some older devices.
+					if (!didScale) {
+						if (Math.abs(sgd.getCurrentSpan() - startSpan) > SCALE_THRESHOLD) {
+							didScale = true;
+						} 
+					}
 
-						if (didScale) {
-							KrollDict data = new KrollDict();
-							data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
-							data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
-							data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
-	
-							return fireEvent(TiC.EVENT_PINCH, data);
-						}
+					if (didScale) {
+						KrollDict data = new KrollDict();
+						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
+						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
+						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+
+						return fireEvent(TiC.EVENT_PINCH, data);
 					}
 					return false;
 				}
@@ -1397,10 +1409,12 @@ public abstract class TiUIView
 					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double) event.getY());
 				}
 
-				scaleDetector.onTouchEvent(event);
-				if (scaleDetector.isInProgress()) {
-					pointersDown = 0;
-					return true;
+				if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
+					scaleDetector.onTouchEvent(event);
+					if (scaleDetector.isInProgress()) {
+						pointersDown = 0;
+						return true;
+					}
 				}
 
 				boolean handled = detector.onTouchEvent(event);
@@ -1458,25 +1472,25 @@ public abstract class TiUIView
 			return;
 		}
 		
-		boolean clickable = true;
 		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
-			clickable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
+			boolean enabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
+			if (!enabled) {
+				touchable.setEnabled(false);
+			}
 		}
+		registerTouchEvents(touchable);
 
-		if (clickable) {
-			registerTouchEvents(touchable);
+		// Previously, we used the single tap handling above to fire our click event. It doesn't
+		// work: a single tap is not the same as a click. A click can be held for a while before
+		// lifting the finger; a single-tap is only generated from a quick tap (which will also cause
+		// a click.) We wanted to do it in single-tap handling presumably because the singletap
+		// listener gets a MotionEvent, which gives us the information we want to provide to our
+		// users in our click event, whereas Android's standard OnClickListener does _not_ contain
+		// that info. However, an "up" seems to always occur before the click listener gets invoked,
+		// so we store the last up event's x,y coordinates (see onTouch above) and use them here.
+		// Note: AdapterView throws an exception if you try to put a click listener on it.
+		doSetClickable(touchable);
 
-			// Previously, we used the single tap handling above to fire our click event. It doesn't
-			// work: a single tap is not the same as a click. A click can be held for a while before
-			// lifting the finger; a single-tap is only generated from a quick tap (which will also cause
-			// a click.) We wanted to do it in single-tap handling presumably because the singletap
-			// listener gets a MotionEvent, which gives us the information we want to provide to our
-			// users in our click event, whereas Android's standard OnClickListener does _not_ contain
-			// that info. However, an "up" seems to always occur before the click listener gets invoked,
-			// so we store the last up event's x,y coordinates (see onTouch above) and use them here.
-			// Note: AdapterView throws an exception if you try to put a click listener on it.
-			doSetClickable(touchable);
-		}
 	}
 
 

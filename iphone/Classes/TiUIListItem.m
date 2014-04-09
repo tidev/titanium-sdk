@@ -64,6 +64,7 @@
 	[_currentValues release];
 	[_resetKeys release];
 	[_dataItem release];
+	[_proxy deregisterProxy:[_proxy pageContext]];
 	[_proxy release];
 	[_bindings release];
 	[gradientLayer release];
@@ -242,20 +243,36 @@
     }
 }
 
+-(BOOL)compareDataItemValue:(NSString*)theKey withItem:(NSDictionary *)otherItem
+{
+    id propertiesValue = [_dataItem objectForKey:@"properties"];
+    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+    id curValue = [properties objectForKey:theKey];
+    
+    propertiesValue = [otherItem objectForKey:@"properties"];
+    properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+    id otherValue = [properties objectForKey:theKey];
+    return ( (curValue == otherValue) || [curValue isEqual:otherValue]);
+
+}
+
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
 {
-	id template = [_dataItem objectForKey:@"template"];
-	id otherTemplate = [otherItem objectForKey:@"template"];
-	BOOL same = (template == otherTemplate) || [template isEqual:otherTemplate];
-	if (same) {
-		id propertiesValue = [_dataItem objectForKey:@"properties"];
-		NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-		id heightValue = [properties objectForKey:@"height"];
-		
-		propertiesValue = [otherItem objectForKey:@"properties"];
-		properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-		id otherHeightValue = [properties objectForKey:@"height"];
-		same = (heightValue == otherHeightValue) || [heightValue isEqual:otherHeightValue];
+    id template = [_dataItem objectForKey:@"template"];
+    id otherTemplate = [otherItem objectForKey:@"template"];
+    BOOL same = (template == otherTemplate) || [template isEqual:otherTemplate];
+    if (same) {
+        same = [self compareDataItemValue:@"height" withItem:otherItem];
+    }
+    //These properties are applied in willDisplayCell. So force reload.
+    if (same) {
+        same = [self compareDataItemValue:@"backgroundColor" withItem:otherItem];
+	}
+    if (same) {
+        same = [self compareDataItemValue:@"backgroundImage" withItem:otherItem];
+	}
+    if (same) {
+        same = [self compareDataItemValue:@"tintColor" withItem:otherItem];
 	}
 	return same;
 }

@@ -393,6 +393,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     RELEASE_TO_NIL(filteredIndices);
     RELEASE_TO_NIL(filteredTitles);
     if (searchActive) {
+        BOOL hasResults = NO;
         //Initialize
         if(_searchResults == nil) {
             _searchResults = [[NSMutableArray alloc] init];
@@ -413,6 +414,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 id theValue = [self valueWithKey:@"searchableText" atIndexPath:thePath];
                 if (theValue!=nil && [[TiUtils stringValue:theValue] rangeOfString:self.searchString options:searchOpts].location != NSNotFound) {
                     (thisSection != nil) ? [thisSection addObject:thePath] : [singleSection addObject:thePath];
+                    hasResults = YES;
                 }
             }
             if (thisSection != nil) {
@@ -442,6 +444,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 [_searchResults addObject:singleSection];
             }
             [singleSection release];
+        }
+        if (!hasResults) {
+            if ([(TiViewProxy*)self.proxy _hasListeners:@"noresults" checkParent:NO]) {
+                [self.proxy fireEvent:@"noresults" withObject:nil propagate:NO reportSuccess:NO errorCode:0 message:nil];
+            }
         }
         
     } else {
@@ -640,12 +647,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
         if (_pullViewWrapper == nil) {
             _pullViewWrapper = [[UIView alloc] init];
-            _pullViewWrapper.backgroundColor = [UIColor lightGrayColor];
             [_tableView addSubview:_pullViewWrapper];
         }
         CGSize refSize = _tableView.bounds.size;
         [_pullViewWrapper setFrame:CGRectMake(0.0, 0.0 - refSize.height, refSize.width, refSize.height)];
         _pullViewProxy = [args retain];
+        TiColor* pullBgColor = [TiUtils colorValue:[_pullViewProxy valueForUndefinedKey:@"pullBackgroundColor"]];
+        _pullViewWrapper.backgroundColor = ((pullBgColor == nil) ? [UIColor lightGrayColor] : [pullBgColor color]);
         LayoutConstraint *viewLayout = [_pullViewProxy layoutProperties];
         //If height is not dip, explicitly set it to SIZE
         if (viewLayout->height.type != TiDimensionTypeDip) {
@@ -1148,6 +1156,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     NSUInteger sectionCount = 0;
     
+    //TIMOB-15526
+    if (tableView != _tableView && tableView.backgroundColor == [UIColor clearColor]) {
+        tableView.backgroundColor = [UIColor whiteColor];
+    }
+
     if (_searchResults != nil) {
         sectionCount = [_searchResults count];
     } else {
@@ -1274,14 +1287,25 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (searchActive || (tableView != _tableView)) {
-        return;
-    }
     //Let the cell configure its background
     [(TiUIListItem*)cell configureCellBackground];
     
-    //Tell the proxy about the cell to be displayed
-    [self.listViewProxy willDisplayCell:indexPath];
+    if ([TiUtils isIOS7OrGreater]) {
+        NSIndexPath* realPath = [self pathForSearchPath:indexPath];
+        id tintValue = [self valueWithKey:@"tintColor" atIndexPath:realPath];
+        UIColor* theTint = [[TiUtils colorValue:tintValue] color];
+        if (theTint == nil) {
+            theTint = [tableView tintColor];
+        }
+        [cell performSelector:@selector(setTintColor:) withObject:theTint];
+    }
+    
+    if (searchActive || (tableView != _tableView)) {
+        return;
+    } else {
+        //Tell the proxy about the cell to be displayed for marker event
+        [self.listViewProxy willDisplayCell:indexPath];
+    }
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section

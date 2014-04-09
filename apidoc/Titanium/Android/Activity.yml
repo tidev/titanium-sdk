@@ -115,14 +115,8 @@ methods:
         in the Android API Reference.
     parameters:
       - name: orientation
-        summary: |
-            Can be one of <Titanium.Android.SCREEN_ORIENTATION_BEHIND>,
-            <Titanium.Android.SCREEN_ORIENTATION_LANDSCAPE>,
-            <Titanium.Android.SCREEN_ORIENTATION_NOSENSOR>,
-            <Titanium.Android.SCREEN_ORIENTATION_PORTRAIT>,
-            <Titanium.Android.SCREEN_ORIENTATION_SENSOR>,
-            <Titanium.Android.SCREEN_ORIENTATION_UNSPECIFIED>,
-            <Titanium.Android.SCREEN_ORIENTATION_USER>.
+        summary: Orientation mode for the activity.
+        constants: Titanium.Android.SCREEN_ORIENTATION_*
         type: Number
 
   - name: setResult
@@ -136,9 +130,8 @@ methods:
     parameters:
 
       - name: resultCode
-        summary: |
-            Result code for this activity. Can be <Titanium.Android.RESULT_OK>, 
-            <Titanium.Android.RESULT_CANCELED>, or <Titanium.Android.RESULT_FIRST_USER>.
+        summary: Result code for this activity.
+        constants: Titanium.Android.RESULT_*
         type: Number
 
       - name: intent
@@ -318,13 +311,7 @@ properties:
 
   - name: requestedOrientation
     summary: Specifies a specific orientation for this activity.
-    description: |
-        Can be one of <Titanium.Android.SCREEN_ORIENTATION_BEHIND>, 
-        <Titanium.Android.SCREEN_ORIENTATION_LANDSCAPE>, 
-        <Titanium.Android.SCREEN_ORIENTATION_NOSENSOR>, 
-        <Titanium.Android.SCREEN_ORIENTATION_PORTRAIT>, 
-        <Titanium.Android.SCREEN_ORIENTATION_SENSOR>, 
-        <Titanium.Android.SCREEN_ORIENTATION_UNSPECIFIED>, <Titanium.Android.SCREEN_ORIENTATION_USER>
+    constants: Titanium.Android.SCREEN_ORIENTATION_*
     type: Number
     permission: write-only
 

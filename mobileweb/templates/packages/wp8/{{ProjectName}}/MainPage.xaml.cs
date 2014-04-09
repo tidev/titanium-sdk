@@ -1,349 +1,152 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using <%= projectName %>.Resources;
-using System.IO.IsolatedStorage;
-using System.IO;
-using System.Windows.Resources;
-using System.Text.RegularExpressions;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
-using System.Text;
-using System.Reflection;
+using Newtonsoft.Json;
+using TitaniumApp.Resources;
+using TitaniumApp.TiRequestHandlers;
 
-namespace <%= projectName %>
+namespace TitaniumApp
 {
-    public partial class MainPage : PhoneApplicationPage
-    {
-        private Regex fileRequestRegex = new Regex("^([0-9]*)\\:(.*)$");
+	public partial class MainPage : PhoneApplicationPage
+	{
+		private Dictionary<string, IRequestHandler> requestHandlers = new Dictionary<string, IRequestHandler>();
+		private XHRProxy xhrProxy;
+		private string securityToken = null;
 
-        // Constructor
-        public MainPage()
-        {
-            InitializeComponent();
-        }
+		public TiSettings settings = new TiSettings();
 
-        private void browser_Loaded(object sender, RoutedEventArgs e)
-        {
-            browser.Navigate(new Uri("App/index.html", UriKind.Relative));
-        }
+		// Constructor
+		public MainPage() {
+			InitializeComponent();
 
-        private void browser_ScriptNotify(object sender, NotifyEventArgs e)
-        {
-            var type = e.Value[0]; // f for file, l for log
-            if (type == 'f')
-            {
-                var isBinary = e.Value[1] == 'b';
-                var path = e.Value.Substring(2);
-                string fileContents = "";
-                try
-                {
-                    if (isBinary)
-                    {
-                        var filestream = new FileStream("App/" + path, FileMode.Open);
-                        byte[] data = new byte[filestream.Length];
-                        filestream.Read(data, 0, (int)filestream.Length);
-                        fileContents = Convert.ToBase64String(data);
-                    }
-                    else
-                    {
-                        fileContents = (new StreamReader("App/" + path)).ReadToEnd();
-                    }
-                    browser.InvokeScript("handleFileResponse", path, "s" + fileContents);
-                }
-                catch
-                {
-                    browser.InvokeScript("handleFileResponse", path, "f");
-                }
-            }
-            else if (type == 'l')
-            {
-                System.Diagnostics.Debug.WriteLine(e.Value.Substring(1));
-            }
-            else if (type == 'r')
-            {
-                var action = e.Value.Substring(1, 2);
-                var value = e.Value.Substring(3);
-                string returnInfo;
-                if (action == "gr")
-                {
-                    returnInfo = getRootGrid(value);
-                }
-                else if (action == "ci")
-                {
-                    returnInfo = createInstance(value);
-                }
-                else if (action == "in")
-                {
-                    returnInfo = invoke(value);
-                }
-                else if (action == "gp")
-                {
-                    returnInfo = getProp(value);
-                }
-                else if (action == "sp")
-                {
-                    returnInfo = setProp(value);
-                }
-                else if (action == "gi")
-                {
-                    throw new NotImplementedException();
-                }
-                else if (action == "si")
-                {
-                    throw new NotImplementedException();
-                }
-                else if (action == "ge")
-                {
-                    throw new NotImplementedException();
-                }
-                else if (action == "de")
-                {
-                    throw new NotImplementedException();
-                }
-                else if (action == "ae")
-                {
-                    throw new NotImplementedException();
-                }
-                else if (action == "re")
-                {
-                    throw new NotImplementedException();
-                }
-                else
-                {
-                    throw new ArgumentException("Invalid Windows Phone 8 reflection action " + action);
-                }
-                try
-                {
-                    browser.InvokeScript("handleProxyResponse", returnInfo);
-                }
-                catch(Exception) { }
-            }
-        }
+			initTiSettings();
 
-        private Dictionary<string, Type> cachedTypes = new Dictionary<string, Type>();
-        private Dictionary<string, object> instances = new Dictionary<string, object>();
+			Logger.init(settings);
 
-        private Type lookupType(string className)
-        {
-            if (cachedTypes.ContainsKey(className))
-            {
-                return cachedTypes[className];
-            }
+			requestHandlers["download"] = new DownloadRequestHandler();
+			requestHandlers["file"] = new FileRequestHandler();
+			requestHandlers["log"]  = new LogRequestHandler();
+			requestHandlers["reflection"] = new ReflectionRequestHandler(app, browser, root);
 
-            if (className.StartsWith("System.Windows"))
-            {
-                className += ", System.Windows, Version=2.0.6.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e";
-            }
-            else if (className.StartsWith("Microsoft.Phone"))
-            {
-                className += ", Microsoft.Phone, Version=8.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e";
-            }
+			xhrProxy = new XHRProxy(9999);
+		}
 
-            return cachedTypes[className] = Type.GetType(className);
-        }
+		private void initTiSettings() {
+			string tiAppSettingsFile = "titanium_settings.ini";
+			if (File.Exists(tiAppSettingsFile)) {
+				StreamReader sr = new StreamReader(tiAppSettingsFile);
+				string line, key, value;
+				int p;
+				while (true) {
+					line = sr.ReadLine();
+					if (line == null) {
+						break;
+					}
 
-        private string createReturnType(Type type, object value)
-        {
-            string result;
-            if (type.IsPrimitive || type == typeof(decimal) || value == null)
-            {
-                result = "{ \"primitiveValue\": " + value.ToString() + " }";
-            }
-            else if (type == typeof(string))
-            {
-                result = "{ \"primitiveValue\": \"" + value.ToString() + "\" }";
-            }
-            else if (instances.ContainsValue(value))
-            {
-                result = "{ \"hnd\": \"" + instances.FirstOrDefault(x => x.Value == value).Key + "\" }";
-            }
-            else
-            {
-                result = "{ \"hnd\": \"" + instances.Count.ToString() + "\" }";
-                instances[instances.Count.ToString()] = value;
-            }
-            return result;
-        }
+					line = line.Trim();
+					if (line.Length > 0 && !line.StartsWith("#") && !line.StartsWith(";")) {
+						p = line.IndexOf('=');
+						if (p != -1) {
+							key = line.Substring(0, p).Trim();
+							value = line.Substring(p + 1).Trim();
+							settings[key] = value;
+						}
+					}
+				}
+			}
+		}
 
-        private string getRootGrid(string value)
-        {
-            // Add the root to the list of instances if it isn't already there
-            if (!instances.ContainsKey("root"))
-            {
-                instances["root"] = root;
-            }
+		protected override void OnNavigatedTo(NavigationEventArgs e) {
+			base.OnNavigatedTo(e);
+			xhrProxy.Start();
+		}
 
-            // Return the info
-            return "root";
-        }
+		protected override void OnNavigatedFrom(NavigationEventArgs e) {
+			base.OnNavigatedFrom(e);
+			xhrProxy.Stop();
+		}
 
-        [DataContract]
-        private class ValuePayload
-        {
-            [DataMember(Name = "valueHnd")]
-            public string valueHnd { get; set; }
-            [DataMember(Name = "valuePrimitive")]
-            public object valuePrimitive { get; set; }
-        }
+		private void browser_Loaded(object sender, RoutedEventArgs e) {
+			Logger.log("WebBrowser", "Browser loaded, opening index.html");
+			this.loadApplication();
+		}
 
-        [DataContract]
-        private class CreateInstancePayload
-        {
-            [DataMember(Name = "className")]
-            public string className { get; set; }
-            [DataMember(Name = "argTypes")]
-            public string[] argTypes { get; set; }
-            [DataMember(Name = "argValues")]
-            public ValuePayload[] argValues { get; set; }
-        }
-        private string createInstance(string value)
-        {
-            // Deserialize the data
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(CreateInstancePayload));
-            var payload = (CreateInstancePayload)ser.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(value)));
+		private void loadApplication() {
+			// generate the security token
+			this.securityToken = Guid.NewGuid().ToString();
+			this.xhrProxy.securityToken = this.securityToken;
+			browser.Navigate(new Uri("index.html#" + this.securityToken, UriKind.Relative));
+		}
 
-            // Create the argument types array
-            Type[] ctorArgumentTypes = new Type[payload.argTypes.Length];
-            for (int i = 0; i < ctorArgumentTypes.Length; i++)
-            {
-                ctorArgumentTypes[i] = lookupType(payload.argTypes[i]);
-            }
+		private void browser_LoadCompleted(object sender, NavigationEventArgs e) {
+			string url = e.Uri.ToString();
+			Logger.log("WebBrowser", "Finished loading " + url);
+		}
 
-            // Create the arguments object
-            object[] ctorArguments = new object[payload.argValues.Length];
-            for (int i = 0; i < payload.argValues.Length; i++)
-            {
-                if (payload.argValues[i].valueHnd != null)
-                {
-                    ctorArguments[i] = instances[(string)payload.argValues[i].valueHnd];
-                }
-                else
-                {
-                    ctorArguments[i] = payload.argValues[i].valuePrimitive;
-                }
-                ctorArguments[i] = Convert.ChangeType(ctorArguments[i], ctorArgumentTypes[i]);
-            }
+		private void browser_Navigated(object sender, NavigationEventArgs e) {
+			string url = e.Uri.ToString();
+			Logger.log("WebBrowser", "Navigated to " + url);
+		}
 
-            // Invoke the constructor and return the result
-            var instance = lookupType(payload.className).GetConstructor(ctorArgumentTypes).Invoke(ctorArguments);
-            var hnd = instances.Count.ToString();
-            instances[hnd] = instance;
-            return hnd;
-        }
+		private Regex redirectRegex = new Regex(@"^\/?index.html(?:\?.*)?(?:#.*)?$", RegexOptions.Compiled);
 
-        [DataContract]
-        private class InvokePayload
-        {
-            [DataMember(Name = "hnd")]
-            public string hnd { get; set; }
-            [DataMember(Name = "name")]
-            public string name { get; set; }
-            [DataMember(Name = "argTypes")]
-            public string[] argTypes { get; set; }
-            [DataMember(Name = "argValues")]
-            public ValuePayload[] argValues { get; set; }
-        }
-        private string invoke(string value)
-        {
-            // Deserialize the data
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(InvokePayload));
-            var payload = (InvokePayload)ser.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(value)));
+		private void browser_Navigating(object sender, NavigatingEventArgs e) {
+			string url = e.Uri.ToString();
+			MatchCollection matches = redirectRegex.Matches(url);
+			if (matches.Count == 0) {
+				Logger.log("WebBrowser", "Blocked navigation to " + url);
+				e.Cancel = true;
+				return;
+			}
+			Logger.log("WebBrowser", "Navigating to " + url);
+		}
 
-            // Create the argument types array
-            Type[] fnArgumentTypes = new Type[payload.argTypes.Length];
-            for (int i = 0; i < fnArgumentTypes.Length; i++)
-            {
-                fnArgumentTypes[i] = lookupType(payload.argTypes[i]);
-            }
+		private void browser_ScriptNotify(object sender, NotifyEventArgs e) {
+			try {
+				TiRequest request = JsonConvert.DeserializeObject<TiRequest>(e.Value);
+				TiResponse response;
 
-            // Create the arguments object
-            object[] fnArguments = new object[payload.argValues.Length];
-            for (int i = 0; i < payload.argValues.Length; i++)
-            {
-                if (payload.argValues[i].valueHnd != null)
-                {
-                    fnArguments[i] = instances[(string)payload.argValues[i].valueHnd];
-                }
-                else
-                {
-                    fnArguments[i] = payload.argValues[i].valuePrimitive;
-                }
-                fnArguments[i] = Convert.ChangeType(fnArguments[i], fnArgumentTypes[i]);
-            }
+				if (request.stoken != this.securityToken) {
+					// token mismatch, ignore request
+					return;
+				}
 
-            // Get the method info
-            MethodInfo methodInfo = instances[payload.hnd].GetType().GetMethod(payload.name, fnArgumentTypes);
+				try {
+					if (request.type == null) {
+						throw new Exception("Request Exception: Missing request \"type\" param");
+					}
 
-            // Invoke the method
-            var result = methodInfo.Invoke(instances[payload.hnd], fnArguments);
-            return methodInfo.ReturnType == typeof(void) ? "{ \"primitiveValue\": null }" : createReturnType(result.GetType(), result);
-        }
+					if (!requestHandlers.ContainsKey(request.type)) {
+						throw new Exception("Request Exception: Invalid request type \"" + request.type + "\"");
+					}
 
-        [DataContract]
-        private class GetPropPayload
-        {
-            [DataMember(Name = "hnd")]
-            public string hnd { get; set; }
-            [DataMember(Name = "name")]
-            public string name { get; set; }
-            [DataMember(Name = "isAttached")]
-            public bool isAttached { get; set; }
-        }
-        private string getProp(string value)
-        {
-            // Deserialize the data
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(GetPropPayload));
-            var payload = (GetPropPayload)ser.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(value)));
+					if (request.data == null) {
+						throw new Exception("Request Exception: Missing request \"data\" param");
+					}
 
-            // Get the property
-            var prop = instances[payload.hnd].GetType().GetProperty(payload.name).GetValue(instances[payload.hnd]);
-            var propType = prop.GetType();
+					response = requestHandlers[request.type].process(request.data);
+				} catch (Exception ex) {
+					response = new TiResponse();
+					response["error"] = ex.ToString();
+				}
 
-            // Convert the result to the appropriate string and return it
-            return createReturnType(propType, prop);
-        }
+				// if the handler doesn't have a response, then just return
+				if (response == null) {
+					return;
+				}
 
-        [DataContract]
-        private class SetPropPayload
-        {
-            [DataMember(Name = "hnd")]
-            public string hnd { get; set; }
-            [DataMember(Name = "name")]
-            public string name { get; set; }
-            [DataMember(Name = "valueHnd")]
-            public string valueHnd { get; set; }
-            [DataMember(Name = "valuePrimitive")]
-            public object valuePrimitive { get; set; }
-            [DataMember(Name = "isAttached")]
-            public bool isAttached { get; set; }
-        }
-        private string setProp(string value)
-        {
-            // Deserialize the data
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(SetPropPayload));
-            var payload = (SetPropPayload)ser.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(value)));
+				// if the request has a token, then add it to the response
+				if (request.rtoken != null) {
+					response["rtoken"] = request.rtoken;
+				}
 
-            // Get the property type
-            var propertyInfo = instances[payload.hnd].GetType().GetProperty(payload.name);
-
-            // Set the property type, looking up the handle if necessary
-            if (payload.valueHnd == null)
-            {
-                propertyInfo.SetValue(instances[payload.hnd], Convert.ChangeType(payload.valuePrimitive, propertyInfo.PropertyType));
-            }
-            else
-            {
-                propertyInfo.SetValue(instances[payload.hnd], instances[payload.valueHnd]);
-            }
-
-            return "{}";
-        }
-    }
+				// pass the response back to the browser
+				browser.InvokeScript("execScript", new string[] { "tiwp8.handleResponse(" + JsonConvert.SerializeObject(response, Formatting.None) + ")" });
+			} catch { }
+		}
+	}
 }

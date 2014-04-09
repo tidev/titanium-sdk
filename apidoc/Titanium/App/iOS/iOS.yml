@@ -60,9 +60,7 @@ methods:
             The minimum number of seconds that must elapse before another background fetch can be initiated.
             This value is advisory only and does not indicate the exact amount of time expected between
             fetch operations.
-
-            Two system defined constants for this parameter are
-            <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER> and <Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_MIN>.
+        constants: Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_*
         type: Number
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"

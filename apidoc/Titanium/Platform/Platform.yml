@@ -17,12 +17,9 @@ events:
     summary: Fired when the battery state changes. This is measured in 5% increments on iPhone/iPad.
     properties:
       - name: state
-        summary: |
-            The battery state. One of <Titanium.Platform.BATTERY_STATE_CHARGING>, 
-            <Titanium.Platform.BATTERY_STATE_FULL>, 
-            <Titanium.Platform.BATTERY_STATE_UNKNOWN>, 
-            or <Titanium.Platform.BATTERY_STATE_UNPLUGGED>.
+        summary: The battery state.
         type: Number
+        constants: Titanium.Platform.BATTERY_*
         
       - name: level
         summary: Percentage battery power level.
@@ -125,15 +122,10 @@ properties:
   - name: batteryState
     summary: Indicates the state of the battery. Accessible only when `batteryMonitoring` is enabled.
     description: |
-        Returns one of the following constants from <Titanium.Platform>:  
-        `BATTERY_STATE_CHARGING`,
-        `BATTERY_STATE_FULL`,
-        `BATTERY_STATE_UNKNOWN`
-        or `BATTERY_STATE_UNPLUGGED`.
-        
         On Mobile Web, battery state will either be charging, unplugged, or unknown. Full charge state
         is not supported.
     type: Number
+    constants: Titanium.Platform.BATTERY_STATE_*
     permission: read-only
     
   - name: displayCaps

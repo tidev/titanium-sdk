@@ -490,10 +490,10 @@ define(
 		_getBorderFromCSS: function() {
 			setTimeout(lang.hitch(this, function () {
 				var computedStyle = global.getComputedStyle(this.domNode),
-					left = parseInt(computedStyle['border-left-width']),
-					right = parseInt(computedStyle['border-right-width']),
-					top = parseInt(computedStyle['border-top-width']),
-					bottom = parseInt(computedStyle['border-bottom-width']);
+					left = Math.round(parseFloat(computedStyle['border-left-width'])),
+					right = Math.round(parseFloat(computedStyle['border-right-width'])),
+					top = Math.round(parseFloat(computedStyle['border-top-width'])),
+					bottom = Math.round(parseFloat(computedStyle['border-bottom-width']));
 
 				if (!(isNaN(left) || isNaN(right) || isNaN(top) || isNaN(bottom))) {
 						if (left === right && left === top && left === bottom) {
@@ -534,8 +534,8 @@ define(
 				bc = bc || (bi && bi !== 'none' ? 'transparent' : '');
 				nodeStyle.backgroundColor.toLowerCase() !== bc.toLowerCase() && (nodeStyle.backgroundColor = bc);
 
-				bi = style.url(bi);
-				nodeStyle.backgroundImage.replace(/'|"/g, '').toLowerCase() !== bi.toLowerCase() && (nodeStyle.backgroundImage = bi);
+				bi != 'none' && (bi = style.url(bi));
+				nodeStyle.backgroundImage.replace(/'|"/g, '').toLowerCase() !== bi.toLowerCase() && (nodeStyle.backgroundImage = (bi == 'none' ? '' : bi));
 
 				if (bi) {
 					tmp = repeat ? 'repeat' : 'no-repeat';

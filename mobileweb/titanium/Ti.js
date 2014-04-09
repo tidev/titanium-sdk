@@ -27,7 +27,6 @@ define(
 		unloaded,
 		showingError,
 		waiting = [],
-		alertShowing,
 		Ti = lang.setObject("Ti", Evented, {
 			constants: {
 				buildDate: cfg.ti.buildDate,
@@ -71,37 +70,6 @@ define(
 			}
 		}),
 		loadAppjs = Ti.deferStart();
-
-	if (!has("function-bind")) {
-		function Empty(){}
-
-		Function.prototype.bind = function bind(that) {
-			var target = this,
-				slice = Array.prototype.slice,
-				args = slice.call(arguments, 1),
-				bound = function () {
-					var a = args.concat(slice.call(arguments)),
-						result;
-					if (this instanceof bound) {
-						result = target.apply(this, a);
-						if (Object(result) === result) {
-							return result;
-						}
-						return this;
-					} else {
-						return target.apply(that, a);
-					}
-				};
-
-			if (target.prototype) {
-				Empty.prototype = target.prototype;
-				bound.prototype = new Empty();
-				Empty.prototype = null;
-			}
-
-			return bound;
-		};
-	}
 
 	if (!has("js-btoa")) {
 		var tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
@@ -160,20 +128,6 @@ define(
 		};
 	}
 
-	// Shim out alert()
-	if (has("winstore_extensions")) {
-		global.alert = function (msg) {
-			if (alertShowing) {
-				API.warn('Cannot show more than one alert at a time');
-			} else {
-				alertShowing = 1;
-				new Windows.UI.Popups.MessageDialog(msg).showAsync().done(function () {
-					alertShowing = 0;
-				});
-			}
-		};
-	}
-
 	// protect global titanium object
 	Object.defineProperty(global, "Ti", { value: Ti, writable: false });
 	Object.defineProperty(global, "Titanium", { value: Ti, writable: false });
@@ -182,10 +136,6 @@ define(
 
 	// make sure we have some vendor prefixes defined
 	cfg.vendorPrefixes || (cfg.vendorPrefixes = ["", "Moz", "Webkit", "O", "ms"]);
-
-	// expose JSON functions to Ti namespace
-	Ti.parse = JSON.parse;
-	Ti.stringify = JSON.stringify;
 
 	function shutdown() {
 		if (!unloaded) {
@@ -260,7 +210,7 @@ define(
 
 				win.open();
 			}
-			return true; // This prevents windows store applications from exiting entirely on error, and it must be true, not just something truthy
+			return true;
 		});
 	}
 
@@ -271,6 +221,8 @@ define(
 		});
 
 		if (App.analytics) {
+			var analyticsPlatformName = require.config.ti.analyticsPlatformName;
+
 			// enroll event
 			if (localStorage.getItem("ti:enrolled") === null) {
 				// setup enroll event
@@ -283,7 +235,7 @@ define(
 					ostype: Platform.osname,
 					osarch: null,
 					app_id: App.id,
-					platform: Platform.name,
+					platform: analyticsPlatformName,
 					model: Platform.model
 				});
 				localStorage.setItem("ti:enrolled", true)
@@ -296,7 +248,7 @@ define(
 				os: Platform.osname,
 				osver: Platform.ostype,
 				version: cfg.ti.version,
-				platform: Platform.name,
+				platform: analyticsPlatformName,
 				model: Platform.model,
 				un: null,
 				app_version: App.version,

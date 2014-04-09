@@ -30,13 +30,14 @@ VALID_KEYS = {
 			"events"],
 		"method": ["name", "summary", "description", "returns", "platforms", "since",
 			"deprecated", "osver", "examples", "parameters","exclude-platforms"],
-		"parameter": ["name", "summary", "type", "optional", "default", "repeatable"],
+		"parameter": ["name", "summary", "type", "optional", "default", "repeatable", "constants"],
 		"property": ["name", "summary", "description", "type", "platforms", "since",
 			"deprecated", "osver", "examples", "permission", "availability", "accessors",
-			"optional", "value", "default","exclude-platforms"],
+			"optional", "value", "default","exclude-platforms", "constants"],
 		"event": ["name", "summary", "description", "extends", "platforms", "since",
 			"deprecated", "osver", "properties","exclude-platforms"],
-		"eventprop": ["name", "summary", "type", "platforms", "deprecated", "exclude-platforms"],
+		"eventprop": ["name", "summary", "type", "platforms", "deprecated", "exclude-platforms",
+			"constants"],
 		"deprecated": ["since", "removed", "notes"]
 		}
 

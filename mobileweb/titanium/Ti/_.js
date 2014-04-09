@@ -23,7 +23,19 @@ define(["Ti/_/lang"], function(lang) {
 		getAbsolutePath: function(path) {
 			/^app\:\/\//.test(path) && (path = path.substring(6));
 			/^\//.test(path) && (path = path.substring(1));
-			return /^\/\//.test(path) || ~path.indexOf("://") ? path : location.pathname.replace(/(.*)\/.*/, "$1") + "/" + path;
+
+			// check if we have an external url
+			if (/^\/\//.test(path) || ~path.indexOf("://")) {
+				return path;
+			}
+
+			var pn = location.pathname;
+
+			// if we're dealing with windows phone, then location.pathname does not have a beginning slash and we need to add one
+			!/^\//.test(pn) && location.protocol == 'x-wmapp0:' && (pn = '/' + pn);
+
+			// strip everything after the last '/' and add the path
+			return pn.replace(/(.*)\/.*/, '$1') + '/' + path;
 		},
 		isBinaryMimeType: function(type) {
 			return /^(application|image|audio|video)\/(?!javascript|x\-javascript|atom\+xml|rss\+xml|json)/.test(type);

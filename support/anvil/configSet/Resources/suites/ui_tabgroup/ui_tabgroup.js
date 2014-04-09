@@ -15,6 +15,9 @@ module.exports = new function() {
 	
 	this.name = "ui_tabgroup";
 	this.tests = [
+		{name: "tabgroup", timeout: 10000},
+		{name: "changeTitle", timeout: 10000},
+		{name: "getActiveTab", timeout: 10000},
 		{name: "tabGroupEvents"},
 		{name: "tabGroupFocus"}, 
 		{name: "activeTab"},
@@ -23,6 +26,69 @@ module.exports = new function() {
 		{name: "openingAndClosingNewTab"},
 		{name: "tabGroup_Open"}
 	];
+
+	//TIMOB-12134
+	this.tabgroup = function(testRun){
+		var mywin = Titanium.UI.createWindow({
+			backgroundColor:'white',
+			borderWidth : 0 
+		});
+		var tabGroup = Ti.UI.createTabGroup();
+		var tab = Titanium.UI.createTab({
+			window:mywin
+		});
+		tabGroup.addTab(tab);
+		mywin.addEventListener('focus', function(){
+			finish(testRun);
+		});
+		tabGroup.open();
+	}
+
+	//TIMOB-6144
+	this.changeTitle = function(testRun){
+		var win1 = Ti.UI.createWindow();
+		var tab1 = Ti.UI.createTab({  
+			title: 'PRODUCTS',
+			window: win1
+		});
+		valueOf(testRun, tab1.getTitle()).shouldBe('PRODUCTS');
+		win1.addEventListener('focus', function(e) {
+			tab1.title = "changeTitle";
+			setTimeout(function(){
+				valueOf(testRun, tab1.getTitle()).shouldBe('changeTitle');
+
+				finish(testRun);
+			},3000);
+		});
+		var tabGroup = Ti.UI.createTabGroup();
+		tabGroup.addTab(tab1);
+		tabGroup.open();
+	}
+
+	//TIMOB-9444
+	this.getActiveTab = function(testRun){
+		var tabGroup = Ti.UI.createTabGroup();
+		var win1 = Ti.UI.createWindow ({
+			title: "Win 1",
+			layout: "vertical"
+		});
+		var tab1 = Ti.UI.createTab({  
+			window: win1
+		});
+		var win2 = Ti.UI.createWindow ({
+			title: "Win 2"
+		});
+		tabGroup.addTab(tab1);  
+		tabGroup.open();
+		setTimeout(function(){
+			tabGroup.getActiveTab().open(win2);
+			tabGroup.close(win2);
+			var t = tabGroup.getActiveTab().getWindow ().title;
+			valueOf(testRun, t).shouldBe('Win 1');
+
+			finish(testRun);
+		},3000);
+	}
 
 	//TIMOB-9436, TIMOB-8910, TIMOB-7926, TIMOB-3139
 	this.tabGroupEvents = function(testRun){
