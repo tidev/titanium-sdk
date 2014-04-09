@@ -1976,7 +1976,8 @@
             return;
         }
 		tableHeaderPullView = [[UIView alloc] initWithFrame:CGRectMake(0.0f, 0.0f - self.tableView.bounds.size.height, self.tableView.bounds.size.width, self.tableView.bounds.size.height)];
-		tableHeaderPullView.backgroundColor = [UIColor lightGrayColor];
+		TiColor* pullBgColor = [TiUtils colorValue:[value valueForUndefinedKey:@"pullBackgroundColor"]];
+		tableHeaderPullView.backgroundColor = ((pullBgColor == nil) ? [UIColor lightGrayColor] : [pullBgColor color]);
 		UIView *view = [value view];
 		[[self tableView] addSubview:tableHeaderPullView];
 		[tableHeaderPullView addSubview:view];
@@ -2076,6 +2077,11 @@ return result;	\
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)ourTableView
 {
+    //TIMOB-15526
+    if (ourTableView != tableview && ourTableView.backgroundColor == [UIColor clearColor]) {
+        ourTableView.backgroundColor = [UIColor whiteColor];
+    }
+
 	RETURN_IF_SEARCH_TABLE_VIEW(1);
     // One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
 	int result = [(TiUITableViewProxy *)[self proxy] sectionCount];
@@ -2355,6 +2361,13 @@ return result;	\
 		result = NSLocalizedString(@"Delete",@"Table View Delete Confirm");
 	}
 	return result;
+}
+
+- (void)tableView:(UITableView*)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath{
+    TiUITableViewRowProxy *row = nil;
+    TiUITableViewSectionProxy  *section = nil;
+    section = [(TiUITableViewProxy *)[self proxy] sectionForIndex:indexPath row:&row];
+    [row.section reorderRows];
 }
 
 - (void)tableView:(UITableView *)ourTableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath

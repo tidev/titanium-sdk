@@ -226,6 +226,11 @@ def zip_android(zf, basepath, version):
 		zipname = os.path.split(android_module_res_zip)[1]
 		zf.write(android_module_res_zip, '%s/android/modules/%s' % (basepath, zipname))
 
+	android_module_res_packages = glob.glob(os.path.join(android_dist_dir, 'titanium-*.respackage'))
+	for android_module_res_package in android_module_res_packages:
+		packagename = os.path.split(android_module_res_package)[1]
+		zf.write(android_module_res_package, '%s/android/modules/%s' % (basepath, packagename))
+
 def resolve_source_imports(platform):
 	sys.path.append(iphone_dir)
 	import run,prereq
@@ -533,12 +538,18 @@ def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone,
 
 		zf.writestr('%s/api.jsca' % basepath, jsca)
 
-	# the node_modules directory was moved from support to the root of timob and
-	# we need to nuke it from the support directory so that it doesn't overwrite
-	# the node_modules added above
+	# copy the templates folder into the archive
+	zip_dir(zf, os.path.join(top_dir, 'templates'), '%s/templates' % basepath, ignore_paths=ignore_paths)
+
+	# the 'node_modules' and 'templates' directories was moved from support to the root of
+	# timob and we need to nuke it from the support directory so that it doesn't overwrite
+	# these directories that have already been added above
 	old_node_modules_path = os.path.join(template_dir, 'node_modules')
 	if os.path.exists(old_node_modules_path):
 		shutil.rmtree(old_node_modules_path, True)
+	old_templates_path = os.path.join(template_dir, 'templates')
+	if os.path.exists(old_templates_path):
+		shutil.rmtree(old_templates_path, True)
 
 	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"), osname == 'osx')
 	#zip_dir(zf, all_dir, basepath)

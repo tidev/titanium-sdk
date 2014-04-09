@@ -21,7 +21,6 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.ScrollableViewProxy;
-import ti.modules.titanium.ui.widget.TiUIScrollView.TiScrollViewLayout;
 import ti.modules.titanium.ui.widget.listview.ListItemProxy;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -326,6 +325,7 @@ public class TiUIScrollableView extends TiUIView
 	{
 		if (!mViews.contains(proxy)) {
 			proxy.setActivity(this.proxy.getActivity());
+			proxy.setParent(this.proxy);
 			mViews.add(proxy);
 			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
 			mAdapter.notifyDataSetChanged();
@@ -336,6 +336,7 @@ public class TiUIScrollableView extends TiUIView
 	{
 		if (mViews.contains(proxy)) {
 			mViews.remove(proxy);
+			proxy.setParent(null);
 			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
 			mAdapter.notifyDataSetChanged();
 		}
@@ -365,30 +366,32 @@ public class TiUIScrollableView extends TiUIView
 
 	public void moveNext()
 	{
-		move(mCurIndex + 1);
+		move(mCurIndex + 1, true);
 	}
 
 	public void movePrevious()
 	{
-		move(mCurIndex - 1);
+		move(mCurIndex - 1, true);
 	}
 
-	private void move(int index)
+	private void move(int index, boolean smoothScroll)
 	{
 		if (index < 0 || index >= mViews.size()) {
-			Log.w(TAG, "Request to move to index " + index+ " ignored, as it is out-of-bounds.");
+			if (Log.isDebugModeEnabled()) {
+				Log.w(TAG, "Request to move to index " + index+ " ignored, as it is out-of-bounds.", Log.DEBUG_MODE);
+			}
 			return;
 		}
 		mCurIndex = index;
-		mPager.setCurrentItem(index);
+		mPager.setCurrentItem(index, smoothScroll);
 	}
 
 	public void scrollTo(Object view)
 	{
 		if (view instanceof Number) {
-			move(((Number) view).intValue());
+			move(((Number) view).intValue(), true);
 		} else if (view instanceof TiViewProxy) {
-			move(mViews.indexOf(view));
+			move(mViews.indexOf(view), true);
 		}
 	}
 
@@ -399,7 +402,11 @@ public class TiUIScrollableView extends TiUIView
 
 	public void setCurrentPage(Object view)
 	{
-		scrollTo(view);
+		if (view instanceof Number) {
+			move(((Number) view).intValue(), false);
+		} else if (Log.isDebugModeEnabled()) {
+			Log.w(TAG, "Request to set current page is ignored, as it is not a number.", Log.DEBUG_MODE);
+		}
 	}
 
 	public void setEnabled(Object value)
@@ -419,6 +426,7 @@ public class TiUIScrollableView extends TiUIView
 		}
 		for (TiViewProxy viewProxy : mViews) {
 			viewProxy.releaseViews();
+			viewProxy.setParent(null);
 		}
 		mViews.clear();
 	}
@@ -435,6 +443,7 @@ public class TiUIScrollableView extends TiUIView
 				if (views[i] instanceof TiViewProxy) {
 					TiViewProxy tv = (TiViewProxy)views[i];
 					tv.setActivity(activity);
+					tv.setParent(this.proxy);
 					mViews.add(tv);
 					changed = true;
 				}
@@ -461,6 +470,7 @@ public class TiUIScrollableView extends TiUIView
 		if (mViews != null) {
 			for (TiViewProxy viewProxy : mViews) {
 				viewProxy.releaseViews();
+				viewProxy.setParent(null);
 			}
 			mViews.clear();
 		}

@@ -873,27 +873,29 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	// args based on the sim profile values
 	if ((this.target == 'device' || this.target == 'simulator') && deviceId) {
 		for (var i = 0, l = this.devices.length; i < l; i++) {
-			if (this.devices[i].id == deviceId) {
-				if (this.target == 'device') {
-					if (this.devices[i].id != 'itunes' && version.lt(this.devices[i].productVersion, this.minIosVer)) {
-						logger.error(__('This app does not support the device "%s"', this.devices[i].name) + '\n');
-						logger.log(__("The device is running iOS %s, however the app's the minimum iOS version is set to %s", this.devices[i].productVersion.cyan, version.format(this.minIosVer, 2, 3).cyan));
-						logger.log(__('In order to install this app on this device, lower the %s to %s in the tiapp.xml:', '<min-ios-ver>'.cyan, version.format(this.devices[i].productVersion, 2, 2).cyan));
-						logger.log();
-						logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-						logger.log('    <ios>'.grey);
-						logger.log(('        <min-ios-ver>' + version.format(this.devices[i].productVersion, 2, 2) + '</min-ios-ver>').magenta);
-						logger.log('    </ios>'.grey);
-						logger.log('</ti:app>'.grey);
-						logger.log();
-						process.exit(0);
-					}
-				} else if (this.target == 'simulator') {
-					cli.argv.retina = !!this.devices[i].retina;
-					cli.argv.tall = !!this.devices[i].tall;
-					cli.argv['sim-64bit'] = !!this.devices[i]['64bit'];
-					cli.argv['sim-type'] = this.devices[i].type;
+			if (this.target == 'device') {
+				if (this.devices[i].id == 'all' || this.devices[i].id == 'itunes') {
+					continue;
 				}
+
+				if ((deviceId == 'all' || deviceId == this.devices[i].id) && version.lt(this.devices[i].productVersion, this.minIosVer)) {
+					logger.error(__('This app does not support the device "%s"', this.devices[i].name) + '\n');
+					logger.log(__("The device is running iOS %s, however the app's the minimum iOS version is set to %s", this.devices[i].productVersion.cyan, version.format(this.minIosVer, 2, 3).cyan));
+					logger.log(__('In order to install this app on this device, lower the %s to %s in the tiapp.xml:', '<min-ios-ver>'.cyan, version.format(this.devices[i].productVersion, 2, 2).cyan));
+					logger.log();
+					logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+					logger.log('    <ios>'.grey);
+					logger.log(('        <min-ios-ver>' + version.format(this.devices[i].productVersion, 2, 2) + '</min-ios-ver>').magenta);
+					logger.log('    </ios>'.grey);
+					logger.log('</ti:app>'.grey);
+					logger.log();
+					process.exit(0);
+				}
+			} else if (this.target == 'simulator' && this.devices[i].id == deviceId) {
+				cli.argv.retina = !!this.devices[i].retina;
+				cli.argv.tall = !!this.devices[i].tall;
+				cli.argv['sim-64bit'] = !!this.devices[i]['64bit'];
+				cli.argv['sim-type'] = this.devices[i].type;
 				break;
 			}
 		}
@@ -2869,13 +2871,13 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 				}
 
 				try {
-					// parse the AST
-					var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-
-					// we want to sort by the "to" filename so that we correctly handle file overwriting
-					this.tiSymbols[to] = r.symbols;
-
 					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
+						// parse the AST
+						var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+
+						// we want to sort by the "to" filename so that we correctly handle file overwriting
+						this.tiSymbols[to] = r.symbols;
+
 						var dir = path.dirname(to);
 						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 

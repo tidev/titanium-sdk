@@ -16,7 +16,9 @@ define(['Ti/_/declare', 'Ti/_/UI/Widget', 'Ti/_/dom', 'Ti/_/css', 'Ti/_/style', 
 		},
 		titlePost = {
 			post: function() {
-				this._buttonTitle.text = Locale._getString(this.titleid, this.title);
+				var text = Locale._getString(this.titleid, this.title);
+				//For platform consistency, covert leading spaces to non-breaking
+				this._buttonTitle.text = text.replace(/^[ \t]+/gm, function(x){ return new Array(x.length + 1).join('&nbsp;') });
 				this._hasSizeDimensions() && this._triggerLayout();
 			}
 		};
@@ -132,7 +134,12 @@ define(['Ti/_/declare', 'Ti/_/UI/Widget', 'Ti/_/dom', 'Ti/_/css', 'Ti/_/style', 
 				},
 				value: true
 			},
-
+			font : {
+				set : function(value) {
+					this._buttonTitle.font = value;
+					return value;
+				}
+			},
 			image: {
 				set: function(value) {
 					this._buttonImage.image = value;

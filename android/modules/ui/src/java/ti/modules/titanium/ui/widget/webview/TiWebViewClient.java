@@ -166,6 +166,10 @@ public class TiWebViewClient extends WebViewClient
 		 * is not ignored
 		 */
 		KrollProxy webViewProxy = this.webView.getProxy();
+		
+		KrollDict data = new KrollDict();
+		data.put(TiC.ERROR_PROPERTY_CODE, error.getPrimaryError());
+		webView.getProxy().fireSyncEvent(TiC.EVENT_SSL_ERROR, data);
 
 		boolean ignoreSslError = false;
 		try {

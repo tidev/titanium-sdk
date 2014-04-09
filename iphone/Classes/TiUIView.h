@@ -53,6 +53,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	TiAnimation *animation;
 	
 	CALayer *gradientLayer;
+	CALayer *bgdImageLayer;
+	int clipMode;
 	
 	CGAffineTransform virtualParentTransform;
 	id transformMatrix;
@@ -137,6 +139,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(void)handleListenerAddedWithEvent:(NSString *)event;
 -(BOOL)proxyHasGestureListeners;
 -(void)ensureGestureListeners;
+-(void)updateClipping;
 /**
  Returns CA layer for the background image of the view.
  */
@@ -145,7 +148,10 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  Returns CA layer for the background gradient of the view.
  */
 -(CALayer *)gradientLayer;
-
+/**
+ Returns CA layer for shadow component of the view.
+ */
+-(CALayer *)shadowLayer;
 /**
  Tells the view to start specified animation.
  @param newAnimation The animation to start.

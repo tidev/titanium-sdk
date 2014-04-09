@@ -381,16 +381,17 @@ static NSArray* scrollViewKeySequence;
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-	CGPoint offset = [scrollView contentOffset];
-	if ([self _hasListeners:@"scroll"])
-	{
-		[self fireEvent:@"scroll" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
-				NUMFLOAT(offset.x),@"x",
-				NUMFLOAT(offset.y),@"y",
-				NUMBOOL([scrollView isDecelerating]),@"decelerating",
-				NUMBOOL([scrollView isDragging]),@"dragging",
-				nil]];
-	}
+    CGPoint offset = [scrollView contentOffset];
+    if ([self _hasListeners:@"scroll"]) {
+        [self fireEvent:@"scroll" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
+                NUMFLOAT(offset.x),@"x",
+                NUMFLOAT(offset.y),@"y",
+                NUMFLOAT(scrollView.zoomScale),@"curZoomScale",
+                NUMBOOL([scrollView isZooming]),@"zooming",
+                NUMBOOL([scrollView isDecelerating]),@"decelerating",
+                NUMBOOL([scrollView isDragging]),@"dragging",
+                nil]];
+    }
 }
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(float)scale

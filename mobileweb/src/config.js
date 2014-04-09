@@ -1,52 +1,52 @@
 var require = {
 	app: {
-		analytics: ${app_analytics | jsQuoteEscapeFilter},
-		copyright: "${app_copyright | jsQuoteEscapeFilter}",
-		deployType: "${deploy_type | jsQuoteEscapeFilter}",
-		description: "${app_description | jsQuoteEscapeFilter}",
-		guid: "${app_guid | jsQuoteEscapeFilter}",
-		id: "${app_id | jsQuoteEscapeFilter}",
-		name: "${app_name | jsQuoteEscapeFilter}",
-		names: ${app_names},
-		publisher: "${app_publisher | jsQuoteEscapeFilter}",
-		url: "${app_url | jsQuoteEscapeFilter}",
-		version: "${app_version | jsQuoteEscapeFilter}"
+		analytics: <%- appAnalytics %>,
+		copyright: "<%-: appCopyright | escapeQuotes %>",
+		deployType: "<%- deployType %>",
+		description: "<%-: appDescription | escapeQuotes %>",
+		guid: "<%-: appGuid | escapeQuotes %>",
+		id: "<%-: appId | escapeQuotes %>",
+		name: "<%-: appName | escapeQuotes %>",
+		names: <%- appNames %>,
+		publisher: "<%-: appPublisher | escapeQuotes %>",
+		url: "<%-: appUrl | escapeQuotes %>",
+		version: "<%-: appVersion | escapeQuotes %>"
 	},
 	has: {
-		"touch": function (g) {
-			return ${has_allow_touch | jsQuoteEscapeFilter} && 'ontouchstart' in g;
+		"native-localstorage": function (g) {
+			return "localStorage" in g && "setItem" in localStorage;
 		},
 		"js-btoa": function (g) {
 			return "btoa" in g;
 		},
-		"native-localstorage": function (g) {
-			return "localStorage" in g && "setItem" in localStorage;
-		},
-		"function-bind": function () {
-			return !!Function.prototype.bind;
-		},
 		"opera": typeof opera === "undefined" || opera.toString() != "[object Opera]",
-		"ti-analytics-use-xhr": ${has_analytics_use_xhr | jsQuoteEscapeFilter},
-		"ti-show-errors": ${has_show_errors | jsQuoteEscapeFilter},
+		"ti-analytics-use-xhr": <%- hasAnalyticsUseXhr %>,
+		"ti-show-errors": <%- hasShowErrors %>,
 		"ti-instrumentation": function(g) {
-				return ${has_instrumentation | jsQuoteEscapeFilter} && g.instrumentation;
+				return <%- hasInstrumentation %> && g.instrumentation;
+		},
+		"touch": function (g) {
+			return <%- hasAllowTouch %> && 'ontouchstart' in g;
 		}
 	},
-	locales: ${locales},
-	packages: ${packages},
+	locales: <%- locales %>,
+	packages: <%- packages %>,
 	project: {
-		id: "${project_id | jsQuoteEscapeFilter}",
-		name: "${project_name | jsQuoteEscapeFilter}"
+		id: "<%-: projectId | escapeQuotes %>",
+		name: "<%-: projectName | escapeQuotes %>"
 	},
 	ti: {
-		buildHash: "${ti_githash | jsQuoteEscapeFilter}",
-		buildDate: "${ti_timestamp | jsQuoteEscapeFilter}",
+		analyticsPlatformName: "<%-: tiAnalyticsPlatformName | escapeQuotes %>",
+		buildHash: "<%-: tiGithash | escapeQuotes %>",
+		buildDate: "<%-: tiTimestamp | escapeQuotes %>",
 		colorsModule: "Ti/_/colors",
 		filesystem: {
-			registry: "${ti_fs_registry}"
+			registry: "<%-: tiFsRegistry | escapeQuotes %>"
 		},
-		theme: "${ti_theme | jsQuoteEscapeFilter}",
-		version: "${ti_version | jsQuoteEscapeFilter}"
+		osName: "<%-: tiOsName | escapeQuotes %>",
+		platformName: "<%-: tiPlatformName | escapeQuotes %>",
+		theme: "<%-: tiTheme | escapeQuotes %>",
+		version: "<%-: tiVersion | escapeQuotes %>"
 	},
 	vendorPrefixes: {
 		css: ["", "-webkit-", "-moz-", "-ms-", "-o-", "-khtml-"],

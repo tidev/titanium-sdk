@@ -23,13 +23,10 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
-
-import com.nineoldandroids.view.animation.AnimatorProxy;
 
 /**
  * Base layout class for all Titanium views. 
@@ -57,7 +54,6 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	protected static final String TAG = "TiCompositeLayout";
-	protected static final boolean PRE_HONEYCOMB = Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB;
 
 	public static final int NOT_SET = Integer.MIN_VALUE;
 
@@ -349,6 +345,8 @@ public class TiCompositeLayout extends ViewGroup
 
 	protected void constrainChild(View child, int width, int wMode, int height, int hMode)
 	{
+		boolean hasFixedHeightParent = false;
+		boolean hasFixedWidthParent = false;
 		LayoutParams p = (LayoutParams) child.getLayoutParams();
 
 		int sizeFillConflicts[] = { NOT_SET, NOT_SET };
@@ -367,7 +365,7 @@ public class TiCompositeLayout extends ViewGroup
 				childDimension = LayoutParams.FILL_PARENT;
 			} else {
 				// Look for sizeFill conflicts
-				hasSizeFillConflict(child, sizeFillConflicts, true);
+				hasSizeFillConflict(child, sizeFillConflicts, true, hasFixedWidthParent, hasFixedHeightParent);
 				checkedForConflict = true;
 				if (sizeFillConflicts[0] == HAS_SIZE_FILL_CONFLICT) {
 					childDimension = LayoutParams.FILL_PARENT;
@@ -391,7 +389,7 @@ public class TiCompositeLayout extends ViewGroup
 			if (p.autoFillsHeight || (checkedForConflict && sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT)) {
 				childDimension = LayoutParams.FILL_PARENT;
 			} else if (!checkedForConflict) {
-				hasSizeFillConflict(child, sizeFillConflicts, true);
+				hasSizeFillConflict(child, sizeFillConflicts, true, hasFixedWidthParent, hasFixedHeightParent);
 				if (sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT) {
 					childDimension = LayoutParams.FILL_PARENT;
 				}
@@ -474,32 +472,6 @@ public class TiCompositeLayout extends ViewGroup
 		return resolveSize(maxHeight, heightSpec);
 	}
 
-	/**
-	 * In Property Animation, the scaling/translation factors may change, so we need to take them
-	 * into account when laying out the view.
-	 * @param child the view
-	 * @return an array with the view's scaling and translation factors, in the form of
-	 * [scaleX, scaleY, translationX, translationY].
-	 */
-	protected float[] getScaleAndTranslation(View child)
-	{
-		float childScaleX = 1f;
-		float childScaleY = 1f;
-		float childTranslationX = 0f;
-		float childTranslationY = 0f;
-
-		// We only re-layout between animation frames for Honeycomb+ for now due to the flicker issue on Gingerbread.
-		// So we only need to get scaling/translation factors for Honeycomb+.
-		if (!PRE_HONEYCOMB) {
-			childScaleX = child.getScaleX();
-			childScaleY = child.getScaleY();
-			childTranslationX = child.getTranslationX();
-			childTranslationY = child.getTranslationY();
-		}
-
-		return new float[]{childScaleX, childScaleY, childTranslationX, childTranslationY};
-	}
-
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b)
 	{
@@ -548,16 +520,6 @@ public class TiCompositeLayout extends ViewGroup
 				int childMeasuredHeight = child.getMeasuredHeight();
 				int childMeasuredWidth = child.getMeasuredWidth();
 
-				// In Property Animation, the scaling/translation factors may change, so we need to take them
-				// into account when calculating the child's position if it's in a vertical/horizontal layout.
-				float[] childScaleAndTranslation = getScaleAndTranslation(child);
-				float childScaleX = childScaleAndTranslation[0];
-				float childScaleY = childScaleAndTranslation[1];
-				float childTranslationX = childScaleAndTranslation[2];
-				float childTranslationY = childScaleAndTranslation[3];
-				int childRenderedHeight = (int)(childMeasuredHeight * childScaleY);
-				int childRenderedWidth = (int)(childMeasuredWidth * childScaleX);
-
 				if (isHorizontalArrangement()) {
 					if (i == 0)  {
 						horizontalLayoutCurrentLeft = left;
@@ -567,8 +529,7 @@ public class TiCompositeLayout extends ViewGroup
 						horiztonalLayoutPreviousRight = 0;
 						updateRowForHorizontalWrap(right, i);
 					}
-					computeHorizontalLayoutPosition(params, childRenderedWidth, childRenderedHeight, right, top, bottom, horizontal, vertical, i);
-					horizontalLayoutCurrentLeft += childTranslationX;
+					computeHorizontalLayoutPosition(params, childMeasuredWidth, childMeasuredHeight, right, top, bottom, horizontal, vertical, i);
 
 				} else {
 					// Try to calculate width/height from pins, and default to measured width/height. We have to do this in
@@ -576,12 +537,9 @@ public class TiCompositeLayout extends ViewGroup
 					childMeasuredHeight = calculateHeightFromPins(params, top, bottom, getHeight(), childMeasuredHeight);
 					childMeasuredWidth = calculateWidthFromPins(params, left, right, getWidth(), childMeasuredWidth);
 
-					childRenderedHeight = (int)(childMeasuredHeight * childScaleY);
-					childRenderedWidth = (int)(childMeasuredWidth * childScaleX);
-
-					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childRenderedWidth, left, right, horizontal);
+					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
 					if (isVerticalArrangement()) {
-						computeVerticalLayoutPosition(currentHeight, params.optionTop, childRenderedHeight, top, vertical,
+						computeVerticalLayoutPosition(currentHeight, params.optionTop, childMeasuredHeight, top, vertical,
 							bottom);
 						// Include bottom in height calculation for vertical layout (used as padding)
 						TiDimension optionBottom = params.optionBottom;
@@ -589,7 +547,7 @@ public class TiCompositeLayout extends ViewGroup
 							currentHeight += optionBottom.getAsPixels(this);
 						}
 					} else {
-						computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childRenderedHeight, top, bottom, vertical);
+						computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
 					}
 				}
 
@@ -602,7 +560,8 @@ public class TiCompositeLayout extends ViewGroup
 				int newHeight = vertical[1] - vertical[0];
 				// If the old child measurements do not match the new measurements that we calculated, then update the
 				// child measurements accordingly
-				if (newWidth != childRenderedWidth || newHeight != childRenderedHeight) {
+				if (newWidth != child.getMeasuredWidth()
+					|| newHeight != child.getMeasuredHeight()) {
 					int newWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
 					int newHeightSpec = MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY);
 					child.measure(newWidthSpec, newHeightSpec);
@@ -618,15 +577,9 @@ public class TiCompositeLayout extends ViewGroup
 					}
 				}
 
-				if (childScaleX != 0) {
-					horizontal[1] = (int) (horizontal[0] + newWidth / childScaleX);
-				}
-				if (childScaleY != 0) {
-					vertical[1] = (int) (vertical[0] + newHeight / childScaleY);
-				}
 				child.layout(horizontal[0], vertical[0], horizontal[1], vertical[1]);
 
-				currentHeight += newHeight + childTranslationY;
+				currentHeight += newHeight;
 				if (params.optionTop != null) {
 					currentHeight += params.optionTop.getAsPixels(this);
 				}
@@ -781,17 +734,9 @@ public class TiCompositeLayout extends ViewGroup
 
 		for (i = currentIndex; i < getChildCount(); i++) {
 			View child = getChildAt(i);
-
-			float[] childScaleAndTranslation = getScaleAndTranslation(child);
-			float childScaleX = childScaleAndTranslation[0];
-			float childScaleY = childScaleAndTranslation[1];
-			float childTranslationX = childScaleAndTranslation[2];
-			float childTranslationY = childScaleAndTranslation[3];
-
-			// Calculate row width/height with padding, scaling and translation
-			rowWidth += child.getMeasuredWidth() * childScaleX + getViewWidthPadding(child, getWidth()) + childTranslationX;
-			rowHeight = (int) (child.getMeasuredHeight() * childScaleY) + getViewHeightPadding(child, parentHeight)
-				+ (int) childTranslationY;
+			// Calculate row width/height with padding
+			rowWidth += child.getMeasuredWidth() + getViewWidthPadding(child, getWidth());
+			rowHeight = child.getMeasuredHeight() + getViewHeightPadding(child, parentHeight);
 
 			if (rowWidth > maxRight) {
 				horizontalLayoutLastIndexBeforeWrap = i - 1;
@@ -813,7 +758,7 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	// Determine whether we have a conflict where a parent has size behavior, and child has fill behavior.
-	private boolean hasSizeFillConflict(View parent, int[] conflicts, boolean firstIteration)
+	private boolean hasSizeFillConflict(View parent, int[] conflicts, boolean firstIteration, boolean hasFixedWidthParent, boolean hasFixedHeightParent)
 	{
 		if (parent instanceof TiCompositeLayout) {
 			TiCompositeLayout currentLayout = (TiCompositeLayout) parent;
@@ -831,10 +776,10 @@ public class TiCompositeLayout extends ViewGroup
 			// this method) will be adjusted to undefined behavior accordingly during the layout phase.
 			// sizeOrFillHeightEnabled is used during the layout phase to determine whether we want to use the fill/size
 			// measurements that we got from the measure phase.
-			if (currentParams.autoFillsWidth && currentParams.optionWidth == null && conflicts[0] == NOT_SET) {
+			if (currentParams.autoFillsWidth && currentParams.optionWidth == null && conflicts[0] == NOT_SET && !hasFixedWidthParent) {
 				conflicts[0] = HAS_SIZE_FILL_CONFLICT;
 			}
-			if (currentParams.autoFillsHeight && currentParams.optionHeight == null && conflicts[1] == NOT_SET) {
+			if (currentParams.autoFillsHeight && currentParams.optionHeight == null && conflicts[1] == NOT_SET && !hasFixedHeightParent) {
 				conflicts[1] = HAS_SIZE_FILL_CONFLICT;
 			}
 
@@ -842,11 +787,17 @@ public class TiCompositeLayout extends ViewGroup
 			if (conflicts[0] != NOT_SET && conflicts[1] != NOT_SET) {
 				return true;
 			}
+			
+			if (currentParams.optionWidth != null && !currentParams.optionWidth.isUnitAuto())
+				hasFixedWidthParent = true;
+
+			if (currentParams.optionHeight != null && !currentParams.optionHeight.isUnitAuto())
+				hasFixedHeightParent = true;
 
 			// If the child has size behavior, continue traversing through children and see if any of them have fill
 			// behavior
 			for (int i = 0; i < currentLayout.getChildCount(); ++i) {
-				if (hasSizeFillConflict(currentLayout.getChildAt(i), conflicts, false)) {
+				if (hasSizeFillConflict(currentLayout.getChildAt(i), conflicts, false, hasFixedWidthParent, hasFixedHeightParent)) {
 					return true;
 				}
 			}

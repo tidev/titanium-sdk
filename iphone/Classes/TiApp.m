@@ -20,7 +20,6 @@
 #import <libkern/OSAtomic.h>
 #import "TiExceptionHandler.h"
 #import "Mimetypes.h"
-
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
 #endif
@@ -64,6 +63,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 @synthesize pendingCompletionHandlers;
 @synthesize backgroundTransferCompletionHandlers;
 @synthesize localNotification;
+@synthesize appBooted;
 
 +(void)initialize
 {
@@ -118,7 +118,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)setDisableNetworkActivityIndicator:(BOOL)value
 {
 	disableNetworkActivityIndicator = value;
-	[ASIHTTPRequest setShouldUpdateNetworkActivityIndicator: !disableNetworkActivityIndicator];
 	[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:(!disableNetworkActivityIndicator && (networkActivityCount > 0))];
 }
 
@@ -629,6 +628,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         [dict addEntriesFromDictionary:success];
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionCompleted object:self userInfo:dict];
+
+}
+
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask
+ didResumeAtOffset:(int64_t)fileOffset
+expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 }
 

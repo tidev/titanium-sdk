@@ -294,6 +294,7 @@ properties:
   - name: state
     summary: Current state of playback, specified using one of the `STATE` constants defined on this object.
     type: Number
+    constants: Titanium.Media.AudioPlayer.STATE_*
     permission: read-only
     platforms: [iphone, ipad, tizen]
   - name: url

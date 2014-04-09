@@ -105,7 +105,6 @@ public class TiRootActivity extends TiLaunchActivity
 		// Use settings from tiapp.xml
 		ITiAppInfo appInfo = getTiApp().getAppInfo();
 		getIntent().putExtra(TiC.PROPERTY_FULLSCREEN, appInfo.isFullscreen());
-		getIntent().putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, appInfo.isNavBarHidden());
 		super.windowCreated();
 	}
 

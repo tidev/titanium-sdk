@@ -10,6 +10,7 @@ var suites = [
 	{name: "api"},
 	{name: "blob"},
 	{name: "buffer"},
+	{name: "calendar/calendar"},
 	{name: "codec"},
 	{name: "commonjs/commonjs"},
 	{name: "console"},
@@ -17,6 +18,7 @@ var suites = [
 	{name: "facebook"},
 	{name: "filesystem/filesystem"},
 	{name: "geolocation"},
+	{name: "js_string"},
 	{name: "json"},
 	{name: "jss"},
 	{name: "kroll"},
@@ -31,22 +33,37 @@ var suites = [
 	{name: "platform"},
 	{name: "properties"},
 	{name: "stream"},
+	// {name: "string"}, breaks Anvil
 	{name: "titanium"},
+	{name: "ui/ui_animation"},
 	{name: "ui/ui"},
 	{name: "ui_textArea"},
 	{name: "ui_2dMatrix"},
 	{name: "ui_clipboard"},
 	{name: "ui_controls"},
+	{name: "ui_imageview/ui_imageview"},
+	{name: "ui_picker"},
+	{name: "ui_optionDialog"},
+	{name: "ui_scrollableView"},
+	{name: "ui_scrollView"},
+	{name: "ui_slider"},
+	{name: "ui_tabgroup/ui_tabgroup"},
+	{name: "ui_tableview"},
+	{name: "ui_tableViewRow/ui_tableViewRow"},
 	{name: "ui_textfield"},
 	{name: "ui_view"},
 	{name: "ui_searchBar"},
+	{name: "ui_window/ui_window"},
+	{name: "ui_switch"},
 	{name: "utils/utils"},
 	{name: "yahoo"}
 	];
 
 if (Ti.Platform.osname === 'android') {
 	suites = suites.concat([
+		{name: "android/android/android"},
 		{name: "android/android_activityIndicator"},
+		{name: "android/android_contacts"},
 		{name: "android/android_database/android_database"},
 		{name: "android/android_filesystem"},
 		{name: "android/android_kroll"},
@@ -61,6 +78,7 @@ if (Ti.Platform.osname === 'android') {
 } else if((Ti.Platform.osname === 'iPhone') || (Ti.Platform.osname === 'iPad')) {
 	suites = suites.concat([
 		{name: "iphone/iphone_2Dmatrix"},
+		{name: "iphone/iOS_NavigationWindow"},
 		{name: "iphone/iphone_ui"},
 		{name: "iphone/iphone_UI_3DMatrix"},
 		{name: "iphone/iphone_ui_tabbedBar"},		

@@ -99,6 +99,15 @@ public class AudioPlayerProxy extends KrollProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
+	public int getDuration() {
+		TiSound s = getSound();
+		if (s != null) {
+			return s.getDuration();
+		}
+		return 0;
+	} 
+
+	@Kroll.getProperty @Kroll.method
 	public boolean isPlaying() {
 		TiSound s = getSound();
 		if (s != null) {

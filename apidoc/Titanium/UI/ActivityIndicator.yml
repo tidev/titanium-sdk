@@ -7,11 +7,12 @@ description:  |
     animation and an optional text message, and is used to indicate an ongoing activity of 
     indeterminate length. To show progress, use <Titanium.UI.ProgressBar> instead.
 
-    Use the <Titanium.UI.createActivityIndicator> method to create an Activity Indicator. 
+    Use the <Titanium.UI.createActivityIndicator> method or **`<ActivityIndicator>`** Alloy element to
+    create an `ActivityIndicator` object.
     
-    The activity indicator is a view like any other view, and must be
-    added to a window or other top-level view before it can be shown. Note that, unlike most views, 
-    the activity indicator is hidden by default and must be shown explicitly.
+    `ActivityIndicator` is a view and, like any view, must be added to a window or other top-level
+    view before it can be shown. Unlike most views, `ActivityIndicator` is hidden by
+    default and must be shown explicitly by calling its <Titanium.UI.ActivityIndicator.show> method.
 
     #### Android Platform Notes
 
@@ -74,6 +75,7 @@ properties:
         Width of the view. Only accepts value of <Titanium.UI.SIZE>, which must be explicitly set in order to
         display the message and to position the view correctly.
     type: String
+    constants: Titanium.UI.SIZE
 
   - name: left
     summary: Left position of the view.
@@ -103,20 +105,18 @@ properties:
   - name: style
     summary: The style for the activity indicator.
     description: |
-        One of the activity indicator style constants. On iOS: 
-        <Titanium.UI.iPhone.ActivityIndicatorStyle.DARK>, 
-        <Titanium.UI.iPhone.ActivityIndicatorStyle.BIG>, 
-        or <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN>. On Android and Mobile Web:
-        <Titanium.UI.ActivityIndicatorStyle.DARK>, 
-        <Titanium.UI.ActivityIndicatorStyle.BIG>, 
-        <Titanium.UI.ActivityIndicatorStyle.BIG_DARK>, 
-        or <Titanium.UI.ActivityIndicatorStyle.PLAIN>.
+        One of the activity indicator style constants.
+
+        For iOS, use one of the constants with `iPhone` in the namespace.
+
+        For Android and Mobile Web, use a constant without `iPhone` in the namespace.
 
         On Mobile Web, setting the style automatically sets the indicator color and diameter.
 
         See also: [indicatorColor](Titanium.UI.ActivityIndicator.indicatorColor),
         [indicatorDiameter](Titanium.UI.ActivityIndicator.indicatorDiameter)
     type: Number
+    constants: [Titanium.UI.iPhone.ActivityIndicatorStyle.*, Titanium.UI.ActivityIndicatorStyle.*]
     default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN> (iOS), <Titanium.UI.ActivityIndicatorStyle.PLAIN> (Android and Mobile Web)
     exclude-platforms: [blackberry]
 
@@ -149,6 +149,7 @@ properties:
         Width of the view. Only accepts value of <Titanium.UI.SIZE>, which must be explicitly set in order to
         display the message and to position the view correctly.
     type: String
+    constants: Titanium.UI.SIZE
     
 examples:
   - title: Simple Activity Indicator

@@ -58,12 +58,6 @@ properties:
   - name: physicalSizeCategory
     summary: |
         The physical size category of the Android device or emulator. 
-    description: |
-        It can be one of the following values:
-        - Ti.Platform.Android.PHYSICAL_SIZE_CATEGORY_SMALL
-        - Ti.Platform.Android.PHYSICAL_SIZE_CATEGORY_NORMAL
-        - Ti.Platform.Android.PHYSICAL_SIZE_CATEGORY_LARGE
-        - Ti.Platform.Android.PHYSICAL_SIZE_CATEGORY_XLARGE
-        - Ti.Platform.Android.PHYSICAL_SIZE_CATEGORY_UNDEFINED
     type: Number
+    constants: Titanium.Platform.Android.PHYSICAL_SIZE_CATEGORY_*
     permission: read-only

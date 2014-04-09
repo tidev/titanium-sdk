@@ -9,7 +9,7 @@ methods:
   - name: close
     summary: Closes the window.
     description: |
-        Android only supports the argument type <closeWindowParams>.
+        Android only supports the argument type [closeWindowParams](closeWindowParams).
     parameters:
       - name: params
         summary: Animation or display properties to use when closing the window.
@@ -307,9 +307,23 @@ properties:
         The default behavior is to assume that no edges are to be extended. Must be specified before **opening** the window.
     platforms: [iphone,ipad]
     type: Array<Number>
+    constants: Titanium.UI.EXTEND_EDGE_*
     since: 3.1.3
     osver: {ios: {min: "7.0"}}
-
+    
+  - name: flagSecure
+    summary: |
+        Treat the content of the window as secure, preventing it from appearing in screenshots or from being viewed on non-secure displays.
+        Valid only on API level 11 and above.
+    description: |
+        When the value is true, preventing it from appearing in screenshots or from being viewed on non-secure displays.
+    platforms: [android]
+    type: Boolean
+    since: "3.3.0"
+    osver: {android: { min: "11"}}
+    default: false
+    availability: creation
+    
   - name: includeOpaqueBars
     summary: |
         Specifies if the edges should extend beyond opaque bars (navigation bar, tab bar, toolbar). Valid on iOS 7 and greater.
@@ -327,7 +341,8 @@ properties:
     summary: |
         Specifies whether or not the view controller should automatically adjust its scroll view insets. Valid on iOS 7 and greater.
     description:  |
-        When the value is true, it allows the view controller to adjust its scroll view insets in response to the screen areas consumed by the status bar, navigation bar, toolbar and tab bar.
+        When the value is true, it allows the view controller to adjust its scroll view insets in response
+        to the screen areas consumed by the status bar, navigation bar, toolbar and tab bar.
 
         The default behavior assumes that this is false. Must be specified before **opening** the window.
     platforms: [iphone,ipad]
@@ -373,8 +388,29 @@ properties:
 
   - name: leftNavButton
     summary: View to show in the left nav bar area.
+    description: |
+        In an Alloy application you can specify this property with a `<LeftNavButton>` element inside the
+        `<Window>` element, for example:
+
+            <Alloy>
+                <TabGroup>
+                    <Tab>
+                        <Window class="container">
+                            <LeftNavButton platform=ios>
+                                <Button title="Back" onClick="closeWindow" />
+                            </LeftNavButton>
+                        </Window>
+                    </Tab>
+                </TabGroup>
+            </Alloy>
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
+
+  - name: leftNavButtons
+    summary: An Array of views to show in the left nav bar area.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    type: Array<Titanium.UI.View>
 
   - name: modal
     summary: Boolean to indicate if the window should be opened modal in front of other windows.
@@ -547,13 +583,12 @@ properties:
         
     platforms: [android, iphone, ipad]
     type: Array<Number>
+    constants: [ Titanium.UI.LANDSCAPE_*, Titanium.UI.PORTRAIT, Titanium.UI.UPSIDE_PORTRAIT]
     default: empty array
 
   - name: orientation
     summary: Current orientation of the window.
     description: |
-        Value will be one of the orientation constants defined in <Titanium.UI>. 
-        
         To determine the current orientation of the *device*, see
         [Gesture.orientation](Titanium.Gesture.orientation), instead.
         
@@ -563,6 +598,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: {iphone: "3.0.0", ipad: "3.0.0"}
     type: Number
+    constants: [ Titanium.UI.LANDSCAPE_*, Titanium.UI.PORTRAIT, Titanium.UI.UPSIDE_PORTRAIT]
     permission: read-only
 
   - name: right
@@ -576,9 +612,31 @@ properties:
 
   - name: rightNavButton
     summary: View to show in the right nav bar area.
+    description: |
+        In an Alloy application you can specify this property with a `<RightNavButton>` element in the
+        `<Window>` element, for example:
+
+            <Alloy>
+                <TabGroup>
+                    <Tab>
+                        <Window class="container">
+                            <RightNavButton platform=ios>
+                                <Button title="Back" onClick="closeWindow" />
+                            </RightNavButton>
+                        </Window>
+                    </Tab>
+                </TabGroup>
+            </Alloy>
+
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
     
+  - name: rightNavButtons
+    summary: An Array of views to show in the right nav bar area.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    type: Array<Titanium.UI.View>
+
   - name: shadowImage
     summary: Shadow image for the navigation bar, specified as a URL to a local image..
     description: |
@@ -596,6 +654,9 @@ properties:
         If this value is undefined, the value is set to UIStatusBarStyle defined in tiapp.xml.
         If that is not defined it defaults to <Titanium.UI.iPhone.StatusBar.DEFAULT>.
     type: [Number]
+    constants: [ Titanium.UI.iPhone.StatusBar.DEFAULT, Titanium.UI.iPhone.StatusBar.GRAY,
+                 Titanium.UI.iPhone.StatusBar.GREY, Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT,
+                 Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK, Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK ]
     since: "3.1.3"
     platforms: [iphone,ipad]
     
@@ -625,6 +686,21 @@ properties:
 
   - name: titleControl
     summary: View to show in the title area of the nav bar.
+    description: |
+        In an Alloy application you can specify this property using a `<TitleControl>` element inside 
+        `<Window>`, for example:
+
+            <Alloy>
+                <RightNavButton>
+                    <Button title="Back" />                 
+                </RightNavButton>
+                <LeftNavButton>
+                    <Button title="Back" />
+                </LeftNavButton>
+                <TitleControl>
+                    <View backgroundColor="blue" height="100%" width="100%"></View>
+                </TitleControl>
+            </Alloy>
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
 
@@ -688,50 +764,56 @@ properties:
     type: Boolean
 
   - name: url
-    summary: Local URL to a JavaScript file with the windows instructions.
+    summary: Loads a JavaScript file from a local URL.
     description: |
-        This window will create a new JavaScript sub-context that will run
-        in its own thread and global variable space. See the "Sub-contexts" section
-        in the main description for [Window](Titanium.UI.Window).
+        **Note:** The recommended way of creating windows with their own context is to either use the
+        [Alloy Framework](http://docs.appcelerator.com/titanium/latest/#!/guide/Alloy_Framework) or a
+        [CommonJS module](http://docs.appcelerator.com/titanium/latest/#!/guide/CommonJS_Modules_in_Titanium)
+        than using this property.  One benefit of using a CommonJS module is that it consumes less
+        resources.
+
+        Use this property to have Windows load a JavaScript file in its own subcontext and thread,
+        separate from the `app.js` global context.
+        Reference a file relative to your project's `Resources` folder for classic Titanium
+        projects or `app/lib` folder for Alloy projects.
+
+        Note that Titanium will refuse to load JavaScript files from a remote URL. Loading
+        remote JavaScript from a URL and providing it with the full capabilities of the Titanium
+        API would be very dangerous.
+
+        When loading JavaScript files using this property, the special property
+        <Titanium.UI.currentWindow> is available inside a multi-context
+        application that points to the JavaScript instance by reference in the global context.
+
     type: String
     availability: creation
     exclude-platforms: [blackberry]
 
   - name: windowSoftInputMode
     summary: |
-        Determines whether a heavyweight window's soft input area (ie software keyboard) is visible 
-        as it receives focus and how the window behaves in order to accomodate it while keeping its 
+        Determines whether a heavyweight window's soft input area (ie software keyboard) is visible
+        as it receives focus and how the window behaves in order to accomodate it while keeping its
         contents in view.
     description: |
-        In order for this property to take effect on an emulator, its Android Virtual Device (AVD) 
+        In order for this property to take effect on an emulator, its Android Virtual Device (AVD)
         must be configured with the `Keyboard Support` setting set to `No`. Note that it is always 
         recommended to test an application on a physical device to understand its true behavior.
 
         Setting this property forces the creation of a heavyweight window before Titanium 3.2.0. See "Android Heavyweight
         and Lightweight Windows" in the main description of this class for more information.
         
-        This property is capable of representing two settings from the following two groups of 
-        settings using the [bitwise OR](http://en.wikipedia.org/wiki/Bitwise_operation#OR) operation. 
-        
-        One of the group of soft input *visibility* constants, 
-        [SOFT_INPUT_STATE_ALWAYS_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN), 
-        [SOFT_INPUT_STATE_ALWAYS_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE), 
-        [SOFT_INPUT_STATE_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN), 
-        [SOFT_INPUT_STATE_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED), 
-        or [SOFT_INPUT_STATE_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_VISIBLE).
-        
-        One of the group of soft input *adjustment* constants, 
-        [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED), 
-        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), 
-        or [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN).
-        
-        Note that in Javascript, bitwise OR is achieved using the single pipe operand. See the 
+        This property is capable of representing two settings from the soft input *visibility*
+        constatns and soft input *adjustment* constants
+        using the [bitwise OR](http://en.wikipedia.org/wiki/Bitwise_operation#OR) operation.
+
+        Note that in JavaScript, bitwise OR is achieved using the single pipe operand. See the
         example for a demonstration.
         
-        For more information, see the official Android Developers website API Reference for 
+        For more information, see the official Android Developers website API Reference for
         [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
     platforms: [android]
     type: Number
+    constants: [Titanium.UI.Android.SOFT_INPUT_STATE_*, Titanium.UI.Android.SOFT_INPUT_ADJUST_*]
     availability: creation
     examples:
       - title: Soft Input Visibility and Adjustment
@@ -771,16 +853,16 @@ properties:
   - name: windowPixelFormat
     summary: Set the pixel format for the Activity's Window.
     description: |
-        The property is ignored on a Titanium "lightweight" Window. Use one of the
-        <Titanium.UI.Android>.PIXEL_FORMAT constants to set the format.
-
         For more information on pixel formats, see 
         [Android SDK Window.setFormat](http://developer.android.com/reference/android/view/Window.html#setFormat(int))
     platforms: [android]
     type: Number
+    constants: Titanium.UI.Android.PIXEL_FORMAT_*
     since: "1.8.0"
 
 description: |
+    To create a window, use the <Titanium.UI.createWindow> method or a **`<Window>`** Alloy element.
+
     A window is a top-level container which can contain other views. Windows can
     be *opened* and *closed*.  Opening a window causes the window and its child 
     views to be added to the application's render stack, on top of any previously opened 
@@ -800,157 +882,233 @@ description: |
     To take up the entire screen, covering any other UI, specify `fullscreen:true`
     when creating the window.
 
-    Use the <Titanium.UI.createWindow> method to create a window.
+    ### Pass Context Between Windows
 
-    #### Sub-contexts
+    To pass data between windows, use a
+    [CommonJS module](http://docs.appcelerator.com/titanium/latest/#!/guide/CommonJS_Modules_in_Titanium)
+    to save information from one window then retrieve it in another.  In the example below, the foo
+    module exposes two methods to store and retrieve an object.  The first window of the project
+    loads the foo module and uses the set method to store some data before opening the second window.
+    The second window loads the same module and is able to retrieve the content saved by the first
+    window with the get method.
 
-    Windows can be loaded from another JavaScript file by specifying the property `url`,
-    referencing a file relative to your application `Resources` folder.  It's important
-    to note that Titanium will refuse to load JavaScript files from a remote URL. Loading
-    remote JavaScript from a URL and providing it with the full capabilities of the Titanium
-    API would be very dangerous.
+    Note that for Alloy projects, you can simply pass the context as the second argument of the
+    Alloy.createController method, then retrieve the data with the special variable `arguments[0]`
+    in the controller code.
 
-    When your Window is loaded from a separate JavaScript file, the code will be executed in
-    a separate JavaScript context (called a "sub-context") than your `app.js` global context.
-    It will also execute in its own separate thread.
+    `app/lib/foo.js`:
 
-    The special property <Titanium.UI.currentWindow> is available inside a sub-context that
-    points to the JavaScript instance by reference in the global context.
+        // For a classic Titanium project, save the file to 'Resources/foo.js'
+        var data = {};
+        function setData (obj){
+            data = obj;
+        }
+        function getData () {  
+            return data;
+        }
 
+        // The special variable 'exports' exposes the functions as public
+        exports.setData = setData;
+        exports.getData = getData;
 
-    #### Passing Data Between Contexts
+    `app/views/index.xml`:
 
-    By default, sub-context variables cannot access JavaScript references in the global context.
-    There are two ways to pass data between the global context and the sub-context:
+        <Alloy>
+            <Window backgroundColor="blue">
+                <Label onClick="openWindow">Open the Red Window!</Label>
+            </Window>
+        </Alloy>
 
-    - Shared references
-    - Events
+    `app/controllers/index.xml`:
 
-    **Note that in both cases, you cannot pass functions between contexts, only serializable data.**
-    *Serializable data* includes any JavaScript primitive or simple object composed
-    of JavaScript primitives.
+        var foo = require('foo');
+        foo.setData({foobar: 42});
 
-    ##### Passing Data with Shared References
+        function openWindow () {
+            var win2 = Alloy.createController('win2').getView();
+            // For Alloy projects, you can pass context
+            // to the controller in the Alloy.createController method.
+            // var win2 = Alloy.createController('win2', {foobar: 42}).getView();
+            win2.open();
+        }
 
-    You can allow a sub-context access to
-    properties in the global context by reference assignment.  An example best illustrates
-    how to do this.
+        $.index.open();
 
-    In `app.js`, you could define a property:
+    `app/views/win2.xml`:
 
-        var message = "Hi world!";
+        <Alloy>
+            <Window backgroundColor="red">
+                <Label id="label">I am a red window.</Label>
+            </Window>
+        </Alloy>
 
-    Now, you can create a new Window - let's call it `foo.js` - in your `app.js`.
+    `app/controllers/win2.js`:
 
-        var w = Titanium.UI.createWindow({
-          url:'foo.js'
-        });
+        var foo = require('foo');
+        $.label.text = foo.getData().foobar;
 
-    To _give_ your new window access to `message`, you would need to assign it to a
-    property on the new window reference, `w`.
+        // For Alloy projects, you can also pass in context
+        // with the Alloy.createController method and retrieve
+        // it in the controller code.
+        // var args = arguments[0] || {};
+        // $.label.text = args.foobar;
 
-        w.myAlertMessage = message;
+    ### Animations
 
-    This creates a new `myAlertMessage` property on the new window that holds a reference to the
-    `message` property in the global context.  Now, let's look at the code for `foo.js`.
-
-        alert(Titanium.UI.currentWindow.myAlertMessage);
-
-    In the above code, the `foo.js` will show an alert containing the text from the `message`
-    property in the global context.
-
-    **Note:** You should use caution when adding a custom property to a Titanium object.
-    Your property might overwrite an existing property or conflict with a future Titanium 
-    property.  If you do this, try to choose a property name unlikely to be used by the Titanium SDK
-    in the future. 
-
-    ##### Passing Data with Events
-
-    If you'd like to send events to a window from the global context and vice versa, you could
-    use the built-in event mechanism.  For example, you could define a custom event called `foo`.
-    The window could listen for this event and then respond with some action. For example, in
-    your sub-context you might define:
-
-        Titanium.UI.currentWindow.addEventListener('foo',function(e)
-        {
-          Titanium.API.info("foo event received = "+JSON.stringify(e));
-        });
-
-    You could now fire the event from `app.js` like this:
-
-        var window = Titanium.UI.createWindow({
-          url:'bar.js'
-        });
-        window.open();
-        window.fireEvent('foo',{a:'b'});
-
-    It's worth noting two important limitations of the example above:
-
-    * You must open the window before you can send events to it. You also may have to fire
-      the event after a specified amount of time if you intend to immediately send data to
-      the window. This is because windows are opened asynchronously and on a separate thread
-      than the caller thread.
-
-    * You can only send JSON-serializable data in `fireEvent`. If you attempt to send objects
-      that have function references, they will be null.
-
-
-    #### Animations
-
-    Windows can be animated like any normal [View](Titanium.UI.View). To transition between
-    2 windows, you can use the `transition` property on an animation (not supported on Android).
-    For example, to flip right-to-left between two windows, you could do the following:
-
-        var window2 = Titanium.UI.createWindow({url:'foo.js'});
-        var t = Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT;
-        window1.animate({view:window2,transition:t});
-
-    In the above example, the `window2` view will be animated from the right-to-left over `window1`.
-
-    Windows can be opened or closed with animation.  In the example below, we create a window
-    that will open from small to large with a bounce effect.  This is done by applying a
+    Windows can be animated like a [View](Titanium.UI.View), such as using an animation
+    to open or close a window.  The example below creates a window
+    that opens from small to large with a bounce effect.  This is done by applying a
     transformation at initialization time that scales the original size of the window to 0.
     When the window is opened, a new 2D transformation is applied that will scale the window
-    size from 0 to 110% of it's original size and then, after 1/20th of a second, will scale it
+    size from 0 to 110% of it's original size, then, after 1/20th of a second, it is scaled
     back to it's original size at 100%. This gives the bounce effect during animation.
 
-        var t = Titanium.UI.create2DMatrix().scale(0);
+    `app/views/index.xml`:
 
-        // create a window with the initial transform scaled to 0
-        var w = Titanium.UI.createWindow({
-          backgroundColor:'#336699',
-          borderWidth:8,
-          borderColor:'#999',
-          height:400,
-          width:300,
-          borderRadius:10,
-          opacity:0.92,
-          transform:t
+        <Alloy>
+            <Window backgroundColor="blue" onPostlayout="animateOpen" >
+                <Label color="orange">Animated Window</Label>
+            </Window>
+        </Alloy>
+
+    `app/controllers/index.js`:
+
+        $.index.transform = Titanium.UI.create2DMatrix().scale(0);
+        $.index.open();
+
+        var a = Ti.UI.createAnimation({
+            transform : Ti.UI.create2DMatrix().scale(1.1),
+            duration : 2000,
+        });
+        a.addEventListener('complete', function(){
+            $.index.animate({
+                transform: Ti.UI.create2DMatrix(),
+                duration: 200
+            });
         });
 
-        // create first transform to go beyond normal size
-        var t1 = Titanium.UI.create2DMatrix().scale(1.1);
-
-        var a = Titanium.UI.createAnimation();
-        a.transform = t1;
-        a.duration = 200;
-
-        // when this animation completes, scale to normal size
-        a.addEventListener('complete', function()
-        {
-            // we can use the identity transform to take it back to it's real size
-          var t2 = Titanium.UI.create2DMatrix();
-          w.animate({transform:t2, duration:200});
-        });
+        function animateOpen() {
+            $.index.animate(a);
+        }
 
     Note that to animate an Android heavyweight window while you open it, you need
     to follow a specific procedure which is explained below in "Heavyweight
     Window Transitions in Android".
 
+    ### iOS Platform Notes
+
+    #### iOS Transition Animations
+
+    iOS contains built-in transition animations when switching between non-modal windows. In the Window's
+    `open` method, set the `transition` property to a `Titanium.UI.iPhone.AnimationStyle` constant to use an animation.
+    For example, to flip right-to-left between two windows:
+
+    `app/views/index.xml`:
+
+        <Alloy>
+            <Window backgroundColor="blue" onOpen="animateOpen">
+                <Label id="label">I am a blue window!</Label>
+            </Window>
+        </Alloy>
+
+    `app/controllers/index.js`
+
+        function animateOpen() {
+            var window2 = Alloy.createController('win2').getView();
+            window2.open({transition:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT});
+        }
+        $.index.open();
+
+    `app/views/win2.xml`:
+
+        <Alloy>
+            <Window backgroundColor="red">
+                <Label id="label">I am a red window!</Label>
+            </Window>
+        </Alloy>
+
+    In the above example, the red window will be animated from the right-to-left over the blue window.
+
+    Starting with iOS 7, you can create transition animations when opening and closing windows in
+    either a <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
+
+    Use the <Titanium.UI.iOS.createTransitionAnimation> method to specify an animation objects to hide and
+    show the window, then set the newly created TransitionAnimation object to the window's
+    <Titanium.UI.Window.transitionAnimation> property.
+
+    In the example below, the windows are closed by rotating them upside down while simulatenously
+    making them transparent:
+
+    `app/views/index.xml`:
+
+        <Alloy>
+            <NavigationWindow platform="ios">
+                <Window id="redwin" title="Red Window" backgroundColor="red">
+                    <Button id="button" onClick="openBlueWindow">Open Blue Window</Button>
+                </Window>
+            </NavigationWindow>
+        </Alloy>
+
+    `app/controllers/index.js`:
+
+        function openBlueWindow(e) {
+            var bluewin = Alloy.createController('bluewin').getView();
+            $.index.openWindow(bluewin);
+        }
+
+        $.redwin.transitionAnimation = Ti.UI.iOS.createTransitionAnimation({
+            duration: 300,
+            // The show transition makes the window opaque and rotates it correctly
+            transitionTo: {
+                opacity: 1,
+                duration: 300,
+                transform: Ti.UI.create2DMatrix()
+            },
+            // The hide transition makes the window transparent and rotates it upside down
+            transitionFrom: {
+                opacity: 0,
+                duration: 300 / 2,
+                transform: Ti.UI.create2DMatrix().rotate(180),
+            }
+        });
+
+        $.index.open();
+
+    `app/views/bluewin.xml`:
+
+        <Alloy>
+            <Window title="Blue Window" backgroundColor="blue" opacity="0">
+                <Button onClick="closeWindow">Close Window</Button>
+            </Window>
+        </Alloy>
+
+    `app/controllers/bluewin.js`:
+
+        function closeWindow(){
+            $.bluewin.close();
+        }
+
+        $.bluewin.transitionAnimation = Ti.UI.iOS.createTransitionAnimation({
+            duration: 300,
+            // The show transition makes the window opaque and rotates it correctly
+            transitionTo: {
+                opacity: 1,
+                duration: 300,
+                transform: Ti.UI.create2DMatrix()
+            },
+            // The hide transition makes the window transparent and rotates it upside down
+            transitionFrom: {
+                opacity: 0,
+                duration: 300 / 2,
+                transform: Ti.UI.create2DMatrix().rotate(180),
+            }
+        });
+
+        $.bluewin.transform = Ti.UI.create2DMatrix().rotate(180);
+
     #### iPad Modal Windows
 
-    For iPad, iPhone SDK 3.2 and Titanium 1.2 introduced several new ways of presenting
-    modal windows. In addition to full-screen modal windows, the iPad supports "Page sheet"
+    For iPad, in addition to full-screen modal windows, iPad supports "Page sheet"
     and "Form sheet" style windows:
 
     * **Page sheet** style windows have a fixed width, equal to the width of the screen 
@@ -972,6 +1130,8 @@ description: |
           modalTransitionStyle: Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
           modalStyle: Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
         })
+
+    ### Android Platform Notes
 
     #### Android Heavyweight and Lightweight Windows
 
@@ -1132,26 +1292,16 @@ properties:
     
   - name: modalStyle
     summary: Presentation style of this modal window.
-    description: |
-        One of the modal window presentation style constants 
-        <Titanium.UI.iPhone.MODAL_PRESENTATION_CURRENT_CONTEXT>, 
-        <Titanium.UI.iPhone.MODAL_PRESENTATION_FORMSHEET>, 
-        <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>, 
-        or <Titanium.UI.iPhone.MODAL_PRESENTATION_PAGESHEET>.
     platforms: [iphone, ipad]
+    constants: Titanium.UI.iPhone_MODAL_PRESENTATION_*
     type: Number
     default: <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>
 
   - name: modalTransitionStyle
     summary: Transition style of this modal window.
-    description: |
-        One of the modal window transition style constants
-        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL>,
-        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE>,
-        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL>,
-        or <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_PARTIAL_CURL>.
     platforms: [iphone, ipad]
     type: Number
+    constants: Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_*
     default: <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL>
 
   - name: navBarHidden
@@ -1181,15 +1331,9 @@ properties:
 
   - name: transition
     summary: Transition style of this non-modal window.
-    description: |
-        One of the animation style constants 
-        <Titanium.UI.iPhone.AnimationStyle.CURL_DOWN>,
-        <Titanium.UI.iPhone.AnimationStyle.CURL_UP>,
-        <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT>,
-        <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT>,
-        or <Titanium.UI.iPhone.AnimationStyle.NONE>. 
     platforms: [iphone, ipad]
     type: Number
+    constants: Titanium.UI.iPhone.AnimationStyle.*
     default: <Titanium.UI.iPhone.AnimationStyle.NONE>
 
   - name: width
@@ -1203,7 +1347,7 @@ properties:
   - name: activityEnterAnimation
     summary: Animation resource to run on the activity (heavyweight window) being opened.
     description: |
-      This value will be ignored if <openWindowParams.animated> is set to false.
+      This value will be ignored if `animated` is set to false.
       See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
@@ -1222,7 +1366,7 @@ properties:
     summary: Animation resource to run on the activity that is being put in background
         as a heavyweight window is being opened above it.
     description: |
-      This value will be ignored if <openWindowParams.animated> is set to false.
+      This value will be ignored if `animated` is set to false.
       See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
@@ -1278,7 +1422,7 @@ properties:
   - name: activityEnterAnimation
     summary: Animation resource to use for the incoming activity.
     description: |
-      This value will be ignored if <closeWindowParams.animated> is set to false.
+      This value will be ignored if `animated` is set to false.
       See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
@@ -1286,7 +1430,7 @@ properties:
   - name: activityExitAnimation
     summary: Animation resource to use for the outgoing activity (heavyweight window).
     description: |
-      This value will be ignored if <closeWindowParams.animated> is set to false.
+      This value will be ignored if `animated` is set to false.
       See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
