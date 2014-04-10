@@ -108,7 +108,7 @@ enum
 	TiViewProxy *parent;
 	pthread_rwlock_t childrenLock;
 	NSMutableArray *children;
-	NSMutableArray *pendingAdds;
+//	NSMutableArray *pendingAdds;
 
 #pragma mark Visual components
 	TiUIView *view;
