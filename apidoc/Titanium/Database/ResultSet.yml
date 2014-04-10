@@ -59,10 +59,9 @@ methods:
         type: Number
         
       - name: type
-        summary: |
-            One of (<Titanium.Database.FIELD_TYPE_STRING> | <Titanium.Database.FIELD_TYPE_INT> | 
-            <Titanium.Database.FIELD_TYPE_FLOAT> | <Titanium.Database.FIELD_TYPE_DOUBLE>)
+        summary: Type to cast field value.
         type: Number
+        constants: Titanium.Database.FIELD_TYPE_*
         optional: true
     
   - name: fieldByName
@@ -91,10 +90,9 @@ methods:
         summary: A column name or alias used in the SQL query.
         type: String
       - name: type
-        summary: |
-            One of (<Titanium.Database.FIELD_TYPE_STRING> | <Titanium.Database.FIELD_TYPE_INT> | 
-            <Titanium.Database.FIELD_TYPE_FLOAT> | <Titanium.Database.FIELD_TYPE_DOUBLE>)
+        summary: Type to cast for the field value.
         type: Number
+        constants: Titanium.Database.FIELD_TYPE_*
         optional: true
     
   - name: fieldCount

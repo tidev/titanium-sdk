@@ -23,17 +23,17 @@ import android.text.InputType;
 import android.text.TextUtils.TruncateAt;
 import android.text.util.Linkify;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.TextView;
 
 public class TiUILabel extends TiUIView
 {
 	private static final String TAG = "TiUILabel";
+	private static final float DEFAULT_SHADOW_RADIUS = 0.5f;
 
 	private int defaultColor;
 	private boolean wordWrap = true;
 	private boolean ellipsize;
-	private float shadowRadius = 0f;
+	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
 	private float shadowY = 0f;
 	private int shadowColor = Color.TRANSPARENT;
@@ -102,6 +102,10 @@ public class TiUILabel extends TiUIView
 			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TITLE));
 		}
 
+		if (d.containsKey(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
+			tv.setIncludeFontPadding(TiConvert.toBoolean(d, TiC.PROPERTY_INCLUDE_FONT_PADDING, true));
+		}
+
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			Object color = d.get(TiC.PROPERTY_COLOR);
 			if (color == null) {
@@ -144,7 +148,7 @@ public class TiUILabel extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_RADIUS)) {
 			needShadow = true;
-			shadowRadius = TiConvert.toFloat(d.get(TiC.PROPERTY_SHADOW_RADIUS), 0);
+			shadowRadius = TiConvert.toFloat(d.get(TiC.PROPERTY_SHADOW_RADIUS), DEFAULT_SHADOW_RADIUS);
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_COLOR)) {
 			needShadow = true;
@@ -170,6 +174,8 @@ public class TiUILabel extends TiUIView
 			tv.setText(TiConvert.toString(newValue));
 			TiUIHelper.linkifyIfEnabled(tv, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
 			tv.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
+			tv.setIncludeFontPadding(TiConvert.toBoolean(newValue, true));
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			if (newValue == null) {
 				tv.setTextColor(defaultColor);
@@ -207,7 +213,7 @@ public class TiUILabel extends TiUIView
 				tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 			}
 		} else if (key.equals(TiC.PROPERTY_SHADOW_RADIUS)) {
-			shadowRadius = TiConvert.toFloat(newValue, 0);
+			shadowRadius = TiConvert.toFloat(newValue, DEFAULT_SHADOW_RADIUS);
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
@@ -221,22 +227,4 @@ public class TiUILabel extends TiUIView
 		((TextView)getNativeView()).setClickable(clickable);
 	}
 
-	@Override
-	protected void setOpacity(View view, float opacity)
-	{
-		if (view != null && view instanceof TextView) {
-			TiUIHelper.setPaintOpacity(((TextView) view).getPaint(), opacity);
-		}
-		super.setOpacity(view, opacity);
-	}
-
-	@Override
-	public void clearOpacity(View view)
-	{
-		super.clearOpacity(view);
-		if (view != null && view instanceof TextView) {
-			((TextView) view).getPaint().setColorFilter(null);
-		}
-	}
-	
 }

@@ -527,8 +527,17 @@ doReposition = YES;\
                 {
                     CABasicAnimation *boundsAnimation = nil;
                     CABasicAnimation *positionAnimation = nil;
-                    bool hasGradient = ([uiview gradientLayer] != nil);
-                    if (hasGradient) {
+                    CALayer* gradientLayer = [uiview gradientLayer];
+                    CALayer* bgdLayer = [uiview backgroundImageLayer];
+                    BOOL hasGradient = (gradientLayer != nil);
+                    BOOL hasBackgroundImage = (bgdLayer != nil);
+                    
+                    if (hasGradient && hasBackgroundImage) {
+                        //Avoid duplicte animations on the same layer
+                        hasBackgroundImage = gradientLayer != bgdLayer;
+                    }
+                    
+                    if (hasGradient || hasBackgroundImage) {
                         boundsAnimation = [CABasicAnimation animationWithKeyPath:@"bounds"];
                         boundsAnimation.fromValue = [NSValue valueWithCGRect:[uiview bounds]];
                         boundsAnimation.duration = animationDuration;
@@ -540,9 +549,18 @@ doReposition = YES;\
                         positionAnimation.timingFunction = [self timingFunction];
                     }
                     
+                    BOOL hasShadow = ([uiview shadowLayer].shadowOpacity > 0);
+                    CABasicAnimation *shadowAnimation = nil;
+                    if (hasShadow) {
+                        shadowAnimation = [CABasicAnimation animationWithKeyPath:@"shadowPath"];
+                        shadowAnimation.fromValue = (id)[UIBezierPath bezierPathWithRoundedRect:[uiview bounds] cornerRadius:uiview.layer.cornerRadius].CGPath;
+                        shadowAnimation.duration = animationDuration;
+                        shadowAnimation.timingFunction = [self timingFunction];
+                    }
+                    
                     [(TiViewProxy *)[uiview proxy] reposition];
                     
-                    if (hasGradient) {
+                    if (hasGradient || hasBackgroundImage) {
                         boundsAnimation.toValue = [NSValue valueWithCGRect:[uiview bounds]];
                         positionAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake([uiview bounds].size.width / 2, [uiview bounds].size.height / 2)];
                         if (repeatCount > 0) {
@@ -552,9 +570,23 @@ doReposition = YES;\
                             positionAnimation.autoreverses = (reverseAnimation != nil);
                             positionAnimation.repeatCount = repeatCount;
                         }
+                        if (hasGradient) {
+                            [gradientLayer addAnimation:boundsAnimation forKey:@"animateBounds"];
+                            [gradientLayer addAnimation:positionAnimation forKey:@"animatePosition"];
+                        }
+                        if (hasBackgroundImage) {
+                            [bgdLayer addAnimation:boundsAnimation forKey:@"animateBounds"];
+                            [bgdLayer addAnimation:positionAnimation forKey:@"animatePosition"];
+                        }
+                    }
                     
-                        [[uiview gradientLayer] addAnimation:boundsAnimation forKey:@"animateBounds"];
-                        [[uiview gradientLayer] addAnimation:positionAnimation forKey:@"animatePosition"];
+                    if (hasShadow) {
+                        shadowAnimation.toValue = (id)[UIBezierPath bezierPathWithRoundedRect:[uiview bounds] cornerRadius:uiview.layer.cornerRadius].CGPath;
+                        if (repeatCount > 0) {
+                            shadowAnimation.autoreverses = (reverseAnimation != nil);
+                            shadowAnimation.repeatCount = repeatCount;
+                        }
+                        [[uiview shadowLayer] addAnimation:shadowAnimation forKey:@"animateShadowPath"];
                     }
                 }
             }
@@ -649,11 +681,11 @@ doReposition = YES;\
                                 //AnimationStarted needs to be called here, otherwise the animation flags for 
                                 //the view being transitioned will end up in a improper state, resulting in 
                                 //layout warning.
-                                [self animationStarted:[NSString stringWithFormat:@"%X",(void *)theview] 
+                                [self animationStarted:[NSString stringWithFormat:@"%@",(void *)theview]
                                                context:self];                               
                             }
                             completion:^(BOOL finished) {
-                                [self animationCompleted:[NSString stringWithFormat:@"%X",(void *)theview]
+                                [self animationCompleted:[NSString stringWithFormat:@"%@",(void *)theview]
                                                 finished:[NSNumber numberWithBool:finished]
                                                  context:self];
                                 

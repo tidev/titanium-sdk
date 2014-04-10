@@ -31,6 +31,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<fileset dir="${ti.build.dir}/lib" includes="**/*.jar"/>
 	</path>
 	
+	<property name="v7appcompat.project.dir" location="${ti.android.root}/modules/appcompat"/>
 	<property name="titanium.project.dir" location="${ti.android.root}/titanium"/>
 	<property name="kroll.apt.project.dir" location="${ti.android.root}/kroll-apt"/>
 	<property name="kroll.common.project.dir" location="${ti.android.root}/runtime/common"/>
@@ -143,6 +144,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<path id="titanium.path">
 		<pathelement path="${dist.classes.dir}/titanium"/>
 		<fileset dir="${titanium.project.dir}/lib" includes="**/*.jar"/>
+		<fileset dir="${v7appcompat.project.dir}/lib" includes="**/*.jar"/>
 	</path>
 
 	<macrodef name="build.project">
@@ -526,6 +528,13 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<zip destfile="${dist.dir}/titanium-@{name}.res.zip">
 				<zipfileset dir="${modules.dir}/@{name}" includes="res/**"/>
 			</zip>
+			<ti.modulePackage json="${dependency.json}" module="@{name}" property="titanium-@{name}.respackage"/>
+			<if>
+  				<isset property="titanium-@{name}.respackage"/>
+  				<then>
+  				    <echo file="${dist.dir}/titanium-@{name}.respackage" append="false">${titanium-@{name}.respackage}</echo>
+				</then>
+ 			</if>
 		</sequential>
 	</macrodef>
 
@@ -623,6 +632,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<taskdef classname="org.appcelerator.titanium.ant.StringTask" name="ti.string" classpathref="ti.build.path"/>
 			<taskdef classname="org.appcelerator.titanium.ant.UpdateModulesJSONTask" name="ti.updateModulesJSON" classpathref="ti.build.path"/>
 			<taskdef classname="org.appcelerator.titanium.ant.JSONMap" name="ti.jsonMap" classpathref="ti.build.path"/>
+			<taskdef classname="org.appcelerator.titanium.ant.ModulePackageTask" name="ti.modulePackage" classpathref="ti.build.path"/>
 		</sequential>
 	</macrodef>
 
@@ -650,7 +660,14 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<if>
 				<istrue value="${@{module}.res.avail}"/>
 				<then>
-					<zip.module.res name="@{module}"/>
+					<fileset dir="${modules.dir}/@{module}/res" id="fileset"/>
+  					<pathconvert refid="fileset" property="@{module}.res.empty" setonempty="false"/>
+  					<if>
+  					    <isset property="@{module}.res.empty"/>
+  					    <then>
+							<zip.module.res name="@{module}"/>
+  					    </then>
+  					</if>
 				</then>
 			</if>
 		</sequential>

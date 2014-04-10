@@ -20,7 +20,6 @@
 #import <libkern/OSAtomic.h>
 #import "TiExceptionHandler.h"
 #import "Mimetypes.h"
-
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
 #endif
@@ -64,6 +63,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 @synthesize pendingCompletionHandlers;
 @synthesize backgroundTransferCompletionHandlers;
 @synthesize localNotification;
+@synthesize appBooted;
 
 +(void)initialize
 {
@@ -118,7 +118,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)setDisableNetworkActivityIndicator:(BOOL)value
 {
 	disableNetworkActivityIndicator = value;
-	[ASIHTTPRequest setShouldUpdateNetworkActivityIndicator: !disableNetworkActivityIndicator];
 	[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:(!disableNetworkActivityIndicator && (networkActivityCount > 0))];
 }
 
@@ -401,28 +400,36 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 #pragma mark
 #pragma mark Background Fetch iOS 7
 
+#ifdef USE_TI_FETCH
+
 -(void)application:(UIApplication*)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 
-    // Generate unique key with timestamp.
-    id key = [NSString stringWithFormat:@"Fetch-%f",[[NSDate date] timeIntervalSince1970]];
-    
-    // Store the completionhandler till we can come back and send appropriate message.
-    if (pendingCompletionHandlers == nil) {
-        pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
+    //Only for simulator builds
+    NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+    if ([backgroundModes containsObject:@"fetch"]) {
+
+        // Generate unique key with timestamp.
+        id key = [NSString stringWithFormat:@"Fetch-%f",[[NSDate date] timeIntervalSince1970]];
+
+        // Store the completionhandler till we can come back and send appropriate message.
+        if (pendingCompletionHandlers == nil) {
+            pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
+        }
+
+        [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
+
+        // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
+        // the bridge completes processing of app.js (adding the event into notification center).
+
+        [self postNotificationwithKey:[NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil] withNotificationName:kTiBackgroundFetchNotification] ;
+
+        // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
+        NSTimer*  flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO] ;
+        [[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
     }
-    
-    [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
-    
-    // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
-    // the bridge completes processing of app.js (adding the event into notification center).
-    
-    [self postNotificationwithKey:[NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil] withNotificationName:kTiBackgroundFetchNotification] ;
-    
-    // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
-    NSTimer*  flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO] ;
-    [[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
-    
 }
+
+#endif
 
 #pragma mark Helper Methods
 
@@ -504,33 +511,43 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 #pragma mark
 #pragma mark Remote Notifications iOS 7
 
-
+#ifdef USE_TI_SILENTPUSH
 //Delegate callback for Silent Remote Notification.
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler
 {
     //FunctionName();
+    //Forward the callback
+    [self application:application didReceiveRemoteNotification:userInfo];
     
-    // Generate unique key with timestamp.
-    id key = [NSString stringWithFormat:@"SilentPush-%f",[[NSDate date] timeIntervalSince1970]];
+    //This only here for Simulator builds.
     
-    // Store the completionhandler till we can come back and send appropriate message.
-    if (pendingCompletionHandlers == nil) {
-        pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
+    NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+    if ([backgroundModes containsObject:@"remote-notification"]) {
+        
+        // Generate unique key with timestamp.
+        id key = [NSString stringWithFormat:@"SilentPush-%f",[[NSDate date] timeIntervalSince1970]];
+        
+        // Store the completionhandler till we can come back and send appropriate message.
+        if (pendingCompletionHandlers == nil) {
+            pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
+        }
+        
+        [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
+        
+        // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
+        // the bridge completes processing of app.js (adding the event into notification center).
+        
+        NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil];
+        [dict addEntriesFromDictionary:userInfo];
+        [self postNotificationwithKey:dict withNotificationName:kTiSilentPushNotification];
+        
+        // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
+        NSTimer*  flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO] ;
+        [[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
     }
-    
-    [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
-    
-    // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
-    // the bridge completes processing of app.js (adding the event into notification center).
-    
-    NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil];
-    [dict addEntriesFromDictionary:userInfo];
-    [self postNotificationwithKey:dict withNotificationName:kTiSilentPushNotification];
-    
-    // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
-    NSTimer*  flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO] ;
-    [[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
 }
+
+#endif
 
 #pragma mark
 #pragma mark Background Transfer Service iOS 7
@@ -611,6 +628,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         [dict addEntriesFromDictionary:success];
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionCompleted object:self userInfo:dict];
+
+}
+
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask
+ didResumeAtOffset:(int64_t)fileOffset
+expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 }
 

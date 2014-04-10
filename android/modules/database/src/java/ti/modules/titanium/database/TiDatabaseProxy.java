@@ -108,7 +108,7 @@ public class TiDatabaseProxy extends KrollProxy
 			// if you don't. Just expecting them on select or pragma may be enough, but
 			// it may need additional tuning. The better solution would be to expose
 			// both types of queries through the Titanium API.
-			if (lcSql.startsWith("select") || lcSql.startsWith("pragma")) {
+			if (lcSql.startsWith("select") || (lcSql.startsWith("pragma") && !lcSql.contains("="))) {
 				String[] selectArgs = null;
 				if (sqlArgs != null) {
 					selectArgs = new String[sqlArgs.length];

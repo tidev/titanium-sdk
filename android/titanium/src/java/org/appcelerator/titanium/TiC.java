@@ -411,6 +411,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_RESUME = "resume";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_RETURN = "return";
 
 	/**
 	 * @module.api
@@ -491,6 +496,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
+	
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_SSL_ERROR = "sslerror";
 	
 
 	/**
@@ -1132,11 +1143,21 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FIRSTNAME = "firstName";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FLAG_SECURE = "flagSecure";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_FLAGS = "flags";
+	
+	/**
+	 * @module.api
+	 */	
+	public static final String PROPERTY_FLASH_MODE = "flashMode";
 
 	/**
 	 * @module.api
@@ -1162,6 +1183,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FONT_SIZE = "font-size";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FOOTER_DIVIDERS_ENABLED = "footerDividersEnabled";
 
 	/**
 	 * @module.api
@@ -1224,6 +1250,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HEADER = "header";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HEADER_DIVIDERS_ENABLED = "headerDividersEnabled";
 
 	/**
 	 * @module.api
@@ -1324,6 +1355,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_INCLUDE_FONT_PADDING = "includeFontPadding";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_INITIAL_PLAYBACK_TIME = "initialPlaybackTime";
 	
 	/**
@@ -1395,6 +1431,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LOAD_URL = "loadUrl";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LOOPING = "looping";
 
 	/**
 	 * @module.api
@@ -1565,11 +1606,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NAME = "name";
-
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_NAV_BAR_HIDDEN = "navBarHidden";
 	
 	/**
 	 * @module.api

@@ -138,6 +138,22 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 	this.ignoreDirs = new RegExp(config.get('cli.ignoreDirs'));
 	this.ignoreFiles = new RegExp(config.get('cli.ignoreFiles'));
 
+	// we hook into the pre-validate event so that we can stop the build before
+	// prompting if we know the build is going to fail.
+	cli.on('cli:pre-validate', function (obj, callback) {
+		if (cli.argv.platform && !/^(ios|iphone|ipad)$/i.test(cli.argv.platform)) {
+			return callback();
+		}
+
+		// check that the iOS environment is found and sane
+		this.assertIssue(this.iosInfo.issues, 'IOS_XCODE_NOT_INSTALLED');
+		this.assertIssue(this.iosInfo.issues, 'IOS_NO_SUPPORTED_XCODE_FOUND');
+		this.assertIssue(this.iosInfo.issues, 'IOS_NO_IOS_SDKS');
+		this.assertIssue(this.iosInfo.issues, 'IOS_NO_IOS_SIMS');
+
+		callback();
+	}.bind(this));
+
 	var targetDeviceCache = {};
 		findTargetDevices = function findTargetDevices(target, callback) {
 			if (targetDeviceCache[target]) {
@@ -178,12 +194,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 		detect.detect(config, null, function (iosInfo) {
 			detect.detectSimulators(config, null, function (err, simInfo) {
 				this.iosInfo = iosInfo;
-
-				// check that the iOS environment is found and sane
-				this.assertIssue(iosInfo.issues, 'IOS_XCODE_NOT_INSTALLED');
-				this.assertIssue(iosInfo.issues, 'IOS_NO_SUPPORTED_XCODE_FOUND');
-				this.assertIssue(iosInfo.issues, 'IOS_NO_IOS_SDKS');
-				this.assertIssue(iosInfo.issues, 'IOS_NO_IOS_SIMS');
 
 				// get the all installed iOS SDKs and Simulators across all Xcode versions
 				var allSdkVersions = {},
@@ -241,7 +251,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 				var provisioningProfileLookup = {};
 
 				cli.createHook('build.ios.config', function (callback) {
-					callback({
+					callback(null, {
 						flags: {
 							'force-copy': {
 								desc: __('forces files to be copied instead of symlinked for %s builds only', 'simulator'.cyan)
@@ -706,6 +716,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							'target': {
 								abbr: 'T',
 								callback: function (value) {
+									// if we're building from Xcode, no need to check certs and provisioning profiles
+									if (cli.argv.xcode) return;
+
 									if (value != 'simulator') {
 										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_KEYCHAINS_FOUND');
 										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_WWDR_CERT_FOUND');
@@ -753,7 +766,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							}
 						}
 					});
-				})(function (err, results, result) {
+				})(function (err, result) {
 					done(_t.conf = result);
 				});
 			}.bind(this));
@@ -808,7 +821,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	}
 
 	// at this point we've validated everything except underscores in the app id
-	if (!config.get('ios.skipAppIdValidation')) {
+	if (!config.get('app.skipAppIdValidation') && !cli.tiapp.properties['ti.skipAppIdValidation']) {
 		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(cli.tiapp.id)) {
 			logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
 			logger.error(__('The app id must consist only of letters, numbers, dashes, and underscores.'));
@@ -860,27 +873,29 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	// args based on the sim profile values
 	if ((this.target == 'device' || this.target == 'simulator') && deviceId) {
 		for (var i = 0, l = this.devices.length; i < l; i++) {
-			if (this.devices[i].id == deviceId) {
-				if (this.target == 'device') {
-					if (this.devices[i].id != 'itunes' && version.lt(this.devices[i].productVersion, this.minIosVer)) {
-						logger.error(__('This app does not support the device "%s"', this.devices[i].name) + '\n');
-						logger.log(__("The device is running iOS %s, however the app's the minimum iOS version is set to %s", this.devices[i].productVersion.cyan, version.format(this.minIosVer, 2, 3).cyan));
-						logger.log(__('In order to install this app on this device, lower the %s to %s in the tiapp.xml:', '<min-ios-ver>'.cyan, version.format(this.devices[i].productVersion, 2, 2).cyan));
-						logger.log();
-						logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-						logger.log('    <ios>'.grey);
-						logger.log(('        <min-ios-ver>' + version.format(this.devices[i].productVersion, 2, 2) + '</min-ios-ver>').magenta);
-						logger.log('    </ios>'.grey);
-						logger.log('</ti:app>'.grey);
-						logger.log();
-						process.exit(0);
-					}
-				} else if (this.target == 'simulator') {
-					cli.argv.retina = !!this.devices[i].retina;
-					cli.argv.tall = !!this.devices[i].tall;
-					cli.argv['sim-64bit'] = !!this.devices[i]['64bit'];
-					cli.argv['sim-type'] = this.devices[i].type;
+			if (this.target == 'device') {
+				if (this.devices[i].id == 'all' || this.devices[i].id == 'itunes') {
+					continue;
 				}
+
+				if ((deviceId == 'all' || deviceId == this.devices[i].id) && version.lt(this.devices[i].productVersion, this.minIosVer)) {
+					logger.error(__('This app does not support the device "%s"', this.devices[i].name) + '\n');
+					logger.log(__("The device is running iOS %s, however the app's the minimum iOS version is set to %s", this.devices[i].productVersion.cyan, version.format(this.minIosVer, 2, 3).cyan));
+					logger.log(__('In order to install this app on this device, lower the %s to %s in the tiapp.xml:', '<min-ios-ver>'.cyan, version.format(this.devices[i].productVersion, 2, 2).cyan));
+					logger.log();
+					logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+					logger.log('    <ios>'.grey);
+					logger.log(('        <min-ios-ver>' + version.format(this.devices[i].productVersion, 2, 2) + '</min-ios-ver>').magenta);
+					logger.log('    </ios>'.grey);
+					logger.log('</ti:app>'.grey);
+					logger.log();
+					process.exit(0);
+				}
+			} else if (this.target == 'simulator' && this.devices[i].id == deviceId) {
+				cli.argv.retina = !!this.devices[i].retina;
+				cli.argv.tall = !!this.devices[i].tall;
+				cli.argv['sim-64bit'] = !!this.devices[i]['64bit'];
+				cli.argv['sim-type'] = this.devices[i].type;
 				break;
 			}
 		}
@@ -1061,10 +1076,16 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 	return function (finished) {
 		// validate modules
-		var moduleSearchPaths = [ cli.argv['project-dir'], this.globalModulesPath ];
-		if (config.paths && Array.isArray(config.paths.modules)) {
-			moduleSearchPaths = moduleSearchPaths.concat(config.paths.modules);
-		}
+		var moduleSearchPaths = [ cli.argv['project-dir'] ],
+			customModulePaths = config.get('paths.modules'),
+			addSearchPath = function (p) {
+				p = afs.resolvePath(p);
+				if (fs.existsSync(p) && moduleSearchPaths.indexOf(p) == -1) {
+					moduleSearchPaths.push(p);
+				}
+			};
+		cli.env.os.sdkPaths.forEach(addSearchPath);
+		Array.isArray(customModulePaths) && customModulePaths.forEach(addSearchPath);
 
 		appc.timodule.find(cli.tiapp.modules, ['ios', 'iphone'], this.deployType, this.titaniumSdkVersion, moduleSearchPaths, logger, function (modules) {
 			if (modules.missing.length) {
@@ -1343,10 +1364,13 @@ iOSBuilder.prototype.loginfo = function loginfo(next) {
 	this.logger.debug(__('Xcode installation: %s', this.xcodeEnv.path.cyan));
 	this.logger.debug(__('iOS WWDR certificate: %s', this.iosInfo.certs.wwdr ? __('installed').cyan : __('not found').cyan));
 	this.logger.debug(__('Building for the following architectures: %s', this.architectures.cyan));
-	if (this.target == 'device') {
-		this.logger.info(__('iOS Development Certificate: %s', this.certDeveloperName.cyan));
-	} else if (/^dist-appstore|dist\-adhoc$/.test(this.target)) {
-		this.logger.info(__('iOS Distribution Certificate: %s', this.certDistributionName.cyan));
+
+	if (!this.cli.argv.xcode) {
+		if (this.target == 'device') {
+			this.logger.info(__('iOS Development Certificate: %s', this.certDeveloperName.cyan));
+		} else if (/^dist-appstore|dist\-adhoc$/.test(this.target)) {
+			this.logger.info(__('iOS Distribution Certificate: %s', this.certDistributionName.cyan));
+		}
 	}
 
 	// validate the min-ios-ver from the tiapp.xml
@@ -1585,11 +1609,11 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile(ne
 	this.libTiCoreHash = hash(fs.readFileSync(path.join(this.titaniumIosSdkPath, 'libTiCore.a')));
 
 	// figure out all of the modules currently in use
-	this.modulesHash = hash(this.tiapp.modules.filter(function (m) {
+	this.modulesHash = hash(this.tiapp.modules ? this.tiapp.modules.filter(function (m) {
 		return !m.platform || /^iphone|ipad|ios|commonjs$/.test(m.platform);
 	}).map(function (m) {
 		return m.id + ',' + m.platform + ',' + m.version;
-	}).join('|'));
+	}).join('|') : '');
 
 	// check if we need to do a rebuild
 	this.forceRebuild = this.checkIfShouldForceRebuild();
@@ -1653,7 +1677,7 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir(next) {
 iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 	var src = this.projectDir + '/Info.plist',
 		dest = this.buildDir + '/Info.plist',
-		plist = new appc.plist(),
+		plist = this.infoPlist = new appc.plist(),
 		iphone = this.tiapp.iphone,
 		ios = this.tiapp.ios,
 		defaultInfoPlist = path.join(this.titaniumIosSdkPath, 'Info.plist'),
@@ -1777,7 +1801,9 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 	plist.CFBundleIdentifier = this.tiapp.id;
 
 	// device builds require an additional token to ensure uniquiness so that iTunes will detect an updated app to sync
-	if (this.target == 'device') {
+	if (this.config.get('app.skipVersionValidation') || this.tiapp.properties['ti.skipVersionValidation']) {
+		plist.CFBundleVersion = this.tiapp.version;
+	} else if (this.target == 'device') {
 		plist.CFBundleVersion = appc.version.format(this.tiapp.version, 3, 3) + '.' + (new Date).getTime();
 	} else {
 		plist.CFBundleVersion = appc.version.format(this.tiapp.version, 3, 3);
@@ -1787,9 +1813,9 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 	Array.isArray(plist.CFBundleIconFiles) || (plist.CFBundleIconFiles = []);
 	['.png', '@2x.png', '-72.png', '-60.png', '-60@2x.png', '-76.png', '-76@2x.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png', '-Small-40.png', '-Small-40@2x.png'].forEach(function (name) {
 		name = iconName + name;
-		if (fs.existsSync(this.projectDir, 'Resources', name) ||
-			fs.existsSync(this.projectDir, 'Resources', 'iphone', name) ||
-			fs.existsSync(this.projectDir, 'Resources', this.platformName, name)) {
+		if (fs.existsSync(path.join(this.projectDir, 'Resources', name)) ||
+			fs.existsSync(path.join(this.projectDir, 'Resources', 'iphone', name)) ||
+			fs.existsSync(path.join(this.projectDir, 'Resources', 'ios', name))) {
 			if (plist.CFBundleIconFiles.indexOf(name) == -1) {
 				plist.CFBundleIconFiles.push(name);
 			}
@@ -1956,7 +1982,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 		proj,
 		'Pre-Compile',
 		'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then\\n'
-		+ '    ' + (process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-progress-bars --no-banner --no-colors --xcode\\n'
+		+ '    ' + (process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-progress-bars --no-banner --no-colors --build-only --xcode\\n'
 		+ '    exit $?\\n'
 		+ 'else\\n'
 		+ '    echo \\"skipping pre-compile phase\\"\\n'
@@ -2066,9 +2092,7 @@ iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 	this.cli.createHook('build.ios.writeBuildManifest', this, function (manifest, cb) {
 		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
 		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
-		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), function () {
-			cb();
-		});
+		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
 	})({
 		target: this.target,
 		deployType: this.deployType,
@@ -2094,9 +2118,7 @@ iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 		forceCopy: !!this.forceCopy,
 		forceCopyAll: !!this.forceCopyAll,
 		encryptJS: !!this.encryptJS
-	}, function (err, results, result) {
-		next();
-	});
+	}, next);
 };
 
 iOSBuilder.prototype.compileI18NFiles = function compileI18NFiles(next) {
@@ -2605,7 +2627,8 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 		jsFiles = {},
 		jsFilesToEncrypt = this.jsFilesToEncrypt = [],
 		htmlJsFiles = this.htmlJsFiles = {},
-		symlinkFiles = this.target == 'simulator' && this.config.get('ios.symlinkResources', true) && !this.forceCopy && !this.forceCopyAll;
+		symlinkFiles = this.target == 'simulator' && this.config.get('ios.symlinkResources', true) && !this.forceCopy && !this.forceCopyAll,
+		_t = this;
 
 	function copyDir(opts, callback) {
 		if (opts && opts.src && fs.existsSync(opts.src) && opts.dest) {
@@ -2651,9 +2674,14 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 			src = path.dirname(src);
 		}
 
-		series(this, files.map(function (filename) {
-			return function (next) {
-				var from = path.join(src, filename),
+		async.whilst(
+			function () {
+				return files.length;
+			},
+
+			function (next) {
+				var filename = files.shift(),
+					from = path.join(src, filename),
 					to = path.join(dest, filename);
 
 				// check that the file actually exists and isn't a broken symlink
@@ -2663,12 +2691,12 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 
 				// check if we are ignoring this file
 				if ((isDir && ignoreRootDirs && ignoreRootDirs.indexOf(filename) != -1) || (isDir ? ignoreDirs : ignoreFiles).test(filename)) {
-					this.logger.debug(__('Ignoring %s', from.cyan));
+					_t.logger.debug(__('Ignoring %s', from.cyan));
 					return next();
 				}
 
 				// if this is a directory, recurse
-				if (isDir) return recursivelyCopy.call(this, from, path.join(dest, filename), null, opts, next);
+				if (isDir) return recursivelyCopy.call(_t, from, path.join(dest, filename), null, opts, next);
 
 				// we have a file, now we need to see what sort of file
 
@@ -2681,24 +2709,29 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 				switch (ext && ext[1]) {
 					case 'css':
 						// if we encounter a css file, check if we should minify it
-						if (this.minifyCSS) {
-							this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+						if (_t.minifyCSS) {
+							_t.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
 							fs.readFile(from, function (err, data) {
 								if (err) throw err;
 								fs.writeFile(to, cleanCSS.process(data.toString()), next);
 							});
 						} else {
-							copyFile.call(this, from, to, next);
+							copyFile.call(_t, from, to, next);
 						}
 						break;
 
 					case 'html':
-						// find all app:// js files referenced in this html file
-						jsanalyze.analyzeHtmlFile(from).forEach(function (file) {
+						// find all js files referenced in this html file
+						var relPath = from.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, '').split('/');
+						relPath.pop(); // remove the filename
+						relPath = relPath.join('/');
+						jsanalyze.analyzeHtmlFile(from, relPath).forEach(function (file) {
 							htmlJsFiles[file] = 1;
 						});
 
-						copyFile.call(this, from, to, next);
+						_t.cli.createHook('build.ios.copyResource', _t, function (from, to, cb) {
+							copyFile.call(_t, from, to, cb);
+						})(from, to, next);
 						break;
 
 					case 'js':
@@ -2721,17 +2754,19 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 
 					default:
 						// if the device family is iphone, then don't copy iPad specific images
-						if (this.deviceFamily != 'iphone' || this.ipadSplashImages.indexOf(relPath) == -1) {
+						if (_t.deviceFamily != 'iphone' || _t.ipadSplashImages.indexOf(relPath) == -1) {
 							// normal file, just copy it into the build/iphone/bin/assets directory
-							this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
-								copyFile.call(this, from, to, cb);
+							_t.cli.createHook('build.ios.copyResource', _t, function (from, to, cb) {
+								copyFile.call(_t, from, to, cb);
 							})(from, to, next);
 						} else {
 							next();
 						}
 				}
-			};
-		}), done);
+			},
+
+			done
+		);
 	}
 
 	var tasks = [
@@ -2805,7 +2840,7 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 			tasks.push(function (cb) {
 				copyDir.call(this, {
 					src: dir,
-					dest: this.buildDir
+					dest: this.xcodeAppDir
 				}, cb);
 			});
 		}
@@ -2814,6 +2849,7 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 	series(this, tasks, function (err, results) {
 		// copy js files into assets directory and minify if needed
 		this.logger.info(__('Processing JavaScript files'));
+
 		series(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
 				var from = jsFiles[id],
@@ -2834,26 +2870,33 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 					jsFilesToEncrypt.push(id);
 				}
 
-				// if we're not minifying the JavaScript and we're not forcing all
-				// Titanium modules to be included, then parse the AST and detect
-				// all Titanium symbols
-				if (this.minifyJS || !this.includeAllTiModules) {
-					var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+				try {
+					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
+						// parse the AST
+						var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
 
-					// we want to sort by the "to" filename so that we correctly handle file overwriting
-					this.tiSymbols[to] = r.symbols;
+						// we want to sort by the "to" filename so that we correctly handle file overwriting
+						this.tiSymbols[to] = r.symbols;
 
-					this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-					this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb) {
 						var dir = path.dirname(to);
 						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-						fs.writeFile(to, r.contents, cb);
-					})(r, from, to, done);
-				} else {
-					// no need to parse the AST, so just copy the file
-					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
-						copyFile.call(this, from, to, cb);
+
+						if (this.minifyJS) {
+							this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+
+							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
+								fs.writeFile(to, r.contents, cb2);
+							})(r, from, to, cb);
+						} else {
+							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+
+							fs.writeFile(to, r.contents, cb);
+						}
 					})(from, to, done);
+				} catch (ex) {
+					ex.message.split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
 				}
 			};
 		}), function () {
@@ -3020,6 +3063,18 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 	contents = contents.concat(Object.keys(symbols).sort().map(function (s) {
 		return '#define USE_TI_' + s;
 	}));
+
+	var infoPlist = this.infoPlist;
+	if (!infoPlist) {
+		infoPlist = new appc.plist(this.buildDir + '/Info.plist');
+	}
+
+	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('remote-notification') != -1) {
+		contents.push('#define USE_TI_SILENTPUSH');
+	}
+	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('fetch') != -1) {
+		contents.push('#define USE_TI_FETCH');
+	}
 
 	contents.push(
 		'#ifdef USE_TI_UILISTVIEW',

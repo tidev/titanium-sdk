@@ -1,8 +1,10 @@
 ---
 name: Titanium.UI.View
-summary: An empty drawing surface or container created by the method <Titanium.UI.createView>.
+summary: An empty drawing surface or container 
 description: |
     The `View` is the base type for all UI widgets in Titanium.
+
+    You use the <Titanium.UI.createView> method or **`<View>`** Alloy element to create a View.
     
     #### Units and Coordinates
     
@@ -19,20 +21,44 @@ description: |
     
     The following units are supported:
     
-    <table cellpadding="6px" border="1" rules="all">
-    <tr>
-    <th align="left">Unit</th> <th align="left">Specifier</th> <th align="left">Note</th>
-    </tr>
-    <tr> <td>pixels</td> <td>px</td> <td></td> </tr>
-    <tr> <td>density-independent pixels</td> <td>dip</td> <td>Equivalent to Apple "points."</td> </tr>
-    <tr> <td>inches</td> <td>in</td> <td></td> </tr>
-    <tr> <td>millimeters</td> <td>mm</td> <td>Android, iOS only</td>  </tr>
-    <tr> <td>centimeters</td> <td>cm</td> <td>Android, iOS only</td>  </tr>
-    <tr> <td>points</td> <td>pt</td> 
-         <td>Typographical points of 1/72 of an inch. On Android, you can specify sizes and 
-         coordinates in typographical points. On other platforms, this unit is only used
-         to specify font sizes.  Not to be confused with Apple "points."</td> </tr>
+    <table class="doc-table" width="60%">
+        <tr>
+            <th>Unit</th>
+            <th>Specifier</th>
+            <th>Note</th>
+        </tr>
+        <tr>
+            <td>pixels</td>
+            <td>px</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>density-independent pixels</td>
+            <td>dip</td>
+            <td>Equivalent to Apple "points."</td>
+        </tr>
+        <tr>
+            <td>inches</td>
+            <td>in</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>millimeters</td>
+            <td>mm</td>
+            <td>Android, iOS only</td>
+        </tr>
+        <tr>
+            <td>centimeters</td>
+            <td>cm</td>
+            <td>Android, iOS only</td>
+        </tr>
+        <tr>
+            <td>points</td>
+            <td>pt</td>
+            <td>Typographical points of 1/72 of an inch. On Android, you can specify sizes and coordinates in typographical points. On other platforms, this unit is only used to specify font sizes. Not to be confused with Apple "points."</td>
+        </tr>
     </table>
+
     
     The interpretation of the density-independent pixel (DIP) varies by platform:
     
@@ -174,6 +200,31 @@ description: |
     * For iOS 4.x the strechable portion is always a 1x1 region that is tiled repeatedly.
 
     For best results on ImageView set up the `backgroundLeftCap` and `backgroundTopCap` properties such that the stretchable portion is always a 1x1 box.
+
+    #### iOS Clipping Behavior
+
+    Four new view related properties became available in Titanium Mobile 3.3.0 for iOS.
+
+    * <Titanium.UI.View.viewShadowRadius>
+    * <Titanium.UI.View.viewShadowColor>
+    * <Titanium.UI.View.viewShadowOffset>
+    * <Titanium.UI.View.clipMode>
+
+    The first three, `viewShadowColor`, `viewShadowRadius` and `viewShadowOffset` control the shadow associated with the view. 
+    The shadow of the view is drawn using a rounded rectangle with the arc radius set to the `borderRadius` property.
+
+    The `clipMode` property lets the user control the clipping behavior of the View.
+    Setting this to <Titanium.UI.iOS.CLIP_MODE_ENABLED> enforces all child views to be clipped to this views bounds.
+    Setting this to <Titanium.UI.iOS.CLIP_MODE_DISABLED> allows child views to be drawn outside the bounds of this view.
+    When set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT> or when this property is not set, clipping behavior is defined by the following rules applied in order.
+
+    * If the `viewShadowColor` is defined to be a color with alpha > 0, clipping is disabled.
+    * If the `borderWidth` or `borderRadius` of the view is set to a value > 0, clipping is enabled.
+    * If the view has one or more `children` clipping is enabled.
+    * If none of the conditions are met, clipping is disabled.
+
+    In earlier versions of Titanium Mobile, views had clipping enabled by default.
+
 
 extends: Titanium.Proxy
 since: "0.9"
@@ -352,6 +403,9 @@ events:
         
   - name: touchend
     summary: Fired when a touch event is completed.
+    description: |
+        On the Android platform, other gesture events, such as `longpress` or `swipe`, cancel touch
+        events, so this event may not be triggered after a `touchstart` event.
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -708,7 +762,8 @@ properties:
     summary: Briefly describes what performing an action (such as a click) on the view will do.
     description: |
         On iOS this is a direct analog of the `accessibilityHint` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html). On Android, it is concatenated together with
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityLabel> and <Titanium.UI.View.accessibilityValue> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
         argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
@@ -721,7 +776,8 @@ properties:
     summary: A succint label identifying the view for the device's accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityLabel` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html). On Android, it is concatenated together with
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityValue> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
         argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
@@ -734,7 +790,8 @@ properties:
     summary: A string describing the value (if any) of the view for the device's accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityValue` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html). On Android, it is concatenated together with
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityLabel> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
         argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
@@ -987,11 +1044,26 @@ properties:
     type: Array<Titanium.UI.View>
     permission: read-only
 
+  - name: clipMode
+    summary: View's clipping behavior. 
+    description: |
+        Setting this to <Titanium.UI.iOS.CLIP_MODE_ENABLED> enforces all child views to be clipped to this views bounds.
+        Setting this to <Titanium.UI.iOS.CLIP_MODE_DISABLED> allows child views to be drawn outside the bounds of this view.
+        When set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT> or when this property is not set, clipping behavior is inferred. 
+        See section on iOS Clipping Behavior in <Titanium.UI.View>.
+    type: Number
+    default: Undefined. Behaves as if set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT>.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+
   - name: enabled
     summary: Determines if the view is enabled or disabled.
     description: Set to `true` to enable or `false` to disable the view.
     default: Enabled by default. (Property value may be undefined.)
     type: Boolean
+    deprecated:
+        since: "3.3.0"
+        notes: This is deprecated on Android. Use [touchEnabled](Titanium.UI.View.enabled) property instead.
     platforms: [android, blackberry]
     
   - name: focusable
@@ -1021,6 +1093,7 @@ properties:
         This is an input property for specifying the view's height dimension. To determine the 
         view's size once rendered, use the [rect](Titanium.UI.View.rect) or 
         [size](Titanium.UI.View.size) properties.
+    constants: [Titanium.UI.FILL, Titanium.UI.SIZE]
     type: [Number,String]
     
   - name: left
@@ -1163,6 +1236,13 @@ properties:
     type: Number
     default: 1.0 (opaque)
 
+  - name: pullBackgroundColor
+    summary: Background color of the wrapper view when this view is used as either <Titanium.UI.ListView.pullView> or <Titanium.UI.TableView.headerPullView>.
+    type: String
+    default: Undefined. Results in a light grey background color on the wrapper view.
+    since: "3.3.0"
+    platforms: [iphone,ipad]
+
   - name: right
     summary: View's right position, in platform-specific units.
     description: |
@@ -1211,11 +1291,8 @@ properties:
     
   - name: softKeyboardOnFocus
     summary: Determines keyboard behavior when this view is focused.
-    description: |
-        One of <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>, 
-        <Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS>, or 
-        <Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS>.
     type: Number
+    constants: Titanium.UI.Android.SOFT_KEYBOARD_*
     default: <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>
     platforms: [android]
     
@@ -1254,6 +1331,27 @@ properties:
     default: Identity matrix
     exclude-platforms: [blackberry]
     
+  - name: viewShadowRadius
+    summary: Determines the blur radius used to create the shadow.
+    type: Number
+    default: Undefined. Behaves as if set to 3.
+    platforms: [iphone,ipad]
+    since: "3.3.0"
+    
+  - name: viewShadowColor
+    summary: Determines the color of the shadow.
+    type: String
+    default: Undefined. Behaves as if transparent.
+    platforms: [iphone,ipad]
+    since: "3.3.0"
+    
+  - name: viewShadowOffset
+    summary: Determines the offset for the shadow of the view.
+    type: Point
+    default: Undefined. Behaves as if set to (0,-3)
+    platforms: [iphone,ipad]
+    since: "3.3.0"
+    
   - name: visible
     summary: Determines whether the view is visible.
     type: Boolean
@@ -1281,6 +1379,7 @@ properties:
         the view's size once rendered, use the [rect](Titanium.UI.View.rect) or
         [size](Titanium.UI.View.size) properties.
     type: [Number,String]
+    constants: [Titanium.UI.FILL, Titanium.UI.SIZE]
 
   - name: horizontalWrap
     summary: Determines whether the layout has wrapping behavior.

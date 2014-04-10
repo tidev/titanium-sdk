@@ -179,10 +179,8 @@ properties:
         Determines the type of information the person record contains; either person or organization. 
         Read-only on Android.
     description: |
-        One of <Titanium.Contacts.CONTACTS_KIND_PERSON> or 
-        <Titanium.Contacts.CONTACTS_KIND_ORGANIZATION>.
-        
         Tizen supports only <Titanium.Contacts.CONTACTS_KIND_PERSON>.
+    constants: Titanium.Contacts.CONTACTS_KIND_*
     exclude-platforms: [blackberry]
         
     type: Number

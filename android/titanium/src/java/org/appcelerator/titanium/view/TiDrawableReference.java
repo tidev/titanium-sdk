@@ -30,6 +30,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiImageLruCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
@@ -886,36 +887,7 @@ public class TiDrawableReference
 			}
 		}
 
-		try {
-			if (path == null) {
-				Log.e(TAG,
-					"Path of image file could not determined. Could not create an exifInterface from an invalid path.");
-				return 0;
-			}
-
-			// Remove path prefix
-			if (path.startsWith(FILE_PREFIX)) {
-				path = path.replaceFirst(FILE_PREFIX, "");
-			}
-
-			ExifInterface exifInterface = new ExifInterface(path);
-			orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
-
-			if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
-				orientation = 90;
-			} else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
-				orientation = 180;
-			} else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
-				orientation = 270;
-			} else {
-				orientation = 0;
-			}
-
-		} catch (IOException e) {
-			Log.e(TAG, "Error creating exifInterface, could not determine orientation.", Log.DEBUG_MODE);
-		}
-
-		return orientation;
+		return TiImageHelper.getOrientation(path);
 
 	}
 

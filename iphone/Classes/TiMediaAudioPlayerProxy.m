@@ -173,6 +173,15 @@ PLAYER_PROP_DOUBLE(bitRate,bitRate);
 PLAYER_PROP_DOUBLE(progress,progress);
 PLAYER_PROP_DOUBLE(state,state);
 
+-(NSNumber *)duration
+{
+	if (player != nil){
+        //Convert duration to milliseconds (parity with progress/Android)
+		duration = (int)([player duration]*1000);
+	}
+	return NUMDOUBLE(duration);
+}
+
 -(NSNumber *)volume
 {
 	if (player != nil){

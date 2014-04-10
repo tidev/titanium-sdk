@@ -44,7 +44,8 @@ module.exports = new function() {
 		{name: "multiLingualFilename"},
 		{name: "isFileMethod"},
 		{name: "resourceDirAsFile"},
-		{name: "jssErrorDialog"}
+		{name: "jssErrorDialog"},
+		{name: "setRemoteBackup"}
 	]
 
 	this.optionalArgAPIs = function(testRun) {
@@ -698,5 +699,19 @@ module.exports = new function() {
 		}).shouldThrowException();
 
 		finish(testRun);
+	}
+
+	//TIMOB-14364 
+	this.setRemoteBackup = function(testRun) {
+		if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
+			valueOf(testRun, function() {
+				Titanium.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory).setRemoteBackup(false);
+			}).shouldNotThrowException();
+
+			finish(testRun);
+		} else {
+
+			finish(testRun);
+		}
 	}
 }

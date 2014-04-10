@@ -10,7 +10,7 @@
  * Copyright (c) 2010-2011, The Dojo Foundation
  * New BSD License / MIT License
  * <http://requirejs.org>
- * 
+ *
  * curl.js
  * Copyright (c) 2011 unscriptable.com / John Hann
  * MIT License
@@ -711,7 +711,7 @@
 			// if the module is anonymous, assume this module's name
 			m.name || (m.name = module.name);
 
-			// if the module is this module, then modify this 
+			// if the module is this module, then modify this
 			if (m.name === module.name) {
 				modules[m.name] = module;
 				module.deps = m.deps;

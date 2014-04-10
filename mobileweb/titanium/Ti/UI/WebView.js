@@ -1,10 +1,10 @@
 /*global define, window*/
-define(['Ti/_/declare', 'Ti/_/UI/Widget', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/text!Ti/_/UI/WebViewBridge.js', 'Ti/App', 'Ti/API', 'Ti/UI', 'Ti/_/style'],
-	function(declare, Widget, dom, event, lang, bridge, App, API, UI, style) {
+define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/text!Ti/_/UI/WebViewBridge.js', 'Ti/App', 'Ti/API', 'Ti/UI', 'Ti/_/style'],
+	function(declare, View, dom, event, lang, bridge, App, API, UI, style) {
 
 	var on = require.on;
 
-	return declare('Ti.UI.WebView', Widget, {
+	return declare('Ti.UI.WebView', View, {
 
 		constructor: function() {
 			App.addEventListener(this.widgetId + ':unload', lang.hitch(this, function() {
@@ -99,7 +99,7 @@ define(['Ti/_/declare', 'Ti/_/UI/Widget', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang',
 		},
 
 		_setParent: function() {
-			Widget.prototype._setParent.apply(this, arguments);
+			View.prototype._setParent.apply(this, arguments);
 
 			// we are being added to a parent, need to manually fire
 			(this.url || this.html) && this._createIFrame();

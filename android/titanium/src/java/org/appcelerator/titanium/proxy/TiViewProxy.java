@@ -33,8 +33,6 @@ import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.graphics.Matrix;
-import android.graphics.RectF;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;

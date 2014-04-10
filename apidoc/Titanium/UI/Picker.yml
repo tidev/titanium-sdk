@@ -3,7 +3,7 @@ name: Titanium.UI.Picker
 summary: |
     A control used to select one or more fixed values.
 description: |
-    Use the <Titanium.UI.createPicker> method to create a picker control.
+    Use the <Titanium.UI.createPicker> method or Alloy **`<Picker>`** element to create a picker control.
 
     On Android, the `useSpinner` property must be enabled to support multiple columns.
     By default, the spinner is automatically sized to fit its content and can overflow
@@ -23,19 +23,29 @@ description: |
 
     On Mobile Web and Tizen, by default, the picker fills the entire view it is contained in
     but is adjustable using the `width` and `height` properties.
-extends: Titanium.Proxy
+extends: Titanium.UI.View
+excludes: {
+    properties: [
+        anchorPoint,backgroundColor,backgroundDisabledColor,backgroundDisabledImage,backgroundFocusedColor,
+        backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,backgroundRepeat,
+        backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,center,enabled,layout,tintColor,zIndex
+    ],
+    methods: [ remove, removeAllChildren ]
+}
 since: "0.8"
 platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: add
     summary: Adds rows or columns to the picker.
+    description: |
+        Once you use this method to add rows and columns to a picker, you cannot remove or
+        manipulate them.
     parameters:
       - name: data
         summary: |
             A row, set of rows, a column of rows or a set of columns of rows. When this method is 
             used to add a row or set of rows, a single-column picker is created.
         type: [Array<Titanium.UI.PickerRow>, Titanium.UI.PickerRow, Array<Titanium.UI.PickerColumn>, Titanium.UI.PickerColumn]
-    platforms: [android, iphone, ipad]
 
   - name: getSelectedRow
     summary: Gets the selected row for a column, or `null` if none exists.
@@ -184,6 +194,27 @@ events:
 properties:
   - name: columns
     summary: Columns used for this picker, as an array of <Titanium.UI.PickerColumn> objects.
+    description: |
+        In an Alloy application you can specify this property with a `<PickerColumn>` (or `<Column>`)
+        element that contains one or more `<PickerRow>` (or `<Row>`) elements, as shown below:
+
+            <Alloy>
+                <Window>
+                    <Picker useSpinner="true">
+                        <PickerColumn id="column1">
+                            <PickerRow title="Bananas"/>
+                            <PickerRow title="Strawberries"/>
+                            <PickerRow title="Mangos"/>
+                        </PickerColumn>
+                        <!-- Picker shorthand notation -->
+                        <Column id="column2">
+                            <Row title="red"/>
+                            <Row title="green"/>
+                            <Row title="blue"/>
+                        </Column>
+                    </Picker>
+                </Window>
+            </Alloy>
     type: Array<Titanium.UI.PickerColumn>
     
   - name: countDownDuration
@@ -266,24 +297,28 @@ properties:
     
   - name: selectionIndicator
     summary: |
-        Determines whether the visual selection indicator is shown. On iPhone, this is a blue bar.
-    description: If `true`, selection indicator is enabled.
+        Determines whether the visual selection indicator is shown.
+    description: |
+        If `true`, selection indicator is enabled.
+
+        On iOS 7 and later, the picker indicator is always shown and you cannot control it.
+
+        On iOS 6 and prior, if enabled, a blue bar is displayed to indicate the current selection.
     type: Boolean
-    default: true (Android), false (iPhone, iPad),
+    default: true (Android), false (iPhone, iPad)
     platforms: [android, iphone, ipad]
     
   - name: type
     summary: Determines the type of picker displayed
     description: |
-        One of <Titanium.UI.PICKER_TYPE_PLAIN>, 
-        <Titanium.UI.PICKER_TYPE_DATE>, <Titanium.UI.PICKER_TYPE_TIME>, 
-        <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> (Mobile Web, Tizen, iPhone, iPad-only) 
-        and <Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER> (iPhone, iPad-only.). 
+        `PICKER_TYPE_DATE_AND_TIME` is only available for iOS and Mobile Web, Tizen.
+        `PICKER_TYPE_COUNT_DOWN_TIMER` is only available for iOS.
         
         Mobile Web and Tizen rely on input types for date and time types, but as of Q1 2012 these input types 
-        are not supported on most browsers, those that do support it support it poorly, and no fall-back 
+        are not supported on most browsers, those that do support it support it poorly, and no fall-back
         exists. It is recommended not to use these types on Mobile Web and Tizen until browser support improves.
     type: Number
+    constants: Titanium.UI.PICKER_TYPE_*
     default: <Titanium.UI.PICKER_TYPE_PLAIN>
     
   - name: useSpinner

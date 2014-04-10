@@ -1,7 +1,7 @@
 ---
 name: Titanium.UI.iOS.AdView
 summary: The AdView is a view for display Apple iAds.
-description: The Ad view is created by the <Titanium.UI.iOS.createAdView> method.
+description: The Ad view is created by the <Titanium.UI.iOS.createAdView> method or **`<AdView>`** Alloy element.
 extends: Titanium.UI.View
 since: "1.4"
 platforms: [iphone, ipad]
@@ -77,4 +77,5 @@ properties:
         recommended that the `auto` value is used for these properties instead, to compute the 
         view's size from the adSize.
     type: String
+    constants: Titanium.UI.iOS.AD_SIZE_*
     since: "2.0.0"

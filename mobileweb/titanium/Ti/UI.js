@@ -1,10 +1,10 @@
 /*global Ti define window document navigator instrumentation*/
 define(
-	['Ti/_', 'Ti/_/Evented', 'Ti/_/has', 'Ti/_/lang', 'Ti/_/ready', 'Ti/_/style', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/has',
+	['Ti/_', 'Ti/_/Evented', 'Ti/_/has', 'Ti/_/lang', 'Ti/_/ready', 'Ti/_/style', 'Ti/_/dom', 'Ti/_/event',
 	'Ti/_/Gestures/DoubleTap', 'Ti/_/Gestures/Dragging', 'Ti/_/Gestures/LongPress', 'Ti/_/Gestures/Pinch', 'Ti/_/Gestures/SingleTap',
 	'Ti/_/Gestures/Swipe', 'Ti/_/Gestures/TouchCancel', 'Ti/_/Gestures/TouchEnd', 'Ti/_/Gestures/TouchMove',
 	'Ti/_/Gestures/TouchStart', 'Ti/_/Gestures/TwoFingerTap'],
-	function(_, Evented, has, lang, ready, style, dom, event, has,
+	function(_, Evented, has, lang, ready, style, dom, event,
 		DoubleTap, Dragging, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd, TouchMove, TouchStart, TwoFingerTap) {
 
 	var global = window,
@@ -101,6 +101,7 @@ define(
 				node = container.domNode,
 				coefficients = container._layoutCoefficients,
 				useTouch = has('touch'),
+				usePointer = global.navigator.msPointerEnabled,
 				touching = 0;
 
 			coefficients.width.x1 = 1;
@@ -135,9 +136,9 @@ define(
 					elements = evt._elements;
 
 				if (elements && elements.length) {
-					// Convert mouse* events to touch* events
+					// Convert mouse* and pointer* events to touch* events
 					useTouch || require.mix(evt, {
-						touches: evt.type === 'mouseup' ? [] : [evt],
+						touches: ~['mouseup', 'pointerup', 'MSPointerUp'].indexOf(evt.type) ? [] : [evt],
 						targetTouches: [],
 						changedTouches: [evt]
 					});
@@ -159,16 +160,13 @@ define(
 				}
 			}
 
-			// NOTE: This may be unnecessary. We have changed the event propagation system
-			// a few times and we can't remember if this code is actually used. It certainly
-			// may be redundant since each Ti.UI.View instance has it's own event handling,
-			// so we're just not sure if this is the source of the events.
-			on(node, useTouch ? 'touchstart' : 'mousedown', function(evt){
+			// NOTE: MSPointer* events should be converted to just pointer* once Windows Phone 8.1 is out
+			on(node, usePointer ? 'MSPointerDown' : useTouch ? 'touchstart' : 'mousedown', function(evt){
 				var handles = [
-					on(global, useTouch ? 'touchmove' : 'mousemove', function(evt){
+					on(global, usePointer ? 'MSPointerMove' : useTouch ? 'touchmove' : 'mousemove', function(evt){
 						(useTouch || touching) && processTouchEvent('TouchMoveEvent', evt);
 					}),
-					on(global, useTouch ? 'touchend' : 'mouseup', function(evt){
+					on(global, usePointer ? 'MSPointerUp' : useTouch ? 'touchend' : 'mouseup', function(evt){
 						touching = 0;
 						processTouchEvent('TouchEndEvent', evt);
 						event.off(handles);
@@ -242,7 +240,7 @@ define(
 					e.cancelBubble = false; // We use true and false here instead of 0 and 1 because they are user facing
 
 					// Fire the event
-					elements[0].fireEvent(i, e);
+					elements[sourceIndex].fireEvent(i, e);
 				}
 			}
 		},
