@@ -487,14 +487,22 @@ public class TiBlob extends KrollProxy
 	{
 		// If the image is not available but the width and height of the image are successfully fetched, the image can
 		// be created by decoding the data.
+		return getImage(null);
+	}
+	
+	private Bitmap getImage(BitmapFactory.Options opts) {
 		if (image == null && (width > 0 && height > 0)) {
+			if (opts == null) {
+				opts = new BitmapFactory.Options();
+				opts.inPreferredConfig = Bitmap.Config.RGB_565;
+			}
 			try {
 				switch (type) {
 					case TYPE_FILE:
-						return BitmapFactory.decodeStream(getInputStream());
+						return BitmapFactory.decodeStream(getInputStream(),null,opts);
 					case TYPE_DATA:
 						byte[] byteArray = (byte[]) data;
-						return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+						return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length,opts);
 				}
 			} catch (OutOfMemoryError e) {
 				Log.e(TAG, "Unable to get the image. Not enough memory: " + e.getMessage(), e);
@@ -531,6 +539,10 @@ public class TiBlob extends KrollProxy
 			//rotate
 			matrix.postRotate(rotation);
 			Bitmap imageCropped = Bitmap.createBitmap(img, x, y, widthCropped, heightCropped, matrix, true);
+			if(img != image) {
+				img.recycle();
+				img = null;
+			}
 			return blobFromImage(imageCropped);
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to crop the image. Not enough memory: " + e.getMessage(), e);
@@ -541,7 +553,37 @@ public class TiBlob extends KrollProxy
 	@Kroll.method
 	public TiBlob imageAsResized(Number width, Number height)
 	{
-		Bitmap img = getImage();
+		boolean valid =  (image == null && (this.width > 0 && this.height > 0));
+		if(!valid) {
+			return null;
+		}
+		
+		int dstWidth = width.intValue();
+		int dstHeight = height.intValue();
+		int imgWidth = this.width;
+		int imgHeight = this.height;
+		
+		BitmapFactory.Options opts = null;
+		boolean scaleDown = ((image == null) && (dstWidth < imgWidth) && (dstHeight < imgHeight));
+		if (scaleDown) {
+			int scaleWidth = imgWidth/dstWidth;
+			int scaleHeight = imgHeight/dstHeight;
+			
+			int targetScale = (scaleWidth < scaleHeight) ? scaleWidth : scaleHeight;
+			int sampleSize = 1;
+			while(targetScale >= 2) {
+				sampleSize *= 2;
+				targetScale /= 2;
+			}
+			
+			opts = new BitmapFactory.Options();
+			opts.inSampleSize = sampleSize;
+			opts.inPreferredConfig = Bitmap.Config.RGB_565;
+		}
+		
+		
+		
+		Bitmap img = getImage(opts);
 		if (img == null) {
 			return null;
 		}
@@ -551,12 +593,10 @@ public class TiBlob extends KrollProxy
 			rotation = TiImageHelper.getOrientation(getNativePath());
 		}
 		
-		int dstWidth = width.intValue();
-		int dstHeight = height.intValue();
-		int imgWidth = img.getWidth();
-		int imgHeight = img.getHeight();
 		try {
 			Bitmap imageResized = null;
+			imgWidth = img.getWidth();
+			imgHeight = img.getHeight();
 			if (rotation != 0) {
 				float scaleWidth = (float)dstWidth/imgWidth;
 				float scaleHeight = (float)dstHeight/imgHeight;
@@ -568,6 +608,10 @@ public class TiBlob extends KrollProxy
 				imageResized = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
 			} else {
 				imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
+			}
+			if(img != image) {
+				img.recycle();
+				img = null;
 			}
 			return blobFromImage(imageResized);
 		} catch (OutOfMemoryError e) {
@@ -604,6 +648,10 @@ public class TiBlob extends KrollProxy
 		try {
 			Bitmap imageFinal = null;
 			Bitmap imageThumbnail = ThumbnailUtils.extractThumbnail(img, thumbnailSize, thumbnailSize);
+			if(img != image) {
+				img.recycle();
+				img = null;
+			}
 
 			if (border == 0 && radius == 0) {
 				imageFinal = imageThumbnail;
@@ -636,6 +684,10 @@ public class TiBlob extends KrollProxy
 		
 		try {
 			Bitmap imageWithAlpha = TiImageHelper.imageWithAlpha(img);
+			if(img != image) {
+				img.recycle();
+				img = null;
+			}
 			if (rotation != 0) {
 			    return blobFromImage(TiImageHelper.rotateImage(imageWithAlpha, rotation));
 			}
@@ -667,6 +719,10 @@ public class TiBlob extends KrollProxy
 
 		try {
 			Bitmap imageRoundedCorner = TiImageHelper.imageWithRoundedCorner(img, radius, border);
+			if(img != image) {
+				img.recycle();
+				img = null;
+			}
 			if (rotation != 0) {
 			    return blobFromImage(TiImageHelper.rotateImage(imageRoundedCorner, rotation));
 			}
@@ -693,6 +749,10 @@ public class TiBlob extends KrollProxy
 		int borderSize = size.intValue();
 		try {
 			Bitmap imageWithBorder = TiImageHelper.imageWithTransparentBorder(img, borderSize);
+			if(img != image) {
+				img.recycle();
+				img = null;
+			}
 			if (rotation != 0) {
 				return blobFromImage(TiImageHelper.rotateImage(imageWithBorder, rotation));
 			}
