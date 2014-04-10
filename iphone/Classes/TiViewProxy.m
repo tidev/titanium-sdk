@@ -152,40 +152,39 @@
 		}
 		return;
 	}
-    
-    int position = -1;
-    TiViewProxy *childView = nil;
-    
-    if([arg isKindOfClass:[NSDictionary class]]) {
-        childView = [arg objectForKey:@"view"];
-        position = [TiUtils intValue:[arg objectForKey:@"position"] def:-1];
-    }
-    else
-    if([arg isKindOfClass:[TiViewProxy class]]) {
-        childView = arg;
-    }
-    
-    if(childView == nil) return;
-    
-    if ([childView conformsToProtocol:@protocol(TiWindowProtocol)]) {
-        DebugLog(@"Can not add a window as a child of a view. Returning");
-        return;
-    }
-    
-	if (children==nil)
-	{
+
+	int position = -1;
+	TiViewProxy *childView = nil;
+
+	if([arg isKindOfClass:[NSDictionary class]]) {
+		childView = [arg objectForKey:@"view"];
+		position = [TiUtils intValue:[arg objectForKey:@"position"] def:-1];
+	} else if([arg isKindOfClass:[TiViewProxy class]]) {
+		childView = arg;
+	}
+
+	if(childView == nil) {
+		DeveloperLog(@"[WARN] 'add' and 'insertAt' must be contain a view. Returning");
+		return;
+	}
+
+	if ([childView conformsToProtocol:@protocol(TiWindowProtocol)]) {
+		DebugLog(@"[WARN] Can not add a window as a child of a view. Returning");
+		return;
+	}
+
+	if (children==nil) {
 		children = [[NSMutableArray alloc] init];
 	}
-	if ([NSThread isMainThread])
-	{
+	if ([NSThread isMainThread]) {
 		pthread_rwlock_wrlock(&childrenLock);
 		if(position < 0 || position > [children count]) {
 			position = [children count];
 		}
 		[children insertObject:childView atIndex:position];
-        //Turn on clipping because I have children
-        [[self view] updateClipping];
-        
+		//Turn on clipping because I have children
+		[[self view] updateClipping];
+
 		pthread_rwlock_unlock(&childrenLock);
 		[childView setParent:self];
 		[self contentsWillChange];
@@ -223,32 +222,21 @@
 
 -(void)insertAt:(id)args
 {
-    ENSURE_SINGLE_ARG(args, NSDictionary);
-    [self add:args];
+	ENSURE_SINGLE_ARG(args, NSDictionary);
+	[self add:args];
 }
 
 -(void)replaceAt:(id)args
 {
-    ENSURE_SINGLE_ARG(args, NSDictionary);
-    NSInteger position = [TiUtils intValue:[args objectForKey:@"position"] def:-1];
-    if(children != nil && position > -1 && [children count] > position) {
-        TiViewProxy *childToRemove = [[children objectAtIndex:position] retain];
-        [self add:args];
-        [self remove: childToRemove];
-        [childToRemove autorelease];
-    } else {
-        [self add:args];
-    }
-}
-
--(TiViewProxy*)getAt:(id)args
-{
-    ENSURE_SINGLE_ARG(args, NSNumber)
-    NSInteger position = [TiUtils intValue:args def:0];
-    if(children != nil && [children count] >= position) {
-        return [children objectAtIndex:position];
-    }
-    return nil;
+	ENSURE_SINGLE_ARG(args, NSDictionary);
+	NSInteger position = [TiUtils intValue:[args objectForKey:@"position"] def:-1];
+	NSArray *childrenArray = [self children];
+	if(childrenArray != nil && position > -1 && [childrenArray count] > position) {
+		TiViewProxy *childToRemove = [[childrenArray objectAtIndex:position] retain];
+		[self add:args];
+		[self remove: childToRemove];
+		[childToRemove autorelease];
+	}
 }
 
 -(void)remove:(id)arg
@@ -257,23 +245,21 @@
 	ENSURE_UI_THREAD_1_ARG(arg);
 
 	pthread_rwlock_wrlock(&childrenLock);
-    NSMutableArray* childrenCopy = [children mutableCopy];
-	if ([children containsObject:arg])
-	{
+	NSMutableArray* childrenCopy = [children mutableCopy];
+	if ([children containsObject:arg]) {
 		[children removeObject:arg];
 	}
-    pthread_rwlock_unlock(&childrenLock);
-	if([childrenCopy containsObject:arg])
-	{
-        [arg windowWillClose];
-        [arg setParentVisible:NO];
-        [arg setParent:nil];
-        [arg windowDidClose];
-        [self forgetProxy:arg];
+	pthread_rwlock_unlock(&childrenLock);
+	
+	if([childrenCopy containsObject:arg]) {
+		[arg windowWillClose];
+		[arg setParentVisible:NO];
+		[arg setParent:nil];
+		[arg windowDidClose];
+		[self forgetProxy:arg];
 		[childrenCopy removeObject:arg];
 		[self contentsWillChange];
-    }
-
+	}
 }
 
 -(void)removeAllChildren:(id)arg
@@ -1138,12 +1124,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 -(void)windowDidClose
 {
-	NSArray *childs = [[self children] retain];
-	for (TiViewProxy *child in childs)
+	for (TiViewProxy *child in [self children])
 	{
 		[child windowDidClose];
 	}
-	[childs release];
 	[self detachView];
 	windowOpened=NO;
 }
