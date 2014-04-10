@@ -684,7 +684,7 @@ public class TiBlob extends KrollProxy
 		
 		try {
 			Bitmap imageWithAlpha = TiImageHelper.imageWithAlpha(img);
-			if(img != image) {
+			if(img != image && img != imageWithAlpha) {
 				img.recycle();
 				img = null;
 			}
