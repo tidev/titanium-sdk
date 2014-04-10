@@ -20,6 +20,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.app.Activity;
@@ -437,27 +438,33 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		errorCallback.callAsync(callbackContext, dict);
 	}
 
-	private static void saveToPhotoGallery(byte[] data)
+	private static File writeToFile(byte[] data, boolean saveToGallery) throws Throwable
 	{
-		File imageFile = MediaModule.createGalleryImageFile();
-		try {
+		try
+		{
+			File imageFile = null;
+			if(saveToGallery) {
+				imageFile = MediaModule.createGalleryImageFile();
+			} else {
+				imageFile = TiApplication.getInstance().getTempFileHelper().createTempFile("tia", ".jpg");
+			}
+			
 			FileOutputStream imageOut = new FileOutputStream(imageFile);
 			imageOut.write(data);
 			imageOut.close();
-
-		} catch (FileNotFoundException e) {
-			Log.e(TAG, "Failed to open gallery image file: " + e.getMessage());
-
-		} catch (IOException e) {
-			Log.e(TAG, "Failed to write image to gallery file: " + e.getMessage());
+			
+			if (saveToGallery) {
+				Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+				Uri contentUri = Uri.fromFile(imageFile);
+				mediaScanIntent.setData(contentUri);
+				Activity activity = TiApplication.getAppCurrentActivity();
+				activity.sendBroadcast(mediaScanIntent);
+			}
+			return imageFile;
+			
+		} catch (Throwable t) {
+			throw t;
 		}
-
-		// Notify media scanner to add image to gallery.
-		Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-		Uri contentUri = Uri.fromFile(imageFile);
-		mediaScanIntent.setData(contentUri);
-		Activity activity = TiApplication.getAppCurrentActivity();
-		activity.sendBroadcast(mediaScanIntent);
 	}
 
 	static public void takePicture()
@@ -507,18 +514,22 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	{
 		public void onPictureTaken(byte[] data, Camera camera)
 		{
-			if (saveToPhotoGallery) {
-				saveToPhotoGallery(data);
+			try {
+				File imageFile = writeToFile(data, saveToPhotoGallery);
+				if (successCallback != null) {
+					TiFile theFile = new TiFile(imageFile, imageFile.toURI().toURL().toExternalForm(), false);
+					TiBlob theBlob = TiBlob.blobFromFile(theFile);
+					KrollDict response = MediaModule.createDictForImage(theBlob, theBlob.getMimeType());
+					successCallback.callAsync(callbackContext, response);
+				}				
+			} catch (Throwable t) {
+				if(errorCallback != null) {
+					KrollDict response = new KrollDict();
+					response.putCodeAndMessage(MediaModule.UNKNOWN_ERROR, t.getMessage());
+					errorCallback.callAsync(callbackContext, response);
+				}
 			}
-
-			if (successCallback != null) {
-				TiBlob imageData = TiBlob.blobFromData(data);
-				KrollDict dict = MediaModule.createDictForImage(imageData,
-						"image/jpeg");
-				successCallback.callAsync(callbackContext, dict);
-			}
-
-			cancelCallback = null;
+			
 
 			if (autohide) {
 				cameraActivity.finish();
