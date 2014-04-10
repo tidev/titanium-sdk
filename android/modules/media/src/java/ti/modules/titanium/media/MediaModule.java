@@ -22,11 +22,13 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -222,8 +224,52 @@ public class MediaModule extends KrollModule
 	}
 	
 	
-	protected void launchCameraActivity(KrollDict cameraOptions) {
+	private void launchCameraActivity(KrollDict cameraOptions) {
+		KrollFunction successCallback = null;
+		KrollFunction cancelCallback = null;
+		KrollFunction errorCallback = null;
+		boolean saveToPhotoGallery = false;
+		boolean autohide = true;
+		TiViewProxy overLayProxy = (TiViewProxy)cameraOptions.get("overlay");
+		int flashMode = CAMERA_FLASH_OFF;
+		int whichCamera = CAMERA_REAR;
 		
+		if (cameraOptions.containsKeyAndNotNull("success")) {
+			successCallback = (KrollFunction) cameraOptions.get("success");
+		}
+		if (cameraOptions.containsKeyAndNotNull("cancel")) {
+			cancelCallback = (KrollFunction) cameraOptions.get("cancel");
+		}
+		if (cameraOptions.containsKeyAndNotNull("error")) {
+			errorCallback = (KrollFunction) cameraOptions.get("error");
+		}
+		if (cameraOptions.containsKeyAndNotNull("saveToPhotoGallery")) {
+			saveToPhotoGallery = cameraOptions.getBoolean("saveToPhotoGallery");
+		}
+		if (cameraOptions.containsKeyAndNotNull("autohide")) {
+			autohide = cameraOptions.getBoolean("autohide");
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_FLASH_MODE)) {
+			flashMode = cameraOptions.getInt(TiC.PROPERTY_FLASH_MODE);
+		}
+		if (cameraOptions.containsKeyAndNotNull("whichCamera")) {
+			whichCamera = cameraOptions.getInt("whichCamera");
+		}
+		
+		TiCameraActivity.callbackContext = getKrollObject();
+		TiCameraActivity.successCallback = successCallback;
+		TiCameraActivity.cancelCallback = cancelCallback;
+		TiCameraActivity.errorCallback = errorCallback;
+		TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
+		TiCameraActivity.autohide = autohide;
+		TiCameraActivity.overlayProxy = overLayProxy;
+		TiCameraActivity.whichCamera = whichCamera;
+		TiCameraActivity.setFlashMode(flashMode);
+		
+		//Create Intent and Launch
+		Activity activity = TiApplication.getInstance().getCurrentActivity();
+		Intent intent = new Intent(activity, TiCameraActivity.class);
+		activity.startActivity(intent);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -245,215 +291,6 @@ public class MediaModule extends KrollModule
 		} else {
 			launchNativeCamera(cameraOptions);
 		}
-		
-		
-//		Activity activity = TiApplication.getInstance().getCurrentActivity();
-//
-//		Log.d(TAG, "showCamera called", Log.DEBUG_MODE);
-//
-//		KrollFunction successCallback = null;
-//		KrollFunction cancelCallback = null;
-//		KrollFunction errorCallback = null;
-//		boolean autohide = true;
-//		int flashMode = CAMERA_FLASH_OFF;
-//		boolean saveToPhotoGallery = false;
-//
-//		if (options.containsKey("success")) {
-//			successCallback = (KrollFunction) options.get("success");
-//		}
-//		if (options.containsKey("cancel")) {
-//			cancelCallback = (KrollFunction) options.get("cancel");
-//		}
-//		if (options.containsKey("error")) {
-//			errorCallback = (KrollFunction) options.get("error");
-//		}
-//
-//		Object autohideOption = options.get("autohide");
-//		if (autohideOption != null) {
-//			autohide = TiConvert.toBoolean(autohideOption);
-//		}
-//
-//		Object saveToPhotoGalleryOption = options.get("saveToPhotoGallery");
-//		if (saveToPhotoGalleryOption != null) {
-//			saveToPhotoGallery = TiConvert.toBoolean(saveToPhotoGalleryOption);
-//		}
-//		
-//		Object cameraFlashModeOption = options.get(TiC.PROPERTY_FLASH_MODE);
-//		if (cameraFlashModeOption != null) {
-//			flashMode = TiConvert.toInt(cameraFlashModeOption);
-//		}
-//
-//		// Use our own custom camera activity when an overlay is provided.
-//		if (options.containsKey("overlay")) {
-//			TiCameraActivity.overlayProxy = (TiViewProxy) options
-//					.get("overlay");
-//
-//			TiCameraActivity.callbackContext = getKrollObject();
-//			TiCameraActivity.successCallback = successCallback;
-//			TiCameraActivity.errorCallback = errorCallback;
-//			TiCameraActivity.cancelCallback = cancelCallback;
-//			TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
-//			TiCameraActivity.setFlashMode(flashMode);
-//			TiCameraActivity.whichCamera = CAMERA_REAR; // default.
-//
-//			// This option is only applicable when running the custom
-//			// TiCameraActivity, since we can't direct the built-in
-//			// Activity to open a specific camera.
-//			Object whichCamera = options.get("whichCamera");
-//			if (whichCamera != null) {
-//				TiCameraActivity.whichCamera = TiConvert.toInt(whichCamera);
-//			}
-//			TiCameraActivity.autohide = autohide;
-//
-//			Intent intent = new Intent(activity, TiCameraActivity.class);
-//			activity.startActivity(intent);
-//			return;
-//		}
-//
-//		Camera camera = null;
-//		try {
-//			camera = Camera.open();
-//			if (camera != null) {
-//				camera.release();
-//				camera = null;
-//			}
-//
-//		} catch (Throwable t) {
-//			if (camera != null) {
-//				camera.release();
-//			}
-//
-//			if (errorCallback != null) {
-//				errorCallback.call(
-//						getKrollObject(),
-//						new Object[] { createErrorResponse(NO_CAMERA,
-//								"Camera not available.") });
-//			}
-//
-//			return;
-//		}
-//
-//		TiActivitySupport activitySupport = (TiActivitySupport) activity;
-//		TiFileHelper tfh = TiFileHelper.getInstance();
-//
-//		TiIntentWrapper cameraIntent = new TiIntentWrapper(new Intent());
-//		if (TiCameraActivity.overlayProxy == null) {
-//			cameraIntent.getIntent().setAction(
-//					MediaStore.ACTION_IMAGE_CAPTURE);
-//			cameraIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
-//		} else {
-//			cameraIntent.getIntent().setClass(
-//					TiApplication.getInstance().getBaseContext(),
-//					TiCameraActivity.class);
-//		}
-//
-//		cameraIntent.setWindowId(TiIntentWrapper.createActivityName("CAMERA"));
-//		PackageManager pm = (PackageManager) activity.getPackageManager();
-//		List<ResolveInfo> activities = pm.queryIntentActivities(
-//				cameraIntent.getIntent(), PackageManager.MATCH_DEFAULT_ONLY);
-//
-//		// See if it's the HTC camera app
-//		boolean isHTCCameraApp = false;
-//
-//		for (ResolveInfo rs : activities) {
-//			try {
-//				if (rs.activityInfo.applicationInfo.sourceDir.contains("HTC")
-//						|| Build.MANUFACTURER.equals("HTC")) {
-//					isHTCCameraApp = true;
-//					break;
-//				}
-//			} catch (NullPointerException e) {
-//				// Ignore
-//			}
-//		}
-//
-//		File imageDir = null;
-//		File imageFile = null;
-//
-//		try {
-//			if (saveToPhotoGallery) {
-//				// HTC camera application will create its own gallery image
-//				// file.
-//				if (!isHTCCameraApp) {
-//					imageFile = createGalleryImageFile();
-//				}
-//
-//			} else {
-//				if (activity.getIntent() != null) {
-//					String name = TiApplication.getInstance().getAppInfo()
-//							.getName();
-//					// For HTC cameras, specifying the directory from
-//					// getExternalStorageDirectory is /mnt/sdcard and
-//					// using that path prevents the gallery from recognizing it.
-//					// To avoid this we use /sdcard instead
-//					// (this is a legacy path we've been using)
-//					if (isHTCCameraApp) {
-//						imageDir = new File(PHOTO_DCIM_CAMERA, name);
-//					} else {
-//						File rootsd = Environment.getExternalStorageDirectory();
-//						imageDir = new File(rootsd.getAbsolutePath()
-//								+ "/dcim/Camera/", name);
-//					}
-//					if (!imageDir.exists()) {
-//						imageDir.mkdirs();
-//						if (!imageDir.exists()) {
-//							Log.w(TAG,
-//									"Attempt to create '"
-//											+ imageDir.getAbsolutePath()
-//											+ "' failed silently.");
-//						}
-//					}
-//
-//				} else {
-//					imageDir = tfh.getDataDirectory(false);
-//				}
-//
-//				imageFile = tfh.getTempFile(imageDir, ".jpg", true);
-//			}
-//
-//		} catch (IOException e) {
-//			Log.e(TAG, "Unable to create temp file", e);
-//			if (errorCallback != null) {
-//				errorCallback.callAsync(getKrollObject(),
-//						createErrorResponse(UNKNOWN_ERROR, e.getMessage()));
-//			}
-//
-//			return;
-//		}
-//
-//		// Get the taken date for the last image in EXTERNAL_CONTENT_URI.
-//		String[] projection = {
-//			Images.ImageColumns.DATE_TAKEN
-//		};
-//		String dateTaken = null;
-//		Cursor c = activity.getContentResolver().query(Images.Media.EXTERNAL_CONTENT_URI, projection, null, null,
-//				Images.ImageColumns.DATE_TAKEN);
-//		if (c != null) {
-//			if (c.moveToLast()) {
-//				dateTaken = c.getString(0);
-//			}
-//			c.close();
-//			c = null;
-//		}
-//
-//		CameraResultHandler resultHandler = new CameraResultHandler();
-//		resultHandler.imageFile = imageFile;
-//		resultHandler.saveToPhotoGallery = saveToPhotoGallery;
-//		resultHandler.successCallback = successCallback;
-//		resultHandler.cancelCallback = cancelCallback;
-//		resultHandler.errorCallback = errorCallback;
-//		resultHandler.activitySupport = activitySupport;
-//		resultHandler.cameraIntent = cameraIntent.getIntent();
-//		resultHandler.dateTaken_lastImageInExternalContentURI = dateTaken;
-//
-//		if (imageFile != null) {
-//			String imageUrl = "file://" + imageFile.getAbsolutePath();
-//			cameraIntent.getIntent().putExtra(MediaStore.EXTRA_OUTPUT,
-//					Uri.parse(imageUrl));
-//			resultHandler.imageUrl = imageUrl;
-//		}
-//
-//		activity.runOnUiThread(resultHandler);
 	}
 
 	/*
