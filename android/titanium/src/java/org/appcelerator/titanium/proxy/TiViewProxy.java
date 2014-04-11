@@ -83,7 +83,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private static final int MSG_UPDATE_LAYOUT = MSG_FIRST_ID + 113;
 	private static final int MSG_QUEUED_ANIMATE = MSG_FIRST_ID + 114;
 	private static final int MSG_INSERT_VIEW_AT = MSG_FIRST_ID + 115;
-	private static final int MSG_GET_VIEW_AT = MSG_FIRST_ID + 116;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	protected ArrayList<TiViewProxy> children;
@@ -328,11 +327,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				handleInsertAt((HashMap) msg.obj);
 				return true;
 			}
-			case MSG_GET_VIEW_AT: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				result.setResult( handleGetAt((Integer) result.getArg()) );
-				return true;
-			}
 		}
 		return super.handleMessage(msg);
 	}
@@ -564,24 +558,23 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		//TODO zOrder
 	}
 
-	@SuppressWarnings("unchecked")
 	@Kroll.method
 	public void replaceAt(Object params)
 	{
-		HashMap<String, Object> options;
 		if (!(params instanceof HashMap)) {
 			Log.e(TAG, "Argument for replaceAt must be a dictionary");
 			return;
 		}
-		options = (HashMap<String, Object>) params;
+		@SuppressWarnings("rawtypes")
+		HashMap options = (HashMap) params;
 		Integer position = -1;
 		if(options.containsKey("position")) {
 			position = (Integer) options.get("position");
 		}
-		if(children != null && children.size() >= position) {
-	        TiViewProxy childToRemove = children.get(position);
-	        insertAt(params);
-	        remove(childToRemove);
+		if(children != null && children.size() > position) {
+			TiViewProxy childToRemove = children.get(position);
+			insertAt(params);
+			remove(childToRemove);
 		}
 	}
 	
@@ -592,49 +585,33 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	 * @param params A Dictionary containing a TiViewProxy for the view and an int for the position 
 	 * @module.api
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Kroll.method
 	public void insertAt(Object params)
 	{
-		HashMap<String, Object> options;
 		if (!(params instanceof HashMap)) {
 			Log.e(TAG, "Argument for insertAt must be a dictionary");
 			return;
 		}
-		options = (HashMap) params;
+		@SuppressWarnings("rawtypes")
+		HashMap options = (HashMap) params;
 
 		if (children == null) {
 			children = new ArrayList<TiViewProxy>();
 		}
 
-		if (peekView() != null) {
+
+		if (view != null) {
 			if (TiApplication.isUIThread()) {
 				handleInsertAt(options);
 				return;
 			}
 			getMainHandler().obtainMessage(MSG_INSERT_VIEW_AT, options).sendToTarget();
 		} else {
-			TiViewProxy child = null;
-			Integer position = -1;
-			if(options.containsKey("view")) {
-				child = (TiViewProxy) options.get("view");
-			}
-			if(options.containsKey("position")) {
-				position = (Integer) options.get("position");
-			}
-			if(child == null) {
-				Log.e(TAG, "insertAt must be contain a view");
-				return;
-			}
-			if(position < 0 || position > children.size()) {
-				position = children.size();
-			}
-			children.add(position, child);
-			child.parent = new WeakReference<TiViewProxy>(this);
+			handleInsertAt(options);
 		}
 	}
 
-	public void handleInsertAt(@SuppressWarnings("rawtypes") HashMap options)
+	private void handleInsertAt(@SuppressWarnings("rawtypes") HashMap options)
 	{
 		TiViewProxy child = null;
 		Integer position = -1;
@@ -654,6 +631,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 		children.add(position, child);
 		child.parent = new WeakReference<TiViewProxy>(this);
+
 		if (view != null) {
 			child.setActivity(getActivity());
 			if (this instanceof DecorViewProxy) {
@@ -664,7 +642,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 	}
 	
-	public void handleAdd(TiViewProxy child)
+	private void handleAdd(TiViewProxy child)
 	{
 		children.add(child);
 		child.parent = new WeakReference<TiViewProxy>(this);
@@ -673,9 +651,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			if (this instanceof DecorViewProxy) {
 				child.isDecorView = true;
 			}
-			TiUIView cv = child.getOrCreateView();
-
-			view.add(cv);
+			view.add(child.getOrCreateView());
 		}
 	}
 
@@ -909,26 +885,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 		return view.toImage();
 	}
-
-	@Kroll.method
-	public TiViewProxy getAt(Integer position)
-	{
-		if (TiApplication.isUIThread()) {
-			return handleGetAt(position);
-
-		} else {
-			return (TiViewProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_VIEW_AT), position);
-		}
-	}
-
-	protected TiViewProxy handleGetAt(Integer position)
-	{
-		if(children != null && children.size() >= position) {
-			return children.get(position);
-		}
-		return null;
-	}
-
 
 	/**
 	 * Fires an event that can optionally be "bubbled" to the parent view.
