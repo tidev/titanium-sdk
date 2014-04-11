@@ -296,8 +296,9 @@ public class MediaModule extends KrollModule
 	/*
 	 * Current implementation on Android limited to saving Images only to photo gallery
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Kroll.method
-	public void saveToPhotoGallery(Object arg, @Kroll.argument(optional=true)@SuppressWarnings("rawtypes") HashMap callbackargs)
+	public void saveToPhotoGallery(Object arg, @Kroll.argument(optional=true)HashMap callbackargs)
 	{
 		KrollFunction successCallback = null;
 		KrollFunction errorCallback = null;
@@ -359,9 +360,11 @@ public class MediaModule extends KrollModule
 			}
 			if (bis != null) {
 				bis.close();
+				bis = null;
 			}
 			if (bos != null) {
 				bos.close();
+				bos = null;
 			}
 			
 			Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
@@ -461,14 +464,9 @@ public class MediaModule extends KrollModule
 		protected TiActivitySupport activitySupport;
 		protected Intent cameraIntent;
 		protected int lastImageId;
+		private boolean validFileCreated;
 
-		@Override
-		public void run()
-		{
-			code = activitySupport.getUniqueResultCode();
-			activitySupport.launchActivityForResult(cameraIntent, code, this);
-		}
-		
+		//Validates if the file is a valid bitmap
 		private void validateFile() throws Throwable
 		{
 			try {
@@ -485,30 +483,60 @@ public class MediaModule extends KrollModule
 			}
 		}
 		
+		//Cleanup duplicates if possible.
 		private void checkAndDeleteDuplicate(Activity activity)
 		{
 			if(lastImageId != -1) {
-				final String[] imageColumns = { MediaStore.Images.Media.DATA, MediaStore.Images.Media.DATE_TAKEN, MediaStore.Images.Media.SIZE, MediaStore.Images.Media._ID };
+				final String[] imageColumns = { MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID };
 				final String imageOrderBy = MediaStore.Images.Media._ID+" DESC";
 				final String imageWhere = MediaStore.Images.Media._ID+">?";
 				final String[] imageArguments = { Integer.toString(lastImageId) };
 				Cursor imageCursor = activity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageColumns, imageWhere, imageArguments, imageOrderBy);
 				String refPath = imageFile.getAbsolutePath();
-				long lastModifiedTime = imageFile.lastModified();
 				if (imageCursor == null) {
 					Log.e(TAG, "Could not load image cursor. Can not check and delete duplicates");
 					return;
 				}
 				if(imageCursor.getCount()>0){
-					//This should just be 1. The extra time check is for the case when user starts camera, pauses app,
-					// goes to native camera and takes pictures and returns.
-				    while(imageCursor.moveToNext()){
+					
+					if (!validFileCreated) {
+						try {
+							imageFile.delete();
+						} catch (Throwable t) {
+							//Ignore error
+						}
+						
+						imageFile = saveToPhotoGallery? MediaModule.createGalleryImageFile() : MediaModule.createExternalStorageFile();
+					}
+					
+					long compareLength = (validFileCreated) ? imageFile.length() : 0;
+					
+					while(imageCursor.moveToNext()){
 				        int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
 				        String path = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+				        
+				        if (!validFileCreated) {
+				        	//If file is invalid we will copy over the last image in the gallery
+				        	if (imageFile != null) {
+				        		try {
+				        			File srcFile = new File(path);
+				        			copyFile(srcFile, imageFile);
+				        			validFileCreated = true;
+				        			refPath = imageFile.getAbsolutePath();
+				        			compareLength = imageFile.length();
+				        		}catch(Throwable t) {
+				        			//Ignore this error. It will be caught on the next pass to validateFile.
+				        		}
+				        	} 
+				        }
+				        
 				        if(!path.equalsIgnoreCase(refPath)) {
-					        long takenTimeStamp = imageCursor.getLong(imageCursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN));
-					        if (Math.abs(takenTimeStamp - lastModifiedTime) < 10000) {
-					        	//Files created within 10 second of each other
+				        	
+				        	File compareFile = new File(path);
+				        	long fileLength = compareFile.length();
+				        	
+				        	if (compareFile.length() == compareLength) {
+					        	//Same file length
 						        int result = activity.getContentResolver().delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, MediaStore.Images.Media._ID + "=?", new String[]{ Integer.toString(id) } );
 					        	if (result == 1) {
 					        		android.util.Log.d(TAG, "Deleting possible duplicate at "+path+" with id "+id);
@@ -522,9 +550,9 @@ public class MediaModule extends KrollModule
 						        	}
 						        }
 					        } else {
-					        	android.util.Log.d(TAG, "Ignoring file as not a duplicate at path "+path+" with id "+id+". Timestamps too far apart >10s "+takenTimeStamp+" "+lastModifiedTime);
+					        	android.util.Log.d(TAG, "Ignoring file as not a duplicate at path "+path+" with id "+id+". Different Sizes "+fileLength+" "+compareLength);
 					        	if(Log.isDebugModeEnabled()) {
-					        		Log.d(TAG, "Ignoring file as not a duplicate at path "+path+" with id "+id+". Timestamps too far apart >10s "+takenTimeStamp+" "+lastModifiedTime, Log.DEBUG_MODE);
+					        		Log.d(TAG, "Ignoring file as not a duplicate at path "+path+" with id "+id+". Different Sizes "+fileLength+" "+compareLength, Log.DEBUG_MODE);
 					        	}
 					        }
 				        }
@@ -533,12 +561,51 @@ public class MediaModule extends KrollModule
 				imageCursor.close();
 			}
 		}
+		
+		//Copies files over using Buffered Streams.
+		private void copyFile(File source, File destination) throws Throwable {
+			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(source));
+			BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destination));
+			byte[] buf = new byte[8096];
+			int len = 0;
 
+			while ((len = bis.read(buf)) != -1) {
+				bos.write(buf, 0, len);
+			}
+			
+			if (bis != null) {
+				bis.close();
+				bis = null;
+			}
+			if (bos != null) {
+				bos.close();
+				bos = null;
+			}
+		}
+
+		@Override
+		public void run()
+		{
+			code = activitySupport.getUniqueResultCode();
+			activitySupport.launchActivityForResult(cameraIntent, code, this);
+		}
+		
 		@Override
 		public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 		{
 			if(requestCode == code) {
 				if (resultCode == Activity.RESULT_OK) {
+					
+					validFileCreated = true;
+					try {
+						validateFile();
+					} catch(Throwable t) {
+						validFileCreated = false;
+					}
+					
+					
+					checkAndDeleteDuplicate(activity);
+
 					try {
 						validateFile();
 					} catch(Throwable t) {
@@ -550,30 +617,12 @@ public class MediaModule extends KrollModule
 						return;
 					}
 					
-					checkAndDeleteDuplicate(activity);
 					
 					if (!saveToPhotoGallery) {
 						//Create a temporary file in cache and delete the original file
-						BufferedInputStream bis = null;
-						BufferedOutputStream bos = null;
 						try {
 							File tempFile = TiApplication.getInstance().getTempFileHelper().createTempFile("tia", ".jpg");
-							bis = new BufferedInputStream(new FileInputStream(imageFile));
-							bos = new BufferedOutputStream(new FileOutputStream(tempFile));
-							byte[] buf = new byte[8096];
-							int len = 0;
-
-							while ((len = bis.read(buf)) != -1) {
-								bos.write(buf, 0, len);
-							}
-							
-							if (bis != null) {
-								bis.close();
-							}
-							if (bos != null) {
-								bos.close();
-							}
-							
+							copyFile(imageFile, tempFile);
 							imageFile.delete();
 							imageFile = tempFile;
 
