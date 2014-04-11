@@ -357,6 +357,8 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 		int maxWidth = 0;
 		int maxHeight = 0;
+		boolean viewWidthDefinedLocal = viewWidthDefined;
+		boolean viewHeightDefinedLocal = viewHeightDefined;
 
 //		if (DBG) {
 //			int w = MeasureSpec.getSize(widthMeasureSpec);
@@ -369,9 +371,9 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 		// If height or width is not defined, we need to set the height/width properly
 		// so that it doesn't get the content height/width
-		if (!viewWidthDefined || !viewHeightDefined) {
+		if (!viewWidthDefinedLocal || !viewHeightDefinedLocal) {
 			Drawable d = imageView.getDrawable();
-			float aspectRatio = 1;
+			double aspectRatio = 1;
 			int w = MeasureSpec.getSize(widthMeasureSpec);
 			int h = MeasureSpec.getSize(heightMeasureSpec);
 
@@ -379,17 +381,31 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 				int ih = d.getIntrinsicHeight();
 				int iw = d.getIntrinsicWidth();
 				if (ih != 0 && iw != 0) {
-					aspectRatio = ih / iw;
+					aspectRatio = (double)ih / iw;
+				}
+			}
+			
+			// If the width and height is not specified, make sure that the height and width is
+			// proportional to the image aspect ratio
+			if (!viewWidthDefinedLocal && !viewHeightDefinedLocal && w != 0 && h != 0) {
+				double containerAspectRatio = (double) h / w;
+				if (containerAspectRatio < aspectRatio) {
+					viewHeightDefinedLocal = true;
+				} else {
+					viewWidthDefinedLocal = true;
 				}
 			}
 
-			if (viewWidthDefined) {
+			if (viewWidthDefinedLocal) {
 				maxWidth = w;
-				maxHeight = Math.round(w * aspectRatio);
+				maxHeight = (int)Math.round(w * aspectRatio);
 			}
-			if (viewHeightDefined) {
+			if (viewHeightDefinedLocal) {
 				maxHeight = h;
-				maxWidth = Math.round(h / aspectRatio);
+				// donot override if the width is already defined
+				if (!viewWidthDefinedLocal) {
+					maxWidth = (int)Math.round(h / aspectRatio);
+				}
 			}
 		}
 		
@@ -444,17 +460,16 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 			imageView.setScaleType(ScaleType.MATRIX);
 			imageView.setAdjustViewBounds(false);
 		} else {
-			if ((!viewWidthDefined || !viewHeightDefined) && enableScale) {
-				imageView.setAdjustViewBounds(true);
-				imageView.setScaleType(ScaleType.CENTER_CROP);
-			} else if (viewWidthDefined && viewHeightDefined) {
+			if (viewWidthDefined && viewHeightDefined) {
 				imageView.setAdjustViewBounds(false);
 				imageView.setScaleType(ScaleType.FIT_XY);
-			} else {
+			} else if (!enableScale) {
 				imageView.setAdjustViewBounds(false);
 				imageView.setScaleType(ScaleType.CENTER);
+			} else {
+				imageView.setAdjustViewBounds(true);
+				imageView.setScaleType(ScaleType.FIT_CENTER);
 			}
-			
 		}
 		requestLayout();
 	}
