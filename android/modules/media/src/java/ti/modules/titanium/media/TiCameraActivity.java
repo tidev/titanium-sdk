@@ -282,31 +282,39 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					// The "natural" orientation of the device is a portrait orientation, eg. phones.
 					// Need to rotate 90 degrees.
 					camera.setDisplayOrientation(90);
+					param.setRotation(90);
 				} else {
 					// The "natural" orientation of the device is a landscape orientation, eg. tablets.
 					// Set the camera to the starting position (0 degree).
 					camera.setDisplayOrientation(0);
+					param.setRotation(0);
 				}
 				break;
 			case Surface.ROTATION_90:
 				if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
 					camera.setDisplayOrientation(0);
+					param.setRotation(0);
 				} else {
 					camera.setDisplayOrientation(270);
+					param.setRotation(270);
 				}
 				break;
 			case Surface.ROTATION_180:
 				if (orientation == Configuration.ORIENTATION_PORTRAIT) {
 					camera.setDisplayOrientation(270);
+					param.setRotation(270);
 				} else {
 					camera.setDisplayOrientation(180);
+					param.setRotation(180);
 				}
 				break;
 			case Surface.ROTATION_270:
 				if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
 					camera.setDisplayOrientation(180);
+					param.setRotation(180);
 				} else {
 					camera.setDisplayOrientation(90);
+					param.setRotation(90);
 				}
 				break;
 		}
