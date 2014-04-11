@@ -340,8 +340,8 @@ public class MediaModule extends KrollModule
 					KrollDict response = new KrollDict();
 					response.putCodeAndMessage(UNKNOWN_ERROR,"Could not decode bitmap from argument");
 					errorCallback.callAsync(getKrollObject(), response);
-					return;
 				}
+				return;
 			}
 			
 			//Create a temporary file in cache and delete the original file
@@ -507,21 +507,24 @@ public class MediaModule extends KrollModule
 				        String path = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
 				        if(!path.equalsIgnoreCase(refPath)) {
 					        long takenTimeStamp = imageCursor.getLong(imageCursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN));
-					        if (Math.abs(takenTimeStamp - lastModifiedTime) < 2000) {
-					        	//Files created within 1 second of each other
+					        if (Math.abs(takenTimeStamp - lastModifiedTime) < 10000) {
+					        	//Files created within 10 second of each other
 						        int result = activity.getContentResolver().delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, MediaStore.Images.Media._ID + "=?", new String[]{ Integer.toString(id) } );
 					        	if (result == 1) {
+					        		android.util.Log.d(TAG, "Deleting possible duplicate at "+path+" with id "+id);
 					        		if(Log.isDebugModeEnabled()) {
 						        		Log.d(TAG, "Deleting possible duplicate at "+path+" with id "+id, Log.DEBUG_MODE);
 					        		}
 						        } else {
+						        	android.util.Log.d(TAG, "Could not delete possible duplicate at "+path+" with id "+id);
 						        	if(Log.isDebugModeEnabled()) {
 						        		Log.d(TAG, "Could not delete possible duplicate at "+path+" with id "+id, Log.DEBUG_MODE);
 						        	}
 						        }
 					        } else {
+					        	android.util.Log.d(TAG, "Ignoring file as not a duplicate at path "+path+" with id "+id+". Timestamps too far apart >10s "+takenTimeStamp+" "+lastModifiedTime);
 					        	if(Log.isDebugModeEnabled()) {
-					        		Log.d(TAG, "Ignoring file as not a duplicate at path "+path+" with id "+id, Log.DEBUG_MODE);
+					        		Log.d(TAG, "Ignoring file as not a duplicate at path "+path+" with id "+id+". Timestamps too far apart >10s "+takenTimeStamp+" "+lastModifiedTime, Log.DEBUG_MODE);
 					        	}
 					        }
 				        }
@@ -633,6 +636,9 @@ public class MediaModule extends KrollModule
 
 		@Override
 		public void onError(Activity activity, int requestCode, Exception e) {
+			if(requestCode != code) {
+				return;
+			}
 			if (imageFile != null) {
 				imageFile.delete();
 			}
@@ -696,6 +702,9 @@ public class MediaModule extends KrollModule
 
 				public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 				{
+					if(requestCode != code) {
+						return;
+					}
 					Log.e(TAG, "OnResult called: " + resultCode);
 					if (resultCode == Activity.RESULT_CANCELED) {
 						if (fCancelCallback != null) {
@@ -723,6 +732,9 @@ public class MediaModule extends KrollModule
 
 				public void onError(Activity activity, int requestCode, Exception e)
 				{
+					if(requestCode != code) {
+						return;
+					}
 					String msg = "Gallery problem: " + e.getMessage();
 					Log.e(TAG, msg, e);
 					if (fErrorCallback != null) {
@@ -849,6 +861,9 @@ public class MediaModule extends KrollModule
 
 				public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 				{
+					if(requestCode != code) {
+						return;
+					}
 					Log.e(TAG, "OnResult called: " + resultCode);
 					if (fSuccessCallback != null) {
 						KrollDict response = new KrollDict();
@@ -859,6 +874,9 @@ public class MediaModule extends KrollModule
 
 				public void onError(Activity activity, int requestCode, Exception e)
 				{
+					if(requestCode != code) {
+						return;
+					}
 					String msg = "Gallery problem: " + e.getMessage();
 					Log.e(TAG, msg, e);
 					if (fErrorCallback != null) {
