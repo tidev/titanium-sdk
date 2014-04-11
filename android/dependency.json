@@ -29,7 +29,8 @@
 		"xml":["jaxen-1.1.1.jar"],
 		"ui":["nineoldandroids-appc-2.4.0.jar"],
 		"network":["thirdparty.jar"],
-		"appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar"]
+		"appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar"],
+		"analytics":["appcelerator-analytics.jar"]
 	},
 	"runtimes":
 	{

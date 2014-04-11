@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package ti.modules.titanium.geolocation;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -21,12 +20,13 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.appcelerator.analytics.ACSAnalytics;
+import org.appcelerator.analytics.ACSAnalyticsEventFactory;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONArray;
@@ -150,11 +150,7 @@ public class TiLocation implements Handler.Callback
 	{
 		long locationTime = location.getTime();
 		if (locationTime - lastAnalyticsTimestamp > TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY) {
-			TiAnalyticsEvent event = TiAnalyticsEventFactory.createAppGeoEvent(location);
-			if (event != null) {
-				TiApplication.getInstance().postAnalyticsEvent(event);
-				lastAnalyticsTimestamp = locationTime;
-			}
+			ACSAnalytics.sendAppGeoEvent(location);
 		}
 	}
 

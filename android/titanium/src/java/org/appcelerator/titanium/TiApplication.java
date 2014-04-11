@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,8 +12,6 @@ import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,6 +21,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.appcelerator.analytics.ACSAnalytics;
+import org.appcelerator.analytics.ACSAnalyticsHelper;
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
@@ -36,10 +36,7 @@ import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.kroll.util.TiTempFileHelper;
-import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
-import org.appcelerator.titanium.analytics.TiAnalyticsModel;
-import org.appcelerator.titanium.analytics.TiAnalyticsService;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiImageLruCache;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -58,22 +55,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
-import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 
 /**
  * The main application entry point for all Titanium applications and services.
  */
-public abstract class TiApplication extends Application implements Handler.Callback, KrollApplication
+public abstract class TiApplication extends Application implements KrollApplication
 {
 	private static final String SYSTEM_UNIT = "system";
 	private static final String TAG = "TiApplication";
-	private static final long TIME_SEPARATION_ANALYTICS = 1000;
-	private static final int MSG_SEND_ANALYTICS = 100;
-	private static final long SEND_ANALYTICS_DELAY = 30000; // Time analytics send request sits in queue before starting service.
 	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
 	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
 	private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
@@ -104,8 +96,6 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	private TiProperties appProperties;
 	private WeakReference<Activity> currentActivity;
 	private String density;
-	private boolean needsStartEvent;
-	private boolean needsEnrollEvent;
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 	private String defaultUnit;
 	private TiResponseCache responseCache;
@@ -113,9 +103,6 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	private AccessibilityManager accessibilityManager = null;
 	private boolean forceFinishRootActivity = false;
 
-	protected TiAnalyticsModel analyticsModel;
-	protected Intent analyticsIntent;
-	protected Handler analyticsHandler;
 	protected TiDeployData deployData;
 	protected TiTempFileHelper tempFileHelper;
 	protected ITiAppInfo appInfo;
@@ -125,9 +112,6 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
 	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
-
-	public TiAnalyticsEvent lastAnalyticsEvent;
-	public String lastEventID;
 
 	public static interface ActivityTransitionListener
 	{
@@ -143,7 +127,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	{
 		activityTransitionListeners.remove(a);
 	}
-	
+
 	public static void updateActivityTransitionState(boolean state)
 	{
 		isActivityTransition.set(state);
@@ -154,14 +138,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	}
 	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
-
 	public TiApplication()
 	{
 		Log.checkpoint(TAG, "checkpoint, app created.");
-
-		analyticsHandler = new Handler(this);
-		needsEnrollEvent = false; // test is after DB is available
-		needsStartEvent = true;
 
 		loadBuildProperties();
 
@@ -380,9 +359,11 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			public void uncaughtException(Thread t, Throwable e) {
-				String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash ;
-				Log.e(TAG, "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium " + tiVer, e);
-				postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
+				if (collectAnalytics()) {
+					String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash ;
+					Log.e(TAG, "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium " + tiVer, e);
+					TiPlatformHelper.postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
+				}
 				defaultHandler.uncaughtException(t, e);
 			}
 		});
@@ -493,19 +474,19 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		}
 
 		if (collectAnalytics()) {
-			analyticsIntent = new Intent(this, TiAnalyticsService.class);
-			analyticsModel = new TiAnalyticsModel(this);
-			needsEnrollEvent = analyticsModel.needsEnrollEvent();
 
-			if (needsEnrollEvent()) {
-				//FIXME: Find some other way to set the deploytype?
-				String deployType = appProperties.getString("ti.deploytype", "unknown");
-				postAnalyticsEvent(TiAnalyticsEventFactory.createAppEnrollEvent(this,deployType));
-			}
+			TiPlatformHelper.initAnalytics();
+			TiPlatformHelper.setSdkVersion("ti." + getTiBuildVersion());
+			TiPlatformHelper.setAppName(getAppInfo().getName());
+			TiPlatformHelper.setAppId(getAppInfo().getId());
+			TiPlatformHelper.setAppVersion(getAppInfo().getVersion());
+
+			// FIXME: Find some other way to set the deploytype?
+			String deployType = appProperties.getString("ti.deploytype", "unknown");
+			TiPlatformHelper.setDeployType(deployType);
+			ACSAnalytics.sendAppEnrollEvent();
 
 		} else {
-			needsEnrollEvent = false;
-			needsStartEvent = false;
 			Log.i(TAG, "Analytics have been disabled");
 		}
 		tempFileHelper.scheduleCleanTempDir();
@@ -652,91 +633,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return proxy;
 	}
 
-	public synchronized boolean needsStartEvent()
-	{
-		return needsStartEvent;
-	}
-
-	public synchronized boolean needsEnrollEvent()
-	{
-		return needsEnrollEvent;
-	}
-
 	private boolean collectAnalytics()
 	{
 		return getAppInfo().isAnalyticsEnabled();
-	}
-
-	/**
-	 * Posts analytic event to the server if the application is collecting analytic information.
-	 * @param event the analytic event to be posted.
-	 */
-	public synchronized void postAnalyticsEvent(TiAnalyticsEvent event)
-	{
-		if (!collectAnalytics()) {
-			Log.i(TAG, "Analytics are disabled, ignoring postAnalyticsEvent", Log.DEBUG_MODE);
-			return;
-		}
-		lastAnalyticsEvent = event;
-		if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_ENROLL) {
-			if (needsEnrollEvent) {
-				lastEventID = analyticsModel.addEvent(event);
-				needsEnrollEvent = false;
-				sendAnalytics();
-				analyticsModel.markEnrolled();
-			}
-
-		} else if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_START) {
-			HashMap<Integer,String> tsForEndEvent = analyticsModel.getLastTimestampForEventType(TiAnalyticsEventFactory.EVENT_APP_END);
-			if (tsForEndEvent.size() == 1) {
-				for (Integer key : tsForEndEvent.keySet()) {
-					try {
-						SimpleDateFormat dateFormat = TiAnalyticsEvent.getDateFormatForTimestamp();
-						long lastEnd = dateFormat.parse(tsForEndEvent.get(key)).getTime(); //in millisecond
-						long start = dateFormat.parse(event.getEventTimestamp()).getTime();
-						// If the new activity starts immediately after the previous activity pauses, we consider
-						// the app is still in foreground so will not send any analytics events
-						if (start - lastEnd < TIME_SEPARATION_ANALYTICS) {
-							analyticsModel.deleteEvents(new int[] {key});
-							return;
-						}
-					} catch (ParseException e) {
-						Log.e(TAG, "Incorrect timestamp. Unable to send the ti.start event.", e);
-					}
-				}
-			}
-			lastEventID = analyticsModel.addEvent(event);
-			sendAnalytics();
-
-		} else if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_END) {
-			lastEventID = analyticsModel.addEvent(event);
-			sendAnalytics();
-
-		} else {
-			lastEventID = analyticsModel.addEvent(event);
-			sendAnalytics();
-		}
-	}
-
-	public boolean handleMessage(Message msg)
-	{
-		if (msg.what == MSG_SEND_ANALYTICS) {
-			if (startService(analyticsIntent) == null) {
-				Log.w(TAG, "Analytics service not found.");
-			}
-			return true;
-		}
-		return false;
-	}
-
-	public void sendAnalytics()
-	{
-		if (analyticsIntent != null) {
-			synchronized(this) {
-				analyticsHandler.removeMessages(MSG_SEND_ANALYTICS);
-				analyticsHandler.sendEmptyMessageDelayed(MSG_SEND_ANALYTICS, SEND_ANALYTICS_DELAY);
-			}
-		}
 	}
 
 	public String getDeployType()

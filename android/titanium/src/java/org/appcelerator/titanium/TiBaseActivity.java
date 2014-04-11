@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.appcelerator.analytics.ACSAnalytics;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
@@ -20,7 +21,6 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
 import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
-import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
@@ -49,7 +49,6 @@ import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -972,7 +971,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 		// Checkpoint for ti.end event
 		if (tiApp != null) {
-			tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
+			ACSAnalytics.sendSessionBackgroundEvent();
 		}
 	}
 
@@ -1024,8 +1023,8 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		isResumed = true;
 
 		// Checkpoint for ti.start event
-		String deployType = tiApp.getAppProperties().getString("ti.deploytype", "unknown");
-		tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppStartEvent(tiApp, deployType));
+		//String deployType = tiApp.getAppProperties().getString("ti.deploytype", "unknown");
+		ACSAnalytics.sendSessionForegroundEvent();
 	}
 
 	@Override
