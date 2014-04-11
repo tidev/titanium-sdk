@@ -9,6 +9,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Networking.Sockets;
+using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace TitaniumApp
@@ -215,15 +216,28 @@ namespace TitaniumApp
 								return;
 							}
 
-							file = "App/" + file;
+							file = file.Replace('/', '\\');
 
-							if (!File.Exists(file)) {
+							if (file.StartsWith("\\")) {
+								file = "App" + file;
+							} else {
+								file = "App\\" + file;
+							}
+
+							StorageFolder installFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
+							StorageFile theFile;
+							try {
+								theFile = await installFolder.GetFileAsync(file);
+							} catch (Exception e) {
 								Logger.log("XHRProxy", "404 File Not Found");
 								Logger.log("XHRProxy", "Original file: " + originalFile);
 								Logger.log("XHRProxy", "Resolved file: " + file);
 								requestError(writer, socket, "404 File Not Found", "File Not Found");
 								return;
 							}
+
+							var randomAccessStream = await theFile.OpenReadAsync();
+							Stream fs = randomAccessStream.AsStreamForRead();
 
 							FileInfo fi = new FileInfo(file);
 							string ext = fi.Extension.Substring(1); // trim the dot
@@ -244,7 +258,6 @@ namespace TitaniumApp
 							writer.WriteString("Content-Length: " + fi.Length + "\r\n");
 							writer.WriteString("Connection: close\r\n\r\n");
 
-							FileStream fs = new FileStream(file, FileMode.Open);
 							while ((responseBytesRead = fs.Read(responseBuffer, 0, responseBuffer.Length)) > 0) {
 								responseTotalBytesRead += responseBytesRead;
 								writer.WriteBytes(responseBuffer);
