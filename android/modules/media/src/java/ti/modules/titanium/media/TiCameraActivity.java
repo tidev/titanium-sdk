@@ -7,9 +7,7 @@
 package ti.modules.titanium.media;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
@@ -26,7 +24,6 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
@@ -53,7 +50,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	private static Size optimalPreviewSize;
 	private static List<Size> supportedPreviewSizes;
 	private static int frontCameraId = Integer.MIN_VALUE; // cache
-
+	private static int backCameraId = Integer.MIN_VALUE; //cache
 	private TiViewProxy localOverlayProxy = null;
 	private SurfaceView preview;
 	private PreviewLayout previewLayout;
@@ -208,7 +205,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 		cameraActivity = this;
 		previewLayout.addView(preview, new FrameLayout.LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		View overlayView = localOverlayProxy.getOrCreateView().getNativeView();
 		ViewGroup parent = (ViewGroup) overlayView.getParent();
 		// Detach from the parent if applicable
@@ -216,7 +213,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			parent.removeView(overlayView);
 		}
 		cameraLayout.addView(overlayView, new FrameLayout.LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 	}
 
 	public static void setFlashMode(int cameraFlashMode)
@@ -260,9 +257,11 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		}
 
 		int rotation = getWindowManager().getDefaultDisplay().getRotation();
+
 		if (currentRotation == rotation && previewRunning) {
 			return;
-		}
+		}		
+
 		if (previewRunning) {
 			try {
 				camera.stopPreview();
@@ -270,57 +269,48 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				// ignore: tried to stop a non=existent preview
 			}
 		}
+		
+		//Set the proper display orientation
+		int cameraId = Integer.MIN_VALUE;
+		if (whichCamera == MediaModule.CAMERA_FRONT) {
+			cameraId = TiCameraActivity.getFrontCameraId();
+		} else {
+			cameraId = TiCameraActivity.getBackCameraId();
+		}
+		CameraInfo info = new Camera.CameraInfo();
+		Camera.getCameraInfo(cameraId, info);
 
 		currentRotation = rotation;
+		
+		//Clockwise and anticlockwise
+		int degrees = 0, degrees2 = 0;
+		
+		//Let Camera display in same orientation as display
+		switch (currentRotation) {
+			case Surface.ROTATION_0: degrees = degrees2 = 0; break;
+			case Surface.ROTATION_180: degrees = degrees2 = 180; break;
+			case Surface.ROTATION_90: {degrees = 90; degrees2 = 270; } break;
+			case Surface.ROTATION_270: {degrees = 270; degrees2 = 90;} break;
+		}
+		
+		int result, result2;
+		if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+			result = (info.orientation + degrees) % 360;
+			result = (360 - result) % 360;  // compensate the mirror
+		} else {  // back-facing
+			result = (info.orientation - degrees + 360) % 360;
+		}
+		
+		//Set up Camera Rotation so jpegCallback has correctly rotated image
 		Parameters param = camera.getParameters();
-		int orientation = TiApplication.getInstance().getResources().getConfiguration().orientation;
-
-		// The camera preview is always displayed in landscape mode. Need to rotate the preview according to
-		// the current orientation of the device.
-		switch (rotation) {
-			case Surface.ROTATION_0:
-				if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-					// The "natural" orientation of the device is a portrait orientation, eg. phones.
-					// Need to rotate 90 degrees.
-					camera.setDisplayOrientation(90);
-				} else {
-					// The "natural" orientation of the device is a landscape orientation, eg. tablets.
-					// Set the camera to the starting position (0 degree).
-					camera.setDisplayOrientation(0);
-				}
-				break;
-			case Surface.ROTATION_90:
-				if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-					camera.setDisplayOrientation(0);
-				} else {
-					camera.setDisplayOrientation(270);
-				}
-				break;
-			case Surface.ROTATION_180:
-				if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-					camera.setDisplayOrientation(270);
-				} else {
-					camera.setDisplayOrientation(180);
-				}
-				break;
-			case Surface.ROTATION_270:
-				if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-					camera.setDisplayOrientation(180);
-				} else {
-					camera.setDisplayOrientation(90);
-				}
-				break;
+		if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
+			result2 = (info.orientation - degrees2 + 360) % 360;
+		} else {  // back-facing camera
+			result2 = (info.orientation + degrees2) % 360;
 		}
-
-		// Set appropriate focus mode if supported.
-		List<String> supportedFocusModes = param.getSupportedFocusModes();
-		if (supportedFocusModes.contains(MediaModule.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-			param.setFocusMode(MediaModule.FOCUS_MODE_CONTINUOUS_PICTURE);
-		} else if (supportedFocusModes.contains(Parameters.FOCUS_MODE_AUTO)) {
-			param.setFocusMode(Parameters.FOCUS_MODE_AUTO);
-		} else if (supportedFocusModes.contains(Parameters.FOCUS_MODE_MACRO)) {
-			param.setFocusMode(Parameters.FOCUS_MODE_MACRO);
-		}
+		
+		camera.setDisplayOrientation(result);
+		param.setRotation(result2);
 
 		if (optimalPreviewSize != null) {
 			param.setPreviewSize(optimalPreviewSize.width, optimalPreviewSize.height);
@@ -329,8 +319,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			if (pictureSize != null) {
 				param.setPictureSize(pictureSize.width, pictureSize.height);
 			}
-			camera.setParameters(param);
 		}
+		camera.setParameters(param);
 
 		try {
 			camera.setPreviewDisplay(previewHolder);
@@ -554,6 +544,23 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		}
 
 		return frontCameraId;
+	}
+	
+	private static int getBackCameraId()
+	{
+		if (backCameraId == Integer.MIN_VALUE) {
+			int count = Camera.getNumberOfCameras();
+			for (int i = 0; i < count; i++) {
+				CameraInfo info = new CameraInfo();
+				Camera.getCameraInfo(i, info);
+				if (info.facing == CameraInfo.CAMERA_FACING_BACK) {
+					backCameraId = i;
+					break;
+				}
+			}
+		}
+
+		return backCameraId;
 	}
 
 	private void openCamera()

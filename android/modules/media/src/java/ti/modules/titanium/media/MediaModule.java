@@ -793,13 +793,13 @@ public class MediaModule extends KrollModule
 			});
 	}
 
-	public static KrollDict createDictForImage(String path, String mimeType) {
+	protected static KrollDict createDictForImage(String path, String mimeType) {
 		String[] parts = { path };
 		TiBlob imageData = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(parts, false), mimeType);
 		return createDictForImage(imageData, mimeType);
 	}
 
-	public static KrollDict createDictForImage(TiBlob imageData, String mimeType) {
+	protected static KrollDict createDictForImage(TiBlob imageData, String mimeType) {
 		KrollDict d = new KrollDict();
 		d.putCodeAndMessage(NO_ERROR, null);
 
