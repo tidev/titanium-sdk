@@ -325,6 +325,16 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		camera.setDisplayOrientation(result);
 		param.setRotation(result2);
 
+		// Set appropriate focus mode if supported.
+		List<String> supportedFocusModes = param.getSupportedFocusModes();
+		if (supportedFocusModes.contains(MediaModule.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+			param.setFocusMode(MediaModule.FOCUS_MODE_CONTINUOUS_PICTURE);
+		} else if (supportedFocusModes.contains(Parameters.FOCUS_MODE_AUTO)) {
+			param.setFocusMode(Parameters.FOCUS_MODE_AUTO);
+		} else if (supportedFocusModes.contains(Parameters.FOCUS_MODE_MACRO)) {
+			param.setFocusMode(Parameters.FOCUS_MODE_MACRO);
+		}
+
 		if (optimalPreviewSize != null) {
 			param.setPreviewSize(optimalPreviewSize.width, optimalPreviewSize.height);
 			List<Size> pictSizes = param.getSupportedPictureSizes();
