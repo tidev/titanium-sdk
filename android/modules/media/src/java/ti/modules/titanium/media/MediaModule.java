@@ -507,51 +507,47 @@ public class MediaModule extends KrollModule
 					long compareLength = (validFileCreated) ? imageFile.length() : 0;
 					
 					while(imageCursor.moveToNext()){
-				        int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
-				        String path = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+						int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
+						String path = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
 				        
-				        if (!validFileCreated) {
-				        	//If file is invalid we will copy over the last image in the gallery
-				        	if (imageFile != null) {
-				        		try {
-				        			File srcFile = new File(path);
-				        			copyFile(srcFile, imageFile);
-				        			validFileCreated = true;
-				        			refPath = imageFile.getAbsolutePath();
-				        			compareLength = imageFile.length();
-				        		}catch(Throwable t) {
-				        			//Ignore this error. It will be caught on the next pass to validateFile.
-				        		}
-				        	} 
-				        }
-				        
-				        if(!path.equalsIgnoreCase(refPath)) {
-				        	
-				        	File compareFile = new File(path);
-				        	long fileLength = compareFile.length();
-				        	
-				        	if (compareFile.length() == compareLength) {
-					        	//Same file length
-						        int result = activity.getContentResolver().delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, MediaStore.Images.Media._ID + "=?", new String[]{ Integer.toString(id) } );
-					        	if (result == 1) {
-					        		android.util.Log.d(TAG, "Deleting possible duplicate at "+path+" with id "+id);
-					        		if(Log.isDebugModeEnabled()) {
-						        		Log.d(TAG, "Deleting possible duplicate at "+path+" with id "+id, Log.DEBUG_MODE);
-					        		}
-						        } else {
-						        	android.util.Log.d(TAG, "Could not delete possible duplicate at "+path+" with id "+id);
-						        	if(Log.isDebugModeEnabled()) {
-						        		Log.d(TAG, "Could not delete possible duplicate at "+path+" with id "+id, Log.DEBUG_MODE);
-						        	}
-						        }
-					        } else {
-					        	android.util.Log.d(TAG, "Ignoring file as not a duplicate at path "+path+" with id "+id+". Different Sizes "+fileLength+" "+compareLength);
-					        	if(Log.isDebugModeEnabled()) {
-					        		Log.d(TAG, "Ignoring file as not a duplicate at path "+path+" with id "+id+". Different Sizes "+fileLength+" "+compareLength, Log.DEBUG_MODE);
-					        	}
-					        }
-				        }
-				    }               
+						if (!validFileCreated) {
+							//If file is invalid we will copy over the last image in the gallery
+							if (imageFile != null) {
+								try {
+									File srcFile = new File(path);
+									copyFile(srcFile, imageFile);
+									validFileCreated = true;
+									refPath = imageFile.getAbsolutePath();
+									compareLength = imageFile.length();
+								} catch(Throwable t) {
+									//Ignore this error. It will be caught on the next pass to validateFile.
+								}
+							} 
+						}
+
+						if(!path.equalsIgnoreCase(refPath)) {
+							File compareFile = new File(path);
+							long fileLength = compareFile.length();
+
+							if (compareFile.length() == compareLength) {
+								//Same file length
+								int result = activity.getContentResolver().delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, MediaStore.Images.Media._ID + "=?", new String[]{ Integer.toString(id) } );
+								if (result == 1) {
+									if(Log.isDebugModeEnabled()) {
+										Log.d(TAG, "Deleting possible duplicate at "+path+" with id "+id, Log.DEBUG_MODE);
+									}
+								} else {
+									if(Log.isDebugModeEnabled()) {
+										Log.d(TAG, "Could not delete possible duplicate at "+path+" with id "+id, Log.DEBUG_MODE);
+									}
+								}
+							} else {
+								if(Log.isDebugModeEnabled()) {
+									Log.d(TAG, "Ignoring file as not a duplicate at path "+path+" with id "+id+". Different Sizes "+fileLength+" "+compareLength, Log.DEBUG_MODE);
+								}
+							}
+						}
+					}
 				}
 				imageCursor.close();
 			}
