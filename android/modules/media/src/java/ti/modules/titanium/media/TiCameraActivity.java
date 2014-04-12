@@ -34,6 +34,7 @@ import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.view.Gravity;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -202,7 +203,19 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		if (camera == null) {
 			return; // openCamera will have logged error.
 		}
-
+		
+		try {
+			//This needs to be called to make sure action bar is gone
+			if(android.os.Build.VERSION.SDK_INT < 11) {
+				ActionBar actionBar = getSupportActionBar();
+				if(actionBar != null) {
+					actionBar.hide();
+				}
+			}
+		} catch(Throwable t) {
+			//Ignore this
+		}
+		
 		cameraActivity = this;
 		previewLayout.addView(preview, new FrameLayout.LayoutParams(
 				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
