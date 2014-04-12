@@ -838,6 +838,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CALENDAR_VIEW_SHOWN = "calendarViewShown";
+	
+	/**
+	 * @module.api
+	 */	
+	public static final String PROPERTY_CAMERA_FLASH_MODE = "cameraFlashMode";
 
 	/**
 	 * @module.api
@@ -1153,11 +1158,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FLAGS = "flags";
-	
-	/**
-	 * @module.api
-	 */	
-	public static final String PROPERTY_FLASH_MODE = "flashMode";
+
 
 	/**
 	 * @module.api

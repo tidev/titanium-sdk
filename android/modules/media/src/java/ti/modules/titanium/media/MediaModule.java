@@ -177,7 +177,7 @@ public class MediaModule extends KrollModule
 			saveToPhotoGallery = TiConvert.toBoolean(saveToPhotoGalleryOption);
 		}
 		
-		Object cameraFlashModeOption = options.get(TiC.PROPERTY_FLASH_MODE);
+		Object cameraFlashModeOption = options.get(TiC.PROPERTY_CAMERA_FLASH_MODE);
 		if (cameraFlashModeOption != null) {
 			flashMode = TiConvert.toInt(cameraFlashModeOption);
 		}
@@ -691,14 +691,14 @@ public class MediaModule extends KrollModule
 
 	@Kroll.method
 	@Kroll.setProperty
-	public void setFlashMode(int flashMode)
+	public void setCameraFlashMode(int flashMode)
 	{
 		TiCameraActivity.setFlashMode(flashMode);
 	}
 
 	@Kroll.method
 	@Kroll.getProperty
-	public int getFlashMode()
+	public int getCameraFlashMode()
 	{
 		return TiCameraActivity.cameraFlashMode;
 	}
