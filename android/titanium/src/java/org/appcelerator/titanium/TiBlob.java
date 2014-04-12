@@ -560,7 +560,7 @@ public class TiBlob extends KrollProxy
 	@Kroll.method
 	public TiBlob imageAsResized(Number width, Number height)
 	{
-		boolean valid =  (image == null && (this.width > 0 && this.height > 0));
+		boolean valid =  (image != null) || (image == null && (this.width > 0 && this.height > 0));
 		if(!valid) {
 			return null;
 		}
