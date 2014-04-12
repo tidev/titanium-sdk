@@ -57,10 +57,6 @@ public class MediaModule extends KrollModule
 	private static final String TAG = "TiMedia";
 
 	private static final long[] DEFAULT_VIBRATE_PATTERN = { 100L, 250L };
-//	private static final String PHOTO_DCIM_CAMERA = "/sdcard/dcim/Camera";
-//
-//	protected static final int MSG_INVOKE_CALLBACK = KrollModule.MSG_LAST_ID + 100;
-//	protected static final int MSG_LAST_ID = MSG_INVOKE_CALLBACK;
 
 	// The mode FOCUS_MODE_CONTINUOUS_PICTURE is added in API 14
 	public static final String FOCUS_MODE_CONTINUOUS_PICTURE = "continuous-picture";
@@ -202,7 +198,7 @@ public class MediaModule extends KrollModule
 		
 		//Create Intent
 		Uri fileUri = Uri.fromFile(imageFile); // create a file to save the image
-	    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
 		
 		//Setup CameraResultHandler
@@ -345,7 +341,6 @@ public class MediaModule extends KrollModule
 				return;
 			}
 			
-			//Create a temporary file in cache and delete the original file
 			BufferedInputStream bis = null;
 			BufferedOutputStream bos = null;
 			bis = new BufferedInputStream(theBlob.getInputStream());
