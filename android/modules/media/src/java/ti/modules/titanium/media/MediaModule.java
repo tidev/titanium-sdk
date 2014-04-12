@@ -245,8 +245,8 @@ public class MediaModule extends KrollModule
 		if (cameraOptions.containsKeyAndNotNull("autohide")) {
 			autohide = cameraOptions.getBoolean("autohide");
 		}
-		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_FLASH_MODE)) {
-			flashMode = cameraOptions.getInt(TiC.PROPERTY_FLASH_MODE);
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_CAMERA_FLASH_MODE)) {
+			flashMode = cameraOptions.getInt(TiC.PROPERTY_CAMERA_FLASH_MODE);
 		}
 		if (cameraOptions.containsKeyAndNotNull("whichCamera")) {
 			whichCamera = cameraOptions.getInt("whichCamera");
@@ -696,14 +696,14 @@ public class MediaModule extends KrollModule
 
 	@Kroll.method
 	@Kroll.setProperty
-	public void setFlashMode(int flashMode)
+	public void setCameraFlashMode(int flashMode)
 	{
 		TiCameraActivity.setFlashMode(flashMode);
 	}
 
 	@Kroll.method
 	@Kroll.getProperty
-	public int getFlashMode()
+	public int getCameraFlashMode()
 	{
 		return TiCameraActivity.cameraFlashMode;
 	}
