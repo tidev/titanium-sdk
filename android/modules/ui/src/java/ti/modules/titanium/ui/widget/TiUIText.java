@@ -75,7 +75,6 @@ public class TiUIText extends TiUIView
 	private int maxLength = -1;
 	private boolean isTruncatingText = false;
 	private boolean disableChangeEvent = false;
-
 	protected TiEditText tv;
 	
 	public class TiEditText extends EditText 
@@ -202,14 +201,36 @@ public class TiUIText extends TiUIView
 			TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
 		}
 
-		if (d.containsKey(TiC.PROPERTY_PADDING_LEFT)) {
-			tv.setPadding(TiConvert.toInt(d, TiC.PROPERTY_PADDING_LEFT), 0, 0, 0);
-		}
-		if (d.containsKey(TiC.PROPERTY_PADDING_RIGHT)) {
-			tv.setPadding(0, 0, TiConvert.toInt(d, TiC.PROPERTY_PADDING_RIGHT), 0);
-		}
+			setTextPadding(d);
 	}
 
+	private boolean setTextPadding(KrollDict d)
+	{
+		boolean padding = false;
+		int paddingLeft = 0;
+		int paddingRight = 0;
+		int paddingTop = 0;
+		int paddingBottom = 0;
+		if (d.containsKey(TiC.PROPERTY_PADDING_LEFT)) {
+			paddingLeft = TiConvert.toInt(d, TiC.PROPERTY_PADDING_LEFT);
+			padding = true;
+		} else {
+			paddingLeft = tv.getPaddingLeft();
+		}
+		if (d.containsKey(TiC.PROPERTY_PADDING_RIGHT)) {
+			paddingRight = TiConvert.toInt(d, TiC.PROPERTY_PADDING_RIGHT);
+			padding = true;
+		} else {
+			paddingRight = tv.getPaddingRight();
+		}
+		if(padding)
+		{
+		paddingBottom = tv.getPaddingBottom();
+		paddingTop = tv.getPaddingTop();
+		tv.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		}
+		return padding;
+	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
@@ -269,11 +290,7 @@ public class TiUIText extends TiUIView
 			TiUIHelper.styleText(tv, (HashMap) newValue);
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, newValue);
-		} else if (key.equals(TiC.PROPERTY_PADDING_LEFT)) {
-			tv.setPadding(TiConvert.toInt(newValue), 0, 0, 0);
-		} else if (key.equals(TiC.PROPERTY_PADDING_RIGHT)) {
-			tv.setPadding(0, 0, TiConvert.toInt(newValue), 0);
-		} else {
+		} else if (!setTextPadding(proxy.getProperties())){
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
