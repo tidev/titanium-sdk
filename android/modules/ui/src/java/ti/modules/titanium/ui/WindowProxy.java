@@ -294,7 +294,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
 			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false));
+		} else {
+			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, activity.isTaskRoot());
 		}
+
 		boolean modal = false;
 		if (hasProperty(TiC.PROPERTY_MODAL)) {
 			modal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_MODAL), false);
