@@ -118,6 +118,11 @@ properties:
     type: Callback
     permission: write-only
 
+  - name: subtitle
+    summary: Sets the subtitle of the action bar.
+    type: String
+    since: "3.2.3"
+
   - name: title
     summary: Sets the title of the action bar.
     type: String
