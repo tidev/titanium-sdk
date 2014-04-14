@@ -259,22 +259,22 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	private void fillIntent(Activity activity, Intent intent)
 	{
 		int windowFlags = 0;
-		if(hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
+		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
 			windowFlags = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS), 0);
 		}
 		
 		//Set the fullscreen flag
 		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
-			boolean fullScreen = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
-			if(fullScreen) {
+			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
+			if (flagVal) {
 				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
 			}
 		}
 		
 		//Set the secure flag
 		if (hasProperty(TiC.PROPERTY_FLAG_SECURE)) {
-			boolean fullScreen = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
-			if(fullScreen) {
+			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
+			if (flagVal) {
 				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_SECURE;
 			}
 		}

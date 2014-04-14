@@ -417,7 +417,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		
 		setFullscreen(fullscreen);
 		
-		if(windowFlags > 0) {
+		if (windowFlags > 0) {
 			getWindow().addFlags(windowFlags);
 		}
 
