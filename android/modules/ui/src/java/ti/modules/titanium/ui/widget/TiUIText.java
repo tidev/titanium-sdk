@@ -386,8 +386,11 @@ public class TiUIText extends TiUIView
 			fireEvent(TiC.EVENT_RETURN, data);
 		}
 
-		Boolean enableReturnKey = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_RETURN_KEY));
-		if (enableReturnKey != null && enableReturnKey && v.getText().length() == 0) {
+		boolean enableReturnKey = false;
+		if(proxy.hasProperty(TiC.PROPERTY_ENABLE_RETURN_KEY)) {
+			enableReturnKey = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_RETURN_KEY), false);
+		}
+		if (enableReturnKey && v.getText().length() == 0) {
 			return true;
 		}
 		return false;
