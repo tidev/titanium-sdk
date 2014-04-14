@@ -265,9 +265,30 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	private void fillIntent(Activity activity, Intent intent)
 	{
-		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
-			intent.putExtra(TiC.PROPERTY_FULLSCREEN, TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false));
+		int windowFlags = 0;
+		if(hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
+			windowFlags = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS), 0);
 		}
+		
+		//Set the fullscreen flag
+		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
+			boolean fullScreen = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
+			if(fullScreen) {
+				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
+			}
+		}
+		
+		//Set the secure flag
+		if (hasProperty(TiC.PROPERTY_FLAG_SECURE)) {
+			boolean fullScreen = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
+			if(fullScreen) {
+				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_SECURE;
+			}
+		}
+		
+		//Stuff flags in intent
+		intent.putExtra(TiC.PROPERTY_WINDOW_FLAGS, windowFlags);
+		
 		if (hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
 			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE), -1));
 		}
