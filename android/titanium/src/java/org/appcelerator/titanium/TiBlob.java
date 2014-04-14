@@ -552,7 +552,7 @@ public class TiBlob extends KrollProxy
 			Log.e(TAG, "Unable to crop the image. Illegal Argument: " + e.getMessage(), e);
 			return null;
 		} catch (Throwable t) {
-			Log.e(TAG, "Unable to crop the image. Unknown exception: " + t.getMessage());
+			Log.e(TAG, "Unable to crop the image. Unknown exception: " + t.getMessage(), t);
 			return null;
 		}
 	}
@@ -628,7 +628,7 @@ public class TiBlob extends KrollProxy
 			Log.e(TAG, "Unable to resize the image. Illegal Argument: " + e.getMessage(), e);
 			return null;
 		} catch (Throwable t) {
-			Log.e(TAG, "Unable to crop the image. Unknown exception: " + t.getMessage());
+			Log.e(TAG, "Unable to resize the image. Unknown exception: " + t.getMessage(), t);
 			return null;
 		}
 	}
@@ -688,7 +688,7 @@ public class TiBlob extends KrollProxy
 			Log.e(TAG, "Unable to get the thumbnail image. Illegal Argument: " + e.getMessage(), e);
 			return null;
 		} catch (Throwable t) {
-			Log.e(TAG, "Unable to get the thumbnail image. Unknown exception: " + t.getMessage());
+			Log.e(TAG, "Unable to get the thumbnail image. Unknown exception: " + t.getMessage(), t);
 			return null;
 		}
 	}
@@ -722,7 +722,7 @@ public class TiBlob extends KrollProxy
 			Log.e(TAG, "Unable to get the image with alpha. Illegal Argument: " + e.getMessage(), e);
 			return null;
 		} catch (Throwable t) {
-			Log.e(TAG, "Unable to get the image with alpha. Unknown exception: " + t.getMessage());
+			Log.e(TAG, "Unable to get the image with alpha. Unknown exception: " + t.getMessage(), t);
 			return null;
 		}
 	}
@@ -763,7 +763,7 @@ public class TiBlob extends KrollProxy
 			Log.e(TAG, "Unable to get the image with rounded corner. Illegal Argument: " + e.getMessage(), e);
 			return null;
 		} catch (Throwable t) {
-			Log.e(TAG, "Unable to get the image with rounded corner. Unknown exception: " + t.getMessage());
+			Log.e(TAG, "Unable to get the image with rounded corner. Unknown exception: " + t.getMessage(), t);
 			return null;
 		}
 	}
@@ -799,7 +799,7 @@ public class TiBlob extends KrollProxy
 			Log.e(TAG, "Unable to get the image with transparent border. Illegal Argument: " + e.getMessage(), e);
 			return null;
 		} catch (Throwable t) {
-			Log.e(TAG, "Unable to get the image with transparent border. Unknown exception: " + t.getMessage());
+			Log.e(TAG, "Unable to get the image with transparent border. Unknown exception: " + t.getMessage(), t);
 			return null;
 		}
 	}
