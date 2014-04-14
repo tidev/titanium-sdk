@@ -11,7 +11,7 @@
  */
 
 var appc = require('node-appc'),
-	Creator = require('./creator'),
+	Creator = require('../creator'),
 	fs = require('fs'),
 	path = require('path'),
 	util = require('util'),
@@ -25,6 +25,8 @@ function ModuleCreator() {
 }
 
 util.inherits(ModuleCreator, Creator);
+
+ModuleCreator.type = 'module';
 
 ModuleCreator.prototype.run = function run(callback) {
 	this.logger.info(__('Creating Titanium Mobile module project') + '\n');

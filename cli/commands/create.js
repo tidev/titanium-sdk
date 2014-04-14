@@ -19,9 +19,22 @@ var appc = require('node-appc'),
 exports.cliVersion = '>=3.2.1';
 exports.desc = __('creates a new mobile application'); // or module
 
-exports.config = function config(logger, config, cli) {
+function CreateCommand() {
+	var creatorDir = path.join(__dirname, '..', 'lib', 'creators'),
+		types = this.types = {},
+		jsRegExp = /\.js$/;
+
+	fs.readdirSync(creatorDir).forEach(function (filename) {
+		if (jsRegExp.test(filename)) {
+			var mod = require(path.join(creatorDir, filename));
+			types[mod.type || filename.replace(jsRegExp, '')] = mod;
+		}
+	});
+}
+
+CreateCommand.prototype.config = function config(logger, config, cli) {
 	return function (finished) {
-		cli.createHook('create.config', function (callback) {
+		cli.createHook('create.config', this, function (callback) {
 			var conf,
 				idPrefix = config.get('app.idprefix'),
 				workspaceDir = config.app.workspace ? appc.fs.resolvePath(config.app.workspace) : null,
@@ -249,7 +262,7 @@ exports.config = function config(logger, config, cli) {
 						validate: function (value, callback) {
 							callback(/^app|module$/.test(value) ? null : new Error(__('Invalid project type "%s"', value)), value);
 						},
-						values: ['app'] // , 'module']
+						values: Object.keys(this.types)
 					},
 					url: {
 						abbr: 'u',
@@ -315,13 +328,13 @@ exports.config = function config(logger, config, cli) {
 				}, ti.commonOptions(logger, config))
 			};
 			callback(null, conf);
-		})(function (err, result) {
+		}.bind(this))(function (err, result) {
 			finished(result);
 		});
-	};
+	}.bind(this);
 };
 
-exports.validate = function validate(logger, config, cli) {
+CreateCommand.prototype.validate = function validate(logger, config, cli) {
 	// check if the project already exists
 	if (cli.argv.name && !cli.argv.force) {
 		var projectDir = path.join(cli.argv['workspace-dir'], cli.argv.name);
@@ -333,7 +346,7 @@ exports.validate = function validate(logger, config, cli) {
 	}
 };
 
-exports.run = function run(logger, config, cli, finished) {
+CreateCommand.prototype.run = function run(logger, config, cli, finished) {
 	var projectName = cli.argv.name,
 		projectDir = appc.fs.resolvePath(cli.argv['workspace-dir'], projectName),
 		type = cli.argv.type;
@@ -392,3 +405,9 @@ exports.run = function run(logger, config, cli, finished) {
 	});
 };
 
+// create the builder instance and expose the public api
+(function (createCommand) {
+	exports.config   = createCommand.config.bind(createCommand);
+	exports.validate = createCommand.validate.bind(createCommand);
+	exports.run      = createCommand.run.bind(createCommand);
+}(new CreateCommand));
