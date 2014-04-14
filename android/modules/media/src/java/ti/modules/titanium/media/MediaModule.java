@@ -134,10 +134,10 @@ public class MediaModule extends KrollModule
 	    final String[] imageArguments = null;
 	    
 	    Cursor imageCursor = activity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageColumns, imageWhere, imageArguments, imageOrderBy);
-	    if(imageCursor == null) {
+	    if (imageCursor == null) {
 	    	return -1;
 	    }
-	    if(imageCursor.moveToFirst()){
+	    if (imageCursor.moveToFirst()){
 	        int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
 	        imageCursor.close();
 	        return id;
@@ -153,14 +153,14 @@ public class MediaModule extends KrollModule
 		KrollFunction errorCallback = null;
 		boolean saveToPhotoGallery = false;
 		
-		if (cameraOptions.containsKeyAndNotNull("success")) {
-			successCallback = (KrollFunction) cameraOptions.get("success");
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)) {
+			successCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_SUCCESS);
 		}
-		if (cameraOptions.containsKeyAndNotNull("cancel")) {
-			cancelCallback = (KrollFunction) cameraOptions.get("cancel");
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_CANCEL)) {
+			cancelCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_CANCEL);
 		}
-		if (cameraOptions.containsKeyAndNotNull("error")) {
-			errorCallback = (KrollFunction) cameraOptions.get("error");
+		if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ERROR)) {
+			errorCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ERROR);
 		}
 		if (cameraOptions.containsKeyAndNotNull("saveToPhotoGallery")) {
 			saveToPhotoGallery = cameraOptions.getBoolean("saveToPhotoGallery");
@@ -171,7 +171,7 @@ public class MediaModule extends KrollModule
 		//is true or false. If false, we'll delete it later
 		File imageFile = null;
 		
-		if(saveToPhotoGallery) {
+		if (saveToPhotoGallery) {
 			imageFile = MediaModule.createGalleryImageFile();
 		} else {
 			imageFile = MediaModule.createExternalStorageFile();
@@ -179,7 +179,7 @@ public class MediaModule extends KrollModule
 		
 		//Sanity Checks
 		if (imageFile == null) {
-			if(errorCallback != null) {
+			if (errorCallback != null) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(NO_CAMERA, "Unable to create file for storage");
 				errorCallback.callAsync(getKrollObject(), response);
@@ -187,8 +187,8 @@ public class MediaModule extends KrollModule
 			return;
 		}
 		
-		if(getIsCameraSupported() == false) {
-			if(errorCallback != null) {
+		if (getIsCameraSupported() == false) {
+			if (errorCallback != null) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(UNKNOWN_ERROR, "Camera Not Supported");
 				errorCallback.callAsync(getKrollObject(), response);
@@ -232,14 +232,14 @@ public class MediaModule extends KrollModule
 		int flashMode = CAMERA_FLASH_OFF;
 		int whichCamera = CAMERA_REAR;
 		
-		if (cameraOptions.containsKeyAndNotNull("success")) {
-			successCallback = (KrollFunction) cameraOptions.get("success");
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)) {
+			successCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_SUCCESS);
 		}
-		if (cameraOptions.containsKeyAndNotNull("cancel")) {
-			cancelCallback = (KrollFunction) cameraOptions.get("cancel");
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_CANCEL)) {
+			cancelCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_CANCEL);
 		}
-		if (cameraOptions.containsKeyAndNotNull("error")) {
-			errorCallback = (KrollFunction) cameraOptions.get("error");
+		if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ERROR)) {
+			errorCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ERROR);
 		}
 		if (cameraOptions.containsKeyAndNotNull("saveToPhotoGallery")) {
 			saveToPhotoGallery = cameraOptions.getBoolean("saveToPhotoGallery");
@@ -304,7 +304,7 @@ public class MediaModule extends KrollModule
 		KrollDict callbackDict = null;
 		
 		//Check for callbacks
-		if(callbackargs != null) {
+		if (callbackargs != null) {
 			callbackDict = new KrollDict(callbackargs);
 			if (callbackDict.containsKeyAndNotNull("success")) {
 				successCallback = (KrollFunction) callbackDict.get("success");
@@ -317,7 +317,7 @@ public class MediaModule extends KrollModule
 		//Validate arguments
 		boolean validType = ( (arg instanceof TiBlob) || (arg instanceof TiFileProxy) );
 		if (!validType) {
-			if(errorCallback != null) {
+			if (errorCallback != null) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(UNKNOWN_ERROR, "Invalid type passed as argument");
 				errorCallback.callAsync(getKrollObject(), response);
@@ -335,7 +335,7 @@ public class MediaModule extends KrollModule
 			}
 			
 			if ((theBlob.getWidth() == 0) || (theBlob.getHeight() == 0)) {
-				if(errorCallback != null) {
+				if (errorCallback != null) {
 					KrollDict response = new KrollDict();
 					response.putCodeAndMessage(UNKNOWN_ERROR,"Could not decode bitmap from argument");
 					errorCallback.callAsync(getKrollObject(), response);
@@ -346,9 +346,9 @@ public class MediaModule extends KrollModule
 			BufferedInputStream bis = null;
 			BufferedOutputStream bos = null;
 			String extension = null;
-			if(theBlob.getType() == TiBlob.TYPE_IMAGE) {
+			if (theBlob.getType() == TiBlob.TYPE_IMAGE) {
 				Bitmap image = theBlob.getImage();
-				if(image.hasAlpha()) {
+				if (image.hasAlpha()) {
 					extension = ".png";
 				}else {
 					extension = ".jpg";
@@ -389,14 +389,14 @@ public class MediaModule extends KrollModule
 			activity.sendBroadcast(mediaScanIntent);
 			
 			//All good. Dispatch success callback
-			if(successCallback != null) {
+			if (successCallback != null) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(NO_ERROR,null);
 				successCallback.callAsync(getKrollObject(), response);
 			}
 			
 		} catch(Throwable t) {
-			if(errorCallback != null) {
+			if (errorCallback != null) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(UNKNOWN_ERROR,t.getMessage());
 				errorCallback.callAsync(getKrollObject(), response);
@@ -509,7 +509,7 @@ public class MediaModule extends KrollModule
 		//Cleanup duplicates if possible.
 		private void checkAndDeleteDuplicate(Activity activity)
 		{
-			if(lastImageId != -1) {
+			if (lastImageId != -1) {
 				final String[] imageColumns = { MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID };
 				final String imageOrderBy = MediaStore.Images.Media._ID+" DESC";
 				final String imageWhere = MediaStore.Images.Media._ID+">?";
@@ -520,7 +520,7 @@ public class MediaModule extends KrollModule
 					Log.e(TAG, "Could not load image cursor. Can not check and delete duplicates");
 					return;
 				}
-				if(imageCursor.getCount()>0){
+				if (imageCursor.getCount()>0){
 					
 					if (!validFileCreated) {
 						try {
@@ -553,7 +553,7 @@ public class MediaModule extends KrollModule
 							} 
 						}
 
-						if(!path.equalsIgnoreCase(refPath)) {
+						if (!path.equalsIgnoreCase(refPath)) {
 							File compareFile = new File(path);
 							long fileLength = compareFile.length();
 
@@ -561,16 +561,16 @@ public class MediaModule extends KrollModule
 								//Same file length
 								int result = activity.getContentResolver().delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, MediaStore.Images.Media._ID + "=?", new String[]{ Integer.toString(id) } );
 								if (result == 1) {
-									if(Log.isDebugModeEnabled()) {
+									if (Log.isDebugModeEnabled()) {
 										Log.d(TAG, "Deleting possible duplicate at "+path+" with id "+id, Log.DEBUG_MODE);
 									}
 								} else {
-									if(Log.isDebugModeEnabled()) {
+									if (Log.isDebugModeEnabled()) {
 										Log.d(TAG, "Could not delete possible duplicate at "+path+" with id "+id, Log.DEBUG_MODE);
 									}
 								}
 							} else {
-								if(Log.isDebugModeEnabled()) {
+								if (Log.isDebugModeEnabled()) {
 									Log.d(TAG, "Ignoring file as not a duplicate at path "+path+" with id "+id+". Different Sizes "+fileLength+" "+compareLength, Log.DEBUG_MODE);
 								}
 							}
@@ -612,7 +612,7 @@ public class MediaModule extends KrollModule
 		@Override
 		public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 		{
-			if(requestCode == code) {
+			if (requestCode == code) {
 				if (resultCode == Activity.RESULT_OK) {
 					
 					validFileCreated = true;
@@ -628,7 +628,7 @@ public class MediaModule extends KrollModule
 					try {
 						validateFile();
 					} catch(Throwable t) {
-						if(errorCallback != null) {
+						if (errorCallback != null) {
 							KrollDict response = new KrollDict();
 							response.putCodeAndMessage(UNKNOWN_ERROR, t.getMessage());
 							errorCallback.callAsync(getKrollObject(), response);
@@ -646,7 +646,7 @@ public class MediaModule extends KrollModule
 							imageFile = tempFile;
 
 						} catch(Throwable t) {
-							if(errorCallback != null) {
+							if (errorCallback != null) {
 								KrollDict response = new KrollDict();
 								response.putCodeAndMessage(UNKNOWN_ERROR, t.getMessage());
 								errorCallback.callAsync(getKrollObject(), response);
@@ -670,7 +670,7 @@ public class MediaModule extends KrollModule
 							successCallback.callAsync(getKrollObject(), response);
 						}
 					} catch (Throwable t) {
-						if(errorCallback != null) {
+						if (errorCallback != null) {
 							KrollDict response = new KrollDict();
 							response.putCodeAndMessage(UNKNOWN_ERROR, t.getMessage());
 							errorCallback.callAsync(getKrollObject(), response);
@@ -691,7 +691,7 @@ public class MediaModule extends KrollModule
 						}
 					} else {
 						//Assume error
-						if(errorCallback != null) {
+						if (errorCallback != null) {
 							KrollDict response = new KrollDict();
 							response.putCodeAndMessage(UNKNOWN_ERROR, null);
 							errorCallback.callAsync(getKrollObject(), response);
@@ -704,7 +704,7 @@ public class MediaModule extends KrollModule
 
 		@Override
 		public void onError(Activity activity, int requestCode, Exception e) {
-			if(requestCode != code) {
+			if (requestCode != code) {
 				return;
 			}
 			if (imageFile != null) {
@@ -770,7 +770,7 @@ public class MediaModule extends KrollModule
 
 				public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 				{
-					if(requestCode != code) {
+					if (requestCode != code) {
 						return;
 					}
 					Log.e(TAG, "OnResult called: " + resultCode);
@@ -800,7 +800,7 @@ public class MediaModule extends KrollModule
 
 				public void onError(Activity activity, int requestCode, Exception e)
 				{
-					if(requestCode != code) {
+					if (requestCode != code) {
 						return;
 					}
 					String msg = "Gallery problem: " + e.getMessage();
@@ -929,7 +929,7 @@ public class MediaModule extends KrollModule
 
 				public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 				{
-					if(requestCode != code) {
+					if (requestCode != code) {
 						return;
 					}
 					Log.e(TAG, "OnResult called: " + resultCode);
@@ -942,7 +942,7 @@ public class MediaModule extends KrollModule
 
 				public void onError(Activity activity, int requestCode, Exception e)
 				{
-					if(requestCode != code) {
+					if (requestCode != code) {
 						return;
 					}
 					String msg = "Gallery problem: " + e.getMessage();

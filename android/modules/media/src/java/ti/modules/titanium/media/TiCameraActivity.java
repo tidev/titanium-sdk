@@ -206,9 +206,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		
 		try {
 			//This needs to be called to make sure action bar is gone
-			if(android.os.Build.VERSION.SDK_INT < 11) {
+			if (android.os.Build.VERSION.SDK_INT < 11) {
 				ActionBar actionBar = getSupportActionBar();
-				if(actionBar != null) {
+				if (actionBar != null) {
 					actionBar.hide();
 				}
 			}
@@ -456,7 +456,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		try
 		{
 			File imageFile = null;
-			if(saveToGallery) {
+			if (saveToGallery) {
 				imageFile = MediaModule.createGalleryImageFile();
 			} else {
 				imageFile = TiApplication.getInstance().getTempFileHelper().createTempFile("tia", ".jpg");
@@ -536,7 +536,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					successCallback.callAsync(callbackContext, response);
 				}				
 			} catch (Throwable t) {
-				if(errorCallback != null) {
+				if (errorCallback != null) {
 					KrollDict response = new KrollDict();
 					response.putCodeAndMessage(MediaModule.UNKNOWN_ERROR, t.getMessage());
 					errorCallback.callAsync(callbackContext, response);

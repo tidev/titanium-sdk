@@ -539,7 +539,7 @@ public class TiBlob extends KrollProxy
 			//rotate
 			matrix.postRotate(rotation);
 			Bitmap imageCropped = Bitmap.createBitmap(img, x, y, widthCropped, heightCropped, matrix, true);
-			if(img != image && img != imageCropped) {
+			if (img != image && img != imageCropped) {
 				img.recycle();
 				img = null;
 			}
@@ -561,7 +561,7 @@ public class TiBlob extends KrollProxy
 	public TiBlob imageAsResized(Number width, Number height)
 	{
 		boolean valid =  (image != null) || (image == null && (this.width > 0 && this.height > 0));
-		if(!valid) {
+		if (!valid) {
 			return null;
 		}
 		
@@ -616,7 +616,7 @@ public class TiBlob extends KrollProxy
 			} else {
 				imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
 			}
-			if(img != image && img != imageResized) {
+			if (img != image && img != imageResized) {
 				img.recycle();
 				img = null;
 			}
@@ -661,7 +661,7 @@ public class TiBlob extends KrollProxy
 		try {
 			Bitmap imageFinal = null;
 			Bitmap imageThumbnail = ThumbnailUtils.extractThumbnail(img, thumbnailSize, thumbnailSize);
-			if(img != image && img != imageThumbnail) {
+			if (img != image && img != imageThumbnail) {
 				img.recycle();
 				img = null;
 			}
@@ -670,7 +670,7 @@ public class TiBlob extends KrollProxy
 				imageFinal = imageThumbnail;
 			} else {
 				imageFinal = TiImageHelper.imageWithRoundedCorner(imageThumbnail, radius, border);
-				if(imageThumbnail != image && imageThumbnail != imageFinal) {
+				if (imageThumbnail != image && imageThumbnail != imageFinal) {
 					imageThumbnail.recycle();
 					imageThumbnail = null;
 				}
@@ -707,7 +707,7 @@ public class TiBlob extends KrollProxy
 		
 		try {
 			Bitmap imageWithAlpha = TiImageHelper.imageWithAlpha(img);
-			if(img != image && img != imageWithAlpha) {
+			if (img != image && img != imageWithAlpha) {
 				img.recycle();
 				img = null;
 			}
@@ -748,7 +748,7 @@ public class TiBlob extends KrollProxy
 
 		try {
 			Bitmap imageRoundedCorner = TiImageHelper.imageWithRoundedCorner(img, radius, border);
-			if(img != image && img != imageRoundedCorner) {
+			if (img != image && img != imageRoundedCorner) {
 				img.recycle();
 				img = null;
 			}
@@ -784,7 +784,7 @@ public class TiBlob extends KrollProxy
 		int borderSize = size.intValue();
 		try {
 			Bitmap imageWithBorder = TiImageHelper.imageWithTransparentBorder(img, borderSize);
-			if(img != image && img != imageWithBorder) {
+			if (img != image && img != imageWithBorder) {
 				img.recycle();
 				img = null;
 			}
