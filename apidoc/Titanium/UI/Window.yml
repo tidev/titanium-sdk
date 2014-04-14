@@ -314,13 +314,11 @@ properties:
   - name: flagSecure
     summary: |
         Treat the content of the window as secure, preventing it from appearing in screenshots or from being viewed on non-secure displays.
-        Valid only on API level 11 and above.
     description: |
         When the value is true, preventing it from appearing in screenshots or from being viewed on non-secure displays.
     platforms: [android]
     type: Boolean
     since: "3.3.0"
-    osver: {android: { min: "11"}}
     default: false
     availability: creation
     
@@ -788,6 +786,18 @@ properties:
     type: String
     availability: creation
     exclude-platforms: [blackberry]
+
+  - name: windowFlags
+    summary: Additional flags to set on the Activity Window.
+    description: |
+        Set the flags of the window, as per the WindowManager.LayoutParams flags. 
+        See [WindowManager.LayoutParams](http://developer.android.com/reference/android/view/WindowManager.LayoutParams.html) for a 
+        list of supported flags. Setting <Titanium.UI.Window.fullscreen> to true automatically sets the [WindowManager.LayoutParams.FLAG_FULLSCREEN](http://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_FULLSCREEN) 
+        flag. Setting <Titanium.UI.Window.flagSecure> to true automatically sets the [WindowManager.LayoutParams.FLAG_SECURE](http://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_SECURE) flag.
+    platforms: [android]
+    type: Number
+    since: "3.3.0"
+    availability: creation
 
   - name: windowSoftInputMode
     summary: |
