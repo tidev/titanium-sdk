@@ -33,12 +33,14 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiIntentWrapper;
+import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
@@ -343,9 +345,27 @@ public class MediaModule extends KrollModule
 			
 			BufferedInputStream bis = null;
 			BufferedOutputStream bos = null;
+			String extension = null;
+			if(theBlob.getType() == TiBlob.TYPE_IMAGE) {
+				Bitmap image = theBlob.getImage();
+				if(image.hasAlpha()) {
+					extension = ".png";
+				}else {
+					extension = ".jpg";
+				}
+			} else {
+				try {
+					String mimetype = theBlob.getMimeType();
+					extension = TiMimeTypeHelper.getFileExtensionFromMimeType(mimetype, ".jpg");
+				} catch(Throwable t) {
+					extension = null;
+				}
+			}
+			
+			
 			bis = new BufferedInputStream(theBlob.getInputStream());
 			
-			File imageFile = MediaModule.createGalleryImageFile();
+			File imageFile = MediaModule.createGalleryImageFile(extension);
 			bos = new BufferedOutputStream(new FileOutputStream(imageFile));
 			byte[] buf = new byte[8096];
 			int len = 0;
@@ -408,6 +428,13 @@ public class MediaModule extends KrollModule
 	}
 
 	protected static File createExternalStorageFile() {
+		return createExternalStorageFile(null);
+	}
+	protected static File createGalleryImageFile() {
+		return createGalleryImageFile(null);
+	}
+	
+	private static File createExternalStorageFile(String extension) {
 		File pictureDir = TiApplication.getInstance().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 		File appPictureDir = new File(pictureDir, TiApplication.getInstance().getAppInfo().getName());
 		if (!appPictureDir.exists()) {
@@ -416,10 +443,10 @@ public class MediaModule extends KrollModule
 				return null;
 			}
 		}
-
+		String ext = (extension == null) ? ".jpg" : extension;
 		File imageFile;
 		try {
-			imageFile = TiFileHelper.getInstance().getTempFile(appPictureDir, ".jpg", false);
+			imageFile = TiFileHelper.getInstance().getTempFile(appPictureDir, ext, false);
 
 		} catch (IOException e) {
 			Log.e(TAG, "Failed to create image file: " + e.getMessage());
@@ -428,7 +455,8 @@ public class MediaModule extends KrollModule
 
 		return imageFile;
 	}
-	protected static File createGalleryImageFile() {
+	
+	private static File createGalleryImageFile(String extension) {
 		File pictureDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
 		File appPictureDir = new File(pictureDir, TiApplication.getInstance().getAppInfo().getName());
 		if (!appPictureDir.exists()) {
@@ -437,10 +465,10 @@ public class MediaModule extends KrollModule
 				return null;
 			}
 		}
-
+		String ext = (extension == null) ? ".jpg" : extension;
 		File imageFile;
 		try {
-			imageFile = TiFileHelper.getInstance().getTempFile(appPictureDir, ".jpg", false);
+			imageFile = TiFileHelper.getInstance().getTempFile(appPictureDir, ext, false);
 
 		} catch (IOException e) {
 			Log.e(TAG, "Failed to create gallery image file: " + e.getMessage());
