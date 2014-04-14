@@ -187,13 +187,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		Window win = activity.getWindow();
-		boolean flagSecure = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
-		if (flagSecure) {
-			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-				activity.getWindow()
-					.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
-			}
-		}
 		// Handle the background of the window activity if it is a translucent activity.
 		// If it is a modal window, set a translucent dimmed background to the window.
 		// If the opacity is given, set a transparent background to the window. In this case, if no backgroundColor or
