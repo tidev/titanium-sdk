@@ -306,11 +306,11 @@ public class MediaModule extends KrollModule
 		//Check for callbacks
 		if (callbackargs != null) {
 			callbackDict = new KrollDict(callbackargs);
-			if (callbackDict.containsKeyAndNotNull("success")) {
-				successCallback = (KrollFunction) callbackDict.get("success");
+			if (callbackDict.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)) {
+				successCallback = (KrollFunction) callbackDict.get(TiC.PROPERTY_SUCCESS);
 			}
-			if (callbackDict.containsKeyAndNotNull("error")) {
-				errorCallback = (KrollFunction) callbackDict.get("error");
+			if (callbackDict.containsKeyAndNotNull(TiC.EVENT_ERROR)) {
+				errorCallback = (KrollFunction) callbackDict.get(TiC.EVENT_ERROR);
 			}
 		}
 		
@@ -739,14 +739,14 @@ public class MediaModule extends KrollModule
 		KrollFunction cancelCallback = null;
 		KrollFunction errorCallback = null;
 
-		if (options.containsKey("success")) {
-			successCallback = (KrollFunction) options.get("success");
+		if (options.containsKey(TiC.PROPERTY_SUCCESS)) {
+			successCallback = (KrollFunction) options.get(TiC.PROPERTY_SUCCESS);
 		}
-		if (options.containsKey("cancel")) {
-			cancelCallback = (KrollFunction) options.get("cancel");
+		if (options.containsKey(TiC.PROPERTY_CANCEL)) {
+			cancelCallback = (KrollFunction) options.get(TiC.PROPERTY_CANCEL);
 		}
-		if (options.containsKey("error")) {
-			errorCallback = (KrollFunction) options.get("error");
+		if (options.containsKey(TiC.EVENT_ERROR)) {
+			errorCallback = (KrollFunction) options.get(TiC.EVENT_ERROR);
 		}
 
 		final KrollFunction fSuccessCallback = successCallback;
@@ -886,11 +886,11 @@ public class MediaModule extends KrollModule
 		KrollFunction errorCallback = null;
 		TiBlob image = null;
 
-		if (options.containsKey("success")) {
-			successCallback = (KrollFunction) options.get("success");
+		if (options.containsKey(TiC.PROPERTY_SUCCESS)) {
+			successCallback = (KrollFunction) options.get(TiC.PROPERTY_SUCCESS);
 		}
-		if (options.containsKey("error")) {
-			errorCallback = (KrollFunction) options.get("error");
+		if (options.containsKey(TiC.EVENT_ERROR)) {
+			errorCallback = (KrollFunction) options.get(TiC.EVENT_ERROR);
 		}
 		if (options.containsKey("image")) {
 			image = (TiBlob) options.get("image");
