@@ -2869,4 +2869,11 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	return nil;
 }
 
+-(void)hideKeyboard:(id)arg
+{
+	ENSURE_UI_THREAD_1_ARG(arg);
+	if (view != nil)
+		[self.view endEditing:YES];
+}
+
 @end
