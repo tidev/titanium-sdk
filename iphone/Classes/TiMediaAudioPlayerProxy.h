@@ -15,6 +15,7 @@
 	NSURL *url;
     NSUInteger bufferSize;
 	double volume;
+    double duration;
 	AudioStreamer *player;
 	BOOL progress;
 	NSTimer *timer;
@@ -28,6 +29,7 @@
 @property (nonatomic,readonly) NSNumber *bitRate;
 @property (nonatomic,readonly) NSNumber *progress;
 @property (nonatomic,readonly) NSNumber *state;
+@property (nonatomic,readonly) NSNumber *duration;
 
 @property (nonatomic,copy)	NSNumber *volume;
 

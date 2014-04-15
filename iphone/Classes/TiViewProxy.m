@@ -2119,12 +2119,15 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         return;
     }
     
+    UIView* lastView = nil;
+
     if (![self optimizeSubviewInsertion]) {
         NSArray* subViews = [[ourView subviews] retain];
         
         for (UIView* subview in subViews) {
             if (![subview isKindOfClass:[TiUIView class]]) {
                 result++;
+                lastView = subview;
             }
         }
         [subViews release];
@@ -2139,10 +2142,17 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         return (first > second) ? NSOrderedDescending : ( first < second ? NSOrderedAscending : NSOrderedSame );
     }];
     
+    
     for (TiViewProxy * thisChildProxy in sortedArray) {
         if ([thisChildProxy viewInitialized] ) {
-            [ourView insertSubview:[thisChildProxy view] atIndex:result];
+            UIView* newView = [thisChildProxy view];
+            if (lastView == nil) {
+                [ourView insertSubview:newView atIndex:result];
+            } else {
+                [ourView insertSubview:newView aboveSubview:lastView];
+            }
             result ++;
+            lastView = newView;
         }
     }
     pthread_rwlock_unlock(&childrenLock);
@@ -2857,6 +2867,13 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		return proxy;
 	}
 	return nil;
+}
+
+-(void)hideKeyboard:(id)arg
+{
+	ENSURE_UI_THREAD_1_ARG(arg);
+	if (view != nil)
+		[self.view endEditing:YES];
 }
 
 @end

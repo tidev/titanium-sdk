@@ -111,13 +111,8 @@ properties:
     
   - name: curve
     summary: Animation curve or easing function to apply to the animation.
-    description: |
-        Specify one of the animation constants, 
-        <Titanium.UI.ANIMATION_CURVE_EASE_IN>, 
-        <Titanium.UI.ANIMATION_CURVE_EASE_IN_OUT>, 
-        <Titanium.UI.ANIMATION_CURVE_EASE_OUT>, 
-        or <Titanium.UI.ANIMATION_CURVE_LINEAR>.
     type: Number
+    constants: Titanium.UI.ANIMATION_CURVE_*
     platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: delay
@@ -173,17 +168,11 @@ properties:
   - name: transition
     summary: Transition type to use during a transition animation.
     description: |
-        One of the activity indicator style constants 
-        <Titanium.UI.iPhone.AnimationStyle.CURL_DOWN>, 
-        <Titanium.UI.iPhone.AnimationStyle.CURL_UP>, 
-        <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT>, 
-        <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT>, 
-        or <Titanium.UI.iPhone.AnimationStyle.NONE>.
-
         The new view being transitioned to **should NOT** be a child of another view or 
         of the animating view. The animation replaces the current view from the 
         view heirarchy and adds the new view to it.
     type: Number
+    constants: Titanium.UI.iPhone.AnimationStyle.*
     platforms: [iphone, ipad]
 
   - name: view

@@ -167,6 +167,7 @@ methods:
     returns:
         type: Number
         summary: OS native byte order.
+        constants: [Titanium.Codec.BIG_ENDIAN, Titanium.Codec.LITTLE_ENDIAN]
     exclude-platforms: [blackberry]
 
   - name: encodeNumber
@@ -405,9 +406,8 @@ properties:
   - name: type
     type: String
     summary:
-        Encoding type to use. Must be one of <Titanium.Codec.TYPE_BYTE>,
-        <Titanium.Codec.TYPE_SHORT>, <Titanium.Codec.TYPE_INT>, <Titanium.Codec.TYPE_FLOAT>,
-        <Titanium.Codec.TYPE_LONG>, or <Titanium.Codec.TYPE_DOUBLE>.
+        Encoding type to use.
+    constants: Titanium.Codec.TYPE_*
     optional: false
 
   - name: position
@@ -436,9 +436,8 @@ properties:
   - name: type
     type: String
     summary:
-        The encoding type to use. Must be one of <Titanium.Codec.TYPE_BYTE>,
-        <Titanium.Codec.TYPE_SHORT>, <Titanium.Codec.TYPE_INT>, <Titanium.Codec.TYPE_FLOAT>,
-        <Titanium.Codec.TYPE_LONG>, or <Titanium.Codec.TYPE_DOUBLE>.
+        The encoding type to use.
+    constants: Titanium.Codec.TYPE_*
     optional: false
 
   - name: position
@@ -491,6 +490,7 @@ properties:
     type: String
     summary: Character encoding to use when encoding this string to bytes.
     optional: true
+    constants: Titanium.Codec.CHARSET_*
     default: <Titanium.Codec.CHARSET_UTF8>
 
 ---
@@ -519,4 +519,5 @@ properties:
     type: String
     summary: Character set to use when encoding this string to bytes.
     optional: true
+    constants: Titanium.Codec.CHARSET_*
     default: <Titanium.Codec.CHARSET_UTF8>

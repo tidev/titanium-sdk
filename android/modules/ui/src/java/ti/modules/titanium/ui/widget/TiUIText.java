@@ -548,6 +548,20 @@ public class TiUIText extends TiUIView
 		}
 		tv.setSelection(start, end);
 	}
+	
+	public KrollDict getSelection() {
+		KrollDict result = new KrollDict(2);
+		int start = tv.getSelectionStart();
+		result.put(TiC.PROPERTY_LOCATION, start);
+		if (start != -1) {
+			int end = tv.getSelectionEnd();
+			result.put(TiC.PROPERTY_LENGTH, end - start);
+		} else {
+			result.put(TiC.PROPERTY_LENGTH, -1);
+		}
+		
+		return result;
+	}
 
 	public void handleReturnKeyType(int type)
 	{

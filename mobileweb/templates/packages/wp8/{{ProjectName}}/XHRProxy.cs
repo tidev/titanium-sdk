@@ -1,4 +1,4 @@
-﻿/**
+/**
  * This file contains portions of code from http://developer.nokia.com/community/wiki/A_simplistic_HTTP_Server_on_Windows_Phone
  */
 
@@ -9,6 +9,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Networking.Sockets;
+using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace TitaniumApp
@@ -145,7 +146,8 @@ namespace TitaniumApp
 									return;
 								}
 
-								string decodedUrl = url.Substring(q + urlPrefix.Length);
+								string encodedUrl = url.Substring(q + urlPrefix.Length);
+								string decodedUrl = HttpUtility.UrlDecode(encodedUrl).Replace(' ', '+');
 								byte[] data = Convert.FromBase64String(decodedUrl);
 								url = Encoding.UTF8.GetString(data, 0, data.Length);
 								if (url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0) {
@@ -214,15 +216,28 @@ namespace TitaniumApp
 								return;
 							}
 
-							file = "App/" + file;
+							file = file.Replace('/', '\\');
 
-							if (!File.Exists(file)) {
+							if (file.StartsWith("\\")) {
+								file = "App" + file;
+							} else {
+								file = "App\\" + file;
+							}
+
+							StorageFolder installFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
+							StorageFile theFile;
+							try {
+								theFile = await installFolder.GetFileAsync(file);
+							} catch (Exception e) {
 								Logger.log("XHRProxy", "404 File Not Found");
 								Logger.log("XHRProxy", "Original file: " + originalFile);
 								Logger.log("XHRProxy", "Resolved file: " + file);
 								requestError(writer, socket, "404 File Not Found", "File Not Found");
 								return;
 							}
+
+							var randomAccessStream = await theFile.OpenReadAsync();
+							Stream fs = randomAccessStream.AsStreamForRead();
 
 							FileInfo fi = new FileInfo(file);
 							string ext = fi.Extension.Substring(1); // trim the dot
@@ -243,7 +258,6 @@ namespace TitaniumApp
 							writer.WriteString("Content-Length: " + fi.Length + "\r\n");
 							writer.WriteString("Connection: close\r\n\r\n");
 
-							FileStream fs = new FileStream(file, FileMode.Open);
 							while ((responseBytesRead = fs.Read(responseBuffer, 0, responseBuffer.Length)) > 0) {
 								responseTotalBytesRead += responseBytesRead;
 								writer.WriteBytes(responseBuffer);
@@ -334,9 +348,11 @@ namespace TitaniumApp
 
 									Stream responseStream = response.GetResponseStream();
 									BinaryReader br = new BinaryReader(responseStream);
-									while ((responseBytesRead = br.Read(responseBuffer, 0, responseBuffer.Length)) > 0) {
-										responseTotalBytesRead += responseBytesRead;
-										writer.WriteBytes(responseBuffer);
+									byte[] responseBytes = br.ReadBytes(4096);
+									while (responseBytes.Length > 0) {
+										responseTotalBytesRead += responseBytes.Length;
+										writer.WriteBytes(responseBytes);
+										responseBytes = br.ReadBytes(4096);
 									}
 									Logger.log("XHRProxy", "Returned " + responseTotalBytesRead + " bytes");
 

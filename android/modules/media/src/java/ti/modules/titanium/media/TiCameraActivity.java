@@ -7,9 +7,7 @@
 package ti.modules.titanium.media;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
@@ -20,12 +18,12 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
@@ -36,6 +34,7 @@ import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.view.Gravity;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -52,7 +51,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	private static Size optimalPreviewSize;
 	private static List<Size> supportedPreviewSizes;
 	private static int frontCameraId = Integer.MIN_VALUE; // cache
-
+	private static int backCameraId = Integer.MIN_VALUE; //cache
 	private TiViewProxy localOverlayProxy = null;
 	private SurfaceView preview;
 	private PreviewLayout previewLayout;
@@ -133,7 +132,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public void onCreate(Bundle savedInstanceState)
 	{
 		setFullscreen(true);
-		setNavBarHidden(true);
 		
 		super.onCreate(savedInstanceState);
 
@@ -205,10 +203,22 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		if (camera == null) {
 			return; // openCamera will have logged error.
 		}
-
+		
+		try {
+			//This needs to be called to make sure action bar is gone
+			if (android.os.Build.VERSION.SDK_INT < 11) {
+				ActionBar actionBar = getSupportActionBar();
+				if (actionBar != null) {
+					actionBar.hide();
+				}
+			}
+		} catch(Throwable t) {
+			//Ignore this
+		}
+		
 		cameraActivity = this;
 		previewLayout.addView(preview, new FrameLayout.LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		View overlayView = localOverlayProxy.getOrCreateView().getNativeView();
 		ViewGroup parent = (ViewGroup) overlayView.getParent();
 		// Detach from the parent if applicable
@@ -216,22 +226,26 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			parent.removeView(overlayView);
 		}
 		cameraLayout.addView(overlayView, new FrameLayout.LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 	}
 
 	public static void setFlashMode(int cameraFlashMode)
 	{
 		TiCameraActivity.cameraFlashMode = cameraFlashMode;
 		if (camera != null) {
-			Parameters p = camera.getParameters();
-			if (cameraFlashMode == MediaModule.CAMERA_FLASH_OFF) {
-				p.setFlashMode(Parameters.FLASH_MODE_OFF);
-			} else if (cameraFlashMode == MediaModule.CAMERA_FLASH_ON) {
-				p.setFlashMode(Parameters.FLASH_MODE_ON);
-			} else if (cameraFlashMode == MediaModule.CAMERA_FLASH_AUTO) {
-				p.setFlashMode(Parameters.FLASH_MODE_AUTO);
+			try {
+				Parameters p = camera.getParameters();
+				if (cameraFlashMode == MediaModule.CAMERA_FLASH_OFF) {
+					p.setFlashMode(Parameters.FLASH_MODE_OFF);
+				} else if (cameraFlashMode == MediaModule.CAMERA_FLASH_ON) {
+					p.setFlashMode(Parameters.FLASH_MODE_ON);
+				} else if (cameraFlashMode == MediaModule.CAMERA_FLASH_AUTO) {
+					p.setFlashMode(Parameters.FLASH_MODE_AUTO);
+				}
+				camera.setParameters(p);
+			} catch (Throwable t) {
+				Log.e(TAG, "Could not set flash mode", t);
 			}
-			camera.setParameters(p);
 		}
 	}
 
@@ -260,9 +274,11 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		}
 
 		int rotation = getWindowManager().getDefaultDisplay().getRotation();
+
 		if (currentRotation == rotation && previewRunning) {
 			return;
-		}
+		}		
+
 		if (previewRunning) {
 			try {
 				camera.stopPreview();
@@ -270,47 +286,48 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				// ignore: tried to stop a non=existent preview
 			}
 		}
+		
+		//Set the proper display orientation
+		int cameraId = Integer.MIN_VALUE;
+		if (whichCamera == MediaModule.CAMERA_FRONT) {
+			cameraId = TiCameraActivity.getFrontCameraId();
+		} else {
+			cameraId = TiCameraActivity.getBackCameraId();
+		}
+		CameraInfo info = new Camera.CameraInfo();
+		Camera.getCameraInfo(cameraId, info);
 
 		currentRotation = rotation;
-		Parameters param = camera.getParameters();
-		int orientation = TiApplication.getInstance().getResources().getConfiguration().orientation;
-
-		// The camera preview is always displayed in landscape mode. Need to rotate the preview according to
-		// the current orientation of the device.
-		switch (rotation) {
-			case Surface.ROTATION_0:
-				if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-					// The "natural" orientation of the device is a portrait orientation, eg. phones.
-					// Need to rotate 90 degrees.
-					camera.setDisplayOrientation(90);
-				} else {
-					// The "natural" orientation of the device is a landscape orientation, eg. tablets.
-					// Set the camera to the starting position (0 degree).
-					camera.setDisplayOrientation(0);
-				}
-				break;
-			case Surface.ROTATION_90:
-				if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-					camera.setDisplayOrientation(0);
-				} else {
-					camera.setDisplayOrientation(270);
-				}
-				break;
-			case Surface.ROTATION_180:
-				if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-					camera.setDisplayOrientation(270);
-				} else {
-					camera.setDisplayOrientation(180);
-				}
-				break;
-			case Surface.ROTATION_270:
-				if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-					camera.setDisplayOrientation(180);
-				} else {
-					camera.setDisplayOrientation(90);
-				}
-				break;
+		
+		//Clockwise and anticlockwise
+		int degrees = 0, degrees2 = 0;
+		
+		//Let Camera display in same orientation as display
+		switch (currentRotation) {
+			case Surface.ROTATION_0: degrees = degrees2 = 0; break;
+			case Surface.ROTATION_180: degrees = degrees2 = 180; break;
+			case Surface.ROTATION_90: {degrees = 90; degrees2 = 270; } break;
+			case Surface.ROTATION_270: {degrees = 270; degrees2 = 90;} break;
 		}
+		
+		int result, result2;
+		if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+			result = (info.orientation + degrees) % 360;
+			result = (360 - result) % 360;  // compensate the mirror
+		} else {  // back-facing
+			result = (info.orientation - degrees + 360) % 360;
+		}
+		
+		//Set up Camera Rotation so jpegCallback has correctly rotated image
+		Parameters param = camera.getParameters();
+		if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
+			result2 = (info.orientation - degrees2 + 360) % 360;
+		} else {  // back-facing camera
+			result2 = (info.orientation + degrees2) % 360;
+		}
+		
+		camera.setDisplayOrientation(result);
+		param.setRotation(result2);
 
 		// Set appropriate focus mode if supported.
 		List<String> supportedFocusModes = param.getSupportedFocusModes();
@@ -329,8 +346,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			if (pictureSize != null) {
 				param.setPictureSize(pictureSize.width, pictureSize.height);
 			}
-			camera.setParameters(param);
 		}
+		camera.setParameters(param);
 
 		try {
 			camera.setPreviewDisplay(previewHolder);
@@ -438,27 +455,33 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		errorCallback.callAsync(callbackContext, dict);
 	}
 
-	private static void saveToPhotoGallery(byte[] data)
+	private static File writeToFile(byte[] data, boolean saveToGallery) throws Throwable
 	{
-		File imageFile = MediaModule.createGalleryImageFile();
-		try {
+		try
+		{
+			File imageFile = null;
+			if (saveToGallery) {
+				imageFile = MediaModule.createGalleryImageFile();
+			} else {
+				imageFile = TiApplication.getInstance().getTempFileHelper().createTempFile("tia", ".jpg");
+			}
+			
 			FileOutputStream imageOut = new FileOutputStream(imageFile);
 			imageOut.write(data);
 			imageOut.close();
-
-		} catch (FileNotFoundException e) {
-			Log.e(TAG, "Failed to open gallery image file: " + e.getMessage());
-
-		} catch (IOException e) {
-			Log.e(TAG, "Failed to write image to gallery file: " + e.getMessage());
+			
+			if (saveToGallery) {
+				Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+				Uri contentUri = Uri.fromFile(imageFile);
+				mediaScanIntent.setData(contentUri);
+				Activity activity = TiApplication.getAppCurrentActivity();
+				activity.sendBroadcast(mediaScanIntent);
+			}
+			return imageFile;
+			
+		} catch (Throwable t) {
+			throw t;
 		}
-
-		// Notify media scanner to add image to gallery.
-		Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-		Uri contentUri = Uri.fromFile(imageFile);
-		mediaScanIntent.setData(contentUri);
-		Activity activity = TiApplication.getAppCurrentActivity();
-		activity.sendBroadcast(mediaScanIntent);
 	}
 
 	static public void takePicture()
@@ -508,18 +531,22 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	{
 		public void onPictureTaken(byte[] data, Camera camera)
 		{
-			if (saveToPhotoGallery) {
-				saveToPhotoGallery(data);
+			try {
+				File imageFile = writeToFile(data, saveToPhotoGallery);
+				if (successCallback != null) {
+					TiFile theFile = new TiFile(imageFile, imageFile.toURI().toURL().toExternalForm(), false);
+					TiBlob theBlob = TiBlob.blobFromFile(theFile);
+					KrollDict response = MediaModule.createDictForImage(theBlob, theBlob.getMimeType());
+					successCallback.callAsync(callbackContext, response);
+				}				
+			} catch (Throwable t) {
+				if (errorCallback != null) {
+					KrollDict response = new KrollDict();
+					response.putCodeAndMessage(MediaModule.UNKNOWN_ERROR, t.getMessage());
+					errorCallback.callAsync(callbackContext, response);
+				}
 			}
-
-			if (successCallback != null) {
-				TiBlob imageData = TiBlob.blobFromData(data);
-				KrollDict dict = MediaModule.createDictForImage(imageData,
-						"image/jpeg");
-				successCallback.callAsync(callbackContext, dict);
-			}
-
-			cancelCallback = null;
+			
 
 			if (autohide) {
 				cameraActivity.finish();
@@ -544,6 +571,23 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		}
 
 		return frontCameraId;
+	}
+	
+	private static int getBackCameraId()
+	{
+		if (backCameraId == Integer.MIN_VALUE) {
+			int count = Camera.getNumberOfCameras();
+			for (int i = 0; i < count; i++) {
+				CameraInfo info = new CameraInfo();
+				Camera.getCameraInfo(i, info);
+				if (info.facing == CameraInfo.CAMERA_FACING_BACK) {
+					backCameraId = i;
+					break;
+				}
+			}
+		}
+
+		return backCameraId;
 	}
 
 	private void openCamera()
@@ -620,5 +664,16 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			}
 		});
 
+	}
+	
+	@Override
+	public void onBackPressed()
+	{
+		if (cancelCallback != null) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(-1, "User cancelled the request");
+			cancelCallback.callAsync(callbackContext, response);
+		}
+		super.onBackPressed();
 	}
 }

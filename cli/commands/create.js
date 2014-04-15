@@ -57,8 +57,14 @@ exports.config = function config(logger, config, cli) {
 						desc: __("the App ID in the format 'com.companyname.appname'"),
 						order: 150,
 						prompt: function (callback) {
+							var defaultValue = undefined,
+								name = cli.argv.name.replace(/[ -]/g, '_').replace(/[^a-zA-Z0-9_]/g, '').replace(/_+/g, '_');
+							if (idPrefix) {
+								defaultValue = idPrefix.replace(/\.$/, '') + '.' + (/^[a-zA-Z]/.test(name) || cli.argv.platforms.indexOf('android') == -1 ? '' : 'my') + name;
+							}
+
 							callback(fields.text({
-								default: idPrefix ? idPrefix.replace(/\.$/, '') + '.' + cli.argv.name.replace(/[ -]/g, '_').replace(/[^a-zA-Z0-9_]/g, '').replace(/_+/g, '_') : undefined,
+								default: defaultValue,
 								promptLabel: __('App ID'),
 								validate: conf.options.id.validate
 							}));
@@ -170,11 +176,6 @@ exports.config = function config(logger, config, cli) {
 								}
 							}
 
-							if (!/^[a-zA-Z]/.test(value)) {
-								logger.error(__('The first character of the project name must be a letter.') + '\n');
-								return callback(true);
-							}
-
 							callback(null, value);
 						}
 					},
@@ -235,7 +236,7 @@ exports.config = function config(logger, config, cli) {
 						}
 					},
 					template: {
-						desc: __('the name of the project template to use'),
+						desc: __('the name of the project template, path to template dir, path to zip file, or url to zip file'),
 						default: 'default',
 						order: 110,
 						required: true

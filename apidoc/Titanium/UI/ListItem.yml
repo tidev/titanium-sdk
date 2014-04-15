@@ -94,13 +94,8 @@ properties:
 
   - name: accessoryType
     summary: Sets an accessory on the right side of an item.
-    description: |
-        Specify one of the following:
-        <Titanium.UI.LIST_ACCESSORY_TYPE_CHECKMARK>,
-        <Titanium.UI.LIST_ACCESSORY_TYPE_DETAIL>,
-        <Titanium.UI.LIST_ACCESSORY_TYPE_DISCLOSURE>,
-        or <Titanium.UI.LIST_ACCESSORY_TYPE_NONE>.
     type: Number
+    constants: Titanium.UI.LIST_ACCESSORY_TYPE_*
     default: Titanium.UI.LIST_ACCESSORY_TYPE_NONE
     accessors: false
 

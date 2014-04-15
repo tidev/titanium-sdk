@@ -1117,13 +1117,29 @@ properties:
     type: String
     platforms: [android, iphone, ipad]
     
+  - name: filterAnchored
+    summary: Determines whether the search is limited to the start of the string
+    description: Set to `true` to enable case anchored search.
+    type: Boolean
+    default: false
+    platforms: [ android, iphone, ipad]
+    since: "3.3.0"
+    
   - name: filterCaseInsensitive
     summary: Determines whether the search is case insensitive.
     description: Set to `false` to enable case sensitive search.
     type: Boolean
     default: true
     platforms: [android, iphone, ipad]
-    
+  
+  - name: footerDividersEnabled
+    summary: When set to false, the ListView will not draw the divider before the footer view.
+    type: Boolean
+    availability: creation
+    default: undefined but behaves as false
+    platforms: [android]
+    since: "3.3.0"
+
   - name: footerTitle
     summary: Table view footer title.
     type: String
@@ -1198,6 +1214,14 @@ properties:
     type: Titanium.UI.View
     exclude-platforms: [blackberry]
     
+  - name: headerDividersEnabled
+    summary: When set to false, the ListView will not draw the divider after the header view.
+    type: Boolean
+    availability: creation
+    default: undefined but behaves as false
+    platforms: [android]
+    since: "3.3.0"
+    
   - name: headerTitle
     summary: Table view header title.
     type: String
@@ -1269,9 +1293,9 @@ properties:
     platforms: [iphone, ipad]
     
   - name: overScrollMode
-    summary: |
-      One of <Titanium.UI.Android.OVER_SCROLL_ALWAYS>, <Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS>, or <Titanium.UI.Android.OVER_SCROLL_NEVER>. 
+    summary: Determines the behavior when the user overscrolls the view.
     type: Number
+    constants: Titanium.UI.Android.OVER_SCROLL_*
     default: Titanium.UI.Android.OVER_SCROLL_ALWAYS
     platforms: [android]
     since: "3.1.0"
@@ -1288,10 +1312,9 @@ properties:
     platforms: [iphone,ipad]
     
   - name: scrollIndicatorStyle
-    summary: |
-        Style of the scrollbar, specified using one of the constants from 
-        <Titanium.UI.iPhone.ScrollIndicatorStyle>.
+    summary: Style of the scrollbar.
     type: Number
+    constants: Titanium.UI.iPhone.ScrollIndicatorStyle.*
     default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
     since: 2.1.0
     platforms: [iphone, ipad]
@@ -1586,17 +1609,17 @@ properties:
     default: true
     
   - name: animationStyle
-    summary: Type of animation to use for row insertions and deletions. One of the animation style constants defined in <Titanium.UI.iPhone.RowAnimationStyle>.
+    summary: Type of animation to use for row insertions and deletions.
     type: Number
+    constants: Titanium.UI.iPhone.RowAnimationStyle.*
     default: |
         If `animated` is `true` but no `animationStyle` is specified, the style defaults to 
         [FADE](Titanium.UI.iPhone.RowAnimationStyle.FADE).
         
   - name: position
-    summary: |
-        Specifies what position to scroll the selected row to. One of the position constants from 
-        <Titanium.UI.iPhone.TableViewScrollPosition>.
+    summary: Specifies what position to scroll the selected row to.
     type: Number
+    constants: Titanium.UI.iPhone.TableViewScrollPosition.*
     default: <Titanium.UI.iPhone.TableViewScrollPosition.NONE>
 
 ---

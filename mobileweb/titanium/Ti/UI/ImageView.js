@@ -215,8 +215,9 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget
 				set: function(value) {
 					this._removeAllChildren();
 					this._images = void 0;
+					var self = this; //Need to get event context
 					this._add(this._createImage(value, function() {
-						this.fireEvent("load", {
+						self.fireEvent("load", {
 							state: "image"
 						});
 					}, function(e) {

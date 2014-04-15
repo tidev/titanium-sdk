@@ -64,6 +64,7 @@ properties:
   - name: arrowDirection
     summary: Indicates the arrow direction of the popover.
     type: Number
+    constants: Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_*
     permission: read-only
     
   - name: contentView

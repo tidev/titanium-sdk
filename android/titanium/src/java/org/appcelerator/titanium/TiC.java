@@ -497,6 +497,12 @@ public class TiC
 	 */
 	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
 	
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_SSL_ERROR = "sslerror";
+	
 
 	/**
 	 * @module.api
@@ -832,6 +838,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CALENDAR_VIEW_SHOWN = "calendarViewShown";
+	
+	/**
+	 * @module.api
+	 */	
+	public static final String PROPERTY_CAMERA_FLASH_MODE = "cameraFlashMode";
 
 	/**
 	 * @module.api
@@ -1131,6 +1142,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_FILTER_ANCHORED = "filterAnchored";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
 	
 	/**
@@ -1147,11 +1163,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FLAGS = "flags";
-	
-	/**
-	 * @module.api
-	 */	
-	public static final String PROPERTY_FLASH_MODE = "flashMode";
+
 
 	/**
 	 * @module.api
@@ -1177,6 +1189,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FONT_SIZE = "font-size";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FOOTER_DIVIDERS_ENABLED = "footerDividersEnabled";
 
 	/**
 	 * @module.api
@@ -1239,6 +1256,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HEADER = "header";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HEADER_DIVIDERS_ENABLED = "headerDividersEnabled";
 
 	/**
 	 * @module.api
@@ -1590,11 +1612,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NAME = "name";
-
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_NAV_BAR_HIDDEN = "navBarHidden";
 	
 	/**
 	 * @module.api

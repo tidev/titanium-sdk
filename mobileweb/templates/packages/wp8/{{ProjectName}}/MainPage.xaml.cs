@@ -111,8 +111,7 @@ namespace TitaniumApp
 				TiResponse response;
 
 				if (request.stoken != this.securityToken) {
-					// token mismatch, reload the app
-					loadApplication();
+					// token mismatch, ignore request
 					return;
 				}
 

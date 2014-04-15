@@ -405,6 +405,9 @@ properties:
 
         The `onreadystatechange` callback is invoked each time the ready state changes.
     type: Number
+    constants: [ Titanium.Network.HTTPClient.UNSENT,Titanium.Network.HTTPClient.OPENED,
+                 Titanium.Network.HTTPClient.HEADERS_RECEIVED, Titanium.Network.HTTPClient.LOADING,
+                 Titanium.Network.HTTPClient.DONE ]
     permission: read-only
 
   - name: responseData
@@ -484,6 +487,7 @@ properties:
         [TLS_VERSION_1_0](Titanium.Network.TLS_VERSION_1_0). For iOS 5 and greater, this is
         [TLS_VERSION_1_2](Titanium.Network.TLS_VERSION_1_2).
     type: Number
+    constants: Titanium.Network.TLS_VERSION_*
     since: "1.8.0"
     platforms: [iphone, ipad]
 

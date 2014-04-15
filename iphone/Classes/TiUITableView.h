@@ -64,6 +64,7 @@
 	NSString * searchString;
 	NSMutableArray * searchResultIndexes;
     BOOL searchActivated;
+	BOOL filterAnchored;
 	BOOL filterCaseInsensitive;
 	BOOL allowsSelectionSet;
 	id	lastFocusedView; //DOES NOT RETAIN.	

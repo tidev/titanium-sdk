@@ -35,40 +35,23 @@ properties:
   - name: autoLink
     summary: Automatically convert certain text items in the label to clickable links. 
     description: |
-        Specify which types of items to convert by setting `autoLink` to one of the 
-        <Titanium.UI> `AUTOLINK` constants: 
-        [AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL),
-        [AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES),
-        [AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES),
-        [AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE),
-        [AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS),
-        or [AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS).
-
         Multiple autolink values can be combined with a bitwise OR. For example:
             
             label.autoLink = AUTOLINK_MAP_ADDRESSES|AUTOLINK_PHONE_NUMBERS;
             
         Prior to Release 3.0, this field used platform-specific constants. These are now
-        deprecated in favor of the `AUTOLINK` constants listed above.
+        deprecated in favor of the `AUTOLINK` constants.
         
-        The Android-specific legacy constants are defined in <Titanium.UI.Android>:
-        [LINKIFY_ALL](Titanium.UI.Android.LINKIFY_ALL),
-        [LINKIFY_EMAIL_ADDRESSES](Titanium.UI.Android.LINKIFY_EMAIL_ADDRESSES),
-        [LINKIFY_MAP_ADDRESSES](Titanium.UI.Android.LINKIFY_MAP_ADDRESSES),
-        [LINKIFY_PHONE_NUMBERS](Titanium.UI.Android.LINKIFY_PHONE_NUMBERS),
-        and [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
+        The Android-specific `LINKIFY` legacy constants are defined in <Titanium.UI.Android>.
 
-        On Tizen, only the following flags are supported:
-        [AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES),
-        [AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE),
-        [AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS),
-        and [AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS).
+        Tizen does not support `AUTOLINK_ALL` or `AUTOLINK_MAP_ADDRESSES`.
         To use this property on Tizen, you must include the following privilege 
         in the `tiapp.xml` file of your Titanium application: 
 
         * `http://tizen.org/privilege/application.launch`
 
     type: Number
+    constants: Titanium.UI.AUTOLINK_*
     platforms: [android, tizen]
     
   - name: backgroundPaddingBottom
@@ -176,12 +159,9 @@ properties:
     type: String
     
   - name: textAlign
-    summary: |
-        Text alignment. One of <Titanium.UI> text alignment constants, 
-        [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), 
-        [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), 
-        or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
+    summary: Text alignment.
     type: [String, Number]
+    constants: Titanium.UI.TEXT_ALIGNMENT_*
     
   - name: textid
     summary: Key identifying a string from the locale file to use for the label text. 
@@ -197,11 +177,8 @@ properties:
     
   - name: verticalAlign
     summary: |
-        Vertical text alignment, specified using one of the 
-        vertical alignment constants from <Titanium.UI>: 
-        [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
-        [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or 
-        [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
+        Vertical text alignment, specified using one of the  vertical alignment constants
+        from <Titanium.UI>.
     description: |
         On iPhone and iPad the default value of the property is undefined. The behavior of the label
         depends on the actual content height. If the actual content height is larger than the available
@@ -210,6 +187,7 @@ properties:
         On Android, the default value of the property is undefined, and the default
         behavior when the property is undefined is to center the text vertically.
     type: [Number,String]
+    constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER on Mobile Web. Undefined on Android, iPhone and iPad.
     since: { iphone: "3.0.0", ipad: "3.0.0", mobileweb: "2.0.0", android: "3.0.0" }
     

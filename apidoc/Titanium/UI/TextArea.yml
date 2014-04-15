@@ -1,7 +1,7 @@
 ---
 name: Titanium.UI.TextArea
 summary: A multiline text field that supports editing and scrolling. 
-description: Use the <Titanium.UI.createTextArea> method or **`<TextArea>`** Alloy element to create a text area. 
+description: Use the <Titanium.UI.createTextArea> method or **&lt;TextArea&gt;** Alloy element to create a text area. 
 extends: Titanium.UI.View
 since: "0.8"
 
@@ -57,11 +57,8 @@ methods:
 properties:
   - name: appearance
     summary: Determines the appearance of the keyboard displayed when this text area is focused.
-    description: |
-        One of the <Titanium.UI> keyboard appearance constants, 
-        [KEYBOARD_APPEARANCE_ALERT](Titanium.UI.KEYBOARD_APPEARANCE_ALERT),
-        or [KEYBOARD_APPEARANCE_DEFAULT](Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT).
     type: Number
+    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
     
@@ -76,13 +73,8 @@ properties:
 
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 
-    description: |
-        One of the <Titanium.UI> auto-capitalization constants, 
-        [TEXT_AUTOCAPITALIZATION_NONE](Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE), 
-        [TEXT_AUTOCAPITALIZATION_WORDS](Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS), 
-        [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES),
-        or [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
     type: Number
+    constants: Titanium.UI.TEXT_AUTOCAPITALIZATION_*
     default: <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>
     platforms: [android, iphone, ipad]
     
@@ -101,15 +93,6 @@ properties:
   - name: autoLink
     summary: Automatically convert text to clickable links. 
     description: |
-        Specify which types of items to convert by setting `autoLink` to one of the 
-        <Titanium.UI> `AUTOLINK` constants: 
-        [AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL),
-        [AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES),
-        [AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES),
-        [AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE),
-        [AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS),
-        or [AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS).
-
         iOS supports an additional autolink type, [AUTOLINK_CALENDAR](Titanium.UI.AUTOLINK_CALENDAR).
         
         Multiple autolink values can be combined with a bitwise OR. For example:
@@ -117,23 +100,14 @@ properties:
             textArea.autoLink = AUTOLINK_MAP_ADDRESSES|AUTOLINK_PHONE_NUMBERS;
 
         Prior to Release 3.0, this field used platform-specific constants. These are now
-        deprecated in favor of the `AUTOLINK` constants listed above.
+        deprecated in favor of the `AUTOLINK` constants.
         
-        On iOS, the legacy constants are defined in <Titanium.UI.iOS>: 
-        [AUTODETECT_ADDRESS](Titanium.UI.iOS.AUTODETECT_ADDRESS), 
-        [AUTODETECT_ALL](Titanium.UI.iOS.AUTODETECT_ALL), 
-        [AUTODETECT_CALENDAR](Titanium.UI.iOS.AUTODETECT_CALENDAR), 
-        [AUTODETECT_LINK](Titanium.UI.iOS.AUTODETECT_LINK), 
-        [AUTODETECT_NONE](Titanium.UI.iOS.AUTODETECT_NONE), 
-        and [AUTODETECT_PHONE](Titanium.UI.iOS.AUTODETECT_PHONE).
+        On Android, the `LINKIFY` legacy constants are defined in <Titanium.UI.Android>.
+
+        On iOS, the `AUTODETECT` legacy constants are defined in <Titanium.UI.iOS>.
         
-        On Android, the legacy constants are defined in <Titanium.UI.Android>:
-        [LINKIFY_ALL](Titanium.UI.Android.LINKIFY_ALL),
-        [LINKIFY_EMAIL_ADDRESSES](Titanium.UI.Android.LINKIFY_EMAIL_ADDRESSES),
-        [LINKIFY_MAP_ADDRESSES](Titanium.UI.Android.LINKIFY_MAP_ADDRESSES),
-        [LINKIFY_PHONE_NUMBERS](Titanium.UI.Android.LINKIFY_PHONE_NUMBERS),
-        and [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
     type: Number
+    constants: Titanium.UI.AUTOLINK_*
     default: <Titanium.UI.iOS.AUTODETECT_NONE> in iOS, undefined in Android
     since: {android: "3.0.0"}
     platforms: [android, iphone, ipad]
@@ -234,20 +208,10 @@ properties:
   - name: keyboardType
     summary: Keyboard type to display when this text area is focused.
     description: |
-        One of the `KEYBOARD` constants from <Titanium.UI>, 
-        [KEYBOARD_ASCII](Titanium.UI.KEYBOARD_ASCII),
-        [KEYBOARD_DECIMAL_PAD](Titanium.UI.KEYBOARD_DECIMAL_PAD),
-        [KEYBOARD_DEFAULT](Titanium.UI.KEYBOARD_DEFAULT),
-        [KEYBOARD_EMAIL](Titanium.UI.KEYBOARD_EMAIL),
-        [KEYBOARD_NAMEPHONE_PAD](Titanium.UI.KEYBOARD_NAMEPHONE_PAD),
-        [KEYBOARD_NUMBERS_PUNCTUATION](Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION),
-        [KEYBOARD_NUMBER_PAD](Titanium.UI.KEYBOARD_NUMBER_PAD),
-        [KEYBOARD_PHONE_PAD](Titanium.UI.KEYBOARD_PHONE_PAD),
-        or [KEYBOARD_URL](Titanium.UI.KEYBOARD_URL).
-        
         When asking for a specific kind of user input, such as a phone number or email 
         address, you should always specify the appropriate keyboard type.
     type: Number
+    constants: Titanium.UI.KEYBOARD_*
     default: <Titanium.UI.KEYBOARD_DEFAULT>
     platforms: [android, iphone, ipad, blackberry]
     
@@ -264,20 +228,8 @@ properties:
   - name: returnKeyType
     summary: |
         Specifies the text to display on the keyboard `Return` key when this text area is focused.
-    description: |
-        One of the <Titanium.UI> return key constants, 
-        [RETURNKEY_DEFAULT](Titanium.UI.RETURNKEY_DEFAULT), 
-        [RETURNKEY_DONE](Titanium.UI.RETURNKEY_DONE), 
-        [RETURNKEY_EMERGENCY_CALL](Titanium.UI.RETURNKEY_EMERGENCY_CALL), 
-        [RETURNKEY_GO](Titanium.UI.RETURNKEY_GO), 
-        [RETURNKEY_GOOGLE](Titanium.UI.RETURNKEY_GOOGLE), 
-        [RETURNKEY_JOIN](Titanium.UI.RETURNKEY_JOIN), 
-        [RETURNKEY_NEXT](Titanium.UI.RETURNKEY_NEXT), 
-        [RETURNKEY_ROUTE](Titanium.UI.RETURNKEY_ROUTE), 
-        [RETURNKEY_SEARCH](Titanium.UI.RETURNKEY_SEARCH), 
-        [RETURNKEY_SEND](Titanium.UI.RETURNKEY_SEND), 
-        or [RETURNKEY_YAHOO](Titanium.UI.RETURNKEY_YAHOO).
     type: Number
+    constants: Titanium.UI.RETURNKEY_*
     default: <Titanium.UI.RETURNKEY_DEFAULT>
     platforms: [android, iphone, ipad, blackberry]
 
@@ -301,12 +253,8 @@ properties:
     
   - name: textAlign
     summary: Text alignment within this text area.
-    description: |
-        One of the <Titanium.UI> text alignment constants, 
-        [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), 
-        [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), 
-        or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
     type: [String, Number]
+    constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
     exclude-platforms: [blackberry]
     
@@ -327,14 +275,23 @@ properties:
     default: true
     platforms: [iphone, ipad]
     
+  - name: selection
+    summary: Returns the currently selected text of the text area.
+    description: |
+        This property is useful to track the current cursor position of the text area. On iOS this property 
+        can be used in lieu of the [selected](Titanium.UI.TextArea.selected) event.
+
+        This method will return null on android and undefined on iOS if the view has not yet been attached 
+        to the window.
+    type: textAreaSelectedParams
+    permission: read-only
+    platforms: [iphone, ipad, android]
+    since: "3.3.0"
+    
   - name: verticalAlign
     summary: Vertical alignment within this text area.
-    description: |
-        One of the <Titanium.UI> vertical alignment constants, 
-        [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
-        [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER),
-        or [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     type: [Number, String]
+    constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: <Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP>
     platforms: [android]
 
@@ -472,7 +429,7 @@ examples:
 ---
 name: textAreaSelectedParams
 summary: |
-    Dictionary object of parameters for the <Titanium.UI.TextArea.selected> event that describes 
+    Dictionary object of parameters for the <Titanium.UI.TextArea.selected> event and <Titanium.UI.TextArea.selection> property that describes 
     position and length of the selected text.
 properties:
   - name: location

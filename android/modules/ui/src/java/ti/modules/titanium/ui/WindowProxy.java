@@ -157,10 +157,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			lightweight = false;
 
 		// If "ti.android.useLegacyWindow" is set to true in the tiapp.xml, follow the old window behavior:
-		// create a HW window if any of the four properties, "fullscreen", "navBarHidden", "windowSoftInputMode" and
+		// create a HW window if any of the three properties, "fullscreen", "windowSoftInputMode" and
 		// "modal", is specified; otherwise create a LW window.
 		} else if (TiApplication.USE_LEGACY_WINDOW && !hasProperty(TiC.PROPERTY_FULLSCREEN)
-			&& !hasProperty(TiC.PROPERTY_NAV_BAR_HIDDEN) && !hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)
+			&& !hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)
 			&& !hasProperty(TiC.PROPERTY_MODAL)) {
 			lightweight = true;
 		}
@@ -340,9 +340,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
 			intent.putExtra(TiC.PROPERTY_FULLSCREEN, TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false));
-		}
-		if (hasProperty(TiC.PROPERTY_NAV_BAR_HIDDEN)) {
-			intent.putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, TiConvert.toBoolean(getProperty(TiC.PROPERTY_NAV_BAR_HIDDEN), false));
 		}
 		if (hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
 			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE), -1));
