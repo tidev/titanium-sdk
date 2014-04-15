@@ -79,15 +79,14 @@ AppCreator.prototype.run = function run(callback) {
 		function (next) {
 			// copy the template files, if exists
 			var dir = path.join(this.templateDir, 'template');
-			if (fs.existsSync(dir)) {
-				this.logger.info(__('Template directory: %s', this.templateDir.cyan));
-				this.cli.createHook('create.copyFiles', this, function (templateDir, projectDir, opts, done) {
-					appc.fs.copyDirSyncRecursive(templateDir, projectDir, opts);
-					done();
-				})(dir, this.projectDir, { logger: this.logger.debug }, next);
-			} else {
-				next();
-			}
+			if (!fs.existsSync(dir)) return next();
+
+			this.logger.info(__('Template directory: %s', this.templateDir.cyan));
+
+			this.cli.createHook('create.copyFiles', this, function (templateDir, projectDir, opts, done) {
+				appc.fs.copyDirSyncRecursive(templateDir, projectDir, opts);
+				done();
+			})(dir, this.projectDir, { logger: this.logger.debug }, next);
 		},
 
 		function (next) {

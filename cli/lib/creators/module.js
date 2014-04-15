@@ -82,21 +82,39 @@ ModuleCreator.type = 'module';
  * @param {Function} callback - A function to call after the project has been created
  */
 ModuleCreator.prototype.run = function run(callback) {
-dump(this.templateDir);
-/*
 	var tasks = [
 		function (next) {
 			// copy the template files, if exists
 			var dir = path.join(this.templateDir, 'template');
-			if (fs.existsSync(dir)) {
-				this.logger.info(__('Template directory: %s', this.templateDir.cyan));
-				this.cli.createHook('create.copyFiles', this, function (templateDir, projectDir, opts, done) {
-					appc.fs.copyDirSyncRecursive(templateDir, projectDir, opts);
-					done();
-				})(dir, this.projectDir, { logger: this.logger.debug }, next);
-			} else {
-				next();
-			}
+			if (!fs.existsSync(dir)) return next();
+
+			this.logger.info(__('Template directory: %s', this.templateDir.cyan));
+
+			var fileList = [],
+				ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')),
+				ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles'));
+
+			(function walk(src) {
+				fs.readdirSync(src).forEach(function (name) {
+					var file = path.join(src, name);
+					if (fs.existsSync(file)) {
+						if (fs.statSync(file).isDirectory() && !ignoreDirs.test(file)) {
+							walk(file);
+						} else if (!ignoreFiles.test(file)) {
+							fileList.push(file);
+						}
+					}
+				});
+			}(dir));
+
+			console.log(fileList);
+
+			next();
+
+			//this.cli.createHook('create.copyFiles', this, function (templateDir, projectDir, opts, done) {
+			//	//appc.fs.copyDirSyncRecursive(templateDir, projectDir, opts);
+			//	done();
+			//})(dir, this.projectDir, { logger: this.logger.debug }, next);
 		}
 	];
 /*
@@ -153,5 +171,5 @@ dump(this.templateDir);
 		date: (new Date()).toDateString()
 	});
 */
-	callback();
+	appc.async.series(this, tasks, callback);
 }
