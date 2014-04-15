@@ -11,7 +11,9 @@
  */
 
 var appc = require('node-appc'),
+	async = require('async'),
 	Creator = require('../creator'),
+	ejs = require('ejs'),
 	fs = require('fs'),
 	path = require('path'),
 	ti = require('titanium-sdk'),
@@ -92,7 +94,8 @@ ModuleCreator.prototype.run = function run(callback) {
 
 			var fileList = [],
 				ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')),
-				ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles'));
+				ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles')),
+				projectDir = this.projectDir;
 
 			(function walk(src) {
 				fs.readdirSync(src).forEach(function (name) {
@@ -101,26 +104,22 @@ ModuleCreator.prototype.run = function run(callback) {
 						if (fs.statSync(file).isDirectory() && !ignoreDirs.test(file)) {
 							walk(file);
 						} else if (!ignoreFiles.test(file)) {
-							fileList.push(file);
+							fileList.push([file, path.join(projectDir, file.replace(dir, ''))]);
 						}
 					}
 				});
 			}(dir));
 
-			console.log(fileList);
-
-			next();
-
-			//this.cli.createHook('create.copyFiles', this, function (templateDir, projectDir, opts, done) {
-			//	//appc.fs.copyDirSyncRecursive(templateDir, projectDir, opts);
-			//	done();
-			//})(dir, this.projectDir, { logger: this.logger.debug }, next);
+			async.each(fileList.sort(), function (file, done) {
+				this.cli.createHook('create.copyFile', this, function (src, dest, cb) {
+					this.logger.debug(__('Copying %s => %s', src.cyan, dest.cyan));
+					var contents = fs.readFileSync(src).toString();
+					fs.writeFile(dest, contents, cb);
+				})(file[0], file[1], done);
+			}.bind(this), next);
 		}
 	];
 /*
-	this.templateDir = appc.fs.resolvePath(this.sdk.path, 'templates', cli.argv.type, cli.argv.template);
-	appc.fs.copyDirSyncRecursive(this.templateDir, this.projectDir, { logger: this.logger.debug });
-
 	var year = (new Date).getFullYear();
 
 	this.projectConfig = {
