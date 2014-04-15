@@ -12,9 +12,11 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDimension;
 
 import android.util.DisplayMetrics;
 import android.view.Display;
+import android.view.View;
 
 @Kroll.proxy(parentModule=PlatformModule.class)
 public class DisplayCapsProxy extends KrollProxy
@@ -44,18 +46,50 @@ public class DisplayCapsProxy extends KrollProxy
 
 	@Kroll.getProperty @Kroll.method
 	public int getPlatformWidth() {
-		synchronized(dm) {
+		synchronized (dm) {
 			getDisplay().getMetrics(dm);
-			return dm.widthPixels;
+			return getAsDefault(dm.widthPixels, dm, TiDimension.TYPE_WIDTH);
 		}
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public int getPlatformHeight() {
-		synchronized(dm) {
+		synchronized (dm) {
 			getDisplay().getMetrics(dm);
-			return dm.heightPixels;
+			return getAsDefault(dm.heightPixels, dm, TiDimension.TYPE_HEIGHT);
 		}
+	}
+	
+	private int getAsDefault(int val, DisplayMetrics dm, int valueType) {
+		String defaultUnit = TiApplication.getInstance().getDefaultUnit();
+		if (TiDimension.UNIT_DP.equals(defaultUnit) || TiDimension.UNIT_DIP.equals(defaultUnit)) {
+			return (int) Math.round((val / dm.density));
+		} else if (TiDimension.UNIT_MM.equals(defaultUnit)) {
+			return (int) (val / getDPIForType(dm, valueType) * TiDimension.MM_INCH);
+		} else if (TiDimension.UNIT_CM.equals(defaultUnit)) {
+			return (int) ((val / getDPIForType(dm, valueType)) * TiDimension.CM_INCH);
+		} else if (TiDimension.UNIT_IN.equals(defaultUnit)) {
+			return (int) (val / getDPIForType(dm, valueType));
+		}
+
+		// Returned for PX, SYSTEM, and unknown values
+		return val;
+	}
+	
+	private double getDPIForType(DisplayMetrics dm, int valueType) {
+		float dpi = -1;
+		switch (valueType) {
+			case TiDimension.TYPE_HEIGHT:
+				dpi = dm.ydpi;
+				break;
+			case TiDimension.TYPE_WIDTH:
+				dpi = dm.xdpi;
+				break;
+			default:
+				dpi = dm.densityDpi;
+		}
+
+		return dpi;
 	}
 
 	@Kroll.getProperty @Kroll.method
