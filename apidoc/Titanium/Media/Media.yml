@@ -968,15 +968,10 @@ properties:
     platforms: [iphone, ipad]
   - name: cameraFlashMode
     summary: Determines how the flash is fired when using the device's camera.
-    description: |
-        Set to one of the following constants:
-
-          * <Titanium.Media.CAMERA_FLASH_AUTO>
-          * <Titanium.Media.CAMERA_FLASH_OFF>
-          * <Titanium.Media.CAMERA_FLASH_ON>
     type: Number
-    platforms: [iphone, ipad]
-    since: {iphone: "1.4.0", ipad: "1.4.0"}
+    constants: Titanium.Media.CAMERA_FLASH_*
+    platforms: [android, iphone, ipad]
+    since: {android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0"}
     default: Titanium.Media.CAMERA_FLASH_AUTO
   - name: canRecord
     summary: |
@@ -1153,12 +1148,6 @@ properties:
         overlay is not set, the default Android Camera Activity is used, which is only
         capable of reporting back the results of one taken photo, making `autohide`
         meaningless in that context.
-  - name: cameraFlashMode
-    summary: set camera flash on or off for custom overlays.
-    type: Boolean
-    default: false
-    platforms: [android, iphone, ipad]
-    since: {android: "3.3.0"}
   - name: animated 
     summary: Specifies if the dialog should be animated upon showing and hiding.
     type: Boolean
