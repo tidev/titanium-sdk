@@ -406,7 +406,7 @@ timodule.xml.
 		<if>
 			<equals arg1="${valid.respackage}" arg2="true"/>
 			<then>
-				<echo file="${dist}/${module.id}.respackage">${manifest.respackage}</echo>
+				<echo file="${dist}/respackageinfo">${manifest.respackage}</echo>
 			</then>
 		</if>
 	</target>
@@ -432,6 +432,7 @@ timodule.xml.
 			<zipfileset dir="${ti.module.root}" includes="platform/**" excludes="platform/README" prefix="${zip.prefix}"/>
 			<zipfileset dir="${ti.module.root}" includes="LICENSE" prefix="${zip.prefix}"/>
 			<zipfileset dir="${ti.module.root}" includes="example/**" prefix="${zip.prefix}"/>
+			<zipfileset file="${dist}/respackageinfo" prefix="${zip.prefix}"/>
 		</zip>
 		<antcall target="zip.libs"/>
 		<antcall target="zip.metadata"/>
