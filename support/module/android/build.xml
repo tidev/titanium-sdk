@@ -395,6 +395,22 @@ timodule.xml.
 	<target name="post.jar">
 	</target>
 
+	<target name="check.respackage">
+		<!-- This wont do anything if it is already defined in manifest -->
+		<property name="manifest.respackage" value=""/>
+		<condition property="valid.respackage" else="false">
+			<not>
+				<equals arg1="${manifest.respackage}" arg2=""/>
+			</not>
+		</condition>
+		<if>
+			<equals arg1="${valid.respackage}" arg2="true"/>
+			<then>
+				<echo file="${dist}/${module.id}.respackage">${manifest.respackage}</echo>
+			</then>
+		</if>
+	</target>
+
 	<target name="dist" depends="compile,pre.dist" description="Generate a distributable module JAR">
 		<ti.string property="module.id" string="${manifest.moduleid}" tolowercase="true"/>
 		<property name="module.jar" location="${dist}/${ant.project.name}.jar"/>
@@ -405,6 +421,7 @@ timodule.xml.
 		<antcall target="post.jar"/>
 		<property name="zip.prefix" value="modules/android/${module.id}/${manifest.version}"/>
 		<antcall target="docgen"/>
+		<antcall target="check.respackage"/>
 
 		<zip destfile="${dist}/${module.id}-android-${manifest.version}.zip">
 			<zipfileset file="${module.jar}" prefix="${zip.prefix}"/>
