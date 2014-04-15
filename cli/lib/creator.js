@@ -5,7 +5,7 @@
  * access build properties.
  *
  * @copyright
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -27,7 +27,7 @@ module.exports = Creator;
 
 /**
  * Constructs the creator state. This needs to be explicitly called from the
- * derived builder's constructor.
+ * derived creator's constructor.
  * @class
  * @classdesc Base class for all project creators.
  * @constructor
@@ -42,20 +42,21 @@ function Creator(logger, config, cli) {
 
 	this.projectType = cli.argv.type;
 	this.projectName = cli.argv.name;
-	this.platforms = ti.scrubPlatforms(cli.argv.platforms);
 	this.id = cli.argv.id;
 	this.url = cli.argv.url || '';
 	this.sdk = cli.env.getSDK(cli.argv.sdk);
 	this.projectDir = appc.fs.resolvePath(cli.argv['workspace-dir'], this.projectName);
 	this.projectConfig = null;
+
+	// the templateDir is populated by the create command after determining where it actual is
+	this.templateDir = null;
 }
 
 /**
  * Run stub function. Meant to be overwritten.
- *
- * @param {Function} finished - A function to call after the function finishes
+ * @param {Function} callback - A function to call after the function finishes
  */
-Creator.prototype.run = function run(finished) {
+Creator.prototype.run = function run(callback) {
 	// stub
-	finished();
+	callback();
 };

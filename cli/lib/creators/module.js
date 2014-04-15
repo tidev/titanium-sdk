@@ -3,7 +3,7 @@
  * Logic for creating new Titanium modules.
  *
  * @copyright
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -14,13 +14,30 @@ var appc = require('node-appc'),
 	Creator = require('../creator'),
 	fs = require('fs'),
 	path = require('path'),
+	ti = require('titanium-sdk'),
 	util = require('util'),
 	uuid = require('node-uuid'),
+	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__;
+
+/**
+ * Creates module projects.
+ *
+ * @module lib/creators/module
+ */
 
 module.exports = ModuleCreator;
 
-function ModuleCreator() {
+/**
+ * Constructs the module creator.
+ * @class
+ * @classdesc Creates a module project.
+ * @constructor
+ * @param {Object} logger - The logger instance
+ * @param {Object} config - The CLI config
+ * @param {Object} cli - The CLI instance
+ */
+function ModuleCreator(logger, config, cli) {
 	Creator.apply(this, arguments);
 }
 
@@ -28,12 +45,12 @@ util.inherits(ModuleCreator, Creator);
 
 ModuleCreator.type = 'module';
 
+/**
+ * Creates the project directory and copies the project files.
+ * @param {Function} callback - A function to call after the project has been created
+ */
 ModuleCreator.prototype.run = function run(callback) {
-	this.logger.info(__('Creating Titanium Mobile module project') + '\n');
-
-	this.logger.log('WARNING! This functionality is incomplete.'.red);
-	this.logger.log('Please use titanium.py to create module projects.'.red + '\n');
-
+/*
 	this.templateDir = appc.fs.resolvePath(this.sdk.path, 'templates', cli.argv.type, cli.argv.template);
 	appc.fs.copyDirSyncRecursive(this.templateDir, this.projectDir, { logger: this.logger.debug });
 
@@ -86,6 +103,6 @@ ModuleCreator.prototype.run = function run(callback) {
 		platforms: this.platforms.original.join(', '),
 		date: (new Date()).toDateString()
 	});
-
+*/
 	callback();
 }

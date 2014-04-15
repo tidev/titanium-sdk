@@ -3,7 +3,7 @@
  * Logic for creating new Titanium apps.
  *
  * @copyright
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -13,84 +13,72 @@
 var appc = require('node-appc'),
 	Creator = require('../creator'),
 	fs = require('fs'),
-	http = require('http'),
 	path = require('path'),
-	request = require('request'),
-	temp = require('temp'),
 	ti = require('titanium-sdk'),
 	util = require('util'),
 	uuid = require('node-uuid'),
 	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__;
 
+/**
+ * Creates application projects.
+ *
+ * @module lib/creators/app
+ */
+
 module.exports = AppCreator;
 
-function AppCreator() {
+/**
+ * Constructs the app creator.
+ * @class
+ * @classdesc Creates an app project.
+ * @constructor
+ * @param {Object} logger - The logger instance
+ * @param {Object} config - The CLI config
+ * @param {Object} cli - The CLI instance
+ */
+function AppCreator(logger, config, cli) {
 	Creator.apply(this, arguments);
+	this.platforms = ti.scrubPlatforms(cli.argv.platforms);
 }
 
 util.inherits(AppCreator, Creator);
 
 AppCreator.type = 'app';
 
-AppCreator.prototype.run = function run(callback) {
-	this.logger.info(__('Creating Titanium Mobile application project'));
+(function () {
+	// build list of all valid platforms
+	var availablePlatforms = {},
+		validPlatforms = {};
 
-	var i, l, dir,
-		template = this.cli.argv.template || 'default',
-		searchPaths = [ appc.fs.resolvePath(this.sdk.path, 'templates', this.cli.argv.type) ],
-		additionalPaths = this.config.get('paths.templates');
-
-	this.cli.env.os.sdkPaths.forEach(function (dir) {
-		if (fs.existsSync(dir = appc.fs.resolvePath(dir)) && searchPaths.indexOf(dir) == -1) {
-			searchPaths.push(dir);
+	ti.platforms.forEach(function (p) {
+		if (/^iphone|ios|ipad$/.test(p)) {
+			validPlatforms['iphone'] = availablePlatforms['iphone'] = 1;
+			validPlatforms['ipad'] = availablePlatforms['ipad'] = 1;
+			validPlatforms['ios'] = 1;
+		} else {
+			validPlatforms[p] = availablePlatforms[p] = 1;
 		}
 	});
 
-	if (additionalPaths) {
-		(Array.isArray(additionalPaths) ? additionalPaths : [ additionalPaths ]).forEach(function (p) {
-			if (p && fs.existsSync(p = appc.fs.resolvePath(p)) && searchPaths.indexOf(p) == -1) {
-				searchPaths.push(p);
-			}
-		});
-	}
+	// add "all"
+	validPlatforms['all'] = 1;
 
-	if (fs.existsSync(template)) {
-		if (fs.statSync(template).isDirectory()) {
-			copyFiles.call(this, template, callback);
-			return;
-		}
+	AppCreator.availablePlatforms = ['all'].concat(Object.keys(availablePlatforms));
+	AppCreator.validPlatforms = validPlatforms;
+}());
 
-		if (/\.zip$/.test(template)) {
-			unzipFile.call(this, template, callback);
-			return;
-		}
-	} else {
-		if (/^https?\:\/\/.+/.test(template)) {
-			downloadFile.call(this, template, callback);
-			return;
-		}
-
-		for (i = 0, l = searchPaths.length; i < l; i++) {
-			if (fs.existsSync(dir = path.join(searchPaths[i], template))) {
-				copyFiles.call(this, dir, callback);
-				return;
-			}
-		}
-	}
-
-	this.logger.error(__('Unable to find template "%s"', template));
-	callback(true);
-};
-
-function copyFiles(templateDir, alldone) {
-	this.templateDir = templateDir;
-	this.cli.scanHooks(path.join(this.templateDir, 'hooks'));
-
-	appc.async.series(this, [
+/**
+ * Creates the project directory and copies the project files.
+ * @param {Function} callback - A function to call after the project has been created
+ */
+AppCreator.prototype.run = function run(callback) {
+	var tasks = [
 		function (next) {
+			// copy the template files, if exists
 			var dir = path.join(this.templateDir, 'template');
 			if (fs.existsSync(dir)) {
+				this.logger.info(__('Template directory: %s', this.templateDir.cyan));
 				this.cli.createHook('create.copyFiles', this, function (templateDir, projectDir, opts, done) {
 					appc.fs.copyDirSyncRecursive(templateDir, projectDir, opts);
 					done();
@@ -101,6 +89,7 @@ function copyFiles(templateDir, alldone) {
 		},
 
 		function (next) {
+			// create the tiapp.xml
 			var params = {
 					id: this.id,
 					name: this.projectName,
@@ -125,6 +114,7 @@ function copyFiles(templateDir, alldone) {
 
 			this.cli.createHook('create.populateTiappXml', this, function (tiapp, params, done) {
 				// read and populate the tiapp.xml
+				this.logger.info(__('Writing tiapp.xml'));
 				this.projectConfig = appc.util.mix(tiapp, params);
 				this.projectConfig.save(tiappFile);
 				done();
@@ -132,78 +122,62 @@ function copyFiles(templateDir, alldone) {
 		},
 
 		function (next) {
+			// make sure the Resources dir exists
 			var dir = path.join(this.projectDir, 'Resources');
 			fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 			next();
-		},
-
-		function (next) {
-			this.cli.addAnalyticsEvent('project.create.mobile', {
-				dir: this.projectDir,
-				name: this.projectName,
-				publisher: this.projectConfig.publisher,
-				url: this.projectConfig.url,
-				image: this.projectConfig.image,
-				appid: this.id,
-				description: this.projectConfig.description,
-				type: 'mobile',
-				guid: this.projectConfig.guid,
-				version: this.projectConfig.version,
-				copyright: this.projectConfig.copyright,
-				runtime: '1.0',
-				date: (new Date()).toDateString()
-			});
-			next();
 		}
-	], alldone);
-}
+	];
 
-function unzipFile(zipFile, alldone) {
-	var dir = temp.mkdirSync({ prefix: 'titanium-' });
-	fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-	this.logger.info(__('Extracting %s', zipFile.cyan));
-	appc.zip.unzip(zipFile, dir, null, function() {
-		copyFiles.call(this, dir, function () {
-			wrench.rmdirSyncRecursive(dir);
-			alldone();
-		});
-	}.bind(this));
-}
+	this.platforms.scrubbed.forEach(function (platform) {
+		tasks.push(function (next) {
+			this.cli.emit('create.pre.platform.' + platform, this, function (err) {
+				if (err) {
+					return next(err);
+				}
 
-function downloadFile(url, alldone) {
-	var _t = this,
-		tempName = temp.path({ suffix: '.zip' }),
-		tempDir = path.dirname(tempName);
-	fs.existsSync(tempDir) || wrench.mkdirSyncRecursive(tempDir);
+				// does this platform have new or old style implementations?
+				var p = appc.fs.resolvePath(__dirname, '..', '..', '..', platform, 'cli', 'lib', 'create_app.js');
+				if (fs.existsSync(p)) {
+					// new style!
+					this.logger.info(__('Copying %s platform resources', platform.cyan));
+					require(p).run(this.logger, this.config, this.cli, this.projectConfig, function () {
+						this.cli.emit('create.post.platform.' + platform, this, next);
+					}.bind(this));
+					return;
+				}
 
-	this.logger.info(__('Downloading %s', url.cyan));
+				// old style which is needed for BlackBerry and other non-updated platforms
+				p = appc.fs.resolvePath(__dirname, '..', '..', '..', platform, 'cli', 'commands', '_create.js');
+				if (fs.existsSync(p)) {
+					this.logger.info(__('Copying %s platform resources', platform.cyan));
+					require(p).run(this.logger, this.config, this.cli, this.projectConfig);
+				}
 
-	var tempStream = fs.createWriteStream(tempName),
-		req = request({
-			url: url,
-			proxy: this.config.get('cli.httpProxyServer'),
-			rejectUnauthorized: this.config.get('cli.rejectUnauthorized', true)
-		});
-
-	req.pipe(tempStream);
-
-	req.on('error', function (err) {
-		fs.existsSync(tempName) && fs.unlinkSync(tempName);
-		this.logger.log();
-		this.logger.error(__('Failed to download template: %s', url) + '\n');
-		alldone(true);
-	}.bind(this));
-
-	req.on('response', function (req) {
-		if (req.statusCode >= 400) {
-			// something went wrong, abort
-			_t.logger.error(__('Request failed with HTTP status code %s %s', req.statusCode, http.STATUS_CODES[req.statusCode] || ''));
-			alldone(true);
-			return;
-		}
-
-		tempStream.on('close', function () {
-			unzipFile.call(_t, tempName, alldone);
+				this.cli.emit('create.post.platform.' + platform, this, next);
+			}.bind(this));
 		});
 	});
-}
+
+	tasks.push(function (next) {
+		// send the analytics
+		this.cli.addAnalyticsEvent('project.create.mobile', {
+			dir: this.projectDir,
+			name: this.projectName,
+			publisher: this.projectConfig.publisher,
+			url: this.projectConfig.url,
+			image: this.projectConfig.image,
+			appid: this.id,
+			description: this.projectConfig.description,
+			type: 'mobile',
+			guid: this.projectConfig.guid,
+			version: this.projectConfig.version,
+			copyright: this.projectConfig.copyright,
+			runtime: '1.0',
+			date: (new Date()).toDateString()
+		});
+		next();
+	});
+
+	appc.async.series(this, tasks, callback);
+};

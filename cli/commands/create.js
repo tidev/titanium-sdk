@@ -1,16 +1,25 @@
-/*
- * create.js: Titanium Mobile CLI create command
+/**
+ * @overview
+ * Create project command responsible for making the project directory and
+ * copying template files.
  *
- * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
- * See the LICENSE file for more information.
+ * @copyright
+ * Copyright (c) 2012-2014 by Appcelerator, Inc. All Rights Reserved.
+ *
+ * @license
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
  */
 
 var appc = require('node-appc'),
 	async = require('async'),
 	fields = require('fields'),
 	fs = require('fs'),
+	http = require('http'),
 	i18n = appc.i18n(__dirname),
 	path = require('path'),
+	request = require('request'),
+	temp = require('temp'),
 	ti = require('titanium-sdk'),
 	wrench = require('wrench'),
 	__ = i18n.__,
@@ -19,6 +28,12 @@ var appc = require('node-appc'),
 exports.cliVersion = '>=3.2.1';
 exports.desc = __('creates a new mobile application'); // or module
 
+/**
+ * Encapsulates the create command's state.
+ * @class
+ * @classdesc Implements the CLI command interface for the create command.
+ * @constructor
+ */
 function CreateCommand() {
 	var creatorDir = path.join(__dirname, '..', 'lib', 'creators'),
 		types = this.types = {},
@@ -32,48 +47,42 @@ function CreateCommand() {
 	});
 }
 
+/**
+ * Defines the create command's CLI configuration.
+ * @param {Object} logger - The logger instance
+ * @param {Object} config - The CLI config
+ * @param {Object} cli - The CLI instance
+ */
 CreateCommand.prototype.config = function config(logger, config, cli) {
+	this.logger = logger;
+	this.config = config;
+	this.cli = cli;
+
 	return function (finished) {
 		cli.createHook('create.config', this, function (callback) {
 			var conf,
 				idPrefix = config.get('app.idprefix'),
 				workspaceDir = config.app.workspace ? appc.fs.resolvePath(config.app.workspace) : null,
-				availablePlatforms = {},
-				validPlatforms = {};
+				types = this.types;
 
 			workspaceDir && !fs.existsSync(workspaceDir) && (workspaceDir = null);
 
-			// build list of all valid platforms
-			ti.platforms.forEach(function (p) {
-				if (/^iphone|ios|ipad$/.test(p)) {
-					validPlatforms['iphone'] = availablePlatforms['iphone'] = 1;
-					validPlatforms['ipad'] = availablePlatforms['ipad'] = 1;
-					validPlatforms['ios'] = 1;
-				} else {
-					validPlatforms[p] = availablePlatforms[p] = 1;
-				}
-			});
-
-			// add "all"
-			validPlatforms['all'] = 1;
-			availablePlatforms = ['all'].concat(Object.keys(availablePlatforms));
-
 			conf = {
 				flags: {
-					force: {
+					'force': {
 						abbr: 'f',
 						desc: __('force project creation even if path already exists')
 					}
 				},
 				options: appc.util.mix({
-					id: {
+					'id': {
 						desc: __("the App ID in the format 'com.companyname.appname'"),
 						order: 150,
 						prompt: function (callback) {
 							var defaultValue = undefined,
 								name = cli.argv.name.replace(/[ -]/g, '_').replace(/[^a-zA-Z0-9_]/g, '').replace(/_+/g, '_');
 							if (idPrefix) {
-								defaultValue = idPrefix.replace(/\.$/, '') + '.' + (/^[a-zA-Z]/.test(name) || cli.argv.platforms.indexOf('android') == -1 ? '' : 'my') + name;
+								defaultValue = idPrefix.replace(/\.$/, '') + '.' + (/^[a-zA-Z]/.test(name) || (cli.argv.type == 'app' && cli.argv.platforms.indexOf('android') == -1) ? '' : 'my') + name;
 							}
 
 							callback(fields.text({
@@ -99,7 +108,7 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 								return callback(true);
 							}
 
-							if (cli.argv.platforms.indexOf('android') != -1) {
+							if (cli.argv.type != 'app' || cli.argv.platforms.indexOf('android') != -1) {
 								if (value.indexOf('-') != -1) {
 									logger.error(__('Invalid App ID "%s"', value));
 									logger.error(__('Dashes are not allowed in the App ID when targeting %s.', 'Android'.cyan) + '\n');
@@ -143,7 +152,7 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 							}
 
 							if (value.indexOf('_') != -1) {
-								if (cli.argv.platforms.indexOf('ios') != -1 || cli.argv.platforms.indexOf('iphone') != -1 || cli.argv.platforms.indexOf('ipad') != -1) {
+								if (cli.argv.type != 'app' || cli.argv.platforms.indexOf('ios') != -1 || cli.argv.platforms.indexOf('iphone') != -1 || cli.argv.platforms.indexOf('ipad') != -1) {
 									logger.error(__('Invalid App ID "%s"', value));
 									logger.error(__('Underscores are not allowed in the App ID when targeting %s.', 'iOS'.cyan) + '\n');
 									return callback(true);
@@ -157,7 +166,7 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 							callback(null, value);
 						}
 					},
-					name: {
+					'name': {
 						abbr: 'n',
 						desc: __('the name of the project'),
 						order: 140,
@@ -174,7 +183,7 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 								return callback(true);
 							}
 
-							if (cli.argv.platforms.indexOf('android') != -1 && value.indexOf('&') != -1) {
+							if ((cli.argv.type != 'app' || cli.argv.platforms.indexOf('android') != -1) && value.indexOf('&') != -1) {
 								if (config.get('android.allowAppNameAmpersands', false)) {
 									logger.warn(__('The project name contains an ampersand (&) which will most likely cause problems.'));
 									logger.warn(__('It is recommended that you change the app name in the tiapp.xml or define the app name using i18n strings.'));
@@ -192,19 +201,19 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 							callback(null, value);
 						}
 					},
-					platforms: {
+					'platforms': {
+						// note: --platforms is only required when --type is "app"
 						abbr: 'p',
 						default: !cli.argv.prompt && 'all' || undefined, // if we're prompting, then force the platforms to be prompted for, otherwise force 'all'
-						desc: __('the target build platform'),
+						desc: __('the target build platform; values vary by %s', '--type'.cyan),
 						order: 120,
 						prompt: function (callback) {
 							callback(fields.text({
-								promptLabel: __('Target platform (%s)', availablePlatforms.join('|')),
+								promptLabel: __('Target platform (%s)', types[cli.argv.type].availablePlatforms.join('|')),
 								default: 'all',
 								validate: conf.options.platforms.validate
 							}));
 						},
-						required: true,
 						validate: function (value, callback) {
 							var goodValues = {},
 								badValues = {};
@@ -216,7 +225,7 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 
 							value.trim().toLowerCase().split(',').forEach(function (s) {
 								if (s = s.trim()) {
-									if (validPlatforms[s]) {
+									if (types[cli.argv.type].validPlatforms[s]) {
 										goodValues[s] = 1;
 									} else {
 										badValues[s] = 1;
@@ -238,7 +247,7 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 
 							if (goodValues.all) {
 								goodValues = {};
-								availablePlatforms.forEach(function (p) {
+								types[cli.argv.type].availablePlatforms.forEach(function (p) {
 									if (p != 'all') {
 										goodValues[p] = 1;
 									}
@@ -248,24 +257,40 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 							callback(null, Object.keys(goodValues).join(','));
 						}
 					},
-					template: {
+					'template': {
 						desc: __('the name of the project template, path to template dir, path to zip file, or url to zip file'),
 						default: 'default',
 						order: 110,
 						required: true
 					},
-					type: {
+					'type': {
 						abbr: 't',
-						default: 'app',
+						callback: function (value) {
+							// --platforms is only required if the --type == "app"
+							if (value == 'app') {
+								conf.options.platforms.required = true;
+							}
+						},
+						default: cli.argv.prompt ? undefined : 'app',
 						desc: __('the type of project to create'),
 						order: 100,
-						skipValueCheck: true,
-						validate: function (value, callback) {
-							callback(/^app|module$/.test(value) ? null : new Error(__('Invalid project type "%s"', value)), value);
-						},
-						values: Object.keys(this.types)
+						prompt: function (callback) {
+							callback(fields.select({
+								title: __("What type of project would you like to create?"),
+								promptLabel: __('Select a type by number or name'),
+								default: 'app',
+								margin: '',
+								numbered: true,
+								relistOnError: true,
+								complete: true,
+								suggest: false,
+								options: Object.keys(types)
+							}));
+						}.bind(this),
+						required: true,
+						values: Object.keys(types)
 					},
-					url: {
+					'url': {
 						abbr: 'u',
 						default: !cli.argv.prompt && config.get('app.url') || undefined,
 						desc: __('your company/personal URL'),
@@ -335,6 +360,12 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 	}.bind(this);
 };
 
+/**
+ * Validates the create command's state.
+ * @param {Object} logger - The logger instance
+ * @param {Object} config - The CLI config
+ * @param {Object} cli - The CLI instance
+ */
 CreateCommand.prototype.validate = function validate(logger, config, cli) {
 	// check if the project already exists
 	if (cli.argv.name && !cli.argv.force) {
@@ -347,62 +378,187 @@ CreateCommand.prototype.validate = function validate(logger, config, cli) {
 	}
 };
 
+/**
+ * Performs the project creation including making the project directory and copying
+ * the project template files.
+ * @param {Object} logger - The logger instance
+ * @param {Object} config - The CLI config
+ * @param {Object} cli - The CLI instance
+ * @param {Function} finished - A callback to fire when the project has been created
+ */
 CreateCommand.prototype.run = function run(logger, config, cli, finished) {
 	var projectName = cli.argv.name,
 		projectDir = appc.fs.resolvePath(cli.argv['workspace-dir'], projectName),
-		type = cli.argv.type;
+		type = cli.argv.type,
+		creator;
 
-	var creator;
-	if (type == 'app') {
-		creator = new (require('../lib/app-creator'))(logger, config, cli);
-	} else if (type == 'module') {
-		creator = new (require('../lib/module-creator'))(logger, config, cli);
-	}
+	// load the project type lib
+	creator = new this.types[type](logger, config, cli);
+	logger.info(__('Creating %s project', type));
 
-	if (!creator) {
-		logger.error(__('Failed to initialize "%s" creator.', type));
-		return finished();
-	}
+	appc.async.series(this, [
+		function (next) {
+			cli.emit('create.pre', creator, next);
+		},
 
-	cli.emit('create.pre', creator, function () {
-		fs.existsSync(projectDir) || wrench.mkdirSyncRecursive(projectDir);
+		function (next) {
+			fs.existsSync(projectDir) || wrench.mkdirSyncRecursive(projectDir);
+			next();
+		},
 
-		creator.run(function (err) {
-			if (err) {
-				cli.emit('create.finalize', creator, function () {
-					logger.error(__("Failed to create project '%s' in %s", creator.projectName.cyan, appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
-					finished(err);
-				});
-			} else {
-				async.series(creator.platforms.scrubbed.map(function (platform) {
-					return function (next) {
-						cli.emit('create.pre.platform.' + platform, creator, function (err) {
-							if (err) {
-								next(err);
-							} else {
-								var p = appc.fs.resolvePath(path.dirname(module.filename), '..', '..', platform, 'cli', 'commands', '_create.js');
-								if (fs.existsSync(p)) {
-									logger.info(__('Copying "%s" platform resources', platform));
-									require(p).run(logger, config, cli, creator.projectConfig);
-								}
-								cli.emit('create.post.platform.' + platform, creator, next);
-							}
-						});
-					};
-				}), function (err) {
-					cli.emit('create.post', creator, function () {
-						cli.emit('create.finalize', creator, function () {
-							if (err) {
-								logger.error(__("Failed to create project '%s' in %s", creator.projectName.cyan, appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
-							} else {
-								logger.info(__("Project '%s' created successfully in %s", creator.projectName.cyan, appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
-							}
-							finished(err);
-						});
-					});
+		function (next) {
+			// try to resolve the template dir
+			var template = cli.argv.template || 'default',
+				builtinTemplateDir = appc.fs.resolvePath(creator.sdk.path, 'templates', type, template);
+
+			if (fs.existsSync(builtinTemplateDir)) {
+				creator.templateDir = builtinTemplateDir;
+				return next();
+			}
+
+			if (/^https?\:\/\/.+/.test(template)) {
+				return this.downloadFile(template, function (err, dir) {
+					if (!err) {
+						creator.templateDir = dir;
+					}
+					next(err);
 				});
 			}
+
+			if (/\.zip$/.test(template) && fs.existsSync(template)) {
+				return this.unzipFile(template, function (err, dir) {
+					if (!err) {
+						creator.templateDir = dir;
+					}
+					next(err);
+				});
+			}
+
+			// could be the name of a template in one of the template paths
+			var searchPaths = [],
+				additionalPaths = config.get('paths.templates'),
+				dir;
+
+			cli.env.os.sdkPaths.forEach(function (dir) {
+				if (fs.existsSync(dir = appc.fs.resolvePath(dir, 'templates')) && searchPaths.indexOf(dir) == -1) {
+					searchPaths.push(dir);
+				}
+			});
+
+			(Array.isArray(additionalPaths) ? additionalPaths : [ additionalPaths ]).forEach(function (p) {
+				if (p && fs.existsSync(p = appc.fs.resolvePath(p)) && searchPaths.indexOf(p) == -1) {
+					searchPaths.push(p);
+				}
+			});
+
+			while (dir = searchPaths.shift()) {
+				if (fs.existsSync(dir = path.join(dir, template))) {
+					creator.templateDir = dir;
+					return next();
+				}
+			}
+
+			// last possibility is it's a local directory
+			if (fs.existsSync(template) && fs.statSync(template).isDirectory()) {
+				creator.templateDir = template;
+				return next();
+			}
+
+			logger.error(__('Unable to find template "%s"', template));
+			next(true);
+		},
+
+		function (next) {
+			// load the template hooks, if applicable
+			cli.scanHooks(path.join(creator.templateDir, 'hooks'));
+			next();
+		},
+
+		function (next) {
+			creator.run(function (err) {
+				if (err) {
+					next(err);
+				} else {
+					cli.emit('create.post', creator, next);
+				}
+			});
+		}
+	], function (err) {
+		// clean up the temp dir
+		if (this.tempUnzipDir && fs.existsSync(this.tempUnzipDir)) {
+			logger.debug(__('Removing temp unzip dir: %s', this.tempUnzipDir.cyan));
+			wrench.rmdirSyncRecursive(this.tempUnzipDir);
+		}
+
+		cli.emit('create.finalize', creator, function () {
+			if (err) {
+				logger.error(__('Failed to create project after %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
+			} else {
+				logger.info(__('Project created successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
+			}
+			finished(err);
 		});
+	});
+};
+
+/**
+ * Downloads the specified file and unzips it.
+ * @param {String} url - The URL of a zip file to download
+ * @param {Function} callback - The function to call after the file has been downloaded and unzipped
+ */
+CreateCommand.prototype.downloadFile = function downloadFile(url, callback) {
+	var _t = this,
+		tempName = temp.path({ suffix: '.zip' }),
+		tempDir = path.dirname(tempName);
+
+	fs.existsSync(tempDir) || wrench.mkdirSyncRecursive(tempDir);
+
+	this.logger.info(__('Downloading %s', url.cyan));
+
+	var tempStream = fs.createWriteStream(tempName),
+		req = request({
+			url: url,
+			proxy: this.config.get('cli.httpProxyServer'),
+			rejectUnauthorized: this.config.get('cli.rejectUnauthorized', true)
+		});
+
+	req.pipe(tempStream);
+
+	req.on('error', function (err) {
+		fs.existsSync(tempName) && fs.unlinkSync(tempName);
+		this.logger.log();
+		this.logger.error(__('Failed to download template: %s', url) + '\n');
+		callback(true);
+	}.bind(this));
+
+	req.on('response', function (req) {
+		if (req.statusCode >= 400) {
+			// something went wrong, abort
+			_t.logger.error(__('Request failed with HTTP status code %s %s', req.statusCode, http.STATUS_CODES[req.statusCode] || ''));
+			callback(true);
+			return;
+		}
+
+		tempStream.on('close', function () {
+			_t.unzipFile(tempName, function (err, dir) {
+				fs.unlinkSync(tempName);
+				callback(err, dir);
+			});
+		});
+	});
+};
+
+/**
+ * Unzips the specified file.
+ * @param {String} zipFile - A local path to a zip file to unzip
+ * @param {Function} callback - The function to call after the file has been unzipped
+ */
+CreateCommand.prototype.unzipFile = function unzipFile(zipFile, callback) {
+	var dir = this.tempUnzipDir = temp.mkdirSync({ prefix: 'titanium-' });
+	fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+	this.logger.info(__('Extracting %s', zipFile.cyan));
+	appc.zip.unzip(zipFile, dir, null, function() {
+		callback(null, dir);
 	});
 };
 
