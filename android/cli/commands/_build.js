@@ -2163,6 +2163,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		relSplashScreenRegExp = /^default\.(9\.png|png|jpg)$/,
 		drawableResources = {},
 		jsFiles = {},
+		moduleResPackages = this.moduleResPackages = [],
 		jsFilesToEncrypt = this.jsFilesToEncrypt = [],
 		htmlJsFiles = this.htmlJsFiles = {},
 		_t = this;
@@ -2429,6 +2430,17 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			}, cb);
 		});
 	});
+
+	//get the respackgeinfo files if they exist
+	this.modules.forEach(function (module) {
+		var respackagepath = path.join(module.modulePath,'respackageinfo');
+		if (fs.existsSync(respackagepath)) {
+			var data = fs.readFileSync(respackagepath).toString().split('\n').shift().trim();
+			if(data.length > 0) {
+				this.moduleResPackages.push(data);
+			}
+		}
+	}, this);
 
 	var platformPaths = [
 		path.join(this.projectDir, 'platform', 'android')
@@ -3603,7 +3615,7 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 		);
 	}
 
-	if (!Object.keys(this.resPackages).length) {
+	if ( (!Object.keys(this.resPackages).length) && (!this.moduleResPackages.length) ) {
 		return runAapt();
 	}
 
@@ -3613,6 +3625,11 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 	Object.keys(this.resPackages).forEach(function(resFile){
 		namespaces && (namespaces+=':');
 		namespaces += this.resPackages[resFile];
+	}, this);
+
+	this.moduleResPackages.forEach(function (data) {
+		namespaces && (namespaces+=':');
+		namespaces += data;
 	}, this);
 
 	args.push('--extra-packages', namespaces);
