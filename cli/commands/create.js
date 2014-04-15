@@ -202,10 +202,12 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 						}
 					},
 					'platforms': {
-						// note: --platforms is only required when --type is "app"
 						abbr: 'p',
 						default: !cli.argv.prompt && 'all' || undefined, // if we're prompting, then force the platforms to be prompted for, otherwise force 'all'
-						desc: __('the target build platform; values vary by %s', '--type'.cyan),
+						desc: __('one or more target platforms; values vary by project type:') + '\n' +
+								Object.keys(types).map(function (type) {
+									return '\u2022 ' + appc.string.rpad(type + ':', 7) + (' [' + types[type].availablePlatforms.join(', ') + ']').grey;
+								}).join('\n'),
 						order: 120,
 						prompt: function (callback) {
 							callback(fields.text({
@@ -214,6 +216,7 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 								validate: conf.options.platforms.validate
 							}));
 						},
+						required: true,
 						validate: function (value, callback) {
 							var goodValues = {},
 								badValues = {};
@@ -265,12 +268,6 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 					},
 					'type': {
 						abbr: 't',
-						callback: function (value) {
-							// --platforms is only required if the --type == "app"
-							if (value == 'app') {
-								conf.options.platforms.required = true;
-							}
-						},
 						default: cli.argv.prompt ? undefined : 'app',
 						desc: __('the type of project to create'),
 						order: 100,

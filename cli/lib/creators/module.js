@@ -45,11 +45,60 @@ util.inherits(ModuleCreator, Creator);
 
 ModuleCreator.type = 'module';
 
+(function (creator) {
+	// build list of all valid platforms
+	var availablePlatforms = {},
+		validPlatforms = {};
+
+	ti.platforms.forEach(function (platform) {
+		if (fs.existsSync(path.join(__dirname, '..', '..', '..', platform, 'cli', 'lib', 'create_module.js'))) {
+			if (/^iphone|ios|ipad$/.test(platform)) {
+				validPlatforms['iphone'] = 1;
+				validPlatforms['ipad'] = 1;
+				validPlatforms['ios'] = availablePlatforms['ios'] = 1;
+			} else {
+				validPlatforms[platform] = availablePlatforms[platform] = 1;
+			}
+		}
+	});
+
+	// process all global module types
+	var modulesDir = path.join(__dirname, '..', '..', 'modules');
+	fs.readdirSync(modulesDir).forEach(function (dir) {
+		if (fs.existsSync(path.join(modulesDir, dir, 'create_module.js'))) {
+			validPlatforms[dir] = availablePlatforms[dir] = 1;
+		}
+	});
+
+	// add "all"
+	validPlatforms['all'] = 1;
+
+	creator.availablePlatforms = ['all'].concat(Object.keys(availablePlatforms));
+	creator.validPlatforms = validPlatforms;
+}(ModuleCreator));
+
 /**
  * Creates the project directory and copies the project files.
  * @param {Function} callback - A function to call after the project has been created
  */
 ModuleCreator.prototype.run = function run(callback) {
+dump(this.templateDir);
+/*
+	var tasks = [
+		function (next) {
+			// copy the template files, if exists
+			var dir = path.join(this.templateDir, 'template');
+			if (fs.existsSync(dir)) {
+				this.logger.info(__('Template directory: %s', this.templateDir.cyan));
+				this.cli.createHook('create.copyFiles', this, function (templateDir, projectDir, opts, done) {
+					appc.fs.copyDirSyncRecursive(templateDir, projectDir, opts);
+					done();
+				})(dir, this.projectDir, { logger: this.logger.debug }, next);
+			} else {
+				next();
+			}
+		}
+	];
 /*
 	this.templateDir = appc.fs.resolvePath(this.sdk.path, 'templates', cli.argv.type, cli.argv.template);
 	appc.fs.copyDirSyncRecursive(this.templateDir, this.projectDir, { logger: this.logger.debug });

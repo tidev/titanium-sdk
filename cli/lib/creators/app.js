@@ -46,27 +46,29 @@ util.inherits(AppCreator, Creator);
 
 AppCreator.type = 'app';
 
-(function () {
+(function (creator) {
 	// build list of all valid platforms
 	var availablePlatforms = {},
 		validPlatforms = {};
 
-	ti.platforms.forEach(function (p) {
-		if (/^iphone|ios|ipad$/.test(p)) {
-			validPlatforms['iphone'] = availablePlatforms['iphone'] = 1;
-			validPlatforms['ipad'] = availablePlatforms['ipad'] = 1;
-			validPlatforms['ios'] = 1;
-		} else {
-			validPlatforms[p] = availablePlatforms[p] = 1;
+	ti.platforms.forEach(function (platform) {
+		if (fs.existsSync(path.join(__dirname, '..', '..', '..', platform, 'cli', 'lib', 'create_app.js')) || fs.existsSync(path.join(__dirname, '..', '..', '..', platform, 'cli', 'commands', '_create.js'))) {
+			if (/^iphone|ios|ipad$/.test(platform)) {
+				validPlatforms['iphone'] = availablePlatforms['iphone'] = 1;
+				validPlatforms['ipad'] = availablePlatforms['ipad'] = 1;
+				validPlatforms['ios'] = 1;
+			} else {
+				validPlatforms[platform] = availablePlatforms[platform] = 1;
+			}
 		}
 	});
 
 	// add "all"
 	validPlatforms['all'] = 1;
 
-	AppCreator.availablePlatforms = ['all'].concat(Object.keys(availablePlatforms));
-	AppCreator.validPlatforms = validPlatforms;
-}());
+	creator.availablePlatforms = ['all'].concat(Object.keys(availablePlatforms));
+	creator.validPlatforms = validPlatforms;
+}(AppCreator));
 
 /**
  * Creates the project directory and copies the project files.
