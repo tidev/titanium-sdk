@@ -233,15 +233,19 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	{
 		TiCameraActivity.cameraFlashMode = cameraFlashMode;
 		if (camera != null) {
-			Parameters p = camera.getParameters();
-			if (cameraFlashMode == MediaModule.CAMERA_FLASH_OFF) {
-				p.setFlashMode(Parameters.FLASH_MODE_OFF);
-			} else if (cameraFlashMode == MediaModule.CAMERA_FLASH_ON) {
-				p.setFlashMode(Parameters.FLASH_MODE_ON);
-			} else if (cameraFlashMode == MediaModule.CAMERA_FLASH_AUTO) {
-				p.setFlashMode(Parameters.FLASH_MODE_AUTO);
+			try {
+				Parameters p = camera.getParameters();
+				if (cameraFlashMode == MediaModule.CAMERA_FLASH_OFF) {
+					p.setFlashMode(Parameters.FLASH_MODE_OFF);
+				} else if (cameraFlashMode == MediaModule.CAMERA_FLASH_ON) {
+					p.setFlashMode(Parameters.FLASH_MODE_ON);
+				} else if (cameraFlashMode == MediaModule.CAMERA_FLASH_AUTO) {
+					p.setFlashMode(Parameters.FLASH_MODE_AUTO);
+				}
+				camera.setParameters(p);
+			} catch (Throwable t) {
+				Log.e(TAG, "Could not set flash mode", t);
 			}
-			camera.setParameters(p);
 		}
 	}
 
