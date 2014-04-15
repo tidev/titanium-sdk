@@ -665,4 +665,15 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		});
 
 	}
+	
+	@Override
+	public void onBackPressed()
+	{
+		if (cancelCallback != null) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(-1, "User cancelled the request");
+			cancelCallback.callAsync(callbackContext, response);
+		}
+		super.onBackPressed();
+	}
 }
