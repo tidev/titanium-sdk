@@ -61,7 +61,11 @@ public class MediaModule extends KrollModule
 	private static final long[] DEFAULT_VIBRATE_PATTERN = { 100L, 250L };
 
 	// The mode FOCUS_MODE_CONTINUOUS_PICTURE is added in API 14
-	public static final String FOCUS_MODE_CONTINUOUS_PICTURE = "continuous-picture";
+	protected static final String FOCUS_MODE_CONTINUOUS_PICTURE = "continuous-picture";
+	protected static final String PROP_AUTOHIDE = "autohide";
+	protected static final String PROP_AUTOSAVE = "saveToPhotoGallery";
+	protected static final String PROP_WHICH_CAMERA = "whichCamera";
+	protected static final String PROP_OVERLAY = "overlay";
 
 	@Kroll.constant public static final int UNKNOWN_ERROR = -1;
 	@Kroll.constant public static final int NO_ERROR = 0;
@@ -222,13 +226,13 @@ public class MediaModule extends KrollModule
 	}
 	
 	
-	private void launchCameraActivity(KrollDict cameraOptions) {
+	private void launchCameraActivity(KrollDict cameraOptions, TiViewProxy overLayProxy) {
 		KrollFunction successCallback = null;
 		KrollFunction cancelCallback = null;
 		KrollFunction errorCallback = null;
 		boolean saveToPhotoGallery = false;
 		boolean autohide = true;
-		TiViewProxy overLayProxy = (TiViewProxy)cameraOptions.get("overlay");
+		
 		int flashMode = CAMERA_FLASH_OFF;
 		int whichCamera = CAMERA_REAR;
 		
@@ -241,17 +245,17 @@ public class MediaModule extends KrollModule
 		if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ERROR)) {
 			errorCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ERROR);
 		}
-		if (cameraOptions.containsKeyAndNotNull("saveToPhotoGallery")) {
-			saveToPhotoGallery = cameraOptions.getBoolean("saveToPhotoGallery");
+		if (cameraOptions.containsKeyAndNotNull(PROP_AUTOSAVE)) {
+			saveToPhotoGallery = cameraOptions.getBoolean(PROP_AUTOSAVE);
 		}
-		if (cameraOptions.containsKeyAndNotNull("autohide")) {
-			autohide = cameraOptions.getBoolean("autohide");
+		if (cameraOptions.containsKeyAndNotNull(PROP_AUTOHIDE)) {
+			autohide = cameraOptions.getBoolean(PROP_AUTOHIDE);
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_CAMERA_FLASH_MODE)) {
 			flashMode = cameraOptions.getInt(TiC.PROPERTY_CAMERA_FLASH_MODE);
 		}
-		if (cameraOptions.containsKeyAndNotNull("whichCamera")) {
-			whichCamera = cameraOptions.getInt("whichCamera");
+		if (cameraOptions.containsKeyAndNotNull(PROP_WHICH_CAMERA)) {
+			whichCamera = cameraOptions.getInt(PROP_WHICH_CAMERA);
 		}
 		
 		TiCameraActivity.callbackContext = getKrollObject();
@@ -284,8 +288,10 @@ public class MediaModule extends KrollModule
 			cameraOptions = new KrollDict(options);
 		}
 		
-		if (cameraOptions.containsKeyAndNotNull("overlay")) {
-			launchCameraActivity(cameraOptions);
+		Object overlay = cameraOptions.get(PROP_OVERLAY);
+		
+		if ( (overlay != null) && (overlay instanceof TiViewProxy) ) {
+			launchCameraActivity(cameraOptions, (TiViewProxy)overlay);
 		} else {
 			launchNativeCamera(cameraOptions);
 		}
