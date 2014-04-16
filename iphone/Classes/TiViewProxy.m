@@ -260,6 +260,7 @@
 		[childrenCopy removeObject:arg];
 		[self contentsWillChange];
 	}
+	[childrenCopy release];
 }
 
 -(void)removeAllChildren:(id)arg
@@ -278,6 +279,7 @@
         [self forgetProxy:theChild];
     }
     [childrenCopy removeAllObjects];
+	[childrenCopy release];
     [self contentsWillChange];
 }
 
