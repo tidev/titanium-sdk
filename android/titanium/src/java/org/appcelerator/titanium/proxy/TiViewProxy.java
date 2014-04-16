@@ -84,7 +84,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private static final int MSG_UPDATE_LAYOUT = MSG_FIRST_ID + 113;
 	private static final int MSG_QUEUED_ANIMATE = MSG_FIRST_ID + 114;
 	private static final int MSG_INSERT_VIEW_AT = MSG_FIRST_ID + 115;
-	private static final int MSG_HIDE_KEYBOARD = MSG_FIRST_ID + 115;
+	private static final int MSG_HIDE_KEYBOARD = MSG_FIRST_ID + 116;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
