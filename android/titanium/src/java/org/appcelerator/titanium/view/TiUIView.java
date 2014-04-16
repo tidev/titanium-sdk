@@ -165,10 +165,6 @@ public abstract class TiUIView
 	public void insertAt(TiUIView child, int position)
 	{
 		add(child, position);
-		if(children.contains(child)) {
-			children.remove(child);
-			children.add(position, child);
-		}
 	}
 
 	private void add(TiUIView child, int childIndex)
@@ -185,7 +181,14 @@ public abstract class TiUIView
 							((ViewGroup) nv).addView(cv, child.getLayoutParams());
 						}
 					}
-					children.add(child);
+					if(children.contains(child)) {
+						children.remove(child);
+					}
+					if(childIndex == -1) {
+						children.add(child);
+					} else {
+						children.add(childIndex, child);
+					}
 					child.parent = proxy;
 				}
 			}
