@@ -13,11 +13,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.appcelerator.analytics.ACSAnalyticsEvent;
-import org.appcelerator.analytics.ACSAnalyticsHelper;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
+import org.aps.analytics.APSAnalyticsEvent;
+import org.aps.analytics.APSAnalyticsHelper;
 
 import android.Manifest;
 import android.app.Activity;
@@ -30,7 +30,7 @@ import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 
-public class TiPlatformHelper extends ACSAnalyticsHelper
+public class TiPlatformHelper extends APSAnalyticsHelper
 {
 	public static final String TAG = "TiPlatformHelper";
 	private static final Map<String, Locale> locales = java.util.Collections.synchronizedMap(new HashMap<String, Locale>());
@@ -47,12 +47,12 @@ public class TiPlatformHelper extends ACSAnalyticsHelper
 
 	public static void initialize()
 	{
-		ACSAnalyticsHelper.init(TiApplication.getInstance().getAppGUID(), TiApplication.getInstance());
+		APSAnalyticsHelper.init(TiApplication.getInstance().getAppGUID(), TiApplication.getInstance());
 	}
 
 	public static void initAnalytics()
 	{
-		ACSAnalyticsHelper.initAnalytics();
+		APSAnalyticsHelper.initAnalytics();
 	}
 
 	public static synchronized void intializeDisplayMetrics(Activity activity)
@@ -93,7 +93,7 @@ public class TiPlatformHelper extends ACSAnalyticsHelper
 	 */
 	public static String getName()
 	{
-		return ACSAnalyticsHelper.getName();
+		return APSAnalyticsHelper.getName();
 	}
 
 	/**
@@ -101,77 +101,77 @@ public class TiPlatformHelper extends ACSAnalyticsHelper
 	 */
 	public static String getOS()
 	{
-		return ACSAnalyticsHelper.getOS();
+		return APSAnalyticsHelper.getOS();
 	}
 
 	public static void setSdkVersion(String ver)
 	{
-		ACSAnalyticsHelper.setSdkVersion(ver);
+		APSAnalyticsHelper.setSdkVersion(ver);
 	}
 
 	public static void setAppName(String name)
 	{
-		ACSAnalyticsHelper.setAppName(name);
+		APSAnalyticsHelper.setAppName(name);
 	}
 
 	public static void setAppId(String id)
 	{
-		ACSAnalyticsHelper.setAppId(id);
+		APSAnalyticsHelper.setAppId(id);
 	}
 
 	public static void setAppVersion(String ver)
 	{
-		ACSAnalyticsHelper.setAppVersion(ver);
+		APSAnalyticsHelper.setAppVersion(ver);
 	}
 
 	public static int getProcessorCount()
 	{
-		return ACSAnalyticsHelper.getProcessorCount();
+		return APSAnalyticsHelper.getProcessorCount();
 	}
 
 	public static String getUsername()
 	{
-		return ACSAnalyticsHelper.getUsername();
+		return APSAnalyticsHelper.getUsername();
 	}
 
 	public static String getVersion()
 	{
-		return ACSAnalyticsHelper.getVersion();
+		return APSAnalyticsHelper.getVersion();
 	}
 
 	public static double getAvailableMemory()
 	{
-		return ACSAnalyticsHelper.getAvailableMemory();
+		return APSAnalyticsHelper.getAvailableMemory();
 	}
 
 	public static String getModel()
 	{
-		return ACSAnalyticsHelper.getModel();
+		return APSAnalyticsHelper.getModel();
 	}
 
 	public static String getManufacturer()
 	{
-		return ACSAnalyticsHelper.getManufacturer();
+		return APSAnalyticsHelper.getManufacturer();
 	}
 
 	public static String getOstype()
 	{
-		return ACSAnalyticsHelper.getOstype();
+		return APSAnalyticsHelper.getOstype();
 	}
 
 	public static String getMobileId()
 	{
-		return ACSAnalyticsHelper.getMobileId();
+		return APSAnalyticsHelper.getMobileId();
 	}
 
 	public static String createUUID()
 	{
-		return ACSAnalyticsHelper.createUUID();
+		return APSAnalyticsHelper.createUUID();
 	}
 
 	public static String getSessionId()
 	{
-		return ACSAnalyticsHelper.getSessionId();
+		return APSAnalyticsHelper.getSessionId();
 	}
 
 	public static String getLocale()
@@ -181,7 +181,7 @@ public class TiPlatformHelper extends ACSAnalyticsHelper
 
 	public static void setDeployType(String type)
 	{
-		ACSAnalyticsHelper.setDeployType(type);
+		APSAnalyticsHelper.setDeployType(type);
 	}
 
 	public static Locale getLocale(String localeCode)
@@ -275,17 +275,17 @@ public class TiPlatformHelper extends ACSAnalyticsHelper
 
 	public static String createEventId()
 	{
-		return ACSAnalyticsHelper.createEventId();
+		return APSAnalyticsHelper.createEventId();
 	}
 
 	public static String getArchitecture()
 	{
-		return ACSAnalyticsHelper.getArchitecture();
+		return APSAnalyticsHelper.getArchitecture();
 	}
 
 	public static String getMacaddress()
 	{
-		return ACSAnalyticsHelper.getMacaddress();
+		return APSAnalyticsHelper.getMacaddress();
 	}
 
 	public static String getIpAddress()
@@ -340,12 +340,12 @@ public class TiPlatformHelper extends ACSAnalyticsHelper
 
 	public static String getNetworkTypeName()
 	{
-		return ACSAnalyticsHelper.getNetworkTypeName();
+		return APSAnalyticsHelper.getNetworkTypeName();
 	}
 
-	public static void postAnalyticsEvent(ACSAnalyticsEvent event)
+	public static void postAnalyticsEvent(APSAnalyticsEvent event)
 	{
-		ACSAnalyticsHelper.postAnalyticsEvent(event);
+		APSAnalyticsHelper.postAnalyticsEvent(event);
 	}
 	
 	public static String getLastEventID()

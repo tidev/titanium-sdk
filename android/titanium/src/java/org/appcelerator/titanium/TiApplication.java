@@ -21,8 +21,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.appcelerator.analytics.ACSAnalytics;
-import org.appcelerator.analytics.ACSAnalyticsHelper;
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
@@ -43,6 +41,7 @@ import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
+import org.aps.analytics.APSAnalytics;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -484,7 +483,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			// FIXME: Find some other way to set the deploytype?
 			String deployType = appProperties.getString("ti.deploytype", "unknown");
 			TiPlatformHelper.setDeployType(deployType);
-			ACSAnalytics.sendAppEnrollEvent();
+			APSAnalytics.sendAppEnrollEvent();
 
 		} else {
 			Log.i(TAG, "Analytics have been disabled");

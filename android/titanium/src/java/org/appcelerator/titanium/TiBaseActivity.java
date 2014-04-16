@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.appcelerator.analytics.ACSAnalytics;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
@@ -36,6 +35,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
+import org.aps.analytics.APSAnalytics;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -971,7 +971,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 		// Checkpoint for ti.end event
 		if (tiApp != null) {
-			ACSAnalytics.sendSessionBackgroundEvent();
+			APSAnalytics.sendSessionBackgroundEvent();
 		}
 	}
 
@@ -1024,7 +1024,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 		// Checkpoint for ti.start event
 		//String deployType = tiApp.getAppProperties().getString("ti.deploytype", "unknown");
-		ACSAnalytics.sendSessionForegroundEvent();
+		APSAnalytics.sendSessionForegroundEvent();
 	}
 
 	@Override

@@ -9,8 +9,6 @@ package ti.modules.titanium.analytics;
 //import org.appcelerator.kroll.KrollDate;
 import java.util.Date;
 
-import org.appcelerator.analytics.ACSAnalytics;
-import org.appcelerator.analytics.ACSAnalyticsEvent;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -19,6 +17,8 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
+import org.aps.analytics.APSAnalytics;
+import org.aps.analytics.APSAnalyticsEvent;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -66,7 +66,7 @@ public class AnalyticsModule extends KrollModule
 		payload.put(TiC.PROPERTY_EVENT, event);
 		payload.put(TiC.PROPERTY_DATA, data);
 
-		ACSAnalytics.sendAppNavEvent(from, to, event, TiConvert.toJSON(data));
+		APSAnalytics.sendAppNavEvent(from, to, event, TiConvert.toJSON(data));
 	}
 
 	@Kroll.method
@@ -123,7 +123,7 @@ public class AnalyticsModule extends KrollModule
 	public String getLastEvent()
 	{
 		try {
-			ACSAnalyticsEvent event = ACSAnalytics.getLastAnalyticsEvent();
+			APSAnalyticsEvent event = APSAnalytics.getLastAnalyticsEvent();
 			if (event == null)
 			{
 				return null;

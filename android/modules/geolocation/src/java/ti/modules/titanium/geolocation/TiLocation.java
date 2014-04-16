@@ -20,8 +20,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.appcelerator.analytics.ACSAnalytics;
-import org.appcelerator.analytics.ACSAnalyticsEventFactory;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -29,6 +27,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiPlatformHelper;
+import org.aps.analytics.APSAnalytics;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -150,7 +149,7 @@ public class TiLocation implements Handler.Callback
 	{
 		long locationTime = location.getTime();
 		if (locationTime - lastAnalyticsTimestamp > TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY) {
-			ACSAnalytics.sendAppGeoEvent(location);
+			APSAnalytics.sendAppGeoEvent(location);
 		}
 	}
 

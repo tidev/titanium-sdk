@@ -6,14 +6,14 @@
  */
 package org.appcelerator.titanium.analytics;
 
-import org.appcelerator.analytics.ACSAnalyticsEvent;
-import org.appcelerator.analytics.ACSAnalyticsEventFactory;
+import org.aps.analytics.APSAnalyticsEvent;
+import org.aps.analytics.APSAnalyticsEventFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.location.Location;
 
-public class TiAnalyticsEventFactory extends ACSAnalyticsEventFactory
+public class TiAnalyticsEventFactory extends APSAnalyticsEventFactory
 {
 	public static final String TAG = "TiAnalyticsEventFactory";
 	public static final long MAX_GEO_ANALYTICS_FREQUENCY = 60000L;
@@ -32,9 +32,9 @@ public class TiAnalyticsEventFactory extends ACSAnalyticsEventFactory
 //
 //	- details		-- event details (string)
 
-	public static ACSAnalyticsEvent createErrorEvent(Thread t, Throwable err, String tiVersionInfo)
+	public static APSAnalyticsEvent createErrorEvent(Thread t, Throwable err, String tiVersionInfo)
 	{
-		ACSAnalyticsEvent event = null;
+		APSAnalyticsEvent event = null;
 
 		StringBuilder sb = new StringBuilder(1024);
 		sb.append("thread_name").append(t.getName()).append("\n").append("thread_id").append(t.getId()).append("\n")
@@ -48,7 +48,7 @@ public class TiAnalyticsEventFactory extends ACSAnalyticsEventFactory
 			sb.append(elements[i].toString()).append("\n");
 		}
 
-		event = new ACSAnalyticsEvent(EVENT_ERROR, sb.toString());
+		event = new APSAnalyticsEvent(EVENT_ERROR, sb.toString());
 		sb.setLength(0);
 		sb = null;
 
@@ -68,9 +68,9 @@ public class TiAnalyticsEventFactory extends ACSAnalyticsEventFactory
 		return null;
 	}
 
-	public static ACSAnalyticsEvent createEvent(String eventType, String eventName, String data)
+	public static APSAnalyticsEvent createEvent(String eventType, String eventName, String data)
 	{
-		return ACSAnalyticsEventFactory.createEvent(eventType, eventName, data);
+		return APSAnalyticsEventFactory.createEvent(eventType, eventName, data);
 	}
 
 }

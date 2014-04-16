@@ -30,7 +30,7 @@
 		"ui":["nineoldandroids-appc-2.4.0.jar"],
 		"network":["thirdparty.jar"],
 		"appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar"],
-		"analytics":["appcelerator-analytics.jar"]
+		"analytics":["aps-analytics.jar"]
 	},
 	"runtimes":
 	{
