@@ -15,8 +15,7 @@ xcuserdata
 anvil/driver/config.js
 ._*
 npm-debug.log
-node_modules/*
-!node_modules/titanium-sdk
+node_modules/.bin
 anvil/driver/titanium_mobile
 anvil/hub/config.js
 support/mobileweb/dependencyAnalyzer/node_modules/*

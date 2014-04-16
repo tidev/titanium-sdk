@@ -203,6 +203,11 @@ public class TiUITableView extends TiUIView
 			filterCaseInsensitive = TiConvert.toBoolean(d, TiC.PROPERTY_FILTER_CASE_INSENSITIVE);
 		}
 		tableView.setFilterCaseInsensitive(filterCaseInsensitive);
+		boolean filterAnchored = false;
+		if (d.containsKey(TiC.PROPERTY_FILTER_ANCHORED)) {
+			filterAnchored = TiConvert.toBoolean(d, TiC.PROPERTY_FILTER_ANCHORED);
+		}
+		tableView.setFilterAnchored(filterAnchored);
 		super.processProperties(d);
 	}
 
@@ -277,6 +282,10 @@ public class TiUITableView extends TiUIView
 				tableView.removeFooterView((TiViewProxy) oldValue);
 			}
 			tableView.setFooterView();
+		} else if (key.equals(TiC.PROPERTY_FILTER_ANCHORED)) {
+			tableView.setFilterAnchored(TiConvert.toBoolean(newValue));
+		} else if (key.equals(TiC.PROPERTY_FILTER_CASE_INSENSITIVE)) {
+			tableView.setFilterCaseInsensitive(TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

@@ -104,8 +104,10 @@ methods:
         * `http://tizen.org/privilege/application.launch`
         * `http://tizen.org/privilege/filesystem.read`
         * `http://tizen.org/privilege/filesystem.write`
+
+        On Android this method *only supports saving images* to the device gallery. 
         
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad, tizen, android]
     parameters:
       - name: media
         summary: Media to save to the camera roll or media gallery. 
@@ -116,6 +118,8 @@ methods:
             will be called when the save succeeds, and `error` a function that will be 
             called upon receiving an error.
         type: Object
+    since:
+        android: "3.3.0"
   - name: setOverrideAudioRoute
     summary: Overrides the default audio route when using the <Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD> session mode.
     description: | 
@@ -1119,11 +1123,11 @@ properties:
         overlay is not set, the default Android Camera Activity is used, which is only
         capable of reporting back the results of one taken photo, making `autohide`
         meaningless in that context.
-  - name: flashMode
+  - name: cameraFlashMode
     summary: set camera flash on or off for custom overlays.
     type: Boolean
     default: false
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: {android: "3.3.0"}
   - name: animated 
     summary: Specifies if the dialog should be animated upon showing and hiding.

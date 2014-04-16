@@ -29,6 +29,7 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUrl;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -83,6 +84,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private static final int MSG_UPDATE_LAYOUT = MSG_FIRST_ID + 113;
 	private static final int MSG_QUEUED_ANIMATE = MSG_FIRST_ID + 114;
 	private static final int MSG_INSERT_VIEW_AT = MSG_FIRST_ID + 115;
+	private static final int MSG_HIDE_KEYBOARD = MSG_FIRST_ID + 115;
+
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	protected ArrayList<TiViewProxy> children;
@@ -227,6 +230,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			}
 			case MSG_BLUR : {
 				handleBlur();
+				return true;
+			}
+			case MSG_HIDE_KEYBOARD : {
+				handleHideKeyboard();
 				return true;
 			}
 			case MSG_FOCUS : {
@@ -1212,5 +1219,26 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public boolean isLayoutStarted()
 	{
 		return layoutStarted.get();
+	}
+
+	@Kroll.method
+	public void hideKeyboard()
+	{
+		if (TiApplication.isUIThread()) {
+			handleHideKeyboard();
+		} else {
+			getMainHandler().sendEmptyMessage(MSG_HIDE_KEYBOARD);
+		}
+	}
+	
+	protected void handleHideKeyboard()
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			View nv = v.getNativeView();
+			if (nv != null) {
+				TiUIHelper.showSoftKeyboard(nv, false);
+			}
+		}
 	}
 }

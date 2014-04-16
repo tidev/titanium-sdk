@@ -379,98 +379,6 @@ def zip_ivi(zf, basepath, version):
 			to_ = from_.replace(dir, os.path.join(basepath,'ivi'), 1)
 			zf.write(from_, to_)
 
-def resolve_npm_deps(dir, version, node_appc_branch):
-	package_json_file = os.path.join(dir, 'package.json')
-	if os.path.exists(package_json_file):
-		# ensure fresh npm install for everything EXCEPT titanium-sdk
-		node_modules_dir = os.path.join(dir, 'node_modules')
-		if os.path.exists(node_modules_dir):
-			for file in os.listdir(node_modules_dir):
-				if file != 'titanium-sdk':
-					file = os.path.join(node_modules_dir, file)
-					if os.path.isdir(file):
-						shutil.rmtree(file, True)
-					else:
-						os.remove(file);
-
-		package_json_original = codecs.open(package_json_file, 'r', 'utf-8').read()
-		package_json_contents = package_json_original
-
-		json = simplejson.loads(package_json_contents)
-		json['version'] = version
-		if node_appc_branch:
-			print 'node-appc-branch = %s' % node_appc_branch
-			json['dependencies']['node-appc'] = 'git://github.com/appcelerator/node-appc.git#%s' % node_appc_branch
-			package_json_contents = simplejson.dumps(json, indent=True)
-		else:
-			print 'node-appc = %s' % json['dependencies']['node-appc']
-
-		codecs.open(package_json_file, 'w', 'utf-8').write(package_json_contents)
-
-		node_installed = False
-		node_version = ''
-		node_minimum_minor_ver = 6
-		node_too_old = False
-		npm_installed = False
-
-		try:
-			p = subprocess.Popen('node --version', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-			stdout, stderr = p.communicate()
-			if p.returncode == 0:
-				node_installed = True
-
-				ver = stdout.strip()
-				if ver[0] == 'v':
-					ver = ver[1:]
-				node_version = ver
-				ver = ver.split('.')
-				if len(ver) > 1 and int(ver[0]) == 0 and int(ver[1]) < node_minimum_minor_ver:
-					node_too_old = True
-
-				p = subprocess.Popen('npm --version', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-				stdout, stderr = p.communicate()
-				if p.returncode == 0:
-					npm_installed = True
-		except:
-			pass
-
-		if not node_installed:
-			codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
-			print '[ERROR] Unable to find node.js. Please download and install: http://nodejs.org/'
-			sys.exit(1)
-		elif node_too_old:
-			codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
-			print '[ERROR] Your version of node.js %s is too old. Please download and install a newer version: http://nodejs.org/' % node_version
-			sys.exit(1)
-		elif not npm_installed:
-			codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
-			print '[ERROR] Unable to find npm. Please download and install: http://nodejs.org/'
-			sys.exit(1)
-
-		# need to npm install all node dependencies
-		print 'Calling npm from %s' % dir
-		node_env = os.environ.copy()
-		node_env['NODE_ENV'] = os.getenv('NODE_ENV', 'production')
-		p = subprocess.Popen('npm install', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=node_env)
-		stdout, stderr = p.communicate()
-		if p.returncode != 0:
-			codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
-			print '[ERROR] Failed to npm install dependencies'
-			if stderr.find('EACCES') > 0 or stderr.find('Permission denied') > 0:
-				try:
-					print '[ERROR] npm failed because there are files in the %s/.npm directory that are not writeable' % os.environ['HOME']
-					print '[ERROR] Either run'
-					print '[ERROR]    sudo chown -R %s %s/.npm' % (os.environ['USER'], os.environ['HOME'])
-					print '[ERROR] or'
-					print '[ERROR]    sudo rm -rf %s/.npm/*' % os.environ['HOME']
-				except:
-					print stderr
-			else:
-				print stderr
-			sys.exit(1)
-
-	return lambda: None if not os.path.exists(package_json_file) else codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
-
 def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	if not os.path.exists(dist_dir):
 		os.makedirs(dist_dir)
@@ -505,6 +413,8 @@ def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone,
 	zf.write(os.path.join(top_dir, 'README.md'), '%s/README.md' % basepath)
 	zf.write(os.path.join(top_dir, 'package.json'), '%s/package.json' % basepath)
 	zip_dir(zf, os.path.join(top_dir, 'cli'), '%s/cli' % basepath, ignore_paths=ignore_paths)
+
+	ignore_paths.append(os.path.join(top_dir, 'node_modules', '.bin'))
 	zip_dir(zf, os.path.join(top_dir, 'node_modules'), '%s/node_modules' % basepath, ignore_paths=ignore_paths)
 
 	manifest_json = '''{
@@ -568,16 +478,13 @@ class Packager(object):
 	def __init__(self, build_jsca=1):
 		self.build_jsca = build_jsca
 
-	def build(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, blackberry=True, tizen=True, ivi=True, version_tag=None, node_appc_branch=False):
+	def build(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, blackberry=True, tizen=True, ivi=True, version_tag=None):
 		if version_tag == None:
 			version_tag = version
 
-		# get all SDK level npm dependencies
-		resolve_npm_deps(top_dir, version, node_appc_branch)()
-
 		zip_mobilesdk(dist_dir, os_names[platform.system()], version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, version_tag, self.build_jsca)
 
-	def build_all_platforms(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, blackberry=True, tizen=True, ivi=True, version_tag=None, node_appc_branch=False):
+	def build_all_platforms(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, blackberry=True, tizen=True, ivi=True, version_tag=None):
 		global packaging_all
 		packaging_all = True
 
@@ -585,9 +492,6 @@ class Packager(object):
 			version_tag = version
 
 		remove_existing_zips(dist_dir, version_tag)
-
-		# get all SDK level npm dependencies
-		resolve_npm_deps(top_dir, version, node_appc_branch)()
 
 		for os in os_names.values():
 			zip_mobilesdk(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, version_tag, self.build_jsca)
