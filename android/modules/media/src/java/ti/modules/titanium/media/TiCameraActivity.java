@@ -36,6 +36,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -494,7 +495,11 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				public void onAutoFocus(boolean success, Camera camera)
 				{
 					// Take the picture when the camera auto focus completes.
-					camera.takePicture(shutterCallback, null, jpegCallback);
+					if (success) {
+						camera.takePicture(shutterCallback, null, jpegCallback);
+					} else {
+						Log.d(TAG, "Unable to focus. Ignoring call to take picture");
+					}
 				}
 			};
 			camera.autoFocus(focusCallback);
@@ -675,5 +680,17 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			cancelCallback.callAsync(callbackContext, response);
 		}
 		super.onBackPressed();
+	}
+	
+	@Override
+	public boolean onKeyDown (int keyCode, KeyEvent event) 
+	{
+		if (keyCode == KeyEvent.KEYCODE_MENU) {
+			//Workaround for http://code.google.com/p/android/issues/detail?id=61394
+			//Exists atleast till version 19.1 of support library
+			return true;
+		}
+		
+		return super.onKeyDown(keyCode, event);
 	}
 }
