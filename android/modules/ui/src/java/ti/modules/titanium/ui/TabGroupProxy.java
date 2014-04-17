@@ -32,6 +32,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
+import android.view.WindowManager;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_TABS_BACKGROUND_COLOR,
@@ -291,20 +292,15 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handleOpen(KrollDict options)
 	{
-		Activity activity = TiApplication.getAppCurrentActivity();
-		if (activity instanceof ActionBarActivity) {
-			ActionBarActivity topActivity = (ActionBarActivity) TiApplication.getAppCurrentActivity();
-			Intent intent = new Intent(topActivity, TiActivity.class);
-			fillIntent(topActivity, intent);
+		Activity topActivity = TiApplication.getAppCurrentActivity();
+		Intent intent = new Intent(topActivity, TiActivity.class);
+		fillIntent(topActivity, intent);
 
-			int windowId = TiActivityWindows.addWindow(this);
-			intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
-			intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
+		int windowId = TiActivityWindows.addWindow(this);
+		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
+		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 
-			topActivity.startActivity(intent);
-		} else {
-			Log.e(TAG, "TabGroupProxy requires an activity that is a descendent of ActionBarActivity to work with AppCompat", Log.DEBUG_MODE);
-		}
+		topActivity.startActivity(intent);
 	}
 
 	@Override
@@ -456,17 +452,38 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		selectedTab.onFocusChanged(true, focusEventData);
 	}
 
-	private void fillIntent(ActionBarActivity activity, Intent intent)
+	private void fillIntent(Activity activity, Intent intent)
 	{
-		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
-			intent.putExtra(TiC.PROPERTY_FULLSCREEN, TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN)));
+		int windowFlags = 0;
+		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
+			windowFlags = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS), 0);
 		}
+		
+		//Set the fullscreen flag
+		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
+			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
+			if (flagVal) {
+				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
+			}
+		}
+		
+		//Set the secure flag
+		if (hasProperty(TiC.PROPERTY_FLAG_SECURE)) {
+			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
+			if (flagVal) {
+				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_SECURE;
+			}
+		}
+		
+		//Stuff flags in intent
+		intent.putExtra(TiC.PROPERTY_WINDOW_FLAGS, windowFlags);
+
 		if (hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
-			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)));
+			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE), -1));
 		}
 
 		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE)));
+			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false));
 		} else {
 			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, activity.isTaskRoot());
 		}
