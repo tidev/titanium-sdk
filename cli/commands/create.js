@@ -392,10 +392,13 @@ CreateCommand.prototype.run = function run(logger, config, cli, finished) {
 	// load the project type lib
 	creator = new this.types[type](logger, config, cli);
 	logger.info(__('Creating %s project', type));
-
+dump(cli.argv.platforms);
 	appc.async.series(this, [
 		function (next) {
-			cli.emit('create.pre', creator, next);
+			cli.emit([
+				'create.pre',
+				'create.pre.' + type
+			], creator, next);
 		},
 
 		function (next) {
@@ -476,7 +479,10 @@ CreateCommand.prototype.run = function run(logger, config, cli, finished) {
 				if (err) {
 					next(err);
 				} else {
-					cli.emit('create.post', creator, next);
+					cli.emit([
+						'create.post.' + type,
+						'create.post'
+					], creator, next);
 				}
 			});
 		}

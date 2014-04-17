@@ -35,7 +35,7 @@ For more information on the Markdown syntax, refer to this documentation at:
 TEST HARNESS EXAMPLE FOR YOUR MODULE
 ------------------------------------
 
-The `example` directory contains a skeleton application test harness that can be 
+The `example` directory contains a skeleton application test harness that can be
 used for testing and providing an example of usage to the users of your module.
 
 
@@ -69,7 +69,7 @@ Register your module with your application by editing `tiapp.xml` and adding you
 Example:
 
 <modules>
-	<module version="0.1">__MODULE_ID__</module>
+	<module version="0.1"><%- moduleId %></module>
 </modules>
 
 When you run your project, the compiler will combine your module along with its dependencies
@@ -79,11 +79,11 @@ and assets into the application.
 USING YOUR MODULE IN CODE
 -------------------------
 
-To use your module in code, you will need to require it. 
+To use your module in code, you will need to require it.
 
 For example,
 
-	var my_module = require('__MODULE_ID__');
+	var my_module = require('<%- moduleId %>');
 	my_module.foo();
 
 

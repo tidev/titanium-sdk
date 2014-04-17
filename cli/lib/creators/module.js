@@ -13,13 +13,11 @@
 var appc = require('node-appc'),
 	async = require('async'),
 	Creator = require('../creator'),
-	ejs = require('ejs'),
 	fs = require('fs'),
 	path = require('path'),
 	ti = require('titanium-sdk'),
 	util = require('util'),
 	uuid = require('node-uuid'),
-	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__;
 
 /**
@@ -53,22 +51,12 @@ ModuleCreator.type = 'module';
 		validPlatforms = {};
 
 	ti.platforms.forEach(function (platform) {
-		if (fs.existsSync(path.join(__dirname, '..', '..', '..', platform, 'cli', 'lib', 'create_module.js'))) {
-			if (/^iphone|ios|ipad$/.test(platform)) {
-				validPlatforms['iphone'] = 1;
-				validPlatforms['ipad'] = 1;
-				validPlatforms['ios'] = availablePlatforms['ios'] = 1;
-			} else {
-				validPlatforms[platform] = availablePlatforms[platform] = 1;
-			}
-		}
-	});
-
-	// process all global module types
-	var modulesDir = path.join(__dirname, '..', '..', 'modules');
-	fs.readdirSync(modulesDir).forEach(function (dir) {
-		if (fs.existsSync(path.join(modulesDir, dir, 'create_module.js'))) {
-			validPlatforms[dir] = availablePlatforms[dir] = 1;
+		if (/^iphone|ios|ipad$/.test(platform)) {
+			validPlatforms['iphone'] = 1;
+			validPlatforms['ipad'] = 1;
+			validPlatforms['ios'] = availablePlatforms['ios'] = 1;
+		} else {
+			validPlatforms[platform] = availablePlatforms[platform] = 1;
 		}
 	});
 
@@ -84,41 +72,81 @@ ModuleCreator.type = 'module';
  * @param {Function} callback - A function to call after the project has been created
  */
 ModuleCreator.prototype.run = function run(callback) {
-	var tasks = [
-		function (next) {
-			// copy the template files, if exists
-			var dir = path.join(this.templateDir, 'template');
-			if (!fs.existsSync(dir)) return next();
+	var variables = {
+			author: this.config.get('user.name', 'Your Name'),
+			publisher: this.config.get('app.publisher', 'Your Company'),
+			guid: uuid.v4(),
+			tisdkVersion: this.sdk.name,
+			tisdkPath: this.sdk.path,
+			year: (new Date).getFullYear(),
 
-			this.logger.info(__('Template directory: %s', this.templateDir.cyan));
+			// My Module
+			moduleName: this.projectName,
 
-			var fileList = [],
-				ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')),
-				ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles')),
-				projectDir = this.projectDir;
+			// MyModule
+			moduleNameAsIdentifier: this.projectName.replace(/[^a-zA-Z0-9_]/g, '_').replace(/_+/g, '_').split(/[\W_]/).map(function (s) { return appc.string.capitalize(s); }).join(''),
 
-			(function walk(src) {
-				fs.readdirSync(src).forEach(function (name) {
-					var file = path.join(src, name);
-					if (fs.existsSync(file)) {
-						if (fs.statSync(file).isDirectory() && !ignoreDirs.test(file)) {
-							walk(file);
-						} else if (!ignoreFiles.test(file)) {
-							fileList.push([file, path.join(projectDir, file.replace(dir, ''))]);
-						}
-					}
-				});
-			}(dir));
+			// mymodule
+			moduleNameJSSafe: this.projectName.toLowerCase().replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_'),
 
-			async.each(fileList.sort(), function (file, done) {
-				this.cli.createHook('create.copyFile', this, function (src, dest, cb) {
-					this.logger.debug(__('Copying %s => %s', src.cyan, dest.cyan));
-					var contents = fs.readFileSync(src).toString();
-					fs.writeFile(dest, contents, cb);
-				})(file[0], file[1], done);
-			}.bind(this), next);
+			// com.appcelerator.mymodule
+			moduleId: this.id,
+
+			// ComAppceleratorMymodule
+			moduleIdFilename: this.id.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) { return s.substring(0, 1).toUpperCase() + s.substring(1); }).join(''),
+
+			// com/appcelerator/mymodule
+			moduleIdPaths: this.id.replace(/\./g, path.sep)
+		},
+		tasks = [
+			function (next) {
+				// copy the template files, if exists
+				var dir = path.join(this.templateDir, 'template');
+				if (!fs.existsSync(dir)) return next();
+
+				this.logger.info(__('Template directory: %s', this.templateDir.cyan));
+
+				this.copyDir(dir, this.projectDir, next, variables);
+			}
+		],
+		isBuiltinTemplate = this.templateDir.indexOf(this.sdk.path) == 0;
+
+	this.platforms.scrubbed.forEach(function (platform) {
+		if (isBuiltinTemplate) {
+			this.cli.scanHooks(path.join(this.sdk.path, platform, 'templates', this.projectType, this.template, 'hooks'));
 		}
-	];
+
+		tasks.push(function (next) {
+			this.cli.emit([
+				'create.pre.platform.' + platform,
+				'create.pre.' + this.projectType + '.platform.' + platform
+			], this, function (err) {
+				if (err) {
+					return next(err);
+				}
+
+				// only copy platform specific files if we're copying from a built-in template
+				if (isBuiltinTemplate) {
+					this.cli.createHook('create.copyFiles.platform.' + platform, this, function (vars, done) {
+						this.logger.info(__('Copying %s platform resources', platform.cyan));
+						this.copyDir(path.join(this.sdk.path, platform, 'templates', this.projectType, this.template, 'template'), this.projectDir, function () {
+							this.cli.emit([
+								'create.post.' + this.projectType + '.platform.' + platform,
+								'create.post.platform.' + platform
+							], this, done);
+						}.bind(this), vars);
+					}.bind(this))(appc.util.mix({ platform: platform }, variables), next);
+					return;
+				}
+
+				this.cli.emit([
+					'create.post.' + this.projectType + '.platform.' + platform,
+					'create.post.platform.' + platform
+				], this, next);
+			}.bind(this));
+		});
+	}, this);
+
 /*
 	var year = (new Date).getFullYear();
 
@@ -132,43 +160,29 @@ ModuleCreator.prototype.run = function run(callback) {
 		'__VERSION__': this.sdk.name,
 		'__SDK__': this.sdk.path,
 		'__SDK_ROOT__': this.sdk.path,
-		'__GUID__': uuid.v4(),
+		'__GUID__':
 		'__YEAR__': year
 	};
-
-	// create the manifest file
-	fs.writeFileSync(this.projectDir + '/manifest', [
-		'#',
-		'# this is your module manifest and used by Titanium',
-		'# during compilation, packaging, distribution, etc.',
-		'#',
-		'version: 1.0',
-		'apiversion: 2',
-		'description: ' + this.projectName,
-		'author: ' + this.config.get('user.name', 'Your Name'),
-		'license: Specify your license',
-		'copyright: Copyright (c) ' + year + ' by ' + this.config.get('user.name', 'Your Company'),
-		'',
-		'# these should not be edited',
-		'name: ' + this.projectName,
-		'moduleid: ' + this.id,
-		'guid: ' + this.projectConfig.__GUID__,
-		'platforms: ' + this.platforms.original.join(', ')
-	].join('\n'));
-
-	this.cli.addAnalyticsEvent('project.create.module', {
-		dir: this.projectDir,
-		name: this.projectName,
-		author: this.config.get('user.name', 'Your Name'),
-		moduleid: this.id,
-		description: this.projectName,
-		guid: this.projectConfig.__GUID__,
-		version: '1.0',
-		copyright: 'copyright: Copyright (c) ' + year + ' by ' + this.config.get('user.name', 'Your Company'),
-		minsdk: this.sdk.name,
-		platforms: this.platforms.original.join(', '),
-		date: (new Date()).toDateString()
-	});
 */
+	tasks.push(function (next) {
+		// send the analytics
+		/*
+		this.cli.addAnalyticsEvent('project.create.module', {
+			dir: this.projectDir,
+			name: this.projectName,
+			author: variables.author,
+			moduleid: this.id,
+			description: this.projectName,
+			guid: variables.guid,
+			version: '1.0',
+			copyright: 'copyright: Copyright (c) ' + (new Date).getFullYear() + ' by ' + this.config.get('user.name', 'Your Company'),
+			minsdk: this.sdk.name,
+			platforms: this.platforms.original.join(', '),
+			date: (new Date()).toDateString()
+		});
+		*/
+		next();
+	});
+
 	appc.async.series(this, tasks, callback);
 }
