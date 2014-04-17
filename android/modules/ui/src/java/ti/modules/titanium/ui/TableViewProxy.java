@@ -29,6 +29,7 @@ import android.os.Message;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = { 
 	TiC.PROPERTY_FILTER_ATTRIBUTE,
+	TiC.PROPERTY_FILTER_ANCHORED,
 	TiC.PROPERTY_FILTER_CASE_INSENSITIVE,
 	TiC.PROPERTY_HEADER_TITLE,
 	TiC.PROPERTY_HEADER_VIEW,

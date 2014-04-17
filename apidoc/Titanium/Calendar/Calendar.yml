@@ -36,8 +36,8 @@ methods:
         type: Titanium.Calendar.Calendar
     parameters:
       - name: id
-        summary: Integer identifier of the calendar.
-        type: Number
+        summary: Identifier of the calendar.
+        type: String
     platforms: [android, iphone, ipad]
 
   - name: requestEventsAuthorization

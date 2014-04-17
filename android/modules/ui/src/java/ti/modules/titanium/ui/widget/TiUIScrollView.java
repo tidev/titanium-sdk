@@ -167,8 +167,8 @@ public class TiUIScrollView extends TiUIView
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 
 			layout = new TiScrollViewLayout(context, arrangement);
-			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-				ViewGroup.LayoutParams.FILL_PARENT);
+			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.MATCH_PARENT);
 			layout.setLayoutParams(params);
 			super.addView(layout, params);
 		}
@@ -272,8 +272,8 @@ public class TiUIScrollView extends TiUIView
 			setScrollContainer(true);
 
 			layout = new TiScrollViewLayout(context, arrangement);
-			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-				ViewGroup.LayoutParams.FILL_PARENT);
+			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.MATCH_PARENT);
 			layout.setLayoutParams(params);
 			super.addView(layout, params);
 
@@ -456,7 +456,7 @@ public class TiUIScrollView extends TiUIView
 
 		int type = TYPE_VERTICAL;
 		boolean deduced = false;
-
+		
 		if (d.containsKey(TiC.PROPERTY_WIDTH) && d.containsKey(TiC.PROPERTY_CONTENT_WIDTH)) {
 			Object width = d.get(TiC.PROPERTY_WIDTH);
 			Object contentWidth = d.get(TiC.PROPERTY_CONTENT_WIDTH);
@@ -464,6 +464,7 @@ public class TiUIScrollView extends TiUIView
 				type = TYPE_VERTICAL;
 				deduced = true;
 			}
+			
 		}
 
 		if (d.containsKey(TiC.PROPERTY_HEIGHT) && d.containsKey(TiC.PROPERTY_CONTENT_HEIGHT)) {
@@ -519,9 +520,12 @@ public class TiUIScrollView extends TiUIView
 			((TiScrollViewLayout) scrollViewLayout).setCanCancelEvents(TiConvert.toBoolean(d, TiC.PROPERTY_CAN_CANCEL_EVENTS));
 		}
 
-		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP)) {
-			scrollViewLayout.setEnableHorizontalWrap(TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP));
+		boolean autoContentWidth = (scrollViewLayout.getContentProperty(TiC.PROPERTY_CONTENT_WIDTH) == scrollViewLayout.AUTO);
+		boolean wrap = !autoContentWidth;
+		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP) && wrap) {
+			wrap = TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP, true);			
 		}
+		scrollViewLayout.setEnableHorizontalWrap(wrap);
 		
 		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
 			if (Build.VERSION.SDK_INT >= 9) {
