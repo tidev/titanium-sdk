@@ -21,8 +21,8 @@ description: |
 
     #### Getting Started
 
-    To use the CloudPush module in your JavaScript code, you need to require it in,
-    initialize it with the `retrieveDeviceToken` method, then enable push notifications.
+    To use the CloudPush module in your JavaScript code, you need to require it in and
+    get a device token with the `retrieveDeviceToken` method to enable push notifications with ACS.
     In your project's `tiapp.xml`, you need to add some keys to configure push notifications.
 
     Note that this module is not included in the Titanium namespace, but it is bundled with the Titanium SDK as of
@@ -30,9 +30,12 @@ description: |
 
         var CloudPush = require('ti.cloudpush');
 
-    Then, call the `retrieveDeviceToken` method before setting the `enabled` property to `true`
-    to enable the device to receive push notifications. You must call `retrieveDeviceToken` before
-    any other CloudPush API call or else the device will not receive push notifications.
+    Then, call the `retrieveDeviceToken` method to get a unique token specific to that device and
+    ACS application.  This token is used with [ACS PushNotifications calls](Titanium.Cloud.PushNotifications)
+    to subscribe and unsubscribe the device to push notification channels.
+
+    Once the device is subscribed to at least one push channel, listen to the module's `callback`,
+    `trayClickLaunchedApp`, and `trayClickFocusedApp` events to monitor for incoming push notifications.
 
     This module must also be added to the modules section in your tiapp.xml. This can be done using the Modules list in
     the Titanium Studio TiApp Editor, or by editing the XML directly and adding the following line to the modules
@@ -92,11 +95,8 @@ methods:
   - name: retrieveDeviceToken
     summary: Asynchronously retrieves the application specific device token.
     description: |
-        This token is used in calls to the Appcelerator Cloud Service's subscribe or unsubscribe to push notification
+        This token is used in calls to Appcelerator Cloud Services to subscribe or unsubscribe to push notification
         channels. This token is unique to each application and device.
-
-        You must call this method before making any other CloudPush API calls or else the device
-        cannot receive push notifications.
     parameters:
       - name: config
         summary: Dictionary specifying token retrieval related options. 
@@ -112,17 +112,11 @@ methods:
 properties:
   - name: enabled
     summary: Whether or not this device will receive push notifications.
-    description: |
-        You must ask your users before enabling this. Note that once enabled, the application will be able to receive
-        notifications at any time, even after the device reboots, regardless of if your application has been run
-        recently or not. But if the user intentionally kills your application and its services in their task manager,
-        push notifications will be disabled and this property will automatically be set to false.
-        
-        Also be aware that whenever your application is updated (through the market or through ADB installing a new
-        APK), the push service will be stopped until the app is launched for the first time.
-        
-        Listen for this module's [callback](Titanium.CloudPush.callback) event to receive push notifications once this
-        property is set to true.
+    deprecated:
+        since: 3.2.0
+        notes: | 
+            This property was only required to enable push notifications for the legacy MQTT
+            protocol.
     type: Boolean
     default: false
   - name: showTrayNotification
@@ -205,28 +199,21 @@ events:
 examples:
   - title: Listening for Push Notifications
     example: |
-        This example lets the user choose if push notifications should be enabled, and listens for several events.
+        This example lets the application retrieve the device token and listens for several events
+        to monitor incoming push notifications.
 
             var CloudPush = require('ti.cloudpush');
             CloudPush.retrieveDeviceToken({
                 success: function deviceTokenSuccess(e) {
+                    // Use this device token with Ti.Cloud.PushNotifications calls
+                    // to subscribe and unsubscribe to push notification channels
                     Ti.API.info('Device Token: ' + e.deviceToken);
                 },
                 error: function deviceTokenError(e) {
                     alert('Failed to register for push! ' + e.error);
                 }
             });
-            var win = Ti.UI.createWindow({
-                layout: 'vertical',
-                backgroundColor: 'white'
-            });
-            var enablePush = Ti.UI.createButton({
-                title: 'Enable Push Notifications'
-            });
-            enablePush.addEventListener('click', function () {
-                CloudPush.enabled = true;
-            });
-            win.add(enablePush);
+            // These events monitor incoming push notifications
             CloudPush.addEventListener('callback', function (evt) {
                 alert(evt.payload);
             });
@@ -236,7 +223,6 @@ examples:
             CloudPush.addEventListener('trayClickFocusedApp', function (evt) {
                 Ti.API.info('Tray Click Focused App (app was already running)');
             });
-            win.open();
 ---
 name: CloudPushNotificationConfig
 summary: |
