@@ -5,6 +5,8 @@ description: |
     The button bar is a set of buttons joined into a single control. Each button in a
     button bar can have a text label or an icon, but not both. 
 
+    Use the <Titanium.UI.createButtonBar> method or **`<ButtonBar>`** Alloy element to create a button bar.
+
     The [TabbedBar](Titanium.UI.iOS.TabbedBar) control is a button bar where the 
     last selected button mantains a pressed or selected state. The following discussion
     applies to both button bar and tabbed bar.
@@ -27,7 +29,6 @@ description: |
     of individual [Button](Titanium.UI.Button) controls wrapped in a
     [View](Titanium.UI.View) to create the appearance of a button bar.
 
-    Use the <Titanium.UI.createButtonBar> method to create a button bar.
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [iphone, ipad]
@@ -51,7 +52,25 @@ properties:
         The labels can be specified either using an array of strings, in which case
         each string defines the title for a button, or using an array of simple
         dictionary objects, <BarItemType>, which can specify title, image, width and
-        enabled state for each button.
+        enabled state for each button. 
+
+        In Alloy you specify the labels with a nested `<Labels>` element that contains one or more `<Label>` elements.
+
+            <Alloy>
+                <ButtonBar platform="ios">
+                    <Labels>
+                        <!-- Specify text with node text or "title" attribute. -->
+                        <Label>button 1</Label>
+                        <Label title="button 2"/>
+                        <!-- uses images and/or widths -->
+                        <Label width="40" image="/KS_nav_ui.png"/>
+                        <!-- set as disabled -->
+                        <Label enabled="false">disabled</Label>
+                        <!-- empty labels will print a warning (no properties) -->
+                        <!-- <Label/> -->
+                    </Labels>
+                </ButtonBar>
+            </Alloy>
     type: [Array<String>, Array<BarItemType>]
   - name: style
     summary: Style of the button bar.
@@ -63,6 +82,7 @@ properties:
         The `BAR` style specifies a more compact style and allows the bar's background
         color or gradient to show through.
     type: Number
+    constants: Titanium.UI.iPhone.SystemButtonStyle.*
     default: Titanium.UI.iPhone.SystemButtonStyle.PLAIN
 examples:
   - title: Simple 3 button button bar
@@ -85,21 +105,15 @@ examples:
             <Alloy>
                 <Window id="win">
                     <ButtonBar id="bb1" platform="ios" backgroundColor="#369" top="50" height="25" width="200">
-
                         <!-- The Labels tag sets the ButtonBar.labels property -->
                         <Labels>
-
                             <!-- Specify text with node text or the title attribute. -->
                             <!-- Can also specify the enabled, image and width attributes. -->
-
                             <Label>One</Label>
                             <Label>Two</Label>
                             <Label>Three</Label>
-
                         </Labels>
-
                         <!-- Place additional views for the ButtonBar here. -->
-
                     </ButtonBar>
                 </Window>
             </Alloy>

@@ -264,7 +264,7 @@ public class TiHTTPClient
 					if (entity.getContentType() != null) {
 						contentType = entity.getContentType().getValue();
 					}
-					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip") && entity.getContentLength() > 0) {
 						is = new GZIPInputStream(entity.getContent());
 					} else {
 						is = entity.getContent();

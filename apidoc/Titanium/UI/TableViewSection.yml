@@ -3,7 +3,8 @@ name: Titanium.UI.TableViewSection
 summary: |
     A table view section is a container within a table used to organize table view rows.
 description: |
-    Use the <Titanium.UI.createTableViewSection> method to create a `TableViewSection`.
+    Use the <Titanium.UI.createTableViewSection> method or **`<TableViewSection>`** Alloy element to 
+    create a `TableViewSection`.
     
     Before the table is rendered, the `TableViewSection` [add](Titanium.UI.TableViewSection.add) 
     method may be used to add [TableViewRow](Titanium.UI.TableViewRow) objects to a section. After 
@@ -125,7 +126,27 @@ properties:
     description: |
         Using this property and `headerTitle` together is not supported. Use one or the other. 
         
-        On Android, must be set at creation.
+        On Android, must be set at creation. 
+
+        In Alloy, you can use a `<HeaderView>` element inside a `<TableViewSection>` element:
+
+            <Alloy>
+                <TableView filterAttribute="title">
+                    <SearchBar platform="android,ios"/>
+                    <TableViewSection>
+                        <HeaderView>
+                            <View backgroundColor="#a00" height="50dp"/>
+                        </HeaderView>
+                        <FooterView>
+                            <View backgroundColor="#0a0" height="50dp"/>
+                        </FooterView>
+                        <TableViewRow title="Row 1"/>
+                        <TableViewRow title="Row 2"/>
+                        <TableViewRow title="Row 3"/>
+                    </TableViewSection>
+                </TableView>
+            </Alloy>
+
     type: Titanium.UI.View
     exclude-platforms: [blackberry]
     

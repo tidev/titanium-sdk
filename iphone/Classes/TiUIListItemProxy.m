@@ -27,11 +27,34 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 		_listViewProxy = listViewProxy;
 		[context.krollContext invokeBlockOnThread:^{
 			[context registerProxy:self];
-			[listViewProxy rememberProxy:self];
+			//Reusable cell will keep native proxy alive.
+			//This proxy will keep its JS object alive.
+			[self rememberSelf];
 		}];
 		self.modelDelegate = self;
     }
     return self;
+}
+
++(BOOL)shouldRegisterOnInit
+{
+    //Since this is initialized on main thread,
+    //there is no need to register on init. Registration
+    //done later on JS thread (See above)
+    return NO;
+}
+
+-(void)deregisterProxy:(id<TiEvaluator>)context
+{
+    //Aggressive removal of children on deallocation of cell
+    [self removeAllChildren:nil];
+    [self windowDidClose];
+    //Go ahead and unprotect JS object and mark context closed
+    //(Since cell no longer exists, the proxy is inaccessible)
+    [context.krollContext invokeBlockOnThread:^{
+        [self forgetSelf];
+        [self contextShutdown:context];
+    }];
 }
 
 -(NSString*)apiName
@@ -59,19 +82,17 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 - (TiUIView *)view
 {
-	return view = (TiUIView *)_listItem.contentView;
+	return nil;
 }
 
-- (void)detachView
+-(BOOL)viewAttached
 {
-	view = nil;
-	[super detachView];
+    return _listItem != nil;
 }
 
--(void)_destroy
+-(UIView *)parentViewForChild:(TiViewProxy *)child
 {
-	view = nil;
-	[super _destroy];
+	return _listItem.contentView;
 }
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy_

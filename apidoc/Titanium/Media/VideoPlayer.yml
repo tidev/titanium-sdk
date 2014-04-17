@@ -192,10 +192,9 @@ methods:
         summary: Array of time values, representing offsets into the video, in seconds.
         type: Array<Number>
       - name: option
-        summary: |
-            Either <Titanium.Media.VIDEO_TIME_OPTION_NEAREST_KEYFRAME> or 
-            <Titanium.Media.VIDEO_TIME_OPTION_EXACT>.
+        summary: Video time precision.
         type: Number
+        constants: Titanium.Media.VIDEO_TIME_OPTION_*
       - name: callback
         summary: Callback to invoke when a thumbnail is available.
         type: Callback<ThumbnailResponse>
@@ -252,10 +251,9 @@ methods:
         type: Number
 
       - name: option
-        summary: |
-            Either <Titanium.Media.VIDEO_TIME_OPTION_NEAREST_KEYFRAME> or
-            <Titanium.Media.VIDEO_TIME_OPTION_EXACT>.
+        summary: Video time precision.
         type: Number
+        constants: Titanium.Media.VIDEO_TIME_OPTION_*
 
 events:
 
@@ -266,11 +264,9 @@ events:
     properties:
       - name: reason
         summary: |
-            Reason that playback ended, one of:
-            [VIDEO_FINISH_REASON_PLAYBACK_ENDED](Titanium.Media.VIDEO_FINISH_REASON_PLAYBACK_ENDED),
-            [VIDEO_FINISH_REASON_PLAYBACK_ERROR](Titanium.Media.VIDEO_FINISH_REASON_PLAYBACK_ERROR), or 
-            [VIDEO_FINISH_REASON_USER_EXITED](Titanium.Media.VIDEO_FINISH_REASON_USER_EXITED).
+            Reason that playback ended.
         type: Number
+        constants: Titanium.Media.VIDEO_FINISH_REASON_*
 
       - name: success
         summary: |
@@ -419,10 +415,9 @@ events:
         Fired when the [playbackState](Titanium.Media.VideoPlayer.playbackState) changes.
     properties:
       - name: playbackState
-        summary: |
-            Current value of the [playbackState](Titanium.Media.VideoPlayer.playbackState) property, 
-            such as <Titanium.Media.VIDEO_PLAYBACK_STATE_PLAYING>.
+        summary: Current value of the [playbackState](Titanium.Media.VideoPlayer.playbackState) property.
         type: Number
+        constants: Titanium.Media.VIDEO_PLAYBACK_STATE_*
     exclude-platforms: [blackberry]
 
   - name: mediatypesavailable
@@ -432,6 +427,7 @@ events:
       - name: mediaTypes
         summary: Current value of the [mediaTypes](Titanium.Media.VideoPlayer.mediaTypes) property.
         type: Number
+        constants: Titanium.Media.VIDEO_MEDIA_TYPE_*
     since: '3.0.0'
 
   - name: naturalsizeavailable
@@ -449,10 +445,9 @@ events:
     summary: Fired when the [playbackState](Titanium.Media.VideoPlayer.playbackState) changes.
     properties:
       - name: playbackState
-        summary: |
-            Current value of the [playbackState](Titanium.Media.VideoPlayer.playbackState) property, 
-            such as <Titanium.Media.VIDEO_PLAYBACK_STATE_PLAYING>.
+        summary: Current value of the [playbackState](Titanium.Media.VideoPlayer.playbackState) property.
         type: Number
+        constants: Titanium.Media.VIDEO_PLAYBACK_STATE_*
     since: '3.0.0'
     exclude-platforms: [blackberry]
 
@@ -494,6 +489,7 @@ events:
     properties:
       - name: sourceType
         summary: New `sourceType` value.
+        constants: Titanium.Media.VIDEO_SOURCE_TYPE_*
     since: '3.0.0'
 
   - name: click
@@ -544,6 +540,9 @@ events:
     
   - name: touchend
     summary: Fired when a touch event is completed.
+    description: |
+        On the Android platform, other gesture events, such as `longpress` or `swipe`, cancel touch events,
+        so this event may not be triggered after a `touchstart` event.
     properties:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
@@ -665,11 +664,10 @@ properties:
   - name: mediaControlStyle
     summary: The style of the playback controls.
     description: |
-        Specify one of the `VIDEO_CONTROL` constants from <Titanium.Media>.
-
         Mobile web only supports <Titanium.Media.VIDEO_CONTROL_NONE> and 
         <Titanium.Media.VIDEO_CONTROL_DEFAULT>.
     type: Number
+    constants: Titanium.Media.VIDEO_CONTROL_*
     default: System default video controls (<Titanium.Media.VIDEO_CONTROL_DEFAULT>).
     exclude-platforms: [blackberry]
 
@@ -686,6 +684,7 @@ properties:
             Titanium.Media.VIDEO_MEDIA_TYPE_VIDEO|Titanium.Media.VIDEO_MEDIA_TYPE_AUDIO
     platforms: [iphone, ipad]
     type: Number
+    constants: Titanium.Media.VIDEO_MEDIA_TYPE_*
 
   - name: movieControlMode
     deprecated:
@@ -728,6 +727,7 @@ properties:
     description: |
         One of the `VIDEO_PLAYBACK_STATE` constants defined in <Titanium.Media>.
     type: Number
+    constants: Titanium.Media.VIDEO_PLAYBACK_STATE_*
     permission: read-only
     exclude-platforms: [blackberry]
 
@@ -738,12 +738,9 @@ properties:
 
   - name: repeatMode
     summary: Determines how the movie player repeats when reaching the end of playback. 
-    description: |
-        Specify [VIDEO_REPEAT_MODE_NONE](Titanium.Media.VIDEO_REPEAT_MODE_NONE) to disable
-        repeat, or [VIDEO_REPEAT_MODE_ONE](Titanium.Media.VIDEO_REPEAT_MODE_ONE) to repeat
-        a single video continuously.
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Number
+    constants: Titanium.Media.VIDEO_REPEAT_MODE_*
     default: Titanium.Media.VIDEO_REPEAT_MODE_NONE
     exclude-platforms: [blackberry]
 
@@ -753,22 +750,20 @@ properties:
         Mobile web only supports 
         <Titanium.Media.VIDEO_SCALING_NONE> and <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>.
     type: Number
+    constants: Titanium.Media.VIDEO_SCALING_*
     default: <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>
     exclude-platforms: [blackberry]
 
   - name: sourceType
     summary: The playback type of the movie. 
     description: |
-        One of: [VIDEO_SOURCE_TYPE_FILE](Titanium.Media.VIDEO_SOURCE_TYPE_FILE), 
-        [VIDEO_SOURCE_TYPE_STREAMING](Titanium.Media.VIDEO_SOURCE_TYPE_STREAMING), or
-        [VIDEO_SOURCE_TYPE_UNKNOWN](Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN).
-
         Specifying a playback type before playing the movie can result in faster load times.
 
         The [sourceChange](Titanium.Media.VideoPlayer.sourceChange) event is fired when
         movie's source type is determined.
     platforms: [iphone, ipad]
     type: Number
+    constants: Titanium.Media.VIDEO_SOURCE_TYPE_*
     default: Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN
 
   - name: url

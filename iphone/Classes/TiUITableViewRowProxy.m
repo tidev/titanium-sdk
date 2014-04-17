@@ -663,9 +663,25 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	configuredChildren = YES;
 }
 
+-(void)configureTintColor:(UITableViewCell*)cell
+{
+    if ([TiUtils isIOS7OrGreater]) {
+        UIColor* theTint = nil;
+        id theColor = [self valueForUndefinedKey:@"tintColor"];
+        if (theColor != nil) {
+            theTint = [[TiUtils colorValue:theColor] color];
+        }
+        if (theTint == nil) {
+            theTint = [[table tableView] tintColor];
+        }
+        [cell performSelector:@selector(setTintColor:) withObject:theTint];
+    }
+}
+
 -(void)initializeTableViewCell:(UITableViewCell*)cell
 {
 	modifyingRow = YES;
+	[self configureTintColor:cell];
 	[self configureTitle:cell];
 	[self configureSelectionStyle:cell];
 	[self configureLeftSide:cell];
@@ -731,6 +747,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 {
 	attaching = YES;
 	[super windowWillOpen];
+	[self setParentVisible:YES];
 	attaching = NO;
 }
 
@@ -745,6 +762,13 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
                 [self triggerRowUpdate];
             } else {
                 DeveloperLog(@"Height does not change. Just laying out children. Height %.1f",curHeight);
+                //TIMOB-13121. Ensure touchdelegate is set if we are not going to reconstruct the row.
+                if ([rowContainerView superview] != nil) {
+                    UIView* contentView = [rowContainerView superview];
+                    [[self children] enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
+                        [self redelegateViews:proxy toView:contentView];
+                    }];
+                }
                 [callbackCell setNeedsDisplay];
             }
         } else {
@@ -881,7 +905,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 					@"title", @"accessibilityLabel", @"backgroundImage",
 					@"leftImage",@"hasDetail",@"hasCheck",@"hasChild",	
 					@"indentionLevel",@"selectionStyle",@"color",@"selectedColor",
-					@"height",@"width",@"backgroundColor",@"rightImage",
+					@"height",@"width",@"backgroundColor",@"rightImage",@"tintColor",
 					nil];
 	}
 	
@@ -907,9 +931,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
                 [callbackCell setNeedsDisplay];
             } else if ([key isEqualToString:@"backgroundColor"]) {
                 [callbackCell setBackgroundColor:[[TiUtils colorValue:newValue] color]];
-                [callbackCell setNeedsDisplay];
+                [self triggerRowUpdate];
             } else if ([key isEqualToString:@"accessibilityLabel"]){
                 callbackCell.accessibilityLabel = [TiUtils stringValue:newValue];
+            } else if ([key isEqualToString:@"tintColor"]){
+                [self configureTintColor:callbackCell];
             }
         }, NO);
     }

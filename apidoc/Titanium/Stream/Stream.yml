@@ -310,11 +310,9 @@ properties:
   - name: mode
     summary: Mode to open the stream in.
     description: |
-        Can be [MODE_READ](Titanium.Stream.MODE_READ), [MODE_WRITE](Titanium.Stream.MODE_WRITE), or 
-        [MODE_APPEND](Titanium.Stream.MODE_APPEND).
-
         For `Blob` objects, only `MODE_READ` is supported.
     type: Number
+    constants: Titanium.Stream.MODE_*
 
 ---
 name: ReadCallbackArgs

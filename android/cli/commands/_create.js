@@ -6,20 +6,18 @@
  */
 
 var appc = require('node-appc'),
-	i18n = appc.i18n(__dirname),
-	__ = i18n.__,
-	__n = i18n.__n,
-	afs = appc.fs,
-	path = require('path');
+	fs = require('fs'),
+	path = require('path'),
+	__ = appc.i18n(__dirname).__;
 
 exports.run = function (logger, config, cli, projectConfig) {
-	var templatePath = afs.resolvePath(path.dirname(module.filename), '..', '..', 'templates', cli.argv.type, cli.argv.template),
+	var templatePath = appc.fs.resolvePath(path.dirname(module.filename), '..', '..', 'templates', cli.argv.type, cli.argv.template, 'template'),
 		ignoreExtRegExp = /\.(png|gif|jpg|zip|a|o|jar)$/,
-		projectDir = afs.resolvePath(cli.argv['workspace-dir'], cli.argv.name);
+		projectDir = appc.fs.resolvePath(cli.argv['workspace-dir'], cli.argv.name);
 
-	if (afs.exists(templatePath)) {
+	if (fs.existsSync(templatePath)) {
 		if (cli.argv.type == 'app') {
-			afs.copyDirSyncRecursive(templatePath, projectDir, {
+			appc.fs.copyDirSyncRecursive(templatePath, projectDir, {
 				ignoreDirs: new RegExp(config.get('cli.ignoreDirs')),
 				ignoreFiles: new RegExp(config.get('cli.ignoreFiles')),
 				logger: logger.debug,
@@ -27,7 +25,7 @@ exports.run = function (logger, config, cli, projectConfig) {
 			});
 		} else if (cli.argv.type == 'module') {
 			// NOTE: this is not finished
-			afs.copyDirSyncRecursive(templatePath, projectDir, {
+			appc.fs.copyDirSyncRecursive(templatePath, projectDir, {
 				callback: function (src, dest, contents, logger) {
 					var result = {
 						dest: dest,

@@ -3,7 +3,8 @@ name: Titanium.UI.Notification
 summary: An Android Toast-style notification.
 description: |
     A Toast notification is an unobtrusive, pop-up notification that doesn't 
-    block the UI. Use the <Titanium.UI.createNotification> method to create a Toast notification.
+    block the UI. Use the <Titanium.UI.createNotification> method or **`<Notification>`** Alloy element 
+    to create a Toast notification.
 
     By default, a Toast notification appears centered on the bottom half of the screen.
 
@@ -48,10 +49,8 @@ properties:
     type: String
   - name: duration
     summary: Determines how long the notification stays on screen.
-    description: |
-        Specify either [NOTIFICATION_DURATION_SHORT](Titanium.UI.NOTIFICATION_DURATION_SHORT) or 
-        [NOTIFICATION_DURATION_LONG](Titanium.UI.NOTIFICATION_DURATION_LONG).
     type: Number
+    constants: Titanium.UI.NOTIFICATION_DURATION_*
     default: <Titanium.UI.NOTIFICATION_DURATION_SHORT>
   - name: xOffset
     summary: X offset from the default position, in pixels.

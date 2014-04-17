@@ -37,6 +37,7 @@ define(function() {
 				modifiers = this._modifiers && this._modifiers[name],
 				listeners = this.listeners && this.listeners[name],
 				l = modifiers && modifiers.length;
+
 			data = data || {};
 			mix(data, {
 				source: data.source || this,
@@ -64,7 +65,7 @@ define(function() {
 
 		_addEventModifier: function(name, handler) {
 			this._modifiers || (this._modifiers = {});
-			(require.is(name, 'Array') ? name : [name]).forEach(function(n) {
+			(Array.isArray(name) ? name : [name]).forEach(function(n) {
 				(this._modifiers[n] = this._modifiers[n] || []).push(handler);
 			}, this);
 		},

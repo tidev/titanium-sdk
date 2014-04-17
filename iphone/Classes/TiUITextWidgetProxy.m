@@ -102,11 +102,11 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 		[self replaceValue:newValue forKey:@"value" notification:NO];
 		[self contentsWillChange];
 		[self fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+        TiThreadPerformOnMainThread(^{
+            //Make sure the text widget is in view when editing.
+            [(TiUITextWidget*)[self view] updateKeyboardStatus];
+        }, NO);
 	}
-    TiThreadPerformOnMainThread(^{
-        //Make sure the text widget is in view when editing.
-        [(TiUITextWidget*)[self view] updateKeyboardStatus];
-    }, NO);
 }
 
 #pragma mark Toolbar
@@ -277,6 +277,18 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 -(TiDimension)defaultAutoHeightBehavior:(id)unused
 {
     return TiDimensionAutoSize;
+}
+
+-(NSDictionary*)selection
+{
+    if ([self viewAttached]) {
+        __block NSDictionary* result = nil;
+        TiThreadPerformOnMainThread(^{
+            result = [[(TiUITextWidget*)[self view] selectedRange] retain];
+        }, YES);
+        return [result autorelease];
+    }
+    return nil;
 }
 
 -(void)setSelection:(id)arg withObject:(id)property

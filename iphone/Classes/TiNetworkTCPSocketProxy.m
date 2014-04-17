@@ -468,8 +468,8 @@ const CFOptionFlags writeStreamEventFlags =
 	
     CFSocketError sockError = CFSocketSetAddress(socket,
 												 addressData);
-    switch (sockError) {
-        case kCFSocketError: {
+
+    if (kCFSocketError == sockError) {
             CFSocketInvalidate(socket);
             CFRelease(socket);
             socket = NULL;
@@ -479,8 +479,6 @@ const CFOptionFlags writeStreamEventFlags =
             [self throwException:[NSString stringWithFormat:@"Failed to listen on %@:%d: %d", hostName, port, errno]
                        subreason:nil
                         location:CODELOCATION];
-            break;
-		}
 	}
     
     CFRelease(addressData);
@@ -670,40 +668,37 @@ const CFOptionFlags writeStreamEventFlags =
 
 void handleSocketConnection(CFSocketRef socket, CFSocketCallBackType type, 
 							CFDataRef address, const void* data, void* info) {
-    switch (type) {
-        case kCFSocketAcceptCallBack: {
-            TiNetworkTCPSocketProxy* hostSocket = (TiNetworkTCPSocketProxy*)info;
-			CFSocketNativeHandle sock = *(CFSocketNativeHandle*)data;
-			
-            CFReadStreamRef inputStream;
-            CFWriteStreamRef outputStream;
-            
-            SocketMode mode = (SocketMode)[[hostSocket mode] intValue];
-            CFStreamCreatePairWithSocket(kCFAllocatorDefault,
-                                         sock,
-                                         (mode & READ_MODE) ? &inputStream : NULL,
-                                         (mode & WRITE_MODE) ? &outputStream : NULL);
-            
-			CFStreamClientContext context;
-			context.version = 0;
-			context.info = hostSocket;
-			context.retain = NULL;
-			context.release = NULL;
-			context.copyDescription = NULL;
-			
-            if (mode & READ_MODE) {
-                CFReadStreamSetClient(inputStream, readStreamEventFlags, handleReadData, &context);
-                CFReadStreamScheduleWithRunLoop(inputStream, CFRunLoopGetMain(), kCFRunLoopCommonModes);
-                CFReadStreamOpen(inputStream);
-            }
+
+    if(type == kCFSocketAcceptCallBack) {
+        TiNetworkTCPSocketProxy* hostSocket = (TiNetworkTCPSocketProxy*)info;
+        CFSocketNativeHandle sock = *(CFSocketNativeHandle*)data;
         
-            if (mode & WRITE_MODE) {
-                CFWriteStreamSetClient(outputStream, writeStreamEventFlags, handleWriteData, &context);
-                CFWriteStreamScheduleWithRunLoop(outputStream, CFRunLoopGetMain(), kCFRunLoopCommonModes);
-                CFWriteStreamOpen(outputStream);
-            }
-            
-            break;
+        CFReadStreamRef inputStream;
+        CFWriteStreamRef outputStream;
+
+        SocketMode mode = (SocketMode)[[hostSocket mode] intValue];
+        CFStreamCreatePairWithSocket(kCFAllocatorDefault,
+                                     sock,
+                                     (mode & READ_MODE) ? &inputStream : NULL,
+                                     (mode & WRITE_MODE) ? &outputStream : NULL);
+
+        CFStreamClientContext context;
+        context.version = 0;
+        context.info = hostSocket;
+        context.retain = NULL;
+        context.release = NULL;
+        context.copyDescription = NULL;
+
+        if (mode & READ_MODE) {
+            CFReadStreamSetClient(inputStream, readStreamEventFlags, handleReadData, &context);
+            CFReadStreamScheduleWithRunLoop(inputStream, CFRunLoopGetMain(), kCFRunLoopCommonModes);
+            CFReadStreamOpen(inputStream);
+        }
+
+        if (mode & WRITE_MODE) {
+            CFWriteStreamSetClient(outputStream, writeStreamEventFlags, handleWriteData, &context);
+            CFWriteStreamScheduleWithRunLoop(outputStream, CFRunLoopGetMain(), kCFRunLoopCommonModes);
+            CFWriteStreamOpen(outputStream);
         }
     }
 }
@@ -715,30 +710,24 @@ void handleReadData(CFReadStreamRef input,
 {
     TiNetworkTCPSocketProxy* hostSocket = (TiNetworkTCPSocketProxy*)info;
     
-	switch (event) {
-        case kCFStreamEventOpenCompleted: {
-            [hostSocket initializeReadStream:(NSInputStream*)input];
-            break;
+    if (event == kCFStreamEventOpenCompleted) {
+        [hostSocket initializeReadStream:(NSInputStream*)input];
+    }
+    else if (event == kCFStreamEventEndEncountered) {
+        CFSocketNativeHandle remoteSocket = [hostSocket getHandleFromStream:(NSInputStream*)input];
+        if (remoteSocket != -1) {
+            [hostSocket closeRemoteSocket:remoteSocket];
         }
-		case kCFStreamEventEndEncountered: {
-            CFSocketNativeHandle remoteSocket = [hostSocket getHandleFromStream:(NSInputStream*)input];
-            if (remoteSocket != -1) {
-                [hostSocket closeRemoteSocket:remoteSocket];
-            }
-			break;
-		}
-        // There's not very much information you can get out of an error like this, other than
-        // that it occurred.  It's not recoverable without the direct stream information, most likely.
-		case kCFStreamEventErrorOccurred: {
-            [hostSocket handleError:(NSInputStream*)input];
-			break;
-		}
-		// This event is NOT necessarily fired until all current available data has been read.  Gotta clear that buffer first!
-		case kCFStreamEventHasBytesAvailable: {
-            [hostSocket readFromStream:(NSInputStream*)input];
-			break;
-		}
-	}
+    }
+    // There's not very much information you can get out of an error like this, other than
+    // that it occurred.  It's not recoverable without the direct stream information, most likely.
+    else if(event == kCFStreamEventErrorOccurred) {
+        [hostSocket handleError:(NSInputStream*)input];
+    }
+    // This event is NOT necessarily fired until all current available data has been read.  Gotta clear that buffer first!
+    else if (event == kCFStreamEventHasBytesAvailable) {
+        [hostSocket readFromStream:(NSInputStream*)input];
+    }
 }
 
 void handleWriteData(CFWriteStreamRef output,
@@ -747,20 +736,15 @@ void handleWriteData(CFWriteStreamRef output,
 {
     TiNetworkTCPSocketProxy* hostSocket = (TiNetworkTCPSocketProxy*)info;
     
-    switch (event) {
-        case kCFStreamEventOpenCompleted: {
-            [hostSocket initializeWriteStream:(NSOutputStream*)output];
-            break;
-        }
-		case kCFStreamEventErrorOccurred: {
-            [hostSocket handleError:(NSOutputStream*)output];
-			break;
-		}
-		case kCFStreamEventCanAcceptBytes: {
-            [hostSocket writeToStream:(NSOutputStream*)output];
-            break;
-		}
-	}
+    if( event == kCFStreamEventOpenCompleted) {
+        [hostSocket initializeWriteStream:(NSOutputStream*)output];
+    }
+    else if (event == kCFStreamEventErrorOccurred) {
+        [hostSocket handleError:(NSOutputStream*)output];
+    }
+    else if (event == kCFStreamEventCanAcceptBytes) {
+        [hostSocket writeToStream:(NSOutputStream*)output];
+    }
 }
 
 #endif

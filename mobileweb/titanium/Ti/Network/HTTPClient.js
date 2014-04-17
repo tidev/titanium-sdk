@@ -72,7 +72,6 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 		},
 
 		_onError: function(error) {
-			this.abort();
 			is(error, "Object") || (error = { message: error });
 			error.source = this;
 			error.type = "error";
@@ -121,7 +120,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 			try {
 				var timeout = this.timeout | 0;
 				this._aborted = this._completed = 0;
-				has("ti-instrumentation") && (this._requestInstrumentationTest = instrumentation.startTest("HTTP Request")),
+				has("ti-instrumentation") && (this._requestInstrumentationTest = instrumentation.startTest("HTTP Request"));
 				args = is(args, "Object") ? lang.urlEncode(args) : args;
 				this._contentTypeSet || args && this._xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 				this._xhr.setRequestHeader('X-Titanium-Id', App.guid);

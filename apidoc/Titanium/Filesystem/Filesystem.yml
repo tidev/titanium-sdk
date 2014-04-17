@@ -1,6 +1,10 @@
 ---
 name: Titanium.Filesystem
 summary: The top level filesystem module, used to access files and directories on the device.
+description: |
+    For examples of using the Filesystem APIs, refer to the
+    [Filesystem Access and Storage guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Filesystem_Access_and_Storage)
+    as well as the other Filesystem submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
 methods:
@@ -64,8 +68,8 @@ methods:
     parameters:
       - name: mode
         summary: |
-            Access mode. Either <Titanium.Filesystem.MODE_READ>, <Titanium.Filesystem.MODE_WRITE>, or 
-            <Titanium.Filesystem.MODE_APPEND>.
+            Access mode.
+        constants: Titanium.Filesystem.MODE_*
         type: Number
         
       - name: path
@@ -94,6 +98,15 @@ properties:
     exclude-platforms: [blackberry]
   - name: applicationCacheDirectory
     summary: Path to the application's internal cache directory.
+    description: |
+        Files stored in the cache directory remain after the application is closed but at the
+        discretion of the operating system.
+
+        On the Android platform, the cache is limited to 25 MB and the files remain for the lifetime
+        of the application, that is, until the application is uninstalled.
+
+        On the iOS platform, the cache does not have a size limit but the data remains until iOS
+        cleans the directory to recover the disk space.
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]

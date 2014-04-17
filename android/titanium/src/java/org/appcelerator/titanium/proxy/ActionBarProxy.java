@@ -14,8 +14,8 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
-import android.app.ActionBar;
-import android.app.Activity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Message;
@@ -35,22 +35,21 @@ public class ActionBarProxy extends KrollProxy
 	private static final int MSG_SET_ICON = MSG_FIRST_ID + 106;
 	private static final int MSG_SET_HOME_BUTTON_ENABLED = MSG_FIRST_ID + 107;
 	private static final int MSG_SET_NAVIGATION_MODE = MSG_FIRST_ID + 108;
-
+	private static final int MSG_SET_SUBTITLE = MSG_FIRST_ID + 109;
 	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
 	private static final String BACKGROUND_IMAGE = "backgroundImage";
 	private static final String TITLE = "title";
 	private static final String LOGO = "logo";
 	private static final String ICON = "icon";
 	private static final String NAVIGATION_MODE = "navigationMode";
-
 	private static final String TAG = "ActionBarProxy";
 
 	private ActionBar actionBar;
 
-	public ActionBarProxy(Activity activity)
+	public ActionBarProxy(ActionBarActivity activity)
 	{
 		super();
-		actionBar = activity.getActionBar();
+		actionBar = activity.getSupportActionBar();
 	}
 
 	@Kroll.method @Kroll.setProperty
@@ -101,6 +100,28 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method @Kroll.setProperty
+	public void setSubtitle(String subTitle)
+	{
+		if (TiApplication.isUIThread()) {
+			handleSetSubTitle(subTitle);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_SUBTITLE, subTitle);
+			message.getData().putString(TiC.PROPERTY_SUBTITLE, subTitle);
+			message.sendToTarget();
+		}
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getSubtitle()
+	{
+		if (actionBar == null) {
+			return null;
+		}
+		return (String) actionBar.getSubtitle();
+	}
+	
+
 	@Kroll.method @Kroll.getProperty
 	public String getTitle()
 	{
@@ -109,6 +130,7 @@ public class ActionBarProxy extends KrollProxy
 		}
 		return (String) actionBar.getTitle();
 	}
+	
 
 	@Kroll.method @Kroll.getProperty
 	public int getNavigationMode()
@@ -142,29 +164,27 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.method @Kroll.setProperty
 	public void setLogo(String url)
 	{
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
-			if (TiApplication.isUIThread()) {
-				handleSetLogo(url);
-			} else {
-				Message message = getMainHandler().obtainMessage(MSG_SET_LOGO, url);
-				message.getData().putString(LOGO, url);
-				message.sendToTarget();
-			}
+		if (TiApplication.isUIThread()) {
+			handleSetLogo(url);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_LOGO, url);
+			message.getData().putString(LOGO, url);
+			message.sendToTarget();
 		}
+		
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setIcon(String url)
 	{
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
-			if (TiApplication.isUIThread()) {
-				handleSetIcon(url);
-			} else {
-				Message message = getMainHandler().obtainMessage(MSG_SET_ICON, url);
-				message.getData().putString(ICON, url);
-				message.sendToTarget();
-			}
+		if (TiApplication.isUIThread()) {
+			handleSetIcon(url);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_ICON, url);
+			message.getData().putString(ICON, url);
+			message.sendToTarget();
 		}
+		
 	}
 
 	private void handleSetIcon(String url)
@@ -183,13 +203,22 @@ public class ActionBarProxy extends KrollProxy
 	private void handleSetTitle(String title)
 	{
 		if (actionBar != null) {
-			actionBar.setDisplayShowTitleEnabled(true);
 			actionBar.setTitle(title);
 		} else {
 			Log.w(TAG, "ActionBar is not enabled");
 		}
 	}
 
+	private void handleSetSubTitle(String subTitle)
+	{
+		if (actionBar != null) {
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setSubtitle(subTitle);
+		} else {
+			Log.w(TAG, "ActionBar is not enabled");
+		}
+	}
+	
 	private void handleShow()
 	{
 		if (actionBar != null) {
@@ -216,7 +245,10 @@ public class ActionBarProxy extends KrollProxy
 		}
 
 		Drawable backgroundImage = getDrawableFromUrl(url);
+		//This is a workaround due to https://code.google.com/p/styled-action-bar/issues/detail?id=3. [TIMOB-12148]
 		if (backgroundImage != null) {
+			actionBar.setDisplayShowTitleEnabled(false);
+			actionBar.setDisplayShowTitleEnabled(true);
 			actionBar.setBackgroundDrawable(backgroundImage);
 		}
 	}
@@ -271,6 +303,10 @@ public class ActionBarProxy extends KrollProxy
 			case MSG_SET_TITLE:
 				handleSetTitle(msg.getData().getString(TITLE));
 				return true;
+			case MSG_SET_SUBTITLE:
+				handleSetSubTitle(msg.getData().getString(TiC.PROPERTY_SUBTITLE));
+				return true;
+
 			case MSG_SHOW:
 				handleShow();
 				return true;
@@ -293,8 +329,7 @@ public class ActionBarProxy extends KrollProxy
 	@Override
 	public void onPropertyChanged(String name, Object value)
 	{
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH
-			&& TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED.equals(name)) {
+		if (TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED.equals(name)) {
 			// If we have a listener on the home icon item, then enable the home button (we need to do this for ICS and
 			// above)
 			if (TiApplication.isUIThread()) {

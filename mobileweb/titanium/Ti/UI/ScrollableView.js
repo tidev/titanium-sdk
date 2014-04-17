@@ -8,16 +8,10 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/has', 'Ti/_/style', 'Ti/
 		on = require.on,
 		once = on.once,
 		global = window,
-
-		transitionEvents = {
-			webkit: 'webkitTransitionEnd',
-			trident: 'msTransitionEnd',
-			gecko: 'transitionend',
-			presto: 'oTransitionEnd'
-		},
-		transitionEnd = transitionEvents[browser.runtime] || 'transitionEnd',
+		transitionEnd = browser.runtime == 'webkit' ? 'webkitTransitionEnd' : 'transitionend',
 
 		useTouch = has('touch'),
+		usePointer = global.navigator.msPointerEnabled,
 
 		// Maximum time that a gesture can be considered a flick
 		maxFlickTime = 200,
@@ -76,7 +70,8 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/has', 'Ti/_/style', 'Ti/
 				self._animating || self._setTranslation(self.currentPage * -self._measuredWidth);
 			});
 
-			on(containerDomNode, useTouch ? 'touchstart' : 'mousedown', function(e) {
+			// NOTE: MSPointer* events should be converted to just pointer* once Windows Phone 8.1 is out
+			on(containerDomNode, usePointer ? 'MSPointerDown' : useTouch ? 'touchstart' : 'mousedown', function(e) {
 				var startX = e.touches ? e.touches[0].clientX : e.clientX,
 					currentX = startX,
 					startTime = Date.now(),
@@ -101,8 +96,8 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/has', 'Ti/_/style', 'Ti/
 							thresholdMet = Math.abs(startX - currentX) > (isFlick ? flickThreshold : width / 2),
 							props = self.__values__.properties,
 							duration = Math.abs(currentX - startX);
-						global.removeEventListener(useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
-						global.removeEventListener(useTouch ? 'touchend' : 'mouseup', mouseUpListener);
+						global.removeEventListener(usePointer ? 'MSPointerMove' : useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
+						global.removeEventListener(usePointer ? 'MSPointerUp' : useTouch ? 'touchend' : 'mouseup', mouseUpListener);
 						width = self._measuredWidth;
 						self._animating = 1;
 						e.preventDefault();
@@ -144,8 +139,8 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/has', 'Ti/_/style', 'Ti/
 				setStyle(containerDomNode, 'transition', '');
 				self._setTranslation((self.currentPage * -width) + offsetX);
 				self._animating = 0;
-				global.addEventListener(useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
-				global.addEventListener(useTouch ? 'touchend' : 'mouseup', mouseUpListener);
+				global.addEventListener(usePointer ? 'MSPointerMove' : useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
+				global.addEventListener(usePointer ? 'MSPointerUp' : useTouch ? 'touchend' : 'mouseup', mouseUpListener);
 				self.fireEvent('dragstart');
 			});
 		},

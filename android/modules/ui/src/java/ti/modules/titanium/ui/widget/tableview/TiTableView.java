@@ -64,6 +64,7 @@ public class TiTableView extends FrameLayout
 
 	private TableViewProxy proxy;
 	private boolean filterCaseInsensitive = true;
+	private boolean filterAnchored = false;
 	private StateListDrawable selector;
 
 	public interface OnItemClickedListener {
@@ -113,8 +114,15 @@ public class TiTableView extends FrameLayout
 						if (filterCaseInsensitive) {
 							t = t.toLowerCase();
 						}
-						if(t.indexOf(filter) < 0) {
+						if (filterAnchored) {
+						    if(!t.startsWith(filter)) {
 							keep = false;
+							}
+						}
+						else {
+						    if(t.indexOf(filter) < 0) {
+							keep = false;
+							}
 						}
 					}
 					if (keep) {
@@ -373,7 +381,45 @@ public class TiTableView extends FrameLayout
 		});
 		addView(listView);
 	}
+	
+	public void removeHeaderView(TiViewProxy viewProxy)
+	{
+		TiUIView peekView = viewProxy.peekView();
+		View outerView = (peekView == null) ? null : peekView.getOuterView();
+		if (outerView != null) {
+			listView.removeHeaderView(outerView);
+		}
+	}
 
+	public void setHeaderView()
+	{
+		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
+			listView.setAdapter(null);
+			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_HEADER_VIEW);
+			listView.addHeaderView(layoutHeaderOrFooter(view).getOuterView(), null, false);
+			listView.setAdapter(adapter);
+		}
+	}
+
+	public void removeFooterView(TiViewProxy viewProxy)
+	{
+		TiUIView peekView = viewProxy.peekView();
+		View outerView = (peekView == null) ? null : peekView.getOuterView();
+		if (outerView != null) {
+			listView.removeFooterView(outerView);
+		}
+	}
+
+	public void setFooterView()
+	{
+		if (proxy.hasProperty(TiC.PROPERTY_FOOTER_VIEW)) {
+			listView.setAdapter(null);
+			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_FOOTER_VIEW);
+			listView.addFooterView(layoutHeaderOrFooter(view).getOuterView(), null, false);
+			listView.setAdapter(adapter);
+		}
+	}
+	
 	public TiTableView(TiContext tiContext, TableViewProxy proxy)
 	{
 		this(proxy);
@@ -446,6 +492,8 @@ public class TiTableView extends FrameLayout
 		}
 		if (longClick && !longClickFired) {
 			return itemLongClickListener.onLongClick(event);
+		} else if (longClickFired) {
+			return true;
 		} else {
 			return false; // standard (not-long) click handling has no return value.
 		}
@@ -526,6 +574,10 @@ public class TiTableView extends FrameLayout
 
 	public void setFilterAttribute(String filterAttribute) {
 		this.filterAttribute = filterAttribute;
+	}
+
+	public void setFilterAnchored(boolean filterAnchored) {
+		this.filterAnchored  = filterAnchored;
 	}
 
 	public void setFilterCaseInsensitive(boolean filterCaseInsensitive) {
