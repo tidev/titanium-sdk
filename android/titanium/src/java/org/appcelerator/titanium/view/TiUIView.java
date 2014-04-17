@@ -477,6 +477,8 @@ public abstract class TiUIView
 		// Therefore, we must start the transformation after the layout pass when we get the height and width of the view.
 		if (animBuilder.isUsingPropertyAnimators()) {
 			startTransformAfterLayout(outerView);
+			//If the layout already done, the above call won't trigger the change, force layout change.
+			outerView.requestLayout();
 		} else {
 			animBuilder.start(this.proxy, outerView);
 		}
