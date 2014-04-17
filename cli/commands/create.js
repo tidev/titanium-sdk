@@ -276,7 +276,7 @@ exports.config = function config(logger, config, cli) {
 						prompt: function (callback) {
 							callback(fields.file({
 								complete: true,
-								default: workspaceDir || undefined,
+								default: workspaceDir || '.',
 								ignoreDirs: new RegExp(config.get('cli.ignoreDirs')),
 								ignoreFiles: new RegExp(config.get('cli.ignoreFiles')),
 								promptLabel: __('Directory to place project'),
