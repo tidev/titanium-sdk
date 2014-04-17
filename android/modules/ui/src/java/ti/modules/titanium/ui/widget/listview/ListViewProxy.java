@@ -146,13 +146,22 @@ public class ListViewProxy extends TiViewProxy {
 	}
 
 	@Kroll.method
-	public void scrollToItem(int sectionIndex, int itemIndex) {
+	public void scrollToItem(int sectionIndex, int itemIndex, @SuppressWarnings("rawtypes") @Kroll.argument(optional=true)HashMap options) {
+		boolean animated = true;
+		if ( (options != null) && (options instanceof HashMap<?, ?>) ) {
+			@SuppressWarnings("unchecked")
+			KrollDict animationargs = new KrollDict(options);
+			if (animationargs.containsKeyAndNotNull(TiC.PROPERTY_ANIMATED)) {
+				animated = TiConvert.toBoolean(animationargs.get(TiC.PROPERTY_ANIMATED), true);
+			}
+		} 
 		if (TiApplication.isUIThread()) {
-			handleScrollToItem(sectionIndex, itemIndex);
+			handleScrollToItem(sectionIndex, itemIndex, animated);
 		} else {
 			KrollDict d = new KrollDict();
 			d.put("itemIndex", itemIndex);
 			d.put("sectionIndex", sectionIndex);
+			d.put(TiC.PROPERTY_ANIMATED, Boolean.valueOf(animated));
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SCROLL_TO_ITEM), d);
 		}
 	}
@@ -187,7 +196,8 @@ public class ListViewProxy extends TiViewProxy {
 				KrollDict data = (KrollDict) result.getArg();
 				int sectionIndex = data.getInt("sectionIndex");
 				int itemIndex = data.getInt("itemIndex");
-				handleScrollToItem(sectionIndex, itemIndex);
+				boolean animated = data.getBoolean(TiC.PROPERTY_ANIMATED);
+				handleScrollToItem(sectionIndex, itemIndex, animated);
 				result.setResult(null);
 				return true;
 			}
@@ -224,10 +234,10 @@ public class ListViewProxy extends TiViewProxy {
 				return super.handleMessage(msg);
 		}
 	}
-	private void handleScrollToItem(int sectionIndex, int itemIndex) {
+	private void handleScrollToItem(int sectionIndex, int itemIndex, boolean animated) {
 		TiUIView listView = peekView();
 		if (listView != null) {
-			((TiListView) listView).scrollToItem(sectionIndex, itemIndex);
+			((TiListView) listView).scrollToItem(sectionIndex, itemIndex, animated);
 		}
 	}
 	
