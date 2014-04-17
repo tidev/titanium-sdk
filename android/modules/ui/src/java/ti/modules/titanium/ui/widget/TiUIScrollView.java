@@ -272,7 +272,6 @@ public class TiUIScrollView extends TiUIView
 			setScrollContainer(true);
 
 			layout = new TiScrollViewLayout(context, arrangement);
-			layout.setEnableHorizontalWrap(false);
 			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.MATCH_PARENT);
 			layout.setLayoutParams(params);
