@@ -17,6 +17,9 @@ try:
 except ImportError:
 	import markdown
 
+cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+os.chdir(cwd)
+
 ignoreFiles = ['.DS_Store','.cvsignore','.gitignore']
 ignoreDirs = ['.svn','_svn','.git','CVS','CVSROOT']
 
@@ -126,9 +129,13 @@ class Compiler(object):
 					print '[WARN] Please update the manifest key: "%s" to a non-default value' % key
 
 	def check_license(self):
-		c = open(os.path.join(self.module_path, 'LICENSE')).read()
-		if c.find(module_license_default) != -1:
-			print '[WARN] Please update the LICENSE file with your license text before distributing'
+		license_file = os.path.join(cwd,'LICENSE')
+		if not os.path.exists(license_file):
+			license_file = os.path.join(cwd,'..','LICENSE')
+		if os.path.exists(license_file):
+			c = open(license_file).read()
+			if c.find(module_license_default) != -1:
+				print '[WARN] Please update the LICENSE file with your license text before distributing'
 
 	def load_timodule_xml(self):
 		global_settings = {}
@@ -154,7 +161,7 @@ class Compiler(object):
 		self.timodule = dict(global_settings.items() + mobileweb_settings.items())
 
 	def check_main(self):
-		self.main = self.timodule['main'] if 'main' in self.timodule else self.manifest['name']
+		self.main = self.timodule['main'] if 'main' in self.timodule else self.manifest['moduleid']
 		if not os.path.exists(os.path.join(self.src_path, self.main + '.js')):
 			print '[ERROR] Unable to find main module "%s"' % self.main
 			sys.exit(1)
@@ -378,6 +385,8 @@ class Compiler(object):
 	def generate_doc(self):
 		docdir = os.path.join(self.module_path, 'documentation')
 		if not os.path.exists(docdir):
+			docdir = os.path.join(self.module_path, '..', 'documentation')
+		if not os.path.exists(docdir):
 			print '[WARN] Couldn\'t find documentation file at: %s' % docdir
 			return None
 		documentation = []
@@ -416,7 +425,12 @@ class Compiler(object):
 
 		zf = zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED)
 		zf.write(os.path.join(self.module_path, 'manifest'), '%s/manifest' % install_path)
-		zf.write(os.path.join(self.module_path, 'LICENSE'), '%s/LICENSE' % install_path)
+
+		license_file = os.path.join(self.module_path, 'LICENSE')
+		if not os.path.exists(license_file):
+			license_file = os.path.join(self.module_path, '..', 'LICENSE')
+		if os.path.exists(license_file):
+			zf.write(license_file,'%s/LICENSE' % install_path)
 
 		zf.writestr('%s/package.json' % install_path, simplejson.dumps({
 			'name': self.manifest['name'],

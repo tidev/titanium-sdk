@@ -50,6 +50,8 @@ def read_ti_xcconfig():
 def generate_doc(config):
 	docdir = os.path.join(cwd,'documentation')
 	if not os.path.exists(docdir):
+		docdir = os.path.join(cwd,'..','documentation')
+	if not os.path.exists(docdir):
 		print "Couldn't find documentation file at: %s" % docdir
 		return None
 
@@ -114,9 +116,13 @@ def warn(msg):
 	print "[WARN] %s" % msg
 
 def validate_license():
-	c = open(os.path.join(cwd,'LICENSE')).read()
-	if c.find(module_license_default)!=-1:
-		warn('please update the LICENSE file with your license text before distributing')
+	license_file = os.path.join(cwd,'LICENSE')
+	if not os.path.exists(license_file):
+		license_file = os.path.join(cwd,'..','LICENSE')
+	if os.path.exists(license_file):
+		c = open(license_file).read()
+		if c.find(module_license_default)!=-1:
+			warn('please update the LICENSE file with your license text before distributing')
 
 def validate_manifest():
 	path = os.path.join(cwd,'manifest')
@@ -197,9 +203,15 @@ def package_module(manifest,mf,config):
 				filename = string.replace(file,'.md','.html')
 				zf.writestr('%s/documentation/%s'%(modulepath,filename),html)
 	for dn in ('assets','example','platform'):
-	  if os.path.exists(dn):
-		  zip_dir(zf,dn,'%s/%s' % (modulepath,dn),['README'])
-	zf.write('LICENSE','%s/LICENSE' % modulepath)
+		if os.path.exists(dn):
+			zip_dir(zf,dn,'%s/%s' % (modulepath,dn),['README'])
+
+	license_file = os.path.join(cwd,'LICENSE')
+	if not os.path.exists(license_file):
+		license_file = os.path.join(cwd,'..','LICENSE')
+	if os.path.exists(license_file):
+		zf.write(license_file,'%s/LICENSE' % modulepath)
+
 	zf.write('module.xcconfig','%s/module.xcconfig' % modulepath)
 	exports_file = 'metadata.json'
 	if os.path.exists(exports_file):

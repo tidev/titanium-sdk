@@ -170,7 +170,6 @@ AppCreator.prototype.run = function run(callback) {
 
 	tasks.push(function (next) {
 		// send the analytics
-		/*
 		this.cli.addAnalyticsEvent('project.create.mobile', {
 			dir: this.projectDir,
 			name: this.projectName,
@@ -178,15 +177,14 @@ AppCreator.prototype.run = function run(callback) {
 			url: this.projectConfig.url,
 			image: this.projectConfig.image,
 			appid: this.id,
-			description: this.projectConfig.description,
+			description: '',
 			type: 'mobile',
 			guid: this.projectConfig.guid,
 			version: this.projectConfig.version,
 			copyright: this.projectConfig.copyright,
-			runtime: '1.0',
+			runtime: '1.0.0',
 			date: (new Date()).toDateString()
 		});
-		*/
 		next();
 	});
 

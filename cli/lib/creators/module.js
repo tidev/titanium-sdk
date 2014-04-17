@@ -84,7 +84,7 @@ ModuleCreator.prototype.run = function run(callback) {
 			moduleName: this.projectName,
 
 			// MyModule
-			moduleNameAsIdentifier: this.projectName.replace(/[^a-zA-Z0-9_]/g, '_').replace(/_+/g, '_').split(/[\W_]/).map(function (s) { return appc.string.capitalize(s); }).join(''),
+			moduleNameCamel: this.projectName.replace(/[^a-zA-Z0-9_]/g, '_').replace(/_+/g, '_').split(/[\W_]/).map(function (s) { return appc.string.capitalize(s); }).join(''),
 
 			// mymodule
 			moduleNameJSSafe: this.projectName.toLowerCase().replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_'),
@@ -93,10 +93,10 @@ ModuleCreator.prototype.run = function run(callback) {
 			moduleId: this.id,
 
 			// ComAppceleratorMymodule
-			moduleIdFilename: this.id.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) { return s.substring(0, 1).toUpperCase() + s.substring(1); }).join(''),
+			moduleIdAsIdentifier: this.id.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) { return s.substring(0, 1).toUpperCase() + s.substring(1); }).join(''),
 
 			// com/appcelerator/mymodule
-			moduleIdPaths: this.id.replace(/\./g, path.sep)
+			moduleIdAsFolder: this.id.replace(/\./g, path.sep)
 		},
 		tasks = [
 			function (next) {
@@ -147,40 +147,21 @@ ModuleCreator.prototype.run = function run(callback) {
 		});
 	}, this);
 
-/*
-	var year = (new Date).getFullYear();
-
-	this.projectConfig = {
-		'___PROJECTNAMEASIDENTIFIER___': this.projectName.toLowerCase().split(/\./).map(function (s) { return appc.string.capitalize(s); }).join(''),
-		'___MODULE_NAME_CAMEL___': this.projectName.toLowerCase().split(/[\W_]/).map(function (s) { return appc.string.capitalize(s); }).join(''),
-		'___MODULE_ID_AS_FOLDER___': this.id.replace(/\./g, path.sep),
-		'___PROJECTNAME___': this.projectName.toLowerCase(),
-		'__MODULE_ID__': this.id,
-		'__PROJECT_SHORT_NAME__': this.projectName,
-		'__VERSION__': this.sdk.name,
-		'__SDK__': this.sdk.path,
-		'__SDK_ROOT__': this.sdk.path,
-		'__GUID__':
-		'__YEAR__': year
-	};
-*/
 	tasks.push(function (next) {
 		// send the analytics
-		/*
 		this.cli.addAnalyticsEvent('project.create.module', {
 			dir: this.projectDir,
-			name: this.projectName,
+			name: variables.moduleName,
 			author: variables.author,
-			moduleid: this.id,
-			description: this.projectName,
+			moduleid: variables.moduleId,
+			description: '',
 			guid: variables.guid,
-			version: '1.0',
-			copyright: 'copyright: Copyright (c) ' + (new Date).getFullYear() + ' by ' + this.config.get('user.name', 'Your Company'),
+			version: '1.0.0',
+			copyright: 'copyright: Copyright (c) ' + variables.year + ' by ' + variables.publisher,
 			minsdk: this.sdk.name,
 			platforms: this.platforms.original.join(', '),
 			date: (new Date()).toDateString()
 		});
-		*/
 		next();
 	});
 

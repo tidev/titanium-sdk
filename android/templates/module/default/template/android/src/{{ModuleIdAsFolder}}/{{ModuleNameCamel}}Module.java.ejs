@@ -6,7 +6,7 @@
  * Please see the LICENSE included with this distribution for details.
  *
  */
-package __MODULE_ID__;
+package <%- moduleId %>;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -16,18 +16,18 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 
 
-@Kroll.module(name="___MODULE_NAME_CAMEL___", id="__MODULE_ID__")
-public class ___MODULE_NAME_CAMEL___Module extends KrollModule
+@Kroll.module(name="<%- moduleNameCamel %>", id="<%- moduleId %>")
+public class <%- moduleNameCamel %>Module extends KrollModule
 {
 
 	// Standard Debugging variables
-	private static final String LCAT = "___MODULE_NAME_CAMEL___Module";
+	private static final String LCAT = "<%- moduleNameCamel %>Module";
 	private static final boolean DBG = TiConfig.LOGD;
 
 	// You can define constants with @Kroll.constant, for example:
 	// @Kroll.constant public static final String EXTERNAL_NAME = value;
-	
-	public ___MODULE_NAME_CAMEL___Module()
+
+	public <%- moduleNameCamel %>Module()
 	{
 		super();
 	}
@@ -46,7 +46,7 @@ public class ___MODULE_NAME_CAMEL___Module extends KrollModule
 		Log.d(LCAT, "example called");
 		return "hello world";
 	}
-	
+
 	// Properties
 	@Kroll.getProperty
 	public String getExampleProp()
@@ -54,8 +54,8 @@ public class ___MODULE_NAME_CAMEL___Module extends KrollModule
 		Log.d(LCAT, "get example property");
 		return "hello world";
 	}
-	
-	
+
+
 	@Kroll.setProperty
 	public void setExampleProp(String value) {
 		Log.d(LCAT, "set example property: " + value);

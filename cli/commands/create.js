@@ -392,7 +392,7 @@ CreateCommand.prototype.run = function run(logger, config, cli, finished) {
 	// load the project type lib
 	creator = new this.types[type](logger, config, cli);
 	logger.info(__('Creating %s project', type));
-dump(cli.argv.platforms);
+
 	appc.async.series(this, [
 		function (next) {
 			cli.emit([
