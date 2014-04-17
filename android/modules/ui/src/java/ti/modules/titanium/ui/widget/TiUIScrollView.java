@@ -457,6 +457,7 @@ public class TiUIScrollView extends TiUIView
 
 		int type = TYPE_VERTICAL;
 		boolean deduced = false;
+		boolean autoContentWidth = false;
 
 		if (d.containsKey(TiC.PROPERTY_WIDTH) && d.containsKey(TiC.PROPERTY_CONTENT_WIDTH)) {
 			Object width = d.get(TiC.PROPERTY_WIDTH);
@@ -464,6 +465,12 @@ public class TiUIScrollView extends TiUIView
 			if (width.equals(contentWidth) || showVerticalScrollBar) {
 				type = TYPE_VERTICAL;
 				deduced = true;
+			}
+			String cWidth = TiConvert.toString(contentWidth);
+			if (cWidth != null && cWidth.equals(TiC.SIZE_AUTO)) {
+				autoContentWidth = true;
+			} else {
+				autoContentWidth = false;
 			}
 		}
 
@@ -521,7 +528,10 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP)) {
-			scrollViewLayout.setEnableHorizontalWrap(TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP));
+			boolean wrap = TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP);
+			if (!(autoContentWidth && wrap)) {
+				scrollViewLayout.setEnableHorizontalWrap(wrap);
+			}
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
