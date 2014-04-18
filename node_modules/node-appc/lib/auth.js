@@ -25,8 +25,8 @@ var __ = require('./i18n')(__dirname).__,
 	AppcException = require('./exception'),
 
 	defaultTitaniumHomeDir = afs.resolvePath('~', '.titanium'),
-	defaultLoginUrl = 'https://api.appcelerator.net/p/v1/sso-login',
-	defaultLogoutUrl = 'https://api.appcelerator.net/p/v1/sso-logout',
+	defaultLoginUrl = 'https://api.appcelerator.com/p/v1/sso-login',
+	defaultLogoutUrl = 'https://api.appcelerator.com/p/v1/sso-logout',
 	myAppc = 'https://my.appcelerator.com/',
 
 	cachedStatus,

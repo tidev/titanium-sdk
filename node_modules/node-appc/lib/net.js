@@ -120,7 +120,7 @@ exports.interfaces = function (callback) {
  * @param {Function} callback - The function to call with the result
  */
 exports.online = function online(callback) {
-	dns.resolve('api.appcelerator.net', function (err) {
+	dns.resolve('api.appcelerator.com', function (err) {
 		callback(null, !err);
 	});
 };

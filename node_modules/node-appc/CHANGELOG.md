@@ -1,3 +1,7 @@
+0.2.2 (4/18/2014)
+-------------------
+ * Updated Appcelerator API URLs to api.appcelerator.com [TIMOB-16282]
+
 0.2.1 (4/8/2014)
 -------------------
  * Fixed bug where JAVA_HOME beginning with a tilde was not being resolved to the home directory before checking if the path exists [TIMOB-16085]

@@ -26,7 +26,7 @@ var path = require('path'),
 	interfaces = require('./net').interfaces,
 	urlEncode = require('./net').urlEncode,
 	events = [],
-	url = 'https://api.appcelerator.net/p/v1/app-track',
+	url = 'https://api.appcelerator.com/p/v1/app-track',
 	sessionTimeout = 60 * 60 * 1000; // 1 hour
 
 /**
