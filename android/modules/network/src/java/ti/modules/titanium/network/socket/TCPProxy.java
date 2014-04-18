@@ -235,6 +235,10 @@ public class TCPProxy extends KrollProxy implements TiStream
 			while(true) {
 				if(accepting) {
 					try {
+						// Check if serverSocket is valid, if not exit
+						if (serverSocket == null) {
+							break;
+						}
 						Socket acceptedSocket = serverSocket.accept();
 
 						TCPProxy acceptedTcpProxy = new TCPProxy();
