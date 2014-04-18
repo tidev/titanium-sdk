@@ -233,7 +233,8 @@ events:
     properties:
       - name: state
         summary: Proximity state value.
-    platforms: [iphone]
+    platforms: [iphone, android]
+    since: {android: "3.3.0"}
     
   - name: resume
     summary: Fired when the application returns to the foreground on a multitasked system.
@@ -429,7 +430,8 @@ properties:
         Set to `true` to receive <Titanium.App.proximity> events.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: {android: "3.3.0"}
     
   - name: proximityState
     summary: |
@@ -441,7 +443,8 @@ properties:
         When <Titanium.App.proximityDetection> is disabled, the value of this property is undefined.
     type: Boolean
     permission: read-only
-    platforms: [iphone]
+    platforms: [iphone, android]
+    since: {android: "3.3.0"}
 
   - name: disableNetworkActivityIndicator
     summary: |
