@@ -233,12 +233,14 @@ properties:
             <Button systemButton="CAMERA"/>
 
     type: Number
+    constants: Titanium.UI.iPhone.SystemButton.*
     platforms: [iphone,ipad]
 
   - name: textAlign
     summary: |
-        Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
+        Text alignment, specified using one of the <Titanium.UI> text alignment constants.
     type: [String,Number]
+    constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: <Titanium.UI.TEXT_ALIGNMENT_CENTER>
     exclude-platforms: [blackberry]
 
@@ -256,11 +258,9 @@ properties:
   - name: verticalAlign
     summary: |
         Vertical alignment for the text field, specified using one of the 
-        vertical alignment constants from <Titanium.UI>: 
-        [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
-        [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or 
-        [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
+        vertical alignment constants from <Titanium.UI>.
     type: [Number,String]
+    constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
     platforms: [android, mobileweb, tizen]
 

@@ -128,7 +128,7 @@ properties:
         
         On Android, must be set at creation. 
 
-        In Alloy, you can use a `<HeaderView>` element inside a `<TableViewSEction>` element:
+        In Alloy, you can use a `<HeaderView>` element inside a `<TableViewSection>` element:
 
             <Alloy>
                 <TableView filterAttribute="title">

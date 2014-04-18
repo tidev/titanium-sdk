@@ -307,12 +307,13 @@ properties:
         The default behavior is to assume that no edges are to be extended. Must be specified before **opening** the window.
     platforms: [iphone,ipad]
     type: Array<Number>
+    constants: Titanium.UI.EXTEND_EDGE_*
     since: 3.1.3
     osver: {ios: {min: "7.0"}}
     
   - name: flagSecure
     summary: |
-        Treat the content of the window as secure, preventing it from appearing in screenshots or from being viewed on non-secure displays. Valid only on API level 11 and above.
+        Treat the content of the window as secure, preventing it from appearing in screenshots or from being viewed on non-secure displays.
     description: |
         When the value is true, preventing it from appearing in screenshots or from being viewed on non-secure displays.
     platforms: [android]
@@ -338,7 +339,8 @@ properties:
     summary: |
         Specifies whether or not the view controller should automatically adjust its scroll view insets. Valid on iOS 7 and greater.
     description:  |
-        When the value is true, it allows the view controller to adjust its scroll view insets in response to the screen areas consumed by the status bar, navigation bar, toolbar and tab bar.
+        When the value is true, it allows the view controller to adjust its scroll view insets in response
+        to the screen areas consumed by the status bar, navigation bar, toolbar and tab bar.
 
         The default behavior assumes that this is false. Must be specified before **opening** the window.
     platforms: [iphone,ipad]
@@ -401,6 +403,12 @@ properties:
             </Alloy>
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
+
+  - name: leftNavButtons
+    summary: An Array of views to show in the left nav bar area.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    type: Array<Titanium.UI.View>
 
   - name: modal
     summary: Boolean to indicate if the window should be opened modal in front of other windows.
@@ -573,13 +581,12 @@ properties:
         
     platforms: [android, iphone, ipad]
     type: Array<Number>
+    constants: [ Titanium.UI.LANDSCAPE_*, Titanium.UI.PORTRAIT, Titanium.UI.UPSIDE_PORTRAIT]
     default: empty array
 
   - name: orientation
     summary: Current orientation of the window.
     description: |
-        Value will be one of the orientation constants defined in <Titanium.UI>. 
-        
         To determine the current orientation of the *device*, see
         [Gesture.orientation](Titanium.Gesture.orientation), instead.
         
@@ -589,6 +596,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: {iphone: "3.0.0", ipad: "3.0.0"}
     type: Number
+    constants: [ Titanium.UI.LANDSCAPE_*, Titanium.UI.PORTRAIT, Titanium.UI.UPSIDE_PORTRAIT]
     permission: read-only
 
   - name: right
@@ -621,6 +629,12 @@ properties:
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
     
+  - name: rightNavButtons
+    summary: An Array of views to show in the right nav bar area.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    type: Array<Titanium.UI.View>
+
   - name: shadowImage
     summary: Shadow image for the navigation bar, specified as a URL to a local image..
     description: |
@@ -638,6 +652,9 @@ properties:
         If this value is undefined, the value is set to UIStatusBarStyle defined in tiapp.xml.
         If that is not defined it defaults to <Titanium.UI.iPhone.StatusBar.DEFAULT>.
     type: [Number]
+    constants: [ Titanium.UI.iPhone.StatusBar.DEFAULT, Titanium.UI.iPhone.StatusBar.GRAY,
+                 Titanium.UI.iPhone.StatusBar.GREY, Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT,
+                 Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK, Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK ]
     since: "3.1.3"
     platforms: [iphone,ipad]
     
@@ -770,41 +787,43 @@ properties:
     availability: creation
     exclude-platforms: [blackberry]
 
+  - name: windowFlags
+    summary: Additional flags to set on the Activity Window.
+    description: |
+        Set the flags of the window, as per the WindowManager.LayoutParams flags. 
+        See [WindowManager.LayoutParams](http://developer.android.com/reference/android/view/WindowManager.LayoutParams.html) for a 
+        list of supported flags. Setting <Titanium.UI.Window.fullscreen> to true automatically sets the [WindowManager.LayoutParams.FLAG_FULLSCREEN](http://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_FULLSCREEN) 
+        flag. Setting <Titanium.UI.Window.flagSecure> to true automatically sets the [WindowManager.LayoutParams.FLAG_SECURE](http://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_SECURE) flag.
+    platforms: [android]
+    type: Number
+    since: "3.3.0"
+    availability: creation
+
   - name: windowSoftInputMode
     summary: |
-        Determines whether a heavyweight window's soft input area (ie software keyboard) is visible 
-        as it receives focus and how the window behaves in order to accomodate it while keeping its 
+        Determines whether a heavyweight window's soft input area (ie software keyboard) is visible
+        as it receives focus and how the window behaves in order to accomodate it while keeping its
         contents in view.
     description: |
-        In order for this property to take effect on an emulator, its Android Virtual Device (AVD) 
+        In order for this property to take effect on an emulator, its Android Virtual Device (AVD)
         must be configured with the `Keyboard Support` setting set to `No`. Note that it is always 
         recommended to test an application on a physical device to understand its true behavior.
 
         Setting this property forces the creation of a heavyweight window before Titanium 3.2.0. See "Android Heavyweight
         and Lightweight Windows" in the main description of this class for more information.
         
-        This property is capable of representing two settings from the following two groups of 
-        settings using the [bitwise OR](http://en.wikipedia.org/wiki/Bitwise_operation#OR) operation. 
-        
-        One of the group of soft input *visibility* constants, 
-        [SOFT_INPUT_STATE_ALWAYS_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN), 
-        [SOFT_INPUT_STATE_ALWAYS_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE), 
-        [SOFT_INPUT_STATE_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN), 
-        [SOFT_INPUT_STATE_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED), 
-        or [SOFT_INPUT_STATE_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_VISIBLE).
-        
-        One of the group of soft input *adjustment* constants, 
-        [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED), 
-        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), 
-        or [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN).
-        
-        Note that in Javascript, bitwise OR is achieved using the single pipe operand. See the 
+        This property is capable of representing two settings from the soft input *visibility*
+        constatns and soft input *adjustment* constants
+        using the [bitwise OR](http://en.wikipedia.org/wiki/Bitwise_operation#OR) operation.
+
+        Note that in JavaScript, bitwise OR is achieved using the single pipe operand. See the
         example for a demonstration.
         
-        For more information, see the official Android Developers website API Reference for 
+        For more information, see the official Android Developers website API Reference for
         [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
     platforms: [android]
     type: Number
+    constants: [Titanium.UI.Android.SOFT_INPUT_STATE_*, Titanium.UI.Android.SOFT_INPUT_ADJUST_*]
     availability: creation
     examples:
       - title: Soft Input Visibility and Adjustment
@@ -844,12 +863,11 @@ properties:
   - name: windowPixelFormat
     summary: Set the pixel format for the Activity's Window.
     description: |
-        Use one of the <Titanium.UI.Android>.PIXEL_FORMAT constants to set the format.
-
         For more information on pixel formats, see 
         [Android SDK Window.setFormat](http://developer.android.com/reference/android/view/Window.html#setFormat(int))
     platforms: [android]
     type: Number
+    constants: Titanium.UI.Android.PIXEL_FORMAT_*
     since: "1.8.0"
 
 description: |
@@ -1284,26 +1302,16 @@ properties:
     
   - name: modalStyle
     summary: Presentation style of this modal window.
-    description: |
-        One of the modal window presentation style constants 
-        <Titanium.UI.iPhone.MODAL_PRESENTATION_CURRENT_CONTEXT>, 
-        <Titanium.UI.iPhone.MODAL_PRESENTATION_FORMSHEET>, 
-        <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>, 
-        or <Titanium.UI.iPhone.MODAL_PRESENTATION_PAGESHEET>.
     platforms: [iphone, ipad]
+    constants: Titanium.UI.iPhone_MODAL_PRESENTATION_*
     type: Number
     default: <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>
 
   - name: modalTransitionStyle
     summary: Transition style of this modal window.
-    description: |
-        One of the modal window transition style constants
-        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL>,
-        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE>,
-        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL>,
-        or <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_PARTIAL_CURL>.
     platforms: [iphone, ipad]
     type: Number
+    constants: Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_*
     default: <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL>
 
   - name: navBarHidden
@@ -1333,15 +1341,9 @@ properties:
 
   - name: transition
     summary: Transition style of this non-modal window.
-    description: |
-        One of the animation style constants 
-        <Titanium.UI.iPhone.AnimationStyle.CURL_DOWN>,
-        <Titanium.UI.iPhone.AnimationStyle.CURL_UP>,
-        <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT>,
-        <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT>,
-        or <Titanium.UI.iPhone.AnimationStyle.NONE>. 
     platforms: [iphone, ipad]
     type: Number
+    constants: Titanium.UI.iPhone.AnimationStyle.*
     default: <Titanium.UI.iPhone.AnimationStyle.NONE>
 
   - name: width

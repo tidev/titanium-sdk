@@ -75,6 +75,7 @@ properties:
         Width of the view. Only accepts value of <Titanium.UI.SIZE>, which must be explicitly set in order to
         display the message and to position the view correctly.
     type: String
+    constants: Titanium.UI.SIZE
 
   - name: left
     summary: Left position of the view.
@@ -104,20 +105,18 @@ properties:
   - name: style
     summary: The style for the activity indicator.
     description: |
-        One of the activity indicator style constants. On iOS: 
-        <Titanium.UI.iPhone.ActivityIndicatorStyle.DARK>, 
-        <Titanium.UI.iPhone.ActivityIndicatorStyle.BIG>, 
-        or <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN>. On Android and Mobile Web:
-        <Titanium.UI.ActivityIndicatorStyle.DARK>, 
-        <Titanium.UI.ActivityIndicatorStyle.BIG>, 
-        <Titanium.UI.ActivityIndicatorStyle.BIG_DARK>, 
-        or <Titanium.UI.ActivityIndicatorStyle.PLAIN>.
+        One of the activity indicator style constants.
+
+        For iOS, use one of the constants with `iPhone` in the namespace.
+
+        For Android and Mobile Web, use a constant without `iPhone` in the namespace.
 
         On Mobile Web, setting the style automatically sets the indicator color and diameter.
 
         See also: [indicatorColor](Titanium.UI.ActivityIndicator.indicatorColor),
         [indicatorDiameter](Titanium.UI.ActivityIndicator.indicatorDiameter)
     type: Number
+    constants: [Titanium.UI.iPhone.ActivityIndicatorStyle.*, Titanium.UI.ActivityIndicatorStyle.*]
     default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN> (iOS), <Titanium.UI.ActivityIndicatorStyle.PLAIN> (Android and Mobile Web)
     exclude-platforms: [blackberry]
 
@@ -150,6 +149,7 @@ properties:
         Width of the view. Only accepts value of <Titanium.UI.SIZE>, which must be explicitly set in order to
         display the message and to position the view correctly.
     type: String
+    constants: Titanium.UI.SIZE
     
 examples:
   - title: Simple Activity Indicator

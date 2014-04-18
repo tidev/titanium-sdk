@@ -560,6 +560,7 @@ properties:
     description: |
         One of the `NETWORK` constants defined in <Titanium.Network>.
     type: Number
+    constants: Titanium.Network.NETWORK_*
     permission: read-only
 
   - name: networkTypeName
@@ -617,7 +618,8 @@ summary: |
 properties:
   - name: types 
     summary: Array of `NOTIFICATION_TYPE` constants that the application would like to receive.
-    type: Array<Number> 
+    type: Array<Number>
+    constants: Titanium.Network.NOTIFICATION_TYPE_*
   - name: success 
     summary: |
         Callback function called when the push registration is successfully completed.

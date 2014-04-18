@@ -156,6 +156,16 @@ public abstract class TiUIView
 	{
 		add(child, -1);
 	}
+	
+	/**
+	 * Adds a child view into the ViewGroup in specific position.
+	 * @param child the view to be added.
+	 * @param position position the view to be added.
+	 */
+	public void insertAt(TiUIView child, int position)
+	{
+		add(child, position);
+	}
 
 	private void add(TiUIView child, int childIndex)
 	{
@@ -171,7 +181,14 @@ public abstract class TiUIView
 							((ViewGroup) nv).addView(cv, child.getLayoutParams());
 						}
 					}
-					children.add(child);
+					if(children.contains(child)) {
+						children.remove(child);
+					}
+					if(childIndex == -1) {
+						children.add(child);
+					} else {
+						children.add(childIndex, child);
+					}
 					child.parent = proxy;
 				}
 			}
@@ -460,6 +477,8 @@ public abstract class TiUIView
 		// Therefore, we must start the transformation after the layout pass when we get the height and width of the view.
 		if (animBuilder.isUsingPropertyAnimators()) {
 			startTransformAfterLayout(outerView);
+			//If the layout already done, the above call won't trigger the change, force layout change.
+			outerView.requestLayout();
 		} else {
 			animBuilder.start(this.proxy, outerView);
 		}
@@ -1309,26 +1328,24 @@ public abstract class TiUIView
 				@Override
 				public boolean onScale(ScaleGestureDetector sgd)
 				{
-					if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
-						float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
+					float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
 
-						// Suppress scale events (and allow for possible two-finger tap events)
-						// until we've moved at least a few pixels. Without this check, two-finger 
-						// taps are very hard to register on some older devices.
-						if (!didScale) {
-							if (Math.abs(sgd.getCurrentSpan() - startSpan) > SCALE_THRESHOLD) {
-								didScale = true;
-							} 
-						}
+					// Suppress scale events (and allow for possible two-finger tap events)
+					// until we've moved at least a few pixels. Without this check, two-finger 
+					// taps are very hard to register on some older devices.
+					if (!didScale) {
+						if (Math.abs(sgd.getCurrentSpan() - startSpan) > SCALE_THRESHOLD) {
+							didScale = true;
+						} 
+					}
 
-						if (didScale) {
-							KrollDict data = new KrollDict();
-							data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
-							data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
-							data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
-	
-							return fireEvent(TiC.EVENT_PINCH, data);
-						}
+					if (didScale) {
+						KrollDict data = new KrollDict();
+						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
+						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
+						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+
+						return fireEvent(TiC.EVENT_PINCH, data);
 					}
 					return false;
 				}
@@ -1411,10 +1428,12 @@ public abstract class TiUIView
 					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double) event.getY());
 				}
 
-				scaleDetector.onTouchEvent(event);
-				if (scaleDetector.isInProgress()) {
-					pointersDown = 0;
-					return true;
+				if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
+					scaleDetector.onTouchEvent(event);
+					if (scaleDetector.isInProgress()) {
+						pointersDown = 0;
+						return true;
+					}
 				}
 
 				boolean handled = detector.onTouchEvent(event);

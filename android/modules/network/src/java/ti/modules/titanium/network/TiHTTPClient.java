@@ -960,14 +960,18 @@ public class TiHTTPClient
 				String mimeType = blob.getMimeType();
 				File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
 				FileOutputStream fos = new FileOutputStream(tmpFile);
-				fos.write(blob.getBytes());
+				if (blob.getType() == TiBlob.TYPE_STREAM) {
+					TiBaseFile.copyStream(blob.getInputStream(), fos);
+				} else {
+					fos.write(blob.getBytes());
+				}
 				fos.close();
 
 				tmpFiles.add(tmpFile);
 
 				FileBody body = new FileBody(tmpFile, mimeType);
 				parts.put(name, body);
-				return blob.getLength();
+				return (int)tmpFile.length();
 
 			} else {
 				if (value != null) {

@@ -347,9 +347,6 @@ events:
 
   - name: touchend
     description: |
-        A list touch event and a list [scroll](Titanium.UI.ListView.scroll) event cannot occur concurrently. If a table begins
-        to scroll during a touch event, the `touchcancel` event fires before the `scroll` event begins.
-
         On the Android platform, other gesture events, such as `longpress` or `swipe`, cancel touch events,
         so this event may not be triggered after a `touchstart` event.
 
@@ -464,8 +461,9 @@ properties:
   - name: pullView
     summary: View positioned above the first row that is only revealed when the user drags the list view contents down.
     description: |
-        A `pullView` is a UI control that is often used to provide a convenient way for the user to refresh a table's data. 
-        Typically used in conjunction with [setContentInsets](Titanium.UI.ListView.setContentInsets) method and [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events.
+        A `pullView` is a UI control that is often used to provide a convenient way for the user to refresh
+        a table's data.  Typically used in conjunction with [setContentInsets](Titanium.UI.ListView.setContentInsets)
+        method and [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events.
 
         To specify the wrapper color see <Titanium.UI.View.pullBackgroundColor>.
 
@@ -503,9 +501,13 @@ properties:
   - name: searchView
     summary: Search field to use for the list view.
     description: |
-        Provides the same functionality as the [search](Titanium.UI.TableView.search) property in [TableView](Titanium.UI.TableView).
-        Used in conjunction with [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
-        On Android, you can either specify <Titanium.UI.SearchBar> or <Titanium.UI.Android.SearchView>, while on iOS only <Titanium.UI.SearchBar> is supported.
+        Provides the same functionality as the [search](Titanium.UI.TableView.search) property in
+        [TableView](Titanium.UI.TableView). Used in conjunction with
+        [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and
+        [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
+
+        On Android, you can either specify <Titanium.UI.SearchBar> or <Titanium.UI.Android.SearchView>,
+        while on iOS only <Titanium.UI.SearchBar> is supported.
 
         In an Alloy application, you can use a `<SearchView>` or `<SearchBar>` element inside a `<ListView>` element.
 
@@ -525,11 +527,15 @@ properties:
   - name: searchText
     summary: The string to use as the search parameter.
     description: |
-        Provides a generic search API for the List View. This property can not be used when the [searchView](Titanium.UI.ListView.searchView) property is set.
-        Used in conjunction with [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
+        Provides a generic search API for the List View. This property can not be used when the
+        [searchView](Titanium.UI.ListView.searchView) property is set. Used in conjunction with
+        [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and
+        [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
 
-        On iOS, when using this property the [style](Titanium.UI.ListView.style) property of the List View is honored. If the [keepSectionsInSearch](Titanium.UI.ListView.keepSectionsInSearch) property
-        is set to true then section information is preserved in the search results, otherwise the search results are displayed in a single section.
+        On iOS, when using this property the [style](Titanium.UI.ListView.style) property of the
+        List View is honored. If the [keepSectionsInSearch](Titanium.UI.ListView.keepSectionsInSearch) property
+        is set to true then section information is preserved in the search results, otherwise the search
+        results are displayed in a single section.
     type: String
     platforms: [android, iphone, ipad]
     since: 3.2.0
@@ -547,7 +553,8 @@ properties:
   - name: keepSectionsInSearch
     summary: Determines if the section information is displayed in the search results when using the `searchText` property.
     description: |
-        Used in conjunction with [searchText](Titanium.UI.ListView.searchText) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
+        Used in conjunction with [searchText](Titanium.UI.ListView.searchText) property of List View
+        and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
     type: Boolean
     default: false
     platforms: [iphone, ipad]
@@ -563,10 +570,9 @@ properties:
     since: 3.2.0
 
   - name: scrollIndicatorStyle
-    summary: |
-        Style of the scrollbar, specified using one of the constants from
-        <Titanium.UI.iPhone.ScrollIndicatorStyle>.
+    summary: Style of the scrollbar.
     type: Number
+    constants: Titanium.UI.iPhone.ScrollIndicatorStyle.*
     default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
     platforms: [iphone, ipad]
 
@@ -619,20 +625,17 @@ properties:
 
   - name: separatorStyle
     summary: Separator style constant. 
-    description: |
-        For iOS specify one of the 
-        [ListViewSeparatorStyle](Titanium.UI.iPhone.ListViewSeparatorStyle) constants.
     type: Number
+    constants: Titanium.UI.iPhone.ListViewSeparatorStyle.*
     since: 3.2.0
     platforms: [iphone, ipad]
 
   - name: style
-    summary: |
-        Style of the list view, specified using one of the constants from
-        <Titanium.UI.iPhone.ListViewStyle>.
+    summary: Style of the list view.
     description: Style should always be set before setting the sections on list view.
     type: Number
     default: Titanium.UI.iPhone.ListViewStyle.PLAIN
+    constants: Titanium.UI.iPhone.ListViewStyle.*
     platforms: [iphone, ipad]
     availability: creation
 
@@ -645,6 +648,8 @@ methods:
         On Android 4.x, the list does not stop at the correct position.
         This is a known bug in Android.
         ([Android Issue #37278](https://code.google.com/p/android/issues/detail?id=37278))
+
+        Android added support for the `animation` parameter in Release 3.3.0 on the Titanium SDK.
     parameters:
       - name: sectionIndex
         summary: Section index.
@@ -655,7 +660,7 @@ methods:
         type: Number
 
       - name: animation
-        summary: Animation properties. (iOS only.)
+        summary: Animation properties. (iOS and Android only.)
         type: ListViewAnimationProperties
         optional: true
 
@@ -1194,7 +1199,9 @@ description: |
     `animationStyle` does not apply to the `scrollToItem` method.
 
     `positon` only applies to the `scrollToItem` method.
-platforms: [iphone, ipad]
+
+    Since Release 3.3.0 of the Titanium SDK, Android supports the `animated` property and is applicable only to `scrollToItem`
+platforms: [iphone, ipad, android]
 since: '3.1.0'
 properties:
   - name: animated
@@ -1203,19 +1210,17 @@ properties:
     default: true
 
   - name: animationStyle
-    summary: |
-        Type of animation to use for cell insertions and deletions. One of the animation style
-        constants defined in <Titanium.UI.iPhone.RowAnimationStyle>.
+    summary: Type of animation to use for cell insertions and deletions.
     type: Number
+    constants: Titanium.UI.iPhone.RowAnimationStyle.*
     default: |
         If `animated` is `true` but no `animationStyle` is specified, the style defaults to 
         [FADE](Titanium.UI.iPhone.RowAnimationStyle.FADE).
 
   - name: position
-    summary: |
-        Specifies what position to scroll the selected cell to. One of the position constants from 
-        <Titanium.UI.iPhone.ListViewScrollPosition>.
+    summary: Specifies what position to scroll the selected cell to.
     type: Number
+    constants: Titanium.UI.iPhone.ListViewScrollPosition.*
     default: Titanium.UI.iPhone.ListViewScrollPosition.NONE
 
 ---
