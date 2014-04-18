@@ -69,7 +69,7 @@ description: |
 
     Starting with Android 4.4. (API Level 19), the WebView component is based off of Chromium,
     introducing a number of changes to its rendering engine.  Web content may look or behave
-    differently depending on the version Android you are running.  The WebView does not
+    differently depending on the Android version.  The WebView does not
     have full feature parity with Chrome for Android.
 
     By default, the Chromium WebView uses hardware acceleration, which may cause content to
@@ -87,7 +87,7 @@ description: |
     not calculate the sizes correctly when hardware acceleration is enabled, resulting in the same
     behavior previously mentioned.
 
-    To workaround this issue, you can use the previous mentioned workaround to enable software
+    To workaround this issue, you can use the previously mentioned workaround to enable software
     rendering, use absolute size values or use the
     [onresize](https://developer.mozilla.org/en-US/docs/Web/API/Window.onresize) event to set the
     heights of the components.  For example, if you have a div element with an id set to `component`
