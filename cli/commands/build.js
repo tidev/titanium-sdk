@@ -34,6 +34,8 @@ exports.desc = __('builds a project');
 exports.extendedDesc = 'Builds an existing app or module project.';
 
 exports.config = function (logger, config, cli) {
+	fields.setup({ colors: cli.argv.colors });
+
 	return function (finished) {
 		cli.createHook('build.config', function (callback) {
 			ti.platformOptions(logger, config, cli, 'build', function (platformConf) {
