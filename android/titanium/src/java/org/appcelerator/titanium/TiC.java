@@ -2362,6 +2362,10 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_WINDOW_FLAGS = "windowFlags";
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_WINDOW_PIXEL_FORMAT = "windowPixelFormat";
 
 	/**

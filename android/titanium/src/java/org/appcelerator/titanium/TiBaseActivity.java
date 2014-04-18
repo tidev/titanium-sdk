@@ -412,9 +412,14 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		boolean fullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
 		boolean modal = getIntentBoolean(TiC.PROPERTY_MODAL, false);
 		int softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, -1);
+		int windowFlags = getIntentInt(TiC.PROPERTY_WINDOW_FLAGS, 0);
 		boolean hasSoftInputMode = softInputMode != -1;
 		
 		setFullscreen(fullscreen);
+		
+		if (windowFlags > 0) {
+			getWindow().addFlags(windowFlags);
+		}
 
 		this.requestWindowFeature(Window.FEATURE_PROGRESS);
 		this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);

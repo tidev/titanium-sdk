@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.utils;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -20,6 +21,11 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiFileProxy;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.util.TiMimeTypeHelper;
+
+import android.util.Base64InputStream;
 
 @Kroll.module
 public class UtilsModule extends KrollModule
@@ -52,6 +58,14 @@ public class UtilsModule extends KrollModule
 	{
 		if (obj instanceof TiBlob) {
 			return TiBlob.blobFromString(((TiBlob) obj).toBase64());
+		} else if (obj instanceof TiFileProxy) {
+			try {
+				return TiBlob.blobFromStream(new Base64InputStream(((TiFileProxy) obj).getInputStream(),
+					android.util.Base64.DEFAULT), TiMimeTypeHelper.getMimeType(((TiFileProxy) obj).getBaseFile()
+					.nativePath()));
+			} catch (IOException e) {
+				Log.e(TAG, "Problem reading file");
+			}
 		}
 		String data = convertToString(obj);
 		if (data != null) {

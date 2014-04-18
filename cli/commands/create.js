@@ -58,6 +58,8 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 	this.config = config;
 	this.cli = cli;
 
+	fields.setup({ colors: cli.argv.colors });
+
 	return function (finished) {
 		cli.createHook('create.config', this, function (callback) {
 			var conf,
