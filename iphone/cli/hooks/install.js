@@ -78,10 +78,11 @@ exports.init = function (logger, config, cli) {
 							endLog = false,
 							devices = builder.deviceId == 'all' ? connectedDevices : connectedDevices.filter(function (device) { return device.udid == builder.deviceId; }),
 							instances = devices.length,
-							logRegExp = new RegExp(' ' + cli.tiapp.name + '[^:]+: (.*)'),
+							logRegExp = new RegExp(' ' + cli.tiapp.name + '\\[(\\d+)\\][^:]+: (.*)'),
+							installedRegExp = new RegExp(' installd\\[[^:]+: [^:]+: Installing app ' + cli.tiapp.id),
 							levels = logger.getLevels(),
 							logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i'),
-							quitRegExp = new RegExp(' backboardd[^:]+: Application .+\\:' + cli.tiapp.id + '\\[');
+							quitRegExp = new RegExp(' backboardd\\[[^:]+: Application .+\\:' + cli.tiapp.id + '\\[');
 
 						logger.debug(__('Waiting for device logs to sync'));
 
@@ -92,6 +93,7 @@ exports.init = function (logger, config, cli) {
 									PUMPING_LOG = 1,
 									INSTALLING = 2,
 									INSTALLED = 3,
+									RUNNING = 4,
 									state = PUMPING_LOG,
 									timer = null;
 
@@ -113,27 +115,39 @@ exports.init = function (logger, config, cli) {
 															logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device'));
 														}
 														next(err);
-													} else {
-														logger.info(__('App successfully installed on device: %s', device.name.cyan));
-														state = INSTALLED;
-														next();
-													}
-
-													if (displayStartLog) {
-														logger.log(__('Please manually launch the application or press CTRL-C to quit').magenta + '\n');
-														var startLogTxt = __('Start application log');
-														logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
-														displayStartLog = false;
 													}
 												});
 											}, 500);
 										} else if (state == INSTALLING) {
-											// do nothing
+											// wait for the installd message
+											var m = msg.match(installedRegExp);
+											if (m) {
+												// now the app is installed
+												logger.info(__('App successfully installed on device: %s', device.name.cyan));
+												next();
+												state = INSTALLED;
+												setTimeout(function () {
+													logger.log(__('Please manually launch the application or press CTRL-C to quit').magenta + '\n');
+												}, 50);
+											}
 										} else if (state == INSTALLED) {
+											// wait for the app to be started
+											var m = msg.match(logRegExp);
+											if (m) {
+												state = RUNNING;
+											}
+										}
+
+										if (state == RUNNING) {
 											var m = msg.match(logRegExp);
 											if (m) {
 												// one of our log messages
-												msg = m[1];
+												if (displayStartLog) {
+													var startLogTxt = __('Start application log');
+													logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
+													displayStartLog = false;
+												}
+												msg = m[2];
 												m = msg.match(logLevelRE);
 												if (m) {
 													var line = m[0].trim();
@@ -151,6 +165,11 @@ exports.init = function (logger, config, cli) {
 												}
 											} else if (/^\s/.test(msg) && lastLineWasOurs) {
 												// one of our multiline log messages
+												if (displayStartLog) {
+													var startLogTxt = __('Start application log');
+													logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
+													displayStartLog = false;
+												}
 												msg = msg.replace(/^\t/, '');
 												if (levels.indexOf(lastLogger) == -1) {
 													logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + msg);
