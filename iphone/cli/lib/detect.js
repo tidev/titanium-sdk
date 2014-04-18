@@ -358,19 +358,22 @@ exports.detect = function detect(config, opts, finished) {
 
 									out.trim().split(begin).forEach(function (c, i) {
 										if (!i) return; // skip first element because it's empty from the split
-										var cert = pki.certificateFromPem(begin + c),
-											expired = cert.validity.notAfter < now,
-											invalid = expired || cert.validity.notBefore > now;
 
-										dest.developer || (dest.developer = []);
+										try {
+											var cert = pki.certificateFromPem(begin + c),
+												expired = cert.validity.notAfter < now,
+												invalid = expired || cert.validity.notBefore > now;
 
-										dest.developer.push({
-											name: cert.subject.getField('CN').value.substring(iphoneDev.length).trim(),
-											before: cert.validity.notBefore,
-											after: cert.validity.notAfter,
-											expired: expired,
-											invalid: invalid
-										});
+											dest.developer || (dest.developer = []);
+
+											dest.developer.push({
+												name: cert.subject.getField('CN').value.substring(iphoneDev.length).trim(),
+												before: cert.validity.notBefore,
+												after: cert.validity.notAfter,
+												expired: expired,
+												invalid: invalid
+											});
+										} catch (e) {}
 									});
 
 									next();
@@ -384,19 +387,22 @@ exports.detect = function detect(config, opts, finished) {
 
 									out.trim().split(begin).forEach(function (c, i) {
 										if (!i) return; // skip first element because it's empty from the split
-										var cert = pki.certificateFromPem(begin + c),
-											expired = cert.validity.notAfter < now,
-											invalid = expired || cert.validity.notBefore > now;
 
-										dest.distribution || (dest.distribution = []);
+										try {
+											var cert = pki.certificateFromPem(begin + c),
+												expired = cert.validity.notAfter < now,
+												invalid = expired || cert.validity.notBefore > now;
 
-										dest.distribution.push({
-											name: cert.subject.getField('CN').value.substring(iphoneDist.length).trim(),
-											before: cert.validity.notBefore,
-											after: cert.validity.notAfter,
-											expired: expired,
-											invalid: invalid
-										});
+											dest.distribution || (dest.distribution = []);
+
+											dest.distribution.push({
+												name: cert.subject.getField('CN').value.substring(iphoneDist.length).trim(),
+												before: cert.validity.notBefore,
+												after: cert.validity.notAfter,
+												expired: expired,
+												invalid: invalid
+											});
+										} catch (e) {}
 									});
 
 									next();
@@ -412,11 +418,14 @@ exports.detect = function detect(config, opts, finished) {
 
 									out.trim().split(begin).forEach(function (c, i) {
 										if (!i) return; // skip first element because it's empty from the split
-										var cert = pki.certificateFromPem(begin + c),
-											invalid = cert.validity.notAfter < now || cert.validity.notBefore > now;
-										if (!invalid) {
-											result.wwdr = true;
-										}
+
+										try {
+											var cert = pki.certificateFromPem(begin + c),
+												invalid = cert.validity.notAfter < now || cert.validity.notBefore > now;
+											if (!invalid) {
+												result.wwdr = true;
+											}
+										} catch (e) {}
 									});
 
 									next();
