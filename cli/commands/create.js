@@ -20,6 +20,8 @@ exports.cliVersion = '>=3.2.1';
 exports.desc = __('creates a new mobile application'); // or module
 
 exports.config = function config(logger, config, cli) {
+	fields.setup({ colors: cli.argv.colors });
+
 	return function (finished) {
 		cli.createHook('create.config', function (callback) {
 			var conf,
