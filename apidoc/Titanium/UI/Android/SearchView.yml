@@ -131,7 +131,7 @@ examples:
 
             <Alloy>
                 <Window id="win" backgroundColor="blue" fullscreen="false" layout="vertical">
-                    <TableView id="tableview" top="10">
+                    <TableView id="tableview" top="10" searchAsChild="false">
                         <TableViewRow title="Apple" />
                         <TableViewRow title="Banana" />
                         <TableViewRow title="Orange" />
@@ -144,7 +144,6 @@ examples:
 
             // use action bar search view
             var search = Alloy.createController("searchview").getView();
-            $.tableview.searchAsChild = false;
             $.tableview.search = search;
             $.win.addEventListener("open", function() {
                 $.win.activity.onCreateOptionsMenu = function(e) {
