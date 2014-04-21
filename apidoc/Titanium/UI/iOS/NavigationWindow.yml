@@ -54,7 +54,7 @@ methods:
       - name: options
         summary: |
             Options supporting a single `animated` boolean property to determine whether the window 
-            will be animated (default) while being closed.
+            will be animated (default) while being opened.
         type: Dictionary
 
 examples:
