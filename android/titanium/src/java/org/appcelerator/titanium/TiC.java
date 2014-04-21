@@ -153,6 +153,16 @@ public class TiC
 	 */
 	public static final String EVENT_FOCUSED = "focused";
 
+        /**
+         * @module.api
+         */
+        public static final String EVENT_SELECTED = "selected";
+
+        /**
+         * @module.api
+         */
+        public static final String EVENT_UNSELECTED = "unselected";
+
 	/**
 	 * @module.api
 	 */
