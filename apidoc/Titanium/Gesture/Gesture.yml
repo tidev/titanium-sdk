@@ -112,17 +112,10 @@ events:
         `PORTRAIT` and `LANDSCAPE_LEFT`, respectively. 
     properties:
       - name: orientation
-        summary: |
-            Orientation of the current window.  
-            Value will be one of the group of <Titanium.UI> orientation constants, 
-            <Titanium.UI.PORTRAIT>, 
-            <Titanium.UI.UPSIDE_PORTRAIT>, 
-            <Titanium.UI.LANDSCAPE_LEFT>, 
-            <Titanium.UI.LANDSCAPE_RIGHT>, 
-            <Titanium.UI.FACE_UP>, 
-            <Titanium.UI.FACE_DOWN>, 
-            or <Titanium.UI.UNKNOWN>.
+        summary: Orientation of the current window.
         type: Number
+        constants: [Titanium.UI.PORTRAIT, Titanium.UI.UPSIDE_PORTRAIT, Titanium.UI.LANDSCAPE_*,
+                    Titanium.UI.FACE_*, Titanium.UI.UNKNOWN]
 
   - name: shake
     summary: Fired when the device is shaken.

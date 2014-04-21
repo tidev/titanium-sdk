@@ -943,6 +943,7 @@ properties:
   - name: availableCameras
     summary: Array indicating which cameras are available, `CAMERA_FRONT`, `CAMERA_REAR` or both.
     type: Array<Number>
+    constants: Titanium.Media.CAMERA_*
     platforms: [iphone, ipad, android]
     since:
         android: "3.2.0"
@@ -950,14 +951,17 @@ properties:
   - name: availableCameraMediaTypes
     summary: Array of media type constants supported for the camera.
     type: Array<Object>
+    constants: Titanium.Media.MEDIA_TYPE_*
     platforms: [iphone, ipad]
   - name: availablePhotoGalleryMediaTypes
     summary: Array of media type constants supported for saving to the device's camera roll or saved images album.
     type: Array<Object>
+    constants: Titanium.Media.MEDIA_TYPE_*
     platforms: [iphone, ipad]
   - name: availablePhotoMediaTypes
     summary: Array of media type constants supported for the photo library.
     type: Array<Object>
+    constants: Titanium.Media.MEDIA_TYPE_*
     platforms: [iphone, ipad]
   - name: averageMicrophonePower
     summary: Current average microphone level in dB or -1 if microphone monitoring is disabled.
@@ -1076,9 +1080,8 @@ since: "1.8"
 properties:
   - name: grouping
     summary: A constant that specifies the ordering of the result array.
-        One of the `MUSIC_MEDIA_GROUP_*` constants specified on the
-        <Titanium.Media> module.
     type: Number
+    constants: Titanium.Media.MUSIC_MEDIA_GROUP_*
   - name: mediaType
     summary: The media type to filter on.
     type: [MediaQueryInfoType, Number]

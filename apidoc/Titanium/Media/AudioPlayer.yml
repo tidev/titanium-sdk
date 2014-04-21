@@ -176,9 +176,9 @@ events:
         and also by external events, such as the current state of network buffering.
     properties:
       - name: state
-        summary: |
-            Current state of playback, specified using one of the `STATE` constants defined on this object.
+        summary: Current state of playback.
         type: Number
+        constants: Titanium.Media.AudioPlayer.STATE_*
       - name: description
         summary: Text description of the state of playback.
 
