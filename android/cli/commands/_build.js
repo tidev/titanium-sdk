@@ -2165,6 +2165,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		jsFiles = {},
 		jsFilesToEncrypt = this.jsFilesToEncrypt = [],
 		htmlJsFiles = this.htmlJsFiles = {},
+		symlinkFiles = process.platform != 'win32' && this.config.get('android.symlinkResources', true),
 		_t = this;
 
 	function copyDir(opts, callback) {
@@ -2180,7 +2181,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	function copyFile(from, to, next) {
 		var d = path.dirname(to);
 		fs.existsSync(d) || wrench.mkdirSyncRecursive(d);
-		if (process.platform != 'win32' && this.config.get('android.symlinkResources', true)) {
+		if (symlinkFiles) {
 			fs.existsSync(to) && fs.unlinkSync(to);
 			this.logger.debug(__('Symlinking %s => %s', from.cyan, to.cyan));
 			if (next) {
@@ -2527,9 +2528,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
 								fs.writeFile(to, r.contents, cb2);
 							})(r, from, to, cb);
+						} else if (symlinkFiles) {
+							copyFile.call(this, from, to, cb);
 						} else {
+							// we've already read in the file, so just write the original contents
 							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-
 							fs.writeFile(to, r.contents, cb);
 						}
 					})(from, to, done);
