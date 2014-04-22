@@ -727,8 +727,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	 * This is for parity with android, if the file is located in the Resources, then __dirname returns "."
 	 * otherwise the __dirname returns the folder names separated by "/"
 	 * for example:
-	 *		"/Resources/constants.js"			__dirname = "."
-	 *		"/Resources/views/login/window.js"	__dirname = "views/login"
+	 *      "/Resources/constants.js"           __dirname = "."
+	 *      "/Resources/views/login/window.js"  __dirname = "views/login"
 	 */
 	
 	NSString *filename = [sourceURL lastPathComponent];
