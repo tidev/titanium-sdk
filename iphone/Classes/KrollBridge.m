@@ -26,10 +26,10 @@
 extern BOOL const TI_APPLICATION_ANALYTICS;
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
-NSString * TitaniumModuleRequireFormat = @"(function(exports){"
+NSString * TitaniumModuleRequireFormat = @"(function(exports,__filename,__dirname){"
 		"var __OXP=exports;var module={'exports':exports};%@;\n"
 		"if(module.exports !== __OXP){return module.exports;}"
-		"return exports;})({})";
+		"return exports;})({},'%@','%@')";
 
 
 //Defined private method inside TiBindingRunLoop.m (Perhaps to move to .c?)
@@ -721,9 +721,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(id)loadCommonJSModule:(NSString*)code withSourceURL:(NSURL *)sourceURL
 {
-	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat,code];
+    NSString *directory = [[[sourceURL absoluteString] stringByDeletingLastPathComponent] stringByReplacingOccurrencesOfString:@"file:/" withString:@"file:///"];
+    NSString *filename  = [[[sourceURL absoluteString] lastPathComponent] stringByReplacingOccurrencesOfString:@"file:/" withString:@"file:///"];
 
-	/* This most likely should be integrated with normal code flow, but to
+    NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat,code, filename, directory];
+	
+    /* This most likely should be integrated with normal code flow, but to
 	 * minimize impact until a in-depth reconsideration of KrollContext can be
 	 * done, we should have as little footprint 
 	 */
