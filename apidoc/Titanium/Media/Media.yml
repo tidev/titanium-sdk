@@ -943,7 +943,7 @@ properties:
   - name: availableCameras
     summary: Array indicating which cameras are available, `CAMERA_FRONT`, `CAMERA_REAR` or both.
     type: Array<Number>
-    constants: Titanium.Media.CAMERA_*
+    constants: [Titanium.Media.CAMERA_FRONT, Titanium.Media.CAMERA_REAR]
     platforms: [iphone, ipad, android]
     since:
         android: "3.2.0"
