@@ -162,6 +162,25 @@ methods:
         type: Callback<CloudPushNotificationsResponse>
     since: 3.1.2
 
+  - name: updateSubscription
+    summary: Updates a user's notification subscription with the device's location.
+    description: |
+        This allows a Appcelerator Dashboard administrator to send push notifications to devices
+        that are located within a specified geographic region. See example below.
+
+        See [push_notifications/unsubscribe.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-subscription_update)
+        for the request parameters supported by this method.
+
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request. 
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+
+
   - name: queryChannels
     summary: Returns a list of push notification channels the user is subscribed to.
     description: |
@@ -262,6 +281,35 @@ examples:
                 }
             });
 
+  - title: Update Subscription
+    example: |
+        This example updates the user's notification subscription with the device's current
+        location, upon successfully obtaining the device's current position.
+
+            var latitude, longitude, 
+            var pushDeviceToken; // Device token obtained earlier...
+
+            Titanium.Geolocation.getCurrentPosition(function(e) {
+                if (e.error) {
+                    Ti.API.error('Error: ' + e.error);
+                } else {
+                    latitude = e.coords.latitude;
+                    longitude = e.coords.longitude;
+                    Cloud.PushNotifications.updateSubscription({
+                        device_token: pushDeviceToken,
+                        loc: [longitude, latitude]
+                    }, function (e) {
+                        if (e.success) {
+                            alert('Subscription Updated.');
+                        }
+                        else {
+                            alert(e);
+                        }
+                        button.show();
+                    });                        
+                }
+            });
+        
 ---
 name: CloudPushNotificationsResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
