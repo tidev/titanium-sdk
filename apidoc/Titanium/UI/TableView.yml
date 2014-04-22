@@ -1437,6 +1437,7 @@ properties:
         <Titanium.UI.iPhone.TableViewStyle>.
     description: Style should always be set before setting the `data` on table view. 
     type: Number
+    constants: Titanium.UI.iPhone.TableViewStyle.*
     platforms: [iphone, ipad]
 
 examples:

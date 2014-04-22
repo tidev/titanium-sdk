@@ -167,9 +167,9 @@ methods:
         type: String
         
       - name: convertToUnits
-        summary: |
-            Desired unit for the conversion result. Use one of the unit constants in <Titanium.UI>.
-        type: String
+        summary: Desired unit for the conversion result.
+        type: Number
+        constants: Titanium.UI.UNIT_*
     exclude-platforms: [blackberry]
 
 properties:
