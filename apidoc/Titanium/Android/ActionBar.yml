@@ -64,7 +64,27 @@ methods:
         See also:
         [hide](http://developer.android.com/reference/android/app/ActionBar.html#hide())
         in the Android API Reference.
-
+  
+  - name: setDisplayShowHomeEnabled
+    summary: Shows or hides the action bar home icon
+    type: Boolean
+    description: |
+        See also:
+        [setDisplayShowHomeEnabled](http://developer.android.com/reference/android/app/ActionBar.html#setDisplayShowHomeEnabled(boolean))
+        in the Android API Reference.
+    since: ["3.3.0"]
+    default: undefined but behaves as true
+    
+  - name: setDisplayShowTitleEnabled
+    summary: Shows or hides the action bar title/subtitle
+    type: Boolean
+    description: |
+        See also:
+        [setDisplayShowTitleEnabled](http://developer.android.com/reference/android/app/ActionBar.html#setDisplayShowTitleEnabled(boolean))
+        in the Android API Reference.
+    since: ["3.3.0"]
+    default: undefined but behaves as true
+        
   - name: show
     summary: Shows the action bar if it is currently hidden.
     description: |
