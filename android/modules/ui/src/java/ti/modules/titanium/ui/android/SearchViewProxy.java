@@ -31,12 +31,7 @@ public class SearchViewProxy extends TiViewProxy
 	@Override
 	public TiUIView createView(Activity activity)
 	{
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
-			return new TiUISearchView(this);
-		}
-
-		Log.e(TAG, "SearchView is only supported on target API 11+");
-		return null;
+		return new TiUISearchView(this);
 	}
 
 	@Override
