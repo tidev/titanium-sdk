@@ -165,8 +165,9 @@ methods:
   - name: updateSubscription
     summary: Updates a user's notification subscription with the device's location.
     description: |
-        This allows a Appcelerator Dashboard administrator to send push notifications to devices
-        that are located within a specified geographic region. 
+        This allows an Appcelerator Dashboard administrator 
+        to send push notifications to devices located within a specified geographic region. For details, see 
+        [Sending and scheduling push notifications](http://docs.appcelerator.com/platform/latest/#!/guide/Sending_and_scheduling_push_notifications). 
 
         See [push_notifications/unsubscribe.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-subscription_update)
         for the request parameters supported by this method.
