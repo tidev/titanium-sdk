@@ -75,7 +75,7 @@ methods:
         See also:
         [setDisplayShowHomeEnabled](http://developer.android.com/reference/android/app/ActionBar.html#setDisplayShowHomeEnabled(boolean))
         in the Android API Reference.
-    since: ["3.3.0"]
+    since: "3.3.0"
     
   - name: setDisplayShowTitleEnabled
     summary: Shows or hides the action bar title/subtitle
@@ -87,7 +87,7 @@ methods:
         See also:
         [setDisplayShowTitleEnabled](http://developer.android.com/reference/android/app/ActionBar.html#setDisplayShowTitleEnabled(boolean))
         in the Android API Reference.
-    since: ["3.3.0"]
+    since: "3.3.0"
         
   - name: show
     summary: Shows the action bar if it is currently hidden.

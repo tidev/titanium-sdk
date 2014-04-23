@@ -351,6 +351,7 @@ public class ActionBarProxy extends KrollProxy
 					actionBar.setDisplayShowTitleEnabled(show);
 					showTitleEnabled = show;
 				}
+				return true;
 			}
 			case MSG_SHOW:
 				handleShow();
