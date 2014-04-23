@@ -67,7 +67,7 @@ description: |
 
     **Android 4.4 and Later Support**
 
-    Starting with Android 4.4. (API Level 19), the WebView component is based off of Chromium,
+    Starting with Android 4.4 (API Level 19), the WebView component is based off of Chromium,
     introducing a number of changes to its rendering engine.  Web content may look or behave
     differently depending on the Android version.  The WebView does not
     have full feature parity with Chrome for Android.
@@ -83,7 +83,7 @@ description: |
     To workaround this issue, you can enable software rendering by setting the WebView's
     [borderRadius](Titanium.UI.WebView.borderRadius) property to a value greater than zero.
 
-    If you are developing local HTML content and size your elements using percents, the WebView may
+    If you are developing local HTML content and size your elements using percentages, the WebView may
     not calculate the sizes correctly when hardware acceleration is enabled, resulting in the same
     behavior previously mentioned.
 
@@ -105,9 +105,11 @@ description: |
 
     **Plugin Support**
 
-    The Android web view supports native plugins such as Flash Player. To use plugin
-    content, you must set the [pluginState](Titanium.UI.WebView.pluginState) property to
-    either [WEBVIEW_PLUGINS_ON](Titanium.UI.Android.WEBVIEW_PLUGINS_ON) or 
+    The Android web view supports native plugins such as Flash Player. Note that the Chromium-based
+    web view introduced in Android 4.4 does not support the Flash Player plugin.
+
+    To use plugin content, you must set the [pluginState](Titanium.UI.WebView.pluginState) property
+    to either [WEBVIEW_PLUGINS_ON](Titanium.UI.Android.WEBVIEW_PLUGINS_ON) or
     [WEBVIEW_PLUGINS_ON_DEMAND](Titanium.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND).
 
     You must also call [pause](Titanium.UI.WebView.pause) when the current activity is
