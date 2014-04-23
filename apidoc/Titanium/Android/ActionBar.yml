@@ -1,15 +1,22 @@
 ---
 name: Titanium.Android.ActionBar
-summary: The Titanium binding of an Android Action Bar.
+summary: |
+    An action bar is a window feature that identifies the application and user location,
+    and provides user actions and navigation modes.
 description: |
-    According to the Android API Reference, an action bar is a window feature that identifies
-    the application and user location, and provides user actions and navigation modes.  This
-    feature is only available in Android 3.0 (API level 11) and above.
+    Starting with Release 3.3.0, the Titanium SDK uses the appcompat library to provide support for
+    the action bar, including devices running Android 2.3.x and prior. If you are using a release earlier
+    than 3.3.0, refer to the _Applicaton Note_ below for additional information.
 
-    To access the action bar, you must first open a heavyweight window or tab group that
-    uses one of the action bar themes (such as the Android Holo theme). You can then
-    access the action bar from the window or tab group's [activity](Titanium.Android.Activity). 
-    In addition, setting the [Window.navBarHidden](Titanium.UI.Window.navBarHidden) or
+    In Alloy, to use the action bar, add the **`<Menu>`** tag as a child of either
+    a `<Window>` or `<TabGroup>`, then set ActionBar attributes in the XML or TSS file.
+    To add action items to the action bar, add **`<MenuItem>`** tags as children of the `<Menu>` tag,
+    then set MenuItem attributes in either the XML or TSS file.
+
+    In JavaScript, wait for the window or tab group's `open` event before accessing
+    the action bar from the window or tab group's [activity](Titanium.Android.Activity).
+
+    Note that setting the [Window.navBarHidden](Titanium.UI.Window.navBarHidden) or
     [TabGroup.navBarHidden](Titanium.UI.TabGroup.navBarHidden) property to true disables the
     Action Bar since it is part of the navigation title bar.
 
@@ -17,10 +24,53 @@ description: |
     menu items to display as action items. See [Menu](Titanium.Android.Menu) and
     [MenuItem](Titanium.Android.MenuItem) for details.
 
-    See: [Action Bar](http://developer.android.com/guide/topics/ui/actionbar.html)
-    in the Android API Reference.
+    For more examples on using the Action Bar, refer to the
+    [Android Action Bar guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Android_Action_Bar).
+
+    #### Application Note for Release 3.2.x and earlier
+
+    If you are using Release 3.2.x or earlier, this feature is only available in Android 3.0
+    (API level 11) and above.
+
+    To access the action bar, you must first open a heavyweight window or tab group that
+    uses one of the action bar themes (such as the Android Holo theme).
 
 examples:
+
+  - title: Action Bar using Alloy XML Markup
+    example: |
+        Adds action items and sets several properties on a window's action bar in the XML and TSS files.
+
+        `app/views/index.xml`:
+
+            <Alloy>
+                <Window title="My Test App">
+                    <Menu id="menu" platform="android" title="My XML Menu" onHomeIconItemSelected="doMenuClick">
+                        <MenuItem id="item1" title="Settings" onClick="openSettings" />
+                        <MenuItem id="item2" title="Search" onClick="doSearch" />
+                    </Menu>
+                    <Label id="label">Welcome!</Label>
+                </Window>
+            </Alloy>
+
+        `app/styles/index.tss`:
+
+            "MenuItem": {
+                showAsAction: Ti.Android.SHOW_AS_ACTION_ALWAYS
+            },
+            "#item1": {
+                icon: Ti.Android.R.drawable.ic_menu_preferences
+            },
+            "#item2": {
+                icon: Ti.Android.R.drawable.ic_menu_search
+            },
+            "#menu": {
+                icon: "/actionicon.png",
+                displayHomeAsUp: true,
+                backgroundImage: "/actionbackground.png"
+            }
+
+
   - title: Action Bar Example
     example: |
         The following example sets several properties on a window's action bar.
