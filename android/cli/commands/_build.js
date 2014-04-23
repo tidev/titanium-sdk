@@ -91,6 +91,8 @@ function AndroidBuilder() {
 
 	this.tiSymbols = {};
 
+	this.dexAgent = false;
+
 	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
 	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
 	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
@@ -3619,6 +3621,8 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	// merge the tiapp.xml android manifest
 	finalAndroidManifest.merge(tiappAndroidManifest);
 
+	var androidConfig = this;
+
 	this.modules.forEach(function (module) {
 		var moduleXmlFile = path.join(module.modulePath, 'timodule.xml');
 		if (fs.existsSync(moduleXmlFile)) {
@@ -3631,6 +3635,10 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				delete am['supports-screens'];
 				delete am['uses-sdk'];
 				finalAndroidManifest.merge(am);
+			}
+			// point to the .jar file if the timodule.xml file has properties of 'dexAgent'
+			if (moduleXml.properties && moduleXml.properties['dexAgent']) {
+				androidConfig.dexAgent = path.join(module.modulePath, moduleXml.properties['dexAgent'].value);
 			}
 		}
 	});
@@ -3917,7 +3925,13 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			'--output=' + this.buildBinClassesDex,
 			this.buildBinClassesDir,
 			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
-		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+		]
+		// inserts the -javaagent arg earlier on in the dexArgs to allow for proper dexing if
+		// dexAgent is set in the module's timodule.xml
+		if (this.dexAgent) {
+			dexArgs.unshift('-javaagent:' + this.dexAgent);
+		}
+		dexArgs = dexArgs.concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
 
 	if (this.allowDebugging && this.debugPort) {
 		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
