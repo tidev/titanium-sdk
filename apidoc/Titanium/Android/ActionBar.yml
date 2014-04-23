@@ -67,7 +67,10 @@ methods:
   
   - name: setDisplayShowHomeEnabled
     summary: Shows or hides the action bar home icon
-    type: Boolean
+    parameters:
+      - name: show
+        summary: Boolean to show or hide action bar home icon
+        type: Boolean
     description: |
         See also:
         [setDisplayShowHomeEnabled](http://developer.android.com/reference/android/app/ActionBar.html#setDisplayShowHomeEnabled(boolean))
@@ -77,7 +80,10 @@ methods:
     
   - name: setDisplayShowTitleEnabled
     summary: Shows or hides the action bar title/subtitle
-    type: Boolean
+    parameters:
+      - name: show
+        summary: Boolean to show or hide action bar title/subtitle
+        type: Boolean
     description: |
         See also:
         [setDisplayShowTitleEnabled](http://developer.android.com/reference/android/app/ActionBar.html#setDisplayShowTitleEnabled(boolean))
