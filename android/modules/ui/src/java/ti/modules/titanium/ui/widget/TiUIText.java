@@ -495,7 +495,6 @@ public class TiUIText extends TiUIView
 				break;
 			case KEYBOARD_DECIMAL_PAD:
 				textTypeAndClass |= (InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
-				break;
 			case KEYBOARD_NUMBER_PAD:
 				tv.setKeyListener(DigitsKeyListener.getInstance(true,true));
 				textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
