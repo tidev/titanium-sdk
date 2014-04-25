@@ -3507,7 +3507,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 	// add the analytics service
 	if (this.tiapp.analytics) {
-		var tiAnalyticsService = 'org.appcelerator.titanium.analytics.TiAnalyticsService';
+		var tiAnalyticsService = 'org.aps.analytics.APSAnalyticsService';
 		finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
 		finalAndroidManifest.application.service[tiAnalyticsService] = {
 			name: tiAnalyticsService,
@@ -3603,6 +3603,7 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-S', this.buildResDir,
 			'-I', this.androidTargetSDK.androidJar,
 			'-I', path.join(this.platformPath, 'titanium.jar'),
+			'-I', path.join(this.platformPath, 'aps-analytics.jar'),
 			'-F', this.ap_File
 		];
 

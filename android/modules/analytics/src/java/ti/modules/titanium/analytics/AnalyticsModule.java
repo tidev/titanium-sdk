@@ -1,26 +1,26 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.analytics;
 
 //import org.appcelerator.kroll.KrollDate;
 import java.util.Date;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiPlatformHelper;
+import org.aps.analytics.APSAnalytics;
+import org.aps.analytics.APSAnalyticsEvent;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 @Kroll.module
 public class AnalyticsModule extends KrollModule
@@ -46,13 +46,13 @@ public class AnalyticsModule extends KrollModule
 	{
 		localAddEvent(type, event, data);
 	}
-	
+
 	protected void localAddEvent(String type, String event, KrollDict data) {
 		String dataJSON = "";
 		if (data != null) {
 			dataJSON = TiConvert.toJSONString(data).toString();
 		}
-		TiApplication.getInstance().postAnalyticsEvent(TiAnalyticsEventFactory.createEvent(type, event, dataJSON));
+		TiPlatformHelper.getInstance().postAnalyticsEvent(TiAnalyticsEventFactory.createEvent(type, event, dataJSON));
 	}
 
 	@Kroll.method
@@ -66,7 +66,7 @@ public class AnalyticsModule extends KrollModule
 		payload.put(TiC.PROPERTY_EVENT, event);
 		payload.put(TiC.PROPERTY_DATA, data);
 
-		localAddEvent(PROPERTY_APP_NAV, payload.getString(TiC.PROPERTY_EVENT), payload);
+		APSAnalytics.sendAppNavEvent(from, to, event, TiConvert.toJSON(data));
 	}
 
 	@Kroll.method
@@ -123,16 +123,15 @@ public class AnalyticsModule extends KrollModule
 	public String getLastEvent()
 	{
 		try {
-			TiAnalyticsEvent event = TiApplication.getInstance().lastAnalyticsEvent;
+			APSAnalyticsEvent event = APSAnalytics.getLastAnalyticsEvent();
 			if (event == null)
 			{
 				return null;
 			}
 			JSONObject json = new JSONObject();
 			json.put("ver", "2");
-			json.put("id", TiApplication.getInstance().lastEventID);
-			json.put("type", event.getEventType());
-			json.put("event", event.getEventEvent());
+			json.put("id", TiPlatformHelper.getInstance().getLastEventID());
+			json.put("event", event.getEventType());
 			json.put("ts", event.getEventTimestamp());
 			json.put("mid", event.getEventMid());
 			json.put("sid", event.getEventSid());

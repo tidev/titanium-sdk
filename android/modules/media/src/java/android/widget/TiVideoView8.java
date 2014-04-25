@@ -17,7 +17,7 @@
 /**
  * Modifications copyright:
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  * 
@@ -216,7 +216,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 				}
 			}
 		}
-		String model = TiPlatformHelper.getModel();
+		String model = TiPlatformHelper.getInstance().getModel();
 		if (model != null && model.equals("SPH-P100")) {
 			Activity activity = (Activity) getContext();
 			Display d = activity.getWindowManager().getDefaultDisplay();

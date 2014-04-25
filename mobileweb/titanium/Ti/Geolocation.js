@@ -106,7 +106,7 @@ define(['Ti/_/Evented', 'Ti/_/lang', 'Ti/Network'], function(Evented, lang, Netw
 				},
 				timeout : api.MobileWeb.forwardGeocoderTimeout
 			});
-			client.open('GET', 'http://api.appcelerator.net/p/v1/geo?d=f&' +
+			client.open('GET', 'http://api.appcelerator.com/p/v1/geo?d=f&' +
 				// TODO 'c=' + Locale.getCurrentCountry() +
 				'q=' + escape(address));
 			client.send();
@@ -127,7 +127,7 @@ define(['Ti/_/Evented', 'Ti/_/lang', 'Ti/Network'], function(Evented, lang, Netw
 				},
 				timeout : api.MobileWeb.forwardGeocoderTimeout
 			});
-			client.open('GET', 'http://api.appcelerator.net/p/v1/geo?d=r&' +
+			client.open('GET', 'http://api.appcelerator.com/p/v1/geo?d=r&' +
 				// TODO 'c=' + Locale.getCurrentCountry() +
 				'q=' + latitude + ',' + longitude);
 			client.send();
