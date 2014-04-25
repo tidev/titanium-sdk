@@ -648,6 +648,8 @@ methods:
         On Android 4.x, the list does not stop at the correct position.
         This is a known bug in Android.
         ([Android Issue #37278](https://code.google.com/p/android/issues/detail?id=37278))
+
+        Android added support for the `animation` parameter in Release 3.3.0 on the Titanium SDK.
     parameters:
       - name: sectionIndex
         summary: Section index.
@@ -658,7 +660,7 @@ methods:
         type: Number
 
       - name: animation
-        summary: Animation properties. (iOS only.)
+        summary: Animation properties. (iOS and Android only.)
         type: ListViewAnimationProperties
         optional: true
 
@@ -1197,7 +1199,9 @@ description: |
     `animationStyle` does not apply to the `scrollToItem` method.
 
     `positon` only applies to the `scrollToItem` method.
-platforms: [iphone, ipad]
+
+    Since Release 3.3.0 of the Titanium SDK, Android supports the `animated` property and is applicable only to `scrollToItem`
+platforms: [iphone, ipad, android]
 since: '3.1.0'
 properties:
   - name: animated

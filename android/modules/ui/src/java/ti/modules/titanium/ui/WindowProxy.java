@@ -61,10 +61,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	private WeakReference<TiBaseActivity> windowActivity;
 
-	// This flag is just for a temporary use. We won't need it after the lightweight window
-	// is completely removed.
-	private boolean lightweight = false;
-
 
 	public WindowProxy()
 	{
@@ -90,50 +86,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		return v;
 	}
 
-	public void addLightweightWindowToStack() 
-	{
-		// Add LW window to the decor view and add it to stack.
-		Activity topActivity = TiApplication.getAppCurrentActivity();
-		if (topActivity instanceof TiBaseActivity) {
-			TiBaseActivity baseActivity = (TiBaseActivity) topActivity;
-			ActivityProxy activityProxy = baseActivity.getActivityProxy();
-			if (activityProxy != null) {
-				DecorViewProxy decorView = activityProxy.getDecorView();
-				if (decorView != null) {
-					decorView.add(this);
-					windowActivity = new WeakReference<TiBaseActivity>(baseActivity);
-
-					// Need to handle the url window in the JS side.
-					callPropertySync(PROPERTY_LOAD_URL, null);
-
-					opened = true;
-					fireEvent(TiC.EVENT_OPEN, null);
-
-					baseActivity.addWindowToStack(this);
-					return;
-				}
-			}
-		}
-		Log.e(TAG, "Unable to open the lightweight window because the current activity is not available.");
-	}
-
-	public void removeLightweightWindowFromStack()
-	{
-		// Remove LW window from decor view and remove it from stack
-		TiBaseActivity activity = (windowActivity != null) ? windowActivity.get() : null;
-		if (activity != null) {
-			ActivityProxy activityProxy = activity.getActivityProxy();
-			if (activityProxy != null) {
-				activityProxy.getDecorView().remove(this);
-			}
-			releaseViews();
-			opened = false;
-
-			activity.removeWindowFromStack(this);
-			fireEvent(TiC.EVENT_CLOSE, null);
-		}
-	}
-
 	@Override
 	public void open(@Kroll.argument(optional = true) Object arg)
 	{
@@ -152,33 +104,12 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 
-		// When we open a window using tab.open(win), we treat it as opening a HW window on top of the tab.
-		if (hasProperty("tabOpen")) {
-			lightweight = false;
-
-		// If "ti.android.useLegacyWindow" is set to true in the tiapp.xml, follow the old window behavior:
-		// create a HW window if any of the three properties, "fullscreen", "windowSoftInputMode" and
-		// "modal", is specified; otherwise create a LW window.
-		} else if (TiApplication.USE_LEGACY_WINDOW && !hasProperty(TiC.PROPERTY_FULLSCREEN)
-			&& !hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)
-			&& !hasProperty(TiC.PROPERTY_MODAL)) {
-			lightweight = true;
-		}
-
-		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "open the window: lightweight = " + lightweight);
-		}
-
-		if (lightweight) {
-			addLightweightWindowToStack();
-		} else {
-			// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
-			properties.remove(TiC.PROPERTY_TOP);
-			properties.remove(TiC.PROPERTY_BOTTOM);
-			properties.remove(TiC.PROPERTY_LEFT);
-			properties.remove(TiC.PROPERTY_RIGHT);
-			super.open(arg);
-		}
+		// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
+		properties.remove(TiC.PROPERTY_TOP);
+		properties.remove(TiC.PROPERTY_BOTTOM);
+		properties.remove(TiC.PROPERTY_LEFT);
+		properties.remove(TiC.PROPERTY_RIGHT);
+		super.open(arg);
 	}
 
 	@Override
@@ -187,11 +118,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (!(opened || opening)) {
 			return;
 		}
-		if (lightweight) {
-			removeLightweightWindowFromStack();
-		} else {
-			super.close(arg);
-		}
+		super.close(arg);
 	}
 
 	@Override
@@ -260,13 +187,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		Window win = activity.getWindow();
-		boolean flagSecure = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
-		if (flagSecure) {
-			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-				activity.getWindow()
-					.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
-			}
-		}
 		// Handle the background of the window activity if it is a translucent activity.
 		// If it is a modal window, set a translucent dimmed background to the window.
 		// If the opacity is given, set a transparent background to the window. In this case, if no backgroundColor or
@@ -338,15 +258,39 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	private void fillIntent(Activity activity, Intent intent)
 	{
-		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
-			intent.putExtra(TiC.PROPERTY_FULLSCREEN, TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false));
+		int windowFlags = 0;
+		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
+			windowFlags = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS), 0);
 		}
+		
+		//Set the fullscreen flag
+		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
+			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
+			if (flagVal) {
+				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
+			}
+		}
+		
+		//Set the secure flag
+		if (hasProperty(TiC.PROPERTY_FLAG_SECURE)) {
+			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
+			if (flagVal) {
+				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_SECURE;
+			}
+		}
+		
+		//Stuff flags in intent
+		intent.putExtra(TiC.PROPERTY_WINDOW_FLAGS, windowFlags);
+		
 		if (hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
 			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE), -1));
 		}
 		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
 			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false));
+		} else {
+			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, activity.isTaskRoot());
 		}
+
 		boolean modal = false;
 		if (hasProperty(TiC.PROPERTY_MODAL)) {
 			modal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_MODAL), false);
@@ -371,7 +315,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public void onPropertyChanged(String name, Object value)
 	{
-		if ((opening || opened) && !lightweight) {
+		if (opening || opened)  {
 			if (TiC.PROPERTY_WINDOW_PIXEL_FORMAT.equals(name)) {
 				getMainHandler().obtainMessage(MSG_SET_PIXEL_FORMAT, value).sendToTarget();
 			} else if (TiC.PROPERTY_TITLE.equals(name)) {
@@ -391,7 +335,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	public void setWidth(Object width)
 	{
 		// We know it's a HW window only when it's opening/opened.
-		if ((opening || opened) && !lightweight) {
+		if (opening || opened) {
 			Object current = getProperty(TiC.PROPERTY_WIDTH);
 			if (shouldFireChange(current, width)) {
 				Object height = getProperty(TiC.PROPERTY_HEIGHT);
@@ -410,7 +354,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	public void setHeight(Object height)
 	{
 		// We know it's a HW window only when it's opening/opened.
-		if ((opening || opened) && !lightweight) {
+		if (opening || opened) {
 			Object current = getProperty(TiC.PROPERTY_HEIGHT);
 			if (shouldFireChange(current, height)) {
 				Object width = getProperty(TiC.PROPERTY_WIDTH);
@@ -497,7 +441,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	public boolean isLightweight()
 	{
 		// We know whether a window is lightweight or not only after it opens.
-		return (opened && lightweight);
+		return false;
 	}
 
 	@Override

@@ -322,9 +322,9 @@ events:
         summary: Boolean to indicate if the device is online.
         type: Boolean
       - name: networkType
-        summary: |
-            New network type, one of the `NETWORK` constants defined in <Titanium.Network>.
+        summary: New network type
         type: Number
+        constants: Titanium.Network.NETWORK_*
       - name: reason
         summary: Human-readable text describing the reason for the change.
         type: String

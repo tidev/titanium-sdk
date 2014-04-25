@@ -1117,6 +1117,14 @@ properties:
     type: String
     platforms: [android, iphone, ipad]
     
+  - name: filterAnchored
+    summary: Determines whether the search is limited to the start of the string
+    description: Set to `true` to enable case anchored search.
+    type: Boolean
+    default: false
+    platforms: [ android, iphone, ipad]
+    since: "3.3.0"
+    
   - name: filterCaseInsensitive
     summary: Determines whether the search is case insensitive.
     description: Set to `false` to enable case sensitive search.
@@ -1429,6 +1437,7 @@ properties:
         <Titanium.UI.iPhone.TableViewStyle>.
     description: Style should always be set before setting the `data` on table view. 
     type: Number
+    constants: Titanium.UI.iPhone.TableViewStyle.*
     platforms: [iphone, ipad]
 
 examples:

@@ -107,7 +107,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
 	protected HashMap<String, WeakReference<KrollModule>> modules;
-	
+
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
 	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
@@ -121,7 +121,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		activityTransitionListeners.add(a);
 	}
-	
+
 	public static void removeActivityTransitionListener(ActivityTransitionListener a)
 	{
 		activityTransitionListeners.remove(a);
@@ -133,7 +133,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		for (int i = 0; i < activityTransitionListeners.size(); ++i) {
 			activityTransitionListeners.get(i).onActivityTransition(state);
 		}
-		
+
 	}
 	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
@@ -233,9 +233,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 		return false;
 	}
-	
+
 	/**
-	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
+	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every
 	 * time we need to grab the current activity.
 	 * @return the current activity
 	 * @module.api
@@ -251,7 +251,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	/**
-	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
+	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every
 	 * time we need to grab the root or current activity.
 	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
 	 * @module.api
@@ -289,7 +289,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		Log.d(TAG, "activity stack is empty, unable to get current activity", Log.DEBUG_MODE);
 		return null;
 	}
-	
+
 	/**
 	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
 	 */
@@ -302,7 +302,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 				return activity;
 			}
 		}
-		
+
 		if (currentActivity != null) {
 			activity = currentActivity.get();
 			if (activity != null) {
@@ -411,7 +411,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		deployData = new TiDeployData(this);
 
 		TiPlatformHelper.getInstance().initialize();
-		TiFastDev.initFastDev(this);
+		// Fastdev has been deprecated
+		// TiFastDev.initFastDev(this);
 	}
 
 	public void postOnCreate()
@@ -430,7 +431,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		USE_LEGACY_WINDOW = appProperties.getBool(PROPERTY_USE_LEGACY_WINDOW, false);
 
 		startExternalStorageMonitor();
-		
+
 		// Register the default cache handler
 		responseCache = new TiResponseCache(getRemoteCacheDir(), this);
 		TiResponseCache.setDefault(responseCache);
@@ -693,7 +694,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		/* Fast dev is enabled by default in development mode, and disabled otherwise
 		 * When the property is set, it overrides the default behavior on emulator only
-		 * Deploy types are as follow: 
+		 * Deploy types are as follow:
 		 *    Emulator: 'development'
 		 *    Device: 'test'
 		 */
@@ -790,7 +791,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 					responseCache.setCacheDir(getRemoteCacheDir());
 					TiResponseCache.setDefault(responseCache);
 					Log.i(TAG, "SD card has been mounted. Enabling cache for http responses.", Log.DEBUG_MODE);
-					
+
 				} else {
 					// if the sd card is removed, we don't cache http responses
 					TiResponseCache.setDefault(null);

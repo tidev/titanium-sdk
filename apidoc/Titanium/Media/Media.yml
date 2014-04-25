@@ -104,8 +104,10 @@ methods:
         * `http://tizen.org/privilege/application.launch`
         * `http://tizen.org/privilege/filesystem.read`
         * `http://tizen.org/privilege/filesystem.write`
+
+        On Android this method *only supports saving images* to the device gallery. 
         
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad, tizen, android]
     parameters:
       - name: media
         summary: Media to save to the camera roll or media gallery. 
@@ -116,6 +118,8 @@ methods:
             will be called when the save succeeds, and `error` a function that will be 
             called upon receiving an error.
         type: Object
+    since:
+        android: "3.3.0"
   - name: setOverrideAudioRoute
     summary: Overrides the default audio route when using the <Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD> session mode.
     description: | 
@@ -459,6 +463,24 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+  - name: CAMERA_FLASH_AUTO
+    summary: Constant specifying to have the device determine to use the flash or not.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, android]
+    since: {android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0" }
+  - name: CAMERA_FLASH_OFF
+    summary: Constant specifying to never fire the flash.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, android]
+    since: {android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0" }
+  - name: CAMERA_FLASH_ON
+    summary: Constant specifying to always fire the flash.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, android]
+    since: {android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0" }
   - name: CAMERA_FRONT
     summary: Constant specifying the front camera.
     type: Number
@@ -921,6 +943,7 @@ properties:
   - name: availableCameras
     summary: Array indicating which cameras are available, `CAMERA_FRONT`, `CAMERA_REAR` or both.
     type: Array<Number>
+    constants: [Titanium.Media.CAMERA_FRONT, Titanium.Media.CAMERA_REAR]
     platforms: [iphone, ipad, android]
     since:
         android: "3.2.0"
@@ -928,14 +951,17 @@ properties:
   - name: availableCameraMediaTypes
     summary: Array of media type constants supported for the camera.
     type: Array<Object>
+    constants: Titanium.Media.MEDIA_TYPE_*
     platforms: [iphone, ipad]
   - name: availablePhotoGalleryMediaTypes
     summary: Array of media type constants supported for saving to the device's camera roll or saved images album.
     type: Array<Object>
+    constants: Titanium.Media.MEDIA_TYPE_*
     platforms: [iphone, ipad]
   - name: availablePhotoMediaTypes
     summary: Array of media type constants supported for the photo library.
     type: Array<Object>
+    constants: Titanium.Media.MEDIA_TYPE_*
     platforms: [iphone, ipad]
   - name: averageMicrophonePower
     summary: Current average microphone level in dB or -1 if microphone monitoring is disabled.
@@ -944,6 +970,13 @@ properties:
         [stopMicrophoneMonitor](Titanium.Media.stopMicrophoneMonitor).
     type: Number
     platforms: [iphone, ipad]
+  - name: cameraFlashMode
+    summary: Determines how the flash is fired when using the device's camera.
+    type: Number
+    constants: Titanium.Media.CAMERA_FLASH_*
+    platforms: [android, iphone, ipad]
+    since: {android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0"}
+    default: Titanium.Media.CAMERA_FLASH_AUTO
   - name: canRecord
     summary: |
         `true` if the device has a recording input device available.
@@ -1047,9 +1080,8 @@ since: "1.8"
 properties:
   - name: grouping
     summary: A constant that specifies the ordering of the result array.
-        One of the `MUSIC_MEDIA_GROUP_*` constants specified on the
-        <Titanium.Media> module.
     type: Number
+    constants: Titanium.Media.MUSIC_MEDIA_GROUP_*
   - name: mediaType
     summary: The media type to filter on.
     type: [MediaQueryInfoType, Number]
@@ -1119,12 +1151,6 @@ properties:
         overlay is not set, the default Android Camera Activity is used, which is only
         capable of reporting back the results of one taken photo, making `autohide`
         meaningless in that context.
-  - name: flashMode
-    summary: set camera flash on or off for custom overlays.
-    type: Boolean
-    default: false
-    platforms: [android]
-    since: {android: "3.3.0"}
   - name: animated 
     summary: Specifies if the dialog should be animated upon showing and hiding.
     type: Boolean

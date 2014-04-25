@@ -15,6 +15,19 @@ methods:
         summary: Animation or display properties to use when closing the window.
         type: [Dictionary<Titanium.UI.Animation>, closeWindowParams]
         optional: true
+
+  - name: hideNavBar
+    summary: Hides the navigation bar.
+    description: |
+        If the window is not displayed in a <Titanium.UI.iOS.NavigationWindow>, this method has no effect.
+    parameters:
+      - name: options
+        summary: |
+            Options dictionary supporting a single `animated` boolean property to determine whether
+            the navigation bar will be animated (default) while being hidden.
+        type: Dictionary
+        optional: true
+    platforms: [iphone, ipad]
     
   - name: hideTabBar
     summary: Hides the tab bar. Must be called before opening the window.
@@ -44,6 +57,19 @@ methods:
         type: windowToolbarParam
         optional: true
     platforms: [iphone,ipad]
+
+  - name: showNavBar
+    summary: Makes the navigation bar visible.
+    description: |
+        If the window is not displayed in a <Titanium.UI.iOS.NavigationWindow>, this method has no effect.
+    parameters:
+      - name: options
+        summary: |
+            Options dictionary supporting a single `animated` boolean property to determine whether
+            the navigation bar will be animated (default) while being shown.
+        type: Dictionary
+        optional: true
+    platforms: [iphone, ipad]
 
 events:
   - name: android:back
@@ -314,13 +340,11 @@ properties:
   - name: flagSecure
     summary: |
         Treat the content of the window as secure, preventing it from appearing in screenshots or from being viewed on non-secure displays.
-        Valid only on API level 11 and above.
     description: |
         When the value is true, preventing it from appearing in screenshots or from being viewed on non-secure displays.
     platforms: [android]
     type: Boolean
     since: "3.3.0"
-    osver: {android: { min: "11"}}
     default: false
     availability: creation
     
@@ -788,6 +812,18 @@ properties:
     type: String
     availability: creation
     exclude-platforms: [blackberry]
+
+  - name: windowFlags
+    summary: Additional flags to set on the Activity Window.
+    description: |
+        Set the flags of the window, as per the WindowManager.LayoutParams flags. 
+        See [WindowManager.LayoutParams](http://developer.android.com/reference/android/view/WindowManager.LayoutParams.html) for a 
+        list of supported flags. Setting <Titanium.UI.Window.fullscreen> to true automatically sets the [WindowManager.LayoutParams.FLAG_FULLSCREEN](http://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_FULLSCREEN) 
+        flag. Setting <Titanium.UI.Window.flagSecure> to true automatically sets the [WindowManager.LayoutParams.FLAG_SECURE](http://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_SECURE) flag.
+    platforms: [android]
+    type: Number
+    since: "3.3.0"
+    availability: creation
 
   - name: windowSoftInputMode
     summary: |
