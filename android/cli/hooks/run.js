@@ -70,8 +70,7 @@ exports.init = function (logger, config, cli) {
 						cb();
 					});
 				})(builder.deviceId, {
-					logger: logger,
-					checkMounts: builder.debugPort || builder.profilerPort
+					logger: logger
 				}, finished);
 
 			} else if (builder.target == 'device') {
@@ -119,13 +118,7 @@ exports.init = function (logger, config, cli) {
 				return finished();
 			}
 
-			var adb = new ADB(config),
-				deployData = {
-					debuggerEnabled: !!builder.debugPort,
-					debuggerPort: builder.debugPort || -1,
-					profilerEnabled: !!builder.profilerPort,
-					profilerPort: builder.profilerPort || -1
-				};
+			var adb = new ADB(config);
 
 			async.series([
 				function (next) {
@@ -153,44 +146,6 @@ exports.init = function (logger, config, cli) {
 								process.exit(1);
 							}
 						}, 250);
-				},
-
-				function (next) {
-					async.series(deviceInfo.map(function (device) {
-						return function (cb) {
-							if (deployData.debuggerEnabled || deployData.profilerEnabled) {
-								// push deploy.json
-								var deployJsonFile = path.join(builder.buildDir, 'bin', 'deploy.json');
-								fs.writeFileSync(deployJsonFile, JSON.stringify(deployData));
-								logger.info(__('Pushing %s to SD card', deployJsonFile.cyan));
-								adb.shell(device.id, [
-									'if [ -d "/sdcard/' + builder.appid + '" ]; then',
-									'	echo "SUCCESS"',
-									'else',
-									'	mkdir "/sdcard/' + builder.appid + '"',
-									'	if [ $? -ne 0 ]; then',
-									'		echo "FAILED"',
-									'	else',
-									'		echo "SUCCESS"',
-									'	fi',
-									'fi'
-								].join('\n'), function (err, output) {
-									if (err || output.toString().trim().split('\n').shift().trim() == 'FAILED') {
-										if (builder.target == 'device') {
-											logger.error(__('Failed to copy "deploy.json" to Android device\'s SD card. Perhaps it\'s read only or out of space.') + '\n');
-										} else {
-											logger.error(__('Failed to copy "deploy.json" to Android emulator\'s SD card. Perhaps it\'s read only or out of space.') + '\n');
-										}
-										process.exit(1);
-									}
-									adb.push(device.id, deployJsonFile, '/sdcard/' + builder.appid + '/deploy.json', cb);
-								});
-							} else {
-								logger.info(__('Removing %s from SD card', 'deploy.json'.cyan));
-								adb.shell(device.id, '[ -f "/sdcard/' + builder.appid + '/deploy.json" ] && rm -f "/sdcard/' + builder.appid + '/deploy.json"\necho "DONE"', cb);
-							}
-						};
-					}), next);
 				},
 
 				function (next) {
@@ -342,7 +297,7 @@ exports.init = function (logger, config, cli) {
 				},
 
 				function (next) {
-					if (deployData.debuggerEnabled) {
+					if (builder.debugPort) {
 						logger.info(__('Forwarding host port %s to device for debugging', builder.debugPort));
 						var forwardPort = 'tcp:' + builder.debugPort;
 						async.series(deviceInfo.map(function (device) {
@@ -356,7 +311,7 @@ exports.init = function (logger, config, cli) {
 				},
 
 				function (next) {
-					if (deployData.profilerEnabled) {
+					if (builder.profilerPort) {
 						logger.info(__('Forwarding host port %s to device for profiling', builder.profilerPort));
 						var forwardPort = 'tcp:' + builder.profilerPort;
 						async.series(deviceInfo.map(function (device) {

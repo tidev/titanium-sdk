@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -121,7 +121,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
 	protected HashMap<String, WeakReference<KrollModule>> modules;
-	
+
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
 	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
@@ -138,19 +138,19 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	{
 		activityTransitionListeners.add(a);
 	}
-	
+
 	public static void removeActivityTransitionListener(ActivityTransitionListener a)
 	{
 		activityTransitionListeners.remove(a);
 	}
-	
+
 	public static void updateActivityTransitionState(boolean state)
 	{
 		isActivityTransition.set(state);
 		for (int i = 0; i < activityTransitionListeners.size(); ++i) {
 			activityTransitionListeners.get(i).onActivityTransition(state);
 		}
-		
+
 	}
 	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
@@ -255,9 +255,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		}
 		return false;
 	}
-	
+
 	/**
-	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
+	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every
 	 * time we need to grab the current activity.
 	 * @return the current activity
 	 * @module.api
@@ -273,7 +273,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	}
 
 	/**
-	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
+	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every
 	 * time we need to grab the root or current activity.
 	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
 	 * @module.api
@@ -311,7 +311,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		Log.d(TAG, "activity stack is empty, unable to get current activity", Log.DEBUG_MODE);
 		return null;
 	}
-	
+
 	/**
 	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
 	 */
@@ -324,7 +324,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 				return activity;
 			}
 		}
-		
+
 		if (currentActivity != null) {
 			activity = currentActivity.get();
 			if (activity != null) {
@@ -431,7 +431,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		deployData = new TiDeployData(this);
 
 		TiPlatformHelper.initialize();
-		TiFastDev.initFastDev(this);
+
+		// fastdev is deprecated
+		// TiFastDev.initFastDev(this);
 	}
 
 	public void postOnCreate()
@@ -450,7 +452,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		USE_LEGACY_WINDOW = appProperties.getBool(PROPERTY_USE_LEGACY_WINDOW, false);
 
 		startExternalStorageMonitor();
-		
+
 		// Register the default cache handler
 		responseCache = new TiResponseCache(getRemoteCacheDir(), this);
 		TiResponseCache.setDefault(responseCache);
@@ -795,7 +797,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	{
 		/* Fast dev is enabled by default in development mode, and disabled otherwise
 		 * When the property is set, it overrides the default behavior on emulator only
-		 * Deploy types are as follow: 
+		 * Deploy types are as follow:
 		 *    Emulator: 'development'
 		 *    Device: 'test'
 		 */
@@ -892,7 +894,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 					responseCache.setCacheDir(getRemoteCacheDir());
 					TiResponseCache.setDefault(responseCache);
 					Log.i(TAG, "SD card has been mounted. Enabling cache for http responses.", Log.DEBUG_MODE);
-					
+
 				} else {
 					// if the sd card is removed, we don't cache http responses
 					TiResponseCache.setDefault(null);
