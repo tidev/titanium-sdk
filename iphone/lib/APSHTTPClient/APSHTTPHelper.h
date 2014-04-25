@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Appcelerator APSHTTPClient Library
+ * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,7 +8,7 @@
 #import <Foundation/Foundation.h>
 
 
-@interface TiHTTPHelper : NSObject
+@interface APSHTTPHelper : NSObject
 
 +(NSString *)base64encode:(NSData *)plainText;
 +(int)caselessCompareFirstString:(const char *)firstString secondString:(const char *)secondString size:(int)size;

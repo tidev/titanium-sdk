@@ -7,14 +7,14 @@
 
 #ifdef USE_TI_NETWORK
 
-#import "TiHTTPClient.h"
+#import "APSHTTPClient.h"
 #import "TiProxy.h"
 #import "TiDOMDocumentProxy.h"
 #import "TiBlob.h"
 
-@interface TiNetworkHTTPClientProxy : TiProxy<TiHTTPRequestDelegate>
+@interface TiNetworkHTTPClientProxy : TiProxy<APSHTTPRequestDelegate>
 {
-    TiHTTPRequest *httpRequest;
+    APSHTTPRequest *httpRequest;
     NSTimeInterval _uploadTime;
     NSTimeInterval _downloadTime;
     
@@ -26,7 +26,7 @@
     BOOL hasOnredirect;
 }
 
-@property(nonatomic, readonly) TiHTTPResponse* response;
+@property(nonatomic, readonly) APSHTTPResponse* response;
 
 // state information
 @property(nonatomic, readonly) NSNumber *status;

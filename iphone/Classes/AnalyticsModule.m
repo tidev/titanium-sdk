@@ -8,7 +8,7 @@
 #import "TiApp.h"
 #import "TiBase.h"
 #import "TiHost.h"
-#import "TiHTTPClient/TiHTTPClient.h"
+#import "APSHTTPClient.h"
 
 #import <sys/utsname.h>
 #import "NSData+Additions.h"
@@ -221,12 +221,12 @@ NSString * const TI_DB_VERSION = @"1";
 		url = [[NSURL URLWithString:[kTiAnalyticsUrl stringByAppendingString:TI_APPLICATION_GUID]] retain];
 	}
 	
-    TiHTTPPostForm *form = [[[TiHTTPPostForm alloc] init] autorelease];
+    APSHTTPPostForm *form = [[[APSHTTPPostForm alloc] init] autorelease];
     [form addHeaderKey:@"Content-Type" andHeaderValue:@"text/json"];
     [form addHeaderKey:@"User-Agent" andHeaderValue:[[TiApp app] userAgent]];
     [form setJSONData:data];
     
-    TiHTTPRequest *request = [[[TiHTTPRequest alloc] init] autorelease];
+    APSHTTPRequest *request = [[[APSHTTPRequest alloc] init] autorelease];
     [request setUrl:url];
     [request setPostForm:form];
     [request setMethod:@"POST"];
