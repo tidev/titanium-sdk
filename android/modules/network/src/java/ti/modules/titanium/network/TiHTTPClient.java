@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -118,7 +118,7 @@ public class TiHTTPClient
 	private static final String TITANIUM_USER_AGENT = "Appcelerator Titanium/" + TiApplication.getInstance().getTiBuildVersion()
 	                                                  + " ("+ Build.MODEL + "; Android API Level: "
 	                                                  + Integer.toString(Build.VERSION.SDK_INT) + "; "
-	                                                  + TiPlatformHelper.getLocale() +";)";
+	                                                  + TiPlatformHelper.getInstance().getLocale() +";)";
 	private static final String[] FALLBACK_CHARSETS = {HTTP.UTF_8, HTTP.ISO_8859_1};
 
 	// Regular expressions for detecting charset information in response documents (ex: html, xml).
@@ -878,7 +878,7 @@ public class TiHTTPClient
 			String domain = ((HTTPClientProxy)proxy).getDomain();
 			if (domain != null) {
 				password = (password == null)?"":password;
-				credentials = new NTCredentials(userName, password, TiPlatformHelper.getMobileId(), domain);
+				credentials = new NTCredentials(userName, password, TiPlatformHelper.getInstance().getMobileId(), domain);
 			}
 			else {
 				if (userName != null) {

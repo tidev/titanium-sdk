@@ -118,7 +118,7 @@ public class AppModule extends KrollModule
 	
 	@Kroll.getProperty @Kroll.method
 	public String getSessionId() {
-		return TiPlatformHelper.getSessionId();
+		return TiPlatformHelper.getInstance().getSessionId();
 	}
 	
 	@Kroll.getProperty @Kroll.method

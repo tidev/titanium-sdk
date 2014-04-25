@@ -52,7 +52,7 @@ public class AnalyticsModule extends KrollModule
 		if (data != null) {
 			dataJSON = TiConvert.toJSONString(data).toString();
 		}
-		TiPlatformHelper.postAnalyticsEvent(TiAnalyticsEventFactory.createEvent(type, event, dataJSON));
+		TiPlatformHelper.getInstance().postAnalyticsEvent(TiAnalyticsEventFactory.createEvent(type, event, dataJSON));
 	}
 
 	@Kroll.method
@@ -130,7 +130,7 @@ public class AnalyticsModule extends KrollModule
 			}
 			JSONObject json = new JSONObject();
 			json.put("ver", "2");
-			json.put("id", TiPlatformHelper.getLastEventID());
+			json.put("id", TiPlatformHelper.getInstance().getLastEventID());
 			json.put("event", event.getEventType());
 			json.put("ts", event.getEventTimestamp());
 			json.put("mid", event.getEventMid());

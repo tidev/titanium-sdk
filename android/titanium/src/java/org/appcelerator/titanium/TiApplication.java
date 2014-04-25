@@ -361,7 +361,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 				if (collectAnalytics()) {
 					String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash ;
 					Log.e(TAG, "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium " + tiVer, e);
-					TiPlatformHelper.postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
+					TiPlatformHelper.getInstance().postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
 				}
 				defaultHandler.uncaughtException(t, e);
 			}
@@ -410,7 +410,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		deployData = new TiDeployData(this);
 
-		TiPlatformHelper.initialize();
+		TiPlatformHelper.getInstance().initialize();
 		TiFastDev.initFastDev(this);
 	}
 
@@ -474,15 +474,15 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		if (collectAnalytics()) {
 
-			TiPlatformHelper.initAnalytics();
-			TiPlatformHelper.setSdkVersion("ti." + getTiBuildVersion());
-			TiPlatformHelper.setAppName(getAppInfo().getName());
-			TiPlatformHelper.setAppId(getAppInfo().getId());
-			TiPlatformHelper.setAppVersion(getAppInfo().getVersion());
+			TiPlatformHelper.getInstance().initAnalytics();
+			TiPlatformHelper.getInstance().setSdkVersion("ti." + getTiBuildVersion());
+			TiPlatformHelper.getInstance().setAppName(getAppInfo().getName());
+			TiPlatformHelper.getInstance().setAppId(getAppInfo().getId());
+			TiPlatformHelper.getInstance().setAppVersion(getAppInfo().getVersion());
 
 			// FIXME: Find some other way to set the deploytype?
 			String deployType = appProperties.getString("ti.deploytype", "unknown");
-			TiPlatformHelper.setDeployType(deployType);
+			TiPlatformHelper.getInstance().setDeployType(deployType);
 			APSAnalytics.sendAppEnrollEvent();
 
 		} else {

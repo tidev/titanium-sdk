@@ -330,7 +330,7 @@ public class TitaniumModule extends KrollModule
 
 		} else {
 			if (locale != null) {
-				format = NumberFormat.getInstance(TiPlatformHelper.getLocale(locale));
+				format = NumberFormat.getInstance(TiPlatformHelper.getInstance().getLocale(locale));
 
 			} else {
 				format = NumberFormat.getInstance();

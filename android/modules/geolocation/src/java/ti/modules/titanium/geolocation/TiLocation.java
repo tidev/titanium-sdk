@@ -68,9 +68,9 @@ public class TiLocation implements Handler.Callback
 	{
 		locationManager = (LocationManager) TiApplication.getInstance().getSystemService(Context.LOCATION_SERVICE);
 		knownProviders = locationManager.getAllProviders();
-		mobileId = TiPlatformHelper.getMobileId();
+		mobileId = TiPlatformHelper.getInstance().getMobileId();
 		appGuid = TiApplication.getInstance().getAppInfo().getGUID();
-		sessionId = TiPlatformHelper.getSessionId();
+		sessionId = TiPlatformHelper.getInstance().getSessionId();
 		countryCode = Locale.getDefault().getCountry();
 		runtimeHandler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
 	}

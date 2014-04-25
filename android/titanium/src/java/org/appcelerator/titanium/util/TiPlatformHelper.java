@@ -16,7 +16,6 @@ import java.util.StringTokenizer;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
-import org.aps.analytics.APSAnalyticsEvent;
 import org.aps.analytics.APSAnalyticsHelper;
 
 import android.Manifest;
@@ -45,17 +44,27 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 	public static int applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
 	private static boolean applicationDisplayInfoInitialized = false;
 
-	public static void initialize()
+	private static TiPlatformHelper INSTANCE;
+	
+	public synchronized static TiPlatformHelper getInstance()
 	{
-		APSAnalyticsHelper.init(TiApplication.getInstance().getAppGUID(), TiApplication.getInstance());
+		if (INSTANCE == null) {
+			INSTANCE = new TiPlatformHelper();
+		}
+		return INSTANCE;
 	}
 
-	public static void initAnalytics()
+	private TiPlatformHelper()
 	{
-		APSAnalyticsHelper.initAnalytics();
+
 	}
 
-	public static synchronized void intializeDisplayMetrics(Activity activity)
+	public void initialize()
+	{
+		APSAnalyticsHelper.getInstance().init(TiApplication.getInstance().getAppGUID(), TiApplication.getInstance());
+	}
+
+	public synchronized void intializeDisplayMetrics(Activity activity)
 	{
 		if (!applicationDisplayInfoInitialized) {
 			DisplayMetrics dm = new DisplayMetrics();
@@ -82,109 +91,17 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 		}
 	}
 
-	public static ITiAppInfo getAppInfo()
+	public ITiAppInfo getAppInfo()
 	{
 		return TiApplication.getInstance().getAppInfo();
 	}
 
-	/**
-	 * The name of platform means the SDK family of Ti.mobile ('iphone' vs. 'android').
-	 * The naming has a historical legacy.
-	 */
-	public static String getName()
-	{
-		return APSAnalyticsHelper.getName();
-	}
-
-	/**
-	 * The name of OS is to indicate (potential future) forks of the OS.
-	 */
-	public static String getOS()
-	{
-		return APSAnalyticsHelper.getOS();
-	}
-
-	public static void setSdkVersion(String ver)
-	{
-		APSAnalyticsHelper.setSdkVersion(ver);
-	}
-
-	public static void setAppName(String name)
-	{
-		APSAnalyticsHelper.setAppName(name);
-	}
-
-	public static void setAppId(String id)
-	{
-		APSAnalyticsHelper.setAppId(id);
-	}
-
-	public static void setAppVersion(String ver)
-	{
-		APSAnalyticsHelper.setAppVersion(ver);
-	}
-
-	public static int getProcessorCount()
-	{
-		return APSAnalyticsHelper.getProcessorCount();
-	}
-
-	public static String getUsername()
-	{
-		return APSAnalyticsHelper.getUsername();
-	}
-
-	public static String getVersion()
-	{
-		return APSAnalyticsHelper.getVersion();
-	}
-
-	public static double getAvailableMemory()
-	{
-		return APSAnalyticsHelper.getAvailableMemory();
-	}
-
-	public static String getModel()
-	{
-		return APSAnalyticsHelper.getModel();
-	}
-
-	public static String getManufacturer()
-	{
-		return APSAnalyticsHelper.getManufacturer();
-	}
-
-	public static String getOstype()
-	{
-		return APSAnalyticsHelper.getOstype();
-	}
-
-	public static String getMobileId()
-	{
-		return APSAnalyticsHelper.getMobileId();
-	}
-
-	public static String createUUID()
-	{
-		return APSAnalyticsHelper.createUUID();
-	}
-
-	public static String getSessionId()
-	{
-		return APSAnalyticsHelper.getSessionId();
-	}
-
-	public static String getLocale()
+	public String getLocale()
 	{
 		return Locale.getDefault().toString().replace("_", "-");
 	}
 
-	public static void setDeployType(String type)
-	{
-		APSAnalyticsHelper.setDeployType(type);
-	}
-
-	public static Locale getLocale(String localeCode)
+	public Locale getLocale(String localeCode)
 	{
 		if (localeCode == null) {
 			return null;
@@ -237,7 +154,7 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 		return l;
 	}
 
-	public static String getCurrencyCode(Locale locale)
+	public String getCurrencyCode(Locale locale)
 	{
 		String code;
 		if (currencyCodes.containsKey(locale)) {
@@ -249,7 +166,7 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 		return code;
 	}
 
-	public static String getCurrencySymbol(Locale locale)
+	public String getCurrencySymbol(Locale locale)
 	{
 		String symbol;
 		if (currencySymbols.containsKey(locale)) {
@@ -261,7 +178,7 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 		return symbol;
 	}
 
-	public static String getCurrencySymbol(String currencyCode)
+	public String getCurrencySymbol(String currencyCode)
 	{
 		String symbol;
 		if (currencySymbolsByCode.containsKey(currencyCode)) {
@@ -273,22 +190,7 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 		return symbol;
 	}
 
-	public static String createEventId()
-	{
-		return APSAnalyticsHelper.createEventId();
-	}
-
-	public static String getArchitecture()
-	{
-		return APSAnalyticsHelper.getArchitecture();
-	}
-
-	public static String getMacaddress()
-	{
-		return APSAnalyticsHelper.getMacaddress();
-	}
-
-	public static String getIpAddress()
+	public String getIpAddress()
 	{
 		String ipAddress = null;
 		TiApplication tiApp = TiApplication.getInstance();
@@ -313,7 +215,7 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 		return ipAddress;
 	}
 
-	public static String getNetmask()
+	public String getNetmask()
 	{
 		String netmask = null;
 		TiApplication tiApp = TiApplication.getInstance();
@@ -337,18 +239,8 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 
 		return netmask;
 	}
-
-	public static String getNetworkTypeName()
-	{
-		return APSAnalyticsHelper.getNetworkTypeName();
-	}
-
-	public static void postAnalyticsEvent(APSAnalyticsEvent event)
-	{
-		APSAnalyticsHelper.postAnalyticsEvent(event);
-	}
 	
-	public static String getLastEventID()
+	public String getLastEventID()
 	{
 		return lastEventID;
 	}
