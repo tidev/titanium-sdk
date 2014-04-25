@@ -12,6 +12,7 @@
 #import "SBJSON.h"
 #import <sys/utsname.h>
 #import "NSData+Additions.h"
+#import "APSAnalytics.h"
 
 extern NSString * const TI_APPLICATION_GUID;
 extern BOOL const TI_APPLICATION_ANALYTICS;
@@ -894,13 +895,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     if (TI_APPLICATION_ANALYTICS && !analyticsSend)
 	{
         analyticsSend = YES;
-        NSDictionary *fromdict = [self locationDictionary:[locations objectAtIndex:0]];//This location could be same as todict value.
-        
-        NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:lastLocationDict,@"to",fromdict,@"from",nil];
-        NSDictionary *geo = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.geo",@"name",@"ti.geo",@"type",nil];
-        
-        WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
-        [[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:geo];
+        [APSAnalytics sendAppGeoEvent:locations];
     }
 }
 
