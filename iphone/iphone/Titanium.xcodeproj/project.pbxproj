@@ -592,9 +592,6 @@
 		B606EF35190B109D00663EFC /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF34190B109D00663EFC /* TiNetworkHTTPClientProxy.m */; };
 		B606EF36190B109D00663EFC /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF34190B109D00663EFC /* TiNetworkHTTPClientProxy.m */; };
 		B606EF37190B109D00663EFC /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF34190B109D00663EFC /* TiNetworkHTTPClientProxy.m */; };
-		B606EF45190B14A500663EFC /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B606EF44190B14A500663EFC /* libAPSHTTPClient.a */; };
-		B606EF46190B14A500663EFC /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B606EF44190B14A500663EFC /* libAPSHTTPClient.a */; };
-		B606EF47190B14A500663EFC /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B606EF44190B14A500663EFC /* libAPSHTTPClient.a */; };
 		B606EF4A190B14ED00663EFC /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF49190B14ED00663EFC /* Reachability.m */; };
 		B606EF4B190B14ED00663EFC /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF49190B14ED00663EFC /* Reachability.m */; };
 		B606EF4C190B14ED00663EFC /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF49190B14ED00663EFC /* Reachability.m */; };
@@ -1465,7 +1462,6 @@
 		B606EF33190B109D00663EFC /* TiNetworkHTTPClientProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkHTTPClientProxy.h; sourceTree = "<group>"; };
 		B606EF34190B109D00663EFC /* TiNetworkHTTPClientProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkHTTPClientProxy.m; sourceTree = "<group>"; };
 		B606EF38190B10A800663EFC /* SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJSON.h; sourceTree = "<group>"; };
-		B606EF44190B14A500663EFC /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSHTTPClient.a; path = ../lib/libAPSHTTPClient.a; sourceTree = "<group>"; };
 		B606EF48190B14ED00663EFC /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		B606EF49190B14ED00663EFC /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		B606EF4E190B15A100663EFC /* APSHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPClient.h; sourceTree = "<group>"; };
@@ -1474,6 +1470,7 @@
 		B606EF51190B15A100663EFC /* APSHTTPPostForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPPostForm.h; sourceTree = "<group>"; };
 		B606EF52190B15A100663EFC /* APSHTTPRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPRequest.h; sourceTree = "<group>"; };
 		B606EF53190B15A100663EFC /* APSHTTPResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPResponse.h; sourceTree = "<group>"; };
+		B606EF54190B39C700663EFC /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSHTTPClient.a; path = ../lib/APSHTTPClient/libAPSHTTPClient.a; sourceTree = "<group>"; };
 		B6465C2118D1011C003C51A8 /* TiNetworkCookieProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkCookieProxy.h; sourceTree = "<group>"; };
 		B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkCookieProxy.m; sourceTree = "<group>"; };
 		B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTransitionAnimationProxy.h; sourceTree = "<group>"; };
@@ -1559,7 +1556,6 @@
 				24CA8C90111167B60084E2DE /* libz.dylib in Frameworks */,
 				24CA8CED1111689B0084E2DE /* AudioToolbox.framework in Frameworks */,
 				24CA8CF4111168AE0084E2DE /* MediaPlayer.framework in Frameworks */,
-				B606EF45190B14A500663EFC /* libAPSHTTPClient.a in Frameworks */,
 				24CA8CFB111168C30084E2DE /* AVFoundation.framework in Frameworks */,
 				24EB0A58111E1BAE001DC2D1 /* libxml2.dylib in Frameworks */,
 				24597035118FF66300519F79 /* StoreKit.framework in Frameworks */,
@@ -1586,7 +1582,6 @@
 				24D8E49D119B9D8A00F8CAA6 /* AddressBookUI.framework in Frameworks */,
 				24D8E49E119B9D8A00F8CAA6 /* CFNetwork.framework in Frameworks */,
 				24D8E49F119B9D8A00F8CAA6 /* CoreLocation.framework in Frameworks */,
-				B606EF46190B14A500663EFC /* libAPSHTTPClient.a in Frameworks */,
 				24D8E4A0119B9D8A00F8CAA6 /* MapKit.framework in Frameworks */,
 				24D8E4A1119B9D8A00F8CAA6 /* MessageUI.framework in Frameworks */,
 				24D8E4A2119B9D8A00F8CAA6 /* MobileCoreServices.framework in Frameworks */,
@@ -1623,7 +1618,6 @@
 				DABB37A512E8CB280026A6EA /* AddressBook.framework in Frameworks */,
 				DABB37A612E8CB280026A6EA /* AddressBookUI.framework in Frameworks */,
 				DABB37A712E8CB280026A6EA /* CFNetwork.framework in Frameworks */,
-				B606EF47190B14A500663EFC /* libAPSHTTPClient.a in Frameworks */,
 				DABB37A812E8CB280026A6EA /* CoreLocation.framework in Frameworks */,
 				DABB37A912E8CB280026A6EA /* MapKit.framework in Frameworks */,
 				DABB37AA12E8CB280026A6EA /* MessageUI.framework in Frameworks */,
@@ -2718,7 +2712,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				B606EF44190B14A500663EFC /* libAPSHTTPClient.a */,
+				B606EF54190B39C700663EFC /* libAPSHTTPClient.a */,
 				841CCAD01807395C00C8DB76 /* CoreText.framework */,
 				D93DAA6716CBFD5600AD64C9 /* EventKit.framework */,
 				D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */,
