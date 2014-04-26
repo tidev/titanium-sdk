@@ -17,7 +17,7 @@
 extern NSString * const TI_APPLICATION_GUID;
 extern BOOL const TI_APPLICATION_ANALYTICS;
 
-@interface GeolocationCallback : NSObject<TiHTTPRequestDelegate>
+@interface GeolocationCallback : NSObject<APSHTTPRequestDelegate>
 {
 	id<TiEvaluator> context;
 	KrollCallback *callback;
@@ -58,7 +58,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		[url appendFormat:@"%@=%@&",key,[value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 	}
 
-    TiHTTPRequest *req = [[TiHTTPRequest alloc] init];
+    APSHTTPRequest *req = [[APSHTTPRequest alloc] init];
     [req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
     [req setUrl:[NSURL URLWithString:url]];
     [req setDelegate:self];
@@ -81,27 +81,27 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	[context fireEvent:callback withObject:event remove:NO thisObject:nil];
 }
 
--(void)tiRequest:(TiHTTPRequest*)request onLoad:(TiHTTPResponse*)tiResponse
+-(void)request:(APSHTTPRequest*)request onLoad:(APSHTTPResponse*)response
 {
 	[[TiApp app] stopNetwork];
 
-	if (request!=nil && [tiResponse error]==nil)
+	if (request!=nil && [response error]==nil)
 	{
-		NSString *data = [tiResponse responseString];
+		NSString *data = [response responseString];
 		[self requestSuccess:data];
 	}
 	else 
 	{
-		[self requestError:[tiResponse error]];
+		[self requestError:[response error]];
 	}
 	
 	[self autorelease];
 }
 
--(void)tiRequest:(TiHTTPRequest *)request onError:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
 {
 	[[TiApp app] stopNetwork];
-	[self requestError:[tiResponse error]];
+	[self requestError:[response error]];
 	[self autorelease];
 }
 

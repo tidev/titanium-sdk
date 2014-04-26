@@ -1751,8 +1751,10 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	// files
 	this.buildManifestFile          = path.join(this.buildDir, 'build-manifest.json');
 	this.androidManifestFile        = path.join(this.buildDir, 'AndroidManifest.xml');
-	this.unsignedApkFile            = path.join(this.buildBinDir, 'app-unsigned.apk');
-	this.apkFile                    = path.join(this.buildBinDir, this.tiapp.name + '.apk');
+
+	var suffix = this.debugPort || this.profilerPort ? '-dev' + (this.debugPort ? '-debug' : '') + (this.profilerPort ? '-profiler' : '') : '';
+	this.unsignedApkFile            = path.join(this.buildBinDir, 'app-unsigned' + suffix + '.apk');
+	this.apkFile                    = path.join(this.buildBinDir, this.tiapp.name + suffix + '.apk');
 
 	next();
 };
@@ -2117,13 +2119,8 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 
 	fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
 
-	var dir;
-
-	// remove the previous deploy.json file which contains debugging/profiling info
-	fs.existsSync(dir = path.join(this.buildDir, 'bin', 'deploy.json')) && fs.unlinkSync(dir);
-
 	// make directories if they don't already exist
-	dir = this.buildAssetsDir;
+	var dir = this.buildAssetsDir;
 	if (this.forceRebuild) {
 		fs.existsSync(dir) && wrench.rmdirSyncRecursive(dir);
 		Object.keys(this.lastBuildFiles).forEach(function (file) {
@@ -2148,6 +2145,21 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	fs.existsSync(dir = this.buildResDrawableDir)              || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = path.join(this.buildResDir, 'values')) || wrench.mkdirSyncRecursive(dir);
 	fs.existsSync(dir = this.buildSrcDir)                      || wrench.mkdirSyncRecursive(dir);
+
+	// create the deploy.json file which contains debugging/profiling info
+	var deployJsonFile = path.join(this.buildBinAssetsDir, 'deploy.json'),
+		deployData = {
+			debuggerEnabled: !!this.debugPort,
+			debuggerPort: this.debugPort || -1,
+			profilerEnabled: !!this.profilerPort,
+			profilerPort: this.profilerPort || -1
+		};
+
+	fs.existsSync(deployJsonFile) && fs.unlinkSync(deployJsonFile);
+
+	if (deployData.debuggerEnabled || deployData.profilerEnabled) {
+		fs.writeFileSync(deployJsonFile, JSON.stringify(deployData));
+	}
 
 	next();
 };
@@ -3271,7 +3283,7 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 		this.logger.info(__('Generating %s', themeFile.cyan));
 
 		var flags = 'Theme.AppCompat';
-		if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden'] ) {
+		if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
 			flags += '.Fullscreen';
 		}
 
@@ -3495,7 +3507,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 	// add the analytics service
 	if (this.tiapp.analytics) {
-		var tiAnalyticsService = 'org.appcelerator.titanium.analytics.TiAnalyticsService';
+		var tiAnalyticsService = 'org.aps.analytics.APSAnalyticsService';
 		finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
 		finalAndroidManifest.application.service[tiAnalyticsService] = {
 			name: tiAnalyticsService,
@@ -3591,6 +3603,7 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-S', this.buildResDir,
 			'-I', this.androidTargetSDK.androidJar,
 			'-I', path.join(this.platformPath, 'titanium.jar'),
+			'-I', path.join(this.platformPath, 'aps-analytics.jar'),
 			'-F', this.ap_File
 		];
 

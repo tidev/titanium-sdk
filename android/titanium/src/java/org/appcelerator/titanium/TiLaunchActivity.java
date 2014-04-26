@@ -414,9 +414,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			return;
 		}
 
-		// Create a new session ID for next session
-		TiPlatformHelper.resetSid();
-
 		super.onDestroy();
 	}
 
