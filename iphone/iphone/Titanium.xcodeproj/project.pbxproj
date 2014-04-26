@@ -4037,9 +4037,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/Classes/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib,
+					"\"$(SRCROOT)/../lib/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = (
 					"-DDEBUG",
@@ -4079,9 +4077,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/Classes/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib,
+					"\"$(SRCROOT)/../lib/APSHTTPClient\"",
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",
@@ -4310,9 +4306,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/Classes/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib,
+					"\"$(SRCROOT)/../lib/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = (
 					"-DDEBUG",
