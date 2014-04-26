@@ -595,9 +595,9 @@
 		B606EF4A190B14ED00663EFC /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF49190B14ED00663EFC /* Reachability.m */; };
 		B606EF4B190B14ED00663EFC /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF49190B14ED00663EFC /* Reachability.m */; };
 		B606EF4C190B14ED00663EFC /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF49190B14ED00663EFC /* Reachability.m */; };
-		B606EF55190B3AAB00663EFC /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B606EF54190B39C700663EFC /* libAPSHTTPClient.a */; };
-		B606EF56190B3AAB00663EFC /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B606EF54190B39C700663EFC /* libAPSHTTPClient.a */; };
-		B606EF57190B3AAC00663EFC /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B606EF54190B39C700663EFC /* libAPSHTTPClient.a */; };
+		B606EF60190B42FB00663EFC /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */; };
+		B606EF61190B42FB00663EFC /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */; };
+		B606EF62190B42FB00663EFC /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */; };
 		B6465C2318D1011C003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
 		B6465C2418D10126003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
 		B6465C2518D10126003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
@@ -1467,13 +1467,13 @@
 		B606EF38190B10A800663EFC /* SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJSON.h; sourceTree = "<group>"; };
 		B606EF48190B14ED00663EFC /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		B606EF49190B14ED00663EFC /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
-		B606EF4E190B15A100663EFC /* APSHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPClient.h; sourceTree = "<group>"; };
-		B606EF4F190B15A100663EFC /* APSHTTPHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPHelper.h; sourceTree = "<group>"; };
-		B606EF50190B15A100663EFC /* APSHTTPOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPOperation.h; sourceTree = "<group>"; };
-		B606EF51190B15A100663EFC /* APSHTTPPostForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPPostForm.h; sourceTree = "<group>"; };
-		B606EF52190B15A100663EFC /* APSHTTPRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPRequest.h; sourceTree = "<group>"; };
-		B606EF53190B15A100663EFC /* APSHTTPResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPResponse.h; sourceTree = "<group>"; };
-		B606EF54190B39C700663EFC /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSHTTPClient.a; path = ../lib/APSHTTPClient/libAPSHTTPClient.a; sourceTree = "<group>"; };
+		B606EF59190B42FB00663EFC /* APSHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPClient.h; sourceTree = "<group>"; };
+		B606EF5A190B42FB00663EFC /* APSHTTPHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPHelper.h; sourceTree = "<group>"; };
+		B606EF5B190B42FB00663EFC /* APSHTTPOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPOperation.h; sourceTree = "<group>"; };
+		B606EF5C190B42FB00663EFC /* APSHTTPPostForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPPostForm.h; sourceTree = "<group>"; };
+		B606EF5D190B42FB00663EFC /* APSHTTPRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPRequest.h; sourceTree = "<group>"; };
+		B606EF5E190B42FB00663EFC /* APSHTTPResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPResponse.h; sourceTree = "<group>"; };
+		B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libAPSHTTPClient.a; sourceTree = "<group>"; };
 		B6465C2118D1011C003C51A8 /* TiNetworkCookieProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkCookieProxy.h; sourceTree = "<group>"; };
 		B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkCookieProxy.m; sourceTree = "<group>"; };
 		B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTransitionAnimationProxy.h; sourceTree = "<group>"; };
@@ -1559,11 +1559,11 @@
 				24CA8C90111167B60084E2DE /* libz.dylib in Frameworks */,
 				24CA8CED1111689B0084E2DE /* AudioToolbox.framework in Frameworks */,
 				24CA8CF4111168AE0084E2DE /* MediaPlayer.framework in Frameworks */,
-				B606EF55190B3AAB00663EFC /* libAPSHTTPClient.a in Frameworks */,
 				24CA8CFB111168C30084E2DE /* AVFoundation.framework in Frameworks */,
 				24EB0A58111E1BAE001DC2D1 /* libxml2.dylib in Frameworks */,
 				24597035118FF66300519F79 /* StoreKit.framework in Frameworks */,
 				242E8E3111BA39FD0046A0D0 /* libTiCore.a in Frameworks */,
+				B606EF60190B42FB00663EFC /* libAPSHTTPClient.a in Frameworks */,
 				242EA11611BD956F0046A0D0 /* ExternalAccessory.framework in Frameworks */,
 				24D5C75911E6364F00F097E2 /* libtiverify.a in Frameworks */,
 				DAA4B2AE134E3DBD00AB6011 /* libti_ios_debugger.a in Frameworks */,
@@ -1586,7 +1586,6 @@
 				24D8E49D119B9D8A00F8CAA6 /* AddressBookUI.framework in Frameworks */,
 				24D8E49E119B9D8A00F8CAA6 /* CFNetwork.framework in Frameworks */,
 				24D8E49F119B9D8A00F8CAA6 /* CoreLocation.framework in Frameworks */,
-				B606EF56190B3AAB00663EFC /* libAPSHTTPClient.a in Frameworks */,
 				24D8E4A0119B9D8A00F8CAA6 /* MapKit.framework in Frameworks */,
 				24D8E4A1119B9D8A00F8CAA6 /* MessageUI.framework in Frameworks */,
 				24D8E4A2119B9D8A00F8CAA6 /* MobileCoreServices.framework in Frameworks */,
@@ -1597,6 +1596,7 @@
 				24D8E4A7119B9D8A00F8CAA6 /* libz.dylib in Frameworks */,
 				24D8E4A8119B9D8A00F8CAA6 /* AudioToolbox.framework in Frameworks */,
 				24D8E4A9119B9D8A00F8CAA6 /* MediaPlayer.framework in Frameworks */,
+				B606EF61190B42FB00663EFC /* libAPSHTTPClient.a in Frameworks */,
 				24D8E4AA119B9D8A00F8CAA6 /* AVFoundation.framework in Frameworks */,
 				24D8E4AB119B9D8A00F8CAA6 /* libxml2.dylib in Frameworks */,
 				24D8E4AC119B9D8A00F8CAA6 /* StoreKit.framework in Frameworks */,
@@ -1623,7 +1623,6 @@
 				DABB37A512E8CB280026A6EA /* AddressBook.framework in Frameworks */,
 				DABB37A612E8CB280026A6EA /* AddressBookUI.framework in Frameworks */,
 				DABB37A712E8CB280026A6EA /* CFNetwork.framework in Frameworks */,
-				B606EF57190B3AAC00663EFC /* libAPSHTTPClient.a in Frameworks */,
 				DABB37A812E8CB280026A6EA /* CoreLocation.framework in Frameworks */,
 				DABB37A912E8CB280026A6EA /* MapKit.framework in Frameworks */,
 				DABB37AA12E8CB280026A6EA /* MessageUI.framework in Frameworks */,
@@ -1634,6 +1633,7 @@
 				DABB37AF12E8CB280026A6EA /* libsqlite3.dylib in Frameworks */,
 				DABB37B012E8CB280026A6EA /* libz.dylib in Frameworks */,
 				DABB37B112E8CB280026A6EA /* AudioToolbox.framework in Frameworks */,
+				B606EF62190B42FB00663EFC /* libAPSHTTPClient.a in Frameworks */,
 				DABB37B212E8CB280026A6EA /* MediaPlayer.framework in Frameworks */,
 				DABB37B312E8CB280026A6EA /* AVFoundation.framework in Frameworks */,
 				DABB37B412E8CB280026A6EA /* libxml2.dylib in Frameworks */,
@@ -1738,7 +1738,7 @@
 		24CA8903111160C30084E2DE /* Thirdparty */ = {
 			isa = PBXGroup;
 			children = (
-				B606EF4D190B15A100663EFC /* APSHTTPClient */,
+				B606EF58190B42FB00663EFC /* APSHTTPClient */,
 				B440EF771209DC400045FEAE /* MGSplitView */,
 				242E967211BAD2E30046A0D0 /* AsyncSocket */,
 				242E95C211BAC8070046A0D0 /* Debugger */,
@@ -2718,7 +2718,6 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				B606EF54190B39C700663EFC /* libAPSHTTPClient.a */,
 				841CCAD01807395C00C8DB76 /* CoreText.framework */,
 				D93DAA6716CBFD5600AD64C9 /* EventKit.framework */,
 				D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */,
@@ -2910,18 +2909,19 @@
 			name = "Scroll View";
 			sourceTree = "<group>";
 		};
-		B606EF4D190B15A100663EFC /* APSHTTPClient */ = {
+		B606EF58190B42FB00663EFC /* APSHTTPClient */ = {
 			isa = PBXGroup;
 			children = (
-				B606EF4E190B15A100663EFC /* APSHTTPClient.h */,
-				B606EF4F190B15A100663EFC /* APSHTTPHelper.h */,
-				B606EF50190B15A100663EFC /* APSHTTPOperation.h */,
-				B606EF51190B15A100663EFC /* APSHTTPPostForm.h */,
-				B606EF52190B15A100663EFC /* APSHTTPRequest.h */,
-				B606EF53190B15A100663EFC /* APSHTTPResponse.h */,
+				B606EF59190B42FB00663EFC /* APSHTTPClient.h */,
+				B606EF5A190B42FB00663EFC /* APSHTTPHelper.h */,
+				B606EF5B190B42FB00663EFC /* APSHTTPOperation.h */,
+				B606EF5C190B42FB00663EFC /* APSHTTPPostForm.h */,
+				B606EF5D190B42FB00663EFC /* APSHTTPRequest.h */,
+				B606EF5E190B42FB00663EFC /* APSHTTPResponse.h */,
+				B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */,
 			);
 			name = APSHTTPClient;
-			path = ../lib/APSHTTPClient;
+			path = ../Classes/APSHTTPClient;
 			sourceTree = "<group>";
 		};
 		B6C5205E18035ACF002471C6 /* AttributedString */ = {
@@ -4037,7 +4037,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					"\"$(SRCROOT)/../lib/APSHTTPClient\"",
+					"\"$(SRCROOT)/Classes/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = (
 					"-DDEBUG",
@@ -4077,7 +4077,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					"\"$(SRCROOT)/../lib/APSHTTPClient\"",
+					"\"$(SRCROOT)/Classes/APSHTTPClient\"",
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",
@@ -4306,7 +4306,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					"\"$(SRCROOT)/../lib/APSHTTPClient\"",
+					"\"$(SRCROOT)/Classes/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = (
 					"-DDEBUG",
