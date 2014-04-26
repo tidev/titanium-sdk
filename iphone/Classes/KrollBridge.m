@@ -18,6 +18,7 @@
 #import "TiDebugger.h"
 #import "TiConsole.h"
 #import "TiExceptionHandler.h"
+#import "APSAnalytics.h"
 
 #ifdef KROLL_COVERAGE
 # include "KrollCoverage.h"
@@ -25,6 +26,7 @@
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
+extern NSString * const TI_APPLICATION_GUID;
 
 NSString * TitaniumModuleRequireFormat = @"(function(exports){"
 		"var __OXP=exports;var module={'exports':exports};%@;\n"
@@ -65,8 +67,8 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 		
 		if (TI_APPLICATION_ANALYTICS)
 		{
-			// force analytics to load on startup
-			[host moduleNamed:@"Analytics" context:pageContext_];
+			//This should enable analytics.
+			[APSAnalytics enableWithAppKey:TI_APPLICATION_GUID withDeployType:TI_APPLICATION_DEPLOYTYPE];
 		}
 	}
 	return self;

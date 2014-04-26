@@ -195,17 +195,6 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 	return iphone4;
 }
 
-+(void)queueAnalytics:(NSString*)type name:(NSString*)name data:(NSDictionary*)data
-{
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-						   VAL_OR_NSNULL(type),@"type",
-						   VAL_OR_NSNULL(name),@"name",
-						   VAL_OR_NSNULL(data),@"data",
-						   nil];
-	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:event];
-}
-
 +(NSString *)UTCDateForDate:(NSDate*)data
 {
 	NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
