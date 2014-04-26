@@ -24,10 +24,10 @@ extern NSString * const TI_APPLICATION_GUID;
     RELEASE_TO_NIL(httpRequest);
     [super dealloc];
 }
--(TiHTTPRequest*)request
+-(APSHTTPRequest*)request
 {
     if(httpRequest == nil) {
-        httpRequest = [[TiHTTPRequest alloc] init];
+        httpRequest = [[APSHTTPRequest alloc] init];
         [httpRequest setDelegate:self];
         [httpRequest addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
         [httpRequest addRequestHeader:[NSString stringWithFormat:@"%s-%s%s-%s", "X","Tita","nium","Id"] value:TI_APPLICATION_GUID];
@@ -36,7 +36,7 @@ extern NSString * const TI_APPLICATION_GUID;
     return httpRequest;
 }
 
--(TiHTTPResponse*)response
+-(APSHTTPResponse*)response
 {
     return [[self request] response];
 }
@@ -113,11 +113,11 @@ extern NSString * const TI_APPLICATION_GUID;
     }
     
     
-    TiHTTPPostForm *form = nil;
+    APSHTTPPostForm *form = nil;
     if(args != nil) {
         ENSURE_ARRAY(args);
         NSInteger dataIndex = 0;
-        form = [[[TiHTTPPostForm alloc] init] autorelease];
+        form = [[[APSHTTPPostForm alloc] init] autorelease];
         id arg = [args objectAtIndex:0];
         if([arg isKindOfClass:[NSDictionary class]]) {
             NSDictionary *dict = (NSDictionary*)arg;
@@ -216,15 +216,15 @@ extern NSString * const TI_APPLICATION_GUID;
 
 # pragma mark - Callback functions
 
--(void)tiRequest:(TiHTTPRequest *)request onDataStream:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onDataStream:(APSHTTPResponse *)response
 {
     if(hasOndatastream) {
         NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
         NSTimeInterval diff = currentTime - _downloadTime;
-        if(_downloadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [tiResponse readyState] == TiHTTPResponseStateDone) {
+        if(_downloadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [response readyState] == APSHTTPResponseStateDone) {
             _downloadTime = 0;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
-            [eventDict setValue:[NSNumber numberWithFloat: [tiResponse downloadProgress]] forKey:@"progress"];
+            [eventDict setValue:[NSNumber numberWithFloat: [response downloadProgress]] forKey:@"progress"];
             [self fireCallback:@"ondatastream" withArg:eventDict withSource:self];
         }
         if(_downloadTime == 0) {
@@ -233,15 +233,15 @@ extern NSString * const TI_APPLICATION_GUID;
     }
 }
 
--(void)tiRequest:(TiHTTPRequest *)request onSendStream:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onSendStream:(APSHTTPResponse *)response
 {
     if(hasOnsendstream) {
         NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
         NSTimeInterval diff = currentTime - _uploadTime;
-        if(_uploadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [tiResponse readyState] == TiHTTPResponseStateDone) {
+        if(_uploadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [response readyState] == APSHTTPResponseStateDone) {
             _uploadTime = 0;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
-            [eventDict setValue:[NSNumber numberWithFloat: [tiResponse uploadProgress]] forKey:@"progress"];
+            [eventDict setValue:[NSNumber numberWithFloat: [response uploadProgress]] forKey:@"progress"];
             [self fireCallback:@"onsendstream" withArg:eventDict withSource:self];
         }
         if(_uploadTime == 0) {
@@ -250,13 +250,13 @@ extern NSString * const TI_APPLICATION_GUID;
     }
 }
 
--(void)tiRequest:(TiHTTPRequest *)request onLoad:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onLoad:(APSHTTPResponse *)response
 {
     [[TiApp app] stopNetwork];
     if([request cancelled]) {
         return;
     }
-    int responseCode = [tiResponse status];
+    int responseCode = [response status];
     /**
      *    Per customer request, successful communications that resulted in an
      *    4xx or 5xx response is treated as an error instead of an onload.
@@ -276,14 +276,14 @@ extern NSString * const TI_APPLICATION_GUID;
     [self forgetSelf];
 }
 
--(void)tiRequest:(TiHTTPRequest *)request onError:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
 {
     [[TiApp app] stopNetwork];
     if([request cancelled]) {
         return;
     }
     if(hasOnerror) {
-        NSError *error = [tiResponse error];
+        NSError *error = [response error];
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
         [event setObject:@"error" forKey:@"type"];
         [self fireCallback:@"onerror" withArg:event withSource:self];
@@ -293,14 +293,14 @@ extern NSString * const TI_APPLICATION_GUID;
 }
 
 
--(void)tiRequest:(TiHTTPRequest *)request onReadyStateChage:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onReadyStateChage:(APSHTTPResponse *)response
 {
     if(hasOnreadystatechange) {
         [self fireCallback:@"onreadystatechange" withArg:nil withSource:self];
     }
 }
 
--(void)tiRequest:(TiHTTPRequest *)request onRedirect:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onRedirect:(APSHTTPResponse *)response
 {
     if(hasOnredirect) {
         [self fireCallback:@"onredirect" withArg:nil withSource:self];
@@ -372,11 +372,11 @@ extern NSString * const TI_APPLICATION_GUID;
     if([self response] == nil) {
         return NUMBOOL(NO);
     }
-    TiHTTPResponseState state = [[[self request] response] readyState];
+    APSHTTPResponseState state = [[[self request] response] readyState];
     return NUMBOOL(
-                   state == TiHTTPResponseStateHeaders ||
-                   state == TiHTTPResponseStateLoading ||
-                   state == TiHTTPResponseStateOpened
+                   state == APSHTTPResponseStateHeaders ||
+                   state == APSHTTPResponseStateLoading ||
+                   state == APSHTTPResponseStateOpened
                    );
 }
 
@@ -439,11 +439,11 @@ extern NSString * const TI_APPLICATION_GUID;
     return [[self response] headers];
 }
 
-MAKE_SYSTEM_NUMBER(UNSENT, NUMINT(TiHTTPResponseStateUnsent))
-MAKE_SYSTEM_NUMBER(OPENED, NUMINT(TiHTTPResponseStateOpened))
-MAKE_SYSTEM_NUMBER(HEADERS_RECEIVED, NUMINT(TiHTTPResponseStateHeaders))
-MAKE_SYSTEM_NUMBER(LOADING, NUMINT(TiHTTPResponseStateLoading))
-MAKE_SYSTEM_NUMBER(DONE, NUMINT(TiHTTPResponseStateDone))
+MAKE_SYSTEM_NUMBER(UNSENT, NUMINT(APSHTTPResponseStateUnsent))
+MAKE_SYSTEM_NUMBER(OPENED, NUMINT(APSHTTPResponseStateOpened))
+MAKE_SYSTEM_NUMBER(HEADERS_RECEIVED, NUMINT(APSHTTPResponseStateHeaders))
+MAKE_SYSTEM_NUMBER(LOADING, NUMINT(APSHTTPResponseStateLoading))
+MAKE_SYSTEM_NUMBER(DONE, NUMINT(APSHTTPResponseStateDone))
 
 
 @end
