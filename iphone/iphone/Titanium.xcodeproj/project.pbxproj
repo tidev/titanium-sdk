@@ -1473,7 +1473,7 @@
 		B606EF5C190B42FB00663EFC /* APSHTTPPostForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPPostForm.h; sourceTree = "<group>"; };
 		B606EF5D190B42FB00663EFC /* APSHTTPRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPRequest.h; sourceTree = "<group>"; };
 		B606EF5E190B42FB00663EFC /* APSHTTPResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPResponse.h; sourceTree = "<group>"; };
-		B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libAPSHTTPClient.a; sourceTree = "<group>"; };
+		B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSHTTPClient.a; path = ../Classes/APSHTTPClient/libAPSHTTPClient.a; sourceTree = "<group>"; };
 		B6465C2118D1011C003C51A8 /* TiNetworkCookieProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkCookieProxy.h; sourceTree = "<group>"; };
 		B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkCookieProxy.m; sourceTree = "<group>"; };
 		B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTransitionAnimationProxy.h; sourceTree = "<group>"; };
@@ -2718,6 +2718,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */,
 				841CCAD01807395C00C8DB76 /* CoreText.framework */,
 				D93DAA6716CBFD5600AD64C9 /* EventKit.framework */,
 				D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */,
@@ -2918,7 +2919,6 @@
 				B606EF5C190B42FB00663EFC /* APSHTTPPostForm.h */,
 				B606EF5D190B42FB00663EFC /* APSHTTPRequest.h */,
 				B606EF5E190B42FB00663EFC /* APSHTTPResponse.h */,
-				B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */,
 			);
 			name = APSHTTPClient;
 			path = ../Classes/APSHTTPClient;
@@ -4037,7 +4037,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					"\"$(SRCROOT)/Classes/APSHTTPClient\"",
+					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = (
 					"-DDEBUG",
@@ -4077,7 +4077,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					"\"$(SRCROOT)/Classes/APSHTTPClient\"",
+					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",
@@ -4109,9 +4109,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/Classes/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib,
+					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = (
 					"-DIPAD",
@@ -4145,9 +4143,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/Classes/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib,
+					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = (
 					"-DIPAD",
@@ -4306,7 +4302,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					"\"$(SRCROOT)/Classes/APSHTTPClient\"",
+					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = (
 					"-DDEBUG",
@@ -4347,9 +4343,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/Classes/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib,
+					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = (
 					"-DIPAD",
@@ -4385,9 +4379,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/Classes/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib,
+					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = (
 					"-DIPAD",
@@ -4429,9 +4421,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/Classes/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib,
+					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = (
 					"-DIPAD",
@@ -4471,9 +4461,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/Classes/APSHTTPClient,
-					/Users/penrique/Documents/github/titanium_mobile/iphone/lib,
+					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = (
 					"-DIPAD",
