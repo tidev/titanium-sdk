@@ -71,7 +71,7 @@
 	id<TiEvaluator> context = [self executionContext];
 	NSURL * oldUrl = [context currentURL];
 	NSURL * rootURL = (oldUrl != nil)?oldUrl:[self _baseURL];
-    NSString * result = [[rootURL absoluteString] stringByReplacingOccurrencesOfString:[[self _baseURL] absoluteString] withString:@""];
+	NSString * result = [[rootURL absoluteString] stringByReplacingOccurrencesOfString:[[self _baseURL] absoluteString] withString:@"/"];
 	return result;
 }
 

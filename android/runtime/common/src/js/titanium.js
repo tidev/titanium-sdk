@@ -79,7 +79,7 @@ function TitaniumWrapper(context) {
 
 	Object.defineProperty(this, "resourcesRelativePath", {
 		get: function() {
-			var value = context.sourceUrl.replace("app://", "");
+			var value = context.sourceUrl.replace("app://", "/");
 			return value;
 		}
 	});
