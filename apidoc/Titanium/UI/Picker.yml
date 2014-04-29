@@ -380,6 +380,11 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
+    
+  - name: font
+    summary: Font to use for text.
+    type: Font
+    
 examples:
   - title: Multi-Column Picker using Alloy XML Markup
     example: |
