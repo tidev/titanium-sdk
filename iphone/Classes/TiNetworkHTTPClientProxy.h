@@ -17,6 +17,7 @@
     APSHTTPRequest *httpRequest;
     NSTimeInterval _uploadTime;
     NSTimeInterval _downloadTime;
+    id<APSConnectionDelegate> apsConnectionManager;
     
     BOOL hasOnload;
     BOOL hasOnerror;
