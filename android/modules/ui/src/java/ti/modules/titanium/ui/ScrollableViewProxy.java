@@ -126,7 +126,17 @@ public class ScrollableViewProxy extends TiViewProxy
 			case MSG_REMOVE_VIEW: {
 				AsyncResult holder = (AsyncResult) msg.obj;
 				Object view = holder.getArg(); 
-				if (view instanceof TiViewProxy) {
+				if (view instanceof Integer) {
+					int rowIndex = (Integer) view;
+					TiViewProxy[] rowArray = this.getChildren();
+					if (rowArray != null) {
+						if (rowIndex >= 0 && rowIndex < rowArray.length) {
+							this.remove((TiViewProxy) rowArray[rowIndex]);
+						} else {
+							Log.e(TAG, "Unable to remove child. Index out of range. Non-existent child " + rowIndex);
+						}
+					}
+				} else if (view instanceof TiViewProxy) {
 					getView().removeView((TiViewProxy) view);
 					handled = true;
 				} else if (view != null) {
@@ -167,28 +177,9 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void removeView(Object viewObject) {
-		try {
-			if (viewObject instanceof Integer) {
-				int rowIndex = (Integer) viewObject;
-
-				TiViewProxy[] rowArray = this.getChildren();
-
-				if (rowArray != null) {
-					if (rowIndex >= 0 && rowIndex < rowArray.length) {
-						this.remove((TiViewProxy) rowArray[rowIndex]);
-					} else {
-						Log.e(TAG, "Unable to remove child. Index out of range. Non-existent child "+ rowIndex);
-					}
-				}
-			} else if (viewObject instanceof TiViewProxy) {
-				TiViewProxy tv = ((TiViewProxy) viewObject).getParent();
-				tv.remove((TiViewProxy) viewObject);
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			Log.e(TAG, "removeView() ignored. method accepts either a view or an index to a view ");
-		}
+	public void removeView(Object viewObject)
+	{
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_VIEW), viewObject);
 	}
 
 	@Kroll.method
