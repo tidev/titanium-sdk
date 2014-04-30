@@ -25,6 +25,14 @@ extern NSString * const TI_APPLICATION_GUID;
     RELEASE_TO_NIL(apsConnectionManager);
     [super dealloc];
 }
+
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+    id arg = [properties valueForKey:@"securityManager"];
+    apsConnectionManager = [arg retain];
+    [super _initWithProperties:properties];
+}
+
 -(APSHTTPRequest*)request
 {
     if(httpRequest == nil) {
@@ -40,16 +48,6 @@ extern NSString * const TI_APPLICATION_GUID;
 -(APSHTTPResponse*)response
 {
     return [[self request] response];
-}
-
--(void)setSecurityManager:(id)arg
-{
-    ENSURE_SINGLE_ARG(arg, NSObject);
-    if (apsConnectionManager != arg) {
-        [apsConnectionManager release];
-        apsConnectionManager = [arg retain];
-        [self replaceValue:apsConnectionManager forKey:@"securityManager" notification:NO];
-    }
 }
 
 #pragma mark - Public methods
