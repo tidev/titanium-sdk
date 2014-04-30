@@ -429,6 +429,18 @@ properties:
     type: Titanium.XML.Document
     permission: read-only
 
+  - name: securityManager
+    summary: The APSConnectionDelegate for this client.
+    description:
+        This property **must** be specified during creation.
+        Set this property on the HTTPClient to participate in the authentication and resource management
+        of the connection.
+        See <APSConnectionDelegate> for further information. 
+    type: APSConnectionDelegate
+    platforms: [ipad, iphone]
+    since: "3.3.0"
+    availability: creation
+
   - name: status
     summary: Response HTTP status code.
     type: Number
@@ -533,3 +545,29 @@ examples:
              client.open("GET", url);
              // Send the request.
              client.send();
+
+---
+name: APSConnectionDelegate
+summary: An extension of the [NSURLConnectionDelegate](https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSURLConnectionDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intf/NSURLConnectionDelegate) protocol to allow users to participate in authentication and resource mnagement for this HTTPClient.
+description: |
+    The APSConnectionDelegate protocol is an extension of the NSURLConnectionDelegate protocol. 
+    The object representing <Titanium.Network.HTTPClient.securityManager> must implement this protocol.
+    Although all methods in this protocol are optional, the securityManager must implement atleast one of the methods to 
+    participate in the authentication and resource management.
+
+    The deprecated methods as defined by the NSURLConnectionDelegate protocol are not supported.
+
+    In addition to the methods defined in the NSURLConnectionDelegate_Protocol this protocol defines one additional method.
+
+    `-(BOOL)willHandleChallenge:(NSURLAuthenticationChallenge *)challenge forConnection:(NSURLConnection *)connection`.
+        
+    This method is called on the <Titanium.Network.HTTPClient.securityManager> only if it also implements the 
+    `connection:willSendRequestForAuthenticationChallenge:` method of the NSURLConnectionDelegate protocol.
+    Return `true` if the securityManager wants to handle this challenge. 
+    Return `false` if the default delegate will handle this challenge.
+
+    If the securityManager does not implement this method but implements `connection:willSendRequestForAuthenticationChallenge:`, the return 
+    value is assumed to be `true` and all challenges will be forwarded to the securityManager.
+
+since: 3.3.0
+platforms: [iphone, ipad]
