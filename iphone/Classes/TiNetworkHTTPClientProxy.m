@@ -22,6 +22,7 @@ extern NSString * const TI_APPLICATION_GUID;
 - (void)dealloc
 {
     RELEASE_TO_NIL(httpRequest);
+    RELEASE_TO_NIL(apsConnectionManager);
     [super dealloc];
 }
 -(APSHTTPRequest*)request
@@ -41,6 +42,16 @@ extern NSString * const TI_APPLICATION_GUID;
     return [[self request] response];
 }
 
+-(void)setSecurityManager:(id)arg
+{
+    ENSURE_SINGLE_ARG(arg, NSObject);
+    if (apsConnectionManager != arg) {
+        [apsConnectionManager release];
+        apsConnectionManager = [arg retain];
+        [self replaceValue:apsConnectionManager forKey:@"securityManager" notification:NO];
+    }
+}
+
 #pragma mark - Public methods
 
 -(void)open:(id)args
@@ -50,6 +61,8 @@ extern NSString * const TI_APPLICATION_GUID;
     NSURL *url = [TiUtils toURL:[args objectAtIndex:1] proxy:self];
     [[self request] setMethod: method];
     [[self request] setUrl:url];
+    
+    [[self request] setConnectionDelegate:apsConnectionManager];
     
     if([args count] >= 3) {
         [self replaceValue:[args objectAtIndex:2] forKey:@"async" notification: YES];
