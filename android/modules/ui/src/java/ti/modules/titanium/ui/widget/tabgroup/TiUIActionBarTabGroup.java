@@ -20,9 +20,16 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBar.TabListener;
 import android.app.Activity;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import org.appcelerator.kroll.common.Log;
+import android.support.v4.view.ViewPager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBarActivity;
+import android.view.MotionEvent;
 
 /**
  * Tab group implementation using the Action Bar navigation tabs.
@@ -36,13 +43,22 @@ import android.widget.FrameLayout;
  * for further details on how Action bar tabs work.
  */
 public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabListener, OnLifecycleEvent {
+	private static final String TAG = "TiUIActionBarTabGroup";
 	private ActionBar actionBar;
 	private boolean activityPaused = false;
 	// Default value is true. Set it to false if the tab is selected using the selectTab() method.
 	private boolean tabClicked = true;
+	private boolean tabsDisabled = false;
+	private Fragment savedFragment = null;
+	private boolean savedSwipeable;
+	public boolean swipeable = true;
 
 	// The tab to be selected once the activity resumes.
 	private Tab selectedTabOnResume;
+
+	private TabGroupPagerAdapter tabGroupPagerAdapter;
+	private ViewPager tabGroupViewPager;
+
 
 	public TiUIActionBarTabGroup(TabGroupProxy proxy, TiBaseActivity activity) {
 		super(proxy, activity);
@@ -54,19 +70,72 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.setDisplayShowTitleEnabled(true);
 
-		// Create a view to present the contents of the currently selected tab.
-		FrameLayout tabContent = new FrameLayout(activity);
-		tabContent.setId(android.R.id.tabcontent);
+		tabGroupPagerAdapter = new TabGroupPagerAdapter(((ActionBarActivity) activity).getSupportFragmentManager());
+
+		tabGroupViewPager = (new ViewPager(proxy.getActivity()){
+			@Override
+			public boolean onTouchEvent(MotionEvent event) {
+				return swipeable ? super.onTouchEvent(event) : false;
+			}
+
+			@Override
+			public boolean onInterceptTouchEvent(MotionEvent event) {
+				return swipeable ? super.onInterceptTouchEvent(event) : false;
+			}
+		});
+		tabGroupViewPager.setAdapter(tabGroupPagerAdapter);
+
+		tabGroupViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+			@Override
+			public void onPageSelected(int position) {
+				// on changing the page simply select the tab
+				actionBar.setSelectedNavigationItem(position);
+			}
+
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {}
+
+			@Override
+			public void onPageScrollStateChanged(int arg0) {}
+
+		});
+
 		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 		params.autoFillsHeight = true;
 		params.autoFillsWidth = true;
-		((ViewGroup) activity.getLayout()).addView(tabContent, params);
+		((ViewGroup) activity.getLayout()).addView(tabGroupViewPager, params);
+		setNativeView(tabGroupViewPager);
+}
 
-		// The tab content view will act as the "native" view for the group.
-		// Note: since the tab bar is NOT part of the content, animations
-		// will not transform it along with the rest of the group.
-		setNativeView(tabContent);
+private class TabGroupPagerAdapter extends FragmentPagerAdapter {
+	public TabGroupPagerAdapter(FragmentManager fm) {
+		super(fm);
 	}
+
+	@Override
+	public Fragment getItem(int i) {
+		if (tabsDisabled) {
+			return savedFragment;
+		} else {
+			ActionBar.Tab tab = actionBar.getTabAt(i);
+			TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
+			if (tabView.fragment == null) {
+				tabView.initializeFragment();
+			}
+			return tabView.fragment;
+		}
+	}
+
+	@Override
+	public int getCount() {
+		if (tabsDisabled) {
+			return 1;
+		} else {
+			return actionBar.getNavigationItemCount();
+		}
+	}
+}
 	
 	@Override
 	public void processProperties(KrollDict d)
@@ -101,6 +170,10 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		// Add the new tab, but don't select it just yet.
 		// The selected tab is set once the group is done opening.
 		actionBar.addTab(tab, false);
+		tabGroupPagerAdapter.notifyDataSetChanged();
+		int numTabs = actionBar.getTabCount();
+		int offscreen = numTabs > 1 ? numTabs - 1 : 1; // Must be at least 1
+		tabGroupViewPager.setOffscreenPageLimit(offscreen);
 	}
 
 	@Override
@@ -154,18 +227,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
 		TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
 
-		// Check if this tab's fragment has been initialized already.
-		if (tabView.fragment == null) {
-			// If not we will create it here then attach it
-			// to the tab group activity inside the "content" container.
-			tabView.initializeFragment();
-			ft.add(android.R.id.tabcontent, tabView.fragment);
-
-		} else {
-			// If the fragment is already attached just make it visible.
-			ft.show(tabView.fragment);
-		}
-
+		tabGroupViewPager.setCurrentItem(tab.getPosition());
 		TabProxy tabProxy = (TabProxy) tabView.getProxy();
 		((TabGroupProxy) proxy).onTabSelected(tabProxy);
 		if (tabClicked) {
@@ -173,16 +235,14 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		} else {
 			tabClicked = true;
 		}
-
+		tabProxy.fireEvent(TiC.EVENT_SELECTED, null, false);
 	}
 
 	@Override
 	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
 		TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
-
-		// Hide the currently selected fragment since another tab is
-		// in the process of being selected.
-		ft.hide(tabView.fragment);
+		TabProxy tabProxy = (TabProxy) tabView.getProxy();
+		tabProxy.fireEvent(TiC.EVENT_UNSELECTED, null, false);
 	}
 
 	@Override
@@ -212,5 +272,28 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 
 	@Override
 	public void onDestroy(Activity activity) { }
+
+	public void disableTabNavigation(boolean disable) {
+		if (disable && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_TABS) {
+			savedSwipeable = swipeable;
+			swipeable = false;
+			ActionBar.Tab tab = actionBar.getSelectedTab();
+			if (tab == null) {
+				Log.e(TAG, "No selected tab when trying to disable Tab Navigation");
+				return;
+			}
+			TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
+			savedFragment = tabView.fragment;
+			tabsDisabled = true;
+			tabGroupPagerAdapter.notifyDataSetChanged();
+			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+		} else if (!disable && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_STANDARD){
+			tabsDisabled = false;
+			savedFragment = null;
+			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+			tabGroupPagerAdapter.notifyDataSetChanged();
+			swipeable = savedSwipeable;
+		}
+	}
 
 }
