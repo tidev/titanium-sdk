@@ -230,7 +230,7 @@ public class TiUIText extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
-			tv.setHint((String) newValue);
+			tv.setHint(TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_ELLIPSIZE)) {
 			if (TiConvert.toBoolean(newValue)) {
 				tv.setEllipsize(TruncateAt.END);
