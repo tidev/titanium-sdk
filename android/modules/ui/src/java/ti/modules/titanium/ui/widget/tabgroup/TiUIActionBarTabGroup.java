@@ -173,16 +173,19 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		} else {
 			tabClicked = true;
 		}
+		tabProxy.fireEvent(TiC.EVENT_SELECTED, null, false);
 
 	}
 
 	@Override
 	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
 		TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
+		TabProxy tabProxy = (TabProxy) tabView.getProxy();
 
 		// Hide the currently selected fragment since another tab is
 		// in the process of being selected.
 		ft.hide(tabView.fragment);
+		tabProxy.fireEvent(TiC.EVENT_UNSELECTED, null, false);
 	}
 
 	@Override

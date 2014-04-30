@@ -404,8 +404,8 @@
             }
         }
     }
-    if ([self _hasListeners:@"blur"]) {
-        [self fireEvent:@"blur" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    if ([self _hasListeners:@"unselected"]) {
+        [self fireEvent:@"unselected" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
 }
 
@@ -428,8 +428,8 @@
             }
         }
     }
-    if ([self _hasListeners:@"focus"]) {
-        [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    if ([self _hasListeners:@"selected"]) {
+        [self fireEvent:@"selected" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
 }
 
