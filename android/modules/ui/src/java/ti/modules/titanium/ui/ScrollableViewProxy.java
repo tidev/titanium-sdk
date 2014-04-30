@@ -180,7 +180,6 @@ public class ScrollableViewProxy extends TiViewProxy
 	public void removeView(Object viewObject)
 	{
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_VIEW), viewObject);
-		
 	}
 
 	@Kroll.method
