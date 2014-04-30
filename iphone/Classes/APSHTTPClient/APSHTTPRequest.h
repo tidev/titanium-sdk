@@ -24,6 +24,11 @@ typedef enum {
 @class APSHTTPPostForm;
 @class APSHTTPOperation;
 
+@protocol APSConnectionDelegate <NSURLConnectionDelegate>
+@optional
+-(BOOL)willHandleChallenge:(NSURLAuthenticationChallenge *)challenge forConnection:(NSURLConnection *)connection;
+@end
+
 @protocol APSHTTPRequestDelegate <NSObject>
 @optional
 -(void)request:(APSHTTPRequest*)request onLoad:(APSHTTPResponse*)response;
@@ -52,7 +57,7 @@ typedef enum {
 @property(nonatomic, retain) APSHTTPPostForm *postForm;
 @property(nonatomic, readonly) APSHTTPResponse* response;
 @property(nonatomic, assign) NSObject<APSHTTPRequestDelegate>* delegate;
-@property(nonatomic, assign) NSObject<NSURLConnectionDelegate>* connectionDelegate;
+@property(nonatomic, assign) NSObject<APSConnectionDelegate>* connectionDelegate;
 @property(nonatomic) NSTimeInterval timeout;
 @property(nonatomic) BOOL sendDefaultCookies;
 @property(nonatomic) BOOL redirects;
