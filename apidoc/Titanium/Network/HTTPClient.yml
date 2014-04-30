@@ -552,12 +552,12 @@ summary: An extension of the [NSURLConnectionDelegate](https://developer.apple.c
 description: |
     The APSConnectionDelegate protocol is an extension of the NSURLConnectionDelegate protocol. 
     The object representing <Titanium.Network.HTTPClient.securityManager> must implement this protocol.
-    Although all methods in this protocol are optional, the securityManager must implement atleast one of the methods to 
+    Although all methods in this protocol are optional, the securityManager must implement at least one of the methods to 
     participate in the authentication and resource management.
 
     The deprecated methods as defined by the NSURLConnectionDelegate protocol are not supported.
 
-    In addition to the methods defined in the NSURLConnectionDelegate_Protocol this protocol defines one additional method.
+    In addition to the methods defined in the NSURLConnectionDelegate protocol this protocol defines one additional method.
 
     `-(BOOL)willHandleChallenge:(NSURLAuthenticationChallenge *)challenge forConnection:(NSURLConnection *)connection`.
         
