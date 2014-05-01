@@ -19,6 +19,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.text.Editable;
 import android.text.InputType;
@@ -513,9 +514,13 @@ public class TiUIText extends TiUIView
 
 		if (passwordMask) {
 			textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_PASSWORD;
+			Typeface origTF = tv.getTypeface();
 			// Sometimes password transformation does not work properly when the input type is set after the transformation method.
 			// This issue has been filed at http://code.google.com/p/android/issues/detail?id=7092
 			tv.setInputType(textTypeAndClass);
+			// Workaround for https://code.google.com/p/android/issues/detail?id=55418 since setInputType
+			// with InputType.TYPE_TEXT_VARIATION_PASSWORD sets the typeface to monospace.
+			tv.setTypeface(origTF);
 			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
 			//turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in landscape mode.
