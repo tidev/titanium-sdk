@@ -58,7 +58,8 @@ description: |
     Release 3.0:
 
     *   On iOS, the first two arguments to the `updateSection` method are reversed.
-        ([TIMOB-12625](https://jira.appcelerator.org/browse/TIMOB-12625))
+        ([TIMOB-12625](https://jira.appcelerator.org/browse/TIMOB-12625)). This issue has been
+        addressed in Release 3.3.0 of the Titanium SDK
 
     *   On Mobile Web, click events fail to fire after calling the `updateSection` method.
         ([TIMOB-12630](https://jira.appcelerator.org/browse/TIMOB-12630))
@@ -1024,7 +1025,8 @@ methods:
             [TIMOB-12630](https://jira.appcelerator.org/browse/TIMOB-12630))
 
         *   On iOS, the first two arguments to the `updateSection` method are reversed.
-            ([TIMOB-12625](https://jira.appcelerator.org/browse/TIMOB-12625))
+            ([TIMOB-12625](https://jira.appcelerator.org/browse/TIMOB-12625)). This issue has been
+            addressed in Release 3.3.0 of the Titanium SDK
     parameters:
       - name: index
         summary: Index of the section to update.
