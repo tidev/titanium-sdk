@@ -44,6 +44,16 @@ methods:
     type: Number
     platforms: [android]
     
+    - name: paddingBottom
+    summary: Bottom padding of this TextArea.
+    type: Number
+    platforms: [android]
+    
+  - name: paddingTop
+    summary: Top padding of this TextArea.
+    type: Number
+    platforms: [android]
+    
   - name: setSelection
     summary: Selects the text in range (start, end).
     platforms: [android, iphone, ipad]

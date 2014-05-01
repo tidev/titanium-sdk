@@ -204,32 +204,33 @@ public class TiUIText extends TiUIView
 			setTextPadding(d);
 	}
 
-	private boolean setTextPadding(KrollDict d)
+	private void setTextPadding(KrollDict d)
 	{
-		boolean padding = false;
 		int paddingLeft = 0;
 		int paddingRight = 0;
 		int paddingTop = 0;
 		int paddingBottom = 0;
 		if (d.containsKey(TiC.PROPERTY_PADDING_LEFT)) {
 			paddingLeft = TiConvert.toInt(d, TiC.PROPERTY_PADDING_LEFT);
-			padding = true;
 		} else {
 			paddingLeft = tv.getPaddingLeft();
 		}
 		if (d.containsKey(TiC.PROPERTY_PADDING_RIGHT)) {
 			paddingRight = TiConvert.toInt(d, TiC.PROPERTY_PADDING_RIGHT);
-			padding = true;
 		} else {
 			paddingRight = tv.getPaddingRight();
 		}
-		if(padding)
-		{
-		paddingBottom = tv.getPaddingBottom();
-		paddingTop = tv.getPaddingTop();
-		tv.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		if (d.containsKey(TiC.PROPERTY_PADDING_TOP)) {
+			paddingTop = TiConvert.toInt(d, TiC.PROPERTY_PADDING_TOP);
+		} else {
+			paddingTop = tv.getPaddingTop();
 		}
-		return padding;
+		if (d.containsKey(TiC.PROPERTY_PADDING_BOTTOM)) {
+			paddingBottom = TiConvert.toInt(d, TiC.PROPERTY_PADDING_BOTTOM);
+		} else {
+			paddingBottom = tv.getPaddingBottom();
+		}
+			tv.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 	}
 
 	@Override
@@ -244,7 +245,7 @@ public class TiUIText extends TiUIView
 			tv.setText(TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_MAX_LENGTH)) {
 			maxLength = TiConvert.toInt(newValue);
-			//truncate if current text exceeds max length
+			// truncate if current text exceeds max length
 			Editable currentText = tv.getText();
 			if (maxLength >= 0 && currentText.length() > maxLength) {
 				CharSequence truncateText = currentText.subSequence(0, maxLength);
@@ -270,12 +271,12 @@ public class TiUIText extends TiUIView
 			String verticalAlign = null;
 			if (key.equals(TiC.PROPERTY_TEXT_ALIGN)) {
 				textAlign = TiConvert.toString(newValue);
-			} else if (proxy.hasProperty(TiC.PROPERTY_TEXT_ALIGN)){
+			} else if (proxy.hasProperty(TiC.PROPERTY_TEXT_ALIGN)) {
 				textAlign = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_TEXT_ALIGN));
 			}
 			if (key.equals(TiC.PROPERTY_VERTICAL_ALIGN)) {
 				verticalAlign = TiConvert.toString(newValue);
-			} else if (proxy.hasProperty(TiC.PROPERTY_VERTICAL_ALIGN)){
+			} else if (proxy.hasProperty(TiC.PROPERTY_VERTICAL_ALIGN)) {
 				verticalAlign = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_VERTICAL_ALIGN));
 			}
 			handleTextAlign(textAlign, verticalAlign);
@@ -290,7 +291,10 @@ public class TiUIText extends TiUIView
 			TiUIHelper.styleText(tv, (HashMap) newValue);
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, newValue);
-		} else if (!setTextPadding(proxy.getProperties())){
+		} else if (key.equals(TiC.PROPERTY_PADDING_TOP) || key.equals(TiC.PROPERTY_PADDING_BOTTOM)
+			|| key.equals(TiC.PROPERTY_PADDING_RIGHT) || key.equals(TiC.PROPERTY_PADDING_LEFT)) {
+			setTextPadding(proxy.getProperties());
+		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
