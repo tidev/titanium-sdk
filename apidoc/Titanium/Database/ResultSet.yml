@@ -19,9 +19,11 @@ description: |
 
     #### Platform Implementation Notes
 
-    Note that `fieldCount` is exposed as a *method* on iOS, but as a *property* on
-    Android. This is a known parity issue
-    ([TIMOB-2945](https://jira.appcelerator.org/browse/TIMOB-2945)).
+    Prior to Release 3.3.0 of the Titanium SDK, note that `fieldCount` is exposed as a *method* on iOS, 
+    but as a *property* on Android. Blackberry supported it both as a property and a method. 
+    Starting from Release 3.3.0 of the Titanium SDK, fieldCount is supported **only as a read only property**. 
+
+    ([TIMOB-5881](https://jira.appcelerator.org/browse/TIMOB-5881)).
 
     On the iOS platform, closing the database also closes the result set, that is,
     you can only access the result set if the database is currently open.
@@ -96,9 +98,13 @@ methods:
         optional: true
     
   - name: fieldCount
-    summary: Returns the number of columns in this result set.
+    summary: Returns the number of columns in this result set. This method has been **removed** in Release 3.3.0 of the Titanium SDK. Use the fieldCount property instead.
     returns:
         type: Number
+    deprecated:
+        since: "3.3.0"
+        removed: "3.3.0"
+        notes: Use the fieldCount property instead.
     platforms: [iphone, ipad, blackberry]
     
   - name: fieldName
@@ -138,7 +144,8 @@ properties:
     summary: The number of columns in this result set.
     type: Number
     permission: read-only
-    platforms: [android, blackberry]
+    platforms: [android, blackberry, iphone, ipad]
+    since: {iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: rowCount
     summary: The number of rows in this result set.
@@ -174,8 +181,9 @@ examples:
             
             Ti.API.info('Row count: ' + rows.rowCount);
             var fieldCount;
-            // fieldCount is a property on Android.
-            if (Ti.Platform.name === 'android') {
+            // fieldCount is a method on iOS and a property on Android in prior versions of the SDK.
+            // fieldCount is a property on all supported platforms since Release 3.3.0 of the Titanium SDK.
+            if ( (Ti.Platform.name === 'android') || (Ti.version >= '3.3.0') ) {
                 fieldCount = rows.fieldCount;
             } else {
                 fieldCount = rows.fieldCount();
