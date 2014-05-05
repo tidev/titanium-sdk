@@ -20,6 +20,8 @@ DEFINE_EXCEPTIONS
 {
 	RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(focusedTabProxy);
+	RELEASE_TO_NIL(barColor);
+	RELEASE_TO_NIL(navTintColor);
 	[super dealloc];
 }
 
@@ -138,12 +140,21 @@ DEFINE_EXCEPTIONS
 
 -(void)updateMoreBar:(UINavigationController *)moreController
 {
-	if ([[moreController viewControllers] count] != 1)
-	{
-		return;
-	}
-	
-	[TiUtils applyColor:barColor toNavigationController:moreController];
+    if ([[moreController viewControllers] count] != 1) {
+        return;
+    }
+    UINavigationBar * navBar = [moreController navigationBar];
+    
+    UIColor * theColor = [TiUtils barColorForColor:barColor];
+    UIBarStyle navBarStyle = [TiUtils barStyleForColor:barColor];
+    
+    [navBar setBarStyle:navBarStyle];
+    if([TiUtils isIOS7OrGreater]) {
+        [navBar performSelector:@selector(setBarTintColor:) withObject:theColor];
+        [navBar setTintColor:[navTintColor color]];
+    } else {
+        [navBar setTintColor:theColor];
+    }
 }
 
 -(void)setEditButton:(UINavigationController*)moreController
@@ -402,6 +413,14 @@ DEFINE_EXCEPTIONS
 	barColor = [[TiUtils colorValue:value] retain];
 	[self updateMoreBar:[controller moreNavigationController]];
 }
+
+-(void)setNavTintColor_:(id)value
+{
+    [navTintColor release];
+    navTintColor = [[TiUtils colorValue:value] retain];
+    [self updateMoreBar:[controller moreNavigationController]];
+}
+
 
 -(void)setActiveTab_:(id)value
 {
