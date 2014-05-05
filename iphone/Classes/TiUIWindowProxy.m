@@ -821,13 +821,13 @@
 
 -(void)setTitle:(NSString*)title_
 {
-	ENSURE_UI_THREAD(setTitle,title_);
-	NSString *title = [TiUtils stringValue:title_];
-	[self replaceValue:title forKey:@"title" notification:NO];
-	if (controller!=nil && [controller navigationController] != nil)
-	{
-		controller.navigationItem.title = title;
-	}
+    NSString *title = [TiUtils stringValue:title_];
+    [self replaceValue:title forKey:@"title" notification:NO];
+    TiThreadPerformOnMainThread(^{
+        if (controller != nil && [controller navigationController] != nil) {
+            controller.navigationItem.title = title;
+        }
+    }, NO);
 }
 
 -(void)setTitlePrompt:(NSString*)title_
