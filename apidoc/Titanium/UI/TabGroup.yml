@@ -255,6 +255,31 @@ properties:
     type: String
     platforms: [iphone, ipad]
     
+  - name: translucent
+    summary: Boolean value indicating if the nav bar (typically for the **More** tab), is translucent.
+    platforms: [iphone, ipad]
+    default: true on iOS7 and above, false otherwise.
+    type: Boolean
+    since: "3.3.0"
+
+  - name: titleAttributes
+    summary: Title text attributes of the window to be applied on the **More** tab.
+    description: |
+        Use this property to specify the color, font and shadow attributes of the title.
+    since: "3.3.0"
+    platforms: [iphone, ipad]
+    type: titleAttributesParams
+
+  - name: navTintColor
+    summary: The tintColor to apply to the navigation bar (typically for the **More** tab). This property is applicable on iOS 7 and greater. 
+    description: |
+        This property is a direct correspondant of the tintColor property of NavigationBar on iOS.
+    type: [String]
+    since: "3.3.0"
+    default: null
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad]
+    
   - name: editButtonTitle
     summary: Title for the edit button on the **More** tab.
     type: String
