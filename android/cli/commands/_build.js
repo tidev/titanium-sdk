@@ -413,8 +413,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						hint: __('skin')
 					},
 					'build-type': {
-						desc: __('the type of build'),
-						hint: __('type'),
+						hidden: true
 					},
 					'debug-host': {
 						hidden: true
