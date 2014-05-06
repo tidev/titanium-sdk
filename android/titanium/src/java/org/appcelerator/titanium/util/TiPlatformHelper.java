@@ -16,7 +16,7 @@ import java.util.StringTokenizer;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
-import org.aps.analytics.APSAnalyticsHelper;
+import org.appcelerator.aps.analytics.APSAnalyticsHelper;
 
 import android.Manifest;
 import android.app.Activity;

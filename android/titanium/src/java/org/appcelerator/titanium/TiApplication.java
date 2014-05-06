@@ -30,7 +30,6 @@ import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiDeployData;
-import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.kroll.util.TiTempFileHelper;
@@ -41,7 +40,7 @@ import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
-import org.aps.analytics.APSAnalytics;
+import org.appcelerator.aps.analytics.APSAnalytics;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -481,8 +480,14 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			TiPlatformHelper.getInstance().setAppId(getAppInfo().getId());
 			TiPlatformHelper.getInstance().setAppVersion(getAppInfo().getVersion());
 
-			// FIXME: Find some other way to set the deploytype?
 			String deployType = appProperties.getString("ti.deploytype", "unknown");
+			String buildType = appInfo.getBuildType();
+			if ("unknown".equals(deployType)) {
+				deployType = getDeployType();
+			}
+			if (buildType != null && !buildType.equals("")) {
+				TiPlatformHelper.getInstance().setBuildType(buildType);
+			}
 			TiPlatformHelper.getInstance().setDeployType(deployType);
 			APSAnalytics.sendAppEnrollEvent();
 
