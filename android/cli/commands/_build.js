@@ -906,7 +906,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.target = cli.argv.target;
 	this.deployType = /^device|emulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
-	this.buildType = cli.argv['build-type'] ? cli.argv['build-type'] : '';
+	this.buildType = cli.argv['build-type'] || '';
 
 	// ti.deploytype is deprecated and so we force the real deploy type
 	if (cli.tiapp.properties['ti.deploytype']) {
