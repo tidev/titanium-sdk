@@ -394,6 +394,10 @@
     ENSURE_UI_THREAD(setTitleAttributes,args);
     ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
     [self replaceValue:args forKey:@"titleAttributes" notification:NO];
+    
+    if (args == nil) {
+        args = [[self tabGroup] valueForUndefinedKey:@"titleAttributes"];
+    }
 
     NSMutableDictionary* theAttributes = nil;
     if (args != nil) {
