@@ -3119,6 +3119,9 @@ AndroidBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest) {
 	if (destExists) {
 		// we're merging
 		destDoc = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(dest).toString(), 'text/xml')).documentElement;
+		xml.forEachAttr(destDoc, function (attr) {
+			root.setAttribute(attr.name, attr.value);
+		});
 		if (typeof srcOrDoc == 'string') {
 			this.logger.debug(__('Merging %s => %s', srcOrDoc.cyan, dest.cyan));
 		}
@@ -3128,6 +3131,10 @@ AndroidBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest) {
 			this.logger.debug(__('Copying %s => %s', srcOrDoc.cyan, dest.cyan));
 		}
 	}
+
+	xml.forEachAttr(srcDoc, function (attr) {
+		root.setAttribute(attr.name, attr.value);
+	});
 
 	switch (filename) {
 		case 'arrays.xml':
