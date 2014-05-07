@@ -163,6 +163,7 @@ public class TiHTTPClient
 	private ArrayList<File> tmpFiles = new ArrayList<File>();
 	private ArrayList<X509TrustManager> trustManagers = new ArrayList<X509TrustManager>();
 	private ArrayList<X509KeyManager> keyManagers = new ArrayList<X509KeyManager>();
+	protected SecurityManagerProtocol securityManager;
 
 	private static CookieStore cookieStore = NetworkModule.getHTTPCookieStoreInstance();
 
@@ -1038,7 +1039,22 @@ public class TiHTTPClient
 	protected DefaultHttpClient getClient(boolean validating)
 	{
 		SSLSocketFactory sslSocketFactory = null;
-		if (trustManagers.size() > 0 || keyManagers.size() > 0) {
+		
+		if (this.securityManager != null) {
+			if (this.securityManager.willHandleURL(this.uri)) {
+				TrustManager[] trustManagerArray = this.securityManager.getTrustManagers(this.uri);
+				KeyManager[] keyManagerArray = this.securityManager.getKeyManagers(this.uri);
+				
+				try {
+					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray);
+				} catch(Exception e) {
+					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+					sslSocketFactory = null;
+				}
+			}
+		} 
+		
+		if (sslSocketFactory == null && (trustManagers.size() > 0 || keyManagers.size() > 0)) {
 			TrustManager[] trustManagerArray = null;
 			KeyManager[] keyManagerArray = null;
 			
@@ -1424,11 +1440,17 @@ public class TiHTTPClient
 	
 	protected void addKeyManager(X509KeyManager manager)
 	{
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "addKeyManager method is deprecated. Use the securityManager property on the HttpClient to define custom SSL Contexts", Log.DEBUG_MODE);
+		}
 		keyManagers.add(manager);
 	}
 	
 	protected void addTrustManager(X509TrustManager manager)
 	{
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "addTrustManager method is deprecated. Use the securityManager property on the HttpClient to define custom SSL Contexts", Log.DEBUG_MODE);
+		}
 		trustManagers.add(manager);
 	}
 }
