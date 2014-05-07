@@ -32,7 +32,9 @@ extern NSString * const TI_APPLICATION_GUID;
     id arg = [properties valueForKey:@"securityManager"];
     
     if (IS_NULL_OR_NIL(arg) || [arg conformsToProtocol:@protocol(SecurityManagerProtocol)]) {
-        apsConnectionManager = [arg retain];
+        if (arg != [NSNull null]) {
+            apsConnectionManager = [arg retain];
+        }
     } else {
         [self throwException:@"Invalid argument passed to securityManager property" subreason:@"Does not conform to SecurityManagerProtocol" location:CODELOCATION];
     }
