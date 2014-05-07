@@ -1053,35 +1053,35 @@ public class TiHTTPClient
 				}
 			}
 		} 
-		
-		if (sslSocketFactory == null && (trustManagers.size() > 0 || keyManagers.size() > 0)) {
-			TrustManager[] trustManagerArray = null;
-			KeyManager[] keyManagerArray = null;
-			
-			if (trustManagers.size() > 0) {
-				trustManagerArray = new X509TrustManager[trustManagers.size()];
-				trustManagerArray = trustManagers.toArray(trustManagerArray);
-			}
-			
-			if (keyManagers.size() > 0) {
-				keyManagerArray = new X509KeyManager[keyManagers.size()];
-				keyManagerArray = keyManagers.toArray(keyManagerArray);
-			}
-			
-			try {
-				sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray);
-			} catch(Exception e) {
-				Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
-				sslSocketFactory = null;
-			}
-		}
-		else if (!validating) {
-			TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
-			try {
-				sslSocketFactory = new TiSocketFactory(null, trustManagerArray);
-			} catch(Exception e) {
-				Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
-				sslSocketFactory = null;
+		if (sslSocketFactory == null) {
+			if (trustManagers.size() > 0 || keyManagers.size() > 0) {
+				TrustManager[] trustManagerArray = null;
+				KeyManager[] keyManagerArray = null;
+				
+				if (trustManagers.size() > 0) {
+					trustManagerArray = new X509TrustManager[trustManagers.size()];
+					trustManagerArray = trustManagers.toArray(trustManagerArray);
+				}
+				
+				if (keyManagers.size() > 0) {
+					keyManagerArray = new X509KeyManager[keyManagers.size()];
+					keyManagerArray = keyManagers.toArray(keyManagerArray);
+				}
+				
+				try {
+					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray);
+				} catch(Exception e) {
+					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+					sslSocketFactory = null;
+				}
+			} else if (!validating) {
+				TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
+				try {
+					sslSocketFactory = new TiSocketFactory(null, trustManagerArray);
+				} catch(Exception e) {
+					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+					sslSocketFactory = null;
+				}
 			}
 		}
 		
