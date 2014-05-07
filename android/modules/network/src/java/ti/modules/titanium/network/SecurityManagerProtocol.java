@@ -28,7 +28,7 @@ public interface SecurityManagerProtocol {
 	public X509TrustManager[] getTrustManagers(Uri uri);
 	
 	/**
-	 * Reurns the X509KeyManager array for the SSL Context.
+	 * Returns the X509KeyManager array for the SSL Context.
 	 * @param uri - The end point of the network connection
 	 * @return Return array of X509KeyManager for custom client certificate management. Null otherwise.
 	 */
