@@ -119,6 +119,9 @@ methods:
         type: Object
     platforms: [android]
     since: {android: "3.1.0"}
+    deprecated:
+        since: "3.3.0"
+        removed: "3.4.0"
 
   - name: addTrustManager
     summary: Adds a custom trust manager.
@@ -133,6 +136,9 @@ methods:
         type: Object
     platforms: [android]
     since: {android: "3.1.0"}
+    deprecated:
+        since: "3.3.0"
+        removed: "3.4.0"
 
   - name: clearCookies
     summary: Clears any cookies stored for the host.
@@ -430,14 +436,14 @@ properties:
     permission: read-only
 
   - name: securityManager
-    summary: The APSConnectionDelegate for this client.
+    summary: The Security Manager for this client.
     description:
         This property **must** be specified during creation.
         Set this property on the HTTPClient to participate in the authentication and resource management
         of the connection.
-        See <APSConnectionDelegate> for further information. 
-    type: APSConnectionDelegate
-    platforms: [ipad, iphone]
+        See <SecurityManagerProtocol> for further information. 
+    type: SecurityManagerProtocol
+    platforms: [ipad, iphone, android]
     since: "3.3.0"
     availability: creation
 
@@ -547,12 +553,79 @@ examples:
              client.send();
 
 ---
+name: SecurityManagerProtocol
+summary: The protocol that the <Titanium.Network.HTTPClient.securityManager> must implement.
+description: |
+    The object representing <Titanium.Network.HTTPClient.securityManager> must implement this protocol.
+    Assigning the securityManager property to an object that does not implement this protocol will cause an exception to be raised.
+    All methods in this protocol are required.
+
+methods:
+  - name: willHandleURL
+    summary: Returns if the security manager will participate in authentication of this end point.
+    description: |
+        The parameter passed to this method is a [NSURL](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/Foundation/Classes/NSURL_Class/Reference/Reference.html) 
+        on iOS and a [Uri](http://developer.android.com/reference/android/net/Uri.html) on android. 
+
+        Return **true** to participate, **false** to allow default authentication flow. 
+    returns:
+        type: Boolean
+    parameters:
+      - name: url
+        summary: The Object representing representing the end point of this connection.
+        type: Object
+
+  - name: connectionDelegateForUrl
+    summary: The <APSConnectionDelegate> for this connection.
+    description: |
+        This method is only called if <SecurityManagerProtocol.willHandleURL> returns true.
+        See <APSConnectionDelegate> for further information.
+    returns:
+        type: APSConnectionDelegate
+    parameters:
+      - name: url
+        summary: The [NSURL](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/Foundation/Classes/NSURL_Class/Reference/Reference.html) representing the end point of this connection.
+        type: Object
+    platforms: [iphone, ipad]
+
+  - name: getTrustManagers
+    summary: Returns an array of objects implementing the [X509TrustManager](http://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) protocol for the SSL Context.
+    description: |
+        This method is only called if <SecurityManagerProtocol.willHandleURL> returns true.
+
+        Return null to set up a SSL Context with the default system trust managers.
+    returns:
+        type: Array<Object>
+    parameters:
+      - name: url
+        summary: The [Uri](http://developer.android.com/reference/android/net/Uri.html) representing the end point of this connection.
+        type: Object
+    platforms: [android]
+
+  - name: getKeyManagers
+    summary: Returns an array of objects implementing the [X509KeyManager](http://developer.android.com/reference/javax/net/ssl/X509KeyManager.html) protocol for the SSL Context.
+    description: |
+        This method is only called if <SecurityManagerProtocol.willHandleURL> returns true.
+
+        Return null to set up a SSL Context with the default system key managers.
+    returns:
+        type: Array<Object>
+    parameters:
+      - name: url
+        summary: The [Uri](http://developer.android.com/reference/android/net/Uri.html) representing the end point of this connection.
+        type: Object
+    platforms: [android]
+
+since: 3.3.0
+platforms: [iphone, ipad, android]
+
+---
 name: APSConnectionDelegate
-summary: An extension of the [NSURLConnectionDelegate](https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSURLConnectionDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intf/NSURLConnectionDelegate) protocol to allow users to participate in authentication and resource mnagement for this HTTPClient.
+summary: An extension of the [NSURLConnectionDelegate](https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSURLConnectionDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intf/NSURLConnectionDelegate) protocol to allow users to participate in authentication and resource management for this HTTPClient.
 description: |
     The APSConnectionDelegate protocol is an extension of the NSURLConnectionDelegate protocol. 
-    The object representing <Titanium.Network.HTTPClient.securityManager> must implement this protocol.
-    Although all methods in this protocol are optional, the securityManager must implement at least one of the methods to 
+    
+    Although all methods in this protocol are optional, the connection delegate must implement at least one of the methods to 
     participate in the authentication and resource management.
 
     The deprecated methods as defined by the NSURLConnectionDelegate protocol are not supported.
@@ -561,13 +634,13 @@ description: |
 
     `-(BOOL)willHandleChallenge:(NSURLAuthenticationChallenge *)challenge forConnection:(NSURLConnection *)connection`.
         
-    This method is called on the <Titanium.Network.HTTPClient.securityManager> only if it also implements the 
+    This method is called on the connection delegate only if it also implements the 
     `connection:willSendRequestForAuthenticationChallenge:` method of the NSURLConnectionDelegate protocol.
-    Return `true` if the securityManager wants to handle this challenge. 
+    Return `true` if the connection delegate wants to handle this challenge. 
     Return `false` if the default delegate will handle this challenge.
 
-    If the securityManager does not implement this method but implements `connection:willSendRequestForAuthenticationChallenge:`, the return 
-    value is assumed to be `true` and all challenges will be forwarded to the securityManager.
+    If the connection delegate does not implement this method but implements `connection:willSendRequestForAuthenticationChallenge:`, the return 
+    value is assumed to be `true` and all challenges will be forwarded to the connection delegate.
 
 since: 3.3.0
 platforms: [iphone, ipad]
