@@ -433,6 +433,7 @@ DEFINE_EXCEPTIONS
 {
 	[barColor release];
 	barColor = [[TiUtils colorValue:value] retain];
+	[self.proxy replaceValue:value forKey:@"barColor" notification:NO];
 	[self updateMoreBar:[controller moreNavigationController]];
 }
 
@@ -483,6 +484,7 @@ DEFINE_EXCEPTIONS
 {
     [navTintColor release];
     navTintColor = [[TiUtils colorValue:value] retain];
+    [self.proxy replaceValue:value forKey:@"navTintColor" notification:NO];
     [self updateMoreBar:[controller moreNavigationController]];
 }
 
