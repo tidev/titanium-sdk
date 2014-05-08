@@ -12,12 +12,19 @@
 #import "TiDOMDocumentProxy.h"
 #import "TiBlob.h"
 
+@protocol SecurityManagerProtocol <NSObject>
+@required
+-(BOOL) willHandleURL:(NSURL*)url;
+-(id<APSConnectionDelegate>) connectionDelegateForUrl:(NSURL*)url;
+@end
+
 @interface TiNetworkHTTPClientProxy : TiProxy<APSHTTPRequestDelegate>
 {
     APSHTTPRequest *httpRequest;
     NSTimeInterval _uploadTime;
     NSTimeInterval _downloadTime;
-    id<APSConnectionDelegate> apsConnectionManager;
+    id<APSConnectionDelegate> apsConnectionDelegate;
+    id<SecurityManagerProtocol> apsConnectionManager;
     
     BOOL hasOnload;
     BOOL hasOnerror;
