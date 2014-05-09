@@ -2890,9 +2890,11 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
 								fs.writeFile(to, r.contents, cb2);
 							})(r, from, to, cb);
+						} else if (symlinkFiles) {
+							copyFile.call(this, from, to, cb);
 						} else {
+							// we've already read in the file, so just write the original contents
 							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-
 							fs.writeFile(to, r.contents, cb);
 						}
 					})(from, to, done);
