@@ -1291,10 +1291,7 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 	var argv = this.cli.argv;
 
 	this.titaniumIosSdkPath = afs.resolvePath(__dirname, '..', '..');
-	this.titaniumSdkVersion = path.basename(path.join(this.titaniumIosSdkPath, '..'));
-
 	this.templatesDir = path.join(this.titaniumIosSdkPath, 'templates', 'build');
-
 	this.platformName = path.basename(this.titaniumIosSdkPath); // the name of the actual platform directory which will some day be "ios"
 
 	this.moduleSearchPaths = [ this.projectDir, afs.resolvePath(this.titaniumIosSdkPath, '..', '..', '..', '..') ];
