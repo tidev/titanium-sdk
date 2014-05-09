@@ -721,8 +721,15 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(id)loadCommonJSModule:(NSString*)code withSourceURL:(NSURL *)sourceURL
 {
-	NSString *relativePath = [[self currentURL] relativePath];
-	NSString *dirname = relativePath == nil ? @"." : relativePath;
+	// This takes care of resolving paths like `../../foo.js`
+	sourceURL = [NSURL fileURLWithPath:[[sourceURL path] stringByStandardizingPath]];
+
+	// Get the relative path to the Resources directory
+	NSString *relativePath = [sourceURL path];
+	relativePath = [relativePath stringByReplacingOccurrencesOfString:[[[NSBundle mainBundle] resourceURL] path] withString:@""];
+	relativePath = [[relativePath substringFromIndex:1] stringByDeletingLastPathComponent];
+
+	NSString *dirname = [relativePath length] == 0 ? @"." : relativePath;
 	/*
 	 * This is for parity with android, if the file is located in the Resources, then __dirname returns "."
 	 * otherwise the __dirname returns the folder names separated by "/"
