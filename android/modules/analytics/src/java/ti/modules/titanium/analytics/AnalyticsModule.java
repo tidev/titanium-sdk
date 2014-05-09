@@ -17,8 +17,8 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
-import org.aps.analytics.APSAnalytics;
-import org.aps.analytics.APSAnalyticsEvent;
+import org.appcelerator.aps.analytics.APSAnalytics;
+import org.appcelerator.aps.analytics.APSAnalyticsEvent;
 import org.json.JSONException;
 import org.json.JSONObject;
 

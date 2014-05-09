@@ -412,6 +412,9 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						desc: __('the skin for the Android emulator; deprecated, use --device-id'),
 						hint: __('skin')
 					},
+					'build-type': {
+						hidden: true
+					},
 					'debug-host': {
 						hidden: true
 					},
@@ -903,6 +906,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.target = cli.argv.target;
 	this.deployType = /^device|emulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
+	this.buildType = cli.argv['build-type'] || '';
 
 	// ti.deploytype is deprecated and so we force the real deploy type
 	if (cli.tiapp.properties['ti.deploytype']) {
@@ -3526,7 +3530,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 	// add the analytics service
 	if (this.tiapp.analytics) {
-		var tiAnalyticsService = 'org.aps.analytics.APSAnalyticsService';
+		var tiAnalyticsService = 'org.appcelerator.aps.analytics.APSAnalyticsService';
 		finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
 		finalAndroidManifest.application.service[tiAnalyticsService] = {
 			name: tiAnalyticsService,

@@ -63,4 +63,8 @@ public final class <%- classname %>AppInfo implements ITiAppInfo
 	public boolean isFullscreen() {
 		return <%- !!tiapp.fullscreen %>;
 	}
+
+	public String getBuildType() {
+		return "<%- buildType %>";
+	}
 }

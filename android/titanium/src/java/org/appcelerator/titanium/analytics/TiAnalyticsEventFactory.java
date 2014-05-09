@@ -6,8 +6,8 @@
  */
 package org.appcelerator.titanium.analytics;
 
-import org.aps.analytics.APSAnalyticsEvent;
-import org.aps.analytics.APSAnalyticsEventFactory;
+import org.appcelerator.aps.analytics.APSAnalyticsEvent;
+import org.appcelerator.aps.analytics.APSAnalyticsEventFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 

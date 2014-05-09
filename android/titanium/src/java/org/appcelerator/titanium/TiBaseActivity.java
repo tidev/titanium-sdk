@@ -35,7 +35,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
-import org.aps.analytics.APSAnalytics;
+import org.appcelerator.aps.analytics.APSAnalytics;
 
 import android.app.Activity;
 import android.app.AlertDialog;
