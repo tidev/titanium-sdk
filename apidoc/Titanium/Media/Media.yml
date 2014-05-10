@@ -141,6 +141,11 @@ methods:
         If the `showControls` option is `false`, you must control the camera explicitly, using
         the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera)
         methods.
+
+        Images taken with the camera will not have accurate geolocation data embedded in the images; 
+        the latitude and longitude will be set to '0'.  This is not an error, but a limitation which 
+        Apple has put on the camera API.
+
     platforms: [iphone, ipad, android]
     parameters:
       - name: options
