@@ -56,7 +56,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private WeakReference<ActionBarActivity> tabGroupActivity;
 	private TabProxy selectedTab;
 	private boolean isFocused;
-	private int setTabOrIndex;
 	
 	public TabGroupProxy()
 	{
@@ -172,30 +171,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		tabs.remove(tab);
 	}
 
-	@Kroll.setProperty @Kroll.method
+	@Kroll.method
 	public void setActiveTab(Object tabOrIndex)
 	{
-		TabProxy tab;
-		if (tabOrIndex instanceof Number) {
-			int tabIndex = ((Number) tabOrIndex).intValue();
-			if (!this.opened && tabIndex > 0) {
-				setTabOrIndex = tabIndex;
-				return;
-			} else if (tabIndex < 0 || tabIndex >= tabs.size()) {
-				Log.e(TAG, "Invalid tab index.");
-				return;
-			}
-			tab = tabs.get(tabIndex);
-
-		} else if (tabOrIndex instanceof TabProxy) {
-			tab = (TabProxy) tabOrIndex;
-			if (!tabs.contains(tab)) {
-				Log.e(TAG, "Cannot activate tab not in this group.");
-				return;
-			}
-
-		} else {
-			Log.e(TAG, "No valid tab provided when setting active tab.");
+		TabProxy tab = parseTab(tabOrIndex);
+		
+		if(tab == null) {
 			return;
 		}
 
@@ -233,6 +214,29 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_TABS), obj);
 	}
 
+	
+	private TabProxy parseTab(Object tabOrIndex) {
+		TabProxy tab = null;
+		if (tabOrIndex instanceof Number) {
+			int tabIndex = ((Number) tabOrIndex).intValue();
+			if (tabIndex < 0 || tabIndex >= tabs.size()) {
+				Log.e(TAG, "Invalid tab index.");
+			} else {
+				tab = tabs.get(tabIndex);
+			}
+
+		} else if (tabOrIndex instanceof TabProxy) {
+			if (!tabs.contains((TabProxy) tabOrIndex)) {
+				Log.e(TAG, "Cannot activate tab not in this group.");
+			} else {
+				tab = (TabProxy) tabOrIndex;
+			}
+		} else {
+			Log.e(TAG, "No valid tab provided when setting active tab.");
+		}
+		return tab;
+	}
+	
 	private void handleSetTabs(Object obj)
 	{
 		tabs.clear();
@@ -261,13 +265,9 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 				Log.e(TAG, "Invalid orientationMode array. Must only contain orientation mode constants.");
 			}
 		}
-
-		if (options.containsKey(TiC.PROPERTY_ACTIVE_TAB)) {
-			setActiveTab(options.get(TiC.PROPERTY_ACTIVE_TAB));
-		}
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.method
 	public TabProxy getActiveTab() {
 		if (TiApplication.isUIThread()) {
 			return handleGetActiveTab();
@@ -327,7 +327,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	public void handlePostOpen()
+	protected void handlePostOpen()
 	{
 		super.handlePostOpen();
 
@@ -342,11 +342,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		for (TabProxy tab : tabs) {
 			tg.addTab(tab);
 		}
-		if (setTabOrIndex < 0 || setTabOrIndex >= tabs.size()) {
-			Log.e(TAG, "Invalid tab index.");
-		} else {
-			setActiveTab(setTabOrIndex);
-		}
+		
 		TabProxy activeTab = handleGetActiveTab();
 		if (activeTab != null) {
 			selectedTab = null;
