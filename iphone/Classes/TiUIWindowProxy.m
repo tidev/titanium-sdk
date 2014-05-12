@@ -341,19 +341,25 @@
 
 -(void)setNavTintColor:(id)colorString
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [self replaceValue:[TiUtils stringValue:colorString] forKey:@"navTintColor" notification:NO];
-	    return;
-    }
-    ENSURE_UI_THREAD(setNavTintColor,colorString);
     NSString *color = [TiUtils stringValue:colorString];
     [self replaceValue:color forKey:@"navTintColor" notification:NO];
-    if (controller!=nil) {
-        TiColor * newColor = [TiUtils colorValue:color];
-        UINavigationBar * navBar = [[controller navigationController] navigationBar];
-        [navBar setTintColor:[newColor color]];
-        [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+    if (![TiUtils isIOS7OrGreater]) {
+        return;
     }
+    
+    TiThreadPerformOnMainThread(^{
+        if(controller != nil) {
+            TiColor * newColor = [TiUtils colorValue:color];
+            if (newColor == nil) {
+                //Get from TabGroup
+                newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
+            }
+            UINavigationBar * navBar = [[controller navigationController] navigationBar];
+            [navBar setTintColor:[newColor color]];
+            [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+        }
+        
+    }, NO);    
 }
 
 -(void)setBarColor:(id)colorString
@@ -388,6 +394,10 @@
     ENSURE_UI_THREAD(setTitleAttributes,args);
     ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
     [self replaceValue:args forKey:@"titleAttributes" notification:NO];
+    
+    if (args == nil) {
+        args = [[self tabGroup] valueForUndefinedKey:@"titleAttributes"];
+    }
 
     NSMutableDictionary* theAttributes = nil;
     if (args != nil) {
@@ -821,13 +831,13 @@
 
 -(void)setTitle:(NSString*)title_
 {
-	ENSURE_UI_THREAD(setTitle,title_);
-	NSString *title = [TiUtils stringValue:title_];
-	[self replaceValue:title forKey:@"title" notification:NO];
-	if (controller!=nil && [controller navigationController] != nil)
-	{
-		controller.navigationItem.title = title;
-	}
+    NSString *title = [TiUtils stringValue:title_];
+    [self replaceValue:title forKey:@"title" notification:NO];
+    TiThreadPerformOnMainThread(^{
+        if (shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+            controller.navigationItem.title = title;
+        }
+    }, NO);
 }
 
 -(void)setTitlePrompt:(NSString*)title_
