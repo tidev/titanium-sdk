@@ -39,7 +39,9 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 						events = getStorage(),
 						i = 0,
 						len = events.length,
-						evt;
+						evt,
+						eventData,
+						buildType = require.config.ti.buildType;
 
 					typeof seqId == 'string' && (seqId = JSON.parse(seqId));
 
@@ -54,7 +56,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 
 							ids.push(evt.id);
 
-							payload.push({
+							payload.push(eventData = {
 								id: evt.id,
 								mid: Platform.id,
 								rdu: null,
@@ -66,9 +68,10 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 								deploytype: App.deployType,
 								sid: sessionId,
 								ts: evt.ts,
-								data: evt.data,
-								buildType: require.config.ti.buildType
+								data: evt.data
 							});
+
+							buildType && (eventData.buildType = buildType);
 
 							if (evt.type == 'ti.end') {
 								seqId = 0;
