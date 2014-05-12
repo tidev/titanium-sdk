@@ -91,14 +91,7 @@ exports.bootstrap = function(Titanium) {
 			(this.currentState == this.state.opening) ){
 			_setActiveTab.call(this,taborindex);
 		} else {
-			if (!isNaN(parseFloat(taborindex)) && isFinite(taborindex)) {
-				if (taborindex >= 0 && taborindex < this._tabs.length) {
-					this._activeTab = this._tabs[taborindex];
-				}
-			} else {
-				this._activeTab = taborindex;
-			}
-			
+			this._activeTab = taborindex;
 		}
 	}
 
