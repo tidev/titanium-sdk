@@ -126,8 +126,6 @@ public class TiHTTPClient
 	private static final String XML_DECLARATION_TAG_REGEX = "encoding=[\"\']([^\"\']*)[\"\']";
 
 	private static AtomicInteger httpClientThreadCounter;
-	private static DefaultHttpClient nonValidatingClient;
-	private static DefaultHttpClient validatingClient;
 
 	private DefaultHttpClient client;
 	private KrollProxy proxy;
@@ -139,6 +137,7 @@ public class TiHTTPClient
 	private boolean connected;
 	private HttpRequest request;
 	private HttpResponse response;
+	private Header[] responseHeaders;
 	private String method;
 	private HttpHost host;
 	private LocalResponseHandler handler;
@@ -484,7 +483,7 @@ public class TiHTTPClient
 	public TiHTTPClient(KrollProxy proxy)
 	{
 		this.proxy = proxy;
-		this.client = getClient(false);
+		this.client = createClient();
 
 		if (httpClientThreadCounter == null) {
 			httpClientThreadCounter = new AtomicInteger();
@@ -706,11 +705,6 @@ public class TiHTTPClient
 				client.getConnectionManager().shutdown();
 				client = null;
 			}
-			if (validatingClient != null)
-				validatingClient = null;
-			if (nonValidatingClient != null)
-				nonValidatingClient = null;
-
 			// Fire the disposehandle event if the request is aborted.
 			// And it will dispose the handle of the httpclient in the JS.
 			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
@@ -720,27 +714,27 @@ public class TiHTTPClient
 	public String getAllResponseHeaders()
 	{
 		String result = "";
-		if (readyState >= READY_STATE_HEADERS_RECEIVED && response != null)
-		{
-			StringBuilder sb = new StringBuilder(1024);
-
-			Header[] headers = response.getAllHeaders();
-			int len = headers.length;
-			for(int i = 0; i < len; i++) {
-				Header h = headers[i];
+		Header[] theHeaders = null;
+		if (response != null)  {
+			theHeaders = response.getAllHeaders();
+		} else {
+			theHeaders = responseHeaders;
+		}
+		if (theHeaders != null) {
+			StringBuilder sb = new StringBuilder(256);
+			for (Header h : theHeaders) {
 				sb.append(h.getName()).append(":").append(h.getValue()).append("\n");
 			}
 			result = sb.toString();
-
-		} else {
-			// Spec says return "";
 		}
-
 		return result;
 	}
 
 	public void clearCookies(String url)
 	{
+		if (client == null) {
+			client = createClient();
+		}
 		List<Cookie> cookies = new ArrayList<Cookie>(client.getCookieStore().getCookies());
 		client.getCookieStore().clear();
 		String lower_url = url.toLowerCase();
@@ -765,31 +759,31 @@ public class TiHTTPClient
 	public String getResponseHeader(String headerName)
 	{
 		String result = "";
-
-		if (readyState > READY_STATE_OPENED) {
-			String delimiter = "";
+		Header[] theHeaders = null;
+		if (response != null)  {
+			theHeaders = response.getAllHeaders();
+		} else {
+			theHeaders = responseHeaders;
+		}
+		if(theHeaders != null) {
 			boolean firstPass = true;
-
-			// headers will be an empty array if none can be found
-			Header[] headers = response.getHeaders(headerName);
-			for (Header header : headers)
-			{
-				if (!firstPass)
-				{
-					delimiter = ", ";
+			StringBuilder sb = new StringBuilder(32);
+			for (Header h : responseHeaders) {
+				if (h.getName().equals(headerName)) {
+					if (!firstPass) {
+						sb.append(", ");
+					}
+					sb.append(h.getValue());
+					firstPass = false;
 				}
-				result += delimiter + header.getValue();
-				firstPass = false;
 			}
-
-			if (headers.length == 0)
-			{
+			result = sb.toString();
+		
+			if (result.length() == 0) {
 				Log.w(TAG, "No value for response header: " + headerName, Log.DEBUG_MODE);
 			}
 
-		} else {
-			throw new IllegalStateException("getResponseHeader can only be called when readyState > 1");
-		}
+		} 
 
 		return result;
 	}
@@ -1085,31 +1079,19 @@ public class TiHTTPClient
 			}
 		}
 		
-		if (validating) {
-			if (validatingClient == null) {
-				validatingClient = createClient();
-			}
-			if (sslSocketFactory != null) {
-				validatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslSocketFactory, 443));
-			}
-			else {
-				validatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
-			}
-			return validatingClient;
+		if (client == null) {
+			client = createClient();
 		}
-		else {
-			if (nonValidatingClient == null) {
-				nonValidatingClient = createClient();
-			}
-			if (sslSocketFactory != null) {
-				nonValidatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslSocketFactory, 443));
-			}
-			else {
-				//This should not happen but keeping it in place something breaks
-				nonValidatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
-			}
-			return nonValidatingClient;
+		
+		if (sslSocketFactory != null) {
+			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslSocketFactory, 443));
+		} else if (!validating) {
+			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
+		} else {
+			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
 		}
+		
+		return client;
 	}
 
 	public void send(Object userData) throws MethodNotSupportedException
@@ -1220,6 +1202,9 @@ public class TiHTTPClient
 
 				handler = new LocalResponseHandler(TiHTTPClient.this);
 
+				// lazy get client each time in case the validatesSecureCertificate() changes
+				client = getClient(validatesSecureCertificate());
+
 				//If there are any custom authentication factories registered with the client add them here
 				Enumeration<String> authSchemes = customAuthenticators.keys();
 				while (authSchemes.hasMoreElements()) {
@@ -1227,8 +1212,6 @@ public class TiHTTPClient
 					client.getAuthSchemes().register(scheme, customAuthenticators.get(scheme));
 				}
 
-				// lazy get client each time in case the validatesSecureCertificate() changes
-				client = getClient(validatesSecureCertificate());
 				if (credentials != null) {
 					client.getCredentialsProvider().setCredentials (new AuthScope(uri.getHost(), -1), credentials);
 					credentials = null;
@@ -1343,13 +1326,25 @@ public class TiHTTPClient
 				KrollDict data = new KrollDict();
 				data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, msg);
 				dispatchCallback("onerror", data);
+			} finally {
+				deleteTmpFiles();
+				
+				//Clean up response,request,client,handler and clientThread
+				if(response != null) {
+					responseHeaders = response.getAllHeaders();
+					response = null;
+				}
+				
+				request = null;
+				handler = null;
+				client = null;
+				clientThread = null;
+				
+				// Fire the disposehandle event if the request is finished successfully or the errors occur.
+				// And it will dispose the handle of the httpclient in the JS.
+				proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 			}
 
-			deleteTmpFiles();
-
-			// Fire the disposehandle event if the request is finished successfully or the errors occur.
-			// And it will dispose the handle of the httpclient in the JS.
-			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 		}
 	}
 
