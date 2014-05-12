@@ -362,7 +362,10 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									} else if (cli.argv['device-id'] == undefined && config.get('ios.autoSelectDevice', true)) {
 										findTargetDevices(cli.argv.target, function (err, devices) {
 											if (cli.argv.target == 'device') {
-												cli.argv['device-id'] = 'itunes';
+												var dev = devices.filter(function (d) {
+														return d.udid != 'itunes' && d.udid != 'all';
+													}).shift();
+												cli.argv['device-id'] = dev ? dev.udid : 'itunes';
 												callback();
 											} else if (cli.argv.target == 'simulator') {
 												// for simulator builds, --device-id is a simulator profile and is not
