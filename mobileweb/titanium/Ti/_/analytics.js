@@ -3,7 +3,6 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 
 	var global = window,
 		is = require.is,
-		cfg = require.config,
 		analyticsEnabled = App.analytics,
 		analyticsLastSent = null,
 		analyticsUrl = "https://api.appcelerator.com/p/v3/mobile-web-track/" + App.guid,
@@ -67,7 +66,8 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 								deploytype: App.deployType,
 								sid: sessionId,
 								ts: evt.ts,
-								data: evt.data
+								data: evt.data,
+								buildType: require.config.ti.buildType
 							});
 
 							if (evt.type == 'ti.end') {
