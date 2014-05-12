@@ -107,6 +107,9 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 			cli.createHook('build.mobileweb.config', function (callback) {
 				var conf = {
 					options: {
+						'build-type': {
+							hidden: true
+						},
 						'deploy-type': {
 							abbr: 'D',
 							default: 'development',
@@ -219,6 +222,7 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 MobileWebBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.target = cli.argv.target;
 	this.deployType = cli.argv['deploy-type'];
+	this.buildType = cli.argv['build-type'] || '';
 
 	switch (this.deployType) {
 		case 'production':
@@ -744,6 +748,7 @@ MobileWebBuilder.prototype.assembleTitaniumJS = function assembleTitaniumJS(next
 					appPublisher: tiapp.publisher,
 					appUrl: tiapp.url,
 					appVersion: tiapp.version,
+					buildType: this.buildType,
 					deployType: this.deployType,
 					locales: JSON.stringify(this.locales),
 					packages: JSON.stringify(this.packages),
