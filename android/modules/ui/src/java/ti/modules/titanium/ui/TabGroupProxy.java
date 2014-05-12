@@ -171,7 +171,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		tabs.remove(tab);
 	}
 
-	@Kroll.setProperty @Kroll.method
+	@Kroll.method
 	public void setActiveTab(Object tabOrIndex)
 	{
 		TabProxy tab = parseTab(tabOrIndex);
@@ -267,7 +267,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
 	public TabProxy getActiveTab() {
 		if (TiApplication.isUIThread()) {
 			return handleGetActiveTab();
