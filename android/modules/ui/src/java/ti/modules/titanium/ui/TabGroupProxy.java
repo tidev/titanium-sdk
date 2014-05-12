@@ -267,6 +267,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
+	@Kroll.method
 	public TabProxy getActiveTab() {
 		if (TiApplication.isUIThread()) {
 			return handleGetActiveTab();
@@ -340,13 +341,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		TiUIAbstractTabGroup tg = (TiUIAbstractTabGroup) view;
 		for (TabProxy tab : tabs) {
 			tg.addTab(tab);
-		}
-		
-		//Check for creation dict if not explicitly overwritten
-		if (selectedTab == null) {
-			if (properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TAB)) {
-				selectedTab = parseTab(properties.get(TiC.PROPERTY_ACTIVE_TAB));
-			}
 		}
 		
 		TabProxy activeTab = handleGetActiveTab();
