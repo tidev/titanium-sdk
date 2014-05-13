@@ -107,6 +107,7 @@ import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Base64OutputStream;
 
 public class TiHTTPClient
 {
@@ -955,8 +956,8 @@ public class TiHTTPClient
 				String mimeType = blob.getMimeType();
 				File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
 				FileOutputStream fos = new FileOutputStream(tmpFile);
-				if (blob.getType() == TiBlob.TYPE_STREAM) {
-					TiBaseFile.copyStream(blob.getInputStream(), fos);
+				if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
+					TiBaseFile.copyStream(blob.getInputStream(), new Base64OutputStream(fos, android.util.Base64.DEFAULT));
 				} else {
 					fos.write(blob.getBytes());
 				}
