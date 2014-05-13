@@ -275,6 +275,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							}
 						},
 						options: {
+							'build-type': {
+ 								hidden: true
+ 							},
 							'debug-host': {
 								hidden: true
 							},
@@ -786,7 +789,9 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	} else {
 		this.deployType = /^device|simulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 	}
-
+	
+	this.buildType = cli.argv['build-type'] || '';
+	
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
 		case 'production':
@@ -2329,7 +2334,8 @@ iOSBuilder.prototype.populateIosFiles = function populateIosFiles(next) {
 			'__APP_DESCRIPTION__': this.tiapp.description,
 			'__APP_COPYRIGHT__': this.tiapp.copyright,
 			'__APP_GUID__': this.tiapp.guid,
-			'__APP_RESOURCE_DIR__': ''
+			'__APP_RESOURCE_DIR__': '',
+			'__APP_DEPLOY_TYPE__': this.buildType
 		},
 		dest,
 		variables = {},
