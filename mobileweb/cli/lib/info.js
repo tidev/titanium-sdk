@@ -1,4 +1,11 @@
-var appc = require('node-appc'),
+/*
+ * info.js: Titanium Mobile Web Info Command Implementation
+ *
+ * Copyright (c) 2013-2014, Appcelerator, Inc.  All Rights Reserved.
+ * See the LICENSE file for more information.
+ */
+
+ var appc = require('node-appc'),
 	__ = appc.i18n(__dirname).__,
 	fs = require('fs'),
 	path = require('path'),
@@ -63,6 +70,13 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 		logger.log('  ' + __('No versions found').grey + '\n');
 	}
 
+	logger.log(styleHeading(__('Microsoft (R) Build Engine')));
+	if (data.msbuild) {
+		logger.log('  ' + rpad(__('MSBuild Version')) + ' = ' + styleValue(data.msbuild.version) + '\n');
+	} else {
+		logger.log('  ' + __('Not installed').grey + '\n');
+	}
+
 	logger.log(styleHeading(__('Microsoft (R) Windows Phone SDK')));
 	if (data.windowsphone && Object.keys(data.windowsphone).length) {
 		Object.keys(data.windowsphone).sort().forEach(function (ver) {
@@ -77,20 +91,19 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 		logger.log('  ' + __('No versions found').grey + '\n');
 	}
 
-	logger.log(styleHeading(__('Microsoft (R) Build Engine')));
-	if (data.msbuild) {
-		logger.log('  ' + rpad(__('MSBuild Version')) + ' = ' + styleValue(data.msbuild.version) + '\n');
+	if (data.windowsphone && Object.keys(data.windowsphone).some(function (ver) { return data.windowsphone[ver].supported; })) {
+		Object.keys(data.windowsphone).sort().forEach(function (ver, i, arr) {
+			logger.log(styleHeading(__('Windows Phone v%s Devices & Emulators', ver)));
+			var devices = data.windowsphone[ver].devices
+			logger.log(Object.keys(devices).map(function (id) {
+				return '  ' + devices[id].cyan + '\n' +
+					'  ' + rpad('  ' + __('ID')) + ' = ' + styleValue(id);
+			}).join('\n') + '\n');
+			i + 1 < arr.length && logger.log();
+		});
+		logger.log();
 	} else {
-		logger.log('  ' + __('Not installed').grey + '\n');
-	}
-
-	logger.log(styleHeading(__('Windows Phone 8 Devices')));
-	if (data.devices && Object.keys(data.devices).length) {
-		logger.log(Object.keys(data.devices).map(function (id) {
-			return '  ' + data.devices[id].cyan + '\n' +
-				'  ' + rpad('  ' + __('ID')) + ' = ' + styleValue(id);
-		}).join('\n') + '\n');
-	} else {
+		logger.log(styleHeading(__('Windows Phone Devices & Emulators')));
 		logger.log('  ' + __('None').grey + '\n');
 	}
 };
