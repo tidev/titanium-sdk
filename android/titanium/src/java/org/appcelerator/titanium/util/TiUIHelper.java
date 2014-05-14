@@ -142,6 +142,8 @@ public class TiUIHelper
 	{ 
 		if (autoLink != null) {
 			Linkify.addLinks(tv, TiConvert.toInt(autoLink));
+			tv.setMovementMethod(null);
+
 		}
 	}
 

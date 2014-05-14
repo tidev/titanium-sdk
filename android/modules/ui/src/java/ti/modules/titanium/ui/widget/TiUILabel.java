@@ -20,9 +20,17 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.graphics.Color;
 import android.text.Html;
 import android.text.InputType;
+import android.text.Layout;
+import android.text.Selection;
+import android.text.Spannable;
+import android.text.Spannable.Factory;
+import android.text.Spanned;
+import android.text.SpannedString;
 import android.text.TextUtils.TruncateAt;
+import android.text.style.ClickableSpan;
 import android.text.util.Linkify;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.widget.TextView;
 
 public class TiUILabel extends TiUIView
@@ -67,6 +75,53 @@ public class TiUILabel extends TiUIView
 					proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
 				}
 			}
+			
+			@Override
+			public boolean onTouchEvent(MotionEvent event) {
+			        TextView widget = (TextView) this;
+			        Object text = widget.getText();
+			        if (text instanceof Spanned) {
+			            SpannedString spanned = (SpannedString) text;
+			            Spannable buffer = Factory.getInstance().newSpannable(spanned.subSequence(0, spanned.length()));
+
+			            int action = event.getAction();
+
+			            if (action == MotionEvent.ACTION_UP
+			                    || action == MotionEvent.ACTION_DOWN) {
+			                int x = (int) event.getX();
+			                int y = (int) event.getY();
+
+			                x -= widget.getTotalPaddingLeft();
+			                y -= widget.getTotalPaddingTop();
+
+			                x += widget.getScrollX();
+			                y += widget.getScrollY();
+
+			                Layout layout = widget.getLayout();
+			                int line = layout.getLineForVertical(y);
+			                int off = layout.getOffsetForHorizontal(line, x);
+
+			                ClickableSpan[] link = buffer.getSpans(off, off,
+			                        ClickableSpan.class);
+
+			                if (link.length != 0) {
+			                    if (action == MotionEvent.ACTION_UP) {
+			                        link[0].onClick(widget);
+			                    } else if (action == MotionEvent.ACTION_DOWN) {
+			                    	
+			                         Selection.setSelection(buffer,
+			                                 buffer.getSpanStart(link[0]),
+			                                 buffer.getSpanEnd(link[0]));
+			                    }
+			                    return true;
+			                }
+			            }
+
+			        }
+
+			        return false;
+			    }
+			
 		};
 		tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		tv.setPadding(0, 0, 0, 0);
@@ -95,7 +150,7 @@ public class TiUILabel extends TiUIView
 			if (html == null) {
 				html = "";
 			}
-			tv.setText(Html.fromHtml(html), TextView.BufferType.SPANNABLE);
+			tv.setText(Html.fromHtml(html));
 		} else if (d.containsKey(TiC.PROPERTY_TEXT)) {
 			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT));
 		} else if (d.containsKey(TiC.PROPERTY_TITLE)) { //TODO this may not need to be supported.
