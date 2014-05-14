@@ -20,9 +20,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,8 +65,6 @@ public class TiCompositeLayout extends ViewGroup
 	private boolean enableHorizontalWrap = true;
 	private int horizontalLayoutLastIndexBeforeWrap = 0;
 	private int horiztonalLayoutPreviousRight = 0;
-
-	private float alpha = 1.0f;
 
 	private WeakReference<TiViewProxy> proxy;
 	private static final int HAS_SIZE_FILL_CONFLICT = 1;
@@ -616,42 +611,6 @@ public class TiCompositeLayout extends ViewGroup
 			int offset = (dist - measuredSize) / 2;
 			pos[0] = layoutPosition0 + offset;
 			pos[1] = pos[0] + measuredSize;
-		}
-	}
-
-	/*
-	 * Set the alpha of the view. Provides backwards compatibility
-	 * with older versions of Android which don't support View.setAlpha().
-	 *
-	 * @param alpha the opacity of the view
-	 */
-	public void setAlphaCompat(float alpha)
-	{
-		// If setAlpha() is not supported on this platform,
-		// use the backwards compatibility workaround.
-		// See dispatchDraw() for details.
-		this.alpha = alpha;
-	}
-
-	@Override
-	protected void dispatchDraw(Canvas canvas)
-	{
-		// To support alpha in older versions of Android (API level less than 11),
-		// create a new layer to draw the children. Specify the alpha value to use
-		// later when we transfer this layer back onto the canvas.
-		if (alpha < 1.0f) {
-			Rect bounds = new Rect();
-			getDrawingRect(bounds);
-			canvas.saveLayerAlpha(new RectF(bounds), Math.round(alpha * 255), Canvas.ALL_SAVE_FLAG);
-		}
-
-		super.dispatchDraw(canvas);
-
-		if (alpha < 1.0f) {
-			// Restore the canvas once the children have been drawn to the layer.
-			// This will draw the layer's offscreen bitmap onto the canvas using
-			// the alpha value we specified earlier.
-			canvas.restore();
 		}
 	}
 
