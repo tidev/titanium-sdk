@@ -78,26 +78,25 @@ public class TiUILabel extends TiUIView
 			
 			@Override
 			public boolean onTouchEvent(MotionEvent event) {
-			        TextView widget = (TextView) this;
-			        Object text = widget.getText();
+			        TextView textView = (TextView) this;
+			        Object text = textView.getText();
 			        if (text instanceof Spanned) {
 			            SpannedString spanned = (SpannedString) text;
 			            Spannable buffer = Factory.getInstance().newSpannable(spanned.subSequence(0, spanned.length()));
 
 			            int action = event.getAction();
 
-			            if (action == MotionEvent.ACTION_UP
-			                    || action == MotionEvent.ACTION_DOWN) {
+			            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN) {
 			                int x = (int) event.getX();
 			                int y = (int) event.getY();
 
-			                x -= widget.getTotalPaddingLeft();
-			                y -= widget.getTotalPaddingTop();
+			                x -= textView.getTotalPaddingLeft();
+			                y -= textView.getTotalPaddingTop();
 
-			                x += widget.getScrollX();
-			                y += widget.getScrollY();
+			                x += textView.getScrollX();
+			                y += textView.getScrollY();
 
-			                Layout layout = widget.getLayout();
+			                Layout layout = textView.getLayout();
 			                int line = layout.getLineForVertical(y);
 			                int off = layout.getOffsetForHorizontal(line, x);
 
@@ -105,13 +104,11 @@ public class TiUILabel extends TiUIView
 			                        ClickableSpan.class);
 
 			                if (link.length != 0) {
+			                	ClickableSpan cSpan = link[0];
 			                    if (action == MotionEvent.ACTION_UP) {
-			                        link[0].onClick(widget);
+			                        cSpan.onClick(textView);
 			                    } else if (action == MotionEvent.ACTION_DOWN) {
-			                    	
-			                         Selection.setSelection(buffer,
-			                                 buffer.getSpanStart(link[0]),
-			                                 buffer.getSpanEnd(link[0]));
+			                         Selection.setSelection(buffer, buffer.getSpanStart(cSpan), buffer.getSpanEnd(cSpan));
 			                    }
 			                    return true;
 			                }
