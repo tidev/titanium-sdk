@@ -141,7 +141,8 @@ public class TiUIHelper
 	public static void linkifyIfEnabled(TextView tv, Object autoLink)
 	{ 
 		if (autoLink != null) {
-			Linkify.addLinks(tv, TiConvert.toInt(autoLink));
+			//Default to Ti.UI.AUTOLINK_NONE
+			Linkify.addLinks(tv, TiConvert.toInt(autoLink, 16));
 		}
 	}
 
