@@ -1,7 +1,7 @@
 /*
  * run.js: Titanium Mobile Web CLI run in Windows Phone 8 hook
  *
- * Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2013-2014, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -28,7 +28,7 @@ exports.init = function (logger, config, cli) {
 			}
 
 			windows.detect(config, null, function (env) {
-				var wpInfo = windows.getSelectedWindowsPhoneSDK(env);
+				var wpInfo = env.windowsphone[builder.tiapp['windows-phone']['target-sdk']];
 
 				if (!wpInfo) {
 					var validVersions = Object.keys(env.windowsphone).filter(function (v) { return env.windowsphone[v].supported; }).sort();
@@ -62,7 +62,7 @@ exports.init = function (logger, config, cli) {
 
 				var tiapp = builder.tiapp,
 					buildType = cli.argv['deploy-type'] == 'production' ? 'Release' : 'Debug',
-					cmd = wpInfo.xapDeployCmd,
+					cmd = wpInfo.deployCmd,
 					args = [
 						'/installlaunch',
 						path.resolve(builder.buildDir, '..', 'mobileweb-wp8', tiapp.id, 'Bin', buildType, tiapp.id + '_' + buildType + '_AnyCPU.xap'),

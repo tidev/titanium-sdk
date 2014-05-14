@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
+<?xml version="1.0" encoding="utf-8"?>
+<Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="<%= targetSDK %>">
   <DefaultLanguage xmlns="" code="en-US"/>
-  <App xmlns="" ProductID="{54fd8b9d-5e82-41e8-b2db-1abaf17746ab}" Title="<%= projectDisplayName %>" RuntimeType="Silverlight" Version="<%= projectVersion %>" Genre="apps.normal"  Author="<%= author %>" Description="<%= projectDescription%>" Publisher="<%= projectName %>" PublisherID="{<%= publisherGUID %>}">
+  <App xmlns="" ProductID="{<%= assemblyGUID %>}" Title="<%= projectDisplayName %>" RuntimeType="Silverlight" Version="<%= projectVersion %>" Genre="apps.normal"  Author="<%= author %>" Description="<%= projectDescription%>" Publisher="<%= projectName %>" PublisherID="{<%= publisherGUID %>}">
     <IconPath IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_NETWORKING"/>

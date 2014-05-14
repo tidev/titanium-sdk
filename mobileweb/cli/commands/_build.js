@@ -1,7 +1,7 @@
 /*
  * build.js: Titanium Mobile Web CLI build command
  *
- * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2014, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -131,7 +131,7 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 									// if this is a Windows Phone 8 target, validate the wp8 specific parameters
 									if (value == 'wp8') {
 										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_SDK_NOT_INSTALLED', true);
-										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_SDK_MISSING_XAP_DEPLOY_CMD', true);
+										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_SDK_MISSING_DEPLOY_CMD', true);
 										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_ENUMERATE_DEVICES_FAILED', true);
 
 										conf.options['wp8-publisher-guid'].required = true;
@@ -164,6 +164,43 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 						desc: __('On Windows Phone 8, the device-id of the emulator/device to run the app in, "xd" for any emulator, or "de" for any device'),
 						order: 130,
 						prompt: function (callback) {
+							// determine the target Windows Phone SDK version
+							var availableSDKs = Object.keys(_t.windowsInfo.windowsphone).sort().filter(function (v) { return _t.windowsInfo.windowsphone[v].supported; })
+								targetSDK = cli.tiapp['windows-phone'] && cli.tiapp['windows-phone']['target-sdk'];
+
+							if (!availableSDKs.length) {
+								logger.error(__('Unable to find any supported Windows Phone devices or emulators'));
+								logger.error(__('Run "ti info" for more info.') + '\n');
+								process.exit(1);
+							}
+
+							// make sure the target sdk is good
+							if (targetSDK && availableSDKs.indexOf(targetSDK) == -1) {
+								logger.error(__('Invalid Windows Phone Target SDK "%s"', targetSDK) + '\n');
+								logger.log(__('Available Target SDKs:'));
+								availableSDKs.forEach(function (ver) {
+									logger.log('   ' + String(ver).cyan);
+								});
+								logger.log();
+								process.exit(1);
+							}
+
+							// auto select the oldest, most compatible (in theory) version
+							if (!targetSDK) {
+								targetSDK = availableSDKs.shift();
+							}
+
+							cli.tiapp['windows-phone'] || (cli.tiapp['windows-phone'] = {});
+							cli.tiapp['windows-phone']['target-sdk'] = targetSDK;
+
+							// get target sdk's devices
+							var devices = _t.windowsInfo.devices = _t.windowsInfo.windowsphone[targetSDK].devices;
+
+							if (!devices) {
+								cli.argv['build-only'] = true;
+								return callback();
+							}
+
 							callback(fields.select({
 								title: __("Which device or emulator do you want to install your app on?"),
 								promptLabel: __('Select by number or name'),
@@ -172,9 +209,9 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 								relistOnError: true,
 								complete: true,
 								suggest: true,
-								options: Object.keys(_t.windowsInfo.devices).map(function (id) {
+								options: Object.keys(devices).map(function (id) {
 									return {
-										label: _t.windowsInfo.devices[id],
+										label: devices[id],
 										value: id
 									};
 								})
