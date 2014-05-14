@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -357,13 +357,13 @@ public class TiCompositeLayout extends ViewGroup
 			}
 		} else {
 			if (p.autoFillsWidth) {
-				childDimension = LayoutParams.FILL_PARENT;
+				childDimension = LayoutParams.MATCH_PARENT;
 			} else {
 				// Look for sizeFill conflicts
 				hasSizeFillConflict(child, sizeFillConflicts, true, hasFixedWidthParent, hasFixedHeightParent);
 				checkedForConflict = true;
 				if (sizeFillConflicts[0] == HAS_SIZE_FILL_CONFLICT) {
-					childDimension = LayoutParams.FILL_PARENT;
+					childDimension = LayoutParams.MATCH_PARENT;
 				}
 			}
 		}
@@ -382,11 +382,11 @@ public class TiCompositeLayout extends ViewGroup
 		} else {
 			// If we already checked for conflicts before, we don't need to again
 			if (p.autoFillsHeight || (checkedForConflict && sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT)) {
-				childDimension = LayoutParams.FILL_PARENT;
+				childDimension = LayoutParams.MATCH_PARENT;
 			} else if (!checkedForConflict) {
 				hasSizeFillConflict(child, sizeFillConflicts, true, hasFixedWidthParent, hasFixedHeightParent);
 				if (sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT) {
-					childDimension = LayoutParams.FILL_PARENT;
+					childDimension = LayoutParams.MATCH_PARENT;
 				}
 			}
 		}
