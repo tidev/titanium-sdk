@@ -110,14 +110,12 @@ public class TiUILabel extends TiUIView
 			                    } else if (action == MotionEvent.ACTION_DOWN) {
 			                         Selection.setSelection(buffer, buffer.getSpanStart(cSpan), buffer.getSpanEnd(cSpan));
 			                    }
-			                    return true;
 			                }
 			            }
 
 			        }
-
-			        return false;
-			    }
+			        return super.onTouchEvent(event);
+			    } 
 			
 		};
 		tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
