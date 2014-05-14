@@ -24,7 +24,6 @@ import android.text.Layout;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.Spannable.Factory;
-import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.TextUtils.TruncateAt;
 import android.text.style.ClickableSpan;
