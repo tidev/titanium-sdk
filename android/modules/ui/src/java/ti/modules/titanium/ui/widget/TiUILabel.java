@@ -80,7 +80,8 @@ public class TiUILabel extends TiUIView
 			public boolean onTouchEvent(MotionEvent event) {
 			        TextView textView = (TextView) this;
 			        Object text = textView.getText();
-			        if (text instanceof Spanned) {
+			        //For html texts, we will manually detect url clicks.
+			        if (text instanceof SpannedString) {
 			            SpannedString spanned = (SpannedString) text;
 			            Spannable buffer = Factory.getInstance().newSpannable(spanned.subSequence(0, spanned.length()));
 
