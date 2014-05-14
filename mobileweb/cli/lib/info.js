@@ -92,18 +92,19 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	}
 
 	if (data.windowsphone && Object.keys(data.windowsphone).some(function (ver) { return data.windowsphone[ver].supported; })) {
-		Object.keys(data.windowsphone).sort().forEach(function (ver, i, arr) {
+		Object.keys(data.windowsphone).sort().forEach(function (ver) {
 			logger.log(styleHeading(__('Windows Phone v%s Devices & Emulators', ver)));
 			var devices = data.windowsphone[ver].devices
 			logger.log(Object.keys(devices).map(function (id) {
 				return '  ' + devices[id].cyan + '\n' +
 					'  ' + rpad('  ' + __('ID')) + ' = ' + styleValue(id);
 			}).join('\n') + '\n');
-			i + 1 < arr.length && logger.log();
 		});
-		logger.log();
 	} else {
 		logger.log(styleHeading(__('Windows Phone Devices & Emulators')));
 		logger.log('  ' + __('None').grey + '\n');
 	}
+
+	logger.log(styleHeading(__('Windows PowerShell')));
+	logger.log('  ' + rpad('  ' + __('Enabled')) + ' = ' + styleValue(data.powershell && data.powershell.enabled ? __('yes') : __('no')) + '\n');
 };

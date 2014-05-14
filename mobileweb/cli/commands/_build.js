@@ -31,20 +31,6 @@ ejs.filters.escapeQuotes = function escapeQuotes(s) {
 	return String(s).replace(/"/g, '\\"');
 };
 
-function assertIssue(logger, issues, name, exit) {
-	var i = 0,
-		len = issues.length;
-	for (; i < len; i++) {
-		if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
-			issues[i].message.split('\n').forEach(function (line) {
-				logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-			});
-			logger.log();
-			exit && process.exit(1);
-		}
-	}
-}
-
 function MobileWebBuilder() {
 	Builder.apply(this, arguments);
 
@@ -105,6 +91,21 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 
 		function configure() {
 			cli.createHook('build.mobileweb.config', function (callback) {
+				function assertIssue(logger, issues, name, exit) {
+					var i = 0,
+						len = issues.length;
+					for (; i < len; i++) {
+						if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
+							logger.banner();
+							issues[i].message.split('\n').forEach(function (line) {
+								logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
+							});
+							logger.log();
+							exit && process.exit(1);
+						}
+					}
+				}
+
 				var conf = {
 					options: {
 						'build-type': {
@@ -136,6 +137,10 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 
 										conf.options['wp8-publisher-guid'].required = true;
 										conf.options['device-id'].required = true;
+									}
+
+									if (value == 'winstore') {
+										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_POWERSHELL_SCRIPTS_DISABLED', true);
 									}
 								}
 							},
