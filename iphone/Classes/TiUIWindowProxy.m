@@ -521,6 +521,28 @@
 	}
 }
 
+-(void)updateNavButtons
+{
+    //Update LeftNavButton
+    NSDictionary* lProperties = [self valueForUndefinedKey:@"leftNavSettings"];
+    id leftNavButtons = [self valueForUndefinedKey:@"leftNavButtons"];
+    if (!IS_NULL_OR_NIL(leftNavButtons)) {
+        [self setLeftNavButtons:leftNavButtons withObject:lProperties];
+    } else {
+        leftNavButtons = [self valueForUndefinedKey:@"leftNavButton"];
+        [self setLeftNavButton:leftNavButtons withObject:lProperties];
+    }
+    //Update RightNavButton
+    NSDictionary* rProperties = [self valueForUndefinedKey:@"rightNavSettings"];
+    id rightNavButtons = [self valueForUndefinedKey:@"rightNavButtons"];
+    if (!IS_NULL_OR_NIL(rightNavButtons)) {
+        [self setRightNavButtons:rightNavButtons withObject:rProperties];
+    } else {
+        rightNavButtons = [self valueForUndefinedKey:@"rightNavButton"];
+        [self setRightNavButton:rightNavButtons withObject:rProperties];
+    }
+}
+
 -(void)refreshRightNavButtons:(id)unused
 {
     if (controller == nil || [controller navigationController] == nil) {
@@ -978,8 +1000,7 @@ else{\
     SETPROP(@"tabBarHidden",setTabBarHidden);
     SETPROPOBJ(@"toolbar",setToolbar);
     [self updateBarImage];
-    [self refreshLeftNavButtons:nil];
-    [self refreshRightNavButtons:nil];
+    [self updateNavButtons];
     [self refreshBackButton];
 
     id navBarHidden = [self valueForKey:@"navBarHidden"];
