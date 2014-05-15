@@ -2479,7 +2479,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	}, this);
 
 	appc.async.series(this, tasks, function (err, results) {
-		var templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'Resources', 'android');
+		var templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
 
 		// if an app icon hasn't been copied, copy the default one
 		var destIcon = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
