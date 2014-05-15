@@ -27,7 +27,6 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiPlatformHelper;
-import org.appcelerator.aps.analytics.APSAnalytics;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,6 +37,8 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
+
+import com.appcelerator.analytics.APSAnalytics;
 
 public class TiLocation implements Handler.Callback
 {
@@ -148,7 +149,9 @@ public class TiLocation implements Handler.Callback
 	public void doAnalytics(Location location)
 	{
 		long locationTime = location.getTime();
-		if (locationTime - lastAnalyticsTimestamp > TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY) {
+
+		if ((locationTime - lastAnalyticsTimestamp > TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY)
+			&& TiApplication.getInstance().isAnalyticsEnabled()) {
 			APSAnalytics.sendAppGeoEvent(location);
 		}
 	}

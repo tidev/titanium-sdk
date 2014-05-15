@@ -6,12 +6,13 @@
  */
 package org.appcelerator.titanium.analytics;
 
-import org.appcelerator.aps.analytics.APSAnalyticsEvent;
-import org.appcelerator.aps.analytics.APSAnalyticsEventFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.location.Location;
+
+import com.appcelerator.analytics.APSAnalyticsEvent;
+import com.appcelerator.analytics.APSAnalyticsEventFactory;
 
 public class TiAnalyticsEventFactory extends APSAnalyticsEventFactory
 {
