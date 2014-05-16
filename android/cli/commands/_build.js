@@ -1185,7 +1185,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		// no --device-id, so intelligently auto select one
 
 		var ver = targetSDKMap[this.targetSDK].version,
-			devices = _t.devicesToAutoSelectFrom,
+			devices = this.devicesToAutoSelectFrom,
 			i,
 			len = devices.length;
 
