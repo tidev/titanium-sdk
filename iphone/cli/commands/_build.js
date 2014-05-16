@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -1819,15 +1819,13 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 
 	plist.CFBundleIdentifier = this.tiapp.id;
 
-	// device builds require an additional token to ensure uniquiness so that iTunes will detect an updated app to sync
-	if (this.config.get('app.skipVersionValidation') || this.tiapp.properties['ti.skipVersionValidation']) {
-		plist.CFBundleVersion = this.tiapp.version;
-	} else if (this.target == 'device') {
-		plist.CFBundleVersion = appc.version.format(this.tiapp.version, 3, 3) + '.' + (new Date).getTime();
+	if (this.target == 'device' && this.deviceId == 'itunes') {
+		// device builds require an additional token to ensure uniqueness so that iTunes will detect an updated app to sync
+		plist.CFBundleVersion = this.tiapp.version + '.' + (new Date).getTime();
 	} else {
-		plist.CFBundleVersion = appc.version.format(this.tiapp.version, 3, 3);
+		plist.CFBundleVersion = this.tiapp.version;
 	}
-	plist.CFBundleShortVersionString = plist.CFBundleVersion;
+	plist.CFBundleShortVersionString = appc.version.format(plist.CFBundleVersion, 0, 3);
 
 	Array.isArray(plist.CFBundleIconFiles) || (plist.CFBundleIconFiles = []);
 	['.png', '@2x.png', '-72.png', '-60.png', '-60@2x.png', '-76.png', '-76@2x.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png', '-Small-40.png', '-Small-40@2x.png'].forEach(function (name) {
