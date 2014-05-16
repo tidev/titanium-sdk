@@ -561,7 +561,15 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							'keychain': {
 								abbr: 'K',
 								desc: __('path to the distribution keychain to use instead of the system default; only used when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
-								hideValues: true
+								hideValues: true,
+								validate: function (value, callback) {
+									value && typeof value != 'string' && (value = null);
+									if (value && !fs.existsSync(value)) {
+										callback(new Error(__('Unable to find keychain: %s', value)));
+									} else {
+										callback(null, value);
+									}
+								}
 							},
 							'launch-url': {
 								// url for the application to launch in mobile Safari, as soon as the app boots up
@@ -789,9 +797,9 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	} else {
 		this.deployType = /^device|simulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 	}
-	
+
 	this.buildType = cli.argv['build-type'] || '';
-	
+
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
 		case 'production':
