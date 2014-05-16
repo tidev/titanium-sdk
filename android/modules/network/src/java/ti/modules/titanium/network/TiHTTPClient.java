@@ -1036,8 +1036,8 @@ public class TiHTTPClient
 		
 		if (this.securityManager != null) {
 			if (this.securityManager.willHandleURL(this.uri)) {
-				TrustManager[] trustManagerArray = this.securityManager.getTrustManagers(this.uri);
-				KeyManager[] keyManagerArray = this.securityManager.getKeyManagers(this.uri);
+				TrustManager[] trustManagerArray = this.securityManager.getTrustManagers((HTTPClientProxy)this.proxy);
+				KeyManager[] keyManagerArray = this.securityManager.getKeyManagers((HTTPClientProxy)this.proxy);
 				
 				try {
 					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray);
@@ -1290,9 +1290,6 @@ public class TiHTTPClient
 					result = client.execute(host, request, handler);
 				} catch (IOException e) {
 					if (!aborted) {
-						// Fire the disposehandle event if the exception is not due to aborting the request.
-						// And it will dispose the handle of the httpclient in the JS.
-						proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 						throw e;
 					}
 				}
