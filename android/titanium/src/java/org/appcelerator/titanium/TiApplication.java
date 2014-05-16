@@ -40,7 +40,6 @@ import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
-import org.appcelerator.aps.analytics.APSAnalytics;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -56,6 +55,8 @@ import android.os.Build;
 import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
+
+import com.appcelerator.analytics.APSAnalytics;
 
 /**
  * The main application entry point for all Titanium applications and services.
@@ -357,7 +358,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			public void uncaughtException(Thread t, Throwable e) {
-				if (collectAnalytics()) {
+				if (isAnalyticsEnabled()) {
 					String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash ;
 					Log.e(TAG, "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium " + tiVer, e);
 					TiPlatformHelper.getInstance().postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
@@ -472,7 +473,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			}
 		}
 
-		if (collectAnalytics()) {
+		if (isAnalyticsEnabled()) {
 
 			TiPlatformHelper.getInstance().initAnalytics();
 			TiPlatformHelper.getInstance().setSdkVersion("ti." + getTiBuildVersion());
@@ -638,7 +639,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return proxy;
 	}
 
-	private boolean collectAnalytics()
+	public boolean isAnalyticsEnabled()
 	{
 		return getAppInfo().isAnalyticsEnabled();
 	}

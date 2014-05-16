@@ -35,7 +35,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
-import org.appcelerator.aps.analytics.APSAnalytics;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -56,6 +55,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+
+import com.appcelerator.analytics.APSAnalytics;
 
 /**
  * The base class for all non tab Titanium activities. To learn more about Activities, see the
@@ -974,8 +975,8 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			}
 		}
 
-		// Checkpoint for ti.end event
-		if (tiApp != null) {
+		// Checkpoint for ti.background event
+		if (tiApp != null && TiApplication.getInstance().isAnalyticsEnabled()) {
 			APSAnalytics.sendSessionBackgroundEvent();
 		}
 	}
@@ -1027,9 +1028,11 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 		isResumed = true;
 
-		// Checkpoint for ti.start event
+		// Checkpoint for ti.foreground event
 		//String deployType = tiApp.getAppProperties().getString("ti.deploytype", "unknown");
-		APSAnalytics.sendSessionForegroundEvent();
+		if(TiApplication.getInstance().isAnalyticsEnabled()){
+			APSAnalytics.sendSessionForegroundEvent();
+		}
 	}
 
 	@Override

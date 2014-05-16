@@ -12,15 +12,17 @@ import java.util.Date;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
-import org.appcelerator.aps.analytics.APSAnalytics;
-import org.appcelerator.aps.analytics.APSAnalyticsEvent;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.appcelerator.analytics.APSAnalytics;
+import com.appcelerator.analytics.APSAnalyticsEvent;
 
 @Kroll.module
 public class AnalyticsModule extends KrollModule
@@ -52,7 +54,10 @@ public class AnalyticsModule extends KrollModule
 		if (data != null) {
 			dataJSON = TiConvert.toJSONString(data).toString();
 		}
-		TiPlatformHelper.getInstance().postAnalyticsEvent(TiAnalyticsEventFactory.createEvent(type, event, dataJSON));
+		
+		if (TiApplication.getInstance().isAnalyticsEnabled()) {
+			TiPlatformHelper.getInstance().postAnalyticsEvent(TiAnalyticsEventFactory.createEvent(type, event, dataJSON));
+		}
 	}
 
 	@Kroll.method
@@ -66,7 +71,9 @@ public class AnalyticsModule extends KrollModule
 		payload.put(TiC.PROPERTY_EVENT, event);
 		payload.put(TiC.PROPERTY_DATA, data);
 
-		APSAnalytics.sendAppNavEvent(from, to, event, TiConvert.toJSON(data));
+		if (TiApplication.getInstance().isAnalyticsEnabled()) {
+			APSAnalytics.sendAppNavEvent(from, to, event, TiConvert.toJSON(data));
+		}
 	}
 
 	@Kroll.method

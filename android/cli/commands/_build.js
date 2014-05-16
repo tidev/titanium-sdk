@@ -3533,7 +3533,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 	// add the analytics service
 	if (this.tiapp.analytics) {
-		var tiAnalyticsService = 'org.appcelerator.aps.analytics.APSAnalyticsService';
+		var tiAnalyticsService = 'com.appcelerator.analytics.APSAnalyticsService';
 		finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
 		finalAndroidManifest.application.service[tiAnalyticsService] = {
 			name: tiAnalyticsService,
