@@ -25,12 +25,12 @@ public interface SecurityManagerProtocol {
 	 * @param uri - The end point of the network connection
 	 * @return Return array of X509TrustManager for custom server validation. Null otherwise.
 	 */
-	public X509TrustManager[] getTrustManagers(Uri uri);
+	public X509TrustManager[] getTrustManagers(HTTPClientProxy proxy);
 	
 	/**
 	 * Returns the X509KeyManager array for the SSL Context.
 	 * @param uri - The end point of the network connection
 	 * @return Return array of X509KeyManager for custom client certificate management. Null otherwise.
 	 */
-	public X509KeyManager[] getKeyManagers(Uri uri);
+	public X509KeyManager[] getKeyManagers(HTTPClientProxy proxy);
 }
