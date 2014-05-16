@@ -1,6 +1,6 @@
 /**
  * Titanium SDK Library for Node.js
- * Copyright (c) 2012-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012-2014 by Appcelerator, Inc. All Rights Reserved.
  * Please see the LICENSE file for information about licensing.
  */
 
@@ -229,7 +229,11 @@ function toXml(dom, parent, name, value) {
 function initAttr(node, obj) {
 	xml.forEachAttr(node, function (attr) {
 		obj.__attr__ || (obj.__attr__ = {});
-		obj.__attr__[attr.name] = xml.parse(attr.value);
+		if (attr.name == 'android:versionName') {
+			obj.__attr__[attr.name] = attr.value;
+		} else {
+			obj.__attr__[attr.name] = xml.parse(attr.value);
+		}
 	});
 	return obj;
 }
