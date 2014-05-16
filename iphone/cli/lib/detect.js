@@ -365,9 +365,8 @@ exports.detect = function detect(config, opts, finished) {
 												invalid = expired || cert.validity.notBefore > now;
 
 											dest.developer || (dest.developer = []);
-
 											dest.developer.push({
-												name: cert.subject.getField('CN').value.substring(iphoneDev.length).trim(),
+												name: appc.encoding.decodeOctalUTF8(cert.subject.getField('CN').value.substring(iphoneDev.length)).trim(),
 												before: cert.validity.notBefore,
 												after: cert.validity.notAfter,
 												expired: expired,
@@ -396,7 +395,7 @@ exports.detect = function detect(config, opts, finished) {
 											dest.distribution || (dest.distribution = []);
 
 											dest.distribution.push({
-												name: cert.subject.getField('CN').value.substring(iphoneDist.length).trim(),
+												name: appc.encoding.decodeOctalUTF8(cert.subject.getField('CN').value.substring(iphoneDist.length)).trim(),
 												before: cert.validity.notBefore,
 												after: cert.validity.notAfter,
 												expired: expired,
