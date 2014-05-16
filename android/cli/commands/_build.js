@@ -90,6 +90,7 @@ function AndroidBuilder() {
 	Builder.apply(this, arguments);
 
 	this.devices = null; // set by findTargetDevices() during 'config' phase
+	this.devicesToAutoSelectFrom = [];
 
 	this.keystoreAliases = [];
 
@@ -525,7 +526,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							}
 
 							findTargetDevices(cli.argv.target, function (err, results) {
-								if (cli.argv.target == 'emulator' && cli.argv['device-id'] == undefined && cli.argv['avd-id']) {
+								if (cli.argv.target == 'emulator' && cli.argv['device-id'] === undefined && cli.argv['avd-id']) {
 									// if --device-id was not specified, but --avd-id was, then we need to
 									// try to resolve a device based on the legacy --avd-* options
 									var avds = results.filter(function (a) { return a.type == 'avd'; }).map(function (a) { return a.name; }),
@@ -594,10 +595,10 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 										}
 									}
 
-								} else if (cli.argv['device-id'] == undefined && results.length && config.get('android.autoSelectDevice', true)) {
+								} else if (cli.argv['device-id'] === undefined && results.length && config.get('android.autoSelectDevice', true)) {
 									// we set the device-id to an array of devices so that later in validate()
 									// after the tiapp.xml has been parsed, we can auto select the best device
-									cli.argv['device-id'] = results.sort(function (a, b) {
+									_t.devicesToAutoSelectFrom = results.sort(function (a, b) {
 										var eq = appc.version.eq(a.version, b.version),
 											gt = appc.version.gt(a.version, b.version);
 
@@ -1180,11 +1181,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	var deviceId = cli.argv['device-id'];
 
-	if (/^device|emulator$/.test(this.target) && Array.isArray(deviceId)) {
+	if (/^device|emulator$/.test(this.target) && deviceId === undefined && config.get('android.autoSelectDevice', true)) {
 		// no --device-id, so intelligently auto select one
 
 		var ver = targetSDKMap[this.targetSDK].version,
-			devices = deviceId,
+			devices = _t.devicesToAutoSelectFrom,
 			i,
 			len = devices.length;
 
