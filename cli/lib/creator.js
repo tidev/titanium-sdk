@@ -91,35 +91,43 @@ Creator.prototype.copyDir = function copyDir(srcDir, destDir, callback, variable
 		ejsRegExp = /\.ejs$/,
 		nameRegExp = /\{\{(\w+?)\}\}/g,
 		ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')),
-		ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles'));
+		ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles')),
+		files = fs.readdirSync(srcDir);
 
-	async.each(fs.readdirSync(srcDir), function (filename, next) {
-		var src = path.join(srcDir, filename);
-		if (!fs.existsSync(src)) return next();
+	async.whilst(
+		function () {
+			return files.length;
+		},
+		function (next) {
+			var filename = files.shift(),
+				src = path.join(srcDir, filename);
 
-		var destName = filename.replace(nameRegExp, function (match, name) {
-				return variables[name] || variables[name.substring(0, 1).toLowerCase() + name.substring(1)] || match;
-			}),
-			dest = path.join(destDir, destName);
+			if (!fs.existsSync(src)) return next();
 
-		if (fs.statSync(src).isDirectory() && !ignoreDirs.test(filename)) {
-			_t.copyDir(src, dest, next, variables);
+			var destName = filename.replace(nameRegExp, function (match, name) {
+					return variables[name] || variables[name.substring(0, 1).toLowerCase() + name.substring(1)] || match;
+				}),
+				dest = path.join(destDir, destName);
 
-		} else if (!ignoreFiles.test(filename)) {
-			if (ejsRegExp.test(filename)) {
-				dest = dest.replace(ejsRegExp, '');
-				this.logger.debug(__('Copying %s => %s', src.cyan, dest.cyan));
-				// strip the .ejs extension and render the template
-				fs.writeFile(dest, ejs.render(fs.readFileSync(src).toString(), variables), next);
+			if (fs.statSync(src).isDirectory() && !ignoreDirs.test(filename)) {
+				_t.copyDir(src, dest, next, variables);
+
+			} else if (!ignoreFiles.test(filename)) {
+				if (ejsRegExp.test(filename)) {
+					dest = dest.replace(ejsRegExp, '');
+					_t.logger.debug(__('Copying %s => %s', src.cyan, dest.cyan));
+					// strip the .ejs extension and render the template
+					fs.writeFile(dest, ejs.render(fs.readFileSync(src).toString(), variables), next);
+				} else {
+					_t.logger.debug(__('Copying %s => %s', src.cyan, dest.cyan));
+					fs.writeFile(dest, fs.readFileSync(src), next);
+				}
+
 			} else {
-				this.logger.debug(__('Copying %s => %s', src.cyan, dest.cyan));
-				fs.writeFile(dest, fs.readFileSync(src), next);
+				// ignore
+				next();
 			}
-
-		} else {
-			// ignore
-			next();
-		}
-
-	}.bind(this), callback);
+		},
+		callback
+	);
 };
