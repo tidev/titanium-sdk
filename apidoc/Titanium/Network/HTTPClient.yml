@@ -597,8 +597,8 @@ methods:
     returns:
         type: Array<Object>
     parameters:
-      - name: url
-        summary: The [Uri](http://developer.android.com/reference/android/net/Uri.html) representing the end point of this connection.
+      - name: proxy
+        summary: The <Ti.Network.HTTPClient> representing this connection.
         type: Object
     platforms: [android]
 
@@ -611,8 +611,8 @@ methods:
     returns:
         type: Array<Object>
     parameters:
-      - name: url
-        summary: The [Uri](http://developer.android.com/reference/android/net/Uri.html) representing the end point of this connection.
+      - name: proxy
+        summary: The <Ti.Network.HTTPClient> representing this connection.
         type: Object
     platforms: [android]
 
