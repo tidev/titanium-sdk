@@ -466,6 +466,8 @@ public class TiAnimationBuilder
 
 			if (parent instanceof View) {
 				parentView = (View) parent;
+			} else {
+				Log.e(TAG, "Parent view doesn't exist");
 			}
 
 			if (height != null) {
@@ -496,10 +498,30 @@ public class TiAnimationBuilder
 					animatorHelper = new AnimatorHelper();
 				}
 				if (left != null || right != null || centerX != null) {
-					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "left", x, horizontal[0]));
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_LEFT, x, horizontal[0]));
+					int afterRight = 0;
+					if (optionRight == null) {
+						afterRight = parentWidth - horizontal[1];
+					} else {
+						afterRight = optionRight.getAsPixels(parentView);
+					}
+					int beforeRight = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionRight.getAsPixels(parentView);
+					if (beforeRight != afterRight) {
+						addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_RIGHT, beforeRight, afterRight));
+					}
 				}
 				if (top != null || bottom != null || centerY != null) {
-					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "top", y, vertical[0]));
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_TOP, y, vertical[0]));
+					int afterBottom = 0;
+					if (optionBottom == null) {
+						afterBottom = parentHeight - vertical[1];
+					} else {
+						afterBottom = optionBottom.getAsPixels(parentView);
+					}
+					int beforeBottom = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionBottom.getAsPixels(parentView);
+					if (beforeBottom != afterBottom) {
+						addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_BOTTOM, beforeBottom, afterBottom));
+					}
 				}
 			}
 
@@ -1141,11 +1163,7 @@ public class TiAnimationBuilder
 			}
 
 			view.setLayoutParams(params);
-			ViewParent vp = view.getParent();
-			if (vp instanceof View) {
-				// Need to invalidate the parent view. Otherwise, it will not draw correctly.
-				((View) vp).invalidate();
-			}
+			invalidateParentView();
 		}
 
 		public void setHeight(final int h)
@@ -1160,10 +1178,7 @@ public class TiAnimationBuilder
 			}
 
 			view.setLayoutParams(params);
-			ViewParent vp = view.getParent();
-			if (vp instanceof View) {
-				((View) vp).invalidate();
-			}
+			invalidateParentView();
 		}
 
 		public void setLeft(final int l)
@@ -1175,10 +1190,19 @@ public class TiAnimationBuilder
 				tiParams.optionLeft.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 			view.requestLayout();
-			ViewParent vp = view.getParent();
-			if (vp instanceof View) {
-				((View) vp).invalidate();
+			invalidateParentView();
+		}
+		
+		public void setRight(final int r)
+		{
+			ViewGroup.LayoutParams params = view.getLayoutParams();
+			if (params instanceof TiCompositeLayout.LayoutParams) {
+				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
+				tiParams.optionRight = new TiDimension(r, TiDimension.TYPE_RIGHT);
+				tiParams.optionRight.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
+			view.requestLayout();
+			invalidateParentView();
 		}
 
 		public void setTop(final int t)
@@ -1190,6 +1214,23 @@ public class TiAnimationBuilder
 				tiParams.optionTop.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 			view.requestLayout();
+			invalidateParentView();
+		}
+		
+		public void setBottom(final int b)
+		{
+			ViewGroup.LayoutParams params = view.getLayoutParams();
+			if (params instanceof TiCompositeLayout.LayoutParams) {
+				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
+				tiParams.optionBottom = new TiDimension(b, TiDimension.TYPE_BOTTOM);
+				tiParams.optionBottom.setUnits(TypedValue.COMPLEX_UNIT_PX);
+			}
+			view.requestLayout();
+			invalidateParentView();
+		}
+		
+		private void invalidateParentView() 
+		{
 			ViewParent vp = view.getParent();
 			if (vp instanceof View) {
 				((View) vp).invalidate();
@@ -1206,6 +1247,7 @@ public class TiAnimationBuilder
 		{
 			ViewParent vp = view.getParent();
 			if (vp instanceof View) {
+				// Need to invalidate the parent view. Otherwise, it will not draw correctly.
 				((View) vp).invalidate();
 			}
 		}
