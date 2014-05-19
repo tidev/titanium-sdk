@@ -505,7 +505,14 @@ public class TiAnimationBuilder
 					} else {
 						afterRight = optionRight.getAsPixels(parentView);
 					}
-					int beforeRight = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionRight.getAsPixels(parentView);
+					TiDimension beforeRightD = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionRight;
+					int beforeRight = 0;
+					if (beforeRightD != null) {
+						beforeRight = beforeRightD.getAsPixels(parentView);
+					} else {
+						beforeRight = parentWidth - view.getRight(); 
+					}
+					
 					if (beforeRight != afterRight) {
 						addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_RIGHT, beforeRight, afterRight));
 					}
@@ -518,7 +525,14 @@ public class TiAnimationBuilder
 					} else {
 						afterBottom = optionBottom.getAsPixels(parentView);
 					}
-					int beforeBottom = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionBottom.getAsPixels(parentView);
+					int beforeBottom = 0;
+					TiDimension beforeBottomD = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionBottom;
+					if (beforeBottomD != null) {
+						beforeBottom = beforeBottomD.getAsPixels(parentView);
+					} else {
+						beforeBottom = parentHeight - view.getBottom();
+					}
+					
 					if (beforeBottom != afterBottom) {
 						addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_BOTTOM, beforeBottom, afterBottom));
 					}
