@@ -677,6 +677,12 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			Log.i(TAG, "Analytics are disabled, ignoring postAnalyticsEvent", Log.DEBUG_MODE);
 			return;
 		}
+
+		if (analyticsModel == null) {
+			Log.e(TAG, "Analytics model is null, do nothing", Log.DEBUG_MODE);
+			return;
+		}
+
 		lastAnalyticsEvent = event;
 		if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_ENROLL) {
 			if (needsEnrollEvent) {
