@@ -180,7 +180,8 @@ platforms: [android, ipad, iphone]
 extends: Titanium.UI.View
 since: '3.1.0'
 excludes:
-    events: [focus]
+    events: [click, dblclick,doubletap,focus,keypressed,longclick,longpress,pinch,postlayout,
+             singletap,swipe,touchcancel,touchend,touchmove,touchstart,twofingertap]
     properties: [backgroundSelectedColor, backgroundSelectedImage, enabled]
 events:
   - name: itemclick
@@ -344,12 +345,6 @@ events:
       - name: bubbles
         summary: false. This event does not bubble.
         type: Boolean
-
-  - name: touchend
-    description: |
-        On the Android platform, other gesture events, such as `longpress` or `swipe`, cancel touch events,
-        so this event may not be triggered after a `touchstart` event.
-
 
 properties:
 
