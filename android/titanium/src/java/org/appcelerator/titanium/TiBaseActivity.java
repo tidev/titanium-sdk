@@ -479,7 +479,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 		// create the activity proxy here so that it is accessible from the activity in all cases
 		activityProxy = new ActivityProxy(this);
-		
 
 		// Increment the reference count so we correctly clean up when all of our activities have been destroyed
 		KrollRuntime.incrementActivityRefCount();
@@ -516,6 +515,13 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		tiApp.setCurrentActivity(this, this);
 
 		windowCreated();
+
+		if (activityProxy != null) {
+			KrollFunction onCreate = (KrollFunction) activityProxy.getProperty(TiC.PROPERTY_ON_CREATE);
+			if (onCreate != null) {
+				onCreate.call(activityProxy.getKrollObject(), new Object[] { null });
+			}
+		}
 
 		if (activityProxy != null) {
 			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
@@ -931,6 +937,12 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onPause() 
 	{
 		inForeground = false;
+		if (activityProxy != null) {
+			KrollFunction onPause = (KrollFunction) activityProxy.getProperty(TiC.PROPERTY_ON_PAUSE);
+			if (onPause != null) {
+				onPause.call(activityProxy.getKrollObject(), new Object[] { null });
+			}
+		}
 		super.onPause();
 		isResumed = false;
 
@@ -989,6 +1001,12 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onResume()
 	{
 		inForeground = true;
+		if (activityProxy != null) {
+			KrollFunction onResume = (KrollFunction) activityProxy.getProperty(TiC.PROPERTY_ON_RESUME);
+			if (onResume != null) {
+				onResume.call(activityProxy.getKrollObject(), new Object[] { null });
+			}
+		}
 		super.onResume();
 		if (isFinishing()) {
 			return;
@@ -1044,6 +1062,12 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onStart()
 	{
 		inForeground = true;
+		if (activityProxy != null) {
+			KrollFunction onStart = (KrollFunction) activityProxy.getProperty(TiC.PROPERTY_ON_START);
+			if (onStart != null) {
+				onStart.call(activityProxy.getKrollObject(), new Object[] { null });
+			}
+		}
 		super.onStart();
 		if (isFinishing()) {
 			return;
@@ -1102,6 +1126,12 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onStop()
 	{
 		inForeground = false;
+		if (activityProxy != null) {
+			KrollFunction onStop = (KrollFunction) activityProxy.getProperty(TiC.PROPERTY_ON_STOP);
+			if (onStop != null) {
+				onStop.call(activityProxy.getKrollObject(), new Object[] { null });
+			}
+		}
 		super.onStop();
 
 		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
@@ -1138,6 +1168,12 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onRestart()
 	{
 		inForeground = true;
+		if (activityProxy != null) {
+			KrollFunction onRestart = (KrollFunction) activityProxy.getProperty(TiC.PROPERTY_ON_RESTART);
+			if (onRestart != null) {
+				onRestart.call(activityProxy.getKrollObject(), new Object[] { null });
+			}
+		}
 		super.onRestart();
 
 		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
@@ -1196,6 +1232,12 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onDestroy()
 	{
 		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
+		if (activityProxy != null) {
+			KrollFunction onDestroy = (KrollFunction) activityProxy.getProperty(TiC.PROPERTY_ON_DESTROY);
+			if (onDestroy != null) {
+				onDestroy.call(activityProxy.getKrollObject(), new Object[] { null });
+			}
+		}
 
 		inForeground = false;
 		TiApplication tiApp = getTiApp();
