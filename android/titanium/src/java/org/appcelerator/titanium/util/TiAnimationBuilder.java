@@ -497,14 +497,14 @@ public class TiAnimationBuilder
 				if (animatorHelper == null) {
 					animatorHelper = new AnimatorHelper();
 				}
-				if (left != null || right != null || centerX != null) {
+				
+				if (left != null) {
 					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_LEFT, x, horizontal[0]));
-					int afterRight = 0;
-					if (optionRight == null) {
-						afterRight = parentWidth - horizontal[1];
-					} else {
-						afterRight = optionRight.getAsPixels(parentView);
-					}
+				} 
+				
+				if (right != null) {
+					int afterRight = optionRight.getAsPixels(parentView);;
+					
 					TiDimension beforeRightD = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionRight;
 					int beforeRight = 0;
 					if (beforeRightD != null) {
@@ -512,19 +512,34 @@ public class TiAnimationBuilder
 					} else {
 						beforeRight = parentWidth - view.getRight(); 
 					}
+
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_RIGHT, beforeRight, afterRight));
+				} 
+
+				if (centerX != null) {
+					int afterCenterX = optionCenterX.getAsPixels(parentView);;
 					
-					if (beforeRight != afterRight) {
-						addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_RIGHT, beforeRight, afterRight));
-					}
-				}
-				if (top != null || bottom != null || centerY != null) {
-					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_TOP, y, vertical[0]));
-					int afterBottom = 0;
-					if (optionBottom == null) {
-						afterBottom = parentHeight - vertical[1];
+					int beforeCenterX = 0;
+					TiDimension beforeCenterXD = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionCenterX;
+					
+					if (beforeCenterXD != null) {
+						beforeCenterX = beforeCenterXD.getAsPixels(parentView);
 					} else {
-						afterBottom = optionBottom.getAsPixels(parentView);
+						beforeCenterX = ((view.getRight() - view.getLeft()) / 2) + view.getLeft();
 					}
+					
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "centerX", beforeCenterX, afterCenterX));
+				}
+				
+				
+				if (top != null) {
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_TOP, y, vertical[0]));
+					
+				}
+				
+				if (bottom != null) {
+					int afterBottom = optionBottom.getAsPixels(parentView);
+
 					int beforeBottom = 0;
 					TiDimension beforeBottomD = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionBottom;
 					if (beforeBottomD != null) {
@@ -533,9 +548,23 @@ public class TiAnimationBuilder
 						beforeBottom = parentHeight - view.getBottom();
 					}
 					
-					if (beforeBottom != afterBottom) {
-						addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_BOTTOM, beforeBottom, afterBottom));
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_BOTTOM, beforeBottom, afterBottom));
+					
+				}
+				
+				if (centerY != null) {
+					int afterCenterY = optionCenterY.getAsPixels(parentView);;
+					
+					int beforeCenterY = 0;
+					TiDimension beforeCenterYD = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionCenterY;
+
+					if (beforeCenterYD != null) {
+						beforeCenterY = beforeCenterYD.getAsPixels(parentView);
+					} else {
+						beforeCenterY = ((view.getTop() - view.getBottom()) / 2) + view.getBottom();
 					}
+
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "centerY", beforeCenterY, afterCenterY));
 				}
 			}
 
@@ -1238,6 +1267,30 @@ public class TiAnimationBuilder
 				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
 				tiParams.optionBottom = new TiDimension(b, TiDimension.TYPE_BOTTOM);
 				tiParams.optionBottom.setUnits(TypedValue.COMPLEX_UNIT_PX);
+			}
+			view.requestLayout();
+			invalidateParentView();
+		}
+		
+		public void setCenterX(final int b)
+		{
+			ViewGroup.LayoutParams params = view.getLayoutParams();
+			if (params instanceof TiCompositeLayout.LayoutParams) {
+				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
+				tiParams.optionCenterX = new TiDimension(b, TiDimension.TYPE_CENTER_X);
+				tiParams.optionCenterX.setUnits(TypedValue.COMPLEX_UNIT_PX);
+			}
+			view.requestLayout();
+			invalidateParentView();
+		}
+		
+		public void setCenterY(final int b)
+		{
+			ViewGroup.LayoutParams params = view.getLayoutParams();
+			if (params instanceof TiCompositeLayout.LayoutParams) {
+				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
+				tiParams.optionCenterY = new TiDimension(b, TiDimension.TYPE_CENTER_Y);
+				tiParams.optionCenterY.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 			view.requestLayout();
 			invalidateParentView();
