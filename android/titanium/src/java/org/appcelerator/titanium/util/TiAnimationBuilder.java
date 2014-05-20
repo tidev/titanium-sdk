@@ -561,7 +561,7 @@ public class TiAnimationBuilder
 					if (beforeCenterYD != null) {
 						beforeCenterY = beforeCenterYD.getAsPixels(parentView);
 					} else {
-						beforeCenterY = ((view.getTop() + view.getBottom()) / 2);
+						beforeCenterY = (view.getTop() + view.getBottom()) / 2;
 					}
 
 					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "centerY", beforeCenterY, afterCenterY));
