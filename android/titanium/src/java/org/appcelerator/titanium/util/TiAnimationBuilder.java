@@ -525,7 +525,7 @@ public class TiAnimationBuilder
 					if (beforeCenterXD != null) {
 						beforeCenterX = beforeCenterXD.getAsPixels(parentView);
 					} else {
-						beforeCenterX = ((view.getRight() - view.getLeft()) / 2) + view.getLeft();
+						beforeCenterX = (view.getRight() + view.getLeft()) / 2;
 					}
 					
 					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "centerX", beforeCenterX, afterCenterX));
@@ -561,7 +561,7 @@ public class TiAnimationBuilder
 					if (beforeCenterYD != null) {
 						beforeCenterY = beforeCenterYD.getAsPixels(parentView);
 					} else {
-						beforeCenterY = ((view.getTop() - view.getBottom()) / 2) + view.getBottom();
+						beforeCenterY = ((view.getTop() + view.getBottom()) / 2);
 					}
 
 					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "centerY", beforeCenterY, afterCenterY));
