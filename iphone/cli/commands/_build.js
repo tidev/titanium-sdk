@@ -1798,15 +1798,25 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 
 	plist.CFBundleIdentifier = this.tiapp.id;
 
-	// device builds require an additional token to ensure uniquiness so that iTunes will detect an updated app to sync
-	if (this.config.get('app.skipVersionValidation') || this.tiapp.properties['ti.skipVersionValidation']) {
-		plist.CFBundleVersion = this.tiapp.version;
-	} else if (this.target == 'device') {
-		plist.CFBundleVersion = appc.version.format(this.tiapp.version, 3, 3) + '.' + (new Date).getTime();
+	if (this.target == 'device' && this.deviceId == 'itunes') {
+		// device builds require an additional token to ensure uniqueness so that iTunes will detect an updated app to sync.
+		// we drop the milliseconds from the current time so that we still have a unique identifier, but is less than 10
+		// characters so iTunes 11.2 doesn't get upset.
+		plist.CFBundleVersion = String(+new Date);
+		this.logger.debug(__('Building for iTunes sync which requires us to set the CFBundleVersion to a unique number to trigger iTunes to update your app'));
+		this.logger.debug(__('Setting Info.plist CFBundleVersion to current epoch time %s', plist.CFBundleVersion.cyan));
 	} else {
-		plist.CFBundleVersion = appc.version.format(this.tiapp.version, 3, 3);
+		plist.CFBundleVersion = String(this.tiapp.version);
+		this.logger.debug(__('Setting Info.plist CFBundleVersion to %s', plist.CFBundleVersion.cyan));
 	}
-	plist.CFBundleShortVersionString = plist.CFBundleVersion;
+
+	try {
+		plist.CFBundleShortVersionString = appc.version.format(this.tiapp.version, 0, 3);
+		this.logger.debug(__('Setting Info.plist CFBundleShortVersionString to %s', plist.CFBundleShortVersionString.cyan));
+	} catch (ex) {
+		plist.CFBundleShortVersionString = this.tiapp.version;
+		this.logger.debug(__('Setting Info.plist CFBundleShortVersionString to %s', plist.CFBundleShortVersionString.cyan));
+	}
 
 	Array.isArray(plist.CFBundleIconFiles) || (plist.CFBundleIconFiles = []);
 	['.png', '@2x.png', '-72.png', '-60.png', '-60@2x.png', '-76.png', '-76@2x.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png', '-Small-40.png', '-Small-40@2x.png'].forEach(function (name) {
