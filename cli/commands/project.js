@@ -211,8 +211,8 @@ exports.run = function (logger, config, cli, finished) {
 					// Update the tiapp.xml
 					tiapp['deployment-targets'] = result;
 
-					// Non-destructively copy over files from <sdk>/templates/app/<template>/
-					templateDir = path.join(sdkPath, 'templates', 'app', cli.argv.template);
+					// Non-destructively copy over files from <sdk>/templates/app/<template>/template
+					templateDir = path.join(sdkPath, 'templates', 'app', cli.argv.template, 'template');
 					if (!appc.fs.exists(templateDir)) {
 						logger.error(__('Unknown project template %s', cli.argv.template) + '\n');
 						process.exit(1);
@@ -226,7 +226,7 @@ exports.run = function (logger, config, cli, finished) {
 					// Non-destructively copy over files from <sdk>/<each platform>/templates/app/<template>/
 					for (p = 0; p < value.length; p++) {
 						if (value[p]) {
-							templateDir = path.join(sdkPath, ti.resolvePlatform(value[p]), 'templates', 'app', cli.argv.template);
+							templateDir = path.join(sdkPath, ti.resolvePlatform(value[p]), 'templates', 'app', cli.argv.template, 'template');
 							if (appc.fs.exists(templateDir)) {
 								n += appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, {
 									logger: logger.log,
