@@ -38,6 +38,7 @@
 
 // state information
 @property(nonatomic, readonly) NSNumber *status;
+@property(nonatomic, readonly) NSString* statusText;
 @property(nonatomic, readonly) NSNumber* readyState;
 @property(nonatomic, readonly) NSString* responseText;
 @property(nonatomic, readonly) TiBlob* responseData;

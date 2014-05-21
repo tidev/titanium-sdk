@@ -408,6 +408,17 @@ extern NSString * const TI_APPLICATION_GUID;
 {
     return NUMINT([[self response] status]);
 }
+
+-(NSString*)statusText
+{
+    if (([self response] != nil) && ([[self response] readyState] >= APSHTTPResponseStateHeaders) ) {
+        NSInteger status = [[self response] status];
+        return [NSHTTPURLResponse localizedStringForStatusCode:status];
+    }
+    return nil;
+}
+
+
 -(NSString*)location
 {
     if([self response] == nil) {
