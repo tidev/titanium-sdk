@@ -73,12 +73,6 @@
 
 //Helper properties
 /**
- * Retrieves the version of the SDK
- * @return SDK version
- */
-+(NSString*)getVersion;
-
-/**
   * Returns if analytics has been enabled
   * @return Returns YES if analytics is enabled
   */
