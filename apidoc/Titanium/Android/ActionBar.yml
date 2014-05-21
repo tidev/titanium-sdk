@@ -166,6 +166,7 @@ properties:
         See also: [setHomeButtonEnabled](http://developer.android.com/reference/android/app/ActionBar.html#setHomeButtonEnabled(boolean))
         in the Android Developer Reference.
     type: Boolean
+    since: "3.3.0"
     permission: write-only
 
   - name: icon
