@@ -142,7 +142,7 @@ public class ListSectionProxy extends ViewProxy{
 		if (TiApplication.isUIThread()) {
 			handleSetHeaderView(headerView);
 		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_HEADER_VIEW, headerView));
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_HEADER_VIEW), headerView);
 		}
 	}
 	
@@ -156,7 +156,7 @@ public class ListSectionProxy extends ViewProxy{
 		if (TiApplication.isUIThread()) {
 			handleSetFooterView(footerView);
 		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_FOOTER_VIEW, footerView));
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_FOOTER_VIEW), footerView);
 		}
 	}
 	
