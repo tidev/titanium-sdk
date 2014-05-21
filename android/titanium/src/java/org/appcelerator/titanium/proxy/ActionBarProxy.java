@@ -39,6 +39,7 @@ public class ActionBarProxy extends KrollProxy
 	private static final int MSG_SET_DISPLAY_SHOW_HOME = MSG_FIRST_ID + 110;
 	private static final int MSG_SET_DISPLAY_SHOW_TITLE = MSG_FIRST_ID + 111;
 	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
+	private static final String HOME_BUTTON_ENABLED = "homeButtonEnabled";
 	private static final String BACKGROUND_IMAGE = "backgroundImage";
 	private static final String TITLE = "title";
 	private static final String LOGO = "logo";
@@ -63,6 +64,18 @@ public class ActionBarProxy extends KrollProxy
 		} else {
 			Message message = getMainHandler().obtainMessage(MSG_DISPLAY_HOME_AS_UP, showHomeAsUp);
 			message.getData().putBoolean(SHOW_HOME_AS_UP, showHomeAsUp);
+			message.sendToTarget();
+		}
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setHomeButtonEnabled(boolean homeButtonEnabled)
+	{
+		if(TiApplication.isUIThread()) {
+			handlesetHomeButtonEnabled(homeButtonEnabled);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_HOME_BUTTON_ENABLED, homeButtonEnabled);
+			message.getData().putBoolean(HOME_BUTTON_ENABLED, homeButtonEnabled);
 			message.sendToTarget();
 		}
 	}
@@ -294,6 +307,15 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
+        private void handlesetHomeButtonEnabled(boolean homeButtonEnabled)
+        {
+                if (actionBar != null) {
+                        actionBar.setHomeButtonEnabled(homeButtonEnabled);
+                } else {
+                        Log.w(TAG, "ActionBar is not enabled");
+                }
+        }
+
 	private void handlesetNavigationMode(int navigationMode)
 	{
 		actionBar.setNavigationMode(navigationMode);
@@ -366,7 +388,7 @@ public class ActionBarProxy extends KrollProxy
 				handleSetIcon(msg.getData().getString(ICON));
 				return true;
 			case MSG_SET_HOME_BUTTON_ENABLED:
-				actionBar.setHomeButtonEnabled(true);
+				handlesetHomeButtonEnabled(msg.getData().getBoolean(HOME_BUTTON_ENABLED));
 				return true;
 		}
 		return super.handleMessage(msg);
@@ -381,7 +403,9 @@ public class ActionBarProxy extends KrollProxy
 			if (TiApplication.isUIThread()) {
 				actionBar.setHomeButtonEnabled(true);
 			} else {
-				getMainHandler().obtainMessage(MSG_SET_HOME_BUTTON_ENABLED).sendToTarget();
+				Message message = getMainHandler().obtainMessage(MSG_SET_HOME_BUTTON_ENABLED, true);
+				message.getData().putBoolean(HOME_BUTTON_ENABLED, true);
+				message.sendToTarget();
 			}
 		}
 		super.onPropertyChanged(name, value);
