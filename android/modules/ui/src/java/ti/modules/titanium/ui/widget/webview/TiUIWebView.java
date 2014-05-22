@@ -144,11 +144,16 @@ public class TiUIWebView extends TiUIView
 		@Override
 		public boolean onCheckIsTextEditor()
 		{
-			if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
-				&& TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
-				return false;
+			if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
+				int value = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS), TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS);
+				
+				if (value == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
+					return false;
+				} else if (value == TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS) {
+					return true;
+				}
 			}
-			return true;
+			return super.onCheckIsTextEditor();
 		}
 	}
 	
