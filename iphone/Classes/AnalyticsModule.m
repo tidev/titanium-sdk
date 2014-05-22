@@ -7,6 +7,7 @@
 
 #import "AnalyticsModule.h"
 #import "APSAnalytics/APSAnalytics.h"
+#import "SBJSON.h"
 
 @implementation AnalyticsModule
 
@@ -27,10 +28,10 @@
 		[self throwException:@"invalid number of arguments, expected at least 2" subreason:nil location:CODELOCATION];
 		return;
 	}
-    NSString *from = [[args objectAtIndex:0] autorelease];
-	NSString *to = [[args objectAtIndex:1] autorelease];
-	NSString *event = [args count] > 2 ? [[args objectAtIndex:2] autorelease] : @"";
-	id data = [args count] > 3 ? [[args objectAtIndex:3] autorelease] : [NSDictionary dictionary];
+	NSString *from = [args objectAtIndex:0] ;
+	NSString *to = [args objectAtIndex:1];
+	NSString *event = [args count] > 2 ? [args objectAtIndex:2] : @"";
+	id data = [args count] > 3 ? [args objectAtIndex:3] : [NSDictionary dictionary];
     [APSAnalytics sendAppNavEventFrom:from to:to withName:event withPayload:data];
 }
 
@@ -42,10 +43,23 @@
 		[self throwException:@"invalid number of arguments, expected at least 1" subreason:nil location:CODELOCATION];
 		return;
 	}
-	NSString *event = [[args objectAtIndex:0] autorelease];
-	id data = [args count] > 1 ? [[args objectAtIndex:1] autorelease] : [NSDictionary dictionary];
-    
-    [APSAnalytics sendFeatureEvent:event withPayload:data];
+	NSString *event = [args objectAtIndex:0];
+	id data = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
+	if (data!=nil && ([data isKindOfClass:[NSDictionary class]]== NO))
+	{
+		id value = nil;
+		if ([data isKindOfClass:[NSString class]] == YES) {
+			value = [TiUtils jsonParse:data];
+			if (value == nil)
+				value = [NSDictionary dictionaryWithObject:data forKey:@"data"];
+		} else {
+			//if all else fails fall back old behavior
+			value = [SBJSON stringify:data];
+			value = [NSDictionary dictionaryWithObject:value forKey:@"data"];
+		}
+		data = value;
+	}
+	[APSAnalytics sendFeatureEvent:event withPayload:data];
 }
 
 @end
