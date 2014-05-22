@@ -1,22 +1,23 @@
 ---
 name: Titanium.Cloud
-summary: The top level Cloud module.
+summary: The top level Cloud module for making calls to Appcelerator Cloud Services (ACS).
 description: |
     Appcelerator Cloud Services (ACS) provides a wide array of automatically-scaled data storage 
     and web services, such as user logins, photo uploads, checkins, status updates, and push 
     notifications, without the need to learn multiple third-party SDKs or do any 
-    server-side programming. Remote calls to ACS are done via a single 
-    [REST API](http://cloud.appcelerator.com/docs/docmenu_info), which may be used with almost any 
-    web technology that has access to an HTTP client.
+    server-side programming. Remote calls to ACS are done using REST APIs, which may be used with any 
+    client technology that supports HTTP.
     
-    The `Titanium.Cloud` module makes accessing ACS as simple as using any of Titanium's other APIs, 
-    due to its familiar and intuitive API schema. 
+    The Cloud module hides the details the underlying REST APIs with a familiar programming model 
+    and intuitive API schema. You also have the option of calling the ACS REST APIs directly with the 
+    <Titanium.Cloud.sendRequest> method. This latter approach adds some complexity, since you need to provide API 
+    endpoints and HTTP methods for each method call. However, it also lets you call new REST API methods 
+     as soon as they are deployed, without having to wait for an update to the structured APIs. 
     
     For a more detailed overview of ACS and how to configure an application to use it, refer to the 
     [Integrating with Appcelerator Cloud
-    Services](http://docs.appcelerator.com/titanium/latest/#!/guide/Integrating_with_Appcelerator_Cloud_Services) 
-    and [ACS Quickstart](http://docs.appcelerator.com/cloud/latest/#!/guide/acs_quickstart) guides.
-    
+    Services](http://docs.appcelerator.com/titanium/latest/#!/guide/Integrating_with_Appcelerator_Cloud_Services).
+        
     #### Using the Titanium.Cloud Module
     
     This module is not included in the Titanium namespace, but it is bundled with the
@@ -94,6 +95,32 @@ methods:
         to be used when manually making calls to the ACS servers using <Titanium.Network.HTTPClient>. 
     returns:
         type: String
+  
+  - name: sendRequest
+    summary: Makes a REST API call to the ACS server.
+    description: |
+            By default, the base URL for each REST call is the ACS public endpoint 
+            (**api.cloud.appcelerator.com/v1**). You specify the final URL fragment of the REST endpoint
+             (**users/login.json**, for example), the appropriate HTTP method type for the call, 
+             and the data to send with the request.
+
+            You can find REST method endpoints and their HTTP method types in the [ACS API Reference](/cloud/latest/#!/guide/rest).
+        
+    parameters:
+
+      - name: parameters
+        summary: | 
+            A Dictionary containing the parameters to send with the request. It must contain the following
+            key-value pairs:
+
+            * **url** -- A string specifying the last fragment of the request URL.
+            * **method** -- A string specifying the HTTP method to use: "GET", "POST", "PUT", or "DELETE".
+            * **data** -- A Dictionary containing name-value pairs to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when a response is received.
+        type: Callback<CloudResponse>
 
 properties:
   - name: debug
@@ -175,6 +202,28 @@ properties:
         Contains the number of seconds until the access token expires after successfully calling
         <Titanium.Cloud.Users.secureCreate> or <Titanium.Cloud.Users.secureLogin>, and null after successfully
         calling <Titanium.Cloud.Users.logout>.
+
+examples:
+  - title: Creating a User with sendRequest()
+    example: |
+        This example uses the generic <Titanium.Cloud.sendRequest> method to create a new user and,
+        if successful, displays an alert that contains information about the session and the user.
+
+            Cloud.sendRequest({
+                url : "users/login.json",
+                method : "POST",
+                data : {
+                    login : 'username',
+                    password : 'password'
+                }
+            }, function(e) {// The callback called when the request completes
+                if (e.success) {
+                    var user = e.users[0];
+                    alert('Success:\n' + 'id: ' + user.id + '\n' + 'sessionId: ' + Cloud.sessionId + '\n' + 'first name: ' + user.first_name + '\n' + 'last name: ' + user.last_name);
+                } else {
+                    alert('Error:\n' + ((e.error && e.message) || JSON.stringify(e)));
+                }
+            }); 
 
 ---
 name: CloudStreamProgress
