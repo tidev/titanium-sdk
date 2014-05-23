@@ -10,11 +10,12 @@ platforms: [android]
 since: "1.5"
 methods:
   - name: addCategory
-    summary: Adds a category to this Intent. See the `CATEGORY` constants in <Titanium.Android>.
+    summary: Adds a category to this Intent.
     parameters:
       - name: name
-        summary: The category name. See the `CATEGORY` constants in <Titanium.Android>.
+        summary: The category name.
         type: String
+        constants: Titanium.Android.CATEGORY*
 
   - name: addFlags
     summary: Adds to the existing flags on the `Intent`.
@@ -24,6 +25,7 @@ methods:
       - name: flags
         summary: Bitwise OR of the flags to add to the existing set.
         type: Number
+        constants: Titanium.Android.FLAG_*
 
   - name: getBlobExtra
     since: "2.1.0"
@@ -107,7 +109,6 @@ methods:
   - name: putExtra
     summary: Puts an extra property on this `Intent`.
     parameters:
-
       - name: name
         summary: Name of the property to add.
         type: String
@@ -159,8 +160,9 @@ properties:
     permission: read-only
 
   - name: flags
-    summary: Intent flags. See the `FLAG_` constants in <Titanium.Android>.
+    summary: Intent flags.
     type: Number
+    constants: Titanium.Android.FLAG_*
 
   - name: packageName
     summary: The fully-qualified Java package name of the activity.

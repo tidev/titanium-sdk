@@ -86,7 +86,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	 * that must be reset every time a view is recycled, to ensure synchronization. Currently, only
 	 * "value" is in this list to correctly update the value of Ti.UI.Switch.
 	 */
-	public static List<String> MUST_SET_PROPERTIES = Arrays.asList(TiC.PROPERTY_VALUE);
+	public static List<String> MUST_SET_PROPERTIES = Arrays.asList(TiC.PROPERTY_VALUE, TiC.PROPERTY_AUTO_LINK);
 	
 	public static final String MIN_SEARCH_HEIGHT = "50dp";
 	public static final String MIN_ROW_HEIGHT = "30dp";

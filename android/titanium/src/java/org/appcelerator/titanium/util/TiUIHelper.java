@@ -141,7 +141,8 @@ public class TiUIHelper
 	public static void linkifyIfEnabled(TextView tv, Object autoLink)
 	{ 
 		if (autoLink != null) {
-			Linkify.addLinks(tv, TiConvert.toInt(autoLink));
+			//Default to Ti.UI.AUTOLINK_NONE
+			Linkify.addLinks(tv, TiConvert.toInt(autoLink, 16));
 		}
 	}
 
@@ -947,7 +948,7 @@ public class TiUIHelper
 
 		if (imm != null) {
 			boolean useForce = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT || Build.VERSION.SDK_INT >= 8) ? true : false;
-			String model = TiPlatformHelper.getModel(); 
+			String model = TiPlatformHelper.getInstance().getModel(); 
 			if (model != null && model.toLowerCase().startsWith("droid")) {
 				useForce = true;
 			}

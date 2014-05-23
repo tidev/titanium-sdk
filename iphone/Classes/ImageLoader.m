@@ -548,7 +548,7 @@ DEFINE_EXCEPTIONS
 		return image;
 	}
 	
-    TiHTTPRequest *req = [[[TiHTTPRequest alloc] init] autorelease];
+    APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
     [req setUrl:url];
     [req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
     [req setSynchronous:YES];
@@ -629,7 +629,7 @@ DEFINE_EXCEPTIONS
 	}
 	
 	NSDictionary *dict = [NSDictionary dictionaryWithObject:request forKey:@"request"];
-	TiHTTPRequest *req = [[[TiHTTPRequest alloc] init] autorelease];
+	APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
     [req setDelegate:self];
     [req setUrl:url];
 	[req setUserInfo:dict];
@@ -721,7 +721,7 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Delegates
 
--(void)tiRequest:(TiHTTPRequest *)request onLoad:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onLoad:(APSHTTPResponse *)response
 {
 	// hold while we're working with it (release below)
 	[request retain];
@@ -730,7 +730,7 @@ DEFINE_EXCEPTIONS
 	ImageLoaderRequest *req = [[[request userInfo] objectForKey:@"request"] retain];
 	if ([req cancelled]==NO)
 	{
-		NSData *data = [tiResponse responseData];
+		NSData *data = [response responseData];
 		if (data == nil || [data length]==0)
 		{
 			NSMutableDictionary *errorDetail = [NSMutableDictionary dictionary];
@@ -748,7 +748,7 @@ DEFINE_EXCEPTIONS
 		// for this session and not on disk so we ignore (potentially at a determinent?)
 		// the actual max-age setting for now.
 		BOOL cacheable = YES;
-		NSString *cacheControl = [[tiResponse headers] objectForKey:@"Cache-Control"];
+		NSString *cacheControl = [[response headers] objectForKey:@"Cache-Control"];
 		if (cacheControl!=nil)
 		{
 			// check to see if we're cacheable or not
@@ -817,18 +817,18 @@ DEFINE_EXCEPTIONS
 	[req release];
 }
 
--(void)tiRequest:(TiHTTPRequest *)request onError:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
 {
 	[[TiApp app] stopNetwork];
 	ImageLoaderRequest *req = [[request userInfo] objectForKey:@"request"];
-	NSError *error = [tiResponse error];
+	NSError *error = [response error];
     
 	if ([request cancelled]) {
         if ([[req delegate] respondsToSelector:@selector(imageLoadCancelled:)]) {
             [[req delegate] performSelector:@selector(imageLoadCancelled:) withObject:req];
         }
 	} else {
-		[[req delegate] imageLoadFailed:req error:[tiResponse error]];
+		[[req delegate] imageLoadFailed:req error:[response error]];
 	}
 	[request setUserInfo:nil];
 }

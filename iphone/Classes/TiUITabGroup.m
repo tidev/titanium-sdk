@@ -20,6 +20,9 @@ DEFINE_EXCEPTIONS
 {
 	RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(focusedTabProxy);
+	RELEASE_TO_NIL(barColor);
+	RELEASE_TO_NIL(navTintColor);
+	RELEASE_TO_NIL(theAttributes)
 	[super dealloc];
 }
 
@@ -30,7 +33,6 @@ DEFINE_EXCEPTIONS
         controller.delegate = self;
         controller.moreNavigationController.delegate = self;
         [TiUtils configureController:controller withObject:self.proxy];
-        [TiUtils configureController:controller.moreNavigationController withObject:self.proxy];
     }
     return controller;
 }
@@ -138,12 +140,35 @@ DEFINE_EXCEPTIONS
 
 -(void)updateMoreBar:(UINavigationController *)moreController
 {
-	if ([[moreController viewControllers] count] != 1)
-	{
-		return;
-	}
-	
-	[TiUtils applyColor:barColor toNavigationController:moreController];
+    UIColor * theColor = [TiUtils barColorForColor:barColor];
+    UIBarStyle navBarStyle = [TiUtils barStyleForColor:barColor];
+    UIColor * nTintColor = [navTintColor color];
+    BOOL translucent = [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"translucent"] def:[TiUtils isIOS7OrGreater]];
+    
+    //Update the UINavigationBar appearance.
+    [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setBarStyle:navBarStyle];
+    [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setTitleTextAttributes:theAttributes];
+    if ([TiUtils isIOS7OrGreater]) {
+        [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setBarTintColor:theColor];
+        [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setTintColor:nTintColor];
+    } else {
+        [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setTintColor:theColor];
+    }
+
+    if ([[moreController viewControllers] count] != 1) {
+        return;
+    }
+    //Update the actual nav bar here in case the windows changed the stuff.
+    UINavigationBar * navBar = [moreController navigationBar];
+    [navBar setBarStyle:navBarStyle];
+    [navBar setTitleTextAttributes:theAttributes];
+    [navBar setTranslucent:translucent];
+    if([TiUtils isIOS7OrGreater]) {
+        [navBar performSelector:@selector(setBarTintColor:) withObject:theColor];
+        [navBar setTintColor:nTintColor];
+    } else {
+        [navBar setTintColor:theColor];
+    }
 }
 
 -(void)setEditButton:(UINavigationController*)moreController
@@ -227,6 +252,10 @@ DEFINE_EXCEPTIONS
         if (focusedTabProxy != nil) {
             [self handleDidShowTab:nil];
         }
+        //Ensure that the moreController has only top edge extended
+        if ([TiUtils isIOS7OrGreater]) {
+            [TiUtils configureController:viewController withObject:[NSDictionary dictionaryWithObject:NUMINT(1) forKey:@"extendEdges"]];
+        }
         return;
     }
 
@@ -309,7 +338,6 @@ DEFINE_EXCEPTIONS
 
 	[self handleDidShowTab:(TiUITabProxy *)[(UINavigationController *)viewController delegate]];
 }
-
 
 - (void)tabBarController:(UITabBarController *)tabBarController didEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed
 {
@@ -395,13 +423,71 @@ DEFINE_EXCEPTIONS
     [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
 
+-(void)setTranslucent_:(id)value
+{
+    [[self proxy] replaceValue:value forKey:@"translucent" notification:NO];
+    [self updateMoreBar:[controller moreNavigationController]];
+}
 
 -(void)setBarColor_:(id)value
 {
 	[barColor release];
 	barColor = [[TiUtils colorValue:value] retain];
+	[self.proxy replaceValue:value forKey:@"barColor" notification:NO];
 	[self updateMoreBar:[controller moreNavigationController]];
 }
+
+-(void)setTitleAttributes_:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+    [self.proxy replaceValue:args forKey:@"titleAttributes" notification:NO];
+    RELEASE_TO_NIL(theAttributes)
+    if (args != nil) {
+        theAttributes = [[NSMutableDictionary dictionary] retain];
+        if ([args objectForKey:@"color"] != nil) {
+            UIColor* theColor = [[TiUtils colorValue:@"color" properties:args] _color];
+            if (theColor != nil) {
+                [theAttributes setObject:theColor forKey:([TiUtils isIOS7OrGreater] ? NSForegroundColorAttributeName : UITextAttributeTextColor)];
+            }
+        }
+        if ([args objectForKey:@"shadow"] != nil) {
+            NSShadow* shadow = [TiUtils shadowValue:[args objectForKey:@"shadow"]];
+            if (shadow != nil) {
+                if ([TiUtils isIOS7OrGreater]) {
+                    [theAttributes setObject:shadow forKey:NSShadowAttributeName];
+                } else {
+                    if (shadow.shadowColor != nil) {
+                        [theAttributes setObject:shadow.shadowColor forKey:UITextAttributeTextShadowColor];
+                    }
+                    NSValue *theValue = [NSValue valueWithUIOffset:UIOffsetMake(shadow.shadowOffset.width, shadow.shadowOffset.height)];
+                    [theAttributes setObject:theValue forKey:UITextAttributeTextShadowOffset];
+                }
+            }
+        }
+        
+        if ([args objectForKey:@"font"] != nil) {
+            UIFont* theFont = [[TiUtils fontValue:[args objectForKey:@"font"] def:nil] font];
+            if (theFont != nil) {
+                [theAttributes setObject:theFont forKey:([TiUtils isIOS7OrGreater] ? NSFontAttributeName : UITextAttributeFont)];
+            }
+        }
+        
+        if ([theAttributes count] == 0) {
+            RELEASE_TO_NIL(theAttributes)
+        }
+    }
+    [self updateMoreBar:[controller moreNavigationController]];
+}
+
+
+-(void)setNavTintColor_:(id)value
+{
+    [navTintColor release];
+    navTintColor = [[TiUtils colorValue:value] retain];
+    [self.proxy replaceValue:value forKey:@"navTintColor" notification:NO];
+    [self updateMoreBar:[controller moreNavigationController]];
+}
+
 
 -(void)setActiveTab_:(id)value
 {

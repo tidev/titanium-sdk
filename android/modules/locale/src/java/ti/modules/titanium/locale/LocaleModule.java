@@ -48,7 +48,7 @@ public class LocaleModule extends KrollModule
 	@Kroll.method @Kroll.getProperty
 	public String getCurrentLocale()
 	{
-		return TiPlatformHelper.getLocale();
+		return TiPlatformHelper.getInstance().getLocale();
 	}
 	
 	@Kroll.method
@@ -57,14 +57,14 @@ public class LocaleModule extends KrollModule
 		if (localeString == null) {
 			return null;
 		}
-		Locale locale = TiPlatformHelper.getLocale(localeString);
-		return TiPlatformHelper.getCurrencyCode(locale);
+		Locale locale = TiPlatformHelper.getInstance().getLocale(localeString);
+		return TiPlatformHelper.getInstance().getCurrencyCode(locale);
 	}
 	
 	@Kroll.method
 	public String getCurrencySymbol(String currencyCode)
 	{
-		return TiPlatformHelper.getCurrencySymbol(currencyCode);
+		return TiPlatformHelper.getInstance().getCurrencySymbol(currencyCode);
 	}
 	
 	@Kroll.method
@@ -73,8 +73,8 @@ public class LocaleModule extends KrollModule
 		if (localeString == null) {
 			return null;
 		}
-		Locale locale = TiPlatformHelper.getLocale(localeString);
-		return TiPlatformHelper.getCurrencySymbol(locale);
+		Locale locale = TiPlatformHelper.getInstance().getLocale(localeString);
+		return TiPlatformHelper.getInstance().getCurrencySymbol(locale);
 	}
 	
 	@Kroll.method

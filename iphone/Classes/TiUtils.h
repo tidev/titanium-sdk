@@ -533,8 +533,6 @@ typedef enum
 
 +(void)applyColor:(TiColor *)color toNavigationController:(UINavigationController *)navController;
 
-+(void)queueAnalytics:(NSString*)type name:(NSString*)name data:(NSDictionary*)data;
-
 /**
  Whether or not the current device interface idiom is iPad.
  @return _YES_ if the current device interface idiom is iPad, _NO_ otherwise.

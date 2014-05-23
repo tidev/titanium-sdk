@@ -7,7 +7,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import "TiDimension.h"
-#import "TiHTTPClient/TiHTTPClient.h"
+#import "APSHTTPClient.h"
 
 typedef enum {
 	TiImageScalingDefault,
@@ -54,7 +54,7 @@ typedef enum {
  */
 @interface ImageLoaderRequest : NSObject {
 @private
-	TiHTTPRequest *request;
+	APSHTTPRequest *request;
 	NSObject<ImageLoaderDelegate>* delegate;
 	NSDictionary* userInfo;
 	NSURL *url;
@@ -63,7 +63,7 @@ typedef enum {
 	BOOL cancelled;
 }
 
-@property(nonatomic,readwrite,retain) TiHTTPRequest* request;
+@property(nonatomic,readwrite,retain) APSHTTPRequest* request;
 
 /**
  Whether or not the request has completed.
@@ -115,7 +115,7 @@ typedef enum {
  The class is singleton and not supposed to be subclassed.
  The instance should not be instantiated directly, but lazily created with <sharedLoader>.
  */
-@interface ImageLoader : NSObject<NSCacheDelegate, TiHTTPRequestDelegate> {
+@interface ImageLoader : NSObject<NSCacheDelegate, APSHTTPRequestDelegate> {
 @private
 	NSCache *cache;
 	NSOperationQueue* queue;

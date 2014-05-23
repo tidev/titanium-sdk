@@ -35,6 +35,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.WebViewProxy;
 import ti.modules.titanium.ui.android.AndroidModule;
 import android.content.Context;
+import android.content.pm.FeatureInfo;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -130,23 +131,57 @@ public class TiUIWebView extends TiUIView
 			super.onLayout(changed, left, top, right, bottom);
 			TiUIHelper.firePostLayoutEvent(proxy);
 		}
-
+	}
+	
+	//TIMOB-16952. Overriding onCheckIsTextEditor crashes HTC Sense devices
+	private class NonHTCWebView extends TiWebView
+	{
+		public NonHTCWebView(Context context)
+		{
+			super(context);
+		}
+		
 		@Override
 		public boolean onCheckIsTextEditor()
 		{
-			if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
-				&& TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
-				return false;
+			if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
+				int value = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS), TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS);
+				
+				if (value == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
+					return false;
+				} else if (value == TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS) {
+					return true;
+				}
 			}
-			return true;
+			return super.onCheckIsTextEditor();
 		}
 	}
+	
+	private boolean isHTCSenseDevice()
+	{
+		boolean isHTC = false;
+		
+		FeatureInfo[] features = TiApplication.getInstance().getApplicationContext().getPackageManager().getSystemAvailableFeatures();
+		for (FeatureInfo f : features) {
+			String fName = f.name;
+			if (fName != null) {
+				isHTC = fName.contains("com.htc.software.Sense");
+				if (isHTC) {
+					Log.i(TAG, "Detected com.htc.software.Sense feature "+fName);
+					break;
+				}
+			}
+		}
+		
+		return isHTC;
+	}
+	
 
 	public TiUIWebView(TiViewProxy proxy)
 	{
 		super(proxy);
-
-		TiWebView webView = new TiWebView(proxy.getActivity());
+		
+		TiWebView webView = isHTCSenseDevice() ? new TiWebView(proxy.getActivity()) : new NonHTCWebView(proxy.getActivity());
 		webView.setVerticalScrollbarOverlay(true);
 
 		WebSettings settings = webView.getSettings();

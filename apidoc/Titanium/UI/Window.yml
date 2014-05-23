@@ -15,6 +15,19 @@ methods:
         summary: Animation or display properties to use when closing the window.
         type: [Dictionary<Titanium.UI.Animation>, closeWindowParams]
         optional: true
+
+  - name: hideNavBar
+    summary: Hides the navigation bar.
+    description: |
+        If the window is not displayed in a <Titanium.UI.iOS.NavigationWindow>, this method has no effect.
+    parameters:
+      - name: options
+        summary: |
+            Options dictionary supporting a single `animated` boolean property to determine whether
+            the navigation bar will be animated (default) while being hidden.
+        type: Dictionary
+        optional: true
+    platforms: [iphone, ipad]
     
   - name: hideTabBar
     summary: Hides the tab bar. Must be called before opening the window.
@@ -44,6 +57,19 @@ methods:
         type: windowToolbarParam
         optional: true
     platforms: [iphone,ipad]
+
+  - name: showNavBar
+    summary: Makes the navigation bar visible.
+    description: |
+        If the window is not displayed in a <Titanium.UI.iOS.NavigationWindow>, this method has no effect.
+    parameters:
+      - name: options
+        summary: |
+            Options dictionary supporting a single `animated` boolean property to determine whether
+            the navigation bar will be animated (default) while being shown.
+        type: Dictionary
+        optional: true
+    platforms: [iphone, ipad]
 
 events:
   - name: android:back

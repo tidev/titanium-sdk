@@ -17,7 +17,7 @@
 	],
 	"vendorDependencies": {
 		"visual studio": ">=10 <=12",
-		"windows phone sdk": ">=8",
+		"windows phone sdk": "8.0",
 		"msbuild": ">=4.0",
 		"node": ">0.8.0 <=0.10.x",
 		"java": "<=1.6.x"

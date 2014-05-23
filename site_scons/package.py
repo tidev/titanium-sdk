@@ -418,12 +418,13 @@ def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone,
 	zip_dir(zf, os.path.join(top_dir, 'node_modules'), '%s/node_modules' % basepath, ignore_paths=ignore_paths)
 
 	manifest_json = '''{
+	"name": "%s",
 	"version": "%s",
 	"moduleAPIVersion": "%s",
 	"timestamp": "%s",
 	"githash": "%s",
 	"platforms": %s
-}''' % (version, module_apiversion, ts, githash, simplejson.dumps(platforms))
+}''' % (version_tag, version, module_apiversion, ts, githash, simplejson.dumps(platforms))
 	zf.writestr('%s/manifest.json' % basepath, manifest_json)
 
 	# check if we should build the content assist file

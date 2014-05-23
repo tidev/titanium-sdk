@@ -65,7 +65,6 @@ methods:
     summary: |
         Removes the database files for this instance from disk. WARNING: this is a destructive 
         operation and cannot be reversed. All data in the database will be lost; use with caution.
-    platforms: [android]
 
 properties:
   - name: file

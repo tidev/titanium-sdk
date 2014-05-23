@@ -18,9 +18,6 @@ description: |
 
         <SearchView ns="Ti.UI.Android" platform="android"/>
 
-    `SearchView` is supported on Google API 11 (Android 3.0) and later. Your project's `tiapp.xml` file
-    must specify that version (or later) as the `targetSDKVersion` key in the Android manifest section.
-    
 extends: Titanium.UI.View
 excludes: { methods: [ add ] }
 since: "3.0.2"
@@ -96,32 +93,20 @@ examples:
                 fullscreen: false
             });
 
-            var search;
-            var searchAsChild = false;
+            // Use action bar search view
+            var search = Ti.UI.Android.createSearchView({
+                hintText: "Table Search"
+            });
 
-            if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL >= 11) {
-                // Use action bar search view
-                search = Ti.UI.Android.createSearchView({
-                    hintText: "Table Search"
+            win.activity.onCreateOptionsMenu = function(e) {
+                var menu = e.menu;
+                var menuItem = menu.add({
+                    title: 'Table Search',
+                    actionView : search,
+                    icon: (Ti.Android.R.drawable.ic_menu_search ? Ti.Android.R.drawable.ic_menu_search : "my_search.png"),
+                    showAsAction: Ti.Android.SHOW_AS_ACTION_IF_ROOM | Ti.Android.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
                 });
-
-                win.activity.onCreateOptionsMenu = function(e) {
-                    var menu = e.menu;
-                    var menuItem = menu.add({
-                        title: 'Table Search',
-                        actionView : search,
-                        icon: (Ti.Android.R.drawable.ic_menu_search ? Ti.Android.R.drawable.ic_menu_search : "my_search.png"),
-                        showAsAction: Ti.Android.SHOW_AS_ACTION_IF_ROOM | Ti.Android.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
-                    });
-                };
-            }
-            else {
-                // Use search bar
-                search = Ti.UI.createSearchBar({
-                    hintText: "Table Search"
-                });
-                searchAsChild = true;
-            }
+            };
 
             var data = [];
             data.push(Ti.UI.createTableViewRow({title:'Apple'}));
@@ -130,9 +115,9 @@ examples:
             data.push(Ti.UI.createTableViewRow({title:'Raspberry'}));
 
             var tableview = Titanium.UI.createTableView({
-                data:data,
-                search:search,
-                searchAsChild:searchAsChild
+                data: data,
+                search: search,
+                searchAsChild: false
             });
 
             win.add(tableview);
@@ -146,7 +131,7 @@ examples:
 
             <Alloy>
                 <Window id="win" backgroundColor="blue" fullscreen="false" layout="vertical">
-                    <TableView id="tableview" top="10">
+                    <TableView id="tableview" top="10" searchAsChild="false">
                         <TableViewRow title="Apple" />
                         <TableViewRow title="Banana" />
                         <TableViewRow title="Orange" />
@@ -157,36 +142,25 @@ examples:
 
         index.js:
 
-            if (OS_ANDROID && Ti.Platform.Android.API_LEVEL >= 11) {
-                // use action bar search view
-                var search = Alloy.createController("searchview").getView();
-                $.tableview.searchAsChild = false;
-                $.tableview.search = search;
-                $.win.addEventListener("open", function() {
-                    $.win.activity.onCreateOptionsMenu = function(e) {
-                        e.menu.add({
-                            title: "Table Search",
-                            icon: (Ti.Android.R.drawable.ic_menu_search ? Ti.Android.R.drawable.ic_menu_search : "my_search.png"),
-                            actionView: search,
-                            showAsAction : Ti.Android.SHOW_AS_ACTION_ALWAYS | Ti.Android.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
-                        });
-                    }
-                    $.win.activity.invalidateOptionsMenu();
-                });
-            } else {
-                // use a search bar
-                $.tableview.search = Alloy.createController("searchbar").getView();
-            }
+            // use action bar search view
+            var search = Alloy.createController("searchview").getView();
+            $.tableview.search = search;
+            $.win.addEventListener("open", function() {
+                $.win.activity.onCreateOptionsMenu = function(e) {
+                    e.menu.add({
+                        title: "Table Search",
+                        icon: (Ti.Android.R.drawable.ic_menu_search ? Ti.Android.R.drawable.ic_menu_search : "my_search.png"),
+                        actionView: search,
+                        showAsAction : Ti.Android.SHOW_AS_ACTION_ALWAYS | Ti.Android.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
+                    });
+                }
+                $.win.activity.invalidateOptionsMenu();
+            });
+
             $.win.open();
 
         searchview.xml:
 
             <Alloy>
                 <SearchView id="searchView" ns="Ti.UI.Android" platform="android" hintText="Table Search" />
-            </Alloy>
-
-        searchbar.xml:
-
-            <Alloy>
-                <SearchBar id="searchBar" hintText="Table Search" />
             </Alloy>

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Appcelerator APSHTTPClient Library
+ * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,14 +8,14 @@
 #import <Foundation/Foundation.h>
 
 typedef enum {
-    TiHTTPResponseStateUnsent = 0,
-    TiHTTPResponseStateOpened = 1,
-    TiHTTPResponseStateHeaders = 2,
-    TiHTTPResponseStateLoading = 3,
-    TiHTTPResponseStateDone = 4
-} TiHTTPResponseState;
+    APSHTTPResponseStateUnsent = 0,
+    APSHTTPResponseStateOpened = 1,
+    APSHTTPResponseStateHeaders = 2,
+    APSHTTPResponseStateLoading = 3,
+    APSHTTPResponseStateDone = 4
+} APSHTTPResponseState;
 
-@interface TiHTTPResponse : NSObject
+@interface APSHTTPResponse : NSObject
 {
     NSMutableData *_data;
 }
@@ -38,7 +38,7 @@ typedef enum {
 
 @property(nonatomic) BOOL saveToFile;
 @property(nonatomic) BOOL connected;
-@property(nonatomic) TiHTTPResponseState readyState;
+@property(nonatomic) APSHTTPResponseState readyState;
 
 -(void)appendData:(NSData*)data;
 -(void)setResponse:(NSURLResponse*) response;

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -20,7 +20,6 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
 import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
-import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
@@ -49,7 +48,6 @@ import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -57,6 +55,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+
+import com.appcelerator.analytics.APSAnalytics;
 
 /**
  * The base class for all non tab Titanium activities. To learn more about Activities, see the
@@ -498,7 +498,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		}
 
 		// Doing this on every create in case the activity is externally created.
-		TiPlatformHelper.intializeDisplayMetrics(this);
+		TiPlatformHelper.getInstance().intializeDisplayMetrics(this);
 
 		if (layout == null) {
 			layout = createLayout();
@@ -975,9 +975,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			}
 		}
 
-		// Checkpoint for ti.end event
-		if (tiApp != null) {
-			tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
+		// Checkpoint for ti.background event
+		if (tiApp != null && TiApplication.getInstance().isAnalyticsEnabled()) {
+			APSAnalytics.sendSessionBackgroundEvent();
 		}
 	}
 
@@ -1028,9 +1028,11 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 		isResumed = true;
 
-		// Checkpoint for ti.start event
-		String deployType = tiApp.getAppProperties().getString("ti.deploytype", "unknown");
-		tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppStartEvent(tiApp, deployType));
+		// Checkpoint for ti.foreground event
+		//String deployType = tiApp.getAppProperties().getString("ti.deploytype", "unknown");
+		if(TiApplication.getInstance().isAnalyticsEnabled()){
+			APSAnalytics.sendSessionForegroundEvent();
+		}
 	}
 
 	@Override

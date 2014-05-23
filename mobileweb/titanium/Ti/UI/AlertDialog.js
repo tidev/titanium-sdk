@@ -63,7 +63,7 @@ define(['Ti/_/css', 'Ti/_/declare', 'Ti/_/lang', 'Ti/_/Evented', 'Ti/Locale', 'T
 					index: i
 				});
 				i === this.cancel && css.add(button.domNode, 'TiUIElementGradientCancel');
-				alertDialog._add(button);
+				alertDialog.add(button);
 				button.addEventListener('singletap', lang.hitch(this, function(){
 					alertWindow.close();
 					this._alertWindow = void 0;

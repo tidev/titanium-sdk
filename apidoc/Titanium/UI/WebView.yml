@@ -3,12 +3,22 @@ name: Titanium.UI.WebView
 summary: |
     The web view allows you to open an HTML5 based view which can load either local or remote content. 
 description: |
-    The web view content can be any valid web content such as HTML, PDF, SVG or other WebKit supported 
-    content types. 
-    
     Use the <Titanium.UI.createWebView> method or **`<WebView>`** Alloy element to create a web view.
 
-    JavaScript in the web view executes in its own context. When running local web content
+    Web views are more expensive to create than other native views because of the requirement to
+    load the HTML browser into memory.
+
+    The web view content can be any valid web content such as HTML, PDF, SVG or other WebKit supported 
+    content types. 
+
+    #### JavaScript Context in WebViews--Local vs. Remote Content
+
+    JavaScript in the web view executes in its own context.  The web view can interact with this
+    content, but most of this functionality is limited to local content.
+
+    **Local Scripts**
+
+    When running local web content
     (that is, content that is included in the application's resources), scripts have
     access to the Titanium namespace. In particular, when running local web content:
     
@@ -17,13 +27,13 @@ description: |
 
     - Events can be logged using the <Titanium.API> logging methods. 
 
-    Scripts downloaded from remote web servers cannot access the Titanium namespace,
-    however, you can use the web view [evalJS](Titanium.UI.WebView.evalJS) method 
-    to execute a JavaScript expression inside the web view, and retrieve the value 
-    of an expression.
-    
-    Web views are more expensive to create than other native views because of the requirement to
-    load the HTML browser into memory.
+    **Remote Scripts**
+
+    Scripts downloaded from remote web servers cannot access the Titanium namespace.
+
+    To interact with remote content, wait until the content is loaded, then use the
+    [evalJS](Titanium.UI.WebView.evalJS) method to execute a JavaScript expression
+    inside the web view and retrieve the value of an expression.
 
     #### Local JavaScript Files
 
@@ -55,9 +65,51 @@ description: |
 
     #### Android Platform Implementation Notes
 
-    The Android web view supports native plugins such as Flash Player. To use plugin
-    content, you must set the [pluginState](Titanium.UI.WebView.pluginState) property to
-    either [WEBVIEW_PLUGINS_ON](Titanium.UI.Android.WEBVIEW_PLUGINS_ON) or 
+    **Android 4.4 and Later Support**
+
+    Starting with Android 4.4 (API Level 19), the WebView component is based off of Chromium,
+    introducing a number of changes to its rendering engine.  Web content may look or behave
+    differently depending on the Android version.  The WebView does not
+    have full feature parity with Chrome for Android.
+
+    By default, the Chromium WebView uses hardware acceleration, which may cause content to
+    fail to render. If the WebView fails to render the content, the web view will clear
+    itself, displaying only the default background color. The following log messages will be
+    displayed in the console:
+
+        [WARN] :   AwContents: nativeOnDraw failed; clearing to background color.
+        [INFO] :   chromium: [INFO:async_pixel_transfer_manager_android.cc(56)]
+
+    To workaround this issue, you can enable software rendering by setting the WebView's
+    [borderRadius](Titanium.UI.WebView.borderRadius) property to a value greater than zero.
+
+    If you are developing local HTML content and size your elements using percentages, the WebView may
+    not calculate the sizes correctly when hardware acceleration is enabled, resulting in the same
+    behavior previously mentioned.
+
+    To workaround this issue, you can use the previously mentioned workaround to enable software
+    rendering, use absolute size values or use the
+    [onresize](https://developer.mozilla.org/en-US/docs/Web/API/Window.onresize) event to set the
+    heights of the components.  For example, if you have a div element with an id set to `component`
+    that needs to use the entire web view, the following callback resizes the content to use the
+    full height of the web view:
+
+        window.onresize= function(){
+            document.getElementById("component").style.height = window.innerHeight + 'px';
+        };
+
+    For more information, see the following topics:
+
+      * [Android Developers: Migrating to WebView in Android 4.4](http://developer.android.com/guide/webapps/migrating.html)
+      * [Google Chrome: WebView for Android](https://developer.chrome.com/multidevice/webview/overview)
+
+    **Plugin Support**
+
+    The Android web view supports native plugins such as Flash Player. Note that the Chromium-based
+    web view introduced in Android 4.4 does not support the Flash Player plugin.
+
+    To use plugin content, you must set the [pluginState](Titanium.UI.WebView.pluginState) property
+    to either [WEBVIEW_PLUGINS_ON](Titanium.UI.Android.WEBVIEW_PLUGINS_ON) or
     [WEBVIEW_PLUGINS_ON_DEMAND](Titanium.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND).
 
     You must also call [pause](Titanium.UI.WebView.pause) when the current activity is
@@ -65,6 +117,8 @@ description: |
     [resume](Titanium.UI.WebView.resume) when the current activity is resumed. You can
     do this by adding listeners for the [Activity.pause](Titanium.Android.Activity.pause)
     and [Activity.resume](Titanium.Android.Activity.resume) events.
+
+    **Accessing Cookies**
 
     On Android, the web view uses the system cookie store which does not share cookies with the
     <Titanium.Network.HTTPClient> cookie store. Developers can manage their cookies for both
@@ -243,6 +297,10 @@ events:
   - name: beforeload
     summary: Fired before the web view starts loading its content.
     description: |
+        This event may fire multiple times depending on the content or URL.  For example, if you set
+        the URL of the web view to a URL that redirects to another URL, such as an HTTP URL
+        redirecting to an HTTPS URL, this event is fired for the original URL and the redirect URL.
+
         For Mobile Web and Tizen, if you pass the `url` into the constructor, you must attach the event listener 
         before adding the web view to its parent, otherwise the event will fire before you have a 
         chance to add the event listener.

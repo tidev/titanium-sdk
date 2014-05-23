@@ -85,7 +85,7 @@ xhr.onerror = function()
 {
 	Ti.API.info('in utf-8 error for GET');
 };
-xhr.open("GET","http://api.appcelerator.net/p/v1/echo");
+xhr.open("GET","http://api.appcelerator.com/p/v1/echo");
 xhr.send({"a":"€漢字"});
 
 //
@@ -101,7 +101,7 @@ xhr2.onerror = function()
 {
 	Ti.API.info('in utf-8 error for POST');
 };
-xhr2.open("POST","http://api.appcelerator.net/p/v1/echo");
+xhr2.open("POST","http://api.appcelerator.com/p/v1/echo");
 xhr2.send({"a":"€漢字", "b":"aöbäcüd"});
 
 //
@@ -117,5 +117,5 @@ xhr3.onerror = function(e)
 {
 	Ti.API.info('in utf-8 error for GET with QS:' + e.error);
 };
-xhr3.open("GET","http://api.appcelerator.net/p/v1/echo?a=€漢字");
+xhr3.open("GET","http://api.appcelerator.com/p/v1/echo?a=€漢字");
 xhr3.send();

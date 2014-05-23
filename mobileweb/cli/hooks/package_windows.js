@@ -131,7 +131,7 @@ exports.init = function (logger, config, cli) {
 		post: function (builder, finished) {
 			var target = cli.argv.target,
 				tiapp = builder.tiapp,
-				displayName = target == 'wp8' ? __('Windows Phone 8') : __('Windows Store'),
+				displayName = target == 'wp8' ? __('Windows Phone') : __('Windows Store'),
 				certificatePathRoot = path.join(builder.projectDir, tiapp.name + '_WindowsCodeSigningCert');
 
 			if (process.platform != 'win32' || target != 'winstore' && target != 'wp8') {
@@ -193,7 +193,7 @@ exports.init = function (logger, config, cli) {
 								'-command',
 								path.resolve(__dirname, '..', '..', '..', 'node_modules', 'titanium-sdk', 'bin', 'winstore_create_cert.ps1'),
 								tiapp.id,
-								certificatePathRoot
+								'"' + certificatePathRoot + '"'
 							];
 
 							logger.info(__('Generating the code signing certificate'));
@@ -253,7 +253,7 @@ exports.init = function (logger, config, cli) {
 							projectName: tiapp.id,
 							projectDisplayName: tiapp.name,
 							projectGUID: tiapp.guid || uuid.v4(),
-							projectDescription: tiapp.description || '',
+							projectDescription: tiapp.description || 'No description',
 							author: tiapp.publisher || config.get('user.name') || 'Titanium',
 							appFiles: [],
 
@@ -263,6 +263,7 @@ exports.init = function (logger, config, cli) {
 							company: 'not specified', // Hopefully we can support this some day
 							copyright: tiapp.copyright || ('Copyright © ' + new Date().getFullYear()),
 							logToken: builder.logToken,
+							targetSDK: cli.tiapp['windows-phone'] && cli.tiapp['windows-phone']['target-sdk'] || '',
 
 							// windows store specific
 							visualStudioVersion: env.visualStudioVersion,

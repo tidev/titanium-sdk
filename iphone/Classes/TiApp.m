@@ -752,8 +752,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 {
 	//FunctionName();
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification object:self];
-	[TiUtils queueAnalytics:@"ti.background" name:@"ti.background" data:nil];
-
+	
 	if (backgroundServices==nil)
 	{
 		return;
@@ -793,8 +792,6 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     [launchOptions removeObjectForKey:@"source"];
 
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
-	
-	[TiUtils queueAnalytics:@"ti.foreground" name:@"ti.foreground" data:nil];
     
 	if (backgroundServices==nil)
 	{

@@ -22,23 +22,40 @@ extern NSString * const TI_APPLICATION_GUID;
 - (void)dealloc
 {
     RELEASE_TO_NIL(httpRequest);
+    RELEASE_TO_NIL(apsConnectionManager);
+    RELEASE_TO_NIL(apsConnectionDelegate);
     [super dealloc];
 }
--(TiHTTPRequest*)request
+
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+    id arg = [properties valueForKey:@"securityManager"];
+    
+    if (IS_NULL_OR_NIL(arg) || [arg conformsToProtocol:@protocol(SecurityManagerProtocol)]) {
+        if (arg != [NSNull null]) {
+            apsConnectionManager = [arg retain];
+        }
+    } else {
+        [self throwException:@"Invalid argument passed to securityManager property" subreason:@"Does not conform to SecurityManagerProtocol" location:CODELOCATION];
+    }
+    [super _initWithProperties:properties];
+}
+
+-(void)ensureClient
 {
     if(httpRequest == nil) {
-        httpRequest = [[TiHTTPRequest alloc] init];
+        httpRequest = [[APSHTTPRequest alloc] init];
         [httpRequest setDelegate:self];
         [httpRequest addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
         [httpRequest addRequestHeader:[NSString stringWithFormat:@"%s-%s%s-%s", "X","Tita","nium","Id"] value:TI_APPLICATION_GUID];
         
     }
-    return httpRequest;
 }
 
--(TiHTTPResponse*)response
+-(APSHTTPResponse*)response
 {
-    return [[self request] response];
+    [self ensureClient];
+    return [httpRequest response];
 }
 
 #pragma mark - Public methods
@@ -48,8 +65,15 @@ extern NSString * const TI_APPLICATION_GUID;
     ENSURE_ARRAY(args);
     NSString *method = [TiUtils stringValue:[args objectAtIndex:0]];
     NSURL *url = [TiUtils toURL:[args objectAtIndex:1] proxy:self];
-    [[self request] setMethod: method];
-    [[self request] setUrl:url];
+    [self ensureClient];
+    [httpRequest setMethod: method];
+    [httpRequest setUrl:url];
+    
+    if ( (apsConnectionManager != nil) && ([apsConnectionManager willHandleURL:url]) ){
+        apsConnectionDelegate = [[apsConnectionManager connectionDelegateForUrl:url] retain];
+    }
+    
+    [httpRequest setConnectionDelegate:apsConnectionDelegate];
     
     if([args count] >= 3) {
         [self replaceValue:[args objectAtIndex:2] forKey:@"async" notification: YES];
@@ -64,28 +88,28 @@ extern NSString * const TI_APPLICATION_GUID;
     [self rememberSelf];
     
     if([self valueForUndefinedKey:@"timeout"]) {
-        [[self request] setTimeout: [TiUtils intValue:[self valueForUndefinedKey:@"timeout"] def:15000] / 1000 ];
+        [httpRequest setTimeout: [TiUtils intValue:[self valueForUndefinedKey:@"timeout"] def:15000] / 1000 ];
     }
     if([self valueForUndefinedKey:@"autoRedirect"]) {
-        [[self request] setRedirects:
+        [httpRequest setRedirects:
          [TiUtils boolValue: [self valueForUndefinedKey:@"autoRedirect"] def:YES] ];
     }
     if([self valueForUndefinedKey:@"cache"]) {
-        [[self request] setCachePolicy:
+        [httpRequest setCachePolicy:
          [TiUtils boolValue: [self valueForUndefinedKey:@"cache"] def:YES] ?
              NSURLRequestUseProtocolCachePolicy : NSURLRequestReloadIgnoringLocalAndRemoteCacheData
          ];
     }
     if([self valueForUndefinedKey:@"validatesSecureCertificate"]) {
-        [[self request] setValidatesSecureCertificate:
+        [httpRequest setValidatesSecureCertificate:
          [TiUtils boolValue: [self valueForUndefinedKey:@"validatesSecureCertificate"] def:YES] ];
     }
     if([self valueForUndefinedKey:@"username"]) {
-        [[self request] setRequestUsername:
+        [httpRequest setRequestUsername:
          [TiUtils stringValue: [self valueForUndefinedKey:@"username"]]];
     }
     if([self valueForUndefinedKey:@"password"]) {
-        [[self request] setRequestPassword:
+        [httpRequest setRequestPassword:
          [TiUtils stringValue: [self valueForUndefinedKey:@"password"]]];
     }
     if([self valueForUndefinedKey:@"domain"]) {
@@ -96,7 +120,7 @@ extern NSString * const TI_APPLICATION_GUID;
     // this header to indicate an XHR request (such as RoR)
     if ([[self valueForUndefinedKey:@"url"] rangeOfString:@"twitter.com"].location==NSNotFound)
     {
-        [[self request] addRequestHeader:@"X-Requested-With" value:@"XMLHttpRequest"];
+        [httpRequest addRequestHeader:@"X-Requested-With" value:@"XMLHttpRequest"];
     }
     id file = [self valueForUndefinedKey:@"file"];
     if(file) {
@@ -108,16 +132,16 @@ extern NSString * const TI_APPLICATION_GUID;
             filePath = [TiUtils stringValue:file];
         }
         if(filePath != nil) {
-            [[self request] setFilePath:filePath];
+            [httpRequest setFilePath:filePath];
         }
     }
     
     
-    TiHTTPPostForm *form = nil;
+    APSHTTPPostForm *form = nil;
     if(args != nil) {
         ENSURE_ARRAY(args);
         NSInteger dataIndex = 0;
-        form = [[[TiHTTPPostForm alloc] init] autorelease];
+        form = [[[APSHTTPPostForm alloc] init] autorelease];
         id arg = [args objectAtIndex:0];
         if([arg isKindOfClass:[NSDictionary class]]) {
             NSDictionary *dict = (NSDictionary*)arg;
@@ -168,7 +192,7 @@ extern NSString * const TI_APPLICATION_GUID;
     }
     
     if(form != nil) {
-        [[self request] setPostForm:form];
+        [httpRequest setPostForm:form];
     }
     
     BOOL async = [TiUtils boolValue:[self valueForUndefinedKey:@"async"] def:YES];
@@ -177,11 +201,11 @@ extern NSString * const TI_APPLICATION_GUID;
     
     [[TiApp app] startNetwork];
     if(async) {
-        [[self request] setTheQueue:operationQueue];
-        [[self request] send];
+        [httpRequest setTheQueue:operationQueue];
+        [httpRequest send];
     } else {
-        [[self request] setSynchronous:YES];
-        [[self request] send];
+        [httpRequest setSynchronous:YES];
+        [httpRequest send];
         [[TiApp app] stopNetwork];
         [self forgetSelf];
     }
@@ -189,7 +213,7 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)abort:(id)args
 {
-    [[self request] abort];
+    [httpRequest abort];
 }
 
 -(void)clearCookies:(id)args
@@ -216,15 +240,15 @@ extern NSString * const TI_APPLICATION_GUID;
 
 # pragma mark - Callback functions
 
--(void)tiRequest:(TiHTTPRequest *)request onDataStream:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onDataStream:(APSHTTPResponse *)response
 {
     if(hasOndatastream) {
         NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
         NSTimeInterval diff = currentTime - _downloadTime;
-        if(_downloadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [tiResponse readyState] == TiHTTPResponseStateDone) {
+        if(_downloadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [response readyState] == APSHTTPResponseStateDone) {
             _downloadTime = 0;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
-            [eventDict setValue:[NSNumber numberWithFloat: [tiResponse downloadProgress]] forKey:@"progress"];
+            [eventDict setValue:[NSNumber numberWithFloat: [response downloadProgress]] forKey:@"progress"];
             [self fireCallback:@"ondatastream" withArg:eventDict withSource:self];
         }
         if(_downloadTime == 0) {
@@ -233,15 +257,15 @@ extern NSString * const TI_APPLICATION_GUID;
     }
 }
 
--(void)tiRequest:(TiHTTPRequest *)request onSendStream:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onSendStream:(APSHTTPResponse *)response
 {
     if(hasOnsendstream) {
         NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
         NSTimeInterval diff = currentTime - _uploadTime;
-        if(_uploadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [tiResponse readyState] == TiHTTPResponseStateDone) {
+        if(_uploadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [response readyState] == APSHTTPResponseStateDone) {
             _uploadTime = 0;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
-            [eventDict setValue:[NSNumber numberWithFloat: [tiResponse uploadProgress]] forKey:@"progress"];
+            [eventDict setValue:[NSNumber numberWithFloat: [response uploadProgress]] forKey:@"progress"];
             [self fireCallback:@"onsendstream" withArg:eventDict withSource:self];
         }
         if(_uploadTime == 0) {
@@ -250,13 +274,13 @@ extern NSString * const TI_APPLICATION_GUID;
     }
 }
 
--(void)tiRequest:(TiHTTPRequest *)request onLoad:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onLoad:(APSHTTPResponse *)response
 {
     [[TiApp app] stopNetwork];
     if([request cancelled]) {
         return;
     }
-    int responseCode = [tiResponse status];
+    int responseCode = [response status];
     /**
      *    Per customer request, successful communications that resulted in an
      *    4xx or 5xx response is treated as an error instead of an onload.
@@ -276,14 +300,14 @@ extern NSString * const TI_APPLICATION_GUID;
     [self forgetSelf];
 }
 
--(void)tiRequest:(TiHTTPRequest *)request onError:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
 {
     [[TiApp app] stopNetwork];
     if([request cancelled]) {
         return;
     }
     if(hasOnerror) {
-        NSError *error = [tiResponse error];
+        NSError *error = [response error];
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
         [event setObject:@"error" forKey:@"type"];
         [self fireCallback:@"onerror" withArg:event withSource:self];
@@ -293,14 +317,14 @@ extern NSString * const TI_APPLICATION_GUID;
 }
 
 
--(void)tiRequest:(TiHTTPRequest *)request onReadyStateChage:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onReadyStateChage:(APSHTTPResponse *)response
 {
     if(hasOnreadystatechange) {
         [self fireCallback:@"onreadystatechange" withArg:nil withSource:self];
     }
 }
 
--(void)tiRequest:(TiHTTPRequest *)request onRedirect:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onRedirect:(APSHTTPResponse *)response
 {
     if(hasOnredirect) {
         [self fireCallback:@"onredirect" withArg:nil withSource:self];
@@ -349,10 +373,10 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)setRequestHeader:(id)args
 {
     ENSURE_ARG_COUNT(args,2);
-    
+    [self ensureClient];
     NSString *key = [TiUtils stringValue:[args objectAtIndex:0]];
     NSString *value = [TiUtils stringValue:[args objectAtIndex:1]];
-    [[self request] addRequestHeader:key value:value];
+    [httpRequest addRequestHeader:key value:value];
 }
 
 #pragma mark - Public getter properties
@@ -372,11 +396,11 @@ extern NSString * const TI_APPLICATION_GUID;
     if([self response] == nil) {
         return NUMBOOL(NO);
     }
-    TiHTTPResponseState state = [[[self request] response] readyState];
+    APSHTTPResponseState state = [[self response] readyState];
     return NUMBOOL(
-                   state == TiHTTPResponseStateHeaders ||
-                   state == TiHTTPResponseStateLoading ||
-                   state == TiHTTPResponseStateOpened
+                   state == APSHTTPResponseStateHeaders ||
+                   state == APSHTTPResponseStateLoading ||
+                   state == APSHTTPResponseStateOpened
                    );
 }
 
@@ -384,6 +408,17 @@ extern NSString * const TI_APPLICATION_GUID;
 {
     return NUMINT([[self response] status]);
 }
+
+-(NSString*)statusText
+{
+    if (([self response] != nil) && ([[self response] readyState] >= APSHTTPResponseStateHeaders) ) {
+        NSInteger status = [[self response] status];
+        return [NSHTTPURLResponse localizedStringForStatusCode:status];
+    }
+    return nil;
+}
+
+
 -(NSString*)location
 {
     if([self response] == nil) {
@@ -439,11 +474,11 @@ extern NSString * const TI_APPLICATION_GUID;
     return [[self response] headers];
 }
 
-MAKE_SYSTEM_NUMBER(UNSENT, NUMINT(TiHTTPResponseStateUnsent))
-MAKE_SYSTEM_NUMBER(OPENED, NUMINT(TiHTTPResponseStateOpened))
-MAKE_SYSTEM_NUMBER(HEADERS_RECEIVED, NUMINT(TiHTTPResponseStateHeaders))
-MAKE_SYSTEM_NUMBER(LOADING, NUMINT(TiHTTPResponseStateLoading))
-MAKE_SYSTEM_NUMBER(DONE, NUMINT(TiHTTPResponseStateDone))
+MAKE_SYSTEM_NUMBER(UNSENT, NUMINT(APSHTTPResponseStateUnsent))
+MAKE_SYSTEM_NUMBER(OPENED, NUMINT(APSHTTPResponseStateOpened))
+MAKE_SYSTEM_NUMBER(HEADERS_RECEIVED, NUMINT(APSHTTPResponseStateHeaders))
+MAKE_SYSTEM_NUMBER(LOADING, NUMINT(APSHTTPResponseStateLoading))
+MAKE_SYSTEM_NUMBER(DONE, NUMINT(APSHTTPResponseStateDone))
 
 
 @end

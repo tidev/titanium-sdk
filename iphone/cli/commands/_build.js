@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -275,6 +275,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							}
 						},
 						options: {
+							'build-type': {
+ 								hidden: true
+ 							},
 							'debug-host': {
 								hidden: true
 							},
@@ -362,7 +365,10 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									} else if (cli.argv['device-id'] == undefined && config.get('ios.autoSelectDevice', true)) {
 										findTargetDevices(cli.argv.target, function (err, devices) {
 											if (cli.argv.target == 'device') {
-												cli.argv['device-id'] = 'itunes';
+												var dev = devices.filter(function (d) {
+														return d.udid != 'itunes' && d.udid != 'all';
+													}).shift();
+												cli.argv['device-id'] = dev ? dev.udid : 'itunes';
 												callback();
 											} else if (cli.argv.target == 'simulator') {
 												// for simulator builds, --device-id is a simulator profile and is not
@@ -555,7 +561,15 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							'keychain': {
 								abbr: 'K',
 								desc: __('path to the distribution keychain to use instead of the system default; only used when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
-								hideValues: true
+								hideValues: true,
+								validate: function (value, callback) {
+									value && typeof value != 'string' && (value = null);
+									if (value && !fs.existsSync(value)) {
+										callback(new Error(__('Unable to find keychain: %s', value)));
+									} else {
+										callback(null, value);
+									}
+								}
 							},
 							'launch-url': {
 								// url for the application to launch in mobile Safari, as soon as the app boots up
@@ -745,6 +759,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 											// purposely fall through!
 
 										case 'dist-appstore':
+											_t.conf.options['deploy-type'].values = ['production'];
 											_t.conf.options['device-id'].required = false;
 											_t.conf.options['distribution-name'].required = true;
 											_t.conf.options['pp-uuid'].required = true;
@@ -782,6 +797,8 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	} else {
 		this.deployType = /^device|simulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 	}
+
+	this.buildType = cli.argv['build-type'] || '';
 
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
@@ -1290,10 +1307,7 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 	var argv = this.cli.argv;
 
 	this.titaniumIosSdkPath = afs.resolvePath(__dirname, '..', '..');
-	this.titaniumSdkVersion = path.basename(path.join(this.titaniumIosSdkPath, '..'));
-
 	this.templatesDir = path.join(this.titaniumIosSdkPath, 'templates', 'build');
-
 	this.platformName = path.basename(this.titaniumIosSdkPath); // the name of the actual platform directory which will some day be "ios"
 
 	this.moduleSearchPaths = [ this.projectDir, afs.resolvePath(this.titaniumIosSdkPath, '..', '..', '..', '..') ];
@@ -1805,15 +1819,25 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 
 	plist.CFBundleIdentifier = this.tiapp.id;
 
-	// device builds require an additional token to ensure uniquiness so that iTunes will detect an updated app to sync
-	if (this.config.get('app.skipVersionValidation') || this.tiapp.properties['ti.skipVersionValidation']) {
-		plist.CFBundleVersion = this.tiapp.version;
-	} else if (this.target == 'device') {
-		plist.CFBundleVersion = appc.version.format(this.tiapp.version, 3, 3) + '.' + (new Date).getTime();
+	if (this.target == 'device' && this.deviceId == 'itunes') {
+		// device builds require an additional token to ensure uniqueness so that iTunes will detect an updated app to sync.
+		// we drop the milliseconds from the current time so that we still have a unique identifier, but is less than 10
+		// characters so iTunes 11.2 doesn't get upset.
+		plist.CFBundleVersion = String(+new Date);
+		this.logger.debug(__('Building for iTunes sync which requires us to set the CFBundleVersion to a unique number to trigger iTunes to update your app'));
+		this.logger.debug(__('Setting Info.plist CFBundleVersion to current epoch time %s', plist.CFBundleVersion.cyan));
 	} else {
-		plist.CFBundleVersion = appc.version.format(this.tiapp.version, 3, 3);
+		plist.CFBundleVersion = String(this.tiapp.version);
+		this.logger.debug(__('Setting Info.plist CFBundleVersion to %s', plist.CFBundleVersion.cyan));
 	}
-	plist.CFBundleShortVersionString = plist.CFBundleVersion;
+
+	try {
+		plist.CFBundleShortVersionString = appc.version.format(this.tiapp.version, 0, 3);
+		this.logger.debug(__('Setting Info.plist CFBundleShortVersionString to %s', plist.CFBundleShortVersionString.cyan));
+	} catch (ex) {
+		plist.CFBundleShortVersionString = this.tiapp.version;
+		this.logger.debug(__('Setting Info.plist CFBundleShortVersionString to %s', plist.CFBundleShortVersionString.cyan));
+	}
 
 	Array.isArray(plist.CFBundleIconFiles) || (plist.CFBundleIconFiles = []);
 	['.png', '@2x.png', '-72.png', '-60.png', '-60@2x.png', '-76.png', '-76@2x.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png', '-Small-40.png', '-Small-40@2x.png'].forEach(function (name) {
@@ -2328,7 +2352,8 @@ iOSBuilder.prototype.populateIosFiles = function populateIosFiles(next) {
 			'__APP_DESCRIPTION__': this.tiapp.description,
 			'__APP_COPYRIGHT__': this.tiapp.copyright,
 			'__APP_GUID__': this.tiapp.guid,
-			'__APP_RESOURCE_DIR__': ''
+			'__APP_RESOURCE_DIR__': '',
+			'__APP_DEPLOY_TYPE__': this.buildType
 		},
 		dest,
 		variables = {},
@@ -2892,9 +2917,11 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
 								fs.writeFile(to, r.contents, cb2);
 							})(r, from, to, cb);
+						} else if (symlinkFiles) {
+							copyFile.call(this, from, to, cb);
 						} else {
+							// we've already read in the file, so just write the original contents
 							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-
 							fs.writeFile(to, r.contents, cb);
 						}
 					})(from, to, done);
