@@ -60,9 +60,8 @@ public class UtilsModule extends KrollModule
 			return TiBlob.blobFromString(((TiBlob) obj).toBase64());
 		} else if (obj instanceof TiFileProxy) {
 			try {
-				return TiBlob.blobFromStream(new Base64InputStream(((TiFileProxy) obj).getInputStream(),
-					android.util.Base64.DEFAULT), TiMimeTypeHelper.getMimeType(((TiFileProxy) obj).getBaseFile()
-					.nativePath()));
+				return TiBlob.blobFromStreamBase64(((TiFileProxy) obj).getInputStream(),
+					TiMimeTypeHelper.getMimeType(((TiFileProxy) obj).getBaseFile().nativePath()));
 			} catch (IOException e) {
 				Log.e(TAG, "Problem reading file");
 			}
