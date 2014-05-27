@@ -564,6 +564,24 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 		//TODO zOrder
 	}
+	
+	public void addIfNotExists(TiViewProxy child)
+	{
+		if (child == null) {
+			Log.e(TAG, "addIfNotExists called with a null child");
+			return;
+		}
+
+		if (children == null) {
+			children = new ArrayList<TiViewProxy>();
+		}
+
+		if (!children.contains(child)) {
+			children.add(child);
+			child.parent = new WeakReference<TiViewProxy>(this);
+		}
+		//TODO zOrder
+	}
 
 	@Kroll.method
 	public void replaceAt(Object params)
@@ -1240,5 +1258,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				TiUIHelper.showSoftKeyboard(nv, false);
 			}
 		}
+	}
+	
+	public void processAdditionalEventData(TiUIView view) {
+		
 	}
 }
