@@ -8,6 +8,7 @@
 var appc = require('node-appc'),
 	fields = require('fields'),
 	fs = require('fs'),
+	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
 	ti = require('titanium-sdk'),
 	tiappxml = require('titanium-sdk/lib/tiappxml'),
@@ -201,7 +202,8 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli) {
-	var buildModule = path.join(__dirname, '..', '..', ti.resolvePlatform(cli.argv.platform), 'cli', 'commands', '_build.js'),
+	var platform = ti.resolvePlatform(cli.argv.platform),
+		buildModule = path.join(__dirname, '..', '..', platform, 'cli', 'commands', '_build.js'),
 		counter = 0;
 
 	if (!fs.existsSync(buildModule)) {
@@ -218,6 +220,13 @@ exports.run = function (logger, config, cli) {
 				process.exit(1);
 			} else {
 				logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
+			}
+
+			if (config.get('cli.sendAPIUsage', true)) {
+				cli.addAnalyticsEvent('Titanium API Usage', {
+					platform: platform,
+					usage: jsanalyze.getAPIUsage()
+				}, 'ti.apiusage');
 			}
 		}
 	});
