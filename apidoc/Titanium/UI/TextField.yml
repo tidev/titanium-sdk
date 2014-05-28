@@ -168,6 +168,10 @@ properties:
     description: |
         If `true`, the return key is **disabled** when this text field is empty, and
         automatically enabled as soon as the user types any text in the field.
+        
+        On Android, if `true`, `return` event will not fire. Clicking on the return key will do nothing, but
+        the key itself won't be **disabled**.
+        
     type: Boolean
     default: false
     exclude-platforms: [blackberry]    
