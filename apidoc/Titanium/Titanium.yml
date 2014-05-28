@@ -60,7 +60,12 @@ properties:
 methods:
   - name: include
     summary: Includes JavaScript code from one or more files.
+    deprecated:
+        since: 3.3.0
+        notes: Create a CommonJS module and use the `require()` method to include external JavaScript code.
     description: |
+        Note that this mechanism is not supported with Alloy projects.
+
         The `include` method has several interesting quirks:
 
         -   The included JavaScript is interpreted in the current root execution
