@@ -225,6 +225,8 @@ exports.run = function (logger, config, cli) {
 			if (config.get('cli.sendAPIUsage', true)) {
 				cli.addAnalyticsEvent('Titanium API Usage', {
 					platform: platform,
+					tisdkname: (ti.manifest && ti.manifest.name) || (cli.sdk && cli.sdk.name) || null,
+					tisdkver: (ti.manifest && ti.manifest.version) || (cli.sdk && cli.sdk.name) || null,
 					usage: jsanalyze.getAPIUsage()
 				}, 'ti.apiusage');
 			}
