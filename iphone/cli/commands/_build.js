@@ -731,7 +731,13 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								abbr: 'T',
 								callback: function (value) {
 									// if we're building from Xcode, no need to check certs and provisioning profiles
-									if (cli.argv.xcode) return;
+									if (cli.argv.xcode) {
+										_t.conf.options['developer-name'].required = false;
+										_t.conf.options['device-id'].required = false;
+										_t.conf.options['distribution-name'].required = false;
+										_t.conf.options['pp-uuid'].required = false;
+										return;
+									}
 
 									if (value != 'simulator') {
 										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_KEYCHAINS_FOUND');
@@ -1327,7 +1333,7 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 	this.deviceFamily = argv['device-family'];
 	this.xcodeTargetOS = (this.target == 'simulator' ? 'iphonesimulator' : 'iphoneos') + version.format(this.iosSdkVersion, 2, 2);
 	this.iosBuildDir = path.join(this.buildDir, 'build', this.xcodeTarget + '-' + (this.target == 'simulator' ? 'iphonesimulator' : 'iphoneos'));
-	this.xcodeAppDir = argv.xcode ? path.join(process.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : path.join(this.iosBuildDir, this.tiapp.name + '.app');
+	this.xcodeAppDir = argv.xcode && process.env.TARGET_BUILD_DIR && process.env.CONTENTS_FOLDER_PATH ? path.join(process.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : path.join(this.iosBuildDir, this.tiapp.name + '.app');
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
 	this.certDeveloperName = argv['developer-name'];
 	this.certDistributionName = argv['distribution-name'];
@@ -2011,7 +2017,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 		proj,
 		'Pre-Compile',
 		'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then\\n'
-		+ '    ' + (process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-progress-bars --no-banner --no-colors --build-only --xcode\\n'
+		+ '    ' + (process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + this.platformName + ' --sdk \\"' + this.titaniumSdkName + '\\" --no-prompt --no-progress-bars --no-banner --no-colors --build-only --xcode\\n'
 		+ '    exit $?\\n'
 		+ 'else\\n'
 		+ '    echo \\"skipping pre-compile phase\\"\\n'
