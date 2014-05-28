@@ -26,7 +26,7 @@ description: |
 extends: Titanium.UI.View
 excludes: {
     properties: [
-        anchorPoint,backgroundColor,backgroundDisabledColor,backgroundDisabledImage,backgroundFocusedColor,
+        anchorPoint,backgroundDisabledColor,backgroundDisabledImage,backgroundFocusedColor,
         backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,backgroundRepeat,
         backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,center,enabled,layout,tintColor,zIndex
     ],
@@ -192,6 +192,9 @@ events:
         type: Number
         
 properties:
+  - name: backgroundColor
+    platforms: [android]
+
   - name: columns
     summary: Columns used for this picker, as an array of <Titanium.UI.PickerColumn> objects.
     description: |
