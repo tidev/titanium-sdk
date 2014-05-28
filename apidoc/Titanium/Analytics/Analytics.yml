@@ -40,6 +40,7 @@ methods:
         **Not displayed in Analytics UI**.
     deprecated: 
         since: "2.0.0"
+        removed: "3.3.0"
     parameters:
 
       - name: type
@@ -106,6 +107,7 @@ methods:
         **Not displayed in Analytics UI**.
     deprecated: 
         since: "2.0.0"
+        removed: "3.3.0"
     parameters:
 
       - name: name
@@ -125,6 +127,7 @@ methods:
         **Not displayed in Analytics UI**.
     deprecated: 
         since: "2.0.0"
+        removed: "3.3.0"
     parameters:
 
       - name: name
@@ -156,6 +159,7 @@ methods:
         **Not displayed in Analytics UI**.
     deprecated: 
         since: "2.0.0"
+        removed: "3.3.0"
     parameters:
 
       - name: name
