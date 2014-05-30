@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.analytics;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -16,12 +18,16 @@ import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import com.appcelerator.analytics.APSAnalytics;
 import com.appcelerator.analytics.APSAnalyticsEvent;
 
 @Kroll.module
 public class AnalyticsModule extends KrollModule
 {
+	private static final String TAG = "AnalyticsModule";
+	
 	protected static final String PROPERTY_APP_NAV = "app.nav";
 	protected static final String PROPERTY_APP_TIMED = "app.timed";
 	protected static final String PROPERTY_APP_FEATURE = "app.feature";
@@ -44,7 +50,16 @@ public class AnalyticsModule extends KrollModule
 		@Kroll.argument(optional=true) KrollDict data)
 	{
 		if (TiApplication.getInstance().isAnalyticsEnabled()) {
-			APSAnalytics.sendAppNavEvent(from, to, event, TiConvert.toJSON(data));
+			if (data instanceof HashMap) {
+				APSAnalytics.sendAppNavEvent(from, to, event, TiConvert.toJSON(data));
+
+			} else {
+				try {
+					APSAnalytics.sendAppNavEvent(from, to, event, new JSONObject(data.toString()));
+				} catch (JSONException e) {
+					Log.e(TAG, "Cannot convert data into JSON");
+				}
+			}
 		}
 	}
 
@@ -52,7 +67,15 @@ public class AnalyticsModule extends KrollModule
 	public void featureEvent(String event, @Kroll.argument(optional = true) KrollDict data)
 	{
 		if (TiApplication.getInstance().isAnalyticsEnabled()) {
-			APSAnalytics.sendFeatureEvent(event, TiConvert.toJSON(data));
+			if (data instanceof HashMap) {
+				APSAnalytics.sendFeatureEvent(event, TiConvert.toJSON(data));
+			} else {
+				try {
+					APSAnalytics.sendFeatureEvent(event, new JSONObject(data.toString()));
+				} catch (JSONException e) {
+					Log.e(TAG, "Cannot convert data into JSON");
+				}
+			}
 		}
 	}
 
