@@ -201,7 +201,7 @@ exports.validate = function (logger, config, cli) {
 	};
 };
 
-exports.run = function (logger, config, cli) {
+exports.run = function (logger, config, cli, finished) {
 	var platform = ti.resolvePlatform(cli.argv.platform),
 		buildModule = path.join(__dirname, '..', '..', platform, 'cli', 'commands', '_build.js'),
 		counter = 0;
@@ -210,6 +210,19 @@ exports.run = function (logger, config, cli) {
 		logger.error(__('Unable to find platform specific build command') + '\n');
 		logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk update --force --default').cyan) + '\n');
 		process.exit(1);
+	}
+
+	if (config.get('cli.sendAPIUsage', true)) {
+		cli.on('build.finalize', function (builder) {
+			cli.addAnalyticsEvent('Titanium API Usage', {
+				platform: platform,
+				tisdkname: (ti.manifest && ti.manifest.name) || (cli.sdk && cli.sdk.name) || null,
+				tisdkver: (ti.manifest && ti.manifest.version) || (cli.sdk && cli.sdk.name) || null,
+				deployType: builder.deployType || cli.argv['deploy-type'] || null,
+				target: builder.target || cli.argv.target || null,
+				usage: jsanalyze.getAPIUsage()
+			}, 'ti.apiusage');
+		});
 	}
 
 	require(buildModule).run(logger, config, cli, function (err) {
@@ -222,14 +235,7 @@ exports.run = function (logger, config, cli) {
 				logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
 			}
 
-			if (config.get('cli.sendAPIUsage', true)) {
-				cli.addAnalyticsEvent('Titanium API Usage', {
-					platform: platform,
-					tisdkname: (ti.manifest && ti.manifest.name) || (cli.sdk && cli.sdk.name) || null,
-					tisdkver: (ti.manifest && ti.manifest.version) || (cli.sdk && cli.sdk.name) || null,
-					usage: jsanalyze.getAPIUsage()
-				}, 'ti.apiusage');
-			}
+			finished();
 		}
 	});
 };
