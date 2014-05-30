@@ -69,9 +69,4 @@ public class TiAnalyticsEventFactory extends APSAnalyticsEventFactory
 		return null;
 	}
 
-	public static APSAnalyticsEvent createEvent(String eventType, String eventName, String data)
-	{
-		return APSAnalyticsEventFactory.createEvent(eventType, eventName, data);
-	}
-
 }
