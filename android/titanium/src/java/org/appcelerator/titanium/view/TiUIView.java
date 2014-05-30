@@ -963,7 +963,7 @@ public abstract class TiUIView
 					}
 				}
 			}
-			getOuterView().setBackgroundDrawable(background);
+			nativeView.setBackgroundDrawable(background);
 		}
 	}
 
