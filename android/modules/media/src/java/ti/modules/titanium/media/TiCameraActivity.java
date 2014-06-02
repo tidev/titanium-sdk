@@ -32,6 +32,8 @@ import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
+import android.media.CamcorderProfile;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -49,6 +51,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 {
 	private static final String TAG = "TiCameraActivity";
 	private static Camera camera;
+	private static MediaRecorder recorder;
 	private static Size optimalPreviewSize;
 	private static List<Size> supportedPreviewSizes;
 	private static int frontCameraId = Integer.MIN_VALUE; // cache
@@ -68,6 +71,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public static boolean saveToPhotoGallery = false;
 	public static int whichCamera = MediaModule.CAMERA_REAR;
 	public static int cameraFlashMode = MediaModule.CAMERA_FLASH_OFF;
+	public static int videoQuality = MediaModule.VIDEO_QUALITY_HIGH;
+	public static int videoMaximumDuration = 0;
 	public static boolean autohide = true;
 
 	private static class PreviewLayout extends FrameLayout
@@ -136,6 +141,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		
 		super.onCreate(savedInstanceState);
 
+		// create a Media Recorder
+		recorder = new MediaRecorder();
+
 		// create camera preview
 		preview = new SurfaceView(this);
 		SurfaceHolder previewHolder = preview.getHolder();
@@ -182,6 +190,10 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		if (camera != null) {
 			camera.release();
 			camera = null;
+		}
+		if (recorder != null) {
+			recorder.release();
+			recorder = null;
 		}
 	}
 
@@ -263,6 +275,10 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			camera = null;
 		} catch (Throwable t) {
 			Log.d(TAG, "Camera is not open, unable to release", Log.DEBUG_MODE);
+		}
+		if (recorder != null) {
+			recorder.release();
+			recorder = null;
 		}
 
 		cameraActivity = null;
@@ -505,6 +521,52 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			camera.autoFocus(focusCallback);
 		} else {
 			camera.takePicture(shutterCallback, null, jpegCallback);
+		}
+	}
+
+	static public void startRecording(String path)
+	{
+		// state "Initial"
+		try {
+			// Unlock the camera for recorder use, only if nessecarry.
+        	camera.unlock();
+		} catch (Exception e) {
+			onError(MediaModule.UNKNOWN_ERROR, "Unable to unlock camera: " + e.getMessage());
+			return;		
+		}
+
+		recorder.setCamera(camera); // state "Initial"
+
+		recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER); // state "Initialized"
+		recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+
+    	recorder.setProfile(CamcorderProfile.get(videoQuality));
+    	recorder.setMaxDuration(videoMaximumDuration);
+ 		recorder.setOutputFile(path);
+		try {
+			recorder.prepare(); // state "Prepared"
+		} catch (Exception e) {
+			onError(MediaModule.UNKNOWN_ERROR, "Unable to prepare recorder: " + e.getMessage());
+			return;
+		}
+
+ 		try {
+			recorder.start();   // state "Recording"
+ 		} catch (Exception e) {
+ 			onError(MediaModule.UNKNOWN_ERROR, "Unable to start recording: " + e.getMessage());
+ 			return;
+ 		}
+	}
+
+	static public void stopRecording()
+	{
+		recorder.stop(); // state "Initial"
+ 		recorder.reset(); // You can reuse the object by going back to setAudioSource() step
+
+ 		try {
+ 			camera.reconnect();
+ 		} catch (Exception e) {
+			onError(MediaModule.UNKNOWN_ERROR, "Unable to reconnect to camera after recording: " + e.getMessage());
 		}
 	}
 

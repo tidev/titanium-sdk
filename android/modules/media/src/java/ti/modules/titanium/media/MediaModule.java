@@ -44,6 +44,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
+import android.media.CamcorderProfile;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
@@ -66,6 +67,8 @@ public class MediaModule extends KrollModule
 	protected static final String PROP_AUTOSAVE = "saveToPhotoGallery";
 	protected static final String PROP_WHICH_CAMERA = "whichCamera";
 	protected static final String PROP_OVERLAY = "overlay";
+	protected static final String PROP_VIDEO_QUALITY = "videoQuality";
+	protected static final String PROP_VIDEO_MAX_DURATION = "videoMaximumDuration";
 
 	@Kroll.constant public static final int UNKNOWN_ERROR = -1;
 	@Kroll.constant public static final int NO_ERROR = 0;
@@ -108,6 +111,9 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final int CAMERA_FLASH_OFF = 0;
 	@Kroll.constant public static final int CAMERA_FLASH_ON = 1;
 	@Kroll.constant public static final int CAMERA_FLASH_AUTO = 2;
+
+	@Kroll.constant public static final int VIDEO_QUALITY_LOW = CamcorderProfile.QUALITY_LOW;
+	@Kroll.constant public static final int VIDEO_QUALITY_HIGH = CamcorderProfile.QUALITY_HIGH;
 
 	public MediaModule()
 	{
@@ -235,6 +241,8 @@ public class MediaModule extends KrollModule
 		
 		int flashMode = CAMERA_FLASH_OFF;
 		int whichCamera = CAMERA_REAR;
+		int videoQuality = VIDEO_QUALITY_HIGH;
+		int videoMaximumDuration = 0;
 		
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)) {
 			successCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_SUCCESS);
@@ -257,6 +265,12 @@ public class MediaModule extends KrollModule
 		if (cameraOptions.containsKeyAndNotNull(PROP_WHICH_CAMERA)) {
 			whichCamera = cameraOptions.getInt(PROP_WHICH_CAMERA);
 		}
+		if (cameraOptions.containsKeyAndNotNull(PROP_VIDEO_QUALITY)) {
+			videoQuality = cameraOptions.getInt(PROP_VIDEO_QUALITY);
+		}
+		if (cameraOptions.containsKeyAndNotNull(PROP_VIDEO_MAX_DURATION)) {
+			videoMaximumDuration = cameraOptions.getInt(PROP_VIDEO_MAX_DURATION);
+		}
 		
 		TiCameraActivity.callbackContext = getKrollObject();
 		TiCameraActivity.successCallback = successCallback;
@@ -266,6 +280,8 @@ public class MediaModule extends KrollModule
 		TiCameraActivity.autohide = autohide;
 		TiCameraActivity.overlayProxy = overLayProxy;
 		TiCameraActivity.whichCamera = whichCamera;
+		TiCameraActivity.videoQuality = videoQuality;
+		TiCameraActivity.videoMaximumDuration = videoMaximumDuration;
 		TiCameraActivity.setFlashMode(flashMode);
 		
 		//Create Intent and Launch
@@ -1057,4 +1073,3 @@ public class MediaModule extends KrollModule
 		return "Ti.Media";
 	}
 }
-
