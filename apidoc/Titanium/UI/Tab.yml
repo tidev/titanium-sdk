@@ -115,6 +115,17 @@ methods:
         type: Object
         optional: true
 
+  - name: setWindow
+    summary: Sets the root window that appears in the tab.
+    description: |
+        You can only use this method to set the tab's root window before the TabGroup containing this tab
+        is openened, that is, once the TabGroup is displayed, you cannot change the root window
+        that appears in the tab.
+    parameters:
+      - name: window
+        summary: Root window of the tab.
+        type: Titanium.UI.Window
+
 properties:
   - name: active
     summary: |
@@ -245,8 +256,9 @@ properties:
     platforms: [mobileweb, tizen]
 
   - name: window
-    summary: Root level tab window.  All tabs must have at least one root level tab window.
+    summary: Root-level tab window.  All tabs must have at least one root-level tab window.
     type: Titanium.UI.Window
+    availability: creation
 
 events: 
   - name: blur
