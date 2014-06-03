@@ -2486,7 +2486,8 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 			'-sdk', this.xcodeTargetOS,
 			'IPHONEOS_DEPLOYMENT_TARGET=' + appc.version.format(this.minIosVer, 2),
 			'TARGETED_DEVICE_FAMILY=' + this.deviceFamilies[this.deviceFamily],
-			'VALID_ARCHS=' + this.architectures
+			'VALID_ARCHS=' + this.architectures,
+			'DEAD_CODE_STRIPPING=YES'
 		],
 		gccDefs = [ 'DEPLOYTYPE=' + this.deployType ];
 
