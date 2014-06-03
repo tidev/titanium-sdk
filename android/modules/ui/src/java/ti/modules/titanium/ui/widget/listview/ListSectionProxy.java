@@ -733,7 +733,11 @@ public class ListSectionProxy extends ViewProxy{
 
 		existingData.put(TiC.PROPERTY_SECTION, this);
 		existingData.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
-		existingData.put(TiC.PROPERTY_ITEM_INDEX, itemIndex);
+		int realItemIndex = itemIndex;
+		if (isFilterOn()) {
+			realItemIndex =  filterIndices.get(itemIndex);
+		}
+		existingData.put(TiC.PROPERTY_ITEM_INDEX, realItemIndex);
 
 		if (!bindId.startsWith(TiListViewTemplate.GENERATED_BINDING) && !bindId.equals(TiC.PROPERTY_PROPERTIES)) {
 			existingData.put(TiC.PROPERTY_BIND_ID, bindId);
