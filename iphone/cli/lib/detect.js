@@ -174,7 +174,7 @@ exports.detect = function detect(config, opts, finished) {
 											id: 'IOS_XCODE_TOO_OLD',
 											type: 'warning',
 											message: __('Xcode %s is too old and is no longer supported by Titanium SDK %s.', '__' + info.version + '__', manifestJson.version) + '\n' +
-												__('The minimumm supported Xcode version by Titanium SDK %s is Xcode %s.', manifestJson.version, appc.version.parseMin(iosPackageJson.vendorDependencies.xcode))
+												__('The minimum supported Xcode version by Titanium SDK %s is Xcode %s.', manifestJson.version, appc.version.parseMin(iosPackageJson.vendorDependencies.xcode))
 										});
 									} else if (info.supported == 'maybe') {
 										issues.push({
