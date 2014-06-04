@@ -3311,7 +3311,9 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 
 		var flags = 'Theme.AppCompat';
 		if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
-			flags += '.Fullscreen';
+			flags += '.Translucent.NoTitleBar.Fullscreen';
+		} else if (this.tiapp['navbar-hidden']) {
+			flags += '.Translucent.NoTitleBar';
 		}
 
 		fs.writeFileSync(themeFile, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
