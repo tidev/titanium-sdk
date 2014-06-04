@@ -156,7 +156,9 @@ public class TiUILabel extends TiUIView
 			}
 		} else if (d.containsKey(TiC.PROPERTY_TEXT)) {
 			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT));
-		} 
+		} else if (d.containsKey(TiC.PROPERTY_TITLE)) { // For table view rows
+			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TITLE));
+		}
 
 		if (d.containsKey(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
 			tv.setIncludeFontPadding(TiConvert.toBoolean(d, TiC.PROPERTY_INCLUDE_FONT_PADDING, true));
