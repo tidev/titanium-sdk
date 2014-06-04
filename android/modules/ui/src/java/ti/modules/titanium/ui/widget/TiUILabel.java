@@ -114,6 +114,7 @@ public class TiUILabel extends TiUIView
 			            }
 
 			        }
+
 			        return super.onTouchEvent(event);
 			    } 
 			
@@ -150,6 +151,7 @@ public class TiUILabel extends TiUIView
 					tv.setText(Html.fromHtml(""));
 				}
 			} else {
+				tv.setMovementMethod(null);
 				tv.setText(Html.fromHtml(html));
 			}
 		} else if (d.containsKey(TiC.PROPERTY_TEXT)) {
