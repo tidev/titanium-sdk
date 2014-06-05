@@ -111,15 +111,17 @@ exports.parseMin = function parseMin(str) {
 /**
  * Determines the most maximum value of the supplied range.
  * @param {String} str - A string contain one or more versions or version ranges
+ * @param {Boolean} [allowX=false] - When true, treats 'x' as apart of the version
  * @returns {String} The maximum version found or undefined
  */
-exports.parseMax = function parseMax(str) {
+exports.parseMax = function parseMax(str, allowX) {
 	var max, lt;
 
 	str.split(/\s*\|\|\s*/).forEach(function (range) {
 		var x = range.split(' ');
-		x = (x.length == 1 ? x.shift() : x.slice(1).shift())
-		var y = x.replace(/[^.\d]/g, '');
+		x = x.length == 1 ? x.shift() : x.slice(1).shift();
+		allowX || (x = x.replace(/.x$/i, ''));
+		var y = x.replace(allowX ? /[^.xX\d]/g : /[^.\d]/g, '');
 		if (!max || exports.gt(y, max)) {
 			lt = /^\<[^=]\d/.test(x);
 			max = y;
