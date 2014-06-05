@@ -509,7 +509,7 @@ fails, a JS exception is returned.
 	
 <#t>
 	<#if info.jsType == "Number">
-		if (titanium::V8Util::isNaN(${expr}) || ${stringExpr}->Length() == 0) {
+		if ((titanium::V8Util::isNaN(${expr}) && !${expr}->IsUndefined()) || ${stringExpr}->Length() == 0) {
 			const char *error = "Invalid value, expected type ${info.jsType}.";
 			LOGE(TAG, error);
 			<#if !(logOnly!false)>

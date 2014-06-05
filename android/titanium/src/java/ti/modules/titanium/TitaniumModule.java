@@ -215,12 +215,9 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public void clearTimeout(Object timerId)
+	public void clearTimeout(int timerId)
 	{
-		if (timerId != null && timerId instanceof Number) {
-			Number id = (Number) timerId;
-			cancelTimer(id.intValue());
-		}
+		cancelTimer(timerId);
 	}
 
 	@Kroll.method @Kroll.topLevel
