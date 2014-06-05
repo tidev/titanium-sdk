@@ -64,7 +64,7 @@ exports.init = function (logger, config, cli) {
 
 		// if they don't have a appicon, copy it from the sdk
 		if (!fs.existsSync(file)) {
-			file = path.join(builder.platformPath, 'templates', 'app', 'default', 'Resources', 'mobileweb', 'appicon.png');
+			file = path.join(builder.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'mobileweb', 'appicon.png');
 		}
 
 		// copy the appicon.png
