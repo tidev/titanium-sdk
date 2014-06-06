@@ -127,7 +127,11 @@ exports.init = function (logger, config, cli) {
 												next();
 												state = INSTALLED;
 												setTimeout(function () {
-													logger.log(__('Please manually launch the application or press CTRL-C to quit').magenta + '\n');
+													if (process.env.STUDIO_VERSION) {
+														logger.log(__('Please manually launch the application').magenta + '\n');
+													} else {
+														logger.log(__('Please manually launch the application or press CTRL-C to quit').magenta + '\n');
+													}
 												}, 50);
 											}
 										} else if (state == INSTALLED) {
