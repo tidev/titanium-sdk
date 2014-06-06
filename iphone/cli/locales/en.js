@@ -211,6 +211,7 @@
 	"Installing app on device: %s": "Installing app on device: %s",
 	"Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device": "Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device",
 	"App successfully installed on device: %s": "App successfully installed on device: %s",
+	"Please manually launch the application": "Please manually launch the application",
 	"Please manually launch the application or press CTRL-C to quit": "Please manually launch the application or press CTRL-C to quit",
 	"Start application log": "Start application log",
 	"End application log": "End application log",
