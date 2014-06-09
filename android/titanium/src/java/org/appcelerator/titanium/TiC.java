@@ -1716,6 +1716,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_OVER_SCROLL_MODE = "overScrollMode";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_OVERRIDE_CURRENT_ANIMATION = "overrideCurrentAnimation";
 
 	/**
 	 * @module.api

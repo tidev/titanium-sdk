@@ -1235,6 +1235,13 @@ properties:
     summary: Opacity of this view, from 0.0 (transparent) to 1.0 (opaque).
     type: Number
     default: 1.0 (opaque)
+    
+  - name: overrideCurrentAnimation
+    summary: When on, animate call overrides current animation if applicable.
+    type: Boolean
+    default: undefined but behaves as false
+    since: "3.3.0"
+    platforms: [android]
 
   - name: pullBackgroundColor
     summary: Background color of the wrapper view when this view is used as either <Titanium.UI.ListView.pullView> or <Titanium.UI.TableView.headerPullView>.
