@@ -14,14 +14,12 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
 
 import com.appcelerator.analytics.APSAnalytics;
-import com.appcelerator.analytics.APSAnalyticsEvent;
 
 @Kroll.module
 public class AnalyticsModule extends KrollModule
@@ -83,27 +81,7 @@ public class AnalyticsModule extends KrollModule
 	public String getLastEvent()
 	{
 		if (TiApplication.getInstance().isAnalyticsEnabled()) {
-			try {
-				APSAnalyticsEvent event = APSAnalytics.getLastEvent();
-				if (event == null) {
-					return null;
-				}
-				JSONObject json = new JSONObject();
-				json.put("ver", "2");
-				json.put("id", TiPlatformHelper.getInstance().getLastEventID());
-				json.put("event", event.getEventType());
-				json.put("ts", event.getEventTimestamp());
-				json.put("mid", event.getEventMid());
-				json.put("sid", event.getEventSid());
-				json.put("aguid", event.getEventAppGuid());
-				if (event.mustExpandPayload()) {
-					json.put("data", new JSONObject(event.getEventPayload()));
-				} else {
-					json.put("data", event.getEventPayload());
-				}
-				return json.toString();
-			} catch (JSONException e) {
-			}
+			return APSAnalytics.getLastEvent();
 		}
 		return null;
 	}
