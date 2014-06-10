@@ -95,6 +95,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	protected Object pendingAnimationLock;
 	protected TiAnimationBuilder pendingAnimation;
 	private boolean isDecorView = false;
+	private boolean overrideCurrentAnimation = false;
 
 	// TODO: Deprecated since Release 3.0.0
 	@Deprecated private AtomicBoolean layoutStarted = new AtomicBoolean();
@@ -117,10 +118,18 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		options = handleStyleOptions(options);
 		super.handleCreationDict(options);
+		
+		if (options.containsKey(TiC.PROPERTY_OVERRIDE_CURRENT_ANIMATION)) {
+			overrideCurrentAnimation = TiConvert.toBoolean(options, TiC.PROPERTY_OVERRIDE_CURRENT_ANIMATION, false);
+		}
 
 		//TODO eventManager.addOnEventChangeListener(this);
 	}
 	
+	public boolean getOverrideCurrentAnimation() {
+		return overrideCurrentAnimation;
+	}
+
 	private static HashMap<TiUrl,String> styleSheetUrlCache = new HashMap<TiUrl,String>(5);
 	protected String getBaseUrlForStylesheet()
 	{
