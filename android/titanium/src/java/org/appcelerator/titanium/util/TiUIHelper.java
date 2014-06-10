@@ -408,15 +408,12 @@ public class TiUIHelper
 		}else{
 			String fontDirPath = fontFamily.substring(0, fontNameIndex);
 			String fontName = fontFamily.substring(fontNameIndex+1);
-			Log.i(TAG, "Passed font is "+ fontFamily);
 			
 			TiFile dirTiFile = (TiFile) TiFileFactory.createTitaniumFile(fontDirPath , false);
 			String[] fontFiles = dirTiFile.getFile().list();
 			if(fontFiles != null){
-				Log.d(TAG, "Font files count is " + fontFiles.length );
 				for (String f: fontFiles){
 					if(f.toLowerCase().equals(fontName.toLowerCase()) || f.toLowerCase().startsWith(fontName.toLowerCase() + ".")){
-						Log.d(TAG, "Found the font "+ fontDirPath + "/" + f);
 						TiFile tiFontFile = (TiFile) TiFileFactory.createTitaniumFile(fontDirPath + "/" + f, false);
 						File fontFile = tiFontFile.getFile();
 						Typeface tf = Typeface.createFromFile(fontFile);
