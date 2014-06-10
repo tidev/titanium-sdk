@@ -1240,7 +1240,6 @@ properties:
     summary: When on, animate call overrides current animation if applicable.
     description: |
         If this property is set to false, the animate call is ignored if the view is currently being animated.
-        
     type: Boolean
     default: undefined but behaves as false
     since: "3.3.0"
