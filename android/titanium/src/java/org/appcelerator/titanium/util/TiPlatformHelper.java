@@ -240,9 +240,5 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 
 		return netmask;
 	}
-	
-	public String getLastEventID()
-	{
-		return lastEventID;
-	}
+
 }
