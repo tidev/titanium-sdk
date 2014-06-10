@@ -1521,7 +1521,7 @@ public class TiAnimationBuilder
 	public void start(TiViewProxy viewProxy, View view)
 	{
 		if (isAnimationRunningFor(view)) {
-			if (!TiConvert.toBoolean(viewProxy.getProperty(TiC.PROPERTY_OVERRIDE_CURRENT_ANIMATION), false)) {
+			if (!viewProxy.getOverrideCurrentAnimation()) {
 				return;
 			}
 			//clear current animation
