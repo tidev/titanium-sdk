@@ -73,7 +73,7 @@ exports.init = function (logger, config, cli, appc) {
 
 				// add the maps.jar if we have Google APIs
 				if (target && target.libraries && target.libraries['com.google.android.maps']) {
-					libs.push(path.join(target.path, 'libs', target.libraries['com.google.android.maps'].jar));
+					target.path && libs.push(path.join(target.path, 'libs', target.libraries['com.google.android.maps'].jar));
 				}
 
 				// add the Titanium specific jars
@@ -92,13 +92,13 @@ exports.init = function (logger, config, cli, appc) {
 				}).join('\n\t');
 
 				// set the Android platform path
-				variables.androidPlatformPath = api && api.platformPath || '';
+				variables.androidPlatformPath = api && api.platformPath ? api.platformPath.replace(/\\/g, '\\\\') : '';
 
 				// set the Google APIs path
-				variables.googleAPIPath = api && api.googleAPIPath || '';
+				variables.googleAPIPath = api && api.googleAPIPath ? api.googleAPIPath.replace(/\\/g, '\\\\') : '';
 
 				// set the Titanium Android platform path
-				variables.tisdkAndroidPath = path.join(data.args[0].tisdkPath, 'android');
+				variables.tisdkAndroidPath = path.join(data.args[0].tisdkPath, 'android').replace(/\\/g, '\\\\');
 
 				callback();
 			}.bind(this));
