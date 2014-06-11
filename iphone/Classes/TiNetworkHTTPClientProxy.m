@@ -356,41 +356,41 @@ extern NSString * const TI_APPLICATION_GUID;
     }
 }
 
-#pragma mark - Pulbic setters
+#pragma mark - Public setters
 
 -(void)setOnload:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onload" notification:NO];
     hasOnload = YES;
 }
 -(void)setOnerror:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onerror" notification:NO];
     hasOnerror = YES;
 }
 -(void)setOnreadystatechange:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onreadystatechange" notification:NO];
     hasOnreadystatechange = YES;
 }
 -(void)setOndatastream:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"ondatastream" notification:NO];
     hasOndatastream = YES;
 }
 -(void)setOnsendstream:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onsendstream" notification:NO];
     hasOnsendstream = YES;
 }
 -(void)setOnredirect:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onredirect" notification:NO];
     hasOnredirect = YES;
 }
