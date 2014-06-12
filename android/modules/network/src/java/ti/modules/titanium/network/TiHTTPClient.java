@@ -769,7 +769,7 @@ public class TiHTTPClient
 		if(theHeaders != null) {
 			boolean firstPass = true;
 			StringBuilder sb = new StringBuilder(32);
-			for (Header h : responseHeaders) {
+			for (Header h : theHeaders) {
 				if (h.getName().equals(headerName)) {
 					if (!firstPass) {
 						sb.append(", ");
