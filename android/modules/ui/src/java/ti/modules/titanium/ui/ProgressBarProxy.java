@@ -37,4 +37,10 @@ public class ProgressBarProxy extends TiViewProxy
 	{
 		return new TiUIProgressBar(this);
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.ProgressBar";
+	}
 }

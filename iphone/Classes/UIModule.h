@@ -163,6 +163,31 @@
 @property(nonatomic,readonly) NSNumber *URL_ERROR_UNKNOWN;
 @property(nonatomic,readonly) NSNumber *URL_ERROR_UNSUPPORTED_SCHEME;
 
+@property(nonatomic,readonly) NSNumber *LIST_ITEM_TEMPLATE_DEFAULT;
+@property(nonatomic,readonly) NSNumber *LIST_ITEM_TEMPLATE_SETTINGS;
+@property(nonatomic,readonly) NSNumber *LIST_ITEM_TEMPLATE_CONTACTS;
+@property(nonatomic,readonly) NSNumber *LIST_ITEM_TEMPLATE_SUBTITLE;
+
+@property(nonatomic,readonly) NSNumber *LIST_ACCESSORY_TYPE_NONE;
+@property(nonatomic,readonly) NSNumber *LIST_ACCESSORY_TYPE_CHECKMARK;
+@property(nonatomic,readonly) NSNumber *LIST_ACCESSORY_TYPE_DETAIL;
+@property(nonatomic,readonly) NSNumber *LIST_ACCESSORY_TYPE_DISCLOSURE;
+
+//IOS7 Constants
+@property(nonatomic,readonly) NSNumber *EXTEND_EDGE_LEFT;
+@property(nonatomic,readonly) NSNumber *EXTEND_EDGE_RIGHT;
+@property(nonatomic,readonly) NSNumber *EXTEND_EDGE_TOP;
+@property(nonatomic,readonly) NSNumber *EXTEND_EDGE_BOTTOM;
+@property(nonatomic,readonly) NSNumber *EXTEND_EDGE_NONE;
+@property(nonatomic,readonly) NSNumber *EXTEND_EDGE_ALL;
+//IOS7 TextStyle Constants
+@property(nonatomic,readonly) NSString *TEXT_STYLE_HEADLINE;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_SUBHEADLINE;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_BODY;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_FOOTNOTE;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_CAPTION1;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_CAPTION2;
+
 #ifdef USE_TI_UI2DMATRIX
 -(id)create2DMatrix:(id)args;
 #endif

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package ti.modules.titanium.geolocation;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -26,7 +25,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONArray;
@@ -40,6 +38,8 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 
+import com.appcelerator.analytics.APSAnalytics;
+
 public class TiLocation implements Handler.Callback
 {
 	public static final int ERR_POSITION_UNAVAILABLE = 6;
@@ -50,7 +50,7 @@ public class TiLocation implements Handler.Callback
 	public LocationManager locationManager;
 
 	private static final String TAG = "TiLocation";
-	private static final String BASE_GEO_URL = "http://api.appcelerator.net/p/v1/geo?";
+	private static final String BASE_GEO_URL = "http://api.appcelerator.com/p/v1/geo?";
 
 	private String mobileId;
 	private String appGuid;
@@ -62,16 +62,16 @@ public class TiLocation implements Handler.Callback
 
 	public interface GeocodeResponseHandler
 	{
-		public abstract void handleGeocodeResponse(HashMap<String, Object> geocodeResponse);
+		public abstract void handleGeocodeResponse(KrollDict geocodeResponse);
 	}
 
 	public TiLocation()
 	{
 		locationManager = (LocationManager) TiApplication.getInstance().getSystemService(Context.LOCATION_SERVICE);
 		knownProviders = locationManager.getAllProviders();
-		mobileId = TiPlatformHelper.getMobileId();
+		mobileId = TiPlatformHelper.getInstance().getMobileId();
 		appGuid = TiApplication.getInstance().getAppInfo().getGUID();
-		sessionId = TiPlatformHelper.getSessionId();
+		sessionId = TiPlatformHelper.getInstance().getSessionId();
 		countryCode = Locale.getDefault().getCountry();
 		runtimeHandler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
 	}
@@ -149,12 +149,10 @@ public class TiLocation implements Handler.Callback
 	public void doAnalytics(Location location)
 	{
 		long locationTime = location.getTime();
-		if (locationTime - lastAnalyticsTimestamp > TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY) {
-			TiAnalyticsEvent event = TiAnalyticsEventFactory.createAppGeoEvent(location);
-			if (event != null) {
-				TiApplication.getInstance().postAnalyticsEvent(event);
-				lastAnalyticsTimestamp = locationTime;
-			}
+
+		if ((locationTime - lastAnalyticsTimestamp > TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY)
+			&& TiApplication.getInstance().isAnalyticsEnabled()) {
+			APSAnalytics.sendAppGeoEvent(location);
 		}
 	}
 
@@ -224,7 +222,7 @@ public class TiLocation implements Handler.Callback
 			@Override
 			protected Integer doInBackground(Object... args) {
 				GeocodeResponseHandler geocodeResponseHandler = null;
-				HashMap<String, Object> event = null;
+				KrollDict event = null;
 				try {
 					String url = (String) args[0];
 					String direction = (String) args[1];
@@ -253,11 +251,12 @@ public class TiLocation implements Handler.Callback
 								} else {
 									event = buildReverseGeocodeResponse(jsonObject);
 								}
+								event.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
 
 							} else {
 								event = new KrollDict();
-								String errorCode = jsonObject.getString(TiC.ERROR_PROPERTY_ERRORCODE);
-								event.put(TiC.EVENT_PROPERTY_ERROR, "Unable to resolve message: Code (" + errorCode + ")");
+								String errorCode = "Unable to resolve message: Code (" + jsonObject.getString(TiC.ERROR_PROPERTY_ERRORCODE) + ")";
+								event.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, errorCode);
 							}
 
 						} catch (JSONException e) {
@@ -272,8 +271,7 @@ public class TiLocation implements Handler.Callback
 				if (geocodeResponseHandler != null) {
 					if (event == null) {
 						event = new KrollDict();
-						event.put(TiC.PROPERTY_SUCCESS, false);
-						event.put(TiC.EVENT_PROPERTY_ERROR, "Error obtaining geolocation");
+						event.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, "Error obtaining geolocation");
 					}
 					geocodeResponseHandler.handleGeocodeResponse(event);
 				}
@@ -285,41 +283,39 @@ public class TiLocation implements Handler.Callback
 		return task;
 	}
 
-	private HashMap<String, Object> buildForwardGeocodeResponse(JSONObject jsonResponse)
+	private KrollDict buildForwardGeocodeResponse(JSONObject jsonResponse)
 		throws JSONException
 	{
-		HashMap<String, Object> address = new HashMap<String, Object>();
+		KrollDict address = new KrollDict();
 
 		JSONArray places = jsonResponse.getJSONArray(TiC.PROPERTY_PLACES);
 		if (places.length() > 0) {
 			address = buildAddress(places.getJSONObject(0));
 		}
-
-		address.put(TiC.PROPERTY_SUCCESS, true);
 		return address;
 	}
 
-	private HashMap<String, Object> buildReverseGeocodeResponse(JSONObject jsonResponse)
+	private KrollDict buildReverseGeocodeResponse(JSONObject jsonResponse)
 		throws JSONException
 	{
 		JSONArray places = jsonResponse.getJSONArray(TiC.PROPERTY_PLACES);
-		ArrayList<HashMap<String, Object>> addresses = new ArrayList<HashMap<String, Object>>();
+		ArrayList<KrollDict> addresses = new ArrayList<KrollDict>();
 
 		int count = places.length();
 		for (int i = 0; i < count; i++) {
 			addresses.add(buildAddress(places.getJSONObject(i)));
 		}
 
-		HashMap<String, Object> response = new HashMap<String, Object>();
+		KrollDict response = new KrollDict();
 		response.put(TiC.PROPERTY_SUCCESS, true);
 		response.put(TiC.PROPERTY_PLACES, addresses.toArray());
 
 		return response;
 	}
 
-	private HashMap<String, Object> buildAddress(JSONObject place)
+	private KrollDict buildAddress(JSONObject place)
 	{
-		HashMap<String, Object> address = new HashMap<String, Object>();
+		KrollDict address = new KrollDict();
 		address.put(TiC.PROPERTY_STREET1, place.optString(TiC.PROPERTY_STREET, ""));
 		address.put(TiC.PROPERTY_STREET, place.optString(TiC.PROPERTY_STREET, ""));
 		address.put(TiC.PROPERTY_CITY, place.optString(TiC.PROPERTY_CITY, ""));

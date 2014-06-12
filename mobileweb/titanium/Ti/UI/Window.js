@@ -29,7 +29,8 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"]
 		},
 
 		constants: {
-			url: void 0
+			url: void 0,
+			bubbleParent: false
 		},
 
 		properties: {

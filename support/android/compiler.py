@@ -43,7 +43,6 @@ class Compiler(object):
 		self.gen_dir = gen_dir
 		self.template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 		self.root_dir = root_dir
-		self.use_bytecode = False
 		if project_dir:
 			self.project_dir = os.path.abspath(os.path.expanduser(project_dir))
 		self.modules = set()
@@ -52,14 +51,11 @@ class Compiler(object):
 		json_contents = open(os.path.join(self.template_dir,'dependency.json')).read()
 		self.depends_map = simplejson.loads(json_contents)
 
-		runtime = self.depends_map["runtimes"]["defaultRuntime"]
 		if self.tiapp:
 			self.appid = self.tiapp.properties['id']
 			self.appname = self.tiapp.properties['name']
-			runtime = self.tiapp.app_properties.get('ti.android.runtime',
-					runtime)
 
-		for runtime_jar in self.depends_map['runtimes'][runtime]:
+		for runtime_jar in self.depends_map['runtimes']['v8']:
 			self.jar_libraries.add(os.path.join(template_dir, runtime_jar))
 
 		# go ahead and slurp in any required modules
@@ -159,15 +155,18 @@ class Compiler(object):
 		escape_chars = ['\\', '/', ' ', '.','-']
 		for escape_char in escape_chars:
 			js_class_name = js_class_name.replace(escape_char, '_')
-		
-		if self.use_bytecode:
-			jsc_args = [self.java, '-classpath', js_jar, 'org.mozilla.javascript.tools.jsc.Main',
-				'-main-method-class', 'org.appcelerator.titanium.TiScriptRunner',
-				'-nosource', '-package', self.appid + '.js', '-encoding', 'utf8',
-				'-o', js_class_name, '-d', self.classes_dir, fullpath]
-		else:
-			jsc_args = [self.java, '-jar', os.path.join(self.template_dir, 'lib/closure-compiler.jar'),
-				'--js', fullpath, '--js_output_file', fullpath + '-compiled', '--jscomp_off=internetExplorerChecks']
+
+		jsc_args = [
+			self.java,
+			'-jar',
+			os.path.join(self.template_dir, 'lib/closure-compiler.jar'),
+			'--js',
+			fullpath,
+			'--js_output_file',
+			fullpath + '-compiled',
+			'--jscomp_off=internetExplorerChecks',
+			'--accept_const_keyword'
+			]
 
 		print "[INFO] Compiling javascript: %s" % resource_relative_path
 		sys.stdout.flush()

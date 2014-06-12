@@ -162,15 +162,21 @@
 
 	UIView *wrapper = [svSubviews objectAtIndex:index];
 	TiViewProxy *viewproxy = [[self proxy] viewAtIndex:index];
-	if ([[wrapper subviews] count]==0)
-	{
-		// we need to realize this view
-		[viewproxy windowWillOpen];
-		TiUIView *uiview = [viewproxy view];
-		[wrapper addSubview:uiview];
-		[viewproxy reposition];
-	}
-	[viewproxy parentWillShow];
+    if (![viewproxy viewAttached]) {
+        if ([[viewproxy view] superview] != wrapper) {
+            [wrapper addSubview:[viewproxy view]];
+        }
+        [viewproxy windowWillOpen];
+        [viewproxy windowDidOpen];
+        [viewproxy layoutChildrenIfNeeded];
+    } else {
+        if ([[viewproxy view] superview] != wrapper) {
+            [wrapper addSubview:[viewproxy view]];
+            [viewproxy layoutChildrenIfNeeded];
+        } else if (!CGRectEqualToRect([viewproxy sandboxBounds], [wrapper bounds])) {
+            [viewproxy parentSizeWillChange];
+        }
+    }
 }
 
 -(NSRange)cachedFrames:(int)page
@@ -220,22 +226,37 @@
         if (i >= renderRange.location && i < NSMaxRange(renderRange)) {
             [self renderViewForIndex:i];
         }
-        else if ([viewProxy viewAttached]) {
-            [viewProxy detachView];
+        else {
+            if ([viewProxy viewAttached]) {
+                [viewProxy windowWillClose];
+                [viewProxy windowDidClose];
+            }
         }
     }
 }
 
 -(void)listenerAdded:(NSString*)event count:(int)count
 {
-	[super listenerAdded:event count:count];
-	[[self proxy] lockViews];
-	for (TiViewProxy* viewProxy in [[self proxy] viewProxies]) {
-		if ([viewProxy viewAttached]) {
-			[[viewProxy view] updateTouchHandling];
-		}
-	}
-	[[self proxy] unlockViews];
+    [super listenerAdded:event count:count];
+    NSArray * childrenArray = [[[self proxy] views] retain];
+    for (id child in childrenArray) {
+        if ([child respondsToSelector:@selector(parentListenersChanged)]) {
+            [child performSelector:@selector(parentListenersChanged)];
+        }
+    }
+    [childrenArray release];
+}
+
+-(void)listenerRemoved:(NSString*)event count:(int)count
+{
+    [super listenerRemoved:event count:count];
+    NSArray * childrenArray = [[[self proxy] views] retain];
+    for (id child in childrenArray) {
+        if ([child respondsToSelector:@selector(parentListenersChanged)]) {
+            [child performSelector:@selector(parentListenersChanged)];
+        }
+    }
+    [childrenArray release];
 }
 
 -(int)currentPage
@@ -280,8 +301,7 @@
 	
 	if (readd)
 	{
-		for (UIView *view in [sv subviews])
-		{
+		for (UIView *view in [sv subviews]) {
 			[view removeFromSuperview];
 		}
 	}
@@ -311,19 +331,13 @@
 		}
 	}
     
-	if (page==0 || readd)
-	{
-        [self manageCache:page];
-	}
+	[self manageCache:page];
 	
-	CGRect contentBounds;
-	contentBounds.origin.x = viewBounds.origin.x;
-	contentBounds.origin.y = viewBounds.origin.y;
-	contentBounds.size.width = viewBounds.size.width;
-	contentBounds.size.height = viewBounds.size.height-(showPageControl ? pageControlHeight : 0);
-	contentBounds.size.width *= viewsCount;
+	CGSize contentBounds;
+	contentBounds.width = viewBounds.size.width*viewsCount;
+	contentBounds.height = viewBounds.size.height-(showPageControl ? pageControlHeight : 0);
 	
-	[sv setContentSize:contentBounds.size];
+	[sv setContentSize:contentBounds];
 	[sv setFrame:CGRectMake(0, 0, visibleBounds.size.width, visibleBounds.size.height)];
 }
 
@@ -475,35 +489,6 @@
     }
 }
 
--(int)pageNumFromArg:(id)args
-{
-	int pageNum = 0;
-	if ([args isKindOfClass:[TiViewProxy class]])
-	{
-		[[self proxy] lockViews];
-		pageNum = [[[self proxy] viewProxies] indexOfObject:args];
-		[[self proxy] unlockViews];
-	}
-	else
-	{
-		pageNum = [TiUtils intValue:args];
-	}
-	
-	return pageNum;
-}
-
--(void)scrollToView:(id)args
-{
-	int pageNum = [self pageNumFromArg:args];
-	[[self scrollview] setContentOffset:CGPointMake([self bounds].size.width * pageNum, 0) animated:YES];
-    [pageControl setCurrentPage:pageNum];
-	currentPage = pageNum;
-	
-    [self manageCache:pageNum];
-	
-	[self.proxy replaceValue:NUMINT(pageNum) forKey:@"currentPage" notification:NO];
-}
-
 -(void)addView:(id)viewproxy
 {
 	[self refreshScrollView:[self bounds] readd:YES];
@@ -522,22 +507,23 @@
 	[self refreshScrollView:[self bounds] readd:YES];
 }
 
+
+-(void)setCurrentPage:(id)page animated:(NSNumber*)animate {
+    int newPage = [TiUtils intValue:page];
+    int viewsCount = [[self proxy] viewCount];
+    
+    if (newPage >=0 && newPage < viewsCount) {
+        [scrollview setContentOffset:CGPointMake([self bounds].size.width * newPage, 0) animated:[animate boolValue]];
+        currentPage = newPage;
+        pageControl.currentPage = newPage;
+        [self manageCache:newPage];
+        [self.proxy replaceValue:NUMINT(newPage) forKey:@"currentPage" notification:NO];
+    }
+}
+
 -(void)setCurrentPage_:(id)page
 {
-	
-	int newPage = [TiUtils intValue:page];
-	int viewsCount = [[self proxy] viewCount];
-
-	if (newPage >=0 && newPage < viewsCount)
-	{
-		[scrollview setContentOffset:CGPointMake([self bounds].size.width * newPage, 0) animated:NO];
-		currentPage = newPage;
-		pageControl.currentPage = newPage;
-		
-        [self manageCache:newPage];
-        
-		[self.proxy replaceValue:NUMINT(newPage) forKey:@"currentPage" notification:NO];
-	}
+    [self setCurrentPage:page animated:NUMBOOL(NO)];
 }
 
 -(void)setScrollingEnabled_:(id)enabled
@@ -606,12 +592,27 @@
                 minCacheSize = cacheSize;
             }
         }
+        pageChanged = YES;
         cacheSize = minCacheSize;
-		[pageControl setCurrentPage:nextPage];
-		currentPage = nextPage;
-		[self.proxy replaceValue:NUMINT(currentPage) forKey:@"currentPage" notification:NO];
-        [self manageCache:currentPage];
+        [pageControl setCurrentPage:nextPage];
+        currentPage = nextPage;
+        [self.proxy replaceValue:NUMINT(currentPage) forKey:@"currentPage" notification:NO];
         cacheSize = curCacheSize;
+    }
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    if (pageChanged) {
+        [self manageCache:currentPage];
+    }
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    //Since we are now managing cache at end of scroll, ensure quick scroll is disabled to avoid blank screens.
+    if (pageChanged) {
+        [scrollview setUserInteractionEnabled:!decelerate];
     }
 }
 
@@ -648,6 +649,9 @@
 													   [[self proxy] viewAtIndex:pageNum],@"view",nil]]; 
 	}
 	currentPage=pageNum;
+	[self manageCache:currentPage];
+	pageChanged = NO;
+	[scrollview setUserInteractionEnabled:YES];
 	[pageControl setCurrentPage:pageNum];
 }
 

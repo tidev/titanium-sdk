@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -72,6 +72,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI";
+}
+
 #pragma mark Public Constants
 
 MAKE_SYSTEM_PROP(ANIMATION_CURVE_EASE_IN_OUT,UIViewAnimationOptionCurveEaseInOut);
@@ -83,9 +88,9 @@ MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_TOP,UIControlContentVerticalAlignmentTo
 MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_CENTER,UIControlContentVerticalAlignmentCenter);
 MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_BOTTOM,UIControlContentVerticalAlignmentBottom);
 
-MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_LEFT,UITextAlignmentLeft);
-MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_CENTER,UITextAlignmentCenter);
-MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_RIGHT,UITextAlignmentRight);
+MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_LEFT,NSTextAlignmentLeft);
+MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_CENTER,NSTextAlignmentCenter);
+MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_RIGHT,NSTextAlignmentRight);
 
 MAKE_SYSTEM_PROP(RETURNKEY_DEFAULT,UIReturnKeyDefault);
 MAKE_SYSTEM_PROP(RETURNKEY_GO,UIReturnKeyGo);
@@ -163,6 +168,16 @@ MAKE_SYSTEM_PROP(AUTOLINK_URLS,UIDataDetectorTypeLink);
 MAKE_SYSTEM_PROP(AUTOLINK_EMAIL_ADDRESSES,UIDataDetectorTypeLink);
 MAKE_SYSTEM_PROP(AUTOLINK_MAP_ADDRESSES,UIDataDetectorTypeAddress);
 MAKE_SYSTEM_PROP(AUTOLINK_CALENDAR,UIDataDetectorTypeCalendarEvent);
+
+MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_DEFAULT,UITableViewCellStyleDefault);
+MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_SETTINGS,UITableViewCellStyleValue1);
+MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_CONTACTS,UITableViewCellStyleValue2);
+MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_SUBTITLE,UITableViewCellStyleSubtitle);
+
+MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_NONE,UITableViewCellAccessoryNone);
+MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_CHECKMARK,UITableViewCellAccessoryCheckmark);
+MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DETAIL,UITableViewCellAccessoryDetailDisclosureButton);
+MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE,UITableViewCellAccessoryDisclosureIndicator);
 
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_NORMAL,kCGBlendModeNormal, @"UI.BLEND_MODE_NORMAL", @"1.8.0", @"Ti.UI.iOS.BLEND_MODE_NORMAL");
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_MULTIPLY,kCGBlendModeMultiply, @"UI.BLEND_MODE_MULTIPLY", @"1.8.0", @"Ti.UI.iOS.BLEND_MODE_MULTIPLY");
@@ -255,10 +270,8 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_CALENDAR,UIDataDetectorTypeCalen
 
 -(void)setOrientation:(id)mode
 {
-	UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:mode def:(UIDeviceOrientation)UIInterfaceOrientationPortrait];
-	TiThreadPerformOnMainThread(^{
-		[[TiApp controller] manuallyRotateToOrientation:orientation duration:[[TiApp controller] suggestedRotationDuration]];
-	}, NO);
+    DebugLog(@"Ti.UI.setOrientation is deprecated since 1.7.2 . Ignoring call.");
+    return;
 }
 
 MAKE_SYSTEM_PROP(PORTRAIT,UIInterfaceOrientationPortrait);
@@ -268,6 +281,38 @@ MAKE_SYSTEM_PROP(UPSIDE_PORTRAIT,UIInterfaceOrientationPortraitUpsideDown);
 MAKE_SYSTEM_PROP(UNKNOWN,UIDeviceOrientationUnknown);
 MAKE_SYSTEM_PROP(FACE_UP,UIDeviceOrientationFaceUp);
 MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
+
+MAKE_SYSTEM_PROP(EXTEND_EDGE_NONE,0);   //UIRectEdgeNone
+MAKE_SYSTEM_PROP(EXTEND_EDGE_TOP,1);    //UIRectEdgeTop
+MAKE_SYSTEM_PROP(EXTEND_EDGE_LEFT,2);   //UIEdgeRectLeft
+MAKE_SYSTEM_PROP(EXTEND_EDGE_BOTTOM,4); //UIEdgeRectBottom
+MAKE_SYSTEM_PROP(EXTEND_EDGE_RIGHT,8);  //UIEdgeRectRight
+MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
+
+-(NSString*)TEXT_STYLE_HEADLINE
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleHeadline : @"INVALID";
+}
+-(NSString*)TEXT_STYLE_SUBHEADLINE
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleSubheadline : @"INVALID";
+}
+-(NSString*)TEXT_STYLE_BODY
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleBody : @"INVALID";
+}
+-(NSString*)TEXT_STYLE_FOOTNOTE
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleFootnote : @"INVALID";
+}
+-(NSString*)TEXT_STYLE_CAPTION1
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleCaption1 : @"INVALID";
+}
+-(NSString*)TEXT_STYLE_CAPTION2
+{
+    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleCaption2 : @"INVALID";
+}
 
 -(NSNumber*)isLandscape:(id)args
 {
@@ -279,8 +324,10 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	return NUMBOOL([UIApplication sharedApplication].statusBarOrientation==UIInterfaceOrientationPortrait);
 }
 
+//Deprecated since 1.7.2
 -(NSNumber*)orientation
 {
+    DebugLog(@"Ti.UI.orientation is deprecated since 1.7.2 .");
 	return NUMINT([UIApplication sharedApplication].statusBarOrientation);
 }
 

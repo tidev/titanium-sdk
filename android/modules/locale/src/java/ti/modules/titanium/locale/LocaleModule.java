@@ -48,7 +48,7 @@ public class LocaleModule extends KrollModule
 	@Kroll.method @Kroll.getProperty
 	public String getCurrentLocale()
 	{
-		return TiPlatformHelper.getLocale();
+		return TiPlatformHelper.getInstance().getLocale();
 	}
 	
 	@Kroll.method
@@ -57,14 +57,14 @@ public class LocaleModule extends KrollModule
 		if (localeString == null) {
 			return null;
 		}
-		Locale locale = TiPlatformHelper.getLocale(localeString);
-		return TiPlatformHelper.getCurrencyCode(locale);
+		Locale locale = TiPlatformHelper.getInstance().getLocale(localeString);
+		return TiPlatformHelper.getInstance().getCurrencyCode(locale);
 	}
 	
 	@Kroll.method
 	public String getCurrencySymbol(String currencyCode)
 	{
-		return TiPlatformHelper.getCurrencySymbol(currencyCode);
+		return TiPlatformHelper.getInstance().getCurrencySymbol(currencyCode);
 	}
 	
 	@Kroll.method
@@ -73,8 +73,8 @@ public class LocaleModule extends KrollModule
 		if (localeString == null) {
 			return null;
 		}
-		Locale locale = TiPlatformHelper.getLocale(localeString);
-		return TiPlatformHelper.getCurrencySymbol(locale);
+		Locale locale = TiPlatformHelper.getInstance().getLocale(localeString);
+		return TiPlatformHelper.getInstance().getCurrencySymbol(locale);
 	}
 	
 	@Kroll.method
@@ -89,11 +89,11 @@ public class LocaleModule extends KrollModule
 		Log.w(TAG, "Locale.setLanguage not supported for Android.");
 	}
 
-	@Kroll.method
+	@Kroll.method  @Kroll.topLevel("L")
 	public String getString(String key, @Kroll.argument(optional=true) String defaultValue)
 	{
 		try {
-			int resid = TiRHelper.getResource("string." + key);
+			int resid = TiRHelper.getResource("string." + key.replace(".","_"));
 			if (resid != 0) {
 				return TiApplication.getInstance().getString(resid);
 			} else {
@@ -106,5 +106,11 @@ public class LocaleModule extends KrollModule
 			Log.e(TAG, "Error trying to get resource string with key '" + key + "':", e);
 			return defaultValue;
 		}
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Locale";
 	}
 }

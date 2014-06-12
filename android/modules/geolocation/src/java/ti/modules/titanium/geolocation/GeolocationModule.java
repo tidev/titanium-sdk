@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
@@ -18,6 +19,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.geolocation.TiLocation.GeocodeResponseHandler;
@@ -158,6 +160,9 @@ public class GeolocationModule extends KrollModule
 	private LocationRuleProxy simpleLocationNetworkRule;
 	private int simpleLocationAccuracyProperty = ACCURACY_LOW;
 	private Location currentLocation;
+	//currentLocation is conditionally updated. lastLocation is unconditionally updated
+	//since currentLocation determines when to send out updates, and lastLocation is passive
+	private Location lastLocation;
 	@Deprecated private HashMap<Integer, Double> legacyLocationAccuracyMap = new HashMap<Integer, Double>();
 	@Deprecated private int legacyLocationAccuracyProperty = ACCURACY_NEAREST_TEN_METERS;
 	@Deprecated private double legacyLocationFrequency = 5000;
@@ -236,6 +241,7 @@ public class GeolocationModule extends KrollModule
 	 */
 	public void onLocationChanged(Location location)
 	{
+		lastLocation = location;
 		if (shouldUseUpdate(location)) {
 			fireEvent(TiC.EVENT_LOCATION, buildLocationEvent(location, tiLocation.locationManager.getProvider(location.getProvider())));
 			currentLocation = location;
@@ -522,10 +528,10 @@ public class GeolocationModule extends KrollModule
 				enableLocationProviders(locationProviders);
 
 				// fire off an initial location fix if one is available
-				Location lastKnownLocation = tiLocation.getLastKnownLocation();
-				if (lastKnownLocation != null) {
-					fireEvent(TiC.EVENT_LOCATION, buildLocationEvent(lastKnownLocation, tiLocation.locationManager.getProvider(lastKnownLocation.getProvider())));
-					doAnalytics(lastKnownLocation);
+				lastLocation = tiLocation.getLastKnownLocation();
+				if (lastLocation != null) {
+					fireEvent(TiC.EVENT_LOCATION, buildLocationEvent(lastLocation, tiLocation.locationManager.getProvider(lastLocation.getProvider())));
+					doAnalytics(lastLocation);
 				}
 			}
 		}
@@ -575,6 +581,17 @@ public class GeolocationModule extends KrollModule
 	public void getCurrentHeading(final KrollFunction listener)
 	{
 		tiCompass.getCurrentHeading(listener);
+	}
+
+	/**
+	 * Retrieves the last obtained location and returns it as JSON.
+	 * 
+	 * @return			String representing the last geolocation event
+	 */
+	@Kroll.method @Kroll.getProperty
+	public String getLastGeolocation()
+	{
+		return TiAnalyticsEventFactory.locationToJSONString(lastLocation);
 	}
 
 	/**
@@ -765,7 +782,7 @@ public class GeolocationModule extends KrollModule
 
 		return new GeocodeResponseHandler() {
 			@Override
-			public void handleGeocodeResponse(HashMap<String, Object> geocodeResponse)
+			public void handleGeocodeResponse(KrollDict geocodeResponse)
 			{
 				geocodeResponse.put(TiC.EVENT_PROPERTY_SOURCE, geolocationModule);
 				callback.call(getKrollObject(), new Object[] { geocodeResponse });
@@ -829,9 +846,9 @@ public class GeolocationModule extends KrollModule
 	 * @return						map of property names and values that contain information 
 	 * 								pulled from the specified location
 	 */
-	private HashMap<String, Object> buildLocationEvent(Location location, LocationProvider locationProvider)
+	private KrollDict buildLocationEvent(Location location, LocationProvider locationProvider)
 	{
-		HashMap<String, Object> coordinates = new HashMap<String, Object>();
+		KrollDict coordinates = new KrollDict();
 		coordinates.put(TiC.PROPERTY_LATITUDE, location.getLatitude());
 		coordinates.put(TiC.PROPERTY_LONGITUDE, location.getLongitude());
 		coordinates.put(TiC.PROPERTY_ALTITUDE, location.getAltitude());
@@ -841,12 +858,12 @@ public class GeolocationModule extends KrollModule
 		coordinates.put(TiC.PROPERTY_SPEED, location.getSpeed());
 		coordinates.put(TiC.PROPERTY_TIMESTAMP, location.getTime());
 
-		HashMap<String, Object> event = new HashMap<String, Object>();
-		event.put(TiC.PROPERTY_SUCCESS, true);
+		KrollDict event = new KrollDict();
+		event.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
 		event.put(TiC.PROPERTY_COORDS, coordinates);
 
 		if (locationProvider != null) {
-			HashMap<String, Object> provider = new HashMap<String, Object>();
+			KrollDict provider = new KrollDict();
 			provider.put(TiC.PROPERTY_NAME, locationProvider.getName());
 			provider.put(TiC.PROPERTY_ACCURACY, locationProvider.getAccuracy());
 			provider.put(TiC.PROPERTY_POWER, locationProvider.getPowerRequirement());
@@ -867,17 +884,18 @@ public class GeolocationModule extends KrollModule
 	 * @return						map of property names and values that contain information 
 	 * 								regarding the error
 	 */
-	private HashMap<String, Object> buildLocationErrorEvent(int code, String msg)
+	private KrollDict buildLocationErrorEvent(int code, String msg)
 	{
-		HashMap<String, Object> d = new HashMap<String, Object>(3);
-		d.put(TiC.ERROR_PROPERTY_CODE, code);
-		d.put(TiC.EVENT_PROPERTY_ERROR, msg);
-		d.put(TiC.PROPERTY_SUCCESS, false);
-
+		KrollDict d = new KrollDict(3);
+		d.putCodeAndMessage(code, msg);
 		return d;
 	}
 
-
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Geolocation";
+	}
 }
 
 

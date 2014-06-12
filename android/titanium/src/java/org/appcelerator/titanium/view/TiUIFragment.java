@@ -1,0 +1,98 @@
+package org.appcelerator.titanium.view;
+
+import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+
+import android.app.Activity;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.view.MotionEvent;
+
+public abstract class TiUIFragment extends TiUIView implements Handler.Callback
+{
+	private static int viewId = 1000;
+
+	private Fragment fragment;
+	private Handler handler;
+
+	public TiUIFragment(TiViewProxy proxy, Activity activity)
+	{
+		super(proxy);
+
+		TiCompositeLayout container = new TiCompositeLayout(activity, proxy)
+		{
+			@Override
+			public boolean dispatchTouchEvent(MotionEvent ev)
+			{
+				return interceptTouchEvent(ev) || super.dispatchTouchEvent(ev);
+			}
+		};
+		container.setId(viewId++);
+		setNativeView(container);
+
+		FragmentManager manager = ((FragmentActivity) activity).getSupportFragmentManager();
+		Fragment tabFragment = manager.findFragmentById(android.R.id.tabcontent);
+		FragmentTransaction transaction = null;
+		//check if this map is opened inside an actionbar tab, which is another fragment
+		if (tabFragment != null) {
+			FragmentManager childManager = tabFragment.getChildFragmentManager();
+			transaction = childManager.beginTransaction();
+		} else {
+			transaction = manager.beginTransaction();
+		}
+		fragment = createFragment();
+		transaction.add(container.getId(), fragment);
+		transaction.commit();
+
+		// initialize handler
+		handler = new Handler(TiMessenger.getMainMessenger().getLooper(), this);
+		// send a msg to skip a cycle to make sure the fragment's view is created and initialized
+		handler.obtainMessage().sendToTarget();
+	}
+
+	public Fragment getFragment()
+	{
+		return fragment;
+	}
+
+	public boolean handleMessage(Message msg)
+	{
+		// we know here that the view is available, so we can process properties
+		onViewCreated();
+		return true;
+	}
+
+	protected boolean interceptTouchEvent(MotionEvent ev)
+	{
+		return false;
+	}
+	
+	@Override
+	public void release()
+	{
+		if (fragment != null) {
+			FragmentManager fragmentManager = fragment.getFragmentManager();
+			if (fragmentManager != null) {
+				FragmentTransaction transaction = null;
+				Fragment tabFragment = fragmentManager.findFragmentById(android.R.id.tabcontent);
+				if (tabFragment != null) {
+					FragmentManager childManager = tabFragment.getChildFragmentManager();
+					transaction = childManager.beginTransaction();
+				} else {
+					transaction = fragmentManager.beginTransaction();
+				}
+				transaction.remove(fragment);
+				transaction.commit();
+			}
+		}
+		super.release();
+	}
+
+	protected abstract void onViewCreated();
+
+	protected abstract Fragment createFragment();
+}

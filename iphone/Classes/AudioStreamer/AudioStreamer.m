@@ -165,6 +165,7 @@ RUN_ON_STREAMER_RETURN(state, AudioStreamerState)
 RUN_ON_STREAMER_RETURN(progress, double)
 RUN_ON_STREAMER_RETURN(bufferSize, NSUInteger)
 RUN_ON_STREAMER_RETURN(volume, double)
+RUN_ON_STREAMER_RETURN(duration, NSTimeInterval);
 
 // Functions
 RUN_ON_STREAMER_RETURN(isPlaying, BOOL)
@@ -175,7 +176,6 @@ RUN_ON_STREAMER_RETURN(isIdle, BOOL)
 RUN_ON_STREAMER(start)
 RUN_ON_STREAMER(pause)
 RUN_ON_STREAMER(stop)
-
 @end
 
 

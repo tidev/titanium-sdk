@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -235,6 +235,10 @@ public class TCPProxy extends KrollProxy implements TiStream
 			while(true) {
 				if(accepting) {
 					try {
+						// Check if serverSocket is valid, if not exit
+						if (serverSocket == null) {
+							break;
+						}
 						Socket acceptedSocket = serverSocket.accept();
 
 						TCPProxy acceptedTcpProxy = new TCPProxy();
@@ -295,7 +299,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	{
 		KrollDict callbackArgs = new KrollDict();
 		callbackArgs.put("socket", this);
-		callbackArgs.put("error", error);
+		callbackArgs.putCodeAndMessage(errorCode, error);
 		callbackArgs.put("errorCode", errorCode);
 
 		return callbackArgs;
@@ -403,8 +407,10 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			closeSocket();
-			updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to read from socket, IO error", 0));
+			if (state != SocketModule.CLOSED) {
+				closeSocket();
+				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to read from socket, IO error", 0));
+			}
 			throw new IOException("Unable to read from socket, IO error");
 		}
 	}
@@ -484,6 +490,10 @@ public class TCPProxy extends KrollProxy implements TiStream
 	@Kroll.method
 	public void close() throws IOException
 	{
+		if (state == SocketModule.CLOSED) {
+			return;
+		}
+		
 		if((state != SocketModule.CONNECTED) && (state != SocketModule.LISTENING)) {
 			throw new IOException("Socket is not connected or listening, unable to call close on socket in <" + state + "> state");
 		}
@@ -497,6 +507,12 @@ public class TCPProxy extends KrollProxy implements TiStream
 			e.printStackTrace();
 			throw new IOException("Error occured when closing socket");
 		}
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Network.Socket.TCP";
 	}
 }
 

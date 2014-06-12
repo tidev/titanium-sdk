@@ -8,5 +8,7 @@
 	<string>__DEBUGGER_PORT__</string>
 	<key>airkey</key>
 	<string>__DEBUGGER_AIRKEY__</string>
+	<key>hosts</key>
+	<string>__DEBUGGER_HOSTS__</string>
 </dict>
 </plist>

@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/event", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "Ti/_/dom", "Ti/_/ready"],
-	function(declare, event, View, Widget, UI, lang, dom, ready) {
+define(["Ti/_/declare", "Ti/_/event", 'Ti/_/has', "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "Ti/_/dom", "Ti/_/ready"],
+	function(declare, event, has, View, Widget, UI, lang, dom, ready) {
 
 	var is = require.is,
 		borderRadius = 6,
@@ -31,7 +31,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "
 				}
 
 				self._handles = [
-					on(input, "ontouchstart" in window ? "touchend" : "click", handleChange),
+					on(input, has('touch') ? "touchend" : "click", handleChange),
 					on(input, "keyup", handleChange)
 				];
 			},
@@ -136,7 +136,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "
 					}
 					eventInfo.selectedValue = selectedValue;
 				} else {
-					
+
 				}
 				this.fireEvent("change", eventInfo);
 			});
@@ -145,7 +145,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "
 			this._add(column);
 			this._publish(column);
 		},
-		
+
 		_updateColumnHeights: function() {
 			var tallestColumnHeight = 0,
 				i;
@@ -160,7 +160,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "
 		_defaultWidth: UI.SIZE,
 
 		_defaultHeight: UI.SIZE,
-		
+
 		add: function(value) {
 			if (is(value,"Array")) {
 				for (var i in value) {
@@ -185,12 +185,12 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "
 			var column = this._columns[columnIndex];
 			return column && column.selectedRow;
 		},
-		
+
 		setSelectedRow: function(columnIndex, rowIndex) {
 			var column = this._columns[columnIndex];
 			column && (column.selectedRow = column.rows[rowIndex]);
 		},
-		
+
 		properties: {
 			columns: {
 				get: function() {
@@ -241,7 +241,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "
 								height: UI.INHERIT
 							});
 							dateTimeInput.addEventListener("change", function(e) {
-								self.properties.__values__.value = e.value;
+								self.__values__.properties.value = e.value;
 								self.fireEvent("change",e);
 							});
 							dateTimeInput.min = self.min;
@@ -256,7 +256,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "
 							case UI.PICKER_TYPE_TIME:
 								createInput("Time");
 								break;
-							case UI.PICKER_TYPE_DATE_AND_TIME: 
+							case UI.PICKER_TYPE_DATE_AND_TIME:
 								createInput("DateTime");
 								break;
 						}

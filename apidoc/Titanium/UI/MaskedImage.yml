@@ -68,9 +68,8 @@ properties:
     type: String
   - name: mode
     summary: Blend mode to use to combine layers.
-    description: |
-        Specify one of the `BLEND_MODE` constants from <Titanium.UI.iOS>
     type: Number
+    constants: Titanium.UI.iOS.BLEND_MODE_*
     default: Titanium.UI.iOS.BLEND_MODE_SOURCE_IN
   - name: tint
     summary: Color to combine with the image, as a color name or hex triplet.

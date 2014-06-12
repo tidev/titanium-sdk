@@ -16,6 +16,10 @@
 
 namespace titanium {
 
+// The base class for any object that emits events.
+// Provides an interface for listening to and firing events.
+// See events.js in the common runtime which implements most
+// of the logic for managing listeners and dispatching events.
 class EventEmitter : public NativeObject
 {
 public:

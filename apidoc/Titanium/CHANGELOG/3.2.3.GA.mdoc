@@ -1,0 +1,220 @@
+# Titanium SDK 3.2.3 General Availability - 05/01/2014
+
+##### Contents
+
+  * [About This Release](#about)
+  * [Installation Notes](#install)
+  * [Titanium CLI](#cli)
+  * [Studio](#studio)
+  * [New Features](#features)
+    * [Android Platform](#android)
+     * [ActionBar Subtitle](#actionbar_subtitle)
+    * [Cloud Module](#cloud_module)
+    * [iOS Platform](#ios)
+     * [Low Memory Warning Event](#low_mem)
+     * [ScrollView Deceleration Rate](#rate)
+     * [ScrollView Scroll Event](#event)
+    * [Map Module](#map_module)
+  * [Fixed Issues](#issues)
+  * [API Changes](#apichanges)
+    * [New APIs](#new_apis) 
+
+<a name="about"></a>
+
+## About This Release
+
+Titanium SDK Release 3.2.3 is a service pack release of the Titanium SDK, addressing high-priority
+issues in previous releases.
+
+Note that this release includes some new feature and behavior changes.
+
+There are no updates to Alloy.  Continue to use Alloy 1.3.1.GA.
+
+<a name="install"></a>
+
+## Installation Notes
+
+If you previously installed the Beta version of the Titanium CLI,
+you need to first uninstall it before installing or updating to 3.2.3.GA.
+
+To check the current version run the following commands:
+
+    npm list -g titanium
+
+If the package has a version number ending in `-alpha`, `-beta`, or `-cr`, you should uninstall
+the package manually before installing 3.2.3.GA.
+
+To uninstall the package:
+
+    npm remove -g titanium
+
+Note: You may need to use <code>sudo</code> before these terminal commands on OS X and Linux.
+
+If you are using Titanium Studio, the CLI will be updated if you chose to install
+additional Titanium updates or from the **Help** menu, select **Check for Titanium Updates**.
+
+If you are using the Titainium CLI, you need to reinstall the CLI from the terminal:
+
+    npm install -g titanium
+
+If you should run into any issues, run `npm cache clean` and then retry the steps above.
+
+<a name="cli"></a>
+
+## Titanium CLI
+
+Titanium CLI 3.2.3 includes the following new features and enhancements:
+
+
+  * If the `--platform` option is missing when creating a new project, the CLI will default to all supported platforms.  Previously, the CLI would fail with a warning.
+  * The `titanium setup check` command will now check to see if you have a writable temp directory. Some commands will break if you do not have a writable temp directory.
+  * If you are trying to create a package for a non-KitKat device with a SHA-256 signature, the CLI fails with a warning.  Only KitKat devices support SHA-256 signatures.
+
+For more information, see the
+[Changelog](https://github.com/appcelerator/titanium/blob/3_2_X/CHANGELOG.md).
+
+<a name="studio"></a>
+
+## Studio
+
+Studio 3.2.3 includes the following enhancements:
+
+  * Support linked folders in workspace
+  * Add support to create and use keystores with different keystore and key passwords
+  * Support Android keystores with different signature algorithms
+  * Removed Android SDK 2.3.3 requirement when running a Mobile Web App on the Android emulator
+  * Display ACS OAuth keys and secrets in the tiapp.xml GUI overview tab
+  * Support Alloy data binding attributes in content assist
+
+For more information, see the [Release Notes](http://docs.appcelerator.com/titanium/latest/#!/guide/Titanium_Studio_Release_Notes).
+
+<a name="features"></a>
+
+## New Features
+
+<a name="android"></a>
+
+### Android Platform
+
+The following features are available only for the Android platform:
+
+<a name="actionbar_subtitle"></a>
+
+#### ActionBar Subtitle
+
+Use the ActionBar's `subtitle` property to set the subtitle of the ActionBar. 
+
+<a name="cloud_module"></a>
+
+### Cloud Module
+
+The ti.cloud module included with this release exposes the ACS
+[push_notification/subscription/update.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-subscription_update)
+method as the `updateSubscription` method.
+
+<a name="ios"></a>
+
+### iOS Platform
+
+The following features are available only for the iOS platform:
+
+<a name="low_mem"></a>
+
+#### Low Memory Warning Event
+
+Monitor the
+[Titanium.App.memorywarning](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App-event-memorywarning)
+event to receive a warning from the operating system about low memory availability.
+
+As part of the low memoy warning from the OS, Titanium applications will automatically clean up
+unused resources.  Previously, Titanium would perform the clean up but the JavaScript application
+would not know when this occurred.
+
+<a name="rate"></a>
+
+#### ScrollView Deceleration Rate
+
+Use the ScrollView's
+[decelerationRate](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ScrollView-property-decelerationRate)
+property to control the rate of deceleration when the user releases their finger to stop scrolling.
+This property accepts a floating point number, and the
+`Titanium.UI.iOS.SCROLL_DECELERATION_RATE_NORMAL` and
+`Titanium.UI.iOS.SCROLL_DECELERATION_RATE_FAST` constants.  Use these constant values as reference
+points for the deceleration rate.
+
+<a name="event"></a>
+
+#### ScrollView Scroll Event
+
+ScrollView's
+[scroll](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ScrollView-event-scroll)
+event now returns two additional fields:
+
+  * `curZoomScale`: float value indicating the current zoom level
+  * `zooming`: boolean indicating whether the event was fired due to a zoom operation
+
+<a name="map_module"></a>
+
+### Map Module
+
+The ti.map module included with this release contains a bug fix for iOS
+([TIMOB-12733](https://jira.appcelerator.org/browse/TIMOB-12733)) and new features for Android.
+
+#### New Android Features
+
+**View APIs**
+
+The following properties were added to the View class:
+
+   * [compassEnabled](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-property-compassEnabled): Enable/disable the compass on the map
+   * [maxZoomLevel](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-property-maxZoomLevel): Returns max zoom level of the map
+   * [minZoomLevel](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-property-minZoomLevel): Returns min zoom level of the map
+
+**Map Region Object**
+
+The following properties were added to the [Map Region object](http://docs.appcelerator.com/titanium/latest/#!/api/MapRegionTypev2) to modify the camera
+view of the map region:
+
+   * `bearing`: Direction that the camera is pointing, in degrees clockwise from north
+   * `tilt`: Angle of camera
+   * `zoom`: Adjust the zoom level dynamically
+
+**Image Capture APIs**
+
+The following APIs were added to the View class to support capturing an image of the map view:
+
+   * [onsnapshotready](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-event-onsnapshotready) event: Fired when the snapshot is ready
+   * [snapshot()](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-method-snapshot) method: Takes a snapshot of the map
+
+
+<a name="issues"></a>
+
+## Fixed Issues and Enhancements
+
+  * [Full list of Issues that were addressed in Release 3.2.3](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=15848)
+
+
+<a name="apichanges"></a>
+
+## API Changes
+
+<a name="new_apis"></a>
+
+### New APIs
+
+The following APIs are new or have expanded platform support in Release 3.2.3.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.Android.ActionBar.subtitle</td><td>property</td><td><p>Sets the subtitle of the action bar. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.App.memorywarning</td><td>event</td><td><p>Fired when the app receives a warning from the operating system about low memory availability. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollView.decelerationRate</td><td>property</td><td><p>The deceleration rate of the ScrollView. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollView.getDecelerationRate</td><td>method</td><td><p>Gets the value of thedecelerationRate property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollView.setDecelerationRate</td><td>method</td><td><p>Sets the value of the decelerationRate property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.SCROLL_DECELERATION_RATE_FAST</td><td>property</td><td><p>Use with Titanium.UI.ScrollView.decelerationRate to control deceleration rate.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.SCROLL_DECELERATION_RATE_NORMAL</td><td>property</td><td><p>Use with Titanium.UI.ScrollView.decelerationRate to control deceleration rate.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+<tr>
+</table>

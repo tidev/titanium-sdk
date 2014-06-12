@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -59,17 +59,17 @@ public class PlatformModule extends KrollModule
 
 	@Kroll.getProperty @Kroll.method
 	public String getName() {
-		return TiPlatformHelper.getName();
+		return TiPlatformHelper.getInstance().getName();
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getOsname() {
-		return TiPlatformHelper.getName();
+		return TiPlatformHelper.getInstance().getName();
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getLocale() {
-		return TiPlatformHelper.getLocale();
+		return TiPlatformHelper.getInstance().getLocale();
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -83,53 +83,53 @@ public class PlatformModule extends KrollModule
 
 	@Kroll.getProperty @Kroll.method
 	public int getProcessorCount() {
-		return TiPlatformHelper.getProcessorCount();
+		return TiPlatformHelper.getInstance().getProcessorCount();
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getUsername() {
-		return TiPlatformHelper.getUsername();
+		return TiPlatformHelper.getInstance().getUsername();
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getVersion() {
-		return TiPlatformHelper.getVersion();
+		return TiPlatformHelper.getInstance().getVersion();
 	}
 	
 	@Kroll.getProperty @Kroll.method
 	public double getAvailableMemory() {
-		return TiPlatformHelper.getAvailableMemory();
+		return TiPlatformHelper.getInstance().getAvailableMemory();
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getModel() {
-		return TiPlatformHelper.getModel();
+		return TiPlatformHelper.getInstance().getModel();
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getManufacturer() {
-		return TiPlatformHelper.getManufacturer();
+		return TiPlatformHelper.getInstance().getManufacturer();
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getOstype() {
-		return TiPlatformHelper.getOstype();
+		return TiPlatformHelper.getInstance().getOstype();
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getArchitecture() {
-		return TiPlatformHelper.getArchitecture();
+		return TiPlatformHelper.getInstance().getArchitecture();
 	}
 
 
 	@Kroll.getProperty @Kroll.method
 	public String getAddress() {
-		return TiPlatformHelper.getIpAddress();
+		return TiPlatformHelper.getInstance().getIpAddress();
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getNetmask() {
-		return TiPlatformHelper.getNetmask();
+		return TiPlatformHelper.getInstance().getNetmask();
 	}
 
 	@Kroll.method
@@ -144,7 +144,7 @@ public class PlatformModule extends KrollModule
 
 	@Kroll.method
 	public String createUUID() {
-		return TiPlatformHelper.createUUID();
+		return TiPlatformHelper.getInstance().createUUID();
 	}
 
 	@Kroll.method
@@ -153,7 +153,13 @@ public class PlatformModule extends KrollModule
 		Uri uri = Uri.parse(url);
 		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 		try {
-			getActivity().startActivity(intent);
+			Activity activity = TiApplication.getAppRootOrCurrentActivity();
+			
+			if(activity != null) {
+				activity.startActivity(intent);
+			} else {
+				throw new ActivityNotFoundException("No valid root or current activity found for application instance");
+			}
 			return true;
 		} catch (ActivityNotFoundException e) {
 			Log.e(TAG,"Activity not found: " + url, e);
@@ -163,12 +169,12 @@ public class PlatformModule extends KrollModule
 
 	@Kroll.getProperty @Kroll.method
 	public String getMacaddress() {
-		return TiPlatformHelper.getMacaddress();
+		return TiPlatformHelper.getInstance().getMacaddress();
 	}
 	
 	@Kroll.getProperty @Kroll.method
 	public String getId() {
-		return TiPlatformHelper.getMobileId();
+		return TiPlatformHelper.getInstance().getMobileId();
 	}
 
 	@Kroll.setProperty @Kroll.method
@@ -204,7 +210,7 @@ public class PlatformModule extends KrollModule
 	{
 		return KrollRuntime.getInstance().getRuntimeName();
 	}
-
+	
 	protected void registerBatteryStateReceiver()
 	{
 		batteryStateReceiver = new BroadcastReceiver() {
@@ -314,5 +320,11 @@ public class PlatformModule extends KrollModule
 			unregisterBatteryStateReceiver();
 			batteryStateReceiver = null;
 		}
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Platform";
 	}
 }

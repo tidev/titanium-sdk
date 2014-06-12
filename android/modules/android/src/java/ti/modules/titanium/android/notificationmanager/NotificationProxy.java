@@ -208,8 +208,8 @@ public class NotificationProxy extends KrollProxy
 	@Kroll.method @Kroll.setProperty
 	public void setSound(String url)
 	{
-		//TiContext context = invocation == null ? getTiContext() : invocation.getTiContext();
 		notification.sound = Uri.parse(resolveUrl(null, url));
+		
 	}
 
 	@Kroll.method @Kroll.setProperty
@@ -262,5 +262,11 @@ public class NotificationProxy extends KrollProxy
 	public Notification getNotification()
 	{ 
 		return notification;
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Android.Notification";
 	}
 }

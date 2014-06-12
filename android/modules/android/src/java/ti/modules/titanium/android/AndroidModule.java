@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,7 @@ package ti.modules.titanium.android;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -25,8 +26,10 @@ import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.support.v7.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.view.MenuItem;
@@ -236,6 +239,10 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int SHOW_AS_ACTION_IF_ROOM = MenuItem.SHOW_AS_ACTION_IF_ROOM;
 	@Kroll.constant public static final int SHOW_AS_ACTION_NEVER = MenuItem.SHOW_AS_ACTION_NEVER;
 	@Kroll.constant public static final int SHOW_AS_ACTION_WITH_TEXT = MenuItem.SHOW_AS_ACTION_WITH_TEXT;
+	
+	@Kroll.constant public static final int NAVIGATION_MODE_LIST = ActionBar.NAVIGATION_MODE_LIST;
+	@Kroll.constant public static final int NAVIGATION_MODE_STANDARD = ActionBar.NAVIGATION_MODE_STANDARD;
+	@Kroll.constant public static final int NAVIGATION_MODE_TABS = ActionBar.NAVIGATION_MODE_TABS;
 
 	protected RProxy r;
 
@@ -270,6 +277,7 @@ public class AndroidModule extends KrollModule
 		return intent;
 	}
 
+	@Kroll.method
 	public IntentProxy createBroadcastIntent(Object[] args)
 	{
 		IntentProxy intent = new IntentProxy();
@@ -341,6 +349,37 @@ public class AndroidModule extends KrollModule
 		return false;
 	}
 
+	@Kroll.method
+	public void registerBroadcastReceiver(BroadcastReceiverProxy receiverProxy, Object[] args)
+	{
+		if (receiverProxy != null && args != null && args.length > 0 && args[0] instanceof Object[]) {
+			IntentFilter filter = new IntentFilter();
+			Object[] actions = (Object[]) args[0];
+
+			for (Object action : actions) {
+				filter.addAction(TiConvert.toString(action));
+			}
+
+			TiApplication.getInstance().getApplicationContext()
+				.registerReceiver(receiverProxy.getBroadcastReceiver(), filter);
+			KrollRuntime.incrementServiceReceiverRefCount();
+		}
+	}
+
+	@Kroll.method
+	public void unregisterBroadcastReceiver(BroadcastReceiverProxy receiverProxy)
+	{
+		if (receiverProxy != null) {
+			try {
+				TiApplication.getInstance().getApplicationContext().unregisterReceiver(receiverProxy.getBroadcastReceiver());
+				KrollRuntime.decrementServiceReceiverRefCount();
+			} catch (Exception e) {
+				Log.e(TAG, "Unable to unregister broadcast receiver: " + e.getMessage());
+			}
+
+		}
+	}
+
 	/**
 	 * A "bound" service instance. Returns the proxy so that .start and .stop can be called directly on the service.
 	 */
@@ -348,5 +387,11 @@ public class AndroidModule extends KrollModule
 	public ServiceProxy createService(IntentProxy intentProxy)
 	{
 		return new ServiceProxy(intentProxy);
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Android";
 	}
 }

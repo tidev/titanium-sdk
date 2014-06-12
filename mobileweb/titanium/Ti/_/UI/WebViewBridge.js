@@ -1,28 +1,29 @@
-var a, b,
-	w = window,
-	p = w.parent,
-	u = w.onunload;
+(function (w) {
+	var a, b,
+		p = w.parent,
+		u = w.onunload;
 
-if (!Ti && !Titanium && p && p.Ti) {
-	a = p.Ti.API;
-	b = p.Ti.App;
-	Ti = Titanium = {
-		API: {
-			log: a.log,
-			debug: a.debug,
-			error: a.error,
-			info: a.info,
-			warn: a.warn
-		},
-		App: {
-			addEventListener: b.addEventListener,
-			removeEventListener: b.removeEventListener,
-			fireEvent: b.fireEvent
-		}
+	if (p && typeof Ti == 'undefined' && typeof p.Ti == 'object') {
+		a = p.Ti.API;
+		b = p.Ti.App;
+		w.Ti = w.Titanium = {
+			API: {
+				log: a.log,
+				debug: a.debug,
+				error: a.error,
+				info: a.info,
+				warn: a.warn
+			},
+			App: {
+				addEventListener: b.addEventListener.bind(b),
+				removeEventListener: b.removeEventListener.bind(b),
+				fireEvent: b.fireEvent.bind(b)
+			}
+		};
+	}
+
+	w.onunload = function () {
+		Ti.App.fireEvent("WEBVIEW_ID");
+		u && u();
 	};
-}
-
-w.onunload = function() {
-	Ti.App.fireEvent("WEBVIEW_ID");
-	u && u();
-};
+}(window));

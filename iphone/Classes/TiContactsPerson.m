@@ -29,7 +29,10 @@ static NSDictionary* multiValueLabels;
 	
 	if (record == NULL) {
 		if (recordId != kABRecordInvalidID) {
-			record = ABAddressBookGetPersonWithRecordID([module addressBook], recordId);
+			ABAddressBookRef ourAddressBook = [module addressBook];
+			if (ourAddressBook != NULL) {
+				record = ABAddressBookGetPersonWithRecordID(ourAddressBook, recordId);
+			}
 		}
 	}
 	return record;
@@ -48,6 +51,11 @@ static NSDictionary* multiValueLabels;
 -(void)dealloc
 {
 	[super dealloc];
+}
+
+-(NSString*)apiName
+{
+    return @"Ti.Contacts.Person";
 }
 
 #pragma mark Property dictionaries

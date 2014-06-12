@@ -6,11 +6,18 @@
  */
 package ti.modules.titanium.network;
 
+import javax.net.ssl.X509KeyManager;
+import javax.net.ssl.X509TrustManager;
+
 import org.apache.http.MethodNotSupportedException;
+import org.apache.http.auth.AuthSchemeFactory;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.xml.DocumentProxy;
 
@@ -23,7 +30,9 @@ public class HTTPClientProxy extends KrollProxy
 	@Kroll.constant public static final int LOADING = TiHTTPClient.READY_STATE_LOADING;
 	@Kroll.constant public static final int DONE = TiHTTPClient.READY_STATE_DONE;
 
+	public static final String PROPERTY_SECURITY_MANAGER = "securityManager";
 	private TiHTTPClient client;
+
 
 	public HTTPClientProxy()
 	{
@@ -34,6 +43,24 @@ public class HTTPClientProxy extends KrollProxy
 	public HTTPClientProxy(TiContext tiContext)
 	{
 		this();
+	}
+	
+	public void handleCreationDict(KrollDict dict)
+	{
+		super.handleCreationDict(dict);
+		if (hasProperty(TiC.PROPERTY_TIMEOUT)) {
+			client.setTimeout(TiConvert.toInt(getProperty(TiC.PROPERTY_TIMEOUT)));
+		}
+		
+		//Set the securityManager on the client if it is defined as a valid value
+		if (hasProperty(PROPERTY_SECURITY_MANAGER)) {
+			Object prop = getProperty(PROPERTY_SECURITY_MANAGER);
+			if (prop instanceof SecurityManagerProtocol) {
+				this.client.securityManager = (SecurityManagerProtocol)prop;
+			} else {
+				throw new IllegalArgumentException("Invalid argument passed to securityManager property. Does not conform to SecurityManagerProtocol");
+			}
+		}
 	}
 
 	@Kroll.method
@@ -175,4 +202,81 @@ public class HTTPClientProxy extends KrollProxy
 		this.setProperty("validatesSecureCertificate", value);
 	}
 
+	@Kroll.setProperty @Kroll.method
+	public void setUsername(String value)
+	{
+		this.setProperty(TiC.PROPERTY_USERNAME, value);
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getUsername()
+	{
+		if (this.hasProperty(TiC.PROPERTY_USERNAME)) {
+			return TiConvert.toString(this.getProperty(TiC.PROPERTY_USERNAME));
+		}
+		return null;
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setPassword(String value)
+	{
+		this.setProperty(TiC.PROPERTY_PASSWORD, value);
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getPassword()
+	{
+		if (this.hasProperty(TiC.PROPERTY_PASSWORD)) {
+			return TiConvert.toString(this.getProperty(TiC.PROPERTY_PASSWORD));
+		}
+		return null;
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setDomain(String value)
+	{
+		this.setProperty(TiC.PROPERTY_DOMAIN, value);
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getDomain()
+	{
+		if (this.hasProperty(TiC.PROPERTY_DOMAIN)) {
+			return TiConvert.toString(this.getProperty(TiC.PROPERTY_DOMAIN));
+		}
+		return null;
+	}
+	
+	@Kroll.method
+	public void addAuthFactory(String scheme, Object factory)
+	{
+		//Sanity Checks
+		if ( (scheme == null) || (scheme.length() == 0) || (! (factory instanceof AuthSchemeFactory) )) {
+			return;
+		}
+		
+		client.addAuthFactory(scheme, (AuthSchemeFactory)factory);
+	}
+	
+	@Kroll.method
+	public void addTrustManager(Object manager)
+	{
+		if (manager instanceof X509TrustManager) {
+			client.addTrustManager((X509TrustManager)manager);
+		}
+	}
+	
+	@Kroll.method
+	public void addKeyManager(Object manager)
+	{
+		if (manager instanceof X509KeyManager) {
+			client.addKeyManager((X509KeyManager)manager);
+		}
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Network.HTTPClient";
+	}
 }

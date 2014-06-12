@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,7 +18,6 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
@@ -26,7 +25,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
-import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Message;
 import android.view.View;
@@ -34,11 +32,8 @@ import android.view.View;
 @Kroll.proxy(propertyAccessors={
 	TiC.PROPERTY_EXIT_ON_CLOSE,
 	TiC.PROPERTY_FULLSCREEN,
-	TiC.PROPERTY_MODAL,
-	TiC.PROPERTY_NAV_BAR_HIDDEN,
 	TiC.PROPERTY_TITLE,
 	TiC.PROPERTY_TITLEID,
-	TiC.PROPERTY_URL,
 	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
 })
 public abstract class TiWindowProxy extends TiViewProxy
@@ -54,9 +49,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	protected boolean opened, opening;
 	protected boolean focused;
-	protected boolean fullscreen;
-	protected boolean modal;
-	protected boolean restoreFullscreen;
 	protected int[] orientationModes = null;
 	protected TiViewProxy tabGroup;
 	protected TiViewProxy tab;
@@ -123,8 +115,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 			if (arg instanceof KrollDict) {
 				options = (KrollDict) arg;
 
-			} else if (arg instanceof HashMap) {
-				options = new KrollDict((HashMap) arg);
+			} else if (arg instanceof HashMap<?, ?>) {
+				options = new KrollDict((HashMap<String, Object>) arg);
 
 			} else if (arg instanceof TiAnimation) {
 				options = new KrollDict();
@@ -137,15 +129,14 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		if (TiApplication.isUIThread()) {
 			handleOpen(options);
-			opening = false;
 			return;
 		}
 
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_OPEN), options);
 
-		opening = false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Kroll.method
 	public void close(@Kroll.argument(optional = true) Object arg)
 	{
@@ -154,8 +145,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 		TiAnimation animation = null;
 
 		if (arg != null) {
-			if (arg instanceof HashMap) {
-				options = new KrollDict((HashMap) arg);
+			if (arg instanceof HashMap<?, ?>) {
+				options = new KrollDict((HashMap<String, Object>) arg);
 
 			} else if (arg instanceof TiAnimation) {
 				options = new KrollDict();
@@ -174,15 +165,33 @@ public abstract class TiWindowProxy extends TiViewProxy
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLOSE), options);
 	}
 
-	public void closeFromActivity()
+	public void closeFromActivity(boolean activityIsFinishing)
 	{
 		if (!opened) { return; }
-		releaseViews();
-		opened = false;
 
-		// TODO ?
-		fireEvent("closeFromActivity", null);
+		KrollDict data = null;
+		if (activityIsFinishing) {
+			releaseViews();
+		} else {
+			// If the activity is forced to destroy by Android OS due to lack of memory or 
+			// enabling "Don't keep activities" (TIMOB-12939), we will not release the
+			// top-most view proxy (window and tabgroup).
+			releaseViewsForActivityForcedToDestroy();
+			data = new KrollDict();
+			data.put("_closeFromActivityForcedToDestroy", true);
+		}
+		opened = false;
 		activity = null;
+
+		// Once the window's activity is destroyed we will fire the close event.
+		// And it will dispose the handler of the window in the JS if the activity
+		// is not forced to destroy.
+		fireSyncEvent(TiC.EVENT_CLOSE, data);
+	}
+
+	protected void releaseViewsForActivityForcedToDestroy()
+	{
+		releaseViews();
 	}
 
 	@Kroll.method(name="setTab")
@@ -256,7 +265,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		Log.w(TAG, "setLeftNavButton not supported in Android");
 	}
 
-	@Kroll.method
+	@Kroll.method @Kroll.setProperty
 	public void setOrientationModes (int[] modes)
 	{
 		int activityOrientationMode = -1;
@@ -375,13 +384,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
+	@Kroll.method @Kroll.getProperty
 	public int[] getOrientationModes()
 	{
 		return orientationModes;
 	}
 
-	
 	// Expose the method and property here, instead of in KrollProxy
 	@Kroll.method(name = "getActivity") @Kroll.getProperty(name = "_internalActivity")
 	public ActivityProxy getActivityProxy()
@@ -422,7 +430,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
+	@Kroll.method @Kroll.getProperty
 	public int getOrientation()
 	{
 		Activity activity = getActivity();
@@ -436,21 +444,13 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return TiOrientationHelper.ORIENTATION_UNKNOWN;
 	}
 
-	@Kroll.method
-	public int getWindowPixelFormat() 
+	@Override
+	public KrollProxy getParentForBubbling()
 	{
-		int pixelFormat = PixelFormat.UNKNOWN;
-		
-		if (hasProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
-			pixelFormat = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
+		// No events bubble up to decor view.
+		if (getParent() instanceof DecorViewProxy) {
+			return null;
 		}
-
-		return pixelFormat;
-	}
-
-	@Kroll.method
-	public void setWindowPixelFormat(int pixelFormat)
-	{
-		setProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, pixelFormat, true);
+		return super.getParentForBubbling();
 	}
 }

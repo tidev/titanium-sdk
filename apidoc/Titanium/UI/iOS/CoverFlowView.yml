@@ -4,7 +4,8 @@ summary: |
     The cover flow view is a container showing animated three-dimensional images in a style 
     consistent with the cover flow presentation style used for iPod, iTunes, and file browsing.
 description: |
-    The cover flow view is created by the <Titanium.UI.iOS.createCoverFlowView> method.
+    The cover flow view is created by the <Titanium.UI.iOS.createCoverFlowView> method or 
+    **`<CoverFlowView>`** element in an Alloy application.
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [iphone, ipad]
@@ -60,8 +61,10 @@ methods:
 properties:
   - name: images
     summary: Images to display in the view.
+    description: |
+        In an Alloy application, you can use a `<Images>` element.
     type: [Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File>, Array<CoverFlowImageType>]
-    
+
   - name: selected
     summary: Index to make selected.
     type: Number
@@ -76,6 +79,32 @@ examples:
             	images:['a.png','b.png','c.png']
             });
             window.add(view);
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+            <Alloy>
+                <Window id="window">
+                    <CoverFlowView id="view" platform="ios" backgroundColor="#000">
+
+                        <!-- The Images tag sets the CoverFlowView.images property. -->
+                        <Images>
+
+                            <!-- Assign the image by node text or the image attribute. -->
+                            <!-- Can also specify the width and height attributes. -->
+
+                            <Image>a.png</Image>
+                            <Image>b.png</Image>
+                            <Image>c.png</Image>
+
+                        </Images>
+
+                        <!-- Place additional views for the CoverFlowView here. -->
+
+                    </CoverFlowView>
+                </Window>
+            </Alloy>
 
 ---
 name: CoverFlowImageType

@@ -10,6 +10,11 @@
 
 @implementation TiUIiPhoneSystemButtonProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPhone.SystemButton";
+}
+
 MAKE_SYSTEM_PROP(ACTION,UIBarButtonSystemItemAction);
 MAKE_SYSTEM_PROP(CAMERA,UIBarButtonSystemItemCamera);
 MAKE_SYSTEM_PROP(COMPOSE,UIBarButtonSystemItemCompose);

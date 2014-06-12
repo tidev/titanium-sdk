@@ -131,6 +131,61 @@ public class TiContext// implements ErrorReporter
 		return currentUrl;
 	}
 
+	// Javascript Support
+
+	/**
+	 * @deprecated
+	 * @see KrollRuntime#evalString(String)
+	 */
+	public Object evalFile(String filename, Messenger messenger, int messageId)
+		throws IOException
+	{
+		Object result = null;
+		String setUrlBackTo = null;
+		if (this.currentUrl != null && this.currentUrl.length() > 0 && !this.currentUrl.equals(filename)) {
+			// A new file is being eval'd.  Must be from an include() statement.  Remember to set back
+			// the original url, else things like JSS which depend on context's filename will break.
+			setUrlBackTo = this.currentUrl;
+		}
+		this.currentUrl = filename;
+
+		String code = KrollAssetHelper.readAsset(filename);
+		result = KrollRuntime.getInstance().evalString(code, filename);
+
+		if (messenger != null) {
+			try {
+				Message msg = Message.obtain();
+				msg.what = messageId;
+				messenger.send(msg);
+				Log.d(TAG, "Notifying caller that evalFile has completed", Log.DEBUG_MODE);
+			} catch(RemoteException e) {
+				Log.w(TAG, "Failed to notify caller that eval completed");
+			}
+		}
+		if (setUrlBackTo != null) { this.currentUrl = setUrlBackTo; }
+		return result;
+	}
+
+	/**
+	 * @deprecated
+	 * @see KrollRuntime#evalString(String)
+	 */
+	public Object evalFile(String filename)
+		throws IOException
+	{
+		return evalFile(filename, null, -1);
+	}
+
+	/**
+	 * @deprecated
+	 * @see KrollRuntime#evalString(String)
+	 * @param src Javascript code
+	 * @return the return value of the passed in {@link code}
+	 */
+	public Object evalJS(String src)
+	{
+		return KrollRuntime.getInstance().evalString(src);
+	}
 
 	public void addOnLifecycleEventListener(OnLifecycleEvent listener)
 	{

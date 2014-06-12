@@ -21,7 +21,11 @@ module.exports = new function() {
 		{name: "pendingIntentFlags"},
 		{name: "intentFlags"},
 		{name: "intentFlagAccessors"},
-		{name: "proxyInvocation"}
+		{name: "proxyInvocation"},
+		{name: "broadcastReceiverApi"},
+		{name: "addressBookAppCrash"},
+		{name: "contactsFullName"},
+		{name: "createPendingIntentAndNotification"}
 	]
 
 	this.androidAPIs = function(testRun) {
@@ -163,7 +167,71 @@ module.exports = new function() {
 		finish(testRun);
 	}
 
+	//TIMOB-10214
+	this.broadcastReceiverApi = function(testRun) {
+		valueOf(testRun, function() {
+			var bc = Ti.Android.createBroadcastReceiver({});
+			Ti.Android.registerBroadcastReceiver(bc, [Ti.Android.ACTION_AIRPLANE_MODE_CHANGED]);
+			Ti.Android.unregisterBroadcastReceiver(bc);
+		}).shouldNotThrowException();
+
+		finish(testRun);
+	}
 	/*this.options = {
 		forceBuild: true
 	}*/
+
+	//TIMOB-9052
+	this.addressBookAppCrash = function(testRun){
+		valueOf(testRun, function() {
+			var values = {
+				cancel:function() {},
+				selectedPerson : function() {}
+			};
+			Titanium.Contacts.showContacts(values);
+		}).shouldNotThrowException();
+
+		finish(testRun);
+	}
+
+	//TIMOB-10531
+	this.contactsFullName = function(testRun){
+		var contact = Ti.Contacts.createPerson({
+			firstName: 'David',
+			lastName: 'Burrow',
+		}); 
+		var people = Ti.Contacts.getPeopleWithName("David Burrow");
+		if (people.length > 0) {
+			var person = people[0];
+			valueOf(testRun, person.fullName).shouldBe("David Burrow");
+		}
+
+		finish(testRun);
+	}
+	
+	//TIMOB-6928
+	this.createPendingIntentAndNotification = function(testRun) {
+		valueOf(testRun, function() {
+			var AppIntent=Ti.Android.createIntent({
+				flags: Ti.Android.FLAG_ACTIVITY_CLEAR_TOP | Ti.Android.FLAG_ACTIVITY_SINGLE_TOP,
+				className:'org.appcelerator.titanium.TiActivity',
+				packageName:Ti.App.id
+			});
+			AppIntent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
+			var NotificationClickAction=Ti.Android.createPendingIntent({
+				activity:Ti.Android.currentActivity,
+				intent:AppIntent,
+				flags:Ti.Android.FLAG_UPDATE_CURRENT,
+				type:Ti.Android.PENDING_INTENT_FOR_ACTIVITY
+			});
+			var NotificationMembers = {
+				contentTitle: Ti.App.name,
+				contentText: 'I am workin here',
+				when: 0,
+				contentIntent: NotificationClickAction};
+				Ti.Android.NotificationManager.notify(1, Ti.Android.createNotification(NotificationMembers));
+		}).shouldNotThrowException();
+
+		finish(testRun);
+	}
 }

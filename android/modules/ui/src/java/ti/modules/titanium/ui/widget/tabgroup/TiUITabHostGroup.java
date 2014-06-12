@@ -10,17 +10,21 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -84,10 +88,14 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 		container.addView(tabcontent, params);
 
 		tabHost.setup();
+
+		// For view properties (backgroundColor) and methods (animate())
+		// to work correctly we will use the TabHost as the "native" view.
+		setNativeView(tabHost);
 	}
 
 	@Override
-	public void addTab(TabProxy tab) {
+	public void addTab(final TabProxy tab) {
 		TabWidget tabWidget = tabHost.getTabWidget();
 
 		final int tabIndex = tabHost.getTabWidget().getTabCount();
@@ -109,6 +117,18 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 		if (tabIndex == 0) {
 			tabHost.setOnTabChangedListener(this);
 		}
+
+		tabHost.getTabWidget().getChildTabViewAt(tabIndex).setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				// The default click listener for tab views is responsible for changing the selected tabs.
+				tabHost.setCurrentTab(tabIndex);
+
+				tab.fireEvent(TiC.EVENT_CLICK, null);
+			}
+		});
 	}
 
 	@Override
@@ -158,9 +178,29 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 				e.getValue().setBackgroundColor(color);
 			}
 
+		} else if (key.equals(TiC.PROPERTY_TITLE)) {
+			Activity activity = proxy.getActivity();
+			if (activity != null) {
+				activity.setTitle(TiConvert.toString(newValue));
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
+	}
+
+	@Override
+	public void onFocusChange(final View v, boolean hasFocus)
+	{
+		if (hasFocus) {
+			TiMessenger.postOnMain(new Runnable()
+			{
+				public void run()
+				{
+					TiUIHelper.requestSoftInputChange(proxy, v);
+				}
+			});
+		}
+		// Don't fire focus/blur events here because the the events will be fired through event bubbling.
 	}
 
 }

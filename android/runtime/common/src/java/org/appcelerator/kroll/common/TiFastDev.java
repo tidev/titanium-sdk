@@ -25,8 +25,14 @@ import org.appcelerator.kroll.util.TiTempFileHelper;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.os.Process;
+import android.os.StrictMode;
+import android.os.StrictMode.ThreadPolicy;
+import android.os.StrictMode.ThreadPolicy.Builder;
 import android.widget.Toast;
 
 /**
@@ -34,7 +40,7 @@ import android.widget.Toast;
  * with the Android FastDev server, and providing
  * APIs to tell whether or not FastDev is currently enabled
  */
-public class TiFastDev
+public class TiFastDev implements Handler.Callback
 {
 	private static final String TAG = "TiFastDev";
 
@@ -59,6 +65,11 @@ public class TiFastDev
 	public static final String UTF8_CHARSET = "UTF-8";
 	public static final String RESULT_OK = "OK";
 	public static final int MAX_TOKEN_COUNT = 16;
+	
+	private static final int MSG_OPEN_INPUT_STREAM = 10;
+	private static final int MSG_FILE_EXISTS = 11;
+	private static final int MSG_GET_LENGTH = 12;
+
 
 	protected boolean enabled = false, listen = false;
 	protected int port = -1;
@@ -67,6 +78,7 @@ public class TiFastDev
 	protected Session session;
 	protected boolean restarting = false;
 	protected TiTempFileHelper tempHelper;
+	protected Handler runtimeHandler = null;
 
 	public static void initFastDev(KrollApplication app)
 	{
@@ -83,6 +95,14 @@ public class TiFastDev
 		if (app == null) {
 			return;
 		}
+		
+		//Starting with API 10, Android default policy is strict mode, which means
+		//all networking can't be done on the main thread. In this case we choose
+		//to change the policy to avoid exceptions.
+		if (Build.VERSION.SDK_INT >= 10) {
+			Builder policy = new ThreadPolicy.Builder().permitNetwork();
+			StrictMode.setThreadPolicy(policy.build());
+		}
 
 		appGuid = app.getAppGUID();
 		tempHelper = app.getTempFileHelper();
@@ -98,10 +118,11 @@ public class TiFastDev
 		enabled = true;
 		readDeployData(deployData);
 
-		if (enabled && fastDevSocket != null) {
+		if (enabled && fastDevSocket != null) {	
 			session = new Session();
 			session.executeHandshake();
 			session.start();
+		
 		}
 	}
 
@@ -154,9 +175,13 @@ public class TiFastDev
 			Looper.prepare();
 		}
 
-		Context ctx = KrollRuntime.getInstance().getKrollApplication().getCurrentActivity();
-		Toast toast = Toast.makeText(ctx, message, Toast.LENGTH_LONG);
-		toast.show();
+		KrollRuntime kRuntime = KrollRuntime.getInstance();
+		if (kRuntime != null) {
+			Context ctx = kRuntime.getKrollApplication().getCurrentActivity();
+			Toast toast = Toast.makeText(ctx, message, Toast.LENGTH_LONG);
+			toast.show();
+		}
+		
 	}
 
 	protected void showDisabledWarning(Exception e)
@@ -169,7 +194,7 @@ public class TiFastDev
 		return urlPrefix + "/" + relativePath;
 	}
 
-	public int getLength(String relativePath)
+	private int getLengthOnRuntime(String relativePath) 
 	{
 		byte result[][] = session.sendMessage(COMMAND_LENGTH, relativePath);
 		if (result != null && result.length > 0) {
@@ -179,7 +204,16 @@ public class TiFastDev
 		return -1;
 	}
 	
-	public boolean fileExists(String path)
+	public int getLength(String relativePath)
+	{
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
+			return getLengthOnRuntime(relativePath);
+		} else {
+			return (Integer) TiMessenger.sendBlockingRuntimeMessage(getRuntimeHandler().obtainMessage(MSG_GET_LENGTH), relativePath);
+		}
+	}
+	
+	private boolean fileExistsOnRuntime(String path)
 	{
 		byte result[][] = session.sendMessage(COMMAND_EXISTS, path);
 		if (result != null && result.length > 0) {
@@ -189,7 +223,16 @@ public class TiFastDev
 		return false;
 	}
 
-	public InputStream openInputStream(String relativePath)
+	public boolean fileExists(String path)
+	{
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
+			return fileExistsOnRuntime(path);
+		} else {
+			return (Boolean) TiMessenger.sendBlockingRuntimeMessage(getRuntimeHandler().obtainMessage(MSG_FILE_EXISTS), path);
+		}
+	}
+
+	private InputStream openInputStreamOnRuntime(String relativePath) 
 	{
 		synchronized (session) {
 			session.checkingForMessage = false;
@@ -223,7 +266,16 @@ public class TiFastDev
 				Log.e(TAG, e.getMessage(), e);
 			}
 		}
-		return null;
+		return null;	
+	}
+
+	public InputStream openInputStream(String relativePath)
+	{
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
+			return openInputStreamOnRuntime(relativePath);
+		} else {
+			return (InputStream) TiMessenger.sendBlockingRuntimeMessage(getRuntimeHandler().obtainMessage(MSG_OPEN_INPUT_STREAM), relativePath);
+		}
 	}
 
 	public static boolean isFastDevEnabled()
@@ -514,5 +566,38 @@ public class TiFastDev
 			}
 		}
 
+	}
+
+	@Override
+	public boolean handleMessage(Message msg)
+	{
+		switch (msg.what) {
+			case MSG_OPEN_INPUT_STREAM: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				result.setResult(openInputStreamOnRuntime((String)result.getArg()));
+				return true;
+			}	
+			case MSG_FILE_EXISTS: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				result.setResult(fileExistsOnRuntime((String)result.getArg()));
+				return true;
+			}
+			case MSG_GET_LENGTH: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				result.setResult(getLengthOnRuntime((String)result.getArg()));
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
+	private Handler getRuntimeHandler()
+	{
+		if (runtimeHandler == null) {
+			runtimeHandler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
+		}
+
+		return runtimeHandler;
 	}
 }

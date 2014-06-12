@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.text.util.Linkify;
 import android.view.WindowManager;
+import android.webkit.WebSettings;
 
 @Kroll.module(parentModule=UIModule.class)
 @Kroll.dynamicApis(properties = {
@@ -72,11 +73,24 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_OFF = TiUIWebView.PLUGIN_STATE_OFF;
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_ON = TiUIWebView.PLUGIN_STATE_ON;
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_ON_DEMAND = TiUIWebView.PLUGIN_STATE_ON_DEMAND;
+	
+	@Kroll.constant public static final int WEBVIEW_LOAD_DEFAULT = WebSettings.LOAD_DEFAULT;
+	@Kroll.constant public static final int WEBVIEW_LOAD_NO_CACHE = WebSettings.LOAD_NO_CACHE;
+	@Kroll.constant public static final int WEBVIEW_LOAD_CACHE_ONLY = WebSettings.LOAD_CACHE_ONLY;
+	@Kroll.constant public static final int WEBVIEW_LOAD_CACHE_ELSE_NETWORK = WebSettings.LOAD_CACHE_ELSE_NETWORK;
+
+
+
+
 
 	@Kroll.constant public static final int PROGRESS_INDICATOR_STATUS_BAR = TiUIProgressIndicator.STATUS_BAR;
 	@Kroll.constant public static final int PROGRESS_INDICATOR_DIALOG = TiUIProgressIndicator.DIALOG;
 	@Kroll.constant public static final int PROGRESS_INDICATOR_INDETERMINANT = TiUIProgressIndicator.INDETERMINANT;
 	@Kroll.constant public static final int PROGRESS_INDICATOR_DETERMINANT = TiUIProgressIndicator.DETERMINANT;
+	
+	@Kroll.constant public static final int OVER_SCROLL_ALWAYS = 0 ;               //android.view.View.OVER_SCROLL_ALWAYS;
+	@Kroll.constant public static final int OVER_SCROLL_IF_CONTENT_SCROLLS = 1;    //android.view.View.OVER_SCROLL_IF_CONTENT_SCROLLS;
+	@Kroll.constant public static final int OVER_SCROLL_NEVER = 2;                 //android.view.View.OVER_SCROLL_NEVER;
 
 	public AndroidModule()
 	{
@@ -92,13 +106,14 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public void openPreferences(@Kroll.argument(optional=true) String prefsName)
 	{
+		Activity activity = TiApplication.getAppRootOrCurrentActivity();
 		if (activity != null) {
 			
-			Intent i = new Intent(getActivity(), TiPreferencesActivity.class);
+			Intent i = new Intent(activity, TiPreferencesActivity.class);
 			if (prefsName != null) {
 				i.putExtra("prefsName", prefsName);
 			}
-			getActivity().startActivity(i);
+			activity.startActivity(i);
 		} else {
 			Log.w(TAG, "Unable to open preferences. Activity is null", Log.DEBUG_MODE);
 		}
@@ -108,13 +123,27 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public void hideSoftKeyboard()
 	{
-		Activity currentActivity = TiApplication.getAppCurrentActivity();
-		if (currentActivity != null) {
-			TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
-		} else if (activity != null) {
-			TiUIHelper.showSoftKeyboard(getActivity().getWindow().getDecorView(), false);
-		} else {
-			Log.w(TAG, "Unable to hide soft keyboard. Activity is null", Log.DEBUG_MODE);
-		}
+		getMainHandler().post(new Runnable() {
+
+			@Override
+			public void run() {
+				Activity currentActivity = TiApplication.getAppCurrentActivity();
+				if (currentActivity != null) {
+					TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
+				} else if (activity != null) {
+					TiUIHelper.showSoftKeyboard(getActivity().getWindow().getDecorView(), false);
+				} else {
+					Log.w(TAG, "Unable to hide soft keyboard. Activity is null", Log.DEBUG_MODE);
+				}
+				
+			}
+			
+		});
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.Android";
 	}
 }

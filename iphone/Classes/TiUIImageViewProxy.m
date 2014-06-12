@@ -9,7 +9,6 @@
 #import "TiUIImageViewProxy.h"
 #import "TiUIImageView.h"
 #import "OperationQueue.h"
-#import "ASIHTTPRequest.h"
 #import "TiApp.h"
 #import "TiFile.h"
 #import "TiBlob.h"
@@ -33,6 +32,11 @@ static NSArray* imageKeySequence;
 	return imageKeySequence;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.ImageView";
+}
+
 -(void)propagateLoadEvent:(NSString *)stateString
 {
     //Send out a content change message if we are auto sizing
@@ -50,10 +54,11 @@ static NSArray* imageKeySequence;
 
 -(void)_configure
 {
-	[self replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
-	[self replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
-	[self replaceValue:NUMBOOL(NO) forKey:@"reverse" notification:NO];
+    [self replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
+    [self replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
+    [self replaceValue:NUMBOOL(NO) forKey:@"reverse" notification:NO];
     [self replaceValue:NUMBOOL(YES) forKey:@"stopped" notification:YES];
+    [self replaceValue:NUMBOOL(YES) forKey:@"autorotate" notification:NO];
     [self replaceValue:NUMFLOAT(DEFAULT_IMAGEVIEW_INTERVAL) forKey:@"duration" notification:NO];
 }
 
@@ -219,7 +224,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	{
 		if ([self _hasListeners:@"error"])
 		{
-			[self fireEvent:@"error" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[request url], @"image", nil]];
+			[self fireEvent:@"error" withObject:[NSDictionary dictionaryWithObject:[request url] forKey:@"image"] errorCode:[error code] message:[TiUtils messageFromError:error]];
 		}
 		RELEASE_TO_NIL(urlRequest);
 	}

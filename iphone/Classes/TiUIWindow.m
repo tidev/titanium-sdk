@@ -11,22 +11,9 @@
 
 - (void) dealloc
 {
-	RELEASE_TO_NIL(gradientWrapperView);
 	[super dealloc];
 }
 
-
--(UIView *)gradientWrapperView
-{
-	if (gradientWrapperView == nil)
-	{
-		gradientWrapperView = [[UIView alloc] initWithFrame:[self bounds]];
-		[gradientWrapperView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-		[self insertSubview:gradientWrapperView atIndex:0];
-	}
-
-	return gradientWrapperView;
-}
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
@@ -34,6 +21,9 @@
     
     //Need the delay so that we get the right navbar bounds
     TiProxy* windowProxy = [self proxy];
+    if ([windowProxy respondsToSelector:@selector(willChangeSize)]) {
+        [(id)windowProxy willChangeSize];
+    }
     if ([windowProxy respondsToSelector:@selector(updateNavBar)]) {
         [windowProxy performSelector:@selector(updateNavBar) 
                            withObject:nil 

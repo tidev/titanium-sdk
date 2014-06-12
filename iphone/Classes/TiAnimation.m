@@ -25,7 +25,7 @@
 @synthesize zIndex, left, right, top, bottom, width, height;
 @synthesize duration, color, backgroundColor, opacity, opaque, view;
 @synthesize visible, curve, repeat, autoreverse, delay, transform, transition;
-@synthesize animatedView, callback, isReverse, reverseAnimation;
+@synthesize animatedView, callback, isReverse, reverseAnimation, resetState;
 
 -(id)initWithDictionary:(NSDictionary*)properties context:(id<TiEvaluator>)context_ callback:(KrollCallback*)callback_
 {
@@ -88,12 +88,12 @@ self.p = v;\
 }\
 		
 		SET_FLOAT_PROP(zIndex,properties);
-		SET_FLOAT_PROP(left,properties);
-		SET_FLOAT_PROP(right,properties);
-		SET_FLOAT_PROP(top,properties);
-		SET_FLOAT_PROP(bottom,properties);
-		SET_FLOAT_PROP(width,properties);
-		SET_FLOAT_PROP(height,properties);
+		SET_ID_PROP(left,properties);
+		SET_ID_PROP(right,properties);
+		SET_ID_PROP(top,properties);
+		SET_ID_PROP(bottom,properties);
+		SET_ID_PROP(width,properties);
+		SET_ID_PROP(height,properties);
 		SET_FLOAT_PROP(duration,properties);
 		SET_FLOAT_PROP(opacity,properties);
 		SET_FLOAT_PROP(delay,properties);
@@ -125,6 +125,14 @@ self.p = v;\
 	return self;
 }
 
+-(void)setCallBack:(KrollCallback*)callback_ context:(id<TiEvaluator>)context_
+{
+    RELEASE_TO_NIL(callback);
+    if (context_ != nil) {
+        callback = [[ListenerEntry alloc] initWithListener:callback_ context:context_ proxy:self];
+    }
+}
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(zIndex);
@@ -154,6 +162,11 @@ self.p = v;\
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.Animation";
+}
+
 +(TiAnimation*)animationFromArg:(id)args context:(id<TiEvaluator>)context create:(BOOL)yn
 {
 	id arg = nil;
@@ -169,6 +182,11 @@ self.p = v;\
 		arg = [args objectAtIndex:0];
 		if ([arg isKindOfClass:[TiAnimation class]])
 		{
+            if ([args count] > 1) {
+                KrollCallback *cb = [args objectAtIndex:1];
+                ENSURE_TYPE(cb, KrollCallback);
+                [(TiAnimation*)arg setCallBack:cb context:context];
+            }
 			return (TiAnimation*)arg;
 		}
 	}
@@ -261,6 +279,12 @@ self.p = v;\
         RELEASE_TO_NIL(animation.animatedView);
         
         animation = [animation reverseAnimation]; // Use the original animation for correct eventing
+        //Make sure we have the animatedViewProxy so we can correctly signal end of animation
+        if ([(id)animation.animatedView isKindOfClass:[TiUIView class]]) {
+            RELEASE_TO_NIL(animatedViewProxy);
+            TiUIView *v = (TiUIView*)animation.animatedView;
+            animatedViewProxy = [(TiViewProxy*)v.proxy retain];
+        }
     }
     
 	if (animation.delegate!=nil && [animation.delegate respondsToSelector:@selector(animationWillComplete:)])
@@ -314,6 +338,17 @@ self.p = v;\
 		animationDuration = [duration doubleValue]/1000;
 	}
     return animationDuration;
+}
+
+-(CAMediaTimingFunction*) timingFunction
+{
+    switch ([curve intValue]) {
+        case UIViewAnimationOptionCurveEaseInOut: return [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+        case UIViewAnimationOptionCurveEaseIn: return [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+        case UIViewAnimationOptionCurveEaseOut: return [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+        case UIViewAnimationOptionCurveLinear: return [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+        default: return [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionDefault];
+    }
 }
 
 -(void)animate:(id)args
@@ -378,29 +413,15 @@ self.p = v;\
 		ApplyConstraintToViewWithBounds(contraints, view_, transitionView.bounds);
 		[ourProxy layoutChildren:NO];
 	}
-	else
-	{
-		CALayer * modelLayer = [view_ layer];
-		CALayer * transitionLayer = [modelLayer presentationLayer];
-		NSArray * animationKeys = [transitionLayer animationKeys];
-		for (NSString * thisKey in animationKeys)
-		{
-			[modelLayer setValue:[transitionLayer valueForKey:thisKey] forKey:thisKey];
-		}
-	}
 
 	animatedView = [theview retain];
     
     if (!transitionAnimation) {
         UIViewAnimationOptions options = (UIViewAnimationOptionAllowUserInteraction); // Backwards compatible
-        if ([view_ animating]) {
-            //TIMOB-10318
-            //Start from current state if animations are already running. Otherwise from initial value.
-            options = options | UIViewAnimationOptionBeginFromCurrentState;
+        if (!resetState) {
+            options = (options | UIViewAnimationOptionBeginFromCurrentState);
         }
-        else {
-            [view_ animationStarted];
-        }
+		[view_ animationStarted];
         NSTimeInterval animationDuration = [self animationDuration];
         
         options |= [curve intValue];
@@ -504,7 +525,69 @@ doReposition = YES;\
                 
                 if (doReposition)
                 {
+                    CABasicAnimation *boundsAnimation = nil;
+                    CABasicAnimation *positionAnimation = nil;
+                    CALayer* gradientLayer = [uiview gradientLayer];
+                    CALayer* bgdLayer = [uiview backgroundImageLayer];
+                    BOOL hasGradient = (gradientLayer != nil);
+                    BOOL hasBackgroundImage = (bgdLayer != nil);
+                    
+                    if (hasGradient && hasBackgroundImage) {
+                        //Avoid duplicte animations on the same layer
+                        hasBackgroundImage = gradientLayer != bgdLayer;
+                    }
+                    
+                    if (hasGradient || hasBackgroundImage) {
+                        boundsAnimation = [CABasicAnimation animationWithKeyPath:@"bounds"];
+                        boundsAnimation.fromValue = [NSValue valueWithCGRect:[uiview bounds]];
+                        boundsAnimation.duration = animationDuration;
+                        boundsAnimation.timingFunction = [self timingFunction];
+                    
+                        positionAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
+                        positionAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake([uiview bounds].size.width / 2, [uiview bounds].size.height / 2)];
+                        positionAnimation.duration = animationDuration;
+                        positionAnimation.timingFunction = [self timingFunction];
+                    }
+                    
+                    BOOL hasShadow = ([uiview shadowLayer].shadowOpacity > 0);
+                    CABasicAnimation *shadowAnimation = nil;
+                    if (hasShadow) {
+                        shadowAnimation = [CABasicAnimation animationWithKeyPath:@"shadowPath"];
+                        shadowAnimation.fromValue = (id)[UIBezierPath bezierPathWithRoundedRect:[uiview bounds] cornerRadius:uiview.layer.cornerRadius].CGPath;
+                        shadowAnimation.duration = animationDuration;
+                        shadowAnimation.timingFunction = [self timingFunction];
+                    }
+                    
                     [(TiViewProxy *)[uiview proxy] reposition];
+                    
+                    if (hasGradient || hasBackgroundImage) {
+                        boundsAnimation.toValue = [NSValue valueWithCGRect:[uiview bounds]];
+                        positionAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake([uiview bounds].size.width / 2, [uiview bounds].size.height / 2)];
+                        if (repeatCount > 0) {
+                            boundsAnimation.autoreverses = (reverseAnimation != nil);
+                            boundsAnimation.repeatCount = repeatCount;
+                            
+                            positionAnimation.autoreverses = (reverseAnimation != nil);
+                            positionAnimation.repeatCount = repeatCount;
+                        }
+                        if (hasGradient) {
+                            [gradientLayer addAnimation:boundsAnimation forKey:@"animateBounds"];
+                            [gradientLayer addAnimation:positionAnimation forKey:@"animatePosition"];
+                        }
+                        if (hasBackgroundImage) {
+                            [bgdLayer addAnimation:boundsAnimation forKey:@"animateBounds"];
+                            [bgdLayer addAnimation:positionAnimation forKey:@"animatePosition"];
+                        }
+                    }
+                    
+                    if (hasShadow) {
+                        shadowAnimation.toValue = (id)[UIBezierPath bezierPathWithRoundedRect:[uiview bounds] cornerRadius:uiview.layer.cornerRadius].CGPath;
+                        if (repeatCount > 0) {
+                            shadowAnimation.autoreverses = (reverseAnimation != nil);
+                            shadowAnimation.repeatCount = repeatCount;
+                        }
+                        [[uiview shadowLayer] addAnimation:shadowAnimation forKey:@"animateShadowPath"];
+                    }
                 }
             }
             
@@ -598,11 +681,11 @@ doReposition = YES;\
                                 //AnimationStarted needs to be called here, otherwise the animation flags for 
                                 //the view being transitioned will end up in a improper state, resulting in 
                                 //layout warning.
-                                [self animationStarted:[NSString stringWithFormat:@"%X",(void *)theview] 
+                                [self animationStarted:[NSString stringWithFormat:@"%@",(void *)theview]
                                                context:self];                               
                             }
                             completion:^(BOOL finished) {
-                                [self animationCompleted:[NSString stringWithFormat:@"%X",(void *)theview]
+                                [self animationCompleted:[NSString stringWithFormat:@"%@",(void *)theview]
                                                 finished:[NSNumber numberWithBool:finished]
                                                  context:self];
                                 

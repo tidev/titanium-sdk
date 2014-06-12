@@ -7,6 +7,7 @@
 
 #import "TiUIiOSAdView.h"
 #import "TiUtils.h"
+#import "APSAnalytics.h"
 
 #ifdef USE_TI_UIIOSADVIEW
 
@@ -30,6 +31,11 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 		[self addSubview:adview];
 	}
 	return adview;
+}
+
+- (id)accessibilityElement
+{
+	return [self adview];
 }
 
 -(CGFloat)contentHeightForWidth:(CGFloat)value
@@ -74,18 +80,13 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 
 - (void)bannerViewDidLoadAd:(ADBannerView *)banner
 {
+    [self.proxy replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
 	if (TI_APPLICATION_ANALYTICS)
 	{
 		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:[banner currentContentSizeIdentifier],@"size",nil];
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.iad.load",@"name",@"ti.iad.load",@"type",nil];
-		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-		[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:event]; 
+        [APSAnalytics sendCustomEvent:@"ti.iad.load" withType:@"ti.iad.load" data:data];
 	}
-	if ([self.proxy _hasListeners:@"load"])
-	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[self.proxy fireEvent:@"load" withObject:event];
-	}
+	[(TiUIiOSAdViewProxy*) self.proxy fireLoad:nil];
 }
 
 - (void)bannerViewActionDidFinish:(ADBannerView *)banner
@@ -93,9 +94,7 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 	if (TI_APPLICATION_ANALYTICS)
 	{
 		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:[banner currentContentSizeIdentifier],@"size",nil];
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.iad.action",@"name",@"ti.iad.action",@"type",nil];
-		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-		[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:event]; 
+        [APSAnalytics sendCustomEvent:@"ti.iad.action" withType:@"ti.iad.action" data:data];
 	}
 	if ([self.proxy _hasListeners:@"action"])
 	{
@@ -111,14 +110,15 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 
 - (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
 {
+	TiProxy * selfProxy = [self proxy];
 	// per Apple, we must hide the banner view if there's no ad
-	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
+	[selfProxy replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
 	
-	if ([self.proxy _hasListeners:@"error"])
+	if ([selfProxy _hasListeners:@"error"])
 	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[event setObject:[error description] forKey:@"message"];
-		[self.proxy fireEvent:@"error" withObject:event];
+		NSString * message = [TiUtils messageFromError:error];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:message forKey:@"message"];
+		[selfProxy fireEvent:@"error" withObject:event errorCode:[error code] message:message];
 	}
 }
 

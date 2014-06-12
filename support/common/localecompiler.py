@@ -49,6 +49,9 @@ class LocaleCompiler(object):
 	def isApp(self,file):
 		return (os.path.basename(file) == "app.xml")
 
+	def isStrings(self,file):
+		return (os.path.basename(file) == "strings.xml")
+
 	def localization_file_name_ios(self,file):
 		if self.isApp(file):
 			return "InfoPlist.strings"
@@ -82,7 +85,7 @@ class LocaleCompiler(object):
 	
 	def compile_for_android(self,file):
 		#TODO: Add android support for app.xml
-		if self.isApp(file):
+		if not self.isStrings(file):
 			return
 		locale = self.get_locale(file)
 		# for andoird, we can simply copy into the right directory
@@ -93,8 +96,29 @@ class LocaleCompiler(object):
 				# Android en-US -> en-rUS (need the r)
 				locale = locale[0:3] + 'r' + locale[-2:]
 			dir = os.path.join(self.android_dir,'values-%s' % locale)
-		if not os.path.exists(dir): os.makedirs(dir)
-		shutil.copy(file,os.path.join(dir,'strings.xml'))
+		to_ = os.path.join(dir,'strings.xml')
+		if not os.path.exists(dir): 
+			os.makedirs(dir)
+			shutil.copy(file, to_)
+		#
+		# Merge strings.xml from /i18n/ and build/android/res/values/
+		# (TIMOB-12663)
+		#
+		elif os.path.isfile(to_):
+			sfile = open(file, 'r')
+			dfile = open(to_, 'r')
+			scontent = sfile.read()
+			dcontent = dfile.read()
+			sfile.close()
+			dfile.close()
+			sindex = scontent.find('</resources>')
+			dindex = dcontent.find('>', dcontent.find('<resources')) + 1
+			content_to_write = scontent[:sindex] + dcontent[dindex:]
+			wfile = open(to_, 'w')
+			wfile.write(content_to_write)
+			wfile.close()
+		else:
+			shutil.copy(file, to_)
 		print "[DEBUG] compiled android file: %s" % file
 		
 	def compile(self):

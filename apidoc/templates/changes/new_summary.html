@@ -1,0 +1,15 @@
+<a name="new_apis"></a>
+
+<h2>New APIs</h2>
+
+The following APIs are new or have expanded platform support in Release
+${config["version"]}.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+% for a in data:
+  <tr><td>${a["name"]}</td><td>${a["type"]}</td><td>${a["summary"]}</td></tr>
+% endfor
+<tr>
+</table>
+

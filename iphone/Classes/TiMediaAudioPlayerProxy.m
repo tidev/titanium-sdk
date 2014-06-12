@@ -47,6 +47,11 @@
     [super _destroy];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Media.AudioPlayer";
+}
+
 -(void)_listenerAdded:(NSString *)type count:(int)count
 {
 	if (count == 1 && [type isEqualToString:@"progress"])
@@ -167,6 +172,15 @@ PLAYER_PROP_BOOL(paused,isPaused);
 PLAYER_PROP_DOUBLE(bitRate,bitRate);
 PLAYER_PROP_DOUBLE(progress,progress);
 PLAYER_PROP_DOUBLE(state,state);
+
+-(NSNumber *)duration
+{
+	if (player != nil){
+        //Convert duration to milliseconds (parity with progress/Android)
+		duration = (int)([player duration]*1000);
+	}
+	return NUMDOUBLE(duration);
+}
 
 -(NSNumber *)volume
 {

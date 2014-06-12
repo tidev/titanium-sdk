@@ -3,27 +3,35 @@ name: Titanium.UI.ScrollView
 summary: |
     A view that contains a horizontally and/or vertically-scrollable region of content.  
 description: |
-    Use the <Titanium.UI.createScrollView> method to create a scroll view.
+    Use the <Titanium.UI.createScrollView> method or **`<ScrollView>`** Alloy element to create a scroll view.
     
     Views added to the scroll view will be scrolled based on the size of the scrollable region of 
     content. If a scrollable region fits within the size of its scroll view, the view will not 
     scroll.
     
-    #### Android
+    #### Android Platform Notes
     
-    On Android, a scroll view can only scroll in one direction, either vertical or horizontal, 
-    and not both at the same time. Hence, the <Titanium.UI.ScrollView.scrollType> property may be 
-    used to set the scroll direction explicitly.
-    
-    If the `scrollType` property is not defined, the scroll view attempts to deduce the scroll 
-    direction based on some of the other properties that have been set. Specifically, if 
-    `contentWidth` and `width` are both set and are equal to each other, or if they are both set 
+    On Android, a scroll view can only scroll in one direction, either vertically or horizontally, 
+    and not both at the same time. The <Titanium.UI.ScrollView.scrollType> property sets the scroll 
+    direction explicitly. If the `scrollType` property is not assigned a value, the scroll view 
+    attempts to determine the scroll direction based on some the following rules:
+
+    * If <Titanium.UI.ScrollView.contentWidth> and <Titanium.UI.ScrollView.width> are both 
+    set and are equal to each other, or if they are both set 
     *and* `showVerticalScrollIndicator` is set to `true`, then the scroll direction is set to 
-    "vertical".  If `contentHeight` and `height` are both set and are equal, or if they are both 
-    set and `showHorizontalScrollIndicator` is set to `true`, then the scroll direction is set 
-    to "horizontal".  If `scrollType` is set, it overrides the deduced setting.
+    "vertical".  
+
+    * If <Titanium.UI.ScrollView.contentHeight> and <Titanium.UI.ScrollView.height> are 
+    both set and are equal, or if they are both set and <Titanium.UI.ScrollView.showHorizontalScrollIndicator> is set to 
+    `true`, then the scroll direction is set to "horizontal".
+
+    Pinching a `ScrollableView` to zoom in and out of content is not supported on Android. On iOS, this action 
+    is natively supported by the UIScrollView class, but on Android, the native ScrollView class does
+    not support this action. Parity between the two platforms cannot be achieved with this feature.
 extends: Titanium.UI.View
 since: "0.9"
+excludes:
+    properties: [ enabled ]
 
 methods:
   - name: scrollTo
@@ -36,10 +44,11 @@ methods:
       - name: y
         summary: Y coordinate from the scrollable region's coordinate system.
         type: Number
+    exclude-platforms: [blackberry]
         
   - name: setContentOffset
     summary: Sets the value of the [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     parameters:
       - name: contentOffset
         summary: |
@@ -50,6 +59,7 @@ methods:
         summary: Determines whether the scrollable region reposition should be animated 
         type: contentOffsetOption
         optional: true
+    exclude-platforms: [blackberry]
 
   - name: setZoomScale
     summary: Sets the value of the [zoomScale](Titanium.UI.ScrollView.zoomScale) property.
@@ -63,6 +73,7 @@ methods:
         summary: Determines whether the scrollable region reposition should be animated 
         type: zoomScaleOption
         optional: true
+    exclude-platforms: [blackberry]
         
   - name: scrollToBottom
     summary: Moves the end of the scrollable region into the viewable area.
@@ -92,7 +103,7 @@ events:
       - name: decelerating
         summary: Indicates whether the scroll is decelerating.
         type: Boolean
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
 
       - name: dragging
         summary: |
@@ -100,8 +111,23 @@ events:
             remained in contact with the display to physically drag the view, as opposed to it being 
             the result of scrolling momentum.
         type: Boolean
-        platforms: [iphone, ipad, mobileweb]
-        
+        platforms: [iphone, ipad, mobileweb, tizen]
+
+      - name: zooming
+        summary: |
+            Indicates whether the event was fired during a zooming operation. This is only available
+            from Release 3.2.3 of the Titanium Mobile SDK.
+        type: Boolean
+        platforms: [iphone, ipad]
+
+      - name: curZoomScale
+        summary: |
+            The current scaling factor of the scroll view content. This might not be equal to 
+            the `zoomScale` property or be within the range specified by `minZoomScale` and `maxZoomScale`.
+            This is only available from Release 3.2.3 of the Titanium Mobile SDK.
+        type: Number
+        platforms: [iphone, ipad]
+
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -114,7 +140,7 @@ events:
     summary: Fired when the view has stopped moving completely.
     description: |
         This event has been deprecated and renamed scrollend (lower case).
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.1.0"
 
   - name: dragStart
@@ -124,7 +150,7 @@ events:
 
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
    
   - name: dragEnd
     summary: Fired when the scrollable region stops being dragged.
@@ -133,7 +159,7 @@ events:
 
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     properties:
       - name: decelerate
         summary: |
@@ -143,7 +169,7 @@ events:
 
   - name: scrollend
     summary: Fired when the view has stopped moving completely.
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "3.0.0"
 
   - name: dragstart
@@ -151,7 +177,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     since: "3.0.0"
    
   - name: dragend
@@ -159,7 +185,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     properties:
       - name: decelerate
         summary: |
@@ -170,9 +196,13 @@ events:
 
 properties:
   - name: canCancelEvents
-    summary: |
-        Determines whether this scroll view can cancel subview touches in order to scroll instead.
-    description: Set to `false` to ensure that subview touches always take effect.
+    summary: Determines whether this scroll view can cancel subview touches in order to scroll instead.
+    description: |
+        On iOS, this property maps to the native `canCancelContentTouches` property which controls 
+        whether touches in the content view always lead to tracking. See [UIScrollView](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIScrollView_Class/Reference/UIScrollView.html) for more details.
+
+        On Android, setting this property to false prevents the scroll view from intercepting 
+        any touch events from its subviews. Note that this behavior may be slightly different from iOS.
     type: Boolean
     default: true
     platforms: [android, iphone, ipad]
@@ -191,6 +221,7 @@ properties:
     description: |
         On iOS, a new value causes the scroll view to perform an animated scroll to the new offset. 
         The <Titanium.UI.ScrollView.setContentOffset> method can be used to prevent this animation.
+    exclude-platforms: [blackberry]
         
   - name: contentWidth
     summary: Width of the scrollable region.
@@ -198,6 +229,14 @@ properties:
         While `auto` and absolute dimensions are supported, relative values, such as those provided 
         in percentages, are not. The minimum value for contentWidth is the width of the scroll view.
     type: [Number, String]
+
+  - name: decelerationRate
+    summary: The deceleration rate of the ScrollView.
+    type: Number
+    constants: Titanium.UI.iOS.SCROLL_DECELERATION_RATE_*
+    default: Undefined.
+    platforms: [iphone, ipad]
+    since: "3.2.3"
     
   - name: disableBounce
     summary: Determines whether scroll bounce of the scrollable region is enabled.
@@ -207,7 +246,7 @@ properties:
         This property takes precedence over the `horizontalBounce` and `verticalBounce` properties.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: horizontalBounce
     summary: Determines whether horizontal scroll bounce of the scrollable region is enabled.
@@ -222,7 +261,7 @@ properties:
         `verticalBounce` properties.
     type: Boolean
     default: true
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: maxZoomScale
     summary: Maximum scaling factor of the scrollable region and its content.
@@ -246,6 +285,14 @@ properties:
     default: 1.0
     platforms: [iphone, ipad]
 
+  - name: overScrollMode
+    summary: Determines the behavior when the user overscolls the view.
+    type: Number
+    constants: Titanium.UI.Android.OVER_SCROLL_*
+    default: Titanium.UI.Android.OVER_SCROLL_ALWAYS
+    platforms: [android]
+    since: "3.1.0"
+
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
     description: |
@@ -260,10 +307,9 @@ properties:
     since: 2.0.0
 
   - name: scrollIndicatorStyle
-    summary: |
-        Style of the scrollbar, specified using one of the constants from 
-        <Titanium.UI.iPhone.ScrollIndicatorStyle>.
+    summary: Style of the scrollbar.
     type: Number
+    constants: <Titanium.UI.iPhone.ScrollIndicatorStyle.*
     default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
     platforms: [iphone, ipad]
 
@@ -282,7 +328,7 @@ properties:
     summary: Determines whether scrolling is enabled for the view.
     type: Boolean
     default: true
-    platforms: [iphone, ipad, android, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     since: { iphone: "3.0.0", ipad: "3.0.0", android: "3.0.0", mobileweb: "3.0.0" }
 
   - name: showHorizontalScrollIndicator
@@ -290,12 +336,14 @@ properties:
     description: Set to `true` to show the horizontal scroll indicator.
     type: Boolean
     default: false
+    exclude-platforms: [blackberry]
     
   - name: showVerticalScrollIndicator
     summary: Determines whether the vertical scroll indicator is visible.
     description: Set to `true` to show the vertical scroll indicator.
     type: Boolean
     default: false
+    exclude-platforms: [blackberry]
     
   - name: verticalBounce
     summary: Determines whether vertical scroll bounce of the scrollable region is enabled.
@@ -310,7 +358,7 @@ properties:
         `verticalBounce` properties.
     type: Boolean
     default: true
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: zoomScale
     summary: Scaling factor of the scroll view's content.
@@ -403,6 +451,17 @@ examples:
             win.add(label);
             win.open();
 
+  - title: Alloy XML Markup
+    example: |
+       Previous simple scroll view example as an Alloy view.
+
+           <Alloy>
+               <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" title="ScrollView Demo">
+                   <ScrollView id="scrollView" showVerticalScrollIndicator="true" showHorizontalScrollIndicator="true" height="80%" width="80%">
+                       <View id="view" backgroundColor="#336699" borderRadius="10" top="10" height="2000" width="1000" />
+                   </ScrollView>
+               </Window>
+           </Alloy>
 ---
 name: contentOffsetOption
 summary: Optional parameter for [setContentOffset](Titanium.UI.ScrollView.setContentOffset) method.

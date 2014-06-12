@@ -8,10 +8,22 @@ description: |
     Unlike most views, progress bars are hidden by default, so you must explicitly 
     show the progress bar.
 
-    Use the <Titanium.UI.createProgressBar> method to create a progress bar.
+    Use the <Titanium.UI.createProgressBar> method or **`<ProgressBar>`** Alloy element to create a progress bar.
+
+    #### Android Platform Notes
+
+    In SDK 3.0, use <Titanium.UI.Android.ProgressIndicator> to display a progress indicator 
+    in a modal dialog or window title bar. Use `ProgressBar` to display the progress bar inside
+    another view.
+
+    #### iOS Platform Notes
+
+    On iOS, to display the progress bar in the window title bar, assign the progress bar object
+    to the window's [titleControl](Titanium.UI.Window.titleControl) property.
+    Make sure the window is modal and not full screen, and that the navigation bar is not hidden.
 extends: Titanium.UI.View
 since: "0.8"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen, blackberry]
 
 methods:
     # main doc inherited from Ti.UI.View.add
@@ -24,12 +36,12 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.ProgressBar.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
 properties:
 
@@ -38,15 +50,18 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
+    exclude-platforms: [blackberry]
   - name: font
     summary: Font for the progress bar text.
     type: Font
+    exclude-platforms: [blackberry]
   - name: max
     summary: Maximum value of the progress bar.
     type: Number
   - name: message
     summary: Progress bar text.
     type: String
+    exclude-platforms: [blackberry]
   - name: min
     summary: Minimum value of the progress bar.
     type: Number
@@ -80,5 +95,19 @@ examples:
             });
             win.add(pb);
             pb.show();
-        
-        
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        progressbarexample.xml:
+
+            <Alloy>
+                <Window id="win" backgroundColor="white">
+                    <ProgressBar id="pb" top="10" width="250" height="auto" min="0" max="10" value="0" color="#fff" message="Downloading 0 of 10" />
+                </Window>
+            </Alloy>
+
+        progressbarexample.js:
+
+            $.pb.show();

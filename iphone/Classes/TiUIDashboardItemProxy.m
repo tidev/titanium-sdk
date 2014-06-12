@@ -29,6 +29,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.DashboardItem";
+}
+
 -(void)setItem:(LauncherItem*)item_
 {
 	if (item!=nil)
@@ -55,6 +60,12 @@
 {
 	NSInteger badgeValue = [TiUtils intValue:value];
 	[[self ensureItem] setBadgeValue:badgeValue];
+}
+
+-(void)setTitle:(id)value
+{
+	NSString* badgeValue = [TiUtils stringValue:value];
+	[[self ensureItem] setTitle:badgeValue];
 }
 
 -(void)setImage:(id)value
@@ -88,13 +99,13 @@
     // because -[TiViewProxy add:] could exit early if it's not on the main thread.
     // On the other hand, blocking this to execute on the main thread only doesn't appear to work right.
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+	TiThreadPerformOnMainThread(^{
         LauncherItem *item_ = [self  ensureItem];
         if (item_.view==nil)
         {
             [item_ setView:[self view]];
         }
-    });
+	}, NO);
 }
 
 

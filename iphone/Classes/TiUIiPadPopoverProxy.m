@@ -9,13 +9,30 @@
 #import "TiUIiPadPopoverProxy.h"
 #import "TiUIiPadPopover.h"
 #import "TiUtils.h"
+#import "TiWindowProxy.h"
 #import <libkern/OSAtomic.h>
+
+#ifdef USE_TI_UITABLEVIEW
+#import "TiUITableViewRowProxy.h"
+#endif
 
 TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
 @implementation TiUIiPadPopoverProxy
-@synthesize viewController, popoverView;
+@synthesize popoverView;
 
+static NSArray* popoverSequence;
+
+#pragma mark Internal
+
+-(NSArray *)keySequence
+{
+	if (popoverSequence == nil)
+	{
+		popoverSequence = [[NSArray arrayWithObjects:@"contentView",@"width",@"height",nil] retain];
+	}
+	return popoverSequence;
+}
 #pragma mark Setup
 
 -(id)init
@@ -32,13 +49,18 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 		//This shouldn't happen because we clear it on hide.
 		currentlyDisplaying = nil;
 	}
-	[viewController setProxy:nil];
 	RELEASE_TO_NIL(viewController);
 	RELEASE_TO_NIL(navigationController);
 	RELEASE_TO_NIL(popoverController);
 	RELEASE_TO_NIL(popoverView);
     RELEASE_TO_NIL(closingCondition);
+    RELEASE_TO_NIL(contentViewProxy);
 	[super dealloc];
+}
+
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPad.Popover";
 }
 
 #pragma mark Internal methods
@@ -55,8 +77,20 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 	UINavigationItem * ourItem = [viewController navigationItem];
 
 	[ourItem setTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
-	[ourItem setLeftBarButtonItem:[[self valueForKey:@"leftNavButton"] barButtonItem] animated:animated_];
-	[ourItem setRightBarButtonItem:[[self valueForKey:@"rightNavButton"] barButtonItem] animated:animated_];
+    id item = [self valueForKey:@"leftNavButton"];
+    if ( (item == nil) || (item == [NSNull null]) ) {
+        [ourItem setLeftBarButtonItem:nil animated:animated_];
+    }
+    else {
+        [ourItem setLeftBarButtonItem:[item barButtonItem] animated:animated_];
+    }
+    item = [self valueForKey:@"rightNavButton"];
+    if ( (item == nil) || (item == [NSNull null]) ) {
+        [ourItem setRightBarButtonItem:nil animated:animated_];
+    }
+    else {
+        [ourItem setRightBarButtonItem:[item barButtonItem] animated:animated_];
+    }
 	
 	[[self navigationController] setNavigationBarHidden:[TiUtils boolValue:[self valueForKey:@"navBarHidden"]] animated:animated_];
 
@@ -64,7 +98,17 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
 -(CGSize)contentSize
 {
-	return SizeConstraintViewWithSizeAddingResizing([self layoutProperties], self, CGSizeZero, NULL);
+    CGSize screenSize = [[UIScreen mainScreen] bounds].size;
+    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    
+    if (orientation == UIInterfaceOrientationLandscapeRight || orientation ==  UIInterfaceOrientationLandscapeLeft ) {
+        CGSize tempSize = CGSizeMake(screenSize.height, screenSize.width);
+        screenSize = tempSize;
+    }
+    if (contentViewProxy != nil) {
+        return SizeConstraintViewWithSizeAddingResizing([contentViewProxy layoutProperties], contentViewProxy, screenSize , NULL);
+    }
+    return SizeConstraintViewWithSizeAddingResizing(&popoverLayoutProperties, self, screenSize , NULL);
 }
 
 -(UINavigationController *)navigationController
@@ -72,6 +116,7 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 	if (navigationController == nil)
 	{
 		navigationController = [[UINavigationController alloc] initWithRootViewController:[self viewController]];
+		[TiUtils configureController:navigationController withObject:nil];
 	}
 	return navigationController;
 }
@@ -79,42 +124,61 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 -(void)updateContentSize
 {
     CGSize newSize = [self contentSize];
-    [[self viewController] setContentSizeForViewInPopover:newSize];
-	[self layoutChildren:NO];
+    if ([TiUtils isIOS7OrGreater]) {
+        [[self viewController] setPreferredContentSize:newSize];
+    } else {
+        [[self viewController] setContentSizeForViewInPopover:newSize];
+    }
+    if (contentViewProxy != nil) {
+        [contentViewProxy reposition];
+    } else {
+        [self reposition];
+    }
 }
 
+
+
 #pragma mark Accessors
--(TiViewController *)viewController
+-(UIViewController *)viewController
 {
-	if (viewController == nil)
-	{
-		viewController = [[TiViewController alloc] initWithViewProxy:self];
-/*
- *	Yes, I know that [TiViewController view] will return [self view] anyways, but for some
- *	strange reason, UIPopoverController doesn't like that. So we must explicitly set the view
- *	variable so that the UIViewController mojo isn't thrown off for sizing.
- */
-		[viewController setView:[self view]];
-	}
-	return viewController;
+    if (viewController == nil) {
+        if (contentViewProxy != nil) {
+            if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
+                [(TiWindowProxy*)contentViewProxy setIsManaged:YES];
+                viewController =  [[(TiWindowProxy*)contentViewProxy hostingController] retain];
+            } else {
+                viewController = [[TiViewController alloc] initWithViewProxy:contentViewProxy];
+            }
+        } else {
+            viewController = [[TiViewController alloc] initWithViewProxy:self];
+        }
+    }
+    return viewController;
 }
 
 -(UIPopoverController *)popoverController
 {
-	if (popoverController == nil)
-	{
-		popoverController = [[UIPopoverController alloc] initWithContentViewController:[self navigationController]];
-		[popoverController setDelegate:self];
-		[self refreshTitleBarWithObject:nil];
-		[self updateContentSize];
-	}
-	return popoverController;
+    if (popoverController == nil) {
+        if (contentViewProxy != nil) {
+            popoverController = [[UIPopoverController alloc] initWithContentViewController:[self viewController]];
+        } else {
+            popoverController = [[UIPopoverController alloc] initWithContentViewController:[self navigationController]];
+            [self refreshTitleBarWithObject:nil];
+        }
+        [popoverController setDelegate:self];
+        [self updateContentSize];
+    }
+    return popoverController;
 }
 
 #pragma mark Public-facing accessors
 
 -(void)setRightNavButton:(id)item withObject:(id)properties
 {
+    if (contentViewProxy != nil) {
+        DebugLog(@"[ERROR] Popover is using the contentView to display content. Ignoring.");
+        return;
+    }
 	ENSURE_SINGLE_ARG_OR_NIL(item,TiViewProxy);
 	[self replaceValue:item forKey:@"rightNavButton" notification:NO];
 	[self refreshTitleBarWithObject:properties];
@@ -122,6 +186,10 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
 -(void)setLeftNavButton:(id)item withObject:(id)properties
 {
+    if (contentViewProxy != nil) {
+        DebugLog(@"[ERROR] Popover is using the contentView to display content. Ignoring.");
+        return;
+    }
 	ENSURE_SINGLE_ARG_OR_NIL(item,TiViewProxy);
 	[self replaceValue:item forKey:@"leftNavButton" notification:NO];
 	[self refreshTitleBarWithObject:properties];
@@ -129,6 +197,10 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
 -(void)setNavBarHidden:(id)item withObject:(id)properties
 {
+    if (contentViewProxy != nil) {
+        DebugLog(@"[ERROR] Popover is using the contentView to display content. Ignoring.");
+        return;
+    }
 	[self replaceValue:item forKey:@"navBarHidden" notification:NO];
 	[self refreshTitleBarWithObject:properties];
 }
@@ -167,13 +239,21 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
 -(void)setTitle:(id)item
 {
+    if (contentViewProxy != nil) {
+        DebugLog(@"[ERROR] Popover is using the contentView to display content. Ignoring.");
+    }
 	[self replaceValue:item forKey:@"title" notification:NO];
 	[self refreshTitleBarWithObject:nil];
 }
 
 -(void)setWidth:(id)value
 {
-	[super setWidth:value];
+    if (contentViewProxy != nil) {
+        [contentViewProxy setWidth:value];
+    } else {
+        popoverLayoutProperties.width = TiDimensionFromObject(value);
+        [self replaceValue:value forKey:@"width" notification:NO];
+    }
 	if (popoverController != nil)
 	{
 		TiThreadPerformOnMainThread(^{[self updateContentSize];}, NO);
@@ -182,11 +262,56 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
 -(void)setHeight:(id)value
 {
-	[super setHeight:value];
+    if (contentViewProxy != nil) {
+        [contentViewProxy setHeight:value];
+    } else {
+        popoverLayoutProperties.height = TiDimensionFromObject(value);
+        [self replaceValue:value forKey:@"height" notification:NO];
+    }
 	if (popoverController != nil)
 	{
 		TiThreadPerformOnMainThread(^{[self updateContentSize];}, NO);
 	}
+}
+
+-(void)setTop:(id)value
+{
+    DeveloperLog(@"[WARN] PopoverProxy only supports width and height properties");
+}
+
+-(void)setBottom:(id)value
+{
+    DeveloperLog(@"[WARN] PopoverProxy only supports width and height properties");
+}
+
+-(void)setLeft:(id)value
+{
+    DeveloperLog(@"[WARN] PopoverProxy only supports width and height properties");
+}
+
+-(void)setRight:(id)value
+{
+    DeveloperLog(@"[WARN] PopoverProxy only supports width and height properties");
+}
+
+-(void)setCenter:(id)value
+{
+    DeveloperLog(@"[WARN] PopoverProxy only supports width and height properties");
+}
+
+-(void)setContentView:(id)value
+{
+    ENSURE_SINGLE_ARG(value, TiViewProxy);
+    if (isShowing) {
+        DebugLog(@"[ERROR] Changing contentView when the popover is showing is not supported");
+        return;
+    }
+    if (contentViewProxy != nil) {
+        RELEASE_TO_NIL(contentViewProxy);
+    }
+    contentViewProxy = [(TiViewProxy*) value retain];
+    [self replaceValue:contentViewProxy forKey:@"contentView" notification:NO];
+    
 }
 
 
@@ -221,10 +346,24 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
 	TiThreadPerformOnMainThread(^{
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-		[self windowWillOpen];
-		[self reposition];
-		[self updatePopoverNow];
-		[self windowDidOpen];
+        if (contentViewProxy != nil) {
+            if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
+                [(TiWindowProxy*)contentViewProxy open:nil];
+                [(TiWindowProxy*) contentViewProxy gainFocus];
+                [self updatePopoverNow];
+            } else {
+                [contentViewProxy windowWillOpen];
+                [contentViewProxy reposition];
+                [self updatePopoverNow];
+                [contentViewProxy windowDidOpen];
+            }
+        } else {
+            DebugLog(@"[WARN] Using the popover without the contentView property set is deprecated.");
+            [self windowWillOpen];
+            [self reposition];
+            [self updatePopoverNow];
+            [self windowDidOpen];
+        }
 	},YES);
 
 }
@@ -270,6 +409,11 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 	else
 	{
 		UIView *view_ = [popoverView view];
+#ifdef USE_TI_UITABLEVIEW
+        if (view_ == nil && [popoverView isKindOfClass:[TiUITableViewRowProxy class]] && [popoverView viewAttached]) {
+            view_ = [[(TiUITableViewRowProxy*)popoverView callbackCell] contentView];
+        }
+#endif
 		if ([view_ window] == nil) {
 			// No window, so we can't display the popover...
 			DebugLog(@"[WARN] Unable to display popover; view is not attached to the current window");
@@ -352,11 +496,19 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 	if (currentlyDisplaying == self) {
 		currentlyDisplaying = nil;
 	}
-	[self windowWillClose];
+    if (contentViewProxy != nil) {
+        [contentViewProxy windowWillClose];
+    } else {
+        [self windowWillClose];
+    }
 	isShowing = NO;
 	[self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-	[self windowDidClose];
+    if (contentViewProxy != nil) {
+        [contentViewProxy windowDidClose];
+    } else {
+        [self windowDidClose];
+    }
 	[self forgetSelf];
 	RELEASE_TO_NIL(viewController);
 	RELEASE_TO_NIL_AUTORELEASE(popoverController);
@@ -366,38 +518,6 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
     isDismissing = NO;
     [closingCondition signal];
     [closingCondition unlock];
-}
-
--(BOOL)suppressesRelayout
-{
-	return YES;
-}
-
-- (UIViewController *)childViewController;
-{
-	return nil;
-}
-
-/*	
- *	The viewWill/DidAppear/Disappear functions are here to conform to the
- *	TIUIViewController protocol, but currently do nothing. In the future they
- *	may pass the events onto the children. But whether that's needed or not
- *	requires research. TODO: Research popover actions for view transitions
- */
-- (void)viewWillAppear:(BOOL)animated
-{
-}
-
-- (void)viewDidAppear:(BOOL)animated
-{
-}
-
-- (void)viewWillDisappear:(BOOL)animated
-{
-}
-
-- (void)viewDidDisappear:(BOOL)animated
-{
 }
 
 @end

@@ -11,14 +11,14 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.TabContentViewProxy;
 import ti.modules.titanium.ui.TabProxy;
-import ti.modules.titanium.ui.ViewProxy;
+import android.app.Activity;
 import android.graphics.Color;
 import android.view.View;
 
 
 public abstract class TiUIAbstractTab extends TiUIView {
-	private TiUIView contentView;
 
 	public TiUIAbstractTab(TabProxy proxy) {
 		super(proxy);
@@ -38,24 +38,24 @@ public abstract class TiUIAbstractTab extends TiUIView {
 	 * @return the content view or null if the tab is empty
 	 */
 	public View getContentView() {
-		if (contentView == null) {
-			TiWindowProxy windowProxy = getWindowProxy();
-			if (windowProxy == null) {
-				// If no window is provided use an empty view.
-				View emptyContent = new View(TiApplication.getInstance().getApplicationContext());
-				emptyContent.setBackgroundColor(Color.BLACK);
-				return emptyContent;
-			}
-
-			ViewProxy contentViewProxy = new ViewProxy();
-			contentViewProxy.setActivity(windowProxy.getActivity());
-			contentView = contentViewProxy.getOrCreateView();
-
-			// Allow the window to fill the content view with its children.
-			windowProxy.getKrollObject().setWindow(contentViewProxy);
+		TiWindowProxy windowProxy = getWindowProxy();
+		if (windowProxy == null) {
+			// If no window is provided use an empty view.
+			View emptyContent = new View(TiApplication.getInstance().getApplicationContext());
+			emptyContent.setBackgroundColor(Color.BLACK);
+			return emptyContent;
 		}
 
-		return contentView.getNativeView();
+		// A tab's window should be bound to the tab group's activity.
+		// In order for the 'activity' property to work correctly
+		// we need to set the content view's activity to that of the group.
+		Activity tabGroupActivity = ((TabProxy) proxy).getTabGroup().getActivity();
+		windowProxy.setActivity(tabGroupActivity);
+
+		// Assign parent so events bubble up correctly.
+		windowProxy.setParent(proxy);
+
+		return windowProxy.getOrCreateView().getOuterView();
 	}
 
 	private TiWindowProxy getWindowProxy() {

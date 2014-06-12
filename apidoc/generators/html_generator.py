@@ -168,6 +168,34 @@ def json_to_file(obj, filename):
 	out.write(json.dumps(obj, indent=4))
 	out.close()
 
+def get_constants_html (constants_list, api_type):
+	global all_annotated_apis
+	if api_type == "method":
+		rv = "\nThis parameter accepts the following constants:\n\n"
+	else:
+		rv = "\nThis property can be assigned the following constants:\n\n"
+
+	if type(constants_list) is not list:
+		a = [constants_list]
+		constants_list = a
+	for item in constants_list:
+		namespace = item.rsplit('.', 1)[0]
+		token = item.rsplit('.', 1)[-1]
+		if item[-1] == '*':
+			token = token[:-1]
+
+		if namespace in all_annotated_apis:
+			for property in all_annotated_apis[namespace].api_obj["properties"]:
+				if (token and property["name"].startswith(token)) or (not token and re.match(r"[_A-Z]+", property["name"])):
+					prop = namespace + "." + property["name"]
+					rv += "   * [" + prop + "](" + prop + ")\n"
+
+				if property["name"] == token:
+					break
+
+	return rv
+
+
 # Annotations specific to this output format
 def annotate(annotated_obj):
 	annotated_obj.summary_html = ""
@@ -190,13 +218,15 @@ def annotate(annotated_obj):
 		annotated_obj.summary_html = markdown_to_html(summary, obj=annotated_obj, suppress_link_warnings=is_inherited)
 	if dict_has_non_empty_member(annotated_obj.api_obj, "description"):
 		annotated_obj.description_html = markdown_to_html(annotated_obj.api_obj["description"], obj=annotated_obj, suppress_link_warnings=is_inherited)
+		if "constants" in annotated_obj.api_obj:
+			annotated_obj.description_html += markdown_to_html(get_constants_html(annotated_obj.api_obj["constants"], annotated_obj.typestr))
 	if dict_has_non_empty_member(annotated_obj.api_obj, "examples"):
 		for example in annotated_obj.api_obj["examples"]:
 			one_example = {"title": "", "example": ""}
 			if dict_has_non_empty_member(example, "title"):
 				one_example["title"] = example["title"]
 			if dict_has_non_empty_member(example, "example"):
-				html_example = markdown_to_html(example["example"], obj=annotated_obj, suppress_link_warnings=is_inherited)
+				html_example = markdown_to_html(example["example"], obj=annotated_obj, suppress_link_warnings=True)
 				# Suspicious if the example has content (beyond the <p></p>) but not <code>.
 				# This can happen if in the .yml the example starts off immediately with code,
 				# because the yaml parser interprets the leading four spaces (which the programmer
@@ -319,6 +349,8 @@ def load_file_markdown(file_specifier, obj):
 def anchor_for_object_or_member(obj_specifier, text=None, language="markdown", suppress_code_formatting=False):
 	fragment = ""
 	obj_specifier_base = obj_specifier
+	if obj_specifier_base.startswith("Ti."):
+		obj_specifier_base = "Titanium.%s" % obj_specifier_base[3:]
 	fragment_start = obj_specifier.rfind("#")
 	if fragment_start >= 0:
 		fragment = obj_specifier[fragment_start:]
@@ -431,7 +463,7 @@ def replace_with_link(full_string, link_info, suppress_warnings=False):
 
 def process_markdown_links(s, suppress_link_warnings=False):
 	new_string = s
-	patterns = (r"(\[[^\]]+\]\([^\)\s]+\))", r"(\<[^\>\s]+\>)")
+	patterns = (r"(\[[^\]]+\]\([^\)\s]+\))", r"((?!`)\<[^\>\s]+\>(?!`))")
 	for pattern in patterns:
 		prog = re.compile(pattern, re.MULTILINE)
 		results = prog.findall(new_string)

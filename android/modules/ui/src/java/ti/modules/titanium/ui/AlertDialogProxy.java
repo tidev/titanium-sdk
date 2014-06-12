@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,7 +24,8 @@ import android.app.Activity;
 		TiC.PROPERTY_CANCEL,
 		TiC.PROPERTY_MESSAGE,
 		TiC.PROPERTY_TITLE,
-		TiC.PROPERTY_OK
+		TiC.PROPERTY_OK,
+		TiC.PROPERTY_PERSISTENT
 	}
 )
 public class AlertDialogProxy extends TiViewProxy
@@ -80,5 +81,11 @@ public class AlertDialogProxy extends TiViewProxy
 
 		TiUIDialog d = (TiUIDialog) getOrCreateView();
 		d.hide(options);
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.AlertDialog";
 	}
 }

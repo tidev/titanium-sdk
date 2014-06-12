@@ -3,7 +3,8 @@ name: Titanium.UI.SearchBar
 summary: A specialized text field for entering search text.
 description: |
     The `SearchBar` object is closely modeled on an iOS native search bar.
-    As such, not all features are supported on other platforms.
+    As such, not all features are supported on other platforms. For Android applications, 
+    consider using a <Titanium.UI.Android.SearchView> object instead.
     
     Search bars are most commonly used for filtering the rows in a [TableView](Titanium.UI.TableView).
     You can add a search bar to a table view by setting the table view's 
@@ -11,7 +12,7 @@ description: |
 
     A search bar can also be used without a table view.
 
-    Use the <Titanium.UI.createSearchBar> method to create a search bar.
+    Use the <Titanium.UI.createSearchBar> method or Alloy **`<SearchBar>`** element to create a search bar.
 
     #### Android Platform Implementation Notes
 
@@ -44,7 +45,7 @@ description: |
             // standard click event handling here
     
 extends: Titanium.UI.View
-excludes: { methods: [ add ] }
+excludes: { methods: [ add, removeAllChildren ] }
 since: "0.8"
 platforms: [android, iphone, ipad]
 methods:
@@ -101,14 +102,8 @@ properties:
 
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 
-    description: |
-        Specify one of the following constants from <Titanium.UI>: 
-        [TEXT_AUTOCAPITALIZATION_NONE](Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE), 
-        [TEXT_AUTOCAPITALIZATION_WORDS](Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS), 
-        [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES), or 
-        [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
-
     type: Number
+    constants: Titanium.UI.TEXT_AUTOCAPITALIZATION_*
     platforms: [iphone, ipad]
     default: No autocapitalization.
 
@@ -123,9 +118,9 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
         
-        On iOS, `barColor` specifies the color of the "frame" around the search text field.
+        On iOS and Android, `barColor` specifies the color of the "frame" around the search text field.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     default: System default bar color.
 
   - name: hintText
@@ -149,7 +144,7 @@ properties:
   - name: prompt
     summary: Single line of text displayed at the top of the search bar.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     default: No prompt.
 
   - name: promptid
@@ -191,5 +186,11 @@ examples:
             	height:43,
             	top:0,
             });
-        
-        
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+            <Alloy>
+                <SearchBar id="search" barColor="#000" showCancel="true" height="43" top="0" />
+            </Alloy>

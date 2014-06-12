@@ -55,10 +55,36 @@ def clean_namespace(ns_in):
 			return part
 	return ".".join([clean_part(s) for s in ns_in.split(".") ])
 
-def to_jsca_description(summary):
+# Do not prepend 'Global' to class names (TIDOC-860)
+def clean_class_name(class_name):
+	if class_name.startswith('Global.'):
+		return class_name[7:]
+	else:
+		return class_name
+
+def build_deprecation_message(api):
+	# Returns the message in markdown format.
+	result = None
+	if api.deprecated:
+		result = "  **Deprecated"
+		if api.deprecated.has_key("since"):
+			result += " since %s." % api.deprecated["since"]
+		if api.deprecated.has_key("removed"):
+			result += " Removed in %s." % api.deprecated["removed"]
+		if api.deprecated.has_key("notes"):
+			result += " %s" % api.deprecated["notes"]
+		result += "**"
+	return result
+
+def to_jsca_description(summary, api=None):
 	if summary is None:
 		return ""
-	return markdown_to_html(summary)
+	new_summary = summary
+	if api is not None and api.deprecated is not None:
+		deprecation_message = build_deprecation_message(api)
+		if deprecation_message is not None:
+			new_summary += deprecation_message
+	return markdown_to_html(new_summary)
 
 def to_jsca_example(example):
 	return {
@@ -71,6 +97,24 @@ def to_jsca_examples(api):
 		return [to_jsca_example(example) for example in api.api_obj["examples"]]
 	else:
 		return []
+
+def to_jsca_inherits(api):
+	if dict_has_non_empty_member(api.api_obj, "extends"):
+		return api.api_obj["extends"]
+	else:
+		return 'Object'
+
+def to_jsca_permission(prop):
+	if dict_has_non_empty_member(prop.api_obj, "permission"):
+		return prop.api_obj["permission"]
+	else:
+		return "read-write"
+
+def to_jsca_availability(prop):
+	if dict_has_non_empty_member(prop.api_obj, "availability"):
+		return prop.api_obj["availability"]
+	else:
+		return "always"
 
 def to_jsca_type_name(type_info):
 	if isinstance(type_info, list) or isinstance(type_info, tuple) and len(type_info) > 0:
@@ -97,10 +141,33 @@ def to_jsca_type_name(type_info):
 		type_test = "Object"
 	return clean_namespace(type_test)
 
+def to_jsca_constants(constants_list):
+	global all_annotated_apis
+	rv = []
+	if type(constants_list) is not list:
+		a = [constants_list]
+		constants_list = a
+	for item in constants_list:
+		namespace = item.rsplit('.', 1)[0]
+		token = item.rsplit('.', 1)[-1]
+		if item[-1] == '*':
+			token = token[:-1]
+
+		if namespace in all_annotated_apis:
+			for property in all_annotated_apis[namespace].api_obj["properties"]:
+				if (token and property["name"].startswith(token)) or (not token and re.match(r"[_A-Z]+", property["name"])):
+					rv.append(namespace + "." + property["name"])
+				if property["name"] == token:
+					break
+	return rv
+
+
+
 def to_jsca_property(prop, for_event=False):
 	result = {
 			"name": prop.name,
-			"description": "" if "summary" not in prop.api_obj else to_jsca_description(prop.api_obj["summary"]),
+			"description": "" if "summary" not in prop.api_obj else to_jsca_description(prop.api_obj["summary"], prop),
+			"deprecated": prop.deprecated is not None and len(prop.deprecated) > 0,
 			"type": "" if "type" not in prop.api_obj else to_jsca_type_name(prop.api_obj["type"])
 			}
 	if not for_event:
@@ -110,6 +177,10 @@ def to_jsca_property(prop, for_event=False):
 		result["userAgents"] = to_jsca_userAgents(prop.platforms)
 		result["isInternal"] = False
 		result["examples"] = to_jsca_examples(prop)
+		result["availability"] = to_jsca_availability(prop)
+		result["permission"] = to_jsca_permission(prop)
+	if "constants" in prop.api_obj:
+		result["constants"] = to_jsca_constants(prop.api_obj["constants"])
 	return to_ordered_dict(result, ("name",))
 
 def to_jsca_properties(props, for_event=False):
@@ -144,17 +215,20 @@ def to_jsca_method_parameter(p):
 
 	result = {
 			"name": p.name,
-			"description": "" if "summary" not in p.api_obj else to_jsca_description(p.api_obj["summary"]),
+			"description": "" if "summary" not in p.api_obj else to_jsca_description(p.api_obj["summary"], p),
 			"type": data_type,
 			"usage": usage
 			}
+	if "constants" in p.api_obj:
+		result["constants"] = to_jsca_constants(p.api_obj["constants"])
 	return to_ordered_dict(result, ('name',))
 
 def to_jsca_function(method):
 	log.trace("%s.%s" % (method.parent.name, method.name))
 	result = {
 			"name": method.name,
-			"description": "" if "summary" not in method.api_obj else to_jsca_description(method.api_obj["summary"])
+			"deprecated": method.deprecated is not None and len(method.deprecated) > 0,
+			"description": "" if "summary" not in method.api_obj else to_jsca_description(method.api_obj["summary"], method)
 			}
 	if dict_has_non_empty_member(method.api_obj, "returns") and method.api_obj["returns"] != "void":
 		result["returnTypes"] = to_jsca_return_types(method.api_obj["returns"])
@@ -178,7 +252,8 @@ def to_jsca_functions(methods):
 def to_jsca_event(event):
 	return to_ordered_dict({
 			"name": event.name,
-			"description": "" if "summary" not in event.api_obj else to_jsca_description(event.api_obj["summary"]),
+			"description": "" if "summary" not in event.api_obj else to_jsca_description(event.api_obj["summary"], event),
+			"deprecated": event.deprecated is not None and len(event.deprecated) > 0,
 			"properties": to_jsca_properties(event.properties, for_event=True)
 			}, ("name",))
 
@@ -201,13 +276,16 @@ def to_jsca_since(platforms):
 		}, ("name",)) for platform in platforms]
 
 def to_jsca_type(api):
+	# Objects marked as external should be ignored
+	if api.external:
+		return None
 	if api.name in not_real_titanium_types:
 		return None
 	log.trace("Converting %s to jsca" % api.name)
 	result = {
-			"name": clean_namespace(api.name),
+			"name": clean_class_name(clean_namespace(api.name)),
 			"isInternal": False,
-			"description": "" if "summary" not in api.api_obj else to_jsca_description(api.api_obj["summary"]),
+			"description": "" if "summary" not in api.api_obj else to_jsca_description(api.api_obj["summary"], api),
 			"deprecated": api.deprecated is not None and len(api.deprecated) > 0,
 			"examples": to_jsca_examples(api),
 			"properties": to_jsca_properties(api.properties),
@@ -215,11 +293,13 @@ def to_jsca_type(api):
 			"events": to_jsca_events(api.events),
 			"remarks": to_jsca_remarks(api),
 			"userAgents": to_jsca_userAgents(api.platforms),
-			"since": to_jsca_since(api.platforms)
+			"since": to_jsca_since(api.platforms),
+			"inherits": to_jsca_inherits(api)
 			}
 	# TIMOB-7169. If it's a proxy (non-module) and it has no "class properties",
 	# mark it as internal.  This avoids it being displayed in Code Assist.
-	if api.typestr == "proxy":
+	# TIDOC-860. Do not mark Global types as internal.
+	if api.typestr == "proxy" and not (api.name).startswith('Global.'):
 		can_hide = True
 		for p in result["properties"]:
 			if p["isClassProperty"]:

@@ -61,9 +61,15 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 			[(UIDatePicker*)picker setDatePickerMode:type];
 			[picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
 		}
+		[picker setBackgroundColor:[UIColor whiteColor]];
 		[self addSubview:picker];
 	}
 	return picker;
+}
+
+- (id)accessibilityElement
+{
+	return [self picker];
 }
 
 -(BOOL)isDatePicker
@@ -101,7 +107,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 		return;
 	}
 //Because the other logic checking and massaging is done in the proxy, we can jump to the chase.
-	[(UIPickerView*)[self picker] reloadComponent:[(NSNumber *)column intValue]];
+	[(UIPickerView*)[self picker] reloadAllComponents];
 }
 
 -(NSArray*)columns 
@@ -207,6 +213,14 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	}
 }
 
+- (id)value_
+{
+	if ([self isDatePicker] && ([(UIDatePicker*)picker datePickerMode] != UIDatePickerModeCountDownTimer)) {
+		return [(UIDatePicker*)[self picker] date];
+	}
+	return nil;
+}
+
 -(void)setLocale_:(id)value
 {
 	ENSURE_SINGLE_ARG_OR_NIL(value,NSString);
@@ -278,20 +292,27 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 - (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component
 {
 	//TODO: add blain's super duper width algorithm
-	
+    NSArray* theColumns = [self columns];
+    if (component >= [theColumns count]) {
+        return 0;
+    }
 	// first check to determine if this column has a width
-	TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
+	TiUIPickerColumnProxy *proxy = [theColumns objectAtIndex:component];
 	id width = [proxy valueForKey:@"width"];
 	if (width != nil)
 	{
 		return [TiUtils floatValue:width];
 	}
-	return (pickerView.frame.size.width - DEFAULT_COLUMN_PADDING) / [[self columns] count];
+	return (pickerView.frame.size.width - DEFAULT_COLUMN_PADDING) / [theColumns count];
 }
 
 - (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component
 {
-	TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
+    NSArray* theColumns = [self columns];
+    if (component >= [theColumns count]) {
+        return 0;
+    }
+	TiUIPickerColumnProxy *proxy = [theColumns objectAtIndex:component];
 	id height = [proxy valueForKey:@"height"];
 	if (height != nil)
 	{
@@ -313,41 +334,19 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 - (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view
 {
-	TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
-	TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
-	CGRect frame = CGRectMake(0.0, 0.0, [self pickerView:pickerView widthForComponent:component]-20, [self pickerView:pickerView rowHeightForComponent:component]);
-	NSString *title = [rowproxy valueForKey:@"title"];
-	if (title!=nil)
-	{
-		UILabel *pickerLabel = nil;
-		
-		if ([view isMemberOfClass:[UILabel class]]) {
-			pickerLabel = (UILabel*)view;
-		}
-		
-		if (pickerLabel == nil) 
-		{
-			pickerLabel = [[[UILabel alloc] initWithFrame:frame] autorelease];
-			[pickerLabel setTextAlignment:UITextAlignmentLeft];
-			[pickerLabel setBackgroundColor:[UIColor clearColor]];
-			
-			float fontSize = [TiUtils floatValue:[rowproxy valueForUndefinedKey:@"fontSize"] def:[TiUtils floatValue:[self.proxy valueForUndefinedKey:@"fontSize"] def:18.0]];	
-			[pickerLabel setFont:[UIFont boldSystemFontOfSize:fontSize]];
-		}
-		
-		[pickerLabel setText:title];
-		return pickerLabel;
-	}
-	else 
-	{
-		UIView* returnView = [rowproxy view];
-		UIView* wrapperView = [[[UIView alloc] initWithFrame:frame]autorelease];
-		[wrapperView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-		[wrapperView setBackgroundColor:[UIColor clearColor]];
-		returnView.frame = wrapperView.bounds;
-		[wrapperView addSubview:returnView];
-		return wrapperView;
-	}
+    TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
+    TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
+    CGRect frame = CGRectMake(0.0, 0.0, [self pickerView:pickerView widthForComponent:component]-20, [self pickerView:pickerView rowHeightForComponent:component]);
+
+    //Get the View
+    UIView* theView = [rowproxy viewWithFrame:frame reusingView:view];
+    
+    //Configure Accessibility
+    theView.isAccessibilityElement = YES;
+    theView.accessibilityLabel = [TiUtils stringValue:[rowproxy valueForUndefinedKey:@"accessibilityLabel"]];
+    theView.accessibilityValue = [TiUtils stringValue:[rowproxy valueForUndefinedKey:@"accessibilityValue"]];
+    theView.accessibilityHint = [TiUtils stringValue:[rowproxy valueForUndefinedKey:@"accessibilityHint"]];
+    return theView;
 }
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component

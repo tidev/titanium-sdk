@@ -65,6 +65,8 @@
 @property(nonatomic,readonly) BOOL editing;
 @property(nonatomic,assign) BOOL editable;
 
+- (id)initWithFrame:(CGRect)frame withRowCount:(int)newRowCount withColumnCount:(int)newColumnCount;
+
 - (void)addItem:(LauncherItem*)item animated:(BOOL)animated;
 - (void)removeItem:(LauncherItem*)item animated:(BOOL)animated;
 
@@ -74,6 +76,7 @@
 - (void)layoutButtons;
 
 - (LauncherItem*)itemForIndex:(NSInteger)index;
+- (NSArray*)launcheritems_;
 - (NSArray*)items;
 
 @end
@@ -100,6 +103,8 @@
 - (void)launcherViewDidEndEditing:(LauncherView*)launcher;
 
 - (BOOL)launcherViewShouldWobble:(LauncherView*)launcher;
+
+- (void)launcherView:(LauncherView*)launcher didChangePage:(NSNumber*)pageNo;
 
 @end
 

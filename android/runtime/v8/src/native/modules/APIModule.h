@@ -39,6 +39,8 @@ private:
 	static void logInternal(int logLevel, const char *messageTag, const char *message);
 	static Persistent<FunctionTemplate> constructorTemplate;
     static Handle<Value> combineLogMessages(const Arguments& args, int startIndex=0);
+    static Handle<Value> getApiName(const Arguments& args);
+    static Handle<Value> getter_apiName(Local<String> property, const AccessorInfo& info);
 };
 }
 

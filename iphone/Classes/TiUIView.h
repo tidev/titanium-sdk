@@ -53,6 +53,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	TiAnimation *animation;
 	
 	CALayer *gradientLayer;
+	CALayer *bgdImageLayer;
+	int clipMode;
 	
 	CGAffineTransform virtualParentTransform;
 	id transformMatrix;
@@ -60,6 +62,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	BOOL touchEnabled;
 
 	unsigned int animationDelayGuard;
+	unsigned int animationDelayGuardForLayout;
 	
 	// Touch detection
     BOOL changedInteraction;
@@ -120,6 +123,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  @see updateTouchHandling
  */
 @property(nonatomic,readonly) BOOL touchEnabled;
+@property(nonatomic,readonly) CGSize oldSize;
 
 @property(nonatomic,readonly)	UITapGestureRecognizer*			singleTapRecognizer;
 @property(nonatomic,readonly)	UITapGestureRecognizer*			doubleTapRecognizer;
@@ -131,12 +135,23 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
 -(void)configureGestureRecognizer:(UIGestureRecognizer*)gestureRecognizer;
 - (UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event;
-
+-(void)handleListenerRemovedWithEvent:(NSString *)event;
+-(void)handleListenerAddedWithEvent:(NSString *)event;
+-(BOOL)proxyHasGestureListeners;
+-(void)ensureGestureListeners;
+-(void)updateClipping;
 /**
- Returns CA layer for the background of the view.
+ Returns CA layer for the background image of the view.
  */
 -(CALayer *)backgroundImageLayer;
-
+/**
+ Returns CA layer for the background gradient of the view.
+ */
+-(CALayer *)gradientLayer;
+/**
+ Returns CA layer for shadow component of the view.
+ */
+-(CALayer *)shadowLayer;
 /**
  Tells the view to start specified animation.
  @param newAnimation The animation to start.
@@ -175,8 +190,16 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 /*
  Tells the view to change its proxy to the new one provided.
  @param newProxy The new proxy to set on the view.
+ @param deep true for deep transfer
  */
--(void)transferProxy:(TiViewProxy*)newProxy;
+-(void)transferProxy:(TiViewProxy*)newProxy deep:(BOOL)deep;
+
+/*
+ Returns whether the view tree matches proxy tree for later transfer.
+ @param proxy The proxy to validate view tree with.
+ @param deep true for deep validation
+ */
+-(BOOL)validateTransferToProxy:(TiViewProxy*)proxy deep:(BOOL)deep;
 
 /**
  Tells the view to update its touch handling state.
@@ -228,8 +251,17 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
 -(void)setVisible_:(id)visible;
 
+-(void)setBackgroundImage_:(id)value;
+
 -(UIView *)gradientWrapperView;
 -(void)checkBounds;
+
+@property (nonatomic, readonly) id accessibilityElement;
+
+- (void)setAccessibilityLabel_:(id)accessibilityLabel;
+- (void)setAccessibilityValue_:(id)accessibilityValue;
+- (void)setAccessibilityHint_:(id)accessibilityHint;
+- (void)setAccessibilityHidden_:(id)accessibilityHidden;
 
 /**
  Whether or not a view not normally picked up by the Titanium view hierarchy (such as wrapped iOS UIViews) was touched.

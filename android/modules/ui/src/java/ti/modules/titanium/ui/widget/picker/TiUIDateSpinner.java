@@ -13,6 +13,7 @@ import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 import kankan.wheel.widget.WheelView;
@@ -20,12 +21,15 @@ import kankan.wheel.widget.WheelView;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.graphics.Typeface;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 
 public class TiUIDateSpinner extends TiUIView
@@ -89,22 +93,26 @@ public class TiUIDateSpinner extends TiUIView
 			}
 		};
 		layout.setOrientation(LinearLayout.HORIZONTAL);
-		
+	
 		if (proxy.hasProperty("dayBeforeMonth")) {
 			// TODO dayBeforeMonth = TiConvert.toBoolean(proxy.getProperties(), "dayBeforeMonth");
 		}
 		
 		if (dayBeforeMonth) {
-			layout.addView(dayWheel);
-			layout.addView(monthWheel);
+			addViewToPicker(dayWheel, layout);
+			addViewToPicker(monthWheel, layout);
 		} else {
-			layout.addView(monthWheel);
-			layout.addView(dayWheel);
+			addViewToPicker(monthWheel, layout);
+			addViewToPicker(dayWheel, layout);
 		}
 		
-		layout.addView(yearWheel);
+		addViewToPicker(yearWheel, layout);
 		setNativeView(layout);
 		
+	}
+	
+	private void addViewToPicker(WheelView v, LinearLayout layout) {
+		layout.addView(v, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, (float) .33));
 	}
 	
 	@Override
@@ -141,7 +149,11 @@ public class TiUIDateSpinner extends TiUIView
         if (d.containsKey("numericMonths")) {
         	numericMonths = TiConvert.toBoolean(d, "numericMonths");
         }
-        
+
+        if (d.containsKey(TiC.PROPERTY_FONT)) {
+        	setFontProperties();
+        }
+
         if (maxDate.before(minDate)) {
         	maxDate.setTime(minDate.getTime());
         }
@@ -164,8 +176,11 @@ public class TiUIDateSpinner extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if ("value".equals(key)) {
-			Date date = (Date)newValue;
+		if (TiC.PROPERTY_FONT.equals(key)) {
+			setFontProperties();
+
+		} else if (TiC.PROPERTY_VALUE.equals(key)) {
+			Date date = (Date) newValue;
 			setValue(date.getTime());
 		} else if ("locale".equals(key)) {
 			setLocale(TiConvert.toString(newValue));
@@ -173,7 +188,65 @@ public class TiUIDateSpinner extends TiUIView
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
 	
-	
+	private void setFontProperties()
+	{
+
+		String fontFamily = null;
+		Float fontSize = null;
+		String fontWeight = null;
+		Typeface typeface = null;
+		KrollDict d = proxy.getProperties();
+		if (d.containsKey(TiC.PROPERTY_FONT) && d.get(TiC.PROPERTY_FONT) instanceof HashMap) {
+			KrollDict font = d.getKrollDict(TiC.PROPERTY_FONT);
+			if (font.containsKey(TiC.PROPERTY_FONTSIZE)) {
+				String sFontSize = TiConvert.toString(font, TiC.PROPERTY_FONTSIZE);
+				fontSize = new Float(TiUIHelper.getSize(sFontSize));
+			}
+			if (font.containsKey(TiC.PROPERTY_FONTFAMILY)) {
+				fontFamily = TiConvert.toString(font, TiC.PROPERTY_FONTFAMILY);
+			}
+			if (font.containsKey(TiC.PROPERTY_FONTWEIGHT)) {
+				fontWeight = TiConvert.toString(font, TiC.PROPERTY_FONTWEIGHT);
+			}
+		}
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_FONT_FAMILY)) {
+			fontFamily = TiConvert.toString(d, TiC.PROPERTY_FONT_FAMILY);
+		}
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_FONT_SIZE)) {
+			String sFontSize = TiConvert.toString(d, TiC.PROPERTY_FONT_SIZE);
+			fontSize = new Float(TiUIHelper.getSize(sFontSize));
+		}
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_FONT_WEIGHT)) {
+			fontWeight = TiConvert.toString(d, TiC.PROPERTY_FONT_WEIGHT);
+		}
+		if (fontFamily != null) {
+			typeface = TiUIHelper.toTypeface(fontFamily);
+		}
+		Integer typefaceWeight = null;
+		if (fontWeight != null) {
+			typefaceWeight = new Integer(TiUIHelper.toTypefaceStyle(fontWeight, null));
+		}
+
+		if (typeface != null) {
+			dayWheel.setTypeface(typeface);
+			monthWheel.setTypeface(typeface);
+			yearWheel.setTypeface(typeface);
+		}
+		if (typefaceWeight != null) {
+			dayWheel.setTypefaceWeight(typefaceWeight);
+			monthWheel.setTypefaceWeight(typefaceWeight);
+			yearWheel.setTypefaceWeight(typefaceWeight);
+		}
+		if (fontSize != null) {
+			dayWheel.setTextSize(fontSize.intValue());
+			monthWheel.setTextSize(fontSize.intValue());
+			yearWheel.setTextSize(fontSize.intValue());
+		}
+		dayWheel.invalidate();
+		monthWheel.invalidate();
+		yearWheel.invalidate();
+	}
+
 	private void setAdapters()
 	{
 		setYearAdapter();
@@ -315,7 +388,7 @@ public class TiUIDateSpinner extends TiUIView
 			if (!suppressChangeEvent) {
 				KrollDict data = new KrollDict();
 				data.put("value", newVal);
-				proxy.fireEvent("change", data);
+				fireEvent("change", data);
 			}
 
 		}

@@ -33,6 +33,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.ScrollableView";
+}
+
 -(void)lockViews
 {
 	pthread_rwlock_rdlock(&viewsLock);
@@ -104,7 +109,7 @@
 		viewProxies = [[NSMutableArray alloc] initWithObjects:args,nil];
 	}
 	[self unlockViews];	
-	[self makeViewPerformSelector:@selector(addView:) withObject:args createIfNeeded:YES waitUntilDone:NO];
+	[self makeViewPerformSelector:@selector(addView:) withObject:args createIfNeeded:NO waitUntilDone:NO];
 }
 
 -(void)removeView:(id)args
@@ -151,13 +156,62 @@
 	[self forgetProxy:doomedView];
 	[viewProxies removeObject:doomedView];
 	[self unlockViews];	
-	[self makeViewPerformSelector:@selector(removeView:) withObject:args createIfNeeded:YES waitUntilDone:NO];
+	[self makeViewPerformSelector:@selector(removeView:) withObject:args createIfNeeded:NO waitUntilDone:NO];
 }
 
+-(int)indexFromArg:(id)args
+{
+	int pageNum = 0;
+	if ([args isKindOfClass:[TiViewProxy class]])
+	{
+		[self lockViews];
+		pageNum = [[self viewProxies] indexOfObject:args];
+		[self unlockViews];
+	}
+	else
+	{
+		pageNum = [TiUtils intValue:args];
+	}
+	
+	return pageNum;
+}
+
+
 -(void)scrollToView:(id)args
-{	//TODO: Refactor this properly.
-	ENSURE_SINGLE_ARG(args,NSObject);
-	[self makeViewPerformSelector:@selector(scrollToView:) withObject:args createIfNeeded:YES waitUntilDone:NO];
+{
+    ENSURE_SINGLE_ARG(args,NSObject);
+    int index = [self indexFromArg:args];
+    if (index >=0 && index < [self viewCount]) {
+        if ([self viewAttached]) {
+            TiThreadPerformOnMainThread(^{
+                [((TiUIScrollableView*)self.view) setCurrentPage:NUMINT(index) animated:NUMBOOL(YES)];
+            }, NO);
+        } else {
+            [self replaceValue:NUMINT(index) forKey:@"currentPage" notification:NO];
+        }
+    }
+}
+
+-(void)moveNext:(id)unused
+{
+    int index = [TiUtils intValue:[self valueForUndefinedKey:@"currentPage"]];
+    [self scrollToView:NUMINT(++index)];
+}
+
+-(void)movePrevious:(id)unused
+{
+    int index = [TiUtils intValue:[self valueForUndefinedKey:@"currentPage"]];
+    [self scrollToView:NUMINT(--index)];
+}
+
+-(void) willChangeSize
+{
+    //Ensure the size change signal goes to children 
+    NSArray *curViews = [self views];
+    for (TiViewProxy *child in curViews) {
+        [child parentSizeWillChange];
+    }
+    [super willChangeSize];
 }
 
 -(void)childWillResize:(TiViewProxy *)child
@@ -210,6 +264,32 @@
 	}
 	//Adding the view to a scrollable view is invalid.
 	return nil;
+}
+
+-(CGFloat)autoWidthForSize:(CGSize)size
+{
+    CGFloat result = 0.0;
+    NSArray* theChildren = [self views];
+    for (TiViewProxy * thisChildProxy in theChildren) {
+        CGFloat thisWidth = [thisChildProxy minimumParentWidthForSize:size];
+        if (result < thisWidth) {
+            result = thisWidth;
+        }
+    }
+    return result;
+}
+
+-(CGFloat)autoHeightForSize:(CGSize)size
+{
+    CGFloat result = 0.0;
+    NSArray* theChildren = [self views];
+    for (TiViewProxy * thisChildProxy in theChildren) {
+        CGFloat thisHeight = [thisChildProxy minimumParentHeightForSize:size];
+        if (result < thisHeight) {
+            result = thisHeight;
+        }
+    }
+    return result;
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration

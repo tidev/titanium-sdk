@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -69,6 +69,8 @@ public class DisplayCapsProxy extends KrollProxy
 				return "medium";
 			case 320 : // DisplayMetrics.DENSITY_XHIGH (API 9)
 				return "xhigh";
+			case 480 :
+				return "xxhigh";
 			case DisplayMetrics.DENSITY_LOW :
 				return "low";
 			default :
@@ -107,5 +109,11 @@ public class DisplayCapsProxy extends KrollProxy
 			getDisplay().getMetrics(dm);
 			return dm.density;
 		}
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Platform.DisplayCaps";
 	}
 }

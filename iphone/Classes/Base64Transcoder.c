@@ -108,7 +108,7 @@ size_t EstimateBas64EncodedDataSize(size_t inDataSize)
 	return(theEncodedDataSize);
 }
 
-size_t EstimateBas64DecodedDataSize(size_t inDataSize)
+size_t TI_EstimateBas64DecodedDataSize(size_t inDataSize)
 {
 	size_t theDecodedDataSize = (int)ceil(inDataSize / 4.0) * 3;
 	//theDecodedDataSize = theDecodedDataSize / 72 * 74 + theDecodedDataSize % 72;
@@ -165,11 +165,11 @@ bool Base64EncodeData(const void *inInputData, size_t inInputDataSize, char *out
 	return(true);
 }
 
-bool Base64DecodeData(const void *inInputData, size_t inInputDataSize, void *ioOutputData, size_t *ioOutputDataSize)
+bool TI_Base64DecodeData(const void *inInputData, size_t inInputDataSize, void *ioOutputData, size_t *ioOutputDataSize)
 {
 	memset(ioOutputData, '.', *ioOutputDataSize);
 	
-	size_t theDecodedDataSize = EstimateBas64DecodedDataSize(inInputDataSize);
+	size_t theDecodedDataSize = TI_EstimateBas64DecodedDataSize(inInputDataSize);
 	if (*ioOutputDataSize < theDecodedDataSize)
 		return(false);
 	*ioOutputDataSize = 0;

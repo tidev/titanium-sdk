@@ -1,0 +1,260 @@
+# Titanium SDK 3.1.1 - 06/17/2013
+
+##### Contents
+
+  * [About This Release](#about)
+  * [Installation Notes](#install)
+    * [Upgrading Pre-GA npm Packages](#upgrading_npm)
+  * [Notice of Breaking Changes](#changes)
+    * [Minimum Supported Android SDK](#min_android)
+    * [Minimum Supported iOS Version](#min_ios)
+    * [Minimum Supported Tizen SDK](#min_tizen)
+    * [Android Calendar Namespace Change](#android_calendar)
+    * [Android Camera Behavior Change](#android_camera)
+    * [iOS Map Behvaior Change](#ios_map)
+    * [ACS URL Endpoints](#acs)
+  * [New Features](#features)
+    * [BlackBerry Support](#blackberry)
+    * [Google Maps v2 API](#google_maps)
+  * [Known Issues](#known_issues)
+    * [Google Maps in Modal Window](#maps_modal)
+    * [Node.ACS Debugger](#node_debugger)
+  * [Fixed Issues and Enhancements](#issues)
+  * [API Changes](#apichanges)
+    * [New APIs](#new_apis)
+    * [Depreacted APIs](#deprecated_apis)
+    * [Removed APIs](#removed_apis)    
+
+<a name="about"></a>
+
+## About This Release
+
+Titanium SDK Release 3.1.1 is a service pack release of the Titanium SDK,
+addressing high-priority issues in previous releases.
+
+<a name="install"></a>
+
+## Installation Notes
+
+<a name="upgrading_npm"></a>
+
+### Upgrading Pre-GA npm Packages
+
+If you previously installed the Release Candidate versions of the Titanium CLI, Titanium Code
+Processor/Analyzer, and Alloy, you need to first uninstall these components before installing or updating to
+3.1.1.GA.
+
+To check the current versions run the following commands:
+
+    npm list -g titanium
+    npm list -g titanium-code-processor
+    npm list -g alloy
+
+If either package has a version number ending in `-alpha`, `-beta`, or `-cr`, you should uninstall
+the package manually before installing 3.1.1.GA.
+
+To uninstall these packages:
+
+    npm remove -g titanium
+    npm remove -g titanium-code-processor
+    npm remove -g alloy
+
+Note: You may need to use <code>sudo</code> before these terminal commands on OSX and Linux.
+
+If you are using Titanium Studio, these components will be updated if you chose to install
+additional Titanium updates or from the **Help** menu, select **Check for Titanium Updates**.
+
+If you are using the Titainium CLI, you need to reinstall the CLI, Code Processor and Alloy from the terminal:
+
+    npm install -g titanium
+    npm install -g titanium-code-processor
+    npm install -g alloy
+
+If you should run into any issues, run `npm cache clean` and then retry the steps above.
+
+<a name="changes"></a>
+
+## Notice of Breaking Changes in Release 3.1.1
+
+The following changes alter the behavior of the Titanium SDK from previous versions, and may require
+code changes to run your application on Titanium SDK 3.1.1.
+
+<a name="min_android"></a>
+
+### Minimum Supported Android SDK
+
+Starting with this Release, the minimum supported Android SDK is version 2.3.3 or API level 10.  To
+use the Titanium CLI or Studio to build Android applications, you need to have this version installed.
+
+To install the Android 2.3.3 SDK, launch the Android SDK manager and select to install the
+**Android 2.3.3 (API 10)** package.
+
+For instructions, refer to the "Installing Android Packages with Android SDK Manager" section of the
+[Installing the Android SDK guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Installing_the_Android_SDK).
+
+<a name="min_ios"></a>
+
+### Minimum Supported iOS Version
+
+Starting with this Release, the minimum supported iOS version is 5.x, which requires Xcode 4.3 and
+later. When building iOS applications with the Titanium CLI or Studio, you need to target iOS version 5.x and
+later.
+
+<a name="min_tizen"></a>
+
+### Minimum Supported Tizen SDK
+
+Starting with this Release, the minimum supported Tizen SDK version is 2.1. Due to security
+architecture changes with the Tizen platform, you are required to create and add an author certificate.
+
+For instructions, refer to the 
+[Install the Tizen SDK guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Installing_the_Tizen_SDK)
+and review the "Create an Author Certificate", "Register an Author Certificate" and "Configuring Studio" sections.
+
+<a name="android_calendar"></a>
+
+### Android Calendar Namespace Change
+
+As of this Release, the `Titanium.Android.Calendar` namespace moved to the `Titanium.Calendar`
+namespace. Any API calls using the `Titanium.Android.Calendar` namespace need to now
+reference the `Titanium.Calendar` namespace.
+
+<a name="android_camera"></a>
+
+### Android Camera Behavior Change
+
+Previously, when taking a picture using the `Titanium.Media.showCamera` method, a copy of the picture would
+automatically be saved to the Android device's photo gallery, ignoring the setting of the
+[saveToPhotoGallery property](http://docs.appcelerator.com/titanium/latest/#!/api/CameraOptionsType-property-saveToPhotoGallery).
+
+As of this Release, this unsupported behavior has been removed.  To save a copy of the picture to
+the device's photo gallery, you need to set the `saveToPhotoGallery` property to `true`.
+
+<a name="ios_map"></a>
+
+### iOS Map Behavior Change
+
+On the iOS platform, the `region` property can only be set after the Map View
+has been rendered.  To ensure that the map region is updated, wait for the Map View's `complete` event.
+
+<a name="acs"></a>
+
+### ACS URL Endpoints
+
+As of this Release, in the `tiapp.xml` file, the protocol needs to be specified as part of the URL,
+for the `acs-base-url` and `acs-authbase-url` properties, that is, `http://` or `https://` needs
+to be added to the beginning of the URL.  Previously, you did not need to specify the protocol and
+used the `Cloud.useSecure` property, which is removed, to enable or disable SSL.
+
+For more information, see the "tiapp.xml Properties" section in
+[Titanium.Cloud](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud).
+
+<a name="features"></a>
+
+## New Features
+
+<a name="blackberry"></a>
+
+### BlackBerry Support
+
+Support for the BlackBerry platform is now part of the Titanium SDK and no longer requires
+a separate download of a specially-built SDK. BlackBerry for Titanium is currently a Beta Release.
+
+<a name="google_maps"></a>
+
+### Google Maps v2 API Additions
+
+In this Release, the following API elements were added to the Android Google Maps v2 module: 
+
+  * [Map.isGooglePlayServicesAvailable method](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-method-isGooglePlayServicesAvailable)
+    -- checks to see Google Play Services is available on the device.
+
+  * [View.userLocationButton property](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-property-userLocationButton)
+    -- enables (set to `true`) or disables (set to `false`) the My Location button if the `userLocation` property is enabled.
+
+  * [View.regionchanged event](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-event-regionchanged)
+    -- returns two additional properties: `latitudeDelta` and `longitudeDelta`.
+
+<a name="known_issues"></a>
+
+## Known Issues
+
+<a name="map_modal"></a>
+
+### Google Maps in Modal Windows
+
+If you add a map created with the Google Maps v2 module to a modal window, it appears blurry on
+devices running Android 2.3.x and black on Android 3.x and 4.0.x.
+([TIMOB-13991](https://jira.appcelerator.org/browse/TIMOB-13991)).
+
+<a name="node_debugger"></a>
+
+### Node.ACS Debugger
+
+The Studio Node.ACS debugger does not catch breakpoints when a debug session first starts.
+([TISTUD-4932](https://jira.appcelerator.org/browse/TISTUD-4932)).
+
+
+<a name="issues"></a>
+
+## Fixed Issues and Enhancements
+
+  * [Full list of issues that were addressed in Release 3.1.1](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=15204)
+
+
+<a name="apichanges"></a>
+
+## API Changes
+
+This section lists new APIs, deprecated APIs, and APIs that have been removed from the SDK.
+
+<a name="new_apis"></a>
+
+### New APIs
+
+The following APIs are new or have expanded platform support in Release
+3.1.1.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.Calendar</td><td>module</td><td><p>The Calendar module provides an API for
+accessing the native calendar functionality.
+ (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Calendar.Alert</td><td>object</td><td><p>An object that represents a single alert
+for an event in an calendar. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Calendar.Calendar</td><td>object</td><td><p>An object that represents a single
+calendar. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Calendar.Event</td><td>object</td><td><p>An object that represents a single event
+in a calendar. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Calendar.Reminder</td><td>object</td><td><p>An object that represents a single
+reminder for an event in a calendar. (New API, supported on Android.)</p></td></tr>
+<tr>
+</table>
+
+<a name="deprecated_apis"></a>
+
+### Deprecated APIs
+
+The following APIs are deprecated in Release 3.1.1.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.Android.Calendar</td><td>module</td><td>Use Titanium.Calendar instead.</td></tr>
+  <tr><td>Titanium.Android.Calendar.Alert</td><td>object</td><td>Use Titanium.Calendar.Alert instead.</td></tr>
+  <tr><td>Titanium.Android.Calendar.Calendar</td><td>object</td><td>Use Titanium.Calendar.Calendar instead.</td></tr>
+  <tr><td>Titanium.Android.Calendar.Event</td><td>object</td><td>Use Titanium.Calendar.Event instead.</td></tr>
+  <tr><td>Titanium.Android.Calendar.Reminder</td><td>object</td><td>Use Titanium.Calendar.Reminder instead.</td></tr>
+<tr>
+</table>
+
+<a name="removed_apis"></a>
+
+### Removed APIs
+
+The following APIs are removed in Release 3.1.1.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+    <tr><td>Titanium.Cloud.useSecure</td><td>property</td><td>Set the <code>acs-base-url</code> and <code>acs-authbase-url</code> properties in the <code>tiapp.xml</code> file using a HTTP or HTTPS URL to disable or enable SSL, respectively.</td></tr>
+<tr>
+</table>

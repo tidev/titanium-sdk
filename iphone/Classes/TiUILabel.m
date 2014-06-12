@@ -10,6 +10,10 @@
 #import "TiUILabelProxy.h"
 #import "TiUtils.h"
 #import "UIImage+Resize.h"
+#import <CoreText/CoreText.h>
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+#import "TiUIiOSAttributedStringProxy.h"
+#endif
 
 @implementation TiUILabel
 
@@ -20,7 +24,7 @@
     if (self = [super init]) {
         padding = CGRectZero;
         initialLabelFrame = CGRectZero;
-        verticalAlign = -1;
+        verticalAlign = UIControlContentVerticalAlignmentFill;
     }
     return self;
 }
@@ -28,9 +32,10 @@
 -(void)dealloc
 {
     RELEASE_TO_NIL(label);
-    RELEASE_TO_NIL(backgroundView);
+    RELEASE_TO_NIL(wrapperView);
     [super dealloc];
 }
+
 
 - (BOOL)interactionDefault
 {
@@ -38,6 +43,7 @@
 	// it via addEventListener
 	return NO;
 }
+
 
 -(CGSize)sizeForFont:(CGFloat)suggestedWidth
 {
@@ -58,23 +64,41 @@
 		// font from clipping
 		size.width += shadowOffset.width + 10;
 	}
+
 	return size;
 }
 
+
 -(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
-	return [self sizeForFont:suggestedWidth].width;
+    /*
+     Why both? sizeThatFits returns the width with line break mode tail truncation and we like to 
+     have atleast enough space to display one word. On the otherhand font measurement is unsuitable for 
+     attributed strings till we move to the new measurement API. Hence take both and return MAX.
+     */
+    CGFloat sizeThatFitsResult = [[self label] sizeThatFits:CGSizeMake(suggestedWidth, 0)].width;
+    CGFloat fontMeasurementResult = [self sizeForFont:suggestedWidth].width;
+    return (MAX(sizeThatFitsResult, fontMeasurementResult));
 }
 
 -(CGFloat)contentHeightForWidth:(CGFloat)width
 {
-	return [self sizeForFont:width].height;
+	return [[self label] sizeThatFits:CGSizeMake(width, 0)].height;
 }
 
 -(void)padLabel
 {
-    if (verticalAlign != -1) {
-        CGSize actualLabelSize = [self sizeForFont:initialLabelFrame.size.width];
+    CGSize actualLabelSize = [[self label] sizeThatFits:CGSizeMake(initialLabelFrame.size.width, 0)];
+    UIControlContentVerticalAlignment alignment = verticalAlign;
+    if (alignment == UIControlContentVerticalAlignmentFill) {
+        //IOS7 layout issue fix with attributed string.
+        if (actualLabelSize.height < initialLabelFrame.size.height) {
+            alignment = UIControlContentVerticalAlignmentCenter;
+        } else {
+            alignment = UIControlContentVerticalAlignmentTop;
+        }
+    }
+    if (alignment != UIControlContentVerticalAlignmentFill && ([label numberOfLines] != 1)) {
         CGFloat originX = 0;
         switch (label.textAlignment) {
             case UITextAlignmentRight:
@@ -91,7 +115,7 @@
             originX = 0;
         }
         CGRect labelRect = CGRectMake(originX, 0, actualLabelSize.width, actualLabelSize.height);
-        switch (verticalAlign) {
+        switch (alignment) {
             case UIControlContentVerticalAlignmentBottom:
                 labelRect.origin.y = initialLabelFrame.size.height - actualLabelSize.height;
                 break;
@@ -114,15 +138,9 @@
         [label setFrame:initialLabelFrame];
     }
 
-    if (repad &&
-        backgroundView != nil &&
-        !CGRectIsEmpty(initialLabelFrame))
+    if ([self backgroundImageLayer] != nil && !CGRectIsEmpty(initialLabelFrame))
     {
-        [backgroundView setFrame:CGRectMake(initialLabelFrame.origin.x - padding.origin.x,
-                                            initialLabelFrame.origin.y - padding.origin.y,
-                                            initialLabelFrame.size.width + padding.origin.x + padding.size.width,
-                                            initialLabelFrame.size.height + padding.origin.y + padding.size.height)];
-        repad = NO;
+        [self updateBackgroundImageFrameWithPadding];
     }
 	return;
 }
@@ -137,11 +155,9 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	initialLabelFrame = bounds;
-
-    repad = YES;
+    initialLabelFrame = bounds;
+    [wrapperView setFrame:initialLabelFrame];
     [self padLabel];
-
     [super frameSizeChanged:frame bounds:bounds];
 }
 
@@ -152,10 +168,182 @@
         label = [[UILabel alloc] initWithFrame:CGRectZero];
         label.backgroundColor = [UIColor clearColor];
         label.numberOfLines = 0;
-        [self addSubview:label];
-        self.clipsToBounds = YES;
-	}
+        wrapperView = [[UIView alloc] initWithFrame:[self bounds]];
+        [wrapperView addSubview:label];
+        wrapperView.clipsToBounds = YES;
+        [wrapperView setUserInteractionEnabled:NO];
+        [self addSubview:wrapperView];
+    }
 	return label;
+}
+
+-(BOOL)proxyHasGestureListeners
+{
+    return [super proxyHasGestureListeners] || [(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO];
+}
+
+-(void)ensureGestureListeners
+{
+    if ([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO]) {
+        [[self gestureRecognizerForEvent:@"link"] setEnabled:YES];
+    }
+    [super ensureGestureListeners];
+}
+
+- (UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event
+{
+    if ([event isEqualToString:@"link"]) {
+        return [super gestureRecognizerForEvent:@"longpress"];
+    }
+    return [super gestureRecognizerForEvent:event];
+}
+
+-(void)handleListenerRemovedWithEvent:(NSString *)event
+{
+	ENSURE_UI_THREAD_1_ARG(event);
+	// unfortunately on a remove, we have to check all of them
+	// since we might be removing one but we still have others
+    if ([event isEqualToString:@"link"] || [event isEqualToString:@"longpress"]) {
+        BOOL enableListener = [self.proxy _hasListeners:@"longpress"] || [self.proxy _hasListeners:@"link"];
+        [[self gestureRecognizerForEvent:event] setEnabled:enableListener];
+    } else {
+        [super handleListenerRemovedWithEvent:event];
+    }
+}
+
+-(BOOL)checkLinkAttributeForString:(NSMutableAttributedString*)theString atPoint:(CGPoint)p
+{
+    CGPoint thePoint = [self convertPoint:p toView:label];
+    CGRect drawRect = [label textRectForBounds:[label bounds] limitedToNumberOfLines:label.numberOfLines];
+    drawRect.origin.y = (label.bounds.size.height - drawRect.size.height)/2;
+    thePoint = CGPointMake(thePoint.x - drawRect.origin.x, thePoint.y - drawRect.origin.y);
+    //Convert to CT point;
+    thePoint.y = (drawRect.size.height - thePoint.y);
+    CTFramesetterRef theRef = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)theString);
+    if (theRef == NULL) {
+        return;
+    }
+    
+    CGMutablePathRef path = CGPathCreateMutable();
+    
+    CGPathAddRect(path, NULL, drawRect);
+
+    CTFrameRef frame = CTFramesetterCreateFrame(theRef, CFRangeMake(0, [theString length]), path, NULL);
+    //Don't need this anymore
+    CFRelease(theRef);
+
+    if (frame == NULL) {
+        CFRelease(path);
+        return NO;
+    }
+    //Get Lines
+    CFArrayRef lines = CTFrameGetLines(frame);
+    if (lines == NULL) {
+        CFRelease(frame);
+        CFRelease(path);
+        return NO;
+    }
+    
+    NSInteger lineCount = CFArrayGetCount(lines);
+    if (lineCount == 0) {
+        CFRelease(frame);
+        CFRelease(path);
+        //CFRelease(lines);
+        return NO;
+    }
+    //Get Line Origins
+    CGPoint lineOrigins[lineCount];
+    CTFrameGetLineOrigins(frame, CFRangeMake(0, lineCount), lineOrigins);
+    
+    NSUInteger idx = NSNotFound;
+    for (CFIndex lineIndex = 0; (lineIndex < lineCount) && (idx == NSNotFound); lineIndex++) {
+        
+        CGPoint lineOrigin = lineOrigins[lineIndex];
+        CTLineRef line = CFArrayGetValueAtIndex(lines, lineIndex);
+        
+        // Get bounding information of line
+        CGRect lineRect = CTLineGetBoundsWithOptions(line,0);
+        CGFloat ymin = lineRect.origin.y + lineOrigin.y;
+        CGFloat ymax = ymin + lineRect.size.height;
+        
+        if (ymin <= thePoint.y && ymax >= thePoint.y) {
+            if (thePoint.x >= lineOrigin.x && thePoint.x <= lineOrigin.x + lineRect.size.width) {
+                // Convert CT coordinates to line-relative coordinates
+                CGPoint relativePoint = CGPointMake(thePoint.x - lineOrigin.x, thePoint.y - lineOrigin.y);
+                idx = CTLineGetStringIndexForPosition(line, relativePoint);
+            }
+        }
+    }
+    
+    //Don't need frame,path or lines now
+    CFRelease(frame);
+    CFRelease(path);
+    //CFRelease(lines);
+    
+    if (idx != NSNotFound) {
+        if(idx > theString.string.length) {
+            return NO;
+        }
+        NSRange theRange = NSMakeRange(0, 0);
+        NSString *url = [theString attribute:NSLinkAttributeName atIndex:idx effectiveRange:&theRange];
+        if(url != nil && url.length) {
+            NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                       url, @"url",
+                                       [NSArray arrayWithObjects:NUMINT(theRange.location), NUMINT(theRange.length),nil],@"range",
+                                       nil];
+                                            
+            [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO reportSuccess:NO errorCode:0 message:nil];
+            return YES;
+        }
+    }
+    return NO;
+}
+
+-(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer
+{
+    if ([recognizer state] == UIGestureRecognizerStateBegan) {
+        CGPoint p = [recognizer locationInView:self];
+        if ([self.proxy _hasListeners:@"longpress"]) {
+            NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   NUMFLOAT(p.x), @"x",
+                                   NUMFLOAT(p.y), @"y",
+                                   nil];
+            [self.proxy fireEvent:@"longpress" withObject:event];
+        }
+        if ([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO] && (label != nil) && [TiUtils isIOS7OrGreater]) {
+            NSMutableAttributedString* optimizedAttributedText = [label.attributedText mutableCopy];
+            if (optimizedAttributedText != nil) {
+                // use label's font and lineBreakMode properties in case the attributedText does not contain such attributes
+                [label.attributedText enumerateAttributesInRange:NSMakeRange(0, [label.attributedText length]) options:0 usingBlock:^(NSDictionary *attrs, NSRange range, BOOL *stop) {
+                    if (!attrs[(NSString*)kCTFontAttributeName]) {
+                        [optimizedAttributedText addAttribute:(NSString*)kCTFontAttributeName value:label.font range:range];
+                    }
+                    if (!attrs[(NSString*)kCTParagraphStyleAttributeName]) {
+                        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+                        [paragraphStyle setLineBreakMode:label.lineBreakMode];
+                        [optimizedAttributedText addAttribute:(NSString*)kCTParagraphStyleAttributeName value:paragraphStyle range:range];
+                    }
+                }];
+                
+                // modify kCTLineBreakByTruncatingTail lineBreakMode to kCTLineBreakByWordWrapping
+                [optimizedAttributedText enumerateAttribute:(NSString*)kCTParagraphStyleAttributeName inRange:NSMakeRange(0, [optimizedAttributedText length]) options:0 usingBlock:^(id value, NSRange range, BOOL *stop) {
+                    NSMutableParagraphStyle* paragraphStyle = [value mutableCopy];
+                    if ([paragraphStyle lineBreakMode] == kCTLineBreakByTruncatingTail) {
+                        [paragraphStyle setLineBreakMode:kCTLineBreakByWordWrapping];
+                    }
+                    [optimizedAttributedText removeAttribute:(NSString*)kCTParagraphStyleAttributeName range:range];
+                    [optimizedAttributedText addAttribute:(NSString*)kCTParagraphStyleAttributeName value:paragraphStyle range:range];
+                }];
+                [self checkLinkAttributeForString:optimizedAttributedText atPoint:p];
+                [optimizedAttributedText release];
+            }
+        }
+    }
+}
+
+- (id)accessibilityElement
+{
+	return [self label];
 }
 
 -(void)setHighlighted:(BOOL)newValue
@@ -175,6 +363,15 @@
 	[super didMoveToSuperview];
 }
 
+- (void)didMoveToWindow
+{
+    /*
+     * See above
+     */
+    [self setHighlighted:NO];
+    [super didMoveToWindow];
+}
+
 -(BOOL)isHighlighted
 {
 	return [[self label] isHighlighted];
@@ -184,9 +381,9 @@
 
 -(void)setVerticalAlign_:(id)value
 {
-    verticalAlign = [TiUtils intValue:value def:-1];
+    verticalAlign = [TiUtils intValue:value def:UIControlContentVerticalAlignmentFill];
     if (verticalAlign < UIControlContentVerticalAlignmentCenter || verticalAlign > UIControlContentVerticalAlignmentBottom) {
-        verticalAlign = -1;
+        verticalAlign = UIControlContentVerticalAlignmentFill;
     }
     if (label != nil) {
         [self padLabel];
@@ -233,61 +430,49 @@
 
 }
 
--(void)setBackgroundImage_:(id)url
+
+-(void) updateBackgroundImageFrameWithPadding
 {
-    if (url != nil) {
-        UIImage* bgImage = [self loadImage:url];
-        if (backgroundView == nil) {
-            backgroundView = [[UIImageView alloc] initWithImage:bgImage];
-            backgroundView.userInteractionEnabled = NO;
-            [self insertSubview:backgroundView atIndex:0];
-            repad = YES;
-            [self padLabel];
-        }
-        else {
-            backgroundView.image = bgImage;
-            [backgroundView setNeedsDisplay];
+    CGRect backgroundFrame = CGRectMake(self.bounds.origin.x - padding.origin.x,
+               self.bounds.origin.y - padding.origin.y,
+               self.bounds.size.width + padding.origin.x + padding.size.width,
+                                        self.bounds.size.height + padding.origin.y + padding.size.height);
+    [self backgroundImageLayer].frame = backgroundFrame;
+}
 
-            repad = YES;
-            [self padLabel];
-        }
-    }
-    else {
-        if (backgroundView) {
-            [backgroundView removeFromSuperview];
-            RELEASE_TO_NIL(backgroundView);
-        }
-    }
-
-    self.backgroundImage = url;
+-(void)setAttributedString_:(id)arg
+{
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+    ENSURE_SINGLE_ARG(arg, TiUIiOSAttributedStringProxy);
+    [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
+    [[self label] setAttributedText:[arg attributedString]];
+    [self padLabel];
+    [(TiViewProxy *)[self proxy] contentsWillChange];
+#endif
 }
 
 -(void)setBackgroundPaddingLeft_:(id)left
 {
     padding.origin.x = [TiUtils floatValue:left];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingRight_:(id)right
 {
     padding.size.width = [TiUtils floatValue:right];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingTop_:(id)top
 {
     padding.origin.y = [TiUtils floatValue:top];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingBottom_:(id)bottom
 {
     padding.size.height = [TiUtils floatValue:bottom];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setTextAlign_:(id)alignment

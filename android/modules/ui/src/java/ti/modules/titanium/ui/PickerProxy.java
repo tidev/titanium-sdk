@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,6 +18,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -41,7 +42,7 @@ import android.widget.DatePicker;
 import android.widget.TimePicker;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
-	"locale", "visibleItems", "value"
+	"locale", "visibleItems", "value", TiC.PROPERTY_CALENDAR_VIEW_SHOWN, TiC.PROPERTY_FONT
 })
 public class PickerProxy extends TiViewProxy implements PickerColumnListener
 {
@@ -62,6 +63,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	public PickerProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_CALENDAR_VIEW_SHOWN, false);
 	}
 
 	public PickerProxy(TiContext tiContext)
@@ -230,17 +232,39 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	{
 		if (child instanceof PickerColumnProxy) {
 			PickerColumnProxy column = (PickerColumnProxy)child;
-			prepareColumn(column);
-			super.add(column);
-			if (peekView() instanceof TiUIPicker) {
-				((TiUIPicker)peekView()).onColumnAdded(children.indexOf(column));
-			}
+			addColumn(column);
 		} else if (child instanceof PickerRowProxy) {
 			getFirstColumn(true).add((PickerRowProxy)child);
 		} else if (child.getClass().isArray()) {
-			getFirstColumn(true).addRows((Object[])child);
+			Object[] obj = (Object[])child;
+			Object firstObj = obj[0];
+			if (firstObj instanceof PickerRowProxy) {
+				getFirstColumn(true).addRows(obj);
+			} else if (firstObj instanceof PickerColumnProxy) {
+				addColumns(obj);
+			}
 		} else {
 			Log.w(TAG, "Unexpected type not added to picker: " + child.getClass().getName());
+		}
+	}
+
+	private void addColumns(Object[] columns)
+	{
+		for (Object obj :columns) {
+			if (obj instanceof PickerColumnProxy) {
+				addColumn((PickerColumnProxy)obj);
+			} else {
+				Log.w(TAG, "Unexpected type not added to picker: " + obj.getClass().getName());
+			}
+		}
+	}
+
+	private void addColumn(PickerColumnProxy column)
+	{
+		prepareColumn(column);
+		super.add(column);
+		if (peekView() instanceof TiUIPicker) {
+			((TiUIPicker)peekView()).onColumnAdded(children.indexOf(column));
 		}
 	}
 
@@ -482,6 +506,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		PickerColumnProxy column = getColumn(0);
 		if (column == null && createIfMissing) {
 			column = new PickerColumnProxy();
+			column.setCreateIfMissing(true);
 			add(column);
 		}
 		return column;
@@ -783,5 +808,11 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	private void handleForceRequestLayout()
 	{
 		((TiUISpinner)view).forceRequestLayout();
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.Picker";
 	}
 }

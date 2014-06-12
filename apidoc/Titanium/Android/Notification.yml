@@ -51,6 +51,7 @@ properties:
     summary: The audio stream type to use when playing the sound.
     description: |
         Specify one of the `STREAM` constants from <Titanium.Android>.
+    constants: Titanium.Android.STREAM*
     type: Number
 
   - name: contentIntent
@@ -86,6 +87,7 @@ properties:
         <Titanium.Android.DEFAULT_LIGHTS>, <Titanium.Android.DEFAULT_SOUND>, and
         <Titanium.Android.DEFAULT_VIBRATE>. Use <Titanium.Android.DEFAULT_ALL> to specify
         that all values should be taken from the defaults.
+    constants: Titanium.Android.DEFAULT_*
     type: Number
 
   - name: deleteIntent
@@ -94,12 +96,12 @@ properties:
 
   - name: flags
     summary: Set of flags for the notification.
-    description: |
-        Possible values: <Titanium.Android.FLAG_AUTO_CANCEL>, <Titanium.Android.FLAG_INSISTENT>, 
-        <Titanium.Android.FLAG_NO_CLEAR>, <Titanium.Android.FLAG_ONGOING_EVENT>, 
-        <Titanium.Android.FLAG_ONLY_ALERT_ONCE>, <Titanium.Android.FLAG_SHOW_LIGHTS>
     type: Number
-    default: <Titanium.Android.FLAG_AUTO_CANCEL>. 
+    constants: [
+        Titanium.Android.FLAG_AUTO_CANCEL, Titanium.Android.FLAG_INSISTENT,
+        Titanium.Android.FLAG_NO_CLEAR, Titanium.Android.FLAG_ONGOING_EVENT,
+        Titanium.Android.FLAG_ONLY_ALERT_ONCE, Titanium.Android.FLAG_SHOW_LIGHTS ]
+    default: <Titanium.Android.FLAG_AUTO_CANCEL>
 
   - name: icon
     summary: 
@@ -146,7 +148,61 @@ properties:
     type: Number
 
   - name: sound
-    summary: A URL to the sound to play (supports both Android and Titanium URLs).
+    summary: A URL to the sound to play.
+    description: |
+        The URL cannot refer to a file in the Resources directory, but it can refer to
+        a file in the raw resources directory
+        ([Filesystem.resRawDirectory](Titanium.Filesystem.resRawDirectory)) or the
+        external storage directory
+        ([Filesystem.externalStorageDirectory](Titanium.Filesystem.externalStorageDirectory)).
+
+        To create a raw resource, place the audio file in the `platform/android/res/raw` 
+        folder and reference it as:
+
+            notification.sound = Ti.Filesystem.getResRawDirectory() + audioFileName;
+
+        To play a file from the Resources directory, first copy it to external storage. For example, you
+        could define the following function:
+
+            // Copy resource file to SD card, and return a native path.
+            // Return undefined if we can't copy the file.
+            function getOrCopyAudioFile(resourceFilename) {
+                var outFile = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'sound', 'cricket.wav');
+                var outPath = outFile.nativePath;
+                
+                if (! outFile.exists()) {
+                    var outDir = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'sound');
+                    if (! outDir.isDirectory()) {
+                        if (! outDir.createDirectory()) {
+                            Ti.API.debug("Failed to create directory.");
+                            outDir = null;
+                            return undefined;
+                        }
+                    }
+                    outDir = null;
+            
+                    var inFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'cricket.wav');
+                    try {
+                        inFile.copy(outPath);
+                    } catch (ex) {
+                        Ti.API.debug("Failed to copy file.");
+                        inFile = null;
+                        return undefined;
+                    }
+                    inFile = null;
+                }
+                outFile = null;
+                return outPath;
+            }
+
+
+        Then when creating a notification, specify the sound like this:
+            
+            var sound = getOrCopyAudioFile();
+            if (sound) {
+                notification.sound = sound;
+            }
+
     type: String
 
   - name: tickerText

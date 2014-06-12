@@ -12,6 +12,11 @@
 #import "TiApp.h"
 #import "TiUtils.h"
 
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+#import "TiUIiOSAttributedStringProxy.h"
+#endif
+
+
 @implementation TiUITextWidget
 
 - (id) init
@@ -26,6 +31,15 @@
 	return self;
 }
 
+
+-(void)setAttributedString_:(id)arg
+{
+#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+    ENSURE_SINGLE_ARG(arg, TiUIiOSAttributedStringProxy);
+    [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
+    [(id)[self textWidgetView] setAttributedText:[arg attributedString]];
+#endif
+}
 
 -(void)setValue_:(id)value
 {
@@ -80,6 +94,11 @@
 	return nil;
 }
 
+- (id)accessibilityElement
+{
+	return [self textWidgetView];
+}
+
 #pragma mark Common values
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -131,20 +150,11 @@
 
 -(BOOL)resignFirstResponder
 {
-	if (![textWidgetView isFirstResponder])
-	{
-		return NO;
-	}
 	return [[self textWidgetView] resignFirstResponder];
 }
 
 -(BOOL)becomeFirstResponder
 {
-	if ([textWidgetView isFirstResponder])
-	{
-		return NO;
-	}
-	
 	return [[self textWidgetView] becomeFirstResponder];
 }
 
@@ -203,6 +213,51 @@
 	
 	// In order to capture gestures properly, we need to force the root view to become the first responder.
 	[self makeRootViewFirstResponder];
+}
+
+-(NSDictionary*)selectedRange
+{
+    id<UITextInput> textView = (id<UITextInput>)[self textWidgetView];
+    if ([textView conformsToProtocol:@protocol(UITextInput)]) {
+        UITextRange* theRange = [textView selectedTextRange];
+        if (theRange != nil) {
+            UITextPosition *beginning = textView.beginningOfDocument;
+            UITextPosition* start = theRange.start;
+            UITextPosition* end = theRange.end;
+            NSInteger startPos = [textView offsetFromPosition:beginning toPosition:start];
+            NSInteger endPos = [textView offsetFromPosition:beginning toPosition:end];
+            NSInteger length = endPos - startPos;
+            
+            return [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(startPos),@"location",NUMINT(length),@"length",nil];
+        }
+    }
+    return nil;
+}
+
+-(void)setSelectionFrom:(id)start to:(id)end
+{
+    id<UITextInput> textView = (id<UITextInput>)[self textWidgetView];
+    if ([textView conformsToProtocol:@protocol(UITextInput)]) {
+        if([self becomeFirstResponder] || [self isFirstResponder]) {
+            UITextPosition *beginning = textView.beginningOfDocument;
+            UITextPosition *startPos = [textView positionFromPosition:beginning offset:[TiUtils intValue: start]];
+            UITextPosition *endPos = [textView positionFromPosition:beginning offset:[TiUtils intValue: end]];
+            UITextRange *textRange;
+            textRange = [textView textRangeFromPosition:startPos toPosition:endPos];
+            [textView setSelectedTextRange:textRange];
+        }
+    } else {
+        DebugLog(@"TextWidget does not conform with UITextInput protocol. Ignore");
+    }
+}
+
+
+#pragma mark - Titanium Internal Use Only
+-(void)updateKeyboardStatus
+{
+    if ( ([[[TiApp app] controller] keyboardVisible]) && ([[[TiApp app] controller] keyboardFocusedProxy] == [self proxy]) ) {
+        [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+    }
 }
 
 @end

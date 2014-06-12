@@ -10,17 +10,17 @@
 
 @interface TiUILabel : TiUIView<LayoutAutosizing> {
 @private
-	UILabel *label;
-    UIImageView* backgroundView;
-	BOOL requiresLayout;
+    UILabel *label;
+    UIView* wrapperView;
+    BOOL requiresLayout;
     CGRect padding;
-    BOOL repad;
+    CGRect textPadding;
     UIControlContentVerticalAlignment verticalAlign;
     CGRect initialLabelFrame;
 }
 
 @property(nonatomic,getter=isHighlighted) BOOL     highlighted;          // default is NO
-
+-(UILabel*)label;
 @end
 
 #endif

@@ -11,6 +11,11 @@
 
 @implementation TiUIiPhoneRowAnimationStyleProxy
 
+-(NSString*)apiName
+{
+    return @"Ti.UI.iPhone.RowAnimationStyle";
+}
+
 MAKE_SYSTEM_PROP(NONE,UITableViewRowAnimationNone);
 MAKE_SYSTEM_PROP(LEFT,UITableViewRowAnimationLeft);
 MAKE_SYSTEM_PROP(RIGHT,UITableViewRowAnimationRight);

@@ -1,16 +1,33 @@
-define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, lang, UI, ready) {
+define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready", "Ti/_/event"], function(Evented, lang, UI, ready, event) {
 
 	var win = window,
 		on = require.on,
 		lastOrient = null,
 		lastShake = Date.now(),
 		lastAccel = {},
+		orientationListeners = 0,
+		orientationEvents = [],
 		api = lang.setObject("Ti.Gesture", Evented, {
 			_updateOrientation: function() {
 				getWindowOrientation();
 				lastOrient !== api.orientation && api.fireEvent('orientationchange', {
 					orientation: lastOrient = api.orientation
 				});
+			},
+
+			addEventListener: function (name) {
+				name == 'orientationchange' && orientationListeners++;
+				orientationListeners == 1 && (orientationEvents = [
+					on(win, "MozOrientation", deviceOrientation),
+					on(win, "deviceorientation", deviceOrientation)
+				]);
+				Evented.addEventListener.apply(this, arguments);
+			},
+
+			removeEventListener: function (name) {
+				name == 'orientationchange' && (orientationListeners = Math.max(orientationListeners - 1, 0));
+				orientationListeners == 0 && event.off(orientationEvents);
+				Evented.removeEventListener.apply(this, arguments);
 			},
 
 			isLandscape: function() {
@@ -29,12 +46,14 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, l
 		});
 
 	function getWindowOrientation() {
-		var landscape = !!(window.innerWidth && (window.innerWidth > window.innerHeight));
-		api.constants.__values__.orientation = landscape ? UI.LANDSCAPE_LEFT : UI.PORTRAIT;
-		api.constants.__values__.landscape = landscape;
-		api.constants.__values__.portrait = !landscape;
+		var landscape = !!(window.innerWidth && (window.innerWidth > window.innerHeight)),
+			c = api.__values__.constants;
+		c.orientation = landscape ? UI.LANDSCAPE_LEFT : UI.PORTRAIT;
+		c.landscape = landscape;
+		c.portrait = !landscape;
 		return api.orientation;
 	}
+
 	ready(function() {
 		getWindowOrientation();
 	});
@@ -55,9 +74,6 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, l
 			});
 		}
 	}
-
-	on(win, "MozOrientation", deviceOrientation);
-	on(win, "deviceorientation", deviceOrientation);
 
 	on(win, "devicemotion", function(evt) {
 		var e = evt.acceleration || evt.accelerationIncludingGravity,

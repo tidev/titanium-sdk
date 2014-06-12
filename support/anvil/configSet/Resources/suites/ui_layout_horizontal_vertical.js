@@ -24,8 +24,11 @@ module.exports = new function() {
 		{name: "horizontalNoWrapTopPaddingSIZEHeight"},
 		{name: "horizontalWrapTopPaddingSIZEHeight"},
 		{name: "verticalWithTopBottomPadding"},
-		{name: "horizontalWrapWithSIZEWidth"}
+		{name: "horizontalWrapWithSIZEWidth"},
+		{name: "horizontalWrapWithFILLWidth"}
 	];
+
+	var event= "postlayout";
 
 	this.horizontalTopBottomUndefinedHeight = function(testRun) {
 		var win = Ti.UI.createWindow({ backgroundColor: 'white'});
@@ -39,7 +42,7 @@ module.exports = new function() {
 		parent.add(child2);
 		parent.add(child3);
 
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, child1.rect.height).shouldBe(50);
 			valueOf(testRun, child1.rect.width).shouldBe(40);
 			valueOf(testRun, child1.rect.y).shouldBe(10);
@@ -74,7 +77,7 @@ module.exports = new function() {
 		parent.add(child2);
 		parent.add(child3);
 
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, child1.rect.height).shouldBe(50);
 			valueOf(testRun, child1.rect.width).shouldBe(180);
 			valueOf(testRun, child1.rect.y).shouldBe(0);
@@ -112,7 +115,7 @@ module.exports = new function() {
 		parent.add(child2);
 		parent.add(child3);
 
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, child1.rect.height).shouldBe(50);
 			valueOf(testRun, child1.rect.width).shouldBe(180);
 			// (300-50)/2
@@ -147,7 +150,7 @@ module.exports = new function() {
 		parent.add(child2);
 		parent.add(child3);
 
-		win.addEventListener("open", function(e) {
+		win.addEventListener(event, function(e) {
 			valueOf(testRun, child1.rect.height).shouldBe(50);
 			valueOf(testRun, child1.rect.width).shouldBe(40);
 			valueOf(testRun, child1.rect.y).shouldBe(10);
@@ -187,7 +190,7 @@ module.exports = new function() {
 		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'purple'}));
 		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'orange'}));
 
-		win.addEventListener("postlayout", function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, topView.rect.height).shouldBe(400);
 			finish(testRun);
 		});
@@ -215,7 +218,7 @@ module.exports = new function() {
 		topView.add(Ti.UI.createView({width:50, height: 200, backgroundColor:'purple'}));
 		topView.add(Ti.UI.createView({width: 100, height: 100, backgroundColor:'orange'}));
 
-		win.addEventListener("postlayout", function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, topView.rect.width).shouldBe(250);
 			valueOf(testRun, topView.rect.height).shouldBe(200);
 
@@ -245,7 +248,7 @@ module.exports = new function() {
 		topView.add(Ti.UI.createView({width:50, top: 10, bottom: 25, height: 200, backgroundColor:'purple'}));
 		topView.add(Ti.UI.createView({width: 100, height: 100, backgroundColor:'orange'}));
 
-		win.addEventListener("postlayout", function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, topView.rect.width).shouldBe(250);
 			valueOf(testRun, topView.rect.height).shouldBe(235);
 
@@ -273,7 +276,7 @@ module.exports = new function() {
 		topView.add(Ti.UI.createView({width: 50, top: 50, bottom: 20, height: 100, backgroundColor:'purple'}));
 		topView.add(Ti.UI.createView({width: 50, height: 100, backgroundColor:'orange'}));
 
-		win.addEventListener("postlayout", function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, topView.rect.height).shouldBe(270);
 			finish(testRun);
 		});
@@ -310,7 +313,7 @@ module.exports = new function() {
 			backgroundColor : 'green'
 		})
 
-		win.addEventListener("open", function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, view1.rect.y).shouldBe(5);
 			valueOf(testRun, view2.rect.y).shouldBe(115);
 			valueOf(testRun, container.rect.height).shouldBe(220);
@@ -339,12 +342,84 @@ module.exports = new function() {
 		topView.add(Ti.UI.createView({width: 100, height: 100, backgroundColor:'blue'}));
 		topView.add(Ti.UI.createView({width: 50, height: 100, backgroundColor:'red'}));
 
-		win.addEventListener("postlayout", function(e){
+		win.addEventListener(event, function(e){
 			valueOf(testRun, topView.rect.width).shouldBe(150);
 			finish(testRun);
 		});
 
 		win.add(topView);
 		win.open();
+	};
+
+	this.horizontalWrapWithFILLWidth = function(testRun) {
+		var win2 = Titanium.UI.createWindow({  
+		    title:'Tab 2',
+		    backgroundColor:'#fff'
+		});
+
+		var fieldWrapper = Ti.UI.createView({
+		    top: 0,
+		    left: 0,
+		    backgroundColor: '#ff0',
+		    layout:'horizontal'
+		});
+		var Label = Ti.UI.createLabel({
+		    text: 'Test text field',
+		    height: 20,
+		    width: 20
+		});
+		var Spacer = Ti.UI.createView({
+		    width: 10,
+		    height: 10,
+		    backgroundColor: '#0f0',
+		});
+
+		var textfield = Titanium.UI.createTextField({
+		    width: Ti.UI.FILL,
+		    hintText: 'hint text',
+			height: '35'
+		});
+
+		var view3 = Ti.UI.createView({
+		    width: Ti.UI.FILL,
+		    height: 10,
+		    backgroundColor: 'purple'
+		});
+
+		var view4= Ti.UI.createView({
+		    width: 30,
+		    height: 10,
+		    backgroundColor: 'red'
+		});
+
+		var view5= Ti.UI.createView({
+		    width: 30,
+		    height: 10,
+		    backgroundColor: 'white'
+		});
+
+		win2.addEventListener(event, function(e){
+			// purple view should be in 2nd row
+			valueOf(testRun, view3.rect.x).shouldBe(30);
+			valueOf(testRun, view3.rect.y).shouldBe(35);
+
+			// red view should be first view in 2nd row
+			valueOf(testRun, view4.rect.x).shouldBe(0);
+			valueOf(testRun, view4.rect.y).shouldBe(35);
+
+			// white view should be on the third row
+			valueOf(testRun, view5.rect.x).shouldBe(0);
+			valueOf(testRun, view5.rect.y).shouldBe(45); // 35 (TextField) + 10 (view4)
+			finish(testRun);
+		});
+
+		fieldWrapper.add(Label);
+		fieldWrapper.add(Spacer);
+		fieldWrapper.add(textfield);
+		fieldWrapper.add(view4);
+		fieldWrapper.add(view3);
+		fieldWrapper.add(view5);
+		win2.add(fieldWrapper);
+		win2.open();
 	};
 };

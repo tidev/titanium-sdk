@@ -109,6 +109,11 @@
 	return result;
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Database.ResultSet";
+}
+
 #pragma mark Public API
 
 -(void)close:(id)args

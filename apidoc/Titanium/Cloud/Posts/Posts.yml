@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Posts: Create Post](http://cloud.appcelerator.com/docs/api/v1/posts/create)
+        See [Posts: Create Post](http://docs.appcelerator.com/cloud/latest/#!/api/Posts-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `posts` property of the parameter passed to the callback.
@@ -25,7 +25,7 @@ methods:
   - name: query
     summary: Retrieve a list of posts with sorting and pagination.
     description: |
-        See [Posts: Custom Query Posts](http://cloud.appcelerator.com/docs/api/v1/posts/query)
+        See [Posts: Custom Query Posts](http://docs.appcelerator.com/cloud/latest/#!/api/Posts-method-query)
         for the request parameters supported by this method.
         
         Data is returned in the `posts` property of the parameter passed to the callback.
@@ -44,7 +44,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Posts: Delete a Post](http://cloud.appcelerator.com/docs/api/v1/posts/delete)
+        See [Posts: Delete a Post](http://docs.appcelerator.com/cloud/latest/#!/api/Posts-method-delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -58,7 +58,7 @@ methods:
   - name: show
     summary: Retrieve information about a post.
     description: |
-        See [Posts: Show a Post](http://cloud.appcelerator.com/docs/api/v1/posts/show)
+        See [Posts: Show a Post](http://docs.appcelerator.com/cloud/latest/#!/api/Posts-method-show)
         for the request parameters supported by this method.
         
         Data is returned in the `posts` property of the parameter passed to the callback.
@@ -76,7 +76,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Posts: Update a Post](http://cloud.appcelerator.com/docs/api/v1/posts/update)
+        See [Posts: Update a Post](http://docs.appcelerator.com/cloud/latest/#!/api/Posts-method-update)
         for the request parameters supported by this method.
         
         Data is returned in the `posts` property of the parameter passed to the callback.
@@ -101,13 +101,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var post = e.posts[0];
-                    alert('Success:\\n' +
-                        'id: ' + post.id + '\\n' +
-                        'title: ' + post.title + '\\n' +
-                        'content: ' + post.content + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + post.id + '\n' +
+                        'title: ' + post.title + '\n' +
+                        'content: ' + post.content + '\n' +
                         'updated_at: ' + post.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -121,13 +121,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var post = e.posts[0];
-                    alert('Success:\\n' +
-                        'id: ' + post.id + '\\n' +
-                        'title: ' + post.title + '\\n' +
-                        'content: ' + post.content + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + post.id + '\n' +
+                        'title: ' + post.title + '\n' +
+                        'content: ' + post.content + '\n' +
                         'updated_at: ' + post.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -144,18 +144,18 @@ examples:
                 }
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.posts.length);
                     for (var i = 0; i < e.posts.length; i++) {
                         var post = e.posts[i];
-                        alert('id: ' + post.id + '\\n' +
-                            'id: ' + post.id + '\\n' +
-                            'title: ' + post.title + '\\n' +
-                            'content: ' + post.content + '\\n' +
+                        alert('id: ' + post.id + '\n' +
+                            'id: ' + post.id + '\n' +
+                            'title: ' + post.title + '\n' +
+                            'content: ' + post.content + '\n' +
                             'updated_at: ' + post.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -170,13 +170,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var post = e.posts[0];
-                    alert('Success:\\n' +
-                        'id: ' + post.id + '\\n' +
-                        'title: ' + post.title + '\\n' +
-                        'content: ' + post.content + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + post.id + '\n' +
+                        'title: ' + post.title + '\n' +
+                        'content: ' + post.content + '\n' +
                         'updated_at: ' + post.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -191,7 +191,7 @@ examples:
                 if (e.success) {
                     alert('Success');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

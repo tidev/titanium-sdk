@@ -40,6 +40,7 @@ methods:
         **Not displayed in Analytics UI**.
     deprecated: 
         since: "2.0.0"
+        removed: "3.3.0"
     parameters:
 
       - name: type
@@ -98,6 +99,7 @@ methods:
         type: Object
         optional: true
         default: null
+    exclude-platforms: [blackberry]
 
   - name: settingsEvent
     summary: |
@@ -105,6 +107,7 @@ methods:
         **Not displayed in Analytics UI**.
     deprecated: 
         since: "2.0.0"
+        removed: "3.3.0"
     parameters:
 
       - name: name
@@ -116,6 +119,7 @@ methods:
         type: Object
         optional: true
         default: null
+    exclude-platforms: [blackberry]
 
   - name: timedEvent
     summary: |
@@ -123,6 +127,7 @@ methods:
         **Not displayed in Analytics UI**.
     deprecated: 
         since: "2.0.0"
+        removed: "3.3.0"
     parameters:
 
       - name: name
@@ -146,6 +151,7 @@ methods:
         type: Object
         optional: true
         default: null
+    exclude-platforms: [blackberry]
 
   - name: userEvent
     summary: 
@@ -153,6 +159,7 @@ methods:
         **Not displayed in Analytics UI**.
     deprecated: 
         since: "2.0.0"
+        removed: "3.3.0"
     parameters:
 
       - name: name
@@ -164,6 +171,19 @@ methods:
         type: Object
         optional: true
         default: null
+    exclude-platforms: [blackberry]
+
+properties:
+  - name: lastEvent
+    summary: JSON representation of the last analytics event generated.
+    description: |
+         LastEvent is the JSON version of the last event prepared to be sent to Appcelerator
+         during the application's session. This value may be null or undefined if no such
+         event was queued.
+    type: String
+    since: "3.1.2"
+    permission: read-only
+    platforms: [android, iphone, ipad]
 
 examples:
   - title: Custom Feature Event

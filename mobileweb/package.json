@@ -13,9 +13,15 @@
 	"version": "__VERSION__",
 	"author": "Appcelerator, Inc. <info@appcelerator.com>",
 	"maintainers": [
-		"Chris Barber <cbarber@appcelerator.com>",
-		"Bryan Hughes <bhughes@appcelerator.com>"
+		"Chris Barber <cbarber@appcelerator.com>"
 	],
+	"vendorDependencies": {
+		"visual studio": ">=10 <=12",
+		"windows phone sdk": "8.0",
+		"msbuild": ">=4.0",
+		"node": ">0.8.0 <=0.10.x",
+		"java": "<=1.6.x"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/appcelerator/titanium_mobile_web.git"

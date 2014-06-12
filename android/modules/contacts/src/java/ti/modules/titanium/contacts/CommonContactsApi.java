@@ -12,13 +12,14 @@ import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.provider.Contacts;
+import android.provider.ContactsContract;
 
 public abstract class CommonContactsApi 
 {
@@ -107,9 +108,9 @@ public abstract class CommonContactsApi
 	protected static String getEmailTextType(int type) 
 	{
 		String key = "other";
-		if (type == Contacts.ContactMethods.TYPE_HOME) {
+		if (type == ContactsContract.CommonDataKinds.Email.TYPE_HOME) {
 			key = "home";
-		} else if (type == Contacts.ContactMethods.TYPE_WORK) {
+		} else if (type == ContactsContract.CommonDataKinds.Email.TYPE_WORK) {
 			key = "work";
 		}
 		return key;
@@ -118,22 +119,22 @@ public abstract class CommonContactsApi
 	protected static String getPhoneTextType(int type)
 	{
 		String key = "other";
-		if (type == Contacts.Phones.TYPE_FAX_HOME) {
+		if (type == ContactsContract.CommonDataKinds.Phone.TYPE_FAX_HOME) {
 			key = "homeFax";
 		}
-		if (type == Contacts.Phones.TYPE_FAX_WORK) {
+		if (type == ContactsContract.CommonDataKinds.Phone.TYPE_FAX_WORK) {
 			key = "workFax";
 		}
-		if (type == Contacts.Phones.TYPE_HOME) {
+		if (type == ContactsContract.CommonDataKinds.Phone.TYPE_HOME) {
 			key = "home";
 		}
-		if (type == Contacts.Phones.TYPE_MOBILE) {
+		if (type == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE) {
 			key = "mobile";
 		}
-		if (type == Contacts.Phones.TYPE_PAGER) {
+		if (type == ContactsContract.CommonDataKinds.Phone.TYPE_PAGER) {
 			key = "pager";
 		}
-		if (type == Contacts.Phones.TYPE_WORK) {
+		if (type == ContactsContract.CommonDataKinds.Phone.TYPE_WORK) {
 			key = "work";
 		}
 		return key;
@@ -143,9 +144,9 @@ public abstract class CommonContactsApi
 	protected static String getPostalAddressTextType(int type)
 	{
 		String key = "other";
-		if (type == Contacts.ContactMethods.TYPE_HOME) {
+		if (type == ContactsContract.CommonDataKinds.Email.TYPE_HOME) {
 			key = "home";
-		} else if (type == Contacts.ContactMethods.TYPE_WORK) {
+		} else if (type == ContactsContract.CommonDataKinds.Email.TYPE_WORK) {
 			key = "work";
 		}
 		return key;
@@ -156,6 +157,7 @@ public abstract class CommonContactsApi
 		long id;
 		String name;
 		String notes;
+		String birthday;
 		boolean hasImage = false;
 		Map<String, ArrayList<String>> emails = new HashMap<String, ArrayList<String>>();
 		Map<String, ArrayList<String>> phones = new HashMap<String, ArrayList<String>>();
@@ -181,7 +183,9 @@ public abstract class CommonContactsApi
 				loadAddressFromL5DataRow(cursor);
 			} else if (kind.equals(ContactsApiLevel5.KIND_EMAIL)) {
 				loadEmailFromL5DataRow(cursor);
-			} else if (kind.equals(ContactsApiLevel5.KIND_NAME)) {
+			} else if (kind.equals(ContactsApiLevel5.KIND_EVENT)) {
+				loadBirthdayFromL5DataRow(cursor);
+			}else if (kind.equals(ContactsApiLevel5.KIND_NAME)) {
 				//loadNameFromL5DataRow(cursor); TODO Structured names
 			} else if (kind.equals(ContactsApiLevel5.KIND_NOTE)) {
 				loadNoteFromL5DataRow(cursor);
@@ -209,8 +213,15 @@ public abstract class CommonContactsApi
 		{
 			this.notes = cursor.getString(ContactsApiLevel5.DATA_COLUMN_NOTE);
 		}
-		
-		
+
+		void loadBirthdayFromL5DataRow(Cursor cursor)
+		{
+			int type = cursor.getInt(ContactsApiLevel5.DATA_COLUMN_EVENT_TYPE);
+			if (type == ContactsContract.CommonDataKinds.Event.TYPE_BIRTHDAY) {
+				this.birthday = cursor.getString(ContactsApiLevel5.DATA_COLUMN_EVENT_DATE);
+			}
+		}
+
 		void loadEmailFromL5DataRow(Cursor emailsCursor)
 		{
 			String emailAddress = emailsCursor.getString(ContactsApiLevel5.DATA_COLUMN_EMAIL_ADDR);
@@ -247,12 +258,13 @@ public abstract class CommonContactsApi
 		{
 			PersonProxy proxy = new PersonProxy();
 			proxy.setFullName(name);
-			proxy.setProperty("note", notes);
+			proxy.setProperty(TiC.PROPERTY_NOTE, notes);
+			proxy.setProperty(TiC.PROPERTY_BIRTHDAY, birthday);
 			proxy.setEmailFromMap(emails);
 			proxy.setPhoneFromMap(phones);
 			proxy.setAddressFromMap(addresses);
-			proxy.setProperty("kind", ContactsModule.CONTACTS_KIND_PERSON);
-			proxy.setProperty("id", id);
+			proxy.setProperty(TiC.PROPERTY_KIND, ContactsModule.CONTACTS_KIND_PERSON);
+			proxy.setProperty(TiC.PROPERTY_ID, id);
 			proxy.hasImage = this.hasImage;
 			return proxy;
 			

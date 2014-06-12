@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI", "Ti/Filesystem"], 
+define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI", "Ti/Filesystem"],
 	function(declare, event, lang, style, Widget, UI, Filesystem) {
 
 	var setStyle = style.set,
@@ -29,7 +29,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget
 				this.domNode.style.height = "";
 
 				var imageRatio = this.domNode.width / this.domNode.height,
-					values = this.properties.__values__,
+					values = this.__values__.properties,
 					oldWidth = values.width,
 					oldHeight = values.height;
 
@@ -70,6 +70,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget
 							});
 
 						if (value) {
+							value = value.replace(/^(\/|\.\/)/, '');
 							disp = "inherit";
 							handles = [
 								on(node, "load", this, function() {
@@ -192,12 +193,13 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget
 		},
 
 		_setState: function(paused, animating) {
-			this.constants.paused = !!paused;
-			this.constants.animating = !!animating;
+			var c = this.__values__.constants;
+			c.paused = !!paused;
+			c.animating = !!animating;
 		},
 
 		constants: {
-			animating: false, 
+			animating: false,
 			paused: false
 		},
 
@@ -213,8 +215,9 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget
 				set: function(value) {
 					this._removeAllChildren();
 					this._images = void 0;
+					var self = this; //Need to get event context
 					this._add(this._createImage(value, function() {
-						this.fireEvent("load", {
+						self.fireEvent("load", {
 							state: "image"
 						});
 					}, function(e) {

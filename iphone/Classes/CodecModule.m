@@ -25,6 +25,11 @@
 
 // Public API : Functions
 
+-(NSString*)apiName
+{
+    return @"Ti.Codec";
+}
+
 -(NSNumber*)encodeNumber:(id)args
 {
     ENSURE_SINGLE_ARG(args, NSDictionary);
@@ -50,7 +55,7 @@
     
     switch (result) {
         case BAD_ENDIAN: {
-            [self throwException:[NSString stringWithFormat:@"Invalid endianness: %d", byteOrder]
+            [self throwException:[NSString stringWithFormat:@"Invalid endianness: %ld", byteOrder]
                        subreason:nil
                         location:CODELOCATION];
             break;
@@ -105,7 +110,7 @@
         case CFByteOrderLittleEndian:
             break;
         default:
-            [self throwException:[NSString stringWithFormat:@"Invalid endianness: %d", byteOrder]
+            [self throwException:[NSString stringWithFormat:@"Invalid endianness: %ld", byteOrder]
                        subreason:nil
                         location:CODELOCATION];
     }

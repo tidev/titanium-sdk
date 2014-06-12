@@ -54,13 +54,17 @@ def main(args):
 		project_dir = os.path.abspath(args[1])
 		build_dir = os.path.join(project_dir,'build','iphone')
 		titanium_local = os.path.join(build_dir,'titanium')
-		
-		if len(args) == 3:
+		buildMode = 'production'
+
+		if len(args) > 2:
 			version = args[2]
 			sdk_dir = find_sdk(version)
 		else:
 			sdk_dir = os.path.abspath(os.path.dirname(template_dir))
 			version = os.path.basename(sdk_dir)			
+		
+		if len(args) > 3:
+			buildMode = args[3]
 
 		tiappxml = os.path.join(project_dir, 'tiapp.xml')
 		tiapp = TiAppXML(tiappxml)
@@ -68,6 +72,8 @@ def main(args):
 		app_id = tiapp.properties['id']
 		app_name = tiapp.properties['name']
 		
+		info("Creating project in %s mode" % buildMode)
+
 		if app_id is None or app_name is None:
 			info("Your tiapp.xml is malformed - please specify an app name and id")
 			sys.exit(1)
@@ -109,15 +115,24 @@ def main(args):
 		info("Migrating tiapp.xml...")
 		shutil.copy(tiappxml, build_dir)
 		
+		ti = TiAppXML(tiappxml)
+		# target the requested value if provided
+		min_ver = 4.0
+		if 'min-ios-ver' in ti.ios:
+			min_ver = float(ti.ios['min-ios-ver'])
+			if min_ver < 4.0:
+				print "[INFO] Minimum iOS version %s is lower than 4.0: Using 4.0 as minimum" % min_ver
+				min_ver = 4.0
+
 		# Generate project stuff from the template
 		info("Generating project from Titanium template...")
-		project = Projector(app_name,version,template_dir,project_dir,app_id)
+		project = Projector(app_name,version,template_dir,project_dir,app_id, min_ver)
 		project.create(template_dir,build_dir)			
 		
 		# Because the debugger.plist is built as part of the required
 		# resources, we need to autogen an empty one
 		debug_plist = os.path.join(resources_dir,'debugger.plist')
-		force_xcode = write_debugger_plist(None, None, template_dir, debug_plist)
+		force_xcode = write_debugger_plist(None, None, None, None, template_dir, debug_plist)
 		
 		# Populate Info.plist
 		applogo = None
@@ -128,7 +143,7 @@ def main(args):
 		
 		# Run the compiler to autogenerate .m files
 		info("Copying classes, creating generated .m files...")
-		compiler = Compiler(project_dir,app_id,app_name,'export')
+		compiler = Compiler(project_dir,app_id,app_name,buildMode)
 		compiler.compileProject(silent=True)
 		
 		#... But we still have to nuke the stuff that gets built that we don't want
@@ -144,7 +159,7 @@ def main(args):
 		
 		# Get Modules
 		detector = ModuleDetector(project_dir)
-		missing_modules, modules = detector.find_app_modules(tiapp, 'iphone')
+		missing_modules, modules = detector.find_app_modules(tiapp, 'iphone', buildMode)
 		
 		if len(missing_modules) != 0:
 			for module in missing_modules:
@@ -198,7 +213,7 @@ def main(args):
 		
 		# Process i18n files
 		info("Processing i18n...")
-		locale_compiler = LocaleCompiler(app_name, project_dir, 'ios', 'development', resources_dir)
+		locale_compiler = LocaleCompiler(app_name, project_dir, 'ios', buildMode, resources_dir)
 		locale_compiler.compile()
 		
 		# Migrate compile scripts
@@ -237,4 +252,4 @@ def main(args):
 if __name__ == "__main__":
 		main(sys.argv)
 		sys.exit(0)
-
+		

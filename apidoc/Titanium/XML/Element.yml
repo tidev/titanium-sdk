@@ -10,7 +10,7 @@ summary: >
     on Android and iOS with some non-standard extensions. Exposes the 
     [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-745549614) implementation on Mobile Web.
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: getAttribute
     summary: Retrieves an attribute value by name, returning it as a string.
@@ -220,13 +220,13 @@ properties:
     permission: read-only
 
   - name: text
-    summary: Use [textContent](Titanium.XML.Element.textContent) instead.
-    description: Content (value) of all text nodes within this node.
+    deprecated:
+        since: "2.0.0"
+        notes: Use [textContent](Titanium.XML.Element.textContent) instead.
+    summary: Content (value) of all text nodes within this node.
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
-    deprecated: 
-        since: "2.0.0"
 
   - name: textContent
     summary: Content (value) of all text nodes within this node.
@@ -235,4 +235,4 @@ properties:
         [Text](Titanium.XML.Text) nodes only.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]

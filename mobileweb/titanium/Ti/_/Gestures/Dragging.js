@@ -1,79 +1,84 @@
-define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function(declare,lang,GestureRecognizer) {
-
+/*global define*/
+define(['Ti/_/declare', 'Ti/_/lang'], function (declare, lang) {
 
 	// This is the amount of space the finger is allowed drift until the gesture is no longer considered a tap
-	var driftThreshold =  25;
+	var driftThreshold =  25,
+		touchStartLocation;
 
-	return declare("Ti._.Gestures.Drag", GestureRecognizer, {
-
-		name: "dragging",
-
-		_touchStartLocation: null,
-
-		_cancelDrag: function(e, element) {
-			if (this._touchStartLocation) {
-				this._touchStartLocation = null;
-				!element._isGestureBlocked(this.name) && lang.hitch(element,element._handleTouchEvent("draggingcancel",{
-					source: this.getSourceNode(e,element)
-				}));
-			}
-		},
-
-		_createEvent: function(e, element) {
-			var x = e.changedTouches[0].clientX,
-				y = e.changedTouches[0].clientY,
-				distanceX = x - this._touchStartLocation.x,
-				distanceY = y - this._touchStartLocation.y;
+	function cancelDrag(e) {
+		var cancelEvent;
+		if (touchStartLocation) {
+			cancelEvent = createEvent(e);
+			touchStartLocation = null;
 			return {
-				x: x,
-				y: y,
-				distanceX: distanceX,
-				distanceY: distanceY,
-				distance: Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2)),
-				source: this.getSourceNode(e,element)
+				draggingcancel: cancelEvent
 			};
-		},
+		}
+	}
 
-		processTouchStartEvent: function(e, element){
+	function createEvent (e) {
+		var x = e.changedTouches[0].clientX,
+			y = e.changedTouches[0].clientY,
+			distanceX = x - touchStartLocation.x,
+			distanceY = y - touchStartLocation.y;
+		return [{
+			x: x,
+			y: y,
+			distanceX: distanceX,
+			distanceY: distanceY,
+			distance: Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2))
+		}];
+	}
+
+	return lang.setObject('Ti._.Gestures.Drag', {
+
+		processTouchStartEvent: function(e){
 			if (e.touches.length == 1 && e.changedTouches.length == 1) {
-				this._touchStartLocation = {
-					x: e.changedTouches[0].clientX,
-					y: e.changedTouches[0].clientY
-				}
-				!element._isGestureBlocked(this.name) && lang.hitch(element,element._handleTouchEvent("draggingstart",this._createEvent(e, element)));
-			} else if (this._touchStartLocation) {
-				this._cancelDrag(e, element);
+				var x,
+					y;
+				touchStartLocation = {
+					x: x = e.changedTouches[0].clientX,
+					y: y = e.changedTouches[0].clientY
+				};
+				return {
+					draggingstart: createEvent(e)
+				};
+			} else if (touchStartLocation) {
+				return cancelDrag(e);
 			}
 		},
 
-		processTouchEndEvent: function(e, element){
-			var touchStartLocation = this._touchStartLocation;
+		processTouchEndEvent: function(e){
 			if (touchStartLocation) {
 				var distance = Math.sqrt(Math.pow(e.changedTouches[0].clientX - touchStartLocation.x, 2) +
-					Math.pow(e.changedTouches[0].clientY - touchStartLocation.y, 2));
-				if (e.touches.length == 0 && e.changedTouches.length == 1 && distance > driftThreshold) {
-					!element._isGestureBlocked(this.name) && lang.hitch(element,element._handleTouchEvent("draggingend",this._createEvent(e, element)));
-					this._touchStartLocation = null;
+						Math.pow(e.changedTouches[0].clientY - touchStartLocation.y, 2)),
+					endEvent;
+				if (e.touches.length === 0 && e.changedTouches.length === 1 && distance > driftThreshold) {
+					endEvent = createEvent(e);
+					touchStartLocation = null;
+					return {
+						draggingend: endEvent
+					};
 				} else {
-					this._cancelDrag(e, element);
+					return cancelDrag(e);
 				}
 			}
 		},
 
-		processTouchMoveEvent: function(e, element) {
-			if (this._touchStartLocation) {
+		processTouchMoveEvent: function(e) {
+			if (touchStartLocation) {
 				if (e.touches.length == 1 && e.changedTouches.length == 1) {
-					if (!element._isGestureBlocked(this.name)) {
-						lang.hitch(element,element._handleTouchEvent("dragging",this._createEvent(e, element)));
-					}
+					return {
+						dragging: createEvent(e)
+					};
 				} else {
-					this._cancelDrag(e, element);
+					return cancelDrag(e);
 				}
 			}
 		},
 
-		processTouchCancelEvent: function(e, element){
-			this._touchStartLocation && this._cancelDrag(e, element);
+		processTouchCancelEvent: function(e){
+			return touchStartLocation && cancelDrag(e);
 		}
 
 	});

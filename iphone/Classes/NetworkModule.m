@@ -1,22 +1,28 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_NETWORK
 
+#import "TiNetworkCookieProxy.h"
 #import "NetworkModule.h"
 #import "Reachability.h"
 #import "TiApp.h"
 #import "SBJSON.h"
 #import "TiBlob.h"
 #import "TiNetworkSocketProxy.h"
-#import "ASIHTTPRequest.h"
+#import "TiUtils.h"
 
 NSString* const INADDR_ANY_token = @"INADDR_ANY";
-
+static NSOperationQueue *_operationQueue = nil;
 @implementation NetworkModule
+
+-(NSString*)apiName
+{
+    return @"Ti.Network";
+}
 
 -(NSString*)INADDR_ANY
 {
@@ -38,6 +44,11 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
     return [NSNumber numberWithInt:READ_WRITE_MODE];
 }
 
+-(void)shutdown:(id)sender
+{
+    RELEASE_TO_NIL(_operationQueue);
+    [super shutdown:sender];
+}
 -(void)startReachability
 {
 	NSAssert([NSThread currentThread],@"not on the main thread for startReachability");
@@ -228,12 +239,10 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	{
 		[result addObject:NUMINT(3)];
 	}
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
-	if ([TiUtils isIOS5OrGreater] && (types & UIRemoteNotificationTypeNewsstandContentAvailability)!=0)
+	if ((types & UIRemoteNotificationTypeNewsstandContentAvailability)!=0)
 	{
 		[result addObject:NUMINT(4)];
 	}
-#endif
 	return result;
 }
 
@@ -276,16 +285,11 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 					ourNotifications |= UIRemoteNotificationTypeSound;
 					break;
 				}
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
-        case 4: // NOTIFICATION_TYPE_NEWSSTAND
-        {
-          if([TiUtils isIOS5OrGreater])
-          {
-            ourNotifications |= UIRemoteNotificationTypeNewsstandContentAvailability;
-          }
-          break;
-        }
-#endif
+				case 4: // NOTIFICATION_TYPE_NEWSSTAND
+				{
+					ourNotifications |= UIRemoteNotificationTypeNewsstandContentAvailability;
+					break;
+				}
 			}
 		}
 	}
@@ -298,7 +302,9 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	id currentNotification = [[TiApp app] remoteNotification];
 	if (currentNotification!=nil && pushNotificationCallback!=nil)
 	{
-		id event = [NSDictionary dictionaryWithObject:currentNotification forKey:@"data"];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:currentNotification forKey:@"data"];
+		[event setObject:NUMBOOL(YES) forKey:@"inBackground"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
 	}
 }
@@ -318,10 +324,11 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	// called by TiApp
 	if (pushNotificationSuccess!=nil)
 	{
-		NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""] 
+		NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""]
 							stringByReplacingOccurrencesOfString:@">" withString:@""] 
 						   stringByReplacingOccurrencesOfString: @" " withString: @""];
-		NSDictionary *event = [NSDictionary dictionaryWithObject:token forKey:@"deviceToken"];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:token forKey:@"deviceToken"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationSuccess thisObject:nil];
 	}
 }
@@ -331,7 +338,10 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	// called by TiApp
 	if (pushNotificationCallback!=nil)
 	{
-		id event = [NSDictionary dictionaryWithObject:userInfo forKey:@"data"];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:userInfo forKey:@"data"];
+		BOOL inBackground = (application.applicationState != UIApplicationStateActive);
+		[event setObject:NUMBOOL(inBackground) forKey:@"inBackground"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
 	}
 }
@@ -341,13 +351,125 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	// called by TiApp
 	if (pushNotificationError!=nil)
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[error description] forKey:@"error"];
+		NSString * message = [TiUtils messageFromError:error];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:message];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationError thisObject:nil];
 	}
 }
 
 #endif
 
+#pragma mark Cookies
+
+-(id<TiEvaluator>)evaluationContext
+{
+	id<TiEvaluator> context = [self executionContext];
+	if(context == nil) {
+		context = [self pageContext];
+	}
+	return context;
+}
+
+-(NSArray*)getHTTPCookiesForDomain:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSString);
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSMutableArray *allCookies = [NSMutableArray array];
+    for(NSHTTPCookie* cookie in [storage cookies])
+    {
+        if([[cookie domain] isEqualToString: args])
+        {
+            [allCookies addObject:cookie];
+        }
+    }
+    NSMutableArray *returnArray = [NSMutableArray array];
+    for(NSHTTPCookie *cookie in allCookies)
+    {
+        [returnArray addObject:[[[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self evaluationContext]] autorelease]];
+    }
+    return returnArray;
+}
+
+-(void)addHTTPCookie:(id)args;
+{
+    ENSURE_SINGLE_ARG(args, TiNetworkCookieProxy);
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSHTTPCookie* cookie = [args newCookie];
+    if(cookie != nil)
+    {
+        [storage setCookie:cookie];
+    }
+}
+
+-(NSArray*)getHTTPCookies:(id)args
+{
+    NSString* domain = [TiUtils stringValue:[args objectAtIndex:0]];
+    NSString*   path = [TiUtils stringValue:[args objectAtIndex:1]];
+    NSString*   name = [TiUtils stringValue:[args objectAtIndex:2]];
+    if (path == nil || [path isEqual:@""]) {
+        path = @"/";
+    }
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    
+    NSArray *allCookies = [storage cookies];
+    NSMutableArray *returnArray = [NSMutableArray array];
+    NSHTTPCookie *c = [[NSHTTPCookie alloc] initWithProperties:@{}];
+    for(NSHTTPCookie *cookie in allCookies)
+    {
+        if([[cookie domain] isEqualToString:domain] &&
+           [[cookie path] isEqualToString:path] &&
+           ([[cookie name] isEqualToString:name] || name == nil)) {
+            [returnArray addObject:[[[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self evaluationContext]] autorelease]];
+        }
+    }
+    return returnArray;
+}
+
+-(void)removeAllHTTPCookies:(id)args
+{
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    while ([[storage cookies] count] > 0) {
+        [storage deleteCookie: [[storage cookies] objectAtIndex:0]];
+    }
+}
+
+-(void)removeHTTPCookie:(id)args
+{
+    NSArray* cookies = [self getHTTPCookies:args];
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for(TiNetworkCookieProxy* cookie in cookies) {
+        [storage deleteCookie: [cookie newCookie]];
+    }
+}
+
+-(void)removeHTTPCookiesForDomain:(id)args
+{
+    NSArray* cookies = [self getHTTPCookiesForDomain:args];
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for(TiNetworkCookieProxy* cookie in cookies) {
+        [storage deleteCookie: [cookie newCookie]];
+    }
+}
+
+-(NSArray*)allHTTPCookies
+{
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSMutableArray *array = [NSMutableArray array];
+    for(NSHTTPCookie* cookie in [storage cookies])
+    {
+        [array addObject:[[[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self evaluationContext]] autorelease]];
+    }
+    return array;
+}
+
++(NSOperationQueue*)operationQueue;
+{
+    if(_operationQueue == nil) {
+        _operationQueue = [[NSOperationQueue alloc] init];
+        [_operationQueue setMaxConcurrentOperationCount:4];
+    }
+    return _operationQueue;
+}
 @end
 
 

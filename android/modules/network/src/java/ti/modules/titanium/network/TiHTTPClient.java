@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,13 +24,20 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509KeyManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -44,9 +51,12 @@ import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
+import org.apache.http.auth.AuthSchemeFactory;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
+import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -83,17 +93,21 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiResourceFile;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
+import android.os.Build;
+import android.util.Base64OutputStream;
 
 public class TiHTTPClient
 {
@@ -101,7 +115,11 @@ public class TiHTTPClient
 	private static final int DEFAULT_MAX_BUFFER_SIZE = 512 * 1024;
 	private static final String PROPERTY_MAX_BUFFER_SIZE = "ti.android.httpclient.maxbuffersize";
 	private static final int PROTOCOL_DEFAULT_PORT = -1;
-
+	private static final String TITANIUM_ID_HEADER = "X-Titanium-Id";
+	private static final String TITANIUM_USER_AGENT = "Appcelerator Titanium/" + TiApplication.getInstance().getTiBuildVersion()
+	                                                  + " ("+ Build.MODEL + "; Android API Level: "
+	                                                  + Integer.toString(Build.VERSION.SDK_INT) + "; "
+	                                                  + TiPlatformHelper.getInstance().getLocale() +";)";
 	private static final String[] FALLBACK_CHARSETS = {HTTP.UTF_8, HTTP.ISO_8859_1};
 
 	// Regular expressions for detecting charset information in response documents (ex: html, xml).
@@ -109,8 +127,6 @@ public class TiHTTPClient
 	private static final String XML_DECLARATION_TAG_REGEX = "encoding=[\"\']([^\"\']*)[\"\']";
 
 	private static AtomicInteger httpClientThreadCounter;
-	private static DefaultHttpClient nonValidatingClient;
-	private static DefaultHttpClient validatingClient;
 
 	private DefaultHttpClient client;
 	private KrollProxy proxy;
@@ -122,6 +138,7 @@ public class TiHTTPClient
 	private boolean connected;
 	private HttpRequest request;
 	private HttpResponse response;
+	private Header[] responseHeaders;
 	private String method;
 	private HttpHost host;
 	private LocalResponseHandler handler;
@@ -142,9 +159,18 @@ public class TiHTTPClient
 	private boolean autoRedirect = true;
 	private Uri uri;
 	private String url;
+	private String redirectedLocation;
 	private ArrayList<File> tmpFiles = new ArrayList<File>();
+	private ArrayList<X509TrustManager> trustManagers = new ArrayList<X509TrustManager>();
+	private ArrayList<X509KeyManager> keyManagers = new ArrayList<X509KeyManager>();
+	protected SecurityManagerProtocol securityManager;
+
+	private static CookieStore cookieStore = NetworkModule.getHTTPCookieStoreInstance();
+
 
 	protected HashMap<String,String> headers = new HashMap<String,String>();
+	
+	private Hashtable<String, AuthSchemeFactory> customAuthenticators = new Hashtable<String, AuthSchemeFactory>(1);
 
 	public static final int READY_STATE_UNSENT = 0; // Unsent, open() has not yet been called
 	public static final int READY_STATE_OPENED = 1; // Opened, send() has not yet been called
@@ -173,6 +199,7 @@ public class TiHTTPClient
 			// in some cases we have to manually replace spaces in the URI (probably because the HTTP server isn't correctly escaping them)
 			String location = locationHeader.getValue().replaceAll (" ", "%20");
 			response.setHeader("location", location);
+			redirectedLocation = location;
 			
 			return super.getLocationURI(response, context);
 		}
@@ -238,7 +265,7 @@ public class TiHTTPClient
 					if (entity.getContentType() != null) {
 						contentType = entity.getContentType().getValue();
 					}
-					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip") && entity.getContentLength() != 0) {
 						is = new GZIPInputStream(entity.getContent());
 					} else {
 						is = entity.getContent();
@@ -445,16 +472,19 @@ public class TiHTTPClient
 		@Override
 		public void write(int b) throws IOException
 		{
-			super.write(b);
-			transferred++;
-			fireProgress();
+			//Donot write if request is aborted
+			if (!aborted) {	
+				super.write(b);
+				transferred++;
+				fireProgress();
+			}
 		}
 	}
 
 	public TiHTTPClient(KrollProxy proxy)
 	{
 		this.proxy = proxy;
-		this.client = getClient(false);
+		this.client = createClient();
 
 		if (httpClientThreadCounter == null) {
 			httpClientThreadCounter = new AtomicInteger();
@@ -466,7 +496,7 @@ public class TiHTTPClient
 		this.nvPairs = new ArrayList<NameValuePair>();
 		this.parts = new HashMap<String,ContentBody>();
 		this.maxBufferSize = TiApplication.getInstance()
-				.getSystemProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
+				.getAppProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
 	}
 
 	public int getReadyState()
@@ -491,15 +521,22 @@ public class TiHTTPClient
 		return false;
 	}
 	
+	public void addAuthFactory(String scheme, AuthSchemeFactory theFactory)
+	{
+		customAuthenticators.put(scheme, theFactory);
+	}
+
 	public void setReadyState(int readyState)
 	{
 		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
 		this.readyState = readyState;
 
-		dispatchCallback("onreadystatechanged", null);
+		dispatchCallback("onreadystatechange", null);
 
 		if (readyState == READY_STATE_DONE) {
-			dispatchCallback("onload", null);
+			KrollDict data = new KrollDict();
+			data.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
+			dispatchCallback("onload", data);
 		}
 	}
 
@@ -665,42 +702,40 @@ public class TiHTTPClient
 	{
 		if (readyState > READY_STATE_UNSENT && readyState < READY_STATE_DONE) {
 			aborted = true;
-
 			if (client != null) {
 				client.getConnectionManager().shutdown();
 				client = null;
 			}
-			if (validatingClient != null)
-				validatingClient = null;
-			if (nonValidatingClient != null)
-				nonValidatingClient = null;
+			// Fire the disposehandle event if the request is aborted.
+			// And it will dispose the handle of the httpclient in the JS.
+			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 		}
 	}
 
 	public String getAllResponseHeaders()
 	{
 		String result = "";
-		if (readyState >= READY_STATE_HEADERS_RECEIVED && response != null)
-		{
-			StringBuilder sb = new StringBuilder(1024);
-
-			Header[] headers = response.getAllHeaders();
-			int len = headers.length;
-			for(int i = 0; i < len; i++) {
-				Header h = headers[i];
+		Header[] theHeaders = null;
+		if (response != null)  {
+			theHeaders = response.getAllHeaders();
+		} else {
+			theHeaders = responseHeaders;
+		}
+		if (theHeaders != null) {
+			StringBuilder sb = new StringBuilder(256);
+			for (Header h : theHeaders) {
 				sb.append(h.getName()).append(":").append(h.getValue()).append("\n");
 			}
 			result = sb.toString();
-
-		} else {
-			// Spec says return "";
 		}
-
 		return result;
 	}
 
 	public void clearCookies(String url)
 	{
+		if (client == null) {
+			client = createClient();
+		}
 		List<Cookie> cookies = new ArrayList<Cookie>(client.getCookieStore().getCookies());
 		client.getCookieStore().clear();
 		String lower_url = url.toLowerCase();
@@ -714,7 +749,7 @@ public class TiHTTPClient
 	
 	public void setRequestHeader(String header, String value)
 	{
-		if (readyState == READY_STATE_OPENED) {
+		if (readyState <= READY_STATE_OPENED) {
 			headers.put(header, value);
 
 		} else {
@@ -725,31 +760,31 @@ public class TiHTTPClient
 	public String getResponseHeader(String headerName)
 	{
 		String result = "";
-
-		if (readyState > READY_STATE_OPENED) {
-			String delimiter = "";
+		Header[] theHeaders = null;
+		if (response != null)  {
+			theHeaders = response.getAllHeaders();
+		} else {
+			theHeaders = responseHeaders;
+		}
+		if(theHeaders != null) {
 			boolean firstPass = true;
-
-			// headers will be an empty array if none can be found
-			Header[] headers = response.getHeaders(headerName);
-			for (Header header : headers)
-			{
-				if (!firstPass)
-				{
-					delimiter = ", ";
+			StringBuilder sb = new StringBuilder(32);
+			for (Header h : responseHeaders) {
+				if (h.getName().equals(headerName)) {
+					if (!firstPass) {
+						sb.append(", ");
+					}
+					sb.append(h.getValue());
+					firstPass = false;
 				}
-				result += delimiter + header.getValue();
-				firstPass = false;
 			}
-
-			if (headers.length == 0)
-			{
+			result = sb.toString();
+		
+			if (result.length() == 0) {
 				Log.w(TAG, "No value for response header: " + headerName, Log.DEBUG_MODE);
 			}
 
-		} else {
-			throw new IllegalStateException("getResponseHeader can only be called when readyState > 1");
-		}
+		} 
 
 		return result;
 	}
@@ -792,6 +827,7 @@ public class TiHTTPClient
 			this.url = url;
 		}
 
+		redirectedLocation = null;
 		this.method = method;
 		String hostString = uri.getHost();
 		int port = PROTOCOL_DEFAULT_PORT;
@@ -832,8 +868,23 @@ public class TiHTTPClient
 		if (uri.getUserInfo() != null) {
 			credentials = new UsernamePasswordCredentials(uri.getUserInfo());
 		}
+		if (credentials == null) {
+			String userName = ((HTTPClientProxy)proxy).getUsername();
+			String password = ((HTTPClientProxy)proxy).getPassword();
+			String domain = ((HTTPClientProxy)proxy).getDomain();
+			if (domain != null) {
+				password = (password == null)?"":password;
+				credentials = new NTCredentials(userName, password, TiPlatformHelper.getInstance().getMobileId(), domain);
+			}
+			else {
+				if (userName != null) {
+					password = (password == null)?"":password;
+					credentials = new UsernamePasswordCredentials(userName, password);
+				}
+			}
+		}
 		setReadyState(READY_STATE_OPENED);
-		setRequestHeader("User-Agent", (String) proxy.getProperty("userAgent"));
+		setRequestHeader("User-Agent", TITANIUM_USER_AGENT);
 		// Causes Auth to Fail with twitter and other size apparently block X- as well
 		// Ticket #729, ignore twitter for now
 		if (!hostString.contains("twitter.com")) {
@@ -905,14 +956,18 @@ public class TiHTTPClient
 				String mimeType = blob.getMimeType();
 				File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
 				FileOutputStream fos = new FileOutputStream(tmpFile);
-				fos.write(blob.getBytes());
+				if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
+					TiBaseFile.copyStream(blob.getInputStream(), new Base64OutputStream(fos, android.util.Base64.DEFAULT));
+				} else {
+					fos.write(blob.getBytes());
+				}
 				fos.close();
 
 				tmpFiles.add(tmpFile);
 
 				FileBody body = new FileBody(tmpFile, mimeType);
 				parts.put(name, body);
-				return blob.getLength();
+				return (int)tmpFile.length();
 
 			} else {
 				if (value != null) {
@@ -969,30 +1024,75 @@ public class TiHTTPClient
 
 		HttpProtocolParams.setUseExpectContinue(params, false);
 		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+		
+		DefaultHttpClient httpClient = new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
+		httpClient.setCookieStore(cookieStore);
 
-		return new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
+		return httpClient;
 	}
 
 	protected DefaultHttpClient getClient(boolean validating)
 	{
-		if (validating) {
-			if (nonValidatingClient != null) {
-				return nonValidatingClient;
+		SSLSocketFactory sslSocketFactory = null;
+		
+		if (this.securityManager != null) {
+			if (this.securityManager.willHandleURL(this.uri)) {
+				TrustManager[] trustManagerArray = this.securityManager.getTrustManagers((HTTPClientProxy)this.proxy);
+				KeyManager[] keyManagerArray = this.securityManager.getKeyManagers((HTTPClientProxy)this.proxy);
+				
+				try {
+					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray);
+				} catch(Exception e) {
+					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+					sslSocketFactory = null;
+				}
 			}
-
-			nonValidatingClient = createClient();
-			nonValidatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
-			return nonValidatingClient;
-
-		} else {
-			if (validatingClient != null) {
-				return validatingClient;
+		} 
+		if (sslSocketFactory == null) {
+			if (trustManagers.size() > 0 || keyManagers.size() > 0) {
+				TrustManager[] trustManagerArray = null;
+				KeyManager[] keyManagerArray = null;
+				
+				if (trustManagers.size() > 0) {
+					trustManagerArray = new X509TrustManager[trustManagers.size()];
+					trustManagerArray = trustManagers.toArray(trustManagerArray);
+				}
+				
+				if (keyManagers.size() > 0) {
+					keyManagerArray = new X509KeyManager[keyManagers.size()];
+					keyManagerArray = keyManagers.toArray(keyManagerArray);
+				}
+				
+				try {
+					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray);
+				} catch(Exception e) {
+					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+					sslSocketFactory = null;
+				}
+			} else if (!validating) {
+				TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
+				try {
+					sslSocketFactory = new TiSocketFactory(null, trustManagerArray);
+				} catch(Exception e) {
+					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+					sslSocketFactory = null;
+				}
 			}
-
-			validatingClient = createClient();
-			validatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
-			return validatingClient;
 		}
+		
+		if (client == null) {
+			client = createClient();
+		}
+		
+		if (sslSocketFactory != null) {
+			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslSocketFactory, 443));
+		} else if (!validating) {
+			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
+		} else {
+			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
+		}
+		
+		return client;
 	}
 
 	public void send(Object userData) throws MethodNotSupportedException
@@ -1074,6 +1174,7 @@ public class TiHTTPClient
 		Log.d(TAG, this.url, Log.DEBUG_MODE);
 
 		request = new DefaultHttpRequestFactory().newHttpRequest(method, this.url);
+		request.setHeader(TITANIUM_ID_HEADER, TiApplication.getInstance().getAppGUID());
 		for (String header : headers.keySet()) {
 			request.setHeader(header, headers.get(header));
 		}
@@ -1104,6 +1205,13 @@ public class TiHTTPClient
 
 				// lazy get client each time in case the validatesSecureCertificate() changes
 				client = getClient(validatesSecureCertificate());
+
+				//If there are any custom authentication factories registered with the client add them here
+				Enumeration<String> authSchemes = customAuthenticators.keys();
+				while (authSchemes.hasMoreElements()) {
+					String scheme = authSchemes.nextElement();
+					client.getAuthSchemes().register(scheme, customAuthenticators.get(scheme));
+				}
 
 				if (credentials != null) {
 					client.getCredentialsProvider().setCredentials (new AuthScope(uri.getHost(), -1), credentials);
@@ -1181,7 +1289,6 @@ public class TiHTTPClient
 				String result = null;
 				try {
 					result = client.execute(host, request, handler);
-
 				} catch (IOException e) {
 					if (!aborted) {
 						throw e;
@@ -1215,11 +1322,27 @@ public class TiHTTPClient
 				Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
 
 				KrollDict data = new KrollDict();
-				data.put("error", msg);
+				data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, msg);
 				dispatchCallback("onerror", data);
+			} finally {
+				deleteTmpFiles();
+				
+				//Clean up response,request,client,handler and clientThread
+				if(response != null) {
+					responseHeaders = response.getAllHeaders();
+					response = null;
+				}
+				
+				request = null;
+				handler = null;
+				client = null;
+				clientThread = null;
+				
+				// Fire the disposehandle event if the request is finished successfully or the errors occur.
+				// And it will dispose the handle of the httpclient in the JS.
+				proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 			}
 
-			deleteTmpFiles();
 		}
 	}
 
@@ -1264,9 +1387,12 @@ public class TiHTTPClient
 			e.setEntity(entity);
 		}
 	}
-	
+
 	public String getLocation()
 	{
+		if (redirectedLocation != null) {
+			return redirectedLocation;
+		}
 		return url;
 	}
 
@@ -1303,5 +1429,21 @@ public class TiHTTPClient
 	protected boolean getAutoRedirect()
 	{
 		return autoRedirect;
+	}
+	
+	protected void addKeyManager(X509KeyManager manager)
+	{
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "addKeyManager method is deprecated. Use the securityManager property on the HttpClient to define custom SSL Contexts", Log.DEBUG_MODE);
+		}
+		keyManagers.add(manager);
+	}
+	
+	protected void addTrustManager(X509TrustManager manager)
+	{
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "addTrustManager method is deprecated. Use the securityManager property on the HttpClient to define custom SSL Contexts", Log.DEBUG_MODE);
+		}
+		trustManagers.add(manager);
 	}
 }

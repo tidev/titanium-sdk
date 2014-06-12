@@ -27,6 +27,8 @@ public class TiUISwitch extends TiUIView
 {
 	private static final String TAG = "TiUISwitch";
 	
+	private boolean oldValue = false;
+	
 	public TiUISwitch(TiViewProxy proxy) {
 		super(proxy);
 		Log.d(TAG, "Creating a switch", Log.DEBUG_MODE);
@@ -40,7 +42,11 @@ public class TiUISwitch extends TiUIView
 		super.processProperties(d);
 
 		if (d.containsKey(TiC.PROPERTY_STYLE)) {
-			setStyle(TiConvert.toInt(d, TiC.PROPERTY_STYLE));
+			setStyle(TiConvert.toInt(d.get(TiC.PROPERTY_STYLE), AndroidModule.SWITCH_STYLE_TOGGLEBUTTON));
+		}
+
+		if (d.containsKey(TiC.PROPERTY_VALUE)) {
+			oldValue = TiConvert.toBoolean(d, TiC.PROPERTY_VALUE);
 		}
 
 		View nativeView = getNativeView();
@@ -50,16 +56,17 @@ public class TiUISwitch extends TiUIView
 	}
 	
 	protected void updateButton(CompoundButton cb, KrollDict d) {
-		if (d.containsKey(TiC.PROPERTY_TITLE) && cb.getClass().equals(CheckBox.class)) {
+		if (d.containsKey(TiC.PROPERTY_TITLE) && cb instanceof CheckBox) {
 			cb.setText(TiConvert.toString(d, TiC.PROPERTY_TITLE));
 		}
-		if (d.containsKey(TiC.PROPERTY_TITLE_OFF) && cb.getClass().equals(ToggleButton.class)) {
+		if (d.containsKey(TiC.PROPERTY_TITLE_OFF) && cb instanceof ToggleButton) {
 			((ToggleButton) cb).setTextOff(TiConvert.toString(d, TiC.PROPERTY_TITLE_OFF));
 		}
-		if (d.containsKey(TiC.PROPERTY_TITLE_ON) && cb.getClass().equals(ToggleButton.class)) {
+		if (d.containsKey(TiC.PROPERTY_TITLE_ON) && cb instanceof ToggleButton) {
 			((ToggleButton) cb).setTextOn(TiConvert.toString(d, TiC.PROPERTY_TITLE_ON));
 		}
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
+		
 			cb.setChecked(TiConvert.toBoolean(d, TiC.PROPERTY_VALUE));
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
@@ -83,16 +90,18 @@ public class TiUISwitch extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		}
 		
 		CompoundButton cb = (CompoundButton) getNativeView();
 		if (key.equals(TiC.PROPERTY_STYLE) && newValue != null) {
 			setStyle(TiConvert.toInt(newValue));
-		} else if (key.equals(TiC.PROPERTY_TITLE) && cb.getClass().equals(CheckBox.class)) {
+		} else if (key.equals(TiC.PROPERTY_TITLE) && cb instanceof CheckBox) {
 			cb.setText((String) newValue);
-		} else if (key.equals(TiC.PROPERTY_TITLE_OFF) && cb.getClass().equals(ToggleButton.class)) {
+		} else if (key.equals(TiC.PROPERTY_TITLE_OFF) && cb instanceof ToggleButton) {
 			((ToggleButton) cb).setTextOff((String) newValue);
-		} else if (key.equals(TiC.PROPERTY_TITLE_ON) && cb.getClass().equals(ToggleButton.class)) {
+		} else if (key.equals(TiC.PROPERTY_TITLE_ON) && cb instanceof ToggleButton) {
 			((ToggleButton) cb).setTextOff((String) newValue);
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			cb.setChecked(TiConvert.toBoolean(newValue));
@@ -114,10 +123,14 @@ public class TiUISwitch extends TiUIView
 	@Override
 	public void onCheckedChanged(CompoundButton btn, boolean value) {
 		KrollDict data = new KrollDict();
-		data.put(TiC.PROPERTY_VALUE, value);
 
 		proxy.setProperty(TiC.PROPERTY_VALUE, value);
-		proxy.fireEvent(TiC.EVENT_CHANGE, data);
+		//if user triggered change, we fire it.
+		if (oldValue != value) {
+			data.put(TiC.PROPERTY_VALUE, value);
+			fireEvent(TiC.EVENT_CHANGE, data);
+			oldValue = value;
+		}
 	}
 	
 	protected void setStyle(int style)

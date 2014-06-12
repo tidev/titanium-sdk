@@ -11,6 +11,11 @@
 
 @implementation AccelerometerModule
 
+-(NSString*)apiName
+{
+    return @"Ti.Accelerometer";
+}
+
 -(void)_listenerAdded:(NSString *)type count:(int)count
 {
 	if (count == 1 && [type isEqualToString:@"update"])

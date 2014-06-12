@@ -48,7 +48,7 @@ module.exports = new function() {
 			packageAndSendResults);
 
 		if (fs.existsSync(path.join(driverGlobal.logsDir, "json_results"))) {
-			wrench.rmdirSyncRecursive(path.join(driverGlobal.logsDir, "json_results"), failSilent);
+			wrench.rmdirSyncRecursive(path.join(driverGlobal.logsDir, "json_results"), false);
 		}
 
 		connectToHub();
@@ -184,14 +184,14 @@ module.exports = new function() {
 				}
 
 				process.chdir(driverGlobal.driverDir);
-				driverUtils.setCurrentTiSdk();
+				driverUtils.setTargetTiSdk();
 
 				/*
 				Make sure we use the tests that are part of the downloaded SDK and not the local driver 
 				instance itself.  If the SDK does not have anvil tests (older version of the SDK) then keep
 				using the local tests
 				*/
-				configSetsPath = path.join(driverGlobal.config.currentTiSdkDir, "anvil", "configSet");
+				configSetsPath = path.join(driverGlobal.config.targetTiSdkDir, "anvil", "configSet");
 				if (path.existsSync(configSetsPath)) {
 					driverGlobal.configSetDir = configSetsPath;
 				}
@@ -203,14 +203,20 @@ module.exports = new function() {
 		process.chdir(path.join(driverGlobal.config.tempDir, "sdk"));
 
 		driverUtils.deleteFiles("zip");
-		wrench.rmdirSyncRecursive("mobilesdk", failSilent);
-		wrench.rmdirSyncRecursive("modules", failSilent);
+
+		if (fs.exists(path.resolve("mobilesdk"))) {
+			wrench.rmdirSyncRecursive("mobilesdk", false);
+		}
+
+		if (fs.exists(path.resolve("modules"))) {
+			wrench.rmdirSyncRecursive("modules", false);
+		}
 
 		downloadSdk();
 	}
 
 	function packageAndSendResults(results, callback) {
-		var versionContents = fs.readFileSync(path.join(driverGlobal.config.currentTiSdkDir, "version.txt"), "utf-8"),
+		var versionContents = fs.readFileSync(path.join(driverGlobal.config.targetTiSdkDir, "version.txt"), "utf-8"),
 		version = "",
 		splitPos = versionContents.indexOf("="),
 		resultsFile = fs.openSync(path.join(driverGlobal.currentLogDir, "json_results"), 'w'),

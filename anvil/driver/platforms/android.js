@@ -64,7 +64,7 @@ module.exports = new function() {
 		make sure the harness has access to what port number it should listen on for a connection 
 		from the driver
 		*/
-		common.customTiappXmlProperties["driver.socketPort"] = driverGlobal.config.androidSocketPort;
+		common.customTiappXmlProperties["driver.socketPort"] = {value: driverGlobal.config.androidSocketPort, type: "int"};
 
 		// due to python behavior on windows, we need to escape the slashes in the argument string
 		if (os.platform().substr(0 ,3) === "win") {
@@ -73,7 +73,7 @@ module.exports = new function() {
 
 		common.createHarness(
 			"android",
-			"\"" + path.resolve(driverGlobal.config.currentTiSdkDir, "titanium.py") + "\" " + argString,
+			"\"" + path.resolve(driverGlobal.config.targetTiSdkDir, "titanium.py") + "\" " + argString,
 			successCallback,
 			errorCallback
 			);
@@ -86,7 +86,7 @@ module.exports = new function() {
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
 			var args = [
-				path.resolve(driverGlobal.config.currentTiSdkDir, "android", "builder.py"),
+				path.resolve(driverGlobal.config.targetTiSdkDir, "android", "builder.py"),
 				"build",
 				"harness",
 				path.resolve(driverGlobal.config.androidSdkDir),

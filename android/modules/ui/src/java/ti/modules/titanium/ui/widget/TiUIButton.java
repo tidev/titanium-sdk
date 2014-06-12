@@ -19,14 +19,21 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.Button;
 
 public class TiUIButton extends TiUIView
 {
 	private static final String TAG = "TiUIButton";
+	private static final float DEFAULT_SHADOW_RADIUS = 0.5f;
+	
+	private int defaultColor;
+	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
+	private float shadowX = 0f;
+	private float shadowY = 0f;
+	private int shadowColor = Color.TRANSPARENT;
 
 	public TiUIButton(final TiViewProxy proxy)
 	{
@@ -41,8 +48,8 @@ public class TiUIButton extends TiUIView
 				TiUIHelper.firePostLayoutEvent(proxy);
 			}
 		};
-		btn.setPadding(8, 0, 8, 0);
 		btn.setGravity(Gravity.CENTER);
+		defaultColor = btn.getCurrentTextColor();
 		setNativeView(btn);
 	}
 
@@ -50,6 +57,8 @@ public class TiUIButton extends TiUIView
 	public void processProperties(KrollDict d)
 	{
 		super.processProperties(d);
+
+		boolean needShadow = false;
 
 		Button btn = (Button) getNativeView();
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
@@ -65,12 +74,21 @@ public class TiUIButton extends TiUIView
 				Drawable image = drawableRef.getDrawable();
 				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
 			}
+		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) || d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
+			// Reset the padding here if the background color/image is set. By default the padding will be calculated
+			// for the button, but if we set a background color, it will not look centered unless we reset the padding.
+			btn.setPadding(8, 0, 8, 0);
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			btn.setText(d.getString(TiC.PROPERTY_TITLE));
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			btn.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+			Object color = d.get(TiC.PROPERTY_COLOR);
+			if (color == null) {
+				btn.setTextColor(defaultColor);
+			} else {
+				btn.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(btn, d.getKrollDict(TiC.PROPERTY_FONT));
@@ -83,8 +101,25 @@ public class TiUIButton extends TiUIView
 			String verticalAlign = d.getString(TiC.PROPERTY_VERTICAL_ALIGN);
 			TiUIHelper.setAlignment(btn, null, verticalAlign);
 		}
-		if (d.containsKey(TiC.PROPERTY_OPACITY)) {
-			setOpacityForButton(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY, 1f));
+		if (d.containsKey(TiC.PROPERTY_SHADOW_OFFSET)) {
+			Object value = d.get(TiC.PROPERTY_SHADOW_OFFSET);
+			if (value instanceof HashMap) {
+				needShadow = true;
+				HashMap dict = (HashMap) value;
+				shadowX = TiConvert.toFloat(dict.get(TiC.PROPERTY_X), 0);
+				shadowY = TiConvert.toFloat(dict.get(TiC.PROPERTY_Y), 0);
+			}
+		}
+		if (d.containsKey(TiC.PROPERTY_SHADOW_RADIUS)) {
+			needShadow = true;
+			shadowRadius = TiConvert.toFloat(d.get(TiC.PROPERTY_SHADOW_RADIUS), DEFAULT_SHADOW_RADIUS);
+		}
+		if (d.containsKey(TiC.PROPERTY_SHADOW_COLOR)) {
+			needShadow = true;
+			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR);
+		}
+		if (needShadow) {
+			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		}
 		btn.invalidate();
 	}
@@ -92,7 +127,9 @@ public class TiUIButton extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		}
 		Button btn = (Button) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
@@ -117,57 +154,22 @@ public class TiUIButton extends TiUIView
 				Drawable image = drawableRef.getDrawable();
 				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
 			}
+		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
+			if (newValue instanceof HashMap) {
+				HashMap dict = (HashMap) newValue;
+				shadowX = TiConvert.toFloat(dict.get(TiC.PROPERTY_X), 0);
+				shadowY = TiConvert.toFloat(dict.get(TiC.PROPERTY_Y), 0);
+				btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+			}
+		} else if (key.equals(TiC.PROPERTY_SHADOW_RADIUS)) {
+			shadowRadius = TiConvert.toFloat(newValue, DEFAULT_SHADOW_RADIUS);
+			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
+			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
+			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 
-	public void setOpacityForButton(float opacity)
-	{
-		if (opacity < 0 || opacity > 1) {
-			Log.w(TAG, "Ignoring invalid value for opacity: " + opacity);
-			return;
-		}
-		View view = getNativeView();
-		if (view != null) {
-			TiUIHelper.setPaintOpacity(((Button) view).getPaint(), opacity);
-			Drawable[] drawables = ((Button) view).getCompoundDrawables();
-			if (drawables != null) {
-				for (int i = 0; i < drawables.length; i++) {
-					TiUIHelper.setDrawableOpacity(drawables[i], opacity);
-				}
-			}
-		}
-	}
-
-	public void clearOpacityForButton()
-	{
-		View view = getNativeView();
-		if (view != null) {
-			((Button) view).getPaint().setColorFilter(null);
-			Drawable[] drawables = ((Button) view).getCompoundDrawables();
-			if (drawables != null) {
-				for (int i = 0; i < drawables.length; i++) {
-					Drawable d = drawables[i];
-					if (d != null) {
-						d.clearColorFilter();
-					}
-				}
-			}
-		}
-	}
-
-	@Override
-	public void setOpacity(float opacity)
-	{
-		setOpacityForButton(opacity);
-		super.setOpacity(opacity);
-	}
-
-	@Override
-	public void clearOpacity(View view)
-	{
-		super.clearOpacity(view);
-		clearOpacityForButton();
-	}
 }

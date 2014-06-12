@@ -75,10 +75,8 @@ JS_CLOSE_GETTER = \
 """
 
 class Bootstrap(object):
-	def __init__(self, runtime, bindings, moduleId=None, moduleName=None):
-		self.runtime = runtime
+	def __init__(self, bindings, moduleId=None, moduleName=None):
 		self.bindings = bindings
-		self.genAPITree = runtime == "v8"
 		self.apiTree = {}
 		self.initTable = []
 		self.headers = ""
@@ -229,7 +227,7 @@ class Bootstrap(object):
 			hasCreateProxies or hasInvocationAPIs or \
 			self.needsReturn
 
-		if namespace != self.moduleName and self.genAPITree:
+		if namespace != self.moduleName:
 			decl = "var %s =" % var
 			if not needsReturn:
 				decl = "return"
@@ -243,14 +241,11 @@ class Bootstrap(object):
 			if namespace == self.moduleName:
 				childNamespace = childAPI
 
-			if self.genAPITree:
-				childJS += JS_GETTER % { "var": var, "child": childAPI }
-
+			childJS += JS_GETTER % { "var": var, "child": childAPI }
 			childJS += self.indentCode(self.processNode(node[childAPI], childNamespace, indent + 1))
-			if self.genAPITree:
-				childJS += JS_CLOSE_GETTER
+			childJS += JS_CLOSE_GETTER
 
-		if hasChildren and self.genAPITree:
+		if hasChildren:
 			js += "		if (!(\"__propertiesDefined__\" in %s)) {" % var
 			js += self.indentCode(JS_DEFINE_PROPERTIES % { "var": var, "properties": childJS }, 2)
 
@@ -273,10 +268,9 @@ class Bootstrap(object):
 					accessor = "." + create["name"]
 
 				invocationAPIs.append({ "apiName": "create%s" % create["name"] })
-				if self.genAPITree:
-					js += JS_CREATE % {"name": var, "type": create["name"], "accessor": accessor }
+				js += JS_CREATE % {"name": var, "type": create["name"], "accessor": accessor }
 
-		if hasChildren and self.genAPITree:
+		if hasChildren:
 			js += "		}\n";
 			js += "		%s.__propertiesDefined__ = true;\n" % var
 
@@ -292,7 +286,7 @@ class Bootstrap(object):
 		for api in invocationAPIs:
 			self.invocationJS += JS_INVOCATION_API % { "moduleNamespace": self.moduleName, "namespace": namespace, "api": api["apiName"] }
 
-		if needsReturn and self.genAPITree:
+		if needsReturn:
 			js += "		return %s;\n" % var
 
 		return js
@@ -338,22 +332,18 @@ class Bootstrap(object):
 		context = {
 			"moduleId": self.moduleId,
 			"className": className,
-			"jniPackage": jniPackage,
-			"runtime": self.runtime
+			"jniPackage": jniPackage
 		}
 
-		if self.runtime == "v8":
-			bootstrapPath = os.path.join(javaDir, self.moduleId.replace(".", os.sep),)
-			if not os.path.exists(bootstrapPath):
-				os.makedirs(bootstrapPath)
+		bootstrapPath = os.path.join(javaDir, self.moduleId.replace(".", os.sep),)
+		if not os.path.exists(bootstrapPath):
+			os.makedirs(bootstrapPath)
 
-			bootstrapJava = os.path.join(bootstrapPath, className + "Bootstrap.java")
-			bootstrapCpp = os.path.join(cppDir, className + "Bootstrap.cpp")
+		bootstrapJava = os.path.join(bootstrapPath, className + "Bootstrap.java")
+		bootstrapCpp = os.path.join(cppDir, className + "Bootstrap.cpp")
 
-			open(bootstrapJava, "w").write(javaTemplate % context)
-			open(bootstrapCpp, "w").write(cppTemplate % context)
-		else: # TODO rhino
-			pass
+		open(bootstrapJava, "w").write(javaTemplate % context)
+		open(bootstrapCpp, "w").write(cppTemplate % context)
 
 def main():
 	thisDir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -362,21 +352,20 @@ def main():
 
 	from manifest import Manifest
 
-	if len(sys.argv) < 6:
-		print >>sys.stderr, "Usage: %s <runtime> <moduleId> <moduleName> <moduleJSON> <outDir>" % sys.argv[0]
+	if len(sys.argv) < 5:
+		print >>sys.stderr, "Usage: %s <moduleId> <moduleName> <moduleJSON> <outDir>" % sys.argv[0]
 		sys.exit(1)
 
-	runtime = sys.argv[1]
-	moduleId = sys.argv[2]
-	moduleName = sys.argv[3]
-	moduleJSON = sys.argv[4]
-	outDir = sys.argv[5]
+	moduleId = sys.argv[1]
+	moduleName = sys.argv[2]
+	moduleJSON = sys.argv[3]
+	outDir = sys.argv[4]
 
 	moduleBindings = json.load(open(moduleJSON))
 	moduleClassName = moduleBindings["modules"].keys()[0]
 	moduleName = moduleBindings["modules"][moduleClassName]["apiName"]
 
-	b = Bootstrap(runtime, moduleBindings, moduleId=moduleId, moduleName=moduleName)
+	b = Bootstrap(moduleBindings, moduleId=moduleId, moduleName=moduleName)
 	b.needsReturn = True
 
 	jsTemplate = open(os.path.join(thisDir, "generated", "bootstrap.js")).read()

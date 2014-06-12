@@ -1,46 +1,93 @@
 name: Titanium.CloudPush
-summary: Provides methods for accessing Android push notifications from ACS using the MQTT protocol.
+summary: |
+    Provides support for Android push notifications.
 description: |
-    The MQTT protocol is a very lightweight, long lived connection to a server. It is perfect for keeping mobile devices
-    in connection with a server, while not significantly degrading their battery life.
-    
-    In addition to communicating with an MQTT server, this module can also present tray notifications to the user.
-    Please refer to the [showTrayNotification](Titanium.CloudPush.showTrayNotification) property to see more information
-    about this.
-    
+    The CloudPush module supports Android push notifications for a device by providing a connection
+    to the push notification server to the device to receive push notifications and to optionally
+    present a tray notification to the user when a new push notification is received.
+
+    This module is only used to receive push notifications.  For information on configuring your
+    project to send push notifications, see <Titanium.Cloud.PushNotifications>.
+
+    #### Push Protocols
+
+    As of Release 3.2.0, the CloudPush module only supports Google Cloud Messaging (GCM) for push
+    notifications. MQTT support is deprecated and support was removed in Release 3.2.0. Upgrade your
+    application to use the GCM protocol.
+
+    GCM supports devices that run Android 2.2 and later, and requires that the Google Play Store
+    application be installed. For pre-4.0 devices, the user is required to set up their Google
+    account.
+
+    #### Getting Started
+
+    To use the CloudPush module in your JavaScript code, you need to require it in and
+    get a device token with the `retrieveDeviceToken` method to enable push notifications with ACS.
+    In your project's `tiapp.xml`, you need to add some keys to configure push notifications.
+
     Note that this module is not included in the Titanium namespace, but it is bundled with the Titanium SDK as of
     version 2.0.0. To use it, you must require it, like this:
-    
+
         var CloudPush = require('ti.cloudpush');
-    
+
+    Then, call the `retrieveDeviceToken` method to get a unique token specific to that device and
+    ACS application.  This token is used with [ACS PushNotifications calls](Titanium.Cloud.PushNotifications)
+    to subscribe and unsubscribe the device to push notification channels.
+
+    Once the device is subscribed to at least one push channel, listen to the module's `callback`,
+    `trayClickLaunchedApp`, and `trayClickFocusedApp` events to monitor for incoming push notifications.
+
     This module must also be added to the modules section in your tiapp.xml. This can be done using the Modules list in
     the Titanium Studio TiApp Editor, or by editing the XML directly and adding the following line to the modules
     element:
-    
+
         <module platform="android">ti.cloudpush</module>
-    
+
     Your app must prove that it is allowed to talk to ACS. This keeps your data secure by preventing anyone from
     making requests to ACS that impersonate your app.
 
-    Titanium Studio will create a pair of keys (Development and Production) for each Titanium application depending on the
+    Titanium Studio creates a pair of keys (Development and Production) for each Titanium application depending on the
     user preference specified during new project creation. This pair of keys will be stored in `tiapp.xml` and one of the
     keys will be used during application build depending on the build type (development or production).
 
-    The supported properties in `tiapp.xml` are:
+    To use push notifications, in the `tiapp.xml` file, you need to specify the ACS keys and push
+    type. The supported properties in `tiapp.xml` are:
 
+        <!-- Property keys for ACS (required) -->
         <property name="acs-api-key-development" type="string">YOUR DEVELOPMENT API KEY HERE</property>
-
         <property name="acs-api-key-production" type="string">YOUR PRODUCTION API KEY HERE</property>
-
         <property name="acs-api-key" type="string">YOUR API KEY HERE</property>
 
-    The value for each setting that will be used is based on the following rules:
-
-    * If a deployment-specific setting is provided (production or development) then that value will be used for the current deployment environment.
+    If a deployment-specific setting is provided (production or development) then that value will be used for the current deployment environment.
 
     *WARNING*: The default properties of this module are used until you set a property for the first time. Because the
     properties are persisted to the device settings (via <Titanium.App.Properties>), the most recent value you set will
     always be used.
+
+    #### Grouped Notifications
+
+    If the device receives multiple push notifications from the application, Android can group these
+    notifications together as one notification.
+
+    To use grouped notifications, add a grouped notification template to either the `tiapp.xml` file
+    or the `i18n` folder for internationalized versions:
+
+    `tiapp.xml`:
+
+        <property name="acs-grouped-notification-message-development" type="string">You have $number$ unread messages.</property>
+        <property name="acs-grouped-notification-message-production" type="string">You have $number$ unread messages.</property>
+        -or-
+        <property name="acs-grouped-notification-message" type="string">You have $number$ unread messages.</property>
+
+    `i18n/es/strings.xml` (example for Spanish):
+
+        <?xml version="1.0" encoding="utf-8"?>
+        <resources>
+           <string name="acs_grouped_notification_message">Tienes $number$ mensajes no leidos.</string>
+        </resources>
+
+    The `$number$` variable indicates the number of unread messages.
+
 platforms: [android]
 since: "2.0.0"
 extends: Titanium.Module
@@ -48,26 +95,28 @@ methods:
   - name: retrieveDeviceToken
     summary: Asynchronously retrieves the application specific device token.
     description: |
-        This token is used in calls to the Appcelerator Cloud Service's subscribe or unsubscribe to push notification
+        This token is used in calls to Appcelerator Cloud Services to subscribe or unsubscribe to push notification
         channels. This token is unique to each application and device.
     parameters:
       - name: config
         summary: Dictionary specifying token retrieval related options. 
         type: CloudPushNotificationConfig
+
+  - name: clearStatus
+    summary: Clears the CloudPush module's stored status, including the push type, device token, GCM sender ID, etc.
+    description: |
+        This method is useful to transfer the push type from MQTT to GCM, or changing the GCM sender ID when needed.
+        After calling this method, the CloudPush module is reinitialized. Use `retrieveDeviceToken` to
+        get the device token again.
+    since: 3.1.2
 properties:
   - name: enabled
     summary: Whether or not this device will receive push notifications.
-    description: |
-        You must ask your users before enabling this. Note that once enabled, the application will be able to receive
-        notifications at any time, even after the device reboots, regardless of if your application has been run
-        recently or not. But if the user intentionally kills your application and its services in their task manager,
-        push notifications will be disabled and this property will automatically be set to false.
-        
-        Also be aware that whenever your application is updated (through the market or through ADB installing a new
-        APK), the push service will be stopped until the app is launched for the first time.
-        
-        Listen for this module's [callback](Titanium.CloudPush.callback) event to receive push notifications once this
-        property is set to true.
+    deprecated:
+        since: 3.2.0
+        notes: | 
+            This property was only required to enable push notifications for the legacy MQTT
+            protocol.
     type: Boolean
     default: false
   - name: showTrayNotification
@@ -99,6 +148,15 @@ properties:
     summary: Whether or not your application is brought to the foreground whenever a new push is received.
     description: |
         Note that this behavior is rather disruptive to users, and is strongly discouraged.
+    type: Boolean
+    default: false
+  - name: singleCallback
+    summary: Set to true to trigger a single callback for the selected push notification when multiple push notifications are displayed in the tray.
+    description: |
+        In previous versions of the module, clicking on one of the application's push notifications triggered the callbacks for all of the application's push notifications.
+        The new module retains the same behavior by default.
+        
+        Set this property to true to receive a single callback for the push notification selected by the user, regardless of how many push notifications are displayed in the tray.
     type: Boolean
     default: false
 events:
@@ -141,27 +199,21 @@ events:
 examples:
   - title: Listening for Push Notifications
     example: |
-        This example lets the user choose if push notifications should be enabled, and listens for several events.
+        This example lets the application retrieve the device token and listens for several events
+        to monitor incoming push notifications.
+
             var CloudPush = require('ti.cloudpush');
             CloudPush.retrieveDeviceToken({
                 success: function deviceTokenSuccess(e) {
+                    // Use this device token with Ti.Cloud.PushNotifications calls
+                    // to subscribe and unsubscribe to push notification channels
                     Ti.API.info('Device Token: ' + e.deviceToken);
                 },
                 error: function deviceTokenError(e) {
                     alert('Failed to register for push! ' + e.error);
                 }
             });
-            var win = Ti.UI.createWindow({
-                layout: 'vertical',
-                backgroundColor: 'white'
-            });
-            var enablePush = Ti.UI.createButton({
-                title: 'Enable Push Notifications'
-            });
-            enablePush.addEventListener('click', function () {
-                CloudPush.enabled = true;
-            });
-            win.add(enablePush);
+            // These events monitor incoming push notifications
             CloudPush.addEventListener('callback', function (evt) {
                 alert(evt.payload);
             });
@@ -171,7 +223,6 @@ examples:
             CloudPush.addEventListener('trayClickFocusedApp', function (evt) {
                 Ti.API.info('Tray Click Focused App (app was already running)');
             });
-            win.open();
 ---
 name: CloudPushNotificationConfig
 summary: |

@@ -3,10 +3,9 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 
 	var global = window,
 		is = require.is,
-		cfg = require.config,
 		analyticsEnabled = App.analytics,
 		analyticsLastSent = null,
-		analyticsUrl = "https://api.appcelerator.net/p/v2/mobile-web-track",
+		analyticsUrl = "https://api.appcelerator.com/p/v3/mobile-web-track/" + App.guid,
 		pending = {},
 		sendTimer,
 		sendDelay = 60000,
@@ -34,27 +33,30 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 					var rand = Math.floor(Math.random() * 1e6),
 						now = Date.now(),
 						ids = [],
-						jsonStrs = [],
+						payload = [],
 						sessionId = sessionStorage.getItem("ti:sessionId"),
 						seqId = sessionStorage.getItem("ti:analyticsSeqId"),
 						events = getStorage(),
 						i = 0,
 						len = events.length,
-						evt;
+						evt,
+						eventData,
+						buildType = require.config.ti.buildType;
 
-					is(seqId, "String") && (seqId = JSON.parse(seqId));
+					typeof seqId == 'string' && (seqId = JSON.parse(seqId));
 
 					clearTimeout(sendTimer);
 
-					if (len && (isUrgent || analyticsLastSent === null || now - analyticsLastSent >= sendDelay)) {
+					if (len && (isUrgent || analyticsLastSent == null || now - analyticsLastSent >= sendDelay)) {
 						sessionId || (sessionId = _.uuid());
-						seqId === null && (seqId = 0);
+						seqId == null && (seqId = 0);
 
 						while (i < len) {
 							evt = events[i++];
 
 							ids.push(evt.id);
-							jsonStrs.push(JSON.stringify({
+
+							payload.push(eventData = {
 								id: evt.id,
 								mid: Platform.id,
 								rdu: null,
@@ -67,9 +69,11 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 								sid: sessionId,
 								ts: evt.ts,
 								data: evt.data
-							}));
+							});
 
-							if (evt.type === "ti.end") {
+							buildType && (eventData.buildType = buildType);
+
+							if (evt.type == 'ti.end') {
 								seqId = 0;
 								sessionId = _.uuid();
 							}
@@ -80,19 +84,22 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 
 						pending[rand] = ids;
 						analyticsLastSent = now;
+						payload = JSON.stringify(payload);
 
-						if (has("analytics-use-xhr")) {
-							var xhr = new XmlHttpRequest;
+						if (has('ti-analytics-use-xhr')) {
+							var xhr = new XMLHttpRequest;
 							xhr.onreadystatechange = function() {
-								if (xhr.readyState === 4 && xhr.status === 200) {
+								if (xhr.readyState == 4 && xhr.status == 200) {
 									try {
-										onSuccess({ data: eval('(' + xhr.responseText + ')') });
+										var data = JSON.parse(xhr.responseText);
+										data.callback = rand;
+										onSuccess(data);
 									} catch (e) {}
 								}
 							};
 							xhr.open("POST", analyticsUrl, true);
 							xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-							xhr.send(lang.urlEncode({ content: jsonStrs }));
+							xhr.send('content=' + encodeURIComponent(payload));
 						} else {
 							var body = document.body,
 								iframeName = "analytics" + rand,
@@ -115,7 +122,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 							dom.create("input", {
 								name: "content",
 								type: "hidden",
-								value: "[" + jsonStrs.join(",") + "]"
+								value: payload
 							}, form);
 
 							// need to delay attaching of iframe events so they aren't prematurely called
@@ -147,11 +154,11 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 
 	function setStorage(data) {
 		localStorage.setItem("ti:analyticsEvents", JSON.stringify(data));
-	}	
+	}
 
-	function onSuccess(response) {
-		if (is(response.data, "Object") && response.data.success) {
-			var ids = pending[response.data.callback],
+	function onSuccess(data) {
+		if (data && typeof data == 'object' && data.success) {
+			var ids = pending[data.callback],
 				keepers = [],
 				events = getStorage(),
 				i = 0,
@@ -168,7 +175,9 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 		}
 	}
 
-	require.on(global, "message", onSuccess);
+	require.on(global, 'message', function (response) {
+		onSuccess(response.data);
+	});
 
 	return analytics;
 

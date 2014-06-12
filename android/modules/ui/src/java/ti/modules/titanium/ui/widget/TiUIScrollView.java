@@ -21,8 +21,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,26 +39,16 @@ public class TiUIScrollView extends TiUIView
 	private boolean setInitialOffset = false;
 	private boolean mScrollingEnabled = true;
 
-	private class TiScrollViewLayout extends TiCompositeLayout
+	public class TiScrollViewLayout extends TiCompositeLayout
 	{
 		private static final int AUTO = Integer.MAX_VALUE;
 		private int parentWidth = 0;
 		private int parentHeight = 0;
 		private boolean canCancelEvents = true;
-		private GestureDetector gestureDetector;
 
 		public TiScrollViewLayout(Context context, LayoutArrangement arrangement)
 		{
 			super(context, arrangement, proxy);
-			gestureDetector = new GestureDetector(new SimpleOnGestureListener()
-			{
-				@Override
-				public void onLongPress(MotionEvent e)
-				{
-					// Only do this for long presses to match iOS behavior
-					requestDisallowInterceptTouchEvent(true);
-				}
-			});
 		}
 
 		public void setParentWidth(int width)
@@ -81,10 +70,11 @@ public class TiUIScrollView extends TiUIView
 		public boolean dispatchTouchEvent(MotionEvent ev)
 		{
 			// If canCancelEvents is false, then we want to prevent the scroll view from canceling the touch
-			// events of the child view by calling requestDisallowInterceptTouchEvent(true)
+			// events of the child view
 			if (!canCancelEvents) {
-				gestureDetector.onTouchEvent(ev);
+				requestDisallowInterceptTouchEvent(true);
 			}
+
 			return super.dispatchTouchEvent(ev);
 		}
 
@@ -177,8 +167,8 @@ public class TiUIScrollView extends TiUIView
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 
 			layout = new TiScrollViewLayout(context, arrangement);
-			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-				ViewGroup.LayoutParams.FILL_PARENT);
+			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.MATCH_PARENT);
 			layout.setLayoutParams(params);
 			super.addView(layout, params);
 		}
@@ -282,8 +272,8 @@ public class TiUIScrollView extends TiUIView
 			setScrollContainer(true);
 
 			layout = new TiScrollViewLayout(context, arrangement);
-			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-				ViewGroup.LayoutParams.FILL_PARENT);
+			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.MATCH_PARENT);
 			layout.setLayoutParams(params);
 			super.addView(layout, params);
 
@@ -410,7 +400,9 @@ public class TiUIScrollView extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		}
 		if (key.equals(TiC.PROPERTY_CONTENT_OFFSET)) {
 			setContentOffset(newValue);
 			scrollTo(offsetX, offsetY);
@@ -426,6 +418,11 @@ public class TiUIScrollView extends TiUIView
 		}
 		if (TiC.PROPERTY_SCROLLING_ENABLED.equals(key)) {
 			setScrollingEnabled(newValue);
+		}
+		if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
+			if (Build.VERSION.SDK_INT >= 9) {
+				getNativeView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+			}
 		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
@@ -459,7 +456,7 @@ public class TiUIScrollView extends TiUIView
 
 		int type = TYPE_VERTICAL;
 		boolean deduced = false;
-
+		
 		if (d.containsKey(TiC.PROPERTY_WIDTH) && d.containsKey(TiC.PROPERTY_CONTENT_WIDTH)) {
 			Object width = d.get(TiC.PROPERTY_WIDTH);
 			Object contentWidth = d.get(TiC.PROPERTY_CONTENT_WIDTH);
@@ -467,6 +464,7 @@ public class TiUIScrollView extends TiUIView
 				type = TYPE_VERTICAL;
 				deduced = true;
 			}
+			
 		}
 
 		if (d.containsKey(TiC.PROPERTY_HEIGHT) && d.containsKey(TiC.PROPERTY_CONTENT_HEIGHT)) {
@@ -522,8 +520,17 @@ public class TiUIScrollView extends TiUIView
 			((TiScrollViewLayout) scrollViewLayout).setCanCancelEvents(TiConvert.toBoolean(d, TiC.PROPERTY_CAN_CANCEL_EVENTS));
 		}
 
-		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP)) {
-			scrollViewLayout.setEnableHorizontalWrap(TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP));
+		boolean autoContentWidth = (scrollViewLayout.getContentProperty(TiC.PROPERTY_CONTENT_WIDTH) == scrollViewLayout.AUTO);
+		boolean wrap = !autoContentWidth;
+		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP) && wrap) {
+			wrap = TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP, true);			
+		}
+		scrollViewLayout.setEnableHorizontalWrap(wrap);
+		
+		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
+			if (Build.VERSION.SDK_INT >= 9) {
+				view.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
+			}
 		}
 
 		setNativeView(view);
@@ -542,6 +549,20 @@ public class TiUIScrollView extends TiUIView
 		} else {
 			return ((TiHorizontalScrollView) nativeView).layout;
 		}
+	}
+	
+	@Override
+	protected void setOnClickListener(View view)
+	{
+		View targetView = view;
+		// Get the layout and attach the listeners to it
+		if (view instanceof TiVerticalScrollView) {
+			targetView = ((TiVerticalScrollView) nativeView).layout;
+		}
+		if (view instanceof TiHorizontalScrollView) {
+			targetView = ((TiHorizontalScrollView) nativeView).layout;
+		}
+		super.setOnClickListener(targetView);
 	}
 
 	public void setScrollingEnabled(Object value)
@@ -604,5 +625,14 @@ public class TiUIScrollView extends TiUIView
 			}
 		}
 	}
+	
+	@Override
+	public void resort()
+	{
+		View v = getLayout();
+		if ( v instanceof TiCompositeLayout) {
+			((TiCompositeLayout) v).resort();
+		}
+ 	}
 
 }

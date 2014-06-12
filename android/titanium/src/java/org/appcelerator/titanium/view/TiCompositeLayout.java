@@ -1,13 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.view;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.TreeSet;
 
@@ -21,10 +20,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.os.Build;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
@@ -70,9 +66,6 @@ public class TiCompositeLayout extends ViewGroup
 	private int horizontalLayoutLastIndexBeforeWrap = 0;
 	private int horiztonalLayoutPreviousRight = 0;
 
-	private float alpha = 1.0f;
-	private Method setAlphaMethod;
-
 	private WeakReference<TiViewProxy> proxy;
 	private static final int HAS_SIZE_FILL_CONFLICT = 1;
 	private static final int NO_SIZE_FILL_CONFLICT = 2;
@@ -96,6 +89,11 @@ public class TiCompositeLayout extends ViewGroup
 	 * @module.api
 	 */
 	public TiCompositeLayout(Context context, LayoutArrangement arrangement)
+	{
+		this(context, LayoutArrangement.DEFAULT, null);
+	}
+	
+	public TiCompositeLayout(Context context, AttributeSet set) 
 	{
 		this(context, LayoutArrangement.DEFAULT, null);
 	}
@@ -166,7 +164,7 @@ public class TiCompositeLayout extends ViewGroup
 			}
 		});
 
-		needsSort = true;
+		setNeedsSort(true);
 		setOnHierarchyChangeListener(this);
 		this.proxy = new WeakReference<TiViewProxy>(proxy);
 	}
@@ -177,21 +175,23 @@ public class TiCompositeLayout extends ViewGroup
 	
 	public void resort()
 	{
-		needsSort = true;
+		setNeedsSort(true);
 		requestLayout();
 		invalidate();
 	}
 
 	public void onChildViewAdded(View parent, View child) {
-		needsSort = true;
-		if (parent != null && child != null) {
+		setNeedsSort(true);
+		if (Log.isDebugModeEnabled() && parent != null && child != null) {
 			Log.d(TAG, "Attaching: " + viewToString(child) + " to " + viewToString(parent), Log.DEBUG_MODE);
 		}
 	}
 
 	public void onChildViewRemoved(View parent, View child) {
-		needsSort = true;
-		Log.d(TAG, "Removing: " + viewToString(child) + " from " + viewToString(parent), Log.DEBUG_MODE);
+		setNeedsSort(true);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Removing: " + viewToString(child) + " from " + viewToString(parent), Log.DEBUG_MODE);
+		}
 	}
 
 	@Override
@@ -202,19 +202,7 @@ public class TiCompositeLayout extends ViewGroup
 	@Override
 	protected LayoutParams generateDefaultLayoutParams()
 	{
-		// Default behavior is size since optionWidth/optionHeight is null, and autoFillsWidth/autoFillsHeight is false.
-		// Some classes such as ViewProxy will set autoFillsWidth/autoFillsHeight to true in order to trigger the fill
-		// behavior by default.
-		LayoutParams params = new LayoutParams();
-		params.optionLeft = null;
-		params.optionRight = null;
-		params.optionTop = null;
-		params.optionBottom = null;
-		params.optionZIndex = NOT_SET;
-		params.sizeOrFillHeightEnabled = true;
-		params.sizeOrFillWidthEnabled = true;
-
-		return params;
+		return new LayoutParams();
 	}
 
 	private static int getAsPercentageValue(double percentage, int value)
@@ -352,6 +340,8 @@ public class TiCompositeLayout extends ViewGroup
 
 	protected void constrainChild(View child, int width, int wMode, int height, int hMode)
 	{
+		boolean hasFixedHeightParent = false;
+		boolean hasFixedWidthParent = false;
 		LayoutParams p = (LayoutParams) child.getLayoutParams();
 
 		int sizeFillConflicts[] = { NOT_SET, NOT_SET };
@@ -367,13 +357,13 @@ public class TiCompositeLayout extends ViewGroup
 			}
 		} else {
 			if (p.autoFillsWidth) {
-				childDimension = LayoutParams.FILL_PARENT;
+				childDimension = LayoutParams.MATCH_PARENT;
 			} else {
 				// Look for sizeFill conflicts
-				hasSizeFillConflict(child, sizeFillConflicts, true);
+				hasSizeFillConflict(child, sizeFillConflicts, true, hasFixedWidthParent, hasFixedHeightParent);
 				checkedForConflict = true;
 				if (sizeFillConflicts[0] == HAS_SIZE_FILL_CONFLICT) {
-					childDimension = LayoutParams.FILL_PARENT;
+					childDimension = LayoutParams.MATCH_PARENT;
 				}
 			}
 		}
@@ -392,11 +382,11 @@ public class TiCompositeLayout extends ViewGroup
 		} else {
 			// If we already checked for conflicts before, we don't need to again
 			if (p.autoFillsHeight || (checkedForConflict && sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT)) {
-				childDimension = LayoutParams.FILL_PARENT;
+				childDimension = LayoutParams.MATCH_PARENT;
 			} else if (!checkedForConflict) {
-				hasSizeFillConflict(child, sizeFillConflicts, true);
+				hasSizeFillConflict(child, sizeFillConflicts, true, hasFixedWidthParent, hasFixedHeightParent);
 				if (sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT) {
-					childDimension = LayoutParams.FILL_PARENT;
+					childDimension = LayoutParams.MATCH_PARENT;
 				}
 			}
 		}
@@ -504,7 +494,7 @@ public class TiCompositeLayout extends ViewGroup
 					attachViewToParent(child, i++, child.getLayoutParams());
 				}
 			}
-			needsSort = false;
+			setNeedsSort(false);
 		}
 		// viewSorter is not needed after this. It's a source of
 		// memory leaks if it retains the views it's holding.
@@ -556,8 +546,10 @@ public class TiCompositeLayout extends ViewGroup
 					}
 				}
 
-				Log.d(TAG, child.getClass().getName() + " {" + horizontal[0] + "," + vertical[0] + "," + horizontal[1] + ","
-					+ vertical[1] + "}", Log.DEBUG_MODE);
+				if (Log.isDebugModeEnabled()) {
+					Log.d(TAG, child.getClass().getName() + " {" + horizontal[0] + "," + vertical[0] + "," + horizontal[1] + ","
+						+ vertical[1] + "}", Log.DEBUG_MODE);
+				}
 
 				int newWidth = horizontal[1] - horizontal[0];
 				int newHeight = vertical[1] - vertical[0];
@@ -622,79 +614,6 @@ public class TiCompositeLayout extends ViewGroup
 		}
 	}
 
-	/*
-	 * Set the opacity of the view using View.setAlpha if available.
-	 *
-	 * @param alpha the opacity of the view
-	 * @return true if opacity was set, otherwise false if View.setAlpha failed or was not available.
-	 */
-	private boolean nativeSetAlpha(float alpha)
-	{
-		if (Build.VERSION.SDK_INT < 11) {
-			// Only available in API level 11 or higher.
-			return false;
-		}
-
-		if (setAlphaMethod == null) {
-			try {
-				setAlphaMethod = getClass().getMethod("setAlpha", float.class);
-			} catch (NoSuchMethodException e) {
-				Log.w(TAG, "Unable to find setAlpha() method.", e, Log.DEBUG_MODE);
-				return false;
-			}
-		}
-
-		try {
-			setAlphaMethod.invoke(this, alpha);
-		} catch (Exception e) {
-			Log.e(TAG, "Failed to call setAlpha().", e);
-			return false;
-		}
-
-		return true;
-	}
-
-	/*
-	 * Set the alpha of the view. Provides backwards compatibility
-	 * with older versions of Android which don't support View.setAlpha().
-	 *
-	 * @param alpha the opacity of the view
-	 */
-	public void setAlphaCompat(float alpha)
-	{
-		// Try using the native setAlpha() method first.
-		if (nativeSetAlpha(alpha)) {
-			return;
-		}
-
-		// If setAlpha() is not supported on this platform,
-		// use the backwards compatibility workaround.
-		// See dispatchDraw() for details.
-		this.alpha = alpha;
-	}
-
-	@Override
-	protected void dispatchDraw(Canvas canvas)
-	{
-		// To support alpha in older versions of Android (API level less than 11),
-		// create a new layer to draw the children. Specify the alpha value to use
-		// later when we transfer this layer back onto the canvas.
-		if (alpha < 1.0f) {
-			Rect bounds = new Rect();
-			getDrawingRect(bounds);
-			canvas.saveLayerAlpha(new RectF(bounds), Math.round(alpha * 255), Canvas.ALL_SAVE_FLAG);
-		}
-
-		super.dispatchDraw(canvas);
-
-		if (alpha < 1.0f) {
-			// Restore the canvas once the children have been drawn to the layer.
-			// This will draw the layer's offscreen bitmap onto the canvas using
-			// the alpha value we specified earlier.
-			canvas.restore();
-		}
-	}
-
 	private void computeVerticalLayoutPosition(int currentHeight, TiDimension optionTop, int measuredHeight, int layoutTop,
 		int[] pos, int maxBottom)
 	{
@@ -723,14 +642,25 @@ public class TiCompositeLayout extends ViewGroup
 		}
 		horiztonalLayoutPreviousRight = (optionRight == null) ? 0 : optionRight.getAsPixels(this);
 
-		int right = left + measuredWidth;
-		if (enableHorizontalWrap && ((right + horiztonalLayoutPreviousRight) > layoutRight)) {
+		int right;
+		// If it's fill width with horizontal wrap, just take up remaining space.
+		if(enableHorizontalWrap && params.autoFillsWidth && params.sizeOrFillWidthEnabled) {
+			right = measuredWidth;
+		} else {
+			right = left + measuredWidth;
+		}
+
+		if (enableHorizontalWrap && ((right + horiztonalLayoutPreviousRight) > layoutRight || left >= layoutRight)) {
 			// Too long for the current "line" that it's on. Need to move it down.
 			left = optionLeftValue;
 			right = measuredWidth + left;
 			horizontalLayoutTopBuffer = horizontalLayoutTopBuffer + horizontalLayoutLineHeight;
 			horizontalLayoutLineHeight = 0;
+		} else if (!enableHorizontalWrap && params.autoFillsWidth && params.sizeOrFillWidthEnabled) {
+			// If there is no wrap, and width is fill behavior, cap it off at the width of the screen
+			right = Math.min(right, layoutRight);
 		}
+
 		hpos[0] = left;
 		hpos[1] = right;
 		horizontalLayoutCurrentLeft = right;
@@ -787,7 +717,7 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	// Determine whether we have a conflict where a parent has size behavior, and child has fill behavior.
-	private boolean hasSizeFillConflict(View parent, int[] conflicts, boolean firstIteration)
+	private boolean hasSizeFillConflict(View parent, int[] conflicts, boolean firstIteration, boolean hasFixedWidthParent, boolean hasFixedHeightParent)
 	{
 		if (parent instanceof TiCompositeLayout) {
 			TiCompositeLayout currentLayout = (TiCompositeLayout) parent;
@@ -805,10 +735,10 @@ public class TiCompositeLayout extends ViewGroup
 			// this method) will be adjusted to undefined behavior accordingly during the layout phase.
 			// sizeOrFillHeightEnabled is used during the layout phase to determine whether we want to use the fill/size
 			// measurements that we got from the measure phase.
-			if (currentParams.autoFillsWidth && currentParams.optionWidth == null && conflicts[0] == NOT_SET) {
+			if (currentParams.autoFillsWidth && currentParams.optionWidth == null && conflicts[0] == NOT_SET && !hasFixedWidthParent) {
 				conflicts[0] = HAS_SIZE_FILL_CONFLICT;
 			}
-			if (currentParams.autoFillsHeight && currentParams.optionHeight == null && conflicts[1] == NOT_SET) {
+			if (currentParams.autoFillsHeight && currentParams.optionHeight == null && conflicts[1] == NOT_SET && !hasFixedHeightParent) {
 				conflicts[1] = HAS_SIZE_FILL_CONFLICT;
 			}
 
@@ -816,11 +746,17 @@ public class TiCompositeLayout extends ViewGroup
 			if (conflicts[0] != NOT_SET && conflicts[1] != NOT_SET) {
 				return true;
 			}
+			
+			if (currentParams.optionWidth != null && !currentParams.optionWidth.isUnitAuto())
+				hasFixedWidthParent = true;
+
+			if (currentParams.optionHeight != null && !currentParams.optionHeight.isUnitAuto())
+				hasFixedHeightParent = true;
 
 			// If the child has size behavior, continue traversing through children and see if any of them have fill
 			// behavior
 			for (int i = 0; i < currentLayout.getChildCount(); ++i) {
-				if (hasSizeFillConflict(currentLayout.getChildAt(i), conflicts, false)) {
+				if (hasSizeFillConflict(currentLayout.getChildAt(i), conflicts, false, hasFixedWidthParent, hasFixedHeightParent)) {
 					return true;
 				}
 			}
@@ -926,5 +862,15 @@ public class TiCompositeLayout extends ViewGroup
 	{
 		this.proxy = new WeakReference<TiViewProxy>(proxy);
 	}
-
+	
+	private void setNeedsSort(boolean value)
+	{
+		// For vertical and horizontal layouts, since the controls doesn't
+		// overlap, we shouldn't sort based on the zIndex, the original order
+		// that controls added should be preserved
+		if (isHorizontalArrangement() || isVerticalArrangement()) {
+			value = false;
+		}
+		needsSort = value;
+	}
 }

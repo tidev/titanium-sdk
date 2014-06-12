@@ -21,8 +21,11 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.ScrollableViewProxy;
+import ti.modules.titanium.ui.widget.listview.ListItemProxy;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -33,6 +36,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+@SuppressLint("NewApi")
 public class TiUIScrollableView extends TiUIView
 {
 	private static final String TAG = "TiUIScrollableView";
@@ -98,6 +102,8 @@ public class TiUIScrollableView extends TiUIView
 			@Override
 			public void onPageScrollStateChanged(int scrollState)
 			{
+				mPager.requestDisallowInterceptTouchEvent(scrollState != ViewPager.SCROLL_STATE_IDLE);
+
 				if ((scrollState == ViewPager.SCROLL_STATE_IDLE) && isValidScroll) {
 					int oldIndex = mCurIndex;
 
@@ -161,6 +167,10 @@ public class TiUIScrollableView extends TiUIView
 			@Override
 			public void onPageScrolled(int positionRoundedDown, float positionOffset, int positionOffsetPixels)
 			{
+				if (mViews.isEmpty()) {
+					return;
+				}
+
 				isValidScroll = true;
 
 				// When we touch and drag the view and hold it inbetween the second
@@ -280,6 +290,12 @@ public class TiUIScrollableView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
 			mEnabled = TiConvert.toBoolean(d, TiC.PROPERTY_SCROLLING_ENABLED);
 		}
+		
+		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
+			if (Build.VERSION.SDK_INT >= 9) {
+				mPager.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
+			}
+		}
 
 		super.processProperties(d);
 
@@ -300,6 +316,10 @@ public class TiUIScrollableView extends TiUIView
 			}
 		} else if (TiC.PROPERTY_SCROLLING_ENABLED.equals(key)) {
 			mEnabled = TiConvert.toBoolean(newValue);
+		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)){
+			if (Build.VERSION.SDK_INT >= 9) {
+				mPager.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -308,6 +328,8 @@ public class TiUIScrollableView extends TiUIView
 	public void addView(TiViewProxy proxy)
 	{
 		if (!mViews.contains(proxy)) {
+			proxy.setActivity(this.proxy.getActivity());
+			proxy.setParent(this.proxy);
 			mViews.add(proxy);
 			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
 			mAdapter.notifyDataSetChanged();
@@ -318,6 +340,7 @@ public class TiUIScrollableView extends TiUIView
 	{
 		if (mViews.contains(proxy)) {
 			mViews.remove(proxy);
+			proxy.setParent(null);
 			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
 			mAdapter.notifyDataSetChanged();
 		}
@@ -347,30 +370,32 @@ public class TiUIScrollableView extends TiUIView
 
 	public void moveNext()
 	{
-		move(mCurIndex + 1);
+		move(mCurIndex + 1, true);
 	}
 
 	public void movePrevious()
 	{
-		move(mCurIndex - 1);
+		move(mCurIndex - 1, true);
 	}
 
-	private void move(int index)
+	private void move(int index, boolean smoothScroll)
 	{
 		if (index < 0 || index >= mViews.size()) {
-			Log.w(TAG, "Request to move to index " + index+ " ignored, as it is out-of-bounds.");
+			if (Log.isDebugModeEnabled()) {
+				Log.w(TAG, "Request to move to index " + index+ " ignored, as it is out-of-bounds.", Log.DEBUG_MODE);
+			}
 			return;
 		}
 		mCurIndex = index;
-		mPager.setCurrentItem(index);
+		mPager.setCurrentItem(index, smoothScroll);
 	}
 
 	public void scrollTo(Object view)
 	{
 		if (view instanceof Number) {
-			move(((Number) view).intValue());
+			move(((Number) view).intValue(), true);
 		} else if (view instanceof TiViewProxy) {
-			move(mViews.indexOf(view));
+			move(mViews.indexOf(view), true);
 		}
 	}
 
@@ -381,7 +406,11 @@ public class TiUIScrollableView extends TiUIView
 
 	public void setCurrentPage(Object view)
 	{
-		scrollTo(view);
+		if (view instanceof Number) {
+			move(((Number) view).intValue(), false);
+		} else if (Log.isDebugModeEnabled()) {
+			Log.w(TAG, "Request to set current page is ignored, as it is not a number.", Log.DEBUG_MODE);
+		}
 	}
 
 	public void setEnabled(Object value)
@@ -401,6 +430,7 @@ public class TiUIScrollableView extends TiUIView
 		}
 		for (TiViewProxy viewProxy : mViews) {
 			viewProxy.releaseViews();
+			viewProxy.setParent(null);
 		}
 		mViews.clear();
 	}
@@ -412,9 +442,12 @@ public class TiUIScrollableView extends TiUIView
 
 		if (viewsObject instanceof Object[]) {
 			Object[] views = (Object[])viewsObject;
+			Activity activity = this.proxy.getActivity();
 			for (int i = 0; i < views.length; i++) {
 				if (views[i] instanceof TiViewProxy) {
 					TiViewProxy tv = (TiViewProxy)views[i];
+					tv.setActivity(activity);
+					tv.setParent(this.proxy);
 					mViews.add(tv);
 					changed = true;
 				}
@@ -441,6 +474,7 @@ public class TiUIScrollableView extends TiUIView
 		if (mViews != null) {
 			for (TiViewProxy viewProxy : mViews) {
 				viewProxy.releaseViews();
+				viewProxy.setParent(null);
 			}
 			mViews.clear();
 		}
@@ -480,7 +514,7 @@ public class TiUIScrollableView extends TiUIView
 			ViewPager pager = (ViewPager) container;
 			TiViewProxy tiProxy = mViewProxies.get(position);
 			TiUIView tiView = tiProxy.getOrCreateView();
-			View view = tiView.getNativeView();
+			View view = tiView.getOuterView();
 			if (view.getParent() != null) {
 				pager.removeView(view);
 			}
@@ -523,9 +557,27 @@ public class TiUIScrollableView extends TiUIView
 		public TiViewPagerLayout(Context context)
 		{
 			super(context, proxy);
-			setFocusable(true);
-			setFocusableInTouchMode(true);
+			boolean focusable = true;
+			// Container can't be focusable inside list view, otherwise it will be focused and subsequent layout passes
+			// wont happen.
+			if (isListViewParent(proxy)) {
+				focusable = false;
+			}
+			setFocusable(focusable);
+			setFocusableInTouchMode(focusable);
 			setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+		}
+
+		private boolean isListViewParent(TiViewProxy proxy) {
+			if (proxy instanceof ListItemProxy) {
+				return true;
+			}
+			TiViewProxy parent = proxy.getParent();
+			if (parent == null) {
+				return false;
+			} else {
+				return isListViewParent(parent);
+			}
 		}
 
 		@Override

@@ -1,0 +1,1305 @@
+---
+name: Titanium.UI.ListView
+summary: |
+    A list view is used to present information, organized in to sections and items,
+    in a vertically-scrolling view.
+description: |
+    Use the <Titanium.UI.createListView> method or **`<ListView>`** Alloy element to create a `ListView`.
+    
+    A `ListView` object is a container for [ListSection](Titanium.UI.ListSection) 
+    objects that are, in turn, containers for [ListItem](Titanium.UI.ListItem) objects. This is 
+    easily visualized as an Alloy view:
+
+        <Alloy>
+            <ListView id="list">
+                <ListSection>
+                    <ListItem title="List item 1"></ListItem>
+                    <ListItem title="List item 2"></ListItem>
+                    <ListItem title="List item 3"></ListItem>
+                </ListSection>
+            </ListView>
+        </Alloy>        
+
+    For more instructions and examples of using `ListView`, refer to the
+    [ListViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/ListViews).
+
+    #### Creating a List
+
+    To create a `ListView` object using JavaScript, pass an array of <ListDataItem> objects to the list section's
+    [items](Titanium.UI.ListSection.items) property, which creates and adds each array
+    element as a row to a single [ListSection](Titanium.UI.ListSection). Use the `ListView`'s
+    [sections](Titanium.UI.ListView.sections) property to add the section(s) to the list view.
+
+    By default, only the `image`, `title` and `accessoryType` of a list data item
+    are displayed in the list. Refer to the next section for using an item template.
+
+    See the "List View Sections" example.
+
+    #### Customizing the List Items
+
+    To create a custom list view, you need to define an <ItemTemplate> and define each view
+    component you want to add. Use the `bindId` property of the child template to bind a dictionary
+    property in the item data to a child view component.
+
+    Map the template to a style name using the <Titanium.UI.ListView.templates> property, then use
+    the style name to  set the <Titanium.UI.ListView.defaultItemTemplate> property to globally change
+    all item styles or set the <ListDataItem.template> property when passing in your list data
+    to apply the template to that one list item or to override the globally defined template.
+
+    On iOS, you can specify one of the template constants for the <ListDataItem.template> property
+    or <Titanium.UI.ListView.defaultItemTemplate>:
+    <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>, <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS>
+    or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
+
+    See <Titanium.UI.ListItem> for a detailed description of creating list items with a custom
+    item template and see the "List View with Custom Item Template" example for a sample.
+
+    #### List and Table Views
+
+    This section describes the differences between the new list view and the old table view.
+
+    `ListView` is analogous to `TableView`, `ListSection` is analogous to `TableViewSection`, and
+    `ListItem` is analogous to `TableViewRow`.
+
+    Both list view and table view present data to user as a vertically scrolling list of rows.
+    However, list view uses a data-oriented approach versus table view's view-oriented approach.
+
+    List view is designed for performance. One side effect of the design is that you cannot directly
+    manipulate the views--add children, set view properties and bind event callbacks--as you can in
+    `TableView`. Instead, you interact with list items indirectly, using templates and data items. The
+    next subsection describes how to use list items.
+
+    ##### ListItem versus TableViewRow
+
+    With `TableView`, you can directly add rows to a table view using the data property and its accessors.
+    With `TableViewRows`, you can directly create a row using the `Ti.UI.createTableViewRow` and customize
+    its styling by setting its view properties. You can add view subcomponents to the row using the add
+    method.
+
+    With `ListView`, you need to explicitly create a `ListSection` in order to add a `ListItem` to a `ListView`.
+    You cannot directly add a `ListItem` to a `ListView`.
+    In a `TableView`, a `TableViewRow` can be directly added to a `TableView` because a
+    `TableViewSection` is implicitly created and added to the `TableView`.
+
+    A `ListItem` object is not created in the same method as a `TableViewRow`.
+    A `ListItem` is create by passing an array of `ListDataItem` objects to the `ListSection`.
+
+    You cannot add views to a `ListItem` using the `add` method, which could be done with a
+    `TableViewRow`. To add views to a `ListItem`, you need to define an <ItemTemplate>,
+    which is bound to a list data item using the `template` property.
+
+    You cannot explicitly set properties or bind events for a `ListItem`.  You have to set them using the
+    `properties` dictionary of a <ListDataItem> or <ItemTemplate> and the `events` dictionary of the
+    <ItemTemplate> or <ViewTemplate>, respectively.
+
+    ##### API Differences
+
+    - **TableViewRow properties**: The following properties and their accessors are not
+      available for `ListItem`: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
+      `hasChild`, `hasDetail`, `leftImage`, `moveable` and `rightImage`.
+
+        - For `hasCheck`, `hasChild`, and `hasDetail`, use the `accessoryType` property.
+        - For `leftImage` and `rightImage`, use the `image` property or create a custom item template.
+
+    - **TableViewRow methods**: `ListItem` does not support any methods. Adding views and binding
+      event callbacks are supported through the item template.
+
+    - **TableViewSection properties**: The following properties and their accessors are not
+      supported by `ListSection`: `rows` and `rowCount`.
+
+        - For `rows`, use the `items` property.
+        - For `rowCount`, use the `itemCount` property. (Not yet implemented.)
+
+    - **TableViewSection methods**: The following methods are not supported by `ListSection`:
+      `add`, `remove` and `rowAtIndex`.
+
+        - For `rowAtIndex`, use the `getItemAt` method.
+        - For `add` and `remove`, use the other `ListSection` methods to manipulate the `ListItem`
+          objects in the `ListSection`.
+
+    - **TableView properties**: The `data` property and its accessors are not available
+      for `ListView`. Use the `sections` property to set the `ListSections` for a `ListView`.  You
+      cannot directly add `ListItem` objects to a `ListView`.
+
+    - **TableView methods**: The following methods are not available to `ListView`:
+      `appendRow`, `deleteRow`, `deselectRow`, `insertRowAfter`, `insertRowBefore`, `selectRow`,
+      `updateRow`, `scrollToIndex` and `selectRow`.
+
+        - For `scrollToIndex`, use the `scrollToItem` method.
+        - For `selectRow`, use the `selectItem` method. (Currently implemented only for iOS.)
+        - For all other row methods, you cannot manipulate `ListItems` with a `ListView`.
+          You have to manipulate them with the `ListSection` they are contained in.
+
+    #### List and Scroll Views
+
+    As a list view inherently scrolls, it creates a very poor user experience when it contains
+    other scrolling views, such as a [ScrollableView](Titanium.UI.ScrollableView) or
+    [TextArea](Titanium.UI.TextArea). Thus, this layout is strongly discouraged.
+
+    #### TextFields in Lists with SOFT_INPUT_ADJUST_PAN (Android)
+    In order to use [TextField](Titanium.UI.TextField) inside `ListView`, [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN)
+    must be set to the window that is containing the `ListView`, otherwise the [TextField](Titanium.UI.TextField) may not be able to gain focus.
+
+    When a [TextField](Titanium.UI.TextField) is placed in a row near the bottom of a `ListView`,
+    in a window that is configured with
+    [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN), it is expected for the 
+    text field to automatically move to a visible position after it is focused and the software
+    keyboard displayed. However, due to a known problem caused by native Android's `ListView` behavior,
+    the keyboard is likely to completely obscure the text field.
+
+    To mitigate this, a `ScrollView` may be used instead of a list view, as demonstrated in the
+    [ScrollView](Titanium.UI.ScrollView), "Scroll View as a Table View", example.
+
+    #### Editing Support (iOS)
+
+    Editing a list view through user initiated actions is supported through the following properties.
+
+    - **ListItem properties**:
+
+        - [canEdit](Titanium.UI.ListItem.canEdit) - When this is set to true, it allows the item to be deleted 
+          from the List View through a user initiated action. The item can only be deleted when the List View is 
+          in editing mode. The ListView can enter 'editing' mode either by explicitly setting the [editing](Titanium.UI.ListView.editing)
+          property to true, or by swiping accross an item whose `canEdit` property is set to true. When the user
+          deletes the item, a [delete](Titanium.UI.ListView.delete) event is fired.
+
+        - [canMove](Titanium.UI.ListItem.canMove) - When this item is set to true, it allows the item to be moved
+          to a different location within the List View. The item can only be moved when the List View is put in 
+          editing mode by explicitly setting the [editing](Titanium.UI.ListView.editing) property to true. When the 
+          user moves an item, a [move](Titanium.UI.ListView.move) event is fired.
+
+    - **ListView properties**:
+
+        - [editing](Titanium.UI.ListView.editing) - Determines if the List View is in a state where items can
+          be deleted or reordered.
+
+        - [pruneSectionsOnEdit](Titanium.UI.ListView.pruneSectionsOnEdit) - When this property is set to true and the 
+          user action results in a section having no other items, the section is deleted from the List View. Please note 
+          that this property only applies to the sections whose items are being edited.
+
+platforms: [android, ipad, iphone]
+extends: Titanium.UI.View
+since: '3.1.0'
+excludes:
+    events: [click, dblclick,doubletap,focus,keypressed,longclick,longpress,pinch,postlayout,
+             singletap,swipe,touchcancel,touchend,touchmove,touchstart,twofingertap]
+    properties: [backgroundSelectedColor, backgroundSelectedImage, enabled]
+events:
+  - name: itemclick
+    summary: Fired when a list row is clicked by the user.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+    properties:
+      - name: section
+        summary: List section if the item is contained in a list section.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
+      - name: bindId
+        summary: The bind ID of the control that generated this event, if one exists.
+        type: String
+
+      - name: accessoryClicked
+        summary: |
+            Returns `true` if the detail button is clicked else returns `false`.
+
+            Only returns `true` if the `accessoryType` property is set to
+            <Titanium.UI.LIST_ACCESSORY_TYPE_DETAIL>.  All other accessories return `false` if
+            clicked.
+        type: Boolean
+        platforms: [iphone, ipad]
+
+  - name: delete
+    summary: Fired when a list row is deleted by the user.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+
+        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the List View state
+        before the user action.
+    platforms: [iphone, ipad]
+    since: 3.2.0
+    properties:
+      - name: section
+        summary: List section from which the item is deleted.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+  - name: marker
+    summary: Fired when the list view displays the reference item or an item beyond the reference item.
+    description: |
+        This event is fired only once. Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method.
+        On iOS this method does not fire when list view is in search mode.
+    platforms: [iphone, ipad, android]
+    since: 3.2.0
+    properties:
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+  - name: move
+    summary: Fired when a list row is moved to a different location by the user.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+
+        Note that the `sectionIndex`,`itemIndex`,`targetSectionIndex` and `targetItemIndex` properties of this event correspond to the List View state
+        before the user action.
+    platforms: [iphone, ipad]
+    since: 3.2.0
+    properties:
+      - name: section
+        summary: List section from which the item is moved.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: targetSection
+        summary: List section to which the item is moved. Might be the same as `section` property.
+        type: Titanium.UI.ListSection
+
+      - name: targetSectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: targetItemIndex
+        summary: Position within the `targetSection`.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+  - name: noresults
+    summary: Fired when the search using either [searchView](Titanium.UI.ListView.searchView) or [searchText](Titanium.UI.ListView.searchText) has no results.
+    description: |
+        When items are filtered in a list view using either the `searchView` or `searchText`, it is possible that the search
+        returns an empty set.
+
+        While the `searchView` API automatically shows a **No Results** cell in the list view, the `searchText` API does not do so.
+        Developers can listen to this event and perform appropriate actions when the search result set is empty.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    properties:
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+  - name: pull
+    summary: Fired when the user drags the list view past the top edge of the [pullView](Titanium.UI.ListView.pullView).
+    platforms: [iphone, ipad]
+    since: 3.2.0
+    properties:
+      - name: active
+        summary: Determines if the `pullView` is completely visible (true) or partially hidden (false).
+        type: Boolean
+
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+  - name: pullend
+    summary: Fired when the user stops dragging the list view and the [pullView](Titanium.UI.ListView.pullView) is completely visible.
+    platforms: [iphone, ipad]
+    since: 3.2.0
+    properties:
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+properties:
+
+  - name: allowsSelection
+    summary: Determines whether this item can be selected.
+    description: |
+        Set to `false` to prevent the item from being selected.
+
+        On iOS, even if this property is set to `false`, you can interact with the detail disclosure
+        accessory (`accessoryType` set to <Titanium.UI.LIST_ACCESSORY_TYPE_DETAIL>) and any child
+        templates that are controls, such as a button, slider, etc.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+
+  - name: canScroll
+    summary: Determines if the list view can scroll in response to user actions.
+    description: Set to false to disable scrolling.
+    type: Boolean
+    default: true
+    since: 3.2.0
+    platforms: [iphone, ipad]
+
+  - name: editing
+    summary: Determines if the list view is currently in editing mode.
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
+    type: Boolean
+    default: false
+    since: 3.2.0
+    platforms: [iphone, ipad]
+
+  - name: pruneSectionsOnEdit
+    summary: Determines if empty sections are retained when the user completes editing the list view.
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
+    type: Boolean
+    default: false
+    since: 3.2.0
+    platforms: [iphone, ipad]
+
+  - name: templates
+    summary: Contain key-value pairs mapping a style name (key) to an <ItemTemplate> (value).
+    description: |
+        This property cannot be changed once a window has been opened.
+    type: Dictionary
+    availability: creation
+
+  - name: sections
+    summary: Sections of this list.
+    type: Array<Titanium.UI.ListSection>
+
+  - name: defaultItemTemplate
+    summary: Sets the default template for list data items that do not specify the `template` property.
+    description: |
+        Can be set to any of the built-in templates or those defined in the `templates` property.
+
+        Can be changed dynamically.
+    type: [String, Number]
+    default: Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT
+
+  - name: footerDividersEnabled
+    summary: When set to false, the ListView will not draw the divider before the footer view.
+    type: Boolean
+    availability: creation
+    default: undefined but behaves as false
+    platforms: [android]
+    since: "3.3.0"
+
+  - name: footerTitle
+    summary: List view footer title.
+    type: String
+
+  - name: footerView
+    summary: List view footer as a view that will be rendered instead of a label.
+    description: |
+        In Alloy you can specify this property with a `<FooterView>` child element of a `<ListView>`
+        element (see Examples).
+
+    type: Titanium.UI.View
+    description: |
+        On Android, this is a creation only property.
+    since: 3.2.0
+    platforms: [android, iphone, ipad]
+
+  - name: headerDividersEnabled
+    summary: When set to false, the ListView will not draw the divider after the header view.
+    type: Boolean
+    availability: creation
+    default: undefined but behaves as false
+    platforms: [android]
+    since: "3.3.0"
+    
+  - name: headerTitle
+    summary: List view header title.
+    type: String
+
+  - name: headerView
+    summary: List view header as a view that will be rendered instead of a label.
+    description: |
+        On Android, this is a creation only property. 
+        In Alloy you can specify this property with a `<HeaderView>` child element of a `<ListView>`
+        element (see Examples).
+
+    type: Titanium.UI.View
+    since: 3.2.0
+    platforms: [android, iphone, ipad]
+
+  - name: pullView
+    summary: View positioned above the first row that is only revealed when the user drags the list view contents down.
+    description: |
+        A `pullView` is a UI control that is often used to provide a convenient way for the user to refresh
+        a table's data.  Typically used in conjunction with [setContentInsets](Titanium.UI.ListView.setContentInsets)
+        method and [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events.
+
+        To specify the wrapper color see <Titanium.UI.View.pullBackgroundColor>.
+
+        In Alloy you can assign this property with a `<PullView>` child element of a `<ListView>`
+        element:
+
+            <Alloy>
+              <ListView>
+                <ListSection>
+                  <ListItem title="Item a"></ListItem>
+                  <ListItem title="Item b"></ListItem>
+                  <ListItem title="Item c"></ListItem>
+                </ListSection>
+                <PullView>
+                  <View height="50" backgroundColor="black">
+                    <Label/>
+                  </View>
+                </PullView>
+              </ListView>
+            </Alloy>
+
+        See the code example on `pullView` to  see how it may be utilized.
+    type: Titanium.UI.View
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
+  - name: refreshControl
+    summary: View positioned above the first row that is only revealed when the user drags the list view contents down.
+    description: |
+        An alternate to the pullView property. See <Titanium.UI.RefreshControl> for usage and examples.
+    type: Titanium.UI.RefreshControl
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
+  - name: searchView
+    summary: Search field to use for the list view.
+    description: |
+        Provides the same functionality as the [search](Titanium.UI.TableView.search) property in
+        [TableView](Titanium.UI.TableView). Used in conjunction with
+        [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and
+        [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
+
+        On Android, you can either specify <Titanium.UI.SearchBar> or <Titanium.UI.Android.SearchView>,
+        while on iOS only <Titanium.UI.SearchBar> is supported.
+
+        In an Alloy application, you can use a `<SearchView>` or `<SearchBar>` element inside a `<ListView>` element.
+
+            <Alloy>
+                <ListView>
+                   <!-- search, shorthand with Ti.UI.SearchBar -->
+                  <SearchBar class="search" platform="ios"/>
+                  <!-- search, shorthand with Ti.UI.Android.SearchView -->
+                  <SearchView ns="Ti.UI.Android" class="search" platform="android"/>
+                </ListView>
+            </Alloy>
+
+    type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
+    platforms: [android, iphone, ipad]
+    since: 3.2.0
+
+  - name: searchText
+    summary: The string to use as the search parameter.
+    description: |
+        Provides a generic search API for the List View. This property can not be used when the
+        [searchView](Titanium.UI.ListView.searchView) property is set. Used in conjunction with
+        [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and
+        [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
+
+        On iOS, when using this property the [style](Titanium.UI.ListView.style) property of the
+        List View is honored. If the [keepSectionsInSearch](Titanium.UI.ListView.keepSectionsInSearch) property
+        is set to true then section information is preserved in the search results, otherwise the search
+        results are displayed in a single section.
+    type: String
+    platforms: [android, iphone, ipad]
+    since: 3.2.0
+
+  - name: caseInsensitiveSearch
+    summary: Determines if the search performed is case insensitive.
+    description: |
+        Used in conjunction with [searchView](Titanium.UI.ListView.searchView) and  [searchText](Titanium.UI.ListView.searchText) properties of 
+        List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
+    type: Boolean
+    default: true
+    platforms: [android, iphone, ipad]
+    since: 3.2.0
+
+  - name: keepSectionsInSearch
+    summary: Determines if the section information is displayed in the search results when using the `searchText` property.
+    description: |
+        Used in conjunction with [searchText](Titanium.UI.ListView.searchText) property of List View
+        and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
+  - name: sectionIndexTitles
+    summary: Array of objects (with `title` and `index` properties) to control the list view index.
+    description: |
+        If an index array is specified, an index bar is displayed on the right-hand side of the list view.
+        Clicking on a title in the index bar scrolls the list view to the section index associated with that title.
+    type: Array<ListViewIndexEntry>
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
+  - name: scrollIndicatorStyle
+    summary: Style of the scrollbar.
+    type: Number
+    constants: Titanium.UI.iPhone.ScrollIndicatorStyle.*
+    default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
+    platforms: [iphone, ipad]
+
+  - name: willScrollOnStatusTap
+    summary: Controls the scroll-to-top gesture.
+    description: |
+        If the user taps on the status bar, the view scrolls to the top.
+        This gesture works when you have a single visible list view.
+        If there are multiple list views, table views, web views, text areas, and/or scroll views visible,
+        you need to disable (set to `false`) this property on the views you **DO NOT** want to
+        enable this behavior for.  The remaining view responds to the scroll-to-top gesture.
+    type: Boolean
+    default: true
+    platforms: [iphone,ipad]
+
+  - name: sectionCount
+    summary: Number of sections in this list view.
+    type: Number
+    permission: read-only
+
+  - name: showVerticalScrollIndicator
+    summary: Determines whether this list view displays a vertical scroll indicator.
+    description: Set to `false` to hide the vertical scroll indicator.
+    type: Boolean
+    default: true
+
+  - name: separatorColor
+    summary: Separator line color between rows, as a color name or hex triplet.
+    description: |
+        To make the line invisible, set this property to `transparent`, or the same value as the 
+        [backgroundColor](Titanium.UI.ListView.backgroundColor) property. 
+        
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    default: platform-specific default color
+    since: 3.2.0
+    platforms: [android, iphone, ipad]
+
+  - name: separatorInsets
+    summary: The insets for list view separators (applies to all cells). This property is applicable on iOS 7 and greater.
+    description: |
+        In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. 
+        This property sets the default inset for all cells in the table. 
+        
+        Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge. 
+    type: Dictionary
+    since: 3.2.0
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad]
+
+  - name: separatorStyle
+    summary: Separator style constant. 
+    type: Number
+    constants: Titanium.UI.iPhone.ListViewSeparatorStyle.*
+    since: 3.2.0
+    platforms: [iphone, ipad]
+
+  - name: style
+    summary: Style of the list view.
+    description: Style should always be set before setting the sections on list view.
+    type: Number
+    default: Titanium.UI.iPhone.ListViewStyle.PLAIN
+    constants: Titanium.UI.iPhone.ListViewStyle.*
+    platforms: [iphone, ipad]
+    availability: creation
+
+
+methods:
+
+  - name: scrollToItem
+    summary: Scrolls to a specific item.
+    description: |
+        On Android 4.x, the list does not stop at the correct position.
+        This is a known bug in Android.
+        ([Android Issue #37278](https://code.google.com/p/android/issues/detail?id=37278))
+
+        Android added support for the `animation` parameter in Release 3.3.0 on the Titanium SDK.
+    parameters:
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: animation
+        summary: Animation properties. (iOS and Android only.)
+        type: ListViewAnimationProperties
+        optional: true
+
+  - name: deselectItem
+    summary: Deselects a specific item.
+    parameters:
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+    since: 3.2.0
+    platforms: [iphone, ipad]
+
+  - name: appendSection
+    summary: Appends a single section or an array of sections to the end of the list.
+    description: |
+        On iOS, the section(s) can be inserted with an animation by specifying the `animation`
+        parameter.
+    parameters:
+      - name: section
+        summary: Section or sections to add to the list.
+        type: [Titanium.UI.ListSection, Array<Titanium.UI.ListSection>]
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: ListViewAnimationProperties
+        optional: true
+
+  - name: deleteSectionAt
+    summary: Deletes an existing section.
+    description: |
+        On iOS, the section can be deleted with an animation by specifying the `animation` parameter.
+    parameters:
+      - name: sectionIndex
+        summary: Index of the section to delete.
+        type: Number
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: ListViewAnimationProperties
+        optional: true
+
+  - name: insertSectionAt
+    summary: Inserts a section or an array of sections at a specific index.
+    description: |
+        Existing sections at that index and after are pushed down.
+
+        On iOS, the section(s) may be inserted with an animation by setting the `animation` parameter.
+    parameters:
+      - name: sectionIndex
+        summary: Index of the section to insert before.
+        type: Number
+
+      - name: section
+        summary: Section or sections to insert.
+        type: [Titanium.UI.ListSection, Array<Titanium.UI.ListSection>]
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: ListViewAnimationProperties
+        optional: true
+
+  - name: replaceSectionAt
+    summary: Replaces an existing section.
+    description: |
+        On iOS, the section may be replaced with an animation by setting the `animation` parameter.
+    parameters:
+      - name: sectionIndex
+        summary: Index of the section to update.
+        type: Number
+
+      - name: section
+        summary: section data to update.
+        type: Titanium.UI.ListSection
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: ListViewAnimationProperties
+
+  - name: selectItem
+    summary: Selects an item in the list using the specified item and section indices.
+    parameters:
+      - name: sectionIndex
+        summary: Index of the section the item is in.
+        type: Number
+
+      - name: itemIndex
+        summary: Index of the item to select.
+        type: Number
+    platforms: [ipad,iphone]
+
+  - name: setContentInsets
+    summary: Sets this list view's content insets.
+    description: |
+        A list view is essentially a scroll view that contains a set of static row views that 
+        represents the content. Thus, the `setContentInsets` method facilitates a margin, or inset, 
+        distance between the content and the container scroll view.
+        
+        Typically used with the [pullView](Titanium.UI.ListView.pullView) property.
+    parameters:
+      - name: edgeInsets
+        summary: Dictionary to describe the insets.
+        type: ListViewEdgeInsets
+        
+      - name: animated
+        summary: Determines whether, and how, the content inset change should be animated.
+        type: ListViewContentInsetOption
+        optional: true
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
+  - name: setMarker
+    summary: Sets a reference item in the list view.
+    description: |
+        See [marker](Titanium.UI.ListView.marker) event for details. 
+    parameters:
+      - name: markerProps
+        summary: Dictionary to describe the reference item.
+        type: ListViewMarkerProps
+    platforms: [iphone, ipad, android]
+    since: 3.2.0
+
+examples:
+  - title: List View Sections
+    example: |
+        Creates a list with three sections, each with two rows.
+        Adds two sections to the table before and one after it is rendered.
+
+            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+            var listView = Ti.UI.createListView();
+            var sections = [];
+
+            var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
+            var fruitDataSet = [
+                {properties: { title: 'Apple'}},
+                {properties: { title: 'Banana'}},
+            ];
+            fruitSection.setItems(fruitDataSet);
+            sections.push(fruitSection);
+
+            var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
+            var vegDataSet = [
+                {properties: { title: 'Carrots'}},
+                {properties: { title: 'Potatoes'}},
+            ];
+            vegSection.setItems(vegDataSet);
+            sections.push(vegSection);
+
+            listView.sections = sections;
+            win.add(listView);
+            win.open();
+
+            var fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
+            var fishDataSet = [
+                {properties: { title: 'Cod'}},
+                {properties: { title: 'Haddock'}},
+            ];
+            fishSection.setItems(fishDataSet);
+            listView.appendSection(fishSection);
+
+  - title: List View with Custom Item Template
+    example: |
+        Modifies the previous example to create a list using an item template to customize the view layout.
+
+            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+
+            // Create a custom template that displays an image on the left, 
+            // then a title next to it with a subtitle below it.
+            var myTemplate = {
+                childTemplates: [
+                    {                            // Image justified left
+                        type: 'Ti.UI.ImageView', // Use an image view for the image
+                        bindId: 'pic',           // Maps to a custom pic property of the item data
+                        properties: {            // Sets the image view  properties
+                            width: '50dp', height: '50dp', left: 0
+                        }
+                    },
+                    {                            // Title 
+                        type: 'Ti.UI.Label',     // Use a label for the title 
+                        bindId: 'info',          // Maps to a custom info property of the item data
+                        properties: {            // Sets the label properties
+                            color: 'black',
+                            font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
+                            left: '60dp', top: 0,
+                        }
+                    },
+                    {                            // Subtitle
+                        type: 'Ti.UI.Label',     // Use a label for the subtitle
+                        bindId: 'es_info',       // Maps to a custom es_info property of the item data
+                        properties: {            // Sets the label properties
+                            color: 'gray',
+                            font: { fontFamily:'Arial', fontSize: '14dp' },
+                            left: '60dp', top: '25dp',
+                        }
+                    }
+                ]
+            };
+
+            var listView = Ti.UI.createListView({
+                // Maps myTemplate dictionary to 'template' string
+                templates: { 'template': myTemplate },
+                // Use 'template', that is, the myTemplate dict created earlier
+                // for all items as long as the template property is not defined for an item.
+                defaultItemTemplate: 'template'
+            });
+            var sections = [];
+
+            var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits / Frutas'});
+            var fruitDataSet = [
+                // the text property of info maps to the text property of the title label
+                // the text property of es_info maps to text property of the subtitle label
+                // the image property of pic maps to the image property of the image view
+                { info: {text: 'Apple'}, es_info: {text: 'Manzana'}, pic: {image: 'apple.png'}},
+                { info: {text: 'Banana'}, es_info: {text: 'Banana'}, pic: {image: 'banana.png'}}
+            ];
+            fruitSection.setItems(fruitDataSet);
+            sections.push(fruitSection);
+
+            var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables / Verduras'});
+            var vegDataSet = [
+                { info: {text: 'Carrot'}, es_info: {text: 'Zanahoria'}, pic: {image: 'carrot.png'}},
+                { info: {text: 'Potato'}, es_info: {text: 'Patata'}, pic: {image: 'potato.png'}}
+            ];
+            vegSection.setItems(vegDataSet);
+            sections.push(vegSection);
+
+            var grainSection = Ti.UI.createListSection({ headerTitle: 'Grains / Granos'});
+            var grainDataSet = [
+                { info: {text: 'Corn'}, es_info: {text: 'Maiz'}, pic: {image: 'corn.png'}},
+                { info: {text: 'Rice'}, es_info: {text: 'Arroz'}, pic: {image: 'rice.png'}}
+            ];
+            grainSection.setItems(grainDataSet);
+            sections.push(grainSection);
+
+            listView.setSections(sections);
+            win.add(listView);
+            win.open();
+
+  - title: List View with a pullView (Only supported on iOS since 3.2.0)
+    example: |
+        This sample shows how the [pullView](Titanium.UI.ListView.pullView) property could be
+        utilized along with the [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events to
+        create a refresh control.
+
+            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+            var listView = Ti.UI.createListView({height:'90%', top:0});
+            var sections = [];
+
+            var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
+            var fruitDataSet = [
+                {properties: { title: 'Apple'}},
+                {properties: { title: 'Banana'}},
+            ];
+            fruitSection.setItems(fruitDataSet);
+            sections.push(fruitSection);
+
+            var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
+            var vegDataSet = [
+                {properties: { title: 'Carrots'}},
+                {properties: { title: 'Potatoes'}},
+            ];
+            vegSection.setItems(vegDataSet);
+
+            var fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
+            var fishDataSet = [
+                {properties: { title: 'Cod'}},
+                {properties: { title: 'Haddock'}},
+            ];
+            fishSection.setItems(fishDataSet);
+            listView.sections = sections;
+            var refreshCount = 0;
+
+            function getFormattedDate(){
+                var date = new Date();
+                return date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes();
+            }
+ 
+            function resetPullHeader(){
+                actInd.hide();
+                imageArrow.transform=Ti.UI.create2DMatrix();
+                if (refreshCount < 2) {
+                    imageArrow.show();
+                    labelStatus.text = 'Pull down to refresh...';
+                    labelLastUpdated.text = 'Last Updated: ' + getFormattedDate();
+                } else {
+                    labelStatus.text = 'Nothing To Refresh';
+                    labelLastUpdated.text = 'Last Updated: ' + getFormattedDate();
+                    listView.removeEventListener('pull', pullListener);
+                    listView.removeEventListener('pullend', pullendListener);
+                    eventStatus.text = 'Removed event listeners.';
+                }
+                listView.setContentInsets({top:0}, {animated:true});
+            }
+ 
+            function loadTableData()
+            {
+                if (refreshCount == 0) {
+                    listView.appendSection(vegSection);
+                } else if (refreshCount == 1) {
+                    listView.appendSection(fishSection);
+                } 
+                refreshCount ++;
+                resetPullHeader();
+            }
+
+            function pullListener(e){
+                eventStatus.text = 'EVENT pull FIRED. e.active = '+e.active;
+                if (e.active == false) {
+                    var unrotate = Ti.UI.create2DMatrix();
+                    imageArrow.animate({transform:unrotate, duration:180});
+                    labelStatus.text = 'Pull down to refresh...';
+                } else {
+                    var rotate = Ti.UI.create2DMatrix().rotate(180);
+                    imageArrow.animate({transform:rotate, duration:180});
+                    if (refreshCount == 0) {
+                        labelStatus.text = 'Release to get Vegetables...';
+                    } else {
+                        labelStatus.text = 'Release to get Fish...';
+                    }
+                }
+            }
+
+            function pullendListener(e){
+                eventStatus.text = 'EVENT pullend FIRED.';
+             
+                if (refreshCount == 0) {
+                    labelStatus.text = 'Loading Vegetables...';        
+                } else {
+                    labelStatus.text = 'Loading Fish...';
+                }
+                imageArrow.hide();
+                actInd.show();
+                listView.setContentInsets({top:80}, {animated:true});
+                setTimeout(function(){
+                    loadTableData();
+                }, 2000);
+            }
+
+            var tableHeader = Ti.UI.createView({
+                backgroundColor:'#e2e7ed',
+                width:320, height:80
+            });
+
+            var border = Ti.UI.createView({
+                backgroundColor:'#576c89',
+                bottom:0,
+                height:2
+            });
+            tableHeader.add(border);
+
+            var imageArrow = Ti.UI.createImageView({
+                image:'https://github.com/appcelerator/titanium_mobile/raw/master/demos/KitchenSink/Resources/images/whiteArrow.png',
+                left:20, bottom:10,
+                width:23, height:60
+            });
+            tableHeader.add(imageArrow);
+
+            var labelStatus = Ti.UI.createLabel({
+                color:'#576c89',
+                font:{fontSize:13, fontWeight:'bold'},
+                text:'Pull down to refresh...',
+                textAlign:'center',
+                left:55, bottom:30,
+                width:200
+            });
+            tableHeader.add(labelStatus);
+
+            var labelLastUpdated = Ti.UI.createLabel({
+                color:'#576c89',
+                font:{fontSize:12},
+                text:'Last Updated: ' + getFormattedDate(),
+                textAlign:'center',
+                left:55, bottom:15,
+                width:200
+            });
+            tableHeader.add(labelLastUpdated);
+
+            var actInd = Ti.UI.createActivityIndicator({
+                left:20, bottom:13,
+                width:30, height:30
+            });
+            tableHeader.add(actInd);
+            listView.pullView = tableHeader;
+            listView.addEventListener('pull', pullListener);
+            listView.addEventListener('pullend',pullendListener);
+
+            var eventStatus = Ti.UI.createLabel({
+                font:{fontSize:13, fontWeight:'bold'},
+                text: 'Event data will show here',
+                bottom:0,
+                height:'10%'
+            })
+
+            win.add(listView);
+            win.add(eventStatus);
+            win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        'List View with Custom Item Template' as an Alloy view.  List view markup is supported in
+        Alloy 1.2.0 and later.
+
+        `app/views/index.xml`:
+
+            <Alloy>
+                <Window backgroundColor="white">
+                    <ListView id="listView" defaultItemTemplate="template">
+
+                        <!-- The Templates tag sets the ListView's templates property -->
+
+                        <Templates>
+
+                            <!-- Define your item templates within the Templates tags or use the
+                                 Require tag to include a view that only contains an ItemTemplate -->
+
+                            <ItemTemplate name="template">
+                                <ImageView bindId="pic" id="icon" />
+                                <Label bindId="info" id="title" />
+                                <Label bindId="es_info" id="subtitle" />
+                            </ItemTemplate>
+
+                        </Templates>
+
+                        <ListSection headerTitle="Fruit / Frutas">
+
+                            <!-- You can specify any ListItem or ListDataItem properties in ListItem -->
+
+                            <!-- Specify data to bind to the item template with inline attributes
+                                 defined as <bindId>:<Ti.UI.Component.property> -->
+
+                            <ListItem info:text="Apple" es_info:text="Manzana" pic:image="/apple.png" />
+                            <ListItem info:text="Banana" es_info:text="Banana" pic:image="/banana.png" />
+                        </ListSection>
+                        <ListSection headerTitle="Vegetables / Verduras">
+                            <ListItem info:text="Carrot" es_info:text="Zanahoria" pic:image="/carrot.png" />
+                            <ListItem info:text="Potato" es_info:text="Patata" pic:image="/potato.png" />
+                        </ListSection>
+                        <ListSection headerTitle="Grains / Granos">
+                            <ListItem info:text="Corn" es_info:text="Maiz" pic:image="/corn.png" />
+                            <ListItem info:text="Rice" es_info:text="Arroz" pic:image="/rice.png" />
+                        </ListSection>
+                    </ListView>
+                </Window>
+            </Alloy>
+
+        `app/styles/index.tss`:
+
+            "#icon" : {
+                width: '50dp', height: '50dp', left: 0
+            },
+            "#title" : {
+                color: 'black',
+                font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
+                left: '60dp', top: 0
+            },
+            "#subtitle" : {
+                color: 'gray',
+                font: { fontFamily:'Arial', fontSize: '14dp' },
+                left: '60dp', top: '25dp'
+            }
+
+  - title: Alloy example of ListView properties
+    example: |
+        Supported in Alloy 1.3.0 and later.
+
+        In Alloy, ListView's `searchView`, `headerView`, `footerView`, and `pullView`
+        properties may be declared as XML elements inline with the `ListView` element.  The example
+        below demonstrates how to use `searchView`, `headerView` and `footerView`.
+
+            <Alloy>
+                <Window fullscreen="true">
+                    <ListView>
+                        <!-- Sets ListView's searchView property.
+                             For Android, you can also do <SearchView platform="android" />
+                             to use a Ti.UI.Android.SearchView instead of a search bar. -->
+                        <SearchBar barColor="#000" />
+
+                        <!-- Sets ListView's headerView property -->
+                        <HeaderView>
+                            <View backgroundColor="#DDD" height="Ti.UI.SIZE">
+                                <Label>Header View</Label>
+                            </View>>
+                        </HeaderView>
+
+                        <ListSection>
+                            <ListItem title="Papaya" searchableText="Papaya"/>
+                            <ListItem title="Peach" searchableText="Peach"/>
+                            <ListItem title="Pear" searchableText="Pear"/>
+                            <ListItem title="Persimmon" searchableText="Persimmon"/>
+                            <ListItem title="Pineapple" searchableText="Pineapple"/>
+                            <ListItem title="Pluot" searchableText="Pluto"/>
+                            <ListItem title="Pomegranate" searchableText="Pomegranate"/>
+                        </ListSection>
+
+                        <!-- Sets ListView's footerView property -->
+                        <FooterView>
+                            <View backgroundColor="#DDD" height="Ti.UI.SIZE">
+                                <Label>Footer View</Label>
+                            </View>
+                        </FooterView>
+                    </ListView>
+                </Window>
+            </Alloy>
+
+  - title: Alloy example of `<PullView>` element
+    example: |
+        The example below demonstrates how to use a `<PullView>` Alloy element.
+
+            <!-- views/index.xml -->
+            <Alloy>
+                <Window class="container" >
+                    <ListView id="list">
+                        <ListSection>
+                            <ListItem title="Number 1"></ListItem>
+                            <ListItem title="Number 2"></ListItem>
+                        </ListSection>
+                        <PullView>
+                            <View backgroundColor="red" height="50">
+                                <Label>Release to reload</Label>
+                            </View>
+                        </PullView>
+                    </ListView>
+                </Window>
+            </Alloy>
+---
+name: ListViewAnimationProperties
+summary: |
+    A simple object for specifying the animation properties to use when inserting or deleting
+    sections or cells, or scrolling the list.
+description: |
+    These properties are only used on iOS. Not all properties apply to all methods.
+
+    `animationStyle` does not apply to the `scrollToItem` method.
+
+    `positon` only applies to the `scrollToItem` method.
+
+    Since Release 3.3.0 of the Titanium SDK, Android supports the `animated` property and is applicable only to `scrollToItem`
+platforms: [iphone, ipad, android]
+since: '3.1.0'
+properties:
+  - name: animated
+    summary: Whether this list change should be animated. Ignored if any `animationStyle` value is specified.
+    type: Boolean
+    default: true
+
+  - name: animationStyle
+    summary: Type of animation to use for cell insertions and deletions.
+    type: Number
+    constants: Titanium.UI.iPhone.RowAnimationStyle.*
+    default: |
+        If `animated` is `true` but no `animationStyle` is specified, the style defaults to 
+        [FADE](Titanium.UI.iPhone.RowAnimationStyle.FADE).
+
+  - name: position
+    summary: Specifies what position to scroll the selected cell to.
+    type: Number
+    constants: Titanium.UI.iPhone.ListViewScrollPosition.*
+    default: Titanium.UI.iPhone.ListViewScrollPosition.NONE
+
+---
+name: ListViewIndexEntry
+summary: A simple object that represents an index entry in a `ListView`.
+description: |
+    Used in conjunction with the [sectionIndexTitles](Titanium.UI.ListView.sectionIndexTitles) property of the List View.
+platforms: [iphone, ipad]
+since: 3.2.0
+properties:
+  - name: title
+    summary: Title to display in the index bar.
+    type: String
+    
+  - name: index
+    summary: Section index associated with this title.
+    type: Number
+
+---
+name: ListViewContentInsetOption
+summary: Optional parameter for [setContentInsets](Titanium.UI.ListView.setContentInsets) method.
+description: |
+    On iOS, the optional parameters `animated` and `duration` to enable the animation and duration 
+    for animation while the content insets are updated. For example
+
+        setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
+optional: true
+since: 3.2.0
+platforms: [iphone, ipad]
+
+properties:
+  - name: animated
+    summary: Determines whether the list view's content inset change is animated.
+    type: Boolean
+    default: false
+    
+  - name: duration
+    summary: The duration in `milliseconds` for animation while the content inset is  being changed.
+    type: Number
+
+---
+name: ListViewMarkerProps
+summary: The parameter for [setMarker](Titanium.UI.ListView.setMarker) method.
+description: |
+    Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method. For example:
+
+        setMarker({sectionIndex:5, itemIndex:10});
+since: 3.2.0
+platforms: [iphone, ipad, android]
+
+properties:
+  - name: sectionIndex
+    summary: The sectionIndex of the reference item.
+    type: Number
+    
+  - name: itemIndex
+    summary: The itemIndex of the reference item.
+    type: Number
+
+---
+name: ListViewEdgeInsets
+summary: The parameter for [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
+description: |
+    On iOS, the parameter `edgeInsets` can be specified to set the distance(`top`, `bottom`,
+    `right`, `left`) that the content view is inset from the enclosing scroll view of the list view.
+    For example
+
+        setContentInset({top:50,bottom:10,right:10,left:10}, {animated:true})
+since: 3.2.0
+platforms: [iphone, ipad]
+
+properties:
+  - name: top
+    summary: Value specifying the top insets for the enclosing scroll view of the list view.
+    type: Number
+    
+  - name: left
+    summary: Value specifying the left insets for the enclosing scroll view of the list view.
+    type: Number
+    
+  - name: right
+    summary: Value specifying the right insets for the enclosing scroll view of the list view.
+    type: Number
+    
+  - name: bottom
+    summary: Value specifying the bottom insets for the enclosing scroll view of the list view.
+    type: Number

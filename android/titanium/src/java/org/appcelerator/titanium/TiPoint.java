@@ -47,6 +47,18 @@ public class TiPoint {
 			y = new TiDimension(defaultValueY, TiDimension.TYPE_HEIGHT);
 		}
 	}
+	
+	/*
+	 * Create a new point with the 'x' and 'y'
+	 * coordinates as string.
+	 * @param x the x value as string.
+	 * @param y the y value as string.
+	 */
+	public TiPoint(String x, String y)
+	{
+		this.x = new TiDimension(x, TiDimension.TYPE_WIDTH);
+		this.y = new TiDimension(y, TiDimension.TYPE_HEIGHT);
+	}
 
 	public TiDimension getX() {
 		return x;

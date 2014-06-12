@@ -1,11 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.utils;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -20,6 +21,11 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiFileProxy;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.util.TiMimeTypeHelper;
+
+import android.util.Base64InputStream;
 
 @Kroll.module
 public class UtilsModule extends KrollModule
@@ -52,6 +58,13 @@ public class UtilsModule extends KrollModule
 	{
 		if (obj instanceof TiBlob) {
 			return TiBlob.blobFromString(((TiBlob) obj).toBase64());
+		} else if (obj instanceof TiFileProxy) {
+			try {
+				return TiBlob.blobFromStreamBase64(((TiFileProxy) obj).getInputStream(),
+					TiMimeTypeHelper.getMimeType(((TiFileProxy) obj).getBaseFile().nativePath()));
+			} catch (IOException e) {
+				Log.e(TAG, "Problem reading file");
+			}
 		}
 		String data = convertToString(obj);
 		if (data != null) {
@@ -81,6 +94,9 @@ public class UtilsModule extends KrollModule
 	@Kroll.method
 	public String md5HexDigest(Object obj)
 	{
+		if (obj instanceof TiBlob) {
+			return DigestUtils.md5Hex(((TiBlob) obj).getBytes());
+		}
 		String data = convertToString(obj);
 		if (data != null) {
 			return DigestUtils.md5Hex(data);
@@ -91,6 +107,9 @@ public class UtilsModule extends KrollModule
 	@Kroll.method
 	public String sha1(Object obj)
 	{
+		if (obj instanceof TiBlob) {
+			return DigestUtils.shaHex(((TiBlob) obj).getBytes());
+		}
 		String data = convertToString(obj);
 		if (data != null) {
 			return DigestUtils.shaHex(data);
@@ -107,11 +126,16 @@ public class UtilsModule extends KrollModule
 	@Kroll.method
 	public String sha256(Object obj)
 	{
-		String data = convertToString(obj);
 		// NOTE: DigestUtils with the version before 1.4 doesn't have the function sha256Hex,
 		// so we deal with it ourselves
 		try {
-			byte[] b = data.getBytes();
+			byte[] b = null;
+			if (obj instanceof TiBlob) {
+				b = ((TiBlob) obj).getBytes();
+			} else {
+				String data = convertToString(obj);
+				b = data.getBytes();
+			}
 			MessageDigest algorithm = MessageDigest.getInstance("SHA-256");
 			algorithm.reset();
 			algorithm.update(b);
@@ -152,5 +176,11 @@ public class UtilsModule extends KrollModule
 			Log.e(TAG, "Unsupported encoding: " + e.getMessage(), e);
 		}
 		return null;
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Utils";
 	}
 }

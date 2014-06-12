@@ -14,6 +14,9 @@ import org.appcelerator.kroll.common.Log;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.content.IntentSender.SendIntentException;
+import android.os.Bundle;
 
 /**
  * An implementation of {@link TiActivitySupport} interface.
@@ -64,6 +67,33 @@ public class TiActivitySupportHelper
 			wrapper.onError(activity,code,e);
 		}
 	}
+	
+	/**
+	 * Refer to {@link TiActivitySupport#launchIntentSenderForResult(IntentSender, int, Intent, int, int, int, Bundle, TiActivityResultHandler)} for more details.
+	 */
+	public void launchIntentSenderForResult(IntentSender intent, final int code, Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags, Bundle options, final TiActivityResultHandler resultHandler)
+	{
+		TiActivityResultHandler wrapper = new TiActivityResultHandler() {
+			public void onError(Activity activity, int requestCode, Exception e)
+			{
+				resultHandler.onError(activity, requestCode, e);
+				removeResultHandler(code);
+			}
+
+			public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
+			{
+				resultHandler.onResult(activity, requestCode, resultCode, data);
+				removeResultHandler(code);
+			}
+		};
+
+		registerResultHandler(code, wrapper);
+		try {
+			activity.startIntentSenderForResult(intent, code, fillInIntent, flagsMask, flagsValues, extraFlags, options);
+	 	} catch (SendIntentException e) {
+			wrapper.onError(activity,code,e);
+		}
+	}
 
 	/**
 	 * Invokes {@link TiActivityResultHandler#onResult(Activity, int, int, Intent)}. This is done when the launched activity exits.
@@ -96,5 +126,15 @@ public class TiActivitySupportHelper
 			Log.w(TAG, "Received a null result handler");
 		}
 		resultHandlers.put(code, resultHandler);
+	}
+
+	/**
+	 * Set the attached activity. When the activity is recovered from force-quitting, the
+	 * attached activity instance will be changed and must be reset.
+	 * @param activity the new attached activity.
+	 */
+	public void setActivity(Activity activity)
+	{
+		this.activity = activity;
 	}
 }

@@ -11,7 +11,7 @@ exports.bootstrap = function(Titanium) {
 	function createTab(scopeVars, options) {
 		var tab = new Tab(options);
 		if (options) {
-			this._window = options.window;
+			tab._window = options.window;
 		}
 		return tab;
   }
@@ -28,7 +28,8 @@ exports.bootstrap = function(Titanium) {
 			options = {};
 		}
 
-		this.setWindow(window);
+		//When we open a window using tab.open(win), we treat it as
+		//opening a HW window on top of the tab.
 		options.tabOpen = true;
 
 		window.open(options);

@@ -12,7 +12,9 @@
 #import "TiUITableViewAction.h"
 #import "TiUISearchBarProxy.h"
 #import "TiDimension.h"
-
+#ifdef USE_TI_UIREFRESHCONTROL
+#import "TiUIRefreshControlProxy.h"
+#endif
 @class TiGradientLayer;
 
 // Overloads hilighting to send touchbegin/touchend events
@@ -34,7 +36,7 @@
 -(void) setBackgroundGradient_:(TiGradient *)newGradient;
 -(void) setSelectedBackgroundGradient_:(TiGradient *)newGradient;
 
--(void) updateGradientLayer:(BOOL)useSelected;
+-(void) updateGradientLayer:(BOOL)useSelected withAnimation:(BOOL)animated;
 -(CGSize)computeCellSize;
 
 @end
@@ -62,6 +64,7 @@
 	NSString * searchString;
 	NSMutableArray * searchResultIndexes;
     BOOL searchActivated;
+	BOOL filterAnchored;
 	BOOL filterCaseInsensitive;
 	BOOL allowsSelectionSet;
 	id	lastFocusedView; //DOES NOT RETAIN.	
@@ -70,7 +73,14 @@
 	NSInteger frameChanges;
     TiViewProxy* headerViewProxy;
     TiViewProxy* footerViewProxy;
+    BOOL viewWillDetach;
+#ifdef USE_TI_UIREFRESHCONTROL
+    TiUIRefreshControlProxy* _refreshControlProxy;
+#endif
+    UIEdgeInsets defaultSeparatorInsets;
 }
+
+@property (nonatomic, assign) BOOL viewWillDetach;
 
 #pragma mark Framework
 -(CGFloat)tableRowHeight:(CGFloat)height;

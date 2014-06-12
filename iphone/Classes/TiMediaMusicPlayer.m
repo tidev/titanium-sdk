@@ -52,6 +52,11 @@
 	[super dealloc];
 }
 
+-(NSString*)apiName
+{
+    return @"Ti.Media.MusicPlayer";
+}
+
 #pragma mark Queue management
 
 // Future-proofing for more sophisticated queue management
@@ -73,7 +78,7 @@
 		}
 	}
 	else if ([arg isKindOfClass:[TiMediaItem class]]) {
-		[items addObject:[arg item]];
+		[items addObject:[(TiMediaItem*)arg item]];
 	}
 	else {
 		[self throwException:[NSString stringWithFormat:@"Invalid object type %@ for player queue",[arg class]]
