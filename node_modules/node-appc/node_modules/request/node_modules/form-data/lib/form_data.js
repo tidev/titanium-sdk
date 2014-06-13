@@ -255,8 +255,7 @@ FormData.prototype.submit = function(params, cb) {
   var request
     , options
     , defaults = {
-        method : 'post',
-        headers: this.getHeaders()
+        method : 'post'
     };
 
   // parse provided url if it's string
@@ -278,6 +277,9 @@ FormData.prototype.submit = function(params, cb) {
       options.port = options.protocol == 'https:' ? 443 : 80;
     }
   }
+
+  // put that good code in getHeaders to some use
+  options.headers = this.getHeaders(params.headers);
 
   // https if specified, fallback to http in any other case
   if (params.protocol == 'https:') {
