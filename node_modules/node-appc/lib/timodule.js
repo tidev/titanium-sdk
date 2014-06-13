@@ -120,9 +120,6 @@ exports.find = function find(modules, platforms, deployType, sdkVersion, searchP
 		visited = {},
 		modulesById = {};
 
-	// if there are no modules to find, then just exit now
-	if (!modules || !modules.length) return callback(result);
-
 	Array.isArray(platforms) || (platforms = [platforms]);
 	platforms.push('commonjs'); // add commonjs to the list of valid module platforms
 
@@ -292,10 +289,10 @@ function detectModules(searchPaths, config, logger, callback) {
 
 	async.parallel(searchPaths.map(function (modulesDir) {
 		return function(cb) {
-			if (!fs.existsSync(modulesDir)) return cb();
-
-			var moduleRoot = path.join(modulesDir, '..'),
+			var moduleRoot = path.resolve(modulesDir, '..'),
 				tasks = [];
+
+			if (!fs.existsSync(moduleRoot)) return cb();
 
 			// auto-install zipped modules
 			fs.readdirSync(moduleRoot).forEach(function (file) {

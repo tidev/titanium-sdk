@@ -1,4 +1,4 @@
-## Overview
+## Overview [![Build Status](https://travis-ci.org/appcelerator/node-appc.png)](https://travis-ci.org/appcelerator/node-appc)
 
 This is a common library used by Appcelerator Node.js-based software products such as the
 [Titanium CLI](http://github.com/appcelerator/titanium).
