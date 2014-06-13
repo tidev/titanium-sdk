@@ -243,7 +243,7 @@
 	"If you know where this executable is, you can tell the Titanium CLI where it located by running 'titanium config osx.executables.security /path/to/security'.": "If you know where this executable is, you can tell the Titanium CLI where it located by running 'titanium config osx.executables.security /path/to/security'.",
 	"Xcode %s is too old and is no longer supported by Titanium SDK %s.": "Xcode %s is too old and is no longer supported by Titanium SDK %s.",
 	"The minimum supported Xcode version by Titanium SDK %s is Xcode %s.": "The minimum supported Xcode version by Titanium SDK %s is Xcode %s.",
-	"Xcode %s is too new and may or may not work with Titanium SDK %s.": "Xcode %s is too new and may or may not work with Titanium SDK %s.",
+	"Xcode %s may or may not work with Titanium SDK %s.": "Xcode %s may or may not work with Titanium SDK %s.",
 	"The maximum supported Xcode version by Titanium SDK %s is Xcode %s.": "The maximum supported Xcode version by Titanium SDK %s is Xcode %s.",
 	"There are no Xcode installations found that are supported by Titanium SDK %s.": "There are no Xcode installations found that are supported by Titanium SDK %s.",
 	"There are no iOS SDKs found": "There are no iOS SDKs found",
