@@ -202,25 +202,33 @@ public class ListViewProxy extends TiViewProxy {
 				return true;
 			}
 			case MSG_APPEND_SECTION: {
-				handleAppendSection(msg.obj);
+				AsyncResult result = (AsyncResult)msg.obj;
+				handleAppendSection(result.getArg());
+				result.setResult(null);
 				return true;
 			}
 			case MSG_DELETE_SECTION_AT: {
-				handleDeleteSectionAt(TiConvert.toInt(msg.obj));
+				AsyncResult result = (AsyncResult)msg.obj;
+				handleDeleteSectionAt(TiConvert.toInt(result.getArg()));
+				result.setResult(null);
 				return true;
 			}
 			case MSG_INSERT_SECTION_AT: {
-				KrollDict data = (KrollDict) msg.obj;
+				AsyncResult result = (AsyncResult)msg.obj;
+				KrollDict data = (KrollDict) result.getArg();
 				int index = data.getInt("index");
 				Object section = data.get("section");
 				handleInsertSectionAt(index, section);
+				result.setResult(null);
 				return true;
 			}
 			case MSG_REPLACE_SECTION_AT: {
-				KrollDict data = (KrollDict) msg.obj;
+				AsyncResult result = (AsyncResult)msg.obj;
+				KrollDict data = (KrollDict) result.getArg();
 				int index = data.getInt("index");
 				Object section = data.get("section");
 				handleReplaceSectionAt(index, section);
+				result.setResult(null);
 				return true;
 			}
 			
@@ -246,8 +254,7 @@ public class ListViewProxy extends TiViewProxy {
 		if (TiApplication.isUIThread()) {
 			handleAppendSection(section);
 		} else {
-			Handler handler = getMainHandler();
-			handler.sendMessage(handler.obtainMessage(MSG_APPEND_SECTION, section));
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_APPEND_SECTION), section);
 		}
 	}
 
@@ -266,8 +273,7 @@ public class ListViewProxy extends TiViewProxy {
 		if (TiApplication.isUIThread()) {
 			handleDeleteSectionAt(index);
 		} else {
-			Handler handler = getMainHandler();
-			handler.sendMessage(handler.obtainMessage(MSG_DELETE_SECTION_AT, index));
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_DELETE_SECTION_AT), index);
 		}
 	}
 	
@@ -295,11 +301,10 @@ public class ListViewProxy extends TiViewProxy {
 	}
 	
 	private void sendInsertSectionMessage(int index, Object section) {
-		Handler handler = getMainHandler();
 		KrollDict data = new KrollDict();
 		data.put("index", index);
 		data.put("section", section);
-		handler.sendMessage(handler.obtainMessage(MSG_INSERT_SECTION_AT, data));
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_INSERT_SECTION_AT), data);
 	}
 	
 	private void handleInsertSectionAt(int index, Object section) {
@@ -326,11 +331,10 @@ public class ListViewProxy extends TiViewProxy {
 	}
 	
 	private void sendReplaceSectionMessage(int index, Object section) {
-		Handler handler = getMainHandler();
 		KrollDict data = new KrollDict();
 		data.put("index", index);
 		data.put("section", section);
-		handler.sendMessage(handler.obtainMessage(MSG_REPLACE_SECTION_AT, data));
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REPLACE_SECTION_AT), data);
 	}
 
 	private void handleReplaceSectionAt(int index, Object section) {
