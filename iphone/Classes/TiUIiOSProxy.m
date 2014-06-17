@@ -85,6 +85,19 @@
     return NUMFLOAT(UIScrollViewDecelerationRateFast);
 }
 
+-(NSNumber*)CLIP_MODE_DEFAULT
+{
+    return NUMINT(0);
+}
+-(NSNumber*)CLIP_MODE_ENABLED
+{
+    return NUMINT(1);
+}
+-(NSNumber*)CLIP_MODE_DISABLED
+{
+    return NUMINT(-1);
+}
+
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 MAKE_SYSTEM_PROP(ATTRIBUTE_FONT, AttributeNameFont);
 MAKE_SYSTEM_PROP(ATTRIBUTE_PARAGRAPH_STYLE, AttributeNameParagraphStyle);
@@ -171,19 +184,6 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
 -(NSString *)ATTRIBUTE_LETTERPRESS_STYLE
 {
     return ([TiUtils isIOS7OrGreater] ? NSTextEffectLetterpressStyle : @"");
-}
-
--(NSNumber*)CLIP_MODE_DEFAULT
-{
-    return NUMINT(0);
-}
--(NSNumber*)CLIP_MODE_ENABLED
-{
-    return NUMINT(1);
-}
--(NSNumber*)CLIP_MODE_DISABLED
-{
-    return NUMINT(-1);
 }
 
 
