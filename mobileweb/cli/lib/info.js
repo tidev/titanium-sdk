@@ -94,11 +94,15 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	if (data.windowsphone && Object.keys(data.windowsphone).some(function (ver) { return data.windowsphone[ver].supported; })) {
 		Object.keys(data.windowsphone).sort().forEach(function (ver) {
 			logger.log(styleHeading(__('Windows Phone v%s Devices & Emulators', ver)));
-			var devices = data.windowsphone[ver].devices
-			logger.log(Object.keys(devices).map(function (id) {
-				return '  ' + devices[id].cyan + '\n' +
-					'  ' + rpad('  ' + __('ID')) + ' = ' + styleValue(id);
-			}).join('\n') + '\n');
+			var devices = data.windowsphone[ver].devices;
+			if (devices) {
+				logger.log(Object.keys(devices).map(function (id) {
+					return '  ' + devices[id].cyan + '\n' +
+						'  ' + rpad('  ' + __('ID')) + ' = ' + styleValue(id);
+				}).join('\n') + '\n');
+			} else {
+				logger.log('  ' + __('None').grey + '\n');
+			}
 		});
 	} else {
 		logger.log(styleHeading(__('Windows Phone Devices & Emulators')));
