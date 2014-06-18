@@ -214,14 +214,17 @@ exports.run = function (logger, config, cli, finished) {
 
 	if (config.get('cli.sendAPIUsage', true)) {
 		cli.on('build.finalize', function (builder) {
-			cli.addAnalyticsEvent('Titanium API Usage', {
-				platform: platform,
-				tisdkname: (ti.manifest && ti.manifest.name) || (cli.sdk && cli.sdk.name) || null,
-				tisdkver: (ti.manifest && ti.manifest.version) || (cli.sdk && cli.sdk.name) || null,
-				deployType: builder.deployType || cli.argv['deploy-type'] || null,
-				target: builder.target || cli.argv.target || null,
-				usage: jsanalyze.getAPIUsage()
-			}, 'ti.apiusage');
+			var deployType = builder.deployType || cli.argv['deploy-type'] || null;
+			if (deployType == 'production') {
+				cli.addAnalyticsEvent('Titanium API Usage', {
+					platform: platform,
+					tisdkname: (ti.manifest && ti.manifest.name) || (cli.sdk && cli.sdk.name) || null,
+					tisdkver: (ti.manifest && ti.manifest.version) || (cli.sdk && cli.sdk.name) || null,
+					deployType: deployType,
+					target: builder.target || cli.argv.target || null,
+					usage: jsanalyze.getAPIUsage()
+				}, 'ti.apiusage');
+			}
 		});
 	}
 
