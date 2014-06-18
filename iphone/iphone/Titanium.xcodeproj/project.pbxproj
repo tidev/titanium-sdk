@@ -1475,7 +1475,6 @@
 		B606EF49190B14ED00663EFC /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		B606EF59190B42FB00663EFC /* APSHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPClient.h; sourceTree = "<group>"; };
 		B606EF5A190B42FB00663EFC /* APSHTTPHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPHelper.h; sourceTree = "<group>"; };
-		B606EF5B190B42FB00663EFC /* APSHTTPOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPOperation.h; sourceTree = "<group>"; };
 		B606EF5C190B42FB00663EFC /* APSHTTPPostForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPPostForm.h; sourceTree = "<group>"; };
 		B606EF5D190B42FB00663EFC /* APSHTTPRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPRequest.h; sourceTree = "<group>"; };
 		B606EF5E190B42FB00663EFC /* APSHTTPResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPResponse.h; sourceTree = "<group>"; };
@@ -2934,7 +2933,6 @@
 			children = (
 				B606EF59190B42FB00663EFC /* APSHTTPClient.h */,
 				B606EF5A190B42FB00663EFC /* APSHTTPHelper.h */,
-				B606EF5B190B42FB00663EFC /* APSHTTPOperation.h */,
 				B606EF5C190B42FB00663EFC /* APSHTTPPostForm.h */,
 				B606EF5D190B42FB00663EFC /* APSHTTPRequest.h */,
 				B606EF5E190B42FB00663EFC /* APSHTTPResponse.h */,
