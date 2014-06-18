@@ -490,7 +490,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 				TiPlatformHelper.getInstance().setBuildType(buildType);
 			}
 			TiPlatformHelper.getInstance().setDeployType(deployType);
-			APSAnalytics.sendAppEnrollEvent();
+			APSAnalytics.getInstance().sendAppEnrollEvent();
 
 		} else {
 			Log.i(TAG, "Analytics have been disabled");
