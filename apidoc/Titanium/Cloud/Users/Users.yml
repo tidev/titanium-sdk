@@ -181,6 +181,10 @@ methods:
         type: Callback<CloudUsersResponse>
 
   - name: secureCreate
+    deprecated:
+        since: "3.3.0"
+        removed: "3.3.0"
+        notes: OAuth authentication is no longer supported in the ti.cloud module.
     since: 2.1.2
     platforms: [android, iphone, ipad]
     summary: Create a new user using 3-Legged OAuth.
@@ -203,6 +207,10 @@ methods:
         type: Callback<CloudUsersSecureResponse>
 
   - name: secureLogin
+    deprecated:
+        since: "3.3.0"
+        removed: "3.3.0"
+        notes: OAuth authentication is no longer supported in the ti.cloud module.
     since: 2.1.2
     platforms: [android, iphone, ipad]
     summary: Log in a user using 3-Legged OAuth.
@@ -225,6 +233,10 @@ methods:
         type: Callback<CloudUsersSecureResponse>
 
   - name: secureStatus
+    deprecated:
+        since: "3.3.0"
+        removed: "3.3.0"
+        notes: OAuth authentication is no longer supported in the ti.cloud module.
     since: 2.1.2
     platforms: [android, iphone, ipad]
     summary: Checks if the user is authenticated with 3-Legged OAuth.
@@ -427,40 +439,6 @@ examples:
             }, function (e) {
                 if (e.success) {
                     alert('Success: Reset Request Sent');
-                } else {
-                    alert('Error:\n' +
-                        ((e.error && e.message) || JSON.stringify(e)));
-                }
-            });
-
-  - title: Create User Using 3-Legged OAuth
-    example: |
-        This example creates a new user using 3-Legged OAuth and checks the response.
-
-            Cloud.Users.secureCreate({
-                title: 'Sign Up Here'
-            }, function (e) {
-                if (e.success) {
-                    alert('Success:\n' +
-                        'accessToken: ' + Cloud.accessToken + '\n' +
-                        'expiresIn: ' + Cloud.expiresIn);
-                } else {
-                    alert('Error:\n' +
-                        ((e.error && e.message) || JSON.stringify(e)));
-                }
-            });
-
-  - title: Log in User Using 3-Legged OAuth
-    example: |
-        This example logs a user in using 3-Legged OAuth and checks the response.
-
-            Cloud.Users.secureLogin({
-                title: 'Log In Here'
-            }, function (e) {
-                if (e.success) {
-                    alert('Success:\n' +
-                        'accessToken: ' + Cloud.accessToken + '\n' +
-                        'expiresIn: ' + Cloud.expiresIn);
                 } else {
                     alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
