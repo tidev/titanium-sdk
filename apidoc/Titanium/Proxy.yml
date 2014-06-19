@@ -70,8 +70,7 @@ methods:
       - name: props
         summary: A dictionary of properties to apply.
         type: Dictionary
-    since: "3.0.0"
-    exclude-platforms: [blackberry]
+    since: {android: "3.0.0", blackberry: "3.3.0", iphone: "3.0.0", ipad: "3.0.0", mobileweb: "3.0.0"}
 
 properties:
 
