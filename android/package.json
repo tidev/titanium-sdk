@@ -18,6 +18,7 @@
 		"Ping Wang <pwang@appcelerator.com>",
 		"Allen Yeung <ayeung@appcelerator.com>"
 	],
+	"minSDKVersion": "10",
 	"vendorDependencies": {
 		"android sdk": ">=14 <=19",
 		"android build tools": ">=17 <19.x",

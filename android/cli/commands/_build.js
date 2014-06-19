@@ -96,7 +96,8 @@ function AndroidBuilder() {
 
 	this.tiSymbols = {};
 
-	this.minSupportedApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
+	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
+	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
 	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
 
 	this.deployTypes = {
@@ -174,14 +175,14 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						// make sure we have an Android SDK and some Android targets
 						if (!Object.keys(androidInfo.targets).filter(function (id) {
 								var t = androidInfo.targets[id];
-								return t.type == 'platform' && t['api-level'] >= _t.minSupportedApiLevel;
+								return t.type == 'platform' && t['api-level'] >= _t.minTargetApiLevel;
 						}).length) {
 							if (Object.keys(androidInfo.targets).length) {
 								logger.error(__('No valid Android SDK targets found.'));
 							} else {
 								logger.error(__('No Android SDK targets found.'));
 							}
-							logger.error(__('Please download an Android SDK target API level %s or newer from the Android SDK Manager and try again.', _t.minSupportedApiLevel) + '\n');
+							logger.error(__('Please download an Android SDK target API level %s or newer from the Android SDK Manager and try again.', _t.minTargetApiLevel) + '\n');
 							process.exit(1);
 						}
 					}
@@ -1073,7 +1074,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		logger.warn('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
 		logger.warn('    <android>'.grey);
 		logger.warn('        <manifest>'.grey);
-		logger.warn(('            <uses-sdk android:minSdkVersion="' + this.minSupportedApiLevel + '" android:targetSdkVersion="' + this.minSupportedApiLevel + '" android:maxSdkVersion="' + this.maxSupportedApiLevel + '"/>').magenta);
+		logger.warn(('            <uses-sdk android:minSdkVersion="' + this.minSupportedApiLevel + '" android:targetSdkVersion="' + this.minTargetApiLevel + '" android:maxSdkVersion="' + this.maxSupportedApiLevel + '"/>').magenta);
 		logger.warn('        </manifest>'.grey);
 		logger.warn('    </android>'.grey);
 		logger.warn('</ti:app>'.grey);
@@ -1087,7 +1088,19 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	if (this.minSDK < this.minSupportedApiLevel) {
-		logger.error(__('Minimum Android SDK version must be %s or newer', this.minSupportedApiLevel) + '\n');
+		logger.error(__('The current minimum Android SDK version is %s', this.minSDK));
+		logger.error(__('The minimum supported SDK version must be %s or newer', this.minSupportedApiLevel) + '\n');
+		process.exit(1);
+	}
+
+	if (this.targetSDK < this.minTargetApiLevel) {
+		logger.error(__('The current target SDK version is %s', this.targetSDK));
+		logger.error(__('The target SDK version must be %s or newer', this.minTargetApiLevel) + '\n');
+		process.exit(1);
+	}
+
+	if (this.targetSDK < this.minSDK) {
+		logger.error(__('The target SDK is %s and must be greater than or equal to the minimum supported SDK %s', this.targetSDK, this.minSDK) + '\n');
 		process.exit(1);
 	}
 
@@ -1117,7 +1130,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		var sdks = Object.keys(targetSDKMap).filter(function (ver) {
 			return ~~ver > this.minSupportedApiLevel;
-		}.bind(this)).sort();
+		}.bind(this)).sort().filter(function (s) { return s >= this.minSDK; }, this);
 
 		if (sdks.length) {
 			logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager.', String(this.targetSDK).cyan) + '\n');
@@ -1131,7 +1144,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
 			logger.log('    <android>'.grey);
 			logger.log('        <manifest>'.grey);
-			logger.log(('            <uses-sdk android:minSdkVersion="' + sdks[0] + '" android:targetSdkVersion="' + sdks[0] + '" android:maxSdkVersion="' + this.maxSupportedApiLevel + '"/>').magenta);
+			logger.log(('            <uses-sdk android:minSdkVersion="' + this.minSDK + '" android:targetSdkVersion="' + sdks[0] + '" android:maxSdkVersion="' + this.maxSupportedApiLevel + '"/>').magenta);
 			logger.log('        </manifest>'.grey);
 			logger.log('    </android>'.grey);
 			logger.log('</ti:app>'.grey);
