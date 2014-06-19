@@ -182,8 +182,8 @@ methods:
 
   - name: secureCreate
     deprecated:
-        since: "3.3.0"
-        removed: "3.3.0"
+        since: "3.2.3"
+        removed: "3.2.3"
         notes: OAuth authentication is no longer supported in the ti.cloud module.
     since: 2.1.2
     platforms: [android, iphone, ipad]
@@ -208,8 +208,8 @@ methods:
 
   - name: secureLogin
     deprecated:
-        since: "3.3.0"
-        removed: "3.3.0"
+        since: "3.2.3"
+        removed: "3.2.3"
         notes: OAuth authentication is no longer supported in the ti.cloud module.
     since: 2.1.2
     platforms: [android, iphone, ipad]
@@ -234,8 +234,8 @@ methods:
 
   - name: secureStatus
     deprecated:
-        since: "3.3.0"
-        removed: "3.3.0"
+        since: "3.2.3"
+        removed: "3.2.3"
         notes: OAuth authentication is no longer supported in the ti.cloud module.
     since: 2.1.2
     platforms: [android, iphone, ipad]
