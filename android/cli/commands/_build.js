@@ -1093,13 +1093,13 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		process.exit(1);
 	}
 
-	if (this.targetSDK < this.minTargetApiLevel) {
+	if (this.targetSDK && this.targetSDK < this.minTargetApiLevel) {
 		logger.error(__('The current target SDK version is %s', this.targetSDK));
 		logger.error(__('The target SDK version must be %s or newer', this.minTargetApiLevel) + '\n');
 		process.exit(1);
 	}
 
-	if (this.targetSDK < this.minSDK) {
+	if (this.targetSDK && this.targetSDK < this.minSDK) {
 		logger.error(__('The target SDK is %s and must be greater than or equal to the minimum supported SDK %s', this.targetSDK, this.minSDK) + '\n');
 		process.exit(1);
 	}
