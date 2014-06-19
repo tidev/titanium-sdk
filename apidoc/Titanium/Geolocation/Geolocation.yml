@@ -123,15 +123,19 @@ description: |
 
     #### Configuring Location Updates on BlackBerry
 
-    On the BlackBerry platform you must add the `read_geolocation` permission to tiapp.xml.
+    On the BlackBerry platform you must add the `access_location_services` and
+    `access_internet` permissions to the `tiapp.xml` of your Titanium project.
     If the `blackberry` tag does not exist, you can simply create it, then add the `permissions`
-    tag and list the permissions that you need, in this case, `read_geolocation`:
+    tag and list the permissions that you need:
 
         <blackberry>
             <permissions>
-                <permission>read_geolocation</permission>
+                <permission>access_location_services</permission>
+                <permission>access_internet</permission>
             </permissions>
         </blackberry>
+
+    Prior to BlackBerry 10.2.0, you also needed the `read_geolocation` permission.
 
     #### Using the Compass
 
