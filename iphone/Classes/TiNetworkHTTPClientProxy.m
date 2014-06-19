@@ -113,7 +113,7 @@ extern NSString * const TI_APPLICATION_GUID;
     [self rememberSelf];
     
     if([self valueForUndefinedKey:@"timeout"]) {
-        [httpRequest setTimeout: [TiUtils intValue:[self valueForUndefinedKey:@"timeout"] def:15000] / 1000 ];
+        [httpRequest setTimeout: [TiUtils doubleValue:[self valueForUndefinedKey:@"timeout"] def:15000] / 1000 ];
     }
     if([self valueForUndefinedKey:@"autoRedirect"]) {
         [httpRequest setRedirects:
