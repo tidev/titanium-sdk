@@ -63,6 +63,19 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)open:(id)args
 {
     ENSURE_ARRAY(args);
+    
+    if ([httpRequest response] != nil) {
+        APSHTTPResponseState curState = [[httpRequest response] readyState];
+        if ( (curState == APSHTTPResponseStateUnsent) || (curState == APSHTTPResponseStateDone) ) {
+            //Clear out the client + delegate and continue
+            RELEASE_TO_NIL(httpRequest);
+            RELEASE_TO_NIL(apsConnectionDelegate);
+        } else {
+            NSLog(@"[ERROR] open can only be called if client is disconnected(0) or done(4). Current state is %d ",curState);
+            return;
+        }
+    }
+    
     NSString *method = [TiUtils stringValue:[args objectAtIndex:0]];
     NSURL *url = [TiUtils toURL:[args objectAtIndex:1] proxy:self];
     [self ensureClient];
@@ -85,6 +98,18 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)send:(id)args
 {
+    if (httpRequest == nil) {
+        NSLog(@"[ERROR] No request object found. Did you call open?");
+        return;
+    }
+    if ([httpRequest response] != nil) {
+        APSHTTPResponseState curState = [[httpRequest response] readyState];
+        if (curState != APSHTTPResponseStateUnsent) {
+            NSLog(@"[ERROR] send can only be called if client is disconnected(0). Current state is %d ",curState);
+            return;
+        }
+    }
+    
     [self rememberSelf];
     
     if([self valueForUndefinedKey:@"timeout"]) {
@@ -331,43 +356,43 @@ extern NSString * const TI_APPLICATION_GUID;
     }
 }
 
-#pragma mark - Pulbic setters
+#pragma mark - Public setters
 
 -(void)setOnload:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onload" notification:NO];
-    hasOnload = YES;
+    hasOnload = (callback == nil) ? NO : YES;
 }
 -(void)setOnerror:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onerror" notification:NO];
-    hasOnerror = YES;
+    hasOnerror = (callback == nil) ? NO : YES;;
 }
 -(void)setOnreadystatechange:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onreadystatechange" notification:NO];
-    hasOnreadystatechange = YES;
+    hasOnreadystatechange = (callback == nil) ? NO : YES;;
 }
 -(void)setOndatastream:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"ondatastream" notification:NO];
-    hasOndatastream = YES;
+    hasOndatastream = (callback == nil) ? NO : YES;;
 }
 -(void)setOnsendstream:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onsendstream" notification:NO];
-    hasOnsendstream = YES;
+    hasOnsendstream = (callback == nil) ? NO : YES;;
 }
 -(void)setOnredirect:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onredirect" notification:NO];
-    hasOnredirect = YES;
+    hasOnredirect = (callback == nil) ? NO : YES;;
 }
 
 -(void)setRequestHeader:(id)args

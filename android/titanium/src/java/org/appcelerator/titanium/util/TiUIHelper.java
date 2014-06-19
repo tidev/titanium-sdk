@@ -70,6 +70,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -142,7 +146,10 @@ public class TiUIHelper
 	{ 
 		if (autoLink != null) {
 			//Default to Ti.UI.AUTOLINK_NONE
-			Linkify.addLinks(tv, TiConvert.toInt(autoLink, 16));
+			boolean success = Linkify.addLinks(tv, TiConvert.toInt(autoLink, 16));
+			if (!success && tv.getText() instanceof Spanned) {
+				tv.setMovementMethod(LinkMovementMethod.getInstance());
+			}
 		}
 	}
 

@@ -114,6 +114,7 @@ public class TiUILabel extends TiUIView
 			            }
 
 			        }
+
 			        return super.onTouchEvent(event);
 			    } 
 			
@@ -139,16 +140,23 @@ public class TiUILabel extends TiUIView
 		
 		boolean needShadow = false;
 
-		// Only accept one, prefer text to title.
+		// Only accept one, html has priority
 		if (d.containsKey(TiC.PROPERTY_HTML)) {
 			String html = TiConvert.toString(d, TiC.PROPERTY_HTML);
 			if (html == null) {
-				html = "";
+				//If html is null, set text if applicable
+				if (d.containsKey(TiC.PROPERTY_TEXT)) {
+					tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT));
+				} else {
+					tv.setText(Html.fromHtml(""));
+				}
+			} else {
+				tv.setMovementMethod(null);
+				tv.setText(Html.fromHtml(html));
 			}
-			tv.setText(Html.fromHtml(html));
 		} else if (d.containsKey(TiC.PROPERTY_TEXT)) {
 			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT));
-		} else if (d.containsKey(TiC.PROPERTY_TITLE)) { //TODO this may not need to be supported.
+		} else if (d.containsKey(TiC.PROPERTY_TITLE)) { // For table view rows
 			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TITLE));
 		}
 
