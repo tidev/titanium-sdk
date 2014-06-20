@@ -124,7 +124,7 @@ exports.find = function find(modules, platforms, deployType, sdkVersion, searchP
 	platforms.push('commonjs'); // add commonjs to the list of valid module platforms
 
 	exports.detect(searchPaths, logger, function (installed) {
-		modules.forEach(function (module) {
+		modules && modules.forEach(function (module) {
 			var originalVersion = module.version || 'latest',
 				scopes = ['project', 'global'],
 				i, j, scope, info, platform, found, ver, tmp;
