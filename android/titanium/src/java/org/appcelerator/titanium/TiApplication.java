@@ -57,6 +57,7 @@ import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 
 import com.appcelerator.analytics.APSAnalytics;
+import com.appcelerator.analytics.APSAnalytics.DeployType;
 
 /**
  * The main application entry point for all Titanium applications and services.
@@ -489,7 +490,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			if (buildType != null && !buildType.equals("")) {
 				TiPlatformHelper.getInstance().setBuildType(buildType);
 			}
-			TiPlatformHelper.getInstance().setDeployType(deployType);
+			// Just use type 'other' enum since it's open ended.
+			DeployType.OTHER.setName(deployType);
+			TiPlatformHelper.getInstance().setDeployType(DeployType.OTHER);
 			APSAnalytics.getInstance().sendAppEnrollEvent();
 
 		} else {
