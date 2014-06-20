@@ -45,14 +45,14 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 	public static int applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
 	private static boolean applicationDisplayInfoInitialized = false;
 
-	private static TiPlatformHelper INSTANCE;
-	
-	public synchronized static TiPlatformHelper getInstance()
+	private static class InstanceHolder
 	{
-		if (INSTANCE == null) {
-			INSTANCE = new TiPlatformHelper();
-		}
-		return INSTANCE;
+		private static final TiPlatformHelper INSTANCE = new TiPlatformHelper();
+	}
+
+	public static final TiPlatformHelper getInstance()
+	{
+		return InstanceHolder.INSTANCE;
 	}
 
 	private TiPlatformHelper()
