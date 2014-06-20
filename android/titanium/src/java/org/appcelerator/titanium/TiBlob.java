@@ -225,7 +225,7 @@ public class TiBlob extends KrollProxy
 		}
 
 		// If the MIME-type is "image/*" or undetermined, try to decode the file / data into a bitmap.
-		if (mt == null || mt.startsWith("image/")) {
+		if (mimetype == null || mimetype.startsWith("image/")) {
 			// Query the dimensions of a bitmap without allocating the memory for its pixels
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inJustDecodeBounds = true;
