@@ -1087,20 +1087,59 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		usesSDK['maxSdkVersion'] && (this.maxSDK = ~~usesSDK['maxSdkVersion']);
 	}
 
+	// min sdk is too old
 	if (this.minSDK < this.minSupportedApiLevel) {
-		logger.error(__('The current minimum Android SDK version is %s', this.minSDK));
-		logger.error(__('The minimum supported SDK version must be %s or newer', this.minSupportedApiLevel) + '\n');
+		logger.error(__('The minimum supported SDK version must be %s or newer, but is currently set to %s', this.minSupportedApiLevel, this.minSDK) + '\n');
+		logger.log(
+			appc.string.wrap(
+				__('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:minSdkVersion'.cyan, String(this.minSupportedApiLevel).cyan),
+				config.get('cli.width', 100)
+			)
+		);
+		logger.log();
+		logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+		logger.log('    <android>'.grey);
+		logger.log('        <manifest>'.grey);
+		logger.log(('            <uses-sdk '
+			+ 'android:minSdkVersion="' + this.minSupportedApiLevel + '" '
+			+ (this.targetSDK ? 'android:targetSdkVersion="' + this.targetSDK + '" ' : '')
+			+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
+			+ '/>').magenta);
+		logger.log('        </manifest>'.grey);
+		logger.log('    </android>'.grey);
+		logger.log('</ti:app>'.grey);
+		logger.log();
 		process.exit(1);
 	}
 
+	// target sdk is too old
 	if (this.targetSDK && this.targetSDK < this.minTargetApiLevel) {
-		logger.error(__('The current target SDK version is %s', this.targetSDK));
-		logger.error(__('The target SDK version must be %s or newer', this.minTargetApiLevel) + '\n');
+		logger.error(__('The target SDK version must be %s or newer, but is currently set to %s', this.minTargetApiLevel, this.targetSDK) + '\n');
+		logger.log(
+			appc.string.wrap(
+				__('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:targetSdkVersion'.cyan, String(this.minTargetApiLevel).cyan),
+				config.get('cli.width', 100)
+			)
+		);
+		logger.log();
+		logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+		logger.log('    <android>'.grey);
+		logger.log('        <manifest>'.grey);
+		logger.log(('            <uses-sdk '
+			+ (this.minSupportedApiLevel ? 'android:minSdkVersion="' + this.minSupportedApiLevel + '" ' : '')
+			+ 'android:targetSdkVersion="' + this.minTargetApiLevel + '" '
+			+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
+			+ '/>').magenta);
+		logger.log('        </manifest>'.grey);
+		logger.log('    </android>'.grey);
+		logger.log('</ti:app>'.grey);
+		logger.log();
 		process.exit(1);
 	}
 
+	// target sdk < min sdk
 	if (this.targetSDK && this.targetSDK < this.minSDK) {
-		logger.error(__('The target SDK is %s and must be greater than or equal to the minimum supported SDK %s', this.targetSDK, this.minSDK) + '\n');
+		logger.error(__('The target SDK must be greater than or equal to the minimum SDK %s, but is currently set to %s', this.minSDK, this.targetSDK) + '\n');
 		process.exit(1);
 	}
 
@@ -1144,7 +1183,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
 			logger.log('    <android>'.grey);
 			logger.log('        <manifest>'.grey);
-			logger.log(('            <uses-sdk android:minSdkVersion="' + this.minSDK + '" android:targetSdkVersion="' + sdks[0] + '" android:maxSdkVersion="' + this.maxSupportedApiLevel + '"/>').magenta);
+			logger.log(('            <uses-sdk '
+				+ (this.minSDK ? 'android:minSdkVersion="' + this.minSDK + '" ' : '')
+				+ 'android:targetSdkVersion="' + sdks[0] + '" '
+				+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
+				+ '/>').magenta);
 			logger.log('        </manifest>'.grey);
 			logger.log('    </android>'.grey);
 			logger.log('</ti:app>'.grey);
@@ -1166,7 +1209,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	if (this.maxSDK && this.maxSDK < this.targetSDK) {
-		logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s', (''+this.targetSDK).cyan) + '\n');
+		logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s, but is currently set to %s', this.targetSDK, this.maxSDK) + '\n');
 		process.exit(1);
 	}
 
