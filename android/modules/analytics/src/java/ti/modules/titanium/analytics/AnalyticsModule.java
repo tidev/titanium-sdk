@@ -104,6 +104,7 @@ public class AnalyticsModule extends KrollModule
 					}
 					return json.toString();
 				} catch (JSONException e) {
+					Log.e(TAG, "Error generating last event.", e);
 				}
 			}
 		}
