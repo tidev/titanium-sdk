@@ -75,6 +75,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
 	private TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<OnWindowFocusChangedEvent>();
 	private TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners = new TiWeakList<interceptOnBackPressedEvent>();
+	private APSAnalytics analytics = APSAnalytics.getInstance();
 
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -977,7 +978,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 		// Checkpoint for ti.background event
 		if (tiApp != null && TiApplication.getInstance().isAnalyticsEnabled()) {
-			APSAnalytics.sendSessionBackgroundEvent();
+			analytics.sendAppBackgroundEvent();
 		}
 	}
 
@@ -1031,7 +1032,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		// Checkpoint for ti.foreground event
 		//String deployType = tiApp.getAppProperties().getString("ti.deploytype", "unknown");
 		if(TiApplication.getInstance().isAnalyticsEnabled()){
-			APSAnalytics.sendSessionForegroundEvent();
+			analytics.sendAppForegroundEvent();
 		}
 	}
 
