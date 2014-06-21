@@ -18,7 +18,7 @@
 
 -(NSString*)lastEvent
 {
-    return [APSAnalytics getLastEvent];
+    return [[APSAnalytics sharedInstance] performSelector:@selector(getLastEvent)];
 }
 
 -(void)navEvent:(id)args
@@ -32,7 +32,7 @@
 	NSString *to = [args objectAtIndex:1];
 	NSString *event = [args count] > 2 ? [args objectAtIndex:2] : @"";
 	id data = [args count] > 3 ? [args objectAtIndex:3] : [NSDictionary dictionary];
-    [APSAnalytics sendAppNavEventFrom:from to:to withName:event withPayload:data];
+    [[APSAnalytics sharedInstance]  sendAppNavEventFromView:from toView:to withName:event payload:data];
 }
 
 
@@ -59,7 +59,7 @@
 		}
 		data = value;
 	}
-	[APSAnalytics sendFeatureEvent:event withPayload:data];
+	[[APSAnalytics sharedInstance] sendAppFeatureEvent:event payload:data];
 }
 
 @end
