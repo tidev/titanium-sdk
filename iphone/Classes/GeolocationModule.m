@@ -895,7 +895,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     if (TI_APPLICATION_ANALYTICS && !analyticsSend)
 	{
         analyticsSend = YES;
-        [APSAnalytics sendAppGeoEvent:locations];
+        [[APSAnalytics sharedInstance] sendAppGeoEvent:[locations lastObject]];
     }
 }
 
