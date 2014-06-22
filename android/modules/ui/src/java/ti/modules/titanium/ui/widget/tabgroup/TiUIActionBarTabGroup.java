@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import java.lang.ref.WeakReference;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -16,11 +18,12 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
+import ti.modules.titanium.ui.widget.tabgroup.TiUIActionBarTab.TabFragment;
+import android.app.Activity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBar.TabListener;
-import android.app.Activity;
-import android.support.v4.app.FragmentTransaction;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -43,10 +46,11 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 
 	// The tab to be selected once the activity resumes.
 	private Tab selectedTabOnResume;
+	private WeakReference<TiBaseActivity> tabActivity;
 
 	public TiUIActionBarTabGroup(TabGroupProxy proxy, TiBaseActivity activity) {
 		super(proxy, activity);
-
+		tabActivity = new WeakReference<TiBaseActivity>(activity);
 		activity.addOnLifecycleEventListener(this);
 
 		// Setup the action bar for navigation tabs.
@@ -96,8 +100,24 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		tab.setTabListener(this);
 
 		// Create a view for this tab proxy.
-		tabProxy.setView(new TiUIActionBarTab(tabProxy, tab));
-
+		TiUIActionBarTab actionBarTab = new TiUIActionBarTab(tabProxy, tab);
+		tabProxy.setView(actionBarTab);
+		
+		// If the fragment was already restored automatically by Android due to orientation change etc
+		// setup the references properly
+		TiBaseActivity activity = tabActivity.get();
+		TabFragment fragment = null;
+		if (activity != null) {
+			fragment = (TabFragment) activity.getSupportFragmentManager().findFragmentByTag(actionBarTab.getTabTag());
+		}
+		if (fragment != null) {
+			fragment.setTab(actionBarTab);
+			actionBarTab.fragment = fragment;
+			FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
+			// This will be shown during setting the active tab
+			ft.hide(fragment);
+			ft.commit();
+		}
 		// Add the new tab, but don't select it just yet.
 		// The selected tab is set once the group is done opening.
 		actionBar.addTab(tab, false);
@@ -159,8 +179,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			// If not we will create it here then attach it
 			// to the tab group activity inside the "content" container.
 			tabView.initializeFragment();
-			ft.add(android.R.id.tabcontent, tabView.fragment);
-
+			ft.add(android.R.id.tabcontent, tabView.fragment, tabView.getTabTag());
 		} else {
 			// If the fragment is already attached just make it visible.
 			ft.show(tabView.fragment);
@@ -173,7 +192,6 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		} else {
 			tabClicked = true;
 		}
-
 	}
 
 	@Override
