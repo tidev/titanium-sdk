@@ -8,7 +8,7 @@
 #import "AnalyticsModule.h"
 #import "APSAnalytics/APSAnalytics.h"
 #import "SBJSON.h"
-
+extern BOOL const TI_APPLICATION_ANALYTICS;
 @implementation AnalyticsModule
 
 -(NSString*)apiName
@@ -23,6 +23,10 @@
 
 -(void)navEvent:(id)args
 {
+    if (TI_APPLICATION_ANALYTICS == NO) {
+        DebugLog(@"[ERROR] Analytics service is not enabled in your app. Please set analytics to true in the tiapp.xml. ");
+        return;
+    }
     if ([args count] < 2)
 	{
 		[self throwException:@"invalid number of arguments, expected at least 2" subreason:nil location:CODELOCATION];
@@ -38,6 +42,10 @@
 
 -(void)featureEvent:(id)args
 {
+    if (TI_APPLICATION_ANALYTICS == NO) {
+        DebugLog(@"[ERROR] Analytics service is not enabled in your app. Please set analytics to true in the tiapp.xml.");
+        return;
+    }
     if ([args count] < 1)
 	{
 		[self throwException:@"invalid number of arguments, expected at least 1" subreason:nil location:CODELOCATION];
