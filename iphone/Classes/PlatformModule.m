@@ -196,11 +196,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 -(NSString*)manufacturer
 {
-#if TARGET_IPHONE_SIMULATOR
-    return @"unknown";
-#else
     return @"apple";
-#endif
 }
 
 -(NSString*)locale
