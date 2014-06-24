@@ -51,16 +51,25 @@ public class AnalyticsModule extends KrollModule
 		@Kroll.argument(optional=true) KrollDict data)
 	{
 		if (TiApplication.getInstance().isAnalyticsEnabled()) {
+			// Preserve legacy behavior allowing the argument to be optional. We set it to be an empty string now
+			// instead of "null".
+			if (event == null) {
+				event = "";
+			}
 			if (data instanceof HashMap) {
 				analytics.sendAppNavEvent(from, to, event, TiConvert.toJSON(data));
 
-			} else {
+			} else if (data != null) {
 				try {
 					analytics.sendAppNavEvent(from, to, event, new JSONObject(data.toString()));
 				} catch (JSONException e) {
 					Log.e(TAG, "Cannot convert data into JSON");
 				}
+			} else {
+				analytics.sendAppNavEvent(from, to, event, null);
 			}
+		} else {
+			Log.e(TAG, "Analytics is disabled.  To enable, please update the <analytics></analytics> node in your tiapp.xml");
 		}
 	}
 
@@ -70,13 +79,17 @@ public class AnalyticsModule extends KrollModule
 		if (TiApplication.getInstance().isAnalyticsEnabled()) {
 			if (data instanceof HashMap) {
 				analytics.sendAppFeatureEvent(event, TiConvert.toJSON(data));
-			} else {
+			} else if (data != null) {
 				try {
 					analytics.sendAppFeatureEvent(event, new JSONObject(data.toString()));
 				} catch (JSONException e) {
 					Log.e(TAG, "Cannot convert data into JSON");
 				}
+			} else {
+				analytics.sendAppFeatureEvent(event, null);
 			}
+		} else {
+			Log.e(TAG, "Analytics is disabled.  To enable, please update the <analytics></analytics> node in your tiapp.xml");
 		}
 	}
 
@@ -107,6 +120,8 @@ public class AnalyticsModule extends KrollModule
 					Log.e(TAG, "Error generating last event.", e);
 				}
 			}
+		} else {
+			Log.e(TAG, "Analytics is disabled.  To enable, please update the <analytics></analytics> node in your tiapp.xml");
 		}
 		return null;
 	}
