@@ -1266,6 +1266,8 @@ public class TiHTTPClient
 						e.setEntity(progressEntity);
 
 						e.addHeader("Length", totalLength+"");
+						//For multipart, the content-type and boundary will be set by the entity
+						request.removeHeaders(HTTP.CONTENT_TYPE);
 
 					} else {
 						handleURLEncodedData(form);
