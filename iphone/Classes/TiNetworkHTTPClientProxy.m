@@ -406,9 +406,14 @@ extern NSString * const TI_APPLICATION_GUID;
 
 #pragma mark - Public getter properties
 
--(NSDictionary*)allResponseHeaders
+-(NSString*)allResponseHeaders
 {
-    return [[self response] headers];
+    NSDictionary* headers = [[self response] headers];
+    NSMutableArray *array = [NSMutableArray array];
+    for (NSString *key in headers) {
+        [array addObject:[NSString stringWithFormat:@"%@:%@", key, [headers objectForKey:key]]];
+    }
+    return [array componentsJoinedByString: @"\n"];
 }
 
 -(NSString*)apiName
