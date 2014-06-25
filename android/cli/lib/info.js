@@ -132,27 +132,25 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 		logger.log('  ' + __('None').grey + '\n');
 	}
 
-	if (config.get('genymotion.enabled')) {
-		logger.log(styleHeading(__('Genymotion Emulators')));
-		if (data.emulators) {
-			var emus = data.emulators.filter(function (e) { return e.type == 'genymotion'; });
-			if (emus.length) {
-				logger.log(emus.map(function (emu) {
-					return '  ' + emu.name.cyan + '\n' +
-						'  ' + rpad('  ' + __('SDK Version'))         + ' = ' + styleValue(emu.target + (apiLevelMap[emu.target] ? ' (android-' + apiLevelMap[emu.target] + ')' : '')) + '\n' +
-						'  ' + rpad('  ' + __('ABI'))                 + ' = ' + styleValue(emu.abi || __('unknown')) + '\n' +
-						'  ' + rpad('  ' + __('Genymotion Version'))  + ' = ' + styleValue(emu.genymotion || __('unknown')) + '\n' +
-						'  ' + rpad('  ' + __('Display'))             + ' = ' + styleValue(emu.display || __('unknown')) + '\n' +
-						'  ' + rpad('  ' + __('DPI'))                 + ' = ' + styleValue(emu.dpi || __('unknown')) + '\n' +
-						'  ' + rpad('  ' + __('OpenGL Acceleration')) + ' = ' + styleValue(emu.hardwareOpenGL ? __('yes') : __('no')) + '\n' +
-						'  ' + rpad('  ' + __('Google APIs'))         + ' = ' + styleValue(emu.googleApis === null ? __('unknown, emulator not running') : emu.googleApis ? __('yes') : __('no'));
-				}).join('\n') + '\n');
-			} else {
-				logger.log('  ' + __('None').grey + '\n');
-			}
+	logger.log(styleHeading(__('Genymotion Emulators')));
+	if (data.emulators) {
+		var emus = data.emulators.filter(function (e) { return e.type == 'genymotion'; });
+		if (emus.length) {
+			logger.log(emus.map(function (emu) {
+				return '  ' + emu.name.cyan + '\n' +
+					'  ' + rpad('  ' + __('SDK Version'))         + ' = ' + styleValue(emu.target + (apiLevelMap[emu.target] ? ' (android-' + apiLevelMap[emu.target] + ')' : '')) + '\n' +
+					'  ' + rpad('  ' + __('ABI'))                 + ' = ' + styleValue(emu.abi || __('unknown')) + '\n' +
+					'  ' + rpad('  ' + __('Genymotion Version'))  + ' = ' + styleValue(emu.genymotion || __('unknown')) + '\n' +
+					'  ' + rpad('  ' + __('Display'))             + ' = ' + styleValue(emu.display || __('unknown')) + '\n' +
+					'  ' + rpad('  ' + __('DPI'))                 + ' = ' + styleValue(emu.dpi || __('unknown')) + '\n' +
+					'  ' + rpad('  ' + __('OpenGL Acceleration')) + ' = ' + styleValue(emu.hardwareOpenGL ? __('yes') : __('no')) + '\n' +
+					'  ' + rpad('  ' + __('Google APIs'))         + ' = ' + styleValue(emu.googleApis === null ? __('unknown, emulator not running') : emu.googleApis ? __('yes') : __('no'));
+			}).join('\n') + '\n');
 		} else {
 			logger.log('  ' + __('None').grey + '\n');
 		}
+	} else {
+		logger.log('  ' + __('None').grey + '\n');
 	}
 
 	logger.log(styleHeading(__('Connected Android Devices')));
@@ -182,14 +180,12 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 						break;
 
 					case 'genymotion':
-						if (config.get('genymotion.enabled')) {
-							name = 'Genymotion Emulator: ' + device.emulator.name;
-							result.push('  ' + rpad(__('Genymotion Version'))  + ' = ' + styleValue(device.emulator.genymotion || __('unknown')));
-							result.push('  ' + rpad(__('Display'))             + ' = ' + styleValue(device.emulator.display || __('unknown')));
-							result.push('  ' + rpad(__('DPI'))                 + ' = ' + styleValue(device.emulator.dpi || __('unknown')));
-							result.push('  ' + rpad(__('OpenGL Acceleration')) + ' = ' + styleValue(device.emulator.hardwareOpenGL ? __('yes') : __('no')));
-							result.push('  ' + rpad(__('Google APIs'))         + ' = ' + styleValue(device.emulator.googleApis ? __('yes') : __('no')));
-						}
+						name = 'Genymotion Emulator: ' + device.emulator.name;
+						result.push('  ' + rpad(__('Genymotion Version'))  + ' = ' + styleValue(device.emulator.genymotion || __('unknown')));
+						result.push('  ' + rpad(__('Display'))             + ' = ' + styleValue(device.emulator.display || __('unknown')));
+						result.push('  ' + rpad(__('DPI'))                 + ' = ' + styleValue(device.emulator.dpi || __('unknown')));
+						result.push('  ' + rpad(__('OpenGL Acceleration')) + ' = ' + styleValue(device.emulator.hardwareOpenGL ? __('yes') : __('no')));
+						result.push('  ' + rpad(__('Google APIs'))         + ' = ' + styleValue(device.emulator.googleApis ? __('yes') : __('no')));
 						break;
 				}
 
