@@ -8,7 +8,6 @@ package ti.modules.titanium.ui.widget.picker;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
@@ -16,7 +15,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -43,11 +41,7 @@ public class TiUINativePicker extends TiUIPicker
 	
 	public static class TiSpinnerAdapter<T> extends ArrayAdapter<T>
 	{
-		boolean fontSet = false;
-		String fontSize = null;
-		String fontWeight = null;
-		String fontFamily = null;
-		String fontStyle = null;
+		String[] fontProperties;
 
 		public TiSpinnerAdapter(Context context, int textViewResourceId, List<T> objects)
 		{
@@ -58,8 +52,10 @@ public class TiUINativePicker extends TiUIPicker
 		public View getView(int position, View convertView, ViewGroup parent)
 		{
 			TextView tv = (TextView) super.getView(position, convertView, parent);
-			if (fontSet) {
-				TiUIHelper.styleText(tv, fontFamily, fontSize, fontWeight, fontStyle);
+			if (fontProperties != null) {
+				TiUIHelper.styleText(tv, fontProperties[TiUIHelper.FONT_FAMILY_POSITION],
+					fontProperties[TiUIHelper.FONT_SIZE_POSITION], fontProperties[TiUIHelper.FONT_WEIGHT_POSITION],
+					fontProperties[TiUIHelper.FONT_STYLE_POSITION]);
 			}
 			return tv;
 		}
@@ -68,29 +64,17 @@ public class TiUINativePicker extends TiUIPicker
 		public View getDropDownView(int position, View convertView, ViewGroup parent)
 		{
 			TextView tv = (TextView) super.getDropDownView(position, convertView, parent);
-			if (fontSet) {
-				TiUIHelper.styleText(tv, fontFamily, fontSize, fontWeight, fontStyle);
+			if (fontProperties != null) {
+				TiUIHelper.styleText(tv, fontProperties[TiUIHelper.FONT_FAMILY_POSITION],
+					fontProperties[TiUIHelper.FONT_SIZE_POSITION], fontProperties[TiUIHelper.FONT_WEIGHT_POSITION],
+					fontProperties[TiUIHelper.FONT_STYLE_POSITION]);
 			}
 			return tv;
 		}
 		
-		public void setFontProperties(HashMap<String, Object> d)
+		public void setFontProperties(KrollDict d)
 		{
-			if (d != null) {
-				fontSet = true;
-				if (d.containsKey("fontSize")) {
-					fontSize = TiConvert.toString(d, "fontSize");
-				}
-				if (d.containsKey("fontWeight")) {
-					fontWeight = TiConvert.toString(d, "fontWeight");
-				}
-				if (d.containsKey("fontFamily")) {
-					fontFamily = TiConvert.toString(d, "fontFamily");
-				}
-				if (d.containsKey("fontStyle")) {
-					fontStyle = TiConvert.toString(d, "fontStyle");
-				}
-			}
+			fontProperties = TiUIHelper.getFontProperties(d);
 		}
 	}
 	
@@ -190,10 +174,6 @@ public class TiUINativePicker extends TiUIPicker
 		try {
 			spinner.setOnItemSelectedListener(null);
 			int rememberSelectedRow = getSelectedRowIndex(0);
-			KrollDict font = null;
-			if (proxy.hasProperty(TiC.PROPERTY_FONT)) {
-				font = proxy.getProperties().getKrollDict(TiC.PROPERTY_FONT);
-			}
 			// Just one column - the first column - for now.
 			// Maybe someday we'll support multiple columns.
 			PickerColumnProxy column = getPickerProxy().getFirstColumn(false);
@@ -212,7 +192,7 @@ public class TiUINativePicker extends TiUIPicker
 			// layouts (maybe our own Adapter too.)
 			TiSpinnerAdapter<TiViewProxy> adapter = new TiSpinnerAdapter<TiViewProxy>(spinner.getContext(),
 				android.R.layout.simple_spinner_item, rows);
-			adapter.setFontProperties(font);
+			adapter.setFontProperties(proxy.getProperties());
 			adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 			spinner.setAdapter(adapter);
 			if (rememberSelectedRow >= 0) {
@@ -301,7 +281,7 @@ public class TiUINativePicker extends TiUIPicker
 		if (key.equals(TiC.PROPERTY_FONT)) {
 			Spinner spinner = (Spinner) nativeView;
 			TiSpinnerAdapter<TiViewProxy> adapter = (TiSpinnerAdapter<TiViewProxy>) spinner.getAdapter();
-			adapter.setFontProperties((HashMap) newValue);
+			adapter.setFontProperties(proxy.getProperties());
 			adapter.notifyDataSetChanged();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
