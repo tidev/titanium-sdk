@@ -1,6 +1,33 @@
 define(["Ti/_/declare", "Ti/_/event", 'Ti/_/has', "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "Ti/_/dom", "Ti/_/ready"],
 	function(declare, event, has, View, Widget, UI, lang, dom, ready) {
 
+	function formatDate(str, type) {
+		if (str) {
+			if (type === 'DateTime') {
+				return new Date(str);
+			}
+
+			var d = new Date,
+				m;
+
+			if (type === 'Date') {
+				m = str.match(/^(?:(\d+)\/(\d+)\/(\d+))|(?:(\d+)-(\d+)-(\d+))$/);
+				d.setYear(m[1] ? m[3] : [4]);
+				d.setMonth(m[1] ? m[1] - 1 : m[5] - 1);
+				d.setDate(m[1] ? m[2] : m[6]);
+			}
+
+			if (type === 'Time') {
+				m = str.match(/^(\d+)\:(\d+)\s*(am|pm)?$/i);
+				d.setHours(m[3] && m[3].toLowerCase() == 'pm' && ~~m[1] < 12 ? ~~m[1] + 12 : m[1]);
+				d.setMinutes(m[2]);
+				d.setSeconds(0);
+			}
+
+			return d;
+		}
+	}
+
 	var is = require.is,
 		borderRadius = 6,
 		unitizedBorderRadius = dom.unitize(borderRadius),
@@ -22,17 +49,21 @@ define(["Ti/_/declare", "Ti/_/event", 'Ti/_/has', "Ti/UI/View", "Ti/_/UI/Widget"
 					self = this;
 
 				function handleChange() {
-					if (currentValue !== input.value) {
-						currentValue = input.value;
-						self.fireEvent("change", {
-							value: input.valueAsDate
+					var newValue = input.value,
+						dateValue = formatDate(newValue, self.type);
+					if (currentValue !== newValue && dateValue) {
+						currentValue = newValue;
+						self.picker.fireEvent("change", {
+							value: dateValue
 						});
 					}
 				}
 
 				self._handles = [
 					on(input, has('touch') ? "touchend" : "click", handleChange),
-					on(input, "keyup", handleChange)
+					// on(input, "keyup", handleChange), // I think this was for older versions of Mobile Safari
+					on(input, "change", handleChange),
+					on(input, "blur", handleChange)
 				];
 			},
 
@@ -64,6 +95,9 @@ define(["Ti/_/declare", "Ti/_/event", 'Ti/_/has', "Ti/UI/View", "Ti/_/UI/Widget"
 					}
 				},
 				value: {
+					get: function () {
+						return formatDate(this._input.value, this.type);
+					},
 					set: function(value) {
 						// Some browsers have this property, but if you assign to it, it throws an exception.
 						try {
@@ -73,6 +107,8 @@ define(["Ti/_/declare", "Ti/_/event", 'Ti/_/has', "Ti/UI/View", "Ti/_/UI/Widget"
 				}
 			}
 		});
+
+	DateTimeInput.prototype.declaredClass = 'DateTimeInput';
 
 	ready(function() {
 		var inputRuler = dom.create("input", {
@@ -238,7 +274,8 @@ define(["Ti/_/declare", "Ti/_/event", 'Ti/_/has', "Ti/UI/View", "Ti/_/UI/Widget"
 							var dateTimeInput = self._dateTimeInput = new DateTimeInput({
 								type: inputType,
 								width: UI.INHERIT,
-								height: UI.INHERIT
+								height: UI.INHERIT,
+								picker: self
 							});
 							dateTimeInput.addEventListener("change", function(e) {
 								self.__values__.properties.value = e.value;
@@ -267,6 +304,9 @@ define(["Ti/_/declare", "Ti/_/event", 'Ti/_/has', "Ti/UI/View", "Ti/_/UI/Widget"
 			},
 
 			value: {
+				get: function () {
+					return this._dateTimeInput && this._dateTimeInput.value;
+				},
 				set: function(value) {
 					this._dateTimeInput && (this._dateTimeInput.value = value);
 					return value;
