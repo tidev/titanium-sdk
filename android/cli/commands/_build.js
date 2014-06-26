@@ -2251,6 +2251,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	function copyFile(from, to, next) {
 		var d = path.dirname(to);
 		fs.existsSync(d) || wrench.mkdirSyncRecursive(d);
+
+		if (fs.existsSync(to)) {
+			_t.logger.warn(__('Overwriting file %s', to.cyan));
+		}
+
 		if (symlinkFiles) {
 			fs.existsSync(to) && fs.unlinkSync(to);
 			this.logger.debug(__('Symlinking %s => %s', from.cyan, to.cyan));
@@ -2512,14 +2517,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		}
 	}, this);
 
-	var platformPaths = [
-		path.join(this.projectDir, 'platform', 'android')
-	];
+	var platformPaths = [];
 	// WARNING! This is pretty dangerous, but yes, we're intentionally copying
 	// every file from platform/android and all modules into the build dir
 	this.modules.forEach(function (module) {
 		platformPaths.push(path.join(module.modulePath, 'platform', 'android'));
 	});
+	platformPaths.push(path.join(this.projectDir, 'platform', 'android'));
 	platformPaths.forEach(function (dir) {
 		if (fs.existsSync(dir)) {
 			tasks.push(function (cb) {
@@ -3164,14 +3168,23 @@ AndroidBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest) {
 		dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
 		root = dom.documentElement,
 		nodes = {},
+		_t = this,
 		byName = function (node) {
 			var n = xml.getAttr(node, 'name');
-			n && (nodes[n] = node);
+			if (n) {
+				if (nodes[n] && n !== 'app_name') {
+					_t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
+				}
+				nodes[n] = node;
+			}
 		},
 		byTagAndName = function (node) {
 			var n = xml.getAttr(node, 'name');
 			if (n) {
 				nodes[node.tagName] || (nodes[node.tagName] = {});
+				if (nodes[node.tagName][n] && n !== 'app_name') {
+					_t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
+				}
 				nodes[node.tagName][n] = node;
 			}
 		};
