@@ -12,7 +12,7 @@ define(["Ti/_/declare", "Ti/_/event", 'Ti/_/has', "Ti/UI/View", "Ti/_/UI/Widget"
 
 			if (type === 'Date') {
 				m = str.match(/^(?:(\d+)\/(\d+)\/(\d+))|(?:(\d+)-(\d+)-(\d+))$/);
-				d.setYear(m[1] ? m[3] : [4]);
+				d.setYear(m[1] ? m[3] : m[4]);
 				d.setMonth(m[1] ? m[1] - 1 : m[5] - 1);
 				d.setDate(m[1] ? m[2] : m[6]);
 			}
