@@ -369,6 +369,10 @@ textarea {
 	border: 1px solid #666;
 }
 
+.TiUIPicker input {
+	border: none;
+}
+
 .TiUIProgressBarIndicator {
 	background-color: #ccc;
 }
