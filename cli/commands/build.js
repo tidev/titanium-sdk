@@ -135,12 +135,13 @@ exports.config = function (logger, config, cli) {
 									return callback(new Error(__('Project directory does not exist')));
 								}
 
-								var tiappFile = path.join(dir, 'tiapp.xml');
+								var tiappFile = path.join(dir, 'tiapp.xml'),
+									root = path.resolve('/');
 
 								// try to find the tiapp.xml
 								while (!fs.existsSync(tiappFile)) {
 									dir = path.dirname(dir);
-									if (dir == '/') {
+									if (dir == root) {
 										if (!isDefault) {
 											callback(new Error(__('Invalid project directory "%s" because tiapp.xml not found', projectDir)));
 											return;
