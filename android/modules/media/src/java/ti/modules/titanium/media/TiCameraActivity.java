@@ -494,11 +494,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			{
 				public void onAutoFocus(boolean success, Camera camera)
 				{
-					// Take the picture when the camera auto focus completes.
-					if (success) {
-						camera.takePicture(shutterCallback, null, jpegCallback);
-					} else {
-						Log.d(TAG, "Unable to focus. Ignoring call to take picture");
+					camera.takePicture(shutterCallback, null, jpegCallback);
+					if (!success) {
+						Log.w(TAG, "Unable to focus.");
 					}
 				}
 			};
