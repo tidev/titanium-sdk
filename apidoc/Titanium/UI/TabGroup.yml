@@ -37,8 +37,9 @@ description: |
     
     #### Further Reading
     
-    If using tab groups on iOS, see the "Tab Bar" section of Apple's official 
-    [iOS UI Element Usage Guidelines ](https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW52).
+    If using tab groups on iOS, see
+    [iOS UI Element Usage Guidelines](https://developer.apple.com/library/ios/documentation/userexperience/conceptual/mobilehig/Bars.html#//apple_ref/doc/uid/TP40006556-CH12-SW52).
+
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
