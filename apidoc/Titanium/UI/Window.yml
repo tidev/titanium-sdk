@@ -703,6 +703,16 @@ properties:
     platforms: [iphone,ipad]
     type: Boolean
 
+  - name: theme
+    summary: Theme to apply to the window.
+    description: |
+        Set the theme of the window. It can be either a [system theme](http://developer.android.com/guide/topics/ui/themes.html)
+        such as `Theme.NoTitleBar` or a [custom theme](http://docs.appcelerator.com/titanium/3.0/#!/guide/Android_Themes-section-34636181_AndroidThemes-CustomThemes).
+    platforms: [android]
+    type: String
+    since: "3.4.0"
+    availability: creation
+
   - name: title
     summary: Title of the window.
     description: |
