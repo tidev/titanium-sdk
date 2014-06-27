@@ -414,7 +414,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		boolean modal = getIntentBoolean(TiC.PROPERTY_MODAL, false);
 		int softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, -1);
 		int windowFlags = getIntentInt(TiC.PROPERTY_WINDOW_FLAGS, 0);
+		int theme = getIntentInt(TiC.PROPERTY_THEME, -1);
 		boolean hasSoftInputMode = softInputMode != -1;
+		boolean hasTheme = theme != -1;
 		
 		setFullscreen(fullscreen);
 		
@@ -435,6 +437,10 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		if (hasSoftInputMode) {
 			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
 			getWindow().setSoftInputMode(softInputMode);
+		}
+
+		if (hasTheme) {
+			this.setTheme(theme);
 		}
 
 		boolean useActivityWindow = getIntentBoolean(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, false);
