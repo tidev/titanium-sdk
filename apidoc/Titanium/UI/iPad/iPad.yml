@@ -4,8 +4,9 @@ summary: iPad specific UI capabilities.
 description: |
     All properties, methods and events in this namespace will only work on the Apple iPad devices. 
     
-    For iPad UI programming guidelines, please review the [iPad Human Interface Guidelines]
-    (http://developer.apple.com/iphone/library/documentation/General/Conceptual/iPadHIG/Introduction/Introduction.html).
+    For iOS UI programming guidelines, review the
+    [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/MobileHIG/index.html).
+
 extends: Titanium.Module
 platforms: [ipad]
 since: "1.2"
