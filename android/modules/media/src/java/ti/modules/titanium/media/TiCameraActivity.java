@@ -44,6 +44,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Callback
 {
@@ -498,7 +499,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					if (success) {
 						camera.takePicture(shutterCallback, null, jpegCallback);
 					} else {
-						Log.d(TAG, "Unable to focus. Ignoring call to take picture");
+						if (cameraActivity != null) {
+							Toast.makeText(cameraActivity, "Camera is out of focus. Please try again.", Toast.LENGTH_SHORT).show();
+						}
 					}
 				}
 			};
