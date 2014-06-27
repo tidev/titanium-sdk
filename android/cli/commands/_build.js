@@ -132,6 +132,20 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 	this.ignoreDirs = new RegExp(config.get('cli.ignoreDirs'));
 	this.ignoreFiles = new RegExp(config.get('cli.ignoreFiles'));
 
+	function assertIssue(logger, issues, name) {
+		var i = 0,
+			len = issues.length;
+		for (; i < len; i++) {
+			if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
+				issues[i].message.split('\n').forEach(function (line) {
+					logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
+				});
+				logger.log();
+				process.exit(1);
+			}
+		}
+	}
+
 	// we hook into the pre-validate event so that we can stop the build before
 	// prompting if we know the build is going to fail.
 	//
@@ -144,31 +158,17 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 			return callback();
 		}
 
-		function assertIssue(logger, issues, name, exit) {
-			var i = 0,
-				len = issues.length;
-			for (; i < len; i++) {
-				if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
-					issues[i].message.split('\n').forEach(function (line) {
-						logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-					});
-					logger.log();
-					exit && process.exit(1);
-				}
-			}
-		}
-
 		async.series([
 			function (next) {
 				// detect android environment
 				androidDetect(config, { packageJson: _t.packageJson }, function (androidInfo) {
 					_t.androidInfo = androidInfo;
-
-					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND', true);
-					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS', true);
+					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND');
+					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS');
 
 					if (!cli.argv.prompt) {
 						// check that the Android SDK is found and sane
+						// note: if we're prompting, then we'll do this check in the --android-sdk validate() callback
 						assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
 						assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
 
@@ -203,9 +203,9 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 			function (next) {
 				// detect java development kit
 				appc.jdk.detect(config, null, function (jdkInfo) {
-					assertIssue(logger, jdkInfo.issues, 'JDK_NOT_INSTALLED', true);
-					assertIssue(logger, jdkInfo.issues, 'JDK_MISSING_PROGRAMS', true);
-					assertIssue(logger, jdkInfo.issues, 'JDK_INVALID_JAVA_HOME', true);
+					assertIssue(logger, jdkInfo.issues, 'JDK_NOT_INSTALLED');
+					assertIssue(logger, jdkInfo.issues, 'JDK_MISSING_PROGRAMS');
+					assertIssue(logger, jdkInfo.issues, 'JDK_INVALID_JAVA_HOME');
 
 					if (!jdkInfo.version) {
 						logger.error(__('Unable to locate the Java Development Kit') + '\n');
@@ -368,7 +368,9 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							} else if (process.platform == 'win32' && value.indexOf('&') != -1) {
 								callback(new Error(__('The Android SDK path cannot contain ampersands (&) on Windows')));
 							} else if (_t.androidInfo.sdk && _t.androidInfo.sdk.path == afs.resolvePath(value)) {
-								// no sense doing the detection again
+								// no sense doing the detection again, just make sure we found the sdk
+								assertIssue(logger, _t.androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
+								assertIssue(logger, _t.androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
 								callback(null, value);
 							} else {
 								// do a quick scan to see if the path is correct
@@ -382,6 +384,9 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 
 											// path looks good, do a full scan again
 											androidDetect(config, { packageJson: _t.packageJson, bypassCache: true }, function (androidInfo) {
+												// check that the Android SDK is found and sane
+												assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
+												assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
 												_t.androidInfo = androidInfo;
 												callback(null, value);
 											});
