@@ -1193,6 +1193,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FONTSIZE = "fontSize";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FONTSTYLE = "fontStyle";
 
 	/**
 	 * @module.api
