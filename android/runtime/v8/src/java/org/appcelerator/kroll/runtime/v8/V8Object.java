@@ -66,6 +66,10 @@ public class V8Object extends KrollObject
 
 	@Override
 	public Object callProperty(String propertyName, Object[] args) {
+		if (KrollRuntime.isDisposed()) {
+			Log.w(TAG, "Runtime disposed, cannot call property '" + propertyName + "'");
+			return null;
+		}
 		return nativeCallProperty(ptr, propertyName, args);
 	}
 
