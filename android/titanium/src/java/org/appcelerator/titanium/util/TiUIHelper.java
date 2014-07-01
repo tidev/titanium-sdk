@@ -496,8 +496,10 @@ public class TiUIHelper
 	
 	public static String[] getFontProperties(KrollDict fontProps)
 	{
+		boolean bFontSet = false;
 		String[] fontProperties = new String[4];
 		if (fontProps.containsKey(TiC.PROPERTY_FONT) && fontProps.get(TiC.PROPERTY_FONT) instanceof HashMap) {
+			bFontSet = true;
 			KrollDict font = fontProps.getKrollDict(TiC.PROPERTY_FONT);
 			if (font.containsKey(TiC.PROPERTY_FONTSIZE)) {
 				fontProperties[FONT_SIZE_POSITION] = TiConvert.toString(font, TiC.PROPERTY_FONTSIZE);
@@ -512,21 +514,24 @@ public class TiUIHelper
 				fontProperties[FONT_STYLE_POSITION] = TiConvert.toString(font, TiC.PROPERTY_FONTSTYLE);
 			}
 		} else {
-			if (fontProps.containsKeyAndNotNull(TiC.PROPERTY_FONT_FAMILY)) {
+			if (fontProps.containsKey(TiC.PROPERTY_FONT_FAMILY)) {
+				bFontSet = true;
 				fontProperties[FONT_FAMILY_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONT_FAMILY);
 			}
-			if (fontProps.containsKeyAndNotNull(TiC.PROPERTY_FONT_SIZE)) {
+			if (fontProps.containsKey(TiC.PROPERTY_FONT_SIZE)) {
+				bFontSet = true;
 				fontProperties[FONT_SIZE_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONT_SIZE);
 			}
-			if (fontProps.containsKeyAndNotNull(TiC.PROPERTY_FONT_WEIGHT)) {
+			if (fontProps.containsKey(TiC.PROPERTY_FONT_WEIGHT)) {
+				bFontSet = true;
 				fontProperties[FONT_WEIGHT_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONT_WEIGHT);
 			}
 			if (fontProps.containsKey(TiC.PROPERTY_FONTSTYLE)) {
+				bFontSet = true;
 				fontProperties[FONT_STYLE_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONTSTYLE);
 			}
 		}
-		if (fontProperties[FONT_FAMILY_POSITION] == null && fontProperties[FONT_SIZE_POSITION] == null
-			&& fontProperties[FONT_WEIGHT_POSITION] == null && fontProperties[FONT_STYLE_POSITION] == null) {
+		if (!bFontSet) {
 			return null;
 		}
 		return fontProperties;
