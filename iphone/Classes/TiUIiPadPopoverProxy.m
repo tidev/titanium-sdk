@@ -497,9 +497,9 @@ static NSArray* popoverSequence;
 		currentlyDisplaying = nil;
 	}
     if (contentViewProxy != nil) {
-		if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
-			[(TiWindowProxy*) contentViewProxy setIsManaged:NO];
-		}
+        if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
+            [(TiWindowProxy*) contentViewProxy setIsManaged:NO];
+        }
         [contentViewProxy windowWillClose];
     } else {
         [self windowWillClose];
