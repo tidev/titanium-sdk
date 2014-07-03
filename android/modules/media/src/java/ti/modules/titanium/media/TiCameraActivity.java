@@ -498,6 +498,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					if (!success) {
 						Log.w(TAG, "Unable to focus.");
 					}
+					camera.cancelAutoFocus();
 				}
 			};
 			camera.autoFocus(focusCallback);
