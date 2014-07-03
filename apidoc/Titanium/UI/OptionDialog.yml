@@ -39,7 +39,7 @@ description: |
     ##### iPad
     
     On iPad, this dialog is shown in the middle of the display, or as a popover-like dialog if 
-    another view or control is specified via an argument.
+    another view or control is specified via an argument passed to the `open()` method.
 
     Note that on iPad, the cancel button is not displayed -- users can cancel the dialog
     by clicking outside of the dialog.
@@ -304,7 +304,7 @@ examples:
 name: hideParams
 summary: Dictionary of options for the <Titanium.UI.OptionDialog.hide> method.
 since: 2.0.0
-platforms: [iphone, ipad]
+platforms: [ipad]
 
 properties:
   - name: animated
@@ -326,7 +326,8 @@ properties:
     type: Titanium.UI.View
     
   - name: rect
-    summary: |
-        View size and position, determined by coordinates `x` and `y` and dimensions `height` 
-        and `width`.
-    type: Dictionary
+    summary: Positions the arrow of the option dialog relative to the attached view's dimensions.
+    description: |
+        Setting the x, y coordinates to (0, 0) places the dialog in the top-left corner of the
+        view object.  Set both the `width` and `height` properties to 1.
+    type: Dimension
