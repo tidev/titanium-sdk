@@ -35,49 +35,76 @@ excludes: {
 events:
   - name: hide
     summary: Fired when the popover is hidden.
-        
+
 methods:
-  - name: setHeight
-    summary: Change the height of the popover.
+  - name: add
+    deprecated:
+        since: "3.2.0"
+        notes: Use the <Titanium.UI.iPad.Popover.contentView> property to modify the content of the popover.
+
+  - name: hide
+    summary: Hides the popover.
     parameters:
-      - name: height
-        summary: Height of the popover.
-        type: [Number, String]
-        
-  - name: setPassthroughViews
-    summary: Set the passthrough views for the popover.
+      - name: options
+        summary: Display properties to use when hiding the popover.
+        type: PopoverParams
+
+  - name: remove
+    deprecated:
+        since: "3.2.0"
+        notes: Use the <Titanium.UI.iPad.Popover.contentView> property to modify the content of the popover.
+
+  - name: show
+    summary: Displays the popover.
     parameters:
-      - name: passthroughViews
-        summary: |
-            View or views that the user can interact with while the popover is open (i.e. clicking 
-            on these views will interact with these views, and not dismiss the popover.)
-        type: Array<Titanium.UI.View>
-        
-  - name: setWidth
-    summary: Set the width of the popover
-    parameters:
-      - name: width
-        summary: Width of the popover
-        type: [Number, String]
+      - name: params
+        summary: Display properties to use when displaying the popover.
+        type: PopoverParams
 
 properties:
   - name: arrowDirection
     summary: Indicates the arrow direction of the popover.
+    description: |
+        Use this property to indicate the popover arrows to use.  You can bitwise-OR the constant
+        values together.
+
+        Do not set this property to <Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_UNKNOWN>.
     type: Number
-    constants: Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_*
-    permission: read-only
+    constants: [Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_ANY,Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_DOWN,
+                Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_LEFT,Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_RIGHT,
+                Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_UP]
     
   - name: contentView
-    summary: The View to use for popover content instead of the popover. Must be set before calling `show` method.
+    summary: View to use for the popover content. Must be set before calling the `show()` method.
     description: |
-        This is now the preferred way to set the popover content. This can be set to any <Titanium.UI.View> object.
-        This property also supports the <Titanium.UI.Window> and <Titanium.UI.iOS.NavigationWindow> objects.
+        Set this property to any <Titanium.UI.View> object, including a <Titanium.UI.Window> or
+        <Titanium.UI.iOS.NavigationWindow> object.
+
         This property does not support the <Titanium.UI.iPad.SplitWindow> or <Titanium.UI.TabGroup> objects.
-        When this property is set to a valid object, the popover ** does not include the navigation controller**.
-        Set this to a <Titanium.UI.iOS.NavigationWindow> object to display and manage the navigation controller.
+
+        When this property is set to a valid object, the popover **does not include the navigation
+        controller** unless it is set to a <Titanium.UI.iOS.NavigationWindow> object.
+
+        In an Alloy application, you can specify this property as a `<ContentView>` child element
+        of the `<Popover>` element:
+
+            <Alloy>
+                <Popover>
+                    <ContentView>
+                        <Window title="Popover">
+                            <Label>Popover!</Label>
+                        </Window>
+                    </ContentView>
+                </Popover>
+            </Alloy
+
     type: Titanium.UI.View
     since: 3.2.0
-    
+
+  - name: height
+    summary: Height of the popover.
+    type: [Number, String]
+
   - name: leftNavButton
     summary: Left button in the navigation area of the popover.
     description: |
@@ -95,7 +122,14 @@ properties:
             </Alloy>
 
     type: Object
-    
+
+  - name: passthroughViews
+    summary: Passthrough views to use when the popover is shown.
+    description: |
+        Specify view objects that the user can interact with while the popover is open. While
+        interacting with these view, the popover will not be dismissed.
+    type: Array<Titanium.UI.View>
+
   - name: rightNavButton
     summary: Right button in the navigation area of the popover.
     description: |
@@ -111,6 +145,7 @@ properties:
                     </RightNavButton>
                 </Popover>
             </Alloy>
+
     type: Object
 
   - name: title
@@ -119,43 +154,50 @@ properties:
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
     type: String
 
+  - name: width
+    summary: Width of the popover.
+    type: [Number, String]
+
 examples:
   - title: Simple Popover with a Title and Right Button
     example: |
         In this example, we create a simple popover and position it near the button.
 
-            var win = Ti.UI.createWindow();
+            var win = Ti.UI.createWindow({backgroundColor: 'white'});
 
             var button = Ti.UI.createButton({title: 'Open Popover!'});
             button.addEventListener('click', function(e){
                 popover.show({ view: button });
-            });
+            })
             win.add(button);
-
-            var view = Ti.UI.createView({backgroundColor: 'green'});
-            view.add(Ti.UI.createLabel({text: "It's not easy being green."}));
 
             var rightButton = Ti.UI.createButton({title: 'Robin'});
             rightButton.addEventListener('click', function(e){
                 alert("But green's the color of spring.");
             });
 
+            var contentWindow = Ti.UI.createWindow({
+                backgroundColor: 'green',
+                rightNavButton: rightButton,
+                title: 'Kermit',
+                width: 250,
+                height: 100
+            });
+            contentWindow.add(Ti.UI.createLabel({text: "It's not easy being green."}));
+
             var popover = Ti.UI.iPad.createPopover({
                 width: 250,
                 height: 100,
-                title: 'Kermit',
-                rightNavButton: rightButton
+                contentView: Ti.UI.iOS.createNavigationWindow({window: contentWindow})
             });
-            popover.add(view);
 
             win.open();
-
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy project.
 
-        index.xml
+        `app/views/index.xml`:
 
             <Alloy>
                 <Window>
@@ -163,7 +205,7 @@ examples:
                 </Window>
             </Alloy>
 
-        index.js
+        `app/controllers/index.js`:
 
             function openPopover() {
                 var popover = Alloy.createController('popover').getView();
@@ -172,21 +214,22 @@ examples:
 
             $.index.open();
 
-        popover.xml
+        `app/views/popover.xml`:
 
             <Alloy>
-                <Popover title='Kermit' height='100' width='250'>
-                    <!-- Prior to Alloy 1.1.0, this property was set in the controller. -->
-                    <RightNavButton>
-                        <Button onClick='showAlert'>Robin</Button>
-                    </RightNavButton>
-                    <View backgroundColor='green'>
-                        <Label>It's not easy being green.</Label>
-                    </View>
+                <Popover height='100' width='250'>
+                    <ContentView>
+                        <NavigationWindow>
+                            <Window title='Kermit' backgroundColor='green'>
+                                <RightNavButton onClick="closePopover" title="Robin" />
+                                 <Label>It's not easy being green.</Label>
+                            </Window>
+                        </NavigationWindow>
+                    </ContentView>
                 </Popover>
             </Alloy>
 
-        popover.js
+        `app/controllers/popover.js`:
 
             function showAlert(e) {
                 alert('But green is the color of spring.');
@@ -196,3 +239,34 @@ examples:
             // var button = Ti.UI.createButton({title: 'Robin'});
             // button.addEventListener('click', showAlert);
             // $.popover.rightNavButton = button;
+
+---
+name: PopoverParams
+summary: Dictionary of options for <Titanium.UI.iPad.Popover.show> and <Titanium.UI.iPad.Popover.hide>.
+description: |
+    All properties are optional except you need to specify the `view` property for the `show()`
+    method to attach the popover to a view component.
+
+    The `hide()` method only supports the `animated` property.
+properties:
+  - name: animated
+    summary: Indicates whether to animate showing or hiding the popover.
+    type: Boolean
+    default: true
+    optional: true
+
+  - name: rect
+    summary: |
+        Sets the arrow position of the popover relative to the attached view object's dimensions
+        when showing the popover.
+    description:
+        Setting the x, y coordinates to (0, 0) places the popover in the top-left corner of the
+        view object.  Set both the `width` and `height` properties to 1.
+    type: Dimension
+    default: All dimension properties are set to zero.
+    optional: true
+
+  - name: view
+    summary: Attaches the popover to the specified view when showing the popover.
+    type: Titanium.UI.View
+    optional: false
