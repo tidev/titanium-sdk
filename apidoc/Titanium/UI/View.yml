@@ -161,7 +161,7 @@ description: |
     The first three, `accessibilityLabel`, `accessibilityValue` and `accessibilityHint`, are for setting text
     that will be relayed to the user by the assistive service (such as TalkBack on Android or VoiceOver
     on iOS). On iOS, Titanium will then take these values and set the native properties
-    of the same name which are defined in the [UIAccessibilityProtocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+    of the same name which are defined in the [UIAccessibilityProtocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
     On Android, Titanium takes the three values and concatenates them in the order `accessibilityLabel`,
     `accessibilityValue`, and `accessibilityHint`, and then uses the result to set the native view's
     [`contentDescription`](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29)
@@ -738,7 +738,7 @@ properties:
     description: |
         On iOS this is a direct analog of the `accessibilityElementsHidden` property defined in the
         [UIAccessibility
-        Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
         The native property is only available in iOS 5.0 and later; if
         `accessibilityHidden` is specified on earlier versions of iOS, it is ignored.
         
@@ -761,7 +761,7 @@ properties:
     summary: Briefly describes what performing an action (such as a click) on the view will do.
     description: |
         On iOS this is a direct analog of the `accessibilityHint` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
         On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityLabel> and <Titanium.UI.View.accessibilityValue> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
@@ -775,7 +775,7 @@ properties:
     summary: A succint label identifying the view for the device's accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityLabel` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
         On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityValue> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
@@ -789,7 +789,7 @@ properties:
     summary: A string describing the value (if any) of the view for the device's accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityValue` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
         On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityLabel> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
