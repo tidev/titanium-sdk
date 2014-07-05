@@ -2282,6 +2282,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TRANSFORM = "transform";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSFORM_DURATION = "transformDuration";
 
 	/**
 	 * @module.api
