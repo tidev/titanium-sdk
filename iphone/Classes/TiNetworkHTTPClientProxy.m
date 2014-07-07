@@ -12,6 +12,7 @@
 #import "TiUtils.h"
 #import "TiBase.h"
 #import "TiApp.h"
+#import "Mimetypes.h"
 
 #define TI_HTTP_REQUEST_PROGRESS_INTERVAL 0.03f
 
@@ -168,27 +169,36 @@ extern NSString * const TI_APPLICATION_GUID;
         NSInteger dataIndex = 0;
         form = [[[APSHTTPPostForm alloc] init] autorelease];
         id arg = [args objectAtIndex:0];
-        if([arg isKindOfClass:[NSDictionary class]]) {
+        NSInteger timespamp = (NSInteger)[[NSDate date] timeIntervalSince1970];
+        if ([arg isKindOfClass:[NSDictionary class]]) {
             NSDictionary *dict = (NSDictionary*)arg;
             for(NSString *key in dict) {
                 id value = [dict objectForKey:key];
-                if([value isKindOfClass:[TiBlob class]]|| [value isKindOfClass:[TiFile class]]) {
+                if ([value isKindOfClass:[TiBlob class]]|| [value isKindOfClass:[TiFile class]]) {
                     TiBlob *blob;
-                    NSString *name;
-                    NSString *mime;
-                    if([value isKindOfClass:[TiBlob class]]) {
+                    NSString *name = nil;
+                    NSString *mime = nil;
+                    if ([value isKindOfClass:[TiBlob class]]) {
                         blob = (TiBlob*)value;
                         if([blob path] != nil) {
                             name = [[blob path] lastPathComponent];
-                        } else {
-                            name = [NSString stringWithFormat:@"file%i", dataIndex++];
                         }
                     }else{
                         blob = [(TiFile*)value blob];
                         name = [[(TiFile*)value path] lastPathComponent];
                     }
                     mime = [blob mimeType];
-                    if(mime != nil) {
+                    NSString* extension = nil;
+                    if (mime != nil) {
+                        extension = [Mimetypes extensionForMimeType:mime];
+                    }
+                    if (name == nil) {
+                        name = [NSString stringWithFormat:@"%i%i", dataIndex++, timespamp];
+                        if (extension != nil) {
+                            name = [NSString stringWithFormat:@"%@.%@", name, extension];
+                        }
+                    }
+                    if (mime != nil) {
                         [form addFormData:[blob data] fileName:name fieldName:key contentType:mime];
                     } else {
                         [form addFormData:[blob data] fileName:name fieldName:key];
