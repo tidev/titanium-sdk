@@ -128,7 +128,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_EMAIL,UIKeyboardTypeEmailAddress);
 /* Because this is a new feature in 5.0, we have to guard against it in both compiling AND runtime.*/
 -(NSNumber*)KEYBOARD_TWITTER
 {
-#if __IPHONE_4_1 <= __IPHONE_OS_VERSION_MAX_ALLOWED
+#if __IPHONE_5_0 <= __IPHONE_OS_VERSION_MAX_ALLOWED
 	if([[[UIDevice currentDevice] systemVersion] floatValue] >= 5.0){
 		return [NSNumber numberWithInt:UIKeyboardTypeTwitter];
 	}
