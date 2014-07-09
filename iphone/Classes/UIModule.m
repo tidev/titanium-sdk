@@ -135,7 +135,6 @@ MAKE_SYSTEM_PROP(KEYBOARD_EMAIL,UIKeyboardTypeEmailAddress);
 #endif
 	return [NSNumber numberWithInt:UIKeyboardTypeDefault];
 }
-MAKE_SYSTEM_PROP(KEYBOARD_TWITTER,UIKeyboardTypeTwitter);
 
 MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_DEFAULT,UIKeyboardAppearanceDefault);
 MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_ALERT,UIKeyboardAppearanceAlert);
