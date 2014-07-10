@@ -8,9 +8,7 @@ package org.appcelerator.kroll.runtime.v8;
 
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollRuntime;
-import java.util.HashMap;
-
-import android.util.Log;
+import org.appcelerator.kroll.common.Log;
 
 public class V8Object extends KrollObject
 {
@@ -67,7 +65,9 @@ public class V8Object extends KrollObject
 	@Override
 	public Object callProperty(String propertyName, Object[] args) {
 		if (KrollRuntime.isDisposed()) {
-			Log.w(TAG, "Runtime disposed, cannot call property '" + propertyName + "'");
+			if (Log.isDebugModeEnabled()) {
+				Log.w(TAG, "Runtime disposed, cannot call property '" + propertyName + "'");
+			}
 			return null;
 		}
 		return nativeCallProperty(ptr, propertyName, args);
