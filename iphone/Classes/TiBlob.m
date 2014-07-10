@@ -43,17 +43,26 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
     return @"Ti.Blob";
 }
 
--(BOOL)isImageMimeType
-{
-	return [mimetype hasPrefix:@"image/"];
-}
 
 -(void)ensureImageLoaded
 {
-	if (image == nil && [self isImageMimeType])
-	{
-		image = [[self image] retain];
-	}
+    if (image == nil && !imageLoadAttempted) {
+        imageLoadAttempted = YES;
+        switch(type)
+        {
+            case TiBlobTypeFile:
+            {
+                image = [[UIImage imageWithContentsOfFile:path] retain];
+            }
+            case TiBlobTypeData:
+            {
+                image = [[UIImage imageWithData:data] retain];
+            }
+            default: {
+                break;
+            }
+        }
+    }
 }
 
 -(NSInteger)width
@@ -197,28 +206,17 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 
 -(UIImage*)image
 {
-	switch(type)
-	{
-		case TiBlobTypeFile:
-		{
-			return [UIImage imageWithContentsOfFile:path];
-		}
-		case TiBlobTypeData:
-		{
-			return [UIImage imageWithData:data];
-		}
-		default: {
-			break;
-		}
-	}
+	[self ensureImageLoaded];
 	return image;
 }
 
 -(void)setData:(NSData*)data_
 {
 	RELEASE_TO_NIL(data);
+	RELEASE_TO_NIL(image);
 	type = TiBlobTypeData;
 	data = [data_ retain];
+	imageLoadAttempted = NO;
 }
 
 -(void)setImage:(UIImage *)image_
