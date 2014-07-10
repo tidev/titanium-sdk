@@ -3857,6 +3857,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 		this.jdkInfo.executables.javac,
 		[
 			'-J-Xmx' + this.javacMaxMemory,
+			'-J-Dfile.encoding=UTF8',
 			'-encoding', 'utf8',
 			'-bootclasspath', Object.keys(classpath).join(process.platform == 'win32' ? ';' : ':'),
 			'-d', this.buildBinClassesDir,
