@@ -28,13 +28,18 @@ exports.init = function (logger, config, cli) {
 
 				cli.createHook('build.android.startEmulator', function (deviceId, opts, cb) {
 					var emulator = new EmulatorManager(config);
+
+					logger.trace(__('Starting emulator: %s', deviceId.cyan));
+
 					emulator.start(deviceId, opts, function (err, emu) {
 						if (err) {
-							logger.error(__('Unable to start emulator "%s"', deviceId) + '\n');
+							logger.error(__('Unable to start emulator "%s"', deviceId.cyan) + '\n');
 							logger.error(err.message || err);
 							logger.log();
 							process.exit(1);
 						}
+
+						logger.trace(__('Emulator process started'));
 
 						emu.on('ready', function (device) {
 							logger.info(__('Emulator ready!'));
@@ -49,6 +54,12 @@ exports.init = function (logger, config, cli) {
 						var stderr = '';
 						emu.on('stderr', function (data) {
 							stderr += data.toString();
+						});
+
+						emu.on('timeout', function (err) {
+							logger.error(__('Emulator timeout after waiting %s ms', err.waited));
+							logger.log();
+							process.exit(1);
 						});
 
 						emu.on('error', function (err) {
@@ -131,7 +142,7 @@ exports.init = function (logger, config, cli) {
 						return next();
 					}
 
-					logger.info(__('Waiting for emulator to become ready'));
+					logger.info(__('Waiting for emulator to become ready...'));
 
 					var timeout = config.get('android.emulatorStartTimeout', 2 * 60 * 1000),  // 2 minute default
 						waitUntil = Date.now() + timeout,
@@ -154,7 +165,7 @@ exports.init = function (logger, config, cli) {
 
 					var failCounter = 0,
 						installTimeout = config.get('android.appInstallTimeout', 2 * 60 * 1000); // 2 minute default
-						retryInterval = config.get('android.appInstallRetryInterval', 15 * 1000); // 15 second default
+						retryInterval = config.get('android.appInstallRetryInterval', 1000); // 1 second default
 
 					async.eachSeries(deviceInfo, function (device, cb) {
 						builder.target == 'device' && logger.info(__('Installing app on device: %s', (device.model || device.manufacturer || device.id).cyan));
@@ -171,30 +182,42 @@ exports.init = function (logger, config, cli) {
 								}
 							}, installTimeout);
 
-						(function installApp() {
-							adb.installApp(device.id, builder.apkFile, function (err) {
-								if (err) {
-									if (err instanceof Error && err.message.indexOf('Could not access the Package Manager') != -1) {
-										logger.debug(__('Package manager not started yet, trying again in %sms...', retryInterval));
-										intervalTimer = setTimeout(installApp, retryInterval);
-										return;
-									}
+						logger.trace(__('Checking if package manager service is started'));
 
-									logger.error(__('Failed to install apk on "%s"', device.id));
-									err = err.toString();
-									err.split('\n').forEach(logger.error);
-									if (err.indexOf('INSTALL_PARSE_FAILED_NO_CERTIFICATES') != -1) {
-										logger.error(__('Make sure your keystore is signed with a compatible signature algorithm such as "SHA1withRSA" or "MD5withRSA".'));
-									}
-									logger.log();
-									process.exit(1);
+						(function installApp() {
+							adb.shell(device.id, 'ps', function (err, output) {
+								if (output.indexOf('system_server') === -1) {
+									logger.trace(__('Package manager not started yet, trying again in %sms...', retryInterval));
+									intervalTimer = setTimeout(installApp, retryInterval);
+									return;
 								}
 
-								clearTimeout(intervalTimer);
-								clearTimeout(abortTimer);
+								logger.trace(__('Package manager is started'));
 
-								logger.info(__('App successfully installed'));
-								cb();
+								adb.installApp(device.id, builder.apkFile, function (err) {
+									if (err) {
+										if (err instanceof Error && err.message.indexOf('Could not access the Package Manager') != -1) {
+											logger.debug(__('Package manager not started yet, trying again in %sms...', retryInterval));
+											intervalTimer = setTimeout(installApp, retryInterval);
+											return;
+										}
+
+										logger.error(__('Failed to install apk on "%s"', device.id));
+										err = err.toString();
+										err.split('\n').forEach(logger.error);
+										if (err.indexOf('INSTALL_PARSE_FAILED_NO_CERTIFICATES') != -1) {
+											logger.error(__('Make sure your keystore is signed with a compatible signature algorithm such as "SHA1withRSA" or "MD5withRSA".'));
+										}
+										logger.log();
+										process.exit(1);
+									}
+
+									clearTimeout(intervalTimer);
+									clearTimeout(abortTimer);
+
+									logger.info(__('App successfully installed'));
+									cb();
+								});
 							});
 						})();
 					}, next);
