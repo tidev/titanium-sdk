@@ -143,7 +143,7 @@ public class TiBorderWrapperView extends FrameLayout
 		for (int i = 0; i < this.getChildCount(); ++i) {
 			View child = this.getChildAt(i);
 			if (child != null) {
-				child.setAlpha(alpha);
+				child.setAlpha(opacity);
 			}
 		}
 		postInvalidate();
