@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -1594,13 +1594,11 @@ public abstract class TiUIView
 			Log.w(TAG, "Ignoring invalid value for opacity: " + opacity);
 			return;
 		}
+		
 		if (borderView != null) {
-			borderView.setBorderAlpha(Math.round(opacity * 255));
-			borderView.postInvalidate();
-		}
-		if (nativeView != null) {
+			setOpacity(borderView, opacity);
+		} else if (nativeView != null) {
 			setOpacity(nativeView, opacity);
-			nativeView.postInvalidate();
 		}
 	}
 
@@ -1613,6 +1611,7 @@ public abstract class TiUIView
 	protected void setAlpha(View view, float alpha)
 	{
 		view.setAlpha(alpha);
+		view.postInvalidate();
 	}
 
 	/**
