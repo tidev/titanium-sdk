@@ -6,10 +6,12 @@
     * [Alloy 1.4](#alloy) 
     * [Studio 3.3](#studio)
     * [Titanium CLI 3.3](#cli)
+    * [Android Wear and Android L SDK Support](#android_sdks)
     * [Windows Hybrid Platform Support](#windows)
   * [Notice of Feature and Behavior Changes](#changes)
     * [Android Platform](#deprecated_android)
       * [Action Bar](#action_bar)
+      * [Lightweight Windows](#lightweight_windows)
       * [Target SDK Version](#target_sdk)
       * [Themes](#themes)
       * [View enabled property](#view_enabled)
@@ -138,8 +140,35 @@ For more details, see the CLI
 [Changelog](https://github.com/appcelerator/titanium/blob/3_3_X/CHANGELOG.md).
 
 
+<a name="android_sdks"></a>
+### Android Wear and Android L SDK Support
+
+The Android L SDK is not officially supported by the Titanium SDK, since it is in beta. However,
+there are no known issues and you should be able build Titanium applications with it. You are
+encouraged to file bugs if you encounter issues compiling or running Titanium applications with the
+L SDK.
+
+The Android W SDK is not currently supported by the Titanium SDK.
+
+Also, if you have either the Android L or W SDKs installed, it's recommended that you explicitly set
+the `targetSdkVersion` property in the `<uses-sdk/>` element in your project's `tiapp.xml` file. The
+reason for doing this is that Studio, by default, uses the latest installed SDK to compile your
+project. Both Android L and W have a target API level of 20, whereas the latest supported Android
+SDK release has an API target level of 19. Setting the target API version explicitly ensures your
+project will always compile and run as expected.
+
+For example, the following sets the target and minimum API version version to 19:
+
+    <android xmlns:android="http://schemas.android.com/apk/res/android">
+        <manifest>
+            <application>...</application>
+            <uses-sdk android:minSdkVersion="19"
+                      android:targetSdkVersion="19"/>
+        </manifest>
+    </android>
+
 <a name="windows"></a>
-## Windows Hybrid Platform Support
+### Windows Hybrid Platform Support
 
 This release supports Windows 8 Apps and Windows Phone 8 applications built using the Mobile Web
 APIs.  Titanium turns your Mobile Web application in to Windows 8 JavaScript and Windows Phone HTML5
@@ -182,6 +211,22 @@ As of this Release, the `tiapp.xml` element, `<navbar-hidden>`, which used to be
 action bar, has no effect on Android applications.
 
 For information about hiding the action bar, see [Android Action Bar: Hiding the Action Bar](http://docs.appcelerator.com/titanium/latest/#!/guide/Android_Action_Bar-section-36735509_AndroidActionBar-HidingtheActionBar).
+
+
+<a name="lightweight_windows"></a>
+#### Lightweight Windows
+
+As of this Release, support for lightweight windows (windows without an Android Activity) is
+removed and using the `ti.android.useLegacyWindow` property in the `tiapp.xml` file has no effect.
+
+As <a href="http://docs.appcelerator.com/titanium/release-notes/?version=3.2.0.GA#lightweight_windows">previously mentioned</a>,
+all windows are heavyweight, and you cannot control the type of window created.
+
+Prior to Release 3.2.0, all windows were lightweight by default and you had to explicitly create
+a heavyweight window.
+
+Due to this change, your application may behave differently or break since all windows are now
+heavyweight.
 
 
 <a name="target_sdk"></a>
