@@ -2513,7 +2513,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 	//get the respackgeinfo files if they exist
 	this.modules.forEach(function (module) {
-		var respackagepath = path.join(module.modulePath,'respackageinfo');
+		var respackagepath = path.join(module.modulePath, 'respackageinfo');
 		if (fs.existsSync(respackagepath)) {
 			var data = fs.readFileSync(respackagepath).toString().split('\n').shift().trim();
 			if(data.length > 0) {
