@@ -19,6 +19,7 @@ import android.graphics.Path.Direction;
 import android.graphics.Path.FillType;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.view.View;
 import android.widget.FrameLayout;
 
 /**
@@ -131,5 +132,20 @@ public class TiBorderWrapperView extends FrameLayout
 	public void setBorderAlpha(int alpha)
 	{
 		this.alpha = alpha;
+	}
+	
+	/**
+	 * This method is needed for property animators in Honeycomb+ devices
+	 */
+	public void setAlpha(float opacity)
+	{
+		this.alpha = (int) Math.round(opacity * 255);
+		for (int i = 0; i < this.getChildCount(); ++i) {
+			View child = this.getChildAt(i);
+			if (child != null) {
+				child.setAlpha(opacity);
+			}
+		}
+		postInvalidate();
 	}
 }
