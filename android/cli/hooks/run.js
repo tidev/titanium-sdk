@@ -164,8 +164,8 @@ exports.init = function (logger, config, cli) {
 					logger.info(__('Installing apk: %s', builder.apkFile.cyan));
 
 					var failCounter = 0,
-						installTimeout = config.get('android.appInstallTimeout', 2 * 60 * 1000); // 2 minute default
-						retryInterval = config.get('android.appInstallRetryInterval', 1000); // 1 second default
+						installTimeout = config.get('android.appInstallTimeout', 4 * 60 * 1000); // 4 minute default
+						retryInterval = config.get('android.appInstallRetryInterval', 2000); // 2 second default
 
 					async.eachSeries(deviceInfo, function (device, cb) {
 						builder.target == 'device' && logger.info(__('Installing app on device: %s', (device.model || device.manufacturer || device.id).cyan));
@@ -192,12 +192,12 @@ exports.init = function (logger, config, cli) {
 									return;
 								}
 
-								logger.trace(__('Package manager is started'));
+								logger.trace(__('Package manager has started'));
 
-								adb.installApp(device.id, builder.apkFile, function (err) {
+								adb.installApp(device.id, builder.apkFile, { logger: logger }, function (err) {
 									if (err) {
 										if (err instanceof Error && err.message.indexOf('Could not access the Package Manager') != -1) {
-											logger.debug(__('Package manager not started yet, trying again in %sms...', retryInterval));
+											logger.debug(__('ADB install failed because package manager service is still starting, trying again in %sms...', retryInterval));
 											intervalTimer = setTimeout(installApp, retryInterval);
 											return;
 										}
