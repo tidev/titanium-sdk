@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012-1014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,8 @@ package org.appcelerator.titanium.view;
 import java.util.Arrays;
 
 import org.appcelerator.kroll.common.Log;
+
+import com.nineoldandroids.view.ViewHelper;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -19,6 +21,8 @@ import android.graphics.Path.Direction;
 import android.graphics.Path.FillType;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Build;
+import android.view.View;
 import android.widget.FrameLayout;
 
 /**
@@ -38,6 +42,7 @@ public class TiBorderWrapperView extends FrameLayout
 	private Path innerPath;
 	private Path borderPath;
 	private Paint paint;
+	private View child;
 
 	public TiBorderWrapperView(Context context)
 	{
@@ -109,7 +114,7 @@ public class TiBorderWrapperView extends FrameLayout
 		paint.setColor(color);
 		if (alpha > -1) {
 			paint.setAlpha(alpha);
-		}
+    	}
 		canvas.drawPath(borderPath, paint);
 	}
 
@@ -127,9 +132,34 @@ public class TiBorderWrapperView extends FrameLayout
 	{
 		this.borderWidth = borderWidth;
 	}
-
-	public void setBorderAlpha(int alpha)
+	
+	@Override
+	public boolean onSetAlpha(int alpha)
 	{
-		this.alpha = alpha;
+		if (Build.VERSION.SDK_INT < 11) {
+			/*
+			 * This is an ugly hack. ViewHelper.setAlpha does not work on border when 
+			 * alpha < 1. So we are going to manage alpha animation for ourselves and our
+			 * child view manually. This needs to be researched and factored out.
+			 * 
+			 * TIMOB-17287
+			 */
+			this.alpha = alpha;
+			float falpha = alpha/255.0f;
+			if (child == null) {
+				try {
+					child = getChildAt(0);
+				} catch (Throwable t) {
+					//Ignore this error.
+					child = null;
+				}
+			}
+			if (child != null) {
+				//Set alpha of child view
+				ViewHelper.setAlpha(child, falpha);
+			}
+			return true;
+		}
+		return false;
 	}
 }
