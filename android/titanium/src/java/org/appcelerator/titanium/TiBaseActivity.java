@@ -231,7 +231,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
 		this.window = proxy;
-		updateTitle();
 	}
 
 	/**
@@ -414,9 +413,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		boolean modal = getIntentBoolean(TiC.PROPERTY_MODAL, false);
 		int softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, -1);
 		int windowFlags = getIntentInt(TiC.PROPERTY_WINDOW_FLAGS, 0);
-		int theme = getIntentInt(TiC.PROPERTY_THEME, -1);
 		boolean hasSoftInputMode = softInputMode != -1;
-		boolean hasTheme = theme != -1;
 		
 		setFullscreen(fullscreen);
 		
@@ -437,10 +434,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		if (hasSoftInputMode) {
 			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
 			getWindow().setSoftInputMode(softInputMode);
-		}
-
-		if (hasTheme) {
-			this.setTheme(theme);
 		}
 
 		boolean useActivityWindow = getIntentBoolean(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, false);
@@ -514,6 +507,13 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
 		}
 
+		// Set the theme of the activity before calling super.onCreate().
+		// On 2.3 devices, it does not work if the theme is set after super.onCreate.
+		int theme = getIntentInt(TiC.PROPERTY_THEME, -1);
+		if (theme != -1) {
+			this.setTheme(theme);
+		}
+
 		super.onCreate(savedInstanceState);
 		
 		// we only want to set the current activity for good in the resume state but we need it right now.
@@ -532,6 +532,10 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
 		setContentView(layout);
+
+		// Set the title of the activity after setContentView.
+		// On 2.3 devices, if the title is set before setContentView, the app will crash when a NoTitleBar theme is used.
+		updateTitle();
 
 		sendMessage(msgActivityCreatedId);
 		// for backwards compatibility
