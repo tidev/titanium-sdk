@@ -77,7 +77,9 @@ public class TiUILabel extends TiUIView
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
 				super.onLayout(changed, left, top, right, bottom);
+				
 				adjustTextFontSize(this);
+				
 				if (proxy != null && proxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
 					proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
 				}
@@ -216,6 +218,10 @@ public class TiUILabel extends TiUIView
 			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TITLE), TextView.BufferType.SPANNABLE);
 		}
 
+		if (d.containsKey(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
+			tv.setIncludeFontPadding(TiConvert.toBoolean(d, TiC.PROPERTY_INCLUDE_FONT_PADDING, true));
+ 		}
+ 		
 		if (d.containsKey(TiC.PROPERTY_MINIMUMFONTSIZE)) {
 			//it enables font scaling to fit and forces the label content to be limited to a single line.
 			minimumFontSize =  TiConvert.toString(d, TiC.PROPERTY_MINIMUMFONTSIZE);
@@ -336,6 +342,8 @@ public class TiUILabel extends TiUIView
 			tv.setText(TiConvert.toString(newValue));
 			TiUIHelper.linkifyIfEnabled(tv, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
 			tv.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
+			tv.setIncludeFontPadding(TiConvert.toBoolean(newValue, true));
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			if (newValue == null) {
 				tv.setTextColor(defaultColor);
