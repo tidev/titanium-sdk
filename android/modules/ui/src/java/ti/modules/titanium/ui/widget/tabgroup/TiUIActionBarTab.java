@@ -6,6 +6,9 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -51,11 +54,12 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 	TabFragment fragment;
 	private String tabTag;
 	private static final String TAB_TAG_NAME = "tabTag";
+	private static final AtomicLong nextTabTagIndex = new AtomicLong();
 
 	public TiUIActionBarTab(TabProxy proxy, ActionBar.Tab tab) {
 		super(proxy);
 
-		tabTag = TAB_TAG_NAME + proxy.getTabGroup().getTabIndex(proxy);
+		tabTag = TAB_TAG_NAME + nextTabTagIndex.getAndIncrement();
 
 		this.tab = tab;
 
