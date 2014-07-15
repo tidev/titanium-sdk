@@ -231,7 +231,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
 		this.window = proxy;
-		updateTitle();
 	}
 
 	/**
@@ -508,6 +507,13 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
 		}
 
+		// Set the theme of the activity before calling super.onCreate().
+		// On 2.3 devices, it does not work if the theme is set after super.onCreate.
+		int theme = getIntentInt(TiC.PROPERTY_THEME, -1);
+		if (theme != -1) {
+			this.setTheme(theme);
+		}
+
 		super.onCreate(savedInstanceState);
 		
 		// we only want to set the current activity for good in the resume state but we need it right now.
@@ -526,6 +532,10 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
 		setContentView(layout);
+
+		// Set the title of the activity after setContentView.
+		// On 2.3 devices, if the title is set before setContentView, the app will crash when a NoTitleBar theme is used.
+		updateTitle();
 
 		sendMessage(msgActivityCreatedId);
 		// for backwards compatibility
