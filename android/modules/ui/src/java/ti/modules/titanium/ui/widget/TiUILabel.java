@@ -33,8 +33,10 @@ import android.text.TextUtils.TruncateAt;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
+import android.text.TextPaint;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.TextView;
 
 public class TiUILabel extends TiUIView
