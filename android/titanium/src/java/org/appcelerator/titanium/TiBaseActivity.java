@@ -464,11 +464,11 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			return;
 		}
 
-		// If all the activities has been killed and the runtime has been disposed, we cannot recover one
-		// specific activity because the info of the top-most view proxy has been lost (TiActivityWindows.dispose()).
-		// In this case, we have to restart the app.
+		// If all the activities has been killed and the runtime has been disposed or the app's hosting process has
+		// been killed, we cannot recover one specific activity because the info of the top-most view proxy has been
+		// lost (TiActivityWindows.dispose()). In this case, we have to restart the app.
 		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
-			Log.w(TAG, "Runtime has been disposed. Finishing.");
+			Log.w(TAG, "Runtime has been disposed or app has been killed. Finishing.");
 			super.onCreate(savedInstanceState);
 			tiApp.scheduleRestart(250);
 			finish();
@@ -1393,9 +1393,12 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	 */
 	public static boolean isUnsupportedReLaunch(Activity activity, Bundle savedInstanceState)
 	{
-		// If all the activities has been killed and the runtime has been disposed, we have to relaunch
-		// the app.
-		if (KrollRuntime.isDisposed() && savedInstanceState != null && !(activity instanceof TiLaunchActivity)) {
+		// We have to relaunch the app if
+		// 1. all the activities have been killed and the runtime has been disposed or
+		// 2. the app's hosting process has been killed. In this case, onDestroy or any other method
+		// is not called. We can check the status of the root activity to detect this situation.
+		if (savedInstanceState != null && !(activity instanceof TiLaunchActivity) &&
+				(KrollRuntime.isDisposed() || TiApplication.getInstance().rootActivityLatch.getCount() != 0)) {
 			return true;
 		}
 		return false;
