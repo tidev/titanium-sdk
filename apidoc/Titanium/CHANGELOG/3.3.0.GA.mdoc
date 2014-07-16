@@ -1,6 +1,6 @@
 # Titanium SDK 3.3 General Availability - 07/17/2014
 
-#### Contents
+### Contents
 
   * [About This Release](#about)
     * [Alloy 1.4](#alloy) 
@@ -37,7 +37,6 @@
       * [Window Flags](#window_flags)
     * [BlackBerry Platform](#new_bb)
       * [applyProperties and removeAllChildren methods](#bb_methods)
-      * [Cloud Module](#bb_cloud)
     * [iOS Platform](#new_ios)
       * [Clipping Behavior](#clipping)
       * [HTTPClient Improvements](#http_client)
@@ -53,6 +52,7 @@
     * [TextArea and TextField Selection](#text_selection)
   * [Known Issues](#known_issues)
     * [Alloy Studio Plugin](#alloy_plugin)
+    * [Cannot Run KitchenSink with Genymotion](#ks_genymotion)
     * [Cannot Submit an iOS application with the Facebook Module](#facebook)
   * [API Changes](#apis) 
     * [New APIs](#new_apis)
@@ -489,15 +489,6 @@ As of this Release, the BlackBerry platform supports the
 methods.
 
 
-<a name="bb_cloud"></a>
-#### Cloud Module
-
-The ti.cloud module supports the BlackBerry platform.  Use this module to access Appcelerator Cloud
-Services for BlackBerry.
-
-Note that ACS does not support push notifications with BlackBerry, so the PushNotifications API will not work.
-
-
 <a name="new_ios"></a>
 ### iOS Platform
 
@@ -663,6 +654,15 @@ If you enter this command while in your project's folder, omit the path.
 
 CLI users are not affected by this change.
 
+
+<a name="ks_genymotion"></a>
+### Cannot Run KitchenSink with Genymotion
+
+Genymotion virtual devices do not include the Google Play Services SDK.  If you want to run KitchenSink on a
+Genymotion virtual device, you need to install the Google Play Services SDK to the virtual device.
+
+For instructions, see
+[http://www.tushroy.com/2013/12/installing-google-play-services-on-genymotion-2-0.html](http://www.tushroy.com/2013/12/installing-google-play-services-on-genymotion-2-0.html).
 
 <a name="facebook"></a>
 ### Cannot Submit an iOS application with the Facebook Module
