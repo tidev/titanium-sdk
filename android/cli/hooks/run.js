@@ -186,7 +186,7 @@ exports.init = function (logger, config, cli) {
 
 						(function installApp() {
 							adb.shell(device.id, 'ps', function (err, output) {
-								if (output.indexOf('system_server') === -1) {
+								if (err || output.toString().indexOf('system_server') === -1) {
 									logger.trace(__('Package manager not started yet, trying again in %sms...', retryInterval));
 									intervalTimer = setTimeout(installApp, retryInterval);
 									return;
