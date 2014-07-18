@@ -4060,6 +4060,7 @@
 				OTHER_CFLAGS = (
 					"-DDEBUG",
 					"-DTI_POST_1_2",
+					"$(OTHER_CFLAGS)",
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",
@@ -4098,6 +4099,10 @@
 					"\"$(SRCROOT)/../Classes/APSAnalytics\"",
 					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
+				OTHER_CFLAGS = (
+					"-DTI_POST_1_2",
+					"$(OTHER_CFLAGS)",
+				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",
 					"-weak_framework",
@@ -4135,6 +4140,7 @@
 					"-DIPAD",
 					"-DTI_POST_1_2",
 					"-DDEBUG",
+					"$(OTHER_CFLAGS)",
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",
@@ -4169,6 +4175,7 @@
 				OTHER_CFLAGS = (
 					"-DIPAD",
 					"-DTI_POST_1_2",
+					"$(OTHER_CFLAGS)",
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",
@@ -4329,6 +4336,7 @@
 				OTHER_CFLAGS = (
 					"-DDEBUG",
 					"-DTI_POST_1_2",
+					"$(OTHER_CFLAGS)",
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",
@@ -4372,6 +4380,7 @@
 					"-DIPAD",
 					"-DTI_POST_1_2",
 					"-DDEBUG",
+					"$(OTHER_CFLAGS)",
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",
@@ -4409,6 +4418,7 @@
 					"-DIPAD",
 					"-DTI_POST_1_2",
 					"-DDEBUG",
+					"$(OTHER_CFLAGS)",
 				);
 				"OTHER_CFLAGS[arch=*]" = (
 					"-DIPAD",
@@ -4452,6 +4462,7 @@
 					"-DIPAD",
 					"-DTI_POST_1_2",
 					"-DDEBUG",
+					"$(OTHER_CFLAGS)",
 				);
 				"OTHER_CFLAGS[arch=*]" = (
 					"-DIPAD",
@@ -4492,6 +4503,7 @@
 				OTHER_CFLAGS = (
 					"-DIPAD",
 					"-DTI_POST_1_2",
+					"$(OTHER_CFLAGS)",
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",
