@@ -1,0 +1,66 @@
+{
+  "author": {
+    "name": "Thorsten Lorenz",
+    "email": "thlorenz@gmx.de",
+    "url": "thlorenz.com"
+  },
+  "name": "readdirp",
+  "description": "Recursive version of fs.readdir with streaming api.",
+  "version": "0.2.5",
+  "homepage": "https://github.com/thlorenz/readdirp",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/thlorenz/readdirp.git"
+  },
+  "engines": {
+    "node": ">=0.4"
+  },
+  "keywords": [
+    "recursive",
+    "fs",
+    "stream",
+    "streams",
+    "readdir",
+    "filesystem",
+    "find",
+    "filter"
+  ],
+  "main": "readdirp.js",
+  "scripts": {
+    "test": "tap test/*.js"
+  },
+  "dependencies": {
+    "minimatch": ">=0.2.4"
+  },
+  "devDependencies": {
+    "tap": "~0.3.1",
+    "through": "~1.1.0",
+    "minimatch": "~0.2.7"
+  },
+  "optionalDependencies": {},
+  "license": "MIT",
+  "_id": "readdirp@0.2.5",
+  "dist": {
+    "shasum": "c4c276e52977ae25db5191fe51d008550f15d9bb",
+    "tarball": "http://registry.npmjs.org/readdirp/-/readdirp-0.2.5.tgz"
+  },
+  "_from": "readdirp@~0.2.3",
+  "_npmVersion": "1.2.14",
+  "_npmUser": {
+    "name": "thlorenz",
+    "email": "thlorenz@gmx.de"
+  },
+  "maintainers": [
+    {
+      "name": "thlorenz",
+      "email": "thlorenz@gmx.de"
+    }
+  ],
+  "directories": {},
+  "_shasum": "c4c276e52977ae25db5191fe51d008550f15d9bb",
+  "_resolved": "https://registry.npmjs.org/readdirp/-/readdirp-0.2.5.tgz",
+  "bugs": {
+    "url": "https://github.com/thlorenz/readdirp/issues"
+  },
+  "readme": "ERROR: No README data found!"
+}
