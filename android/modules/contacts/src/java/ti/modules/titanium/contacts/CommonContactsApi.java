@@ -116,6 +116,83 @@ public abstract class CommonContactsApi
 		return key;
 	}
 	
+	protected static String getDateTextType(int type)
+	{
+		String key = TiC.PROPERTY_OTHER;
+		if (type == ContactsContract.CommonDataKinds.Event.TYPE_ANNIVERSARY) {
+			key = TiC.PROPERTY_ANNIVERSARY;
+		} else if (type == ContactsContract.CommonDataKinds.Event.TYPE_BIRTHDAY) {
+			key = TiC.PROPERTY_BIRTHDAY;
+		} else if (type == ContactsContract.CommonDataKinds.Event.TYPE_CUSTOM) {
+			key = TiC.PROPERTY_CUSTOM;
+		}
+		return key;
+	}
+
+	protected static String getImTextType(int type)
+	{
+		String key = "other";
+		if (type == ContactsContract.CommonDataKinds.Im.PROTOCOL_AIM) {
+			key = "aim";
+		} else if (type == ContactsContract.CommonDataKinds.Im.PROTOCOL_CUSTOM) {
+			key = "custom";
+		} else if (type == ContactsContract.CommonDataKinds.Im.PROTOCOL_MSN) {
+			key = "msn";
+		} else if (type == ContactsContract.CommonDataKinds.Im.PROTOCOL_YAHOO) {
+			key = "yahoo";
+		} else if (type == ContactsContract.CommonDataKinds.Im.PROTOCOL_SKYPE) {
+			key = "skype";
+		} else if (type == ContactsContract.CommonDataKinds.Im.PROTOCOL_QQ) {
+			key = "qq";
+		} else if (type == ContactsContract.CommonDataKinds.Im.PROTOCOL_GOOGLE_TALK) {
+			key = "googleTalk";
+		} else if (type == ContactsContract.CommonDataKinds.Im.PROTOCOL_ICQ) {
+			key = "icq";
+		} else if (type == ContactsContract.CommonDataKinds.Im.PROTOCOL_JABBER) {
+			key = "jabber";
+		} else if (type == ContactsContract.CommonDataKinds.Im.PROTOCOL_NETMEETING) {
+			key = "netMeeting";
+		}
+		return key;
+	}
+
+	protected static String getRelatedNamesType(int type)
+	{
+		String key = "other";
+		if (type == ContactsContract.CommonDataKinds.Relation.TYPE_ASSISTANT) {
+			key = "assistant";
+		} else if (type == ContactsContract.CommonDataKinds.Relation.TYPE_BROTHER) {
+			key = "brother";
+		} else if (type == ContactsContract.CommonDataKinds.Relation.TYPE_CHILD) {
+			key = "child";
+		} else if (type == ContactsContract.CommonDataKinds.Relation.TYPE_DOMESTIC_PARTNER) {
+			key = "domesticPartner";
+		} else if (type == ContactsContract.CommonDataKinds.Relation.TYPE_FATHER) {
+			key = "father";
+		} else if (type == ContactsContract.CommonDataKinds.Relation.TYPE_FRIEND) {
+			key = "friend";
+		} else if (type == ContactsContract.CommonDataKinds.Relation.TYPE_MANAGER) {
+			key = "manager";
+		} else if (type == ContactsContract.CommonDataKinds.Relation.TYPE_MOTHER) {
+			key = "mother";
+		} else if (type == ContactsContract.CommonDataKinds.Relation.TYPE_PARENT) {
+			key = "parent";
+		} else if (type == ContactsContract.CommonDataKinds.Relation.TYPE_PARTNER) {
+			key = "partner";
+		} else if (type == ContactsContract.CommonDataKinds.Relation.TYPE_REFERRED_BY) {
+			key = "referredBy";
+		} else if (type == ContactsContract.CommonDataKinds.Relation.TYPE_RELATIVE) {
+			key = "relative";
+		} else if (type == ContactsContract.CommonDataKinds.Relation.TYPE_SISTER) {
+			key = "sister";
+		} else if (type == ContactsContract.CommonDataKinds.Relation.TYPE_SPOUSE) {
+			key = "spose";
+		} else if (type == ContactsContract.CommonDataKinds.Relation.TYPE_CUSTOM) {
+			key = "custom";
+		}
+		return key;
+	}
+
 	protected static String getPhoneTextType(int type)
 	{
 		String key = "other";
@@ -156,12 +233,31 @@ public abstract class CommonContactsApi
 	{
 		long id;
 		String name;
+		String lname;
+		String fname;
+		String mname;
+		String pname;
+		String sname;
 		String notes;
 		String birthday;
+		String nickname;
+		String fphonetic;
+		String mphonetic;
+		String lphonetic;
+		String organization;
+		String instantMessage;
+		String relatedName;
+		String jobTitle;
+		String department;
+
 		boolean hasImage = false;
 		Map<String, ArrayList<String>> emails = new HashMap<String, ArrayList<String>>();
 		Map<String, ArrayList<String>> phones = new HashMap<String, ArrayList<String>>();
 		Map<String, ArrayList<String>> addresses = new HashMap<String, ArrayList<String>>();
+		Map<String, ArrayList<String>> instantMessages = new HashMap<String, ArrayList<String>>();
+		Map<String, ArrayList<String>> relatedNames = new HashMap<String, ArrayList<String>>();
+		Map<String, ArrayList<String>> websites = new HashMap<String, ArrayList<String>>();
+		Map<String, ArrayList<String>> dates = new HashMap<String, ArrayList<String>>();
 		
 		void addPersonInfoFromL5DataRow(Cursor cursor)
 		{
@@ -186,14 +282,70 @@ public abstract class CommonContactsApi
 			} else if (kind.equals(ContactsApiLevel5.KIND_EVENT)) {
 				loadBirthdayFromL5DataRow(cursor);
 			}else if (kind.equals(ContactsApiLevel5.KIND_NAME)) {
-				//loadNameFromL5DataRow(cursor); TODO Structured names
+				loadNameFromL5DataRow(cursor);
 			} else if (kind.equals(ContactsApiLevel5.KIND_NOTE)) {
 				loadNoteFromL5DataRow(cursor);
 			} else if (kind.equals(ContactsApiLevel5.KIND_PHONE)) {
 				loadPhoneFromL5DataRow(cursor);
+			}else if (kind.equals(ContactsApiLevel5.KIND_PHONE)) {
+				loadPhoneFromL5DataRow(cursor);
+			} else if (kind.equals(ContactsApiLevel5.KIND_NICKNAME)) {
+				loadPhonNickL5DataRow(cursor);
+			} else if (kind.equals(ContactsApiLevel5.KIND_ORGANIZE)) {
+				loadOrganizationL5DataRow(cursor);
+			} else if (kind.equals(ContactsApiLevel5.KIND_IM)) {
+				loadImL5DataRow(cursor);
+			} else if (kind.equals(ContactsApiLevel5.KIND_RELATED_NAME)) {
+				loadRelatedNamesL5DataRow(cursor);
+			} else if (kind.equals(ContactsApiLevel5.KIND_WEBSITE)) {
+				loadWebSiteL5DataRow(cursor);
 			}
 		}
-		
+
+		void loadImL5DataRow(Cursor imCursor)
+		{
+			this.instantMessage = imCursor.getString(ContactsApiLevel5.DATA_COLUMN_IM);
+			int type = imCursor.getInt(ContactsApiLevel5.DATA_COLUMN_IM_TYPE);
+			String key = getImTextType(type);
+			ArrayList<String> collection;
+			if (instantMessages.containsKey(key)) {
+				collection = instantMessages.get(key);
+			} else {
+				collection = new ArrayList<String>();
+				instantMessages.put(key, collection);
+			}
+			collection.add(instantMessage);
+		}
+
+
+		void loadRelatedNamesL5DataRow(Cursor rnCursor)
+		{
+			this.relatedName = rnCursor.getString(ContactsApiLevel5.DATA_COLUMN_RELATED_NAME);
+			int type = rnCursor.getInt(ContactsApiLevel5.DATA_COLUMN_RELATED_NAME_TYPE);
+			String key = getRelatedNamesType(type);
+
+			ArrayList<String> collection;
+			if (relatedNames.containsKey(key)) {
+				collection = relatedNames.get(key);
+			} else {
+				collection = new ArrayList<String>();
+				relatedNames.put(key, collection);
+			}
+			collection.add(relatedName);
+		}
+
+		void loadOrganizationL5DataRow(Cursor cursor)
+		{
+			this.organization = cursor.getString(ContactsApiLevel5.DATA_COLUMN_ORGANIZATION);
+			this.jobTitle = cursor.getString(ContactsApiLevel5.DATA_COLUMN_JOB_TITLE);
+			this.department = cursor.getString(ContactsApiLevel5.DATA_COLUMN_DEPARTMENT);
+		}
+
+		void loadPhonNickL5DataRow(Cursor cursor)
+		{
+			this.nickname = cursor.getString(ContactsApiLevel5.DATA_COLUMN_NICK_NAME);
+		}
+
 		void loadPhoneFromL5DataRow(Cursor phonesCursor)
 		{
 			String phoneNumber = phonesCursor.getString(ContactsApiLevel5.DATA_COLUMN_PHONE_NUMBER);
@@ -220,6 +372,7 @@ public abstract class CommonContactsApi
 			if (type == ContactsContract.CommonDataKinds.Event.TYPE_BIRTHDAY) {
 				this.birthday = cursor.getString(ContactsApiLevel5.DATA_COLUMN_EVENT_DATE);
 			}
+			loadDatesL5DataRow(cursor);
 		}
 
 		void loadEmailFromL5DataRow(Cursor emailsCursor)
@@ -236,6 +389,53 @@ public abstract class CommonContactsApi
 				emails.put(key, collection);
 			}
 			collection.add(emailAddress);
+		}
+		
+		void loadWebSiteL5DataRow(Cursor websitesCursor)
+		{
+			ArrayList<String>  collection;
+			String website = websitesCursor.getString(ContactsApiLevel5.DATA_COLUMN_WEBSITE_ADDR);
+			String key = "website";
+
+
+			if (websites.containsKey(key)) {
+				collection = websites.get(key);
+			} else {
+				collection = new ArrayList<String>();
+				websites.put(key, collection);
+			}
+
+
+			collection.add(website);
+		}
+
+
+		void loadDatesL5DataRow(Cursor datesCursor)
+		{
+			ArrayList<String> collection;
+			String date = datesCursor.getString(ContactsApiLevel5.DATA_COLUMN_DATE_ADDR);
+			int type = datesCursor.getInt(ContactsApiLevel5.DATA_COLUMN_DATE_TYPE);
+			String key = getDateTextType(type);
+			if (dates.containsKey(key)) {
+				collection = dates.get(key);
+			} else {
+				collection = new ArrayList<String>();
+				dates.put(key, collection);
+			}
+			collection.add(date);
+		}
+
+
+		void loadNameFromL5DataRow(Cursor nameCursor)
+		{
+			this.fname = nameCursor.getString(ContactsApiLevel5.DATA_COLUMN_NAME_FIRST);
+			this.lname = nameCursor.getString(ContactsApiLevel5.DATA_COLUMN_NAME_LAST);
+			this.pname = nameCursor.getString(ContactsApiLevel5.DATA_COLUMN_NAME_PREFIX);
+			this.mname = nameCursor.getString(ContactsApiLevel5.DATA_COLUMN_NAME_MIDDLE);
+			this.sname = nameCursor.getString(ContactsApiLevel5.DATA_COLUMN_NAME_SUFFIX);
+			this.fphonetic = nameCursor.getString(ContactsApiLevel5.DATA_COLUMN_DATA9);
+			this.mphonetic = nameCursor.getString(ContactsApiLevel5.DATA_COLUMN_DATA8);
+			this.lphonetic = nameCursor.getString(ContactsApiLevel5.DATA_COLUMN_DATA7);
 		}
 		
 		void loadAddressFromL5DataRow(Cursor cursor)
@@ -258,9 +458,26 @@ public abstract class CommonContactsApi
 		{
 			PersonProxy proxy = new PersonProxy();
 			proxy.setFullName(name);
+			proxy.setFirstName(fname);
+			proxy.setLastName(lname);
+			proxy.setPrefix(pname);
+			proxy.setMiddleName(mname);
+			proxy.setSuffix(sname);
+			proxy.setFirstPhonetic(fphonetic);
+			proxy.setMiddlePhonetic(mphonetic);
+			proxy.setLastPhonetic(lphonetic);
+			proxy.setBirthDay(birthday);
+			proxy.setOrganization(organization);
+			proxy.setJobTitle(jobTitle);
+			proxy.setDepartment(department);
+			proxy.setNickName(nickname);
+			proxy.setIMFromMap(instantMessages);
+			proxy.setRelatedNameFromMap(relatedNames);
+			proxy.setWebSiteFromMap(websites);
 			proxy.setProperty(TiC.PROPERTY_NOTE, notes);
 			proxy.setProperty(TiC.PROPERTY_BIRTHDAY, birthday);
 			proxy.setEmailFromMap(emails);
+			proxy.setDateFromMap(dates);
 			proxy.setPhoneFromMap(phones);
 			proxy.setAddressFromMap(addresses);
 			proxy.setProperty(TiC.PROPERTY_KIND, ContactsModule.CONTACTS_KIND_PERSON);
