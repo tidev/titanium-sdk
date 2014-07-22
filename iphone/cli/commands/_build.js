@@ -342,6 +342,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								},
 								required: true,
 								validate: function (device, callback) {
+									if (typeof device === 'boolean') {
+										return callback(true);
+									}
 									var dev = device.toLowerCase();
 									findTargetDevices(cli.argv.target, function (err, devices) {
 										if (cli.argv.target == 'device' && dev == 'all') {
@@ -438,6 +441,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									}));
 								},
 								validate: function (value, callback) {
+									if (typeof value === 'boolean') {
+										return callback(true);
+									}
 									if (cli.argv.target != 'device') {
 										return callback(null, value);
 									}
@@ -503,6 +509,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									}));
 								},
 								validate: function (value, callback) {
+									if (typeof value === 'boolean') {
+										return callback(true);
+									}
 									if (cli.argv.target != 'dist-appstore' && cli.argv.target != 'dist-adhoc') {
 										return callback(null, value);
 									}
@@ -698,6 +707,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									}));
 								},
 								validate: function (value, callback) {
+									if (typeof value === 'boolean') {
+										return callback(true);
+									}
 									if (cli.argv.target == 'simulator') {
 										return callback(null, value);
 									}
