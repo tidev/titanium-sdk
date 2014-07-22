@@ -16,6 +16,10 @@
 # import "KrollCoverage.h"
 #endif
 
+#ifdef HAS_HYPERLOOP_MODULE
+static void* HyperloopJSValueToVoidPointer(TiContextRef ctx, TiValueRef value, TiValueRef *exception);
+#endif
+
 /*
  *	Since TiStringRefs are not tied to any particular context, and are
  *	immutable, they are threadsafe and more importantly, ones that are in
@@ -93,6 +97,15 @@ NSObject * TiBindingTiValueToNSObject(TiContextRef jsContext, TiValueRef objRef)
 		}
 		case kTITypeObject: {
 			TiObjectRef obj = TiValueToObject(jsContext, objRef, NULL);
+#ifdef HAS_HYPERLOOP_MODULE
+			TiStringRef hyperloopFlag = TiStringCreateWithUTF8CString("_isHyperloopObject");
+			bool isHyperloop = TiValueToBoolean(jsContext, TiObjectGetProperty(jsContext, obj, hyperloopFlag, NULL));
+			TiStringRelease(hyperloopFlag);
+			
+			if(isHyperloop) {
+				return (id)HyperloopJSValueToVoidPointer(jsContext, objRef, NULL);
+			}
+#endif
 			id privateObject = (id)TiObjectGetPrivate(obj);
 			if ([privateObject isKindOfClass:[KrollObject class]]) {
 				return [privateObject target];
