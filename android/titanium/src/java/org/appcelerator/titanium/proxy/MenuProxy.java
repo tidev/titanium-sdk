@@ -152,7 +152,7 @@ public class MenuProxy extends KrollProxy
 			//check if view has a parent. If not, add it as action view. Otherwise, log error.
 			Object viewProxy = d.get(TiC.PROPERTY_ACTION_VIEW);
 			if (viewProxy instanceof TiViewProxy) {
-				TiUIView view = ((TiViewProxy)viewProxy).peekView();
+				TiUIView view = ((TiViewProxy) viewProxy).getOrCreateView();
 				if (view != null) {
 					View nativeView = view.getNativeView();
 					ViewGroup viewParent = (ViewGroup)nativeView.getParent();
