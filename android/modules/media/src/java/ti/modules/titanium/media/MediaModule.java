@@ -644,12 +644,12 @@ public class MediaModule extends KrollModule
 					
 					
 					if (!saveToPhotoGallery) {
-						//Create a temporary file in cache and delete the original file
+						//Create a file in the internal data directory and delete the original file
 						try {
-							File tempFile = TiApplication.getInstance().getTempFileHelper().createTempFile("tia", ".jpg");
-							copyFile(imageFile, tempFile);
+							File dataFile = TiFileFactory.createDataFile("tia", ".jpg");
+							copyFile(imageFile, dataFile);
 							imageFile.delete();
-							imageFile = tempFile;
+							imageFile = dataFile;
 
 						} catch(Throwable t) {
 							if (errorCallback != null) {
