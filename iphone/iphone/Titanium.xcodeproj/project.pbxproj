@@ -607,6 +607,8 @@
 		B6465C2318D1011C003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
 		B6465C2418D10126003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
 		B6465C2518D10126003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
+		B657BD82197F938C00F84770 /* TiHyperloopHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B6A3A759197F3AD900711B09 /* TiHyperloopHelper.mm */; };
+		B657BD83197F938F00F84770 /* TiHyperloopHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B6A3A759197F3AD900711B09 /* TiHyperloopHelper.mm */; };
 		B69A9C62180C738600A68F64 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		B69A9C63180C738600A68F64 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		B69A9C64180C738600A68F64 /* (null) in Sources */ = {isa = PBXBuildFile; };
@@ -3755,6 +3757,7 @@
 				D93DAA5116CBF8CB00AD64C9 /* CalendarModule.m in Sources */,
 				D93DAA5616CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */,
 				B6C5206218035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */,
+				B657BD82197F938C00F84770 /* TiHyperloopHelper.mm in Sources */,
 				D93DAA5B16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D93DAA6016CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
 				D93DAA6516CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
@@ -4034,6 +4037,7 @@
 				D93DAA5216CBF8CB00AD64C9 /* CalendarModule.m in Sources */,
 				D93DAA5716CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */,
 				B6C5206318035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */,
+				B657BD83197F938F00F84770 /* TiHyperloopHelper.mm in Sources */,
 				D93DAA5C16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D93DAA6116CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
 				D93DAA6616CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
@@ -4208,6 +4212,7 @@
 				ARCHS = armv7;
 				"ARCHS[sdk=iphoneos*]" = armv7;
 				"ARCHS[sdk=iphonesimulator*]" = i386;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libstdc++";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -4249,6 +4254,7 @@
 				ARCHS = armv7;
 				"ARCHS[sdk=iphoneos*]" = armv7;
 				"ARCHS[sdk=iphonesimulator*]" = i386;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libstdc++";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -4287,6 +4293,7 @@
 				ARCHS = armv7;
 				"ARCHS[sdk=iphoneos*]" = armv7;
 				"ARCHS[sdk=iphonesimulator*]" = i386;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libstdc++";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
