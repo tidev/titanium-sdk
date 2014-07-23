@@ -15,7 +15,7 @@ namespace Hyperloop
 	{
 	public:
 		AbstractObject(void* data)
-        : data{data}
+		: data{data}
 		{
 		}
 		
@@ -47,11 +47,11 @@ namespace Hyperloop
 	{
 	public:
 		NativeObject(T &t)
-        : object(t), AbstractObject{nullptr}, owning{false}
+		: object(t), AbstractObject{nullptr}, owning{false}
 		{
 		}		
 		NativeObject(T &t, bool own)
-        : object(t), AbstractObject{nullptr}, owning{own}
+		: object(t), AbstractObject{nullptr}, owning{own}
 		{
 		}
 		~NativeObject<T>()
@@ -81,13 +81,13 @@ namespace Hyperloop
 {
 	// Gets the abstract object from the pointer or null it can't cast it
 	auto po1 = static_cast<Hyperloop::AbstractObject*>(pointer);
-    if(po1 == nullptr) return nil;
+	if(po1 == nullptr) return nil;
 	// Cast the object to a NativeObject of type `void*`
-    auto po2 = static_cast<Hyperloop::NativeObject<void *> *>(po1);
-    if(po2 == nullptr) return nil;
+	auto po2 = static_cast<Hyperloop::NativeObject<void *> *>(po1);
+	if(po2 == nullptr) return nil;
 	
 	// Extract the data
-    void * obj = po2->getObject();
+	void * obj = po2->getObject();
 	// Try to get an Objective-C class out of the pointer
 	Class objcClass = *((Class *)obj);
 	// Return nil if it not an Objective-C class
