@@ -246,7 +246,8 @@ examples:
                 message: 'The file has been deleted',
                 ok: 'Okay',
                 title: 'File Deleted'
-              }).show();
+              });
+              dialog.show();
             });
             win.open();
         
