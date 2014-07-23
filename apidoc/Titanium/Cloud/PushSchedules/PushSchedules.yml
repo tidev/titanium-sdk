@@ -94,7 +94,7 @@ examples:
         
   - title: Remove a scheduled push notification
     example: |
-        This example deletes the specified schedules push notification.
+        This example deletes the specified scheduled push notification.
 
             Cloud.PushSchedules.remove({
                 ids: savedPushId
