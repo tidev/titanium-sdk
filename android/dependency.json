@@ -16,7 +16,7 @@
 		"locale":[],
 		"map":[],
 		"media":["filesystem"],
-		"network":["xml"],
+		"network":["xml", "filesystem"],
 		"platform":[],
 		"ui":["filesystem","media","appcompat"],
 		"utils":[],
