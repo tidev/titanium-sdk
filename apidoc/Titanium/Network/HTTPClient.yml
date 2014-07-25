@@ -330,7 +330,7 @@ properties:
         The file must be writable such as the application data directory or temp directory.
     type: String
     platforms: [android, iphone, ipad, mobileweb, tizen]
-    since: {android: 3.4.0}
+    since: {android: 3.3.1}
 
   - name: location
     summary: Absolute URL of the request.
