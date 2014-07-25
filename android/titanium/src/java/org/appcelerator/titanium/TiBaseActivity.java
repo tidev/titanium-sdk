@@ -479,7 +479,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 		// create the activity proxy here so that it is accessible from the activity in all cases
 		activityProxy = new ActivityProxy(this);
-		
 
 		// Increment the reference count so we correctly clean up when all of our activities have been destroyed
 		KrollRuntime.incrementActivityRefCount();
@@ -525,6 +524,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		windowCreated();
 
 		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
 			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
 		}
 
@@ -900,6 +900,16 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		// TODO stub
 	}
 
+	private void dispatchCallback(String name, KrollDict data) {
+		if (data == null) {
+			data = new KrollDict();
+		}
+
+		data.put("source", activityProxy);
+
+		activityProxy.callPropertyAsync(name, new Object[] { data });
+	}
+
 	private void releaseDialogs(boolean finish)
 	{
 		//clean up dialogs when activity is pausing or finishing
@@ -942,6 +952,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onPause() 
 	{
 		inForeground = false;
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_PAUSE, null);
+		}
 		super.onPause();
 		isResumed = false;
 
@@ -1000,6 +1013,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onResume()
 	{
 		inForeground = true;
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_RESUME, null);
+		}
 		super.onResume();
 		if (isFinishing()) {
 			return;
@@ -1055,6 +1071,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onStart()
 	{
 		inForeground = true;
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_START, null);
+		}
 		super.onStart();
 		if (isFinishing()) {
 			return;
@@ -1113,6 +1132,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onStop()
 	{
 		inForeground = false;
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_STOP, null);
+		}
 		super.onStop();
 
 		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
@@ -1149,6 +1171,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onRestart()
 	{
 		inForeground = true;
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_RESTART, null);
+		}
 		super.onRestart();
 
 		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
@@ -1207,6 +1232,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onDestroy()
 	{
 		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_DESTROY, null);
+		}
 
 		inForeground = false;
 		TiApplication tiApp = getTiApp();
