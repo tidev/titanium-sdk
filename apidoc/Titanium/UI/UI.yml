@@ -1053,7 +1053,7 @@ properties:
         to update the picker values.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     
   - name: PICKER_TYPE_DATE
     summary: Use a date picker.
