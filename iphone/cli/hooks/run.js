@@ -120,18 +120,20 @@ exports.init = function (logger, config, cli) {
 					}
 				}.bind(this));
 
-				// focus the simulator
-				logger.info(__('Focusing the iOS Simulator'));
-				exec([
-					'osascript',
-					'"' + path.join(build.titaniumIosSdkPath, 'iphone_sim_activate.scpt') + '"',
-					'"' + path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Applications', 'iPhone Simulator.app') + '"'
-				].join(' '), function (err, stdout, stderr) {
-					if (err) {
-						logger.error(__('Failed to focus the iPhone Simulator window'));
-						logger.error(stderr);
-					}
-				});
+				if (cli.argv['sim-focus']) {
+					// focus the simulator
+					logger.info(__('Focusing the iOS Simulator'));
+					exec([
+						'osascript',
+						'"' + path.join(build.titaniumIosSdkPath, 'iphone_sim_activate.scpt') + '"',
+						'"' + path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Applications', 'iPhone Simulator.app') + '"'
+					].join(' '), function (err, stdout, stderr) {
+						if (err) {
+							logger.error(__('Failed to focus the iPhone Simulator window'));
+							logger.error(stderr);
+						}
+					});
+				}
 
 				var levels = logger.getLevels(),
 					logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
