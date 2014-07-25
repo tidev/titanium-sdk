@@ -266,6 +266,10 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							'sim-64bit': {
 								desc: __('use the 64-bit version of the iOS Simulator')
 							},
+							'sim-focus': {
+								default: true,
+								desc: __('focus the iOS Simulator')
+							},
 							'tall': {
 								desc: __('in combination with %s flag, start the tall version of the retina device', '--retina'.cyan)
 							},
