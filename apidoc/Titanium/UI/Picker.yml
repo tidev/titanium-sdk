@@ -23,6 +23,11 @@ description: |
 
     On Mobile Web and Tizen, by default, the picker fills the entire view it is contained in
     but is adjustable using the `width` and `height` properties.
+
+    **Note:** you can only set the [columns](Titanium.UI.Picker.columns) property for the plain picker.
+    If you set the [type](Titanium.UI.Picker.type) property to anything else except
+    `Titanium.UI.PICKER_TYPE_PLAIN`, you cannot modify the picker's columns.
+
 extends: Titanium.UI.View
 excludes: {
     properties: [
@@ -198,6 +203,9 @@ properties:
   - name: columns
     summary: Columns used for this picker, as an array of <Titanium.UI.PickerColumn> objects.
     description: |
+        You can only set columns for the plain picker.  If you set the type to anything
+        else except `Titanium.UI.PICKER_TYPE_PLAIN`, you cannot modify the columns.
+
         In an Alloy application you can specify this property with a `<PickerColumn>` (or `<Column>`)
         element that contains one or more `<PickerRow>` (or `<Row>`) elements, as shown below:
 
@@ -326,7 +334,10 @@ properties:
   - name: type
     summary: Determines the type of picker displayed
     description: |
-        `PICKER_TYPE_DATE_AND_TIME` is only available for iOS and Mobile Web, Tizen.
+        You can only set columns for the plain picker.  If you set the type to anything
+        else except `Titanium.UI.PICKER_TYPE_PLAIN`, you cannot modify the columns.
+
+        `PICKER_TYPE_DATE_AND_TIME` is only available for iOS, Mobile Web and Tizen.
         `PICKER_TYPE_COUNT_DOWN_TIMER` is only available for iOS.
         
         Mobile Web and Tizen rely on input types for date and time types, but as of Q1 2012 these input types 
