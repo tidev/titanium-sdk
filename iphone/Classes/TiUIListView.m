@@ -764,9 +764,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         searchViewProxy = [args retain];
         [searchViewProxy setDelegate:self];
         [_searchWrapper add:searchViewProxy];
-        NSString *curPlaceHolder = [[searchViewProxy searchBar] placeholder];
-        if (curPlaceHolder == nil) {
-            [[searchViewProxy searchBar] setPlaceholder:@"Search"];
+        if ([TiUtils isIOS7OrGreater]) {
+            NSString *curPlaceHolder = [[searchViewProxy searchBar] placeholder];
+            if (curPlaceHolder == nil) {
+                [[searchViewProxy searchBar] setPlaceholder:@"Search"];
+            }
+        } else {
+            [self initSearchController:self];
         }
         keepSectionsInSearch = NO;
     } else {
@@ -1593,7 +1597,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (_searchWrapper != nil) {
         [_searchWrapper layoutProperties]->right = TiDimensionDip(0);
         [_searchWrapper refreshView:nil];
-        [self initSearchController:self];
+        if ([TiUtils isIOS7OrGreater]) {
+            [self initSearchController:self];
+        }
     }
 }
 
@@ -1643,8 +1649,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if ([searchController isActive]) {
         [searchController setActive:NO animated:YES];
     }
-    //IOS7 DP3. TableView seems to be adding the searchView to
-    //tableView. Bug on IOS7?
     if (_searchWrapper != nil) {
         CGFloat rowWidth = floorf([self computeRowWidth:_tableView]);
         if (rowWidth > 0) {
@@ -1653,7 +1657,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [_searchWrapper refreshView:nil];
         }
     }
-    [self clearSearchController:self];
+    //IOS7 DP3. TableView seems to be adding the searchView to
+    //tableView. Bug on IOS7?
+    if ([TiUtils isIOS7OrGreater]) {
+        [self clearSearchController:self];
+    }
     [_tableView reloadData];
 }
 
