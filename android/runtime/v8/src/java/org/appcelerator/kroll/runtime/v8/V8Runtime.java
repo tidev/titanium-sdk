@@ -55,9 +55,16 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		if (!libLoaded) {
 			System.loadLibrary("stlport_shared");
 			System.loadLibrary("kroll-v8");
+
+			// TIMOB-16810 Add a delay to allow symbols to load before calling nativeInit (For HTC One Devices)
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+			}
+
 			libLoaded = true;
 		}
-		
+
 		boolean DBG = true;
 		String deployType = getKrollApplication().getDeployType();
 		if (deployType.equals("production")) {
