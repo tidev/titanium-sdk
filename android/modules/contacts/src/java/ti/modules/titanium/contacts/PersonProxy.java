@@ -22,12 +22,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 @Kroll.proxy(parentModule=ContactsModule.class, propertyAccessors={
-	TiC.PROPERTY_LASTNAME,
-	TiC.PROPERTY_FIRSTNAME,
-	TiC.PROPERTY_MIDDLENAME,
-	TiC.PROPERTY_NICKNAME,
 	TiC.PROPERTY_NOTE,
-	TiC.PROPERTY_ORGANIZATION,
 	TiC.PROPERTY_BIRTHDAY,
 	TiC.PROPERTY_EMAIL,
 	TiC.PROPERTY_PHONE,
@@ -45,6 +40,19 @@ public class PersonProxy extends KrollProxy
 	private boolean imageFetched; // lazy load these bitmap images
 	protected boolean hasImage = false;
 	private String fullName = "";
+	private String firstName = "";
+	private String lastName = "";
+	private String prefix = "";
+	private String middleName = "";
+	private String suffix = "";
+	private String nickName = "";
+	private String firstPhonetic = "";
+	private String middlePhonetic = "";
+	private String lastPhonetic = "";
+	private String organization = "";
+	private String jobTitle = "";
+	private String department = "";
+	private String birthDay = "";
 	
 	// Contact Modifications
 	private HashMap<String, Boolean> modified = new HashMap<String, Boolean>();
@@ -79,6 +87,160 @@ public class PersonProxy extends KrollProxy
 	public void setFullName(String fname) 
 	{
 		fullName = fname;
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getFirstName()
+	{
+		return firstName;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public String getLastName()
+	{
+		return lastName;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public String getPrefix()
+	{
+		return prefix;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public String getMiddleName()
+	{
+		return middleName;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public String getSuffix()
+	{
+		return suffix;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setMiddleName(String mname)
+	{
+		middleName = mname;
+	}
+
+	public void setSuffix(String sname)
+	{
+		suffix = sname;
+	}
+
+	public void setPrefix(String pname)
+	{
+		prefix = pname;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setFirstName(String fname)
+	{
+		firstName = fname;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setLastName(String lname)
+	{
+		lastName = lname;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public String getFirstPhonetic()
+	{
+		return firstPhonetic;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setFirstPhonetic(String fphonetic)
+	{
+		firstPhonetic = fphonetic;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public String getMiddlePhonetic()
+	{
+		return middlePhonetic;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setMiddlePhonetic(String mphonetic)
+	{
+		middlePhonetic = mphonetic;
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getLastPhonetic()
+	{
+		return lastPhonetic;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setLastPhonetic(String lphonetic)
+	{
+		lastPhonetic = lphonetic;
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getBirthDay()
+	{
+		return birthDay;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setBirthDay(String birthday)
+	{
+		this.birthDay = birthday;
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getNickName()
+	{
+		return nickName;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setNickName(String nickname)
+	{
+		nickName = nickname;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public String getOrganization()
+	{
+		return this.organization;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setOrganization(String organization)
+	{
+		this.organization = organization;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public String getJobTitle()
+	{
+		return jobTitle;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setJobTitle(String jobtitle)
+	{
+		jobTitle = jobtitle;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public String getDepartment()
+	{
+		return this.department;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setDepartment(String department)
+	{
+		this.department = department;
 	}
 	
 	@Kroll.method @Kroll.getProperty
@@ -133,6 +295,26 @@ public class PersonProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_EMAIL, contactMethodMapToDict(map));
 	}
 	
+	protected void setDateFromMap(Map<String, ArrayList<String>> map)
+	{
+		setProperty(TiC.PROPERTY_DATE, contactMethodMapToDict(map));
+	}
+	
+	protected void setIMFromMap(Map<String, ArrayList<String>> map)
+	{
+		setProperty(TiC.PROPERTY_INSTANTMSG, contactMethodMapToDict(map));
+	}
+	
+	protected void setRelatedNameFromMap(Map<String, ArrayList<String>> map)
+	{
+		setProperty(TiC.PROPERTY_RELATED_NAMES, contactMethodMapToDict(map));
+	}
+
+	protected void setWebSiteFromMap(Map<String, ArrayList<String>> map)
+	{
+		setProperty(TiC.EVENT_PROPERTY_URL, contactMethodMapToDict(map));
+	}
+
 	protected void setPhoneFromMap(Map<String, ArrayList<String>> map)
 	{
 		setProperty(TiC.PROPERTY_PHONE, contactMethodMapToDict(map));
