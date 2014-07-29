@@ -763,14 +763,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (args != nil) {
         searchViewProxy = [args retain];
         [searchViewProxy setDelegate:self];
-        tableController = [[UITableViewController alloc] init];
-        [TiUtils configureController:tableController withObject:nil];
-        tableController.tableView = [self tableView];
-        searchController = [[UISearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
-        searchController.searchResultsDataSource = self;
-        searchController.searchResultsDelegate = self;
-        searchController.delegate = self;
         [_searchWrapper add:searchViewProxy];
+        NSString *curPlaceHolder = [[searchViewProxy searchBar] placeholder];
+        if (curPlaceHolder == nil) {
+            [[searchViewProxy searchBar] setPlaceholder:@"Search"];
+        }
         keepSectionsInSearch = NO;
     } else {
         keepSectionsInSearch = [TiUtils boolValue:[self.proxy valueForKey:@"keepSectionsInSearch"] def:NO];
@@ -1596,6 +1593,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (_searchWrapper != nil) {
         [_searchWrapper layoutProperties]->right = TiDimensionDip(0);
         [_searchWrapper refreshView:nil];
+        [self initSearchController:self];
     }
 }
 
@@ -1655,7 +1653,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [_searchWrapper refreshView:nil];
         }
     }
-    [searchViewProxy ensureSearchBarHeirarchy];
+    [self clearSearchController:self];
     [_tableView reloadData];
 }
 
@@ -1714,6 +1712,28 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	}
 	[self.proxy fireEvent:eventName withObject:eventObject];
 	[eventObject release];	
+}
+
+-(void)clearSearchController:(id)sender
+{
+    if (sender == self) {
+        RELEASE_TO_NIL(tableController);
+        RELEASE_TO_NIL(searchController);
+        [searchViewProxy ensureSearchBarHeirarchy];
+    }
+}
+
+-(void)initSearchController:(id)sender
+{
+    if (sender == self) {
+        tableController = [[UITableViewController alloc] init];
+        [TiUtils configureController:tableController withObject:nil];
+        tableController.tableView = [self tableView];
+        searchController = [[UISearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
+        searchController.searchResultsDataSource = self;
+        searchController.searchResultsDelegate = self;
+        searchController.delegate = self;
+    }
 }
 
 #pragma mark - UITapGestureRecognizer
