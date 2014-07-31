@@ -1716,6 +1716,41 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	[eventObject release];	
 }
 
+-(CGFloat)contentWidthForWidth:(CGFloat)width
+{
+    return width;
+}
+
+-(CGFloat)contentHeightForWidth:(CGFloat)width
+{
+    if (_tableView == nil) {
+        return 0;
+    }
+    
+    BOOL useSection = NO;
+    BOOL useHeader = NO;
+    NSInteger lastSectionIndex = [self numberOfSectionsInTableView:_tableView] - 1;
+    
+    if (lastSectionIndex < 0) {
+        useHeader = YES;
+    } else {
+        useSection = YES;
+    }
+    
+    CGFloat resultHeight = 0;
+    if (useSection) {
+        resultHeight = [_tableView rectForSection:lastSectionIndex].size.height;
+    } else {
+        resultHeight = [_headerViewProxy autoHeightForSize:CGSizeMake(width, _tableView.bounds.size.height)];
+    }
+    
+    if (_footerViewProxy) {
+        resultHeight += [_footerViewProxy autoHeightForSize:CGSizeMake(width, _tableView.bounds.size.height)];
+    }
+    
+    return resultHeight;
+}
+
 #pragma mark - UITapGestureRecognizer
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
