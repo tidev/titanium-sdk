@@ -288,7 +288,7 @@ events:
         in the Android Developer Reference.
 
   - name: start
-    summary: Fired when the activity is started.e
+    summary: Fired when the activity is started.
     deprecated:
         since: "3.3.1"
         notes: Use the [onStart](Titanium.Android.Activity.onStart) property instead.
