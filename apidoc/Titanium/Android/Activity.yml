@@ -23,7 +23,7 @@ description: |
 
     When a tab group is created, you must wait until the tab group is opened before accessing
     properties or calling methods on the activity. You cannot set any properties on the tab group's
-    activity before it is opened.  Wait for the tab group's `open` event before access the tab
+    activity before it is opened.  Wait for the tab group's `open` event before accessing the tab
     group's activity.
 
     See also [android.app.Activity](http://developer.android.com/reference/android/app/Activity.html)
@@ -68,8 +68,8 @@ description: |
 
     #### Deprecated Behavior
 
-    Prior to Release 3.3.1, to monitory lifecycle events, use the activity's  events, `create`, `destroy`,
-    `pause`, `resume`, `start` and `stop` to be notified when an activity is created, destroyed, paused,
+    Prior to Release 3.3.1, to monitory lifecycle events, use the activity's events, `create`, `destroy`,
+    `pause`, `resume`, `start` and `stop`, to be notified when an activity is created, destroyed, paused,
     resumes, stated and stopped, respectively.
 
     Prior to Release 3.2.0, you can create either a "lightweight" or "heavyweight" window, as
