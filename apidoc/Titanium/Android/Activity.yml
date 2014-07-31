@@ -70,7 +70,7 @@ description: |
 
     Prior to Release 3.3.1, to monitory lifecycle events, use the activity's events, `create`, `destroy`,
     `pause`, `resume`, `start` and `stop`, to be notified when an activity is created, destroyed, paused,
-    resumes, stated and stopped, respectively.
+    resumed, started and stopped, respectively.
 
     Prior to Release 3.2.0, you can create either a "lightweight" or "heavyweight" window, as
     described on the <Titanium.UI.Window> reference page. A *heavyweight* window creates a 
