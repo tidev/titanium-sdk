@@ -44,6 +44,12 @@ description: |
       * [onDestroy](Titanium.Android.Activity.onDestroy)
       * [onRestart](Titanium.Android.Activity.onRestart)
 
+    For Window objects, the Activity callback properties may be set after creating a Window object
+    but before it is opened. If the callbacks are set after the Window is opened, some of the events
+    may be missed.
+
+    For TabGroup objects, the Activity callback properties may only be set after the `open` event is triggered.
+
     See also the "Understand the Lifecycle Callbacks" section in
     [Android Developers: Activity Lifecycle](http://developer.android.com/training/basics/activity-lifecycle/starting.html).
 
