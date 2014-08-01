@@ -1727,25 +1727,25 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         return 0;
     }
     
-    BOOL useSection = NO;
-    BOOL useHeader = NO;
-    NSInteger lastSectionIndex = [self numberOfSectionsInTableView:_tableView] - 1;
-    
-    if (lastSectionIndex < 0) {
-        useHeader = YES;
-    } else {
-        useSection = YES;
-    }
+    CGSize refSize = CGSizeMake(width, 1000);
     
     CGFloat resultHeight = 0;
-    if (useSection) {
-        resultHeight = [_tableView rectForSection:lastSectionIndex].size.height;
-    } else {
-        resultHeight = [_headerViewProxy autoHeightForSize:CGSizeMake(width, _tableView.bounds.size.height)];
+    
+    //Header auto height
+    if (_headerViewProxy != nil) {
+        resultHeight += [_headerViewProxy autoHeightForSize:refSize];
     }
     
+    //Last Section rect
+    NSInteger lastSectionIndex = [self numberOfSectionsInTableView:_tableView] - 1;
+    if (lastSectionIndex >= 0) {
+        CGRect refRect = [_tableView rectForSection:lastSectionIndex];
+        resultHeight += refRect.size.height + refRect.origin.y;
+    }
+    
+    //Footer auto height
     if (_footerViewProxy) {
-        resultHeight += [_footerViewProxy autoHeightForSize:CGSizeMake(width, _tableView.bounds.size.height)];
+        resultHeight += [_footerViewProxy autoHeightForSize:refSize];
     }
     
     return resultHeight;
