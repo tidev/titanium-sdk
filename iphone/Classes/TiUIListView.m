@@ -763,14 +763,15 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (args != nil) {
         searchViewProxy = [args retain];
         [searchViewProxy setDelegate:self];
-        tableController = [[UITableViewController alloc] init];
-        [TiUtils configureController:tableController withObject:nil];
-        tableController.tableView = [self tableView];
-        searchController = [[UISearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
-        searchController.searchResultsDataSource = self;
-        searchController.searchResultsDelegate = self;
-        searchController.delegate = self;
         [_searchWrapper add:searchViewProxy];
+        if ([TiUtils isIOS7OrGreater]) {
+            NSString *curPlaceHolder = [[searchViewProxy searchBar] placeholder];
+            if (curPlaceHolder == nil) {
+                [[searchViewProxy searchBar] setPlaceholder:@"Search"];
+            }
+        } else {
+            [self initSearchController:self];
+        }
         keepSectionsInSearch = NO;
     } else {
         keepSectionsInSearch = [TiUtils boolValue:[self.proxy valueForKey:@"keepSectionsInSearch"] def:NO];
@@ -1596,6 +1597,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (_searchWrapper != nil) {
         [_searchWrapper layoutProperties]->right = TiDimensionDip(0);
         [_searchWrapper refreshView:nil];
+        if ([TiUtils isIOS7OrGreater]) {
+            [self initSearchController:self];
+        }
     }
 }
 
@@ -1645,8 +1649,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if ([searchController isActive]) {
         [searchController setActive:NO animated:YES];
     }
-    //IOS7 DP3. TableView seems to be adding the searchView to
-    //tableView. Bug on IOS7?
     if (_searchWrapper != nil) {
         CGFloat rowWidth = floorf([self computeRowWidth:_tableView]);
         if (rowWidth > 0) {
@@ -1655,7 +1657,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [_searchWrapper refreshView:nil];
         }
     }
-    [searchViewProxy ensureSearchBarHeirarchy];
+    //IOS7 DP3. TableView seems to be adding the searchView to
+    //tableView. Bug on IOS7?
+    if ([TiUtils isIOS7OrGreater]) {
+        [self clearSearchController:self];
+    }
     [_tableView reloadData];
 }
 
@@ -1714,6 +1720,28 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	}
 	[self.proxy fireEvent:eventName withObject:eventObject];
 	[eventObject release];	
+}
+
+-(void)clearSearchController:(id)sender
+{
+    if (sender == self) {
+        RELEASE_TO_NIL(tableController);
+        RELEASE_TO_NIL(searchController);
+        [searchViewProxy ensureSearchBarHeirarchy];
+    }
+}
+
+-(void)initSearchController:(id)sender
+{
+    if (sender == self) {
+        tableController = [[UITableViewController alloc] init];
+        [TiUtils configureController:tableController withObject:nil];
+        tableController.tableView = [self tableView];
+        searchController = [[UISearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
+        searchController.searchResultsDataSource = self;
+        searchController.searchResultsDelegate = self;
+        searchController.delegate = self;
+    }
 }
 
 #pragma mark - UITapGestureRecognizer
