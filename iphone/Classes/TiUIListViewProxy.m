@@ -138,6 +138,7 @@
 			Block_release(block);
 		} else {
 			[self.listView updateIndicesForVisibleRows];
+			[self contentsWillChange];
 			return;
 		}
 	}
@@ -241,6 +242,7 @@
 			section.sectionIndex = idx;
 		}];
 		[tableView reloadData];
+		[self contentsWillChange];
 	}];
 	[insertedSections release];
 }
