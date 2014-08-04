@@ -257,10 +257,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             UIView* headerView = [[self tableView] tableHeaderView];
             [headerView setFrame:[headerView bounds]];
             [[self tableView] setTableHeaderView:headerView];
+            [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
         } else if (sender == _footerViewProxy) {
             UIView *footerView = [[self tableView] tableFooterView];
             [footerView setFrame:[footerView bounds]];
             [[self tableView] setTableFooterView:footerView];
+            [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
         } else if (sender == _pullViewProxy) {
             pullThreshhold = ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height);
         }
@@ -578,6 +580,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [self.tableView setTableFooterView:nil];
         [_footerViewProxy windowDidClose];
         RELEASE_TO_NIL(_footerViewProxy);
+        [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
     } else {
         [self configureFooter];
         [_footerViewProxy removeAllChildren:nil];
@@ -605,6 +608,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [self.tableView setTableFooterView:nil];
         [_footerViewProxy windowDidClose];
         RELEASE_TO_NIL(_footerViewProxy);
+        [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
     } else {
         [self configureFooter];
         [_footerViewProxy removeAllChildren:nil];
@@ -1731,16 +1735,16 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
     CGFloat resultHeight = 0;
     
-    //Header auto height
-    if (_headerViewProxy != nil) {
-        resultHeight += [_headerViewProxy autoHeightForSize:refSize];
-    }
-    
     //Last Section rect
     NSInteger lastSectionIndex = [self numberOfSectionsInTableView:_tableView] - 1;
     if (lastSectionIndex >= 0) {
         CGRect refRect = [_tableView rectForSection:lastSectionIndex];
         resultHeight += refRect.size.height + refRect.origin.y;
+    } else {
+        //Header auto height when no sections
+        if (_headerViewProxy != nil) {
+            resultHeight += [_headerViewProxy autoHeightForSize:refSize];
+        }
     }
     
     //Footer auto height
