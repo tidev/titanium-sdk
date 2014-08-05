@@ -397,6 +397,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return super.getActivityProxy();
 	}
 
+	@Kroll.method(name = "_getWindowActivityProxy")
+	public ActivityProxy getWindowActivityProxy()
+	{
+		if (opened) {
+			return super.getActivityProxy();
+		} else {
+			return null;
+		}
+	}
+
 	protected abstract void handleOpen(KrollDict options);
 	protected abstract void handleClose(KrollDict options);
 	protected abstract Activity getWindowActivity();

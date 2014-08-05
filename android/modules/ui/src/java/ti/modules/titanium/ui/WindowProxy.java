@@ -51,7 +51,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 {
 	private static final String TAG = "WindowProxy";
 	private static final String PROPERTY_POST_WINDOW_CREATED = "postWindowCreated";
-	private static final String PROPERTY_LOAD_URL = "loadUrl";
 
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SET_PIXEL_FORMAT = MSG_FIRST_ID + 100;
@@ -347,7 +346,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Kroll.setProperty(retain=false) @Kroll.method
 	public void setWidth(Object width)
 	{
-		// We know it's a HW window only when it's opening/opened.
 		if (opening || opened) {
 			Object current = getProperty(TiC.PROPERTY_WIDTH);
 			if (shouldFireChange(current, width)) {
@@ -366,7 +364,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Kroll.setProperty(retain=false) @Kroll.method
 	public void setHeight(Object height)
 	{
-		// We know it's a HW window only when it's opening/opened.
 		if (opening || opened) {
 			Object current = getProperty(TiC.PROPERTY_HEIGHT);
 			if (shouldFireChange(current, height)) {
@@ -438,23 +435,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				}
 			}
 		}
-	}
-
-	@Kroll.method(name = "_getWindowActivityProxy")
-	public ActivityProxy getWindowActivityProxy()
-	{
-		if (opened) {
-			return super.getActivityProxy();
-		} else {
-			return null;
-		}
-	}
-
-	@Kroll.method(name = "_isLightweight")
-	public boolean isLightweight()
-	{
-		// We know whether a window is lightweight or not only after it opens.
-		return false;
 	}
 
 	@Override
