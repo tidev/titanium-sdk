@@ -933,13 +933,17 @@ public class ListSectionProxy extends ViewProxy{
 		//Add new results
 		for (int i = 0; i < listItemData.size(); ++i) {
 			String searchableText = listItemData.get(i).getSearchableText();
+			//Treat null as ""
+			if (searchableText == null) {
+				searchableText = "";
+			}
 			//Handle case sensitivity
 			if (caseInsensitive) {
 				searchText = searchText.toLowerCase();
 				searchableText = searchableText.toLowerCase();
 			}
 			//String comparison
-			if (searchableText != null && searchableText.contains(searchText)) {
+			if (searchableText.contains(searchText)) {
 				filterIndices.add(i);
 			}
 		}
