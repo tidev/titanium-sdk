@@ -227,11 +227,15 @@ properties:
     summary: |
         Reference to the Android Activity object associated with this tab group.
     description: |
-        An Activity object is not created until the tab group is opened.
-        Before the tab group is opened, `activity` refers to an empty JavaScript object.
-        Unlike a Window activity, you CANNOT set any properties on this object.
-        Once the tab group is opened, the actual Activity object is created.
-        At this point, you can access properties and call methods on the activity.
+        An Activity object is not created until the tab group opens.
+        Before the tab group opens, `activity` refers to an empty JavaScript object.
+        You can be set properties on this object but cannot invoke any Activity methods on it.
+        Once the tab group opens, the actual Activity object is created,
+        using any properties set on the JavaScript object. At this point, you can call methods
+        on the activity and access any properties that are set when the activity is created.
+
+        Prior to Release 3.4.0, you can only set properties on the activity after the tab group
+        opens.
     platforms: [android]
     since: 3.0.0
     type: Titanium.Android.Activity
