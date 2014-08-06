@@ -1044,7 +1044,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     editing = [_tableView isEditing];
     [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
     if (!editing) {
-        [_tableView reloadData];
+        [_tableView performSelector:@selector(reloadData) withObject:nil afterDelay:0.1];
     }
 }
 
