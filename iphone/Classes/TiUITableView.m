@@ -420,6 +420,9 @@
 		if (TiDimensionIsDip(rowHeight))
 		{
 			[tableview setRowHeight:rowHeight.value];
+		} else if ([TiUtils isIOS8OrGreater]) {
+			//TIMOB-17373 rowHeight on iOS8 is -1. Bug??
+			[tableview setRowHeight:44];
 		}
 		
         BOOL initBackGround = YES;
