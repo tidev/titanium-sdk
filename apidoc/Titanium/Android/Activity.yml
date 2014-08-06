@@ -219,7 +219,7 @@ events:
   - name: create
     summary: Fired from the activity's `onCreate` method.
     deprecated:
-        since: "3.3.1"
+        since: "3.4.0"
         notes: Use the [onCreate](Titanium.Android.Activity.onCreate) property instead.
     description: |
         See also:
@@ -229,7 +229,7 @@ events:
   - name: destroy
     summary: Fired from the activity's `onDestroy` method.
     deprecated:
-        since: "3.3.1"
+        since: "3.4.0"
         notes: Use the [onDestroy](Titanium.Android.Activity.onDestroy) property instead.
     description: |
         See also: [onDestroy](http://developer.android.com/reference/android/app/Activity.html#onDestroy())
@@ -266,7 +266,7 @@ events:
   - name: pause
     summary: Fired when the activity is paused.
     deprecated:
-        since: "3.3.1"
+        since: "3.4.0"
         notes: Use the [onPause](Titanium.Android.Activity.onPause) property instead.
     description: |
         See also:
@@ -276,7 +276,7 @@ events:
   - name: resume
     summary: Fired when the activity is resumed.
     deprecated:
-        since: "3.3.1"
+        since: "3.4.0"
         notes: Use the [onResume](Titanium.Android.Activity.onResume) property instead.
     description: |
         See also: [onResume](http://developer.android.com/reference/android/app/Activity.html#onResume())
@@ -285,7 +285,7 @@ events:
   - name: start
     summary: Fired when the activity is started.
     deprecated:
-        since: "3.3.1"
+        since: "3.4.0"
         notes: Use the [onStart](Titanium.Android.Activity.onStart) property instead.
     description: |
         See also: [onStart](http://developer.android.com/reference/android/app/Activity.html#onStart())
@@ -294,7 +294,7 @@ events:
   - name: stop
     summary: Fired when the activity is stopped.
     deprecated:
-        since: "3.3.1"
+        since: "3.4.0"
         notes: Use the [onStop](Titanium.Android.Activity.onStop) property instead.
     description: |
         See also: [onStop](http://developer.android.com/reference/android/app/Activity.html#onStop())
@@ -327,7 +327,7 @@ properties:
   - name: onCreate
     summary: |
         Callback function called when the Android activity is created.
-    since: "3.3.1"        
+    since: "3.4.0"
     type: Callback<Object>
 
   - name: onCreateOptionsMenu
@@ -345,13 +345,13 @@ properties:
   - name: onDestroy
     summary: |
         Callback function called when the Android activity is destroyed.
-    since: "3.3.1"        
+    since: "3.4.0"
     type: Callback<Object>
 
   - name: onPause
     summary: |
         Callback function called when the Android activity is paused.
-    since: "3.3.1"        
+    since: "3.4.0"
     type: Callback<Object>
 
   - name: onPrepareOptionsMenu
@@ -369,25 +369,25 @@ properties:
   - name: onRestart
     summary: |
         Callback function called when the Android activity is restarted.
-    since: "3.3.1"        
+    since: "3.4.0"
     type: Callback<Object>
 
   - name: onResume
     summary: |
         Callback function called when the Android activity is resumed.
-    since: "3.3.1"        
+    since: "3.4.0"
     type: Callback<Object>
 
   - name: onStart
     summary: |
         Callback function called when the Android activity is started.
-    since: "3.3.1"        
+    since: "3.4.0"
     type: Callback<Object>
 
   - name: onStop
     summary: |
         Callback function called when the Android activity is stopped.
-    since: "3.3.1"        
+    since: "3.4.0"
     type: Callback<Object>
 
   - name: requestedOrientation
