@@ -116,7 +116,31 @@
 	}
 }
 
-#pragma mark - Background Support 
+//TIMOB-17373. Workaround for separators disappearing on iOS7 and above
+- (void) ensureVisibleSelectorWithTableView:(UITableView*)tableView
+{
+    if (![TiUtils isIOS7OrGreater] || [self selectedOrHighlighted]) {
+        return;
+    }
+    UITableView* attachedTableView = tableView;
+    UIView* superView = [self superview];
+    while (attachedTableView == nil && superView != nil) {
+        if ([superView isKindOfClass:[UITableView class]]) {
+            attachedTableView = (UITableView*)superView;
+        }
+        superView = [superView superview];
+    }
+    
+    if (attachedTableView != nil && attachedTableView.separatorStyle != UITableViewCellSeparatorStyleNone) {
+        for (UIView *subview in self.contentView.superview.subviews) {
+            if ([NSStringFromClass(subview.class) hasSuffix:@"SeparatorView"]) {
+                subview.hidden = NO;
+            }
+        }
+    }
+}
+
+#pragma mark - Background Support
 -(BOOL) selectedOrHighlighted
 {
 	return [self isSelected] || [self isHighlighted];

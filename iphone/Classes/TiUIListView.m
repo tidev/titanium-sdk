@@ -246,6 +246,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         UITableViewCell* theCell = [_tableView cellForRowAtIndexPath:vIndexPath];
         if ([theCell isKindOfClass:[TiUIListItem class]]) {
             ((TiUIListItem*)theCell).proxy.indexPath = vIndexPath;
+            [((TiUIListItem*)theCell) ensureVisibleSelectorWithTableView:_tableView];
         }
     }];
 }
