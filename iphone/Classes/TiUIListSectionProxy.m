@@ -115,7 +115,7 @@
 
 - (void)setItems:(id)args
 {
-	[self setItems:args withObject:[NSDictionary dictionaryWithObject:NUMINT(UITableViewRowAnimationNone) forKey:@"animationStyle"]];
+	[self setItems:args withObject:[NSDictionary dictionaryWithObject:NUMINT(UITableViewRowAnimationAutomatic) forKey:@"animationStyle"]];
 }
 
 - (void)setItems:(id)args withObject:(id)properties
@@ -125,7 +125,18 @@
 	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
 	[self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
 		[_items setArray:items];
-		[tableView reloadSections:[NSIndexSet indexSetWithIndex:_sectionIndex] withRowAnimation:animation];
+		
+		// If animation is NONE, call [tableView reloadData], this will trigger the [tableView numberOfSectionsInTableView], etc.
+		// According to Apple's documentation, "we only keep info about visible rows, this is cheap"
+		// ListView's "setItem" (this method) reloads the entire data of the section, calling [tableView reloadData] will do the job,
+		// since the other sections' data is not replaced
+		if(animation == UITableViewRowAnimationNone) {
+			[tableView reloadData];
+		} else {
+			[tableView beginUpdates];
+			[tableView reloadSections:[NSIndexSet indexSetWithIndex:_sectionIndex] withRowAnimation:animation];
+			[tableView endUpdates];
+		}
 	}];
 }
 
@@ -147,7 +158,9 @@
 		for (NSUInteger i = 0; i < count; ++i) {
 			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
 		}
+		[tableView beginUpdates];
 		[tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+		[tableView endUpdates];
 		[indexPaths release];
 	}];
 }
@@ -175,7 +188,9 @@
 		for (NSUInteger i = 0; i < count; ++i) {
 			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
 		}
+		[tableView beginUpdates];
 		[tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+		[tableView endUpdates];
 		[indexPaths release];
 	}];
 }
@@ -199,6 +214,7 @@
 		[_items replaceObjectsInRange:NSMakeRange(insertIndex, actualReplaceCount) withObjectsFromArray:items];
 		NSUInteger count = [items count];
 		NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:MAX(count, actualReplaceCount)];
+		[tableView beginUpdates];
 		for (NSUInteger i = 0; i < actualReplaceCount; ++i) {
 			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
 		}
@@ -213,6 +229,8 @@
 			[tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:animation];
 		}
 		[indexPaths release];
+		[tableView endUpdates];
+
 	}];
 }
 
@@ -241,7 +259,9 @@
 		for (NSUInteger i = 0; i < actualDeleteCount; ++i) {
 			[indexPaths addObject:[NSIndexPath indexPathForRow:deleteIndex+i inSection:_sectionIndex]];
 		}
+		[tableView beginUpdates];
 		[tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+		[tableView endUpdates];
 		[indexPaths release];
 	}];
 }
@@ -272,7 +292,9 @@
 			}
 		}
 		if (forceReload) {
+			[tableView beginUpdates];
 			[tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+			[tableView endUpdates];
 		}
 		[indexPaths release];
 	}];

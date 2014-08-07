@@ -1805,7 +1805,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 		return animationStyle;
 	}
 	BOOL animate = [TiUtils boolValue:@"animated" properties:properties def:NO];
-	return animate ? UITableViewRowAnimationFade : UITableViewRowAnimationNone;
+	return animate ? UITableViewRowAnimationFade : UITableViewRowAnimationAutomatic;
 }
 
 @end

@@ -132,9 +132,7 @@
 		}
 		pthread_mutex_unlock(&_operationQueueMutex);
 		if (block != nil) {
-			[tableView beginUpdates];
 			block(tableView);
-			[tableView endUpdates];
 			Block_release(block);
 		} else {
 			[self.listView updateIndicesForVisibleRows];
