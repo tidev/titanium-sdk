@@ -564,6 +564,12 @@ typedef enum
 +(BOOL)isIOS7OrGreater;
 
 /**
+ Whether or not the current OS version is equal to or greater than 8.0.
+ @return _YES_ if the current OS version is equal to or greater thann 8.0, _NO_ otherwise.
+ */
++(BOOL)isIOS8OrGreater;
+
+/**
  Whether or not the current device is an iPhone 4.
  @return _YES_ if the current device is an iPhone 4, _NO_ otherwise.
  */

@@ -246,6 +246,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         UITableViewCell* theCell = [_tableView cellForRowAtIndexPath:vIndexPath];
         if ([theCell isKindOfClass:[TiUIListItem class]]) {
             ((TiUIListItem*)theCell).proxy.indexPath = vIndexPath;
+            [((TiUIListItem*)theCell) ensureVisibleSelectorWithTableView:_tableView];
         }
     }];
 }
@@ -1043,7 +1044,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     editing = [_tableView isEditing];
     [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
     if (!editing) {
-        [_tableView reloadData];
+        [_tableView performSelector:@selector(reloadData) withObject:nil afterDelay:0.1];
     }
 }
 
