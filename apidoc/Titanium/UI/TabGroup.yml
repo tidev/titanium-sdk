@@ -229,7 +229,7 @@ properties:
     description: |
         An Activity object is not created until the tab group opens.
         Before the tab group opens, `activity` refers to an empty JavaScript object.
-        You can be set properties on this object but cannot invoke any Activity methods on it.
+        You can set properties on this object but cannot invoke any Activity methods on it.
         Once the tab group opens, the actual Activity object is created,
         using any properties set on the JavaScript object. At this point, you can call methods
         on the activity and access any properties that are set when the activity is created.
