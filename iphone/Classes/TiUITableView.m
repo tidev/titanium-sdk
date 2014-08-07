@@ -98,23 +98,6 @@
 	if (proxy.callbackCell == self) {
 		[proxy prepareTableRowForReuse];
 	}
-	//[self setProxy:nil];
-	
-	// TODO: HACK: In the case of abnormally large table view cells, we have to reset the size.
-	// This is because the view drawing subsystem takes the cell frame to be the sandbox bounds when drawing views,
-	// and if its frame is too big... the view system allocates way too much memory/pixels and doesn't appear to let
-	// them go.
-    CGRect oldBounds = [[self contentView] bounds];
-    if (!CGPointEqualToPoint(oldBounds.origin,CGPointZero)) {
-        //TIMOB-15396. Occasionally the bounds have a non zero origin. Why?
-        [[self contentView] setBounds:CGRectZero];
-        [[self contentView] setCenter:CGPointZero];
-        
-    } else {
-        CGRect oldFrame = [[self contentView] frame];
-        
-        [[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 0,0)];
-    }
 }
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
@@ -2067,9 +2050,6 @@ return result;	\
             [row.callbackCell setProxy:nil];
         }
 		cell = [[[TiUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.tableClass row:row] autorelease];
-        CGSize cellSize = [(TiUITableViewCell*)cell computeCellSize];
-		[cell setBounds:CGRectMake(0, 0, cellSize.width,cellSize.height)];
-        [[cell contentView] setBounds:[cell bounds]];
 	}
 	else
 	{
