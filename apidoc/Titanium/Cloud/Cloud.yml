@@ -10,9 +10,9 @@ description: |
     
     The `Titanium.Cloud` module's specialized objects, such as `Titanium.Cloud.Users`, make accessing 
     ACS as simple as using any of Titanium's other APIs, due to their familiar and intuitive API schemas. 
-    You also have the option of using the `Titanium.Cloud.sendRequest` method to invoke 
-    ACS REST APIs directly. This approach, while requiring some additional coding, lets you use 
-    new ACS APIs as soon as they are deployed without having to wait for an update to the Cloud module itself. 
+    You can also use the <Titanium.Cloud.sendRequest> method to invoke 
+    ACS REST APIs directly. This approach requires some additional configuration for each method call, 
+    but it lets you use new ACS APIs as soon as they are available.
     
     For a more detailed overview of ACS and how to configure an application to use it, refer to the 
     [Integrating with Appcelerator Cloud Services](http://docs.appcelerator.com/titanium/latest/#!/guide/Integrating_with_Appcelerator_Cloud_Services).
@@ -143,12 +143,53 @@ methods:
   - name: sendRequest
     summary: Makes a REST API call to the ACS server.
     description: |
-            By default, the base URL for each REST call is the ACS public endpoint 
-            (**api.cloud.appcelerator.com/v1**). You specify the final URL fragment of the REST endpoint
-             (**users/login.json**, for example), the appropriate HTTP method type, 
-             and the data to send with the request.
+            This method lets you easily call ACS REST APIs directly. You provide the REST API endpoint 
+            relative to the ACS base API URL ([users/login.json](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-login)
+            for example), the appropriate HTTP method type (`GET`, `POST`, or `DELETE`), and the data
+            to send with the request.
 
-            You can find REST method endpoints and their HTTP method types in the [ACS API Reference](/cloud/latest/#!/guide/rest).
+            As with the built-in Cloud methods, like <Titanium.Cloud.Users.login>, 
+            the method's `callback` function parameter is passed a <CloudResponse> object that contains meta-data 
+            about the request, and the actual response payload. If the REST method call completed successfully, 
+            <CloudResponse.success> is `true`, or `false` if the call failed. If <CloudResponse.error> is `true`, 
+            <CloudResponse.message> will contain a string that describes the error.  
+
+            If the method call completed successfully, the `CloudResponse` object contains an additonal object 
+            for the actual response payload. The name and type of this object depends on the REST
+            endpoint that was invoked. The [ACS API documentation](http://docs.appcelerator.com/cloud/latest/#!/api) 
+            specifies the return type for each REST endpoint. For example, the [users/login.json](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-login)
+            endpoint returns a single element array named `users` that contains the [Users](http://docs.appcelerator.com/cloud/latest/#!/api/Users) 
+            object for the logged-in user.
+
+            For example:
+
+                Cloud.sendRequest({
+                    url : "users/login.json",
+                    method : "POST",
+                    data : {
+                        login : 'test@mycompany.com',
+                        password : 'test_password'
+                    }
+                }, function(e) {// The callback called when the request completes
+                    if (e.success) {
+                        var user = e.users[0];
+                        alert('Success:\n' + 
+                            'id: ' + user.id + '\n' + 
+                            'sessionId: ' + Cloud.sessionId + '\n' + 
+                            'first name: ' + user.first_name + '\n' + 
+                            'last name: ' + user.last_name);
+                    } else {
+                        alert('Error:\n' + ((e.error && e.message) || JSON.stringify(e)));
+                    }
+                });
+
+            By default, the base URL for each REST call is the public URL (**api.cloud.appcelerator.com/v1**). 
+            For virtual private cloud (VPC) deployments, you can specify a different URL by modifying 
+            the `acs-base-url` property of your project's tiapp.xml file (see **tiapp.xml Properties** above).
+                         
+    returns:
+        type: void
+
         
     parameters:
 
