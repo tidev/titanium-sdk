@@ -1,30 +1,75 @@
 ---
 name: Titanium.Cloud
-summary: The top level Cloud module.
+summary: The top level Cloud module for making calls to Appcelerator Cloud Services (ACS).
 description: |
     Appcelerator Cloud Services (ACS) provides a wide array of automatically-scaled data storage 
     and web services, such as user logins, photo uploads, checkins, status updates, and push 
     notifications, without the need to learn multiple third-party SDKs or do any 
-    server-side programming. Remote calls to ACS are done via a single 
-    [REST API](http://cloud.appcelerator.com/docs/docmenu_info), which may be used with almost any 
-    web technology that has access to an HTTP client.
+    server-side programming. Remote calls to ACS are done using REST APIs, which may be used with any 
+    client technology that supports HTTP.
     
-    The `Titanium.Cloud` module makes accessing ACS as simple as using any of Titanium's other APIs, 
-    due to its familiar and intuitive API schema. 
+    The `Titanium.Cloud` module's specialized objects, such as `Titanium.Cloud.Users`, make accessing 
+    ACS as simple as using any of Titanium's other APIs, due to their familiar and intuitive API schemas. 
+    You can also use the <Titanium.Cloud.sendRequest> method to invoke 
+    ACS REST APIs directly. This approach requires some additional configuration for each method call, 
+    but it lets you use new ACS APIs as soon as they are available.
     
     For a more detailed overview of ACS and how to configure an application to use it, refer to the 
-    [Integrating with Appcelerator Cloud
-    Services](http://docs.appcelerator.com/titanium/latest/#!/guide/Integrating_with_Appcelerator_Cloud_Services) 
-    and [ACS Quickstart](http://docs.appcelerator.com/cloud/latest/#!/guide/acs_quickstart) guides.
-    
+    [Integrating with Appcelerator Cloud Services](http://docs.appcelerator.com/titanium/latest/#!/guide/Integrating_with_Appcelerator_Cloud_Services).
+        
     #### Using the Titanium.Cloud Module
     
-    This module is not included in the Titanium namespace, but it is bundled with the
-    Titanium SDK as an optional CommonJS module. To use it, import the module using
-    `require`: 
+    The Titanium.Cloud module is bundled with the Titanium SDK as an optional CommonJS module. 
+    To use it, import the module with `require('ti.cloud')`, and then begin calling the methods 
+    on its various objects. For example, the following code uses the `Titanium.Cloud.Users.login` 
+    method to login the user with the specified login and password:
     
         var Cloud = require('ti.cloud');
+
+        Cloud.Users.login({
+            login: 'test@mycompany.com',
+            password: 'test_password'
+        }, function (e) {
+            if (e.success) {
+                var user = e.users[0];
+                alert('Success:\n' +
+                    'id: ' + user.id + '\n' +
+                    'sessionId: ' + Cloud.sessionId + '\n' +
+                    'first name: ' + user.first_name + '\n' +
+                    'last name: ' + user.last_name);
+            } else {
+                alert('Error:\n' +
+                    ((e.error && e.message) || JSON.stringify(e)));
+            }
+        });
     
+    #### Invoking ACS REST APIs Directly with sendRequest()
+
+    The `Titanium.Cloud.sendRequest` method lets you directly invoke ACS REST APIs. The following example,
+    equivalent to the previous one, invokes the [users/login.json](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-login) 
+    method directly to login a user.
+
+        Cloud.sendRequest({
+            url : "users/login.json",
+            method : "POST",
+            data : {
+                login : 'test@mycompany.com',
+                password : 'test_password'
+            }
+        }, function(e) {// The callback called when the request completes
+            if (e.success) {
+                var user = e.users[0];
+                alert('Success:\n' + 
+                    'id: ' + user.id + '\n' + 
+                    'sessionId: ' + Cloud.sessionId + '\n' + 
+                    'first name: ' + user.first_name + '\n' + 
+                    'last name: ' + user.last_name);
+            } else {
+                alert('Error:\n' + ((e.error && e.message) || JSON.stringify(e)));
+            }
+        });     
+
+
     #### tiapp.xml Properties
 
     Studio will create a pair of API keys (Development and Production) for each Titanium
@@ -94,6 +139,73 @@ methods:
         to be used when manually making calls to the ACS servers using <Titanium.Network.HTTPClient>. 
     returns:
         type: String
+  
+  - name: sendRequest
+    summary: Makes a REST API call to the ACS server.
+    description: |
+            This method lets you easily call ACS REST APIs directly. You provide the REST API endpoint 
+            relative to the ACS base API URL ([users/login.json](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-login)
+            for example), the appropriate HTTP method type (`GET`, `POST`, or `DELETE`), and the data
+            to send with the request.
+
+            As with the built-in Cloud methods, like <Titanium.Cloud.Users.login>, 
+            the method's `callback` function parameter is passed a <CloudResponse> object that contains meta-data 
+            about the request, and the actual response payload. If the REST method call completed successfully, 
+            <CloudResponse.success> is `true`, or `false` if the call failed. If <CloudResponse.error> is `true`, 
+            <CloudResponse.message> will contain a string that describes the error.  
+
+            If the method call completed successfully, the `CloudResponse` object contains an additonal object 
+            for the actual response payload. The name and type of this object depends on the REST
+            endpoint that was invoked. The [ACS API documentation](http://docs.appcelerator.com/cloud/latest/#!/api) 
+            specifies the return type for each REST endpoint. For example, the [users/login.json](http://docs.appcelerator.com/cloud/latest/#!/api/Users-method-login)
+            endpoint returns a single element array named `users` that contains the [Users](http://docs.appcelerator.com/cloud/latest/#!/api/Users) 
+            object for the logged-in user.
+
+            For example:
+
+                Cloud.sendRequest({
+                    url : "users/login.json",
+                    method : "POST",
+                    data : {
+                        login : 'test@mycompany.com',
+                        password : 'test_password'
+                    }
+                }, function(e) {// The callback called when the request completes
+                    if (e.success) {
+                        var user = e.users[0];
+                        alert('Success:\n' + 
+                            'id: ' + user.id + '\n' + 
+                            'sessionId: ' + Cloud.sessionId + '\n' + 
+                            'first name: ' + user.first_name + '\n' + 
+                            'last name: ' + user.last_name);
+                    } else {
+                        alert('Error:\n' + ((e.error && e.message) || JSON.stringify(e)));
+                    }
+                });
+
+            By default, the base URL for each REST call is the public URL (**api.cloud.appcelerator.com/v1**). 
+            For virtual private cloud (VPC) deployments, you can specify a different URL by modifying 
+            the `acs-base-url` property of your project's tiapp.xml file (see **tiapp.xml Properties** above).
+                         
+    returns:
+        type: void
+
+        
+    parameters:
+
+      - name: parameters
+        summary: | 
+            A Dictionary containing the parameters to send with the request. It must contain the following
+            key-value pairs:
+
+            * **url** -- A string specifying the last fragment of the request URL.
+            * **method** -- A string specifying the HTTP method to use: "GET", "POST", "PUT", or "DELETE".
+            * **data** -- A Dictionary containing name-value pairs to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when a response is received.
+        type: Callback<CloudResponse>
 
 properties:
   - name: debug
