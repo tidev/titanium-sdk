@@ -47,6 +47,18 @@ description: |
     - Set the `bindId` to bind the template to a custom property in the list data item. The custom
       properties in the list data item contain key-value pairs of view properties and their values.
 
+    A list template supports the following view classes:
+
+      * <Titanium.UI.ActivityIndicator>
+      * <Titanium.UI.Button>
+      * <Titanium.UI.ImageView>
+      * <Titanium.UI.Label>
+      * <Titanium.UI.ProgressBar>
+      * <Titanium.UI.Slider>
+      * <Titanium.UI.Switch>
+      * <Titanium.UI.TextArea>
+      * <Titanium.UI.TextField>
+
     For example, suppose you have a list data item defined as `{foo:{text: 'foobar'}}` and an item
     template defined as `{childTemplates: [{type: 'Ti.UI.Label', bindId: 'foo'}]}`.  The `foo`
     property in the list data item binds to the label in the template, which sets the `text`
@@ -475,7 +487,19 @@ platforms: [android, ipad, iphone]
 since: '3.1.0'
 properties:
   - name: type
-    summary: View's class name, for example, `Ti.UI.View`.
+    summary: View's class name, for example, `Ti.UI.Button`.
+    description: |
+        Only the following view classes are supported:
+
+          * <Titanium.UI.ActivityIndicator>
+          * <Titanium.UI.Button>
+          * <Titanium.UI.ImageView>
+          * <Titanium.UI.Label>
+          * <Titanium.UI.ProgressBar>
+          * <Titanium.UI.Slider>
+          * <Titanium.UI.Switch>
+          * <Titanium.UI.TextArea>
+          * <Titanium.UI.TextField>
     type: String
     optional: false
 
