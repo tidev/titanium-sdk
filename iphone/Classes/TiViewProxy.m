@@ -27,6 +27,7 @@
 @implementation TiViewProxy
 
 @synthesize eventOverrideDelegate = eventOverrideDelegate;
+@synthesize stateEvents = _stateEvents;
 
 #pragma mark public API
 
@@ -1409,6 +1410,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 {
 	RELEASE_TO_NIL(pendingAdds);
 	RELEASE_TO_NIL(destroyLock);
+	RELEASE_TO_NIL(_stateEvents);
 	pthread_rwlock_destroy(&childrenLock);
 	
 	//Dealing with children is in _destroy, which is called by super dealloc.
@@ -1618,14 +1620,16 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	return [self _hasListeners:type checkParent:YES];
 }
 
--(NSArray *)stateEvents
+// For subclass to use.
+// Allows certain events to fire even if view is "touch enabled" false
+// See TiUIImageViewProxy.m as an example
+-(NSMutableArray *)stateEvents
 {
-    NSMutableArray *arr = [NSMutableArray array];
-    [arr addObject:@"postlayout"];
-    if([self isKindOfClass:[TiUIImageViewProxy class]]) {
-        [arr addObject:@"load"];
-    }
-    return arr;
+	if(_stateEvents == nil) {
+		_stateEvents = [[NSMutableArray alloc] init];
+		[_stateEvents addObject:@"postlayout"];
+	}
+    return _stateEvents;
 }
 
 -(BOOL)viewProxyShouldFireEvent:(NSString *)type
