@@ -123,7 +123,7 @@ Creator.prototype.copyDir = function copyDir(srcDir, destDir, callback, variable
 					fs.writeFileSync(dest, fs.readFileSync(src));
 				}
 
-				fs.chmodSync(dest, fs.statSync(src).mode & 07777);
+				fs.chmodSync(dest, fs.statSync(src).mode & 0777);
 				next();
 
 			} else {
