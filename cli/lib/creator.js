@@ -117,11 +117,14 @@ Creator.prototype.copyDir = function copyDir(srcDir, destDir, callback, variable
 					dest = dest.replace(ejsRegExp, '');
 					_t.logger.debug(__('Copying %s => %s', src.cyan, dest.cyan));
 					// strip the .ejs extension and render the template
-					fs.writeFile(dest, ejs.render(fs.readFileSync(src).toString(), variables), next);
+					fs.writeFileSync(dest, ejs.render(fs.readFileSync(src).toString(), variables));
 				} else {
 					_t.logger.debug(__('Copying %s => %s', src.cyan, dest.cyan));
-					fs.writeFile(dest, fs.readFileSync(src), next);
+					fs.writeFileSync(dest, fs.readFileSync(src));
 				}
+
+				fs.chmodSync(dest, fs.statSync(src).mode & 07777);
+				next();
 
 			} else {
 				// ignore
