@@ -550,6 +550,7 @@ DEFINE_EXCEPTIONS
 	
     APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
     [req setUrl:url];
+    [req setMethod:@"GET"];
     [req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
     [req setSynchronous:YES];
     [[TiApp app] startNetwork];

@@ -186,6 +186,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 	
 	YQLCallback *job = [[YQLCallback alloc] initWithCallback:callback module:self];
 	APSHTTPRequest *req = [[APSHTTPRequest alloc] init];
+	[req setMethod:@"GET"];
     [req setUrl:[NSURL URLWithString:theurl]];
 	[req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
 	[[TiApp app] startNetwork];
