@@ -14,11 +14,10 @@
 
 @implementation TiUIWebViewProxy
 
-static NSArray* webKeySequence;
-
 #ifdef DEBUG_MEMORY
 -(void)dealloc
 {
+	RELEASE_TO_NIL(webKeySequence);
 	[super dealloc];
 }
 
@@ -35,11 +34,14 @@ static NSArray* webKeySequence;
 
 -(NSArray *)keySequence
 {
-    if (webKeySequence == nil)
-    {
-        //URL has to be processed first since the spinner depends on URL being remote
-        webKeySequence = [[NSArray arrayWithObjects:@"url",nil] retain];
-    }
+	RELEASE_TO_NIL(webKeySequence)
+	// if "html" is not set, the URL has to be processed first since the spinner depends on URL being remote
+	if ([self valueForUndefinedKey:@"html"] == nil) {
+		webKeySequence = [[NSArray arrayWithObjects:@"url",nil] retain];
+	} else {
+		webKeySequence = [[NSArray array] retain];
+	}
+	
     return webKeySequence;
 }
 

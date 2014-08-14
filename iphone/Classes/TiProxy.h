@@ -111,7 +111,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	pthread_rwlock_t listenerLock;
 	BOOL reproxying;
 @protected
-	NSMutableDictionary *dynprops; 
+	NSMutableDictionary *dynprops;
+	NSMutableArray *dynpropnames;
 	pthread_rwlock_t dynpropsLock; // NOTE: You must respect the dynprops lock when accessing dynprops elsewhere!
 
 	int bridgeCount;
