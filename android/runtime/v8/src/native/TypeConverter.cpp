@@ -600,7 +600,7 @@ jobject TypeConverter::jsValueToJavaObject(JNIEnv *env, v8::Local<v8::Value> jsV
 			v8::Handle<v8::Array> objectKeys = jsObject->GetOwnPropertyNames();
 			int numKeys = objectKeys->Length();
 			*isNew = true;
-			jobject javaHashMap = env->NewObject(JNIUtil::hashMapClass, JNIUtil::hashMapInitMethod, numKeys);
+			jobject javaKrollDict = env->NewObject(JNIUtil::krollDictClass, JNIUtil::krollDictInitMethod, numKeys);
 
 			for (int i = 0; i < numKeys; i++) {
 				v8::Local<v8::Value> jsObjectPropertyKey = objectKeys->Get((uint32_t) i);
@@ -609,8 +609,8 @@ jobject TypeConverter::jsValueToJavaObject(JNIEnv *env, v8::Local<v8::Value> jsV
 				v8::Local<v8::Value> jsObjectPropertyValue = jsObject->Get(jsObjectPropertyKey);
 				jobject javaObjectPropertyValue = TypeConverter::jsValueToJavaObject(env, jsObjectPropertyValue, &valueIsNew);
 
-				jobject result = env->CallObjectMethod(javaHashMap,
-				                                       JNIUtil::hashMapPutMethod,
+				jobject result = env->CallObjectMethod(javaKrollDict,
+				                                       JNIUtil::krollDictPutMethod,
 				                                       javaObjectPropertyKey,
 				                                       javaObjectPropertyValue);
 				env->DeleteLocalRef(result);
@@ -623,7 +623,7 @@ jobject TypeConverter::jsValueToJavaObject(JNIEnv *env, v8::Local<v8::Value> jsV
 				}
 			}
 
-			return javaHashMap;
+			return javaKrollDict;
 		}
 	}
 
