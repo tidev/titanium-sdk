@@ -120,13 +120,49 @@
 
 - (void)setItems:(id)args withObject:(id)properties
 {
-	ENSURE_TYPE_OR_NIL(args,NSArray);
-	NSArray *items = args;
-	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
-	[self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
-		[_items setArray:items];
-		[tableView reloadSections:[NSIndexSet indexSetWithIndex:_sectionIndex] withRowAnimation:animation];
-	}];
+    ENSURE_TYPE_OR_NIL(args,NSArray);
+    NSArray *items = args;
+    UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    NSUInteger oldCount = [_items count];
+    NSUInteger newCount = [items count];
+    if ((animation == UITableViewRowAnimationNone) && (oldCount != newCount)) {
+        NSUInteger minCount = MIN(oldCount, newCount);
+        NSUInteger maxCount = MAX(oldCount, newCount);
+        NSUInteger diffCount = maxCount - minCount;
+        
+        //Dispath block for difference
+        [self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
+            [_items setArray:items];
+            NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:diffCount];
+            for (NSUInteger i = 0; i < diffCount; ++i) {
+                [indexPaths addObject:[NSIndexPath indexPathForRow:(minCount + i) inSection:_sectionIndex]];
+            }
+            if (newCount > oldCount) {
+                [tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+            } else {
+                [tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+            }
+            [indexPaths release];
+        }];
+        
+        //Dispatch block for common items
+        if (minCount > 0) {
+            [self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
+                NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:minCount];
+                for (NSUInteger i = 0; i < minCount; ++i) {
+                    [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:_sectionIndex]];
+                }
+                [tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+                [indexPaths release];
+            }];
+        }
+        
+    } else {
+        [self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
+            [_items setArray:items];
+            [tableView reloadSections:[NSIndexSet indexSetWithIndex:_sectionIndex] withRowAnimation:animation];
+        }];
+    }
 }
 
 - (void)appendItems:(id)args
