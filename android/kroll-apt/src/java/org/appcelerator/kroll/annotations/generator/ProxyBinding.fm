@@ -242,6 +242,19 @@
 		"typeValidation":false,
 		"defaultValue": "null"
 	},
+	"org.appcelerator.kroll.KrollDict":{
+		"jsType":"Value",
+		"jsConvertType":"Value",
+		"jsToJavaConverter":"jsObjectToJavaKrollDict",
+		"javaToJsConverter":"javaObjectToJsValue",
+		"jvalue":"l",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jobject",
+		"javaValidation":true,
+		"javaDeleteLocalRef":true,
+		"typeValidation":false,
+		"defaultValue": "null"
+	},
 	"java.lang.String":{
 		"jsType":"Value",
 		"jsToJavaConverter":"jsValueToJavaString",
@@ -257,7 +270,7 @@
 	"java.lang.String[]":{
 		"jsType":"Array",
 		"jsHandleCast":"Array",
-		"jsToJavaConverter":"jsArrayToJavaArray",
+		"jsToJavaConverter":"jsArrayToJavaStringArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[Ljava/lang/String;",
 		"javaCallMethodType":"Object",
