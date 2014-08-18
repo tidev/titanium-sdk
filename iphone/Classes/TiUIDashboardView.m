@@ -72,7 +72,7 @@ static const NSInteger kDashboardViewDefaultColumnCount = 3;
     [[self proxy] replaceValue:args forKey:@"editable" notification:NO];
 }
 
--(void)setViewData:(id)args
+-(void)setViewData_:(id)args
 {
 	[self launcher];
     

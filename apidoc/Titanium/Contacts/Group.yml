@@ -55,9 +55,8 @@ methods:
     parameters:
       - name: sortBy
         summary: |
-            Method for sorting. One of 
-            [CONTACTS_SORT_FIRST_NAME](Titanium.Contacts.CONTACTS_SORT_FIRST_NAME), 
-            or [CONTACTS_SORT_LAST_NAME](Titanium.Contacts.CONTACTS_SORT_LAST_NAME).
+            Method for sorting.
+        constants: Titanium.Contacts.CONTACTS_SORT_*
         type: Number
     platforms: [android, iphone, ipad]    
 

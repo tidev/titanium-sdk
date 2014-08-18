@@ -20,12 +20,14 @@ import kankan.wheel.widget.WheelView;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.graphics.Typeface;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 
@@ -146,7 +148,11 @@ public class TiUIDateSpinner extends TiUIView
         if (d.containsKey("numericMonths")) {
         	numericMonths = TiConvert.toBoolean(d, "numericMonths");
         }
-        
+
+        if (d.containsKey(TiC.PROPERTY_FONT)) {
+        	setFontProperties();
+        }
+
         if (maxDate.before(minDate)) {
         	maxDate.setTime(minDate.getTime());
         }
@@ -169,8 +175,11 @@ public class TiUIDateSpinner extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if ("value".equals(key)) {
-			Date date = (Date)newValue;
+		if (TiC.PROPERTY_FONT.equals(key)) {
+			setFontProperties();
+
+		} else if (TiC.PROPERTY_VALUE.equals(key)) {
+			Date date = (Date) newValue;
 			setValue(date.getTime());
 		} else if ("locale".equals(key)) {
 			setLocale(TiConvert.toString(newValue));
@@ -178,7 +187,45 @@ public class TiUIDateSpinner extends TiUIView
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
 	
-	
+	private void setFontProperties()
+	{
+		Float fontSize = null;
+		Typeface typeface = null;
+		String[] fontProperties = TiUIHelper.getFontProperties(proxy.getProperties());
+
+		if (fontProperties[TiUIHelper.FONT_SIZE_POSITION] != null) {
+			fontSize = Float.valueOf(TiUIHelper.getSize(fontProperties[TiUIHelper.FONT_SIZE_POSITION]));
+		}
+
+		if (fontProperties[TiUIHelper.FONT_FAMILY_POSITION] != null) {
+			typeface = TiUIHelper.toTypeface(fontProperties[TiUIHelper.FONT_FAMILY_POSITION]);
+		}
+		Integer typefaceWeight = null;
+		if (fontProperties[TiUIHelper.FONT_WEIGHT_POSITION] != null) {
+			typefaceWeight = Integer.valueOf(TiUIHelper.toTypefaceStyle(fontProperties[TiUIHelper.FONT_WEIGHT_POSITION],
+				fontProperties[TiUIHelper.FONT_SIZE_POSITION]));
+		}
+
+		if (typeface != null) {
+			dayWheel.setTypeface(typeface);
+			monthWheel.setTypeface(typeface);
+			yearWheel.setTypeface(typeface);
+		}
+		if (typefaceWeight != null) {
+			dayWheel.setTypefaceWeight(typefaceWeight);
+			monthWheel.setTypefaceWeight(typefaceWeight);
+			yearWheel.setTypefaceWeight(typefaceWeight);
+		}
+		if (fontSize != null) {
+			dayWheel.setTextSize(fontSize.intValue());
+			monthWheel.setTextSize(fontSize.intValue());
+			yearWheel.setTextSize(fontSize.intValue());
+		}
+		dayWheel.invalidate();
+		monthWheel.invalidate();
+		yearWheel.invalidate();
+	}
+
 	private void setAdapters()
 	{
 		setYearAdapter();

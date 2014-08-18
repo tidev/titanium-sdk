@@ -9,7 +9,9 @@ define(['Ti/_/Evented', 'Ti/_/lang'], function(Evented, lang) {
 
 		// the order of these DOES matter... it uses the last known function
 		// (i.e. if trace() does not exist, it'll use debug() for trace)
-	fns = ['debug', 'trace', 'error', 'fatal', 'critical', 'notice', 'warn', 'info'];
+		fns = ['debug', 'trace', 'error', 'fatal', 'critical', 'notice', 'warn', 'info'],
+		len = fns.length;
+
 	// console.*() shim
 	con === void 0 && (con = global.console = {});
 
@@ -25,7 +27,7 @@ define(['Ti/_/Evented', 'Ti/_/lang'], function(Evented, lang) {
 
 	con.trace = 0; // need to undefine trace() since it does something completely different
 
-	for (; i < 9; i++) {
+	for (; i < len; i++) {
 		(function(fn) {
 			var ls = last = console[fn] ? fn : last;
 			api[fn] = function() {

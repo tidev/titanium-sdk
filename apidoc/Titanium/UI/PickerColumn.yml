@@ -3,8 +3,10 @@ name: Titanium.UI.PickerColumn
 summary: 
     A picker column, representing a selectable group of items in a <Titanium.UI.Picker>. 
 description: |
-    Use the <Titanium.UI.createPickerColumn> method to create a picker column control.
-    
+    Use the <Titanium.UI.createPickerColumn> method to create a picker column control. In an Alloy application,
+    you can use a **`<PickerColumn>`** element inside a `<Picker>` element. You can also use `<Column>` 
+    as a shorthand for `<PickerColumn>` (see Examples).
+
     On Android, the `useSpinner` property must be enabled to support multiple columns.
     
     See <Titanium.UI.Picker> for further examples of usage.
@@ -17,6 +19,25 @@ excludes:
 methods:
   - name: addRow
     summary: Adds a row to this column.
+    description: |
+      In an Alloy application you can use one or more `<PickerRow>` (or `<Row>`) elements inside 
+      a `<PickerColumn>` (or `<Column>`) element.
+
+      <Alloy>
+          <PickerColumn id="hour">
+              <PickerRow title="10"/>
+              <PickerRow title="11"/>
+              <PickerRow title="12"/>
+          </PickerColumn>
+          <!-- Picker shorthand notation -->
+          <Column id="minutes">
+              <Row title="15"/>
+              <Row title="30"/>
+              <Row title="45"/>
+              <Row title="00"/>
+          </Column>
+      </Alloy>
+
     parameters:
       - name: row
         summary: A row to add.
@@ -46,6 +67,10 @@ properties:
     summary: The selected row in this column.
     type: Titanium.UI.PickerRow
     platforms: [mobileweb, tizen]
+  
+  - name: font
+    summary: Font to use for text.
+    type: Font
     
 examples:
   - title: Multi-Column Picker

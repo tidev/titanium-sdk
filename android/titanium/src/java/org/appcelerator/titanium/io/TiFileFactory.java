@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.io;
 
 import java.io.File;
+import java.util.Date;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -157,4 +158,9 @@ public class TiFileFactory
 		return false;
 	}
 
+	public static File createDataFile(String prefix, String suffix)
+	{
+		String filename = prefix + (new Date()).getTime() + suffix;
+		return new File(getDataDirectory(true), filename);
+	}
 }

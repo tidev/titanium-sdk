@@ -121,6 +121,7 @@
 		"Ti/_/style",
 		"Ti/_/dom",
 		"Ti/_/event",
+		"Ti/_/has",
 		"Ti/_/Gestures/DoubleTap",
 		"Ti/_/Gestures/Dragging",
 		"Ti/_/Gestures/LongPress",
@@ -205,7 +206,8 @@
 		"Ti/Filesystem",
 		"Ti/Network",
 		"Ti/Blob",
-		"Ti/_/event"
+		"Ti/_/event",
+		"Ti/App"
 	],
 	"Ti/Platform/DisplayCaps": [
 		"Ti/_",
@@ -237,7 +239,8 @@
 		"Ti/_/lang",
 		"Ti/_/Evented",
 		"Ti/Locale",
-		"Ti/UI"
+		"Ti/UI",
+		"Ti/_/style"
 	],
 	"Ti/UI/Animation": [
 		"Ti/_/declare",
@@ -300,6 +303,7 @@
 	"Ti/UI/Picker": [
 		"Ti/_/declare",
 		"Ti/_/event",
+		"Ti/_/has",
 		"Ti/UI/View",
 		"Ti/_/UI/Widget",
 		"Ti/UI",
@@ -312,6 +316,7 @@
 		"Ti/_/UI/FontWidget",
 		"Ti/_/dom",
 		"Ti/UI",
+		"Ti/_/has",
 		"Ti/_/style",
 		"Ti/_/lang"
 	],
@@ -340,6 +345,7 @@
 		"Ti/_/declare",
 		"Ti/UI/View",
 		"Ti/_/dom",
+		"Ti/_/has",
 		"Ti/_/style",
 		"Ti/UI",
 		"Ti/_/browser"
@@ -429,14 +435,15 @@
 	],
 	"Ti/UI/WebView": [
 		"Ti/_/declare",
-		"Ti/_/UI/Widget",
+		"Ti/UI/View",
 		"Ti/_/dom",
 		"Ti/_/event",
 		"Ti/_/lang",
 		"Ti/_/text!Ti/_/UI/WebViewBridge.js",
 		"Ti/App",
 		"Ti/API",
-		"Ti/UI"
+		"Ti/UI",
+		"Ti/_/style"
 	],
 	"Ti/_/text!Ti/_/UI/WebViewBridge.js": [],
 	"Ti/UI/Window": [
@@ -621,6 +628,7 @@
 		"Ti/_/declare",
 		"Ti/_/dom",
 		"Ti/_/event",
+		"Ti/_/has",
 		"Ti/_/lang",
 		"Ti/_/style",
 		"Ti/_/Evented",

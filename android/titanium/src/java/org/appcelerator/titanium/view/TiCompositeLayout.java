@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -20,9 +20,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,8 +65,6 @@ public class TiCompositeLayout extends ViewGroup
 	private boolean enableHorizontalWrap = true;
 	private int horizontalLayoutLastIndexBeforeWrap = 0;
 	private int horiztonalLayoutPreviousRight = 0;
-
-	private float alpha = 1.0f;
 
 	private WeakReference<TiViewProxy> proxy;
 	private static final int HAS_SIZE_FILL_CONFLICT = 1;
@@ -345,6 +340,8 @@ public class TiCompositeLayout extends ViewGroup
 
 	protected void constrainChild(View child, int width, int wMode, int height, int hMode)
 	{
+		boolean hasFixedHeightParent = false;
+		boolean hasFixedWidthParent = false;
 		LayoutParams p = (LayoutParams) child.getLayoutParams();
 
 		int sizeFillConflicts[] = { NOT_SET, NOT_SET };
@@ -360,13 +357,13 @@ public class TiCompositeLayout extends ViewGroup
 			}
 		} else {
 			if (p.autoFillsWidth) {
-				childDimension = LayoutParams.FILL_PARENT;
+				childDimension = LayoutParams.MATCH_PARENT;
 			} else {
 				// Look for sizeFill conflicts
-				hasSizeFillConflict(child, sizeFillConflicts, true);
+				hasSizeFillConflict(child, sizeFillConflicts, true, hasFixedWidthParent, hasFixedHeightParent);
 				checkedForConflict = true;
 				if (sizeFillConflicts[0] == HAS_SIZE_FILL_CONFLICT) {
-					childDimension = LayoutParams.FILL_PARENT;
+					childDimension = LayoutParams.MATCH_PARENT;
 				}
 			}
 		}
@@ -385,11 +382,11 @@ public class TiCompositeLayout extends ViewGroup
 		} else {
 			// If we already checked for conflicts before, we don't need to again
 			if (p.autoFillsHeight || (checkedForConflict && sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT)) {
-				childDimension = LayoutParams.FILL_PARENT;
+				childDimension = LayoutParams.MATCH_PARENT;
 			} else if (!checkedForConflict) {
-				hasSizeFillConflict(child, sizeFillConflicts, true);
+				hasSizeFillConflict(child, sizeFillConflicts, true, hasFixedWidthParent, hasFixedHeightParent);
 				if (sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT) {
-					childDimension = LayoutParams.FILL_PARENT;
+					childDimension = LayoutParams.MATCH_PARENT;
 				}
 			}
 		}
@@ -617,42 +614,6 @@ public class TiCompositeLayout extends ViewGroup
 		}
 	}
 
-	/*
-	 * Set the alpha of the view. Provides backwards compatibility
-	 * with older versions of Android which don't support View.setAlpha().
-	 *
-	 * @param alpha the opacity of the view
-	 */
-	public void setAlphaCompat(float alpha)
-	{
-		// If setAlpha() is not supported on this platform,
-		// use the backwards compatibility workaround.
-		// See dispatchDraw() for details.
-		this.alpha = alpha;
-	}
-
-	@Override
-	protected void dispatchDraw(Canvas canvas)
-	{
-		// To support alpha in older versions of Android (API level less than 11),
-		// create a new layer to draw the children. Specify the alpha value to use
-		// later when we transfer this layer back onto the canvas.
-		if (alpha < 1.0f) {
-			Rect bounds = new Rect();
-			getDrawingRect(bounds);
-			canvas.saveLayerAlpha(new RectF(bounds), Math.round(alpha * 255), Canvas.ALL_SAVE_FLAG);
-		}
-
-		super.dispatchDraw(canvas);
-
-		if (alpha < 1.0f) {
-			// Restore the canvas once the children have been drawn to the layer.
-			// This will draw the layer's offscreen bitmap onto the canvas using
-			// the alpha value we specified earlier.
-			canvas.restore();
-		}
-	}
-
 	private void computeVerticalLayoutPosition(int currentHeight, TiDimension optionTop, int measuredHeight, int layoutTop,
 		int[] pos, int maxBottom)
 	{
@@ -756,7 +717,7 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	// Determine whether we have a conflict where a parent has size behavior, and child has fill behavior.
-	private boolean hasSizeFillConflict(View parent, int[] conflicts, boolean firstIteration)
+	private boolean hasSizeFillConflict(View parent, int[] conflicts, boolean firstIteration, boolean hasFixedWidthParent, boolean hasFixedHeightParent)
 	{
 		if (parent instanceof TiCompositeLayout) {
 			TiCompositeLayout currentLayout = (TiCompositeLayout) parent;
@@ -774,10 +735,10 @@ public class TiCompositeLayout extends ViewGroup
 			// this method) will be adjusted to undefined behavior accordingly during the layout phase.
 			// sizeOrFillHeightEnabled is used during the layout phase to determine whether we want to use the fill/size
 			// measurements that we got from the measure phase.
-			if (currentParams.autoFillsWidth && currentParams.optionWidth == null && conflicts[0] == NOT_SET) {
+			if (currentParams.autoFillsWidth && currentParams.optionWidth == null && conflicts[0] == NOT_SET && !hasFixedWidthParent) {
 				conflicts[0] = HAS_SIZE_FILL_CONFLICT;
 			}
-			if (currentParams.autoFillsHeight && currentParams.optionHeight == null && conflicts[1] == NOT_SET) {
+			if (currentParams.autoFillsHeight && currentParams.optionHeight == null && conflicts[1] == NOT_SET && !hasFixedHeightParent) {
 				conflicts[1] = HAS_SIZE_FILL_CONFLICT;
 			}
 
@@ -785,11 +746,17 @@ public class TiCompositeLayout extends ViewGroup
 			if (conflicts[0] != NOT_SET && conflicts[1] != NOT_SET) {
 				return true;
 			}
+			
+			if (currentParams.optionWidth != null && !currentParams.optionWidth.isUnitAuto())
+				hasFixedWidthParent = true;
+
+			if (currentParams.optionHeight != null && !currentParams.optionHeight.isUnitAuto())
+				hasFixedHeightParent = true;
 
 			// If the child has size behavior, continue traversing through children and see if any of them have fill
 			// behavior
 			for (int i = 0; i < currentLayout.getChildCount(); ++i) {
-				if (hasSizeFillConflict(currentLayout.getChildAt(i), conflicts, false)) {
+				if (hasSizeFillConflict(currentLayout.getChildAt(i), conflicts, false, hasFixedWidthParent, hasFixedHeightParent)) {
 					return true;
 				}
 			}

@@ -7,17 +7,17 @@
 #ifdef USE_TI_GEOLOCATION
 
 #import "GeolocationModule.h"
-#import "ASIFormDataRequest.h"
 #import "TiApp.h"
 #import "TiEvaluator.h"
 #import "SBJSON.h"
 #import <sys/utsname.h>
 #import "NSData+Additions.h"
+#import "APSAnalytics.h"
 
 extern NSString * const TI_APPLICATION_GUID;
 extern BOOL const TI_APPLICATION_ANALYTICS;
 
-@interface GeolocationCallback : NSObject
+@interface GeolocationCallback : NSObject<APSHTTPRequestDelegate>
 {
 	id<TiEvaluator> context;
 	KrollCallback *callback;
@@ -57,13 +57,18 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		NSString *value = [TiUtils stringValue:[params objectForKey:key]];
 		[url appendFormat:@"%@=%@&",key,[value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 	}
-	ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:[NSURL URLWithString:url]];	
-	[request setDelegate:self];
-	[request addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
-	[request setRequestMethod:@"GET"];
-	[request setDefaultResponseEncoding:NSUTF8StringEncoding];
-	[request setAllowCompressedResponse:YES];
-	[request startAsynchronous];
+
+    APSHTTPRequest *req = [[APSHTTPRequest alloc] init];
+    [req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
+    [req setUrl:[NSURL URLWithString:url]];
+    [req setDelegate:self];
+    [req setMethod:@"GET"];
+    // Place it in the main thread since we're not using a queue and yet we need the
+    // delegate methods to be called...
+    TiThreadPerformOnMainThread(^{
+        [req send];
+        [req autorelease];
+    }, NO);
 }
 
 -(void)requestSuccess:(NSString*)data
@@ -76,27 +81,27 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	[context fireEvent:callback withObject:event remove:NO thisObject:nil];
 }
 
--(void)requestFinished:(ASIHTTPRequest *)request
+-(void)request:(APSHTTPRequest*)request onLoad:(APSHTTPResponse*)response
 {
 	[[TiApp app] stopNetwork];
 
-	if (request!=nil && [request error]==nil)
+	if (request!=nil && [response error]==nil)
 	{
-		NSString *data = [request responseString];
+		NSString *data = [response responseString];
 		[self requestSuccess:data];
 	}
 	else 
 	{
-		[self requestError:[request error]];
+		[self requestError:[response error]];
 	}
 	
 	[self autorelease];
 }
 
--(void)requestFailed:(ASIHTTPRequest *)request
+-(void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
 {
 	[[TiApp app] stopNetwork];
-	[self requestError:[request error]];
+	[self requestError:[response error]];
 	[self autorelease];
 }
 
@@ -890,13 +895,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     if (TI_APPLICATION_ANALYTICS && !analyticsSend)
 	{
         analyticsSend = YES;
-        NSDictionary *fromdict = [self locationDictionary:[locations objectAtIndex:0]];//This location could be same as todict value.
-        
-        NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:lastLocationDict,@"to",fromdict,@"from",nil];
-        NSDictionary *geo = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.geo",@"name",@"ti.geo",@"type",nil];
-        
-        WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
-        [[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:geo];
+        [[APSAnalytics sharedInstance] sendAppGeoEvent:[locations lastObject]];
     }
 }
 

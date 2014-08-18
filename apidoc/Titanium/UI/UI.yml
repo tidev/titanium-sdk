@@ -167,9 +167,9 @@ methods:
         type: String
         
       - name: convertToUnits
-        summary: |
-            Desired unit for the conversion result. Use one of the unit constants in <Titanium.UI>.
-        type: String
+        summary: Desired unit for the conversion result.
+        type: Number
+        constants: Titanium.UI.UNIT_*
     exclude-platforms: [blackberry]
 
 properties:
@@ -1053,7 +1053,7 @@ properties:
         to update the picker values.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     
   - name: PICKER_TYPE_DATE
     summary: Use a date picker.
@@ -1540,6 +1540,9 @@ properties:
     
   - name: currentWindow
     summary: The active window associated with the executing JavaScript context.
+    description: |
+        This property is only available when using the <Titanium.UI.Window.url> property to load
+        JavaScript files in their own contexts.
     type: Titanium.UI.Window
     permission: read-only
     exclude-platforms: [blackberry]

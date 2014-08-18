@@ -138,8 +138,12 @@ public class TiSound
 					mp.setDataSource(url);
 				}
 			}
-
-			mp.setLooping(looping);
+			
+			String loop = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_LOOPING));
+			if (loop != null) {
+				looping = Boolean.parseBoolean(loop);
+				mp.setLooping(looping);
+			}
 			mp.setOnCompletionListener(this);
 			mp.setOnErrorListener(this);
 			mp.setOnInfoListener(this);
@@ -235,10 +239,10 @@ public class TiSound
 				{
 					mp.setOnPreparedListener(null);
 					mp.seekTo(0);
+					playPending = false;
 					if (!stopPending && !pausePending) {
 						startPlaying();
 					}
-					playPending = false;
 					pausePending = false;
 					stopPending = false;
 				}
@@ -254,7 +258,7 @@ public class TiSound
 	public void reset()
 	{
 		try {
-			if (mp != null) {
+			if (mp != null && (mp.isPlaying() || isPaused())) {
 				stopProgressTimer();
 
 				setState(STATE_STOPPING);
@@ -272,7 +276,7 @@ public class TiSound
 	{
 		try {
 			if (mp != null) {
-
+				stopProgressTimer();
 				mp.setOnCompletionListener(null);
 				mp.setOnErrorListener(null);
 				mp.setOnBufferingUpdateListener(null);
@@ -327,8 +331,8 @@ public class TiSound
 	public int getDuration()
 	{
 		int duration = 0;
-		if (mp != null) {
-			duration = mp.getDuration();
+		if (mp != null && !playPending) {
+			duration = mp.getDuration(); // Can only get duration after the media player is initialized.
 		}
 		return duration;
 	}
@@ -513,11 +517,15 @@ public class TiSound
 		{
 			@Override
 			public void run() {
-				if (mp != null && mp.isPlaying()) {
-					int position = mp.getCurrentPosition();
-					KrollDict event = new KrollDict();
-					event.put("progress", position);
-					proxy.fireEvent(EVENT_PROGRESS, event);
+				try {
+					if (mp != null && mp.isPlaying()) {
+						int position = mp.getCurrentPosition();
+						KrollDict event = new KrollDict();
+						event.put("progress", position);
+						proxy.fireEvent(EVENT_PROGRESS, event);
+					}
+				} catch (Throwable t) {
+					Log.e(TAG, "Issue while progressTimer run: ", t);
 				}
 			}
 		}, 1000, 1000);
@@ -534,6 +542,8 @@ public class TiSound
 	public void onDestroy()
 	{
 		if (mp != null) {
+			// Before we stop, make sure that timer is stopped
+			stopProgressTimer();
 			mp.release();
 			mp = null;
 		}
@@ -595,7 +605,7 @@ public class TiSound
 	private void startPlaying()
 	{
 		if (mp != null) {
-			if (!isPlaying()) {
+			if (!isPlaying() && !playPending) {
 				Log.d(TAG, "audio is not playing, starting.", Log.DEBUG_MODE);
 				Log.d(TAG, "Play: Volume set to " + volume, Log.DEBUG_MODE);
 				mp.start();
@@ -615,6 +625,7 @@ public class TiSound
 		if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
 			setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
 		}
+		playPending = false;
 		if (!pausePending && !stopPending) {
 			try {
 				startPlaying();
@@ -623,7 +634,6 @@ public class TiSound
 				reset();
 			}
 		}
-		playPending = false;
 		pausePending = false;
 		stopPending = false;
 	}

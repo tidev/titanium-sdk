@@ -151,6 +151,16 @@ public abstract class KrollRuntime implements Handler.Callback
 		return false;
 	}
 
+	public static boolean isDisposed()
+	{
+		if (instance != null) {
+			synchronized (runtimeState) {
+				return runtimeState == State.DISPOSED;
+			}
+		}
+		return true;
+	}
+
 	public KrollApplication getKrollApplication()
 	{
 		if (krollApplication != null) {

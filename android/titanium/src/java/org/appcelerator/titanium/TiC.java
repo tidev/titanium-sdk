@@ -411,6 +411,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_RESUME = "resume";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_RETURN = "return";
 
 	/**
 	 * @module.api
@@ -491,6 +496,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROXIMITY = "proximity";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_SSL_ERROR = "sslerror";
 	
 
 	/**
@@ -827,6 +842,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CALENDAR_VIEW_SHOWN = "calendarViewShown";
+	
+	/**
+	 * @module.api
+	 */	
+	public static final String PROPERTY_CAMERA_FLASH_MODE = "cameraFlashMode";
 
 	/**
 	 * @module.api
@@ -1126,17 +1146,28 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_FILTER_ANCHORED = "filterAnchored";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
 	
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_FIRSTNAME = "firstName";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FLAG_SECURE = "flagSecure";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_FLAGS = "flags";
+
 
 	/**
 	 * @module.api
@@ -1147,6 +1178,26 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FONT = "font";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FONTFAMILY = "fontFamily";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FONTWEIGHT = "fontWeight";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FONTSIZE = "fontSize";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FONTSTYLE = "fontStyle";
 
 	/**
 	 * @module.api
@@ -1162,6 +1213,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FONT_SIZE = "font-size";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FOOTER_DIVIDERS_ENABLED = "footerDividersEnabled";
 
 	/**
 	 * @module.api
@@ -1224,6 +1280,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HEADER = "header";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HEADER_DIVIDERS_ENABLED = "headerDividersEnabled";
 
 	/**
 	 * @module.api
@@ -1324,6 +1385,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_INCLUDE_FONT_PADDING = "includeFontPadding";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_INITIAL_PLAYBACK_TIME = "initialPlaybackTime";
 	
 	/**
@@ -1395,6 +1461,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LOAD_URL = "loadUrl";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LOOPING = "looping";
 
 	/**
 	 * @module.api
@@ -1565,11 +1636,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NAME = "name";
-
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_NAV_BAR_HIDDEN = "navBarHidden";
 	
 	/**
 	 * @module.api
@@ -1600,6 +1666,41 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_CREATE_OPTIONS_MENU = "onCreateOptionsMenu";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_CREATE = "onCreate";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_START = "onStart";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_RESUME = "onResume";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_RESTART = "onRestart";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_PAUSE = "onPause";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_STOP = "onStop";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_DESTROY = "onDestroy";
 
 	/**
 	 * @module.api
@@ -1655,6 +1756,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_OVER_SCROLL_MODE = "overScrollMode";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_OVERRIDE_CURRENT_ANIMATION = "overrideCurrentAnimation";
 
 	/**
 	 * @module.api
@@ -2136,6 +2242,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_THEME = "theme";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";
 	
 	/**
@@ -2320,6 +2431,10 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_WINDOW_FLAGS = "windowFlags";
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_WINDOW_PIXEL_FORMAT = "windowPixelFormat";
 
 	/**
@@ -2371,6 +2486,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LIGHT_TOUCH_ENABLED = "lightTouchEnabled";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CUSTOM = "custom";
+	
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";

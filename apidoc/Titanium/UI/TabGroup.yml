@@ -2,42 +2,44 @@
 name: Titanium.UI.TabGroup
 summary: A tabbed group of windows.
 description: |
-    Use the <Titanium.UI.createTabGroup> method to create a tab group.
-    
     A tab group can contain one or more [Tab](Titanium.UI.Tab) objects, each of which has an 
     associated tab control that is used to bring it into focus.
+
+    Use the <Titanium.UI.createTabGroup> method or **`<TabGroup>`** Alloy element to create a tab group 
+    that, in turn, contains one or more `<Tab>` elements.
     
     You can add tabs to the group using [addTab](Titanium.UI.TabGroup.addTab), and programmatically 
     switch to a specific tab using [setActiveTab](Titanium.UI.TabGroup.setActiveTab).
     
     #### Platform Implementation Notes
     
-    When using a tab group, note the following differences between platforms.
+    When using a tab group, note the following differences between platforms: 
     
-    The tab group controls are positioned at the top of the display on Android and at the bottom 
+    * The tab group controls are positioned at the top of the display on Android and at the bottom 
     on iOS.
     
-    On Android, only one tab group may exist at one time. A tab group may be closed to allow a new 
+    * On Android, only one tab group may exist at one time. A tab group may be closed to allow a new 
     one to be opened later, but the root of the application must be a heavyweight window to prevent 
     it exiting. Tabs cannot be removed from the tab group once added, and tabs cannot be reordered.
     
-    On iOS, more than one tab group may exist, and may be opened and closed as required.
+    * On iOS, more than one tab group may exist, and may be opened and closed as required.
     Each tab can contain a stack of windows, and the user can switch between them by tapping the 
     tab's associated control. Tabs can be removed, and the user may (optionally) be allowed to 
     reorder tabs.
     
-    On iOS and Mobile Web, it is also possible to add tabs by updating the 
+    * On iOS and Mobile Web, it is also possible to add tabs by updating the 
     [tabs](Titanium.UI.TabGroup.tabs) property, and to switch active tabs by setting the 
     [active](Titanium.UI.Tab.active) property on one of the tabs to `true`. Since these mechanisms 
     are platform-specific, it is recommended that you use `addTab` and `setActiveTab` instead.
     
-    If you use the iOS/Mobile Web-specific mechanisms, it is possible to add multiple active tabs 
+    * If you use the iOS/Mobile Web-specific mechanisms, it is possible to add multiple active tabs 
     to a tab group. In this case, the result of which tab is initially selected is undefined.
     
     #### Further Reading
     
-    If using tab groups on iOS, see the "Tab Bar" section of Apple's official 
-    [iOS UI Element Usage Guidelines ](https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW52).
+    If using tab groups on iOS, see
+    [iOS UI Element Usage Guidelines](https://developer.apple.com/library/ios/documentation/userexperience/conceptual/mobilehig/Bars.html#//apple_ref/doc/uid/TP40006556-CH12-SW52).
+
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
@@ -225,11 +227,15 @@ properties:
     summary: |
         Reference to the Android Activity object associated with this tab group.
     description: |
-        An Activity object is not created until the tab group is opened.
-        Before the tab group is opened, `activity` refers to an empty JavaScript object.
-        Unlike a Window activity, you CANNOT set any properties on this object.
-        Once the tab group is opened, the actual Activity object is created.
-        At this point, you can access properties and call methods on the activity.
+        An Activity object is not created until the tab group opens.
+        Before the tab group opens, `activity` refers to an empty JavaScript object.
+        You can set properties on this object but cannot invoke any Activity methods on it.
+        Once the tab group opens, the actual Activity object is created,
+        using any properties set on the JavaScript object. At this point, you can call methods
+        on the activity and access any properties that are set when the activity is created.
+
+        Prior to Release 3.4.0, you can only set properties on the activity after the tab group
+        opens.
     platforms: [android]
     since: 3.0.0
     type: Titanium.Android.Activity
@@ -253,6 +259,31 @@ properties:
         A value of `transparent` results in a semi-opaque black bar style.
     type: String
     platforms: [iphone, ipad]
+    
+  - name: translucent
+    summary: Boolean value indicating if the nav bar (typically for the **More** tab), is translucent.
+    platforms: [iphone, ipad]
+    default: true on iOS7 and above, false otherwise.
+    type: Boolean
+    since: "3.3.0"
+
+  - name: titleAttributes
+    summary: Title text attributes of the window to be applied on the **More** tab.
+    description: |
+        Use this property to specify the color, font and shadow attributes of the title.
+    since: "3.3.0"
+    platforms: [iphone, ipad]
+    type: titleAttributesParams
+
+  - name: navTintColor
+    summary: The tintColor to apply to the navigation bar (typically for the **More** tab). This property is applicable on iOS 7 and greater. 
+    description: |
+        This property is a direct correspondant of the tintColor property of NavigationBar on iOS.
+    type: [String]
+    since: "3.3.0"
+    default: null
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad]
     
   - name: editButtonTitle
     summary: Title for the edit button on the **More** tab.
@@ -293,13 +324,10 @@ properties:
         Determines how the tab group is treated when a soft input method (such as a virtual keyboard) 
         is displayed.
     description: |
-        One of [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN), 
-        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), 
-        or [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED).
-        
         For more information see the official Android API Reference, 
         [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
     type: Number
+    constants: Titanium.UI.Android.SOFT_INPUT_ADJUST_*
     availability: creation
     platforms: [android]
     
@@ -329,7 +357,13 @@ properties:
     default: null
     osver: {ios: {min: "7.0"}}
     platforms: [iphone,ipad]
-    
+
+  - name: title
+    summary: Title for this tabGroup.
+    type: String
+    since: '3.3.0'
+    platforms: [android]  
+ 
   - name: tabsBackgroundImage
     summary: Default background image for tabs.
     description: |

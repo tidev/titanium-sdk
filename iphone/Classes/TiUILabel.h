@@ -12,7 +12,6 @@
 @private
     UILabel *label;
     UIView* wrapperView;
-    CALayer* bgdLayer;
     BOOL requiresLayout;
     CGRect padding;
     CGRect textPadding;

@@ -1,25 +1,27 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.kroll.common;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.IOException;
 
-import org.appcelerator.kroll.util.KrollStreamHelper;
+import org.appcelerator.kroll.KrollApplication;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Application;
-import android.os.Environment;
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.AssetManager;
 
 /**
- * This class represents deployment data that is published to
- * /sdcard/[app id]/deploy.json as part of the build process
+ * This class represents deployment data (deploy.json) that is packaged with
+ * the app as part of the build process.
  */
 public class TiDeployData
 {
@@ -32,31 +34,47 @@ public class TiDeployData
 	protected static final String FASTDEV_PORT = "fastdevPort";
 	protected static final String FASTDEV_LISTEN = "fastdevListen";
 
+	private KrollApplication krollApp;
 	private JSONObject deployData;
 
 	/**
 	 * Parses the deploy.json file if it exists
 	 */
-	public TiDeployData(Application app)
+	public TiDeployData(KrollApplication app)
 	{
-		File extStorage = Environment.getExternalStorageDirectory();
-		File deployJson = new File(new File(extStorage, app.getPackageName()), "deploy.json");
+		krollApp = app;
+		deployData = null;
 
-		if (deployJson.exists()) {
-			readDeployData(deployJson);
-		}
-	}
-
-	protected void readDeployData(File deployJson)
-	{
 		try {
-			FileInputStream stream = new FileInputStream(deployJson);
-			deployData = new JSONObject(KrollStreamHelper.toString(stream));
-			Log.d(TAG, "Read deploy data: " + deployData.toString(), Log.DEBUG_MODE);
+			AssetManager assetManager = ((Context)app).getAssets();
 
+			if (assetManager == null) {
+				Log.e(TAG, "AssetManager is null, can't read deploy.json");
+				return;
+			}
+
+			InputStream in = assetManager.open("deploy.json");
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			byte buffer[] = new byte[1024];
+			int count = 0;
+
+			while ((count = in.read(buffer)) != -1) {
+				if (out != null) {
+					out.write(buffer, 0, count);
+				}
+			}
+
+			String deployJson = out.toString();
+			if (deployJson == null) {
+				Log.d(TAG, "deploy.json does not exist, skipping", Log.DEBUG_MODE);
+			} else {
+				deployData = new JSONObject(deployJson);
+				Log.d(TAG, "Loaded deploy.json: " + deployData.toString(), Log.DEBUG_MODE);
+			}
 		} catch (FileNotFoundException e) {
-			Log.e(TAG, e.getMessage(), e);
-
+			// squeltch
+		} catch (IOException e) {
+			Log.e(TAG, "IO error while reading deploy.json", e);
 		} catch (JSONException e) {
 			Log.e(TAG, e.getMessage(), e);
 		}
@@ -67,7 +85,7 @@ public class TiDeployData
 	 */
 	public boolean isDebuggerEnabled()
 	{
-		if (deployData == null) {
+		if (deployData == null || isDeployTypeDisabled()) {
 			return false;
 		}
 
@@ -79,7 +97,7 @@ public class TiDeployData
 	 */
 	public int getDebuggerPort()
 	{
-		if (deployData == null) {
+		if (deployData == null || isDeployTypeDisabled()) {
 			return -1;
 		}
 
@@ -91,7 +109,7 @@ public class TiDeployData
 	 */
 	public boolean isProfilerEnabled()
 	{
-		if (deployData == null) {
+		if (deployData == null || isDeployTypeDisabled()) {
 			return false;
 		}
 
@@ -103,7 +121,7 @@ public class TiDeployData
 	 */
 	public int getProfilerPort()
 	{
-		if (deployData == null) {
+		if (deployData == null || isDeployTypeDisabled()) {
 			return -1;
 		}
 
@@ -115,11 +133,16 @@ public class TiDeployData
 	 */
 	public int getFastDevPort()
 	{
-		if (deployData == null) {
+		// fastdev is deprecated
+		return -1;
+
+		/*
+		if (isDeployTypeDisabled()) {
 			return -1;
 		}
 
 		return deployData.optInt(FASTDEV_PORT, -1);
+		*/
 	}
 
 	/**
@@ -128,10 +151,25 @@ public class TiDeployData
 	 */
 	public boolean getFastDevListen()
 	{
-		if (deployData == null) {
+		// fastdev is deprecated
+		return false;
+
+		/*
+		if (isDeployTypeDisabled()) {
 			return false;
 		}
 
 		return deployData.optBoolean(FASTDEV_LISTEN, false);
+		*/
+	}
+
+	private boolean isDeployTypeDisabled()
+	{
+		String deployType = null;
+		if (krollApp != null) {
+			deployType = krollApp.getDeployType();
+		}
+
+		return (deployData == null || "production".equals(deployType));
 	}
 }

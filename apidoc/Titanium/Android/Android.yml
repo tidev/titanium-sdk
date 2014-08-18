@@ -1553,6 +1553,7 @@ properties:
     type: Number
     optional: true
     default: Titanium.Android.START_REDELIVER_INTENT
+    constants: Titanium.Android.START_*
 
 ---
 name: BroadcastIntentOptions
@@ -1566,6 +1567,7 @@ properties:
         Specify one of the `ACTION` constants from <Titanium.Android>, or 
         an application-specific custom action string.
     type: String
+    constants: Titanium.Android.ACTION_*
 
   - name: className
     summary: |
@@ -1588,6 +1590,7 @@ properties:
     summary: Intent flags. See the `FLAG_` constants in <Titanium.Android>.
     type: Number
     optional: true
+    constants: Titanium.Android.FLAG_*
 
   - name: packageName
     summary: Constrain the broadcast to receivers which are Java classes in this Java package.

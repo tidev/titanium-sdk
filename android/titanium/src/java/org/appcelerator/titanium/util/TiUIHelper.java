@@ -70,6 +70,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -94,6 +98,7 @@ public class TiUIHelper
 	public static final int FACE_DOWN = 6;
 	public static final int UNKNOWN = 7;
 	public static final Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
+	public static final String MIME_TYPE_PNG = "image/png";
 
 	private static Method overridePendingTransition;
 	private static Map<String, String> resourceImageKeys = Collections.synchronizedMap(new HashMap<String, String>());
@@ -140,7 +145,11 @@ public class TiUIHelper
 	public static void linkifyIfEnabled(TextView tv, Object autoLink)
 	{ 
 		if (autoLink != null) {
-			Linkify.addLinks(tv, TiConvert.toInt(autoLink));
+			//Default to Ti.UI.AUTOLINK_NONE
+			boolean success = Linkify.addLinks(tv, TiConvert.toInt(autoLink, 16));
+			if (!success && tv.getText() instanceof Spanned) {
+				tv.setMovementMethod(LinkMovementMethod.getInstance());
+			}
 		}
 	}
 
@@ -480,6 +489,53 @@ public class TiUIHelper
 		tv.setGravity(gravity);
 	}
 
+	public static final int FONT_SIZE_POSITION = 0;
+	public static final int FONT_FAMILY_POSITION = 1;
+	public static final int FONT_WEIGHT_POSITION = 2;
+	public static final int FONT_STYLE_POSITION = 3;
+	
+	public static String[] getFontProperties(KrollDict fontProps)
+	{
+		boolean bFontSet = false;
+		String[] fontProperties = new String[4];
+		if (fontProps.containsKey(TiC.PROPERTY_FONT) && fontProps.get(TiC.PROPERTY_FONT) instanceof HashMap) {
+			bFontSet = true;
+			KrollDict font = fontProps.getKrollDict(TiC.PROPERTY_FONT);
+			if (font.containsKey(TiC.PROPERTY_FONTSIZE)) {
+				fontProperties[FONT_SIZE_POSITION] = TiConvert.toString(font, TiC.PROPERTY_FONTSIZE);
+			}
+			if (font.containsKey(TiC.PROPERTY_FONTFAMILY)) {
+				fontProperties[FONT_FAMILY_POSITION] = TiConvert.toString(font, TiC.PROPERTY_FONTFAMILY);
+			}
+			if (font.containsKey(TiC.PROPERTY_FONTWEIGHT)) {
+				fontProperties[FONT_WEIGHT_POSITION] = TiConvert.toString(font, TiC.PROPERTY_FONTWEIGHT);
+			}
+			if (font.containsKey(TiC.PROPERTY_FONTSTYLE)) {
+				fontProperties[FONT_STYLE_POSITION] = TiConvert.toString(font, TiC.PROPERTY_FONTSTYLE);
+			}
+		} else {
+			if (fontProps.containsKey(TiC.PROPERTY_FONT_FAMILY)) {
+				bFontSet = true;
+				fontProperties[FONT_FAMILY_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONT_FAMILY);
+			}
+			if (fontProps.containsKey(TiC.PROPERTY_FONT_SIZE)) {
+				bFontSet = true;
+				fontProperties[FONT_SIZE_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONT_SIZE);
+			}
+			if (fontProps.containsKey(TiC.PROPERTY_FONT_WEIGHT)) {
+				bFontSet = true;
+				fontProperties[FONT_WEIGHT_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONT_WEIGHT);
+			}
+			if (fontProps.containsKey(TiC.PROPERTY_FONTSTYLE)) {
+				bFontSet = true;
+				fontProperties[FONT_STYLE_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONTSTYLE);
+			}
+		}
+		if (!bFontSet) {
+			return null;
+		}
+		return fontProperties;
+	}
 	public static void setTextViewDIPPadding(TextView textView, int horizontalPadding, int verticalPadding) {
 		int rawHPadding = (int)getRawDIPSize(horizontalPadding, textView.getContext());
 		int rawVPadding = (int)getRawDIPSize(verticalPadding, textView.getContext());
@@ -590,6 +646,7 @@ public class TiUIHelper
 		d.put(TiC.PROPERTY_Y, 0);
 		d.put(TiC.PROPERTY_WIDTH, width);
 		d.put(TiC.PROPERTY_HEIGHT, height);
+		d.put(TiC.PROPERTY_MIMETYPE, MIME_TYPE_PNG);
 
 		KrollDict cropRect = new KrollDict();
 		cropRect.put(TiC.PROPERTY_X, 0);
@@ -597,7 +654,7 @@ public class TiUIHelper
 		cropRect.put(TiC.PROPERTY_WIDTH, width);
 		cropRect.put(TiC.PROPERTY_HEIGHT, height);
 		d.put(TiC.PROPERTY_CROP_RECT, cropRect);
-		d.put(TiC.PROPERTY_MEDIA, TiBlob.blobFromData(data, "image/png"));
+		d.put(TiC.PROPERTY_MEDIA, TiBlob.blobFromData(data, MIME_TYPE_PNG));
 
 		return d;
 	}
@@ -945,7 +1002,7 @@ public class TiUIHelper
 
 		if (imm != null) {
 			boolean useForce = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT || Build.VERSION.SDK_INT >= 8) ? true : false;
-			String model = TiPlatformHelper.getModel(); 
+			String model = TiPlatformHelper.getInstance().getModel(); 
 			if (model != null && model.toLowerCase().startsWith("droid")) {
 				useForce = true;
 			}

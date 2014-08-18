@@ -267,7 +267,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 					applyChildProperties(newProxy, view);
 				}
 			}
-			
+			//Reset the content height and width so that it is calculated based on the children
+			LayoutParams p = content.getLayoutParams();
+			p.height = -1;
+			p.width = -1;
+			content.setLayoutParams(p);
 		}
 	}
 
@@ -320,8 +324,13 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		View v = t.getOuterView();
 		if (v.getParent() == null) {
 			TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) t.getLayoutParams();
-			params.optionLeft = new TiDimension(5, TiDimension.TYPE_LEFT);
-			params.optionRight = new TiDimension(5, TiDimension.TYPE_RIGHT);
+			if (params.optionLeft == null) {
+				params.optionLeft = new TiDimension(LEFT_MARGIN, TiDimension.TYPE_LEFT);
+			}
+
+			if (params.optionRight == null) {
+				params.optionRight = new TiDimension(LEFT_MARGIN, TiDimension.TYPE_RIGHT);
+			}
 			params.autoFillsWidth = true;
 			content.addView(v, params);
 		}
@@ -502,7 +511,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				} else {
 					h = Math.max(minRowHeight, height.getAsPixels(this));
 				}
-				if (hasChildView) {
+				// Make sure the height is greater than 1 (not 0 since image views default to 1)
+				if (hasChildView && h > 1) {
 					content.getLayoutParams().height = h;
 				}
 

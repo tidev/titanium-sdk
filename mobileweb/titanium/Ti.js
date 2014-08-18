@@ -71,37 +71,6 @@ define(
 		}),
 		loadAppjs = Ti.deferStart();
 
-	if (!has("function-bind")) {
-		function Empty(){}
-		
-		Function.prototype.bind = function bind(that) {
-			var target = this,
-				slice = Array.prototype.slice,
-				args = slice.call(arguments, 1),
-				bound = function () {
-					var a = args.concat(slice.call(arguments)),
-						result;
-					if (this instanceof bound) {
-						result = target.apply(this, a);
-						if (Object(result) === result) {
-							return result;
-						}
-						return this;
-					} else {
-						return target.apply(that, a);
-					}
-				};
-
-			if (target.prototype) {
-				Empty.prototype = target.prototype;
-				bound.prototype = new Empty();
-				Empty.prototype = null;
-			}
-
-			return bound;
-		};
-	}
-
 	if (!has("js-btoa")) {
 		var tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
 			fromCharCode = String.fromCharCode;
@@ -168,10 +137,6 @@ define(
 	// make sure we have some vendor prefixes defined
 	cfg.vendorPrefixes || (cfg.vendorPrefixes = ["", "Moz", "Webkit", "O", "ms"]);
 
-	// expose JSON functions to Ti namespace
-	Ti.parse = JSON.parse;
-	Ti.stringify = JSON.stringify;
-
 	function shutdown() {
 		if (!unloaded) {
 			unloaded = 1;
@@ -230,7 +195,7 @@ define(
 				});
 
 				makeLabel("Error messages will only be displayed during development. When your app is packaged for final distribution, no error screen will appear. Test your code!", "28%", "#000", "10pt");
-				
+
 				on.once(win,"postlayout", function() {
 					setTimeout(function() {
 						win.animate({
@@ -242,9 +207,10 @@ define(
 						});
 					}, 100);
 				});
-				
+
 				win.open();
 			}
+			return true;
 		});
 	}
 
@@ -255,18 +221,21 @@ define(
 		});
 
 		if (App.analytics) {
+			var analyticsPlatformName = require.config.ti.analyticsPlatformName;
+
 			// enroll event
 			if (localStorage.getItem("ti:enrolled") === null) {
 				// setup enroll event
 				analytics.add("ti.enroll", "ti.enroll", {
 					app_name: App.name,
+					app_version: App.version,
 					oscpu: 1,
 					mac_addr: null,
 					deploytype: deployType,
 					ostype: Platform.osname,
 					osarch: null,
 					app_id: App.id,
-					platform: Platform.name,
+					platform: analyticsPlatformName,
 					model: Platform.model
 				});
 				localStorage.setItem("ti:enrolled", true)
@@ -279,7 +248,7 @@ define(
 				os: Platform.osname,
 				osver: Platform.ostype,
 				version: cfg.ti.version,
-				platform: Platform.name,
+				platform: analyticsPlatformName,
 				model: Platform.model,
 				un: null,
 				app_version: App.version,

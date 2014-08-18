@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,26 +15,49 @@ exports.bootstrap = function(Titanium) {
 
 	// Set constants for representing states for the tab group
 	TabGroup.prototype.state = {closed: 0, opening: 1, opened: 2};
+	TabGroup.prototype._cachedActivityProxy = null;
 
 	function createTabGroup(scopeVars, options) {
 		var tabGroup = new TabGroup(options);
 
 		if (options) {
 			tabGroup._tabs = options.tabs || [];
+			tabGroup._activeTab = options.activeTab || -1;
 		} else {
 			tabGroup._tabs = [];
+			tabGroup._activeTab = -1;
 		}
 
 		// Keeps track of the current tab group state
 		tabGroup.currentState = tabGroup.state.closed;
 
-		// Set the activity property here since we bind it to _internalActivity for window proxies by default
-		Object.defineProperty(TabGroup.prototype, "activity", { get: tabGroup.getActivity});
-
 		return tabGroup;
 	}
 
 	Titanium.UI.createTabGroup = createTabGroup;
+
+	// Activity getter (account for scenario when tab group's activity is not created yet)
+	var activityProxyGetter = function () {
+		var activityProxy = this._getWindowActivityProxy();
+		if (activityProxy) {
+			return activityProxy;
+		} else if (this._cachedActivityProxy == null) {
+			this._cachedActivityProxy = {};
+		}
+
+		return this._cachedActivityProxy;
+	}
+	TabGroup.prototype.getActivity = activityProxyGetter;
+	Object.defineProperty(TabGroup.prototype, "activity", { get: activityProxyGetter });
+
+	TabGroup.prototype.postTabGroupCreated = function() {
+		if (kroll.DBG) {
+			kroll.log(TAG, "Checkpoint: postTabGroupCreated()");
+		}
+		if (this._cachedActivityProxy) {
+			this._internalActivity.extend(this._cachedActivityProxy);
+		}
+	}
 
 	var _open = TabGroup.prototype.open;
 	TabGroup.prototype.open = function(options) {
@@ -66,6 +89,9 @@ exports.bootstrap = function(Titanium) {
 		});
 
 		this.setTabs(this._tabs);
+		if (this._activeTab != -1) {
+			this.setActiveTab(this._activeTab);
+		}
 		_open.call(this, options);
 
 		this.currentState = this.state.opened;
@@ -78,7 +104,30 @@ exports.bootstrap = function(Titanium) {
 			_addTab.call(this, tab);
 		}
 	}
+	
+	var _getActiveTab = TabGroup.prototype.getActiveTab;
+	TabGroup.prototype.getActiveTab = function() {
+		if (this.currentState == this.state.opened){
+			return _getActiveTab.call(this);
+		}
+		
+		if (this._activeTab != -1) {
+			return this._activeTab;
+		}
+		return null;
+	}
 
+	var _setActiveTab = TabGroup.prototype.setActiveTab;
+	
+	TabGroup.prototype.setActiveTab = function(taborindex) {
+		this._activeTab = taborindex;
+		if ( (this.currentState == this.state.opened) ||
+			(this.currentState == this.state.opening) ){
+			_setActiveTab.call(this,taborindex);
+		}
+	}
+
+	
 	TabGroup.prototype.getTabs = function() {
 		return this._tabs;
 	}
@@ -101,6 +150,7 @@ exports.bootstrap = function(Titanium) {
 	}
 
 	Object.defineProperty(TabGroup.prototype, "tabs", { get: TabGroup.prototype.getTabs, set: TabGroup.prototype.setTabs });
+	Object.defineProperty(TabGroup.prototype, "activeTab", { get: TabGroup.prototype.getActiveTab, set: TabGroup.prototype.setActiveTab });
 
 }
 

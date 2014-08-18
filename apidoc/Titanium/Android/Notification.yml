@@ -51,6 +51,7 @@ properties:
     summary: The audio stream type to use when playing the sound.
     description: |
         Specify one of the `STREAM` constants from <Titanium.Android>.
+    constants: Titanium.Android.STREAM*
     type: Number
 
   - name: contentIntent
@@ -86,6 +87,7 @@ properties:
         <Titanium.Android.DEFAULT_LIGHTS>, <Titanium.Android.DEFAULT_SOUND>, and
         <Titanium.Android.DEFAULT_VIBRATE>. Use <Titanium.Android.DEFAULT_ALL> to specify
         that all values should be taken from the defaults.
+    constants: Titanium.Android.DEFAULT_*
     type: Number
 
   - name: deleteIntent
@@ -94,12 +96,12 @@ properties:
 
   - name: flags
     summary: Set of flags for the notification.
-    description: |
-        Possible values: <Titanium.Android.FLAG_AUTO_CANCEL>, <Titanium.Android.FLAG_INSISTENT>, 
-        <Titanium.Android.FLAG_NO_CLEAR>, <Titanium.Android.FLAG_ONGOING_EVENT>, 
-        <Titanium.Android.FLAG_ONLY_ALERT_ONCE>, <Titanium.Android.FLAG_SHOW_LIGHTS>
     type: Number
-    default: <Titanium.Android.FLAG_AUTO_CANCEL>. 
+    constants: [
+        Titanium.Android.FLAG_AUTO_CANCEL, Titanium.Android.FLAG_INSISTENT,
+        Titanium.Android.FLAG_NO_CLEAR, Titanium.Android.FLAG_ONGOING_EVENT,
+        Titanium.Android.FLAG_ONLY_ALERT_ONCE, Titanium.Android.FLAG_SHOW_LIGHTS ]
+    default: <Titanium.Android.FLAG_AUTO_CANCEL>
 
   - name: icon
     summary: 

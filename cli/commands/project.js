@@ -11,7 +11,7 @@ var path = require('path'),
 	__ = appc.i18n(__dirname).__,
 	mix = appc.util.mix;
 
-exports.cliVersion = '>=3.2';
+exports.cliVersion = '>=3.2.1';
 exports.desc = __('get and set tiapp.xml settings'),
 exports.extendedDesc = [
 	__('Get and set tiapp.xml settings.'),
@@ -69,11 +69,11 @@ exports.validate = function (logger, config, cli) {
 	}
 
 	return function (finished) {
-		ti.loadPlugins(null, config, cli, cli.argv['project-dir'], finished);
+		ti.loadPlugins(null, config, cli, cli.argv['project-dir'], finished, cli.argv.output != 'report' || cli.argv._.length, false);
 	};
 };
 
-exports.run = function (logger, config, cli) {
+exports.run = function (logger, config, cli, finished) {
 	var projectDir = cli.argv['project-dir'],
 		tiappPath = path.join(projectDir, 'tiapp.xml'),
 		tiapp = new ti.tiappxml(tiappPath),
@@ -90,7 +90,7 @@ exports.run = function (logger, config, cli) {
 		propsList = ['sdk-version', 'id', 'name', 'version', 'publisher', 'url', 'description', 'copyright', 'icon', 'analytics', 'guid'],
 		deploymentTargets = tiapp['deployment-targets'];
 
-	output == 'report' && logger.banner();
+	args.length == 0 && output == 'report' && logger.banner();
 
 	switch (args.length) {
 		case 0:
@@ -127,7 +127,7 @@ exports.run = function (logger, config, cli) {
 					return Math.max(a, b.length);
 				}, 0);
 				propsList.forEach(function (key) {
-					logger.log('  %s = %s', appc.string.rpad(key, maxlen), (tiapp[key] + '' || __('not specified')).cyan);
+					logger.log('  %s = %s', appc.string.rpad(key, maxlen), String(tiapp[key] || __('not specified')).cyan);
 				});
 				logger.log();
 			}
@@ -163,16 +163,17 @@ exports.run = function (logger, config, cli) {
 				}
 			} else if (!!~propsList.indexOf(key)) {
 				if (output === 'json') {
-					value = {};
-					value[key] = tiapp[key];
-					logger.log(JSON.stringify(value));
-				} else if (output === 'text') {
-					logger.log(tiapp[key]);
+					logger.log(JSON.stringify(tiapp[key] || ''));
 				} else {
-					logger.log(__('The value of %s is %s', (key.cyan + ''), (tiapp[key] + '').cyan) + '\n');
+					logger.log(tiapp[key]);
 				}
 			} else {
-				logger.error( __('%s is not a valid entry name', key) + '\n');
+				if (output === 'json') {
+					logger.log('null');
+				} else {
+					logger.error( __('%s is not a valid entry name', key) + '\n');
+				}
+				process.exit(1);
 			}
 			break;
 
@@ -210,8 +211,8 @@ exports.run = function (logger, config, cli) {
 					// Update the tiapp.xml
 					tiapp['deployment-targets'] = result;
 
-					// Non-destructively copy over files from <sdk>/templates/app/<template>/
-					templateDir = path.join(sdkPath, 'templates', 'app', cli.argv.template);
+					// Non-destructively copy over files from <sdk>/templates/app/<template>/template
+					templateDir = path.join(sdkPath, 'templates', 'app', cli.argv.template, 'template');
 					if (!appc.fs.exists(templateDir)) {
 						logger.error(__('Unknown project template %s', cli.argv.template) + '\n');
 						process.exit(1);
@@ -225,7 +226,7 @@ exports.run = function (logger, config, cli) {
 					// Non-destructively copy over files from <sdk>/<each platform>/templates/app/<template>/
 					for (p = 0; p < value.length; p++) {
 						if (value[p]) {
-							templateDir = path.join(sdkPath, ti.resolvePlatform(value[p]), 'templates', 'app', cli.argv.template);
+							templateDir = path.join(sdkPath, ti.resolvePlatform(value[p]), 'templates', 'app', cli.argv.template, 'template');
 							if (appc.fs.exists(templateDir)) {
 								n += appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, {
 									logger: logger.log,
@@ -264,7 +265,7 @@ exports.run = function (logger, config, cli) {
 				case 'copyright':
 				case 'icon':
 				case 'guid':
-					tiapp[key] = value = args[1];
+					tiapp[key] = value = args[1] || '';
 					break;
 				case 'analytics':
 					if (!~['true', 'false'].indexOf(args[1])) {
@@ -282,4 +283,6 @@ exports.run = function (logger, config, cli) {
 			//tiapp.save(tiappPath);
 			break;
 	}
+
+	finished();
 };

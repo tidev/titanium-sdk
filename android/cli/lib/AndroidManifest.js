@@ -1,6 +1,6 @@
 /**
  * Titanium SDK Library for Node.js
- * Copyright (c) 2012-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012-2014 by Appcelerator, Inc. All Rights Reserved.
  * Please see the LICENSE file for information about licensing.
  */
 
@@ -229,7 +229,11 @@ function toXml(dom, parent, name, value) {
 function initAttr(node, obj) {
 	xml.forEachAttr(node, function (attr) {
 		obj.__attr__ || (obj.__attr__ = {});
-		obj.__attr__[attr.name] = xml.parse(attr.value);
+		if (attr.name == 'android:versionName') {
+			obj.__attr__[attr.name] = attr.value;
+		} else {
+			obj.__attr__[attr.name] = xml.parse(attr.value);
+		}
 	});
 	return obj;
 }
@@ -349,11 +353,26 @@ function toJS(obj, doc) {
 				});
 				break;
 
+			case 'uses-feature':
+				// array of features that if it has a name, must be unique
+				var tmp = obj[node.tagName] || (obj[node.tagName] = []),
+					a = attrsToObj(node);
+
+				// remove old one to prevent dupe
+				if (a.name) {
+					for (var i = 0; i < tmp.length; i++) {
+						if (tmp[i].name && tmp[i].name == a.name) {
+							tmp.splice(i--, 1);
+						}
+					}
+				}
+				tmp.push(a);
+				break;
+
 			case 'instrumentation':
 			case 'permission':
 			case 'permission-group':
 			case 'permission-tree':
-			case 'uses-feature':
 			case 'uses-library':
 				// object with objects keyed by name
 				initObjectByName(node, obj);

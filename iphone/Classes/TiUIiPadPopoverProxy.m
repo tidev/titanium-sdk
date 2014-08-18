@@ -10,7 +10,12 @@
 #import "TiUIiPadPopover.h"
 #import "TiUtils.h"
 #import "TiWindowProxy.h"
+#import "TiApp.h"
 #import <libkern/OSAtomic.h>
+
+#ifdef USE_TI_UITABLEVIEW
+#import "TiUITableViewRowProxy.h"
+#endif
 
 TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
@@ -344,6 +349,14 @@ static NSArray* popoverSequence;
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
         if (contentViewProxy != nil) {
             if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
+                UIView* topWindowView = [[[TiApp app] controller] topWindowProxyView];
+                if ([topWindowView isKindOfClass:[TiUIView class]]) {
+                    TiViewProxy* theProxy = (TiViewProxy*)[(TiUIView*)topWindowView proxy];
+                    if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+                        [(id<TiWindowProtocol>)theProxy resignFocus];
+                    }
+                }
+                [(TiWindowProxy*)contentViewProxy setIsManaged:YES];
                 [(TiWindowProxy*)contentViewProxy open:nil];
                 [(TiWindowProxy*) contentViewProxy gainFocus];
                 [self updatePopoverNow];
@@ -354,6 +367,7 @@ static NSArray* popoverSequence;
                 [contentViewProxy windowDidOpen];
             }
         } else {
+            DebugLog(@"[WARN] Using the popover without the contentView property set is deprecated.");
             [self windowWillOpen];
             [self reposition];
             [self updatePopoverNow];
@@ -404,6 +418,11 @@ static NSArray* popoverSequence;
 	else
 	{
 		UIView *view_ = [popoverView view];
+#ifdef USE_TI_UITABLEVIEW
+        if (view_ == nil && [popoverView isKindOfClass:[TiUITableViewRowProxy class]] && [popoverView viewAttached]) {
+            view_ = [[(TiUITableViewRowProxy*)popoverView callbackCell] contentView];
+        }
+#endif
 		if ([view_ window] == nil) {
 			// No window, so we can't display the popover...
 			DebugLog(@"[WARN] Unable to display popover; view is not attached to the current window");
@@ -496,6 +515,15 @@ static NSArray* popoverSequence;
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
     if (contentViewProxy != nil) {
         [contentViewProxy windowDidClose];
+        if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
+            UIView* topWindowView = [[[TiApp app] controller] topWindowProxyView];
+            if ([topWindowView isKindOfClass:[TiUIView class]]) {
+                TiViewProxy* theProxy = (TiViewProxy*)[(TiUIView*)topWindowView proxy];
+                if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+                    [(id<TiWindowProtocol>)theProxy gainFocus];
+                }
+            }
+        }
     } else {
         [self windowDidClose];
     }

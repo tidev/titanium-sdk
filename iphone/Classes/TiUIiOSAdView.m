@@ -7,6 +7,7 @@
 
 #import "TiUIiOSAdView.h"
 #import "TiUtils.h"
+#import "APSAnalytics.h"
 
 #ifdef USE_TI_UIIOSADVIEW
 
@@ -83,9 +84,18 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 	if (TI_APPLICATION_ANALYTICS)
 	{
 		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:[banner currentContentSizeIdentifier],@"size",nil];
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.iad.load",@"name",@"ti.iad.load",@"type",nil];
-		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-		[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:event]; 
+        APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
+        SEL aSelector = NSSelectorFromString(@"sendCustomEvent:withEventType:payload:");
+        if([sharedAnalytics respondsToSelector:aSelector]) {
+            NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[sharedAnalytics methodSignatureForSelector:aSelector]];
+            [inv setSelector:aSelector];
+            [inv setTarget:sharedAnalytics];
+            NSString *val = @"ti.iad.load";
+            [inv setArgument:&val atIndex:2]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+            [inv setArgument:&val atIndex:3]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+            [inv setArgument:&(data) atIndex:4];
+            [inv invoke];
+        }
 	}
 	[(TiUIiOSAdViewProxy*) self.proxy fireLoad:nil];
 }
@@ -95,9 +105,19 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 	if (TI_APPLICATION_ANALYTICS)
 	{
 		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:[banner currentContentSizeIdentifier],@"size",nil];
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.iad.action",@"name",@"ti.iad.action",@"type",nil];
-		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-		[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:event]; 
+        APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
+        SEL aSelector = NSSelectorFromString(@"sendCustomEvent:withEventType:payload:");
+        if([sharedAnalytics respondsToSelector:aSelector]) {
+            NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[sharedAnalytics methodSignatureForSelector:aSelector]];
+            [inv setSelector:aSelector];
+            [inv setTarget:sharedAnalytics];
+            NSString * val = @"ti.iad.action";
+            [inv setArgument:&val atIndex:2]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+            [inv setArgument:&val atIndex:3]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+            [inv setArgument:&(data) atIndex:4];
+            [inv invoke];
+        }
+
 	}
 	if ([self.proxy _hasListeners:@"action"])
 	{

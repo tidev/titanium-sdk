@@ -36,8 +36,8 @@ methods:
         type: Titanium.Calendar.Calendar
     parameters:
       - name: id
-        summary: Integer identifier of the calendar.
-        type: Number
+        summary: Identifier of the calendar.
+        type: String
     platforms: [android, iphone, ipad]
 
   - name: requestEventsAuthorization
@@ -446,6 +446,7 @@ properties:
     description: |
          Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0.
     type: Number
+    constants: Titanium.Calendar.AUTHORIZATION_*
     permission: read-only
     platforms: [iphone, ipad]
 

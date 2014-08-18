@@ -107,7 +107,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 		return;
 	}
 //Because the other logic checking and massaging is done in the proxy, we can jump to the chase.
-	[(UIPickerView*)[self picker] reloadComponent:[(NSNumber *)column intValue]];
+	[(UIPickerView*)[self picker] reloadAllComponents];
 }
 
 -(NSArray*)columns 

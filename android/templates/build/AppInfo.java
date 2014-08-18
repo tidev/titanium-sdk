@@ -64,7 +64,7 @@ public final class <%- classname %>AppInfo implements ITiAppInfo
 		return <%- !!tiapp.fullscreen %>;
 	}
 
-	public boolean isNavBarHidden() {
-		return <%- !!tiapp['navbar-hidden'] %>;
+	public String getBuildType() {
+		return "<%- buildType %>";
 	}
 }

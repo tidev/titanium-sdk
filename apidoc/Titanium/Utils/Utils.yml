@@ -26,12 +26,15 @@ methods:
     description: |
         On Mobile Web, if `obj` is a [Titanium.Blob] containing binary data, then `obj` is
         returned unmodified because the binary blob is already base64 encoded.
+
+        Starting from Titanium 3.3.0, `obj` can be a [File](Titanium.Filesystem.File) object
+        on Android.
     returns:
         type: Titanium.Blob
     parameters:
       - name: obj
         summary: Data to encode.
-        type: [String, Titanium.Blob]
+        type: [String, Titanium.Blob, Titanium.Filesystem.File]
         
   - name: md5HexDigest
     summary: Returns a MD5 digest of the specified data as a hex-based String.

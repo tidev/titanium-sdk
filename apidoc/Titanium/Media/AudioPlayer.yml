@@ -176,9 +176,9 @@ events:
         and also by external events, such as the current state of network buffering.
     properties:
       - name: state
-        summary: |
-            Current state of playback, specified using one of the `STATE` constants defined on this object.
+        summary: Current state of playback.
         type: Number
+        constants: Titanium.Media.AudioPlayer.STATE_*
       - name: description
         summary: Text description of the state of playback.
 
@@ -267,6 +267,14 @@ properties:
     summary: Bit rate of the current playback stream.
     type: Number
     platforms: [iphone, ipad]
+  - name: duration
+    summary: Estimated duration in milliseconds of the file being played.
+    description: |
+        May return `0` when playing a live stream.
+    type: Number
+    since: "3.3.0"
+    platforms: [android, iphone, ipad]
+    permission: read-only
   - name: idle
     summary: Boolean indicating if the player is idle.
     description: |
@@ -294,6 +302,7 @@ properties:
   - name: state
     summary: Current state of playback, specified using one of the `STATE` constants defined on this object.
     type: Number
+    constants: Titanium.Media.AudioPlayer.STATE_*
     permission: read-only
     platforms: [iphone, ipad, tizen]
   - name: url
@@ -324,3 +333,10 @@ properties:
     summary: Size of the buffer used for streaming, in bytes.
     type: Number
     platforms: [iphone, ipad]
+  - name: time
+    summary: Current playback position of the audio.
+    description: |
+        Time is reported in milliseconds.
+    type: Number
+    since: "3.3.0"
+    platforms: [android]

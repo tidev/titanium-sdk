@@ -60,6 +60,46 @@ methods:
         type: Callback<CloudPushNotificationsResponse>
     since: 3.1.2
 
+  - name: resetBadge
+    summary: Resets the badge value to zero but does not update it on the device.
+    description: |
+        To update the badge in the device's UI, send a push notification to the device with the
+        `badge` field defined.
+
+        The REST API call supports calling this method as either a PUT request or a GET request.
+        This method only supports the PUT request, which means a device token must be passed to this
+        method.
+
+        See [push_notifications/reset_badge.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-reset_badge_put)
+        for the request parameter supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+    since: 3.2.1
+
+  - name: setBadge
+    summary: Sets the badge value but does not update it on the device.
+    description: |
+        To update the badge in the device's UI, send a push notification to the device with the
+        `badge` field defined.
+
+        See [push_notifications/set_badge.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-set_badge)
+        for the request parameter supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+    since: 3.2.1
+
   - name: subscribe
     summary: Subscribe a mobile device to a push notification channel.
     description: |
@@ -122,6 +162,77 @@ methods:
         type: Callback<CloudPushNotificationsResponse>
     since: 3.1.2
 
+  - name: updateSubscription
+    summary: Updates a user's notification subscription with the device's location.
+    description: |
+        This allows an Appcelerator Dashboard administrator 
+        to send push notifications to devices located within a specified geographic region. For details, see 
+        [Sending and scheduling push notifications](http://docs.appcelerator.com/platform/latest/#!/guide/Sending_and_scheduling_push_notifications). 
+
+        See [push_notifications/unsubscribe.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-subscription_update)
+        for the request parameters supported by this method.
+
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request. 
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+
+
+  - name: queryChannels
+    summary: Returns a list of push notification channels the user is subscribed to.
+    description: |
+        Requires user login. 
+        
+        See [push_notifications/channels/query.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-channels_query)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsQueryChannelResponse>
+    since: 3.2.0
+
+  - name: showChannels
+    summary: Returns the number of devices subscribed to the specified channel.
+    description: |
+        Requires user login. 
+        
+        See [push_notifications/channels/show.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-channels_show)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsShowChannelResponse>
+    since: 3.2.0
+
+  - name: query
+    summary: Custom query of push notification subscriptions with paginating.
+    description: |
+        See [push_notifications/query.json](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-query)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `subscriptions` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsQueryResponse>
+    since: 3.2.0
+
 examples:
   - title: Subscribe to Channel
     example: |
@@ -171,7 +282,62 @@ examples:
                 }
             });
 
+  - title: Update Subscription
+    example: |
+        This example updates the user's notification subscription with the device's current
+        location, upon successfully obtaining the device's current position.
+
+            var latitude, longitude, 
+            var pushDeviceToken; // Device token obtained earlier...
+
+            Titanium.Geolocation.getCurrentPosition(function(e) {
+                if (e.error) {
+                    Ti.API.error('Error: ' + e.error);
+                } else {
+                    latitude = e.coords.latitude;
+                    longitude = e.coords.longitude;
+                    Cloud.PushNotifications.updateSubscription({
+                        device_token: pushDeviceToken,
+                        loc: [longitude, latitude]
+                    }, function (e) {
+                        if (e.success) {
+                            alert('Subscription Updated.');
+                        }
+                        else {
+                            alert(e);
+                        }
+                    });                        
+                }
+            });
+        
 ---
 name: CloudPushNotificationsResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: CloudResponse
+---
+name: CloudPushNotificationsQueryChannelResponse
+summary: Argument passed to the callback when a request finishes successfully.
+extends: CloudResponse
+properties:
+  - name: push_channels
+    summary: Array of `push_channel` names, if any exist.
+    description: Only included if `success` is `true`.
+    type: Array<String>
+---
+name: CloudPushNotificationsShowChannelResponse
+summary: Argument passed to the callback when a request finishes successfully.
+extends: CloudResponse
+properties:
+  - name: devices
+    summary: Dictionary containing counts of devices subscribed to a push channel, grouped by platform.
+    description: Only included if `success` is `true`.
+    type: Dictionary
+---
+name: CloudPushNotificationsQueryResponse
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: CloudResponse
+properties:
+  - name: subscriptions
+    summary: Set of `subscription` objects, if any exist.
+    description: Only included if `success` is `true`.
+    type: Array<Dictionary>

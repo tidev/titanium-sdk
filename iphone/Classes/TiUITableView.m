@@ -98,23 +98,6 @@
 	if (proxy.callbackCell == self) {
 		[proxy prepareTableRowForReuse];
 	}
-	//[self setProxy:nil];
-	
-	// TODO: HACK: In the case of abnormally large table view cells, we have to reset the size.
-	// This is because the view drawing subsystem takes the cell frame to be the sandbox bounds when drawing views,
-	// and if its frame is too big... the view system allocates way too much memory/pixels and doesn't appear to let
-	// them go.
-    CGRect oldBounds = [[self contentView] bounds];
-    if (!CGPointEqualToPoint(oldBounds.origin,CGPointZero)) {
-        //TIMOB-15396. Occasionally the bounds have a non zero origin. Why?
-        [[self contentView] setBounds:CGRectZero];
-        [[self contentView] setCenter:CGPointZero];
-        
-    } else {
-        CGRect oldFrame = [[self contentView] frame];
-        
-        [[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 0,0)];
-    }
 }
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
@@ -307,6 +290,7 @@
 	{
         hideOnSearch = YES; // Legacy behavior
 		filterCaseInsensitive = YES; // defaults to true on search
+		filterAnchored = NO; // defaults to false on search
 		searchString = @"";
 		defaultSeparatorInsets = UIEdgeInsetsZero;
 	}
@@ -419,6 +403,9 @@
 		if (TiDimensionIsDip(rowHeight))
 		{
 			[tableview setRowHeight:rowHeight.value];
+		} else if ([TiUtils isIOS8OrGreater]) {
+			//TIMOB-17373 rowHeight on iOS8 is -1. Bug??
+			[tableview setRowHeight:44];
 		}
 		
         BOOL initBackGround = YES;
@@ -1320,7 +1307,7 @@
 		ourSearchAttribute = @"title";
 	}
 	
-	NSStringCompareOptions searchOpts = (filterCaseInsensitive ? NSCaseInsensitiveSearch : 0);
+	NSStringCompareOptions searchOpts = (filterCaseInsensitive ? NSCaseInsensitiveSearch : 0) | (filterAnchored ? NSAnchoredSearch : 0);
 	
 	for (TiUITableViewSectionProxy * thisSection in [(TiUITableViewProxy *)[self proxy] internalSections]) 
 	{
@@ -1886,6 +1873,11 @@
 	}, NO);
 }
 
+-(void)setFilterAnchored_:(id)anchoredBool
+{
+	filterAnchored = [TiUtils boolValue:anchoredBool];
+}
+
 -(void)setFilterCaseInsensitive_:(id)caseBool
 {
 	filterCaseInsensitive = [TiUtils boolValue:caseBool];
@@ -1976,7 +1968,8 @@
             return;
         }
 		tableHeaderPullView = [[UIView alloc] initWithFrame:CGRectMake(0.0f, 0.0f - self.tableView.bounds.size.height, self.tableView.bounds.size.width, self.tableView.bounds.size.height)];
-		tableHeaderPullView.backgroundColor = [UIColor lightGrayColor];
+		TiColor* pullBgColor = [TiUtils colorValue:[value valueForUndefinedKey:@"pullBackgroundColor"]];
+		tableHeaderPullView.backgroundColor = ((pullBgColor == nil) ? [UIColor lightGrayColor] : [pullBgColor color]);
 		UIView *view = [value view];
 		[[self tableView] addSubview:tableHeaderPullView];
 		[tableHeaderPullView addSubview:view];
@@ -2065,9 +2058,6 @@ return result;	\
             [row.callbackCell setProxy:nil];
         }
 		cell = [[[TiUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.tableClass row:row] autorelease];
-        CGSize cellSize = [(TiUITableViewCell*)cell computeCellSize];
-		[cell setBounds:CGRectMake(0, 0, cellSize.width,cellSize.height)];
-        [[cell contentView] setBounds:[cell bounds]];
 	}
 	else
 	{
@@ -2084,6 +2074,11 @@ return result;	\
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)ourTableView
 {
+    //TIMOB-15526
+    if (ourTableView != tableview && ourTableView.backgroundColor == [UIColor clearColor]) {
+        ourTableView.backgroundColor = [UIColor whiteColor];
+    }
+
 	RETURN_IF_SEARCH_TABLE_VIEW(1);
     // One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
 	int result = [(TiUITableViewProxy *)[self proxy] sectionCount];
@@ -2368,6 +2363,13 @@ return result;	\
 		result = NSLocalizedString(@"Delete",@"Table View Delete Confirm");
 	}
 	return result;
+}
+
+- (void)tableView:(UITableView*)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath{
+    TiUITableViewRowProxy *row = nil;
+    TiUITableViewSectionProxy  *section = nil;
+    section = [(TiUITableViewProxy *)[self proxy] sectionForIndex:indexPath row:&row];
+    [row.section reorderRows];
 }
 
 - (void)tableView:(UITableView *)ourTableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath

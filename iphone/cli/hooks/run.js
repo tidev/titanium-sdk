@@ -63,6 +63,8 @@ exports.init = function (logger, config, cli) {
 						'"' + path.join(build.titaniumIosSdkPath, 'ios-sim') + '"',
 						'launch',
 						'"' + build.xcodeAppDir + '"',
+						'--xcode-dir',
+						'"' + build.xcodeEnv.path + '"',
 						'--sdk',
 						appc.version.format(build.iosSimVersion, 2, 2),
 						'--family',
@@ -72,31 +74,28 @@ exports.init = function (logger, config, cli) {
 					simProcess,
 					simErr = [],
 					stripLogLevelRE = new RegExp('\\[(?:' + logger.getLevels().join('|') + ')\\] '),
-					logProcess,
-					simStarted = false,
-					simEnv = path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Library', 'PrivateFrameworks') +
-							':' + afs.resolvePath(build.xcodeEnv.path, '..', 'OtherFrameworks');
+					simStarted = false;
 
-				if (cli.argv.retina) {
+				if (appc.version.gte(build.iosSimVersion, '7.0.0') && cli.argv['sim-64bit']) {
+					cmd.push('--retina');
+					if (build.iosSimType == 'iphone') {
+						cmd.push('--tall');
+					}
+					cmd.push('--sim-64bit');
+				} else if (cli.argv.retina) {
 					cmd.push('--retina');
 					if (appc.version.gte(build.iosSimVersion, '6.0.0') && build.iosSimType == 'iphone' && cli.argv.tall) {
 						cmd.push('--tall');
 					}
 				}
-				if (appc.version.gte(build.iosSimVersion, '7.0.0') && cli.argv['sim-64bit']) {
-					cmd.push('--sim-64bit');
-				}
 				cmd = cmd.join(' ');
 
 				logger.info(__('Launching application in iOS Simulator'));
-				logger.trace(__('Simulator environment: %s', ('DYLD_FRAMEWORK_PATH=' + simEnv).cyan));
+
 				logger.debug(__('Simulator command: %s', cmd.cyan));
 
 				simProcess = spawn('/bin/sh', ['-c', cmd], {
-					cwd: build.titaniumIosSdkPath,
-					env: {
-						DYLD_FRAMEWORK_PATH: simEnv
-					}
+					cwd: build.titaniumIosSdkPath
 				});
 
 				simProcess.stderr.on('data', function (data) {
@@ -107,7 +106,6 @@ exports.init = function (logger, config, cli) {
 
 				simProcess.on('exit', function (code, signal) {
 					clearTimeout(findLogTimer);
-					logProcess && logProcess.kill();
 
 					if (simStarted) {
 						var endLogTxt = __('End simulator log');
@@ -122,18 +120,20 @@ exports.init = function (logger, config, cli) {
 					}
 				}.bind(this));
 
-				// focus the simulator
-				logger.info(__('Focusing the iOS Simulator'));
-				exec([
-					'osascript',
-					'"' + path.join(build.titaniumIosSdkPath, 'iphone_sim_activate.scpt') + '"',
-					'"' + path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Applications', 'iPhone Simulator.app') + '"'
-				].join(' '), function (err, stdout, stderr) {
-					if (err) {
-						logger.error(__('Failed to focus the iPhone Simulator window'));
-						logger.error(stderr);
-					}
-				});
+				if (cli.argv['sim-focus']) {
+					// focus the simulator
+					logger.info(__('Focusing the iOS Simulator'));
+					exec([
+						'osascript',
+						'"' + path.join(build.titaniumIosSdkPath, 'iphone_sim_activate.scpt') + '"',
+						'"' + path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Applications', 'iPhone Simulator.app') + '"'
+					].join(' '), function (err, stdout, stderr) {
+						if (err) {
+							logger.error(__('Failed to focus the iPhone Simulator window'));
+							logger.error(stderr);
+						}
+					});
+				}
 
 				var levels = logger.getLevels(),
 					logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
@@ -163,37 +163,50 @@ exports.init = function (logger, config, cli) {
 								lastLogger = 'debug';
 
 							(function readChanges () {
-								var stats = fs.statSync(file),
-									fd, bytesRead, lines, m,line, i, len;
+								try {
+									var stats = fs.statSync(file),
+										fd, bytesRead, lines, m, line, i, len;
 
-								if (position < stats.size) {
-									fd = fs.openSync(file, 'r');
-									do {
-										bytesRead = fs.readSync(fd, buf, 0, 16, position);
-										position += bytesRead;
-										buffer += buf.toString('utf-8', 0, bytesRead);
-									} while (bytesRead === 16);
-									fs.closeSync(fd);
+									if (position < stats.size) {
+										fd = fs.openSync(file, 'r');
+										do {
+											bytesRead = fs.readSync(fd, buf, 0, 16, position);
+											position += bytesRead;
+											buffer += buf.toString('utf-8', 0, bytesRead);
+										} while (bytesRead === 16);
+										fs.closeSync(fd);
 
-									lines = buffer.split('\n');
-									buffer = lines.pop(); // keep the last line because it could be incomplete
-									for (i = 0, len = lines.length; i < len; i++) {
-										line = lines[i];
-										if (line) {
-											m = line.match(logLevelRE);
-											if (m) {
-												lastLogger = m[2].toLowerCase();
-												line = m[4].trim();
-											}
-											if (levels.indexOf(lastLogger) == -1) {
-												logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
-											} else {
-												logger[lastLogger](line);
+										lines = buffer.split('\n');
+										buffer = lines.pop(); // keep the last line because it could be incomplete
+										for (i = 0, len = lines.length; i < len; i++) {
+											line = lines[i];
+											if (line) {
+												m = line.match(logLevelRE);
+												if (m) {
+													lastLogger = m[2].toLowerCase();
+													line = m[4].trim();
+												}
+												if (levels.indexOf(lastLogger) == -1) {
+													logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
+												} else {
+													logger[lastLogger](line);
+												}
 											}
 										}
 									}
+									readChangesTimer = setTimeout(readChanges, 30);
+								} catch (ex) {
+									if (ex.code == 'ENOENT') {
+										clearTimeout(readChangesTimer);
+										if (simStarted) {
+											var endLogTxt = __('End simulator log');
+											logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey);
+										}
+										logger.log();
+										process.exit(0);
+									}
+									throw ex;
 								}
-								readChangesTimer = setTimeout(readChanges, 30);
 							}());
 
 							simProcess.on('exit', function() {

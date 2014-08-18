@@ -482,6 +482,12 @@ typedef enum
 
 +(UITextAlignment)textAlignmentValue:(id)alignment;
 
++(NSString*)jsonStringify:(id)value;
++(id)jsonParse:(NSString*)value;
+
++(NSString*)jsonStringify:(id)value error:(NSError**)error;
++(id)jsonParse:(NSString*)value error:(NSError**)error;;
+
 /**
  Whether or not the current device orientation is portrait.
  @return _YES_ is the current device orientation is portrait, _NO_ otherwise.
@@ -527,8 +533,6 @@ typedef enum
 
 +(void)applyColor:(TiColor *)color toNavigationController:(UINavigationController *)navController;
 
-+(void)queueAnalytics:(NSString*)type name:(NSString*)name data:(NSDictionary*)data;
-
 /**
  Whether or not the current device interface idiom is iPad.
  @return _YES_ if the current device interface idiom is iPad, _NO_ otherwise.
@@ -558,6 +562,12 @@ typedef enum
  @return _YES_ if the current OS version is equal to or greater thann 7.0, _NO_ otherwise.
  */
 +(BOOL)isIOS7OrGreater;
+
+/**
+ Whether or not the current OS version is equal to or greater than 8.0.
+ @return _YES_ if the current OS version is equal to or greater thann 8.0, _NO_ otherwise.
+ */
++(BOOL)isIOS8OrGreater;
 
 /**
  Whether or not the current device is an iPhone 4.

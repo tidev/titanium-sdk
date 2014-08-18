@@ -86,7 +86,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	 * that must be reset every time a view is recycled, to ensure synchronization. Currently, only
 	 * "value" is in this list to correctly update the value of Ti.UI.Switch.
 	 */
-	public static List<String> MUST_SET_PROPERTIES = Arrays.asList(TiC.PROPERTY_VALUE);
+	public static List<String> MUST_SET_PROPERTIES = Arrays.asList(TiC.PROPERTY_VALUE, TiC.PROPERTY_AUTO_LINK, TiC.PROPERTY_TEXT, TiC.PROPERTY_HTML);
 	
 	public static final String MIN_SEARCH_HEIGHT = "50dp";
 	public static final String MIN_ROW_HEIGHT = "30dp";
@@ -396,6 +396,20 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			setSeparatorColor(color);
 		}
 
+		if (d.containsKey(TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED)) {
+			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED, false);
+			listView.setFooterDividersEnabled(enabled);
+		} else {
+			listView.setFooterDividersEnabled(false);
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_HEADER_DIVIDERS_ENABLED)) {
+			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_HEADER_DIVIDERS_ENABLED, false);
+			listView.setHeaderDividersEnabled(enabled);
+		} else {
+			listView.setHeaderDividersEnabled(false);
+		}
+		
 		if (d.containsKey(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
 			listView.setVerticalScrollBarEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR, true));
 		}
@@ -450,11 +464,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		}
 
 		//Have to add header and footer before setting adapter
-		listView.addHeaderView(headerView);
-		listView.addFooterView(footerView);
+		listView.addHeaderView(headerView, null, false);
+		listView.addFooterView(footerView, null, false);
 
 		listView.setAdapter(adapter);
-
 		super.processProperties(d);
 		
 	}
@@ -787,10 +800,21 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		return position;
 	}
 	
-	public void scrollToItem(int sectionIndex, int sectionItemIndex) {
-		int position = findItemPosition(sectionIndex, sectionItemIndex);
+	protected void scrollToItem(int sectionIndex, int sectionItemIndex, boolean animated) {
+		final int position = findItemPosition(sectionIndex, sectionItemIndex);
 		if (position > -1) {
-			listView.smoothScrollToPosition(position + 1);
+			if (animated) {
+				listView.smoothScrollToPosition(position + 1);
+			} else {
+				listView.post(new Runnable() 
+				{
+					@Override
+					public void run() 
+					{
+						listView.setSelection(position + 1);
+					}
+				});
+			}
 		}
 	}
 	
@@ -825,6 +849,11 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	{
 		this.searchText = text;
 		reFilter(text);
+	}
+	
+	public ListSectionProxy[] getSections()
+	{
+		return sections.toArray(new ListSectionProxy[sections.size()]);
 	}
 	
 }

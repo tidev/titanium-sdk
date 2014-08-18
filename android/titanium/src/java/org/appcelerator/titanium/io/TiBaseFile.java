@@ -429,7 +429,7 @@ public abstract class TiBaseFile
 		Log.w(TAG, "Method is not supported " + this.getClass().getName() + " : " + method);
 	}
 
-	protected void copyStream(InputStream is, OutputStream os) throws IOException {
+	public static void copyStream(InputStream is, OutputStream os) throws IOException {
 		byte[] buf = new byte[8096];
 		int count = 0;
 		while((count = is.read(buf)) != -1) {

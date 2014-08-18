@@ -32,7 +32,6 @@ import android.view.View;
 @Kroll.proxy(propertyAccessors={
 	TiC.PROPERTY_EXIT_ON_CLOSE,
 	TiC.PROPERTY_FULLSCREEN,
-	TiC.PROPERTY_NAV_BAR_HIDDEN,
 	TiC.PROPERTY_TITLE,
 	TiC.PROPERTY_TITLEID,
 	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
@@ -396,6 +395,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public ActivityProxy getActivityProxy()
 	{
 		return super.getActivityProxy();
+	}
+
+	@Kroll.method(name = "_getWindowActivityProxy")
+	public ActivityProxy getWindowActivityProxy()
+	{
+		if (opened) {
+			return super.getActivityProxy();
+		} else {
+			return null;
+		}
 	}
 
 	protected abstract void handleOpen(KrollDict options);

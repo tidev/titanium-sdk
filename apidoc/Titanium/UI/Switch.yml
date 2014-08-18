@@ -2,15 +2,19 @@
 name: Titanium.UI.Switch
 summary: An on/off switch control.
 description: |
-    On Android, a switch can have text associated with it, and appears as either a checkbox or 
-    toggle button.
     
-    On iOS, the switch appears as an iOS on/off switch and doesn't have any text associated with it. 
+    The appearance of a `Switch` control varies by platform: 
+
+    * On Android, a Switch object can be styled either as a checkbox or 
+    toggle button (see [Titanium.UI.Switch.style](Titanium.UI.Switch.style)). The checkbox style
+    can optionally display a label next to the control.
     
-    On Mobile Web and Tizen, a switch always has text associated with it, and appears as a toggle button, 
+    * On iOS, a Switch appears as an iOS on/off switch and doesn't have any text associated with it. 
+    
+    * On Mobile Web and Tizen, a switch always has text associated with it, and appears as a toggle button, 
     similar to Android.
     
-    Use the <Titanium.UI.createSwitch> method to create a switch.
+    Use the <Titanium.UI.createSwitch> method or **`<Switch>`** Alloy element to create a switch.
 extends: Titanium.UI.View
 since: "0.8"
 methods:
@@ -57,10 +61,8 @@ properties:
     
   - name: style
     summary: Style of the switch. Enables either the toggle button (default) or checkbox.
-    description: |
-        Specify one of <Titanium.UI.Android.SWITCH_STYLE_CHECKBOX> 
-        or <Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>.
     type: Number
+    constants: Titanium.UI.Android.SWITCH_STYLE_*
     platforms: [android]
     default: Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON
     
@@ -74,12 +76,8 @@ properties:
         [title](Titanium.UI.Switch.title) contents. 
         
         On Mobile Web and Tizen this property is always supported, as the `style` property is not supported. 
-        
-        One of the <Titanium.UI> text alignment constants, 
-        [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), 
-        [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), 
-        or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
     type: [String, Number]
+    constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: |
         <Titanium.UI.TEXT_ALIGNMENT_CENTER> (toggle button, Android), 
         <Titanium.UI.TEXT_ALIGNMENT_LEFT> (checkbox, Android), 
@@ -120,6 +118,29 @@ properties:
     default: On
     platforms: [android, mobileweb, tizen]
     
+  - name: tintColor
+    summary: The color used to tint the outline of the switch when it is turned off.
+    description: |
+        This property is supported on iOS 6 and above unlike the [tintColor](Titanium.UI.View.tintColor) property defined on <Titanium.UI.View>.
+    type: String
+    default: Undefined.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    
+  - name: onTintColor
+    summary: The color used to tint the appearance of the switch when it is turned on.
+    type: String
+    default: Undefined.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    
+  - name: thumbTintColor
+    summary: The color used to tint the appearance of the thumb.
+    type: String
+    default: Undefined.
+    platforms: [iphone, ipad]
+    since: "3.3.0"
+    
   - name: value
     summary: |
         Indicates whether the switch has been turned on or off by the user. May also be set 
@@ -136,12 +157,8 @@ properties:
     
   - name: verticalAlign
     summary: Vertical alignment for the text field.
-    description: |
-        One of the <Titanium.UI> vertical alignment constants, 
-        [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
-        [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), 
-        or [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     type: [Number,String]
+    constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
     platforms: [android, mobileweb, tizen]
 

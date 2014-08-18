@@ -160,6 +160,11 @@
     }
 }
 
+-(BOOL)optimizeSubviewInsertion
+{
+    return YES;
+}
+
 -(NSMutableDictionary*)langConversionTable
 {
 	return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"title",@"titleid",@"titlePrompt",@"titlepromptid",nil];
@@ -336,19 +341,25 @@
 
 -(void)setNavTintColor:(id)colorString
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [self replaceValue:[TiUtils stringValue:colorString] forKey:@"navTintColor" notification:NO];
-	    return;
-    }
-    ENSURE_UI_THREAD(setNavTintColor,colorString);
     NSString *color = [TiUtils stringValue:colorString];
     [self replaceValue:color forKey:@"navTintColor" notification:NO];
-    if (controller!=nil) {
-        TiColor * newColor = [TiUtils colorValue:color];
-        UINavigationBar * navBar = [[controller navigationController] navigationBar];
-        [navBar setTintColor:[newColor color]];
-        [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+    if (![TiUtils isIOS7OrGreater]) {
+        return;
     }
+    
+    TiThreadPerformOnMainThread(^{
+        if(controller != nil) {
+            TiColor * newColor = [TiUtils colorValue:color];
+            if (newColor == nil) {
+                //Get from TabGroup
+                newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
+            }
+            UINavigationBar * navBar = [[controller navigationController] navigationBar];
+            [navBar setTintColor:[newColor color]];
+            [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+        }
+        
+    }, NO);    
 }
 
 -(void)setBarColor:(id)colorString
@@ -383,6 +394,10 @@
     ENSURE_UI_THREAD(setTitleAttributes,args);
     ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
     [self replaceValue:args forKey:@"titleAttributes" notification:NO];
+    
+    if (args == nil) {
+        args = [[self tabGroup] valueForUndefinedKey:@"titleAttributes"];
+    }
 
     NSMutableDictionary* theAttributes = nil;
     if (args != nil) {
@@ -434,7 +449,14 @@
     id barImageValue = [self valueForUndefinedKey:@"barImage"];
     
     UINavigationBar* ourNB = [[controller navigationController] navigationBar];
-    UIImage* theImage = [TiUtils toImage:barImageValue proxy:self];
+    UIImage* theImage = nil;
+    if ([TiUtils isIOS7OrGreater]) {
+        //TIMOB-16490
+        theImage = [TiUtils toImage:barImageValue proxy:self];
+    } else {
+        //TIMOB-16338
+        theImage = [TiUtils toImage:barImageValue proxy:self size:[ourNB bounds].size];
+    }
     
     if (theImage == nil) {
         [ourNB setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
@@ -499,98 +521,153 @@
 	}
 }
 
+-(void)updateNavButtons
+{
+    //Update LeftNavButton
+    NSDictionary* lProperties = [self valueForUndefinedKey:@"leftNavSettings"];
+    id leftNavButtons = [self valueForUndefinedKey:@"leftNavButtons"];
+    if (!IS_NULL_OR_NIL(leftNavButtons)) {
+        [self setLeftNavButtons:leftNavButtons withObject:lProperties];
+    } else {
+        leftNavButtons = [self valueForUndefinedKey:@"leftNavButton"];
+        [self setLeftNavButton:leftNavButtons withObject:lProperties];
+    }
+    //Update RightNavButton
+    NSDictionary* rProperties = [self valueForUndefinedKey:@"rightNavSettings"];
+    id rightNavButtons = [self valueForUndefinedKey:@"rightNavButtons"];
+    if (!IS_NULL_OR_NIL(rightNavButtons)) {
+        [self setRightNavButtons:rightNavButtons withObject:rProperties];
+    } else {
+        rightNavButtons = [self valueForUndefinedKey:@"rightNavButton"];
+        [self setRightNavButton:rightNavButtons withObject:rProperties];
+    }
+}
+
+-(void)refreshRightNavButtons:(id)unused
+{
+    if (controller == nil || [controller navigationController] == nil) {
+        return; // No need to refresh
+    }
+    NSArray* theObjects = [self valueForUndefinedKey:@"rightNavButtons"];
+    NSDictionary* theProperties = [self valueForUndefinedKey:@"rightNavSettings"];
+    
+    ENSURE_TYPE_OR_NIL(theObjects, NSArray);
+    ENSURE_TYPE_OR_NIL(theProperties, NSDictionary);
+    
+    NSMutableArray* theItems = [[NSMutableArray alloc] init];
+    for (TiViewProxy* theProxy in theObjects) {
+        if ([theProxy supportsNavBarPositioning]) {
+            [theItems addObject:[theProxy barButtonItem]];
+        } else {
+            DebugLog(@"%@ does not support nav bar positioning", theProxy);
+        }
+    }
+    
+    BOOL animated = [TiUtils boolValue:@"animated" properties:theProperties def:NO];
+    
+    if ([theItems count] > 0) {
+        [controller.navigationItem setRightBarButtonItems:theItems animated:animated];
+    } else {
+        [controller.navigationItem setRightBarButtonItems:nil animated:animated];
+    }
+    [theItems release];
+}
+
+-(void)setRightNavButtons:(id)arg withObject:(id)properties
+{
+    ENSURE_TYPE_OR_NIL(arg, NSArray);
+    ENSURE_TYPE_OR_NIL(properties, NSDictionary);
+    
+    NSArray* curValues = [self valueForUndefinedKey:@"rightNavButtons"];
+    ENSURE_TYPE_OR_NIL(curValues, NSArray);
+    
+    //Clean up current values
+    for (TiViewProxy* curProxy in curValues) {
+        if (![(NSArray*)arg containsObject:curProxy]) {
+            [curProxy removeBarButtonView];
+        }
+    }
+    
+    [self replaceValue:arg forKey:@"rightNavButtons" notification:NO];
+    [self replaceValue:properties forKey:@"rightNavSettings" notification:NO];
+    TiThreadPerformOnMainThread(^{
+        [self refreshRightNavButtons:nil];
+    }, NO);
+    
+}
+
 -(void)setRightNavButton:(id)proxy withObject:(id)properties
 {
-	ENSURE_UI_THREAD_WITH_OBJ(setRightNavButton,proxy,properties);
-    if (properties == nil) {
-        properties = [self valueForKey:@"rightNavSettings"];
+    [self replaceValue:proxy forKey:@"rightNavButton" notification:NO];
+    if (IS_NULL_OR_NIL(proxy)) {
+        [self setRightNavButtons:nil withObject:properties];
+    } else {
+        [self setRightNavButtons:[NSArray arrayWithObject:proxy] withObject:properties];
     }
-    else {
-        [self setValue:properties forKey:@"rightNavSettings"];
+
+}
+
+-(void)refreshLeftNavButtons:(id)unused
+{
+    if (controller == nil || [controller navigationController] == nil) {
+        return; // No need to refresh
     }
-	
-	if (controller!=nil && 
-		[controller navigationController] != nil)
-	{
-		ENSURE_TYPE_OR_NIL(proxy,TiViewProxy);
-		[self replaceValue:proxy forKey:@"rightNavButton" notification:NO];
-		if (proxy==nil || [proxy supportsNavBarPositioning])
-		{
-			// detach existing one
-			UIBarButtonItem *item = controller.navigationItem.rightBarButtonItem;
-			if ([item respondsToSelector:@selector(proxy)])
-			{
-				TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
-				[p removeBarButtonView];
-			}
-			if (proxy!=nil)
-			{
-				// add the new one
-                BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
-                [controller.navigationItem setRightBarButtonItem:[proxy barButtonItem] animated:animated];
-            }
-			else 
-			{
-				controller.navigationItem.rightBarButtonItem = nil;
-			}
-		}
-		else
-		{
-			NSString *msg = [NSString stringWithFormat:@"%@ doesn't support positioning on the nav bar",proxy];
-			THROW_INVALID_ARG(msg);
-		}
-	}
-	else 
-	{
-		[self replaceValue:[[[TiComplexValue alloc] initWithValue:proxy properties:properties] autorelease] forKey:@"rightNavButton" notification:NO];
-	}
+    NSArray* theObjects = [self valueForUndefinedKey:@"leftNavButtons"];
+    NSDictionary* theProperties = [self valueForUndefinedKey:@"leftNavSettings"];
+    
+    ENSURE_TYPE_OR_NIL(theObjects, NSArray);
+    ENSURE_TYPE_OR_NIL(theProperties, NSDictionary);
+    
+    NSMutableArray* theItems = [[NSMutableArray alloc] init];
+    for (TiViewProxy* theProxy in theObjects) {
+        if ([theProxy supportsNavBarPositioning]) {
+            [theItems addObject:[theProxy barButtonItem]];
+        } else {
+            DebugLog(@"%@ does not support nav bar positioning", theProxy);
+        }
+    }
+    
+    BOOL animated = [TiUtils boolValue:@"animated" properties:theProperties def:NO];
+    
+    if ([theItems count] > 0) {
+        [controller.navigationItem setLeftBarButtonItems:theItems animated:animated];
+    } else {
+        [controller.navigationItem setLeftBarButtonItems:nil animated:animated];
+    }
+    [theItems release];
+}
+
+-(void)setLeftNavButtons:(id)arg withObject:(id)properties
+{
+    ENSURE_TYPE_OR_NIL(arg, NSArray);
+    ENSURE_TYPE_OR_NIL(properties, NSDictionary);
+    
+    NSArray* curValues = [self valueForUndefinedKey:@"leftNavButtons"];
+    ENSURE_TYPE_OR_NIL(curValues, NSArray);
+    
+    //Clean up current values
+    for (TiViewProxy* curProxy in curValues) {
+        if (![(NSArray*)arg containsObject:curProxy]) {
+            [curProxy removeBarButtonView];
+        }
+    }
+
+    [self replaceValue:arg forKey:@"leftNavButtons" notification:NO];
+    [self replaceValue:properties forKey:@"leftNavSettings" notification:NO];
+    TiThreadPerformOnMainThread(^{
+        [self refreshLeftNavButtons:nil];
+    }, NO);
+
 }
 
 -(void)setLeftNavButton:(id)proxy withObject:(id)properties
 {
-	ENSURE_UI_THREAD_WITH_OBJ(setLeftNavButton,proxy,properties);
-    if (properties == nil) {
-        properties = [self valueForKey:@"leftNavSettings"];
+    [self replaceValue:proxy forKey:@"leftNavButton" notification:NO];
+    if (IS_NULL_OR_NIL(proxy)) {
+        [self setLeftNavButtons:nil withObject:properties];
+    } else {
+        [self setLeftNavButtons:[NSArray arrayWithObject:proxy] withObject:properties];
     }
-    else {
-        [self setValue:properties forKey:@"leftNavSettings"];
-    }
-    
-	if (controller!=nil && [controller navigationController] != nil)
-	{
-		ENSURE_TYPE_OR_NIL(proxy,TiViewProxy);
-		[self replaceValue:proxy forKey:@"leftNavButton" notification:NO];
-		if (proxy==nil || [proxy supportsNavBarPositioning])
-		{
-			// detach existing one
-			UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
-			if ([item respondsToSelector:@selector(proxy)])
-			{
-				TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
-				[p removeBarButtonView];
-			}
-			controller.navigationItem.leftBarButtonItem = nil;			
-			if (proxy!=nil)
-			{
-				// add the new one
-                BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
-                [controller.navigationItem setLeftBarButtonItem:[proxy barButtonItem] animated:animated];
-            }
-			else 
-			{
-				controller.navigationItem.leftBarButtonItem = nil;
-			}
-		}
-		else
-		{
-			NSString *msg = [NSString stringWithFormat:@"%@ doesn't support positioning on the nav bar",proxy];
-			THROW_INVALID_ARG(msg);
-		}
-	}
-	else
-	{
-		[self replaceValue:[[[TiComplexValue alloc] initWithValue:proxy properties:properties] autorelease] forKey:@"leftNavButton" notification:NO];
-	}
 }
 
 -(void)setTabBarHidden:(id)value
@@ -741,9 +818,13 @@
 		NSURL * path = [TiUtils toURL:[self valueForKey:@"titleImage"] proxy:self];
 		//Todo: This should be [TiUtils navBarTitleViewSize] with the thumbnail scaling. For now, however, we'll go with auto.
 		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:path withSize:CGSizeZero];
-		if (image!=nil)
-		{
-			newTitleView = [[[UIImageView alloc] initWithImage:image] autorelease];
+		if (image!=nil) {
+			if ([oldView isKindOfClass:[UIImageView class]]) {
+				[(UIImageView*)oldView setImage:image];
+				newTitleView = oldView;
+			} else {
+				newTitleView = [[[UIImageView alloc] initWithImage:image] autorelease];
+			}
 		}
 	}
 
@@ -776,13 +857,13 @@
 
 -(void)setTitle:(NSString*)title_
 {
-	ENSURE_UI_THREAD(setTitle,title_);
-	NSString *title = [TiUtils stringValue:title_];
-	[self replaceValue:title forKey:@"title" notification:NO];
-	if (controller!=nil && [controller navigationController] != nil)
-	{
-		controller.navigationItem.title = title;
-	}
+    NSString *title = [TiUtils stringValue:title_];
+    [self replaceValue:title forKey:@"title" notification:NO];
+    TiThreadPerformOnMainThread(^{
+        if (shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+            controller.navigationItem.title = title;
+        }
+    }, NO);
 }
 
 -(void)setTitlePrompt:(NSString*)title_
@@ -912,7 +993,7 @@ else{\
     
     [[controller navigationController] setToolbarHidden:!hasToolbar animated:YES];
     //Need to clear title for titleAttributes to apply correctly on iOS6.
-    [[controller navigationItem] setTitle:@""];
+    [[controller navigationItem] setTitle:nil];
     SETPROP(@"titleAttributes",setTitleAttributes);
     SETPROP(@"title",setTitle);
     SETPROP(@"titlePrompt",setTitlePrompt);
@@ -921,10 +1002,9 @@ else{\
     SETPROP(@"navTintColor",setNavTintColor);
     SETPROP(@"translucent",setTranslucent);
     SETPROP(@"tabBarHidden",setTabBarHidden);
-    SETPROPOBJ(@"leftNavButton",setLeftNavButton);
-    SETPROPOBJ(@"rightNavButton",setRightNavButton);
     SETPROPOBJ(@"toolbar",setToolbar);
     [self updateBarImage];
+    [self updateNavButtons];
     [self refreshBackButton];
 
     id navBarHidden = [self valueForKey:@"navBarHidden"];
@@ -944,17 +1024,18 @@ else{\
     if ((controller == nil) || ([controller navigationController] == nil)) {
         return;
     }
-    UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
-    if ([item respondsToSelector:@selector(proxy)]) {
-        TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
-        [p removeBarButtonView];
+    NSArray* curValues = [self valueForUndefinedKey:@"leftNavButtons"];
+    ENSURE_TYPE_OR_NIL(curValues, NSArray);
+    for (TiViewProxy* curProxy in curValues) {
+        [curProxy removeBarButtonView];
+    }
+    
+    NSArray* curValues2 = [self valueForUndefinedKey:@"rightNavButtons"];
+    ENSURE_TYPE_OR_NIL(curValues2, NSArray);
+    for (TiViewProxy* curProxy in curValues2) {
+        [curProxy removeBarButtonView];
     }
 
-    item = controller.navigationItem.rightBarButtonItem;
-    if ([item respondsToSelector:@selector(proxy)]) {
-        TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
-        [p removeBarButtonView];
-    }
     if (barImageView != nil) {
         [barImageView removeFromSuperview];
     }

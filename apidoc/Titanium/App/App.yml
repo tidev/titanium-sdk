@@ -1,8 +1,8 @@
 ---
 name: Titanium.App
 summary: |
-    The top level App module. The App module is mainly used for accessing information about the 
-    application at runtime and for sending or listening for system events.
+    The top-level App module is mainly used for accessing information about the
+    application at runtime, and for sending or listening for system events.
 description: |
     The `App` module exposes a number of properties set in the `tiapp.xml` file.  
     
@@ -11,6 +11,9 @@ description: |
     
     While most values may be changed by editing the `tiapp.xml` file after creating the project, 
     the GUID is automatically generated and should not be changed.
+
+    To access other application properties set in the `tiapp.xml` file not exposed by the
+    `Titanium.App` module, see <Titanium.App.Properties>.
 
     #### iOS Application Life Cycle
 
@@ -180,6 +183,11 @@ events:
         summary: Whether accessibility is now enabled or disabled.
         type: Boolean
 
+  - name: memorywarning
+    summary: Fired when the app receives a warning from the operating system about low memory availability.
+    platforms: [iphone, ipad]
+    since: "3.2.3"
+
   - name: pause
     summary: Fired when the application transitions from active to inactive state on a multitasked system.
     description: |
@@ -225,7 +233,8 @@ events:
     properties:
       - name: state
         summary: Proximity state value.
-    platforms: [iphone]
+    platforms: [iphone, android]
+    since: {android: "3.3.0"}
     
   - name: resume
     summary: Fired when the application returns to the foreground on a multitasked system.
@@ -421,7 +430,8 @@ properties:
         Set to `true` to receive <Titanium.App.proximity> events.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: {android: "3.3.0"}
     
   - name: proximityState
     summary: |
@@ -433,7 +443,8 @@ properties:
         When <Titanium.App.proximityDetection> is disabled, the value of this property is undefined.
     type: Boolean
     permission: read-only
-    platforms: [iphone]
+    platforms: [iphone, android]
+    since: {android: "3.3.0"}
 
   - name: disableNetworkActivityIndicator
     summary: |

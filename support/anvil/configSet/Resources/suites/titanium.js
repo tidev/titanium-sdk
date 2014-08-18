@@ -16,7 +16,8 @@ module.exports = new function() {
 	this.name = "titanium";
 	this.tests = [
 		{name: "buildHash"},
-		{name: "userAgent"}
+		{name: "userAgent"},
+		{name: "analytics"}
 	]
 
 	this.buildHash = function(testRun) {
@@ -29,6 +30,16 @@ module.exports = new function() {
 		valueOf(testRun, Titanium.userAgent).shouldBeString();
 		valueOf(testRun, Titanium.userAgent.indexOf("Titanium")).shouldBeNumber();
 
+		finish(testRun);
+	}
+
+	//TIMOB-1915
+	this.analytics = function(testRun) {
+		valueOf(testRun, function(){
+			Ti.Analytics.featureEvent("myevent1");
+			Ti.Analytics.featureEvent("myevent2", {extraData: "test"});
+		}).shouldNotThrowException();
+		
 		finish(testRun);
 	}
 }
