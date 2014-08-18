@@ -270,11 +270,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     },NO);
 }
 
--(void)setContentOffset_:(id)args
+-(void)setContentOffset_:(id)value withObject:(id)args
 {
-    ENSURE_SINGLE_ARG(args, NSDictionary)
-    CGPoint offset = [TiUtils pointValue:args];
-    BOOL animated = [TiUtils boolValue: [args objectForKey:@"animated"] def:NO];
+    CGPoint offset = [TiUtils pointValue:value];
+    BOOL animated = [TiUtils boolValue: [args valueForKey:@"animated"] def:NO];
     [_tableView setContentOffset:offset animated:animated];
 }
 
@@ -822,7 +821,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
     }
     [_tableView reloadSectionIndexTitles];
-    [_tableView reloadData];
 }
 
 #pragma mark - SectionIndexTitle Support Datasource methods.

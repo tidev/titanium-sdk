@@ -1979,11 +1979,10 @@
 	}
 }
 
--(void)setContentOffset_:(id)args
+-(void)setContentOffset_:(id)args withObject:(id)obj
 {
-    ENSURE_SINGLE_ARG(args, NSDictionary)
     CGPoint offset = [TiUtils pointValue:args];
-    BOOL animated = [TiUtils boolValue: [args objectForKey:@"animated"] def:NO];
+    BOOL animated = [TiUtils boolValue: [obj objectForKey:@"animated"] def:NO];
     [tableview setContentOffset:offset animated:animated];
 }
 

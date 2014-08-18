@@ -97,6 +97,7 @@
 -(UITableView*)tableView;
 -(CGFloat)tableRowHeight:(CGFloat)height;
 -(void)setScrollsToTop_:(id)value;
+-(void)setContentOffset_:(id)args withObject:(id)obj;
 
 #pragma Private
 -(void)selectRow:(id)args;

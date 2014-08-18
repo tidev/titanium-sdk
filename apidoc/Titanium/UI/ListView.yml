@@ -198,7 +198,7 @@ events:
         summary: The index number clicked.
         type: Number
     platforms: [iphone, ipad]
-    since: 3.3.0
+    since: "3.4.0"
 
   - name: itemclick
     summary: Fired when a list row is clicked by the user.
@@ -576,7 +576,6 @@ properties:
     description: |
         If an index array is specified, an index bar is displayed on the right-hand side of the list view.
         Clicking on a title in the index bar scrolls the list view to the section index associated with that title.
-        If the index is -1 the list view will scroll to the top.
     type: Array<ListViewIndexEntry>
     platforms: [iphone, ipad]
     since: 3.2.0
@@ -793,11 +792,11 @@ methods:
     parameters:
       - name: contentOffset
         summary: |
-            Dictionary with the properties `x`, `y`, and `animated`. The `x` and `y` coordinates
-            reposition the top-left point of the scrollable region of the list view.
+            Dictionary with the properties `x`, `y`. Pass in `animated` `true` as a second dictionary parameter.
+            The `x` and `y` coordinates reposition the top-left point of the scrollable region of the list view.
             The `animated` property is optional and set to `false` by default. 
         type: Dictionary
-    since: 3.3.0
+    since: 3.4.0
 
   - name: setMarker
     summary: Sets a reference item in the list view.

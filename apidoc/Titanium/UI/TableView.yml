@@ -267,7 +267,7 @@ events:
         summary: The index number clicked.
         type: Number
     platforms: [iphone, ipad]
-    since: 3.3.0
+    since: 3.4.0
 
   - name: longpress
     summary: Fired when the device detects a long press.
@@ -986,7 +986,7 @@ methods:
             reposition the top-left point of the scrollable region of the table view.
             The `animated` property is optional and set to `false` by default. 
         type: Dictionary
-    since: 3.3.0
+    since: 3.4.0
 
   - name: selectRow
     summary: | 

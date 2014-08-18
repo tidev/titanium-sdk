@@ -947,7 +947,7 @@ properties:
         This should generally only be used as the first title in the index.
     type: String
     permission: read-only
-    since: "3.3.0"
+    since: "3.4.0"
 
 methods:
   - name: createTransitionAnimation
