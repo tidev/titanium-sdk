@@ -121,6 +121,24 @@ properties:
         On Android you can either define a custom view with this property, or you can assign a set of options to the
         <Titanium.UI.OptionDialog.options> property, but not both. If you do, the custom view will appear
         but not the options you defined.
+
+        In an Alloy application you can specify this property with either an **&lt;AndroidView/&gt;** or
+        **&lt;View/&gt;** element inside the **&lt;OptionDialog/&gt;** element, for example:
+
+            <Alloy>
+                <OptionDialog id="dialog" title="Delete File?" onClick="clickCB">
+
+                    <!-- Add View or AndroidView for the androidView property -->
+                    <AndroidView platform="android" layout="vertical">
+                        <Label color="red" text="Warning!  This change is permanent and you cannot undo it!" />
+                    </AndroidView>
+
+                    <ButtonNames>
+                        <ButtonName>Confirm</ButtonName>
+                        <ButtonName>Cancel</ButtonName>
+                    </ButtonNames>
+                </OptionDialog>
+            </Alloy>
     type: Titanium.UI.View
     platforms: [android]
 
