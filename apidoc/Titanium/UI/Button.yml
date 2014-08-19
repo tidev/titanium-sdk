@@ -67,14 +67,14 @@ description: |
      the button so that it looks the same on both types of devices.
     * To make the button on iOS 7 match the rounded rectangle style of iOS 6, set 
     <Titanium.UI.iPhone.SystemButtonStyle> to [PLAIN](Titanium.UI.iPhone.SystemButtonStyle.PLAIN) and
-    and assign a custom image to <Titanium.UI.Button.backgroundImage> that provides the 
+    and assign a custom image to <Titanium.UI.Button.backgroundImage>. 
 
     To use a custom button style, such as a background gradient, you may need to explicitly set 
     the button's `style` property to `PLAIN`, to prevent the button style from overriding any background color or gradient. 
 
     Also note:
 
-    * When assigning a a custom image to the `backgroundImage` property, the image must be 
+    * When assigning a custom image to the `backgroundImage` property, the image must be 
     partially or wholly transparent for the background color or background gradient to be visible.
     * Similarly, for an assigned background gradient to show through, the `backgroundColor` may need to be
     set to 'transparent'.
