@@ -129,6 +129,18 @@
 	return proxy;
 }
 
+-(void)registerForLocalNotifications:(id)args
+{
+	if(![TiUtils isIOS8OrGreater]) return;
+	ENSURE_SINGLE_ARG(args, NSDictionary)
+	// TODO: Add "categories" when implementing interactive notifications
+	// NSSet* categories = [NSSet setWithArray: [args objectForKey:@"categories"]];
+	UIUserNotificationType types = [TiUtils intValue:[args objectForKey:@"types"] def:0];
+	
+	UIUserNotificationSettings *notif = [UIUserNotificationSettings settingsForTypes:types categories:nil];
+	[[UIApplication sharedApplication] registerUserNotificationSettings:notif];
+
+}
 -(id)scheduleLocalNotification:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSDictionary);
@@ -324,6 +336,38 @@
         return NUMDOUBLE(UIApplicationBackgroundFetchIntervalNever);
     }
     return nil;
+}
+
+-(NSNumber*)NOTIFICATION_TYPE_NONE
+{
+	if ([TiUtils isIOS8OrGreater]) {
+		return NUMINT(UIUserNotificationTypeNone);
+	}
+	return NUMINT(0);
+}
+
+-(NSNumber*)NOTIFICATION_TYPE_BADGE
+{
+	if ([TiUtils isIOS8OrGreater]) {
+		return NUMINT(UIUserNotificationTypeBadge);
+	}
+	return NUMINT(0);
+}
+
+-(NSNumber*)NOTIFICATION_TYPE_SOUND
+{
+	if ([TiUtils isIOS8OrGreater]) {
+		return NUMINT(UIUserNotificationTypeSound);
+	}
+	return NUMINT(0);
+}
+
+-(NSNumber*)NOTIFICATION_TYPE_ALERT
+{
+	if ([TiUtils isIOS8OrGreater]) {
+		return NUMINT(UIUserNotificationTypeAlert);
+	}
+	return NUMINT(0);
 }
 
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_LAYOUT_CHANGED,@"accessibilitylayoutchanged");
