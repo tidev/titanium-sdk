@@ -126,16 +126,6 @@ properties:
         Titanium.Android.FLAG_NO_CLEAR, Titanium.Android.FLAG_ONGOING_EVENT,
         Titanium.Android.FLAG_ONLY_ALERT_ONCE, Titanium.Android.FLAG_SHOW_LIGHTS ]
     default: <Titanium.Android.FLAG_AUTO_CANCEL>
-
-  - name: groupKey
-    summary: Set this notification to be part of a group of notifications sharing the same key.
-    type: String
-    since: "3.5.0"
-    
-  - name: groupSummary
-    summary: Set this notification to be the group summary for a group of notifications.
-    type: Boolean
-    since: "3.5.0"
     
   - name: icon
     summary: 

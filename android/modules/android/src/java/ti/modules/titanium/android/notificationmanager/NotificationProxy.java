@@ -120,27 +120,7 @@ public class NotificationProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_PRIORITY)) {
 			setPriority(TiConvert.toInt(d, TiC.PROPERTY_PRIORITY));
 		}
-		if (d.containsKey(TiC.PROPERTY_GROUP_KEY)) {
-			setGroupKey(TiConvert.toString(d,  TiC.PROPERTY_GROUP_KEY));
-		}
-		if (d.containsKey(TiC.PROPERTY_GROUP_SUMMARY)) {
-			setGroupSummary(TiConvert.toBoolean(d, TiC.PROPERTY_GROUP_SUMMARY, false));
-		}
 		checkLatestEventInfoProperties(d);
-	}
-	
-	@Kroll.method @Kroll.setProperty
-	public void setGroupKey(String groupKey) 
-	{
-		notificationBuilder.setGroup(groupKey);
-		setProperty(TiC.PROPERTY_GROUP_KEY, groupKey);
-	}
-	
-	@Kroll.method @Kroll.setProperty
-	public void setGroupSummary(boolean isGroupSummary) 
-	{
-		notificationBuilder.setGroupSummary(isGroupSummary);
-		setProperty(TiC.PROPERTY_GROUP_SUMMARY, isGroupSummary);
 	}
 
 	@Kroll.method @Kroll.setProperty

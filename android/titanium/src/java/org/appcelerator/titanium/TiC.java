@@ -1270,16 +1270,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_GROUP_ID = "groupId";
-	
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_GROUP_KEY = "groupKey";
-	
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_GROUP_SUMMARY = "groupSummary";
 
 	/**
 	 * @module.api
