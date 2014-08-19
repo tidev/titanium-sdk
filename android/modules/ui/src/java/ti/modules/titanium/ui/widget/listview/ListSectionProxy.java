@@ -70,7 +70,7 @@ public class ListSectionProxy extends ViewProxy{
 	public class ListItemData {
 		private KrollDict properties;
 		private TiListViewTemplate template;
-		private String searchableText;
+		private String searchableText = "";
 		public ListItemData (KrollDict properties, TiListViewTemplate template) {
 			this.properties = properties;
 			this.template = template;
@@ -933,10 +933,6 @@ public class ListSectionProxy extends ViewProxy{
 		//Add new results
 		for (int i = 0; i < listItemData.size(); ++i) {
 			String searchableText = listItemData.get(i).getSearchableText();
-			//Treat null as ""
-			if (searchableText == null) {
-				searchableText = "";
-			}
 			//Handle case sensitivity
 			if (caseInsensitive) {
 				searchText = searchText.toLowerCase();
