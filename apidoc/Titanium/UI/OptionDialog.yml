@@ -122,8 +122,8 @@ properties:
         <Titanium.UI.OptionDialog.options> property, but not both. If you do, the custom view will appear
         but not the options you defined.
 
-        In an Alloy application you can specify this property with either an **&lt;AndroidView/&gt;** or
-        **&lt;View/&gt;** element inside the **&lt;OptionDialog/&gt;** element, for example:
+        In an Alloy application you can specify this property with either an `<AndroidView/>` or
+        `<View/>` element inside the `<OptionDialog/>` element, for example:
 
             <Alloy>
                 <OptionDialog id="dialog" title="Delete File?" onClick="clickCB">

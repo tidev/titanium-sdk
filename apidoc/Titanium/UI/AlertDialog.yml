@@ -112,8 +112,8 @@ properties:
   - name: androidView
     summary: View to load inside the message area, to create a custom layout.
     description: |
-        In an Alloy application you can specify this property with either an **&lt;AndroidView/&gt;** or
-        **&lt;View/&gt;** element inside the **&lt;AlertDialog/&gt;** element, for example:
+        In an Alloy application you can specify this property with either an `<AndroidView/>` or
+        `<View/>` element inside the `<AlertDialog/>` element, for example:
 
             <Alloy>
                 <AlertDialog onClick="doClick" title="Delete"
