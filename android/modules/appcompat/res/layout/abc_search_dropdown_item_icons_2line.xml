@@ -86,4 +86,4 @@
               android:layout_toLeftOf="@android:id/icon2"
               android:layout_above="@android:id/text2" />
 
-</RelativeLayout>
+</RelativeLayout><!-- From: file:/usr/local/google/buildbot/repo_clients/https___googleplex-android.googlesource.com_a_platform_manifest.git/lmp-preview-release/frameworks/support/v7/appcompat/res/layout/abc_search_dropdown_item_icons_2line.xml -->

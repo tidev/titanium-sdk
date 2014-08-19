@@ -19,3 +19,4 @@
         android:id="@+id/expanded_menu"
         android:layout_width="?attr/panelMenuListWidth"
         android:layout_height="wrap_content"/>
+<!-- From: file:/usr/local/google/buildbot/repo_clients/https___googleplex-android.googlesource.com_a_platform_manifest.git/lmp-preview-release/frameworks/support/v7/appcompat/res/layout/abc_expanded_menu_layout.xml -->
