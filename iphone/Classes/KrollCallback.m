@@ -241,9 +241,15 @@ static NSLock *callbackLock;
 	 */
 	KrollContext * context = [bridge krollContext];
 	TiValueRef valueRef = [KrollObject toValue:context value:value];
-	TiStringRef keyRef = TiStringCreateWithCFString((CFStringRef) key);
-	TiObjectSetProperty([context context], jsobject, keyRef, valueRef, kTiPropertyAttributeReadOnly, NULL);
-	TiStringRelease(keyRef);
+
+	/*
+	 * Properties can only be added to objects
+	 */
+	if(TiValueIsObject([context context], jsobject)) {
+		TiStringRef keyRef = TiStringCreateWithCFString((CFStringRef) key);
+		TiObjectSetProperty([context context], jsobject, keyRef, valueRef, kTiPropertyAttributeReadOnly, NULL);
+		TiStringRelease(keyRef);
+	}
 }
 
 @end
