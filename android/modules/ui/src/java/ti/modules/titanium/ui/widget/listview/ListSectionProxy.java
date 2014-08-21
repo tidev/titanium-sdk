@@ -70,7 +70,7 @@ public class ListSectionProxy extends ViewProxy{
 	public class ListItemData {
 		private KrollDict properties;
 		private TiListViewTemplate template;
-		private String searchableText;
+		private String searchableText = "";
 		public ListItemData (KrollDict properties, TiListViewTemplate template) {
 			this.properties = properties;
 			this.template = template;
@@ -79,8 +79,9 @@ public class ListSectionProxy extends ViewProxy{
 				Object props = properties.get(TiC.PROPERTY_PROPERTIES);
 				if (props instanceof HashMap) {
 					HashMap<String, Object> propsHash = (HashMap<String, Object>) props;
-					if (propsHash.containsKey(TiC.PROPERTY_SEARCHABLE_TEXT)) {
-						searchableText = TiConvert.toString(propsHash, TiC.PROPERTY_SEARCHABLE_TEXT);
+					Object searchText = propsHash.get(TiC.PROPERTY_SEARCHABLE_TEXT);
+					if (propsHash.containsKey(TiC.PROPERTY_SEARCHABLE_TEXT) && searchText != null) {
+						searchableText = TiConvert.toString(searchText);
 					}
 				}
 			}
@@ -939,7 +940,7 @@ public class ListSectionProxy extends ViewProxy{
 				searchableText = searchableText.toLowerCase();
 			}
 			//String comparison
-			if (searchableText != null && searchableText.contains(searchText)) {
+			if (searchableText.contains(searchText)) {
 				filterIndices.add(i);
 			}
 		}
