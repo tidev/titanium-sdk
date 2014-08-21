@@ -473,6 +473,51 @@ properties:
     type: Boolean
     exclude-platforms: [blackberry]
 
+
+  - name: onCreateWindow
+    summary: |
+        Callback function called when there is a request for the application to create a new window
+        to host new content.
+    description: |
+        For example, the request is triggered if a web page wants to open a URL in a new
+        window.  By default, Titanium will open a new full-size window to the host the new content.
+        Use the callback to override the default behavior.
+
+        The callback needs to create a new WebView object to host the content in and add the WebView to the
+        application UI. The callback must return either a WebView object to host the content in or `null` if
+        it does not wish to handle the request.
+
+        The callback is passed a dictionary with two boolean properties:
+
+          * `isDialog`: set to true if the content should be opened in a dialog window rather than a
+            full-size window.
+          * `isUserGesture`: set to true if the user initiated the request with a gesture, such as
+            tapping a link.
+
+        The following example opens new web content in a new tab rather than a new window:
+
+            var tabGroup = Ti.UI.createTabGroup(),
+                win = Ti.UI.createWindow(),
+                tab = Ti.UI.createTab({window: win, title: 'Start Page'}),
+                webview = Ti.UI.createWebView({ url:'index.html'});
+
+            webview.onCreateWindow = function(e) {
+                var newWin = Ti.UI.createWindow(),
+                    newWebView = Ti.UI.createWebView(),
+                    newTab = Ti.UI.createTab({window: newWin, title: 'New Page'});
+                newWin.add(newWebView);
+                tabGroup.addTab(newTab);
+                return newWebView;
+            };
+
+            win.add(webview);
+            tabGroup.addTab(tab);
+            tabGroup.open();
+
+    type: Callback<Object>
+    platforms: [android]
+    since: "2.1.0"
+
   - name: overScrollMode
     summary: Determines the behavior when the user overscrolls the view.
     type: Number
@@ -480,7 +525,6 @@ properties:
     default: Titanium.UI.Android.OVER_SCROLL_ALWAYS
     platforms: [android]
     since: "3.1.0"
-    exclude-platforms: [blackberry]
     
   - name: cacheMode
     summary: Determines how a cache is used in this web view.
