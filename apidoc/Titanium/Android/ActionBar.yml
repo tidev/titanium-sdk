@@ -8,10 +8,16 @@ description: |
     the action bar, including devices running Android 2.3.x and prior. If you are using a release earlier
     than 3.3.0, refer to the _Applicaton Note_ below for additional information.
 
-    In Alloy, to use the action bar, add the **`<Menu>`** tag as a child of either
-    a `<Window>` or `<TabGroup>`, then set ActionBar attributes in the XML or TSS file.
-    To add action items to the action bar, add **`<MenuItem>`** tags as children of the `<Menu>` tag,
-    then set MenuItem attributes in either the XML or TSS file.
+    You can add action items to the action bar by defining an Android menu and setting the
+    menu items to display as action items. See [Menu](Titanium.Android.Menu) and
+    [MenuItem](Titanium.Android.MenuItem) for details.
+
+    In Alloy, to use the action bar, add the **`<ActionBar>`** tag as a child of either a
+    a `<Window>` or `<TabGroup>`, then set ActionBar attributes in either the XML or TSS file.
+
+    To add action items to the action bar, add the **`<Menu>`** tag as a child of either
+    a `<Window>` or `<TabGroup>`, then add **`<MenuItem>`** tags as children of the `<Menu>` tag.
+    Set MenuItem attributes in either the XML or TSS file.
 
     In JavaScript, wait for the window or tab group's `open` event before accessing
     the action bar from the window or tab group's [activity](Titanium.Android.Activity).
@@ -19,10 +25,6 @@ description: |
     Note that setting the [Window.navBarHidden](Titanium.UI.Window.navBarHidden) or
     [TabGroup.navBarHidden](Titanium.UI.TabGroup.navBarHidden) property to true disables the
     Action Bar since it is part of the navigation title bar.
-
-    You can add action items to the action bar by defining an Android menu and setting the
-    menu items to display as action items. See [Menu](Titanium.Android.Menu) and
-    [MenuItem](Titanium.Android.MenuItem) for details.
 
     For more examples on using the Action Bar, refer to the
     [Android Action Bar guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Android_Action_Bar).
@@ -45,7 +47,8 @@ examples:
 
             <Alloy>
                 <Window title="My Test App">
-                    <Menu id="menu" platform="android" title="My XML Menu" onHomeIconItemSelected="doMenuClick">
+                    <ActionBar id="actionbar" title="My XML Menu" onHomeIconItemSelected="doMenuClick" />
+                    <Menu>
                         <MenuItem id="item1" title="Settings" onClick="openSettings" />
                         <MenuItem id="item2" title="Search" onClick="doSearch" />
                     </Menu>
@@ -64,7 +67,7 @@ examples:
             "#item2": {
                 icon: Ti.Android.R.drawable.ic_menu_search
             },
-            "#menu": {
+            "#actionbar": {
                 icon: "/actionicon.png",
                 displayHomeAsUp: true,
                 backgroundImage: "/actionbackground.png"
