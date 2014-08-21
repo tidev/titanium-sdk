@@ -79,8 +79,9 @@ public class ListSectionProxy extends ViewProxy{
 				Object props = properties.get(TiC.PROPERTY_PROPERTIES);
 				if (props instanceof HashMap) {
 					HashMap<String, Object> propsHash = (HashMap<String, Object>) props;
-					if (propsHash.containsKey(TiC.PROPERTY_SEARCHABLE_TEXT)) {
-						searchableText = TiConvert.toString(propsHash, TiC.PROPERTY_SEARCHABLE_TEXT);
+					Object searchText = propsHash.get(TiC.PROPERTY_SEARCHABLE_TEXT);
+					if (propsHash.containsKey(TiC.PROPERTY_SEARCHABLE_TEXT) && searchText != null) {
+						searchableText = TiConvert.toString(searchText);
 					}
 				}
 			}
