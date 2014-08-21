@@ -29,6 +29,14 @@ description: |
     For more examples on using the Action Bar, refer to the
     [Android Action Bar guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Android_Action_Bar).
 
+    #### Application Notes for Alloy
+
+    Starting with Alloy 1.4.0, you can add ActionBar attributes to the `Menu` element.
+
+    Starting with Alloy 1.5.0, you can add ActionBar attributes to the `ActionBar` element.  If you
+    define ActionBar attributes in both the `Menu` and `ActionBar` elements, whichever attribute
+    that was defined last will be used.
+
     #### Application Note for Release 3.2.x and earlier
 
     If you are using Release 3.2.x or earlier, this feature is only available in Android 3.0
