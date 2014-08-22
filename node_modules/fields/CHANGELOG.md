@@ -1,3 +1,8 @@
+0.1.13 (8/21/2014)
+-------------------
+ * Removed escape backslashes when a path is drag and dropped into a terminal on
+   Linux or Mac OS X.
+
 0.1.12 (1/30/2014)
 -------------------
  * Fixed bug where select field validate callbacks that fail were not triggering
