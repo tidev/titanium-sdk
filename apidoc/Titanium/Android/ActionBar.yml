@@ -12,13 +12,6 @@ description: |
     menu items to display as action items. See [Menu](Titanium.Android.Menu) and
     [MenuItem](Titanium.Android.MenuItem) for details.
 
-    In Alloy, to use the action bar, add the **`<ActionBar>`** tag as a child of either a
-    a `<Window>` or `<TabGroup>`, then set ActionBar attributes in either the XML or TSS file.
-
-    To add action items to the action bar, add the **`<Menu>`** tag as a child of either
-    a `<Window>` or `<TabGroup>`, then add **`<MenuItem>`** tags as children of the `<Menu>` tag.
-    Set MenuItem attributes in either the XML or TSS file.
-
     In JavaScript, wait for the window or tab group's `open` event before accessing
     the action bar from the window or tab group's [activity](Titanium.Android.Activity).
 
@@ -31,11 +24,19 @@ description: |
 
     #### Application Notes for Alloy
 
-    Starting with Alloy 1.4.0, you can add ActionBar attributes to the `Menu` element.
+    Starting with Alloy 1.5.0, you can add ActionBar attributes to the `ActionBar` element.
+    To use the action bar, add the **`<ActionBar>`** tag as a child of either a
+    a `<Window>` or `<TabGroup>`, then set ActionBar attributes in either the XML or TSS file.
 
-    Starting with Alloy 1.5.0, you can add ActionBar attributes to the `ActionBar` element.  If you
-    define ActionBar attributes in both the `Menu` and `ActionBar` elements, whichever attribute
-    that was defined last will be used.
+    Starting with Alloy 1.4.0, you can also add ActionBar attributes to the `Menu` element.
+    Do not define ActionBar attributes in both the `ActionBar` and `Menu` elements. Only define the
+    attributes in one element.
+
+    To add action items to the action bar, add the **`<Menu>`** tag as a child of either
+    a `<Window>` or `<TabGroup>`, then add **`<MenuItem>`** tags as children of the `<Menu>` tag.
+    Set MenuItem attributes in either the XML or TSS file.
+
+    For an example of using the Action Bar with Alloy, see "Action Bar using Alloy XML Markup" below.
 
     #### Application Note for Release 3.2.x and earlier
 
