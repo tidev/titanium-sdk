@@ -1,7 +1,7 @@
 /*
  * install.js: Titanium iOS CLI install hook
  *
- * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2014, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 

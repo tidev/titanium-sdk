@@ -16,11 +16,11 @@ var appc = require('node-appc'),
 	Builder = require('titanium-sdk/lib/builder'),
 	cleanCSS = require('clean-css'),
 	crypto = require('crypto'),
-	detect = require('../lib/detect'),
 	ejs = require('ejs'),
 	fields = require('fields'),
 	fs = require('fs'),
 	humanize = require('humanize'),
+	ioslib = require('ioslib'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	moment = require('moment'),
 	path = require('path'),
@@ -30,7 +30,6 @@ var appc = require('node-appc'),
 	uuid = require('node-uuid'),
 	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__,
-	afs = appc.fs,
 	parallel = appc.async.parallel,
 	series = appc.async.series,
 	version = appc.version;
@@ -596,7 +595,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								prompt: function (callback) {
 									callback(fields.file({
 										promptLabel: __('Where would you like the output IPA file saved?'),
-										default: cli.argv['project-dir'] && afs.resolvePath(cli.argv['project-dir'], 'dist'),
+										default: cli.argv['project-dir'] && appc.fs.resolvePath(cli.argv['project-dir'], 'dist'),
 										complete: true,
 										showHidden: true,
 										ignoreDirs: _t.ignoreDirs,
@@ -1008,7 +1007,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		}
 
 		// validate keychain
-		var keychain = cli.argv.keychain ? afs.resolvePath(cli.argv.keychain) : null;
+		var keychain = cli.argv.keychain ? appc.fs.resolvePath(cli.argv.keychain) : null;
 		if (keychain && !fs.existsSync(keychain)) {
 			logger.error(__('Unable to find keychain "%s"', keychain) + '\n');
 			logger.log(__('Available keychains:'));
@@ -1122,7 +1121,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		var moduleSearchPaths = [ cli.argv['project-dir'] ],
 			customModulePaths = config.get('paths.modules'),
 			addSearchPath = function (p) {
-				p = afs.resolvePath(p);
+				p = appc.fs.resolvePath(p);
 				if (fs.existsSync(p) && moduleSearchPaths.indexOf(p) == -1) {
 					moduleSearchPaths.push(p);
 				}
@@ -1328,11 +1327,11 @@ iOSBuilder.prototype.doAnalytics = function doAnalytics(next) {
 iOSBuilder.prototype.initialize = function initialize(next) {
 	var argv = this.cli.argv;
 
-	this.titaniumIosSdkPath = afs.resolvePath(__dirname, '..', '..');
+	this.titaniumIosSdkPath = appc.fs.resolvePath(__dirname, '..', '..');
 	this.templatesDir = path.join(this.titaniumIosSdkPath, 'templates', 'build');
 	this.platformName = path.basename(this.titaniumIosSdkPath); // the name of the actual platform directory which will some day be "ios"
 
-	this.moduleSearchPaths = [ this.projectDir, afs.resolvePath(this.titaniumIosSdkPath, '..', '..', '..', '..') ];
+	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.titaniumIosSdkPath, '..', '..', '..', '..') ];
 	if (this.config.paths && Array.isArray(this.config.paths.modules)) {
 		this.moduleSearchPaths = this.moduleSearchPaths.concat(this.config.paths.modules);
 	}
@@ -1667,7 +1666,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile(ne
 };
 
 iOSBuilder.prototype.copyDirSync = function copyDirSync(src, dest, opts) {
-	afs.copyDirSyncRecursive(src, dest, opts || {
+	appc.fs.copyDirSyncRecursive(src, dest, opts || {
 		preserve: true,
 		logger: this.logger.debug,
 		ignoreDirs: this.ignoreDirs,
@@ -1676,7 +1675,7 @@ iOSBuilder.prototype.copyDirSync = function copyDirSync(src, dest, opts) {
 };
 
 iOSBuilder.prototype.copyDirAsync = function copyDirAsync(src, dest, callback, opts) {
-	afs.copyDirRecursive(src, dest, callback, opts || {
+	appc.fs.copyDirRecursive(src, dest, callback, opts || {
 		preserve: true,
 		logger: this.logger.debug,
 		ignoreDirs: this.ignoreDirs,
@@ -1981,14 +1980,14 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 
 	this.logger.info(__('Copying Xcode iOS files'));
 	['Classes', 'headers'].forEach(function (dir) {
-		afs.copyDirSyncRecursive(
+		appc.fs.copyDirSyncRecursive(
 			path.join(this.titaniumIosSdkPath, dir),
 			path.join(this.buildDir, dir),
 			copyOpts
 		);
 	}, this);
 
-	afs.copyFileSync(
+	appc.fs.copyFileSync(
 		path.join(this.titaniumIosSdkPath, this.platformName, 'Titanium_Prefix.pch'),
 		path.join(this.buildDir, this.tiapp.name + '_Prefix.pch'),
 		{
@@ -2109,7 +2108,7 @@ iOSBuilder.prototype.copyItunesArtwork = function copyItunesArtwork(next) {
 			var src = path.join(this.projectDir, file),
 				m = file.match(/^iTunesArtwork(@2x)?$/i);
 			if (m && fs.statSync(src).isFile()) {
-				afs.copyFileSync(src, path.join(this.xcodeAppDir, 'iTunesArtwork' + (m[1] ? m[1].toLowerCase() : '')), {
+				appc.fs.copyFileSync(src, path.join(this.xcodeAppDir, 'iTunesArtwork' + (m[1] ? m[1].toLowerCase() : '')), {
 					logger: this.logger.debug
 				});
 			}
@@ -2129,7 +2128,7 @@ iOSBuilder.prototype.copyGraphics = function copyGraphics(next) {
 
 	for (i = 0; i < len; i++) {
 		if (fs.existsSync(src = path.join(paths[i], this.tiapp.icon))) {
-			afs.copyFileSync(src, this.xcodeAppDir, {
+			appc.fs.copyFileSync(src, this.xcodeAppDir, {
 				logger: this.logger.debug
 			});
 			break;
@@ -2237,7 +2236,7 @@ iOSBuilder.prototype.copyLocalizedSplashScreens = function copyLocalizedSplashSc
 			fs.unlinkSync(globalFile);
 		}
 
-		afs.copyFileSync(splashImage, lprojDir, {
+		appc.fs.copyFileSync(splashImage, lprojDir, {
 			logger: this.logger.debug
 		});
 	}, this);
@@ -2453,7 +2452,7 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries(next
 
 	dest = path.join(dir, 'libTiCore.a');
 	if (this.cli.argv['force-copy-all']) {
-		fs.existsSync(dest) || afs.copyFileSync(path.join(this.titaniumIosSdkPath, 'libTiCore.a'), dest, { logger: this.logger.debug });
+		fs.existsSync(dest) || appc.fs.copyFileSync(path.join(this.titaniumIosSdkPath, 'libTiCore.a'), dest, { logger: this.logger.debug });
 	} else {
 		if (!fs.existsSync(dest) || !fs.lstatSync(dest).isSymbolicLink() || fs.readlinkSync(dest).indexOf(this.titaniumSdkVersion) == -1) {
 			try {
@@ -2464,13 +2463,13 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries(next
 	}
 
 	dest = path.join(dir, 'libtiverify.a');
-	fs.existsSync(dest) || afs.copyFileSync(path.join(this.titaniumIosSdkPath, 'libtiverify.a'), dest, { logger: this.logger.debug });
+	fs.existsSync(dest) || appc.fs.copyFileSync(path.join(this.titaniumIosSdkPath, 'libtiverify.a'), dest, { logger: this.logger.debug });
 
 	dest = path.join(dir, 'libti_ios_debugger.a');
-	fs.existsSync(dest) || afs.copyFileSync(path.join(this.titaniumIosSdkPath, 'libti_ios_debugger.a'), dest, { logger: this.logger.debug });
+	fs.existsSync(dest) || appc.fs.copyFileSync(path.join(this.titaniumIosSdkPath, 'libti_ios_debugger.a'), dest, { logger: this.logger.debug });
 
 	dest = path.join(dir, 'libti_ios_profiler.a');
-	fs.existsSync(dest) || afs.copyFileSync(path.join(this.titaniumIosSdkPath, 'libti_ios_profiler.a'), dest, { logger: this.logger.debug });
+	fs.existsSync(dest) || appc.fs.copyFileSync(path.join(this.titaniumIosSdkPath, 'libti_ios_profiler.a'), dest, { logger: this.logger.debug });
 
 	next();
 };
@@ -3173,13 +3172,13 @@ iOSBuilder.prototype.optimizeImages = function optimizeImages(next) {
 				cwd: this.xcodeAppDir
 			}, function (code, out, err) {
 				this.logger.info(__('Image optimization complete'));
-				afs.touch(this.imagesOptimizedFile);
+				appc.fs.touch(this.imagesOptimizedFile);
 				next();
 			}.bind(this));
 		}.bind(this));
 	} else {
 		this.logger.warn(__('Unable to find iphoneos-optimize, skipping image optimization'));
-		afs.touch(this.imagesOptimizedFile);
+		appc.fs.touch(this.imagesOptimizedFile);
 		next();
 	}
 };
