@@ -480,7 +480,7 @@ properties:
         to host new content.
     description: |
         For example, the request is triggered if a web page wants to open a URL in a new
-        window.  By default, Titanium will open a new full-size window to the host the new content.
+        window.  By default, Titanium will open a new full-size window to host the new content.
         Use the callback to override the default behavior.
 
         The callback needs to create a new WebView object to host the content in and add the WebView to the
