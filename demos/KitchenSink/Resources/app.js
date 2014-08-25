@@ -83,7 +83,16 @@ var button2 = Ti.UI.createButton({
 
 button2.addEventListener('click', function(e) {
    //fire background
-	var service = Ti.App.iOS.registerBackgroundService({url:'bgNotification.js'});
+//	var service = Ti.App.iOS.registerBackgroundService({url:'bgNotification.js'});
+var notification = Ti.App.iOS.scheduleLocalNotification({
+    alertBody: "You received an invitation",
+    userInfo: {
+        content: "invitation"
+    },
+    sound: "pop.caf",
+    category: "BACKGROUND_CATEGORY",
+    date: new Date(new Date().getTime() + 5e3)
+});
     alert("Background Pressed");
 
 });
@@ -108,7 +117,16 @@ var button4 = Ti.UI.createButton({
 
 button4.addEventListener('click', function(e) {
    //fire background
-	var service = Ti.App.iOS.registerBackgroundService({url:'bgNotificationLock.js'});
+//	var service = Ti.App.iOS.registerBackgroundService({url:'bgNotificationLock.js'});
+var notification = Ti.App.iOS.scheduleLocalNotification({
+    alertBody: "You received a junk mail",
+    userInfo: {
+        content: "trashed junk"
+    },
+    sound: "pop.caf",
+    category: "BACKGROUND_LOCK_CATEGORY",
+    date: new Date(new Date().getTime() + 5e3)
+});
     alert("Background (lock) Pressed");
 
 });
@@ -121,7 +139,17 @@ var button5 = Ti.UI.createButton({
 
 button5.addEventListener('click', function(e) {
    //fire background
-	var service = Ti.App.iOS.registerBackgroundService({url:'fgNotification.js'});
+//	var service = Ti.App.iOS.registerBackgroundService({url:'fgNotification.js'});
+var notification = Ti.App.iOS.scheduleLocalNotification({
+    alertBody: "You received a lovely email",
+    userInfo: {
+        content: "replying email"
+    },
+    sound: "pop.caf",
+    category: "FOREGROUND_CATEGORY",
+    date: new Date(new Date().getTime() + 5e3)
+});
+
     alert("foreground Pressed");
 
 });
@@ -139,15 +167,18 @@ win.add(labelLog);
 
 Ti.App.iOS.addEventListener('notification',function(e)
 {
-    Ti.API.info("local notification received: "+JSON.stringify(e));
-   labelLog.text = "Foreground task done";
+  //  Ti.API.info("local notification received: "+JSON.stringify(e));
+    var content = e.userInfo.content;
+   labelLog.text = "foreground " + content;
     // alert("schedule received");
 });
 
 Ti.App.iOS.addEventListener('backgroundNotification',function(e)
 {
-    Ti.API.info("local notification received: "+JSON.stringify(e));
-   labelLog.text = "Background task done";
+  //  Ti.API.info("local notification received: "+JSON.stringify(e));
+    var content = e.userInfo.content;
+    var identifier = e.identifier;
+   labelLog.text = "background " + content + " " + identifier;
   //   alert("schedule received");
 });
 
