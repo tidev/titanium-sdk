@@ -96,6 +96,18 @@ exports.config = function (logger, config, cli) {
 						'project-dir': {
 							abbr: 'd',
 							callback: function (projectDir) {
+								if (typeof projectDir === 'boolean' || projectDir === '') {
+									// no option value was specified, the value was set to TRUE
+									// check if current directory is a valid dir
+									// if not output meaningful error message
+									projectDir = conf.options['project-dir'].default;
+									if(!fs.existsSync(path.join(appc.fs.resolvePath(''), 'tiapp.xml'))) {
+										logger.error(__('Invalid project directory "%s" because tiapp.xml not found', projectDir) + '\n');
+										logger.log();
+										process.exit(1);
+									}
+								}
+
 								// load the tiapp.xml
 								try {
 									var tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'));
