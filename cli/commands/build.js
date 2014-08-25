@@ -98,7 +98,7 @@ exports.config = function (logger, config, cli) {
 							callback: function (projectDir) {
 								// load the tiapp.xml
 								try {
-									var tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'), cli.argv.$originalPlatform);
+									var tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'));
 								} catch (ex) {
 									logger.error(ex);
 									logger.log();
