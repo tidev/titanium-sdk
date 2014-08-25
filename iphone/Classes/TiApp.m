@@ -431,7 +431,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 #endif
 
-#pragma mark Local Notifications iOS 8
+#pragma mark Remote and Local Notifications iOS 8
 
 - (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
     RELEASE_TO_NIL(localNotification);
@@ -443,6 +443,18 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     
     completionHandler();
 }
+
+- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
+//    RELEASE_TO_NIL(localNotification);
+//    DebugLog(@"[DEBUG] KIAT  HandleActionWithIdentifierForLocalNotifications");
+//    localNotification = [[[self class] dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
+    //include identifier in notification
+    
+//    [[NSNotificationCenter defaultCenter] postNotificationName:kTiBackgroundLocalNotification object:localNotification userInfo:nil];
+    
+    completionHandler();
+}
+
 #pragma mark -
 
 #pragma mark Helper Methods
