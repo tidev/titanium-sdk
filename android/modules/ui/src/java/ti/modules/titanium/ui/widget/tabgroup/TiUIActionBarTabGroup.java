@@ -127,6 +127,13 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	public void removeTab(TabProxy tabProxy) {
 		TiUIActionBarTab tabView = (TiUIActionBarTab) tabProxy.peekView();
 		actionBar.removeTab(tabView.tab);
+		// Let us remove this from the fragment manager
+		TiBaseActivity activity = tabActivity.get();
+		if (activity != null && tabView.fragment != null) {
+			FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
+			ft.remove(tabView.fragment);
+			ft.commit();
+		}
 	}
 
 	@Override
