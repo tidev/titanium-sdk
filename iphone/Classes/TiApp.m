@@ -435,9 +435,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 - (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
     RELEASE_TO_NIL(localNotification);
-    DebugLog(@"[DEBUG] KIAT  HandleActionWithIdentifierForLocalNotifications");
     localNotification = [[[self class] dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
-    //include identifier in notification
     
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiBackgroundLocalNotification object:localNotification userInfo:nil];
     
@@ -1015,7 +1013,6 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	RELEASE_TO_NIL(localNotification);
 	localNotification = [[[self class] dictionaryWithLocalNotification:notification] retain];
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
-    DebugLog(@"[DEBUG] KIAT DidreceiveLocalNotification");
 }
 
 -(void)registerBackgroundService:(TiProxy*)proxy

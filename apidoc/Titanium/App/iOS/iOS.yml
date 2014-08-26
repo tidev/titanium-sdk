@@ -61,6 +61,9 @@ methods:
         summary: The types of notifications required by the application separated by a bitwise-OR operator
         constants: Titanium.App.iOS.NOTIFICATION_TYPE_*
         type: Number
+      - name: categories
+        summary: The set of categories of user notification actions required by local and remote notifications
+        type: NSSet
     since: 3.4.0
     osver: {ios: {min: "8.0"}}
 

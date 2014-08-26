@@ -396,8 +396,6 @@
 -(void)didReceiveBackgroundLocalNotification:(NSNotification*)note
 {
     NSDictionary *notification = [note object];
-  //  DebugLog(@"[DEBUG] KIAT note background local notification delegate here");
-    NSLog(@"[DEBUG] KIAT note received has userInfo %@ and identifier %@", [[notification valueForKey:@"userInfo"] valueForKey:@"content"], [notification valueForKey:@"identifier"]);
     [self fireEvent:@"backgroundNotification" withObject:notification];
 }
 
