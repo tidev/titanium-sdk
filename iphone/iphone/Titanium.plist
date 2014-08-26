@@ -11,7 +11,7 @@
 	<key>CFBundleIconFile</key>
 	<string>appicon.png</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.appcelerator.sg.push</string>
+	<string>com.appcelerator.titanium.ks</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -45,7 +45,6 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
-		<string>remote-notification</string>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
