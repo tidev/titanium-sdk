@@ -53,6 +53,7 @@ jclass JNIUtil::krollObjectClass = NULL;
 jclass JNIUtil::krollProxyClass = NULL;
 jclass JNIUtil::krollAssetHelperClass = NULL;
 jclass JNIUtil::krollLoggingClass = NULL;
+jclass JNIUtil::krollDictClass = NULL;
 jclass JNIUtil::referenceTableClass = NULL;
 
 jmethodID JNIUtil::classGetNameMethod = NULL;
@@ -65,6 +66,10 @@ jmethodID JNIUtil::hashMapGetMethod = NULL;
 jmethodID JNIUtil::hashMapPutMethod = NULL;
 jmethodID JNIUtil::hashMapKeySetMethod = NULL;
 jmethodID JNIUtil::hashMapRemoveMethod = NULL;
+
+jmethodID JNIUtil::krollDictInitMethod = NULL;
+jmethodID JNIUtil::krollDictPutMethod = NULL;
+
 jmethodID JNIUtil::setToArrayMethod = NULL;
 jmethodID JNIUtil::dateInitMethod = NULL;
 jmethodID JNIUtil::dateGetTimeMethod = NULL;
@@ -296,6 +301,7 @@ void JNIUtil::initCache()
 	krollAssetHelperClass = findClass("org/appcelerator/kroll/util/KrollAssetHelper");
 	krollLoggingClass = findClass("org/appcelerator/kroll/KrollLogging");
 	krollExceptionClass = findClass("org/appcelerator/kroll/KrollException");
+	krollDictClass = findClass("org/appcelerator/kroll/KrollDict");
 	referenceTableClass = findClass("org/appcelerator/kroll/runtime/v8/ReferenceTable");
 
 	classGetNameMethod = getMethodID(classClass, "getName", "()Ljava/lang/String;", false);
@@ -326,6 +332,10 @@ void JNIUtil::initCache()
 	v8ObjectPtrField = getFieldID(v8ObjectClass, "ptr", "J");
 	v8ObjectInitMethod = getMethodID(v8ObjectClass, "<init>", "(J)V", false);
 	v8FunctionInitMethod = getMethodID(v8FunctionClass, "<init>", "(J)V", false);
+
+	krollDictInitMethod = getMethodID(krollDictClass, "<init>", "(I)V", false);
+	krollDictPutMethod = getMethodID(krollDictClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+			false);
 
 	referenceTableCreateReferenceMethod = getMethodID(referenceTableClass, "createReference", "(Ljava/lang/Object;)I", true);
 	referenceTableDestroyReferenceMethod = getMethodID(referenceTableClass, "destroyReference", "(I)V", true);
