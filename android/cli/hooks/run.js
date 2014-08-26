@@ -308,6 +308,10 @@ exports.init = function (logger, config, cli) {
 				},
 
 				function (next) {
+					if(cli.argv.$_.indexOf('--no-launch') !== -1 || cli.argv.$_['--no-launch'] === true) {
+						logger.info(__('Skipping launch of: %s', (builder.appid + '/.' + builder.classname + 'Activity').cyan));
+						return;
+					}
 					logger.info(__('Starting app: %s', (builder.appid + '/.' + builder.classname + 'Activity').cyan));
 
 					var failCounter = 0,

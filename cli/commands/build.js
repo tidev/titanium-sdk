@@ -56,6 +56,10 @@ exports.config = function (logger, config, cli) {
 						'skip-js-minify': {
 							default: false,
 							desc: __('bypasses JavaScript minification; %s builds are never minified; only supported for %s and %s', 'simulator'.cyan, 'Android'.cyan, 'iOS'.cyan)
+						},
+						'no-launch': {
+							default: false,
+							desc: __('skips launching the app after installing', 'simulator'.cyan, 'Android'.cyan, 'iOS'.cyan)
 						}
 					},
 					options: appc.util.mix({
