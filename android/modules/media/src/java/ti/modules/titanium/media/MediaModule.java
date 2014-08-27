@@ -45,6 +45,7 @@ import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
@@ -779,8 +780,15 @@ public class MediaModule extends KrollModule
 					if (requestCode != code) {
 						return;
 					}
-					Log.e(TAG, "OnResult called: " + resultCode);
-					if (resultCode == Activity.RESULT_CANCELED) {
+					Log.d(TAG, "OnResult called: " + resultCode, Log.DEBUG_MODE);
+					
+					String path = null;
+					if (data != null) {
+						path = data.getDataString();
+					}
+					//Starting with Android-L, backing out of the gallery no longer returns cancel code, but with
+					//an ok code and a null path.
+					if (resultCode == Activity.RESULT_CANCELED || (Build.VERSION.SDK_INT >= 20 && path == null)) {
 						if (fCancelCallback != null) {
 							KrollDict response = new KrollDict();
 							response.putCodeAndMessage(NO_ERROR, null);
@@ -788,8 +796,16 @@ public class MediaModule extends KrollModule
 						}
 
 					} else {
-						String path = data.getDataString();
 						try {
+							//Check for invalid path
+							if (path == null) {
+								String msg = "Image path is invalid";
+								Log.e(TAG, msg);
+								if (fErrorCallback != null) {
+									fErrorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, msg));
+								}
+								return;
+							}
 							if (fSuccessCallback != null) {
 								fSuccessCallback.callAsync(getKrollObject(), createDictForImage(path, "image/jpeg"));
 							}
