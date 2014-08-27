@@ -102,6 +102,9 @@ function iOSBuilder() {
 
 	this.tiSymbols = {};
 
+	// populated when config() is called after iOS info has been detected
+	this.defaultIosVersion = null;
+
 	// populated the first time getDeviceInfo() is called
 	this.deviceInfoCache = null;
 }
@@ -138,6 +141,7 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 		};
 
 	if (argv.target === 'device') {
+		// build the list of devices
 		this.iosInfo.devices.forEach(function (device) {
 			device.name.length > deviceInfo.maxName && (deviceInfo.maxName = device.name.length);
 			deviceInfo.devices.push({
@@ -155,8 +159,7 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 		// check if they specified the legacy settings: --sim-version, --sim-type, --retina, --tall, --sim-64bit
 		if (argv['sim-version'] || argv['sim-type'] || argv.retina || argv.tall || argv['sim-64bit']) {
 			// try to find the closest matching simulator
-			var version = argv['sim-version'] || this.iosInfo.selectedXcode.sims.sort().reverse()[0], //Object.keys(this.iosInfo.simulators).sort().pop(),
-				// filter by sim version first
+			var version = argv['sim-version'] || argv['ios-version'] || defaultIosVersion,
 				sims = this.iosInfo.simulators,
 				candidates = {};
 
@@ -172,16 +175,37 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 				}
 			});
 
-			var simVer = Object.keys(candidates).sort(function (a, b) { return a === version ? -1 : 1; })[0];
-			deviceInfo.preferred = simVer && candidates[simVer][0] || null;
+			// sort the candidates by iOS version, but put the preferred iOS version first
+			// then find the preferred simulator, if any
+			var simVers = Object.keys(candidates).sort(function (a, b) { return a === version ? -1 : 1; }),
+				first, firstRetina;
+			for (var i = 0, l = simVers.length; i < l; i++) {
+				var simVer = simVers[i];
+				for (var j = 0, k = candidates[simVer].length; j < k; j++) {
+					if (!first) {
+						first = candidates[simVer][j];
+					}
+					if (!firstRetina && candidates[simVer][j].retina) {
+						firstRetina = candidates[simVer][j];
+					}
+					if (candidates[simVer][j].tall) {
+						deviceInfo.preferred = candidates[simVer][j];
+						i = l;
+						break;
+					}
+				}
+			}
+			if (!deviceInfo.preferred) {
+				deviceInfo.preferred = firstRetina || first;
+			}
 		}
 
+		// build the list of simulators
 		Object.keys(this.iosInfo.simulators).sort().reverse().forEach(function (ver) {
-			var key = 'iOS ' + ver;
-			deviceInfo.devices[key] || (deviceInfo.devices[key] = []);
+			deviceInfo.devices[ver] || (deviceInfo.devices[ver] = []);
 			this.iosInfo.simulators[ver].forEach(function (sim) {
 				sim.name.length > deviceInfo.maxName && (deviceInfo.maxName = sim.name.length);
-				deviceInfo.devices[key].push({
+				deviceInfo.devices[ver].push({
 					udid: sim.udid,
 					name: sim.name,
 					deviceClass: sim.type,
@@ -277,7 +301,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 			simVersions = this.iosSimVersions = version.sort(Object.keys(simVersions));
 
 			// if we're running from Xcode, determine the default --ios-version
-			var defaultIosVersion = undefined,
+			var defaultIosVersion = this.defaultIosVersion = iosInfo.selectedXcode.sdks.sort().reverse()[0],
 				sdkRoot = process.env.SDKROOT || process.env.SDK_DIR;
 			if (sdkRoot) {
 				var m = sdkRoot.match(/\/iphone(?:os|simulator)(\d.\d).sdk/i);
@@ -287,7 +311,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 					if (fs.existsSync(file)) {
 						var p = new appc.plist(file);
 						if (p.ProductVersion) {
-							defaultIosVersion = p.ProductVersion;
+							defaultIosVersion = this.defaultIosVersion = p.ProductVersion;
 						}
 					}
 				}
@@ -361,6 +385,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							hint: __('udid'),
 							order: 210,
 							helpNoPrompt: function (logger, msg) {
+								// if prompting is disabled and there's a problem, then help will use this function to display details
 								logger.error(msg);
 								var info = _t.getDeviceInfo();
 								if (info.devices) {
@@ -376,7 +401,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							},
 							prompt: function (callback) {
 								var info = _t.getDeviceInfo();
-								//if ((config.get('ios.autoSelectDevice', true) || cli.argv['sim-version']) && info.preferred) {
 								if (info.preferred) {
 									cli.argv['device-id'] = info.preferred.udid;
 									return callback();
@@ -393,11 +417,11 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									relistOnError: true,
 									complete: true,
 									suggest: true,
-									options: info.devices
+									options: info.devices[cli.argv['ios-version'] || defaultIosVersion]
 								};
 
-								// we need to sort all results into groups for the select field
 								if (cli.argv.target === 'device') {
+									// device specific settings
 									params.title = __('Which device do you want to install your app on?');
 									params.promptLabel = __('Select an device by number or name');
 									params.formatters.option = function (opt, idx, num) {
@@ -406,6 +430,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 											: '');
 									};
 								} else if (cli.argv.target === 'simulator') {
+									// simulator specific settings
 									params.title = __('Which simulator do you want to launch your app in?');
 									params.promptLabel = __('Select an simulator by number or name');
 									params.formatters.option = function (opt, idx, num) {
@@ -446,25 +471,40 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 										cli.argv['device-id'] = iosInfo.devices.length ? iosInfo.devices[0].udid : 'itunes';
 										callback();
 									} else if (cli.argv.target === 'simulator') {
-										var info = _t.getDeviceInfo(),
-											simVer = cli.argv['sim-version'] || cli.argv['ios-version'] || _t.iosInfo.selectedXcode.sims.sort().reverse()[0];
-										Object.keys(info.devices).filter(function (ver) {
-											return !simVer || (ver === 'iOS ' + simVer);
-										}).forEach(function (ver) {
-											if (!cli.argv['device-id']) {
-												var sim = info.devices[ver].sort(function (a, b) {
-													if ((a.deviceClass === 'iphone' && b.deviceClass !== 'iphone') || (a.retina && !b.retina) || (a.tall && !b.tall)) {
-														return -1;
+										var info = _t.getDeviceInfo();
+
+										if (info.preferred) {
+											// we have a preferred sim based on the legacy cli args and environment
+											cli.argv['device-id'] = info.preferred.udid;
+											return callback();
+										} else {
+											var simVer = cli.argv['sim-version'] || cli.argv['ios-version'],
+												simVers = Object.keys(info.devices).filter(function (ver) {
+													return !simVer || ver === simVer;
+												}),
+												first, firstRetina;
+
+											// try to find us a tall simulator like an iPhone 4 inch
+											for (var i = 0, l = simVers.length; i < l; i++) {
+												for (var j = 0, k = simVers[i].length; j < k; j++) {
+													var sim = info.devices[simVers[i]][j];
+													if (!first) {
+														// just in case we don't find a tall or retina sim, then we'll just use this sim
+														first = sim.udid;
 													}
-													if ((a.deviceClass !== 'iphone' && b.deviceClass === 'iphone') || (!a.retina && b.retina) || (!a.tall && b.tall)) {
-														return 1;
+													if (!firstRetina && sim.retina) {
+														// just in case we don't find a tall sim, then we'll just use this retina sim
+														firstRetina = sim.udid;
 													}
-													return 0;
-												}).shift();
-												sim && (cli.argv['device-id'] = sim.udid);
+													if (sim.tall) {
+														// this is the one we really are hoping to find
+														cli.argv['device-id'] = sim.udid;
+														return callback();
+													}
+												}
 											}
-										});
-										if (cli.argv['device-id']) {
+
+											cli.argv['device-id'] = firstRetina || first;
 											return callback();
 										}
 									} else {
@@ -966,7 +1006,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	if (!cli.argv['ios-version']) {
 		if (this.iosSdkVersions.length) {
 			// set the latest version
-			cli.argv['ios-version'] = this.iosInfo.selectedXcode.sdks.sort()[0]; //this.iosSdkVersions[this.iosSdkVersions.length-1];
+			cli.argv['ios-version'] = this.iosInfo.selectedXcode.sdks.sort().reverse()[0];
 		} else {
 			// this should not be possible, but you never know
 			logger.error(cli.argv['ios-version'] ? __('Unable to find iOS SDK %s', cli.argv['ios-version']) + '\n' : __('Missing iOS SDK') + '\n');

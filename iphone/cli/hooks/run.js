@@ -28,6 +28,12 @@ exports.init = function (logger, config, cli) {
 			var simStarted = false,
 				startLogTxt = __('Start simulator log'),
 				endLogTxt = __('End simulator log'),
+				endLog = function () {
+					if (simStarted) {
+						logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+						simStarted = false;
+					}
+				},
 				lastLogger = 'debug',
 				levels = logger.getLevels(),
 				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
@@ -40,6 +46,8 @@ exports.init = function (logger, config, cli) {
 				simType: builder.iosSimType,
 				simVersion: builder.iosSimVersion
 			}).on('appStarted', function (simHandle) {
+				finished && finished();
+				finished = null;
 				simStarted = true;
 				logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 			}).on('logFile', function (line) {
@@ -54,22 +62,22 @@ exports.init = function (logger, config, cli) {
 					logger[lastLogger](line);
 				}
 			}).on('quit', function (code) {
-				if (simStarted) {
-					logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey);
-				}
-
+				endLog();
 				if (code) {
-					finished(new appc.exception(__('An error occurred running the iOS Simulator')));
-				} else {
-					logger.info(__('Application has exited from iOS Simulator'));
-					finished();
+					finished && finished(new appc.exception(__('An error occurred running the iOS Simulator')));
+					finished = null;
 				}
 			}).on('error', function (err) {
-				if (simStarted) {
-					logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey);
-				}
+				endLog();
 				logger.error(err);
 				logger.log();
+				process.exit(0);
+			});
+
+			// listen for ctrl-c
+			process.on('SIGINT', function () {
+				logger.log();
+				endLog();
 				process.exit(0);
 			});
 		}
