@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,12 +14,14 @@
 
 @synthesize notificationCategory = _notificationCategory;
 
--(void)dealloc {
+-(void)dealloc
+{
 	RELEASE_TO_NIL(_notificationCategory);
 	[super dealloc];
 }
 
--(NSString*)apiName {
+-(NSString*)apiName
+{
 	return @"Ti.App.iOS.Notification";
 }
 

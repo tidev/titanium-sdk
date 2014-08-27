@@ -160,8 +160,7 @@
     
 	id title = [args objectForKey:@"title"];
     
-	if (title!=nil)
-	{
+	if (title!=nil) {
 		notifAction.title = title;
 	}
 	
