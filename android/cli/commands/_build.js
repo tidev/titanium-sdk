@@ -892,6 +892,14 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						required: true,
 						values: _t.targets
 					}
+				},
+				flags: {
+					'launch': {
+						desc: __('disable launching the app after installing'),
+						default: true,
+						hideDefault: true,
+						negate: true
+					}
 				}
 			};
 
