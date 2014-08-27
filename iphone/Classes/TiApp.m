@@ -434,23 +434,10 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 #pragma mark Remote and Local Notifications iOS 8
 
 - (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
-    RELEASE_TO_NIL(localNotification);
-    localNotification = [[[self class] dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiBackgroundLocalNotification object:localNotification userInfo:nil];
-    
-    completionHandler();
-}
-
-- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
-//    RELEASE_TO_NIL(localNotification);
-//    DebugLog(@"[DEBUG] KIAT  HandleActionWithIdentifierForLocalNotifications");
-//    localNotification = [[[self class] dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
-    //include identifier in notification
-    
-//    [[NSNotificationCenter defaultCenter] postNotificationName:kTiBackgroundLocalNotification object:localNotification userInfo:nil];
-    
-    completionHandler();
+	RELEASE_TO_NIL(localNotification);
+	localNotification = [[[self class] dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiBackgroundLocalNotification object:localNotification userInfo:nil];
+	completionHandler();
 }
 
 #pragma mark -
@@ -1075,14 +1062,13 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     [event setObject:NOTNULL([notification soundName]) forKey:@"sound"];
     [event setObject:NUMINT([notification applicationIconBadgeNumber]) forKey:@"badge"];
     [event setObject:NOTNULL([notification userInfo]) forKey:@"userInfo"];
-    //include category for ios8
-    if([TiUtils isIOS8OrGreater])
-    {
-        [event setObject:NOTNULL([notification category]) forKey:@"category"];
-        [event setObject:NOTNULL(identifier) forKey:@"identifier"];
-    }
-    
-    return [[event copy] autorelease];
+	//include category for ios8
+	if([TiUtils isIOS8OrGreater]) {
+		[event setObject:NOTNULL([notification category]) forKey:@"category"];
+		[event setObject:NOTNULL(identifier) forKey:@"identifier"];
+	}
+	
+	return [[event copy] autorelease];
     
 }
 + (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification

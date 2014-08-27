@@ -36,10 +36,69 @@ methods:
             local JavaScript file to execute when the application is placed in the background.
         type: Dictionary
 
+  - name: createUserNotificationAction
+    summary: Creates notification action
+    description:  |
+            In iOS 8, notification actions can be created and configured, such that when notifications are received
+            when app is in the background: lock screen or home screen, actions can be executed based on the configuration
+
+                var acceptAction = Ti.App.iOS.createUserNotificationAction({
+                    identifier: "ACCEPT_IDENTIFIER",
+                    title: "Accept",
+                    activationMode: Ti.App.iOS.NOTIFICATION_ACTIVATION_MODE_BACKGROUND,
+                    destructive: false,
+                    authenticationRequired: false
+                }) ;
+    parameters: 
+      - name: identifier
+        summary: the identifier for this action
+        type: String
+      - name: title
+        summary: the title displayed on screen for this action
+        type: String
+      - name: activationMode
+        summary: whether the action executes in the background or opens the app to execute in the foreground
+        constants: Ti.App.iOS.NOTIFICATION_ACTIVATION_MODE_*
+        type: Number
+      - name: destructive
+        summary: if the action makes a change that is permanent like trash or delete
+        type: Boolean
+      - name: authenticationRequired
+        summary: if the action requires the user to authenticate in lock screen
+        type: Boolean
+    since: 3.4.0
+    osver: {ios: {min: "8.0"}}
+
+  - name: createUserNotificationCategory
+    summary: Creates notification category
+    description:  |
+            Each notification can display more than one action. The category is used to contain the actions required for
+            the notification to display. 
+
+                var backgroundCategory = Ti.App.iOS.createUserNotificationCategory({
+                identifier: "BACKGROUND_CATEGORY",
+                actionsForDefaultContext: [acceptAction, maybeAction, declineAction],
+                actionsForMinimalContext: [acceptAction, declineAction]
+                });
+
+    parameters: 
+      - name: identifier
+        summary: the identifier for this category
+        type: String
+      - name: actionsForDefaultContext
+        summary: the default array of actions to display for notification. All actions are shown for Alert Style. 
+        type: Array
+      - name: actionsForMinimalContext
+        summary: the array of actions to display for notification for Banner Style. If not specified selected first and last action on default context shown instead.
+        type: Array
+        optional: true
+    since: 3.4.0
+    osver: {ios: {min: "8.0"}}
+
   - name: registerForLocalNotifications
     summary: Registers the app for local notifications
     description:  |
-            Staring in iOS 8 the app _must_ ask the user for permission before using local notifications.
+            Starting in iOS 8 the app _must_ ask the user for permission before using local notifications.
             This is done by registering the application to use local notifications, here you can specify
             the types of notifications the app will use, such as <Titanium.App.iOS.NOTIFICATION_TYPE_BADGE>,
             <Titanium.App.iOS.NOTIFICATION_TYPE_ALERT>, <Titanium.App.iOS.NOTIFICATION_TYPE_SOUND>, and/or
@@ -48,12 +107,14 @@ methods:
                 Ti.App.iOS.registerForLocalNotifications({
                     types: Ti.App.iOS.NOTIFICATION_TYPE_BADGE |
                            Ti.App.iOS.NOTIFICATION_TYPE_SOUND |
-                           Ti.App.iOS.NOTIFICATION_TYPE_ALERT
+                           Ti.App.iOS.NOTIFICATION_TYPE_ALERT,
+                    categories: [backgroundCategory,backgroundLockCategory,foregroundCategory]
                 });
                 Ti.App.addEventListener('paused', function(){
                     Ti.App.iOS.scheduleLocalNotification({
                         alertBody: 'Hello!',
-                        alertAction: 'Here!'
+                        alertAction: 'Here!',
+                        category: 'BACKGROUND_CATEGORY'
                     });
                 });
     parameters: 
@@ -63,7 +124,8 @@ methods:
         type: Number
       - name: categories
         summary: The set of categories of user notification actions required by local and remote notifications
-        type: NSSet
+        type: Array
+        optional: true
     since: 3.4.0
     osver: {ios: {min: "8.0"}}
 
@@ -177,6 +239,24 @@ properties:
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
+  - name: NOTIFICATION_ACTIVATION_MODE_BACKGROUND
+    summary: |
+        Use with [createUserNotificationAction](Titanium.App.iOS.createUserNotificationAction) method.
+        The action will execute in background
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
+  - name: NOTIFICATION_ACTIVATION_MODE_FOREGROUND
+    summary: |
+        Use with [createUserNotificationAction](Titanium.App.iOS.createUserNotificationAction) method.
+        The action will execute in foreground
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
 events:
   - name: notification
     summary: Fired when a local notification is received by the application.
@@ -213,6 +293,46 @@ events:
       - name: userInfo
         summary: Custom data object.
         type: Dictionary
+
+  - name: backgroundNotification
+    summary: Fired when a local notification is received by the application AND an action has been selected
+    properties:
+      - name: alertAction
+        summary: |
+            Alert button text ('View', by default) or slider text ('slide to unlock...', by default).
+        type: String
+
+      - name: alertBody
+        summary: Alert message.
+        type: String
+        
+      - name: alertLaunchImage
+        summary: Image displayed instead of `Default.png` when launching the application.
+        type: String
+
+      - name: badge
+        summary: Application badge value.
+        type: Number
+
+      - name: date
+        summary: Date and time when the notification was configured to fire.
+        type: Date
+
+      - name: sound
+        summary: Path to the sound file configured to play when the notification was fired.
+        type: String
+
+      - name: timezone
+        summary: Timezone of the date when the notification was configured to fire.
+        type: String
+        
+      - name: userInfo
+        summary: Custom data object.
+        type: Dictionary
+
+      - name: identifier
+        summary: identifier of the action that was selected
+        type: String
 
   - name: backgroundfetch
     summary: Fired when the application is woken up for a fetch operation. Available only on iOS 7 and later.
@@ -478,4 +598,9 @@ properties:
   - name: userInfo
     summary: Data to pass to the application with the notification event.
     type: Dictionary
+    optional: true  
+
+  - name: category
+    summary: String identifier of category of actions to be displayed when user receives notification
+    type: String
     optional: true  

@@ -295,16 +295,16 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	}
 	
 	[[TiApp app] setRemoteNotificationDelegate:self];
-    
-    //for iOS8 or greater only
-    //Note adviced to register user notification settings in Ti.App.iOS first before register for remote notifications
-    if([TiUtils isIOS8OrGreater]) {
-        [app registerForRemoteNotifications];
-    }
-    else {
-        [app registerForRemoteNotificationTypes:ourNotifications];
-    }
-	// check to see upon registration if we were started with a push 
+
+	//for iOS8 or greater only
+	//Note adviced to register user notification settings in Ti.App.iOS first before register for remote notifications
+	if([TiUtils isIOS8OrGreater]) {
+		[app registerForRemoteNotifications];
+	}
+	else {
+		[app registerForRemoteNotificationTypes:ourNotifications];
+	}
+	// check to see upon registration if we were started with a push
 	// notification and if so, go ahead and trigger our callback
 	id currentNotification = [[TiApp app] remoteNotification];
 	if (currentNotification!=nil && pushNotificationCallback!=nil)
