@@ -60,6 +60,9 @@ function iOSBuilder() {
 		universal: '1,2'
 	};
 
+	// populated the first time getDeviceFamily() is called
+	this.deviceFamily = null;
+
 	this.deviceFamilyNames = {
 		iphone: ['ios', 'iphone'],
 		ipad: ['ios', 'ipad'],
@@ -195,6 +198,7 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 					}
 				}
 			}
+
 			if (!deviceInfo.preferred) {
 				deviceInfo.preferred = firstRetina || first;
 			}
@@ -220,6 +224,33 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 	}
 
 	return this.deviceInfoCache = deviceInfo;
+};
+
+iOSBuilder.prototype.getDeviceFamily = function getDeviceFamily() {
+	if (this.deviceFamily) {
+		return deviceFamily;
+	}
+
+	var deviceFamily = this.cli.argv['device-family'],
+		deploymentTargets = this.cli.tiapp['deployment-targets'];
+
+	if (!deviceFamily && process.env.TARGETED_DEVICE_FAMILY) {
+		// device family was not specified at the command line, but we did get it via an environment variable!
+		deviceFamily = process.env.TARGETED_DEVICE_FAMILY === '1' ? 'iphone' : process.env.TARGETED_DEVICE_FAMILY === '2' ? 'ipad' : 'universal';
+	}
+
+	if (!deviceFamily && deploymentTargets) {
+		// device family was not an environment variable, construct via the tiapp.xml's deployment targets
+		if (deploymentTargets.iphone && deploymentTargets.ipad) {
+			deviceFamily = this.cli.argv.$originalPlatform === 'ipad' ? 'ipad' : 'universal';
+		} else if (deploymentTargets.iphone) {
+			deviceFamily = 'iphone';
+		} else if (deploymentTargets.ipad) {
+			deviceFamily = 'ipad';
+		}
+	}
+
+	return this.deviceFamily = deviceFamily;
 };
 
 /**
@@ -447,9 +478,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									return callback(true);
 								}
 
-								if (cli.argv.target === 'device' && dev === 'all') {
+								if (cli.argv.target === 'device' && udid === 'all') {
 									// we let 'all' slide by
-									return callback(null, dev);
+									return callback(null, udid);
 								}
 
 								var info = _t.getDeviceInfo();
@@ -466,51 +497,58 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									// not required if we're build only
 									return callback();
 								} else if (cli.argv['device-id'] === undefined && config.get('ios.autoSelectDevice', true)) {
-									// --device-id not specified and we're not prompting, so just pick a device
+									// --device-id not specified and we're not prompting, so pick a device
+
 									if (cli.argv.target === 'device') {
 										cli.argv['device-id'] = iosInfo.devices.length ? iosInfo.devices[0].udid : 'itunes';
-										callback();
-									} else if (cli.argv.target === 'simulator') {
-										var info = _t.getDeviceInfo();
-
-										if (info.preferred) {
-											// we have a preferred sim based on the legacy cli args and environment
-											cli.argv['device-id'] = info.preferred.udid;
-											return callback();
-										} else {
-											var simVer = cli.argv['sim-version'] || cli.argv['ios-version'],
-												simVers = Object.keys(info.devices).filter(function (ver) {
-													return !simVer || ver === simVer;
-												}),
-												first, firstRetina;
-
-											// try to find us a tall simulator like an iPhone 4 inch
-											for (var i = 0, l = simVers.length; i < l; i++) {
-												for (var j = 0, k = simVers[i].length; j < k; j++) {
-													var sim = info.devices[simVers[i]][j];
-													if (!first) {
-														// just in case we don't find a tall or retina sim, then we'll just use this sim
-														first = sim.udid;
-													}
-													if (!firstRetina && sim.retina) {
-														// just in case we don't find a tall sim, then we'll just use this retina sim
-														firstRetina = sim.udid;
-													}
-													if (sim.tall) {
-														// this is the one we really are hoping to find
-														cli.argv['device-id'] = sim.udid;
-														return callback();
-													}
-												}
-											}
-
-											cli.argv['device-id'] = firstRetina || first;
-											return callback();
-										}
-									} else {
-										callback(true);
+										return callback();
 									}
-									return;
+
+									if (cli.argv.target !== 'simulator') {
+										return callback(true);
+									}
+
+									var info = _t.getDeviceInfo();
+
+									if (info.preferred) {
+										// we have a preferred sim based on the legacy cli args and environment
+										cli.argv['device-id'] = info.preferred.udid;
+										return callback();
+									}
+
+									var simVer = cli.argv['sim-version'] || cli.argv['ios-version'],
+										simVers = Object.keys(info.devices).filter(function (ver) {
+											return !simVer || ver === simVer;
+										}),
+										deviceFamily = _t.getDeviceFamily(),
+										first, firstRetina;
+
+									// try to find us a tall simulator like an iPhone 4 inch
+									for (var i = 0, l = simVers.length; i < l; i++) {
+										var ver = simVers[i];
+										for (var j = 0, k = info.devices[ver].length; j < k; j++) {
+											var sim = info.devices[ver][j];
+											if (deviceFamily === 'ipad' && sim.deviceClass !== deviceFamily) {
+												continue;
+											}
+											if (!first) {
+												// just in case we don't find a tall or retina sim, then we'll just use this sim
+												first = sim.udid;
+											}
+											if (!firstRetina && sim.retina) {
+												// just in case we don't find a tall sim, then we'll just use this retina sim
+												firstRetina = sim.udid;
+											}
+											if (sim.type === 'iphone' && sim.tall) {
+												// this is the one we really are hoping to find
+												cli.argv['device-id'] = sim.udid;
+												return callback();
+											}
+										}
+									}
+
+									cli.argv['device-id'] = firstRetina || first;
+									return callback();
 								}
 
 								// yup, still required
@@ -1131,22 +1169,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		}
 	}
 
-	var deviceFamily = cli.argv['device-family'],
-		deploymentTargets = cli.tiapp['deployment-targets'];
-	if (!deviceFamily && process.env.TARGETED_DEVICE_FAMILY) {
-		// device family was not specified at the command line, but we did get it via an environment variable!
-		deviceFamily = process.env.TARGETED_DEVICE_FAMILY === '1' ? 'iphone' : process.env.TARGETED_DEVICE_FAMILY === '2' ? 'ipad' : 'universal';
-	}
-	if (!deviceFamily && deploymentTargets) {
-		// device family was not an environment variable, construct via the tiapp.xml's deployment targets
-		if (deploymentTargets.iphone && deploymentTargets.ipad) {
-			deviceFamily = cli.argv.$originalPlatform === 'ipad' ? 'ipad' : 'universal';
-		} else if (deploymentTargets.iphone) {
-			deviceFamily = 'iphone';
-		} else if (deploymentTargets.ipad) {
-			deviceFamily = 'ipad';
-		}
-	}
+	var deviceFamily = this.getDeviceFamily();
 	if (!deviceFamily) {
 		logger.info(__('No device family specified, defaulting to %s', 'universal'));
 		deviceFamily = 'universal';
@@ -1167,10 +1190,21 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		this.xcodeEnv = null;
 		var selectedSim = this.getDeviceInfo().udids[cli.argv['device-id']];
 
+		// check if we have a selected simulator; we won't if running with --build-only
+		if (selectedSim) {
+			// check the device family
+			if (deviceFamily === 'ipad' && deviceFamily !== selectedSim.type) {
+				logger.error(__('Unable to build an %s app for an %s simulator', this.simTypes[deviceFamily] || deviceFamily, this.simTypes[selectedSim.type]) + '\n');
+				logger.log(__('Please specify "%s" to launch a compatible iOS Simulator.', ('--sim-type ' + deviceFamily).cyan));
+				logger.log();
+				process.exit(1);
+			}
+		}
+
 		Object.keys(this.iosInfo.xcode).forEach(function (ver) {
 			if (!this.xcodeEnv
 				&& this.iosInfo.xcode[ver].sdks.some(function (sdk) { return version.eq(sdk, cli.argv['ios-version']); })
-				&& this.iosInfo.xcode[ver].sims.some(function (sim) { return version.eq(sim, selectedSim.ios); })
+				&& (!selectedSim || this.iosInfo.xcode[ver].sims.some(function (sim) { return version.eq(sim, selectedSim.ios); }))
 			) {
 				this.xcodeEnv = this.iosInfo.xcode[ver];
 			}
@@ -1178,7 +1212,11 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 		if (!this.xcodeEnv) {
 			// this should never happen
-			logger.error(__('Unable to find any Xcode installs that has iOS SDK %s and iOS Simulator %s', cli.argv['ios-version'], selectedSim.ios) + '\n');
+			if (selectedSim) {
+				logger.error(__('Unable to find any Xcode installs that has iOS SDK %s and iOS Simulator %s', cli.argv['ios-version'], selectedSim.ios) + '\n');
+			} else {
+				logger.error(__('Unable to find any Xcode installs that has iOS SDK %s', cli.argv['ios-version']) + '\n');
+			}
 			logger.log(__('Available iOS SDKs and iOS Simulators:'));
 			Object.keys(this.iosInfo.xcode).forEach(function (ver) {
 				this.iosInfo.xcode[ver].sdks.forEach(function (sdk) {
@@ -1458,7 +1496,6 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 	this.deviceId = argv['device-id'];
 	this.deviceInfo = this.deviceId ? this.getDeviceInfo().udids[this.deviceId] : null;
 	this.xcodeTarget = process.env.CONFIGURATION || (/^device|simulator$/.test(this.target) ? 'Debug' : 'Release');
-	this.deviceFamily = argv['device-family'];
 	this.xcodeTargetOS = (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos') + version.format(this.iosSdkVersion, 2, 2);
 	this.iosBuildDir = path.join(this.buildDir, 'build', this.xcodeTarget + '-' + (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos'));
 	this.xcodeAppDir = argv.xcode && process.env.TARGET_BUILD_DIR && process.env.CONTENTS_FOLDER_PATH ? path.join(process.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : path.join(this.iosBuildDir, this.tiapp.name + '.app');
@@ -1632,6 +1669,14 @@ iOSBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForceRebu
 		this.logger.info(__('Forcing rebuild: Titanium SDK path changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.iosSdkPath));
 		this.logger.info('  ' + __('Now: %s', this.titaniumIosSdkPath));
+		return true;
+	}
+
+	// check if the iOS SDK has changed
+	if (manifest.iosSdkVersion !== this.iosSdkVersion) {
+		this.logger.info(__('Forcing rebuild: iOS SDK version changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.iosSdkVersion));
+		this.logger.info('  ' + __('Now: %s', this.iosSdkVersion));
 		return true;
 	}
 
@@ -2262,6 +2307,7 @@ iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 	})({
 		target: this.target,
 		deployType: this.deployType,
+		iosSdkVersion: this.iosSdkVersion,
 		deviceFamily: this.deviceFamily,
 		developerName: this.certDeveloperName,
 		distributionName: this.certDistributionName,

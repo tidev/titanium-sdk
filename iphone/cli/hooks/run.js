@@ -12,7 +12,6 @@ var appc = require('node-appc'),
 exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
-
 	cli.addHook('build.post.compile', {
 		priority: 10000,
 		post: function (builder, finished) {
@@ -44,7 +43,8 @@ exports.init = function (logger, config, cli) {
 				focus: cli.argv['sim-focus'],
 				logFilename: builder.tiapp.guid + '.log',
 				simType: builder.iosSimType,
-				simVersion: builder.iosSimVersion
+				simVersion: builder.iosSimVersion,
+				killIfRunning: true
 			}).on('appStarted', function (simHandle) {
 				finished && finished();
 				finished = null;
