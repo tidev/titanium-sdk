@@ -12,8 +12,6 @@
 
 @implementation TiAppiOSNotificationActionProxy
 
-@synthesize notificationAction = _notificationAction;
-
 -(void)dealloc
 {
 	RELEASE_TO_NIL(_notificationAction);
@@ -22,9 +20,42 @@
 
 -(NSString*)apiName
 {
-	return @"Ti.App.iOS.Notification";
+	return @"Ti.App.iOS.NotificationAction";
 }
 
+-(UIMutableUserNotificationAction*) notificationAction
+{
+	if (_notificationAction == nil) {
+		_notificationAction = [[UIMutableUserNotificationAction alloc] init];
+	}
+	return _notificationAction;
+}
+
+-(NSString*)identifier
+{
+	return [[self notificationAction] identifier];
+}
+-(NSString*)title
+{
+	return [[self notificationAction] title];
+}
+-(NSNumber*)activationMode
+{
+	return NUMINT([[self notificationAction] activationMode]);
+}
+
+-(void)setIdentifier:(NSString*)args
+{
+	[[self notificationAction] setIdentifier: args];
+}
+-(void)setTitle:(NSString*)args
+{
+	[[self notificationAction] setTitle: args];
+}
+-(void)setActivationMode:(NSNumber*)args
+{
+	[[self notificationAction] setActivationMode: args];
+}
 @end
 
 #endif

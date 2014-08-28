@@ -8,12 +8,13 @@
 
 #ifdef USE_TI_APPIOS
 
-@interface TiAppiOSNotificationCategoryProxy : TiProxy {
-@private
-	UIMutableUserNotificationCategory *_notificationCategory;
+@interface TiAppiOSNotificationCategoryProxy : TiProxy
+{
+
 }
 
-@property(nonatomic,retain) UIMutableUserNotificationCategory *notificationCategory;
+@property (nonatomic,retain) UIMutableUserNotificationCategory *notificationCategory;
+@property (nonatomic, assign) NSString *identifier;
 
 @end
 

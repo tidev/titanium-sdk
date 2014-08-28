@@ -435,7 +435,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 - (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
 	RELEASE_TO_NIL(localNotification);
-	localNotification = [[[self class] dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
+	localNotification = [[TiApp  dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiBackgroundLocalNotification object:localNotification userInfo:nil];
 	completionHandler();
 }
@@ -1063,7 +1063,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     [event setObject:NUMINT([notification applicationIconBadgeNumber]) forKey:@"badge"];
     [event setObject:NOTNULL([notification userInfo]) forKey:@"userInfo"];
 	//include category for ios8
-	if([TiUtils isIOS8OrGreater]) {
+	if ([TiUtils isIOS8OrGreater]) {
 		[event setObject:NOTNULL([notification category]) forKey:@"category"];
 		[event setObject:NOTNULL(identifier) forKey:@"identifier"];
 	}

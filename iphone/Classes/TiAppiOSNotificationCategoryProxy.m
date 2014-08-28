@@ -12,8 +12,6 @@
 
 @implementation TiAppiOSNotificationCategoryProxy
 
-@synthesize notificationCategory = _notificationCategory;
-
 -(void)dealloc
 {
 	RELEASE_TO_NIL(_notificationCategory);
@@ -22,7 +20,24 @@
 
 -(NSString*)apiName
 {
-	return @"Ti.App.iOS.Notification";
+	return @"Ti.App.iOS.NotificationCategory";
+}
+-(UIMutableUserNotificationCategory*)notificationCategory
+{
+	if (_notificationCategory == nil) {
+		_notificationCategory = [[UIMutableUserNotificationCategory alloc] init];
+	}
+	return _notificationCategory;
+}
+
+-(NSString*)identifier
+{
+	return [[self notificationCategory] identifier];
+}
+
+-(void)setIdentifier:(NSString *)identifier
+{
+	[[self notificationCategory] setIdentifier:identifier];
 }
 
 @end

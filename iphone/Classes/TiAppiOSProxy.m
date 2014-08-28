@@ -229,20 +229,27 @@
 
 -(void)registerForLocalNotifications:(id)args
 {
-	if(![TiUtils isIOS8OrGreater]) return;
+	if (![TiUtils isIOS8OrGreater]) return;
+	
 	ENSURE_SINGLE_ARG(args, NSDictionary);
 	id categories = [args objectForKey:@"categories"];
-
+	if (categories != nil && ![categories isKindOfClass:[NSArray class]]) {
+		NSLog(@"[WARN] Ti.App.iOS.registerForLocalNotifications.categories must be an Array");
+		categories = nil;
+	}
+		
 	NSMutableSet *categoriesSet = nil;
-	if (categories!=nil) {
-		categoriesSet = [[NSMutableSet alloc] init];
-
-		for (TiAppiOSNotificationCategoryProxy *category in categories) {
-			[categoriesSet addObject:category.notificationCategory];
+	if (categories != nil) {
+		categoriesSet = [NSMutableSet set];
+		for (id category in categories) {
+			if([category isKindOfClass:[TiAppiOSNotificationCategoryProxy class]]) {
+				TiAppiOSNotificationCategoryProxy* catProxy = (TiAppiOSNotificationCategoryProxy*)category;
+				[categoriesSet addObject:[catProxy notificationCategory]];
+			}
 		}
 	}
 	
-	UIUserNotificationType types = [TiUtils intValue:[args objectForKey:@"types"] def:0];
+	UIUserNotificationType types = [TiUtils intValue:[args objectForKey:@"types"] def: UIUserNotificationTypeNone];
 	UIUserNotificationSettings *notif = [UIUserNotificationSettings settingsForTypes:types categories:categoriesSet];
 	[[UIApplication sharedApplication] registerUserNotificationSettings:notif];
 }
@@ -310,7 +317,7 @@
 
 	if([TiUtils isIOS8OrGreater]) {
 		id category = [args objectForKey:@"category"];
-		if (category != nil) {
+		if (category != nil && [category isKindOfClass:[TiAppiOSNotificationCategoryProxy class]]) {
 			localNotif.category = category;
 		}
 	}
@@ -367,7 +374,6 @@
 	NSDictionary *notification = [note object];
 	[self fireEvent:@"backgroundNotification" withObject:notification];
 }
-
 
 -(void)didReceiveBackgroundFetchNotification:(NSNotification*)note
 {
