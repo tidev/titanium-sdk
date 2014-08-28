@@ -318,6 +318,8 @@
 	if([TiUtils isIOS8OrGreater]) {
 		id category = [args objectForKey:@"category"];
 		if (category != nil && [category isKindOfClass:[TiAppiOSNotificationCategoryProxy class]]) {
+			localNotif.category = [(TiAppiOSNotificationCategoryProxy*)category identifier];
+		} else if (category != nil && [category isKindOfClass:[NSString class]]) {
 			localNotif.category = category;
 		}
 	}
