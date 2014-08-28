@@ -48,24 +48,19 @@ methods:
                     activationMode: Ti.App.iOS.NOTIFICATION_ACTIVATION_MODE_BACKGROUND,
                     destructive: false,
                     authenticationRequired: false
-                }) ;
-    parameters: 
-      - name: identifier
-        summary: the identifier for this action
-        type: String
-      - name: title
-        summary: the title displayed on screen for this action
-        type: String
-      - name: activationMode
-        summary: whether the action executes in the background or opens the app to execute in the foreground
-        constants: Ti.App.iOS.NOTIFICATION_ACTIVATION_MODE_*
-        type: Number
-      - name: destructive
-        summary: if the action makes a change that is permanent like trash or delete
-        type: Boolean
-      - name: authenticationRequired
-        summary: if the action requires the user to authenticate in lock screen
-        type: Boolean
+                });
+    parameters:
+      - name: params
+        summary: |
+            Dictionary with the following proeprties:
+
+             * `identifier` (String): the identifier for this action
+             * `title` (String): the title displayed on screen for this action
+             * `activationMode` (Number): whether the action executes in the background or opens the app to execute in the foreground
+               constants: Ti.App.iOS.NOTIFICATION_ACTIVATION_MODE_*
+             * `destructive` (Boolean): if the action makes a change that is permanent like trash or delete
+             * `authenticationRequired` (Boolean): if the action requires the user to authenticate in lock screen
+        type: Dictionary
     since: 3.4.0
     osver: {ios: {min: "8.0"}}
 
@@ -76,22 +71,22 @@ methods:
             the notification to display. 
 
                 var backgroundCategory = Ti.App.iOS.createUserNotificationCategory({
-                identifier: "BACKGROUND_CATEGORY",
-                actionsForDefaultContext: [acceptAction, maybeAction, declineAction],
-                actionsForMinimalContext: [acceptAction, declineAction]
+                    identifier: "BACKGROUND_CATEGORY",
+                    actionsForDefaultContext: [acceptAction, maybeAction, declineAction],
+                    actionsForMinimalContext: [acceptAction, declineAction]
                 });
 
     parameters: 
-      - name: identifier
-        summary: the identifier for this category
-        type: String
-      - name: actionsForDefaultContext
-        summary: the default array of actions to display for notification. All actions are shown for Alert Style. 
-        type: Array
-      - name: actionsForMinimalContext
-        summary: the array of actions to display for notification for Banner Style. If not specified selected first and last action on default context shown instead.
-        type: Array
-        optional: true
+      - name: params
+        summary: |
+            Dictionary with the following proeprties:
+
+              * `identifier` (String): the identifier for this category
+              * `actionsForDefaultContext` (Array): the default array of actions to display for notification. All actions are
+                shown for Alert Style.
+              * `actionsForMinimalContext` (Array): the array of actions to display for notification for Banner Style. If not
+                specified selected first and last action on default context shown instead. This parameter is optional.
+        type: Dictionary
     since: 3.4.0
     osver: {ios: {min: "8.0"}}
 
@@ -118,14 +113,13 @@ methods:
                     });
                 });
     parameters: 
-      - name: types
-        summary: The types of notifications required by the application separated by a bitwise-OR operator
-        constants: Titanium.App.iOS.NOTIFICATION_TYPE_*
-        type: Number
-      - name: categories
-        summary: The set of categories of user notification actions required by local and remote notifications
-        type: Array
-        optional: true
+      - name: params
+        summary: |
+          Dictionary with the following optional parameters
+            * `types` (Number): The types of notifications required by the application separated by a bitwise-OR operator.
+              Use the Titanium.App.iOS.NOTIFICATION_TYPE_* constants.
+            * `categories` (Array): The set of [categories](Titanium.App.iOS.createUserNotificationCategory) of user notification actions required by local and remote notifications
+        type: Dictionary
     since: 3.4.0
     osver: {ios: {min: "8.0"}}
 
