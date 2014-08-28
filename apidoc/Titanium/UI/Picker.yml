@@ -562,10 +562,6 @@ examples:
         subsequent user action.
 
             Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow({
-              exitOnClose: true,
-              layout: 'vertical'
-            });
 
             var picker = Ti.UI.createPicker({
               type:Ti.UI.PICKER_TYPE_DATE,
@@ -573,8 +569,6 @@ examples:
               maxDate:new Date(2014,11,31),
               value:new Date(2014,3,12)
             });
-
-            win.open();
 
             picker.showDatePickerDialog({
               value: new Date(2010,8,1),

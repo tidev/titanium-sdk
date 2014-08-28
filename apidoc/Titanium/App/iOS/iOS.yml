@@ -17,7 +17,7 @@ since: "1.5"
 methods:
   - name: cancelAllLocalNotifications
     summary: Cancels all scheduled local notifications.
-    
+
   - name: cancelLocalNotification
     summary: Cancels a local notification.
     parameters:
@@ -35,7 +35,35 @@ methods:
             Parameters used to create the service. Must include a `url` property, to specify the 
             local JavaScript file to execute when the application is placed in the background.
         type: Dictionary
-        
+
+  - name: registerForLocalNotifications
+    summary: Registers the app for local notifications
+    description:  |
+            Staring in iOS 8 the app _must_ ask the user for permission before using local notifications.
+            This is done by registering the application to use local notifications, here you can specify
+            the types of notifications the app will use, such as <Titanium.App.iOS.NOTIFICATION_TYPE_BADGE>,
+            <Titanium.App.iOS.NOTIFICATION_TYPE_ALERT>, <Titanium.App.iOS.NOTIFICATION_TYPE_SOUND>, and/or
+            <Titanium.App.iOS.NOTIFICATION_TYPE_NONE>
+
+                Ti.App.iOS.registerForLocalNotifications({
+                    types: Ti.App.iOS.NOTIFICATION_TYPE_BADGE |
+                           Ti.App.iOS.NOTIFICATION_TYPE_SOUND |
+                           Ti.App.iOS.NOTIFICATION_TYPE_ALERT
+                });
+                Ti.App.addEventListener('paused', function(){
+                    Ti.App.iOS.scheduleLocalNotification({
+                        alertBody: 'Hello!',
+                        alertAction: 'Here!'
+                    });
+                });
+    parameters: 
+      - name: types
+        summary: The types of notifications required by the application separated by a bitwise-OR operator
+        constants: Titanium.App.iOS.NOTIFICATION_TYPE_*
+        type: Number
+    since: 3.4.0
+    osver: {ios: {min: "8.0"}}
+
   - name: scheduleLocalNotification
     summary: Schedule a local notification.
     returns:
@@ -109,6 +137,42 @@ properties:
     permission: read-only
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
+
+  - name: NOTIFICATION_TYPE_NONE
+    summary: |
+        Use with [registerForLocalNotifications](Titanium.App.iOS.registerForLocalNotifications) method.
+        The application may not present any UI upon a notification being received.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
+  - name: NOTIFICATION_TYPE_BADGE
+    summary: |
+        Use with [registerForLocalNotifications](Titanium.App.iOS.registerForLocalNotifications) method.
+        The application may badge its icon upon a notification being received.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
+  - name: NOTIFICATION_TYPE_SOUND
+    summary: |
+        Use with [registerForLocalNotifications](Titanium.App.iOS.registerForLocalNotifications) method.
+        The application may play a sound upon a notification being received.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
+  - name: NOTIFICATION_TYPE_ALERT
+    summary: |
+        Use with [registerForLocalNotifications](Titanium.App.iOS.registerForLocalNotifications) method.
+        The application may display an alert upon a notification being received
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
 
 events:
   - name: notification
