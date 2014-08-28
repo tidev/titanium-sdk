@@ -182,6 +182,7 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 			// then find the preferred simulator, if any
 			var simVers = Object.keys(candidates).sort(function (a, b) { return a === version ? -1 : 1; }),
 				first, firstRetina;
+
 			for (var i = 0, l = simVers.length; i < l; i++) {
 				var simVer = simVers[i];
 				for (var j = 0, k = candidates[simVer].length; j < k; j++) {
