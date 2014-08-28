@@ -41,7 +41,6 @@ public class TiWebViewBinding
 	protected final static String SCRIPT_INJECTION_ID = "__ti_injection";
 	protected final static String INJECTION_CODE;
 	protected final static String SCRIPT_TAG_INJECTION_CODE;
-	protected final static String POLLING_PROPERTY = "ti.android.webview.disable.polling";
 
 	// This is based on polling.min.js. If you have to change anything...
 	// - change polling.js
@@ -87,6 +86,7 @@ public class TiWebViewBinding
 	private Stack<String> codeSnippets;
 	private boolean destroyed;
 	private WebView webView;
+    private boolean pollingEnabled = true;
 
 	private ApiBinding apiBinding;
 	private AppBinding appBinding;
@@ -147,6 +147,14 @@ public class TiWebViewBinding
 	private Semaphore returnSemaphore = new Semaphore(0);
 	private String returnValue;
 
+    public boolean isPollingEnabled() {
+        return pollingEnabled;
+    }
+
+    public void setPolling(boolean enabled) {
+        pollingEnabled = enabled;
+    }
+
 	synchronized public String getJSValue(String expression)
 	{
 		// Don't try to evaluate js code again if the binding has already been destroyed
@@ -165,8 +173,7 @@ public class TiWebViewBinding
 			final String code = "_TiReturn.setValue((function(){try{" + expression + "+\"\";}catch(ti_eval_err){return '';}})());";
 			Log.d(TAG, "getJSValue:" + code, Log.DEBUG_MODE);
 			returnSemaphore.drainPermits();
-            if (!TiApplication.getInstance().getAppProperties()
-                    .getBool(TiWebViewBinding.POLLING_PROPERTY, false)) {
+            if (pollingEnabled) {
                 synchronized (codeSnippets) {
                     codeSnippets.push(code);
                 }
@@ -234,8 +241,7 @@ public class TiWebViewBinding
 			}
 
 			final String code = "Ti.executeListener(" + id + dataString + ");";
-			if (!TiApplication.getInstance().getAppProperties()
-                    .getBool(TiWebViewBinding.POLLING_PROPERTY, false)) {
+			if (pollingEnabled) {
 		         synchronized (codeSnippets) {
 		                codeSnippets.push(code);
 		            }
