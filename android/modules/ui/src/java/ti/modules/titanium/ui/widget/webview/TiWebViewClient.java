@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget.webview;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 
 import ti.modules.titanium.media.TiVideoActivity;
@@ -53,7 +54,9 @@ public class TiWebViewClient extends WebViewClient
 			if (webView.shouldInjectBindingCode()) {
 				nativeWebView.loadUrl("javascript:" + TiWebViewBinding.INJECTION_CODE);
 			}
-			nativeWebView.loadUrl("javascript:" + TiWebViewBinding.POLLING_CODE);
+			if (!TiApplication.getInstance().getAppProperties().getBool(TiWebViewBinding.POLLING_PROPERTY, false)) {
+		         nativeWebView.loadUrl("javascript:" + TiWebViewBinding.POLLING_CODE);
+			}
 		}
 
 		webView.setBindingCodeInjected(false);
