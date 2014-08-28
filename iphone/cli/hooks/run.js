@@ -61,7 +61,7 @@ exports.init = function (logger, config, cli) {
 				} else {
 					logger[lastLogger](line);
 				}
-			}).on('quit', function (code) {
+			}).on('exit', function (code) {
 				endLog();
 				if (code) {
 					finished && finished(new appc.exception(__('An error occurred running the iOS Simulator')));
