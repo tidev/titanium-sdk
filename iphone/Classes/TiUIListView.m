@@ -1773,7 +1773,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)initSearchController:(id)sender
 {
-    if (sender == self) {
+    if (sender == self && tableController == nil) {
         tableController = [[UITableViewController alloc] init];
         [TiUtils configureController:tableController withObject:nil];
         tableController.tableView = [self tableView];
