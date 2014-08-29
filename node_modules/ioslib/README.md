@@ -1,155 +1,242 @@
-iOS Utility Library
-===================
+# iOS Utility Library
 
-This is a library of utilities for dealing programmatically with iOS applications, used namely for tools like [Hyperloop](https://github.com/appcelerator/hyperloop) and [Titanium](https://github.com/appcelerator/titanium).
+This is a library of utilities for dealing programmatically with iOS applications,
+used namely for tools like [Hyperloop](https://github.com/appcelerator/hyperloop)
+and [Titanium](https://github.com/appcelerator/titanium).
 
-## Current Status [![Build Status](https://travis-ci.org/appcelerator/ioslib.svg?branch=master)](https://travis-ci.org/appcelerator/ioslib) [![NPM version](https://badge.fury.io/js/ioslib.svg)](http://badge.fury.io/js/ioslib)
+ioslib supports Xcode 5 and Xcode 6.
 
-- currently in progress of porting various internal libraries into this library
-- [node-ios-device](https://github.com/appcelerator/node-ios-device) is currently the main library used by Titanium at the moment.  we will merge these two projects once this one is complete.
+[![Build Status](https://travis-ci.org/appcelerator/ioslib.svg?branch=master)](https://travis-ci.org/appcelerator/ioslib) [![NPM version](https://badge.fury.io/js/ioslib.svg)](http://badge.fury.io/js/ioslib)
 
-Examples
---------
+[![NPM](https://nodei.co/npm/ioslib.png?downloads=true&stars=true)](https://nodei.co/npm/ioslib/)
+
+## Prerequisites
+
+This library current depends on [node-ios-device](https://github.com/appcelerator/node-ios-device)
+and thus is currently compatible with Node.js version 0.8.0 through 0.11.13.
+
+## Installation
+
+From NPM:
+
+	npm install ioslib
+
+From GitHub:
+
+	npm install git://github.com/appcelerator/ioslib.git
+
+## Examples
 
 ### Detect all the connected iOS devices:
 
 ```javascript
 var ioslib = require('ioslib');
 
-ioslib.device.detect(function(err,devices){
-	if (!err && devices.length) {
-		console.log('detected',devices);
+ioslib.device.detect(function (err, devices) {
+	if (err) {
+		console.error(err);
+	} else {
+		console.log(devices);
 	}
 });
 ```
 
-### Install and then launch an application on device
+### Install an application on device
 
 ```javascript
-var ioslib = require('ioslib');
-var obj = {
-	build_dir: '/path/to/name.app',
-	callback: function(err) {
-		console.log('exited');
-	},
-	logger: function(label, message) {
-		console.log('['+label+']',message);
-	}
-}
-ioslib.device.launch(obj);
+var deviceUDID = null; // string or null to pick first device
+
+ioslib.device.install(deviceUDID, '/path/to/name.app', 'com.company.appname')
+	.on('installed', function () {
+		console.log('App successfully installed on device');
+	})
+	.on('appStarted', function () {
+		console.log('App has started');
+	})
+	.on('log', function (msg) {
+		console.log('[LOG] ' + msg);
+	})
+	.on('appQuit', function () {
+		console.log('App has quit');
+	})
+	.on('error', function (err) {
+		console.error(err);
+	});
 ```
 
-### Install and then launch an application on simulator
+### Launch the iOS Simulator
 
 ```javascript
-var ioslib = require('ioslib');
-var obj = {
-	build_dir: '/path/to/name.app',
-	callback: function(err) {
-		console.log('exited');
-	},
-	logger: function(label, message) {
-		console.log('['+label+']',message);
-	}
-}
-ioslib.simulator.launch(obj);
+ioslib.simulator.launch(null, function (err, simHandle) {
+	console.log('Simulator launched');
+	ioslib.simulator.stop(simHandle, function () {
+		console.log('Simulator stopped');
+	});
+});
+```
+
+### Launch, install, and run an application on simulator
+
+```javascript
+var simUDID = null; // string or null to pick a simulator
+
+ioslib.simulator.launch(simUDID, {
+		appPath: '/path/to/name.app'
+	})
+	.on('launched', function (msg) {
+		console.log('Simulator has launched');
+	})
+	.on('appStarted', function (msg) {
+		console.log('App has started');
+	})
+	.on('log', function (msg) {
+		console.log('[LOG] ' + msg);
+	})
+	.on('error', function (err) {
+		console.error(err);
+	});
 ```
 
 ### Force stop an application running on simulator
 
 ```javascript
-var ioslib = require('ioslib');
-ioslib.simulator.stop(function(){
-	console.log('simulator has exited');
-});
+ioslib.simulator.launch(simUDID, {
+		appPath: '/path/to/name.app'
+	})
+	.on('launched', function (simHandle) {
+		console.log('Simulator launched');
+		ioslib.simulator.stop(simHandle).on('stopped', function () {
+			console.log('Simulator stopped');
+		});
+	});
 ```
 
-### Force stop an application running on device
+### Find a valid device/cert/provisioning profile combination
 
 ```javascript
-var ioslib = require('ioslib');
-ioslib.device.stop(function(){
-	console.log('device app has exited');
+ioslib.findValidDeviceCertProfileCombos({
+	appId: 'com.company.appname'
+}, function (err, results) {
+	if (err) {
+		console.error(err);
+	} else {
+		console.log(results);
+	}
 });
 ```
 
-### Find provisioning profiles and developer info
+### Detect everything
 
 ```javascript
-var ioslib = require('ioslib');
-ioslib.profile.find('com.appcelerator.test',function(err,results){
-	console.log('profiles',results.profiles);
-	console.log('developer_name',results.developer_name);
+ioslib.detect(function (err, info) {
+	if (err) {
+		console.error(err);
+	} else {
+		console.log(info);
+	}
 });
 ```
 
-### Detect Xcode path
+### Detect iOS certificates
 
 ```javascript
-var ioslib = require('ioslib');
-ioslib.xcode.detect(function(err,path){
-	console.log('xcode path',path);
+ioslib.certs.detect(function (err, certs) {
+	if (err) {
+		console.error(err);
+	} else {
+		console.log(certs);
+	}
 });
 ```
 
-### Detect Xcode settings
+### Detect provisioning profiles
 
 ```javascript
-var ioslib = require('ioslib');
-ioslib.xcode.settings(function(err,settings){
-	console.log('xcode settings',settings);
+ioslib.provisioning.detect(function (err, profiles) {
+	if (err) {
+		console.error(err);
+	} else {
+		console.log(profiles);
+	}
 });
 ```
 
-### Detect Xcode system frameworks
+### Detect Xcode installations
 
 ```javascript
-var ioslib = require('ioslib');
-ioslib.xcode.systemFrameworks(function(err,frameworks,frameworkDir){
-	console.log('xcode frameworks',frameworks);
+ioslib.xcode.detect(function (err, xcodeInfo) {
+	if (err) {
+		console.error(err);
+	} else {
+		console.log(xcodeInfo);
+	}
 });
 ```
 
-## Command line
+## Running Tests
 
-There is also a simple command line:
+For best results, connect an iOS device.
 
-### Print out basic information about device
-
-```
-> ioslib
-```
-
-### Print out JSON
+To run all tests:
 
 ```
-> ioslib --json
+npm test
 ```
 
-### Print out Titanium CLI flags
+To run a specific test suite:
 
 ```
-> ioslib --ti
+npm run-script test-certs
 
---platform ios --target device --device-id 123456987978978978789 --developer-name "Foo Bar (95FMZAQKCH)" --pp-uuid 78B3D052-E2B8-4268-8812-D83FB9EC3788
+npm run-script test-device
+
+npm run-script test-env
+
+npm run-script test-ioslib
+
+npm run-script test-provisioning
+
+npm run-script test-simulator
+
+npm run-script test-xcode
 ```
 
+## Known Issues
 
-## Reporting Bugs or submitting fixes
+Simulator tests fail due to issue with NSLog() calls not properly being logged
+and thus we don't know when tests are done. The result is the tests timeout.
 
-If you run into problems, and trust us, there are likely plenty of them at this point -- please create an [Issue](https://github.com/appcelerator/ioslib/issues) or, even better, send us a pull request.
+## Reporting Bugs or Submitting Fixes
+
+If you run into problems, and trust us, there are likely plenty of them at this
+point -- please create an [Issue](https://github.com/appcelerator/ioslib/issues)
+or, even better, send us a pull request.
 
 ## Contributing
 
-ioslib is an open source project.  ioslib wouldn't be where it is now without contributions by the community. Please consider forking ioslib to improve, enhance or fix issues. If you feel like the community will benefit from your fork, please open a pull request.
+ioslib is an open source project. ioslib wouldn't be where it is now without
+contributions by the community. Please consider forking ioslib to improve,
+enhance or fix issues. If you feel like the community will benefit from your
+fork, please open a pull request.
 
-To protect the interests of the ioslib contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once.
+To protect the interests of the ioslib contributors, Appcelerator, customers
+and end users we require contributors to sign a Contributors License Agreement
+(CLA) before we pull the changes into the main repository. Our CLA is simple and
+straightforward - it requires that the contributions you make to any
+Appcelerator open source project are properly licensed and that you have the
+legal authority to make those changes. This helps us significantly reduce future
+legal risk for everyone involved. It is easy, helps everyone, takes only a few
+minutes, and only needs to be completed once.
 
-[You can digitally sign the CLA](http://bit.ly/app_cla) online. Please indicate your email address in your first pull request so that we can make sure that will locate your CLA.  Once you've submitted it, you no longer need to send one for subsequent submissions.
+[You can digitally sign the CLA](http://bit.ly/app_cla) online. Please indicate
+your email address in your first pull request so that we can make sure that will
+locate your CLA.  Once you've submitted it, you no longer need to send one for
+subsequent submissions.
 
 ## Contributors
 
-The original source and design for this project was developed by [Jeff Haynie](http://github.com/jhaynie) ([@jhaynie](http://twitter.com/jhaynie)).
+The original source and design for this project was developed by
+[Jeff Haynie](http://github.com/jhaynie) ([@jhaynie](http://twitter.com/jhaynie)).
 
 ## Legal
 

@@ -1,11 +1,6 @@
+._*
 .DS_Store
 .git*
 node_modules
-*.sublime-project
-*.sublime-workspace
-docs
-tests
-lib-cov
-coverage.html
-forge
-forge-tools
+test/TestApp/build
+test/TestApp/TestApp.xcodeproj/project.xcworkspace/xcuserdata

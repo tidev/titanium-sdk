@@ -36,6 +36,11 @@ exports.detect = function (types, config, next) {
 		minIosVersion: iosPackageJson.minIosVersion,
 		supportedVersions: iosPackageJson.vendorDependencies.xcode
 	}, function (err, results) {
+		results.devices.unshift({
+			'udid': 'itunes',
+			'name': 'iTunes Sync'
+		});
+
 		results.tisdk = path.basename((function scan(dir) {
 			var file = path.join(dir, 'manifest.json');
 			if (fs.existsSync(file)) {
@@ -217,7 +222,9 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 
 	logger.log(styleHeading(__('Connected iOS Devices')));
 	if (data.devices.length) {
-		logger.log(data.devices.map(function (device) {
+		logger.log(data.devices.filter(function (device) {
+			return device.udid !== 'itunes';
+		}).map(function (device) {
 			return '  ' + device.name.cyan + '\n' + [
 				'  ' + rpad('  ' + __('UDID'))             + ' = ' + styleValue(device.udid),
 				'  ' + rpad('  ' + __('Type'))             + ' = ' + styleValue(device.deviceClass + ' (' + device.deviceColor + ')'),

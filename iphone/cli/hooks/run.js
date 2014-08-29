@@ -45,12 +45,12 @@ exports.init = function (logger, config, cli) {
 				simType: builder.iosSimType,
 				simVersion: builder.iosSimVersion,
 				killIfRunning: true
-			}).on('appStarted', function (simHandle) {
+			}).on('app-started', function (simHandle) {
 				finished && finished();
 				finished = null;
 				simStarted = true;
 				logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
-			}).on('logFile', function (line) {
+			}).on('log-file', function (line) {
 				var m = line.match(logLevelRE);
 				if (m) {
 					lastLogger = m[2].toLowerCase();
@@ -61,7 +61,7 @@ exports.init = function (logger, config, cli) {
 				} else {
 					logger[lastLogger](line);
 				}
-			}).on('exit', function (code) {
+			}).on('app-quit', function (code) {
 				endLog();
 				if (code) {
 					finished && finished(new appc.exception(__('An error occurred running the iOS Simulator')));

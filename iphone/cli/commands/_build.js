@@ -120,9 +120,9 @@ iOSBuilder.prototype.assertIssue = function assertIssue(issues, name) {
 	for (; i < len; i++) {
 		if ((typeof name === 'string' && issues[i].id === name) || (typeof name === 'object' && name.test(issues[i].id))) {
 			this.logger.banner();
-			appc.string.wrap(issues[i].message, this.config.get('cli.width', 100)).split('\n').forEach(function (line, i) {
+			appc.string.wrap(issues[i].message, this.config.get('cli.width', 100)).split('\n').forEach(function (line, i, arr) {
 				this.logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-				if (!i) this.logger.log();
+				if (!i && arr.length > 1) this.logger.log();
 			}, this);
 			this.logger.log();
 			process.exit(1);
@@ -160,7 +160,7 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 		deviceInfo.devices = {};
 
 		// check if they specified the legacy settings: --sim-version, --sim-type, --retina, --tall, --sim-64bit
-		if (argv['sim-version'] || argv['sim-type'] || argv.retina || argv.tall || argv['sim-64bit']) {
+		if (this.config.get('ios.autoSelectDevice', true) && (argv['sim-version'] || argv['sim-type'] || argv.retina || argv.tall || argv['sim-64bit'])) {
 			// try to find the closest matching simulator
 			var version = argv['sim-version'] || argv['ios-version'] || defaultIosVersion,
 				sims = this.iosInfo.simulators,
@@ -318,15 +318,17 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 				sdkVersions = {},
 				simVersions = {};
 			Object.keys(iosInfo.xcode).forEach(function (ver) {
-				iosInfo.xcode[ver].sdks.forEach(function (sdk) {
-					allSdkVersions[sdk] = 1;
-					if (version.gte(sdk, this.minSupportedIosSdk)) {
-						sdkVersions[sdk] = 1;
-					}
-				}, this);
-				iosInfo.xcode[ver].sims.forEach(function (sim) {
-					simVersions[sim] = 1;
-				});
+				if (iosInfo.xcode[ver].supported) {
+					iosInfo.xcode[ver].sdks.forEach(function (sdk) {
+						allSdkVersions[sdk] = 1;
+						if (version.gte(sdk, this.minSupportedIosSdk)) {
+							sdkVersions[sdk] = 1;
+						}
+					}, this);
+					iosInfo.xcode[ver].sims.forEach(function (sim) {
+						simVersions[sim] = 1;
+					});
+				}
 			}, this);
 			allSdkVersions = this.iosAllSdkVersions = version.sort(Object.keys(allSdkVersions));
 			sdkVersions = this.iosSdkVersions = version.sort(Object.keys(sdkVersions));
@@ -334,12 +336,14 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 
 			// if we're running from Xcode, determine the default --ios-version
 			var defaultIosVersion = null;
-			if (iosInfo.selectedXcode) {
+			if (iosInfo.selectedXcode && iosInfo.selectedXcode.supported) {
 				defaultIosVersion = iosInfo.selectedXcode.sdks.sort().reverse()[0];
 			}
 			// if we didn't have a selected xcode, then just take the latest sdk from the latest xcode
 			if (!defaultIosVersion) {
-				Object.keys(iosInfo.xcode).sort().reverse().forEach(function (ver) {
+				Object.keys(iosInfo.xcode).filter(function (ver) {
+					return iosInfo.xcode[ver].supported;
+				}).sort().reverse().forEach(function (ver) {
 					if (!defaultIosVersion && iosInfo.xcode[ver].sdks.length) {
 						defaultIosVersion = iosInfo.xcode[ver].sdks[0];
 					}
@@ -451,6 +455,20 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									return callback();
 								}
 
+								var options = {};
+
+								// build a filtered list of simulators based on any legacy options/flags
+								Object.keys(info.devices).forEach(function (sdk) {
+									if (!cli.argv['sim-version'] || sdk === cli.argv['sim-version']) {
+										info.devices[sdk].forEach(function (sim) {
+											if ((!cli.argv['sim-type'] || sim.deviceClass === cli.argv['sim-type']) && (!cli.argv.retina || sim.retina) && (!cli.argv.tall || sim.tall) && (!cli.argv['sim-64bit'] || sim['64bit'])) {
+												options[sdk] || (options[sdk] = []);
+												options[sdk].push(sim);
+											}
+										});
+									}
+								});
+
 								var params = {
 									formatters: {},
 									default: '1', // just default to the first one, whatever that will be
@@ -462,7 +480,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									relistOnError: true,
 									complete: true,
 									suggest: true,
-									options: info.devices[cli.argv['ios-version'] || defaultIosVersion]
+									options: options
 								};
 
 								if (cli.argv.target === 'device') {
@@ -1143,7 +1161,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	// we have an ios sdk version, find the best xcode version to use
 	this.xcodeEnv = null;
 	Object.keys(this.iosInfo.xcode).forEach(function (ver) {
-		if ((!this.xcodeEnv || this.iosInfo.xcode[ver].selected) && this.iosInfo.xcode[ver].sdks.some(function (sdk) { return version.eq(sdk, cli.argv['ios-version']); }, this)) {
+		if (this.iosInfo.xcode[ver].supported && (!this.xcodeEnv || this.iosInfo.xcode[ver].selected) && this.iosInfo.xcode[ver].sdks.some(function (sdk) { return version.eq(sdk, cli.argv['ios-version']); }, this)) {
 			this.xcodeEnv = this.iosInfo.xcode[ver];
 		}
 	}, this);
@@ -1216,7 +1234,8 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		}
 
 		Object.keys(this.iosInfo.xcode).forEach(function (ver) {
-			if (!this.xcodeEnv
+			if (this.iosInfo.xcode[ver].supported
+				&& !this.xcodeEnv
 				&& this.iosInfo.xcode[ver].sdks.some(function (sdk) { return version.eq(sdk, cli.argv['ios-version']); })
 				&& (!selectedSim || this.iosInfo.xcode[ver].sims.some(function (sim) { return version.eq(sim, selectedSim.ios); }))
 			) {
@@ -1233,12 +1252,14 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			}
 			logger.log(__('Available iOS SDKs and iOS Simulators:'));
 			Object.keys(this.iosInfo.xcode).forEach(function (ver) {
-				this.iosInfo.xcode[ver].sdks.forEach(function (sdk) {
-					logger.log('\n  ' + __('iOS %s:', sdk));
-					this.iosInfo.xcode[ver].sims.forEach(function (sim) {
-						logger.log('    ' + ('--ios-version ' + sdk + ' --sim-version ' + sim).cyan);
-					});
-				}, this);
+				if (this.iosInfo.xcode[ver].supported) {
+					this.iosInfo.xcode[ver].sdks.forEach(function (sdk) {
+						logger.log('\n  ' + __('iOS %s:', sdk));
+						this.iosInfo.xcode[ver].sims.forEach(function (sim) {
+							logger.log('    ' + ('--ios-version ' + sdk + ' --sim-version ' + sim).cyan);
+						});
+					}, this);
+				}
 			}, this);
 			logger.log();
 			process.exit(1);
