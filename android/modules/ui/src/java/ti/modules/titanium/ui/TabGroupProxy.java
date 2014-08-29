@@ -124,6 +124,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		return tps;
 	}
 
+	public int getTabIndex(TabProxy tabProxy)
+	{
+		return tabs.indexOf(tabProxy);
+	}
 
 	public ArrayList<TabProxy> getTabList()
 	{
