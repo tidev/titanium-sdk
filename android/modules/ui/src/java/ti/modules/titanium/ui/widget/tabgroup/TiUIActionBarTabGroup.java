@@ -127,14 +127,26 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			if (position >= registeredFragments.size()) {
 				return null;
 			}
-			return registeredFragments.get(position).get();
+			WeakReference<Fragment> weakReferenceFragment = registeredFragments.get(position);
+			if (weakReferenceFragment != null) {
+				return weakReferenceFragment.get();
+			}
+			return null;
 		}
 
 		@Override
 		public Object instantiateItem(ViewGroup container, int position) {
 			Fragment fragment = (Fragment) super.instantiateItem(container, position);
 			WeakReference<Fragment> weakReferenceFragment = new WeakReference<Fragment>(fragment);
-			registeredFragments.add(position, weakReferenceFragment);
+			for (int i = registeredFragments.size(); i < position; i++) {
+				// for example if tab 2 is instantiated before tab 1
+				registeredFragments.add(i, null);
+			}
+			if (position > registeredFragments.size() - 1) {
+				registeredFragments.add(position, weakReferenceFragment);
+			} else {
+				registeredFragments.set(position, weakReferenceFragment);
+			}
 			return fragment;
 		}
 
@@ -175,11 +187,14 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			}
 			String fragmentTag = fragment.getTag();
 			for (int i=0; i < registeredFragments.size(); i++){
-				if (fragmentTag.equals(getRegisteredFragment(i).getTag())){
-					return i;
+				Fragment registeredFragment = getRegisteredFragment(i);
+				if (registeredFragment != null) {
+					if (fragmentTag.equals(registeredFragment.getTag())){
+						return i;
+					}
 				}
 			}
-			return POSITION_UNCHANGED;
+			return POSITION_NONE;
 		}
 	}
 
