@@ -140,14 +140,6 @@ methods:
         By default, the native camera controls are displayed. To add your own camera controls,
         you can add an overlay view by setting the `overlay` property on the `options` argument.
 
-        #### iOS Platform Notes
-
-        To suppress the default controls, set `showControls` and `autohide` to `false`.
-
-        If the `showControls` option is `false`, you must control the camera explicitly, using
-        the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera) 
-        methods.
-
         #### Android Platform Notes
 
         To suppress the default controls, set `autohide` to `false` and then set the
@@ -155,7 +147,27 @@ methods:
         take the photo. You must then control the camera explicitly, using
         the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera)
         methods.
+
+        #### BlackBerry Platform Notes
+
+        To use this method on BlackBerry, you must include the `access_shared` and `use_camera`
+        permissions in the `tiapp.xml` file of your Titanium application:
+
+            <blackberry>
+                <permissions>
+                    <permission>access_shared</permission>
+                    <permission>use_camera</permission>
+                </permissions>
+            </blackberry>
         
+        #### iOS Platform Notes
+
+        To suppress the default controls, set `showControls` and `autohide` to `false`.
+
+        If the `showControls` option is `false`, you must control the camera explicitly, using
+        the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera)
+        methods.
+
         #### Tizen Platform Notes
         
         To use this method on Tizen, you must include the following privilege

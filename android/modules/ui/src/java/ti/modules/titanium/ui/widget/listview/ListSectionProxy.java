@@ -62,11 +62,15 @@ public class ListSectionProxy extends ViewProxy{
 	private static final int MSG_REPLACE_ITEMS_AT = MSG_FIRST_ID + 705;
 	private static final int MSG_UPDATE_ITEM_AT = MSG_FIRST_ID + 706;
 	private static final int MSG_GET_ITEMS = MSG_FIRST_ID + 707;
+	private static final int MSG_SET_HEADER_TITLE = MSG_FIRST_ID + 708;
+	private static final int MSG_SET_FOOTER_TITLE = MSG_FIRST_ID + 709;
+	private static final int MSG_SET_HEADER_VIEW = MSG_FIRST_ID + 710;
+	private static final int MSG_SET_FOOTER_VIEW = MSG_FIRST_ID + 711;
 
 	public class ListItemData {
 		private KrollDict properties;
 		private TiListViewTemplate template;
-		private String searchableText;
+		private String searchableText = "";
 		public ListItemData (KrollDict properties, TiListViewTemplate template) {
 			this.properties = properties;
 			this.template = template;
@@ -75,8 +79,9 @@ public class ListSectionProxy extends ViewProxy{
 				Object props = properties.get(TiC.PROPERTY_PROPERTIES);
 				if (props instanceof HashMap) {
 					HashMap<String, Object> propsHash = (HashMap<String, Object>) props;
-					if (propsHash.containsKey(TiC.PROPERTY_SEARCHABLE_TEXT)) {
-						searchableText = TiConvert.toString(propsHash, TiC.PROPERTY_SEARCHABLE_TEXT);
+					Object searchText = propsHash.get(TiC.PROPERTY_SEARCHABLE_TEXT);
+					if (propsHash.containsKey(TiC.PROPERTY_SEARCHABLE_TEXT) && searchText != null) {
+						searchableText = TiConvert.toString(searchText);
 					}
 				}
 			}
@@ -135,9 +140,10 @@ public class ListSectionProxy extends ViewProxy{
 
 	@Kroll.method @Kroll.setProperty
 	public void setHeaderView(TiViewProxy headerView) {
-		this.headerView = headerView;
-		if (adapter != null) {
-			notifyDataChange();
+		if (TiApplication.isUIThread()) {
+			handleSetHeaderView(headerView);
+		} else {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_HEADER_VIEW), headerView);
 		}
 	}
 	
@@ -148,9 +154,10 @@ public class ListSectionProxy extends ViewProxy{
 	
 	@Kroll.method @Kroll.setProperty
 	public void setFooterView(TiViewProxy footerView) {
-		this.footerView = footerView;
-		if (adapter != null) {
-			notifyDataChange();
+		if (TiApplication.isUIThread()) {
+			handleSetFooterView(footerView);
+		} else {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_FOOTER_VIEW), footerView);
 		}
 	}
 	
@@ -161,9 +168,10 @@ public class ListSectionProxy extends ViewProxy{
 	
 	@Kroll.method @Kroll.setProperty
 	public void setHeaderTitle(String headerTitle) {
-		this.headerTitle = headerTitle;
-		if (adapter != null) {
-			notifyDataChange();
+		if (TiApplication.isUIThread()) {
+			handleSetHeaderTitle(headerTitle);
+		} else {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_HEADER_TITLE), headerTitle);
 		}
 	}
 	
@@ -173,10 +181,11 @@ public class ListSectionProxy extends ViewProxy{
 	}
 	
 	@Kroll.method @Kroll.setProperty
-	public void setFooterTitle(String headerTitle) {
-		this.footerTitle = headerTitle;
-		if (adapter != null) {
-			notifyDataChange();
+	public void setFooterTitle(String footerTitle) {
+		if (TiApplication.isUIThread()) {
+			handleSetFooterTitle(footerTitle);
+		} else {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_FOOTER_TITLE), footerTitle);
 		}
 	}
 	
@@ -185,16 +194,6 @@ public class ListSectionProxy extends ViewProxy{
 		return footerTitle;
 	}
 	
-	public void notifyDataChange() {
-		getMainHandler().post(new Runnable() {
-			@Override
-			public void run()
-			{
-				adapter.notifyDataSetChanged();
-			}
-		});
-	}
-
 	public String getHeaderOrFooterTitle(int index) {
 		if (isHeaderTitle(index)) {
 			return headerTitle;
@@ -224,7 +223,35 @@ public class ListSectionProxy extends ViewProxy{
 				result.setResult(null);
 				return true;
 			}
-			
+
+			case MSG_SET_HEADER_TITLE: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleSetHeaderTitle(TiConvert.toString(result.getArg()));
+				result.setResult(null);
+				return true;
+			}
+
+			case MSG_SET_FOOTER_TITLE: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleSetFooterTitle(TiConvert.toString(result.getArg()));
+				result.setResult(null);
+				return true;
+			}
+
+			case MSG_SET_HEADER_VIEW: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleSetHeaderView((TiViewProxy)result.getArg());
+				result.setResult(null);
+				return true;
+			}
+
+			case MSG_SET_FOOTER_VIEW: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleSetFooterView((TiViewProxy)result.getArg());
+				result.setResult(null);
+				return true;
+			}
+
 			case MSG_GET_ITEMS: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				result.setResult(itemProperties.toArray());
@@ -469,6 +496,34 @@ public class ListSectionProxy extends ViewProxy{
 			Log.e(TAG, "Invalid argument type to setData", Log.DEBUG_MODE);
 		}
 	}
+
+	private void handleSetHeaderTitle(String headerTitle) {
+		this.headerTitle = headerTitle;
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
+	}
+
+	private void handleSetFooterTitle(String footerTitle) {
+		this.footerTitle = footerTitle;
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
+	}
+
+	private void handleSetHeaderView(TiViewProxy headerView) {
+		this.headerView = headerView;
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
+	}
+
+	private void handleSetFooterView(TiViewProxy footerView) {
+		this.footerView = footerView;
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
+	}
 	
 	private void handleAppendItems(Object data) {
 		if (data instanceof Object[]) {
@@ -679,7 +734,11 @@ public class ListSectionProxy extends ViewProxy{
 
 		existingData.put(TiC.PROPERTY_SECTION, this);
 		existingData.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
-		existingData.put(TiC.PROPERTY_ITEM_INDEX, itemIndex);
+		int realItemIndex = itemIndex;
+		if (isFilterOn()) {
+			realItemIndex =  filterIndices.get(itemIndex);
+		}
+		existingData.put(TiC.PROPERTY_ITEM_INDEX, realItemIndex);
 
 		if (!bindId.startsWith(TiListViewTemplate.GENERATED_BINDING) && !bindId.equals(TiC.PROPERTY_PROPERTIES)) {
 			existingData.put(TiC.PROPERTY_BIND_ID, bindId);
@@ -881,7 +940,7 @@ public class ListSectionProxy extends ViewProxy{
 				searchableText = searchableText.toLowerCase();
 			}
 			//String comparison
-			if (searchableText != null && searchableText.contains(searchText)) {
+			if (searchableText.contains(searchText)) {
 				filterIndices.add(i);
 			}
 		}

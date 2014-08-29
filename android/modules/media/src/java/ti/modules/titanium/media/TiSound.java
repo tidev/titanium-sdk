@@ -276,7 +276,7 @@ public class TiSound
 	{
 		try {
 			if (mp != null) {
-
+				stopProgressTimer();
 				mp.setOnCompletionListener(null);
 				mp.setOnErrorListener(null);
 				mp.setOnBufferingUpdateListener(null);
@@ -517,11 +517,15 @@ public class TiSound
 		{
 			@Override
 			public void run() {
-				if (mp != null && mp.isPlaying()) {
-					int position = mp.getCurrentPosition();
-					KrollDict event = new KrollDict();
-					event.put("progress", position);
-					proxy.fireEvent(EVENT_PROGRESS, event);
+				try {
+					if (mp != null && mp.isPlaying()) {
+						int position = mp.getCurrentPosition();
+						KrollDict event = new KrollDict();
+						event.put("progress", position);
+						proxy.fireEvent(EVENT_PROGRESS, event);
+					}
+				} catch (Throwable t) {
+					Log.e(TAG, "Issue while progressTimer run: ", t);
 				}
 			}
 		}, 1000, 1000);
@@ -538,6 +542,8 @@ public class TiSound
 	public void onDestroy()
 	{
 		if (mp != null) {
+			// Before we stop, make sure that timer is stopped
+			stopProgressTimer();
 			mp.release();
 			mp = null;
 		}

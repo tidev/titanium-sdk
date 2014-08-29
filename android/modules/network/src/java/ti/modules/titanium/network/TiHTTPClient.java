@@ -8,6 +8,7 @@ package ti.modules.titanium.network;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -90,13 +91,13 @@ import org.apache.http.util.EntityUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.io.TiResourceFile;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
@@ -107,6 +108,7 @@ import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Base64OutputStream;
 
 public class TiHTTPClient
 {
@@ -219,6 +221,7 @@ public class TiHTTPClient
 		public WeakReference<TiHTTPClient> client;
 		public InputStream is;
 		public HttpEntity entity;
+		public TiFile responseFile;
 
 		public LocalResponseHandler(TiHTTPClient client)
 		{
@@ -239,6 +242,20 @@ public class TiHTTPClient
 					c.setStatus(response.getStatusLine().getStatusCode());
 					c.setStatusText(response.getStatusLine().getReasonPhrase());
 					c.setReadyState(READY_STATE_LOADING);
+
+					if (c.proxy.hasProperty(TiC.PROPERTY_FILE)) {
+						Object f = c.proxy.getProperty(TiC.PROPERTY_FILE);
+						if (f instanceof String) {
+							String fileName = (String) f;
+							TiBaseFile baseFile = TiFileFactory.createTitaniumFile(fileName, false);
+							if (baseFile instanceof TiFile) {
+								responseFile = (TiFile) baseFile;
+							}
+						}
+						if (responseFile == null && Log.isDebugModeEnabled()) {
+							Log.w(TAG, "Ignore the provided response file because it is not valid / writable.");
+						}
+					}
 				}
 
 				if (Log.isDebugModeEnabled()) {
@@ -253,7 +270,7 @@ public class TiHTTPClient
 				}
 
 				StatusLine statusLine = response.getStatusLine();
-				if (statusLine.getStatusCode() >= 300) {
+				if (statusLine.getStatusCode() >= 400) {
 					setResponseText(response.getEntity());
 					throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
 				}
@@ -264,7 +281,7 @@ public class TiHTTPClient
 					if (entity.getContentType() != null) {
 						contentType = entity.getContentType().getValue();
 					}
-					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip") && entity.getContentLength() > 0) {
+					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip") && entity.getContentLength() != 0) {
 						is = new GZIPInputStream(entity.getContent());
 					} else {
 						is = entity.getContent();
@@ -315,16 +332,32 @@ public class TiHTTPClient
 
 		private TiFile createFileResponseData(boolean dumpResponseOut) throws IOException
 		{
-			File outFile;
-			TiApplication app = TiApplication.getInstance();
-			if (app != null) {
-				TiTempFileHelper helper = app.getTempFileHelper();
-				outFile = helper.createTempFile("tihttp", "tmp");
-			} else {
-				outFile = File.createTempFile("tihttp", "tmp");
+			TiFile tiFile = null;
+			File outFile = null;
+			if (responseFile != null) {
+				tiFile = responseFile;
+				outFile = tiFile.getFile();
+				try {
+					responseOut = new FileOutputStream(outFile, dumpResponseOut);
+					// If the response file is in the temp folder, don't delete it during cleanup.
+					TiApplication app = TiApplication.getInstance();
+					if (app != null) {
+						app.getTempFileHelper().excludeFileOnCleanup(outFile);
+					}
+				} catch (FileNotFoundException e) {
+					responseFile = null;
+					tiFile = null;
+					if (Log.isDebugModeEnabled()) {
+						Log.e(TAG, "Unable to create / write to the response file. Will write the response data to the internal data directory.");
+					}
+				}
 			}
 
-			TiFile tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
+			if (tiFile == null) {
+				outFile = TiFileFactory.createDataFile("tihttp", "tmp");
+				tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
+			}
+
 			if (dumpResponseOut) {
 				ByteArrayOutputStream byteStream = (ByteArrayOutputStream) responseOut;
 				tiFile.write(TiBlob.blobFromData(byteStream.toByteArray()), false);
@@ -338,7 +371,10 @@ public class TiHTTPClient
 		private void handleEntityData(byte[] data, int size, long totalSize, long contentLength) throws IOException
 		{
 			if (responseOut == null) {
-				if (contentLength > maxBufferSize) {
+				if (responseFile != null) {
+					createFileResponseData(false);
+				}
+				else if (contentLength > maxBufferSize) {
 					createFileResponseData(false);
 				} else {
 					long streamSize = contentLength > 0 ? contentLength : 512;
@@ -768,7 +804,7 @@ public class TiHTTPClient
 		if(theHeaders != null) {
 			boolean firstPass = true;
 			StringBuilder sb = new StringBuilder(32);
-			for (Header h : responseHeaders) {
+			for (Header h : theHeaders) {
 				if (h.getName().equals(headerName)) {
 					if (!firstPass) {
 						sb.append(", ");
@@ -955,8 +991,8 @@ public class TiHTTPClient
 				String mimeType = blob.getMimeType();
 				File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
 				FileOutputStream fos = new FileOutputStream(tmpFile);
-				if (blob.getType() == TiBlob.TYPE_STREAM) {
-					TiBaseFile.copyStream(blob.getInputStream(), fos);
+				if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
+					TiBaseFile.copyStream(blob.getInputStream(), new Base64OutputStream(fos, android.util.Base64.DEFAULT));
 				} else {
 					fos.write(blob.getBytes());
 				}
@@ -1265,6 +1301,8 @@ public class TiHTTPClient
 						e.setEntity(progressEntity);
 
 						e.addHeader("Length", totalLength+"");
+						//For multipart, the content-type and boundary will be set by the entity
+						request.removeHeaders(HTTP.CONTENT_TYPE);
 
 					} else {
 						handleURLEncodedData(form);

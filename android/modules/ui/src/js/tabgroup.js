@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,6 +15,7 @@ exports.bootstrap = function(Titanium) {
 
 	// Set constants for representing states for the tab group
 	TabGroup.prototype.state = {closed: 0, opening: 1, opened: 2};
+	TabGroup.prototype._cachedActivityProxy = null;
 
 	function createTabGroup(scopeVars, options) {
 		var tabGroup = new TabGroup(options);
@@ -29,14 +30,34 @@ exports.bootstrap = function(Titanium) {
 
 		// Keeps track of the current tab group state
 		tabGroup.currentState = tabGroup.state.closed;
-		
-		// Set the activity property here since we bind it to _internalActivity for window proxies by default
-		Object.defineProperty(TabGroup.prototype, "activity", { get: tabGroup.getActivity});
 
 		return tabGroup;
 	}
 
 	Titanium.UI.createTabGroup = createTabGroup;
+
+	// Activity getter (account for scenario when tab group's activity is not created yet)
+	var activityProxyGetter = function () {
+		var activityProxy = this._getWindowActivityProxy();
+		if (activityProxy) {
+			return activityProxy;
+		} else if (this._cachedActivityProxy == null) {
+			this._cachedActivityProxy = {};
+		}
+
+		return this._cachedActivityProxy;
+	}
+	TabGroup.prototype.getActivity = activityProxyGetter;
+	Object.defineProperty(TabGroup.prototype, "activity", { get: activityProxyGetter });
+
+	TabGroup.prototype.postTabGroupCreated = function() {
+		if (kroll.DBG) {
+			kroll.log(TAG, "Checkpoint: postTabGroupCreated()");
+		}
+		if (this._cachedActivityProxy) {
+			this._internalActivity.extend(this._cachedActivityProxy);
+		}
+	}
 
 	var _open = TabGroup.prototype.open;
 	TabGroup.prototype.open = function(options) {

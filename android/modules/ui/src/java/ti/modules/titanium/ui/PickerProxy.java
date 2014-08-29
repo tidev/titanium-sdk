@@ -528,6 +528,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			calendar.setTime(TiConvert.toDate(settings, "value"));
 		}
 
+		
 		final KrollFunction callback;
 		if (settings.containsKey("callback")) {
 			Object typeTest = settings.get("callback");
@@ -588,7 +589,26 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 					calendar.get(Calendar.YEAR),
 					calendar.get(Calendar.MONTH),
 					calendar.get(Calendar.DAY_OF_MONTH));
-			
+		
+		Date minMaxDate = null;
+		if (settings.containsKey(TiC.PROPERTY_MIN_DATE)) {
+			minMaxDate = (Date) settings.get(TiC.PROPERTY_MIN_DATE);
+		} else if (properties.containsKey(TiC.PROPERTY_MIN_DATE)) {
+			minMaxDate = (Date) properties.get(TiC.PROPERTY_MIN_DATE);
+		}
+		if (minMaxDate != null) {
+			dialog.getDatePicker().setMinDate(trimDate(minMaxDate).getTime());
+		}
+		minMaxDate = null;
+		if (settings.containsKey(TiC.PROPERTY_MAX_DATE)) {
+			minMaxDate = (Date) settings.get(TiC.PROPERTY_MAX_DATE);
+		} else if (properties.containsKey(TiC.PROPERTY_MAX_DATE)) {
+			minMaxDate = (Date) properties.get(TiC.PROPERTY_MAX_DATE);
+		}
+		if (minMaxDate != null) {
+			dialog.getDatePicker().setMaxDate(trimDate(minMaxDate).getTime());
+		}
+		
 		dialog.setCancelable(true);
 		if (dismissListener != null) {
 			dialog.setOnDismissListener(dismissListener);
@@ -600,6 +620,23 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (settings.containsKey("okButtonTitle")) {
 			dialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setText(TiConvert.toString(settings, "okButtonTitle"));
 		}
+	}
+	
+	
+	/**
+	 * Trim hour, minute, second and millisecond from the date
+	 * @param inDate input date
+	 * @return return the trimmed date
+	 */
+	public static Date trimDate(Date inDate)
+	{
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(inDate);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		return cal.getTime();
 	}
 
 	// This is meant to be a kind of "static" method, in the sense that

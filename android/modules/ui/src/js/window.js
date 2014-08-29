@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -34,14 +34,9 @@ exports.bootstrap = function(Titanium) {
 
 	// Activity getter (account for scenario when heavy weight window's activity is not created yet) 
 	var activityProxyGetter = function () {
-		// Cannot get the activity for a lightweight window.
-		if (this._isLightweight()) {
-			return undefined;
-		}
-
-		var windowProxy = this._getWindowActivityProxy();
-		if (windowProxy) {
-			return windowProxy;
+		var activityProxy = this._getWindowActivityProxy();
+		if (activityProxy) {
+			return activityProxy;
 		} else if (this._cachedActivityProxy == null) {
 			this._cachedActivityProxy = {};
 		}

@@ -1193,6 +1193,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FONTSIZE = "fontSize";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FONTSTYLE = "fontStyle";
 
 	/**
 	 * @module.api
@@ -1665,6 +1670,41 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ON_CREATE = "onCreate";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_START = "onStart";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_RESUME = "onResume";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_RESTART = "onRestart";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_PAUSE = "onPause";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_STOP = "onStop";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_DESTROY = "onDestroy";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ON_CREATE_WINDOW = "onCreateWindow";
 
 	/**
@@ -1716,6 +1756,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_OVER_SCROLL_MODE = "overScrollMode";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_OVERRIDE_CURRENT_ANIMATION = "overrideCurrentAnimation";
 
 	/**
 	 * @module.api
@@ -2197,6 +2242,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_THEME = "theme";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";
 	
 	/**
@@ -2436,6 +2486,22 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LIGHT_TOUCH_ENABLED = "lightTouchEnabled";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CUSTOM = "custom";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MIN_DATE = "minDate";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MAX_DATE = "maxDate";
+	
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";

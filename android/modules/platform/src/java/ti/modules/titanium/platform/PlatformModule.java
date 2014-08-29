@@ -153,7 +153,13 @@ public class PlatformModule extends KrollModule
 		Uri uri = Uri.parse(url);
 		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 		try {
-			getActivity().startActivity(intent);
+			Activity activity = TiApplication.getAppRootOrCurrentActivity();
+			
+			if(activity != null) {
+				activity.startActivity(intent);
+			} else {
+				throw new ActivityNotFoundException("No valid root or current activity found for application instance");
+			}
 			return true;
 		} catch (ActivityNotFoundException e) {
 			Log.e(TAG,"Activity not found: " + url, e);

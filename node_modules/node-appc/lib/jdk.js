@@ -182,14 +182,29 @@ exports.detect = function detect(config, opts, finished) {
 
 			// if we have javac, then at least we can get the version and guess the java home path
 			if (executables.javac) {
-				run(executables.javac, '-version', function (err, stdout, stderr) {
-					// we don't care if this success since the regex would fail
-					var m = stderr.match(/javac (.+)_(.+)/);
-					if (m) {
-						result.version = m[1];
-						result.build = m[2];
+				// try the 64-bit version first
+				run(executables.javac, ['-version', '-d64'], function (err, stdout, stderr) {
+					if (!err) {
+						// 64-bit version
+						var m = stderr.match(/javac (.+)_(.+)/);
+						if (m) {
+							result.version = m[1];
+							result.build = m[2];
+							result.architecture = '64bit';
+						}
+						return finished(result);
 					}
-					finished(result);
+
+					// try the 32-bit version
+					run(executables.javac, '-version', function (err, stdout, stderr) {
+						var m = stderr.match(/javac (.+)_(.+)/);
+						if (m) {
+							result.version = m[1];
+							result.build = m[2];
+							result.architecture = '32bit';
+						}
+						finished(result);
+					});
 				});
 			} else {
 				finished(result);

@@ -38,6 +38,7 @@
 
 // state information
 @property(nonatomic, readonly) NSNumber *status;
+@property(nonatomic, readonly) NSString* statusText;
 @property(nonatomic, readonly) NSNumber* readyState;
 @property(nonatomic, readonly) NSString* responseText;
 @property(nonatomic, readonly) TiBlob* responseData;
@@ -69,7 +70,7 @@
 -(void)send:(id)args;
 -(void)clearCookies:(id)args;
 -(NSString*)getResponseHeader:(id)args;
--(NSDictionary*)allResponseHeaders;
+-(NSString*)allResponseHeaders;
 -(NSString*)apiName;
 -(NSNumber*)connected;
 @end

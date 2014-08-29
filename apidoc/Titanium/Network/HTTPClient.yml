@@ -326,10 +326,11 @@ properties:
         On iOS, can only be set **after** calling [open](Titanium.Network.HTTPClient.open).
 
         
-        On Mobile Web and Tizen, can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
+        On Android, Mobile Web and Tizen, can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
         The file must be writable such as the application data directory or temp directory.
     type: String
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
+    since: {android: 3.4.0}
 
   - name: location
     summary: Absolute URL of the request.

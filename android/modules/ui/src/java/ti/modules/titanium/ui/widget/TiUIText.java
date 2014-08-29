@@ -377,6 +377,14 @@ public class TiUIText extends TiUIView
 		Log.d(TAG, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null),
 			Log.DEBUG_MODE);
 		
+		boolean enableReturnKey = false;
+		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_RETURN_KEY)) {
+			enableReturnKey = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_RETURN_KEY), false);
+		}
+		if (enableReturnKey && v.getText().length() == 0) {
+			return true;
+		}
+
 		//This is to prevent 'return' event from being fired twice when return key is hit. In other words, when return key is clicked,
 		//this callback is triggered twice (except for keys that are mapped to EditorInfo.IME_ACTION_NEXT or EditorInfo.IME_ACTION_DONE). The first check is to deal with those keys - filter out
 		//one of the two callbacks, and the next checks deal with 'Next' and 'Done' callbacks, respectively.
@@ -387,13 +395,7 @@ public class TiUIText extends TiUIView
 			fireEvent(TiC.EVENT_RETURN, data);
 		}
 
-		boolean enableReturnKey = false;
-		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_RETURN_KEY)) {
-			enableReturnKey = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_RETURN_KEY), false);
-		}
-		if (enableReturnKey && v.getText().length() == 0) {
-			return true;
-		}
+		
 		return false;
 	}
 
@@ -417,7 +419,7 @@ public class TiUIText extends TiUIView
 		int autoCapValue = 0;
 
 		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT) && !TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT, true)) {
-			autocorrect = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
+			autocorrect = 0;
 		}
 
 		if (d.containsKey(TiC.PROPERTY_EDITABLE)) {
@@ -459,9 +461,8 @@ public class TiUIText extends TiUIView
 
 		int typeModifiers = autocorrect | autoCapValue;
 		int textTypeAndClass = typeModifiers;
-		// For some reason you can't set both TYPE_CLASS_TEXT and TYPE_TEXT_FLAG_NO_SUGGESTIONS together.
-		// Also, we need TYPE_CLASS_TEXT for passwords.
-		if ((autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) && type != KEYBOARD_DECIMAL_PAD) {
+		
+		if (type != KEYBOARD_DECIMAL_PAD) {
 			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 		}
 

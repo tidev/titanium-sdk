@@ -12,6 +12,7 @@
 #import "TiUtils.h"
 #import "TiBase.h"
 #import "TiApp.h"
+#import "Mimetypes.h"
 
 #define TI_HTTP_REQUEST_PROGRESS_INTERVAL 0.03f
 
@@ -63,6 +64,19 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)open:(id)args
 {
     ENSURE_ARRAY(args);
+    
+    if ([httpRequest response] != nil) {
+        APSHTTPResponseState curState = [[httpRequest response] readyState];
+        if ( (curState == APSHTTPResponseStateUnsent) || (curState == APSHTTPResponseStateDone) ) {
+            //Clear out the client + delegate and continue
+            RELEASE_TO_NIL(httpRequest);
+            RELEASE_TO_NIL(apsConnectionDelegate);
+        } else {
+            NSLog(@"[ERROR] open can only be called if client is disconnected(0) or done(4). Current state is %d ",curState);
+            return;
+        }
+    }
+    
     NSString *method = [TiUtils stringValue:[args objectAtIndex:0]];
     NSURL *url = [TiUtils toURL:[args objectAtIndex:1] proxy:self];
     [self ensureClient];
@@ -85,10 +99,22 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)send:(id)args
 {
+    if (httpRequest == nil) {
+        NSLog(@"[ERROR] No request object found. Did you call open?");
+        return;
+    }
+    if ([httpRequest response] != nil) {
+        APSHTTPResponseState curState = [[httpRequest response] readyState];
+        if (curState != APSHTTPResponseStateUnsent) {
+            NSLog(@"[ERROR] send can only be called if client is disconnected(0). Current state is %d ",curState);
+            return;
+        }
+    }
+    
     [self rememberSelf];
     
     if([self valueForUndefinedKey:@"timeout"]) {
-        [httpRequest setTimeout: [TiUtils intValue:[self valueForUndefinedKey:@"timeout"] def:15000] / 1000 ];
+        [httpRequest setTimeout: [TiUtils doubleValue:[self valueForUndefinedKey:@"timeout"] def:15000] / 1000 ];
     }
     if([self valueForUndefinedKey:@"autoRedirect"]) {
         [httpRequest setRedirects:
@@ -143,27 +169,36 @@ extern NSString * const TI_APPLICATION_GUID;
         NSInteger dataIndex = 0;
         form = [[[APSHTTPPostForm alloc] init] autorelease];
         id arg = [args objectAtIndex:0];
-        if([arg isKindOfClass:[NSDictionary class]]) {
+        NSInteger timestamp = (NSInteger)[[NSDate date] timeIntervalSince1970];
+        if ([arg isKindOfClass:[NSDictionary class]]) {
             NSDictionary *dict = (NSDictionary*)arg;
             for(NSString *key in dict) {
                 id value = [dict objectForKey:key];
-                if([value isKindOfClass:[TiBlob class]]|| [value isKindOfClass:[TiFile class]]) {
+                if ([value isKindOfClass:[TiBlob class]]|| [value isKindOfClass:[TiFile class]]) {
                     TiBlob *blob;
-                    NSString *name;
-                    NSString *mime;
-                    if([value isKindOfClass:[TiBlob class]]) {
+                    NSString *name = nil;
+                    NSString *mime = nil;
+                    if ([value isKindOfClass:[TiBlob class]]) {
                         blob = (TiBlob*)value;
                         if([blob path] != nil) {
                             name = [[blob path] lastPathComponent];
-                        } else {
-                            name = [NSString stringWithFormat:@"file%i", dataIndex++];
                         }
                     }else{
                         blob = [(TiFile*)value blob];
                         name = [[(TiFile*)value path] lastPathComponent];
                     }
                     mime = [blob mimeType];
-                    if(mime != nil) {
+                    NSString* extension = nil;
+                    if (mime != nil) {
+                        extension = [Mimetypes extensionForMimeType:mime];
+                    }
+                    if (name == nil) {
+                        name = [NSString stringWithFormat:@"%i%i", dataIndex++, timestamp];
+                        if (extension != nil) {
+                            name = [NSString stringWithFormat:@"%@.%@", name, extension];
+                        }
+                    }
+                    if (mime != nil) {
                         [form addFormData:[blob data] fileName:name fieldName:key contentType:mime];
                     } else {
                         [form addFormData:[blob data] fileName:name fieldName:key];
@@ -317,7 +352,7 @@ extern NSString * const TI_APPLICATION_GUID;
 }
 
 
--(void)request:(APSHTTPRequest *)request onReadyStateChage:(APSHTTPResponse *)response
+-(void)request:(APSHTTPRequest *)request onReadyStateChange:(APSHTTPResponse *)response
 {
     if(hasOnreadystatechange) {
         [self fireCallback:@"onreadystatechange" withArg:nil withSource:self];
@@ -331,43 +366,43 @@ extern NSString * const TI_APPLICATION_GUID;
     }
 }
 
-#pragma mark - Pulbic setters
+#pragma mark - Public setters
 
 -(void)setOnload:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onload" notification:NO];
-    hasOnload = YES;
+    hasOnload = (callback == nil) ? NO : YES;
 }
 -(void)setOnerror:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onerror" notification:NO];
-    hasOnerror = YES;
+    hasOnerror = (callback == nil) ? NO : YES;;
 }
 -(void)setOnreadystatechange:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onreadystatechange" notification:NO];
-    hasOnreadystatechange = YES;
+    hasOnreadystatechange = (callback == nil) ? NO : YES;;
 }
 -(void)setOndatastream:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"ondatastream" notification:NO];
-    hasOndatastream = YES;
+    hasOndatastream = (callback == nil) ? NO : YES;;
 }
 -(void)setOnsendstream:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onsendstream" notification:NO];
-    hasOnsendstream = YES;
+    hasOnsendstream = (callback == nil) ? NO : YES;;
 }
 -(void)setOnredirect:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onredirect" notification:NO];
-    hasOnredirect = YES;
+    hasOnredirect = (callback == nil) ? NO : YES;;
 }
 
 -(void)setRequestHeader:(id)args
@@ -381,9 +416,14 @@ extern NSString * const TI_APPLICATION_GUID;
 
 #pragma mark - Public getter properties
 
--(NSDictionary*)allResponseHeaders
+-(NSString*)allResponseHeaders
 {
-    return [[self response] headers];
+    NSDictionary* headers = [[self response] headers];
+    NSMutableArray *array = [NSMutableArray array];
+    for (NSString *key in headers) {
+        [array addObject:[NSString stringWithFormat:@"%@:%@", key, [headers objectForKey:key]]];
+    }
+    return [array componentsJoinedByString: @"\n"];
 }
 
 -(NSString*)apiName
@@ -408,6 +448,17 @@ extern NSString * const TI_APPLICATION_GUID;
 {
     return NUMINT([[self response] status]);
 }
+
+-(NSString*)statusText
+{
+    if (([self response] != nil) && ([[self response] readyState] >= APSHTTPResponseStateHeaders) ) {
+        NSInteger status = [[self response] status];
+        return [NSHTTPURLResponse localizedStringForStatusCode:status];
+    }
+    return nil;
+}
+
+
 -(NSString*)location
 {
     if([self response] == nil) {

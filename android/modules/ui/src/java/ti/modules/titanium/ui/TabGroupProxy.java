@@ -41,7 +41,7 @@ import android.view.WindowManager;
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
 	private static final String TAG = "TabGroupProxy";
-
+	private static final String PROPERTY_POST_TAB_GROUP_CREATED = "postTabGroupCreated";
 	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
 
 	private static final int MSG_ADD_TAB = MSG_FIRST_ID + 100;
@@ -117,6 +117,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		return tps;
 	}
 
+	public int getTabIndex(TabProxy tabProxy)
+	{
+		return tabs.indexOf(tabProxy);
+	}
 
 	public ArrayList<TabProxy> getTabList()
 	{
@@ -324,6 +328,9 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// stack changes to properly dispatch tab focus and blur events
 		// when windows open and close on top of it.
 		activity.addWindowToStack(this);
+
+		// Need to handle the cached activity proxy properties in the JS side.
+		callPropertySync(PROPERTY_POST_TAB_GROUP_CREATED, null);
 	}
 
 	@Override

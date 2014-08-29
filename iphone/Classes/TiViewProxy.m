@@ -1667,7 +1667,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 	[self willEnqueueIfVisible];
 	[parent contentsWillChange];
-	[[self children] makeObjectsPerformSelector:@selector(parentSizeWillChange)];
+	pthread_rwlock_rdlock(&childrenLock);
+	[children makeObjectsPerformSelector:@selector(parentSizeWillChange)];
+	pthread_rwlock_unlock(&childrenLock);
 }
 
 -(void)willChangePosition
@@ -1700,7 +1702,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	SET_AND_PERFORM(TiRefreshViewZIndex,);
 	[parent contentsWillChange];
 
-	[[self children] makeObjectsPerformSelector:@selector(parentWillShow)];
+	pthread_rwlock_rdlock(&childrenLock);
+	[children makeObjectsPerformSelector:@selector(parentWillShow)];
+	pthread_rwlock_unlock(&childrenLock);
 }
 
 -(void)willHide;
@@ -1710,7 +1714,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 	[self willEnqueue];
 
-	[[self children] makeObjectsPerformSelector:@selector(parentWillHide)];
+	pthread_rwlock_rdlock(&childrenLock);
+	[children makeObjectsPerformSelector:@selector(parentWillHide)];
+	pthread_rwlock_unlock(&childrenLock);
 }
 
 -(void)willChangeLayout
@@ -1719,7 +1725,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 	[self willEnqueueIfVisible];
 
-	[[self children] makeObjectsPerformSelector:@selector(parentWillRelay)];
+	pthread_rwlock_rdlock(&childrenLock);
+	[children makeObjectsPerformSelector:@selector(parentWillRelay)];
+	pthread_rwlock_unlock(&childrenLock);
 }
 
 -(BOOL) widthIsAutoSize

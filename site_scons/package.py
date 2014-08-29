@@ -282,8 +282,6 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 
 	ticore_lib = os.path.join(top_dir,'iphone','lib')
 
-	zf.write(os.path.join(top_dir, 'iphone', 'simulators.json'), basepath+'/iphone/simulators.json')
-
 	# during 1.3.3, we added a new lib to a folder that had a .gitignore
 	# and we need to manually reset this
 	if not os.path.exists(os.path.join(ticore_lib,'libtiverify.a')):
