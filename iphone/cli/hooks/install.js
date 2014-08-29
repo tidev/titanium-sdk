@@ -125,7 +125,7 @@ exports.init = function (logger, config, cli) {
 										logger.log(__('Please manually launch the application or press CTRL-C to quit').magenta + '\n');
 									}
 								}, 50);
-							}).on('appStarted', function () {
+							}).on('app-started', function () {
 								if (!startLog) {
 									var startLogTxt = __('Start application log');
 									logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
@@ -155,7 +155,7 @@ exports.init = function (logger, config, cli) {
 										logger[lastLogger](msg);
 									}
 								}
-							}).on('appQuit', function () {
+							}).on('app-quit', function () {
 								running--;
 								quit();
 							}).on('error', function (err) {
