@@ -102,8 +102,7 @@ exports.config = function (logger, config, cli) {
 									// if not output meaningful error message
 									projectDir = conf.options['project-dir'].default;
 									if (!fs.existsSync(path.join(projectDir, 'tiapp.xml'))) {
-										logger.error(__('Invalid project directory "%s" because tiapp.xml not found', projectDir) + '\n');
-										process.exit(1);
+										return;
 									}
 								}
 
