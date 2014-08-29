@@ -1,0 +1,16 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 1.2.3
+description: This is a dummy module
+author: Tester
+license: Apache Public License
+copyright: Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+
+# these should not be edited
+name: dummy
+moduleid: ti.dummy
+guid: ae19fb34-df25-4978-e70f-a8c1c3d3779d
+platform: iphone
+minsdk: 2.0
