@@ -563,10 +563,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		} else if (key.equals(TiC.PROPERTY_FOOTER_TITLE)) {
 			setFooterTitle(TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_SECTIONS) && newValue instanceof Object[] ) {
-			processSections((Object[])newValue);
-			if (adapter != null) {
-				adapter.notifyDataSetChanged();
-			}
+			processSectionsAndNotify((Object[])newValue);
 		} else if (key.equals(TiC.PROPERTY_SEARCH_TEXT)) {
 			this.searchText = TiConvert.toString(newValue);
 			if (this.searchText != null) {
@@ -676,6 +673,13 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		this.sections.clear();
 		for (int i = 0; i < sections.length; i++) {
 			processSection(sections[i], -1);
+		}
+	}
+	
+	protected void processSectionsAndNotify(Object[] sections) {
+		processSections(sections);
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
 		}
 	}
 	
