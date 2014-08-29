@@ -55,7 +55,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	private boolean tabsDisabled = false;
 	private Fragment savedFragment = null;
 	private boolean savedSwipeable;
-	public boolean swipeable = true;
+	private boolean swipeable;
 
 	// The tab to be selected once the activity resumes.
 	private Tab selectedTabOnResume;
@@ -76,6 +76,8 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		actionBar = activity.getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.setDisplayShowTitleEnabled(true);
+
+		swipeable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SWIPEABLE), true);
 
 		tabGroupPagerAdapter = new TabGroupPagerAdapter(((ActionBarActivity) activity).getSupportFragmentManager());
 
@@ -206,7 +208,9 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			actionBar.setTitle(d.getString(TiC.PROPERTY_TITLE));
 		}
-
+		if (d.containsKey(TiC.PROPERTY_SWIPEABLE)) {
+			swipeable = d.getBoolean(TiC.PROPERTY_SWIPEABLE);
+		}
 	}
 
 	@Override
@@ -215,6 +219,8 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		// TODO Auto-generated method stub
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			actionBar.setTitle(TiConvert.toString(newValue));
+		} else if (key.equals(TiC.PROPERTY_SWIPEABLE)) {
+			swipeable = TiConvert.toBoolean(newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

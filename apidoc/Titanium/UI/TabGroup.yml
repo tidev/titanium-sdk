@@ -331,7 +331,6 @@ properties:
     description: |
         On Android, the tabs may be selected by swipes, in addition to clicks. This property may be set at
 	tab group creation, or any time later as long as the tab navigation is not disabled.
-        Reading this property is only valid after the tab group has been opened.
     platforms: [android]
     since: 3.3.0
     default: true
