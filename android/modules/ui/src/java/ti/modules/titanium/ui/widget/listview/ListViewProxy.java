@@ -52,7 +52,9 @@ public class ListViewProxy extends TiViewProxy {
 	private static final int MSG_INSERT_SECTION_AT = MSG_FIRST_ID + 402;
 	private static final int MSG_DELETE_SECTION_AT = MSG_FIRST_ID + 403;
 	private static final int MSG_REPLACE_SECTION_AT = MSG_FIRST_ID + 404;
-	private static final int MSG_SECTIONS = MSG_FIRST_ID + 405;
+	private static final int MSG_GET_SECTIONS = MSG_FIRST_ID + 405;
+	private static final int MSG_SET_SECTIONS = MSG_FIRST_ID + 406;
+
 
 
 	//indicate if user attempts to add/modify/delete sections before TiListView is created 
@@ -232,9 +234,21 @@ public class ListViewProxy extends TiViewProxy {
 				return true;
 			}
 			
-			case MSG_SECTIONS: {
+			case MSG_GET_SECTIONS: {
 				AsyncResult result = (AsyncResult)msg.obj;
 				result.setResult(handleSections());
+				return true;
+			}
+			
+			case MSG_SET_SECTIONS: {
+				AsyncResult result = (AsyncResult)msg.obj;
+				TiUIView listView = peekView();
+				if (listView != null) {
+					((TiListView)listView).processSectionsAndNotify((Object[])result.getArg());
+				} else {
+					Log.e(TAG, "Unable to set sections, listView is null", Log.DEBUG_MODE);
+				}
+				result.setResult(null);
 				return true;
 			}
 			
@@ -354,14 +368,32 @@ public class ListViewProxy extends TiViewProxy {
 		if (TiApplication.isUIThread()) {
 			return handleSections();
 		} else {
-			return (ListSectionProxy[]) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SECTIONS));
+			return (ListSectionProxy[]) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_SECTIONS));
 		}
 	}
 	
-	@Kroll.setProperty(retain=false) @Kroll.method
+	@Kroll.setProperty @Kroll.method
 	public void setSections(Object sections)
 	{
-		setPropertyAndFire(TiC.PROPERTY_SECTIONS, sections);
+		if (!(sections instanceof Object[])) {
+			Log.e(TAG, "Invalid argument type to setSection(), needs to be an array", Log.DEBUG_MODE);
+			return;
+		}
+		Object[] sectionsArray = (Object[]) sections;
+		TiUIView listView = peekView();
+		//Preload sections if listView is not opened.
+		if (listView == null) {
+			preload = true;
+			clearPreloadSections();
+			addPreloadSections(sectionsArray, -1, true);
+		} else {
+			if (TiApplication.isUIThread()) {
+				((TiListView)listView).processSectionsAndNotify(sectionsArray);
+			} else {
+				TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_SECTIONS), sectionsArray);
+			}
+			
+		}
 	}
 	
 	private ListSectionProxy[] handleSections()
