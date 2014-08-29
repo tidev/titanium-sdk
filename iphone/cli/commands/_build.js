@@ -333,8 +333,21 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 			simVersions = this.iosSimVersions = version.sort(Object.keys(simVersions));
 
 			// if we're running from Xcode, determine the default --ios-version
-			var defaultIosVersion = this.defaultIosVersion = iosInfo.selectedXcode.sdks.sort().reverse()[0],
-				sdkRoot = process.env.SDKROOT || process.env.SDK_DIR;
+			var defaultIosVersion = null;
+			if (iosInfo.selectedXcode) {
+				defaultIosVersion = iosInfo.selectedXcode.sdks.sort().reverse()[0];
+			}
+			// if we didn't have a selected xcode, then just take the latest sdk from the latest xcode
+			if (!defaultIosVersion) {
+				Object.keys(iosInfo.xcode).sort().reverse().forEach(function (ver) {
+					if (!defaultIosVersion && iosInfo.xcode[ver].sdks.length) {
+						defaultIosVersion = iosInfo.xcode[ver].sdks[0];
+					}
+				});
+			}
+			this.defaultIosVersion = defaultIosVersion;
+
+			var sdkRoot = process.env.SDKROOT || process.env.SDK_DIR;
 			if (sdkRoot) {
 				var m = sdkRoot.match(/\/iphone(?:os|simulator)(\d.\d).sdk/i);
 				if (m) {
@@ -1045,7 +1058,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	if (!cli.argv['ios-version']) {
 		if (this.iosSdkVersions.length) {
 			// set the latest version
-			cli.argv['ios-version'] = this.iosInfo.selectedXcode.sdks.sort().reverse()[0];
+			cli.argv['ios-version'] = this.defaultIosVersion;
 		} else {
 			// this should not be possible, but you never know
 			logger.error(cli.argv['ios-version'] ? __('Unable to find iOS SDK %s', cli.argv['ios-version']) + '\n' : __('Missing iOS SDK') + '\n');
