@@ -1089,13 +1089,14 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	if (usesSDK) {
-		usesSDK['minSdkVersion'] && (this.minSDK = ~~usesSDK['minSdkVersion']);
-		usesSDK['targetSdkVersion'] && (this.targetSDK = ~~usesSDK['targetSdkVersion']);
-		usesSDK['maxSdkVersion'] && (this.maxSDK = ~~usesSDK['maxSdkVersion']);
+		usesSDK['minSdkVersion'] && (this.minSDK = usesSDK['minSdkVersion']);
+		usesSDK['targetSdkVersion'] && (this.targetSDK = usesSDK['targetSdkVersion']);
+		usesSDK['maxSdkVersion'] && (this.maxSDK = usesSDK['maxSdkVersion']);
 	}
 
 	// min sdk is too old
-	if (this.minSDK < this.minSupportedApiLevel) {
+	var minApiLevel = targetSDKMap[this.minSDK].sdk;
+	if (minApiLevel < this.minSupportedApiLevel) {
 		logger.error(__('The minimum supported SDK version must be %s or newer, but is currently set to %s', this.minSupportedApiLevel, this.minSDK) + '\n');
 		logger.log(
 			appc.string.wrap(
@@ -1145,7 +1146,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// target sdk < min sdk
-	if (this.targetSDK && this.targetSDK < this.minSDK) {
+	if (this.targetSDK && this.targetSDK < minApiLevel) {
 		logger.error(__('The target SDK must be greater than or equal to the minimum SDK %s, but is currently set to %s', this.minSDK, this.targetSDK) + '\n');
 		process.exit(1);
 	}
@@ -1222,7 +1223,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		process.exit(1);
 	}
 
-	if (this.maxSDK && this.maxSDK < this.targetSDK) {
+	var maxApiLevel = targetSDKMap[this.maxSDK].sdk;
+	if (this.maxSDK && maxApiLevel < this.targetSDK) {
 		logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s, but is currently set to %s', this.targetSDK, this.maxSDK) + '\n');
 		process.exit(1);
 	}
