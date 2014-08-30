@@ -330,7 +330,7 @@ properties:
         Boolean value indicating if tab navigation can be done by swipes, in addition to tab clicks.
     description: |
         On Android, the tabs may be selected by swipes, in addition to clicks. This property may be set at
-	tab group creation, or any time later as long as the tab navigation is not disabled.
+        tab group creation, or any time later as long as the tab navigation is not disabled.
     platforms: [android]
     since: 3.3.0
     default: true
