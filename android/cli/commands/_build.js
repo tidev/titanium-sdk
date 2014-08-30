@@ -1095,8 +1095,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// min sdk is too old
-	var minApiLevel = targetSDKMap[this.minSDK].sdk;
-	if (minApiLevel < this.minSupportedApiLevel) {
+	var minApiLevel = targetSDKMap[this.minSDK] && targetSDKMap[this.minSDK].sdk;
+	if (minApiLevel && minApiLevel < this.minSupportedApiLevel) {
 		logger.error(__('The minimum supported SDK version must be %s or newer, but is currently set to %s', this.minSupportedApiLevel, this.minSDK) + '\n');
 		logger.log(
 			appc.string.wrap(
@@ -1223,8 +1223,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		process.exit(1);
 	}
 
-	var maxApiLevel = targetSDKMap[this.maxSDK].sdk;
-	if (this.maxSDK && maxApiLevel < this.targetSDK) {
+	var maxApiLevel = this.maxSDK && targetSDKMap[this.maxSDK] && targetSDKMap[this.maxSDK].sdk;
+	if (maxApiLevel && maxApiLevel < this.targetSDK) {
 		logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s, but is currently set to %s', this.targetSDK, this.maxSDK) + '\n');
 		process.exit(1);
 	}
