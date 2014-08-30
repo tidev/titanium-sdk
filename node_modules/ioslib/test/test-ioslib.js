@@ -271,4 +271,34 @@ describe('ioslib', function () {
 			done();
 		});
 	});
+
+	it('should find a device/cert/profile combination', function (done) {
+		this.timeout(10000);
+		this.slow(5000);
+
+		ioslib.findValidDeviceCertProfileCombos({
+			appId: 'com.appcelerator.TestApp'
+		}, function (err, results) {
+			if (err) {
+				return done(err);
+			}
+
+			should(results).be.an.Array;
+			results.forEach(function (combo) {
+				should(combo).be.an.Object;
+				should(combo).have.keys('ppUUID', 'certName', 'deviceUDID');
+
+				should(combo.ppUUID).be.a.String;
+				should(combo.ppUUID).not.equal('');
+
+				should(combo.certName).be.a.String;
+				should(combo.certName).not.equal('');
+
+				should(combo.deviceUDID).be.a.String;
+				should(combo.deviceUDID).not.equal('');
+			});
+
+			done();
+		});
+	});
 });

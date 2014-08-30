@@ -22,7 +22,7 @@ import android.view.ViewGroup;
 public class TiUIActionBarTab extends TiUIAbstractTab {
 
 	private static final String TAG = "TiUIActionBarTab";
-	
+
 	public static class TabFragment extends Fragment {
 		private TiUIActionBarTab tab;
 
@@ -33,9 +33,15 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 			this.tab = tab;
 		}
 
+		public TiUIActionBarTab getTab() {
+			return this.tab;
+		}
+
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
+			if (tab == null) {
+				return null;
+			}
 			return tab.getContentView();
 		}
 	}
@@ -52,7 +58,6 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 
 	public TiUIActionBarTab(TabProxy proxy, ActionBar.Tab tab) {
 		super(proxy);
-
 		this.tab = tab;
 
 		proxy.setModelListener(this);
@@ -72,7 +77,7 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 		}
 		
 	}
-	
+
 	public String getTabTag() {
 		return ((TabProxy)proxy).getTabTag();
 	}
