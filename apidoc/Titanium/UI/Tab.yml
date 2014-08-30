@@ -311,6 +311,11 @@ events:
   - name: postlayout
     platforms: [mobileweb, tizen]
 
+  - name: selected
+    summary: Fired when the tab is selected.
+    platforms: [android]
+    since: "3.3.0"
+
   - name: singletap
     platforms: [mobileweb, tizen]
 
@@ -328,6 +333,11 @@ events:
 
   - name: touchstart
     platforms: [mobileweb, tizen]
+
+  - name: unselected
+    summary: Fired when the tab is unselected.
+    platforms: [android]
+    since: "3.3.0"
 
 examples:
   - title: Simple Tab Example
