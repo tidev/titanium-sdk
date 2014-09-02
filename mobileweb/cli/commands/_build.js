@@ -71,22 +71,24 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 	return function (finished) {
 		var targets = ['web'];
 
-		if (process.platform == 'win32') {
-			windows.detect(config, null, function (windowsInfo) {
-				_t.windowsInfo = windowsInfo;
-				if (windowsInfo.visualstudio) {
-					if (windowsInfo.windowsphone) {
-						targets.push('wp8');
+		appc.environ.getOSInfo(function (osInfo) {
+			if (process.platform == 'win32') {
+				windows.detect(config, null, function (windowsInfo) {
+					_t.windowsInfo = windowsInfo;
+					if (windowsInfo.visualstudio) {
+						if (windowsInfo.windowsphone) {
+							targets.push('wp8');
+						}
+						targets.push('winstore');
 					}
-					targets.push('winstore');
-				}
-				configure();
-			});
-		} else {
-			configure();
-		}
+					configure(osInfo);
+				});
+			} else {
+				configure(osInfo);
+			}
+		});
 
-		function configure() {
+		function configure(osInfo) {
 			cli.createHook('build.mobileweb.config', function (callback) {
 				function assertIssue(logger, issues, name, exit) {
 					var i = 0,
@@ -119,15 +121,15 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 						'target': {
 							abbr: 'T',
 							callback: function (value) {
-								if (process.platform == 'win32' && targets.indexOf(value) != -1) {
-									if (value == 'wp8' || value == 'winstore') {
+								if (process.platform == 'win32' && targets.indexOf(value) !== -1) {
+									if (value === 'wp8' || value === 'winstore') {
 										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_VISUAL_STUDIO_NOT_INSTALLED', true);
 										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_MSBUILD_ERROR', true);
 										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_MSBUILD_TOO_OLD', true);
 									}
 
 									// if this is a Windows Phone 8 target, validate the wp8 specific parameters
-									if (value == 'wp8') {
+									if (value === 'wp8') {
 										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_SDK_NOT_INSTALLED', true);
 										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_SDK_MISSING_DEPLOY_CMD', true);
 										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_ENUMERATE_DEVICES_FAILED', true);
@@ -136,7 +138,12 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 										conf.options['device-id'].required = true;
 									}
 
-									if (value == 'winstore') {
+									if (value === 'winstore') {
+										if (appc.version.lt(osInfo.osver, '6.2.0')) {
+											logger.banner();
+											logger.error(__('Winstore apps are only supported on Windows 8 and newer.') + '\n');
+											process.exit(1);
+										}
 										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_POWERSHELL_SCRIPTS_DISABLED', true);
 									}
 								}

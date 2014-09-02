@@ -270,7 +270,7 @@ public class TiHTTPClient
 				}
 
 				StatusLine statusLine = response.getStatusLine();
-				if (statusLine.getStatusCode() >= 300) {
+				if (statusLine.getStatusCode() >= 400) {
 					setResponseText(response.getEntity());
 					throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
 				}

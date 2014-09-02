@@ -96,6 +96,16 @@ exports.config = function (logger, config, cli) {
 						'project-dir': {
 							abbr: 'd',
 							callback: function (projectDir) {
+								if (projectDir === '') {
+									// no option value was specified
+									// check if current directory is a valid dir
+									// if not output meaningful error message
+									projectDir = conf.options['project-dir'].default;
+									if (!fs.existsSync(path.join(projectDir, 'tiapp.xml'))) {
+										return;
+									}
+								}
+
 								// load the tiapp.xml
 								try {
 									var tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'));

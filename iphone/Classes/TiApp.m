@@ -431,6 +431,17 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 #endif
 
+#pragma mark Remote and Local Notifications iOS 8
+
+- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
+	RELEASE_TO_NIL(localNotification);
+	localNotification = [[TiApp  dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiBackgroundLocalNotification object:localNotification userInfo:nil];
+	completionHandler();
+}
+
+#pragma mark -
+
 #pragma mark Helper Methods
 
 -(void)postNotificationwithKey:(NSMutableDictionary*)userInfo withNotificationName:(NSString*)notificationName{
@@ -1035,21 +1046,34 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 #define NOTNULL(v) ((v==nil) ? (id)[NSNull null] : v)
 
+
+
++ (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification withIdentifier: (NSString *)identifier
+{
+    if (notification == nil) {
+        return nil;
+    }
+    NSMutableDictionary* event = [NSMutableDictionary dictionary];
+    [event setObject:NOTNULL([notification fireDate]) forKey:@"date"];
+    [event setObject:NOTNULL([[notification timeZone] name]) forKey:@"timezone"];
+    [event setObject:NOTNULL([notification alertBody]) forKey:@"alertBody"];
+    [event setObject:NOTNULL([notification alertAction]) forKey:@"alertAction"];
+    [event setObject:NOTNULL([notification alertLaunchImage]) forKey:@"alertLaunchImage"];
+    [event setObject:NOTNULL([notification soundName]) forKey:@"sound"];
+    [event setObject:NUMINT([notification applicationIconBadgeNumber]) forKey:@"badge"];
+    [event setObject:NOTNULL([notification userInfo]) forKey:@"userInfo"];
+	//include category for ios8
+	if ([TiUtils isIOS8OrGreater]) {
+		[event setObject:NOTNULL([notification category]) forKey:@"category"];
+		[event setObject:NOTNULL(identifier) forKey:@"identifier"];
+	}
+	
+	return [[event copy] autorelease];
+    
+}
 + (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification
 {
-	if (notification == nil) {
-		return nil;
-	}
-	NSMutableDictionary* event = [NSMutableDictionary dictionary];
-	[event setObject:NOTNULL([notification fireDate]) forKey:@"date"];
-	[event setObject:NOTNULL([[notification timeZone] name]) forKey:@"timezone"];
-	[event setObject:NOTNULL([notification alertBody]) forKey:@"alertBody"];
-	[event setObject:NOTNULL([notification alertAction]) forKey:@"alertAction"];
-	[event setObject:NOTNULL([notification alertLaunchImage]) forKey:@"alertLaunchImage"];
-	[event setObject:NOTNULL([notification soundName]) forKey:@"sound"];
-	[event setObject:NUMINT([notification applicationIconBadgeNumber]) forKey:@"badge"];
-	[event setObject:NOTNULL([notification userInfo]) forKey:@"userInfo"];
-	return [[event copy] autorelease];
+    return [self dictionaryWithLocalNotification: notification withIdentifier: nil];
 }
 
 // Returns an NSDictionary with the properties from tiapp.xml
