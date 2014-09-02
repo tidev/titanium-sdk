@@ -445,7 +445,7 @@ function launch(udid, options, callback) {
 					appName = options.appName || (options.appPath ? path.basename(options.appPath) : null),
 					findLogTimer = null,
 					tail;
-console.log(simHandle.cmd[0] + ' ' + args.join(' '));
+
 				// listen for ios-sim output
 				simProcess.stderr.on('data', function (data) {
 					if (data.toString().trim().indexOf('Session started') !== -1) {
