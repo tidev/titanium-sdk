@@ -8,12 +8,14 @@ package ti.modules.titanium.ui.widget.tabgroup;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.TiLifecycle.OnInstanceStateEvent;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.kroll.common.Log;
@@ -22,6 +24,8 @@ import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIActionBarTab.TabFragment;
 
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -32,6 +36,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.app.FragmentManager;
 import android.view.ViewGroup;
 import android.view.MotionEvent;
@@ -47,40 +52,69 @@ import android.view.MotionEvent;
  * See http://developer.android.com/guide/topics/ui/actionbar.html#Tabs
  * for further details on how Action bar tabs work.
  */
-public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabListener, OnLifecycleEvent {
+public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabListener, OnLifecycleEvent , OnInstanceStateEvent {
 	private static final String TAG = "TiUIActionBarTabGroup";
 	private ActionBar actionBar;
 	private boolean activityPaused = false;
 	// Default value is true. Set it to false if the tab is selected using the selectTab() method.
 	private boolean tabClicked = true;
 	private boolean tabsDisabled = false;
-	private Fragment savedFragment = null;
-	private boolean savedSwipeable;
-	private boolean swipeable;
+	private boolean tempTabsDisabled = false;
+	private int numTabsWhenDisabled;
+	private boolean savedSwipeable = true;
+	private boolean swipeable = true;
+	private boolean pendingDisableTabs = false;
+	private boolean viewPagerRestoreComplete = false;
+	private AtomicLong fragmentIdGenerator = new AtomicLong();
+	private ArrayList<String> restoredFragmentTags;
+	private ArrayList<Long> restoredFragmentIds = new ArrayList<Long>();
+	private ArrayList<Long> fragmentIds = new ArrayList<Long>();
+	private ArrayList<String> fragmentTags = new ArrayList<String>();
 
 	// The tab to be selected once the activity resumes.
 	private Tab selectedTabOnResume;
 	private WeakReference<TiBaseActivity> tabActivity;
 
-	private TabGroupPagerAdapter tabGroupPagerAdapter;
+	private PagerAdapter tabGroupPagerAdapter;
 	private ViewPager tabGroupViewPager;
 
-
-	public TiUIActionBarTabGroup(TabGroupProxy proxy, TiBaseActivity activity) {
+	public TiUIActionBarTabGroup(TabGroupProxy proxy, TiBaseActivity activity, Bundle savedInstanceState) {
 		super(proxy, activity);
 
 		tabActivity = new WeakReference<TiBaseActivity>(activity);
 
+		// We are checking savedInstanceState here since it's too late by the time
+		// onRestoreInstanceState is called. TiUIActionBarTabGroup is called during Activity
+		// creation, and addTab is often called before onRestoreInstanceState occurs :-(
+		// What we're doing here is retrieving the old fragments from the FragmentManager
+		// so that addTab will not create new ones every time the Activity is re-created
+		// which would cause a massive leak of fragments
+		if (savedInstanceState != null){
+			long [] fragmentIdArray = savedInstanceState.getLongArray("fragmentIdArray");
+			restoredFragmentTags = savedInstanceState.getStringArrayList("fragmentTagsArrayList");
+			int numRestoredTabs = 0;
+			if (fragmentIdArray != null) {
+				numRestoredTabs = fragmentIdArray.length;
+			}
+			if (numRestoredTabs > 0) {
+				// initialFragmentId guaranteed greater than any old ID
+				fragmentIdGenerator.set(savedInstanceState.getLong("initialFragmentId"));
+				for (int i = 0; i < numRestoredTabs; i++) {
+					restoredFragmentIds.add(new Long(fragmentIdArray[i]));
+				}
+			}
+			// putting into temp until we actually disable tabs
+			tempTabsDisabled = savedInstanceState.getBoolean("tabsDisabled");
+		}
 		activity.addOnLifecycleEventListener(this);
+		activity.addOnInstanceStateEventListener(this);
 
 		// Setup the action bar for navigation tabs.
 		actionBar = activity.getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.setDisplayShowTitleEnabled(true);
 
-		swipeable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SWIPEABLE), true);
-
-		tabGroupPagerAdapter = new TabGroupPagerAdapter(((ActionBarActivity) activity).getSupportFragmentManager());
+		tabGroupPagerAdapter = new TabGroupFragmentPagerAdapter(((ActionBarActivity) activity).getSupportFragmentManager());
 
 		tabGroupViewPager = (new ViewPager(proxy.getActivity()){
 			@Override
@@ -92,7 +126,18 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			public boolean onInterceptTouchEvent(MotionEvent event) {
 				return swipeable ? super.onInterceptTouchEvent(event) : false;
 			}
+
+			@Override
+			public void onRestoreInstanceState(Parcelable state) {
+				super.onRestoreInstanceState(state);
+				// ActionBar will freak out if ViewPager changes pages while tabs disabled
+				// So we delay the disable until after the ViewPager restore
+				viewPagerRestoreComplete = true;
+				checkAndDisableTabsIfRequired();
+			}
 		});
+
+		tabGroupViewPager.setId(android.R.id.tabcontent);
 
 		tabGroupViewPager.setAdapter(tabGroupPagerAdapter);
 
@@ -101,7 +146,9 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			@Override
 			public void onPageSelected(int position) {
 				// on changing the page simply select the tab
-				actionBar.setSelectedNavigationItem(position);
+				if (actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_TABS) {
+					actionBar.setSelectedNavigationItem(position);
+				}
 			}
 
 			@Override
@@ -119,85 +166,58 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		setNativeView(tabGroupViewPager);
 	}
 
-	private class TabGroupPagerAdapter extends FragmentPagerAdapter {
-		ArrayList<WeakReference<Fragment>> registeredFragments = new ArrayList<WeakReference<Fragment>>();
+	private class TabGroupFragmentPagerAdapter extends FragmentPagerAdapter {
 
-		public TabGroupPagerAdapter(FragmentManager fm) {
+		public TabGroupFragmentPagerAdapter(FragmentManager fm) {
 			super(fm);
-		}
-
-		public Fragment getRegisteredFragment(int position) {
-			if (position >= registeredFragments.size()) {
-				return null;
-			}
-			WeakReference<Fragment> weakReferenceFragment = registeredFragments.get(position);
-			if (weakReferenceFragment != null) {
-				return weakReferenceFragment.get();
-			}
-			return null;
-		}
-
-		@Override
-		public Object instantiateItem(ViewGroup container, int position) {
-			Fragment fragment = (Fragment) super.instantiateItem(container, position);
-			WeakReference<Fragment> weakReferenceFragment = new WeakReference<Fragment>(fragment);
-			for (int i = registeredFragments.size(); i < position; i++) {
-				// for example if tab 2 is instantiated before tab 1
-				registeredFragments.add(i, null);
-			}
-			if (position > registeredFragments.size() - 1) {
-				registeredFragments.add(position, weakReferenceFragment);
-			} else {
-				registeredFragments.set(position, weakReferenceFragment);
-			}
-			return fragment;
-		}
-
-		@Override
-		public void destroyItem(ViewGroup container, int position, Object object) {
-			registeredFragments.remove(position);
-			super.destroyItem(container, position, object);
 		}
 
 		@Override
 		public Fragment getItem(int i) {
-			if (tabsDisabled) {
-				return savedFragment;
-			} else {
-				ActionBar.Tab tab = actionBar.getTabAt(i);
-				TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
-				if (tabView.fragment == null) {
-					tabView.initializeFragment();
-				}
-				return tabView.fragment;
-			}
+			ActionBar.Tab tab = actionBar.getTabAt(i);
+			TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
+			return tabView.createFragment();
+		}
+
+		// Android docs say we must override the default implementation if item position can change
+		@Override
+		public long getItemId(int position) {
+			long id = fragmentIds.get(position).longValue();
+			return id;
 		}
 
 		@Override
 		public int getCount() {
 			if (tabsDisabled) {
-				return 1;
+				return numTabsWhenDisabled;
 			} else {
 				return actionBar.getNavigationItemCount();
 			}
 		}
 
+		// We must override the default implementation since item position can change
+		// The default Android implementation returns POSITION_UNCHANGED
 		@Override
 		public int getItemPosition(Object object) {
-			TabFragment fragment = (TabFragment) object;
-			if (fragment.getTab() == null){
+			Fragment fragment = (Fragment) object;
+			String tag = fragment.getTag();
+			int index = fragmentTags.indexOf(tag);
+			if (index < 0) {
 				return POSITION_NONE;
 			}
-			String fragmentTag = fragment.getTag();
-			for (int i=0; i < registeredFragments.size(); i++){
-				Fragment registeredFragment = getRegisteredFragment(i);
-				if (registeredFragment != null) {
-					if (fragmentTag.equals(registeredFragment.getTag())){
-						return i;
-					}
-				}
-			}
-			return POSITION_NONE;
+			return index;
+		}
+
+		@Override
+		public Object instantiateItem(ViewGroup container, int position) {
+			TabFragment fragment = (TabFragment) super.instantiateItem(container, position);
+			String tag = fragment.getTag();
+			int sanityCheck = fragmentTags.indexOf(tag);
+			while (fragmentTags.size() <= position) {
+				fragmentTags.add(null);
+            }
+			fragmentTags.set(position, tag);
+			return fragment;
 		}
 	}
 
@@ -221,39 +241,76 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			actionBar.setTitle(TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_SWIPEABLE)) {
-			swipeable = TiConvert.toBoolean(newValue);
+			if (tabsDisabled){
+				savedSwipeable = TiConvert.toBoolean(newValue);
+			} else {
+				swipeable = TiConvert.toBoolean(newValue);
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 
+	private void checkAndDisableTabsIfRequired() {
+		if (viewPagerRestoreComplete && pendingDisableTabs) {
+			tabsDisabled = tempTabsDisabled;
+			tempTabsDisabled = false;
+			disableTabNavigation(true);
+		}
+	}
+
 	@Override
 	public void addTab(TabProxy tabProxy) {
+		long itemId;
 		ActionBar.Tab tab = actionBar.newTab();
 		tab.setTabListener(this);
-
-		// Create a view for this tab proxy.
+		int numTabs = actionBar.getTabCount();
 		TiUIActionBarTab actionBarTab = new TiUIActionBarTab(tabProxy, tab);
+		boolean shouldUpdateTabsDisabled = false;
+
+		// First check if there are tabs to restore
+		// We will know if there are elements in restoredFragmentTags
+		// addTab will be called for those tabs first, and in order
+		if (restoredFragmentIds.size() > 0) {
+			itemId = restoredFragmentIds.remove(0).longValue();
+			String restoredFragmentTag = restoredFragmentTags.remove(0);
+			FragmentManager fm = ((ActionBarActivity)tabActivity.get()).getSupportFragmentManager();
+			TabFragment fragment = (TabFragment) fm.findFragmentByTag(restoredFragmentTag);
+			if (fragment != null) {
+				actionBarTab.setTabOnFragment(fragment);
+			}
+			if (restoredFragmentIds.size() == 0) {
+				// we finished restoring tabs
+				shouldUpdateTabsDisabled = true;
+			}
+		} else {
+			itemId = fragmentIdGenerator.getAndIncrement();
+		}
+
+		fragmentIds.add(new Long(itemId));
 		tabProxy.setView(actionBarTab);
 
 		// Add the new tab, but don't select it just yet.
 		// The selected tab is set once the group is done opening.
+
 		actionBar.addTab(tab, false);
 		tabGroupPagerAdapter.notifyDataSetChanged();
-		int numTabs = actionBar.getTabCount();
+		numTabs++; // since we added one
 		int offscreen = numTabs > 1 ? numTabs - 1 : 1; // Must be at least 1
 		tabGroupViewPager.setOffscreenPageLimit(offscreen);
+		if (tempTabsDisabled && shouldUpdateTabsDisabled) {
+			pendingDisableTabs = true;
+			checkAndDisableTabsIfRequired();
+		}
 	}
 
 	@Override
 	public void removeTab(TabProxy tabProxy) {
 		int tabIndex = ((TabGroupProxy) proxy).getTabIndex(tabProxy);
-		TabFragment fragment = (TabFragment) tabGroupPagerAdapter.getRegisteredFragment(tabIndex);
 		TiUIActionBarTab tabView = (TiUIActionBarTab) tabProxy.peekView();
 		actionBar.removeTab(tabView.tab);
-		if (fragment != null){
-			fragment.setTab(null);
-		}
+		String removedTag = fragmentTags.remove(tabIndex);
+		long removedId = fragmentIds.remove(tabIndex).longValue();
 		tabGroupPagerAdapter.notifyDataSetChanged();
 	}
 
@@ -301,13 +358,6 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
 		TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
-
-		if (tabView.fragment == null) {
-			// If not we will create it here then attach it
-			// to the tab group activity inside the "content" container.
-			tabView.initializeFragment();
-		}
-
 		tabGroupViewPager.setCurrentItem(tab.getPosition());
 		TabProxy tabProxy = (TabProxy) tabView.getProxy();
 		((TabGroupProxy) proxy).onTabSelected(tabProxy);
@@ -357,25 +407,44 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	@Override
 	public void onDestroy(Activity activity) { }
 
+	@Override
+	public void onSaveInstanceState(Bundle outState)
+	{
+		int numTabs;
+		if (!tabsDisabled) {
+			numTabs = actionBar.getNavigationItemCount();
+		} else {
+			numTabs = numTabsWhenDisabled;
+		}
+		outState.putBoolean("tabsDisabled", tabsDisabled);
+		if (numTabs == 0) {
+			outState.remove("fragmentIdArray");
+			outState.remove("initialFragmentId");
+			outState.remove("fragmentTagsArrayList");
+			return;
+		}
+		outState.putStringArrayList("fragmentTagsArrayList", fragmentTags);
+		long[] fragmentIdArray = new long [numTabs];
+		outState.putLong("initialFragmentId", fragmentIdGenerator.get());
+		for (int i = 0; i < numTabs; i++) {
+			fragmentIdArray[i] = fragmentIds.get(i).longValue();
+		}
+		outState. putLongArray ("fragmentIdArray", fragmentIdArray);
+	}
+
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) {}
+
 	public void disableTabNavigation(boolean disable) {
 		if (disable && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_TABS) {
 			savedSwipeable = swipeable;
 			swipeable = false;
-			ActionBar.Tab tab = actionBar.getSelectedTab();
-			if (tab == null) {
-				Log.e(TAG, "No selected tab when trying to disable Tab Navigation");
-				return;
-			}
-			TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
-			savedFragment = tabView.fragment;
+			numTabsWhenDisabled = actionBar.getNavigationItemCount();
 			tabsDisabled = true;
-			tabGroupPagerAdapter.notifyDataSetChanged();
 			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		} else if (!disable && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_STANDARD){
 			tabsDisabled = false;
-			savedFragment = null;
 			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-			tabGroupPagerAdapter.notifyDataSetChanged();
 			swipeable = savedSwipeable;
 		}
 	}

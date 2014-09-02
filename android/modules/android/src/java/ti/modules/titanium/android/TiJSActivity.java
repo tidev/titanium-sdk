@@ -15,6 +15,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIActivityWindow;
 
 import android.content.Intent;
+import android.os.Bundle;
 
 public abstract class TiJSActivity extends TiLaunchActivity
 {
@@ -68,14 +69,14 @@ public abstract class TiJSActivity extends TiLaunchActivity
 	}
 
 	@Override
-	protected void windowCreated()
+	protected void windowCreated(Bundle savedInstanceState)
 	{
 		// Set the layout proxy here since it's not ready when we indirectly call it inside contextCreated()
 		setLayoutProxy(window);
 
 		// The UIWindow needs to be created before we run the script
 		activityWindow = new TiUIActivityWindow((TiActivityWindowProxy)window, this, getLayout());
-		super.windowCreated();
+		super.windowCreated(savedInstanceState);
 	}
 
 	@Override

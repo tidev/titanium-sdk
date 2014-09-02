@@ -145,9 +145,9 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	}
 
 	@Override
-	protected void windowCreated()
+	protected void windowCreated(Bundle savedInstanceState)
 	{
-		super.windowCreated();
+		super.windowCreated(savedInstanceState);
 		loadActivityScript();
 		scriptLoaded();
 	}
