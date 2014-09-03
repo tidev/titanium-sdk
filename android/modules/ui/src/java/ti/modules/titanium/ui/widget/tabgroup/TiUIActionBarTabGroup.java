@@ -63,6 +63,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	private int numTabsWhenDisabled;
 	private boolean savedSwipeable = true;
 	private boolean swipeable = true;
+	private boolean smoothScrollOnTabClick = true;
 	private boolean pendingDisableTabs = false;
 	private boolean viewPagerRestoreComplete = false;
 	private AtomicLong fragmentIdGenerator = new AtomicLong();
@@ -254,6 +255,9 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		if (d.containsKey(TiC.PROPERTY_SWIPEABLE)) {
 			swipeable = d.getBoolean(TiC.PROPERTY_SWIPEABLE);
 		}
+		if (d.containsKey(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
+			smoothScrollOnTabClick = d.getBoolean(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK);
+		}
 	}
 
 	@Override
@@ -268,6 +272,8 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			} else {
 				swipeable = TiConvert.toBoolean(newValue);
 			}
+		} else if (key.equals(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
+			smoothScrollOnTabClick = TiConvert.toBoolean(newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -382,7 +388,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
 		TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
-		tabGroupViewPager.setCurrentItem(tab.getPosition(), false);
+		tabGroupViewPager.setCurrentItem(tab.getPosition(), smoothScrollOnTabClick);
 		TabProxy tabProxy = (TabProxy) tabView.getProxy();
 		((TabGroupProxy) proxy).onTabSelected(tabProxy);
 		if (tabClicked) {

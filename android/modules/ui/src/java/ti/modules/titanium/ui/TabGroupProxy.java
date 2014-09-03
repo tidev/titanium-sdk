@@ -38,7 +38,8 @@ import android.view.WindowManager;
 	TiC.PROPERTY_TABS_BACKGROUND_COLOR,
 	TiC.PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR,
 	TiC.PROPERTY_SWIPEABLE,
-	TiC.PROPERTY_EXIT_ON_CLOSE
+	TiC.PROPERTY_EXIT_ON_CLOSE,
+	TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK
 })
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
@@ -64,6 +65,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_SWIPEABLE, true);
+		defaultValues.put(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK, true);
 	}
 
 	public TabGroupProxy(TiContext tiContext)
