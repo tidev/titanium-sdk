@@ -238,7 +238,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			}
 			while (fragmentTags.size() <= position) {
 				fragmentTags.add(null);
-            }
+			}
 			fragmentTags.set(position, tag);
 			return fragment;
 		}
