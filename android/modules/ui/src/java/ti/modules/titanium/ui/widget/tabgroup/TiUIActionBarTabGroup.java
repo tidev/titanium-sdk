@@ -382,7 +382,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
 		TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
-		tabGroupViewPager.setCurrentItem(tab.getPosition());
+		tabGroupViewPager.setCurrentItem(tab.getPosition(), false);
 		TabProxy tabProxy = (TabProxy) tabView.getProxy();
 		((TabGroupProxy) proxy).onTabSelected(tabProxy);
 		if (tabClicked) {
