@@ -172,6 +172,8 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			super(fm);
 		}
 
+		// getItem only gets called by the FragmentPagerAdapter when the fragment is not found
+		// in the FragmentManager. We construct it and associate it to the tab view.
 		@Override
 		public Fragment getItem(int i) {
 			ActionBar.Tab tab = actionBar.getTabAt(i);
@@ -180,6 +182,10 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		}
 
 		// Android docs say we must override the default implementation if item position can change
+		// The FragmentPagerAdapter uses the ID to construct the fragment tag (android:switcher:containerID:ID)
+		// and then checks the FragmentManager for presence of said tag. The default Android implementation
+		// returns the fragment position in the ViewPager, which is of course wrong when a tab is removed
+		// and fragments in higher positions move. Thus we maintain the position and IDs in an ArrayList ourselves
 		@Override
 		public long getItemId(int position) {
 			long id = fragmentIds.get(position).longValue();
@@ -189,6 +195,9 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		@Override
 		public int getCount() {
 			if (tabsDisabled) {
+				// Since we don't want the FragmentPagerAdapter to do all kinds of rearrangements
+				// just because we decided to disable tags. We want the fragments to stay alive for when
+				// we reenable the tabs.
 				return numTabsWhenDisabled;
 			} else {
 				return actionBar.getNavigationItemCount();
@@ -197,6 +206,10 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 
 		// We must override the default implementation since item position can change
 		// The default Android implementation returns POSITION_UNCHANGED
+		// This gets called when getCount returns an unexpected value (e.g. a tab was removed)
+		// and now the FragmentPagerAdapter wants to check where the fragments are.
+		// We thus need to maintain a list of fragment tags since that's how we check based on
+		// the fragment passed into this function
 		@Override
 		public int getItemPosition(Object object) {
 			Fragment fragment = (Fragment) object;
@@ -208,11 +221,20 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			return index;
 		}
 
+		// The implementation in the super class calls getItemId for the fragment in this position
+		// The builds a tag based on that ID, and then checks the FragmentManager for that tag.
+		// If the tag does not exist getItem is called to construct a new fragment.
+		// In any case, the super class method returns the fragment tag which we later use in
+		// getItemPosition, for example.
 		@Override
 		public Object instantiateItem(ViewGroup container, int position) {
 			TabFragment fragment = (TabFragment) super.instantiateItem(container, position);
 			String tag = fragment.getTag();
 			int sanityCheck = fragmentTags.indexOf(tag);
+			if (sanityCheck >= 0) {
+				// Never happens, just a bug test
+				Log.e(TAG, "instantiateItem trying to add an existing tag");
+			}
 			while (fragmentTags.size() <= position) {
 				fragmentTags.add(null);
             }
@@ -269,7 +291,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		boolean shouldUpdateTabsDisabled = false;
 
 		// First check if there are tabs to restore
-		// We will know if there are elements in restoredFragmentTags
+		// We will know if there are elements in restoredFragmentTagsIds/restoredFragmentTags
 		// addTab will be called for those tabs first, and in order
 		if (restoredFragmentIds.size() > 0) {
 			itemId = restoredFragmentIds.remove(0).longValue();
@@ -280,10 +302,12 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 				actionBarTab.setTabOnFragment(fragment);
 			}
 			if (restoredFragmentIds.size() == 0) {
-				// we finished restoring tabs
+				// We finished restoring tabs. If the Activity was destroyed while tabs were disabled
+				// then we disable the tabs when recreating only after the tab group was fully initialized.
 				shouldUpdateTabsDisabled = true;
 			}
 		} else {
+			// make sure any new IDs are bigger than any previous ID
 			itemId = fragmentIdGenerator.getAndIncrement();
 		}
 
@@ -407,6 +431,11 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	@Override
 	public void onDestroy(Activity activity) { }
 
+	// Save our fragment metadata in case the activity is destroyed and later recreated.
+	// The FragmentManager saves its fragment state across activity destruction/recreation,
+	// thus we need to maintain the state as well in order to prevent the memory leak that
+	// would occur if we blindly allowed the creation of new fragments. If the activity
+	// is recreated this info is passed into the TiUIActionBarTabGroup constructor
 	@Override
 	public void onSaveInstanceState(Bundle outState)
 	{
