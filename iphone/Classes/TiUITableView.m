@@ -281,6 +281,7 @@
 @end
 
 @implementation TiUITableView
+@synthesize tableController;
 #pragma mark Internal 
 @synthesize searchString, viewWillDetach;
 
@@ -1494,6 +1495,7 @@
 
 - (IBAction) showSearchScreen: (id) sender
 {
+	//KIAT redundant here
 	[tableview setContentOffset:CGPointZero animated:YES];
 }
 
@@ -1770,6 +1772,13 @@
 		//TODO: now that we're using the search controller, we can move away from
 		//doing our own custom search screen since the controller gives this to us
 		//for free
+		//NOTE: assigning tableview to tableviewcontroller here, results in tableview
+		//frame being subject to tableviewcontroller. Therefore when search is created together
+		//with uitable, autoadjustscrollinset will fail to work.
+		//Only ways to solve this issue is to:
+		//A) include this tableviewcontroller in the parent navigationcontroller (if any) as a childviewcontroller
+		//B) don't use searchdisplaycontroller, and programatically make search bar work and update uitable content
+		//Using method A now to reduce amount of change, and performance only affected when creating window
 		searchField = [search retain];
 		[searchField windowWillOpen];
 		[searchField setDelegate:self];
