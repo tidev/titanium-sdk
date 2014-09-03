@@ -12,6 +12,7 @@
     //Default background properties
     UIColor* bgColor;
     UIImage* bgImage;
+    UIView* hostView;
     UIImageView* defaultImageView;
     
     //Keyboard stuff

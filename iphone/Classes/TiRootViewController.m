@@ -91,6 +91,7 @@
 	RELEASE_TO_NIL(bgImage);
     RELEASE_TO_NIL(containedWindows);
     RELEASE_TO_NIL(modalWindows);
+    RELEASE_TO_NIL(hostView);
     
 	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
@@ -179,9 +180,22 @@
     self.view = rootView;
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self updateBackground];
+    
+    UIView* theHost = nil;
+    
+    if ([TiUtils isIOS8OrGreater]) {
+        hostView = [[UIView alloc] initWithFrame:[rootView bounds]];
+        hostView.backgroundColor = [UIColor clearColor];
+        hostView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+        [rootView addSubview:hostView];
+        theHost = hostView;
+    } else {
+        theHost = rootView;
+    }
+    
     if (defaultImageView != nil) {
         [self rotateDefaultImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
-        [rootView addSubview:defaultImageView];
+        [theHost addSubview:defaultImageView];
     }
     [rootView becomeFirstResponder];
     [rootView release];
@@ -759,6 +773,19 @@
 -(BOOL)canHostWindows
 {
     return YES;
+}
+
+-(UIView *)hostingView
+{
+    if ([self canHostWindows] && [self isViewLoaded]) {
+        if ([TiUtils isIOS8OrGreater]) {
+            return hostView;
+        } else {
+            return self.view;
+        }
+    } else {
+        return nil;
+    }
 }
 
 -(void)willOpenWindow:(id<TiWindowProtocol>)theWindow
