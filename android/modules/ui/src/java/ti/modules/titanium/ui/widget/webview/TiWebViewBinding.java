@@ -50,13 +50,13 @@ public class TiWebViewBinding
 		StringBuilder jsonCode = readResourceFile("json2.js");
 		StringBuilder tiCode = readResourceFile("binding.min.js");
 		StringBuilder pollingCode = readResourceFile("polling.min.js");
-		
+
 		if (pollingCode == null) {
 			Log.w(TAG, "Unable to read polling code");
 		} else {
 			POLLING_CODE = pollingCode.toString();
 		}
-		
+
 		StringBuilder scriptCode = new StringBuilder();
 		StringBuilder injectionCode = new StringBuilder();
 		scriptCode.append("\n<script id=\"" + SCRIPT_INJECTION_ID + "\">\n");
@@ -85,6 +85,8 @@ public class TiWebViewBinding
 
 	private Stack<String> codeSnippets;
 	private boolean destroyed;
+	private WebView webView;
+    private boolean pollingEnabled = true;
 
 	private ApiBinding apiBinding;
 	private AppBinding appBinding;
@@ -95,6 +97,7 @@ public class TiWebViewBinding
 
 		apiBinding = new ApiBinding();
 		appBinding = new AppBinding();
+		this.webView = webView;
 		webView.addJavascriptInterface(appBinding, "TiApp");
 		webView.addJavascriptInterface(apiBinding, "TiAPI");
 		webView.addJavascriptInterface(new TiReturn(), "_TiReturn");
@@ -144,6 +147,14 @@ public class TiWebViewBinding
 	private Semaphore returnSemaphore = new Semaphore(0);
 	private String returnValue;
 
+    public boolean isPollingEnabled() {
+        return pollingEnabled;
+    }
+
+    public void setPolling(boolean enabled) {
+        pollingEnabled = enabled;
+    }
+
 	synchronized public String getJSValue(String expression)
 	{
 		// Don't try to evaluate js code again if the binding has already been destroyed
@@ -159,28 +170,43 @@ public class TiWebViewBinding
 			} else {
 				expression = " return " + expression;
 			}
-			String code = "_TiReturn.setValue((function(){try{" + expression + "+\"\";}catch(ti_eval_err){return '';}})());";
+			final String code = "_TiReturn.setValue((function(){try{" + expression + "+\"\";}catch(ti_eval_err){return '';}})());";
 			Log.d(TAG, "getJSValue:" + code, Log.DEBUG_MODE);
 			returnSemaphore.drainPermits();
-			synchronized (codeSnippets) {
-				codeSnippets.push(code);
-			}
-			try {
-				if (!returnSemaphore.tryAcquire(3500, TimeUnit.MILLISECONDS)) {
-					synchronized (codeSnippets) {
-						codeSnippets.removeElement(code);
-					}
-					Log.w(TAG, "Timeout waiting to evaluate JS");
-				}
-				return returnValue;
-			} catch (InterruptedException e) {
-				Log.e(TAG, "Interrupted", e);
-			}
+            if (pollingEnabled) {
+                synchronized (codeSnippets) {
+                    codeSnippets.push(code);
+                }
+
+                try {
+                    if (!returnSemaphore.tryAcquire(3500, TimeUnit.MILLISECONDS)) {
+                        synchronized (codeSnippets) {
+                            codeSnippets.removeElement(code);
+                        }
+                        Log.w(TAG, "Timeout waiting to evaluate JS");
+                    }
+                    return returnValue;
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "Interrupted", e);
+                }
+            } else {
+                TiApplication.getInstance().getCurrentActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        webView.loadUrl("javascript:" + code);
+                    }
+                });
+                try {
+                    returnSemaphore.acquire();
+                    return returnValue;
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "Interrupted", e);
+                }
+            }
 		}
 		return null;
 	}
 
-	@SuppressWarnings("unused")
 	private class TiReturn
 	{
 		@JavascriptInterface
@@ -214,9 +240,18 @@ public class TiWebViewBinding
 				dataString = ", " + String.valueOf(data);
 			}
 
-			String code = "Ti.executeListener(" + id + dataString + ");";
-			synchronized (codeSnippets) {
-				codeSnippets.push(code);
+			final String code = "Ti.executeListener(" + id + dataString + ");";
+			if (pollingEnabled) {
+		         synchronized (codeSnippets) {
+		                codeSnippets.push(code);
+		            }
+			} else {
+			    TiApplication.getInstance().getCurrentActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        webView.loadUrl("javascript: " + code);
+                    }
+                });
 			}
 		}
 	}
@@ -301,7 +336,6 @@ public class TiWebViewBinding
 		}
 	}
 
-	@SuppressWarnings("unused")
 	private class ApiBinding
 	{
 		private KrollLogging logging;

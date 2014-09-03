@@ -68,7 +68,7 @@ public class TiUIWebView extends TiUIView
 	private static enum reloadTypes {
 		DEFAULT, DATA, HTML, URL
 	}
-	
+
 	private reloadTypes reloadMethod = reloadTypes.DEFAULT;
 	private Object reloadData = null;
 	
@@ -314,6 +314,10 @@ public class TiUIWebView extends TiUIView
 			WebSettings settings = getWebView().getSettings();
 			settings.setLightTouchEnabled(TiConvert.toBoolean(d,TiC.PROPERTY_LIGHT_TOUCH_ENABLED));
 		}
+
+        if (d.containsKey(TiC.PROPERTY_WEBVIEW_POLLING)) {
+            client.getBinding().setPolling(d.getBoolean(TiC.PROPERTY_WEBVIEW_POLLING));
+        }
 
 		// If TiUIView's processProperties ended up making a TiBackgroundDrawable
 		// for the background, we must set the WebView background color to transparent
