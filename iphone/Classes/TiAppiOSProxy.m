@@ -500,6 +500,14 @@
 	return NUMINT(0);
 }
 
+-(NSNumber*)isRegisteredForRemoteNotifications:(id)unused
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMBOOL([[UIApplication sharedApplication] isRegisteredForRemoteNotifications]);
+    }
+    return NUMBOOL(YES);
+}
+
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_LAYOUT_CHANGED,@"accessibilitylayoutchanged");
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_SCREEN_CHANGED,@"accessibilityscreenchanged");
 
