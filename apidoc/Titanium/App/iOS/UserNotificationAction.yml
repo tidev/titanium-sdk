@@ -1,0 +1,53 @@
+---
+name: Titanium.App.iOS.UserNotificationAction
+summary: An action the user selects in repsonse to an interactive notification.
+description: |
+    To create a notification action, use the <Titanium.App.iOS.createUserNotificationAction> method.
+
+    An notification action represents an option a user selects in response to an interactive
+    notification.  The notification action is represented as a button in the application UI.
+extends: Titanium.Proxy
+since: "3.4.0"
+platforms: [iphone, ipad]
+excludes:
+    methods: [addEventListener, applyProperties, fireEvent, removeEventListener,
+              getActivationMode, getAuthenticationRequired, getDestructive, getIdentifier, getTitle]
+    properties: [bubbleParent]
+
+properties:
+
+  - name: activationMode
+    summary: Selects how to activate the application
+    description: |
+        Set to `Titanium.App.iOS.NOTIFICATION_ACTIVATION_MODE_BACKGROUND` to activate the application in the
+        background to respond to the action unless the application is already in the foreground.
+
+        Set to `Titanium.App.iOS.NOTIFICATION_ACTIVATION_MODE_FOREGROUND` to launch the application in the
+        foreground to respond to the action.
+    constants: Titanium.App.iOS.NOTIFICATION_ACTIVATION_MODE_*
+    type: Number
+    availability: creation
+
+  - name: authenticationRequired
+    summary: Set to true if the action requires the device to be unlocked.
+    type: Boolean
+    availability: creation
+
+  - name: destructive
+    summary: Set to true if the action causes destructive behavior to the user's data or the application.
+    description: |
+        The action appears red in the locked screen and notification center instead of the
+        default color.
+    type: Boolean
+    availability: creation
+
+  - name: identifier
+    summary: Identifier for this action. Used to identify the action the user pressed.
+    type: String
+    availability: creation
+
+  - name: title
+    summary: Title of the button displayed in the notification.
+    type: String
+    availability: creation
+
