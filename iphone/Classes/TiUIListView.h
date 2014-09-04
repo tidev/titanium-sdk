@@ -9,12 +9,15 @@
 #import "TiUIView.h"
 #import "TiUIListViewProxy.h"
 
-@interface TiUIListView : TiUIView <UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver >
+@interface TiUIListView : TiUIView <UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver > {
+	UITableViewController *tableController;
+}
 
 #pragma mark - Private APIs
 
 @property (nonatomic, readonly) UITableView *tableView;
 @property (nonatomic, readonly) BOOL isSearchActive;
+@property (nonatomic, retain) UITableViewController *tableController;
 
 - (void)updateSearchResults:(id)unused;
 - (void)setDictTemplates_:(id)args;

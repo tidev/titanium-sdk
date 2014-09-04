@@ -39,7 +39,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 #endif
 
     TiUISearchBarProxy *searchViewProxy;
-    UITableViewController *tableController;
+
     UISearchDisplayController *searchController;
 
     NSMutableArray * sectionTitles;
@@ -64,6 +64,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
     NSMutableDictionary* _measureProxies;
 }
+@synthesize tableController;
 
 - (id)init
 {
@@ -417,7 +418,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             NSUInteger maxItems = [[self.listViewProxy sectionForIndex:i] itemCount];
             for (int j = 0; j < maxItems; j++) {
                 NSIndexPath* thePath = [NSIndexPath indexPathForRow:j inSection:i];
-                id theValue = [self valueWithKey:@"searchableText" atIndexPath:thePath];
+                id theValue = [self valueWithKey:@"title" atIndexPath:thePath];
                 if (theValue!=nil && [[TiUtils stringValue:theValue] rangeOfString:self.searchString options:searchOpts].location != NSNotFound) {
                     (thisSection != nil) ? [thisSection addObject:thePath] : [singleSection addObject:thePath];
                     hasResults = YES;
@@ -774,9 +775,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             if (curPlaceHolder == nil) {
                 [[searchViewProxy searchBar] setPlaceholder:@"Search"];
             }
-        } else {
-            [self initSearchController:self];
-        }
+        }// else {
+		[self initSearchController:self];
+        //}
+		
         keepSectionsInSearch = NO;
     } else {
         keepSectionsInSearch = [TiUtils boolValue:[self.proxy valueForKey:@"keepSectionsInSearch"] def:NO];

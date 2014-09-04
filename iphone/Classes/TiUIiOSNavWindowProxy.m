@@ -11,6 +11,8 @@
 #import "TiApp.h"
 #import "TiUITableViewProxy.h"
 #import "TiUITableView.h"
+#import "TiUIListViewProxy.h"
+#import "TiUIListView.h"
 
 @implementation TiUIiOSNavWindowProxy
 
@@ -103,6 +105,14 @@
 							if (table.tableController != nil) {
 								[[self rootController] addChildViewController:table.tableController];
 								[table.tableController didMoveToParentViewController:[self rootController]];
+								[[self rootController] setEdgesForExtendedLayout:UIRectEdgeNone];
+							}
+						}
+						if (childView != nil && [childView isKindOfClass:[TiUIListViewProxy class]]) {
+							TiUIListView *list = (TiUIListView *)[childView view];
+							if (list.tableController != nil) {
+								[[self rootController] addChildViewController:list.tableController];
+								[list.tableController didMoveToParentViewController:[self rootController]];
 								[[self rootController] setEdgesForExtendedLayout:UIRectEdgeNone];
 							}
 						}
