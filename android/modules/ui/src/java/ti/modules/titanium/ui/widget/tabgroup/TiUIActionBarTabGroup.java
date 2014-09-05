@@ -54,6 +54,10 @@ import android.view.MotionEvent;
  */
 public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabListener, OnLifecycleEvent , OnInstanceStateEvent {
 	private static final String TAG = "TiUIActionBarTabGroup";
+	private static final String FRAGMENT_ID_ARRAY = "fragmentIdArray";
+	private static final String FRAGMENT_TAGS_ARRAYLIST = "fragmentTagsArrayList";
+	private static final String SAVED_INITIAL_FRAGMENT_ID = "savedInitialFragmentId";
+	private static final String TABS_DISABLED = "tabsDisabled";
 	private ActionBar actionBar;
 	private boolean activityPaused = false;
 	// Default value is true. Set it to false if the tab is selected using the selectTab() method.
@@ -91,21 +95,21 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		// so that addTab will not create new ones every time the Activity is re-created
 		// which would cause a massive leak of fragments
 		if (savedInstanceState != null){
-			long [] fragmentIdArray = savedInstanceState.getLongArray("fragmentIdArray");
-			restoredFragmentTags = savedInstanceState.getStringArrayList("fragmentTagsArrayList");
+			long [] fragmentIdArray = savedInstanceState.getLongArray(FRAGMENT_ID_ARRAY);
+			restoredFragmentTags = savedInstanceState.getStringArrayList(FRAGMENT_TAGS_ARRAYLIST);
 			int numRestoredTabs = 0;
 			if (fragmentIdArray != null) {
 				numRestoredTabs = fragmentIdArray.length;
 			}
 			if (numRestoredTabs > 0) {
 				// initialFragmentId guaranteed greater than any old ID
-				fragmentIdGenerator.set(savedInstanceState.getLong("initialFragmentId"));
+				fragmentIdGenerator.set(savedInstanceState.getLong(SAVED_INITIAL_FRAGMENT_ID));
 				for (int i = 0; i < numRestoredTabs; i++) {
 					restoredFragmentIds.add(new Long(fragmentIdArray[i]));
 				}
 			}
 			// putting into temp until we actually disable tabs
-			tempTabsDisabled = savedInstanceState.getBoolean("tabsDisabled");
+			tempTabsDisabled = savedInstanceState.getBoolean(TABS_DISABLED);
 		}
 		activity.addOnLifecycleEventListener(this);
 		activity.addOnInstanceStateEventListener(this);
@@ -292,7 +296,6 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		long itemId;
 		ActionBar.Tab tab = actionBar.newTab();
 		tab.setTabListener(this);
-		int numTabs = actionBar.getTabCount();
 		TiUIActionBarTab actionBarTab = new TiUIActionBarTab(tabProxy, tab);
 		boolean shouldUpdateTabsDisabled = false;
 
@@ -325,7 +328,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 
 		actionBar.addTab(tab, false);
 		tabGroupPagerAdapter.notifyDataSetChanged();
-		numTabs++; // since we added one
+		int numTabs = actionBar.getTabCount();
 		int offscreen = numTabs > 1 ? numTabs - 1 : 1; // Must be at least 1
 		tabGroupViewPager.setOffscreenPageLimit(offscreen);
 		if (tempTabsDisabled && shouldUpdateTabsDisabled) {
@@ -451,20 +454,20 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		} else {
 			numTabs = numTabsWhenDisabled;
 		}
-		outState.putBoolean("tabsDisabled", tabsDisabled);
+		outState.putBoolean(TABS_DISABLED, tabsDisabled);
 		if (numTabs == 0) {
-			outState.remove("fragmentIdArray");
-			outState.remove("initialFragmentId");
-			outState.remove("fragmentTagsArrayList");
+			outState.remove(FRAGMENT_ID_ARRAY);
+			outState.remove(SAVED_INITIAL_FRAGMENT_ID);
+			outState.remove(FRAGMENT_TAGS_ARRAYLIST);
 			return;
 		}
-		outState.putStringArrayList("fragmentTagsArrayList", fragmentTags);
+		outState.putStringArrayList(FRAGMENT_TAGS_ARRAYLIST, fragmentTags);
 		long[] fragmentIdArray = new long [numTabs];
-		outState.putLong("initialFragmentId", fragmentIdGenerator.get());
+		outState.putLong(SAVED_INITIAL_FRAGMENT_ID, fragmentIdGenerator.get());
 		for (int i = 0; i < numTabs; i++) {
 			fragmentIdArray[i] = fragmentIds.get(i).longValue();
 		}
-		outState. putLongArray ("fragmentIdArray", fragmentIdArray);
+		outState.putLongArray(FRAGMENT_ID_ARRAY, fragmentIdArray);
 	}
 
 	@Override
