@@ -113,6 +113,7 @@
         enterCurve = UIViewAnimationCurveEaseIn;
         leaveDuration = 0.3;
         enterDuration = 0.3;
+        curTransformAngle = 0;
         
         defaultOrientations = TiOrientationNone;
         containedWindows = [[NSMutableArray alloc] init];
@@ -1041,7 +1042,7 @@
 #ifdef DEVELOPER
 - (void)viewWillLayoutSubviews
 {
-    CGRect bounds = [[self view] bounds];
+    CGRect bounds = [[self hostingView] bounds];
     NSLog(@"ROOT WILL LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
     [super viewWillLayoutSubviews];
 }
@@ -1049,17 +1050,21 @@
 
 - (void)viewDidLayoutSubviews
 {
+    if ([TiUtils isIOS8OrGreater] && curTransformAngle == 0 && forceLayout) {
+        [[self hostingView] setFrame:self.view.bounds];
+    }
 #ifdef DEVELOPER
-    CGRect bounds = [[self view] bounds];
+    CGRect bounds = [[self hostingView] bounds];
     NSLog(@"ROOT DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
 #endif
     for (id<TiWindowProtocol> thisWindow in containedWindows) {
         if ([thisWindow isKindOfClass:[TiViewProxy class]]) {
-            if (!CGRectEqualToRect([(TiViewProxy*)thisWindow sandboxBounds], [[self view] bounds])) {
+            if (!CGRectEqualToRect([(TiViewProxy*)thisWindow sandboxBounds], [[self hostingView] bounds])) {
                 [(TiViewProxy*)thisWindow parentSizeWillChange];
             }
         }
     }
+    forceLayout = NO;
     [super viewDidLayoutSubviews];
     [self adjustFrameForUpSideDownOrientation:nil];
 }
@@ -1173,9 +1178,18 @@
 #ifdef FORCE_WITH_MODAL
         [self forceRotateToOrientation:target];
 #else
-        [self manuallyRotateToOrientation:target duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+        if ([TiUtils isIOS8OrGreater]) {
+            [self rotateHostingViewToOrientation:target fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+        } else {
+            [self manuallyRotateToOrientation:target duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+        }
         forcingRotation = NO;
 #endif
+    } else if (curTransformAngle != 0){
+        curTransformAngle = 0;
+        forceLayout = YES;
+        [[self hostingView] setTransform:CGAffineTransformIdentity];
+        [[self view] setNeedsLayout];
     }
     
 }
@@ -1225,6 +1239,94 @@
     }];
 }
 #endif
+
+-(void)rotateHostingViewToOrientation:(UIInterfaceOrientation)newOrientation fromOrientation:(UIInterfaceOrientation)oldOrientation
+{
+    if (!forcingRotation || (newOrientation == oldOrientation) ) {
+        return;
+    }
+    
+    NSInteger offset = 0;
+    CGAffineTransform transform;
+    
+    switch (oldOrientation) {
+        case UIInterfaceOrientationPortrait:
+        case UIInterfaceOrientationUnknown:
+            
+            if (newOrientation == UIInterfaceOrientationPortraitUpsideDown) {
+                offset = 180;
+            } else if (newOrientation == UIInterfaceOrientationLandscapeLeft) {
+                offset = -90;
+            } else if (newOrientation == UIInterfaceOrientationLandscapeRight) {
+                offset = 90;
+            }
+            break;
+        
+        case UIInterfaceOrientationLandscapeLeft:
+            if (newOrientation == UIInterfaceOrientationPortraitUpsideDown) {
+                offset = -90;
+            } else if (newOrientation == UIInterfaceOrientationPortrait) {
+                offset = 90;
+            } else if (newOrientation == UIInterfaceOrientationLandscapeRight) {
+                offset = 180;
+            }
+            break;
+            
+        case UIInterfaceOrientationLandscapeRight:
+            if (newOrientation == UIInterfaceOrientationPortraitUpsideDown) {
+                offset = 90;
+            } else if (newOrientation == UIInterfaceOrientationPortrait) {
+                offset = -90;
+            } else if (newOrientation == UIInterfaceOrientationLandscapeLeft) {
+                offset = 180;
+            }
+            break;
+            
+        case UIInterfaceOrientationPortraitUpsideDown:
+            if (newOrientation == UIInterfaceOrientationPortrait) {
+                offset = 180;
+            } else if (newOrientation == UIInterfaceOrientationLandscapeLeft) {
+                offset = 90;
+            } else if (newOrientation == UIInterfaceOrientationLandscapeRight) {
+                offset = -90;
+            }
+            break;
+    }
+    //Blur out keyboard
+    [keyboardFocusedProxy blur:nil];
+    
+    //Rotate statusbar
+    /*
+     We will not rotae the status bar here but will temporarily force hide it. That way we will get
+     correct size in viewWillTransitionToSize and reenable visibility there. If we force the status
+     bar to rotate the sizes are completely messed up.
+    forcingStatusBarOrientation = YES;
+    [[UIApplication sharedApplication] setStatusBarOrientation:newOrientation animated:NO];
+    forcingStatusBarOrientation = NO;
+    */
+    curTransformAngle += offset;
+    curTransformAngle = curTransformAngle % 360;
+    
+    switch (curTransformAngle) {
+        case 90:
+        case -270:
+            transform = CGAffineTransformMakeRotation(M_PI_2);
+            break;
+        case -90:
+        case 270:
+            transform = CGAffineTransformMakeRotation(-M_PI_2);
+            break;
+        case 180:
+            transform = CGAffineTransformMakeRotation(M_PI);
+            break;
+        default:
+            transform = CGAffineTransformIdentity;
+            break;
+    }
+    [hostView setTransform:transform];
+    [hostView setFrame:self.view.bounds];
+    
+}
 
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
 {
@@ -1294,8 +1396,8 @@
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ;
     if ([self presentedViewController] == nil && isCurrentlyVisible) {
-        [self updateStatusBar];
         [self refreshOrientationWithDuration:nil];
+        [self updateStatusBar];
     }
 }
 
@@ -1345,6 +1447,18 @@
 }
 
 #pragma mark - Appearance and rotation callbacks
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+{
+    CGAffineTransform targetTransform = [coordinator targetTransform];
+    if (curTransformAngle != 0) {
+        curTransformAngle = 0;
+        forceLayout = YES;
+        [[self hostingView] setTransform:CGAffineTransformIdentity];
+        [[self view] setNeedsLayout];
+    }
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+}
 
 //Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 -(void)viewWillAppear:(BOOL)animated
@@ -1419,9 +1533,14 @@
     BOOL oldStatus = statusBarIsHidden;
     if ([containedWindows count] > 0) {
         statusBarIsHidden = [[containedWindows lastObject] hidesStatusBar];
+        if ([TiUtils isIOS8OrGreater] && curTransformAngle != 0) {
+            statusBarIsHidden = YES;
+        }
     } else {
         statusBarIsHidden = oldStatus = statusBarInitiallyHidden;
     }
+    
+    
     statusBarVisibilityChanged = (statusBarIsHidden != oldStatus);
     return statusBarIsHidden;
 }
