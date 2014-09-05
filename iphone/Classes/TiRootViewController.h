@@ -13,6 +13,8 @@
     UIColor* bgColor;
     UIImage* bgImage;
     UIView* hostView;
+    NSInteger curTransformAngle;
+    BOOL forceLayout;
     UIImageView* defaultImageView;
     
     //Keyboard stuff
