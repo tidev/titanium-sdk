@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
@@ -131,6 +132,8 @@ public abstract class TiUIView
 	private int visibility = View.VISIBLE;
 	
 	protected GestureDetector detector = null;
+	
+	private AtomicBoolean bLayoutPending = new AtomicBoolean();
 
 
 	/**
@@ -550,6 +553,12 @@ public abstract class TiUIView
 		}
 	}
 
+	
+	public boolean isLayoutPending()
+	{
+		return bLayoutPending.get();
+	}
+	
 	protected void layoutNativeView(boolean informParent)
 	{
 		if (nativeView != null) {
@@ -566,6 +575,30 @@ public abstract class TiUIView
 					}
 				}
 			}
+			final View v = getOuterView();
+			if (v != null) {
+				bLayoutPending.set(true);
+				OnGlobalLayoutListener layoutListener = new OnGlobalLayoutListener()
+				{
+					public void onGlobalLayout()
+					{
+						bLayoutPending.set(false);
+						try {
+							if (Build.VERSION.SDK_INT < TiC.API_LEVEL_JELLY_BEAN) {
+								v.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+							} else {
+								v.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+							}
+						} catch (IllegalStateException e) {
+							if (Log.isDebugModeEnabled()) {
+								Log.w(TAG, "Unable to remove the OnGlobalLayoutListener.", e.getMessage());
+							}
+						}
+					}
+				};
+				v.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
+			}
+			
 			nativeView.requestLayout();
 		}
 	}
