@@ -1448,16 +1448,16 @@
 
 #pragma mark - Appearance and rotation callbacks
 
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection;
 {
-    CGAffineTransform targetTransform = [coordinator targetTransform];
     if (curTransformAngle != 0) {
         curTransformAngle = 0;
         forceLayout = YES;
         [[self hostingView] setTransform:CGAffineTransformIdentity];
         [[self view] setNeedsLayout];
+        [self updateStatusBar];
     }
-    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    [super traitCollectionDidChange:previousTraitCollection];
 }
 
 //Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
