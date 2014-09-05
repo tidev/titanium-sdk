@@ -1146,6 +1146,7 @@
     deviceOrientation = (UIInterfaceOrientation) newOrientation;
    
     if ([self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
+        [self resetTransformAndForceLayout];
         [self updateOrientationHistory:deviceOrientation];
     }
 }
@@ -1185,11 +1186,8 @@
         }
         forcingRotation = NO;
 #endif
-    } else if (curTransformAngle != 0){
-        curTransformAngle = 0;
-        forceLayout = YES;
-        [[self hostingView] setTransform:CGAffineTransformIdentity];
-        [[self view] setNeedsLayout];
+    } else {
+        [self resetTransformAndForceLayout];
     }
     
 }
@@ -1239,6 +1237,17 @@
     }];
 }
 #endif
+
+-(void)resetTransformAndForceLayout
+{
+    if (curTransformAngle != 0) {
+        curTransformAngle = 0;
+        forceLayout = YES;
+        [[self hostingView] setTransform:CGAffineTransformIdentity];
+        [[self view] setNeedsLayout];
+        [self updateStatusBar];
+    }
+}
 
 -(void)rotateHostingViewToOrientation:(UIInterfaceOrientation)newOrientation fromOrientation:(UIInterfaceOrientation)oldOrientation
 {
@@ -1298,14 +1307,13 @@
     //Rotate statusbar
     /*
      We will not rotae the status bar here but will temporarily force hide it. That way we will get
-     correct size in viewWillTransitionToSize and reenable visibility there. If we force the status
+     correct size in viewWillTransitionToSize and re-enable visibility there. If we force the status
      bar to rotate the sizes are completely messed up.
     forcingStatusBarOrientation = YES;
     [[UIApplication sharedApplication] setStatusBarOrientation:newOrientation animated:NO];
     forcingStatusBarOrientation = NO;
     */
-    curTransformAngle += offset;
-    curTransformAngle = curTransformAngle % 360;
+    curTransformAngle = offset % 360;
     
     switch (curTransformAngle) {
         case 90:
@@ -1450,13 +1458,7 @@
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection;
 {
-    if (curTransformAngle != 0) {
-        curTransformAngle = 0;
-        forceLayout = YES;
-        [[self hostingView] setTransform:CGAffineTransformIdentity];
-        [[self view] setNeedsLayout];
-        [self updateStatusBar];
-    }
+    [self resetTransformAndForceLayout];
     [super traitCollectionDidChange:previousTraitCollection];
 }
 
