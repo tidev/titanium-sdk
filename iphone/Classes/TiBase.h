@@ -573,6 +573,7 @@ extern NSString * const kTiBackgroundTransfer;
 extern NSString * const kTiFrameAdjustNotification;
 extern NSString * const kTiLocalNotification;
 extern NSString * const kTiBackgroundLocalNotification;
+extern NSString * const kTiUserNotificationSettingsNotification;
 extern NSString * const kTiBackgroundTransfer;
 extern NSString * const kTiURLDownloadFinished;
 extern NSString * const kTiURLSessionCompleted;

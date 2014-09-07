@@ -73,6 +73,17 @@
     if ((count == 1) && [type isEqual:@"uploadprogress"]) {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveUploadProgressNotification:) name:kTiURLUploadProgress object:nil];
     }
+    if ([TiUtils isIOS8OrGreater]){
+        if ((count == 1) && [type isEqual:@"usernotificationsetting"]) {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector
+             (didRegisterUserNotificationSettingsNotification:) name:kTiUserNotificationSettingsNotification object:nil];
+        }
+    }
+    if ([TiUtils isIOS8OrGreater]){
+        if ((count == 1) && [type isEqual:@"usernotificationsetting"]) {
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiUserNotificationSettingsNotification object:nil];
+        }
+    }
 }
 
 -(void)_listenerRemoved:(NSString*)type count:(int)count
@@ -319,6 +330,43 @@
     return result;
 }
 
+-(NSDictionary*)formatUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings
+{
+    NSMutableArray *notifSettings = [[NSMutableArray alloc] init];
+    if(notificationSettings == nil)
+    {
+        return [NSDictionary dictionaryWithObjectsAndKeys: notifSettings,@"types",nil];
+    }
+
+    if((notificationSettings.types & UIUserNotificationTypeNone) != 0){
+        [notifSettings addObject:NUMINT(UIUserNotificationTypeNone)];
+    }
+
+    if((notificationSettings.types & UIUserNotificationTypeBadge) != 0){
+        [notifSettings addObject:NUMINT(UIUserNotificationTypeBadge)];
+    }
+
+    if((notificationSettings.types & UIUserNotificationTypeSound) != 0){
+        [notifSettings addObject:NUMINT(UIUserNotificationTypeSound)];
+    }
+
+    if((notificationSettings.types & UIUserNotificationTypeAlert) != 0){
+        [notifSettings addObject:NUMINT(UIUserNotificationTypeAlert)];
+    }
+
+    return [NSDictionary dictionaryWithObjectsAndKeys: notifSettings,@"types",nil];
+}
+
+-(NSDictionary*)getCurrentUserNotificationSettings:(id)unused
+{
+
+    if (![TiUtils isIOS8OrGreater]){
+        return nil;
+    }
+
+    return [self formatUserNotificationSettings:[[UIApplication sharedApplication] currentUserNotificationSettings]];
+}
+
 -(id)scheduleLocalNotification:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSDictionary);
@@ -479,6 +527,12 @@
 -(void)didReceiveUploadProgressNotification:(NSNotification*)note
 {
     [self fireEvent:@"uploadprogress" withObject:[note userInfo]];
+}
+
+-(void)didRegisterUserNotificationSettingsNotification:(NSNotification*)notificationSettings
+{
+    [self fireEvent:@"usernotificationsetting"
+         withObject:[self formatUserNotificationSettings:(UIUserNotificationSettings*)[notificationSettings object]]];
 }
 
 -(void)setMinimumBackgroundFetchInterval:(id)value

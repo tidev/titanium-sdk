@@ -154,6 +154,7 @@ NSString * const kTiURLUploadProgress = @"TiUploadProgress";
 NSString * const kTiFrameAdjustNotification = @"TiFrameAdjust";
 NSString * const kTiLocalNotification = @"TiLocalNotification";
 NSString * const kTiBackgroundLocalNotification = @"TiBackgroundLocalNotification";
+NSString * const kTiUserNotificationSettingsNotification = @"TiUserNotificationSettingsNotification";
 
 NSString* const kTiBehaviorSize = @"SIZE";
 NSString* const kTiBehaviorFill = @"FILL";
