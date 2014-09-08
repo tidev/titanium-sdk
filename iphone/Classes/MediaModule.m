@@ -1039,20 +1039,22 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
     UIGraphicsEndImageContext();
 
-	UIInterfaceOrientation windowOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-	switch (windowOrientation) {
-		case UIInterfaceOrientationPortraitUpsideDown:
-			image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationDown];
-			break;
-		case UIInterfaceOrientationLandscapeLeft:
-			image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationRight];
-			break;
-		case UIInterfaceOrientationLandscapeRight:
-			image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationLeft];
-			break;
-		default:
-			break;
-	}
+    if (![TiUtils isIOS8OrGreater]) {
+        UIInterfaceOrientation windowOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+        switch (windowOrientation) {
+            case UIInterfaceOrientationPortraitUpsideDown:
+                image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationDown];
+                break;
+            case UIInterfaceOrientationLandscapeLeft:
+                image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationRight];
+                break;
+            case UIInterfaceOrientationLandscapeRight:
+                image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationLeft];
+                break;
+            default:
+                break;
+        }
+    }
 	
 	TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
 	NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"media"];
