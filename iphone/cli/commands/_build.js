@@ -155,7 +155,10 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 			});
 			deviceInfo.udids[device.udid] = device;
 		});
-		deviceInfo.preferred = this.iosInfo.devices[0];
+
+		if (this.config.get('ios.autoSelectDevice', true) && !argv['device-id']) {
+			deviceInfo.preferred = deviceInfo.devices[0];
+		}
 	} else if (argv.target === 'simulator') {
 		deviceInfo.devices = {};
 
@@ -308,7 +311,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 			// we have more than 1 device plus itunes, so we should show 'all'
 			if (iosInfo.devices.length > 2) {
 				iosInfo.devices.push({
-					id: 'all',
+					udid: 'all',
 					name: 'All Devices'
 				});
 			}
@@ -458,16 +461,20 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								var options = {};
 
 								// build a filtered list of simulators based on any legacy options/flags
-								Object.keys(info.devices).forEach(function (sdk) {
-									if (!cli.argv['sim-version'] || sdk === cli.argv['sim-version']) {
-										info.devices[sdk].forEach(function (sim) {
-											if ((!cli.argv['sim-type'] || sim.deviceClass === cli.argv['sim-type']) && (!cli.argv.retina || sim.retina) && (!cli.argv.tall || sim.tall) && (!cli.argv['sim-64bit'] || sim['64bit'])) {
-												options[sdk] || (options[sdk] = []);
-												options[sdk].push(sim);
-											}
-										});
-									}
-								});
+								if (Array.isArray(info.devices)) {
+									options = info.devices;
+								} else {
+									Object.keys(info.devices).forEach(function (sdk) {
+										if (!cli.argv['sim-version'] || sdk === cli.argv['sim-version']) {
+											info.devices[sdk].forEach(function (sim) {
+												if ((!cli.argv['sim-type'] || sim.deviceClass === cli.argv['sim-type']) && (!cli.argv.retina || sim.retina) && (!cli.argv.tall || sim.tall) && (!cli.argv['sim-64bit'] || sim['64bit'])) {
+													options[sdk] || (options[sdk] = []);
+													options[sdk].push(sim);
+												}
+											});
+										}
+									});
+								}
 
 								var params = {
 									formatters: {},
@@ -519,7 +526,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								if (info.udids[udid]) {
 									callback(null, udid)
 								} else {
-									callback(new Error(cli.argv.target ? __('Invalid iOS device "%s"', udid) : __('Invalid iOS simulator "%s"', udid)));
+									callback(new Error(cli.argv.target === 'device' ? __('Invalid iOS device "%s"', udid) : __('Invalid iOS simulator "%s"', udid)));
 								}
 							},
 							verifyIfRequired: function (callback) {
