@@ -1,6 +1,6 @@
 ---
 name: Titanium.App.iOS.UserNotificationAction
-summary: An action the user selects in repsonse to an interactive notification.
+summary: An action the user selects in response to an interactive notification.
 description: |
     To create a notification action, use the <Titanium.App.iOS.createUserNotificationAction> method.
 
@@ -17,7 +17,7 @@ excludes:
 properties:
 
   - name: activationMode
-    summary: Selects how to activate the application
+    summary: Selects how to activate the application.
     description: |
         Set to `Titanium.App.iOS.NOTIFICATION_ACTIVATION_MODE_BACKGROUND` to activate the application in the
         background to respond to the action unless the application is already in the foreground.
