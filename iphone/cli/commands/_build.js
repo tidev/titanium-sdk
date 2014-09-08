@@ -155,7 +155,10 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 			});
 			deviceInfo.udids[device.udid] = device;
 		});
-		deviceInfo.preferred = this.iosInfo.devices[0];
+
+		if (!this.cli.argv['device-id']) {
+			deviceInfo.preferred = this.iosInfo.devices[0];
+		}
 	} else if (argv.target === 'simulator') {
 		deviceInfo.devices = {};
 
@@ -458,16 +461,20 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								var options = {};
 
 								// build a filtered list of simulators based on any legacy options/flags
-								Object.keys(info.devices).forEach(function (sdk) {
-									if (!cli.argv['sim-version'] || sdk === cli.argv['sim-version']) {
-										info.devices[sdk].forEach(function (sim) {
-											if ((!cli.argv['sim-type'] || sim.deviceClass === cli.argv['sim-type']) && (!cli.argv.retina || sim.retina) && (!cli.argv.tall || sim.tall) && (!cli.argv['sim-64bit'] || sim['64bit'])) {
-												options[sdk] || (options[sdk] = []);
-												options[sdk].push(sim);
-											}
-										});
-									}
-								});
+								if (Array.isArray(info.devices)) {
+									options = info.devices;
+								} else {
+									Object.keys(info.devices).forEach(function (sdk) {
+										if (!cli.argv['sim-version'] || sdk === cli.argv['sim-version']) {
+											info.devices[sdk].forEach(function (sim) {
+												if ((!cli.argv['sim-type'] || sim.deviceClass === cli.argv['sim-type']) && (!cli.argv.retina || sim.retina) && (!cli.argv.tall || sim.tall) && (!cli.argv['sim-64bit'] || sim['64bit'])) {
+													options[sdk] || (options[sdk] = []);
+													options[sdk].push(sim);
+												}
+											});
+										}
+									});
+								}
 
 								var params = {
 									formatters: {},
