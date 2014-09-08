@@ -156,8 +156,8 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 			deviceInfo.udids[device.udid] = device;
 		});
 
-		if (!this.cli.argv['device-id']) {
-			deviceInfo.preferred = this.iosInfo.devices[0];
+		if (this.config.get('ios.autoSelectDevice', true) && !argv['device-id']) {
+			deviceInfo.preferred = deviceInfo.devices[0];
 		}
 	} else if (argv.target === 'simulator') {
 		deviceInfo.devices = {};
@@ -311,7 +311,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 			// we have more than 1 device plus itunes, so we should show 'all'
 			if (iosInfo.devices.length > 2) {
 				iosInfo.devices.push({
-					id: 'all',
+					udid: 'all',
 					name: 'All Devices'
 				});
 			}
@@ -526,7 +526,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								if (info.udids[udid]) {
 									callback(null, udid)
 								} else {
-									callback(new Error(cli.argv.target ? __('Invalid iOS device "%s"', udid) : __('Invalid iOS simulator "%s"', udid)));
+									callback(new Error(cli.argv.target === 'device' ? __('Invalid iOS device "%s"', udid) : __('Invalid iOS simulator "%s"', udid)));
 								}
 							},
 							verifyIfRequired: function (callback) {
