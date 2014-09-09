@@ -2739,8 +2739,6 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		xcodeArgs.push('CODE_SIGN_IDENTITY=iPhone Distribution: ' + this.certDistributionName);
 	}
 
-	xcodeArgs.push('clean', 'build');
-
 	var xcodebuildHook = this.cli.createHook('build.ios.xcodebuild', this, function (exe, args, opts, done) {
 			var p = spawn(exe, args, opts),
 				out = [],
