@@ -219,41 +219,70 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 
 - (NSNumber*)remoteNotificationsEnabled
 {
-	UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
-	return NUMBOOL(types != UIRemoteNotificationTypeNone);
+    // enableRemoteNotificationTypes deprecated in iOS 8.0
+    if (![TiUtils isIOS8OrGreater]) {
+        __block UIRemoteNotificationType types;
+        TiThreadPerformOnMainThread(^{
+            types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+        }, YES);
+        return NUMBOOL(types != UIRemoteNotificationTypeNone);
+    }
+    
+    __block BOOL enabled;
+    TiThreadPerformOnMainThread(^{
+        enabled = [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
+    }, YES);
+    return NUMBOOL(enabled);
 }
 
 - (NSArray*)remoteNotificationTypes
 {
-	UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
-	NSMutableArray *result = [NSMutableArray array];
-	if ((types & UIRemoteNotificationTypeBadge)!=0)
-	{
-		[result addObject:NUMINT(1)];
-	}
-	if ((types & UIRemoteNotificationTypeAlert)!=0)
-	{
-		[result addObject:NUMINT(2)];
-	}
-	if ((types & UIRemoteNotificationTypeSound)!=0)
-	{
-		[result addObject:NUMINT(3)];
-	}
-	if ((types & UIRemoteNotificationTypeNewsstandContentAvailability)!=0)
-	{
-		[result addObject:NUMINT(4)];
-	}
-	return result;
+    __block NSUInteger types;
+    NSMutableArray *result = [NSMutableArray array];
+    if ([TiUtils isIOS8OrGreater]) {
+        TiThreadPerformOnMainThread(^{
+            types = [[[UIApplication sharedApplication] currentUserNotificationSettings] types];
+        }, YES);
+        if ((types & UIUserNotificationTypeBadge)!=0)
+        {
+            [result addObject:NUMINT(1)];
+        }
+        if ((types & UIUserNotificationTypeAlert)!=0)
+        {
+            [result addObject:NUMINT(2)];
+        }
+        if ((types & UIUserNotificationTypeSound)!=0)
+        {
+            [result addObject:NUMINT(3)];
+        }
+    } else {
+        TiThreadPerformOnMainThread(^{
+            types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+        }, YES);
+        if ((types & UIRemoteNotificationTypeBadge)!=0)
+        {
+            [result addObject:NUMINT(1)];
+        }
+        if ((types & UIRemoteNotificationTypeAlert)!=0)
+        {
+            [result addObject:NUMINT(2)];
+        }
+        if ((types & UIRemoteNotificationTypeSound)!=0)
+        {
+            [result addObject:NUMINT(3)];
+        }
+        if ((types & UIRemoteNotificationTypeNewsstandContentAvailability)!=0)
+        {
+            [result addObject:NUMINT(4)];
+        }
+    }
+    return result;
 }
 
 -(void)registerForPushNotifications:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSDictionary);
-	
-	UIApplication * app = [UIApplication sharedApplication];
-	UIRemoteNotificationType ourNotifications = [app enabledRemoteNotificationTypes];
-	
-	NSArray *typesRequested = [args objectForKey:@"types"];
+    ENSURE_UI_THREAD(registerForPushNotifications, args);
 	
 	RELEASE_TO_NIL(pushNotificationCallback);
 	RELEASE_TO_NIL(pushNotificationError);
@@ -263,46 +292,52 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	pushNotificationError = [[args objectForKey:@"error"] retain];
 	pushNotificationCallback = [[args objectForKey:@"callback"] retain];
 	
-	if (typesRequested!=nil)
-	{
-		for (id thisTypeRequested in typesRequested) 
-		{
-			NSInteger value = [TiUtils intValue:thisTypeRequested];
-			switch(value)
-			{
-				case 1: //NOTIFICATION_TYPE_BADGE
-				{
-					ourNotifications |= UIRemoteNotificationTypeBadge;
-					break;
-				}
-				case 2: //NOTIFICATION_TYPE_ALERT
-				{
-					ourNotifications |= UIRemoteNotificationTypeAlert;
-					break;
-				}
-				case 3: //NOTIFICATION_TYPE_SOUND
-				{
-					ourNotifications |= UIRemoteNotificationTypeSound;
-					break;
-				}
-				case 4: // NOTIFICATION_TYPE_NEWSSTAND
-				{
-					ourNotifications |= UIRemoteNotificationTypeNewsstandContentAvailability;
-					break;
-				}
-			}
-		}
-	}
-	
 	[[TiApp app] setRemoteNotificationDelegate:self];
-
+    
+    UIApplication * app = [UIApplication sharedApplication];
+    
 	//for iOS8 or greater only
 	//Note adviced to register user notification settings in Ti.App.iOS first before register for remote notifications
 	if([TiUtils isIOS8OrGreater]) {
-		[app registerForRemoteNotifications];
+        [app registerForRemoteNotifications];
 	}
 	else {
-		[app registerForRemoteNotificationTypes:ourNotifications];
+        UIRemoteNotificationType ourNotifications = [app enabledRemoteNotificationTypes];
+        
+        NSArray *typesRequested;
+        ENSURE_ARG_OR_NIL_FOR_KEY(typesRequested, args, @"types", NSArray);
+        if (typesRequested != nil)
+        {
+            for (id thisTypeRequested in typesRequested)
+            {
+                NSInteger value = [TiUtils intValue:thisTypeRequested];
+                switch(value)
+                {
+                    case 1: // NOTIFICATION_TYPE_BADGE
+                    {
+                        ourNotifications |= UIRemoteNotificationTypeBadge;
+                        break;
+                    }
+                    case 2: // NOTIFICATION_TYPE_ALERT
+                    {
+                        ourNotifications |= UIRemoteNotificationTypeAlert;
+                        break;
+                    }
+                    case 3: // NOTIFICATION_TYPE_SOUND
+                    {
+                        ourNotifications |= UIRemoteNotificationTypeSound;
+                        break;
+                    }
+                    case 4: // NOTIFICATION_TYPE_NEWSSTAND
+                    {
+                        ourNotifications |= UIRemoteNotificationTypeNewsstandContentAvailability;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        [app registerForRemoteNotificationTypes:ourNotifications];
 	}
 	// check to see upon registration if we were started with a push
 	// notification and if so, go ahead and trigger our callback
