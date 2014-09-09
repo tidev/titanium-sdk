@@ -138,7 +138,6 @@
 	return proxy;
 }
 
-//TO DO: check current usernotificationsettings? how to return to user?
 //TO DO: implement didRegisterUserNotificationSettings delegate?
 //remote notifications add 'category'
 
@@ -200,8 +199,6 @@
 	id actionsForDefaultContext = [args objectForKey:@"actionsForDefaultContext"];
 	id actionsForMinimalContext = [args objectForKey:@"actionsForMinimalContext"];
 	
-	UIMutableUserNotificationAction *acceptAction = [[UIMutableUserNotificationAction alloc]init];
-	
 	if (actionsForDefaultContext != nil) {
 		NSMutableArray *afdc = [[NSMutableArray alloc] init];
 		
@@ -227,31 +224,99 @@
 	return cp;
 }
 
--(void)registerForLocalNotifications:(id)args
+-(void)registerUserNotificationSettings:(id)args
 {
 	if (![TiUtils isIOS8OrGreater]) return;
 	
 	ENSURE_SINGLE_ARG(args, NSDictionary);
-	id categories = [args objectForKey:@"categories"];
-	if (categories != nil && ![categories isKindOfClass:[NSArray class]]) {
-		NSLog(@"[WARN] Ti.App.iOS.registerForLocalNotifications.categories must be an Array");
-		categories = nil;
-	}
-		
+    
+    NSArray *categories;
+    NSArray *typesRequested;
+    ENSURE_ARG_OR_NIL_FOR_KEY(categories, args, @"categories", NSArray);
+    ENSURE_ARG_OR_NIL_FOR_KEY(typesRequested, args, @"types", NSArray);
+    
 	NSMutableSet *categoriesSet = nil;
 	if (categories != nil) {
 		categoriesSet = [NSMutableSet set];
 		for (id category in categories) {
-			if([category isKindOfClass:[TiAppiOSNotificationCategoryProxy class]]) {
-				TiAppiOSNotificationCategoryProxy* catProxy = (TiAppiOSNotificationCategoryProxy*)category;
-				[categoriesSet addObject:[catProxy notificationCategory]];
-			}
+            ENSURE_TYPE(category, TiAppiOSNotificationCategoryProxy);
+            [categoriesSet addObject:[(TiAppiOSNotificationCategoryProxy*)category notificationCategory]];
 		}
 	}
 	
-	UIUserNotificationType types = [TiUtils intValue:[args objectForKey:@"types"] def: UIUserNotificationTypeNone];
+    UIUserNotificationType types = UIUserNotificationTypeNone;
+    if (typesRequested != nil) {
+        for (id thisTypeRequested in typesRequested)
+        {
+            NSUInteger value = [TiUtils intValue:thisTypeRequested];
+            switch(value)
+            {
+                case UIUserNotificationTypeBadge: // USER_NOTIFICATION_TYPE_BADGE
+                {
+                    types |= UIUserNotificationTypeBadge;
+                    break;
+                }
+                case UIUserNotificationTypeAlert: // USER_NOTIFICATION_TYPE_ALERT
+                {
+                    types |= UIUserNotificationTypeAlert;
+                    break;
+                }
+                case UIUserNotificationTypeSound: // USER_NOTIFICATION_TYPE_SOUND
+                {
+                    types |= UIUserNotificationTypeSound;
+                    break;
+                }
+            }
+        }
+    }
+    
 	UIUserNotificationSettings *notif = [UIUserNotificationSettings settingsForTypes:types categories:categoriesSet];
-	[[UIApplication sharedApplication] registerUserNotificationSettings:notif];
+    TiThreadPerformOnMainThread(^{
+        [[UIApplication sharedApplication] registerUserNotificationSettings:notif];
+    }, NO);
+}
+
+-(NSDictionary*)currentUserNotificationSettings
+{
+    if (![TiUtils isIOS8OrGreater]) {
+        return nil;
+    }
+    
+    __block NSMutableArray *typesArray = [NSMutableArray array];
+    __block NSMutableArray *categoriesArray = [NSMutableArray array];
+    
+    TiThreadPerformOnMainThread(^{
+        UIUserNotificationSettings *settings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+        NSUInteger types = settings.types;
+        NSSet *categories = settings.categories;
+        
+        // Types
+        if ((types & UIUserNotificationTypeBadge)!=0)
+        {
+            [typesArray addObject:NUMINT(UIUserNotificationTypeBadge)];
+        }
+        if ((types & UIUserNotificationTypeAlert)!=0)
+        {
+            [typesArray addObject:NUMINT(UIUserNotificationTypeAlert)];
+        }
+        if ((types & UIUserNotificationTypeSound)!=0)
+        {
+            [typesArray addObject:NUMINT(UIUserNotificationTypeSound)];
+        }
+        
+        // Categories
+        for (id cat in categories) {
+            TiAppiOSNotificationCategoryProxy *categoryProxy = [[[TiAppiOSNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+            categoryProxy.notificationCategory = cat;
+            [categoriesArray addObject:categoryProxy];
+        }
+    }, YES);
+
+    NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
+                            typesArray, @"types",
+                            categoriesArray, @"categories",
+                            nil];
+    return result;
 }
 
 -(id)scheduleLocalNotification:(id)args
@@ -452,7 +517,7 @@
     return nil;
 }
 
--(NSNumber*)NOTIFICATION_TYPE_NONE
+-(NSNumber*)USER_NOTIFICATION_TYPE_NONE
 {
 	if ([TiUtils isIOS8OrGreater]) {
 		return NUMINT(UIUserNotificationTypeNone);
@@ -460,7 +525,7 @@
 	return NUMINT(0);
 }
 
--(NSNumber*)NOTIFICATION_TYPE_BADGE
+-(NSNumber*)USER_NOTIFICATION_TYPE_BADGE
 {
 	if ([TiUtils isIOS8OrGreater]) {
 		return NUMINT(UIUserNotificationTypeBadge);
@@ -468,7 +533,7 @@
 	return NUMINT(0);
 }
 
--(NSNumber*)NOTIFICATION_TYPE_SOUND
+-(NSNumber*)USER_NOTIFICATION_TYPE_SOUND
 {
 	if ([TiUtils isIOS8OrGreater]) {
 		return NUMINT(UIUserNotificationTypeSound);
@@ -476,7 +541,7 @@
 	return NUMINT(0);
 }
 
--(NSNumber*)NOTIFICATION_TYPE_ALERT
+-(NSNumber*)USER_NOTIFICATION_TYPE_ALERT
 {
 	if ([TiUtils isIOS8OrGreater]) {
 		return NUMINT(UIUserNotificationTypeAlert);
@@ -485,14 +550,14 @@
 }
 
 
--(NSNumber*)NOTIFICATION_ACTIVATION_MODE_BACKGROUND
+-(NSNumber*)USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND
 {
 	if ([TiUtils isIOS8OrGreater]) {
 		return NUMINT(UIUserNotificationActivationModeBackground);
 	}
 	return NUMINT(0);
 }
--(NSNumber*)NOTIFICATION_ACTIVATION_MODE_FOREGROUND
+-(NSNumber*)USER_NOTIFICATION_ACTIVATION_MODE_FOREGROUND
 {
 	if ([TiUtils isIOS8OrGreater]) {
 		return NUMINT(UIUserNotificationActivationModeForeground);

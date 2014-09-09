@@ -13,8 +13,8 @@
 
 }
 
-@property (nonatomic,retain) UIMutableUserNotificationCategory *notificationCategory;
-@property (nonatomic, assign) NSString *identifier;
+@property (nonatomic,retain) UIUserNotificationCategory *notificationCategory;
+@property (nonatomic,readonly) NSString *identifier;
 
 @end
 
