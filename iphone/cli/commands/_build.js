@@ -441,14 +441,22 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								logger.error(msg);
 								var info = _t.getDeviceInfo();
 								if (info.devices) {
-									logger.log('\n' + __('Available iOS Simulators:'));
-									Object.keys(info.devices).forEach(function (ver) {
-										logger.log(String(ver).grey);
-										info.devices[ver].forEach(function (sim) {
-											logger.log('  ' + sim.udid.cyan + '  ' + sim.name);
+									if (cli.argv.target === 'device') {
+										logger.log('\n' + __('Available iOS Devices:'));
+										info.devices.forEach(function (sim) {
+											logger.log('  ' + appc.string.rpad(sim.udid, 40).cyan + '  ' + sim.name);
 										});
 										logger.log();
-									});
+									} else {
+										logger.log('\n' + __('Available iOS Simulators:'));
+										Object.keys(info.devices).forEach(function (ver) {
+											logger.log(String(ver).grey);
+											info.devices[ver].forEach(function (sim) {
+												logger.log('  ' + sim.udid.cyan + '  ' + sim.name);
+											});
+											logger.log();
+										});
+									}
 								}
 							},
 							prompt: function (callback) {
