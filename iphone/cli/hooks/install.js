@@ -43,7 +43,7 @@ exports.init = function (logger, config, cli) {
 					ioslib.device.detect(function (err, results) {
 						if (!err) {
 							results.devices.forEach(function (device) {
-								if (device.udid !== 'itunes') {
+								if (device.udid !== 'itunes' && device.udid !== 'all') {
 									devices[device.udid] = device;
 								}
 							});
@@ -75,8 +75,9 @@ exports.init = function (logger, config, cli) {
 							if (code) {
 								if (err.indexOf('(-1708)') !== -1) {
 									// err == "itunes_sync.scpt: execution error: iTunes got an error: every source doesn’t understand the count message. (-1708)"
+									//
 									// TODO: alert that the EULA needs to be accepted and if prompting is enabled,
-									// then wait for them to accept it and then try again
+									//       then wait for them to accept it and then try again
 									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; })));
 								} else {
 									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; })));
@@ -86,96 +87,96 @@ exports.init = function (logger, config, cli) {
 							}
 						});
 					});
-				} else {
-					var udids = Object.keys(devices),
-						levels = logger.getLevels(),
-						logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i'),
-						startLog = false,
-						running = 0;
 
-					function quit(force) {
-						if (force || (running <= 0 && startLog)) {
-							var endLogTxt = __('End application log');
-							logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
-							process.exit(0);
-						}
-					}
-
-					// install the app for the specified device or "all" devices
-					async.series(udids.map(function (udid) {
-						var device = devices[udid];
-
-						if (builder.deviceId !== 'all' && builder.deviceId !== device.udid) return;
-
-						return function (next) {
-							var lastLogger = 'debug';
-
-							logger.info(__('Installing app on device: %s', device.name.cyan));
-
-							ioslib.device.install(udid, builder.xcodeAppDir, builder.tiapp.id, {
-								appName: builder.tiapp.name
-							}).on('installed', function () {
-								logger.info(__('App successfully installed on device: %s', device.name.cyan));
-								next && next();
-								next = null;
-								setTimeout(function () {
-									if (process.env.STUDIO_VERSION) {
-										logger.log(__('Please manually launch the application').magenta + '\n');
-									} else {
-										logger.log(__('Please manually launch the application or press CTRL-C to quit').magenta + '\n');
-									}
-								}, 50);
-							}).on('app-started', function () {
-								if (!startLog) {
-									var startLogTxt = __('Start application log');
-									logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
-									startLog = true;
-								}
-								running++;
-							}).on('log', function (msg) {
-								var m = msg.match(logLevelRE);
-								if (m) {
-									var line = m[0].trim();
-									m = line.match(logLevelRE);
-									if (m) {
-										lastLogger = m[2].toLowerCase();
-										line = m[4].trim();
-									}
-									if (levels.indexOf(lastLogger) === -1) {
-										// unknown log level
-										logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
-									} else {
-										logger[lastLogger](line);
-									}
-									lastLineWasOurs = true;
-								} else {
-									if (levels.indexOf(lastLogger) === -1) {
-										logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + msg);
-									} else {
-										logger[lastLogger](msg);
-									}
-								}
-							}).on('app-quit', function () {
-								running--;
-								quit();
-							}).on('error', function (err) {
-								err = err.message || err;
-								logger.error(err);
-								if (err.indexOf('0xe8008017') !== -1) {
-									logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device'));
-								}
-								next && next(err);
-								next = null;
-							});
-						};
-					}), finished);
-
-					// listen for ctrl-c
-					process.on('SIGINT', function () {
-						logger.log();
-						quit(true);
-					});
+					return;
 				}
+
+				var udids = Object.keys(devices),
+					levels = logger.getLevels(),
+					logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i'),
+					startLog = false,
+					running = 0,
+					installed = 0;
+
+				function quit(force) {
+					if (force || (running <= 0 && startLog)) {
+						var endLogTxt = __('End application log');
+						logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+						process.exit(0);
+					}
+				}
+
+				// install the app for the specified device or "all" devices
+				async.eachSeries(udids, function (udid, next) {
+					var device = devices[udid],
+						lastLogger = 'debug';
+
+					logger.info(__('Installing app on device: %s', device.name.cyan));
+
+					ioslib.device.install(udid, builder.xcodeAppDir, builder.tiapp.id, {
+						appName: builder.tiapp.name
+					}).on('installed', function () {
+						logger.info(__('App successfully installed on device: %s', device.name.cyan));
+						next && next();
+						next = null;
+						if (++installed === udids.length && !startLog) {
+							setTimeout(function () {
+								if (process.env.STUDIO_VERSION) {
+									logger.log(__('Please manually launch the application').magenta + '\n');
+								} else {
+									logger.log(__('Please manually launch the application or press CTRL-C to quit').magenta + '\n');
+								}
+							}, 50);
+						}
+					}).on('app-started', function () {
+						if (!startLog) {
+							var startLogTxt = __('Start application log');
+							logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
+							startLog = true;
+						}
+						running++;
+					}).on('log', function (msg) {
+						var m = msg.match(logLevelRE);
+						if (m) {
+							var line = m[0].trim();
+							m = line.match(logLevelRE);
+							if (m) {
+								lastLogger = m[2].toLowerCase();
+								line = m[4].trim();
+							}
+							if (levels.indexOf(lastLogger) === -1) {
+								// unknown log level
+								logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
+							} else {
+								logger[lastLogger](line);
+							}
+							lastLineWasOurs = true;
+						} else {
+							if (levels.indexOf(lastLogger) === -1) {
+								logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + msg);
+							} else {
+								logger[lastLogger](msg);
+							}
+						}
+					}).on('app-quit', function () {
+						running--;
+						quit();
+					}).on('error', function (err) {
+						err = err.message || err;
+						logger.error(err);
+						if (err.indexOf('0xe8008017') !== -1) {
+							logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device'));
+						}
+						next && next(err);
+						next = null;
+					});
+				}, finished);
+
+				// listen for ctrl-c
+				process.on('SIGINT', function () {
+					logger.log();
+					quit(true);
+				});
 			});
 		}
 	});
