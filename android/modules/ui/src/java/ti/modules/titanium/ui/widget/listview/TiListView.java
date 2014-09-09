@@ -423,18 +423,19 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			//if user didn't append/modify/delete sections before this is called, we process sections
 			//as usual. Otherwise, we process the preloadSections, which should also contain the section(s)
 			//from this dictionary as well as other sections that user append/insert/deleted prior to this.
-			if (!listProxy.isPreload()) {
+			if (!listProxy.getPreload()) {
 				processSections((Object[])d.get(TiC.PROPERTY_SECTIONS));
 			} else {
 				processSections(listProxy.getPreloadSections().toArray());
 			}
-		} else if (listProxy.isPreload()) {
+		} else if (listProxy.getPreload()) {
 			//if user didn't specify 'sections' property upon creation of listview but append/insert it afterwards
 			//we process them instead.
 			processSections(listProxy.getPreloadSections().toArray());
 		}
 
 		listProxy.clearPreloadSections();
+		listProxy.setPreload(false);
 		
 		if (d.containsKey(TiC.PROPERTY_HEADER_VIEW)) {
 			Object viewObj = d.get(TiC.PROPERTY_HEADER_VIEW);

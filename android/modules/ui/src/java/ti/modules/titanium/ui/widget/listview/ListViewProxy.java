@@ -99,8 +99,13 @@ public class ListViewProxy extends TiViewProxy {
 		return preloadSections;
 	}
 	
-	public boolean isPreload() {
+	public boolean getPreload() {
 		return preload;
+	}
+	
+	public void setPreload(boolean pload)
+	{
+		preload = pload;
 	}
 	
 	public HashMap<String, Integer> getPreloadMarker()
@@ -379,6 +384,9 @@ public class ListViewProxy extends TiViewProxy {
 			Log.e(TAG, "Invalid argument type to setSection(), needs to be an array", Log.DEBUG_MODE);
 			return;
 		}
+		//Update java and javascript property
+		setProperty(TiC.PROPERTY_SECTIONS, sections);
+
 		Object[] sectionsArray = (Object[]) sections;
 		TiUIView listView = peekView();
 		//Preload sections if listView is not opened.
