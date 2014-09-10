@@ -19,12 +19,12 @@ properties:
   - name: activationMode
     summary: Selects how to activate the application.
     description: |
-        Set to `Titanium.App.iOS.NOTIFICATION_ACTIVATION_MODE_BACKGROUND` to activate the application in the
+        Set to `Titanium.App.iOS.USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND` to activate the application in the
         background to respond to the action unless the application is already in the foreground.
 
-        Set to `Titanium.App.iOS.NOTIFICATION_ACTIVATION_MODE_FOREGROUND` to launch the application in the
+        Set to `Titanium.App.iOS.USER_NOTIFICATION_ACTIVATION_MODE_FOREGROUND` to launch the application in the
         foreground to respond to the action.
-    constants: Titanium.App.iOS.NOTIFICATION_ACTIVATION_MODE_*
+    constants: Titanium.App.iOS.USER_NOTIFICATION_ACTIVATION_MODE_*
     type: Number
     availability: creation
 

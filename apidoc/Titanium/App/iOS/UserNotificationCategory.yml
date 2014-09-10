@@ -11,7 +11,7 @@ description: |
     actions.
 
     To use a local interactive notification, you need to register the notification category using
-    the <Titanium.App.iOS.registerForLocalNotifications> method and send a notification using the
+    the <Titanium.App.iOS.registerUserNotificationSettings> method and send a notification using the
     <Titanium.App.iOS.scheduleLocalNotification> and pass the category identifier to the `category`
     property.
 extends: Titanium.Proxy
