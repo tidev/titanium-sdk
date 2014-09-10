@@ -201,7 +201,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		public int getCount() {
 			if (tabsDisabled) {
 				// Since we don't want the FragmentPagerAdapter to do all kinds of rearrangements
-				// just because we decided to disable tags. We want the fragments to stay alive for when
+				// just because we decided to disable tabs. We want the fragments to stay alive for when
 				// we reenable the tabs.
 				return numTabsWhenDisabled;
 			} else {
