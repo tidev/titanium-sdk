@@ -251,6 +251,22 @@ properties:
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
+  - name: applicationOpenSettingsURL
+    summary: Returns a URL to open the app’s settings.
+    description: |        
+        Used to create a URL that you can pass to the [openURL](Titanium.Platform.openURL) method. 
+        When you open the URL built from this string, the system launches the Settings app and displays the app’s custom settings, if it has any.
+	    
+	    var settingsURL = Titanium.App.iOS.applicationOpenSettingsURL;
+	    if(Titanium.Platform.canOpenURL(settingsURL)){
+	        Titanium.Platform.openURL(settingsURL);
+	    }        
+
+    type: String
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
 events:
   - name: notification
     summary: Fired when a local notification is received by the application.
