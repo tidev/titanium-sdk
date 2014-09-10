@@ -441,14 +441,22 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								logger.error(msg);
 								var info = _t.getDeviceInfo();
 								if (info.devices) {
-									logger.log('\n' + __('Available iOS Simulators:'));
-									Object.keys(info.devices).forEach(function (ver) {
-										logger.log(String(ver).grey);
-										info.devices[ver].forEach(function (sim) {
-											logger.log('  ' + sim.udid.cyan + '  ' + sim.name);
+									if (cli.argv.target === 'device') {
+										logger.log('\n' + __('Available iOS Devices:'));
+										info.devices.forEach(function (sim) {
+											logger.log('  ' + (info.devices.length > 1 ? appc.string.rpad(sim.udid, 40) : sim.udid).cyan + '  ' + sim.name);
 										});
 										logger.log();
-									});
+									} else {
+										logger.log('\n' + __('Available iOS Simulators:'));
+										Object.keys(info.devices).forEach(function (ver) {
+											logger.log(String(ver).grey);
+											info.devices[ver].forEach(function (sim) {
+												logger.log('  ' + sim.udid.cyan + '  ' + sim.name);
+											});
+											logger.log();
+										});
+									}
 								}
 							},
 							prompt: function (callback) {
@@ -913,9 +921,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								}));
 							},
 							validate: function (value, callback) {
-								if (typeof value === 'boolean') {
-									return callback(true);
-								}
 								if (cli.argv.target === 'simulator') {
 									return callback(null, value);
 								}
@@ -924,8 +929,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									if (v) {
 										return callback(null, v);
 									}
+									return callback(new Error(__('Invalid provisioning profile UUID "%s"', value)));
 								}
-								callback(new Error(__('Invalid provisioning profile UUID "%s"', value)));
+								callback(true);
 							}
 						},
 						'profiler-host': {
