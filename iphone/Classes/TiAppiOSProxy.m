@@ -79,11 +79,7 @@
              (didRegisterUserNotificationSettingsNotification:) name:kTiUserNotificationSettingsNotification object:nil];
         }
     }
-    if ([TiUtils isIOS8OrGreater]){
-        if ((count == 1) && [type isEqual:@"usernotificationsetting"]) {
-            [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiUserNotificationSettingsNotification object:nil];
-        }
-    }
+
 }
 
 -(void)_listenerRemoved:(NSString*)type count:(int)count
@@ -118,6 +114,12 @@
     }
     if ((count == 1) && [type isEqual:@"uploadprogress"]) {
         [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiURLUploadProgress object:nil];
+    }
+    
+    if ([TiUtils isIOS8OrGreater]){
+        if ((count == 1) && [type isEqual:@"usernotificationsetting"]) {
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiUserNotificationSettingsNotification object:nil];
+        }
     }
 }
 
