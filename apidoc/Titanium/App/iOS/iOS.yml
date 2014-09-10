@@ -16,7 +16,7 @@ description: |
     To send a local notification, the application needs to:
 
       1. Enroll the application to send local notifications with the
-         <Titanium.App.iOS.registerForLocalNotifications> method only if the device is running iOS 8
+         <Titanium.App.iOS.registerUserNotificationSettings> method only if the device is running iOS 8
          or later.
       2. Schedule a local notification with the <Titanium.App.iOS.scheduleLocalNotification> method.
       3. Monitor the [notification](Titanium.App.iOS.notification) event to respond to the
@@ -39,7 +39,7 @@ description: |
       2. Create notification categories and assign notification actions to them
          with the <Titanium.App.iOS.createUserNotificationCategory> method.
       3. Register the notification categories with the
-         <Titanium.App.iOS.registerForLocalNotifications> method.
+         <Titanium.App.iOS.registerUserNotificationSettings> method.
       4. Monitor the [backgroundNotification](Titanium.App.iOS.backgroundNotification)
          event while the app is the background.
 
@@ -83,30 +83,18 @@ methods:
             local JavaScript file to execute when the application is placed in the background.
         type: Dictionary
 
-  - name: registerForLocalNotifications
-    summary: Registers the application to send local notifications.
+  - name: registerUserNotificationSettings
+    summary: |
+        Registers the application to use the requested notification types and categories
+        (for devices running iOS 8 or later).
     description:  |
-        Starting in iOS 8, the application must ask the user for permission before using local notifications
-        by registering the application to use local notifications. Specify the notification
-        types to use as well as the user notification categories for interactive notifications.
-
-            Ti.App.iOS.registerForLocalNotifications({
-                types: Ti.App.iOS.NOTIFICATION_TYPE_BADGE |
-                       Ti.App.iOS.NOTIFICATION_TYPE_SOUND |
-                       Ti.App.iOS.NOTIFICATION_TYPE_ALERT,
-                categories: [backgroundCategory,backgroundLockCategory,foregroundCategory]
-            });
-            Ti.App.addEventListener('paused', function(){
-                Ti.App.iOS.scheduleLocalNotification({
-                    alertBody: 'Hello!',
-                    alertAction: 'Here!',
-                    category: 'BACKGROUND_CATEGORY'
-                });
-            });
+        Call this method at application start up.  If the application needs to register for remote
+        notifications, call this method before calling
+        [Titanium.Network.registerForPushNotifications](Titanium.Network.registerForPushNotifications).
     parameters: 
       - name: params
         summary: Parameters used to enroll the application in local notifications.
-        type: RegisterParams
+        type: UserNotificationSettings
     since: 3.4.0
     osver: {ios: {min: "8.0"}}
 
@@ -184,43 +172,43 @@ properties:
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
-  - name: NOTIFICATION_TYPE_NONE
+  - name: USER_NOTIFICATION_TYPE_NONE
     summary: |
-        Use with [registerForLocalNotifications](Titanium.App.iOS.registerForLocalNotifications) method.
         The application may not present any UI upon a notification being received.
+        Use with the [types](UserNotificationSettings.types) property.
     type: Number
     permission: read-only
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
-  - name: NOTIFICATION_TYPE_BADGE
+  - name: USER_NOTIFICATION_TYPE_BADGE
     summary: |
-        Use with [registerForLocalNotifications](Titanium.App.iOS.registerForLocalNotifications) method.
         The application may badge its icon upon a notification being received.
+        Use with the [types](UserNotificationSettings.types) property.
     type: Number
     permission: read-only
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
-  - name: NOTIFICATION_TYPE_SOUND
+  - name: USER_NOTIFICATION_TYPE_SOUND
     summary: |
-        Use with [registerForLocalNotifications](Titanium.App.iOS.registerForLocalNotifications) method.
         The application may play a sound upon a notification being received.
+        Use with the [types](UserNotificationSettings.types) property.
     type: Number
     permission: read-only
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
-  - name: NOTIFICATION_TYPE_ALERT
+  - name: USER_NOTIFICATION_TYPE_ALERT
     summary: |
-        Use with [registerForLocalNotifications](Titanium.App.iOS.registerForLocalNotifications) method.
         The application may display an alert upon a notification being received.
+        Use with the [types](UserNotificationSettings.types) property.
     type: Number
     permission: read-only
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
-  - name: NOTIFICATION_ACTIVATION_MODE_BACKGROUND
+  - name: USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND
     summary: |
         The action will execute in background.  Use with the
         [activationMode](Titanium.App.iOS.UserNotificationAction.activationMode) property.
@@ -229,11 +217,20 @@ properties:
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
-  - name: NOTIFICATION_ACTIVATION_MODE_FOREGROUND
+  - name: USER_NOTIFICATION_ACTIVATION_MODE_FOREGROUND
     summary: |
         The action will launch the application and execute in the foreground.
         Use with the [activationMode](Titanium.App.iOS.UserNotificationAction.activationMode) property.
     type: Number
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
+  - name: currentUserNotificationSettings
+    summary: |
+        Notification types and user notification categories the application is registered to use
+        (available on iOS 8 and later).
+    type: UserNotificationSettings
     permission: read-only
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
@@ -609,10 +606,13 @@ properties:
     optional: true  
 
 ---
-name: RegisterParams
+name: UserNotificationSettings
 summary: |
     Dictionary object of parameters used to register the application with local notifications using
-    the <Titanium.App.iOS.registerForLocalNotifications> method.
+    the <Titanium.App.iOS.registerUserNotificationSettings> method.
+
+    To retrieve the current notification settings, use the
+    <Titanium.App.iOS.currentUserNotificationSettings> property.
 since: "3.4.0"
 platforms: [iphone, ipad]
 
@@ -620,10 +620,8 @@ properties:
 
   - name: types
     summary: Notification types to use.
-    description: |
-        You can bitwise-OR the constant values together.
-    type: Number
-    constants: Titanium.App.iOS.NOTIFICATION_TYPE_*
+    type: Array<Number>
+    constants: Titanium.App.iOS.USER_NOTIFICATION_TYPE_*
 
   - name: categories
     summary: Set of categories of user notification actions required by the applicaiton to use.
