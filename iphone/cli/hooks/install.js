@@ -43,7 +43,7 @@ exports.init = function (logger, config, cli) {
 					ioslib.device.detect(function (err, results) {
 						if (!err) {
 							results.devices.forEach(function (device) {
-								if (device.udid !== 'itunes' && device.udid !== 'all') {
+								if (device.udid !== 'itunes' && device.udid !== 'all' && (builder.deviceId === 'all' || device.udid === builder.deviceId)) {
 									devices[device.udid] = device;
 								}
 							});
@@ -52,9 +52,6 @@ exports.init = function (logger, config, cli) {
 					});
 				}
 			], function () {
-				var ipa = path.join(path.dirname(builder.xcodeAppDir), builder.tiapp.name + '.ipa');
-				fs.existsSync(ipa) || (ipa = builder.xcodeAppDir);
-
 				if (cli.argv['build-only']) {
 					logger.info(__('Performed build only, skipping installing of the application'));
 					return finished();
@@ -65,6 +62,8 @@ exports.init = function (logger, config, cli) {
 				if (!builder.deviceId || builder.deviceId === 'itunes' || (builder.deviceId === 'all' && !Object.keys(devices).length)) {
 					logger.info(__('Installing application into iTunes'));
 
+					var ipa = path.join(path.dirname(builder.xcodeAppDir), builder.tiapp.name + '.ipa');
+					fs.existsSync(ipa) || (ipa = builder.xcodeAppDir);
 					run('open', ['-b', 'com.apple.itunes', ipa], function (code, out, err) {
 						if (code) {
 							return finished(new appc.exception(__('Failed to launch iTunes')));
