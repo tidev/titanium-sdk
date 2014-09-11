@@ -2240,7 +2240,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 	proj = injectCompileShellScript(
 		proj,
 		'Pre-Compile',
-		'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then\\n'
+		'export TITANIUM_PREFIX=\\"_Prefix-*\\"\\n'
+		+ 'echo \\"Xcode Pre-Compile Phase: Removing $SHARED_PRECOMPS_DIR/$PROJECT$TITANIUM_PREFIX\\"\\n'
+		+ 'find \\"$SHARED_PRECOMPS_DIR\\" -name \\"$PROJECT$TITANIUM_PREFIX\\" -print0 | xargs -0 rm -rf\\n'
+		+ 'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then\\n'
 		+ '    ' + (process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + this.platformName + ' --sdk \\"' + this.titaniumSdkName + '\\" --no-prompt --no-progress-bars --no-banner --no-colors --build-only --xcode\\n'
 		+ '    exit $?\\n'
 		+ 'else\\n'
