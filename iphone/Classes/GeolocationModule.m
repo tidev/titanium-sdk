@@ -307,9 +307,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
             if([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]){
                 [locationManager requestAlwaysAuthorization];
             }else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]){
-                [locationManager  requestWhenInUseAuthorization];
+                [locationManager requestWhenInUseAuthorization];
             }else{
-                NSLog(@"[ERROR] The keys NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription are not defined in your tiapp.xml.  Starting with iOS8 this are required.");
+                NSLog(@"[ERROR] The keys NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription are not defined in your tiapp.xml.  Starting with iOS8 this is required.");
             }
         }else{
             if (purpose==nil)
