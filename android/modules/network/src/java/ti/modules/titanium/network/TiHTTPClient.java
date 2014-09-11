@@ -805,7 +805,7 @@ public class TiHTTPClient
 			boolean firstPass = true;
 			StringBuilder sb = new StringBuilder(32);
 			for (Header h : theHeaders) {
-				if (h.getName().equals(headerName)) {
+				if (h.getName().equalsIgnoreCase(headerName)) {
 					if (!firstPass) {
 						sb.append(", ");
 					}
