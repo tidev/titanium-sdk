@@ -59,6 +59,21 @@ description: |
     [distanceFilter](Titanium.Geolocation.distanceFilter) property to eliminate position
     updates when the user is not moving.
 
+    **NOTE:** For iOS8 and later, tiapp.xml has to include either of the following keys,
+    which are used to request permission to use location services when running the app:
+
+    *   [AUTHORIZATION_ALWAYS](Titanium.Geolocation.AUTHORIZATION_ALWAYS) 
+    *   [AUTHORIZATION_WHEN_IN_USE](Titanium.Geolocation.AUTHORIZATION_WHEN_IN_USE)
+
+    <ios>
+        <plist>
+            <dict>
+                <key>NSLocationAlwaysUsageDescription</key>
+                <string>Optional description here, can be empty</string>
+            </dict>
+        </plist>
+    </ios>
+
     #### Configurating Location Updates on Android
     
     Prior to Titanium Mobile 2.0, Titanium attempted to follow the iOS model on Android,
@@ -316,6 +331,15 @@ events:
     platforms: [iphone, ipad]
     since: "3.1.0"
 
+  - name: authorization
+    summary: Fired when changes are made to the authorization status for location services. Available in iOS 8.0 and later.
+    description: |
+        This event is fired whenever the application’s ability to use location services changes. 
+        Changes can occur because the user allowed or denied the use of location services for the app or the system as a whole.
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
 properties:
 
   - name: ACCURACY_BEST
@@ -447,6 +471,27 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
+  - name: AUTHORIZATION_ALWAYS
+    summary: |
+        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value 
+        indicating that the application is authorized to start location services at any time. This authorization
+        includes the use of all location services, including monitoring regions and significant location changes.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
+  - name: AUTHORIZATION_WHEN_IN_USE
+    summary: |
+        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value 
+        indicating that the application is authorized to start most location services only while running in the foreground.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
 
   - name: ERROR_DENIED
     summary: Error code indicating that the user denied access to the location service.
