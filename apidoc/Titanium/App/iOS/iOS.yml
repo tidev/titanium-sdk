@@ -256,11 +256,11 @@ properties:
     description: |        
         Used to create a URL that you can pass to the [openURL](Titanium.Platform.openURL) method. 
         When you open the URL built from this string, the system launches the Settings app and displays the app’s custom settings, if it has any.
-	    
-	    var settingsURL = Titanium.App.iOS.applicationOpenSettingsURL;
-	    if(Titanium.Platform.canOpenURL(settingsURL)){
-	        Titanium.Platform.openURL(settingsURL);
-	    }        
+
+            var settingsURL = Ti.App.iOS.applicationOpenSettingsURL;
+            if (Ti.Platform.canOpenURL(settingsURL)) {
+                Ti.Platform.openURL(settingsURL);
+            }
 
     type: String
     permission: read-only
