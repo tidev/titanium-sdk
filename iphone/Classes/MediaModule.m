@@ -59,10 +59,22 @@ typedef void (^PermissionBlock)(BOOL granted)
 
 #endif
 
-@interface TiImagePickerController:UIImagePickerController
+@interface TiImagePickerController:UIImagePickerController {
+@private
+    BOOL autoRotate;
+}
 @end
 
 @implementation TiImagePickerController
+
+-(id)initWithProperties:(NSDictionary*)dict_
+{
+    if (self = [self init])
+    {
+        autoRotate = [TiUtils boolValue:@"autorotate" properties:dict_ def:YES];
+    }
+    return self;
+}
 
 - (void)viewDidLoad
 {
@@ -70,6 +82,11 @@ typedef void (^PermissionBlock)(BOOL granted)
     self.edgesForExtendedLayout = UIRectEdgeNone;
     [self prefersStatusBarHidden];
     [self setNeedsStatusBarAppearanceUpdate];
+}
+
+- (BOOL)shouldAutorotate
+{
+    return autoRotate;
 }
 
 -(BOOL)prefersStatusBarHidden
@@ -400,7 +417,7 @@ typedef void (^PermissionBlock)(BOOL granted)
             customPicker = YES;
         }
         if (customPicker) {
-            picker = [[TiImagePickerController alloc] init];
+            picker = [[TiImagePickerController alloc] initWithProperties:args];
         }
     }
     if (picker == nil) {
