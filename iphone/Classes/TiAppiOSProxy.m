@@ -74,7 +74,7 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveUploadProgressNotification:) name:kTiURLUploadProgress object:nil];
     }
     if ([TiUtils isIOS8OrGreater]){
-        if ((count == 1) && [type isEqual:@"usernotificationsetting"]) {
+        if ((count == 1) && [type isEqual:@"usernotificationsettings"]) {
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector
              (didRegisterUserNotificationSettingsNotification:) name:kTiUserNotificationSettingsNotification object:nil];
         }
@@ -295,13 +295,18 @@
         return nil;
     }
     
+    UIUserNotificationSettings *notificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+    return [self formatUserNotificationSettings:notificationSettings];
+}
+
+-(NSDictionary*)formatUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings
+{
     __block NSMutableArray *typesArray = [NSMutableArray array];
     __block NSMutableArray *categoriesArray = [NSMutableArray array];
-    
+
     TiThreadPerformOnMainThread(^{
-        UIUserNotificationSettings *settings = [[UIApplication sharedApplication] currentUserNotificationSettings];
-        NSUInteger types = settings.types;
-        NSSet *categories = settings.categories;
+        NSUInteger types = notificationSettings.types;
+        NSSet *categories = notificationSettings.categories;
         
         // Types
         if ((types & UIUserNotificationTypeBadge)!=0)
@@ -323,50 +328,12 @@
             categoryProxy.notificationCategory = cat;
             [categoriesArray addObject:categoryProxy];
         }
-    }, YES);
-
-    NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
-                            typesArray, @"types",
-                            categoriesArray, @"categories",
-                            nil];
-    return result;
-}
-
--(NSDictionary*)formatUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings
-{
-    NSMutableArray *notifSettings = [[NSMutableArray alloc] init];
-    if(notificationSettings == nil)
-    {
-        return [NSDictionary dictionaryWithObjectsAndKeys: notifSettings,@"types",nil];
-    }
-
-    if((notificationSettings.types & UIUserNotificationTypeNone) != 0){
-        [notifSettings addObject:NUMINT(UIUserNotificationTypeNone)];
-    }
-
-    if((notificationSettings.types & UIUserNotificationTypeBadge) != 0){
-        [notifSettings addObject:NUMINT(UIUserNotificationTypeBadge)];
-    }
-
-    if((notificationSettings.types & UIUserNotificationTypeSound) != 0){
-        [notifSettings addObject:NUMINT(UIUserNotificationTypeSound)];
-    }
-
-    if((notificationSettings.types & UIUserNotificationTypeAlert) != 0){
-        [notifSettings addObject:NUMINT(UIUserNotificationTypeAlert)];
-    }
-
-    return [NSDictionary dictionaryWithObjectsAndKeys: notifSettings,@"types",nil];
-}
-
--(NSDictionary*)getCurrentUserNotificationSettings:(id)unused
-{
-
-    if (![TiUtils isIOS8OrGreater]){
-        return nil;
-    }
-
-    return [self formatUserNotificationSettings:[[UIApplication sharedApplication] currentUserNotificationSettings]];
+    },YES);
+    
+    return [NSDictionary dictionaryWithObjectsAndKeys:
+            typesArray, @"types",
+            categoriesArray, @"categories",
+            nil];
 }
 
 -(id)scheduleLocalNotification:(id)args
@@ -533,7 +500,7 @@
 
 -(void)didRegisterUserNotificationSettingsNotification:(NSNotification*)notificationSettings
 {
-    [self fireEvent:@"usernotificationsetting"
+    [self fireEvent:@"usernotificationsettings"
          withObject:[self formatUserNotificationSettings:(UIUserNotificationSettings*)[notificationSettings object]]];
 }
 
