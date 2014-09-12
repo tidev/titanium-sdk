@@ -59,20 +59,26 @@ description: |
     [distanceFilter](Titanium.Geolocation.distanceFilter) property to eliminate position
     updates when the user is not moving.
 
-    **NOTE:** For iOS8 and later, tiapp.xml has to include either of the following keys,
-    which are used to request permission to use location services when running the app:
+    For iOS 8 and later, add either the
+    [`NSLocationWhenInUseUsageDescription`](https://developer.apple.com/library/prerelease/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW26)
+    or
+    [`NSLocationAlwaysUsageDescription`](https://developer.apple.com/library/prerelease/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW18)
+    key to the iOS plist section of the project's `tiapp.xml` file.
 
-    *   [AUTHORIZATION_ALWAYS](Titanium.Geolocation.AUTHORIZATION_ALWAYS) 
-    *   [AUTHORIZATION_WHEN_IN_USE](Titanium.Geolocation.AUTHORIZATION_WHEN_IN_USE)
-
-    <ios>
-        <plist>
-            <dict>
-                <key>NSLocationAlwaysUsageDescription</key>
-                <string>Optional description here, can be empty</string>
-            </dict>
-        </plist>
-    </ios>
+        <ti:app>
+            <ios>
+                <plist>
+                    <dict>
+                        <key>NSLocationAlwaysUsageDescription</key>
+                        <string>
+                            Specify the reason for accessing the user’s location information.
+                            This appears in the alert dialog when asking the user for permission to
+                            access their location.
+                        </string>
+                    </dict>
+                </plist>
+            </ios>
+        </ti:app>
 
     #### Configurating Location Updates on Android
     
@@ -336,6 +342,11 @@ events:
     description: |
         This event is fired whenever the application’s ability to use location services changes. 
         Changes can occur because the user allowed or denied the use of location services for the app or the system as a whole.
+    properties:
+      - name: authorizationStatus
+        summary: New authorization status for the application.
+        type: Number
+        constants: Titanium.Geolocation.AUTHORIZATION_*
     platforms: [iphone, ipad]
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
