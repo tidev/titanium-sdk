@@ -1108,11 +1108,25 @@
     return YES;
 }
 
+-(void)incrementActiveAlertControllerCount
+{
+    ++activeAlertControllerCount;
+}
+-(void)decrementActiveAlertControllerCount
+{
+    --activeAlertControllerCount;
+}
+
 -(NSUInteger)supportedOrientationsForAppDelegate;
 {
     if (forcingStatusBarOrientation) {
         return 0;
     }
+    
+    if ([TiUtils isIOS8OrGreater] && activeAlertControllerCount > 0) {
+        return [self supportedInterfaceOrientations];
+    }
+    
     //Since this is used just for intersection, ok to return UIInterfaceOrientationMaskAll
     return 30;//UIInterfaceOrientationMaskAll
 }
