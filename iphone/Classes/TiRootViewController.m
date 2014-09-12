@@ -922,7 +922,7 @@
     UIViewController* presentedViewController = nil;
     while ( topmostController != nil ) {
         presentedViewController = [topmostController presentedViewController];
-        if (checkPopover && [TiUtils isIOS8OrGreater]) {
+        if ( (presentedViewController != nil) && checkPopover && [TiUtils isIOS8OrGreater]) {
             if (presentedViewController.modalPresentationStyle == UIModalPresentationPopover) {
                 presentedViewController = nil;
             }
