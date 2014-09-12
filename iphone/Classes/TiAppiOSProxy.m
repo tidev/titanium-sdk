@@ -295,41 +295,51 @@
         return nil;
     }
     
-    UIUserNotificationSettings *notificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
-    return [self formatUserNotificationSettings:notificationSettings];
+    __block NSDictionary* returnVal = nil;
+    TiThreadPerformOnMainThread(^{
+        UIUserNotificationSettings *notificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+        returnVal = [[self formatUserNotificationSettings:notificationSettings] retain];
+    }, YES);
+    
+    return [returnVal autorelease];;
 }
 
 -(NSDictionary*)formatUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings
 {
-    __block NSMutableArray *typesArray = [NSMutableArray array];
-    __block NSMutableArray *categoriesArray = [NSMutableArray array];
-
-    TiThreadPerformOnMainThread(^{
-        NSUInteger types = notificationSettings.types;
-        NSSet *categories = notificationSettings.categories;
+    if (![NSThread isMainThread]) {
+        __block NSDictionary*result = nil;
+        TiThreadPerformOnMainThread(^{
+            result = [[self formatUserNotificationSettings:notificationSettings] retain];
+        }, YES);
+        return [result autorelease];
         
-        // Types
-        if ((types & UIUserNotificationTypeBadge)!=0)
-        {
-            [typesArray addObject:NUMINT(UIUserNotificationTypeBadge)];
-        }
-        if ((types & UIUserNotificationTypeAlert)!=0)
-        {
-            [typesArray addObject:NUMINT(UIUserNotificationTypeAlert)];
-        }
-        if ((types & UIUserNotificationTypeSound)!=0)
-        {
-            [typesArray addObject:NUMINT(UIUserNotificationTypeSound)];
-        }
-        
-        // Categories
-        for (id cat in categories) {
-            TiAppiOSNotificationCategoryProxy *categoryProxy = [[[TiAppiOSNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-            categoryProxy.notificationCategory = cat;
-            [categoriesArray addObject:categoryProxy];
-        }
-    },YES);
+    }
+    NSMutableArray *typesArray = [NSMutableArray array];
+    NSMutableArray *categoriesArray = [NSMutableArray array];
     
+    NSUInteger types = notificationSettings.types;
+    NSSet *categories = notificationSettings.categories;
+    
+    // Types
+    if ((types & UIUserNotificationTypeBadge)!=0)
+    {
+        [typesArray addObject:NUMINT(UIUserNotificationTypeBadge)];
+    }
+    if ((types & UIUserNotificationTypeAlert)!=0)
+    {
+        [typesArray addObject:NUMINT(UIUserNotificationTypeAlert)];
+    }
+    if ((types & UIUserNotificationTypeSound)!=0)
+    {
+        [typesArray addObject:NUMINT(UIUserNotificationTypeSound)];
+    }
+    
+    // Categories
+    for (id cat in categories) {
+        TiAppiOSNotificationCategoryProxy *categoryProxy = [[[TiAppiOSNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+        categoryProxy.notificationCategory = cat;
+        [categoriesArray addObject:categoryProxy];
+    }
     return [NSDictionary dictionaryWithObjectsAndKeys:
             typesArray, @"types",
             categoriesArray, @"categories",
