@@ -22,10 +22,10 @@
 {
 	return @"Ti.App.iOS.NotificationCategory";
 }
--(UIMutableUserNotificationCategory*)notificationCategory
+-(UIUserNotificationCategory*)notificationCategory
 {
 	if (_notificationCategory == nil) {
-		_notificationCategory = [[UIMutableUserNotificationCategory alloc] init];
+		_notificationCategory = [[UIUserNotificationCategory alloc] init];
 	}
 	return _notificationCategory;
 }
@@ -33,11 +33,6 @@
 -(NSString*)identifier
 {
 	return [[self notificationCategory] identifier];
-}
-
--(void)setIdentifier:(NSString *)identifier
-{
-	[[self notificationCategory] setIdentifier:identifier];
 }
 
 @end
