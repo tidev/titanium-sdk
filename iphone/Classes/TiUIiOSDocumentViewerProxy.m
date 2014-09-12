@@ -87,20 +87,13 @@
 {
 	ENSURE_TYPE(value,NSString);
 	NSURL *url = [TiUtils toURL:value proxy:self];
-	if (controller!=nil)
-	{
-		//UIDocumenactionController is recommended to be a new instance for every different url
-		//instead of having titanium developer create a new instance every time a new document url is loaded
-		//we assume that setUrl is called to change doc, so we go ahead and release the controller and create
-		//a new one when asked to present
-		[controller release];
-		controller = nil;
-		[self replaceValue:url forKey:@"url" notification:NO];
-	}
-	else 
-	{
-		[self replaceValue:url forKey:@"url" notification:NO];
-	}
+	
+	//UIDocumenactionController is recommended to be a new instance for every different url
+	//instead of having titanium developer create a new instance every time a new document url is loaded
+	//we assume that setUrl is called to change doc, so we go ahead and release the controller and create
+	//a new one when asked to present
+	RELEASE_TO_NIL(controller);
+	[self replaceValue:url forKey:@"url" notification:NO];
 }
 
 -(id)icons
