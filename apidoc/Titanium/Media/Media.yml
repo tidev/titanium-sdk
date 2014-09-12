@@ -1233,6 +1233,17 @@ properties:
     type: Number
     constants: Titanium.UI.iPad.POPOVER_ARROW_DIRECTION*
     platforms: [ipad]
+  - name: autorotate
+    summary: Disables rotating the camera preview (available for iOS 8 and later).
+    description: |
+        Set to `true` to disable rotating the camera preview.
+
+        Set to `false` to allow the camera preview to rotate when the user
+        rotates the device.
+    type: Boolean
+    default: true
+    since: "3.4.0"
+    platforms: [iphone, ipad]
 
 # Photo Gallery options pseudo-type. Much like the camera one.
 ---
