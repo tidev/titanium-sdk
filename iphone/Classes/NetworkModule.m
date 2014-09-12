@@ -300,6 +300,10 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	//Note adviced to register user notification settings in Ti.App.iOS first before register for remote notifications
 	if([TiUtils isIOS8OrGreater]) {
         [app registerForRemoteNotifications];
+        
+        if ([args objectForKey:@"types"] != nil) {
+            NSLog(@"[WARN] Passing `types` to registerForPushNotifications is not supported on iOS 8 and greater. Use registerUserNotificationSettings to register notification types.");
+        }
 	}
 	else {
         UIRemoteNotificationType ourNotifications = [app enabledRemoteNotificationTypes];
