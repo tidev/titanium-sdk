@@ -541,6 +541,23 @@ events:
         this method.
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
+
+
+  - name: usernotificationsettings
+    summary: |
+        Fired when the user notification settings are registered (available for iOS 8 and later).
+    properties:
+      - name: types
+        summary: Notification types the application is registered to use.
+        type: Array<Number>
+        constants: Titanium.App.iOS.USER_NOTIFICATION_TYPE_*
+
+      - name: categories
+        summary: Set of categories of user notification actions the application is registered to use.
+        type: Array<Titanium.App.iOS.UserNotificationCategory>
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
 ---
 name: NotificationParams
 summary: |
