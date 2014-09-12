@@ -7,6 +7,7 @@
 
 #import "TiUIAlertDialogProxy.h"
 #import "TiUtils.h"
+#import "TiApp.h"
 
 static NSCondition* alertCondition;
 static BOOL alertShowing = NO;
@@ -53,6 +54,7 @@ static BOOL alertShowing = NO;
 		[self forgetSelf];
 		[self autorelease];
 		RELEASE_TO_NIL(alert);
+		[[[TiApp app] controller] decrementActiveAlertControllerCount];
 		[[NSNotificationCenter defaultCenter] removeObserver:self];
 	}
 }
@@ -131,6 +133,7 @@ static BOOL alertShowing = NO;
 		[alert setAlertViewStyle:style];
 
 		[self retain];
+		[[[TiApp app] controller] incrementActiveAlertControllerCount];
 		[alert show];
 	}
 }
