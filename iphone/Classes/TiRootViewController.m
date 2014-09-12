@@ -916,12 +916,17 @@
 	return defaultOrientations;
 }
 
--(UIViewController*)topPresentedController
+-(UIViewController*)topPresentedControllerCheckingPopover:(BOOL)checkPopover
 {
     UIViewController* topmostController = self;
     UIViewController* presentedViewController = nil;
     while ( topmostController != nil ) {
         presentedViewController = [topmostController presentedViewController];
+        if (checkPopover && [TiUtils isIOS8OrGreater]) {
+            if (presentedViewController.modalPresentationStyle == UIModalPresentationPopover) {
+                presentedViewController = nil;
+            }
+        }
         if (presentedViewController != nil) {
             topmostController = presentedViewController;
             presentedViewController = nil;
@@ -931,6 +936,11 @@
         }
     }
     return topmostController;
+}
+
+-(UIViewController*)topPresentedController
+{
+    return [self topPresentedControllerCheckingPopover:NO];
 }
 
 -(UIViewController<TiControllerContainment>*)topContainerController;
@@ -1114,7 +1124,7 @@
     }
     //IOS6. If we are presenting a modal view controller, get the supported
     //orientations from the modal view controller
-    UIViewController* topmostController = [self topPresentedController];
+    UIViewController* topmostController = [self topPresentedControllerCheckingPopover:YES];
     if (topmostController != self) {
         NSUInteger retVal = [topmostController supportedInterfaceOrientations];
         if ([topmostController isBeingDismissed]) {
