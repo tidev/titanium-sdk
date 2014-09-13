@@ -8,7 +8,7 @@ var ReadableStreamBuffer = module.exports = function(opts) {
 	stream.Stream.call(this);
 
 	opts = opts || {};
-	var frequency = opts.frequency || constants.DEFAULT_FREQUENCY;
+	var frequency = opts.hasOwnProperty("frequency") ? opts.frequency : constants.DEFAULT_FREQUENCY;
 	var chunkSize = opts.chunkSize || constants.DEFAULT_CHUNK_SIZE;
 	var initialSize = opts.initialSize || constants.DEFAULT_INITIAL_SIZE;
 	var incrementAmount = opts.incrementAmount || constants.DEFAULT_INCREMENT_AMOUNT;
@@ -22,8 +22,8 @@ var ReadableStreamBuffer = module.exports = function(opts) {
 
 	var sendData = function() {
 		if(!size) {
-            that.emit("end");
-            return;
+			that.emit("end");
+			return;
 		}
 
 		var amount = Math.min(chunkSize, size);
@@ -76,17 +76,25 @@ var ReadableStreamBuffer = module.exports = function(opts) {
 			buffer.write(data, size, encoding || "utf8");
 			size += dataSizeInBytes;
 		}
+
+		if (!this.isPaused && !frequency) {
+			while (size > 0) {
+				sendData();
+			}
+		}
 	};
 
 	this.pause = function() {
-		if(sendData) {
+		this.isPaused = true;
+		if(sendData && sendData.interval) {
 			clearInterval(sendData.interval);
 			delete sendData.interval;
 		}
 	};
 
 	this.resume = function() {
-		if(sendData && !sendData.interval) {
+		this.isPaused = false;
+		if(sendData && !sendData.interval && frequency > 0) {
 			sendData.interval = setInterval(sendData, frequency);
 		}
 	};
