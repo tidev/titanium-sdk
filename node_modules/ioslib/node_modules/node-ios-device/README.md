@@ -8,11 +8,9 @@ Queries connected iOS devices and installs apps.
 
 node-ios-device is currently compatible with the following Node.js versions:
 
- * 0.8.0 - 0.8.26 (module API v1)
- * 0.10.0 - 0.10.26 (module API v11
- * 0.11.0 - 0.11.7 (module API v12)
- * 0.11.8 - 0.11.10 (module API v13)
- * 0.11.11 - 0.11.12 (module API v14)
+ * 0.8.x (module API v1)
+ * 0.10.x (module API v11)
+ * 0.11.11 - 0.11.13 (module API v14)
 
 To support newer module API versions, you will need to check for a new version
 of node-ios-device or build from source using the instructions below.
@@ -36,6 +34,7 @@ From Source:
 	sudo npm install -g node-gyp
 	git clone https://github.com/appcelerator/node-ios-device.git
 	cd node-ios-device
+	npm install
 	make
 
 Note: The binaries are already precompiled and bundled with the node-ios-device
@@ -46,33 +45,35 @@ a new Node.js version is released or you want to make some customizations.
 
 ## Example
 
-	var iosDevice = require('node-ios-device');
+```javascript
+var iosDevice = require('node-ios-device');
 
-	// get all connected iOS devices
-	iosDevice.devices(function (err, devices) {
-		console.log('Connected devices:');
-		console.log(devices);
-	});
+// get all connected iOS devices
+iosDevice.devices(function (err, devices) {
+	console.log('Connected devices:');
+	console.log(devices);
+});
 
-	// continuously watch for devices to be conected or disconnected
-	iosDevice.trackDevices(function (err, devices) {
-		console.log('Connected devices:');
-		console.log(devices);
-	});
+// continuously watch for devices to be conected or disconnected
+iosDevice.trackDevices(function (err, devices) {
+	console.log('Connected devices:');
+	console.log(devices);
+});
 
-	// install an iOS app
-	iosDevice.installApp('<device udid>', '/path/to/my.app', function (err) {
-		if (err) {
-			console.error(err);
-		} else {
-			console.log('Success!');
-		}
-	});
+// install an iOS app
+iosDevice.installApp('<device udid>', '/path/to/my.app', function (err) {
+	if (err) {
+		console.error(err);
+	} else {
+		console.log('Success!');
+	}
+});
 
-	// dump the syslog output to the console
-	iosDevice.log('<device udid>', function (msg) {
-		console.log(msg);
-	});
+// dump the syslog output to the console
+iosDevice.log('<device udid>', function (msg) {
+	console.log(msg);
+});
+```
 
 ## API
 
@@ -146,34 +147,37 @@ callback is fired for every line. Empty lines are omitted.
 
 Returns a function to discontinue relaying the log output:
 
-	var off = iosDevice.log('<device udid>', function (msg) {
-		console.log(msg);
-	});
+```javascript
+var off = iosDevice.log('<device udid>', function (msg) {
+	console.log(msg);
+});
 
-	setTimeout(function () {
-		// turn off logging after 1 minute
-		off();
-	}, 60000);
+setTimeout(function () {
+	// turn off logging after 1 minute
+	off();
+}, 60000);
+```
 
 After calling `log()`, it will print out several older messages. If you are only
 interested in new messages, then you'll have to have use a timer and some sort
 of ready flag like this:
 
-	var ready = false;
-	var timer = null;
 
-	iosDevice.log('<device udid>', function (msg) {
-		if (ready) {
-			console.log(msg);
-		} else {
-			clearTimeout(timer);
-			timer = setTimeout(function () {
-				ready = true;
-			}, 500);
-		}
-	});
+```javascript
+var ready = false;
+var timer = null;
 
-
+iosDevice.log('<device udid>', function (msg) {
+	if (ready) {
+		console.log(msg);
+	} else {
+		clearTimeout(timer);
+		timer = setTimeout(function () {
+			ready = true;
+		}, 500);
+	}
+});
+```
 
 ## License
 
@@ -182,7 +186,8 @@ This project is open source and provided under the Apache Public License
 distribution for more details on the license.  Also, please take notice of the
 privacy notice at the end of the file.
 
-This project contains `mobiledevice.h` from https://bitbucket.org/tristero/mobiledeviceaccess
+This project contains `mobiledevice.h` from
+[https://bitbucket.org/tristero/mobiledeviceaccess](https://bitbucket.org/tristero/mobiledeviceaccess)
 and is available under public domain.
 
-#### (C) Copyright 2012-2013, [Appcelerator](http://www.appcelerator.com/) Inc. All Rights Reserved.
+#### (C) Copyright 2012-2014, [Appcelerator](http://www.appcelerator.com/) Inc. All Rights Reserved.
