@@ -82,13 +82,15 @@ Putting data in Buffer to be pumped out is easy:
 
 	myReadableStreamBuffer.put(aBuffer);
 	myReadableStreamBuffer.put("A String", "utf8");
-	
+
 Chunks are pumped out via standard readable stream spec: 
 
 	myReadableStreamBuffer.on("data", function(data) {
 		// Yup.
 		assert.isTrue(data instanceof Buffer);
 	});
+
+Chunks are pumped out by the interval that you specified in frequency. Setting the frequency to 0 will immediately stream the data (also in chunks). This is useful for unit testing.
 
 setEncoding() for streams is respected too:
 

@@ -272,7 +272,7 @@ describe('ioslib', function () {
 		});
 	});
 
-	it('should find a device/cert/profile combination', function (done) {
+	(process.env.TRAVIS ? it.skip : it)('should find a device/cert/profile combination', function (done) {
 		this.timeout(10000);
 		this.slow(5000);
 

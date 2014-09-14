@@ -1,18 +1,18 @@
 /**
- * The main CLI logic. This orchestrates all argument parsing, command loading,
- * validation, and execution.
+ * Public API for the node-ios-device library.
  *
- * @module cli
+ * @module ios-device
  *
  * @copyright
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013-2014 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-var fs = require('fs'),
+var exec = require('child_process').exec,
+	fs = require('fs'),
 	path = require('path'),
 
 	// flag used to make sure we don't require the native module twice
@@ -34,8 +34,13 @@ function loadIosDeviceModule() {
 	if (initialized) return;
 
 	var modulesVer = parseInt(process.versions.modules) || (function (m) {
-		return !m || m[1] == '0.8' ? 1 : m[1] == '0.10' ? 11 : m[1] == '0.11' && m[2] < 8 ? 12 : 13;
+		return !m || m[1] === '0.8' ? 1 : m[1] === '0.10' ? 11 : m[1] === '0.11' && m[2] < 8 ? 12 : 13;
 	}(process.version.match(/^v(\d+\.\d+)\.(\d+)$/)));
+
+	// we don't support Node.js 0.11.0 - 0.11.10
+	if (modulesVer === 12 || modulesVer === 13) {
+		throw new Error('Node.js ' + process.version + ' is not supported');
+	}
 
 	var lib = __dirname + '/out/node_ios_device_v' + modulesVer;
 
@@ -51,10 +56,10 @@ function loadIosDeviceModule() {
 /**
  * Retrieves an array of all connected iOS devices.
  *
- * @param {Function} callback(err, devices) - A function to call with the connected devices
+ * @param {Function} callback(err, devices) - A function to call with the connected devices.
  */
 exports.devices = function devices(callback) {
-	if (process.platform != 'darwin') {
+	if (process.platform !== 'darwin') {
 		return callback(new Error('OS "' + process.platform + '" not supported'));
 	}
 
@@ -68,11 +73,11 @@ exports.devices = function devices(callback) {
  * Continuously retrieves an array of all connected iOS devices. Whenever a
  * device is connected or disconnected, the specified callback is fired.
  *
- * @param {Function} callback(err, devices) - A function to call with the connected devices
- * @returns {Function} off() - A function that discontinues tracking
+ * @param {Function} callback(err, devices) - A function to call with the connected devices.
+ * @returns {Function} off() - A function that discontinues tracking.
  */
 exports.trackDevices = function trackDevices(callback) {
-	if (process.platform != 'darwin') {
+	if (process.platform !== 'darwin') {
 		return callback(new Error('OS "' + process.platform + '" not supported'));
 	}
 
@@ -107,12 +112,12 @@ exports.trackDevices = function trackDevices(callback) {
 /**
  * Installs an iOS app on the specified device.
  *
- * @param {String} udid - The device udid to install the app to
- * @param {String} appPath - The path to iOS .app directory to install
- * @param {Function} callback(err) - A function to call when the install finishes
+ * @param {String} udid - The device udid to install the app to.
+ * @param {String} appPath - The path to iOS .app directory to install.
+ * @param {Function} callback(err) - A function to call when the install finishes.
  */
 exports.installApp = function installApp(udid, appPath, callback) {
-	if (process.platform != 'darwin') {
+	if (process.platform !== 'darwin') {
 		return callback(new Error('OS "' + process.platform + '" not supported'));
 	}
 
@@ -138,11 +143,11 @@ exports.installApp = function installApp(udid, appPath, callback) {
 /**
  * Forwards the specified iOS device's log messages.
  *
- * @param {String} udid - The device udid to forward log messages
- * @param {Function} callback(err) - A function to call with each log message
+ * @param {String} udid - The device udid to forward log messages.
+ * @param {Function} callback(err) - A function to call with each log message.
  */
 exports.log = function log(udid, callback) {
-	if (process.platform != 'darwin') {
+	if (process.platform !== 'darwin') {
 		return callback(new Error('OS "' + process.platform + '" not supported'));
 	}
 
@@ -169,3 +174,7 @@ exports.log = function log(udid, callback) {
 		}
 	};
 };
+
+process.on('exit', function () {
+	iosDeviceModule.shutdown();
+});

@@ -40,7 +40,7 @@ exports.init = function (logger, config, cli) {
 					}
 				},
 				function (next) {
-					ioslib.device.detect(function (err, results) {
+					ioslib.device.detect({ bypassCache: true }, function (err, results) {
 						if (!err) {
 							results.devices.forEach(function (device) {
 								if (device.udid !== 'itunes' && device.udid !== 'all' && (builder.deviceId === 'all' || device.udid === builder.deviceId)) {
@@ -59,7 +59,7 @@ exports.init = function (logger, config, cli) {
 
 				// if we don't have a deviceId, or it's "itunes", or it's "all", but not devices are connected,
 				// then install to iTunes
-				if (!builder.deviceId || builder.deviceId === 'itunes' || (builder.deviceId === 'all' && !Object.keys(devices).length)) {
+				if (!builder.deviceId || builder.deviceId === 'itunes' || (builder.deviceId && !Object.keys(devices).length)) {
 					logger.info(__('Installing application into iTunes'));
 
 					var ipa = path.join(path.dirname(builder.xcodeAppDir), builder.tiapp.name + '.ipa');
@@ -95,7 +95,8 @@ exports.init = function (logger, config, cli) {
 					logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i'),
 					startLog = false,
 					running = 0,
-					installed = 0;
+					disconnected = false,
+					installCount = 0;
 
 				function quit(force) {
 					if (force || (running <= 0 && startLog)) {
@@ -105,28 +106,34 @@ exports.init = function (logger, config, cli) {
 					}
 				}
 
+				function showStartMessage() {
+					if (++installCount === udids.length && !startLog) {
+						setTimeout(function () {
+							if (process.env.STUDIO_VERSION) {
+								logger.log(__('Please manually launch the application').magenta + '\n');
+							} else {
+								logger.log(__('Please manually launch the application or press CTRL-C to quit').magenta + '\n');
+							}
+						}, 50);
+					}
+				}
+
 				// install the app for the specified device or "all" devices
 				async.eachSeries(udids, function (udid, next) {
 					var device = devices[udid],
-						lastLogger = 'debug';
+						lastLogger = 'debug',
+						installed = false;
 
 					logger.info(__('Installing app on device: %s', device.name.cyan));
 
 					ioslib.device.install(udid, builder.xcodeAppDir, builder.tiapp.id, {
 						appName: builder.tiapp.name
 					}).on('installed', function () {
+						installed = true;
 						logger.info(__('App successfully installed on device: %s', device.name.cyan));
 						next && next();
 						next = null;
-						if (++installed === udids.length && !startLog) {
-							setTimeout(function () {
-								if (process.env.STUDIO_VERSION) {
-									logger.log(__('Please manually launch the application').magenta + '\n');
-								} else {
-									logger.log(__('Please manually launch the application or press CTRL-C to quit').magenta + '\n');
-								}
-							}, 50);
-						}
+						showStartMessage();
 					}).on('app-started', function () {
 						if (!startLog) {
 							var startLogTxt = __('Start application log');
@@ -161,12 +168,26 @@ exports.init = function (logger, config, cli) {
 						running--;
 						quit();
 					}).on('error', function (err) {
-						err = err.message || err;
-						logger.error(err);
-						if (err.indexOf('0xe8008017') !== -1) {
-							logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device'));
+						if (!installed) {
+							// was the device connected?
+							err = null;
+							if (!disconnected) {
+								logger.warn(__('The device %s is no longer connected, skipping', device.name.cyan));
+								showStartMessage();
+							}
+						} else {
+							err = err.message || err;
+							logger.error(err);
+							if (err.indexOf('0xe8008017') !== -1) {
+								logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device'));
+							}
 						}
 						next && next(err);
+						next = null;
+					}).on('disconnect', function () {
+						disconnected = true;
+						logger.warn(__('The device %s is no longer connected, skipping', device.name.cyan));
+						next && next();
 						next = null;
 					});
 				}, finished);

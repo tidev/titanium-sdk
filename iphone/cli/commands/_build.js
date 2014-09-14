@@ -764,7 +764,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									// squelch and let the cli detect the bad version
 								}
 							},
-							default: defaultIosVersion,
 							desc: __('iOS SDK version to build with'),
 							order: 130,
 							prompt: function (callback) {
