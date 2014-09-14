@@ -221,10 +221,11 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	}
 
 	logger.log(styleHeading(__('Connected iOS Devices')));
-	if (data.devices.length) {
-		logger.log(data.devices.filter(function (device) {
-			return device.udid !== 'itunes';
-		}).map(function (device) {
+	var devices = data.devices.filter(function (device) {
+		return device.udid !== 'itunes';
+	});
+	if (devices.length) {
+		logger.log(devices.map(function (device) {
 			return '  ' + device.name.cyan + '\n' + [
 				'  ' + rpad('  ' + __('UDID'))             + ' = ' + styleValue(device.udid),
 				'  ' + rpad('  ' + __('Type'))             + ' = ' + styleValue(device.deviceClass + ' (' + device.deviceColor + ')'),

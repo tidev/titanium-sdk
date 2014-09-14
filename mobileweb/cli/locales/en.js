@@ -4,6 +4,7 @@
 	"Java can be downloaded and installed from %s": "Java can be downloaded and installed from %s",
 	"the type of deployment; production performs optimizations": "the type of deployment; production performs optimizations",
 	"type": "type",
+	"Winstore apps are only supported on Windows 8 and newer.": "Winstore apps are only supported on Windows 8 and newer.",
 	"the target to build for": "the target to build for",
 	"Unable to find any supported Windows Phone devices or emulators": "Unable to find any supported Windows Phone devices or emulators",
 	"Run \"ti info\" for more info.": "Run \"ti info\" for more info.",
