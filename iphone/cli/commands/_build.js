@@ -165,7 +165,7 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 		// check if they specified the legacy settings: --sim-version, --sim-type, --retina, --tall, --sim-64bit
 		if (this.config.get('ios.autoSelectDevice', true) && (argv['sim-version'] || argv['sim-type'] || argv.retina || argv.tall || argv['sim-64bit'])) {
 			// try to find the closest matching simulator
-			var version = argv['sim-version'] || argv['ios-version'] || defaultIosVersion,
+			var version = argv['sim-version'] || argv['ios-version'] || this.defaultIosVersion,
 				sims = this.iosInfo.simulators,
 				candidates = {};
 
