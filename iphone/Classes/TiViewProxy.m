@@ -2149,7 +2149,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             [observer proxyDidRelayout:self];
         }
 
-        if (layoutChanged && [self _hasListeners:@"postlayout"]) {
+        if (layoutChanged && [self _hasListeners:@"postlayout" checkParent:NO]) {
             [self fireEvent:@"postlayout" withObject:nil propagate:NO];
         }
 	}
