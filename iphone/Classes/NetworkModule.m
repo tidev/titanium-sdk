@@ -15,6 +15,11 @@
 #import "TiNetworkSocketProxy.h"
 #import "TiUtils.h"
 
+#define CURRENT_USER_NOTIFICATION_SETTINGS_TYPES \
+[TiUtils isIOS8OrGreater] ? \
+	[[[UIApplication sharedApplication] currentUserNotificationSettings] types] : \
+	[[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+
 NSString* const INADDR_ANY_token = @"INADDR_ANY";
 static NSOperationQueue *_operationQueue = nil;
 @implementation NetworkModule
@@ -223,7 +228,7 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
     if (![TiUtils isIOS8OrGreater]) {
         __block UIRemoteNotificationType types;
         TiThreadPerformOnMainThread(^{
-            types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+            types = CURRENT_USER_NOTIFICATION_SETTINGS_TYPES;
         }, YES);
         return NUMBOOL(types != UIRemoteNotificationTypeNone);
     }
@@ -257,7 +262,7 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
         }
     } else {
         TiThreadPerformOnMainThread(^{
-            types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+		    types = CURRENT_USER_NOTIFICATION_SETTINGS_TYPES;
         }, YES);
         if ((types & UIRemoteNotificationTypeBadge)!=0)
         {
@@ -306,7 +311,8 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
         }
 	}
 	else {
-        UIRemoteNotificationType ourNotifications = [app enabledRemoteNotificationTypes];
+		
+        UIRemoteNotificationType ourNotifications = CURRENT_USER_NOTIFICATION_SETTINGS_TYPES;
         
         NSArray *typesRequested;
         ENSURE_ARG_OR_NIL_FOR_KEY(typesRequested, args, @"types", NSArray);
@@ -518,5 +524,6 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 }
 @end
 
+#undef CURRENT_USER_NOTIFICATION_SETTINGS_TYPES
 
 #endif
