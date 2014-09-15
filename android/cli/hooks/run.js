@@ -223,6 +223,14 @@ exports.init = function (logger, config, cli) {
 					}, next);
 				},
 
+				function(next) {
+					if (!cli.argv.launch) {
+						logger.info(__('Skipping launch of: %s', (builder.appid + '/.' + builder.classname + 'Activity').cyan));
+						return next(true);
+					}
+					next();
+				},
+
 				function (next) {
 					var logBuffer = [],
 						displayStartLog = true,
@@ -308,10 +316,6 @@ exports.init = function (logger, config, cli) {
 				},
 
 				function (next) {
-					if (!cli.argv.launch) {
-						logger.info(__('Skipping launch of: %s', (builder.appid + '/.' + builder.classname + 'Activity').cyan));
-						return next();
-					}
 					logger.info(__('Starting app: %s', (builder.appid + '/.' + builder.classname + 'Activity').cyan));
 
 					var failCounter = 0,
@@ -399,7 +403,7 @@ exports.init = function (logger, config, cli) {
 				}
 
 			], function (err) {
-				if (err) {
+				if (err && err instanceof Error) {
 					logger.error(err);
 				}
 				finished();
