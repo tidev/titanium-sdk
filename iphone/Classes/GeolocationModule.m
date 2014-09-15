@@ -198,7 +198,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
 	[self shutdownLocationManager];
 	RELEASE_TO_NIL(tempManager);
-    RELEASE_TO_NIL(locationPermissionManager);
+	RELEASE_TO_NIL(locationPermissionManager);
 	RELEASE_TO_NIL(singleHeading);
 	RELEASE_TO_NIL(singleLocation);
 	RELEASE_TO_NIL(purpose);
@@ -809,35 +809,29 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 -(CLLocationManager*)locationPermissionManager
 {
-    if (locationPermissionManager!=nil)
-    {
-        // if we have an instance, just use it
-        return locationPermissionManager;
-    }
-
-    if (locationPermissionManager == nil) {
-        locationPermissionManager = [[CLLocationManager alloc] init];
-        locationPermissionManager.delegate = self;
-    }
-    return locationPermissionManager;
+	// if we don't have an instance, create it
+	if (locationPermissionManager == nil) {
+		locationPermissionManager = [[CLLocationManager alloc] init];
+		locationPermissionManager.delegate = self;
+	}
+	return locationPermissionManager;
 }
 
 -(void)requestAuthorization:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSNumber);
-
     if (![TiUtils isIOS8OrGreater]) {
         return;
     }
-
-    int requested = [value integerValue];
-    int currentPermissionLevel = [CLLocationManager authorizationStatus];
-
+    ENSURE_SINGLE_ARG(value, NSNumber);
+   
+    CLAuthorizationStatus requested = [TiUtils intValue: value];
+    CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
+    
     if(requested == kCLAuthorizationStatusAuthorizedWhenInUse){
-        if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]){
-            if((currentPermissionLevel ==kCLAuthorizationStatusAuthorizedAlways) ||
-               (currentPermissionLevel ==kCLAuthorizationStatusAuthorized)){
-                NSLog(@"[ERROR] cannot change already granted permission from AUTHORIZATION_ALWAYS to AUTHORIZATION_WHEN_IN_USE");
+        if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
+            if((currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) ||
+               (currentPermissionLevel == kCLAuthorizationStatusAuthorized)) {
+                NSLog(@"[WARN] cannot change already granted permission from AUTHORIZATION_ALWAYS to AUTHORIZATION_WHEN_IN_USE");
             }else{
                 [[self locationPermissionManager] requestWhenInUseAuthorization];
             }
@@ -845,12 +839,12 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
             NSLog(@"[ERROR] the NSLocationWhenInUseUsageDescription key must be defined in your tiapp.xml in order to request this permission");
         }
     }
-    if((requested == kCLAuthorizationStatusAuthorizedAlways) ||
-       (requested == kCLAuthorizationStatusAuthorized)){
-        if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]){
-            if(currentPermissionLevel == kCLAuthorizationStatusAuthorizedWhenInUse){
+    if ((requested == kCLAuthorizationStatusAuthorizedAlways) ||
+        (requested == kCLAuthorizationStatusAuthorized)) {
+        if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]) {
+            if (currentPermissionLevel == kCLAuthorizationStatusAuthorizedWhenInUse) {
                 NSLog(@"[ERROR] cannot change already granted permission from AUTHORIZATION_WHEN_IN_USE to AUTHORIZATION_ALWAYS");
-            }else{
+            } else {
                 [[self locationPermissionManager] requestAlwaysAuthorization];
             }
             [[self locationPermissionManager] requestAlwaysAuthorization];
