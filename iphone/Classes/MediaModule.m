@@ -315,7 +315,7 @@ typedef void (^PermissionBlock)(BOOL granted)
 		arrowDirection = arrow;
 		self.popoverView = poView;
 		popover = [[UIPopoverController alloc] initWithContentViewController:picker_];
-		[popover setDelegate:self];
+		[(UIPopoverController*)popover setDelegate:self];
 		[popover presentPopoverFromRect:poFrame inView:poView permittedArrowDirections:arrow animated:animatedPicker];
 	}
 }
