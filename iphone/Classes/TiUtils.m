@@ -104,8 +104,10 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
         }
         return 130;
     }
-    else {    
-        if ([TiUtils isRetinaDisplay]) {
+    else {
+        if ([TiUtils isRetinaHDDisplay]) {
+            return 480;
+        } else if ([TiUtils isRetinaDisplay]) {
             return 320;
         }
         return 160;
@@ -116,9 +118,26 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 {
     CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
     if ([TiUtils isIOS8OrGreater]) {
-        return (mainScreenBoundsSize.height == 568 || mainScreenBoundsSize.width) == 568;
+        return (mainScreenBoundsSize.height == 568 || mainScreenBoundsSize.width == 568);
     }
     return (mainScreenBoundsSize.height == 568);
+}
+
++(BOOL)isRetinaiPhone6
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+        return (mainScreenBoundsSize.height == 667 || mainScreenBoundsSize.width == 667);
+    }
+    return NO;
+}
+
++(BOOL)isRetinaHDDisplay
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        return ([UIScreen mainScreen].scale == 3.0);
+    }
+    return NO;
 }
 
 +(BOOL)isRetinaDisplay
@@ -141,12 +160,7 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 				return NO;
 			}
 		}
-
-		if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
-		{
-			scale = [[UIScreen mainScreen] scale];
-		}
-
+		scale = [[UIScreen mainScreen] scale];
 	}
 	return scale > 1.0;
 }
