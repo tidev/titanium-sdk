@@ -692,8 +692,26 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 
 	NSString *os = [TiUtils isIPad] ? @"~ipad" : @"~iphone";
 
+	if ([TiUtils isRetinaHDDisplay]) {
+		// first try -736h@3x iphone6 Plus specific
+		NSString *testpath = [NSString stringWithFormat:@"%@-736h@3x.%@",partial,ext];
+		if ([fm fileExistsAtPath:testpath]) {
+			return [NSURL fileURLWithPath:testpath];
+		}
+		// second try plain @3x
+		testpath = [NSString stringWithFormat:@"%@@3x.%@",partial,ext];
+		if ([fm fileExistsAtPath:testpath]) {
+			return [NSURL fileURLWithPath:testpath];
+		}
+	}
 	if([TiUtils isRetinaDisplay]){
-		if ([TiUtils isRetinaFourInch]) {
+		if ([TiUtils isRetinaiPhone6]) {
+			// first try -667h@2x iphone6 specific
+			NSString *testpath = [NSString stringWithFormat:@"%@-667h@2x.%@",partial,ext];
+			if ([fm fileExistsAtPath:testpath]) {
+				return [NSURL fileURLWithPath:testpath];
+			}
+		} else if ([TiUtils isRetinaFourInch]) {
 			// first try -568h@2x iphone5 specific
 			NSString *testpath = [NSString stringWithFormat:@"%@-568h@2x.%@",partial,ext];
 			if ([fm fileExistsAtPath:testpath]) {
