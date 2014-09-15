@@ -302,6 +302,18 @@
 	*imageIdiom = UIUserInterfaceIdiomPhone;
 	// Default
     image = nil;
+    if ([TiUtils isRetinaHDDisplay]) {
+        image = [UIImage imageNamed:@"Default-736h.png"];
+        if (image!=nil) {
+            return image;
+        }
+    }
+    if ([TiUtils isRetinaiPhone6]) {
+        image = [UIImage imageNamed:@"Default-667h.png"];
+        if (image!=nil) {
+            return image;
+        }
+    }
     if ([TiUtils isRetinaFourInch]) {
         image = [UIImage imageNamed:@"Default-568h.png"];
         if (image!=nil) {
