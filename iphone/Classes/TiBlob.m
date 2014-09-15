@@ -53,10 +53,12 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
             case TiBlobTypeFile:
             {
                 image = [[UIImage imageWithContentsOfFile:path] retain];
+                break;
             }
             case TiBlobTypeData:
             {
                 image = [[UIImage imageWithData:data] retain];
+                break;
             }
             default: {
                 break;
