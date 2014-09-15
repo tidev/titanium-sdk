@@ -246,7 +246,7 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
     NSMutableArray *result = [NSMutableArray array];
     if ([TiUtils isIOS8OrGreater]) {
         TiThreadPerformOnMainThread(^{
-            types = [[[UIApplication sharedApplication] currentUserNotificationSettings] types];
+			types = CURRENT_USER_NOTIFICATION_SETTINGS_TYPES;
         }, YES);
         if ((types & UIUserNotificationTypeBadge)!=0)
         {
