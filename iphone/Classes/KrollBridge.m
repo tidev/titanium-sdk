@@ -30,7 +30,7 @@ extern NSString * const TI_APPLICATION_GUID;
 extern NSString * const TI_APPLICATION_BUILD_TYPE;
 
 NSString * TitaniumModuleRequireFormat = @"(function(exports){"
-		"var __OXP=exports;var module={'exports':exports};var __dirname=\"%@\";var __filename=\"%@\";\n%@;\n"
+		"var __OXP=exports;var module={'exports':exports};var __dirname=\"%@\";var __filename=\"%@\";%@;\n"
 		"if(module.exports !== __OXP){return module.exports;}"
 		"return exports;})({})";
 
