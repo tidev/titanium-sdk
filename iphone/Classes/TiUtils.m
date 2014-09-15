@@ -114,7 +114,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 
 +(BOOL)isRetinaFourInch
 {
-    return ([[UIScreen mainScreen] bounds].size.height == 568);
+    CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+    if ([TiUtils isIOS8OrGreater]) {
+        return (mainScreenBoundsSize.height == 568 || mainScreenBoundsSize.width) == 568;
+    }
+    return (mainScreenBoundsSize.height == 568);
 }
 
 +(BOOL)isRetinaDisplay
