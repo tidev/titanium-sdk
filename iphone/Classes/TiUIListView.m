@@ -1232,6 +1232,16 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 [cellProxy unarchiveFromTemplate:template];
             }
         }
+        
+        // iOS8 reset separator insets
+        if ([_tableView respondsToSelector:@selector(setLayoutMargins:)]) {
+            [_tableView setLayoutMargins:UIEdgeInsetsZero];
+        }
+        
+        if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
+            [cell setLayoutMargins:UIEdgeInsetsZero];
+        }
+        
         [cellProxy release];
         [cell autorelease];
     }
