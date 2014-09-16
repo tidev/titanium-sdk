@@ -3256,11 +3256,6 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 };
 
 iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
-	// if we're including all titanium modules, then there's no point writing the defines.h
-	if (this.includeAllTiModules) {
-		return finished();
-	}
-
 	var namespaces = {
 			'analytics': 1,
 			'api': 1,
@@ -3313,8 +3308,9 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		}
 	}, this);
 
-	// if we're doing a simulator build, return now since we don't care about writing the defines.h
-	if (this.target === 'simulator') {
+	// if we're doing a simulator build or we're including all titanium modules,
+	// return now since we don't care about writing the defines.h
+	if (this.target === 'simulator' || this.includeAllTiModules) {
 		return finished();
 	}
 
