@@ -297,7 +297,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         UIImage * defaultImage = [controller defaultImageForOrientation:
                                   (UIDeviceOrientation)[[UIApplication sharedApplication] statusBarOrientation]
                                                    resultingOrientation:&imageOrientation idiom:&imageIdiom];
-        if([TiUtils isIPad]) {
+        if([TiUtils isIPad] && ![TiUtils isIOS8OrGreater]) {
             CGAffineTransform transform;
             switch ([[UIApplication sharedApplication] statusBarOrientation]) {
                 case UIInterfaceOrientationPortraitUpsideDown:
