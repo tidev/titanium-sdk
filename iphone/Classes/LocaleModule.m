@@ -33,15 +33,26 @@
 	return [self currentLanguage];
 }
 
+-(id)currentCountry
+{
+    return [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
+}
+
 -(id)getCurrentCountry:(id)arg
 {
-	return [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
+    return [self currentCountry];
+}
+
+-(id)currentLocale
+{
+    // Have to return "lan-COUNTRY" instead of "lan_COUNTRY" to conform to Android
+    return [[[NSLocale currentLocale] localeIdentifier] stringByReplacingOccurrencesOfString:@"_" withString:@"-"];
 }
 
 -(id)getCurrentLocale:(id)arg
 {
-	// Have to return "lan-COUNTRY" instead of "lan_COUNTRY" to conform to Android
-	return [[[NSLocale currentLocale] localeIdentifier] stringByReplacingOccurrencesOfString:@"_" withString:@"-"];
+    // Have to return "lan-COUNTRY" instead of "lan_COUNTRY" to conform to Android
+    return [self currentLocale];
 }
 
 -(id)getCurrencyCode:(id)arg
