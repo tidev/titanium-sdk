@@ -4,7 +4,7 @@
  * @module timodule
  *
  * @copyright
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -157,71 +157,88 @@ exports.find = function find(modules, platforms, deployType, sdkVersion, searchP
 
 				logger && logger.debug(__('Looking for Titanium module id=%s version=%s platform=%s deploy-type=%s', module.id.cyan, originalVersion.cyan, module.platform.join(',').cyan, module.deployType.join(',').cyan));
 
+				// loop through each scope (project, global)
 				for (i = 0; i < scopes.length; i++) {
 					scope = installed[scopes[i]];
+
+					// loop through each platform attribute from <module platform="ios,android">
 					for (j = 0; j < module.platform.length; j++) {
 						platform = module.platform[j];
-						if (scope[platform] && scope[platform][module.id]) {
-							ver = module.version || Object.keys(scope[platform][module.id]).sort().pop();
-							info = scope[platform][module.id][ver];
-							if (info) {
-								tmp = util.mix({}, module, info);
-								if (sdkVersion && info.manifest && info.manifest.minsdk && version.gt(info.manifest.minsdk, sdkVersion)) {
-									logger && logger.debug(__('Found incompatible Titanium module id=%s version=%s platform=%s deploy-type=%s', tmp.id.cyan, originalVersion.cyan, tmp.platform.join(',').cyan, tmp.deployType.join(',').cyan));
-									result.incompatible.push(tmp);
-								} else {
-									// make sure we haven't already added this module
-									var alreadyAdded = false,
-										foundBetter = false,
-										addToModuleMap = true;
 
-									for (var k = 0; k < result.found.length; k++) {
-										if (result.found[k].id == tmp.id) {
-											// if we find a the same module twice, but the versions differ
-											if (originalVersion == 'latest') {
-												if (version.lt(result.found[k].version, ver)) {
-													// found a better module
-													logger && logger.info(__('Found better matching module id=%s version=%s platform=%s deploy-type=%s path=%s', tmp.id.cyan, originalVersion.cyan, tmp.platform.join(',').cyan, tmp.deployType.join(',').cyan, tmp.modulePath.cyan));
-													result.found.splice(k, 1);
-													foundBetter = true;
+						// check that we even have a module with the specified id and platform
+						if (scope[platform] && scope[platform][module.id]) {
+
+							Object.keys(scope[platform][module.id]).sort().reverse().filter(function (ver) {
+								return !module.version || ver === module.version;
+							}).forEach(function (ver) {
+								info = scope[platform][module.id][ver];
+								if (info && !found) {
+									tmp = util.mix({}, module, info);
+									if (sdkVersion && info.manifest && info.manifest.minsdk && version.gt(info.manifest.minsdk, sdkVersion)) {
+										logger && logger.debug(__('Found incompatible Titanium module id=%s version=%s platform=%s deploy-type=%s', tmp.id.cyan, tmp.version.cyan, tmp.platform.join(',').cyan, tmp.deployType.join(',').cyan));
+										result.incompatible.push(tmp);
+									} else {
+										// make sure we haven't already added this module
+										var alreadyAdded = false,
+											foundBetter = false,
+											addToModuleMap = true;
+
+										for (var k = 0; k < result.found.length; k++) {
+											if (result.found[k].id == tmp.id) {
+												// if we find a the same module twice, but the versions differ
+												if (originalVersion == 'latest') {
+													if (version.lt(result.found[k].version, ver)) {
+														// found a better module
+														logger && logger.info(__('Found better matching module id=%s version=%s platform=%s deploy-type=%s path=%s', tmp.id.cyan, originalVersion.cyan, tmp.platform.join(',').cyan, tmp.deployType.join(',').cyan, tmp.modulePath.cyan));
+														result.found.splice(k, 1);
+														foundBetter = true;
+													} else if (version.eq(result.found[k].version, ver)) {
+														alreadyAdded = true;
+														if (result.found[k].platform.map(function (p) { return platformAliases[p] || p; }).indexOf(platformAliases[platform] || platform) != -1) {
+															addToModuleMap = false;
+														}
+													} else {
+														alreadyAdded = true;
+													}
 												} else if (version.eq(result.found[k].version, ver)) {
 													alreadyAdded = true;
-													if (result.found[k].platform.map(function (p) { return platformAliases[p] || p; }).indexOf(platformAliases[platform] || platform) != -1) {
+													if (result.found[k].platform.indexOf(platformAliases[platform] || platform) != -1) {
 														addToModuleMap = false;
 													}
-												} else {
-													alreadyAdded = true;
-												}
-											} else if (version.eq(result.found[k].version, ver)) {
-												alreadyAdded = true;
-												if (result.found[k].platform.indexOf(platformAliases[platform] || platform) != -1) {
-													addToModuleMap = false;
 												}
 											}
 										}
-									}
 
-									if (!alreadyAdded) {
-										tmp.platform = [ platform ];
+										if (!alreadyAdded) {
+											tmp.platform = [ platform ];
 
-										!foundBetter && logger && logger.info(__('Found Titanium module id=%s version=%s platform=%s deploy-type=%s path=%s', tmp.id.cyan, originalVersion.cyan, tmp.platform.join(',').cyan, tmp.deployType.join(',').cyan, tmp.modulePath.cyan));
-										result.found.push(tmp);
-									}
+											!foundBetter && logger && logger.info(__('Found Titanium module id=%s version=%s platform=%s deploy-type=%s path=%s', tmp.id.cyan, tmp.version.cyan, tmp.platform.join(',').cyan, tmp.deployType.join(',').cyan, tmp.modulePath.cyan));
+											result.found.push(tmp);
+										}
 
-									if (addToModuleMap) {
-										// add this module to a hash so we can check later for conflicts
-										modulesById[module.id] || (modulesById[module.id] = []);
-										modulesById[module.id].push(tmp);
+										if (addToModuleMap) {
+											// add this module to a hash so we can check later for conflicts
+											modulesById[module.id] || (modulesById[module.id] = []);
+											modulesById[module.id].push(tmp);
+										}
+
+										// since we found a valid version, remove this module if was previously detected as incompatible
+										for (var x = 0; x < result.incompatible.length; x++) {
+											if (result.incompatible[x].id === tmp.id) {
+												result.incompatible.splice(x--, 1);
+											}
+										}
+
+										found = true;
 									}
 								}
-								found = true;
-							}
+							});
 						}
 					}
 				}
 
 				if (!found) {
-					logger && logger.warn(__('Could not find Titanium module id=%s version=%s platform=%s deploy-type=%s', module.id.cyan, originalVersion.cyan, module.platform.join(',').cyan, module.deployType.join(',').cyan));
+					logger && logger.warn(__('Could not find a valid Titanium module id=%s version=%s platform=%s deploy-type=%s', module.id.cyan, originalVersion.cyan, module.platform.join(',').cyan, module.deployType.join(',').cyan));
 					result.missing.push(module);
 				}
 			}
