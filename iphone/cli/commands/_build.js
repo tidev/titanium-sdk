@@ -2079,6 +2079,82 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 			}
 		}
 	}, this);
+	
+	// scan for launch images, unless the user is managing them
+	if (!Array.isArray(plist.UILaunchImages) && !Array.isArray(plist['UILaunchImages~ipad'])) {
+		[{
+			"orientation" : "Portrait",
+			"minimum-system-version" : "8.0",
+			"name": "Default-Portrait",
+			"subtype": "736h",
+			"scale": "3x",
+			"size": "{414, 736}"
+		},
+		{
+			"orientation" : "Landscape",
+			"minimum-system-version" : "8.0",
+			"name": "Default-Landscape",
+			"subtype": "736h",
+			"scale": "3x",
+			"size": "{414, 736}"
+		},
+		{
+			"orientation" : "Portrait",
+			"minimum-system-version" : "8.0",
+			"name": "Default",
+			"subtype": "667h",
+			"scale": "2x",
+			"size": "{375, 667}"
+		},
+		{
+			"orientation" : "Portrait",
+			"minimum-system-version" : "7.0",
+			"name": "Default",
+			"scale": ["1x", "2x"],
+			"size": "{320, 480}"
+		},
+		{
+			"orientation" : "Portrait",
+			"minimum-system-version" : "7.0",
+			"name": "Default",
+			"subtype": "568h",
+			"scale": "2x",
+			"size": "{320, 568}"
+		},
+		{
+			"orientation" : "Portrait",
+			"idiom" : "ipad",
+			"minimum-system-version" : "7.0",
+			"name": "Default-Portrait",
+			"scale": ["1x", "2x"],
+			"size": "{768, 1024}"
+		},
+		{
+			"orientation" : "Landscape",
+			"idiom" : "ipad",
+			"minimum-system-version" : "7.0",
+			"name": "Default-Landscape",
+			"scale": ["1x", "2x"],
+			"size": "{768, 1024}"
+		}].forEach(function (asset) {
+			(Array.isArray(asset.scale) ? asset.scale : [asset.scale]).some(function (scale) {
+				var key, basefilename = asset.name + (asset.subtype ? '-' + asset.subtype : ''),filename = basefilename + (scale !== '1x' ? '@' + scale : '') + '.png';
+				if (fs.existsSync(path.join(this.projectDir, 'Resources', filename)) ||
+					fs.existsSync(path.join(this.projectDir, 'Resources', 'iphone', filename)) ||
+					fs.existsSync(path.join(this.projectDir, 'Resources', 'ios', filename))) {
+					key = 'UILaunchImages' + (asset.idiom === 'ipad' ? '~' + asset.idiom : '');
+					Array.isArray(plist[key]) || (plist[key] = []);
+					plist[key].push({
+						UILaunchImageName: basefilename,
+						UILaunchImageOrientation: asset.orientation,
+						UILaunchImageSize: asset.size,
+						UILaunchImageMinimumOSVersion: asset['minimum-system-version']
+					});
+					return true;
+				}
+			}, this);
+		}, this);
+	}
 
 	// scan for ttf and otf font files
 	var fontMap = {},
