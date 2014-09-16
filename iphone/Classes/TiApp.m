@@ -335,7 +335,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		}
 		[remoteNotification setValue:[aps valueForKey:key] forKey:key];
 	}
-	DebugLog(@"[WARN] Accessing APS keys from toplevel of notification is deprecated");
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions_
@@ -441,7 +440,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
 	RELEASE_TO_NIL(localNotification);
 	localNotification = [[TiApp  dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTiBackgroundLocalNotification object:localNotification userInfo:nil];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotificationAction object:localNotification userInfo:nil];
 	completionHandler();
 }
 

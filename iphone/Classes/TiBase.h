@@ -572,7 +572,7 @@ extern NSString * const kTiSilentPushNotification;
 extern NSString * const kTiBackgroundTransfer;
 extern NSString * const kTiFrameAdjustNotification;
 extern NSString * const kTiLocalNotification;
-extern NSString * const kTiBackgroundLocalNotification;
+extern NSString * const kTiLocalNotificationAction;
 extern NSString * const kTiUserNotificationSettingsNotification;
 extern NSString * const kTiBackgroundTransfer;
 extern NSString * const kTiURLDownloadFinished;

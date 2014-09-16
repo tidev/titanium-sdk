@@ -35,8 +35,8 @@
 	if (count == 1 && [type isEqual:@"notification"]) {
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveLocalNotification:) name:kTiLocalNotification object:nil];
 	}
-	if (count == 1 && [type isEqual:@"backgroundNotification"]) {
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveBackgroundLocalNotification:) name:kTiBackgroundLocalNotification object:nil];
+	if (count == 1 && [type isEqual:@"localnotificationaction"]) {
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveBackgroundLocalNotification:) name:kTiLocalNotificationAction object:nil];
 	}
 
     if ((count == 1) && [type isEqual:@"backgroundfetch"]) {
@@ -87,8 +87,8 @@
 	if (count == 0 && [type isEqual:@"notification"]) {
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiLocalNotification object:nil];
 	}
-	if (count == 0 && [type isEqual:@"backgroundNotification"]) {
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiBackgroundLocalNotification object:nil];
+	if (count == 0 && [type isEqual:@"localnotificationaction"]) {
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiLocalNotificationAction object:nil];
 	}
 
     if ((count == 1) && [type isEqual:@"backgroundfetch"]) {
@@ -466,7 +466,7 @@
 -(void)didReceiveBackgroundLocalNotification:(NSNotification*)note
 {
 	NSDictionary *notification = [note object];
-	[self fireEvent:@"backgroundNotification" withObject:notification];
+	[self fireEvent:@"localnotificationaction" withObject:notification];
 }
 
 -(void)didReceiveBackgroundFetchNotification:(NSNotification*)note

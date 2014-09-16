@@ -40,8 +40,7 @@ description: |
          with the <Titanium.App.iOS.createUserNotificationCategory> method.
       3. Register the notification categories with the
          <Titanium.App.iOS.registerUserNotificationSettings> method.
-      4. Monitor the [backgroundNotification](Titanium.App.iOS.backgroundNotification)
-         event while the app is the background.
+      4. Monitor the [localnotificationaction](Titanium.App.iOS.localnotificationaction) event.
 
     For instructions on sending local interactive notifications, see the
     [iOS Local Notifications guide](http://docs.appcelerator.com/titanium/latest/#!/guide/iOS_Local_Notifications).
@@ -288,7 +287,7 @@ events:
         summary: Custom data object.
         type: Dictionary
 
-  - name: backgroundNotification
+  - name: localnotificationaction
     summary: Fired when a user selects an action for an interactive notification.
     properties:
       - name: alertAction
