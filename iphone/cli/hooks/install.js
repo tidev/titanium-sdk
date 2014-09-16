@@ -94,12 +94,12 @@ exports.init = function (logger, config, cli) {
 					levels = logger.getLevels(),
 					logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i'),
 					startLog = false,
-					running = 0,
+					runningCount = 0,
 					disconnected = false,
 					installCount = 0;
 
 				function quit(force) {
-					if (force || (running <= 0 && startLog)) {
+					if (force || (runningCount <= 0 && startLog)) {
 						var endLogTxt = __('End application log');
 						logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
 						process.exit(0);
@@ -122,7 +122,8 @@ exports.init = function (logger, config, cli) {
 				async.eachSeries(udids, function (udid, next) {
 					var device = devices[udid],
 						lastLogger = 'debug',
-						installed = false;
+						installed = false,
+						running = false;
 
 					logger.info(__('Installing app on device: %s', device.name.cyan));
 
@@ -140,7 +141,8 @@ exports.init = function (logger, config, cli) {
 							logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 							startLog = true;
 						}
-						running++;
+						running = true;
+						runningCount++;
 					}).on('log', function (msg) {
 						var m = msg.match(logLevelRE);
 						if (m) {
@@ -165,30 +167,24 @@ exports.init = function (logger, config, cli) {
 							}
 						}
 					}).on('app-quit', function () {
-						running--;
+						running = false;
+						runningCount--;
 						quit();
 					}).on('error', function (err) {
-						if (!installed) {
-							// was the device connected?
-							err = null;
-							if (!disconnected) {
-								logger.warn(__('The device %s is no longer connected, skipping', device.name.cyan));
-								showStartMessage();
-							}
-						} else {
-							err = err.message || err;
-							logger.error(err);
-							if (err.indexOf('0xe8008017') !== -1) {
-								logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device'));
-							}
+						err = err.message || err;
+						logger.error(err);
+						if (err.indexOf('0xe8008017') !== -1) {
+							logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device'));
 						}
 						next && next(err);
 						next = null;
 					}).on('disconnect', function () {
-						disconnected = true;
-						logger.warn(__('The device %s is no longer connected, skipping', device.name.cyan));
-						next && next();
-						next = null;
+						if (!running) {
+							disconnected = true;
+							logger.warn(__('The device %s is no longer connected, skipping', device.name.cyan));
+							next && next();
+							next = null;
+						}
 					});
 				}, finished);
 

@@ -1474,7 +1474,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			if (modules.incompatible.length) {
 				logger.error(__('Found incompatible Titanium Modules:'));
 				modules.incompatible.forEach(function (m) {
-					logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + m.minsdk);
+					logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + (m.manifest && m.manifest.minsdk || '?'));
 				}, this);
 				logger.log();
 				process.exit(1);

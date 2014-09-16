@@ -653,7 +653,7 @@ MobileWebBuilder.prototype.findTiModules = function findTiModules(next) {
 		if (modules.incompatible.length) {
 			this.logger.error(__('Found incompatible Titanium Modules:'));
 			modules.incompatible.forEach(function (m) {
-				this.logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + m.minsdk);
+				this.logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + (m.manifest && m.manifest.minsdk || '?'));
 			}, this);
 			this.logger.log();
 			process.exit(1);
