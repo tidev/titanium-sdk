@@ -303,8 +303,14 @@
 	// Default
     image = nil;
     if ([TiUtils isRetinaHDDisplay]) {
-        image = [UIImage imageNamed:@"Default-736h.png"];
+        if (UIDeviceOrientationIsPortrait(orientation)) {
+            image = [UIImage imageNamed:@"Default-Portrait-736h.png"];
+        }
+        else if (UIDeviceOrientationIsLandscape(orientation)) {
+            image = [UIImage imageNamed:@"Default-Landscape-736h.png"];
+        }
         if (image!=nil) {
+            *imageOrientation = orientation;
             return image;
         }
     }
