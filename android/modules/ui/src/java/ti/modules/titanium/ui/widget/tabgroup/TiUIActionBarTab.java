@@ -35,8 +35,10 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-			return tab.getContentView();
+			if (tab != null) {
+				return tab.getContentView();
+			}
+			return null;
 		}
 	}
 
