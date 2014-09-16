@@ -587,6 +587,17 @@ typedef enum
  */
 +(BOOL)isRetinaFourInch;
 
+/**
+ Whether or not the current device has a 4.7 inch retina display (iPhone6).
+ @return _YES_ if the current device has a 4.7 inch retina display, _NO_ otherwise.
+ */
++(BOOL)isRetinaiPhone6;
+
+/**
+ Whether or not the current device has HD retina display (@3X).
+ @return _YES_ if the current device has HD retina display, _NO_ otherwise.
+ */
++(BOOL)isRetinaHDDisplay;
 +(void)configureController:(id)controller withObject:(id)object;
 
 +(CGRect)frameForController:(id)theController;
