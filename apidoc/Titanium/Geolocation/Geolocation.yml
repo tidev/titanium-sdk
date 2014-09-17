@@ -71,7 +71,7 @@ description: |
                     <dict>
                         <key>NSLocationAlwaysUsageDescription</key>
                         <string>
-                            Specify the reason for accessing the user’s location information.
+                            Specify the reason for accessing the user's location information.
                             This appears in the alert dialog when asking the user for permission to
                             access their location.
                         </string>
@@ -340,7 +340,7 @@ events:
   - name: authorization
     summary: Fired when changes are made to the authorization status for location services. Available in iOS 8.0 and later.
     description: |
-        This event is fired whenever the application’s ability to use location services changes. 
+        This event is fired whenever the application's ability to use location services changes. 
         Changes can occur because the user allowed or denied the use of location services for the app or the system as a whole.
     properties:
       - name: authorizationStatus
