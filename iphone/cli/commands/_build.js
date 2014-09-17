@@ -236,7 +236,7 @@ iOSBuilder.prototype.getDeviceFamily = function getDeviceFamily() {
 	}
 
 	var deviceFamily = this.cli.argv['device-family'],
-		deploymentTargets = this.cli.tiapp['deployment-targets'];
+		deploymentTargets = this.cli.tiapp && this.cli.tiapp['deployment-targets'];
 
 	if (!deviceFamily && process.env.TARGETED_DEVICE_FAMILY) {
 		// device family was not specified at the command line, but we did get it via an environment variable!
@@ -2079,7 +2079,7 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 			}
 		}
 	}, this);
-	
+
 	var fontMap = {},
 		resourceDir = path.join(this.projectDir, 'Resources'),
 		iphoneDir = path.join(resourceDir, 'iphone'),
