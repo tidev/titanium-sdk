@@ -392,7 +392,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
 	[launchOptions setObject:[url absoluteString] forKey:@"url"];
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
-	[launchOptions setObject:sourceApplication forKey:@"source"];
+	if(sourceApplication == nil) {
+		[launchOptions setObject:[NSNull null] forKey:@"source"];
+	} else {
+		[launchOptions setObject:sourceApplication forKey:@"source"];
+	}
 	return YES;
 }
 
