@@ -235,10 +235,10 @@ properties:
     since: "3.4.0"
 
   - name: applicationOpenSettingsURL
-    summary: Returns a URL to open the app’s settings.
+    summary: Returns a URL to open the app's settings.
     description: |        
         Used to create a URL that you can pass to the [openURL](Titanium.Platform.openURL) method. 
-        When you open the URL built from this string, the system launches the Settings app and displays the app’s custom settings, if it has any.
+        When you open the URL built from this string, the system launches the Settings app and displays the app's custom settings, if it has any.
 
             var settingsURL = Ti.App.iOS.applicationOpenSettingsURL;
             if (Ti.Platform.canOpenURL(settingsURL)) {
