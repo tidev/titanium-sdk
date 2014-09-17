@@ -1538,10 +1538,6 @@ properties:
     deprecated:
         since: 3.5.0
         notes: Use the [activity](Titanium.UI.Window.activity) property instead.
-        description: |
-            See also:
-            [activity](http://docs.appcelerator.com/titanium/3.0/#!/api/Titanium.UI.Window-property-activity)
-            in the Titanium Documentation.
 
   - name: currentService
     summary: Service in the active context.
