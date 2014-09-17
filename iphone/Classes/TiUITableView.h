@@ -25,9 +25,11 @@
 	TiGradient * backgroundGradient;
 	TiGradient * selectedBackgroundGradient;
 	CGPoint hitPoint;
+	UIColor *selectedBackgroundColor;
 }
 @property (nonatomic,readonly) CGPoint hitPoint;
 @property (nonatomic,readwrite,retain) TiUITableViewRowProxy* proxy;
+@property (nonatomic,readwrite) BOOL selectedBackgroundNative; // Native behavior, default 'true'
 
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy*)row_;
 
@@ -38,6 +40,9 @@
 
 -(void) updateGradientLayer:(BOOL)useSelected withAnimation:(BOOL)animated;
 -(CGSize)computeCellSize;
+
+-(void) setSelectedBackgroundColor_:(id)arg;
+-(void) setSelectedBackgroundNative_:(id)arg;
 
 @end
 
