@@ -132,16 +132,16 @@ methods:
 
         To load a native Titanium module:
 
-            1. Install the module to the project or copy it to the Titanium SDK home directory.
-            2. Add the module as a dependency to the project by modifying the `modules` section of the `tiapp.xml` file.
-            3. Initialize the module with the `require` method by passing the module ID to the method.
+          1. Install the module to the project or copy it to the Titanium SDK home directory.
+          2. Add the module as a dependency to the project by modifying the `modules` section of the `tiapp.xml` file.
+          3. Initialize the module with the `require` method by passing the module ID to the method.
 
         For detailed instructions, refer to
         [Using a Module](http://docs.appcelerator.com/titanium/latest/#!/guide/Using_a_Module).
 
         #### CommonJS Module
         
-        To load a local CommonJS module, place the CommonJS modules in the `Resources` directory of
+        To load a local CommonJS module, place the CommonJS module in the `Resources` directory of
         your project. Pass the `require` method the path to the file without the `Resources`
         directory, platform-specific directory and the `.js` extension.
 
