@@ -2,7 +2,6 @@
 name: Titanium.Android
 summary: The top level Android module. 
 description: |
-description: |
     The [currentActivity](Titanium.Android.currentActivity) property provides a reference to the
     context's current [Activity](Titanium.Android.Activity). Activity objects cannot be 
     created directly, although a new activity can be started from an existing activity
@@ -21,6 +20,9 @@ description: |
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
+excludes:
+    methods: [getCurrentActivity, getCurrentService]
+
 methods:
     
 
@@ -1533,6 +1535,9 @@ properties:
     summary: Activity of the active context.
     type: Titanium.Android.Activity
     permission: read-only
+    deprecated:
+        since: 3.5.0
+        notes: Use the [activity](Titanium.UI.Window.activity) property instead.
 
   - name: currentService
     summary: Service in the active context.
