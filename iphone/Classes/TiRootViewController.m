@@ -1188,7 +1188,7 @@
     deviceOrientation = (UIInterfaceOrientation) newOrientation;
    
     if ([self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
-        [self resetTransformAndForceLayout];
+        [self resetTransformAndForceLayout:YES];
         [self updateOrientationHistory:deviceOrientation];
     }
 }
@@ -1229,7 +1229,7 @@
         forcingRotation = NO;
 #endif
     } else {
-        [self resetTransformAndForceLayout];
+        [self resetTransformAndForceLayout:NO];
     }
     
 }
@@ -1280,14 +1280,16 @@
 }
 #endif
 
--(void)resetTransformAndForceLayout
+-(void)resetTransformAndForceLayout:(BOOL)updateStatusBar
 {
     if (curTransformAngle != 0) {
         curTransformAngle = 0;
         forceLayout = YES;
         [[self hostingView] setTransform:CGAffineTransformIdentity];
         [[self view] setNeedsLayout];
-        [self updateStatusBar];
+        if (updateStatusBar) {
+            [self updateStatusBar];
+        }
     }
 }
 
@@ -1500,7 +1502,7 @@
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection;
 {
-    [self resetTransformAndForceLayout];
+    [self resetTransformAndForceLayout:YES];
     [super traitCollectionDidChange:previousTraitCollection];
 }
 
