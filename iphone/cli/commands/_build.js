@@ -963,15 +963,15 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								}
 
 								if (value !== 'simulator') {
-									_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_KEYCHAINS_FOUND');
-									_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_WWDR_CERT_FOUND');
+									_t.assertIssue(iosInfo.issues, 'IOS_NO_KEYCHAINS_FOUND');
+									_t.assertIssue(iosInfo.issues, 'IOS_NO_WWDR_CERT_FOUND');
 								}
 
 								// as soon as we know the target, toggle required options for validation
 								switch (value) {
 									case 'device':
-										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DEV_CERTS_FOUND');
-										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES');
+										_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DEV_CERTS_FOUND');
+										_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES');
 										iosInfo.provisioning.development.forEach(function (d) {
 											provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
 										});
@@ -980,7 +980,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 										break;
 
 									case 'dist-adhoc':
-										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DIST_CERTS_FOUND');
+										_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DIST_CERTS_FOUND');
 										// TODO: assert there is at least one distribution or adhoc provisioning profile
 
 										_t.conf.options['output-dir'].required = true;
@@ -988,6 +988,8 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 										// purposely fall through!
 
 									case 'dist-appstore':
+										_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DIST_CERTS_FOUND');
+
 										_t.conf.options['deploy-type'].values = ['production'];
 										_t.conf.options['device-id'].required = false;
 										_t.conf.options['distribution-name'].required = true;
@@ -2079,7 +2081,7 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 			}
 		}
 	}, this);
-	
+
 	var fontMap = {},
 		resourceDir = path.join(this.projectDir, 'Resources'),
 		iphoneDir = path.join(resourceDir, 'iphone'),
