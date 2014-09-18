@@ -316,7 +316,9 @@ properties:
         You can only set this as a createWindow({...}) option.  Setting it after
         window creation has no effect.
     platforms: [android]
-    default: true; prior to Release 3.3.0, the default was false.
+    default: |
+        true if this is the first window launched else false; prior to Release 3.3.0, the
+        default was always false.
     type: Boolean
     availability: creation
 
