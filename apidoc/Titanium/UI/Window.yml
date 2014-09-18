@@ -316,7 +316,7 @@ properties:
         You can only set this as a createWindow({...}) option.  Setting it after
         window creation has no effect.
     platforms: [android]
-    default: false
+    default: true; prior to Release 3.3.0, the default was false.
     type: Boolean
     availability: creation
 
