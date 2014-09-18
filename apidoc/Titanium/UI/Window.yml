@@ -678,6 +678,16 @@ properties:
     type: String
     since: 3.2.0
 
+  - name: splitActionBar
+    summary: Boolean value to enable split action bar.
+    description: |
+        `splitActionBar` must be set **before** opening the window.
+        This property indicates if the window should use a [split action bar](http://developer.android.com/guide/topics/ui/actionbar.html#SplitBar)
+    platforms: [android]
+    type: Boolean
+    since: 3.5.0
+    availability: creation
+
   - name: statusBarStyle
     summary: The status bar style associated with this window. 
     description: |
