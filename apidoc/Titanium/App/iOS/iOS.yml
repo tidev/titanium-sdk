@@ -288,7 +288,7 @@ events:
         type: Dictionary
 
   - name: localnotificationaction
-    summary: Fired when a user selects an action for an interactive notification.
+    summary: Fired when a user selects an action for an interactive local notification.
     properties:
       - name: alertAction
         summary: |
@@ -330,6 +330,26 @@ events:
       - name: userInfo
         summary: Custom data object.
         type: Dictionary
+
+  - name: remotenotificationaction
+    summary: Fired when a user selects an action for an interactive remote notification.
+    properties: 
+      - name: data
+        summary: The `userinfo` dictionary passed to the Apple Push Notification Service.
+        description: |
+            For more information, see the following item in the iOS Developer Library:
+
+            [application:didReceiveRemoteNotification in the UIApplicationDelegate Protocol
+            Reference](http://developer.apple.com/library/ios/#DOCUMENTATION/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intfm/UIApplicationDelegate/application:didReceiveRemoteNotification:)
+        type: Dictionary
+        
+      - name: category
+        summary: Identifier of the category of the interactive notification.
+        type: String
+
+      - name: identifier
+        summary: Identifier of the action that was selected of the interactive notification.
+        type: String
 
   - name: backgroundfetch
     summary: Fired when the application is woken up for a fetch operation. Available only on iOS 7 and later.
