@@ -35,9 +35,12 @@
 	if (count == 1 && [type isEqual:@"notification"]) {
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveLocalNotification:) name:kTiLocalNotification object:nil];
 	}
-	if (count == 1 && [type isEqual:@"localnotificationaction"]) {
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveBackgroundLocalNotification:) name:kTiLocalNotificationAction object:nil];
-	}
+    if (count == 1 && [type isEqual:@"localnotificationaction"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveLocalNotificationAction:) name:kTiLocalNotificationAction object:nil];
+    }
+    if (count == 1 && [type isEqual:@"remotenotificationaction"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveRemoteNotificationAction:) name:kTiRemoteNotificationAction object:nil];
+    }
 
     if ((count == 1) && [type isEqual:@"backgroundfetch"]) {
         NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
@@ -87,9 +90,12 @@
 	if (count == 0 && [type isEqual:@"notification"]) {
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiLocalNotification object:nil];
 	}
-	if (count == 0 && [type isEqual:@"localnotificationaction"]) {
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiLocalNotificationAction object:nil];
-	}
+    if (count == 0 && [type isEqual:@"localnotificationaction"]) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiLocalNotificationAction object:nil];
+    }
+    if (count == 0 && [type isEqual:@"remotenotificationaction"]) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiRemoteNotificationAction object:nil];
+    }
 
     if ((count == 1) && [type isEqual:@"backgroundfetch"]) {
         [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiBackgroundFetchNotification object:nil];
@@ -463,10 +469,16 @@
 	[self fireEvent:@"notification" withObject:notification];
 }
 
--(void)didReceiveBackgroundLocalNotification:(NSNotification*)note
+-(void)didReceiveLocalNotificationAction:(NSNotification*)note
 {
-	NSDictionary *notification = [note object];
-	[self fireEvent:@"localnotificationaction" withObject:notification];
+    NSDictionary *notification = [note object];
+    [self fireEvent:@"localnotificationaction" withObject:notification];
+}
+
+-(void)didReceiveRemoteNotificationAction:(NSNotification*)note
+{
+    NSDictionary *notification = [note object];
+    [self fireEvent:@"remotenotificationaction" withObject:notification];
 }
 
 -(void)didReceiveBackgroundFetchNotification:(NSNotification*)note
