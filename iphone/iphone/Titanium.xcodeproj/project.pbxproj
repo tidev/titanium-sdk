@@ -607,12 +607,15 @@
 		B6465C2318D1011C003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
 		B6465C2418D10126003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
 		B6465C2518D10126003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
+		B657BD82197F938C00F84770 /* TiHyperloopHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B6A3A759197F3AD900711B09 /* TiHyperloopHelper.mm */; };
+		B657BD83197F938F00F84770 /* TiHyperloopHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B6A3A759197F3AD900711B09 /* TiHyperloopHelper.mm */; };
 		B69A9C62180C738600A68F64 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		B69A9C63180C738600A68F64 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		B69A9C64180C738600A68F64 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		B6A0A2B1180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */; };
 		B6A0A2B2180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */; };
 		B6A0A2B3180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */; };
+		B6A3A75A197F3AD900711B09 /* TiHyperloopHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B6A3A759197F3AD900711B09 /* TiHyperloopHelper.mm */; };
 		B6C5206118035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6C5206018035AF3002471C6 /* TiUIiOSAttributedStringProxy.m */; };
 		B6C5206218035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6C5206018035AF3002471C6 /* TiUIiOSAttributedStringProxy.m */; };
 		B6C5206318035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6C5206018035AF3002471C6 /* TiUIiOSAttributedStringProxy.m */; };
@@ -1489,6 +1492,8 @@
 		B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkCookieProxy.m; sourceTree = "<group>"; };
 		B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTransitionAnimationProxy.h; sourceTree = "<group>"; };
 		B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTransitionAnimationProxy.m; sourceTree = "<group>"; };
+		B6A3A758197F3AD900711B09 /* TiHyperloopHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiHyperloopHelper.h; path = ../Classes/Hyperloop/TiHyperloopHelper.h; sourceTree = "<group>"; };
+		B6A3A759197F3AD900711B09 /* TiHyperloopHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = TiHyperloopHelper.mm; path = ../Classes/Hyperloop/TiHyperloopHelper.mm; sourceTree = "<group>"; };
 		B6C5205F18035AF3002471C6 /* TiUIiOSAttributedStringProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSAttributedStringProxy.h; sourceTree = "<group>"; };
 		B6C5206018035AF3002471C6 /* TiUIiOSAttributedStringProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSAttributedStringProxy.m; sourceTree = "<group>"; };
 		BB26FC7C19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSNotificationActionProxy.h; sourceTree = "<group>"; };
@@ -1759,6 +1764,7 @@
 		24CA8903111160C30084E2DE /* Thirdparty */ = {
 			isa = PBXGroup;
 			children = (
+				B6A3A757197F3AA500711B09 /* Hyperloop */,
 				312E36BE190B06D9008EAB8D /* APSAnalytics */,
 				B606EF58190B42FB00663EFC /* APSHTTPClient */,
 				B440EF771209DC400045FEAE /* MGSplitView */,
@@ -2955,6 +2961,15 @@
 			path = ../Classes/APSHTTPClient;
 			sourceTree = "<group>";
 		};
+		B6A3A757197F3AA500711B09 /* Hyperloop */ = {
+			isa = PBXGroup;
+			children = (
+				B6A3A758197F3AD900711B09 /* TiHyperloopHelper.h */,
+				B6A3A759197F3AD900711B09 /* TiHyperloopHelper.mm */,
+			);
+			name = Hyperloop;
+			sourceTree = "<group>";
+		};
 		B6C5205E18035ACF002471C6 /* AttributedString */ = {
 			isa = PBXGroup;
 			children = (
@@ -3231,6 +3246,7 @@
 				24CA8969111161050084E2DE /* Base64Transcoder.c in Sources */,
 				243ECCB91126989700639DF4 /* TiUITextWidget.m in Sources */,
 				24CA897D111161050084E2DE /* PlausibleDatabase.m in Sources */,
+				B6A3A75A197F3AD900711B09 /* TiHyperloopHelper.mm in Sources */,
 				24CA897E111161050084E2DE /* PLSqliteDatabase.m in Sources */,
 				24CA897F111161050084E2DE /* PLSqlitePreparedStatement.m in Sources */,
 				8484E3A717A865F700C24B02 /* TiViewController.m in Sources */,
@@ -3759,6 +3775,7 @@
 				D93DAA5116CBF8CB00AD64C9 /* CalendarModule.m in Sources */,
 				D93DAA5616CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */,
 				B6C5206218035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */,
+				B657BD82197F938C00F84770 /* TiHyperloopHelper.mm in Sources */,
 				D93DAA5B16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D93DAA6016CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
 				D93DAA6516CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
@@ -4040,6 +4057,7 @@
 				D93DAA5216CBF8CB00AD64C9 /* CalendarModule.m in Sources */,
 				D93DAA5716CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */,
 				B6C5206318035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */,
+				B657BD83197F938F00F84770 /* TiHyperloopHelper.mm in Sources */,
 				D93DAA5C16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D93DAA6116CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
 				D93DAA6616CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
@@ -4062,6 +4080,7 @@
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
@@ -4106,6 +4125,7 @@
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
@@ -4212,6 +4232,7 @@
 				ARCHS = armv7;
 				"ARCHS[sdk=iphoneos*]" = armv7;
 				"ARCHS[sdk=iphonesimulator*]" = i386;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libstdc++";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -4253,6 +4274,7 @@
 				ARCHS = armv7;
 				"ARCHS[sdk=iphoneos*]" = armv7;
 				"ARCHS[sdk=iphonesimulator*]" = i386;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libstdc++";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -4291,6 +4313,7 @@
 				ARCHS = armv7;
 				"ARCHS[sdk=iphoneos*]" = armv7;
 				"ARCHS[sdk=iphonesimulator*]" = i386;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libstdc++";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -4331,6 +4354,7 @@
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_CPP_RTTI = NO;

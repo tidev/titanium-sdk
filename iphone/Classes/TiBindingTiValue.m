@@ -11,6 +11,7 @@
 #import "KrollCallback.h"
 #import "KrollContext.h"
 #import "KrollBridge.h"
+#import "TiHyperloopHelper.h"
 
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
@@ -93,9 +94,23 @@ NSObject * TiBindingTiValueToNSObject(TiContextRef jsContext, TiValueRef objRef)
 		}
 		case kTITypeObject: {
 			TiObjectRef obj = TiValueToObject(jsContext, objRef, NULL);
-			id privateObject = (id)TiObjectGetPrivate(obj);
-			if ([privateObject isKindOfClass:[KrollObject class]]) {
-				return [privateObject target];
+			void* privateObject = TiObjectGetPrivate(obj);
+			
+			// If `privateObject` is not null, it will be only be one of two things:
+			// `KrollObject object`, or `Hyperloop object`
+			if(privateObject != NULL) {
+				// Gets the `Class` from the JS private object if it's an `id`
+				Class objcClass = *((Class *)privateObject);
+				// If it's a Hyperloop object it will null
+				if (objcClass != nil) {
+					// we could check it's a KrollObject and if it's not return nil, but
+					// if we send `target` to an object that is not KrollObject it will
+					// return nil anyway
+					return [(id)privateObject target];
+				}
+				// if `privateObject` is not nil and it's not a Class, then it is a Hyperloop object
+				return [TiHyperloopHelper GetObjectFromHyperloopPointer:privateObject];
+
 			}
 			if (TiValueIsArray(jsContext,obj)) {
 				TiValueRef length = TiObjectGetProperty(jsContext, obj, kTiStringLength, NULL);
