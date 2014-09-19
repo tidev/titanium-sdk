@@ -210,10 +210,6 @@ public class TiTableView extends FrameLayout
 						}
 					}
 				}
-			} else if (item.proxy instanceof TableViewRowProxy) {
-				TableViewRowProxy rowProxy = (TableViewRowProxy) item.proxy;
-				//If the proxy is already assigned at layout pass, let us use it
-				v = rowProxy.getTableViewRowProxyItem();
 			}
 			if (v == null) {
 				if (item.className.equals(TableViewProxy.CLASSNAME_HEADERVIEW)) {
