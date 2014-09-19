@@ -1,3 +1,7 @@
+0.2.17 (9/16/2014)
+-------------------
+ * Fixed timodule logic to find latest *valid* module instead of latest module [TIMOB-17545]
+
 0.2.16 (8/22/2014)
 -------------------
  * Fixed bug with parseMin() and parseMax() in version module
