@@ -76,11 +76,10 @@
 	ENSURE_CLASS_OR_NIL(bccArray,arrayClass);
 	NSArray * ccArray = [self valueForUndefinedKey:@"ccRecipients"];
 	ENSURE_CLASS_OR_NIL(ccArray,arrayClass);
-
 		
-    ENSURE_UI_THREAD(open,args);
+	ENSURE_UI_THREAD(open,args);
 
-    NSString * subject = [TiUtils stringValue:[self valueForUndefinedKey:@"subject"]];
+	NSString * subject = [TiUtils stringValue:[self valueForUndefinedKey:@"subject"]];
 	NSString * message = [TiUtils stringValue:[self valueForUndefinedKey:@"messageBody"]];
 
 #if TARGET_IPHONE_SIMULATOR
