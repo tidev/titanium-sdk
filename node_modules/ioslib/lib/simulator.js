@@ -311,18 +311,24 @@ function detect(options, callback) {
  * @param {Boolean} [options.hide=false] - Hide the iOS Simulator after launching. Useful for testing. Ignored if "focus" option is set to true.
  * @param {Boolean} [options.killIfRunning=false] - Kill the iOS Simulator if already running.
  * @param {String} [options.logFilename] - The name of the log file to search for in the iOS Simulator's "Documents" folder. This file is created after the app is started.
+ * @param {Boolean} [options.relaunchIfStartFail=false] - If the app fails to start properly, then relaunch until it succeeds.
+ * @param {Number} [options.relaunchMaxFailures=10] - The number of relaunches before giving up trying to start the app.
  * @param {String} [options.simType=iphone] - The type of simulator to launch. Must be either "iphone" or "ipad". Only applicable when udid is not specified.
  * @param {String} [options.simVersion] - The iOS version to boot. Defaults to the most recent version.
  * @param {Number} [options.timeout] - Number of milliseconds to wait for the simulator to launch and launch the app before timing out. Ignored if not installing an app.
  * @param {Function} [callback(err, simHandle)] - A function to call when the simulator has launched.
  *
  * @emits module:simulator#app-quit
- * @emits module:simulator#app-started
+ * @emits module:simulator#app-started - Fired as soon as the "session started"
+ *     log message is emitted from ios-sim. If the app fails to start, then the
+ *     app is automatically relaunched and thus multiple "app-started" events
+ *     will be emitted.
  * @emits module:simulator#error
  * @emits module:simulator#launched
  * @emits module:simulator#log
  * @emits module:simulator#log-file
  * @emits module:simulator#log-raw
+ * @emits module:simulator#relaunch
  * @emits module:simulator#timeout
  *
  * @returns {EventEmitter}
@@ -437,6 +443,42 @@ function launch(udid, options, callback) {
 				return fs.readdirSync(simInfo.crashDir).filter(function (n) { return path.extname(n) === '.plist'; });
 			}
 
+			var relaunchCount = 0,
+				relaunchMaxFailures = options.relaunchMaxFailures === void 0 ? 10 : options.relaunchMaxFailures,
+				lastSyslog = null,
+				syslogRegExp = /^\d{4}/;
+
+			function shouldRelaunch(cb) {
+				appc.subprocess.run('syslog', [
+					'-F', '$((Time)(ISO8601.6)) $Host $(Sender)[$(PID)] <$((Level)(str))>: $Message',
+					'-d', path.join(path.dirname(simHandle.systemLog), 'asl'),
+					'-k', 'Sender', 'SpringBoard',
+					'-k', 'Message', 'Req', '(Unable to deliver -\\[UIRemoteApplication showTopMostMiniAlertWithSynchronizationPort:\\] message to port 0: \\(ipc/send\\) invalid destination port|Application \'UIKitApplication:[^\']+\' exited abnormally via signal\\.)',
+					'-k', 'Time', 'ge', '-1h',
+					'-o',
+					'-k', 'Sender', 'com.apple.CoreSimulator.SimDevice.' + simHandle.udid + '.launchd_sim',
+					'-k', 'Message', 'eq', 'Service exited due to signal: Killed: 9',
+					'-k', 'Time', 'ge', '-1h'
+				], function (code, out, err) {
+					if (code) {
+						return cb(false);
+					}
+
+					var lines = [];
+					out.trim().split('\n').forEach(function (line) {
+						var ts = new Date(line.split(' ').shift().replace(/-(\d+)$/, function (m, tz) { return '-' + (tz + '0000').substring(0, 4); }));
+						if (ts && ts.toString().toLowerCase() !== 'invalid date') {
+							if (!lastSyslog || ts > lastSyslog) {
+								lines.push(line);
+								lastSyslog = ts;
+							}
+						}
+					});
+
+					cb(lines.length >= 3, lines.join('\n'));
+				});
+			}
+
 			function launchSim() {
 				var launchTimer = null,
 					existingCrashes = getCrashes(),
@@ -450,7 +492,7 @@ function launch(udid, options, callback) {
 				simProcess.stderr.on('data', function (data) {
 					if (data.toString().trim().indexOf('Session started') !== -1) {
 						clearTimeout(launchTimer);
-						emitter.emit('app-started', simHandle);
+						emitter.emit('app-started');
 					}
 				});
 
@@ -509,8 +551,21 @@ function launch(udid, options, callback) {
 							crash.crashFile = path.join(path.dirname(crashPlistFile), path.basename(crashPlistFile).substring(1).replace(/\.plist$/, ''));
 
 							emitter.emit('app-quit', new SimulatorCrash(crash));
-						} else {
+						} else if (code) {
 							emitter.emit('app-quit', code);
+						} else if (!options.relaunchIfStartFail) {
+							emitter.emit('app-quit');
+						} else if (++relaunchCount >= relaunchMaxFailures) {
+							emitter.emit('app-quit', new Error('App failed to start after ' + relaunchCount + ' ' + (relaunchCount === 1 ? 'attempt' : 'attempts')));
+						} else {
+							shouldRelaunch(function (relaunch, syslog) {
+								if (relaunch) {
+									emitter.emit('relaunch', syslog);
+									setTimeout(launchSim, 10);
+								} else {
+									emitter.emit('app-quit');
+								}
+							});
 						}
 					}, 100);
 				});
@@ -562,11 +617,14 @@ function launch(udid, options, callback) {
 				callback(null, simHandle);
 			} // end of launchSim()
 
-			if (options.killIfRunning) {
-				stop(simHandle, launchSim);
-			} else {
-				launchSim();
-			}
+			// seed the lastSyslog
+			shouldRelaunch(function () {
+				if (options.killIfRunning) {
+					stop(simHandle, launchSim);
+				} else {
+					launchSim();
+				}
+			});
 		});
 	});
 
