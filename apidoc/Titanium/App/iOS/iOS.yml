@@ -335,12 +335,7 @@ events:
     summary: Fired when a user selects an action for an interactive remote notification.
     properties: 
       - name: data
-        summary: The `userinfo` dictionary passed to the Apple Push Notification Service.
-        description: |
-            For more information, see the following item in the iOS Developer Library:
-
-            [application:didReceiveRemoteNotification in the UIApplicationDelegate Protocol
-            Reference](http://developer.apple.com/library/ios/#DOCUMENTATION/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intfm/UIApplicationDelegate/application:didReceiveRemoteNotification:)
+        summary: The payload passed to the Apple Push Notification Service.
         type: Dictionary
         
       - name: category
