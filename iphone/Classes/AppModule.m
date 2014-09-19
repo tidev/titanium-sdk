@@ -304,10 +304,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     NSDictionary *userInfo = [notification userInfo];
     
     CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    // window for keyboard
-    UIWindow *keyboardWindow = [[[UIApplication sharedApplication] windows] lastObject];  
-    
-    keyboardEndFrame = [keyboardWindow convertRect:keyboardEndFrame fromWindow:nil];
+    if (![TiUtils isIOS8OrGreater]) {
+        // window for keyboard
+        UIWindow *keyboardWindow = [[[UIApplication sharedApplication] windows] lastObject];
+        
+        keyboardEndFrame = [keyboardWindow convertRect:keyboardEndFrame fromWindow:nil];
+    }
     
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
                                 [TiUtils rectToDictionary:keyboardEndFrame], @"keyboardFrame",
