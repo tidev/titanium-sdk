@@ -1091,7 +1091,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 		[event setObject:NOTNIL(identifier) forKey:@"identifier"];
 	}
 	
-	return [[event copy] autorelease];
+	return event;
     
 }
 + (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification
