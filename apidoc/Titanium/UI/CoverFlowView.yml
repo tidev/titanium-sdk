@@ -24,8 +24,8 @@ methods:
         not 'auto' or a percentage size.
 
         If the image is passed as a `File` object or file path, the filename is checked.
-        If the filename includes the '@2x' string used to identify high-resolution images
-        for the Retina display, the image is treated accordingly.
+        filename includes the '@2x' or '@3x' string used to identify high-resolution images
+        for the Retina (HD) display, the image is treated accordingly.
     parameters:
       - name: index
         summary: Index to add the image at.
