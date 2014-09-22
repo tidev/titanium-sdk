@@ -994,8 +994,8 @@ description: |
     In the user interface, a modal window is a window that blocks the main application UI until the
     modal window is dismissed.  A modal window requires the user to interact with it to resume the
     normal flow of the application.  For example, if an action requires the user to login, the
-    applicaiton can present a login window, then after the user is authenticated, the application
-    can resume the normal flow of the applicaiton.
+    application can present a login window, then after the user is authenticated, the normal flow
+    of the application can be resumed.
 
     To create a modal window, set the `modal` property to `true` in the dictionary passed to
     either the `Titanium.UI.createWindow()` method or the Window object's `open()` method.
