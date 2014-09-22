@@ -25,6 +25,7 @@ exports.init = function (logger, config, cli) {
 			logger.info(__('Launching iOS Simulator'));
 
 			var simStarted = false,
+				relaunched = false,
 				startLogTxt = __('Start simulator log'),
 				endLogTxt = __('End simulator log'),
 				endLog = function () {
@@ -44,13 +45,23 @@ exports.init = function (logger, config, cli) {
 				logFilename: builder.tiapp.guid + '.log',
 				simType: builder.iosSimType,
 				simVersion: builder.iosSimVersion,
-				killIfRunning: true
-			}).on('app-started', function (simHandle) {
-				finished && finished();
-				finished = null;
-				simStarted = true;
-				logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
+				killIfRunning: true,
+				relaunchIfStartFail: true,
+				relaunchMaxFailures: config.get('ios.relaunchMaxFailures')
+			}).on('relaunch', function (syslog) {
+				relaunched = true;
+				logger.debug(__('App failed to properly start, retrying...'));
+				syslog && syslog.split('\n').forEach(function (line) {
+					logger.trace(line);
+				});
 			}).on('log-file', function (line) {
+				if (!simStarted) {
+					finished && finished();
+					finished = null;
+					simStarted = true;
+					relaunched && logger.log();
+					logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
+				}
 				var m = line.match(logLevelRE);
 				if (m) {
 					lastLogger = m[2].toLowerCase();
