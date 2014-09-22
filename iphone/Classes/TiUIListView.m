@@ -201,6 +201,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
             }
         }
+    } else {
+        [_tableView reloadData];
     }
     [super frameSizeChanged:frame bounds:bounds];
     
