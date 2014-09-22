@@ -545,6 +545,10 @@ properties:
         Array of supported orientation modes, specified using the orientation
         constants defined in <Titanium.UI>.
     description: |
+        **Note:** Using the `orientationModes` property to force the orientation of non-modal
+        windows is considered a bad practice and will not be supported, including forcing the
+        orientation of windows inside a NavigationWindow or TabGroup.
+
         To restrict this window to a certain set of orientations, specify one or more
         of the orientation constants [LANDSCAPE_LEFT](Titanium.UI.LANDSCAPE_LEFT),
         [LANDSCAPE_RIGHT](Titanium.UI.LANDSCAPE_RIGHT), [PORTRAIT](Titanium.UI.PORTRAIT),
