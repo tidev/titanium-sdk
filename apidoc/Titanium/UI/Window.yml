@@ -1012,7 +1012,7 @@ description: |
     supports the blur effect.
 
     The combination of `fullscreen:true` and `modal:true` will not work as expected.
-    If the background window displays the status bar or action bar, it will appear behind the modal
+    If the background window displays the status bar or action bar, it will be visible behind the modal
     window.
 
     Note that Titanium will allow a non-modal window to open on top of a modal window on
@@ -1045,7 +1045,7 @@ description: |
 
     ##### iPad Features
 
-    For iPad, in addition to full-screen modal windows, iPad supports "Page sheet"
+    In addition to full-screen modal windows, iPad supports "Page sheet"
     and "Form sheet" style windows:
 
     * **Page sheet** style windows have a fixed width, equal to the width of the screen
