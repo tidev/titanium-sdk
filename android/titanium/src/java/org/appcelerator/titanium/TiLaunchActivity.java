@@ -6,13 +6,13 @@
  */
 package org.appcelerator.titanium;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -25,6 +25,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
@@ -58,6 +59,8 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	private PendingIntent restartPendingIntent = null;
 	private AlarmManager restartAlarmManager = null;
 	private int restartDelay = 0;
+	private Thread debugger;
+	AtomicBoolean isDebug = new AtomicBoolean(false);
 
 	// finishing2373 is a flag indicating we've elected
 	// to finish this instance of the activity because
@@ -129,6 +132,12 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			}
 		}
 
+		String deployType = tiApp.appInfo.getDeployType();
+		
+		if (deployType == TiApplication.DEPLOY_TYPE_PRODUCTION) {
+			exitIfConnectToDebugger();
+		}
+
 		url = TiUrl.normalizeWindowUrl(getUrl());
 
 		// we only want to set the current activity for good in the resume state but we need it right now.
@@ -144,6 +153,46 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		super.onCreate(savedInstanceState);
 	}
 
+	private void finishApp()
+	{
+		finish();
+		TiApplication app = getTiApp();
+		if (app != null) {
+			TiRootActivity rootActivity = app.getRootActivity();
+			if (rootActivity != null && !(rootActivity.equals(this)) && !rootActivity.isFinishing()) {
+				rootActivity.finish();
+			}
+		}
+	}
+
+	private void exitIfConnectToDebugger() 
+	{
+		if (Debug.isDebuggerConnected()) {
+			finishApp();
+		} else {
+			if (debugger != null) {
+				return;
+			}
+			debugger = new Thread(new Runnable() {
+				public void run()
+				{
+					while (!isDebug.get()) {
+						try {
+							if (Debug.isDebuggerConnected()) {
+								isDebug.set(true);
+								finishApp();
+							}
+							Thread.sleep(50);
+						} catch (InterruptedException e) {
+							Log.e(TAG, "Debug listener thread is interrupted", Log.DEBUG_MODE);
+						}
+					}
+				}
+			});
+			debugger.start();
+		}
+	}
+	
 	@Override
 	protected void windowCreated()
 	{
@@ -393,6 +442,8 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onDestroy()
 	{
+		//stop the thread listening to debug connections
+		isDebug.set(true);
 		if (finishing2373) {
 			activityOnDestroy();
 			return;
