@@ -40,7 +40,7 @@ public class TiMenuSupport
 				menuProxy = new MenuProxy(menu);
 			}
 			event.put(TiC.EVENT_PROPERTY_MENU, menuProxy);
-			onCreate.call(activityProxy.getKrollObject(), new Object[] { event });
+			activityProxy.callPropertySync(TiC.PROPERTY_ON_CREATE_OPTIONS_MENU, new Object[] { event });
 		}
 		// If a callback exists then return true.
 		// There is no need for the Ti Developer to support both methods.
@@ -82,7 +82,7 @@ public class TiMenuSupport
 				menuProxy = new MenuProxy(menu);
 			}
 			event.put(TiC.EVENT_PROPERTY_MENU, menuProxy);
-			onPrepare.call(activityProxy.getKrollObject(), new Object[] { event });
+			activityProxy.callPropertySync(TiC.PROPERTY_ON_PREPARE_OPTIONS_MENU, new Object[] { event });
 		}
 		prepared = true;
 		return prepared;

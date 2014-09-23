@@ -907,7 +907,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 		data.put("source", activityProxy);
 
-		activityProxy.callPropertyAsync(name, new Object[] { data });
+		activityProxy.callPropertySync(name, new Object[] { data });
 	}
 
 	private void releaseDialogs(boolean finish)
