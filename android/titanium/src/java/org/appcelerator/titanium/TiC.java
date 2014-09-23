@@ -1101,6 +1101,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_IMAGE_SCALE = "scale";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ENABLED = "enabled";
 
 	/**
