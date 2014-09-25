@@ -14,6 +14,13 @@ import android.os.Debug;
 
 public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 {
+	private boolean isProduction = false;
+	
+	public void setIsProduction(boolean production) 
+	{
+		isProduction = production;
+	}
+
 	private static class Range {
 		int offset;
 		int length;
@@ -27,7 +34,7 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 
 	public String readAsset(String path)
 	{
-		if (Debug.isDebuggerConnected()) {
+		if (isProduction && Debug.isDebuggerConnected()) {
 			Log.e("AssetCryptImpl", "Illegal State. Exit.");
 			System.exit(1);
 		}
