@@ -223,10 +223,20 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	cancelCallback = [[args objectForKey:@"cancel"] retain];
 	selectedPersonCallback = [[args objectForKey:@"selectedPerson"] retain];
 	selectedPropertyCallback = [[args objectForKey:@"selectedProperty"] retain];
-	
+    
 	picker = [[ABPeoplePickerNavigationController alloc] init];
 	[picker setPeoplePickerDelegate:self];
 	
+    if ([TiUtils isIOS8OrGreater]) {
+        if (selectedPropertyCallback == nil) {
+            [picker setPredicateForSelectionOfProperty:[NSPredicate predicateWithValue:NO]];
+        }
+        
+        if (selectedPersonCallback == nil) {
+            [picker setPredicateForSelectionOfPerson:[NSPredicate predicateWithValue:NO]];
+        }
+    }
+    
 	animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 	
 	NSArray* fields = [args objectForKey:@"fields"];
