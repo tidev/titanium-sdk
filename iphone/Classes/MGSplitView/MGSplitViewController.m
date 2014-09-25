@@ -607,13 +607,16 @@
 		
 	} else if (!inPopover && _hiddenPopoverController && _barButtonItem) {
 		// I know this looks strange, but it fixes a bizarre issue with UIPopoverController leaving masterViewController's views in disarray.
-		if ([[self view] window] != nil)
-		{
+		BOOL forceShow = ([TiUtils isIOS8OrGreater] ? NO : ([[self view] window] != nil));
+        
+		if (forceShow) {
 			[_hiddenPopoverController presentPopoverFromRect:CGRectMake(0,0,1,1) inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
 		}
 		
 		// Remove master from popover and destroy popover, if it exists.
-		[_hiddenPopoverController dismissPopoverAnimated:NO];
+		if ([_hiddenPopoverController isPopoverVisible]) {
+			[_hiddenPopoverController dismissPopoverAnimated:NO];
+		}
 		[_hiddenPopoverController release];
 		_hiddenPopoverController = nil;
 		
