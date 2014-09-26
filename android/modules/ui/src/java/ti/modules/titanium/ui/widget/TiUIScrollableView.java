@@ -297,6 +297,10 @@ public class TiUIScrollableView extends TiUIView
 			}
 		}
 
+		if (d.containsKey(TiC.PROPERTY_OFFSCREEN_PAGE_LIMIT)) {
+			mPager.setOffscreenPageLimit(TiConvert.toInt(d.get(TiC.PROPERTY_OFFSCREEN_PAGE_LIMIT), 2));
+		}
+
 		super.processProperties(d);
 
 	}
