@@ -23,7 +23,7 @@
 					return it === void 0 ? 'undefined' : it === null ? 'null' : Array.isArray(it) ? JSON.stringify(it.map(function (f) {
 						return typeof f == 'function' ? f.toString() : f;
 					})) : objToString.call(it) == '[object Object]' ? JSON.stringify(it) : it;
-				}).join(' ')
+				})
 			});
 		};
 	});
