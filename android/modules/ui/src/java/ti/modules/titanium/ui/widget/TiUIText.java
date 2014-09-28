@@ -143,7 +143,7 @@ public class TiUIText extends TiUIView
 			tv.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
 		}
 
-		if (d.containsKey(TiC.PROPERTY_MAX_LENGTH) && field) {
+		if (d.containsKey(TiC.PROPERTY_MAX_LENGTH)) {
 			maxLength = TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LENGTH), -1);
 		}
 
