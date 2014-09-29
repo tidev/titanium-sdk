@@ -71,6 +71,10 @@
 
 }
 
+- (NSNumber*) logicalDensityFactor
+{
+	return [NSNumber numberWithFloat:[[UIScreen mainScreen] scale]];
+}
 @end
 
 #endif
