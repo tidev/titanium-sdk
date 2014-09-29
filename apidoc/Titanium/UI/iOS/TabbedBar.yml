@@ -10,12 +10,9 @@ description: |
 extends: Titanium.UI.View
 platforms: [iphone, ipad]
 since: "0.8"
-excludes: {
-    events: [ 
-        'touchstart', 'touchmove', 'touchend', 'touchcancel', 'dblclick', 
-        'doubletap', 'longclick', 'singletap', 'swipe', 'twofingertap'
-    ]
-}
+excludes:
+    events: [ 'touchstart', 'touchmove', 'touchend', 'touchcancel', 'dblclick', 
+        'doubletap', 'longclick', 'singletap', 'swipe', 'twofingertap' ]
 
 events: 
   - name: click

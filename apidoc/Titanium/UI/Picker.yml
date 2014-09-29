@@ -29,14 +29,13 @@ description: |
     `Titanium.UI.PICKER_TYPE_PLAIN`, you cannot modify the picker's columns.
 
 extends: Titanium.UI.View
-excludes: {
+excludes:
     properties: [
         anchorPoint,backgroundDisabledColor,backgroundDisabledImage,backgroundFocusedColor,
         backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,backgroundRepeat,
-        backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,center,enabled,layout,tintColor,zIndex
-    ],
+        backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,center,enabled,layout,tintColor,zIndex]
     methods: [ remove, removeAllChildren ]
-}
+
 since: "0.8"
 platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
