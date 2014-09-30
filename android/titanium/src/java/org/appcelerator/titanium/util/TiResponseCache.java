@@ -201,10 +201,12 @@ public class TiResponseCache extends ResponseCache
 
 	public static InputStream openCachedStream(URI uri)
 	{
-		TiResponseCache rc = (TiResponseCache) TiResponseCache.getDefault();
-		if (rc == null) {
+		ResponseCache cache = TiResponseCache.getDefault();
+		if (!(cache instanceof TiResponseCache)) {
 			return null;
 		}
+
+		TiResponseCache rc = (TiResponseCache) cache;
 
 		if (rc.cacheDir == null) {
 			return null;
