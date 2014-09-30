@@ -33,6 +33,7 @@ import org.appcelerator.titanium.util.TiUrl;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Bundle;
 import android.util.Pair;
 
 import org.json.JSONObject;
@@ -1328,6 +1329,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	public String getApiName()
 	{
 		return "Ti.Proxy";
+	}
+
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onCreate life cycle events.
+	 * @param activity the activity attached to this module.
+	 * @module.api
+	 */
+	public void onCreate(Activity activity, Bundle savedInstanceState) {
 	}
 
 	/**

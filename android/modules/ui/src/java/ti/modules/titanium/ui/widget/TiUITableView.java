@@ -27,6 +27,7 @@ import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemClickedListener
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemLongClickedListener;
 import android.app.Activity;
 import android.os.Build;
+import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ListView;
@@ -218,6 +219,7 @@ public class TiUITableView extends TiUIView
 		}
 	}
 
+	@Override public void onCreate(Activity activity, Bundle savedInstanceState) {}
 	@Override public void onStop(Activity activity) {}
 	@Override public void onStart(Activity activity) {}
 	@Override public void onPause(Activity activity) {}

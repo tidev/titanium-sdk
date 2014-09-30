@@ -548,6 +548,16 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		if (window != null) {
 			window.onWindowActivityCreated();
 		}
+		synchronized (lifecycleListeners.synchronizedList()) {
+			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
+				try {
+					TiLifecycle.fireLifecycleEvent(this, listener, savedInstanceState, TiLifecycle.LIFECYCLE_ON_CREATE);
+
+				} catch (Throwable t) {
+					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
+				}
+			}
+		}
 	}
 
 	public int getOriginalOrientationMode()
