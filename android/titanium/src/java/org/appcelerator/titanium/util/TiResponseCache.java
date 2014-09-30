@@ -184,8 +184,12 @@ public class TiResponseCache extends ResponseCache
 
 	public static boolean peek(URI uri)
 	{
-		TiResponseCache rc = (TiResponseCache) TiResponseCache.getDefault();
-		if (rc == null) return false;
+		ResponseCache cache = TiResponseCache.getDefault();
+		if (!(cache instanceof TiResponseCache)) {
+			return false;
+		}
+		
+		TiResponseCache rc = (TiResponseCache) cache;
 		if (rc.cacheDir == null) return false;
 		
 		String hash = DigestUtils.shaHex(uri.toString());
