@@ -859,6 +859,12 @@
         DebugLog(@"[ERROR] ErrorController is up. ABORTING showing of modal controller");
         return;
     }
+    if ([TiUtils isIOS8OrGreater]) {
+        if ([topVC isKindOfClass:[UIAlertController class]]) {
+            DebugLog(@"[ERROR] UIAlertController is up. ABORTING showing of modal controller");
+            return;
+        }
+    }
     if (topVC == self) {
         [[containedWindows lastObject] resignFocus];
     } else if ([topVC respondsToSelector:@selector(proxy)]) {
@@ -942,6 +948,8 @@
         presentedViewController = [topmostController presentedViewController];
         if ((presentedViewController != nil) && checkPopover && [TiUtils isIOS8OrGreater]) {
             if (presentedViewController.modalPresentationStyle == UIModalPresentationPopover) {
+                presentedViewController = nil;
+            } else if ([presentedViewController isKindOfClass:[UIAlertController class]]) {
                 presentedViewController = nil;
             }
         }
