@@ -12,7 +12,7 @@ description: |
 extends: Titanium.Proxy
 since: "1.4.0"
 platforms: [iphone, ipad]
-creatable: false
+createable: false
 properties:
 
   - name: albumArtist

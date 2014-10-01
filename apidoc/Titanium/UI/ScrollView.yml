@@ -309,7 +309,7 @@ properties:
   - name: scrollIndicatorStyle
     summary: Style of the scrollbar.
     type: Number
-    constants: <Titanium.UI.iPhone.ScrollIndicatorStyle.*
+    constants: Titanium.UI.iPhone.ScrollIndicatorStyle.*
     default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
     platforms: [iphone, ipad]
 
@@ -470,7 +470,6 @@ description: |
     scrolls. For example
 
         setContentOffset({x:50,y:100}, {animated:true})
-optional: true
 since: 1.8.1
 platforms: [iphone, ipad]
 
@@ -486,7 +485,6 @@ description: |
     zooms. For example
 
         setZoomScale(2, {animated:true})
-optional: true
 since: 3.0.0
 platforms: [iphone, ipad]
 

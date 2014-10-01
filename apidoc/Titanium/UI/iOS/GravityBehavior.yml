@@ -59,7 +59,7 @@ methods:
     summary: Adds an item to this behavior.
     parameters:
       - name: item
-        summary: 
+        summary: View object to add to the behavior.
         type: Titanium.UI.View
 
   - name: removeItem
