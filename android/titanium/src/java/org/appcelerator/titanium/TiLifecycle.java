@@ -8,6 +8,7 @@ package org.appcelerator.titanium;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.content.Intent;
 
 /**
  *This class contains a single static utility method for firing a lifecycle event to a single listener.
@@ -75,6 +76,16 @@ public class TiLifecycle
 	}
 
 	/**
+	 * An interface to handle onActivityResult events.
+	 */
+	public interface onActivityResultEvent {
+		/**
+		 * Implementing classes should use this to receive native Android onActivityResult events.
+		 */
+		public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data);
+	}
+
+	/**
 	 * An interface to intercept OnBackPressed events.
 	 */
 	public interface interceptOnBackPressedEvent {
@@ -101,5 +112,10 @@ public class TiLifecycle
                         case LIFECYCLE_ON_CREATE: listener.onCreate(activity, bundle); break;
                 }
         }
+
+	public static void fireOnActivityResultEvent(Activity activity, onActivityResultEvent listener, int requestCode, int resultCode, Intent data)
+	{
+		listener.onActivityResult(activity, requestCode, resultCode, data);
+	}
 }
 
