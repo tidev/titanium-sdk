@@ -22,6 +22,8 @@ public class TiLifecycle
 	public static final int LIFECYCLE_ON_STOP = 3;
 	public static final int LIFECYCLE_ON_DESTROY = 4;
 	public static final int LIFECYCLE_ON_CREATE = 5;
+	public static final int ON_SAVE_INSTANCE_STATE = 6;
+	public static final int ON_RESTORE_INSTANCE_STATE = 7;
 
 	/**
 	 * An interface for receiving Android lifecycle events. 
@@ -63,6 +65,21 @@ public class TiLifecycle
 		 * @param activity the attached activity.
 		 */
 		public void onDestroy(Activity activity);
+	}
+
+	public interface OnInstanceStateEvent {
+
+		/**
+		 * Implementing classes should use this to receive native Android onSaveInstanceState events.
+		 * @param activity the attached activity.
+		 */
+		public void onSaveInstanceState(Bundle bundle);
+
+		/**
+		 * Implementing classes should use this to receive native Android onRestoreInstanceState events.
+		 * @param activity the attached activity.
+		 */
+		public void onRestoreInstanceState(Bundle bundle);
 	}
 
 	/**
@@ -116,6 +133,14 @@ public class TiLifecycle
 	public static void fireOnActivityResultEvent(Activity activity, onActivityResultEvent listener, int requestCode, int resultCode, Intent data)
 	{
 		listener.onActivityResult(activity, requestCode, resultCode, data);
+	}
+
+	public static void fireInstanceStateEvent(Bundle bundle, OnInstanceStateEvent listener, int which)
+	{
+		switch (which) {
+			case ON_SAVE_INSTANCE_STATE: listener.onSaveInstanceState(bundle); break;
+			case ON_RESTORE_INSTANCE_STATE: listener.onRestoreInstanceState(bundle); break;	
+		}
 	}
 }
 
