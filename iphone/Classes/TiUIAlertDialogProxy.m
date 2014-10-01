@@ -132,6 +132,13 @@ static BOOL alertShowing = NO;
 		int style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
 		[alert setAlertViewStyle:style];
 
+        if( style == UIAlertViewStylePlainTextInput || style == UIAlertViewStyleSecureTextInput )
+        {
+            UITextField *textField  = [alert textFieldAtIndex:0];
+            textField.text          = [TiUtils stringValue:[self valueForKey:@"value"]];
+            textField.placeholder   = [TiUtils stringValue:[self valueForKey:@"hintText"]];
+        }
+        
 		[self retain];
 		[[[TiApp app] controller] incrementActiveAlertControllerCount];
 		[alert show];

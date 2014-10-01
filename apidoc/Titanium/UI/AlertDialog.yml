@@ -172,6 +172,15 @@ properties:
     type: Number
     default: undefined (Android), -1 (iOS, Mobile Web)
     
+  - name: hintText
+    summary: |
+        Hint text to display when the field is empty if dialog `style` property is defined as
+        <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
+    description: Hint text is hidden when the user enters text into this text field.
+    type: String
+    default: No hint text.
+    platforms: [iphone, ipad]
+
   - name: message
     summary: Dialog message.
     type: String
@@ -232,6 +241,13 @@ properties:
     default: false on iOS, true on Android
     since: "3.0.0"
     platforms: [android, iphone, ipad]
+
+  - name: value
+    summary: |
+        Value of the text field, which may be set programmatically and modified by the user, if dialog `style` property is defined as
+        <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
+    type: String
+    platforms: [iphone, ipad]
 
 examples:
   - title: Single-button Alert Dialog (using alias)
