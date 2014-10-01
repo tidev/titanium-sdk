@@ -21,6 +21,7 @@ import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
 import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
 import org.appcelerator.titanium.TiLifecycle.onActivityResultEvent;
+import org.appcelerator.titanium.TiLifecycle.OnInstanceStateEvent;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
@@ -76,6 +77,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
 	private TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<OnWindowFocusChangedEvent>();
 	private TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners = new TiWeakList<interceptOnBackPressedEvent>();
+	private TiWeakList<OnInstanceStateEvent> instanceStateListeners = new TiWeakList<OnInstanceStateEvent>();
 	private TiWeakList<onActivityResultEvent> onActivityResultListeners = new TiWeakList<onActivityResultEvent>();
 	private APSAnalytics analytics = APSAnalytics.getInstance();
 
@@ -906,6 +908,11 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		lifecycleListeners.add(new WeakReference<OnLifecycleEvent>(listener));
 	}
 
+	public void addOnInstanceStateEventListener(OnInstanceStateEvent listener)
+	{
+		instanceStateListeners.add(new WeakReference<OnInstanceStateEvent>(listener));
+	}
+
 	public void addOnWindowFocusChangedEventListener(OnWindowFocusChangedEvent listener)
 	{
 		windowFocusChangedListeners.add(new WeakReference<OnWindowFocusChangedEvent>(listener));
@@ -1343,6 +1350,16 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		if (!isFinishing() && supportHelper != null) {
 			outState.putInt("supportHelperId", supportHelperId);
 		}
+
+		synchronized (instanceStateListeners.synchronizedList()) {
+			for (OnInstanceStateEvent listener : instanceStateListeners.nonNull()) {
+				try {
+					TiLifecycle.fireInstanceStateEvent(outState, listener, TiLifecycle.ON_SAVE_INSTANCE_STATE);
+				} catch (Throwable t) {
+					Log.e(TAG, "Error dispatching OnInstanceStateEvent: " + t.getMessage(), t);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -1355,6 +1372,16 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			supportHelper = TiActivitySupportHelpers.retrieveSupportHelper(this, supportHelperId);
 			if (supportHelper == null) {
 				Log.e(TAG, "Unable to retrieve the activity support helper.");
+			}
+		}
+
+		synchronized (instanceStateListeners.synchronizedList()) {
+			for (OnInstanceStateEvent listener : instanceStateListeners.nonNull()) {
+				try {
+					TiLifecycle.fireInstanceStateEvent(savedInstanceState, listener, TiLifecycle.ON_RESTORE_INSTANCE_STATE);
+				} catch (Throwable t) {
+					Log.e(TAG, "Error dispatching OnInstanceStateEvent: " + t.getMessage(), t);
+				}
 			}
 		}
 	}
