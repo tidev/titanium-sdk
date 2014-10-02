@@ -104,7 +104,7 @@
         
         if ([TiUtils isIPad]) {
             UIViewController* topVC = [[[TiApp app] controller] topPresentedController];
-            isPopover = (topVC.modalPresentationStyle == UIModalPresentationPopover);
+            isPopover = ( (topVC.modalPresentationStyle == UIModalPresentationPopover) && (![topVC isKindOfClass:[UIAlertController class]]) );
             /**
              ** This block commented out since it seems to have no effect on the alert controller.
              ** If you read the modalPresentationStyle after setting the value, it still shows UIModalPresentationPopover
@@ -262,6 +262,11 @@
     popoverPresentationController.sourceRect = *rect;
 }
 
+- (void)popoverPresentationControllerDidDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
+{
+    [self cleanup];
+}
+
 #pragma mark AlertView Delegate
 
 - (void)willPresentActionSheet:(UIActionSheet *)actionSheet_
@@ -304,7 +309,6 @@
         
         [self fireEvent:@"click" withObject:event];
     }
-    [self cleanup];
 }
 
 -(void)cleanup
