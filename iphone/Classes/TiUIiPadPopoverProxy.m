@@ -488,6 +488,16 @@ static NSArray* popoverSequence;
 }
 
 #pragma mark Delegate methods
+- (BOOL)popoverControllerShouldDismissPopover:(UIPopoverController *)thisPopoverController
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        if (thisPopoverController.contentViewController.presentedViewController != nil) {
+            return NO;
+        }
+    }
+    return YES;
+}
+
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)thisPopoverController
 {
 //As of iPhone OS 3.2, calling dismissPopoverAnimated does NOT call didDismissPopover. So we have to do it ourselves.

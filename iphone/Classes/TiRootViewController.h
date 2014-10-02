@@ -59,6 +59,7 @@
 -(NSUInteger)supportedOrientationsForAppDelegate;
 -(void)incrementActiveAlertControllerCount;
 -(void)decrementActiveAlertControllerCount;
+-(UIViewController*)topPresentedController;
 -(void)updateStatusBar;
 @property (nonatomic, readonly) BOOL statusBarInitiallyHidden;
 @property (nonatomic, readonly) UIStatusBarStyle defaultStatusBarStyle;
