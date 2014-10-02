@@ -100,10 +100,22 @@
             curIndex++;
         }
         
-        UIPopoverPresentationController* presentationController =  alertController.popoverPresentationController;
-        presentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
-        presentationController.delegate = self;
-                
+        BOOL isPopover = NO;
+        
+        if ([TiUtils isIPad]) {
+            UIViewController* topVC = [[[TiApp app] controller] topPresentedController];
+            isPopover = (topVC.modalPresentationStyle == UIModalPresentationPopover);
+            if (isPopover) {
+                alertController.modalPresentationStyle = UIModalPresentationCurrentContext;
+                alertController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+            }
+        }
+        if (!isPopover) {
+            UIPopoverPresentationController* presentationController =  alertController.popoverPresentationController;
+            presentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
+            presentationController.delegate = self;
+        }
+        
         [self retain];
         [[TiApp app] showModalController:alertController animated:animated];
         
