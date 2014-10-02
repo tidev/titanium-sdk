@@ -225,7 +225,7 @@
         UIView* view = [dialogView view];
         if (view != nil) {
             popoverPresentationController.sourceView = view;
-            popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, dialogRect)?[view bounds]:dialogRect);
+            popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, dialogRect)?CGRectMake(view.bounds.size.width/2, view.bounds.size.height/2, 1, 1):dialogRect);
             return;
         }
     }
@@ -233,7 +233,7 @@
     //Fell through.
     UIViewController* presentingController = [alertController presentingViewController];
     popoverPresentationController.sourceView = [presentingController view];
-    popoverPresentationController.sourceRect = [[presentingController view] bounds];
+    popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, dialogRect)?CGRectMake(presentingController.view.bounds.size.width/2, presentingController.view.bounds.size.height/2, 1, 1):dialogRect);;
 }
 
 #pragma mark AlertView Delegate
