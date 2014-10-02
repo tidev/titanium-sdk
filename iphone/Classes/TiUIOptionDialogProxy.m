@@ -197,7 +197,7 @@
     }
 }
 
-#pragma mark UIPopoverPresentationController Delegate
+#pragma mark UIPopoverPresentationControllerDelegate
 - (void)prepareForPopoverPresentation:(UIPopoverPresentationController *)popoverPresentationController
 {
     if (dialogView != nil) {
@@ -242,6 +242,24 @@
     UIViewController* presentingController = [alertController presentingViewController];
     popoverPresentationController.sourceView = [presentingController view];
     popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, dialogRect)?CGRectMake(presentingController.view.bounds.size.width/2, presentingController.view.bounds.size.height/2, 1, 1):dialogRect);;
+}
+
+- (void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView **)view
+{
+    //This will never be called when using bar button item
+    BOOL canUseDialogRect = !CGRectEqualToRect(CGRectZero, dialogRect);
+    UIView* theSourceView = *view;
+    BOOL shouldUseViewBounds = ([theSourceView isKindOfClass:[UIToolbar class]] || [theSourceView isKindOfClass:[UITabBar class]]);
+    
+    if (shouldUseViewBounds) {
+        rect->origin = CGPointMake(theSourceView.bounds.origin.x, theSourceView.bounds.origin.y);
+        rect->size = CGSizeMake(theSourceView.bounds.size.width, theSourceView.bounds.size.height);
+    } else if (!canUseDialogRect) {
+        rect->origin = CGPointMake(theSourceView.bounds.size.width/2, theSourceView.bounds.size.height/2);
+        rect->size = CGSizeMake(1, 1);
+    }
+    
+    popoverPresentationController.sourceRect = *rect;
 }
 
 #pragma mark AlertView Delegate
