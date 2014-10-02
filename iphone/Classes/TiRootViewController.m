@@ -860,9 +860,11 @@
         return;
     }
     if ([TiUtils isIOS8OrGreater]) {
-        if ([topVC isKindOfClass:[UIAlertController class]]) {
-            DebugLog(@"[ERROR] UIAlertController is up. ABORTING showing of modal controller");
-            return;
+        if ([topVC isKindOfClass:[UIAlertController class]] && ![theController isKindOfClass:[TiErrorController class]]) {
+            if ( ((UIAlertController*)topVC).preferredStyle == UIAlertControllerStyleAlert ) {
+                DebugLog(@"[ERROR] UIAlertController is up and showing an alert. ABORTING showing of modal controller");
+                return;
+            }
         }
     }
     if (topVC == self) {
