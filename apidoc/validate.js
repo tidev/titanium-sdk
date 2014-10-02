@@ -7,7 +7,7 @@
  * Dependencies: colors ~0.6.2 and node-appc ~0.2.14
  */
 
-var yaml = fs = require('fs'),
+var fs = require('fs'),
 	colors = require('colors'),
 	nodeappc = require('node-appc'),
 	common = require('./lib/common.js'),
