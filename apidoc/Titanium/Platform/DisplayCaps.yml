@@ -29,10 +29,12 @@ properties:
   - name: density
     summary: Logical density of the display.
     type: String
+    permission: read-only
     
   - name: dpi
     summary: Display density expressed as dots-per-inch.
     type: Number
+    permission: read-only
     
   - name: logicalDensityFactor
     summary: |
@@ -51,6 +53,10 @@ properties:
         On iOS devices, this property returns 1, 2 and 3 for @1x, @2x and @3x respectively. 
         Note for iPhone 6+, this value is 3.
     type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: {iphone: "3.4.1", ipad: "3.4.1"}
+
 
   - name: platformHeight
     summary: |
@@ -62,6 +68,7 @@ properties:
         orientation is restricted by <Titanium.UI.Window.orientationModes>. See example for 
         clarification.
     type: Number
+    permission: read-only
     examples:
       - title: Platform Width and Height
         example: |
@@ -107,6 +114,7 @@ properties:
         orientation is restricted by <Titanium.UI.Window.orientationModes>. See example for 
         clarification.
     type: Number
+    permission: read-only
     examples:
       - title: Platform Width and Height
         example: |
@@ -146,11 +154,13 @@ properties:
     summary: Physical pixels per inch of the display in the X dimension.
     type: Number
     platforms: [android]
+    permission: read-only
     
   - name: ydpi
     summary: Physical pixels per inch of the display in the Y dimension.
     type: Number
     platforms: [android]
+    permission: read-only
     
 examples:
   - title: System Display Information
@@ -161,7 +171,9 @@ examples:
             Ti.API.info('Ti.Platform.displayCaps.dpi: ' + Ti.Platform.displayCaps.dpi);
             Ti.API.info('Ti.Platform.displayCaps.platformHeight: ' + Ti.Platform.displayCaps.platformHeight);
             Ti.API.info('Ti.Platform.displayCaps.platformWidth: ' + Ti.Platform.displayCaps.platformWidth);
-            Ti.API.info('Ti.Platform.displayCaps.logicalDensityFactor: ' + Ti.Platform.displayCaps.logicalDensityFactor);
+            if((Ti.Platform.osname === 'iphone')||(Ti.Platform.osname === 'ipad')||(Ti.Platform.osname === 'android')){
+              Ti.API.info('Ti.Platform.displayCaps.logicalDensityFactor: ' + Ti.Platform.displayCaps.logicalDensityFactor);
+            }
             if(Ti.Platform.osname === 'android'){
               Ti.API.info('Ti.Platform.displayCaps.xdpi: ' + Ti.Platform.displayCaps.xdpi);
               Ti.API.info('Ti.Platform.displayCaps.ydpi: ' + Ti.Platform.displayCaps.ydpi);
