@@ -848,7 +848,7 @@ properties:
     type: String
     permission: read-only
     since: "2.1.0"
-    osver: {iOS: {min: "5.0"}}
+    osver: {ios: {min: "5.0"}}
 
   - name: PUSH_MODE_CONTINUOUS
     summary: |

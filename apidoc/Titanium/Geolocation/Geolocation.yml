@@ -272,7 +272,6 @@ events:
 
   - name: heading
     summary: Fired when an heading update is received.
-    description: 
     properties:
       - name: code
         summary: If `success` is false, the error code if available.

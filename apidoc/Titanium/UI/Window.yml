@@ -1404,7 +1404,7 @@ properties:
   - name: modalStyle
     summary: Presentation style of this modal window.
     platforms: [iphone, ipad]
-    constants: Titanium.UI.iPhone_MODAL_PRESENTATION_*
+    constants: Titanium.UI.iPhone.MODAL_PRESENTATION_*
     type: Number
     default: <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>
 

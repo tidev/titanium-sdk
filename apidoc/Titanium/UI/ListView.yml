@@ -1242,7 +1242,6 @@ description: |
     for animation while the content insets are updated. For example
 
         setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
-optional: true
 since: 3.2.0
 platforms: [iphone, ipad]
 
