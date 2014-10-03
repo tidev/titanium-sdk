@@ -16,6 +16,7 @@ var fs = require('fs'),
 	doc = {},
 	parseErrors = [],
 	errorCount = 0,
+	quietFlag = false,
 	standaloneFlag = false;
 
 var validSyntax = {
@@ -504,8 +505,9 @@ function outputErrors(errors, level) {
 }
 
 function cliUsage () {
-	console.log("Usage: node validate.js [--standalone] [<PATH_TO_YAML_FILES>]".white);
+	console.log("Usage: node validate.js [--standalone] [--quiet] [<PATH_TO_YAML_FILES>]".white);
 	console.log("\nOptions:".white);
+	console.log("\t--quiet, -q\tSuppress non-error messages".white);
 	console.log("\t--standalone, -s\tdisable error checking for inherited APIs".white);
 }
 
@@ -522,6 +524,10 @@ if ((argc = process.argv.length) > 2) {
 			case "-s" :
 				standaloneFlag = true;
 				console.log("Standalone mode enabled. Errors will not be logged against inherited APIs.");
+				break;
+			case "--quiet":
+			case "-q":
+				quietFlag = true;
 				break;
 			default :
 				if (x == argc - 1) {
@@ -566,7 +572,7 @@ for (var key in doc) {
 	if ((diff = errorCount - currentErrors) > 0) {
 		console.error("%s\n%s: found %s error(s)!\n%s".red, currentFile, cls.name, diff, errors);
 		currentErrors = errorCount;
-	} else {
+	} else if(!quietFlag) {
 		console.info("%s: OK!".green, cls.name);
 	}
 }

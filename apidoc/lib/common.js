@@ -46,7 +46,7 @@ exports.parseYAML = function parseYAML(path) {
 						fileBuffer.replace(/\w*\#.*/, '');
 						yaml.safeLoadAll(fileBuffer, function (doc) {
 							if (!doc.name) {
-								rv.error.push("ERROR: Missing name for doc in file: " + currentFile);
+								rv.errors.push({toString: function() {return "ERROR: Missing name for doc in file";}, __file: currentFile});
 								return;
 							}
 							// data does not exist in doc
