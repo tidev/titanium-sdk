@@ -183,6 +183,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         if ([TiUtils isIOS7OrGreater]) {
             _defaultSeparatorInsets = [_tableView separatorInset];
         }
+        
+        if ([TiUtils isIOS8OrGreater]) {
+            [_tableView setLayoutMargins:UIEdgeInsetsZero];
+        }
+        
     }
     if ([_tableView superview] != self) {
         [self addSubview:_tableView];
@@ -1235,12 +1240,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             }
         }
         
-        // iOS8 reset separator insets
-        if ([_tableView respondsToSelector:@selector(setLayoutMargins:)]) {
-            [_tableView setLayoutMargins:UIEdgeInsetsZero];
-        }
-        
-        if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
+        if ([TiUtils isIOS8OrGreater] && (tableView == _tableView)) {
             [cell setLayoutMargins:UIEdgeInsetsZero];
         }
         
