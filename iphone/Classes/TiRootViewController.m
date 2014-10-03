@@ -303,8 +303,14 @@
 	// Default
     image = nil;
     if ([TiUtils isRetinaHDDisplay]) {
-        image = [UIImage imageNamed:@"Default-736h.png"];
+        if (UIDeviceOrientationIsPortrait(orientation)) {
+            image = [UIImage imageNamed:@"Default-Portrait-736h.png"];
+        }
+        else if (UIDeviceOrientationIsLandscape(orientation)) {
+            image = [UIImage imageNamed:@"Default-Landscape-736h.png"];
+        }
         if (image!=nil) {
+            *imageOrientation = orientation;
             return image;
         }
     }
@@ -853,6 +859,14 @@
         DebugLog(@"[ERROR] ErrorController is up. ABORTING showing of modal controller");
         return;
     }
+    if ([TiUtils isIOS8OrGreater]) {
+        if ([topVC isKindOfClass:[UIAlertController class]] && ![theController isKindOfClass:[TiErrorController class]]) {
+            if ( ((UIAlertController*)topVC).preferredStyle == UIAlertControllerStyleAlert ) {
+                DebugLog(@"[ERROR] UIAlertController is up and showing an alert. ABORTING showing of modal controller");
+                return;
+            }
+        }
+    }
     if (topVC == self) {
         [[containedWindows lastObject] resignFocus];
     } else if ([topVC respondsToSelector:@selector(proxy)]) {
@@ -936,6 +950,8 @@
         presentedViewController = [topmostController presentedViewController];
         if ((presentedViewController != nil) && checkPopover && [TiUtils isIOS8OrGreater]) {
             if (presentedViewController.modalPresentationStyle == UIModalPresentationPopover) {
+                presentedViewController = nil;
+            } else if ([presentedViewController isKindOfClass:[UIAlertController class]]) {
                 presentedViewController = nil;
             }
         }
@@ -1182,7 +1198,7 @@
     deviceOrientation = (UIInterfaceOrientation) newOrientation;
    
     if ([self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
-        [self resetTransformAndForceLayout];
+        [self resetTransformAndForceLayout:YES];
         [self updateOrientationHistory:deviceOrientation];
     }
 }
@@ -1223,7 +1239,7 @@
         forcingRotation = NO;
 #endif
     } else {
-        [self resetTransformAndForceLayout];
+        [self resetTransformAndForceLayout:NO];
     }
     
 }
@@ -1274,14 +1290,16 @@
 }
 #endif
 
--(void)resetTransformAndForceLayout
+-(void)resetTransformAndForceLayout:(BOOL)updateStatusBar
 {
     if (curTransformAngle != 0) {
         curTransformAngle = 0;
         forceLayout = YES;
         [[self hostingView] setTransform:CGAffineTransformIdentity];
         [[self view] setNeedsLayout];
-        [self updateStatusBar];
+        if (updateStatusBar) {
+            [self updateStatusBar];
+        }
     }
 }
 
@@ -1494,7 +1512,7 @@
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection;
 {
-    [self resetTransformAndForceLayout];
+    [self resetTransformAndForceLayout:YES];
     [super traitCollectionDidChange:previousTraitCollection];
 }
 

@@ -9,11 +9,9 @@ description: |
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [iphone, ipad]
-excludes: {
+excludes:
    events: ["dblclick", "doubletap", "longclick", "longpress", "pinch", "singletap", "swipe", 
-            "touchcancel", "touchend", "touchmove", "touchstart", "twofingertap"
-   ]
-}
+            "touchcancel", "touchend", "touchmove", "touchstart", "twofingertap"]
 
 events:
   - name: change
@@ -47,7 +45,7 @@ methods:
         percentage size. 
         
         If the image is passed as a `File` object or file path, the filename is checked. If the 
-        filename includes the '@2x' string used to identify high-resolution images for the Retina 
+        filename includes the '@2x' or '@3x' string used to identify high-resolution images for the Retina (HD) 
         display, the image is treated accordingly.
     parameters:
       - name: index

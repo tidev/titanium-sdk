@@ -316,7 +316,9 @@ properties:
         You can only set this as a createWindow({...}) option.  Setting it after
         window creation has no effect.
     platforms: [android]
-    default: false
+    default: |
+        true if this is the first window launched else false; prior to Release 3.3.0, the
+        default was always false.
     type: Boolean
     availability: creation
 
@@ -437,42 +439,21 @@ properties:
     type: Array<Titanium.UI.View>
 
   - name: modal
-    summary: Boolean to indicate if the window should be opened modal in front of other windows.
+    summary: Indicates to open a modal window or not.
     description: |
-        Must be specified at creation time or in the `options` dictionary passed to the
+        Set to `true` to create a modal window.
+
+        Must be specified at creation time or in the dictionary passed to the
         [Window.open](Titanium.UI.Window.open) method.
 
-        Android note:  Android modal windows are translucent. Before Android API 14, everything behind the
-        modal window is blurred. On API 14 and above, blurring is no longer supported and will not work as expected because the flag
-        [FLAG_BLUR_BEHIND](http://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_BLUR_BEHIND)
-        is deprecated. The combination of `fullscreen:true` and `modal:true` will not work as
-        expected. In Android, the contents of a translucent window cannot appear above the status bar.  I.e. even though
-        you set `fullscreen:true`, the status bar will still be visible *if* it was visible
-        in the previous window. `navBarHidden` and `modal` do work fine together, however.
+        In the user interface, a modal window is a window that blocks the main application UI until
+        the modal window is dismissed.  A modal window requires the user to interact with it to
+        resume the normal flow of the application.
 
-        On Android, setting this property forces the creation of a heavyweight window before Titanium 3.2.0. See "Android
-        Heavyweight and Lightweight Windows" in the main description of this class for more
-        information.
-        
-        iOS note: modal windows should not support orientation modes that the
-        window they are opened over do not support. Doing otherwise *may* cause
-        bad visual/redraw behavior after the modal is dismissed, due to how
-        iOS manages modal transitions. Beginning with 3.1.3, if the orientationModes property of a 
-        modal window is undefined, then the orientations supported by this window would be the orientationModes
-        specified by tiapp.xml.
-        
-        Mobile Web and Tizen note: On Mobile Web and Tizen, windows are always modal, blocking input to underlying 
-        windows. If the window does not occupy the full screen, setting `modal` to `true` provides 
-        a visual cue by dimming any background windows. If the window occupies the full screen, 
-        `modal` has no effect.
-
-        On the BlackBerry platform, the very first window in the application cannot be modal, therefore the modal flag will be ignored
-        if set on the first window.
-
-        On Mobile Web, Tizen, iOS, and BlackBerry the modal property has no effect on whether the window is 
-        translucent or opaque.
+        See the "Modal Windows" section for platform-specific information.
     type: Boolean
     default: false
+    exclude-platforms: [blackberry]
 
   - name: navBarHidden
     summary: Hides the nav bar (`true`) or shows the nav bar (`false`).
@@ -543,6 +524,10 @@ properties:
         Array of supported orientation modes, specified using the orientation
         constants defined in <Titanium.UI>.
     description: |
+        **Note:** Using the `orientationModes` property to force the orientation of non-modal
+        windows is considered a bad practice and will not be supported, including forcing the
+        orientation of windows inside a NavigationWindow or TabGroup.
+
         To restrict this window to a certain set of orientations, specify one or more
         of the orientation constants [LANDSCAPE_LEFT](Titanium.UI.LANDSCAPE_LEFT),
         [LANDSCAPE_RIGHT](Titanium.UI.LANDSCAPE_RIGHT), [PORTRAIT](Titanium.UI.PORTRAIT),
@@ -677,6 +662,16 @@ properties:
     platforms: [iphone, ipad]
     type: String
     since: 3.2.0
+
+  - name: splitActionBar
+    summary: Boolean value to enable split action bar.
+    description: |
+        `splitActionBar` must be set **before** opening the window.
+        This property indicates if the window should use a [split action bar](http://developer.android.com/guide/topics/ui/actionbar.html#SplitBar)
+    platforms: [android]
+    type: Boolean
+    since: 3.5.0
+    availability: creation
 
   - name: statusBarStyle
     summary: The status bar style associated with this window. 
@@ -1008,6 +1003,95 @@ description: |
         // var args = arguments[0] || {};
         // $.label.text = args.foobar;
 
+    ### Modal Windows
+
+    In the user interface, a modal window is a window that blocks the main application UI until the
+    modal window is dismissed.  A modal window requires the user to interact with it to resume the
+    normal flow of the application.  For example, if an action requires the user to login, the
+    application can present a login window, then after the user is authenticated, the normal flow
+    of the application can be resumed.
+
+    To create a modal window, set the `modal` property to `true` in the dictionary passed to
+    either the `Titanium.UI.createWindow()` method or the Window object's `open()` method.
+
+    #### Android Behavior
+
+    The Android platform does not have a concept of a modal window but instead uses modal
+    dialogs. You may want to use a <Titanium.UI.AlertDialog> or <Titanium.UI.OptionDialog> and
+    use the `androidView` property rather than a modal window.
+
+    For Android, Titanium creates a heavyweight window with a translucent background
+    (if the background properties are not set). Before API level 14 (Android 4.x), the
+    modal window will blur the background.  On API level 14 and above, the Android OS no longer
+    supports the blur effect.
+
+    The combination of `fullscreen:true` and `modal:true` will not work as expected.
+    If the background window displays the status bar or action bar, it will be visible behind the modal
+    window.
+
+    Note that Titanium will allow a non-modal window to open on top of a modal window on
+    Android.
+
+    #### iOS Behavior
+
+    By default, if you do not set a `backgroundColor`, the modal's background color will be the
+    value set to `Titanium.UI.backgroundColor`.
+
+    The modal window will not show the background window stack even if you make the modal translucent.
+    For fullscreen modals, when the modal appears, the background window stack is removed. For
+    non-fullscreen modals on the iPad, the background will be opaque gray if a background color
+    is not specified.
+
+    By default, modal windows appear from the bottom of the screen and slide up. To change the default
+    transition, set the `modalTransitionStyle` property to a
+    `Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_*` constant in the dictionary passed to the Window
+    object's `open()` method.
+
+    Modal windows should not support orientation modes that the window they are opened over do not
+    support. Doing otherwise *may* cause bad visual/redraw behavior after the modal is dismissed,
+    due to how iOS manages modal transitions.
+
+    Starting with Release 3.1.3, if the `orientationModes` property of a modal window is undefined,
+    then the orientations supported by this window would be the orientation modes specified by
+    the `tiapp.xml` with the `UISupportedInterfaceOrientations` key.
+
+    iOS does not allow opening non-modal windows on top of a modal window.
+
+    ##### iPad Features
+
+    In addition to full-screen modal windows, iPad supports "Page sheet"
+    and "Form sheet" style windows:
+
+    * **Page sheet** style windows have a fixed width, equal to the width of the screen
+      in portait mode, and a height equal to the *current* height of the screen. This means
+      that in portrait mode, the window covers the entire screen. In landscape mode,
+      the window is centered on the screen horizontally.
+
+    * **Form sheet** style windows are smaller than the screen size, and centered on the screen.
+
+    The example below is a modal window using the Form sheet style:
+
+    ![modal](http://img.skitch.com/20100406-bqb3f8pb6e4ger7wkcdcw5mbar.png)
+
+    You can create this type of modal window on iPad with the following code snippet:
+
+        var window = Titanium.UI.createWindow();
+        window.open({
+          modal:true,
+          modalTransitionStyle: Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
+          modalStyle: Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
+        });
+
+    #### Mobile Web Behavior
+
+    On Mobile Web, windows are always modal, blocking input to underlying
+    windows. Setting `modal` to `true` dims any background windows.
+
+    If the window's `backgroundColor` or `opacity` property is set,
+    the `modal` property has no effect.
+
+    On Mobile Web, non-modal windows can open on top of modal windows.
+
     ### Animations
 
     Windows can be animated like a [View](Titanium.UI.View), such as using an animation
@@ -1069,8 +1153,9 @@ description: |
     `app/controllers/index.js`
 
         function animateOpen() {
-            var window2 = Alloy.createController('win2').getView();
-            window2.open({transition:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT});
+            Alloy.createController('win2').getView().open({
+                transition: Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
+            });
         }
         $.index.open();
 
@@ -1161,36 +1246,11 @@ description: |
 
         $.bluewin.transform = Ti.UI.create2DMatrix().rotate(180);
 
-    #### iPad Modal Windows
-
-    For iPad, in addition to full-screen modal windows, iPad supports "Page sheet"
-    and "Form sheet" style windows:
-
-    * **Page sheet** style windows have a fixed width, equal to the width of the screen 
-      in portait mode, and a height equal to the *current* height of the screen. This means
-      that in portrait mode, the window covers the entire screen. In landscape mode, 
-      the window is centered on the screen horizontally.
-
-    * **Form sheet** style windows are smaller than the screen size, and centered on the screen.
-
-    The example below is a modal window using the Form sheet style:
-
-    ![modal](http://img.skitch.com/20100406-bqb3f8pb6e4ger7wkcdcw5mbar.png)
-
-    You can create this type of modal window on iPad with the following code snippet:
-
-        var window = Titanium.UI.createWindow();
-        window.open({
-          modal:true,
-          modalTransitionStyle: Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
-          modalStyle: Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
-        })
-
     ### Android Platform Notes
 
     #### Android Heavyweight and Lightweight Windows
 
-    ***Before Titanium 3.2.0*** in Android, Titanium windows can be heavyweight or lightweight:
+    Prior to Release Titanium 3.2.0 in Android, Titanium windows can be heavyweight or lightweight:
 
     - A *heavyweight* window is associated with a new Android 
       [Activity](Titanium.Android.Activity).
@@ -1206,10 +1266,12 @@ description: |
     * `modal`
     * `windowSoftInputMode`
 
-    ***Starting from Titanium 3.2.0*** in Android, all the windows are heavyweight. If you still want
+    Starting with Release 3.2.0 in Android, all the windows are heavyweight. If you still want
     the old behavior, you can enable the `ti.android.useLegacyWindow` property in the `tiapp.xml`:
 
         <property name="ti.android.useLegacyWindow" type="bool">true</property>
+
+    Note that this property only works with Release 3.2.x. It has no effect on other releases.
 
     A heavyweight window is always created when you open a new window from inside a 
     [TabGroup](Titanium.UI.TabGroup).
@@ -1246,7 +1308,8 @@ description: |
     See the official Android [R.anim](http://developer.android.com/reference/android/R.anim.html) documentation
     for information about built-in animations.
 
-    For information on creating your own animation resource XML files, see "[View Animation](http://developer.android.com/guide/topics/resources/animation-resource.html#View)"
+    For information on creating your own animation resource XML files, see
+    "[View Animation](http://developer.android.com/guide/topics/resources/animation-resource.html#View)"
     in Android's Resources documentation. After creating an animation resource file, you can place it under
     `platform/android/res/anim` in your Titanium project folder and it will be packaged in your app's APK
     and then available via <Titanium.App.Android.R>.
@@ -1266,6 +1329,9 @@ description: |
           title: 'My Root Window',
           exitOnClose: true
         });
+
+    Starting with Release 3.2.0, the root window's `exitOnClose` property is set to `true` by
+    default.  Prior to Release 3.2.0, the default value of the property was `false` for all windows.
 
 
 examples:
@@ -1348,7 +1414,7 @@ properties:
   - name: modalStyle
     summary: Presentation style of this modal window.
     platforms: [iphone, ipad]
-    constants: Titanium.UI.iPhone_MODAL_PRESENTATION_*
+    constants: Titanium.UI.iPhone.MODAL_PRESENTATION_*
     type: Number
     default: <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>
 

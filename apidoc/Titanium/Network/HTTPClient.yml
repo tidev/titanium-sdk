@@ -599,7 +599,7 @@ methods:
         type: Array<Object>
     parameters:
       - name: proxy
-        summary: The <Ti.Network.HTTPClient> representing this connection.
+        summary: The <Titanium.Network.HTTPClient> representing this connection.
         type: Object
     platforms: [android]
 
@@ -613,7 +613,7 @@ methods:
         type: Array<Object>
     parameters:
       - name: proxy
-        summary: The <Ti.Network.HTTPClient> representing this connection.
+        summary: The <Titanium.Network.HTTPClient> representing this connection.
         type: Object
     platforms: [android]
 

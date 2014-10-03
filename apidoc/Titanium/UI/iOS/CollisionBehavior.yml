@@ -53,14 +53,14 @@ methods:
     summary: Adds a boundary to this behavior.
     parameters:
       - name: boundary
-        summary:
+        summary: Boundary to add to the behavior.
         type: BoundaryIdentifier
 
   - name: addItem
     summary: Adds an item to this behavior.
     parameters:
       - name: item
-        summary: 
+        summary: View object to add to the behavior.
         type: Titanium.UI.View
 
   - name: removeAllBoundaries

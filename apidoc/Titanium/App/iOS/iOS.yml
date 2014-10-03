@@ -40,8 +40,7 @@ description: |
          with the <Titanium.App.iOS.createUserNotificationCategory> method.
       3. Register the notification categories with the
          <Titanium.App.iOS.registerUserNotificationSettings> method.
-      4. Monitor the [backgroundNotification](Titanium.App.iOS.backgroundNotification)
-         event while the app is the background.
+      4. Monitor the [localnotificationaction](Titanium.App.iOS.localnotificationaction) event.
 
     For instructions on sending local interactive notifications, see the
     [iOS Local Notifications guide](http://docs.appcelerator.com/titanium/latest/#!/guide/iOS_Local_Notifications).
@@ -236,10 +235,10 @@ properties:
     since: "3.4.0"
 
   - name: applicationOpenSettingsURL
-    summary: Returns a URL to open the app’s settings.
+    summary: Returns a URL to open the app's settings.
     description: |        
         Used to create a URL that you can pass to the [openURL](Titanium.Platform.openURL) method. 
-        When you open the URL built from this string, the system launches the Settings app and displays the app’s custom settings, if it has any.
+        When you open the URL built from this string, the system launches the Settings app and displays the app's custom settings, if it has any.
 
             var settingsURL = Ti.App.iOS.applicationOpenSettingsURL;
             if (Ti.Platform.canOpenURL(settingsURL)) {
@@ -288,8 +287,8 @@ events:
         summary: Custom data object.
         type: Dictionary
 
-  - name: backgroundNotification
-    summary: Fired when a user selects an action for an interactive notification.
+  - name: localnotificationaction
+    summary: Fired when a user selects an action for an interactive local notification.
     properties:
       - name: alertAction
         summary: |
@@ -331,6 +330,21 @@ events:
       - name: userInfo
         summary: Custom data object.
         type: Dictionary
+
+  - name: remotenotificationaction
+    summary: Fired when a user selects an action for an interactive remote notification.
+    properties: 
+      - name: data
+        summary: The payload passed to the Apple Push Notification Service.
+        type: Dictionary
+        
+      - name: category
+        summary: Identifier of the category of the interactive notification.
+        type: String
+
+      - name: identifier
+        summary: Identifier of the action that was selected of the interactive notification.
+        type: String
 
   - name: backgroundfetch
     summary: Fired when the application is woken up for a fetch operation. Available only on iOS 7 and later.
