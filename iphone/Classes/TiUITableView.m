@@ -423,6 +423,10 @@
 		if ([TiUtils isIOS7OrGreater]) {
 			defaultSeparatorInsets = [tableview separatorInset];
 		}
+        
+        if ([TiUtils isIOS8OrGreater]) {
+            [tableview setLayoutMargins:UIEdgeInsetsZero];
+        }
 	}
 	if ([tableview superview] != self)
 	{
@@ -2059,7 +2063,11 @@ return result;	\
         [(TiUITableViewCell*)cell setProxy:row];
         [row setCallbackCell:(TiUITableViewCell*)cell];
 	}
-	[row initializeTableViewCell:cell];
+    [row initializeTableViewCell:cell];
+    
+    if ([TiUtils isIOS8OrGreater] && (tableview == ourTableView)) {
+        [cell setLayoutMargins:UIEdgeInsetsZero];
+    }
 	
 	return cell;
 }
