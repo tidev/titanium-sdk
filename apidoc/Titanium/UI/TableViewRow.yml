@@ -391,7 +391,6 @@ examples:
               backgroundColor:'red',
               width: 20, height: 20
             });
-            row.height = 'auto';
             row.add(view);
   - title: Row Swipe Gestures
     example: |

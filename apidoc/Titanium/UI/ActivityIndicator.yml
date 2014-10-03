@@ -56,7 +56,7 @@ properties:
     description: |
         Determines the absolute position of the view relative to its parent.  
         
-        Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
+        Can be either a float value or a dimension string (for example `100` or `'50%'`.)
     type: [Number, String]
     
   - name: color
@@ -82,7 +82,7 @@ properties:
     description: |
         Determines the absolute position of the view relative to its parent.  
         
-        Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
+        Can be either a float value or a dimension string (for example `100` or `'50%'`.)
     type: [Number, String]
     
   - name: message
@@ -99,7 +99,7 @@ properties:
     description: |
         Determines the absolute position of the view relative to its parent.  
         
-        Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
+        Can be either a float value or a dimension string (for example `100` or `'50%'`.)
     type: [Number, String]
     
   - name: style
@@ -141,7 +141,7 @@ properties:
     description: |
         Determines the absolute position of the view relative to its parent.  
         
-        Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
+        Can be either a float value or a dimension string (for example `100` or`'50%'`.)
     type: [Number, String]
 
   - name: width

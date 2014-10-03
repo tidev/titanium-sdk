@@ -21,7 +21,7 @@ methods:
     description: |
         To specify a size for the image, you may pass the image as a simple dictionary, as
         defined in <CoverFlowImageType>.  If you specify a size, the size must be exact,
-        not 'auto' or a percentage size.
+        not a percentage size.
 
         If the image is passed as a `File` object or file path, the filename is checked.
         filename includes the '@2x' or '@3x' string used to identify high-resolution images
