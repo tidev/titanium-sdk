@@ -102,7 +102,7 @@
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
 {
-    return [[[TiApp app] controller] preferredInterfaceOrientationForPresentation];
+    return [[[TiApp app] controller] lastValidOrientation:_supportedOrientations];
 }
 
 -(void)loadView
