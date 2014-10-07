@@ -1015,18 +1015,19 @@
     */
 }
 
--(UIInterfaceOrientation) lastValidOrientation:(BOOL)checkModal
+-(UIInterfaceOrientation) lastValidOrientation:(TiOrientationFlags)orientationFlags
 {
-    if ([self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:checkModal]) {
+    if (TI_ORIENTATION_ALLOWED(orientationFlags,deviceOrientation)) {
         return deviceOrientation;
     }
     for (int i = 0; i<4; i++) {
-		if ([self shouldRotateToInterfaceOrientation:orientationHistory[i] checkModal:checkModal]) {
-			return orientationHistory[i];
-		}
-	}
-	//This line should never happen, but just in case...
-	return UIInterfaceOrientationPortrait;
+        if (TI_ORIENTATION_ALLOWED(orientationFlags,orientationHistory[i])) {
+            return orientationHistory[i];
+        }
+    }
+    
+    //This line should never happen, but just in case...
+    return UIInterfaceOrientationPortrait;
 }
 
 - (BOOL)shouldRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation checkModal:(BOOL)check
@@ -1185,7 +1186,7 @@
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
 {
-    return [self lastValidOrientation:YES];
+    return [self lastValidOrientation:[self getFlags:NO]];
 }
 
 -(void)didOrientNotify:(NSNotification *)notification
@@ -1215,7 +1216,7 @@
         return;
     }
     
-    UIInterfaceOrientation target = [self lastValidOrientation:NO];
+    UIInterfaceOrientation target = [self lastValidOrientation:[self getFlags:NO]];
     //Device Orientation takes precedence.
     if (target != deviceOrientation) {
         if ([self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
