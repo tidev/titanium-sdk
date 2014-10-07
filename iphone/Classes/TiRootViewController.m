@@ -1197,7 +1197,6 @@
         return;
     }
     deviceOrientation = (UIInterfaceOrientation) newOrientation;
-   
     if ([self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
         [self resetTransformAndForceLayout:YES];
         [self updateOrientationHistory:deviceOrientation];
@@ -1542,7 +1541,7 @@
         for (id<TiWindowProtocol> thisWindow in containedWindows) {
             [thisWindow viewDidAppear:animated];
         }
-        if (forcingRotation) {
+        if (forcingRotation || [TiUtils isIOS8OrGreater]) {
             forcingRotation = NO;
             [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
         } else {
