@@ -18,8 +18,10 @@
 
 - (id)density
 {
-	if ([TiUtils isRetinaDisplay])
-	{
+    if ([TiUtils isRetinaHDDisplay]) {
+        return @"xhigh";
+    }
+	if ([TiUtils isRetinaDisplay]) {
 		return @"high";
 	}
 	return @"medium";
