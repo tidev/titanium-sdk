@@ -1218,7 +1218,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	var deviceFamily = this.getDeviceFamily();
 	if (!deviceFamily) {
 		logger.info(__('No device family specified, defaulting to %s', 'universal'));
-		deviceFamily = 'universal';
+		deviceFamily = this.deviceFamily = 'universal';
 	}
 
 	if (!this.deviceFamilies[deviceFamily]) {
