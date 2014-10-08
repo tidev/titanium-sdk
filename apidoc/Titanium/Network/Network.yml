@@ -281,7 +281,14 @@ methods:
   - name: registerForPushNotifications
     summary: Registers for push notifications with the Apple Push Notification Service.
     description: |
-        This method should be called at application startup.
+        Call this method at application startup.
+
+        For iOS 8 and later, before calling this method, the application needs to call the
+        [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
+        method and pass it the notification types to use.  Setting the notification types with this
+        method will have no effect on iOS 8 and later.
+
+        For iOS 7 and earlier, set the notification types to use with this method.
     platforms: [iphone, ipad]
     parameters:
       - name: config
@@ -618,6 +625,13 @@ summary: |
 properties:
   - name: types 
     summary: Array of `NOTIFICATION_TYPE` constants that the application would like to receive.
+    description: |
+        For iOS 8 and later, setting the `types` property with the
+        <Titanium.Network.registerForPushNotifications> method has no effect.
+
+        For devices running iOS 8 and later, use the
+        [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
+        method to register the notification types to receive.
     type: Array<Number>
     constants: Titanium.Network.NOTIFICATION_TYPE_*
   - name: success 

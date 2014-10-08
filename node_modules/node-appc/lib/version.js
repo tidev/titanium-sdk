@@ -4,7 +4,7 @@
  * @module version
  *
  * @copyright
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -101,7 +101,7 @@ exports.parseMin = function parseMin(str) {
 	str.split(/\s*\|\|\s*/).forEach(function (range) {
 		var x = range.split(' ').shift().replace(/[^.\d]/g, '');
 		if (!min || exports.lt(x, min)) {
-			min = x;
+			min = x.replace(/\.$/, '');
 		}
 	});
 
@@ -124,7 +124,7 @@ exports.parseMax = function parseMax(str, allowX) {
 		var y = x.replace(allowX ? /[^.xX\d]/g : /[^.\d]/g, '');
 		if (!max || exports.gt(y, max)) {
 			lt = /^\<[^=]\d/.test(x);
-			max = y;
+			max = y.replace(/\.$/, '');
 		}
 	});
 

@@ -1,0 +1,16 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 1.0
+description: This is an ambiguous module that will conflict with a commonjs module
+author: Tester
+license: Apache Public License
+copyright: Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+
+# these should not be edited
+name: ambiguous
+moduleid: ti.ambiguous
+guid: 8d99922e-7727-4f64-90b9-325992eddb1c
+platform: iphone
+minsdk: 3.0

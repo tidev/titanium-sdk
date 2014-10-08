@@ -59,10 +59,22 @@ typedef void (^PermissionBlock)(BOOL granted)
 
 #endif
 
-@interface TiImagePickerController:UIImagePickerController
+@interface TiImagePickerController:UIImagePickerController {
+@private
+    BOOL autoRotate;
+}
 @end
 
 @implementation TiImagePickerController
+
+-(id)initWithProperties:(NSDictionary*)dict_
+{
+    if (self = [self init])
+    {
+        autoRotate = [TiUtils boolValue:@"autorotate" properties:dict_ def:YES];
+    }
+    return self;
+}
 
 - (void)viewDidLoad
 {
@@ -70,6 +82,11 @@ typedef void (^PermissionBlock)(BOOL granted)
     self.edgesForExtendedLayout = UIRectEdgeNone;
     [self prefersStatusBarHidden];
     [self setNeedsStatusBarAppearanceUpdate];
+}
+
+- (BOOL)shouldAutorotate
+{
+    return autoRotate;
 }
 
 -(BOOL)prefersStatusBarHidden
@@ -298,7 +315,7 @@ typedef void (^PermissionBlock)(BOOL granted)
 		arrowDirection = arrow;
 		self.popoverView = poView;
 		popover = [[UIPopoverController alloc] initWithContentViewController:picker_];
-		[popover setDelegate:self];
+		[(UIPopoverController*)popover setDelegate:self];
 		[popover presentPopoverFromRect:poFrame inView:poView permittedArrowDirections:arrow animated:animatedPicker];
 	}
 }
@@ -400,7 +417,7 @@ typedef void (^PermissionBlock)(BOOL granted)
             customPicker = YES;
         }
         if (customPicker) {
-            picker = [[TiImagePickerController alloc] init];
+            picker = [[TiImagePickerController alloc] initWithProperties:args];
         }
     }
     if (picker == nil) {
@@ -1039,20 +1056,22 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
     UIGraphicsEndImageContext();
 
-	UIInterfaceOrientation windowOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-	switch (windowOrientation) {
-		case UIInterfaceOrientationPortraitUpsideDown:
-			image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationDown];
-			break;
-		case UIInterfaceOrientationLandscapeLeft:
-			image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationRight];
-			break;
-		case UIInterfaceOrientationLandscapeRight:
-			image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationLeft];
-			break;
-		default:
-			break;
-	}
+    if (![TiUtils isIOS8OrGreater]) {
+        UIInterfaceOrientation windowOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+        switch (windowOrientation) {
+            case UIInterfaceOrientationPortraitUpsideDown:
+                image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationDown];
+                break;
+            case UIInterfaceOrientationLandscapeLeft:
+                image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationRight];
+                break;
+            case UIInterfaceOrientationLandscapeRight:
+                image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationLeft];
+                break;
+            default:
+                break;
+        }
+    }
 	
 	TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
 	NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"media"];

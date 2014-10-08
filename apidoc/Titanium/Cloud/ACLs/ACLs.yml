@@ -132,8 +132,8 @@ examples:
                 name: 'testACL',
                 reader_ids: readers.ids.join(','),
                 writer_ids: writers.ids.join(','),
-                public_read: false,
-                public_write: false
+                public_read: "false",
+                public_write: "false"
             }, function (e) {
                 if (e.success) {
                     alert('Created!');
@@ -151,8 +151,8 @@ examples:
                 name: 'testACL',
                 reader_ids: '',
                 writer_ids: '',
-                public_read: true,
-                public_write: true
+                public_read: "true",
+                public_write: "true"
             }, function (e) {
                 if (e.success) {
                     alert('Updated!');

@@ -99,7 +99,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	// TODO: Deprecated since Release 3.0.0
 	@Deprecated private AtomicBoolean layoutStarted = new AtomicBoolean();
-
+	
 	/**
 	 * Constructs a new TiViewProxy instance.
 	 * @module.api
@@ -828,8 +828,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			// immediately upon window opening and the first
 			// layout hasn't happened yet. In this case,
 			// queue up a new request to animate.
+			// Also do the same if layout properties
+			// are changed and layout hasn't completed.
 			View view = tiv.getNativeView();
-			if (view == null || (view.getWidth() == 0 && view.getHeight() == 0)) {
+			if (view == null || (view.getWidth() == 0 && view.getHeight() == 0) || tiv.isLayoutPending()) {
 				getMainHandler().sendEmptyMessage(MSG_QUEUED_ANIMATE);
 				return;
 			} else {

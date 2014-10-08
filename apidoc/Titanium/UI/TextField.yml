@@ -122,7 +122,7 @@ properties:
   - name: borderStyle
     summary: Border style for the field. 
     type: Number
-    constants: Titainium.UI.INPUT_BORDERSTYLE_*
+    constants: Titanium.UI.INPUT_BORDERSTYLE_*
     default: <Titanium.UI.INPUT_BORDERSTYLE_NONE>
     platforms: [iphone, ipad, mobileweb, tizen]
     

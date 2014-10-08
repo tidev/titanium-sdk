@@ -183,61 +183,96 @@ public class TiResponseCache extends ResponseCache
 		}
 	}
 
+	/**
+	 * Check whether the content from uri has been cached. This method is optimized for
+	 * TiResponseCache. For other kinds of ResponseCache, eg. HttpResponseCache, it only
+	 * checks whether the system's default response cache is set.
+	 * @param uri
+	 * @return true if the content from uri is cached; false otherwise.
+	 */
 	public static boolean peek(URI uri)
 	{
-		TiResponseCache rc = (TiResponseCache) TiResponseCache.getDefault();
-		if (rc == null) return false;
-		if (rc.cacheDir == null) return false;
-		
-		String hash = DigestUtils.shaHex(uri.toString());
-		File hFile = new File(rc.cacheDir, hash + HEADER_SUFFIX);
-		File bFile = new File(rc.cacheDir, hash + BODY_SUFFIX);
-		if (!bFile.exists() || !hFile.exists()) return false;
-		return true;
+		ResponseCache rcc = TiResponseCache.getDefault();
+
+		if (rcc instanceof TiResponseCache) {
+			// The default response cache is set by Titanium
+			TiResponseCache rc = (TiResponseCache) rcc;
+			if (rc.cacheDir == null) {
+				return false;
+			}
+			String hash = DigestUtils.shaHex(uri.toString());
+			File hFile = new File(rc.cacheDir, hash + HEADER_SUFFIX);
+			File bFile = new File(rc.cacheDir, hash + BODY_SUFFIX);
+			if (!bFile.exists() || !hFile.exists()) {
+				return false;
+			}
+			return true;
+
+		} else if (rcc != null) {
+			// The default response cache is set by other modules/sdks
+			return true;
+		}
+
+		return false;
 	}
 
+	/**
+	 * Get the cached content for uri. It works for all kinds of ResponseCache.
+	 * @param uri
+	 * @return an InputStream of the cached content
+	 */
 	public static InputStream openCachedStream(URI uri)
 	{
-		TiResponseCache rc = (TiResponseCache) TiResponseCache.getDefault();
-		if (rc == null) {
-			return null;
-		}
+		ResponseCache rcc = TiResponseCache.getDefault();
 
-		if (rc.cacheDir == null) {
-			return null;
-		}
-		
-		String hash = DigestUtils.shaHex(uri.toString());
-		File hFile = new File(rc.cacheDir, hash + HEADER_SUFFIX);
-		File bFile = new File(rc.cacheDir, hash + BODY_SUFFIX);
-
-		if (!bFile.exists() || !hFile.exists()) {
-			return null;
-		}
-
-		
-		try {
-			boolean isGZip = false;
-			// Read in the headers
+		if (rcc instanceof TiResponseCache) {
+			// The default response cache is set by Titanium
+			TiResponseCache rc = (TiResponseCache) rcc;
+			if (rc.cacheDir == null) {
+				return null;
+			}
+			String hash = DigestUtils.shaHex(uri.toString());
+			File hFile = new File(rc.cacheDir, hash + HEADER_SUFFIX);
+			File bFile = new File(rc.cacheDir, hash + BODY_SUFFIX);
+			if (!bFile.exists() || !hFile.exists()) {
+				return null;
+			}
 			try {
-				Map<String, List<String>> headers = readHeaders(hFile);
-				String contentEncoding = getHeader(headers, "content-encoding");
-				if ("gzip".equalsIgnoreCase(contentEncoding)) {
-					isGZip = true;
+				boolean isGZip = false;
+				// Read in the headers
+				try {
+					Map<String, List<String>> headers = readHeaders(hFile);
+					String contentEncoding = getHeader(headers, "content-encoding");
+					if ("gzip".equalsIgnoreCase(contentEncoding)) {
+						isGZip = true;
+					}
+				} catch (IOException e) {
+					// continue with file read?
 				}
+				if (isGZip) {
+					return new GZIPInputStream(new FileInputStream(bFile));
+				}
+				return new FileInputStream(bFile);
+			} catch (FileNotFoundException e) {
+				// Fallback to URL download?
+				return null;
 			} catch (IOException e) {
-				// continue with file read?
+				return null;
 			}
-			if (isGZip) {
-				return new GZIPInputStream(new FileInputStream(bFile));
+
+		} else if (rcc != null) {
+			// The default response cache is set by other modules/sdks
+			try {
+				URLConnection urlc = uri.toURL().openConnection();
+				urlc.setRequestProperty("Cache-Control", "only-if-cached");
+				return urlc.getInputStream();
+			} catch (Exception e) {
+				// Not cached. Fallback to URL download.
+				return null;
 			}
-			return new FileInputStream(bFile);
-		} catch (FileNotFoundException e) {
-			// Fallback to URL download?
-			return null;
-		} catch (IOException e) {
-			return null;
 		}
+
+		return null;
 	}
 
 	public static void addCompleteListener(URI uri, CompleteListener listener)

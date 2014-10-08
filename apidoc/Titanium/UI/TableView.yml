@@ -1075,7 +1075,6 @@ properties:
     
   - name: data
     summary: Rows of the table view.
-    description: 
     type: [ Dictionary, Array<Titanium.UI.TableViewRow>, Array<Titanium.UI.TableViewSection> ]
     
   - name: editable
@@ -1645,7 +1644,6 @@ description: |
     for animation while the content insets are updated. For example
 
         setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
-optional: true
 since: 2.1.0
 platforms: [iphone, ipad]
 

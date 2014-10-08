@@ -96,6 +96,16 @@ exports.config = function (logger, config, cli) {
 						'project-dir': {
 							abbr: 'd',
 							callback: function (projectDir) {
+								if (projectDir === '') {
+									// no option value was specified
+									// check if current directory is a valid dir
+									// if not output meaningful error message
+									projectDir = conf.options['project-dir'].default;
+									if (!fs.existsSync(path.join(projectDir, 'tiapp.xml'))) {
+										return;
+									}
+								}
+
 								// load the tiapp.xml
 								try {
 									var tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'));
@@ -109,6 +119,11 @@ exports.config = function (logger, config, cli) {
 
 								// make sure the tiapp.xml is sane
 								ti.validateTiappXml(logger, config, tiapp);
+
+								// check that the Titanium SDK version is correct
+								if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
+									throw new cli.GracefulShutdown();
+								}
 
 								return projectDir;
 							},
@@ -170,11 +185,6 @@ exports.config = function (logger, config, cli) {
 exports.validate = function (logger, config, cli) {
 	// TODO: set the type to 'app' for now, but we'll need to determine if the project is an app or a module
 	cli.argv.type = 'app';
-
-	// check that the Titanium SDK version is correct
-	if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
-		return false;
-	}
 
 	ti.validatePlatform(logger, cli, 'platform');
 

@@ -12,6 +12,9 @@
     //Default background properties
     UIColor* bgColor;
     UIImage* bgImage;
+    UIView* hostView;
+    NSInteger curTransformAngle;
+    BOOL forceLayout;
     UIImageView* defaultImageView;
     
     //Keyboard stuff
@@ -46,6 +49,7 @@
     
     BOOL statusBarIsHidden;
     BOOL statusBarVisibilityChanged;
+    NSInteger activeAlertControllerCount;
 }
 
 //Titanium Support
@@ -53,6 +57,10 @@
 -(void)repositionSubviews;
 -(UIView *)topWindowProxyView;
 -(NSUInteger)supportedOrientationsForAppDelegate;
+-(void)incrementActiveAlertControllerCount;
+-(void)decrementActiveAlertControllerCount;
+-(UIViewController*)topPresentedController;
+-(UIInterfaceOrientation) lastValidOrientation:(TiOrientationFlags)orientationFlags;
 -(void)updateStatusBar;
 @property (nonatomic, readonly) BOOL statusBarInitiallyHidden;
 @property (nonatomic, readonly) UIStatusBarStyle defaultStatusBarStyle;

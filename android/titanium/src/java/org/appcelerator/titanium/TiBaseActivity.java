@@ -41,6 +41,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.os.Build;
@@ -511,6 +512,12 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		int theme = getIntentInt(TiC.PROPERTY_THEME, -1);
 		if (theme != -1) {
 			this.setTheme(theme);
+		}
+		
+		// Set ActionBar into split mode must be done before the decor view has been created
+		// we need to do this before calling super.onCreate()
+		if (intent != null && intent.hasExtra(TiC.PROPERTY_SPLIT_ACTIONBAR)) {
+			getWindow().setUiOptions(ActivityInfo.UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW);
 		}
 
 		super.onCreate(savedInstanceState);

@@ -270,7 +270,7 @@ public class TiHTTPClient
 				}
 
 				StatusLine statusLine = response.getStatusLine();
-				if (statusLine.getStatusCode() >= 300) {
+				if (statusLine.getStatusCode() >= 400) {
 					setResponseText(response.getEntity());
 					throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
 				}
@@ -805,7 +805,7 @@ public class TiHTTPClient
 			boolean firstPass = true;
 			StringBuilder sb = new StringBuilder(32);
 			for (Header h : theHeaders) {
-				if (h.getName().equals(headerName)) {
+				if (h.getName().equalsIgnoreCase(headerName)) {
 					if (!firstPass) {
 						sb.append(", ");
 					}

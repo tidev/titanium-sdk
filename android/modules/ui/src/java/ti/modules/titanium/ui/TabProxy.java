@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -35,15 +37,23 @@ public class TabProxy extends TiViewProxy
 	private TiWindowProxy window;
 	private boolean windowOpened = false;
 	private int windowId;
+	private String tabTag;
+	private static final String TAB_TAG_NAME = "tabTag";
+	private static final AtomicLong nextTabTagIndex = new AtomicLong();
 
 	public TabProxy()
 	{
 		super();
+		tabTag = TAB_TAG_NAME +  nextTabTagIndex.getAndIncrement();
 	}
 
 	public TabProxy(TiContext tiContext)
 	{
 		this();
+	}
+
+	public String getTabTag() {
+		return tabTag;
 	}
 
 	@Override
@@ -214,12 +224,6 @@ public class TabProxy extends TiViewProxy
 			window.fireEvent(TiC.EVENT_OPEN, null, false);
 		}
 		
-		//When tab loses focus, we hide the soft keyboard.
-		Activity currentActivity = TiApplication.getAppCurrentActivity();
-		if (!focused && currentActivity != null) {
-			TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
-		}
-
 		// The focus and blur events for tab changes propagate like so:
 		//    window -> tab -> tab group
 		//    
@@ -247,6 +251,14 @@ public class TabProxy extends TiViewProxy
 
 	void onSelectionChanged(boolean selected)
 	{
+		if (!selected) {
+			//When tab selection changes, we hide the soft keyboard.
+			Activity currentActivity = TiApplication.getAppCurrentActivity();
+			if (currentActivity != null) {
+				TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
+			}
+		}
+
 		((TiUIAbstractTab) view).onSelectionChange(selected);
 	}
 
