@@ -113,6 +113,18 @@ properties:
     default: undefined but behaves as true
     since: "3.3.0"
 
+  - name: lines
+    summary: Makes the label be exactly this many lines tall.
+    platforms: [android]
+    type: Number
+    since: "3.5.0"
+    
+  - name: maxLines
+    summary: Makes the label at most this many lines tall.
+    platforms: [android]
+    type: Number
+    since: "3.5.0"
+    
   - name: minimumFontSize
     summary: Minimum font size when the font is sized based on the contents. 
     description: |
