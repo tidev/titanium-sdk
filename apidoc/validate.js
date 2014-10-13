@@ -61,7 +61,7 @@ var validSyntax = {
 			"type" : "DataType",
 			"platforms" : [common.VALID_PLATFORMS],
 			"deprecated" : {
-			   "since" : "Since",
+				"since" : "Since",
 				"removed" : "String",
 				"notes" : "String"
 			},
@@ -189,7 +189,7 @@ function validateConstants(constants) {
 	var errors = [];
 	if (Array.isArray(constants)) {
         constants.forEach(function (constant) {
-			errors.join(validateConstants(constant));
+			errors = errors.concat(validateConstants(constant));
 		});
 	} else {
 		var prop = constants.split('.').pop(),
@@ -214,13 +214,13 @@ function validateDataType(type) {
 	var errors = [];
 	if(Array.isArray(type)) {
         type.forEach(function (elem) {
-			errors.join(validateDataType(elem));
+			errors = errors.concat(validateDataType(elem));
 		});
 	}
 	else if ((~type.indexOf('<') && ~type.indexOf('>')) &&
 		(type.indexOf('Array') == 0 || type.indexOf('Callback') == 0 ||  type.indexOf('Dictionary') == 0)) {
         // Compound data type
-		errors.join(validateDataType(type.slice(type.indexOf('<') + 1, type.indexOf('>'))));
+		errors = errors.concat(validateDataType(type.slice(type.indexOf('<') + 1, type.indexOf('>'))));
 	}
 	else if (validateClass(type) == null || ~common.DATA_TYPES.indexOf(type)) {
 		return errors;
@@ -290,7 +290,7 @@ function validateReturns(ret) {
 	var errors = [];
 	if (Array.isArray(ret)) {
         ret.forEach (function (elem) {
-			errors.join(validateReturns(elem));
+			errors = errors.concat(validateReturns(elem));
 		});
 	} else {
 		var err;

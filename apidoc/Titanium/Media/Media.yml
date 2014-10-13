@@ -1373,7 +1373,7 @@ properties:
   - name: code
     summary: Error code, if applicable.
     type: Number
-    constants: [Titanium.Media.DEVICE_BUSY, Titanium.Media.NO_CAMERA, Titanium.Media.NO_MEDIA, Titanium.Media.UNKNOWN_ERROR]
+    constants: [Titanium.Media.DEVICE_BUSY, Titanium.Media.NO_CAMERA, Titanium.Media.UNKNOWN_ERROR]
     accessors: false
   - name: success
     summary: Indicates if the operation succeeded. Returns `false`.
