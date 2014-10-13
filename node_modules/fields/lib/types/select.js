@@ -46,12 +46,14 @@ Select.prototype._validate = function _validate(value, cb) {
 	}
 
 	function checkValues(val) {
-		if (!self._values[val]) {
-			if (val) {
+		if (self._distinctValues.hasOwnProperty(val)) {
+			value = self._distinctValues[val];
+		} else {
+			if (val !== void 0 && val !== null) {
 				var err = common.__(self, 'Invalid selection "%s"', val);
 				self._println((self.formatters.error ? self.formatters.error(err) : self._format(err, 'error')) + '\n');
 				if (self.suggest) {
-					common.suggest(self, val, Object.keys(self._values), self._println, self.suggestThreshold);
+					common.suggest(self, val, Object.keys(self._distinctValues), self._println, self.suggestThreshold);
 				}
 			} else {
 				var err = common.__(self, 'Please select a valid option');
@@ -98,7 +100,7 @@ Select.prototype._complete = function _complete(value, callback) {
 		shortest = -1,
 		i, j, same;
 
-	Object.keys(this._values).forEach(function (v) {
+	Object.keys(this._distinctValues).forEach(function (v) {
 		if (v.indexOf(value) === 0) {
 			matches.push(v);
 			var s = v.substring(value.length);
@@ -116,7 +118,7 @@ Select.prototype._complete = function _complete(value, callback) {
 	// if no matches and we are permitted to ignore case, try again
 	if (matches.length === 0 && this.completeIgnoreCase) {
 		var lvalue = value.toLowerCase();
-		Object.keys(this._values).forEach(function (v) {
+		Object.keys(this._distinctValues).forEach(function (v) {
 			if (v.toLowerCase().indexOf(lvalue) === 0) {
 				matches.push(v);
 				value = v.substring(0, lvalue.length);
@@ -166,8 +168,8 @@ Select.prototype._getByNumber = function _getByNumber(value) {
 			if (num === 0 && this.zeroSkip) {
 				return '';
 			}
-			if (num >= 1 && num <= this._optionsValues.length) {
-				return this._optionsValues[num - 1];
+			if (num >= 1 && num <= this._allValues.length) {
+				return this._allValues[num - 1];
 			}
 		}
 	}
@@ -183,9 +185,9 @@ Select.prototype.prompt = function prompt(callback) {
 	var self = this;
 
 	this.emit('pre-prompt', this);
-	this._values = {};
+	this._distinctValues = {};
 	this._prerenderedOptions = [];
-	this._optionsValues = [];
+	this._allValues = [];
 
 	var counter = 1;
 
@@ -195,8 +197,10 @@ Select.prototype.prompt = function prompt(callback) {
 				var num = (new Array(3 - ('' + counter).length)).join(' ') + counter + ')  ',
 					label = typeof opt === 'string' ? opt : (self.optionLabel ? opt[self.optionLabel] : opt.label) || (self.optionValue ? opt[self.optionValue] : opt.value),
 					val = typeof opt === 'string' ? opt.replace(/__(.+?)__/g, '$1') : (self.optionValue ? opt[self.optionValue] : opt.value);
+
 				counter++;
-				self._optionsValues.push(val);
+				self._allValues.push(val);
+
 				if (self.formatters.option) {
 					self._prerenderedOptions.push(self.formatters.option.call(self, opt, idx, num));
 				} else {
@@ -205,7 +209,14 @@ Select.prototype.prompt = function prompt(callback) {
 						self._format(label, 'option')
 					);
 				}
-				self._values[val] = 1;
+
+				if (Array.isArray(self.complete)) {
+					self.complete.forEach(function (key) {
+						opt[key] && (self._distinctValues[opt[key]] = val);
+					});
+				} else {
+					self._distinctValues[val] = val;
+				}
 			});
 		} else if (options && typeof options === 'object') {
 			Object.keys(options).forEach(function (group) {
@@ -215,11 +226,11 @@ Select.prototype.prompt = function prompt(callback) {
 		}
 	})(this.options);
 
-	var numOpts = Object.keys(this._values).length;
+	var numOpts = Object.keys(this._allValues).length;
 	if (numOpts === 0) {
 		return callback(null, null);
 	} else if (this.autoSelectOne && numOpts === 1) {
-		return callback(null, Object.keys(this._values).shift());
+		return callback(null, Object.keys(this._distinctValues).shift());
 	}
 
 	var a = this._accelerators = {},
@@ -260,7 +271,7 @@ Select.prototype.prompt = function prompt(callback) {
 
 	if (this.display === 'prompt') {
 		this.promptValues = '';
-		Object.keys(this._values).forEach(function (value, idx) {
+		Object.keys(this._distinctValues).forEach(function (value, idx) {
 			this.promptValues += (idx ? this.promptValuesSeparator : '') + value;
 		}, this);
 	} else if (this.display === 'grid') {

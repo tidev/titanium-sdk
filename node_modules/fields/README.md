@@ -711,10 +711,15 @@ Creates a new Select field.
 
 	* Autocomplete options:
 
-		* `{boolean}` `opts.complete`
+		* `{boolean}|{array<string>}` `opts.complete`
 
-		  If true, will autocomplete the current entry when the <tab> key is entered.
-		  Default value is `false`.
+		  If a boolean and `true`, will autocomplete the `value` when the <tab> key is
+		  entered. Default value is `false`.
+
+		  If value is an array of strings of key names, then it will autocomplete the
+		  values based specified option key name values. For example, if you set
+		  `complete: ['id', 'value']`, then it will autocomplete either the `id` or
+		  the `value`.
 
 		* `{boolean}` `opts.completeIgnoreCase`
 
