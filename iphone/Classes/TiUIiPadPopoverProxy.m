@@ -321,6 +321,7 @@ static NSArray* popoverSequence;
     currentPopover = self;
     if (![TiUtils isIOS8OrGreater]) {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+        [self updatePassThroughViews];
     }
     if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
         UIView* topWindowView = [[[TiApp app] controller] topWindowProxyView];
@@ -341,6 +342,16 @@ static NSArray* popoverSequence;
         [contentViewProxy windowDidOpen];
     }
 }
+
+-(void)updatePopover:(NSNotification *)notification;
+{
+    //This may be due to a possible race condition of rotating the iPad while another popover is coming up.
+    if ((currentPopover != self)) {
+        return;
+    }
+    [self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+}
+
 
 -(CGSize)contentSize
 {
@@ -462,7 +473,6 @@ static NSArray* popoverSequence;
 }
 
 
-#pragma mark Accessors
 -(UIViewController *)viewController
 {
     if (viewController == nil) {
@@ -486,21 +496,11 @@ static NSArray* popoverSequence;
     return popoverController;
 }
 
--(void)updatePopover:(NSNotification *)notification;
-{
-	//This may be due to a possible race condition of rotating the iPad while another popover is coming up.
-	if ((currentPopover != self)) {
-		return;
-	}
-	[self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-}
-
-
 #pragma mark Delegate methods
 
 - (void)prepareForPopoverPresentation:(UIPopoverPresentationController *)popoverPresentationController
 {
-    
+    [self updatePassThroughViews];
     if (popoverView != nil) {
         if ([popoverView supportsNavBarPositioning] && [popoverView isUsingBarButtonItem]) {
             UIBarButtonItem* theItem = [popoverView barButtonItem];
