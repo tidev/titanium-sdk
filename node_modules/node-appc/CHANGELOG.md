@@ -1,6 +1,10 @@
+0.2.19 (10/13/2014)
+-------------------
+ * Fixed bug in timodule with the handling of supported platforms [TIMOB-17822]
+
 0.2.18 (10/6/2014)
 -------------------
- * Refactored timodule library to address incorrect module caching, support for bypassing cache, and improved API
+ * Refactored timodule library to address incorrect module caching, support for bypassing cache, and improved API [TIMOB-17822]
 
 0.2.17 (9/16/2014)
 -------------------

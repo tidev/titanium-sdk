@@ -134,14 +134,20 @@ function detect(paramsOrSearchPaths, logger, callback, bypassCache) {
 			});
 		},
 		global: function (next) {
+			var results = {};
 			async.each(sdkPaths, function (modulePath, cb) {
 				detectModules({
 					bypassCache: params.bypassCache,
 					modulesDir: path.join(modulePath, 'modules'),
 					logger: params.logger,
-					callback: cb
+					callback: function (err, result) {
+						err || util.mix(results, result);
+						cb();
+					}
 				});
-			}, next);
+			}, function () {
+				next(null, results);
+			});
 		}
 	}, function (err, results) {
 		typeof params.callback === 'function' && params.callback(results);
@@ -447,6 +453,13 @@ function detectModules(params) {
 											mod[ver].manifest[line.substring(0, p)] = line.substring(p + 1).trim();
 										}
 									});
+
+									if (mod[ver].manifest && mod[ver].manifest.platform) {
+										mod[ver].platform = [ mod[ver].manifest.platform ];
+										if (mod[ver].manifest.platform === 'iphone') {
+											mod[ver].platform.unshift('ios');
+										}
+									}
 
 									params.logger && params.logger.debug(__('Detected %s module: %s %s @ %s', platform, mod[ver].manifest.moduleid.cyan, ver, mod[ver].modulePath));
 								}

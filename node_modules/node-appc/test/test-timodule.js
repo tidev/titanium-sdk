@@ -619,7 +619,7 @@ describe('timodule', function () {
 				{ id: 'toonew' }
 			], ['ios', 'iphone'], 'development', '3.2.0', [ testResourcesDir ], logger, function (result) {
 				logger.buffer.stripColors.should.containEql(
-					'Found incompatible Titanium module id=toonew version=1.0 platform=ios,iphone,commonjs deploy-type=development'
+					'Found incompatible Titanium module id=toonew version=1.0 platform=ios,iphone deploy-type=development'
 				);
 
 				var found = false;
@@ -644,7 +644,7 @@ describe('timodule', function () {
 				bypassCache: true,
 				callback: function (result) {
 					logger.buffer.stripColors.should.containEql(
-						'Found incompatible Titanium module id=toonew version=1.0 platform=ios,iphone,commonjs deploy-type=development'
+						'Found incompatible Titanium module id=toonew version=1.0 platform=ios,iphone deploy-type=development'
 					);
 
 					var found = false;
