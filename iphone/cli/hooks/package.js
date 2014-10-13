@@ -90,7 +90,8 @@ exports.init = function (logger, config, cli) {
 						// open xcode + organizer after packaging
 						logger.info(__('Launching Xcode: %s', build.xcodeEnv.xcodeapp.cyan));
 						exec('open -a "' + build.xcodeEnv.xcodeapp + '"', function (err, stdout, stderr) {
-							exec('osascript "' + path.join(build.titaniumIosSdkPath, 'xcode_organizer.scpt') + '"', function (err, stdout, stderr) {
+							process.env.TI_ENV_NAME = process.env.STUDIO_NAME || 'Terminal.app';
+							exec('osascript "' + path.join(build.titaniumIosSdkPath, 'xcode_organizer.scpt') + '"', { env: process.env }, function (err, stdout, stderr) {
 								logger.info(__('Packaging complete'));
 								finished();
 							});
