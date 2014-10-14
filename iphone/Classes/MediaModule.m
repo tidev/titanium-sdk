@@ -413,13 +413,13 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     return appMusicPlayer;
 }
 
--(void)setDefaultAudioSessionMode:(id)mode
+-(void)setDefaultAudioSessionMode:(NSNumber*)mode
 {
     DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");
     [self setAudioSessionMode:mode];
 }
 
--(NSString*)defaultAudioSessionMode
+-(NSNumber*)defaultAudioSessionMode
 {
     DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");
     return [self audioSessionMode];
