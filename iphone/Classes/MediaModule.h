@@ -16,9 +16,10 @@
 @interface MediaModule : TiModule
 <
 	UINavigationControllerDelegate,
-	UIImagePickerControllerDelegate, 
+	UIImagePickerControllerDelegate,
 	MPMediaPickerControllerDelegate,
 	UIPopoverControllerDelegate,
+	UIPopoverPresentationControllerDelegate,
 	UIVideoEditorControllerDelegate
 > {
 @private
@@ -48,16 +49,12 @@
 	KrollCallback *editorErrorCallback;
 	KrollCallback *editorCancelCallback;
 	UIPopoverArrowDirection arrowDirection;
-	UIInterfaceOrientation oldOrientation;
-	UIInterfaceOrientation newOrientation;
-	BOOL isPresenting;
-	BOOL isPopoverSpecified;
 }
 
 +(NSDictionary*)itemProperties;
 +(NSDictionary*)filterableItemProperties;
 
-@property(nonatomic,readwrite,retain) UIView *popoverView;
+@property(nonatomic,readwrite,retain) id popoverView;
 @property(nonatomic,readonly) NSNumber* volume;
 @property(nonatomic,readonly) NSNumber* peakMicrophonePower;
 @property(nonatomic,readonly) NSNumber* averageMicrophonePower;

@@ -857,7 +857,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             
             //Unregister for interface change notification
             [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-            [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
         }
         else {
             [[TiApp app] hideModalController:picker animated:animatedPicker];
@@ -1244,101 +1243,86 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)displayModalPicker:(UIViewController*)picker_ settings:(NSDictionary*)args
 {
-	TiApp * tiApp = [TiApp app];
-	if ([TiUtils isIPad]==NO)
-	{
-		[tiApp showModalController:picker_ animated:animatedPicker];
-	}
-	else
-	{
-		RELEASE_TO_NIL(popover);
-		UIView *poView = [[tiApp controller] topWindowProxyView];
-		CGRect poFrame;
-		TiViewProxy* popoverViewProxy = [args objectForKey:@"popoverView"];
-		UIPopoverArrowDirection arrow = [TiUtils intValue:@"arrowDirection" properties:args def:UIPopoverArrowDirectionAny];
-
-		if (popoverViewProxy!=nil)
-		{
-			poView = [popoverViewProxy view];
-			poFrame = [poView bounds];
-			isPopoverSpecified = YES;
-		}
-		else
-		{
-			arrow = UIPopoverArrowDirectionAny;
-			poFrame = [poView bounds];
-			poFrame.size.height = 50;
-			isPopoverSpecified = NO;
-		}
-
-		if ([poView window] == nil) {
-			// No window, so we can't display the popover...
-			DebugLog(@"[WARN] Unable to display picker; view is not attached to the current window");
-			return;
-		}
-		//FROM APPLE DOCS
-		//If you presented the popover from a target rectangle in a view, the popover controller does not attempt to reposition the popover. 
-		//In thosecases, you must manually hide the popover or present it again from an appropriate new position.
-		//We will register for interface change notification for this purpose
-		
-		//This registration tells us when the rotation begins.
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(manageRotation:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-		
-		//This registration lets us sync with the TiRootViewController's orientation notification (didOrientNotify method)
-		//No need to begin generating these events since the TiRootViewController already does that
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIDeviceOrientationDidChangeNotification object:nil];
-		arrowDirection = arrow;
-		self.popoverView = poView;
-		popover = [[UIPopoverController alloc] initWithContentViewController:picker_];
-		[(UIPopoverController*)popover setDelegate:self];
-		[popover presentPopoverFromRect:poFrame inView:poView permittedArrowDirections:arrow animated:animatedPicker];
+    TiApp * tiApp = [TiApp app];
+    if ([TiUtils isIPad]==NO) {
+        [tiApp showModalController:picker_ animated:animatedPicker];
+    }
+    else {
+        RELEASE_TO_NIL(popover);
+        TiViewProxy* popoverViewProxy = [args objectForKey:@"popoverView"];
+        
+        if (![popoverViewProxy isKindOfClass:[TiViewProxy class]]) {
+            popoverViewProxy = nil;
+        }
+        
+        self.popoverView = popoverViewProxy;
+        arrowDirection = [TiUtils intValue:@"arrowDirection" properties:args def:UIPopoverArrowDirectionAny];
+        
+        TiThreadPerformOnMainThread(^{
+            if (![TiUtils isIOS8OrGreater]) {
+                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+            }
+            [self updatePopoverNow:picker_];
+        }, YES);
 	}
 }
 
--(void)manageRotation:(NSNotification *)notification
-{
-	//Capture the old orientation
-	oldOrientation = [[UIApplication sharedApplication]statusBarOrientation];
-	//Capture the new orientation
-	newOrientation = [[notification.userInfo valueForKey:UIApplicationStatusBarOrientationUserInfoKey] integerValue];
-}
 -(void)updatePopover:(NSNotification *)notification
 {
-	if (isPresenting) {
-		return;
-	}
-	//Set up the right delay
-	NSTimeInterval delay = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
-	if ( (oldOrientation == UIInterfaceOrientationPortrait) && (newOrientation == UIInterfaceOrientationPortraitUpsideDown) ){	
-		delay*=2.0;
-	}
-	else if ( (oldOrientation == UIInterfaceOrientationLandscapeLeft) && (newOrientation == UIInterfaceOrientationLandscapeRight) ){
-		delay *=2.0;
-	}
-	
-	//Allow the root view controller to relayout all child view controllers so that we get the correct frame size when we re-present
-	[self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:delay inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+    if (popover) {
+        [self performSelector:@selector(updatePopoverNow:) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+    }
 }
 
--(void)updatePopoverNow
+-(void)updatePopoverNow:(UIViewController*)picker_
 {
-	isPresenting = YES;
-	if (popover) {
-		//GO AHEAD AND RE-PRESENT THE POPOVER NOW 
-		CGRect popOverRect = [popoverView bounds];
-		if (!isPopoverSpecified) {
-			self.popoverView = [[[TiApp app] controller] topWindowProxyView];
-			popOverRect.size.height = 50;
-		}
-        if ([popoverView window] == nil) {
-            // No window, so we can't display the popover...
-            DebugLog(@"[WARN] Unable to display picker; view is not attached to the current window");
+    if ([TiUtils isIOS8OrGreater]) {
+        UIViewController* theController = picker_;
+        UIPopoverPresentationController* thePresenter = [theController popoverPresentationController];
+        [theController setModalPresentationStyle:UIModalPresentationPopover];
+        [thePresenter setPermittedArrowDirections:arrowDirection];
+        [thePresenter setDelegate:self];
+        [[TiApp app] showModalController:theController animated:animatedPicker];
+        return;
+    }
+    
+    if (popover == nil) {
+        popover = [[UIPopoverController alloc] initWithContentViewController:picker_];
+        [(UIPopoverController*)popover setDelegate:self];
+    }
+    
+    if ( (self.popoverView != nil) && ([self.popoverView isUsingBarButtonItem]) ) {
+        UIBarButtonItem * ourButtonItem = [popoverView barButtonItem];
+        @try {
+            /*
+             *	Because buttonItems may or many not have a view, there is no way for us
+             *	to know beforehand if the request is an invalid one.
+             */
+            [popover presentPopoverFromBarButtonItem: ourButtonItem permittedArrowDirections:arrowDirection animated:animatedPicker];
         }
-        else {
-            [popover presentPopoverFromRect:popOverRect inView:popoverView permittedArrowDirections:arrowDirection animated:NO];
+        @catch (NSException *exception) {
+            DebugLog(@"[WARN] Popover requested on view not attached to current window.");
         }
-	}
-	isPresenting = NO;
+        return;
+    }
+    
+    UIView* theView = nil;
+    CGRect popoverRect = CGRectZero;
+    if (self.popoverView != nil) {
+        theView = [self.popoverView view];
+        popoverRect = [theView bounds];
+    } else {
+        theView = [[[[TiApp app] controller] topPresentedController] view];
+        popoverRect = [theView bounds];
+        if (popoverRect.size.height > 50) {
+            popoverRect.size.height = 50;
+        }
+    }
+    
+    if ([theView window] == nil) {
+        DebugLog(@"[WARN] Unable to display picker; view is not attached to the current window");
+    }
+    [popover presentPopoverFromRect:popoverRect inView:theView permittedArrowDirections:arrowDirection animated:animatedPicker];
 }
 
 -(void)closeModalPicker:(UIViewController*)picker_
@@ -1361,19 +1345,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		[self forgetProxy:cameraView];
         RELEASE_TO_NIL(cameraView);
     }
-}
-
-- (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
-{
-	if([popoverController contentViewController] == musicPicker) {
-		RELEASE_TO_NIL(musicPicker);
-	}
-	
-	RELEASE_TO_NIL(popover);
-	[self sendPickerCancel];
-	//Unregister for interface change notification 
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 -(void)showPicker:(NSDictionary*)args isCamera:(BOOL)isCamera
@@ -1593,8 +1564,75 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     [saveCallbacks release]; 
 }
 
+#pragma mark UIPopoverControllerDelegate
+- (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
+{
+    if([popoverController contentViewController] == musicPicker) {
+        RELEASE_TO_NIL(musicPicker);
+    }
+    
+    RELEASE_TO_NIL(popover);
+    [self sendPickerCancel];
+    //Unregister for interface change notification
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+}
 
-#pragma mark Delegates
+#pragma mark UIPopoverPresentationControllerDelegate
+- (void)prepareForPopoverPresentation:(UIPopoverPresentationController *)popoverPresentationController
+{
+    if (self.popoverView != nil) {
+        if ([self.popoverView supportsNavBarPositioning] && [self.popoverView isUsingBarButtonItem]) {
+            UIBarButtonItem* theItem = [self.popoverView barButtonItem];
+            if (theItem != nil) {
+                popoverPresentationController.barButtonItem = [self.popoverView barButtonItem];
+                return;
+            }
+        }
+        
+        UIView* view = [self.popoverView view];
+        if (view != nil && (view.window != nil)) {
+            popoverPresentationController.sourceView = view;
+            popoverPresentationController.sourceRect = [view bounds];
+            return;
+        }
+    }
+    
+    //Fell through.
+    UIViewController* presentingController = [popoverPresentationController presentingViewController];
+    popoverPresentationController.sourceView = [presentingController view];
+    CGRect viewrect = [[presentingController view] bounds];
+    if (viewrect.size.height > 50) {
+        viewrect.size.height = 50;
+    }
+    popoverPresentationController.sourceRect = viewrect;
+}
+
+- (void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView **)view
+{
+    //This will never be called when using bar button item
+    UIView* theSourceView = *view;
+    BOOL canUseSourceRect = (theSourceView == self.popoverView);
+    rect->origin = CGPointMake(theSourceView.bounds.origin.x, theSourceView.bounds.origin.y);
+    
+    if (!canUseSourceRect && theSourceView.bounds.size.height > 50) {
+        rect->size = CGSizeMake(theSourceView.bounds.size.width, 50);
+    } else {
+        rect->size = CGSizeMake(theSourceView.bounds.size.width, theSourceView.bounds.size.height);
+    }
+    
+    popoverPresentationController.sourceRect = *rect;
+}
+
+- (void)popoverPresentationControllerDidDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
+{
+    if([popoverPresentationController presentedViewController] == musicPicker) {
+        RELEASE_TO_NIL(musicPicker);
+    }
+    
+    [self sendPickerCancel];
+}
+
+#pragma mark UIImagePickerControllerDelegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker_ didFinishPickingMediaWithInfo:(NSDictionary *)editingInfo
 {
@@ -1719,6 +1757,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	[self sendPickerCancel];
 }
 
+#pragma mark MPMediaPickerControllerDelegate
 - (void)mediaPicker:(MPMediaPickerController*)mediaPicker_ didPickMediaItems:(MPMediaItemCollection*)collection
 {
 	if (autoHidePicker) {
@@ -1748,7 +1787,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	[self sendPickerCancel];
 }
 
-#pragma mark Delegates
+#pragma mark UIVideoEditorControllerDelegate
 
 - (void)videoEditorController:(UIVideoEditorController *)editor_ didSaveEditedVideoToPath:(NSString *)editedVideoPath
 {
