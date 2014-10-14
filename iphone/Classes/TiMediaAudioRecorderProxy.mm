@@ -129,7 +129,7 @@
 		// indicate we're going to start recording
 		if (![[TiMediaAudioSession sharedSession] canRecord]) {
 			[self throwException:@"Improper audio session mode for recording"
-					   subreason:[[NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]] description]
+					   subreason:[[TiMediaAudioSession sharedSession] sessionMode]
 						location:CODELOCATION];
 		}
 		
