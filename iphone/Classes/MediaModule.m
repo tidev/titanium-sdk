@@ -1278,8 +1278,8 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 {
     if ([TiUtils isIOS8OrGreater]) {
         UIViewController* theController = picker_;
-        UIPopoverPresentationController* thePresenter = [theController popoverPresentationController];
         [theController setModalPresentationStyle:UIModalPresentationPopover];
+        UIPopoverPresentationController* thePresenter = [theController popoverPresentationController];
         [thePresenter setPermittedArrowDirections:arrowDirection];
         [thePresenter setDelegate:self];
         [[TiApp app] showModalController:theController animated:animatedPicker];
