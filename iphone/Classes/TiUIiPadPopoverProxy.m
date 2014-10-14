@@ -308,6 +308,7 @@ static NSArray* popoverSequence;
     }
     [self forgetSelf];
     RELEASE_TO_NIL(viewController);
+    RELEASE_TO_NIL(popoverView);
     RELEASE_TO_NIL_AUTORELEASE(popoverController);
     [self performSelector:@selector(release) withObject:nil afterDelay:0.5];
     [closingCondition lock];
