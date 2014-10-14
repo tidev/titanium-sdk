@@ -1839,7 +1839,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 -(void)audioRouteChanged:(NSNotification*)note
 {
     NSDictionary *event = [note userInfo];
-    [self fireEvent:@"linechange" withObject:event];
+    [self fireEvent:@"routechange" withObject:event];
 }
 
 -(void)audioVolumeChanged:(NSNotification*)note
@@ -1856,7 +1856,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)_listenerAdded:(NSString *)type count:(int)count
 {
-    if (count == 1 && [type isEqualToString:@"linechange"])
+    if (count == 1 && [type isEqualToString:@"routechange"])
     {
         WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe
         [[TiMediaAudioSession sharedSession] startAudioSession]; // Have to start a session to get a listener
@@ -1872,11 +1872,15 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     {
         DebugLog(@"[WARN] This event is no longer supported by the MediaModule. Check the inputs property fo the currentRoute property to check if an input line is available");
     }
+    else if (count == 1 && [type isEqualToString:@"linechange"])
+    {
+        DebugLog(@"[WARN] This event is no longer supported by the MediaModule. Listen for the routechange event instead");
+    }
 }
 
 -(void)_listenerRemoved:(NSString *)type count:(int)count
 {
-    if (count == 0 && [type isEqualToString:@"linechange"])
+    if (count == 0 && [type isEqualToString:@"routechange"])
     {
         WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
         [[TiMediaAudioSession sharedSession] stopAudioSession];
