@@ -990,6 +990,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		
 		[childrenArray release];
 		[self viewDidAttach];
+		[view updateClipping];
 
 		// If parent has a non absolute layout signal the parent that
 		//contents will change else just lay ourselves out
