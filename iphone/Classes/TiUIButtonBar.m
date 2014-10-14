@@ -138,6 +138,12 @@
 
 -(void)setStyle_:(id)value
 {
+	if ([TiUtils isIOS7OrGreater])
+	{
+		DebugLog(@"The segmentedControlStyle property no longer has any effect on iOS7 and greater");
+		return;
+	}
+    
 	int newStyle = [TiUtils intValue:value def:-1];
 	isNullStyle = (newStyle < 0);
 	if (isNullStyle)
