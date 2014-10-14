@@ -64,7 +64,7 @@
 @property(nonatomic,readonly) NSDictionary* currentRoute;
 @property(nonatomic,readonly) NSNumber* audioPlaying;
 @property(nonatomic,readonly) NSNumber* isCameraSupported;
-@property(nonatomic, assign) NSString* audioSessionMode;
+@property(nonatomic, assign) NSNumber* audioSessionMode;
 @property(nonatomic, assign) NSString* audioSessionCategory;
 @property(nonatomic,readonly) TiMediaMusicPlayer* systemMusicPlayer;
 @property(nonatomic,readonly) TiMediaMusicPlayer* appMusicPlayer;
