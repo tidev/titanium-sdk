@@ -216,10 +216,12 @@
 
 -(void)audioInterruptionEnd:(NSNotification*)note
 {
-	if ([self paused])
-	{
-		[self resume:nil];
-	}
+    if ([self paused]) {
+        id resumeObject = [[note userInfo] objectForKey:@"resume"];
+        if ([TiUtils boolValue:resumeObject def:NO]) {
+            [self resume:nil];
+        }
+    }
 }
 
 @end
