@@ -154,10 +154,10 @@ const CFOptionFlags writeStreamEventFlags =
     CFDataRef remoteSocketData;
     
     if ([stream isKindOfClass:[NSInputStream class]]) {
-        remoteSocketData = (CFDataRef)CFReadStreamCopyProperty((CFReadStreamRef)stream, kCFStreamPropertySocketNativeHandle);
+        remoteSocketData = (CFDataRef)CFReadStreamCopyProperty((CFReadStreamRef)(NSInputStream*)stream, kCFStreamPropertySocketNativeHandle);
     }
     else {
-        remoteSocketData = (CFDataRef)CFWriteStreamCopyProperty((CFWriteStreamRef)stream, kCFStreamPropertySocketNativeHandle);
+        remoteSocketData = (CFDataRef)CFWriteStreamCopyProperty((CFWriteStreamRef)(NSOutputStream*)stream, kCFStreamPropertySocketNativeHandle);
     }
     
 	if (remoteSocketData == NULL) {
