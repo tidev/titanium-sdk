@@ -736,6 +736,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.method
 	public void show(@Kroll.argument(optional=true) KrollDict options)
 	{
+		setProperty(TiC.PROPERTY_VISIBLE, true);
 		if (TiApplication.isUIThread()) {
 			handleShow(options);
 		} else {
@@ -748,12 +749,12 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (view != null) {
 			view.show();
 		}
-		setProperty(TiC.PROPERTY_VISIBLE, true);
 	}
 
 	@Kroll.method
 	public void hide(@Kroll.argument(optional=true) KrollDict options)
 	{
+		setProperty(TiC.PROPERTY_VISIBLE, false);
 		if (TiApplication.isUIThread()) {
 			handleHide(options);
 		} else {
@@ -771,7 +772,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				}
 			}
 			view.hide();
-			setProperty(TiC.PROPERTY_VISIBLE, false);
 		}
 	}
 
