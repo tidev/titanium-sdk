@@ -1065,6 +1065,8 @@ NSArray* moviePlayerKeys = nil;
 		case MPMoviePlaybackStatePlaying:
 			playing = YES;
 			break;
+        default:
+            break;
 	}
 }
 
