@@ -241,7 +241,7 @@ PLAYER_PROP_DOUBLE(state,state);
 	// indicate we're going to start playing
 	if (![[TiMediaAudioSession sharedSession] canPlayback]) {
 		[self throwException:@"Improper audio session mode for playback"
-				   subreason:[[NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]] description]
+				   subreason:[[TiMediaAudioSession sharedSession] sessionMode]
 					location:CODELOCATION];
 	}
 	
