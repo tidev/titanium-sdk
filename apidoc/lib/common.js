@@ -1,11 +1,13 @@
 /**
  * Common Library for Doctools
- * Dependencies: js-yaml ~3.2.2 and node-appc ~0.2.14
+ * Dependencies: js-yaml ~3.2.2, node-appc ~0.2.14 and pagedown ~1.1.0
  */
 
 var yaml = require('js-yaml'),
 	fs = require('fs'),
-	nodeappc = require('node-appc');
+	nodeappc = require('node-appc'),
+	pagedown = require('pagedown'),
+	converter = new pagedown.Converter();
 
 exports.VALID_PLATFORMS = ['android', 'blackberry', 'iphone', 'ipad', 'mobileweb', 'tizen'];
 exports.VALID_OSES = ['android', 'blackberry', 'ios', 'mobileweb', 'tizen'];
@@ -18,6 +20,34 @@ exports.DEFAULT_VERSIONS = {
 	'tizen' : '3.1'
 }
 exports.DATA_TYPES = ['Array', 'Boolean', 'Callback', 'Date', 'Dictionary', 'Number', 'Object', 'String'];
+
+exports.PRETTY_PLATFORM = {
+	'android': 'Android',
+	'blackberry': 'Blackberry',
+	'ios': 'iOS',
+	'iphone': 'iPhone',
+	'ipad': 'iPad',
+	'mobileweb': 'Mobile Web',
+	'tizen': 'Tizen'
+};
+
+// Matches FOO_CONSTANT
+exports.REGEXP_CONSTANTS = /^[A-Z_]*$/;
+
+// Matches <a href="...">Foo</a>
+exports.REGEXP_HREF_LINK = /<a href="(.+?)">(.+?)<\/a>/;
+exports.REGEXP_HREF_LINKS = /<a href="(.+?)">(.+?)<\/a>/g;
+
+// Matches <code>, </code>, etc.
+exports.REGEXP_HTML_TAG = /<\/?[a-z]+[^>]*>/;
+
+// Matches <Titanium.UI.Window>, <ItemTemplate>, etc. (and HTML tags)
+exports.REGEXP_CHEVRON_LINK = /<([^s]+?)>/;
+exports.REGEXP_CHEVRON_LINKS = /(?!`)<[^s]+?>(?!`)/g;
+
+exports.markdownToHTML = function markdownToHTML (text) {
+	return converter.makeHtml(text);
+}
 
 /**
  * Recursively find, load and parse YAML files
