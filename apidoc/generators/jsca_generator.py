@@ -171,8 +171,17 @@ def to_jsca_property(prop, for_event=False):
 			"type": "" if "type" not in prop.api_obj else to_jsca_type_name(prop.api_obj["type"])
 			}
 	if not for_event:
-		result["isClassProperty"] = (prop.name == prop.name.upper())
-		result["isInstanceProperty"] = (prop.name != prop.name.upper())
+
+		creatable = False;
+		if dict_has_non_empty_member(prop.parent.api_obj, "extends"):
+			ancestor = prop.parent.api_obj["extends"]
+			if (ancestor == "Titanium.Proxy" or ancestor == "Titanium.UI.View"):
+				creatable = True
+			if ("createable" in prop.parent.api_obj):
+				creatable = prop.parent.api_obj["createable"]
+
+		result["isClassProperty"] = False if (creatable and prop.name != prop.name.upper()) else True
+		result["isInstanceProperty"] = True if (creatable and prop.name != prop.name.upper()) else False
 		result["since"] = to_jsca_since(prop.platforms)
 		result["userAgents"] = to_jsca_userAgents(prop.platforms)
 		result["isInternal"] = False
