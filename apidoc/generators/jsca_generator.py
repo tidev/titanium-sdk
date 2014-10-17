@@ -171,8 +171,17 @@ def to_jsca_property(prop, for_event=False):
 			"type": "" if "type" not in prop.api_obj else to_jsca_type_name(prop.api_obj["type"])
 			}
 	if not for_event:
-		result["isClassProperty"] = (prop.name == prop.name.upper())
-		result["isInstanceProperty"] = (prop.name != prop.name.upper())
+
+		creatable = False;
+		if dict_has_non_empty_member(prop.parent.api_obj, "extends"):
+			ancestor = prop.parent.api_obj["extends"]
+			if (ancestor == "Titanium.Proxy" or ancestor == "Titanium.UI.View"):
+				creatable = True
+			if ("createable" in prop.parent.api_obj):
+				creatable = prop.parent.api_obj["createable"]
+
+		result["isClassProperty"] = False if (creatable and prop.name != prop.name.upper()) else True
+		result["isInstanceProperty"] = True if (creatable and prop.name != prop.name.upper()) else False
 		result["since"] = to_jsca_since(prop.platforms)
 		result["userAgents"] = to_jsca_userAgents(prop.platforms)
 		result["isInternal"] = False
@@ -225,6 +234,15 @@ def to_jsca_method_parameter(p):
 
 def to_jsca_function(method):
 	log.trace("%s.%s" % (method.parent.name, method.name))
+
+	creatable = False;
+	if dict_has_non_empty_member(method.parent.api_obj, "extends"):
+		ancestor = method.parent.api_obj["extends"]
+		if (ancestor == "Titanium.Proxy" or ancestor == "Titanium.UI.View"):
+			creatable = True;
+	if ("createable" in method.parent.api_obj):
+		creatable = method.parent.api_obj["createable"]
+
 	result = {
 			"name": method.name,
 			"deprecated": method.deprecated is not None and len(method.deprecated) > 0,
@@ -236,8 +254,8 @@ def to_jsca_function(method):
 		result["parameters"] = [to_jsca_method_parameter(p) for p in method.parameters]
 	result["since"] = to_jsca_since(method.platforms)
 	result['userAgents'] = to_jsca_userAgents(method.platforms)
-	result['isInstanceProperty'] = True # we don't have class static methods
-	result['isClassProperty'] = False # we don't have class static methods
+	result['isInstanceProperty'] = True if creatable else False
+	result['isClassProperty'] = False if creatable else True
 	result['isInternal'] = False # we don't make this distinction (yet anyway)
 	result['examples'] = to_jsca_examples(method)
 	result['references'] = [] # we don't use the notion of 'references' (yet anyway)
