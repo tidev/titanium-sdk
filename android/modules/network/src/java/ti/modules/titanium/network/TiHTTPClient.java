@@ -305,6 +305,9 @@ public class TiHTTPClient
 						charset = EntityUtils.getContentCharSet(entity);
 					}
 					while((count = is.read(buf)) != -1) {
+						if (aborted) {
+							break;
+						}
 						totalSize += count;
 						try {
 							handleEntityData(buf, count, totalSize, contentLength);
@@ -1324,6 +1327,9 @@ public class TiHTTPClient
 				Log.d(TAG, "Preparing to execute request", Log.DEBUG_MODE);
 
 				String result = null;
+				if (aborted) {
+					return;
+				}
 				try {
 					result = client.execute(host, request, handler);
 				} catch (IOException e) {
@@ -1337,7 +1343,9 @@ public class TiHTTPClient
 				}
 				connected = false;
 				setResponseText(result);
-				setReadyState(READY_STATE_DONE);
+				if (!aborted) {
+					setReadyState(READY_STATE_DONE);
+				}
 
 			} catch(Throwable t) {
 				if (client != null) {
