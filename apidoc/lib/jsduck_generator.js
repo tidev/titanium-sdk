@@ -3,12 +3,15 @@
  */
 var common = require('./common.js'),
 	colors = require('colors');
-	doc = null;
+	nodeappc = require('node-appc');
+	doc = null,
+	exportData = {};
 
 function findAPI (className, memberName, type) {
-	var cls = doc[className];
-	if (type in cls) {
-		for (var x = 0; x < cls[type].length; x++) {
+	var cls = doc[className],
+		x = 0;
+	if (type in cls && cls[type]) {
+		for (x = 0; x < cls[type].length; x++) {
 			if (cls[type][x].name == memberName) return true;
 		}
 	}
@@ -79,100 +82,36 @@ function markdownToHTML (text) {
 	return convertLinks(common.markdownToHTML(text));
 }
 
-function exportPlatforms (api) {
-	var rv = '';
-	for (var key in api.since) {
-		rv += ' * @platform ' + key + ' ' + api.since[key] + '\n';
-	}
-	return rv;
-}
-
-function exportSummary (api) {
-	if ('summary' in api) {
-		return ' * ' + markdownToHTML(api.summary) + '\n';
-	}
-	return '';
-}
-
-function exportDescription (api) {
-	if ('description' in api) {
-		return ' * @description ' + markdownToHTML(api.description) + '\n';
-	}
-	return '';
-}
-
-function exportType (api) {
-	var rv = [];
-	if ('type' in api) {
-		var types = api.type;
-		if (!Array.isArray(api.type)) types = [api.type];
-		types.forEach(function (type) {
-			if (type.indexOf('Array') == 0) {
-				rv.push(type.slice(type.indexOf('<') + 1, type.indexOf('>')) + '[]');
-			} else {
-				rv.push(type);
-			}
-		});
-	}
-	if (rv.length > 0) {
-		return ' * @type ' + rv.join('/') + '\n';
-	} else {
-		return '';
-	}
-}
-
-function exportParams (apis) {
-	var rv = '';
-	apis.forEach(function (member) {
-		var platforms = '',
-			optional = '';
-		if (!'type' in member || !member.type) member.type = 'String';
-		if (!Array.isArray(member.type)) member.type = [member.type];
-		if ('platforms' in member) platforms = ' (' + member.platforms.join(' ') + ') ';
-		if ('optional' in member && member.optional == true) optional += ' (optional)';
-		rv += ' * @param {' +  member.type.join('/') + '} ' + platforms + member.name + optional + '\n';
-		rv += exportSummary(member);
-		rv += exportConstants(member);
-	});
-	return rv;
-}
-
-function exportReturns (api) {
-	var returns = api.returns,
-		types = [],
-		summary = '',
-		constants = [],
-		rv = ' * @return void';
-
-	if ('returns' in api && api.returns) {
-		if (!Array.isArray(api.returns)) api.returns = [api.returns];
-		api.returns.forEach(function (ret) {
-			if (Array.isArray(ret.type)) ret.type = ret.type.join('/');
-			types.push(ret.type || 'void');
-
-			if ('summary' in ret) summary += ret.summary;
-			if ('constants' in ret) constants = constants.concat(ret.constants);
-		});
-		if (constants.length) {
-			summary += exportConstants({'constants': constants});
-		}
-		rv = ' * @returns {' + types.join('/') + '}' + summary + '\n';
-	}
-	return rv;
-
-}
-
-
 function exportExamples (api) {
-	var rv = '';
+	var rv = '',
+		code = '';
 	if ('examples' in api && api.examples.length > 0) {
-		rv += ' * <h3>Examples</h3>\n'
+		rv += '<h3>Examples</h3>\n'
 		api.examples.forEach(function (example) {
-			if (example.title) rv += ' * <h4>'+ example.title + '</h4>\n';
-			rv += markdownToHTML(example.example) + '\n';
+			if (example.title) rv += '<h4>'+ example.title + '</h4>\n';
+			code = markdownToHTML(example.example);
+			// If we don't find a <code> tag, assume entire example should be code formatted
+			if (!~code.indexOf('<code>')) {
+				code = code.replace(/\<p\>/g, '').replace(/\<\/p\>/g, '');
+				code = '<pre><code>' + code + '</code></pre>';
+			}
+			rv += code;
 		});
 	}
 	return rv.replace('/*', '&#47;&#42;').replace('*/', '&#42;&#47;');
+}
+
+function exportDeprecated (api) {
+	var rv = '';
+	if ('deprecated' in api && api.deprecated) {
+		if ('removed' in api.deprecated) {
+			rv += '@removed ' + api.deprecated.removed;
+		} else {
+			rv += '@deprecated ' + api.deprecated.since;
+		}
+		if ('notes' in api.deprecated) rv+= ' ' + api.deprecated.notes;
+	}
+	return rv;
 }
 
 function exportOSVer (api) {
@@ -205,108 +144,143 @@ function exportConstants (api) {
 }
 
 function exportValue (api) {
-	if ('value' in api) {
+	if ('value' in api && api.value) {
 		return '<p><b>Constant value:</b>' + api.value + '</p>\n';
 	}
 	return '';
 }
 
-function exportDeprecated (api) {
-	var rv = '';
-	if ('deprecated' in api && api.deprecated) {
-		if ('removed' in api.deprecated) {
-			rv += ' * @removed ' + api.deprecated.removed;
-		} else {
-			rv += ' * @deprecated ' + api.deprecated.since;
-		}
-		if ('notes' in api.deprecated) rv+= ' ' + api.deprecated.notes;
-		rv += '\n'
+function exportSummary (api) {
+	if ('summary' in api && api.summary) {
+		return markdownToHTML(api.summary);
 	}
-	return rv;
+	return '';
 }
 
-function exportAPIs (apis, type, versions) {
-	var rv = '',
-		singular = {'events': 'event', 'methods': 'method', 'properties': 'property'};
-	if (type in apis) {
+function exportDescription (api) {
+	if ('description' in api && api.description) {
+		return markdownToHTML(api.description);
+	}
+	return '';
+}
 
-		apis[type].forEach(function (api) {
-
-			if ('__hide' in api && api.__hide) {
-				rv += '/**\n';
-				rv += ' * @' + singular[type] + ' ' + api.name + '\n';
-				rv += ' * @hide\n'
-				rv += ' */\n';
-				return;
-			}
-
-			if ('__inherits' in api && api.__inherits != apis.name) return;
-
-			rv += '/**\n';
-			if ('default' in api) {
-				rv += ' * @' + singular[type] + ' [' + api.name + '=' + api.default +']\n';
+function exportType (api) {
+	var rv = [];
+	if ('type' in api && api.type) {
+		var types = api.type;
+		if (!Array.isArray(api.type)) types = [api.type];
+		types.forEach(function (type) {
+			if (type.indexOf('Array') == 0) {
+				rv.push(type.slice(type.indexOf('<') + 1, type.indexOf('>')) + '[]');
 			} else {
-				rv += ' * @' + singular[type] + ' ' + api.name + '\n';
+				rv.push(type);
 			}
-
-			rv += exportType(api);
-			if ('permission' in api) {
-				if (api.permission === 'read-only') rv += ' * @readonly\n';
-				if (api.permission === 'write-only') rv += ' * @writeonly\n';
-			}
-			if ('availability' in api) {
-				if (api.availability === 'creation-only') rv += ' * @creationOnly\n';
-			}
-			rv += exportSummary(api);
-			rv += exportDeprecated(api);
-			rv += exportOSVer(api);
-			rv += exportValue(api);
-			rv += exportDescription(api);
-			rv += exportConstants(api);
-			rv += exportExamples(api);
-
-			if ('properties' in api) {
-				rv += exportParams(api.properties);
-			}
-
-			if ('parameters' in api) {
-				rv += exportParams(api.parameters);
-			}
-
-			if ('returns' in api) {
-				rv += exportReturns(api);
-			}
-
-			if (JSON.stringify(versions) != JSON.stringify(api.since)) {
-				rv += exportPlatforms(api);
-			}
-			rv += ' */\n\n';
 		});
 	}
+	if (rv.length > 0) {
+		return rv.join('/');
+	} else {
+		return 'String';
+	}
+}
+
+function exportParams (apis) {
+	var rv = '',
+		str = '';
+	apis.forEach(function (member) {
+		var platforms = '',
+			optional = '';
+		str = '';
+		if (!'type' in member || !member.type) member.type = 'String';
+		if (!Array.isArray(member.type)) member.type = [member.type];
+		if ('platforms' in member) platforms = ' (' + member.platforms.join(' ') + ') ';
+		if ('optional' in member && member.optional == true) optional += ' (optional)';
+		str += '{' +  member.type.join('/') + '} ' + platforms + member.name + optional + '\n';
+		str += exportSummary(member);
+		str += exportConstants(member);
+	});
 	return rv;
 }
 
-exports.exportData = function exportJsDuck (apis) {
-	var exportData = '';
-	doc = apis;
-	for (var key in apis) {
-		var api = apis[key];
+function exportReturns (api) {
+	var types = [],
+		summary = '',
+		constants = [],
+		rv = 'void';
 
-		exportData += '/**\n';
-		exportData += ' * @class ' + api.name + '\n';
-		exportData += exportPlatforms(api);
-		if (api.subtype === 'pseudo') exportData += ' * @pseudo\n';
-		if ('extends' in api) exportData += ' * @extends ' + api.extends + '\n';
-		exportData += exportSummary(api);
-		exportData += exportDeprecated(api);
-		exportData += exportOSVer(api);
-		exportData += exportDescription(api);
-		exportData += exportExamples(api);
-		exportData += ' */\n\n';
+	if ('returns' in api && api.returns) {
+		if (!Array.isArray(api.returns)) api.returns = [api.returns];
+		api.returns.forEach(function (ret) {
+			if (Array.isArray(ret.type)) ret.type = ret.type.join('/');
+			types.push(ret.type || 'void');
 
-		exportData += exportAPIs(api, "properties", api.since);
-		exportData += exportAPIs(api, "methods", api.since);
-		exportData += exportAPIs(api, "events", api.since);
+			if ('summary' in ret) summary += ret.summary;
+			if ('constants' in ret) constants = constants.concat(ret.constants);
+		});
+		if (constants.length) {
+			summary += exportConstants({'constants': constants});
+		}
+		rv = '{' + types.join('/') + '}' + summary;
 	}
-	return exportData;
+	return rv;
+
+}
+
+function exportAPIs (api, type) {
+	var x = 0,
+		member = null,
+		removeAPI = [];
+
+	if (type in api) {
+		for (x = 0; x < api[type].length; x++) {
+			member = api[type][x];
+
+			if ('__inherits' in member && member.__inherits != api.name) {
+				removeAPI.push(member);
+				continue;
+			}
+
+			member.summary = exportSummary(member);
+			member.deprecated = exportDeprecated(member);
+			member.osver = exportOSVer(member);
+			member.description = exportDescription(member);
+			member.examples = exportExamples(member);
+			member.type = exportType(member);
+			member.constants = exportConstants(member);
+			member.value = exportValue(member);
+
+			if (JSON.stringify(member.since) == JSON.stringify(api.since)) member.since = {};
+
+			if ('parameters' in member) member.parameters = exportParams(member.parameters);
+			if ('returns' in member) member.returns = exportReturns(member);
+			if ('properties' in member) member.properties = exportParams(member.properties);
+		}
+
+		removeAPI.forEach(function (rm) {
+			api[type].splice(api[type].indexOf(rm), 1);
+		});
+
+	}
+
+	return api[type];
+}
+
+// Returns a JSON object that can be applied to the JSDuck EJS template
+exports.exportData = function exportJsDuck (apis) {
+	var className = null, key = null, rv =[];
+	doc = nodeappc.util.mixObj({}, apis);
+	for (className in apis) {
+		cls = apis[className];
+		cls.summary = exportSummary(cls);
+		cls.deprecated = exportDeprecated(cls);
+		cls.osver = exportOSVer(cls);
+		cls.description = exportDescription(cls);
+		cls.examples = exportExamples(cls);
+
+		cls.events = exportAPIs(cls, 'events') || [];
+		cls.methods = exportAPIs(cls, 'methods') || [];
+		cls.properties = exportAPIs(cls, 'properties') || [];
+		rv.push(cls);
+	}
+	return rv;
 }

@@ -1,30 +1,37 @@
 /**
  * Script to preprocess the YAML docs in to a common JSON format,
  * then calls an generator script to format the API documentation.
- * Dependencies: node-appc ~0.2.14
+ * Dependencies: ejs ~0.8.8 and node-appc ~0.2.14
  */
 
 var common = require('./lib/common.js')
 	nodeappc = require('node-appc'),
+	ejs = require('ejs'),
 	fs = require('fs'),
-	processedData = {},
-	basePath = '.',
+	basePaths = [],
+	processFirst = ['Titanium.Proxy', 'Titanium.Module', 'Titanium.UI.View'],
+	skipList = ['Titanium.Namespace.Name'],
+	formats = [],
+
+	apidocPath = '.',
+	libPath = './lib/',
+	templatePath = './template/',
 	format = 'html',
 	output = '../dist/',
+	parseData = {},
 	doc = {},
 	errors = [],
-	exporter = '',
-	processFirst = ['Titanium.Proxy', 'Titanium.Module', 'Titanium.UI.View'],
-	formats = [],
-	str = '',
-	libPath = './lib',
+	exportData = {},
+	exporter = null,
+	processedData = {},
+	render = '',
 	fsArray = [],
 	tokens = [];
 
 /**
  * Returns a list of inherited APIs.
  * @params api {Object} API object to extract inherited APIs
- * @returns {Object} Object containing all APIs for the API object
+ * @returns {Object} Object containing all API members for the class
  */
 function getInheritedAPIs (api) {
 
@@ -114,8 +121,8 @@ function processConstants (api) {
 /**
  * Returns a list of platforms and since versions the API supports
  * @params api {Object} API to evaluate
- * @params verions {Object} Possible plaforms and versions the API supports (usually from the class)
- * @returns {Object} Object containing plaforms and versions the API supports
+ * @params versions {Object} Possible platforms and versions the API supports (usually from the class)
+ * @returns {Object} Object containing platforms and versions the API supports
  */
 function processVersions (api, versions) {
 	var defaultVersions = nodeappc.util.mixObj({}, versions),
@@ -148,7 +155,7 @@ function processVersions (api, versions) {
  * Processes APIs based on the given list of platforms and versions
  * @params apis {Array<Object>} List of APIs to evaluate
  * @param type {String} Type of API
- * @params defaultVersions {Object} List of plaforms and versions the APIs support
+ * @params defaultVersions {Object} List of platforms and versions the APIs support
  * @returns {Array<Object>} List of processed APIs
  */
 function processAPIMembers (apis, type, defaultVersions) {
@@ -349,7 +356,8 @@ function cliUsage () {
 
 // Start of Main Flow
 // Get a list of valid formats
-libPath = process.argv[1].substring(0, process.argv[1].lastIndexOf('/'))  + '/lib';
+apidocPath = process.argv[1].substring(0, process.argv[1].lastIndexOf('/'))
+libPath = apidocPath + '/lib/';
 fsArray = fs.readdirSync(libPath);
 fsArray.forEach(function (file) {
 	tokens = file.split('_');
@@ -388,45 +396,56 @@ if ((argc = process.argv.length) > 2) {
 				output = process.argv[x];
 				break;
 			default :
-				if (x == argc - 1) {
-					basePath = process.argv[x];
-				} else {
-					console.warn('Unknown option: %s'.yellow, process.argv[x]);
-					cliUsage();
-					process.exit(1);
-				}
+				basePaths.push(process.argv[x]);
 		}
 	}
 }
 
-rv = common.parseYAML(basePath);
-doc = rv.data;
-errors = rv.errors;
+// Parse YAML files
+if (basePaths.length == 0) basePaths.push(apidocPath);
+basePaths.forEach(function (basePath) {
+	console.log('Parsing YAML files in %s...'.white, basePath);
+	parseData = common.parseYAML(basePath);
+	for (key in parseData.data) {
+		errors.push(parseData.errors);
+		if (key in doc && doc[key]) {
+			console.warn('WARNING: Duplicate class found: %s'.yellow, key);
+			continue;
+		}
+		doc[key] = parseData.data[key];
+	}
+});
 
+// Process YAML files
+console.log('Processing YAML files...'.white);
 processFirst.forEach(function (cls) {
 	processedData[cls] = processAPIs(doc[cls]);
 });
+skipList = skipList.concat(processFirst);
 for (key in doc) {
-	if (~processFirst.indexOf(key)) continue;
+	if (~skipList.indexOf(key)) continue;
 	processedData[key] = processAPIs(doc[key]);
 }
 
+// Export data
 exporter = require('./lib/' + format + '_generator.js');
-str = exporter.exportData(processedData);
+exportData = exporter.exportData(processedData);
+templatePath = apidocPath + '/templates/'
 
 switch (format) {
 	case 'jsduck' :
-		output = output + 'titanium.js';
+		templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
+		render = ejs.render(templateStr, {doc: exportData});
+		output = output + '/titanium.js';
 		break;
 	default:
 		;
 }
 
-fs.writeFile(output, str, function (err) {
+fs.writeFile(output, render, function (err) {
     if (err) {
         console.log(err);
     } else {
         console.log("Generated output at %s".green, output);
     }
 });
-
