@@ -513,7 +513,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			this.setTheme(theme);
 		}
 
-		super.onCreate(savedInstanceState);
 		
 		// we only want to set the current activity for good in the resume state but we need it right now.
 		// save off the existing current activity, set ourselves to be the new current activity temporarily 
@@ -522,6 +521,8 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		tiApp.setCurrentActivity(this, this);
 
 		windowCreated();
+		super.onCreate(savedInstanceState);
+
 
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
