@@ -983,7 +983,7 @@ properties:
 
   - name: LIST_ITEM_TEMPLATE_DEFAULT
     summary: |
-        A built-in style for an item with an image view and black, left-aligned title label.
+        A built-in style for an item with an image view and left-aligned title label.
     description: |
         The text label value and image value bind to the `title` and `image` properties, respectively,
         of the data item. If a property is not set, that element is not displayed.
@@ -997,8 +997,8 @@ properties:
 
   - name: LIST_ITEM_TEMPLATE_SETTINGS
     summary: |
-        A built-in style for a item with an image view; a black, left-aligned title label; and a
-        smaller blue, right-aligned subtitle label.
+        A built-in style for a item with an image view; a left-aligned title label; and a
+        right-aligned subtitle label.
     description: |
         The title label value, subtitle label value and image value bind to the `title`, `subtitle`
         and `image` properties, respectively, of the data item. If a property is not set, that
@@ -1010,8 +1010,8 @@ properties:
 
   - name: LIST_ITEM_TEMPLATE_CONTACTS
     summary: |
-        A built-in style for an item with a title label on the left side of the cell with
-        right-aligned, blue text, which is next to a subtitle label with left-aligned, black text.
+        A built-in style for an item with a right-aligned title label on the left side of the cell,
+        which is next to a left-aligned subtitle label.
     description: |
         The title label value and subtitle label value bind to the `title` and `subtitle`
         properties, respectively, of the data item. If a property is not set, that element is not
@@ -1024,7 +1024,7 @@ properties:
   - name: LIST_ITEM_TEMPLATE_SUBTITLE
     summary: |
         A built-in style for an item with an image view; a black, left-aligned title label across the
-        top of the cell and a subtitle label below it in smaller gray text.
+        top of the cell and a subtitle label below it.
     description: |
         The title label value, subtitle label value and image value bind to the `title`, `subtitle`
         and `image` properties, respectively, of the data item. If a property is not set, that
