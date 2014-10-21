@@ -17,17 +17,6 @@ description: |
     ![popover](http://img.skitch.com/20100406-pmssjk1a3a65s6ui8qnbqi59c4.png)
 extends: Titanium.Proxy
 since: "1.2"
-excludes:
-    events: [longclick]
-    methods: [getBackgroundDisabledColor, getBackgroundDisabledImage, getBackgroundFocusedColor,
-              getBackgroundFocusedImage, getBackgroundSelectedColor, getBackgroundSelectedImage,
-              getFocusable, getKeepScreenOn, getSoftKeyboardOnFocus,
-              setBackgroundDisabledColor, setBackgroundDisabledImage, setBackgroundFocusedColor,
-              setBackgroundFocusedImage, setBackgroundSelectedColor, setBackgroundSelectedImage,
-              setFocusable, setKeepScreenOn, setSoftKeyboardOnFocus]
-    properties: [backgroundDisabledColor, backgroundDisabledImage, backgroundFocusedColor,
-                 backgroundFocusedImage, backgroundSelectedColor, backgroundSelectedImage,
-                 focusable, keepScreenOn, softKeyboardOnFocus, left, right, top, bottom, center]
 
 events:
   - name: hide
