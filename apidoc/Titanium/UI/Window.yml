@@ -729,15 +729,17 @@ properties:
         `<Window>`, for example:
 
             <Alloy>
-                <RightNavButton>
-                    <Button title="Back" />                 
-                </RightNavButton>
-                <LeftNavButton>
-                    <Button title="Back" />
-                </LeftNavButton>
-                <TitleControl>
-                    <View backgroundColor="blue" height="100%" width="100%"></View>
-                </TitleControl>
+                <Window>
+                    <RightNavButton>
+                        <Button title="Back" />
+                    </RightNavButton>
+                    <LeftNavButton>
+                        <Button title="Back" />
+                    </LeftNavButton>
+                    <TitleControl>
+                        <View backgroundColor="blue" height="100%" width="100%"></View>
+                    </TitleControl>
+                </Window>
             </Alloy>
     platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
