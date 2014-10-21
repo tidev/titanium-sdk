@@ -311,7 +311,8 @@ properties:
   - name: exitOnClose
     summary: |
         Boolean value indicating if the application should exit when the Android
-        Back button is pressed while the window is being shown.
+        Back button is pressed while the window is being shown or when the window 
+        is closed programmatically.
     description:  |
         You can only set this as a createWindow({...}) option.  Setting it after
         window creation has no effect.

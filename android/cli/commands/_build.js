@@ -1165,7 +1165,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		for (; i >= 0; i--) {
 			if (targetSDKMap[levels[i]].sdk >= this.minSupportedApiLevel && targetSDKMap[levels[i]].sdk <= this.maxSupportedApiLevel) {
-				this.targetSDK = levels[i];
+				this.targetSDK = targetSDKMap[levels[i]].sdk;
 				break;
 			}
 		}
