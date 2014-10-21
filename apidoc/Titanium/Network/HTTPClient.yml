@@ -383,7 +383,7 @@ properties:
         Due to the asynchronous nature of the Titanium platform, the internal value of 
         [readyState](Titanium.Network.HTTPClient.readyState) might be different from the state change 
         for which the event was fired. To address this discrepancy, the function is now invoked with a 
-        payload object of type <ReadyStatePayload>. This was introduced in version 3.4.1 of the SDK and is 
+        payload object of type <ReadyStatePayload>. This was introduced in version 3.4.2 of the SDK and is 
         supported on the iOS and android platforms.
 
   - name: onsendstream
