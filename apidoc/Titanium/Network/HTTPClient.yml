@@ -655,7 +655,7 @@ platforms: [iphone, ipad]
 name: ReadyStatePayload
 summary: An Object describing the current ready state. See [onreadystatechange](Titanium.Network.HTTPClient.onreadystatechange) for more information.
 platforms: [iphone, ipad, android]
-since: "3.4.1"
+since: "3.4.2"
 properties: 
   - name: readyState
     summary: The state for which `onreadystatechange` was invoked. Set to one of `Titanium.Network.HTTPClient` ready-state constants
