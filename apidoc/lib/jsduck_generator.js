@@ -4,7 +4,7 @@
 var common = require('./common.js'),
 	colors = require('colors');
 	nodeappc = require('node-appc');
-	doc = {}
+	doc = {},
 	removeAPIs = {},
 	exportData = {};
 
