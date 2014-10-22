@@ -17,6 +17,7 @@
     CGRect textPadding;
     UIControlContentVerticalAlignment verticalAlign;
     CGRect initialLabelFrame;
+    CGFloat minFontSize;
 }
 
 @property(nonatomic,getter=isHighlighted) BOOL     highlighted;          // default is NO

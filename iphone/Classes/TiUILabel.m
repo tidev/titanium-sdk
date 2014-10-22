@@ -173,6 +173,7 @@
         wrapperView.clipsToBounds = YES;
         [wrapperView setUserInteractionEnabled:NO];
         [self addSubview:wrapperView];
+        minFontSize = 0;
     }
 	return label;
 }
@@ -411,21 +412,26 @@
 -(void)setFont_:(id)font
 {
 	[[self label] setFont:[[TiUtils fontValue:font] font]];
+    if (minFontSize > 4) {
+        CGFloat ratio = minFontSize/label.font.pointSize;
+        [label setMinimumScaleFactor:ratio];
+    }
 	[(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 -(void)setMinimumFontSize_:(id)size
 {
-    CGFloat newSize = [TiUtils floatValue:size];
-    if (newSize < 4) { // Beholden to 'most minimum' font size
+    minFontSize = [TiUtils floatValue:size];
+    if (minFontSize < 4) { // Beholden to 'most minimum' font size
         [[self label] setAdjustsFontSizeToFitWidth:NO];
-        [[self label] setMinimumFontSize:0.0];
-        [[self label] setNumberOfLines:0];
+        [label setMinimumScaleFactor:0.0];
+        [label setNumberOfLines:0];
     }
     else {
         [[self label] setNumberOfLines:1];
-        [[self label] setAdjustsFontSizeToFitWidth:YES];
-        [[self label] setMinimumFontSize:newSize];
+        [label setAdjustsFontSizeToFitWidth:YES];
+        CGFloat ratio = minFontSize/label.font.pointSize;
+        [label setMinimumScaleFactor:ratio];
     }
 
 }
