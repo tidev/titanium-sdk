@@ -5,7 +5,6 @@ var common = require('./common.js'),
 	colors = require('colors');
 	nodeappc = require('node-appc');
 	doc = {},
-	removeAPIs = {},
 	exportData = {};
 
 function findAPI (className, memberName, type) {
