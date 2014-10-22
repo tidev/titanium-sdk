@@ -37,6 +37,7 @@ import android.graphics.drawable.shapes.OvalShape;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -512,6 +513,7 @@ public class TiMapView extends TiUIView
 			public void onDestroy(Activity activity) {}
 			public void onStart(Activity activity) {}
 			public void onStop(Activity activity) {}
+			public void onCreate(Activity activity, Bundle savedInstanceState) {}
 		});
 		view.setBuiltInZoomControls(true);
 		view.setScrollable(true);
