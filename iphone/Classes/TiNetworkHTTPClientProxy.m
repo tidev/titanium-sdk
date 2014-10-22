@@ -355,7 +355,7 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)request:(APSHTTPRequest *)request onReadyStateChange:(APSHTTPResponse *)response
 {
     if(hasOnreadystatechange) {
-        [self fireCallback:@"onreadystatechange" withArg:nil withSource:self];
+        [self fireCallback:@"onreadystatechange" withArg:[NSDictionary dictionaryWithObjectsAndKeys:NUMINT(response.readyState),@"readyState", nil] withSource:self];
     }
 }
 
