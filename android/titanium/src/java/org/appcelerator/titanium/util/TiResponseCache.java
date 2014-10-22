@@ -396,7 +396,7 @@ public class TiResponseCache extends ResponseCache
 		// getHeaderFields() just checks the response itself
 		Map<String, List<String>> headers = makeLowerCaseHeaders(conn.getHeaderFields());
 		String cacheControl = getHeader(headers, "cache-control");
-		if (cacheControl != null && cacheControl.matches("^.*(no-cache|no-store|must-revalidate).*")) {
+		if (cacheControl != null && cacheControl.matches("^.*(no-cache|no-store|must-revalidate|max-age=0).*")) {
 			return null; // See RFC-2616
 		}
 
