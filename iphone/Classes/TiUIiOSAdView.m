@@ -25,8 +25,7 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 {
 	if (adview == nil)
 	{
-		adview = [[ADBannerView alloc] initWithFrame:CGRectZero];
-		adview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+		adview = [[ADBannerView alloc] initWithAdType:ADAdTypeBanner];
 		adview.delegate = self;
 		[self addSubview:adview];
 	}
@@ -40,15 +39,17 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 
 -(CGFloat)contentHeightForWidth:(CGFloat)value
 {
-	ADBannerView *view = [self adview];
-	CGSize size = [ADBannerView sizeFromBannerContentSizeIdentifier:view.currentContentSizeIdentifier];
-	return size.height;
+    ADBannerView *view = [self adview];
+    CGSize refSize = [[UIScreen mainScreen] bounds].size;
+    CGSize size = [view sizeThatFits:refSize];
+    return size.height;
 }
 
 -(CGFloat)contentWidthForWidth:(CGFloat)value
 {
-	ADBannerView *view = [self adview];
-	CGSize size = [ADBannerView sizeFromBannerContentSizeIdentifier:view.currentContentSizeIdentifier];
+    ADBannerView *view = [self adview];
+    CGSize refSize = [[UIScreen mainScreen] bounds].size;
+    CGSize size = [view sizeThatFits:refSize];
 	return size.width;
 }
 
@@ -59,11 +60,6 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 		[TiUtils setView:[self adview] positionRect:bounds];
 	}
     [super frameSizeChanged:frame bounds:bounds];
-}
-
--(void)setAdSize:(NSString*)sizeName
-{
-    [self adview].currentContentSizeIdentifier = sizeName;
 }
 
 #pragma mark Public APIs
@@ -83,7 +79,7 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
     [self.proxy replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
 	if (TI_APPLICATION_ANALYTICS)
 	{
-		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:[banner currentContentSizeIdentifier],@"size",nil];
+		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:NSStringFromCGSize(banner.bounds.size),@"size",nil];
         APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
         SEL aSelector = NSSelectorFromString(@"sendCustomEvent:withEventType:payload:");
         if([sharedAnalytics respondsToSelector:aSelector]) {
@@ -104,7 +100,7 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 {
 	if (TI_APPLICATION_ANALYTICS)
 	{
-		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:[banner currentContentSizeIdentifier],@"size",nil];
+		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:NSStringFromCGSize(banner.bounds.size),@"size",nil];
         APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
         SEL aSelector = NSSelectorFromString(@"sendCustomEvent:withEventType:payload:");
         if([sharedAnalytics respondsToSelector:aSelector]) {
@@ -119,10 +115,10 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
         }
 
 	}
-	if ([self.proxy _hasListeners:@"action"])
+	if ([(TiViewProxy*)self.proxy _hasListeners:@"action" checkParent:NO])
 	{
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[self.proxy fireEvent:@"action" withObject:event];
+		[self.proxy fireEvent:@"action" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
 	}
 }
 
@@ -133,15 +129,15 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 
 - (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
 {
-	TiProxy * selfProxy = [self proxy];
+	TiViewProxy * selfProxy = (TiViewProxy*)[self proxy];
 	// per Apple, we must hide the banner view if there's no ad
 	[selfProxy replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
 	
-	if ([selfProxy _hasListeners:@"error"])
+	if ([selfProxy _hasListeners:@"error" checkParent:NO])
 	{
 		NSString * message = [TiUtils messageFromError:error];
 		NSDictionary *event = [NSDictionary dictionaryWithObject:message forKey:@"message"];
-		[selfProxy fireEvent:@"error" withObject:event errorCode:[error code] message:message];
+		[selfProxy fireEvent:@"error" withObject:event propagate:NO reportSuccess:YES errorCode:[error code] message:message];
 	}
 }
 
