@@ -470,22 +470,13 @@ NSArray* moviePlayerKeys = nil;
 
 -(NSNumber*)useApplicationAudioSession
 {
-	if (movie != nil) {
-		return NUMBOOL([movie useApplicationAudioSession]);
-	}
-	else {
-		RETURN_FROM_LOAD_PROPERTIES(@"useApplicationAudioSession",NUMBOOL(YES));
-	}
+    DebugLog(@"[WARN] Deprecated property useApplicationAudioSession; Setting this property has no effect'");
+    return NUMBOOL(YES);
 }
 
 -(void)setUseApplicationAudioSession:(id)value
 {
-	if (movie != nil) {
-		[movie setUseApplicationAudioSession:[TiUtils boolValue:value]];
-	}
-	else {
-		[loadProperties setValue:value forKey:@"useApplicationAudioSession"];
-	}
+    DebugLog(@"[WARN] Deprecated property useApplicationAudioSession; Setting this property has no effect'");
 }
 
 -(NSNumber *)volume
