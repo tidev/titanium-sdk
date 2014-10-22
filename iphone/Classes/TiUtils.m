@@ -1183,23 +1183,23 @@ If the new path starts with / and the base url is app://..., we have to massage 
 	return [[[TiScriptError alloc] initWithMessage:[value description] sourceURL:nil lineNo:0] autorelease];
 }
 
-+(UITextAlignment)textAlignmentValue:(id)alignment
++(NSTextAlignment)textAlignmentValue:(id)alignment
 {
-	UITextAlignment align = UITextAlignmentLeft;
+	UITextAlignment align = NSTextAlignmentLeft;
 
 	if ([alignment isKindOfClass:[NSString class]])
 	{
 		if ([alignment isEqualToString:@"left"])
 		{
-			align = UITextAlignmentLeft;
+			align = NSTextAlignmentLeft;
 		}
 		else if ([alignment isEqualToString:@"center"])
 		{
-			align = UITextAlignmentCenter;
+			align = NSTextAlignmentCenter;
 		}
 		else if ([alignment isEqualToString:@"right"])
 		{
-			align = UITextAlignmentRight;
+			align = NSTextAlignmentRight;
 		}
 	}
 	else if ([alignment isKindOfClass:[NSNumber class]])
