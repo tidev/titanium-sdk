@@ -902,24 +902,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	}
 	ENSURE_UI_THREAD(showModalError,message);
 	TiErrorController *error = [[[TiErrorController alloc] initWithError:message] autorelease];
-	[controller presentModalViewController:error animated:YES];
-}
-
--(void)attachModal:(UIViewController*)modalController toController:(UIViewController*)presentingController animated:(BOOL)animated
-{
-	UIViewController * currentModalController = [presentingController modalViewController];
-
-	if (currentModalController == modalController)
-	{
-		DeveloperLog(@"[WARN] Trying to present a modal window that already is a modal window.");
-		return;
-	}
-	if (currentModalController == nil)
-	{
-		[presentingController presentModalViewController:modalController animated:animated];
-		return;
-	}
-	[self attachModal:modalController toController:currentModalController animated:animated];
+    [self showModalController:error animated:YES];
 }
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated

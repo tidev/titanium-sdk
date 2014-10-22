@@ -711,7 +711,7 @@
 
 -(TiOrientationFlags)orientationFlags
 {
-	UIViewController * modalController = [controller modalViewController];
+	UIViewController * modalController = [controller presentedViewController];
 	if ([modalController conformsToProtocol:@protocol(TiOrientationController)])
 	{
 		return [(id<TiOrientationController>)modalController orientationFlags];
