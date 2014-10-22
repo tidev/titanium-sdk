@@ -66,7 +66,7 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
         return nil;
         
     }
-    return [ourStore calendars];
+    return [ourStore calendarsForEntityType:EKEntityTypeEvent];
 }
 
 -(NSString*)apiName
