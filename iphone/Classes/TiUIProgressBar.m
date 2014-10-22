@@ -36,7 +36,7 @@
 	NSString *value = [messageLabel text];
 	UIFont *font = [messageLabel font];
 	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 1000);
-	return [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
+	return [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:NSLineBreakByTruncatingTail];
 }
 
 -(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth

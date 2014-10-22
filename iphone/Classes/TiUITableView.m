@@ -845,7 +845,7 @@
 {
 	CGSize maxSize = CGSizeMake(320, 1000);
 	UIFont *font = [[WebFont defaultBoldFont] font];
-	CGSize size = [text sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
+	CGSize size = [text sizeWithFont:font constrainedToSize:maxSize lineBreakMode:NSLineBreakByTruncatingTail];
 	
 	UITableViewStyle style = [[self tableView] style];
 	int x = (style==UITableViewStyleGrouped) ? 15 : 10;
