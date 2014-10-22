@@ -42,8 +42,8 @@ exports.REGEXP_HREF_LINKS = /<a href="(.+?)">(.+?)<\/a>/g;
 exports.REGEXP_HTML_TAG = /<\/?[a-z]+[^>]*>/;
 
 // Matches <Titanium.UI.Window>, <ItemTemplate>, etc. (and HTML tags)
-exports.REGEXP_CHEVRON_LINK = /<([^s]+?)>/;
-exports.REGEXP_CHEVRON_LINKS = /(?!`)<[^s]+?>(?!`)/g;
+exports.REGEXP_CHEVRON_LINK = /<([^>]+?)>/;
+exports.REGEXP_CHEVRON_LINKS = /(?!`)<[^>]+?>(?!`)/g;
 
 exports.markdownToHTML = function markdownToHTML (text) {
 	return converter.makeHtml(text);

@@ -4,13 +4,14 @@
 var common = require('./common.js'),
 	colors = require('colors');
 	nodeappc = require('node-appc');
-	doc = null,
+	doc = {},
 	exportData = {};
 
 function findAPI (className, memberName, type) {
 	var cls = doc[className],
 		x = 0;
-	if (type in cls && cls[type]) {
+
+	if (cls && type in cls && cls[type]) {
 		for (x = 0; x < cls[type].length; x++) {
 			if (cls[type][x].name == memberName) return true;
 		}
@@ -70,7 +71,7 @@ function convertLinks (text) {
 				tokens = common.REGEXP_CHEVRON_LINK.exec(match);
 				if (link = convertAPIToLink(tokens[1])) {
 					replace = '{@link ' + link + '}';
-					text = text.replace(tokens[0], replace);
+					text = text.replace(match, replace);
 				}
 			}
 		});
@@ -267,8 +268,8 @@ function exportAPIs (api, type) {
 
 // Returns a JSON object that can be applied to the JSDuck EJS template
 exports.exportData = function exportJsDuck (apis) {
-	var className = null, key = null, rv =[];
-	doc = nodeappc.util.mixObj({}, apis);
+	var className = null, rv =[];
+	doc = JSON.parse(JSON.stringify(apis));
 	for (className in apis) {
 		cls = apis[className];
 		cls.summary = exportSummary(cls);
