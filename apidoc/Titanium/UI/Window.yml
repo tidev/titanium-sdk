@@ -767,11 +767,33 @@ properties:
 
   - name: toolbar
     summary: |
-        Array of button objects to show in the window's toolbar. This is only valid when
-        the window has a navigation controller.
+        Array of button objects to show in the window's toolbar.
+    description: |
+        The toolbar is only shown when the window is inside a <Titanium.UI.iOS.NavigationWindow>.
+        To display a toolbar when a window is not inside a NavigationWindow, add an instance of a
+        <Titanium.UI.iOS.Toolbar> to the window.
+
+        To customize the toolbar, use the [setToolbar()](Titanium.UI.Window.setToolbar) method.
+
+        Since Alloy 1.6.0, you can specify this property using the `<WindowToolbar>` element as a
+        child of a `<Window>` element, for example:
+
+            <Alloy>
+                <NavigationWindow>
+                    <Window>
+                        <WindowToolbar>
+                            <Button id="send" title="Send" style="Ti.UI.iPhone.SystemButtonStyle.DONE" />
+                            <FlexSpace/>
+                            <Button id="camera" systemButton="Ti.UI.iPhone.SystemButton.CAMERA" />
+                            <FlexSpace/>
+                            <Button id="cancel" systemButton="Ti.UI.iPhone.SystemButton.CANCEL" />
+                        </WindowToolbar>
+                    </Window>
+                </NavigationWindow>
+            </Alloy>
+
     platforms: [iphone, ipad]
     type: Array<Object>
-    permission: read-only
 
   - name: top
     summary: Window's top position, in platform-specific units.
