@@ -480,7 +480,7 @@ typedef enum
 
 +(TiScriptError*) scriptErrorValue:(id)value;
 
-+(UITextAlignment)textAlignmentValue:(id)alignment;
++(NSTextAlignment)textAlignmentValue:(id)alignment;
 
 +(NSString*)jsonStringify:(id)value;
 +(id)jsonParse:(NSString*)value;

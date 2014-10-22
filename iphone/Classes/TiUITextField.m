@@ -295,7 +295,7 @@
 		textWidgetView = [[TiTextField alloc] initWithFrame:CGRectZero];
 		((TiTextField *)textWidgetView).delegate = self;
 		((TiTextField *)textWidgetView).text = @"";
-		((TiTextField *)textWidgetView).textAlignment = UITextAlignmentLeft;
+		((TiTextField *)textWidgetView).textAlignment = NSTextAlignmentLeft;
 		((TiTextField *)textWidgetView).contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
 		[(TiTextField *)textWidgetView configure];
 		[(TiTextField *)textWidgetView setTouchHandler:self];

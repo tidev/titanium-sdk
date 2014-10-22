@@ -30,7 +30,7 @@ DEFINE_DEF_NULL_PROP(rightButton);
 DEFINE_DEF_NULL_PROP(keyboardToolbar);
 DEFINE_DEF_NULL_PROP(keyboardToolbarColor);
 DEFINE_DEF_INT_PROP(keyboardToolbarHeight,0);
-DEFINE_DEF_INT_PROP(textAlign,UITextAlignmentLeft);
+DEFINE_DEF_INT_PROP(textAlign,NSTextAlignmentLeft);
 DEFINE_DEF_INT_PROP(verticalAlign,UIControlContentVerticalAlignmentCenter);
 DEFINE_DEF_INT_PROP(returnKeyType,UIReturnKeyDefault);
 DEFINE_DEF_INT_PROP(keyboardType,UIKeyboardTypeDefault);

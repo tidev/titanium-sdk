@@ -40,7 +40,7 @@
 
         if (pickerLabel == nil) {
             pickerLabel = [[[UILabel alloc] initWithFrame:theFrame] autorelease];
-            [pickerLabel setTextAlignment:UITextAlignmentLeft];
+            [pickerLabel setTextAlignment:NSTextAlignmentLeft];
             [pickerLabel setBackgroundColor:[UIColor clearColor]];
             float fontSize = [TiUtils floatValue:[self valueForUndefinedKey:@"fontSize"] def:18.0];
             [pickerLabel setFont:[UIFont boldSystemFontOfSize:fontSize]];

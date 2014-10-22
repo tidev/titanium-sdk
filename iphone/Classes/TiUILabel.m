@@ -101,10 +101,10 @@
     if (alignment != UIControlContentVerticalAlignmentFill && ([label numberOfLines] != 1)) {
         CGFloat originX = 0;
         switch (label.textAlignment) {
-            case UITextAlignmentRight:
+            case NSTextAlignmentRight:
                 originX = (initialLabelFrame.size.width - actualLabelSize.width);
                 break;
-            case UITextAlignmentCenter:
+            case NSTextAlignmentCenter:
                 originX = (initialLabelFrame.size.width - actualLabelSize.width)/2.0;
                 break;
             default:
