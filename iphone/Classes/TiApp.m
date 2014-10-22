@@ -488,7 +488,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:userInfo];
     } else {
         //Try again in 2 sec. TODO: should we reduce this value ?
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_current_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [self postNotificationwithKey:userInfo withNotificationName:notificationName];
         });
     }
