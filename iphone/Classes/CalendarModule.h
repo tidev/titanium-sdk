@@ -19,11 +19,6 @@
 @interface CalendarModule : TiModule {
 @private
     EKEventStore * store;
-    
-    //BOOL need boolean to support refresh option from Calendar module
-    
-    BOOL iOS6API;
-  
 }
 
 -(EKEventStore*)store;
