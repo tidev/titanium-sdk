@@ -504,6 +504,9 @@
 		844E1F7E14883A3700F5424C /* TiDOMValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 844E1F7D14883A3700F5424C /* TiDOMValidator.m */; };
 		844E1F7F14883A3700F5424C /* TiDOMValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 844E1F7D14883A3700F5424C /* TiDOMValidator.m */; };
 		844E1F8014883A3700F5424C /* TiDOMValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 844E1F7D14883A3700F5424C /* TiDOMValidator.m */; };
+		8465E6BC19F8644D008479E6 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8465E6BB19F8644D008479E6 /* CoreMedia.framework */; };
+		8465E6BD19F86459008479E6 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8465E6BB19F8644D008479E6 /* CoreMedia.framework */; };
+		8465E6BE19F86463008479E6 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8465E6BB19F8644D008479E6 /* CoreMedia.framework */; };
 		8484E3A117A8279500C24B02 /* TiRootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8484E3A017A8279500C24B02 /* TiRootViewController.m */; };
 		8484E3A217A8279500C24B02 /* TiRootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8484E3A017A8279500C24B02 /* TiRootViewController.m */; };
 		8484E3A317A8279500C24B02 /* TiRootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8484E3A017A8279500C24B02 /* TiRootViewController.m */; };
@@ -1398,6 +1401,7 @@
 		843FA58317BD4DFF0064E061 /* TiUIiOSNavWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSNavWindow.m; sourceTree = "<group>"; };
 		844E1F7C14883A3700F5424C /* TiDOMValidator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMValidator.h; sourceTree = "<group>"; };
 		844E1F7D14883A3700F5424C /* TiDOMValidator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMValidator.m; sourceTree = "<group>"; };
+		8465E6BB19F8644D008479E6 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		8484E39F17A8279500C24B02 /* TiRootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiRootViewController.h; sourceTree = "<group>"; };
 		8484E3A017A8279500C24B02 /* TiRootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiRootViewController.m; sourceTree = "<group>"; };
 		8484E3A417A82EE700C24B02 /* TiControllerProtocols.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiControllerProtocols.h; sourceTree = "<group>"; };
@@ -1550,6 +1554,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8465E6BC19F8644D008479E6 /* CoreMedia.framework in Frameworks */,
 				84D4CA1619EF0B5A009131F8 /* CoreMotion.framework in Frameworks */,
 				312E36C1190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
 				841CCAD11807395C00C8DB76 /* CoreText.framework in Frameworks */,
@@ -1590,6 +1595,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8465E6BD19F86459008479E6 /* CoreMedia.framework in Frameworks */,
 				84D4CA1519EF0B4D009131F8 /* CoreMotion.framework in Frameworks */,
 				312E36C2190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
 				841CCAD21807396E00C8DB76 /* CoreText.framework in Frameworks */,
@@ -1629,6 +1635,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8465E6BE19F86463008479E6 /* CoreMedia.framework in Frameworks */,
 				84D4CA1419EF0B3D009131F8 /* CoreMotion.framework in Frameworks */,
 				312E36C3190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
 				841CCAD31807397800C8DB76 /* CoreText.framework in Frameworks */,
@@ -2740,6 +2747,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8465E6BB19F8644D008479E6 /* CoreMedia.framework */,
 				84D4CA1319EF0B3D009131F8 /* CoreMotion.framework */,
 				B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */,
 				841CCAD01807395C00C8DB76 /* CoreText.framework */,
