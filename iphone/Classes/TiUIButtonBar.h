@@ -8,7 +8,6 @@
 
 @interface TiUIButtonBar : TiUIView<LayoutAutosizing> {
 	int selectedIndex;
-	BOOL isNullStyle;
 	BOOL controlSpecifiedWidth;
 	UISegmentedControl * segmentedControl;
 }

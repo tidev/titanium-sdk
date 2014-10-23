@@ -17,7 +17,6 @@
 	if (self != nil)
 	{
 		selectedIndex = -1;
-		isNullStyle = YES;
 	}
 	return self;
 }
@@ -76,54 +75,6 @@
 	[[self segmentedControl] setMomentary:!newIsTabbed];
 }
 
--(void)useStyle:(UISegmentedControlStyle)newStyle;
-{
-	int segmentCount = [[self segmentedControl] numberOfSegments];
-	CGFloat * segmentWidth;
-	if (segmentCount > 0)
-	{
-		segmentWidth = malloc(sizeof(CGFloat) * segmentCount);
-	}
-	else
-	{
-		segmentWidth = NULL;
-	}
-
-	for (int thisSegmentIndex = 0; thisSegmentIndex < segmentCount; thisSegmentIndex++)
-	{
-		segmentWidth[thisSegmentIndex]=[segmentedControl widthForSegmentAtIndex:thisSegmentIndex];
-	}
-	
-	[[self segmentedControl] setSegmentedControlStyle:newStyle];
-
-	for (int thisSegmentIndex = 0; thisSegmentIndex < segmentCount; thisSegmentIndex++)
-	{
-		[segmentedControl setWidth:segmentWidth[thisSegmentIndex] forSegmentAtIndex:thisSegmentIndex];
-	}
-	
-	if (segmentWidth != NULL)
-	{
-		free(segmentWidth);
-	}
-}
-
-- (void)updateNullStyle;
-{
-	if (!isNullStyle)
-	{
-		return;
-	}
-
-	if ([(TiViewProxy *)[self proxy] isUsingBarButtonItem])
-	{
-		[self useStyle:UISegmentedControlStyleBar];
-	}
-	else
-	{
-		[self useStyle:UISegmentedControlStylePlain];
-	}
-}
-
 -(void)setBackgroundColor_:(id)value
 {
 	TiColor *color = [TiUtils colorValue:value];
@@ -138,22 +89,7 @@
 
 -(void)setStyle_:(id)value
 {
-	if ([TiUtils isIOS7OrGreater])
-	{
-		DebugLog(@"The segmentedControlStyle property no longer has any effect on iOS7 and greater");
-		return;
-	}
-    
-	int newStyle = [TiUtils intValue:value def:-1];
-	isNullStyle = (newStyle < 0);
-	if (isNullStyle)
-	{
-		[self updateNullStyle];
-	}
-	else
-	{
-		[self useStyle:newStyle];
-	}
+    DebugLog(@"[WARN] The style property has been deprecated in 3.4.2 and no longer has any effect");
 }
 
 -(void)setLabels_:(id)value
@@ -216,8 +152,6 @@
 	{
 		[segmentedControl setSelectedSegmentIndex:selectedIndex];
 	}
-
-	[self updateNullStyle];
 
 }
 
