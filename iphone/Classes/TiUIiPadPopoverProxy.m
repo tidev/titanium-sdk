@@ -402,11 +402,7 @@ static NSArray* popoverSequence;
 -(void)updateContentSize
 {
     CGSize newSize = [self contentSize];
-    if ([TiUtils isIOS7OrGreater]) {
-        [[self viewController] setPreferredContentSize:newSize];
-    } else {
-        [[self viewController] setContentSizeForViewInPopover:newSize];
-    }
+    [[self viewController] setPreferredContentSize:newSize];
     [contentViewProxy reposition];
 }
 
