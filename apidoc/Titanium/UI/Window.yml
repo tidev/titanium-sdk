@@ -314,14 +314,12 @@ properties:
         Back button is pressed while the window is being shown or when the window 
         is closed programmatically.
     description:  |
-        You can only set this as a createWindow({...}) option.  Setting it after
-        window creation has no effect.
+        Starting in 3.4.2 you can set this property at any time. In earlier releases you can only set this as a createWindow({...}) option.
     platforms: [android]
     default: |
         true if this is the first window launched else false; prior to Release 3.3.0, the
         default was always false.
     type: Boolean
-    availability: creation
 
   - name: extendEdges
     summary: |
