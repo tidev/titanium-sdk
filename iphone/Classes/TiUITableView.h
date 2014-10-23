@@ -95,7 +95,6 @@
 -(NSIndexPath*)indexPathFromSearchIndex:(int)index;
 -(IBAction)hideSearchScreen:(id)sender;
 -(UITableView*)tableView;
--(CGFloat)tableRowHeight:(CGFloat)height;
 -(void)setScrollsToTop_:(id)value;
 
 #pragma Private
