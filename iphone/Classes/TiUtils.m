@@ -1487,40 +1487,35 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return returnValue;
 }
 
-+(void)configureController:(id)controller withObject:(id)object
++(void)configureController:(UIViewController*)controller withObject:(id)object
 {
-    if ([self isIOS7OrGreater]) {
-        id edgesValue = nil;
-        id includeOpaque = nil;
-        id autoAdjust = nil;
-        if ([object isKindOfClass:[TiProxy class]]) {
-            edgesValue = [(TiProxy*)object valueForUndefinedKey:@"extendEdges"];
-            includeOpaque = [(TiProxy*)object valueForUndefinedKey:@"includeOpaqueBars"];
-            autoAdjust = [(TiProxy*)object valueForUndefinedKey:@"autoAdjustScrollViewInsets"];
-        } else if ([object isKindOfClass:[NSDictionary class]]){
-            edgesValue = [(NSDictionary*)object objectForKey:@"extendEdges"];
-            includeOpaque = [(NSDictionary*)object objectForKey:@"includeOpaqueBars"];
-            autoAdjust = [(NSDictionary*)object objectForKey:@"autoAdjustScrollViewInsets"];
-        } 
-        id<TiUIViewControllerIOS7Support> theController = controller;
-        
-        [theController setEdgesForExtendedLayout:[self extendedEdgesFromProp:edgesValue]];
-        [theController setExtendedLayoutIncludesOpaqueBars:[self boolValue:includeOpaque def:NO]];
-        [theController setAutomaticallyAdjustsScrollViewInsets:[self boolValue:autoAdjust def:NO]];
-    }
+    id edgesValue = nil;
+    id includeOpaque = nil;
+    id autoAdjust = nil;
+    if ([object isKindOfClass:[TiProxy class]]) {
+        edgesValue = [(TiProxy*)object valueForUndefinedKey:@"extendEdges"];
+        includeOpaque = [(TiProxy*)object valueForUndefinedKey:@"includeOpaqueBars"];
+        autoAdjust = [(TiProxy*)object valueForUndefinedKey:@"autoAdjustScrollViewInsets"];
+    } else if ([object isKindOfClass:[NSDictionary class]]){
+        edgesValue = [(NSDictionary*)object objectForKey:@"extendEdges"];
+        includeOpaque = [(NSDictionary*)object objectForKey:@"includeOpaqueBars"];
+        autoAdjust = [(NSDictionary*)object objectForKey:@"autoAdjustScrollViewInsets"];
+    } 
+    
+    [controller setEdgesForExtendedLayout:[self extendedEdgesFromProp:edgesValue]];
+    [controller setExtendedLayoutIncludesOpaqueBars:[self boolValue:includeOpaque def:NO]];
+    [controller setAutomaticallyAdjustsScrollViewInsets:[self boolValue:autoAdjust def:NO]];
 }
 
 
-+(CGRect)frameForController:(id)theController
++(CGRect)frameForController:(UIViewController*)theController
 {
     CGRect mainScreen = [[UIScreen mainScreen] bounds];
     CGRect rect = [[UIScreen mainScreen] applicationFrame];
-    if ([TiUtils isIOS7OrGreater]) {
-        NSUInteger edges = [(id<TiUIViewControllerIOS7Support>)theController edgesForExtendedLayout];
-        //Check if I cover status bar
-        if ( ((edges & 1/*UIRectEdgeTop*/) != 0) ){
-            return mainScreen;
-        }
+    NSUInteger edges = [theController edgesForExtendedLayout];
+    //Check if I cover status bar
+    if ( ((edges & UIRectEdgeTop) != 0) ){
+        return mainScreen;
     }
     return rect;
 }
