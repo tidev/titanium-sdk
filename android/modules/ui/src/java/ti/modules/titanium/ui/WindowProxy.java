@@ -344,6 +344,12 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				|| TiC.PROPERTY_RIGHT.equals(name)) {
 				// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
 				return;
+			} else if (TiC.PROPERTY_EXIT_ON_CLOSE.equals(name)) {
+				Activity activity = (windowActivity != null) ? (Activity)(windowActivity.get()) : null;
+				if (activity != null) {
+					Intent intent = activity.getIntent();
+					intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(value));
+				}
 			}
 		}
 
