@@ -180,27 +180,10 @@
 #define AudioStreamer __TI_NS_SYMBOL(AudioStreamer)
 #endif
 
-// AQRecorder
-#ifndef AQRecorder
-#define AQRecorder __TI_NS_SYMBOL(AQRecorder)
-#endif
 
 // SCListener
 #ifndef SCListener
 #define SCListener __TI_NS_SYMBOL(SCListener)
-#endif
-
-// CAStreamBasicDescription
-#ifndef CAStreamBasicDescription
-#define CAStreamBasicDescription __TI_NS_SYMBOL(CAStreamBasicDescription)
-#endif
-
-// CAXException
-#ifndef CAX4CCString
-#define CAX4CCString __TI_NS_SYMBOL(CAX4CCString)
-#endif
-#ifndef CAXException
-#define CAXException __TI_NS_SYMBOL(CAXException)
 #endif
 
 // Base64Transcoder
