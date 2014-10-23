@@ -526,14 +526,8 @@ NSArray* moviePlayerKeys = nil;
 
 -(TiBlob*)thumbnailImageAtTime:(id)args
 {
-	NSNumber *time = [args objectAtIndex:0];
-	NSNumber *options = [args objectAtIndex:1];
-	TiBlob *blob = [[[TiBlob alloc] init] autorelease];
-	TiThreadPerformOnMainThread(^{
-		UIImage *image = [movie thumbnailImageAtTime:[time doubleValue] timeOption:[options intValue]];
-		[blob setImage:image];
-	}, YES);
-	return blob;
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.thumbnailImageAtTime",@"3.4.2",@"3.5.0",@"Media.VideoPlayer.requestThumbnailImagesAtTimes")
+	return nil;
 }
 
 -(void)setBackgroundColor:(id)color
