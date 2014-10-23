@@ -309,9 +309,10 @@ Text area constrains the text event though the content offset and edge insets ar
 -(CGFloat)contentWidthForWidth:(CGFloat)value
 {
     UITextView* ourView = (UITextView*)[self textWidgetView];
-    NSString* txt = ourView.text;
-    //sizeThatFits does not seem to work properly.
-    CGFloat txtWidth = [txt sizeWithFont:ourView.font constrainedToSize:CGSizeMake(value, 1E100) lineBreakMode:NSLineBreakByWordWrapping].width;
+    NSAttributedString* theString = [ourView attributedText];
+    CGFloat txtWidth = ceilf([theString boundingRectWithSize:CGSizeMake(value, CGFLOAT_MAX)
+                                               options:NSStringDrawingUsesLineFragmentOrigin
+                                               context:nil].size.width);
     if (value - txtWidth >= TXT_OFFSET) {
         return (txtWidth + TXT_OFFSET);
     }
