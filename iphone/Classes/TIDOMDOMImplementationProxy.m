@@ -49,9 +49,9 @@
 -(id)createDocumentType:(id)args
 {
 	ENSURE_ARG_COUNT(args, 3);
-    NSString* qualifiedName;
-    NSString* publicId;
-    NSString* systemId;
+    NSString* qualifiedName = nil;
+    NSString* publicId = nil;
+    NSString* systemId = nil;
     
     ENSURE_ARG_OR_NIL_AT_INDEX(qualifiedName,args,0,NSString);
     ENSURE_ARG_OR_NIL_AT_INDEX(publicId,args,1,NSString);

@@ -153,7 +153,8 @@
 -(NSArray*)getEventsBeteenDates:(id)args
 {
     ENSURE_ARG_COUNT(args, 2);
-    NSString* start, *end;
+    NSString* start = nil;
+    NSString* end = nil;
     
     ENSURE_ARG_AT_INDEX(start, args, 0, NSString);
     ENSURE_ARG_AT_INDEX(end, args, 1, NSString);
