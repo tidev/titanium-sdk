@@ -22,6 +22,8 @@ import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
 import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
 import org.appcelerator.titanium.TiLifecycle.onActivityResultEvent;
 import org.appcelerator.titanium.TiLifecycle.OnInstanceStateEvent;
+import org.appcelerator.titanium.TiLifecycle.OnCreateOptionsMenuEvent;
+import org.appcelerator.titanium.TiLifecycle.OnPrepareOptionsMenuEvent;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
@@ -79,6 +81,8 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	private TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners = new TiWeakList<interceptOnBackPressedEvent>();
 	private TiWeakList<OnInstanceStateEvent> instanceStateListeners = new TiWeakList<OnInstanceStateEvent>();
 	private TiWeakList<onActivityResultEvent> onActivityResultListeners = new TiWeakList<onActivityResultEvent>();
+	private TiWeakList<OnCreateOptionsMenuEvent>  onCreateOptionsMenuListeners = new TiWeakList<OnCreateOptionsMenuEvent>();
+	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
 	private APSAnalytics analytics = APSAnalytics.getInstance();
 
 	protected View layout;
@@ -828,11 +832,23 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			return false;
 		}
 
+		boolean listenerExists = false;
+		synchronized (onCreateOptionsMenuListeners.synchronizedList()) {
+			for (OnCreateOptionsMenuEvent listener : onCreateOptionsMenuListeners.nonNull()) {
+				try {
+					listenerExists = true;
+					TiLifecycle.fireOnCreateOptionsMenuEvent(this, listener, menu);
+				} catch (Throwable t) {
+					Log.e(TAG, "Error dispatching OnCreateOptionsMenuEvent: " + t.getMessage(), t);
+				}
+			}
+		}
+
 		if (menuHelper == null) {
 			menuHelper = new TiMenuSupport(activityProxy);
 		}
 
-		return menuHelper.onCreateOptionsMenu(super.onCreateOptionsMenu(menu), menu);
+		return menuHelper.onCreateOptionsMenu(super.onCreateOptionsMenu(menu) || listenerExists, menu);
 	}
 
 	@Override
@@ -861,7 +877,18 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu)
 	{
-		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu), menu);
+		boolean listenerExists = false;
+		synchronized (onPrepareOptionsMenuListeners.synchronizedList()) {
+			for (OnPrepareOptionsMenuEvent listener : onPrepareOptionsMenuListeners.nonNull()) {
+				try {
+					listenerExists = true;
+					TiLifecycle.fireOnPrepareOptionsMenuEvent(this, listener, menu);
+				} catch (Throwable t) {
+					Log.e(TAG, "Error dispatching OnPrepareOptionsMenuEvent: " + t.getMessage(), t);
+				}
+			}
+		}
+		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu) || listenerExists, menu);
 	}
 
 	public static void callOrientationChangedListener(Configuration newConfig) 
@@ -926,6 +953,16 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	public void addOnActivityResultListener(onActivityResultEvent listener)
 	{
 		onActivityResultListeners.add(new WeakReference<onActivityResultEvent>(listener));
+	}
+
+	public void addOnCreateOptionsMenuEventListener(OnCreateOptionsMenuEvent listener)
+	{
+		onCreateOptionsMenuListeners.add(new WeakReference<OnCreateOptionsMenuEvent>(listener));
+	}
+
+	public void addOnPrepareOptionsMenuEventListener(OnPrepareOptionsMenuEvent listener)
+	{
+		onPrepareOptionsMenuListeners.add(new WeakReference<OnPrepareOptionsMenuEvent>(listener));
 	}
 
 	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)

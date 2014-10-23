@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import android.app.Activity;
 import android.os.Bundle;
 import android.content.Intent;
+import android.view.Menu;
 
 /**
  *This class contains a single static utility method for firing a lifecycle event to a single listener.
@@ -102,6 +103,26 @@ public class TiLifecycle
 		public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data);
 	}
 
+    /**
+     * An interface to handle onCreateOptionsMenu events.
+     */
+	public interface OnCreateOptionsMenuEvent {
+		/**
+		 * Implementing classes should use this to receive native Android onCreateOptionsMenu events.
+		 */
+		public void onCreateOptionsMenu(Activity activity, Menu menu);
+	}
+
+	/**
+	 * An interface to handle onPrepareOptionsMenu events.
+	 */
+	public interface OnPrepareOptionsMenuEvent {
+		/**
+		 * Implementing classes should use this to receive native Android onPrepareOptionsMenu events.
+		 */
+		public void onPrepareOptionsMenu(Activity activity, Menu menu);
+	}
+
 	/**
 	 * An interface to intercept OnBackPressed events.
 	 */
@@ -110,6 +131,16 @@ public class TiLifecycle
 		 * Implementing classes should use this to intercept native Android onBackPressed events.
 		 */
 		public boolean interceptOnBackPressed();
+	}
+
+	public static void fireOnCreateOptionsMenuEvent(Activity activity, OnCreateOptionsMenuEvent listener, Menu menu)
+	{
+		listener.onCreateOptionsMenu(activity, menu);
+	}
+
+	public static void fireOnPrepareOptionsMenuEvent(Activity activity, OnPrepareOptionsMenuEvent listener, Menu menu)
+	{
+		listener.onPrepareOptionsMenu(activity, menu);
 	}
 
 	public static void fireLifecycleEvent(Activity activity, OnLifecycleEvent listener, int which)
