@@ -1461,6 +1461,32 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return result;
 }
 
++(void)setVolume:(float)volume onObject:(id)theObject
+{
+    //Must be called on the main thread
+    if ([NSThread isMainThread]) {
+        if ([theObject conformsToProtocol:@protocol(VolumeSupport)]) {
+            [(id<VolumeSupport>)theObject setVolume:volume];
+        } else {
+            DebugLog(@"[WARN] The Object %@ does not respond to method -(void)setVolume:(float)volume",[theObject description]);
+        }
+    }
+}
+
++(float)volumeFromObject:(id)theObject default:(float)def
+{
+    //Must be called on the main thread
+    float returnValue = def;
+    if ([NSThread isMainThread]) {
+        if ([theObject conformsToProtocol:@protocol(VolumeSupport)]) {
+            returnValue = [(id<VolumeSupport>)theObject volume];
+        } else {
+            DebugLog(@"[WARN] The Object %@ does not respond to method -(float)volume",[theObject description]);
+        }
+    }
+    return returnValue;
+}
+
 +(void)configureController:(id)controller withObject:(id)object
 {
     if ([self isIOS7OrGreater]) {

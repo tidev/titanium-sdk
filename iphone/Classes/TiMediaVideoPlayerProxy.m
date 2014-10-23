@@ -481,20 +481,20 @@ NSArray* moviePlayerKeys = nil;
 
 -(NSNumber *)volume
 {
-	__block double volume = 1.0;
+	__block float volume = 1.0;
 	TiThreadPerformOnMainThread(^{
-		volume = (double)[[MPMusicPlayerController applicationMusicPlayer] volume];
+        volume = [TiUtils volumeFromObject:[MPMusicPlayerController applicationMusicPlayer] default:1.0];
 	}, YES);
 	
-	return NUMDOUBLE(volume);
+	return NUMFLOAT(volume);
 }
 
 -(void)setVolume:(NSNumber *)newVolume
 {
-	double volume = [TiUtils doubleValue:newVolume def:-1.0];
+	float volume = [TiUtils floatValue:newVolume def:-1.0];
     volume = MAX(0.0, MIN(volume, 1.0));
 	TiThreadPerformOnMainThread(^{
-		[[MPMusicPlayerController applicationMusicPlayer] setVolume:volume];
+        [TiUtils setVolume:volume onObject:[MPMusicPlayerController applicationMusicPlayer]];
 	}, NO);
 }
 
