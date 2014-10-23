@@ -133,7 +133,7 @@
 
 -(id)registerBackgroundService:(id)args
 {
-	NSDictionary* a;
+	NSDictionary* a = nil;
 	ENSURE_ARG_AT_INDEX(a, args, 0, NSDictionary)
 	
 	NSString* urlString = [[TiUtils toURL:[a objectForKey:@"url"] proxy:self]absoluteString];

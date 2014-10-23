@@ -470,8 +470,8 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 {
     ENSURE_ARG_COUNT(args, 2);
     
-	NSString* convertFromValue;
-	NSString* convertToUnits;
+	NSString* convertFromValue = nil;
+	NSString* convertToUnits = nil;
     
 	ENSURE_ARG_AT_INDEX(convertFromValue, args, 0, NSString);
 	ENSURE_ARG_AT_INDEX(convertToUnits, args, 1, NSString);  
