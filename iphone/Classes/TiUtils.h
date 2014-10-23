@@ -93,11 +93,6 @@ typedef enum
 @property(nonatomic,assign) BOOL automaticallyAdjustsScrollViewInsets; // Defaults to NO
 @end
 
-@protocol UIImageIOS7Support <NSObject>
-@optional
-- (UIImage *)imageWithRenderingMode:(NSInteger)renderingMode;
-@end
-
 @protocol VolumeSupport <NSObject>
 @required
 -(void)setVolume:(float)volume;
