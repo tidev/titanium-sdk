@@ -2368,9 +2368,7 @@ return result;	\
 }
 
 - (void)tableView:(UITableView*)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath{
-    TiUITableViewRowProxy *row = nil;
-    TiUITableViewSectionProxy  *section = nil;
-    section = [(TiUITableViewProxy *)[self proxy] sectionForIndex:indexPath row:&row];
+    TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
     [row.section reorderRows];
 }
 
