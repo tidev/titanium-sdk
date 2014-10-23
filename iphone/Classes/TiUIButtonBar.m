@@ -124,10 +124,7 @@
 			if (thisSegmentAccessibilityLabel != nil) {
 				thisSegmentImage.accessibilityLabel = thisSegmentAccessibilityLabel;
 			}
-			//CLEANUP CODE WHEN WE UPGRADE MINIMUM XCODE VERSION TO XCODE5
-			if ([thisSegmentImage respondsToSelector:@selector(imageWithRenderingMode:)]) {
-				thisSegmentImage = [(id<UIImageIOS7Support>)thisSegmentImage imageWithRenderingMode:1];//UIImageRenderingModeAlwaysOriginal;
-			}
+			thisSegmentImage = [thisSegmentImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
 			[segmentedControl insertSegmentWithImage:thisSegmentImage atIndex:thisSegmentIndex animated:NO];
 		}
 		else
