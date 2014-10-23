@@ -332,8 +332,8 @@
                 // modify kCTLineBreakByTruncatingTail lineBreakMode to kCTLineBreakByWordWrapping
                 [optimizedAttributedText enumerateAttribute:(NSString*)kCTParagraphStyleAttributeName inRange:NSMakeRange(0, [optimizedAttributedText length]) options:0 usingBlock:^(id value, NSRange range, BOOL *stop) {
                     NSMutableParagraphStyle* paragraphStyle = [value mutableCopy];
-                    if ([paragraphStyle lineBreakMode] == kCTLineBreakByTruncatingTail) {
-                        [paragraphStyle setLineBreakMode:kCTLineBreakByWordWrapping];
+                    if ([paragraphStyle lineBreakMode] == NSLineBreakByTruncatingTail) {
+                        [paragraphStyle setLineBreakMode:NSLineBreakByWordWrapping];
                     }
                     [optimizedAttributedText removeAttribute:(NSString*)kCTParagraphStyleAttributeName range:range];
                     [optimizedAttributedText addAttribute:(NSString*)kCTParagraphStyleAttributeName value:paragraphStyle range:range];

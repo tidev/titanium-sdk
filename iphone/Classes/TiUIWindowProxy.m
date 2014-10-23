@@ -379,7 +379,7 @@
         UIBarStyle navBarStyle = [TiUtils barStyleForColor:newColor];
 
         UINavigationBar * navBar = [[controller navigationController] navigationBar];
-        [navBar setBarStyle:barStyle];
+        [navBar setBarStyle:navBarStyle];
         if([TiUtils isIOS7OrGreater]) {
             [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
         } else {
