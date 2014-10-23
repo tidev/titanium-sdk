@@ -98,6 +98,13 @@ typedef enum
 - (UIImage *)imageWithRenderingMode:(NSInteger)renderingMode;
 @end
 
+@protocol VolumeSupport <NSObject>
+@required
+-(void)setVolume:(float)volume;
+-(float)volume;
+@end
+
+
 /**
  Utilities class.
  */
@@ -598,6 +605,8 @@ typedef enum
  @return _YES_ if the current device has HD retina display, _NO_ otherwise.
  */
 +(BOOL)isRetinaHDDisplay;
++(void)setVolume:(float)volume onObject:(id)object;
++(float)volumeFromObject:(id)theObject default:(float)def;
 +(void)configureController:(id)controller withObject:(id)object;
 
 +(CGRect)frameForController:(id)theController;
