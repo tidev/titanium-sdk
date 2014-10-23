@@ -71,6 +71,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	private static OrientationChangedListener orientationChangedListener = null;
 
 	private boolean onDestroyFired = false;
+	private boolean backPressed = false;
 	private int originalOrientationMode = -1;
 	private boolean inForeground = false; // Indicates whether this activity is in foreground or not.
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
@@ -664,6 +665,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 		} else {
 			// If event is not handled by any listeners allow default behavior.
+			backPressed = true;
 			super.onBackPressed();
 		}
 	}
@@ -1354,7 +1356,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 	protected boolean shouldFinishRootActivity()
 	{
-		return getIntentBoolean(TiC.INTENT_PROPERTY_FINISH_ROOT, false);
+		return (backPressed || isTaskRoot()) && getIntentBoolean(TiC.INTENT_PROPERTY_FINISH_ROOT, false);
 	}
 
 	@Override
