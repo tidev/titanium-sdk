@@ -433,8 +433,6 @@ typedef enum
 
 +(WebFont*)fontValue:(NSDictionary*)properties def:(WebFont*)def;
 
-+(int)intValue:(id)value def:(int)def;
-
 +(UIDeviceOrientation)orientationValue:(id)value def:(UIDeviceOrientation)def;
 
 +(int)intValue:(NSString*)name properties:(NSDictionary*)props;
