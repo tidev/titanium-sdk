@@ -227,7 +227,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 {
 	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
 	[dateFormatter setLocale:[NSLocale currentLocale]];
-	[dateFormatter setTimeStyle:kCFDateFormatterShortStyle];
+	[dateFormatter setTimeStyle:NSDateFormatterShortStyle];
 	NSString *dateInStringForm = [dateFormatter stringFromDate:[NSDate date]];
 	NSRange amRange = [dateInStringForm rangeOfString:[dateFormatter AMSymbol]];
 	NSRange pmRange = [dateInStringForm rangeOfString:[dateFormatter PMSymbol]];
