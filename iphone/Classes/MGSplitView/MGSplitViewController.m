@@ -3,7 +3,7 @@
 //  MGSplitView
 //
 //  Created by Matt Gemmell on 26/07/2010.
-//  Copyright 2010 Instinctive Code.
+//  Copyright 2014 Instinctive Code.
 //
 //	License and code at http://github.com/mattgemmell/MGSplitViewController/
 #import "TiBase.h"
