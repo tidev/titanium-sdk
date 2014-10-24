@@ -902,7 +902,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	}
 	ENSURE_UI_THREAD(showModalError,message);
 	TiErrorController *error = [[[TiErrorController alloc] initWithError:message] autorelease];
-    [self showModalController:error animated:YES];
+	[self showModalController:error animated:YES];
 }
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated

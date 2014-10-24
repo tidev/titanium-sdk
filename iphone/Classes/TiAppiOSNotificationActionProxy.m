@@ -54,7 +54,7 @@
 }
 -(void)setActivationMode:(NSNumber*)args
 {
-    UIUserNotificationActivationMode activationMode = [TiUtils intValue:args def:0];
+	UIUserNotificationActivationMode activationMode = [TiUtils intValue:args def:0];
 	[[self notificationAction] setActivationMode: activationMode];
 }
 @end
