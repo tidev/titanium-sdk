@@ -24,6 +24,8 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUrl;
@@ -31,6 +33,7 @@ import org.appcelerator.titanium.util.TiUrl;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Bundle;
 import android.util.Pair;
 
 import org.json.JSONObject;
@@ -42,7 +45,7 @@ import org.json.JSONObject;
  * the view object is a proxy itself.
  */
 @Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
-public class KrollProxy implements Handler.Callback, KrollProxySupport
+public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecycleEvent
 {
 	private static final String TAG = "KrollProxy";
 	private static final int INDEX_NAME = 0;
@@ -180,6 +183,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	public void setActivity(Activity activity)
 	{
 		this.activity = new WeakReference<Activity>(activity);
+	}
+
+	public void attachActivityLifecycle(Activity activity)
+	{
+		setActivity(activity);
+		((TiBaseActivity) activity).addOnLifecycleEventListener(this);
 	}
 
 	/**
@@ -384,6 +393,21 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		if (dict.containsKey(TiC.PROPERTY_BUBBLE_PARENT)) {
 			bubbleParent = TiConvert.toBoolean(dict, TiC.PROPERTY_BUBBLE_PARENT, true);
 		}
+
+		if (dict.containsKey(TiC.PROPERTY_LIFECYCLE_CONTAINER)) {
+			KrollProxy lifecycleProxy = (KrollProxy) dict.get(TiC.PROPERTY_LIFECYCLE_CONTAINER);
+			if (lifecycleProxy instanceof TiWindowProxy) {
+				ActivityProxy activityProxy = ((TiWindowProxy) lifecycleProxy).getWindowActivityProxy();
+				if (activityProxy != null) {
+					attachActivityLifecycle(activityProxy.getActivity());
+				} else {
+					((TiWindowProxy) lifecycleProxy).addProxyWaitingForActivity(this);
+				}
+			} else {
+				Log.e(TAG, TiC.PROPERTY_LIFECYCLE_CONTAINER + " must be a WindowProxy or TabGroupProxy (TiWindowProxy)");
+			}
+		}
+
 		properties.putAll(dict);
 		handleDefaultValues();
 		handleLocaleProperties();
@@ -1305,6 +1329,54 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	public String getApiName()
 	{
 		return "Ti.Proxy";
+	}
+
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onCreate life cycle events.
+	 * @param activity the activity attached to this module.
+	 * @module.api
+	 */
+	public void onCreate(Activity activity, Bundle savedInstanceState) {
+	}
+
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onResume life cycle events.
+	 * @param activity the activity attached to this module.
+	 * @module.api
+	 */
+	public void onResume(Activity activity) {
+	}
+
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onPause life cycle events.
+	 * @param activity the activity attached to this module.
+	 * @module.api
+	 */
+	public void onPause(Activity activity) {
+	}
+
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onDestroy life cycle events.
+	 * @param activity the activity attached to this module.
+	 * @module.api
+	 */
+	public void onDestroy(Activity activity) {
+	}
+
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStart life cycle events.
+	 * @param activity the activity attached to this module.
+	 * @module.api
+	 */
+	public void onStart(Activity activity) {
+	}
+
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStop life cycle events.
+	 * @param activity the activity attached to this module.
+	 * @module.api
+	 */
+	public void onStop(Activity activity) {
 	}
 }
 

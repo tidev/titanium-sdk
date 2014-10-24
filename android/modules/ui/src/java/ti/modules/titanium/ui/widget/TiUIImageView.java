@@ -45,6 +45,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewParent;
 
@@ -855,6 +856,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 	}
 
+	public void onCreate(Activity activity, Bundle savedInstanceState)
+	{
+	}
+ 
 	public void onDestroy(Activity activity)
 	{
 	}
