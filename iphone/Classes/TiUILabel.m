@@ -414,12 +414,12 @@
 
 -(void)setFont_:(id)font
 {
-	[[self label] setFont:[[TiUtils fontValue:font] font]];
+    [[self label] setFont:[[TiUtils fontValue:font] font]];
     if (minFontSize > 4) {
         CGFloat ratio = minFontSize/label.font.pointSize;
         [label setMinimumScaleFactor:ratio];
     }
-	[(TiViewProxy *)[self proxy] contentsWillChange];
+    [(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 -(void)setMinimumFontSize_:(id)size
