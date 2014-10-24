@@ -2229,6 +2229,7 @@ iOSBuilder.prototype.createEntitlementsPlist = function createEntitlementsPlist(
 			if (pp) {
 				// attempt to customize it by reading provisioning profile
 				var plist = new appc.plist();
+				(this.target === 'dist-appstore') && (plist['beta-reports-active'] = true);
 				plist['get-task-allow'] = !!pp.getTaskAllow;
 				pp.apsEnvironment && (plist['aps-environment'] = pp.apsEnvironment);
 				plist['application-identifier'] = pp.appPrefix + '.' + this.tiapp.id;
