@@ -257,16 +257,18 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 	{
 		//TODO: This likely could be further optimized later
 		//
-		bool useResult = [_methodSignature methodReturnLength] == sizeof(id);
+		BOOL useResult = [_methodSignature methodReturnLength] == sizeof(id);
 		id result = nil;
 		id delegate = context.delegate;
 		IMP methodFunction = [target methodForSelector:selector];
 		if (useResult) {
-			result = methodFunction(target,selector,args,name,delegate);
+            typedef id (*idIMP) (id, SEL, ...);
+			result = ((idIMP)methodFunction)(target,selector,args,name,delegate);
 		}
 		else
 		{
-			methodFunction(target,selector,args,name,delegate);
+            typedef void (*vIMP) (id, SEL, ...);
+			((vIMP)methodFunction)(target,selector,args,name,delegate);
 		}
 		return result;
 	}
@@ -320,8 +322,9 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 	
 	if ([_methodSignature methodReturnLength] == sizeof(id))
 	{
-		id result;
-		result = methodFunction(target,selector,arg1,arg2);
+		id result = nil;
+        typedef id (*iIMP) (id, SEL, ...);
+        result = ((iIMP)methodFunction)(target,selector,arg1,arg2);
 		return result;
 	}
 
@@ -330,8 +333,11 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 	switch(t)
 	{
 		case 'v':
-			methodFunction(target,selector,arg1,arg2);
+        {
+            typedef void (*vIMP) (id, SEL, ...);
+            ((vIMP)methodFunction)(target,selector,arg1,arg2);
 			return nil;
+        }
 		case 'c':
 		{
 			char c;
