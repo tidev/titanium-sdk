@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -149,10 +149,8 @@
     if (!IS_NULL_OR_NIL(theString)) {
         if ([theString isEqualToString:@"UIStatusBarStyleDefault"]) {
             return UIStatusBarStyleDefault;
-        } else if ([theString isEqualToString:@"UIStatusBarStyleBlackOpaque"]) {
-            return [TiUtils isIOS7OrGreater] ? 1 : UIStatusBarStyleBlackOpaque;
-        } else if ([theString isEqualToString:@"UIStatusBarStyleBlackTranslucent"] || [theString isEqualToString:@"UIStatusBarStyleLightContent"]) {
-            return [TiUtils isIOS7OrGreater] ? 1 : UIStatusBarStyleBlackTranslucent;
+        } else if ([theString isEqualToString:@"UIStatusBarStyleBlackTranslucent"] || [theString isEqualToString:@"UIStatusBarStyleLightContent"] || [theString isEqualToString:@"UIStatusBarStyleBlackOpaque"]) {
+            return UIStatusBarStyleLightContent;
         }
     }
     return UIStatusBarStyleDefault;

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -148,8 +148,8 @@
 {
 	ENSURE_ARG_COUNT(args, 2);
 
-	NSString *name;
-	NSString *val;
+	NSString *name = nil;
+	NSString *val = nil;
 	
 	ENSURE_ARG_AT_INDEX(name, args, 0, NSString);
 	ENSURE_ARG_OR_NIL_AT_INDEX(val, args, 1, NSString);
@@ -556,8 +556,8 @@
 -(id)insertBefore:(id)args
 {
 	ENSURE_ARG_COUNT(args, 2);
-	TiDOMNodeProxy* newChild;
-	TiDOMNodeProxy* refChild;
+	TiDOMNodeProxy* newChild = nil;
+	TiDOMNodeProxy* refChild = nil;
     
 	ENSURE_ARG_AT_INDEX(newChild, args, 0, TiDOMNodeProxy);
 	ENSURE_ARG_AT_INDEX(refChild, args, 1, TiDOMNodeProxy);
@@ -614,8 +614,8 @@
 -(id)replaceChild:(id)args
 {
 	ENSURE_ARG_COUNT(args, 2);
-	TiDOMNodeProxy* newChild;
-	TiDOMNodeProxy* refChild;
+	TiDOMNodeProxy* newChild = nil;
+	TiDOMNodeProxy* refChild = nil;
     
 	ENSURE_ARG_AT_INDEX(newChild, args, 0, TiDOMNodeProxy);
 	ENSURE_ARG_AT_INDEX(refChild, args, 1, TiDOMNodeProxy);
