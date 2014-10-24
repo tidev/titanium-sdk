@@ -7,6 +7,8 @@
 package org.appcelerator.titanium;
 
 import android.app.Activity;
+import android.os.Bundle;
+import android.content.Intent;
 
 /**
  *This class contains a single static utility method for firing a lifecycle event to a single listener.
@@ -19,11 +21,20 @@ public class TiLifecycle
 	public static final int LIFECYCLE_ON_PAUSE = 2;
 	public static final int LIFECYCLE_ON_STOP = 3;
 	public static final int LIFECYCLE_ON_DESTROY = 4;
+	public static final int LIFECYCLE_ON_CREATE = 5;
+	public static final int ON_SAVE_INSTANCE_STATE = 6;
+	public static final int ON_RESTORE_INSTANCE_STATE = 7;
 
 	/**
 	 * An interface for receiving Android lifecycle events. 
 	 */
 	public interface OnLifecycleEvent {
+
+		/**
+		 * Implementing classes should use this to receive native Android onStart lifecycle events.
+		 * @param activity the attached activity.
+		 */
+		public void onCreate(Activity activity, Bundle savedInstanceState);
 
 		/**
 		 * Implementing classes should use this to receive native Android onStart lifecycle events.
@@ -56,6 +67,21 @@ public class TiLifecycle
 		public void onDestroy(Activity activity);
 	}
 
+	public interface OnInstanceStateEvent {
+
+		/**
+		 * Implementing classes should use this to receive native Android onSaveInstanceState events.
+		 * @param activity the attached activity.
+		 */
+		public void onSaveInstanceState(Bundle bundle);
+
+		/**
+		 * Implementing classes should use this to receive native Android onRestoreInstanceState events.
+		 * @param activity the attached activity.
+		 */
+		public void onRestoreInstanceState(Bundle bundle);
+	}
+
 	/**
 	 * An interface to handle OnWindowFocusChanged events.
 	 */
@@ -64,6 +90,16 @@ public class TiLifecycle
 		 * Implementing classes should use this to receive native Android onWindowFocusChanged events.
 		 */
 		public void onWindowFocusChanged(boolean hasFocus);
+	}
+
+	/**
+	 * An interface to handle onActivityResult events.
+	 */
+	public interface OnActivityResultEvent {
+		/**
+		 * Implementing classes should use this to receive native Android onActivityResult events.
+		 */
+		public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data);
 	}
 
 	/**
@@ -84,6 +120,26 @@ public class TiLifecycle
 			case LIFECYCLE_ON_PAUSE: listener.onPause(activity); break;
 			case LIFECYCLE_ON_STOP: listener.onStop(activity); break;
 			case LIFECYCLE_ON_DESTROY: listener.onDestroy(activity); break;
+		}
+	}
+
+       public static void fireLifecycleEvent(Activity activity, OnLifecycleEvent listener, Bundle bundle, int which)
+        {
+                switch (which) {
+                        case LIFECYCLE_ON_CREATE: listener.onCreate(activity, bundle); break;
+                }
+        }
+
+	public static void fireOnActivityResultEvent(Activity activity, OnActivityResultEvent listener, int requestCode, int resultCode, Intent data)
+	{
+		listener.onActivityResult(activity, requestCode, resultCode, data);
+	}
+
+	public static void fireInstanceStateEvent(Bundle bundle, OnInstanceStateEvent listener, int which)
+	{
+		switch (which) {
+			case ON_SAVE_INSTANCE_STATE: listener.onSaveInstanceState(bundle); break;
+			case ON_RESTORE_INSTANCE_STATE: listener.onRestoreInstanceState(bundle); break;	
 		}
 	}
 }
