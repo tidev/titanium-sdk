@@ -95,7 +95,7 @@ public class TiLifecycle
 	/**
 	 * An interface to handle onActivityResult events.
 	 */
-	public interface onActivityResultEvent {
+	public interface OnActivityResultEvent {
 		/**
 		 * Implementing classes should use this to receive native Android onActivityResult events.
 		 */
@@ -130,7 +130,7 @@ public class TiLifecycle
                 }
         }
 
-	public static void fireOnActivityResultEvent(Activity activity, onActivityResultEvent listener, int requestCode, int resultCode, Intent data)
+	public static void fireOnActivityResultEvent(Activity activity, OnActivityResultEvent listener, int requestCode, int resultCode, Intent data)
 	{
 		listener.onActivityResult(activity, requestCode, resultCode, data);
 	}

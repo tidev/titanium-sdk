@@ -20,7 +20,7 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
 import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
-import org.appcelerator.titanium.TiLifecycle.onActivityResultEvent;
+import org.appcelerator.titanium.TiLifecycle.OnActivityResultEvent;
 import org.appcelerator.titanium.TiLifecycle.OnInstanceStateEvent;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
@@ -78,7 +78,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	private TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<OnWindowFocusChangedEvent>();
 	private TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners = new TiWeakList<interceptOnBackPressedEvent>();
 	private TiWeakList<OnInstanceStateEvent> instanceStateListeners = new TiWeakList<OnInstanceStateEvent>();
-	private TiWeakList<onActivityResultEvent> onActivityResultListeners = new TiWeakList<onActivityResultEvent>();
+	private TiWeakList<OnActivityResultEvent> onActivityResultListeners = new TiWeakList<OnActivityResultEvent>();
 	private APSAnalytics analytics = APSAnalytics.getInstance();
 
 	protected View layout;
@@ -644,7 +644,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	{
 		super.onActivityResult(requestCode, resultCode, data);
 		synchronized (onActivityResultListeners.synchronizedList()) {
-			for (onActivityResultEvent listener : onActivityResultListeners.nonNull()) {
+			for (OnActivityResultEvent listener : onActivityResultListeners.nonNull()) {
 				try {
 					TiLifecycle.fireOnActivityResultEvent(this, listener, requestCode, resultCode, data);
 				} catch (Throwable t) {
@@ -923,9 +923,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		interceptOnBackPressedListeners.add(new WeakReference<interceptOnBackPressedEvent>(listener));
 	}
 
-	public void addOnActivityResultListener(onActivityResultEvent listener)
+	public void addOnActivityResultListener(OnActivityResultEvent listener)
 	{
-		onActivityResultListeners.add(new WeakReference<onActivityResultEvent>(listener));
+		onActivityResultListeners.add(new WeakReference<OnActivityResultEvent>(listener));
 	}
 
 	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
