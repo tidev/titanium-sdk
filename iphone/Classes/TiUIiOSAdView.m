@@ -11,7 +11,7 @@
 
 #ifdef USE_TI_UIIOSADVIEW
 
-extern NSString * const TI_APPLICATION_ANALYTICS;
+extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation TiUIiOSAdView
 
