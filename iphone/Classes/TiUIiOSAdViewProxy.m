@@ -17,7 +17,7 @@
 
 +(NSString*)portraitSize
 {
-    DebugLog(@"[WARN] This property has been deprecated since 3.4.2 and no longer represents a valid value.");
+    DebugLog(@"[WARN] Property portraitSize has been deprecated since 3.4.2 and no longer represents a valid value.");
     if ([TiUtils isIPad]) {
         return NSStringFromCGSize(CGSizeMake(768, 66));
     } else {
@@ -27,7 +27,7 @@
 
 +(NSString*)landscapeSize
 {
-    DebugLog(@"[WARN] This property has been deprecated since 3.4.2 and no longer represents a valid value.");
+    DebugLog(@"[WARN] Property landscapeSize has been deprecated since 3.4.2 and no longer represents a valid value.");
     if ([TiUtils isIPad]) {
         return NSStringFromCGSize(CGSizeMake(1024, 66));
     } else {
@@ -72,7 +72,7 @@ USE_VIEW_FOR_CONTENT_WIDTH
 
 -(NSString*)adSize
 {
-     DebugLog(@"[WARN] This property has been deprecated since 3.4.2 and no longer represents a constant value.");
+     DebugLog(@"[WARN] Property adSize has been deprecated since 3.4.2 and no longer represents a constant value.");
     __block NSString* adSize;
     
     TiThreadPerformOnMainThread(^{
@@ -85,7 +85,7 @@ USE_VIEW_FOR_CONTENT_WIDTH
 
 -(void)setAdSize:(id)arg
 {
-    DebugLog(@"[WARN] This property has been deprecated since 3.4.2 and no longer represents a valid value.");
+    DebugLog(@"[WARN] Property adSize has been deprecated since 3.4.2 and no longer represents a valid value.");
 }
 
 -(void)fireLoad:(id)unused
