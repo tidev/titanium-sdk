@@ -1481,9 +1481,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 			[picker setCameraOverlayView:view];
 			[cameraView windowDidOpen];
 			[cameraView layoutChildren:NO];
-			if (![TiUtils isIOS7OrGreater]) {
-				[picker setWantsFullScreenLayout:YES];
-			}
 		}
 		
 		// allow a transform on the preview image

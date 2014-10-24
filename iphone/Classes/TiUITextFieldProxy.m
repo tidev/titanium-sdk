@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -30,7 +30,7 @@ DEFINE_DEF_NULL_PROP(rightButton);
 DEFINE_DEF_NULL_PROP(keyboardToolbar);
 DEFINE_DEF_NULL_PROP(keyboardToolbarColor);
 DEFINE_DEF_INT_PROP(keyboardToolbarHeight,0);
-DEFINE_DEF_INT_PROP(textAlign,UITextAlignmentLeft);
+DEFINE_DEF_INT_PROP(textAlign,NSTextAlignmentLeft);
 DEFINE_DEF_INT_PROP(verticalAlign,UIControlContentVerticalAlignmentCenter);
 DEFINE_DEF_INT_PROP(returnKeyType,UIReturnKeyDefault);
 DEFINE_DEF_INT_PROP(keyboardType,UIKeyboardTypeDefault);
