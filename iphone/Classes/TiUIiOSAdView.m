@@ -50,7 +50,7 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
     ADBannerView *view = [self adview];
     CGSize refSize = [[UIScreen mainScreen] bounds].size;
     CGSize size = [view sizeThatFits:refSize];
-	return size.width;
+    return size.width;
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds

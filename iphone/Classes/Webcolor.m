@@ -65,8 +65,8 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 					   [UIColor groupTableViewBackgroundColor],IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND,
 					   [UIColor clearColor],IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND,
 					   [UIColor clearColor],IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND,
-                       [UIColor clearColor],IOS_COLOR_UNDER_PAGE_BACKGROUND,
-                       // these are also defined by the W3C HTML spec so we support them
+					   [UIColor clearColor],IOS_COLOR_UNDER_PAGE_BACKGROUND,
+					   // these are also defined by the W3C HTML spec so we support them
 					   [Webcolor colorForHex:@"0ff"],@"aqua",
 					   [Webcolor colorForHex:@"f0f"],@"fuchsia",
 					   [Webcolor colorForHex:@"0f0"],@"lime",

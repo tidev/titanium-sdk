@@ -262,12 +262,12 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 		id delegate = context.delegate;
 		IMP methodFunction = [target methodForSelector:selector];
 		if (useResult) {
-            typedef id (*idIMP) (id, SEL, ...);
+			typedef id (*idIMP) (id, SEL, ...);
 			result = ((idIMP)methodFunction)(target,selector,args,name,delegate);
 		}
 		else
 		{
-            typedef void (*vIMP) (id, SEL, ...);
+			typedef void (*vIMP) (id, SEL, ...);
 			((vIMP)methodFunction)(target,selector,args,name,delegate);
 		}
 		return result;
@@ -323,8 +323,8 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 	if ([_methodSignature methodReturnLength] == sizeof(id))
 	{
 		id result = nil;
-        typedef id (*iIMP) (id, SEL, ...);
-        result = ((iIMP)methodFunction)(target,selector,arg1,arg2);
+		typedef id (*iIMP) (id, SEL, ...);
+		result = ((iIMP)methodFunction)(target,selector,arg1,arg2);
 		return result;
 	}
 
@@ -333,11 +333,11 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 	switch(t)
 	{
 		case 'v':
-        {
-            typedef void (*vIMP) (id, SEL, ...);
-            ((vIMP)methodFunction)(target,selector,arg1,arg2);
+		{
+			typedef void (*vIMP) (id, SEL, ...);
+			((vIMP)methodFunction)(target,selector,arg1,arg2);
 			return nil;
-        }
+		}
 		case 'c':
 		{
 			char c;
