@@ -9,6 +9,10 @@
 #import "TiUIiOSNavWindowProxy.h"
 #import "TiUIiOSNavWindow.h"
 #import "TiApp.h"
+#import "TiUITableViewProxy.h"
+#import "TiUITableView.h"
+#import "TiUIListViewProxy.h"
+#import "TiUIListView.h"
 
 @implementation TiUIiOSNavWindowProxy
 
@@ -87,14 +91,38 @@
 -(UINavigationController*)controller
 {
     if (navController == nil) {
-        navController = [[UINavigationController alloc] initWithRootViewController:[self rootController]];;
+		navController = [[UINavigationController alloc] initWithRootViewController:[self rootController]];
         navController.delegate = self;
         [TiUtils configureController:navController withObject:self];
-        if ([TiUtils isIOS7OrGreater]) {
-            [navController.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
-        }
-    }
-    return navController;
+		
+		if ([TiUtils isIOS7OrGreater]) {
+			[navController.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
+			if ([self rootController].automaticallyAdjustsScrollViewInsets) {
+				if ([rootWindow.children count] > 0) {
+					for (TiViewProxy* childView in rootWindow.children ) {
+						if (childView != nil && [childView isKindOfClass:[TiUITableViewProxy class]]) {
+							TiUITableView *table = (TiUITableView *)[childView view];
+							if (table.tableController != nil) {
+								[[self rootController] addChildViewController:table.tableController];
+								[table.tableController didMoveToParentViewController:[self rootController]];
+								[[self rootController] setEdgesForExtendedLayout:UIRectEdgeNone];
+							}
+						}
+						if (childView != nil && [childView isKindOfClass:[TiUIListViewProxy class]]) {
+							TiUIListView *list = (TiUIListView *)[childView view];
+							if (list.tableController != nil) {
+								[[self rootController] addChildViewController:list.tableController];
+								[list.tableController didMoveToParentViewController:[self rootController]];
+								[[self rootController] setEdgesForExtendedLayout:UIRectEdgeNone];
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return navController;
 }
 
 -(void)openWindow:(NSArray*)args
@@ -238,7 +266,7 @@
         [rootWindow setIsManaged:YES];
         [rootWindow setTab:(TiViewProxy<TiTab> *)self];
         [rootWindow setParentOrientationController:self];
-        [rootWindow open:nil];
+		[rootWindow open:nil];
     }
     return [rootWindow hostingController];
 }

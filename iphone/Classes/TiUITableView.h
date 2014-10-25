@@ -42,6 +42,7 @@
 @end
 
 @interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiScrolling,TiProxyObserver> {
+		UITableViewController *tableController;
 @private
 	UITableView *tableview;
 	BOOL moving;
@@ -68,7 +69,7 @@
 	BOOL filterCaseInsensitive;
 	BOOL allowsSelectionSet;
 	id	lastFocusedView; //DOES NOT RETAIN.	
-	UITableViewController *tableController;
+
 	UISearchDisplayController *searchController;
 	NSInteger frameChanges;
     TiViewProxy* headerViewProxy;
@@ -81,6 +82,7 @@
 }
 
 @property (nonatomic, assign) BOOL viewWillDetach;
+@property (nonatomic, retain) UITableViewController *tableController;
 
 #pragma mark Framework
 -(CGFloat)tableRowHeight:(CGFloat)height;
