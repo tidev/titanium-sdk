@@ -203,6 +203,22 @@ methods:
         This method causes the media capture device to capture a photo and call the 
         `success` callback.
     platforms: [iphone, ipad, android]
+  - name: startRecording
+    summary: Uses the device camera to record a video. 
+    description: |
+        Must be called after calling `showCamera` and only when `autohide` is set to `false`. 
+
+        This method causes the media capture device to start recording a video.
+    platforms: [android]
+    since: 3.4.0
+  - name: stopRecording
+    summary: Stops recording the currently recorded video.
+    description: |
+        Must be called after calling `startRecording`. 
+
+        This method causes the media capture device to stop recording the video.
+    platforms: [android]
+    since: 3.4.0
   - name: switchCamera
     summary: Switches between front and rear-facing cameras.
     description: |
@@ -1416,11 +1432,13 @@ properties:
   - name: videoMaximumDuration
     summary: Maximum duration (in milliseconds) to allow video capture before completing.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: {android: "3.4.0"}
   - name: videoQuality 
     summary: Constant to indicate the video quality during capture. 
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: {android: "3.4.0"}
   - name: showControls 
     summary: Indicates if the built-in camera controls should be displayed.
     type: Boolean
