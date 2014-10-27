@@ -306,10 +306,15 @@ public class TiResponseCache extends ResponseCache
 		BufferedReader rdr = new BufferedReader(new FileReader(hFile), 1024);
 		for (String line=rdr.readLine() ; line != null ; line=rdr.readLine()) {
 			String keyval[] = line.split("=", 2);
+			if (keyval.length < 2) {
+				continue;
+			}
 			if (!headers.containsKey(keyval[0])) {
 				headers.put(keyval[0], new ArrayList<String>());
 			}
+			
 			headers.get(keyval[0]).add(keyval[1]);
+			
 		}
 		rdr.close();
 		
@@ -367,7 +372,7 @@ public class TiResponseCache extends ResponseCache
 		// getHeaderFields() just checks the response itself
 		Map<String, List<String>> headers = makeLowerCaseHeaders(conn.getHeaderFields());
 		String cacheControl = getHeader(headers, "cache-control");
-		if (cacheControl != null && cacheControl.matches("^.*(no-cache|no-store|must-revalidate).*")) {
+		if (cacheControl != null && cacheControl.matches("^.*(no-cache|no-store|must-revalidate|max-age=0).*")) {
 			return null; // See RFC-2616
 		}
 
