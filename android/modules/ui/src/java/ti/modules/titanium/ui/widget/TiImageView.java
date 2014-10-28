@@ -357,45 +357,29 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 		int maxWidth = 0;
 		int maxHeight = 0;
-		boolean viewWidthDefinedLocal = viewWidthDefined;
-		boolean viewHeightDefinedLocal = viewHeightDefined;
 
 		// If height or width is not defined and we have an image, we need to set the height/width properly
 		// so that it doesn't get the content height/width
-		if (!viewWidthDefinedLocal || !viewHeightDefinedLocal) {
+		if (!viewWidthDefined || !viewHeightDefined) {
 			Drawable d = imageView.getDrawable();
 			if (d != null) {
-				double aspectRatio = 1;
+				float aspectRatio = 1;
 				int w = MeasureSpec.getSize(widthMeasureSpec);
 				int h = MeasureSpec.getSize(heightMeasureSpec);
 
 				int ih = d.getIntrinsicHeight();
 				int iw = d.getIntrinsicWidth();
 				if (ih != 0 && iw != 0) {
-					aspectRatio = (double) ih / iw;
+					aspectRatio = 1f * ih / iw;
 				}
 
-				// If the width and height is not specified, make sure that the height and width is
-				// proportional to the image aspect ratio
-				if (!viewWidthDefinedLocal && !viewHeightDefinedLocal && w != 0 && h != 0) {
-					double containerAspectRatio = (double) h / w;
-					if (containerAspectRatio < aspectRatio) {
-						viewHeightDefinedLocal = true;
-					} else {
-						viewWidthDefinedLocal = true;
-					}
-				}
-
-				if (viewWidthDefinedLocal) {
+				if (viewWidthDefined) {
 					maxWidth = w;
-					maxHeight = (int) Math.round(w * aspectRatio);
+					maxHeight = Math.round(w * aspectRatio);
 				}
-				if (viewHeightDefinedLocal) {
+				if (viewHeightDefined) {
 					maxHeight = h;
-					// donot override if the width is already defined
-					if (!viewWidthDefinedLocal) {
-						maxWidth = (int) Math.round(h / aspectRatio);
-					}
+					maxWidth = Math.round(h / aspectRatio);
 				}
 			}
 		}
