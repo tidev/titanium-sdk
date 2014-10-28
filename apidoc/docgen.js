@@ -225,8 +225,10 @@ function generateAccessors(apis, className) {
 			rv.push({
 				'name': 'get' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
 				'summary': 'Gets the value of the <' + className + '.' + api.name + '> property.',
+				'deprecated' : api.deprecated || null,
 				'returns': { 'type': api.type },
 				'__accessor': true,
+				'__hides' : api.__hides || false,
 				'__inherits': api.__inherits || null
 			});
 		}
@@ -236,12 +238,14 @@ function generateAccessors(apis, className) {
 			rv.push({
 				'name': 'set' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
 				'summary': 'Sets the value of the <' + className + '.' + api.name + '> property.',
+				'deprecated' : api.deprecated || null,
 				'parameters': [{
 					'name': api.name,
 					'summary': 'New value for the property.',
 					'type': api.type
 				}],
 				'__accessor': true,
+				'__hides' : api.__hides || false,
 				'__inherits': api.__inherits || null
 			});
 		}
@@ -288,6 +292,7 @@ function processAPIs (api) {
 	api.subtype = (api.name.indexOf('Global') == 0) ? null : (api.name == 'Titanium.Module') ? 'module' : getSubtype(api);
 
 	// Generate create method
+	api.creatable = false;
 	if ((api.subtype === 'view' || api.subtype === 'proxy') &&
 		(('createable' in api && api.createable === true) ||
 		!('createable' in api))) {
@@ -320,6 +325,7 @@ function processAPIs (api) {
 					}],
 					'__creator': true
 				};
+				api.creatable = true;
 				'methods' in doc[cls] ? doc[cls].methods.push(createMethod) : doc[cls].methods = [createMethod];
 			}
 		}
@@ -433,6 +439,10 @@ exportData = exporter.exportData(processedData);
 templatePath = apidocPath + '/templates/'
 
 switch (format) {
+	case 'jsca' :
+		render = JSON.stringify(exportData, null, '    ');
+		output = output + '/api.jsca';
+		break;
 	case 'jsduck' :
 		templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
 		render = ejs.render(templateStr, {doc: exportData});
