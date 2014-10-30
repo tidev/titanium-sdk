@@ -26,6 +26,8 @@ public abstract class TiUIPicker extends TiUIView
 	public abstract void selectRow(int columnIndex, int rowIndex, boolean animated);
 	public abstract int getSelectedRowIndex(int columnIndex);
 	protected abstract void refreshNativeView();
+	
+	public void openPicker() {};
 
 	// When the whole set of columns has been changed out.
 	public void onModelReplaced()
