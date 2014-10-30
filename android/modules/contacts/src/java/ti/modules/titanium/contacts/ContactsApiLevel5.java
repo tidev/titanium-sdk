@@ -554,17 +554,17 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 		if (options.containsKey(TiC.PROPERTY_FIRSTNAME)) {
 			firstName = TiConvert.toString(options, TiC.PROPERTY_FIRSTNAME);
-			newContact.setProperty(TiC.PROPERTY_FIRSTNAME, firstName);
+			newContact.setFirstName(firstName);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_LASTNAME)) {
 			lastName = TiConvert.toString(options, TiC.PROPERTY_LASTNAME);
-			newContact.setProperty(TiC.PROPERTY_LASTNAME, lastName);
+			newContact.setLastName(lastName);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_MIDDLENAME)) {
 			middleName = TiConvert.toString(options, TiC.PROPERTY_MIDDLENAME);
-			newContact.setProperty(TiC.PROPERTY_MIDDLENAME, middleName);
+			newContact.setMiddleName( middleName);
 		}
 		
 		displayName = firstName + " " + middleName + " " + lastName;
@@ -586,7 +586,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 		if (options.containsKey(TiC.PROPERTY_BIRTHDAY)) {
 			birthday = TiConvert.toString(options, TiC.PROPERTY_BIRTHDAY);
-			newContact.setProperty(TiC.PROPERTY_BIRTHDAY, birthday);
+			newContact.setBirthDay(birthday);
 			updateContactField(ops, Event.CONTENT_ITEM_TYPE, Event.START_DATE, birthday, Event.TYPE, Event.TYPE_BIRTHDAY, rawContactId);
 		}
 
@@ -610,7 +610,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		
 		if (options.containsKey(TiC.PROPERTY_ORGANIZATION)) {
 			String organization = TiConvert.toString(options, TiC.PROPERTY_ORGANIZATION);
-			newContact.setProperty(TiC.PROPERTY_ORGANIZATION, organization);
+			newContact.setOrganization(organization);
 			updateContactField(ops, Organization.CONTENT_ITEM_TYPE, Organization.COMPANY, organization, null, 0, rawContactId);
 		}
 		
@@ -653,7 +653,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		
 		if (options.containsKey(TiC.PROPERTY_NICKNAME)) {
 			String nickname = TiConvert.toString(options, TiC.PROPERTY_NICKNAME);
-			newContact.setProperty(TiC.PROPERTY_NICKNAME, nickname);
+			newContact.setNickName(nickname);
 			updateContactField(ops, Nickname.CONTENT_ITEM_TYPE, Nickname.NAME, nickname, Nickname.TYPE, Nickname.TYPE_DEFAULT, rawContactId);
 		}
 
@@ -833,16 +833,16 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		String middleName = "";
 		String displayName = "";
 		
-		if (person.hasProperty(TiC.PROPERTY_FIRSTNAME)) {
-			firstName = TiConvert.toString(person.getProperty(TiC.PROPERTY_FIRSTNAME));
+		if (person.getFirstName() != null) {
+			firstName = person.getFirstName();
 		}
 		
-		if (person.hasProperty(TiC.PROPERTY_LASTNAME)) {
-			lastName = TiConvert.toString(person.getProperty(TiC.PROPERTY_LASTNAME));
+		if (person.getLastName() != null) {
+			lastName = person.getLastName();
 		}
 		
-		if (person.hasProperty(TiC.PROPERTY_MIDDLENAME)) {
-			middleName = TiConvert.toString(person.getProperty(TiC.PROPERTY_MIDDLENAME));
+		if (person.getMiddleName() != null) {
+			middleName = person.getMiddleName();
 		}
 		
 		displayName = firstName + " " + middleName + " " + lastName;
@@ -855,7 +855,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	
 	protected void modifyBirthday(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
 	{
-		String birthday = TiConvert.toString(person.getProperty(TiC.PROPERTY_BIRTHDAY));
+		String birthday = person.getBirthDay();
 		String selection = BASE_SELECTION + " AND " + Event.TYPE + "=?";
 		String[] selectionArgs = new String[]{id, Event.CONTENT_ITEM_TYPE, String.valueOf(Event.TYPE_BIRTHDAY)};
 		deleteField(ops, selection, selectionArgs);
@@ -864,10 +864,9 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	
 	protected void modifyOrganization(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
 	{
-		String company = TiConvert.toString(person.getProperty(TiC.PROPERTY_ORGANIZATION));
 		String[] selectionArgs =  new String[]{id, Organization.CONTENT_ITEM_TYPE};
 		deleteField(ops, BASE_SELECTION, selectionArgs);
-		updateContactField(ops, Organization.CONTENT_ITEM_TYPE, Organization.COMPANY, company, null, 0, person.getId());
+		updateContactField(ops, Organization.CONTENT_ITEM_TYPE, Organization.COMPANY, person.getOrganization(), null, 0, person.getId());
 	}
 	
 	protected void modifyNote(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
@@ -880,7 +879,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	
 	protected void modifyNickName(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
 	{
-		String nickname = TiConvert.toString(person.getProperty(TiC.PROPERTY_NICKNAME));
+		String nickname = person.getNickName();
 		String selection = BASE_SELECTION + " AND " + Nickname.TYPE + "=?";
 		String[] selectionArgs = new String[]{id, Nickname.CONTENT_ITEM_TYPE, String.valueOf(Nickname.TYPE_DEFAULT)};
 		deleteField(ops, selection, selectionArgs);
@@ -922,7 +921,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 				parseDate(ops, fieldHashMap, rawContactId);
 				//Since date contains birthday, when we modify date, we must re-add birthday event appropriately
 				if (person.hasProperty(TiC.PROPERTY_BIRTHDAY)) {
-					String birthday = TiConvert.toString(person.getProperty(TiC.PROPERTY_BIRTHDAY));
+					String birthday = TiConvert.toString(person.getBirthDay());
 					updateContactField(ops, Event.CONTENT_ITEM_TYPE, Event.START_DATE, birthday, Event.TYPE, Event.TYPE_BIRTHDAY, rawContactId);
 				}
 				
