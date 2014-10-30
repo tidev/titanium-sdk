@@ -123,6 +123,7 @@ public class PersonProxy extends KrollProxy
 	public void setMiddleName(String mname)
 	{
 		middleName = mname;
+		modified.put(TiC.PROPERTY_NAME, true);
 	}
 
 	public void setSuffix(String sname)
@@ -139,12 +140,14 @@ public class PersonProxy extends KrollProxy
 	public void setFirstName(String fname)
 	{
 		firstName = fname;
+		modified.put(TiC.PROPERTY_NAME, true);
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setLastName(String lname)
 	{
 		lastName = lname;
+		modified.put(TiC.PROPERTY_NAME, true);
 	}
 
 	@Kroll.method @Kroll.getProperty
@@ -193,6 +196,7 @@ public class PersonProxy extends KrollProxy
 	public void setBirthDay(String birthday)
 	{
 		this.birthDay = birthday;
+		modified.put(TiC.PROPERTY_BIRTHDAY, true);
 	}
 	
 	@Kroll.method @Kroll.getProperty
@@ -205,6 +209,7 @@ public class PersonProxy extends KrollProxy
 	public void setNickName(String nickname)
 	{
 		nickName = nickname;
+		modified.put(TiC.PROPERTY_NICKNAME, true);
 	}
 
 	@Kroll.method @Kroll.getProperty
@@ -217,6 +222,7 @@ public class PersonProxy extends KrollProxy
 	public void setOrganization(String organization)
 	{
 		this.organization = organization;
+		modified.put(TiC.PROPERTY_ORGANIZATION, true);
 	}
 
 	@Kroll.method @Kroll.getProperty
