@@ -39,7 +39,7 @@ exports.init = function (logger, config, cli) {
 							name + '_' + (hours >= 10 ? hours : '0' + hours) + '-' + (minutes >= 10 ? minutes : '0' + minutes) + '-' +
 							(seconds >= 10 ? seconds : '0' + seconds) + '.xcarchive'),
 						archiveApp = path.join(archiveBundle, 'Products', 'Applications', name + '.app'),
-						archiveDsym = path.join(archiveBundle, 'dSYM');
+						archiveDsym = path.join(archiveBundle, 'dSYMs', name + '.app.dSYM');
 
 					wrench.mkdirSyncRecursive(archiveApp);
 					wrench.mkdirSyncRecursive(archiveDsym);
