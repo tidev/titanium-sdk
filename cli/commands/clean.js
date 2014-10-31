@@ -123,7 +123,17 @@ exports.run = function (logger, config, cli) {
 							});
 						});
 					} else {
-						next();
+						if(fs.lstatSync(fulldir).isFile() && path.extname(fulldir) === '.log') {
+							cli.fireHook('clean.' + dir + '.pre', function () {
+								logger.debug(__('Deleting %s', fulldir.cyan));
+								fs.unlinkSync(fulldir);
+								cli.fireHook('clean.' + dir + '.post', function () {
+									next();
+								});
+							});
+						} else {
+							next();
+						}
 					}
 				};
 			}), function () {
