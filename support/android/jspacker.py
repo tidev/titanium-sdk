@@ -26,11 +26,19 @@ import java.nio.CharBuffer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.lang.reflect.Method;
+import java.lang.System;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.kroll.common.Log;
+import android.os.Debug;
 
 public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 {
+  private boolean isProduction = false;
+
+    public void setIsProduction(boolean production) {
+      isProduction = production;
+    }
+
   private static class Range {
     int offset;
     int length;
@@ -44,6 +52,11 @@ ${init_assets}
 
   public String readAsset(String path)
   {
+    if (isProduction && Debug.isDebuggerConnected()) {
+      Log.e("AssetCryptImpl", "Illegal State. Exit.");
+      System.exit(1);
+    }
+
     Range range = assets.get(path);
     if (range == null) {
       return null;
