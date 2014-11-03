@@ -187,7 +187,15 @@ public class TiUIWebView extends TiUIView
 		WebSettings settings = webView.getSettings();
 		settings.setUseWideViewPort(true);
 		settings.setJavaScriptEnabled(true);
-		settings.setSupportMultipleWindows(true);
+		
+		// enable support for multiple windows by default
+		boolean supportMultipleWindows = true;
+		if (proxy.hasProperty(TiC.PROPERTY_SUPPORT_MULTIPLE_WINDOWS)) {
+			supportMultipleWindows = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SUPPORT_MULTIPLE_WINDOWS));
+		}
+		
+		settings.setSupportMultipleWindows(supportMultipleWindows);
+		
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
 		settings.setLoadsImagesAutomatically(true);
 		settings.setDomStorageEnabled(true); // Required by some sites such as Twitter. This is in our iOS WebView too.
