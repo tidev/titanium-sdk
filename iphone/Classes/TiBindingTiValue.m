@@ -203,7 +203,7 @@ TiValueRef TiBindingTiValueFromNSObject(TiContextRef jsContext, NSObject * obj)
 	}
 	if ([obj isKindOfClass:[NSString class]])
 	{
-		TiStringRef jsString = TiStringCreateWithCFString((CFStringRef) obj);
+		TiStringRef jsString = TiStringCreateWithCFString((CFStringRef) (NSString*)obj);
 		TiValueRef result = TiValueMakeString(jsContext,jsString);
 		TiStringRelease(jsString);
 		return result;

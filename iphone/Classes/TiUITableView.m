@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -843,24 +843,31 @@
 
 -(UIView*)titleViewForText:(NSString*)text footer:(BOOL)footer
 {
-	CGSize maxSize = CGSizeMake(320, 1000);
-	UIFont *font = [[WebFont defaultBoldFont] font];
-	CGSize size = [text sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
-	
-	UITableViewStyle style = [[self tableView] style];
-	int x = (style==UITableViewStyleGrouped) ? 15 : 10;
-	int y = 10;
-	int y2 = (footer) ? 0 : 10;
-	UIView *containerView = [[[UIView alloc] initWithFrame:CGRectMake(0, y, size.width, size.height+10)] autorelease];
-    UILabel *headerLabel = [[[UILabel alloc] initWithFrame:CGRectMake(x, y2, size.width, size.height)] autorelease];
-
+    CGSize maxSize = CGSizeMake(320, 1000);
+    UIFont *font = [[WebFont defaultBoldFont] font];
+    UILabel *headerLabel = [[[UILabel alloc] initWithFrame:CGRectZero] autorelease];
     headerLabel.text = text;
     headerLabel.textColor = [UIColor blackColor];
     headerLabel.shadowColor = [UIColor whiteColor];
     headerLabel.shadowOffset = CGSizeMake(0, 1);
-	headerLabel.font = font;
+    headerLabel.font = font;
     headerLabel.backgroundColor = [UIColor clearColor];
     headerLabel.numberOfLines = 0;
+    
+    NSAttributedString* theString = [headerLabel attributedText];
+    CGSize returnVal = [theString boundingRectWithSize:maxSize
+                                           options:NSStringDrawingUsesLineFragmentOrigin
+                                           context:nil].size;
+    
+    
+    CGSize size = CGSizeMake(ceilf(returnVal.width), ceilf(returnVal.height));
+	
+    UITableViewStyle style = [[self tableView] style];
+    int x = (style==UITableViewStyleGrouped) ? 15 : 10;
+    int y = 10;
+    int y2 = (footer) ? 0 : 10;
+    UIView *containerView = [[[UIView alloc] initWithFrame:CGRectMake(0, y, size.width, size.height+10)] autorelease];
+    [headerLabel setFrame:CGRectMake(x, y2, size.width, size.height)];
     [containerView addSubview:headerLabel];
 	
 	return containerView;
@@ -2361,9 +2368,7 @@ return result;	\
 }
 
 - (void)tableView:(UITableView*)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath{
-    TiUITableViewRowProxy *row = nil;
-    TiUITableViewSectionProxy  *section = nil;
-    section = [(TiUITableViewProxy *)[self proxy] sectionForIndex:indexPath row:&row];
+    TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
     [row.section reorderRows];
 }
 

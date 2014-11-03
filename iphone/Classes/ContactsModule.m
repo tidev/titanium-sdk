@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -48,13 +48,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
     reloadAddressBook = NO;
     
 	if (addressBook == NULL) {
-		if (iOS6API) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
-			addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
-#endif
-		} else {
-			addressBook = ABAddressBookCreate();
-		}
+		addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
 		if (addressBook == NULL) {
 			DebugLog(@"[WARN] Could not create an address book. Make sure you have gotten permission first.");
 		} else {
@@ -76,11 +70,6 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 {
 	[super startup];
 	addressBook = NULL;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
-    if (ABAddressBookGetAuthorizationStatus != NULL) {
-		iOS6API = YES;
-	}
-#endif
 }
 
 -(void)dealloc
@@ -120,64 +109,54 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 
 -(void) requestAuthorization:(id)args
 {
-	ENSURE_SINGLE_ARG(args, KrollCallback);
-	KrollCallback * callback = args;
-	NSString * error = nil;
-	int code = 0;
-	bool doPrompt = NO;
+    ENSURE_SINGLE_ARG(args, KrollCallback);
+    KrollCallback * callback = args;
+    NSString * error = nil;
+    int code = 0;
+    BOOL doPrompt = NO;
 	
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
-	if(iOS6API){
-		long int permissions = ABAddressBookGetAuthorizationStatus();
-		switch (permissions) {
-			case kABAuthorizationStatusNotDetermined:
-				doPrompt = YES;
-				break;
-			case kABAuthorizationStatusAuthorized:
-				break;
-			case kABAuthorizationStatusDenied:
-				code = kABAuthorizationStatusDenied;
-				error = @"The user has denied access to the address book";
-			case kABAuthorizationStatusRestricted:
-				code = kABAuthorizationStatusRestricted;
-				error = @"The user is unable to allow access to the address book";
-			default:
-				break;
-		}
-	}
-#endif
-	if (!doPrompt) {
-		NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:error];
-		NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+    ABAuthorizationStatus permissions = ABAddressBookGetAuthorizationStatus();
+    switch (permissions) {
+        case kABAuthorizationStatusNotDetermined:
+            doPrompt = YES;
+            break;
+        case kABAuthorizationStatusAuthorized:
+            break;
+        case kABAuthorizationStatusDenied:
+            code = kABAuthorizationStatusDenied;
+            error = @"The user has denied access to the address book";
+        case kABAuthorizationStatusRestricted:
+            code = kABAuthorizationStatusRestricted;
+            error = @"The user is unable to allow access to the address book";
+        default:
+            break;
+    }
+    if (!doPrompt) {
+        NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:error];
+        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
 
-		[callback call:invocationArray thisObject:self];
-		[invocationArray release];
-		return;
-	}
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
-	TiThreadPerformOnMainThread(^(){
-		ABAddressBookRef ourAddressBook = [self addressBook];
-		ABAddressBookRequestAccessWithCompletion(ourAddressBook, ^(bool granted, CFErrorRef error) {
-			NSError * errorObj = (NSError *)error;
-			NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:[errorObj code] message:[TiUtils messageFromError:errorObj]];
+        [callback call:invocationArray thisObject:self];
+        [invocationArray release];
+        return;
+    }
+
+    TiThreadPerformOnMainThread(^(){
+        ABAddressBookRef ourAddressBook = [self addressBook];
+        ABAddressBookRequestAccessWithCompletion(ourAddressBook, ^(bool granted, CFErrorRef error) {
+            NSError * errorObj = (NSError *)error;
+            NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:[errorObj code] message:[TiUtils messageFromError:errorObj]];
 			
-			KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
-			[[callback context] enqueue:invocationEvent];
-		});
-	}, NO);
-#endif
+            KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
+            [[callback context] enqueue:invocationEvent];
+        });
+    }, NO);
 }
 
 
 
 -(NSNumber*) contactsAuthorization
 {
-	long int result = kABAuthorizationStatusAuthorized;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
-	if (iOS6API) { //5.1 and before: We always had permission.
-		result = ABAddressBookGetAuthorizationStatus();
-	}
-#endif
+	ABAuthorizationStatus result = ABAddressBookGetAuthorizationStatus();
 	return [NSNumber numberWithLong:result];
 }
 

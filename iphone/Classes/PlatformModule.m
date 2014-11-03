@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -227,7 +227,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 {
 	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
 	[dateFormatter setLocale:[NSLocale currentLocale]];
-	[dateFormatter setTimeStyle:kCFDateFormatterShortStyle];
+	[dateFormatter setTimeStyle:NSDateFormatterShortStyle];
 	NSString *dateInStringForm = [dateFormatter stringFromDate:[NSDate date]];
 	NSRange amRange = [dateInStringForm rangeOfString:[dateFormatter AMSymbol]];
 	NSRange pmRange = [dateInStringForm rangeOfString:[dateFormatter PMSymbol]];

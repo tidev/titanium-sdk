@@ -80,34 +80,60 @@ examples:
         In this example we create a progress bar with the min value of `0` and the max value 
         of `10` and the current value of `0`. Changing the `value` property causes the 
         displayed progress bar to update.
-        
-            var pb=Titanium.UI.createProgressBar({
-                top:10,
-            	width:250,
-            	height:'auto',
-            	min:0,
-            	max:10,
-            	value:0,
-            	color:'#fff',
-            	message:'Downloading 0 of 10',
-            	font:{fontSize:14, fontWeight:'bold'},
-            	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN,
+
+            var pb = Ti.UI.createProgressBar({
+                top: 25,
+                width: 250,
+                min: 0,
+                max: 10,
+                value: 0,
+                color: 'blue',
+                message: 'Downloading 0 of 10',
+                font: {fontSize: 14, fontWeight: 'bold'},
+                style: Titanium.UI.iPhone.ProgressBarStyle.PLAIN,
+            });
+            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+            win.addEventListener('click', function(){
+                if (pb.value < pb.max) {
+                    pb.message = 'Downloading '+ ++pb.value + ' of 10';
+                }
             });
             win.add(pb);
+            win.open();
             pb.show();
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
-        progressbarexample.xml:
+        index.xml:
 
             <Alloy>
-                <Window id="win" backgroundColor="white">
-                    <ProgressBar id="pb" top="10" width="250" height="auto" min="0" max="10" value="0" color="#fff" message="Downloading 0 of 10" />
+                <Window id="win" backgroundColor="white" onClick="incPB">
+                    <ProgressBar id="pb" />
                 </Window>
             </Alloy>
 
-        progressbarexample.js:
+        index.js:
 
+            function incPB() {
+                if ($.pb.value < $.pb.max) {
+                    $.pb.message = 'Downloading '+ ++$.pb.value + ' of 10';
+                }
+            }
+            $.win.open();
             $.pb.show();
+
+        index.tss:
+
+            "#pb": {
+                top: 25,
+                width: 250,
+                min: 0,
+                max: 0,
+                value: 0,
+                color: 'blue',
+                message: 'Downloading 0 of 10',
+                font: {fontSize:14, fontWeight:'bold'},
+                style: Titanium.UI.iPhone.ProgressBarStyle.PLAIN
+            }

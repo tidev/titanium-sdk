@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.common.Log;
@@ -237,9 +238,25 @@ public class TiResponseCache extends ResponseCache
 				return null;
 			}
 			try {
+				boolean isGZip = false;
+				// Read in the headers
+				try {
+					Map<String, List<String>> headers = readHeaders(hFile);
+					String contentEncoding = getHeader(headers, "content-encoding");
+					if ("gzip".equalsIgnoreCase(contentEncoding)) {
+						isGZip = true;
+					}
+				} catch (IOException e) {
+					// continue with file read?
+				}
+				if (isGZip) {
+					return new GZIPInputStream(new FileInputStream(bFile));
+				}
 				return new FileInputStream(bFile);
 			} catch (FileNotFoundException e) {
-				// Fallback to URL download.
+				// Fallback to URL download?
+				return null;
+			} catch (IOException e) {
 				return null;
 			}
 
@@ -302,16 +319,7 @@ public class TiResponseCache extends ResponseCache
 		}
 
 		// Read in the headers
-		Map<String, List<String>> headers = new HashMap<String, List<String>>();
-		BufferedReader rdr = new BufferedReader(new FileReader(hFile), 1024);
-		for (String line=rdr.readLine() ; line != null ; line=rdr.readLine()) {
-			String keyval[] = line.split("=", 2);
-			if (!headers.containsKey(keyval[0])) {
-				headers.put(keyval[0], new ArrayList<String>());
-			}
-			headers.get(keyval[0]).add(keyval[1]);
-		}
-		rdr.close();
+		Map<String, List<String>> headers = readHeaders(hFile);
 		
 		// Update the access log
 		hFile.setLastModified(System.currentTimeMillis());
@@ -320,7 +328,28 @@ public class TiResponseCache extends ResponseCache
 		return new TiCacheResponse(headers, new FileInputStream(bFile));
 	}
 
-	protected String getHeader(Map<String, List<String>> headers, String header)
+	private static Map<String, List<String>> readHeaders(File hFile) throws IOException 
+	{
+		// Read in the headers
+		Map<String, List<String>> headers = new HashMap<String, List<String>>();
+		BufferedReader rdr = new BufferedReader(new FileReader(hFile), 1024);
+		for (String line=rdr.readLine() ; line != null ; line=rdr.readLine()) {
+			String keyval[] = line.split("=", 2);
+			if (keyval.length < 2) {
+				continue;
+			}
+			if (!headers.containsKey(keyval[0])) {
+				headers.put(keyval[0], new ArrayList<String>());
+			}
+			
+			headers.get(keyval[0]).add(keyval[1]);
+			
+		}
+		rdr.close();
+		return headers;
+	}
+	
+	protected static String getHeader(Map<String, List<String>> headers, String header)
 	{
 		List<String> values = headers.get(header);
 		if (values == null || values.size() == 0) {
@@ -367,7 +396,7 @@ public class TiResponseCache extends ResponseCache
 		// getHeaderFields() just checks the response itself
 		Map<String, List<String>> headers = makeLowerCaseHeaders(conn.getHeaderFields());
 		String cacheControl = getHeader(headers, "cache-control");
-		if (cacheControl != null && cacheControl.matches("^.*(no-cache|no-store|must-revalidate).*")) {
+		if (cacheControl != null && cacheControl.matches("^.*(no-cache|no-store|must-revalidate|max-age=0).*")) {
 			return null; // See RFC-2616
 		}
 
