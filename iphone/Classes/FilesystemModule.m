@@ -121,7 +121,12 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 
 -(NSString*)resourcesDirectory
 {
-	return fileURLify([TiHost resourcePath]);
+	//when working with NSFileManager, path is preferred over absoluteString
+	//absoluteString should be only used for remote URL.
+	//[TiHost resourcePath] uses [[NSBundle mainBundle] bundlePath], unlike the other
+	//directory methods below. So only apply path to this method for now
+	//slash added to ensure consistency with apps that used this method before
+	return [[NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/",[TiHost resourcePath]] isDirectory:YES] path];
 }
 
 -(NSString*)applicationDirectory
