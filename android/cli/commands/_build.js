@@ -3719,8 +3719,6 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-A', this.buildBinAssetsDir,
 			'-S', this.buildResDir,
 			'-I', this.androidTargetSDK.androidJar,
-			'-I', path.join(this.platformPath, 'titanium.jar'),
-			'-I', path.join(this.platformPath, 'aps-analytics.jar'),
 			'-F', this.ap_File
 		];
 
