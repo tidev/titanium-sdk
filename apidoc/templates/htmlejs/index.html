@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<title>Titanium Mobile SDK</title>
+		<style type="text/css">
+			li {margin-bottom: 5px;}
+		</style>
+    </head>
+    <body>
+        <div id="container">
+            <div id="header">
+				<h1>Titanium SDK</h1>
+            </div>
+
+			<% if (assert(data, 'Global')) { %>
+				<div id="main">
+					<h3>Global APIs</h3>
+					<ul>
+
+				<% data.Global.forEach(function (member) { %>
+					<li>
+						<a href="<%- member.filename %>.html"><%- member.name %></a>
+					</li>
+					<% }); %>
+					</ul>
+				</div>
+			<% } %>
+
+
+			<% if (assert(data, 'Modules')) { %>
+				<div id="main">
+					<h3>Modules APIs</h3>
+					<ul>
+
+				<% data.Modules.forEach(function (member) { %>
+					<li>
+						<a href="<%- member.filename %>.html"><%- member.name %></a>
+					</li>
+					<% }); %>
+					</ul>
+				</div>
+			<% } %>
+
+
+			<% if (assert(data, 'Titanium')) { %>
+				<div id="main">
+					<h3>Titanium APIs</h3>
+					<ul>
+
+				<% data.Titanium.forEach(function (member) { %>
+					<li>
+						<a href="<%- member.filename %>.html"><%- member.name %></a>
+					</li>
+					<% }); %>
+					</ul>
+				</div>
+			<% } %>
+
+        </div>
+    </body>
+</html>
+
+
+
+

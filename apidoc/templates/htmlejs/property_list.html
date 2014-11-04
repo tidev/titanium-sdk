@@ -1,0 +1,17 @@
+<h3 id="properties">Properties</h3>
+<% if (data.properties && data.properties.length > 0) { %>
+
+<table>
+<tr>
+	<th>Name</th>
+	<th>Type</th>
+	<th>Summary</th>
+</tr>
+<% data.properties.forEach(function (member) { %>	
+	<% include member_list.html %>
+<% }); %>
+</table>
+
+<% } else { %>
+	This type has no properties.
+<% } %>

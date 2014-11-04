@@ -8,14 +8,14 @@ var common = require('./lib/common.js')
 	nodeappc = require('node-appc'),
 	ejs = require('ejs'),
 	fs = require('fs'),
+	assert = common.assertObjectKey;
 	basePaths = [],
 	processFirst = ['Titanium.Proxy', 'Titanium.Module', 'Titanium.UI.View'],
 	skipList = ['Titanium.Namespace.Name'],
 	formats = [],
-
 	apidocPath = '.',
 	libPath = './lib/',
-	templatePath = './template/',
+	templatePath = './templates/',
 	format = 'html',
 	output = '../dist/',
 	parseData = {},
@@ -39,12 +39,22 @@ function getInheritedAPIs (api) {
 		key = null,
 		removeAPIs = [],
 		copyAPIs = [],
-		match = [],
+		matches = [],
 		index = 0,
 		x = 0;
 
-	if ('extends' in api && api.extends in doc) {
+	if (assert(api, 'extends') && api.extends in doc) {
 		inheritedAPIs = getInheritedAPIs(doc[api.extends]);
+
+		// Remove inherited accessors
+		matches = inheritedAPIs.methods.filter(function (element) {
+			return assert(element, '__accessor');
+		});
+		matches.forEach(function (element) {
+			inheritedAPIs.methods.splice(inheritedAPIs.methods.indexOf(element), 1);
+
+		});
+
 		for (key in inheritedAPIs) {
 			removeAPIs = [];
 			if (!key in api || !api[key]) continue;
@@ -52,24 +62,26 @@ function getInheritedAPIs (api) {
 			inheritedAPIs[key].forEach(function (inheritedAPI) {
 
 				// See if current API overwrites inherited API
-				match = copyAPIs.filter(function (element) {
-					return element.name == inheritedAPI.name;
+				matches = copyAPIs.filter(function (element) {
+					return (element.name == inheritedAPI.name);
 				});
 
-				if (match.length) {
-					removeAPIs.push(match[0]);
+				matches.forEach(function (match) {
+					removeAPIs.push(match);
 					// If the APIs came from the same class, do nothing
-					if (match[0].__inherits == inheritedAPI.__inherits) return;
+					if (match.__inherits == inheritedAPI.__inherits) return;
 
 					// If the APIs are from different classes, override inherited API with current API
 					index = inheritedAPIs[key].indexOf(inheritedAPI);
-					for (property in match[0]) {
-						inheritedAPIs[key][index][property] = match[0][property];
+					for (property in match) {
+						if (assert(match, property)) {
+							inheritedAPIs[key][index][property] = match[property];
+						}
 					}
 					inheritedAPIs[key][index].__inherits = api.name;
-				}
-
+				});
 			});
+
 			removeAPIs.forEach(function (element) {
 				copyAPIs.splice(copyAPIs.indexOf(element), 1);
 			});
@@ -128,16 +140,16 @@ function processVersions (api, versions) {
 	var defaultVersions = nodeappc.util.mixObj({}, versions),
 		platform = null,
 		key = null;
-	if ('platforms' in api) {
+	if (assert(api, 'platforms')) {
 		for (platform in defaultVersions) {
 			if (!~api.platforms.indexOf(platform)) delete defaultVersions[platform];
 		}
-	} else if ('exclude-platforms' in api) {
+	} else if (assert(api, 'exclude-platforms')) {
 		api['exclude-platforms'].forEach(function (platform) {
 			if (platform in defaultVersions) delete defaultVersions[platform];
 		});
 	}
-	if ('since' in api) {
+	if (assert(api, 'since')) {
 		if (typeof api.since == 'string') {
 			for (key in defaultVersions) {
 				if (nodeappc.version.gt(api.since, defaultVersions[key])) defaultVersions[key] = api.since;
@@ -163,26 +175,38 @@ function processAPIMembers (apis, type, defaultVersions) {
 	apis.forEach(function (api) {
 		api.since = processVersions(api, defaultVersions);
 		api.platforms = Object.keys(api.since);
-		if (type == 'properties' && api.constants) api.constants = processConstants(api);
-		if (type == 'events' && 'properties' in api) {
-			for (x = 0; x < api.properties.length; x++) {
-				if ('constants' in api.properties[x]) {
-					api.properties[x].constants = processConstants(api.properties[x]);
+		if (type == 'properties') {
+			if (api.constants) {
+				api.constants = processConstants(api);
+			}
+			api.__subtype = 'property';
+		}
+		if (type == 'events') {
+			api.__subtype = 'event';
+			if (assert(api, 'properties')) {
+				for (x = 0; x < api.properties.length; x++) {
+					api.properties[x].__subtype = 'eventProperty';
+					if ('constants' in api.properties[x]) {
+						api.properties[x].constants = processConstants(api.properties[x]);
+					}
 				}
 			}
 		}
 		if (type == 'methods') {
-			if ('parameters' in api) {
+			api.__subtype = 'method';
+			if (assert(api, 'parameters')) {
 				for (x = 0; x < api.parameters.length; x++) {
+					api.parameters[x].__subtype = 'parameter';
 					if ('constants' in api.parameters[x]) {
 						api.parameters[x].constants = processConstants(api.parameters[x]);
 					}
 				}
 			}
-			if ('returns' in api) {
+			if (assert(api, 'returns')) {
 				if (Array.isArray(api.returns)) api.returns = [api.returns];
 				for (x = 0; x < api.returns.length; x++) {
-					if ('constants' in api.returns[x]) {
+					api.returns[x].__subtype = 'return';
+					if (assert(api.returns[x], 'constants')) {
 						api.returns[x].constants = processConstants(api.returns[x]);
 					}
 				}
@@ -200,7 +224,7 @@ function processAPIMembers (apis, type, defaultVersions) {
  * @returns {Array<Object>} Processed APIs
  */
 function hideAPIMembers (apis, type) {
-	if ('excludes' in apis && type in apis.excludes && type in apis) {
+	if (assert(apis, 'excludes') && assert(apis.excludes, type) && assert(apis, type)) {
 		apis[type].forEach(function (api) {
 			apis[type][apis[type].indexOf(api)].__hide = (~apis.excludes[type].indexOf(api.name)) ? true : false;
 		});
@@ -225,9 +249,14 @@ function generateAccessors(apis, className) {
 			rv.push({
 				'name': 'get' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
 				'summary': 'Gets the value of the <' + className + '.' + api.name + '> property.',
-				'returns': { 'type': api.type },
+				'deprecated' : api.deprecated || null,
+				'platforms': api.platforms,
+				'since': api.since,
+				'returns': { 'type': api.type, '__subtype': 'return' },
 				'__accessor': true,
-				'__inherits': api.__inherits || null
+				'__hides' : api.__hides || false,
+				'__inherits': api.__inherits || null,
+				'__subtype': 'method'
 			});
 		}
 
@@ -236,13 +265,19 @@ function generateAccessors(apis, className) {
 			rv.push({
 				'name': 'set' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
 				'summary': 'Sets the value of the <' + className + '.' + api.name + '> property.',
+				'deprecated' : api.deprecated || null,
+				'platforms': api.platforms,
+				'since': api.since,
 				'parameters': [{
 					'name': api.name,
 					'summary': 'New value for the property.',
-					'type': api.type
+					'type': api.type,
+					'__subtype': 'parameter'
 				}],
 				'__accessor': true,
-				'__inherits': api.__inherits || null
+				'__hides' : api.__hides || false,
+				'__inherits': api.__inherits || null,
+				'__subtype': 'method'
 			});
 		}
 	});
@@ -255,6 +290,23 @@ function generateAccessors(apis, className) {
  * @returns {String} Class's subtype
  */
 function getSubtype (api) {
+
+	switch (api.name) {
+		case 'Global':
+		case 'Titanium.Module':
+			return 'module';
+			break;
+		case 'Titanium.Proxy':
+			return 'proxy';
+			break;
+		default:
+			;
+	}
+
+	if (api.name.indexOf('Global.') == 0) {
+		return 'proxy';
+	}
+
 	switch (api.extends) {
 		case 'Titanium.UI.View' :
 			return 'view';
@@ -263,7 +315,7 @@ function getSubtype (api) {
 		case 'Titanium.Proxy' :
 			return 'proxy';
 		default:
-			if ('extends' in api) {
+			if (assert(api, 'extends')) {
 				return getSubtype(doc[api.extends]);
 			} else {
 				return 'pseudo';
@@ -285,12 +337,12 @@ function processAPIs (api) {
 		api[key] = inheritedAPIs[key];
 	}
 
-	api.subtype = (api.name.indexOf('Global') == 0) ? null : (api.name == 'Titanium.Module') ? 'module' : getSubtype(api);
+	api.__subtype = getSubtype(api);
 
 	// Generate create method
-	if ((api.subtype === 'view' || api.subtype === 'proxy') &&
-		(('createable' in api && api.createable === true) ||
-		!('createable' in api))) {
+	api.__creatable = false;
+	if ((api.__subtype === 'view' || api.__subtype === 'proxy') &&
+		(assert(api, 'createable') || !('createable' in api))) {
 
 		var name = api.name,
 			prop = name.split('.').pop(),
@@ -299,7 +351,7 @@ function processAPIs (api) {
 
 		if (cls in doc) {
 			var matches = [];
-			if ('methods' in doc[cls]) {
+			if (assert(doc[cls], 'methods')) {
 				var matches = doc[cls].methods.filter(function (member) {
 					return member.name == methodName;
 				});
@@ -311,35 +363,51 @@ function processAPIs (api) {
 					'deprecated': api.deprecated || null,
 					'since': api.since,
 					'platforms': api.platforms,
-					'returns': { 'type': name },
+					'returns': { 'type': name, '__subtype': 'return' },
 					'parameters': [{
 						'name': 'parameters',
 						'summary': 'Properties to set on a new object, including any defined by <' + name + '> except those marked not-creation or read-only.\n',
 						'type': 'Dictionary<' + name + '>',
-						'optional': true
+						'optional': true,
+						'__subtype': 'parameter'
 					}],
-					'__creator': true
+					'__creator': true,
+					'__subtype': 'method'
 				};
+				api.__creatable = true;
 				'methods' in doc[cls] ? doc[cls].methods.push(createMethod) : doc[cls].methods = [createMethod];
 			}
 		}
 	}
 
-	if ('events' in api) {
+	if (assert(api, 'events')) {
 		api = hideAPIMembers(api, 'events');
 		api.events = processAPIMembers(api.events, 'events', api.since);
 	}
 
-	if ('properties' in api ) {
+	if (assert(api, 'properties')) {
 		var accessors;
 		api = hideAPIMembers(api, 'properties');
 		api.properties = processAPIMembers(api.properties, 'properties', api.since);
-		if (accessors = generateAccessors(api.properties, api.name)) {
-			api.methods = ('methods' in api) ? api.methods.concat(accessors) : accessors;
+		if (api.__subtype != 'pseudo' && (accessors = generateAccessors(api.properties, api.name))) {
+			if (assert(api, 'methods')) {
+				var matches = [];
+				accessors.forEach(function (accessor) {
+					matches = api.methods.filter(function (element) {
+						return accessor.name == element.name;
+					});
+				});
+				matches.forEach(function (element) {
+					accessors.splice(accessors.indexOf(element), 1);
+				});
+				api.methods = api.methods.concat(accessors);
+			} else {
+				api.methods = accessors;
+			}
 		}
 	}
 
-	if ('methods' in api) {
+	if (assert(api, 'methods')) {
 		api = hideAPIMembers(api, 'methods');
 		api.methods = processAPIMembers(api.methods, 'methods', api.since);
 	}
@@ -408,7 +476,7 @@ basePaths.forEach(function (basePath) {
 	parseData = common.parseYAML(basePath);
 	for (key in parseData.data) {
 		errors.push(parseData.errors);
-		if (key in doc && doc[key]) {
+		if (assert(doc, key)) {
 			console.warn('WARNING: Duplicate class found: %s'.yellow, key);
 			continue;
 		}
@@ -419,6 +487,7 @@ basePaths.forEach(function (basePath) {
 // Process YAML files
 console.log('Processing YAML files...'.white);
 processFirst.forEach(function (cls) {
+	if (!assert(doc, cls)) return;
 	processedData[cls] = processAPIs(doc[cls]);
 });
 skipList = skipList.concat(processFirst);
@@ -430,9 +499,31 @@ for (key in doc) {
 // Export data
 exporter = require('./lib/' + format + '_generator.js');
 exportData = exporter.exportData(processedData);
-templatePath = apidocPath + '/templates/'
+templatePath = apidocPath + '/templates/';
 
 switch (format) {
+	case 'html' :
+		output += '/apidoc/';
+		if(!fs.existsSync(output)) {
+			fs.mkdirSync(output);
+		}
+
+		['event', 'method', 'property', 'proxy'].forEach(function (type) {
+			templateStr = fs.readFileSync(templatePath + 'htmlejs/' + type + '.html', 'utf8');
+			exportData[type].forEach(function (member) {
+				render = ejs.render(templateStr, {data: member, filename: true, assert: common.assertObjectKey});
+				fs.writeFileSync(output + member.filename + '.html', render);
+			});
+		});
+
+		templateStr = fs.readFileSync(templatePath + 'htmlejs/index.html', 'utf8');
+		render = ejs.render(templateStr, {data: exportData, assert: common.assertObjectKey});
+		output += 'index.html';
+		break;
+	case 'jsca' :
+		render = JSON.stringify(exportData, null, '    ');
+		output = output + '/api.jsca';
+		break;
 	case 'jsduck' :
 		templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
 		render = ejs.render(templateStr, {doc: exportData});

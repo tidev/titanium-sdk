@@ -1,0 +1,16 @@
+<h3 id="methods">Methods</h3>
+<% if (data.methods && data.methods.length > 0) { %>
+
+<table>
+<tr>
+	<th>Name</th>
+	<th>Summary</th>
+</tr>
+<% data.methods.forEach(function (member) { %>	
+	<% include member_list.html %>
+<% }); %>
+</table>
+
+<% } else { %>
+	This type has no methods.
+<% } %>
