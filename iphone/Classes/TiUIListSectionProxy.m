@@ -326,6 +326,10 @@
 	return block();
 }
 
+- (id<TiUIListViewDelegateView>) delegateView
+{
+    return nil;
+}
 @end
 
 #endif
