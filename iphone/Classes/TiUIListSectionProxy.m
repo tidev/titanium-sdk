@@ -131,6 +131,9 @@
             id <TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
             if (theDelegate != nil) {
                 [theDelegate updateSearchResults:nil];
+                if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
+                    [(TiViewProxy*)theDispatcher contentsWillChange];
+                }
             }
         }];
     } else {
@@ -159,6 +162,9 @@
             id <TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
             if (theDelegate != nil) {
                 [theDelegate updateSearchResults:nil];
+                if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
+                    [(TiViewProxy*)theDispatcher contentsWillChange];
+                }
             }
         }];
     } else {
@@ -199,6 +205,9 @@
             id <TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
             if (theDelegate != nil) {
                 [theDelegate updateSearchResults:nil];
+                if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
+                    [(TiViewProxy*)theDispatcher contentsWillChange];
+                }
             }
         }];
     } else {
@@ -241,6 +250,9 @@
             id <TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
             if (theDelegate != nil) {
                 [theDelegate updateSearchResults:nil];
+                if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
+                    [(TiViewProxy*)theDispatcher contentsWillChange];
+                }
             }
         }];
     } else {
@@ -297,6 +309,9 @@
             id <TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
             if (theDelegate != nil) {
                 [theDelegate updateSearchResults:nil];
+                if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
+                    [(TiViewProxy*)theDispatcher contentsWillChange];
+                }
             }
         }];
     } else {
@@ -340,6 +355,9 @@
             id <TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
             if (theDelegate != nil) {
                 [theDelegate updateSearchResults:nil];
+                if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
+                    [(TiViewProxy*)theDispatcher contentsWillChange];
+                }
             }
         }];
     } else {
