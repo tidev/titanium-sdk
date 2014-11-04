@@ -23,7 +23,7 @@ exports.DATA_TYPES = ['Array', 'Boolean', 'Callback', 'Date', 'Dictionary', 'Num
 
 exports.PRETTY_PLATFORM = {
 	'android': 'Android',
-	'blackberry': 'Blackberry',
+	'blackberry': 'BlackBerry',
 	'ios': 'iOS',
 	'iphone': 'iPhone',
 	'ipad': 'iPad',

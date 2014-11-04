@@ -3,7 +3,7 @@
  */
 var common = require('./common.js'),
 	colors = require('colors');
-	nodeappc = require('node-appc');
+	nodeappc = require('node-appc'),
 	doc = {},
 	exportData = {};
 
@@ -270,6 +270,9 @@ function exportAPIs (api, type) {
 exports.exportData = function exportJsDuck (apis) {
 	var className = null, rv =[];
 	doc = JSON.parse(JSON.stringify(apis));
+
+	console.log('Converting to JSDuck...'.white);
+
 	for (className in apis) {
 		cls = apis[className];
 		cls.summary = exportSummary(cls);

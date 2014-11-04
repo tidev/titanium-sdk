@@ -768,7 +768,15 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			heightDefined = !TiC.LAYOUT_SIZE.equals(heightProperty) && !TiC.SIZE_AUTO.equals(heightProperty);
 			view.setHeightDefined(heightDefined);
 		}
+		
+		if (d.containsKey(TiC.PROPERTY_LEFT) && d.containsKey(TiC.PROPERTY_RIGHT)) {
+			view.setWidthDefined(true);
+		}
 
+		if (d.containsKey(TiC.PROPERTY_TOP) && d.containsKey(TiC.PROPERTY_BOTTOM)) {
+			view.setHeightDefined(true);
+		}
+	
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
 			setImageSource(d.get(TiC.PROPERTY_IMAGES));
 			setImages();
