@@ -62,6 +62,14 @@
 	return (TiUIListView *)self.view;
 }
 
+- (id<TiUIListViewDelegateView>) delegateView
+{
+    if (view != nil) {
+        return [self listView];
+    }
+    return nil;
+}
+
 - (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block
 {
 	if (view == nil) {
