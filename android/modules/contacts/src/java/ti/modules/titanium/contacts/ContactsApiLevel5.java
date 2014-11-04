@@ -833,10 +833,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		String middleName = "";
 		String displayName = "";
 		
-		
-		
 		if (person.hasProperty(TiC.PROPERTY_FIRSTNAME)) {
-			firstName  = TiConvert.toString(person.getProperty(TiC.PROPERTY_FIRSTNAME));
+			firstName = TiConvert.toString(person.getProperty(TiC.PROPERTY_FIRSTNAME));
 		}
 		
 		if (person.hasProperty(TiC.PROPERTY_LASTNAME)) {
@@ -846,7 +844,6 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		if (person.hasProperty(TiC.PROPERTY_MIDDLENAME)) {
 			middleName = TiConvert.toString(person.getProperty(TiC.PROPERTY_MIDDLENAME));
 		}
-		
 		
 		displayName = firstName + " " + middleName + " " + lastName;
 		person.setFullName(displayName);
