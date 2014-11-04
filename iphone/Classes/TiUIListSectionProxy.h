@@ -16,6 +16,7 @@
 @required
 
 - (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block;
+- (void)dispatchBlock:(void(^)(UITableView *tableView))block;
 - (id)dispatchBlockWithResult:(id(^)(void))block;
 - (id<TiUIListViewDelegateView>) delegateView;
 @end
