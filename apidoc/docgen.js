@@ -12,12 +12,12 @@ var common = require('./lib/common.js')
 	basePaths = [],
 	processFirst = ['Titanium.Proxy', 'Titanium.Module', 'Titanium.UI.View'],
 	skipList = ['Titanium.Namespace.Name'],
-	formats = [],
+	validFormats = [],
 	apidocPath = '.',
 	libPath = './lib/',
 	templatePath = './templates/',
-	format = 'html',
-	output = '../dist/',
+	formats = ['html'],
+	outputPath = output = '../dist/',
 	parseData = {},
 	doc = {},
 	errors = [],
@@ -26,7 +26,13 @@ var common = require('./lib/common.js')
 	processedData = {},
 	render = '',
 	fsArray = [],
-	tokens = [];
+	tokens = [],
+	excludeExternal = false;
+	originalPaths = [],
+	modules = [],
+	exportStdout = false,
+	cssPath = '',
+	cssFile = '';
 
 /**
  * Returns a list of inherited APIs.
@@ -290,7 +296,6 @@ function generateAccessors(apis, className) {
  * @returns {String} Class's subtype
  */
 function getSubtype (api) {
-
 	switch (api.name) {
 		case 'Global':
 		case 'Titanium.Module':
@@ -315,7 +320,7 @@ function getSubtype (api) {
 		case 'Titanium.Proxy' :
 			return 'proxy';
 		default:
-			if (assert(api, 'extends')) {
+			if (assert(api, 'extends') && assert(doc, api.extends)) {
 				return getSubtype(doc[api.extends]);
 			} else {
 				return 'pseudo';
@@ -416,10 +421,12 @@ function processAPIs (api) {
 }
 
 function cliUsage () {
-	console.log('Usage: node docgen.js [--format <EXPORT_FORMAT>] [--output <OUTPUT_DIRECTORY>] [<PATH_TO_YAML_FILES>]'.white);
+	console.log('Usage: node docgen.js [--css <CSS_FILE>] [--format <EXPORT_FORMAT>] [--output <OUTPUT_DIRECTORY>] [--stdout] [<PATH_TO_YAML_FILES>]'.white);
 	console.log('\nOptions:'.white);
-	console.log('\t--format, -f\tExport format: %s. Default is %s'.white, formats, format);
-	console.log('\t--output, -o\tDirectory to output the files. Default is %s.'.white, output);
+	console.log('\t--css       \tCSS style file to use for HTML exports.'.white);
+	console.log('\t--format, -f\tExport format: %s. Default is html.'.white, validFormats);
+	console.log('\t--output, -o\tDirectory to output the files.'.white);
+	console.log('\t--stdout    \tOutput processed YAML to stdout.'.white);
 }
 
 // Start of Main Flow
@@ -429,7 +436,7 @@ libPath = apidocPath + '/lib/';
 fsArray = fs.readdirSync(libPath);
 fsArray.forEach(function (file) {
 	tokens = file.split('_');
-	if (tokens[1] == 'generator.js') formats.push(tokens[0]);
+	if (tokens[1] == 'generator.js') validFormats.push(tokens[0]);
 });
 
 // Check command arguments
@@ -440,28 +447,63 @@ if ((argc = process.argv.length) > 2) {
 				cliUsage();
 				process.exit(0);
 				break;
+			case '--css':
+				if (++x > argc) {
+					console.warn('Did not specify a CSS file.'.yellow);
+					cliUsage();
+					process.exit(1);
+				}
+				cssPath = process.argv[x];
+				if(!fs.existsSync(cssPath)) {
+					console.warn('CSS file does not exist: %s'.yellow, cssPath);
+					process.exit(1);
+				}
+				cssFile = cssPath.substring(cssPath.lastIndexOf('/') + 1);
+				break;
 			case '--format' :
 			case '-f' :
 				if (++x > argc) {
-					console.warn('Did not specify an export format. Valid formats are: %s'.yellow, formats);
+					console.warn('Did not specify an export format. Valid formats are: %s'.yellow, JSON.stringify(validFormats));
 					cliUsage();
-					process.exit(1)
+					process.exit(1);
 				}
-				format = process.argv[x];
-				if (!~formats.indexOf(format)) {
-					console.warn('Not a valid export format: %s. Valid formats are: %s'.yellow, format, formats);
-					cliUsage();
-					process.exit(1)
+
+				if(~process.argv[x].indexOf(',')) {
+					formats = process.argv[x].split(',');
+				} else {
+					formats = [process.argv[x]];
 				}
+
+				formats.forEach(function (format) {
+					if (!~validFormats.indexOf(format)) {
+						console.warn('Not a valid export format: %s. Valid formats are: %s'.yellow, format, validFormats);
+						cliUsage();
+						process.exit(1);
+					}
+				});
 				break;
 			case '--output' :
 			case '-o' :
 				if (++x > argc) {
 					console.warn('Specify an output path.'.yellow);
 					cliUsage();
-					process.exit(1)
+					process.exit(1);
 				}
-				output = process.argv[x];
+				outputPath = process.argv[x];
+				break;
+			case '--stdout':
+				exportStdout = true;
+				break;
+			// old python script options
+			case '--colorize':
+			case '--exclude-external':
+			case '-e':
+			case '--verbose':
+			case '--version':
+			case '-v' :
+			case '--warn-inherited':
+				console.warn('This command-line flag or argument has been deprecated or has not been implemented: %s'.yellow, process.argv[x]);
+				if (~['-v', '--version'].indexOf(process.argv[x])) x++;
 				break;
 			default :
 				basePaths.push(process.argv[x]);
@@ -470,7 +512,8 @@ if ((argc = process.argv.length) > 2) {
 }
 
 // Parse YAML files
-if (basePaths.length == 0) basePaths.push(apidocPath);
+originalPaths = originalPaths.concat(basePaths);
+basePaths.push(apidocPath);
 basePaths.forEach(function (basePath) {
 	console.log('Parsing YAML files in %s...'.white, basePath);
 	parseData = common.parseYAML(basePath);
@@ -481,11 +524,12 @@ basePaths.forEach(function (basePath) {
 			continue;
 		}
 		doc[key] = parseData.data[key];
+		if (~originalPaths.indexOf(basePath)) modules.push(key);
 	}
 });
 
 // Process YAML files
-console.log('Processing YAML files...'.white);
+console.log('Processing YAML data...'.white);
 processFirst.forEach(function (cls) {
 	if (!assert(doc, cls)) return;
 	processedData[cls] = processAPIs(doc[cls]);
@@ -496,47 +540,73 @@ for (key in doc) {
 	processedData[key] = processAPIs(doc[key]);
 }
 
-// Export data
-exporter = require('./lib/' + format + '_generator.js');
-exportData = exporter.exportData(processedData);
-templatePath = apidocPath + '/templates/';
+formats.forEach(function (format) {
+	// Export data
+	exporter = require('./lib/' + format + '_generator.js');
+	if (format == 'modulehtml') {
+		processedData.__modules = modules;
+	}
+	exportData = exporter.exportData(processedData);
+	templatePath = apidocPath + '/templates/';
+	output = outputPath;
 
-switch (format) {
-	case 'html' :
-		output += '/apidoc/';
-		if(!fs.existsSync(output)) {
-			fs.mkdirSync(output);
-		}
+	console.log('Generating %s output...'.white, format.toUpperCase());
 
-		['event', 'method', 'property', 'proxy'].forEach(function (type) {
-			templateStr = fs.readFileSync(templatePath + 'htmlejs/' + type + '.html', 'utf8');
-			exportData[type].forEach(function (member) {
-				render = ejs.render(templateStr, {data: member, filename: true, assert: common.assertObjectKey});
-				fs.writeFileSync(output + member.filename + '.html', render);
-			});
-		});
+	switch (format) {
+		case 'html' :
+		case 'modulehtml' :
 
-		templateStr = fs.readFileSync(templatePath + 'htmlejs/index.html', 'utf8');
-		render = ejs.render(templateStr, {data: exportData, assert: common.assertObjectKey});
-		output += 'index.html';
-		break;
-	case 'jsca' :
-		render = JSON.stringify(exportData, null, '    ');
-		output = output + '/api.jsca';
-		break;
-	case 'jsduck' :
-		templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
-		render = ejs.render(templateStr, {doc: exportData});
-		output = output + '/titanium.js';
-		break;
-	default:
-		;
-}
+			output += '/apidoc/';
+			if(!fs.existsSync(output)) {
+				fs.mkdirSync(output);
+			}
 
-fs.writeFile(output, render, function (err) {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log("Generated output at %s".green, output);
-    }
+			if (cssFile) {
+				fs.createReadStream(cssPath).pipe(fs.createWriteStream(output + cssFile));
+			}
+
+			for (type in exportData) {
+				if (type.indexOf('__') == 0) continue;
+				templateStr = fs.readFileSync(templatePath + 'htmlejs/' + type + '.html', 'utf8');
+				exportData[type].forEach(function (member) {
+					render = ejs.render(templateStr, {data: member, filename: true, assert: common.assertObjectKey, css: cssFile});
+					if (fs.writeFileSync(output + member.filename + '.html', render) <= 0) {
+						console.error('Failed to write to file: %s'.red, output + member.filename + '.html');
+					}
+				});
+			}
+
+			if (format === 'modulehtml') {
+				templateStr = fs.readFileSync(templatePath + 'htmlejs/moduleindex.html', 'utf8');
+				render = ejs.render(templateStr, {filename: exportData.proxy[0].filename + '.html'});
+			} else {
+				templateStr = fs.readFileSync(templatePath + 'htmlejs/index.html', 'utf8');
+				render = ejs.render(templateStr, {data: exportData, assert: common.assertObjectKey, css: cssFile});
+			}
+			output += 'index.html';
+			break;
+		case 'jsca' :
+			render = JSON.stringify(exportData, null, '    ');
+			output = output + '/api.jsca';
+			break;
+		case 'jsduck' :
+			templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
+			render = ejs.render(templateStr, {doc: exportData});
+			output = output + '/titanium.js';
+			break;
+		default:
+			;
+	}
+
+	if (fs.writeFile(output, render) <= 0) {
+		console.error('Failed to write to file: %s'.red, output);
+		process.exit(1);
+	} else {
+	    console.log("Generated output at %s".green, output);
+	}
+	exporter = exportData = null;
 });
+
+if (exportStdout) {
+	process.stdout.write(JSON.stringify(processedData, null, '    '));
+}

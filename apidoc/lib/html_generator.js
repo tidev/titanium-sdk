@@ -5,7 +5,8 @@ var common = require('./common.js'),
 	colors = require('colors');
 	nodeappc = require('node-appc'),
 	assert = common.assertObjectKey,
-	doc = {};
+	doc = {},
+	remoteURL = false;
 
 function sortArray (array) {
 	return array.sort(function (a, b){
@@ -38,29 +39,64 @@ function findAPI (className, memberName, type) {
 
 // Convert API name to an HTML link
 function convertAPIToLink (apiName) {
+	var url = null;
+
 	if (~common.DATA_TYPES.indexOf(apiName) || apiName == 'void') {
 		return '<code>' + apiName + '</code>';
 	}
 	else if (apiName in doc) {
-		return '<code><a href="' + exportClassFilename(doc[apiName]) + '.html">' + apiName + '</a></code>';
+		if (remoteURL && !~doc.__modules.indexOf(apiName)) {
+			url = 'http://docs.appcelerator.com/platform/latest/#!/api/' + apiName;
+		} else {
+			url = exportClassFilename(apiName) + '.html'
+		}
 	}
 	else if ((apiName.match(/\./g)||[]).length) {
 		var member = apiName.split('.').pop(),
 			cls = apiName.substring(0, apiName.lastIndexOf('.'));
+
 		if (!cls in doc) {
 			console.warn('Cannot find class: %s'.yellow, cls);
 			return apiName;
 		} else {
 			if (findAPI(cls, member, 'properties')) {
-				return '<code><a href="' + cleanAPIName(apiName) + '-property.html">' + apiName + '</a></code>';
+				if (remoteURL) {
+					if (!~doc.__modules.indexOf(cls)) {
+						url = 'http://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-property-' + member;
+					} else {
+						url = exportClassFilename(cls) + '.html#' + cleanAPIName(member);
+					}
+				} else {
+					url = cleanAPIName(apiName) + '-property.html';
+				}
 			}
 			if (findAPI(cls, member, 'methods')) {
-				return '<code><a href="' + cleanAPIName(apiName) + '-method.html">' + apiName + '</a></code>';
+				if (remoteURL) {
+					if (!~doc.__modules.indexOf(cls)) {
+						url = 'http://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-method-' + member;
+					} else {
+						url = exportClassFilename(cls) + '.html#' + cleanAPIName(member);
+					}
+				} else {
+					url = cleanAPIName(apiName) + '-method.html';
+				}
 			}
 			if (findAPI(cls, member, 'events')) {
-				return '<code><a href="' + cleanAPIName(apiName) + '-event.html">' + apiName + '</a></code>';
+				if (remoteURL) {
+					if (!~doc.__modules.indexOf(cls)) {
+						url = 'http://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-event-' + member;
+					} else {
+						url = exportClassFilename(cls) + '.html#' + cleanAPIName(member);
+					}
+				} else {
+					url = cleanAPIName(apiName) + '-event.html';
+				}
 			}
 		}
+	}
+
+	if (url) {
+		return '<code><a href="' + url + '">' + apiName + '</a></code>';
 	}
 	console.warn('Cannot find API: %s'.yellow, apiName);
 	return apiName;
@@ -100,9 +136,13 @@ function markdownToHTML (text) {
 	return convertLinks(common.markdownToHTML(text));
 }
 
-function exportClassFilename (api) {
-	if (api) {
-		return (api.__subtype == 'module') ? api.name + '-module' : api.name + '-object';
+function exportClassFilename (name) {
+	if (assert(doc, name)) {
+		if (remoteURL && !~doc.__modules.indexOf(name)) {
+			return 'http://docs.appcelerator.com/platform/latest/#!/api/' + name;
+		} else {
+			return (doc[name].__subtype == 'module') ? name + '-module' : name + '-object';
+		}
 	}
 	return null;
 }
@@ -212,7 +252,7 @@ function exportParent(api) {
 	if (cls != '') {
 		rv = {
 			'name': cls,
-			'filename': exportClassFilename(doc[cls])
+			'filename': exportClassFilename(doc[cls].name)
 		}
 	}
 	return rv;
@@ -242,7 +282,7 @@ function exportProxies (api) {
 				name: doc[name].name,
 				summary: exportSummary(doc[name]),
 				deprecated: exportDeprecated(doc[name]),
-				filename: exportClassFilename(doc[name])
+				filename: exportClassFilename(name)
 			});
 		}
 	});
@@ -336,21 +376,22 @@ function exportAPIs (api, type) {
 			annotatedMember.filename = api.name + '.' + cleanAPIName(member.name) + '-' + member.__subtype;
 			annotatedMember.parent = {
 				name: api.name,
-				filename: exportClassFilename(api)
+				filename: exportClassFilename(api.name)
 			}
 			annotatedMember.platforms = exportPlatforms(member);
 			annotatedMember.summary = exportSummary(member);
 			annotatedMember.typestr = member.__subtype;
 			annotatedMember.inherits = (assert(member, '__inherits') && member.__inherits != api.name) ? {
 				name: member.__inherits,
-				filename: exportClassFilename(doc[member.__inherits])
+				filename: exportClassFilename(member.__inherits)
 			} : null;
 
 			switch (type) {
 				case 'events':
-					var properties = doc["Titanium.Event"].properties;
-					properties = properties.concat(member.properties || []);
-					annotatedMember.properties = exportParams(properties, 'properties');
+					if (assert(doc, 'Titanium.Event') && assert(member, 'properties')) {
+						member.properties = member.properties.concat(doc["Titanium.Event"].properties);
+					}
+					annotatedMember.properties = exportParams(member.properties, 'properties');
 					break;
 				case 'methods':
 					annotatedMember.parameters = exportParams(member.parameters, 'parameters');
@@ -387,9 +428,12 @@ exports.exportData = function exportHTML (apis) {
 		};
 	doc = apis;
 
-	console.log('Generating HTML...'.white);
+	console.log('Annotating HTML-specific attributes...'.white);
+
+	if (assert(doc, '__modules')) remoteURL = true;
 
 	for (className in apis) {
+		if (className.indexOf('__') === 0) continue;
 		cls = apis[className];
 
 		annotatedClass.name = cls.name;
@@ -398,10 +442,10 @@ exports.exportData = function exportHTML (apis) {
 		annotatedClass.deprecated = exportDeprecated(cls);
 		annotatedClass.events = sortArray(exportAPIs(cls, 'events'));
 		annotatedClass.examples = exportExamples(cls);
-		annotatedClass.filename = exportClassFilename(cls);
+		annotatedClass.filename = exportClassFilename(cls.name);
 		annotatedClass.inherits = (assert(cls, 'extends')) ? {
 			name: cls.extends,
-			filename: exportClassFilename(doc[cls.extends])
+			filename: exportClassFilename(cls.extends)
 		} : null;
 		annotatedClass.methods = sortArray(exportAPIs(cls, 'methods'));
 		annotatedClass.parent = exportParent(cls);
@@ -417,7 +461,7 @@ exports.exportData = function exportHTML (apis) {
 		rv.property = rv.property.concat(annotatedClass.properties);
 
 		if (~['Global', 'Modules', 'Titanium'].indexOf(cls.name)) {
-			rv[cls.name] = [annotatedClass].concat(annotatedClass.proxies);
+			rv['__' + cls.name] = [annotatedClass].concat(annotatedClass.proxies);
 		}
 
 		cls = annotatedClass = {};

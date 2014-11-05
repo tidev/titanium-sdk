@@ -271,7 +271,7 @@ exports.exportData = function exportJsDuck (apis) {
 	var className = null, rv =[];
 	doc = JSON.parse(JSON.stringify(apis));
 
-	console.log('Converting to JSDuck...'.white);
+	console.log('Annotating JSDuck-specific attributes...'.white);
 
 	for (className in apis) {
 		cls = apis[className];

@@ -3,7 +3,7 @@
  * @class <%- cls.name %>
 <% for (platform in cls.since) { %>
  * @platform <%- platform %> <%- cls.since[platform] %> <% } %>
-<% if (cls.subtype == 'pseudo') { %> * @pseudo <% } %>
+<% if (cls.__subtype == 'pseudo') { %> * @pseudo <% } %>
 <% if ('extends' in cls) { %> * @extends <%- cls.extends %> <% } %> 
  * <%- cls.summary %>
 <% if (cls.deprecated) { %> * <%- cls.deprecated %> <% } %>  

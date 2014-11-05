@@ -213,7 +213,12 @@ function exportAPIs (api, type) {
 
 			switch (type) {
 				case 'events':
-					if (member.properties) annotatedMember.properties = exportParams(member.properties, 'properties');
+					if (member.properties) {
+						if ('Titanium.Event' in doc) {
+							member.properties = member.properties.concat(doc["Titanium.Event"].properties);
+						}
+						annotatedMember.properties = exportParams(member.properties, 'properties');
+					}
 					break;
 				case 'methods':
 					annotatedMember.examples = exportExamples(member);
@@ -263,7 +268,7 @@ exports.exportData = function exportJSCA (apis) {
 			'aliases': [{ 'type': 'Titanium', 'name': 'Ti' }]
 		};
 
-	console.log('Generating JSCA...'.white);
+	console.log('Annotating JSCA-specific attributes...'.white);
 
 	for (className in apis) {
 		cls = apis[className];
