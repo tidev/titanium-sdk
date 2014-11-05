@@ -298,6 +298,14 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 	return function (finished) {
 		cli.createHook('build.android.config', this, function (callback) {
 			var conf = {
+				flags: {
+					'launch': {
+						desc: __('disable launching the app after installing'),
+						default: true,
+						hideDefault: true,
+						negate: true
+					}
+				},
 				options: {
 					'alias': {
 						abbr: 'L',
