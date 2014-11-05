@@ -106,6 +106,23 @@ function detect(paramsOrSearchPaths, logger, callback, bypassCache) {
 		sdkPaths[i] = afs.resolvePath(sdkPaths[i]);
 	}
 
+	// non-destructively, but deeply mix two objects
+	function mix(src, dest) {
+		if (!src || !dest) return;
+
+		Object.keys(src).forEach(function (key) {
+			if (!dest[key] || typeof dest[key] !== 'object') {
+				dest[key] = {};
+			}
+
+			if (src[key] !== null && typeof src[key] === 'object' && !Array.isArray(src[key])) {
+				mix(src[key], dest[key]);
+			} else {
+				dest[key] = src[key];
+			}
+		});
+	}
+
 	async.parallel({
 		project: function (next) {
 			// resolve all search paths, but also remove a search path if it's already in the sdk paths
@@ -125,7 +142,7 @@ function detect(paramsOrSearchPaths, logger, callback, bypassCache) {
 					modulesDir: path.join(modulePath, 'modules'),
 					logger: params.logger,
 					callback: function (err, result) {
-						err || util.mix(results, result);
+						err || mix(result, results);
 						cb();
 					}
 				});
@@ -141,7 +158,7 @@ function detect(paramsOrSearchPaths, logger, callback, bypassCache) {
 					modulesDir: path.join(modulePath, 'modules'),
 					logger: params.logger,
 					callback: function (err, result) {
-						err || util.mix(results, result);
+						err || mix(result, results);
 						cb();
 					}
 				});
@@ -253,6 +270,7 @@ function find(modulesOrParams, platforms, deployType, sdkVersion, searchPaths, l
 						// check that we even have a module with the specified id and platform
 						if (!scope[platform] || !scope[platform][module.id]) continue;
 
+						// sort all versions
 						Object.keys(scope[platform][module.id]).sort().reverse().filter(function (ver) {
 							return !module.version || ver === module.version;
 						}).forEach(function (ver) {

@@ -25,7 +25,7 @@
 		"humanize": "~0.0.9",
 		"ioslib": "0.2.9",
 		"moment": "~2.4.0",
-		"node-appc": "0.2.19",
+		"node-appc": "0.2.20",
 		"node-uuid": "~1.4.1",
 		"request": "~2.34.0",
 		"temp": "~0.6.0",
