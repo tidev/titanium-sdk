@@ -14,6 +14,7 @@ import org.apache.http.auth.AuthSchemeFactory;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -62,6 +63,10 @@ public class HTTPClientProxy extends KrollProxy
 			} else {
 				throw new IllegalArgumentException("Invalid argument passed to securityManager property. Does not conform to SecurityManagerProtocol");
 			}
+		}
+		
+		if (hasProperty(TiC.PROPERTY_TLS_VERSION)) {
+			client.setTlsVersion(TiConvert.toInt(getProperty(TiC.PROPERTY_TLS_VERSION),0));
 		}
 	}
 
@@ -274,6 +279,18 @@ public class HTTPClientProxy extends KrollProxy
 		if (manager instanceof X509KeyManager) {
 			client.addKeyManager((X509KeyManager)manager);
 		}
+	}
+	
+	@Kroll.setProperty @Kroll.method
+	public void setTlsVersion(int tlsVersion)
+	{
+		client.setTlsVersion(tlsVersion);
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public int getTlsVersion()
+	{
+		return client.getTlsVersion();
 	}
 
 	@Override
