@@ -201,7 +201,6 @@ function exportUserAgents (api) {
 function exportAPIs (api, type) {
 	var rv = [],
 		x = 0,
-		creatable = false,
 		member = annotatedMember = {};
 
 	if (type in api) {
@@ -214,14 +213,19 @@ function exportAPIs (api, type) {
 
 			switch (type) {
 				case 'events':
-					if (member.properties) annotatedMember.properties = exportParams(member.properties, 'properties');
+					if (member.properties) {
+						if ('Titanium.Event' in doc) {
+							member.properties = member.properties.concat(doc["Titanium.Event"].properties);
+						}
+						annotatedMember.properties = exportParams(member.properties, 'properties');
+					}
 					break;
 				case 'methods':
 					annotatedMember.examples = exportExamples(member);
 					annotatedMember.exceptions = [];
-					annotatedMember.isClassProperty = !api.creatable;
+					annotatedMember.isClassProperty = !api.__creatable;
 					annotatedMember.isConstructor = false;
-					annotatedMember.isInstanceProperty = api.creatable;
+					annotatedMember.isInstanceProperty = api.__creatable;
 					annotatedMember.isInternal = false;
 					annotatedMember.isMethod = true;
 					annotatedMember.parameters = exportParams(member.parameters, 'parameters');
@@ -234,8 +238,8 @@ function exportAPIs (api, type) {
 					annotatedMember.availability = member.availability || 'always';
 					annotatedMember.constants = member.constants || [];
 					annotatedMember.examples = exportExamples(member);
-					annotatedMember.isClassProperty = (member.name == member.name.toUpperCase()) ? true : !api.creatable;
-					annotatedMember.isInstanceProperty = (member.name == member.name.toUpperCase()) ? false : api.creatable;
+					annotatedMember.isClassProperty = (member.name == member.name.toUpperCase()) ? true : !api.__creatable;
+					annotatedMember.isInstanceProperty = (member.name == member.name.toUpperCase()) ? false : api.__creatable;
 					annotatedMember.isInternal = false;
 					annotatedMember.permission = member.permission || 'read-write';
 					annotatedMember.since = exportSince(member);
@@ -264,7 +268,7 @@ exports.exportData = function exportJSCA (apis) {
 			'aliases': [{ 'type': 'Titanium', 'name': 'Ti' }]
 		};
 
-	console.log('Generating JSCA...'.white);
+	console.log('Annotating JSCA-specific attributes...'.white);
 
 	for (className in apis) {
 		cls = apis[className];
@@ -285,7 +289,7 @@ exports.exportData = function exportJSCA (apis) {
 		// TIMOB-7169. If it's a proxy (non-module) and it has no "class properties",
 		// mark it as internal.  This avoids it being displayed in Code Assist.
 		// TIDOC-860. Do not mark Global types as internal.
-		if (cls.subtype == "proxy" && (cls.name.indexOf('Global.') != 0)) {
+		if (cls.__subtype == "proxy" && (cls.name.indexOf('Global.') != 0)) {
 			annotatedClass.isInternal = true;
 			for (var x = 0; x < annotatedClass.properties.length; x++) {
 				if (annotatedClass.properties[x].isClassProperty) {
