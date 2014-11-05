@@ -7,7 +7,8 @@ var yaml = require('js-yaml'),
 	fs = require('fs'),
 	nodeappc = require('node-appc'),
 	pagedown = require('pagedown'),
-	converter = new pagedown.Converter();
+	converter = new pagedown.Converter(),
+	ignoreList = ['node_modules'];
 
 exports.VALID_PLATFORMS = ['android', 'blackberry', 'iphone', 'ipad', 'mobileweb', 'tizen'];
 exports.VALID_OSES = ['android', 'blackberry', 'ios', 'mobileweb', 'tizen'];
@@ -78,6 +79,9 @@ exports.parseYAML = function parseYAML(path) {
 			var elem = path + '/' + fsElement,
 				stat = fs.statSync(elem);
 			currentFile = elem;
+
+			if (~ignoreList.indexOf(fsElement)) return;
+
 			if (stat.isDirectory()) {
 				nodeappc.util.mixObj(rv, parseYAML(elem));
 			}
