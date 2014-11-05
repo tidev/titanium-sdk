@@ -1109,13 +1109,21 @@ properties:
   - name: filterAttribute
     summary: Filter attribute to be used when searching. 
     description: |
-        This property maps to your data object or a property on the row object. For example,
-        if you set `filterAttribute` to `'title'`, the table view shows only those rows that
-        contain the current search text in the `title` property.
+        On the Android platform, this property can only be set to Titanium-defined properties of the
+        TableViewRow object, such as `title`.  To search text stored in a different attribute, set the `title`
+        property of the TableViewRow object to the property to be searched. For example:
+
+            var label = Ti.UI.createLabel({text: 'Foobar'}),
+            var row = Ti.UI.createTableViewRow(title: label.text);
+            row.add(label);
+
+        On the iOS platform, this property can be set to any property on the TableViewRow object,
+        including arbitrary properties set on the object, not only Titanium-defined properties.
 
         Note that the filter is not anchored to the beginning of the string. So typing "ha"
         in the text box will include rows titled 'Harold' and 'Harvard', but also 'Sharon'
         and 'Jonathan'.
+
     type: String
     platforms: [android, iphone, ipad]
     
