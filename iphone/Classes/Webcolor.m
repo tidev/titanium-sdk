@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -63,9 +63,9 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 					   [UIColor clearColor],@"transparent",
 					   [UIColor groupTableViewBackgroundColor],@"stripped",
 					   [UIColor groupTableViewBackgroundColor],IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND,
-					   [UIColor scrollViewTexturedBackgroundColor],IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND,
-					   [UIColor viewFlipsideBackgroundColor],IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND,
-                       
+					   [UIColor clearColor],IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND,
+					   [UIColor clearColor],IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND,
+					   [UIColor clearColor],IOS_COLOR_UNDER_PAGE_BACKGROUND,
 					   // these are also defined by the W3C HTML spec so we support them
 					   [Webcolor colorForHex:@"0ff"],@"aqua",
 					   [Webcolor colorForHex:@"f0f"],@"fuchsia",
@@ -87,7 +87,6 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 					   black,@"ff000000",
 					   nil];
 	}
-	[colorLookup setObject:[UIColor underPageBackgroundColor] forKey:IOS_COLOR_UNDER_PAGE_BACKGROUND];
 	if ([colorName hasPrefix:@"#"])
 	{
 		colorName = [colorName substringFromIndex:1];

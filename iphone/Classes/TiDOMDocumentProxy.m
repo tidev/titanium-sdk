@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -77,7 +77,7 @@
 -(id)createAttribute:(id)args
 {
 	ENSURE_ARG_COUNT(args, 1);
-	NSString * tagName;
+	NSString * tagName = nil;
 	ENSURE_ARG_AT_INDEX(tagName, args, 0, NSString);
 	//Check name validity
 	if (![TiDOMValidator checkAttributeName:tagName]) {
@@ -157,7 +157,7 @@
 -(TiDOMCDATANodeProxy *)createCDATASection:(id)args
 {
     ENSURE_ARG_COUNT(args, 1);
-	NSString * textData;
+	NSString * textData = nil;
 	ENSURE_ARG_AT_INDEX(textData, args, 0, NSString);
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
 	TiDOMCDATANodeProxy * result = [[[TiDOMCDATANodeProxy alloc] _initWithPageContext:context] autorelease];
@@ -170,7 +170,7 @@
 -(TiDOMCommentProxy *)createComment:(id)args
 {
     ENSURE_ARG_COUNT(args, 1);
-	NSString * textData;
+	NSString * textData = nil;
 	ENSURE_ARG_AT_INDEX(textData, args, 0, NSString);
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
 	TiDOMCommentProxy * result = [[[TiDOMCommentProxy alloc] _initWithPageContext:context] autorelease];
@@ -196,7 +196,7 @@
 -(id)createElement:(id)args
 {
 	ENSURE_ARG_COUNT(args, 1);
-	NSString * tagName;
+	NSString * tagName = nil;
 	ENSURE_ARG_AT_INDEX(tagName, args, 0, NSString);
     
 	if (![TiDOMValidator checkElementName:tagName]) {
@@ -271,7 +271,7 @@
 -(TiDOMEntityRefProxy*)createEntityReference:(id)args
 {
     ENSURE_ARG_COUNT(args, 1);
-	NSString * tagName;
+	NSString * tagName = nil;
 	ENSURE_ARG_AT_INDEX(tagName, args, 0, NSString);
     
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
@@ -286,8 +286,8 @@
 -(TiDOMPIProxy *)createProcessingInstruction:(id)args
 {
 	ENSURE_ARG_COUNT(args, 2);
-	NSString * theTarget;
-	NSString * theData;
+	NSString * theTarget = nil;
+	NSString * theData = nil;
 	ENSURE_ARG_AT_INDEX(theTarget, args, 0, NSString);
 	ENSURE_ARG_AT_INDEX(theData, args, 1, NSString);
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
@@ -302,7 +302,7 @@
 -(TiDOMTextNodeProxy *)createTextNode:(id)args
 {
 	ENSURE_ARG_COUNT(args, 1);
-	NSString * textData;
+	NSString * textData = nil;
 	ENSURE_ARG_AT_INDEX(textData, args, 0, NSString);
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
 	TiDOMTextNodeProxy * result = [[[TiDOMTextNodeProxy alloc] _initWithPageContext:context] autorelease];
@@ -416,8 +416,8 @@
 -(id)importNode:(id)args
 {
     ENSURE_ARG_COUNT(args, 2);
-    TiDOMNodeProxy* theNodeToImport;
-    NSNumber* recursive;
+    TiDOMNodeProxy* theNodeToImport = nil;
+    NSNumber* recursive = nil;
     ENSURE_ARG_AT_INDEX(theNodeToImport, args, 0, TiDOMNodeProxy);
     ENSURE_ARG_AT_INDEX(recursive, args, 1, NSNumber);
     

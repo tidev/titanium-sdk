@@ -36,7 +36,8 @@ import android.view.WindowManager;
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_TABS_BACKGROUND_COLOR,
 	TiC.PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR,
-	TiC.PROPERTY_SWIPEABLE
+	TiC.PROPERTY_SWIPEABLE,
+	TiC.PROPERTY_EXIT_ON_CLOSE
 })
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
@@ -298,6 +299,21 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
+	@Override
+	public void onPropertyChanged(String name, Object value)
+	{
+		if (opening || opened)  {
+			if (TiC.PROPERTY_EXIT_ON_CLOSE.equals(name)) {
+				Activity activity = (tabGroupActivity != null) ? (Activity)(tabGroupActivity.get()) : null;
+				if (activity != null) {
+					Intent intent = activity.getIntent();
+					intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(value));
+				}
+			}
+		}
+		super.onPropertyChanged(name, value);
+	}
+
 	@Kroll.method
 	public TabProxy getActiveTab() {
 		if (TiApplication.isUIThread()) {
@@ -394,9 +410,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// Prevent any duplicate events from firing by marking
 		// this group has having focus.
 		isFocused = true;
-
-		// Setup the new tab activity like setting orientation modes.
-		onWindowActivityCreated();
 	}
 
 	@Override

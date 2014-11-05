@@ -51,7 +51,7 @@ public class HTTPClientProxy extends KrollProxy
 	{
 		super.handleCreationDict(dict);
 		if (hasProperty(TiC.PROPERTY_TIMEOUT)) {
-			client.setTimeout(TiConvert.toInt(getProperty(TiC.PROPERTY_TIMEOUT)));
+			client.setTimeout(TiConvert.toInt(getProperty(TiC.PROPERTY_TIMEOUT),0));
 		}
 		
 		//Set the securityManager on the client if it is defined as a valid value

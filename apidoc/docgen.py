@@ -39,8 +39,8 @@ DEFAULT_SINCE = "0.8"
 apis = {} # raw conversion from yaml
 annotated_apis = {} # made friendlier for templates, etc.
 current_api = None
-ignore_dirs = (".git", ".svn", "CVS")
-ignore_files = ("template.yml",)
+ignore_dirs = (".git", ".svn", "CVS", "node_modules")
+ignore_files = ("template.yml")
 warn_inherited = False # see optparse option with same name in main()
 options = None
 

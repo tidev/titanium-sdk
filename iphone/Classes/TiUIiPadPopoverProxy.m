@@ -169,17 +169,17 @@ static NSArray* popoverSequence;
 
 -(void)setTitle:(id)item
 {
-    DebugLog(@"[ERROR] Support for setting title on the popover directly is removed in 3.4.1");
+    DebugLog(@"[ERROR] Support for setting title on the popover directly is removed in 3.4.2");
 }
 
 -(void)setRightNavButton:(id)args
 {
-    DebugLog(@"[ERROR] Support for setting rightNavButton on the popover directly is removed in 3.4.1");
+    DebugLog(@"[ERROR] Support for setting rightNavButton on the popover directly is removed in 3.4.2");
 }
 
 -(void)setLeftNavButton:(id)args
 {
-    DebugLog(@"[ERROR] Support for setting leftNavButton on the popover directly is removed in 3.4.1");
+    DebugLog(@"[ERROR] Support for setting leftNavButton on the popover directly is removed in 3.4.2");
 }
 
 #pragma mark Public Methods
@@ -402,11 +402,7 @@ static NSArray* popoverSequence;
 -(void)updateContentSize
 {
     CGSize newSize = [self contentSize];
-    if ([TiUtils isIOS7OrGreater]) {
-        [[self viewController] setPreferredContentSize:newSize];
-    } else {
-        [[self viewController] setContentSizeForViewInPopover:newSize];
-    }
+    [[self viewController] setPreferredContentSize:newSize];
     [contentViewProxy reposition];
 }
 

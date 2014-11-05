@@ -100,7 +100,7 @@ public class ContactsModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void save (KrollDict people) 
+	public void save (Object people) 
 	{
 		contactsApi.save(people);
 	}

@@ -565,13 +565,14 @@ public class TiHTTPClient
 	{
 		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
 		this.readyState = readyState;
-
-		dispatchCallback("onreadystatechange", null);
+		KrollDict data = new KrollDict();
+		data.put("readyState", Integer.valueOf(readyState));
+		dispatchCallback("onreadystatechange", data);
 
 		if (readyState == READY_STATE_DONE) {
-			KrollDict data = new KrollDict();
-			data.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
-			dispatchCallback("onload", data);
+			KrollDict data1 = new KrollDict();
+			data1.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
+			dispatchCallback("onload", data1);
 		}
 	}
 

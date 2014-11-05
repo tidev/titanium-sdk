@@ -7,13 +7,18 @@
 #ifdef USE_TI_UILISTVIEW
 
 #import "TiProxy.h"
+@protocol TiUIListViewDelegateView <NSObject>
+@required
+- (void)updateSearchResults:(id)unused;
+@end
 
 @protocol TiUIListViewDelegate <NSObject>
 @required
 
 - (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block;
+- (void)dispatchBlock:(void(^)(UITableView *tableView))block;
 - (id)dispatchBlockWithResult:(id(^)(void))block;
-
+- (id<TiUIListViewDelegateView>) delegateView;
 @end
 
 @interface TiUIListSectionProxy : TiProxy < TiUIListViewDelegate >
