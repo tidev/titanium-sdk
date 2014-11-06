@@ -172,7 +172,7 @@ function exportType (api) {
 		if (!Array.isArray(api.type)) types = [api.type];
 		types.forEach(function (type) {
 			if (type.indexOf('Array') == 0) {
-				rv.push(type.slice(type.indexOf('<') + 1, type.indexOf('>')) + '[]');
+				rv.push(exportType({'type': type.slice(type.indexOf('<') + 1, type.lastIndexOf('>'))}) + '[]');
 			} else {
 				rv.push(type);
 			}
@@ -212,8 +212,11 @@ function exportReturns (api) {
 	if ('returns' in api && api.returns) {
 		if (!Array.isArray(api.returns)) api.returns = [api.returns];
 		api.returns.forEach(function (ret) {
-			if (Array.isArray(ret.type)) ret.type = ret.type.join('/');
-			types.push(ret.type || 'void');
+			if (Array.isArray(ret.type)) {
+				types = types.concat(ret.type);
+			} else {
+				types.push(ret.type || 'void');
+			}
 
 			if ('summary' in ret) summary += ret.summary;
 			if ('constants' in ret) constants = constants.concat(ret.constants);
@@ -221,7 +224,7 @@ function exportReturns (api) {
 		if (constants.length) {
 			summary += exportConstants({'constants': constants});
 		}
-		rv = '{' + types.join('/') + '}' + summary;
+		rv = '{' + exportType({'type': types}) + '}' + summary;
 	}
 	return rv;
 

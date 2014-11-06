@@ -429,6 +429,17 @@ function cliUsage () {
 	console.log('\t--stdout    \tOutput processed YAML to stdout.'.white);
 }
 
+// Create path if it does not exist
+function mkdirDashP(path) {
+	var p = path.substring(0, path.lastIndexOf('/'));
+	if(!fs.existsSync(p)) {
+		mkdirDashP(p);
+	}
+	if(!fs.existsSync(path)) {
+		fs.mkdirSync(path);
+	}
+}
+
 // Start of Main Flow
 // Get a list of valid formats
 apidocPath = process.argv[1].substring(0, process.argv[1].lastIndexOf('/'))
@@ -549,6 +560,7 @@ formats.forEach(function (format) {
 	exportData = exporter.exportData(processedData);
 	templatePath = apidocPath + '/templates/';
 	output = outputPath;
+	mkdirDashP(output);
 
 	console.log('Generating %s output...'.white, format.toUpperCase());
 
