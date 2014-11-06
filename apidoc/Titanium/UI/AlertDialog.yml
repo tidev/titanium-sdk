@@ -56,9 +56,6 @@ description: |
 extends: Titanium.Proxy
 since: "0.8"
 
-excludes:
-    methods: [setAndroidView]
-
 events:
   - name: click
     summary: Fired when a button in the dialog is clicked.
@@ -136,6 +133,7 @@ properties:
 
     type: Titanium.UI.View
     platforms: [android]
+    accessor: false
     
   - name: buttonNames
     summary: Name of each button to create.

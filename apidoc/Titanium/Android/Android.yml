@@ -20,12 +20,8 @@ description: |
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
-excludes:
-    methods: [getCurrentActivity, getCurrentService]
 
 methods:
-    
-
 
   - name: createIntentChooser
     summary: |
@@ -1534,6 +1530,7 @@ properties:
   - name: currentActivity
     summary: Activity of the active context.
     type: Titanium.Android.Activity
+    accessor: false
     permission: read-only
     deprecated:
         since: 3.5.0
@@ -1542,6 +1539,7 @@ properties:
   - name: currentService
     summary: Service in the active context.
     type: Titanium.Android.Service
+    accessor: false
     permission: read-only
 
 ---

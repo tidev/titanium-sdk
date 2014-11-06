@@ -10,8 +10,7 @@ extends: Titanium.Proxy
 since: "3.4.0"
 platforms: [iphone, ipad]
 excludes:
-    methods: [addEventListener, applyProperties, fireEvent, removeEventListener,
-              getActivationMode, getAuthenticationRequired, getDestructive, getIdentifier, getTitle]
+    methods: [addEventListener, applyProperties, fireEvent, removeEventListener]
     properties: [bubbleParent]
 
 properties:
@@ -31,6 +30,7 @@ properties:
   - name: authenticationRequired
     summary: Set to true if the action requires the device to be unlocked.
     type: Boolean
+    accessor: false
     availability: creation
 
   - name: destructive
@@ -39,15 +39,18 @@ properties:
         The action appears red in the locked screen and notification center instead of the
         default color.
     type: Boolean
+    accessor: false
     availability: creation
 
   - name: identifier
     summary: Identifier for this action. Used to identify the action the user pressed.
     type: String
+    accessor: false
     availability: creation
 
   - name: title
     summary: Title of the button displayed in the notification.
     type: String
+    accessor: false
     availability: creation
 
