@@ -433,7 +433,7 @@ function cliUsage () {
 function mkdirDashP(path) {
 	var p = path.substring(0, path.lastIndexOf('/'));
 	if(!fs.existsSync(p)) {
-		mkdirDashP(p)
+		mkdirDashP(p);
 	}
 	if(!fs.existsSync(path)) {
 		fs.mkdirSync(path);
