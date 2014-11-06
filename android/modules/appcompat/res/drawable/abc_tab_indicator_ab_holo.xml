@@ -32,3 +32,4 @@
     <item android:state_focused="true" android:state_selected="false" android:state_pressed="true" android:drawable="@drawable/abc_tab_unselected_pressed_holo" />
     <item android:state_focused="true" android:state_selected="true"  android:state_pressed="true" android:drawable="@drawable/abc_tab_selected_pressed_holo" />
 </selector>
+<!-- From: file:/usr/local/google/buildbot/repo_clients/https___googleplex-android.googlesource.com_a_platform_manifest.git/lmp-preview-release/frameworks/support/v7/appcompat/res/drawable/abc_tab_indicator_ab_holo.xml -->

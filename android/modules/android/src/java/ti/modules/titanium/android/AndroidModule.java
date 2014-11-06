@@ -26,6 +26,7 @@ import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
@@ -223,6 +224,36 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int FLAG_ONLY_ALERT_ONCE = Notification.FLAG_ONLY_ALERT_ONCE;
 	@Kroll.constant public static final int FLAG_SHOW_LIGHTS = Notification.FLAG_SHOW_LIGHTS;
 	@Kroll.constant public static final int STREAM_DEFAULT = Notification.STREAM_DEFAULT;
+	@Kroll.constant public static final int VISIBILITY_PRIVATE = NotificationCompat.VISIBILITY_PRIVATE;
+	@Kroll.constant public static final int VISIBILITY_PUBLIC = NotificationCompat.VISIBILITY_PUBLIC;
+	@Kroll.constant public static final int VISIBILITY_SECRET = NotificationCompat.VISIBILITY_SECRET;
+	@Kroll.constant public static final int PRIORITY_HIGH = NotificationCompat.PRIORITY_HIGH;
+	@Kroll.constant public static final int PRIORITY_MAX = NotificationCompat.PRIORITY_MAX;
+	@Kroll.constant public static final int PRIORITY_DEFAULT = NotificationCompat.PRIORITY_DEFAULT;
+	@Kroll.constant public static final int PRIORITY_LOW = NotificationCompat.PRIORITY_LOW;
+	@Kroll.constant public static final int PRIORITY_MIN = NotificationCompat.PRIORITY_MIN;
+	@Kroll.constant public static final String CATEGORY_ALARM = Notification.CATEGORY_ALARM;
+	@Kroll.constant public static final String CATEGORY_CALL = Notification.CATEGORY_CALL;
+	@Kroll.constant public static final String CATEGORY_EMAIL = Notification.CATEGORY_EMAIL;
+	@Kroll.constant public static final String CATEGORY_ERROR = Notification.CATEGORY_ERROR;
+	@Kroll.constant public static final String CATEGORY_EVENT = Notification.CATEGORY_EVENT;
+	@Kroll.constant public static final String CATEGORY_MESSAGE = Notification.CATEGORY_MESSAGE;
+	@Kroll.constant public static final String CATEGORY_PROGRESS = Notification.CATEGORY_PROGRESS;
+	@Kroll.constant public static final String CATEGORY_PROMO = Notification.CATEGORY_PROMO;
+	@Kroll.constant public static final String CATEGORY_RECOMMENDATION = Notification.CATEGORY_RECOMMENDATION;
+	@Kroll.constant public static final String CATEGORY_SERVICE = Notification.CATEGORY_SERVICE;
+	@Kroll.constant public static final String CATEGORY_SOCIAL = Notification.CATEGORY_SOCIAL;
+	@Kroll.constant public static final String CATEGORY_STATUS = Notification.CATEGORY_STATUS;
+	@Kroll.constant public static final String CATEGORY_TRANSPORT = Notification.CATEGORY_TRANSPORT;
+
+
+
+
+
+
+
+
+
 
 	@Kroll.constant public static final int START_NOT_STICKY = Service.START_NOT_STICKY;
 	@Kroll.constant public static final int START_REDELIVER_INTENT = Service.START_REDELIVER_INTENT;

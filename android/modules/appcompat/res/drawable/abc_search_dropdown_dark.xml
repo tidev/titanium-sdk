@@ -20,3 +20,4 @@
     <padding android:left="5dp" android:top="0dp"
         android:right="5dp" android:bottom="1dp" />
 </shape>
+<!-- From: file:/usr/local/google/buildbot/repo_clients/https___googleplex-android.googlesource.com_a_platform_manifest.git/lmp-preview-release/frameworks/support/v7/appcompat/res/drawable/abc_search_dropdown_dark.xml -->

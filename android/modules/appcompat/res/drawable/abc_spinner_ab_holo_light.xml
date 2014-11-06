@@ -23,3 +23,4 @@
           android:drawable="@drawable/abc_spinner_ab_focused_holo_light" />
     <item android:drawable="@drawable/abc_spinner_ab_default_holo_light" />
 </selector>
+<!-- From: file:/usr/local/google/buildbot/repo_clients/https___googleplex-android.googlesource.com_a_platform_manifest.git/lmp-preview-release/frameworks/support/v7/appcompat/res/drawable/abc_spinner_ab_holo_light.xml -->

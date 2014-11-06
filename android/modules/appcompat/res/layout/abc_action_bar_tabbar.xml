@@ -20,3 +20,4 @@ limitations under the License.
         android:layout_height="match_parent"
         android:gravity="center"
         style="?attr/actionBarTabBarStyle"/>
+<!-- From: file:/usr/local/google/buildbot/repo_clients/https___googleplex-android.googlesource.com_a_platform_manifest.git/lmp-preview-release/frameworks/support/v7/appcompat/res/layout/abc_action_bar_tabbar.xml -->

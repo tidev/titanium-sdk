@@ -882,6 +882,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CASE_INSENSITIVE_SEARCH = "caseInsensitiveSearch";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CATEGORY = "category";
 
 	/**
 	 * @module.api
@@ -1275,7 +1280,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FULLSCREEN = "fullscreen";
-
+	
 	/**
 	 * @module.api
 	 */
@@ -1875,6 +1880,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_PRIORITY = "priority";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_PROMPT = "prompt";
 	
 	/**
@@ -2407,6 +2417,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VIBRATE_PATTERN = "vibratePattern";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VISIBILITY = "visibility";
 
 	/**
 	 * @module.api
