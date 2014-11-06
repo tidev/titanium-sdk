@@ -405,6 +405,8 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}
 	}
+	
+
 
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
 	protected void windowCreated()
@@ -420,9 +422,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		if (windowFlags > 0) {
 			getWindow().addFlags(windowFlags);
 		}
-
-		this.requestWindowFeature(Window.FEATURE_PROGRESS);
-		this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		
 		if (modal) {
 			if (Build.VERSION.SDK_INT < TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
@@ -520,8 +519,13 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		Activity tempCurrentActivity = tiApp.getCurrentActivity();
 		tiApp.setCurrentActivity(this, this);
 
-		windowCreated();
+		// we need to set window features before calling onCreate
+		this.requestWindowFeature(Window.FEATURE_PROGRESS);
+		this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
 		super.onCreate(savedInstanceState);
+
+		windowCreated();
 
 
 		if (activityProxy != null) {
