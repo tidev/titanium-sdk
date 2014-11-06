@@ -298,6 +298,14 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 	return function (finished) {
 		cli.createHook('build.android.config', this, function (callback) {
 			var conf = {
+				flags: {
+					'launch': {
+						desc: __('disable launching the app after installing'),
+						default: true,
+						hideDefault: true,
+						negate: true
+					}
+				},
 				options: {
 					'alias': {
 						abbr: 'L',
@@ -1165,7 +1173,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		for (; i >= 0; i--) {
 			if (targetSDKMap[levels[i]].sdk >= this.minSupportedApiLevel && targetSDKMap[levels[i]].sdk <= this.maxSupportedApiLevel) {
-				this.targetSDK = levels[i];
+				this.targetSDK = targetSDKMap[levels[i]].sdk;
 				break;
 			}
 		}
@@ -3719,8 +3727,6 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-A', this.buildBinAssetsDir,
 			'-S', this.buildResDir,
 			'-I', this.androidTargetSDK.androidJar,
-			'-I', path.join(this.platformPath, 'titanium.jar'),
-			'-I', path.join(this.platformPath, 'aps-analytics.jar'),
 			'-F', this.ap_File
 		];
 

@@ -1,0 +1,150 @@
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td { 
+	background: transparent; 
+	border: 0; 
+	font-size: 100%; 
+	margin: 0; 
+	outline: 0; 
+	padding: 0; 
+	vertical-align: baseline; 
+}
+body { 
+	line-height: 1; 
+	margin: 20px; 
+	font-family: Helvetica, Arial, sans-serif; 
+	font-size: 13px; 
+}
+ul { 
+	list-style: inherit; 
+}
+ol { 
+	list-style: decimal; 
+}
+ol, ul {
+	padding: 10px 0 0 20px;
+}
+.page-nav ul {
+    list-style: none;
+}
+blockquote, q { 
+	quotes: none; 
+}
+:focus { 
+	outline: 0; 
+}
+ins { 
+	text-decoration: none; 
+}
+del { 
+	text-decoration: line-through; 
+}
+table { 
+	border-collapse: collapse; 
+	border-spacing: 0; 
+}
+a { 
+	color: inherit; 
+}
+a:hover { 
+	text-decoration: underline; 
+}
+.clear { 
+	clear: both; 
+}
+h1 {
+	font-size: 20px;
+	padding: 10px;
+	margin: 20px 0 10px;
+	border-bottom: 1px solid #820e18;
+	background: #CF1626;
+	color: #FFF;
+}
+h2 {
+	font-size: 16px;
+	padding: 10px;
+	margin: 20px 0 10px;
+	border-bottom: 1px solid #111;
+	background: #666;
+	color: #FFF;
+}
+h3 {
+	font-size: 16px;
+	padding: 10px 0;
+	margin: 10px 0 0;
+}
+h4 {
+	padding: 10px 0 10px 0;
+}
+h5 {
+	padding: 10px 0 10px 0;
+}
+p {
+	padding: 5px 0 5px 0;
+	line-height: 16px;
+}
+pre {
+	background: #EEE;
+	border: 1px solid #CCC;
+	padding: 10px;
+	margin: 10px 0;
+}
+table {
+	margin: 10px 0 0 10px;
+}
+table th {
+	background: #EEE;
+	border-bottom: 1px solid #CCC;	
+}
+table th, table td {
+	padding: 10px 15px;
+}
+.page-nav li {
+	color: #222;
+	float: left;
+	margin: 0 10px 10px 0;
+	line-height: 26px;
+}
+.page-nav li a {
+	text-decoration: none;
+	line-height: 14px;
+	padding: 5px 10px;
+	border: 1px solid #CCC;
+	display: block;
+	color: #444;
+}
+.namespace {
+	clear: both;
+}
+.namespace_type,
+.summary,
+.description,
+.examples,
+.methods,
+.properties,
+.objects,
+.events {
+	padding: 0 0 0 10px;
+}
+.arguments {
+	padding: 0 0 10px 20px;
+}
+.return_type,
+.member_description {
+	padding: 0 0 0 20px;
+}
+.apidoc_container .apidoc_method {
+    padding: 0 0 0 20px;
+}
+.deprecation_warning,
+.platform_warning,
+.permission_warning,
+.availability_warning {
+	font-size: 12;
+	border-radius: 2px;
+	margin-left: 5px;
+	padding: 2px 3px;
+	color: #FFF;
+	background-color: #aaa;
+}
+.permission_warning {
+	text-transform: uppercase;
+}

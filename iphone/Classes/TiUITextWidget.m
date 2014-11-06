@@ -184,11 +184,11 @@
 {
 	TiUITextWidgetProxy * ourProxy = (TiUITextWidgetProxy *)[self proxy];
 
+	[[TiApp controller] didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
+
 	if ([ourProxy suppressFocusEvents]) {
 		return;
 	}
-
-	[[TiApp controller] didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
 
 	if ([ourProxy _hasListeners:@"focus"])
 	{
@@ -200,12 +200,12 @@
 {
 	TiUITextWidgetProxy * ourProxy = (TiUITextWidgetProxy *)[self proxy];
 
+	[[TiApp controller] didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
+
 	if ([ourProxy suppressFocusEvents]) {
 		return;
 	}
-
-	[[TiApp controller] didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
-
+	
 	if ([ourProxy _hasListeners:@"blur"])
 	{
 		[ourProxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"] propagate:NO];
