@@ -8,7 +8,7 @@ var yaml = require('js-yaml'),
 	nodeappc = require('node-appc'),
 	pagedown = require('pagedown'),
 	converter = new pagedown.Converter(),
-	ignoreList = ['node_modules'];
+	ignoreList = ['node_modules', '.travis.yml'];
 
 exports.VALID_PLATFORMS = ['android', 'blackberry', 'iphone', 'ipad', 'mobileweb', 'tizen'];
 exports.VALID_OSES = ['android', 'blackberry', 'ios', 'mobileweb', 'tizen'];
