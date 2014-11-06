@@ -113,28 +113,18 @@ exports.run = function (logger, config, cli) {
 		cli.fireHook('clean.pre', function () {
 			async.series(fs.readdirSync(buildDir).map(function (dir) {
 				return function (next) {
-					var fulldir = path.join(buildDir, dir);
-					if (fs.lstatSync(fulldir).isDirectory()) {
-						cli.fireHook('clean.' + dir + '.pre', function () {
-							logger.debug(__('Deleting %s', fulldir.cyan));
-							wrench.rmdirSyncRecursive(fulldir);
-							cli.fireHook('clean.' + dir + '.post', function () {
-								next();
-							});
-						});
-					} else {
-						if(fs.lstatSync(fulldir).isFile() && path.extname(fulldir) === '.log') {
-							cli.fireHook('clean.' + dir + '.pre', function () {
-								logger.debug(__('Deleting %s', fulldir.cyan));
-								fs.unlinkSync(fulldir);
-								cli.fireHook('clean.' + dir + '.post', function () {
-									next();
-								});
-							});
+					var file = path.join(buildDir, dir);
+					cli.fireHook('clean.' + dir + '.pre', function () {
+						logger.debug(__('Deleting %s', file.cyan));
+						if (fs.lstatSync(file).isDirectory()) {
+							wrench.rmdirSyncRecursive(file);
 						} else {
-							next();
+							fs.unlinkSync(file);
 						}
-					}
+						cli.fireHook('clean.' + dir + '.post', function () {
+							next();
+						});
+					});
 				};
 			}), function () {
 				cli.fireHook('clean.post', function () {
