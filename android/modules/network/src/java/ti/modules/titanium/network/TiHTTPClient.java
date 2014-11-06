@@ -1397,6 +1397,7 @@ public class TiHTTPClient
 
 	private void handleURLEncodedData(UrlEncodedFormEntity form)
 	{
+		final long contentLength;
 		AbstractHttpEntity entity = null;
 		if (data instanceof String) {
 			try {
@@ -1422,6 +1423,17 @@ public class TiHTTPClient
 			}
 			HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest)request;
 			e.setEntity(entity);
+
+			contentLength = entity.getContentLength();
+			ProgressEntity progressEntity = new ProgressEntity(entity, new ProgressListener() {
+				public void progress(int progress) {
+					KrollDict data = new KrollDict();
+					data.put("progress", ((double)progress)/contentLength);
+					dispatchCallback("onsendstream", data);
+				}
+			});
+			e.setEntity(progressEntity);
+			e.addHeader("Length", contentLength + "");
 		}
 	}
 
