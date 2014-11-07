@@ -241,7 +241,6 @@ public class ActionBarProxy extends KrollProxy
 
 		Drawable icon = getDrawableFromUrl(url);
 		if (icon != null) {
-			actionBar.setDisplayShowHomeEnabled(true);
 			actionBar.setIcon(icon);
 		} 
 	}
