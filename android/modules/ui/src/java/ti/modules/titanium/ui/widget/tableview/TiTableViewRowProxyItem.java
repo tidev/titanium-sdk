@@ -569,6 +569,14 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (content != null) {
 			content.layout(contentLeft, top, contentRight, bottom);
 		}
+		//Proxies may get updated with wrong views during measurement pass(getView), fix it here
+		updateProxies();
+	}
+	
+	private void updateProxies() {
+		for (TiUIView view: views) {
+			view.getProxy().setView(view);
+		}
 	}
 
 	private static String[] filteredProperties = new String[]{
