@@ -203,6 +203,12 @@ methods:
         This method causes the media capture device to capture a photo and call the 
         `success` callback.
     platforms: [iphone, ipad, android]
+  - name: startVideoCapture
+    summary: Starts video capture using the camera specified.
+    platforms: [iphone, ipad]
+  - name: stopVideoCapture
+    summary: Stops video capture using the camera specified.
+    platforms: [iphone, ipad]
   - name: switchCamera
     summary: Switches between front and rear-facing cameras.
     description: |
