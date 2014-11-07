@@ -16,6 +16,7 @@ import java.security.UnrecoverableKeyException;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 
 import org.apache.http.conn.ssl.SSLSocketFactory;
@@ -34,28 +35,33 @@ public class TiSocketFactory extends SSLSocketFactory {
 	private static final String TLS_VERSION_1_2_PROTOCOL = "TLSv1.2";
 	private static final String TLS_VERSION_1_1_PROTOCOL = "TLSv1.1";
 	private static final String TLS_VERSION_1_0_PROTOCOL = "TLSv1";
+	private String[] enabledProtocol;
 	
 	public TiSocketFactory(KeyManager[] keyManagers, TrustManager[] trustManagers, int protocol) throws NoSuchAlgorithmException, 
 	KeyManagementException, KeyStoreException, UnrecoverableKeyException
 	{
 		super(null,null,null,null,null,null);
-		
 		switch (protocol) {
 
 			case NetworkModule.TLS_VERSION_1_0:
 				tlsVersion = TLS_VERSION_1_0_PROTOCOL;
+				enabledProtocol = new String[] {TLS_VERSION_1_0_PROTOCOL};
 				break;
 			case NetworkModule.TLS_VERSION_1_1:
 				tlsVersion = TLS_VERSION_1_1_PROTOCOL;
+				enabledProtocol = new String[] {TLS_VERSION_1_0_PROTOCOL, TLS_VERSION_1_1_PROTOCOL};
 				break;
 			case NetworkModule.TLS_VERSION_1_2:
 				tlsVersion = TLS_VERSION_1_2_PROTOCOL;
+				enabledProtocol = new String[] {TLS_VERSION_1_0_PROTOCOL, TLS_VERSION_1_1_PROTOCOL, TLS_VERSION_1_2_PROTOCOL};
 				break;				
 			default:
 				if (JELLYBEAN_OR_GREATER) {
 					tlsVersion = TLS_VERSION_1_2_PROTOCOL;
+					enabledProtocol = new String[] {TLS_VERSION_1_0_PROTOCOL, TLS_VERSION_1_1_PROTOCOL, TLS_VERSION_1_2_PROTOCOL};
 				} else {
 					tlsVersion = TLS_VERSION_1_0_PROTOCOL;
+					enabledProtocol = new String[] {TLS_VERSION_1_0_PROTOCOL};
 					Log.i(TAG, tlsVersion+ " protocol is being used. It is a less-secure version.");
 				}
 				break;
@@ -69,13 +75,17 @@ public class TiSocketFactory extends SSLSocketFactory {
 	@Override
 	public Socket createSocket() throws IOException
 	{
-		return sslContext.getSocketFactory().createSocket();
+		SSLSocket sslSocket = (SSLSocket) sslContext.getSocketFactory().createSocket();
+		sslSocket.setEnabledProtocols(enabledProtocol);
+		return sslSocket;
 	}
 	
 	@Override
 	public Socket createSocket (Socket socket, String host, int port, boolean autoClose) throws IOException, UnknownHostException
 	{
-		return sslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
+		SSLSocket sslSocket = (SSLSocket) sslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
+		sslSocket.setEnabledProtocols(enabledProtocol);
+		return sslSocket;
 	}
 
 	@Override
