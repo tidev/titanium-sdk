@@ -8,6 +8,7 @@ var common = require('./lib/common.js')
 	nodeappc = require('node-appc'),
 	ejs = require('ejs'),
 	fs = require('fs'),
+	exec = require('child_process').exec,
 	assert = common.assertObjectKey;
 	basePaths = [],
 	processFirst = ['Titanium.Proxy', 'Titanium.Module', 'Titanium.UI.View'],
@@ -576,6 +577,12 @@ formats.forEach(function (format) {
 			if (cssFile) {
 				fs.createReadStream(cssPath).pipe(fs.createWriteStream(output + cssFile));
 			}
+
+			exec('cp -r ' + apidocPath + '/images' + ' ' + output, function (error) {
+				if (error !== null) {
+					console.error('Error copying file: %s', error);
+				}
+			});
 
 			for (type in exportData) {
 				if (type.indexOf('__') == 0) continue;
