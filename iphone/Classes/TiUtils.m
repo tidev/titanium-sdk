@@ -1569,15 +1569,15 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 {
     if (encodingMap == nil) {
         encodingMap = [[NSDictionary alloc] initWithObjectsAndKeys:
-                       NUMLONGLONG(NSASCIIStringEncoding),kTiASCIIEncoding,
-                       NUMLONGLONG(NSISOLatin1StringEncoding),kTiISOLatin1Encoding,
-                       NUMLONGLONG(NSUTF8StringEncoding),kTiUTF8Encoding,
-                       NUMLONGLONG(NSUTF16StringEncoding),kTiUTF16Encoding,
-                       NUMLONGLONG(NSUTF16BigEndianStringEncoding),kTiUTF16BEEncoding,
-                       NUMLONGLONG(NSUTF16LittleEndianStringEncoding),kTiUTF16LEEncoding,
+                       NUMUINT(NSASCIIStringEncoding),kTiASCIIEncoding,
+                       NUMUINT(NSISOLatin1StringEncoding),kTiISOLatin1Encoding,
+                       NUMUINT(NSUTF8StringEncoding),kTiUTF8Encoding,
+                       NUMUINT(NSUTF16StringEncoding),kTiUTF16Encoding,
+                       NUMUINT(NSUTF16BigEndianStringEncoding),kTiUTF16BEEncoding,
+                       NUMUINT(NSUTF16LittleEndianStringEncoding),kTiUTF16LEEncoding,
                        nil];
     }
-    return [[encodingMap valueForKey:type] longLongValue];
+    return [[encodingMap valueForKey:type] unsignedIntegerValue];
 }
 
 +(TiDataType)constantToType:(NSString *)type
