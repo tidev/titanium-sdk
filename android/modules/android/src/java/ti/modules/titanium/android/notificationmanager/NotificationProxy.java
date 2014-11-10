@@ -148,23 +148,16 @@ public class NotificationProxy extends KrollProxy
 	@Kroll.method @Kroll.setProperty
 	public void setVisibility(int visibility)
 	{
-		if (Build.VERSION.SDK_INT >= 20) {
-			notificationBuilder.setVisibility(visibility);
-			setProperty(TiC.PROPERTY_VISIBILITY, visibility);
-		} else {
-			Log.w(TAG, "This feature is only supported in API 20+");
-		}
+		notificationBuilder.setVisibility(visibility);
+		setProperty(TiC.PROPERTY_VISIBILITY, visibility);
+	
 	}
 	
 	@Kroll.method @Kroll.setProperty
 	public void setPriority(int priority)
 	{
-		if (Build.VERSION.SDK_INT >= 20) {
-			notificationBuilder.setPriority(priority);
-			setProperty(TiC.PROPERTY_PRIORITY, priority);
-		} else {
-			Log.w(TAG, "This feature is only supported in API 20+");
-		}
+		notificationBuilder.setPriority(priority);
+		setProperty(TiC.PROPERTY_PRIORITY, priority);
 	}
 
 	@Kroll.method @Kroll.setProperty
