@@ -245,6 +245,16 @@ properties:
     summary: Text to scroll across the screen when this item is added to the status bar.
     type: String
 
+  - name: visibility
+    summary: Allows user to conceal private information of the notification on the lockscreen.
+    type: Number
+    constants: [
+        Titanium.Android.VISIBILITY_PUBLIC,
+        Titanium.Android.VISIBILITY_PRIVATE,
+        Titanium.Android.VISIBILITY_SECRET ]
+    default: undefined but behaves as Titanium.Android.VISIBILITY_PUBLIC
+    since: "3.4.2"
+
   - name: when
     summary: The timestamp for the notification (defaults to the current time).
     description: |
