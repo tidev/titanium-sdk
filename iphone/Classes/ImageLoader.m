@@ -246,8 +246,12 @@
     if (!local && imageData != nil) {
         NSFileManager* fm = [NSFileManager defaultManager];
         NSString* path = localPath;
-        if (hires && [TiUtils isRetinaDisplay]) { // Save as @2x w/retina
-            path = [NSString stringWithFormat:@"%@@2x.%@", [localPath stringByDeletingPathExtension], [localPath pathExtension]];
+        if (hires) {
+            if ([TiUtils isRetinaHDDisplay]) { // Save as @3x w/retina-hd
+                path = [NSString stringWithFormat:@"%@@3x.%@", [localPath stringByDeletingPathExtension], [localPath pathExtension]];
+            } else if ([TiUtils isRetinaDisplay]) { // Save as @2x w/retina
+                path = [NSString stringWithFormat:@"%@@2x.%@", [localPath stringByDeletingPathExtension], [localPath pathExtension]];
+            }
         }
         
         if ([fm isDeletableFileAtPath:path]) {
@@ -496,7 +500,7 @@ DEFINE_EXCEPTIONS
             NSLog(@"[CACHE DEBUG] Loading locally from path %@", path);
 #endif
 			BOOL scaleUp = NO;
-			if ([TiUtils isRetinaDisplay] && [path rangeOfString:@"@2x"].location!=NSNotFound)
+			if (([TiUtils isRetinaDisplay] && [path rangeOfString:@"@2x"].location!=NSNotFound) || ([TiUtils isRetinaHDDisplay] && [path rangeOfString:@"@3x"].location!=NSNotFound))
 			{
 				scaleUp = YES;
 			}
@@ -508,7 +512,7 @@ DEFINE_EXCEPTIONS
 				if ([UIImage instancesRespondToSelector:@selector(imageWithCGImage:scale:orientation:)])
 				{
 					// if we specified a 2x, we need to upscale it
-					resultImage = [UIImage imageWithCGImage:[resultImage CGImage] scale:2.0 orientation:[resultImage imageOrientation]];
+					resultImage = [UIImage imageWithCGImage:[resultImage CGImage] scale:([TiUtils isRetinaHDDisplay] ? 3.0 : 2.0) orientation:[resultImage imageOrientation]];
 				}
 			}
 		    result = [self setImage:resultImage forKey:url hires:NO];

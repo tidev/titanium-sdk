@@ -23,20 +23,20 @@ methods:
       In an Alloy application you can use one or more `<PickerRow>` (or `<Row>`) elements inside 
       a `<PickerColumn>` (or `<Column>`) element.
 
-      <Alloy>
-          <PickerColumn id="hour">
-              <PickerRow title="10"/>
-              <PickerRow title="11"/>
-              <PickerRow title="12"/>
-          </PickerColumn>
-          <!-- Picker shorthand notation -->
-          <Column id="minutes">
-              <Row title="15"/>
-              <Row title="30"/>
-              <Row title="45"/>
-              <Row title="00"/>
-          </Column>
-      </Alloy>
+          <Alloy>
+              <PickerColumn id="hour">
+                  <PickerRow title="10"/>
+                  <PickerRow title="11"/>
+                  <PickerRow title="12"/>
+              </PickerColumn>
+              <!-- Picker shorthand notation -->
+              <Column id="minutes">
+                  <Row title="15"/>
+                  <Row title="30"/>
+                  <Row title="45"/>
+                  <Row title="00"/>
+              </Column>
+          </Alloy>
 
     parameters:
       - name: row

@@ -26,8 +26,11 @@ import java.nio.CharBuffer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.lang.reflect.Method;
+import java.lang.System;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
+import android.os.Debug;
 
 public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 {
@@ -44,6 +47,17 @@ ${init_assets}
 
   public String readAsset(String path)
   {
+    TiApplication application = TiApplication.getInstance();
+    boolean isProduction = false;
+    if (application != null) {
+      isProduction = TiApplication.DEPLOY_TYPE_PRODUCTION.equals(application.getAppInfo().getDeployType());
+    }
+
+    if (isProduction && Debug.isDebuggerConnected()) {
+      Log.e("AssetCryptImpl", "Illegal State. Exit.");
+      System.exit(1);
+    }
+
     Range range = assets.get(path);
     if (range == null) {
       return null;

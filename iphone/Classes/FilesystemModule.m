@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -75,7 +75,7 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 }
 
 -(id)openStream:(id) args {
-	NSNumber *fileMode;
+	NSNumber *fileMode = nil;
 	
 	ENSURE_ARG_AT_INDEX(fileMode, args, 0, NSNumber);
 	ENSURE_VALUE_RANGE([fileMode intValue], TI_READ, TI_APPEND);
@@ -117,36 +117,36 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	return NUMBOOL(NO);
 }
 
-#define fileURLify(foo)	[[NSURL fileURLWithPath:foo isDirectory:YES] absoluteString]
+#define fileURLify(foo)	[[NSURL fileURLWithPath:foo isDirectory:YES] path]
 
 -(NSString*)resourcesDirectory
 {
-	return fileURLify([TiHost resourcePath]);
+    return [NSString stringWithFormat:@"%@/",fileURLify([TiHost resourcePath])];
 }
 
 -(NSString*)applicationDirectory
 {
-	return fileURLify([NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES) objectAtIndex:0]);
+    return [NSString stringWithFormat:@"%@/",fileURLify([NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES) objectAtIndex:0])];
 }
 
 -(NSString*)applicationSupportDirectory
 {
-	return fileURLify([NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0]);
+    return [NSString stringWithFormat:@"%@/",fileURLify([NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0])];
 }
 
 -(NSString*)applicationDataDirectory
 {
-	return fileURLify([NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]);
+    return [NSString stringWithFormat:@"%@/",fileURLify([NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0])];
 }
 
 -(NSString*)applicationCacheDirectory
 {
-    return fileURLify([NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0]);
+    return [NSString stringWithFormat:@"%@/",fileURLify([NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0])];
 }
 
 -(NSString*)tempDirectory
 {
-	return fileURLify(NSTemporaryDirectory());
+    return [NSString stringWithFormat:@"%@/",fileURLify(NSTemporaryDirectory())];
 }
 
 -(NSString*)separator

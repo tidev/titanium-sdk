@@ -306,12 +306,10 @@ properties:
         Boolean value indicating if the application should exit when closing the tab group, whether via Android
         back button or the [close](Titanium.UI.TabGroup.close) method.
     description:  |
-        You can only set this as a createTabGroup({...}) option.  Setting it after
-        tab group creation has no effect.
+        Starting in 3.4.2 you can set this property at any time. In earlier releases you can only set this as a createTabGroup({...}) option.
     platforms: [android]
     default: True if tab group is opened on top of the root activity. False otherwise.
     type: Boolean
-    availability: creation
 
   - name: navBarHidden
     summary: Hide the nav bar (`true`) or show the nav bar (`false`) for this tab group.
@@ -395,7 +393,7 @@ properties:
     type: String
     platforms: [mobileweb, iphone, ipad, tizen]
     since: { mobileweb: "2.0.0", iphone: "3.1.0", ipad: "3.1.0" }
-    osver: {iOS: {min: "5.0"}}
+    osver: {ios: {min: "5.0"}}
 
   - name: shadowImage
     summary: Image of the shadow placed between the tab bar and the content area.
@@ -405,7 +403,7 @@ properties:
     type: String
     platforms: [iphone,ipad]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
-    osver: {iOS: {min: "6.0"}}
+    osver: {ios: {min: "6.0"}}
 
   - name: activeTabIconTint
     summary: Color applied to active tabs icons, as a color name or hex triplet, where the tab's activeIcon was not defined.
@@ -494,7 +492,7 @@ properties:
     type: String
     platforms: [mobileweb, iphone, ipad, tizen]
     since: { mobileweb: "2.0.0", iphone: "3.1.0", ipad: "3.1.0" }
-    osver: {iOS: {min: "5.0"}}
+    osver: {ios: {min: "5.0"}}
     
   - name: activeTabBackgroundDisabledColor
     summary: Default background disabled color for the active tab, as a color name or hex triplet.
@@ -568,7 +566,7 @@ properties:
     summary: Width of the divider between tabs.
     description: |
         This width is relative to the tabgroup's parent. Can be either a float value or 
-        a dimension string (for example, `'50%'` or `'auto'`).
+        a dimension string (for example, `'50%'` or `75dp`).
     type: [Number, String]
     platforms: [mobileweb, tizen]
     since: "2.0.0"
@@ -577,7 +575,7 @@ properties:
     summary: Height of the tabs.
     description: |
         This height is relative to the tabgroup's parent. Can be either a float value or 
-        a dimension string (for example, `'50%'` or `'auto'`).
+        a dimension string (for example, `'50%'` or `'75dp'`).
     type: [Number, String]
     platforms: [mobileweb, tizen]
     since: "2.0.0"

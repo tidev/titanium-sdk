@@ -15,22 +15,8 @@ description: |
     property for more information.
 
     ![popover](http://img.skitch.com/20100406-pmssjk1a3a65s6ui8qnbqi59c4.png)
-extends: Titanium.UI.View
+extends: Titanium.Proxy
 since: "1.2"
-excludes: {
-    events: [longclick],
-    methods: [getBackgroundDisabledColor, getBackgroundDisabledImage, getBackgroundFocusedColor,
-              getBackgroundFocusedImage, getBackgroundSelectedColor, getBackgroundSelectedImage,
-              getFocusable, getKeepScreenOn, getSoftKeyboardOnFocus,
-              setBackgroundDisabledColor, setBackgroundDisabledImage, setBackgroundFocusedColor,
-              setBackgroundFocusedImage, setBackgroundSelectedColor, setBackgroundSelectedImage,
-              setFocusable, setKeepScreenOn, setSoftKeyboardOnFocus,
-    ],
-    properties: [backgroundDisabledColor, backgroundDisabledImage, backgroundFocusedColor,
-                 backgroundFocusedImage, backgroundSelectedColor, backgroundSelectedImage,
-                 focusable, keepScreenOn, softKeyboardOnFocus, left, right, top, bottom, center
-    ]
-}
 
 events:
   - name: hide
@@ -38,8 +24,10 @@ events:
 
 methods:
   - name: add
+    summary: Adds a child to the popover.
     deprecated:
         since: "3.2.0"
+        removed: "3.4.2"
         notes: Use the <Titanium.UI.iPad.Popover.contentView> property to modify the content of the popover.
 
   - name: hide
@@ -50,8 +38,10 @@ methods:
         type: PopoverParams
 
   - name: remove
+    summary: Removes a child from the popover.
     deprecated:
         since: "3.2.0"
+        removed: "3.4.2"
         notes: Use the <Titanium.UI.iPad.Popover.contentView> property to modify the content of the popover.
 
   - name: show
@@ -103,10 +93,16 @@ properties:
 
   - name: height
     summary: Height of the popover.
+    deprecated:
+        since: "3.4.2"
+        notes: This property is deprecated. Set the height on the [contentView](Titanium.UI.iPad.Popover.contentView) property instead.
     type: [Number, String]
 
   - name: leftNavButton
     summary: Left button in the navigation area of the popover.
+    deprecated:
+        since: "3.4.2"
+        notes: This property is no loner supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set. 
 
@@ -132,6 +128,9 @@ properties:
 
   - name: rightNavButton
     summary: Right button in the navigation area of the popover.
+    deprecated:
+        since: "3.4.2"
+        notes: This property is no loner supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
 
@@ -150,12 +149,18 @@ properties:
 
   - name: title
     summary: Title of the navigation area of the popover.
+    deprecated:
+        since: "3.4.2"
+        notes: This property is no loner supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
     type: String
 
   - name: width
     summary: Width of the popover.
+    deprecated:
+        since: "3.4.2"
+        notes: This property is deprecated. Set the width on the [contentView](Titanium.UI.iPad.Popover.contentView) property instead.
     type: [Number, String]
 
 examples:

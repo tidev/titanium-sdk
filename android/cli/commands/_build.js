@@ -298,6 +298,14 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 	return function (finished) {
 		cli.createHook('build.android.config', this, function (callback) {
 			var conf = {
+				flags: {
+					'launch': {
+						desc: __('disable launching the app after installing'),
+						default: true,
+						hideDefault: true,
+						negate: true
+					}
+				},
 				options: {
 					'alias': {
 						abbr: 'L',
@@ -1053,7 +1061,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}, this);
 
 	try {
-		this.tiappAndroidManifest = cli.tiapp.android && cli.tiapp.android.manifest && (new AndroidManifest).parse(cli.tiapp.android.manifest);
+		var tiappAndroidManifest = this.tiappAndroidManifest = cli.tiapp.android && cli.tiapp.android.manifest && (new AndroidManifest).parse(cli.tiapp.android.manifest);
 	} catch (ex) {
 		logger.error(__('Malformed <manifest> definition in the <android> section of the tiapp.xml') + '\n');
 		process.exit(1);
@@ -1068,7 +1076,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// validate the sdk levels
-	var usesSDK = (this.tiappAndroidManifest && this.tiappAndroidManifest['uses-sdk']) || (this.customAndroidManifest && this.customAndroidManifest['uses-sdk']);
+	var usesSDK = (tiappAndroidManifest && tiappAndroidManifest['uses-sdk']) || (this.customAndroidManifest && this.customAndroidManifest['uses-sdk']);
 
 	this.minSDK = this.minSupportedApiLevel;
 	this.targetSDK = cli.tiapp.android && ~~cli.tiapp.android['tool-api-level'] || null;
@@ -1088,11 +1096,25 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		logger.log();
 	}
 
-	if (usesSDK) {
-		usesSDK['minSdkVersion'] && (this.minSDK = usesSDK['minSdkVersion']);
-		usesSDK['targetSdkVersion'] && (this.targetSDK = usesSDK['targetSdkVersion']);
-		usesSDK['maxSdkVersion'] && (this.maxSDK = usesSDK['maxSdkVersion']);
+	function normalizeVersion(ver, type) {
+		ver = (ver && targetSDKMap[ver] && targetSDKMap[ver].sdk) || ver;
+		if (ver && tiappAndroidManifest) {
+			tiappAndroidManifest['uses-sdk'] || (tiappAndroidManifest['uses-sdk'] = {});
+			tiappAndroidManifest['uses-sdk'][type] = ver;
+		}
+		return ver;
 	}
+
+	if (usesSDK) {
+		usesSDK.minSdkVersion    && (this.minSDK    = usesSDK.minSdkVersion);
+		usesSDK.targetSdkVersion && (this.targetSDK = usesSDK.targetSdkVersion);
+		usesSDK.maxSdkVersion    && (this.maxSDK    = usesSDK.maxSdkVersion);
+	}
+
+	// make sure the SDK versions are actual SDK versions and not the codenames
+	this.minSDK    = normalizeVersion(this.minSDK,    'minSdkVersion');
+	this.targetSDK = normalizeVersion(this.targetSDK, 'targetSdkVersion');
+	this.maxSDK    = normalizeVersion(this.maxSDK,    'maxSdkVersion');
 
 	// min sdk is too old
 	var minApiLevel = targetSDKMap[this.minSDK] && targetSDKMap[this.minSDK].sdk;
@@ -1154,9 +1176,9 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	// if no target sdk, then default to most recent supported/installed
 	if (!this.targetSDK) {
 		var levels = Object.keys(targetSDKMap).sort(function (a, b) {
-				if (a.sdk === b.sdk && a.revision === b.revision) {
+				if (targetSDKMap[a].sdk === targetSDKMap[b].sdk && targetSDKMap[a].revision === targetSDKMap[b].revision) {
 					return 0;
-				} else if (a.sdk < b.sdk || (a.sdk === b.sdk && a.revision < b.revision)) {
+				} else if (targetSDKMap[a].sdk < targetSDKMap[b].sdk || (targetSDKMap[a].sdk === targetSDKMap[b].sdk && targetSDKMap[a].revision < targetSDKMap[b].revision)) {
 					return -1;
 				}
 				return 1;
@@ -1165,7 +1187,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		for (; i >= 0; i--) {
 			if (targetSDKMap[levels[i]].sdk >= this.minSupportedApiLevel && targetSDKMap[levels[i]].sdk <= this.maxSupportedApiLevel) {
-				this.targetSDK = levels[i];
+				this.targetSDK = targetSDKMap[levels[i]].sdk;
 				break;
 			}
 		}
@@ -1494,7 +1516,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			if (modules.incompatible.length) {
 				logger.error(__('Found incompatible Titanium Modules:'));
 				modules.incompatible.forEach(function (m) {
-					logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + m.minsdk);
+					logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + (m.manifest && m.manifest.minsdk || '?'));
 				}, this);
 				logger.log();
 				process.exit(1);
@@ -3719,8 +3741,6 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-A', this.buildBinAssetsDir,
 			'-S', this.buildResDir,
 			'-I', this.androidTargetSDK.androidJar,
-			'-I', path.join(this.platformPath, 'titanium.jar'),
-			'-I', path.join(this.platformPath, 'aps-analytics.jar'),
 			'-F', this.ap_File
 		];
 

@@ -18,8 +18,7 @@ extends: Titanium.Proxy
 since: "3.4.0"
 platforms: [iphone, ipad]
 excludes:
-    methods: [addEventListener, applyProperties, fireEvent, removeEventListener,
-              getActionsForDefaultContext, getActionsForMinimalContext, getIdentifier]
+    methods: [addEventListener, applyProperties, fireEvent, removeEventListener]
     properties: [bubbleParent]
 
 properties:
@@ -30,6 +29,7 @@ properties:
         Note that only the first four actions can be displayed for an alert dialog and the first
         two actions can be displayed for all other notifications.
     type: Array<Titanium.App.iOS.UserNotificationAction>
+    accessor: false
     availability: creation
 
   - name: actionsForMinimalContext
@@ -37,6 +37,7 @@ properties:
     description: |
         If not specified, the first two actions from `actionsForDefaultContent` are displayed.
     type: Array<Titanium.App.iOS.UserNotificationAction>
+    accessor: false
     availability: creation
 
   - name: identifier
@@ -44,5 +45,6 @@ properties:
     description: |
         When scheduling a notification, pass this value to the `category` property.
     type: String
+    accessor: false
     availability: creation
 

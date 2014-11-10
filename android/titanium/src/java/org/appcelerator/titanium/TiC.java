@@ -1475,6 +1475,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LIFECYCLE_CONTAINER = "lifecycleContainer";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LOAD_URL = "loadUrl";
 	
 	/**
@@ -2148,7 +2153,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SOURCE_POSITION = "sourcePosition";
-	
+
+	/**
+	* @module.api
+	*/
+	public static final String PROPERTY_SPLIT_ACTIONBAR = "splitActionBar";
+
 	/**
 	 * @module.api
 	 */
@@ -2516,6 +2526,42 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MAX_DATE = "maxDate";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PREFIX = "prefix";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SUFFIX = "suffix";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FIRSTPHONETIC = "firstPhonetic";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MIDDLEPHONETIC = "middlePhonetic";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LASTPHONETIC = "lastPhonetic";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_JOBTITLE = "jobTitle";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DEPARTMENT = "department";
+	
 	
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";

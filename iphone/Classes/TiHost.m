@@ -133,6 +133,12 @@ extern NSString * const TI_APPLICATION_ID;
 	[contexts removeObjectForKey:token];
 }
 
+-(KrollBridge*)krollBridge
+{
+    //For subclasses
+    return nil;
+}
+
 -(id) moduleNamed:(NSString*)name context:(id<TiEvaluator>)context
 {
 	TiModule *m = [modules objectForKey:name];

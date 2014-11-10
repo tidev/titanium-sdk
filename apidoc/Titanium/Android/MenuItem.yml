@@ -29,22 +29,24 @@ methods:
 
   - name: collapseActionView
     summary: Collapse the action view associated with this menu item.
-    description: Only works on Android 4.0 (API level 14) or later.
+    description: |
+        This is an action-bar specific API. Prior to Release 3.3.0, this API only works
+        on devices running Android 4.0 (API level 14) and greater.
     since: "3.0.0"
-    osver: {android: {min: "14"}}
 
   - name: expandActionView
     summary: Expand the action view associated with this menu item.
     description: |
-        Action-bar specific. Only works on Android 4.0 (API level 14) or later. 
+        This is an action-bar specific API. Prior to Release 3.3.0, this API only works
+        on devices running Android 3.0 (API level 11) and greater.
     since: "3.0.0"
-    osver: {android: {min: "14"}}
 
   - name: isActionViewExpanded
     summary: |
         Returns the [actionViewExpanded](Titanium.Android.MenuItem.actionViewExpanded) state of the menu item.
     description: |
-        Action-bar specific. Only works on Android 4.0 (API level 14) or later. 
+        This is an action-bar specific API. Prior to Release 3.3.0, this API only works
+        on devices running Android 4.0 (API level 14) and greater.
     returns:
         type: Boolean
 
@@ -53,7 +55,6 @@ methods:
         Returns the [checkable](Titanium.Android.MenuItem.checkable) state of the menu item.
     returns:
         type: Boolean
-
 
   - name: isChecked
     summary: Returns the [checked](Titanium.Android.MenuItem.checked) state of the menu item.
@@ -105,34 +106,55 @@ events:
   - name: expand
     summary: Fired when the action view has been expanded.
     description: |
-        Action-bar specific. Only works on Android 4.0 (API level 14) or later. 
+        This is an action-bar specific API. Prior to Release 3.3.0, this API only works
+        on devices running Android 4.0 (API level 14) and greater.
     since: "3.0.0"
-    osver: {android: {min: "14"}}
 
   - name: collapse
     summary: Fired when the action view has been collapsed.
     description: |
-        Action-bar specific. Only works on Android 4.0 (API level 14) or later. 
+        This is an action-bar specific API. Prior to Release 3.3.0, this API only works
+        on devices running Android 4.0 (API level 14) and greater.
     since: "3.0.0"
-    osver: {android: {min: "14"}}
 
 properties:
 
   - name: actionView
     summary: Custom view that replaces the default menu item button.
     description: |
-        Action-bar specific. Only used on Android 3.0 (API level 11) or later. 
+        This is an action-bar specific API. Prior to Release 3.3.0, this API only works
+        on devices running Android 3.0 (API level 11) and greater.
+
+        In order to display the custom view, set the item's
+        [showAsAction](Titanium.Android.MenuItem.showAsAction) property to either
+        `Titanium.Android.SHOW_AS_ACTION_ALWAYS` or
+        `Titanium.Android.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW`.
+
+        Since Alloy 1.6.0, you can specify this property using the `<ActionView>` element as a child
+        of the `<MenuItem>` element, for example:
+
+            <Alloy>
+                <Window>
+                    <Menu>
+                        <MenuItem showAsAction="Ti.Android.SHOW_AS_ACTION_ALWAYS" title="Search">
+                            <ActionView>
+                                <SearchView ns="Ti.UI.Android" hintText="Type Something"/>
+                            </ActionView>
+                        </MenuItem>
+                    </Menu>
+                </Window>
+            </Alloy>
+
     type: Titanium.UI.View
     since: "3.0.0"
-    osver: {android: {min: "11"}}
 
   - name: actionViewExpanded
     summary: True if this menu item's action view has been expanded.
     description: |
-        Action-bar specific. Only used on Android 3.0 (API level 11) or later. 
+        This is an action-bar specific API. Prior to Release 3.3.0, this API only works
+        on devices running Android 4.0 (API level 14) and greater.
     type: Boolean
     since: "3.0.0"
-    osver: {android: {min: "14"}}
     permission: read-only
     # this property uses non-standard accessors, listed in the "methods" section.
     accessors: false
@@ -218,19 +240,20 @@ properties:
   - name: showAsAction
     summary: A set of flags that controls how this item appears in the action bar.
     description: |
-        Action-bar specific. Only used on Android 3.0 (API level 11) or later. 
+        This is an action-bar specific API. Prior to Release 3.3.0, this property only works
+        on devices running Android 3.0 (API level 11) and greater.
 
         You may set one or more flags (by OR'ing them together) to control how
         this menu item should be placed inside the action bar.
 
         To control if your item should be displayed as an action button or
         placed in the overflow menu set one of these flags:
-          [SHOW_AS_ACTION_ALWAYS](Titanium.Android.SHOW_AS_ACTION_ALWAYS),
-          [SHOW_AS_ACTION_IF_ROOM](Titanium.Android.SHOW_AS_ACTION_IF_ROOM),
-          or [SHOW_AS_ACTION_NEVER](Titanium.Android.SHOW_AS_ACTION_NEVER).
+          <Titanium.Android.SHOW_AS_ACTION_ALWAYS>,
+          <Titanium.Android.SHOW_AS_ACTION_IF_ROOM>,
+          or <Titanium.Android.SHOW_AS_ACTION_NEVER>.
 
         If you only wish to display the text label even if the item
-        has an icon set the [SHOW_AS_ACTION_WITH_TEXT](Titanium.Android.SHOW_AS_ACTION_WITH_TEXT) flag.
+        has an icon set the <Titanium.Android.SHOW_AS_ACTION_WITH_TEXT> flag.
         Note that the `SHOW_AS_ACTION_WITH_TEXT` setting is only a hint to the system --
         the text may or may not be shown depending on the width of the screen. For
         example, text may not be shown on phones in portrait mode. In addition if the
@@ -243,10 +266,10 @@ properties:
         If you want to guarantee that text and icon are always visible, you can create a 
         button with the text and image, and specify it as the item's `actionView`.
 
-        Starting in Android 4.0 (API level 14) you may specify if your action view
-        is collapsible. To enable this behavior set the [SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW](Titanium.Android.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW).
+        You may specify if your action view is collapsible by setting this property to
+        <Titanium.Android.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW>.
 
-        For a collapsable item, the item button (icon and/or text) is displayed when the item is
+        For a collapsible item, the item button (icon and/or text) is displayed when the item is
         collapsed, and the action view is displayed when the item is expanded.
         
         If `SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW` is **not** specified, any `actionView`
@@ -255,7 +278,6 @@ properties:
     type: Number
     since: "3.0.0"
     constants: Titanium.Android.SHOW_AS_ACTION_*
-    osver: {android: {min: "11"}}
     permission: write-only
 
   - name: title

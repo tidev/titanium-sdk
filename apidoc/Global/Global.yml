@@ -35,6 +35,8 @@ description: |
     
     The `L` macro can also be used as an alias for the <Titanium.Locale.getString> method.
 
+platforms: [android, blackberry, iphone, ipad, mobileweb]
+
 methods:
   - name: alert
     summary: Displays a pop-up alert dialog with the passed in `message`.
@@ -121,16 +123,28 @@ methods:
         optional: true
         
   - name: require
-    summary: Loads either a native Titanium module, or a CommonJS module.
+    summary: Loads either a native Titanium module or a CommonJS module.
     description: |
         The `require` function takes a module identifier as its argument and returns an object with 
         references to the module's exported symbols.
         
-        To load a native Titanium module, use its module ID.
+        #### Native Titanium Module
+
+        To load a native Titanium module:
+
+          1. Install the module to the project or copy it to the Titanium SDK home directory.
+          2. Add the module as a dependency to the project by modifying the `modules` section of the `tiapp.xml` file.
+          3. Initialize the module with the `require` method by passing the module ID to the method.
+
+        For detailed instructions, refer to
+        [Using a Module](http://docs.appcelerator.com/titanium/latest/#!/guide/Using_a_Module).
+
+        #### CommonJS Module
         
-        To load a local CommonJS module, use the relative path to the file, *minus* the `.js` 
-        extension. The file path is relative to the location of the file calling `require`.
-        
+        To load a local CommonJS module, place the CommonJS module in the `Resources` directory of
+        your project. Pass the `require` method the path to the file without the `Resources`
+        directory, platform-specific directory and the `.js` extension.
+
         Note that the appropriate *platform-specific* `Resources` subdirectory is merged into the 
         main `Resources` directory at build time. For example, suppose the following files exist.
         
@@ -141,19 +155,13 @@ methods:
         
         The appropriate `TaskWindow.js` file is moved into the `Resources/ui` directory of the 
         built application. To include both the MainWindow module and the platform-specific 
-        TaskWindow module, the this code may be used in the `app.js` file:
-        
+        TaskWindow module from any JavaScript file in the project:
+
              // load main window module from ui subdirectory
              var mainWindow = require('ui/MainWindow');
             
              // load platform-specific task window module
              var taskWindow = require('ui/TaskWindow'); 
-        
-        On the other hand, to include the TaskWindow module from the `Resources/ui/MainWindow.js` 
-        file:
-        
-             // load task window module
-             var taskWindow = require('TaskWindow'); 
         
         For more information, see the Official CommonJS website about 
         [CommonJS Modules/1.1 Specification](http://wiki.commonjs.org/wiki/Modules/1.1).
@@ -164,7 +172,10 @@ methods:
         then load the module with the `require` method without the `app/lib` path and `.js`
         extension.
 
-        For example, a module file `app/lib/myModule/module.js` may be loaded by
+        Starting with Alloy 1.5.0, you can add platform-specific directories to the `app/lib` directory.
+        Do not include the platform-specific directory when referencing the CommonJS module.
+
+        For example, a module file `app/lib/android/myModule/module.js` may be loaded by
         `app/controllers/index.js` using:
 
             require('myModule/module');
@@ -186,7 +197,7 @@ methods:
         type: Object
     parameters:
       - name: moduleId
-        summary: Native module ID, or local path to a JavaScript file, *minus* the `.js` extension.
+        summary: Native module ID or local path to a JavaScript file *minus* the `.js` extension.
         type: String
     examples:
       - title: Require a Native Module
