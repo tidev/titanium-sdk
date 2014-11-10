@@ -35,15 +35,7 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 		setNativeView(container);
 
 		FragmentManager manager = ((FragmentActivity) activity).getSupportFragmentManager();
-		Fragment tabFragment = manager.findFragmentById(android.R.id.tabcontent);
-		FragmentTransaction transaction = null;
-		//check if this map is opened inside an actionbar tab, which is another fragment
-		if (tabFragment != null) {
-			FragmentManager childManager = tabFragment.getChildFragmentManager();
-			transaction = childManager.beginTransaction();
-		} else {
-			transaction = manager.beginTransaction();
-		}
+		FragmentTransaction transaction = manager.beginTransaction();
 		fragment = createFragment();
 		transaction.add(container.getId(), fragment);
 		transaction.commit();

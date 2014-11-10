@@ -100,12 +100,12 @@ public class TiRootActivity extends TiLaunchActivity
 	}
 
 	@Override
-	protected void windowCreated()
+	protected void windowCreated(Bundle savedInstanceState)
 	{
 		// Use settings from tiapp.xml
 		ITiAppInfo appInfo = getTiApp().getAppInfo();
 		getIntent().putExtra(TiC.PROPERTY_FULLSCREEN, appInfo.isFullscreen());
-		super.windowCreated();
+		super.windowCreated(savedInstanceState);
 	}
 
 	@Override

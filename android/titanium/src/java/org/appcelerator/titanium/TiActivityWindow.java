@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium;
 
+import android.os.Bundle;
+
 /**
  * Implementations of this interface can be notified when their activity window has been created
  * by registering themselves with {@link TiActivityWindows#addWindow(TiActivityWindow)}.
@@ -19,5 +21,5 @@ package org.appcelerator.titanium;
  */
 public interface TiActivityWindow
 {
-	public void windowCreated(TiBaseActivity activity);
+	public void windowCreated(TiBaseActivity activity, Bundle savedInstanceState);
 }
