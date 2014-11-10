@@ -28,20 +28,15 @@
 	return [TiLocale defaultLocale];
 }
 
--(id)getCurrentLanguage:(id)arg
+-(id)currentCountry
 {
-	return [self currentLanguage];
+    return [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
 }
 
--(id)getCurrentCountry:(id)arg
+-(id)currentLocale
 {
-	return [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
-}
-
--(id)getCurrentLocale:(id)arg
-{
-	// Have to return "lan-COUNTRY" instead of "lan_COUNTRY" to conform to Android
-	return [[[NSLocale currentLocale] localeIdentifier] stringByReplacingOccurrencesOfString:@"_" withString:@"-"];
+    // Have to return "lan-COUNTRY" instead of "lan_COUNTRY" to conform to Android
+    return [[[NSLocale currentLocale] localeIdentifier] stringByReplacingOccurrencesOfString:@"_" withString:@"-"];
 }
 
 -(id)getCurrencyCode:(id)arg
