@@ -30,14 +30,10 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [mobileweb, tizen]
-  - name: fontSize
-    summary: Font size for displaying item text. Ignored when using a custom view.
-    type: Number
-    platforms: [iphone, ipad]
   - name: font
     summary: Font to use for the item text.
     type: Font
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb, tizen, iphone, ipad]
   - name: title
     summary: Item text.
     type: String
@@ -78,7 +74,8 @@ examples:
 
             for(var i=0, ilen=color.length; i<ilen; i++){
               var row = Ti.UI.createPickerRow({
-                title: color[i]
+                title: color[i],
+                font: {fontSize:30}
               });
               column2.addRow(row);
             }
