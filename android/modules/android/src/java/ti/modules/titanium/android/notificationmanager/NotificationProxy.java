@@ -138,7 +138,10 @@ public class NotificationProxy extends KrollProxy
 			notificationBuilder.setSmallIcon(((Number)icon).intValue());
 		} else {
 			String iconUrl = TiConvert.toString(icon);
-			//TiContext context = invocation == null ? getTiContext() : invocation.getTiContext();
+			if (iconUrl == null) {
+				Log.e(TAG, "Url is null");
+				return;
+			}
 			String iconFullUrl = resolveUrl(null, iconUrl);
 			notificationBuilder.setSmallIcon(TiUIHelper.getResourceId(iconFullUrl));
 		}
@@ -259,6 +262,10 @@ public class NotificationProxy extends KrollProxy
 	@Kroll.method @Kroll.setProperty
 	public void setSound(String url)
 	{
+		if (url == null) {
+			Log.e(TAG, "Url is null");
+			return;
+		}
 		sound = Uri.parse(resolveUrl(null, url));
 		notificationBuilder.setSound(sound, audioStreamType);
 		setProperty(TiC.PROPERTY_SOUND, url);
