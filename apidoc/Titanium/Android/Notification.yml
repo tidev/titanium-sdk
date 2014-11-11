@@ -75,7 +75,8 @@ properties:
     description: |
          If your notification falls into one of the predefined categories, assign it accordingly. 
          Aspects of the system UI such as the notification shade may use this information 
-         to make ranking and filtering decisions.
+         to make ranking and filtering decisions. This property only works for API 21+ (Lollipop and above). It
+         does nothing for lower API levels.
     since: "3.4.2"
 
   - name: contentIntent
@@ -173,6 +174,9 @@ properties:
 
   - name: priority
     summary: Sets the priority of the notification
+    description: |
+        This property only works for API 16+ (Jelly Bean and above). It
+        does nothing for lower API levels.
     type: Number
     constants: [
         Titanium.Android.PRIORITY_MAX,
@@ -247,6 +251,8 @@ properties:
 
   - name: visibility
     summary: Allows user to conceal private information of the notification on the lockscreen.
+    description: |
+         This property only works for API 21+ (Lollipop and above). It does nothing for lower API levels.
     type: Number
     constants: [
         Titanium.Android.VISIBILITY_PUBLIC,
