@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -22,9 +22,11 @@ import ti.modules.titanium.android.AndroidModule;
 import ti.modules.titanium.android.PendingIntentProxy;
 import ti.modules.titanium.android.RemoteViewsProxy;
 import android.app.Notification;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
+
 
 @Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
 	TiC.PROPERTY_CONTENT_TEXT,
@@ -34,14 +36,22 @@ public class NotificationProxy extends KrollProxy
 {
 	private static final String TAG = "TiNotification";
 
-	protected Notification notification;
-
+	protected Builder notificationBuilder;
+	private int flags, ledARGB, ledOnMS, ledOffMS;
+	private Uri sound;
+	private int audioStreamType;
+	
 	public NotificationProxy() 
 	{
 		super();
-		notification = new Notification(
-			android.R.drawable.stat_sys_warning, null, System.currentTimeMillis());
-		notification.flags = Notification.FLAG_AUTO_CANCEL;
+		notificationBuilder =  new NotificationCompat.Builder(TiApplication.getAppCurrentActivity())
+        .setSmallIcon(android.R.drawable.stat_sys_warning)
+        .setWhen(System.currentTimeMillis());
+		
+		//set up default values
+		flags = Notification.FLAG_AUTO_CANCEL;
+		audioStreamType = Notification.STREAM_DEFAULT;
+		
 	}
 
 	public NotificationProxy(TiContext tiContext) 
@@ -83,9 +93,6 @@ public class NotificationProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_FLAGS)) {
 			setFlags(TiConvert.toInt(d, TiC.PROPERTY_FLAGS));
 		}
-		if (d.containsKey(TiC.PROPERTY_ICON_LEVEL)) {
-			setIconLevel(TiConvert.toInt(d, TiC.PROPERTY_ICON_LEVEL));
-		}
 		if (d.containsKey(TiC.PROPERTY_LED_ARGB)) {
 			setLedARGB(TiConvert.toInt(d, TiC.PROPERTY_LED_ARGB));
 		}
@@ -104,163 +111,209 @@ public class NotificationProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_VIBRATE_PATTERN)) {
 			setVibratePattern((Object[]) d.get(TiC.PROPERTY_VIBRATE_PATTERN));
 		}
+		if (d.containsKey(TiC.PROPERTY_VISIBILITY)) {
+			setVisibility(TiConvert.toInt(d, TiC.PROPERTY_VISIBILITY));
+		}
+		if (d.containsKey(TiC.PROPERTY_CATEGORY)) {
+			setCategory(TiConvert.toString(d, TiC.PROPERTY_CATEGORY));
+		}
+		if (d.containsKey(TiC.PROPERTY_PRIORITY)) {
+			setPriority(TiConvert.toInt(d, TiC.PROPERTY_PRIORITY));
+		}
 		checkLatestEventInfoProperties(d);
+	}
+
+
+	@Kroll.method @Kroll.setProperty
+	public void setCategory(String category)
+	{
+		notificationBuilder.setCategory(category);
+		setProperty(TiC.PROPERTY_CATEGORY, category);
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setIcon(Object icon)
 	{
 		if (icon instanceof Number) {
-			notification.icon = ((Number)icon).intValue();
+			notificationBuilder.setSmallIcon(((Number)icon).intValue());
 		} else {
 			String iconUrl = TiConvert.toString(icon);
-			//TiContext context = invocation == null ? getTiContext() : invocation.getTiContext();
-			String iconFullUrl = resolveUrl(null, iconUrl);
-			notification.icon = TiUIHelper.getResourceId(iconFullUrl);
-			if (notification.icon == 0) {
-				Log.w(TAG, "No image found for " + iconUrl);
+			if (iconUrl == null) {
+				Log.e(TAG, "Url is null");
+				return;
 			}
+			String iconFullUrl = resolveUrl(null, iconUrl);
+			notificationBuilder.setSmallIcon(TiUIHelper.getResourceId(iconFullUrl));
 		}
+		setProperty(TiC.PROPERTY_ICON, icon);
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setVisibility(int visibility)
+	{
+		notificationBuilder.setVisibility(visibility);
+		setProperty(TiC.PROPERTY_VISIBILITY, visibility);
+	
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setPriority(int priority)
+	{
+		notificationBuilder.setPriority(priority);
+		setProperty(TiC.PROPERTY_PRIORITY, priority);
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setTickerText(String tickerText)
 	{
-		notification.tickerText = tickerText;
+		notificationBuilder.setTicker(tickerText);
+		//set the javascript object
+		setProperty(TiC.PROPERTY_TICKER_TEXT, tickerText);
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setWhen(Object when)
 	{
 		if (when instanceof Date) {
-			notification.when = ((Date)when).getTime();
+			notificationBuilder.setWhen(((Date)when).getTime());
 		} else {
-			notification.when = ((Double) TiConvert.toDouble(when)).longValue();
+			notificationBuilder.setWhen(((Double) TiConvert.toDouble(when)).longValue());
 		}
+		setProperty(TiC.PROPERTY_WHEN, when);
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setAudioStreamType(int type)
 	{
-		notification.audioStreamType = type;
+		audioStreamType = type;
+		if (sound != null) {
+			notificationBuilder.setSound(this.sound, audioStreamType);
+		}
+		setProperty(TiC.PROPERTY_AUDIO_STREAM_TYPE, type);
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setContentView(RemoteViewsProxy contentView)
 	{
-		notification.contentView = contentView.getRemoteViews();
+		notificationBuilder.setContent(contentView.getRemoteViews());
+		setProperty(TiC.PROPERTY_CONTENT_VIEW, contentView);
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setContentIntent(PendingIntentProxy contentIntent)
 	{
-		notification.contentIntent = contentIntent.getPendingIntent();
+		notificationBuilder.setContentIntent(contentIntent.getPendingIntent());	
+		setProperty(TiC.PROPERTY_CONTENT_INTENT, contentIntent);
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setDefaults(int defaults)
 	{
-		notification.defaults = defaults;
+		notificationBuilder.setDefaults(defaults);
+		setProperty(TiC.PROPERTY_DEFAULTS, defaults);
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setDeleteIntent(PendingIntentProxy deleteIntent)
 	{
-		notification.deleteIntent = deleteIntent.getPendingIntent();
+		notificationBuilder.setDeleteIntent(deleteIntent.getPendingIntent());
+		setProperty(TiC.PROPERTY_DELETE_INTENT, deleteIntent);
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setFlags(int flags)
 	{
-		notification.flags = flags;
+		this.flags = flags;
+		setProperty(TiC.PROPERTY_FLAGS, flags);
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void setIconLevel(int iconLevel)
-	{
-		notification.iconLevel = iconLevel;
-	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setLedARGB(int ledARGB)
 	{
-		notification.ledARGB = ledARGB;
+		this.ledARGB = ledARGB;
+		notificationBuilder.setLights(this.ledARGB, ledOnMS, ledOffMS);
+		setProperty(TiC.PROPERTY_LED_ARGB, ledARGB);
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setLedOffMS(int ledOffMS)
 	{
-		notification.ledOffMS = ledOffMS;
+		this.ledOffMS = ledOffMS;
+		notificationBuilder.setLights(ledARGB, ledOnMS, this.ledOffMS);
+		setProperty(TiC.PROPERTY_LED_OFF_MS, ledOffMS);
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setLedOnMS(int ledOnMS)
 	{
-		notification.ledOnMS = ledOnMS;
+		this.ledOnMS = ledOnMS;
+		notificationBuilder.setLights(ledARGB, this.ledOnMS, ledOffMS);
+		setProperty(TiC.PROPERTY_LED_ON_MS, ledOnMS);
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setNumber(int number)
 	{
-		notification.number = number;
+		notificationBuilder.setNumber(number);
+		setProperty(TiC.PROPERTY_NUMBER, number);
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setSound(String url)
 	{
-		notification.sound = Uri.parse(resolveUrl(null, url));
-		
+		if (url == null) {
+			Log.e(TAG, "Url is null");
+			return;
+		}
+		sound = Uri.parse(resolveUrl(null, url));
+		notificationBuilder.setSound(sound, audioStreamType);
+		setProperty(TiC.PROPERTY_SOUND, url);
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setVibratePattern(Object[] pattern)
 	{
 		if (pattern != null) {
-			notification.vibrate = new long[pattern.length];
+			long[] vibrate = new long[pattern.length];
 			for (int i = 0; i < pattern.length; i++) {
-				notification.vibrate[i] = ((Double)TiConvert.toDouble(pattern[i])).longValue();
+				vibrate[i] = ((Double)TiConvert.toDouble(pattern[i])).longValue();
 			}
+			notificationBuilder.setVibrate(vibrate);
 		}
+		setProperty(TiC.PROPERTY_VIBRATE_PATTERN, pattern);
 	}
 
 	protected void checkLatestEventInfoProperties(KrollDict d)
 	{
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)
-			|| d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TEXT))
-		{
+			|| d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TEXT)) {
 			String contentTitle = "";
 			String contentText = "";
-			PendingIntent contentIntent = null;
 			if (d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)) {
 				contentTitle = TiConvert.toString(d, TiC.PROPERTY_CONTENT_TITLE);
+				notificationBuilder.setContentTitle(contentTitle);
 			}
 			if (d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TEXT)) {
 				contentText = TiConvert.toString(d, TiC.PROPERTY_CONTENT_TEXT);
+				notificationBuilder.setContentText(contentText);
 			}
-			if (d.containsKey(TiC.PROPERTY_CONTENT_INTENT)) {
-				PendingIntentProxy intentProxy = (PendingIntentProxy) d.get(TiC.PROPERTY_CONTENT_INTENT);
-				contentIntent = intentProxy.getPendingIntent();
-			}
-			Context c = getActivity();
-			if (c == null) {
-				c = TiApplication.getInstance().getApplicationContext();
-			}
-			notification.setLatestEventInfo(c, contentTitle, contentText, contentIntent);
+	
 		}
 	}
 
 	@Kroll.method
 	public void setLatestEventInfo(String contentTitle, String contentText, PendingIntentProxy contentIntent)
 	{
-		Context c = getActivity();
-		if (c == null) {
-			c = TiApplication.getInstance().getApplicationContext();
-		}
-		notification.setLatestEventInfo(c, contentTitle, contentText, contentIntent.getPendingIntent());
+		notificationBuilder.setContentIntent(contentIntent.getPendingIntent())
+		.setContentText(contentText)
+		.setContentTitle(contentTitle);
 	}
 
-	public Notification getNotification()
+	public Notification buildNotification()
 	{ 
+		Notification notification = notificationBuilder.build();
+		notification.flags = this.flags;
 		return notification;
 	}
 

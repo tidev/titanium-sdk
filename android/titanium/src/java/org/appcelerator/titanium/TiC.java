@@ -2412,6 +2412,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VISIBLE = "visible";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VISIBILITY = "visibility";
 
 	/**
 	 * @module.api
@@ -2515,6 +2520,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CATEGORY = "category";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CUSTOM = "custom";
 	
 	/**
@@ -2531,6 +2541,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PREFIX = "prefix";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PRIORITY = "priority";
 	
 	/**
 	 * @module.api

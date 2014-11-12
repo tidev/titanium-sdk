@@ -75,7 +75,7 @@ public class NotificationManagerModule extends KrollModule
 	@Kroll.method
 	public void notify(int id, NotificationProxy notificationProxy)
 	{
-		getManager().notify(id, notificationProxy.getNotification());
+		getManager().notify(id, notificationProxy.buildNotification());
 	}
 
 	@Override

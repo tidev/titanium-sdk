@@ -54,6 +54,31 @@ properties:
     constants: Titanium.Android.STREAM*
     type: Number
 
+  - name: category
+    summary: Sets the notification's category
+    type: String
+    constants: [
+         Titanium.Android.CATEGORY_ALARM,
+         Titanium.Android.CATEGORY_CALL,
+         Titanium.Android.CATEGORY_EMAIL,
+         Titanium.Android.CATEGORY_ERROR,
+         Titanium.Android.CATEGORY_EVENT,
+         Titanium.Android.CATEGORY_MESSAGE,
+         Titanium.Android.CATEGORY_PROGRESS,
+         Titanium.Android.CATEGORY_PROMO,
+         Titanium.Android.CATEGORY_RECOMMENDATION,
+         Titanium.Android.CATEGORY_SERVICE,
+         Titanium.Android.CATEGORY_SOCIAL,
+         Titanium.Android.CATEGORY_STATUS,
+         Titanium.Android.CATEGORY_SYSTEM,
+         Titanium.Android.CATEGORY_TRANSPORT ]   
+    description: |
+         If your notification falls into one of the predefined categories, assign it accordingly. 
+         Aspects of the system UI such as the notification shade may use this information 
+         to make ranking and filtering decisions. This property only works for API 21+ (Lollipop and above). It
+         does nothing for lower API levels.
+    since: "3.4.2"
+
   - name: contentIntent
     summary: The `PendingIntent` to execute when the expanded status entry is clicked.
     type: Titanium.Android.PendingIntent
@@ -147,6 +172,21 @@ properties:
     summary: The number of events that this notification represents.
     type: Number
 
+  - name: priority
+    summary: Sets the priority of the notification
+    description: |
+        This property only works for API 16+ (Jelly Bean and above). It
+        does nothing for lower API levels.
+    type: Number
+    constants: [
+        Titanium.Android.PRIORITY_MAX,
+        Titanium.Android.PRIORITY_HIGH,
+        Titanium.Android.PRIORITY_DEFAULT,
+        Titanium.Android.PRIORITY_LOW,
+        Titanium.Android.PRIORITY_MIN ]
+    default: undefined but behaves as Titanium.Android.PRIORITY_DEFAULT    
+    since: "3.4.2"
+
   - name: sound
     summary: A URL to the sound to play.
     description: |
@@ -208,6 +248,18 @@ properties:
   - name: tickerText
     summary: Text to scroll across the screen when this item is added to the status bar.
     type: String
+
+  - name: visibility
+    summary: Allows user to conceal private information of the notification on the lockscreen.
+    description: |
+         This property only works for API 21+ (Lollipop and above). It does nothing for lower API levels.
+    type: Number
+    constants: [
+        Titanium.Android.VISIBILITY_PUBLIC,
+        Titanium.Android.VISIBILITY_PRIVATE,
+        Titanium.Android.VISIBILITY_SECRET ]
+    default: undefined but behaves as Titanium.Android.VISIBILITY_PUBLIC
+    since: "3.4.2"
 
   - name: when
     summary: The timestamp for the notification (defaults to the current time).
