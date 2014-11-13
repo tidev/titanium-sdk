@@ -34,7 +34,6 @@
 -(CGSize)sizeForFont:(CGFloat)suggestedWidth
 {
 	NSAttributedString *value = [messageLabel attributedText];
-	UIFont *font = [messageLabel font];
 	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 1000);
     CGSize returnVal = [value boundingRectWithSize:maxSize
                                   options:NSStringDrawingUsesLineFragmentOrigin

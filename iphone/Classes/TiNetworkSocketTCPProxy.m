@@ -760,12 +760,14 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
                     id<TiStreamInternal> stream = [info valueForKey:@"destination"];
 					[event setObject:self forKey:@"fromStream"];
 					[event setObject:stream forKey:@"toStream"];
+					break;
                 }
                 case TO_CALLBACK: {
                     name = @"pump";
 					[event setObject:self forKey:@"source"];
 					[event setObject:NUMINT(readDataLength) forKey:@"totalBytesProcessed"];
 					[event setObject:[NSNull null] forKey:@"buffer"];
+					break;
                 }
                 default: {
                     name = @"write";

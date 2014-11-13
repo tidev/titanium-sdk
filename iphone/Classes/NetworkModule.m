@@ -459,7 +459,6 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
     
     NSArray *allCookies = [storage cookies];
     NSMutableArray *returnArray = [NSMutableArray array];
-    NSHTTPCookie *c = [[NSHTTPCookie alloc] initWithProperties:@{}];
     for(NSHTTPCookie *cookie in allCookies)
     {
         if([[cookie domain] isEqualToString:domain] &&

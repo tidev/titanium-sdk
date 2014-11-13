@@ -1875,7 +1875,6 @@
 		[sectionIndexMap setObject:[NSNumber numberWithInt:[TiUtils intValue:theindex]] forKey:title];
 	}
     
-	int sectionCount = [self numberOfSectionsInTableView:tableview]-1;
 
     // Instead of calling back through our mechanism to reload specific sections, because the entire index of the table
     // has been regenerated, we can assume it's okay to just reload the whole dataset.
