@@ -505,7 +505,6 @@ DEFINE_EXCEPTIONS
 
 -(void)setTileBackground_:(id)image
 {
-    UIImage* tileImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
 
 }
 
