@@ -48,7 +48,6 @@
 -(CGSize)sizeForFont:(CGFloat)suggestedWidth
 {
 	NSAttributedString *value = [label attributedText];
-	UIFont *font = [label font];
 	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 10000);
 	CGSize shadowOffset = [label shadowOffset];
 	requiresLayout = YES;
