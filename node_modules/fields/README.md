@@ -653,6 +653,11 @@ Creates a new Select field.
 
 			  Custom field title formatter.
 
+		* `{boolean}` `opts.ignoreCase`
+		
+		  When `true`, ignores the case of the value being entered. Default value is
+		  `false`.
+
 		* `{string}` `opts.margin`
 
 		  A string to print in the left margin for each item being rendered. Default

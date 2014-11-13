@@ -243,7 +243,11 @@ exports.run = function (logger, config, cli, finished) {
 		if (!counter++) {
 			var delta = appc.time.prettyDiff(cli.startTime, Date.now());
 			if (err) {
-				logger.error(__('Project failed to build after %s', delta) + '\n');
+				logger.error(__('Project failed to build after %s', delta));
+				(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
+					logger.error(msg);
+				});
+				logger.log();
 				process.exit(1);
 			} else {
 				logger.info(__('Project built successfully in %s', delta.cyan) + '\n');

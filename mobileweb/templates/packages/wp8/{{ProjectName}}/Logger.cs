@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using Windows.Networking;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
@@ -10,80 +13,83 @@ namespace TitaniumApp
 {
 	public static class Logger
 	{
-		static DatagramSocket multicastSocket;
-		static string logToken = "";
 		static StreamSocket tcpSocket = null;
 		static DataWriter tcpWriter = null;
 
-		[Conditional("DEBUG")]
-		public static async void init(TiSettings settings) {
-			if (!settings.ContainsKey("logToken") || settings["logToken"].Length == 0) {
+		public static async Task init(Dictionary<string, string> settings) {
+			if (!settings.ContainsKey("serverToken") || settings["serverToken"].Length == 0) {
 				return;
 			}
 
-			logToken = settings["logToken"];
-
-			multicastSocket = new DatagramSocket();
-			multicastSocket.MessageReceived += multicastSocket_MessageReceived;
-
-			HostName hostname = new HostName("239.6.6.6");
-
-			try {
-				await multicastSocket.BindServiceNameAsync("8666");
-				multicastSocket.JoinMulticastGroup(hostname);
-
-				IOutputStream stream = await multicastSocket.GetOutputStreamAsync(hostname, "8666");
-				DataWriter writer = new DataWriter(stream);
-				writer.WriteString("TI_WP8_LOGGER");
-				await writer.StoreAsync();
-				writer.DetachStream();
-				stream.Dispose();
-			} catch (Exception ex) {
-				if (SocketError.GetStatus(ex.HResult) == SocketErrorStatus.Unknown) {
-					throw;
-				}
-				Debug.WriteLine(ex.ToString());
+			if (!settings.ContainsKey("ipAddressList") || settings["ipAddressList"].Length == 0) {
+				return;
 			}
-		}
 
-		static async void multicastSocket_MessageReceived(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs eventArguments) {
-			try {
-				HostName remoteHostAddress = eventArguments.RemoteAddress;
-				uint len = eventArguments.GetDataReader().UnconsumedBufferLength;
-				string message = eventArguments.GetDataReader().ReadString(len).Trim();
-				int p = message.IndexOf(':');
-				if (p != -1) {
-					string serverLogToken = message.Substring(0, p);
-					int port = Int32.Parse(message.Substring(p + 1));
+			if (!settings.ContainsKey("tcpPort") || settings["tcpPort"].Length == 0) {
+				return;
+			}
 
-					if (serverLogToken == logToken && port > 0 && port < 65535) {
-						Debug.WriteLine("[LOGGER] Found a Titanium log server: " + remoteHostAddress.DisplayName + ":" + port);
+			string serverToken = settings["serverToken"];
 
-						try {
-							tcpSocket = new StreamSocket();
-							tcpSocket.Control.KeepAlive = true;
-							await tcpSocket.ConnectAsync(remoteHostAddress, port.ToString());
-							tcpWriter = new DataWriter(tcpSocket.OutputStream);
+			string[] ipAddressList = settings["ipAddressList"].Split(new char[] { ',' });
+			if (ipAddressList.Length == 0) {
+				return;
+			}
 
-							// shutdown the multicast socket and start the tcp connection
-							multicastSocket.Dispose();
-						} catch {
-							if (tcpWriter != null) {
-								tcpWriter.Dispose();
-								tcpWriter = null;
-							}
-							if (tcpSocket != null) {
-								tcpSocket.Dispose();
-								tcpSocket = null;
-							}
-						}
+			int port = Int32.Parse(settings["tcpPort"]);
+			if (port < 0 || port >= 65535) return;
+
+			// need to find which ip address is valid
+			for (int i = 0; i < ipAddressList.Length; i++) {
+				Debug.WriteLine("[LOGGER] Trying to connect to log server: " + ipAddressList[i].Trim() + ":" + port);
+
+				try {
+					var cts = new CancellationTokenSource();
+					int timeout = 2000;
+					if (settings.ContainsKey("logConnectionTimeout")) {
+						timeout = Int32.Parse(settings["logConnectionTimeout"]);
+					}
+					if (timeout >= 0) {
+						cts.CancelAfter(timeout);
+					}
+
+					tcpSocket = new StreamSocket();
+					tcpSocket.Control.KeepAlive = true;
+
+					var connectAsync = tcpSocket.ConnectAsync(new HostName(ipAddressList[i].Trim()), port.ToString());
+					var connectTask = connectAsync.AsTask(cts.Token);
+					await connectTask;
+
+					tcpWriter = new DataWriter(tcpSocket.OutputStream);
+
+					// we write the server token to see if this log relay is really the log relay we're looking for
+					log(serverToken);
+
+					// if we made it this far, then we've found a good log relay and we'll stop connecting to the rest
+					break;
+				} catch (TaskCanceledException) {
+					// try the next ip address
+					if (tcpSocket != null) {
+						tcpSocket.Dispose();
+						tcpSocket = null;
+					}
+				} catch (Exception ex) {
+					if (tcpWriter != null) {
+						tcpWriter.Dispose();
+						tcpWriter = null;
+					}
+					if (tcpSocket != null) {
+						tcpSocket.Dispose();
+						tcpSocket = null;
+					}
+					if (SocketError.GetStatus(ex.HResult) == SocketErrorStatus.Unknown) {
+						break;
+					}
+					Debug.WriteLine(ex.ToString());
+					if (i + 1 < ipAddressList.Length) {
+						Debug.WriteLine("Trying next IP address");
 					}
 				}
-			} catch (Exception ex) {
-				if (SocketError.GetStatus(ex.HResult) == SocketErrorStatus.Unknown) {
-					throw;
-				}
-				Debug.WriteLine(ex.ToString());
 			}
 		}
 
@@ -91,7 +97,7 @@ namespace TitaniumApp
 		public async static void log(string message) {
 			Debug.WriteLine(message);
 
-			// send message to Titanium CLI log proxy
+			// send message to Titanium CLI log relay
 			if (tcpSocket != null && tcpWriter != null) {
 				tcpWriter.WriteString(message + "\n");
 				await tcpWriter.StoreAsync();

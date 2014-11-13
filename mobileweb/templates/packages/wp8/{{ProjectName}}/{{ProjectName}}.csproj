@@ -12,7 +12,7 @@
     <RootNamespace>TitaniumApp</RootNamespace>
     <AssemblyName><%= projectName %></AssemblyName>
     <TargetFrameworkIdentifier>WindowsPhone</TargetFrameworkIdentifier>
-    <TargetFrameworkVersion>v<%= targetSDK %></TargetFrameworkVersion>
+    <TargetFrameworkVersion><%= targetFrameworkVersion %></TargetFrameworkVersion>
     <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
     <SilverlightApplication>true</SilverlightApplication>
     <SupportedCultures>
