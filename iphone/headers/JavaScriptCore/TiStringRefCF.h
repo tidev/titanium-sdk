@@ -2,7 +2,7 @@
  * Appcelerator Titanium License
  * This source code and all modifications done by Appcelerator
  * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009-2012 by Appcelerator, Inc.
+ * are Copyright (c) 2009-2014 by Appcelerator, Inc.
  */
 
 /*
@@ -44,21 +44,21 @@ extern "C" {
 
 /*!
 @function
-@abstract         Creates a Ti string from a CFString.
+@abstract         Creates a JavaScript string from a CFString.
 @discussion       This function is optimized to take advantage of cases when 
  CFStringGetCharactersPtr returns a valid pointer.
-@param string     The CFString to copy into the new TiString.
-@result           A TiString containing string. Ownership follows the Create Rule.
+@param string     The CFString to copy into the new JSString.
+@result           A JSString containing string. Ownership follows the Create Rule.
 */
 JS_EXPORT TiStringRef TiStringCreateWithCFString(CFStringRef string);
 /*!
 @function
-@abstract         Creates a CFString from a Ti string.
+@abstract         Creates a CFString from a JavaScript string.
 @param alloc      The alloc parameter to pass to CFStringCreate.
-@param string     The TiString to copy into the new CFString.
+@param string     The JSString to copy into the new CFString.
 @result           A CFString containing string. Ownership follows the Create Rule.
 */
-JS_EXPORT CFStringRef TiStringCopyCFString(CFAllocatorRef alloc, TiStringRef string);
+JS_EXPORT CFStringRef TiStringCopyCFString(CFAllocatorRef alloc, TiStringRef string) CF_RETURNS_RETAINED;
 
 #ifdef __cplusplus
 }
