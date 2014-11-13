@@ -297,7 +297,6 @@
 -(void) fireClickEventWithAction:(UIAlertAction*)theAction
 {
     if ([self _hasListeners:@"click"]) {
-        NSArray *theActions = [alertController actions];
         NSUInteger indexOfAction = [[alertController actions] indexOfObject:theAction];
         
         NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:

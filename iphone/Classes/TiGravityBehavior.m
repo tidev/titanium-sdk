@@ -70,9 +70,7 @@
 -(void)updatePositioning
 {
     for (TiViewProxy* theItem in _items) {
-        CGSize size = [[theItem view] bounds].size;
         CGPoint center = [[theItem view] center];
-        CGPoint anchor = [[[theItem view] layer] anchorPoint];
         
         LayoutConstraint* constraint = [theItem layoutProperties];
         constraint->centerX = TiDimensionDip(center.x);
