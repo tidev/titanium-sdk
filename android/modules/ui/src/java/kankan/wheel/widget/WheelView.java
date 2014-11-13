@@ -36,6 +36,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -351,8 +352,14 @@ public class WheelView extends View {
 		}
 
 		int linecount = layout.getLineCount();
-		int desired = layout.getLineTop(linecount) - getItemOffset() * 2
-				- getAdditionalItemHeight();
+
+		int desired = layout.getLineTop(linecount) - getAdditionalItemHeight();
+		
+		// APPCELERATOR TITANIUM CUSTOMIZATION:
+		// It looks like Android Lollipop takes care of the offsets internally
+		if (Build.VERSION.SDK_INT < 21) {
+			desired -= getItemOffset() * 2;
+		}
 
 		// Check against our minimum height
 		desired = Math.max(desired, getSuggestedMinimumHeight());
