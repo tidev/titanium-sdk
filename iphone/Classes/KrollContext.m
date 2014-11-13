@@ -13,9 +13,11 @@
 #import "TiLocale.h"
 
 #include <pthread.h>
+#ifdef TI_DEBUGGER_PROFILER
 #import "TiDebugger.h"
-#import "TiExceptionHandler.h"
 #import "TiProfiler.h"
+#endif
+#import "TiExceptionHandler.h"
 
 #import "TiUIAlertDialogProxy.h"
 
@@ -888,8 +890,10 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		if (debugger!=NULL)
 		{
 			TiObjectRef globalRef = TiContextGetGlobalObject(context);
+#ifdef TI_DEBUGGER_PROFILER
 			TiDebuggerDestroy(self,globalRef,debugger);
-			debugger = NULL;
+#endif
+            debugger = NULL;
 		}
 		[condition signal];
 		[condition unlock];
@@ -1107,12 +1111,13 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
     // TODO: We might want to be smarter than this, and do some KVO on the delegate's
     // 'debugMode' property or something... and start/stop the debugger as necessary.
+#ifdef TI_DEBUGGER_PROFILER
     if ([[self delegate] shouldDebugContext]) {
         debugger = TiDebuggerCreate(self,globalRef);
     } else if ([[self delegate] shouldProfileContext]) {
 		TiProfilerEnable(globalRef);
 	}
-	
+#endif
 	// we register an empty kroll string that allows us to pluck out this instance
 	KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];
 	TiValueRef krollRef = [KrollObject toValue:self value:kroll];

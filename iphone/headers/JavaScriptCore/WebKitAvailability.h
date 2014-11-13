@@ -2,7 +2,7 @@
  * Appcelerator Titanium License
  * This source code and all modifications done by Appcelerator
  * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009-2012 by Appcelerator, Inc.
+ * are Copyright (c) 2009-2014 by Appcelerator, Inc.
  */
 
 /*
@@ -50,7 +50,9 @@
 
 #ifdef __APPLE__
 #include <AvailabilityMacros.h>
+#include <CoreFoundation/CoreFoundation.h>
 #else
+#define CF_AVAILABLE(_mac, _ios)
 /*
  * For non-Mac platforms, require the newest version.
  */
@@ -906,6 +908,25 @@
 #else
     #define DEPRECATED_AFTER_WEBKIT_VERSION_4_0
 #endif
+
+
+
+
+
+
+/*
+ * AVAILABLE_AFTER_WEBKIT_VERSION_5_1
+ * 
+ * Used on functions introduced after WebKit 5.1
+ */
+#define AVAILABLE_AFTER_WEBKIT_VERSION_5_1
+
+/* AVAILABLE_WEBKIT_VERSION_1_3_AND_LATER_BUT_DEPRECATED_AFTER_WEBKIT_VERSION_5_1
+ *
+ * Used on declarations introduced in WebKit 1.3,
+ * but later deprecated after WebKit 5.1
+ */
+#define AVAILABLE_WEBKIT_VERSION_1_3_AND_LATER_BUT_DEPRECATED_AFTER_WEBKIT_VERSION_5_1
 
 
 #endif /* __WebKitAvailability__ */

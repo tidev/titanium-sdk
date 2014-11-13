@@ -2,12 +2,11 @@
  * Appcelerator Titanium License
  * This source code and all modifications done by Appcelerator
  * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009-2012 by Appcelerator, Inc.
+ * are Copyright (c) 2009-2014 by Appcelerator, Inc.
  */
 
 /*
- * Copyright (C) 2006 Apple Inc. All rights reserved.
- * Copyright (C) 2008 Alp Toker <alp@atoker.com>
+ * Copyright (C) 2006, 2008 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,13 +30,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#ifndef Ti_h
-#define Ti_h
+#ifndef TiCore_h
+#define TiCore_h
 
-#include <TiCore/TiBase.h>
-#include <TiCore/TiContextRef.h>
-#include <TiCore/TiStringRef.h>
-#include <TiCore/TiObjectRef.h>
-#include <TiCore/TiValueRef.h>
+#include <JavaScriptCore/Ti.h>
+#include <JavaScriptCore/TiStringRefCF.h>
 
-#endif /* Ti_h */
+#if defined(__OBJC__) && JSC_OBJC_API_ENABLED
+
+#import "TiContext.h"
+#import "TiValue.h"
+#import "TiManagedValue.h"
+#import "TiVirtualMachine.h"
+#import "TiExport.h"
+
+#endif
+
+#endif /* TiCore_h */

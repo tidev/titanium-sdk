@@ -2,7 +2,7 @@
  * Appcelerator Titanium License
  * This source code and all modifications done by Appcelerator
  * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009-2012 by Appcelerator, Inc.
+ * are Copyright (c) 2009-2014 by Appcelerator, Inc.
  */
 
 /*
@@ -33,15 +33,15 @@
 #ifndef TiValueRef_h
 #define TiValueRef_h
 
-#include <TiCore/TiBase.h>
-#include <TiCore/WebKitAvailability.h>
+#include <JavaScriptCore/TiBase.h>
+#include <JavaScriptCore/WebKitAvailability.h>
 
 #ifndef __cplusplus
 #include <stdbool.h>
 #endif
 
 /*!
-@enum TiType
+@enum JSType
 @abstract     A constant identifying the type of a TiValue.
 @constant     kTITypeUndefined  The unique undefined value.
 @constant     kTITypeNull       The unique null value.
@@ -57,7 +57,7 @@ typedef enum {
     kTITypeNumber,
     kTITypeString,
     kTITypeObject
-} TiType;
+} JSType;
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,16 +65,16 @@ extern "C" {
 
 /*!
 @function
-@abstract       Returns a Ti value's type.
+@abstract       Returns a JavaScript value's type.
 @param ctx  The execution context to use.
 @param value    The TiValue whose type you want to obtain.
-@result         A value of type TiType that identifies value's type.
+@result         A value of type JSType that identifies value's type.
 */
-JS_EXPORT TiType TiValueGetType(TiContextRef ctx, TiValueRef value);
+JS_EXPORT JSType TiValueGetType(TiContextRef ctx, TiValueRef);
 
 /*!
 @function
-@abstract       Tests whether a Ti value's type is the undefined type.
+@abstract       Tests whether a JavaScript value's type is the undefined type.
 @param ctx  The execution context to use.
 @param value    The TiValue to test.
 @result         true if value's type is the undefined type, otherwise false.
@@ -83,7 +83,7 @@ JS_EXPORT bool TiValueIsUndefined(TiContextRef ctx, TiValueRef value);
 
 /*!
 @function
-@abstract       Tests whether a Ti value's type is the null type.
+@abstract       Tests whether a JavaScript value's type is the null type.
 @param ctx  The execution context to use.
 @param value    The TiValue to test.
 @result         true if value's type is the null type, otherwise false.
@@ -92,7 +92,7 @@ JS_EXPORT bool TiValueIsNull(TiContextRef ctx, TiValueRef value);
 
 /*!
 @function
-@abstract       Tests whether a Ti value's type is the boolean type.
+@abstract       Tests whether a JavaScript value's type is the boolean type.
 @param ctx  The execution context to use.
 @param value    The TiValue to test.
 @result         true if value's type is the boolean type, otherwise false.
@@ -101,7 +101,7 @@ JS_EXPORT bool TiValueIsBoolean(TiContextRef ctx, TiValueRef value);
 
 /*!
 @function
-@abstract       Tests whether a Ti value's type is the number type.
+@abstract       Tests whether a JavaScript value's type is the number type.
 @param ctx  The execution context to use.
 @param value    The TiValue to test.
 @result         true if value's type is the number type, otherwise false.
@@ -110,7 +110,7 @@ JS_EXPORT bool TiValueIsNumber(TiContextRef ctx, TiValueRef value);
 
 /*!
 @function
-@abstract       Tests whether a Ti value's type is the string type.
+@abstract       Tests whether a JavaScript value's type is the string type.
 @param ctx  The execution context to use.
 @param value    The TiValue to test.
 @result         true if value's type is the string type, otherwise false.
@@ -119,7 +119,7 @@ JS_EXPORT bool TiValueIsString(TiContextRef ctx, TiValueRef value);
 
 /*!
 @function
-@abstract       Tests whether a Ti value's type is the array type.
+@abstract       Tests whether a JavaScript value's type is the array type.
 @param ctx  The execution context to use.
 @param value    The TiValue to test.
 @result         true if value's type is the string type, otherwise false.
@@ -128,7 +128,7 @@ JS_EXPORT bool TiValueIsArray(TiContextRef ctx, TiValueRef value);
 
 /*!
 @function
-@abstract       Tests whether a Ti value's type is the date type.
+@abstract       Tests whether a JavaScript value's type is the date type.
 @param ctx  The execution context to use.
 @param value    The TiValue to test.
 @result         true if value's type is the string type, otherwise false.
@@ -137,7 +137,7 @@ JS_EXPORT bool TiValueIsDate(TiContextRef ctx, TiValueRef value);
 
 /*!
 @function
-@abstract       Tests whether a Ti value's type is the object type.
+@abstract       Tests whether a JavaScript value's type is the object type.
 @param ctx  The execution context to use.
 @param value    The TiValue to test.
 @result         true if value's type is the object type, otherwise false.
@@ -146,7 +146,7 @@ JS_EXPORT bool TiValueIsObject(TiContextRef ctx, TiValueRef value);
 
 /*!
 @function
-@abstract Tests whether a Ti value is an object with a given class in its class chain.
+@abstract Tests whether a JavaScript value is an object with a given class in its class chain.
 @param ctx The execution context to use.
 @param value The TiValue to test.
 @param jsClass The TiClass to test against.
@@ -158,7 +158,7 @@ JS_EXPORT bool TiValueIsObjectOfClass(TiContextRef ctx, TiValueRef value, TiClas
 
 /*!
 @function
-@abstract Tests whether two Ti values are equal, as compared by the JS == operator.
+@abstract Tests whether two JavaScript values are equal, as compared by the JS == operator.
 @param ctx The execution context to use.
 @param a The first value to test.
 @param b The second value to test.
@@ -169,7 +169,7 @@ JS_EXPORT bool TiValueIsEqual(TiContextRef ctx, TiValueRef a, TiValueRef b, TiVa
 
 /*!
 @function
-@abstract       Tests whether two Ti values are strict equal, as compared by the JS === operator.
+@abstract       Tests whether two JavaScript values are strict equal, as compared by the JS === operator.
 @param ctx  The execution context to use.
 @param a        The first value to test.
 @param b        The second value to test.
@@ -179,7 +179,7 @@ JS_EXPORT bool TiValueIsStrictEqual(TiContextRef ctx, TiValueRef a, TiValueRef b
 
 /*!
 @function
-@abstract Tests whether a Ti value is an object constructed by a given constructor, as compared by the JS instanceof operator.
+@abstract Tests whether a JavaScript value is an object constructed by a given constructor, as compared by the JS instanceof operator.
 @param ctx The execution context to use.
 @param value The TiValue to test.
 @param constructor The constructor to test against.
@@ -192,7 +192,7 @@ JS_EXPORT bool TiValueIsInstanceOfConstructor(TiContextRef ctx, TiValueRef value
 
 /*!
 @function
-@abstract       Creates a Ti value of the undefined type.
+@abstract       Creates a JavaScript value of the undefined type.
 @param ctx  The execution context to use.
 @result         The unique undefined value.
 */
@@ -200,7 +200,7 @@ JS_EXPORT TiValueRef TiValueMakeUndefined(TiContextRef ctx);
 
 /*!
 @function
-@abstract       Creates a Ti value of the null type.
+@abstract       Creates a JavaScript value of the null type.
 @param ctx  The execution context to use.
 @result         The unique null value.
 */
@@ -208,7 +208,7 @@ JS_EXPORT TiValueRef TiValueMakeNull(TiContextRef ctx);
 
 /*!
 @function
-@abstract       Creates a Ti value of the boolean type.
+@abstract       Creates a JavaScript value of the boolean type.
 @param ctx  The execution context to use.
 @param boolean  The bool to assign to the newly created TiValue.
 @result         A TiValue of the boolean type, representing the value of boolean.
@@ -217,7 +217,7 @@ JS_EXPORT TiValueRef TiValueMakeBoolean(TiContextRef ctx, bool boolean);
 
 /*!
 @function
-@abstract       Creates a Ti value of the number type.
+@abstract       Creates a JavaScript value of the number type.
 @param ctx  The execution context to use.
 @param number   The double to assign to the newly created TiValue.
 @result         A TiValue of the number type, representing the value of number.
@@ -226,9 +226,9 @@ JS_EXPORT TiValueRef TiValueMakeNumber(TiContextRef ctx, double number);
 
 /*!
 @function
-@abstract       Creates a Ti value of the string type.
+@abstract       Creates a JavaScript value of the string type.
 @param ctx  The execution context to use.
-@param string   The TiString to assign to the newly created TiValue. The
+@param string   The JSString to assign to the newly created TiValue. The
  newly created TiValue retains string, and releases it upon garbage collection.
 @result         A TiValue of the string type, representing the value of string.
 */
@@ -238,29 +238,29 @@ JS_EXPORT TiValueRef TiValueMakeString(TiContextRef ctx, TiStringRef string);
 
 /*!
  @function
- @abstract       Creates a Ti value from a JSON formatted string.
+ @abstract       Creates a JavaScript value from a JSON formatted string.
  @param ctx      The execution context to use.
- @param string   The TiString containing the JSON string to be parsed.
+ @param string   The JSString containing the JSON string to be parsed.
  @result         A TiValue containing the parsed value, or NULL if the input is invalid.
  */
-JS_EXPORT TiValueRef TiValueMakeFromJSONString(TiContextRef ctx, TiStringRef string) AVAILABLE_AFTER_WEBKIT_VERSION_4_0;
+JS_EXPORT TiValueRef TiValueMakeFromJSONString(TiContextRef ctx, TiStringRef string) CF_AVAILABLE(10_7, 7_0);
 
 /*!
  @function
- @abstract       Creates a Ti string containing the JSON serialized representation of a JS value.
+ @abstract       Creates a JavaScript string containing the JSON serialized representation of a JS value.
  @param ctx      The execution context to use.
  @param value    The value to serialize.
  @param indent   The number of spaces to indent when nesting.  If 0, the resulting JSON will not contains newlines.  The size of the indent is clamped to 10 spaces.
  @param exception A pointer to a TiValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
- @result         A TiString with the result of serialization, or NULL if an exception is thrown.
+ @result         A JSString with the result of serialization, or NULL if an exception is thrown.
  */
-JS_EXPORT TiStringRef TiValueCreateJSONString(TiContextRef ctx, TiValueRef value, unsigned indent, TiValueRef* exception) AVAILABLE_AFTER_WEBKIT_VERSION_4_0;
+JS_EXPORT TiStringRef TiValueCreateJSONString(TiContextRef ctx, TiValueRef value, unsigned indent, TiValueRef* exception) CF_AVAILABLE(10_7, 7_0);
 
 /* Converting to primitive values */
 
 /*!
 @function
-@abstract       Converts a Ti value to boolean and returns the resulting boolean.
+@abstract       Converts a JavaScript value to boolean and returns the resulting boolean.
 @param ctx  The execution context to use.
 @param value    The TiValue to convert.
 @result         The boolean result of conversion.
@@ -269,7 +269,7 @@ JS_EXPORT bool TiValueToBoolean(TiContextRef ctx, TiValueRef value);
 
 /*!
 @function
-@abstract       Converts a Ti value to number and returns the resulting number.
+@abstract       Converts a JavaScript value to number and returns the resulting number.
 @param ctx  The execution context to use.
 @param value    The TiValue to convert.
 @param exception A pointer to a TiValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
@@ -279,28 +279,28 @@ JS_EXPORT double TiValueToNumber(TiContextRef ctx, TiValueRef value, TiValueRef*
 
 /*!
 @function
-@abstract       Converts a Ti value to string and copies the result into a Ti string.
+@abstract       Converts a JavaScript value to string and copies the result into a JavaScript string.
 @param ctx  The execution context to use.
 @param value    The TiValue to convert.
 @param exception A pointer to a TiValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
-@result         A TiString with the result of conversion, or NULL if an exception is thrown. Ownership follows the Create Rule.
+@result         A JSString with the result of conversion, or NULL if an exception is thrown. Ownership follows the Create Rule.
 */
 JS_EXPORT TiStringRef TiValueToStringCopy(TiContextRef ctx, TiValueRef value, TiValueRef* exception);
 
 /*!
 @function
-@abstract Converts a Ti value to object and returns the resulting object.
+@abstract Converts a JavaScript value to object and returns the resulting object.
 @param ctx  The execution context to use.
 @param value    The TiValue to convert.
 @param exception A pointer to a TiValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
-@result         The TiObject result of conversion, or NULL if an exception is thrown.
+@result         The JSObject result of conversion, or NULL if an exception is thrown.
 */
 JS_EXPORT TiObjectRef TiValueToObject(TiContextRef ctx, TiValueRef value, TiValueRef* exception);
 
 /* Garbage collection */
 /*!
 @function
-@abstract Protects a Ti value from garbage collection.
+@abstract Protects a JavaScript value from garbage collection.
 @param ctx The execution context to use.
 @param value The TiValue to protect.
 @discussion Use this method when you want to store a TiValue in a global or on the heap, where the garbage collector will not be able to discover your reference to it.
@@ -311,7 +311,7 @@ JS_EXPORT void TiValueProtect(TiContextRef ctx, TiValueRef value);
 
 /*!
 @function
-@abstract       Unprotects a Ti value from garbage collection.
+@abstract       Unprotects a JavaScript value from garbage collection.
 @param ctx      The execution context to use.
 @param value    The TiValue to unprotect.
 @discussion     A value may be protected multiple times and must be unprotected an 

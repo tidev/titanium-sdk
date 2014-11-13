@@ -7,7 +7,6 @@
 #import <Foundation/Foundation.h>
 #import "TiCore.h"
 #import "TiBase.h"
-#import "TiContextRefPrivate.h"
 
 @class KrollContext;
 @class KrollCallback;

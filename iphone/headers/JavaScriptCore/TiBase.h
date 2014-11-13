@@ -2,7 +2,7 @@
  * Appcelerator Titanium License
  * This source code and all modifications done by Appcelerator
  * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009-2012 by Appcelerator, Inc.
+ * are Copyright (c) 2009-2014 by Appcelerator, Inc.
  */
 
 /*
@@ -37,39 +37,43 @@
 #include <stdbool.h>
 #endif
 
-/* Ti engine interface */
+#ifdef __OBJC__
+#import <Foundation/Foundation.h>
+#endif
 
-/*! @typedef TiContextGroupRef A group that associates Ti contexts with one another. Contexts in the same group may share and exchange Ti objects. */
+/* JavaScript engine interface */
+
+/*! @typedef TiContextGroupRef A group that associates JavaScript contexts with one another. Contexts in the same group may share and exchange JavaScript objects. */
 typedef const struct OpaqueTiContextGroup* TiContextGroupRef;
 
-/*! @typedef TiContextRef A Ti execution context. Holds the global object and other execution state. */
+/*! @typedef TiContextRef A JavaScript execution context. Holds the global object and other execution state. */
 typedef const struct OpaqueTiContext* TiContextRef;
 
-/*! @typedef TiGlobalContextRef A global Ti execution context. A TiGlobalContext is a TiContext. */
+/*! @typedef TiGlobalContextRef A global JavaScript execution context. A TiGlobalContext is a TiContext. */
 typedef struct OpaqueTiContext* TiGlobalContextRef;
 
-/*! @typedef TiStringRef A UTF16 character buffer. The fundamental string representation in Ti. */
+/*! @typedef TiStringRef A UTF16 character buffer. The fundamental string representation in JavaScript. */
 typedef struct OpaqueTiString* TiStringRef;
 
-/*! @typedef TiClassRef A Ti class. Used with TiObjectMake to construct objects with custom behavior. */
+/*! @typedef TiClassRef A JavaScript class. Used with TiObjectMake to construct objects with custom behavior. */
 typedef struct OpaqueTiClass* TiClassRef;
 
-/*! @typedef TiPropertyNameArrayRef An array of Ti property names. */
+/*! @typedef TiPropertyNameArrayRef An array of JavaScript property names. */
 typedef struct OpaqueTiPropertyNameArray* TiPropertyNameArrayRef;
 
-/*! @typedef TiPropertyNameAccumulatorRef An ordered set used to collect the names of a Ti object's properties. */
+/*! @typedef TiPropertyNameAccumulatorRef An ordered set used to collect the names of a JavaScript object's properties. */
 typedef struct OpaqueTiPropertyNameAccumulator* TiPropertyNameAccumulatorRef;
 
 
-/* Ti data types */
+/* JavaScript data types */
 
-/*! @typedef TiValueRef A Ti value. The base type for all Ti values, and polymorphic functions on them. */
+/*! @typedef TiValueRef A JavaScript value. The base type for all JavaScript values, and polymorphic functions on them. */
 typedef const struct OpaqueTiValue* TiValueRef;
 
-/*! @typedef TiObjectRef A Ti object. A TiObject is a TiValue. */
+/*! @typedef TiObjectRef A JavaScript object. A JSObject is a TiValue. */
 typedef struct OpaqueTiValue* TiObjectRef;
 
-/* Ti symbol exports */
+/* JavaScript symbol exports */
 /* These rules should stay the same as in WebKit2/Shared/API/c/WKBase.h */
 
 #undef JS_EXPORT
@@ -78,7 +82,7 @@ typedef struct OpaqueTiValue* TiObjectRef;
 #elif defined(__GNUC__) && !defined(__CC_ARM) && !defined(__ARMCC__)
 #define JS_EXPORT __attribute__((visibility("default")))
 #elif defined(WIN32) || defined(_WIN32) || defined(_WIN32_WCE) || defined(__CC_ARM) || defined(__ARMCC__)
-#if defined(BUILDING_TiCore) || defined(BUILDING_WTF)
+#if defined(BUILDING_JavaScriptCore) || defined(STATICALLY_LINKED_WITH_JavaScriptCore)
 #define JS_EXPORT __declspec(dllexport)
 #else
 #define JS_EXPORT __declspec(dllimport)
@@ -100,11 +104,11 @@ extern "C" {
 
 /*!
 @function TiEvalScript
-@abstract Evaluates a string of Ti.
+@abstract Evaluates a string of JavaScript.
 @param ctx The execution context to use.
-@param script A TiString containing the script to evaluate.
+@param script A JSString containing the script to evaluate.
 @param thisObject The object to use as "this," or NULL to use the global object as "this."
-@param sourceURL A TiString containing a URL for the script's source file. This is only used when reporting exceptions. Pass NULL if you do not care to include source file information in exceptions.
+@param sourceURL A JSString containing a URL for the script's source file. This is only used when reporting exceptions. Pass NULL if you do not care to include source file information in exceptions.
 @param startingLineNumber An integer value specifying the script's starting line number in the file located at sourceURL. This is only used when reporting exceptions.
 @param exception A pointer to a TiValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
 @result The TiValue that results from evaluating script, or NULL if an exception is thrown.
@@ -113,10 +117,10 @@ JS_EXPORT TiValueRef TiEvalScript(TiContextRef ctx, TiStringRef script, TiObject
 
 /*!
 @function TiCheckScriptSyntax
-@abstract Checks for syntax errors in a string of Ti.
+@abstract Checks for syntax errors in a string of JavaScript.
 @param ctx The execution context to use.
-@param script A TiString containing the script to check for syntax errors.
-@param sourceURL A TiString containing a URL for the script's source file. This is only used when reporting exceptions. Pass NULL if you do not care to include source file information in exceptions.
+@param script A JSString containing the script to check for syntax errors.
+@param sourceURL A JSString containing a URL for the script's source file. This is only used when reporting exceptions. Pass NULL if you do not care to include source file information in exceptions.
 @param startingLineNumber An integer value specifying the script's starting line number in the file located at sourceURL. This is only used when reporting exceptions.
 @param exception A pointer to a TiValueRef in which to store a syntax error exception, if any. Pass NULL if you do not care to store a syntax error exception.
 @result true if the script is syntactically correct, otherwise false.
@@ -125,14 +129,14 @@ JS_EXPORT bool TiCheckScriptSyntax(TiContextRef ctx, TiStringRef script, TiStrin
 
 /*!
 @function TiGarbageCollect
-@abstract Performs a Ti garbage collection. 
+@abstract Performs a JavaScript garbage collection. 
 @param ctx The execution context to use.
-@discussion Ti values that are on the machine stack, in a register, 
+@discussion JavaScript values that are on the machine stack, in a register, 
  protected by TiValueProtect, set as the global object of an execution context, 
  or reachable from any such value will not be collected.
 
- During Ti execution, you are not required to call this function; the 
- Ti engine will garbage collect as needed. Ti values created
+ During JavaScript execution, you are not required to call this function; the 
+ JavaScript engine will garbage collect as needed. JavaScript values created
  within a context group are automatically destroyed when the last reference
  to the context group is released.
 */
@@ -140,6 +144,11 @@ JS_EXPORT void TiGarbageCollect(TiContextRef ctx);
 
 #ifdef __cplusplus
 }
+#endif
+
+/* Enable the Objective-C API for platforms with a modern runtime. */
+#if !defined(JSC_OBJC_API_ENABLED)
+#define JSC_OBJC_API_ENABLED (defined(__clang__) && defined(__APPLE__) && ((defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && __MAC_OS_X_VERSION_MIN_REQUIRED >= 1090 && !defined(__i386__)) || (defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE)))
 #endif
 
 #endif /* TiBase_h */

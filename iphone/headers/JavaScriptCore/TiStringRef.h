@@ -2,7 +2,7 @@
  * Appcelerator Titanium License
  * This source code and all modifications done by Appcelerator
  * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009-2012 by Appcelerator, Inc.
+ * are Copyright (c) 2009-2014 by Appcelerator, Inc.
  */
 
 /*
@@ -33,7 +33,7 @@
 #ifndef TiStringRef_h
 #define TiStringRef_h
 
-#include <TiCore/TiValueRef.h>
+#include <JavaScriptCore/TiValueRef.h>
 
 #ifndef __cplusplus
 #include <stdbool.h>
@@ -44,69 +44,69 @@
 extern "C" {
 #endif
 
-#if !defined(WIN32) && !defined(_WIN32) && !defined(__WINSCW__) \
+#if !defined(WIN32) && !defined(_WIN32) \
     && !((defined(__CC_ARM) || defined(__ARMCC__)) && !defined(__linux__)) /* RVCT */
 /*!
-@typedef TiChar
+@typedef JSChar
 @abstract A Unicode character.
 */
-    typedef unsigned short TiChar;
+    typedef unsigned short JSChar;
 #else
-    typedef wchar_t TiChar;
+    typedef wchar_t JSChar;
 #endif
 
 /*!
 @function
-@abstract         Creates a Ti string from a buffer of Unicode characters.
-@param chars      The buffer of Unicode characters to copy into the new TiString.
+@abstract         Creates a JavaScript string from a buffer of Unicode characters.
+@param chars      The buffer of Unicode characters to copy into the new JSString.
 @param numChars   The number of characters to copy from the buffer pointed to by chars.
-@result           A TiString containing chars. Ownership follows the Create Rule.
+@result           A JSString containing chars. Ownership follows the Create Rule.
 */
-JS_EXPORT TiStringRef TiStringCreateWithCharacters(const TiChar* chars, size_t numChars);
+JS_EXPORT TiStringRef TiStringCreateWithCharacters(const JSChar* chars, size_t numChars);
 /*!
 @function
-@abstract         Creates a Ti string from a null-terminated UTF8 string.
-@param string     The null-terminated UTF8 string to copy into the new TiString.
-@result           A TiString containing string. Ownership follows the Create Rule.
+@abstract         Creates a JavaScript string from a null-terminated UTF8 string.
+@param string     The null-terminated UTF8 string to copy into the new JSString.
+@result           A JSString containing string. Ownership follows the Create Rule.
 */
 JS_EXPORT TiStringRef TiStringCreateWithUTF8CString(const char* string);
 
 /*!
 @function
-@abstract         Retains a Ti string.
-@param string     The TiString to retain.
-@result           A TiString that is the same as string.
+@abstract         Retains a JavaScript string.
+@param string     The JSString to retain.
+@result           A JSString that is the same as string.
 */
 JS_EXPORT TiStringRef TiStringRetain(TiStringRef string);
 /*!
 @function
-@abstract         Releases a Ti string.
-@param string     The TiString to release.
+@abstract         Releases a JavaScript string.
+@param string     The JSString to release.
 */
 JS_EXPORT void TiStringRelease(TiStringRef string);
 
 /*!
 @function
-@abstract         Returns the number of Unicode characters in a Ti string.
-@param string     The TiString whose length (in Unicode characters) you want to know.
+@abstract         Returns the number of Unicode characters in a JavaScript string.
+@param string     The JSString whose length (in Unicode characters) you want to know.
 @result           The number of Unicode characters stored in string.
 */
 JS_EXPORT size_t TiStringGetLength(TiStringRef string);
 /*!
 @function
 @abstract         Returns a pointer to the Unicode character buffer that 
- serves as the backing store for a Ti string.
-@param string     The TiString whose backing store you want to access.
+ serves as the backing store for a JavaScript string.
+@param string     The JSString whose backing store you want to access.
 @result           A pointer to the Unicode character buffer that serves as string's 
  backing store, which will be deallocated when string is deallocated.
 */
-JS_EXPORT const TiChar* TiStringGetCharactersPtr(TiStringRef string);
+JS_EXPORT const JSChar* TiStringGetCharactersPtr(TiStringRef string);
 
 /*!
 @function
-@abstract Returns the maximum number of bytes a Ti string will 
+@abstract Returns the maximum number of bytes a JavaScript string will 
  take up if converted into a null-terminated UTF8 string.
-@param string The TiString whose maximum converted size (in bytes) you 
+@param string The JSString whose maximum converted size (in bytes) you 
  want to know.
 @result The maximum number of bytes that could be required to convert string into a 
  null-terminated UTF8 string. The number of bytes that the conversion actually ends 
@@ -115,9 +115,9 @@ JS_EXPORT const TiChar* TiStringGetCharactersPtr(TiStringRef string);
 JS_EXPORT size_t TiStringGetMaximumUTF8CStringSize(TiStringRef string);
 /*!
 @function
-@abstract Converts a Ti string into a null-terminated UTF8 string, 
+@abstract Converts a JavaScript string into a null-terminated UTF8 string, 
  and copies the result into an external byte buffer.
-@param string The source TiString.
+@param string The source JSString.
 @param buffer The destination byte buffer into which to copy a null-terminated 
  UTF8 representation of string. On return, buffer contains a UTF8 string 
  representation of string. If bufferSize is too small, buffer will contain only 
@@ -130,16 +130,16 @@ JS_EXPORT size_t TiStringGetUTF8CString(TiStringRef string, char* buffer, size_t
 
 /*!
 @function
-@abstract     Tests whether two Ti strings match.
-@param a      The first TiString to test.
-@param b      The second TiString to test.
+@abstract     Tests whether two JavaScript strings match.
+@param a      The first JSString to test.
+@param b      The second JSString to test.
 @result       true if the two strings match, otherwise false.
 */
 JS_EXPORT bool TiStringIsEqual(TiStringRef a, TiStringRef b);
 /*!
 @function
-@abstract     Tests whether a Ti string matches a null-terminated UTF8 string.
-@param a      The TiString to test.
+@abstract     Tests whether a JavaScript string matches a null-terminated UTF8 string.
+@param a      The JSString to test.
 @param b      The null-terminated UTF8 string to test.
 @result       true if the two strings match, otherwise false.
 */
