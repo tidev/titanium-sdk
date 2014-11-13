@@ -12,8 +12,10 @@
 #import "TiErrorController.h"
 #import "NSData+Additions.h"
 #import "ImageLoader.h"
+#ifdef TI_DEBUGGER_PROFILER
 #import "TiDebugger.h"
 #import "TiProfiler.h"
+#endif
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
 #import "ApplicationDefaults.h"
@@ -180,7 +182,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	
 	sessionId = [[TiUtils createUUID] retain];
 	TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
-
+#ifdef TI_DEBUGGER_PROFILER
 	NSString *filePath = [[NSBundle mainBundle] pathForResource:@"debugger" ofType:@"plist"];
     if (filePath != nil) {
         NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
@@ -245,7 +247,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		[params release];
 #endif
     }
-	[self appBoot];
+#endif
+    [self appBoot];
 }
 
 - (void)appBoot
@@ -260,7 +263,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	[[[NSClassFromString(TIV) alloc] init] autorelease];
 }
-
 - (void)booted:(id)bridge
 {
 	if ([bridge isKindOfClass:[KrollBridge class]])
@@ -271,7 +273,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		if (localNotification != nil) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 		}
-		TiThreadPerformOnMainThread(^{[self validator];}, YES);
+        TiThreadPerformOnMainThread(^{[self validator];}, YES);
 	}
 }
 
@@ -940,7 +942,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	RELEASE_TO_NIL(remoteNotification);
 	RELEASE_TO_NIL(splashScreenImage);
     if ([self debugMode]) {
+#ifdef TI_DEBUGGER_PROFILER
         TiDebuggerStop();
+#endif
     }
 	RELEASE_TO_NIL(backgroundServices);
 	RELEASE_TO_NIL(localNotification);

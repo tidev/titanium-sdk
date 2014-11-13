@@ -2,11 +2,12 @@
  * Appcelerator Titanium License
  * This source code and all modifications done by Appcelerator
  * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009-2012 by Appcelerator, Inc.
+ * are Copyright (c) 2009-2014 by Appcelerator, Inc.
  */
 
 /*
- * Copyright (C) 2009 Apple Computer, Inc.  All rights reserved.
+ * Copyright (C) 2006 Apple Inc. All rights reserved.
+ * Copyright (C) 2008 Alp Toker <alp@atoker.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,40 +31,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#ifndef TiContextRefPrivate_h
-#define TiContextRefPrivate_h
+#ifndef Ti_h
+#define Ti_h
 
-#include <TiCore/TiObjectRef.h>
-#include <TiCore/TiValueRef.h>
-#include <TiCore/WebKitAvailability.h>
+#include <JavaScriptCore/TiBase.h>
+#include <JavaScriptCore/TiContextRef.h>
+#include <JavaScriptCore/TiStringRef.h>
+#include <JavaScriptCore/TiObjectRef.h>
+#include <JavaScriptCore/TiValueRef.h>
 
-#ifndef __cplusplus
-#include <stdbool.h>
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/*!
-@function
-@abstract Gets the global context of a Ti execution context.
-@param ctx The TiContext whose global context you want to get.
-@result ctx's global context.
-*/
-JS_EXPORT TiGlobalContextRef TiContextGetGlobalContext(TiContextRef ctx);
-
-    
-/*!
-@function
-@abstract Gets a Backtrace for the existing context
-@param ctx The TiContext whose backtrace you want to get
-@result A string containing the backtrace
-*/
-JS_EXPORT TiStringRef TiContextCreateBacktrace(TiContextRef ctx, unsigned maxStackSize) AVAILABLE_IN_WEBKIT_VERSION_4_0;
-    
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* TiContextRefPrivate_h */
+#endif /* Ti_h */

@@ -2,7 +2,7 @@
  * Appcelerator Titanium License
  * This source code and all modifications done by Appcelerator
  * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009-2012 by Appcelerator, Inc.
+ * are Copyright (c) 2009-2014 by Appcelerator, Inc.
  */
 
 /*
@@ -27,15 +27,15 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef TiContextRef_h
 #define TiContextRef_h
 
-#include <TiCore/TiObjectRef.h>
-#include <TiCore/TiValueRef.h>
-#include <TiCore/WebKitAvailability.h>
+#include <JavaScriptCore/TiObjectRef.h>
+#include <JavaScriptCore/TiValueRef.h>
+#include <JavaScriptCore/WebKitAvailability.h>
 
 #ifndef __cplusplus
 #include <stdbool.h>
@@ -47,36 +47,36 @@ extern "C" {
 
 /*!
 @function
-@abstract Creates a Ti context group.
-@discussion A TiContextGroup associates Ti contexts with one another.
- Contexts in the same group may share and exchange Ti objects. Sharing and/or exchanging
- Ti objects between contexts in different groups will produce undefined behavior.
+@abstract Creates a JavaScript context group.
+@discussion A TiContextGroup associates JavaScript contexts with one another.
+ Contexts in the same group may share and exchange JavaScript objects. Sharing and/or exchanging
+ JavaScript objects between contexts in different groups will produce undefined behavior.
  When objects from the same context group are used in multiple threads, explicit
  synchronization is required.
 @result The created TiContextGroup.
 */
-JS_EXPORT TiContextGroupRef TiContextGroupCreate() AVAILABLE_IN_WEBKIT_VERSION_4_0;
+JS_EXPORT TiContextGroupRef TiContextGroupCreate() CF_AVAILABLE(10_6, 7_0);
 
 /*!
 @function
-@abstract Retains a Ti context group.
+@abstract Retains a JavaScript context group.
 @param group The TiContextGroup to retain.
 @result A TiContextGroup that is the same as group.
 */
-JS_EXPORT TiContextGroupRef TiContextGroupRetain(TiContextGroupRef group) AVAILABLE_IN_WEBKIT_VERSION_4_0;
+JS_EXPORT TiContextGroupRef TiContextGroupRetain(TiContextGroupRef group) CF_AVAILABLE(10_6, 7_0);
 
 /*!
 @function
-@abstract Releases a Ti context group.
+@abstract Releases a JavaScript context group.
 @param group The TiContextGroup to release.
 */
-JS_EXPORT void TiContextGroupRelease(TiContextGroupRef group) AVAILABLE_IN_WEBKIT_VERSION_4_0;
+JS_EXPORT void TiContextGroupRelease(TiContextGroupRef group) CF_AVAILABLE(10_6, 7_0);
 
 /*!
 @function
-@abstract Creates a global Ti execution context.
+@abstract Creates a global JavaScript execution context.
 @discussion TiGlobalContextCreate allocates a global object and populates it with all the
- built-in Ti objects, such as Object, Function, String, and Array.
+ built-in JavaScript objects, such as Object, Function, String, and Array.
 
  In WebKit version 4.0 and later, the context is created in a unique context group.
  Therefore, scripts may execute in it concurrently with scripts executing in other contexts.
@@ -85,13 +85,13 @@ JS_EXPORT void TiContextGroupRelease(TiContextGroupRef group) AVAILABLE_IN_WEBKI
  NULL to use the default object class.
 @result A TiGlobalContext with a global object of class globalObjectClass.
 */
-JS_EXPORT TiGlobalContextRef TiGlobalContextCreate(TiClassRef globalObjectClass) AVAILABLE_WEBKIT_VERSION_3_0_AND_LATER;
+JS_EXPORT TiGlobalContextRef TiGlobalContextCreate(TiClassRef globalObjectClass) CF_AVAILABLE(10_5, 7_0);
 
 /*!
 @function
-@abstract Creates a global Ti execution context in the context group provided.
+@abstract Creates a global JavaScript execution context in the context group provided.
 @discussion TiGlobalContextCreateInGroup allocates a global object and populates it with
- all the built-in Ti objects, such as Object, Function, String, and Array.
+ all the built-in JavaScript objects, such as Object, Function, String, and Array.
 @param globalObjectClass The class to use when creating the global object. Pass
  NULL to use the default object class.
 @param group The context group to use. The created global context retains the group.
@@ -99,11 +99,11 @@ JS_EXPORT TiGlobalContextRef TiGlobalContextCreate(TiClassRef globalObjectClass)
 @result A TiGlobalContext with a global object of class globalObjectClass and a context
  group equal to group.
 */
-JS_EXPORT TiGlobalContextRef TiGlobalContextCreateInGroup(TiContextGroupRef group, TiClassRef globalObjectClass) AVAILABLE_IN_WEBKIT_VERSION_4_0;
+JS_EXPORT TiGlobalContextRef TiGlobalContextCreateInGroup(TiContextGroupRef group, TiClassRef globalObjectClass) CF_AVAILABLE(10_6, 7_0);
 
 /*!
 @function
-@abstract Retains a global Ti execution context.
+@abstract Retains a global JavaScript execution context.
 @param ctx The TiGlobalContext to retain.
 @result A TiGlobalContext that is the same as ctx.
 */
@@ -111,14 +111,14 @@ JS_EXPORT TiGlobalContextRef TiGlobalContextRetain(TiGlobalContextRef ctx);
 
 /*!
 @function
-@abstract Releases a global Ti execution context.
+@abstract Releases a global JavaScript execution context.
 @param ctx The TiGlobalContext to release.
 */
 JS_EXPORT void TiGlobalContextRelease(TiGlobalContextRef ctx);
 
 /*!
 @function
-@abstract Gets the global object of a Ti execution context.
+@abstract Gets the global object of a JavaScript execution context.
 @param ctx The TiContext whose global object you want to get.
 @result ctx's global object.
 */
@@ -126,11 +126,37 @@ JS_EXPORT TiObjectRef TiContextGetGlobalObject(TiContextRef ctx);
 
 /*!
 @function
-@abstract Gets the context group to which a Ti execution context belongs.
+@abstract Gets the context group to which a JavaScript execution context belongs.
 @param ctx The TiContext whose group you want to get.
 @result ctx's group.
 */
-JS_EXPORT TiContextGroupRef TiContextGetGroup(TiContextRef ctx) AVAILABLE_IN_WEBKIT_VERSION_4_0;
+JS_EXPORT TiContextGroupRef TiContextGetGroup(TiContextRef ctx) CF_AVAILABLE(10_6, 7_0);
+
+/*!
+@function
+@abstract Gets the global context of a JavaScript execution context.
+@param ctx The TiContext whose global context you want to get.
+@result ctx's global context.
+*/
+JS_EXPORT TiGlobalContextRef TiContextGetGlobalContext(TiContextRef ctx) CF_AVAILABLE(10_7, 7_0);
+
+/*!
+@function
+@abstract Gets a copy of the name of a context.
+@param ctx The TiGlobalContext whose name you want to get.
+@result The name for ctx.
+@discussion A TiGlobalContext's name is exposed for remote debugging to make it
+easier to identify the context you would like to attach to.
+*/
+JS_EXPORT TiStringRef TiGlobalContextCopyName(TiGlobalContextRef ctx);
+
+/*!
+@function
+@abstract Sets the remote debugging name for a context.
+@param ctx The TiGlobalContext that you want to name.
+@param name The remote debugging name to set on ctx.
+*/
+JS_EXPORT void TiGlobalContextSetName(TiGlobalContextRef ctx, TiStringRef name);
 
 #ifdef __cplusplus
 }
