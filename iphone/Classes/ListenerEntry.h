@@ -12,7 +12,6 @@
 	id<TiEvaluator> context;
 	id listener;
 	TiProxy *proxy;
-	BOOL removed;
 	NSString *type;
 }
 @property(nonatomic,readwrite,retain) NSString *type;
