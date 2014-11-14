@@ -14,6 +14,17 @@ description: |
     Use the <Titanium.UI.createButton> method or a **`<Button>`** Alloy element to create a button 
     (see [Examples](#!/api/Titanium.UI.Button-examples)) .
 
+    <table id="platformComparison">
+      <caption>Visual Comparison by Platform</caption>
+      <tr>
+        <td><img src="images/button/button_android.png" height="50" /></td>
+        <td><img src="images/button/button_bb.png" height="50" /></td>
+        <td><img src="images/button/button_ios.png" height="50" /></td>
+        <td><img src="images/button/button_mobileweb.png" height="50" /></td>
+      </tr>
+      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
+    </table>
+
     #### Android and Mobile Web Platform Notes
 
     Android and Mobile Web use default button images for the normal, focused, selected and disabled

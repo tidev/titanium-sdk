@@ -14,6 +14,17 @@ description:  |
     view before it can be shown. Unlike most views, `ActivityIndicator` is hidden by
     default and must be shown explicitly by calling its <Titanium.UI.ActivityIndicator.show> method.
 
+    <table id="platformComparison">
+      <caption>Visual Comparison by Platform</caption>
+      <tr>
+        <td><img src="images/activityindicator/activityindicator_android.png" height="50" /></td>
+        <td><img src="images/activityindicator/activityindicator_bb.png" height="50" /></td>
+        <td><img src="images/activityindicator/activityindicator_ios.png" height="50" /></td>
+        <td><img src="images/activityindicator/activityindicator_mobileweb.png" height="50" /></td>
+      </tr>
+      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
+    </table>
+
     #### Android Platform Notes
 
     Prior to SDK 3.0, activity indicator on Android produced a modal dialog containing a spinner or

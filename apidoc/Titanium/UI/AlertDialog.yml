@@ -9,6 +9,17 @@ description: |
     Although this dialog always appears in the middle of the display (not touching the edges), 
     other aspects of its aesthetics and the way the user interacts with it are different for each 
     platform, as described below.
+
+    <table id="platformComparison">
+      <caption>Visual Comparison by Platform</caption>
+      <tr>
+        <td><img src="images/alertdialog/alertdialog_android.png" height="75" /></td>
+        <td><img src="images/alertdialog/alertdialog_bb.png" height="75" /></td>
+        <td><img src="images/alertdialog/alertdialog_ios.png" height="75" /></td>
+        <td><img src="images/alertdialog/alertdialog_mobileweb.png" height="75" /></td>
+      </tr>
+      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
+    </table>
     
     #### Android
     
