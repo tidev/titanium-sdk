@@ -3,6 +3,16 @@ name: Titanium.UI.Button
 summary: |
     A button widget that has four states: normal, disabled, focused and selected.
 description: |
+    <table id="platformComparison">
+      <tr>
+        <td><img src="images/button/button_android.png" height="50" /></td>
+        <td><img src="images/button/button_bb.png" height="50" /></td>
+        <td><img src="images/button/button_ios.png" height="50" /></td>
+        <td><img src="images/button/button_mobileweb.png" height="50" /></td>
+      </tr>
+      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
+    </table>
+
     A button displays its  selected state while it is being pressed. The focused state is
     only used on Android devices that have navigation keys or a keyboard, to indicate
     which button has input focus.
@@ -13,17 +23,6 @@ description: |
 
     Use the <Titanium.UI.createButton> method or a **`<Button>`** Alloy element to create a button 
     (see [Examples](#!/api/Titanium.UI.Button-examples)) .
-
-    <table id="platformComparison">
-      <caption>Visual Comparison by Platform</caption>
-      <tr>
-        <td><img src="images/button/button_android.png" height="50" /></td>
-        <td><img src="images/button/button_bb.png" height="50" /></td>
-        <td><img src="images/button/button_ios.png" height="50" /></td>
-        <td><img src="images/button/button_mobileweb.png" height="50" /></td>
-      </tr>
-      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
-    </table>
 
     #### Android and Mobile Web Platform Notes
 

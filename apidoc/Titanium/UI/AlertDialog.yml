@@ -4,14 +4,7 @@ summary: |
     An alert dialog is a modal view that includes an optional title, a message and buttons, 
     positioned in the middle of the display.
 description: |
-    An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.
-    
-    Although this dialog always appears in the middle of the display (not touching the edges), 
-    other aspects of its aesthetics and the way the user interacts with it are different for each 
-    platform, as described below.
-
     <table id="platformComparison">
-      <caption>Visual Comparison by Platform</caption>
       <tr>
         <td><img src="images/alertdialog/alertdialog_android.png" height="75" /></td>
         <td><img src="images/alertdialog/alertdialog_bb.png" height="75" /></td>
@@ -21,6 +14,12 @@ description: |
       <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
     </table>
     
+    An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.
+    
+    Although this dialog always appears in the middle of the display (not touching the edges), 
+    other aspects of its aesthetics and the way the user interacts with it are different for each 
+    platform, as described below.
+
     #### Android
     
     On Android, the default alert dialog displays text information, via a title and message, without 
