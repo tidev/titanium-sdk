@@ -482,9 +482,10 @@ const CFOptionFlags writeStreamEventFlags =
                        subreason:nil
                         location:CODELOCATION];
 	}
-    
-    CFRelease(addressData);
-    
+	else {
+		CFRelease(addressData);
+	}
+	
     socketRunLoop = CFSocketCreateRunLoopSource(kCFAllocatorDefault,
                                                                    socket,
                                                                    1);
