@@ -192,7 +192,7 @@ NSArray* bufferKeySequence = nil;
     NSRange replacement = NSMakeRange(offset, MIN(MIN(sourceLength, [data length]-offset), [[sourceBuffer data] length]-sourceOffset));
     [data replaceBytesInRange:replacement withBytes:(source+sourceOffset)];
     
-    return NUMINT(replacement.length);
+    return [NUMINT(replacement.length) retain];
 }
 
 -(TiBuffer*)clone:(id)args
@@ -297,7 +297,7 @@ NSArray* bufferKeySequence = nil;
 -(TiBlob*)toBlob:(id)_void
 {
 	//TODO: Static analysis finds we're leaking the [data copy]. We should have an autorelease here, but for later.
-    return [[[TiBlob alloc] initWithData:[data copy] mimetype:@"application/octet-stream"] autorelease];
+    return [[[TiBlob alloc] initWithData:[[data copy] autorelease] mimetype:@"application/octet-stream"] autorelease];
 }
 
 -(NSString*)toString:(id)_void 

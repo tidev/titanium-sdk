@@ -183,7 +183,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 	NSString *filePath = [[NSBundle mainBundle] pathForResource:@"debugger" ofType:@"plist"];
     if (filePath != nil) {
-        NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
         NSString *host = [params objectForKey:@"host"];
         NSInteger port = [[params objectForKey:@"port"] integerValue];
         NSString *airkey = [params objectForKey:@"airkey"];
@@ -207,15 +207,13 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 				}
 				[self appBoot];
 			});
-			[params release];
 			return;
 		}
-		[params release];
 #endif
     }
 	filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
 	if (!self.debugMode && filePath != nil) {
-        NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
         NSString *host = [params objectForKey:@"host"];
         NSInteger port = [[params objectForKey:@"port"] integerValue];
         NSString *airkey = [params objectForKey:@"airkey"];
@@ -239,10 +237,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 				}
 				[self appBoot];
 			});
-			[params release];
 			return;
 		}
-		[params release];
 #endif
     }
 	[self appBoot];
@@ -419,7 +415,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
             pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
         }
 
-        [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
+        [pendingCompletionHandlers setObject:[[completionHandler copy] autorelease ]forKey:key];
 
         // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
         // the bridge completes processing of app.js (adding the event into notification center).
@@ -568,7 +564,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
             pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
         }
         
-        [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
+        [pendingCompletionHandlers setObject:[[completionHandler copy] autorelease ]forKey:key];
         
         // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
         // the bridge completes processing of app.js (adding the event into notification center).
@@ -600,7 +596,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         backgroundTransferCompletionHandlers = [[NSMutableDictionary alloc] init];
     }
     
-    [backgroundTransferCompletionHandlers setObject:[completionHandler copy] forKey:key];
+    [backgroundTransferCompletionHandlers setObject:[[completionHandler copy] autorelease ]forKey:key];
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:identifier, @"sessionId",
                                                                              key, @"handlerId", nil];
     [self postNotificationwithKey:dict withNotificationName:kTiBackgroundTransfer];

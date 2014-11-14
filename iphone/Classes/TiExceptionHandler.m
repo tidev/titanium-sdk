@@ -161,7 +161,7 @@ static void TiUncaughtExceptionHandler(NSException *exception)
 		free(frameStrings);
 	}
 	
-	[[TiExceptionHandler defaultExceptionHandler] reportException:exception withStackTrace:[stack copy]];
+	[[TiExceptionHandler defaultExceptionHandler] reportException:exception withStackTrace:[[stack copy] autorelease]];
 	[stack release];
 	
 	insideException=NO;

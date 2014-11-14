@@ -277,7 +277,7 @@
 }
 -(TiFilesystemFileProxy*)file
 {
-	return [[TiFilesystemFileProxy alloc] initWithFile:[self dbPath:name]];
+	return [[[TiFilesystemFileProxy alloc] initWithFile:[self dbPath:name]] autorelease];
 }
 
 #pragma mark Internal

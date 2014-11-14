@@ -64,9 +64,9 @@
 		// Clean up
 		CGContextRelease(bitmap);
 		CGImageRelease(newImageRef);
-		CGColorSpaceRelease(colorSpace);
+
 	}
-    
+	CGColorSpaceRelease(colorSpace);    
     return newImage;
 }
 

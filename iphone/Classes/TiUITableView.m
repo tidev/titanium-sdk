@@ -1108,7 +1108,7 @@
             
         }
         [[self proxy] fireEvent:@"swipe" withObject:event];
-        [event release];
+		RELEASE_TO_NIL(event);
     }
 }
 
@@ -1183,6 +1183,7 @@
             [[self proxy] fireEvent:@"singletap" withObject:event];
         }
     }
+	RELEASE_TO_NIL(event);
 }
 
 -(void)longPressGesture:(UILongPressGestureRecognizer *)recognizer
