@@ -48,12 +48,12 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 
 -(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)pageContext_ baseURL:(NSURL*)baseURL_
 {
+	self = [super init];
 	TopTiModule *module = [[[TopTiModule alloc] _initWithPageContext:pageContext_] autorelease];
 	[module setHost:host_];
 	[module _setBaseURL:baseURL_];
 	
 	pageContext = pageContext_;
-	
 	if (self = [super initWithTarget:module context:context_])
 	{
 		modules = [[NSMutableDictionary alloc] init];
