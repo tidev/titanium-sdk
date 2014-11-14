@@ -12,8 +12,7 @@ var appc = require('node-appc'),
 	path = require('path'),
 	ti = require('titanium-sdk'),
 	tiappxml = require('titanium-sdk/lib/tiappxml'),
-	__ = appc.i18n(__dirname).__,
-	logFileName = 'build_PLATFORM.log';
+	__ = appc.i18n(__dirname).__;
 
 fields.setup({
 	formatters: {
@@ -107,6 +106,9 @@ exports.config = function (logger, config, cli) {
 									}
 								}
 
+								// start file logging here
+								logger = patchLogger(logger, cli);
+
 								// load the tiapp.xml
 								try {
 									var tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'));
@@ -196,8 +198,6 @@ exports.validate = function (logger, config, cli) {
 			if (result !== false) {
 				// no error, load the tiapp.xml plugins
 				ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
-					// start file logging here
-					logger = patchLogger(logger, cli);
 					finished(result);
 				});
 			} else {
@@ -265,11 +265,9 @@ exports.run = function (logger, config, cli, finished) {
 function patchLogger(logger, cli) {
 	var origLoggerLog = logger.log,
 		platform = ti.resolvePlatform(cli.argv.platform),
-		logFilePath = path.join(cli.argv['project-dir'], 'build'),
-		logFile = path.join(logFilePath, logFileName.replace('PLATFORM', platform)),
 		logFileStream;
 	// create our write stream
-	logFileStream = fs.createWriteStream(logFile, { 'flags': 'a', 'encoding': 'ascii' });
+	logFileStream = fs.createWriteStream(path.join(cli.argv['project-dir'], 'build', 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'ascii' });
 	// write the banner to start out the log
 	logFileStream.write(logBanner(cli));
 	// override the existing log function
