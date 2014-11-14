@@ -654,7 +654,9 @@ const CFOptionFlags writeStreamEventFlags =
 			}
 			
 			[streams->writeLock lock];
-			[streams->writeBuffer addObject:data];
+			if (data != nil) {
+				[streams->writeBuffer addObject:data];
+			}
 			
 			if (CFWriteStreamCanAcceptBytes(streams->outputStream)) {
 				[self writeToStream:(NSOutputStream*)(streams->outputStream)];
