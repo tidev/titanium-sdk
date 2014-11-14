@@ -1122,6 +1122,9 @@
 		_splitWidth = MG_PANESPLITTER_SPLIT_WIDTH;
 		self.allowsDraggingDivider = YES;
 	}
+	else {
+		cornerRadius = MG_DEFAULT_CORNER_RADIUS;
+	}
 	
 	// Update divider and corners.
 	[_dividerView setNeedsDisplay];
