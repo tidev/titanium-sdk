@@ -351,7 +351,9 @@
                 DebugLog(@"[WARN] ListView: Update item index is out of range");
                 return;
             }
-            [_items replaceObjectAtIndex:itemIndex withObject:item];
+			if (item != nil) {
+				[_items replaceObjectAtIndex:itemIndex withObject:item];
+			}
             id <TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
             if (theDelegate != nil) {
                 [theDelegate updateSearchResults:nil];
@@ -366,7 +368,9 @@
                 DebugLog(@"[WARN] ListView: Update item index is out of range");
                 return;
             }
-            [_items replaceObjectAtIndex:itemIndex withObject:item];
+			if (item != nil) {
+				[_items replaceObjectAtIndex:itemIndex withObject:item];
+			}
             NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
             [tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:animation];
             [indexPaths release];
