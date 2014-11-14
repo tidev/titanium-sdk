@@ -192,9 +192,6 @@ exports.validate = function (logger, config, cli) {
 	// since we need validate() to be async, we return a function in which the cli
 	// will immediately call
 	return function (finished) {
-		// meaningful state for file logging begins now
-		// triggers code in node_modules/titanium-sdk/lib/builder.js
-		cli.emit('cli:beginlogging');
 		function next(result) {
 			if (result !== false) {
 				// no error, load the tiapp.xml plugins
