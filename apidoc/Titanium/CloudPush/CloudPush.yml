@@ -109,6 +109,18 @@ methods:
         After calling this method, the CloudPush module is reinitialized. Use `retrieveDeviceToken` to
         get the device token again.
     since: 3.1.2
+
+  - name: isGooglePlayServicesAvailable
+    returns:
+        type: Number
+        summary: |
+            One of the following status codes:
+            <Titanium.CloudPush.SUCCESS>, <Titanium.CloudPush.SERVICE_MISSING>,
+            <Titanium.CloudPush.SERVICE_VERSION_UPDATE_REQUIRED>,
+            <Titanium.CloudPush.SERVICE_DISABLED> or <Titanium.CloudPush.SERVICE_INVALID>.
+    summary: Returns a code to indicate whether Google Play Services is available on the device.
+    since: 3.4.1
+    platforms: [android]
 properties:
   - name: enabled
     summary: Whether or not this device will receive push notifications.
@@ -119,6 +131,7 @@ properties:
             protocol.
     type: Boolean
     default: false
+
   - name: showTrayNotification
     summary: Whether or not to show a tray notification when a new push is received.
     description: |
@@ -129,12 +142,14 @@ properties:
         <Titanium.Android.Notification>, except for contentIntent and deleteIntent (those are automatically set).
     type: Boolean
     default: true
+
   - name: showAppOnTrayClick
     summary: Whether or not clicking the tray notification will bring your application to the foreground.
     description: |
         This is only applicable if you have set [showTrayNotification](Titanium.CloudPush.showTrayNotification) to true.
     type: Boolean
     default: true
+
   - name: showTrayNotificationsWhenFocused
     summary: Whether or not to show tray notifications when your application is in the foreground.
     description: |
@@ -144,12 +159,14 @@ properties:
         This is only applicable if you have set [showTrayNotification](Titanium.CloudPush.showTrayNotification) to true.
     type: Boolean
     default: false
+
   - name: focusAppOnPush
     summary: Whether or not your application is brought to the foreground whenever a new push is received.
     description: |
         Note that this behavior is rather disruptive to users, and is strongly discouraged.
     type: Boolean
     default: false
+
   - name: singleCallback
     summary: Set to true to trigger a single callback for the selected push notification when multiple push notifications are displayed in the tray.
     description: |
@@ -159,6 +176,41 @@ properties:
         Set this property to true to receive a single callback for the push notification selected by the user, regardless of how many push notifications are displayed in the tray.
     type: Boolean
     default: false
+
+  - name: SUCCESS
+    summary: Code returned from <Titanium.CloudPush.isGooglePlayServicesAvailable>. Google Play services is available, and the connection is successful.
+    type: Number
+    permission: read-only
+    since: 3.4.1
+    platforms: [android]
+    
+  - name: SERVICE_MISSING
+    summary: Code returned from <Titanium.CloudPush.isGooglePlayServicesAvailable>. Google Play services is not installed on the device.
+    type: Number
+    permission: read-only
+    since: 3.4.1
+    platforms: [android]
+    
+  - name: SERVICE_VERSION_UPDATE_REQUIRED
+    summary: Code returned from <Titanium.CloudPush.isGooglePlayServicesAvailable>. Google Play services is out of date.
+    type: Number
+    permission: read-only
+    since: 3.4.1
+    platforms: [android]
+    
+  - name: SERVICE_DISABLED
+    summary: Code returned from <Titanium.CloudPush.isGooglePlayServicesAvailable>. Google Play services has been disabled on this device.
+    type: Number
+    permission: read-only
+    since: 3.4.1
+    platforms: [android]
+    
+  - name: SERVICE_INVALID
+    summary: Code returned from <Titanium.CloudPush.isGooglePlayServicesAvailable>. The version of Google Play services installed on this device is not authentic.
+    type: Number
+    permission: read-only
+    since: 3.4.1
+    platforms: [android]
 events:
   - name: trayClickLaunchedApp
     summary: Fired when a tray notification is shown and the application is not running.
