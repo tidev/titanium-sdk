@@ -150,6 +150,7 @@
 
 -(BOOL)resignFirstResponder
 {
+	[super resignFirstResponder];
 	return [[self textWidgetView] resignFirstResponder];
 }
 
