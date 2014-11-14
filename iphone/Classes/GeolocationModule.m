@@ -29,7 +29,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(id)initWithCallback:(KrollCallback*)callback_ context:(id<TiEvaluator>)context_
 {
-	if (self = [super init])
+	if (self = [[super init] autorelease])
 	{
 		callback = [callback_ retain];
 		context = [context_ retain];

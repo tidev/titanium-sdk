@@ -276,7 +276,6 @@ self.p = v;\
 	
 	TiAnimation* animation = (TiAnimation*)context;
     if ([animation isReverse]) {
-        RELEASE_TO_NIL(animation.animatedView);
         
         animation = [animation reverseAnimation]; // Use the original animation for correct eventing
         //Make sure we have the animatedViewProxy so we can correctly signal end of animation
@@ -314,7 +313,6 @@ self.p = v;\
 	}	
 	
     RELEASE_TO_NIL(animatedViewProxy);
-	RELEASE_TO_NIL(animation.animatedView);
 }
 
 -(BOOL)isTransitionAnimation
