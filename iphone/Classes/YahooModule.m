@@ -22,7 +22,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 
 -(id)initWithCallback:(KrollCallback*)callback_ module:(YahooModule*)module_
 {
-	if (self = [super init])
+	if (self = [[super init] autorelease])
 	{
 		callback = [callback_ retain];
 		module = [module_ retain];

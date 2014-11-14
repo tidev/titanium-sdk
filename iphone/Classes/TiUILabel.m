@@ -325,6 +325,7 @@
                         NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
                         [paragraphStyle setLineBreakMode:label.lineBreakMode];
                         [optimizedAttributedText addAttribute:(NSString*)kCTParagraphStyleAttributeName value:paragraphStyle range:range];
+						RELEASE_TO_NIL(paragraphStyle);
                     }
                 }];
                 
@@ -336,6 +337,7 @@
                     }
                     [optimizedAttributedText removeAttribute:(NSString*)kCTParagraphStyleAttributeName range:range];
                     [optimizedAttributedText addAttribute:(NSString*)kCTParagraphStyleAttributeName value:paragraphStyle range:range];
+					RELEASE_TO_NIL(paragraphStyle);
                 }];
                 [self checkLinkAttributeForString:optimizedAttributedText atPoint:p];
                 [optimizedAttributedText release];

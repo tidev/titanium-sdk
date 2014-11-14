@@ -211,7 +211,7 @@
 
         NSError *error = nil;
         recorder = [[[AVAudioRecorder alloc] initWithURL:url settings:recordSettings error:&error] retain];
-        
+		RELEASE_TO_NIL(recordSettings);
         if (error != nil) {
             DebugLog(@"Error initializing Recorder. Error %@",[error description]);
             RELEASE_TO_NIL(recorder);
