@@ -174,7 +174,8 @@ static void listeningCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 }
 
 - (id)init {
-	if ([super init] == nil)
+	self = [super init];
+	if (self == nil)
 		return nil;
 	
 	return self;
