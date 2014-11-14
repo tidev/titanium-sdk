@@ -107,7 +107,7 @@ exports.config = function (logger, config, cli) {
 								}
 
 								// start file logging here
-								logger = patchLogger(logger, cli);
+								patchLogger(logger, cli);
 
 								// load the tiapp.xml
 								try {
@@ -312,8 +312,6 @@ function patchLogger(logger, cli) {
 
 		// restore padding
 		logger.padLevels = padLevels;
-
-		return logger;
 	}
 }
 
