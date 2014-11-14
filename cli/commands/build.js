@@ -12,7 +12,8 @@ var appc = require('node-appc'),
 	path = require('path'),
 	ti = require('titanium-sdk'),
 	tiappxml = require('titanium-sdk/lib/tiappxml'),
-	__ = appc.i18n(__dirname).__;
+	__ = appc.i18n(__dirname).__,
+	logFileName = 'build_PLATFORM.log';
 
 fields.setup({
 	formatters: {
@@ -198,6 +199,8 @@ exports.validate = function (logger, config, cli) {
 			if (result !== false) {
 				// no error, load the tiapp.xml plugins
 				ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
+					// start file logging here
+					logger = patchLogger(logger, cli);
 					finished(result);
 				});
 			} else {
@@ -256,3 +259,88 @@ exports.run = function (logger, config, cli, finished) {
 		}
 	});
 };
+
+/**
+ * Monkey-patch the logger object to enable file logging during build
+ * @param {Object} logger - The logger instance
+ * @param {Object} cli - The CLI instance
+ */
+function patchLogger(logger, cli) {
+	var origLoggerLog = logger.log,
+		platform = ti.resolvePlatform(cli.argv.platform),
+		logFilePath = path.join(cli.argv['project-dir'], 'build'),
+		logFile = path.join(logFilePath, logFileName.replace('PLATFORM', platform)),
+		logFileStream;
+	// create our write stream
+	logFileStream = fs.createWriteStream(logFile, { 'flags': 'a', 'encoding': 'ascii' });
+	// write the banner to start out the log
+	logFileStream.write(logBanner(cli));
+	// override the existing log function
+	logger.log = function() {
+		// most of this copied from the CLI's logger.js logger.log() function
+		var args = Array.prototype.slice.call(arguments),
+			padLevels = logger.padLevels,
+			prefix;
+
+		// if there are no args (i.e. a blank line), we need at least one space
+		args.length || args.unshift(' ');
+
+		// if we're not being called from info/warn/error/debug, then set this as a general log entry
+		args[0] in logger.levels || args.unshift('_');
+
+		// turn off padding
+		logger.padLevels = args[0] != '_';
+
+		// get rid of any null args
+		while (args.length && args[args.length-1] == null) args.pop();
+
+		// if we're logging an error, we need to cast to a string so that sprintf doesn't complain
+		if (args[1] instanceof Error || Object.prototype.toString.call(args[1]) == '[object Error]') {
+			args[1] = (args[1].stack || args[1].toString()) + '\n';
+		} else if (args[1] == null || args[1] == undefined) {
+			args[1] = '';
+		}
+
+		typeof type != 'string' && (args[1] = ''+args[1]);
+
+		// strip off starting full colons
+		args[1] = args[1].replace(/:\s{1}/, ' ');
+
+		// add [INFO] type prefixes for each line
+		prefix = (args[0] != "_") ? "[" + args[0].toUpperCase() + "]" + ((args[0].length===5) ? '  ' : '   ') : "";
+
+		// log it to our log file, stripping out the color codes
+		logFileStream.write("\n" + prefix + args[1].replace(/\x1B\[\d+m/g, ''));
+
+		// call the original logger with our cleaned up args
+		origLoggerLog.apply(logger, [args[0], args.length > 2 ? sprintf.apply(null, args.slice(1)) : args[1]]);
+
+		// restore padding
+		logger.padLevels = padLevels;
+
+		return logger;
+	}
+}
+
+/**
+* Outputs environment details at the top of the log file
+* for each run of `titanium build`
+* @param {Object} cli - The CLI instance
+*
+* See http://en.wikipedia.org/wiki/Darwin_%28operating_system%29#Release_history for
+* os.release() to version mapping for OS X. (e.g. 14.0.0 is v10.10 Yosemite)
+*/
+function logBanner(cli) {
+	var os = require('os');
+	return '\n\n---------------------------------\n\n' +
+		new Date().toLocaleString() + '\n\n' +
+		'Build Environment \n' +
+		'   Host OS         = ' + (os.platform()==='darwin' ? "OS X" : os.platform()) + ' ' + os.release() + ', ' + os.arch() + '\n'  +
+		'   Target platform = ' + ti.resolvePlatform(cli.argv.platform) + '\n'  +
+		'   CLI version     = ' + cli.version + '\n'  +
+		'   SDK version     = ' + cli.argv.sdk + '\n' +
+		'   SDK path        = ' + cli.sdk.path + '\n' +
+		'   Node version    = ' + process.version + '\n' +
+		'   Command         = ' + cli.argv.$ + ' ' + cli.argv.$_.join(' ') + '\n' +
+		'\n';
+}
