@@ -4041,20 +4041,6 @@
 					"-DDEBUG",
 					"-DTI_POST_1_2",
 				);
-				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
-					"$(inherited)",
-					"-weak_framework",
-					iAd,
-					"-weak_framework",
-					CoreMedia,
-					"-weak_framework",
-					CoreVideo,
-				);
-				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = (
-					"$(inherited)",
-					"-weak_framework",
-					iAd,
-				);
 				PRODUCT_NAME = Titanium;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -4077,15 +4063,6 @@
 					"\"$(SRCROOT)/../lib\"",
 					"\"$(SRCROOT)/../Classes/APSAnalytics\"",
 					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
-				);
-				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
-					"$(inherited)",
-					"-weak_framework",
-					iAd,
-					"-weak_framework",
-					CoreMedia,
-					"-weak_framework",
-					CoreVideo,
 				);
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -4116,15 +4093,6 @@
 					"-DTI_POST_1_2",
 					"-DDEBUG",
 				);
-				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
-					"$(inherited)",
-					"-weak_framework",
-					iAd,
-					"-weak_framework",
-					CoreMedia,
-					"-weak_framework",
-					CoreVideo,
-				);
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = 2;
 			};
@@ -4150,15 +4118,6 @@
 					"-DIPAD",
 					"-DTI_POST_1_2",
 				);
-				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
-					"$(inherited)",
-					"-weak_framework",
-					iAd,
-					"-weak_framework",
-					CoreMedia,
-					"-weak_framework",
-					CoreVideo,
-				);
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = 2;
 				VALIDATE_PRODUCT = YES;
@@ -4169,9 +4128,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
-				ARCHS = armv7;
-				"ARCHS[sdk=iphoneos*]" = armv7;
-				"ARCHS[sdk=iphonesimulator*]" = i386;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -4207,7 +4163,6 @@
 					"-DDEBUG",
 					"-DTI_POST_1_2",
 				);
-				OTHER_LDFLAGS = "-ObjC";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				RUN_CLANG_STATIC_ANALYZER = NO;
@@ -4220,9 +4175,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
-				ARCHS = armv7;
-				"ARCHS[sdk=iphoneos*]" = armv7;
-				"ARCHS[sdk=iphonesimulator*]" = i386;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -4254,7 +4206,6 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				OTHER_CFLAGS = "-DTI_POST_1_2";
-				OTHER_LDFLAGS = "-ObjC";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				RUN_CLANG_STATIC_ANALYZER = NO;
@@ -4267,9 +4218,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
-				ARCHS = armv7;
-				"ARCHS[sdk=iphoneos*]" = armv7;
-				"ARCHS[sdk=iphonesimulator*]" = i386;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -4305,7 +4253,6 @@
 					"-DTI_POST_1_2",
 					"-DDEVELOPER",
 				);
-				OTHER_LDFLAGS = "-ObjC";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				RUN_CLANG_STATIC_ANALYZER = NO;
@@ -4338,20 +4285,6 @@
 					"-DDEBUG",
 					"-DTI_POST_1_2",
 				);
-				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
-					"$(inherited)",
-					"-weak_framework",
-					iAd,
-					"-weak_framework",
-					CoreMedia,
-					"-weak_framework",
-					CoreVideo,
-				);
-				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = (
-					"$(inherited)",
-					"-weak_framework",
-					iAd,
-				);
 				PRODUCT_NAME = Titanium;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -4380,15 +4313,6 @@
 					"-DIPAD",
 					"-DTI_POST_1_2",
 					"-DDEBUG",
-				);
-				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
-					"$(inherited)",
-					"-weak_framework",
-					iAd,
-					"-weak_framework",
-					CoreMedia,
-					"-weak_framework",
-					CoreVideo,
 				);
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -4422,15 +4346,6 @@
 					"-DIPAD",
 					"-DTI_POST_1_2",
 					"-DDEBUG",
-				);
-				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
-					"$(inherited)",
-					"-weak_framework",
-					iAd,
-					"-weak_framework",
-					CoreVideo,
-					"-weak_framework",
-					CoreMedia,
 				);
 				PRODUCT_NAME = Titanium;
 				SDKROOT = iphoneos;
@@ -4466,15 +4381,6 @@
 					"-DTI_POST_1_2",
 					"-DDEBUG",
 				);
-				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
-					"$(inherited)",
-					"-weak_framework",
-					iAd,
-					"-weak_framework",
-					CoreVideo,
-					"-weak_framework",
-					CoreMedia,
-				);
 				PRODUCT_NAME = Titanium;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -4500,15 +4406,6 @@
 				OTHER_CFLAGS = (
 					"-DIPAD",
 					"-DTI_POST_1_2",
-				);
-				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
-					"$(inherited)",
-					"-weak_framework",
-					iAd,
-					"-weak_framework",
-					CoreVideo,
-					"-weak_framework",
-					CoreMedia,
 				);
 				PRODUCT_NAME = Titanium;
 				SDKROOT = iphoneos;
