@@ -15,6 +15,8 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
@@ -77,47 +79,23 @@ public class TiUIText extends TiUIView
 	private boolean isTruncatingText = false;
 	private boolean disableChangeEvent = false;
 
-	protected TiEditText tv;
+	protected EditText tv;
 	
-	public class TiEditText extends EditText 
-	{
-		public TiEditText(Context context) 
-		{
-			super(context);
-		}
-		
-		/** 
-		 * Check whether the called view is a text editor, in which case it would make sense to 
-		 * automatically display a soft input window for it.
-		 */
-		@Override
-		public boolean onCheckIsTextEditor () {
-			if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
-					&& TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
-					return false;
-			}
-			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE)
-					&& !(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)))) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		protected void onLayout(boolean changed, int left, int top, int right, int bottom)
-		{
-			super.onLayout(changed, left, top, right, bottom);
-			TiUIHelper.firePostLayoutEvent(proxy);
-		}
-	}
-
 	public TiUIText(TiViewProxy proxy, boolean field)
 	{
 		super(proxy);
 		Log.d(TAG, "Creating a text field", Log.DEBUG_MODE);
 		
 		this.field = field;
-		tv = new TiEditText(getProxy().getActivity());
+		// tv = new TiEditText(getProxy().getActivity());
+		int editTextId;
+		try {
+			editTextId = TiRHelper.getResource("layout.ti_edit_text");
+		} catch (ResourceNotFoundException e) {
+			Log.e(TAG, "XML resources could not be found!!!");
+			return;
+		} 
+		tv = (EditText) getProxy().getActivity().getLayoutInflater().inflate(editTextId, null);
 		if (field) {
 			tv.setSingleLine();
 			tv.setMaxLines(1);

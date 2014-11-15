@@ -27,11 +27,12 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.EditText;
 
 public class TiUISearchBar extends TiUIText
 {
 	protected ImageButton cancelBtn;
-	private TiEditText tv;
+	private EditText tv;
 	private TextView promptText;
 	
 	public interface OnSearchChangeListener {
@@ -44,7 +45,7 @@ public class TiUISearchBar extends TiUIText
 	{
 		super(proxy, true);
 
-		tv = (TiEditText) getNativeView();
+		tv = (EditText) getNativeView();
 		tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 		promptText = new TextView(proxy.getActivity());
 		promptText.setEllipsize(TruncateAt.END);
