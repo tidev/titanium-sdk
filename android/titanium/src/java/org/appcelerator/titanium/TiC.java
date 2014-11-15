@@ -153,6 +153,16 @@ public class TiC
 	 */
 	public static final String EVENT_FOCUSED = "focused";
 
+        /**
+         * @module.api
+         */
+        public static final String EVENT_SELECTED = "selected";
+
+        /**
+         * @module.api
+         */
+        public static final String EVENT_UNSELECTED = "unselected";
+
 	/**
 	 * @module.api
 	 */
@@ -580,6 +590,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ACTIVE_TAB = "activeTab";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SWIPEABLE = "swipeable";
 
 	/**
 	 * @module.api
@@ -1182,6 +1197,26 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_FONTFAMILY = "fontFamily";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FONTWEIGHT = "fontWeight";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FONTSIZE = "fontSize";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FONTSTYLE = "fontStyle";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FONT_FAMILY = "font-family";
 
 	/**
@@ -1440,6 +1475,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LIFECYCLE_CONTAINER = "lifecycleContainer";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LOAD_URL = "loadUrl";
 	
 	/**
@@ -1650,6 +1690,41 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ON_CREATE = "onCreate";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_START = "onStart";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_RESUME = "onResume";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_RESTART = "onRestart";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_PAUSE = "onPause";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_STOP = "onStop";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_DESTROY = "onDestroy";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ON_CREATE_WINDOW = "onCreateWindow";
 
 	/**
@@ -1701,6 +1776,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_OVER_SCROLL_MODE = "overScrollMode";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_OVERRIDE_CURRENT_ANIMATION = "overrideCurrentAnimation";
 
 	/**
 	 * @module.api
@@ -2073,7 +2153,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SOURCE_POSITION = "sourcePosition";
-	
+
+	/**
+	* @module.api
+	*/
+	public static final String PROPERTY_SPLIT_ACTIONBAR = "splitActionBar";
+
 	/**
 	 * @module.api
 	 */
@@ -2178,6 +2263,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TEXTID = "textid";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_THEME = "theme";
 
 	/**
 	 * @module.api
@@ -2322,6 +2412,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VISIBLE = "visible";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VISIBILITY = "visibility";
 
 	/**
 	 * @module.api
@@ -2421,6 +2516,68 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LIGHT_TOUCH_ENABLED = "lightTouchEnabled";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CATEGORY = "category";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CUSTOM = "custom";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MIN_DATE = "minDate";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MAX_DATE = "maxDate";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PREFIX = "prefix";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PRIORITY = "priority";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SUFFIX = "suffix";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FIRSTPHONETIC = "firstPhonetic";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MIDDLEPHONETIC = "middlePhonetic";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LASTPHONETIC = "lastPhonetic";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_JOBTITLE = "jobTitle";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DEPARTMENT = "department";
+	
+	
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";

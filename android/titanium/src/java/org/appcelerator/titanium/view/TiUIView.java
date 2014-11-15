@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
@@ -131,6 +132,8 @@ public abstract class TiUIView
 	private int visibility = View.VISIBLE;
 	
 	protected GestureDetector detector = null;
+	
+	private AtomicBoolean bLayoutPending = new AtomicBoolean();
 
 
 	/**
@@ -550,6 +553,12 @@ public abstract class TiUIView
 		}
 	}
 
+	
+	public boolean isLayoutPending()
+	{
+		return bLayoutPending.get();
+	}
+	
 	protected void layoutNativeView(boolean informParent)
 	{
 		if (nativeView != null) {
@@ -566,6 +575,30 @@ public abstract class TiUIView
 					}
 				}
 			}
+			final View v = getOuterView();
+			if (v != null) {
+				bLayoutPending.set(true);
+				OnGlobalLayoutListener layoutListener = new OnGlobalLayoutListener()
+				{
+					public void onGlobalLayout()
+					{
+						bLayoutPending.set(false);
+						try {
+							if (Build.VERSION.SDK_INT < TiC.API_LEVEL_JELLY_BEAN) {
+								v.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+							} else {
+								v.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+							}
+						} catch (IllegalStateException e) {
+							if (Log.isDebugModeEnabled()) {
+								Log.w(TAG, "Unable to remove the OnGlobalLayoutListener.", e.getMessage());
+							}
+						}
+					}
+				};
+				v.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
+			}
+			
 			nativeView.requestLayout();
 		}
 	}
@@ -963,7 +996,7 @@ public abstract class TiUIView
 					}
 				}
 			}
-			getOuterView().setBackgroundDrawable(background);
+			nativeView.setBackgroundDrawable(background);
 		}
 	}
 
@@ -1178,16 +1211,18 @@ public abstract class TiUIView
 					// If the view already has a parent, we need to detach it from the parent
 					// and add the borderView to the parent as the child
 					ViewGroup savedParent = null;
+					int childIndex = -1;
 					if (nativeView.getParent() != null) {
 						ViewParent nativeParent = nativeView.getParent();
 						if (nativeParent instanceof ViewGroup) {
 							savedParent = (ViewGroup) nativeParent;
+							childIndex = savedParent.indexOfChild(nativeView);
 							savedParent.removeView(nativeView);
 						}
 					}
 					borderView.addView(nativeView, params);
 					if (savedParent != null) {
-						savedParent.addView(borderView, getLayoutParams());
+						savedParent.addView(borderView, childIndex, getLayoutParams());
 					}
 					borderView.setVisibility(this.visibility);
 				}
@@ -1594,13 +1629,11 @@ public abstract class TiUIView
 			Log.w(TAG, "Ignoring invalid value for opacity: " + opacity);
 			return;
 		}
+		
 		if (borderView != null) {
-			borderView.setBorderAlpha(Math.round(opacity * 255));
-			borderView.postInvalidate();
-		}
-		if (nativeView != null) {
+			setOpacity(borderView, opacity);
+		} else if (nativeView != null) {
 			setOpacity(nativeView, opacity);
-			nativeView.postInvalidate();
 		}
 	}
 
@@ -1613,6 +1646,7 @@ public abstract class TiUIView
 	protected void setAlpha(View view, float alpha)
 	{
 		view.setAlpha(alpha);
+		view.postInvalidate();
 	}
 
 	/**

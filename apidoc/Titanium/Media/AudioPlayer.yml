@@ -267,6 +267,14 @@ properties:
     summary: Bit rate of the current playback stream.
     type: Number
     platforms: [iphone, ipad]
+  - name: duration
+    summary: Estimated duration in milliseconds of the file being played.
+    description: |
+        May return `0` when playing a live stream.
+    type: Number
+    since: "3.3.0"
+    platforms: [android, iphone, ipad]
+    permission: read-only
   - name: idle
     summary: Boolean indicating if the player is idle.
     description: |

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -1475,7 +1475,8 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 -(void)main
 {
 	IMP ourFunction = [invocationTarget methodForSelector:invocationSelector];
-	id result = ourFunction(invocationTarget,invocationSelector,
+    typedef id (*idIMP) (id, SEL, ...);
+	id result = ((idIMP)ourFunction)(invocationTarget,invocationSelector,
 		invocationArg1,invocationArg2,invocationArg3,invocationArg4);
 
 }

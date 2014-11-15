@@ -74,7 +74,7 @@ methods:
     summary: Adds an item to this behavior.
     parameters:
       - name: item
-        summary: 
+        summary: View object to add to the behavior.
         type: Titanium.UI.View
 
   - name: removeItem
@@ -87,7 +87,9 @@ methods:
 examples:
   - title: Simple Example
     example: |
-        The following example generates a random push force on the block when it stops
+        The following example generates a random push force on the block when it stops.
+
+        <img src="images/animator/pushforce.gif" height="455" style="border:1px solid black"/>
 
             var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
 

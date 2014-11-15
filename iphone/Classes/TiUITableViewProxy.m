@@ -882,6 +882,11 @@ DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 	[self setSections:newSections withObject:nil];
 }
 
+-(void)willShow
+{
+    [(TiUITableView *)[self view] refreshSearchControllerUsingReload:YES];
+}
+
 -(int)sectionCount
 { //TODO: Shouldn't this be in the main thread, too?
 	return [sections count];
@@ -1108,9 +1113,9 @@ DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 	}
 	
 	int sectionIndex;
-	ENSURE_INT_AT_INDEX(sectionIndex, args, 1);
+	ENSURE_INT_AT_INDEX(sectionIndex, args, 0);
 	
-	id sectionObject = [args objectAtIndex:0];
+	id sectionObject = [args objectAtIndex:1];
 	TiUITableViewSectionProxy * section = [self tableSectionFromArg:sectionObject];
 	
 	if (section == nil) {

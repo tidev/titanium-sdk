@@ -1,7 +1,7 @@
 {
 	"name": "titanium-mobile",
 	"description": "Appcelerator Titanium Mobile",
-	"version": "3.3.0",
+	"version": "3.5.0",
 	"keywords": [
 		"appcelerator",
 		"titanium",
@@ -21,16 +21,16 @@
 		"colors": "~0.6.2",
 		"css-parse": "~1.5.3",
 		"ejs": "~0.8.4",
-		"fields": "~0.1.11",
+		"fields": "~0.1.22",
 		"humanize": "~0.0.9",
+		"ioslib": "0.2.9",
 		"moment": "~2.4.0",
-		"node-appc": "0.2.2",
-		"node-forge": "~0.2.17",
-		"node-ios-device": "~0.2.2",
+		"node-appc": "0.2.21",
 		"node-uuid": "~1.4.1",
 		"request": "~2.34.0",
 		"temp": "~0.6.0",
 		"uglify-js": "~2.4.3",
+		"windowslib": "0.1.1",
 		"wrench": "~1.5.1",
 		"xmldom": "~0.1.16"
 	},
@@ -43,6 +43,11 @@
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/appcelerator/titanium_mobile.git"
+	},
+	"vendorDependencies": {
+		"visual studio": ">=10 <=12",
+		"windows phone sdk": "8.x",
+		"msbuild": ">=4.0"
 	},
 	"engines": {
 		"node": ">=0.8"

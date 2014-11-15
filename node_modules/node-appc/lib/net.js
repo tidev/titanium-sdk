@@ -130,7 +130,7 @@ exports.online = function online(callback) {
  * @param {Object} obj - The object to convert
  * @returns {String} The serialized object
  */
-exports.urlEncode =  function urlEncode(obj) {
+exports.urlEncode = function urlEncode(obj) {
 	var enc = encodeURIComponent,
 		pairs = [],
 		prop, value, i, l;

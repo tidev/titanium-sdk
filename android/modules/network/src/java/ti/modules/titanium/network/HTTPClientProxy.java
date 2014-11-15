@@ -21,7 +21,9 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.xml.DocumentProxy;
 
-@Kroll.proxy(creatableInModule=NetworkModule.class)
+@Kroll.proxy(creatableInModule=NetworkModule.class, propertyAccessors = {
+	TiC.PROPERTY_FILE
+})
 public class HTTPClientProxy extends KrollProxy
 {
 	@Kroll.constant public static final int UNSENT = TiHTTPClient.READY_STATE_UNSENT;
@@ -30,7 +32,9 @@ public class HTTPClientProxy extends KrollProxy
 	@Kroll.constant public static final int LOADING = TiHTTPClient.READY_STATE_LOADING;
 	@Kroll.constant public static final int DONE = TiHTTPClient.READY_STATE_DONE;
 
+	public static final String PROPERTY_SECURITY_MANAGER = "securityManager";
 	private TiHTTPClient client;
+
 
 	public HTTPClientProxy()
 	{
@@ -47,7 +51,17 @@ public class HTTPClientProxy extends KrollProxy
 	{
 		super.handleCreationDict(dict);
 		if (hasProperty(TiC.PROPERTY_TIMEOUT)) {
-			client.setTimeout(TiConvert.toInt(getProperty(TiC.PROPERTY_TIMEOUT)));
+			client.setTimeout(TiConvert.toInt(getProperty(TiC.PROPERTY_TIMEOUT),0));
+		}
+		
+		//Set the securityManager on the client if it is defined as a valid value
+		if (hasProperty(PROPERTY_SECURITY_MANAGER)) {
+			Object prop = getProperty(PROPERTY_SECURITY_MANAGER);
+			if (prop instanceof SecurityManagerProtocol) {
+				this.client.securityManager = (SecurityManagerProtocol)prop;
+			} else {
+				throw new IllegalArgumentException("Invalid argument passed to securityManager property. Does not conform to SecurityManagerProtocol");
+			}
 		}
 	}
 

@@ -228,7 +228,7 @@ namespace TitaniumApp
 							StorageFile theFile;
 							try {
 								theFile = await installFolder.GetFileAsync(file);
-							} catch (Exception e) {
+							} catch (Exception) {
 								Logger.log("XHRProxy", "404 File Not Found");
 								Logger.log("XHRProxy", "Original file: " + originalFile);
 								Logger.log("XHRProxy", "Resolved file: " + file);

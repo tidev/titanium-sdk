@@ -11,14 +11,14 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
+import android.graphics.drawable.Drawable;
+import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.os.Message;
 
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED
@@ -36,7 +36,10 @@ public class ActionBarProxy extends KrollProxy
 	private static final int MSG_SET_HOME_BUTTON_ENABLED = MSG_FIRST_ID + 107;
 	private static final int MSG_SET_NAVIGATION_MODE = MSG_FIRST_ID + 108;
 	private static final int MSG_SET_SUBTITLE = MSG_FIRST_ID + 109;
+	private static final int MSG_SET_DISPLAY_SHOW_HOME = MSG_FIRST_ID + 110;
+	private static final int MSG_SET_DISPLAY_SHOW_TITLE = MSG_FIRST_ID + 111;
 	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
+	private static final String HOME_BUTTON_ENABLED = "homeButtonEnabled";
 	private static final String BACKGROUND_IMAGE = "backgroundImage";
 	private static final String TITLE = "title";
 	private static final String LOGO = "logo";
@@ -45,6 +48,7 @@ public class ActionBarProxy extends KrollProxy
 	private static final String TAG = "ActionBarProxy";
 
 	private ActionBar actionBar;
+	private boolean showTitleEnabled = true;
 
 	public ActionBarProxy(ActionBarActivity activity)
 	{
@@ -60,6 +64,18 @@ public class ActionBarProxy extends KrollProxy
 		} else {
 			Message message = getMainHandler().obtainMessage(MSG_DISPLAY_HOME_AS_UP, showHomeAsUp);
 			message.getData().putBoolean(SHOW_HOME_AS_UP, showHomeAsUp);
+			message.sendToTarget();
+		}
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setHomeButtonEnabled(boolean homeButtonEnabled)
+	{
+		if(TiApplication.isUIThread()) {
+			handlesetHomeButtonEnabled(homeButtonEnabled);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_HOME_BUTTON_ENABLED, homeButtonEnabled);
+			message.getData().putBoolean(HOME_BUTTON_ENABLED, homeButtonEnabled);
 			message.sendToTarget();
 		}
 	}
@@ -108,6 +124,35 @@ public class ActionBarProxy extends KrollProxy
 		} else {
 			Message message = getMainHandler().obtainMessage(MSG_SET_SUBTITLE, subTitle);
 			message.getData().putString(TiC.PROPERTY_SUBTITLE, subTitle);
+			message.sendToTarget();
+		}
+	}
+	
+	@Kroll.method 
+	public void setDisplayShowHomeEnabled(boolean show) {
+		if (actionBar == null) {
+			return;
+		}
+		
+		if (TiApplication.isUIThread()) {
+			actionBar.setDisplayShowHomeEnabled(show);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_DISPLAY_SHOW_HOME, show);
+			message.sendToTarget();
+		}
+	}
+	
+	@Kroll.method
+	public void setDisplayShowTitleEnabled(boolean show) {
+		if (actionBar == null) {
+			return;
+		}
+		
+		if (TiApplication.isUIThread()) {
+			actionBar.setDisplayShowTitleEnabled(show);
+			showTitleEnabled = show;
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_DISPLAY_SHOW_TITLE, show);
 			message.sendToTarget();
 		}
 	}
@@ -247,8 +292,8 @@ public class ActionBarProxy extends KrollProxy
 		Drawable backgroundImage = getDrawableFromUrl(url);
 		//This is a workaround due to https://code.google.com/p/styled-action-bar/issues/detail?id=3. [TIMOB-12148]
 		if (backgroundImage != null) {
-			actionBar.setDisplayShowTitleEnabled(false);
-			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
+			actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
 			actionBar.setBackgroundDrawable(backgroundImage);
 		}
 	}
@@ -261,6 +306,15 @@ public class ActionBarProxy extends KrollProxy
 			Log.w(TAG, "ActionBar is not enabled");
 		}
 	}
+
+        private void handlesetHomeButtonEnabled(boolean homeButtonEnabled)
+        {
+                if (actionBar != null) {
+                        actionBar.setHomeButtonEnabled(homeButtonEnabled);
+                } else {
+                        Log.w(TAG, "ActionBar is not enabled");
+                }
+        }
 
 	private void handlesetNavigationMode(int navigationMode)
 	{
@@ -306,7 +360,21 @@ public class ActionBarProxy extends KrollProxy
 			case MSG_SET_SUBTITLE:
 				handleSetSubTitle(msg.getData().getString(TiC.PROPERTY_SUBTITLE));
 				return true;
-
+			case MSG_SET_DISPLAY_SHOW_HOME: {
+				boolean show = TiConvert.toBoolean(msg.obj, true);
+				if (actionBar != null) {
+					actionBar.setDisplayShowHomeEnabled(show);
+				}
+				return true;
+			}
+			case MSG_SET_DISPLAY_SHOW_TITLE: {
+				boolean show = TiConvert.toBoolean(msg.obj, true);
+				if (actionBar != null) {
+					actionBar.setDisplayShowTitleEnabled(show);
+					showTitleEnabled = show;
+				}
+				return true;
+			}
 			case MSG_SHOW:
 				handleShow();
 				return true;
@@ -320,7 +388,7 @@ public class ActionBarProxy extends KrollProxy
 				handleSetIcon(msg.getData().getString(ICON));
 				return true;
 			case MSG_SET_HOME_BUTTON_ENABLED:
-				actionBar.setHomeButtonEnabled(true);
+				handlesetHomeButtonEnabled(msg.getData().getBoolean(HOME_BUTTON_ENABLED));
 				return true;
 		}
 		return super.handleMessage(msg);
@@ -335,7 +403,9 @@ public class ActionBarProxy extends KrollProxy
 			if (TiApplication.isUIThread()) {
 				actionBar.setHomeButtonEnabled(true);
 			} else {
-				getMainHandler().obtainMessage(MSG_SET_HOME_BUTTON_ENABLED).sendToTarget();
+				Message message = getMainHandler().obtainMessage(MSG_SET_HOME_BUTTON_ENABLED, true);
+				message.getData().putBoolean(HOME_BUTTON_ENABLED, true);
+				message.sendToTarget();
 			}
 		}
 		super.onPropertyChanged(name, value);

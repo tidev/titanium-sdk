@@ -22,10 +22,10 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiTranslucentActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.DecorViewProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiView;
@@ -51,7 +51,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 {
 	private static final String TAG = "WindowProxy";
 	private static final String PROPERTY_POST_WINDOW_CREATED = "postWindowCreated";
-	private static final String PROPERTY_LOAD_URL = "loadUrl";
 
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SET_PIXEL_FORMAT = MSG_FIRST_ID + 100;
@@ -310,6 +309,27 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (hasProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
 			intent.putExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT), PixelFormat.UNKNOWN));
 		}
+
+		// Set the theme property
+		if (hasProperty(TiC.PROPERTY_THEME)) {
+			String theme = TiConvert.toString(getProperty(TiC.PROPERTY_THEME));
+			if (theme != null) {
+				try {
+					intent.putExtra(TiC.PROPERTY_THEME,
+						TiRHelper.getResource("style." + theme.replaceAll("[^A-Za-z0-9_]", "_")));
+				} catch (Exception e) {
+					Log.w(TAG, "Cannot find the theme: " + theme);
+				}
+			}
+		}
+		
+		// Set the splitActionBar property
+		if (hasProperty(TiC.PROPERTY_SPLIT_ACTIONBAR)) {
+			boolean splitActionBar = TiConvert.toBoolean(getProperty(TiC.PROPERTY_SPLIT_ACTIONBAR), false);
+			if (splitActionBar){
+				intent.putExtra(TiC.PROPERTY_SPLIT_ACTIONBAR, splitActionBar);
+			}
+		}
 	}
 
 	@Override
@@ -324,6 +344,12 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				|| TiC.PROPERTY_RIGHT.equals(name)) {
 				// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
 				return;
+			} else if (TiC.PROPERTY_EXIT_ON_CLOSE.equals(name)) {
+				Activity activity = (windowActivity != null) ? (Activity)(windowActivity.get()) : null;
+				if (activity != null) {
+					Intent intent = activity.getIntent();
+					intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(value));
+				}
 			}
 		}
 
@@ -334,7 +360,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Kroll.setProperty(retain=false) @Kroll.method
 	public void setWidth(Object width)
 	{
-		// We know it's a HW window only when it's opening/opened.
 		if (opening || opened) {
 			Object current = getProperty(TiC.PROPERTY_WIDTH);
 			if (shouldFireChange(current, width)) {
@@ -353,7 +378,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Kroll.setProperty(retain=false) @Kroll.method
 	public void setHeight(Object height)
 	{
-		// We know it's a HW window only when it's opening/opened.
 		if (opening || opened) {
 			Object current = getProperty(TiC.PROPERTY_HEIGHT);
 			if (shouldFireChange(current, height)) {
@@ -425,23 +449,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				}
 			}
 		}
-	}
-
-	@Kroll.method(name = "_getWindowActivityProxy")
-	public ActivityProxy getWindowActivityProxy()
-	{
-		if (opened) {
-			return super.getActivityProxy();
-		} else {
-			return null;
-		}
-	}
-
-	@Kroll.method(name = "_isLightweight")
-	public boolean isLightweight()
-	{
-		// We know whether a window is lightweight or not only after it opens.
-		return false;
 	}
 
 	@Override

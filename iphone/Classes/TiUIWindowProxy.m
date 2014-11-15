@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -341,19 +341,25 @@
 
 -(void)setNavTintColor:(id)colorString
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [self replaceValue:[TiUtils stringValue:colorString] forKey:@"navTintColor" notification:NO];
-	    return;
-    }
-    ENSURE_UI_THREAD(setNavTintColor,colorString);
     NSString *color = [TiUtils stringValue:colorString];
     [self replaceValue:color forKey:@"navTintColor" notification:NO];
-    if (controller!=nil) {
-        TiColor * newColor = [TiUtils colorValue:color];
-        UINavigationBar * navBar = [[controller navigationController] navigationBar];
-        [navBar setTintColor:[newColor color]];
-        [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+    if (![TiUtils isIOS7OrGreater]) {
+        return;
     }
+    
+    TiThreadPerformOnMainThread(^{
+        if(controller != nil) {
+            TiColor * newColor = [TiUtils colorValue:color];
+            if (newColor == nil) {
+                //Get from TabGroup
+                newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
+            }
+            UINavigationBar * navBar = [[controller navigationController] navigationBar];
+            [navBar setTintColor:[newColor color]];
+            [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+        }
+        
+    }, NO);    
 }
 
 -(void)setBarColor:(id)colorString
@@ -373,7 +379,7 @@
         UIBarStyle navBarStyle = [TiUtils barStyleForColor:newColor];
 
         UINavigationBar * navBar = [[controller navigationController] navigationBar];
-        [navBar setBarStyle:barStyle];
+        [navBar setBarStyle:navBarStyle];
         if([TiUtils isIOS7OrGreater]) {
             [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
         } else {
@@ -388,6 +394,10 @@
     ENSURE_UI_THREAD(setTitleAttributes,args);
     ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
     [self replaceValue:args forKey:@"titleAttributes" notification:NO];
+    
+    if (args == nil) {
+        args = [[self tabGroup] valueForUndefinedKey:@"titleAttributes"];
+    }
 
     NSMutableDictionary* theAttributes = nil;
     if (args != nil) {
@@ -395,28 +405,20 @@
         if ([args objectForKey:@"color"] != nil) {
             UIColor* theColor = [[TiUtils colorValue:@"color" properties:args] _color];
             if (theColor != nil) {
-                [theAttributes setObject:theColor forKey:([TiUtils isIOS7OrGreater] ? NSForegroundColorAttributeName : UITextAttributeTextColor)];
+                [theAttributes setObject:theColor forKey:NSForegroundColorAttributeName];
             }
         }
         if ([args objectForKey:@"shadow"] != nil) {
             NSShadow* shadow = [TiUtils shadowValue:[args objectForKey:@"shadow"]];
             if (shadow != nil) {
-                if ([TiUtils isIOS7OrGreater]) {
-                    [theAttributes setObject:shadow forKey:NSShadowAttributeName];
-                } else {
-                    if (shadow.shadowColor != nil) {
-                        [theAttributes setObject:shadow.shadowColor forKey:UITextAttributeTextShadowColor];
-                    }
-                    NSValue *theValue = [NSValue valueWithUIOffset:UIOffsetMake(shadow.shadowOffset.width, shadow.shadowOffset.height)];
-                    [theAttributes setObject:theValue forKey:UITextAttributeTextShadowOffset];
-                }
+                [theAttributes setObject:shadow forKey:NSShadowAttributeName];
             }
         }
         
         if ([args objectForKey:@"font"] != nil) {
             UIFont* theFont = [[TiUtils fontValue:[args objectForKey:@"font"] def:nil] font];
             if (theFont != nil) {
-                [theAttributes setObject:theFont forKey:([TiUtils isIOS7OrGreater] ? NSFontAttributeName : UITextAttributeFont)];
+                [theAttributes setObject:theFont forKey:NSFontAttributeName];
             }
         }
         
@@ -509,6 +511,28 @@
         BOOL def = [TiUtils isIOS7OrGreater] ? YES: NO;
 		[controller navigationController].navigationBar.translucent = [TiUtils boolValue:value def:def];
 	}
+}
+
+-(void)updateNavButtons
+{
+    //Update LeftNavButton
+    NSDictionary* lProperties = [self valueForUndefinedKey:@"leftNavSettings"];
+    id leftNavButtons = [self valueForUndefinedKey:@"leftNavButtons"];
+    if (!IS_NULL_OR_NIL(leftNavButtons)) {
+        [self setLeftNavButtons:leftNavButtons withObject:lProperties];
+    } else {
+        leftNavButtons = [self valueForUndefinedKey:@"leftNavButton"];
+        [self setLeftNavButton:leftNavButtons withObject:lProperties];
+    }
+    //Update RightNavButton
+    NSDictionary* rProperties = [self valueForUndefinedKey:@"rightNavSettings"];
+    id rightNavButtons = [self valueForUndefinedKey:@"rightNavButtons"];
+    if (!IS_NULL_OR_NIL(rightNavButtons)) {
+        [self setRightNavButtons:rightNavButtons withObject:rProperties];
+    } else {
+        rightNavButtons = [self valueForUndefinedKey:@"rightNavButton"];
+        [self setRightNavButton:rightNavButtons withObject:rProperties];
+    }
 }
 
 -(void)refreshRightNavButtons:(id)unused
@@ -786,9 +810,13 @@
 		NSURL * path = [TiUtils toURL:[self valueForKey:@"titleImage"] proxy:self];
 		//Todo: This should be [TiUtils navBarTitleViewSize] with the thumbnail scaling. For now, however, we'll go with auto.
 		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:path withSize:CGSizeZero];
-		if (image!=nil)
-		{
-			newTitleView = [[[UIImageView alloc] initWithImage:image] autorelease];
+		if (image!=nil) {
+			if ([oldView isKindOfClass:[UIImageView class]]) {
+				[(UIImageView*)oldView setImage:image];
+				newTitleView = oldView;
+			} else {
+				newTitleView = [[[UIImageView alloc] initWithImage:image] autorelease];
+			}
 		}
 	}
 
@@ -821,13 +849,13 @@
 
 -(void)setTitle:(NSString*)title_
 {
-	ENSURE_UI_THREAD(setTitle,title_);
-	NSString *title = [TiUtils stringValue:title_];
-	[self replaceValue:title forKey:@"title" notification:NO];
-	if (controller!=nil && [controller navigationController] != nil)
-	{
-		controller.navigationItem.title = title;
-	}
+    NSString *title = [TiUtils stringValue:title_];
+    [self replaceValue:title forKey:@"title" notification:NO];
+    TiThreadPerformOnMainThread(^{
+        if (shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+            controller.navigationItem.title = title;
+        }
+    }, NO);
 }
 
 -(void)setTitlePrompt:(NSString*)title_
@@ -968,8 +996,7 @@ else{\
     SETPROP(@"tabBarHidden",setTabBarHidden);
     SETPROPOBJ(@"toolbar",setToolbar);
     [self updateBarImage];
-    [self refreshLeftNavButtons:nil];
-    [self refreshRightNavButtons:nil];
+    [self updateNavButtons];
     [self refreshBackButton];
 
     id navBarHidden = [self valueForKey:@"navBarHidden"];

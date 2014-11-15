@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -145,7 +145,7 @@
 -(void)attachViewToTopContainerController
 {
     UIViewController<TiControllerContainment>* topContainerController = [[[TiApp app] controller] topContainerController];
-    UIView *rootView = [topContainerController view];
+    UIView *rootView = [topContainerController hostingView];
     TiUIView* theView = [self view];
     [rootView addSubview:theView];
     [rootView bringSubviewToFront:theView];
@@ -237,15 +237,8 @@
     int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"] def:[[[TiApp app] controller] defaultStatusBarStyle]];
     switch (theStyle){
         case UIStatusBarStyleDefault:
-            barStyle = UIStatusBarStyleDefault;
-            break;
-        case UIStatusBarStyleBlackOpaque:
-        case UIStatusBarStyleBlackTranslucent: //This will also catch UIStatusBarStyleLightContent
-            if ([TiUtils isIOS7OrGreater]) {
-                barStyle = 1;//UIStatusBarStyleLightContent;
-            } else {
-                barStyle = theStyle;
-            }
+        case UIStatusBarStyleLightContent:
+            barStyle = theStyle;
             break;
         default:
             barStyle = UIStatusBarStyleDefault;
@@ -272,15 +265,8 @@
     int theStyle = [TiUtils intValue:style def:[[[TiApp app] controller] defaultStatusBarStyle]];
     switch (theStyle){
         case UIStatusBarStyleDefault:
-            barStyle = UIStatusBarStyleDefault;
-            break;
-        case UIStatusBarStyleBlackOpaque:
-        case UIStatusBarStyleBlackTranslucent: //This will also catch UIStatusBarStyleLightContent
-            if ([TiUtils isIOS7OrGreater]) {
-                barStyle = 1;//UIStatusBarStyleLightContent;
-            } else {
-                barStyle = theStyle;
-            }
+        case UIStatusBarStyleLightContent:
+            barStyle = theStyle;
             break;
         default:
             barStyle = UIStatusBarStyleDefault;
@@ -633,7 +619,7 @@
     BOOL isOpenAnimation = NO;
     UIView* hostingView = nil;
     if (sender == openAnimation) {
-        hostingView = [[[[TiApp app] controller] topContainerController] view];
+        hostingView = [[[[TiApp app] controller] topContainerController] hostingView];
         isOpenAnimation = YES;
     } else {
         hostingView = [[self view] superview];

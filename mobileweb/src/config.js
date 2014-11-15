@@ -39,6 +39,7 @@ var require = {
 		analyticsPlatformName: "<%-: tiAnalyticsPlatformName | escapeQuotes %>",
 		buildHash: "<%-: tiGithash | escapeQuotes %>",
 		buildDate: "<%-: tiTimestamp | escapeQuotes %>",
+		buildType: "<%- buildType %>",
 		colorsModule: "Ti/_/colors",
 		filesystem: {
 			registry: "<%-: tiFsRegistry | escapeQuotes %>"

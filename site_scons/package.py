@@ -282,8 +282,6 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 
 	ticore_lib = os.path.join(top_dir,'iphone','lib')
 
-	zf.write(os.path.join(top_dir, 'iphone', 'simulators.json'), basepath+'/iphone/simulators.json')
-
 	# during 1.3.3, we added a new lib to a folder that had a .gitignore
 	# and we need to manually reset this
 	if not os.path.exists(os.path.join(ticore_lib,'libtiverify.a')):
@@ -418,12 +416,13 @@ def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone,
 	zip_dir(zf, os.path.join(top_dir, 'node_modules'), '%s/node_modules' % basepath, ignore_paths=ignore_paths)
 
 	manifest_json = '''{
+	"name": "%s",
 	"version": "%s",
 	"moduleAPIVersion": "%s",
 	"timestamp": "%s",
 	"githash": "%s",
 	"platforms": %s
-}''' % (version, module_apiversion, ts, githash, simplejson.dumps(platforms))
+}''' % (version_tag, version, module_apiversion, ts, githash, simplejson.dumps(platforms))
 	zf.writestr('%s/manifest.json' % basepath, manifest_json)
 
 	# check if we should build the content assist file

@@ -65,9 +65,9 @@ public class TiUIDatePicker extends TiUIView
         	calendar.setTime((Date) d.get("value"));
             valueExistsInProxy = true;
         }   
-        if (d.containsKey("minDate")) {
+        if (d.containsKey(TiC.PROPERTY_MIN_DATE)) {
         	Calendar minDateCalendar = Calendar.getInstance();
-        	minDateCalendar.setTime((Date) d.get("minDate"));
+        	minDateCalendar.setTime((Date) d.get(TiC.PROPERTY_MIN_DATE));
         	minDateCalendar.set(Calendar.HOUR_OF_DAY, 0);
         	minDateCalendar.set(Calendar.MINUTE, 0);
         	minDateCalendar.set(Calendar.SECOND, 0);
@@ -78,9 +78,9 @@ public class TiUIDatePicker extends TiUIView
         if (d.containsKey(TiC.PROPERTY_CALENDAR_VIEW_SHOWN)) {
         	setCalendarView(TiConvert.toBoolean(d, TiC.PROPERTY_CALENDAR_VIEW_SHOWN));
         }
-        if (d.containsKey("maxDate")) {
+        if (d.containsKey(TiC.PROPERTY_MAX_DATE)) {
         	Calendar maxDateCalendar = Calendar.getInstance();
-        	maxDateCalendar.setTime((Date) d.get("maxDate"));
+        	maxDateCalendar.setTime((Date) d.get(TiC.PROPERTY_MAX_DATE));
         	maxDateCalendar.set(Calendar.HOUR_OF_DAY, 0);
         	maxDateCalendar.set(Calendar.MINUTE, 0);
         	maxDateCalendar.set(Calendar.SECOND, 0);

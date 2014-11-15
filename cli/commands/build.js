@@ -8,6 +8,7 @@
 var appc = require('node-appc'),
 	fields = require('fields'),
 	fs = require('fs'),
+	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
 	ti = require('titanium-sdk'),
 	tiappxml = require('titanium-sdk/lib/tiappxml'),
@@ -95,6 +96,16 @@ exports.config = function (logger, config, cli) {
 						'project-dir': {
 							abbr: 'd',
 							callback: function (projectDir) {
+								if (projectDir === '') {
+									// no option value was specified
+									// check if current directory is a valid dir
+									// if not output meaningful error message
+									projectDir = conf.options['project-dir'].default;
+									if (!fs.existsSync(path.join(projectDir, 'tiapp.xml'))) {
+										return;
+									}
+								}
+
 								// load the tiapp.xml
 								try {
 									var tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'));
@@ -108,6 +119,11 @@ exports.config = function (logger, config, cli) {
 
 								// make sure the tiapp.xml is sane
 								ti.validateTiappXml(logger, config, tiapp);
+
+								// check that the Titanium SDK version is correct
+								if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
+									throw new cli.GracefulShutdown();
+								}
 
 								return projectDir;
 							},
@@ -134,12 +150,13 @@ exports.config = function (logger, config, cli) {
 									return callback(new Error(__('Project directory does not exist')));
 								}
 
-								var tiappFile = path.join(dir, 'tiapp.xml');
+								var tiappFile = path.join(dir, 'tiapp.xml'),
+									root = path.resolve('/');
 
 								// try to find the tiapp.xml
 								while (!fs.existsSync(tiappFile)) {
 									dir = path.dirname(dir);
-									if (dir == '/') {
+									if (dir == root) {
 										if (!isDefault) {
 											callback(new Error(__('Invalid project directory "%s" because tiapp.xml not found', projectDir)));
 											return;
@@ -169,11 +186,6 @@ exports.validate = function (logger, config, cli) {
 	// TODO: set the type to 'app' for now, but we'll need to determine if the project is an app or a module
 	cli.argv.type = 'app';
 
-	// check that the Titanium SDK version is correct
-	if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
-		return false;
-	}
-
 	ti.validatePlatform(logger, cli, 'platform');
 
 	// since we need validate() to be async, we return a function in which the cli
@@ -200,8 +212,9 @@ exports.validate = function (logger, config, cli) {
 	};
 };
 
-exports.run = function (logger, config, cli) {
-	var buildModule = path.join(__dirname, '..', '..', ti.resolvePlatform(cli.argv.platform), 'cli', 'commands', '_build.js'),
+exports.run = function (logger, config, cli, finished) {
+	var platform = ti.resolvePlatform(cli.argv.platform),
+		buildModule = path.join(__dirname, '..', '..', platform, 'cli', 'commands', '_build.js'),
 		counter = 0;
 
 	if (!fs.existsSync(buildModule)) {
@@ -210,15 +223,37 @@ exports.run = function (logger, config, cli) {
 		process.exit(1);
 	}
 
+	if (config.get('cli.sendAPIUsage', true)) {
+		cli.on('build.finalize', function (builder) {
+			var deployType = builder.deployType || cli.argv['deploy-type'] || null;
+			if (deployType == 'production') {
+				cli.addAnalyticsEvent('Titanium API Usage', {
+					platform: platform,
+					tisdkname: (ti.manifest && ti.manifest.name) || (cli.sdk && cli.sdk.name) || null,
+					tisdkver: (ti.manifest && ti.manifest.version) || (cli.sdk && cli.sdk.name) || null,
+					deployType: deployType,
+					target: builder.target || cli.argv.target || null,
+					usage: jsanalyze.getAPIUsage()
+				}, 'ti.apiusage');
+			}
+		});
+	}
+
 	require(buildModule).run(logger, config, cli, function (err) {
 		if (!counter++) {
 			var delta = appc.time.prettyDiff(cli.startTime, Date.now());
 			if (err) {
-				logger.error(__('Project failed to build after %s', delta) + '\n');
+				logger.error(__('Project failed to build after %s', delta));
+				(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
+					logger.error(msg);
+				});
+				logger.log();
 				process.exit(1);
 			} else {
 				logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
 			}
+
+			finished();
 		}
 	});
 };

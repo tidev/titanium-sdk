@@ -231,7 +231,7 @@ properties:
     type: Number
     constants: Titanium.UI.RETURNKEY_*
     default: <Titanium.UI.RETURNKEY_DEFAULT>
-    platforms: [android, iphone, ipad, blackberry]
+    platforms: [iphone, ipad, blackberry]
 
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.

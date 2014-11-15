@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -40,7 +40,7 @@
 
         if (pickerLabel == nil) {
             pickerLabel = [[[UILabel alloc] initWithFrame:theFrame] autorelease];
-            [pickerLabel setTextAlignment:UITextAlignmentLeft];
+            [pickerLabel setTextAlignment:NSTextAlignmentLeft];
             [pickerLabel setBackgroundColor:[UIColor clearColor]];
             float fontSize = [TiUtils floatValue:[self valueForUndefinedKey:@"fontSize"] def:18.0];
             [pickerLabel setFont:[UIFont boldSystemFontOfSize:fontSize]];

@@ -82,7 +82,7 @@
         // indicate we're going to start playback
         if (![[TiMediaAudioSession sharedSession] canPlayback]) {
             [self throwException:@"Improper audio session mode for playback"
-                       subreason:[[NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]] description]
+                       subreason:[[TiMediaAudioSession sharedSession] sessionMode]
                         location:CODELOCATION];
         }
         
@@ -284,23 +284,6 @@
 -(NSURL*)url
 {
 	return url;
-}
-
--(void)setAudioSessionMode:(NSNumber*)mode
-{
-    UInt32 newMode = [mode unsignedIntegerValue]; // Close as we can get to UInt32
-    if (newMode == kAudioSessionCategory_RecordAudio) {
-        DebugLog(@"[WARN] Invalid mode for audio player... setting to default.");
-        newMode = kAudioSessionCategory_SoloAmbientSound;
-    }
-	DebugLog(@"[WARN] 'Ti.Media.Sound.audioSessionMode' is deprecated; use 'Ti.Media.audioSessionMode'");
-	[[TiMediaAudioSession sharedSession] setSessionMode:newMode];
-}
-
--(NSNumber*)audioSessionMode
-{
-	DebugLog(@"[WARN] 'Ti.Media.Sound.audioSessionMode' is deprecated; use 'Ti.Media.audioSessionMode'");
-    return [NSNumber numberWithUnsignedInteger:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 
 #pragma mark Delegate

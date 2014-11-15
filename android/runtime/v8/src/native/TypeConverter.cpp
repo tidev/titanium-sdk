@@ -298,6 +298,35 @@ jarray TypeConverter::jsArrayToJavaArray(JNIEnv *env, v8::Handle<v8::Array> jsAr
 	return javaArray;
 }
 
+jobjectArray TypeConverter::jsArrayToJavaStringArray(v8::Handle<v8::Array> jsArray)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (env == NULL) {
+		return NULL;
+	}
+	return TypeConverter::jsArrayToJavaStringArray(env, jsArray);
+}
+
+jobjectArray TypeConverter::jsArrayToJavaStringArray(JNIEnv *env, v8::Handle<v8::Array> jsArray)
+{
+	int arrayLength = jsArray->Length();
+	jobjectArray javaArray = env->NewObjectArray(arrayLength, JNIUtil::stringClass, NULL);
+	if (javaArray == NULL) {
+		LOGE(TAG, "unable to create new jobjectArray");
+		return NULL;
+	}
+
+	for (int i = 0; i < arrayLength; i++) {
+		v8::Local<v8::Value> element = jsArray->Get(i);
+		jstring javaObject = jsStringToJavaString(env, element->ToString());
+		env->SetObjectArrayElement(javaArray, i, javaObject);
+
+		env->DeleteLocalRef(javaObject);
+	}
+
+	return javaArray;
+}
+
 v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jbooleanArray javaBooleanArray)
 {
 	JNIEnv *env = JNIScope::getEnv();
@@ -632,6 +661,58 @@ jobject TypeConverter::jsValueToJavaObject(JNIEnv *env, v8::Local<v8::Value> jsV
 	}
 	return NULL;
 }
+
+// converts js object to kroll dict and recursively converts sub objects if this
+// object is a container type
+jobject TypeConverter::jsObjectToJavaKrollDict(v8::Local<v8::Value> jsValue, bool *isNew)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (env == NULL) {
+		return NULL;
+	}
+	return TypeConverter::jsObjectToJavaKrollDict(env,jsValue,isNew);
+}
+
+jobject TypeConverter::jsObjectToJavaKrollDict(JNIEnv *env, v8::Local<v8::Value> jsValue, bool *isNew)
+{
+	if (jsValue->IsObject())
+	{
+		v8::Handle<v8::Object> jsObject = jsValue->ToObject();
+		v8::Handle<v8::Array> objectKeys = jsObject->GetOwnPropertyNames();
+		int numKeys = objectKeys->Length();
+		*isNew = true;
+		jobject javaKrollDict = env->NewObject(JNIUtil::krollDictClass, JNIUtil::krollDictInitMethod, numKeys);
+
+		for (int i = 0; i < numKeys; i++) {
+			v8::Local<v8::Value> jsObjectPropertyKey = objectKeys->Get((uint32_t) i);
+			bool keyIsNew, valueIsNew;
+			jobject javaObjectPropertyKey = TypeConverter::jsValueToJavaObject(env, jsObjectPropertyKey, &keyIsNew);
+			v8::Local<v8::Value> jsObjectPropertyValue = jsObject->Get(jsObjectPropertyKey);
+			jobject javaObjectPropertyValue = TypeConverter::jsValueToJavaObject(env, jsObjectPropertyValue, &valueIsNew);
+
+			jobject result = env->CallObjectMethod(javaKrollDict,
+				                                   JNIUtil::krollDictPutMethod,
+				                                   javaObjectPropertyKey,
+				                                   javaObjectPropertyValue);
+			env->DeleteLocalRef(result);
+
+			if (keyIsNew) {
+				env->DeleteLocalRef(javaObjectPropertyKey);
+			}
+			if (valueIsNew) {
+				env->DeleteLocalRef(javaObjectPropertyValue);
+			}
+		}
+
+		return javaKrollDict;
+	}
+
+	if (!jsValue->IsNull() && !jsValue->IsUndefined()) {
+		LOGW(TAG, "jsObjectToJavaKrollDict returning null.");
+	}
+	return NULL;
+}
+
 
 // converts js value to java error
 jobject TypeConverter::jsValueToJavaError(v8::Local<v8::Value> jsValue, bool* isNew)

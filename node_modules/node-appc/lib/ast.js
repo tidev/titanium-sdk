@@ -4,7 +4,7 @@
  * @module ast
  *
  * @copyright
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -16,8 +16,8 @@
  * @param {Object} node
  * @returns {Array} Array of base AST objects
  */
-module.exports.getType = function (node) {
-	var UglifyJS = require('uglify-js'),
+module.exports.getType = function (node, UglifyJS) {
+	var ujs = UglifyJS || require('uglify-js'),
 		types = [
 			'AST_Node',
 			'AST_Token',
@@ -113,7 +113,7 @@ module.exports.getType = function (node) {
 		matches = [];
 
 	types.forEach(function (t) {
-		if (node instanceof UglifyJS[t]) {
+		if (node instanceof ujs[t]) {
 			matches.push(t);
 		}
 	});

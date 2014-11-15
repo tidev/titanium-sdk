@@ -18,6 +18,7 @@
 #import "TiDebugger.h"
 #import "TiConsole.h"
 #import "TiExceptionHandler.h"
+#import "APSAnalytics.h"
 
 #ifdef KROLL_COVERAGE
 # include "KrollCoverage.h"
@@ -25,9 +26,11 @@
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
+extern NSString * const TI_APPLICATION_GUID;
+extern NSString * const TI_APPLICATION_BUILD_TYPE;
 
 NSString * TitaniumModuleRequireFormat = @"(function(exports){"
-		"var __OXP=exports;var module={'exports':exports};%@;\n"
+		"var __OXP=exports;var module={'exports':exports};var __dirname=\"%@\";var __filename=\"%@\";%@;\n"
 		"if(module.exports !== __OXP){return module.exports;}"
 		"return exports;})({})";
 
@@ -65,8 +68,12 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 		
 		if (TI_APPLICATION_ANALYTICS)
 		{
-			// force analytics to load on startup
-			[host moduleNamed:@"Analytics" context:pageContext_];
+            APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
+            if (TI_APPLICATION_BUILD_TYPE != nil || (TI_APPLICATION_BUILD_TYPE.length > 0)) {
+                [sharedAnalytics performSelector:@selector(setBuildType:) withObject:TI_APPLICATION_BUILD_TYPE];
+            }
+            [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[NSString stringWithFormat:@"ti.%@",[module performSelector:@selector(version)]]];
+			[sharedAnalytics enableWithAppKey:TI_APPLICATION_GUID andDeployType:TI_APPLICATION_DEPLOYTYPE];
 		}
 	}
 	return self;
@@ -721,7 +728,25 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(id)loadCommonJSModule:(NSString*)code withSourceURL:(NSURL *)sourceURL
 {
-	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat,code];
+	// This takes care of resolving paths like `../../foo.js`
+	sourceURL = [NSURL fileURLWithPath:[[sourceURL path] stringByStandardizingPath]];
+
+	// Get the relative path to the Resources directory
+	NSString *relativePath = [sourceURL path];
+	relativePath = [relativePath stringByReplacingOccurrencesOfString:[[[NSBundle mainBundle] resourceURL] path] withString:@""];
+	relativePath = [[relativePath substringFromIndex:1] stringByDeletingLastPathComponent];
+
+	NSString *dirname = [relativePath length] == 0 ? @"." : relativePath;
+	/*
+	 * This is for parity with android, if the file is located in the Resources, then __dirname returns "."
+	 * otherwise the __dirname returns the folder names separated by "/"
+	 * for example:
+	 *      "/Resources/constants.js"           __dirname = "."
+	 *      "/Resources/views/login/window.js"  __dirname = "views/login"
+	 */
+	
+	NSString *filename = [sourceURL lastPathComponent];
+	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat, dirname, filename,code];
 
 	/* This most likely should be integrated with normal code flow, but to
 	 * minimize impact until a in-depth reconsideration of KrollContext can be

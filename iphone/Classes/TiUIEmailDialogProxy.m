@@ -55,6 +55,12 @@
 
 - (id)isSupported:(id)args
 {
+#if TARGET_IPHONE_SIMULATOR
+	if([TiUtils isIOS8OrGreater]) {
+		DebugLog(@"[INFO] iOS 8 Simulator does not support sending emails. Use a device instead.");
+		return NUMBOOL(NO);
+	}
+#endif
 	return NUMBOOL([MFMailComposeViewController canSendMail]);
 }
 
@@ -70,12 +76,21 @@
 	ENSURE_CLASS_OR_NIL(bccArray,arrayClass);
 	NSArray * ccArray = [self valueForUndefinedKey:@"ccRecipients"];
 	ENSURE_CLASS_OR_NIL(ccArray,arrayClass);
-
-	ENSURE_UI_THREAD(open,args);
 		
+	ENSURE_UI_THREAD(open,args);
+
 	NSString * subject = [TiUtils stringValue:[self valueForUndefinedKey:@"subject"]];
 	NSString * message = [TiUtils stringValue:[self valueForUndefinedKey:@"messageBody"]];
 
+#if TARGET_IPHONE_SIMULATOR
+	if([TiUtils isIOS8OrGreater]) {
+		DebugLog(@"[INFO] iOS 8 Simulator does not support sending emails. Use a device instead.");
+		NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(MFMailComposeResultFailed) forKey:@"result"];
+		[self fireEvent:@"complete" withObject:event errorCode:MFMailComposeResultFailed message:@"iOS 8 Simulator does not support sending emails. Use a device instead."];
+		return;
+	}
+#endif
+    
 	if (![MFMailComposeViewController canSendMail])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(MFMailComposeResultFailed) forKey:@"result"];

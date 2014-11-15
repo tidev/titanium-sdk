@@ -67,7 +67,6 @@ examples:
                 font:{fontSize:20,fontWeight:'bold'},
                 text: fruit[i],
                 textAlign:'left',
-                height:'auto',
                 width:'126'
               });
               

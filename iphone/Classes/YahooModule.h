@@ -8,7 +8,7 @@
 
 #import "TiModule.h"
 #import "KrollCallback.h"
-#import "TiHTTPClient/TiHTTPClient.h"
+#import "APSHTTPClient.h"
 
 @interface YahooModule : TiModule {
 @private
@@ -17,7 +17,7 @@
 @end
 
 
-@interface YQLCallback : NSObject<TiHTTPRequestDelegate>
+@interface YQLCallback : NSObject<APSHTTPRequestDelegate>
 {
 @private
 	YahooModule *module;

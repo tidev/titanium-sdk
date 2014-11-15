@@ -33,7 +33,6 @@
 
 @property (nonatomic,copy)	NSNumber *volume;
 
-@property (nonatomic,readwrite,assign) NSNumber* audioSessionMode;
 @property (nonatomic,readwrite,assign) NSNumber* bufferSize;
 
 @property (nonatomic,readonly) NSNumber *STATE_INITIALIZED;

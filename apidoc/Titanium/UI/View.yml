@@ -161,7 +161,7 @@ description: |
     The first three, `accessibilityLabel`, `accessibilityValue` and `accessibilityHint`, are for setting text
     that will be relayed to the user by the assistive service (such as TalkBack on Android or VoiceOver
     on iOS). On iOS, Titanium will then take these values and set the native properties
-    of the same name which are defined in the [UIAccessibilityProtocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+    of the same name which are defined in the [UIAccessibilityProtocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
     On Android, Titanium takes the three values and concatenates them in the order `accessibilityLabel`,
     `accessibilityValue`, and `accessibilityHint`, and then uses the result to set the native view's
     [`contentDescription`](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29)
@@ -609,8 +609,7 @@ methods:
     
   - name: removeAllChildren
     summary: Removes all child views from this view's hierarchy.
-    since: "3.1.0"
-    platforms: [android,iphone,ipad]
+    since: {android: "3.1.0", blackberry: "3.3.0", iphone: "3.1.0", ipad: "3.1.0"}
 
   - name: show
     summary: Makes this view visible.
@@ -668,6 +667,9 @@ methods:
             
             When set to true, image is scale factor is honored. When set to false, the image in the 
             blob has the same dimensions for retina and non-retina devices.
+
+            Starting with version 3.5.0 of the Titanium SDK, this value is no longer checked and always 
+            behaves as true.
         type: Boolean
         default: false
         optional: true
@@ -739,7 +741,7 @@ properties:
     description: |
         On iOS this is a direct analog of the `accessibilityElementsHidden` property defined in the
         [UIAccessibility
-        Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
         The native property is only available in iOS 5.0 and later; if
         `accessibilityHidden` is specified on earlier versions of iOS, it is ignored.
         
@@ -762,7 +764,7 @@ properties:
     summary: Briefly describes what performing an action (such as a click) on the view will do.
     description: |
         On iOS this is a direct analog of the `accessibilityHint` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
         On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityLabel> and <Titanium.UI.View.accessibilityValue> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
@@ -776,7 +778,7 @@ properties:
     summary: A succint label identifying the view for the device's accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityLabel` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
         On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityValue> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
@@ -790,7 +792,7 @@ properties:
     summary: A string describing the value (if any) of the view for the device's accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityValue` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
         On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityLabel> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
@@ -1235,6 +1237,16 @@ properties:
     summary: Opacity of this view, from 0.0 (transparent) to 1.0 (opaque).
     type: Number
     default: 1.0 (opaque)
+    
+  - name: overrideCurrentAnimation
+    summary: When on, animate call overrides current animation if applicable.
+    description: |
+        If this property is set to false, the animate call is ignored if the view is currently being animated.
+    type: Boolean
+    default: undefined but behaves as false
+    since: "3.3.0"
+    availability: creation
+    platforms: [android]
 
   - name: pullBackgroundColor
     summary: Background color of the wrapper view when this view is used as either <Titanium.UI.ListView.pullView> or <Titanium.UI.TableView.headerPullView>.

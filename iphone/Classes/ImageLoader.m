@@ -246,8 +246,12 @@
     if (!local && imageData != nil) {
         NSFileManager* fm = [NSFileManager defaultManager];
         NSString* path = localPath;
-        if (hires && [TiUtils isRetinaDisplay]) { // Save as @2x w/retina
-            path = [NSString stringWithFormat:@"%@@2x.%@", [localPath stringByDeletingPathExtension], [localPath pathExtension]];
+        if (hires) {
+            if ([TiUtils isRetinaHDDisplay]) { // Save as @3x w/retina-hd
+                path = [NSString stringWithFormat:@"%@@3x.%@", [localPath stringByDeletingPathExtension], [localPath pathExtension]];
+            } else if ([TiUtils isRetinaDisplay]) { // Save as @2x w/retina
+                path = [NSString stringWithFormat:@"%@@2x.%@", [localPath stringByDeletingPathExtension], [localPath pathExtension]];
+            }
         }
         
         if ([fm isDeletableFileAtPath:path]) {
@@ -496,7 +500,7 @@ DEFINE_EXCEPTIONS
             NSLog(@"[CACHE DEBUG] Loading locally from path %@", path);
 #endif
 			BOOL scaleUp = NO;
-			if ([TiUtils isRetinaDisplay] && [path rangeOfString:@"@2x"].location!=NSNotFound)
+			if (([TiUtils isRetinaDisplay] && [path rangeOfString:@"@2x"].location!=NSNotFound) || ([TiUtils isRetinaHDDisplay] && [path rangeOfString:@"@3x"].location!=NSNotFound))
 			{
 				scaleUp = YES;
 			}
@@ -508,7 +512,7 @@ DEFINE_EXCEPTIONS
 				if ([UIImage instancesRespondToSelector:@selector(imageWithCGImage:scale:orientation:)])
 				{
 					// if we specified a 2x, we need to upscale it
-					resultImage = [UIImage imageWithCGImage:[resultImage CGImage] scale:2.0 orientation:[resultImage imageOrientation]];
+					resultImage = [UIImage imageWithCGImage:[resultImage CGImage] scale:([TiUtils isRetinaHDDisplay] ? 3.0 : 2.0) orientation:[resultImage imageOrientation]];
 				}
 			}
 		    result = [self setImage:resultImage forKey:url hires:NO];
@@ -548,8 +552,9 @@ DEFINE_EXCEPTIONS
 		return image;
 	}
 	
-    TiHTTPRequest *req = [[[TiHTTPRequest alloc] init] autorelease];
+    APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
     [req setUrl:url];
+    [req setMethod:@"GET"];
     [req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
     [req setSynchronous:YES];
     [[TiApp app] startNetwork];
@@ -629,7 +634,7 @@ DEFINE_EXCEPTIONS
 	}
 	
 	NSDictionary *dict = [NSDictionary dictionaryWithObject:request forKey:@"request"];
-	TiHTTPRequest *req = [[[TiHTTPRequest alloc] init] autorelease];
+	APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
     [req setDelegate:self];
     [req setUrl:url];
 	[req setUserInfo:dict];
@@ -721,7 +726,7 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Delegates
 
--(void)tiRequest:(TiHTTPRequest *)request onLoad:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onLoad:(APSHTTPResponse *)response
 {
 	// hold while we're working with it (release below)
 	[request retain];
@@ -730,7 +735,7 @@ DEFINE_EXCEPTIONS
 	ImageLoaderRequest *req = [[[request userInfo] objectForKey:@"request"] retain];
 	if ([req cancelled]==NO)
 	{
-		NSData *data = [tiResponse responseData];
+		NSData *data = [response responseData];
 		if (data == nil || [data length]==0)
 		{
 			NSMutableDictionary *errorDetail = [NSMutableDictionary dictionary];
@@ -748,7 +753,7 @@ DEFINE_EXCEPTIONS
 		// for this session and not on disk so we ignore (potentially at a determinent?)
 		// the actual max-age setting for now.
 		BOOL cacheable = YES;
-		NSString *cacheControl = [[tiResponse headers] objectForKey:@"Cache-Control"];
+		NSString *cacheControl = [[response headers] objectForKey:@"Cache-Control"];
 		if (cacheControl!=nil)
 		{
 			// check to see if we're cacheable or not
@@ -817,18 +822,18 @@ DEFINE_EXCEPTIONS
 	[req release];
 }
 
--(void)tiRequest:(TiHTTPRequest *)request onError:(TiHTTPResponse *)tiResponse
+-(void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
 {
 	[[TiApp app] stopNetwork];
 	ImageLoaderRequest *req = [[request userInfo] objectForKey:@"request"];
-	NSError *error = [tiResponse error];
+	NSError *error = [response error];
     
 	if ([request cancelled]) {
         if ([[req delegate] respondsToSelector:@selector(imageLoadCancelled:)]) {
             [[req delegate] performSelector:@selector(imageLoadCancelled:) withObject:req];
         }
 	} else {
-		[[req delegate] imageLoadFailed:req error:[tiResponse error]];
+		[[req delegate] imageLoadFailed:req error:[response error]];
 	}
 	[request setUserInfo:nil];
 }

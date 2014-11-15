@@ -581,20 +581,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	{
 		UIView *contentView = cell.contentView;
 		CGRect rect = [contentView bounds];
-        CGSize cellSize = [(TiUITableViewCell*)cell computeCellSize];
-		CGFloat rowWidth = cellSize.width;
-		CGFloat rowHeight = cellSize.height;
-
-		if (rowHeight < rect.size.height || rowWidth < rect.size.width)
-		{
-			rect.size.height = rowHeight;
-			rect.size.width = rowWidth;
-			contentView.frame = rect;
-		}
-        else if (CGSizeEqualToSize(rect.size, CGSizeZero)) {
-            rect.size = CGSizeMake(rowWidth, rowHeight);
-            [contentView setFrame:rect];
-        }
 		rect.origin = CGPointZero;
 		if (self.reusable || (rowContainerView == nil)) {
 			if (self.reusable) {

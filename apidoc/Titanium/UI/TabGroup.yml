@@ -37,8 +37,9 @@ description: |
     
     #### Further Reading
     
-    If using tab groups on iOS, see the "Tab Bar" section of Apple's official 
-    [iOS UI Element Usage Guidelines ](https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW52).
+    If using tab groups on iOS, see
+    [iOS UI Element Usage Guidelines](https://developer.apple.com/library/ios/documentation/userexperience/conceptual/mobilehig/Bars.html#//apple_ref/doc/uid/TP40006556-CH12-SW52).
+
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
@@ -189,6 +190,17 @@ methods:
   - name: close
     summary: Closes the tab group and removes it from the UI.
 
+  - name: disableTabNavigation
+    summary: |
+        Disable (or re-enable) tab navigation. If tab navigation is disabled, the tabs are hidden and
+        the last selected tab window is shown.
+    parameters:
+      - name: disable
+        summary: True to disable tab navigation, false to re-enable the tabs.
+        type: Boolean
+    platforms: [android]
+    since: 3.3.0
+
   - name: getActiveTab
     summary: Gets the currently-active tab.
     returns:
@@ -226,11 +238,15 @@ properties:
     summary: |
         Reference to the Android Activity object associated with this tab group.
     description: |
-        An Activity object is not created until the tab group is opened.
-        Before the tab group is opened, `activity` refers to an empty JavaScript object.
-        Unlike a Window activity, you CANNOT set any properties on this object.
-        Once the tab group is opened, the actual Activity object is created.
-        At this point, you can access properties and call methods on the activity.
+        An Activity object is not created until the tab group opens.
+        Before the tab group opens, `activity` refers to an empty JavaScript object.
+        You can set properties on this object but cannot invoke any Activity methods on it.
+        Once the tab group opens, the actual Activity object is created,
+        using any properties set on the JavaScript object. At this point, you can call methods
+        on the activity and access any properties that are set when the activity is created.
+
+        Prior to Release 3.4.0, you can only set properties on the activity after the tab group
+        opens.
     platforms: [android]
     since: 3.0.0
     type: Titanium.Android.Activity
@@ -255,6 +271,31 @@ properties:
     type: String
     platforms: [iphone, ipad]
     
+  - name: translucent
+    summary: Boolean value indicating if the nav bar (typically for the **More** tab), is translucent.
+    platforms: [iphone, ipad]
+    default: true on iOS7 and above, false otherwise.
+    type: Boolean
+    since: "3.3.0"
+
+  - name: titleAttributes
+    summary: Title text attributes of the window to be applied on the **More** tab.
+    description: |
+        Use this property to specify the color, font and shadow attributes of the title.
+    since: "3.3.0"
+    platforms: [iphone, ipad]
+    type: titleAttributesParams
+
+  - name: navTintColor
+    summary: The tintColor to apply to the navigation bar (typically for the **More** tab). This property is applicable on iOS 7 and greater. 
+    description: |
+        This property is a direct correspondant of the tintColor property of NavigationBar on iOS.
+    type: [String]
+    since: "3.3.0"
+    default: null
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad]
+    
   - name: editButtonTitle
     summary: Title for the edit button on the **More** tab.
     type: String
@@ -265,12 +306,10 @@ properties:
         Boolean value indicating if the application should exit when closing the tab group, whether via Android
         back button or the [close](Titanium.UI.TabGroup.close) method.
     description:  |
-        You can only set this as a createTabGroup({...}) option.  Setting it after
-        tab group creation has no effect.
+        Starting in 3.4.2 you can set this property at any time. In earlier releases you can only set this as a createTabGroup({...}) option.
     platforms: [android]
     default: True if tab group is opened on top of the root activity. False otherwise.
     type: Boolean
-    availability: creation
 
   - name: navBarHidden
     summary: Hide the nav bar (`true`) or show the nav bar (`false`) for this tab group.
@@ -283,6 +322,17 @@ properties:
     default: false
     type: Boolean
     since: 3.0.0
+
+  - name: swipeable
+    summary: |
+        Boolean value indicating if tab navigation can be done by swipes, in addition to tab clicks.
+    description: |
+        On Android, the tabs may be selected by swipes, in addition to clicks. This property may be set at
+        tab group creation, or any time later as long as the tab navigation is not disabled.
+    platforms: [android]
+    since: 3.3.0
+    default: true
+    type: Boolean
 
   - name: tabs
     summary: |
@@ -343,7 +393,7 @@ properties:
     type: String
     platforms: [mobileweb, iphone, ipad, tizen]
     since: { mobileweb: "2.0.0", iphone: "3.1.0", ipad: "3.1.0" }
-    osver: {iOS: {min: "5.0"}}
+    osver: {ios: {min: "5.0"}}
 
   - name: shadowImage
     summary: Image of the shadow placed between the tab bar and the content area.
@@ -353,7 +403,7 @@ properties:
     type: String
     platforms: [iphone,ipad]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
-    osver: {iOS: {min: "6.0"}}
+    osver: {ios: {min: "6.0"}}
 
   - name: activeTabIconTint
     summary: Color applied to active tabs icons, as a color name or hex triplet, where the tab's activeIcon was not defined.
@@ -442,7 +492,7 @@ properties:
     type: String
     platforms: [mobileweb, iphone, ipad, tizen]
     since: { mobileweb: "2.0.0", iphone: "3.1.0", ipad: "3.1.0" }
-    osver: {iOS: {min: "5.0"}}
+    osver: {ios: {min: "5.0"}}
     
   - name: activeTabBackgroundDisabledColor
     summary: Default background disabled color for the active tab, as a color name or hex triplet.
@@ -516,7 +566,7 @@ properties:
     summary: Width of the divider between tabs.
     description: |
         This width is relative to the tabgroup's parent. Can be either a float value or 
-        a dimension string (for example, `'50%'` or `'auto'`).
+        a dimension string (for example, `'50%'` or `75dp`).
     type: [Number, String]
     platforms: [mobileweb, tizen]
     since: "2.0.0"
@@ -525,7 +575,7 @@ properties:
     summary: Height of the tabs.
     description: |
         This height is relative to the tabgroup's parent. Can be either a float value or 
-        a dimension string (for example, `'50%'` or `'auto'`).
+        a dimension string (for example, `'50%'` or `'75dp'`).
     type: [Number, String]
     platforms: [mobileweb, tizen]
     since: "2.0.0"

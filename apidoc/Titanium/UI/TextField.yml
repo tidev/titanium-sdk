@@ -122,7 +122,7 @@ properties:
   - name: borderStyle
     summary: Border style for the field. 
     type: Number
-    constants: Titainium.UI.INPUT_BORDERSTYLE_*
+    constants: Titanium.UI.INPUT_BORDERSTYLE_*
     default: <Titanium.UI.INPUT_BORDERSTYLE_NONE>
     platforms: [iphone, ipad, mobileweb, tizen]
     
@@ -168,6 +168,10 @@ properties:
     description: |
         If `true`, the return key is **disabled** when this text field is empty, and
         automatically enabled as soon as the user types any text in the field.
+        
+        On Android, if `true`, `return` event will not fire. Clicking on the return key will do nothing, but
+        the key itself won't be **disabled**.
+        
     type: Boolean
     default: false
     exclude-platforms: [blackberry]    

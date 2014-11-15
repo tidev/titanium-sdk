@@ -18,6 +18,7 @@ var milkshakes = fields.select({
 		'cho__c__olate'
 	],
 	complete: true,
+	ignoreCase: true,
 	suggest: true,
 	suggestThreshold: 3
 });

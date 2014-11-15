@@ -45,7 +45,7 @@ public final class <%- classname %>AppInfo implements ITiAppInfo
 	}
 
 	public String getDescription() {
-		return "<%- tiapp.description %>";
+		return "<%- tiapp.description.replace(/\"/g, '\\"') %>";
 	}
 
 	public String getIcon() {
@@ -62,5 +62,9 @@ public final class <%- classname %>AppInfo implements ITiAppInfo
 
 	public boolean isFullscreen() {
 		return <%- !!tiapp.fullscreen %>;
+	}
+
+	public String getBuildType() {
+		return "<%- buildType %>";
 	}
 }

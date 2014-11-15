@@ -61,8 +61,6 @@ Changelog:
  - initial release
 **/
 
-var util = require('util');
-
 var sprintf = (function() {
 	function get_type(variable) {
 		return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase();

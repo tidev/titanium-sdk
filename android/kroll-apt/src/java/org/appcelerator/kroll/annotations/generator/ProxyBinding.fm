@@ -242,6 +242,19 @@
 		"typeValidation":false,
 		"defaultValue": "null"
 	},
+	"org.appcelerator.kroll.KrollDict":{
+		"jsType":"Value",
+		"jsConvertType":"Value",
+		"jsToJavaConverter":"jsObjectToJavaKrollDict",
+		"javaToJsConverter":"javaObjectToJsValue",
+		"jvalue":"l",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jobject",
+		"javaValidation":true,
+		"javaDeleteLocalRef":true,
+		"typeValidation":false,
+		"defaultValue": "null"
+	},
 	"java.lang.String":{
 		"jsType":"Value",
 		"jsToJavaConverter":"jsValueToJavaString",
@@ -257,7 +270,7 @@
 	"java.lang.String[]":{
 		"jsType":"Array",
 		"jsHandleCast":"Array",
-		"jsToJavaConverter":"jsArrayToJavaArray",
+		"jsToJavaConverter":"jsArrayToJavaStringArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[Ljava/lang/String;",
 		"javaCallMethodType":"Object",
@@ -509,7 +522,7 @@ fails, a JS exception is returned.
 	
 <#t>
 	<#if info.jsType == "Number">
-		if (titanium::V8Util::isNaN(${expr}) || ${stringExpr}->Length() == 0) {
+		if ((titanium::V8Util::isNaN(${expr}) && !${expr}->IsUndefined()) || ${stringExpr}->Length() == 0) {
 			const char *error = "Invalid value, expected type ${info.jsType}.";
 			LOGE(TAG, error);
 			<#if !(logOnly!false)>

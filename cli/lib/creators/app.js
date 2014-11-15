@@ -139,15 +139,15 @@ AppCreator.prototype.run = function run(callback) {
 					return next(err);
 				}
 
+				var finalize = function () {
+					this.cli.emit([
+						'create.post.' + this.projectType + '.platform.' + platform,
+						'create.post.platform.' + platform
+					], this, next);
+				}.bind(this);
+
 				// only copy platform specific files if we're copying from a built-in template
 				if (this.templateDir.indexOf(this.sdk.path) == 0) {
-					var finalize = function () {
-						this.cli.emit([
-							'create.post.' + this.projectType + '.platform.' + platform,
-							'create.post.platform.' + platform
-						], this, next);
-					}.bind(this);
-
 					var p = path.join(this.sdk.path, platform, 'cli', 'commands', '_create.js');
 					if (fs.existsSync(p)) {
 						this.logger.info(__('Copying %s platform resources', platform.cyan));

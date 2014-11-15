@@ -20,9 +20,16 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.graphics.Color;
 import android.text.Html;
 import android.text.InputType;
+import android.text.Layout;
+import android.text.Selection;
+import android.text.Spannable;
+import android.text.Spannable.Factory;
+import android.text.SpannedString;
 import android.text.TextUtils.TruncateAt;
+import android.text.style.ClickableSpan;
 import android.text.util.Linkify;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.widget.TextView;
 
 public class TiUILabel extends TiUIView
@@ -67,6 +74,50 @@ public class TiUILabel extends TiUIView
 					proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
 				}
 			}
+			
+			@Override
+			public boolean onTouchEvent(MotionEvent event) {
+			        TextView textView = (TextView) this;
+			        Object text = textView.getText();
+			        //For html texts, we will manually detect url clicks.
+			        if (text instanceof SpannedString) {
+			            SpannedString spanned = (SpannedString) text;
+			            Spannable buffer = Factory.getInstance().newSpannable(spanned.subSequence(0, spanned.length()));
+
+			            int action = event.getAction();
+
+			            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN) {
+			                int x = (int) event.getX();
+			                int y = (int) event.getY();
+
+			                x -= textView.getTotalPaddingLeft();
+			                y -= textView.getTotalPaddingTop();
+
+			                x += textView.getScrollX();
+			                y += textView.getScrollY();
+
+			                Layout layout = textView.getLayout();
+			                int line = layout.getLineForVertical(y);
+			                int off = layout.getOffsetForHorizontal(line, x);
+
+			                ClickableSpan[] link = buffer.getSpans(off, off,
+			                        ClickableSpan.class);
+
+			                if (link.length != 0) {
+			                	ClickableSpan cSpan = link[0];
+			                    if (action == MotionEvent.ACTION_UP) {
+			                        cSpan.onClick(textView);
+			                    } else if (action == MotionEvent.ACTION_DOWN) {
+			                         Selection.setSelection(buffer, buffer.getSpanStart(cSpan), buffer.getSpanEnd(cSpan));
+			                    }
+			                }
+			            }
+
+			        }
+
+			        return super.onTouchEvent(event);
+			    } 
+			
 		};
 		tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		tv.setPadding(0, 0, 0, 0);
@@ -89,16 +140,23 @@ public class TiUILabel extends TiUIView
 		
 		boolean needShadow = false;
 
-		// Only accept one, prefer text to title.
+		// Only accept one, html has priority
 		if (d.containsKey(TiC.PROPERTY_HTML)) {
 			String html = TiConvert.toString(d, TiC.PROPERTY_HTML);
 			if (html == null) {
-				html = "";
+				//If html is null, set text if applicable
+				if (d.containsKey(TiC.PROPERTY_TEXT)) {
+					tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT));
+				} else {
+					tv.setText(Html.fromHtml(""));
+				}
+			} else {
+				tv.setMovementMethod(null);
+				tv.setText(Html.fromHtml(html));
 			}
-			tv.setText(Html.fromHtml(html), TextView.BufferType.SPANNABLE);
 		} else if (d.containsKey(TiC.PROPERTY_TEXT)) {
 			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT));
-		} else if (d.containsKey(TiC.PROPERTY_TITLE)) { //TODO this may not need to be supported.
+		} else if (d.containsKey(TiC.PROPERTY_TITLE)) { // For table view rows
 			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TITLE));
 		}
 
@@ -167,7 +225,7 @@ public class TiUILabel extends TiUIView
 	{
 		TextView tv = (TextView) getNativeView();
 		if (key.equals(TiC.PROPERTY_HTML)) {
-			tv.setText(Html.fromHtml(TiConvert.toString(newValue)), TextView.BufferType.SPANNABLE);
+			tv.setText(Html.fromHtml(TiConvert.toString(newValue)));
 			TiUIHelper.linkifyIfEnabled(tv, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_TEXT) || key.equals(TiC.PROPERTY_TITLE)) {

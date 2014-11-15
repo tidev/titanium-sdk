@@ -466,6 +466,8 @@ public class TiAnimationBuilder
 
 			if (parent instanceof View) {
 				parentView = (View) parent;
+			} else {
+				Log.e(TAG, "Parent view doesn't exist");
 			}
 
 			if (height != null) {
@@ -495,11 +497,74 @@ public class TiAnimationBuilder
 				if (animatorHelper == null) {
 					animatorHelper = new AnimatorHelper();
 				}
-				if (left != null || right != null || centerX != null) {
-					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "left", x, horizontal[0]));
+				
+				if (left != null) {
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_LEFT, x, horizontal[0]));
+				} 
+				
+				if (right != null) {
+					int afterRight = optionRight.getAsPixels(parentView);;
+					
+					TiDimension beforeRightD = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionRight;
+					int beforeRight = 0;
+					if (beforeRightD != null) {
+						beforeRight = beforeRightD.getAsPixels(parentView);
+					} else {
+						beforeRight = parentWidth - view.getRight(); 
+					}
+
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_RIGHT, beforeRight, afterRight));
+				} 
+
+				if (centerX != null) {
+					int afterCenterX = optionCenterX.getAsPixels(parentView);;
+					
+					int beforeCenterX = 0;
+					TiDimension beforeCenterXD = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionCenterX;
+					
+					if (beforeCenterXD != null) {
+						beforeCenterX = beforeCenterXD.getAsPixels(parentView);
+					} else {
+						beforeCenterX = (view.getRight() + view.getLeft()) / 2;
+					}
+					
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "centerX", beforeCenterX, afterCenterX));
 				}
-				if (top != null || bottom != null || centerY != null) {
-					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "top", y, vertical[0]));
+				
+				
+				if (top != null) {
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_TOP, y, vertical[0]));
+					
+				}
+				
+				if (bottom != null) {
+					int afterBottom = optionBottom.getAsPixels(parentView);
+
+					int beforeBottom = 0;
+					TiDimension beforeBottomD = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionBottom;
+					if (beforeBottomD != null) {
+						beforeBottom = beforeBottomD.getAsPixels(parentView);
+					} else {
+						beforeBottom = parentHeight - view.getBottom();
+					}
+					
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_BOTTOM, beforeBottom, afterBottom));
+					
+				}
+				
+				if (centerY != null) {
+					int afterCenterY = optionCenterY.getAsPixels(parentView);;
+					
+					int beforeCenterY = 0;
+					TiDimension beforeCenterYD = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionCenterY;
+
+					if (beforeCenterYD != null) {
+						beforeCenterY = beforeCenterYD.getAsPixels(parentView);
+					} else {
+						beforeCenterY = (view.getTop() + view.getBottom()) / 2;
+					}
+
+					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "centerY", beforeCenterY, afterCenterY));
 				}
 			}
 
@@ -1141,11 +1206,7 @@ public class TiAnimationBuilder
 			}
 
 			view.setLayoutParams(params);
-			ViewParent vp = view.getParent();
-			if (vp instanceof View) {
-				// Need to invalidate the parent view. Otherwise, it will not draw correctly.
-				((View) vp).invalidate();
-			}
+			invalidateParentView();
 		}
 
 		public void setHeight(final int h)
@@ -1160,10 +1221,7 @@ public class TiAnimationBuilder
 			}
 
 			view.setLayoutParams(params);
-			ViewParent vp = view.getParent();
-			if (vp instanceof View) {
-				((View) vp).invalidate();
-			}
+			invalidateParentView();
 		}
 
 		public void setLeft(final int l)
@@ -1175,10 +1233,19 @@ public class TiAnimationBuilder
 				tiParams.optionLeft.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 			view.requestLayout();
-			ViewParent vp = view.getParent();
-			if (vp instanceof View) {
-				((View) vp).invalidate();
+			invalidateParentView();
+		}
+		
+		public void setRight(final int r)
+		{
+			ViewGroup.LayoutParams params = view.getLayoutParams();
+			if (params instanceof TiCompositeLayout.LayoutParams) {
+				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
+				tiParams.optionRight = new TiDimension(r, TiDimension.TYPE_RIGHT);
+				tiParams.optionRight.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
+			view.requestLayout();
+			invalidateParentView();
 		}
 
 		public void setTop(final int t)
@@ -1190,6 +1257,47 @@ public class TiAnimationBuilder
 				tiParams.optionTop.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 			view.requestLayout();
+			invalidateParentView();
+		}
+		
+		public void setBottom(final int b)
+		{
+			ViewGroup.LayoutParams params = view.getLayoutParams();
+			if (params instanceof TiCompositeLayout.LayoutParams) {
+				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
+				tiParams.optionBottom = new TiDimension(b, TiDimension.TYPE_BOTTOM);
+				tiParams.optionBottom.setUnits(TypedValue.COMPLEX_UNIT_PX);
+			}
+			view.requestLayout();
+			invalidateParentView();
+		}
+		
+		public void setCenterX(final int b)
+		{
+			ViewGroup.LayoutParams params = view.getLayoutParams();
+			if (params instanceof TiCompositeLayout.LayoutParams) {
+				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
+				tiParams.optionCenterX = new TiDimension(b, TiDimension.TYPE_CENTER_X);
+				tiParams.optionCenterX.setUnits(TypedValue.COMPLEX_UNIT_PX);
+			}
+			view.requestLayout();
+			invalidateParentView();
+		}
+		
+		public void setCenterY(final int b)
+		{
+			ViewGroup.LayoutParams params = view.getLayoutParams();
+			if (params instanceof TiCompositeLayout.LayoutParams) {
+				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
+				tiParams.optionCenterY = new TiDimension(b, TiDimension.TYPE_CENTER_Y);
+				tiParams.optionCenterY.setUnits(TypedValue.COMPLEX_UNIT_PX);
+			}
+			view.requestLayout();
+			invalidateParentView();
+		}
+		
+		private void invalidateParentView() 
+		{
 			ViewParent vp = view.getParent();
 			if (vp instanceof View) {
 				((View) vp).invalidate();
@@ -1206,6 +1314,7 @@ public class TiAnimationBuilder
 		{
 			ViewParent vp = view.getParent();
 			if (vp instanceof View) {
+				// Need to invalidate the parent view. Otherwise, it will not draw correctly.
 				((View) vp).invalidate();
 			}
 		}
@@ -1412,6 +1521,9 @@ public class TiAnimationBuilder
 	public void start(TiViewProxy viewProxy, View view)
 	{
 		if (isAnimationRunningFor(view)) {
+			if (!viewProxy.getOverrideCurrentAnimation()) {
+				return;
+			}
 			//clear current animation
 			view.clearAnimation();
 		}

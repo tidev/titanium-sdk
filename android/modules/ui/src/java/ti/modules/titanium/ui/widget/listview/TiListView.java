@@ -86,7 +86,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	 * that must be reset every time a view is recycled, to ensure synchronization. Currently, only
 	 * "value" is in this list to correctly update the value of Ti.UI.Switch.
 	 */
-	public static List<String> MUST_SET_PROPERTIES = Arrays.asList(TiC.PROPERTY_VALUE);
+	public static List<String> MUST_SET_PROPERTIES = Arrays.asList(TiC.PROPERTY_VALUE, TiC.PROPERTY_AUTO_LINK, TiC.PROPERTY_TEXT, TiC.PROPERTY_HTML);
 	
 	public static final String MIN_SEARCH_HEIGHT = "50dp";
 	public static final String MIN_ROW_HEIGHT = "30dp";
@@ -423,18 +423,19 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			//if user didn't append/modify/delete sections before this is called, we process sections
 			//as usual. Otherwise, we process the preloadSections, which should also contain the section(s)
 			//from this dictionary as well as other sections that user append/insert/deleted prior to this.
-			if (!listProxy.isPreload()) {
+			if (!listProxy.getPreload()) {
 				processSections((Object[])d.get(TiC.PROPERTY_SECTIONS));
 			} else {
 				processSections(listProxy.getPreloadSections().toArray());
 			}
-		} else if (listProxy.isPreload()) {
+		} else if (listProxy.getPreload()) {
 			//if user didn't specify 'sections' property upon creation of listview but append/insert it afterwards
 			//we process them instead.
 			processSections(listProxy.getPreloadSections().toArray());
 		}
 
 		listProxy.clearPreloadSections();
+		listProxy.setPreload(false);
 		
 		if (d.containsKey(TiC.PROPERTY_HEADER_VIEW)) {
 			Object viewObj = d.get(TiC.PROPERTY_HEADER_VIEW);
@@ -563,10 +564,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		} else if (key.equals(TiC.PROPERTY_FOOTER_TITLE)) {
 			setFooterTitle(TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_SECTIONS) && newValue instanceof Object[] ) {
-			processSections((Object[])newValue);
-			if (adapter != null) {
-				adapter.notifyDataSetChanged();
-			}
+			processSectionsAndNotify((Object[])newValue);
 		} else if (key.equals(TiC.PROPERTY_SEARCH_TEXT)) {
 			this.searchText = TiConvert.toString(newValue);
 			if (this.searchText != null) {
@@ -676,6 +674,13 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		this.sections.clear();
 		for (int i = 0; i < sections.length; i++) {
 			processSection(sections[i], -1);
+		}
+	}
+	
+	protected void processSectionsAndNotify(Object[] sections) {
+		processSections(sections);
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
 		}
 	}
 	

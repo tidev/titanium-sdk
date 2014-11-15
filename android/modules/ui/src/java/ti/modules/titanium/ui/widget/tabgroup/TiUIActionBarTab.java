@@ -22,16 +22,26 @@ import android.view.ViewGroup;
 public class TiUIActionBarTab extends TiUIAbstractTab {
 
 	private static final String TAG = "TiUIActionBarTab";
+
 	public static class TabFragment extends Fragment {
 		private TiUIActionBarTab tab;
 
-		public TabFragment(TiUIActionBarTab tab) {
+		public TabFragment() {
+		}
+
+		public void setTab(TiUIActionBarTab tab) {
 			this.tab = tab;
+		}
+
+		public TiUIActionBarTab getTab() {
+			return this.tab;
 		}
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
+			if (tab == null) {
+				return null;
+			}
 			return tab.getContentView();
 		}
 	}
@@ -68,6 +78,10 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 		
 	}
 
+	public String getTabTag() {
+		return ((TabProxy)proxy).getTabTag();
+	}
+
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
 		if (key.equals(TiC.PROPERTY_TITLE)) {
@@ -88,7 +102,8 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 	 * will display the tab's content view.
 	 */
 	void initializeFragment() {
-		fragment = new TabFragment(this);
+		fragment = new TabFragment();
+		fragment.setTab(this);
 	}
 
 }

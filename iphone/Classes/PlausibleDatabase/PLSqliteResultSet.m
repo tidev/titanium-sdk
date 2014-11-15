@@ -264,7 +264,7 @@ VALUE_ACCESSORS(NSData *, data, SQLITE_BLOB, [NSData dataWithBytes: sqlite3_colu
             return [self stringForColumnIndex: columnIndex];
 
         case SQLITE_INTEGER:
-            return [NSNumber numberWithLong: [self bigIntForColumnIndex: columnIndex]];
+            return [NSNumber numberWithLongLong:[self bigIntForColumnIndex: columnIndex]];
 
         case SQLITE_FLOAT:
             return [NSNumber numberWithDouble: [self doubleForColumnIndex: columnIndex]];
@@ -323,7 +323,7 @@ VALUE_ACCESSORS(NSData *, data, SQLITE_BLOB, [NSData dataWithBytes: sqlite3_colu
 				[result addObject:[self stringForColumnIndex: currentIndex]]; break;
 				
 			case SQLITE_INTEGER:
-				[result addObject:[NSNumber numberWithLong: [self bigIntForColumnIndex: currentIndex]]]; break;
+				[result addObject:[NSNumber numberWithLongLong: [self bigIntForColumnIndex: currentIndex]]]; break;
 				
 			case SQLITE_FLOAT:
 				[result addObject:[NSNumber numberWithDouble: [self doubleForColumnIndex: currentIndex]]]; break;

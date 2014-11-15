@@ -167,6 +167,10 @@ public class TiUIScrollableView extends TiUIView
 			@Override
 			public void onPageScrolled(int positionRoundedDown, float positionOffset, int positionOffsetPixels)
 			{
+				if (mViews.isEmpty()) {
+					return;
+				}
+
 				isValidScroll = true;
 
 				// When we touch and drag the view and hold it inbetween the second

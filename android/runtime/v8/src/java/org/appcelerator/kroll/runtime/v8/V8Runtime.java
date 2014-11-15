@@ -8,7 +8,10 @@ package org.appcelerator.kroll.runtime.v8;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollExternalModule;
@@ -55,9 +58,24 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		if (!libLoaded) {
 			System.loadLibrary("stlport_shared");
 			System.loadLibrary("kroll-v8");
+
+			// TIMOB-16810 Add a delay to allow symbols to load before calling nativeInit (For HTC One Devices)
+			List<String> devices = Arrays.asList(
+					"htc one",
+					"optimus l5"
+					);
+			for (String model : devices) {
+				if (Build.MODEL.toLowerCase(Locale.ENGLISH).contains(model)) {
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+					}
+				}
+			}
+
 			libLoaded = true;
 		}
-		
+
 		boolean DBG = true;
 		String deployType = getKrollApplication().getDeployType();
 		if (deployType.equals("production")) {
