@@ -16,6 +16,8 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.PickerColumnProxy;
@@ -85,26 +87,27 @@ public class TiUINativePicker extends TiUIPicker
 	public TiUINativePicker(final TiViewProxy proxy, Activity activity)
 	{
 		this(proxy);
-		Spinner spinner = new Spinner(activity)
-		{
+		int spinnerId;
+		try {
+			spinnerId = TiRHelper.getResource("layout.ti_spinner");
+		} catch (ResourceNotFoundException e) {
+			Log.e(TAG, "XML resources could not be found!!!");
+			return;
+		} 
+		Spinner spinner = (Spinner) proxy.getActivity().getLayoutInflater().inflate(spinnerId, null);
+		spinner.setOnTouchListener(new View.OnTouchListener() {
 			@Override
-			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
-			{
-				super.onLayout(changed, left, top, right, bottom);
-				TiUIHelper.firePostLayoutEvent(proxy);
-			}
-			
-			@Override
-			public boolean onTouchEvent(MotionEvent event) {
+			public boolean onTouch(View v, MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_UP) {
 					KrollDict data = new KrollDict();
 					data.put(TiC.PROPERTY_X, event.getX());
 					data.put(TiC.PROPERTY_Y, event.getY());
 					fireEvent(TiC.EVENT_CLICK, data);
 				}
-				return super.onTouchEvent(event);
+				return false;
 			}
-		};
+		});
+
 		setNativeView(spinner);
 		refreshNativeView();
 		preselectRows();
