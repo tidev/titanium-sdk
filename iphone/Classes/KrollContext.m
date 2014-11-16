@@ -889,8 +889,8 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		stopped = YES;
 		if (debugger!=NULL)
 		{
-			TiObjectRef globalRef = TiContextGetGlobalObject(context);
 #ifdef TI_DEBUGGER_PROFILER
+			TiObjectRef globalRef = TiContextGetGlobalObject(context);
 			TiDebuggerDestroy(self,globalRef,debugger);
 #endif
             debugger = NULL;
@@ -1481,7 +1481,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 {
 	IMP ourFunction = [invocationTarget methodForSelector:invocationSelector];
     typedef id (*idIMP) (id, SEL, ...);
-	id result = ((idIMP)ourFunction)(invocationTarget,invocationSelector,
+	((idIMP)ourFunction)(invocationTarget,invocationSelector,
 		invocationArg1,invocationArg2,invocationArg3,invocationArg4);
 
 }

@@ -912,9 +912,9 @@ loadNativeJS:
 	{
         NSString* urlPath = (filepath != nil) ? filepath : fullPath;
 		NSURL *url_ = [TiHost resourceBasedURL:urlPath baseURL:NULL];
-       	const char *urlCString = [[url_ absoluteString] UTF8String];
         KrollWrapper* wrapper = nil;
 #ifdef TI_DEBUGGER_PROFILER
+       	const char *urlCString = [[url_ absoluteString] UTF8String];
         if ([[self host] debugMode] && ![module isJSModule]) {
             TiDebuggerBeginScript([self krollContext],urlCString);
         }
