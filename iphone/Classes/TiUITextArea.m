@@ -322,10 +322,6 @@ Text area constrains the text event though the content offset and edge insets ar
 -(CGFloat)contentHeightForWidth:(CGFloat)value
 {
     UITextView* ourView = (UITextView*)[self textWidgetView];
-    if (ourView.text.length == 0) {
-        ourView.text = @" ";
-    }
-    
     return [ourView sizeThatFits:CGSizeMake(value, 1E100)].height;
 }
 
