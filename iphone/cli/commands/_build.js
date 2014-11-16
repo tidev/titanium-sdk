@@ -1566,13 +1566,13 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 		this.tiapp.icon = 'appicon.png';
 	}
 
-	this.architectures = 'armv6 armv7 i386';
+	//this.architectures = 'armv6 armv7 i386';
 	// no armv6 support above 4.3 or with 6.0+ SDK
-	if (version.gte(this.iosSdkVersion, '6.0')) {
-		this.architectures = 'armv7 armv7s i386';
-	} else if (version.gte(this.minIosVer, '4.3')) {
-		this.architectures = 'armv7 i386';
-	}
+	//if (version.gte(this.iosSdkVersion, '6.0')) {
+	//	this.architectures = 'armv7 armv7s i386';
+	//} else if (version.gte(this.minIosVer, '4.3')) {
+	//	this.architectures = 'armv7 i386';
+	//}
 
 	this.imagesOptimizedFile = path.join(this.buildDir, 'images_optimized');
 	fs.existsSync(this.imagesOptimizedFile) && fs.unlinkSync(this.imagesOptimizedFile);
@@ -1605,7 +1605,7 @@ iOSBuilder.prototype.loginfo = function loginfo(next) {
 	this.logger.debug(__('Setting Xcode build OS to %s', this.xcodeTargetOS.cyan));
 	this.logger.debug(__('Xcode installation: %s', this.xcodeEnv.path.cyan));
 	this.logger.debug(__('iOS WWDR certificate: %s', this.iosInfo.certs.wwdr ? __('installed').cyan : __('not found').cyan));
-	this.logger.debug(__('Building for the following architectures: %s', this.architectures.cyan));
+	//this.logger.debug(__('Building for the following architectures: %s', this.architectures.cyan));
 
 	if (!this.cli.argv.xcode) {
 		if (this.target === 'device') {
@@ -2803,7 +2803,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 			'-sdk', this.xcodeTargetOS,
 			'IPHONEOS_DEPLOYMENT_TARGET=' + appc.version.format(this.minIosVer, 2),
 			'TARGETED_DEVICE_FAMILY=' + this.deviceFamilies[this.deviceFamily],
-			'VALID_ARCHS=' + this.architectures,
+			//'VALID_ARCHS=' + this.architectures,
 			'DEAD_CODE_STRIPPING=YES'
 		],
 		gccDefs = [ 'DEPLOYTYPE=' + this.deployType ];
