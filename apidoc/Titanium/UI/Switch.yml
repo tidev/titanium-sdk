@@ -105,7 +105,7 @@ properties:
         changing size between its on/off state.
     type: String
     default: Off
-    platforms: [android, mobileweb, tizen]
+    platforms: [mobileweb, tizen]
     
   - name: titleOn
     summary: Text to display on the switch in its "on" state, when the toggle button style is in use.
@@ -116,7 +116,7 @@ properties:
         changing size between its on/off state.
     type: String
     default: On
-    platforms: [android, mobileweb, tizen]
+    platforms: [mobileweb, tizen]
     
   - name: tintColor
     summary: The color used to tint the outline of the switch when it is turned off.

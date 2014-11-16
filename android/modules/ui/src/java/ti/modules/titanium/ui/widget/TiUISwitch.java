@@ -61,12 +61,6 @@ public class TiUISwitch extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_TITLE) && cb instanceof CheckBox) {
 			cb.setText(TiConvert.toString(d, TiC.PROPERTY_TITLE));
 		}
-		if (d.containsKey(TiC.PROPERTY_TITLE_OFF) && cb instanceof SwitchCompat) {
-			((SwitchCompat) cb).setTextOff(TiConvert.toString(d, TiC.PROPERTY_TITLE_OFF));
-		}
-		if (d.containsKey(TiC.PROPERTY_TITLE_ON) && cb instanceof SwitchCompat) {
-			((SwitchCompat) cb).setTextOn(TiConvert.toString(d, TiC.PROPERTY_TITLE_ON));
-		}
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
 		
 			cb.setChecked(TiConvert.toBoolean(d, TiC.PROPERTY_VALUE));
@@ -101,10 +95,6 @@ public class TiUISwitch extends TiUIView
 			setStyle(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_TITLE) && cb instanceof CheckBox) {
 			cb.setText((String) newValue);
-		} else if (key.equals(TiC.PROPERTY_TITLE_OFF) && cb instanceof SwitchCompat) {
-			((SwitchCompat) cb).setTextOff((String) newValue);
-		} else if (key.equals(TiC.PROPERTY_TITLE_ON) && cb instanceof SwitchCompat) {
-			((SwitchCompat) cb).setTextOff((String) newValue);
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			cb.setChecked(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
