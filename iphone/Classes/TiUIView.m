@@ -503,11 +503,6 @@ DEFINE_EXCEPTIONS
 	}
 }
 
--(void)setTileBackground_:(id)image
-{
-
-}
-
 -(void)setOpacity_:(id)opacity
 {
 	self.alpha = [TiUtils floatValue:opacity];
