@@ -184,7 +184,7 @@ static void listeningCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 	return self;
 }
 
-- (unsigned)retainCount {
+- (NSUInteger)retainCount {
 	return UINT_MAX;
 }
 

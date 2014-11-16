@@ -278,7 +278,7 @@ NSString *PLSqliteException = @"PLSqliteException";
     /* Create the statement */
     stmt = [self prepareStatement: statement error: error closeAtCheckin: YES];
     if (stmt == nil)
-        return NO;
+        return NULL;
     
     /* Bind the arguments */
     [stmt bindParameters: [self arrayWithVaList: args count: [stmt parameterCount]]];

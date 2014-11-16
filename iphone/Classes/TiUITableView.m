@@ -461,7 +461,7 @@
 	return [(TiUITableViewProxy *)[self proxy] indexPathFromInt:index];
 }
 
--(void)reloadDataFromCount:(int)oldCount toCount:(int)newCount animation:(UITableViewRowAnimation)animation
+-(void)reloadDataFromCount:(NSUInteger)oldCount toCount:(NSUInteger)newCount animation:(UITableViewRowAnimation)animation
 {
 	UITableView *table = [self tableView];
     
@@ -479,7 +479,7 @@
 	oldCount = MAX(1,oldCount);
 	newCount = MAX(1,newCount);
 
-	int commonality = MIN(oldCount,newCount);
+	NSUInteger commonality = MIN(oldCount,newCount);
 	oldCount -= commonality;
 	newCount -= commonality;
     
@@ -508,7 +508,7 @@
 	//won't have any problems in the case that it is actually nil.	
 	TiUITableViewProxy * ourProxy = (TiUITableViewProxy *)[self proxy];
 
-	int oldCount = [ourProxy sectionCount];
+	NSUInteger oldCount = [ourProxy sectionCount];
 	
 	for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] internalSections])
 	{
@@ -692,7 +692,7 @@
 		case TiUITableViewActionInsertRowBefore:
 		{
 			TiUITableViewRowProxy* row = (TiUITableViewRowProxy*)action.obj;						
-			int index = row.row;
+			NSInteger index = row.row;
 			TiUITableViewRowProxy *oldrow = [[row.section rows] objectAtIndex:index];
 			[self insertRow:row before:oldrow];
 			NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
@@ -702,12 +702,12 @@
         case TiUITableViewActionInsertSectionBefore:
         {
 			TiUITableViewRowProxy* row = (TiUITableViewRowProxy*)action.obj;									
-            int newSectionIndex = row.section.section;
-            int rowIndex = row.row;
+            NSInteger newSectionIndex = row.section.section;
+            NSInteger rowIndex = row.row;
             row.row = 0;
             TiUITableViewSectionProxy* newSection = row.section;
 
-			int updateSectionIndex = (rowIndex == 0) ? newSectionIndex : newSectionIndex - 1;
+			NSUInteger updateSectionIndex = (rowIndex == 0) ? newSectionIndex : newSectionIndex - 1;
             TiUITableViewSectionProxy* updateSection = [self sectionForIndex:updateSectionIndex];;
             
             NSMutableArray* addRows = [NSMutableArray array];
@@ -715,8 +715,8 @@
 			// If we're inserting before the first row, we can (and should!) skip all this stuff.
 			if (rowIndex != 0) {
 				NSMutableArray* removeRows = [NSMutableArray array];
-				int numrows = [[updateSection rows] count];
-				for (int i=rowIndex; i < numrows; i++) {
+				NSUInteger numrows = [[updateSection rows] count];
+				for (NSInteger i=rowIndex; i < numrows; i++) {
 					// Because rows are being bumped off, we need to keep grabbing the one in the initial index
 					TiUITableViewRowProxy* moveRow = [[[updateSection rows] objectAtIndex:rowIndex] retain];
 					
@@ -751,7 +751,7 @@
 		case TiUITableViewActionInsertRowAfter:
 		{
 			TiUITableViewRowProxy* row = (TiUITableViewRowProxy*)action.obj;												
-			int index = row.row-1;
+			NSInteger index = row.row-1;
 			TiUITableViewRowProxy *oldrow = nil;
 			if (index < [[row.section rows] count])
 			{
@@ -765,18 +765,18 @@
         case TiUITableViewActionInsertSectionAfter:
         {
 			TiUITableViewRowProxy* row = (TiUITableViewRowProxy*)action.obj;															
-            int newSectionIndex = row.section.section;
-            int rowIndex = row.row; // Get the index of rows which will come after the new row
+            NSInteger newSectionIndex = row.section.section;
+            NSInteger rowIndex = row.row; // Get the index of rows which will come after the new row
             row.row = 0; // Reset the row index to the right place
             TiUITableViewSectionProxy* newSection = row.section;
             
             // Move ALL of the rows after the row we're inserting after to the new section
             TiUITableViewSectionProxy* previousSection = [sections objectAtIndex:newSectionIndex-1];
-            int numRows = [[previousSection rows] count];
+            NSUInteger numRows = [[previousSection rows] count];
             
             NSMutableArray* removeRows = [NSMutableArray array];
             NSMutableArray* addRows = [NSMutableArray array];
-            for (int i=rowIndex; i < numRows; i++) {
+            for (NSInteger i=rowIndex; i < numRows; i++) {
                 // Have to hold onto the row while we're moving it
                 TiUITableViewRowProxy* moveRow = [[[previousSection rows] objectAtIndex:rowIndex] retain];
                 [removeRows addObject:[NSIndexPath indexPathForRow:i inSection:newSectionIndex-1]];
@@ -907,11 +907,11 @@
 	if (viaSearch) {
 		index = [self indexPathFromSearchIndex:[indexPath row]];
 	}
-	int sectionIdx = [index section];
+	NSInteger sectionIdx = [index section];
 	NSArray * sections = [(TiUITableViewProxy *)[self proxy] internalSections];
 	TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
 	
-	int rowIndex = [index row];
+	NSInteger rowIndex = [index row];
 	int dataIndex = 0;
 	int c = 0;
 	TiUITableViewRowProxy *row = [section rowAtIndex:rowIndex];
@@ -939,10 +939,10 @@
 
 	if (fromPath!=nil)
 	{
-		NSNumber *fromIndex = [NSNumber numberWithInt:[self indexForIndexPath:fromPath]];
+		NSNumber *fromIndex = NUMINTEGER([self indexForIndexPath:fromPath]);
 		[eventObject setObject:fromIndex forKey:@"fromIndex"];
-		[eventObject setObject:[NSNumber numberWithInt:[fromPath row]] forKey:@"fromRow"];
-		[eventObject setObject:[NSNumber numberWithInt:[fromPath section]] forKey:@"fromSection"];
+		[eventObject setObject:NUMINTEGER([fromPath row]) forKey:@"fromRow"];
+		[eventObject setObject:NUMINTEGER([fromPath section]) forKey:@"fromSection"];
 	}
 	
 	// fire it to our row since the row, section and table are
@@ -1081,11 +1081,11 @@
 
         if (indexPath != nil) {
             //We have index path. Let us fill out section and row information. Also since the 
-            int sectionIdx = [indexPath section];
+            NSInteger sectionIdx = [indexPath section];
             NSArray * sections = [(TiUITableViewProxy *)[self proxy] internalSections];
             TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
             
-            int rowIndex = [indexPath row];
+            NSInteger rowIndex = [indexPath row];
             int dataIndex = 0;
             int c = 0;
             TiUITableViewRowProxy *row = [section rowAtIndex:rowIndex];
@@ -1136,11 +1136,11 @@
     
     if (indexPath != nil) {
         //We have index path. Let us fill out section and row information. Also since the
-        int sectionIdx = [indexPath section];
+        NSInteger sectionIdx = [indexPath section];
         NSArray * sections = [(TiUITableViewProxy *)[self proxy] internalSections];
         TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
         
-        int rowIndex = [indexPath row];
+        NSInteger rowIndex = [indexPath row];
         int dataIndex = 0;
         int c = 0;
         TiUITableViewRowProxy *row = [section rowAtIndex:rowIndex];
@@ -1266,15 +1266,15 @@
 
 #pragma mark Searchbar helper methods
 
-- (NSIndexPath *) indexPathFromSearchIndex: (int) index
+- (NSIndexPath *) indexPathFromSearchIndex: (NSInteger) index
 {
 	int asectionIndex = 0;
 	for (NSIndexSet * thisSet in searchResultIndexes) 
 	{
-		int thisSetCount = [thisSet count];
+		NSUInteger thisSetCount = [thisSet count];
 		if(index < thisSetCount)
 		{
-			int rowIndex = [thisSet firstIndex];
+			NSUInteger rowIndex = [thisSet firstIndex];
 			while (index > 0) 
 			{
 				rowIndex = [thisSet indexGreaterThanIndex:rowIndex];
@@ -1875,7 +1875,7 @@
 		[sectionIndexMap setObject:[NSNumber numberWithInt:[TiUtils intValue:theindex]] forKey:title];
 	}
     
-	int sectionCount = [self numberOfSectionsInTableView:tableview]-1;
+	NSInteger sectionCount = [self numberOfSectionsInTableView:tableview]-1;
 
     // Instead of calling back through our mechanism to reload specific sections, because the entire index of the table
     // has been regenerated, we can assume it's okay to just reload the whole dataset.
@@ -2088,7 +2088,7 @@ return result;	\
 
 	RETURN_IF_SEARCH_TABLE_VIEW(1);
     // One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
-	int result = [(TiUITableViewProxy *)[self proxy] sectionCount];
+	NSUInteger result = [(TiUITableViewProxy *)[self proxy] sectionCount];
 	return MAX(1,result);
 }
 
@@ -2216,10 +2216,10 @@ return result;	\
 - (void)tableView:(UITableView *)ourTableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
 {
     RETURN_IF_SEARCH_TABLE_VIEW();
-    int fromSectionIndex = [sourceIndexPath section];
-    int toSectionIndex = [destinationIndexPath section];
-    int fromRowIndex = [sourceIndexPath row];
-    int toRowIndex = [destinationIndexPath row];
+    NSInteger fromSectionIndex = [sourceIndexPath section];
+    NSInteger toSectionIndex = [destinationIndexPath section];
+    NSInteger fromRowIndex = [sourceIndexPath row];
+    NSInteger toRowIndex = [destinationIndexPath row];
     
     if ((fromSectionIndex == toSectionIndex) && (fromRowIndex == toRowIndex)) {
         //No need to fire a move event if the row never moved
@@ -2286,7 +2286,7 @@ return result;	\
         //Not displayed at present. Go ahead and scroll to row and reperform selectRow after delay
         [[self tableView] scrollToRowAtIndexPath:path atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
         NSDictionary *dict = [NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"];
-        NSArray *newArgs = [NSArray arrayWithObjects:NUMINT(index),dict,nil];
+        NSArray *newArgs = [NSArray arrayWithObjects:NUMINTEGER(index),dict,nil];
         [self performSelector:@selector(selectRow:) withObject:newArgs afterDelay:.1];
         return;
     }
@@ -2540,7 +2540,7 @@ return result;	\
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
-	int lastSectionIndex = [(TiUITableViewProxy *)[self proxy] sectionCount]-1;
+	NSInteger lastSectionIndex = [(TiUITableViewProxy *)[self proxy] sectionCount]-1;
 	ENSURE_CONSISTENCY(lastSectionIndex>=0);
 	CGRect minimumContentRect = [tableview rectForSection:lastSectionIndex];
 	InsetScrollViewForKeyboard(tableview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
@@ -2549,7 +2549,7 @@ return result;	\
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
     if ([tableview isScrollEnabled]) {
-        int lastSectionIndex = [(TiUITableViewProxy *)[self proxy] sectionCount]-1;
+        NSInteger lastSectionIndex = [(TiUITableViewProxy *)[self proxy] sectionCount]-1;
         ENSURE_CONSISTENCY(lastSectionIndex>=0);
         CGRect minimumContentRect = [tableview rectForSection:lastSectionIndex];
         

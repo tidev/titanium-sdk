@@ -193,7 +193,7 @@ extern NSString * const TI_APPLICATION_GUID;
                         extension = [Mimetypes extensionForMimeType:mime];
                     }
                     if (name == nil) {
-                        name = [NSString stringWithFormat:@"%i%i", dataIndex++, timestamp];
+                        name = [NSString stringWithFormat:@"%li%li", (long)dataIndex++, (long)timestamp];
                         if (extension != nil) {
                             name = [NSString stringWithFormat:@"%@.%@", name, extension];
                         }
@@ -315,7 +315,7 @@ extern NSString * const TI_APPLICATION_GUID;
     if([request cancelled]) {
         return;
     }
-    int responseCode = [response status];
+    NSInteger responseCode = [response status];
     /**
      *    Per customer request, successful communications that resulted in an
      *    4xx or 5xx response is treated as an error instead of an onload.
@@ -446,7 +446,7 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(NSNumber*)status
 {
-    return NUMINT([[self response] status]);
+    return NUMINTEGER([[self response] status]);
 }
 
 -(NSString*)statusText

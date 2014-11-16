@@ -242,7 +242,7 @@ self.p = v;\
 
 -(id)description
 {
-	return [NSString stringWithFormat:@"[object TiAnimation<%d>]",[self hash]];
+	return [NSString stringWithFormat:@"[object TiAnimation<%lu>]",(unsigned long)[self hash]];
 }
 
 -(void)animationStarted:(NSString *)animationID context:(void *)context

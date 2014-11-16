@@ -12,7 +12,7 @@
 @private
 	UIScrollView *scrollview;
 	UIPageControl *pageControl;
-	int currentPage; // Duplicate some info, just in case we're not showing the page control
+	NSInteger currentPage; // Duplicate some info, just in case we're not showing the page control
 	BOOL showPageControl;
 	UIColor *pageControlBackgroundColor;
 	CGFloat pageControlHeight;
@@ -25,9 +25,9 @@
     BOOL rotatedWhileScrolling;
 
     // See the code for why we need this...
-    int lastPage;
+    NSInteger lastPage;
     BOOL enforceCacheRecalculation;
-    int cacheSize;
+    NSInteger cacheSize;
     BOOL pageChanged;
 }
 
