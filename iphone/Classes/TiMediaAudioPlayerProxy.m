@@ -194,7 +194,7 @@ PLAYER_PROP_DOUBLE(state,state);
 
 -(void)setBufferSize:(NSNumber*)bufferSize_
 {
-    bufferSize = [bufferSize_ unsignedIntegerValue];
+    bufferSize = [bufferSize_ unsignedIntValue];
     if (player != nil) {
         [player setBufferSize:bufferSize];
     }

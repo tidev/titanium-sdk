@@ -293,7 +293,7 @@
         if(url != nil && url.length) {
             NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                        url, @"url",
-                                       [NSArray arrayWithObjects:NUMINT(theRange.location), NUMINT(theRange.length),nil],@"range",
+                                       [NSArray arrayWithObjects:NUMUINTEGER(theRange.location), NUMUINTEGER(theRange.length),nil],@"range",
                                        nil];
                                             
             [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO reportSuccess:NO errorCode:0 message:nil];

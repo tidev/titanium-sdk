@@ -331,7 +331,7 @@ const NSString* socketKey = @"socket";
         if (address->sa_family == AF_INET) {
             [self setSocket:[[[TiNetworkTCPSocketProxy alloc] _initWithPageContext:[self pageContext]
                                                                        args:[NSArray arrayWithObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                                                                        [NSNumber numberWithInt:[service port]], @"port",
+                                                                                                        NUMINTEGER([service port]), @"port",
                                                                                                         [service hostName], @"hostName",
                                                                                                         [NSNumber numberWithInt:READ_WRITE_MODE], @"mode", nil]]]
                       autorelease]];

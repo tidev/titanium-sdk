@@ -247,7 +247,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
     }
     
     BOOL keepWarning = YES;    
-    int proxiesCount = CFDictionaryGetCount(registeredProxies);
+    signed long proxiesCount = CFDictionaryGetCount(registeredProxies);
     OSSpinLockUnlock(&proxyLock);
         
     //During a memory panic, we may not get the chance to copy proxies.
@@ -265,7 +265,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
                 break;
             }
             
-            int newCount = CFDictionaryGetCount(registeredProxies);
+            signed long newCount = CFDictionaryGetCount(registeredProxies);
             OSSpinLockUnlock(&proxyLock);
 
             if (newCount != proxiesCount)
@@ -987,7 +987,7 @@ loadNativeJS:
 	NSMutableArray * results = nil;
 
 	OSSpinLockLock(&krollBridgeRegistryLock);
-	int bridgeCount = CFSetGetCount(krollBridgeRegistry);
+	signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
 	KrollBridge * registryObjects[bridgeCount];
 	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
 	
@@ -1015,7 +1015,7 @@ loadNativeJS:
 + (NSArray *)krollContexts
 {
 	OSSpinLockLock(&krollBridgeRegistryLock);
-	int bridgeCount = CFSetGetCount(krollBridgeRegistry);
+	signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
 	KrollBridge * registryObjects[bridgeCount];
 	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
 
@@ -1038,7 +1038,7 @@ loadNativeJS:
 
 	bool result=NO;
 	OSSpinLockLock(&krollBridgeRegistryLock);
-	int bridgeCount = CFSetGetCount(krollBridgeRegistry);
+	signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
 	KrollBridge * registryObjects[bridgeCount];
 	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
 	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
@@ -1066,7 +1066,7 @@ loadNativeJS:
 
 	KrollBridge * result=nil;
 	OSSpinLockLock(&krollBridgeRegistryLock);
-	int bridgeCount = CFSetGetCount(krollBridgeRegistry);
+	signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
 	KrollBridge * registryObjects[bridgeCount];
 	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
 	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)

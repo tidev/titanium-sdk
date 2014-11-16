@@ -97,8 +97,8 @@ DEFINE_EXCEPTIONS
 
 	NSArray * tabArray = [controller viewControllers];
 
-	int previousIndex = -1;
-	int index = -1;
+	NSInteger previousIndex = -1;
+	NSInteger index = -1;
 
 	if (focusedTabProxy != nil)
 	{
@@ -112,8 +112,8 @@ DEFINE_EXCEPTIONS
 		index = [tabArray indexOfObject:[(TiUITabProxy *)newFocus controller]];
 	}
 
-	[event setObject:NUMINT(previousIndex) forKey:@"previousIndex"];
-	[event setObject:NUMINT(index) forKey:@"index"];
+	[event setObject:NUMINTEGER(previousIndex) forKey:@"previousIndex"];
+	[event setObject:NUMINTEGER(index) forKey:@"index"];
 
 	[self.proxy fireEvent:@"blur" withObject:event];
 	[focusedTabProxy handleDidBlur:event];
@@ -216,7 +216,7 @@ DEFINE_EXCEPTIONS
 -(void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated	
 {
     NSArray * moreViewControllerStack = [navigationController viewControllers];
-    int stackHeight = [moreViewControllerStack count];
+    NSUInteger stackHeight = [moreViewControllerStack count];
     if (stackHeight > 1) {
         UIViewController * rootController = [moreViewControllerStack objectAtIndex:1];
         if ([rootController respondsToSelector:@selector(proxy)]) {
@@ -247,7 +247,7 @@ DEFINE_EXCEPTIONS
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
     NSArray * moreViewControllerStack = [navigationController viewControllers];
-    int stackHeight = [moreViewControllerStack count];
+    NSUInteger stackHeight = [moreViewControllerStack count];
     if (stackHeight < 2) { //No more faux roots.
         if (focusedTabProxy != nil) {
             [self handleDidShowTab:nil];
@@ -323,7 +323,7 @@ DEFINE_EXCEPTIONS
 			[(UINavigationController *)viewController setDelegate:self];
 		}
 		NSArray * moreViewControllerStack = [(UINavigationController *)viewController viewControllers];
-		int stackCount = [moreViewControllerStack count];
+		NSUInteger stackCount = [moreViewControllerStack count];
 		if (stackCount>1)
 		{
 			viewController = [moreViewControllerStack objectAtIndex:1];
@@ -609,12 +609,12 @@ DEFINE_EXCEPTIONS
 
 	// on an open, make sure we send the focus event to focused tab
     NSArray * tabArray = [controller viewControllers];
-    int index = 0;
+    NSInteger index = 0;
     if (focusedTabProxy != nil)
 	{
 		index = [tabArray indexOfObject:[(TiUITabProxy *)focusedTabProxy controller]];
 	}
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focusedTabProxy,@"tab",NUMINT(index),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focusedTabProxy,@"tab",NUMINTEGER(index),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
 	[self.proxy fireEvent:@"focus" withObject:event];
     
     // Tab has already been focused by the tab controller delegate

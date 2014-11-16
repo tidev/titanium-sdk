@@ -36,7 +36,7 @@ enum {
 	kTiErrorCodeSuccess = 0,
 	kTiErrorUnknownFailure = -1,
 };
-void TiBindingEventSetErrorCode(TiBindingEvent event, int code);
+void TiBindingEventSetErrorCode(TiBindingEvent event, NSInteger code);
 #if TARGET_OS_IPHONE
 void TiBindingEventSetErrorMessageWithNSString(TiBindingEvent event, NSString * message);
 #endif

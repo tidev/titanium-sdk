@@ -288,7 +288,7 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 		[target setExecutionContext:context.delegate];
 	}
 	
-	int methodArgCount = [_methodSignature numberOfArguments];
+	NSUInteger methodArgCount = [_methodSignature numberOfArguments];
 	
 	if (methodArgCount > 0 && argcount > 0)
 	{

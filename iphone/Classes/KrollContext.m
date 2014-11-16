@@ -369,8 +369,8 @@ static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFu
 				size+=sizeof(bool);
 			}
 		}
-		char* argList = (char *)malloc(size);
-		char* bm = argList; // copy pointer since we move the other forward
+		void* argList = malloc(size);
+		void* bm = argList; // copy pointer since we move the other forward
 		for (size_t x = 1; x < argCount; x++)
 		{
 			TiValueRef valueRef = args[x];
@@ -628,7 +628,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	}
 	TiObjectRef global = TiContextGetGlobalObject([context context]);
 	
-	TiValueRef result = TiEvalScript([context context], jsCode, global, jsURL, startingLineNo, exceptionPointer);
+	TiValueRef result = TiEvalScript([context context], jsCode, global, jsURL, (int)startingLineNo, exceptionPointer);
 		
 	TiStringRelease(jsCode);
 	if (jsURL != NULL) {
@@ -930,7 +930,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 }
 
 #ifdef DEBUG
--(int)queueCount
+-(NSUInteger)queueCount
 {
 	return [queue count];
 }
@@ -1248,7 +1248,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		{
             [condition unlock];
 			exit_after_flush = YES;
-			int queue_count = 0;
+			NSUInteger queue_count = 0;
 			
 			[lock lock];
 			queue_count = [queue count];
@@ -1356,7 +1356,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		
 		[condition lock];
 		[lock lock];
-		int queue_count = [queue count];
+		NSUInteger queue_count = [queue count];
 		[lock unlock];
 		if ((queue_count == 0) && !suspended)
 		{
