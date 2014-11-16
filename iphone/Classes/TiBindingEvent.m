@@ -48,7 +48,7 @@ struct TiBindingEventOpaque{
 	bool bubbles;	//Immutable
 	bool cancelBubble;	//Mutable, set to true
 	bool reportError;		//Immutable
-	int errorCode;			//Immutable
+	NSInteger errorCode;			//Immutable
 //Objective C version
 	TiProxy * targetProxy;	//Immutable in-event, mutable for bubbling.
 	TiProxy * sourceProxy;	//Immutable
@@ -133,7 +133,7 @@ TiProxy * TiBindingEventNextBubbleTargetProxy(TiBindingEvent event, TiProxy * cu
 	return currentTarget;
 }
 
-void TiBindingEventSetErrorCode(TiBindingEvent event, int code)
+void TiBindingEventSetErrorCode(TiBindingEvent event, NSInteger code)
 {
 	event->reportError = true;
 	event->errorCode = code;

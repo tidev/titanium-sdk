@@ -25,7 +25,7 @@
 	ENSURE_INT_AT_INDEX(offsetArg, args, 0);  
     
     NSString * ourData = [self data];
-	int dataLength = [ourData length];
+	NSUInteger dataLength = [ourData length];
 	ENSURE_VALUE_RANGE(offsetArg, 0, dataLength);    
     
     NSString *newNodeData = [ourData substringFromIndex:offsetArg];

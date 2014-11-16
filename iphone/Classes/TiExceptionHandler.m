@@ -117,7 +117,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 - (NSString *)description
 {
 	if (self.sourceURL != nil) {
-		return [NSString stringWithFormat:@"%@ at %@ (line %d)", self.message,[self.sourceURL lastPathComponent], self.lineNo];
+		return [NSString stringWithFormat:@"%@ at %@ (line %ld)", self.message,[self.sourceURL lastPathComponent], (long)self.lineNo];
 	} else {
 		return [NSString stringWithFormat:@"%@", self.message];
 	}
@@ -145,7 +145,7 @@ static void TiUncaughtExceptionHandler(NSException *exception)
 	insideException = YES;
 	
     NSArray *callStackArray = [exception callStackReturnAddresses];
-    int frameCount = [callStackArray count];
+    int frameCount = (int)[callStackArray count];
     void *backtraceFrames[frameCount];
 	
     for (int i = 0; i < frameCount; ++i) {

@@ -638,7 +638,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent
     totalBytesSent:(int64_t) totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
 {
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMINT(task.taskIdentifier),@"taskIdentifier",
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMULONG(task.taskIdentifier),@"taskIdentifier",
                                  [NSNumber numberWithUnsignedLongLong:bytesSent], @"bytesSent",
                                  [NSNumber numberWithUnsignedLongLong:totalBytesSent], @"totalBytesSent",
                                  [NSNumber numberWithUnsignedLongLong:totalBytesExpectedToSend], @"totalBytesExpectedToSend", nil];
@@ -654,7 +654,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
                           nil];
     if (error) {
         NSDictionary * errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
-                                                NUMINT([error code]), @"errorCode",
+                                                NUMINTEGER([error code]), @"errorCode",
                                                 [error localizedDescription], @"message",
                                                 nil];
         [dict addEntriesFromDictionary:errorinfo];
@@ -1070,7 +1070,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     [event setObject:NOTNIL([notification alertAction]) forKey:@"alertAction"];
     [event setObject:NOTNIL([notification alertLaunchImage]) forKey:@"alertLaunchImage"];
     [event setObject:NOTNIL([notification soundName]) forKey:@"sound"];
-    [event setObject:NUMINT([notification applicationIconBadgeNumber]) forKey:@"badge"];
+    [event setObject:NUMINTEGER([notification applicationIconBadgeNumber]) forKey:@"badge"];
     [event setObject:NOTNIL([notification userInfo]) forKey:@"userInfo"];
 	//include category for ios8
 	if ([TiUtils isIOS8OrGreater]) {

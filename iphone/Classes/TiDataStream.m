@@ -31,7 +31,7 @@
 
 #pragma mark I/O Stream implementation
 
--(int)readToBuffer:(TiBuffer *)toBuffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
+-(NSUInteger)readToBuffer:(TiBuffer *)toBuffer offset:(NSUInteger)offset length:(NSUInteger)length callback:(KrollCallback *)callback
 {
     if (data == nil) {
         [self throwException:@"TiStreamException"
@@ -68,12 +68,12 @@
     // TODO: This is a dumb convention. Go back and fix it.
     if (length == 0) {
         length = [data length];
-        [toBuffer setLength:NUMINT(length)];
+        [toBuffer setLength:NUMUINTEGER(length)];
     }
     const void* bytes = [data bytes];
     void* toBytes = [[toBuffer data] mutableBytes];
    
-    int bytesToWrite = MIN([data length] - position, length);
+    NSUInteger bytesToWrite = MIN([data length] - position, length);
     memcpy(toBytes+offset, bytes+position, bytesToWrite);
 
     position += bytesToWrite;
@@ -81,7 +81,7 @@
     if (callback != nil) {
 		NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:self forKey:@"source"];
-		[event setObject:NUMINT(bytesToWrite) forKey:@"bytesProcessed"];
+		[event setObject:NUMUINTEGER(bytesToWrite) forKey:@"bytesProcessed"];
 		[event setObject:NUMINT(0) forKey:@"errorState"];
 		[event setObject:@"" forKey:@"errorDescription"];
         [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
@@ -91,7 +91,7 @@
 }
 
 // TODO: Need to extend the data if we're writing past its current bounds
--(int)writeFromBuffer:(TiBuffer *)fromBuffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
+-(NSUInteger)writeFromBuffer:(TiBuffer *)fromBuffer offset:(NSUInteger)offset length:(NSUInteger)length callback:(KrollCallback *)callback
 {
     if (data == nil) {
         [self throwException:@"TiStreamException"
@@ -111,7 +111,7 @@
 			[event setObject:NUMINT(-1) forKey:@"errorState"];
             [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
         }
-        return -1;   
+        return 0;
     }
     
     // TODO: Codify in read() and write() when we have every method calling the wrappers... like it should.
@@ -131,7 +131,7 @@
     // even with immutable data (i.e. blob) if the user has specified WRITE or APPEND, they're OK with digging their own grave.
     NSMutableData* mutableData = (NSMutableData*)data;
     if (mode & TI_WRITE) {
-        int overflow = length - ([data length] - position);
+        NSUInteger overflow = length - ([data length] - position);
         if (overflow > 0) {
             [mutableData increaseLengthBy:overflow];
         }
@@ -151,7 +151,7 @@
     if (callback != nil) {
 		NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:self forKey:@"source"];
-		[event setObject:NUMINT(length) forKey:@"bytesProcessed"];
+		[event setObject:NUMUINTEGER(length) forKey:@"bytesProcessed"];
 		[event setObject:NUMINT(0) forKey:@"errorState"];
 		[event setObject:@"" forKey:@"errorDescription"];
         [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
@@ -160,7 +160,7 @@
     return length;
 }
 
--(int)writeToStream:(id<TiStreamInternal>)output chunkSize:(int)size callback:(KrollCallback *)callback
+-(NSUInteger)writeToStream:(id<TiStreamInternal>)output chunkSize:(NSUInteger)size callback:(KrollCallback *)callback
 {
     if (data == nil) {
         [self throwException:@"TiStreamException"
@@ -168,13 +168,13 @@
                     location:CODELOCATION];
     }
     
-    int length = [data length];
-    int totalBytes = 0;
+    NSUInteger length = [data length];
+    NSUInteger totalBytes = 0;
     while (position < length) {
         TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
         NSRange subdataRange = NSMakeRange(position,MIN(size,length-position));
         
-        int bytesWritten = 0;
+        NSUInteger bytesWritten = 0;
         @try {
 			void* bytes = malloc(subdataRange.length);
 			if (bytes == NULL) {
@@ -195,7 +195,7 @@
 				NSMutableDictionary* event = [TiUtils dictionaryWithCode:-1 message:[e reason]];
 				[event setObject:self forKey:@"fromStream"];
 				[event setObject:output forKey:@"toStream"];
-				[event setObject:NUMINT(totalBytes) forKey:@"bytesWritten"];
+				[event setObject:NUMUINTEGER(totalBytes) forKey:@"bytesWritten"];
 				[event setObject:[e reason] forKey:@"errorDescription"];
 				[event setObject:NUMINT(-1) forKey:@"errorState"];
                 [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
@@ -216,7 +216,7 @@
 		NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:self forKey:@"fromStream"];
 		[event setObject:output forKey:@"toStream"];
-		[event setObject:NUMINT(totalBytes) forKey:@"bytesProcessed"];
+		[event setObject:NUMUINTEGER(totalBytes) forKey:@"bytesProcessed"];
 		[event setObject:NUMINT(0) forKey:@"errorState"];
 		[event setObject:@"" forKey:@"errorDescription"];
         [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
@@ -226,7 +226,7 @@
 }
 
 // We don't need the asynch hint
--(void)pumpToCallback:(KrollCallback *)callback chunkSize:(int)size asynch:(BOOL)asynch
+-(void)pumpToCallback:(KrollCallback *)callback chunkSize:(NSUInteger)size asynch:(BOOL)asynch
 {
     if (data == nil) {
         [self throwException:@"TiStreamException"
@@ -234,15 +234,14 @@
                     location:CODELOCATION];
     }
     
-    int totalBytes = 0;
-    int bytesWritten = 0;
-    int length = [data length];
+    NSUInteger totalBytes = 0;
+    NSUInteger length = [data length];
     
     const void* source = [data bytes];
     while (position < length) {
         TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
 
-        int bytesToWrite = MIN(size, length-position);
+        NSUInteger bytesToWrite = MIN(size, length-position);
         void* destination = malloc(bytesToWrite);
 		if (destination == NULL) {
 			NSString * message = @"Memory allocation failure";
@@ -250,7 +249,7 @@
 			[event setObject:self forKey:@"source"];
 			[event setObject:[NSNull null] forKey:@"buffer"];
 			[event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
-			[event setObject:NUMINT(totalBytes) forKey:@"totalBytesProcessed"];
+			[event setObject:NUMUINTEGER(totalBytes) forKey:@"totalBytesProcessed"];
 			[event setObject:NUMINT(1) forKey:@"errorState"];
 			[event setObject:message forKey:@"errorDescription"];
 			[self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
@@ -265,8 +264,8 @@
 		NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:self forKey:@"source"];
 		[event setObject:tempBuffer forKey:@"buffer"];
-		[event setObject:NUMINT(bytesToWrite) forKey:@"bytesProcessed"];
-		[event setObject:NUMINT(totalBytes) forKey:@"totalBytesProcessed"];
+		[event setObject:NUMUINTEGER(bytesToWrite) forKey:@"bytesProcessed"];
+		[event setObject:NUMUINTEGER(totalBytes) forKey:@"totalBytesProcessed"];
 		[event setObject:NUMINT(0) forKey:@"errorState"];
 		[event setObject:@"" forKey:@"errorDescription"];
         [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
@@ -277,7 +276,7 @@
 	[event setObject:self forKey:@"source"];
 	[event setObject:[NSNull null] forKey:@"buffer"];
 	[event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
-	[event setObject:NUMINT(totalBytes) forKey:@"totalBytesProcessed"];
+	[event setObject:NUMUINTEGER(totalBytes) forKey:@"totalBytesProcessed"];
 	[event setObject:NUMINT(0) forKey:@"errorState"];
 	[event setObject:@"" forKey:@"errorDescription"];
     [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];

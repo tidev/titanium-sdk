@@ -61,7 +61,7 @@
             break;
         }
         case BAD_DEST_OFFSET: {
-            NSString* errorStr = [NSString stringWithFormat:@"Offset %d is past buffer bounds (length %d)",position,[[dest data] length]];
+            NSString* errorStr = [NSString stringWithFormat:@"Offset %d is past buffer bounds (length %lu)",position,(unsigned long)[[dest data] length]];
             [self throwException:errorStr
                        subreason:nil
                         location:CODELOCATION];
@@ -74,7 +74,7 @@
             break;
         }
         case TOO_SMALL: {
-            [self throwException:[NSString stringWithFormat:@"Buffer of length %d too small to hold type %@",[[dest data] length], type]
+            [self throwException:[NSString stringWithFormat:@"Buffer of length %lu too small to hold type %@",(unsigned long)[[dest data] length], type]
                        subreason:nil
                         location:CODELOCATION];
             break;
@@ -116,7 +116,7 @@
     }
     
     if (position >= [[src data] length]) {
-        NSString* errorStr = [NSString stringWithFormat:@"Offset %d is past buffer bounds (length %d)",position,[[src data] length]];
+        NSString* errorStr = [NSString stringWithFormat:@"Offset %d is past buffer bounds (length %lu)",position,(unsigned long)[[src data] length]];
         [self throwException:errorStr
                    subreason:nil
                     location:CODELOCATION];
@@ -218,12 +218,12 @@
     ENSURE_SINGLE_ARG(args,NSDictionary);
     
     TiBuffer* dest = nil;
-    int destPosition;
+    NSUInteger destPosition;
     BOOL hasDestPosition;
     NSString* string = nil;
-    int srcPosition;
+    NSUInteger srcPosition;
     BOOL hasSrcPosition;
-    int srcLength;
+    NSUInteger srcLength;
     BOOL hasSrcLength;
     NSString* charset;
     
@@ -243,13 +243,13 @@
     
     switch (result) {
         case BAD_SRC_OFFSET: {
-            [self throwException:[NSString stringWithFormat:@"Offset %d is past string bounds (length %d)",srcPosition,[string length]]
+            [self throwException:[NSString stringWithFormat:@"Offset %lu is past string bounds (length %lu)",(unsigned long)srcPosition,(unsigned long)[string length]]
                        subreason:nil
                         location:CODELOCATION];
             break;
         }
         case BAD_DEST_OFFSET: {
-            NSString* errorStr = [NSString stringWithFormat:@"Offset %d is past buffer bounds (length %d)",destPosition,[[dest data] length]];
+            NSString* errorStr = [NSString stringWithFormat:@"Offset %lu is past buffer bounds (length %lu)",(unsigned long)destPosition,(unsigned long)[[dest data] length]];
             [self throwException:errorStr
                        subreason:nil
                         location:CODELOCATION];
@@ -296,19 +296,19 @@
     }
     
     if (position >= [[src data] length]) {
-        NSString* errorStr = [NSString stringWithFormat:@"Offset %d is past buffer bounds (length %d)",position,[[src data] length]];
+        NSString* errorStr = [NSString stringWithFormat:@"Offset %d is past buffer bounds (length %lu)",position,(unsigned long)[[src data] length]];
         [self throwException:errorStr
                    subreason:nil
                     location:CODELOCATION];        
     }
     if (length > [[src data] length]) {
-        NSString* errorStr = [NSString stringWithFormat:@"Length %d is past buffer bounds (length %d)",length,[[src data] length]];
+        NSString* errorStr = [NSString stringWithFormat:@"Length %d is past buffer bounds (length %lu)",length,(unsigned long)[[src data] length]];
         [self throwException:errorStr
                    subreason:nil
                     location:CODELOCATION];        
     }
     if (length+position > [[src data] length]) {
-        NSString* errorStr = [NSString stringWithFormat:@"total length %d is past buffer bounds (length %d)",position+length,[[src data] length]];
+        NSString* errorStr = [NSString stringWithFormat:@"total length %d is past buffer bounds (length %lu)",position+length,(unsigned long)[[src data] length]];
         [self throwException:errorStr
                    subreason:nil
                     location:CODELOCATION];      
@@ -319,7 +319,7 @@
 
 -(NSNumber*)getNativeByteOrder:(id)_void
 {
-    return NUMINT(CFByteOrderGetCurrent());
+    return NUMLONG(CFByteOrderGetCurrent());
 }
 
 // Public API : Properties

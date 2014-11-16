@@ -472,7 +472,7 @@ FILENOOP(setHidden:(id)x);
     u_int8_t value;
     const char* fullPath = [[self path] fileSystemRepresentation];
     
-    int result = getxattr(fullPath, backupAttr, &value, sizeof(value), 0, 0);
+    ssize_t result = getxattr(fullPath, backupAttr, &value, sizeof(value), 0, 0);
     if (result == -1) {
         // Doesn't matter what errno is set to; this means that we're backing up.
         return [NSNumber numberWithBool:YES];

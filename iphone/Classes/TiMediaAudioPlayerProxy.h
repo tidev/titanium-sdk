@@ -13,7 +13,7 @@
 @interface TiMediaAudioPlayerProxy : TiProxy<AudioStreamerDelegate> {
 @private
 	NSURL *url;
-    NSUInteger bufferSize;
+    UInt32 bufferSize;
 	double volume;
     double duration;
 	AudioStreamer *player;

@@ -386,7 +386,7 @@ static NSArray* scrollViewKeySequence;
     }
 }
 
-- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(float)scale
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale
 {
 	[self replaceValue:NUMFLOAT(scale) forKey:@"zoomScale" notification:NO];
 	

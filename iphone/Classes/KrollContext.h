@@ -62,7 +62,7 @@
 
 #ifdef DEBUG
 // used during debugging only
--(int)queueCount;
+-(NSUInteger)queueCount;
 #endif
 
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition*)condition_;

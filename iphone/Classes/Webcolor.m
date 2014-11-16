@@ -116,7 +116,7 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 
 +(UIColor*)colorForRGBFunction:(NSString*)functionString
 {
-	int stringLength=[functionString length];
+	NSUInteger stringLength=[functionString length];
 	NSRange openParensRange = [functionString rangeOfString:@"("];
 	if (openParensRange.location == NSNotFound) 
 	{
@@ -131,7 +131,7 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 	
 	NSRange searchRange;
 	NSRange nextTokenRange;
-	int segmentLength;
+	NSUInteger segmentLength;
 	
 	searchRange.location = openParensRange.location + 1; //Skipping starting (
 	searchRange.length = stringLength - searchRange.location - 1; //-1 for terminating ).
@@ -177,7 +177,7 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 
 +(UIColor*)colorForHex:(NSString*)hexCode
 {
-    unsigned length = [hexCode length];
+    NSUInteger length = [hexCode length];
 	float alpha = 1.0;
     if ((length != 3) && (length != 4) && (length != 6) && (length!=7) && (length != 8))
 	{
