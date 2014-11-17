@@ -31,6 +31,7 @@
     //Upside -> It works and is performant. Accessibility is configured on the delegate
     
     NSString *title = [self valueForKey:@"title"];
+	WebFont *pickerFont = [TiUtils fontValue:[self valueForKey:@"font"] def:[WebFont defaultFont]];
     if (title!=nil) {
         UILabel *pickerLabel = nil;
 		
@@ -42,9 +43,8 @@
             pickerLabel = [[[UILabel alloc] initWithFrame:theFrame] autorelease];
             [pickerLabel setTextAlignment:NSTextAlignmentLeft];
             [pickerLabel setBackgroundColor:[UIColor clearColor]];
-            float fontSize = [TiUtils floatValue:[self valueForUndefinedKey:@"fontSize"] def:18.0];
-            [pickerLabel setFont:[UIFont boldSystemFontOfSize:fontSize]];
-        }
+			[pickerLabel setFont:[pickerFont font]];
+		}
         [pickerLabel setText:title];
         return pickerLabel;
     }
