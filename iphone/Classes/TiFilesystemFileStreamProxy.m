@@ -116,7 +116,7 @@ if(fileHandle == nil) {\
 
 #pragma mark TiStreamInternal methods
 
--(NSUInteger) readToBuffer:(TiBuffer *)buffer offset:(NSUInteger)offset length:(NSUInteger)length callback:(KrollCallback *)callback {
+-(NSInteger) readToBuffer:(TiBuffer *)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback {
 	THROW_IF_HANDLE_NIL(CODELOCATION);
 	
 	if([[buffer data] length] == 0 && length != 0) {
@@ -171,7 +171,7 @@ if(fileHandle == nil) {\
 	return -1;
 }
 
--(NSUInteger) writeFromBuffer:(TiBuffer *)buffer offset:(NSUInteger)offset length:(NSUInteger)length callback:(KrollCallback *)callback {
+-(NSInteger) writeFromBuffer:(TiBuffer *)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback {
 	THROW_IF_HANDLE_NIL(CODELOCATION);
 	
 	if (length == 0) {
@@ -215,7 +215,7 @@ if(fileHandle == nil) {\
 	return -1;
 }
 
--(NSUInteger) writeToStream:(id <TiStreamInternal>)output chunkSize:(NSUInteger)size callback:(KrollCallback *)callback {
+-(NSInteger) writeToStream:(id <TiStreamInternal>)output chunkSize:(NSInteger)size callback:(KrollCallback *)callback {
     THROW_IF_HANDLE_NIL(CODELOCATION);
 
     NSUInteger totalBytes = 0;
@@ -298,7 +298,7 @@ if(fileHandle == nil) {\
     return totalBytes;
 }
 
--(void) pumpToCallback:(KrollCallback *)callback chunkSize:(NSUInteger)maxSize asynch:(BOOL)asynch {
+-(void) pumpToCallback:(KrollCallback *)callback chunkSize:(NSInteger)maxSize asynch:(BOOL)asynch {
     THROW_IF_HANDLE_NIL(CODELOCATION);
 
     if(callback == nil) {

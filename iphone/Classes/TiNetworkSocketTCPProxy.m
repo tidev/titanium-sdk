@@ -430,7 +430,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     return NUMBOOL(internalState & SOCKET_CONNECTED);
 }
 
--(NSUInteger)readToBuffer:(TiBuffer*)buffer offset:(NSUInteger)offset length:(NSUInteger)length callback:(KrollCallback *)callback
+-(NSInteger)readToBuffer:(TiBuffer*)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback
 {
     // TODO: Put this in the write()/read() wrappers when they're being called consistently, blah blah blah
     if ([[buffer data] length] == 0 && length != 0) {
@@ -489,7 +489,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     return 0; // Bogus return value; the real value is returned when we finish the read
 }
 
--(NSUInteger)writeFromBuffer:(TiBuffer*)buffer offset:(NSUInteger)offset length:(NSUInteger)length callback:(KrollCallback *)callback
+-(NSInteger)writeFromBuffer:(TiBuffer*)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback
 {
     // TODO: Put this in the write()/read() wrappers when they're being called consistently, blah blah blah
     if ([[buffer data] length] == 0) {
@@ -550,7 +550,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     }
 }
 
--(NSUInteger)writeToStream:(id<TiStreamInternal>)output chunkSize:(NSUInteger)size callback:(KrollCallback *)callback
+-(NSInteger)writeToStream:(id<TiStreamInternal>)output chunkSize:(NSInteger)size callback:(KrollCallback *)callback
 {
     if ([NSThread currentThread] != socketThread) {
         NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(writeToStream:chunkSize:callback:)]];
@@ -594,7 +594,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     }
 }
 
--(void)pumpToCallback:(KrollCallback *)callback chunkSize:(NSUInteger)size asynch:(BOOL)asynch
+-(void)pumpToCallback:(KrollCallback *)callback chunkSize:(NSInteger)size asynch:(BOOL)asynch
 {
     if ([NSThread currentThread] != socketThread) {
         NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(pumpToCallback:chunkSize:asynch:)]];
