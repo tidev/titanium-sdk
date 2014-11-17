@@ -759,55 +759,49 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 			}
 			else
 			{
-				// it's probably a primitive type - check for them
-				IMP methodFunction = [target methodForSelector:selector];
-				if ([attributes hasPrefix:@"Td,"])
-				{
-					double d;
-					typedef double (*dIMP)(id, SEL, ...);
-					d = ((dIMP)methodFunction)(target,selector);
-					return [NSNumber numberWithDouble:d];
-				}
-				else if ([attributes hasPrefix:@"Tf,"])
-				{
-					float f;
-					typedef float (*fIMP)(id, SEL, ...);
-					f = ((fIMP)methodFunction)(target,selector);
-					return [NSNumber numberWithFloat:f];
-				}
-				else if ([attributes hasPrefix:@"Ti,"])
-				{
-					int i;
-					typedef int (*iIMP)(id, SEL, ...);
-					i = ((iIMP)methodFunction)(target,selector);
-					return [NSNumber numberWithInt:i];
-				}
-				else if ([attributes hasPrefix:@"Tl,"])
-				{
-					long l;
-					typedef long (*lIMP)(id, SEL, ...);
-					l = ((lIMP)methodFunction)(target,selector);
-					return [NSNumber numberWithLong:l];
-				}
-				else if ([attributes hasPrefix:@"Tc,"])
-				{
-					char c;
-					typedef char (*cIMP)(id, SEL, ...);
-					c = ((cIMP)methodFunction)(target,selector);
-					return [NSNumber numberWithChar:c];
-				}
+                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[target methodSignatureForSelector:selector]];
+                [invocation invoke];
+                if ([attributes hasPrefix:@"Td,"])
+                {
+                    double d;
+                    [invocation getReturnValue:&d];
+                    return [NSNumber numberWithDouble:d];
+                }
+                else if ([attributes hasPrefix:@"Tf,"])
+                {
+                    float f;
+                    [invocation getReturnValue:&f];
+                    return [NSNumber numberWithFloat:f];
+                }
+                else if ([attributes hasPrefix:@"Ti,"])
+                {
+                    int i;
+                    [invocation getReturnValue:&i];
+                    return [NSNumber numberWithInt:i];
+                }
+                else if ([attributes hasPrefix:@"Tl,"])
+                {
+                    long l;
+                    [invocation getReturnValue:&l];
+                    return [NSNumber numberWithLong:l];
+                }
+                else if ([attributes hasPrefix:@"Tc,"])
+                {
+                    char c;
+                    [invocation getReturnValue:&c];
+                    return [NSNumber numberWithChar:c];
+                }
                 else if ([attributes hasPrefix:@"TQ,"])
                 {
                     unsigned long long ull;
-                    typedef unsigned long long (*ullIMP)(id, SEL, ...);
-                    ull = ((ullIMP)methodFunction)(target,selector);
+                    [invocation getReturnValue:&ull];
                     return [NSNumber numberWithUnsignedLongLong:ull];
                 }
-				else 
-				{
-					// let it fall through and return undefined
-					DeveloperLog(@"[WARN] Unsupported property: %@ for %@, attributes = %@",key,target,attributes);
-				}
+                else 
+                {
+                    // let it fall through and return undefined
+                    DeveloperLog(@"[WARN] Unsupported property: %@ for %@, attributes = %@",key,target,attributes);
+                }
 			}
 		}
 	}
