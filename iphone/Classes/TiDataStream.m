@@ -31,7 +31,7 @@
 
 #pragma mark I/O Stream implementation
 
--(NSUInteger)readToBuffer:(TiBuffer *)toBuffer offset:(NSUInteger)offset length:(NSUInteger)length callback:(KrollCallback *)callback
+-(NSInteger)readToBuffer:(TiBuffer *)toBuffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback
 {
     if (data == nil) {
         [self throwException:@"TiStreamException"
@@ -91,7 +91,7 @@
 }
 
 // TODO: Need to extend the data if we're writing past its current bounds
--(NSUInteger)writeFromBuffer:(TiBuffer *)fromBuffer offset:(NSUInteger)offset length:(NSUInteger)length callback:(KrollCallback *)callback
+-(NSInteger)writeFromBuffer:(TiBuffer *)fromBuffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback
 {
     if (data == nil) {
         [self throwException:@"TiStreamException"
@@ -111,7 +111,7 @@
 			[event setObject:NUMINT(-1) forKey:@"errorState"];
             [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
         }
-        return 0;
+        return -1;
     }
     
     // TODO: Codify in read() and write() when we have every method calling the wrappers... like it should.
@@ -160,7 +160,7 @@
     return length;
 }
 
--(NSUInteger)writeToStream:(id<TiStreamInternal>)output chunkSize:(NSUInteger)size callback:(KrollCallback *)callback
+-(NSInteger)writeToStream:(id<TiStreamInternal>)output chunkSize:(NSInteger)size callback:(KrollCallback *)callback
 {
     if (data == nil) {
         [self throwException:@"TiStreamException"
@@ -226,7 +226,7 @@
 }
 
 // We don't need the asynch hint
--(void)pumpToCallback:(KrollCallback *)callback chunkSize:(NSUInteger)size asynch:(BOOL)asynch
+-(void)pumpToCallback:(KrollCallback *)callback chunkSize:(NSInteger)size asynch:(BOOL)asynch
 {
     if (data == nil) {
         [self throwException:@"TiStreamException"
