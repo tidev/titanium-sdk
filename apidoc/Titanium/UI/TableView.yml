@@ -25,8 +25,8 @@ description: |
     For more control over the layout of each row, however, [TableViewRow](Titanium.UI.TableViewRow) 
     objects can be created explicitly using the <Titanium.UI.createTableViewRow> method. Child views, 
     such as [labels](Titanium.UI.Label), [images](Titanium.UI.ImageView), and 
-    [buttons](Titanium.UI.Button), may be added to each row. When 
-    [TableViewRow](Titanium.UI.TableViewRow) object passed to the table view, 
+    [buttons](Titanium.UI.Button), may be added to each row. When one or more
+    [rows](Titanium.UI.TableViewRow) are added to the table view,
     a single [TableViewSection](Titanium.UI.TableViewSection) is automatically created to hold the 
     rows. See the "Table View with Composite Layout" example.
     
