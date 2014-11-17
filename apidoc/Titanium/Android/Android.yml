@@ -1701,7 +1701,7 @@ properties:
   - name: currentActivity
     summary: Activity of the active context.
     type: Titanium.Android.Activity
-    accessor: false
+    accessors: false
     permission: read-only
     deprecated:
         since: 3.5.0
@@ -1710,7 +1710,7 @@ properties:
   - name: currentService
     summary: Service in the active context.
     type: Titanium.Android.Service
-    accessor: false
+    accessors: false
     permission: read-only
 
 ---

@@ -29,7 +29,7 @@ properties:
         Note that only the first four actions can be displayed for an alert dialog and the first
         two actions can be displayed for all other notifications.
     type: Array<Titanium.App.iOS.UserNotificationAction>
-    accessor: false
+    accessors: false
     availability: creation
 
   - name: actionsForMinimalContext
@@ -37,7 +37,7 @@ properties:
     description: |
         If not specified, the first two actions from `actionsForDefaultContent` are displayed.
     type: Array<Titanium.App.iOS.UserNotificationAction>
-    accessor: false
+    accessors: false
     availability: creation
 
   - name: identifier
@@ -45,6 +45,6 @@ properties:
     description: |
         When scheduling a notification, pass this value to the `category` property.
     type: String
-    accessor: false
+    accessors: false
     availability: creation
 
