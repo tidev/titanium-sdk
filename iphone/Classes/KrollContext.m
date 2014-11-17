@@ -1479,11 +1479,22 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)main
 {
-	IMP ourFunction = [invocationTarget methodForSelector:invocationSelector];
-    typedef id (*idIMP) (id, SEL, ...);
-	((idIMP)ourFunction)(invocationTarget,invocationSelector,
-		invocationArg1,invocationArg2,invocationArg3,invocationArg4);
-
+    NSMethodSignature* msignature = [invocationTarget methodSignatureForSelector:invocationSelector];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:msignature];
+    NSUInteger argCount = [msignature numberOfArguments];
+    if (argCount >= 3) {
+        [invocation setArgument:&invocationArg1 atIndex:2];
+    }
+    if (argCount >= 4) {
+        [invocation setArgument:&invocationArg2 atIndex:3];
+    }
+    if (argCount >= 5) {
+        [invocation setArgument:&invocationArg3 atIndex:4];
+    }
+    if (argCount >= 6) {
+        [invocation setArgument:&invocationArg4 atIndex:5];
+    }
+    [invocation invoke];
 }
 
 - (void) dealloc
