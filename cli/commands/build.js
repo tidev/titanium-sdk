@@ -10,6 +10,7 @@ var appc = require('node-appc'),
 	fs = require('fs'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
+	sprintf = require('sprintf'),
 	ti = require('titanium-sdk'),
 	tiappxml = require('titanium-sdk/lib/tiappxml'),
 	__ = appc.i18n(__dirname).__;
