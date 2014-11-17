@@ -34,7 +34,7 @@
     ENSURE_ARG_OR_NIL_AT_INDEX(length, args, 2, NSObject);
     
     if (offset == nil && length == nil) {
-        return NUMUINTEGER([self readToBuffer:buffer offset:0 length:[[buffer data] length] callback:nil]);
+        return NUMINTEGER([self readToBuffer:buffer offset:0 length:[[buffer data] length] callback:nil]);
     }
     else {
         if (offset == nil || length == nil) {
@@ -58,7 +58,7 @@
             return NUMINT(-1);
         }
         
-        return NUMUINTEGER([self readToBuffer:buffer offset:offsetValue length:lengthValue callback:nil]);
+        return NUMINTEGER([self readToBuffer:buffer offset:offsetValue length:lengthValue callback:nil]);
     }
     
     return NUMINT(-1);
@@ -82,7 +82,7 @@
     ENSURE_ARG_OR_NIL_AT_INDEX(length, args, 2, NSObject);
     
     if (offset == nil && length == nil) {
-        return NUMUINTEGER([self writeFromBuffer:buffer offset:0 length:[[buffer data] length] callback:nil]);
+        return NUMINTEGER([self writeFromBuffer:buffer offset:0 length:[[buffer data] length] callback:nil]);
     }
     else {
         if (offset == nil || length == nil) {
@@ -106,7 +106,7 @@
             return NUMINT(-1);
         }
         
-        return NUMUINTEGER([self writeFromBuffer:buffer offset:offsetValue length:lengthValue callback:nil]);
+        return NUMINTEGER([self writeFromBuffer:buffer offset:offsetValue length:lengthValue callback:nil]);
     }
     
     return NUMINT(-1);
@@ -114,20 +114,20 @@
 
 #pragma mark Protocol stubs
 
--(NSUInteger)readToBuffer:(TiBuffer*)buffer offset:(NSUInteger)offset length:(NSUInteger)length callback:(KrollCallback*)callback
+-(NSInteger)readToBuffer:(TiBuffer*)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback*)callback
 {
 	[self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@",NSStringFromSelector(_cmd)] location:CODELOCATION];
 }
--(NSUInteger)writeFromBuffer:(TiBuffer*)buffer offset:(NSUInteger)offset length:(NSUInteger)length callback:(KrollCallback*)callback
+-(NSInteger)writeFromBuffer:(TiBuffer*)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback*)callback
 {
 	[self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@",NSStringFromSelector(_cmd)] location:CODELOCATION];
 }
 
--(NSUInteger)writeToStream:(id<TiStreamInternal>)output chunkSize:(NSUInteger)size callback:(KrollCallback*)callback
+-(NSInteger)writeToStream:(id<TiStreamInternal>)output chunkSize:(NSInteger)size callback:(KrollCallback*)callback
 {
 	[self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@",NSStringFromSelector(_cmd)] location:CODELOCATION];
 }
--(void)pumpToCallback:(KrollCallback*)callback chunkSize:(NSUInteger)size asynch:(BOOL)asynch
+-(void)pumpToCallback:(KrollCallback*)callback chunkSize:(NSInteger)size asynch:(BOOL)asynch
 {
 	[self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@",NSStringFromSelector(_cmd)] location:CODELOCATION];
 }
