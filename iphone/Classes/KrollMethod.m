@@ -337,6 +337,7 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
         void *tempResult;
         [invocation getReturnValue:&tempResult];
         result = (__bridge id)tempResult;
+        return result;
     }
 
     const char * retType = [_methodSignature methodReturnType];
