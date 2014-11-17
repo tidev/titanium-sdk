@@ -98,6 +98,13 @@ exports.run = function (logger, config, cli) {
 						} else {
 							logger.debug(__('Directory does not exist %s', dir.cyan));
 						}
+						dir = path.join(buildDir, 'build_' + platform + '.log');
+						if (appc.fs.exists(dir)) {
+							logger.debug(__('Deleting %s', dir.cyan));
+							fs.unlinkSync(dir);
+						} else {
+							logger.debug(__('Build log does not exist %s', dir.cyan));
+						}
 						cli.fireHook('clean.' + platform + '.post', function () {
 							cli.fireHook('clean.post', function () {
 								next();
