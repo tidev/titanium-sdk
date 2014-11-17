@@ -95,7 +95,7 @@ const static CGFloat kReflectionFraction = 0.85;
 }
 
 - (void)updateCoverImage:(AFItemView *)aCover {
-	NSNumber *coverNumber = [NSNumber numberWithUnsignedLong:aCover.number];
+	NSNumber *coverNumber = [NSNumber numberWithUnsignedInteger:aCover.number];
 	UIImage *coverImage = (UIImage *)[coverImages objectForKey:coverNumber];
 	if (coverImage) {
 		NSNumber *coverImageHeightNumber = (NSNumber *)[coverImageHeights objectForKey:coverNumber];
@@ -237,7 +237,7 @@ const static CGFloat kReflectionFraction = 0.85;
     if (newNumberOfImages < numberOfImages) {
         NSUInteger current = newNumberOfImages;
         while (current < numberOfImages) {
-            NSNumber *coverNumber = [NSNumber numberWithUnsignedLong:current];
+            NSNumber *coverNumber = [NSNumber numberWithUnsignedInteger:current];
             [coverImages removeObjectForKey:coverNumber];
             [coverImageHeights removeObjectForKey:coverNumber];
             current ++;
@@ -278,12 +278,12 @@ const static CGFloat kReflectionFraction = 0.85;
 	if (image==nil) return;
 	// Create a reflection for this image.
 	UIImage *imageWithReflection = AddImageReflection(image,kReflectionFraction);
-	NSNumber *coverNumber = [NSNumber numberWithUnsignedLong:index];
+	NSNumber *coverNumber = [NSNumber numberWithUnsignedInteger:index];
 	[coverImages setObject:imageWithReflection forKey:coverNumber];
 	[coverImageHeights setObject:[NSNumber numberWithFloat:image.size.height] forKey:coverNumber];
 	
 	// If this cover is onscreen, set its image and call layoutCover.
-	AFItemView *aCover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithUnsignedLong:index]];
+	AFItemView *aCover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithUnsignedInteger:index]];
 	if (aCover) {
 		[aCover setImage:imageWithReflection originalImageHeight:image.size.height reflectionFraction:kReflectionFraction];
 		[self layoutCover:aCover selectedCover:selectedCoverView.number animated:NO];
@@ -378,7 +378,7 @@ const static CGFloat kReflectionFraction = 0.85;
 		// Allocate and display covers from newLower to newUpper bounds.
 		for (NSUInteger i=newLowerBound; i <= newUpperBound; i++) {
 			cover = [self coverForIndex:i];
-			[onscreenCovers setObject:cover forKey:[NSNumber numberWithUnsignedLong:i]];
+			[onscreenCovers setObject:cover forKey:[NSNumber numberWithUnsignedInteger:i]];
 			[self updateCoverImage:cover];
 			[scrollView.layer addSublayer:cover.layer];
 			[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
@@ -386,7 +386,7 @@ const static CGFloat kReflectionFraction = 0.85;
 		
 		lowerVisibleCover = newLowerBound;
 		upperVisibleCover = newUpperBound;
-		selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithUnsignedLong:newSelectedCover]];
+		selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithUnsignedInteger:newSelectedCover]];
 		
 		return;
 	}
@@ -398,25 +398,25 @@ const static CGFloat kReflectionFraction = 0.85;
 		// Recycle all onscreen covers.
 		AFItemView *cover;
 		for (NSUInteger i = lowerVisibleCover; i <= upperVisibleCover; i++) {
-			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithUnsignedLong:i]];
+			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithUnsignedInteger:i]];
 			if (cover) {
 				[offscreenCovers addObject:cover];
 				[cover.layer removeFromSuperlayer];
-				[onscreenCovers removeObjectForKey:[NSNumber numberWithUnsignedLong:cover.number]];
+				[onscreenCovers removeObjectForKey:[NSNumber numberWithUnsignedInteger:cover.number]];
 			}
 		}
 			
 		// Move all available covers to new location.
 		for (NSUInteger i=newLowerBound; i <= newUpperBound; i++) {
 			cover = [self coverForIndex:i];
-			[onscreenCovers setObject:cover forKey:[NSNumber numberWithUnsignedLong:i]];
+			[onscreenCovers setObject:cover forKey:[NSNumber numberWithUnsignedInteger:i]];
 			[self updateCoverImage:cover];
 			[scrollView.layer addSublayer:cover.layer];
 		}
 
 		lowerVisibleCover = newLowerBound;
 		upperVisibleCover = newUpperBound;
-		selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithUnsignedLong:newSelectedCover]];
+		selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithUnsignedInteger:newSelectedCover]];
 		[self layoutCovers:newSelectedCover fromCover:newLowerBound toCover:newUpperBound];
 		
 		return;
@@ -424,13 +424,13 @@ const static CGFloat kReflectionFraction = 0.85;
 		// Move covers that are now out of range on the left to the right side,
 		// but only if appropriate (within the range set by newUpperBound).
 		for (NSUInteger i=lowerVisibleCover; i < newLowerBound; i++) {
-			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithUnsignedLong:i]];
+			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithUnsignedInteger:i]];
 			if (upperVisibleCover < newUpperBound) {
 				// Tack it on the right side.
 				upperVisibleCover++;
 				cover.number = upperVisibleCover;
 				[self updateCoverImage:cover];
-				[onscreenCovers setObject:cover forKey:[NSNumber numberWithUnsignedLong:cover.number]];
+				[onscreenCovers setObject:cover forKey:[NSNumber numberWithUnsignedInteger:cover.number]];
 				[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
 			} else {
 				if (cover) {
@@ -438,14 +438,14 @@ const static CGFloat kReflectionFraction = 0.85;
 					[cover.layer removeFromSuperlayer];
 				}
 			}
-			[onscreenCovers removeObjectForKey:[NSNumber numberWithUnsignedLong:i]];
+			[onscreenCovers removeObjectForKey:[NSNumber numberWithUnsignedInteger:i]];
 		}
 		lowerVisibleCover = newLowerBound;
 		
 		// Add in any missing covers on the right up to the newUpperBound.
 		for (NSUInteger i=upperVisibleCover + 1; i <= newUpperBound; i++) {
 			cover = [self coverForIndex:i];
-			[onscreenCovers setObject:cover forKey:[NSNumber numberWithUnsignedLong:i]];
+			[onscreenCovers setObject:cover forKey:[NSNumber numberWithUnsignedInteger:i]];
 			[self updateCoverImage:cover];
 			[scrollView.layer addSublayer:cover.layer];
 			[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
@@ -455,13 +455,13 @@ const static CGFloat kReflectionFraction = 0.85;
 		// Move covers that are now out of range on the right to the left side,
 		// but only if appropriate (within the range set by newLowerBound).
 		for (NSUInteger i=upperVisibleCover; i > newUpperBound; i--) {
-			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithUnsignedLong:i]];
+			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithUnsignedInteger:i]];
 			if (lowerVisibleCover > newLowerBound) {
 				// Tack it on the left side.
 				lowerVisibleCover --;
 				cover.number = lowerVisibleCover;
 				[self updateCoverImage:cover];
-				[onscreenCovers setObject:cover forKey:[NSNumber numberWithUnsignedLong:lowerVisibleCover]];
+				[onscreenCovers setObject:cover forKey:[NSNumber numberWithUnsignedInteger:lowerVisibleCover]];
 				[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
 			} else {
 				// Recycle this cover.
@@ -470,14 +470,14 @@ const static CGFloat kReflectionFraction = 0.85;
 					[cover.layer removeFromSuperlayer];
 				}
 			}
-			[onscreenCovers removeObjectForKey:[NSNumber numberWithUnsignedLong:i]];
+			[onscreenCovers removeObjectForKey:[NSNumber numberWithUnsignedInteger:i]];
 		}
 		upperVisibleCover = newUpperBound;
 		
 		// Add in any missing covers on the left down to the newLowerBound.
 		for (NSUInteger i=lowerVisibleCover - 1; i >= newLowerBound; i--) {
 			cover = [self coverForIndex:i];
-			[onscreenCovers setObject:cover forKey:[NSNumber numberWithUnsignedLong:i]];
+			[onscreenCovers setObject:cover forKey:[NSNumber numberWithUnsignedInteger:i]];
 			[self updateCoverImage:cover];
 			[scrollView.layer addSublayer:cover.layer];
 			[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
@@ -490,7 +490,7 @@ const static CGFloat kReflectionFraction = 0.85;
 	else if (newSelectedCover > selectedCoverView.number)
 		[self layoutCovers:newSelectedCover fromCover:selectedCoverView.number toCover:newSelectedCover];
 	
-	selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithUnsignedLong:newSelectedCover]];
+	selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithUnsignedInteger:newSelectedCover]];
 }
 
 -(void)layoutSubviews
