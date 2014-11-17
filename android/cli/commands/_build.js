@@ -3666,8 +3666,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	// merge the tiapp.xml android manifest
 	finalAndroidManifest.merge(tiappAndroidManifest);
 
-    var androidConfig = this;
-
 	this.modules.forEach(function (module) {
 		var moduleXmlFile = path.join(module.modulePath, 'timodule.xml');
 		if (fs.existsSync(moduleXmlFile)) {
@@ -3681,9 +3679,9 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				delete am['uses-sdk'];
 				finalAndroidManifest.merge(am);
 			}
-            if (moduleXml.properties['dexAgent']) {
-                androidConfig.dexAgent = path.join(module.modulePath, moduleXml.properties['dexAgent'].value);
-            }
+			if (moduleXml.properties['dexAgent']) {
+				this.dexAgent = path.join(module.modulePath, moduleXml.properties['dexAgent'].value);
+			}
 		}
 	});
 
@@ -3969,13 +3967,10 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			'--output=' + this.buildBinClassesDex,
 			this.buildBinClassesDir,
 			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
-		]  
-        // Removed 11/12/2014
-        // .concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
-        if (this.dexAgent) {
-            dexArgs.unshift('-javaagent:' + this.dexAgent);
-        }
-        dexArgs = dexArgs.concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+		if (this.dexAgent) {
+			dexArgs.unshift('-javaagent:' + this.dexAgent);
+		}
 
 	if (this.allowDebugging && this.debugPort) {
 		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
