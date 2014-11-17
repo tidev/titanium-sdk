@@ -4,6 +4,14 @@ summary: |
     A list view is used to present information, organized in to sections and items,
     in a vertically-scrolling view.
 description: |
+    <table id="platformComparison">
+      <tr>
+        <td><img src="images/listview/listview_android.png" height="200" /></td>
+        <td><img src="images/listview/listview_ios.png" height="200" /></td>
+      </tr>
+      <tr><th>Android</th><th>iOS</th></tr>
+    </table>
+
     Use the <Titanium.UI.createListView> method or **`<ListView>`** Alloy element to create a `ListView`.
     
     A `ListView` object is a container for [ListSection](Titanium.UI.ListSection) 
