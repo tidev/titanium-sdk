@@ -23,8 +23,7 @@
 
 -(id)initWithPath:(NSString*)path_
 {
-	self = [super init];
-	if (self)
+	if (self = [super init])
 	{
 		path = [path_ retain];
 	}
@@ -33,8 +32,7 @@
 
 -(id)initWithTempFilePath:(NSString*)path_
 {
-	self = [self initWithPath:path_];
-	if (self)
+	if (self = [self initWithPath:path_])
 	{
 		deleteOnExit=YES;
 	}

@@ -24,8 +24,7 @@
 @synthesize identifier,p1,p2;
 -(id)initWithIdentifier:(NSString*)arg1 point1:(CGPoint)arg2 point2:(CGPoint)arg3
 {
-	self = [super init];
-    if (self) {
+    if (self = [super init]) {
         identifier = [arg1 copy];
         p1 = arg2;
         p2 = arg3;
