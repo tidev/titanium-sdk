@@ -760,7 +760,8 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 			else
 			{
                 NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[target methodSignatureForSelector:selector]];
-                [invocation invoke];
+                [invocation setSelector:selector];
+                [invocation invokeWithTarget:target];
                 if ([attributes hasPrefix:@"Td,"])
                 {
                     double d;
