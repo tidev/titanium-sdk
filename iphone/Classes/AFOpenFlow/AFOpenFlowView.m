@@ -422,8 +422,8 @@ const static CGFloat kReflectionFraction = 0.85;
 		return;
 	} else if (newSelectedCover > selectedCoverView.number) {
 		// Move covers that are now out of range on the left to the right side,
-		// but nly if appropriate (within the range set by newUpperBound).
-		for (NSUInteger i=lowerVisibleCover; i < newLowerBound; i++) {
+		// but only if appropriate (within the range set by newUpperBound).
+		for (NSInteger i=lowerVisibleCover; i < newLowerBound; i++) {
 			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInteger:i]];
 			if (upperVisibleCover < newUpperBound) {
 				// Tack it on the right side.
