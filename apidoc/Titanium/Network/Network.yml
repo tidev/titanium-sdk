@@ -538,22 +538,19 @@ properties:
     summary: Constant value specifying TLS version 1.0 for SSL.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
-    since: "3.4.2"
+    since: {android: “3.4.2", iphone: “1.8.0", ipad: “1.8.0"}
 
   - name: TLS_VERSION_1_1
     summary: Constant value specifying TLS version 1.1 for SSL.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
-    since: "3.4.2"
+    since: {android: “3.4.2", iphone: “1.8.0", ipad: “1.8.0"}
 
   - name: TLS_VERSION_1_2
     summary: Constant value specifying TLS version 1.2 for SSL.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
-    since: "3.4.2"
+    since: {android: “3.4.2", iphone: “1.8.0", ipad: “1.8.0"}
 
   - name: allHTTPCookies
     summary: A list of all cookies in the cookie storage.

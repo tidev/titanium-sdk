@@ -165,7 +165,7 @@ public class TiHTTPClient
 	private ArrayList<X509TrustManager> trustManagers = new ArrayList<X509TrustManager>();
 	private ArrayList<X509KeyManager> keyManagers = new ArrayList<X509KeyManager>();
 	protected SecurityManagerProtocol securityManager;
-	private int tlsVersion = 0;
+	private int tlsVersion = NetworkModule.TLS_DEFAULT;
 
 	private static CookieStore cookieStore = NetworkModule.getHTTPCookieStoreInstance();
 

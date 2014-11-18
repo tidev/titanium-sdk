@@ -50,6 +50,7 @@ public class NetworkModule extends KrollModule {
 	@Kroll.constant public static final int NETWORK_LAN = 3;
 	@Kroll.constant public static final int NETWORK_UNKNOWN = 4;
 	
+	@Kroll.constant public static final int TLS_DEFAULT = 0;
 	@Kroll.constant public static final int TLS_VERSION_1_0 = 1;
 	@Kroll.constant public static final int TLS_VERSION_1_1 = 2;
 	@Kroll.constant public static final int TLS_VERSION_1_2 = 3;

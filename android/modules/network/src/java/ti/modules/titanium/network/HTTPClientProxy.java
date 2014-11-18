@@ -66,7 +66,7 @@ public class HTTPClientProxy extends KrollProxy
 		}
 		
 		if (hasProperty(TiC.PROPERTY_TLS_VERSION)) {
-			client.setTlsVersion(TiConvert.toInt(getProperty(TiC.PROPERTY_TLS_VERSION),0));
+			client.setTlsVersion(TiConvert.toInt(getProperty(TiC.PROPERTY_TLS_VERSION),NetworkModule.TLS_DEFAULT));
 		}
 	}
 
@@ -284,13 +284,17 @@ public class HTTPClientProxy extends KrollProxy
 	@Kroll.setProperty @Kroll.method
 	public void setTlsVersion(int tlsVersion)
 	{
+		this.setProperty(TiC.PROPERTY_TLS_VERSION, tlsVersion);
 		client.setTlsVersion(tlsVersion);
 	}
 	
 	@Kroll.getProperty @Kroll.method
 	public int getTlsVersion()
 	{
-		return client.getTlsVersion();
+		if (this.hasProperty(TiC.PROPERTY_TLS_VERSION)) {
+			return TiConvert.toInt(this.getProperty(TiC.PROPERTY_TLS_VERSION));
+		}
+		return NetworkModule.TLS_DEFAULT;
 	}
 
 	@Override
