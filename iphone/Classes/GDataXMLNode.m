@@ -690,7 +690,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 	return array;
 }
 
-- (GDataXMLNode *)childAtIndex:(unsigned)index {
+- (GDataXMLNode *)childAtIndex:(NSUInteger)index {
 	
 	NSArray *children = [self children];
 	

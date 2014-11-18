@@ -200,11 +200,10 @@ static BOOL alertShowing = NO;
 -(void) fireClickEventWithAction:(UIAlertAction*)theAction
 {
     if ([self _hasListeners:@"click"]) {
-        NSArray *theActions = [alertController actions];
         NSUInteger indexOfAction = [[alertController actions] indexOfObject:theAction];
         
         NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                      [NSNumber numberWithInt:indexOfAction],@"index",
+                                      NUMUINTEGER(indexOfAction),@"index",
                                       [NSNumber numberWithInt:cancelIndex],@"cancel",
                                       nil];
         
@@ -235,8 +234,8 @@ static BOOL alertShowing = NO;
 {
 	if ([self _hasListeners:@"click"]) {
         NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                            [NSNumber numberWithInt:buttonIndex],@"index",
-                            [NSNumber numberWithInt:[alertView cancelButtonIndex]],@"cancel",
+                            NUMINTEGER(buttonIndex),@"index",
+                            NUMINTEGER([alertView cancelButtonIndex]),@"cancel",
                             nil];
 
         if ([alertView alertViewStyle] == UIAlertViewStylePlainTextInput || [alertView alertViewStyle] == UIAlertViewStyleSecureTextInput) {

@@ -125,6 +125,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
         case kABAuthorizationStatusDenied:
             code = kABAuthorizationStatusDenied;
             error = @"The user has denied access to the address book";
+			break;
         case kABAuthorizationStatusRestricted:
             code = kABAuthorizationStatusRestricted;
             error = @"The user is unable to allow access to the address book";

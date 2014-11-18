@@ -277,8 +277,10 @@ MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_MUSIC, MPMediaTypeMusic);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_PODCAST, MPMediaTypePodcast);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_AUDIOBOOK, MPMediaTypeAudioBook);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_ANY_AUDIO, MPMediaTypeAnyAudio);
-MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_ALL, MPMediaTypeAny);
-
+-(NSNumber*)MUSIC_MEDIA_TYPE_ALL
+{
+    return NUMUINTEGER(MPMediaTypeAny);
+}
 //Constants for grouping in queryMusicLibrary
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_TITLE, MPMediaGroupingTitle);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_ALBUM, MPMediaGroupingAlbum);
@@ -1026,7 +1028,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 -(NSArray*)queryMusicLibrary:(id)arg
 {
     ENSURE_SINGLE_ARG(arg, NSDictionary);
-    MPMediaGrouping grouping = [TiUtils intValue:[arg valueForKey:@"grouping"] def:MPMediaGroupingTitle];
     
     NSMutableSet* predicates = [NSMutableSet set];
     for (NSString* prop in [MediaModule filterableItemProperties]) {
@@ -1683,7 +1684,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                 
                 NSFileManager *manager = [NSFileManager defaultManager];
                 NSString *outputURL = [documentsDirectory stringByAppendingPathComponent:@"editedVideo"];
-                BOOL created = [manager createDirectoryAtPath:outputURL withIntermediateDirectories:YES attributes:nil error:nil];
+                [manager createDirectoryAtPath:outputURL withIntermediateDirectories:YES attributes:nil error:nil];
                 NSString* fileName = [[[NSString stringWithFormat:@"%f",CFAbsoluteTimeGetCurrent()] stringByReplacingOccurrencesOfString:@"." withString:@"-"] stringByAppendingString:@".MOV"];
                 outputURL = [outputURL stringByAppendingPathComponent:fileName];
                 AVURLAsset *videoAsset = [AVURLAsset URLAssetWithURL:mediaURL options:nil];

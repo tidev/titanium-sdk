@@ -56,24 +56,24 @@
     else if ([key isEqualToString:@"end"]) {
         EKRecurrenceEnd  *end = currRule.recurrenceEnd;
         NSDictionary *recurranceEnd = [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils UTCDateForDate:end.endDate], @"endDate",
-                                       NUMINT(end.occurrenceCount), @"occuranceCount", nil];
+                                       NUMUINTEGER(end.occurrenceCount), @"occuranceCount", nil];
         return recurranceEnd;
     }
     else if ([key isEqualToString:@"frequency"]) {
         return NUMINT(currRule.frequency);
     }
     else if ([key isEqualToString:@"interval"]) {
-        return NUMINT(currRule.interval);
+        return NUMINTEGER(currRule.interval);
     }
     else if ([key isEqualToString:@"firstDayOfTheWeek"]) {
-        return NUMINT(currRule.firstDayOfTheWeek);
+        return NUMINTEGER(currRule.firstDayOfTheWeek);
     }
     else if ([key isEqualToString:@"daysOfTheWeek"]) {
         NSArray* value = currRule.daysOfTheWeek;
         NSMutableArray * result = [NSMutableArray arrayWithCapacity:[value count]];
         for (EKRecurrenceDayOfWeek* dayofWeek in value) {
-            NSDictionary* props = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(dayofWeek.dayOfTheWeek),@"dayOfWeek",
-                                                                             NUMINT(dayofWeek.weekNumber),@"week", nil];
+            NSDictionary* props = [NSDictionary dictionaryWithObjectsAndKeys:NUMINTEGER(dayofWeek.dayOfTheWeek),@"dayOfWeek",
+                                                                             NUMINTEGER(dayofWeek.weekNumber),@"week", nil];
             [result addObject:props];
         }
         return result;

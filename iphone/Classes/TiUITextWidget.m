@@ -228,7 +228,7 @@
             NSInteger endPos = [textView offsetFromPosition:beginning toPosition:end];
             NSInteger length = endPos - startPos;
             
-            return [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(startPos),@"location",NUMINT(length),@"length",nil];
+            return [NSDictionary dictionaryWithObjectsAndKeys:NUMINTEGER(startPos),@"location",NUMINTEGER(length),@"length",nil];
         }
     }
     return nil;

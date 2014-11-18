@@ -45,7 +45,7 @@ NSData * dataWithHexString (NSString * hexString)
 	// byte) to the NSData result
 	int i;
 	char current;
-	const int size = [hexString length] / 2;
+	const NSUInteger size = [hexString length] / 2;
 	const char * stringBuffer = [hexString cStringUsingEncoding:NSASCIIStringEncoding];
 	NSMutableData * result = [NSMutableData dataWithLength:size];
 	char * resultBuffer = (char*)[result mutableBytes];

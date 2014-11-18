@@ -24,8 +24,12 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_DOWN,UIPopoverArrowDirectionDown);
 MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_LEFT,UIPopoverArrowDirectionLeft);
 MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_RIGHT,UIPopoverArrowDirectionRight);
 MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_ANY,UIPopoverArrowDirectionAny);
-MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_UNKNOWN,UIPopoverArrowDirectionUnknown);
-			
+-(NSNumber*)POPOVER_ARROW_DIRECTION_UNKNOWN
+{
+    if ([TiUtils isIPad]) {
+        return NUMUINTEGER(UIPopoverArrowDirectionUnknown);
+    }
+}
 -(id)createPopover:(id)args
 {
 	if ([TiUtils isIPad])

@@ -271,7 +271,7 @@
 		}
 		
 		NSInteger value = item.badgeValue;
-		NSString *title = [NSString stringWithFormat:@"%d",value];
+		NSString *title = [NSString stringWithFormat:@"%ld",(long)value];
 		if (value>99)
 		{
 			title = @"99+";
