@@ -1566,7 +1566,7 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 		this.tiapp.icon = 'appicon.png';
 	}
 
-	//this.architectures = 'armv6 armv7 i386';
+	this.architectures = 'armv7 arm64 x86_64 i386';
 	// no armv6 support above 4.3 or with 6.0+ SDK
 	//if (version.gte(this.iosSdkVersion, '6.0')) {
 	//	this.architectures = 'armv7 armv7s i386';
