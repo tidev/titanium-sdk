@@ -1552,7 +1552,8 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
     if (argCount >= 6) {
         [invocation setArgument:&invocationArg4 atIndex:5];
     }
-    [invocation invoke];
+    [invocation setSelector:invocationSelector];
+    [invocation invokeWithTarget:invocationTarget];
 }
 
 - (void) dealloc
