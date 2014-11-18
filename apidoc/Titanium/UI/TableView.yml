@@ -6,10 +6,10 @@ summary: |
 description: |    
     <table id="platformComparison">
       <tr>
-        <td><img src="images/tableview/tableview_android.png" height="200" /></td>
-        <td><img src="images/tableview/tableview_bb.png" height="200" /></td>
-        <td><img src="images/tableview/tableview_ios.png" height="200" /></td>
-        <td><img src="images/tableview/tableview_mobileweb.png" height="200" /></td>
+        <td><img src="images/tableview/tableview_android.png" height="200" style="border: 1px solid black;" /></td>
+        <td><img src="images/tableview/tableview_bb.png" height="200" style="border: 1px solid black;" /></td>
+        <td><img src="images/tableview/tableview_ios.png" height="200" style="border: 1px solid black;" /></td>
+        <td><img src="images/tableview/tableview_mobileweb.png" height="200" style="border: 1px solid black;" /></td>
       </tr>
       <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
     </table>

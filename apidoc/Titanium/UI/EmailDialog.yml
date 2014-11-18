@@ -5,8 +5,8 @@ summary: |
 description: |
     <table id="platformComparison">
       <tr>
-        <td><img src="images/emaildialog/emaildialog_android.png" height="150" /></td>
-        <td><img src="images/emaildialog/emaildialog_ios.png" height="150" /></td>
+        <td><img src="images/emaildialog/emaildialog_android.png" height="150" style="border: 1px solid black;"/></td>
+        <td><img src="images/emaildialog/emaildialog_ios.png" height="150" style="border: 1px solid black;"/></td>
       </tr>
       <tr><th>Android</th><th>iOS</th></tr>
     </table>
