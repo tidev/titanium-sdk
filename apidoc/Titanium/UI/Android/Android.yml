@@ -463,6 +463,13 @@ properties:
     type: Number
     permission: read-only
     
+  - name: SWITCH_STYLE_TOGGLEBUTTON_OLD
+    summary: |
+        Display <Titanium.UI.Switch> as a toggle button. In Android 4.0 and above, this will force
+        create the old style toggle button.
+    type: Number
+    permission: read-only
+    
   - name: WEBVIEW_PLUGINS_OFF
     summary: |
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to disable plugins in a web view.

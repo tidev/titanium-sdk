@@ -125,10 +125,10 @@ public class TiUISwitch extends TiUIView
 
 		} else if (key.equals(TiC.PROPERTY_TITLE_ON)) {
 			if (cb instanceof ToggleButton) {
-				((ToggleButton) cb).setTextOff((String) newValue);
+				((ToggleButton) cb).setTextOn((String) newValue);
 			} else if (Build.VERSION.SDK_INT >= 14) { // ICE_CREAM_SANDWICH, 4.0 
 				if (cb instanceof Switch) {
-					((Switch) cb).setTextOff((String) newValue);
+					((Switch) cb).setTextOn((String) newValue);
 				}
 			}
 
@@ -182,8 +182,10 @@ public class TiUISwitch extends TiUIView
 				}
 				break;
 
+			case AndroidModule.SWITCH_STYLE_TOGGLEBUTTON_OLD:
 			case AndroidModule.SWITCH_STYLE_TOGGLEBUTTON:
-				if (Build.VERSION.SDK_INT >= 14) { // ICE_CREAM_SANDWICH, 4.0
+				// ICE_CREAM_SANDWICH, 4.0
+				if (style != AndroidModule.SWITCH_STYLE_TOGGLEBUTTON_OLD && Build.VERSION.SDK_INT >= 14) { 
 					if (!(currentButton instanceof Switch)) {
 						button = new Switch(proxy.getActivity())
 						{
