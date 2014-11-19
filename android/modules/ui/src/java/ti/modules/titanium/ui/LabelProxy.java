@@ -70,15 +70,13 @@ public class LabelProxy extends TiViewProxy
 		return new TiUILabel(this);
 	}
 	
-	@Kroll.getProperty
-	@Kroll.method
+	@Kroll.method @Kroll.getProperty
 	public AttributedStringProxy getAttributedString()
 	{
 		return attributedString;
 	}
 
-	@Kroll.setProperty
-	@Kroll.method
+	@Kroll.method @Kroll.setProperty
 	public void setAttributedString(AttributedStringProxy attrString)
 	{
 		attributedString = attrString;

@@ -295,10 +295,8 @@ public class TiUILabel extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
-		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING)) {
-			if (newValue instanceof AttributedStringProxy) {
-				setAttributedString((AttributedStringProxy)newValue);
-			}
+		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
+			setAttributedString((AttributedStringProxy) newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
