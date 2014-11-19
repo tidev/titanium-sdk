@@ -1488,11 +1488,8 @@ public class TiHTTPClient
 	
 	protected void setTlsVersion(int value)
 	{
+		this.proxy.setProperty(TiC.PROPERTY_TLS_VERSION, value);
 		tlsVersion = value;
 	}
 
-	protected int getTlsVersion()
-	{
-		return tlsVersion;
-	}
 }

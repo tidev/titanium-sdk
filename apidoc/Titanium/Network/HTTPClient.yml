@@ -515,7 +515,7 @@ properties:
         For Android 4.0.3 (API 15) and lower, this is [TLS_VERSION_1_0](Titanium.Network.TLS_VERSION_1_0).
     type: Number
     constants: Titanium.Network.TLS_VERSION_*
-    since: {android: "3.4.2", iphone: "1.8.0", ipad: "1.8.0"}
+    since: {android: "3.4.2", iphone: "1.8.0.1", ipad: "1.8.0.1"}
 
   - name: cache
     summary: Determines whether HTTP responses are cached.

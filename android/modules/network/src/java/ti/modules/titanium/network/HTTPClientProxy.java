@@ -20,6 +20,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.os.Build;
 import ti.modules.titanium.xml.DocumentProxy;
 
 @Kroll.proxy(creatableInModule=NetworkModule.class, propertyAccessors = {
@@ -33,6 +34,7 @@ public class HTTPClientProxy extends KrollProxy
 	@Kroll.constant public static final int LOADING = TiHTTPClient.READY_STATE_LOADING;
 	@Kroll.constant public static final int DONE = TiHTTPClient.READY_STATE_DONE;
 
+	private static final boolean JELLYBEAN_OR_GREATER = (Build.VERSION.SDK_INT >= 16);
 	public static final String PROPERTY_SECURITY_MANAGER = "securityManager";
 	private TiHTTPClient client;
 
@@ -64,10 +66,8 @@ public class HTTPClientProxy extends KrollProxy
 				throw new IllegalArgumentException("Invalid argument passed to securityManager property. Does not conform to SecurityManagerProtocol");
 			}
 		}
-		
-		if (hasProperty(TiC.PROPERTY_TLS_VERSION)) {
-			client.setTlsVersion(TiConvert.toInt(getProperty(TiC.PROPERTY_TLS_VERSION),NetworkModule.TLS_DEFAULT));
-		}
+		client.setTlsVersion(TiConvert.toInt(getProperty(TiC.PROPERTY_TLS_VERSION), NetworkModule.TLS_DEFAULT));
+
 	}
 
 	@Kroll.method
@@ -284,16 +284,26 @@ public class HTTPClientProxy extends KrollProxy
 	@Kroll.setProperty @Kroll.method
 	public void setTlsVersion(int tlsVersion)
 	{
-		this.setProperty(TiC.PROPERTY_TLS_VERSION, tlsVersion);
 		client.setTlsVersion(tlsVersion);
 	}
 	
 	@Kroll.getProperty @Kroll.method
 	public int getTlsVersion()
 	{
+		int tlsVersion;
+		
 		if (this.hasProperty(TiC.PROPERTY_TLS_VERSION)) {
-			return TiConvert.toInt(this.getProperty(TiC.PROPERTY_TLS_VERSION));
+			tlsVersion = TiConvert.toInt(this.getProperty(TiC.PROPERTY_TLS_VERSION));
+			
+			if(tlsVersion == NetworkModule.TLS_DEFAULT){
+				if (JELLYBEAN_OR_GREATER) {
+					return NetworkModule.TLS_VERSION_1_2;
+				}				
+				return NetworkModule.TLS_VERSION_1_0;
+			}			
+			return tlsVersion;
 		}
+		
 		return NetworkModule.TLS_DEFAULT;
 	}
 
