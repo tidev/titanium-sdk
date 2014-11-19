@@ -151,6 +151,13 @@ public class TiUINativePicker extends TiUIPicker
 		}
 		view.setSelection(rowIndex, animated);
 	}
+	
+	@Override
+	public void openPicker()
+	{
+		Spinner view = (Spinner) nativeView;
+		view.performClick();
+	};
 
 	@Override
 	public int getSelectedRowIndex(int columnIndex)
