@@ -29,6 +29,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(id)initWithCallback:(KrollCallback*)callback_ context:(id<TiEvaluator>)context_
 {
+	//Ignore analyzer warning here. Delegate will call autorelease onLoad or onError.
 	if (self = [super init])
 	{
 		callback = [callback_ retain];

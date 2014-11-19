@@ -594,6 +594,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                                                                         eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
                                                                          thisObject:self];
                 [[callback context] enqueue:invocationEvent];
+				RELEASE_TO_NIL(invocationEvent);
             }];
         }, NO);
     } else {
