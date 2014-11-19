@@ -2,6 +2,14 @@
 name: Titanium.UI.SearchBar
 summary: A specialized text field for entering search text.
 description: |
+    <table id="platformComparison">
+      <tr>
+        <td><img src="images/searchbar/searchbar_android.png" height="25" /></td>
+        <td><img src="images/searchbar/searchbar_ios.png" height="25" /></td>
+      </tr>
+      <tr><th>Android</th><th>iOS</th></tr>
+    </table>
+
     The `SearchBar` object is closely modeled on an iOS native search bar.
     As such, not all features are supported on other platforms. For Android applications, 
     consider using a <Titanium.UI.Android.SearchView> object instead.

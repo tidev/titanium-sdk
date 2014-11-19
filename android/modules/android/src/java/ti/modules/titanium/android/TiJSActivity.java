@@ -79,12 +79,6 @@ public abstract class TiJSActivity extends TiLaunchActivity
 	}
 
 	@Override
-	protected boolean shouldFinishRootActivity()
-	{
-		return getIntentBoolean(TiC.PROPERTY_EXIT_ON_CLOSE, false) || super.shouldFinishRootActivity();
-	}
-
-	@Override
 	public boolean isJSActivity()
 	{
 		return true;

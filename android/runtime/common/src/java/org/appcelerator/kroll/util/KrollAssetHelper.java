@@ -29,7 +29,6 @@ public class KrollAssetHelper
 	public interface AssetCrypt
 	{
 		String readAsset(String path);
-		void setIsProduction(boolean isProduction);
 	}
 
 	public static void setAssetCrypt(AssetCrypt assetCrypt)

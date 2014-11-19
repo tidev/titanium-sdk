@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -309,9 +309,10 @@ Text area constrains the text event though the content offset and edge insets ar
 -(CGFloat)contentWidthForWidth:(CGFloat)value
 {
     UITextView* ourView = (UITextView*)[self textWidgetView];
-    NSString* txt = ourView.text;
-    //sizeThatFits does not seem to work properly.
-    CGFloat txtWidth = [txt sizeWithFont:ourView.font constrainedToSize:CGSizeMake(value, 1E100) lineBreakMode:UILineBreakModeWordWrap].width;
+    NSAttributedString* theString = [ourView attributedText];
+    CGFloat txtWidth = ceilf([theString boundingRectWithSize:CGSizeMake(value, CGFLOAT_MAX)
+                                               options:NSStringDrawingUsesLineFragmentOrigin
+                                               context:nil].size.width);
     if (value - txtWidth >= TXT_OFFSET) {
         return (txtWidth + TXT_OFFSET);
     }

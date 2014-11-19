@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -153,7 +153,8 @@
 -(NSArray*)getEventsBeteenDates:(id)args
 {
     ENSURE_ARG_COUNT(args, 2);
-    NSString* start, *end;
+    NSString* start = nil;
+    NSString* end = nil;
     
     ENSURE_ARG_AT_INDEX(start, args, 0, NSString);
     ENSURE_ARG_AT_INDEX(end, args, 1, NSString);

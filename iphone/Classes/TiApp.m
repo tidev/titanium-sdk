@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -488,7 +488,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:userInfo];
     } else {
         //Try again in 2 sec. TODO: should we reduce this value ?
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_current_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [self postNotificationwithKey:userInfo withNotificationName:notificationName];
         });
     }
@@ -902,24 +902,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	}
 	ENSURE_UI_THREAD(showModalError,message);
 	TiErrorController *error = [[[TiErrorController alloc] initWithError:message] autorelease];
-	[controller presentModalViewController:error animated:YES];
-}
-
--(void)attachModal:(UIViewController*)modalController toController:(UIViewController*)presentingController animated:(BOOL)animated
-{
-	UIViewController * currentModalController = [presentingController modalViewController];
-
-	if (currentModalController == modalController)
-	{
-		DeveloperLog(@"[WARN] Trying to present a modal window that already is a modal window.");
-		return;
-	}
-	if (currentModalController == nil)
-	{
-		[presentingController presentModalViewController:modalController animated:animated];
-		return;
-	}
-	[self attachModal:modalController toController:currentModalController animated:animated];
+	[self showModalController:error animated:YES];
 }
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated

@@ -305,6 +305,9 @@ public class TiHTTPClient
 						charset = EntityUtils.getContentCharSet(entity);
 					}
 					while((count = is.read(buf)) != -1) {
+						if (aborted) {
+							break;
+						}
 						totalSize += count;
 						try {
 							handleEntityData(buf, count, totalSize, contentLength);
@@ -565,13 +568,14 @@ public class TiHTTPClient
 	{
 		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
 		this.readyState = readyState;
-
-		dispatchCallback("onreadystatechange", null);
+		KrollDict data = new KrollDict();
+		data.put("readyState", Integer.valueOf(readyState));
+		dispatchCallback("onreadystatechange", data);
 
 		if (readyState == READY_STATE_DONE) {
-			KrollDict data = new KrollDict();
-			data.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
-			dispatchCallback("onload", data);
+			KrollDict data1 = new KrollDict();
+			data1.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
+			dispatchCallback("onload", data1);
 		}
 	}
 
@@ -1324,6 +1328,9 @@ public class TiHTTPClient
 				Log.d(TAG, "Preparing to execute request", Log.DEBUG_MODE);
 
 				String result = null;
+				if (aborted) {
+					return;
+				}
 				try {
 					result = client.execute(host, request, handler);
 				} catch (IOException e) {
@@ -1337,7 +1344,9 @@ public class TiHTTPClient
 				}
 				connected = false;
 				setResponseText(result);
-				setReadyState(READY_STATE_DONE);
+				if (!aborted) {
+					setReadyState(READY_STATE_DONE);
+				}
 
 			} catch(Throwable t) {
 				if (client != null) {

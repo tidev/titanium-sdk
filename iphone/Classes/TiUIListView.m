@@ -479,11 +479,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (searchActive) {
         [self buildResultsForSearchText];
     }
+    [_tableView reloadData];
     if ([searchController isActive]) {
         [[searchController searchResultsTableView] reloadData];
-    } else {
-        [_tableView reloadData];
-    }
+    } 
 }
 
 -(NSIndexPath*)pathForSearchPath:(NSIndexPath*)indexPath

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,217 +11,254 @@
 #import "TiFile.h"
 #import "TiMediaAudioSession.h"
 #import "TiFilesystemFileProxy.h"
+#import <AudioToolbox/AudioFile.h>
 
 @implementation TiMediaAudioRecorderProxy
 
 @synthesize format, compression;
 
-#pragma mark Internal 
+#pragma mark Internal
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(format);
-	RELEASE_TO_NIL(compression);
-	[super dealloc];
+    RELEASE_TO_NIL(format);
+    RELEASE_TO_NIL(compression);
+    [super dealloc];
 }
 
 -(void)_configure
 {
-	recorder = NULL;
-	format = [[NSNumber numberWithUnsignedInt:kAudioFileCAFType] retain];
-	compression = [[NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM] retain];
-	
-	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionBegin:) name:kTiMediaAudioSessionInterruptionBegin object:[TiMediaAudioSession sharedSession]];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionEnd:) name:kTiMediaAudioSessionInterruptionEnd object:[TiMediaAudioSession sharedSession]];
-	[super _configure];
+    recorder = nil;
+    format = [[NSNumber numberWithUnsignedInt:kAudioFileCAFType] retain];
+    compression = [[NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM] retain];
+    curState = RecordStopped;
+    [super _configure];
 }
 
 -(void)_destroy
 {
-	if (recorder!=NULL)
-	{
-		if (recorder->IsRunning())
-		{
-			recorder->StopRecord();
-			[[TiMediaAudioSession sharedSession] stopAudioSession];
-		}
-		delete recorder;
-		recorder = NULL;
-	}
-	RELEASE_TO_NIL(file);
-	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionInterruptionBegin object:[TiMediaAudioSession sharedSession]];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionInterruptionEnd object:[TiMediaAudioSession sharedSession]];
-	[super _destroy];
+    [self stop:nil];
+    RELEASE_TO_NIL(file);
+    [super _destroy];
 }
 
+#pragma mark Public APIs
 -(NSString*)apiName
 {
     return @"Ti.Media.AudioRecorder";
 }
 
--(AQRecorder*)recorder
-{
-	if (recorder==NULL)
-	{
-		recorder = new AQRecorder();
-	}
-	return recorder;
-}
-
-#pragma mark Public APIs 
-
 -(void)start:(id)args
 {
-	AQRecorder *rec = [self recorder];
-	
-	// If we are currently recording, stop and save the file.
-	if (rec->IsRunning()) 
-	{
-		[self throwException:@"invalid state" subreason:@"already recording" location:CODELOCATION];
-		return;
-	}
-	else
-	{
-		RELEASE_TO_NIL(file);
-		
-		NSString *extension = nil;
-		
-		UInt32 fmt = [format unsignedIntValue];
-		UInt32 comp = [compression unsignedIntValue];
-		
-		switch(fmt)
-		{
-			case kAudioFileCAFType:
-				extension = @"caf";
-				break;
-			case kAudioFileWAVEType:
-				extension = @"wav";
-				break;
-			case kAudioFileAIFFType:
-				extension = @"aiff";
-				break;
-			case kAudioFileMP3Type:
-				extension = @"mp3";
-				break;
-			case kAudioFileMPEG4Type:
-				extension = @"mp4";
-				break;
-			case kAudioFileM4AType:
-				extension = @"m4a";
-				break;
-			case kAudioFile3GPType:
-				extension = @"3gpp";
-				break;
-			case kAudioFile3GP2Type:
-				extension = @"3gp2";
-				break;
-			case kAudioFileAMRType:
-				extension = @"amr";
-				break;
-			default:
-			{
-				NSLog(@"[WARN] Unsupported recording audio format: %d",fmt);
-			}
-		}
-		
-		// indicate we're going to start recording
-		if (![[TiMediaAudioSession sharedSession] canRecord]) {
-			[self throwException:@"Improper audio session mode for recording"
-					   subreason:[[TiMediaAudioSession sharedSession] sessionMode]
-						location:CODELOCATION];
-		}
-		
-		[[TiMediaAudioSession sharedSession] startAudioSession];
-		
-		// set our audio file
-		recorder->SetupAudioFormat(comp);
-		
-		// create a temporary file
-		file = [[TiUtils createTempFile:extension] retain];
-		
-		// Start the recorder
-		recorder->StartRecord((CFStringRef)[file path], fmt);
-	}
+    if (![[TiMediaAudioSession sharedSession] canRecord]) {
+        [self throwException:@"Improper audio session mode for recording"
+                   subreason:[[TiMediaAudioSession sharedSession] sessionMode]
+                    location:CODELOCATION];
+        return;
+    }
+    
+    if (curState != RecordStopped) {
+        [self throwException:@"Invalid State" subreason:@"Recorder already initialized. Please stop the current recording." location:CODELOCATION];
+        return;
+    }
+    RELEASE_TO_NIL(file);
+    TiThreadPerformOnMainThread(^{
+        [self configureRecorder];
+        if (recorder != nil) {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionBegin:) name:kTiMediaAudioSessionInterruptionBegin object:[TiMediaAudioSession sharedSession]];
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionEnd:) name:kTiMediaAudioSessionInterruptionEnd object:[TiMediaAudioSession sharedSession]];
+            [[TiMediaAudioSession sharedSession] startAudioSession];
+            [recorder record];
+            curState = RecordStarted;
+        }
+    }, YES);
+    
 }
 
 -(id)stop:(id)args
 {
-	if (recorder!=NULL)
-	{
-		if (recorder->IsRunning()) {
-			recorder->StopRecord();
-			[[TiMediaAudioSession sharedSession] stopAudioSession];
-		}
-		return [[[TiFilesystemFileProxy alloc] initWithFile:[file path]] autorelease];
-	}
-	
-	return nil;
+    if (curState == RecordStopped) {
+        return;
+    }
+    __block TiFilesystemFileProxy *theProxy = nil;
+    TiThreadPerformOnMainThread(^{
+        if (recorder != nil) {
+            [recorder stop];
+            [[TiMediaAudioSession sharedSession] stopAudioSession];
+        }
+        curState = RecordStopped;
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
+        theProxy = [[[TiFilesystemFileProxy alloc] initWithFile:[file path]] retain];
+        RELEASE_TO_NIL_AUTORELEASE(recorder);
+    }, YES);
+    return [theProxy autorelease];
 }
 
 -(void)pause:(id)args
 {
-	if (recorder!=NULL)
-	{
-		recorder->PauseRecord();
-	}
+    if (curState != RecordStarted) {
+        return;
+    }
+    TiThreadPerformOnMainThread(^{
+        if (recorder != nil) {
+            [recorder pause];
+            curState = RecordPaused;
+        }
+    }, YES);
 }
 
 -(void)resume:(id)args
 {
-	if (recorder!=NULL)
-	{
-		recorder->ResumeRecord();
-	}
+    if (curState != RecordPaused) {
+        return;
+    }
+    TiThreadPerformOnMainThread(^{
+        if (recorder != nil) {
+            [recorder record];
+            curState = RecordStarted;
+        }
+    }, YES);
 }
 
--(BOOL)paused
+-(NSNumber*)paused
 {
-	if (recorder!=NULL)
-	{
-		return recorder->IsPaused();
-	}
-	return NO;
+    return NUMBOOL(curState == RecordPaused);
 }
 
--(BOOL)recording
+-(NSNumber*)recording
 {
-	if (recorder!=NULL)
-	{
-		return recorder->IsRunning();
-	}
-	return NO;
+    return NUMBOOL(curState == RecordStarted);
 }
 
--(BOOL)stopped
+-(NSNumber*)stopped
 {
-	if (recorder!=NULL)
-	{
-		return !recorder->IsRunning();
-	}
-	return YES;
+    return NUMBOOL(curState == RecordStopped);
 }
 
+#pragma mark Internal methods
 
-#pragma mark Delegates 
+-(void)configureRecorder
+{
+    if (recorder == nil) {
+        NSString* extension = nil;
+        switch(format.unsignedIntValue)
+        {
+            case kAudioFileCAFType:
+                extension = @"caf";
+                break;
+            case kAudioFileWAVEType:
+                extension = @"wav";
+                break;
+            case kAudioFileAIFFType:
+                extension = @"aiff";
+                break;
+            case kAudioFileMP3Type:
+                extension = @"mp3";
+                break;
+            case kAudioFileMPEG4Type:
+                extension = @"mp4";
+                break;
+            case kAudioFileM4AType:
+                extension = @"m4a";
+                break;
+            case kAudioFile3GPType:
+                extension = @"3gpp";
+                break;
+            case kAudioFile3GP2Type:
+                extension = @"3gp2";
+                break;
+            case kAudioFileAMRType:
+                extension = @"amr";
+                break;
+            default:
+            {
+                DebugLog(@"[WARN] Unsupported recording audio format: %d. Defaulting to %d",format.unsignedIntValue,kAudioFileCAFType);
+                extension = @"caf";
+            }
+        }
+        
+        file = [[TiUtils createTempFile:extension] retain];
+        NSURL* url = [NSURL URLWithString:[file path]];
+        
+        NSMutableDictionary *recordSettings = [[NSMutableDictionary alloc] initWithCapacity:6];
+        switch (compression.unsignedIntValue) {
+            case kAudioFormatAppleIMA4:
+            case kAudioFormatMPEG4AAC:
+            case kAudioFormatAppleLossless:
+                [recordSettings setObject:compression forKey: AVFormatIDKey];
+                [recordSettings setObject:[NSNumber numberWithFloat:44100.0] forKey: AVSampleRateKey];
+                [recordSettings setObject:[NSNumber numberWithInt:2] forKey:AVNumberOfChannelsKey];
+                [recordSettings setObject:[NSNumber numberWithInt:AVAudioQualityHigh] forKey: AVEncoderAudioQualityKey];
+                break;
+            case kAudioFormatiLBC:
+            case kAudioFormatULaw:
+            case kAudioFormatALaw:
+                [recordSettings setObject:compression forKey: AVFormatIDKey];
+                [recordSettings setObject:[NSNumber numberWithFloat:8000.0] forKey: AVSampleRateKey];
+                [recordSettings setObject:[NSNumber numberWithInt:1] forKey:AVNumberOfChannelsKey];
+                [recordSettings setObject:[NSNumber numberWithInt: AVAudioQualityMedium] forKey: AVEncoderAudioQualityKey];
+                break;
+            default:
+                [recordSettings setObject:[NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM] forKey: AVFormatIDKey];
+                [recordSettings setObject:[NSNumber numberWithFloat:44100.0] forKey: AVSampleRateKey];
+                [recordSettings setObject:[NSNumber numberWithInt:2] forKey:AVNumberOfChannelsKey];
+                [recordSettings setObject:[NSNumber numberWithInt:AVAudioQualityHigh] forKey: AVEncoderAudioQualityKey];
+                [recordSettings setObject:[NSNumber numberWithInt:32] forKey:AVLinearPCMBitDepthKey];
+                [recordSettings setObject:[NSNumber numberWithBool:NO] forKey:AVLinearPCMIsBigEndianKey];
+                [recordSettings setObject:[NSNumber numberWithBool:NO] forKey:AVLinearPCMIsFloatKey];
+                break;
+        }
+
+        NSError *error = nil;
+        recorder = [[[AVAudioRecorder alloc] initWithURL:url settings:recordSettings error:&error] retain];
+        
+        if (error != nil) {
+            DebugLog(@"Error initializing Recorder. Error %@",[error description]);
+            RELEASE_TO_NIL(recorder);
+        } else {
+            recorder.delegate = self;
+            [recorder prepareToRecord];
+        }
+        
+    }
+}
+
+#pragma mark Delegates
+
+/* audioRecorderDidFinishRecording:successfully: is called when a recording has been finished or stopped. This method is NOT called if the recorder is stopped due to an interruption. */
+- (void)audioRecorderDidFinishRecording:(AVAudioRecorder *)recorder successfully:(BOOL)flag
+{
+    DebugLog(@"Audio Recorder Finished Recording SUCCESS = %d",flag);
+}
+
+/* if an error occurs while encoding it will be reported to the delegate. */
+- (void)audioRecorderEncodeErrorDidOccur:(AVAudioRecorder *)recorder error:(NSError *)error
+{
+    DebugLog(@"Audio Recorder Encode Error");
+    if (error != nil) {
+        DebugLog(@"Error %@",[error description]);
+    }
+}
+
 
 -(void)audioInterruptionBegin:(NSNotification*)note
 {
-	if ([self recording]) 
-	{
-		[self pause:nil];
-	}
+    [self pause:nil];
 }
 
 -(void)audioInterruptionEnd:(NSNotification*)note
 {
-    if ([self paused]) {
-        id resumeObject = [[note userInfo] objectForKey:@"resume"];
-        if ([TiUtils boolValue:resumeObject def:NO]) {
+    if (curState == RecordPaused)
+    {
+        NSDictionary* userInfo = [note userInfo];
+        id resumeVal = [userInfo objectForKey:@"resume"];
+        if ([TiUtils boolValue:resumeVal]) {
             [self resume:nil];
+        } else {
+            [self stop:nil];
         }
     }
+    
 }
 
 @end

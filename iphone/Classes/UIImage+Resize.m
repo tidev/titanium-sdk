@@ -46,7 +46,7 @@
 													8,
 													0,
 													colorSpace,
-													kCGImageAlphaPremultipliedLast);
+													kCGBitmapAlphaInfoMask & kCGImageAlphaPremultipliedLast);
 		
 		// Rotate and/or flip the image if required by its orientation
 		CGContextConcatCTM(bitmap, transform);

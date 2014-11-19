@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -133,7 +133,7 @@
 
 -(id)registerBackgroundService:(id)args
 {
-	NSDictionary* a;
+	NSDictionary* a = nil;
 	ENSURE_ARG_AT_INDEX(a, args, 0, NSDictionary)
 	
 	NSString* urlString = [[TiUtils toURL:[a objectForKey:@"url"] proxy:self]absoluteString];

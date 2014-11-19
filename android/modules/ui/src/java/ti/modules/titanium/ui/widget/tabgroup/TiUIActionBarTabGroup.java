@@ -23,6 +23,7 @@ import ti.modules.titanium.ui.TabProxy;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIActionBarTab.TabFragment;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar.Tab;
@@ -328,6 +329,9 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	@Override
 	public void onTabReselected(Tab tab, FragmentTransaction ft) {
 	}
+
+	@Override
+	public void onCreate(Activity activity, Bundle savedInstanceState) {}
 
 	@Override
 	public void onStart(Activity activity) { }

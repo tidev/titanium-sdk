@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -402,6 +402,9 @@ DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@.",@"tanium",api,in,ne
 
 #define NUMINT(x) \
 [NSNumber numberWithInt:x]\
+
+#define NUMUINT(x) \
+[NSNumber numberWithUnsignedInt:x]\
 
 #define NUMDOUBLE(x) \
 [NSNumber numberWithDouble:x]\

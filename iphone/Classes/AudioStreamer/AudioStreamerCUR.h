@@ -63,9 +63,14 @@
 	CFReadStreamRef stream;
 	
 	UInt32 bitRate;				// Bits per second in the file
-	NSInteger dataOffset;		// Offset of the first audio packet in the stream
-	NSInteger fileLength;		// Length of the file in bytes
-	NSInteger seekByteOffset;	// Seek offset within the file in bytes
+	/*Titanium Modification begin*/
+	//NSInteger dataOffset;		// Offset of the first audio packet in the stream
+	//NSInteger fileLength;		// Length of the file in bytes
+	//NSInteger seekByteOffset;	// Seek offset within the file in bytes
+	UInt64 dataOffset;
+	UInt64 fileLength;
+	UInt64 seekByteOffset;
+	/*Titanium Modifications End*/
 	UInt64 audioDataByteCount;  // Used when the actual number of audio bytes in
 								// the file is known (more accurate than assuming
 								// the whole file is audio)

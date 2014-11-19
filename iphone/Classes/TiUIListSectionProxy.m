@@ -123,42 +123,21 @@
     ENSURE_TYPE_OR_NIL(args,NSArray);
     NSArray *items = args;
     UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
-    NSUInteger oldCount = [_items count];
-    NSUInteger newCount = [items count];
-    if ((animation == UITableViewRowAnimationNone) && (oldCount != newCount)) {
-        NSUInteger minCount = MIN(oldCount, newCount);
-        NSUInteger maxCount = MAX(oldCount, newCount);
-        NSUInteger diffCount = maxCount - minCount;
-        
-        //Dispath block for difference
-        [self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
+    id<TiUIListViewDelegate> theDispatcher = self.dispatcher;
+    
+    if (animation == UITableViewRowAnimationNone) {
+        [theDispatcher dispatchBlock:^(UITableView *tableView) {
             [_items setArray:items];
-            NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:diffCount];
-            for (NSUInteger i = 0; i < diffCount; ++i) {
-                [indexPaths addObject:[NSIndexPath indexPathForRow:(minCount + i) inSection:_sectionIndex]];
-            }
-            if (newCount > oldCount) {
-                [tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
-            } else {
-                [tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
-            }
-            [indexPaths release];
-        }];
-        
-        //Dispatch block for common items
-        if (minCount > 0) {
-            [self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
-                NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:minCount];
-                for (NSUInteger i = 0; i < minCount; ++i) {
-                    [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:_sectionIndex]];
+            id <TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
+            if (theDelegate != nil) {
+                [theDelegate updateSearchResults:nil];
+                if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
+                    [(TiViewProxy*)theDispatcher contentsWillChange];
                 }
-                [tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
-                [indexPaths release];
-            }];
-        }
-        
+            }
+        }];
     } else {
-        [self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
+        [theDispatcher dispatchUpdateAction:^(UITableView *tableView) {
             [_items setArray:items];
             [tableView reloadSections:[NSIndexSet indexSetWithIndex:_sectionIndex] withRowAnimation:animation];
         }];
@@ -167,151 +146,232 @@
 
 - (void)appendItems:(id)args
 {
-	ENSURE_ARG_COUNT(args, 1);
-	NSArray *items = [args objectAtIndex:0];
-	if ([items count] == 0) {
-		return;
-	}
-	ENSURE_TYPE_OR_NIL(items,NSArray);
-	NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : nil;
-	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
-	[self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
-		NSUInteger insertIndex = [_items count];
-		[_items addObjectsFromArray:items];
-		NSUInteger count = [items count];
-		NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:count];
-		for (NSUInteger i = 0; i < count; ++i) {
-			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
-		}
-		[tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:animation];
-		[indexPaths release];
-	}];
+    ENSURE_ARG_COUNT(args, 1);
+    NSArray *items = [args objectAtIndex:0];
+    if ([items count] == 0) {
+        return;
+    }
+    ENSURE_TYPE_OR_NIL(items,NSArray);
+    NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : nil;
+    UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    id<TiUIListViewDelegate> theDispatcher = self.dispatcher;
+    
+    if (animation == UITableViewRowAnimationNone) {
+        [theDispatcher dispatchBlock:^(UITableView* tableView) {
+            [_items addObjectsFromArray:items];
+            id <TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
+            if (theDelegate != nil) {
+                [theDelegate updateSearchResults:nil];
+                if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
+                    [(TiViewProxy*)theDispatcher contentsWillChange];
+                }
+            }
+        }];
+    } else {
+        [theDispatcher dispatchUpdateAction:^(UITableView* tableView) {
+            NSUInteger insertIndex = [_items count];
+            [_items addObjectsFromArray:items];
+            NSUInteger count = [items count];
+            NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:count];
+            for (NSUInteger i = 0; i < count; ++i) {
+                [indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
+            }
+            [tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+            [indexPaths release];
+        }];
+    }
 }
 
 - (void)insertItemsAt:(id)args
 {
-	ENSURE_ARG_COUNT(args, 2);
-	NSUInteger insertIndex = [TiUtils intValue:[args objectAtIndex:0]];
-	NSArray *items = [args objectAtIndex:1];
-	if ([items count] == 0) {
-		return;
-	}
-	ENSURE_TYPE_OR_NIL(items,NSArray);
-	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
-	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    ENSURE_ARG_COUNT(args, 2);
+    NSUInteger insertIndex = [TiUtils intValue:[args objectAtIndex:0]];
+    NSArray *items = [args objectAtIndex:1];
+    if ([items count] == 0) {
+        return;
+    }
+    ENSURE_TYPE_OR_NIL(items,NSArray);
+    NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
+    UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    id<TiUIListViewDelegate> theDispatcher = self.dispatcher;
 
-	[self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
-		if ([_items count] < insertIndex) {
-			DebugLog(@"[WARN] ListView: Insert item index is out of range");
-			return;
-		}
-		[_items replaceObjectsInRange:NSMakeRange(insertIndex, 0) withObjectsFromArray:items];
-		NSUInteger count = [items count];
-		NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:count];
-		for (NSUInteger i = 0; i < count; ++i) {
-			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
-		}
-		[tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:animation];
-		[indexPaths release];
-	}];
+    if (animation == UITableViewRowAnimationNone) {
+        [theDispatcher dispatchBlock:^(UITableView* tableView) {
+            if ([_items count] < insertIndex) {
+                DebugLog(@"[WARN] ListView: Insert item index is out of range");
+                return;
+            }
+            [_items replaceObjectsInRange:NSMakeRange(insertIndex, 0) withObjectsFromArray:items];
+            id <TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
+            if (theDelegate != nil) {
+                [theDelegate updateSearchResults:nil];
+                if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
+                    [(TiViewProxy*)theDispatcher contentsWillChange];
+                }
+            }
+        }];
+    } else {
+        [theDispatcher dispatchUpdateAction:^(UITableView* tableView) {
+            if ([_items count] < insertIndex) {
+                DebugLog(@"[WARN] ListView: Insert item index is out of range");
+                return;
+            }
+            [_items replaceObjectsInRange:NSMakeRange(insertIndex, 0) withObjectsFromArray:items];
+            NSUInteger count = [items count];
+            NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:count];
+            for (NSUInteger i = 0; i < count; ++i) {
+                [indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
+            }
+            [tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+            [indexPaths release];
+        }];
+    }
 }
 
 - (void)replaceItemsAt:(id)args
 {
-	ENSURE_ARG_COUNT(args, 3);
-	NSUInteger insertIndex = [TiUtils intValue:[args objectAtIndex:0]];
-	NSUInteger replaceCount = [TiUtils intValue:[args objectAtIndex:1]];
-	NSArray *items = [args objectAtIndex:2];
-	ENSURE_TYPE_OR_NIL(items,NSArray);
-	NSDictionary *properties = [args count] > 3 ? [args objectAtIndex:3] : nil;
-	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    ENSURE_ARG_COUNT(args, 3);
+    NSUInteger insertIndex = [TiUtils intValue:[args objectAtIndex:0]];
+    NSUInteger replaceCount = [TiUtils intValue:[args objectAtIndex:1]];
+    NSArray *items = [args objectAtIndex:2];
+    ENSURE_TYPE_OR_NIL(items,NSArray);
+    NSDictionary *properties = [args count] > 3 ? [args objectAtIndex:3] : nil;
+    UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    id<TiUIListViewDelegate> theDispatcher = self.dispatcher;
 	
-	[self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
-		if ([_items count] < insertIndex) {
-			DebugLog(@"[WARN] ListView: Replace item index is out of range");
-			return;
-		}
-		NSUInteger actualReplaceCount = MIN(replaceCount, [_items count]-insertIndex);
-		[_items replaceObjectsInRange:NSMakeRange(insertIndex, actualReplaceCount) withObjectsFromArray:items];
-		NSUInteger count = [items count];
-		NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:MAX(count, actualReplaceCount)];
-		for (NSUInteger i = 0; i < actualReplaceCount; ++i) {
-			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
-		}
-		if (actualReplaceCount > 0) {
-			[tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:animation];
-		}
-		[indexPaths removeAllObjects];
-		for (NSUInteger i = 0; i < count; ++i) {
-			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
-		}
-		if (count > 0) {
-			[tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:animation];
-		}
-		[indexPaths release];
-	}];
+    if (animation == UITableViewRowAnimationNone) {
+        [theDispatcher dispatchBlock:^(UITableView* tableView) {
+            if ([_items count] < insertIndex) {
+                DebugLog(@"[WARN] ListView: Replace item index is out of range");
+                return;
+            }
+            NSUInteger actualReplaceCount = MIN(replaceCount, [_items count]-insertIndex);
+            [_items replaceObjectsInRange:NSMakeRange(insertIndex, actualReplaceCount) withObjectsFromArray:items];
+            id <TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
+            if (theDelegate != nil) {
+                [theDelegate updateSearchResults:nil];
+                if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
+                    [(TiViewProxy*)theDispatcher contentsWillChange];
+                }
+            }
+        }];
+    } else {
+        [theDispatcher dispatchUpdateAction:^(UITableView* tableView) {
+            if ([_items count] < insertIndex) {
+                DebugLog(@"[WARN] ListView: Replace item index is out of range");
+                return;
+            }
+            NSUInteger actualReplaceCount = MIN(replaceCount, [_items count]-insertIndex);
+            [_items replaceObjectsInRange:NSMakeRange(insertIndex, actualReplaceCount) withObjectsFromArray:items];
+            NSUInteger count = [items count];
+            NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:MAX(count, actualReplaceCount)];
+            for (NSUInteger i = 0; i < actualReplaceCount; ++i) {
+                [indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
+            }
+            if (actualReplaceCount > 0) {
+                [tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+            }
+            [indexPaths removeAllObjects];
+            for (NSUInteger i = 0; i < count; ++i) {
+                [indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
+            }
+            if (count > 0) {
+                [tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+            }
+            [indexPaths release];
+        }];
+    }
 }
 
 - (void)deleteItemsAt:(id)args
 {
-	ENSURE_ARG_COUNT(args, 2);
-	NSUInteger deleteIndex = [TiUtils intValue:[args objectAtIndex:0]];
-	NSUInteger deleteCount = [TiUtils intValue:[args objectAtIndex:1]];
-	if (deleteCount == 0) {
-		return;
-	}
-	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
-	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    ENSURE_ARG_COUNT(args, 2);
+    NSUInteger deleteIndex = [TiUtils intValue:[args objectAtIndex:0]];
+    NSUInteger deleteCount = [TiUtils intValue:[args objectAtIndex:1]];
+    if (deleteCount == 0) {
+        return;
+    }
+    NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
+    UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    id<TiUIListViewDelegate> theDispatcher = self.dispatcher;
 	
-	[self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
-		if ([_items count] <= deleteIndex) {
-			DebugLog(@"[WARN] ListView: Delete item index is out of range");
-			return;
-		}
-		NSUInteger actualDeleteCount = MIN(deleteCount, [_items count]-deleteIndex);
-		if (actualDeleteCount == 0) {
-			return;
-		}
-		[_items removeObjectsInRange:NSMakeRange(deleteIndex, actualDeleteCount)];
-		NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:actualDeleteCount];
-		for (NSUInteger i = 0; i < actualDeleteCount; ++i) {
-			[indexPaths addObject:[NSIndexPath indexPathForRow:deleteIndex+i inSection:_sectionIndex]];
-		}
-		[tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:animation];
-		[indexPaths release];
-	}];
+    if (animation == UITableViewRowAnimationNone) {
+        [theDispatcher dispatchBlock:^(UITableView* tableView) {
+            if ([_items count] <= deleteIndex) {
+                DebugLog(@"[WARN] ListView: Delete item index is out of range");
+                return;
+            }
+            NSUInteger actualDeleteCount = MIN(deleteCount, [_items count]-deleteIndex);
+            if (actualDeleteCount == 0) {
+                return;
+            }
+            [_items removeObjectsInRange:NSMakeRange(deleteIndex, actualDeleteCount)];
+            id <TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
+            if (theDelegate != nil) {
+                [theDelegate updateSearchResults:nil];
+                if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
+                    [(TiViewProxy*)theDispatcher contentsWillChange];
+                }
+            }
+        }];
+    } else {
+        [theDispatcher dispatchUpdateAction:^(UITableView* tableView) {
+            if ([_items count] <= deleteIndex) {
+                DebugLog(@"[WARN] ListView: Delete item index is out of range");
+                return;
+            }
+            NSUInteger actualDeleteCount = MIN(deleteCount, [_items count]-deleteIndex);
+            if (actualDeleteCount == 0) {
+                return;
+            }
+            [_items removeObjectsInRange:NSMakeRange(deleteIndex, actualDeleteCount)];
+            NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:actualDeleteCount];
+            for (NSUInteger i = 0; i < actualDeleteCount; ++i) {
+                [indexPaths addObject:[NSIndexPath indexPathForRow:deleteIndex+i inSection:_sectionIndex]];
+            }
+            [tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+            [indexPaths release];
+        }];
+    }
 }
 
 - (void)updateItemAt:(id)args
 {
-	ENSURE_ARG_COUNT(args, 2);
-	NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:0]];
-	NSDictionary *item = [args objectAtIndex:1];
-	ENSURE_TYPE_OR_NIL(item,NSDictionary);
-	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
-	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    ENSURE_ARG_COUNT(args, 2);
+    NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:0]];
+    NSDictionary *item = [args objectAtIndex:1];
+    ENSURE_TYPE_OR_NIL(item,NSDictionary);
+    NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
+    UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    id<TiUIListViewDelegate> theDispatcher = self.dispatcher;
 	
-	[self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
-		if ([_items count] <= itemIndex) {
-			DebugLog(@"[WARN] ListView: Update item index is out of range");
-			return;
-		}
-		[_items replaceObjectAtIndex:itemIndex withObject:item];
-		NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
-		BOOL forceReload = (animation != UITableViewRowAnimationNone);
-		if (!forceReload) {
-			TiUIListItem *cell = (TiUIListItem *)[tableView cellForRowAtIndexPath:[indexPaths objectAtIndex:0]];
-			if ((cell != nil) && ([cell canApplyDataItem:item])) {
-				cell.dataItem = item;
-			} else {
-				forceReload = YES;
-			}
-		}
-		if (forceReload) {
-			[tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:animation];
-		}
-		[indexPaths release];
-	}];
+    if (animation == UITableViewRowAnimationNone) {
+        [theDispatcher dispatchBlock:^(UITableView* tableView) {
+            if ([_items count] <= itemIndex) {
+                DebugLog(@"[WARN] ListView: Update item index is out of range");
+                return;
+            }
+            [_items replaceObjectAtIndex:itemIndex withObject:item];
+            id <TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
+            if (theDelegate != nil) {
+                [theDelegate updateSearchResults:nil];
+                if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
+                    [(TiViewProxy*)theDispatcher contentsWillChange];
+                }
+            }
+        }];
+    } else {
+        [theDispatcher dispatchUpdateAction:^(UITableView* tableView) {
+            if ([_items count] <= itemIndex) {
+                DebugLog(@"[WARN] ListView: Update item index is out of range");
+                return;
+            }
+            [_items replaceObjectAtIndex:itemIndex withObject:item];
+            NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
+            [tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+            [indexPaths release];
+        }];
+    }
 }
 
 #pragma mark - TiUIListViewDelegate
@@ -321,11 +381,20 @@
 	block(nil);
 }
 
+- (void)dispatchBlock:(void(^)(UITableView *tableView))block
+{
+    block(nil);
+}
+
 - (id)dispatchBlockWithResult:(id (^)(void))block
 {
 	return block();
 }
 
+- (id<TiUIListViewDelegateView>) delegateView
+{
+    return nil;
+}
 @end
 
 #endif

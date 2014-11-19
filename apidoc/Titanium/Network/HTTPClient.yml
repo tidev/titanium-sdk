@@ -380,6 +380,12 @@ properties:
         [LOADING](Titanium.Network.HTTPClient.LOADING),
         or [DONE](Titanium.Network.HTTPClient.DONE).
 
+        Due to the asynchronous nature of the Titanium platform, the internal value of 
+        [readyState](Titanium.Network.HTTPClient.readyState) might be different from the state change 
+        for which the event was fired. To address this discrepancy, the function is now invoked with a 
+        payload object of type <ReadyStatePayload>. This was introduced in version 3.4.2 of the SDK and is 
+        supported on the iOS and android platforms.
+
   - name: onsendstream
     summary: Function to be called at regular intervals as the request data is being transmitted.
     description: |
@@ -645,3 +651,12 @@ description: |
 
 since: 3.3.0
 platforms: [iphone, ipad]
+---
+name: ReadyStatePayload
+summary: An Object describing the current ready state. See [onreadystatechange](Titanium.Network.HTTPClient.onreadystatechange) for more information.
+platforms: [iphone, ipad, android]
+since: "3.4.2"
+properties: 
+  - name: readyState
+    summary: The state for which `onreadystatechange` was invoked. Set to one of `Titanium.Network.HTTPClient` ready-state constants
+    type: Number
