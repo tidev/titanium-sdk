@@ -329,10 +329,10 @@
 
 +(WebFont *)fontWithName:(NSString*)name
 {
-	WebFont * result = [[self alloc] init];
-	result.family = [name copy];
+	WebFont * result = [[[self alloc] init] autorelease];
+	result.family = [[name copy] autorelease];
 	result.size = 15;
-	return [result autorelease];
+	return result;
 }
 
 +(WebFont *)tableRowFont

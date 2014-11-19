@@ -169,7 +169,8 @@
 
 -(BOOL)resignFirstResponder
 {
-    becameResponder = NO;
+	[super resignFirstResponder];
+	becameResponder = NO;
     return [textWidgetView resignFirstResponder];
 }
 

@@ -225,6 +225,7 @@
 			[afdc addObject:action.notificationAction];
 		}
 		[notifCategory setActions:afdc forContext:UIUserNotificationActionContextDefault];
+		RELEASE_TO_NIL(afdc);
 	}
 	if (actionsForMinimalContext != nil) {
 		NSMutableArray *afmc = [[NSMutableArray alloc] init];
@@ -233,6 +234,7 @@
 			[afmc addObject:action.notificationAction];
 		}
 		[notifCategory setActions:afmc forContext:UIUserNotificationActionContextMinimal];
+		RELEASE_TO_NIL(afmc);
     }
     
 	TiAppiOSNotificationCategoryProxy *cp = [[[TiAppiOSNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext]] autorelease];

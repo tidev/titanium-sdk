@@ -205,7 +205,7 @@ static NSDictionary* multiValueLabels;
 -(ABMultiValueRef)dictionaryToMultiValue:(NSDictionary*)dict type:(ABPropertyType)type
 {
 	ABMutableMultiValueRef multiValue = ABMultiValueCreateMutable(type);
-	
+	[(id)multiValue autorelease];
 	for (NSString* key in [dict allKeys]) {
 		NSString* label = [[TiContactsPerson multiValueLabels] valueForKey:key];
 		for (id value in [dict objectForKey:key]) {
@@ -373,7 +373,6 @@ static NSDictionary* multiValueLabels;
 		ABMultiValueRef multiVal = [self dictionaryToMultiValue:value type:type];
 		CFErrorRef error;
 		if (!ABRecordSetValue([self record], propertyID, multiVal, &error)) {
-			CFRelease(multiVal);
 			
 			CFStringRef reason = CFErrorCopyDescription(error);
 			NSString* str = [NSString stringWithString:(NSString*)reason];
@@ -382,7 +381,6 @@ static NSDictionary* multiValueLabels;
 					   subreason:nil
 						location:CODELOCATION];
 		}
-		CFRelease(multiVal);
 	}
 	// Something else
 	else {

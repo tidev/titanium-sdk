@@ -375,9 +375,11 @@
 		}
 		TiUIListSectionProxy *prevSection = [_sections objectAtIndex:replaceIndex];
 		prevSection.delegate = nil;
-		[_sections replaceObjectAtIndex:replaceIndex withObject:section];
-		section.delegate = self;
-		section.sectionIndex = replaceIndex;
+		if (section != nil) {
+			[_sections replaceObjectAtIndex:replaceIndex withObject:section];
+			section.delegate = self;
+			section.sectionIndex = replaceIndex;
+		}
 		NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:replaceIndex];
 		[tableView deleteSections:indexSet withRowAnimation:animation];
 		[tableView insertSections:indexSet withRowAnimation:animation];
