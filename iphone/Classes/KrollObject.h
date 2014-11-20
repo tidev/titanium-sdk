@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import <Foundation/Foundation.h>
-#import "TiCore.h"
+#import "JavaScriptCore/TiCore.h"
 #import "TiBase.h"
 
 @class KrollContext, KrollCallback, TiProxy;
