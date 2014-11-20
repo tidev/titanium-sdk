@@ -94,6 +94,9 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 - (id)initWithDictionary:(NSDictionary *)dictionary
 {
 	NSString *message = [[dictionary objectForKey:@"message"] description];
+    if (message == nil) {
+        message = [[dictionary objectForKey:@"nativeReason"] description];
+    }
 	NSString *sourceURL = [[dictionary objectForKey:@"sourceURL"] description];
 	NSInteger lineNo = [[dictionary objectForKey:@"line"] integerValue];
 
