@@ -1303,7 +1303,11 @@ public class TiHTTPClient
 						ProgressEntity progressEntity = new ProgressEntity(mpe, new ProgressListener() {
 							public void progress(int progress) {
 								KrollDict data = new KrollDict();
-								data.put("progress", ((double)progress)/totalLength);
+								double currentProgress = ((double)progress)/totalLength;
+								if (currentProgress > 1) {
+									currentProgress = 1;
+								}
+								data.put("progress", currentProgress);
 								dispatchCallback("onsendstream", data);
 							}
 						});

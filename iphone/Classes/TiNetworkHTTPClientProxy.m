@@ -283,7 +283,12 @@ extern NSString * const TI_APPLICATION_GUID;
         if(_downloadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [response readyState] == APSHTTPResponseStateDone) {
             _downloadTime = 0;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
-            [eventDict setValue:[NSNumber numberWithFloat: [response downloadProgress]] forKey:@"progress"];
+            float downloadProgress = [response downloadProgress];
+            // cap progress to 1
+            if (downloadProgress > 1) {
+                downloadProgress = 1.0f;
+            }
+            [eventDict setValue:[NSNumber numberWithFloat: downloadProgress] forKey:@"progress"];
             [self fireCallback:@"ondatastream" withArg:eventDict withSource:self];
         }
         if(_downloadTime == 0) {
@@ -300,7 +305,12 @@ extern NSString * const TI_APPLICATION_GUID;
         if(_uploadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [response readyState] == APSHTTPResponseStateDone) {
             _uploadTime = 0;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
-            [eventDict setValue:[NSNumber numberWithFloat: [response uploadProgress]] forKey:@"progress"];
+            float uploadProgress = [response uploadProgress];
+            // cap progress to 1
+            if (uploadProgress > 1) {
+                uploadProgress = 1.0f;
+			}
+            [eventDict setValue:[NSNumber numberWithFloat: uploadProgress] forKey:@"progress"];
             [self fireCallback:@"onsendstream" withArg:eventDict withSource:self];
         }
         if(_uploadTime == 0) {
