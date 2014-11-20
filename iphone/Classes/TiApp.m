@@ -14,8 +14,8 @@
 #import "ImageLoader.h"
 #ifdef TI_DEBUGGER_PROFILER
 #import "TiDebugger.h"
-#import "TiProfiler.h"
 #endif
+#import "TiProfiler/TiProfiler.h"
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
 #import "ApplicationDefaults.h"
@@ -213,7 +213,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		}
 #endif
     }
-	filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
+#endif
+	NSString* filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
 	if (!self.debugMode && filePath != nil) {
         NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
         NSString *host = [params objectForKey:@"host"];
@@ -243,7 +244,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		}
 #endif
     }
-#endif
     [self appBoot];
 }
 
