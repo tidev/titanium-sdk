@@ -597,9 +597,9 @@ typedef enum
 
 +(TiDataType)constantToType:(NSString*)typeStr;
 
-+(size_t)dataSize:(TiDataType)type;
++(int)dataSize:(TiDataType)type;
 
-+(int)encodeString:(NSString*)string toBuffer:(TiBuffer*)dest charset:(NSString*)charset offset:(int)destPosition sourceOffset:(int)srcPosition length:(int)srcLength;
++(int)encodeString:(NSString*)string toBuffer:(TiBuffer*)dest charset:(NSString*)charset offset:(NSUInteger)destPosition sourceOffset:(NSUInteger)srcPosition length:(NSUInteger)srcLength;
 
 +(int)encodeNumber:(NSNumber*)data toBuffer:(TiBuffer*)dest offset:(int)position type:(NSString*)type endianness:(CFByteOrder)byteOrder;
 
@@ -638,6 +638,6 @@ typedef enum
  @param code The integer representing an error. Use 0 for a success, and -1 for an unknown error.
  @param message The optional string describing the error.
  */
-+ (NSMutableDictionary *)dictionaryWithCode:(int)code message:(NSString *)message;
++ (NSMutableDictionary *)dictionaryWithCode:(NSInteger)code message:(NSString *)message;
 
 @end

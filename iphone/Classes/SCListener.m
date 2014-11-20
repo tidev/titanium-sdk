@@ -174,9 +174,7 @@ static void listeningCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 }
 
 - (id)init {
-	if ([super init] == nil)
-		return nil;
-	
+	self = [super init];
 	return self;
 }
 
@@ -184,7 +182,7 @@ static void listeningCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 	return self;
 }
 
-- (unsigned)retainCount {
+- (NSUInteger)retainCount {
 	return UINT_MAX;
 }
 

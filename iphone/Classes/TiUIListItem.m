@@ -481,7 +481,7 @@
     
     id selectedBackgroundGradientValue = [properties objectForKey:@"selectedBackgroundGradient"];
     if (IS_NULL_OR_NIL(selectedBackgroundGradientValue)) {
-        backgroundGradientValue = [_proxy valueForKey:@"selectedBackgroundGradient"];
+        selectedBackgroundGradientValue = [_proxy valueForKey:@"selectedBackgroundGradient"];
     }
     [self setSelectedBackgroundGradient_:selectedBackgroundGradientValue];
 	

@@ -51,12 +51,18 @@
     }
     
     int offsetValue = [TiUtils intValue:offset];
-    int lengthValue = [TiUtils intValue:length def:[[buffer data] length]];
+    BOOL valid = NO;
+    NSUInteger lengthValue = [TiUtils intValue:length def:0 valid:&valid];
+    if (!valid) {
+        lengthValue = [[buffer data] length];
+    }
     
     if (offsetValue >= [[buffer data] length]) {
-        NSString* errorStr = [NSString stringWithFormat:@"Offset %d is past buffer bounds (length %d)",offsetValue,[[buffer data] length]];
+        NSString* errorStr = [NSString stringWithFormat:@"Offset %d is past buffer bounds (length %lu)",offsetValue,(unsigned long)[[buffer data] length]];
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:errorStr];
-		[event setObject:stream forKey:@"source"];
+		if (stream != nil) {
+			[event setObject:stream forKey:@"source"];
+		}
 		[event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
 		[event setObject:errorStr forKey:@"errorDescription"];
         [self _fireEventToListener:@"io" withObject:event listener:callback thisObject:nil];
@@ -234,7 +240,7 @@
         return nil;
     }
     
-    return NUMINT([inputStream writeToStream:outputStream chunkSize:size callback:nil]);
+    return NUMUINTEGER([inputStream writeToStream:outputStream chunkSize:size callback:nil]);
 }
 
 // TODO: Use read()

@@ -42,8 +42,8 @@
 		return [NSNumber numberWithInt:0];
 	}
 	xmlChar * stringData = realNode->content;
-	int result = (stringData == NULL) ? 0 : strlen((char *)stringData);
-	return [NSNumber numberWithInt:result];
+	NSUInteger result = (stringData == NULL) ? 0 : strlen((char *)stringData);
+	return NUMUINTEGER(result);
 }
 
 -(NSString *) substringData:(id)args
@@ -54,7 +54,7 @@
 	ENSURE_INT_AT_INDEX(countArg, args, 1);
 
 	NSString * ourData = [self data];
-	int dataLength = [ourData length];
+	NSUInteger dataLength = [ourData length];
 	ENSURE_VALUE_RANGE(offsetArg, 0, dataLength);
 	ENSURE_VALUE_RANGE(countArg, 0, INT_MAX);
 	return [ourData substringWithRange:NSMakeRange(offsetArg,MIN(countArg, dataLength-offsetArg))];
@@ -78,7 +78,7 @@
 	ENSURE_ARG_AT_INDEX(newData, args, 1, NSString);
 
 	NSString * ourData = [self data];
-	int dataLength = [ourData length];
+	NSUInteger dataLength = [ourData length];
 	ENSURE_VALUE_RANGE(offsetArg, 0, dataLength);
     NSString *result;
     
@@ -105,7 +105,7 @@
 	ENSURE_INT_AT_INDEX(countArg, args, 1);
 	
 	NSString * ourData = [self data];
-	int dataLength = [ourData length];
+	NSUInteger dataLength = [ourData length];
 	ENSURE_VALUE_RANGE(offsetArg, 0, dataLength);
 	ENSURE_VALUE_RANGE(countArg, 0, INT_MAX);
 
@@ -126,7 +126,7 @@
 	ENSURE_ARG_AT_INDEX(newData, args, 2, NSString);
 	
 	NSString * ourData = [self data];
-	int dataLength = [ourData length];
+	NSUInteger dataLength = [ourData length];
 	ENSURE_VALUE_RANGE(offsetArg, 0, dataLength);
 	ENSURE_VALUE_RANGE(countArg, 0, INT_MAX);
 	

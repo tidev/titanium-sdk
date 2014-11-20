@@ -691,7 +691,7 @@
 	}
 	
 	NSArray * controllerArray = [[controller navigationController] viewControllers];
-	int controllerPosition = [controllerArray indexOfObject:controller];
+	NSUInteger controllerPosition = [controllerArray indexOfObject:controller];
 	if ((controllerPosition == 0) || (controllerPosition == NSNotFound))
 	{
 		return;

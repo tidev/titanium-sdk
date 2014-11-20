@@ -263,7 +263,7 @@ else if (![x isKindOfClass:t])	\
 #define ENSURE_ARG_COUNT(x,c) \
 if ([x count]<c)\
 {\
-[self throwException:TiExceptionNotEnoughArguments subreason:[NSString stringWithFormat:@"expected %d arguments, received: %d",c,[x count]] location:CODELOCATION]; \
+[self throwException:TiExceptionNotEnoughArguments subreason:[NSString stringWithFormat:@"expected %d arguments, received: %lu",c,(unsigned long)[x count]] location:CODELOCATION]; \
 }\
 
 #define VALUE_AT_INDEX_OR_NIL(x,i)	\
@@ -293,7 +293,7 @@ __typeof__(minX) __minX = (minX);	\
 __typeof__(maxX) __maxX = (maxX);	\
 if ((__x<__minX) || (__x>__maxX)) \
 { \
-[self throwException:TiExceptionRangeError subreason:[NSString stringWithFormat:@"%d was not >= %d and <= %d",__x,__maxX,__minX] location:CODELOCATION]; \
+[self throwException:TiExceptionRangeError subreason:[NSString stringWithFormat:@"%lld was not >= %lld and <= %lld",(long long)__x,(long long)__maxX,(long long)__minX] location:CODELOCATION]; \
 }\
 }
 
@@ -397,6 +397,9 @@ DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@.",@"tanium",api,in,ne
 #define NUMLONG(x) \
 [NSNumber numberWithLong:x]\
 
+#define NUMULONG(x) \
+[NSNumber numberWithUnsignedLong:x]\
+
 #define NUMLONGLONG(x) \
 [NSNumber numberWithLongLong:x]\
 
@@ -412,6 +415,11 @@ DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@.",@"tanium",api,in,ne
 #define NUMFLOAT(x) \
 [NSNumber numberWithFloat:x]\
 
+#define NUMINTEGER(x) \
+[NSNumber numberWithInteger:x]\
+
+#define NUMUINTEGER(x) \
+[NSNumber numberWithUnsignedInteger:x]\
 
 
  //MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemItem
