@@ -399,7 +399,12 @@ public class TiHTTPClient
 
 			TiBlob blob = TiBlob.blobFromData(blobData, contentType);
 			callbackData.put("blob", blob);
-			callbackData.put("progress", ((double)totalSize)/((double)contentLength));
+			double progress = ((double)totalSize)/((double)contentLength);
+			// cap progress to 1
+			if (progress > 1) {
+				progress = 1;
+			}
+			callbackData.put("progress", progress);
 
 			dispatchCallback("ondatastream", callbackData);
 		}
