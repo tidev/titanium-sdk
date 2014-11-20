@@ -506,15 +506,16 @@ properties:
     description: |
         If you experience handshake failures, set this value to a lower version using the TLS
         constants in <Titanium.Network>. 'undefined', 'null', or unsupported values use the default
-        behavior for that iOS version.
+        behavior for that iOS and Android versions.
     default: |
         undefined. For iOS 4, this is effectively
         [TLS_VERSION_1_0](Titanium.Network.TLS_VERSION_1_0). For iOS 5 and greater, this is
-        [TLS_VERSION_1_2](Titanium.Network.TLS_VERSION_1_2).
+        [TLS_VERSION_1_2](Titanium.Network.TLS_VERSION_1_2). 
+        For Android 4.1 (API 16) and greater, this is [TLS_VERSION_1_2](Titanium.Network.TLS_VERSION_1_2).
+        For Android 4.0.3 (API 15) and lower, this is [TLS_VERSION_1_0](Titanium.Network.TLS_VERSION_1_0).
     type: Number
     constants: Titanium.Network.TLS_VERSION_*
-    since: "1.8.0"
-    platforms: [iphone, ipad]
+    since: {android: "3.4.2", iphone: "1.8.0.1", ipad: "1.8.0.1"}
 
   - name: cache
     summary: Determines whether HTTP responses are cached.
