@@ -93,19 +93,22 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (id)initWithDictionary:(NSDictionary *)dictionary
 {
-	NSString *message = [[dictionary objectForKey:@"message"] description];
+    NSString *message = [[dictionary objectForKey:@"message"] description];
     if (message == nil) {
         message = [[dictionary objectForKey:@"nativeReason"] description];
     }
-	NSString *sourceURL = [[dictionary objectForKey:@"sourceURL"] description];
-	NSInteger lineNo = [[dictionary objectForKey:@"line"] integerValue];
+    NSString *sourceURL = [[dictionary objectForKey:@"sourceURL"] description];
+    NSInteger lineNo = [[dictionary objectForKey:@"line"] integerValue];
 
-	self = [self initWithMessage:message sourceURL:sourceURL lineNo:lineNo];
-	if (self) {
-		_backtrace = [[[dictionary objectForKey:@"backtrace"] description] copy];
-		_dictionaryValue = [dictionary copy];
-	}
-	return self;
+    self = [self initWithMessage:message sourceURL:sourceURL lineNo:lineNo];
+    if (self) {
+        _backtrace = [[[dictionary objectForKey:@"backtrace"] description] copy];
+        if (_backtrace == nil) {
+            _backtrace = [[[dictionary objectForKey:@"stack"] description] copy];
+        }
+        _dictionaryValue = [dictionary copy];
+    }
+    return self;
 }
 
 - (void)dealloc
