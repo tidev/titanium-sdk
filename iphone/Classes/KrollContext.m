@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiBase.h"
 #import "KrollContext.h"
 #import "KrollObject.h"
 #import "KrollTimer.h"
@@ -15,8 +14,8 @@
 #include <pthread.h>
 #ifdef TI_DEBUGGER_PROFILER
 #import "TiDebugger.h"
-#import "TiProfiler.h"
 #endif
+#import "TiProfiler/TiProfiler.h"
 #import "TiExceptionHandler.h"
 
 #import "TiUIAlertDialogProxy.h"
@@ -1172,10 +1171,11 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #ifdef TI_DEBUGGER_PROFILER
     if ([[self delegate] shouldDebugContext]) {
         debugger = TiDebuggerCreate(self,globalRef);
-    } else if ([[self delegate] shouldProfileContext]) {
-		TiProfilerEnable(globalRef);
-	}
+    }
 #endif
+    if ([[self delegate] shouldProfileContext]) {
+        TiProfilerEnable(globalRef,context);
+    }
 	// we register an empty kroll string that allows us to pluck out this instance
 	KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];
 	TiValueRef krollRef = [KrollObject toValue:self value:kroll];
