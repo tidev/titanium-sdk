@@ -154,9 +154,9 @@
 
 -(IBAction)onSegmentChange:(id)sender
 {
-	int newIndex = [(UISegmentedControl *)sender selectedSegmentIndex];
+	NSInteger newIndex = [(UISegmentedControl *)sender selectedSegmentIndex];
 	
-	[self.proxy replaceValue:NUMINT(newIndex) forKey:@"index" notification:NO];
+	[self.proxy replaceValue:NUMINTEGER(newIndex) forKey:@"index" notification:NO];
 	
 	if (newIndex == selectedIndex)
 	{
@@ -167,7 +167,7 @@
 
 	if ([self.proxy _hasListeners:@"click"])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:selectedIndex] forKey:@"index"];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINTEGER(selectedIndex) forKey:@"index"];
 		[self.proxy fireEvent:@"click" withObject:event];
 	}
 	

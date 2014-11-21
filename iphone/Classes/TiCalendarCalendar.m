@@ -244,9 +244,6 @@
     date1 = [cal dateFromComponents:comps];
     
     NSTimeInterval secondsPerDay = 24 * 60 * 60;
-    NSRange days = [cal rangeOfUnit:NSDayCalendarUnit
-                             inUnit:NSMonthCalendarUnit
-                            forDate:date1];
     [comps setYear:year+1];
     date2 = [cal dateFromComponents:comps];
     

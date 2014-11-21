@@ -180,7 +180,7 @@ static void ASReadStreamCallBackCUR
 @synthesize delegate;
 @synthesize bufferSize;
 
--(NSUInteger)bufferSize
+-(UInt32)bufferSize
 {
     return (bufferSize) ? bufferSize : kAQDefaultBufSize;
 }
@@ -1232,7 +1232,7 @@ cleanup:
 
 		if (discontinuous)
 		{
-			err = AudioFileStreamParseBytes(audioFileStream, length, bytes, kAudioFileStreamParseFlag_Discontinuity);
+			err = AudioFileStreamParseBytes(audioFileStream, (UInt32)length, bytes, kAudioFileStreamParseFlag_Discontinuity);
 			if (err)
 			{
 				[self failWithErrorCode:AS_FILE_STREAM_PARSE_BYTES_FAILED];
@@ -1241,7 +1241,7 @@ cleanup:
 		}
 		else
 		{
-			err = AudioFileStreamParseBytes(audioFileStream, length, bytes, 0);
+			err = AudioFileStreamParseBytes(audioFileStream, (UInt32)length, bytes, 0);
 			if (err)
 			{
 				[self failWithErrorCode:AS_FILE_STREAM_PARSE_BYTES_FAILED];
@@ -1521,6 +1521,7 @@ cleanup:
 			if (err)
 			{
 				[self failWithErrorCode:AS_FILE_STREAM_GET_PROPERTY_FAILED];
+				free(formatList);
 				return;
 			}
 

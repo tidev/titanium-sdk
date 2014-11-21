@@ -411,7 +411,7 @@ CFHashCode	simpleHash(const void *value)
 -(id)firstChild
 {
     [node releaseCachedValues];
-	int count = [node childCount];
+	NSUInteger count = [node childCount];
 	if (count == 0) return [NSNull null];
 	id child = [node childAtIndex:0];
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
@@ -421,7 +421,7 @@ CFHashCode	simpleHash(const void *value)
 -(id)lastChild
 {
     [node releaseCachedValues];
-	int count = [node childCount];
+	NSUInteger count = [node childCount];
 	if (count == 0) return [NSNull null];
 	id child = [node childAtIndex:count-1];
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];

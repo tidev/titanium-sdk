@@ -14,7 +14,6 @@
     UIView* wrapperView;
     BOOL requiresLayout;
     CGRect padding;
-    CGRect textPadding;
     UIControlContentVerticalAlignment verticalAlign;
     CGRect initialLabelFrame;
     CGFloat minFontSize;

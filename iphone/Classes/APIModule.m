@@ -8,9 +8,10 @@
 #import "TiUtils.h"
 #import "TiBase.h"
 #import "TiApp.h"
-#import "TiDebugger.h"
 #import "TiExceptionHandler.h"
-
+#ifdef TI_DEBUGGER_PROFILER
+#import "TiDebugger.h"
+#endif
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 @implementation APIModule
@@ -22,8 +23,8 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 -(void)logMessage:(NSArray*)args severity:(NSString*)severity
 {
-    NSMutableString* message = [NSMutableString string];
     
+#ifdef TI_DEBUGGER_PROFILER
     NSString* lcSeverity = [severity lowercaseString];
     DebuggerLogLevel level = OUT;
     if ([lcSeverity isEqualToString:@"warn"]) {
@@ -50,12 +51,16 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
         
         TiDebuggerLogMessage(level, [messages componentsJoinedByString:@" "]);
     }
-    else {
+    else
+#endif
+    {
+#ifdef TI_DEBUGGER_PROFILER
         if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
             if (level != ERR) {
                 return;
             }
         }
+#endif
         NSLog(@"[%@] %@", [severity uppercaseString], [args componentsJoinedByString:@" "]);
         fflush(stderr);
     }

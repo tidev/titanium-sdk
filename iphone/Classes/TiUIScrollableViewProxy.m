@@ -61,10 +61,10 @@
 	return [result autorelease];
 }
 
--(int)viewCount
+-(NSUInteger)viewCount
 {
 	[self lockViews];
-	int result = [viewProxies count];
+	NSUInteger result = [viewProxies count];
 	[self unlockViews];
 	return result;
 }
@@ -159,9 +159,9 @@
 	[self makeViewPerformSelector:@selector(removeView:) withObject:args createIfNeeded:NO waitUntilDone:NO];
 }
 
--(int)indexFromArg:(id)args
+-(NSInteger)indexFromArg:(id)args
 {
-	int pageNum = 0;
+	NSInteger pageNum = 0;
 	if ([args isKindOfClass:[TiViewProxy class]])
 	{
 		[self lockViews];
@@ -180,14 +180,14 @@
 -(void)scrollToView:(id)args
 {
     ENSURE_SINGLE_ARG(args,NSObject);
-    int index = [self indexFromArg:args];
+    NSInteger index = [self indexFromArg:args];
     if (index >=0 && index < [self viewCount]) {
         if ([self viewAttached]) {
             TiThreadPerformOnMainThread(^{
-                [((TiUIScrollableView*)self.view) setCurrentPage:NUMINT(index) animated:NUMBOOL(YES)];
+                [((TiUIScrollableView*)self.view) setCurrentPage:NUMINTEGER(index) animated:NUMBOOL(YES)];
             }, NO);
         } else {
-            [self replaceValue:NUMINT(index) forKey:@"currentPage" notification:NO];
+            [self replaceValue:NUMINTEGER(index) forKey:@"currentPage" notification:NO];
         }
     }
 }
@@ -226,7 +226,7 @@
 	[super childWillResize:child];
 }
 
--(TiViewProxy *)viewAtIndex:(int)index
+-(TiViewProxy *)viewAtIndex:(NSInteger)index
 {
 	[self lockViews];
 	// force index to be in range in case the scrollable view is rotated while scrolling
@@ -243,7 +243,7 @@
 -(UIView *)parentViewForChild:(TiViewProxy *)child
 {
 	[self lockViews];
-	int index = [viewProxies indexOfObject:child];
+	NSUInteger index = [viewProxies indexOfObject:child];
 	[self unlockViews];
 	
 	if (index != NSNotFound)

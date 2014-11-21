@@ -191,7 +191,7 @@ static NSArray* tabGroupKeySequence;
 {
     if (!focussed) {
         UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
-        int blessedController = [tabController selectedIndex];
+        NSUInteger blessedController = [tabController selectedIndex];
         if (blessedController != NSNotFound)
         {
             [[tabs objectAtIndex:blessedController] handleDidFocus:nil];
@@ -204,7 +204,7 @@ static NSArray* tabGroupKeySequence;
 {
     if (focussed) {
         UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
-        int blessedController = [tabController selectedIndex];
+        NSUInteger blessedController = [tabController selectedIndex];
         if (blessedController != NSNotFound)
         {
             [[tabs objectAtIndex:blessedController] handleDidBlur:nil];
@@ -281,7 +281,7 @@ static NSArray* tabGroupKeySequence;
 -(UIStatusBarStyle)preferredStatusBarStyle;
 {
     UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
-    int blessedController = [tabController selectedIndex];
+    NSUInteger blessedController = [tabController selectedIndex];
     if (blessedController != NSNotFound) {
         return [[tabs objectAtIndex:blessedController] preferredStatusBarStyle];
     }
@@ -291,7 +291,7 @@ static NSArray* tabGroupKeySequence;
 -(BOOL) hidesStatusBar
 {
     UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
-    int blessedController = [tabController selectedIndex];
+    NSUInteger blessedController = [tabController selectedIndex];
     if (blessedController != NSNotFound) {
         return [[tabs objectAtIndex:blessedController] hidesStatusBar];
     }
@@ -302,7 +302,7 @@ static NSArray* tabGroupKeySequence;
 -(TiOrientationFlags)orientationFlags
 {
 	UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
-	int blessedController = [tabController selectedIndex];
+	NSUInteger blessedController = [tabController selectedIndex];
 	if (blessedController != NSNotFound)
 	{
 		TiOrientationFlags result = [[tabs objectAtIndex:blessedController] orientationFlags];

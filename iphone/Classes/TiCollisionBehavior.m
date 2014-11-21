@@ -24,7 +24,7 @@
 @synthesize identifier,p1,p2;
 -(id)initWithIdentifier:(NSString*)arg1 point1:(CGPoint)arg2 point2:(CGPoint)arg3
 {
-    if (self == [super init]) {
+    if (self = [super init]) {
         identifier = [arg1 copy];
         p1 = arg2;
         p2 = arg3;
@@ -106,9 +106,7 @@
 -(void)updatePositioning
 {
     for (TiViewProxy* theItem in _items) {
-        CGSize size = [[theItem view] bounds].size;
         CGPoint center = [[theItem view] center];
-        CGPoint anchor = [[[theItem view] layer] anchorPoint];
         
         LayoutConstraint* constraint = [theItem layoutProperties];
         constraint->centerX = TiDimensionDip(center.x);
@@ -262,13 +260,14 @@
 {
     ENSURE_SINGLE_ARG(args, NSNumber);
     int newVal = [TiUtils intValue:args def:-1];
-    UICollisionBehaviorMode newMode = _mode;
+    UICollisionBehaviorMode newMode;
     switch (newVal) {
         case 0:
             newMode = UICollisionBehaviorModeItems;
             break;
         case 1:
             newMode = UICollisionBehaviorModeBoundaries;
+			break;
         default:
             newMode = UICollisionBehaviorModeEverything;
             break;

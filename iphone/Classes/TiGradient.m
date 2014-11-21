@@ -28,14 +28,14 @@
 @implementation TiGradient
 @synthesize backfillStart, backfillEnd;
 
--(void)ensureOffsetArraySize:(int)newSize
+-(void)ensureOffsetArraySize:(NSUInteger)newSize
 {
 	if (newSize <= arraySize)
 	{
 		return;
 	}
 	colorOffsets = realloc(colorOffsets, (sizeof(CGFloat) * newSize));
-	for (int i=arraySize; i<newSize; i++)
+	for (NSUInteger i=arraySize; i<newSize; i++)
 	{
 		colorOffsets[i]=-1;
 	}

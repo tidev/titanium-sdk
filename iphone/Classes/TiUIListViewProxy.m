@@ -375,9 +375,11 @@
 		}
 		TiUIListSectionProxy *prevSection = [_sections objectAtIndex:replaceIndex];
 		prevSection.delegate = nil;
-		[_sections replaceObjectAtIndex:replaceIndex withObject:section];
-		section.delegate = self;
-		section.sectionIndex = replaceIndex;
+		if (section != nil) {
+			[_sections replaceObjectAtIndex:replaceIndex withObject:section];
+			section.delegate = self;
+			section.sectionIndex = replaceIndex;
+		}
 		NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:replaceIndex];
 		[tableView deleteSections:indexSet withRowAnimation:animation];
 		[tableView insertSections:indexSet withRowAnimation:animation];
@@ -473,8 +475,15 @@
 {
     ENSURE_SINGLE_ARG(args, NSDictionary);
     pthread_rwlock_wrlock(&_markerLock);
-    int section = [TiUtils intValue:[args objectForKey:@"sectionIndex"] def:NSIntegerMax];
-    int row = [TiUtils intValue:[args objectForKey:@"itemIndex"] def:NSIntegerMax];
+    BOOL valid = NO;
+    NSInteger section = [TiUtils intValue:[args objectForKey:@"sectionIndex"] def:0 valid:&valid];
+    if (!valid) {
+        section = NSIntegerMax;
+    }
+    NSInteger row = [TiUtils intValue:[args objectForKey:@"itemIndex"] def:0 valid:&valid];
+    if (!valid) {
+        row = NSIntegerMax;
+    }
     RELEASE_TO_NIL(marker);
     marker = [[NSIndexPath indexPathForRow:row inSection:section] retain];
     pthread_rwlock_unlock(&_markerLock);

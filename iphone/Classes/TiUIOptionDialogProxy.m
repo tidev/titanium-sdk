@@ -297,13 +297,12 @@
 -(void) fireClickEventWithAction:(UIAlertAction*)theAction
 {
     if ([self _hasListeners:@"click"]) {
-        NSArray *theActions = [alertController actions];
         NSUInteger indexOfAction = [[alertController actions] indexOfObject:theAction];
         
         NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                      [NSNumber numberWithInt:indexOfAction],@"index",
-                                      [NSNumber numberWithInt:cancelButtonIndex],@"cancel",
-                                      [NSNumber numberWithInt:destructiveButtonIndex],@"destructive",
+                                      NUMUINTEGER(indexOfAction),@"index",
+                                      NUMINT(cancelButtonIndex),@"cancel",
+                                      NUMINT(destructiveButtonIndex),@"destructive",
                                       nil];
         
         
@@ -323,16 +322,16 @@
     }
 }
 
--(void)completeWithButton:(int)buttonIndex
+-(void)completeWithButton:(NSInteger)buttonIndex
 {
     if (showDialog) {
         showDialog = NO;
         if ([self _hasListeners:@"click"])
         {
             NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                                   [NSNumber numberWithInt:buttonIndex],@"index",
-                                   [NSNumber numberWithInt:[actionSheet cancelButtonIndex]],@"cancel",
-                                   [NSNumber numberWithInt:[actionSheet destructiveButtonIndex]],@"destructive",
+                                   NUMINTEGER(buttonIndex),@"index",
+                                   NUMINTEGER([actionSheet cancelButtonIndex]),@"cancel",
+                                   NUMINTEGER([actionSheet destructiveButtonIndex]),@"destructive",
                                    nil];
             [self fireEvent:@"click" withObject:event];
         }

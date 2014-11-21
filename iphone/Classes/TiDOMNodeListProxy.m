@@ -55,7 +55,7 @@
 
 -(NSNumber*)length
 {
-    return NUMINT([nodes count]);
+    return NUMUINTEGER([nodes count]);
 }
 
 

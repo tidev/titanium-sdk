@@ -116,7 +116,7 @@ if(fileHandle == nil) {\
 
 #pragma mark TiStreamInternal methods
 
--(int) readToBuffer:(TiBuffer *)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback {
+-(NSInteger) readToBuffer:(TiBuffer *)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback {
 	THROW_IF_HANDLE_NIL(CODELOCATION);
 	
 	if([[buffer data] length] == 0 && length != 0) {
@@ -171,7 +171,7 @@ if(fileHandle == nil) {\
 	return -1;
 }
 
--(int) writeFromBuffer:(TiBuffer *)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback {
+-(NSInteger) writeFromBuffer:(TiBuffer *)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback {
 	THROW_IF_HANDLE_NIL(CODELOCATION);
 	
 	if (length == 0) {
@@ -192,7 +192,7 @@ if(fileHandle == nil) {\
 			if(callback != nil) {
 				NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
 				[event setObject:self forKey:@"source"];
-				[event setObject:NUMINT([slicedData length]) forKey:@"bytesProcessed"];
+				[event setObject:NUMUINTEGER([slicedData length]) forKey:@"bytesProcessed"];
 				[event setObject:NUMINT(0) forKey:@"errorState"];
 				[event setObject:@"" forKey:@"errorDescription"];
 				[self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
@@ -215,7 +215,7 @@ if(fileHandle == nil) {\
 	return -1;
 }
 
--(int) writeToStream:(id <TiStreamInternal>)output chunkSize:(int)size callback:(KrollCallback *)callback {
+-(NSInteger) writeToStream:(id <TiStreamInternal>)output chunkSize:(NSInteger)size callback:(KrollCallback *)callback {
     THROW_IF_HANDLE_NIL(CODELOCATION);
 
     NSUInteger totalBytes = 0;
@@ -232,7 +232,7 @@ if(fileHandle == nil) {\
         }
         NSUInteger readLength = (NSUInteger) readLengthMax;
         
-        int bytesWritten = 0;
+        NSUInteger bytesWritten = 0;
         @try {
             NSData *data = [fileHandle readDataOfLength:readLength];
             if([data length] > 0) {
@@ -250,7 +250,7 @@ if(fileHandle == nil) {\
                     NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
                     [event setObject:self forKey:@"fromStream"];
                     [event setObject:output forKey:@"toStream"];
-                    [event setObject:NUMINT(bytesWritten) forKey:@"bytesProcessed"];
+                    [event setObject:NUMUINTEGER(bytesWritten) forKey:@"bytesProcessed"];
                     [event setObject:NUMINT(0) forKey:@"errorState"];
                     [event setObject:@"" forKey:@"errorDescription"];
                     [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
@@ -289,7 +289,7 @@ if(fileHandle == nil) {\
         NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
         [event setObject:self forKey:@"fromStream"];
         [event setObject:output forKey:@"toStream"];
-        [event setObject:NUMINT(totalBytes) forKey:@"bytesProcessed"];
+        [event setObject:NUMUINTEGER(totalBytes) forKey:@"bytesProcessed"];
         [event setObject:NUMINT(0) forKey:@"errorState"];
         [event setObject:@"" forKey:@"errorDescription"];
         [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
@@ -298,7 +298,7 @@ if(fileHandle == nil) {\
     return totalBytes;
 }
 
--(void) pumpToCallback:(KrollCallback *)callback chunkSize:(int)maxSize asynch:(BOOL)asynch {
+-(void) pumpToCallback:(KrollCallback *)callback chunkSize:(NSInteger)maxSize asynch:(BOOL)asynch {
     THROW_IF_HANDLE_NIL(CODELOCATION);
 
     if(callback == nil) {
@@ -334,7 +334,7 @@ if(fileHandle == nil) {\
         NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
         [event setObject:self forKey:@"source"];
         [event setObject:buffer forKey:@"buffer"];
-        [event setObject:NUMINT([chunkedData length]) forKey:@"bytesProcessed"];
+        [event setObject:NUMUINTEGER([chunkedData length]) forKey:@"bytesProcessed"];
         [event setObject:[NSNumber numberWithUnsignedLongLong:totalBytes] forKey:@"totalBytesProcessed"];
         [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
         

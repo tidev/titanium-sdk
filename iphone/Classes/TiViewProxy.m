@@ -179,7 +179,7 @@
 	if ([NSThread isMainThread]) {
 		pthread_rwlock_wrlock(&childrenLock);
 		if(position < 0 || position > [children count]) {
-			position = [children count];
+			position = (int)[children count];
 		}
 		[children insertObject:childView atIndex:position];
 		//Turn on clipping because I have children
@@ -212,7 +212,7 @@
 		}
 		pthread_rwlock_wrlock(&childrenLock);
 		if(position < 0 || position > [children count]) {
-			position = [children count];
+			position = (int)[children count];
 		}
 		[children insertObject:childView atIndex:position];
 		pthread_rwlock_unlock(&childrenLock);
@@ -720,7 +720,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	for (TiViewProxy * thisChildProxy in subproxies)
 	{
         if (isHorizontal) {
-            sandBox = CGRectZero;
             sandBox = [self computeChildSandbox:thisChildProxy withBounds:bounds];
             thisWidth = sandBox.origin.x + sandBox.size.width;
         }
@@ -774,7 +773,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	for (TiViewProxy * thisChildProxy in array)
 	{
         if (!isAbsolute) {
-            sandBox = CGRectZero;
             sandBox = [self computeChildSandbox:thisChildProxy withBounds:bounds];
             thisHeight = sandBox.origin.y + sandBox.size.height;
         }
@@ -1548,7 +1546,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	}
 }
 
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message;
 {
 	// Note that some events (like movie 'complete') are fired after the view is removed/dealloc'd.
 	// Because of the handling below, we can safely set the view to 'nil' in this case.
@@ -2246,7 +2244,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
     
 	BOOL horizontalNoWrap = TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle) && !TiLayoutFlagsHasHorizontalWrap(&layoutProperties);
     NSMutableArray * measuredBounds = [NSMutableArray arrayWithCapacity:[childArray count]];
-    NSUInteger i, count = [childArray count];
+    int i, count = (int)[childArray count];
 	int maxHeight = 0;
     
     //First measure the sandbox bounds

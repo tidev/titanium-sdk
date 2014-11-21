@@ -149,13 +149,13 @@
 -(void)setImage:(id)image forIndex:(NSInteger)index
 {
 	AFOpenFlowView* flow = [self view];
-	if (index>=0 && index < [flow numberOfImages])
+	if (index >=0 && index < [flow numberOfImages])
 	{
 		[loadLock lock];
-		ImageLoaderRequest* request = [loading valueForKey:[NUMINT(index) stringValue]];
+		ImageLoaderRequest* request = [loading valueForKey:[NUMINTEGER(index) stringValue]];
 		if (request != nil) {
 			[request cancel];
-			[loading removeObjectForKey:[NUMINT(index) stringValue]];
+			[loading removeObjectForKey:[NUMINTEGER(index) stringValue]];
 		}
 		[loadLock unlock];
 		UIImage* coverImage = [self convertToUIImage:image];
@@ -169,7 +169,7 @@
 			if ([image isKindOfClass:[NSString class]] || [image isKindOfClass:[NSDictionary class]]) {
 				// Assume a remote URL
 				[loadLock lock];
-				[toLoad setValue:image forKey:[NUMINT(index) stringValue]];
+				[toLoad setValue:image forKey:[NUMINTEGER(index) stringValue]];
 				[loadLock unlock];
 				
 				// Here's the ugly part; if it's a visible cover, we have to manually force a data source
@@ -177,7 +177,7 @@
 				[self openFlowView:flow requestImageForIndex:index];
 			}
 			else {
-				[[self proxy] throwException:[NSString stringWithFormat:@"Bad image type (%@) for image at index %d",[image class], index]
+				[[self proxy] throwException:[NSString stringWithFormat:@"Bad image type (%@) for image at index %ld",[image class], (long)index]
 								   subreason:nil
 									location:CODELOCATION];
 			}
@@ -213,36 +213,36 @@
 
 #pragma mark OpenFlow Delegates
 
-- (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(int)index
+- (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(NSInteger)index
 {
 	if ([self.proxy _hasListeners:@"change"])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(index),@"index",NUMINT(previous),@"previous",nil];
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINTEGER(index),@"index",NUMINTEGER(previous),@"previous",nil];
 		[self.proxy fireEvent:@"change" withObject:event];
 	}
-	[self.proxy replaceValue:NUMINT(index) forKey:@"selected" notification:NO];
+	[self.proxy replaceValue:NUMINTEGER(index) forKey:@"selected" notification:NO];
 	previous = index;
 }
 
-- (void)openFlowView:(AFOpenFlowView *)openFlowView click:(int)index
+- (void)openFlowView:(AFOpenFlowView *)openFlowView click:(NSInteger)index
 {
 	if ([self.proxy _hasListeners:@"click"])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(index),@"index",NUMINT(previous),@"previous",nil];
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINTEGER(index),@"index",NUMINTEGER(previous),@"previous",nil];
 		[self.proxy fireEvent:@"click" withObject:event];
 	}
-	[self.proxy replaceValue:NUMINT(index) forKey:@"selected" notification:NO];
+	[self.proxy replaceValue:NUMINTEGER(index) forKey:@"selected" notification:NO];
 	previous = index;
 }
 
 #pragma mark Datasource
 
-- (void)openFlowView:(AFOpenFlowView *)openFlowView requestImageForIndex:(int)index
+- (void)openFlowView:(AFOpenFlowView *)openFlowView requestImageForIndex:(NSInteger)index
 {
 	[loadLock lock];
-	id loadUrl = [toLoad valueForKey:[NUMINT(index) stringValue]];
+	id loadUrl = [toLoad valueForKey:[NUMINTEGER(index) stringValue]];
 	if (loadUrl != nil) {
-		NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObject:NUMINT(index) forKey:@"index"];
+		NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObject:NUMINTEGER(index) forKey:@"index"];
 		NSString* urlString = loadUrl;
 		if ([loadUrl isKindOfClass:[NSDictionary class]]) {
 			[userInfo setValue:[loadUrl valueForKey:@"height"] forKey:@"height"];
@@ -253,7 +253,7 @@
 		[loading setValue:[[ImageLoader sharedLoader] loadImage:[NSURL URLWithString:urlString]
 														delegate:self
 														userInfo:userInfo]
-				   forKey:[NUMINT(index) stringValue]];
+				   forKey:[NUMINTEGER(index) stringValue]];
 	}
 	[loadLock unlock];
 }

@@ -12,8 +12,10 @@
 #import "TiErrorController.h"
 #import "NSData+Additions.h"
 #import "ImageLoader.h"
+#ifdef TI_DEBUGGER_PROFILER
 #import "TiDebugger.h"
-#import "TiProfiler.h"
+#endif
+#import "TiProfiler/TiProfiler.h"
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
 #import "ApplicationDefaults.h"
@@ -180,10 +182,10 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	
 	sessionId = [[TiUtils createUUID] retain];
 	TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
-
+#ifdef TI_DEBUGGER_PROFILER
 	NSString *filePath = [[NSBundle mainBundle] pathForResource:@"debugger" ofType:@"plist"];
     if (filePath != nil) {
-        NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
         NSString *host = [params objectForKey:@"host"];
         NSInteger port = [[params objectForKey:@"port"] integerValue];
         NSString *airkey = [params objectForKey:@"airkey"];
@@ -207,15 +209,14 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 				}
 				[self appBoot];
 			});
-			[params release];
 			return;
 		}
-		[params release];
 #endif
     }
-	filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
+#endif
+	NSString* filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
 	if (!self.debugMode && filePath != nil) {
-        NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
         NSString *host = [params objectForKey:@"host"];
         NSInteger port = [[params objectForKey:@"port"] integerValue];
         NSString *airkey = [params objectForKey:@"airkey"];
@@ -239,13 +240,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 				}
 				[self appBoot];
 			});
-			[params release];
 			return;
 		}
-		[params release];
 #endif
     }
-	[self appBoot];
+    [self appBoot];
 }
 
 - (void)appBoot
@@ -260,7 +259,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	[[[NSClassFromString(TIV) alloc] init] autorelease];
 }
-
 - (void)booted:(id)bridge
 {
 	if ([bridge isKindOfClass:[KrollBridge class]])
@@ -271,7 +269,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		if (localNotification != nil) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 		}
-		TiThreadPerformOnMainThread(^{[self validator];}, YES);
+        TiThreadPerformOnMainThread(^{[self validator];}, YES);
 	}
 }
 
@@ -419,7 +417,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
             pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
         }
 
-        [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
+        [pendingCompletionHandlers setObject:[[completionHandler copy] autorelease ]forKey:key];
 
         // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
         // the bridge completes processing of app.js (adding the event into notification center).
@@ -568,7 +566,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
             pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
         }
         
-        [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
+        [pendingCompletionHandlers setObject:[[completionHandler copy] autorelease ]forKey:key];
         
         // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
         // the bridge completes processing of app.js (adding the event into notification center).
@@ -600,7 +598,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         backgroundTransferCompletionHandlers = [[NSMutableDictionary alloc] init];
     }
     
-    [backgroundTransferCompletionHandlers setObject:[completionHandler copy] forKey:key];
+    [backgroundTransferCompletionHandlers setObject:[[completionHandler copy] autorelease ]forKey:key];
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:identifier, @"sessionId",
                                                                              key, @"handlerId", nil];
     [self postNotificationwithKey:dict withNotificationName:kTiBackgroundTransfer];
@@ -636,7 +634,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent
     totalBytesSent:(int64_t) totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
 {
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMINT(task.taskIdentifier),@"taskIdentifier",
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMUINTEGER(task.taskIdentifier),@"taskIdentifier",
                                  [NSNumber numberWithUnsignedLongLong:bytesSent], @"bytesSent",
                                  [NSNumber numberWithUnsignedLongLong:totalBytesSent], @"totalBytesSent",
                                  [NSNumber numberWithUnsignedLongLong:totalBytesExpectedToSend], @"totalBytesExpectedToSend", nil];
@@ -652,7 +650,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
                           nil];
     if (error) {
         NSDictionary * errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
-                                                NUMINT([error code]), @"errorCode",
+                                                NUMINTEGER([error code]), @"errorCode",
                                                 [error localizedDescription], @"message",
                                                 nil];
         [dict addEntriesFromDictionary:errorinfo];
@@ -940,7 +938,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	RELEASE_TO_NIL(remoteNotification);
 	RELEASE_TO_NIL(splashScreenImage);
     if ([self debugMode]) {
+#ifdef TI_DEBUGGER_PROFILER
         TiDebuggerStop();
+#endif
     }
 	RELEASE_TO_NIL(backgroundServices);
 	RELEASE_TO_NIL(localNotification);
@@ -1066,7 +1066,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     [event setObject:NOTNIL([notification alertAction]) forKey:@"alertAction"];
     [event setObject:NOTNIL([notification alertLaunchImage]) forKey:@"alertLaunchImage"];
     [event setObject:NOTNIL([notification soundName]) forKey:@"sound"];
-    [event setObject:NUMINT([notification applicationIconBadgeNumber]) forKey:@"badge"];
+    [event setObject:NUMINTEGER([notification applicationIconBadgeNumber]) forKey:@"badge"];
     [event setObject:NOTNIL([notification userInfo]) forKey:@"userInfo"];
 	//include category for ios8
 	if ([TiUtils isIOS8OrGreater]) {

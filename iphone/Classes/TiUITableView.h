@@ -67,10 +67,8 @@
 	BOOL filterAnchored;
 	BOOL filterCaseInsensitive;
 	BOOL allowsSelectionSet;
-	id	lastFocusedView; //DOES NOT RETAIN.	
 	UITableViewController *tableController;
 	UISearchDisplayController *searchController;
-	NSInteger frameChanges;
     TiViewProxy* headerViewProxy;
     TiViewProxy* footerViewProxy;
     BOOL viewWillDetach;
@@ -92,7 +90,7 @@
 -(void)dispatchAction:(TiUITableViewAction*)action;
 -(void)scrollToIndex:(NSInteger)index position:(UITableViewScrollPosition)position animated:(BOOL)animated;
 -(void)scrollToTop:(NSInteger)top animated:(BOOL)animated;
--(NSIndexPath*)indexPathFromSearchIndex:(int)index;
+-(NSIndexPath*)indexPathFromSearchIndex:(NSInteger)index;
 -(IBAction)hideSearchScreen:(id)sender;
 -(UITableView*)tableView;
 -(void)setScrollsToTop_:(id)value;
@@ -100,7 +98,7 @@
 #pragma Private
 -(void)selectRow:(id)args;
 -(void)deselectRow:(id)args;
--(void)reloadDataFromCount:(int)oldCount toCount:(int)newCount animation:(UITableViewRowAnimation)animation;
+-(void)reloadDataFromCount:(NSUInteger)oldCount toCount:(NSUInteger)newCount animation:(UITableViewRowAnimation)animation;
 -(void)refreshSearchControllerUsingReload:(BOOL)reloadSearch;
 
 @end
