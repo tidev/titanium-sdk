@@ -206,6 +206,51 @@ public class TiBlob extends KrollProxy
 		if (is != null) {
 			try {
 				mt = URLConnection.guessContentTypeFromStream(is);
+				if (mt == null) {
+					mt = guessAdditionalContentTypeFromStream(is);
+				}
+			} catch (Exception e) {
+				Log.e(TAG, e.getMessage(), e, Log.DEBUG_MODE);
+			}
+		}
+		return mt;
+	}
+
+	/**
+	 * Check for additional content type reading first few characters from the given input stream.
+	 * 
+	 * @return the guessed MIME-type or null if the type could not be determined.
+	 */
+	private String guessAdditionalContentTypeFromStream(InputStream is)
+	{
+		String mt = null;
+
+		if (is != null) {
+			try {
+
+				// Look ahead up to 64 bytes for the longest encoded header
+				is.mark(64);
+				byte[] bytes = new byte[64];
+				int length = is.read(bytes);
+				is.reset();
+				if (length == -1) {
+					return null;
+				}
+				if (bytes[0] == 'G' && bytes[1] == 'I' && bytes[2] == 'F' && bytes[3] == '8') {
+					mt = "image/gif";
+				} else if (bytes[0] == (byte) 0x89 && bytes[1] == (byte) 0x50 && bytes[2] == (byte) 0x4E
+					&& bytes[3] == (byte) 0x47 && bytes[4] == (byte) 0x0D && bytes[5] == (byte) 0x0A
+					&& bytes[6] == (byte) 0x1A && bytes[7] == (byte) 0x0A) {
+					mt = "image/png";
+				} else if (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xD8 && bytes[2] == (byte) 0xFF) {
+					if ((bytes[3] == (byte) 0xE0)
+						|| (bytes[3] == (byte) 0xE1 && bytes[6] == 'E' && bytes[7] == 'x' && bytes[8] == 'i'
+							&& bytes[9] == 'f' && bytes[10] == 0)) {
+						mt = "image/jpeg";
+					} else if (bytes[3] == (byte) 0xEE) {
+						mt = "image/jpg";
+					}
+				}
 			} catch (Exception e) {
 				Log.e(TAG, e.getMessage(), e, Log.DEBUG_MODE);
 			}
