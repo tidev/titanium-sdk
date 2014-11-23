@@ -64,10 +64,8 @@ public class TiUISwitch extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_TITLE_OFF)) {
 			if (cb instanceof ToggleButton) {
 				((ToggleButton) cb).setTextOff(TiConvert.toString(d, TiC.PROPERTY_TITLE_OFF));
-			} else if (Build.VERSION.SDK_INT >= 14) { // ICE_CREAM_SANDWICH, 4.0
-				if (cb instanceof Switch) {
-					((Switch) cb).setTextOff(TiConvert.toString(d, TiC.PROPERTY_TITLE_OFF));
-				}
+			} else if (Build.VERSION.SDK_INT >= 14 && cb instanceof Switch) { // ICE_CREAM_SANDWICH, 4.0
+				((Switch) cb).setTextOff(TiConvert.toString(d, TiC.PROPERTY_TITLE_OFF));
 			}
 
 		}
@@ -126,10 +124,8 @@ public class TiUISwitch extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_TITLE_ON)) {
 			if (cb instanceof ToggleButton) {
 				((ToggleButton) cb).setTextOn((String) newValue);
-			} else if (Build.VERSION.SDK_INT >= 14) { // ICE_CREAM_SANDWICH, 4.0 
-				if (cb instanceof Switch) {
-					((Switch) cb).setTextOn((String) newValue);
-				}
+			} else if (Build.VERSION.SDK_INT >= 14 && cb instanceof Switch) { // ICE_CREAM_SANDWICH, 4.0 
+				((Switch) cb).setTextOn((String) newValue);
 			}
 
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
