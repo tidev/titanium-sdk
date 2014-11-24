@@ -1075,38 +1075,46 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 -(void)windowWillOpen
 {
-	//TODO: This should be properly handled and moved, but for now, let's force it (Redundantly, I know.)
-	if (parent != nil) {
-		[self parentWillShow];
-	}
+    //TODO: This should be properly handled and moved, but for now, let's force it (Redundantly, I know.)
+    if (parent != nil) {
+        [self parentWillShow];
+    }
 
-	pthread_rwlock_rdlock(&childrenLock);
-	
-	// this method is called just before the top level window
-	// that this proxy is part of will open and is ready for
-	// the views to be attached
-	
-	if (windowOpened==YES)
-	{
-		pthread_rwlock_unlock(&childrenLock);
-		return;
-	}
-	
-	windowOpened = YES;
-	windowOpening = YES;
-	
-	// If the window was previously opened, it may need to have
-	// its existing children redrawn
-	// Maybe need to call layout children instead for non absolute layout
-	if (children != nil) {
-		for (TiViewProxy* child in children) {
-			[self layoutChild:child optimize:NO withMeasuredBounds:[[self size] rect]];
-			[child windowWillOpen];
-		}
-	}
-	
-	pthread_rwlock_unlock(&childrenLock);
-	
+    pthread_rwlock_rdlock(&childrenLock);
+
+    // this method is called just before the top level window
+    // that this proxy is part of will open and is ready for
+    // the views to be attached
+
+    if (windowOpened==YES)
+    {
+        pthread_rwlock_unlock(&childrenLock);
+        return;
+    }
+
+    windowOpened = YES;
+    windowOpening = YES;
+
+    BOOL absoluteLayout = TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle);
+
+    // If the window was previously opened, it may need to have
+    // its existing children redrawn
+    // Maybe need to call layout children instead for non absolute layout
+    if (children != nil) {
+        for (TiViewProxy* child in children) {
+            if (absoluteLayout) {
+                [self layoutChild:child optimize:NO withMeasuredBounds:[[self size] rect]];
+            }
+            [child windowWillOpen];
+        }
+    }
+
+    pthread_rwlock_unlock(&childrenLock);
+
+    //TIMOB-17923 - Do a full layout pass (set proper sandbox) if non absolute layout
+    if (!absoluteLayout) {
+        [self layoutChildren:NO];
+    }
 }
 
 -(void)windowDidOpen
