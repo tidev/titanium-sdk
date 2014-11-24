@@ -50,7 +50,7 @@
         ENSURE_ARG_AT_INDEX(callback, args, 2, KrollCallback);
     }
     
-    int offsetValue = [TiUtils intValue:offset];
+    NSInteger offsetValue = [TiUtils intValue:offset];
     BOOL valid = NO;
     NSUInteger lengthValue = [TiUtils intValue:length def:0 valid:&valid];
     if (!valid) {
@@ -58,7 +58,7 @@
     }
     
     if (offsetValue >= [[buffer data] length]) {
-        NSString* errorStr = [NSString stringWithFormat:@"Offset %d is past buffer bounds (length %lu)",offsetValue,(unsigned long)[[buffer data] length]];
+        NSString* errorStr = [NSString stringWithFormat:@"Offset %ld is past buffer bounds (length %lu)",(long)offsetValue,(unsigned long)[[buffer data] length]];
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:errorStr];
 		if (stream != nil) {
 			[event setObject:stream forKey:@"source"];
