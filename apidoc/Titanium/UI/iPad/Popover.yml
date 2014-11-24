@@ -114,7 +114,7 @@ properties:
     summary: Left button in the navigation area of the popover.
     deprecated:
         since: "3.5.0"
-        notes: This property is no loner supported.
+        notes: This property is no longer supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set. 
 
@@ -142,7 +142,7 @@ properties:
     summary: Right button in the navigation area of the popover.
     deprecated:
         since: "3.5.0"
-        notes: This property is no loner supported.
+        notes: This property is no longer supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
 
@@ -163,7 +163,7 @@ properties:
     summary: Title of the navigation area of the popover.
     deprecated:
         since: "3.5.0"
-        notes: This property is no loner supported.
+        notes: This property is no longer supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
     type: String
