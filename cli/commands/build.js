@@ -13,6 +13,7 @@ var appc = require('node-appc'),
 	sprintf = require('sprintf'),
 	ti = require('titanium-sdk'),
 	tiappxml = require('titanium-sdk/lib/tiappxml'),
+	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__;
 
 fields.setup({
@@ -270,11 +271,17 @@ exports.run = function (logger, config, cli, finished) {
 function patchLogger(logger, cli) {
 	var origLoggerLog = logger.log,
 		platform = ti.resolvePlatform(cli.argv.platform),
+		buildDir = path.join(cli.argv['project-dir'], 'build'),
 		logFileStream;
+
+	fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir);
+
 	// create our write stream
-	logFileStream = fs.createWriteStream(path.join(cli.argv['project-dir'], 'build', 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'ascii' });
+	logFileStream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'ascii' });
+
 	// write the banner to start out the log
 	logFileStream.write(logBanner(cli));
+
 	// override the existing log function
 	logger.log = function() {
 		// most of this copied from the CLI's logger.js logger.log() function
