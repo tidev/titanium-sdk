@@ -113,183 +113,183 @@ exports.init = function (logger, config, cli) {
 				}
 			}
 
+			// add the --device-id option stub... the rest will be filled in IF building for a
+			if (!conf.options['device-id']) {
+				conf.options['device-id'] = {
+					abbr: 'C',
+					desc: __('the device or emulator udid to launch the app on'),
+					hint: 'udid',
+					order: 130
+				};
+			};
+
+			// add the --wp8-publisher-guid option
+			conf.options['wp8-publisher-guid'] = {
+				default: config.get('wp8.publisherGuid'),
+				desc: __('your publisher GUID, obtained from %s', 'http://appcelerator.com/windowsphone'.cyan),
+				hint: __('guid'),
+				order: 120,
+				prompt: function (callback) {
+					callback(fields.text({
+						promptLabel: __('What is your __Windows Phone 8 Publisher GUID__?'),
+						validate: conf.options['wp8-publisher-guid'].validate
+					}));
+				},
+				validate: function (value, callback) {
+					if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
+						return callback(new Error(__('Invalid "--wp8-publisher-guid" value "%s"', value)));
+					}
+					callback(null, value);
+				}
+			};
+
+			function assertIssue(issues, name, exit) {
+				var i = 0,
+					len = issues.length;
+				for (; i < len; i++) {
+					if ((typeof name === 'string' && issues[i].id === name) || (name && typeof name === 'object' && name.test(issues[i].id))) {
+						logger.banner();
+						issues[i].message.split('\n').forEach(function (line) {
+							logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
+						});
+						logger.log();
+						exit && process.exit(1);
+					}
+				}
+			}
+
+			// wire up the --target callback handler
+			var oldTargetCallback = conf.options.target.callback;
+
+			conf.options.target.callback = function (value) {
+				// if --target already has a callback, then we need to fire the original first
+				if (typeof oldTargetCallback === 'function') {
+					var tmp = oldTargetCallback(value);
+					// if the original callback returned a non-undefined value, then the value
+					// was changed and that's what we'll use
+					if (tmp !== void 0) {
+						value = tmp;
+					}
+				}
+
+				// make sure we have a sane environment for the specified target
+				if (value === 'wp8' || value === 'winstore') {
+					assertIssue(windowsInfo.issues, 'WINDOWS_VISUAL_STUDIO_NOT_INSTALLED', true);
+					assertIssue(windowsInfo.issues, 'WINDOWS_MSBUILD_ERROR', true);
+					assertIssue(windowsInfo.issues, 'WINDOWS_MSBUILD_TOO_OLD', true);
+
+					// wire up the --device-id handlers
+					conf.options['device-id'].prompt = function (callback) {
+						var devices = getTargetDevices(),
+							maxLen = devices.reduce(function (a, b) { return Math.max(a, b.name.length); }, 0);
+
+						if (!devices.length) {
+							cli.argv['build-only'] = true;
+							return callback();
+						}
+
+						callback(fields.select({
+							title: __("Which device or emulator do you want to install your app on?"),
+							promptLabel: __('Select by number or name'),
+							default: devices.length && devices[0].name,
+							formatters: {
+								option: function (opt, idx, num) {
+									return '  ' + num + appc.string.rpad(opt.name, maxLen).cyan + '  ' + __('(udid: %s)', opt.udid).grey;
+								}
+							},
+							margin: '',
+							numbered: true,
+							relistOnError: true,
+							complete: ['name', 'udid'],
+							completeIgnoreCase: true,
+							ignoreCase: true,
+							suggest: false,
+							optionLabel: 'name',
+							optionValue: 'udid',
+							options: devices,
+							validate: conf.options['device-id'].validate
+						}));
+					};
+
+					conf.options['device-id'].validate = function (value, callback) {
+						if (!value && value !== 0) {
+							return callback(new Error(__('Invalid device id')));
+						}
+
+						var devices = getTargetDevices();
+
+						if (value === 'xd') {
+							// pick first emulator
+							var emu = devices.filter(function (x) { return x.type === 'emulator'; })[0];
+							if (emu) {
+								return callback(null, emu.udid);
+							}
+						}
+
+						if (value === 'de') {
+							// pick first device
+							var dev = devices.filter(function (x) { return x.type === 'device'; })[0];
+							if (dev) {
+								return callback(null, dev.udid);
+							}
+						}
+
+						var dev;
+
+						if (!devices.some(function (d) {
+							if (d.udid == value || d.name === value) {
+								dev = d;
+								value = d.udid;
+								return true;
+							}
+							return false;
+						})) {
+							return callback(new Error(__('Invalid device id: %s', value)));
+						}
+
+						// check the device
+						if (dev.type === 'device') {
+							// try connecting to the device to detect no device or more than 1 device
+							windowslib.device.connect(dev.udid, windowslibOptions)
+								.on('connected', function () {
+									callback(null, value);
+								})
+								.on('error', function (err) {
+									logger.log();
+									logger.error(err.message || err.toString());
+									logger.log();
+									process.exit(1);
+								});
+						} else {
+							// must be emulator then
+							callback(null, value);
+						}
+					};
+
+					conf.options['device-id'].verifyIfRequired = function (callback) {
+						callback(!cli.argv['build-only']);
+					};
+				}
+
+				if (value === 'wp8') {
+					assertIssue(windowsInfo.issues, 'WINDOWS_PHONE_SDK_NOT_INSTALLED', true);
+					assertIssue(windowsInfo.issues, 'WINDOWS_PHONE_SDK_MISSING_DEPLOY_CMD', true);
+					assertIssue(windowsInfo.issues, 'WINDOWS_PHONE_ENUMERATE_DEVICES_FAILED', true);
+
+					conf.options['wp8-publisher-guid'].required = true;
+					conf.options['device-id'].required = true;
+				}
+
+				if (value === 'winstore') {
+					assertIssue(windowsInfo.issues, 'WINDOWS_STORE_APPS_NOT_SUPPORTED', true);
+					assertIssue(windowsInfo.issues, 'WINDOWS_POWERSHELL_SCRIPTS_DISABLED', true);
+				}
+
+				return value;
+			};
+
 			callback();
 		}.bind(this));
-
-		// add the --device-id option stub... the rest will be filled in IF building for a
-		if (!conf.options['device-id']) {
-			conf.options['device-id'] = {
-				abbr: 'C',
-				desc: __('the device or emulator udid to launch the app on'),
-				hint: 'udid',
-				order: 130
-			};
-		};
-
-		// add the --wp8-publisher-guid option
-		conf.options['wp8-publisher-guid'] = {
-			default: config.get('wp8.publisherGuid'),
-			desc: __('your publisher GUID, obtained from %s', 'http://appcelerator.com/windowsphone'.cyan),
-			hint: __('guid'),
-			order: 120,
-			prompt: function (callback) {
-				callback(fields.text({
-					promptLabel: __('What is your __Windows Phone 8 Publisher GUID__?'),
-					validate: conf.options['wp8-publisher-guid'].validate
-				}));
-			},
-			validate: function (value, callback) {
-				if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
-					return callback(new Error(__('Invalid "--wp8-publisher-guid" value "%s"', value)));
-				}
-				callback(null, value);
-			}
-		};
-
-		function assertIssue(issues, name, exit) {
-			var i = 0,
-				len = issues.length;
-			for (; i < len; i++) {
-				if ((typeof name === 'string' && issues[i].id === name) || (name && typeof name === 'object' && name.test(issues[i].id))) {
-					logger.banner();
-					issues[i].message.split('\n').forEach(function (line) {
-						logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-					});
-					logger.log();
-					exit && process.exit(1);
-				}
-			}
-		}
-
-		// wire up the --target callback handler
-		var oldTargetCallback = conf.options.target.callback;
-
-		conf.options.target.callback = function (value) {
-			// if --target already has a callback, then we need to fire the original first
-			if (typeof oldTargetCallback === 'function') {
-				var tmp = oldTargetCallback(value);
-				// if the original callback returned a non-undefined value, then the value
-				// was changed and that's what we'll use
-				if (tmp !== void 0) {
-					value = tmp;
-				}
-			}
-
-			// make sure we have a sane environment for the specified target
-			if (value === 'wp8' || value === 'winstore') {
-				assertIssue(windowsInfo.issues, 'WINDOWS_VISUAL_STUDIO_NOT_INSTALLED', true);
-				assertIssue(windowsInfo.issues, 'WINDOWS_MSBUILD_ERROR', true);
-				assertIssue(windowsInfo.issues, 'WINDOWS_MSBUILD_TOO_OLD', true);
-
-				// wire up the --device-id handlers
-				conf.options['device-id'].prompt = function (callback) {
-					var devices = getTargetDevices(),
-						maxLen = devices.reduce(function (a, b) { return Math.max(a, b.name.length); }, 0);
-
-					if (!devices.length) {
-						cli.argv['build-only'] = true;
-						return callback();
-					}
-
-					callback(fields.select({
-						title: __("Which device or emulator do you want to install your app on?"),
-						promptLabel: __('Select by number or name'),
-						default: devices.length && devices[0].name,
-						formatters: {
-							option: function (opt, idx, num) {
-								return '  ' + num + appc.string.rpad(opt.name, maxLen).cyan + '  ' + __('(udid: %s)', opt.udid).grey;
-							}
-						},
-						margin: '',
-						numbered: true,
-						relistOnError: true,
-						complete: ['name', 'udid'],
-						completeIgnoreCase: true,
-						ignoreCase: true,
-						suggest: false,
-						optionLabel: 'name',
-						optionValue: 'udid',
-						options: devices,
-						validate: conf.options['device-id'].validate
-					}));
-				};
-
-				conf.options['device-id'].validate = function (value, callback) {
-					if (!value && value !== 0) {
-						return callback(new Error(__('Invalid device id')));
-					}
-
-					var devices = getTargetDevices();
-
-					if (value === 'xd') {
-						// pick first emulator
-						var emu = devices.filter(function (x) { return x.type === 'emulator'; })[0];
-						if (emu) {
-							return callback(null, emu.udid);
-						}
-					}
-
-					if (value === 'de') {
-						// pick first device
-						var dev = devices.filter(function (x) { return x.type === 'device'; })[0];
-						if (dev) {
-							return callback(null, dev.udid);
-						}
-					}
-
-					var dev;
-
-					if (!devices.some(function (d) {
-						if (d.udid == value || d.name === value) {
-							dev = d;
-							value = d.udid;
-							return true;
-						}
-						return false;
-					})) {
-						return callback(new Error(__('Invalid device id: %s', value)));
-					}
-
-					// check the device
-					if (dev.type === 'device') {
-						// try connecting to the device to detect no device or more than 1 device
-						windowslib.device.connect(dev.udid, windowslibOptions)
-							.on('connected', function () {
-								callback(null, value);
-							})
-							.on('error', function (err) {
-								logger.log();
-								logger.error(err.message || err.toString());
-								logger.log();
-								process.exit(1);
-							});
-					} else {
-						// must be emulator then
-						callback(null, value);
-					}
-				};
-
-				conf.options['device-id'].verifyIfRequired = function (callback) {
-					callback(!cli.argv['build-only']);
-				};
-			}
-
-			if (value === 'wp8') {
-				assertIssue(windowsInfo.issues, 'WINDOWS_PHONE_SDK_NOT_INSTALLED', true);
-				assertIssue(windowsInfo.issues, 'WINDOWS_PHONE_SDK_MISSING_DEPLOY_CMD', true);
-				assertIssue(windowsInfo.issues, 'WINDOWS_PHONE_ENUMERATE_DEVICES_FAILED', true);
-
-				conf.options['wp8-publisher-guid'].required = true;
-				conf.options['device-id'].required = true;
-			}
-
-			if (value === 'winstore') {
-				assertIssue(windowsInfo.issues, 'WINDOWS_STORE_APPS_NOT_SUPPORTED', true);
-				assertIssue(windowsInfo.issues, 'WINDOWS_POWERSHELL_SCRIPTS_DISABLED', true);
-			}
-
-			return value;
-		};
 	});
 
 	// launch the Windows Phone emulator, create the log relay and start it

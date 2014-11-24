@@ -51,7 +51,7 @@
 		"msbuild": ">=4.0"
 	},
 	"engines": {
-		"node": ">=0.8"
+		"node": ">=0.10.13"
 	},
 	"license": "Apache Public License v2"
 }
