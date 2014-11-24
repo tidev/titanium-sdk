@@ -213,7 +213,7 @@ if(fileHandle == nil) {\
 				[event setObject:NUMUINTEGER([slicedData length]) forKey:@"bytesProcessed"];
 				[event setObject:NUMINT(0) forKey:@"errorState"];
 				[event setObject:@"" forKey:@"errorDescription"];
-				[self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
+				[self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
 			}
 		}
 		@catch (NSException * e) {
@@ -223,7 +223,7 @@ if(fileHandle == nil) {\
 				[event setObject:NUMINT(0) forKey:@"bytesProcessed"];
 				[event setObject:[e reason] forKey:@"errorDescription"];
 				[event setObject:NUMINT(-1) forKey:@"errorState"];
-                [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
+                [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
 			} else {
 				@throw e;
 			}
