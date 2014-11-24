@@ -1138,7 +1138,30 @@ properties:
     summary: Use the closest keyframe in the time.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since:
+        android: "3.6.0"
+  - name: VIDEO_TIME_OPTION_CLOSEST_SYNC
+    summary: Use the closest sync (or key) frame at given the time.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since:
+        android: "3.6.0"
+  - name: VIDEO_TIME_OPTION_NEXT_SYNC
+    summary: Use the sync (or key) frame located right after or at given the time.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since:
+        android: "3.6.0"
+  - name: VIDEO_TIME_OPTION_PREVIOUS_SYNC
+    summary: Use the sync (or key) frame located right before or at given the time.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since:
+        android: "3.6.0"
   - name: appMusicPlayer
     summary: An instance of <Titanium.Media.MusicPlayer> representing the app-specific music player.
     type: Titanium.Media.MusicPlayer
