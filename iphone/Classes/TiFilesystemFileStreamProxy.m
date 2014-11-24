@@ -125,13 +125,10 @@ if(fileHandle == nil) {\
 			NSMutableDictionary* event = [TiUtils dictionaryWithCode:-1 message:errorMessage];
 			[event setObject:NUMINT(0) forKey:@"bytesProcessed"];
 			[event setObject:errorMessage forKey:@"errorMessage"];
-			[event setObject:NUMINT(0) forKey:@"errorCode"];
+			[event setObject:NUMINT(-1) forKey:@"errorState"];
 			[self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
-		} else {
-			[self throwException:TiExceptionRangeError
-					   subreason:errorMessage
-						location:CODELOCATION];
 		}
+        return 0;
 	}
 	
 	NSData *fileData = nil;
@@ -142,11 +139,25 @@ if(fileHandle == nil) {\
 	
 	if([fileHandle offsetInFile] >= [self currentFileSize]) {
 		//out of bounds
+        if (callback != nil) {
+            NSMutableDictionary* event = [TiUtils dictionaryWithCode:-1 message:nil];
+            [event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
+            [event setObject:NUMINT(-1) forKey:@"errorState"];
+            [event setObject:@"" forKey:@"errorDescription"];
+            [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
+        }        
 		return -1;
 	}
 	
 	if(length == 0) {
 		[buffer setData:[NSMutableData dataWithData:[fileHandle availableData]]];
+        if (callback != nil) {
+            NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+            [event setObject:[buffer length] forKey:@"bytesProcessed"];
+            [event setObject:NUMINT(0) forKey:@"errorState"];
+            [event setObject:@"" forKey:@"errorDescription"];
+            [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
+        }
 		return [[buffer length] intValue];
 	}
 	
@@ -165,10 +176,17 @@ if(fileHandle == nil) {\
 			VerboseLog(@"streamBytes: %@", [NSString stringWithCString:streamBytes encoding:NSUTF8StringEncoding]);
 			
 			memcpy(bufferBytes + offset, streamBytes, MIN([fileData length], length));	
-			return [fileData length];
+			
 		}
 	}
-	return -1;
+    if (callback != nil) {
+        NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+        [event setObject:NUMUINTEGER([fileData length]) forKey:@"bytesProcessed"];
+        [event setObject:NUMINT(0) forKey:@"errorState"];
+        [event setObject:@"" forKey:@"errorDescription"];
+        [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
+    }
+	return [fileData length];
 }
 
 -(NSInteger) writeFromBuffer:(TiBuffer *)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback {
