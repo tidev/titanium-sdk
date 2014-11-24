@@ -41,12 +41,12 @@
     
     // TODO: Codify in read() and write() when we have every method calling the wrappers... like it should.
     if ([[toBuffer data] length] == 0  && length != 0) {
+        NSString *errorMessage = @"Buffer length is zero";
         if (callback != nil) {
-			NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
-			[event setObject:self forKey:@"source"];
+			NSMutableDictionary* event = [TiUtils dictionaryWithCode:-1 message:errorMessage];
 			[event setObject:NUMINT(0) forKey:@"bytesProcessed"];
-			[event setObject:NUMINT(0) forKey:@"errorState"];
-			[event setObject:@"" forKey:@"errorDescription"];
+			[event setObject:NUMINT(-1) forKey:@"errorState"];
+			[event setObject:errorMessage forKey:@"errorDescription"];
             [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
         }
         return 0;
@@ -55,10 +55,9 @@
     // TODO: Throw exception, or no-op?  For now, assume NO-OP
     if (position >= [data length]) {
         if (callback != nil) {
-			NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
-			[event setObject:self forKey:@"source"];
+			NSMutableDictionary* event = [TiUtils dictionaryWithCode:-1 message:nil];
 			[event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
-			[event setObject:NUMINT(0) forKey:@"errorState"];
+			[event setObject:NUMINT(-1) forKey:@"errorState"];
 			[event setObject:@"" forKey:@"errorDescription"];
             [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
         }        

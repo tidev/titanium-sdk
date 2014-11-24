@@ -50,7 +50,7 @@
         ENSURE_ARG_AT_INDEX(callback, args, 2, KrollCallback);
     }
     
-    int offsetValue = [TiUtils intValue:offset];
+    NSInteger offsetValue = [TiUtils intValue:offset];
     BOOL valid = NO;
     NSUInteger lengthValue = [TiUtils intValue:length def:0 valid:&valid];
     if (!valid) {
@@ -58,7 +58,7 @@
     }
     
     if (offsetValue >= [[buffer data] length]) {
-        NSString* errorStr = [NSString stringWithFormat:@"Offset %d is past buffer bounds (length %lu)",offsetValue,(unsigned long)[[buffer data] length]];
+        NSString* errorStr = [NSString stringWithFormat:@"Offset %ld is past buffer bounds (length %lu)",(long)offsetValue,(unsigned long)[[buffer data] length]];
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:errorStr];
 		if (stream != nil) {
 			[event setObject:stream forKey:@"source"];
@@ -182,8 +182,8 @@
     // Handle asynch
     if (callback != nil) {
         SEL operation = @selector(readToBuffer:offset:length:callback:);
-        int offset = 0;
-        int length = 0;
+        NSInteger offset = 0;
+        NSInteger length = 0;
         
         NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[stream methodSignatureForSelector:operation]];
         [invoke setTarget:stream];
@@ -226,7 +226,7 @@
                     location:CODELOCATION];        
     }   
     
-    int size = [TiUtils intValue:chunkSize];
+    NSInteger size = [TiUtils intValue:chunkSize];
     if (callback != nil) {
         NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[inputStream methodSignatureForSelector:@selector(writeToStream:chunkSize:callback:)]];
         [invoke setTarget:inputStream];
@@ -262,7 +262,7 @@
                     location:CODELOCATION];        
     }
     
-    int size = [TiUtils intValue:chunkSize];
+    NSInteger size = [TiUtils intValue:chunkSize];
     BOOL isAsynch = [TiUtils boolValue:asynch def:NO];
     if (isAsynch) {
         NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[stream methodSignatureForSelector:@selector(pumpToCallback:chunkSize:asynch:)]];
