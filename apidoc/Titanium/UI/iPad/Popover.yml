@@ -94,14 +94,14 @@ properties:
   - name: height
     summary: Height of the popover.
     deprecated:
-        since: "3.6.0"
+        since: "3.5.0"
         notes: This property is deprecated. Set the height on the [contentView](Titanium.UI.iPad.Popover.contentView) property instead.
     type: [Number, String]
 
   - name: leftNavButton
     summary: Left button in the navigation area of the popover.
     deprecated:
-        since: "3.6.0"
+        since: "3.55555.0"
         notes: This property is no loner supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set. 
@@ -129,7 +129,7 @@ properties:
   - name: rightNavButton
     summary: Right button in the navigation area of the popover.
     deprecated:
-        since: "3.6.0"
+        since: "3.5.0"
         notes: This property is no loner supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
@@ -150,7 +150,7 @@ properties:
   - name: title
     summary: Title of the navigation area of the popover.
     deprecated:
-        since: "3.6.0"
+        since: "3.5.0"
         notes: This property is no loner supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
@@ -159,7 +159,7 @@ properties:
   - name: width
     summary: Width of the popover.
     deprecated:
-        since: "3.6.0"
+        since: "3.5.0"
         notes: This property is deprecated. Set the width on the [contentView](Titanium.UI.iPad.Popover.contentView) property instead.
     type: [Number, String]
 
