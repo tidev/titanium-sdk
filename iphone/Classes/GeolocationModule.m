@@ -109,7 +109,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 @end
 
 
-
 @interface ForwardGeoCallback : GeolocationCallback
 @end
 
@@ -132,7 +131,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		[event setObject:accuracy forKey:@"accuracy"];
 		[event setObject:latitude forKey:@"latitude"];
 		[event setObject:longitude forKey:@"longitude"];
-		//[event setObject:floor	forKey:@"floor"];
 	}
 	else 
 	{
@@ -866,7 +864,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 	
 	CLLocationCoordinate2D latlon = [newLocation coordinate];
 	
-	NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:
+	NSMutableDictionary * data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
 						   [NSNumber numberWithFloat:latlon.latitude],@"latitude",
 						   [NSNumber numberWithFloat:latlon.longitude],@"longitude",
 						   [NSNumber numberWithFloat:[newLocation altitude]],@"altitude",
@@ -874,9 +872,16 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 						   [NSNumber numberWithFloat:[newLocation verticalAccuracy]],@"altitudeAccuracy",
 						   [NSNumber numberWithFloat:[newLocation course]],@"heading",
 						   [NSNumber numberWithFloat:[newLocation speed]],@"speed",
-						   [NSNumber numberWithInt:[newLocation floor]],@"floor",
 						   [NSNumber numberWithLongLong:(long long)([[newLocation timestamp] timeIntervalSince1970] * 1000)],@"timestamp",
 						   nil];
+    
+    if ([TiUtils isIOS8OrGreater]) {
+        NSDictionary *floor = [NSDictionary dictionaryWithObjectsAndKeys:
+                               [NSNumber numberWithInteger:[[newLocation floor] level]],@"level",
+                               nil];
+        [data setObject:floor forKey:@"floor"];
+    }
+    
 	return data;
 }
 
