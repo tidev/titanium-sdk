@@ -495,70 +495,76 @@ static void ASReadStreamCallBackCUR
 			@"File stream download must be started on the internalThread");
 		NSAssert(stream == nil, @"Download stream already initialized");
 		
-		//
-		// Create the HTTP GET request
-		//
-		CFHTTPMessageRef message= CFHTTPMessageCreateRequest(NULL, (CFStringRef)@"GET", (CFURLRef)url, kCFHTTPVersion1_1);
+		//check to see if url is local file
+		if (![url isFileURL]) {
+			//
+			// Create the HTTP GET request
+			//
+			CFHTTPMessageRef message= CFHTTPMessageCreateRequest(NULL, (CFStringRef)@"GET", (CFURLRef)url, kCFHTTPVersion1_1);
+			
+			//
+			// If we are creating this request to seek to a location, set the
+			// requested byte range in the headers.
+			//
+			if (fileLength > 0 && seekByteOffset > 0)
+			{
+				CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Range"),
+												 (CFStringRef)[NSString stringWithFormat:@"bytes=%ld-%ld", (long)seekByteOffset, (long)fileLength]);
+				discontinuous = YES;
+			}
+			
+			//
+			// Create the read stream that will receive data from the HTTP request
+			//
+			stream = CFReadStreamCreateForHTTPRequest(NULL, message);
+			CFRelease(message);
 		
-		//
-		// If we are creating this request to seek to a location, set the
-		// requested byte range in the headers.
-		//
-		if (fileLength > 0 && seekByteOffset > 0)
-		{
-			CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Range"),
-				(CFStringRef)[NSString stringWithFormat:@"bytes=%ld-%ld", (long)seekByteOffset, (long)fileLength]);
-			discontinuous = YES;
-		}
-		
-		//
-		// Create the read stream that will receive data from the HTTP request
-		//
-		stream = CFReadStreamCreateForHTTPRequest(NULL, message);
-		CFRelease(message);
-		
-		//
-		// Enable stream redirection
-		//
-		if (CFReadStreamSetProperty(
-			stream,
-			kCFStreamPropertyHTTPShouldAutoredirect,
-			kCFBooleanTrue) == false)
-		{
-			[self presentAlertWithTitle:NSLocalizedStringFromTable(@"File Error", @"Errors", nil)
-								message:NSLocalizedStringFromTable(@"Unable to configure network read stream.", @"Errors", nil)];
-			return NO;
-		}
-		
-		//
-		// Handle SSL connections
-		//
-		if( [[url absoluteString] rangeOfString:@"https"].location != NSNotFound )
-		{
-			/*---Titanium Modifications start---*/
-			/*
-			 * kCFStreamSSLAllowsExpiredCertificates, kCFStreamSSLAllowsExpiredRoots, kCFStreamSSLValidatesCertificateChain
-			 * deprecated in iOS4. Use kCFStreamSSLValidatesCertificateChain to disable certificate chain validation.
-			NSDictionary *sslSettings =
-				[NSDictionary dictionaryWithObjectsAndKeys:
+			//
+			// Enable stream redirection
+			//
+			if (CFReadStreamSetProperty(
+										stream,
+										kCFStreamPropertyHTTPShouldAutoredirect,
+										kCFBooleanTrue) == false)
+			{
+				[self presentAlertWithTitle:NSLocalizedStringFromTable(@"File Error", @"Errors", nil)
+									message:NSLocalizedStringFromTable(@"Unable to configure network read stream.", @"Errors", nil)];
+				return NO;
+			}
+			
+			//
+			// Handle SSL connections
+			//
+			if( [[url absoluteString] rangeOfString:@"https"].location != NSNotFound )
+			{
+				/*---Titanium Modifications start---*/
+				/*
+				 * kCFStreamSSLAllowsExpiredCertificates, kCFStreamSSLAllowsExpiredRoots, kCFStreamSSLValidatesCertificateChain
+				 * deprecated in iOS4. Use kCFStreamSSLValidatesCertificateChain to disable certificate chain validation.
+				 NSDictionary *sslSettings =
+				 [NSDictionary dictionaryWithObjectsAndKeys:
 					(NSString *)kCFStreamSocketSecurityLevelNegotiatedSSL, kCFStreamSSLLevel,
 					[NSNumber numberWithBool:YES], kCFStreamSSLAllowsExpiredCertificates,
 					[NSNumber numberWithBool:YES], kCFStreamSSLAllowsExpiredRoots,
 					[NSNumber numberWithBool:YES], kCFStreamSSLAllowsAnyRoot,
 					[NSNumber numberWithBool:NO], kCFStreamSSLValidatesCertificateChain,
 					[NSNull null], kCFStreamSSLPeerName,
-				nil];
-			*/
-			NSDictionary *sslSettings =
+				 nil];
+				 */
+				NSDictionary *sslSettings =
 				[NSDictionary dictionaryWithObjectsAndKeys:
 					(NSString *)kCFStreamSocketSecurityLevelNegotiatedSSL, kCFStreamSSLLevel,
 					[NSNumber numberWithBool:NO], kCFStreamSSLValidatesCertificateChain,
 					[NSNull null], kCFStreamSSLPeerName,
-				nil];
-			/*---Titanium Modifications End---*/
-			CFReadStreamSetProperty(stream, kCFStreamPropertySSLSettings, sslSettings);
+				 nil];
+				/*---Titanium Modifications End---*/
+				CFReadStreamSetProperty(stream, kCFStreamPropertySSLSettings, sslSettings);
+			}
 		}
-		
+		else {
+			//File is local
+			stream = CFReadStreamCreateWithFile(NULL, (CFURLRef)url);
+		}
 		//
 		// We're now ready to receive data
 		//
@@ -1164,7 +1170,7 @@ cleanup:
 	}
 	else if (eventType == kCFStreamEventHasBytesAvailable)
 	{
-		if (!httpHeaders)
+		if (!httpHeaders && ![url isFileURL])
 		{
 			CFTypeRef message =
 				CFReadStreamCopyProperty(stream, kCFStreamPropertyHTTPResponseHeader);
