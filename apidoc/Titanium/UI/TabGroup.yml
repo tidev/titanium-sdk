@@ -306,7 +306,7 @@ properties:
         Boolean value indicating if the application should exit when closing the tab group, whether via Android
         back button or the [close](Titanium.UI.TabGroup.close) method.
     description:  |
-        Starting in 3.4.2 you can set this property at any time. In earlier releases you can only set this as a createTabGroup({...}) option.
+        Starting in 3.6.0, you can set this property at any time. In earlier releases you can only set this as a createTabGroup({...}) option.
     platforms: [android]
     default: True if tab group is opened on top of the root activity. False otherwise.
     type: Boolean
