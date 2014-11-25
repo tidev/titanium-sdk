@@ -109,6 +109,7 @@ exports.config = function (logger, config, cli) {
 								}
 
 								// start file logging here
+								console.log(logBanner(cli));
 								patchLogger(logger, cli);
 
 								// load the tiapp.xml
@@ -337,8 +338,7 @@ function patchLogger(logger, cli) {
 */
 function logBanner(cli) {
 	var os = require('os');
-	return '\n\n---------------------------------\n\n' +
-		new Date().toLocaleString() + '\n\n' +
+	return new Date().toLocaleString() + '\n\n' +
 		'Build Environment \n' +
 		'   Host OS         = ' + (os.platform()==='darwin' ? "OS X" : os.platform()) + ' ' + os.release() + ', ' + os.arch() + '\n'  +
 		'   Target platform = ' + ti.resolvePlatform(cli.argv.platform) + '\n'  +
