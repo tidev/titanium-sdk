@@ -1,3 +1,8 @@
+0.1.23 (11/24/2014)
+-------------------
+ * Fixed bug where select lists that have autoSelectOne enabled does not call
+   a user-defined validate() function.
+
 0.1.22 (11/12/2014)
 -------------------
  * Fixed bug with select list when value is falsey and field has zeroSkip and

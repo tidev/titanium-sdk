@@ -21,7 +21,7 @@
 		"colors": "~0.6.2",
 		"css-parse": "~1.5.3",
 		"ejs": "~0.8.4",
-		"fields": "~0.1.22",
+		"fields": "~0.1.23",
 		"humanize": "~0.0.9",
 		"ioslib": "0.2.9",
 		"moment": "~2.4.0",
@@ -31,7 +31,7 @@
 		"sprintf": "~0.1.4",
 		"temp": "~0.6.0",
 		"uglify-js": "~2.4.3",
-		"windowslib": "0.1.1",
+		"windowslib": "0.1.2",
 		"wrench": "~1.5.1",
 		"xmldom": "~0.1.16"
 	},
@@ -51,7 +51,7 @@
 		"msbuild": ">=4.0"
 	},
 	"engines": {
-		"node": ">=0.8"
+		"node": ">=0.10.13"
 	},
 	"license": "Apache Public License v2"
 }

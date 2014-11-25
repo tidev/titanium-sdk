@@ -235,8 +235,45 @@ Select.prototype.prompt = function prompt(callback) {
 	var numOpts = Object.keys(this._allValues).length;
 	if (numOpts === 0) {
 		return callback(null, null);
+
 	} else if (this.autoSelectOne && numOpts === 1) {
-		return callback(null, Object.keys(this._distinctValues).shift());
+		// there's only one option, so select it
+		var value = Object.keys(this._distinctValues).shift();
+
+		function check(val) {
+			var ival = self.ignoreCase && typeof val === 'string' ? val.toLowerCase() : val;
+
+			if (self._distinctValues.hasOwnProperty(ival)) {
+				callback(null, self._distinctValues[ival]);
+			} else if (ival !== void 0 && ival !== null) {
+				callback(new Error(common.__(self, 'Invalid selection "%s"', val)));
+			} else {
+				callback(new Error(common.__(self, 'Please select a valid option')));
+			}
+		}
+
+		if (typeof this.validate === 'function') {
+
+			var result = this.validate(value, function (err, val) {
+				if (err) {
+					callback(err);
+				} else {
+					check(val);
+				}
+			});
+
+			// if result is undefined, then we assume they are going to call the callback
+			if (result === void 0) return;
+
+			if (result === false) {
+				callback(true);
+			} else {
+				callback(null, value);
+			}
+		} else {
+			check(value);
+		}
+		return;
 	}
 
 	var a = this._accelerators = {},

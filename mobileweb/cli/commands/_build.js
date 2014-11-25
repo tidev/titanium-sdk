@@ -108,6 +108,8 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 };
 
 MobileWebBuilder.prototype.validate = function validate(logger, config, cli) {
+	Builder.prototype.validate.apply(this, arguments);
+
 	this.target = cli.argv.target;
 	this.deployType = cli.argv['deploy-type'];
 	this.buildType = cli.argv['build-type'] || '';
@@ -124,13 +126,24 @@ MobileWebBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.enableLogging = true;
 	}
 
-	if (!cli.tiapp.icon || !['Resources', 'Resources/android'].some(function (p) {
+	if (!cli.tiapp.icon || !['Resources', 'Resources/mobileweb'].some(function (p) {
 			return fs.existsSync(cli.argv['project-dir'], p, cli.tiapp.icon);
 		})) {
 		cli.tiapp.icon = 'appicon.png';
 	}
 
-	// TODO: validate modules here
+	return function (callback) {
+		this.validateTiModules('mobileweb', this.deployType, function (err, modules) {
+			this.modules = modules.found;
+
+			modules.found.forEach(function (module) {
+				// scan the module for any CLI hooks
+				cli.scanHooks(path.join(module.modulePath, 'hooks'));
+			});
+
+			callback();
+		}.bind(this));
+	}.bind(this);
 };
 
 MobileWebBuilder.prototype.run = function run(logger, config, cli, finished) {
@@ -325,7 +338,7 @@ MobileWebBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
 	// Alloy generate an app.js, it may not have existed during validate(), but should exist now
 	// that build.pre.compile was fired.
-	ti.validateAppJsExists(this.projectDir, this.logger, 'android');
+	ti.validateAppJsExists(this.projectDir, this.logger, 'mobileweb');
 
 	if (fs.existsSync(this.buildDir)) {
 		this.logger.debug(__('Deleting existing build directory'));
@@ -466,95 +479,61 @@ MobileWebBuilder.prototype.findPrecacheImages = function findPrecacheImages(next
 };
 
 MobileWebBuilder.prototype.findTiModules = function findTiModules(next) {
-	if (!this.tiapp.modules || !this.tiapp.modules.length) {
-		this.logger.info(__('No Titanium Modules required, continuing'));
-		return next();
-	}
+	this.modules.forEach(function (module) {
+		var moduleDir = module.modulePath,
+			pkgJson,
+			pkgJsonFile = path.join(moduleDir, 'package.json');
 
-	this.logger.info(__n('Searching for %s Titanium Module', 'Searching for %s Titanium Modules', this.tiapp.modules.length));
-	appc.timodule.find(this.tiapp.modules, 'mobileweb', this.deployType, this.titaniumSdkVersion, this.moduleSearchPaths, this.logger, function (modules) {
-		if (modules.missing.length) {
-			this.logger.error(__('Could not find all required Titanium Modules:'));
-			modules.missing.forEach(function (m) {
-				this.logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t deploy-type: ' + m.deployType);
-			}, this);
-			this.logger.log();
+		if (!fs.existsSync(pkgJsonFile)) {
+			this.logger.error(__('Invalid Titanium Mobile Module "%s": missing package.json', module.id) + '\n');
 			process.exit(1);
 		}
 
-		if (modules.incompatible.length) {
-			this.logger.error(__('Found incompatible Titanium Modules:'));
-			modules.incompatible.forEach(function (m) {
-				this.logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + (m.manifest && m.manifest.minsdk || '?'));
-			}, this);
-			this.logger.log();
+		try {
+			pkgJson = JSON.parse(fs.readFileSync(pkgJsonFile));
+		} catch (e) {
+			this.logger.error(__('Invalid Titanium Mobile Module "%s": unable to parse package.json', module.id) + '\n');
 			process.exit(1);
 		}
 
-		if (modules.conflict.length) {
-			this.logger.error(__('Found conflicting Titanium modules:'));
-			modules.conflict.forEach(function (m) {
-				this.logger.error('   ' + __('Titanium module "%s" requested for both Mobile Web and CommonJS platforms, but only one may be used at a time.', m.id));
-			}, this);
-			this.logger.log();
+		var libDir = ((pkgJson.directories && pkgJson.directories.lib) || '').replace(/^\//, '');
+
+		var mainFilePath = path.join(moduleDir, libDir, (pkgJson.main || '').replace(/\.js$/, '') + '.js');
+		if (!fs.existsSync(mainFilePath)) {
+			this.logger.error(__('Invalid Titanium Mobile Module "%s": unable to find main file "%s"', module.id, pkgJson.main) + '\n');
 			process.exit(1);
 		}
 
-		modules.found.forEach(function (module) {
-			var moduleDir = module.modulePath,
-				pkgJson,
-				pkgJsonFile = path.join(moduleDir, 'package.json');
-			if (!fs.existsSync(pkgJsonFile)) {
-				this.logger.error(__('Invalid Titanium Mobile Module "%s": missing package.json', module.id) + '\n');
-				process.exit(1);
-			}
+		this.logger.info(__('Bundling Titanium Mobile Module %s', module.id.cyan));
 
-			try {
-				pkgJson = JSON.parse(fs.readFileSync(pkgJsonFile));
-			} catch (e) {
-				this.logger.error(__('Invalid Titanium Mobile Module "%s": unable to parse package.json', module.id) + '\n');
-				process.exit(1);
-			}
+		this.projectDependencies.push(pkgJson.main);
 
-			var libDir = ((pkgJson.directories && pkgJson.directories.lib) || '').replace(/^\//, '');
+		var moduleName = module.id != pkgJson.main ? module.id + '/' + pkgJson.main : module.id;
 
-			var mainFilePath = path.join(moduleDir, libDir, (pkgJson.main || '').replace(/\.js$/, '') + '.js');
-			if (!fs.existsSync(mainFilePath)) {
-				this.logger.error(__('Invalid Titanium Mobile Module "%s": unable to find main file "%s"', module.id, pkgJson.main) + '\n');
-				process.exit(1);
-			}
+		if (/\/commonjs/.test(moduleDir)) {
+			this.modulesToCache.push((/\/commonjs/.test(moduleDir) ? 'commonjs:' : '') + moduleName);
+		} else {
+			this.modulesToCache.push(moduleName);
+			this.tiModulesToLoad.push(module.id);
+		}
 
-			this.logger.info(__('Bundling Titanium Mobile Module %s', module.id.cyan));
+		this.packages.push({
+			'name': module.id,
+			'location': './' + this.collapsePath('modules/' + module.id + (libDir ? '/' + libDir : '')),
+			'main': pkgJson.main,
+			'root': 1
+		});
 
-			this.projectDependencies.push(pkgJson.main);
+		// TODO: need to combine ALL Ti module .js files into the titanium.js, not just the main file
 
-			var moduleName = module.id != pkgJson.main ? module.id + '/' + pkgJson.main : module.id;
+		// TODO: need to combine ALL Ti module .css files into the titanium.css
 
-			if (/\/commonjs/.test(moduleDir)) {
-				this.modulesToCache.push((/\/commonjs/.test(moduleDir) ? 'commonjs:' : '') + moduleName);
-			} else {
-				this.modulesToCache.push(moduleName);
-				this.tiModulesToLoad.push(module.id);
-			}
+		var dest = path.join(this.buildDir, 'modules', module.id);
+		wrench.mkdirSyncRecursive(dest);
+		afs.copyDirSyncRecursive(moduleDir, dest, { preserve: true });
+	}, this);
 
-			this.packages.push({
-				'name': module.id,
-				'location': './' + this.collapsePath('modules/' + module.id + (libDir ? '/' + libDir : '')),
-				'main': pkgJson.main,
-				'root': 1
-			});
-
-			// TODO: need to combine ALL Ti module .js files into the titanium.js, not just the main file
-
-			// TODO: need to combine ALL Ti module .css files into the titanium.css
-
-			var dest = path.join(this.buildDir, 'modules', module.id);
-			wrench.mkdirSyncRecursive(dest);
-			afs.copyDirSyncRecursive(moduleDir, dest, { preserve: true });
-		}, this);
-
-		next();
-	}.bind(this));
+	next();
 };
 
 MobileWebBuilder.prototype.findI18N = function findI18N(next) {
