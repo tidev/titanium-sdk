@@ -42,8 +42,15 @@ describe('env', function () {
 				should(fs.existsSync(results.executables.xcodeSelect)).be.ok;
 			}
 
-			results.should.have.property('issues');
 			should(results.issues).be.an.Array;
+			results.issues.forEach(function (issue) {
+				should(issue).be.an.Object;
+				should(issue).have.keys('id', 'type', 'message');
+				should(issue.id).be.a.String;
+				should(issue.type).be.a.String;
+				should(issue.type).match(/^info|warning|error$/);
+				should(issue.message).be.a.String;
+			});
 
 			done();
 		});

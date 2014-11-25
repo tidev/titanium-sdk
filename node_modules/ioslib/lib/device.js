@@ -29,8 +29,8 @@ exports.install = install;
  * Detects connected iOS devices.
  *
  * @param {Object} [options] - An object containing various settings.
- * @param {Boolean} [options.bypassCache=false] - When true, re-detects all iOS simulators.
- * @param {Function} [callback(err, results)] - A function to call with the simulator information.
+ * @param {Boolean} [options.bypassCache=false] - When true, re-detects all connected iOS devices.
+ * @param {Function} [callback(err, results)] - A function to call with the device information.
  *
  * @emits module:device#detected
  * @emits module:device#error
