@@ -109,7 +109,6 @@ exports.config = function (logger, config, cli) {
 								}
 
 								// start file logging here
-								console.log(logBanner(cli));
 								patchLogger(logger, cli);
 
 								// load the tiapp.xml
@@ -180,6 +179,7 @@ exports.config = function (logger, config, cli) {
 					}, ti.commonOptions(logger, config)),
 					platforms: platformConf
 				};
+				logger.log(logBanner(cli));
 				callback(null, conf);
 			});
 		})(function (err, result) {
