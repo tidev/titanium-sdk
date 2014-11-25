@@ -1,6 +1,6 @@
 var bplistParser = require('bplist-parser'),
 	bplistCreator = require('bplist-creator'),
-	plist = require('plist');
+	plist = require('plist'),
 	fs = require('fs');
 
 // reveal the underlying modules

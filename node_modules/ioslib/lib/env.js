@@ -36,8 +36,8 @@ var cache = null;
  *
  * @param {Object} [options] - An object containing various settings
  * @param {Boolean} [options.bypassCache=false] - When true, re-detects the development environment dependencies
- * @param {String} [options.xcodeSelect] - Path to the <code>xcode-select</code> executable
  * @param {String} [options.security] - Path to the <code>security</code> executable
+ * @param {String} [options.xcodeSelect] - Path to the <code>xcode-select</code> executable
  * @param {Function} [callback(err, results)] - A function to call with the development environment information
  *
  * @emits module:env#detected
