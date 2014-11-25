@@ -18,9 +18,9 @@ const
 	env          = exports.env          = require('./lib/env'),
 	provisioning = exports.provisioning = require('./lib/provisioning'),
 	simulator    = exports.simulator    = require('./lib/simulator'),
-	xcode        = exports.xcode        = require('./lib/xcode'),
+	xcode        = exports.xcode        = require('./lib/xcode');
 
-	cache;
+var cache;
 
 exports.detect = detect;
 exports.findValidDeviceCertProfileCombos = findValidDeviceCertProfileCombos;
@@ -30,7 +30,14 @@ exports.findValidDeviceCertProfileCombos = findValidDeviceCertProfileCombos;
  *
  * @param {Object} [options] - An object containing various settings.
  * @param {Boolean} [options.bypassCache=false] - When true, re-detects the all iOS information.
- * @param {Function} [callback(err, simHandle)] - A function to call when the simulator has launched.
+ * @param {String} [options.minIosVersion] - The minimum iOS SDK to detect.
+ * @param {String} [options.profileDir=~/Library/MobileDevice/Provisioning Profiles] - The path to search for provisioning profiles.
+ * @param {String} [options.security] - Path to the <code>security</code> executable
+ * @param {String} [options.supportedVersions] - A string with a version number or range to check if an Xcode install is supported.
+ * @param {String} [options.type] - The type of emulators to return. Can be either "iphone" or "ipad". Defaults to all types.
+ * @param {Boolean} [options.validOnly=true] - When true, only returns non-expired, valid certificates.
+ * @param {String} [options.xcodeSelect] - Path to the <code>xcode-select</code> executable
+ * @param {Function} [callback(err, info)] - A function to call when all detection tasks have completed.
  */
 function detect(options, callback) {
 	if (typeof options === 'function') {
