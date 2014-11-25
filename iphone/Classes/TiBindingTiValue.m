@@ -66,7 +66,7 @@ NSObject * TiBindingTiValueToNSObject(TiContextRef jsContext, TiValueRef objRef)
 	if(objRef == NULL){
 		return nil;
 	}
-	JSType tt = TiValueGetType(jsContext, objRef);
+	TiType tt = TiValueGetType(jsContext, objRef);
 	switch (tt) {
 		case kTITypeUndefined:{
 			return nil;
