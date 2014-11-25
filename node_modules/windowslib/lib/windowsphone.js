@@ -44,7 +44,7 @@ function detect(options, callback) {
 			emitter.emit('detected', detectCache);
 			return callback(null, detectCache);
 		}
-	
+
 		var results = {
 				windowsphone: null,
 				issues: []
@@ -76,6 +76,7 @@ function detect(options, callback) {
 								supported: !options.supportedWindowsPhoneSDKVersions || appc.version.satisfies(version, options.supportedWindowsPhoneSDKVersions, false), // no maybes
 								path: null,
 								deployCmd: null,
+								xapSignTool: null,
 								selected: false
 							};
 						}
@@ -108,6 +109,7 @@ function detect(options, callback) {
 							if (parts.length == 3) {
 								if (parts[0] == 'Install Path') {
 									results.windowsphone[ver].path = parts[2];
+
 									var deployCmd = path.join(parts[2], 'Tools', 'XAP Deployment', 'XapDeployCmd.exe');
 									// check the old WP8 location
 									if (fs.existsSync(deployCmd)) {
@@ -115,6 +117,11 @@ function detect(options, callback) {
 									// check the new WP8.1 location
 									} else if (fs.existsSync(deployCmd = path.join(parts[2], 'Tools', 'AppDeploy', 'AppDeployCmd.exe'))) {
 										results.windowsphone[ver].deployCmd = deployCmd;
+									}
+
+									var xapSignTool = path.join(parts[2], 'Tools', 'XapSignTool', 'XapSignTool.exe');
+									if (fs.existsSync(xapSignTool)) {
+										results.windowsphone[ver].xapSignTool = xapSignTool;
 									}
 								}
 							}
@@ -151,7 +158,7 @@ function detect(options, callback) {
 				if (preferred) {
 					results.windowsphone[preferred].selected = true;
 				}
-				
+
 				finalize();
 			});
 		});
