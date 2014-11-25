@@ -181,13 +181,10 @@ def to_solr_remarks(api):
 		return "" 
 
 def to_solr_type(api):
-	# Objects marked as external should be ignored
-	if api.external:
-		return None
 	if api.name in not_real_titanium_types:
 		return None
 	log.trace("Converting %s to json" % api.name)
-	content = to_solr_description(api.api_obj["summary"], api) + " " + to_solr_remarks(api) + to_solr_examples(api)
+	content = api.name + " " + api.name.split('.')[-1] + " " + to_solr_description(api.api_obj["summary"], api) + " " + to_solr_remarks(api) + to_solr_examples(api)
 
 	result = [{
             "id": api.name + "-" + solr_category,
