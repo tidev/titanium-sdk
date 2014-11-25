@@ -19,6 +19,25 @@ var buffer = bplist({
 });
 ```
 
+## Real/Double/Float handling
+
+Javascript don't have different types for `1` and `1.0`. This package
+will automatically store numbers as the appropriate type, but can't
+detect floats that is also integers.
+
+If you need to force a value to be written with the `real` type pass
+an instance of `Real`.
+
+```javascript
+var buffer = bplist({
+  backgroundRed: new bplist.Real(1),
+  backgroundGreen: new bplist.Real(0),
+  backgroundBlue: new bplist.Real(0)
+});
+```
+
+In `xml` the corresponding tags is `<integer>` and `<real>`.
+
 ## License
 
 (The MIT License)

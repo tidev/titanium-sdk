@@ -2787,12 +2787,28 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		xcodeArgs.push('CODE_SIGN_ENTITLEMENTS=Entitlements.plist');
 	}
 
+	var keychains = this.iosInfo.certs.keychains;
+
 	if (this.target === 'device') {
-		xcodeArgs.push('CODE_SIGN_IDENTITY=iPhone Developer: ' + this.certDeveloperName);
+		Object.keys(keychains).some(function (keychain) {
+			return (keychains[keychain].developer || []).some(function (d) {
+				if (!d.invalid && d.name === this.certDeveloperName) {
+					xcodeArgs.push('CODE_SIGN_IDENTITY=' + d.fullname);
+					return true;
+				}
+			}, this);
+		}, this);
 	}
 
 	if (/dist-appstore|dist\-adhoc/.test(this.target)) {
-		xcodeArgs.push('CODE_SIGN_IDENTITY=iPhone Distribution: ' + this.certDistributionName);
+		Object.keys(keychains).some(function (keychain) {
+			return (keychains[keychain].developer || []).some(function (d) {
+				if (!d.invalid && d.name === this.certDistributionName) {
+					xcodeArgs.push('CODE_SIGN_IDENTITY=' + d.fullname);
+					return true;
+				}
+			}, this);
+		}, this);
 	}
 
 	var xcodebuildHook = this.cli.createHook('build.ios.xcodebuild', this, function (exe, args, opts, done) {

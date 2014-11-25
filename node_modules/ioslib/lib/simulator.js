@@ -51,8 +51,6 @@ SimulatorCrash.prototype.constructor = SimulatorCrash;
  *
  * @param {Object} [options] - An object containing various settings.
  * @param {Boolean} [options.bypassCache=false] - When true, re-detects all iOS simulators.
- * @param {String} [options.minIosVersion] - The minimum iOS SDK to detect.
- * @param {String} [options.supportedVersions] - A string with a version number or range to check if an Xcode install is supported.
  * @param {String} [options.type] - The type of emulators to return. Can be either "iphone" or "ipad". Defaults to all types.
  * @param {Function} [callback(err, results)] - A function to call with the simulator information.
  *
