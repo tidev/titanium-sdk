@@ -57,7 +57,7 @@ typedef enum {
     kTITypeNumber,
     kTITypeString,
     kTITypeObject
-} JSType;
+} TiType;
 
 #ifdef __cplusplus
 extern "C" {
@@ -70,7 +70,7 @@ extern "C" {
 @param value    The TiValue whose type you want to obtain.
 @result         A value of type JSType that identifies value's type.
 */
-JS_EXPORT JSType TiValueGetType(TiContextRef ctx, TiValueRef);
+JS_EXPORT TiType TiValueGetType(TiContextRef ctx, TiValueRef);
 
 /*!
 @function
