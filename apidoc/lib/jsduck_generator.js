@@ -2,10 +2,7 @@
  * Script to export JSON to JSDuck comments
  */
 var common = require('./common.js'),
-	colors = require('colors');
-	nodeappc = require('node-appc'),
-	doc = {},
-	exportData = {};
+	doc = {};
 
 function findAPI (className, memberName, type) {
 	var cls = doc[className],
@@ -28,7 +25,7 @@ function convertAPIToLink (apiName) {
 		var member = apiName.split('.').pop(),
 			cls = apiName.substring(0, apiName.lastIndexOf('.'));
 		if (!cls in doc) {
-			console.warn('Cannot find class: %s'.yellow, cls);
+			common.log(common.LOG_WARN, 'Cannot find class: %s', cls);
 			return null;
 		} else {
 			if (findAPI(cls, member, 'properties')) {
@@ -42,7 +39,7 @@ function convertAPIToLink (apiName) {
 			}
 		}
 	}
-	console.warn('Cannot find API: %s'.yellow, apiName);
+	common.log(common.LOG_WARN, 'Cannot find API: %s', apiName);
 	return null;
 }
 
@@ -186,7 +183,7 @@ function exportType (api) {
 }
 
 function exportParams (apis) {
-	var rv = '',
+	var rv = [],
 		str = '';
 	apis.forEach(function (member) {
 		var platforms = '',
@@ -199,6 +196,7 @@ function exportParams (apis) {
 		str += '{' +  member.type.join('/') + '} ' + platforms + member.name + optional + '\n';
 		str += exportSummary(member);
 		str += exportConstants(member);
+		rv.push(str);
 	});
 	return rv;
 }
@@ -232,62 +230,82 @@ function exportReturns (api) {
 
 function exportAPIs (api, type) {
 	var x = 0,
-		member = null,
-		removeAPI = [];
+		member = {},
+		annotatedMember = {},
+		rv = [];
 
 	if (type in api) {
 		for (x = 0; x < api[type].length; x++) {
 			member = api[type][x];
 
 			if ('__inherits' in member && member.__inherits != api.name) {
-				removeAPI.push(member);
 				continue;
 			}
 
-			member.summary = exportSummary(member);
-			member.deprecated = exportDeprecated(member);
-			member.osver = exportOSVer(member);
-			member.description = exportDescription(member);
-			member.examples = exportExamples(member);
-			member.type = exportType(member);
-			member.constants = exportConstants(member);
-			member.value = exportValue(member);
+			annotatedMember.name = member.name;
+			annotatedMember.summary = exportSummary(member);
+			annotatedMember.deprecated = exportDeprecated(member);
+			annotatedMember.osver = exportOSVer(member);
+			annotatedMember.description = exportDescription(member);
+			annotatedMember.examples = exportExamples(member);
+			annotatedMember.hide = member.__hide || false;
+			if (JSON.stringify(member.since) == JSON.stringify(api.since)) annotatedMember.since = {};
 
-			if (JSON.stringify(member.since) == JSON.stringify(api.since)) member.since = {};
+			switch (type) {
+				case 'events':
+					if ('Titanium.Event' in doc) {
+						if (!'properties' in member || !member.properties) member.properties = [];
+						member.properties = member.properties.concat(doc["Titanium.Event"].properties);
+					}
+					annotatedMember.properties = exportParams(member.properties, 'properties');
+					break;
+				case 'methods':
+					if ('parameters' in member) annotatedMember.parameters = exportParams(member.parameters, 'parameters');
+					if ('returns' in member) annotatedMember.returns = exportReturns(member);
+					break;
+				case 'properties':
+					annotatedMember.constants = exportConstants(member);
+					annotatedMember.permission = member.permission || 'read-write';
+					annotatedMember.type = exportType(member);
+					annotatedMember.value = exportValue(member);
+					break;
+			}
 
-			if ('parameters' in member) member.parameters = exportParams(member.parameters);
-			if ('returns' in member) member.returns = exportReturns(member);
-			if ('properties' in member) member.properties = exportParams(member.properties);
+			rv.push(annotatedMember);
+			annotatedMember = member = {};
 		}
-
-		removeAPI.forEach(function (rm) {
-			api[type].splice(api[type].indexOf(rm), 1);
-		});
 
 	}
 
-	return api[type];
+	return rv;
 }
 
 // Returns a JSON object that can be applied to the JSDuck EJS template
 exports.exportData = function exportJsDuck (apis) {
-	var className = null, rv =[];
-	doc = JSON.parse(JSON.stringify(apis));
+	var className = null,
+		rv =[],
+		annotatedClass = {},
+		cls = {};
+	doc = apis;
 
-	console.log('Annotating JSDuck-specific attributes...'.white);
+	common.log(common.LOG_INFO, 'Annotating JSDuck-specific attributes...');
 
 	for (className in apis) {
 		cls = apis[className];
-		cls.summary = exportSummary(cls);
-		cls.deprecated = exportDeprecated(cls);
-		cls.osver = exportOSVer(cls);
-		cls.description = exportDescription(cls);
-		cls.examples = exportExamples(cls);
+		annotatedClass.name = cls.name;
+		annotatedClass.extends = cls.extends || null;
+		annotatedClass.subtype = cls.__subtype;
+		annotatedClass.summary = exportSummary(cls);
+		annotatedClass.deprecated = exportDeprecated(cls);
+		annotatedClass.osver = exportOSVer(cls);
+		annotatedClass.description = exportDescription(cls);
+		annotatedClass.examples = exportExamples(cls);
 
-		cls.events = exportAPIs(cls, 'events') || [];
-		cls.methods = exportAPIs(cls, 'methods') || [];
-		cls.properties = exportAPIs(cls, 'properties') || [];
-		rv.push(cls);
+		annotatedClass.events = exportAPIs(cls, 'events') || [];
+		annotatedClass.methods = exportAPIs(cls, 'methods') || [];
+		annotatedClass.properties = exportAPIs(cls, 'properties') || [];
+		rv.push(annotatedClass);
+		cls = annotatedClass = {};
 	}
 	return rv;
 }

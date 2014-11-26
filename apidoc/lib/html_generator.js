@@ -2,8 +2,6 @@
  * Script to export JSON to HTML-annotated JSON for EJS templates
  */
 var common = require('./common.js'),
-	colors = require('colors');
-	nodeappc = require('node-appc'),
 	assert = common.assertObjectKey,
 	doc = {},
 	remoteURL = false;
@@ -56,7 +54,7 @@ function convertAPIToLink (apiName) {
 			cls = apiName.substring(0, apiName.lastIndexOf('.'));
 
 		if (!cls in doc) {
-			console.warn('Cannot find class: %s'.yellow, cls);
+			common.warn(common.LOG_WARN, 'Cannot find class: %s', cls);
 			return apiName;
 		} else {
 			if (findAPI(cls, member, 'properties')) {
@@ -98,7 +96,7 @@ function convertAPIToLink (apiName) {
 	if (url) {
 		return '<code><a href="' + url + '">' + apiName + '</a></code>';
 	}
-	console.warn('Cannot find API: %s'.yellow, apiName);
+	common.log(common.LOG_WARN, 'Cannot find API: %s', apiName);
 	return apiName;
 }
 
@@ -249,7 +247,7 @@ function exportParams (apis, type) {
 function exportParent(api) {
 	var rv = null,
 		cls = api.name.substring(0, api.name.lastIndexOf('.'));
-	if (cls != '') {
+	if (cls != '' && assert(doc, cls)) {
 		rv = {
 			'name': cls,
 			'filename': exportClassFilename(doc[cls].name)
@@ -428,14 +426,13 @@ exports.exportData = function exportHTML (apis) {
 		};
 	doc = apis;
 
-	console.log('Annotating HTML-specific attributes...'.white);
+	common.log(common.LOG_INFO, 'Annotating HTML-specific attributes...');
 
 	if (assert(doc, '__modules')) remoteURL = true;
 
 	for (className in apis) {
 		if (className.indexOf('__') === 0) continue;
 		cls = apis[className];
-
 		annotatedClass.name = cls.name;
 		annotatedClass.summary = exportSummary(cls);
 		annotatedClass.description = exportDescription(cls);

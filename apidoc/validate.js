@@ -16,7 +16,6 @@ var fs = require('fs'),
 	doc = {},
 	parseErrors = [],
 	errorCount = 0,
-	quietFlag = false,
 	standaloneFlag = false;
 
 var validSyntax = {
@@ -527,13 +526,13 @@ if ((argc = process.argv.length) > 2) {
 				break;
 			case "--quiet":
 			case "-q":
-				quietFlag = true;
+				common.setLogLevel(common.LOG_WARN);
 				break;
 			default :
 				if (x == argc - 1) {
 					basePath = process.argv[process.argv.length - 1];
 				} else {
-					console.warn("Unknown option: %s".yellow, process.argv[x]);
+					common.log(common.LOG_WARN, "Unknown option: %s", process.argv[x]);
 					cliUsage();
 					process.exit(1);
 				}
@@ -542,7 +541,7 @@ if ((argc = process.argv.length) > 2) {
 }
 
 if (!fs.existsSync(basePath) || !fs.statSync(basePath).isDirectory()) {
-	console.error('ERROR: Invalid path: %s'.red, basePath);
+	common.log(common.LOG_ERROR, 'Invalid path: %s', basePath);
 	process.exit(1);
 }
 
@@ -551,7 +550,7 @@ rv = common.parseYAML(basePath);
 doc = rv.data;
 parseErrors = rv.errors;
 if (Object.keys(doc).length === 0) {
-	console.error('ERROR: Could not find YAML files in %s'.red, basePath);
+	common.log(common.LOG_ERROR, 'Could not find YAML files in %s', basePath);
 	process.exit(1);
 }
 
@@ -565,28 +564,28 @@ for (var key in doc) {
 	try {
 		errors = outputErrors(validateKey(cls, validSyntax, null, key), 1);
 	} catch (e) {
-		console.error("PARSING ERROR:\n%s\n%s".red, currentFile, e);
+		common.log(common.LOG_ERROR, "PARSING ERROR:\n%s\n%s", currentFile, e);
 		errorCount++;
 	}
 
 	if ((diff = errorCount - currentErrors) > 0) {
-		console.error("%s\n%s: found %s error(s)!\n%s".red, currentFile, cls.name, diff, errors);
+		common.log(common.LOG_ERROR, "%s\n%s: found %s error(s)!\n%s", currentFile, cls.name, diff, errors);
 		currentErrors = errorCount;
-	} else if(!quietFlag) {
-		console.info("%s: OK!".green, cls.name);
+	} else {
+		common.log(common.LOG_INFO, "%s: OK!", cls.name);
 	}
 }
 
 // Exit with error if we found errors or handled exceptions
 if (parseErrors.length + errorCount > 0) {
 	if (errorCount > 0) {
-		console.error("Found %s error(s)!".yellow, errorCount);
+		common.log(common.LOG_ERROR, "Found %s error(s)!", errorCount);
 	}
 	// Output exceptions while parsing YAML files
 	if (parseErrors.length > 0) {
-		console.error("The following files have YAML syntax errors: ".red);
+		common.log(common.LOG_ERROR, "The following files have YAML syntax errors: ");
         parseErrors.forEach(function (error) {
-			console.error("%s\n%s".red, error.__file, error);
+			common.log(common.LOG_ERROR, "%s\n%s", error.__file, error);
 		});
 	}
 	process.exit(1);

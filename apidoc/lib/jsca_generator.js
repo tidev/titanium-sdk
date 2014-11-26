@@ -1,9 +1,7 @@
 /**
  * Script to export JSON to JSCA
  */
-var common = require('./common.js'),
-	colors = require('colors');
-	nodeappc = require('node-appc');
+var common = require('./common.js');
 
 // Change chevron-enclosed links (<Titanium.XX.xxx>) to HTML links (<a href="Titanium.XX.xxx">xxx</a>)
 // so the information is not lost when Studio renders it.
@@ -268,7 +266,7 @@ exports.exportData = function exportJSCA (apis) {
 			'aliases': [{ 'type': 'Titanium', 'name': 'Ti' }]
 		};
 
-	console.log('Annotating JSCA-specific attributes...'.white);
+	common.log(common.LOG_INFO, 'Annotating JSCA-specific attributes...');
 
 	for (className in apis) {
 		cls = apis[className];
