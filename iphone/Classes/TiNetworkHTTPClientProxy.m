@@ -339,6 +339,7 @@ extern NSString * const TI_APPLICATION_GUID;
 {
     [[TiApp app] stopNetwork];
     if([request cancelled]) {
+        [self forgetSelf];
         return;
     }
     if(hasOnerror) {
