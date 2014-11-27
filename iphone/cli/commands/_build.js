@@ -1920,7 +1920,7 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 	}
 
 	// if the user has a Info.plist in their project directory, consider that a custom override
-  var custom; 
+  	var custom; 
 	if (fs.existsSync(src)) {
 		this.logger.info(__('Copying custom Info.plist from project directory'));
 
@@ -2015,45 +2015,45 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 		plist.CFBundleVersion = String(+new Date);
 		this.logger.debug(__('Building for iTunes sync which requires us to set the CFBundleVersion to a unique number to trigger iTunes to update your app'));
 		this.logger.debug(__('Setting Info.plist CFBundleVersion to current epoch time %s', plist.CFBundleVersion.cyan));
-  } else if (!(ios && ios.plist && ios.plist.CFBundleVersion) && !(custom && custom.CFBundleVersion)) {
+  	} else if (!(ios && ios.plist && ios.plist.CFBundleVersion) && !(custom && custom.CFBundleVersion)) {
 		plist.CFBundleVersion = String(this.tiapp.version);
 		this.logger.debug(__('Setting Info.plist CFBundleVersion to %s', plist.CFBundleVersion.cyan));
 	}
 
-  if (!(ios && ios.plist && ios.plist.CFBundleShortVersionString) && !(custom && custom.CFBundleShortVersionString)) {
-  	try {
-  		plist.CFBundleShortVersionString = appc.version.format(this.tiapp.version, 0, 3);
-  		this.logger.debug(__('Setting Info.plist CFBundleShortVersionString to %s', plist.CFBundleShortVersionString.cyan));
-  	} catch (ex) {
-  		plist.CFBundleShortVersionString = this.tiapp.version;
-  		this.logger.debug(__('Setting Info.plist CFBundleShortVersionString to %s', plist.CFBundleShortVersionString.cyan));
-  	}
-  }
+  	if (!(ios && ios.plist && ios.plist.CFBundleShortVersionString) && !(custom && custom.CFBundleShortVersionString)) {
+		try {
+			plist.CFBundleShortVersionString = appc.version.format(this.tiapp.version, 0, 3);
+			this.logger.debug(__('Setting Info.plist CFBundleShortVersionString to %s', plist.CFBundleShortVersionString.cyan));
+		} catch (ex) {
+			plist.CFBundleShortVersionString = this.tiapp.version;
+			this.logger.debug(__('Setting Info.plist CFBundleShortVersionString to %s', plist.CFBundleShortVersionString.cyan));
+		}
+	}
 
-  if (!(ios && ios.plist && ios.plist.CFBundleIconFiles) && !(custom && custom.CFBundleIconFiles)) {
-  	Array.isArray(plist.CFBundleIconFiles) || (plist.CFBundleIconFiles = []);
-  	['.png', '@2x.png', '-72.png', '-60.png', '-60@2x.png', '-60@3x.png', '-76.png', '-76@2x.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png', '-Small@3x.png', '-Small-40.png', '-Small-40@2x.png'].forEach(function (name) {
-  		name = iconName + name;
-  		if (fs.existsSync(path.join(this.projectDir, 'Resources', name)) ||
-  			fs.existsSync(path.join(this.projectDir, 'Resources', 'iphone', name)) ||
-  			fs.existsSync(path.join(this.projectDir, 'Resources', 'ios', name))) {
-  			if (plist.CFBundleIconFiles.indexOf(name) === -1) {
-  				plist.CFBundleIconFiles.push(name);
-  			}
-  		}
-  	}, this);
-  }
+	if (!(ios && ios.plist && ios.plist.CFBundleIconFiles) && !(custom && custom.CFBundleIconFiles)) {
+		Array.isArray(plist.CFBundleIconFiles) || (plist.CFBundleIconFiles = []);
+		['.png', '@2x.png', '-72.png', '-60.png', '-60@2x.png', '-60@3x.png', '-76.png', '-76@2x.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png', '-Small@3x.png', '-Small-40.png', '-Small-40@2x.png'].forEach(function (name) {
+			name = iconName + name;
+			if (fs.existsSync(path.join(this.projectDir, 'Resources', name)) ||
+				fs.existsSync(path.join(this.projectDir, 'Resources', 'iphone', name)) ||
+				fs.existsSync(path.join(this.projectDir, 'Resources', 'ios', name))) {
+				if (plist.CFBundleIconFiles.indexOf(name) === -1) {
+					plist.CFBundleIconFiles.push(name);
+				}
+			}
+		}, this);
+	}
 
-  if (!(ios && ios.plist && (ios.plist.UILaunchImages || ios.plist['UILaunchImages~ipad'])) && !(custom && (custom.UILaunchImages || custom['UILaunchImages~ipad']))) {
-  	var resourceDir = path.join(this.projectDir, 'Resources'),
-  		iphoneDir = path.join(resourceDir, 'iphone'),
-  		iosDir = path.join(resourceDir, 'ios');
+  	if (!(ios && ios.plist && (ios.plist.UILaunchImages || ios.plist['UILaunchImages~ipad'])) && !(custom && (custom.UILaunchImages || custom['UILaunchImages~ipad']))) {
+		var resourceDir = path.join(this.projectDir, 'Resources'),
+			iphoneDir = path.join(resourceDir, 'iphone'),
+			iosDir = path.join(resourceDir, 'ios');
 
-  	var i18nSplashScreens = [];
+		var i18nSplashScreens = [];
 
-  	ti.i18n.splashScreens(this.projectDir, this.logger).forEach(function (splashImage) {
-  		i18nSplashScreens.push(path.basename(splashImage));
-  	});
+		ti.i18n.splashScreens(this.projectDir, this.logger).forEach(function (splashImage) {
+			i18nSplashScreens.push(path.basename(splashImage));
+		});
 
 		[{
 			'orientation': 'Portrait',
@@ -2132,30 +2132,30 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 				}
 			}, this);
 		}, this);
-  }
+  	}
 
-  if (!(ios && ios.plist && ios.plist.UIAppFonts) && !(custom && custom.UIAppFonts)) {
-  	var fontMap = {};
+  	if (!(ios && ios.plist && ios.plist.UIAppFonts) && !(custom && custom.UIAppFonts)) {
+		var fontMap = {};
 
-  	// scan for ttf and otf font files
-  	(plist.UIAppFonts || []).forEach(function (f) {
-  		fontMap[f] = 1;
-  	});
+		// scan for ttf and otf font files
+		(plist.UIAppFonts || []).forEach(function (f) {
+			fontMap[f] = 1;
+		});
 
-  	(function scanFonts(dir, isRoot) {
-  		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (file) {
-  			var p = path.join(dir, file);
-  			if (fs.statSync(p).isDirectory() && (!isRoot || file === 'iphone' || file === 'ios' || ti.availablePlatformsNames.indexOf(file) === -1)) {
-  				scanFonts(p);
-  			} else if (/\.(otf|ttf)$/i.test(file)) {
-  				fontMap['/' + p.replace(iphoneDir, '').replace(iosDir, '').replace(resourceDir, '').replace(/^\//, '')] = 1;
-  			}
-  		});
-  	}(resourceDir, true));
+		(function scanFonts(dir, isRoot) {
+			fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (file) {
+				var p = path.join(dir, file);
+				if (fs.statSync(p).isDirectory() && (!isRoot || file === 'iphone' || file === 'ios' || ti.availablePlatformsNames.indexOf(file) === -1)) {
+					scanFonts(p);
+				} else if (/\.(otf|ttf)$/i.test(file)) {
+					fontMap['/' + p.replace(iphoneDir, '').replace(iosDir, '').replace(resourceDir, '').replace(/^\//, '')] = 1;
+				}
+			});
+		}(resourceDir, true));
 
-  	var fonts = Object.keys(fontMap);
-  	fonts.length && (plist.UIAppFonts = fonts);
-  }
+		var fonts = Object.keys(fontMap);
+		fonts.length && (plist.UIAppFonts = fonts);
+	}
 
 	// write the Info.plist
 	fs.writeFile(dest, plist.toString('xml'), next);
