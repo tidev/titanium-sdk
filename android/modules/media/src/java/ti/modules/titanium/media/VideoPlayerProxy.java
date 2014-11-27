@@ -722,12 +722,12 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	@Kroll.method
 	public void requestThumbnailImagesAtTimes(Object[] times, Object option, KrollFunction callback)
 	{
-		cancelAllThumbnailImageRequests();		
-		mTiThumbnailRetriever = new TiThumbnailRetriever();
 		if (this.hasProperty(TiC.PROPERTY_URL)) {
+			cancelAllThumbnailImageRequests();		
+			mTiThumbnailRetriever = new TiThumbnailRetriever();
 			mTiThumbnailRetriever.setUri(Uri.parse(this.resolveUrl(null, TiConvert.toString(this.getProperty(TiC.PROPERTY_URL)))));
-		}	
-		mTiThumbnailRetriever.getBitmap(TiConvert.toIntArray(times), TiConvert.toInt(option), createThumbnailResponseHandler(callback));
+			mTiThumbnailRetriever.getBitmap(TiConvert.toIntArray(times), TiConvert.toInt(option), createThumbnailResponseHandler(callback));
+		}			
 	}
 	
 	@Kroll.method

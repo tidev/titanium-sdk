@@ -2,8 +2,6 @@ package ti.modules.titanium.media;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
@@ -13,9 +11,11 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 
+import ti.modules.titanium.media.util.TiDataSourceHelper;
 import android.annotation.SuppressLint;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -31,7 +31,7 @@ public class TiThumbnailRetriever implements Handler.Callback{
 	private static final String TAG = "TiMediaMetadataRetriever";
 	
 	private Uri mUri;
-	private TiMediaMetadataRetriever mTiMediaMetadataRetriever;
+	private MediaMetadataRetriever mMediaMetadataRetriever;
 	private Handler runtimeHandler;
 	private AsyncTask<Object, Void, Integer> task;
 
@@ -45,8 +45,8 @@ public class TiThumbnailRetriever implements Handler.Callback{
 	
 	public void cancelAnyRequestsAndRelease(){
 		task.cancel(true);
-		mTiMediaMetadataRetriever.release();
-		mTiMediaMetadataRetriever = null;
+		mMediaMetadataRetriever.release();
+		mMediaMetadataRetriever = null;
 	}
 	
 	public void getBitmap(int[] arrayOfTimes, int optionSelected, ThumbnailResponseHandler thumbnailResponseHandler)
@@ -74,16 +74,11 @@ public class TiThumbnailRetriever implements Handler.Callback{
 	public boolean handleMessage(Message msg) 
 	{
 		if (msg.what == MSG_GET_BITMAP) {
-			if(mTiMediaMetadataRetriever == null){
-				mTiMediaMetadataRetriever = new TiMediaMetadataRetriever();
-			}
+			mMediaMetadataRetriever = new MediaMetadataRetriever();
 			int option = msg.getData().getInt(TiC.PROPERTY_OPTIONS);
 			int[] arrayOfTimes = msg.getData().getIntArray(TiC.PROPERTY_TIME);
-			if(task != null){
-				task.cancel(true);
-			}
 			task = getBitmapTask();
-			task.execute(mUri, arrayOfTimes, option, msg.obj, mTiMediaMetadataRetriever);
+			task.execute(mUri, arrayOfTimes, option, msg.obj, mMediaMetadataRetriever);
 			return true;
 		}
 		return false;
@@ -95,16 +90,16 @@ public class TiThumbnailRetriever implements Handler.Callback{
 			@Override
 			protected Integer doInBackground(Object... args) {
 				ThumbnailResponseHandler mThumbnailResponseHandler = null;
-				TiMediaMetadataRetriever mTiMediaMetadataRetriever = null;
+				MediaMetadataRetriever mMediaMetadataRetriever = null;
 				KrollDict event = null;
 				Uri mUri = (Uri) args[0];
 				int[] arrayOfTimes = (int[]) args [1];
 				int option = (Integer) args[2];
 				mThumbnailResponseHandler = (ThumbnailResponseHandler) args[3];
-				mTiMediaMetadataRetriever = (TiMediaMetadataRetriever) args[4];
+				mMediaMetadataRetriever = (MediaMetadataRetriever) args[4];
 				
 				try {	
-					int response = setDataSource(mUri, mTiMediaMetadataRetriever);
+					int response = setDataSource(mUri, mMediaMetadataRetriever);
 					if(response < 0){
 						//Setting Data Source of MediaMetadataRetriever failed
 						return null;
@@ -116,21 +111,20 @@ public class TiThumbnailRetriever implements Handler.Callback{
 							return null;
 						}
 						
-						Bitmap mBitmapFrame = getFrameAtTime(mUri, sec, option, mTiMediaMetadataRetriever);
+						Bitmap mBitmapFrame = getFrameAtTime(mUri, sec, option, mMediaMetadataRetriever);
 						if(mBitmapFrame != null){	
 							event = new KrollDict();
 							event.put(TiC.PROPERTY_TIME, sec);
 							event.put(TiC.ERROR_PROPERTY_CODE, TiC.ERROR_CODE_NO_ERROR);
 							event.put(TiC.PROPERTY_SUCCESS, true);
 							event.put(TiC.PROPERTY_IMAGE, TiBlob.blobFromImage(mBitmapFrame));
-						}						
-						if (mThumbnailResponseHandler != null) {
-							if (event == null) {
-								event = new KrollDict();
-								event.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, "Error getting Thumbnail");
-							}
-							mThumbnailResponseHandler.handleThumbnailResponse(event);
+						} else {
+							event = new KrollDict();
+							event.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, "Error getting Thumbnail");
 						}
+						 
+						mThumbnailResponseHandler.handleThumbnailResponse(event);
+						
 					}
 					
 				} catch (Throwable t) {
@@ -139,7 +133,7 @@ public class TiThumbnailRetriever implements Handler.Callback{
 				return -1;
 			}
 			
-			public Bitmap getFrameAtTime(Uri mUri, int sec, int option, TiMediaMetadataRetriever mMediaMetadataRetriever){
+			public Bitmap getFrameAtTime(Uri mUri, int sec, int option, MediaMetadataRetriever mMediaMetadataRetriever){
 				if(mUri != null){
 					// getFrameAtTime uses Microseconds.
 					// Multiplying sec with 1000000 to get Microseconds.
@@ -150,16 +144,12 @@ public class TiThumbnailRetriever implements Handler.Callback{
 			}
 			
 			@SuppressLint("NewApi")
-			private int setDataSource(Uri mUri, TiMediaMetadataRetriever mTiMediaMetadataRetriever){
+			private int setDataSource(Uri mUri, MediaMetadataRetriever mMediaMetadataRetriever){
 				int returnCode = 0;
 				if(mUri == null){
 					return -1;
 				}
-				if(mTiMediaMetadataRetriever.isDataSourceSet()){
-					// DataSource is already set. Do not set it again.
-					return returnCode;
-				}
-				
+
 				try {
 					if (URLUtil.isAssetUrl(mUri.toString())) { // DST: 20090606 detect
 																// asset url
@@ -167,7 +157,8 @@ public class TiThumbnailRetriever implements Handler.Callback{
 						try {
 							String path = mUri.toString().substring("file:///android_asset/".length());
 							afd = TiApplication.getAppCurrentActivity().getAssets().openFd(path);
-							mTiMediaMetadataRetriever.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+							mMediaMetadataRetriever.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+
 						} catch (FileNotFoundException ex){
 							Log.e(TAG, "Unable to open content: " + mUri, ex);			
 							returnCode = -1;
@@ -177,41 +168,12 @@ public class TiThumbnailRetriever implements Handler.Callback{
 							}
 						} 
 					} else {
-						if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB &&
-								("http".equals(mUri.getScheme()) || "https".equals(mUri.getScheme()))) {
-							// Using the same redirect handling as Media player
-							// (Redirects work fine without this in ICS.)
-							while (true) {
-								// java.net.URL doesn't handle rtsp
-								if (mUri.getScheme() != null && mUri.getScheme().equals("rtsp"))
-									break;
-								URL url = new URL(mUri.toString());
-								HttpURLConnection cn = (HttpURLConnection) url.openConnection();
-								cn.setInstanceFollowRedirects(false);
-								String location = cn.getHeaderField("Location");
-								if (location != null) {
-									String host = mUri.getHost();
-									int port = mUri.getPort();
-									String scheme = mUri.getScheme();
-									mUri = Uri.parse(location);
-									if (mUri.getScheme() == null) {
-										// Absolute URL on existing host/port/scheme
-										if (scheme == null) {
-											scheme = "http";
-										}
-										String authority = port == -1 ? host : host + ":" + port;
-										mUri = mUri.buildUpon().scheme(scheme).encodedAuthority(authority).build();
-									}
-								} else {
-									break;
-								}
-							}
-						}
+						mUri = TiDataSourceHelper.getRedirectUri(mUri);
 						if (Build.VERSION.SDK_INT >= 14){
-							mTiMediaMetadataRetriever.setDataSource(mUri.toString(), new HashMap<String, String>());
+							mMediaMetadataRetriever.setDataSource(mUri.toString(), new HashMap<String, String>());
 						}
 						else{
-							mTiMediaMetadataRetriever.setDataSource(mUri.toString());
+							mMediaMetadataRetriever.setDataSource(mUri.toString());
 						}
 					}
 				} catch (IOException ex) {

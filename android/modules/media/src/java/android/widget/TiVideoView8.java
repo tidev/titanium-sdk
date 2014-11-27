@@ -27,16 +27,14 @@
 package android.widget;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Map;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 
 import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.media.TiPlaybackListener;
+import ti.modules.titanium.media.util.TiDataSourceHelper;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -46,7 +44,6 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.net.Uri;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -343,37 +340,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	private void setDataSource()
 	{
 		try {
-			if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB &&
-					("http".equals(mUri.getScheme()) || "https".equals(mUri.getScheme()))) {
-				// Media player doesn't handle redirects, try to follow them
-				// here. (Redirects work fine without this in ICS.)
-				while (true) {
-					// java.net.URL doesn't handle rtsp
-					if (mUri.getScheme() != null && mUri.getScheme().equals("rtsp"))
-						break;
-
-					URL url = new URL(mUri.toString());
-					HttpURLConnection cn = (HttpURLConnection) url.openConnection();
-					cn.setInstanceFollowRedirects(false);
-					String location = cn.getHeaderField("Location");
-					if (location != null) {
-						String host = mUri.getHost();
-						int port = mUri.getPort();
-						String scheme = mUri.getScheme();
-						mUri = Uri.parse(location);
-						if (mUri.getScheme() == null) {
-							// Absolute URL on existing host/port/scheme
-							if (scheme == null) {
-								scheme = "http";
-							}
-							String authority = port == -1 ? host : host + ":" + port;
-							mUri = mUri.buildUpon().scheme(scheme).encodedAuthority(authority).build();
-						}
-					} else {
-						break;
-					}
-				}
-			}
+			mUri = TiDataSourceHelper.getRedirectUri(mUri);
 			mMediaPlayer.setDataSource(getContext(), mUri);
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting video data source: " + e.getMessage(), e);
