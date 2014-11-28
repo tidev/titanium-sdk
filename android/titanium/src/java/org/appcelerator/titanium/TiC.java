@@ -2546,7 +2546,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PREFIX = "prefix";
-	
+
 	/**
 	 * @module.api
 	 */
@@ -2582,7 +2582,32 @@ public class TiC
 	 */
 	public static final String PROPERTY_DEPARTMENT = "department";
 	
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTED_STRING = "attributedString";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTE_TYPE = "type";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTE_VALUE = "value";
 	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTE_RANGE = "range";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTES = "attributes";
+
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";

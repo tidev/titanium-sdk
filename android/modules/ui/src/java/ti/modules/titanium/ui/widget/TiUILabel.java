@@ -17,6 +17,9 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.AttributeProxy;
+import ti.modules.titanium.ui.AttributedStringProxy;
+import ti.modules.titanium.ui.UIModule;
 import android.graphics.Color;
 import android.text.Html;
 import android.text.InputType;
@@ -24,9 +27,19 @@ import android.text.Layout;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.Spannable.Factory;
+import android.text.SpannableString;
 import android.text.SpannedString;
+import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StrikethroughSpan;
+import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
+import android.text.style.URLSpan;
+import android.text.style.UnderlineSpan;
 import android.text.util.Linkify;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -215,6 +228,12 @@ public class TiUILabel extends TiUIView
 		if (needShadow) {
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		}
+		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+			if (attributedString instanceof AttributedStringProxy) {
+				setAttributedString((AttributedStringProxy) attributedString);
+			}
+		}
 		// This needs to be the last operation.
 		TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
 		tv.invalidate();
@@ -276,6 +295,8 @@ public class TiUILabel extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
+			setAttributedString((AttributedStringProxy) newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -283,6 +304,76 @@ public class TiUILabel extends TiUIView
 
 	public void setClickable(boolean clickable) {
 		((TextView)getNativeView()).setClickable(clickable);
+	}
+	
+	public void setAttributedString(AttributedStringProxy attrString)
+	{
+		if (attrString.hasProperty(TiC.PROPERTY_TEXT)) {
+			String textString = TiConvert.toString(attrString.getProperty(TiC.PROPERTY_TEXT));
+			if (!TextUtils.isEmpty(textString)) {
+				Spannable spannableText = new SpannableString(textString);
+				AttributeProxy[] attributes = attrString.getAttributes();
+				for (AttributeProxy attr : attributes) {
+					if (attr.hasProperty(TiC.PROPERTY_TYPE)) {
+						Object type = attr.getProperty(TiC.PROPERTY_ATTRIBUTE_TYPE);
+						int[] range = attr.getRange();
+						Object attrValue = attr.getProperty(TiC.PROPERTY_ATTRIBUTE_VALUE);
+						switch (TiConvert.toInt(type)) {
+							case UIModule.ATTRIBUTE_FONT:
+								KrollDict fontProp = null;
+								if (attrValue instanceof KrollDict) {
+									fontProp = (KrollDict) attrValue;
+								} else if (attrValue instanceof HashMap) {
+									fontProp = new KrollDict((HashMap<String, Object>) attrValue);
+								}
+								String[] fontProperties = TiUIHelper.getFontProperties((KrollDict) fontProp);
+								if (fontProperties[TiUIHelper.FONT_SIZE_POSITION] != null) {
+									spannableText.setSpan(
+										new AbsoluteSizeSpan((int) TiUIHelper.getRawSize(
+											fontProperties[TiUIHelper.FONT_SIZE_POSITION], getProxy().getActivity())),
+										range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+								}
+								if (fontProperties[TiUIHelper.FONT_WEIGHT_POSITION] != null) {
+									int typefaceStyle = Integer.valueOf(TiUIHelper.toTypefaceStyle(
+										fontProperties[TiUIHelper.FONT_WEIGHT_POSITION],
+										fontProperties[TiUIHelper.FONT_STYLE_POSITION]));
+									spannableText.setSpan(new StyleSpan(typefaceStyle), range[0], range[0] + range[1],
+										Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+								}
+								if (fontProperties[TiUIHelper.FONT_FAMILY_POSITION] != null) {
+									spannableText.setSpan(new TypefaceSpan(fontProperties[TiUIHelper.FONT_FAMILY_POSITION]),
+										range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+								}
+								break;
+							case UIModule.ATTRIBUTE_BACKGROUND_COLOR:
+								spannableText.setSpan(
+									new BackgroundColorSpan(TiConvert.toColor(TiConvert.toString(attrValue))), range[0],
+									range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+								break;
+							case UIModule.ATTRIBUTE_FOREGROUND_COLOR:
+								spannableText.setSpan(
+									new ForegroundColorSpan(TiConvert.toColor(TiConvert.toString(attrValue))), range[0],
+									range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+								break;
+							case UIModule.ATTRIBUTE_STRIKETHROUGH_STYLE:
+								spannableText.setSpan(new StrikethroughSpan(), range[0], range[0] + range[1],
+									Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+								break;
+							case UIModule.ATTRIBUTE_UNDERLINES_STYLE:
+								spannableText.setSpan(new UnderlineSpan(), range[0], range[0] + range[1],
+									Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+								break;
+							case UIModule.ATTRIBUTE_LINK:
+								spannableText.setSpan(new URLSpan(TiConvert.toString(attrValue)), range[0], range[0]
+									+ range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+								break;
+						}
+					}
+				}
+				((TextView) getNativeView()).setText(spannableText);
+			}
+		}
+
 	}
 
 }
