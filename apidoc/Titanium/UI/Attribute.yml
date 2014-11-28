@@ -18,6 +18,9 @@ properties:
         Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR, Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE,
         Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE, Titanium.UI.ATTRIBUTE_LINK, 
         Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR
+
+        ON iOS, Titanium.UI.ATTRIBUTE_LINK only supported on <Titanium.UI.TextArea>, with
+        editable set to false and autoLink enabled.
     type: Number
     constants: [ Titanium.UI.ATTRIBUTE_FONT, Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR,
                  Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR, Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE,
@@ -42,7 +45,7 @@ properties:
                 range: [0, 100]
             }
 
-        On IOS, if you use <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_COLOR>,
+        On IOS, if you use <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>,
         you must use one or more of these constants:
 
           * <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE>

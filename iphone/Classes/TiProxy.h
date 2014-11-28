@@ -345,4 +345,73 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 + (id)createProxy:(NSString *)qualifiedName withProperties:(NSDictionary *)properties inContext:(id<TiEvaluator>)context;
 
 -(NSString*)apiName;
+
+#if defined(USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
+typedef enum {
+	AttributeNameFont,
+	AttributeNameParagraphStyle,
+	AttributeNameForegroundColor,
+	AttributeNameBackgroundColor,
+	AttributeNameLigature,
+	AttributeNameKern,
+	AttributeNameStrikethroughStyle,
+	AttributeNameUnderlineStyle,
+	AttributeNameStrokeColor,
+	AttributeNameStrokeWidth,
+	AttributeNameShadow,
+	AttributeNameVerticalGlyphForm,
+	AttributeNameWritingDirection,
+	AttributeNameTextEffect,
+	AttributeNameAttachment,
+	AttributeNameLink,
+	AttributeNameBaselineOffset,
+	AttributeNameUnderlineColor,
+	AttributeNameStrikethroughColor,
+	AttributeNameObliqueness,
+	AttributeNameExpansion
+} AttributeName;
+
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_FOREGROUND_COLOR;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_BACKGROUND_COLOR;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LIGATURE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_KERN;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_STRIKETHROUGH_STYLE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINES_STYLE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_STROKE_COLOR;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_STROKE_WIDTH;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_SHADOW;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_VERTICAL_GLYPH_FORM;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_TEXT_EFFECT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_ATTACHMENT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINK;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_BASELINE_OFFSET;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_COLOR;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_STRIKETHROUGH_COLOR;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_OBLIQUENESS;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_EXPANSION;
+
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_STYLE_NONE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_STYLE_SINGLE;
+// iOS 7 ----
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_STYLE_THICK;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_STYLE_DOUBLE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_PATTERN_SOLID;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_PATTERN_DOT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_PATTERN_DASH;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_BY_WORD;
+
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_EMBEDDING;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_OVERRIDE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_NATURAL;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT;
+
+@property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
+-(id)createAttributedString:(id)args;
+#endif
 @end

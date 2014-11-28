@@ -13,9 +13,8 @@
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUITextWidget.h"
-
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-#import "TiUIiOSAttributedStringProxy.h"
+#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#import "TiUIAttributedStringProxy.h"
 #endif
 
 @implementation TiTextField
@@ -370,10 +369,10 @@
 
 -(void)setAttributedHintText_:(id)value
 {
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-    ENSURE_SINGLE_ARG(value,TiUIiOSAttributedStringProxy);
-    [[self proxy] replaceValue:value forKey:@"attributedHintText" notification:NO];
-    [[self textWidgetView] setAttributedPlaceholder:[value attributedString]];
+#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+	ENSURE_SINGLE_ARG(value,TiUIAttributedStringProxy);
+	[[self proxy] replaceValue:value forKey:@"attributedHintText" notification:NO];
+	[[self textWidgetView] setAttributedPlaceholder:[value attributedString]];
 #endif
 }
 

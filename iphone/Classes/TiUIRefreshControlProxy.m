@@ -5,8 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UIREFRESHCONTROL
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-#import "TiUIiOSAttributedStringProxy.h"
+
+#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#import "TiUIAttributedStringProxy.h"
 #endif
 #import "TiUIRefreshControlProxy.h"
 #import "TiUtils.h"
@@ -59,16 +60,17 @@
 
 -(void)setTitle:(id)args
 {
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-    ENSURE_SINGLE_ARG_OR_NIL(args, TiUIiOSAttributedStringProxy);
-    [self replaceValue:args forKey:@"title" notification:NO];
-    RELEASE_TO_NIL(_attributedString);
-    if (args != nil) {
-        _attributedString = [[args attributedString] copy];
-    }
-    TiThreadPerformOnMainThread(^{
-        [self refreshControl];
-    }, NO);
+
+#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+	ENSURE_SINGLE_ARG_OR_NIL(args, TiUIAttributedStringProxy);
+	[self replaceValue:args forKey:@"title" notification:NO];
+	RELEASE_TO_NIL(_attributedString);
+	if (args != nil) {
+		_attributedString = [[args attributedString] copy];
+	}
+	TiThreadPerformOnMainThread(^{
+		[self refreshControl];
+	}, NO);
 #endif
 }
 

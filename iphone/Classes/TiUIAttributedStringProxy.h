@@ -1,17 +1,17 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
+#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
 #import "TiProxy.h"
-//DEPRECATED since 3.6.0
-@interface TiUIiOSAttributedStringProxy : TiProxy
+
+@interface TiUIAttributedStringProxy : TiProxy
 {
-    NSMutableAttributedString *_attributedString;
-    NSMutableArray *attributes;
+	NSMutableAttributedString *_attributedString;
+	NSMutableArray *attributes;
 }
 
 #pragma mark - Not exposed to JS. Internal Use Only.

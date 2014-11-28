@@ -56,33 +56,33 @@ examples:
                 attributes: [
                     // Underlines text
                     {
-                        type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
+                        type: Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE,
                         range: [0, text.length]
                     },
                     // Sets a background color
                     {
-                        type: Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR,
+                        type: Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR,
                         value: "red",
                         range: [text.indexOf('Appcelerator'), ('Appcelerator').length]
                     },
                     {
-                        type: Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR,
+                        type: Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR,
                         value: "blue",
                         range: [text.indexOf('Titanium'), ('Titanium').length]
                     },
                     {
-                        type: Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR,
+                        type: Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR,
                         value: "yellow",
                         range: [text.indexOf('rocks!'), ('rocks!').length]
                     },
                     // Sets a foreground color
                     {
-                        type: Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR,
+                        type: Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR,
                         value: "orange",
                         range: [0,  text.length]
                     },
                     {
-                        type: Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR,
+                        type: Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR,
                         value: "black",
                         range: [text.indexOf('rocks!'), ('rocks!').length]
                     }
@@ -115,7 +115,7 @@ examples:
 
             // Underlines text
             attr.addAttribute({
-                type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
+                type: Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE,
                 range: [0, text.length]
             });
 
