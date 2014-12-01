@@ -89,7 +89,13 @@ public class TiActivitySupportHelper
 
 		registerResultHandler(code, wrapper);
 		try {
-			activity.startIntentSenderForResult(intent, code, fillInIntent, flagsMask, flagsValues, extraFlags, options);
+			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN){
+				activity.startIntentSenderForResult(intent, code, fillInIntent, flagsMask, flagsValues, extraFlags, options);
+			}else{
+				//Workaround : Ability to use launchIntentSenderForResult on SDK lower than JellyBean
+				Log.w(TAG, "LaunchIntentSenderForResult : \"options\" ignored because the current SDK is less than JellyBean");
+				activity.startIntentSenderForResult(intent, code, fillInIntent, flagsMask, flagsValues, extraFlags);
+			}
 	 	} catch (SendIntentException e) {
 			wrapper.onError(activity,code,e);
 		}
