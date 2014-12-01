@@ -371,9 +371,9 @@ properties:
     platforms: [android]
     
   - name: value
-    summary: Date and time value for Date pickers.
+    summary: Date and time value for Date and Time pickers.
     description: |
-        Applicable to <Titanium.UI.PICKER_TYPE_DATE> and <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> 
+        Applicable to <Titanium.UI.PICKER_TYPE_DATE>, <Titanium.UI.PICKER_TYPE_TIME> and <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> 
         picker types.
 
         For JavaScript files, use a JavaScript Date object.
