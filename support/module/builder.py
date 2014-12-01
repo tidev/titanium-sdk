@@ -96,6 +96,7 @@ def stage(platform, project_dir, manifest, callback):
 	try:
 		name = manifest.name
 		moduleid = manifest.moduleid
+		tiappid = manifest.moduleid + 'testapp'
 		version = manifest.version
 		script = os.path.join(template_dir, '..', 'project.py')
 		
@@ -121,6 +122,10 @@ def stage(platform, project_dir, manifest, callback):
 		# generate a guid since this is currently done by developer
 		guid = str(uuid.uuid4())
 		xml = xml.replace('<guid></guid>', '<guid>%s</guid>' % guid)
+		
+		#run a module test app in debug mode
+		xml = xml.replace('</ti:app>', '<property name="ti.android.debug" type="bool">true</property>\n<property name="ti.android.compilejs" type="bool">false</property>\n</ti:app>')
+
 		tiappf.write(xml)
 		tiappf.close()
 
