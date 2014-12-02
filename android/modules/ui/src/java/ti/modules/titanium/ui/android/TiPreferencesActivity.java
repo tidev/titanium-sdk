@@ -16,7 +16,7 @@ import android.preference.PreferenceActivity;
 public class TiPreferencesActivity extends PreferenceActivity 
 {
 	private static final String TAG = "TiPreferencesActivity";
-	private static final String DEFAULT_PREFS_RNAME = "preferences";
+	public static final String DEFAULT_PREFS_RNAME = "preferences";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
