@@ -540,7 +540,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 		super.onCreate(savedInstanceState);
 
-		windowCreated();
+		windowCreated(savedInstanceState);
 
 
 		if (activityProxy != null) {
