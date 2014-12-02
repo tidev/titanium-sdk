@@ -59,7 +59,7 @@
 }
 -(NSHTTPCookie*)newCookie
 {
-    return [NSHTTPCookie cookieWithProperties: [self cookieDict]];
+    return [[NSHTTPCookie cookieWithProperties: [self cookieDict]] retain];
 }
 -(NSString*)apiName
 {
@@ -67,7 +67,7 @@
 }
 -(NSNumber*)isValid:(id)args
 {
-    return NUMBOOL([self newCookie] != nil);
+    return NUMBOOL([[self newCookie] autorelease]!= nil);
 }
 -(NSString*)name
 {
@@ -106,6 +106,7 @@
         NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
         [dateFormat setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000"];
         date = [dateFormat dateFromString:[TiUtils stringValue:args]];
+		RELEASE_TO_NIL(dateFormat);
     }
     [self setCookieValue:date forKey:NSHTTPCookieExpires];
 }

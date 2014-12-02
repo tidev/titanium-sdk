@@ -25,7 +25,6 @@ var ADB = require('titanium-sdk/lib/adb'),
 	async = require('async'),
 	Builder = require('titanium-sdk/lib/builder'),
 	cleanCSS = require('clean-css'),
-	crypto = require('crypto'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
 	EmulatorManager = require('titanium-sdk/lib/emulator'),
@@ -81,10 +80,6 @@ archiverCore.prototype._processQueue = function _processQueue() {
 		this._finalize();
 	}
 };
-
-function hash(s) {
-	return crypto.createHash('md5').update(s || '').digest('hex');
-}
 
 function AndroidBuilder() {
 	Builder.apply(this, arguments);
@@ -298,6 +293,14 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 	return function (finished) {
 		cli.createHook('build.android.config', this, function (callback) {
 			var conf = {
+				flags: {
+					'launch': {
+						desc: __('disable launching the app after installing'),
+						default: true,
+						hideDefault: true,
+						negate: true
+					}
+				},
 				options: {
 					'alias': {
 						abbr: 'L',
@@ -913,8 +916,10 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 };
 
 AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
+	Builder.prototype.validate.apply(this, arguments);
+
 	this.target = cli.argv.target;
-	this.deployType = /^device|emulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
+	this.deployType = !/^dist-/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 	this.buildType = cli.argv['build-type'] || '';
 
 	// ti.deploytype is deprecated and so we force the real deploy type
@@ -1053,7 +1058,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}, this);
 
 	try {
-		this.tiappAndroidManifest = cli.tiapp.android && cli.tiapp.android.manifest && (new AndroidManifest).parse(cli.tiapp.android.manifest);
+		var tiappAndroidManifest = this.tiappAndroidManifest = cli.tiapp.android && cli.tiapp.android.manifest && (new AndroidManifest).parse(cli.tiapp.android.manifest);
 	} catch (ex) {
 		logger.error(__('Malformed <manifest> definition in the <android> section of the tiapp.xml') + '\n');
 		process.exit(1);
@@ -1068,7 +1073,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// validate the sdk levels
-	var usesSDK = (this.tiappAndroidManifest && this.tiappAndroidManifest['uses-sdk']) || (this.customAndroidManifest && this.customAndroidManifest['uses-sdk']);
+	var usesSDK = (tiappAndroidManifest && tiappAndroidManifest['uses-sdk']) || (this.customAndroidManifest && this.customAndroidManifest['uses-sdk']);
 
 	this.minSDK = this.minSupportedApiLevel;
 	this.targetSDK = cli.tiapp.android && ~~cli.tiapp.android['tool-api-level'] || null;
@@ -1088,11 +1093,25 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		logger.log();
 	}
 
-	if (usesSDK) {
-		usesSDK['minSdkVersion'] && (this.minSDK = usesSDK['minSdkVersion']);
-		usesSDK['targetSdkVersion'] && (this.targetSDK = usesSDK['targetSdkVersion']);
-		usesSDK['maxSdkVersion'] && (this.maxSDK = usesSDK['maxSdkVersion']);
+	function normalizeVersion(ver, type) {
+		ver = (ver && targetSDKMap[ver] && targetSDKMap[ver].sdk) || ver;
+		if (ver && tiappAndroidManifest) {
+			tiappAndroidManifest['uses-sdk'] || (tiappAndroidManifest['uses-sdk'] = {});
+			tiappAndroidManifest['uses-sdk'][type] = ver;
+		}
+		return ver;
 	}
+
+	if (usesSDK) {
+		usesSDK.minSdkVersion    && (this.minSDK    = usesSDK.minSdkVersion);
+		usesSDK.targetSdkVersion && (this.targetSDK = usesSDK.targetSdkVersion);
+		usesSDK.maxSdkVersion    && (this.maxSDK    = usesSDK.maxSdkVersion);
+	}
+
+	// make sure the SDK versions are actual SDK versions and not the codenames
+	this.minSDK    = normalizeVersion(this.minSDK,    'minSdkVersion');
+	this.targetSDK = normalizeVersion(this.targetSDK, 'targetSdkVersion');
+	this.maxSDK    = normalizeVersion(this.maxSDK,    'maxSdkVersion');
 
 	// min sdk is too old
 	var minApiLevel = targetSDKMap[this.minSDK] && targetSDKMap[this.minSDK].sdk;
@@ -1154,9 +1173,9 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	// if no target sdk, then default to most recent supported/installed
 	if (!this.targetSDK) {
 		var levels = Object.keys(targetSDKMap).sort(function (a, b) {
-				if (a.sdk === b.sdk && a.revision === b.revision) {
+				if (targetSDKMap[a].sdk === targetSDKMap[b].sdk && targetSDKMap[a].revision === targetSDKMap[b].revision) {
 					return 0;
-				} else if (a.sdk < b.sdk || (a.sdk === b.sdk && a.revision < b.revision)) {
+				} else if (targetSDKMap[a].sdk < targetSDKMap[b].sdk || (targetSDKMap[a].sdk === targetSDKMap[b].sdk && targetSDKMap[a].revision < targetSDKMap[b].revision)) {
 					return -1;
 				}
 				return 1;
@@ -1466,61 +1485,20 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		cli.tiapp.icon = 'appicon.png';
 	}
 
-	return function (finished) {
-		// validate modules
-		var moduleSearchPaths = [ cli.argv['project-dir'] ],
-			customSDKPaths = config.get('paths.sdks'),
-			customModulePaths = config.get('paths.modules'),
-			addSearchPath = function (p) {
-				p = afs.resolvePath(p);
-				if (fs.existsSync(p) && moduleSearchPaths.indexOf(p) == -1) {
-					moduleSearchPaths.push(p);
-				}
-			};
-		cli.env.os.sdkPaths.forEach(addSearchPath);
-		Array.isArray(customSDKPaths) && customSDKPaths.forEach(addSearchPath);
-		Array.isArray(customModulePaths) && customModulePaths.forEach(addSearchPath);
-
-		appc.timodule.find(cli.tiapp.modules, 'android', this.deployType, this.titaniumSdkVersion, moduleSearchPaths, logger, function (modules) {
-			if (modules.missing.length) {
-				logger.error(__('Could not find all required Titanium Modules:'))
-				modules.missing.forEach(function (m) {
-					logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t deploy-type: ' + m.deployType);
-				}, this);
-				logger.log();
-				process.exit(1);
-			}
-
-			if (modules.incompatible.length) {
-				logger.error(__('Found incompatible Titanium Modules:'));
-				modules.incompatible.forEach(function (m) {
-					logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + (m.manifest && m.manifest.minsdk || '?'));
-				}, this);
-				logger.log();
-				process.exit(1);
-			}
-
-			if (modules.conflict.length) {
-				logger.error(__('Found conflicting Titanium modules:'));
-				modules.conflict.forEach(function (m) {
-					logger.error('   ' + __('Titanium module "%s" requested for both Android and CommonJS platforms, but only one may be used at a time.', m.id));
-				}, this);
-				logger.log();
-				process.exit(1);
-			}
-
+	return function (callback) {
+		this.validateTiModules('android', this.deployType, function (err, modules) {
 			this.modules = modules.found;
+
 			this.commonJsModules = [];
 			this.nativeLibModules = [];
 
 			var manifestHashes = [],
 				nativeHashes = [],
 				bindingsHashes = [],
-				jarHashes = {},
-				ignoreDirs = this.ignoreDirs;
+				jarHashes = {};
 
 			modules.found.forEach(function (module) {
-				manifestHashes.push(hash(JSON.stringify(module.manifest)));
+				manifestHashes.push(this.hash(JSON.stringify(module.manifest)));
 
 				if (module.platform.indexOf('commonjs') != -1) {
 					module.native = false;
@@ -1547,7 +1525,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 						module.jarName = module.jarFile = null;
 					} else {
 						// get the jar hashes
-						var jarHash = module.hash = hash(fs.readFileSync(module.jarFile).toString());
+						var jarHash = module.hash = this.hash(fs.readFileSync(module.jarFile).toString());
 						nativeHashes.push(jarHash);
 						jarHashes[module.jarName] || (jarHashes[module.jarName] = []);
 						jarHashes[module.jarName].push({
@@ -1563,11 +1541,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 						if (jarRegExp.test(name) && fs.existsSync(file)) {
 							jarHashes[name] || (jarHashes[name] = []);
 							jarHashes[name].push({
-								hash: hash(fs.readFileSync(file).toString()),
+								hash: this.hash(fs.readFileSync(file).toString()),
 								module: module
 							});
 						}
-					});
+					}, this);
 
 					// determine the module's ABIs
 					module.abis = [];
@@ -1576,7 +1554,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 					fs.existsSync(libsDir) && fs.readdirSync(libsDir).forEach(function (abi) {
 						var dir = path.join(libsDir, abi),
 							added = false;
-						if (!ignoreDirs.test(abi) && fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+						if (!this.ignoreDirs.test(abi) && fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
 							fs.readdirSync(dir).forEach(function (name) {
 								if (soRegExp.test(name)) {
 									var file = path.join(dir, name);
@@ -1611,7 +1589,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 								logger.error(__('Module %s version %s is missing bindings json file', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
 								process.exit(1);
 							}
-							bindingsHashes.push(hash(JSON.stringify(module.bindings)));
+							bindingsHashes.push(this.hash(JSON.stringify(module.bindings)));
 						} catch (ex) {
 							logger.error(__('The module "%s" has an invalid jar file: %s', module.id, module.jarFile) + '\n');
 							process.exit(1);
@@ -1625,9 +1603,9 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 				cli.scanHooks(path.join(module.modulePath, 'hooks'));
 			}, this);
 
-			this.modulesManifestHash = hash(manifestHashes.length ? manifestHashes.sort().join(',') : '');
-			this.modulesNativeHash = hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
-			this.modulesBindingsHash = hash(bindingsHashes.length ? bindingsHashes.sort().join(',') : '');
+			this.modulesManifestHash = this.hash(manifestHashes.length ? manifestHashes.sort().join(',') : '');
+			this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
+			this.modulesBindingsHash = this.hash(bindingsHashes.length ? bindingsHashes.sort().join(',') : '');
 
 			// check if we have any conflicting jars
 			var possibleConflicts = Object.keys(jarHashes).filter(function (jar) { return jarHashes[jar].length > 1; });
@@ -1664,9 +1642,9 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 				}
 			}
 
-			finished();
-		}.bind(this)); // end timodule.find()
-	}.bind(this); // end returned callback
+			callback();
+		}.bind(this));
+	}.bind(this);
 };
 
 AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
@@ -1729,12 +1707,12 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 			}
 
 			cli.emit('build.post.compile', this, next);
+		},
+
+		function (next) {
+			cli.emit('build.finalize', this, next);
 		}
-	], function (err) {
-		cli.emit('build.finalize', this, function () {
-			finished(err);
-		});
-	});
+	], finished);
 };
 
 AndroidBuilder.prototype.doAnalytics = function doAnalytics(next) {
@@ -1880,17 +1858,17 @@ AndroidBuilder.prototype.loginfo = function loginfo(next) {
 
 AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
 	// modules
-	this.modulesHash = !Array.isArray(this.tiapp.modules) ? '' : crypto.createHash('md5').update(this.tiapp.modules.filter(function (m) {
-		return !m.platform || /^iphone|ipad|commonjs$/.test(m.platform);
+	this.modulesHash = !Array.isArray(this.tiapp.modules) ? '' : this.hash(this.tiapp.modules.filter(function (m) {
+		return !m.platform || /^android|commonjs$/.test(m.platform);
 	}).map(function (m) {
 		return m.id + ',' + m.platform + ',' + m.version;
-	}).join('|')).digest('hex');
+	}).join('|'));
 
 	// tiapp.xml properties, activities, and services
-	this.propertiesHash = hash(this.tiapp.properties ? JSON.stringify(this.tiapp.properties) : '');
+	this.propertiesHash = this.hash(this.tiapp.properties ? JSON.stringify(this.tiapp.properties) : '');
 	var android = this.tiapp.android;
-	this.activitiesHash = hash(android && android.application && android.application ? JSON.stringify(android.application.activities) : '');
-	this.servicesHash = hash(android && android.services ? JSON.stringify(android.services) : '');
+	this.activitiesHash = this.hash(android && android.application && android.application ? JSON.stringify(android.application.activities) : '');
+	this.servicesHash = this.hash(android && android.services ? JSON.stringify(android.services) : '');
 
 	function walk(dir, re) {
 		var hashes = [];
@@ -1899,7 +1877,7 @@ AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
 			if (fs.existsSync(file)) {
 				var stat = fs.statSync(file);
 				if (stat.isFile() && re.test(name)) {
-					hashes.push(hash(fs.readFileSync(file).toString()));
+					hashes.push(this.hash(fs.readFileSync(file).toString()));
 				} else if (stat.isDirectory()) {
 					hashes = hashes.concat(walk(file, re));
 				}
@@ -1909,7 +1887,7 @@ AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
 	}
 
 	// jss files
-	this.jssFilesHash = hash(walk(path.join(this.projectDir, 'Resources'), /\.jss$/).join(','));
+	this.jssFilesHash = this.hash(walk(path.join(this.projectDir, 'Resources'), /\.jss$/).join(','));
 
 	next();
 };
@@ -2360,7 +2338,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						// we have a splash screen image
 						to = path.join(destDir, 'background' + origExt);
 					} else {
-						to = path.join(destDir, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name + hashExt).substring(0, 10) + origExt);
+						to = path.join(destDir, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + _t.hash(name + hashExt).substring(0, 10) + origExt);
 					}
 					isDrawable = true;
 				} else if (m = relPath.match(relSplashScreenRegExp)) {
@@ -3013,7 +2991,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		app_modules: appModules
 	}));
 
-	this.jarLibHash = hash(Object.keys(jarLibraries).sort().join('|'));
+	this.jarLibHash = this.hash(Object.keys(jarLibraries).sort().join('|'));
 	if (this.jarLibHash != this.buildManifest.jarLibHash) {
 		if (!this.forceRebuild) {
 			this.logger.info(__('Forcing rebuild: Detected change in Titanium APIs used and need to recompile'));
@@ -3719,8 +3697,6 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-A', this.buildBinAssetsDir,
 			'-S', this.buildResDir,
 			'-I', this.androidTargetSDK.androidJar,
-			'-I', path.join(this.platformPath, 'titanium.jar'),
-			'-I', path.join(this.platformPath, 'aps-analytics.jar'),
 			'-F', this.ap_File
 		];
 
@@ -3784,7 +3760,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 	this.modules.forEach(function (module) {
 		var filename = path.basename(module.jarFile);
 		if (fs.existsSync(module.jarFile)) {
-			var jarHash = hash(fs.readFileSync(module.jarFile).toString());
+			var jarHash = this.hash(fs.readFileSync(module.jarFile).toString());
 
 			if (!jarNames[jarHash]) {
 				moduleJars[module.jarFile] = 1;
@@ -3800,7 +3776,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 			fs.existsSync(libDir) && fs.readdirSync(libDir).forEach(function (name) {
 				var jarFile = path.join(libDir, name);
 				if (jarRegExp.test(name) && fs.existsSync(jarFile)) {
-					var jarHash = hash(fs.readFileSync(jarFile).toString());
+					var jarHash = this.hash(fs.readFileSync(jarFile).toString());
 					if (!jarNames[jarHash]) {
 						moduleJars[jarFile] = 1;
 						classpath[jarFile] = 1;

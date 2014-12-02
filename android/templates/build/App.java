@@ -33,9 +33,7 @@ public final class <%= classname %>Application extends TiApplication
 		postAppInfo();
 
 <% if (encryptJS) { %>
-	    KrollAssetHelper.AssetCrypt assetCrypt = new AssetCryptImpl();
-	    assetCrypt.setIsProduction(DEPLOY_TYPE_PRODUCTION.equals(appInfo.getDeployType()));
-	    KrollAssetHelper.setAssetCrypt(assetCrypt);
+	    KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
 <% } %>
 
 		V8Runtime runtime = new V8Runtime();

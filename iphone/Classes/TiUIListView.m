@@ -445,7 +445,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                                 filteredIndices = [[NSMutableArray alloc] init];
                             }
                             [filteredTitles addObject:theTitle];
-                            [filteredIndices addObject:[NSNumber numberWithInt:([_searchResults count] -1)]];
+                            [filteredIndices addObject:NUMUINTEGER([_searchResults count] -1)];
                         }
                     }
                 }
@@ -479,11 +479,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (searchActive) {
         [self buildResultsForSearchText];
     }
+    [_tableView reloadData];
     if ([searchController isActive]) {
         [[searchController searchResultsTableView] reloadData];
-    } else {
-        [_tableView reloadData];
-    }
+    } 
 }
 
 -(NSIndexPath*)pathForSearchPath:(NSIndexPath*)indexPath
@@ -859,7 +858,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) && (filteredTitles != nil) && (filteredIndices != nil) ) {
             // get the index for the title
-            int index = [filteredTitles indexOfObject:title];
+            NSUInteger index = [filteredTitles indexOfObject:title];
             if (index > 0 && (index < [filteredIndices count]) ) {
                 return [[filteredIndices objectAtIndex:index] intValue];
             }
@@ -871,7 +870,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
     if ( (sectionTitles != nil) && (sectionIndices != nil) ) {
         // get the index for the title
-        int index = [sectionTitles indexOfObject:title];
+        NSUInteger index = [sectionTitles indexOfObject:title];
         if (index > 0 && (index < [sectionIndices count]) ) {
             return [[sectionIndices objectAtIndex:index] intValue];
         }
@@ -933,8 +932,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         
             NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                                 theSection, @"section",
-                                                NUMINT(indexPath.section), @"sectionIndex",
-                                                NUMINT(indexPath.row), @"itemIndex",
+                                                NUMINTEGER(indexPath.section), @"sectionIndex",
+                                                NUMINTEGER(indexPath.row), @"itemIndex",
                                                 nil];
             id propertiesValue = [theItem objectForKey:@"properties"];
             NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
@@ -1072,10 +1071,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
 {
-    int fromSectionIndex = [fromIndexPath section];
-    int fromRowIndex = [fromIndexPath row];
-    int toSectionIndex = [toIndexPath section];
-    int toRowIndex = [toIndexPath row];
+    NSInteger fromSectionIndex = [fromIndexPath section];
+    NSInteger fromRowIndex = [fromIndexPath row];
+    NSInteger toSectionIndex = [toIndexPath section];
+    NSInteger toRowIndex = [toIndexPath row];
     
     
     
@@ -1099,11 +1098,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             
             NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                                 theSection, @"section",
-                                                NUMINT(fromSectionIndex), @"sectionIndex",
-                                                NUMINT(fromRowIndex), @"itemIndex",
+                                                NUMINTEGER(fromSectionIndex), @"sectionIndex",
+                                                NUMINTEGER(fromRowIndex), @"itemIndex",
                                                 theSection,@"targetSection",
-                                                NUMINT(toSectionIndex), @"targetSectionIndex",
-                                                NUMINT(toRowIndex), @"targetItemIndex",
+                                                NUMINTEGER(toSectionIndex), @"targetSectionIndex",
+                                                NUMINTEGER(toRowIndex), @"targetItemIndex",
                                                 nil];
             id propertiesValue = [theItem objectForKey:@"properties"];
             NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
@@ -1138,11 +1137,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             
             NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                                 fromSection, @"section",
-                                                NUMINT(fromSectionIndex), @"sectionIndex",
-                                                NUMINT(fromRowIndex), @"itemIndex",
+                                                NUMINTEGER(fromSectionIndex), @"sectionIndex",
+                                                NUMINTEGER(fromRowIndex), @"itemIndex",
                                                 toSection,@"targetSection",
-                                                NUMINT(toSectionIndex), @"targetSectionIndex",
-                                                NUMINT(toRowIndex), @"targetItemIndex",
+                                                NUMINTEGER(toSectionIndex), @"targetSectionIndex",
+                                                NUMINTEGER(toRowIndex), @"targetItemIndex",
                                                 nil];
             id propertiesValue = [theItem objectForKey:@"properties"];
             NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
@@ -1717,8 +1716,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	NSDictionary *item = [section itemAtIndex:indexPath.row];
 	NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
 										section, @"section",
-										NUMINT(indexPath.section), @"sectionIndex",
-										NUMINT(indexPath.row), @"itemIndex",
+										NUMINTEGER(indexPath.section), @"sectionIndex",
+										NUMINTEGER(indexPath.row), @"itemIndex",
 										NUMBOOL(accessoryButtonTapped), @"accessoryClicked",
 										nil];
 	id propertiesValue = [item objectForKey:@"properties"];

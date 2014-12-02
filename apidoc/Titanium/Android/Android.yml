@@ -20,12 +20,8 @@ description: |
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
-excludes:
-    methods: [getCurrentActivity, getCurrentService]
 
 methods:
-    
-
 
   - name: createIntentChooser
     summary: |
@@ -1208,6 +1204,111 @@ properties:
     permission: read-only
 
 # Notification-related constants
+  
+  - name: CATEGORY_ALARM
+    summary: Corresponds to the Android `Notification.CATEGORY_ALARM` constant.
+    description: |
+        An alarm or timer.
+    type: String
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: CATEGORY_CALL
+    summary: Corresponds to the Android `Notification.CATEGORY_CALL` constant.
+    description: |
+        Incoming call (voice or video) or similar synchronous communication request.
+    type: String
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: CATEGORY_EMAIL
+    summary: Corresponds to the Android `Notification.CATEGORY_EMAIL` constant.
+    description: |
+        Asynchronous bulk message (email).
+    type: String
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: CATEGORY_ERROR
+    summary: Corresponds to the Android `Notification.CATEGORY_ERROR` constant.
+    description: |
+        Error in background operation or authentication status.
+    type: String
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: CATEGORY_EVENT
+    summary: Corresponds to the Android `Notification.CATEGORY_EVENT` constant.
+    description: |
+        A calendar event.
+    type: String
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: CATEGORY_MESSAGE
+    summary: Corresponds to the Android `Notification.CATEGORY_MESSAGE` constant.
+    description: |
+        Incoming direct message (SMS, instant message, etc.).
+    type: String
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: CATEGORY_PROGRESS
+    summary: Corresponds to the Android `Notification.CATEGORY_PROGRESS` constant.
+    description: |
+        Progress of a long-running background operation.
+    type: String
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: CATEGORY_PROMO
+    summary: Corresponds to the Android `Notification.CATEGORY_PROMO` constant.
+    description: |
+        Promotion or advertisement.
+    type: String
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: CATEGORY_RECOMMENDATION
+    summary: Corresponds to the Android `Notification.CATEGORY_RECOMMENDATION` constant.
+    description: |
+        A specific, timely recommendation for a single thing. For example, a news app 
+        might want to recommend a news story it believes the user will want to read next.
+    type: String
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: CATEGORY_SERVICE
+    summary: Corresponds to the Android `Notification.CATEGORY_SERVICE` constant.
+    description: |
+        Indication of running background service.
+    type: String
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: CATEGORY_SOCIAL
+    summary: Corresponds to the Android `Notification.CATEGORY_SOCIAL` constant.
+    description: |
+        Social network or sharing update.
+    type: String
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: CATEGORY_STATUS
+    summary: Corresponds to the Android `Notification.CATEGORY_STATUS` constant.
+    description: |
+        Ongoing information about device or contextual status.
+    type: String
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: CATEGORY_TRANSPORT
+    summary: Corresponds to the Android `Notification.CATEGORY_TRANSPORT` constant.
+    description: |
+        Media transport control for playback.
+    type: String
+    permission: read-only
+    since: "3.4.2"
 
   - name: DEFAULT_ALL
     summary: |
@@ -1300,6 +1401,72 @@ properties:
         See also: [Notification.FLAG_SHOW_LIGHTS in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_SHOW_LIGHTS).
     type: Number
     permission: read-only
+   
+  - name: PRIORITY_MAX
+    summary: Corresponds to the Android `Notification.PRIORITY_MAX` constant.
+    description: |
+        See [Notification.PRIORITY_MAX in the Android API reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_MAX).
+    type: Number
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: PRIORITY_HIGH
+    summary: Corresponds to the Android `Notification.PRIORITY_HIGH` constant.
+    description: |
+        See [Notification.PRIORITY_HIGH in the Android API reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_HIGH).
+    type: Number
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: PRIORITY_DEFAULT
+    summary: Corresponds to the Android `Notification.PRIORITY_DEFAULT` constant.
+    description: |
+        See [Notification.PRIORITY_DEFAULT in the Android API reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_DEFAULT).
+    type: Number
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: PRIORITY_LOW
+    summary: Corresponds to the Android `Notification.PRIORITY_LOW` constant.
+    description: |
+        See [Notification.PRIORITY_LOW in the Android API reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_LOW).
+    type: Number
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: PRIORITY_MIN
+    summary: Corresponds to the Android `Notification.PRIORITY_MIN` constant.
+    description: |
+        See [Notification.PRIORITY_MIN in the Android API reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_MIN).
+    type: Number
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: VISIBILITY_PRIVATE
+    summary: Corresponds to the Android `Notification.VISIBILITY_PRIVATE` constant.
+    description: |
+        The lockscreen will reveal basic information about the existence of this notification, 
+        including its icon and the name of the app that posted it. The rest of the 
+        notification's details, however, are not displayed.
+    type: Number
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: VISIBILITY_PUBLIC
+    summary: Corresponds to the Android `Notification.VISIBILITY_PUBLIC` constant.
+    description: |
+         Shows the notification's full content on the lockscreen. This is the system default if visibility is left unspecified.
+    type: Number
+    permission: read-only
+    since: "3.4.2"
+    
+  - name: VISIBILITY_SECRET
+    summary: Corresponds to the Android `Notification.VISIBILITY_SECRET` constant.
+    description: |
+         Shows only the most minimal information on the lockscreen, excluding even the notification's icon.
+    type: Number
+    permission: read-only
+    since: "3.4.2"
 
 
 # Constants that should probably be removed
@@ -1534,6 +1701,7 @@ properties:
   - name: currentActivity
     summary: Activity of the active context.
     type: Titanium.Android.Activity
+    accessors: false
     permission: read-only
     deprecated:
         since: 3.5.0
@@ -1542,6 +1710,7 @@ properties:
   - name: currentService
     summary: Service in the active context.
     type: Titanium.Android.Service
+    accessors: false
     permission: read-only
 
 ---

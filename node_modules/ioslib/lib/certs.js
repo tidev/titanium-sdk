@@ -147,11 +147,31 @@ function detect(options, callback) {
 						});
 					});
 
+					// find all the developer certificates in this keychain
+					tasks.push(function (next) {
+						appc.subprocess.run(env.executables.security, ['find-certificate', '-c', 'iOS Development:', '-a', '-p', keychain], function (code, out, err) {
+							if (!code) {
+								parseCerts(out, dest.developer, 'iOS Development:');
+							}
+							next();
+						});
+					});
+
 					// find all the distribution certificates in this keychain
 					tasks.push(function (next) {
 						appc.subprocess.run(env.executables.security, ['find-certificate', '-c', 'iPhone Distribution:', '-a', '-p', keychain], function (code, out, err) {
 							if (!code) {
 								parseCerts(out, dest.distribution, 'iPhone Distribution:');
+							}
+							next();
+						});
+					});
+
+					// find all the distribution certificates in this keychain
+					tasks.push(function (next) {
+						appc.subprocess.run(env.executables.security, ['find-certificate', '-c', 'iOS Distribution:', '-a', '-p', keychain], function (code, out, err) {
+							if (!code) {
+								parseCerts(out, dest.distribution, 'iOS Distribution:');
 							}
 							next();
 						});

@@ -8,16 +8,17 @@ var common = require('./lib/common.js')
 	nodeappc = require('node-appc'),
 	ejs = require('ejs'),
 	fs = require('fs'),
+	exec = require('child_process').exec,
+	assert = common.assertObjectKey;
 	basePaths = [],
 	processFirst = ['Titanium.Proxy', 'Titanium.Module', 'Titanium.UI.View'],
 	skipList = ['Titanium.Namespace.Name'],
-	formats = [],
-
+	validFormats = [],
 	apidocPath = '.',
 	libPath = './lib/',
-	templatePath = './template/',
-	format = 'html',
-	output = '../dist/',
+	templatePath = './templates/',
+	formats = ['html'],
+	outputPath = output = '../dist/',
 	parseData = {},
 	doc = {},
 	errors = [],
@@ -26,7 +27,13 @@ var common = require('./lib/common.js')
 	processedData = {},
 	render = '',
 	fsArray = [],
-	tokens = [];
+	tokens = [],
+	excludeExternal = false;
+	originalPaths = [],
+	modules = [],
+	exportStdout = false,
+	cssPath = '',
+	cssFile = '';
 
 /**
  * Returns a list of inherited APIs.
@@ -39,12 +46,22 @@ function getInheritedAPIs (api) {
 		key = null,
 		removeAPIs = [],
 		copyAPIs = [],
-		match = [],
+		matches = [],
 		index = 0,
 		x = 0;
 
-	if ('extends' in api && api.extends in doc) {
+	if (assert(api, 'extends') && api.extends in doc) {
 		inheritedAPIs = getInheritedAPIs(doc[api.extends]);
+
+		// Remove inherited accessors
+		matches = inheritedAPIs.methods.filter(function (element) {
+			return assert(element, '__accessor');
+		});
+		matches.forEach(function (element) {
+			inheritedAPIs.methods.splice(inheritedAPIs.methods.indexOf(element), 1);
+
+		});
+
 		for (key in inheritedAPIs) {
 			removeAPIs = [];
 			if (!key in api || !api[key]) continue;
@@ -52,24 +69,26 @@ function getInheritedAPIs (api) {
 			inheritedAPIs[key].forEach(function (inheritedAPI) {
 
 				// See if current API overwrites inherited API
-				match = copyAPIs.filter(function (element) {
-					return element.name == inheritedAPI.name;
+				matches = copyAPIs.filter(function (element) {
+					return (element.name == inheritedAPI.name);
 				});
 
-				if (match.length) {
-					removeAPIs.push(match[0]);
+				matches.forEach(function (match) {
+					removeAPIs.push(match);
 					// If the APIs came from the same class, do nothing
-					if (match[0].__inherits == inheritedAPI.__inherits) return;
+					if (match.__inherits == inheritedAPI.__inherits) return;
 
 					// If the APIs are from different classes, override inherited API with current API
 					index = inheritedAPIs[key].indexOf(inheritedAPI);
-					for (property in match[0]) {
-						inheritedAPIs[key][index][property] = match[0][property];
+					for (property in match) {
+						if (assert(match, property)) {
+							inheritedAPIs[key][index][property] = match[property];
+						}
 					}
 					inheritedAPIs[key][index].__inherits = api.name;
-				}
-
+				});
 			});
+
 			removeAPIs.forEach(function (element) {
 				copyAPIs.splice(copyAPIs.indexOf(element), 1);
 			});
@@ -128,16 +147,16 @@ function processVersions (api, versions) {
 	var defaultVersions = nodeappc.util.mixObj({}, versions),
 		platform = null,
 		key = null;
-	if ('platforms' in api) {
+	if (assert(api, 'platforms')) {
 		for (platform in defaultVersions) {
 			if (!~api.platforms.indexOf(platform)) delete defaultVersions[platform];
 		}
-	} else if ('exclude-platforms' in api) {
+	} else if (assert(api, 'exclude-platforms')) {
 		api['exclude-platforms'].forEach(function (platform) {
 			if (platform in defaultVersions) delete defaultVersions[platform];
 		});
 	}
-	if ('since' in api) {
+	if (assert(api, 'since')) {
 		if (typeof api.since == 'string') {
 			for (key in defaultVersions) {
 				if (nodeappc.version.gt(api.since, defaultVersions[key])) defaultVersions[key] = api.since;
@@ -163,26 +182,38 @@ function processAPIMembers (apis, type, defaultVersions) {
 	apis.forEach(function (api) {
 		api.since = processVersions(api, defaultVersions);
 		api.platforms = Object.keys(api.since);
-		if (type == 'properties' && api.constants) api.constants = processConstants(api);
-		if (type == 'events' && 'properties' in api) {
-			for (x = 0; x < api.properties.length; x++) {
-				if ('constants' in api.properties[x]) {
-					api.properties[x].constants = processConstants(api.properties[x]);
+		if (type == 'properties') {
+			if (api.constants) {
+				api.constants = processConstants(api);
+			}
+			api.__subtype = 'property';
+		}
+		if (type == 'events') {
+			api.__subtype = 'event';
+			if (assert(api, 'properties')) {
+				for (x = 0; x < api.properties.length; x++) {
+					api.properties[x].__subtype = 'eventProperty';
+					if ('constants' in api.properties[x]) {
+						api.properties[x].constants = processConstants(api.properties[x]);
+					}
 				}
 			}
 		}
 		if (type == 'methods') {
-			if ('parameters' in api) {
+			api.__subtype = 'method';
+			if (assert(api, 'parameters')) {
 				for (x = 0; x < api.parameters.length; x++) {
+					api.parameters[x].__subtype = 'parameter';
 					if ('constants' in api.parameters[x]) {
 						api.parameters[x].constants = processConstants(api.parameters[x]);
 					}
 				}
 			}
-			if ('returns' in api) {
+			if (assert(api, 'returns')) {
 				if (Array.isArray(api.returns)) api.returns = [api.returns];
 				for (x = 0; x < api.returns.length; x++) {
-					if ('constants' in api.returns[x]) {
+					api.returns[x].__subtype = 'return';
+					if (assert(api.returns[x], 'constants')) {
 						api.returns[x].constants = processConstants(api.returns[x]);
 					}
 				}
@@ -200,7 +231,7 @@ function processAPIMembers (apis, type, defaultVersions) {
  * @returns {Array<Object>} Processed APIs
  */
 function hideAPIMembers (apis, type) {
-	if ('excludes' in apis && type in apis.excludes && type in apis) {
+	if (assert(apis, 'excludes') && assert(apis.excludes, type) && assert(apis, type)) {
 		apis[type].forEach(function (api) {
 			apis[type][apis[type].indexOf(api)].__hide = (~apis.excludes[type].indexOf(api.name)) ? true : false;
 		});
@@ -225,9 +256,14 @@ function generateAccessors(apis, className) {
 			rv.push({
 				'name': 'get' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
 				'summary': 'Gets the value of the <' + className + '.' + api.name + '> property.',
-				'returns': { 'type': api.type },
+				'deprecated' : api.deprecated || null,
+				'platforms': api.platforms,
+				'since': api.since,
+				'returns': { 'type': api.type, '__subtype': 'return' },
 				'__accessor': true,
-				'__inherits': api.__inherits || null
+				'__hides' : api.__hides || false,
+				'__inherits': api.__inherits || null,
+				'__subtype': 'method'
 			});
 		}
 
@@ -236,13 +272,19 @@ function generateAccessors(apis, className) {
 			rv.push({
 				'name': 'set' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
 				'summary': 'Sets the value of the <' + className + '.' + api.name + '> property.',
+				'deprecated' : api.deprecated || null,
+				'platforms': api.platforms,
+				'since': api.since,
 				'parameters': [{
 					'name': api.name,
 					'summary': 'New value for the property.',
-					'type': api.type
+					'type': api.type,
+					'__subtype': 'parameter'
 				}],
 				'__accessor': true,
-				'__inherits': api.__inherits || null
+				'__hides' : api.__hides || false,
+				'__inherits': api.__inherits || null,
+				'__subtype': 'method'
 			});
 		}
 	});
@@ -255,6 +297,22 @@ function generateAccessors(apis, className) {
  * @returns {String} Class's subtype
  */
 function getSubtype (api) {
+	switch (api.name) {
+		case 'Global':
+		case 'Titanium.Module':
+			return 'module';
+			break;
+		case 'Titanium.Proxy':
+			return 'proxy';
+			break;
+		default:
+			;
+	}
+
+	if (api.name.indexOf('Global.') == 0) {
+		return 'proxy';
+	}
+
 	switch (api.extends) {
 		case 'Titanium.UI.View' :
 			return 'view';
@@ -263,7 +321,7 @@ function getSubtype (api) {
 		case 'Titanium.Proxy' :
 			return 'proxy';
 		default:
-			if ('extends' in api) {
+			if (assert(api, 'extends') && assert(doc, api.extends)) {
 				return getSubtype(doc[api.extends]);
 			} else {
 				return 'pseudo';
@@ -285,12 +343,12 @@ function processAPIs (api) {
 		api[key] = inheritedAPIs[key];
 	}
 
-	api.subtype = (api.name.indexOf('Global') == 0) ? null : (api.name == 'Titanium.Module') ? 'module' : getSubtype(api);
+	api.__subtype = getSubtype(api);
 
 	// Generate create method
-	if ((api.subtype === 'view' || api.subtype === 'proxy') &&
-		(('createable' in api && api.createable === true) ||
-		!('createable' in api))) {
+	api.__creatable = false;
+	if ((api.__subtype === 'view' || api.__subtype === 'proxy') &&
+		(assert(api, 'createable') || !('createable' in api))) {
 
 		var name = api.name,
 			prop = name.split('.').pop(),
@@ -299,7 +357,7 @@ function processAPIs (api) {
 
 		if (cls in doc) {
 			var matches = [];
-			if ('methods' in doc[cls]) {
+			if (assert(doc[cls], 'methods')) {
 				var matches = doc[cls].methods.filter(function (member) {
 					return member.name == methodName;
 				});
@@ -311,35 +369,51 @@ function processAPIs (api) {
 					'deprecated': api.deprecated || null,
 					'since': api.since,
 					'platforms': api.platforms,
-					'returns': { 'type': name },
+					'returns': { 'type': name, '__subtype': 'return' },
 					'parameters': [{
 						'name': 'parameters',
 						'summary': 'Properties to set on a new object, including any defined by <' + name + '> except those marked not-creation or read-only.\n',
 						'type': 'Dictionary<' + name + '>',
-						'optional': true
+						'optional': true,
+						'__subtype': 'parameter'
 					}],
-					'__creator': true
+					'__creator': true,
+					'__subtype': 'method'
 				};
+				api.__creatable = true;
 				'methods' in doc[cls] ? doc[cls].methods.push(createMethod) : doc[cls].methods = [createMethod];
 			}
 		}
 	}
 
-	if ('events' in api) {
+	if (assert(api, 'events')) {
 		api = hideAPIMembers(api, 'events');
 		api.events = processAPIMembers(api.events, 'events', api.since);
 	}
 
-	if ('properties' in api ) {
+	if (assert(api, 'properties')) {
 		var accessors;
 		api = hideAPIMembers(api, 'properties');
 		api.properties = processAPIMembers(api.properties, 'properties', api.since);
-		if (accessors = generateAccessors(api.properties, api.name)) {
-			api.methods = ('methods' in api) ? api.methods.concat(accessors) : accessors;
+		if (api.__subtype != 'pseudo' && (accessors = generateAccessors(api.properties, api.name))) {
+			if (assert(api, 'methods')) {
+				var matches = [];
+				accessors.forEach(function (accessor) {
+					matches = api.methods.filter(function (element) {
+						return accessor.name == element.name;
+					});
+				});
+				matches.forEach(function (element) {
+					accessors.splice(accessors.indexOf(element), 1);
+				});
+				api.methods = api.methods.concat(accessors);
+			} else {
+				api.methods = accessors;
+			}
 		}
 	}
 
-	if ('methods' in api) {
+	if (assert(api, 'methods')) {
 		api = hideAPIMembers(api, 'methods');
 		api.methods = processAPIMembers(api.methods, 'methods', api.since);
 	}
@@ -348,10 +422,23 @@ function processAPIs (api) {
 }
 
 function cliUsage () {
-	console.log('Usage: node docgen.js [--format <EXPORT_FORMAT>] [--output <OUTPUT_DIRECTORY>] [<PATH_TO_YAML_FILES>]'.white);
+	console.log('Usage: node docgen.js [--css <CSS_FILE>] [--format <EXPORT_FORMAT>] [--output <OUTPUT_DIRECTORY>] [--stdout] [<PATH_TO_YAML_FILES>]'.white);
 	console.log('\nOptions:'.white);
-	console.log('\t--format, -f\tExport format: %s. Default is %s'.white, formats, format);
-	console.log('\t--output, -o\tDirectory to output the files. Default is %s.'.white, output);
+	console.log('\t--css       \tCSS style file to use for HTML exports.'.white);
+	console.log('\t--format, -f\tExport format: %s. Default is html.'.white, validFormats);
+	console.log('\t--output, -o\tDirectory to output the files.'.white);
+	console.log('\t--stdout    \tOutput processed YAML to stdout.'.white);
+}
+
+// Create path if it does not exist
+function mkdirDashP(path) {
+	var p = path.substring(0, path.lastIndexOf('/'));
+	if(!fs.existsSync(p)) {
+		mkdirDashP(p);
+	}
+	if(!fs.existsSync(path)) {
+		fs.mkdirSync(path);
+	}
 }
 
 // Start of Main Flow
@@ -361,7 +448,7 @@ libPath = apidocPath + '/lib/';
 fsArray = fs.readdirSync(libPath);
 fsArray.forEach(function (file) {
 	tokens = file.split('_');
-	if (tokens[1] == 'generator.js') formats.push(tokens[0]);
+	if (tokens[1] == 'generator.js') validFormats.push(tokens[0]);
 });
 
 // Check command arguments
@@ -372,28 +459,63 @@ if ((argc = process.argv.length) > 2) {
 				cliUsage();
 				process.exit(0);
 				break;
+			case '--css':
+				if (++x > argc) {
+					console.warn('Did not specify a CSS file.'.yellow);
+					cliUsage();
+					process.exit(1);
+				}
+				cssPath = process.argv[x];
+				if(!fs.existsSync(cssPath)) {
+					console.warn('CSS file does not exist: %s'.yellow, cssPath);
+					process.exit(1);
+				}
+				cssFile = cssPath.substring(cssPath.lastIndexOf('/') + 1);
+				break;
 			case '--format' :
 			case '-f' :
 				if (++x > argc) {
-					console.warn('Did not specify an export format. Valid formats are: %s'.yellow, formats);
+					console.warn('Did not specify an export format. Valid formats are: %s'.yellow, JSON.stringify(validFormats));
 					cliUsage();
-					process.exit(1)
+					process.exit(1);
 				}
-				format = process.argv[x];
-				if (!~formats.indexOf(format)) {
-					console.warn('Not a valid export format: %s. Valid formats are: %s'.yellow, format, formats);
-					cliUsage();
-					process.exit(1)
+
+				if(~process.argv[x].indexOf(',')) {
+					formats = process.argv[x].split(',');
+				} else {
+					formats = [process.argv[x]];
 				}
+
+				formats.forEach(function (format) {
+					if (!~validFormats.indexOf(format)) {
+						console.warn('Not a valid export format: %s. Valid formats are: %s'.yellow, format, validFormats);
+						cliUsage();
+						process.exit(1);
+					}
+				});
 				break;
 			case '--output' :
 			case '-o' :
 				if (++x > argc) {
 					console.warn('Specify an output path.'.yellow);
 					cliUsage();
-					process.exit(1)
+					process.exit(1);
 				}
-				output = process.argv[x];
+				outputPath = process.argv[x];
+				break;
+			case '--stdout':
+				exportStdout = true;
+				break;
+			// old python script options
+			case '--colorize':
+			case '--exclude-external':
+			case '-e':
+			case '--verbose':
+			case '--version':
+			case '-v' :
+			case '--warn-inherited':
+				console.warn('This command-line flag or argument has been deprecated or has not been implemented: %s'.yellow, process.argv[x]);
+				if (~['-v', '--version'].indexOf(process.argv[x])) x++;
 				break;
 			default :
 				basePaths.push(process.argv[x]);
@@ -402,23 +524,26 @@ if ((argc = process.argv.length) > 2) {
 }
 
 // Parse YAML files
-if (basePaths.length == 0) basePaths.push(apidocPath);
+originalPaths = originalPaths.concat(basePaths);
+basePaths.push(apidocPath);
 basePaths.forEach(function (basePath) {
 	console.log('Parsing YAML files in %s...'.white, basePath);
 	parseData = common.parseYAML(basePath);
 	for (key in parseData.data) {
 		errors.push(parseData.errors);
-		if (key in doc && doc[key]) {
+		if (assert(doc, key)) {
 			console.warn('WARNING: Duplicate class found: %s'.yellow, key);
 			continue;
 		}
 		doc[key] = parseData.data[key];
+		if (~originalPaths.indexOf(basePath)) modules.push(key);
 	}
 });
 
 // Process YAML files
-console.log('Processing YAML files...'.white);
+console.log('Processing YAML data...'.white);
 processFirst.forEach(function (cls) {
+	if (!assert(doc, cls)) return;
 	processedData[cls] = processAPIs(doc[cls]);
 });
 skipList = skipList.concat(processFirst);
@@ -427,25 +552,80 @@ for (key in doc) {
 	processedData[key] = processAPIs(doc[key]);
 }
 
-// Export data
-exporter = require('./lib/' + format + '_generator.js');
-exportData = exporter.exportData(processedData);
-templatePath = apidocPath + '/templates/'
+formats.forEach(function (format) {
+	// Export data
+	exporter = require('./lib/' + format + '_generator.js');
+	if (format == 'modulehtml') {
+		processedData.__modules = modules;
+	}
+	exportData = exporter.exportData(processedData);
+	templatePath = apidocPath + '/templates/';
+	output = outputPath;
+	mkdirDashP(output);
 
-switch (format) {
-	case 'jsduck' :
-		templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
-		render = ejs.render(templateStr, {doc: exportData});
-		output = output + '/titanium.js';
-		break;
-	default:
-		;
-}
+	console.log('Generating %s output...'.white, format.toUpperCase());
 
-fs.writeFile(output, render, function (err) {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log("Generated output at %s".green, output);
-    }
+	switch (format) {
+		case 'html' :
+		case 'modulehtml' :
+
+			output += '/apidoc/';
+			if(!fs.existsSync(output)) {
+				fs.mkdirSync(output);
+			}
+
+			if (cssFile) {
+				fs.createReadStream(cssPath).pipe(fs.createWriteStream(output + cssFile));
+			}
+
+			exec('cp -r ' + apidocPath + '/images' + ' ' + output, function (error) {
+				if (error !== null) {
+					console.error('Error copying file: %s', error);
+				}
+			});
+
+			for (type in exportData) {
+				if (type.indexOf('__') == 0) continue;
+				templateStr = fs.readFileSync(templatePath + 'htmlejs/' + type + '.html', 'utf8');
+				exportData[type].forEach(function (member) {
+					render = ejs.render(templateStr, {data: member, filename: true, assert: common.assertObjectKey, css: cssFile});
+					if (fs.writeFileSync(output + member.filename + '.html', render) <= 0) {
+						console.error('Failed to write to file: %s'.red, output + member.filename + '.html');
+					}
+				});
+			}
+
+			if (format === 'modulehtml') {
+				templateStr = fs.readFileSync(templatePath + 'htmlejs/moduleindex.html', 'utf8');
+				render = ejs.render(templateStr, {filename: exportData.proxy[0].filename + '.html'});
+			} else {
+				templateStr = fs.readFileSync(templatePath + 'htmlejs/index.html', 'utf8');
+				render = ejs.render(templateStr, {data: exportData, assert: common.assertObjectKey, css: cssFile});
+			}
+			output += 'index.html';
+			break;
+		case 'jsca' :
+			render = JSON.stringify(exportData, null, '    ');
+			output = output + '/api.jsca';
+			break;
+		case 'jsduck' :
+			templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
+			render = ejs.render(templateStr, {doc: exportData});
+			output = output + '/titanium.js';
+			break;
+		default:
+			;
+	}
+
+	if (fs.writeFile(output, render) <= 0) {
+		console.error('Failed to write to file: %s'.red, output);
+		process.exit(1);
+	} else {
+	    console.log("Generated output at %s".green, output);
+	}
+	exporter = exportData = null;
 });
+
+if (exportStdout) {
+	process.stdout.write(JSON.stringify(processedData, null, '    '));
+}

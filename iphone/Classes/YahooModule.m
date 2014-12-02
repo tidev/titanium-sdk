@@ -22,6 +22,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 
 -(id)initWithCallback:(KrollCallback*)callback_ module:(YahooModule*)module_
 {
+	//Ignore analyzer warning here. Delegate will call autorelease onLoad or onError.
 	if (self = [super init])
 	{
 		callback = [callback_ retain];

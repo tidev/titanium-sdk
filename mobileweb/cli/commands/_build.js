@@ -5,7 +5,8 @@
  * See the LICENSE file for more information.
  */
 
-var appc = require('node-appc'),
+const
+	appc = require('node-appc'),
 	async = require('async'),
 	Builder = require('titanium-sdk/lib/builder'),
 	cleanCSS = require('clean-css'),
@@ -14,10 +15,10 @@ var appc = require('node-appc'),
 	fs = require('fs'),
 	i18n = appc.i18n(__dirname),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
+	mobilewebPackageJson = appc.pkginfo.package(module),
 	path = require('path'),
 	ti = require('titanium-sdk'),
 	util = require('util'),
-	windows = require('titanium-sdk/lib/windows'),
 	wrench = require('wrench'),
 	__ = i18n.__,
 	__n = i18n.__n,
@@ -42,7 +43,7 @@ function MobileWebBuilder() {
 
 	this.prefetch = [];
 
-	this.windowsInfo = null;
+	this.targets = ['web'];
 }
 
 util.inherits(MobileWebBuilder, Builder);
@@ -50,8 +51,12 @@ util.inherits(MobileWebBuilder, Builder);
 MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 	Builder.prototype.config.apply(this, arguments);
 
-	var _t = this;
+	// we need to load all Mobile Web hooks immediately so that the hooks can
+	// modify the config. the cli will do this, but only after config() has
+	// been called.
+	cli.scanHooks(path.resolve(__dirname, '..', 'hooks'));
 
+	// make sure we have Java before we waste time validating the command line arguments
 	cli.on('cli:pre-validate', function (obj, callback) {
 		if (cli.argv.platform && cli.argv.platform != 'mobileweb') {
 			return callback();
@@ -68,209 +73,43 @@ MobileWebBuilder.prototype.config = function config(logger, config, cli) {
 		});
 	});
 
-	return function (finished) {
-		var targets = ['web'];
-
-		appc.environ.getOSInfo(function (osInfo) {
-			if (process.platform == 'win32') {
-				windows.detect(config, null, function (windowsInfo) {
-					_t.windowsInfo = windowsInfo;
-					if (windowsInfo.visualstudio) {
-						if (windowsInfo.windowsphone) {
-							targets.push('wp8');
-						}
-						targets.push('winstore');
-					}
-					configure(osInfo);
-				});
-			} else {
-				configure(osInfo);
+	var conf = {
+		options: {
+			'build-type': {
+				hidden: true
+			},
+			'deploy-type': {
+				abbr: 'D',
+				default: 'development',
+				desc: __('the type of deployment; production performs optimizations'),
+				hint: __('type'),
+				order: 100,
+				values: ['production', 'development']
+			},
+			'target': {
+				abbr: 'T',
+				default: 'web',
+				desc: __('the target to build for'),
+				order: 110,
+				values: this.targets
 			}
+		}
+	};
+
+	var configHook = cli.createHook('build.mobileweb.config', this, function (conf, callback) {
+		callback(null, conf);
+	});
+
+	return function (finished) {
+		configHook(conf, function (err, conf) {
+			finished(conf);
 		});
-
-		function configure(osInfo) {
-			cli.createHook('build.mobileweb.config', function (callback) {
-				function assertIssue(logger, issues, name, exit) {
-					var i = 0,
-						len = issues.length;
-					for (; i < len; i++) {
-						if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
-							logger.banner();
-							issues[i].message.split('\n').forEach(function (line) {
-								logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-							});
-							logger.log();
-							exit && process.exit(1);
-						}
-					}
-				}
-
-				var conf = {
-					options: {
-						'build-type': {
-							hidden: true
-						},
-						'deploy-type': {
-							abbr: 'D',
-							default: 'development',
-							desc: __('the type of deployment; production performs optimizations'),
-							hint: __('type'),
-							order: 100,
-							values: ['production', 'development']
-						},
-						'target': {
-							abbr: 'T',
-							callback: function (value) {
-								if (process.platform == 'win32' && targets.indexOf(value) !== -1) {
-									if (value === 'wp8' || value === 'winstore') {
-										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_VISUAL_STUDIO_NOT_INSTALLED', true);
-										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_MSBUILD_ERROR', true);
-										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_MSBUILD_TOO_OLD', true);
-									}
-
-									// if this is a Windows Phone 8 target, validate the wp8 specific parameters
-									if (value === 'wp8') {
-										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_SDK_NOT_INSTALLED', true);
-										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_SDK_MISSING_DEPLOY_CMD', true);
-										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_ENUMERATE_DEVICES_FAILED', true);
-
-										conf.options['wp8-publisher-guid'].required = true;
-										conf.options['device-id'].required = true;
-									}
-
-									if (value === 'winstore') {
-										if (appc.version.lt(osInfo.osver, '6.2.0')) {
-											logger.banner();
-											logger.error(__('Winstore apps are only supported on Windows 8 and newer.') + '\n');
-											process.exit(1);
-										}
-										assertIssue(logger, _t.windowsInfo.issues, 'WINDOWS_PHONE_POWERSHELL_SCRIPTS_DISABLED', true);
-									}
-								}
-							},
-							default: 'web',
-							desc: __('the target to build for'),
-							order: 110,
-							values: targets
-						}
-					}
-				};
-
-				if (process.platform == 'win32') {
-					function determineTargetSDK() {
-						// determine the target Windows Phone SDK version
-						var availableSDKs = Object.keys(_t.windowsInfo.windowsphone).sort().filter(function (v) { return _t.windowsInfo.windowsphone[v].supported; })
-							targetSDK = cli.tiapp['windows-phone'] && cli.tiapp['windows-phone']['target-sdk'];
-
-						if (!availableSDKs.length) {
-							logger.error(__('Unable to find any supported Windows Phone devices or emulators'));
-							logger.error(__('Run "ti info" for more info.') + '\n');
-							process.exit(1);
-						}
-
-						// make sure the target sdk is good
-						if (targetSDK && availableSDKs.indexOf(targetSDK) == -1) {
-							logger.error(__('Invalid Windows Phone Target SDK "%s"', targetSDK) + '\n');
-							logger.log(__('Available Target SDKs:'));
-							availableSDKs.forEach(function (ver) {
-								logger.log('   ' + String(ver).cyan);
-							});
-							logger.log();
-							process.exit(1);
-						}
-
-						// auto select the oldest, most compatible (in theory) version
-						if (!targetSDK) {
-							targetSDK = availableSDKs.shift();
-						}
-
-						cli.tiapp['windows-phone'] || (cli.tiapp['windows-phone'] = {});
-						cli.tiapp['windows-phone']['target-sdk'] = targetSDK;
-						return targetSDK;
-					}
-
-					conf.options['device-id'] = {
-						abbr: 'C',
-						callback: function (value) {
-							if (value != 'xd' && value != 'de' && _t.windowsInfo.devices && !_t.windowsInfo.devices[value]) {
-								// maybe it's a device name?
-								for (var i = 0, k = Object.keys(_t.windowsInfo.devices), l = k.length; i < l; i++) {
-									if (_t.windowsInfo.devices[k[i]] == value) {
-										value = k[i];
-									}
-								}
-							}
-							return value;
-						},
-						desc: __('On Windows Phone 8, the device-id of the emulator/device to run the app in, "xd" for any emulator, or "de" for any device'),
-						order: 130,
-						prompt: function (callback) {
-							// get target sdk's devices
-							var targetSDK = determineTargetSDK(),
-								devices = _t.windowsInfo.devices = _t.windowsInfo.windowsphone[targetSDK].devices;
-
-							if (!devices) {
-								cli.argv['build-only'] = true;
-								return callback();
-							}
-
-							callback(fields.select({
-								title: __("Which device or emulator do you want to install your app on?"),
-								promptLabel: __('Select by number or name'),
-								margin: '',
-								numbered: true,
-								relistOnError: true,
-								complete: true,
-								suggest: true,
-								options: Object.keys(devices).map(function (id) {
-									return {
-										label: devices[id],
-										value: id
-									};
-								})
-							}));
-						},
-						validate: function (value, callback) {
-							determineTargetSDK();
-							if (!value || (value != 'xd' && value != 'de' && _t.windowsInfo.devices && !_t.windowsInfo.devices[value])) {
-								return callback(new Error(__('Invalid device id: %s', value)));
-							}
-							callback(null, value);
-						},
-						verifyIfRequired: function (callback) {
-							return callback(!cli.argv['build-only']);
-						}
-					};
-
-					conf.options['wp8-publisher-guid'] = {
-						default: config.get('wp8.publisherGuid'),
-						desc: __('your publisher GUID, obtained from %s', 'http://appcelerator.com/windowsphone'.cyan),
-						hint: __('guid'),
-						order: 120,
-						prompt: function (callback) {
-							callback(fields.text({
-								promptLabel: __('What is your __Windows Phone 8 Publisher GUID__?'),
-								validate: conf.options['wp8-publisher-guid'].validate
-							}));
-						},
-						validate: function (value, callback) {
-							if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
-								return callback(new Error(__('Invalid "--wp8-publisher-guid" value "%s"', value)));
-							}
-							callback(null, value);
-						}
-					};
-				}
-
-				callback(null, conf);
-			})(function (err, result) {
-				finished(result);
-			});
-		};
-	}
+	};
 };
 
 MobileWebBuilder.prototype.validate = function validate(logger, config, cli) {
+	Builder.prototype.validate.apply(this, arguments);
+
 	this.target = cli.argv.target;
 	this.deployType = cli.argv['deploy-type'];
 	this.buildType = cli.argv['build-type'] || '';
@@ -287,13 +126,24 @@ MobileWebBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.enableLogging = true;
 	}
 
-	if (!cli.tiapp.icon || !['Resources', 'Resources/android'].some(function (p) {
+	if (!cli.tiapp.icon || !['Resources', 'Resources/mobileweb'].some(function (p) {
 			return fs.existsSync(cli.argv['project-dir'], p, cli.tiapp.icon);
 		})) {
 		cli.tiapp.icon = 'appicon.png';
 	}
 
-	// TODO: validate modules here
+	return function (callback) {
+		this.validateTiModules('mobileweb', this.deployType, function (err, modules) {
+			this.modules = modules.found;
+
+			modules.found.forEach(function (module) {
+				// scan the module for any CLI hooks
+				cli.scanHooks(path.join(module.modulePath, 'hooks'));
+			});
+
+			callback();
+		}.bind(this));
+	}.bind(this);
 };
 
 MobileWebBuilder.prototype.run = function run(logger, config, cli, finished) {
@@ -349,18 +199,13 @@ MobileWebBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'createIndexHtml',
 
 		function (next) {
-			if (!this.buildOnly && (this.target == 'wp8' || this.target == 'winstore')) {
-				var delta = appc.time.prettyDiff(this.cli.startTime, Date.now());
-				logger.info(__('Finished building the application in %s', delta.cyan));
-			}
-
 			cli.emit('build.post.compile', this, next);
-		}
-	], function (err) {
-		cli.emit('build.finalize', this, function () {
-			finished(err);
-		});
-	});
+		},
+
+		function (next) {
+			cli.emit('build.finalize', this, next);
+		},
+	], finished);
 };
 
 MobileWebBuilder.prototype.doAnalytics = function doAnalytics(next) {
@@ -493,7 +338,7 @@ MobileWebBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
 	// Alloy generate an app.js, it may not have existed during validate(), but should exist now
 	// that build.pre.compile was fired.
-	ti.validateAppJsExists(this.projectDir, this.logger, 'android');
+	ti.validateAppJsExists(this.projectDir, this.logger, 'mobileweb');
 
 	if (fs.existsSync(this.buildDir)) {
 		this.logger.debug(__('Deleting existing build directory'));
@@ -634,95 +479,61 @@ MobileWebBuilder.prototype.findPrecacheImages = function findPrecacheImages(next
 };
 
 MobileWebBuilder.prototype.findTiModules = function findTiModules(next) {
-	if (!this.tiapp.modules || !this.tiapp.modules.length) {
-		this.logger.info(__('No Titanium Modules required, continuing'));
-		return next();
-	}
+	this.modules.forEach(function (module) {
+		var moduleDir = module.modulePath,
+			pkgJson,
+			pkgJsonFile = path.join(moduleDir, 'package.json');
 
-	this.logger.info(__n('Searching for %s Titanium Module', 'Searching for %s Titanium Modules', this.tiapp.modules.length));
-	appc.timodule.find(this.tiapp.modules, 'mobileweb', this.deployType, this.titaniumSdkVersion, this.moduleSearchPaths, this.logger, function (modules) {
-		if (modules.missing.length) {
-			this.logger.error(__('Could not find all required Titanium Modules:'));
-			modules.missing.forEach(function (m) {
-				this.logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t deploy-type: ' + m.deployType);
-			}, this);
-			this.logger.log();
+		if (!fs.existsSync(pkgJsonFile)) {
+			this.logger.error(__('Invalid Titanium Mobile Module "%s": missing package.json', module.id) + '\n');
 			process.exit(1);
 		}
 
-		if (modules.incompatible.length) {
-			this.logger.error(__('Found incompatible Titanium Modules:'));
-			modules.incompatible.forEach(function (m) {
-				this.logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + (m.manifest && m.manifest.minsdk || '?'));
-			}, this);
-			this.logger.log();
+		try {
+			pkgJson = JSON.parse(fs.readFileSync(pkgJsonFile));
+		} catch (e) {
+			this.logger.error(__('Invalid Titanium Mobile Module "%s": unable to parse package.json', module.id) + '\n');
 			process.exit(1);
 		}
 
-		if (modules.conflict.length) {
-			this.logger.error(__('Found conflicting Titanium modules:'));
-			modules.conflict.forEach(function (m) {
-				this.logger.error('   ' + __('Titanium module "%s" requested for both Mobile Web and CommonJS platforms, but only one may be used at a time.', m.id));
-			}, this);
-			this.logger.log();
+		var libDir = ((pkgJson.directories && pkgJson.directories.lib) || '').replace(/^\//, '');
+
+		var mainFilePath = path.join(moduleDir, libDir, (pkgJson.main || '').replace(/\.js$/, '') + '.js');
+		if (!fs.existsSync(mainFilePath)) {
+			this.logger.error(__('Invalid Titanium Mobile Module "%s": unable to find main file "%s"', module.id, pkgJson.main) + '\n');
 			process.exit(1);
 		}
 
-		modules.found.forEach(function (module) {
-			var moduleDir = module.modulePath,
-				pkgJson,
-				pkgJsonFile = path.join(moduleDir, 'package.json');
-			if (!fs.existsSync(pkgJsonFile)) {
-				this.logger.error(__('Invalid Titanium Mobile Module "%s": missing package.json', module.id) + '\n');
-				process.exit(1);
-			}
+		this.logger.info(__('Bundling Titanium Mobile Module %s', module.id.cyan));
 
-			try {
-				pkgJson = JSON.parse(fs.readFileSync(pkgJsonFile));
-			} catch (e) {
-				this.logger.error(__('Invalid Titanium Mobile Module "%s": unable to parse package.json', module.id) + '\n');
-				process.exit(1);
-			}
+		this.projectDependencies.push(pkgJson.main);
 
-			var libDir = ((pkgJson.directories && pkgJson.directories.lib) || '').replace(/^\//, '');
+		var moduleName = module.id != pkgJson.main ? module.id + '/' + pkgJson.main : module.id;
 
-			var mainFilePath = path.join(moduleDir, libDir, (pkgJson.main || '').replace(/\.js$/, '') + '.js');
-			if (!fs.existsSync(mainFilePath)) {
-				this.logger.error(__('Invalid Titanium Mobile Module "%s": unable to find main file "%s"', module.id, pkgJson.main) + '\n');
-				process.exit(1);
-			}
+		if (/\/commonjs/.test(moduleDir)) {
+			this.modulesToCache.push((/\/commonjs/.test(moduleDir) ? 'commonjs:' : '') + moduleName);
+		} else {
+			this.modulesToCache.push(moduleName);
+			this.tiModulesToLoad.push(module.id);
+		}
 
-			this.logger.info(__('Bundling Titanium Mobile Module %s', module.id.cyan));
+		this.packages.push({
+			'name': module.id,
+			'location': './' + this.collapsePath('modules/' + module.id + (libDir ? '/' + libDir : '')),
+			'main': pkgJson.main,
+			'root': 1
+		});
 
-			this.projectDependencies.push(pkgJson.main);
+		// TODO: need to combine ALL Ti module .js files into the titanium.js, not just the main file
 
-			var moduleName = module.id != pkgJson.main ? module.id + '/' + pkgJson.main : module.id;
+		// TODO: need to combine ALL Ti module .css files into the titanium.css
 
-			if (/\/commonjs/.test(moduleDir)) {
-				this.modulesToCache.push((/\/commonjs/.test(moduleDir) ? 'commonjs:' : '') + moduleName);
-			} else {
-				this.modulesToCache.push(moduleName);
-				this.tiModulesToLoad.push(module.id);
-			}
+		var dest = path.join(this.buildDir, 'modules', module.id);
+		wrench.mkdirSyncRecursive(dest);
+		afs.copyDirSyncRecursive(moduleDir, dest, { preserve: true });
+	}, this);
 
-			this.packages.push({
-				'name': module.id,
-				'location': './' + this.collapsePath('modules/' + module.id + (libDir ? '/' + libDir : '')),
-				'main': pkgJson.main,
-				'root': 1
-			});
-
-			// TODO: need to combine ALL Ti module .js files into the titanium.js, not just the main file
-
-			// TODO: need to combine ALL Ti module .css files into the titanium.css
-
-			var dest = path.join(this.buildDir, 'modules', module.id);
-			wrench.mkdirSyncRecursive(dest);
-			afs.copyDirSyncRecursive(moduleDir, dest, { preserve: true });
-		}, this);
-
-		next();
-	}.bind(this));
+	next();
 };
 
 MobileWebBuilder.prototype.findI18N = function findI18N(next) {

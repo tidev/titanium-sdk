@@ -122,7 +122,6 @@ static NSArray* scrollViewKeySequence;
     }
     
     if (TiDimensionIsAutoFill(contentHeight) || TiDimensionIsDip(contentHeight) || TiDimensionIsPercent(contentHeight)) {
-        flexibleContentHeight = NO;
         contentSize.height = MAX(TiDimensionCalculateValue(contentHeight, size.height), size.height);
     }
     
@@ -209,7 +208,6 @@ static NSArray* scrollViewKeySequence;
         }
     }
     else if (TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle)) {
-        BOOL horizontalWrap = TiLayoutFlagsHasHorizontalWrap(&layoutProperties);
         if(flexibleContentWidth) {
             CGFloat thisHeight = 0;
             NSArray* subproxies = [self children];
@@ -386,7 +384,7 @@ static NSArray* scrollViewKeySequence;
     }
 }
 
-- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(float)scale
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale
 {
 	[self replaceValue:NUMFLOAT(scale) forKey:@"zoomScale" notification:NO];
 	

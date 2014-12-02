@@ -1721,6 +1721,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_STOP = "onStop";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TLS_VERSION = "tlsVersion";
 
 	/**
 	 * @module.api
@@ -2417,6 +2422,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VISIBLE = "visible";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VISIBILITY = "visibility";
 
 	/**
 	 * @module.api
@@ -2520,6 +2530,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CATEGORY = "category";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CUSTOM = "custom";
 	
 	/**
@@ -2531,6 +2546,47 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MAX_DATE = "maxDate";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PREFIX = "prefix";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PRIORITY = "priority";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SUFFIX = "suffix";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FIRSTPHONETIC = "firstPhonetic";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MIDDLEPHONETIC = "middlePhonetic";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LASTPHONETIC = "lastPhonetic";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_JOBTITLE = "jobTitle";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DEPARTMENT = "department";
+	
 	
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";

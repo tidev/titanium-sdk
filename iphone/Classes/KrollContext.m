@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiBase.h"
 #import "KrollContext.h"
 #import "KrollObject.h"
 #import "KrollTimer.h"
@@ -13,9 +12,11 @@
 #import "TiLocale.h"
 
 #include <pthread.h>
+#ifdef TI_DEBUGGER_PROFILER
 #import "TiDebugger.h"
+#endif
+#import "TiProfiler/TiProfiler.h"
 #import "TiExceptionHandler.h"
-#import "TiProfiler.h"
 
 #import "TiUIAlertDialogProxy.h"
 
@@ -323,7 +324,64 @@ static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFu
 	
 	KrollContext *ctx = GetKrollContext(jsContext);
 	NSString* format = [KrollObject toID:ctx value:args[0]];
-	
+#if TARGET_IPHONE_SIMULATOR
+    // convert string references to objects
+    format = [format stringByReplacingOccurrencesOfString:@"%s" withString:@"%@_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%1$s" withString:@"%1$@_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%2$s" withString:@"%2$@_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%3$s" withString:@"%3$@_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%4$s" withString:@"%4$@_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%5$s" withString:@"%5$@_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%6$s" withString:@"%6$@_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%7$s" withString:@"%7$@_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%8$s" withString:@"%8$@_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%9$s" withString:@"%9$@_TIDELIMITER_"];
+    // we're dealing with double, so convert so that it formats right
+    format = [format stringByReplacingOccurrencesOfString:@"%d" withString:@"%1.0f_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%1$d" withString:@"%1$1.0f_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%2$d" withString:@"%2$1.0f_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%3$d" withString:@"%3$1.0f_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%4$d" withString:@"%4$1.0f_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%5$d" withString:@"%5$1.0f_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%6$d" withString:@"%6$1.0f_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%7$d" withString:@"%7$1.0f_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%8$d" withString:@"%8$1.0f_TIDELIMITER_"];
+    format = [format stringByReplacingOccurrencesOfString:@"%9$d" withString:@"%9$1.0f_TIDELIMITER_"];
+    
+    NSArray* formatArray = [format componentsSeparatedByString:@"_TIDELIMITER_"];
+    NSUInteger formatCount = [formatArray count];
+    NSMutableString* result = [[NSMutableString alloc] init];
+    @try {
+        for (size_t x=1; (x < argCount) && (x <= formatCount); x++)
+        {
+            NSString* theFormat = [formatArray objectAtIndex:(x-1)];
+            TiValueRef valueRef = args[x];
+            if (TiValueIsString(jsContext,valueRef)||TiValueIsObject(jsContext, valueRef))
+            {
+                id theResult = [KrollObject toID:ctx value:valueRef];
+                [result appendString:[NSString stringWithFormat:theFormat,theResult]];
+            }
+            else if (TiValueIsNumber(jsContext, valueRef))
+            {
+                double theResult = TiValueToNumber(jsContext, valueRef, NULL);
+                [result appendString:[NSString stringWithFormat:theFormat,theResult]];
+            }
+            else if (TiValueIsBoolean(jsContext, valueRef))
+            {
+                bool theResult = TiValueToBoolean(jsContext,valueRef);
+                [result appendString:[NSString stringWithFormat:theFormat,theResult]];
+            }
+        }
+        TiValueRef value = [KrollObject toValue:ctx value:result];
+        [result release];
+        return value;
+        
+    }
+    @catch (NSException *e) {
+        return ThrowException(jsContext, [e reason], exception);
+    }
+    
+#else
 	// convert string references to objects
 	format = [format stringByReplacingOccurrencesOfString:@"%s" withString:@"%@"];
 	format = [format stringByReplacingOccurrencesOfString:@"%1$s" withString:@"%1$@"];
@@ -367,8 +425,8 @@ static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFu
 				size+=sizeof(bool);
 			}
 		}
-		char* argList = (char *)malloc(size);
-		char* bm = argList; // copy pointer since we move the other forward
+		void* argList = malloc(size);
+		void* bm = argList; // copy pointer since we move the other forward
 		for (size_t x = 1; x < argCount; x++)
 		{
 			TiValueRef valueRef = args[x];
@@ -398,6 +456,7 @@ static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFu
 	{
 		return ThrowException(jsContext, [e reason], exception);
 	}
+#endif
 }	
 
 static TiValueRef StringFormatDateCallback (TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
@@ -626,7 +685,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	}
 	TiObjectRef global = TiContextGetGlobalObject([context context]);
 	
-	TiValueRef result = TiEvalScript([context context], jsCode, global, jsURL, startingLineNo, exceptionPointer);
+	TiValueRef result = TiEvalScript([context context], jsCode, global, jsURL, (int)startingLineNo, exceptionPointer);
 		
 	TiStringRelease(jsCode);
 	if (jsURL != NULL) {
@@ -887,9 +946,11 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		stopped = YES;
 		if (debugger!=NULL)
 		{
+#ifdef TI_DEBUGGER_PROFILER
 			TiObjectRef globalRef = TiContextGetGlobalObject(context);
 			TiDebuggerDestroy(self,globalRef,debugger);
-			debugger = NULL;
+#endif
+            debugger = NULL;
 		}
 		[condition signal];
 		[condition unlock];
@@ -926,7 +987,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 }
 
 #ifdef DEBUG
--(int)queueCount
+-(NSUInteger)queueCount
 {
 	return [queue count];
 }
@@ -1107,12 +1168,14 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
     // TODO: We might want to be smarter than this, and do some KVO on the delegate's
     // 'debugMode' property or something... and start/stop the debugger as necessary.
+#ifdef TI_DEBUGGER_PROFILER
     if ([[self delegate] shouldDebugContext]) {
         debugger = TiDebuggerCreate(self,globalRef);
-    } else if ([[self delegate] shouldProfileContext]) {
-		TiProfilerEnable(globalRef);
-	}
-	
+    }
+#endif
+    if ([[self delegate] shouldProfileContext]) {
+        TiProfilerEnable(globalRef,context);
+    }
 	// we register an empty kroll string that allows us to pluck out this instance
 	KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];
 	TiValueRef krollRef = [KrollObject toValue:self value:kroll];
@@ -1243,7 +1306,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		{
             [condition unlock];
 			exit_after_flush = YES;
-			int queue_count = 0;
+			NSUInteger queue_count = 0;
 			
 			[lock lock];
 			queue_count = [queue count];
@@ -1351,7 +1414,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		
 		[condition lock];
 		[lock lock];
-		int queue_count = [queue count];
+		NSUInteger queue_count = [queue count];
 		[lock unlock];
 		if ((queue_count == 0) && !suspended)
 		{
@@ -1474,11 +1537,23 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)main
 {
-	IMP ourFunction = [invocationTarget methodForSelector:invocationSelector];
-    typedef id (*idIMP) (id, SEL, ...);
-	id result = ((idIMP)ourFunction)(invocationTarget,invocationSelector,
-		invocationArg1,invocationArg2,invocationArg3,invocationArg4);
-
+    NSMethodSignature* msignature = [invocationTarget methodSignatureForSelector:invocationSelector];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:msignature];
+    NSUInteger argCount = [msignature numberOfArguments];
+    if (argCount >= 3) {
+        [invocation setArgument:&invocationArg1 atIndex:2];
+    }
+    if (argCount >= 4) {
+        [invocation setArgument:&invocationArg2 atIndex:3];
+    }
+    if (argCount >= 5) {
+        [invocation setArgument:&invocationArg3 atIndex:4];
+    }
+    if (argCount >= 6) {
+        [invocation setArgument:&invocationArg4 atIndex:5];
+    }
+    [invocation setSelector:invocationSelector];
+    [invocation invokeWithTarget:invocationTarget];
 }
 
 - (void) dealloc

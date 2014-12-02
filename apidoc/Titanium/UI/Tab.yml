@@ -220,7 +220,7 @@ properties:
          otherwise.
     type: String
 
-  - name: iconIsmask
+  - name: iconIsMask
     summary: Defines if the icon property of the tab must be used as a mask. This property is applicable on iOS 7 and greater. 
     description: |
         When this property is true, the color data of the image specified as the icon is ignored and the image is used as an alpha mask. 

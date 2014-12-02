@@ -116,6 +116,7 @@
         for (EKRecurrenceRule* rule_ in rules_) {
             TiCalendarRecurrenceRule* rule = [[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext] rule:rule_];
             [rules addObject:rule];
+			RELEASE_TO_NIL(rule);
         }
         return rules;
      }

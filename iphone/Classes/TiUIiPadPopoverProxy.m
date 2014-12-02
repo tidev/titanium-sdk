@@ -71,7 +71,7 @@ static NSArray* popoverSequence;
 
 -(NSNumber*)arrowDirection
 {
-    return NUMINT(directions);
+    return NUMINTEGER(directions);
 }
 
 -(void)setArrowDirection:(id)args

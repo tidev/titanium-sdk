@@ -34,7 +34,7 @@
     ENSURE_ARG_OR_NIL_AT_INDEX(length, args, 2, NSObject);
     
     if (offset == nil && length == nil) {
-        return NUMINT([self readToBuffer:buffer offset:0 length:[[buffer data] length] callback:nil]);
+        return NUMINTEGER([self readToBuffer:buffer offset:0 length:[[buffer data] length] callback:nil]);
     }
     else {
         if (offset == nil || length == nil) {
@@ -44,17 +44,21 @@
                         location:CODELOCATION];
         }
         
-        int offsetValue = [TiUtils intValue:offset];
-        int lengthValue = [TiUtils intValue:length def:[[buffer data] length]];
+        NSInteger offsetValue = [TiUtils intValue:offset];
+        BOOL valid = NO;
+        NSUInteger lengthValue = [TiUtils intValue:length def:0 valid:&valid];
+        if (!valid) {
+            lengthValue = [[buffer data] length];
+        }
         
         // TODO: Throw exception
         if (offsetValue >= [[buffer data] length]) {
-            NSString* errorStr = [NSString stringWithFormat:@"[ERROR] Offset %d is past buffer bounds (length %d)",offsetValue,[[buffer data] length]];
+            NSString* errorStr = [NSString stringWithFormat:@"[ERROR] Offset %ld is past buffer bounds (length %lu)",(long)offsetValue,(unsigned long)[[buffer data] length]];
             NSLog(errorStr);
             return NUMINT(-1);
         }
         
-        return NUMINT([self readToBuffer:buffer offset:offsetValue length:lengthValue callback:nil]);
+        return NUMINTEGER([self readToBuffer:buffer offset:offsetValue length:lengthValue callback:nil]);
     }
     
     return NUMINT(-1);
@@ -78,7 +82,7 @@
     ENSURE_ARG_OR_NIL_AT_INDEX(length, args, 2, NSObject);
     
     if (offset == nil && length == nil) {
-        return NUMINT([self writeFromBuffer:buffer offset:0 length:[[buffer data] length] callback:nil]);
+        return NUMINTEGER([self writeFromBuffer:buffer offset:0 length:[[buffer data] length] callback:nil]);
     }
     else {
         if (offset == nil || length == nil) {
@@ -88,17 +92,21 @@
                         location:CODELOCATION];
         }
         
-        int offsetValue = [TiUtils intValue:offset];
-        int lengthValue = [TiUtils intValue:length def:[[buffer data] length]];
+        NSInteger offsetValue = [TiUtils intValue:offset];
+        BOOL valid = NO;
+        NSUInteger lengthValue = [TiUtils intValue:length def:0 valid:&valid];
+        if (!valid) {
+            lengthValue = [[buffer data] length];
+        }
         
         // TODO: Throw exception
         if (offsetValue >= [[buffer data] length]) {
-            NSString* errorStr = [NSString stringWithFormat:@"[ERROR] Offset %d is past buffer bounds (length %d)",offsetValue,[[buffer data] length]];
+            NSString* errorStr = [NSString stringWithFormat:@"[ERROR] Offset %ld is past buffer bounds (length %lu)",(long)offsetValue,(unsigned long)[[buffer data] length]];
             NSLog(errorStr);
             return NUMINT(-1);
         }
         
-        return NUMINT([self writeFromBuffer:buffer offset:offsetValue length:lengthValue callback:nil]);
+        return NUMINTEGER([self writeFromBuffer:buffer offset:offsetValue length:lengthValue callback:nil]);
     }
     
     return NUMINT(-1);
@@ -106,20 +114,20 @@
 
 #pragma mark Protocol stubs
 
--(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback
+-(NSInteger)readToBuffer:(TiBuffer*)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback*)callback
 {
 	[self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@",NSStringFromSelector(_cmd)] location:CODELOCATION];
 }
--(int)writeFromBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback
+-(NSInteger)writeFromBuffer:(TiBuffer*)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback*)callback
 {
 	[self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@",NSStringFromSelector(_cmd)] location:CODELOCATION];
 }
 
--(int)writeToStream:(id<TiStreamInternal>)output chunkSize:(int)size callback:(KrollCallback*)callback
+-(NSInteger)writeToStream:(id<TiStreamInternal>)output chunkSize:(NSInteger)size callback:(KrollCallback*)callback
 {
 	[self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@",NSStringFromSelector(_cmd)] location:CODELOCATION];
 }
--(void)pumpToCallback:(KrollCallback*)callback chunkSize:(int)size asynch:(BOOL)asynch
+-(void)pumpToCallback:(KrollCallback*)callback chunkSize:(NSInteger)size asynch:(BOOL)asynch
 {
 	[self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@",NSStringFromSelector(_cmd)] location:CODELOCATION];
 }

@@ -10,6 +10,13 @@ ioslib supports Xcode 5 and Xcode 6.
 
 [![NPM](https://nodei.co/npm/ioslib.png?downloads=true&stars=true)](https://nodei.co/npm/ioslib/)
 
+## Known Issues
+
+Currently, ioslib is unable to get `NSLog()` messages from simulator builds.
+Starting in Xcode 6, Apple changed the way log events are emitted from the app
+and thus ios-sim is no longer able to receive them. In a future release, we will
+tail the simulator's system.log and extract the log messages.
+
 ## Prerequisites
 
 This library current depends on [node-ios-device](https://github.com/appcelerator/node-ios-device)

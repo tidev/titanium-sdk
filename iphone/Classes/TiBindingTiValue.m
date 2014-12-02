@@ -101,7 +101,7 @@ NSObject * TiBindingTiValueToNSObject(TiContextRef jsContext, TiValueRef objRef)
 				TiValueRef length = TiObjectGetProperty(jsContext, obj, kTiStringLength, NULL);
 				double len = TiValueToNumber(jsContext, length, NULL);
 				NSMutableArray* resultArray = [[NSMutableArray alloc] initWithCapacity:len];
-				for (size_t c=0; c<len; ++c)
+				for (uint c=0; c<len; ++c)
 				{
 					TiValueRef valueRef = TiObjectGetPropertyAtIndex(jsContext, obj, c, NULL);
 					id value = TiBindingTiValueToNSObject(jsContext,valueRef);

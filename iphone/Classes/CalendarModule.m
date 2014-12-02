@@ -207,6 +207,7 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
         case EKAuthorizationStatusDenied:
             code = EKAuthorizationStatusDenied;
             errorStr = @"The user has denied access to events in Calendar.";
+			break;
         case EKAuthorizationStatusRestricted:
             code = EKAuthorizationStatusRestricted;
             errorStr = @"The user is unable to allow access to events in Calendar.";
@@ -236,6 +237,7 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
                                      }
                                      KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
                                      [[callback context] enqueue:invocationEvent];
+									 RELEASE_TO_NIL(invocationEvent);
                                  }];
     }, NO);
 }

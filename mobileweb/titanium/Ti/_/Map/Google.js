@@ -1,6 +1,6 @@
 /*global define Ti*/
-define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Properties', 'Ti/Geolocation', 'Ti/Map', 'Ti/UI/View', 'Ti/Utils'],
-	function(declare, dom, event, lang, Properties, Geolocation, Map, View, Utils) {
+define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/App/Properties', 'Ti/Gesture', 'Ti/Geolocation', 'Ti/Map', 'Ti/UI/View', 'Ti/Utils'],
+	function(declare, dom, event, Properties, Gesture, Geolocation, Map, View, Utils) {
 
 	function mapType(type) {
 		var t = gmaps.MapTypeId;
@@ -12,9 +12,7 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 		return t.ROADMAP;
 	}
 
-	var isDef = lang.isDef,
-		mix = require.mix,
-		on = require.on,
+	var on = require.on,
 		fireEvent = View.prototype.fireEvent,
 		defaultRegion = {
 			latitude: 39.828175,
@@ -49,16 +47,34 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 						mapTypeId: mapType(self.mapType)
 					});
 
-				on(self, 'postlayout', function() {
-					gevent.trigger(gmap, 'resize');
-					self._updateMap(region, 1);
+				function resizeMap(init) {
+					// get the center
+					var center = gmap.getCenter()
+
 					setTimeout(function () {
+						gevent.trigger(gmap, 'resize');
+
+						if (!init) {
+							// orientation change, recenter
+							gmap.setCenter(center);
+							return;
+						}
+
+						// first time, fit map region into view
 						self._updateMap(region, 1);
 						self._updateUserLocation(self.userLocation);
 						self.annotations.forEach(self._createMarker, self);
 						self._annotationEvents = [];
-						self._boundsEvt = gevent.addListener(gmap, 'bounds_changed', lang.hitch(self, '_fitRegion'));
-					}, 1);
+						self._boundsEvt = gevent.addListener(gmap, 'bounds_changed', self._fitRegion.bind(self));
+					}, 25);
+				}
+
+				on.once(self, 'postlayout', function () {
+					resizeMap(1);
+
+					Gesture.addEventListener('orientationchange', function () {
+						resizeMap();
+					});
 				});
 			},
 
@@ -282,20 +298,22 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 			},
 
 			_createMarker: function(a) {
-				var markerImg = this._getMarkerImage(a);
+				var _t = this,
+					markerImg = _t._getMarkerImage(a);
+
 				a.evt = gevent.addListener(a.marker = new gmaps.Marker({
-					map: this._gmap,
+					map: _t._gmap,
 					icon: markerImg[0],
 					shadow: markerImg[1],
 					position: new gmaps.LatLng(a.latitude, a.longitude),
 					optimized: false,
 					title: a._getTitle(),
 					animation: a.animate && gmaps.Animation.DROP
-				}), 'click', lang.hitch(this, function() {
-					this[theInfoWindow && theInfoWindow.widgetId === a.widgetId ? '_hide' : '_show'](a);
-				}));
+				}), 'click', function() {
+					_t[theInfoWindow && theInfoWindow.widgetId === a.widgetId ? '_hide' : '_show'](a);
+				});
 
-				this.__values__.properties.annotations.push(a);
+				_t.__values__.properties.annotations.push(a);
 			},
 
 			_fitRegion: function() {
@@ -339,12 +357,14 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 			},
 
 			_updateUserLocation: function(userLocation) {
-				var gmap = this._gmap;
-				if (gmap && (userLocation || this._locationInited)) {
-					this._locationInited = 1;
+				var _t = this,
+					gmap = _t._gmap;
 
-					Geolocation[userLocation ? 'addEventListener' : 'removeEventListener']('location', lang.hitch(this, function(e) {
-						var marker = this._locationMarker,
+				if (gmap && (userLocation || _t._locationInited)) {
+					_t._locationInited = 1;
+
+					Geolocation[userLocation ? 'addEventListener' : 'removeEventListener']('location', function (e) {
+						var marker = _t._locationMarker,
 							coords = e.coords,
 							code = e.code,
 							pos;
@@ -354,8 +374,8 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 							if (marker) {
 								marker.setPosition(pos);
 							} else {
-								this._locationMarker = new gmaps.Marker({
-									map: this._gmap,
+								_t._locationMarker = new gmaps.Marker({
+									map: _t._gmap,
 									icon: locationMarkerImage,
 									position: pos
 								});
@@ -363,13 +383,13 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 						} else if ('code' in e) {
 							Ti.API.warn('Geolocation error: ' + (code === Geolocation.ERROR_DENIED ? 'permission denied' : code === Geolocation.ERROR_TIMEOUT ? 'timeout' : code === Geolocation.ERROR_LOCATION_UNKNOWN ? 'position unavailable' : 'unknown'));
 						}
-					}));
+					});
 
 					if (!Geolocation.locationServicesEnabled) {
 						Ti.API.warn('Geolocation services unavailable');
-						this.__values__.properties.userLocation = false;
-					} else if (!userLocation || this._locationMarker) {
-						this._locationMarker.setVisible(userLocation);
+						_t.__values__.properties.userLocation = false;
+					} else if (!userLocation || _t._locationMarker) {
+						_t._locationMarker.setVisible(userLocation);
 					}
 				}
 			},
@@ -403,7 +423,7 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 				},
 				region: {
 					set: function(newValue, oldValue) {
-						return mix({}, defaultRegion, oldValue, newValue);
+						return require.mix({}, defaultRegion, oldValue, newValue);
 					},
 					post: function(newValue, oldValue) {
 						newValue !== oldValue && this._updateMap(newValue);
