@@ -8,14 +8,7 @@
 #import <Foundation/Foundation.h>
 
 @interface APSHTTPPostForm : NSObject
-{
-    NSMutableDictionary *_requestFormDictionay;
-    NSMutableArray *_requestFilesArray;
-    NSMutableDictionary *_headers;
-    NSMutableData *_postFormData;
-    NSData *_jsonData;
-    NSData *_stringData;
-}
+
 @property(nonatomic, readonly) NSData *requestData;
 @property(nonatomic, readonly) NSDictionary *requestHeaders;
 @property(nonatomic, readonly) NSString *contentType;

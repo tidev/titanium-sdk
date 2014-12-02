@@ -17,25 +17,12 @@ namespace TitaniumApp
 		private XHRProxy xhrProxy;
 		private string securityToken = null;
 
-		public TiSettings settings = new TiSettings();
+		public Dictionary<string, string> settings = new Dictionary<string, string>();
 
 		// Constructor
 		public MainPage() {
 			InitializeComponent();
 
-			initTiSettings();
-
-			Logger.init(settings);
-
-			requestHandlers["download"] = new DownloadRequestHandler();
-			requestHandlers["file"] = new FileRequestHandler();
-			requestHandlers["log"]  = new LogRequestHandler();
-			requestHandlers["reflection"] = new ReflectionRequestHandler(app, browser, root);
-
-			xhrProxy = new XHRProxy(9999);
-		}
-
-		private void initTiSettings() {
 			string tiAppSettingsFile = "titanium_settings.ini";
 			if (File.Exists(tiAppSettingsFile)) {
 				StreamReader sr = new StreamReader(tiAppSettingsFile);
@@ -58,6 +45,8 @@ namespace TitaniumApp
 					}
 				}
 			}
+
+			xhrProxy = new XHRProxy(9999);
 		}
 
 		protected override void OnNavigatedTo(NavigationEventArgs e) {
@@ -70,15 +59,20 @@ namespace TitaniumApp
 			xhrProxy.Stop();
 		}
 
-		private void browser_Loaded(object sender, RoutedEventArgs e) {
-			Logger.log("WebBrowser", "Browser loaded, opening index.html");
-			this.loadApplication();
-		}
+		private async void browser_Loaded(object sender, RoutedEventArgs e) {
+			await Logger.init(settings);
 
-		private void loadApplication() {
+			requestHandlers["download"] = new DownloadRequestHandler();
+			requestHandlers["file"] = new FileRequestHandler();
+			requestHandlers["log"] = new LogRequestHandler();
+			requestHandlers["reflection"] = new ReflectionRequestHandler(app, browser, root);
+
 			// generate the security token
 			this.securityToken = Guid.NewGuid().ToString();
 			this.xhrProxy.securityToken = this.securityToken;
+
+			Logger.log("WebBrowser", "Browser loaded, opening index.html");
+			
 			browser.Navigate(new Uri("index.html#" + this.securityToken, UriKind.Relative));
 		}
 

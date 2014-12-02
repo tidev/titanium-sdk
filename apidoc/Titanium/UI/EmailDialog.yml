@@ -3,9 +3,32 @@ name: Titanium.UI.EmailDialog
 summary: |
     An email dialog is a modal window that allows users to compose and send an email.
 description: |
-    The Email Dialog is created with the <Titanium.UI.createEmailDialog> method.
+    <table id="platformComparison">
+      <tr>
+        <td><img src="images/emaildialog/emaildialog_android.png" height="150" style="border: 1px solid black;"/></td>
+        <td><img src="images/emaildialog/emaildialog_ios.png" height="150" style="border: 1px solid black;"/></td>
+      </tr>
+      <tr><th>Android</th><th>iOS</th></tr>
+    </table>
+
+    The Email Dialog is created with the <Titanium.UI.createEmailDialog> method. The user needs to
+    register an e-mail account on the device in order to open the dialog.  The dialog will not
+    open when there is not a registered e-mail account.
+
+    **BlackBerry Platform Notes**
+
+    On BlackBerry, the email dialog only opens on device.  It does not work on the simulator.
+
+    **iOS Platform Notes**
+
+    On iOS, you cannot test the e-mail dialog on the iOS 8.0 simulator or greater.  Test the email
+    dialog on device.
+
+    **Mobile Web Platform Notes**
+
+    On Mobile Web, the application will open the OS's default e-mail client.
     
-    On Mobile Web and Tizen, the `to` addresses, `cc` addresses, `bcc` addresses, `subject`, and `body` are 
+    The `to` addresses, `cc` addresses, `bcc` addresses, `subject`, and `body` are
     appended together and formatted into a `mailto:` URL. This URL typically has a limit of 
     approximately 2000 characters.
 extends: Titanium.Proxy

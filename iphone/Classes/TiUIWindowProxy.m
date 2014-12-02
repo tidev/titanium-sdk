@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -379,7 +379,7 @@
         UIBarStyle navBarStyle = [TiUtils barStyleForColor:newColor];
 
         UINavigationBar * navBar = [[controller navigationController] navigationBar];
-        [navBar setBarStyle:barStyle];
+        [navBar setBarStyle:navBarStyle];
         if([TiUtils isIOS7OrGreater]) {
             [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
         } else {
@@ -405,28 +405,20 @@
         if ([args objectForKey:@"color"] != nil) {
             UIColor* theColor = [[TiUtils colorValue:@"color" properties:args] _color];
             if (theColor != nil) {
-                [theAttributes setObject:theColor forKey:([TiUtils isIOS7OrGreater] ? NSForegroundColorAttributeName : UITextAttributeTextColor)];
+                [theAttributes setObject:theColor forKey:NSForegroundColorAttributeName];
             }
         }
         if ([args objectForKey:@"shadow"] != nil) {
             NSShadow* shadow = [TiUtils shadowValue:[args objectForKey:@"shadow"]];
             if (shadow != nil) {
-                if ([TiUtils isIOS7OrGreater]) {
-                    [theAttributes setObject:shadow forKey:NSShadowAttributeName];
-                } else {
-                    if (shadow.shadowColor != nil) {
-                        [theAttributes setObject:shadow.shadowColor forKey:UITextAttributeTextShadowColor];
-                    }
-                    NSValue *theValue = [NSValue valueWithUIOffset:UIOffsetMake(shadow.shadowOffset.width, shadow.shadowOffset.height)];
-                    [theAttributes setObject:theValue forKey:UITextAttributeTextShadowOffset];
-                }
+                [theAttributes setObject:shadow forKey:NSShadowAttributeName];
             }
         }
         
         if ([args objectForKey:@"font"] != nil) {
             UIFont* theFont = [[TiUtils fontValue:[args objectForKey:@"font"] def:nil] font];
             if (theFont != nil) {
-                [theAttributes setObject:theFont forKey:([TiUtils isIOS7OrGreater] ? NSFontAttributeName : UITextAttributeFont)];
+                [theAttributes setObject:theFont forKey:NSFontAttributeName];
             }
         }
         
@@ -699,7 +691,7 @@
 	}
 	
 	NSArray * controllerArray = [[controller navigationController] viewControllers];
-	int controllerPosition = [controllerArray indexOfObject:controller];
+	NSUInteger controllerPosition = [controllerArray indexOfObject:controller];
 	if ((controllerPosition == 0) || (controllerPosition == NSNotFound))
 	{
 		return;
@@ -818,9 +810,13 @@
 		NSURL * path = [TiUtils toURL:[self valueForKey:@"titleImage"] proxy:self];
 		//Todo: This should be [TiUtils navBarTitleViewSize] with the thumbnail scaling. For now, however, we'll go with auto.
 		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:path withSize:CGSizeZero];
-		if (image!=nil)
-		{
-			newTitleView = [[[UIImageView alloc] initWithImage:image] autorelease];
+		if (image!=nil) {
+			if ([oldView isKindOfClass:[UIImageView class]]) {
+				[(UIImageView*)oldView setImage:image];
+				newTitleView = oldView;
+			} else {
+				newTitleView = [[[UIImageView alloc] initWithImage:image] autorelease];
+			}
 		}
 	}
 

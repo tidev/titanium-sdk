@@ -26,7 +26,14 @@ import android.os.Message;
 
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_ON_CREATE_OPTIONS_MENU,
-	TiC.PROPERTY_ON_PREPARE_OPTIONS_MENU
+	TiC.PROPERTY_ON_PREPARE_OPTIONS_MENU,
+	TiC.PROPERTY_ON_CREATE,
+	TiC.PROPERTY_ON_START,
+	TiC.PROPERTY_ON_RESTART,
+	TiC.PROPERTY_ON_RESUME,
+	TiC.PROPERTY_ON_PAUSE,
+	TiC.PROPERTY_ON_STOP,
+	TiC.PROPERTY_ON_DESTROY
 })
 /**
  * This is a proxy representation of the Android Activity type.

@@ -44,8 +44,8 @@
 	AudioStreamPacketDescription packetDescs[kAQMaxPacketDescs];	// packet descriptions for enqueuing audio
 	unsigned int fillBufferIndex;	// the index of the audioQueueBuffer that is being filled
 	UInt32 packetBufferSize;
-	size_t bytesFilled;				// how many bytes have been filled
-	size_t packetsFilled;			// how many packets have been filled
+	UInt32 bytesFilled;				// how many bytes have been filled
+	UInt32 packetsFilled;			// how many packets have been filled
 	bool inuse[kNumAQBufs];			// flags to indicate that a buffer is still in use
 	NSInteger buffersUsed;
 	NSDictionary *httpHeaders;
@@ -63,13 +63,18 @@
 	CFReadStreamRef stream;
 	
 	UInt32 bitRate;				// Bits per second in the file
-	NSInteger dataOffset;		// Offset of the first audio packet in the stream
-	NSInteger fileLength;		// Length of the file in bytes
-	NSInteger seekByteOffset;	// Seek offset within the file in bytes
+	/*Titanium Modification begin*/
+	//NSInteger dataOffset;		// Offset of the first audio packet in the stream
+	//NSInteger fileLength;		// Length of the file in bytes
+	//NSInteger seekByteOffset;	// Seek offset within the file in bytes
+	UInt64 dataOffset;
+	UInt64 fileLength;
+	UInt64 seekByteOffset;
+	/*Titanium Modifications End*/
 	UInt64 audioDataByteCount;  // Used when the actual number of audio bytes in
 								// the file is known (more accurate than assuming
 								// the whole file is audio)
-    NSUInteger bufferSize;      // Dynamic size of the buffer (buffer is default size of 2k if unspec'd)
+    UInt32 bufferSize;      // Dynamic size of the buffer (buffer is default size of 2k if unspec'd)
 
 	UInt64 processedPacketsCount;		// number of packets accumulated for bitrate estimation
 	UInt64 processedPacketsSizeTotal;	// byte size of accumulated estimation packets
@@ -91,7 +96,7 @@
 @property (readonly) double duration;
 @property (readwrite) UInt32 bitRate;
 @property (readonly) NSDictionary *httpHeaders;
-@property (nonatomic,readwrite,assign) NSUInteger bufferSize;
+@property (nonatomic,readwrite,assign) UInt32 bufferSize;
 
 - (id)initWithURL:(NSURL *)aURL;
 - (void)start;

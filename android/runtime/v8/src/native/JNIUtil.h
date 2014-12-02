@@ -75,6 +75,7 @@ public:
 	static jclass krollProxyClass;
 	static jclass krollAssetHelperClass;
 	static jclass krollLoggingClass;
+	static jclass krollDictClass;
 	static jclass tiJsErrorDialogClass;
 	static jclass referenceTableClass;
 
@@ -104,6 +105,9 @@ public:
 	static jfieldID v8ObjectPtrField;
 	static jmethodID v8ObjectInitMethod;
 	static jmethodID v8FunctionInitMethod;
+
+	static jmethodID krollDictInitMethod;
+	static jmethodID krollDictPutMethod;
 
 	static jmethodID referenceTableCreateReferenceMethod;
 	static jmethodID referenceTableDestroyReferenceMethod;

@@ -326,10 +326,11 @@ properties:
         On iOS, can only be set **after** calling [open](Titanium.Network.HTTPClient.open).
 
         
-        On Mobile Web and Tizen, can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
+        On Android, Mobile Web and Tizen, can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
         The file must be writable such as the application data directory or temp directory.
     type: String
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
+    since: {android: 3.4.0}
 
   - name: location
     summary: Absolute URL of the request.
@@ -378,6 +379,12 @@ properties:
         [HEADERS_RECEIVED](Titanium.Network.HTTPClient.HEADERS_RECEIVED),
         [LOADING](Titanium.Network.HTTPClient.LOADING),
         or [DONE](Titanium.Network.HTTPClient.DONE).
+
+        Due to the asynchronous nature of the Titanium platform, the internal value of 
+        [readyState](Titanium.Network.HTTPClient.readyState) might be different from the state change 
+        for which the event was fired. To address this discrepancy, the function is now invoked with a 
+        payload object of type <ReadyStatePayload>. This was introduced in version 3.4.2 of the SDK and is 
+        supported on the iOS and android platforms.
 
   - name: onsendstream
     summary: Function to be called at regular intervals as the request data is being transmitted.
@@ -499,15 +506,16 @@ properties:
     description: |
         If you experience handshake failures, set this value to a lower version using the TLS
         constants in <Titanium.Network>. 'undefined', 'null', or unsupported values use the default
-        behavior for that iOS version.
+        behavior for that iOS and Android versions.
     default: |
         undefined. For iOS 4, this is effectively
         [TLS_VERSION_1_0](Titanium.Network.TLS_VERSION_1_0). For iOS 5 and greater, this is
-        [TLS_VERSION_1_2](Titanium.Network.TLS_VERSION_1_2).
+        [TLS_VERSION_1_2](Titanium.Network.TLS_VERSION_1_2). 
+        For Android 4.1 (API 16) and greater, this is [TLS_VERSION_1_2](Titanium.Network.TLS_VERSION_1_2).
+        For Android 4.0.3 (API 15) and lower, this is [TLS_VERSION_1_0](Titanium.Network.TLS_VERSION_1_0).
     type: Number
     constants: Titanium.Network.TLS_VERSION_*
-    since: "1.8.0"
-    platforms: [iphone, ipad]
+    since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
 
   - name: cache
     summary: Determines whether HTTP responses are cached.
@@ -598,7 +606,7 @@ methods:
         type: Array<Object>
     parameters:
       - name: proxy
-        summary: The <Ti.Network.HTTPClient> representing this connection.
+        summary: The <Titanium.Network.HTTPClient> representing this connection.
         type: Object
     platforms: [android]
 
@@ -612,7 +620,7 @@ methods:
         type: Array<Object>
     parameters:
       - name: proxy
-        summary: The <Ti.Network.HTTPClient> representing this connection.
+        summary: The <Titanium.Network.HTTPClient> representing this connection.
         type: Object
     platforms: [android]
 
@@ -644,3 +652,12 @@ description: |
 
 since: 3.3.0
 platforms: [iphone, ipad]
+---
+name: ReadyStatePayload
+summary: An Object describing the current ready state. See [onreadystatechange](Titanium.Network.HTTPClient.onreadystatechange) for more information.
+platforms: [iphone, ipad, android]
+since: "3.4.2"
+properties: 
+  - name: readyState
+    summary: The state for which `onreadystatechange` was invoked. Set to one of `Titanium.Network.HTTPClient` ready-state constants
+    type: Number

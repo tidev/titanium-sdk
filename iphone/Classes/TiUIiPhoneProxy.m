@@ -246,7 +246,7 @@ END_UI_THREAD_PROTECTED_VALUE(statusBarStyle)
 }
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(appBadge,NSNumber)
-result = [NSNumber numberWithInt:[[UIApplication sharedApplication] applicationIconBadgeNumber]];
+result = [NSNumber numberWithInteger:[[UIApplication sharedApplication] applicationIconBadgeNumber]];
 END_UI_THREAD_PROTECTED_VALUE(appBadge)
 
 -(void)setAppSupportsShakeToEdit:(NSNumber *)shake

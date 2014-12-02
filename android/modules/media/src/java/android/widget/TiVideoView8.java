@@ -893,4 +893,11 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	{
 		mScalingMode = scalingMode;
 	}
+
+	@Override
+	public int getAudioSessionId()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

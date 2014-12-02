@@ -5,9 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import <Foundation/Foundation.h>
-#import "TiCore.h"
+#import "JavaScriptCore/TiCore.h"
 #import "TiBase.h"
-#import "TiContextRefPrivate.h"
 
 @class KrollContext;
 @class KrollCallback;
@@ -63,7 +62,7 @@
 
 #ifdef DEBUG
 // used during debugging only
--(int)queueCount;
+-(NSUInteger)queueCount;
 #endif
 
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition*)condition_;

@@ -14,12 +14,14 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
 
 import com.appcelerator.analytics.APSAnalytics;
+import com.appcelerator.analytics.APSAnalyticsEvent;
 
 @Kroll.module
 public class AnalyticsModule extends KrollModule
@@ -31,6 +33,7 @@ public class AnalyticsModule extends KrollModule
 	protected static final String PROPERTY_APP_FEATURE = "app.feature";
 	protected static final String PROPERTY_APP_SETTINGS = "app.settings";
 	protected static final String PROPERTY_APP_USER = "app.user";
+	private APSAnalytics analytics = APSAnalytics.getInstance();
 
 	public AnalyticsModule()
 	{
@@ -48,16 +51,25 @@ public class AnalyticsModule extends KrollModule
 		@Kroll.argument(optional=true) KrollDict data)
 	{
 		if (TiApplication.getInstance().isAnalyticsEnabled()) {
+			// Preserve legacy behavior allowing the argument to be optional. We set it to be an empty string now
+			// instead of "null".
+			if (event == null) {
+				event = "";
+			}
 			if (data instanceof HashMap) {
-				APSAnalytics.sendAppNavEvent(from, to, event, TiConvert.toJSON(data));
+				analytics.sendAppNavEvent(from, to, event, TiConvert.toJSON(data));
 
-			} else {
+			} else if (data != null) {
 				try {
-					APSAnalytics.sendAppNavEvent(from, to, event, new JSONObject(data.toString()));
+					analytics.sendAppNavEvent(from, to, event, new JSONObject(data.toString()));
 				} catch (JSONException e) {
 					Log.e(TAG, "Cannot convert data into JSON");
 				}
+			} else {
+				analytics.sendAppNavEvent(from, to, event, null);
 			}
+		} else {
+			Log.e(TAG, "Analytics is disabled.  To enable, please update the <analytics></analytics> node in your tiapp.xml");
 		}
 	}
 
@@ -66,14 +78,18 @@ public class AnalyticsModule extends KrollModule
 	{
 		if (TiApplication.getInstance().isAnalyticsEnabled()) {
 			if (data instanceof HashMap) {
-				APSAnalytics.sendFeatureEvent(event, TiConvert.toJSON(data));
-			} else {
+				analytics.sendAppFeatureEvent(event, TiConvert.toJSON(data));
+			} else if (data != null) {
 				try {
-					APSAnalytics.sendFeatureEvent(event, new JSONObject(data.toString()));
+					analytics.sendAppFeatureEvent(event, new JSONObject(data.toString()));
 				} catch (JSONException e) {
 					Log.e(TAG, "Cannot convert data into JSON");
 				}
+			} else {
+				analytics.sendAppFeatureEvent(event, null);
 			}
+		} else {
+			Log.e(TAG, "Analytics is disabled.  To enable, please update the <analytics></analytics> node in your tiapp.xml");
 		}
 	}
 
@@ -81,7 +97,31 @@ public class AnalyticsModule extends KrollModule
 	public String getLastEvent()
 	{
 		if (TiApplication.getInstance().isAnalyticsEnabled()) {
-			return APSAnalytics.getLastEvent();
+			TiPlatformHelper platformHelper = TiPlatformHelper.getInstance();
+			APSAnalyticsEvent event = platformHelper.getLastEvent();
+			if (event != null) {
+				try {
+					JSONObject json = new JSONObject();
+					json.put("ver", platformHelper.getDBVersion());
+					json.put("id", platformHelper.getLastEventID());
+					json.put("event", event.getEventType());
+					json.put("ts", event.getEventTimestamp());
+					json.put("mid", event.getEventMid());
+					json.put("sid", event.getEventSid());
+					json.put("aguid", event.getEventAppGuid());
+					json.put("seq", event.getEventSeq());
+					if (event.mustExpandPayload()) {
+						json.put("data", new JSONObject(event.getEventPayload()));
+					} else {
+						json.put("data", event.getEventPayload());
+					}
+					return json.toString();
+				} catch (JSONException e) {
+					Log.e(TAG, "Error generating last event.", e);
+				}
+			}
+		} else {
+			Log.e(TAG, "Analytics is disabled.  To enable, please update the <analytics></analytics> node in your tiapp.xml");
 		}
 		return null;
 	}

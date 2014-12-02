@@ -4,12 +4,22 @@ summary: |
     An alert dialog is a modal view that includes an optional title, a message and buttons, 
     positioned in the middle of the display.
 description: |
+    <table id="platformComparison">
+      <tr>
+        <td><img src="images/alertdialog/alertdialog_android.png" height="75" /></td>
+        <td><img src="images/alertdialog/alertdialog_bb.png" height="75" /></td>
+        <td><img src="images/alertdialog/alertdialog_ios.png" height="75" /></td>
+        <td><img src="images/alertdialog/alertdialog_mobileweb.png" height="75" /></td>
+      </tr>
+      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
+    </table>
+    
     An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.
     
     Although this dialog always appears in the middle of the display (not touching the edges), 
     other aspects of its aesthetics and the way the user interacts with it are different for each 
     platform, as described below.
-    
+
     #### Android
     
     On Android, the default alert dialog displays text information, via a title and message, without 
@@ -111,8 +121,29 @@ methods:
 properties:
   - name: androidView
     summary: View to load inside the message area, to create a custom layout.
+    description: |
+        In an Alloy application you can specify this property with either an `<AndroidView/>` or
+        `<View/>` element inside the `<AlertDialog/>` element, for example:
+
+            <Alloy>
+                <AlertDialog onClick="doClick" title="Delete"
+                    message="Would you like to delete the file?" cancel="1">
+
+                    <!--  Add View or AndroidView for the androidView property  -->
+                    <View platform="android">
+                        <Label color="red" text="Warning!  This change is permanent and you cannot undo it!" />
+                    </View>
+
+                    <ButtonNames>
+                        <ButtonName>Confirm</ButtonName>
+                        <ButtonName>Cancel</ButtonName>
+                    </ButtonNames>
+                </AlertDialog>
+            </Alloy>
+
     type: Titanium.UI.View
     platforms: [android]
+    accessors: false
     
   - name: buttonNames
     summary: Name of each button to create.
@@ -246,7 +277,8 @@ examples:
                 message: 'The file has been deleted',
                 ok: 'Okay',
                 title: 'File Deleted'
-              }).show();
+              });
+              dialog.show();
             });
             win.open();
         

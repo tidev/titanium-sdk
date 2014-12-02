@@ -427,7 +427,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
             }
         }
         selectedBGView.fillColor = theColor;
-        int count = [section rowCount];
+        NSInteger count = [section rowCount];
         if (count == 1) {
             selectedBGView.position = TiCellBackgroundViewPositionSingleLine;
         }
@@ -581,20 +581,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	{
 		UIView *contentView = cell.contentView;
 		CGRect rect = [contentView bounds];
-        CGSize cellSize = [(TiUITableViewCell*)cell computeCellSize];
-		CGFloat rowWidth = cellSize.width;
-		CGFloat rowHeight = cellSize.height;
-
-		if (rowHeight < rect.size.height || rowWidth < rect.size.width)
-		{
-			rect.size.height = rowHeight;
-			rect.size.width = rowWidth;
-			contentView.frame = rect;
-		}
-        else if (CGSizeEqualToSize(rect.size, CGSizeZero)) {
-            rect.size = CGSizeMake(rowWidth, rowHeight);
-            [contentView setFrame:rect];
-        }
 		rect.origin = CGPointZero;
 		if (self.reusable || (rowContainerView == nil)) {
 			if (self.reusable) {
@@ -817,7 +803,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		dict = [NSMutableDictionary dictionaryWithDictionary:initialObject];
 	}
 	NSInteger index = [table indexForRow:self];
-	[dict setObject:NUMINT(index) forKey:@"index"];
+	[dict setObject:NUMINTEGER(index) forKey:@"index"];
     // TODO: We really need to ensure that a row's section is set upon creation - even if this means changing how tables work.
     if (section != nil) {
         [dict setObject:section forKey:@"section"];
@@ -842,7 +828,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[super fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:report errorCode:code message:message];
 }
 
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message;
 {
 	[callbackCell handleEvent:type];
 	[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];

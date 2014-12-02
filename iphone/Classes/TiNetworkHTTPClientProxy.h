@@ -70,7 +70,7 @@
 -(void)send:(id)args;
 -(void)clearCookies:(id)args;
 -(NSString*)getResponseHeader:(id)args;
--(NSDictionary*)allResponseHeaders;
+-(NSString*)allResponseHeaders;
 -(NSString*)apiName;
 -(NSNumber*)connected;
 @end

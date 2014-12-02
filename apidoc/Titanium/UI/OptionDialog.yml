@@ -5,6 +5,17 @@ summary: |
     in the middle of the display on Android and at the bottom edge on iOS. On Android, buttons may 
     be added below the options.
 description: |
+    <table id="platformComparison">
+      <tr>
+        <td><img src="images/optiondialog/optiondialog_android.png" height="75" /></td>
+        <td><img src="images/optiondialog/optiondialog_bb.png" height="75" /></td>
+        <td><img src="images/optiondialog/optiondialog_iphone.png" height="75" /></td>
+        <td><img src="images/optiondialog/optiondialog_ipad.png" height="75" /></td>
+        <td><img src="images/optiondialog/optiondialog_mobileweb.png" height="75" /></td>
+      </tr>
+      <tr><th>Android</th><th>BlackBerry</th><th>iPhone</th><td>iPad</td><th>Mobile Web</th></tr>
+    </table>
+
     An option dialog is created using <Titanium.UI.createOptionDialog> or Alloy `<OptionDialog>`
     element. See Examples below for usage.
     
@@ -39,7 +50,7 @@ description: |
     ##### iPad
     
     On iPad, this dialog is shown in the middle of the display, or as a popover-like dialog if 
-    another view or control is specified via an argument.
+    another view or control is specified via an argument passed to the `open()` method.
 
     Note that on iPad, the cancel button is not displayed -- users can cancel the dialog
     by clicking outside of the dialog.
@@ -121,6 +132,24 @@ properties:
         On Android you can either define a custom view with this property, or you can assign a set of options to the
         <Titanium.UI.OptionDialog.options> property, but not both. If you do, the custom view will appear
         but not the options you defined.
+
+        In an Alloy application you can specify this property with either an `<AndroidView/>` or
+        `<View/>` element inside the `<OptionDialog/>` element, for example:
+
+            <Alloy>
+                <OptionDialog id="dialog" title="Delete File?" onClick="clickCB">
+
+                    <!-- Add View or AndroidView for the androidView property -->
+                    <AndroidView platform="android" layout="vertical">
+                        <Label color="red" text="Warning!  This change is permanent and you cannot undo it!" />
+                    </AndroidView>
+
+                    <ButtonNames>
+                        <ButtonName>Confirm</ButtonName>
+                        <ButtonName>Cancel</ButtonName>
+                    </ButtonNames>
+                </OptionDialog>
+            </Alloy>
     type: Titanium.UI.View
     platforms: [android]
 
@@ -304,7 +333,7 @@ examples:
 name: hideParams
 summary: Dictionary of options for the <Titanium.UI.OptionDialog.hide> method.
 since: 2.0.0
-platforms: [iphone, ipad]
+platforms: [ipad]
 
 properties:
   - name: animated
@@ -326,7 +355,8 @@ properties:
     type: Titanium.UI.View
     
   - name: rect
-    summary: |
-        View size and position, determined by coordinates `x` and `y` and dimensions `height` 
-        and `width`.
-    type: Dictionary
+    summary: Positions the arrow of the option dialog relative to the attached view's dimensions.
+    description: |
+        Setting the x, y coordinates to (0, 0) places the dialog in the top-left corner of the
+        view object.  Set both the `width` and `height` properties to 1.
+    type: Dimension

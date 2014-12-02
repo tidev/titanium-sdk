@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -29,6 +29,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(id)initWithCallback:(KrollCallback*)callback_ context:(id<TiEvaluator>)context_
 {
+	//Ignore analyzer warning here. Delegate will call autorelease onLoad or onError.
 	if (self = [super init])
 	{
 		callback = [callback_ retain];
@@ -198,6 +199,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
 	[self shutdownLocationManager];
 	RELEASE_TO_NIL(tempManager);
+	RELEASE_TO_NIL(locationPermissionManager);
 	RELEASE_TO_NIL(singleHeading);
 	RELEASE_TO_NIL(singleLocation);
 	RELEASE_TO_NIL(purpose);
@@ -302,22 +304,30 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
             locationManager.distanceFilter = distance;
         }
 		locationManager.headingFilter = heading;
-		if (purpose==nil)
-		{ 
-			DebugLog(@"[WARN] The Ti.Geolocation.purpose property must be set.");
-		}
-		else
-		{
-			[locationManager setPurpose:purpose];
-		}
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
+        if ([TiUtils isIOS8OrGreater]) {
+            if([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]){
+                [locationManager requestAlwaysAuthorization];
+            }else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]){
+                [locationManager requestWhenInUseAuthorization];
+            }else{
+                NSLog(@"[ERROR] The keys NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription are not defined in your tiapp.xml.  Starting with iOS8 this is required.");
+            }
+        }else{
+            if (purpose!=nil)
+            {
+                DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. On iOS6 and above include the NSLocationUsageDescription key in your Info.plist");
+                if ([locationManager respondsToSelector:@selector(setPurpose:)]) {
+                    [locationManager performSelector:@selector(setPurpose:) withObject:purpose];
+                }
+            }
+        }
+
         if ([TiUtils isIOS6OrGreater]) {
             locationManager.activityType = activityType;
             locationManager.pausesLocationUpdatesAutomatically = pauseLocationUpdateAutomatically;
             
         }
-#endif
 
 		if ([CLLocationManager locationServicesEnabled]== NO) 
 		{
@@ -779,6 +789,69 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_FITNESS, CLActivityTypeFitness);
 MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 #endif
 
+-(NSNumber*)AUTHORIZATION_ALWAYS
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMINT(kCLAuthorizationStatusAuthorizedAlways);
+    }
+    return NUMINT(0);
+}
+
+-(NSNumber*)AUTHORIZATION_WHEN_IN_USE
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMINT(kCLAuthorizationStatusAuthorizedWhenInUse);
+    }
+    return NUMINT(0);
+}
+
+-(CLLocationManager*)locationPermissionManager
+{
+	// if we don't have an instance, create it
+	if (locationPermissionManager == nil) {
+		locationPermissionManager = [[CLLocationManager alloc] init];
+		locationPermissionManager.delegate = self;
+	}
+	return locationPermissionManager;
+}
+
+-(void)requestAuthorization:(id)value
+{
+    if (![TiUtils isIOS8OrGreater]) {
+        return;
+    }
+    ENSURE_SINGLE_ARG(value, NSNumber);
+   
+    CLAuthorizationStatus requested = [TiUtils intValue: value];
+    CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
+    
+    if(requested == kCLAuthorizationStatusAuthorizedWhenInUse){
+        if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
+            if((currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) ||
+               (currentPermissionLevel == kCLAuthorizationStatusAuthorized)) {
+                NSLog(@"[WARN] cannot change already granted permission from AUTHORIZATION_ALWAYS to AUTHORIZATION_WHEN_IN_USE");
+            }else{
+                [[self locationPermissionManager] requestWhenInUseAuthorization];
+            }
+        }else{
+            NSLog(@"[ERROR] the NSLocationWhenInUseUsageDescription key must be defined in your tiapp.xml in order to request this permission");
+        }
+    }
+    if ((requested == kCLAuthorizationStatusAuthorizedAlways) ||
+        (requested == kCLAuthorizationStatusAuthorized)) {
+        if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]) {
+            if (currentPermissionLevel == kCLAuthorizationStatusAuthorizedWhenInUse) {
+                NSLog(@"[ERROR] cannot change already granted permission from AUTHORIZATION_WHEN_IN_USE to AUTHORIZATION_ALWAYS");
+            } else {
+                [[self locationPermissionManager] requestAlwaysAuthorization];
+            }
+            [[self locationPermissionManager] requestAlwaysAuthorization];
+        }else{
+            NSLog(@"[ERROR] the NSLocationAlwaysUsageDescription key must be defined in your tiapp.xml in order to request this permission");
+        }
+    }
+}
+
 #pragma mark Internal
 
 -(NSDictionary*)locationDictionary:(CLLocation*)newLocation;
@@ -876,12 +949,16 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 -(void)setPurpose:(NSString *)reason
 {
-	ENSURE_UI_THREAD(setPurpose,reason);
-	RELEASE_TO_NIL(purpose);
-	purpose = [reason retain];
+    ENSURE_UI_THREAD(setPurpose,reason);
+    RELEASE_TO_NIL(purpose);
+    purpose = [reason retain];
+    DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. On iOS6 and above include the NSLocationUsageDescription key in your Info.plist");
+    
 	if (locationManager!=nil)
 	{
-		[locationManager setPurpose:purpose];
+        if ([locationManager respondsToSelector:@selector(setPurpose:)]) {
+            [locationManager performSelector:@selector(setPurpose:) withObject:purpose];
+        }
 	}
 	
 }
@@ -895,7 +972,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     if (TI_APPLICATION_ANALYTICS && !analyticsSend)
 	{
         analyticsSend = YES;
-        [APSAnalytics sendAppGeoEvent:locations];
+        [[APSAnalytics sharedInstance] sendAppGeoEvent:[locations lastObject]];
     }
 }
 
@@ -921,6 +998,15 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 #endif
 
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                           NUMINT([CLLocationManager authorizationStatus]),@"authorizationStatus",nil];
+
+    if ([self _hasListeners:@"authorization"])
+    {
+        [self fireEvent:@"authorization" withObject:event];
+    }
+}
 
 //Using new delegate instead of the old deprecated method - (void)locationManager:didUpdateToLocation:fromLocation:
 

@@ -99,7 +99,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	// TODO: Deprecated since Release 3.0.0
 	@Deprecated private AtomicBoolean layoutStarted = new AtomicBoolean();
-
+	
 	/**
 	 * Constructs a new TiViewProxy instance.
 	 * @module.api
@@ -736,6 +736,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.method
 	public void show(@Kroll.argument(optional=true) KrollDict options)
 	{
+		setProperty(TiC.PROPERTY_VISIBLE, true);
 		if (TiApplication.isUIThread()) {
 			handleShow(options);
 		} else {
@@ -748,12 +749,12 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (view != null) {
 			view.show();
 		}
-		setProperty(TiC.PROPERTY_VISIBLE, true);
 	}
 
 	@Kroll.method
 	public void hide(@Kroll.argument(optional=true) KrollDict options)
 	{
+		setProperty(TiC.PROPERTY_VISIBLE, false);
 		if (TiApplication.isUIThread()) {
 			handleHide(options);
 		} else {
@@ -771,7 +772,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				}
 			}
 			view.hide();
-			setProperty(TiC.PROPERTY_VISIBLE, false);
 		}
 	}
 
@@ -828,8 +828,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			// immediately upon window opening and the first
 			// layout hasn't happened yet. In this case,
 			// queue up a new request to animate.
+			// Also do the same if layout properties
+			// are changed and layout hasn't completed.
 			View view = tiv.getNativeView();
-			if (view == null || (view.getWidth() == 0 && view.getHeight() == 0)) {
+			if (view == null || (view.getWidth() == 0 && view.getHeight() == 0) || tiv.isLayoutPending()) {
 				getMainHandler().sendEmptyMessage(MSG_QUEUED_ANIMATE);
 				return;
 			} else {

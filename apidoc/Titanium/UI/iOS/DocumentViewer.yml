@@ -108,7 +108,6 @@ examples:
 name: DocumentViewerOptions
 summary: A simple object for specifying options when showing or dismissing a <Titanium.UI.iOS.DocumentViewer>.
 description: The `view` property does not apply to the `hide` method.
-optional: true
 platforms: [iphone,ipad]
 since: '2.1.1'
 properties:

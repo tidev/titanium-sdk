@@ -21,7 +21,7 @@ description: |
     [onCreateOptionsMenu](Titanium.Android.Activity.onCreateOptionsMenu) property. 
     The activity's menu object is passed in to the `onCreateOptionsMenu` function when the menu is created.
 
-    In Alloy you can use **`<Menu>`** and **`<MenuItem>`** elements to create an options menu.
+    In Alloy you can use `<Menu>` and `<MenuItem>` elements to create an options menu.
 
         <Menu id="menu" platform="android">
             <!-- Cannot specify node text.  Use attributes only. -->
@@ -306,4 +306,3 @@ examples:
             function doOpen(e) {
                 $.win.invalidateOptionsMenu();
             }
-

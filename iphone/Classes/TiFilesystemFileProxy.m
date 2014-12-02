@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -177,7 +177,7 @@ FILENOOP(setHidden:(id)x);
 }
 
 -(TiFilesystemFileStreamProxy *) open:(id) args {
-	NSNumber *mode;
+	NSNumber *mode = nil;
 	ENSURE_ARG_AT_INDEX(mode, args, 0, NSNumber);
 	ENSURE_VALUE_RANGE([mode intValue], TI_READ, TI_APPEND);
 	
@@ -472,7 +472,7 @@ FILENOOP(setHidden:(id)x);
     u_int8_t value;
     const char* fullPath = [[self path] fileSystemRepresentation];
     
-    int result = getxattr(fullPath, backupAttr, &value, sizeof(value), 0, 0);
+    ssize_t result = getxattr(fullPath, backupAttr, &value, sizeof(value), 0, 0);
     if (result == -1) {
         // Doesn't matter what errno is set to; this means that we're backing up.
         return [NSNumber numberWithBool:YES];

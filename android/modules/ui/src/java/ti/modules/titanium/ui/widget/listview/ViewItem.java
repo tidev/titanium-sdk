@@ -49,8 +49,9 @@ public class ViewItem {
 				continue;
 			}
 
-			Object existingVal = this.properties.get(property);			
-			if (existingVal == null || value == null || !existingVal.equals(value)) {
+			Object existingVal = this.properties.get(property);
+			if ((existingVal == null && value != null) || (existingVal != null && value == null)
+				|| (existingVal != null && !existingVal.equals(value))) {
 				applyProperty(property, value);
 			}
 		}

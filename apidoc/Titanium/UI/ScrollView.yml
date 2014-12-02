@@ -3,7 +3,7 @@ name: Titanium.UI.ScrollView
 summary: |
     A view that contains a horizontally and/or vertically-scrollable region of content.  
 description: |
-    Use the <Titanium.UI.createScrollView> method to create a scroll view.
+    Use the <Titanium.UI.createScrollView> method or **`<ScrollView>`** Alloy element to create a scroll view.
     
     Views added to the scroll view will be scrolled based on the size of the scrollable region of 
     content. If a scrollable region fits within the size of its scroll view, the view will not 
@@ -11,22 +11,23 @@ description: |
     
     #### Android Platform Notes
     
-    On Android, a scroll view can only scroll in one direction, either vertical or horizontal, 
-    and not both at the same time. Hence, the <Titanium.UI.ScrollView.scrollType> property may be 
-    used to set the scroll direction explicitly.
-    
-    If the `scrollType` property is not defined, the scroll view attempts to deduce the scroll 
-    direction based on some of the other properties that have been set. Specifically, if 
-    `contentWidth` and `width` are both set and are equal to each other, or if they are both set 
-    *and* `showVerticalScrollIndicator` is set to `true`, then the scroll direction is set to 
-    "vertical".  If `contentHeight` and `height` are both set and are equal, or if they are both 
-    set and `showHorizontalScrollIndicator` is set to `true`, then the scroll direction is set 
-    to "horizontal".  If `scrollType` is set, it overrides the deduced setting.
+    On Android, a scroll view can only scroll in one direction, either vertically or horizontally, 
+    and not both at the same time. The <Titanium.UI.ScrollView.scrollType> property sets the scroll 
+    direction explicitly. If the `scrollType` property is not assigned a value, the scroll view 
+    attempts to determine the scroll direction based on some the following rules:
 
-    Pinching the view to zoom in and out of content is not supported on Android as opposed to iOS.
-    On iOS, this action is natively supported by the UIScrollView class, but on Android, the
-    native ScrollView class does not support this action. Parity between the two platforms cannot be
-    achieved with this feature.
+    * If <Titanium.UI.ScrollView.contentWidth> and <Titanium.UI.ScrollView.width> are both 
+    set and are equal to each other, or if they are both set 
+    *and* `showVerticalScrollIndicator` is set to `true`, then the scroll direction is set to 
+    "vertical".  
+
+    * If <Titanium.UI.ScrollView.contentHeight> and <Titanium.UI.ScrollView.height> are 
+    both set and are equal, or if they are both set and <Titanium.UI.ScrollView.showHorizontalScrollIndicator> is set to 
+    `true`, then the scroll direction is set to "horizontal".
+
+    Pinching a `ScrollableView` to zoom in and out of content is not supported on Android. On iOS, this action 
+    is natively supported by the UIScrollView class, but on Android, the native ScrollView class does
+    not support this action. Parity between the two platforms cannot be achieved with this feature.
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
@@ -198,7 +199,7 @@ properties:
     summary: Determines whether this scroll view can cancel subview touches in order to scroll instead.
     description: |
         On iOS, this property maps to the native `canCancelContentTouches` property which controls 
-        whether touches in the content view always lead to tracking. See [UIScrollView](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIScrollView_Class/Reference/UIScrollView.html) for more details.
+        whether touches in the content view always lead to tracking. See [UIScrollView](http://developer.apple.com/library/ios/documentation/uikit/reference/UIScrollView_Class/Reference/UIScrollView.html) for more details.
 
         On Android, setting this property to false prevents the scroll view from intercepting 
         any touch events from its subviews. Note that this behavior may be slightly different from iOS.
@@ -209,7 +210,7 @@ properties:
   - name: contentHeight
     summary: Height of the scrollable region.
     description: |
-        While `auto` and absolute dimensions are supported, relative values, such as those provided 
+        While absolute dimensions are supported, relative values, such as those provided
         in percentages, are not. The minimum value for contentHeight is the height of the scroll view.
     type: [Number, String]
     
@@ -225,16 +226,14 @@ properties:
   - name: contentWidth
     summary: Width of the scrollable region.
     description: |
-        While `auto` and absolute dimensions are supported, relative values, such as those provided 
+        While absolute dimensions are supported, relative values, such as those provided
         in percentages, are not. The minimum value for contentWidth is the width of the scroll view.
     type: [Number, String]
 
   - name: decelerationRate
     summary: The deceleration rate of the ScrollView.
-    description: |
-        Use one of <Titanium.UI.iOS.SCROLL_DECELERATION_RATE_FAST> or <Titanium.UI.iOS.SCROLL_DECELERATION_RATE_NORMAL> 
-        constants to control deceleration rate of ScrollView.
     type: Number
+    constants: Titanium.UI.iOS.SCROLL_DECELERATION_RATE_*
     default: Undefined.
     platforms: [iphone, ipad]
     since: "3.2.3"
@@ -287,9 +286,9 @@ properties:
     platforms: [iphone, ipad]
 
   - name: overScrollMode
-    summary: |
-      One of <Titanium.UI.Android.OVER_SCROLL_ALWAYS>, <Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS>, or <Titanium.UI.Android.OVER_SCROLL_NEVER>. 
+    summary: Determines the behavior when the user overscolls the view.
     type: Number
+    constants: Titanium.UI.Android.OVER_SCROLL_*
     default: Titanium.UI.Android.OVER_SCROLL_ALWAYS
     platforms: [android]
     since: "3.1.0"
@@ -308,10 +307,9 @@ properties:
     since: 2.0.0
 
   - name: scrollIndicatorStyle
-    summary: |
-        Style of the scrollbar, specified using one of the constants from 
-        <Titanium.UI.iPhone.ScrollIndicatorStyle>.
+    summary: Style of the scrollbar.
     type: Number
+    constants: Titanium.UI.iPhone.ScrollIndicatorStyle.*
     default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
     platforms: [iphone, ipad]
 
@@ -382,8 +380,6 @@ examples:
             });
             
             var scrollView = Ti.UI.createScrollView({
-              contentWidth: 'auto',
-              contentHeight: 'auto',
               showVerticalScrollIndicator: true,
               showHorizontalScrollIndicator: true,
               height: '80%',
@@ -433,7 +429,6 @@ examples:
             
             var scrollView = Ti.UI.createScrollView({
               bottom:120,
-              contentHeight: 'auto',
               layout: 'vertical'
             });
             
@@ -448,7 +443,8 @@ examples:
               text: 'Your advert here',
               textAlign: 'center',
               bottom:0,
-              width: Titanium.UI.FILL, height:100
+              width: Titanium.UI.FILL,
+              height:100
             });
             win.add(label);
             win.open();
@@ -472,7 +468,6 @@ description: |
     scrolls. For example
 
         setContentOffset({x:50,y:100}, {animated:true})
-optional: true
 since: 1.8.1
 platforms: [iphone, ipad]
 
@@ -488,7 +483,6 @@ description: |
     zooms. For example
 
         setZoomScale(2, {animated:true})
-optional: true
 since: 3.0.0
 platforms: [iphone, ipad]
 

@@ -22,6 +22,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 
 -(id)initWithCallback:(KrollCallback*)callback_ module:(YahooModule*)module_
 {
+	//Ignore analyzer warning here. Delegate will call autorelease onLoad or onError.
 	if (self = [super init])
 	{
 		callback = [callback_ retain];
@@ -186,6 +187,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 	
 	YQLCallback *job = [[YQLCallback alloc] initWithCallback:callback module:self];
 	APSHTTPRequest *req = [[APSHTTPRequest alloc] init];
+	[req setMethod:@"GET"];
     [req setUrl:[NSURL URLWithString:theurl]];
 	[req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
 	[[TiApp app] startNetwork];

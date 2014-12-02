@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,8 +12,10 @@
 #import "TiErrorController.h"
 #import "NSData+Additions.h"
 #import "ImageLoader.h"
+#ifdef TI_DEBUGGER_PROFILER
 #import "TiDebugger.h"
-#import "TiProfiler.h"
+#endif
+#import "TiProfiler/TiProfiler.h"
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
 #import "ApplicationDefaults.h"
@@ -180,10 +182,10 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	
 	sessionId = [[TiUtils createUUID] retain];
 	TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
-
+#ifdef TI_DEBUGGER_PROFILER
 	NSString *filePath = [[NSBundle mainBundle] pathForResource:@"debugger" ofType:@"plist"];
     if (filePath != nil) {
-        NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
         NSString *host = [params objectForKey:@"host"];
         NSInteger port = [[params objectForKey:@"port"] integerValue];
         NSString *airkey = [params objectForKey:@"airkey"];
@@ -207,15 +209,14 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 				}
 				[self appBoot];
 			});
-			[params release];
 			return;
 		}
-		[params release];
 #endif
     }
-	filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
+#endif
+	NSString* filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
 	if (!self.debugMode && filePath != nil) {
-        NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
         NSString *host = [params objectForKey:@"host"];
         NSInteger port = [[params objectForKey:@"port"] integerValue];
         NSString *airkey = [params objectForKey:@"airkey"];
@@ -239,13 +240,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 				}
 				[self appBoot];
 			});
-			[params release];
 			return;
 		}
-		[params release];
 #endif
     }
-	[self appBoot];
+    [self appBoot];
 }
 
 - (void)appBoot
@@ -260,7 +259,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	[[[NSClassFromString(TIV) alloc] init] autorelease];
 }
-
 - (void)booted:(id)bridge
 {
 	if ([bridge isKindOfClass:[KrollBridge class]])
@@ -271,7 +269,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		if (localNotification != nil) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 		}
-		TiThreadPerformOnMainThread(^{[self validator];}, YES);
+        TiThreadPerformOnMainThread(^{[self validator];}, YES);
 	}
 }
 
@@ -297,7 +295,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         UIImage * defaultImage = [controller defaultImageForOrientation:
                                   (UIDeviceOrientation)[[UIApplication sharedApplication] statusBarOrientation]
                                                    resultingOrientation:&imageOrientation idiom:&imageIdiom];
-        if([TiUtils isIPad]) {
+        if([TiUtils isIPad] && ![TiUtils isIOS8OrGreater]) {
             CGAffineTransform transform;
             switch ([[UIApplication sharedApplication] statusBarOrientation]) {
                 case UIInterfaceOrientationPortraitUpsideDown:
@@ -335,7 +333,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		}
 		[remoteNotification setValue:[aps valueForKey:key] forKey:key];
 	}
-	DebugLog(@"[WARN] Accessing APS keys from toplevel of notification is deprecated");
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions_
@@ -393,7 +390,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
 	[launchOptions setObject:[url absoluteString] forKey:@"url"];
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
-	[launchOptions setObject:sourceApplication forKey:@"source"];
+	if(sourceApplication == nil) {
+		[launchOptions setObject:[NSNull null] forKey:@"source"];
+	} else {
+		[launchOptions setObject:sourceApplication forKey:@"source"];
+	}
 	return YES;
 }
 
@@ -416,7 +417,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
             pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
         }
 
-        [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
+        [pendingCompletionHandlers setObject:[[completionHandler copy] autorelease ]forKey:key];
 
         // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
         // the bridge completes processing of app.js (adding the event into notification center).
@@ -430,6 +431,39 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 }
 
 #endif
+
+#pragma mark Remote and Local Notifications iOS 8
+
+- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiUserNotificationSettingsNotification object:notificationSettings userInfo:nil];
+}
+
+- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
+	RELEASE_TO_NIL(localNotification);
+	localNotification = [[TiApp  dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotificationAction object:localNotification userInfo:nil];
+	completionHandler();
+}
+
+- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
+    RELEASE_TO_NIL(remoteNotification);
+    [self generateNotification:userInfo];
+    NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
+    event[@"data"] = remoteNotification;
+    if (identifier != nil) {
+        event[@"identifier"] = identifier;
+    }
+    NSString *category = remoteNotification[@"category"];
+    if (category != nil) {
+        event[@"category"] = category;
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteNotificationAction object:event userInfo:nil];
+    [event autorelease];
+    completionHandler();
+}
+
+#pragma mark -
 
 #pragma mark Helper Methods
 
@@ -452,7 +486,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:userInfo];
     } else {
         //Try again in 2 sec. TODO: should we reduce this value ?
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_current_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [self postNotificationwithKey:userInfo withNotificationName:notificationName];
         });
     }
@@ -532,7 +566,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
             pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
         }
         
-        [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
+        [pendingCompletionHandlers setObject:[[completionHandler copy] autorelease ]forKey:key];
         
         // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
         // the bridge completes processing of app.js (adding the event into notification center).
@@ -564,7 +598,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         backgroundTransferCompletionHandlers = [[NSMutableDictionary alloc] init];
     }
     
-    [backgroundTransferCompletionHandlers setObject:[completionHandler copy] forKey:key];
+    [backgroundTransferCompletionHandlers setObject:[[completionHandler copy] autorelease ]forKey:key];
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:identifier, @"sessionId",
                                                                              key, @"handlerId", nil];
     [self postNotificationwithKey:dict withNotificationName:kTiBackgroundTransfer];
@@ -600,7 +634,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent
     totalBytesSent:(int64_t) totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
 {
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMINT(task.taskIdentifier),@"taskIdentifier",
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMUINTEGER(task.taskIdentifier),@"taskIdentifier",
                                  [NSNumber numberWithUnsignedLongLong:bytesSent], @"bytesSent",
                                  [NSNumber numberWithUnsignedLongLong:totalBytesSent], @"totalBytesSent",
                                  [NSNumber numberWithUnsignedLongLong:totalBytesExpectedToSend], @"totalBytesExpectedToSend", nil];
@@ -616,7 +650,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
                           nil];
     if (error) {
         NSDictionary * errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
-                                                NUMINT([error code]), @"errorCode",
+                                                NUMINTEGER([error code]), @"errorCode",
                                                 [error localizedDescription], @"message",
                                                 nil];
         [dict addEntriesFromDictionary:errorinfo];
@@ -866,24 +900,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	}
 	ENSURE_UI_THREAD(showModalError,message);
 	TiErrorController *error = [[[TiErrorController alloc] initWithError:message] autorelease];
-	[controller presentModalViewController:error animated:YES];
-}
-
--(void)attachModal:(UIViewController*)modalController toController:(UIViewController*)presentingController animated:(BOOL)animated
-{
-	UIViewController * currentModalController = [presentingController modalViewController];
-
-	if (currentModalController == modalController)
-	{
-		DeveloperLog(@"[WARN] Trying to present a modal window that already is a modal window.");
-		return;
-	}
-	if (currentModalController == nil)
-	{
-		[presentingController presentModalViewController:modalController animated:animated];
-		return;
-	}
-	[self attachModal:modalController toController:currentModalController animated:animated];
+	[self showModalController:error animated:YES];
 }
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated
@@ -921,7 +938,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	RELEASE_TO_NIL(remoteNotification);
 	RELEASE_TO_NIL(splashScreenImage);
     if ([self debugMode]) {
+#ifdef TI_DEBUGGER_PROFILER
         TiDebuggerStop();
+#endif
     }
 	RELEASE_TO_NIL(backgroundServices);
 	RELEASE_TO_NIL(localNotification);
@@ -1033,23 +1052,34 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	[self checkBackgroundServices];
 }
 
-#define NOTNULL(v) ((v==nil) ? (id)[NSNull null] : v)
+#define NOTNIL(v) ((v==nil) ? (id)[NSNull null] : v)
 
++ (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification withIdentifier: (NSString *)identifier
+{
+    if (notification == nil) {
+        return nil;
+    }
+    NSMutableDictionary* event = [NSMutableDictionary dictionary];
+    [event setObject:NOTNIL([notification fireDate]) forKey:@"date"];
+    [event setObject:NOTNIL([[notification timeZone] name]) forKey:@"timezone"];
+    [event setObject:NOTNIL([notification alertBody]) forKey:@"alertBody"];
+    [event setObject:NOTNIL([notification alertAction]) forKey:@"alertAction"];
+    [event setObject:NOTNIL([notification alertLaunchImage]) forKey:@"alertLaunchImage"];
+    [event setObject:NOTNIL([notification soundName]) forKey:@"sound"];
+    [event setObject:NUMINTEGER([notification applicationIconBadgeNumber]) forKey:@"badge"];
+    [event setObject:NOTNIL([notification userInfo]) forKey:@"userInfo"];
+	//include category for ios8
+	if ([TiUtils isIOS8OrGreater]) {
+		[event setObject:NOTNIL([notification category]) forKey:@"category"];
+		[event setObject:NOTNIL(identifier) forKey:@"identifier"];
+	}
+	
+	return event;
+    
+}
 + (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification
 {
-	if (notification == nil) {
-		return nil;
-	}
-	NSMutableDictionary* event = [NSMutableDictionary dictionary];
-	[event setObject:NOTNULL([notification fireDate]) forKey:@"date"];
-	[event setObject:NOTNULL([[notification timeZone] name]) forKey:@"timezone"];
-	[event setObject:NOTNULL([notification alertBody]) forKey:@"alertBody"];
-	[event setObject:NOTNULL([notification alertAction]) forKey:@"alertAction"];
-	[event setObject:NOTNULL([notification alertLaunchImage]) forKey:@"alertLaunchImage"];
-	[event setObject:NOTNULL([notification soundName]) forKey:@"sound"];
-	[event setObject:NUMINT([notification applicationIconBadgeNumber]) forKey:@"badge"];
-	[event setObject:NOTNULL([notification userInfo]) forKey:@"userInfo"];
-	return [[event copy] autorelease];
+    return [self dictionaryWithLocalNotification: notification withIdentifier: nil];
 }
 
 // Returns an NSDictionary with the properties from tiapp.xml

@@ -45,7 +45,7 @@ public final class <%- classname %>AppInfo implements ITiAppInfo
 	}
 
 	public String getDescription() {
-		return "<%- tiapp.description %>";
+		return "<%- tiapp.description.replace(/\"/g, '\\"') %>";
 	}
 
 	public String getIcon() {

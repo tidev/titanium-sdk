@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -510,51 +510,23 @@
 	[rootController setTitle:title];
 	UITabBarItem *ourItem = nil;
     
-    BOOL imageIsMask = NO;
-    
-    if ([TiUtils isIOS7OrGreater]) {
-        
-        //CLEAN UP CODE WHEN WE UPGRADE MIN XCODE VERSION TO XCODE5
-        if (image != nil) {
-            if ([image respondsToSelector:@selector(imageWithRenderingMode:)]) {
-                NSInteger theMode = iconOriginal ? 1/*UIImageRenderingModeAlwaysOriginal*/ : 2/*UIImageRenderingModeAlwaysTemplate*/;
-                image = [(id<UIImageIOS7Support>)image imageWithRenderingMode:theMode];
-            }
+    if (image != nil) {
+        if ([image respondsToSelector:@selector(imageWithRenderingMode:)]) {
+            NSInteger theMode = iconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
+            image = [image imageWithRenderingMode:theMode];
         }
-        if (activeImage != nil) {
-            if ([activeImage respondsToSelector:@selector(imageWithRenderingMode:)]) {
-                NSInteger theMode = activeIconOriginal ? 1/*UIImageRenderingModeAlwaysOriginal*/ : 2/*UIImageRenderingModeAlwaysTemplate*/;
-                activeImage = [(id<UIImageIOS7Support>)activeImage imageWithRenderingMode:theMode];
-            }
+    }
+    if (activeImage != nil) {
+        if ([activeImage respondsToSelector:@selector(imageWithRenderingMode:)]) {
+            NSInteger theMode = activeIconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
+            activeImage = [activeImage imageWithRenderingMode:theMode];
         }
-        
-        systemTab = NO;
-        ourItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
-        [ourItem setBadgeValue:badgeValue];
-        [rootController setTabBarItem:ourItem];
-        return;
     }
     
-	if (!systemTab)
-	{
-		ourItem = [rootController tabBarItem];
-		[ourItem setTitle:title];
-		[ourItem setImage:image];
-	}
-
-	if (ourItem == nil)
-	{
-		systemTab = NO;
-		ourItem = [[[UITabBarItem alloc] initWithTitle:title image:image tag:0] autorelease];
-		[rootController setTabBarItem:ourItem];
-	}
-
-	if (activeImage != nil)
-	{
-		[ourItem setFinishedSelectedImage:activeImage withFinishedUnselectedImage:image];
-	}
-	
-	[ourItem setBadgeValue:badgeValue];
+    systemTab = NO;
+    ourItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
+    [ourItem setBadgeValue:badgeValue];
+    [rootController setTabBarItem:ourItem];
 }
 
 -(void)setTitle:(id)title
@@ -711,7 +683,7 @@
 
 -(TiOrientationFlags)orientationFlags
 {
-	UIViewController * modalController = [controller modalViewController];
+	UIViewController * modalController = [controller presentedViewController];
 	if ([modalController conformsToProtocol:@protocol(TiOrientationController)])
 	{
 		return [(id<TiOrientationController>)modalController orientationFlags];

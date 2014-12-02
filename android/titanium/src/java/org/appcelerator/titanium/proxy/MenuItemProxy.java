@@ -56,18 +56,6 @@ public class MenuItemProxy extends KrollProxy
 	private static final int MSG_ACTION_VIEW_EXPANDED = MSG_FIRST_ID + 217;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 1000;
-
-	private final class ActionExpandListener implements OnActionExpandListener {
-		public boolean onMenuItemActionCollapse(MenuItem item) {
-			fireEvent(TiC.EVENT_COLLAPSE, null);
-			return true;
-		}
-
-		public boolean onMenuItemActionExpand(MenuItem item) {
-			fireEvent(TiC.EVENT_EXPAND, null);
-			return true;
-		}
-	}
 	
 	private final class CompatActionExpandListener implements MenuItemCompat.OnActionExpandListener {
 		public boolean onMenuItemActionCollapse(MenuItem item) {
@@ -84,12 +72,8 @@ public class MenuItemProxy extends KrollProxy
 	protected MenuItemProxy(MenuItem item)
 	{
 		this.item = item;
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			item.setOnActionExpandListener(new ActionExpandListener());
-		} else {
-			MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
-		}
+		MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
+		
 	}
 
 	@Override

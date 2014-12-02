@@ -19,6 +19,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.app.Activity;
@@ -464,7 +465,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			if (saveToGallery) {
 				imageFile = MediaModule.createGalleryImageFile();
 			} else {
-				imageFile = TiApplication.getInstance().getTempFileHelper().createTempFile("tia", ".jpg");
+				// Save the picture in the internal data directory so it is private to this application.
+				imageFile = TiFileFactory.createDataFile("tia", ".jpg");
 			}
 			
 			FileOutputStream imageOut = new FileOutputStream(imageFile);
@@ -494,12 +496,11 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			{
 				public void onAutoFocus(boolean success, Camera camera)
 				{
-					// Take the picture when the camera auto focus completes.
-					if (success) {
-						camera.takePicture(shutterCallback, null, jpegCallback);
-					} else {
-						Log.d(TAG, "Unable to focus. Ignoring call to take picture");
+					camera.takePicture(shutterCallback, null, jpegCallback);
+					if (!success) {
+						Log.w(TAG, "Unable to focus.");
 					}
+					camera.cancelAutoFocus();
 				}
 			};
 			camera.autoFocus(focusCallback);

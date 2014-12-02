@@ -61,7 +61,7 @@ namespace TitaniumApp.TiRequestHandlers
 					if (!isf.DirectoryExists(dir)) {
 						isf.CreateDirectory(dir);
 					}
-				} catch (IsolatedStorageException ise) {
+				} catch (IsolatedStorageException) {
 					throw new DownloadException("Unable to create destination directory '" + dir + "' because of insufficient permissions or the isolated storage has been disabled or removed");
 				}
 			}
@@ -78,11 +78,11 @@ namespace TitaniumApp.TiRequestHandlers
 
 			try {
 				fileStream = isf.CreateFile(saveTo);
-			} catch (IsolatedStorageException ise) {
+			} catch (IsolatedStorageException) {
 				throw new DownloadException("Unable to create file '" + saveTo + "' because the isolated storage has been disabled or removed");
-			} catch (DirectoryNotFoundException dnfe) {
+			} catch (DirectoryNotFoundException) {
 				throw new DownloadException("Unable to create file '" + saveTo + "' because the directory does not exist");
-			} catch (ObjectDisposedException dnfe) {
+			} catch (ObjectDisposedException) {
 				throw new DownloadException("Unable to create file '" + saveTo + "' because the isolated storage has been disposed");
 			}
 

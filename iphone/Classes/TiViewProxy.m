@@ -52,16 +52,9 @@
         }, YES);
         return [result autorelease];
     }
-    NSArray* copy = nil;
     
 	pthread_rwlock_rdlock(&childrenLock);
-	if (windowOpened==NO && children==nil && pendingAdds!=nil)
-	{
-		copy = [pendingAdds mutableCopy];
-	}
-    else {
-        copy = [children mutableCopy];
-    }
+    NSArray* copy = [children mutableCopy];
 	pthread_rwlock_unlock(&childrenLock);
 	return ((copy != nil) ? [copy autorelease] : [NSMutableArray array]);
 }
@@ -159,32 +152,45 @@
 		}
 		return;
 	}
-	
-    if ([arg conformsToProtocol:@protocol(TiWindowProtocol)]) {
-        DebugLog(@"Can not add a window as a child of a view. Returning");
-        return;
-    }
-    
-	if ([NSThread isMainThread])
-	{
+
+	int position = -1;
+	TiViewProxy *childView = nil;
+
+	if([arg isKindOfClass:[NSDictionary class]]) {
+		childView = [arg objectForKey:@"view"];
+		position = [TiUtils intValue:[arg objectForKey:@"position"] def:-1];
+	} else if([arg isKindOfClass:[TiViewProxy class]]) {
+		childView = arg;
+	}
+
+	if(childView == nil) {
+		DeveloperLog(@"[WARN] 'add' and 'insertAt' must be contain a view. Returning");
+		return;
+	}
+
+	if ([childView conformsToProtocol:@protocol(TiWindowProtocol)]) {
+		DebugLog(@"[WARN] Can not add a window as a child of a view. Returning");
+		return;
+	}
+
+	if (children==nil) {
+		children = [[NSMutableArray alloc] init];
+	}
+	if ([NSThread isMainThread]) {
 		pthread_rwlock_wrlock(&childrenLock);
-		if (children==nil)
-		{
-			children = [[NSMutableArray alloc] initWithObjects:arg,nil];
-		}		
-		else 
-		{
-			[children addObject:arg];
+		if(position < 0 || position > [children count]) {
+			position = (int)[children count];
 		}
-        //Turn on clipping because I have children
-        [self view].clipsToBounds = YES;
-        
+		[children insertObject:childView atIndex:position];
+		//Turn on clipping because I have children
+		[[self view] updateClipping];
+
 		pthread_rwlock_unlock(&childrenLock);
-		[arg setParent:self];
+		[childView setParent:self];
 		[self contentsWillChange];
 		if(parentVisible && !hidden)
 		{
-			[arg parentWillShow];
+			[childView parentWillShow];
 		}
 		
 		//If layout is non absolute push this into the layout queue
@@ -193,28 +199,43 @@
 			[self contentsWillChange];
 		}
 		else {
-			[self layoutChild:arg optimize:NO withMeasuredBounds:[[self view] bounds]];
+			[self layoutChild:childView optimize:NO withMeasuredBounds:[[self view] bounds]];
 		}
 	}
 	else
 	{
-		[self rememberProxy:arg];
+		[self rememberProxy:childView];
 		if (windowOpened)
 		{
 			TiThreadPerformOnMainThread(^{[self add:arg];}, NO);
 			return;
 		}
 		pthread_rwlock_wrlock(&childrenLock);
-		if (pendingAdds==nil)
-		{
-			pendingAdds = [[NSMutableArray arrayWithObject:arg] retain];
+		if(position < 0 || position > [children count]) {
+			position = (int)[children count];
 		}
-		else 
-		{
-			[pendingAdds addObject:arg];
-		}
+		[children insertObject:childView atIndex:position];
 		pthread_rwlock_unlock(&childrenLock);
-		[arg setParent:self];
+		[childView setParent:self];
+	}
+}
+
+-(void)insertAt:(id)args
+{
+	ENSURE_SINGLE_ARG(args, NSDictionary);
+	[self add:args];
+}
+
+-(void)replaceAt:(id)args
+{
+	ENSURE_SINGLE_ARG(args, NSDictionary);
+	NSInteger position = [TiUtils intValue:[args objectForKey:@"position"] def:-1];
+	NSArray *childrenArray = [self children];
+	if(childrenArray != nil && position > -1 && [childrenArray count] > position) {
+		TiViewProxy *childToRemove = [[childrenArray objectAtIndex:position] retain];
+		[self add:args];
+		[self remove: childToRemove];
+		[childToRemove autorelease];
 	}
 }
 
@@ -224,128 +245,42 @@
 	ENSURE_UI_THREAD_1_ARG(arg);
 
 	pthread_rwlock_wrlock(&childrenLock);
-	if ([children containsObject:arg])
-	{
+	NSMutableArray* childrenCopy = [children mutableCopy];
+	if ([children containsObject:arg]) {
 		[children removeObject:arg];
 	}
-	else if ([pendingAdds containsObject:arg])
-	{
-		[pendingAdds removeObject:arg];
-	}
-	else
-	{
-		pthread_rwlock_unlock(&childrenLock);
-		DebugLog(@"[WARN] Called remove for %@ on %@, but %@ isn't a child or has already been removed.",arg,self,arg);
-		return;
-	}
-
-	[self contentsWillChange];
-	if(parentVisible && !hidden)
-	{
-		[arg parentWillHide];
-	}
-
-	if ([children count]==0)
-	{
-		RELEASE_TO_NIL(children);
-	}
 	pthread_rwlock_unlock(&childrenLock);
-		
-	[arg setParent:nil];
 	
-	if (view!=nil)
-	{
-		TiUIView *childView = [(TiViewProxy *)arg view];
-		BOOL layoutNeedsRearranging = !TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle);
-		if ([NSThread isMainThread])
-		{
-			[childView removeFromSuperview];
-			if (layoutNeedsRearranging)
-			{
-				[self layoutChildren:NO];
-			}
-		}
-		else
-		{
-			TiThreadPerformOnMainThread(^{
-				[childView removeFromSuperview];
-				if (layoutNeedsRearranging)
-				{
-					[self layoutChildren:NO];
-				}
-			}, NO);
-		}
+	if([childrenCopy containsObject:arg]) {
+		[arg windowWillClose];
+		[arg setParentVisible:NO];
+		[arg setParent:nil];
+		[arg windowDidClose];
+		[self forgetProxy:arg];
+		[childrenCopy removeObject:arg];
+		[self contentsWillChange];
 	}
-	//Yes, we're being really lazy about letting this go. This is intentional.
-	[self forgetProxy:arg];
+	[childrenCopy release];
 }
 
 -(void)removeAllChildren:(id)arg
 {
-	ENSURE_UI_THREAD_1_ARG(arg);
-    
-    
-	if (children != nil) {
-		pthread_rwlock_wrlock(&childrenLock);
-
-		for (TiViewProxy* child in children)
-		{
-			if ([pendingAdds containsObject:child])
-			{
-				[pendingAdds removeObject:child];
-			}
-
-			[child setParent:nil];
-			[self forgetProxy:child];
-
-			if (view!=nil)
-			{
-				TiUIView *childView = [(TiViewProxy *)child view];
-				if ([NSThread isMainThread])
-				{
-					[childView removeFromSuperview];
-				}
-				else
-				{
-					TiThreadPerformOnMainThread(^{
-						[childView removeFromSuperview];
-					}, NO);
-				}
-			}
-		}
-
-		[self contentsWillChange];
-		if(parentVisible && !hidden)
-		{
-			[arg parentWillHide];
-		}
-
-		[children removeAllObjects];
-		RELEASE_TO_NIL(children);
-
-		pthread_rwlock_unlock(&childrenLock);
-
-		if (view!=nil)
-		{
-			BOOL layoutNeedsRearranging = !TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle);
-			if ([NSThread isMainThread])
-			{
-				if (layoutNeedsRearranging)
-				{
-					[self layoutChildren:NO];
-				}
-			}
-			else
-			{
-				TiThreadPerformOnMainThread(^{
-					if (layoutNeedsRearranging)
-					{
-						[self layoutChildren:NO];
-					}
-				}, NO);
-			}
-		}
-	}
+    ENSURE_UI_THREAD_1_ARG(arg);
+    pthread_rwlock_wrlock(&childrenLock);
+    NSMutableArray* childrenCopy = [children mutableCopy];
+    [children removeAllObjects];
+    RELEASE_TO_NIL(children);
+    pthread_rwlock_unlock(&childrenLock);
+    for (TiViewProxy* theChild in childrenCopy) {
+        [theChild windowWillClose];
+        [theChild setParentVisible:NO];
+        [theChild setParent:nil];
+        [theChild windowDidClose];
+        [self forgetProxy:theChild];
+    }
+    [childrenCopy removeAllObjects];
+	[childrenCopy release];
+    [self contentsWillChange];
 }
 
 -(void)show:(id)arg
@@ -634,7 +569,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 -(TiBlob*)toImage:(id)args
 {
     KrollCallback *callback = nil;
-    BOOL honorScale = NO;
     
     NSObject *obj = nil;
     if( [args count] > 0) {
@@ -643,10 +577,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
         if (obj == [NSNull null]) {
             obj = nil;
         }
-        
-        if( [args count] > 1) {
-            honorScale = [TiUtils boolValue:[args objectAtIndex:1] def:NO];
-        }
     }
     callback = (KrollCallback*)obj;
 	TiBlob *blob = [[[TiBlob alloc] init] autorelease];
@@ -654,7 +584,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	// if you pass a callback function, we'll run the render asynchronously, if you
 	// don't, we'll do it synchronously
 	TiThreadPerformOnMainThread(^{
-		[self windowWillOpen];
+		BOOL viewIsAttached = [self viewAttached];
+		if (!viewIsAttached) {
+			[self windowWillOpen];
+		}
 		TiUIView *myview = [self view];
 		CGSize size = myview.bounds.size;
 		if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
@@ -672,7 +605,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 			CGRect rect = CGRectMake(0, 0, size.width, size.height);
 			[TiUtils setView:myview positionRect:rect];
 		}
-		UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], (honorScale ? 0.0 : 1.0));
+		if (!viewIsAttached) {
+			[self layoutChildren:NO];
+		}
+		UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], 0);
 		[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
 		UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 		[blob setImage:image];
@@ -781,12 +717,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	CGRect sandBox = CGRectZero;
     CGFloat thisWidth = 0.0;
 
-	pthread_rwlock_rdlock(&childrenLock);
     NSArray* subproxies = [self children];
 	for (TiViewProxy * thisChildProxy in subproxies)
 	{
         if (isHorizontal) {
-            sandBox = CGRectZero;
             sandBox = [self computeChildSandbox:thisChildProxy withBounds:bounds];
             thisWidth = sandBox.origin.x + sandBox.size.width;
         }
@@ -798,7 +732,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
             result = thisWidth;
         }
 	}
-	pthread_rwlock_unlock(&childrenLock);
     
     if (result < contentWidth) {
         result = contentWidth;
@@ -836,13 +769,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	CGRect sandBox = CGRectZero;
     CGFloat thisHeight = 0.0;
 
-	pthread_rwlock_rdlock(&childrenLock);
-	NSArray* array = windowOpened ? children : pendingAdds;
+	NSArray* array = [self children];
     
 	for (TiViewProxy * thisChildProxy in array)
 	{
         if (!isAbsolute) {
-            sandBox = CGRectZero;
             sandBox = [self computeChildSandbox:thisChildProxy withBounds:bounds];
             thisHeight = sandBox.origin.y + sandBox.size.height;
         }
@@ -854,7 +785,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
             result = thisHeight;
         }
 	}
-	pthread_rwlock_unlock(&childrenLock);
 	//result += currentRowHeight;
 	
     if (result < contentHeight) {
@@ -1050,10 +980,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 		[view configurationSet];
 
-		pthread_rwlock_rdlock(&childrenLock);
 		NSArray * childrenArray = [[self children] retain];
-		pthread_rwlock_unlock(&childrenLock);
-		
 		for (id child in childrenArray)
 		{
 			TiUIView *childView = [(TiViewProxy*)child view];
@@ -1062,6 +989,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		
 		[childrenArray release];
 		[self viewDidAttach];
+		[view updateClipping];
 
 		// If parent has a non absolute layout signal the parent that
 		//contents will change else just lay ourselves out
@@ -1148,75 +1076,68 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 -(void)windowWillOpen
 {
-	//TODO: This should be properly handled and moved, but for now, let's force it (Redundantly, I know.)
-	if (parent != nil) {
-		[self parentWillShow];
-	}
+    //TODO: This should be properly handled and moved, but for now, let's force it (Redundantly, I know.)
+    if (parent != nil) {
+        [self parentWillShow];
+    }
 
-	pthread_rwlock_rdlock(&childrenLock);
-	
-	// this method is called just before the top level window
-	// that this proxy is part of will open and is ready for
-	// the views to be attached
-	
-	if (windowOpened==YES)
-	{
-		pthread_rwlock_unlock(&childrenLock);
-		return;
-	}
-	
-	windowOpened = YES;
-	windowOpening = YES;
-	
-	// If the window was previously opened, it may need to have
-	// its existing children redrawn
-	// Maybe need to call layout children instead for non absolute layout
-	if (children != nil) {
-		for (TiViewProxy* child in children) {
-			[self layoutChild:child optimize:NO withMeasuredBounds:[[self size] rect]];
-			[child windowWillOpen];
-		}
-	}
-	
-	pthread_rwlock_unlock(&childrenLock);
-	
-	if (pendingAdds!=nil)
-	{
-		for (id child in pendingAdds)
-		{
-			[self add:child];
-			[child windowWillOpen];
-		}
-		RELEASE_TO_NIL(pendingAdds);
-	}
+    pthread_rwlock_rdlock(&childrenLock);
+
+    // this method is called just before the top level window
+    // that this proxy is part of will open and is ready for
+    // the views to be attached
+
+    if (windowOpened==YES)
+    {
+        pthread_rwlock_unlock(&childrenLock);
+        return;
+    }
+
+    windowOpened = YES;
+    windowOpening = YES;
+
+    BOOL absoluteLayout = TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle);
+
+    // If the window was previously opened, it may need to have
+    // its existing children redrawn
+    // Maybe need to call layout children instead for non absolute layout
+    if (children != nil) {
+        for (TiViewProxy* child in children) {
+            if (absoluteLayout) {
+                [self layoutChild:child optimize:NO withMeasuredBounds:[[self size] rect]];
+            }
+            [child windowWillOpen];
+        }
+    }
+
+    pthread_rwlock_unlock(&childrenLock);
+
+    //TIMOB-17923 - Do a full layout pass (set proper sandbox) if non absolute layout
+    if (!absoluteLayout) {
+        [self layoutChildren:NO];
+    }
 }
 
 -(void)windowDidOpen
 {
 	windowOpening = NO;
-	pthread_rwlock_rdlock(&childrenLock);
-	for (TiViewProxy *child in children)
+	for (TiViewProxy *child in [self children])
 	{
 		[child windowDidOpen];
 	}
-	pthread_rwlock_unlock(&childrenLock);
 }
 
 -(void)windowWillClose
 {
-	pthread_rwlock_rdlock(&childrenLock);
-	[children makeObjectsPerformSelector:@selector(windowWillClose)];
-	pthread_rwlock_unlock(&childrenLock);
+	[[self children] makeObjectsPerformSelector:@selector(windowWillClose)];
 }
 
 -(void)windowDidClose
 {
-	pthread_rwlock_rdlock(&childrenLock);
-	for (TiViewProxy *child in children)
+	for (TiViewProxy *child in [self children])
 	{
 		[child windowDidClose];
 	}
-	pthread_rwlock_unlock(&childrenLock);
 	[self detachView];
 	windowOpened=NO;
 }
@@ -1406,7 +1327,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(pendingAdds);
+//	RELEASE_TO_NIL(pendingAdds);
 	RELEASE_TO_NIL(destroyLock);
 	pthread_rwlock_destroy(&childrenLock);
 	
@@ -1474,9 +1395,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		[self viewDidDetach];
 	}
 
-    pthread_rwlock_rdlock(&childrenLock);
     [[self children] makeObjectsPerformSelector:@selector(detachView)];
-    pthread_rwlock_unlock(&childrenLock);
 	[destroyLock unlock];
 }
 
@@ -1636,7 +1555,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	}
 }
 
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message;
 {
 	// Note that some events (like movie 'complete') are fired after the view is removed/dealloc'd.
 	// Because of the handling below, we can safely set the view to 'nil' in this case.
@@ -1680,13 +1599,13 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	}
     
     //TIMOB-15991 Update children as well
-    NSArray* childrenArray = [[self children] retain];
+	NSArray* childrenArray = [[self children] retain];
     for (id child in childrenArray) {
         if ([child respondsToSelector:@selector(parentListenersChanged)]) {
             [child parentListenersChanged];
         }
     }
-    [childrenArray release];
+	[childrenArray release];
 }
 
 -(void)_listenerRemoved:(NSString*)type count:(int)count
@@ -2083,12 +2002,10 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		[self refreshSize];
 		if(TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle))
 		{
-			pthread_rwlock_rdlock(&childrenLock);
-			for (TiViewProxy * thisChild in children)
+			for (TiViewProxy * thisChild in [self children])
 			{
 				[thisChild setSandboxBounds:sizeCache];
 			}
-			pthread_rwlock_unlock(&childrenLock);
 		}
 		changedFrame = YES;
 	}
@@ -2167,10 +2084,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         [subViews release];
     }
     
-    pthread_rwlock_rdlock(&childrenLock);
     
     NSArray *sortedArray;
-    sortedArray = [children sortedArrayUsingComparator:^NSComparisonResult(id a, id b) {
+    sortedArray = [[self children] sortedArrayUsingComparator:^NSComparisonResult(id a, id b) {
         int first = [(TiViewProxy*)a vzIndex];
         int second = [(TiViewProxy*)b vzIndex];
         return (first > second) ? NSOrderedDescending : ( first < second ? NSOrderedAscending : NSOrderedSame );
@@ -2189,7 +2105,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             lastView = newView;
         }
     }
-    pthread_rwlock_unlock(&childrenLock);
     
 }
 
@@ -2242,7 +2157,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             [observer proxyDidRelayout:self];
         }
 
-        if (layoutChanged && [self _hasListeners:@"postlayout"]) {
+        if (layoutChanged && [self _hasListeners:@"postlayout" checkParent:NO]) {
             [self fireEvent:@"postlayout" withObject:nil propagate:NO];
         }
 	}
@@ -2291,9 +2206,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 	IGNORE_IF_NOT_OPENED
 	
-	pthread_rwlock_rdlock(&childrenLock);
-	BOOL containsChild = [children containsObject:child];
-	pthread_rwlock_unlock(&childrenLock);
+	BOOL containsChild = [[self children] containsObject:child];
 
 	ENSURE_VALUE_CONSISTENCY(containsChild,YES);
 
@@ -2340,7 +2253,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
     
 	BOOL horizontalNoWrap = TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle) && !TiLayoutFlagsHasHorizontalWrap(&layoutProperties);
     NSMutableArray * measuredBounds = [NSMutableArray arrayWithCapacity:[childArray count]];
-    NSUInteger i, count = [childArray count];
+    int i, count = (int)[childArray count];
 	int maxHeight = 0;
     
     //First measure the sandbox bounds
@@ -2775,9 +2688,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	}
 
 //TODO: This is really expensive, but what can you do? Laying out the child needs the lock again.
-	pthread_rwlock_rdlock(&childrenLock);
 	NSArray * childrenArray = [[self children] retain];
-	pthread_rwlock_unlock(&childrenLock);
     
     NSUInteger childCount = [childrenArray count];
     if (childCount > 0) {
@@ -2901,6 +2812,13 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		return proxy;
 	}
 	return nil;
+}
+
+-(void)hideKeyboard:(id)arg
+{
+	ENSURE_UI_THREAD_1_ARG(arg);
+	if (view != nil)
+		[self.view endEditing:YES];
 }
 
 @end

@@ -1,0 +1,5 @@
+language: c#
+install:
+- npm install
+script:
+- npm test

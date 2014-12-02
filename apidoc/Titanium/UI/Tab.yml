@@ -220,7 +220,7 @@ properties:
          otherwise.
     type: String
 
-  - name: iconIsmask
+  - name: iconIsMask
     summary: Defines if the icon property of the tab must be used as a mask. This property is applicable on iOS 7 and greater. 
     description: |
         When this property is true, the color data of the image specified as the icon is ignored and the image is used as an alpha mask. 
@@ -311,6 +311,11 @@ events:
   - name: postlayout
     platforms: [mobileweb, tizen]
 
+  - name: selected
+    summary: Fired when the tab is selected.
+    platforms: [android]
+    since: "3.3.0"
+
   - name: singletap
     platforms: [mobileweb, tizen]
 
@@ -328,6 +333,11 @@ events:
 
   - name: touchstart
     platforms: [mobileweb, tizen]
+
+  - name: unselected
+    summary: Fired when the tab is unselected.
+    platforms: [android]
+    since: "3.3.0"
 
 examples:
   - title: Simple Tab Example

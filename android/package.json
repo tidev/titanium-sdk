@@ -18,14 +18,15 @@
 		"Ping Wang <pwang@appcelerator.com>",
 		"Allen Yeung <ayeung@appcelerator.com>"
 	],
+	"minSDKVersion": "10",
 	"vendorDependencies": {
-		"android sdk": ">=10 <=19",
-		"android build tools": ">=17 <19.x",
-		"android platform tools": ">=17 <=19.x",
-		"android tools": "22.x",
+		"android sdk": ">=14 <=21",
+		"android build tools": ">=17 <21.x",
+		"android platform tools": ">=17 <=21.x",
+		"android tools": "<=23.x",
 		"android ndk": ">=r8e <=r9",
 		"node": ">0.8.0 <=0.10.x",
-		"java": "<=1.7.x"
+		"java": "<=1.8.x"
 	},
 	"repository": {
 		"type": "git",

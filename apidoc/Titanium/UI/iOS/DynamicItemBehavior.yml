@@ -85,7 +85,7 @@ methods:
     summary: Adds an item to this behavior.
     parameters:
       - name: item
-        summary: 
+        summary: View object to add to the behavior.
         type: Titanium.UI.View
 
   - name: addLinearVelocityForItem
@@ -130,6 +130,8 @@ examples:
         The following example create two blocks, which are pushed towards each other.  Because the
         red block is more dense and has higher resistance than the blue block, the red block moves
         steadily to the left, while the blue block spins around unpredictably.
+
+        <img src="images/animator/dynamicitem.gif" height="455" style="border:1px solid black"/>
 
             var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
             

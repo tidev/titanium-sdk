@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -67,10 +67,8 @@
 	BOOL filterAnchored;
 	BOOL filterCaseInsensitive;
 	BOOL allowsSelectionSet;
-	id	lastFocusedView; //DOES NOT RETAIN.	
 	UITableViewController *tableController;
 	UISearchDisplayController *searchController;
-	NSInteger frameChanges;
     TiViewProxy* headerViewProxy;
     TiViewProxy* footerViewProxy;
     BOOL viewWillDetach;
@@ -92,16 +90,15 @@
 -(void)dispatchAction:(TiUITableViewAction*)action;
 -(void)scrollToIndex:(NSInteger)index position:(UITableViewScrollPosition)position animated:(BOOL)animated;
 -(void)scrollToTop:(NSInteger)top animated:(BOOL)animated;
--(NSIndexPath*)indexPathFromSearchIndex:(int)index;
+-(NSIndexPath*)indexPathFromSearchIndex:(NSInteger)index;
 -(IBAction)hideSearchScreen:(id)sender;
 -(UITableView*)tableView;
--(CGFloat)tableRowHeight:(CGFloat)height;
 -(void)setScrollsToTop_:(id)value;
 
 #pragma Private
 -(void)selectRow:(id)args;
 -(void)deselectRow:(id)args;
--(void)reloadDataFromCount:(int)oldCount toCount:(int)newCount animation:(UITableViewRowAnimation)animation;
+-(void)reloadDataFromCount:(NSUInteger)oldCount toCount:(NSUInteger)newCount animation:(UITableViewRowAnimation)animation;
 -(void)refreshSearchControllerUsingReload:(BOOL)reloadSearch;
 
 @end

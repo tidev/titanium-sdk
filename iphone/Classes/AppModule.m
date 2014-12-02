@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -304,10 +304,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     NSDictionary *userInfo = [notification userInfo];
     
     CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    // window for keyboard
-    UIWindow *keyboardWindow = [[[UIApplication sharedApplication] windows] lastObject];  
-    
-    keyboardEndFrame = [keyboardWindow convertRect:keyboardEndFrame fromWindow:nil];
+    if (![TiUtils isIOS8OrGreater]) {
+        // window for keyboard
+        UIWindow *keyboardWindow = [[[UIApplication sharedApplication] windows] lastObject];
+        
+        keyboardEndFrame = [keyboardWindow convertRect:keyboardEndFrame fromWindow:nil];
+    }
     
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
                                 [TiUtils rectToDictionary:keyboardEndFrame], @"keyboardFrame",
@@ -470,7 +472,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 - (void)fireSystemEvent:(id)args
 {
-	NSString *eventName;
+	NSString *eventName = nil;
 	id argument = nil;
 	UIAccessibilityNotifications notification;
 	

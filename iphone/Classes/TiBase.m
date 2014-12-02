@@ -6,8 +6,9 @@
  */
 #import "TiBase.h"
 #import "TiApp.h"
+#ifdef TI_DEBUGGER_PROFILER
 #import "TiDebugger.h"
-
+#endif
 #include <stdarg.h>
 #include <pthread.h>
 #include <sys/time.h>
@@ -91,7 +92,9 @@ void TiLogMessage(NSString* str, ...) {
     
     NSString* message = [[NSString alloc] initWithFormat:str arguments:args];
     if ([[TiApp app] debugMode]) {
+#ifdef TI_DEBUGGER_PROFILER
         TiDebuggerLogMessage(OUT, message);
+#endif
     }
     else {
         
@@ -153,6 +156,9 @@ NSString * const kTiURLDowloadProgress = @"TiDownloadProgress";
 NSString * const kTiURLUploadProgress = @"TiUploadProgress";
 NSString * const kTiFrameAdjustNotification = @"TiFrameAdjust";
 NSString * const kTiLocalNotification = @"TiLocalNotification";
+NSString * const kTiLocalNotificationAction = @"TiLocalNotificationAction";
+NSString * const kTiRemoteNotificationAction = @"TiRemoteNotificationAction";
+NSString * const kTiUserNotificationSettingsNotification = @"TiUserNotificationSettingsNotification";
 
 NSString* const kTiBehaviorSize = @"SIZE";
 NSString* const kTiBehaviorFill = @"FILL";

@@ -2,6 +2,16 @@
 name: Titanium.UI.ActivityIndicator
 summary: An activity indicator that lets the user know an action is taking place. 
 description:  |
+    <table id="platformComparison">
+      <tr>
+        <td><img src="images/activityindicator/activityindicator_android.png" height="75" /></td>
+        <td><img src="images/activityindicator/activityindicator_bb.png" height="75" /></td>
+        <td><img src="images/activityindicator/activityindicator_ios.png" height="75" /></td>
+        <td><img src="images/activityindicator/activityindicator_mobileweb.png" height="75" /></td>
+      </tr>
+      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
+    </table>
+
     An activity indicator can be used to show the progress of an operation in the UI to let the 
     user know that some action is taking place. An activity indicator consists of a spinning 
     animation and an optional text message, and is used to indicate an ongoing activity of 
@@ -56,7 +66,7 @@ properties:
     description: |
         Determines the absolute position of the view relative to its parent.  
         
-        Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
+        Can be either a float value or a dimension string (for example `100` or `'50%'`.)
     type: [Number, String]
     
   - name: color
@@ -82,7 +92,7 @@ properties:
     description: |
         Determines the absolute position of the view relative to its parent.  
         
-        Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
+        Can be either a float value or a dimension string (for example `100` or `'50%'`.)
     type: [Number, String]
     
   - name: message
@@ -99,7 +109,7 @@ properties:
     description: |
         Determines the absolute position of the view relative to its parent.  
         
-        Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
+        Can be either a float value or a dimension string (for example `100` or `'50%'`.)
     type: [Number, String]
     
   - name: style
@@ -141,7 +151,7 @@ properties:
     description: |
         Determines the absolute position of the view relative to its parent.  
         
-        Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
+        Can be either a float value or a dimension string (for example `100` or`'50%'`.)
     type: [Number, String]
 
   - name: width

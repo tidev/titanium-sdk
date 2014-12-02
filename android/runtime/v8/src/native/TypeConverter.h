@@ -125,6 +125,7 @@ public:
 
 	// array convert methods
 	static jarray jsArrayToJavaArray(v8::Handle<v8::Array> jsArray);
+	static jobjectArray jsArrayToJavaStringArray(v8::Handle<v8::Array> jsArray);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jbooleanArray javaBooleanArray);
 	static jshortArray jsArrayToJavaShortArray(v8::Handle<v8::Array> jsArray);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jshortArray javaShortArray);
@@ -139,6 +140,7 @@ public:
 	static v8::Handle<v8::Array> javaArrayToJsArray(jobjectArray javaObjectArray);
 
 	static jarray jsArrayToJavaArray(JNIEnv *env, v8::Handle<v8::Array> jsArray);
+	static jobjectArray jsArrayToJavaStringArray(JNIEnv *env, v8::Handle<v8::Array> jsArray);
 	static v8::Handle<v8::Array> javaArrayToJsArray(JNIEnv *env, jbooleanArray javaBooleanArray);
 	static jshortArray jsArrayToJavaShortArray(JNIEnv *env, v8::Handle<v8::Array> jsArray);
 	static v8::Handle<v8::Array> javaArrayToJsArray(JNIEnv *env, jshortArray javaShortArray);
@@ -166,11 +168,13 @@ public:
 	static jobject jsValueToJavaError(v8::Local<v8::Value> jsValue, bool *isNew);
 	static jobject jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *isNew);
 	static v8::Handle<v8::Value> javaObjectToJsValue(jobject javaObject);
+	static jobject jsObjectToJavaKrollDict(v8::Local<v8::Value> jsValue, bool *isNew);
 
 	static jobject jsValueToJavaError(JNIEnv *env, v8::Local<v8::Value> jsValue, bool *isNew);
 	static jobject jsValueToJavaObject(JNIEnv *env, v8::Local<v8::Value> jsValue, bool *isNew);
 	static v8::Handle<v8::Object> javaHashMapToJsValue(JNIEnv *env, jobject javaObject);
 	static v8::Handle<v8::Value> javaObjectToJsValue(JNIEnv *env, jobject javaObject);
+	static jobject jsObjectToJavaKrollDict(JNIEnv *env, v8::Local<v8::Value> jsValue, bool *isNew);
 
 	// Convert a JS object's indexed properties to a Java object array.
 	// Starts at index zero and continues until length is reached.

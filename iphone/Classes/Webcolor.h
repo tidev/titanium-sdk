@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -45,9 +45,7 @@
 extern NSString * const IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND;
 extern NSString * const IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND;
 extern NSString * const IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
 extern NSString * const IOS_COLOR_UNDER_PAGE_BACKGROUND;
-#endif
 
 @end
 

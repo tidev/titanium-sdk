@@ -298,10 +298,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn;
 
 //For events that report an error or success
--(void)fireEvent:(NSString*)type withObject:(id)obj errorCode:(int)code message:(NSString*)message;
+-(void)fireEvent:(NSString*)type withObject:(id)obj errorCode:(NSInteger)code message:(NSString*)message;
 
 //What classes should actually override:
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message;
 
 //Temporary override point during the transition. Both the one below AND the one above should be overridden if needed.
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;

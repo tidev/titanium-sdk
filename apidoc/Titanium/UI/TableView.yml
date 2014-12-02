@@ -4,6 +4,16 @@ summary: |
     A table view is used to present information, organized in sections and rows, in a 
     vertically-scrolling view.
 description: |    
+    <table id="platformComparison">
+      <tr>
+        <td><img src="images/tableview/tableview_android.png" height="200" style="border: 1px solid black;" /></td>
+        <td><img src="images/tableview/tableview_bb.png" height="200" style="border: 1px solid black;" /></td>
+        <td><img src="images/tableview/tableview_ios.png" height="200" style="border: 1px solid black;" /></td>
+        <td><img src="images/tableview/tableview_mobileweb.png" height="200" style="border: 1px solid black;" /></td>
+      </tr>
+      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
+    </table>
+
     A `TableView` object is a container for [TableViewSection](Titanium.UI.TableViewSection) 
     objects that are, in turn, containers for [TableViewRow](Titanium.UI.TableViewRow) objects. 
 
@@ -25,8 +35,9 @@ description: |
     For more control over the layout of each row, however, [TableViewRow](Titanium.UI.TableViewRow) 
     objects can be created explicitly using the <Titanium.UI.createTableViewRow> method. Child views, 
     such as [labels](Titanium.UI.Label), [images](Titanium.UI.ImageView), and 
-    [buttons](Titanium.UI.Button), may be added to each row. When passed passed to the table view, a 
-    single [TableViewSection](Titanium.UI.TableViewSection) is automatically created to hold the 
+    [buttons](Titanium.UI.Button), may be added to each row. When one or more
+    [rows](Titanium.UI.TableViewRow) are added to the table view,
+    a single [TableViewSection](Titanium.UI.TableViewSection) is automatically created to hold the 
     rows. See the "Table View with Composite Layout" example.
     
     Lastly, sets of rows may be explicitly created and added to a their own 
@@ -1075,7 +1086,6 @@ properties:
     
   - name: data
     summary: Rows of the table view.
-    description: 
     type: [ Dictionary, Array<Titanium.UI.TableViewRow>, Array<Titanium.UI.TableViewSection> ]
     
   - name: editable
@@ -1109,13 +1119,21 @@ properties:
   - name: filterAttribute
     summary: Filter attribute to be used when searching. 
     description: |
-        This property maps to your data object or a property on the row object. For example,
-        if you set `filterAttribute` to `'title'`, the table view shows only those rows that
-        contain the current search text in the `title` property.
+        On the Android platform, this property can only be set to Titanium-defined properties of the
+        TableViewRow object, such as `title`.  To search text stored in a different attribute, set the `title`
+        property of the TableViewRow object to the property to be searched. For example:
+
+            var label = Ti.UI.createLabel({text: 'Foobar'}),
+            var row = Ti.UI.createTableViewRow(title: label.text);
+            row.add(label);
+
+        On the iOS platform, this property can be set to any property on the TableViewRow object,
+        including arbitrary properties set on the object, not only Titanium-defined properties.
 
         Note that the filter is not anchored to the beginning of the string. So typing "ha"
         in the text box will include rows titled 'Harold' and 'Harvard', but also 'Sharon'
         and 'Jonathan'.
+
     type: String
     platforms: [android, iphone, ipad]
     
@@ -1645,7 +1663,6 @@ description: |
     for animation while the content insets are updated. For example
 
         setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
-optional: true
 since: 2.1.0
 platforms: [iphone, ipad]
 

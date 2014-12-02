@@ -4,11 +4,54 @@ summary: |
     The top-level App iOS module, available only to iOS devices, that includes the facilities to 
     create and manage local notifications and background services.
 description: |
+
+    ### Local Notifications
+
     Local notifications are a way for an application that is not running in the foreground to let 
-    users know that it has information for them. When invoked, an alert dialog is displayed 
-    containing a "Close" button to dismiss and a customizable "View" button to bring the application 
-    into the foreground. Also, they can be configured to set an application icon badge, to show the 
-    number of pending notifications, and to generate a sound.
+    users know that it has information for them. When invoked, the application either displays a
+    banner message or an alert dialog with a **Close** button to dismiss and an **Open** button to bring the application
+    into the foreground. The application can also modify the icon badge, to show the
+    number of pending notifications, and generate a sound.
+
+    To send a local notification, the application needs to:
+
+      1. Enroll the application to send local notifications with the
+         <Titanium.App.iOS.registerUserNotificationSettings> method only if the device is running iOS 8
+         or later.
+      2. Schedule a local notification with the <Titanium.App.iOS.scheduleLocalNotification> method.
+      3. Monitor the [notification](Titanium.App.iOS.notification) event to respond to the
+         notification.
+
+    For instructions on sending local interactive notifications, see the
+    [iOS Local Notifications guide](http://docs.appcelerator.com/titanium/latest/#!/guide/iOS_Local_Notifications).
+
+    ### Local Interactive Notifications
+
+    Starting with Release 3.4.0, you can create interactive notifications, where users can respond to
+    application notifications without launching the application to the foreground.  The user needs to
+    reveal notification actions in the notification, then press a notification action to respond to the
+    notification.  This feature is available on devices running iOS 8 or later.
+
+    To create an interactive notification, the application needs to:
+
+      1. Create and configure notification actions with the
+         <Titanium.App.iOS.createUserNotificationAction> method.
+      2. Create notification categories and assign notification actions to them
+         with the <Titanium.App.iOS.createUserNotificationCategory> method.
+      3. Register the notification categories with the
+         <Titanium.App.iOS.registerUserNotificationSettings> method.
+      4. Monitor the [localnotificationaction](Titanium.App.iOS.localnotificationaction) event.
+
+    For instructions on sending local interactive notifications, see the
+    [iOS Local Notifications guide](http://docs.appcelerator.com/titanium/latest/#!/guide/iOS_Local_Notifications).
+
+    ### Background Downloads
+
+    In iOS 7, Apple introduced new background execution modes which allow the application to download
+    content in the background. These background modes are supported in Titanium SDK 3.2.0 and later.
+
+    For more information on getting started, refer to the
+    [iOS Background Services guide](http://docs.appcelerator.com/titanium/latest/#!/guide/iOS_Background_Services).
 
 extends: Titanium.Module
 platforms: [iphone, ipad]
@@ -17,13 +60,16 @@ since: "1.5"
 methods:
   - name: cancelAllLocalNotifications
     summary: Cancels all scheduled local notifications.
-    
+
   - name: cancelLocalNotification
     summary: Cancels a local notification.
     parameters:
       - name: id
-        summary: ID of the local notification to cancel.
-        type: Number
+        summary: |
+            Application-created ID of the local notification to cancel.
+            To create an ID for the notification, set the `id` property in the `userInfo` dictionary
+            passed to the <Titanium.App.iOS.scheduleLocalNotification> method.
+        type: [Number,String]
 
   - name: registerBackgroundService
     summary: Registers a service to run when the application is placed in the background.
@@ -35,7 +81,22 @@ methods:
             Parameters used to create the service. Must include a `url` property, to specify the 
             local JavaScript file to execute when the application is placed in the background.
         type: Dictionary
-        
+
+  - name: registerUserNotificationSettings
+    summary: |
+        Registers the application to use the requested notification types and categories
+        (for devices running iOS 8 or later).
+    description:  |
+        Call this method at application start up.  If the application needs to register for remote
+        notifications, call this method before calling
+        [Titanium.Network.registerForPushNotifications](Titanium.Network.registerForPushNotifications).
+    parameters: 
+      - name: params
+        summary: Parameters used to enroll the application in local notifications.
+        type: UserNotificationSettings
+    since: 3.4.0
+    osver: {ios: {min: "8.0"}}
+
   - name: scheduleLocalNotification
     summary: Schedule a local notification.
     returns:
@@ -43,7 +104,7 @@ methods:
     parameters:
       - name: params
         summary: Parameters used to create a notification.
-        type: Dictionary<NotificationParams>
+        type: NotificationParams
 
   - name: setMinimumBackgroundFetchInterval
     summary: |
@@ -110,6 +171,85 @@ properties:
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
+  - name: USER_NOTIFICATION_TYPE_NONE
+    summary: |
+        The application may not present any UI upon a notification being received.
+        Use with the [types](UserNotificationSettings.types) property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
+  - name: USER_NOTIFICATION_TYPE_BADGE
+    summary: |
+        The application may badge its icon upon a notification being received.
+        Use with the [types](UserNotificationSettings.types) property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
+  - name: USER_NOTIFICATION_TYPE_SOUND
+    summary: |
+        The application may play a sound upon a notification being received.
+        Use with the [types](UserNotificationSettings.types) property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
+  - name: USER_NOTIFICATION_TYPE_ALERT
+    summary: |
+        The application may display an alert upon a notification being received.
+        Use with the [types](UserNotificationSettings.types) property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
+  - name: USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND
+    summary: |
+        The action will execute in background.  Use with the
+        [activationMode](Titanium.App.iOS.UserNotificationAction.activationMode) property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
+  - name: USER_NOTIFICATION_ACTIVATION_MODE_FOREGROUND
+    summary: |
+        The action will launch the application and execute in the foreground.
+        Use with the [activationMode](Titanium.App.iOS.UserNotificationAction.activationMode) property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
+  - name: currentUserNotificationSettings
+    summary: |
+        Notification types and user notification categories the application is registered to use
+        (available on iOS 8 and later).
+    type: UserNotificationSettings
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
+  - name: applicationOpenSettingsURL
+    summary: Returns a URL to open the app's settings.
+    description: |        
+        Used to create a URL that you can pass to the [openURL](Titanium.Platform.openURL) method. 
+        When you open the URL built from this string, the system launches the Settings app and displays the app's custom settings, if it has any.
+
+            var settingsURL = Ti.App.iOS.applicationOpenSettingsURL;
+            if (Ti.Platform.canOpenURL(settingsURL)) {
+                Ti.Platform.openURL(settingsURL);
+            }
+
+    type: String
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
 events:
   - name: notification
     summary: Fired when a local notification is received by the application.
@@ -146,6 +286,65 @@ events:
       - name: userInfo
         summary: Custom data object.
         type: Dictionary
+
+  - name: localnotificationaction
+    summary: Fired when a user selects an action for an interactive local notification.
+    properties:
+      - name: alertAction
+        summary: |
+            Alert button text ('Open', by default) or slider text ('slide to unlock...', by default).
+        type: String
+
+      - name: alertBody
+        summary: Alert message.
+        type: String
+        
+      - name: alertLaunchImage
+        summary: Image displayed instead of `Default.png` when launching the application.
+        type: String
+
+      - name: badge
+        summary: Application badge value.
+        type: Number
+
+      - name: category
+        summary: Identifier of the category of the interactive notification.
+        type: String
+
+      - name: date
+        summary: Date and time when the notification was configured to fire.
+        type: Date
+
+      - name: identifier
+        summary: Identifier of the action that was selected of the interactive notification.
+        type: String
+
+      - name: sound
+        summary: Path to the sound file configured to play when the notification was fired.
+        type: String
+
+      - name: timezone
+        summary: Timezone of the date when the notification was configured to fire.
+        type: String
+
+      - name: userInfo
+        summary: Custom data object.
+        type: Dictionary
+
+  - name: remotenotificationaction
+    summary: Fired when a user selects an action for an interactive remote notification.
+    properties: 
+      - name: data
+        summary: The payload passed to the Apple Push Notification Service.
+        type: Dictionary
+        
+      - name: category
+        summary: Identifier of the category of the interactive notification.
+        type: String
+
+      - name: identifier
+        summary: Identifier of the action that was selected of the interactive notification.
+        type: String
 
   - name: backgroundfetch
     summary: Fired when the application is woken up for a fetch operation. Available only on iOS 7 and later.
@@ -356,6 +555,23 @@ events:
         this method.
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
+
+
+  - name: usernotificationsettings
+    summary: |
+        Fired when the user notification settings are registered (available for iOS 8 and later).
+    properties:
+      - name: types
+        summary: Notification types the application is registered to use.
+        type: Array<Number>
+        constants: Titanium.App.iOS.USER_NOTIFICATION_TYPE_*
+
+      - name: categories
+        summary: Set of categories of user notification actions the application is registered to use.
+        type: Array<Titanium.App.iOS.UserNotificationCategory>
+    osver: {ios: {min: "8.0"}}
+    since: "3.4.0"
+
 ---
 name: NotificationParams
 summary: |
@@ -367,7 +583,7 @@ platforms: [iphone, ipad]
 properties:
   - name: alertAction
     summary: |
-        Alert button text ('View', by default) or slider text ('slide to unlock...', by default) 
+        Alert button text ('Open', by default) or slider text ('slide to unlock...', by default)
         to display.
     type: String
     optional: true
@@ -385,6 +601,13 @@ properties:
   - name: badge
     summary: Application badge value.
     type: Number
+    optional: true
+
+  - name: category
+    summary: |
+        String identifier of category of actions to be displayed for an interactive
+        notification (only for iOS 8 and above).
+    type: String
     optional: true
 
   - name: date
@@ -412,3 +635,25 @@ properties:
     summary: Data to pass to the application with the notification event.
     type: Dictionary
     optional: true  
+
+---
+name: UserNotificationSettings
+summary: |
+    Dictionary object of parameters used to register the application with local notifications using
+    the <Titanium.App.iOS.registerUserNotificationSettings> method.
+
+    To retrieve the current notification settings, use the
+    <Titanium.App.iOS.currentUserNotificationSettings> property.
+since: "3.4.0"
+platforms: [iphone, ipad]
+
+properties:
+
+  - name: types
+    summary: Notification types to use.
+    type: Array<Number>
+    constants: Titanium.App.iOS.USER_NOTIFICATION_TYPE_*
+
+  - name: categories
+    summary: Set of categories of user notification actions required by the applicaiton to use.
+    type: Array<Titanium.App.iOS.UserNotificationCategory>

@@ -13,7 +13,7 @@
 	#import "XHRBridge.h"
 #endif
 #import "TiRootViewController.h"
-#import <TiCore/TiContextRef.h>
+#import "JavaScriptCore/TiContextRef.h"
 
 extern BOOL applicationInMemoryPanic;
 
@@ -198,8 +198,6 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  @return Current session id.
  */
 -(NSString*)sessionId;
-
--(KrollBridge*)krollBridge;
 
 -(void)beginBackgrounding;
 -(void)endBackgrounding;

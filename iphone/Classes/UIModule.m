@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -162,7 +162,10 @@ MAKE_SYSTEM_PROP(URL_ERROR_UNKNOWN,NSURLErrorUnknown);
 MAKE_SYSTEM_PROP(URL_ERROR_UNSUPPORTED_SCHEME,NSURLErrorUnsupportedURL);
 
 MAKE_SYSTEM_PROP(AUTOLINK_NONE,UIDataDetectorTypeNone);
-MAKE_SYSTEM_PROP(AUTOLINK_ALL,UIDataDetectorTypeAll);
+-(NSNumber*)AUTOLINK_ALL
+{
+    return NUMUINTEGER(UIDataDetectorTypeAll);
+}
 MAKE_SYSTEM_PROP(AUTOLINK_PHONE_NUMBERS,UIDataDetectorTypePhoneNumber);
 MAKE_SYSTEM_PROP(AUTOLINK_URLS,UIDataDetectorTypeLink);
 MAKE_SYSTEM_PROP(AUTOLINK_EMAIL_ADDRESSES,UIDataDetectorTypeLink);
@@ -208,7 +211,11 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_XOR,kCGBlendModeXOR, @"UI.BLEND_
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_PLUS_DARKER,kCGBlendModePlusDarker, @"UI.BLEND_MODE_PLUS_DARKER", @"1.8.0", @"Ti.UI.iOS.BLEND_MODE_PLUS_DARKER");
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter, @"UI.BLEND_MODE_PLUS_LIGHTER", @"1.8.0", @"Ti.UI.iOS.BLEND_MODE_PLUS_LIGHTER");
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_NONE,UIDataDetectorTypeNone, @"UI.AUTODETECT_NONE", @"1.8.0", @"Ti.UI.AUTOLINK_NONE");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_ALL,UIDataDetectorTypeAll, @"UI.AUTODETECT_ALL", @"1.8.0", @"Ti.UI.AUTOLINK_ALL");
+-(NSNumber*)AUTODETECT_ALL
+{
+    DEPRECATED_REPLACED(@"UI.AUTODETECT_ALL", @"1.8.0", @"Ti.UI.AUTOLINK_ALL")
+    return NUMUINTEGER(UIDataDetectorTypeAll);
+}
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_PHONE,UIDataDetectorTypePhoneNumber, @"UI.AUTODETECT_PHONE", @"1.8.0", @"Ti.UI.AUTOLINK_PHONE_NUMBERS");
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_LINK,UIDataDetectorTypeLink, @"UI.AUTODETECT_LINK", @"1.8.0", @"Ti.UI.AUTOLINK_URLS");
 
@@ -470,8 +477,8 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 {
     ENSURE_ARG_COUNT(args, 2);
     
-	NSString* convertFromValue;
-	NSString* convertToUnits;
+	NSString* convertFromValue = nil;
+	NSString* convertToUnits = nil;
     
 	ENSURE_ARG_AT_INDEX(convertFromValue, args, 0, NSString);
 	ENSURE_ARG_AT_INDEX(convertToUnits, args, 1, NSString);  

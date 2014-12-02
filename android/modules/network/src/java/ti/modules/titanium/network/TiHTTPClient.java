@@ -8,6 +8,7 @@ package ti.modules.titanium.network;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -90,13 +91,13 @@ import org.apache.http.util.EntityUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.io.TiResourceFile;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
@@ -164,6 +165,7 @@ public class TiHTTPClient
 	private ArrayList<X509TrustManager> trustManagers = new ArrayList<X509TrustManager>();
 	private ArrayList<X509KeyManager> keyManagers = new ArrayList<X509KeyManager>();
 	protected SecurityManagerProtocol securityManager;
+	private int tlsVersion = NetworkModule.TLS_DEFAULT;
 
 	private static CookieStore cookieStore = NetworkModule.getHTTPCookieStoreInstance();
 
@@ -220,6 +222,7 @@ public class TiHTTPClient
 		public WeakReference<TiHTTPClient> client;
 		public InputStream is;
 		public HttpEntity entity;
+		public TiFile responseFile;
 
 		public LocalResponseHandler(TiHTTPClient client)
 		{
@@ -240,6 +243,20 @@ public class TiHTTPClient
 					c.setStatus(response.getStatusLine().getStatusCode());
 					c.setStatusText(response.getStatusLine().getReasonPhrase());
 					c.setReadyState(READY_STATE_LOADING);
+
+					if (c.proxy.hasProperty(TiC.PROPERTY_FILE)) {
+						Object f = c.proxy.getProperty(TiC.PROPERTY_FILE);
+						if (f instanceof String) {
+							String fileName = (String) f;
+							TiBaseFile baseFile = TiFileFactory.createTitaniumFile(fileName, false);
+							if (baseFile instanceof TiFile) {
+								responseFile = (TiFile) baseFile;
+							}
+						}
+						if (responseFile == null && Log.isDebugModeEnabled()) {
+							Log.w(TAG, "Ignore the provided response file because it is not valid / writable.");
+						}
+					}
 				}
 
 				if (Log.isDebugModeEnabled()) {
@@ -254,7 +271,7 @@ public class TiHTTPClient
 				}
 
 				StatusLine statusLine = response.getStatusLine();
-				if (statusLine.getStatusCode() >= 300) {
+				if (statusLine.getStatusCode() >= 400) {
 					setResponseText(response.getEntity());
 					throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
 				}
@@ -265,7 +282,7 @@ public class TiHTTPClient
 					if (entity.getContentType() != null) {
 						contentType = entity.getContentType().getValue();
 					}
-					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip") && entity.getContentLength() > 0) {
+					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip") && entity.getContentLength() != 0) {
 						is = new GZIPInputStream(entity.getContent());
 					} else {
 						is = entity.getContent();
@@ -289,6 +306,9 @@ public class TiHTTPClient
 						charset = EntityUtils.getContentCharSet(entity);
 					}
 					while((count = is.read(buf)) != -1) {
+						if (aborted) {
+							break;
+						}
 						totalSize += count;
 						try {
 							handleEntityData(buf, count, totalSize, contentLength);
@@ -316,16 +336,32 @@ public class TiHTTPClient
 
 		private TiFile createFileResponseData(boolean dumpResponseOut) throws IOException
 		{
-			File outFile;
-			TiApplication app = TiApplication.getInstance();
-			if (app != null) {
-				TiTempFileHelper helper = app.getTempFileHelper();
-				outFile = helper.createTempFile("tihttp", "tmp");
-			} else {
-				outFile = File.createTempFile("tihttp", "tmp");
+			TiFile tiFile = null;
+			File outFile = null;
+			if (responseFile != null) {
+				tiFile = responseFile;
+				outFile = tiFile.getFile();
+				try {
+					responseOut = new FileOutputStream(outFile, dumpResponseOut);
+					// If the response file is in the temp folder, don't delete it during cleanup.
+					TiApplication app = TiApplication.getInstance();
+					if (app != null) {
+						app.getTempFileHelper().excludeFileOnCleanup(outFile);
+					}
+				} catch (FileNotFoundException e) {
+					responseFile = null;
+					tiFile = null;
+					if (Log.isDebugModeEnabled()) {
+						Log.e(TAG, "Unable to create / write to the response file. Will write the response data to the internal data directory.");
+					}
+				}
 			}
 
-			TiFile tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
+			if (tiFile == null) {
+				outFile = TiFileFactory.createDataFile("tihttp", "tmp");
+				tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
+			}
+
 			if (dumpResponseOut) {
 				ByteArrayOutputStream byteStream = (ByteArrayOutputStream) responseOut;
 				tiFile.write(TiBlob.blobFromData(byteStream.toByteArray()), false);
@@ -339,7 +375,10 @@ public class TiHTTPClient
 		private void handleEntityData(byte[] data, int size, long totalSize, long contentLength) throws IOException
 		{
 			if (responseOut == null) {
-				if (contentLength > maxBufferSize) {
+				if (responseFile != null) {
+					createFileResponseData(false);
+				}
+				else if (contentLength > maxBufferSize) {
 					createFileResponseData(false);
 				} else {
 					long streamSize = contentLength > 0 ? contentLength : 512;
@@ -530,13 +569,14 @@ public class TiHTTPClient
 	{
 		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
 		this.readyState = readyState;
-
-		dispatchCallback("onreadystatechange", null);
+		KrollDict data = new KrollDict();
+		data.put("readyState", Integer.valueOf(readyState));
+		dispatchCallback("onreadystatechange", data);
 
 		if (readyState == READY_STATE_DONE) {
-			KrollDict data = new KrollDict();
-			data.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
-			dispatchCallback("onload", data);
+			KrollDict data1 = new KrollDict();
+			data1.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
+			dispatchCallback("onload", data1);
 		}
 	}
 
@@ -769,8 +809,8 @@ public class TiHTTPClient
 		if(theHeaders != null) {
 			boolean firstPass = true;
 			StringBuilder sb = new StringBuilder(32);
-			for (Header h : responseHeaders) {
-				if (h.getName().equals(headerName)) {
+			for (Header h : theHeaders) {
+				if (h.getName().equalsIgnoreCase(headerName)) {
 					if (!firstPass) {
 						sb.append(", ");
 					}
@@ -1041,7 +1081,7 @@ public class TiHTTPClient
 				KeyManager[] keyManagerArray = this.securityManager.getKeyManagers((HTTPClientProxy)this.proxy);
 				
 				try {
-					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray);
+					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
 				} catch(Exception e) {
 					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
 					sslSocketFactory = null;
@@ -1064,7 +1104,7 @@ public class TiHTTPClient
 				}
 				
 				try {
-					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray);
+					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
 				} catch(Exception e) {
 					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
 					sslSocketFactory = null;
@@ -1072,7 +1112,7 @@ public class TiHTTPClient
 			} else if (!validating) {
 				TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
 				try {
-					sslSocketFactory = new TiSocketFactory(null, trustManagerArray);
+					sslSocketFactory = new TiSocketFactory(null, trustManagerArray, tlsVersion);
 				} catch(Exception e) {
 					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
 					sslSocketFactory = null;
@@ -1266,6 +1306,8 @@ public class TiHTTPClient
 						e.setEntity(progressEntity);
 
 						e.addHeader("Length", totalLength+"");
+						//For multipart, the content-type and boundary will be set by the entity
+						request.removeHeaders(HTTP.CONTENT_TYPE);
 
 					} else {
 						handleURLEncodedData(form);
@@ -1287,6 +1329,9 @@ public class TiHTTPClient
 				Log.d(TAG, "Preparing to execute request", Log.DEBUG_MODE);
 
 				String result = null;
+				if (aborted) {
+					return;
+				}
 				try {
 					result = client.execute(host, request, handler);
 				} catch (IOException e) {
@@ -1300,7 +1345,9 @@ public class TiHTTPClient
 				}
 				connected = false;
 				setResponseText(result);
-				setReadyState(READY_STATE_DONE);
+				if (!aborted) {
+					setReadyState(READY_STATE_DONE);
+				}
 
 			} catch(Throwable t) {
 				if (client != null) {
@@ -1446,4 +1493,11 @@ public class TiHTTPClient
 		}
 		trustManagers.add(manager);
 	}
+	
+	protected void setTlsVersion(int value)
+	{
+		this.proxy.setProperty(TiC.PROPERTY_TLS_VERSION, value);
+		tlsVersion = value;
+	}
+
 }

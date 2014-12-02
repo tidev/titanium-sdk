@@ -14,14 +14,18 @@ import org.apache.http.auth.AuthSchemeFactory;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.os.Build;
 import ti.modules.titanium.xml.DocumentProxy;
 
-@Kroll.proxy(creatableInModule=NetworkModule.class)
+@Kroll.proxy(creatableInModule=NetworkModule.class, propertyAccessors = {
+	TiC.PROPERTY_FILE
+})
 public class HTTPClientProxy extends KrollProxy
 {
 	@Kroll.constant public static final int UNSENT = TiHTTPClient.READY_STATE_UNSENT;
@@ -30,6 +34,7 @@ public class HTTPClientProxy extends KrollProxy
 	@Kroll.constant public static final int LOADING = TiHTTPClient.READY_STATE_LOADING;
 	@Kroll.constant public static final int DONE = TiHTTPClient.READY_STATE_DONE;
 
+	private static final boolean JELLYBEAN_OR_GREATER = (Build.VERSION.SDK_INT >= 16);
 	public static final String PROPERTY_SECURITY_MANAGER = "securityManager";
 	private TiHTTPClient client;
 
@@ -49,7 +54,7 @@ public class HTTPClientProxy extends KrollProxy
 	{
 		super.handleCreationDict(dict);
 		if (hasProperty(TiC.PROPERTY_TIMEOUT)) {
-			client.setTimeout(TiConvert.toInt(getProperty(TiC.PROPERTY_TIMEOUT)));
+			client.setTimeout(TiConvert.toInt(getProperty(TiC.PROPERTY_TIMEOUT),0));
 		}
 		
 		//Set the securityManager on the client if it is defined as a valid value
@@ -61,6 +66,8 @@ public class HTTPClientProxy extends KrollProxy
 				throw new IllegalArgumentException("Invalid argument passed to securityManager property. Does not conform to SecurityManagerProtocol");
 			}
 		}
+		client.setTlsVersion(TiConvert.toInt(getProperty(TiC.PROPERTY_TLS_VERSION), NetworkModule.TLS_DEFAULT));
+
 	}
 
 	@Kroll.method
@@ -272,6 +279,32 @@ public class HTTPClientProxy extends KrollProxy
 		if (manager instanceof X509KeyManager) {
 			client.addKeyManager((X509KeyManager)manager);
 		}
+	}
+	
+	@Kroll.setProperty @Kroll.method
+	public void setTlsVersion(int tlsVersion)
+	{
+		client.setTlsVersion(tlsVersion);
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public int getTlsVersion()
+	{
+		int tlsVersion;
+		
+		if (this.hasProperty(TiC.PROPERTY_TLS_VERSION)) {
+			tlsVersion = TiConvert.toInt(this.getProperty(TiC.PROPERTY_TLS_VERSION));
+			
+			if(tlsVersion == NetworkModule.TLS_DEFAULT){
+				if (JELLYBEAN_OR_GREATER) {
+					return NetworkModule.TLS_VERSION_1_2;
+				}				
+				return NetworkModule.TLS_VERSION_1_0;
+			}			
+			return tlsVersion;
+		}
+		
+		return NetworkModule.TLS_DEFAULT;
 	}
 
 	@Override

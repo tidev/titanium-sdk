@@ -257,10 +257,10 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 				if os.path.isfile(dfpath) and os.path.splitext(df)[1]=='.h':
 					 zf.write(dfpath,'%s/iphone/include/%s/%s' % (basepath,f,df))
 
-	tp_headers_dir=os.path.join(top_dir,'iphone','headers','TiCore')
+	tp_headers_dir=os.path.join(top_dir,'iphone','headers','JavaScriptCore')
 	for f in os.listdir(tp_headers_dir):
 		if os.path.isfile(os.path.join(tp_headers_dir,f)) and os.path.splitext(f)[1]=='.h':
-			 zf.write(os.path.join(tp_headers_dir,f),'%s/iphone/include/TiCore/%s' % (basepath,f))
+			 zf.write(os.path.join(tp_headers_dir,f),'%s/iphone/include/JavaScriptCore/%s' % (basepath,f))
 
 	subs = {
 		"__VERSION__":version,
@@ -281,8 +281,6 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	zip_dir(zf, os.path.join(top_dir, 'iphone', 'templates'), basepath+'/iphone/templates')
 
 	ticore_lib = os.path.join(top_dir,'iphone','lib')
-
-	zf.write(os.path.join(top_dir, 'iphone', 'simulators.json'), basepath+'/iphone/simulators.json')
 
 	# during 1.3.3, we added a new lib to a folder that had a .gitignore
 	# and we need to manually reset this
