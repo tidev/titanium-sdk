@@ -1870,7 +1870,9 @@ AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
 	this.activitiesHash = this.hash(android && android.application && android.application ? JSON.stringify(android.application.activities) : '');
 	this.servicesHash = this.hash(android && android.services ? JSON.stringify(android.services) : '');
 
-	function walk(dir, re, self) {
+	var self = this;
+
+	function walk(dir, re) {
 		var hashes = [];
 		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
 			var file = path.join(dir, name);
@@ -1879,7 +1881,7 @@ AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
 				if (stat.isFile() && re.test(name)) {
 					hashes.push(self.hash(fs.readFileSync(file).toString()));
 				} else if (stat.isDirectory()) {
-					hashes = hashes.concat(walk(file, re, self));
+					hashes = hashes.concat(walk(file, re));
 				}
 			}
 		});
@@ -1887,7 +1889,7 @@ AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
 	}
 
 	// jss files
-	this.jssFilesHash = this.hash(walk(path.join(this.projectDir, 'Resources'), /\.jss$/, this).join(','));
+	this.jssFilesHash = this.hash(walk(path.join(this.projectDir, 'Resources'), /\.jss$/).join(','));
 
 	next();
 };
