@@ -30,9 +30,8 @@ import ti.modules.titanium.ui.widget.tabgroup.TiUIActionBarTabGroup;
 import ti.modules.titanium.ui.widget.tabgroup.TiUITabHostGroup;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Message;
-import android.support.v7.app.ActionBarActivity;
-import android.view.WindowManager;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_TABS_BACKGROUND_COLOR,
@@ -53,9 +52,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private ArrayList<TabProxy> tabs = new ArrayList<TabProxy>();
-	private WeakReference<ActionBarActivity> tabGroupActivity;
+	private WeakReference<Activity> tabGroupActivity;
 	private TabProxy selectedTab;
 	private boolean isFocused;
+	private int setTabOrIndex;
 	
 	public TabGroupProxy()
 	{
@@ -171,12 +171,30 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		tabs.remove(tab);
 	}
 
-	@Kroll.method
+	@Kroll.setProperty @Kroll.method
 	public void setActiveTab(Object tabOrIndex)
 	{
-		TabProxy tab = parseTab(tabOrIndex);
-		
-		if(tab == null) {
+		TabProxy tab;
+		if (tabOrIndex instanceof Number) {
+			int tabIndex = ((Number) tabOrIndex).intValue();
+			if (!this.opened && tabIndex > 0) {
+				setTabOrIndex = tabIndex;
+				return;
+			} else if (tabIndex < 0 || tabIndex >= tabs.size()) {
+				Log.e(TAG, "Invalid tab index.");
+				return;
+			}
+			tab = tabs.get(tabIndex);
+
+		} else if (tabOrIndex instanceof TabProxy) {
+			tab = (TabProxy) tabOrIndex;
+			if (!tabs.contains(tab)) {
+				Log.e(TAG, "Cannot activate tab not in this group.");
+				return;
+			}
+
+		} else {
+			Log.e(TAG, "No valid tab provided when setting active tab.");
 			return;
 		}
 
@@ -214,29 +232,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_TABS), obj);
 	}
 
-	
-	private TabProxy parseTab(Object tabOrIndex) {
-		TabProxy tab = null;
-		if (tabOrIndex instanceof Number) {
-			int tabIndex = ((Number) tabOrIndex).intValue();
-			if (tabIndex < 0 || tabIndex >= tabs.size()) {
-				Log.e(TAG, "Invalid tab index.");
-			} else {
-				tab = tabs.get(tabIndex);
-			}
-
-		} else if (tabOrIndex instanceof TabProxy) {
-			if (!tabs.contains((TabProxy) tabOrIndex)) {
-				Log.e(TAG, "Cannot activate tab not in this group.");
-			} else {
-				tab = (TabProxy) tabOrIndex;
-			}
-		} else {
-			Log.e(TAG, "No valid tab provided when setting active tab.");
-		}
-		return tab;
-	}
-	
 	private void handleSetTabs(Object obj)
 	{
 		tabs.clear();
@@ -265,9 +260,13 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 				Log.e(TAG, "Invalid orientationMode array. Must only contain orientation mode constants.");
 			}
 		}
+
+		if (options.containsKey(TiC.PROPERTY_ACTIVE_TAB)) {
+			setActiveTab(options.get(TiC.PROPERTY_ACTIVE_TAB));
+		}
 	}
 
-	@Kroll.method
+	@Kroll.getProperty @Kroll.method
 	public TabProxy getActiveTab() {
 		if (TiApplication.isUIThread()) {
 			return handleGetActiveTab();
@@ -305,13 +304,16 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	@Override
 	public void windowCreated(TiBaseActivity activity) {
-		tabGroupActivity = new WeakReference<ActionBarActivity>(activity);
+		tabGroupActivity = new WeakReference<Activity>(activity);
 		activity.setWindowProxy(this);
 		activity.setLayoutProxy(this);
 		setActivity(activity);
 
-		if (activity.getSupportActionBar() != null) {
+		// Use the navigation tabs if this platform supports the action bar.
+		// Otherwise we will fall back to using the TabHost implementation.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && activity.getActionBar() != null) {
 			view = new TiUIActionBarTabGroup(this, activity);
+
 		} else {
 			view = new TiUITabHostGroup(this, activity);
 		}
@@ -327,7 +329,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	protected void handlePostOpen()
+	public void handlePostOpen()
 	{
 		super.handlePostOpen();
 
@@ -342,7 +344,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		for (TabProxy tab : tabs) {
 			tg.addTab(tab);
 		}
-		
+		if (setTabOrIndex < 0 || setTabOrIndex >= tabs.size()) {
+			Log.e(TAG, "Invalid tab index.");
+		} else {
+			setActiveTab(setTabOrIndex);
+		}
 		TabProxy activeTab = handleGetActiveTab();
 		if (activeTab != null) {
 			selectedTab = null;
@@ -373,7 +379,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		releaseViews();
 		view = null;
 
-		ActionBarActivity activity = tabGroupActivity.get();
+		Activity activity = tabGroupActivity.get();
 		if (activity != null && !activity.isFinishing()) {
 			activity.finish();
 		}
@@ -450,36 +456,18 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	private void fillIntent(Activity activity, Intent intent)
 	{
-		int windowFlags = 0;
-		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
-			windowFlags = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS), 0);
-		}
-		
-		//Set the fullscreen flag
 		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
-			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
-			if (flagVal) {
-				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
-			}
+			intent.putExtra(TiC.PROPERTY_FULLSCREEN, TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN)));
 		}
-		
-		//Set the secure flag
-		if (hasProperty(TiC.PROPERTY_FLAG_SECURE)) {
-			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
-			if (flagVal) {
-				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_SECURE;
-			}
+		if (hasProperty(TiC.PROPERTY_NAV_BAR_HIDDEN)) {
+			intent.putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, TiConvert.toBoolean(getProperty(TiC.PROPERTY_NAV_BAR_HIDDEN)));
 		}
-		
-		//Stuff flags in intent
-		intent.putExtra(TiC.PROPERTY_WINDOW_FLAGS, windowFlags);
-
 		if (hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
-			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE), -1));
+			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)));
 		}
 
 		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false));
+			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE)));
 		} else {
 			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, activity.isTaskRoot());
 		}
@@ -522,7 +510,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	protected ActionBarActivity getWindowActivity()
+	protected Activity getWindowActivity()
 	{
 		return (tabGroupActivity != null) ? tabGroupActivity.get() : null;
 	}

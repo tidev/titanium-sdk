@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -275,9 +275,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							}
 						},
 						options: {
-							'build-type': {
- 								hidden: true
- 							},
 							'debug-host': {
 								hidden: true
 							},
@@ -365,10 +362,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									} else if (cli.argv['device-id'] == undefined && config.get('ios.autoSelectDevice', true)) {
 										findTargetDevices(cli.argv.target, function (err, devices) {
 											if (cli.argv.target == 'device') {
-												var dev = devices.filter(function (d) {
-														return d.udid != 'itunes' && d.udid != 'all';
-													}).shift();
-												cli.argv['device-id'] = dev ? dev.udid : 'itunes';
+												cli.argv['device-id'] = 'itunes';
 												callback();
 											} else if (cli.argv.target == 'simulator') {
 												// for simulator builds, --device-id is a simulator profile and is not
@@ -561,15 +555,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							'keychain': {
 								abbr: 'K',
 								desc: __('path to the distribution keychain to use instead of the system default; only used when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
-								hideValues: true,
-								validate: function (value, callback) {
-									value && typeof value != 'string' && (value = null);
-									if (value && !fs.existsSync(value)) {
-										callback(new Error(__('Unable to find keychain: %s', value)));
-									} else {
-										callback(null, value);
-									}
-								}
+								hideValues: true
 							},
 							'launch-url': {
 								// url for the application to launch in mobile Safari, as soon as the app boots up
@@ -731,13 +717,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								abbr: 'T',
 								callback: function (value) {
 									// if we're building from Xcode, no need to check certs and provisioning profiles
-									if (cli.argv.xcode) {
-										_t.conf.options['developer-name'].required = false;
-										_t.conf.options['device-id'].required = false;
-										_t.conf.options['distribution-name'].required = false;
-										_t.conf.options['pp-uuid'].required = false;
-										return;
-									}
+									if (cli.argv.xcode) return;
 
 									if (value != 'simulator') {
 										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_KEYCHAINS_FOUND');
@@ -765,7 +745,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 											// purposely fall through!
 
 										case 'dist-appstore':
-											_t.conf.options['deploy-type'].values = ['production'];
 											_t.conf.options['device-id'].required = false;
 											_t.conf.options['distribution-name'].required = true;
 											_t.conf.options['pp-uuid'].required = true;
@@ -803,8 +782,6 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	} else {
 		this.deployType = /^device|simulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 	}
-
-	this.buildType = cli.argv['build-type'] || '';
 
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
@@ -883,15 +860,11 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	// figure out the min-ios-ver that this app is going to support
 	var defaultMinIosSdk = this.packageJson.minIosVersion;
 	this.minIosVer = cli.tiapp.ios && cli.tiapp.ios['min-ios-ver'] || defaultMinIosSdk;
-	this.minIosVerMessage = null; // we store the message below in this variable so that we can output info stuff after validation
 	if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosSdk)) {
-		this.minIosVerMessage = __('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, defaultMinIosSdk.cyan);
 		this.minIosVer = defaultMinIosSdk;
 	} else if (version.lt(this.minIosVer, defaultMinIosSdk)) {
-		this.minIosVerMessage = __('The %s of the iOS section in the tiapp.xml is lower than minimum supported version: Using %s as minimum', 'min-ios-ver'.cyan, version.format(defaultMinIosSdk, 2).cyan);
 		this.minIosVer = defaultMinIosSdk;
 	} else if (version.gt(this.minIosVer, this.iosSdkVersion)) {
-		this.minIosVerMessage = __('The %s of the iOS section in the tiapp.xml is greater than the specified %s: Using %s as minimum', 'min-ios-ver'.cyan, 'ios-version'.cyan, version.format(this.iosSdkVersion, 2).cyan);
 		this.minIosVer = this.iosSdkVersion;
 	}
 
@@ -900,29 +873,27 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	// args based on the sim profile values
 	if ((this.target == 'device' || this.target == 'simulator') && deviceId) {
 		for (var i = 0, l = this.devices.length; i < l; i++) {
-			if (this.target == 'device') {
-				if (this.devices[i].id == 'all' || this.devices[i].id == 'itunes') {
-					continue;
+			if (this.devices[i].id == deviceId) {
+				if (this.target == 'device') {
+					if (this.devices[i].id != 'itunes' && version.lt(this.devices[i].productVersion, this.minIosVer)) {
+						logger.error(__('This app does not support the device "%s"', this.devices[i].name) + '\n');
+						logger.log(__("The device is running iOS %s, however the app's the minimum iOS version is set to %s", this.devices[i].productVersion.cyan, version.format(this.minIosVer, 2, 3).cyan));
+						logger.log(__('In order to install this app on this device, lower the %s to %s in the tiapp.xml:', '<min-ios-ver>'.cyan, version.format(this.devices[i].productVersion, 2, 2).cyan));
+						logger.log();
+						logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+						logger.log('    <ios>'.grey);
+						logger.log(('        <min-ios-ver>' + version.format(this.devices[i].productVersion, 2, 2) + '</min-ios-ver>').magenta);
+						logger.log('    </ios>'.grey);
+						logger.log('</ti:app>'.grey);
+						logger.log();
+						process.exit(0);
+					}
+				} else if (this.target == 'simulator') {
+					cli.argv.retina = !!this.devices[i].retina;
+					cli.argv.tall = !!this.devices[i].tall;
+					cli.argv['sim-64bit'] = !!this.devices[i]['64bit'];
+					cli.argv['sim-type'] = this.devices[i].type;
 				}
-
-				if ((deviceId == 'all' || deviceId == this.devices[i].id) && version.lt(this.devices[i].productVersion, this.minIosVer)) {
-					logger.error(__('This app does not support the device "%s"', this.devices[i].name) + '\n');
-					logger.log(__("The device is running iOS %s, however the app's the minimum iOS version is set to %s", this.devices[i].productVersion.cyan, version.format(this.minIosVer, 2, 3).cyan));
-					logger.log(__('In order to install this app on this device, lower the %s to %s in the tiapp.xml:', '<min-ios-ver>'.cyan, version.format(this.devices[i].productVersion, 2, 2).cyan));
-					logger.log();
-					logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-					logger.log('    <ios>'.grey);
-					logger.log(('        <min-ios-ver>' + version.format(this.devices[i].productVersion, 2, 2) + '</min-ios-ver>').magenta);
-					logger.log('    </ios>'.grey);
-					logger.log('</ti:app>'.grey);
-					logger.log();
-					process.exit(0);
-				}
-			} else if (this.target == 'simulator' && this.devices[i].id == deviceId) {
-				cli.argv.retina = !!this.devices[i].retina;
-				cli.argv.tall = !!this.devices[i].tall;
-				cli.argv['sim-64bit'] = !!this.devices[i]['64bit'];
-				cli.argv['sim-type'] = this.devices[i].type;
 				break;
 			}
 		}
@@ -1313,7 +1284,10 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 	var argv = this.cli.argv;
 
 	this.titaniumIosSdkPath = afs.resolvePath(__dirname, '..', '..');
+	this.titaniumSdkVersion = path.basename(path.join(this.titaniumIosSdkPath, '..'));
+
 	this.templatesDir = path.join(this.titaniumIosSdkPath, 'templates', 'build');
+
 	this.platformName = path.basename(this.titaniumIosSdkPath); // the name of the actual platform directory which will some day be "ios"
 
 	this.moduleSearchPaths = [ this.projectDir, afs.resolvePath(this.titaniumIosSdkPath, '..', '..', '..', '..') ];
@@ -1333,7 +1307,7 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 	this.deviceFamily = argv['device-family'];
 	this.xcodeTargetOS = (this.target == 'simulator' ? 'iphonesimulator' : 'iphoneos') + version.format(this.iosSdkVersion, 2, 2);
 	this.iosBuildDir = path.join(this.buildDir, 'build', this.xcodeTarget + '-' + (this.target == 'simulator' ? 'iphonesimulator' : 'iphoneos'));
-	this.xcodeAppDir = argv.xcode && process.env.TARGET_BUILD_DIR && process.env.CONTENTS_FOLDER_PATH ? path.join(process.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : path.join(this.iosBuildDir, this.tiapp.name + '.app');
+	this.xcodeAppDir = argv.xcode ? path.join(process.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : path.join(this.iosBuildDir, this.tiapp.name + '.app');
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
 	this.certDeveloperName = argv['developer-name'];
 	this.certDistributionName = argv['distribution-name'];
@@ -1371,7 +1345,6 @@ iOSBuilder.prototype.loginfo = function loginfo(next) {
 	this.logger.info(__('Deploy type: %s', this.deployType.cyan));
 	this.logger.info(__('Building for target: %s', this.target.cyan));
 	this.logger.info(__('Building using iOS SDK: %s', version.format(this.iosSdkVersion, 2).cyan));
-	this.minIosVerMessage && this.logger.info(this.minIosVerMessage);
 
 	if (this.buildOnly) {
 		this.logger.info(__('Performing build only'));
@@ -2017,7 +1990,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 		proj,
 		'Pre-Compile',
 		'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then\\n'
-		+ '    ' + (process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + this.platformName + ' --sdk \\"' + this.titaniumSdkName + '\\" --no-prompt --no-progress-bars --no-banner --no-colors --build-only --xcode\\n'
+		+ '    ' + (process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-progress-bars --no-banner --no-colors --build-only --xcode\\n'
 		+ '    exit $?\\n'
 		+ 'else\\n'
 		+ '    echo \\"skipping pre-compile phase\\"\\n'
@@ -2358,8 +2331,7 @@ iOSBuilder.prototype.populateIosFiles = function populateIosFiles(next) {
 			'__APP_DESCRIPTION__': this.tiapp.description,
 			'__APP_COPYRIGHT__': this.tiapp.copyright,
 			'__APP_GUID__': this.tiapp.guid,
-			'__APP_RESOURCE_DIR__': '',
-			'__APP_DEPLOY_TYPE__': this.buildType
+			'__APP_RESOURCE_DIR__': ''
 		},
 		dest,
 		variables = {},
@@ -2486,8 +2458,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 			'-sdk', this.xcodeTargetOS,
 			'IPHONEOS_DEPLOYMENT_TARGET=' + appc.version.format(this.minIosVer, 2),
 			'TARGETED_DEVICE_FAMILY=' + this.deviceFamilies[this.deviceFamily],
-			'VALID_ARCHS=' + this.architectures,
-			'DEAD_CODE_STRIPPING=YES'
+			'VALID_ARCHS=' + this.architectures
 		],
 		gccDefs = [ 'DEPLOYTYPE=' + this.deployType ];
 
@@ -2924,11 +2895,9 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
 								fs.writeFile(to, r.contents, cb2);
 							})(r, from, to, cb);
-						} else if (symlinkFiles) {
-							copyFile.call(this, from, to, cb);
 						} else {
-							// we've already read in the file, so just write the original contents
 							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+
 							fs.writeFile(to, r.contents, cb);
 						}
 					})(from, to, done);

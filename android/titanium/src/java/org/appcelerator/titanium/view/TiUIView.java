@@ -66,8 +66,6 @@ import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 
-import com.nineoldandroids.view.ViewHelper;
-
 /**
  * This class is for Titanium View implementations, that correspond with TiViewProxy. 
  * A TiUIView is responsible for creating and maintaining a native Android View instance.
@@ -156,16 +154,6 @@ public abstract class TiUIView
 	{
 		add(child, -1);
 	}
-	
-	/**
-	 * Adds a child view into the ViewGroup in specific position.
-	 * @param child the view to be added.
-	 * @param position position the view to be added.
-	 */
-	public void insertAt(TiUIView child, int position)
-	{
-		add(child, position);
-	}
 
 	private void add(TiUIView child, int childIndex)
 	{
@@ -181,14 +169,7 @@ public abstract class TiUIView
 							((ViewGroup) nv).addView(cv, child.getLayoutParams());
 						}
 					}
-					if(children.contains(child)) {
-						children.remove(child);
-					}
-					if(childIndex == -1) {
-						children.add(child);
-					} else {
-						children.add(childIndex, child);
-					}
+					children.add(child);
 					child.parent = proxy;
 				}
 			}
@@ -325,8 +306,7 @@ public abstract class TiUIView
 	 */
 	public void animate()
 	{
-		View outerView = getOuterView();
-		if (outerView == null) {
+		if (nativeView == null) {
 			return;
 		}
 
@@ -335,12 +315,12 @@ public abstract class TiUIView
 		// the older animation.  So here we cancel and clear, then re-queue the desired animation.
 
 		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
-			Animation currentAnimation = outerView.getAnimation();
+			Animation currentAnimation = nativeView.getAnimation();
 			if (currentAnimation != null && currentAnimation.hasStarted() && !currentAnimation.hasEnded()) {
 				// Cancel existing animation and
 				// re-queue desired animation.
 				currentAnimation.cancel();
-				outerView.clearAnimation();
+				nativeView.clearAnimation();
 				proxy.handlePendingAnimation(true);
 				return;
 			}
@@ -361,11 +341,11 @@ public abstract class TiUIView
 		// view has no visible rectangle on screen.  In that case invalidate its parent, which will
 		// kick off the pending animation.
 		boolean invalidateParent = false;
-		ViewParent viewParent = outerView.getParent();
+		ViewParent viewParent = nativeView.getParent();
 
 		if (this.visibility == View.VISIBLE && viewParent instanceof View) {
-			int width = outerView.getWidth();
-			int height = outerView.getHeight();
+			int width = nativeView.getWidth();
+			int height = nativeView.getHeight();
 
 			if (width == 0 || height == 0) {
 				// Could be animating from nothing to something
@@ -373,7 +353,7 @@ public abstract class TiUIView
 			} else {
 				Rect r = new Rect(0, 0, width, height);
 				Point p = new Point(0, 0);
-				invalidateParent = !(viewParent.getChildVisibleRect(outerView, r, p));
+				invalidateParent = !(viewParent.getChildVisibleRect(nativeView, r, p));
 			}
 		}
 
@@ -381,7 +361,7 @@ public abstract class TiUIView
 			Log.d(TAG, "starting animation", Log.DEBUG_MODE);
 		}
 
-		builder.start(proxy, outerView);
+		builder.start(proxy, nativeView);
 
 		if (invalidateParent) {
 			((View) viewParent).postInvalidate();
@@ -477,8 +457,6 @@ public abstract class TiUIView
 		// Therefore, we must start the transformation after the layout pass when we get the height and width of the view.
 		if (animBuilder.isUsingPropertyAnimators()) {
 			startTransformAfterLayout(outerView);
-			//If the layout already done, the above call won't trigger the change, force layout change.
-			outerView.requestLayout();
 		} else {
 			animBuilder.start(this.proxy, outerView);
 		}
@@ -1211,14 +1189,12 @@ public abstract class TiUIView
 							borderView.setColor(bgColor);
 						}
 					}
-					Object borderWidth = "1";
 					if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-						borderWidth = d.get(TiC.PROPERTY_BORDER_WIDTH);
-					}
-
-					TiDimension width = TiConvert.toTiDimension(borderWidth, TiDimension.TYPE_WIDTH);
-					if (width != null) {
-						borderView.setBorderWidth((float)width.getPixels(getNativeView()));
+						TiDimension width = TiConvert
+							.toTiDimension(d.get(TiC.PROPERTY_BORDER_WIDTH), TiDimension.TYPE_WIDTH);
+						if (width != null) {
+							borderView.setBorderWidth((float)width.getPixels(getNativeView()));
+						}
 					}
 				}
 			}
@@ -1229,9 +1205,6 @@ public abstract class TiUIView
 	{
 		if (TiC.PROPERTY_BORDER_COLOR.equals(property)) {
 			borderView.setColor(value != null ? TiConvert.toColor(value.toString()) : Color.TRANSPARENT);
-			if (!proxy.hasProperty(TiC.PROPERTY_BORDER_WIDTH)) {
-				borderView.setBorderWidth(1);
-			}
 		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
 			float radius = 0;
 			TiDimension radiusDim = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
@@ -1328,24 +1301,26 @@ public abstract class TiUIView
 				@Override
 				public boolean onScale(ScaleGestureDetector sgd)
 				{
-					float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
+					if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
+						float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
 
-					// Suppress scale events (and allow for possible two-finger tap events)
-					// until we've moved at least a few pixels. Without this check, two-finger 
-					// taps are very hard to register on some older devices.
-					if (!didScale) {
-						if (Math.abs(sgd.getCurrentSpan() - startSpan) > SCALE_THRESHOLD) {
-							didScale = true;
-						} 
-					}
+						// Suppress scale events (and allow for possible two-finger tap events)
+						// until we've moved at least a few pixels. Without this check, two-finger 
+						// taps are very hard to register on some older devices.
+						if (!didScale) {
+							if (Math.abs(sgd.getCurrentSpan() - startSpan) > SCALE_THRESHOLD) {
+								didScale = true;
+							} 
+						}
 
-					if (didScale) {
-						KrollDict data = new KrollDict();
-						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
-						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
-						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
-
-						return fireEvent(TiC.EVENT_PINCH, data);
+						if (didScale) {
+							KrollDict data = new KrollDict();
+							data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
+							data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
+							data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+	
+							return fireEvent(TiC.EVENT_PINCH, data);
+						}
 					}
 					return false;
 				}
@@ -1428,12 +1403,10 @@ public abstract class TiUIView
 					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double) event.getY());
 				}
 
-				if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
-					scaleDetector.onTouchEvent(event);
-					if (scaleDetector.isInProgress()) {
-						pointersDown = 0;
-						return true;
-					}
+				scaleDetector.onTouchEvent(event);
+				if (scaleDetector.isInProgress()) {
+					pointersDown = 0;
+					return true;
 				}
 
 				boolean handled = detector.onTouchEvent(event);
@@ -1588,6 +1561,7 @@ public abstract class TiUIView
 	 * Sets the nativeView's opacity.
 	 * @param opacity the opacity to set.
 	 */
+	@SuppressLint("NewApi")
 	public void setOpacity(float opacity)
 	{
 		if (opacity < 0 || opacity > 1) {
@@ -1599,7 +1573,11 @@ public abstract class TiUIView
 			borderView.postInvalidate();
 		}
 		if (nativeView != null) {
-			setOpacity(nativeView, opacity);
+			if (HONEYCOMB_OR_GREATER) {
+				setAlpha(nativeView, opacity);
+			} else {
+				setOpacity(nativeView, opacity);
+			}
 			nativeView.postInvalidate();
 		}
 	}
@@ -1620,27 +1598,22 @@ public abstract class TiUIView
 	 * @param view the view object.
 	 * @param opacity the opacity to set.
 	 */
-	@SuppressLint("NewApi")
 	protected void setOpacity(View view, float opacity)
 	{
-		if (view == null) {
-			return;
-		}
-
-		if (HONEYCOMB_OR_GREATER) {
-			setAlpha(view, opacity);
-		} else {
-			ViewHelper.setAlpha(view, opacity);
-		}
-
-		if (opacity == 1.0f) {
-			clearOpacity(view);
+		if (view != null) {
+			TiUIHelper.setDrawableOpacity(view.getBackground(), opacity);
+			if (opacity == 1) {
+				clearOpacity(view);
+			}
 		}
 	}
 
-	protected void clearOpacity(View view)
+	public void clearOpacity(View view)
 	{
-		// Sub-classes can implement if needed.
+		Drawable d = view.getBackground();
+		if (d != null) {
+			d.clearColorFilter();
+		}
 	}
 
 	public KrollDict toImage()

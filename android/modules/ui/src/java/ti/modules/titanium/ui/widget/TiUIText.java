@@ -19,7 +19,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.text.Editable;
 import android.text.InputType;
@@ -231,7 +230,7 @@ public class TiUIText extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
-			tv.setHint(TiConvert.toString(newValue));
+			tv.setHint((String) newValue);
 		} else if (key.equals(TiC.PROPERTY_ELLIPSIZE)) {
 			if (TiConvert.toBoolean(newValue)) {
 				tv.setEllipsize(TruncateAt.END);
@@ -387,11 +386,8 @@ public class TiUIText extends TiUIView
 			fireEvent(TiC.EVENT_RETURN, data);
 		}
 
-		boolean enableReturnKey = false;
-		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_RETURN_KEY)) {
-			enableReturnKey = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_RETURN_KEY), false);
-		}
-		if (enableReturnKey && v.getText().length() == 0) {
+		Boolean enableReturnKey = (Boolean) proxy.getProperty(TiC.PROPERTY_ENABLE_RETURN_KEY);
+		if (enableReturnKey != null && enableReturnKey && v.getText().length() == 0) {
 			return true;
 		}
 		return false;
@@ -461,7 +457,7 @@ public class TiUIText extends TiUIView
 		int textTypeAndClass = typeModifiers;
 		// For some reason you can't set both TYPE_CLASS_TEXT and TYPE_TEXT_FLAG_NO_SUGGESTIONS together.
 		// Also, we need TYPE_CLASS_TEXT for passwords.
-		if ((autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) && type != KEYBOARD_DECIMAL_PAD) {
+		if (autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) {
 			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 		}
 
@@ -472,12 +468,12 @@ public class TiUIText extends TiUIView
 				// Don't need a key listener, inputType handles that.
 				break;
 			case KEYBOARD_NUMBERS_PUNCTUATION:
-				textTypeAndClass |= (InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT);
+				textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
 				tv.setKeyListener(new NumberKeyListener()
 				{
 					@Override
 					public int getInputType() {
-						return InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT;
+						return InputType.TYPE_CLASS_NUMBER;
 					}
 
 					@Override
@@ -514,13 +510,9 @@ public class TiUIText extends TiUIView
 
 		if (passwordMask) {
 			textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_PASSWORD;
-			Typeface origTF = tv.getTypeface();
 			// Sometimes password transformation does not work properly when the input type is set after the transformation method.
 			// This issue has been filed at http://code.google.com/p/android/issues/detail?id=7092
 			tv.setInputType(textTypeAndClass);
-			// Workaround for https://code.google.com/p/android/issues/detail?id=55418 since setInputType
-			// with InputType.TYPE_TEXT_VARIATION_PASSWORD sets the typeface to monospace.
-			tv.setTypeface(origTF);
 			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
 			//turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in landscape mode.
@@ -555,20 +547,6 @@ public class TiUIText extends TiUIView
 			return;
 		}
 		tv.setSelection(start, end);
-	}
-	
-	public KrollDict getSelection() {
-		KrollDict result = new KrollDict(2);
-		int start = tv.getSelectionStart();
-		result.put(TiC.PROPERTY_LOCATION, start);
-		if (start != -1) {
-			int end = tv.getSelectionEnd();
-			result.put(TiC.PROPERTY_LENGTH, end - start);
-		} else {
-			result.put(TiC.PROPERTY_LENGTH, -1);
-		}
-		
-		return result;
 	}
 
 	public void handleReturnKeyType(int type)

@@ -1,2 +1,2 @@
-version = '3.4.0'
+version = '3.2.4'
 module_apiversion = '2'

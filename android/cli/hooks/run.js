@@ -70,7 +70,8 @@ exports.init = function (logger, config, cli) {
 						cb();
 					});
 				})(builder.deviceId, {
-					logger: logger
+					logger: logger,
+					checkMounts: builder.debugPort || builder.profilerPort
 				}, finished);
 
 			} else if (builder.target == 'device') {
@@ -118,7 +119,13 @@ exports.init = function (logger, config, cli) {
 				return finished();
 			}
 
-			var adb = new ADB(config);
+			var adb = new ADB(config),
+				deployData = {
+					debuggerEnabled: !!builder.debugPort,
+					debuggerPort: builder.debugPort || -1,
+					profilerEnabled: !!builder.profilerPort,
+					profilerPort: builder.profilerPort || -1
+				};
 
 			async.series([
 				function (next) {
@@ -149,37 +156,53 @@ exports.init = function (logger, config, cli) {
 				},
 
 				function (next) {
+					async.series(deviceInfo.map(function (device) {
+						return function (cb) {
+							if (deployData.debuggerEnabled || deployData.profilerEnabled) {
+								// push deploy.json
+								var deployJsonFile = path.join(builder.buildDir, 'bin', 'deploy.json');
+								fs.writeFileSync(deployJsonFile, JSON.stringify(deployData));
+								logger.info(__('Pushing %s to SD card', deployJsonFile.cyan));
+								adb.shell(device.id, [
+									'if [ -d "/sdcard/' + builder.appid + '" ]; then',
+									'	echo "SUCCESS"',
+									'else',
+									'	mkdir "/sdcard/' + builder.appid + '"',
+									'	if [ $? -ne 0 ]; then',
+									'		echo "FAILED"',
+									'	else',
+									'		echo "SUCCESS"',
+									'	fi',
+									'fi'
+								].join('\n'), function (err, output) {
+									if (err || output.toString().trim().split('\n').shift().trim() == 'FAILED') {
+										if (builder.target == 'device') {
+											logger.error(__('Failed to copy "deploy.json" to Android device\'s SD card. Perhaps it\'s read only or out of space.') + '\n');
+										} else {
+											logger.error(__('Failed to copy "deploy.json" to Android emulator\'s SD card. Perhaps it\'s read only or out of space.') + '\n');
+										}
+										process.exit(1);
+									}
+									adb.push(device.id, deployJsonFile, '/sdcard/' + builder.appid + '/deploy.json', cb);
+								});
+							} else {
+								logger.info(__('Removing %s from SD card', 'deploy.json'.cyan));
+								adb.shell(device.id, '[ -f "/sdcard/' + builder.appid + '/deploy.json" ] && rm -f "/sdcard/' + builder.appid + '/deploy.json"\necho "DONE"', cb);
+							}
+						};
+					}), next);
+				},
+
+				function (next) {
 					// install the app
 					logger.info(__('Installing apk: %s', builder.apkFile.cyan));
 
-					var failCounter = 0,
-						installTimeout = config.get('android.appInstallTimeout', 2 * 60 * 1000); // 2 minute default
-						retryInterval = config.get('android.appInstallRetryInterval', 15 * 1000); // 15 second default
+					async.series(deviceInfo.map(function (device) {
+						return function (cb) {
+							builder.target == 'device' && logger.info(__('Installing app on device: %s', (device.model || device.manufacturer || device.id).cyan));
 
-					async.eachSeries(deviceInfo, function (device, cb) {
-						builder.target == 'device' && logger.info(__('Installing app on device: %s', (device.model || device.manufacturer || device.id).cyan));
-
-						var intervalTimer = null,
-
-							abortTimer = setTimeout(function () {
-								clearTimeout(intervalTimer);
-								logger.error(__('Application failed to install') + '\n');
-								logger.log(__('The current timeout is set to %s ms', String(installTimeout).cyan));
-								logger.log(__('You can increase this timeout by running: %s', (cli.argv.$ + ' config android.appInstallTimeout <timeout ms>').cyan) + '\n');
-								if (++failCounter >= deviceInfo.length) {
-									process.exit(1);
-								}
-							}, installTimeout);
-
-						(function installApp() {
 							adb.installApp(device.id, builder.apkFile, function (err) {
 								if (err) {
-									if (err instanceof Error && err.message.indexOf('Could not access the Package Manager') != -1) {
-										logger.debug(__('Package manager not started yet, trying again in %sms...', retryInterval));
-										intervalTimer = setTimeout(installApp, retryInterval);
-										return;
-									}
-
 									logger.error(__('Failed to install apk on "%s"', device.id));
 									err = err.toString();
 									err.split('\n').forEach(logger.error);
@@ -190,14 +213,11 @@ exports.init = function (logger, config, cli) {
 									process.exit(1);
 								}
 
-								clearTimeout(intervalTimer);
-								clearTimeout(abortTimer);
-
 								logger.info(__('App successfully installed'));
 								cb();
 							});
-						})();
-					}, next);
+						};
+					}), next);
 				},
 
 				function (next) {
@@ -263,7 +283,7 @@ exports.init = function (logger, config, cli) {
 								logBuffer = logBuffer.concat(data.trim().split('\n'));
 							}
 						}, function () {
-							if (--instances == 0 && !displayStartLog) {
+							if (--instances == 0) {
 								// the adb server shutdown, the emulator quit, or the device was unplugged
 								var endLogTxt = __('End application log');
 								logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
@@ -274,7 +294,7 @@ exports.init = function (logger, config, cli) {
 
 					// listen for ctrl-c
 					process.on('SIGINT', function () {
-						if (!endLog && !displayStartLog) {
+						if (!endLog) {
 							var endLogTxt = __('End application log');
 							logger.log('\r' + ('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
 						}
@@ -286,65 +306,43 @@ exports.init = function (logger, config, cli) {
 
 				function (next) {
 					logger.info(__('Starting app: %s', (builder.appid + '/.' + builder.classname + 'Activity').cyan));
-
-					var failCounter = 0,
-						retryInterval = config.get('android.appStartRetryInterval', 30 * 1000), // 30 second default
-						startTimeout = config.get('android.appStartTimeout', 2 * 60 * 1000); // 2 minute default
-
-					async.eachSeries(deviceInfo, function (device, cb) {
-						var watchingPid = false,
-
-							intervalTimer = null,
-
-							abortTimer = setTimeout(function () {
-								clearTimeout(intervalTimer);
-								logger.error(__('Application failed to launch') + '\n');
-								logger.log(__('The current timeout is set to %s ms', String(startTimeout).cyan));
-								logger.log(__('You can increase this timeout by running: %s', (cli.argv.$ + ' config android.appStartTimeout <timeout ms>').cyan) + '\n');
-								if (++failCounter >= deviceInfo.length) {
-									process.exit(1);
-								}
-							}, startTimeout);
-
-						(function startApp() {
-							logger.debug(__('Trying to start the app...'));
+					async.series(deviceInfo.map(function (device) {
+						return function (cb) {
 							adb.startApp(device.id, builder.appid, builder.classname + 'Activity', function (err) {
-								if (watchingPid) return;
-								watchingPid = true;
-
-								var done = false;
+								var timeout = config.get('android.appStartTimeout', 2 * 60 * 1000),  // 2 minute default
+									waitUntil = Date.now() + timeout,
+									done = false;
 
 								async.whilst(
 									function () { return !done; },
 									function (cb2) {
+										if (Date.now() > waitUntil) {
+											logger.error(__('Application failed to launch') + '\n');
+											logger.log(__('The current timeout is set to %s ms', String(timeout).cyan));
+											logger.log(__('You can increase this timeout by running: %s', (cli.argv.$ + ' config android.emulatorStartTimeout <timeout ms>').cyan) + '\n');
+											process.exit(1);
+										}
+
 										adb.getPid(device.id, builder.appid, function (err, pid) {
 											if (err || !pid) {
-												setTimeout(cb2, 250);
+												setTimeout(cb2, 100);
 											} else {
-												clearTimeout(intervalTimer);
-												clearTimeout(abortTimer);
-
 												logger.info(__('Application pid: %s', String(pid).cyan));
 												device.appPidRegExp = new RegExp('\\(\\s*' + pid + '\\)\:');
 												done = true;
-												setTimeout(cb2, 0);
+												cb2();
 											}
 										});
 									},
 									cb
 								);
 							});
-
-							intervalTimer = setTimeout(function () {
-								logger.debug(__('App still not started, trying again'));
-								startApp();
-							}, retryInterval);
-						})();
-					}, next);
+						};
+					}), next);
 				},
 
 				function (next) {
-					if (builder.debugPort) {
+					if (deployData.debuggerEnabled) {
 						logger.info(__('Forwarding host port %s to device for debugging', builder.debugPort));
 						var forwardPort = 'tcp:' + builder.debugPort;
 						async.series(deviceInfo.map(function (device) {
@@ -358,7 +356,7 @@ exports.init = function (logger, config, cli) {
 				},
 
 				function (next) {
-					if (builder.profilerPort) {
+					if (deployData.profilerEnabled) {
 						logger.info(__('Forwarding host port %s to device for profiling', builder.profilerPort));
 						var forwardPort = 'tcp:' + builder.profilerPort;
 						async.series(deviceInfo.map(function (device) {

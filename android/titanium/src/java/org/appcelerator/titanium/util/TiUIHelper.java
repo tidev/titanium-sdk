@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.util;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -32,6 +33,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -394,22 +396,45 @@ public class TiUIHelper
 		if (mCustomTypeFaces.containsKey(fontFamily)) {
 			return mCustomTypeFaces.get(fontFamily);
 		}
-		AssetManager mgr = context.getAssets();
-		try {
-			String[] fontFiles = mgr.list(customFontPath);
-			for (String f : fontFiles) {
-				if (f.toLowerCase() == fontFamily.toLowerCase() || f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
-					Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
-					synchronized(mCustomTypeFaces) {
-						mCustomTypeFaces.put(fontFamily, tf);
+		int fontNameIndex = fontFamily.lastIndexOf("/");
+		if(fontNameIndex <0){
+			Log.d(TAG, "Getting font "+ fontFamily + " from assets");
+			AssetManager mgr = context.getAssets();
+			try {
+				String[] fontFiles = mgr.list(customFontPath);
+				for (String f : fontFiles) {
+					if (f.toLowerCase() == fontFamily.toLowerCase() || f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
+						Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
+						synchronized(mCustomTypeFaces) {
+							mCustomTypeFaces.put(fontFamily, tf);
+						}
+						return tf;
 					}
-					return tf;
+				}
+			} catch (IOException e) {
+				Log.e(TAG, "Unable to load 'fonts' assets. Perhaps doesn't exist? " + e.getMessage());
+			}
+		}else{
+			String fontDirPath = fontFamily.substring(0, fontNameIndex);
+			String fontName = fontFamily.substring(fontNameIndex+1);
+			
+			TiFile dirTiFile = (TiFile) TiFileFactory.createTitaniumFile(fontDirPath , false);
+			String[] fontFiles = dirTiFile.getFile().list();
+			if(fontFiles != null){
+				for (String f: fontFiles){
+					if(f.toLowerCase().equals(fontName.toLowerCase()) || f.toLowerCase().startsWith(fontName.toLowerCase() + ".")){
+						TiFile tiFontFile = (TiFile) TiFileFactory.createTitaniumFile(fontDirPath + "/" + f, false);
+						File fontFile = tiFontFile.getFile();
+						Typeface tf = Typeface.createFromFile(fontFile);
+						synchronized(mCustomTypeFaces) {
+							mCustomTypeFaces.put(fontFamily, tf);
+						}
+						return tf;
+					}
 				}
 			}
-		} catch (IOException e) {
-			Log.e(TAG, "Unable to load 'fonts' assets. Perhaps doesn't exist? " + e.getMessage());
 		}
-
+		Log.e(TAG, "Font doesn't exist "+ fontFamily);
 		mCustomTypeFaces.put(fontFamily, null);
 		return null;
 	}
