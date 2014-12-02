@@ -1566,7 +1566,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 								}
 							});
 						}
-					});
+					}, this);
 
 					// check missing abis
 					var missingAbis = module.abis.length && this.abis.filter(function (a) { return module.abis.indexOf(a) == -1; });
@@ -1870,24 +1870,24 @@ AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
 	this.activitiesHash = this.hash(android && android.application && android.application ? JSON.stringify(android.application.activities) : '');
 	this.servicesHash = this.hash(android && android.services ? JSON.stringify(android.services) : '');
 
-	function walk(dir, re) {
+	function walk(dir, re, self) {
 		var hashes = [];
 		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
 			var file = path.join(dir, name);
 			if (fs.existsSync(file)) {
 				var stat = fs.statSync(file);
 				if (stat.isFile() && re.test(name)) {
-					hashes.push(this.hash(fs.readFileSync(file).toString()));
+					hashes.push(self.hash(fs.readFileSync(file).toString()));
 				} else if (stat.isDirectory()) {
-					hashes = hashes.concat(walk(file, re));
+					hashes = hashes.concat(walk(file, re, self));
 				}
 			}
-		});
+		}, this);
 		return hashes;
 	}
 
 	// jss files
-	this.jssFilesHash = this.hash(walk(path.join(this.projectDir, 'Resources'), /\.jss$/).join(','));
+	this.jssFilesHash = this.hash(walk(path.join(this.projectDir, 'Resources'), /\.jss$/, this).join(','));
 
 	next();
 };
