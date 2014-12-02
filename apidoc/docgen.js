@@ -1,10 +1,10 @@
 /**
  * Script to preprocess the YAML docs in to a common JSON format,
  * then calls an generator script to format the API documentation.
- * Dependencies: ejs ~0.8.8 and node-appc ~0.2.14
  */
 
-var common = require('./lib/common.js')
+var common = require('./lib/common.js'),
+	colors = require('colors'),
 	nodeappc = require('node-appc'),
 	ejs = require('ejs'),
 	fs = require('fs'),
@@ -33,7 +33,8 @@ var common = require('./lib/common.js')
 	modules = [],
 	exportStdout = false,
 	cssPath = '',
-	cssFile = '';
+	cssFile = '',
+	addOnDocs = [];
 
 /**
  * Returns a list of inherited APIs.
@@ -150,6 +151,9 @@ function processVersions (api, versions) {
 	if (assert(api, 'platforms')) {
 		for (platform in defaultVersions) {
 			if (!~api.platforms.indexOf(platform)) delete defaultVersions[platform];
+		}
+		for (platform in common.ADDON_VERSIONS) {
+			if (~api.platforms.indexOf(platform)) defaultVersions[platform] = common.ADDON_VERSIONS[platform];
 		}
 	} else if (assert(api, 'exclude-platforms')) {
 		api['exclude-platforms'].forEach(function (platform) {
@@ -422,13 +426,126 @@ function processAPIs (api) {
 }
 
 function cliUsage () {
-	console.log('Usage: node docgen.js [--css <CSS_FILE>] [--format <EXPORT_FORMAT>] [--output <OUTPUT_DIRECTORY>] [--stdout] [<PATH_TO_YAML_FILES>]'.white);
+	console.log('Usage: node docgen.js [--addon-docs <PATH_TO_YAML_FILES] [--css <CSS_FILE>] [--format <EXPORT_FORMAT>] [--output <OUTPUT_DIRECTORY>] [--stdout] [<PATH_TO_YAML_FILES>]'.white);
 	console.log('\nOptions:'.white);
-	console.log('\t--css       \tCSS style file to use for HTML exports.'.white);
-	console.log('\t--format, -f\tExport format: %s. Default is html.'.white, validFormats);
-	console.log('\t--output, -o\tDirectory to output the files.'.white);
-	console.log('\t--stdout    \tOutput processed YAML to stdout.'.white);
+	console.log('\t--addon-docs, -a\tDocs to add to the base Titanium Docs'.white);
+	console.log('\t--css           \tCSS style file to use for HTML exports.'.white);
+	console.log('\t--format, -f    \tExport format: %s. Default is html.'.white, validFormats);
+	console.log('\t--output, -o    \tDirectory to output the files.'.white);
+	console.log('\t--stdout        \tOutput processed YAML to stdout.'.white);
 }
+
+// Merge values from add-on object to base object
+function addOnMerge(baseObj, addObj) {
+	var key = base = add = null,
+		rv = baseObj;
+
+	for (key in addObj) {
+		base = baseObj[key];
+		add = addObj[key];
+		if (Array.isArray(base)) {
+			// Array of objects
+			if (typeof base[0] === 'object') {
+				var tempArray = base;
+				add.forEach(function (api) {
+					if ('name' in base[0]) {
+						var match = base.filter(function (item) {
+							return api.name == item.name;
+						});
+						if (match.length > 0) {
+							// Replace item if we have a match
+							tempArray.splice(tempArray.indexOf(match[0]), 1);
+							tempArray.push(addOnMerge(match[0], api));
+						} else {
+							common.log(common.LOG_WARN, 'Could not locate object in %s array with name: %s', key, api.name);
+						}
+					} else {
+						common.log(common.LOG_WARN, 'Element in %s array do not have a name key.', key);
+					}
+				});
+				baseObj[key] = tempArray;
+			// Array of primitives
+			} else {
+				if (Array.isArray(add)) {
+					baseObj[key] = base.concat(add);
+				} else {
+					baseObj[key] = base.push(add);
+				}
+			}
+		} else {
+			switch (typeof base) {
+				case 'object':
+					baseObj[key] = addOnMerge(base, add);
+					break;
+				case 'string':
+					if (!~['name', 'since', '__file'].indexOf(key)) {
+						baseObj[key] += ' ' + add;
+					}
+					else if (key === 'since') {
+						var platforms = baseObj.platforms || common.VALID_PLATFORMS,
+							since = {};
+
+						platforms.forEach(function(p){
+							since[p] = baseObj[key];
+						});
+
+						if (typeof add === 'object') {
+							Object.keys(add).forEach(function (k) {
+								since[k] = add[k];
+							});
+						}
+						else if (assert(addObj, 'platforms')) {
+							addObj.platforms.forEach(function (p) {
+								since[p] = add;
+							});
+						}
+						else {
+							common.log(common.LOG_WARN, 'Cannot set since version.  Set since as a dictionary or add the platforms property.');
+							break;
+						}
+
+						baseObj[key] = since;
+					}
+					break;
+				case 'undefined':
+					if (~['description'].indexOf(key)) {
+						baseObj[key] = add;
+					}
+					else if (key == 'exclude-platforms' && !assert(baseObj, 'platforms')) {
+						baseObj[key] = add;
+					}
+					else if (key == 'platforms') {
+						baseObj[key] = common.VALID_PLATFORMS.concat(add);
+					}
+					else if (key == 'since') {
+						var since = {};
+						if (typeof add === 'object') {
+							Object.keys(add).forEach(function (k) {
+								since[k] = add[k];
+							});
+						}
+						else if (assert(addObj, 'platforms')) {
+							addObj.platforms.forEach(function (p) {
+								since[p] = add;
+							});
+						}
+						else {
+							common.log(common.LOG_WARN, 'Cannot set since version.  Set since as a dictionary or add the platforms property.');
+						}
+						baseObj[key] = since;
+					}
+					else {
+						common.log(common.LOG_WARN, 'Base object does not have a value for %s', key);
+					}
+					break;
+				default:
+					common.log(common.LOG_WARN, 'Could not merge %s key: %s to %s', key, base, add);
+			}
+		}
+	}
+	return rv;
+}
+
 
 // Create path if it does not exist
 function mkdirDashP(path) {
@@ -459,15 +576,25 @@ if ((argc = process.argv.length) > 2) {
 				cliUsage();
 				process.exit(0);
 				break;
+			case '--addon-docs' :
+			case '-a':
+				path = process.argv[++x];
+				if (fs.existsSync(path)) {
+					addOnDocs.push(path);
+				} else {
+					common.log(common.LOG_WARN, "Path does not exist: %s", path);
+				}
+				path = null;
+				break;
 			case '--css':
 				if (++x > argc) {
-					console.warn('Did not specify a CSS file.'.yellow);
+					common.log(common.LOG_WARN, 'Did not specify a CSS file.');
 					cliUsage();
 					process.exit(1);
 				}
 				cssPath = process.argv[x];
 				if(!fs.existsSync(cssPath)) {
-					console.warn('CSS file does not exist: %s'.yellow, cssPath);
+					common.log(common.LOG_WARN, 'CSS file does not exist: %s', cssPath);
 					process.exit(1);
 				}
 				cssFile = cssPath.substring(cssPath.lastIndexOf('/') + 1);
@@ -475,7 +602,7 @@ if ((argc = process.argv.length) > 2) {
 			case '--format' :
 			case '-f' :
 				if (++x > argc) {
-					console.warn('Did not specify an export format. Valid formats are: %s'.yellow, JSON.stringify(validFormats));
+					common.log(common.LOG_WARN, 'Did not specify an export format. Valid formats are: %s', JSON.stringify(validFormats));
 					cliUsage();
 					process.exit(1);
 				}
@@ -488,7 +615,7 @@ if ((argc = process.argv.length) > 2) {
 
 				formats.forEach(function (format) {
 					if (!~validFormats.indexOf(format)) {
-						console.warn('Not a valid export format: %s. Valid formats are: %s'.yellow, format, validFormats);
+						common.log(common.LOG_WARN, 'Not a valid export format: %s. Valid formats are: %s', format, validFormats);
 						cliUsage();
 						process.exit(1);
 					}
@@ -497,7 +624,7 @@ if ((argc = process.argv.length) > 2) {
 			case '--output' :
 			case '-o' :
 				if (++x > argc) {
-					console.warn('Specify an output path.'.yellow);
+					common.log(common.LOG_WARN, 'Specify an output path.');
 					cliUsage();
 					process.exit(1);
 				}
@@ -514,11 +641,17 @@ if ((argc = process.argv.length) > 2) {
 			case '--version':
 			case '-v' :
 			case '--warn-inherited':
-				console.warn('This command-line flag or argument has been deprecated or has not been implemented: %s'.yellow, process.argv[x]);
+				common.log(common.LOG_WARN, 'This command-line flag or argument has been deprecated or has not been implemented: %s', process.argv[x]);
 				if (~['-v', '--version'].indexOf(process.argv[x])) x++;
 				break;
-			default :
-				basePaths.push(process.argv[x]);
+			default:
+				path = process.argv[x];
+				if (fs.existsSync(path)) {
+					basePaths.push(path);
+				} else {
+					common.log(common.LOG_WARN, "Path does not exist: %s", path);
+				}
+				path = null;
 		}
 	}
 }
@@ -527,12 +660,13 @@ if ((argc = process.argv.length) > 2) {
 originalPaths = originalPaths.concat(basePaths);
 basePaths.push(apidocPath);
 basePaths.forEach(function (basePath) {
-	console.log('Parsing YAML files in %s...'.white, basePath);
+	var key;
+	common.log(common.LOG_INFO, 'Parsing YAML files in %s...', basePath);
 	parseData = common.parseYAML(basePath);
 	for (key in parseData.data) {
 		errors.push(parseData.errors);
 		if (assert(doc, key)) {
-			console.warn('WARNING: Duplicate class found: %s'.yellow, key);
+			common.log(common.LOG_WARN, 'Duplicate class found: %s', key);
 			continue;
 		}
 		doc[key] = parseData.data[key];
@@ -540,8 +674,26 @@ basePaths.forEach(function (basePath) {
 	}
 });
 
+// Parse add-on docs and merge them with the base set
+addOnDocs.forEach(function (basePath) {
+	var key;
+	parseData = null;
+	common.log(common.LOG_INFO, 'Parsing YAML files in %s...', basePath);
+	parseData = common.parseYAML(basePath);
+	for (key in parseData.data) {
+		errors.push(parseData.errors);
+		if (assert(doc, key)) {
+			common.log(common.LOG_INFO, 'Adding on to %s...', key);
+			doc[key] = addOnMerge(doc[key], parseData.data[key]);
+		} else {
+			common.log(common.LOG_INFO, 'New class found in add-on docs: %s...', key);
+			doc[key] = parseData.data[key];
+		}
+	}
+});
+
 // Process YAML files
-console.log('Processing YAML data...'.white);
+common.log(common.LOG_INFO, 'Processing YAML data...');
 processFirst.forEach(function (cls) {
 	if (!assert(doc, cls)) return;
 	processedData[cls] = processAPIs(doc[cls]);
@@ -563,7 +715,7 @@ formats.forEach(function (format) {
 	output = outputPath;
 	mkdirDashP(output);
 
-	console.log('Generating %s output...'.white, format.toUpperCase());
+	common.log(common.LOG_INFO, 'Generating %s output...', format.toUpperCase());
 
 	switch (format) {
 		case 'html' :
@@ -580,7 +732,7 @@ formats.forEach(function (format) {
 
 			exec('cp -r ' + apidocPath + '/images' + ' ' + output, function (error) {
 				if (error !== null) {
-					console.error('Error copying file: %s', error);
+					common.log(common.LOG_ERROR, 'Error copying file: %s', error);
 				}
 			});
 
@@ -590,7 +742,7 @@ formats.forEach(function (format) {
 				exportData[type].forEach(function (member) {
 					render = ejs.render(templateStr, {data: member, filename: true, assert: common.assertObjectKey, css: cssFile});
 					if (fs.writeFileSync(output + member.filename + '.html', render) <= 0) {
-						console.error('Failed to write to file: %s'.red, output + member.filename + '.html');
+						common.log(common.LOG_ERROR, 'Failed to write to file: %s', output + member.filename + '.html');
 					}
 				});
 			}
@@ -618,7 +770,7 @@ formats.forEach(function (format) {
 	}
 
 	if (fs.writeFile(output, render) <= 0) {
-		console.error('Failed to write to file: %s'.red, output);
+		common.log(common.LOG_ERROR, 'Failed to write to file: %s', output);
 		process.exit(1);
 	} else {
 	    console.log("Generated output at %s".green, output);

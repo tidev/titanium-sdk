@@ -1,17 +1,18 @@
 /**
  * Common Library for Doctools
- * Dependencies: js-yaml ~3.2.2, node-appc ~0.2.14 and pagedown ~1.1.0
  */
 
 var yaml = require('js-yaml'),
 	fs = require('fs'),
 	nodeappc = require('node-appc'),
+	colors = require('colors'),
 	pagedown = require('pagedown'),
 	converter = new pagedown.Converter(),
-	ignoreList = ['node_modules', '.travis.yml'];
+	ignoreList = ['node_modules', '.travis.yml'],
+	logLevel = 0;
 
-exports.VALID_PLATFORMS = ['android', 'blackberry', 'iphone', 'ipad', 'mobileweb', 'tizen'];
-exports.VALID_OSES = ['android', 'blackberry', 'ios', 'mobileweb', 'tizen'];
+exports.VALID_PLATFORMS = ['android', 'blackberry', 'iphone', 'ipad', 'mobileweb', 'tizen', 'windowsphone'];
+exports.VALID_OSES = ['android', 'blackberry', 'ios', 'mobileweb', 'tizen', 'windowsphone'];
 exports.DEFAULT_VERSIONS = {
 	'android' : '0.8',
 	'blackberry' : '3.1.2',
@@ -19,9 +20,11 @@ exports.DEFAULT_VERSIONS = {
 	'ipad' : '0.8',
 	'mobileweb' : '1.8',
 	'tizen' : '3.1'
-}
+};
+exports.ADDON_VERSIONS = {
+	'windowsphone' : '3.6.0'
+};
 exports.DATA_TYPES = ['Array', 'Boolean', 'Callback', 'Date', 'Dictionary', 'Number', 'Object', 'String'];
-
 exports.PRETTY_PLATFORM = {
 	'android': 'Android',
 	'blackberry': 'BlackBerry',
@@ -29,7 +32,8 @@ exports.PRETTY_PLATFORM = {
 	'iphone': 'iPhone',
 	'ipad': 'iPad',
 	'mobileweb': 'Mobile Web',
-	'tizen': 'Tizen'
+	'tizen': 'Tizen',
+	'windowsphone' : 'Windows Phone'
 };
 
 // Matches FOO_CONSTANT
@@ -48,6 +52,46 @@ exports.REGEXP_CHEVRON_LINKS = /(?!`)<[^>]+?>(?!`)/g;
 
 exports.markdownToHTML = function markdownToHTML(text) {
 	return converter.makeHtml(text);
+}
+
+exports.LOG_INFO = LOG_INFO = 0;
+exports.LOG_WARN = LOG_WARN = LOG_INFO + 1;
+exports.LOG_ERROR = LOG_ERROR = LOG_WARN + 1;
+logLevel = LOG_INFO;
+
+exports.log = function log (level, message) {
+	var args = [];
+
+	if (level < logLevel) return;
+
+	if (arguments.length >= 3) {
+		for (key in arguments) {
+			args.push(arguments[key]);
+		}
+		args.splice(0, 2);
+	}
+
+	switch (level) {
+		case LOG_INFO:
+			message = '[INFO] ' + message;
+			args.unshift(message.white);
+			console.info.apply(this, args);
+			break;
+		case LOG_WARN:
+			message = '[WARN] ' + message;
+			args.unshift(message.yellow);
+			console.warn.apply(this, args);
+			break;
+		case LOG_ERROR:
+			message = '[ERROR] ' + message;
+			args.unshift(message.red);
+			console.error.apply(this, args);
+			break;
+	}
+}
+
+exports.setLogLevel = function setLogLevel (level) {
+	logLevel = level;
 }
 
 // Determines if the key exists in the object and is defined
