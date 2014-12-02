@@ -589,12 +589,28 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		 * should show up on top of the current activity when called - not just the
 		 * activity it was created in
 		 */
-		TiDatePickerDialog dialog = new TiDatePickerDialog(
+		
+		// DatePickerDialog has a bug in Android 4.x
+		// If build version is using Android 4.x, use
+		// our TiDatePickerDialog. It was fixed from Android 5.0.		
+		DatePickerDialog dialog;
+		
+		if((Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) 
+				&& (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)){
+			dialog = new TiDatePickerDialog(
 					TiApplication.getAppCurrentActivity(),
 					dateSetListener,
 					calendar.get(Calendar.YEAR),
 					calendar.get(Calendar.MONTH),
 					calendar.get(Calendar.DAY_OF_MONTH));
+		} else {
+			dialog = new DatePickerDialog(
+					TiApplication.getAppCurrentActivity(),
+					dateSetListener,
+					calendar.get(Calendar.YEAR),
+					calendar.get(Calendar.MONTH),
+					calendar.get(Calendar.DAY_OF_MONTH));
+		}
 		
 		Date minMaxDate = null;
 		if (settings.containsKey(TiC.PROPERTY_MIN_DATE)) {
@@ -712,12 +728,29 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 				}
 			};
 		}
-		TiTimePickerDialog dialog = new TiTimePickerDialog(
+		
+		// TimePickerDialog has a bug in Android 4.x
+		// If build version is using Android 4.x, use
+		// our TiTimePickerDialog. It was fixed from Android 5.0.
+		TimePickerDialog dialog;
+		
+		if((Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) 
+				&& (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)){
+			dialog = new TiTimePickerDialog(
 					getActivity(),
 					timeSetListener,
 					calendar.get(Calendar.HOUR_OF_DAY),
 					calendar.get(Calendar.MINUTE),
 					is24HourView);
+		} else {
+			dialog = new TimePickerDialog(
+					getActivity(),
+					timeSetListener,
+					calendar.get(Calendar.HOUR_OF_DAY),
+					calendar.get(Calendar.MINUTE),
+					is24HourView);
+		}
+
 		dialog.setCancelable(true);
 		if (dismissListener != null) {
 			dialog.setOnDismissListener(dismissListener);
