@@ -1882,7 +1882,7 @@ AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
 					hashes = hashes.concat(walk(file, re, self));
 				}
 			}
-		}, this);
+		});
 		return hashes;
 	}
 
