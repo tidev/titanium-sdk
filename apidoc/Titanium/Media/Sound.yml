@@ -92,9 +92,8 @@ events:
     properties:
       - name: state
         summary: |
-            Current state of playback.
+            Current state of playback, specified using one of the `STATE` constants defined on this object.
         type: Number
-        constants: Titanium.Media.Sound.STATE_*
       - name: description
         summary: Text description of the state of playback.
 
