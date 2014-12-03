@@ -91,6 +91,9 @@ function AndroidBuilder() {
 
 	this.tiSymbols = {};
 
+    // Added 11/12/2014
+    this.dexAgent = false;
+
 	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
 	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
 	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
@@ -3634,6 +3637,9 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				delete am['uses-sdk'];
 				finalAndroidManifest.merge(am);
 			}
+			if (moduleXml.properties['dexAgent']) {
+				this.dexAgent = path.join(module.modulePath, moduleXml.properties['dexAgent'].value);
+			}
 		}
 	});
 
@@ -3920,6 +3926,9 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			this.buildBinClassesDir,
 			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
 		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+		if (this.dexAgent) {
+			dexArgs.unshift('-javaagent:' + this.dexAgent);
+		}
 
 	if (this.allowDebugging && this.debugPort) {
 		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
