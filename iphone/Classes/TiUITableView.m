@@ -834,7 +834,7 @@
         }
 	}
 	if (hasFocus) {
-		[chosenField performSelector:@selector(focus:) withObject:nil afterDelay:0];
+        [chosenField focus:nil];
 	}
 	[chosenField setSuppressFocusEvents:oldSuppress];
 	[chosenField release];
