@@ -340,7 +340,7 @@ properties:
     description: |
         If true, when clicking the tab the page transition is animated, false otherwise.
     platforms: [android]
-    since: 3.5.0
+    since: 3.6.0
     default: true
     type: Boolean
 
