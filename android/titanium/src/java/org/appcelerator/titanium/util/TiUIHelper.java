@@ -1089,4 +1089,11 @@ public class TiUIHelper
 			proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
 		}
 	}
+
+	public static void fireKeyboarDismissedEvent(TiViewProxy proxy)
+	{
+		if (proxy != null && proxy.hasListeners(TiC.EVENT_DISMISS_KEYBOARD)) {
+			proxy.fireEvent(TiC.EVENT_DISMISS_KEYBOARD, null, true);
+		}
+	}
 }

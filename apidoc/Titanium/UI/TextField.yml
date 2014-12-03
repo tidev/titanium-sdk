@@ -441,14 +441,19 @@ events:
       - name: value
         summary: New value of the field.
         type: String
-        
+
+  - name: dismissKeyboard
+    summary: Fired when the keyboard is dismissed by pressing the BACK button.
+    since: {android: "3.6.0"}
+    platforms: [android]
+
   - name: focus
     summary: Fired when the field gains focus.
     properties:
       - name: value
         summary: Value of the field.
         type: String
-        
+
   - name: return
     summary: Fired when the return key is pressed on the keyboard.
     properties:

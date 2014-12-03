@@ -116,6 +116,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_DISMISS_KEYBOARD = "dismissKeyboard";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_DOUBLE_CLICK = "dblclick";
 
 	/**

@@ -320,7 +320,12 @@ events:
       - name: value
         summary: New value of this text area.
         type: String
-    
+
+  - name: dismissKeyboard
+    summary: Fired when the keyboard is dismissed by pressing the BACK button.
+    since: {android: "3.6.0"}
+    platforms: [android]
+
   - name: focus
     summary: Fired when this text area gains focus.
     properties:

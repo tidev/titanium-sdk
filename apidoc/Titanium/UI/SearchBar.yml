@@ -91,6 +91,11 @@ events:
   - name: blur
     summary: Fired when the search bar loses focus.
 
+  - name: dismissKeyboard
+    summary: Fired when the keyboard is dismissed by pressing the BACK button.
+    since: {android: "3.6.0"}
+    platforms: [android]
+
   - name: bookmark
     summary: Fired when the bookmark button is pressed.
       
