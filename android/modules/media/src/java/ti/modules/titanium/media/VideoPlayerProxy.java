@@ -743,9 +743,9 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	 * Convenience method for creating a response handler that is used when getting a 
 	 * bitmmap.
 	 * 
-	 * @param callback			Javascript function that the response handler will invoke 
-	 * 							once the bitmap response is ready
-	 * @return					the bitmap response handler
+	 * @param callback          Javascript function that the response handler will invoke 
+	 *                          once the bitmap response is ready
+	 * @return                  the bitmap response handler
 	 */
 	private ThumbnailResponseHandler createThumbnailResponseHandler(final KrollFunction callback)
 	{
