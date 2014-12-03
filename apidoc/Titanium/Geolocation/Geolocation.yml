@@ -907,6 +907,7 @@ properties:
   - name: floor
     summary: The floor of the building on which the user is located. Available in iOS 8.0 and later.
     type: LocationCoordinatesFloor
+    osver: {ios: {min: "8.0"}}
     since: { iphone: "3.6.0", ipad: "3.6.0" }
     platforms: [iphone, ipad]
 
