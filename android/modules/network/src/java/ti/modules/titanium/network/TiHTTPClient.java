@@ -403,7 +403,12 @@ public class TiHTTPClient
 
 			TiBlob blob = TiBlob.blobFromData(blobData, contentType);
 			callbackData.put("blob", blob);
-			callbackData.put("progress", ((double)totalSize)/((double)contentLength));
+			double progress = ((double)totalSize)/((double)contentLength);
+			// cap progress to 1
+			if (progress > 1) {
+				progress = 1;
+			}
+			callbackData.put("progress", progress);
 
 			dispatchCallback("ondatastream", callbackData);
 		}
@@ -1299,7 +1304,11 @@ public class TiHTTPClient
 						ProgressEntity progressEntity = new ProgressEntity(mpe, new ProgressListener() {
 							public void progress(int progress) {
 								KrollDict data = new KrollDict();
-								data.put("progress", ((double)progress)/totalLength);
+								double currentProgress = ((double)progress)/totalLength;
+								if (currentProgress > 1) {
+									currentProgress = 1;
+								}
+								data.put("progress", currentProgress);
 								dispatchCallback("onsendstream", data);
 							}
 						});
