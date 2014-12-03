@@ -334,6 +334,16 @@ properties:
     default: true
     type: Boolean
 
+  - name: smoothScrollOnTabClick
+    summary: |
+        Boolean value indicating if changing pages by tab clicks is animated.
+    description: |
+        If true, when clicking the tab the page transition is animated, false otherwise.
+    platforms: [android]
+    since: 3.6.0
+    default: true
+    type: Boolean
+
   - name: tabs
     summary: |
         Tabs managed by the tab group.
