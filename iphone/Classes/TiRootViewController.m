@@ -1137,11 +1137,30 @@
 
 -(void)incrementActiveAlertControllerCount
 {
-    ++activeAlertControllerCount;
+    if ([TiUtils isIOS8OrGreater]){
+        ++activeAlertControllerCount;
+    }
 }
 -(void)decrementActiveAlertControllerCount
 {
-    --activeAlertControllerCount;
+    if ([TiUtils isIOS8OrGreater]) {
+        --activeAlertControllerCount;
+        if (activeAlertControllerCount == 0) {
+            UIViewController* topVC = [self topPresentedController];
+            if (topVC == self) {
+                [self didCloseWindow:nil];
+            } else {
+                [self dismissKeyboard];
+                
+                if ([topVC respondsToSelector:@selector(proxy)]) {
+                    id theProxy = [(id)topVC proxy];
+                    if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+                        [(id<TiWindowProtocol>)theProxy gainFocus];
+                    }
+                }
+            }
+        }
+    }
 }
 
 -(NSUInteger)supportedOrientationsForAppDelegate;
