@@ -285,7 +285,7 @@ extern NSString * const TI_APPLICATION_GUID;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
             float downloadProgress = [response downloadProgress];
             // cap progress to 1
-            if (downloadProgress > 1) {
+            if (downloadProgress > 1 || downloadProgress < 0) {
                 downloadProgress = 1.0f;
             }
             [eventDict setValue:[NSNumber numberWithFloat: downloadProgress] forKey:@"progress"];
@@ -307,7 +307,7 @@ extern NSString * const TI_APPLICATION_GUID;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
             float uploadProgress = [response uploadProgress];
             // cap progress to 1
-            if (uploadProgress > 1) {
+            if (uploadProgress > 1 || uploadProgress < 0) {
                 uploadProgress = 1.0f;
 			}
             [eventDict setValue:[NSNumber numberWithFloat: uploadProgress] forKey:@"progress"];
