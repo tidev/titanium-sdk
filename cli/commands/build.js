@@ -13,6 +13,7 @@ var appc = require('node-appc'),
 	sprintf = require('sprintf'),
 	ti = require('titanium-sdk'),
 	tiappxml = require('titanium-sdk/lib/tiappxml'),
+	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__;
 
 fields.setup({
