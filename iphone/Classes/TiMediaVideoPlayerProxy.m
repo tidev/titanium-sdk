@@ -526,7 +526,7 @@ NSArray* moviePlayerKeys = nil;
 
 -(TiBlob*)thumbnailImageAtTime:(id)args
 {
-    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.thumbnailImageAtTime",@"3.4.2",@"3.5.0",@"Media.VideoPlayer.requestThumbnailImagesAtTimes")
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.thumbnailImageAtTime",@"3.4.2",@"3.6.0",@"Media.VideoPlayer.requestThumbnailImagesAtTimes")
     return nil;
 }
 
