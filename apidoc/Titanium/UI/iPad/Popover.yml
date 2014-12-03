@@ -41,7 +41,6 @@ methods:
     summary: Adds a child to the popover.
     deprecated:
         since: "3.2.0"
-        removed: "3.4.2"
         notes: Use the <Titanium.UI.iPad.Popover.contentView> property to modify the content of the popover.
 
   - name: hide
@@ -55,7 +54,6 @@ methods:
     summary: Removes a child from the popover.
     deprecated:
         since: "3.2.0"
-        removed: "3.4.2"
         notes: Use the <Titanium.UI.iPad.Popover.contentView> property to modify the content of the popover.
 
   - name: show
@@ -108,15 +106,15 @@ properties:
   - name: height
     summary: Height of the popover.
     deprecated:
-        since: "3.4.2"
+        since: "3.5.0"
         notes: This property is deprecated. Set the height on the [contentView](Titanium.UI.iPad.Popover.contentView) property instead.
     type: [Number, String]
 
   - name: leftNavButton
     summary: Left button in the navigation area of the popover.
     deprecated:
-        since: "3.4.2"
-        notes: This property is no loner supported.
+        since: "3.5.0"
+        notes: This property is no longer supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set. 
 
@@ -143,8 +141,8 @@ properties:
   - name: rightNavButton
     summary: Right button in the navigation area of the popover.
     deprecated:
-        since: "3.4.2"
-        notes: This property is no loner supported.
+        since: "3.5.0"
+        notes: This property is no longer supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
 
@@ -164,8 +162,8 @@ properties:
   - name: title
     summary: Title of the navigation area of the popover.
     deprecated:
-        since: "3.4.2"
-        notes: This property is no loner supported.
+        since: "3.5.0"
+        notes: This property is no longer supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
     type: String
@@ -173,7 +171,7 @@ properties:
   - name: width
     summary: Width of the popover.
     deprecated:
-        since: "3.4.2"
+        since: "3.5.0"
         notes: This property is deprecated. Set the width on the [contentView](Titanium.UI.iPad.Popover.contentView) property instead.
     type: [Number, String]
 
