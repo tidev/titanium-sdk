@@ -3928,13 +3928,12 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			'--output=' + this.buildBinClassesDex,
 			this.buildBinClassesDir,
 			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
-		]
+		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
 		// inserts the -javaagent arg earlier on in the dexArgs to allow for proper dexing if
 		// dexAgent is set in the module's timodule.xml
 		if (this.dexAgent) {
 			dexArgs.unshift('-javaagent:' + this.dexAgent);
 		}
-		dexArgs = dexArgs.concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
 
 	// inserts the -javaagent arg earlier on in the dexArgs to allow for proper dexing if
 	// dexAgent is set in the module's timodule.xml
