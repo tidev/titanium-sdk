@@ -109,6 +109,15 @@ public class TiUIText extends TiUIView
 			super.onLayout(changed, left, top, right, bottom);
 			TiUIHelper.firePostLayoutEvent(proxy);
 		}
+
+		@Override
+		public boolean onKeyPreIme(int keyCode, KeyEvent event)
+		{
+			if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+				TiUIHelper.fireKeyboarDismissedEvent(proxy);
+			}
+			return super.onKeyPreIme(keyCode, event);
+		}
 	}
 
 	public TiUIText(TiViewProxy proxy, boolean field)
