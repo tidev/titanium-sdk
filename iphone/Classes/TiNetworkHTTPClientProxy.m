@@ -284,9 +284,9 @@ extern NSString * const TI_APPLICATION_GUID;
             _downloadTime = 0;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
             float downloadProgress = [response downloadProgress];
-            // cap progress to 1
+            // return progress as -1 if it is outside the valid range
             if (downloadProgress > 1 || downloadProgress < 0) {
-                downloadProgress = 1.0f;
+                downloadProgress = -1.0f;
             }
             [eventDict setValue:[NSNumber numberWithFloat: downloadProgress] forKey:@"progress"];
             [self fireCallback:@"ondatastream" withArg:eventDict withSource:self];
@@ -306,7 +306,7 @@ extern NSString * const TI_APPLICATION_GUID;
             _uploadTime = 0;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
             float uploadProgress = [response uploadProgress];
-            // cap progress to 1
+            // cap progress to 1 and floor at 0
             if (uploadProgress > 1 || uploadProgress < 0) {
                 uploadProgress = 1.0f;
 			}

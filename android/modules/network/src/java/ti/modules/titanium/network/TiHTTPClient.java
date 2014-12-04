@@ -404,9 +404,9 @@ public class TiHTTPClient
 			TiBlob blob = TiBlob.blobFromData(blobData, contentType);
 			callbackData.put("blob", blob);
 			double progress = ((double)totalSize)/((double)contentLength);
-			// cap progress to 1
+			// return progress as -1 if it is outside the valid range
 			if (progress > 1 || progress < 0) {
-				progress = 1;
+				progress = -1;
 			}
 			callbackData.put("progress", progress);
 
@@ -1305,6 +1305,7 @@ public class TiHTTPClient
 							public void progress(int progress) {
 								KrollDict data = new KrollDict();
 								double currentProgress = ((double)progress)/totalLength;
+								// cap progress to 1 and floor at 0
 								if (currentProgress > 1 || currentProgress < 0) {
 									currentProgress = 1;
 								}
