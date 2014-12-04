@@ -406,7 +406,7 @@ public class TiHTTPClient
 			double progress = ((double)totalSize)/((double)contentLength);
 			// return progress as -1 if it is outside the valid range
 			if (progress > 1 || progress < 0) {
-				progress = -1;
+				progress = NetworkModule.PROGRESS_UNKNOWN;
 			}
 			callbackData.put("progress", progress);
 
