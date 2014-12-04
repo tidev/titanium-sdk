@@ -4,23 +4,23 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 
-public class TiDatePickerDialog extends DatePickerDialog{
+public class TiDatePickerDialog extends DatePickerDialog {
 
 	public TiDatePickerDialog(Context context, 
 			OnDateSetListener callBack,
-	        int year,
-	        int monthOfYear,
-	        int dayOfMonth){
+			int year,
+			int monthOfYear,
+			int dayOfMonth) {
 		super(context, callBack, year, monthOfYear, dayOfMonth);
 	}
-	
+
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 		// Only allow pressing the positive button to call super.onClick()
 		// which will call tryNotifyDataSet();
-        if (which == DialogInterface.BUTTON_POSITIVE){
-        	super.onClick(dialog, which);
-        }
+		if (which == DialogInterface.BUTTON_POSITIVE) {
+			super.onClick(dialog, which);
+		}
 	}
 
 	@Override
@@ -31,5 +31,4 @@ public class TiDatePickerDialog extends DatePickerDialog{
 		// https://code.google.com/p/android/issues/detail?id=34833
 	}
 
-	
 }
