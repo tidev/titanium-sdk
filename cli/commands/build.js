@@ -8,6 +8,7 @@
 var appc = require('node-appc'),
 	fields = require('fields'),
 	fs = require('fs'),
+	afs = appc.fs,
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
 	sprintf = require('sprintf'),
@@ -268,7 +269,8 @@ exports.run = function (logger, config, cli, finished) {
 function patchLogger(logger, cli) {
 	var origLoggerLog = logger.log,
 		platform = ti.resolvePlatform(cli.argv.platform),
-		buildDir = path.join(cli.argv['project-dir'], 'build'),
+		p = afs.resolvePath(cli.argv['project-dir'] || '.'),
+		buildDir = path.join(p, 'build'),
 		logFileStream;
 
 	fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir);
