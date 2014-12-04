@@ -345,7 +345,8 @@ properties:
         Must be set before calling `open`.
 
         The `progress` property of the event will contain a value from 0.0-1.0 with the progress of
-        the request.
+        the request. On iOS and Android as of 3.5.0, if the progress can not be calculated, 
+        the value will be [PROGRESS_UNKNOWN](Titanium.Network.PROGRESS_UNKNOWN).
     type: Callback<Object>
 
   - name: onerror
