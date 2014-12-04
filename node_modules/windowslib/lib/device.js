@@ -48,29 +48,28 @@ function detect(options, callback) {
 		}
 
 		wptool.enumerate(options, function (err, results) {
-			if (err) {
-				emitter.emit('error', err);
-				return callback(err);
-			}
-
-			cache = {
+			var result = {
 				devices: [],
 				issues: []
 			};
 
-			var tmp = {};
+			if (!err) {
+				var tmp = {};
 
-			Object.keys(results).forEach(function (wpsdk) {
-				results[wpsdk].devices.forEach(function (dev) {
-					if (!tmp[dev.udid]) {
-						tmp[dev.udid] = 1;
-						cache.devices.push(dev);
-					}
+				Object.keys(results).forEach(function (wpsdk) {
+					results[wpsdk].devices.forEach(function (dev) {
+						if (!tmp[dev.udid]) {
+							tmp[dev.udid] = 1;
+							result.devices.push(dev);
+						}
+					});
 				});
-			});
 
-			emitter.emit('detected', cache);
-			callback(null, cache);
+				cache = result;
+			}
+
+			emitter.emit('detected', result);
+			callback(null, result);
 		});
 	});
 };

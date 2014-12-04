@@ -28,6 +28,7 @@ const
  */
 exports.magik = function magik(options, callback, body) {
 	var emitter = new EventEmitter;
+	emitter.on('error', function () {});
 
 	process.nextTick(function () {
 		if (typeof options === 'function') {

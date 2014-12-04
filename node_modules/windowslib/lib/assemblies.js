@@ -82,20 +82,23 @@ function detect(options, callback) {
 
 			Object.keys(requiredAssemblies).forEach(function (assembly) {
 				var dir = path.join(assemblyPath, assembly);
-				fs.readdirSync(dir).forEach(function (name) {
-					var m = name.match(assemblyVersionRegExp),
-						file = m && path.join(dir, name, assembly + '.dll');
+				if (fs.existsSync(dir))
+				{
+					fs.readdirSync(dir).forEach(function (name) {
+						var m = name.match(assemblyVersionRegExp),
+							file = m && path.join(dir, name, assembly + '.dll');
 
-					if (m && m[2] && (!requiredAssemblies[assembly] || appc.version.satisfies(m[2], requiredAssemblies[assembly]), true) && fs.existsSync(file)) {
-						results.assemblies[assembly] || (results.assemblies[assembly] = {});
-						results.assemblies[assembly][m[2]] = {
-							assemblyFile: file,
-							dotNetVersion: m[1],
-							assemblyVersion: m[2],
-							publicKeyToken: m[3]
-						};
-					}
-				});
+						if (m && m[2] && (!requiredAssemblies[assembly] || appc.version.satisfies(m[2], requiredAssemblies[assembly]), true) && fs.existsSync(file)) {
+							results.assemblies[assembly] || (results.assemblies[assembly] = {});
+							results.assemblies[assembly][m[2]] = {
+								assemblyFile: file,
+								dotNetVersion: m[1],
+								assemblyVersion: m[2],
+								publicKeyToken: m[3]
+							};
+						}
+					});
+				}
 
 				if (!results.assemblies[assembly]) {
 					missingAssemblies.push(assembly);
