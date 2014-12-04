@@ -342,6 +342,6 @@ function logBanner(cli) {
 		'   SDK version     = ' + cli.argv.sdk + '\n' +
 		'   SDK path        = ' + cli.sdk.path + '\n' +
 		'   Node version    = ' + process.version + '\n' +
-		'   Command         = ' + cli.argv.$ + ' ' + cli.argv.$_.join(' ') + '\n' +
+		'   Command         = ' + cli.argv.$ + ' ' + cli.argv.$_.reduce(function(a,b){if(a.indexOf(b)<0)a.push(b);return a;},[]).join(' ') + '\n' +
 		'\n';
 }
