@@ -212,7 +212,7 @@ properties:
     summary: Set to `true` to enable the button, `false` to disable the button.
     type: Boolean
     default: true
-    platforms: [android, ipad, iphone, mobileweb, tizen, blackberry]
+    platforms: [ipad, iphone, mobileweb, tizen, blackberry]
 
   - name: font
     summary: Font to use for the button text.
