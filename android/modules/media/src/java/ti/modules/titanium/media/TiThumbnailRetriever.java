@@ -10,8 +10,8 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiUIHelper;
 
-import ti.modules.titanium.media.util.TiDataSourceHelper;
 import android.annotation.SuppressLint;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
@@ -168,7 +168,7 @@ public class TiThumbnailRetriever implements Handler.Callback{
 							}
 						} 
 					} else {
-						mUri = TiDataSourceHelper.getRedirectUri(mUri);
+						mUri = TiUIHelper.getRedirectUri(mUri);
 						if (Build.VERSION.SDK_INT >= 14){
 							mMediaMetadataRetriever.setDataSource(mUri.toString(), new HashMap<String, String>());
 						}

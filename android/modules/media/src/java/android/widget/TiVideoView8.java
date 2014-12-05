@@ -31,10 +31,10 @@ import java.util.Map;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiPlatformHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.media.TiPlaybackListener;
-import ti.modules.titanium.media.util.TiDataSourceHelper;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -340,7 +340,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	private void setDataSource()
 	{
 		try {
-			mUri = TiDataSourceHelper.getRedirectUri(mUri);
+			mUri = TiUIHelper.getRedirectUri(mUri);
 			mMediaPlayer.setDataSource(getContext(), mUri);
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting video data source: " + e.getMessage(), e);
