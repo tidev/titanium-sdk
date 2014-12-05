@@ -555,6 +555,13 @@ properties:
     platforms: [iphone, ipad]
     since: "1.8.0.1"
 
+  - name: PROGRESS_UNKNOWN
+    summary: Constant value specifying that the progress of a download can not be calculated.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "3.5.0"
+
   - name: allHTTPCookies
     summary: A list of all cookies in the cookie storage.
     type: Array<Titanium.Network.Cookie>

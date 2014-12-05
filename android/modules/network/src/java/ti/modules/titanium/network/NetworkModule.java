@@ -50,6 +50,8 @@ public class NetworkModule extends KrollModule {
 	@Kroll.constant public static final int NETWORK_LAN = 3;
 	@Kroll.constant public static final int NETWORK_UNKNOWN = 4;
 
+	@Kroll.constant public static final int PROGRESS_UNKNOWN = -1;
+
     public enum State {
         UNKNOWN,
 
