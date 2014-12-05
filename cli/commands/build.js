@@ -375,10 +375,10 @@ function patchLogger(logger, cli) {
 				styleHeading(__('Command')),
 				'  ' + process.argv.join(' '),
 				''
-			].join('\n'););
+			].join('\n'));
 
 			logger.log.flush();
-			callback() ;
+			callback();
 		});
 	};
 
