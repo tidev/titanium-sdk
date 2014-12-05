@@ -28,6 +28,7 @@
 		"node-appc": "0.2.17",
 		"node-uuid": "~1.4.1",
 		"request": "~2.34.0",
+		"sprintf": "~0.1.4",
 		"temp": "~0.6.0",
 		"uglify-js": "~2.4.3",
 		"wrench": "~1.5.1",
