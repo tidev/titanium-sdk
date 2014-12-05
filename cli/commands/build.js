@@ -39,6 +39,9 @@ exports.extendedDesc = 'Builds an existing app or module project.';
 exports.config = function (logger, config, cli) {
 	fields.setup({ colors: cli.argv.colors });
 
+	// start patching the logger here
+	patchLogger(logger, cli);
+
 	return function (finished) {
 		cli.createHook('build.config', function (callback) {
 			ti.platformOptions(logger, config, cli, 'build', function (platformConf) {
@@ -103,13 +106,13 @@ exports.config = function (logger, config, cli) {
 									// check if current directory is a valid dir
 									// if not output meaningful error message
 									projectDir = conf.options['project-dir'].default;
-									if (!fs.existsSync(path.join(projectDir, 'tiapp.xml'))) {
-										return;
-									}
 								}
 
-								// start file logging here
-								patchLogger(logger, cli);
+								projectDir = appc.fs.resolvePath(projectDir);
+
+								if (!fs.existsSync(path.join(projectDir, 'tiapp.xml'))) {
+									return;
+								}
 
 								// load the tiapp.xml
 								try {
@@ -172,14 +175,12 @@ exports.config = function (logger, config, cli) {
 									}
 									tiappFile = path.join(dir, 'tiapp.xml');
 								}
-
 								callback(null, dir);
 							}
 						}
 					}, ti.commonOptions(logger, config)),
 					platforms: platformConf
 				};
-				logger.log(logBanner(cli));
 				callback(null, conf);
 			});
 		})(function (err, result) {
@@ -197,24 +198,26 @@ exports.validate = function (logger, config, cli) {
 	// since we need validate() to be async, we return a function in which the cli
 	// will immediately call
 	return function (finished) {
-		function next(result) {
-			if (result !== false) {
-				// no error, load the tiapp.xml plugins
-				ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
+		logger.log.init(function () {
+			function next(result) {
+				if (result !== false) {
+					// no error, load the tiapp.xml plugins
+					ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
+						finished(result);
+					});
+				} else {
 					finished(result);
-				});
-			} else {
-				finished(result);
+				}
 			}
-		}
 
-		// loads the platform specific bulid command and runs its validate() function
-		var result = ti.validatePlatformOptions(logger, config, cli, 'build');
-		if (result && typeof result == 'function') {
-			result(next);
-		} else {
-			next(result);
-		}
+			// loads the platform specific bulid command and runs its validate() function
+			var result = ti.validatePlatformOptions(logger, config, cli, 'build');
+			if (result && typeof result == 'function') {
+				result(next);
+			} else {
+				next(result);
+			}
+		});
 	};
 };
 
@@ -270,21 +273,10 @@ exports.run = function (logger, config, cli, finished) {
  * @param {Object} cli - The CLI instance
  */
 function patchLogger(logger, cli) {
-	var origLoggerLog = logger.log,
-		platform = ti.resolvePlatform(cli.argv.platform),
-		buildDir = path.join(cli.argv['project-dir'], 'build'),
-		logFileStream;
-
-	fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir);
-
-	// create our write stream
-	logFileStream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'ascii' });
-
-	// write the banner to start out the log
-	logFileStream.write(logBanner(cli));
+	var origLoggerLog = logger.log;
 
 	// override the existing log function
-	logger.log = function() {
+	logger.log = function patchedLog() {
 		// most of this copied from the CLI's logger.js logger.log() function
 		var args = Array.prototype.slice.call(arguments),
 			padLevels = logger.padLevels,
@@ -297,7 +289,7 @@ function patchLogger(logger, cli) {
 		args[0] in logger.levels || args.unshift('_');
 
 		// turn off padding
-		logger.padLevels = args[0] != '_';
+		logger.padLevels = args[0] !== '_';
 
 		// get rid of any null args
 		while (args.length && args[args.length-1] == null) args.pop();
@@ -315,37 +307,87 @@ function patchLogger(logger, cli) {
 		args[1] = args[1].replace(/:\s{1}/, ' ');
 
 		// add [INFO] type prefixes for each line
-		prefix = (args[0] != "_") ? "[" + args[0].toUpperCase() + "]" + ((args[0].length===5) ? '  ' : '   ') : "";
+		prefix = (args[0] != '_') ? '[' + args[0].toUpperCase() + ']' + ((args[0].length===5) ? '  ' : '   ') : '';
 
-		// log it to our log file, stripping out the color codes
-		logFileStream.write("\n" + prefix + args[1].replace(/\x1B\[\d+m/g, ''));
+		if (logger.log.filestream) {
+			if (logger.log.buffer) {
+				logger.log.filestream.write(logger.log.buffer);
+				logger.log.buffer = null;
+			}
+
+			// log it to our log file, stripping out the color codes
+			logger.log.filestream.write('\n' + prefix + args[1].replace(/\x1B\[\d+m/g, ''));
+		} else {
+			logger.log.buffer += '\n' + prefix + args[1].replace(/\x1B\[\d+m/g, '');
+		}
 
 		// call the original logger with our cleaned up args
 		origLoggerLog.apply(logger, [args[0], args.length > 2 ? sprintf.apply(null, args.slice(1)) : args[1]]);
 
 		// restore padding
 		logger.padLevels = padLevels;
-	}
-}
+	};
 
-/**
-* Outputs environment details at the top of the log file
-* for each run of `titanium build`
-* @param {Object} cli - The CLI instance
-*
-* See http://en.wikipedia.org/wiki/Darwin_%28operating_system%29#Release_history for
-* os.release() to version mapping for OS X. (e.g. 14.0.0 is v10.10 Yosemite)
-*/
-function logBanner(cli) {
-	var os = require('os');
-	return new Date().toLocaleString() + '\n\n' +
-		'Build Environment \n' +
-		'   Host OS         = ' + (os.platform()==='darwin' ? "OS X" : os.platform()) + ' ' + os.release() + ', ' + os.arch() + '\n'  +
-		'   Target platform = ' + ti.resolvePlatform(cli.argv.platform) + '\n'  +
-		'   CLI version     = ' + cli.version + '\n'  +
-		'   SDK version     = ' + cli.argv.sdk + '\n' +
-		'   SDK path        = ' + cli.sdk.path + '\n' +
-		'   Node version    = ' + process.version + '\n' +
-		'   Command         = ' + cli.argv.$ + ' ' + cli.argv.$_.join(' ') + '\n' +
-		'\n';
+	logger.log.init = function (callback) {
+		var platform = ti.resolvePlatform(cli.argv.platform),
+			buildDir = path.join(cli.argv['project-dir'], 'build');
+
+		fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir);
+
+		// create our write stream
+		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'ascii' });
+
+		function styleHeading(s) {
+			return ('' + s).bold;
+		}
+
+		function styleValue(s) { 
+			return ('' + s).magenta;
+		}
+
+		function rpad(s) { 
+			return appc.string.rpad(s, 27);
+		}
+
+		cli.env.getOSInfo(function (osInfo) {
+			logger.log([
+				new Date().toLocaleString(),
+				'',
+				styleHeading(__('Operating System')),
+				'  ' + rpad(__('Name'))            + ' = ' + styleValue(osInfo.os),
+				'  ' + rpad(__('Version'))         + ' = ' + styleValue(osInfo.osver),
+				'  ' + rpad(__('Architecture'))    + ' = ' + styleValue(osInfo.ostype),
+				'  ' + rpad(__('# CPUs'))          + ' = ' + styleValue(osInfo.oscpu),
+				'  ' + rpad(__('Memory'))          + ' = ' + styleValue(osInfo.memory),
+				'',
+				styleHeading(__('Node.js')),
+				'  ' + rpad(__('Node.js Version')) + ' = ' + styleValue(osInfo.node),
+				'  ' + rpad(__('npm Version'))     + ' = ' + styleValue(osInfo.npm),
+				'',
+				styleHeading(__('Titanium CLI')),
+				'  ' + rpad(__('CLI Version'))     + ' = ' + styleValue(cli.version),
+				'',
+				styleHeading(__('Titanium SDK')),
+				'  ' + rpad(__('SDK Version'))     + ' = ' + styleValue(cli.argv.sdk),
+				'  ' + rpad(__('SDK Path'))        + ' = ' + styleValue(cli.sdk.path),
+				'  ' + rpad(__('Target Platform')) + ' = ' + styleValue(ti.resolvePlatform(cli.argv.platform)),
+				'',
+				styleHeading(__('Command')),
+				'  ' + process.argv.join(' '),
+				''
+			].join('\n'));
+
+			logger.log.flush();
+			callback();
+		});
+	};
+
+	logger.log.flush = function () {
+		if (logger.log.filestream && logger.log.buffer) {
+			logger.log.filestream.write(logger.log.buffer);
+			logger.log.buffer = null;
+		}
+	};
+
+	logger.log.buffer = '';
 }
