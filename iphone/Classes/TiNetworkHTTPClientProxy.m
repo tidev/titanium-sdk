@@ -305,12 +305,7 @@ extern NSString * const TI_APPLICATION_GUID;
         if(_uploadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [response readyState] == APSHTTPResponseStateDone) {
             _uploadTime = 0;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
-            float uploadProgress = [response uploadProgress];
-            // cap progress to 1 and floor at 0
-            if (uploadProgress > 1 || uploadProgress < 0) {
-                uploadProgress = 1.0f;
-			}
-            [eventDict setValue:[NSNumber numberWithFloat: uploadProgress] forKey:@"progress"];
+            [eventDict setValue:[NSNumber numberWithFloat: [response uploadProgress]] forKey:@"progress"];
             [self fireCallback:@"onsendstream" withArg:eventDict withSource:self];
         }
         if(_uploadTime == 0) {
