@@ -864,8 +864,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 	
 	CLLocationCoordinate2D latlon = [newLocation coordinate];
 	
-	
-	NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:
+	NSMutableDictionary * data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
 						   [NSNumber numberWithFloat:latlon.latitude],@"latitude",
 						   [NSNumber numberWithFloat:latlon.longitude],@"longitude",
 						   [NSNumber numberWithFloat:[newLocation altitude]],@"altitude",
@@ -875,6 +874,14 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 						   [NSNumber numberWithFloat:[newLocation speed]],@"speed",
 						   [NSNumber numberWithLongLong:(long long)([[newLocation timestamp] timeIntervalSince1970] * 1000)],@"timestamp",
 						   nil];
+    
+    if ([TiUtils isIOS8OrGreater]) {
+        NSDictionary *floor = [NSDictionary dictionaryWithObjectsAndKeys:
+                               [NSNumber numberWithInteger:[[newLocation floor] level]],@"level",
+                               nil];
+        [data setObject:floor forKey:@"floor"];
+    }
+    
 	return data;
 }
 
