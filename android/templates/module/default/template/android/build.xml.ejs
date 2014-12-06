@@ -6,6 +6,24 @@
 	<property name="ti.module.root" location="${basedir}"/>
 	<property file="build.properties" />
 
+	<!-- Make sure 'architectures' is in manifest file -->
+	<property file="${ti.module.root}/manifest" prefix="manifest"/>
+	<fail message="Missing required manifest key 'architectures'.">
+		<condition>
+			<not>
+				<isset property="manifest.architectures"/>
+			</not>
+		</condition>
+	</fail>
+
+	<fail message="Manifest key 'architectures' has no value.">
+		<condition>
+			<not>
+				<length string="${manifest.architectures}" trim="true" when="greater" length="0"/>
+			</not>
+		</condition>
+	</fail>
+
 	<!-- Copy documentation subdirectories -->
 	<mkdir dir="${basedir}/documentation"/>
 	<copy todir="${basedir}/documentation">
