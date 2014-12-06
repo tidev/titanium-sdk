@@ -1,3 +1,16 @@
+0.1.5 (12/05/2014)
+-------------------
+ * Made wstool launch of WinStore apps more robust
+
+0.1.4 (12/03/2014)
+-------------------
+ * Detects Visual Studio Express editions and have a better error reporting when Visual Studio is not found
+ * Added missing node-appc reference in the index.js
+
+0.1.3 (12/01/2014)
+-------------------
+ * add option to skipLaunch when installing Windows Phone app
+
 0.1.2 (11/25/2014)
 -------------------
  * Added detection of the XapSignTool executable
