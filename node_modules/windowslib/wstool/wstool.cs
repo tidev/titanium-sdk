@@ -44,7 +44,13 @@ namespace wstool
 				foreach (var appKeyName in appListKey.GetSubKeyNames()) {
 					if (appKeyName.IndexOf(appid + "_" + version + "_") == 0) {
 						var appKey = appListKey.OpenSubKey(appKeyName);
-						var subKey = appKey.OpenSubKey("Server\\App.wwa");
+						var appClassKey = appKey.OpenSubKey("ActivatableClassId\\App");
+						if (appClassKey == null)
+						{
+							appClassKey = appKey.OpenSubKey("ActivatableClassId\\App.wwa");
+						}
+						String serverId = (String)appClassKey.GetValue("Server");
+						var subKey = appKey.OpenSubKey("Server\\" + serverId);
 						appUserModelId = (String)subKey.GetValue("AppUserModelId");
 						break;
 					}
@@ -57,10 +63,16 @@ namespace wstool
 					if (p == 0) {
 						int q = appKeyName.IndexOf("_", p + 1);
 						if (q != -1) {
-							string thisVersion = appKeyName.Substring(p + appid.Length + 1, q);
+							string thisVersion = appKeyName.Substring(p + 1, q);
 							if (lastVersion == null || String.Compare(thisVersion, lastVersion, true) > 0) {
 								var appKey = appListKey.OpenSubKey(appKeyName);
-								var subKey = appKey.OpenSubKey("Server\\App.wwa");
+								var appClassKey = appKey.OpenSubKey("ActivatableClassId\\App");
+								if (appClassKey == null)
+								{
+									appClassKey = appKey.OpenSubKey("ActivatableClassId\\App.wwa");
+								}
+								String serverId = (String)appClassKey.GetValue("Server");
+								var subKey = appKey.OpenSubKey("Server\\" + serverId);
 								if (subKey != null) {
 									appUserModelId = (String)subKey.GetValue("AppUserModelId");
 									lastVersion = thisVersion;
