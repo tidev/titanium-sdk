@@ -341,11 +341,11 @@ function patchLogger(logger, cli) {
 			return ('' + s).bold;
 		}
 
-		function styleValue(s) { 
+		function styleValue(s) {
 			return ('' + s).magenta;
 		}
 
-		function rpad(s) { 
+		function rpad(s) {
 			return appc.string.rpad(s, 27);
 		}
 
@@ -373,7 +373,7 @@ function patchLogger(logger, cli) {
 				'  ' + rpad(__('Target Platform')) + ' = ' + styleValue(ti.resolvePlatform(cli.argv.platform)),
 				'',
 				styleHeading(__('Command')),
-				'  ' + process.argv.join(' '),
+				'  ' + styleValue(process.argv.join(' ')),
 				''
 			].join('\n'));
 
