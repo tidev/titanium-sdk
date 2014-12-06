@@ -13,7 +13,7 @@
 	#import "XHRBridge.h"
 #endif
 #import "TiRootViewController.h"
-#import "JavaScriptCore/TiContextRef.h"
+#import "JavaScriptCore/JSContextRef.h"
 
 extern BOOL applicationInMemoryPanic;
 

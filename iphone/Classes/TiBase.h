@@ -7,6 +7,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import "defines.h"
+#import "TiToJS.h"
 
 #ifndef TI_BASE_H
 #define TI_BASE_H

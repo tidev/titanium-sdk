@@ -1,10 +1,3 @@
-/**
- * Appcelerator Titanium License
- * This source code and all modifications done by Appcelerator
- * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009-2014 by Appcelerator, Inc.
- */
-
 /*
  * Copyright (C) 2013 Apple Inc. All rights reserved.
  *
@@ -30,13 +23,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#import <JavaScriptCore/TiCore.h>
+#import <JavaScriptCore/JavaScriptCore.h>
 
 #if JSC_OBJC_API_ENABLED
 
 /*!
 @protocol
-@abstract TiExport provides a declarative way to export Objective-C instance methods,
+@abstract JSExport provides a declarative way to export Objective-C instance methods,
  class methods, and properties to JavaScript code.
 
 @discussion When a JavaScript value is created from an instance of an Objective-C class
@@ -44,7 +37,7 @@
  be created.
 
  In JavaScript, inheritance is supported via a chain of prototype objects, and
- for each Objective-C class (and per TiContext) an object appropriate for use
+ for each Objective-C class (and per JSContext) an object appropriate for use
  as a prototype will be provided. For the class NSObject the prototype object
  will be the JavaScript context's Object Prototype. For all other Objective-C
  classes a Prototype object will be created. The Prototype object for a given
@@ -62,7 +55,7 @@
  By default no methods or properties of the Objective-C class will be exposed
  to JavaScript; however methods and properties may explicitly be exported.
  For each protocol that a class conforms to, if the protocol incorporates the
- protocol TiExport, then the protocol will be interpreted as a list of methods
+ protocol JSExport, then the protocol will be interpreted as a list of methods
  and properties to be exported to JavaScript.
 
  For each instance method being exported a corresponding JavaScript function
@@ -73,7 +66,7 @@
 
 <pre>
 @textblock
-    @protocol MyClassJavaScriptMethods <TiExport>
+    @protocol MyClassJavaScriptMethods <JSExport>
     - (void)foo;
     @end
 
@@ -91,7 +84,7 @@
  If an instance of <code>MyClass</code> is converted to a JavaScript value, the resulting
  wrapper object will (via its prototype) export the method <code>foo</code> to JavaScript,
  since the class conforms to the <code>MyClassJavaScriptMethods</code> protocol, and this
- protocol incorporates <code>TiExport</code>. <code>bar</code> will not be exported.
+ protocol incorporates <code>JSExport</code>. <code>bar</code> will not be exported.
 
  Properties, arguments, and return values of the following types are
  supported:
@@ -109,20 +102,20 @@
  Objective-C Class: - where the type is a pointer to a specified Objective-C
     class, conversion is consistent with valueWithObjectOfClass/toObject.
 
- struct types: C struct types are supported, where TiValue provides support
+ struct types: C struct types are supported, where JSValue provides support
     for the given type. Support is built in for CGPoint, NSRange, CGRect, and
     CGSize.
 
  block types: Blocks can only be passed if they had been converted 
     successfully by valueWithObject/toObject previously.
 
- For any interface that conforms to TiExport the normal copying conversion for
+ For any interface that conforms to JSExport the normal copying conversion for
  built in types will be inhibited - so, for example, if an instance that
- derives from NSString but conforms to TiExport is passed to valueWithObject:
+ derives from NSString but conforms to JSExport is passed to valueWithObject:
  then a wrapper object for the Objective-C object will be returned rather than
  a JavaScript string primitive.
 */
-@protocol TiExport
+@protocol JSExport
 @end
 
 /*!
@@ -137,23 +130,23 @@
   - Any lowercase letter that had followed a colon will be capitalized.
 
  Under the default conversion a selector <code>doFoo:withBar:</code> will be exported as
- <code>doFooWithBar</code>. The default conversion may be overriden using the TiExportAs
+ <code>doFooWithBar</code>. The default conversion may be overriden using the JSExportAs
  macro, for example to export a method <code>doFoo:withBar:</code> as <code>doFoo</code>:
 
 <pre>
 @textblock
-    @protocol MyClassJavaScriptMethods <TiExport>
-    TiExportAs(doFoo,
+    @protocol MyClassJavaScriptMethods <JSExport>
+    JSExportAs(doFoo,
     - (void)doFoo:(id)foo withBar:(id)bar
     );
     @end
 @/textblock
 </pre>
 
- Note that the TiExport macro may only be applied to a selector that takes one
+ Note that the JSExport macro may only be applied to a selector that takes one
  or more argument.
 */
-#define TiExportAs(PropertyName, Selector) \
+#define JSExportAs(PropertyName, Selector) \
     @optional Selector __JS_EXPORT_AS__##PropertyName:(id)argument; @required Selector
 
 #endif
