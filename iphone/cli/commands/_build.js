@@ -395,8 +395,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							desc: __('forces files to be copied instead of symlinked for %s builds only', 'simulator'.cyan)
 						},
 						'force-copy-all': {
-							desc: __('identical to the %s flag, except this will also copy the %s libTiCore.a file', '--force-copy',
-								humanize.filesize(fs.statSync(path.join(_t.platformPath, 'libTiCore.a')).size, 1024, 1).toUpperCase().cyan)
+							desc: __('[DEPRECATED] identical to the %s flag (provided for backwards compatability)')
 						},
 						'retina': {
 							desc: __('use the retina version of the iOS Simulator')
@@ -1189,7 +1188,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	if (cli.argv.xcode) {
 		cli.argv['skip-js-minify'] = true; // never minify Xcode builds
 		cli.argv['force-copy']     = true; // if building from xcode, we'll force files to be copied instead of symlinked
-		cli.argv['force-copy-all'] = false; // we don't want to copy the big libTiCore.a file around by default
+		cli.argv['force-copy-all'] = false;
 	}
 
 	// if in the prepare phase and doing a device/dist build...
@@ -1699,20 +1698,6 @@ iOSBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForceRebu
 		return true;
 	}
 
-	// check that we have a libTiCore hash
-	if (!manifest.tiCoreHash) {
-		this.logger.info(__('Forcing rebuild: incomplete version file %s', this.buildVersionFile.cyan));
-		return true;
-	}
-
-	// check if the libTiCore hashes are different
-	if (this.libTiCoreHash !== manifest.tiCoreHash) {
-		this.logger.info(__('Forcing rebuild: libTiCore hash changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.tiCoreHash));
-		this.logger.info('  ' + __('Now: %s', this.libTiCoreHash));
-		return true;
-	}
-
 	// check if the titanium sdk paths are different
 	if (manifest.iosSdkPath !== this.titaniumIosSdkPath) {
 		this.logger.info(__('Forcing rebuild: Titanium SDK path changed since last build'));
@@ -1855,9 +1840,6 @@ iOSBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForceRebu
 };
 
 iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile(next) {
-	// determine the libTiCore hash
-	this.libTiCoreHash = hash(fs.readFileSync(path.join(this.titaniumIosSdkPath, 'libTiCore.a')));
-
 	// figure out all of the modules currently in use
 	this.modulesHash = hash(this.tiapp.modules ? this.tiapp.modules.filter(function (m) {
 		return !m.platform || /^iphone|ipad|ios|commonjs$/.test(m.platform);
@@ -2245,7 +2227,7 @@ iOSBuilder.prototype.createEntitlementsPlist = function createEntitlementsPlist(
 iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 	var xcodeDir = path.join(this.buildDir, this.tiapp.name + '.xcodeproj'),
 		namespace = (function (name) {
-			name = name.replace(/-/g, '_').replace(/\W/g, '')
+			name = name.replace(/-/g, '_').replace(/\W/g, '');
 			return /^[0-9]/.test(name) ? 'k' + name : name;
 		}(this.tiapp.name)),
 		copyFileRegExps = [
@@ -2266,7 +2248,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 			ignoreDirs: this.ignoreDirs,
 			ignoreFiles: /^(bridge\.txt|libTitanium\.a|\.gitignore|\.npmignore|\.cvsignore|\.DS_Store|\._.*|[Tt]humbs.db|\.vspscc|\.vssscc|\.sublime-project|\.sublime-workspace|\.project|\.tmproj)$'/,
 			callback: function (src, dest, contents, logger) {
-				if (extRegExp.test(src) && src.indexOf('TiCore') === -1) {
+				if (extRegExp.test(src)) {
 					logger && logger(__('Processing %s', src.cyan));
 					for (var i = 0, l = copyFileRegExps.length; i < l; i++) {
 						contents = contents.toString().replace(copyFileRegExps[i][0], copyFileRegExps[i][1]);
@@ -2277,7 +2259,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 		};
 
 	this.logger.info(__('Copying Xcode iOS files'));
-	['Classes', 'headers'].forEach(function (dir) {
+	['Classes'].forEach(function (dir) {
 		appc.fs.copyDirSyncRecursive(
 			path.join(this.titaniumIosSdkPath, dir),
 			path.join(this.buildDir, dir),
@@ -2314,7 +2296,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 	var proj = fs.readFileSync(path.join(this.titaniumIosSdkPath, this.platformName, 'Titanium.xcodeproj', 'project.pbxproj')).toString();
 	proj = proj.replace(/\.\.\/Classes/g, 'Classes')
 		.replace(/\.\.\/Resources/g, 'Resources')
-		.replace(/\.\.\/headers/g, 'headers')
 		.replace(/\.\.\/lib/g, 'lib')
 		.replace(/Titanium\.plist/g, 'Info.plist')
 		.replace(/Titanium\-KitchenSink/g, this.tiapp.name)
@@ -2452,7 +2433,6 @@ iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 		developerName: this.certDeveloperName,
 		distributionName: this.certDistributionName,
 		iosSdkPath: this.titaniumIosSdkPath,
-		tiCoreHash: this.libTiCoreHash,
 		modulesHash: this.modulesHash,
 		modulesNativeHash: this.modulesNativeHash,
 		gitHash: ti.manifest.githash,
@@ -2574,13 +2554,6 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 			return uuid.v4().toUpperCase().replace(/-/g, '').substring(0, 24);
 		}
 
-		projectContents.split('\n').forEach(function (line) {
-			line.indexOf('/* libTiCore.a */;') !== -1 && fileMarkers.push(line);
-			line.indexOf('/* libTiCore.a */ =') !== -1 && refMarkers.push(line);
-			line.indexOf('/* libTiCore.a in Frameworks */,') !== -1 && frameworkMarkers.push(line);
-			line.indexOf('/* libTiCore.a */,') !== -1 && groupMarkers.push(line);
-		});
-
 		fileMarkers.forEach(function (marker) {
 			var m = marker.match(/([0-9a-zA-Z]+) \/\*/);
 			if (m) {
@@ -2599,7 +2572,6 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					newUUID = makeUUID(),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, lib.libName)
 						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
 						.replace(new RegExp(m[1].trim(), 'g'), newUUID);
 				fileMarkers2FileRefs[m[1].trim()] = newUUID;
@@ -2612,8 +2584,6 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/lib\/libTiCore\.a/g, '"' + lib.libFile.replace(/"/g, '\\"') + '"')
-						.replace(/libTiCore\.a/g, lib.libName)
 						.replace(/SOURCE_ROOT/g, '"<absolute>"')
 						.replace(new RegExp(m[1].trim(), 'g'), newGroupUUID);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
@@ -2624,7 +2594,6 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					end = begin + marker.length,
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, lib.libName)
 						.replace(new RegExp(groupUUID, 'g'), newGroupUUID);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
 			});
@@ -2635,7 +2604,6 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, lib.libName)
 						.replace(new RegExp(m[1].trim(), 'g'), fileMarkers2FileRefs[m[1].trim()]);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
 			});
@@ -2751,18 +2719,6 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries(next
 		dest;
 
 	wrench.mkdirSyncRecursive(dir);
-
-	dest = path.join(dir, 'libTiCore.a');
-	if (this.cli.argv['force-copy-all']) {
-		fs.existsSync(dest) || appc.fs.copyFileSync(path.join(this.titaniumIosSdkPath, 'libTiCore.a'), dest, { logger: this.logger.debug });
-	} else {
-		if (!fs.existsSync(dest) || !fs.lstatSync(dest).isSymbolicLink() || fs.readlinkSync(dest).indexOf(this.titaniumSdkVersion) === -1) {
-			try {
-				fs.unlinkSync(dest);
-			} catch (e) {}
-			fs.symlinkSync(path.join(this.titaniumIosSdkPath, 'libTiCore.a'), dest);
-		}
-	}
 
 	dest = path.join(dir, 'libtiverify.a');
 	fs.existsSync(dest) || appc.fs.copyFileSync(path.join(this.titaniumIosSdkPath, 'libtiverify.a'), dest, { logger: this.logger.debug });

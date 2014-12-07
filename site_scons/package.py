@@ -257,11 +257,6 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 				if os.path.isfile(dfpath) and os.path.splitext(df)[1]=='.h':
 					 zf.write(dfpath,'%s/iphone/include/%s/%s' % (basepath,f,df))
 
-	tp_headers_dir=os.path.join(top_dir,'iphone','headers','JavaScriptCore')
-	for f in os.listdir(tp_headers_dir):
-		if os.path.isfile(os.path.join(tp_headers_dir,f)) and os.path.splitext(f)[1]=='.h':
-			 zf.write(os.path.join(tp_headers_dir,f),'%s/iphone/include/JavaScriptCore/%s' % (basepath,f))
-
 	subs = {
 		"__VERSION__":version,
 		"__TIMESTAMP__":ts,

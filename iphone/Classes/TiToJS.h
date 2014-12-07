@@ -79,9 +79,7 @@
 #define TiType JSType
 #define TiValueCreateJSONString JSValueCreateJSONString
 #define TiValueGetType JSValueGetType
-#define TiValueIsArray JSValueIsArray
 #define TiValueIsBoolean JSValueIsBoolean
-#define TiValueIsDate JSValueIsDate
 #define TiValueIsEqual JSValueIsEqual
 #define TiValueIsInstanceOfConstructor JSValueIsInstanceOfConstructor
 #define TiValueIsNull JSValueIsNull
