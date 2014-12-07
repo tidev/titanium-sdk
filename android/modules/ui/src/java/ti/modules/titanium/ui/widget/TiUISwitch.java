@@ -13,6 +13,8 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.android.AndroidModule;
@@ -20,7 +22,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.ToggleButton;
+import android.support.v7.widget.SwitchCompat;
 
 public class TiUISwitch extends TiUIView
 	implements OnCheckedChangeListener
@@ -59,12 +61,6 @@ public class TiUISwitch extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_TITLE) && cb instanceof CheckBox) {
 			cb.setText(TiConvert.toString(d, TiC.PROPERTY_TITLE));
 		}
-		if (d.containsKey(TiC.PROPERTY_TITLE_OFF) && cb instanceof ToggleButton) {
-			((ToggleButton) cb).setTextOff(TiConvert.toString(d, TiC.PROPERTY_TITLE_OFF));
-		}
-		if (d.containsKey(TiC.PROPERTY_TITLE_ON) && cb instanceof ToggleButton) {
-			((ToggleButton) cb).setTextOn(TiConvert.toString(d, TiC.PROPERTY_TITLE_ON));
-		}
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
 		
 			cb.setChecked(TiConvert.toBoolean(d, TiC.PROPERTY_VALUE));
@@ -99,10 +95,6 @@ public class TiUISwitch extends TiUIView
 			setStyle(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_TITLE) && cb instanceof CheckBox) {
 			cb.setText((String) newValue);
-		} else if (key.equals(TiC.PROPERTY_TITLE_OFF) && cb instanceof ToggleButton) {
-			((ToggleButton) cb).setTextOff((String) newValue);
-		} else if (key.equals(TiC.PROPERTY_TITLE_ON) && cb instanceof ToggleButton) {
-			((ToggleButton) cb).setTextOff((String) newValue);
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			cb.setChecked(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
@@ -141,29 +133,27 @@ public class TiUISwitch extends TiUIView
 		switch (style) {
 			case AndroidModule.SWITCH_STYLE_CHECKBOX:
 				if (!(currentButton instanceof CheckBox)) {
-					button = new CheckBox(proxy.getActivity())
-					{
-						@Override
-						protected void onLayout(boolean changed, int left, int top, int right, int bottom)
-						{
-							super.onLayout(changed, left, top, right, bottom);
-							TiUIHelper.firePostLayoutEvent(proxy);
-						}
-					};
+					int checkboxId;
+					try {
+						checkboxId = TiRHelper.getResource("layout.ti_checkbox");
+					} catch (ResourceNotFoundException e) {
+						Log.e(TAG, "XML resources could not be found!!!");
+						return;
+					}
+					button = (CheckBox) proxy.getActivity().getLayoutInflater().inflate(checkboxId, null);
 				}
 				break;
 
 			case AndroidModule.SWITCH_STYLE_TOGGLEBUTTON:
-				if (!(currentButton instanceof ToggleButton)) {
-					button = new ToggleButton(proxy.getActivity())
-					{
-						@Override
-						protected void onLayout(boolean changed, int left, int top, int right, int bottom)
-						{
-							super.onLayout(changed, left, top, right, bottom);
-							TiUIHelper.firePostLayoutEvent(proxy);
-						}
-					};
+				if (!(currentButton instanceof SwitchCompat)) {
+                                        int switchCompatId;
+                                        try {
+                                                switchCompatId = TiRHelper.getResource("layout.ti_switch_compat");
+                                        } catch (ResourceNotFoundException e) {
+                                                Log.e(TAG, "XML resources could not be found!!!");
+                                                return;
+                                        }
+                                        button = (SwitchCompat) proxy.getActivity().getLayoutInflater().inflate(switchCompatId, null);
 				}
 				break;
 
