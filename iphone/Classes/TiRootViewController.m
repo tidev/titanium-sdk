@@ -852,16 +852,20 @@
 
 -(void)showControllerModal:(UIViewController*)theController animated:(BOOL)animated
 {
+    BOOL trulyAnimated = animated;
     UIViewController* topVC = [self topPresentedController];
     if ([topVC isKindOfClass:[TiErrorController class]]) {
         DebugLog(@"[ERROR] ErrorController is up. ABORTING showing of modal controller");
         return;
     }
     if ([TiUtils isIOS8OrGreater]) {
-        if ([topVC isKindOfClass:[UIAlertController class]] && ![theController isKindOfClass:[TiErrorController class]]) {
-            if ( ((UIAlertController*)topVC).preferredStyle == UIAlertControllerStyleAlert ) {
-                DebugLog(@"[ERROR] UIAlertController is up and showing an alert. ABORTING showing of modal controller");
-                return;
+        if ([topVC isKindOfClass:[UIAlertController class]]) {
+            if (((UIAlertController*)topVC).preferredStyle == UIAlertControllerStyleAlert ) {
+                trulyAnimated = NO;
+                if (![theController isKindOfClass:[TiErrorController class]]) {
+                    DebugLog(@"[ERROR] UIAlertController is up and showing an alert. ABORTING showing of modal controller");
+                    return;
+                }
             }
         }
     }
@@ -874,7 +878,7 @@
         }
     }
     [self dismissKeyboard];
-    [topVC presentViewController:theController animated:animated completion:nil];
+    [topVC presentViewController:theController animated:trulyAnimated completion:nil];
 }
 
 -(void)hideControllerModal:(UIViewController*)theController animated:(BOOL)animated
@@ -883,8 +887,17 @@
     if (topVC != theController) {
         DebugLog(@"[WARN] Dismissing a view controller when it is not the top presented view controller. Will probably crash now.");
     }
+    BOOL trulyAnimated = animated;
     UIViewController* presenter = [theController presentingViewController];
-    [presenter dismissViewControllerAnimated:animated completion:^{
+    
+    if ([TiUtils isIOS8OrGreater]) {
+        if ([presenter isKindOfClass:[UIAlertController class]]) {
+            if (((UIAlertController*)presenter).preferredStyle == UIAlertControllerStyleAlert ) {
+                trulyAnimated = NO;
+            }
+        }
+    }
+    [presenter dismissViewControllerAnimated:trulyAnimated completion:^{
         if (presenter == self) {
             [self didCloseWindow:nil];
         } else {
@@ -894,6 +907,14 @@
                 id theProxy = [(id)presenter proxy];
                 if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
                     [(id<TiWindowProtocol>)theProxy gainFocus];
+                }
+            } else if ([TiUtils isIOS8OrGreater]){
+                //This code block will only execute when errorController is presented on top of an alert
+                if ([presenter isKindOfClass:[UIAlertController class]] && (((UIAlertController*)presenter).preferredStyle == UIAlertControllerStyleAlert)) {
+                    UIViewController* alertPresenter = [presenter presentingViewController];
+                    [alertPresenter dismissViewControllerAnimated:NO completion:^{
+                        [alertPresenter presentViewController:presenter animated:NO completion:nil];
+                    }];
                 }
             }
         }
