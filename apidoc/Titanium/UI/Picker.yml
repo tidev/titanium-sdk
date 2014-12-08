@@ -407,7 +407,7 @@ properties:
     summary: Font to use for text.
     description: |
         Only applicable to <Titanium.UI.PICKER_TYPE_DATE> and <Titanium.UI.PICKER_TYPE_TIME> 
-        picker types for android. For <Titanium.UI.PICKER_PLAIN>, refer to <Titanium.UI.PickerColumn>
+        picker types for android. For <Titanium.UI.PICKER_TYPE_PLAIN>, refer to <Titanium.UI.PickerColumn>
         for android, and <Titanium.UI.PickerRow> for iphone / ipad.
     type: Font
     platforms: [android]
