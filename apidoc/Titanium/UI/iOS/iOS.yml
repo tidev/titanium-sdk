@@ -821,6 +821,8 @@ properties:
     
   - name: COLOR_SCROLLVIEW_BACKGROUND
     summary: Returns the iOS system texture used to render the area behind scrollable content.
+    deprecated:
+        since: "3.4.2"
     description: |
         Corresponds to iOS `UIColor` `scrollViewTexturedBackgroundColor`.
 
@@ -831,6 +833,8 @@ properties:
     
   - name: COLOR_VIEW_FLIPSIDE_BACKGROUND
     summary: Returns the iOS system texture used for the back side of a view while it is being flipped.
+    deprecated:
+        since: "3.4.2"
     description: |
         Corresponds to iOS `UIColor` `viewFlipsideBackgroundColor`.
 
@@ -841,6 +845,8 @@ properties:
 
   - name: COLOR_UNDER_PAGE_BACKGROUND
     summary: Returns the iOS system texture used to render the background of a page.
+    deprecated:
+        since: "3.4.2"
     description: |
         Corresponds to iOS `UIColor` `underPageBackgroundColor`.
 
