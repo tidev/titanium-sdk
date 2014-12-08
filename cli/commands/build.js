@@ -61,6 +61,10 @@ exports.config = function (logger, config, cli) {
 						'skip-js-minify': {
 							default: false,
 							desc: __('bypasses JavaScript minification; %s builds are never minified; only supported for %s and %s', 'simulator'.cyan, 'Android'.cyan, 'iOS'.cyan)
+						},
+						'export': {
+							abbr: 'e',
+							desc: __('exports a project to a standalone project without any dependencies on Titanium')
 						}
 					},
 					options: appc.util.mix({

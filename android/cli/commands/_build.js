@@ -972,6 +972,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		this.minifyJS = false;
 	}
 
+	if (cli.argv['export']) {
+		this.exportBuild = true;
+		this.cli.argv['build-only'] = true;
+	}
+
 	// check the app name
 	if (cli.tiapp.name.indexOf('&') != -1) {
 		if (config.get('android.allowAppNameAmpersands', false)) {
@@ -1701,6 +1706,11 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'writeBuildManifest',
 
 		function (next) {
+
+			if (this.exportBuild) {
+				this.exportProj();
+			}
+
 			if (!this.buildOnly && this.target == 'simulator') {
 				var delta = appc.time.prettyDiff(this.cli.startTime, Date.now());
 				this.logger.info(__('Finished building the application in %s', delta.cyan));
@@ -2240,7 +2250,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		moduleResPackages = this.moduleResPackages = [],
 		jsFilesToEncrypt = this.jsFilesToEncrypt = [],
 		htmlJsFiles = this.htmlJsFiles = {},
-		symlinkFiles = process.platform != 'win32' && this.config.get('android.symlinkResources', true),
+		symlinkFiles = process.platform != 'win32' && this.config.get('android.symlinkResources', true) && !this.exportBuild,
 		_t = this;
 
 	function copyDir(opts, callback) {
@@ -4206,6 +4216,131 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		jssFilesHash: this.jssFilesHash,
 		jarLibHash: this.jarLibHash
 	}, callback);
+};
+
+AndroidBuilder.prototype.exportProj = function exportProj() {
+	this.logger.info(__('Exporting build project in : %s', this.buildDir.cyan));
+
+	var libsDir = path.join(this.buildDir, 'libs'),
+		genDir = path.join(this.buildDir, 'gen'),
+		srcDir = path.join(this.buildDir, 'src'),
+		binAssetsDir = path.join(this.buildDir, 'bin', 'assets'),
+		assetsDir = path.join(this.buildDir, 'assets'),
+		filesToCopy = [
+			path.join(this.projectDir,'tiapp.xml'),
+			path.join(binAssetsDir, 'app.json'),
+			path.join(binAssetsDir, 'index.json')
+		],
+		applicationJavaFile = path.join(srcDir, this.appid.split('.').join(path.sep), this.classname + 'Application.java'),
+		applicationFileData,
+		hasNativeModules = this.modules.length,
+		classpathFile = path.join(this.buildDir, '.classpath'),
+		dom,
+		root;
+
+	if (!fs.existsSync(libsDir)) {
+		fs.mkdirSync(libsDir);
+	}
+
+	// write the required Eclipse/ADT .project, .classpath and project.properties files.
+	fs.writeFileSync(path.join(this.buildDir, '.project'), ejs.render(fs.readFileSync(path.join(this.templatesDir, 'project')).toString(), this));
+	fs.writeFileSync(path.join(this.buildDir, 'project.properties'), ejs.render(fs.readFileSync(path.join(this.templatesDir, 'default.properties')).toString(), this));
+	afs.copyFileSync(path.join(this.templatesDir, 'classpathExport'), classpathFile, { logger: this.logger.debug });
+
+	// copy bin/assets/app.json to assets/app.json
+	// copy bin/assets/index.json to assets/index.json
+	// copy Resources assets folder
+	// copy tiapp.xml to assets folder
+	afs.copyDirSyncRecursive(
+		path.join(this.projectDir, 'Resources'),
+		path.join(assetsDir, 'Resources'),
+		{
+			preserve: true,
+			logger: this.logger.debug
+		}
+	);
+
+	filesToCopy.forEach(function (file) {
+		if (fs.existsSync(file)) {
+			afs.copyFileSync(
+				file,
+				assetsDir,
+				{
+					logger: this.logger.debug
+				}
+			);
+		}
+	}, this);
+
+	// copy files in gen dir to src dir except "R.java"
+	afs.copyDirSyncRecursive(
+		genDir,
+		srcDir,
+		{
+			preserve: true,
+			logger: this.logger.debug,
+			ignoreFiles: /^R\.java$/
+		}
+	);
+
+	// get rid of calls to TiVerify in Application.java
+	if (fs.existsSync(applicationJavaFile)) {
+		applicationFileData = fs.readFileSync(applicationJavaFile).toString();
+		applicationFileData = applicationFileData.replace(/.*(verify\.verify|TiVerify).*\n/gm,'');
+		fs.writeFileSync(applicationJavaFile, applicationFileData);
+	}
+
+	// copy all .so & .jar files
+	afs.copyDirSyncRecursive(
+		path.join(this.platformPath, 'native', 'libs'),
+		libsDir,
+		{
+			preserve: true,
+			logger: this.logger.debug
+		}
+	);
+
+	// check if there are native modules, otherwise don't need to update .classpath
+	if (hasNativeModules) {
+		dom = new DOMParser().parseFromString(fs.readFileSync(classpathFile, 'utf-8'));
+		root = dom.documentElement;
+	}
+
+	this.modules.forEach(function(module) {
+		this.jarLibraries[module.jarFile] = 1;
+		module.abis.forEach(function(abisDir) {
+			afs.copyFileSync(
+				path.join(module.modulePath, 'libs', abisDir, 'lib' + module.id + '.so'),
+				path.join(libsDir, abisDir),
+				{
+					logger: this.logger.debug
+				}
+			);
+		}, this);
+
+		var node = dom.createElement('classpathentry');
+		node.setAttribute('kind', 'lib');
+		node.setAttribute('path', 'libs/' + module.jarName);
+		root.appendChild(dom.createTextNode('\t'));
+		root.appendChild(node);
+		root.appendChild(dom.createTextNode('\n'));
+
+	}, this);
+
+	if (hasNativeModules) {
+		fs.writeFileSync(path.join(this.buildDir, '.classpath'), '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
+	}
+
+	Object.keys(this.jarLibraries).map(function (jarFile) {
+		afs.copyFileSync(
+			jarFile,
+			libsDir,
+			{
+				logger: this.logger.debug
+			}
+		);
+	}, this);
+
 };
 
 // create the builder instance and expose the public api

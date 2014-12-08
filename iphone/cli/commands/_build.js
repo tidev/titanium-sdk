@@ -1064,6 +1064,10 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		this.minifyJS = false;
 	}
 
+	if (cli.argv['export']) {
+		this.exportBuild = true;
+	}
+
 	// at this point we've validated everything except underscores in the app id
 	if (!config.get('app.skipAppIdValidation') && !cli.tiapp.properties['ti.skipAppIdValidation']) {
 		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(cli.tiapp.id)) {
@@ -1364,6 +1368,28 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 
 	// force the platform to "ios" just in case it was "iphone" so that plugins can reference it
 	cli.argv.platform = 'ios';
+
+	// creating an export build only
+	if (this.exportBuild) {
+		series(this, [
+			'initialize',
+			'loginfo',
+
+			function (next) {
+				this.exportProj();
+				next();
+			},
+
+			'createInfoPlist',
+			'copyTitaniumLibraries',
+			'injectModulesIntoXcodeProject',
+			'xcodePrecompilePhase',
+			'optimizeImages'
+		], function () {
+			finished();
+		});
+		return;
+	}
 
 	// if in the xcode phase, bypass the pre, post, and finalize hooks for xcode builds
 	if (cli.argv.xcode) {
@@ -2284,38 +2310,50 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 		.replace(/Titanium_Prefix\.pch/g, this.tiapp.name + '_Prefix.pch')
 		.replace(/Titanium/g, namespace);
 
-	proj = injectCompileShellScript(
-		proj,
-		'Pre-Compile',
-		'export TITANIUM_PREFIX=\\"_Prefix-*\\"\\n'
-		+ 'echo \\"Xcode Pre-Compile Phase: Removing $SHARED_PRECOMPS_DIR/$PROJECT$TITANIUM_PREFIX\\"\\n'
-		+ 'find \\"$SHARED_PRECOMPS_DIR\\" -name \\"$PROJECT$TITANIUM_PREFIX\\" -print0 | xargs -0 rm -rf\\n'
-		+ 'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then\\n'
-		+ '    ' + (process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + this.platformName + ' --sdk \\"' + this.titaniumSdkName + '\\" --no-prompt --no-progress-bars --no-banner --no-colors --build-only --xcode\\n'
-		+ '    exit $?\\n'
-		+ 'else\\n'
-		+ '    echo \\"skipping pre-compile phase\\"\\n'
-		+ 'fi'
-	);
-	proj = injectCompileShellScript(
-		proj,
-		'Post-Compile',
-		"echo 'Xcode Post-Compile Phase: Touching important files'\\n"
-		+ 'touch -c Classes/ApplicationRouting.h Classes/ApplicationRouting.m Classes/ApplicationDefaults.m Classes/ApplicationMods.m Classes/defines.h\\n'
-		+ 'if [ \\"x$TITANIUM_CLI_IMAGES_OPTIMIZED\\" != \\"x\\" ]; then\\n'
-		+ '    if [ -f \\"$TITANIUM_CLI_IMAGES_OPTIMIZED\\" ]; then\\n'
-		+ '        echo \\"Xcode Post-Compile Phase: Image optimization finished before xcodebuild finished, continuing\\"\\n'
-		+ '    else\\n'
-		+ '        echo \\"Xcode Post-Compile Phase: Waiting for image optimization to complete\\"\\n'
-		+ '        echo \\"Xcode Post-Compile Phase: $TITANIUM_CLI_IMAGES_OPTIMIZED\\"\\n'
-		+ '        while [ ! -f \\"$TITANIUM_CLI_IMAGES_OPTIMIZED\\" ]\\n'
-		+ '        do\\n'
-		+ '            sleep 1\\n'
-		+ '        done\\n'
-		+ "        echo 'Xcode Post-Compile Phase: Image optimization complete, continuing'\\n"
-		+ '    fi\\n'
-		+ 'fi'
-	);
+	if (this.exportBuild) {
+		proj = injectCompileShellScript(
+			proj,
+			'Pre-Compile',
+			'export TITANIUM_PREFIX=\\"_Prefix-*\\"\\n'
+			+ 'echo \\"Xcode Pre-Compile Phase: Removing $SHARED_PRECOMPS_DIR/$PROJECT$TITANIUM_PREFIX\\"\\n'
+			+ 'find \\"$SHARED_PRECOMPS_DIR\\" -name \\"$PROJECT$TITANIUM_PREFIX\\" -print0 | xargs -0 rm -rf\\n'
+			+ 'cp -r \\"${PWD}/Resources/\\" \\"${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}\\"'
+		);
+	} else {
+		proj = injectCompileShellScript(
+			proj,
+			'Pre-Compile',
+			'export TITANIUM_PREFIX=\\"_Prefix-*\\"\\n'
+			+ 'echo \\"Xcode Pre-Compile Phase: Removing $SHARED_PRECOMPS_DIR/$PROJECT$TITANIUM_PREFIX\\"\\n'
+			+ 'find \\"$SHARED_PRECOMPS_DIR\\" -name \\"$PROJECT$TITANIUM_PREFIX\\" -print0 | xargs -0 rm -rf\\n'
+			+ 'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then\\n'
+			+ '    ' + (process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + this.platformName + ' --sdk \\"' + this.titaniumSdkName + '\\" --no-prompt --no-progress-bars --no-banner --no-colors --build-only --xcode\\n'
+			+ '    exit $?\\n'
+			+ 'else\\n'
+			+ '    echo \\"skipping pre-compile phase\\"\\n'
+			+ 'fi'
+		);
+
+		proj = injectCompileShellScript(
+			proj,
+			'Post-Compile',
+			"echo 'Xcode Post-Compile Phase: Touching important files'\\n"
+			+ 'touch -c Classes/ApplicationRouting.h Classes/ApplicationRouting.m Classes/ApplicationDefaults.m Classes/ApplicationMods.m Classes/defines.h\\n'
+			+ 'if [ \\"x$TITANIUM_CLI_IMAGES_OPTIMIZED\\" != \\"x\\" ]; then\\n'
+			+ '    if [ -f \\"$TITANIUM_CLI_IMAGES_OPTIMIZED\\" ]; then\\n'
+			+ '        echo \\"Xcode Post-Compile Phase: Image optimization finished before xcodebuild finished, continuing\\"\\n'
+			+ '    else\\n'
+			+ '        echo \\"Xcode Post-Compile Phase: Waiting for image optimization to complete\\"\\n'
+			+ '        echo \\"Xcode Post-Compile Phase: $TITANIUM_CLI_IMAGES_OPTIMIZED\\"\\n'
+			+ '        while [ ! -f \\"$TITANIUM_CLI_IMAGES_OPTIMIZED\\" ]\\n'
+			+ '        do\\n'
+			+ '            sleep 1\\n'
+			+ '        done\\n'
+			+ "        echo 'Xcode Post-Compile Phase: Image optimization complete, continuing'\\n"
+			+ '    fi\\n'
+			+ 'fi'
+		);
+	}
 
 	fs.writeFileSync(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'), proj);
 
@@ -2510,8 +2548,9 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 
 	var projectFile = path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'),
 		projectOrigContents = fs.readFileSync(projectFile).toString(),
-		projectContents = projectOrigContents;
-		targetLibs = [];
+		projectContents = projectOrigContents,
+		targetLibs = [],
+		isForExportBuild = this.exportBuild;
 
 	this.nativeLibModules.forEach(function (lib) {
 		projectContents.indexOf(lib.libName) === -1 && targetLibs.push(lib);
@@ -2568,12 +2607,23 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 				var begin = projectContents.indexOf(marker),
 					end = begin + marker.length,
 					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
+					line;
+
+				if (isForExportBuild) {
+					line = projectContents
+						.substring(begin, end)
+						.replace(/lib\/libTiCore\.a/g, '"' + path.join('lib', lib.libName).toString().replace(/"/g, '\\"') + '"')
+						.replace(/libTiCore\.a/g, lib.libName)
+						.replace(new RegExp(m[1].trim(), 'g'), newGroupUUID);
+				} else {
 					line = projectContents
 						.substring(begin, end)
 						.replace(/lib\/libTiCore\.a/g, '"' + lib.libFile.replace(/"/g, '\\"') + '"')
 						.replace(/libTiCore\.a/g, lib.libName)
 						.replace(/SOURCE_ROOT/g, '"<absolute>"')
 						.replace(new RegExp(m[1].trim(), 'g'), newGroupUUID);
+				}
+
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
 			});
 
@@ -2600,10 +2650,13 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 
 			(function (libPath) {
 				var begin = projectContents.indexOf(libPath),
-					end, line;
+					end,
+					line,
+					libFile = isForExportBuild ? 'lib' : path.dirname(lib.libFile);
+
 				while (begin !== -1) {
 					end = begin + libPath.length;
-					line = projectContents.substring(begin, end).replace(libPath, '"\\"' + path.dirname(lib.libFile) + '\\"",');
+					line = projectContents.substring(begin, end).replace(libPath, '"\\"' + libFile + '\\"",');
 					projectContents = projectContents.substring(0, end) + '\n                                        ' +  line + '\n' + projectContents.substring(end + 1);
 					begin = projectContents.indexOf(libPath, end + line.length);
 				}
@@ -3453,6 +3506,77 @@ iOSBuilder.prototype.optimizeImages = function optimizeImages(next) {
 		appc.fs.touch(this.imagesOptimizedFile);
 		next();
 	}
+};
+
+iOSBuilder.prototype.exportProj = function exportProj() {
+	this.logger.info(__('Exporting build project in : %s', this.buildDir.cyan));
+
+	fs.existsSync(this.buildDir) && wrench.rmdirSyncRecursive(this.buildDir);
+	wrench.mkdirSyncRecursive(this.buildDir);
+
+	var exportResDir = path.join(this.buildDir, 'Resources');
+
+	// override default xcode app dir to :
+	// 1. generate debugger.plist
+	// 2. genereate i18n string file in export build dir
+	this.xcodeAppDir = exportResDir;
+
+	// prevent symlink titanium libraries when calling copyTitaniumLibraries
+	this.cli.argv['force-copy-all'] = true;
+	this.forceCopyAll = true;
+
+	// copy [project]/Resources/* files to [project]/build/iphone/Resources dir
+	this.copyDirSync(
+		path.join(this.projectDir, 'Resources'),
+		exportResDir
+	);
+
+	// copy [project]/platform/{iphone, ios} dir to [project]/build/iphone/Resources dir
+	['iphone', 'ios'].forEach(function (p) {
+		var platformDir = path.join(this.projectDir, 'platform', p);
+		if (fs.existsSync(platformDir)) {
+			this.copyDirSync(platformDir, exportResDir);
+		}
+	}, this);
+
+	// copy tiapp.xml to [project]/build/iphone dir
+	appc.fs.copyFileSync(
+		path.join(this.projectDir, 'tiapp.xml'),
+		this.buildDir,
+		{
+			logger: this.logger.debug
+		}
+	);
+
+	this.createXcodeProject();
+	this.populateIosFiles();
+
+	fs.existsSync(path.join(this.buildDir, 'lib')) || fs.mkdirSync(path.join(this.buildDir, 'lib'));
+	this.nativeLibModules.forEach(function (mod) {
+
+		var modAsssetsDir = path.join(mod.modulePath, 'assets'),
+			modMetaFile = path.join(mod.modulePath, 'metadata.json');
+
+		appc.fs.copyFileSync(
+			mod.libFile,
+			path.join(this.buildDir, 'lib')
+		);
+
+		if (fs.existsSync(modAsssetsDir)) {
+			this.copyDirSync(
+				modAsssetsDir,
+				path.join(this.buildDir, 'Resources', 'modules', mod.id)
+			);
+		}
+
+		if (fs.existsSync(modMetaFile)) {
+			appc.fs.copyFileSync(
+				modMetaFile,
+				path.join(this.buildDir, 'metadata', mod.id + '.json')
+			);
+		}
+
+	}, this);
 };
 
 // create the builder instance and expose the public api
