@@ -16,10 +16,12 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.android.AndroidModule;
+import android.os.Build;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.Switch;
 import android.widget.ToggleButton;
 
 public class TiUISwitch extends TiUIView
@@ -59,11 +61,20 @@ public class TiUISwitch extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_TITLE) && cb instanceof CheckBox) {
 			cb.setText(TiConvert.toString(d, TiC.PROPERTY_TITLE));
 		}
-		if (d.containsKey(TiC.PROPERTY_TITLE_OFF) && cb instanceof ToggleButton) {
-			((ToggleButton) cb).setTextOff(TiConvert.toString(d, TiC.PROPERTY_TITLE_OFF));
+		if (d.containsKey(TiC.PROPERTY_TITLE_OFF)) {
+			if (cb instanceof ToggleButton) {
+				((ToggleButton) cb).setTextOff(TiConvert.toString(d, TiC.PROPERTY_TITLE_OFF));
+			} else if (Build.VERSION.SDK_INT >= 14 && cb instanceof Switch) { // ICE_CREAM_SANDWICH, 4.0
+				((Switch) cb).setTextOff(TiConvert.toString(d, TiC.PROPERTY_TITLE_OFF));
+			}
+
 		}
-		if (d.containsKey(TiC.PROPERTY_TITLE_ON) && cb instanceof ToggleButton) {
-			((ToggleButton) cb).setTextOn(TiConvert.toString(d, TiC.PROPERTY_TITLE_ON));
+		if (d.containsKey(TiC.PROPERTY_TITLE_ON)) {
+			if (cb instanceof ToggleButton) {
+				((ToggleButton) cb).setTextOn(TiConvert.toString(d, TiC.PROPERTY_TITLE_ON));
+			} else if (Build.VERSION.SDK_INT >= 14 && cb instanceof Switch) { 
+				((Switch) cb).setTextOn(TiConvert.toString(d, TiC.PROPERTY_TITLE_ON));
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
 		
@@ -99,10 +110,22 @@ public class TiUISwitch extends TiUIView
 			setStyle(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_TITLE) && cb instanceof CheckBox) {
 			cb.setText((String) newValue);
-		} else if (key.equals(TiC.PROPERTY_TITLE_OFF) && cb instanceof ToggleButton) {
-			((ToggleButton) cb).setTextOff((String) newValue);
-		} else if (key.equals(TiC.PROPERTY_TITLE_ON) && cb instanceof ToggleButton) {
-			((ToggleButton) cb).setTextOff((String) newValue);
+		} else if (key.equals(TiC.PROPERTY_TITLE_OFF)) {
+			if (cb instanceof ToggleButton) {
+				((ToggleButton) cb).setTextOff((String) newValue);
+			} else if (Build.VERSION.SDK_INT >= 14) { // ICE_CREAM_SANDWICH, 4.0
+				if (cb instanceof Switch) {
+					((Switch) cb).setTextOff((String) newValue);
+				}
+			}
+
+		} else if (key.equals(TiC.PROPERTY_TITLE_ON)) {
+			if (cb instanceof ToggleButton) {
+				((ToggleButton) cb).setTextOn((String) newValue);
+			} else if (Build.VERSION.SDK_INT >= 14 && cb instanceof Switch) { // ICE_CREAM_SANDWICH, 4.0 
+				((Switch) cb).setTextOn((String) newValue);
+			}
+
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			cb.setChecked(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
@@ -153,17 +176,33 @@ public class TiUISwitch extends TiUIView
 				}
 				break;
 
+			case AndroidModule.SWITCH_STYLE_TOGGLEBUTTON_OLD:
 			case AndroidModule.SWITCH_STYLE_TOGGLEBUTTON:
-				if (!(currentButton instanceof ToggleButton)) {
-					button = new ToggleButton(proxy.getActivity())
-					{
-						@Override
-						protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+				// ICE_CREAM_SANDWICH, 4.0
+				if (style != AndroidModule.SWITCH_STYLE_TOGGLEBUTTON_OLD && Build.VERSION.SDK_INT >= 14) { 
+					if (!(currentButton instanceof Switch)) {
+						button = new Switch(proxy.getActivity())
 						{
-							super.onLayout(changed, left, top, right, bottom);
-							TiUIHelper.firePostLayoutEvent(proxy);
-						}
-					};
+							@Override
+							protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+							{
+								super.onLayout(changed, left, top, right, bottom);
+								TiUIHelper.firePostLayoutEvent(proxy);
+							}
+						};
+					}
+				} else {
+					if (!(currentButton instanceof ToggleButton)) {
+						button = new ToggleButton(proxy.getActivity())
+						{
+							@Override
+							protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+							{
+								super.onLayout(changed, left, top, right, bottom);
+								TiUIHelper.firePostLayoutEvent(proxy);
+							}
+						};
+					}
 				}
 				break;
 
