@@ -267,7 +267,7 @@
         if (offset.x > 0) {
             CGSize scrollFrame = [self bounds].size;
             if (scrollFrame.width != 0) {
-                result = floor(offset.x/scrollFrame.width);
+                result = round(offset.x/scrollFrame.width);
             }
 		}
     }
