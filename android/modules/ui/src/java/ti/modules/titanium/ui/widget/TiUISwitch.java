@@ -72,10 +72,8 @@ public class TiUISwitch extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_TITLE_ON)) {
 			if (cb instanceof ToggleButton) {
 				((ToggleButton) cb).setTextOn(TiConvert.toString(d, TiC.PROPERTY_TITLE_ON));
-			} else if (Build.VERSION.SDK_INT >= 14) { // ICE_CREAM_SANDWICH, 4.0
-				if (cb instanceof Switch) {
-					((Switch) cb).setTextOn(TiConvert.toString(d, TiC.PROPERTY_TITLE_ON));
-				}
+			} else if (Build.VERSION.SDK_INT >= 14 && cb instanceof Switch) { 
+				((Switch) cb).setTextOn(TiConvert.toString(d, TiC.PROPERTY_TITLE_ON));
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
