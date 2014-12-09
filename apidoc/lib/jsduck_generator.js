@@ -249,7 +249,7 @@ function exportAPIs (api, type) {
 			annotatedMember.description = exportDescription(member);
 			annotatedMember.examples = exportExamples(member);
 			annotatedMember.hide = member.__hide || false;
-			if (JSON.stringify(member.since) == JSON.stringify(api.since)) annotatedMember.since = {};
+			annotatedMember.since = (JSON.stringify(member.since) == JSON.stringify(api.since)) ? {} : member.since;
 
 			switch (type) {
 				case 'events':
@@ -295,6 +295,7 @@ exports.exportData = function exportJsDuck (apis) {
 		annotatedClass.name = cls.name;
 		annotatedClass.extends = cls.extends || null;
 		annotatedClass.subtype = cls.__subtype;
+		annotatedClass.since = cls.since;
 		annotatedClass.summary = exportSummary(cls);
 		annotatedClass.deprecated = exportDeprecated(cls);
 		annotatedClass.osver = exportOSVer(cls);
