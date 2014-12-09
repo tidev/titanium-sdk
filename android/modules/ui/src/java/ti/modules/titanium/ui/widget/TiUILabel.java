@@ -152,6 +152,10 @@ public class TiUILabel extends TiUIView
 				}
 			} else {
 				tv.setMovementMethod(null);
+				// Before ICS (API <= 15) , Disable the movement method will disable focusable, clickable and longclickable.
+				tv.setFocusable(true);
+				tv.setClickable(true);
+				tv.setLongClickable(true);
 				tv.setText(Html.fromHtml(html));
 			}
 		} else if (d.containsKey(TiC.PROPERTY_TEXT)) {
