@@ -248,9 +248,8 @@ function exportAPIs (api, type) {
 			annotatedMember.osver = exportOSVer(member);
 			annotatedMember.description = exportDescription(member);
 			annotatedMember.examples = exportExamples(member);
-			annotatedMember.since = member.since;
 			annotatedMember.hide = member.__hide || false;
-			if (JSON.stringify(member.since) == JSON.stringify(api.since)) annotatedMember.since = {};
+			annotatedMember.since = (JSON.stringify(member.since) == JSON.stringify(api.since)) ? {} : member.since;
 
 			switch (type) {
 				case 'events':
