@@ -31,7 +31,6 @@ static NSArray* tabGroupKeySequence;
         [thisTab removeFromTabGroup];
 		[thisTab setParentOrientationController:nil];
 		[thisTab setTabGroup:nil];
-        [self forgetProxy:thisTab];
 	}
 	RELEASE_TO_NIL(tabs);
 	[super dealloc];
@@ -76,7 +75,6 @@ static NSArray* tabGroupKeySequence;
 -(void)addTab:(id)tabProxy
 {
 	ENSURE_SINGLE_ARG(tabProxy,TiUITabProxy);
-	[self rememberProxy:tabProxy];
 	if (tabs == nil)
 	{
 		tabs = [[NSMutableArray alloc] initWithCapacity:4];
@@ -106,9 +104,9 @@ static NSArray* tabGroupKeySequence;
 		
         [tabProxy removeFromTabGroup];
 		[tabProxy setParentOrientationController:nil];
+        [tabProxy setTabGroup:nil];
 		[tabs removeObject:tabProxy];
 		[self replaceValue:tabs forKey:@"tabs" notification:YES];
-		[self forgetProxy:tabProxy];
 	}
 }
 
@@ -129,16 +127,15 @@ static NSArray* tabGroupKeySequence;
 	{
 		if (![newTabs containsObject:thisTab])
 		{
+            [thisTab removeFromTabGroup];
 			[thisTab setParentOrientationController:nil];
 			[thisTab setTabGroup:nil];
-			[self forgetProxy:thisTab];
 		}
 	}
 	for (id thisTab in newTabs)
 	{
 		if (![tabs containsObject:thisTab])
 		{
-			[self rememberProxy:thisTab];
 			[thisTab setTabGroup:self];
 			[thisTab setParentOrientationController:self];
 		}
