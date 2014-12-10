@@ -854,6 +854,11 @@
 {
     BOOL trulyAnimated = animated;
     UIViewController* topVC = [self topPresentedController];
+    
+    if ([topVC isBeingDismissed]) {
+        topVC = [topVC presentingViewController];
+    }
+    
     if ([topVC isKindOfClass:[TiErrorController class]]) {
         DebugLog(@"[ERROR] ErrorController is up. ABORTING showing of modal controller");
         return;
