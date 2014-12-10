@@ -153,7 +153,7 @@ public class TiUILabel extends TiUIView
 				}
 			} else {
 				tv.setMovementMethod(null);
-				// Before Jelly Bean (API < 16), disabLing the movement method will 
+				// Before Jelly Bean (API < 16), disabling the movement method will 
 				// disable focusable, clickable and longclickable.
 				if (Build.VERSION.SDK_INT < TiC.API_LEVEL_JELLY_BEAN) {
 					tv.setFocusable(true);
