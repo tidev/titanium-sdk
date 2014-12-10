@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.Color;
+import android.os.Build;
 import android.text.Html;
 import android.text.InputType;
 import android.text.Layout;
@@ -152,10 +153,13 @@ public class TiUILabel extends TiUIView
 				}
 			} else {
 				tv.setMovementMethod(null);
-				// Before ICS (API <= 15) , Disable the movement method will disable focusable, clickable and longclickable.
-				tv.setFocusable(true);
-				tv.setClickable(true);
-				tv.setLongClickable(true);
+				// Before Jelly Bean (API < 16), disabLing the movement method will 
+				// disable focusable, clickable and longclickable.
+				if (Build.VERSION.SDK_INT < TiC.API_LEVEL_JELLY_BEAN) {
+					tv.setFocusable(true);
+					tv.setClickable(true);
+					tv.setLongClickable(true);
+				}
 				tv.setText(Html.fromHtml(html));
 			}
 		} else if (d.containsKey(TiC.PROPERTY_TEXT)) {
