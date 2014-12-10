@@ -23,6 +23,7 @@ import android.os.Message;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_AUTO_LINK,
+	TiC.PROPERTY_ATTRIBUTED_STRING,
 	TiC.PROPERTY_COLOR,
 	TiC.PROPERTY_ELLIPSIZE,
 	TiC.PROPERTY_FONT,
@@ -43,9 +44,7 @@ public class LabelProxy extends TiViewProxy
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SET_ATTRIBUTED_STRING = MSG_FIRST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
-	
-	private AttributedStringProxy attributedString = null;
-	
+		
 	public LabelProxy()
 	{
 		defaultValues.put(TiC.PROPERTY_TEXT, "");
@@ -68,43 +67,6 @@ public class LabelProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUILabel(this);
-	}
-	
-	@Kroll.method @Kroll.getProperty
-	public AttributedStringProxy getAttributedString()
-	{
-		return attributedString;
-	}
-
-	@Kroll.method @Kroll.setProperty
-	public void setAttributedString(AttributedStringProxy attrString)
-	{
-		attributedString = attrString;
-		if (TiApplication.isUIThread()) {
-			handleSetAttributedString(attributedString);
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ATTRIBUTED_STRING), attributedString);
-		}
-	}
-
-	private void handleSetAttributedString(AttributedStringProxy attrString)
-	{
-		((TiUILabel) getOrCreateView()).setAttributedString(attrString);
-	}
-
-	// This handler callback is tied to the UI thread.
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public boolean handleMessage(Message msg)
-	{
-		switch (msg.what) {
-			case MSG_SET_ATTRIBUTED_STRING: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleSetAttributedString((AttributedStringProxy) result.getArg());
-				result.setResult(null);
-				return true;
-			}
-		}
-		return super.handleMessage(msg);
 	}
 	
 	@Override
