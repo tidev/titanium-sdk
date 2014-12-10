@@ -442,10 +442,11 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef) jcode);
 	TiStringRef jsURL = TiStringCreateWithUTF8CString(urlCString);
 	
-	// validate script
-	if (![TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
-		TiCheckScriptSyntax(jsContext,jsCode,jsURL,1,&exception);
-	}
+//  TIMOB-18152. There is no need to check syntax since TiEvalScript
+//  will check syntax before evaluation of the script.
+//	if (![TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
+//		TiCheckScriptSyntax(jsContext,jsCode,jsURL,1,&exception);
+//	}
 	
 	// only continue if we don't have any exceptions from above
 	if (exception == NULL) {
