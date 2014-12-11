@@ -79,7 +79,7 @@ properties:
         The underlying attributed string drawn by the textArea, if set, the textArea ignores
         the `value` property
     type: Titanium.UI.AttributedString
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: 3.6.0
 
   - name: autocapitalization

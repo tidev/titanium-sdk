@@ -17,18 +17,32 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.AttributeProxy;
+import ti.modules.titanium.ui.AttributedStringProxy;
+import ti.modules.titanium.ui.UIModule;
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
 import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
 import android.text.method.DigitsKeyListener;
 import android.text.method.NumberKeyListener;
 import android.text.method.PasswordTransformationMethod;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StrikethroughSpan;
+import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
+import android.text.style.URLSpan;
+import android.text.style.UnderlineSpan;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -198,6 +212,12 @@ public class TiUIText extends TiUIView
 			handleKeyboard(d);
 		}
 		
+		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+			if (attributedString instanceof AttributedStringProxy) {
+				setAttributedString((AttributedStringProxy) attributedString);
+			}
+		}
 
 		if (d.containsKey(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
@@ -263,6 +283,8 @@ public class TiUIText extends TiUIView
 			TiUIHelper.styleText(tv, (HashMap) newValue);
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, newValue);
+		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
+			setAttributedString((AttributedStringProxy) newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -612,6 +634,90 @@ public class TiUIText extends TiUIView
 		
 		//Set input type caches ime options, so whenever we change ime options, we must reset input type
 		tv.setInputType(tv.getInputType());
+	}
+
+	public void setAttributedString(AttributedStringProxy attrString)
+	{
+		if (attrString.hasProperty(TiC.PROPERTY_TEXT)) {
+			String textString = TiConvert.toString(attrString.getProperty(TiC.PROPERTY_TEXT));
+			if (!TextUtils.isEmpty(textString)) {
+				Spannable spannableText = new SpannableString(textString);
+				AttributeProxy[] attributes = null;
+				Object obj = attrString.getProperty(TiC.PROPERTY_ATTRIBUTES);
+				if (obj != null && obj instanceof Object[]) {
+					Object[] objArray = (Object[])obj;
+					attributes = new AttributeProxy[objArray.length];
+					for (int i = 0; i < objArray.length; i++) {
+						attributes[i] = AttributedStringProxy.attributeProxyFor(objArray[i], attrString);
+					}
+				}
+				if(attributes != null){
+					for (AttributeProxy attr : attributes) {
+						if (attr.hasProperty(TiC.PROPERTY_TYPE)) {
+							Object type = attr.getProperty(TiC.PROPERTY_ATTRIBUTE_TYPE);
+							int[] range = null;
+							Object inRange = attr.getProperty(TiC.PROPERTY_ATTRIBUTE_RANGE);
+							if (inRange != null && inRange instanceof Object[]) {
+								range = TiConvert.toIntArray((Object[])inRange);
+							}
+							Object attrValue = attr.getProperty(TiC.PROPERTY_ATTRIBUTE_VALUE);
+							switch (TiConvert.toInt(type)) {
+								case UIModule.ATTRIBUTE_FONT:
+									KrollDict fontProp = null;
+									if (attrValue instanceof KrollDict) {
+										fontProp = (KrollDict) attrValue;
+									} else if (attrValue instanceof HashMap) {
+										fontProp = new KrollDict((HashMap<String, Object>) attrValue);
+									}
+									String[] fontProperties = TiUIHelper.getFontProperties((KrollDict) fontProp);
+									if (fontProperties[TiUIHelper.FONT_SIZE_POSITION] != null) {
+										spannableText.setSpan(
+											new AbsoluteSizeSpan((int) TiUIHelper.getRawSize(
+												fontProperties[TiUIHelper.FONT_SIZE_POSITION], getProxy().getActivity())),
+											range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+									}
+									if (fontProperties[TiUIHelper.FONT_WEIGHT_POSITION] != null) {
+										int typefaceStyle = Integer.valueOf(TiUIHelper.toTypefaceStyle(
+											fontProperties[TiUIHelper.FONT_WEIGHT_POSITION],
+											fontProperties[TiUIHelper.FONT_STYLE_POSITION]));
+										spannableText.setSpan(new StyleSpan(typefaceStyle), range[0], range[0] + range[1],
+											Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+									}
+									if (fontProperties[TiUIHelper.FONT_FAMILY_POSITION] != null) {
+										spannableText.setSpan(new TypefaceSpan(fontProperties[TiUIHelper.FONT_FAMILY_POSITION]),
+											range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+									}
+									break;
+								case UIModule.ATTRIBUTE_BACKGROUND_COLOR:
+									spannableText.setSpan(
+										new BackgroundColorSpan(TiConvert.toColor(TiConvert.toString(attrValue))), range[0],
+										range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+									break;
+								case UIModule.ATTRIBUTE_FOREGROUND_COLOR:
+									spannableText.setSpan(
+										new ForegroundColorSpan(TiConvert.toColor(TiConvert.toString(attrValue))), range[0],
+										range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+									break;
+								case UIModule.ATTRIBUTE_STRIKETHROUGH_STYLE:
+									spannableText.setSpan(new StrikethroughSpan(), range[0], range[0] + range[1],
+										Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+									break;
+								case UIModule.ATTRIBUTE_UNDERLINES_STYLE:
+									spannableText.setSpan(new UnderlineSpan(), range[0], range[0] + range[1],
+										Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+									break;
+								case UIModule.ATTRIBUTE_LINK:
+									spannableText.setSpan(new URLSpan(TiConvert.toString(attrValue)), range[0], range[0]
+										+ range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+									break;
+							}
+						}
+					}
+				}
+				tv.setText(spannableText);
+			}
+		}
+
 	}
 
 }

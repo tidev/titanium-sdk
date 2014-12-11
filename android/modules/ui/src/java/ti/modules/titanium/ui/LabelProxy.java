@@ -42,7 +42,6 @@ import android.os.Message;
 public class LabelProxy extends TiViewProxy
 {
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
-	private static final int MSG_SET_ATTRIBUTED_STRING = MSG_FIRST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 		
 	public LabelProxy()
