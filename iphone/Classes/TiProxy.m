@@ -18,6 +18,9 @@
 #import "TiViewProxy.h"
 #import "TiBindingEvent.h"
 
+#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#import "TiUIAttributedStringProxy.h"
+#endif
 #include <libkern/OSAtomic.h>
 
 //Common exceptions to throw when the function call was improper
@@ -1309,5 +1312,98 @@ DEFINE_EXCEPTIONS
 			 ] autorelease];
 }
 
+#if defined(USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
+MAKE_SYSTEM_PROP(ATTRIBUTE_FONT, AttributeNameFont);
+MAKE_SYSTEM_PROP(ATTRIBUTE_PARAGRAPH_STYLE, AttributeNameParagraphStyle);
+MAKE_SYSTEM_PROP(ATTRIBUTE_FOREGROUND_COLOR, AttributeNameForegroundColor);
+MAKE_SYSTEM_PROP(ATTRIBUTE_BACKGROUND_COLOR, AttributeNameBackgroundColor);
+MAKE_SYSTEM_PROP(ATTRIBUTE_LIGATURE, AttributeNameLigature);
+MAKE_SYSTEM_PROP(ATTRIBUTE_KERN, AttributeNameKern);
+MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_STYLE, AttributeNameStrikethroughStyle);
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINES_STYLE, AttributeNameUnderlineStyle);
+MAKE_SYSTEM_PROP(ATTRIBUTE_STROKE_COLOR, AttributeNameStrokeColor);
+MAKE_SYSTEM_PROP(ATTRIBUTE_STROKE_WIDTH, AttributeNameStrokeWidth);
+MAKE_SYSTEM_PROP(ATTRIBUTE_SHADOW, AttributeNameShadow);
+MAKE_SYSTEM_PROP(ATTRIBUTE_VERTICAL_GLYPH_FORM, AttributeNameVerticalGlyphForm);
+MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION, AttributeNameWritingDirection);
+MAKE_SYSTEM_PROP(ATTRIBUTE_TEXT_EFFECT, AttributeNameTextEffect);
+MAKE_SYSTEM_PROP(ATTRIBUTE_ATTACHMENT, AttributeNameAttachment);
+MAKE_SYSTEM_PROP(ATTRIBUTE_LINK, AttributeNameLink);
+MAKE_SYSTEM_PROP(ATTRIBUTE_BASELINE_OFFSET, AttributeNameBaselineOffset);
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_COLOR, AttributeNameUnderlineColor);
+MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_COLOR, AttributeNameStrikethroughColor);
+MAKE_SYSTEM_PROP(ATTRIBUTE_OBLIQUENESS, AttributeNameObliqueness);
+MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
+
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_NONE
+{
+	return NUMINT(NSUnderlineStyleNone);
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_SINGLE
+{
+	return NUMINT(NSUnderlineStyleSingle);
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_THICK
+{
+	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlineStyleThick): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
+{
+	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlineStyleDouble): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_SOLID
+{
+	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternSolid): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DOT
+{
+	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDot): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH
+{
+	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDash): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
+{
+	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDashDot): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
+{
+	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDashDotDot): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_BY_WORD
+{
+	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlineByWord): NUMINT(NSUnderlineStyleNone));
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_NATURAL
+{
+	return NUMINT(NSWritingDirectionNatural);
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
+{
+	return NUMINT(NSWritingDirectionLeftToRight);
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
+{
+	return NUMINT(NSWritingDirectionRightToLeft);
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
+{
+	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSTextWritingDirectionEmbedding): NUMINT(NSWritingDirectionNatural));
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
+{
+	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSTextWritingDirectionOverride): NUMINT(NSWritingDirectionNatural));
+}
+-(NSString *)ATTRIBUTE_LETTERPRESS_STYLE
+{
+	return ([TiUtils isIOS7OrGreater] ? NSTextEffectLetterpressStyle : @"");
+}
+-(id)createAttributedString:(id)args
+{
+	return [[[TiUIAttributedStringProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+#endif
 
 @end

@@ -81,18 +81,18 @@ properties:
     description: |
         The underlying attributed string drawn by the textField, if set, the textField ignores
         the `value` property
-    type: Titanium.UI.iOS.AttributedString
+    type: Titanium.UI.AttributedString
     platforms: [iphone, ipad]
-    since: 3.2.0
+    since: 3.6.0
 
   - name: attributedHintText
     summary: Hint text attributed string. 
     description: |
         The attributed hint text by the textField, if set, the textField ignores
         the `hintText` property
-    type: Titanium.UI.iOS.AttributedString
+    type: Titanium.UI.AttributedString
     platforms: [iphone, ipad]
-    since: 3.2.0
+    since: 3.6.0
 
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 
