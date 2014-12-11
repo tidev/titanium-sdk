@@ -1465,7 +1465,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 {
     //Must be called on the main thread
     if ([NSThread isMainThread]) {
-        if ([theObject conformsToProtocol:@protocol(VolumeSupport)]) {
+        if ([theObject respondsToSelector:@selector(setVolume:)]) {
             [(id<VolumeSupport>)theObject setVolume:volume];
         } else {
             DebugLog(@"[WARN] The Object %@ does not respond to method -(void)setVolume:(float)volume",[theObject description]);
@@ -1478,7 +1478,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     //Must be called on the main thread
     float returnValue = def;
     if ([NSThread isMainThread]) {
-        if ([theObject conformsToProtocol:@protocol(VolumeSupport)]) {
+        if ([theObject respondsToSelector:@selector(volume)]) {
             returnValue = [(id<VolumeSupport>)theObject volume];
         } else {
             DebugLog(@"[WARN] The Object %@ does not respond to method -(float)volume",[theObject description]);

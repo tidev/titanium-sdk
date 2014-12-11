@@ -495,7 +495,7 @@ NSArray* moviePlayerKeys = nil;
     volume = MAX(0.0, MIN(volume, 1.0));
 	TiThreadPerformOnMainThread(^{
         [TiUtils setVolume:volume onObject:[MPMusicPlayerController applicationMusicPlayer]];
-	}, NO);
+	}, YES);
 }
 
 -(void)cancelAllThumbnailImageRequests:(id)value
