@@ -472,6 +472,8 @@ typedef enum
 +(NSString*)jsonStringify:(id)value;
 +(id)jsonParse:(NSString*)value;
 
++(NSString*)currentArchitecture;
+
 +(NSString*)jsonStringify:(id)value error:(NSError**)error;
 +(id)jsonParse:(NSString*)value error:(NSError**)error;;
 
