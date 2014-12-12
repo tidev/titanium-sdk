@@ -8,6 +8,7 @@
 #import "TiUIAttributedStringProxy.h"
 #import "TiProxy.h"
 #import "TiUtils.h"
+#import "UIModule.h"
 
 @implementation TiUIAttributedStringProxy
 

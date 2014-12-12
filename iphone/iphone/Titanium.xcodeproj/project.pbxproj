@@ -618,6 +618,8 @@
 		BB26FC8319AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
 		BB26FC8419AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
 		BB26FC8519AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
+		BBD6C2931A3AA22C00FA700E /* TiUIAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */; };
+		BBD6C2941A3AA22D00FA700E /* TiUIAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */; };
 		BBDD81341A2C71C9003CDA10 /* TiUIAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */; };
 		D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
 		D4AB36F6123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
@@ -3553,6 +3555,7 @@
 				24D8E416119B9D8A00F8CAA6 /* TiUIImageViewProxy.m in Sources */,
 				24D8E417119B9D8A00F8CAA6 /* TiUIImageView.m in Sources */,
 				24D8E418119B9D8A00F8CAA6 /* TiUIEmailDialogProxy.m in Sources */,
+				BBD6C2931A3AA22C00FA700E /* TiUIAttributedStringProxy.m in Sources */,
 				24D8E41B119B9D8A00F8CAA6 /* TiUICanvasViewProxy.m in Sources */,
 				24D8E41C119B9D8A00F8CAA6 /* TiUICanvasView.m in Sources */,
 				24D8E41D119B9D8A00F8CAA6 /* TiUIButtonProxy.m in Sources */,
@@ -3829,6 +3832,7 @@
 				DABB36F112E8CB280026A6EA /* TiUIImageViewProxy.m in Sources */,
 				DABB36F212E8CB280026A6EA /* TiUIImageView.m in Sources */,
 				DABB36F312E8CB280026A6EA /* TiUIEmailDialogProxy.m in Sources */,
+				BBD6C2941A3AA22D00FA700E /* TiUIAttributedStringProxy.m in Sources */,
 				DABB36F612E8CB280026A6EA /* TiUICanvasViewProxy.m in Sources */,
 				DABB36F712E8CB280026A6EA /* TiUICanvasView.m in Sources */,
 				DABB36F812E8CB280026A6EA /* TiUIButtonProxy.m in Sources */,
