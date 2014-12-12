@@ -14,6 +14,32 @@
 	NSMutableArray *attributes;
 }
 
+#if defined(USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
+typedef enum {
+	AttributeNameFont,
+	AttributeNameParagraphStyle,
+	AttributeNameForegroundColor,
+	AttributeNameBackgroundColor,
+	AttributeNameLigature,
+	AttributeNameKern,
+	AttributeNameStrikethroughStyle,
+	AttributeNameUnderlineStyle,
+	AttributeNameStrokeColor,
+	AttributeNameStrokeWidth,
+	AttributeNameShadow,
+	AttributeNameVerticalGlyphForm,
+	AttributeNameWritingDirection,
+	AttributeNameTextEffect,
+	AttributeNameAttachment,
+	AttributeNameLink,
+	AttributeNameBaselineOffset,
+	AttributeNameUnderlineColor,
+	AttributeNameStrikethroughColor,
+	AttributeNameObliqueness,
+	AttributeNameExpansion
+} AttributeName;
+#endif
+
 #pragma mark - Not exposed to JS. Internal Use Only.
 @property(nonatomic, readonly) NSMutableAttributedString *attributedString;
 

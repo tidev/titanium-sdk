@@ -16,7 +16,6 @@
 
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
-#import "UIModule.h"
 #endif
 
 #ifdef USE_TI_UIIOSADVIEW
