@@ -212,10 +212,17 @@ public class TiUIText extends TiUIView
 			handleKeyboard(d);
 		}
 		
+		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_HINT_TEXT)) {
+			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_HINT_TEXT);
+			if (attributedString instanceof AttributedStringProxy) {
+				setAttributedStringHint((AttributedStringProxy) attributedString);
+			}
+		}
+
 		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
 			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
 			if (attributedString instanceof AttributedStringProxy) {
-				setAttributedString((AttributedStringProxy) attributedString);
+				setAttributedStringText((AttributedStringProxy) attributedString);
 			}
 		}
 
@@ -283,8 +290,10 @@ public class TiUIText extends TiUIView
 			TiUIHelper.styleText(tv, (HashMap) newValue);
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, newValue);
+		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_HINT_TEXT) && newValue instanceof AttributedStringProxy) {
+			setAttributedStringHint((AttributedStringProxy) newValue);
 		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
-			setAttributedString((AttributedStringProxy) newValue);
+			setAttributedStringText((AttributedStringProxy) newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -636,7 +645,15 @@ public class TiUIText extends TiUIView
 		tv.setInputType(tv.getInputType());
 	}
 
-	public void setAttributedString(AttributedStringProxy attrString)
+	public void setAttributedStringText(AttributedStringProxy attrString){
+		tv.setText(attributedStringToSpannable(attrString));
+	}
+
+	public void setAttributedStringHint(AttributedStringProxy attrString){
+		tv.setHint(attributedStringToSpannable(attrString));
+	}
+
+	public Spannable attributedStringToSpannable(AttributedStringProxy attrString)
 	{
 		if (attrString.hasProperty(TiC.PROPERTY_TEXT)) {
 			String textString = TiConvert.toString(attrString.getProperty(TiC.PROPERTY_TEXT));
@@ -714,10 +731,9 @@ public class TiUIText extends TiUIView
 						}
 					}
 				}
-				tv.setText(spannableText);
+				return spannableText;
 			}
 		}
-
+		return null;
 	}
-
 }

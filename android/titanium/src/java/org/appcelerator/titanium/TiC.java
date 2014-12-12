@@ -2581,12 +2581,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_DEPARTMENT = "department";
-	
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_ATTRIBUTED_STRING = "attributedString";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTED_HINT_TEXT = "attributedHintText";
 
 	/**
 	 * @module.api

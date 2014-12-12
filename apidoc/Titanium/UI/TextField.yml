@@ -91,7 +91,7 @@ properties:
         The attributed hint text by the textField, if set, the textField ignores
         the `hintText` property
     type: Titanium.UI.AttributedString
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: 3.6.0
 
   - name: autocapitalization
