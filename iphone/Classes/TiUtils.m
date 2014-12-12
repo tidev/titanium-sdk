@@ -1912,4 +1912,21 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return r;
 }
 
++(NSString*)currentArchitecture
+{
+#ifdef __arm64__
+    return @"arm64";
+#endif
+#ifdef __arm__
+    return @"armv7";
+#endif
+#ifdef __x86_64__
+    return @"x86_64";
+#endif
+#ifdef __i386__
+    return @"i386";
+#endif
+    return @"Unknown";
+}
+
 @end
