@@ -193,7 +193,7 @@ def verify_build_arch(manifest, config):
 	binarypath = os.path.join('build', binaryname)
 	manifestarch = set(manifest['architectures'].split(' '))
 
-	output = subprocess.check_output('lipo -info %s' % binarypath, shell=True)
+	output = subprocess.check_output('xcrun lipo -info %s' % binarypath, shell=True)
 
 	builtarch = set(output.split(':')[-1].strip().split(' '))
 
