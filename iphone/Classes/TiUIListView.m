@@ -1758,6 +1758,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     
     [self fireScrollStart: (UITableView*)scrollView];
+    if (![self.proxy _hasListeners:@"dragstart"]) {
+        return;
+    }
+    [self.proxy fireEvent:@"dragstart" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    //Events - None (maybe dragstart later)
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
@@ -1768,6 +1773,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
         [self fireScrollEnd:(UITableView *)scrollView];
     }
+    if (![self.proxy _hasListeners:@"dragend"]) {
+        return;
+    }
+    [self.proxy fireEvent:@"dragend" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    //Events - pullend (maybe dragend later)
     if (![self.proxy _hasListeners:@"pullend"]) {
         return;
     }
