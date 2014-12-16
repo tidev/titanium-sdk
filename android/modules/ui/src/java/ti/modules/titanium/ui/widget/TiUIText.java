@@ -11,6 +11,7 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -634,14 +635,14 @@ public class TiUIText extends TiUIView
 	}
 
 	public void setAttributedStringText(AttributedStringProxy attrString) {
-		Spannable spannableText = AttributedStringProxy.toSpannable(attrString, getProxy());
+		Spannable spannableText = AttributedStringProxy.toSpannable(attrString, TiApplication.getAppCurrentActivity());
 		if (spannableText != null) {
 			tv.setText(spannableText);
 		}
 	}
 
 	public void setAttributedStringHint(AttributedStringProxy attrString) {
-		Spannable spannableText = AttributedStringProxy.toSpannable(attrString, getProxy());
+		Spannable spannableText = AttributedStringProxy.toSpannable(attrString, TiApplication.getAppCurrentActivity());
 		if (spannableText != null) {
 			tv.setHint(spannableText);
 		}

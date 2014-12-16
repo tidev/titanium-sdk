@@ -11,6 +11,7 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -219,9 +220,9 @@ public class TiUILabel extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
 			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
 			if (attributedString instanceof AttributedStringProxy) {
-				Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)attributedString), getProxy());
+				Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)attributedString), TiApplication.getAppCurrentActivity());
 				if (spannableText != null) {
-					((TextView)getNativeView()).setText(spannableText);
+					tv.setText(spannableText);
 				}
 			}
 		}
@@ -287,9 +288,9 @@ public class TiUILabel extends TiUIView
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
-			Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)newValue), getProxy());
+			Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)newValue), TiApplication.getAppCurrentActivity());
 			if (spannableText != null) {
-				((TextView)getNativeView()).setText(spannableText);
+				tv.setText(spannableText);
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
