@@ -313,6 +313,7 @@ self.p = v;\
 	}	
 	
     RELEASE_TO_NIL(animatedViewProxy);
+    RELEASE_TO_NIL_AUTORELEASE(animatedView);
 }
 
 -(BOOL)isTransitionAnimation
@@ -693,7 +694,9 @@ doReposition = YES;\
                                 [parentProxy add:child];
                             }
              ];
-		}
+        } else {
+            RELEASE_TO_NIL_AUTORELEASE(animatedView);
+        }
 	}
 
 	
