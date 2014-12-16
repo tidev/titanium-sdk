@@ -1,3 +1,7 @@
+0.1.6 (12/16/2014)
+-------------------
+ * Minor fix for surfacing errors in wptool.js, wrong variable name referenced.
+
 0.1.5 (12/05/2014)
 -------------------
  * Made wstool launch of WinStore apps more robust

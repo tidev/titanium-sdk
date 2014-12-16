@@ -84,8 +84,8 @@ function enumerate(options, callback) {
 				});
 			}, function (err) {
 				if (err) {
-					emitter.emit('error', ex);
-					return callback(ex);
+					emitter.emit('error', err);
+					return callback(err);
 				}
 
 				// add a helper function to get a device by udid
