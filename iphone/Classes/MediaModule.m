@@ -33,11 +33,7 @@
 // by default, we want to make the camera fullscreen and 
 // these transform values will scale it when we have our own overlay
 
-#define CAMERA_TRANSFORM_Y 1.23
-#define CAMERA_TRANSFORM_Y_ALT 1.67
-#define CAMERA_TRANSFORM_X 1
-
-enum  
+enum
 {
 	MediaModuleErrorUnknown,
 	MediaModuleErrorBusy,
@@ -1354,167 +1350,172 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)showPicker:(NSDictionary*)args isCamera:(BOOL)isCamera
 {
-	if (picker!=nil)
-	{
-		[self sendPickerError:MediaModuleErrorBusy];
-		return;
-	}
-    
-    if ([TiUtils isIOS7OrGreater] && isCamera) {
-        BOOL customPicker = NO;
-        if ([TiUtils isIPad]) {
-            customPicker = ![TiUtils boolValue:@"inPopOver" properties:args def:NO];
-        } else {
-            customPicker = YES;
-        }
-        if (customPicker) {
-            picker = [[TiImagePickerController alloc] initWithProperties:args];
-        }
+    if (picker!=nil)
+    {
+        [self sendPickerError:MediaModuleErrorBusy];
+        return;
     }
-    if (picker == nil) {
+    BOOL customPicker = isCamera;
+
+    BOOL inPopOver = [TiUtils boolValue:@"inPopOver" properties:args def:NO] && isCamera && [TiUtils isIPad];
+
+    if (customPicker) {
+        customPicker = !inPopOver;
+    }
+
+    if (customPicker) {
+        picker = [[TiImagePickerController alloc] initWithProperties:args];
+    } else {
         picker = [[UIImagePickerController alloc] init];
     }
-	
-	[picker setDelegate:self];
-	
-	animatedPicker = YES;
-	saveToRoll = NO;
-	BOOL editable = NO;
-	UIImagePickerControllerSourceType ourSource = (isCamera ? UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary);
-	
-	if (args!=nil)
-	{
-		[self commonPickerSetup:args];
-		
-		NSNumber * imageEditingObject = [args objectForKey:@"allowEditing"];
-		saveToRoll = [TiUtils boolValue:@"saveToPhotoGallery" properties:args def:NO];
-		
-		if (imageEditingObject==nil) {
-			imageEditingObject = [args objectForKey:@"allowImageEditing"];
-		}
-		
-		editable = [TiUtils boolValue:imageEditingObject def:NO];
-		[picker setAllowsEditing:editable];
-		
-		NSArray *sourceTypes = [UIImagePickerController availableMediaTypesForSourceType:ourSource];
-		id types = [args objectForKey:@"mediaTypes"];
-		
-		BOOL movieRequired = NO;
-		BOOL imageRequired = NO;
-		
-		if ([types isKindOfClass:[NSArray class]])
-		{
-			for (int c=0;c<[types count];c++)
-			{
-				if ([[types objectAtIndex:c] isEqualToString:(NSString*)kUTTypeMovie])
-				{
-					movieRequired = YES;
-				}
-				else if ([[types objectAtIndex:c] isEqualToString:(NSString*)kUTTypeImage])
-				{
-					imageRequired = YES;
-				}
-			}
-			picker.mediaTypes = [NSArray arrayWithArray:types];
-		}
-		else if ([types isKindOfClass:[NSString class]])
-		{
-			if ([types isEqualToString:(NSString*)kUTTypeMovie] && ![sourceTypes containsObject:(NSString *)kUTTypeMovie])
-			{
-				// no movie type supported...
-				[self sendPickerError:MediaModuleErrorNoVideo];
-				return;
-			}
-			picker.mediaTypes = [NSArray arrayWithObject:types];
-		}
-		
-		
-		// if we require movie but not image and we don't support movie, bail...
-		if (movieRequired == YES && imageRequired == NO && ![sourceTypes containsObject:(NSString *)kUTTypeMovie])
-		{
-			// no movie type supported...
-			[self sendPickerError:MediaModuleErrorNoCamera];
-			return ;
-		}
-		
-		// introduced in 3.1
-		id videoMaximumDuration = [args objectForKey:@"videoMaximumDuration"];
-		if ([videoMaximumDuration respondsToSelector:@selector(doubleValue)] && [picker respondsToSelector:@selector(setVideoMaximumDuration:)])
-		{
-			[picker setVideoMaximumDuration:[videoMaximumDuration doubleValue]/1000];
-		}
-		id videoQuality = [args objectForKey:@"videoQuality"];
-		if ([videoQuality respondsToSelector:@selector(doubleValue)] && [picker respondsToSelector:@selector(setVideoQuality:)])
-		{
-			[picker setVideoQuality:[videoQuality doubleValue]];
-		}
-	}
-	
-	// do this afterwards above so we can first check for video support
-	
-	if (![UIImagePickerController isSourceTypeAvailable:ourSource])
-	{
-		[self sendPickerError:MediaModuleErrorNoCamera];
-		return;
-	}
-	[picker setSourceType:ourSource];
 
-	// this must be done after we set the source type or you'll get an exception
-	if (isCamera && ourSource == UIImagePickerControllerSourceTypeCamera)
-	{
-		// turn on/off camera controls - nice to turn off when you want to have your own UI
-		[picker setShowsCameraControls:[TiUtils boolValue:@"showControls" properties:args def:YES]];
-		
-		// allow an overlay view
-		TiViewProxy *cameraViewProxy = [args objectForKey:@"overlay"];
-		if (cameraViewProxy!=nil)
-		{
-			ENSURE_TYPE(cameraViewProxy,TiViewProxy);
+    [picker setDelegate:self];
+
+    animatedPicker = YES;
+    saveToRoll = NO;
+    BOOL editable = NO;
+    UIImagePickerControllerSourceType ourSource = (isCamera ? UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary);
+
+    if (args!=nil)
+    {
+        [self commonPickerSetup:args];
+        
+        NSNumber * imageEditingObject = [args objectForKey:@"allowEditing"];
+        saveToRoll = [TiUtils boolValue:@"saveToPhotoGallery" properties:args def:NO];
+        
+        if (imageEditingObject==nil) {
+            imageEditingObject = [args objectForKey:@"allowImageEditing"];
+        }
+        
+        editable = [TiUtils boolValue:imageEditingObject def:NO];
+        [picker setAllowsEditing:editable];
+        
+        NSArray *sourceTypes = [UIImagePickerController availableMediaTypesForSourceType:ourSource];
+        id types = [args objectForKey:@"mediaTypes"];
+        
+        BOOL movieRequired = NO;
+        BOOL imageRequired = NO;
+        
+        if ([types isKindOfClass:[NSArray class]])
+        {
+            for (int c=0;c<[types count];c++)
+            {
+                if ([[types objectAtIndex:c] isEqualToString:(NSString*)kUTTypeMovie])
+                {
+                    movieRequired = YES;
+                }
+                else if ([[types objectAtIndex:c] isEqualToString:(NSString*)kUTTypeImage])
+                {
+                    imageRequired = YES;
+                }
+            }
+            picker.mediaTypes = [NSArray arrayWithArray:types];
+        }
+        else if ([types isKindOfClass:[NSString class]])
+        {
+            if ([types isEqualToString:(NSString*)kUTTypeMovie] && ![sourceTypes containsObject:(NSString *)kUTTypeMovie])
+            {
+                // no movie type supported...
+                [self sendPickerError:MediaModuleErrorNoVideo];
+                return;
+            }
+            picker.mediaTypes = [NSArray arrayWithObject:types];
+        }
+        
+        
+        // if we require movie but not image and we don't support movie, bail...
+        if (movieRequired == YES && imageRequired == NO && ![sourceTypes containsObject:(NSString *)kUTTypeMovie])
+        {
+            // no movie type supported...
+            [self sendPickerError:MediaModuleErrorNoCamera];
+            return ;
+        }
+        
+        // introduced in 3.1
+        id videoMaximumDuration = [args objectForKey:@"videoMaximumDuration"];
+        if ([videoMaximumDuration respondsToSelector:@selector(doubleValue)] && [picker respondsToSelector:@selector(setVideoMaximumDuration:)])
+        {
+            [picker setVideoMaximumDuration:[videoMaximumDuration doubleValue]/1000];
+        }
+        id videoQuality = [args objectForKey:@"videoQuality"];
+        if ([videoQuality respondsToSelector:@selector(doubleValue)] && [picker respondsToSelector:@selector(setVideoQuality:)])
+        {
+            [picker setVideoQuality:[videoQuality doubleValue]];
+        }
+    }
+
+    // do this afterwards above so we can first check for video support
+
+    if (![UIImagePickerController isSourceTypeAvailable:ourSource])
+    {
+        [self sendPickerError:MediaModuleErrorNoCamera];
+        return;
+    }
+    [picker setSourceType:ourSource];
+
+    // this must be done after we set the source type or you'll get an exception
+    if (isCamera && ourSource == UIImagePickerControllerSourceTypeCamera)
+    {
+        // turn on/off camera controls - nice to turn off when you want to have your own UI
+        [picker setShowsCameraControls:[TiUtils boolValue:@"showControls" properties:args def:YES]];
+        
+        // allow an overlay view
+        TiViewProxy *cameraViewProxy = [args objectForKey:@"overlay"];
+        if (cameraViewProxy!=nil)
+        {
+            ENSURE_TYPE(cameraViewProxy,TiViewProxy);
             cameraView = [cameraViewProxy retain];
-			UIView *view = [cameraView view];
-			if (editable)
-			{
-				// turn off touch enablement if image editing is enabled since it will
-				// interfere with editing
-				[view performSelector:@selector(setTouchEnabled_:) withObject:NUMBOOL(NO)];
-			}
-			[TiUtils setView:view positionRect:[picker view].bounds];
-			[cameraView windowWillOpen];
-			[picker setCameraOverlayView:view];
-			[cameraView windowDidOpen];
-			[cameraView layoutChildren:NO];
-		}
-		
-		// allow a transform on the preview image
-		id transform = [args objectForKey:@"transform"];
-		if (transform!=nil)
-		{
-			ENSURE_TYPE(transform,Ti2DMatrix);
-			[picker setCameraViewTransform:[transform matrix]];
-		}
-		else if (cameraView!=nil)
-		{
-			// we use our own fullscreen transform if the developer didn't supply one
-            if ([TiUtils isRetinaFourInch]) {
-                picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y_ALT);
+            UIView *view = [cameraView view];
+            if (editable)
+            {
+                // turn off touch enablement if image editing is enabled since it will
+                // interfere with editing
+                [view performSelector:@selector(setTouchEnabled_:) withObject:NUMBOOL(NO)];
             }
-            else {
-                picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y);
+            [TiUtils setView:view positionRect:[picker view].bounds];
+            [cameraView windowWillOpen];
+            [picker setCameraOverlayView:view];
+            [cameraView windowDidOpen];
+            [cameraView layoutChildren:NO];
+        }
+        
+        // allow a transform on the preview image
+        id transform = [args objectForKey:@"transform"];
+        if (transform!=nil)
+        {
+            ENSURE_TYPE(transform,Ti2DMatrix);
+            [picker setCameraViewTransform:[transform matrix]];
+        }
+        else if (cameraView!=nil && customPicker)
+        {
+            //No transforms in popover
+            CGSize screenSize = [[UIScreen mainScreen] bounds].size;
+            if ([TiUtils isIOS8OrGreater]) {
+                UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+                if (!UIInterfaceOrientationIsPortrait(orientation)) {
+                    screenSize = CGSizeMake(screenSize.height, screenSize.width);
+                }
             }
-		}
-	}
-	
-	if (isCamera) {
-		BOOL inPopOver = [TiUtils boolValue:@"inPopOver" properties:args def:NO];
-		if (inPopOver) {
-			[self displayModalPicker:picker settings:args];
-		}
-		else {
-			[self displayCamera:picker];
-		}
-	} else {
-		[self displayModalPicker:picker settings:args];
-	}
+            
+            float cameraAspectRatio = 4.0 / 3.0;
+            float camViewHeight = screenSize.width * cameraAspectRatio;
+            float scale = screenSize.height/camViewHeight;
+            
+            CGAffineTransform translate = CGAffineTransformMakeTranslation(0, (screenSize.height - camViewHeight) / 2.0);
+            picker.cameraViewTransform = CGAffineTransformScale(translate, scale, scale);
+        }
+    }
+
+    if (isCamera) {
+        if (inPopOver) {
+            [self displayModalPicker:picker settings:args];
+        }
+        else {
+            [self displayCamera:picker];
+        }
+    } else {
+        [self displayModalPicker:picker settings:args];
+    }
 }
 
 -(void)saveCompletedForImage:(UIImage*)image error:(NSError*)error contextInfo:(void*)contextInfo
