@@ -332,11 +332,6 @@ def get_summary_and_description(api_obj):
 		res = u"\t * " + desc
 	return res
 
-def get_edit_button_html(filepath):
-	href = "https://github.com/appcelerator/titanium_mobile/blob/master/apidoc/" + filepath
-	res = "<a id=\"editButton\" href=\"" + href + "\"><span>Edit</span></a>"
-	return res
-
 # Side effect of hiding properties is that the accessors do not get hidden
 # Explicitly hide accessors for JSDuck
 def hide_accessors(parent_name, property_name):
@@ -447,7 +442,6 @@ def generate(raw_apis, annotated_apis, options):
 				write_utf8(output, "\t * @pseudo\n")
 			write_utf8(output, output_properties_for_obj(annotated_obj))
 			write_utf8(output, get_summary_and_description(annotated_obj.api_obj))
-			write_utf8(output, get_edit_button_html(raw_apis[name]['filepath']))
 			write_utf8(output, output_examples_for_obj(annotated_obj.api_obj))
 			write_utf8(output, output_deprecation_for_obj(annotated_obj))
 			write_utf8(output, "\t */\n\n")
