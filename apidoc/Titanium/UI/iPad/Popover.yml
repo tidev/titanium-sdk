@@ -240,8 +240,8 @@ examples:
                     <ContentView>
                         <NavigationWindow>
                             <Window title='Kermit' backgroundColor='green'>
-                                <RightNavButton onClick="closePopover" title="Robin" />
-                                 <Label>It's not easy being green.</Label>
+                                <RightNavButton onClick="showAlert" title="Robin" />
+                                <Label>It's not easy being green.</Label>
                             </Window>
                         </NavigationWindow>
                     </ContentView>
