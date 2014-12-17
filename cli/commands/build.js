@@ -303,9 +303,6 @@ function patchLogger(logger, cli) {
 
 		typeof type != 'string' && (args[1] = ''+args[1]);
 
-		// strip off starting full colons
-		args[1] = args[1].replace(/:\s{1}/, ' ');
-
 		// add [INFO] type prefixes for each line
 		prefix = (args[0] != '_') ? '[' + args[0].toUpperCase() + ']' + ((args[0].length===5) ? '  ' : '   ') : '';
 
@@ -316,13 +313,13 @@ function patchLogger(logger, cli) {
 			}
 
 			// log it to our log file, stripping out the color codes
-			logger.log.filestream.write('\n' + prefix + args[1].replace(/\x1B\[\d+m/g, ''));
+			logger.log.filestream.write('\n' + prefix + (args.length > 2 ? sprintf.apply(null, args.slice(1)) : args[1]).replace(/\x1B\[\d+m/g, ''));
 		} else {
 			logger.log.buffer += '\n' + prefix + args[1].replace(/\x1B\[\d+m/g, '');
 		}
 
 		// call the original logger with our cleaned up args
-		origLoggerLog.apply(logger, [args[0], args.length > 2 ? sprintf.apply(null, args.slice(1)) : args[1]]);
+		origLoggerLog.apply(logger, arguments);
 
 		// restore padding
 		logger.padLevels = padLevels;
