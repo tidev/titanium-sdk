@@ -1,10 +1,3 @@
-/**
- * Appcelerator Titanium License
- * This source code and all modifications done by Appcelerator
- * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009-2014 by Appcelerator, Inc.
- */
-
 /*
  * Copyright (C) 2013 Apple Inc. All rights reserved.
  *
@@ -30,140 +23,140 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#ifndef TiValue_h
-#define TiValue_h
+#ifndef JSValue_h
+#define JSValue_h
 
 #if JSC_OBJC_API_ENABLED
 
 #import <CoreGraphics/CGGeometry.h>
 
-@class TiContext;
+@class JSContext;
 
 /*!
 @interface
-@discussion A TiValue is a reference to a value within the JavaScript object space of a
- TiVirtualMachine. All instances of TiValue originate from a TiContext and
- hold a strong reference to this TiContext. As long as any value associated with 
- a particular TiContext is retained, that TiContext will remain alive. 
- Where an instance method is invoked upon a TiValue, and this returns another 
- TiValue, the returned TiValue will originate from the same TiContext as the 
- TiValue on which the method was invoked.
+@discussion A JSValue is a reference to a value within the JavaScript object space of a
+ JSVirtualMachine. All instances of JSValue originate from a JSContext and
+ hold a strong reference to this JSContext. As long as any value associated with 
+ a particular JSContext is retained, that JSContext will remain alive. 
+ Where an instance method is invoked upon a JSValue, and this returns another 
+ JSValue, the returned JSValue will originate from the same JSContext as the 
+ JSValue on which the method was invoked.
 
- All JavaScript values are associated with a particular TiVirtualMachine
- (the associated TiVirtualMachine is available indirectly via the context
- property). An instance of TiValue may only be passed as an argument to
- methods on instances of TiValue and TiContext that belong to the same
- TiVirtualMachine - passing a TiValue to a method on an object originating
- from a different TiVirtualMachine will result in an Objective-C exception
+ All JavaScript values are associated with a particular JSVirtualMachine
+ (the associated JSVirtualMachine is available indirectly via the context
+ property). An instance of JSValue may only be passed as an argument to
+ methods on instances of JSValue and JSContext that belong to the same
+ JSVirtualMachine - passing a JSValue to a method on an object originating
+ from a different JSVirtualMachine will result in an Objective-C exception
  being raised.
 */
 NS_CLASS_AVAILABLE(10_9, 7_0)
-@interface TiValue : NSObject
+@interface JSValue : NSObject
 
 /*!
 @property
-@abstract The TiContext that this value originates from.
+@abstract The JSContext that this value originates from.
 */
-@property (readonly, strong) TiContext *context;
+@property (readonly, strong) JSContext *context;
 
 /*!
 @methodgroup Creating JavaScript Values
 */
 /*!
 @method
-@abstract Create a TiValue by converting an Objective-C object.
-@discussion The resulting TiValue retains the provided Objective-C object.
+@abstract Create a JSValue by converting an Objective-C object.
+@discussion The resulting JSValue retains the provided Objective-C object.
 @param value The Objective-C object to be converted.
-@result The new TiValue.
+@result The new JSValue.
 */
-+ (TiValue *)valueWithObject:(id)value inContext:(TiContext *)context;
++ (JSValue *)valueWithObject:(id)value inContext:(JSContext *)context;
 
 /*!
 @method
 @abstract Create a JavaScript value from a BOOL primitive.
 @param value
-@param context The TiContext in which the resulting TiValue will be created.
-@result The new TiValue representing the equivalent boolean value.
+@param context The JSContext in which the resulting JSValue will be created.
+@result The new JSValue representing the equivalent boolean value.
 */
-+ (TiValue *)valueWithBool:(BOOL)value inContext:(TiContext *)context;
++ (JSValue *)valueWithBool:(BOOL)value inContext:(JSContext *)context;
 
 /*!
 @method
 @abstract Create a JavaScript value from a double primitive.
 @param value
-@param context The TiContext in which the resulting TiValue will be created.
-@result The new TiValue representing the equivalent boolean value.
+@param context The JSContext in which the resulting JSValue will be created.
+@result The new JSValue representing the equivalent boolean value.
 */
-+ (TiValue *)valueWithDouble:(double)value inContext:(TiContext *)context;
++ (JSValue *)valueWithDouble:(double)value inContext:(JSContext *)context;
 
 /*!
 @method
 @abstract Create a JavaScript value from an <code>int32_t</code> primitive.
 @param value
-@param context The TiContext in which the resulting TiValue will be created.
-@result The new TiValue representing the equivalent boolean value.
+@param context The JSContext in which the resulting JSValue will be created.
+@result The new JSValue representing the equivalent boolean value.
 */
-+ (TiValue *)valueWithInt32:(int32_t)value inContext:(TiContext *)context;
++ (JSValue *)valueWithInt32:(int32_t)value inContext:(JSContext *)context;
 
 /*!
 @method
 @abstract Create a JavaScript value from a <code>uint32_t</code> primitive.
 @param value
-@param context The TiContext in which the resulting TiValue will be created.
-@result The new TiValue representing the equivalent boolean value.
+@param context The JSContext in which the resulting JSValue will be created.
+@result The new JSValue representing the equivalent boolean value.
 */
-+ (TiValue *)valueWithUInt32:(uint32_t)value inContext:(TiContext *)context;
++ (JSValue *)valueWithUInt32:(uint32_t)value inContext:(JSContext *)context;
 
 /*!
 @method
 @abstract Create a new, empty JavaScript object.
-@param context The TiContext in which the resulting object will be created.
+@param context The JSContext in which the resulting object will be created.
 @result The new JavaScript object.
 */
-+ (TiValue *)valueWithNewObjectInContext:(TiContext *)context;
++ (JSValue *)valueWithNewObjectInContext:(JSContext *)context;
 
 /*!
 @method
 @abstract Create a new, empty JavaScript array.
-@param context The TiContext in which the resulting array will be created.
+@param context The JSContext in which the resulting array will be created.
 @result The new JavaScript array.
 */
-+ (TiValue *)valueWithNewArrayInContext:(TiContext *)context;
++ (JSValue *)valueWithNewArrayInContext:(JSContext *)context;
 
 /*!
 @method
 @abstract Create a new JavaScript regular expression object.
 @param pattern The regular expression pattern.
 @param flags The regular expression flags.
-@param context The TiContext in which the resulting regular expression object will be created.
+@param context The JSContext in which the resulting regular expression object will be created.
 @result The new JavaScript regular expression object.
 */
-+ (TiValue *)valueWithNewRegularExpressionFromPattern:(NSString *)pattern flags:(NSString *)flags inContext:(TiContext *)context;
++ (JSValue *)valueWithNewRegularExpressionFromPattern:(NSString *)pattern flags:(NSString *)flags inContext:(JSContext *)context;
 
 /*!
 @method
 @abstract Create a new JavaScript error object.
 @param message The error message.
-@param context The TiContext in which the resulting error object will be created.
+@param context The JSContext in which the resulting error object will be created.
 @result The new JavaScript error object.
 */
-+ (TiValue *)valueWithNewErrorFromMessage:(NSString *)message inContext:(TiContext *)context;
++ (JSValue *)valueWithNewErrorFromMessage:(NSString *)message inContext:(JSContext *)context;
 
 /*!
 @method
 @abstract Create the JavaScript value <code>null</code>.
-@param context The TiContext to which the resulting TiValue belongs.
-@result The TiValue representing the JavaScript value <code>null</code>.
+@param context The JSContext to which the resulting JSValue belongs.
+@result The JSValue representing the JavaScript value <code>null</code>.
 */
-+ (TiValue *)valueWithNullInContext:(TiContext *)context;
++ (JSValue *)valueWithNullInContext:(JSContext *)context;
 
 /*!
 @method
 @abstract Create the JavaScript value <code>undefined</code>.
-@param context The TiContext to which the resulting TiValue belongs.
-@result The TiValue representing the JavaScript value <code>undefined</code>.
+@param context The JSContext to which the resulting JSValue belongs.
+@result The JSValue representing the JavaScript value <code>undefined</code>.
 */
-+ (TiValue *)valueWithUndefinedInContext:(TiContext *)context;
++ (JSValue *)valueWithUndefinedInContext:(JSContext *)context;
 
 /*!
 @methodgroup Converting to Objective-C Types
@@ -193,7 +186,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
  (1) Instances of NSBlock with supported arguments types will be presented to
  JavaScript as a callable Function object. For more information on supported
- argument types see TiExport.h. If a JavaScript Function originating from an
+ argument types see JSExport.h. If a JavaScript Function originating from an
  Objective-C block is converted back to an Objective-C object the block will
  be returned. All other JavaScript functions will be converted in the same
  manner as a JavaScript object of type Object.
@@ -201,11 +194,11 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
  (2) For Objective-C instances that do not derive from the set of types listed
  above, a wrapper object to provide a retaining handle to the Objective-C
  instance from JavaScript. For more information on these wrapper objects, see
- TiExport.h. When a JavaScript wrapper object is converted back to Objective-C
+ JSExport.h. When a JavaScript wrapper object is converted back to Objective-C
  the Objective-C instance being retained by the wrapper is returned.
 
  (3) For Objective-C Class objects a constructor object containing exported
- class methods will be returned. See TiExport.h for more information on
+ class methods will be returned. See JSExport.h for more information on
  constructor objects.
 
  For all methods taking arguments of type id, arguments will be converted
@@ -213,17 +206,17 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 */
 /*!
 @method
-@abstract Convert this TiValue to an Objective-C object.
-@discussion The TiValue is converted to an Objective-C object according 
+@abstract Convert this JSValue to an Objective-C object.
+@discussion The JSValue is converted to an Objective-C object according 
  to the conversion rules specified above.
-@result The Objective-C representation of this TiValue.
+@result The Objective-C representation of this JSValue.
 */
 - (id)toObject;
 
 /*!
 @method
-@abstract Convert a TiValue to an Objective-C object of a specific class.
-@discussion The TiValue is converted to an Objective-C object of the specified Class. 
+@abstract Convert a JSValue to an Objective-C object of a specific class.
+@discussion The JSValue is converted to an Objective-C object of the specified Class. 
  If the result is not of the specified Class then <code>nil</code> will be returned.
 @result An Objective-C object of the specified Class or <code>nil</code>.
 */
@@ -231,8 +224,8 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 /*!
 @method
-@abstract Convert a TiValue to a boolean.
-@discussion The TiValue is converted to a boolean according to the rules specified 
+@abstract Convert a JSValue to a boolean.
+@discussion The JSValue is converted to a boolean according to the rules specified 
  by the JavaScript language.
 @result The boolean result of the conversion.
 */
@@ -240,8 +233,8 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 /*!
 @method
-@abstract Convert a TiValue to a double.
-@discussion The TiValue is converted to a number according to the rules specified 
+@abstract Convert a JSValue to a double.
+@discussion The JSValue is converted to a number according to the rules specified 
  by the JavaScript language.
 @result The double result of the conversion.
 */
@@ -249,8 +242,8 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 /*!
 @method
-@abstract Convert a TiValue to an <code>int32_t</code>.
-@discussion The TiValue is converted to an integer according to the rules specified 
+@abstract Convert a JSValue to an <code>int32_t</code>.
+@discussion The JSValue is converted to an integer according to the rules specified 
  by the JavaScript language.
 @result The <code>int32_t</code> result of the conversion.
 */
@@ -258,8 +251,8 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 /*!
 @method
-@abstract Convert a TiValue to a <code>uint32_t</code>.
-@discussion The TiValue is converted to an integer according to the rules specified 
+@abstract Convert a JSValue to a <code>uint32_t</code>.
+@discussion The JSValue is converted to an integer according to the rules specified 
  by the JavaScript language.
 @result The <code>uint32_t</code> result of the conversion.
 */
@@ -267,8 +260,8 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 /*!
 @method
-@abstract Convert a TiValue to a NSNumber.
-@discussion If the TiValue represents a boolean, a NSNumber value of YES or NO 
+@abstract Convert a JSValue to a NSNumber.
+@discussion If the JSValue represents a boolean, a NSNumber value of YES or NO 
  will be returned. For all other types the value will be converted to a number according 
  to the rules specified by the JavaScript language.
 @result The NSNumber result of the conversion.
@@ -277,8 +270,8 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 /*!
 @method
-@abstract Convert a TiValue to a NSString.
-@discussion The TiValue is converted to a string according to the rules specified 
+@abstract Convert a JSValue to a NSString.
+@discussion The JSValue is converted to a string according to the rules specified 
  by the JavaScript language.
 @result The NSString containing the result of the conversion.
 */
@@ -286,7 +279,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 /*!
 @method
-@abstract Convert a TiValue to a NSDate.
+@abstract Convert a JSValue to a NSDate.
 @discussion The value is converted to a number representing a time interval 
  since 1970 which is then used to create a new NSDate instance.
 @result The NSDate created using the converted time interval.
@@ -295,13 +288,13 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 /*!
 @method
-@abstract Convert a TiValue to a NSArray.
+@abstract Convert a JSValue to a NSArray.
 @discussion If the value is <code>null</code> or <code>undefined</code> then <code>nil</code> is returned.
  If the value is not an object then a JavaScript TypeError will be thrown.
  The property <code>length</code> is read from the object, converted to an unsigned
  integer, and an NSArray of this size is allocated. Properties corresponding
  to indicies within the array bounds will be copied to the array, with
- TiValues converted to equivalent Objective-C objects as specified.
+ JSValues converted to equivalent Objective-C objects as specified.
 @result The NSArray containing the recursively converted contents of the 
  converted JavaScript array.
 */
@@ -309,11 +302,11 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 /*!
 @method
-@abstract Convert a TiValue to a NSDictionary.
+@abstract Convert a JSValue to a NSDictionary.
 @discussion If the value is <code>null</code> or <code>undefined</code> then <code>nil</code> is returned.
  If the value is not an object then a JavaScript TypeError will be thrown.
  All enumerable properties of the object are copied to the dictionary, with
- TiValues converted to equivalent Objective-C objects as specified.
+ JSValues converted to equivalent Objective-C objects as specified.
 @result The NSDictionary containing the recursively converted contents of
  the converted JavaScript object.
 */
@@ -324,28 +317,28 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 */
 /*!
 @method
-@abstract Access a property of a TiValue.
-@result The TiValue for the requested property or the TiValue <code>undefined</code> 
+@abstract Access a property of a JSValue.
+@result The JSValue for the requested property or the JSValue <code>undefined</code> 
  if the property does not exist.
 */
-- (TiValue *)valueForProperty:(NSString *)property;
+- (JSValue *)valueForProperty:(NSString *)property;
 
 /*!
 @method
-@abstract Set a property on a TiValue.
+@abstract Set a property on a JSValue.
 */
 - (void)setValue:(id)value forProperty:(NSString *)property;
 
 /*!
 @method
-@abstract Delete a property from a TiValue.
+@abstract Delete a property from a JSValue.
 @result YES if deletion is successful, NO otherwise.
 */
 - (BOOL)deleteProperty:(NSString *)property;
 
 /*!
 @method
-@abstract Check if a TiValue has a property.
+@abstract Check if a JSValue has a property.
 @discussion This method has the same function as the JavaScript operator <code>in</code>.
 @result Returns YES if property is present on the value.
 */
@@ -353,7 +346,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 /*!
 @method
-@abstract Define properties with custom descriptors on TiValues.
+@abstract Define properties with custom descriptors on JSValues.
 @discussion This method may be used to create a data or accessor property on an object.
  This method operates in accordance with the Object.defineProperty method in the 
  JavaScript language.
@@ -362,16 +355,16 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 /*!
 @method
-@abstract Access an indexed (numerical) property on a TiValue.
-@result The TiValue for the property at the specified index. 
+@abstract Access an indexed (numerical) property on a JSValue.
+@result The JSValue for the property at the specified index. 
  Returns the JavaScript value <code>undefined</code> if no property exists at that index. 
 */
-- (TiValue *)valueAtIndex:(NSUInteger)index;
+- (JSValue *)valueAtIndex:(NSUInteger)index;
 
 /*!
 @method
-@abstract Set an indexed (numerical) property on a TiValue.
-@discussion For TiValues that are JavaScript arrays, indices greater than 
+@abstract Set an indexed (numerical) property on a JSValue.
+@discussion For JSValues that are JavaScript arrays, indices greater than 
  UINT_MAX - 1 will not affect the length of the array.
 */
 - (void)setValue:(id)value atIndex:(NSUInteger)index;
@@ -381,25 +374,25 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 */
 /*!
 @method
-@abstract Check if a TiValue corresponds to the JavaScript value <code>undefined</code>.
+@abstract Check if a JSValue corresponds to the JavaScript value <code>undefined</code>.
 */ 
 - (BOOL)isUndefined;
 
 /*!
 @method
-@abstract Check if a TiValue corresponds to the JavaScript value <code>null</code>.
+@abstract Check if a JSValue corresponds to the JavaScript value <code>null</code>.
 */
 - (BOOL)isNull;
 
 /*!
 @method
-@abstract Check if a TiValue is a boolean.
+@abstract Check if a JSValue is a boolean.
 */
 - (BOOL)isBoolean;
 
 /*!
 @method
-@abstract Check if a TiValue is a number.
+@abstract Check if a JSValue is a number.
 @discussion In JavaScript, there is no differentiation between types of numbers.
  Semantically all numbers behave like doubles except in special cases like bit
  operations. 
@@ -408,33 +401,33 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 /*!
 @method
-@abstract Check if a TiValue is a string.
+@abstract Check if a JSValue is a string.
 */
 - (BOOL)isString;
 
 /*!
 @method
-@abstract Check if a TiValue is an object.
+@abstract Check if a JSValue is an object.
 */
 - (BOOL)isObject;
 
 /*!
 @method
-@abstract Compare two TiValues using JavaScript's <code>===</code> operator.
+@abstract Compare two JSValues using JavaScript's <code>===</code> operator.
 */
 - (BOOL)isEqualToObject:(id)value;
 
 /*!
 @method
-@abstract Compare two TiValues using JavaScript's <code>==</code> operator.
+@abstract Compare two JSValues using JavaScript's <code>==</code> operator.
 */
 - (BOOL)isEqualWithTypeCoercionToObject:(id)value;
 
 /*!
 @method
-@abstract Check if a TiValue is an instance of another object.
+@abstract Check if a JSValue is an instance of another object.
 @discussion This method has the same function as the JavaScript operator <code>instanceof</code>.
- If an object other than a TiValue is passed, it will first be converted according to
+ If an object other than a JSValue is passed, it will first be converted according to
  the aforementioned rules.
 */
 - (BOOL)isInstanceOf:(id)value;
@@ -444,34 +437,34 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 */
 /*!
 @method
-@abstract Invoke a TiValue as a function.
+@abstract Invoke a JSValue as a function.
 @discussion In JavaScript, if a function doesn't explicitly return a value then it
  implicitly returns the JavaScript value <code>undefined</code>.
 @param arguments The arguments to pass to the function.
 @result The return value of the function call. 
 */
-- (TiValue *)callWithArguments:(NSArray *)arguments;
+- (JSValue *)callWithArguments:(NSArray *)arguments;
 
 /*!
 @method
-@abstract Invoke a TiValue as a constructor.
+@abstract Invoke a JSValue as a constructor.
 @discussion This is equivalent to using the <code>new</code> syntax in JavaScript.
 @param arguments The arguments to pass to the constructor.
 @result The return value of the constructor call.
 */
-- (TiValue *)constructWithArguments:(NSArray *)arguments;
+- (JSValue *)constructWithArguments:(NSArray *)arguments;
 
 /*!
 @method
-@abstract Invoke a method on a TiValue.
+@abstract Invoke a method on a JSValue.
 @discussion Accesses the property named <code>method</code> from this value and 
- calls the resulting value as a function, passing this TiValue as the <code>this</code>
+ calls the resulting value as a function, passing this JSValue as the <code>this</code>
  value along with the specified arguments.
 @param method The name of the method to be invoked.
 @param arguments The arguments to pass to the method.
 @result The return value of the method call.
 */
-- (TiValue *)invokeMethod:(NSString *)method withArguments:(NSArray *)arguments;
+- (JSValue *)invokeMethod:(NSString *)method withArguments:(NSArray *)arguments;
 
 @end
 
@@ -479,80 +472,80 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 @category
 @discussion Objective-C methods exported to JavaScript may have argument and/or return
  values of struct types, provided that conversion to and from the struct is
- supported by TiValue. Support is provided for any types where TiValue
+ supported by JSValue. Support is provided for any types where JSValue
  contains both a class method <code>valueWith<Type>:inContext:</code>, and and instance
  method <code>to<Type></code>- where the string <code><Type></code> in these selector names match,
  with the first argument to the former being of the same struct type as the
  return type of the latter.
  Support is provided for structs of type CGPoint, NSRange, CGRect and CGSize.
 */
-@interface TiValue (StructSupport)
+@interface JSValue (StructSupport)
 
 /*!
 @method
-@abstract Create a TiValue from a CGPoint.
+@abstract Create a JSValue from a CGPoint.
 @result A newly allocated JavaScript object containing properties
  named <code>x</code> and <code>y</code>, with values from the CGPoint.
 */
-+ (TiValue *)valueWithPoint:(CGPoint)point inContext:(TiContext *)context;
++ (JSValue *)valueWithPoint:(CGPoint)point inContext:(JSContext *)context;
 
 /*!
 @method
-@abstract Create a TiValue from a NSRange.
+@abstract Create a JSValue from a NSRange.
 @result A newly allocated JavaScript object containing properties
  named <code>location</code> and <code>length</code>, with values from the NSRange.
 */
-+ (TiValue *)valueWithRange:(NSRange)range inContext:(TiContext *)context;
++ (JSValue *)valueWithRange:(NSRange)range inContext:(JSContext *)context;
 
 /*!
 @method
 @abstract 
-Create a TiValue from a CGRect.
+Create a JSValue from a CGRect.
 @result A newly allocated JavaScript object containing properties
  named <code>x</code>, <code>y</code>, <code>width</code>, and <code>height</code>, with values from the CGRect.
 */
-+ (TiValue *)valueWithRect:(CGRect)rect inContext:(TiContext *)context;
++ (JSValue *)valueWithRect:(CGRect)rect inContext:(JSContext *)context;
 
 /*!
 @method
-@abstract Create a TiValue from a CGSize.
+@abstract Create a JSValue from a CGSize.
 @result A newly allocated JavaScript object containing properties
  named <code>width</code> and <code>height</code>, with values from the CGSize.
 */
-+ (TiValue *)valueWithSize:(CGSize)size inContext:(TiContext *)context;
++ (JSValue *)valueWithSize:(CGSize)size inContext:(JSContext *)context;
 
 /*!
 @method
-@abstract Convert a TiValue to a CGPoint.
+@abstract Convert a JSValue to a CGPoint.
 @discussion Reads the properties named <code>x</code> and <code>y</code> from
- this TiValue, and converts the results to double.
+ this JSValue, and converts the results to double.
 @result The new CGPoint.
 */
 - (CGPoint)toPoint;
 
 /*!
 @method
-@abstract Convert a TiValue to an NSRange.
+@abstract Convert a JSValue to an NSRange.
 @discussion Reads the properties named <code>location</code> and
- <code>length</code> from this TiValue and converts the results to double.
+ <code>length</code> from this JSValue and converts the results to double.
 @result The new NSRange.
 */
 - (NSRange)toRange;
 
 /*!
 @method
-@abstract Convert a TiValue to a CGRect.
+@abstract Convert a JSValue to a CGRect.
 @discussion Reads the properties named <code>x</code>, <code>y</code>, 
- <code>width</code>, and <code>height</code> from this TiValue and converts the results to double.
+ <code>width</code>, and <code>height</code> from this JSValue and converts the results to double.
 @result The new CGRect.
 */
 - (CGRect)toRect;
 
 /*!
 @method
-@abstract Convert a TiValue to a CGSize.
+@abstract Convert a JSValue to a CGSize.
 @discussion Reads the properties named <code>width</code> and
- <code>height</code> from this TiValue and converts the results to double.
+ <code>height</code> from this JSValue and converts the results to double.
 @result The new CGSize.
 */
 - (CGSize)toSize;
@@ -561,13 +554,13 @@ Create a TiValue from a CGRect.
 
 /*!
 @category
-@discussion Instances of TiValue implement the following methods in order to enable
+@discussion Instances of JSValue implement the following methods in order to enable
  support for subscript access by key and index, for example:
 
 @textblock
-    TiValue *objectA, *objectB;
-    TiValue *v1 = object[@"X"]; // Get value for property "X" from 'object'.
-    TiValue *v2 = object[42];   // Get value for index 42 from 'object'.
+    JSValue *objectA, *objectB;
+    JSValue *v1 = object[@"X"]; // Get value for property "X" from 'object'.
+    JSValue *v2 = object[42];   // Get value for index 42 from 'object'.
     object[@"Y"] = v1;          // Assign 'v1' to property "Y" of 'object'.
     object[101] = v2;           // Assign 'v2' to index 101 of 'object'.
 @/textblock
@@ -575,10 +568,10 @@ Create a TiValue from a CGRect.
  An object key passed as a subscript will be converted to a JavaScript value,
  and then the value converted to a string used as a property name.
 */
-@interface TiValue (SubscriptSupport)
+@interface JSValue (SubscriptSupport)
 
-- (TiValue *)objectForKeyedSubscript:(id)key;
-- (TiValue *)objectAtIndexedSubscript:(NSUInteger)index;
+- (JSValue *)objectForKeyedSubscript:(id)key;
+- (JSValue *)objectAtIndexedSubscript:(NSUInteger)index;
 - (void)setObject:(id)object forKeyedSubscript:(NSObject <NSCopying> *)key;
 - (void)setObject:(id)object atIndexedSubscript:(NSUInteger)index;
 
@@ -588,23 +581,23 @@ Create a TiValue from a CGRect.
 @category
 @discussion  These functions are for bridging between the C API and the Objective-C API.
 */
-@interface TiValue (TiValueRefSupport)
+@interface JSValue (JSValueRefSupport)
 
 /*!
 @method
-@abstract Creates a TiValue, wrapping its C API counterpart.
+@abstract Creates a JSValue, wrapping its C API counterpart.
 @param value
 @param context
-@result The Objective-C API equivalent of the specified TiValueRef.
+@result The Objective-C API equivalent of the specified JSValueRef.
 */
-+ (TiValue *)valueWithTiValueRef:(TiValueRef)value inContext:(TiContext *)context;
++ (JSValue *)valueWithJSValueRef:(JSValueRef)value inContext:(JSContext *)context;
 
 /*!
 @property
-@abstract Returns the C API counterpart wrapped by a TiContext.
-@result The C API equivalent of this TiValue.
+@abstract Returns the C API counterpart wrapped by a JSContext.
+@result The C API equivalent of this JSValue.
 */
-@property (readonly) TiValueRef TiValueRef;
+@property (readonly) JSValueRef JSValueRef;
 @end
 
 #ifdef __cplusplus
@@ -614,7 +607,7 @@ extern "C" {
 /*!
 @group Property Descriptor Constants
 @discussion These keys may assist in creating a property descriptor for use with the
- defineProperty method on TiValue.
+ defineProperty method on JSValue.
  Property descriptors must fit one of three descriptions:
 
  Data Descriptor:
@@ -671,4 +664,4 @@ JS_EXPORT extern NSString * const JSPropertyDescriptorSetKey;
 
 #endif
 
-#endif // TiValue_h
+#endif // JSValue_h

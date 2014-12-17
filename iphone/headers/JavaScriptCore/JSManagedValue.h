@@ -1,10 +1,3 @@
-/**
- * Appcelerator Titanium License
- * This source code and all modifications done by Appcelerator
- * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009-2014 by Appcelerator, Inc.
- */
-
 /*
  * Copyright (C) 2013 Apple Inc. All rights reserved.
  *
@@ -30,61 +23,61 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TiManagedValue_h
-#define TiManagedValue_h
+#ifndef JSManagedValue_h
+#define JSManagedValue_h
 
-#import <JavaScriptCore/TiBase.h>
+#import <JavaScriptCore/JSBase.h>
 
 #if JSC_OBJC_API_ENABLED
 
-@class TiValue;
-@class TiContext;
+@class JSValue;
+@class JSContext;
 
 /*!
 @interface
-@discussion TiManagedValue represents a "conditionally retained" TiValue. 
- "Conditionally retained" means that as long as either the TiManagedValue's 
+@discussion JSManagedValue represents a "conditionally retained" JSValue. 
+ "Conditionally retained" means that as long as either the JSManagedValue's 
  JavaScript value is reachable through the JavaScript object graph
- or the TiManagedValue object is reachable through the external Objective-C 
- object graph as reported to the TiVirtualMachine using 
+ or the JSManagedValue object is reachable through the external Objective-C 
+ object graph as reported to the JSVirtualMachine using 
  addManagedReference:withOwner:, the corresponding JavaScript value will 
  be retained. However, if neither of these conditions are true, the 
- corresponding TiValue will be released and set to nil.
+ corresponding JSValue will be released and set to nil.
 
- The primary use case for TiManagedValue is for safely referencing TiValues 
- from the Objective-C heap. It is incorrect to store a TiValue into an 
+ The primary use case for JSManagedValue is for safely referencing JSValues 
+ from the Objective-C heap. It is incorrect to store a JSValue into an 
  Objective-C heap object, as this can very easily create a reference cycle, 
- keeping the entire TiContext alive.
+ keeping the entire JSContext alive.
 */ 
 NS_CLASS_AVAILABLE(10_9, 7_0)
-@interface TiManagedValue : NSObject
+@interface JSManagedValue : NSObject
 
 /*!
 @method
-@abstract Create a TiManagedValue from a TiValue.
+@abstract Create a JSManagedValue from a JSValue.
 @param value
-@result The new TiManagedValue.
+@result The new JSManagedValue.
 */
-+ (TiManagedValue *)managedValueWithValue:(TiValue *)value;
++ (JSManagedValue *)managedValueWithValue:(JSValue *)value;
 
 /*!
 @method
-@abstract Create a TiManagedValue.
+@abstract Create a JSManagedValue.
 @param value
-@result The new TiManagedValue.
+@result The new JSManagedValue.
 */
-- (instancetype)initWithValue:(TiValue *)value;
+- (instancetype)initWithValue:(JSValue *)value;
 
 /*!
 @property
-@abstract Get the TiValue from the TiManagedValue.
-@result The corresponding TiValue for this TiManagedValue or 
- nil if the TiValue has been collected.
+@abstract Get the JSValue from the JSManagedValue.
+@result The corresponding JSValue for this JSManagedValue or 
+ nil if the JSValue has been collected.
 */
-@property (readonly, strong) TiValue *value;
+@property (readonly, strong) JSValue *value;
 
 @end
 
 #endif // JSC_OBJC_API_ENABLED
 
-#endif // TiManagedValue_h
+#endif // JSManagedValue_h

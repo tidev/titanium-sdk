@@ -1,10 +1,3 @@
-/**
- * Appcelerator Titanium License
- * This source code and all modifications done by Appcelerator
- * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009-2014 by Appcelerator, Inc.
- */
-
 /*
  * Copyright (C) 2013 Apple Inc. All rights reserved.
  *
@@ -30,26 +23,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#import <JavaScriptCore/TiCore.h>
+#import <JavaScriptCore/JavaScriptCore.h>
 
 #if JSC_OBJC_API_ENABLED
 
 /*!
 @interface
-@discussion An instance of TiVirtualMachine represents a single JavaScript "object space"
+@discussion An instance of JSVirtualMachine represents a single JavaScript "object space"
  or set of execution resources. Thread safety is supported by locking the
  virtual machine, with concurrent JavaScript execution supported by allocating
- separate instances of TiVirtualMachine.
+ separate instances of JSVirtualMachine.
 */
 NS_CLASS_AVAILABLE(10_9, 7_0)
-@interface TiVirtualMachine : NSObject
+@interface JSVirtualMachine : NSObject
 
 /*!
 @methodgroup Creating New Virtual Machines
 */
 /*!
 @method
-@abstract Create a new TiVirtualMachine.
+@abstract Create a new JSVirtualMachine.
 */
 - (instancetype)init;
 
@@ -58,8 +51,8 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 */
 /*!
 @method
-@abstract Notify the TiVirtualMachine of an external object relationship.
-@discussion Allows clients of TiVirtualMachine to make the JavaScript runtime aware of 
+@abstract Notify the JSVirtualMachine of an external object relationship.
+@discussion Allows clients of JSVirtualMachine to make the JavaScript runtime aware of 
  arbitrary external Objective-C object graphs. The runtime can then use 
  this information to retain any JavaScript values that are referenced 
  from somewhere in said object graph.
@@ -76,7 +69,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 /*!
 @method
-@abstract Notify the TiVirtualMachine that a previous object relationship no longer exists.
+@abstract Notify the JSVirtualMachine that a previous object relationship no longer exists.
 @discussion The JavaScript runtime will continue to scan any references that were
  reported to it by -addManagedReference:withOwner: until those references are removed.
 @param object The object that was formerly owned.

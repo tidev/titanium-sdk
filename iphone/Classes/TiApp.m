@@ -223,7 +223,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         if (([host length] > 0) && ![host isEqualToString:@"__PROFILER_HOST__"])
         {
             [self setProfileMode:YES];
-            TiProfilerStart(host, port);
+            //TIMOB-11093 TiProfilerStart(host, port);
         }
 #if !TARGET_IPHONE_SIMULATOR
 		else if (([airkey length] > 0) && ![airkey isEqualToString:@"__PROFILER_AIRKEY__"])
@@ -233,13 +233,14 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 			if (![hostsString isEqualToString:@"__PROFILER_HOSTS__"]) {
 				hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
 			}
-			TiProfilerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
-				if (host != nil) {
-					[self setProfileMode:YES];
-					TiProfilerStart(host, port);
-				}
-				[self appBoot];
-			});
+      //TIMOB-11093
+			// TiProfilerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
+			// 	if (host != nil) {
+			// 		[self setProfileMode:YES];
+			// 		TiProfilerStart(host, port);
+			// 	}
+			// 	[self appBoot];
+			// });
 			return;
 		}
 #endif

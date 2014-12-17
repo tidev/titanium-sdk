@@ -1,10 +1,3 @@
-/**
- * Appcelerator Titanium License
- * This source code and all modifications done by Appcelerator
- * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009-2014 by Appcelerator, Inc.
- */
-
 /*
  * Copyright (C) 2006, 2008 Apple Inc. All rights reserved.
  *
@@ -30,20 +23,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#ifndef TiCore_h
-#define TiCore_h
+#ifndef JavaScriptCore_h
+#define JavaScriptCore_h
 
-#include <JavaScriptCore/Ti.h>
-#include <JavaScriptCore/TiStringRefCF.h>
+#include <JavaScriptCore/JavaScript.h>
+#include <JavaScriptCore/JSStringRefCF.h>
 
 #if defined(__OBJC__) && JSC_OBJC_API_ENABLED
 
-#import "TiContext.h"
-#import "TiValue.h"
-#import "TiManagedValue.h"
-#import "TiVirtualMachine.h"
-#import "TiExport.h"
+#import "JSContext.h"
+#import "JSValue.h"
+#import "JSManagedValue.h"
+#import "JSVirtualMachine.h"
+#import "JSExport.h"
 
 #endif
 
-#endif /* TiCore_h */
+#endif /* JavaScriptCore_h */

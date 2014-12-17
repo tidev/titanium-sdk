@@ -1,10 +1,3 @@
-/**
- * Appcelerator Titanium License
- * This source code and all modifications done by Appcelerator
- * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009-2014 by Appcelerator, Inc.
- */
-
 /*
  * Copyright (C) 2006, 2007 Apple Computer, Inc.  All rights reserved.
  *
@@ -30,10 +23,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#ifndef TiStringRefCF_h
-#define TiStringRefCF_h
+#ifndef JSStringRefCF_h
+#define JSStringRefCF_h
 
-#include "TiBase.h"
+#include "JSBase.h"
 #include <CoreFoundation/CoreFoundation.h>
 
 #ifdef __cplusplus
@@ -50,7 +43,7 @@ extern "C" {
 @param string     The CFString to copy into the new JSString.
 @result           A JSString containing string. Ownership follows the Create Rule.
 */
-JS_EXPORT TiStringRef TiStringCreateWithCFString(CFStringRef string);
+JS_EXPORT JSStringRef JSStringCreateWithCFString(CFStringRef string);
 /*!
 @function
 @abstract         Creates a CFString from a JavaScript string.
@@ -58,10 +51,10 @@ JS_EXPORT TiStringRef TiStringCreateWithCFString(CFStringRef string);
 @param string     The JSString to copy into the new CFString.
 @result           A CFString containing string. Ownership follows the Create Rule.
 */
-JS_EXPORT CFStringRef TiStringCopyCFString(CFAllocatorRef alloc, TiStringRef string) CF_RETURNS_RETAINED;
+JS_EXPORT CFStringRef JSStringCopyCFString(CFAllocatorRef alloc, JSStringRef string) CF_RETURNS_RETAINED;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TiStringRefCF_h */
+#endif /* JSStringRefCF_h */

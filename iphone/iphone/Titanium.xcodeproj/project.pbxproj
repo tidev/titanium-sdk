@@ -490,9 +490,6 @@
 		843FA58417BD4DFF0064E061 /* TiUIiOSNavWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 843FA58317BD4DFF0064E061 /* TiUIiOSNavWindow.m */; };
 		843FA58517BD4DFF0064E061 /* TiUIiOSNavWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 843FA58317BD4DFF0064E061 /* TiUIiOSNavWindow.m */; };
 		843FA58617BD4DFF0064E061 /* TiUIiOSNavWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 843FA58317BD4DFF0064E061 /* TiUIiOSNavWindow.m */; };
-		844812C41A1D4C2100FBE03A /* libti_ios_profiler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 502E9D2316CAFB9D00C1BD26 /* libti_ios_profiler.a */; };
-		844812C51A1D4C3200FBE03A /* libti_ios_profiler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 502E9D2316CAFB9D00C1BD26 /* libti_ios_profiler.a */; };
-		844812C61A1D4C4100FBE03A /* libti_ios_profiler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 502E9D2316CAFB9D00C1BD26 /* libti_ios_profiler.a */; };
 		844E1F7E14883A3700F5424C /* TiDOMValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 844E1F7D14883A3700F5424C /* TiDOMValidator.m */; };
 		844E1F7F14883A3700F5424C /* TiDOMValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 844E1F7D14883A3700F5424C /* TiDOMValidator.m */; };
 		844E1F8014883A3700F5424C /* TiDOMValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 844E1F7D14883A3700F5424C /* TiDOMValidator.m */; };
@@ -1372,11 +1369,11 @@
 		8484E3A417A82EE700C24B02 /* TiControllerProtocols.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiControllerProtocols.h; sourceTree = "<group>"; };
 		8484E3A517A865F700C24B02 /* TiViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiViewController.h; sourceTree = "<group>"; };
 		8484E3A617A865F700C24B02 /* TiViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiViewController.m; sourceTree = "<group>"; };
-		8488C04F1A14079200B01A87 /* Ti.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ti.h; sourceTree = "<group>"; };
+		8488C04F1A14079200B01A87 /* JavaScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScript.h; sourceTree = "<group>"; };
 		8488C0501A14079200B01A87 /* TiBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBase.h; sourceTree = "<group>"; };
 		8488C0511A14079200B01A87 /* TiContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiContext.h; sourceTree = "<group>"; };
-		8488C0521A14079200B01A87 /* TiContextRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiContextRef.h; sourceTree = "<group>"; };
-		8488C0531A14079200B01A87 /* TiCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCore.h; sourceTree = "<group>"; };
+		8488C0521A14079200B01A87 /* JSContextRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSContextRef.h; sourceTree = "<group>"; };
+		8488C0531A14079200B01A87 /* JavaScriptCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScriptCore.h; sourceTree = "<group>"; };
 		8488C0541A14079200B01A87 /* TiExport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiExport.h; sourceTree = "<group>"; };
 		8488C0551A14079200B01A87 /* TiManagedValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiManagedValue.h; sourceTree = "<group>"; };
 		8488C0561A14079200B01A87 /* TiObjectRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiObjectRef.h; sourceTree = "<group>"; };
@@ -1533,7 +1530,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				844812C41A1D4C2100FBE03A /* libti_ios_profiler.a in Frameworks */,
 				8465E6BC19F8644D008479E6 /* CoreMedia.framework in Frameworks */,
 				84D4CA1619EF0B5A009131F8 /* CoreMotion.framework in Frameworks */,
 				312E36C1190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
@@ -1573,7 +1569,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				844812C51A1D4C3200FBE03A /* libti_ios_profiler.a in Frameworks */,
 				8465E6BD19F86459008479E6 /* CoreMedia.framework in Frameworks */,
 				84D4CA1519EF0B4D009131F8 /* CoreMotion.framework in Frameworks */,
 				312E36C2190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
@@ -1612,7 +1607,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				844812C61A1D4C4100FBE03A /* libti_ios_profiler.a in Frameworks */,
 				8465E6BE19F86463008479E6 /* CoreMedia.framework in Frameworks */,
 				84D4CA1419EF0B3D009131F8 /* CoreMotion.framework in Frameworks */,
 				312E36C3190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
@@ -2792,11 +2786,11 @@
 		8488C04E1A14079200B01A87 /* JavaScriptCore */ = {
 			isa = PBXGroup;
 			children = (
-				8488C04F1A14079200B01A87 /* Ti.h */,
+				8488C04F1A14079200B01A87 /* JavaScript.h */,
 				8488C0501A14079200B01A87 /* TiBase.h */,
 				8488C0511A14079200B01A87 /* TiContext.h */,
-				8488C0521A14079200B01A87 /* TiContextRef.h */,
-				8488C0531A14079200B01A87 /* TiCore.h */,
+				8488C0521A14079200B01A87 /* JSContextRef.h */,
+				8488C0531A14079200B01A87 /* JavaScriptCore.h */,
 				8488C0541A14079200B01A87 /* TiExport.h */,
 				8488C0551A14079200B01A87 /* TiManagedValue.h */,
 				8488C0561A14079200B01A87 /* TiObjectRef.h */,
