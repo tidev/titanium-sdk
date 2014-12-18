@@ -519,7 +519,7 @@ class Packager(object):
 		remove_existing_zips(dist_dir, version_tag)
 
 		for os in os_names.values():
-			zip_mobilesdk(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, version_tag, self.build_jsca)
+			zip_mobilesdk(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, windows, ivi, version_tag, self.build_jsca)
 
 if __name__ == '__main__':
 	Packager().build(os.path.abspath('../dist'), "1.1.0")
