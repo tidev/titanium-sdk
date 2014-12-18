@@ -69,7 +69,7 @@ if clean and os.path.exists('iphone/iphone/build'):
 	shutil.rmtree('iphone/iphone/build')
 
 build_type = 'full'
-build_dirs = ['iphone', 'android', 'mobileweb', 'blackberry', 'tizen', 'ivi']
+build_dirs = ['iphone', 'android', 'mobileweb', 'blackberry', 'tizen', 'windows', 'ivi']
 force_iphone = False
 
 if ARGUMENTS.get('iphone',0):
@@ -95,6 +95,10 @@ if ARGUMENTS.get('blackberry',0):
 if ARGUMENTS.get('tizen',0):
 	build_type='tizen'
 	build_dirs=['tizen']
+
+if ARGUMENTS.get('windows',0):
+	build_type='windows'
+	build_dirs=['windows']
 
 if ARGUMENTS.get('ivi',0):
 	build_type='ivi'
@@ -177,6 +181,16 @@ if build_type in ['full', 'tizen'] and not only_package:
 		finally:
 			os.chdir(d)
 
+if build_type in ['full', 'windows'] and not only_package:
+	d = os.getcwd()
+	if os.path.exists('windows'):
+		os.chdir('windows')
+		try:
+			if clean: build_type = "clean"
+			# nothing to do... yet
+		finally:
+			os.chdir(d)
+
 if build_type in ['full', 'ivi'] and not only_package:
 	d = os.getcwd()
 	if os.path.exists('ivi'):
@@ -203,6 +217,7 @@ def package_sdk(target, source, env):
 	mobileweb = build_type in ['full', 'mobileweb']
 	blackberry = build_type in ['full', 'blackberry']
 	tizen = build_type in ['full', 'tizen']
+	windows = build_type in ['full', 'windows']
 	ivi = build_type in ['full', 'ivi']
 	package_all = ARGUMENTS.get('package_all', 0)
 	version_tag = ARGUMENTS.get('version_tag', version)
@@ -210,11 +225,15 @@ def package_sdk(target, source, env):
 	print "Packaging MobileSDK (%s)..." % version_tag
 	packager = package.Packager(build_jsca=build_jsca)
 	if package_all:
-		packager.build_all_platforms(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, version_tag)
+		print "...on All platforms"
+		packager.build_all_platforms(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, windows, ivi, version_tag)
 	else:
-		packager.build(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, version_tag)
+		print "...on specified platforms"
+		packager.build(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, windows, ivi, version_tag)
 	if install and not clean:
+		print "...Installing SDK"
 		install_mobilesdk(version_tag)
+	print "Packaging version (%s) complete" % version_tag
 
 def drillbit_builder(target, source, env):
 	sys.path.append("drillbit")
