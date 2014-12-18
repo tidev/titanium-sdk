@@ -28,17 +28,8 @@
     if (nodes == nodes_) {
         return;
     }
-    for (TiDOMNodeProxy *node in nodes) {
-        if (![nodes_ containsObject:node]) {
-            [self forgetProxy:node];
-        }
-    }
 	[nodes release];
 	nodes = [nodes_ retain];
-    for (TiDOMNodeProxy *node in nodes) {
-        [[self pageContext] registerProxy:node];
-        [self rememberProxy:node];
-    }
 }
 
 -(id)item:(id)args
