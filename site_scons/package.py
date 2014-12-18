@@ -493,7 +493,7 @@ def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone,
 	if mobileweb: zip_mobileweb(zf, basepath, version)
 	if blackberry: zip_blackberry(zf, basepath, version)
 	if tizen: zip_tizen(zf, basepath, version)
-	if windows: zip_windows(zf, basepath, basepath)
+	if (windows) and osname == "win32":: zip_windows(zf, basepath, basepath)
 	if ivi: zip_ivi(zf, basepath, version)
 	if osname == 'win32': zip_dir(zf, win32_dir, basepath)
 
