@@ -612,6 +612,9 @@
 		B6C5206118035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6C5206018035AF3002471C6 /* TiUIiOSAttributedStringProxy.m */; };
 		B6C5206218035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6C5206018035AF3002471C6 /* TiUIiOSAttributedStringProxy.m */; };
 		B6C5206318035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6C5206018035AF3002471C6 /* TiUIiOSAttributedStringProxy.m */; };
+		B6DFC5CF1A3B902300A857B7 /* libti_ios_debugger.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */; };
+		B6DFC5D01A3B902300A857B7 /* libti_ios_debugger.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */; };
+		B6DFC5D11A3B902400A857B7 /* libti_ios_debugger.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */; };
 		BB26FC8019AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */; };
 		BB26FC8119AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */; };
 		BB26FC8219AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */; };
@@ -1473,6 +1476,7 @@
 		B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTransitionAnimationProxy.m; sourceTree = "<group>"; };
 		B6C5205F18035AF3002471C6 /* TiUIiOSAttributedStringProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSAttributedStringProxy.h; sourceTree = "<group>"; };
 		B6C5206018035AF3002471C6 /* TiUIiOSAttributedStringProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSAttributedStringProxy.m; sourceTree = "<group>"; };
+		B6DFC5CE1A3B8FC200A857B7 /* TiDebugger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TiDebugger.h; path = ../Classes/TiDebugger.h; sourceTree = "<group>"; };
 		BB26FC7C19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSNotificationActionProxy.h; sourceTree = "<group>"; };
 		BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSNotificationActionProxy.m; sourceTree = "<group>"; };
 		BB26FC7E19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSNotificationCategoryProxy.h; sourceTree = "<group>"; };
@@ -1558,6 +1562,7 @@
 				24CA8C8E111167B60084E2DE /* libsqlite3.dylib in Frameworks */,
 				24CA8C90111167B60084E2DE /* libz.dylib in Frameworks */,
 				24CA8CED1111689B0084E2DE /* AudioToolbox.framework in Frameworks */,
+				B6DFC5CF1A3B902300A857B7 /* libti_ios_debugger.a in Frameworks */,
 				24CA8CF4111168AE0084E2DE /* MediaPlayer.framework in Frameworks */,
 				24CA8CFB111168C30084E2DE /* AVFoundation.framework in Frameworks */,
 				24EB0A58111E1BAE001DC2D1 /* libxml2.dylib in Frameworks */,
@@ -1591,6 +1596,7 @@
 				24D8E4A0119B9D8A00F8CAA6 /* MapKit.framework in Frameworks */,
 				24D8E4A1119B9D8A00F8CAA6 /* MessageUI.framework in Frameworks */,
 				24D8E4A2119B9D8A00F8CAA6 /* MobileCoreServices.framework in Frameworks */,
+				B6DFC5D01A3B902300A857B7 /* libti_ios_debugger.a in Frameworks */,
 				24D8E4A3119B9D8A00F8CAA6 /* OpenGLES.framework in Frameworks */,
 				24D8E4A4119B9D8A00F8CAA6 /* QuartzCore.framework in Frameworks */,
 				24D8E4A5119B9D8A00F8CAA6 /* SystemConfiguration.framework in Frameworks */,
@@ -1630,6 +1636,7 @@
 				DABB37A912E8CB280026A6EA /* MapKit.framework in Frameworks */,
 				DABB37AA12E8CB280026A6EA /* MessageUI.framework in Frameworks */,
 				DABB37AB12E8CB280026A6EA /* MobileCoreServices.framework in Frameworks */,
+				B6DFC5D11A3B902400A857B7 /* libti_ios_debugger.a in Frameworks */,
 				DABB37AC12E8CB280026A6EA /* OpenGLES.framework in Frameworks */,
 				DABB37AD12E8CB280026A6EA /* QuartzCore.framework in Frameworks */,
 				DABB37AE12E8CB280026A6EA /* SystemConfiguration.framework in Frameworks */,
@@ -1736,6 +1743,7 @@
 		24CA8903111160C30084E2DE /* Thirdparty */ = {
 			isa = PBXGroup;
 			children = (
+				B6DFC5CE1A3B8FC200A857B7 /* TiDebugger.h */,
 				844812C21A1D49FB00FBE03A /* TiProfiler */,
 				8488C04E1A14079200B01A87 /* JavaScriptCore */,
 				312E36BE190B06D9008EAB8D /* APSAnalytics */,

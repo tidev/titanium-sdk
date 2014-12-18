@@ -12,9 +12,7 @@
 #import "TiLocale.h"
 
 #include <pthread.h>
-#ifdef TI_DEBUGGER_PROFILER
 #import "TiDebugger.h"
-#endif
 #import "TiProfiler/TiProfiler.h"
 #import "TiExceptionHandler.h"
 
@@ -946,10 +944,8 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		stopped = YES;
 		if (debugger!=NULL)
 		{
-#ifdef TI_DEBUGGER_PROFILER
 			TiObjectRef globalRef = TiContextGetGlobalObject(context);
 			TiDebuggerDestroy(self,globalRef,debugger);
-#endif
             debugger = NULL;
 		}
 		[condition signal];
@@ -1168,11 +1164,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
     // TODO: We might want to be smarter than this, and do some KVO on the delegate's
     // 'debugMode' property or something... and start/stop the debugger as necessary.
-#ifdef TI_DEBUGGER_PROFILER
     if ([[self delegate] shouldDebugContext]) {
         debugger = TiDebuggerCreate(self,globalRef);
     }
-#endif
     if ([[self delegate] shouldProfileContext]) {
         TiProfilerEnable(globalRef,context);
     }

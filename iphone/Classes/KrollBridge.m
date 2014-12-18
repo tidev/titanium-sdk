@@ -22,9 +22,7 @@
 #ifdef KROLL_COVERAGE
 # include "KrollCoverage.h"
 #endif
-#ifdef TI_DEBUGGER_PROFILER
 #import "TiDebugger.h"
-#endif
 extern BOOL const TI_APPLICATION_ANALYTICS;
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_GUID;
@@ -450,17 +448,13 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	// only continue if we don't have any exceptions from above
 	if (exception == NULL) {
-#ifdef TI_DEBUGGER_PROFILER
         if ([[self host] debugMode]) {
             TiDebuggerBeginScript(context_,urlCString);
         }
-#endif
 		TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
-#ifdef TI_DEBUGGER_PROFILER
         if ([[self host] debugMode]) {
             TiDebuggerEndScript(context_);
         }
-#endif
         if (exception == NULL) {
             evaluationError = NO;
         }
@@ -913,21 +907,17 @@ loadNativeJS:
         NSString* urlPath = (filepath != nil) ? filepath : fullPath;
 		NSURL *url_ = [TiHost resourceBasedURL:urlPath baseURL:NULL];
         KrollWrapper* wrapper = nil;
-#ifdef TI_DEBUGGER_PROFILER
        	const char *urlCString = [[url_ absoluteString] UTF8String];
         if ([[self host] debugMode] && ![module isJSModule]) {
             TiDebuggerBeginScript([self krollContext],urlCString);
         }
-#endif
 		NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 		wrapper = [self loadCommonJSModule:dataContents withSourceURL:url_];
         [dataContents release];
-		
-#ifdef TI_DEBUGGER_PROFILER
+
         if ([[self host] debugMode] && ![module isJSModule]) {
             TiDebuggerEndScript([self krollContext]);
         }
-#endif
 		if (![wrapper respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
             [self setCurrentURL:oldURL];
 			@throw [NSException exceptionWithName:@"org.appcelerator.kroll" 
