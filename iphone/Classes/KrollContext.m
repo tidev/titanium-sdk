@@ -1168,7 +1168,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
         debugger = TiDebuggerCreate(self,globalRef);
     }
     if ([[self delegate] shouldProfileContext]) {
-        TiProfilerEnable(globalRef,context);
+      //TIMOB-11093 TiProfilerEnable(globalRef,context);
     }
 	// we register an empty kroll string that allows us to pluck out this instance
 	KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];
