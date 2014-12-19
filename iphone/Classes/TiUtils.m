@@ -797,10 +797,15 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 	result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
     
-	//TIMOB-18262
-	if (result && [[NSFileManager defaultManager] fileExistsAtPath:[result path] isDirectory:NO]) {
-		return [TiUtils checkFor2XImage:result];
-	}
+    //TIMOB-18262
+    if (result && ([[result scheme] isEqualToString:@"file"])){
+        BOOL isDir = NO;
+        BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:[result path] isDirectory:&isDir];
+        
+        if (exists && !isDir) {
+            return [TiUtils checkFor2XImage:result];
+        }
+    }
 
 	//TODO: Make this less ugly.
 	if ([relativeString hasPrefix:@"/"])
