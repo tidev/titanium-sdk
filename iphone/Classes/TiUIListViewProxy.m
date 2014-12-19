@@ -47,6 +47,15 @@
     return @"Ti.UI.ListView";
 }
 
+- (void)windowWillClose
+{
+    if([self viewInitialized])
+    {
+        [self makeViewPerformSelector:@selector(cleanup:) withObject:nil createIfNeeded:NO waitUntilDone:YES];
+    }
+    [super windowWillClose];
+}
+
 - (void)dealloc
 {
 	[_operationQueue release];
