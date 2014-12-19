@@ -526,6 +526,7 @@ static NSArray* popoverSequence;
     if ([[self viewController] presentedViewController] != nil) {
         return NO;
     }
+    [contentViewProxy windowWillClose];
     return YES;
 }
 
@@ -555,6 +556,7 @@ static NSArray* popoverSequence;
             return NO;
         }
     }
+    [contentViewProxy windowWillClose];
     return YES;
 }
 
