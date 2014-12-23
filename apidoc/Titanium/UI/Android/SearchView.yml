@@ -52,6 +52,12 @@ events:
 
 properties:
 
+  - name: color
+    summary: Color of the text in this SearchView, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+
   - name: hintText
     summary: Text to show when the search view field is not focused.
     type: String
