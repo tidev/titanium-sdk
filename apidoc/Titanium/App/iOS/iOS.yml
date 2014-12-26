@@ -494,16 +494,18 @@ events:
         Available only on iOS 7 and later.
     description: |
         This event only needs to be used if your app is using the `urlSession` module to download data.
+        After download is complete, immediately process or save the cached file from the returned url, as it
+        is only cached temporarily.
     properties:
       - name: taskIdentifier
         summary: The `urlSession` download task's identifer.
         type: Number
 
-      - name: data
-        summary: The downloaded data as a Titanium.Blob object.
-        type: Titanium.Blob
+      - name: url
+        summary: The url of the temporarily cached downloaded data.
+        type: String
     osver: {ios: {min: "7.0"}}
-    since: "3.2.0"
+    since: "3.6.0"
 
   - name: sessioncompleted
     summary: |
