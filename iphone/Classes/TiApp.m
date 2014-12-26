@@ -616,9 +616,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	if ([fileManager fileExistsAtPath:[destinationURL path]]) {
 		[fileManager removeItemAtURL:destinationURL error:nil];
 	}
-	BOOL success = [fileManager copyItemAtURL:location
-										toURL:destinationURL
-										error:&error];
+	BOOL success = [fileManager copyItemAtURL:location toURL:destinationURL error:&error];
 	if (!success) {
 		DebugLog(@"Unable to copy temp file. Error: %@", [error localizedDescription]);
 	}
