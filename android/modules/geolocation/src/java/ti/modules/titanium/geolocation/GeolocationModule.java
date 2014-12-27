@@ -143,12 +143,12 @@ public class GeolocationModule extends KrollModule
 	protected static final int MSG_LAST_ID = MSG_ENABLE_LOCATION_PROVIDERS;
 
 	private static final String TAG = "GeolocationModule";
-	private static final double SIMPLE_LOCATION_PASSIVE_DISTANCE = 0.0;
-	private static final double SIMPLE_LOCATION_PASSIVE_TIME = 0;
+	private static final double SIMPLE_LOCATION_PASSIVE_DISTANCE = 10.0;
+	private static final double SIMPLE_LOCATION_PASSIVE_TIME = 10000;
 	private static final double SIMPLE_LOCATION_NETWORK_DISTANCE = 10.0;
 	private static final double SIMPLE_LOCATION_NETWORK_TIME = 10000;
-	private static final double SIMPLE_LOCATION_GPS_DISTANCE = 3.0;
-	private static final double SIMPLE_LOCATION_GPS_TIME = 3000;
+	private static final double SIMPLE_LOCATION_GPS_DISTANCE = 10.0;
+	private static final double SIMPLE_LOCATION_GPS_TIME = 10000;
 	private static final double SIMPLE_LOCATION_NETWORK_DISTANCE_RULE = 200;
 	private static final double SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE = 60000;
 
@@ -192,7 +192,7 @@ public class GeolocationModule extends KrollModule
 		simpleLocationProviders.put(PROVIDER_PASSIVE, new LocationProviderProxy(PROVIDER_PASSIVE, SIMPLE_LOCATION_PASSIVE_DISTANCE, SIMPLE_LOCATION_PASSIVE_TIME, this));
 
 		// create these now but we don't want to include these in the rule set unless the simple GPS provider is enabled
-		simpleLocationGpsRule = new LocationRuleProxy(PROVIDER_GPS, null, null, null);
+		simpleLocationGpsRule = new LocationRuleProxy(PROVIDER_GPS, null, SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE, null);
 		simpleLocationNetworkRule = new LocationRuleProxy(PROVIDER_NETWORK, SIMPLE_LOCATION_NETWORK_DISTANCE_RULE, SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE, null);
 	}
 
