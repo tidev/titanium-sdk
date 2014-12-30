@@ -1796,6 +1796,26 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PACKAGE_NAME = "packageName";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PADDING_BOTTOM = "paddingBottom";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PADDING_LEFT = "paddingLeft";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PADDING_RIGHT = "paddingRight";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PADDING_TOP = "paddingTop";
 
 	/**
 	 * @module.api
