@@ -494,7 +494,6 @@ events:
         Available only on iOS 7 and later.
     description: |
         This event only needs to be used if your app is using the `urlSession` module to download data.
-
     properties:
       - name: taskIdentifier
         summary: The `urlSession` download task's identifer.
