@@ -607,22 +607,26 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
 {
-    //FunctionName();
-	//copy downloaded file from location to NSCacheDirectory, because file in url will be removed after delegate completes
+	//FunctionName();
+	//copy downloaded file from location to tempFile (in NSTemporaryDirectory), because file in location will be removed after delegate completes
 	NSError *error;
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	NSString *destinationFilename = downloadTask.originalRequest.URL.lastPathComponent;
-	NSURL *destinationURL = [[[[NSFileManager defaultManager] URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask] objectAtIndex:0] URLByAppendingPathComponent:destinationFilename];
+	NSURL *destinationURL = [[NSURL fileURLWithPath:NSTemporaryDirectory()] URLByAppendingPathComponent:destinationFilename];
 	if ([fileManager fileExistsAtPath:[destinationURL path]]) {
 		[fileManager removeItemAtURL:destinationURL error:nil];
 	}
 	BOOL success = [fileManager copyItemAtURL:location toURL:destinationURL error:&error];
+	TiBlob* downloadedData;
 	if (!success) {
 		DebugLog(@"Unable to copy temp file. Error: %@", [error localizedDescription]);
+		downloadedData =[[[TiBlob alloc] initWithData:[NSData dataWithContentsOfURL:location] mimetype:[Mimetypes mimeTypeForExtension:[location absoluteString]]] autorelease];
 	}
-	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier ],@"taskIdentifier",destinationURL,@"url", nil];
+	else {
+		downloadedData = [[[TiBlob alloc] initWithFile:[destinationURL path]] autorelease];
+	}
+	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier ],@"taskIdentifier",downloadedData,@"data", nil];
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiURLDownloadFinished object:self userInfo:dict];
-    
 }
 
 -(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
