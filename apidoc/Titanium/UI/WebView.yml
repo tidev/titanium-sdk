@@ -368,7 +368,31 @@ events:
     properties:
       - name: url
         summary: URL of the web document. 
-        
+
+  - name: onLoadResource
+    summary: Fired when loading resource.
+    description: |
+        Android only. Notify the host application that the WebView will load the resource specified by the given url.
+    platforms: [android]
+    since: "3.6.0"
+    properties:
+      - name: url
+        summary: The url of the resource that will load.
+        type: String
+
+  - name: shouldInterceptRequest
+    summary: Fired when resource request occurs.
+    description: |
+        Android only. Notify the host application of a resource request.
+
+        This is only available on Android devices at API Level 11 or greater.
+    platforms: [android]
+    since: "3.6.0"
+    properties:
+      - name: url
+        summary: The raw url of the resource.
+        type: String
+
   - name: sslerror
     summary: Fired when an SSL error occurred.
     description: |
