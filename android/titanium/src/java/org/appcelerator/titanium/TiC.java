@@ -719,6 +719,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_AUTO_REDIRECT = "autoRedirect";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_AUTO_ENCODE_URL = "autoEncodeUrl";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BACKGROUND_COLOR = "backgroundColor";
 
 	/**
