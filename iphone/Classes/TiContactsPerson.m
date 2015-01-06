@@ -209,7 +209,12 @@ static NSDictionary* multiValueLabels;
 	for (NSString* key in [dict allKeys]) {
 		NSString* label = [[TiContactsPerson multiValueLabels] valueForKey:key];
 		for (id value in [dict objectForKey:key]) {
-			ABMultiValueAddValueAndLabel(multiValue, (CFTypeRef)value, (CFStringRef)label, NULL);
+			if (type == kABMultiDateTimePropertyType) {
+				ABMultiValueAddValueAndLabel(multiValue, (CFDateRef)[TiUtils dateForUTCDate:(CFTypeRef)value], (CFStringRef)label, NULL);
+			}
+			else {
+				ABMultiValueAddValueAndLabel(multiValue, (CFTypeRef)value, (CFStringRef)label, NULL);
+			}
 		}
 	}
 	
