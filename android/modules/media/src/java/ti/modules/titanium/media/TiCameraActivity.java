@@ -137,6 +137,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		
 		super.onCreate(savedInstanceState);
 
+		// checks if device has only front facing camera and sets it
+		checkWhichCameraAsDefault();
+
 		// create camera preview
 		preview = new SurfaceView(this);
 		SurfaceHolder previewHolder = preview.getHolder();
@@ -561,6 +564,19 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			}
 		}
 	};
+
+	private void checkWhichCameraAsDefault(){
+		// This is to check if device has only front facing camera
+		// TIMOB-15812: Fix for Devices like Nexus 7 (2012) that only
+		// has front facing camera and no rear camera.
+		TiCameraActivity.getFrontCameraId();
+		TiCameraActivity.getBackCameraId();
+		if (backCameraId == Integer.MIN_VALUE && frontCameraId != Integer.MIN_VALUE) {
+			TiCameraActivity.whichCamera = MediaModule.CAMERA_FRONT;
+		} else {
+			TiCameraActivity.whichCamera = MediaModule.CAMERA_REAR;
+		}
+	}
 
 	private static int getFrontCameraId()
 	{
