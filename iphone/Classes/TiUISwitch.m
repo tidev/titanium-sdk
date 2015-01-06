@@ -84,7 +84,7 @@
 	// reproxy as we scroll
 	BOOL reproxying = [self.proxy inReproxy];
 	BOOL newValue = [TiUtils boolValue:value];
-	BOOL animated = !reproxying;
+	BOOL animated = false;
 	UISwitch * ourSwitch = [self switchView];
     if ([ourSwitch isOn] == newValue) {
         return;
