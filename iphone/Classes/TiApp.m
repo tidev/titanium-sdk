@@ -611,7 +611,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	//copy downloaded file from location to tempFile (in NSTemporaryDirectory), because file in location will be removed after delegate completes
 	NSError *error;
 	NSFileManager *fileManager = [NSFileManager defaultManager];
-	NSString *destinationFilename = downloadTask.originalRequest.URL.lastPathComponent;
+	NSString *destinationFilename = location.lastPathComponent;
 	NSURL *destinationURL = [[NSURL fileURLWithPath:NSTemporaryDirectory()] URLByAppendingPathComponent:destinationFilename];
 	if ([fileManager fileExistsAtPath:[destinationURL path]]) {
 		[fileManager removeItemAtURL:destinationURL error:nil];
