@@ -120,6 +120,8 @@ public class TiUIProgressIndicator extends TiUIView
 				progressDialog.setCancelable(TiConvert.toBoolean(newValue));
 			}
 
+		} else if (key.equals(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE) && progressDialog != null) {
+			progressDialog.setCanceledOnTouchOutside(TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -207,6 +209,7 @@ public class TiUIProgressIndicator extends TiUIView
 
 			progressDialog.setMessage(message);
 			progressDialog.setCancelable(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELABLE, false));
+			progressDialog.setCanceledOnTouchOutside(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, true));
 
 			if (type == INDETERMINANT) {
 				progressDialog.setIndeterminate(true);
