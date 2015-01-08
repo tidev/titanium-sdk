@@ -487,9 +487,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(NSIndexPath*)pathForSearchPath:(NSIndexPath*)indexPath
 {
-    if (_searchResults != nil) {
+    if (_searchResults != nil && [_searchResults count] > indexPath.section) {
         NSArray* sectionResults = [_searchResults objectAtIndex:indexPath.section];
-        return [sectionResults objectAtIndex:indexPath.row];
+        if([sectionResults count] > indexPath.row) {
+            return [sectionResults objectAtIndex:indexPath.row];
+        }
     }
     return indexPath;
 }
@@ -1225,7 +1227,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     TiUIListSectionProxy* theSection = [self.listViewProxy sectionForIndex:realIndexPath.section];
     NSInteger maxItem = 0;
     
-    if (_searchResults != nil) {
+    if (_searchResults != nil && [_searchResults count] > indexPath.section) {
         NSArray* sectionResults = [_searchResults objectAtIndex:indexPath.section];
         maxItem = [sectionResults count];
     } else {
