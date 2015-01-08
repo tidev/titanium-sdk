@@ -12,18 +12,14 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 
 import ti.modules.titanium.media.TiVideoActivity;
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
-import android.os.Build;
 import android.webkit.HttpAuthHandler;
 import android.webkit.MimeTypeMap;
 import android.webkit.SslErrorHandler;
 import android.webkit.URLUtil;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -198,32 +194,7 @@ public class TiWebViewClient extends WebViewClient
 		super.onLoadResource(view, url);
 		KrollDict data = new KrollDict();
 		data.put(TiC.PROPERTY_URL, url);
-		webView.getProxy().fireSyncEvent(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, data);
-	}
-
-	// This method was deprecated from Android API level 21.
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	@Override
-	public WebResourceResponse shouldInterceptRequest(WebView view, String url)
-	{
-		if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-			KrollDict data = new KrollDict();
-			data.put(TiC.PROPERTY_URL, url);
-			webView.getProxy().fireSyncEvent(TiC.EVENT_WEBVIEW_SHOULD_INTERCEPT_REQUEST, data);
-		}
-		return super.shouldInterceptRequest(view, url);
-	}
-
-	// This method is available from Android API level 21.
-	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
-	@Override
-	public WebResourceResponse shouldInterceptRequest(WebView view,
-			WebResourceRequest request)
-	{
-		KrollDict data = new KrollDict();
-		data.put(TiC.PROPERTY_URL, request.getUrl().toString());
-		webView.getProxy().fireSyncEvent(TiC.EVENT_WEBVIEW_SHOULD_INTERCEPT_REQUEST, data);
-		return super.shouldInterceptRequest(view, request);
+		webView.getProxy().fireEvent(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, data);
 	}
 
 }

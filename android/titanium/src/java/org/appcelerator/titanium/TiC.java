@@ -525,11 +525,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_WEBVIEW_SHOULD_INTERCEPT_REQUEST = "shouldInterceptRequest";
-
-	/**
-	 * @module.api
-	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
 	public static final String INTENT_PROPERTY_ENTER_ANIMATION = "activityEnterAnimation";
 	public static final String INTENT_PROPERTY_EXIT_ANIMATION = "activityExitAnimation";
