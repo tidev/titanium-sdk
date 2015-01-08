@@ -1369,7 +1369,9 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 		}
 		if ([appurlstr hasPrefix:@"/"])
 		{
+#ifndef __clang_analyzer__
 			leadingSlashRemoved = YES;
+#endif
 			appurlstr = [appurlstr substringFromIndex:1];
 		}
 #if TARGET_IPHONE_SIMULATOR
