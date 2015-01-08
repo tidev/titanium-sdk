@@ -187,4 +187,14 @@ public class TiWebViewClient extends WebViewClient
 			Log.e(TAG, "SSL error occurred: " + error.toString());
 		}
 	}
+
+	@Override
+	public void onLoadResource(WebView view, String url)
+	{
+		super.onLoadResource(view, url);
+		KrollDict data = new KrollDict();
+		data.put(TiC.PROPERTY_URL, url);
+		webView.getProxy().fireEvent(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, data);
+	}
+
 }
