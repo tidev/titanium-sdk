@@ -103,6 +103,10 @@ exports.init = function (logger, config, cli) {
 		// add 'wp8' and 'winstore' to the targets
 		windowslib.detect(windowslibOptions, function (err, wi) {
 			windowsInfo = wi;
+			if (err) {
+				callback(err);
+				return;
+			}
 
 			if (wi.visualstudio && Object.keys(wi.visualstudio).some(function (ver) { return wi.visualstudio[ver].supported; })) {
 				if (wi.windowsphone && Object.keys(wi.windowsphone).some(function (ver) { return wi.windowsphone[ver].supported; })) {
