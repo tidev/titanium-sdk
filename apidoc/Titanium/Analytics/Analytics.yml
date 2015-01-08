@@ -5,6 +5,8 @@ summary: |
 description: |
     The analytics module can be used to supply additional context or application-specific 
     information which can then be accessed during analysis using Analytics.
+    
+    SNARK.
 
     Use the [featureEvent](Titanium.Analytics.featureEvent) method to generate custom
     events that you can view through the Analytics product. You can specify a name for 
