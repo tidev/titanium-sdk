@@ -487,7 +487,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(NSIndexPath*)pathForSearchPath:(NSIndexPath*)indexPath
 {
-    if (_searchResults != nil) {
+    if (_searchResults != nil && [_searchResults count] < indexPath.section) {
         NSArray* sectionResults = [_searchResults objectAtIndex:indexPath.section];
         return [sectionResults objectAtIndex:indexPath.row];
     }
