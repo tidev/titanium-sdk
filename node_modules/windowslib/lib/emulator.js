@@ -274,6 +274,10 @@ function launch(udid, options, callback) {
 							out += data.toString();
 						});
 
+						child.stderr.on('data', function (data) {
+							out += data.toString();
+						});
+
 						child.on('close', function (code) {
 							clearTimeout(timer);
 
