@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,13 +11,15 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -77,47 +79,36 @@ public class TiUIText extends TiUIView
 	private boolean isTruncatingText = false;
 	private boolean disableChangeEvent = false;
 
-	protected TiEditText tv;
-	
-	public class TiEditText extends EditText 
-	{
-		public TiEditText(Context context) 
-		{
-			super(context);
-		}
-		
-		/** 
-		 * Check whether the called view is a text editor, in which case it would make sense to 
-		 * automatically display a soft input window for it.
-		 */
-		@Override
-		public boolean onCheckIsTextEditor () {
-			if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
-					&& TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
-					return false;
-			}
-			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE)
-					&& !(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)))) {
-				return false;
-			}
-			return true;
-		}
+	protected EditText tv;
 
-		@Override
-		protected void onLayout(boolean changed, int left, int top, int right, int bottom)
-		{
-			super.onLayout(changed, left, top, right, bottom);
-			TiUIHelper.firePostLayoutEvent(proxy);
-		}
-	}
-
-	public TiUIText(TiViewProxy proxy, boolean field)
+	public TiUIText(final TiViewProxy proxy, boolean field)
 	{
 		super(proxy);
 		Log.d(TAG, "Creating a text field", Log.DEBUG_MODE);
 		
 		this.field = field;
-		tv = new TiEditText(getProxy().getActivity());
+
+		int tvId;
+		try {
+			tvId = TiRHelper.getResource("layout.titanium_ui_edittext");
+		} catch (ResourceNotFoundException e) {
+			if (Log.isDebugModeEnabled()) {
+				Log.e(TAG, "XML resources could not be found!!!");
+			}
+			return;
+		}
+		tv = (EditText) TiApplication.getAppCurrentActivity().getLayoutInflater().inflate(tvId, null);
+
+		tv.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
+		{
+			@Override
+			public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight,
+				int oldBottom)
+			{
+				TiUIHelper.firePostLayoutEvent(proxy);
+			}
+		});
+
 		if (field) {
 			tv.setSingleLine();
 			tv.setMaxLines(1);
@@ -410,7 +401,7 @@ public class TiUIText extends TiUIView
 		TiUIHelper.setAlignment(tv, textAlign, verticalAlign);
 	}
 
-	public void handleKeyboard(KrollDict d) 
+	public void handleKeyboard(KrollDict d)
 	{
 		int type = KEYBOARD_ASCII;
 		boolean passwordMask = false;
@@ -426,122 +417,126 @@ public class TiUIText extends TiUIView
 			editable = TiConvert.toBoolean(d, TiC.PROPERTY_EDITABLE, true);
 		}
 
-		if (d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
+		if (!editable) {
+			tv.setInputType(InputType.TYPE_NULL);
+			tv.setCursorVisible(false);
 
-			switch (TiConvert.toInt(d.get(TiC.PROPERTY_AUTOCAPITALIZATION), TEXT_AUTOCAPITALIZATION_NONE)) {
-				case TEXT_AUTOCAPITALIZATION_NONE:
-					autoCapValue = 0;
-					break;
-				case TEXT_AUTOCAPITALIZATION_ALL:
-					autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | 
-						InputType.TYPE_TEXT_FLAG_CAP_SENTENCES |
-						InputType.TYPE_TEXT_FLAG_CAP_WORDS
-						;
-					break;
-				case TEXT_AUTOCAPITALIZATION_SENTENCES:
-					autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
-					break;
-				
-				case TEXT_AUTOCAPITALIZATION_WORDS:
-					autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_WORDS;
-					break;
-				default:
-					Log.w(TAG, "Unknown AutoCapitalization Value ["+d.getString(TiC.PROPERTY_AUTOCAPITALIZATION)+"]");
-				break;
-			}
-		}
-
-		if (d.containsKey(TiC.PROPERTY_PASSWORD_MASK)) {
-			passwordMask = TiConvert.toBoolean(d, TiC.PROPERTY_PASSWORD_MASK, false);
-		}
-
-		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE)) {
-			type = TiConvert.toInt(d.get(TiC.PROPERTY_KEYBOARD_TYPE), KEYBOARD_DEFAULT);
-		}
-
-		int typeModifiers = autocorrect | autoCapValue;
-		int textTypeAndClass = typeModifiers;
-		
-		if (type != KEYBOARD_DECIMAL_PAD) {
-			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
-		}
-
-		tv.setCursorVisible(true);
-		switch(type) {
-			case KEYBOARD_DEFAULT:
-			case KEYBOARD_ASCII:
-				// Don't need a key listener, inputType handles that.
-				break;
-			case KEYBOARD_NUMBERS_PUNCTUATION:
-				textTypeAndClass |= (InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT);
-				tv.setKeyListener(new NumberKeyListener()
-				{
-					@Override
-					public int getInputType() {
-						return InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT;
-					}
-
-					@Override
-					protected char[] getAcceptedChars() {
-						return new char[] {
-							'0', '1', '2','3','4','5','6','7','8','9',
-							'.','-','+','_','*','-','!','@', '#', '$',
-							'%', '^', '&', '*', '(', ')', '=',
-							'{', '}', '[', ']', '|', '\\', '<', '>',
-							',', '?', '/', ':', ';', '\'', '"', '~'
-						};
-					}
-				});
-				break;
-			case KEYBOARD_URL:
-				Log.d(TAG, "Setting keyboard type URL-3", Log.DEBUG_MODE);
-				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
-				textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_URI;
-				break;
-			case KEYBOARD_DECIMAL_PAD:
-				textTypeAndClass |= (InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
-			case KEYBOARD_NUMBER_PAD:
-				tv.setKeyListener(DigitsKeyListener.getInstance(true,true));
-				textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
-				break;
-			case KEYBOARD_PHONE_PAD:
-				tv.setKeyListener(DialerKeyListener.getInstance());
-				textTypeAndClass |= InputType.TYPE_CLASS_PHONE;
-				break;
-			case KEYBOARD_EMAIL_ADDRESS:
-				textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
-				break;
-		}
-
-		if (passwordMask) {
-			textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_PASSWORD;
-			Typeface origTF = tv.getTypeface();
-			// Sometimes password transformation does not work properly when the input type is set after the transformation method.
-			// This issue has been filed at http://code.google.com/p/android/issues/detail?id=7092
-			tv.setInputType(textTypeAndClass);
-			// Workaround for https://code.google.com/p/android/issues/detail?id=55418 since setInputType
-			// with InputType.TYPE_TEXT_VARIATION_PASSWORD sets the typeface to monospace.
-			tv.setTypeface(origTF);
-			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
-
-			//turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in landscape mode.
-			if (type == KEYBOARD_NUMBERS_PUNCTUATION || type == KEYBOARD_DECIMAL_PAD || type == KEYBOARD_NUMBER_PAD) {
-				tv.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-			}
+		} else if (d.containsKey(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
+			&& TiConvert.toInt(d, TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
+			tv.setInputType(InputType.TYPE_NULL);
 
 		} else {
-			tv.setInputType(textTypeAndClass);
-			if (tv.getTransformationMethod() instanceof PasswordTransformationMethod) {
-				tv.setTransformationMethod(null);
+			if (d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
+
+				switch (TiConvert.toInt(d.get(TiC.PROPERTY_AUTOCAPITALIZATION), TEXT_AUTOCAPITALIZATION_NONE)) {
+					case TEXT_AUTOCAPITALIZATION_NONE:
+						autoCapValue = 0;
+						break;
+					case TEXT_AUTOCAPITALIZATION_ALL:
+						autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+							| InputType.TYPE_TEXT_FLAG_CAP_WORDS;
+						break;
+					case TEXT_AUTOCAPITALIZATION_SENTENCES:
+						autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
+						break;
+
+					case TEXT_AUTOCAPITALIZATION_WORDS:
+						autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_WORDS;
+						break;
+					default:
+						Log.w(TAG, "Unknown AutoCapitalization Value [" + d.getString(TiC.PROPERTY_AUTOCAPITALIZATION) + "]");
+						break;
+				}
+			}
+
+			if (d.containsKey(TiC.PROPERTY_PASSWORD_MASK)) {
+				passwordMask = TiConvert.toBoolean(d, TiC.PROPERTY_PASSWORD_MASK, false);
+			}
+
+			if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE)) {
+				type = TiConvert.toInt(d.get(TiC.PROPERTY_KEYBOARD_TYPE), KEYBOARD_DEFAULT);
+			}
+
+			int typeModifiers = autocorrect | autoCapValue;
+			int textTypeAndClass = typeModifiers;
+
+			if (type != KEYBOARD_DECIMAL_PAD) {
+				textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
+			}
+
+			tv.setCursorVisible(true);
+			switch (type) {
+				case KEYBOARD_DEFAULT:
+				case KEYBOARD_ASCII:
+					// Don't need a key listener, inputType handles that.
+					break;
+				case KEYBOARD_NUMBERS_PUNCTUATION:
+					textTypeAndClass |= (InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT);
+					tv.setKeyListener(new NumberKeyListener()
+					{
+						@Override
+						public int getInputType()
+						{
+							return InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT;
+						}
+
+						@Override
+						protected char[] getAcceptedChars()
+						{
+							return new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '-', '+', '_', '*',
+								'-', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '=', '{', '}', '[', ']', '|', '\\',
+								'<', '>', ',', '?', '/', ':', ';', '\'', '"', '~' };
+						}
+					});
+					break;
+				case KEYBOARD_URL:
+					Log.d(TAG, "Setting keyboard type URL-3", Log.DEBUG_MODE);
+					tv.setImeOptions(EditorInfo.IME_ACTION_GO);
+					textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_URI;
+					break;
+				case KEYBOARD_DECIMAL_PAD:
+					textTypeAndClass |= (InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
+				case KEYBOARD_NUMBER_PAD:
+					tv.setKeyListener(DigitsKeyListener.getInstance(true, true));
+					textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
+					break;
+				case KEYBOARD_PHONE_PAD:
+					tv.setKeyListener(DialerKeyListener.getInstance());
+					textTypeAndClass |= InputType.TYPE_CLASS_PHONE;
+					break;
+				case KEYBOARD_EMAIL_ADDRESS:
+					textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
+					break;
+			}
+
+			if (passwordMask) {
+				textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_PASSWORD;
+				Typeface origTF = tv.getTypeface();
+				// Sometimes password transformation does not work properly when the input type is set after the
+				// transformation method.
+				// This issue has been filed at http://code.google.com/p/android/issues/detail?id=7092
+				tv.setInputType(textTypeAndClass);
+				// Workaround for https://code.google.com/p/android/issues/detail?id=55418 since setInputType
+				// with InputType.TYPE_TEXT_VARIATION_PASSWORD sets the typeface to monospace.
+				tv.setTypeface(origTF);
+				tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+
+				// turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in
+				// landscape mode.
+				if (type == KEYBOARD_NUMBERS_PUNCTUATION || type == KEYBOARD_DECIMAL_PAD || type == KEYBOARD_NUMBER_PAD) {
+					tv.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+				}
+
+			} else {
+				tv.setInputType(textTypeAndClass);
+				if (tv.getTransformationMethod() instanceof PasswordTransformationMethod) {
+					tv.setTransformationMethod(null);
+				}
 			}
 		}
-		if (!editable) {
-			tv.setKeyListener(null);
-			tv.setCursorVisible(false);
-		}
-		
-		//setSingleLine() append the flag TYPE_TEXT_FLAG_MULTI_LINE to the current inputType, so we want to call this
-		//after we set inputType.
+
+		// setSingleLine() append the flag TYPE_TEXT_FLAG_MULTI_LINE to the current inputType, so we want to call this
+		// after we set inputType.
 		if (!field) {
 			tv.setSingleLine(false);
 		}
