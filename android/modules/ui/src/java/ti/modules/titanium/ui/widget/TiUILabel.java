@@ -171,6 +171,12 @@ public class TiUILabel extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
 			tv.setIncludeFontPadding(TiConvert.toBoolean(d, TiC.PROPERTY_INCLUDE_FONT_PADDING, true));
 		}
+		if (d.containsKey(TiC.PROPERTY_LINES)) {
+			tv.setLines(TiConvert.toInt(d, TiC.PROPERTY_LINES));
+		}
+		if (d.containsKey(TiC.PROPERTY_MAX_LINES)) {
+			tv.setMaxLines(TiConvert.toInt(d, TiC.PROPERTY_MAX_LINES));
+		}
 
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			Object color = d.get(TiC.PROPERTY_COLOR);
@@ -284,6 +290,10 @@ public class TiUILabel extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_LINES)) {
+			tv.setLines(TiConvert.toInt(newValue));
+		} else if (key.equals(TiC.PROPERTY_MAX_LINES)) {
+			tv.setMaxLines(TiConvert.toInt(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
