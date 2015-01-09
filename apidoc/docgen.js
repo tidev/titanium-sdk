@@ -9,6 +9,7 @@ var common = require('./lib/common.js'),
 	ejs = require('ejs'),
 	fs = require('fs'),
 	exec = require('child_process').exec,
+	os = require('os'),
 	assert = common.assertObjectKey;
 	basePaths = [],
 	processFirst = ['Titanium.Proxy', 'Titanium.Module', 'Titanium.UI.View'],
@@ -441,11 +442,12 @@ function addOnMerge(baseObj, addObj) {
 		rv = baseObj;
 
 	for (key in addObj) {
-		base = baseObj[key];
-		add = addObj[key];
+		var base = baseObj[key];
+		var add = addObj[key];
 		if (Array.isArray(base)) {
 			// Array of objects
 			if (typeof base[0] === 'object') {
+
 				var tempArray = base;
 				add.forEach(function (api) {
 					if ('name' in base[0]) {
@@ -549,7 +551,8 @@ function addOnMerge(baseObj, addObj) {
 
 // Create path if it does not exist
 function mkdirDashP(path) {
-	var p = path.substring(0, path.lastIndexOf('/'));
+	var p = path.replace(/\\/g, '/');
+	p = p.substring(0, path.lastIndexOf('/'));
 	if(!fs.existsSync(p)) {
 		mkdirDashP(p);
 	}
@@ -560,7 +563,8 @@ function mkdirDashP(path) {
 
 // Start of Main Flow
 // Get a list of valid formats
-apidocPath = process.argv[1].substring(0, process.argv[1].lastIndexOf('/'))
+apidocPath = process.argv[1].replace(/\\/g, '/');
+apidocPath = apidocPath.substring(0, apidocPath.lastIndexOf('/'));
 libPath = apidocPath + '/lib/';
 fsArray = fs.readdirSync(libPath);
 fsArray.forEach(function (file) {
@@ -721,6 +725,8 @@ formats.forEach(function (format) {
 		case 'html' :
 		case 'modulehtml' :
 
+			var copyCommand;
+
 			output += '/apidoc/';
 			if(!fs.existsSync(output)) {
 				fs.mkdirSync(output);
@@ -730,7 +736,14 @@ formats.forEach(function (format) {
 				fs.createReadStream(cssPath).pipe(fs.createWriteStream(output + cssFile));
 			}
 
-			exec('cp -r ' + apidocPath + '/images' + ' ' + output, function (error) {
+			if (os.type() == 'Windows_NT') {
+				copyCommand = 'xcopy ' + apidocPath + '/images' + ' ' + output;
+				copyCommand = copyCommand.replace(/\//g, '\\') + ' /s';
+			} else {
+				copyCommand = 'cp -r ' + apidocPath + '/images' + ' ' + output;
+			}
+
+			exec(copyCommand, function (error) {
 				if (error !== null) {
 					common.log(common.LOG_ERROR, 'Error copying file: %s', error);
 				}
