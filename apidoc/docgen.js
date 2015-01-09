@@ -737,7 +737,8 @@ formats.forEach(function (format) {
 			}
 
 			if (os.type() == 'Windows_NT') {
-				copyCommand = 'xcopy ' + apidocPath + '/images' + ' ' + output + ' /s /e';
+				copyCommand = 'xcopy ' + apidocPath + '/images' + ' ' + output;
+				copyCommand = copyCommand.replace(/\//g, '\\') + ' /s';
 			} else {
 				copyCommand = 'cp -r ' + apidocPath + '/images' + ' ' + output;
 			}
