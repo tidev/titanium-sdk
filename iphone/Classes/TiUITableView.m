@@ -876,6 +876,9 @@
 -(TiUITableViewRowProxy*)rowForIndexPath:(NSIndexPath*)indexPath
 {
 	TiUITableViewSectionProxy *section = [self sectionForIndex:[indexPath section]];
+    if (!indexPath || [section rowCount] <= [indexPath row]) {
+        return nil;
+    }
 	return [section rowAtIndex:[indexPath row]];
 }
 
@@ -2366,9 +2369,12 @@ return result;	\
 	return result;
 }
 
-- (void)tableView:(UITableView*)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath{
+- (void)tableView:(UITableView*)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath
+{
     TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
-    [row.section reorderRows];
+    if (row) {
+        [row.section reorderRows];
+    }
 }
 
 - (void)tableView:(UITableView *)ourTableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
