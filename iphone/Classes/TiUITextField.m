@@ -515,6 +515,8 @@
 - (void)textFieldDidEndEditing:(UITextField *)tf
 {
 	[self textWidget:tf didBlurWithText:[tf text]];
+	//TIMOB-18365. Value not updated when autocorrect is up and return is pressed
+	[self textFieldDidChange:nil];
 }
 
 - (void)textFieldDidChange:(NSNotification *)notification
