@@ -2545,18 +2545,14 @@ return result;	\
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
-	NSInteger lastSectionIndex = [(TiUITableViewProxy *)[self proxy] sectionCount]-1;
-	ENSURE_CONSISTENCY(lastSectionIndex>=0);
-	CGRect minimumContentRect = [tableview rectForSection:lastSectionIndex];
+	CGRect minimumContentRect = [tableview bounds];
 	InsetScrollViewForKeyboard(tableview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
 }
 
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
     if ([tableview isScrollEnabled]) {
-        NSInteger lastSectionIndex = [(TiUITableViewProxy *)[self proxy] sectionCount]-1;
-        ENSURE_CONSISTENCY(lastSectionIndex>=0);
-        CGRect minimumContentRect = [tableview rectForSection:lastSectionIndex];
+        CGRect minimumContentRect = [tableview bounds];
         
         CGRect responderRect = [self convertRect:[firstResponderView bounds] fromView:firstResponderView];
         CGPoint offsetPoint = [tableview contentOffset];
