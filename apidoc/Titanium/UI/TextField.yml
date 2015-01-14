@@ -79,11 +79,8 @@ properties:
   - name: attributedString
     summary: TextField attributed string. 
     description: |
-        The underlying attributed string drawn by the textField, if set, the textField ignores
-        the `value` property
-
-        On Android, if font and color is set for the TextArea, the user input after the
-        attributedString will follow the font and color of the TextArea.
+        The underlying attributed string drawn by the textField. If set, avoid setting common attributes 
+        in TextField, such as `value`, `color` and `font`, as unexpected behaviors may result. 
     type: Titanium.UI.AttributedString
     platforms: [android, iphone, ipad]
     since: 3.6.0
@@ -91,8 +88,8 @@ properties:
   - name: attributedHintText
     summary: Hint text attributed string. 
     description: |
-        The attributed hint text by the textField, if set, the textField ignores
-        the `hintText` property
+        The attributed hint text by the textField. If set, avoid setting common attributes 
+        in textField, such as `hintText`, `color` and `font`, as unexpected behaviors may result. 
     type: Titanium.UI.AttributedString
     platforms: [android, iphone, ipad]
     since: 3.6.0

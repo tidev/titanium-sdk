@@ -76,11 +76,8 @@ properties:
   - name: attributedString
     summary: TextArea attributed string. 
     description: |
-        The underlying attributed string drawn by the textArea, if set, the textArea ignores
-        the `value` property
-
-        On Android, if font and color is set for the TextArea, the user input after the
-        attributedString will follow the font and color of the TextArea.
+        The underlying attributed string drawn by the textArea. If set, avoid setting common attributes 
+        in textArea, such as `value`, `color` and `font`, as unexpected behaviors may result. 
     type: Titanium.UI.AttributedString
     platforms: [android, iphone, ipad]
     since: 3.6.0
