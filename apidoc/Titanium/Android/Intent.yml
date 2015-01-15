@@ -57,6 +57,7 @@ description: |
     The [type](Titanium.Android.Intent.type) property specifies a MIME type the activity can handle.
 
     For Broadcast Intents, do not use the `data` or `type` properties. Use extras to pass data.
+    See the *Extras* section below.
 
     #### Category
 
@@ -88,7 +89,7 @@ description: |
     Extras are key-value pairs that are useful to pass on extra data with the Intent that can be
     used by another application component.
 
-      * Use the `get*Extra()` method to retrieve the data. Pass the method the extra key.
+      * Use one of the `get*Extra()` methods to retrieve the data. Pass the method the extra key.
       * Use the [hasExtra()](Titanium.Android.Intent.hasExtra) method to check if the intent contains an extra.
         Pass the method the key of the extra.
       * Use the [putExtra()](Titanium.Android.Intent.putExtra) method to add data to the intent.
@@ -310,6 +311,7 @@ examples:
   - title: Pick a Photo from the Photo Gallery
     example: |
         This example creates an intent to pick an image from the photo gallery.
+
             var intent = Ti.Android.createIntent({
                 action: Ti.Android.ACTION_PICK,
                 type: "image/*"
@@ -321,6 +323,9 @@ examples:
         This example requires that an intent filter be set up in the project's `tiapp.xml` file.
         After copying the default root activity of your application from the `AndroidManifest.xml`
         file to the Android manifest section of the `tiapp.xml` file, add an intent filter.
+        For detailed instructions, refer to the
+        [Android Intent Filters guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Android_Intent_Filters).
+
         You can trigger this intent filter by long pressing on an image in the Android gallery
         and selecting "share".
 

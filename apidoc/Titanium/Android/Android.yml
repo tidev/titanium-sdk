@@ -63,7 +63,7 @@ description: |
     clears them and on the lock screen for devices running Android 5.0 or greater.
     Note that the user can filter or turn notifications on and off from **Settings**.
     For more information about notifications, see the
-    [Titanium.Android.Notification API reference](Titanium.Android.Notification)
+    [Titanium.Android.Notification API reference](Titanium.Android.Notification).
 
     For Android toast notifications (pop-up notifications sent while the application is in the
     foreground), see <Titanium.UI.Notification>.
