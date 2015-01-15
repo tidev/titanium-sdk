@@ -248,6 +248,7 @@
     
     //Fell through.
     UIViewController* presentingController = [alertController presentingViewController];
+    popoverPresentationController.permittedArrowDirections = 0;
     popoverPresentationController.sourceView = [presentingController view];
     popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, dialogRect)?CGRectMake(presentingController.view.bounds.size.width/2, presentingController.view.bounds.size.height/2, 1, 1):dialogRect);;
 }
