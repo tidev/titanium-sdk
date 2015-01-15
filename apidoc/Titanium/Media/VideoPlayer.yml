@@ -779,7 +779,10 @@ properties:
   - name: useApplicationAudioSession
     summary: |
         Indicates if the movie player should inherit the application's audio session
-        instead of creating a new session. 
+        instead of creating a new session.
+    deprecated:
+        since: 3.5.0
+        notes: There is no replacement for this property and its use is discouraged.
     description: |
         Creating a new session interrupts the application's session.
 
@@ -788,6 +791,7 @@ properties:
     platforms: [iphone, ipad]
     type: Boolean
     default: true
+    osver: {ios: {max: "6.0"}}
 
   - name: volume
     summary: |
