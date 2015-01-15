@@ -13,7 +13,7 @@ import org.appcelerator.titanium.TiC;
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_TYPE,
 	TiC.PROPERTY_VALUE,
-	TiC.PROPERTY_ATTRIBUTE_RANGE,
+	TiC.PROPERTY_ATTRIBUTE_RANGE
 })
 public class AttributeProxy extends KrollProxy
 {
