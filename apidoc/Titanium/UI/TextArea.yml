@@ -76,11 +76,11 @@ properties:
   - name: attributedString
     summary: TextArea attributed string. 
     description: |
-        The underlying attributed string drawn by the textArea, if set, the textArea ignores
-        the `value` property
-    type: Titanium.UI.iOS.AttributedString
-    platforms: [iphone, ipad]
-    since: 3.2.0
+        The underlying attributed string drawn by the textArea. If set, avoid setting common attributes 
+        in textArea, such as `value`, `color` and `font`, as unexpected behaviors may result. 
+    type: Titanium.UI.AttributedString
+    platforms: [android, iphone, ipad]
+    since: 3.6.0
 
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 

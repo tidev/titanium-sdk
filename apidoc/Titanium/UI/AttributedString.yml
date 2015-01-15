@@ -1,22 +1,17 @@
 ---
-name: Titanium.UI.iOS.AttributedString
-deprecated:
-    since: "3.6.0"
-    notes: use <Titanium.UI.AttributedString> instead.
+name: Titanium.UI.AttributedString
 summary: |
     An attributed string proxy manages character strings and associated sets of attributes (for example,
-    font and kerning) that apply to individual characters or ranges of characters in the string.
+    font and foregroundcolor) that apply to individual characters or ranges of characters in the string.
 description: |
-    The AttributedString proxy is created with the <Titanium.UI.iOS.createAttributedString> method.
+    The AttributedString proxy is created with the <Titanium.UI.createAttributedString> method.
     
     The `text` property must be set initially in the constructor when creating an attributed string.
-    The [attributes](Titanium.UI.iOS.AttributedString.attributes) can either be set in the constructor or after it has been created.
+    The [attributes](Titanium.UI.AttributedString.attributes) can either be set in the constructor or after it has been created.
 
-    For examples of using Attributed Strings, see the
-    [Attributed Strings guide](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.iOS.AttributedString).
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, android]
 extends: Titanium.Proxy
-since: "3.2"
+since: "3.6.0"
 
 properties:
   - name: text
@@ -30,7 +25,7 @@ properties:
     summary: |
         An array of attributes to add.
     description: |
-        Internally, this calls the [addAttribute](Titanium.UI.iOS.AttributedString.addAttribute)
+        Internally, this calls the [addAttribute](Titanium.UI.AttributedString.addAttribute)
         method for each of the attributes passed in.
     type: Array<Attribute>
 
@@ -56,39 +51,38 @@ examples:
 
             var text =  'Bacon ipsum dolor Appcelerator Titanium rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
 
-            var attr = Titanium.UI.iOS.createAttributedString({
+            var attr = Titanium.UI.createAttributedString({
                 text: text,
                 attributes: [
                     // Underlines text
                     {
-                        type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
-                        value: Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+                        type: Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE,
                         range: [0, text.length]
                     },
                     // Sets a background color
                     {
-                        type: Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR,
+                        type: Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR,
                         value: "red",
                         range: [text.indexOf('Appcelerator'), ('Appcelerator').length]
                     },
                     {
-                        type: Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR,
+                        type: Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR,
                         value: "blue",
                         range: [text.indexOf('Titanium'), ('Titanium').length]
                     },
                     {
-                        type: Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR,
+                        type: Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR,
                         value: "yellow",
                         range: [text.indexOf('rocks!'), ('rocks!').length]
                     },
                     // Sets a foreground color
                     {
-                        type: Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR,
+                        type: Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR,
                         value: "orange",
                         range: [0,  text.length]
                     },
                     {
-                        type: Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR,
+                        type: Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR,
                         value: "black",
                         range: [text.indexOf('rocks!'), ('rocks!').length]
                     }
@@ -115,14 +109,13 @@ examples:
 
             var text =  'Bacon ipsum dolor Appcelerator Titanium rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
 
-            var attr = Titanium.UI.iOS.createAttributedString({
+            var attr = Titanium.UI.createAttributedString({
                 text: text
             });
 
             // Underlines text
             attr.addAttribute({
-                type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
-                value: Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+                type: Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE,
                 range: [0, text.length]
             });
 

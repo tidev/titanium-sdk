@@ -8,7 +8,8 @@
 #import "TiUIiOSAttributedStringProxy.h"
 #import "TiUIiOSProxy.h"
 #import "TiUtils.h"
-
+#import "TiUIAttributedStringProxy.h"
+//DEPRECATED since 3.6.0
 @implementation TiUIiOSAttributedStringProxy
 
 -(void)_destroy

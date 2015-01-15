@@ -7,7 +7,7 @@
 
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 #import "TiProxy.h"
-
+//DEPRECATED since 3.6.0
 @interface TiUIiOSAttributedStringProxy : TiProxy
 {
     NSMutableAttributedString *_attributedString;

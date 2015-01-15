@@ -13,9 +13,20 @@
 #endif
 
 #endif
+@interface TiUIiOSProxy : TiProxy {
+@private
+
+}
+
+@property (nonatomic,readonly) NSNumber* SCROLL_DECELERATION_RATE_NORMAL;
+@property (nonatomic,readonly) NSNumber* SCROLL_DECELERATION_RATE_FAST;
+@property (nonatomic,readonly) NSNumber* CLIP_MODE_DEFAULT;
+@property (nonatomic,readonly) NSNumber* CLIP_MODE_ENABLED;
+@property (nonatomic,readonly) NSNumber* CLIP_MODE_DISABLED;
 
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-typedef enum {
+//DEPRECATED, REPLACED IN UIMODULE FOR TI_UIATTRIBUTEDSTRING
+/*typedef enum {
 	AttributeNameFont,
 	AttributeNameParagraphStyle,
 	AttributeNameForegroundColor,
@@ -37,22 +48,8 @@ typedef enum {
 	AttributeNameStrikethroughColor,
 	AttributeNameObliqueness,
 	AttributeNameExpansion
-} AttributeName;
+ } AttributeName;*/
 
-#endif
-
-@interface TiUIiOSProxy : TiProxy {
-@private
-
-}
-
-@property (nonatomic,readonly) NSNumber* SCROLL_DECELERATION_RATE_NORMAL;
-@property (nonatomic,readonly) NSNumber* SCROLL_DECELERATION_RATE_FAST;
-@property (nonatomic,readonly) NSNumber* CLIP_MODE_DEFAULT;
-@property (nonatomic,readonly) NSNumber* CLIP_MODE_ENABLED;
-@property (nonatomic,readonly) NSNumber* CLIP_MODE_DISABLED;
-
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FOREGROUND_COLOR;
@@ -94,8 +91,8 @@ typedef enum {
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT;
 
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
-// -----
 #endif
+
 
 #ifdef USE_TI_UIIOSADVIEW
 -(id)createAdView:(id)args;

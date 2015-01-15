@@ -27,10 +27,11 @@ properties:
   - name: attributedString
     summary: Specify an attributed string for the label.
     description: |
-        If set, the label ignores the `text`, `color`, and `shadow` properties.
-    type: Titanium.UI.iOS.AttributedString
-    platforms: [iphone, ipad]
-    since: 3.2.0
+        The underlying attributed string drawn by the label. If set, avoid setting common attributes 
+        in the label, such as `color` and `font`, as unexpected behaviors may result. 
+    type: Titanium.UI.AttributedString
+    platforms: [iphone, ipad, android]
+    since: "3.6.0"
 
   - name: autoLink
     summary: Automatically convert certain text items in the label to clickable links. 
