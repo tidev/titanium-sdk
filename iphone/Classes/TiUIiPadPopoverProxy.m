@@ -254,7 +254,8 @@ static NSArray* popoverSequence;
 	[closingCondition unlock];
 
 	TiThreadPerformOnMainThread(^{
-		animated = [TiUtils boolValue:@"animated" properties:args def:NO];
+        [contentViewProxy windowWillClose];
+        animated = [TiUtils boolValue:@"animated" properties:args def:NO];
         if ([TiUtils isIOS8OrGreater]) {
             [[self viewController] dismissViewControllerAnimated:animated completion:^{
                 [self cleanup];
