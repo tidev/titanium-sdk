@@ -1239,6 +1239,9 @@ public abstract class TiUIView
 					borderView.setRadius(radius);
 				}
 				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR) || d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
+					if (bgColor != null) {
+						borderView.setBgColor(bgColor);
+					}
 					if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
 						borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
 					} else {
