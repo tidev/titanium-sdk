@@ -74,6 +74,8 @@ methods:
   - name: toBlob
     summary: Returns the image as a Blob object.
     platforms: [android, iphone, ipad]
+    returns:
+        type: Titanium.Blob
 
 events:
   - name: change
