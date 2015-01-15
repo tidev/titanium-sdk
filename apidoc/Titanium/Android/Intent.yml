@@ -319,7 +319,7 @@ examples:
   - title: Create an ImageView from an Image Send Intent
     example: |
         This example requires that an intent filter be set up in the project's `tiapp.xml` file.
-        After copy the default root activity of your application from the `AndroidManifest.xml`
+        After copying the default root activity of your application from the `AndroidManifest.xml`
         file to the Android manifest section of the `tiapp.xml` file, add an intent filter.
         You can trigger this intent filter by long pressing on an image in the Android gallery
         and selecting "share".

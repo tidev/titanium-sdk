@@ -3,7 +3,7 @@ name: Titanium.Android.MenuItem
 summary: The Titanium binding of an Android menu item.
 description: |
     As of Release 3.3.0, the Menu and MenuItem APIs are used to create action items for the action bar.
-    Prior to Release 3.3.0, the APIs could be also be used to customize the Options Menu.
+    Prior to Release 3.3.0, the APIs could also be used to customize the Options Menu.
 
     In JavaScript, use the Menu's [add()](Titanium.Android.Menu.add) method to create
     new action items.
