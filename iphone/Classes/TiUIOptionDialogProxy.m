@@ -100,6 +100,14 @@
             curIndex++;
         }
         
+        if ([TiUtils isIPad] && (cancelButtonIndex == -1)) {
+            UIAlertAction* theAction = [UIAlertAction actionWithTitle:@"Cancel"
+                                                                style:UIAlertActionStyleCancel
+                                                              handler:^(UIAlertAction * action){
+                                                                  [self fireClickEventWithAction:action];
+                                                              }];
+            [alertController addAction:theAction];
+        }
         BOOL isPopover = NO;
         
         if ([TiUtils isIPad]) {
@@ -297,10 +305,15 @@
 -(void) fireClickEventWithAction:(UIAlertAction*)theAction
 {
     if ([self _hasListeners:@"click"]) {
-        NSUInteger indexOfAction = [[alertController actions] indexOfObject:theAction];
+        NSArray *actions = [alertController actions];
+        NSInteger indexOfAction = [actions indexOfObject:theAction];
+        
+        if ([TiUtils isIPad] && (cancelButtonIndex == -1) && (indexOfAction == ([actions count]-1)) ) {
+            indexOfAction = cancelButtonIndex;
+        }
         
         NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                      NUMUINTEGER(indexOfAction),@"index",
+                                      NUMINTEGER(indexOfAction),@"index",
                                       NUMINT(cancelButtonIndex),@"cancel",
                                       NUMINT(destructiveButtonIndex),@"destructive",
                                       nil];
