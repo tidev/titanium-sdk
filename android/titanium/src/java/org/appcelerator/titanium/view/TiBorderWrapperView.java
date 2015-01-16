@@ -134,7 +134,7 @@ public class TiBorderWrapperView extends FrameLayout
 		paint.setColor(color);
 		if (alpha > -1) {
 			paint.setAlpha(alpha);
-    	}
+		}
 	}
 
 	public void setColor(int color)
