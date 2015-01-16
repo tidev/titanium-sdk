@@ -1420,7 +1420,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 			}
 
 			this.xcodePrecompilePhase(function () {
-				if (this.forceRebuild || !fs.existsSync(path.join(this.xcodeAppDir, this.tiapp.name))) {
+				if (this.forceRebuild || !fs.existsSync(this.xcodeAppDir)) {
 					// we're not being called from Xcode, so we can call the pre-compile phase now
 					// and save us several seconds
 					parallel(this, [
