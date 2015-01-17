@@ -778,6 +778,10 @@ formats.forEach(function (format) {
 			render = ejs.render(templateStr, {doc: exportData});
 			output = output + '/titanium.js';
 			break;
+		case 'parity' :
+			templateStr = fs.readFileSync(templatePath + 'parity.ejs', 'utf8');
+			render = ejs.render(templateStr, {apis: exportData});
+			output = output + '/parity.html';
 		default:
 			;
 	}
