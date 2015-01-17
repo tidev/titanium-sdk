@@ -1,3 +1,8 @@
+/**
+* Copyright (c) 2015 Appcelerator, Inc. All Rights Reserved.
+* Licensed under the terms of the Apache Public License.
+*/
+
 if (!String.prototype.contains) {
     String.prototype.contains = function (arg) {
         return !!~this.indexOf(arg);
