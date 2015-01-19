@@ -226,10 +226,10 @@ def package_sdk(target, source, env):
 	packager = package.Packager(build_jsca=build_jsca)
 	if package_all:
 		print "...on All platforms"
-		packager.build_all_platforms(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, windows, ivi, version_tag)
-	else:
+		packager.build_all_platforms(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, windows, version_tag)
+	else:windows
 		print "...on specified platforms"
-		packager.build(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, windows, ivi, version_tag)
+		packager.build(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, windows, version_tag)
 	if install and not clean:
 		print "...Installing SDK"
 		install_mobilesdk(version_tag)
