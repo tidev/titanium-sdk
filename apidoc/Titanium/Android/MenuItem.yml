@@ -2,23 +2,32 @@
 name: Titanium.Android.MenuItem
 summary: The Titanium binding of an Android menu item.
 description: |
-    A menu item for an Android menu. Use [Menu.add](Titanium.Android.Menu.add) to create 
-    a new menu item. In Alloy you can define **`<MenuItem>`** elements inside a `<Menu>` element.
+    As of Release 3.3.0, the Menu and MenuItem APIs are used to create action items for the action bar.
+    Prior to Release 3.3.0, the APIs could also be used to customize the Options Menu.
+
+    In JavaScript, use the Menu's [add()](Titanium.Android.Menu.add) method to create
+    new action items.
+
+    In Alloy you can define **`<MenuItem>`** elements inside a `<Menu>` element.
 
         <Menu id="menu" platform="android">
             <MenuItem id="saveitem" title="Save" icon="item1.png" onClick="doSave" />
             <MenuItem id="closeitem" title="Close" icon="item1.png" onClick="doClose" />
-        </Menu>    
+        </Menu>
+
+    Action items can appear in either the action bar or the action bar's
+    overflow menu.  To determine how an action item is displayed, set
+    [showAsAction](Titanium.Android.MenuItem.showAsAction).
+
+    You can optionally customize the look of action items using the
+    [actionView](Titanium.Android.MenuItem.actionView) property.
 
     See the <Titanium.Android.Menu> reference page for additional code examples.
 
-    Many `MenuItem` properties and methods are only applicable when the menu item is used as an 
-    action item, with the action bar feature added in Android 3.0 (API level 11). See 
-    [Menu](Titanium.Android.Menu) for more information.
+    Further Reading:
 
-    See also:
-    [MenuItem](http://developer.android.com/reference/android/view/MenuItem.html) in the
-    Android Developer Reference.
+      * [Android Developers: MenuItem](http://developer.android.com/reference/android/view/MenuItem.html)
+
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
@@ -164,7 +173,7 @@ properties:
     description: |
         Note that check marks are not supported in the icon menus (main
         options menu shown when fewer than six options are included).
-        Check marks are discouraged in expanded menus (available when 
+        Check marks are discouraged in expanded menus (available when
         six or more options menu items are defined).
     type: Boolean
     default: false
@@ -176,7 +185,7 @@ properties:
     description: |
         Note that check marks are not supported in the icon menus (main
         options menu shown when fewer than six options are included).
-        Check marks are discouraged in expanded menus (available when 
+        Check marks are discouraged in expanded menus (available when
         six or more options menu items are defined).
     type: Boolean
     default: false
@@ -223,11 +232,11 @@ properties:
         before any items with higher values.
 
         The upper bits of the value control the category. These can be set to the values
-        defined by the `CATEGORY` constants in the Android `Menu` class, 
+        defined by the `CATEGORY` constants in the Android `Menu` class,
         These values are not exposed as constants in Titanium.
 
         See also:
-        
+
         *   [getOrder](http://developer.android.com/reference/android/view/MenuItem.html#getOrder())
             in the Android Developer Reference.
 
@@ -262,8 +271,8 @@ properties:
         launches_. (This is true of both Titanium applications and native Android
         applications.) For this reason, using `SHOW_AS_ACTION_WITH_TEXT` is not recommended
         for applications that support both orientions.
-        
-        If you want to guarantee that text and icon are always visible, you can create a 
+
+        If you want to guarantee that text and icon are always visible, you can create a
         button with the text and image, and specify it as the item's `actionView`.
 
         You may specify if your action view is collapsible by setting this property to
@@ -271,7 +280,7 @@ properties:
 
         For a collapsible item, the item button (icon and/or text) is displayed when the item is
         collapsed, and the action view is displayed when the item is expanded.
-        
+
         If `SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW` is **not** specified, any `actionView`
         specified is displayed _instead of_ the item's icon and/or text.
 
@@ -287,7 +296,7 @@ properties:
   - name: titleCondensed
     summary: Shortened version of the item's title.
     description: |
-        If both `title` and `titleCondensed` are specified, `titleCondensed` is used in the 
+        If both `title` and `titleCondensed` are specified, `titleCondensed` is used in the
         icon menus, and the `title` is used in the extended menus.
     type: String
 
