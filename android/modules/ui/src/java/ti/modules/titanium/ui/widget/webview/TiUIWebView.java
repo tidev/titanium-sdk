@@ -222,10 +222,14 @@ public class TiUIWebView extends TiUIView
 			initializePluginAPI(webView);
 		}
 
+		boolean enableJavascriptInterface = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
 		chromeClient = new TiWebChromeClient(this);
 		webView.setWebChromeClient(chromeClient);
 		client = new TiWebViewClient(this, webView);
 		webView.setWebViewClient(client);
+		if (Build.VERSION.SDK_INT > 16 || enableJavascriptInterface) {
+			client.getBinding().addJavascriptInterfaces();
+		}
 
 		webView.client = client;
 
@@ -289,6 +293,14 @@ public class TiUIWebView extends TiUIView
 	{
 		super.processProperties(d);
 
+		if (d.containsKey(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
+			boolean enableJavascriptInterface = TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
+			if (Build.VERSION.SDK_INT > 16 || enableJavascriptInterface) {
+				client.getBinding().addJavascriptInterfaces();
+			} else {
+				client.getBinding().removeJavascriptInterfaces();
+			}
+		}
 		if (d.containsKey(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
 			WebSettings settings = getWebView().getSettings();
 			settings.setLoadWithOverviewMode(TiConvert.toBoolean(d, TiC.PROPERTY_SCALES_PAGE_TO_FIT));
@@ -356,6 +368,13 @@ public class TiUIWebView extends TiUIView
 		} else if (TiC.PROPERTY_LIGHT_TOUCH_ENABLED.equals(key)) {
 			WebSettings settings = getWebView().getSettings();
 			settings.setLightTouchEnabled(TiConvert.toBoolean(newValue));
+		} else if (TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE.equals(key)) {
+			boolean enableJavascriptInterface = TiConvert.toBoolean(newValue, true);
+			if (Build.VERSION.SDK_INT > 16 || enableJavascriptInterface) {
+				client.getBinding().addJavascriptInterfaces();
+			} else {
+				client.getBinding().removeJavascriptInterfaces();
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

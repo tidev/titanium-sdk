@@ -404,6 +404,15 @@ properties:
     default: false
     platforms: [iphone, ipad]
 
+  - name: enableJavascriptInterface
+    summary: Enable adding javascript interfaces internally to webview prior to JELLY_BEAN_MR1 (Android 4.2)
+    description: |
+        This property is introduced to prevent a security issue with older devices (< JELLY_BEAN_MR1)
+    type: Boolean
+    platforms: [android]
+    since: "3.6.0"
+    default: true
+
   - name: handlePlatformUrl
     summary: Lets the webview handle platform supported urls
     description: |
