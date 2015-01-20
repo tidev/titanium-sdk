@@ -329,10 +329,10 @@ function patchLogger(logger, cli) {
 		var platform = ti.resolvePlatform(cli.argv.platform),
 			buildDir = path.join(cli.argv['project-dir'], 'build');
 
-		fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir);
+		fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir, 0666);
 
 		// create our write stream
-		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'ascii' });
+		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'ascii', 'mode': 0666 });
 
 		function styleHeading(s) {
 			return ('' + s).bold;
@@ -383,6 +383,7 @@ function patchLogger(logger, cli) {
 		if (logger.log.filestream && logger.log.buffer) {
 			logger.log.filestream.write(logger.log.buffer);
 			logger.log.buffer = null;
+			logger.log.filestream.end();
 		}
 	};
 
