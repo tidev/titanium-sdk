@@ -31,6 +31,10 @@ ivi_dir = os.path.abspath(os.path.join(template_dir, 'ivi'))
 buildtime = datetime.datetime.now()
 ts = buildtime.strftime("%m/%d/%y %H:%M")
 
+print "Installing npm packages..."
+p = subprocess.Popen(["npm","install"],cwd=doc_dir)
+p.wait()
+
 # get the githash for the build so we can always pull this build from a specific
 # commit
 gitCmd = "git"
