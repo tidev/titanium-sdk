@@ -72,7 +72,7 @@
 			
 		case AttributeNameFont:
 			attrName = NSFontAttributeName;
-			WebFont *strFont = [TiUtils fontValue:[value valueForKey:@"font"] def:[WebFont defaultFont]];
+			WebFont *strFont = [TiUtils fontValue:value def:[WebFont defaultFont]];
 			attrValue = [strFont font];
 			break;
 			
