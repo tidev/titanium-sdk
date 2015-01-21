@@ -2,7 +2,7 @@
 <!-- Licensed under the terms of the Apache Public License.     -->
 
 <% function contains(a,b){for(i in a)if(a[i]==b)return true;return false;} %>
-<% function rgbHex(r,g,b){return "#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);} %>
+<% function rgbHex(r,g,b){return "#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1).split('.')[0];} %>
 <% function colourGradient(sr,sg,sb,er,eg,eb,p){return rgbHex(((sr-er)*p)+er,((sg-eg)*p)+eg,((sb-eb)*p)+eb);} %>
 <% function platformSupportColour(a){return colourGradient(160,190,0,230,30,20,a.platforms.length/Object.keys(apis.coverage).length);} %>
 <style>
