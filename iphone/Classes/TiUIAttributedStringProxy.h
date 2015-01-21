@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,7 +14,6 @@
 	NSMutableArray *attributes;
 }
 
-#if defined(USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
 typedef enum {
 	AttributeNameFont,
 	AttributeNameParagraphStyle,
@@ -38,7 +37,6 @@ typedef enum {
 	AttributeNameObliqueness,
 	AttributeNameExpansion
 } AttributeName;
-#endif
 
 #pragma mark - Not exposed to JS. Internal Use Only.
 @property(nonatomic, readonly) NSMutableAttributedString *attributedString;
