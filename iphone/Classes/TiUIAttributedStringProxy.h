@@ -14,7 +14,6 @@
 	NSMutableArray *attributes;
 }
 
-#if defined(USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
 typedef enum {
 	AttributeNameFont,
 	AttributeNameParagraphStyle,
@@ -38,7 +37,6 @@ typedef enum {
 	AttributeNameObliqueness,
 	AttributeNameExpansion
 } AttributeName;
-#endif
 
 #pragma mark - Not exposed to JS. Internal Use Only.
 @property(nonatomic, readonly) NSMutableAttributedString *attributedString;

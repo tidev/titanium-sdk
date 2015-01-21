@@ -25,31 +25,6 @@
 @property (nonatomic,readonly) NSNumber* CLIP_MODE_DISABLED;
 
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-//DEPRECATED, REPLACED IN UIMODULE FOR TI_UIATTRIBUTEDSTRING
-/*typedef enum {
-	AttributeNameFont,
-	AttributeNameParagraphStyle,
-	AttributeNameForegroundColor,
-	AttributeNameBackgroundColor,
-	AttributeNameLigature,
-	AttributeNameKern,
-	AttributeNameStrikethroughStyle,
-	AttributeNameUnderlineStyle,
-	AttributeNameStrokeColor,
-	AttributeNameStrokeWidth,
-	AttributeNameShadow,
-	AttributeNameVerticalGlyphForm,
-	AttributeNameWritingDirection,
-	AttributeNameTextEffect,
-	AttributeNameAttachment,
-	AttributeNameLink,
-	AttributeNameBaselineOffset,
-	AttributeNameUnderlineColor,
-	AttributeNameStrikethroughColor,
-	AttributeNameObliqueness,
-	AttributeNameExpansion
- } AttributeName;*/
-
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FOREGROUND_COLOR;
