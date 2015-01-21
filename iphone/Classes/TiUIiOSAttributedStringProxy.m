@@ -72,8 +72,9 @@
     switch ([type integerValue]) {
             
         case AttributeNameFont:
-            attrName = NSFontAttributeName;
-            attrValue = [[TiUtils fontValue:value] font];
+			attrName = NSFontAttributeName;
+			WebFont *strFont = [TiUtils fontValue:value def:[WebFont defaultFont]];
+			attrValue = [strFont font];
             break;
             
         case AttributeNameParagraphStyle:
