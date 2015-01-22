@@ -421,6 +421,7 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
             return [NSNumber numberWithUnsignedLongLong:ull];
         }
         case 'b':
+        case 'B':
         {
             bool b;
             [invocation getReturnValue:&b];
