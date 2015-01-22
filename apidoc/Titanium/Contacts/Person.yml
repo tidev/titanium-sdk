@@ -85,6 +85,24 @@ properties:
     type: String
     platforms: [android, iphone, ipad, tizen, blackberry]
     
+  - name: alternateBirthday
+    summary: |
+        Alternate birthday of the person. Single Dictionary.
+    description: |
+        The format of the dictionary accepted by this property is as follows:
+        
+        * Keys: `calendarIdentifier`, `era`, `year`, `month`, `day` and `isLeapMonth`.
+        * Values: Use `chinese`, `hebrew` and `islamic-civil` for `calendarIdentifier`.
+        Use `number` type for `era`, `year`, `month` and `day`. These must be consistent with
+        corresponding `calendarIdentifier`.
+        Use `boolean` type for `isLeapMonth`.
+
+
+    type: Dictionary
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "8.0"}}
+    since: 3.6.0
+
   - name: created
     summary: Date and time that the person record was created. Single value.
     description: Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
@@ -151,7 +169,7 @@ properties:
     
   - name: instantMessage
     summary: |
-        Instant messenger names of the person. Multi-value.
+        Instant messenger information of the person. Multi-value.
     description: |
         The format of the dictionary accepted by this property is as follows:
         
@@ -160,15 +178,31 @@ properties:
         `string` type value.
         
         The `service` key value may be one of `AIM`, `Facebook`, `GaduGadu`, `GoogleTalk`, `ICQ`, 
-        `MSN`, `QQ`, `Skype`, or `Yahoo`.
+        `Jabber`, `MSN`, `QQ`, `Skype`, or `Yahoo`.
         
         On BlackBerry, the following apply: `aim`, `aliwangwang`, `bbmPin`, `googleTalk`, `icq`,
-        `irc`, `jabber`, `msLcs`, `msn`, `qq`, `sametime`, `skype`, `yahooMessenger`, `yahooMessenger`
+        `irc`, `jabber`, `msLcs`, `msn`, `qq`, `sametime`, `skype`, `yahooMessenger`
 
 
     type: Dictionary
     platforms: [android, iphone, ipad, blackberry]
     
+  - name: socialProfile
+    summary: |
+        Social profile information of the person. Multi-value.
+    description: |
+        The format of the dictionary accepted by this property is as follows:
+        
+        * Keys: any of `home`, `work` and/or `other`.
+        * Values: arrays of dictionary types with two keys, `service` and `username` each with a 
+        `string` type value.
+        
+        The `service` key value may be one of `Twitter`, `SinaWeibo`, `GameCenter`, `Facebook`, 
+        `Myspace`, `LinkedIn`, or `Flickr`.
+
+    type: Dictionary
+    platforms: [iphone, ipad]
+    since: 3.6.0
   - name: jobTitle
     summary: Job title of the person. Single value.
     type: String

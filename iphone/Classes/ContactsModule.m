@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -548,37 +548,50 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
             }
 		}
 		else {
-			propertyName = [[[TiContactsPerson multiValueProperties] allKeysForObject:[NSNumber numberWithInt:property]] objectAtIndex:0];
-			ABMultiValueRef multival = ABRecordCopyValue(person, property);
-			CFIndex index = ABMultiValueGetIndexForIdentifier(multival, identifier);
-
-			CFTypeRef val = ABMultiValueCopyValueAtIndex(multival, index);
-            if (val != NULL) {
-                value = [[(id)val retain] autorelease]; // Force toll-free bridging & autorelease
-                CFRelease(val);
-            }
-			
-			CFStringRef CFlabel = ABMultiValueCopyLabelAtIndex(multival, index);
-            NSArray* labelKeys = [[TiContactsPerson multiValueLabels] allKeysForObject:(NSString*)CFlabel];
-            if ([labelKeys count] > 0) {
-                label = [NSString stringWithString:[labelKeys objectAtIndex:0]];
-            }
-            else {
-                // Hack for Exchange and other 'cute' setups where there is no label associated with a multival property;
-                // in this case, force it to be the property name.
-                if (CFlabel != NULL) {
-                    label = [NSString stringWithString:(NSString*)CFlabel];
-                }
-                // There may also be cases where we get a property from the system that we can't handle, because it's undocumented or not in the map.
-                else if (propertyName != nil) {
-                    label = [NSString stringWithString:propertyName];
-                }
-            }
-            if (CFlabel != NULL) {
-                CFRelease(CFlabel);
-            }
-			
-			CFRelease(multival);
+			//birthdays for iOS8 is multivalue and NOT kABPersonBirthdayProperty only in DELEGATE, but undocumented in Apple
+			if ([TiUtils isIOS8OrGreater] && property == 999) {
+				if (identifier == 0) {
+					propertyName = @"birthday";
+					value = (NSString *) ABRecordCopyValue(person, kABPersonBirthdayProperty);
+				}
+				else {
+					propertyName = @"alternateBirthday";
+					value = (NSDictionary *) ABRecordCopyValue(person, kABPersonAlternateBirthdayProperty);
+				}
+			}
+			else {
+				propertyName = [[[TiContactsPerson multiValueProperties] allKeysForObject:[NSNumber numberWithInt:property]] objectAtIndex:0];
+				ABMultiValueRef multival = ABRecordCopyValue(person, property);
+				CFIndex index = ABMultiValueGetIndexForIdentifier(multival, identifier);
+				
+				CFTypeRef val = ABMultiValueCopyValueAtIndex(multival, index);
+				if (val != NULL) {
+					value = [[(id)val retain] autorelease]; // Force toll-free bridging & autorelease
+					CFRelease(val);
+				}
+				
+				CFStringRef CFlabel = ABMultiValueCopyLabelAtIndex(multival, index);
+				NSArray* labelKeys = [[TiContactsPerson multiValueLabels] allKeysForObject:(NSString*)CFlabel];
+				if ([labelKeys count] > 0) {
+					label = [NSString stringWithString:[labelKeys objectAtIndex:0]];
+				}
+				else {
+					// Hack for Exchange and other 'cute' setups where there is no label associated with a multival property;
+					// in this case, force it to be the property name.
+					if (CFlabel != NULL) {
+						label = [NSString stringWithString:(NSString*)CFlabel];
+					}
+					// There may also be cases where we get a property from the system that we can't handle, because it's undocumented or not in the map.
+					else if (propertyName != nil) {
+						label = [NSString stringWithString:propertyName];
+					}
+				}
+				if (CFlabel != NULL) {
+					CFRelease(CFlabel);
+				}
+				
+				CFRelease(multival);
+			}
 		}
 		
 		NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:personObject,@"person",propertyName,@"property",value,@"value",label,@"label",nil];
