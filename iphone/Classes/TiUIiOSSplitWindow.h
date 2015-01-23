@@ -7,7 +7,22 @@
 #ifdef USE_TI_UIIOSSPLITWINDOW
 #import "TiUIWindow.h"
 
-@interface TiUIiOSSplitWindow : TiUIWindow
+@interface TiUIiOSSplitWindow : TiUIWindow {
+@private
+    UIView* masterViewWrapper;
+    UIView* detailViewWrapper;
+    BOOL showMasterInPortrait;
+    BOOL masterIsOverlayed;
+    BOOL viewsInitialized;
+    
+    TiViewProxy *masterProxy;
+    TiViewProxy *detailProxy;
+}
+
+
+#pragma mark - Titanim Internal Use Only
+-(void)setShowMasterInPortrait_:(id)value withObject:(id)animated;
+-(void)setMasterIsOverlayed_:(id)value withObject:(id)animated;
 
 @end
 #endif

@@ -283,12 +283,7 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ATTRIBUTE_EXPANSION, AttributeNameExpansion
 #ifdef USE_TI_UIIOSSPLITWINDOW
 -(id)createSplitWindow:(id)args
 {
-    if ([TiUtils isIOS8OrGreater]) {
-        return [[[TiUIiOSSplitWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The SplitWindow Object is only available on iOS8 and above. Returning nil");
-        return nil;
-    }
+    return [[[TiUIiOSSplitWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
