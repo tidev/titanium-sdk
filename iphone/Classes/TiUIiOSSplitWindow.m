@@ -6,6 +6,7 @@
  */
 #ifdef USE_TI_UIIOSSPLITWINDOW
 #import "TiUIiOSSplitWindow.h"
+#import "TiUIiOSSplitWindowProxy.h"
 
 @implementation TiUIiOSSplitWindow
 
@@ -13,19 +14,41 @@
 {
     RELEASE_TO_NIL(masterViewWrapper);
     RELEASE_TO_NIL(detailViewWrapper);
+    RELEASE_TO_NIL(masterProxy);
+    RELEASE_TO_NIL(detailProxy);
     [super dealloc];
+}
+
+-(void)initProxy:(TiViewProxy*)theProxy withWrapper:(UIView*)wrapper
+{
+    [theProxy setSandboxBounds:[wrapper bounds]];
+    if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(TiWindowProxy*)theProxy setIsManaged:YES];
+        [(TiWindowProxy*)theProxy open:nil];
+    } else {
+        [theProxy windowWillOpen];
+        [theProxy windowDidOpen];
+    }
+    [wrapper addSubview:[theProxy view]];
+    
 }
 
 -(void) initWrappers
 {
     if (!viewsInitialized) {
-        masterViewWrapper = [[UIView alloc] initWithFrame:CGRectZero];
-        detailViewWrapper = [[UIView alloc] initWithFrame:CGRectZero];
+        masterViewWrapper = [[UIView alloc] initWithFrame:[self bounds]];
+        detailViewWrapper = [[UIView alloc] initWithFrame:[self bounds]];
         masterViewWrapper.backgroundColor = [UIColor colorWithRed:0 green:0 blue:1 alpha:0.2];
         detailViewWrapper.backgroundColor = [UIColor colorWithRed:0 green:1 blue:0 alpha:0.2];
         [self addSubview:detailViewWrapper];
         [self addSubview:masterViewWrapper];
         [self setClipsToBounds:YES];
+        if (masterProxy != nil) {
+            [self initProxy:masterProxy withWrapper:masterViewWrapper];
+        }
+        if (detailProxy != nil) {
+            [self initProxy:detailProxy withWrapper:detailViewWrapper];
+        }
         viewsInitialized = YES;
     }
 }
@@ -48,6 +71,9 @@
     CGPoint detailCenter = CGPointZero;
     CGSize detailSize = CGSizeZero;
     CGSize masterSize = CGSizeZero;
+    
+    CGSize oldMasterSize = masterViewWrapper.bounds.size;
+    CGSize oldDetailSize = detailViewWrapper.bounds.size;
     
     if (isPortrait) {
         if (showMasterInPortrait) {
@@ -100,6 +126,13 @@
     [detailViewWrapper setCenter:detailCenter];
     [masterViewWrapper setBounds:masterRect];
     [masterViewWrapper setCenter:masterCenter];
+    
+    if (!CGSizeEqualToSize(oldMasterSize, masterSize) && masterProxy != nil) {
+        [masterProxy parentSizeWillChange];
+    }
+    if (!CGSizeEqualToSize(oldDetailSize, detailSize) && detailProxy != nil) {
+        [detailProxy parentSizeWillChange];
+    }
 }
 
 
@@ -154,12 +187,44 @@
 
 -(void)setMasterView_:(id)args
 {
-    //TODO
+    ENSURE_TYPE(args,TiViewProxy);
+    if (args == masterProxy) {
+        return;
+    }
+    if (masterProxy != nil) {
+        [masterProxy windowWillClose];
+        [masterProxy windowDidClose];
+        if ([masterProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+            [(TiWindowProxy*)masterProxy setIsManaged:NO];
+        }
+    }
+    RELEASE_TO_NIL(masterProxy);
+    masterProxy = [args retain];
+    if (viewsInitialized) {
+        [self initProxy:masterProxy withWrapper:masterViewWrapper];
+    }
 }
 
 -(void)setDetailView_:(id)args
 {
-    //TODO
+    ENSURE_TYPE(args,TiViewProxy);
+    if (args == detailProxy) {
+        return;
+    }
+    if (detailProxy != nil) {
+        [detailProxy windowWillClose];
+        [detailProxy windowDidClose];
+        if ([detailProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+            [(TiWindowProxy*)detailProxy setIsManaged:NO];
+        }
+    }
+    RELEASE_TO_NIL(detailProxy);
+    detailProxy = [args retain];
+    
+    if (viewsInitialized) {
+        [self initProxy:detailProxy withWrapper:detailViewWrapper];
+    }
+    
 }
 
 
