@@ -411,6 +411,7 @@ properties:
     type: Boolean
     platforms: [android]
     since: "3.6.0"
+    availability: creation
     default: true
 
   - name: handlePlatformUrl

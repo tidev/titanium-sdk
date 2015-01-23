@@ -113,16 +113,6 @@ public class TiWebViewBinding
 			interfacesAdded = true;
 		}
 	}
-	
-	public void removeJavascriptInterfaces()
-	{
-		if (webView != null && interfacesAdded) {
-			webView.removeJavascriptInterface("TiApp");
-			webView.removeJavascriptInterface("TiAPI");
-			webView.removeJavascriptInterface("_TiReturn");
-			interfacesAdded = false;
-		}
-	}
 
 	public void destroy()
 	{

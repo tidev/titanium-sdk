@@ -293,14 +293,6 @@ public class TiUIWebView extends TiUIView
 	{
 		super.processProperties(d);
 
-		if (d.containsKey(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
-			boolean enableJavascriptInterface = TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
-			if (Build.VERSION.SDK_INT > 16 || enableJavascriptInterface) {
-				client.getBinding().addJavascriptInterfaces();
-			} else {
-				client.getBinding().removeJavascriptInterfaces();
-			}
-		}
 		if (d.containsKey(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
 			WebSettings settings = getWebView().getSettings();
 			settings.setLoadWithOverviewMode(TiConvert.toBoolean(d, TiC.PROPERTY_SCALES_PAGE_TO_FIT));
@@ -368,13 +360,6 @@ public class TiUIWebView extends TiUIView
 		} else if (TiC.PROPERTY_LIGHT_TOUCH_ENABLED.equals(key)) {
 			WebSettings settings = getWebView().getSettings();
 			settings.setLightTouchEnabled(TiConvert.toBoolean(newValue));
-		} else if (TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE.equals(key)) {
-			boolean enableJavascriptInterface = TiConvert.toBoolean(newValue, true);
-			if (Build.VERSION.SDK_INT > 16 || enableJavascriptInterface) {
-				client.getBinding().addJavascriptInterfaces();
-			} else {
-				client.getBinding().removeJavascriptInterfaces();
-			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -551,9 +536,18 @@ public class TiUIWebView extends TiUIView
 		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
 			webView.getSettings().setLoadWithOverviewMode(false);
 		}
-
+		boolean enableJavascriptInjection = true;
+		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
+			enableJavascriptInjection = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
+		}
 		// Set flag to indicate that it's local html (used to determine whether we want to inject binding code)
 		isLocalHTML = true;
+		enableJavascriptInjection = (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection);
+
+		if (!enableJavascriptInjection) {
+			webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
+			return;
+		}
 
 		if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
 			// Our injection code is in there already, go ahead and show.
