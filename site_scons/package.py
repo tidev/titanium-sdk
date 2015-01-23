@@ -533,8 +533,8 @@ class Packager(object):
 		if windows: process_args.extend(['-a', os.path.join(top_dir, 'windows', 'doc', 'Titanium')])
 		subprocess.Popen(process_args, cwd=doc_dir).wait()
 		
-		for os in os_names.values():
-			zip_mobilesdk(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, windows, version_tag, self.build_jsca)
+		for os_name in os_names.values():
+			zip_mobilesdk(dist_dir, os_name, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, windows, version_tag, self.build_jsca)
 
 if __name__ == '__main__':
 	Packager().build(os.path.abspath('../dist'), "1.1.0")
