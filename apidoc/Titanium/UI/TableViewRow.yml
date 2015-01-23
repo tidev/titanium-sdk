@@ -338,6 +338,12 @@ properties:
     default: undefined
     platforms: [iphone, ipad]
 
+  - name: opacity
+    description: |
+        To set the opacity of a row on iOS, specify an aRGB value with the
+        <Titanium.UI.TableViewRow.backgroundColor> property.
+    platforms: [android, mobileweb]
+
   - name: rightImage
     summary: Image to render in the right image area of the row, specified as a local path or URL.
     type: String
