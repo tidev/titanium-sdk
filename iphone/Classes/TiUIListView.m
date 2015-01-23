@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,6 +15,7 @@
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
 #endif
+#import "ImageLoader.h"
 
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
@@ -1601,6 +1602,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
+    [[ImageLoader sharedLoader] suspend];
     //Events - None (maybe dragstart later)
 }
 
@@ -1618,11 +1620,18 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
+    [[ImageLoader sharedLoader] resume];
     //Events - none (maybe scrollend later)
 }
 
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
+{
+    [[ImageLoader sharedLoader] suspend];
+    return YES;
+}
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
+    [[ImageLoader sharedLoader] resume];
     //Events none (maybe scroll later)
 }
 
