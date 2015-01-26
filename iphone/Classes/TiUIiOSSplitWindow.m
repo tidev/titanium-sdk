@@ -76,8 +76,8 @@
         CGFloat masterWidth = screenSize.height - screenSize.width;
         if(splitRatioPortrait == 0) {
             splitRatioPortrait = masterWidth / screenSize.width;
-            if (splitRatioPortrait < 0.3) {
-                splitRatioPortrait = 0.3;
+            if (splitRatioPortrait < 0.25) {
+                splitRatioPortrait = 0.25;
             } else if (splitRatioPortrait > 0.5) {
                 splitRatioPortrait = 0.5;
             }
@@ -86,8 +86,8 @@
         if (splitRatioLandscape == 0) {
             splitRatioLandscape = masterWidth / screenSize.height;
             
-            if (splitRatioLandscape < 0.3) {
-                splitRatioLandscape = 0.3;
+            if (splitRatioLandscape < 0.25) {
+                splitRatioLandscape = 0.25;
             } else if (splitRatioLandscape > 0.5) {
                 splitRatioLandscape = 0.5;
             }
@@ -278,7 +278,7 @@
     ENSURE_SINGLE_ARG(args, NSNumber);
     CGFloat newValue = [TiUtils floatValue:args def:-1];
     
-    if ( (newValue >= 0.3) && (newValue <=0.5) && newValue != splitRatioPortrait) {
+    if ( (newValue >= 0.25) && (newValue <=0.5) && newValue != splitRatioPortrait) {
         splitRatioPortrait = newValue;
         UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
         if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
@@ -292,7 +292,7 @@
     ENSURE_SINGLE_ARG(args, NSNumber);
     CGFloat newValue = [TiUtils floatValue:args def:-1];
     
-    if ( (newValue >= 0.3) && (newValue <=0.5) && newValue != splitRatioLandscape) {
+    if ( (newValue >= 0.25) && (newValue <=0.5) && newValue != splitRatioLandscape) {
         splitRatioLandscape = newValue;
         UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
         if (viewsInitialized && UIInterfaceOrientationIsLandscape(curOrientation)) {
