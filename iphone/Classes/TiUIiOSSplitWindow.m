@@ -58,8 +58,6 @@
     if (!viewsInitialized) {
         masterViewWrapper = [[UIView alloc] initWithFrame:[self bounds]];
         detailViewWrapper = [[UIView alloc] initWithFrame:[self bounds]];
-        masterViewWrapper.backgroundColor = [UIColor colorWithRed:0 green:0 blue:1 alpha:0.2];
-        detailViewWrapper.backgroundColor = [UIColor colorWithRed:0 green:1 blue:0 alpha:0.2];
         [self addSubview:detailViewWrapper];
         [self addSubview:masterViewWrapper];
         [self setClipsToBounds:YES];
@@ -125,7 +123,7 @@
         if (showMasterInPortrait) {
             if (masterIsOverlayed) {
                 /*
-                 * Master on top. Detail occupies visible area. Master on top.
+                 * Detail occupies visible area. Master on top.
                  */
                 detailSize = CGSizeMake(refSize.width, refSize.height);
                 masterSize = CGSizeMake(masterWidth, refSize.height);
@@ -135,7 +133,7 @@
                 detailCenter = CGPointMake(detailSize.width/2, detailSize.height/2);
             } else {
                 /*
-                 * Side by side. Master+detail occupy visible area 
+                 * Side by side. Master+Detail occupy visible area
                  */
                 masterSize = CGSizeMake(masterWidth, refSize.height);
                 masterRect = CGRectMake(0, 0, masterSize.width, masterSize.height);
@@ -158,7 +156,7 @@
         }
     } else {
         /*
-         * Side by side. Detail in a square box. Master in remaining width
+         * Side by side. Master+Detail occupy visible area
          */
         CGFloat masterWidth = roundf(splitRatioLandscape* refSize.width);
         detailSize = CGSizeMake(refSize.width - masterWidth, refSize.height);
