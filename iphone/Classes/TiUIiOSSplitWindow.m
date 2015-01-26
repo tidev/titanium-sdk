@@ -33,7 +33,27 @@
     
 }
 
--(void) initWrappers
+-(void)cleanup
+{
+    if (masterProxy != nil) {
+        if ([masterProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+            [(TiWindowProxy*)masterProxy close:nil];
+        } else {
+            [masterProxy windowWillClose];
+            [masterProxy windowDidClose];
+        }
+    }
+    if (detailProxy != nil) {
+        if ([detailProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+            [(TiWindowProxy*)detailProxy close:nil];
+        } else {
+            [detailProxy windowWillClose];
+            [detailProxy windowDidClose];
+        }
+    }
+}
+
+-(void)initWrappers
 {
     if (!viewsInitialized) {
         masterViewWrapper = [[UIView alloc] initWithFrame:[self bounds]];
@@ -48,6 +68,31 @@
         }
         if (detailProxy != nil) {
             [self initProxy:detailProxy withWrapper:detailViewWrapper];
+        }
+        
+        CGSize screenSize = [[UIScreen mainScreen] bounds].size;
+        if ([TiUtils isIOS8OrGreater] && UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation])) {
+            screenSize = CGSizeMake(screenSize.height, screenSize.width);
+        }
+        
+        CGFloat masterWidth = screenSize.height - screenSize.width;
+        if(splitRatioPortrait == 0) {
+            splitRatioPortrait = masterWidth / screenSize.width;
+            if (splitRatioPortrait < 0.3) {
+                splitRatioPortrait = 0.3;
+            } else if (splitRatioPortrait > 0.5) {
+                splitRatioPortrait = 0.5;
+            }
+        }
+        
+        if (splitRatioLandscape == 0) {
+            splitRatioLandscape = masterWidth / screenSize.height;
+            
+            if (splitRatioLandscape < 0.3) {
+                splitRatioLandscape = 0.3;
+            } else if (splitRatioLandscape > 0.5) {
+                splitRatioLandscape = 0.5;
+            }
         }
         viewsInitialized = YES;
     }
@@ -76,13 +121,14 @@
     CGSize oldDetailSize = detailViewWrapper.bounds.size;
     
     if (isPortrait) {
+        CGFloat masterWidth = roundf(splitRatioPortrait* refSize.width);
         if (showMasterInPortrait) {
             if (masterIsOverlayed) {
                 /*
                  * Master on top. Detail occupies visible area. Master on top.
                  */
                 detailSize = CGSizeMake(refSize.width, refSize.height);
-                masterSize = CGSizeMake(refSize.height - refSize.width, refSize.height);
+                masterSize = CGSizeMake(masterWidth, refSize.height);
                 masterRect = CGRectMake(0, 0, masterSize.width, masterSize.height);
                 masterCenter = CGPointMake(masterSize.width/2, masterSize.height/2);
                 detailRect = CGRectMake(0, 0, detailSize.width, detailSize.height);
@@ -91,7 +137,7 @@
                 /*
                  * Side by side. Master+detail occupy visible area 
                  */
-                masterSize = CGSizeMake(refSize.height - refSize.width, refSize.height);
+                masterSize = CGSizeMake(masterWidth, refSize.height);
                 masterRect = CGRectMake(0, 0, masterSize.width, masterSize.height);
                 masterCenter = CGPointMake(masterSize.width/2, masterSize.height/2);
                 detailSize = CGSizeMake(refSize.width - masterSize.width, refSize.height);
@@ -104,7 +150,7 @@
              * Side by side. Detail in visible area. Master off screen to left.
              */
             detailSize = CGSizeMake(refSize.width, refSize.height);
-            masterSize = CGSizeMake(refSize.height - refSize.width, refSize.height);
+            masterSize = CGSizeMake(masterWidth, refSize.height);
             masterRect = CGRectMake(0, 0, masterSize.width, masterSize.height);
             masterCenter = CGPointMake(-masterSize.width/2, masterSize.height/2);
             detailRect = CGRectMake(0, 0, detailSize.width, detailSize.height);
@@ -114,8 +160,9 @@
         /*
          * Side by side. Detail in a square box. Master in remaining width
          */
-        detailSize = CGSizeMake(refSize.height, refSize.height);
-        masterSize = CGSizeMake(refSize.width - refSize.height, refSize.height);
+        CGFloat masterWidth = roundf(splitRatioLandscape* refSize.width);
+        detailSize = CGSizeMake(refSize.width - masterWidth, refSize.height);
+        masterSize = CGSizeMake(masterWidth, refSize.height);
         masterRect = CGRectMake(0, 0, masterSize.width, masterSize.height);
         masterCenter = CGPointMake(masterSize.width/2, masterSize.height/2);
         detailRect = CGRectMake(0, 0, detailSize.width, detailSize.height);
@@ -151,17 +198,17 @@
     }
     BOOL animate = [TiUtils boolValue:@"animated" properties:animated def:NO];
     
-    if (viewsInitialized) {
+    UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
         if (animate) {
             void (^animation)() = ^{
-                [self layoutSubviewsForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+                [self layoutSubviewsForOrientation:curOrientation];
             };
             [UIView animateWithDuration:0.2 animations:animation];
         } else {
-            [self layoutSubviewsForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+            [self layoutSubviewsForOrientation:curOrientation];
         }
     }
-    
 }
 
 -(void)setMasterIsOverlayed_:(id)value withObject:(id)animated
@@ -173,14 +220,15 @@
     }
     BOOL animate = [TiUtils boolValue:@"animated" properties:animated def:NO];
     
-    if (viewsInitialized) {
+    UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
         if (animate) {
             void (^animation)() = ^{
-                [self layoutSubviewsForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+                [self layoutSubviewsForOrientation:curOrientation];
             };
             [UIView animateWithDuration:0.2 animations:animation];
         } else {
-            [self layoutSubviewsForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+            [self layoutSubviewsForOrientation:curOrientation];
         }
     }
 }
@@ -227,6 +275,33 @@
     
 }
 
+-(void)setPrortraitSplit_:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSNumber);
+    CGFloat newValue = [TiUtils floatValue:args def:-1];
+    
+    if ( (newValue >= 0.3) && (newValue <=0.5) && newValue != splitRatioPortrait) {
+        splitRatioPortrait = newValue;
+        UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+        if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
+            [self layoutSubviewsForOrientation:curOrientation];
+        }
+    }
+}
+
+-(void)setLandscapeSplit_:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSNumber);
+    CGFloat newValue = [TiUtils floatValue:args def:-1];
+    
+    if ( (newValue >= 0.3) && (newValue <=0.5) && newValue != splitRatioLandscape) {
+        splitRatioLandscape = newValue;
+        UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+        if (viewsInitialized && UIInterfaceOrientationIsLandscape(curOrientation)) {
+            [self layoutSubviewsForOrientation:curOrientation];
+        }
+    }
+}
 
 
 @end
