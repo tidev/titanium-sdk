@@ -7,10 +7,10 @@ description: |
     This class replaces the deprecated <Ti.UI.iPad.SplitWindow> class.
 
     The [masterView](Titanium.UI.iOS.SplitWindow.masterView) and [detailView](Titanium.UI.iOS.SplitWindow.detailView) 
-    properties are required in the constructor of the SplitWindow
+    properties are required before the SplitWindow is opened.
 
     You use this class to implement a master-detail interface, in which the left-side view presents 
-    a list of items and the right-side presents details of the selected item. The SplitView is supported 
+    a list of items and the right-side presents details of the selected item. The `SplitWindow` is supported 
     for both iPhone and iPad idioms. Use the <Titanium.UI.iOS.createSplitWindow> method to create a `SplitWindow` object
     
     By default, `SplitWindow` shows both master and detail views in landscape orientation. When the 
@@ -37,16 +37,39 @@ since: "3.6.0"
 excludes:
     properties: [transitionAnimation]
 
+methods:
+  - name: setShowMasterInPortrait
+    summary: Sets the value of the [showMasterInPortrait](Titanium.UI.iOS.SplitWindow.showMasterInPortrait) property.
+    parameters:
+      - name: showMasterInPortrait
+        summary: Determines whether to show the master view in portrait orientation.
+        type: Boolean
+        
+      - name: animated
+        summary: Determines whether the scrollable region reposition should be animated 
+        type: animationOption
+        optional: true
+
+  - name: setMasterIsOverlayed
+    summary: Sets the value of the [masterIsOverlayed](Titanium.UI.iOS.SplitWindow.masterIsOverlayed) property.
+    parameters:
+      - name: masterIsOverlayed
+        summary: Determines whether to show the master view is overlayed in portrait orientation.
+        type: Boolean
+        
+      - name: animated
+        summary: Determines whether the scrollable region reposition should be animated 
+        type: animationOption
+        optional: true
+
 properties:
   - name: detailView
     summary: View for the detail view section of the SplitWindow.
     type: Titanium.UI.View
-    availability: creation
     
   - name: masterView
     summary: View for the master view section of the SplitWindow.
     type: Titanium.UI.View
-    availability: creation
     
   - name: showMasterInPortrait
     summary: Determines whether to show the master view in portrait orientation. 
@@ -88,4 +111,20 @@ examples:
                 masterView: masterNav
             });
             splitWin.open();
+
+---
+name: animationOption
+summary: |
+    Optional parameter for [setShowMasterInPortrait](Titanium.UI.iOS.SplitWindow.setShowMasterInPortrait) and 
+    [setMasterIsOverlayed](Titanium.UI.iOS.SplitWindow.setMasterIsOverlayed) methods.
+description: |
+    On iOS, use the optional parameter `animated` to animate changes to masterView display mode in portrait orientation. For example
+
+        setShowMasterInPortrait(true, {animated:true})
+platforms: [iphone, ipad]
+
+properties:
+  - name: animated
+    summary: Determines whether the change is animated.
+    type: Boolean
 

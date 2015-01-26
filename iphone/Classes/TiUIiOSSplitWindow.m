@@ -81,6 +81,7 @@
             } else if (splitRatioPortrait > 0.5) {
                 splitRatioPortrait = 0.5;
             }
+            [self.proxy replaceValue:NUMFLOAT(splitRatioPortrait) forKey:@"portraitSplit" notification:NO];
         }
         
         if (splitRatioLandscape == 0) {
@@ -91,6 +92,7 @@
             } else if (splitRatioLandscape > 0.5) {
                 splitRatioLandscape = 0.5;
             }
+            [self.proxy replaceValue:NUMFLOAT(splitRatioLandscape) forKey:@"landscapeSplit" notification:NO];
         }
         viewsInitialized = YES;
     }
@@ -284,6 +286,8 @@
         if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
             [self layoutSubviewsForOrientation:curOrientation];
         }
+    } else {
+        [self.proxy replaceValue:NUMFLOAT(splitRatioPortrait) forKey:@"portraitSplit" notification:NO];
     }
 }
 
@@ -298,6 +302,8 @@
         if (viewsInitialized && UIInterfaceOrientationIsLandscape(curOrientation)) {
             [self layoutSubviewsForOrientation:curOrientation];
         }
+    } else {
+        [self.proxy replaceValue:NUMFLOAT(splitRatioLandscape) forKey:@"landscapeSplit" notification:NO];
     }
 }
 
