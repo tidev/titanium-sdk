@@ -273,7 +273,7 @@
     
 }
 
--(void)setPrortraitSplit_:(id)args
+-(void)setPortraitSplit_:(id)args
 {
     ENSURE_SINGLE_ARG(args, NSNumber);
     CGFloat newValue = [TiUtils floatValue:args def:-1];
