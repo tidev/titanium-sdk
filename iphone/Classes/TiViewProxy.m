@@ -2118,7 +2118,10 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		ENSURE_UI_THREAD_0_ARGS
 
 		repositioning = YES;
-
+        
+        CGRect oldRect = sizeCache;
+        CGPoint oldCenter = positionCache;
+        
         UIView *parentView = [parent parentViewForChild:self];
         CGSize referenceSize = (parentView != nil) ? parentView.bounds.size : sandboxBounds.size;
         if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle)) ) {
@@ -2134,13 +2137,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		positionCache.x += sizeCache.origin.x + sandboxBounds.origin.x;
 		positionCache.y += sizeCache.origin.y + sandboxBounds.origin.y;
         
-        BOOL layoutChanged = (!CGRectEqualToRect([view bounds], sizeCache) || !CGPointEqualToPoint([view center], positionCache));
-        if (!layoutChanged && [view isKindOfClass:[TiUIView class]]) {
-            //Views with flexible margins might have already resized when the parent resized.
-            //So we need to explicitly check for oldSize here which triggers frameSizeChanged
-            CGSize oldSize = [(TiUIView*) view oldSize];
-            layoutChanged = layoutChanged || !(CGSizeEqualToSize(oldSize,sizeCache.size));
-        }
+        BOOL layoutChanged = (!CGRectEqualToRect(oldRect, sizeCache) || !CGPointEqualToPoint(oldCenter, positionCache));
         
 		[view setAutoresizingMask:autoresizeCache];
 		[view setCenter:positionCache];
