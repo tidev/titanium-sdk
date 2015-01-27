@@ -146,6 +146,15 @@
 
 -(void)viewWillAppear:(BOOL)animated
 {
+    if (controller!=nil)
+    {
+        id navBarHidden = [self valueForUndefinedKey:@"navBarHidden"];
+        if (navBarHidden != nil)
+        {
+            BOOL nbhidden = [TiUtils boolValue:navBarHidden def:NO];
+            [[controller navigationController] setNavigationBarHidden:nbhidden animated:NO];
+        }
+    }
     if ([self viewAttached]) {
         [[(TiUIiPadSplitWindow*)[self view] controller] viewWillAppear:animated];
     }
