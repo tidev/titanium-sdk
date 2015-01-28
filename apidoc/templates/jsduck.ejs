@@ -47,7 +47,11 @@
 
 <% cls.properties.forEach(function (property) { %>
 /**
+<% if ('defaultValue' in property && property.defaultValue) { %>
+ * @property [<%- property.name %>=<%- property.defaultValue %>]
+<% } else { %>
  * @property <%- property.name %>
+<% } %>
 <% if ('hide' in property && property.hide) { %> * @hide <% } %>
  * @type <%- property.type %>
 <% if ('permission' in property) { %>
