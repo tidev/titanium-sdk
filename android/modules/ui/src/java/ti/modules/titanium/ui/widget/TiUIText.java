@@ -20,11 +20,14 @@ import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.AttributedStringProxy;
+import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.Spannable;
 import android.text.TextUtils.TruncateAt;
 import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
@@ -189,6 +192,19 @@ public class TiUIText extends TiUIView
 			handleKeyboard(d);
 		}
 		
+		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_HINT_TEXT)) {
+			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_HINT_TEXT);
+			if (attributedString instanceof AttributedStringProxy) {
+				setAttributedStringHint((AttributedStringProxy) attributedString);
+			}
+		}
+
+		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+			if (attributedString instanceof AttributedStringProxy) {
+				setAttributedStringText((AttributedStringProxy) attributedString);
+			}
+		}
 
 		if (d.containsKey(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
@@ -254,6 +270,10 @@ public class TiUIText extends TiUIView
 			TiUIHelper.styleText(tv, (HashMap) newValue);
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, newValue);
+		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_HINT_TEXT) && newValue instanceof AttributedStringProxy) {
+			setAttributedStringHint((AttributedStringProxy)newValue);
+		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
+			setAttributedStringText((AttributedStringProxy)newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -609,4 +629,17 @@ public class TiUIText extends TiUIView
 		tv.setInputType(tv.getInputType());
 	}
 
+	public void setAttributedStringText(AttributedStringProxy attrString) {
+		Spannable spannableText = AttributedStringProxy.toSpannable(attrString, TiApplication.getAppCurrentActivity());
+		if (spannableText != null) {
+			tv.setText(spannableText);
+		}
+	}
+
+	public void setAttributedStringHint(AttributedStringProxy attrString) {
+		Spannable spannableText = AttributedStringProxy.toSpannable(attrString, TiApplication.getAppCurrentActivity());
+		if (spannableText != null) {
+			tv.setHint(spannableText);
+		}
+	}
 }

@@ -225,7 +225,6 @@ static NSArray* popoverSequence;
         return;
     }
     
-    
     [popOverCondition lock];
     if (currentlyDisplaying) {
         [currentPopover hide:nil];
@@ -255,7 +254,8 @@ static NSArray* popoverSequence;
 	[closingCondition unlock];
 
 	TiThreadPerformOnMainThread(^{
-		animated = [TiUtils boolValue:@"animated" properties:args def:NO];
+        [contentViewProxy windowWillClose];
+        animated = [TiUtils boolValue:@"animated" properties:args def:NO];
         if ([TiUtils isIOS8OrGreater]) {
             [[self viewController] dismissViewControllerAnimated:animated completion:^{
                 [self cleanup];
@@ -290,7 +290,7 @@ static NSArray* popoverSequence;
         
         return;
     }
-    
+    [contentViewProxy setProxyObserver:nil];
     [contentViewProxy windowWillClose];
     
     popoverInitialized = NO;
@@ -324,6 +324,7 @@ static NSArray* popoverSequence;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
         [self updatePassThroughViews];
     }
+    [contentViewProxy setProxyObserver:self];
     if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
         UIView* topWindowView = [[[TiApp app] controller] topWindowProxyView];
         if ([topWindowView isKindOfClass:[TiUIView class]]) {
@@ -494,6 +495,18 @@ static NSArray* popoverSequence;
 }
 
 #pragma mark Delegate methods
+
+-(void)proxyDidRelayout:(id)sender
+{
+    if (sender == contentViewProxy) {
+        if (viewController != nil) {
+            CGSize newSize = [self contentSize];
+            if (!CGSizeEqualToSize([viewController preferredContentSize], newSize)) {
+                [self updateContentSize];
+            }
+        }
+    }
+}
 
 - (void)prepareForPopoverPresentation:(UIPopoverPresentationController *)popoverPresentationController
 {

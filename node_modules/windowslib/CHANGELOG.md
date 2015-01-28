@@ -1,3 +1,8 @@
+0.1.7 (1/8/2015)
+-------------------
+ * Remove use of custom wptool, defer to deploy cmd for launch/connect [TIMOB-18303]
+ * Surface exact error message from deploy command on failure (Issue #5)
+
 0.1.6 (12/16/2014)
 -------------------
  * Minor fix for surfacing errors in wptool.js, wrong variable name referenced.

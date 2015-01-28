@@ -15,7 +15,9 @@ extends: Titanium.Module
 platforms: [android]
 since: "1.5"
 createable: false
-deprecated: {since: "3.2.0"}
+deprecated: 
+    since: "3.2.0"
+    notes: Use the [Titanium.Calendar](Titanium.Calendar) class instead.
 
 methods:
   - name: getCalendarById

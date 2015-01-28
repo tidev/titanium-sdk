@@ -313,32 +313,6 @@
 
 #pragma mark - UINavController, NavItem UI
 
-
--(void)showNavBar:(NSArray*)args
-{
-	ENSURE_UI_THREAD(showNavBar,args);
-	[self replaceValue:[NSNumber numberWithBool:NO] forKey:@"navBarHidden" notification:NO];
-	if (controller!=nil)
-	{
-		id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
-		BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-		[[controller navigationController] setNavigationBarHidden:NO animated:animated];
-	}
-}
-
--(void)hideNavBar:(NSArray*)args
-{
-	ENSURE_UI_THREAD(hideNavBar,args);
-	[self replaceValue:[NSNumber numberWithBool:YES] forKey:@"navBarHidden" notification:NO];
-	if (controller!=nil)
-	{
-		id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
-		BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-		[[controller navigationController] setNavigationBarHidden:YES animated:animated];
-		//TODO: need to fix height
-	}
-}
-
 -(void)setNavTintColor:(id)colorString
 {
     NSString *color = [TiUtils stringValue:colorString];
@@ -855,7 +829,7 @@
         if (shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
             controller.navigationItem.title = title;
         }
-    }, NO);
+    }, [NSThread isMainThread]);
 }
 
 -(void)setTitlePrompt:(NSString*)title_
@@ -998,17 +972,6 @@ else{\
     [self updateBarImage];
     [self updateNavButtons];
     [self refreshBackButton];
-
-    id navBarHidden = [self valueForKey:@"navBarHidden"];
-    if (navBarHidden!=nil) {
-        id properties = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:NO] forKey:@"animated"]];
-        if ([TiUtils boolValue:navBarHidden]) {
-            [self hideNavBar:properties];
-        }
-        else {
-            [self showNavBar:properties];
-        }
-    }
 }
 
 -(void)cleanupWindowDecorations

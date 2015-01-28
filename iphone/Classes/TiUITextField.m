@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,9 +13,8 @@
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUITextWidget.h"
-
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-#import "TiUIiOSAttributedStringProxy.h"
+#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#import "TiUIAttributedStringProxy.h"
 #endif
 
 @implementation TiTextField
@@ -370,10 +369,10 @@
 
 -(void)setAttributedHintText_:(id)value
 {
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-    ENSURE_SINGLE_ARG(value,TiUIiOSAttributedStringProxy);
-    [[self proxy] replaceValue:value forKey:@"attributedHintText" notification:NO];
-    [[self textWidgetView] setAttributedPlaceholder:[value attributedString]];
+#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+	ENSURE_SINGLE_ARG(value,TiUIAttributedStringProxy);
+	[[self proxy] replaceValue:value forKey:@"attributedHintText" notification:NO];
+	[[self textWidgetView] setAttributedPlaceholder:[value attributedString]];
 #endif
 }
 
@@ -515,6 +514,8 @@
 - (void)textFieldDidEndEditing:(UITextField *)tf
 {
 	[self textWidget:tf didBlurWithText:[tf text]];
+	//TIMOB-18365. Value not updated when autocorrect is up and return is pressed
+	[self textFieldDidChange:nil];
 }
 
 - (void)textFieldDidChange:(NSNotification *)notification

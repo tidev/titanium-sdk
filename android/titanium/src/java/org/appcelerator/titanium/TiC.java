@@ -517,6 +517,10 @@ public class TiC
 	 */
 	public static final String EVENT_SSL_ERROR = "sslerror";
 	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_WEBVIEW_ON_LOAD_RESOURCE = "onLoadResource";
 
 	/**
 	 * @module.api
@@ -644,6 +648,26 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ATTRIBUTES = "attributes";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTED_HINT_TEXT = "attributedHintText";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTE_RANGE = "range";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTED_STRING = "attributedString";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ANCHOR_POINT = "anchorPoint";
 
 	/**
@@ -715,6 +739,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_AUTOROTATE = "autorotate";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_AUTO_REDIRECT = "autoRedirect";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_AUTO_ENCODE_URL = "autoEncodeUrl";
 
 	/**
 	 * @module.api
@@ -883,6 +917,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_CANCELABLE = "cancelable";
 	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CANCELED_ON_TOUCH_OUTSIDE = "canceledOnTouchOutside";
+
 	/**
 	 * @module.api
 	 */
@@ -1122,6 +1161,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ENABLED = "enabled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ENABLE_JAVASCRIPT_INTERFACE = "enableJavascriptInterface";
 
 	/**
 	 * @module.api
@@ -2551,7 +2595,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PREFIX = "prefix";
-	
+
 	/**
 	 * @module.api
 	 */
@@ -2586,8 +2630,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_DEPARTMENT = "department";
-	
-	
+
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";

@@ -368,7 +368,18 @@ events:
     properties:
       - name: url
         summary: URL of the web document. 
-        
+
+  - name: onLoadResource
+    summary: Fired when loading resource.
+    description: |
+        Android only. Notify the host application that the WebView will load the resource specified by the given url.
+    platforms: [android]
+    since: "3.6.0"
+    properties:
+      - name: url
+        summary: The url of the resource that will load.
+        type: String
+
   - name: sslerror
     summary: Fired when an SSL error occurred.
     description: |
@@ -403,6 +414,16 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone, ipad]
+
+  - name: enableJavascriptInterface
+    summary: Enable adding javascript interfaces internally to webview prior to JELLY_BEAN_MR1 (Android 4.2)
+    description: |
+        This property is introduced to prevent a security issue with older devices (< JELLY_BEAN_MR1)
+    type: Boolean
+    platforms: [android]
+    since: "3.6.0"
+    availability: creation
+    default: true
 
   - name: handlePlatformUrl
     summary: Lets the webview handle platform supported urls
@@ -559,7 +580,7 @@ properties:
     constants: Titanium.UI.Android.WEBVIEW_PLUGINS_*
     platforms: [android]
     since: "1.8.0"
-    osver: {android: {min: "8"}}
+    osver: {android: {min: "2.2"}}
     default: <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>
 
   - name: scrollsToTop

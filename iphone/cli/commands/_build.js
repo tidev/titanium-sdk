@@ -1420,7 +1420,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 			}
 
 			this.xcodePrecompilePhase(function () {
-				if (this.forceRebuild || !fs.existsSync(this.xcodeAppDir, this.tiapp.name)) {
+				if (this.forceRebuild || !fs.existsSync(this.xcodeAppDir)) {
 					// we're not being called from Xcode, so we can call the pre-compile phase now
 					// and save us several seconds
 					parallel(this, [
@@ -2762,6 +2762,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 			'IPHONEOS_DEPLOYMENT_TARGET=' + appc.version.format(this.minIosVer, 2),
 			'TARGETED_DEVICE_FAMILY=' + this.deviceFamilies[this.deviceFamily],
 			//'VALID_ARCHS=' + this.architectures,
+			'ONLY_ACTIVE_ARCH=NO',
 			'DEAD_CODE_STRIPPING=YES'
 		],
 		gccDefs = [ 'DEPLOYTYPE=' + this.deployType ];

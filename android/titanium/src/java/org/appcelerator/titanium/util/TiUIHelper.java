@@ -531,6 +531,18 @@ public class TiUIHelper
 				bFontSet = true;
 				fontProperties[FONT_WEIGHT_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONT_WEIGHT);
 			}
+			if (fontProps.containsKey(TiC.PROPERTY_FONTFAMILY)) {
+				bFontSet = true;
+				fontProperties[FONT_FAMILY_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONTFAMILY);
+			}
+			if (fontProps.containsKey(TiC.PROPERTY_FONTSIZE)) {
+				bFontSet = true;
+				fontProperties[FONT_SIZE_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONTSIZE);
+			}
+			if (fontProps.containsKey(TiC.PROPERTY_FONTWEIGHT)) {
+				bFontSet = true;
+				fontProperties[FONT_WEIGHT_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONTWEIGHT);
+			}
 			if (fontProps.containsKey(TiC.PROPERTY_FONTSTYLE)) {
 				bFontSet = true;
 				fontProperties[FONT_STYLE_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONTSTYLE);

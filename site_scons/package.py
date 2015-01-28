@@ -31,6 +31,9 @@ ivi_dir = os.path.abspath(os.path.join(template_dir, 'ivi'))
 buildtime = datetime.datetime.now()
 ts = buildtime.strftime("%m/%d/%y %H:%M")
 
+print "Installing npm packages..."
+subprocess.Popen(["npm","install"],cwd=doc_dir).wait()
+
 # get the githash for the build so we can always pull this build from a specific
 # commit
 gitCmd = "git"
@@ -56,8 +59,10 @@ def ignore(file):
 			return True
 	 return False
 
-def generate_jsca():
-	 process_args = [sys.executable, os.path.join(doc_dir, 'docgen.py'), '-f', 'jsca', '--stdout']
+def generate_jsca(windows):
+	 process_args = ['node', os.path.join(doc_dir, 'docgen.js'), '-f', 'jsca', '--stdout']
+	 if windows:
+	 	process_args.extend(['-a', os.path.join(top_dir, 'windows', 'doc', 'Titanium')])
 	 print "Generating JSCA..."
 	 print " ".join(process_args)
 	 jsca_temp_file = tempfile.TemporaryFile()
@@ -409,7 +414,7 @@ def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	zf = zipfile.ZipFile(sdkzip, 'w', zipfile.ZIP_DEFLATED)
 	return (zf, basepath, sdkzip)
 
-def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, windows, ivi, version_tag, build_jsca):
+def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, windows, version_tag, build_jsca):
 	print "Zipping Mobile SDK..."
 	zf, basepath, filename = create_platform_zip('mobilesdk', dist_dir, osname, version, version_tag)
 
@@ -452,7 +457,7 @@ def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone,
 
 	# check if we should build the content assist file
 	if build_jsca:
-		jsca = generate_jsca()
+		jsca = generate_jsca(windows)
 		if jsca is None:
 			# This is fatal. If we were meant to build JSCA
 			# but couldn't, then packaging fails.
@@ -507,7 +512,12 @@ class Packager(object):
 		if version_tag == None:
 			version_tag = version
 
-		zip_mobilesdk(dist_dir, os_names[platform.system()], version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, windows, ivi, version_tag, self.build_jsca)
+		print "Generating parity report..."
+		process_args = ['node', 'docgen.js', '-f', 'parity']
+		if windows: process_args.extend(['-a', os.path.join(top_dir, 'windows', 'doc', 'Titanium')])
+		subprocess.Popen(process_args, cwd=doc_dir).wait()
+
+		zip_mobilesdk(dist_dir, os_names[platform.system()], version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, windows, version_tag, self.build_jsca)
 
 	def build_all_platforms(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, blackberry=True, tizen=True, ivi=True, windows=True, version_tag=None):
 		global packaging_all
@@ -518,8 +528,13 @@ class Packager(object):
 
 		remove_existing_zips(dist_dir, version_tag)
 
-		for os in os_names.values():
-			zip_mobilesdk(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, windows, ivi, version_tag, self.build_jsca)
+		print "Generating parity report..."
+		process_args = ['node', 'docgen.js', '-f', 'parity']
+		if windows: process_args.extend(['-a', os.path.join(top_dir, 'windows', 'doc', 'Titanium')])
+		subprocess.Popen(process_args, cwd=doc_dir).wait()
+		
+		for os_name in os_names.values():
+			zip_mobilesdk(dist_dir, os_name, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, windows, version_tag, self.build_jsca)
 
 if __name__ == '__main__':
 	Packager().build(os.path.abspath('../dist'), "1.1.0")

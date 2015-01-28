@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.os.Message;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
+	TiC.PROPERTY_ATTRIBUTED_STRING,
 	TiC.PROPERTY_AUTOCAPITALIZATION,
 	TiC.PROPERTY_AUTOCORRECT,
 	TiC.PROPERTY_AUTO_LINK,

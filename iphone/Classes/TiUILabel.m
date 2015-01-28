@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,10 +11,10 @@
 #import "TiUtils.h"
 #import "UIImage+Resize.h"
 #import <CoreText/CoreText.h>
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-#import "TiUIiOSAttributedStringProxy.h"
-#endif
 
+#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#import "TiUIAttributedStringProxy.h"
+#endif
 @implementation TiUILabel
 
 #pragma mark Internal
@@ -452,8 +452,8 @@
 
 -(void)setAttributedString_:(id)arg
 {
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-    ENSURE_SINGLE_ARG(arg, TiUIiOSAttributedStringProxy);
+#if defined (USE_TI_UIIOSATTRIBUTEDSTRING) || defined (USE_TI_UIATTRIBUTEDSTRING)
+    ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
     [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
     [[self label] setAttributedText:[arg attributedString]];
     [self padLabel];
