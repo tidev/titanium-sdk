@@ -3153,8 +3153,8 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 	});
 
 	var platformPaths = [
-		path.join(this.projectDir, this.cli.argv['platform-directory'] || 'platform', 'iphone'),
-		path.join(this.projectDir, this.cli.argv['platform-directory'] || 'platform', 'ios')
+		path.join(this.projectDir, this.cli.argv['platform-dir'] || 'platform', 'iphone'),
+		path.join(this.projectDir, this.cli.argv['platform-dir'] || 'platform', 'ios')
 	];
 	// WARNING! This is pretty dangerous, but yes, we're intentionally copying
 	// every file from platform/iphone|ios and all modules into the build dir
