@@ -19,13 +19,10 @@ import java.util.Map;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
@@ -43,7 +40,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.ExifInterface;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.webkit.URLUtil;
@@ -825,13 +821,8 @@ public class TiDrawableReference
 
 		if (isTypeUrl() && url != null) {
 			try {
-				if (url.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)
-					&& TiFastDev.isFastDevEnabled()) {
-					TiBaseFile tbf = TiFileFactory.createTitaniumFile(new String[] { url }, false);
-					stream = tbf.getInputStream();
-				} else {
-					stream = TiFileHelper.getInstance().openInputStream(url, false);
-				}
+				stream = TiFileHelper.getInstance().openInputStream(url, false);
+				
 			} catch (IOException e) {
 				Log.e(TAG, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
 			}
