@@ -178,7 +178,7 @@ properties:
         `string` type value.
         
         The `service` key value may be one of `AIM`, `Facebook`, `GaduGadu`, `GoogleTalk`, `ICQ`, 
-        `Jabber`, `MSN`, `QQ`, `Skype`, or `Yahoo`.
+        `Jabber`, `MSN`, `QQ`, `Skype`, or `Yahoo`. These values are key sensitive.
         
         On BlackBerry, the following apply: `aim`, `aliwangwang`, `bbmPin`, `googleTalk`, `icq`,
         `irc`, `jabber`, `msLcs`, `msn`, `qq`, `sametime`, `skype`, `yahooMessenger`
@@ -197,8 +197,8 @@ properties:
         * Values: arrays of dictionary types with two keys, `service` and `username` each with a 
         `string` type value.
         
-        The `service` key value may be one of `Twitter`, `SinaWeibo`, `GameCenter`, `Facebook`, 
-        `Myspace`, `LinkedIn`, or `Flickr`.
+        The `service` key value may be one of `twitter`, `sinaweibo`, `gamecenter`, `facebook`, 
+        `myspace`, `linkedin`, or `flickr`. These values are key sensitive.
 
     type: Dictionary
     platforms: [iphone, ipad]
