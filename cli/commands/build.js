@@ -257,9 +257,11 @@ exports.run = function (logger, config, cli, finished) {
 					logger.error(msg);
 				});
 				logger.log();
+				logger.log.end();
 				process.exit(1);
 			} else {
 				logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
+				logger.log.end();
 			}
 
 			finished();
@@ -306,7 +308,7 @@ function patchLogger(logger, cli) {
 		// add [INFO] type prefixes for each line
 		prefix = (args[0] != '_') ? '[' + args[0].toUpperCase() + ']' + ((args[0].length===5) ? '  ' : '   ') : '';
 
-		if (logger.log.filestream) {
+		if (logger.log.filestream && logger.fileWriteEnabled) {
 			if (logger.log.buffer) {
 				logger.log.filestream.write(logger.log.buffer);
 				logger.log.buffer = null;
@@ -315,7 +317,7 @@ function patchLogger(logger, cli) {
 			// log it to our log file, stripping out the color codes
 			logger.log.filestream.write('\n' + prefix + (args.length > 2 ? sprintf.apply(null, args.slice(1)) : args[1]).replace(/\x1B\[\d+m/g, ''));
 		} else {
-			logger.log.buffer += '\n' + prefix + args[1].replace(/\x1B\[\d+m/g, '');
+			!logger.fileWriteEnabled && (logger.log.buffer += '\n' + prefix + args[1].replace(/\x1B\[\d+m/g, ''));
 		}
 
 		// call the original logger with our cleaned up args
@@ -328,6 +330,8 @@ function patchLogger(logger, cli) {
 	logger.log.init = function (callback) {
 		var platform = ti.resolvePlatform(cli.argv.platform),
 			buildDir = path.join(cli.argv['project-dir'], 'build');
+
+		logger.fileWriteEnabled = true;
 
 		fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir, 0666);
 
@@ -380,12 +384,17 @@ function patchLogger(logger, cli) {
 	};
 
 	logger.log.flush = function () {
-		if (logger.log.filestream && logger.log.buffer) {
+		if (logger.log.filestream && logger.log.buffer && logger.fileWriteEnabled) {
 			logger.log.filestream.write(logger.log.buffer);
 			logger.log.buffer = null;
 			logger.log.filestream.end();
 		}
 	};
+
+	logger.log.end = function() {
+		logger.log.filestream && logger.log.filestream.end();
+		logger.fileWriteEnabled = false;
+	}
 
 	logger.log.buffer = '';
 }
