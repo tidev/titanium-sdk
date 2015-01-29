@@ -669,7 +669,7 @@ properties:
         This property indicates if the window should use a [split action bar](http://developer.android.com/guide/topics/ui/actionbar.html#SplitBar)
     platforms: [android]
     type: Boolean
-    since: 3.5.0
+    since: 3.6.0
     availability: creation
 
   - name: statusBarStyle

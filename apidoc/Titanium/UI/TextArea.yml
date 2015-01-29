@@ -78,9 +78,15 @@ properties:
     description: |
         The underlying attributed string drawn by the textArea. If set, avoid setting common attributes 
         in textArea, such as `value`, `color` and `font`, as unexpected behaviors may result. 
+
+        Prior to Release 3.6.0, assign this property an object from the
+        <Titanium.UI.iOS.AttributedString> class.
     type: Titanium.UI.AttributedString
     platforms: [android, iphone, ipad]
-    since: 3.6.0
+    since:
+        android: 3.6.0
+        iphone: 3.2.0
+        ipad: 3.2.0
 
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 

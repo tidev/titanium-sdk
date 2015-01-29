@@ -199,7 +199,7 @@ methods:
         summary: True to disable tab navigation, false to re-enable the tabs.
         type: Boolean
     platforms: [android]
-    since: 3.3.0
+    since: 3.6.0
 
   - name: getActiveTab
     summary: Gets the currently-active tab.
@@ -330,7 +330,7 @@ properties:
         On Android, the tabs may be selected by swipes, in addition to clicks. This property may be set at
         tab group creation, or any time later as long as the tab navigation is not disabled.
     platforms: [android]
-    since: 3.3.0
+    since: 3.6.0
     default: true
     type: Boolean
 
