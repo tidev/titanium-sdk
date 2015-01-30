@@ -16,9 +16,8 @@ description: |
 
     * On Android, a Switch object can be styled either as a checkbox or 
     toggle button (see [Titanium.UI.Switch.style](Titanium.UI.Switch.style)). The checkbox style
-    can optionally display a label next to the control. For devices running Android 4.0 or greater,
-    a toggle button that provides a slider control will be created. To create old style toggle button
-    in Android 4.0 and above use the style Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON_OLD
+    can optionally display a label next to the control. The toggle button style creates a slider
+    control. To create old style toggle button use the style Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON_OLD
     
     * On iOS, a Switch appears as an iOS on/off switch and doesn't have any text associated with it. 
     
