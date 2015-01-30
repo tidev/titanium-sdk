@@ -131,6 +131,9 @@ since: "1.7"
 platforms: [android, iphone, ipad, mobileweb, tizen]
 
 properties:
+  - name: foo
+    summary: Stores bar for baz.
+    type: String
   - name: value
     type: [String, Number]
     summary: An initial value which will be encoded and placed in the buffer. If value is a Number, type must also be set. (this is simply a convenient way of calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber> and placing the encoded value in the returned buffer.)
