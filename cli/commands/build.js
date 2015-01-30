@@ -308,16 +308,18 @@ function patchLogger(logger, cli) {
 		// add [INFO] type prefixes for each line
 		prefix = (args[0] != '_') ? '[' + args[0].toUpperCase() + ']' + ((args[0].length===5) ? '  ' : '   ') : '';
 
-		if (logger.log.filestream && logger.fileWriteEnabled) {
-			if (logger.log.buffer) {
-				logger.log.filestream.write(logger.log.buffer);
-				logger.log.buffer = null;
-			}
+		if(logger.fileWriteEnabled) {
+			if (logger.log.filestream) {
+				if (logger.log.buffer) {
+					logger.log.filestream.write(logger.log.buffer);
+					logger.log.buffer = null;
+				}
 
-			// log it to our log file, stripping out the color codes
-			logger.log.filestream.write('\n' + prefix + (args.length > 2 ? sprintf.apply(null, args.slice(1)) : args[1]).replace(/\x1B\[\d+m/g, ''));
-		} else {
-			!logger.fileWriteEnabled && (logger.log.buffer += '\n' + prefix + args[1].replace(/\x1B\[\d+m/g, ''));
+				// log it to our log file, stripping out the color codes
+				logger.log.filestream.write('\n' + prefix + (args.length > 2 ? sprintf.apply(null, args.slice(1)) : args[1]).replace(/\x1B\[\d+m/g, ''));
+			} else {
+				logger.log.buffer += '\n' + prefix + args[1].replace(/\x1B\[\d+m/g, '');
+			}
 		}
 
 		// call the original logger with our cleaned up args
