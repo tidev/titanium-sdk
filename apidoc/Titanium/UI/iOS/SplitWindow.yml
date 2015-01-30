@@ -83,11 +83,15 @@ properties:
     
   - name: portraitSplit
     summary: Determines the width of the `masterView` in portrait mode.
+    description: |
+        These values are capped in the range 0.25 to 0.5. Any values outside this range are ignored.
     type: Number
     default: Undefined
     
   - name: landscapeSplit
     summary: Determines the width of the `masterView` in landscape mode. 
+    description: |
+        These values are capped in the range 0.25 to 0.5. Any values outside this range are ignored.
     type: Number
     default: Undefined
 
