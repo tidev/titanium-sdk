@@ -228,6 +228,17 @@ function exportReturns (api) {
 
 }
 
+function exportDefault (api) {
+		if ('default' in api && api['default'] != 'undefined') {
+				if (typeof api['default'] === 'string') {
+						return convertLinks(api['default']);
+				} else {
+						return api['default'];
+				}
+		}
+		return '';
+}
+
 function exportAPIs (api, type) {
 	var x = 0,
 		member = {},
@@ -265,6 +276,7 @@ function exportAPIs (api, type) {
 					break;
 				case 'properties':
 					annotatedMember.constants = exportConstants(member);
+					annotatedMember.defaultValue = exportDefault(member);
 					annotatedMember.permission = member.permission || 'read-write';
 					annotatedMember.type = exportType(member);
 					annotatedMember.value = exportValue(member);
