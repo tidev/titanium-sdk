@@ -29,9 +29,15 @@ properties:
     description: |
         The underlying attributed string drawn by the label. If set, avoid setting common attributes 
         in the label, such as `color` and `font`, as unexpected behaviors may result. 
+
+        Prior to Release 3.6.0, assign this property an object from the
+        <Titanium.UI.iOS.AttributedString> class.
     type: Titanium.UI.AttributedString
-    platforms: [iphone, ipad, android]
-    since: "3.6.0"
+    platforms: [android, iphone, ipad]
+    since:
+        android: 3.6.0
+        iphone: 3.2.0
+        ipad: 3.2.0
 
   - name: autoLink
     summary: Automatically convert certain text items in the label to clickable links. 
