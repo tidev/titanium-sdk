@@ -196,7 +196,6 @@ def process_yaml(source_dirs, options=None):
 				if os.path.splitext(filename)[-1] != ".yml" or filename in ignore_files:
 					continue
 				filepath = os.path.join(root, filename)
-				relative_path = os.path.relpath(filepath)
 				log.trace("Processing: %s" % filepath)
 				types = None
 				types = load_one_yaml(filepath)
@@ -207,7 +206,7 @@ def process_yaml(source_dirs, options=None):
 						if one_type["name"] in apis:
 							log.warn("%s has a duplicate" % one_type["name"])
 						one_type["external"] = tag_external
-						one_type["filepath"] = relative_path
+						one_type["filepath"] = filepath
 						apis[one_type["name"]] = one_type
 		tag_external = False
 
