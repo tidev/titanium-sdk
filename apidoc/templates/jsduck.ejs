@@ -5,6 +5,7 @@
  * @platform <%- platform %> <%- cls.since[platform] %> <% } %>
 <% if (cls.subtype == 'pseudo') { %> * @pseudo <% } %>
 <% if ('extends' in cls) { %> * @extends <%- cls.extends %> <% } %> 
+<% if (cls.editurl) { %> * @editurl <%- cls.editurl %> <% } %>
  * <%- cls.summary %>
 <% if (cls.deprecated) { %> * <%- cls.deprecated %> <% } %>  
 <% if (cls.osver) { %> * <%- cls.osver %> <% } %> 
