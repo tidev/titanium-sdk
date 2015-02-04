@@ -335,7 +335,7 @@ function patchLogger(logger, cli) {
 
 		logger.fileWriteEnabled = true;
 
-		fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir, 0666);
+		fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir, 0766);
 
 		// create our write stream
 		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'ascii', 'mode': 0666 });
