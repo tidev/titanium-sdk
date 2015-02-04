@@ -91,6 +91,8 @@ function AndroidBuilder() {
 
 	this.tiSymbols = {};
 
+	this.dexAgent = false;
+
 	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
 	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
 	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
@@ -3634,8 +3636,13 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				delete am['uses-sdk'];
 				finalAndroidManifest.merge(am);
 			}
+
+			// point to the .jar file if the timodule.xml file has properties of 'dexAgent'
+			if (moduleXml.properties && moduleXml.properties['dexAgent']) {
+				this.dexAgent = path.join(module.modulePath, moduleXml.properties['dexAgent'].value);
+			}
 		}
-	});
+	}, this);
 
 	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
 	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
@@ -3920,6 +3927,12 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			this.buildBinClassesDir,
 			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
 		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+
+	// inserts the -javaagent arg earlier on in the dexArgs to allow for proper dexing if
+	// dexAgent is set in the module's timodule.xml
+	if (this.dexAgent) {
+		dexArgs.unshift('-javaagent:' + this.dexAgent);
+	}
 
 	if (this.allowDebugging && this.debugPort) {
 		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
