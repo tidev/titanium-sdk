@@ -60,13 +60,12 @@ def ignore(file):
 	 return False
 
 def generate_jsca(windows):
-	 process_args = ['node', os.path.join(doc_dir, 'docgen.js'), '-f', 'jsca']
+	 process_args = ['node', os.path.join(doc_dir, 'docgen.js'), '-f', 'jsca', '-o', os.path.join(top_dir, 'dist', '')]
 	 if windows:
 	 	process_args.extend(['-a', os.path.join(top_dir, 'windows', 'doc', 'Titanium')])
 	 print "Generating JSCA..."
 	 print " ".join(process_args)
-	 process = subprocess.Popen(process_args)
-	 process_return_code = process.wait()
+	 process_return_code = subprocess.Popen(process_args).wait()
 	 if process_return_code != 0:
 		 err_output = process.stderr.read()
 		 print >> sys.stderr, "Failed to generate JSCA JSON.  Output:"
