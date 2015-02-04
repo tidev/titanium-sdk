@@ -65,7 +65,8 @@ def generate_jsca(windows):
 	 	process_args.extend(['-a', os.path.join(top_dir, 'windows', 'doc', 'Titanium')])
 	 print "Generating JSCA..."
 	 print " ".join(process_args)
-	 process_return_code = subprocess.Popen(process_args).wait()
+	 process = subprocess.Popen(process_args)
+	 process_return_code = process.wait()
 	 if process_return_code != 0:
 		 err_output = process.stderr.read()
 		 print >> sys.stderr, "Failed to generate JSCA JSON.  Output:"
