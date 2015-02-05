@@ -217,7 +217,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
     BOOL clearMargins = NO;
     TiViewProxy* parent = [viewProxy parent];
     if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
-        //Sandbox with percent values is garbage
+        //Calculated Sandbox implies fixed margins
         clearMargins = YES;
     }
 
