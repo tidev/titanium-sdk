@@ -17,7 +17,11 @@ import android.app.Activity;
 import android.os.Build;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class, propertyAccessors = {
-	TiC.PROPERTY_ICONIFIED, TiC.PROPERTY_ICONIFIED_BY_DEFAULT, TiC.PROPERTY_HINT_TEXT, TiC.PROPERTY_VALUE })
+	TiC.PROPERTY_COLOR,
+	TiC.PROPERTY_ICONIFIED,
+	TiC.PROPERTY_ICONIFIED_BY_DEFAULT,
+	TiC.PROPERTY_HINT_TEXT,
+	TiC.PROPERTY_VALUE })
 public class SearchViewProxy extends TiViewProxy
 {
 	private static final String TAG = "SearchProxy";

@@ -60,25 +60,19 @@ def ignore(file):
 	 return False
 
 def generate_jsca(windows):
-	 process_args = ['node', os.path.join(doc_dir, 'docgen.js'), '-f', 'jsca', '--stdout']
+	 process_args = ['node', os.path.join(doc_dir, 'docgen.js'), '-f', 'jsca', '-o', os.path.join(top_dir, 'dist', '')]
 	 if windows:
 	 	process_args.extend(['-a', os.path.join(top_dir, 'windows', 'doc', 'Titanium')])
 	 print "Generating JSCA..."
 	 print " ".join(process_args)
-	 jsca_temp_file = tempfile.TemporaryFile()
-	 try:
-		 process = subprocess.Popen(process_args, stdout=jsca_temp_file, stderr=subprocess.PIPE)
-		 process_return_code = process.wait()
-		 if process_return_code != 0:
-			 err_output = process.stderr.read()
-			 print >> sys.stderr, "Failed to generate JSCA JSON.  Output:"
-			 print >> sys.stderr, err_output
-			 return None
-		 jsca_temp_file.seek(0)
-		 jsca_json = jsca_temp_file.read()
-		 return jsca_json
-	 finally:
-		 jsca_temp_file.close()
+	 process = subprocess.Popen(process_args)
+	 process_return_code = process.wait()
+	 if process_return_code != 0:
+		 err_output = process.stderr.read()
+		 print >> sys.stderr, "Failed to generate JSCA JSON.  Output:"
+		 print >> sys.stderr, err_output
+		 return None
+	 return os.path.join(top_dir, 'dist', 'api.jsca')
 
 def zip_dir(zf,dir,basepath,subs=None,cb=None, ignore_paths=None, ignore_files=None):
 	for root, dirs, files in os.walk(dir):
@@ -474,8 +468,7 @@ def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone,
 			if packaging_all:
 				remove_existing_zips(dist_dir, version_tag)
 			sys.exit(1)
-
-		zf.writestr('%s/api.jsca' % basepath, jsca)
+		zf.write(jsca, '%s/api.jsca' % basepath)
 
 	# copy the templates folder into the archive
 	zip_dir(zf, os.path.join(top_dir, 'templates'), '%s/templates' % basepath, ignore_paths=ignore_paths)
