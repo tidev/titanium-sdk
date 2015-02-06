@@ -666,6 +666,60 @@ iOSModuleBuilder.prototype.runModule = function (next) {
 		tmpDir,
 		tmpProjectDir;
 
+	function checkLine(line, logger) {
+		var re = new RegExp(
+			'(?:\u001b\\[\\d+m)?\\[?(' +
+			logger.getLevels().join('|') +
+			')\\]?\s*(?:\u001b\\[\\d+m)?(.*)', 'i'
+		);
+
+		if (line) {
+			var m = line.match(re);
+			if (m) {
+				logger[m[1].toLowerCase()](m[2].trim());
+			} else {
+				logger.debug(line);
+			}
+		}
+	}
+
+	function runTiCommand(cmd, args, logger, callback) {
+
+		// when calling a Windows batch file, we need to escape ampersands in the command
+		if (process.platform == 'win32' && /\.bat$/.test(cmd)) {
+			args.unshift('/S', '/C', cmd.replace(/\&/g, '^&'));
+			cmd = 'cmd.exe';
+		}
+
+		var child = spawn(cmd, args);
+
+		child.stdout.on('data', function (data) {
+			data.toString().split('\n').forEach(function (line) {
+				checkLine(line, logger);
+			});
+
+		});
+
+		child.stderr.on('data', function (data) {
+			data.toString().split('\n').forEach(function (line) {
+				checkLine(line, logger);
+			});
+
+		});
+
+		child.on('close', function (code) {
+			if (code) {
+				logger.error(__('Failed to run ti %s', args[0]));
+				logger.error();
+				err.trim().split('\n').forEach(this.logger.error);
+				logger.log();
+				process.exit(1);
+			}
+
+			callback();
+		});
+	}
+
 	var tasks = [
 
 		function (cb) {
@@ -679,31 +733,19 @@ iOSModuleBuilder.prototype.runModule = function (next) {
 
 			// 2. create temp proj
 			this.logger.debug(__('Staging module project at %s', tmpDir.cyan));
-			appc.subprocess.run(
+			runTiCommand(
 				'ti',
 				[
-					'create',
-					'--id', this.manifest.moduleid,
-					'-n', this.manifest.name,
-					'-t', 'app',
-					'-u', 'localhost',
-					'-d', tmpDir,
-					'-p', 'ios'
+				'create',
+				'--id', this.manifest.moduleid,
+				'-n', this.manifest.name,
+				'-t', 'app',
+				'-u', 'localhost',
+				'-d', tmpDir,
+				'-p', 'ios'
 				],
-				function (code, out, err) {
-					if (code) {
-						this.logger.error(__('Failed to run ti create'));
-						this.logger.error();
-						err.trim().split('\n').forEach(this.logger.error);
-						this.logger.log();
-						process.exit(1);
-					}
-
-					tmpProjectDir = path.join(tmpDir, this.manifest.name);
-					this.logger.debug(__('Created temp project %s', tmpProjectDir.cyan));
-
-					cb();
-				}.bind(this)
+				this.logger,
+				cb
 			);
 		},
 
@@ -733,26 +775,15 @@ iOSModuleBuilder.prototype.runModule = function (next) {
 		function (cb) {
 			// 6. run the app
 			this.logger.debug(__('Running example project...', tmpDir.cyan));
-			appc.subprocess.run(
+			runTiCommand(
 				'ti',
 				[
-					'build',
-					'-p', 'ios',
-					'-d', tmpProjectDir
+				'build',
+				'-p', 'ios',
+				'-d', tmpProjectDir
 				],
-				function (code, out, err) {
-					if (code) {
-						this.logger.error(__('Failed to run ti create'));
-						this.logger.error();
-						err.trim().split('\n').forEach(this.logger.error);
-						this.logger.log();
-						process.exit(1);
-					}
-
-					out.trim().split('\n').forEach(this.logger.info);
-
-					cb();
-				}.bind(this)
+				this.logger,
+				cb
 			);
 		}
 	];
