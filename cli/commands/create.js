@@ -302,6 +302,11 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 						},
 						required: !!cli.argv.prompt,
 						validate: function (value, callback) {
+							if (!value) {
+								logger.error(__('The url value is "%s"', value) + '\n');
+								return callback(true);
+							}
+
 							callback(null, value);
 						}
 					},
