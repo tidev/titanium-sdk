@@ -206,6 +206,7 @@ def process_yaml(source_dirs, options=None):
 						if one_type["name"] in apis:
 							log.warn("%s has a duplicate" % one_type["name"])
 						one_type["external"] = tag_external
+						one_type["filepath"] = filepath
 						apis[one_type["name"]] = one_type
 		tag_external = False
 
