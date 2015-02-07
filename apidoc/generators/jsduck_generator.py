@@ -357,25 +357,23 @@ def get_edit_url(filepath):
 		path = filepath[index:]
 		url += basePath + path
 		res = "\t * @editurl " + url + "\n"
-	elif isAppCModuleDoc != -1 or isTiModuleDoc !=1:
+	elif isAppCModuleDoc != -1 or isTiModuleDoc !=-1:
 		s = Template('https://github.com/appcelerator-modules/$module/edit/master/$path')
-		index = filepath.find('apidoc/')
+		index = filepath.find('apidoc/')	
 		modulepath = filepath[index:]
-		pathparts = re.split('/', filepath); # ['..', 'appc_modules', 'ti.map', 'apidoc', 'View.yml']
-		# Hack until TIDOC-2103 is fixed
-		try:
-			modulename = pathparts[2]
+		match = re.search('titanium_modules|appc_modules\/(.+)\/apidoc', filepath)
+		if match:
+			modulename = match.group(1)
 			if modulename not in module_black_list:
 				url = s.substitute(module=modulename, path=modulepath)
 				res = "\t * @editurl " + url + "\n"
-		except IndexError:
-			"Error generating edit URL for " + filepath
 	elif isTizenDoc != -1:
 		basePath = "https://github.com/appcelerator/titanium_mobile_tizen/edit/master/modules/tizen/"
 		index = filepath.find('apidoc/')
 		path = filepath[index:]
 		url += basePath + path
 		res = "\t * @editurl " + url + "\n"
+
 	return res
 
 # Side effect of hiding properties is that the accessors do not get hidden
