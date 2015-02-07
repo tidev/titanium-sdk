@@ -750,6 +750,10 @@ iOSModuleBuilder.prototype.runModule = function (next) {
 		},
 
 		function (cb) {
+
+			tmpProjectDir = path.join(tmpDir, this.manifest.name);
+			this.logger.debug(__('Created temp project %s', tmpProjectDir.cyan));
+
 			// 3. patch tiapp.xml with module id
 			var data = fs.readFileSync(path.join(tmpProjectDir, 'tiapp.xml')).toString();
 			var result = data.replace(/<modules>/g, '<modules>\n\t\t<module platform="iphone">' + this.manifest.moduleid + '</module>');
