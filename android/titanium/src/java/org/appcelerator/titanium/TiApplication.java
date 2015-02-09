@@ -48,6 +48,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.BroadcastReceiver;
+import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -72,6 +73,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private static final String PROPERTY_DEFAULT_UNIT = "ti.ui.defaultunit";
 	private static final String PROPERTY_USE_LEGACY_WINDOW = "ti.android.useLegacyWindow";
 	private static long mainThreadId = 0;
+	private boolean appOnPause = true;
 
 	protected static WeakReference<TiApplication> tiApp = null;
 
@@ -400,10 +402,18 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	@Override
 	public void onTrimMemory(int level)
 	{
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB && level >= TRIM_MEMORY_RUNNING_LOW) {
-			// Release all the cached images
-			TiImageLruCache.getInstance().evictAll();
+		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
+			if (level >= TRIM_MEMORY_RUNNING_LOW) {
+				// Release all the cached images
+				TiImageLruCache.getInstance().evictAll();
+			}
+
+			if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH
+				&& level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
+				onPause();
+			}
 		}
+
 		super.onTrimMemory(level);
 	}
 
@@ -825,6 +835,27 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		unregisterReceiver(externalStorageReceiver);
 	}
 
+	public void onPause()
+	{
+		appOnPause = true;
+		KrollModule app = getModuleByName("App");
+		if (app != null) {
+			app.fireEvent(TiC.EVENT_PAUSE, null);
+		}
+	}
+
+	public void onResume()
+	{
+		if (appOnPause) {
+			appOnPause = false;
+			KrollModule app = getModuleByName("App");
+			if (app != null) {
+				app.fireEvent(TiC.EVENT_RESUME, null);
+			}
+		}
+	}
+
+	
 	public void dispose()
 	{
 		TiActivityWindows.dispose();

@@ -1112,7 +1112,8 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			}
 			return;
 		}
-
+		tiApp.onResume();
+		
 		if (!windowStack.empty()) {
 			windowStack.peek().onWindowFocusChange(true);
 		} 

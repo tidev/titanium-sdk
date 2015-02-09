@@ -191,19 +191,20 @@ events:
   - name: pause
     summary: Fired when the application transitions from active to inactive state on a multitasked system.
     description: |
-        Available on iOS 4.0 and later.
+        Available on iOS 4.0 and later, and Android 4.0 and later.
         
         This event fires when the user leaves the application or for certain types of temporary interruptions 
         such as a notification or incoming phone call.  
         
-        See the `applicationWillResignActive` section of the official Apple documentation about 
+        For IOS, see the `applicationWillResignActive` section of the official Apple documentation about 
         [Monitoring Application State Changes](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW5) 
         for the exact behavior that triggers this event.
         
         Note that calls to functions that modify the UI during this event may be partially executed, 
         **up to** the UI call before the suspension. See [paused](Titanium.App.paused) event. If this happens, the remainder of the code will 
         be executed after the application is resumed, but before the `resume` event is triggered.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: {android: "3.5.0"}
     
   - name: paused
     summary: Fired when the application transitions to the background on a multitasked system.
@@ -244,13 +245,14 @@ events:
 
         On iOS 5.0 and later, this event also fires when using the sleep/wake or power button.
         
-        Note that this event does not fire for pauses resulting from notifications or incoming phone 
+        On iOS, this event does not fire for pauses resulting from notifications or incoming phone 
         calls.
         
-        See the `applicationWillEnterForeground` section of the official Apple documentation about 
+        For iOS, see the `applicationWillEnterForeground` section of the official Apple documentation about 
         [Monitoring Application State Changes](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW5) 
         for the exact behavior that triggers this event.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: {android: "3.5.0"}
     
   - name: resumed
     summary: Fired when the application returns to the foreground.
