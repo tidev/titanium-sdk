@@ -445,7 +445,7 @@ public abstract class TiUIView
 		return points;
 	}
 	
-	protected void applyTransform(Ti2DMatrix matrix)
+	protected void applyTransform(Ti2DMatrix matrix, int duration)
 	{
 		layoutParams.optionTransform = matrix;
 		if (animBuilder == null) {
@@ -472,13 +472,13 @@ public abstract class TiUIView
 
 		HashMap<String, Object> options = new HashMap<String, Object>(2);
 		options.put(TiC.PROPERTY_TRANSFORM, matrixApply);
-		options.put(TiC.PROPERTY_DURATION, 1);
+		options.put(TiC.PROPERTY_DURATION, duration);
 
 		animBuilder.applyOptions(options);
 
 		// When using Honeycomb+ property Animators, we can only use absolute values to specify the anchor point, eg. "50px".
 		// Therefore, we must start the transformation after the layout pass when we get the height and width of the view.
-		if (animBuilder.isUsingPropertyAnimators()) {
+		if (animBuilder.isUsingPropertyAnimators() && (outerView.getWidth()==0 || outerView.getHeight()==0)) {
 			startTransformAfterLayout(outerView);
 			//If the layout already done, the above call won't trigger the change, force layout change.
 			outerView.requestLayout();
@@ -861,7 +861,11 @@ public abstract class TiUIView
 				Log.DEBUG_MODE);
 		} else if (key.equals(TiC.PROPERTY_TRANSFORM)) {
 			if (nativeView != null) {
-				applyTransform((Ti2DMatrix)newValue);
+				int duration = 1;
+				if (proxy.getProperties().containsKeyAndNotNull(TiC.PROPERTY_TRANSFORM_DURATION)) {
+					duration = TiConvert.toInt(proxy.getProperties(), TiC.PROPERTY_TRANSFORM_DURATION);
+				}
+				applyTransform((Ti2DMatrix) newValue, duration);
 			}
 		} else if (key.equals(TiC.PROPERTY_KEEP_SCREEN_ON)) {
 			if (nativeView != null) {
@@ -947,9 +951,11 @@ public abstract class TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_TRANSFORM)) {
 			Ti2DMatrix matrix = (Ti2DMatrix) d.get(TiC.PROPERTY_TRANSFORM);
-			if (matrix != null) {
-				applyTransform(matrix);
+			int duration = 1;
+			if (d.containsKeyAndNotNull(TiC.PROPERTY_TRANSFORM_DURATION)) {
+				duration = TiConvert.toInt(d, TiC.PROPERTY_TRANSFORM_DURATION);
 			}
+			applyTransform(matrix, duration);
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_KEEP_SCREEN_ON) && !nativeViewNull) {
