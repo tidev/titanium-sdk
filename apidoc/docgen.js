@@ -155,14 +155,22 @@ function processVersions (api, versions, matchVersion) {
 			if (!~api.platforms.indexOf(platform)) delete defaultVersions[platform];
 		}
 		for (platform in common.ADDON_VERSIONS) {
-			if (matchVersion) {
-				if (~Object.keys(versions).indexOf(platform)) defaultVersions[platform] = common.ADDON_VERSIONS[platform];
-			} else {
-				if (~api.platforms.indexOf(platform)) defaultVersions[platform] = common.ADDON_VERSIONS[platform];
-			}			
+			if (((matchVersion && ~Object.keys(versions).indexOf(platform)) || !matchVersion)
+				&& ~api.platforms.indexOf(platform)) {
+					defaultVersions[platform] = common.ADDON_VERSIONS[platform];
+			}
 		}
 	} else if (assert(api, 'exclude-platforms')) {
 		api['exclude-platforms'].forEach(function (platform) {
+			if (platform in defaultVersions) delete defaultVersions[platform];
+		});
+		// Remove add-on platforms from defaults if exclude-platforms tag is used
+		Object.keys(common.ADDON_VERSIONS).forEach(function (platform) {
+			if (platform in defaultVersions) delete defaultVersions[platform];
+		});
+	} else {
+		// Remove add-on platforms from defaults if platforms tag is not specified
+		Object.keys(common.ADDON_VERSIONS).forEach(function (platform) {
 			if (platform in defaultVersions) delete defaultVersions[platform];
 		});
 	}
