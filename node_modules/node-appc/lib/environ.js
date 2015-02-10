@@ -115,14 +115,14 @@ module.exports.detectTitaniumSDKs = module.exports.detect = function detectTitan
 	sdkPaths.forEach(function (titaniumPath) {
 		titaniumPath = afs.resolvePath(titaniumPath);
 
+		!env.installPath && fs.existsSync(path.dirname(titaniumPath)) && (env.installPath = titaniumPath);
+
 		if (fs.existsSync(titaniumPath)) {
 			// we can only call realpathSync if the file exists
 			titaniumPath = fs.realpathSync(titaniumPath);
 
 			if (scannedSdkPaths[titaniumPath]) return;
 			scannedSdkPaths[titaniumPath] = 1;
-
-			!env.installPath && fs.existsSync(path.dirname(titaniumPath)) && (env.installPath = titaniumPath);
 
 			var mobilesdkPath = path.join(titaniumPath, 'mobilesdk', os.name);
 			if (fs.existsSync(mobilesdkPath)) {
