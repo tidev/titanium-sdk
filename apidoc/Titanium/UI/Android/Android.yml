@@ -459,17 +459,19 @@ properties:
     permission: read-only
     
   - name: SWITCH_STYLE_TOGGLEBUTTON
-    summary: Display <Titanium.UI.Switch> as a toggle button. (default)
+    summary: Display <Titanium.UI.Switch> as a toggle button.
     type: Number
     permission: read-only
     
-  - name: SWITCH_STYLE_TOGGLEBUTTON_OLD
+  - name: SWITCH_STYLE_SWITCH
     summary: |
-        Display <Titanium.UI.Switch> as a toggle button. In Android 4.0 and above, this will force
-        create the old style toggle button.
+        Display <Titanium.UI.Switch> as a switch.
+
+        Due to [Android issue #78262](https://code.google.com/p/android/issues/detail?id=78262),
+        the thumb (circle icon) may not appear on the switch.
     type: Number
     permission: read-only
-    since: "3.6.0"
+    since: "4.0.0"
     
   - name: WEBVIEW_PLUGINS_OFF
     summary: |
