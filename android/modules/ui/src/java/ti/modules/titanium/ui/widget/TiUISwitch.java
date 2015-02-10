@@ -46,7 +46,7 @@ public class TiUISwitch extends TiUIView
 		super.processProperties(d);
 
 		if (d.containsKey(TiC.PROPERTY_STYLE)) {
-			setStyle(TiConvert.toInt(d.get(TiC.PROPERTY_STYLE), AndroidModule.SWITCH_STYLE_TOGGLEBUTTON));
+			setStyle(TiConvert.toInt(d.get(TiC.PROPERTY_STYLE), AndroidModule.SWITCH_STYLE_SWITCH));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
@@ -187,7 +187,7 @@ public class TiUISwitch extends TiUIView
 				}
 				break;
 
-			case AndroidModule.SWITCH_STYLE_TOGGLEBUTTON_OLD:
+			case AndroidModule.SWITCH_STYLE_TOGGLEBUTTON:
 				if (!(currentButton instanceof ToggleButton)) {
 					button = new ToggleButton(proxy.getActivity())
 					{
@@ -201,7 +201,7 @@ public class TiUISwitch extends TiUIView
 				}
 				break;
 
-			case AndroidModule.SWITCH_STYLE_TOGGLEBUTTON:
+			case AndroidModule.SWITCH_STYLE_SWITCH:
 				if (!(currentButton instanceof SwitchCompat)) {
 					int buttonId;
 					try {
