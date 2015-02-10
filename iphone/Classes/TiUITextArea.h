@@ -26,6 +26,9 @@
 }
 
 @property(nonatomic,readonly) BOOL becameResponder;
+
+- (UIView<UITextInputTraits>*)textWidgetView;
+
 @end
 
 #endif

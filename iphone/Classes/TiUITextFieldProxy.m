@@ -14,7 +14,6 @@
 #pragma mark Defaults
 
 DEFINE_DEF_PROP(value,@"");
-DEFINE_DEF_BOOL_PROP(enabled,YES);
 DEFINE_DEF_BOOL_PROP(enableReturnKey,NO);
 DEFINE_DEF_BOOL_PROP(editable,YES);
 DEFINE_DEF_BOOL_PROP(autocorrect,NO);
@@ -41,6 +40,18 @@ DEFINE_DEF_INT_PROP(rightButtonMode,UITextFieldViewModeNever);
 DEFINE_DEF_INT_PROP(appearance,UIKeyboardAppearanceDefault);
 DEFINE_DEF_INT_PROP(autocapitalization,UITextAutocapitalizationTypeNone);
 DEFINE_DEF_INT_PROP(maxLength,-1);
+
+
+-(NSNumber*)enabled
+{
+    NSNumber* enabled = [self valueForUndefinedKey:@"enabled"];
+    if(enabled == nil) {
+        TiTextField* textArea = [(TiUITextField*)[self view] textWidgetView];
+        enabled = NUMBOOL([(UITextView*)textArea isEditable]);
+        [self setValue:enabled forKey:@"enabled"];
+    }
+    return enabled;
+}
 
 -(NSString*)apiName
 {

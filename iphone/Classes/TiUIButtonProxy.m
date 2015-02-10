@@ -145,6 +145,15 @@
 	return toolbar!=nil;
 }
 
+-(NSNumber*)enabled
+{
+    NSNumber* enabled = [self valueForUndefinedKey:@"enabled"];
+    if(enabled == nil) {
+        enabled = NUMBOOL([[(TiUIButton*)[self view] button] isEnabled]);
+        [self setValue:enabled forKey:@"enabled"];
+    }
+    return enabled;
+}
 //TODO: Remove when deprecated
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
 {

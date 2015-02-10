@@ -22,6 +22,18 @@ DEFINE_DEF_INT_PROP(maxLength,-1);
     return @"Ti.UI.TextArea";
 }
 
+-(NSNumber*)enabled
+{
+    NSNumber* enabled = [self valueForUndefinedKey:@"enabled"];
+    if(enabled == nil) {
+        UIView<UITextInputTraits>* textArea = [(TiUITextArea*)[self view] textWidgetView];
+        enabled = NUMBOOL([(UITextView*)textArea isEditable]);
+        [self setValue:enabled forKey:@"enabled"];
+    }
+    return enabled;
+}
+
+
 @end
 
 #endif

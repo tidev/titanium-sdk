@@ -7,6 +7,7 @@
 #ifdef USE_TI_UISWITCH
 
 #import "TiUISwitchProxy.h"
+#import "TiUISwitch.h"
 
 @implementation TiUISwitchProxy
 
@@ -18,6 +19,16 @@
 -(NSString*)apiName
 {
     return @"Ti.UI.Switch";
+}
+
+-(NSNumber*)enabled
+{
+    NSNumber* enabled = [self valueForUndefinedKey:@"enabled"];
+    if(enabled == nil) {
+        enabled = NUMBOOL([[(TiUISwitch*)[self view] switchView] isEnabled]);
+        [self setValue:enabled forKey:@"enabled"];
+    }
+    return enabled;
 }
 
 USE_VIEW_FOR_VERIFY_HEIGHT

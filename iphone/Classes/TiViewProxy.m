@@ -72,6 +72,16 @@ static NSArray* touchEventsArray;
 	[self replaceValue:newVisible forKey:@"visible" notification:YES];
 }
 
+-(NSNumber*)visible
+{
+    NSNumber* isVisible = [self valueForUndefinedKey:@"visible"];
+    if(isVisible == nil) {
+        isVisible = NUMBOOL(![[self view] isHidden]);
+        [self replaceValue: isVisible forKey:@"visible" notification:YES];
+    }
+    return isVisible;
+}
+
 -(void)setTempProperty:(id)propVal forKey:(id)propName {
     if (layoutPropDictionary == nil) {
         layoutPropDictionary = [[NSMutableDictionary alloc] init];
