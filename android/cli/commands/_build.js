@@ -2686,7 +2686,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						done();
 					}.bind(this));
 				}),
-				args = [ this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt),
+				args = [ this.tiapp.guid, this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt),
 				opts = {
 					env: appc.util.mix({}, process.env, {
 						// we force the JAVA_HOME so that titaniumprep doesn't complain
