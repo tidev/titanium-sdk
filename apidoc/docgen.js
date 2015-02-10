@@ -143,9 +143,10 @@ function processConstants (api) {
  * Returns a list of platforms and since versions the API supports
  * @params api {Object} API to evaluate
  * @params versions {Object} Possible platforms and versions the API supports (usually from the class)
+ * @params matchVersion {Boolean} For members, only match platforms from the versions param
  * @returns {Object} Object containing platforms and versions the API supports
  */
-function processVersions (api, versions) {
+function processVersions (api, versions, matchVersion) {
 	var defaultVersions = nodeappc.util.mixObj({}, versions),
 		platform = null,
 		key = null;
@@ -154,10 +155,22 @@ function processVersions (api, versions) {
 			if (!~api.platforms.indexOf(platform)) delete defaultVersions[platform];
 		}
 		for (platform in common.ADDON_VERSIONS) {
-			if (~api.platforms.indexOf(platform)) defaultVersions[platform] = common.ADDON_VERSIONS[platform];
+			if (((matchVersion && ~Object.keys(versions).indexOf(platform)) || !matchVersion)
+				&& ~api.platforms.indexOf(platform)) {
+					defaultVersions[platform] = common.ADDON_VERSIONS[platform];
+			}
 		}
 	} else if (assert(api, 'exclude-platforms')) {
 		api['exclude-platforms'].forEach(function (platform) {
+			if (platform in defaultVersions) delete defaultVersions[platform];
+		});
+		// Remove add-on platforms from defaults if exclude-platforms tag is used
+		Object.keys(common.ADDON_VERSIONS).forEach(function (platform) {
+			if (platform in defaultVersions) delete defaultVersions[platform];
+		});
+	} else {
+		// Remove add-on platforms from defaults if platforms tag is not specified
+		Object.keys(common.ADDON_VERSIONS).forEach(function (platform) {
 			if (platform in defaultVersions) delete defaultVersions[platform];
 		});
 	}
@@ -185,7 +198,7 @@ function processVersions (api, versions) {
 function processAPIMembers (apis, type, defaultVersions) {
 	var rv = [], x = 0;
 	apis.forEach(function (api) {
-		api.since = processVersions(api, defaultVersions);
+		api.since = processVersions(api, defaultVersions, true);
 		api.platforms = Object.keys(api.since);
 		if (type == 'properties') {
 			if (api.constants) {
@@ -339,7 +352,7 @@ function processAPIs (api) {
 		inheritedAPIs = {};
 
 	// Generate list of supported platforms and versions
-	api.since = processVersions(api, defaultVersions);
+	api.since = processVersions(api, defaultVersions, false);
 	api.platforms = Object.keys(api.since);
 
 	// Get inherited APIs

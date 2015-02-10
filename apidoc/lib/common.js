@@ -22,7 +22,7 @@ exports.DEFAULT_VERSIONS = {
 	'tizen' : '3.1'
 };
 exports.ADDON_VERSIONS = {
-	'windowsphone' : '3.6.0'
+	'windowsphone' : '4.0.0'
 };
 exports.DATA_TYPES = ['Array', 'Boolean', 'Callback', 'Date', 'Dictionary', 'Number', 'Object', 'String'];
 exports.PRETTY_PLATFORM = {
