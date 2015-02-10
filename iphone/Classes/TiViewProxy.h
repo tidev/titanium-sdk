@@ -175,6 +175,7 @@ enum
 -(void)setTempProperty:(id)propVal forKey:(id)propName;
 -(void)processTempProperties:(NSDictionary*)arg;
 -(BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check;
+-(NSMutableArray *)stateEvents;
 -(void)setProxyObserver:(id)arg;
 
 /**
@@ -265,6 +266,7 @@ enum
 
 @property (nonatomic,readwrite,assign) id<TiViewEventOverrideDelegate> eventOverrideDelegate;
 
+@property (nonatomic, retain) NSMutableArray *stateEvents;
 /**
  Returns language conversion table.
  

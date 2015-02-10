@@ -18,7 +18,7 @@
 
 @implementation TiUIImageViewProxy
 @synthesize imageURL;
-
+@synthesize stateEvents = _stateEvents;
 static NSArray* imageKeySequence;
 
 #pragma mark Internal
@@ -164,6 +164,15 @@ static NSArray* imageKeySequence;
 -(void)addLoadDelegate:(id <ImageLoaderDelegate>)delegate
 {
 	
+}
+
+-(NSMutableArray *)stateEvents
+{
+	if(_stateEvents == nil) {
+		_stateEvents = [super stateEvents];
+		[_stateEvents addObject:@"load"];
+	}
+    return _stateEvents;
 }
 
 USE_VIEW_FOR_CONTENT_WIDTH
