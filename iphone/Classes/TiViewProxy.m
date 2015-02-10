@@ -23,6 +23,8 @@
 
 #define IGNORE_IF_NOT_OPENED if (!windowOpened||[self viewAttached]==NO) return;
 
+static NSArray* touchEventsArray;
+
 @implementation TiViewProxy
 
 @synthesize eventOverrideDelegate = eventOverrideDelegate;
@@ -1536,6 +1538,17 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	return [self _hasListeners:type checkParent:YES];
 }
 
+-(BOOL)checkTouchEvent:(NSString*)event
+{
+    if (touchEventsArray == nil) {
+        touchEventsArray = [[NSArray arrayWithObjects:@"touchstart",@"touchend",@"touchmove",@"touchcancel",
+                            @"click",@"dblclick",@"singletap",@"doubletap",@"twofingertap",
+                            @"swipe", @"pinch", @"longpress", nil] retain];
+    }
+    
+    return [touchEventsArray containsObject:event];
+}
+
 //TODO: Remove once we've properly deprecated.
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
 {
@@ -1550,7 +1563,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	// Have to handle the situation in which the proxy's view might be nil... like, for example,
 	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
     // NOTE: We want to fire postlayout events on ANY view, even those which do not allow interactions.
-	if (proxyView == nil || [proxyView interactionEnabled] || [type isEqualToString:@"postlayout"]) {
+	BOOL isTouchEvent = [self checkTouchEvent:type];
+	if (proxyView == nil || !isTouchEvent || (isTouchEvent && [proxyView interactionEnabled])) {
 		[super fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:report errorCode:code message:message];
 	}
 }
@@ -1568,7 +1582,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	// Have to handle the situation in which the proxy's view might be nil... like, for example,
 	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
     // NOTE: We want to fire postlayout events on ANY view, even those which do not allow interactions.
-	if (proxyView == nil || [proxyView interactionEnabled] || [type isEqualToString:@"postlayout"]) {
+	BOOL isTouchEvent = [self checkTouchEvent:type];
+	if (proxyView == nil || !isTouchEvent || (isTouchEvent && [proxyView interactionEnabled])) {
 		if (eventOverrideDelegate != nil) {
 			obj = [eventOverrideDelegate overrideEventObject:obj forEvent:type fromViewProxy:self];
 		}
