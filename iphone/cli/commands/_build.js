@@ -3351,8 +3351,8 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 					});
 
 				titaniumPrepHook(
-					path.join(this.titaniumIosSdkPath, 'titanium_prep'),
-					[this.tiapp.id, this.buildAssetsDir],
+					path.join(this.platformPath, 'titanium_prep'),
+					[ this.tiapp.id, this.buildAssetsDir, this.tiapp.guid ],
 					{},
 					finished
 				);
