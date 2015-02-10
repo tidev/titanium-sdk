@@ -16,6 +16,13 @@
     return [NSMutableDictionary dictionaryWithObject:@"message" forKey:@"messageid"];
 }
 
+-(void)_initWithProperties:(NSDictionary*)properties
+{
+    [self initializeProperty:@"visible" defaultValue:NUMBOOL(NO)];
+    [super _initWithProperties:properties];
+}
+
+
 -(NSString*)apiName
 {
     return @"Ti.UI.ActivityIndicator";
