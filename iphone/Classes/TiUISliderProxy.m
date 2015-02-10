@@ -7,6 +7,7 @@
 #ifdef USE_TI_UISLIDER
 
 #import "TiUISliderProxy.h"
+#import "TiUISlider.h"
 
 NSArray* sliderKeySequence;
 
@@ -48,6 +49,15 @@ NSArray* sliderKeySequence;
     return TiDimensionAutoSize;
 }
 
+-(NSNumber*)enabled
+{
+    NSNumber* enabled = [self valueForUndefinedKey:@"enabled"];
+    if(enabled == nil) {
+        enabled = NUMBOOL([[(TiUISlider*)[self view] sliderView] isEnabled]);
+        [self setValue:enabled forKey:@"enabled"];
+    }
+    return enabled;
+}
 
 USE_VIEW_FOR_VERIFY_HEIGHT
 

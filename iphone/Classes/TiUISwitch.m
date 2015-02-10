@@ -118,7 +118,7 @@
 	[super setCenter:center];
 }
 
-- (IBAction)switchChanged:(id)sender
+- (void)switchChanged:(id)sender
 {
 	NSNumber * newValue = [NSNumber numberWithBool:[(UISwitch *)sender isOn]];
 	id current = [self.proxy valueForUndefinedKey:@"value"];

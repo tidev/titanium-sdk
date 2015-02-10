@@ -12,6 +12,6 @@
 	UISwitch *switchView;
 }
 
-- (IBAction)switchChanged:(id)sender;
-
+- (void)switchChanged:(id)sender;
+- (UISwitch*)switchView;
 @end

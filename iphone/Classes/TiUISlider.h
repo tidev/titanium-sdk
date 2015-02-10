@@ -24,7 +24,8 @@
     TiDimension rightTrackTopCap;
 }
 
-- (IBAction)sliderChanged:(id)sender;
+- (UISlider*)sliderView;
+- (void)sliderChanged:(id)sender;
 
 @end
 
