@@ -2494,7 +2494,7 @@ return result;	\
      */
 	else if ([sectionProxy headerTitle]!=nil)
 	{
-        if ([TiUtils isIOS5OrGreater] && [[sectionProxy headerTitle] isEqualToString:@""]) {
+        if ([[sectionProxy headerTitle] isEqualToString:@""]) {
             return size;
         }
 		size+=[tableview sectionHeaderHeight];
