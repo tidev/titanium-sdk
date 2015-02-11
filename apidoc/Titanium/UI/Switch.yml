@@ -14,10 +14,9 @@ description: |
     
     The appearance of a `Switch` control varies by platform: 
 
-    * On Android, a Switch object can be styled either as a checkbox or 
-    toggle button (see [Titanium.UI.Switch.style](Titanium.UI.Switch.style)). The checkbox style
-    can optionally display a label next to the control. The toggle button style creates a slider
-    control. To create old style toggle button use the style Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON_OLD
+    * On Android, a Switch object can be styled either as a switch, checkbox or
+    toggle button based on the <Titanium.UI.Switch.style> property. The checkbox style can
+    optionally display a label next to the control.
     
     * On iOS, a Switch appears as an iOS on/off switch and doesn't have any text associated with it. 
     
@@ -25,6 +24,7 @@ description: |
     similar to Android.
     
     Use the <Titanium.UI.createSwitch> method or **`<Switch>`** Alloy element to create a switch.
+
 extends: Titanium.UI.View
 since: "0.8"
 methods:
@@ -70,11 +70,14 @@ properties:
     platforms: [android, mobileweb, tizen]
     
   - name: style
-    summary: Style of the switch. Enables either the toggle button (default) or checkbox.
+    summary: Style of the switch.
+    description: |
+        Prior to Release 4.0, you can only specify either a toggle button or checkbox.
     type: Number
     constants: Titanium.UI.Android.SWITCH_STYLE_*
     platforms: [android]
-    default: Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON
+    default: |
+        Titanium.UI.Android.SWITCH_STYLE_SWITCH; prior to Release 4.0, Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON
     
   - name: textAlign
     summary: |
@@ -213,6 +216,7 @@ examples:
             });
             
             var basicSwitch = Ti.UI.createSwitch({
+              style: Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON,
               titleOn:'Notifications Enabled',
               titleOff:'Notifications Disabled',
               value:true,
