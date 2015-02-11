@@ -216,6 +216,7 @@ examples:
             });
             
             var basicSwitch = Ti.UI.createSwitch({
+              style: Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON,
               titleOn:'Notifications Enabled',
               titleOff:'Notifications Disabled',
               value:true,
