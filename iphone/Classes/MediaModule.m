@@ -207,18 +207,12 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_USBAUDIO,AVAudioSessionPortUSBAudio)
 
 -(NSString*)AUDIO_SESSION_PORT_BLUETOOTHLE
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return AVAudioSessionPortBluetoothLE;
-    }
-    return @"Unavailable";
+    return AVAudioSessionPortBluetoothLE;
 }
 
 -(NSString*)AUDIO_SESSION_PORT_CARAUDIO
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return AVAudioSessionPortCarAudio;
-    }
-    return @"Unavailable";
+    return AVAudioSessionPortCarAudio;
 }
 
 

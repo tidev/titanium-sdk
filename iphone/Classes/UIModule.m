@@ -302,27 +302,27 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 
 -(NSString*)TEXT_STYLE_HEADLINE
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleHeadline : @"INVALID";
+    return UIFontTextStyleHeadline;
 }
 -(NSString*)TEXT_STYLE_SUBHEADLINE
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleSubheadline : @"INVALID";
+    return UIFontTextStyleSubheadline;
 }
 -(NSString*)TEXT_STYLE_BODY
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleBody : @"INVALID";
+    return UIFontTextStyleBody;
 }
 -(NSString*)TEXT_STYLE_FOOTNOTE
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleFootnote : @"INVALID";
+    return UIFontTextStyleFootnote;
 }
 -(NSString*)TEXT_STYLE_CAPTION1
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleCaption1 : @"INVALID";
+    return UIFontTextStyleCaption1;
 }
 -(NSString*)TEXT_STYLE_CAPTION2
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleCaption2 : @"INVALID";
+    return UIFontTextStyleCaption2;
 }
 
 -(NSNumber*)isLandscape:(id)args

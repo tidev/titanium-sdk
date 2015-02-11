@@ -253,7 +253,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
         }
     }
     
-    if (updateForiOS7 && [TiUtils isIOS7OrGreater]) {
+    if (updateForiOS7) {
         width -= IOS7_ACCESSORY_EXTRA_OFFSET;
     }
 	
@@ -423,7 +423,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
                 case UITableViewCellSelectionStyleGray:theColor = [Webcolor webColorNamed:@"#bbb"];break;
                 case UITableViewCellSelectionStyleNone:theColor = [UIColor clearColor];break;
                 case UITableViewCellSelectionStyleBlue:theColor = [Webcolor webColorNamed:@"#0272ed"];break;
-                default:theColor = [TiUtils isIOS7OrGreater] ? [Webcolor webColorNamed:@"#e0e0e0"] : [Webcolor webColorNamed:@"#0272ed"];break;
+                default:theColor = [Webcolor webColorNamed:@"#e0e0e0"];break;
             }
         }
         selectedBGView.fillColor = theColor;
@@ -651,17 +651,15 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(void)configureTintColor:(UITableViewCell*)cell
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        UIColor* theTint = nil;
-        id theColor = [self valueForUndefinedKey:@"tintColor"];
-        if (theColor != nil) {
-            theTint = [[TiUtils colorValue:theColor] color];
-        }
-        if (theTint == nil) {
-            theTint = [[table tableView] tintColor];
-        }
-        [cell performSelector:@selector(setTintColor:) withObject:theTint];
+    UIColor* theTint = nil;
+    id theColor = [self valueForUndefinedKey:@"tintColor"];
+    if (theColor != nil) {
+        theTint = [[TiUtils colorValue:theColor] color];
     }
+    if (theTint == nil) {
+        theTint = [[table tableView] tintColor];
+    }
+    [cell setTintColor:theTint];
 }
 
 -(void)initializeTableViewCell:(UITableViewCell*)cell

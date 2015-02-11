@@ -531,13 +531,9 @@
 -(void)setMinimumBackgroundFetchInterval:(id)value
 {
     ENSURE_TYPE(value, NSNumber);
-    if ([TiUtils isIOS7OrGreater]) {
-        double fetchInterval = [TiUtils doubleValue:value];
-        fetchInterval = MAX(MIN(fetchInterval, UIApplicationBackgroundFetchIntervalNever),UIApplicationBackgroundFetchIntervalMinimum);
-        [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:fetchInterval];
-    } else {
-        DebugLog(@"[ERROR] Methond only available on iOS 7 and above.");
-    }
+    double fetchInterval = [TiUtils doubleValue:value];
+    fetchInterval = MAX(MIN(fetchInterval, UIApplicationBackgroundFetchIntervalNever),UIApplicationBackgroundFetchIntervalMinimum);
+    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:fetchInterval];
 }
 
 -(void)endBackgroundHandler:(id)arg
@@ -551,17 +547,11 @@
 }
 
 -(NSNumber*)BACKGROUNDFETCHINTERVAL_MIN {
-    if ([TiUtils isIOS7OrGreater]) {
-        return NUMDOUBLE(UIApplicationBackgroundFetchIntervalMinimum);
-    }
-    return nil;
+    return NUMDOUBLE(UIApplicationBackgroundFetchIntervalMinimum);
 }
 
 -(NSNumber*)BACKGROUNDFETCHINTERVAL_NEVER {
-    if ([TiUtils isIOS7OrGreater]) {
-        return NUMDOUBLE(UIApplicationBackgroundFetchIntervalNever);
-    }
-    return nil;
+    return NUMDOUBLE(UIApplicationBackgroundFetchIntervalNever);
 }
 
 -(NSNumber*)USER_NOTIFICATION_TYPE_NONE

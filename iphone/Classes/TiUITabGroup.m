@@ -143,17 +143,13 @@ DEFINE_EXCEPTIONS
     UIColor * theColor = [TiUtils barColorForColor:barColor];
     UIBarStyle navBarStyle = [TiUtils barStyleForColor:barColor];
     UIColor * nTintColor = [navTintColor color];
-    BOOL translucent = [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"translucent"] def:[TiUtils isIOS7OrGreater]];
+    BOOL translucent = [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"translucent"] def:YES];
     
     //Update the UINavigationBar appearance.
     [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setBarStyle:navBarStyle];
     [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setTitleTextAttributes:theAttributes];
-    if ([TiUtils isIOS7OrGreater]) {
-        [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setBarTintColor:theColor];
-        [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setTintColor:nTintColor];
-    } else {
-        [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setTintColor:theColor];
-    }
+    [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setBarTintColor:theColor];
+    [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setTintColor:nTintColor];
 
     if ([[moreController viewControllers] count] != 1) {
         return;
@@ -163,12 +159,8 @@ DEFINE_EXCEPTIONS
     [navBar setBarStyle:navBarStyle];
     [navBar setTitleTextAttributes:theAttributes];
     [navBar setTranslucent:translucent];
-    if([TiUtils isIOS7OrGreater]) {
-        [navBar performSelector:@selector(setBarTintColor:) withObject:theColor];
-        [navBar setTintColor:nTintColor];
-    } else {
-        [navBar setTintColor:theColor];
-    }
+    [navBar setBarTintColor:theColor];
+    [navBar setTintColor:nTintColor];
 }
 
 -(void)setEditButton:(UINavigationController*)moreController
@@ -253,9 +245,7 @@ DEFINE_EXCEPTIONS
             [self handleDidShowTab:nil];
         }
         //Ensure that the moreController has only top edge extended
-        if ([TiUtils isIOS7OrGreater]) {
-            [TiUtils configureController:viewController withObject:[NSDictionary dictionaryWithObject:NUMINT(1) forKey:@"extendEdges"]];
-        }
+        [TiUtils configureController:viewController withObject:[NSDictionary dictionaryWithObject:NUMINT(1) forKey:@"extendEdges"]];
         return;
     }
 
@@ -362,21 +352,15 @@ DEFINE_EXCEPTIONS
 {
     TiColor* color = [TiUtils colorValue:value];
     UITabBar* tabBar = [controller tabBar];
-	//A nil tintColor is fine, too.
-    if([TiUtils isIOS7OrGreater]) {
-        [tabBar performSelector:@selector(setBarTintColor:) withObject:[color color]];
-    } else {
-        tabBar.tintColor = [color color];
-    }
+    //A nil tintColor is fine, too.
+    [tabBar setBarTintColor:[color color]];
 }
 
 -(void)setTabsTintColor_:(id)value
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        TiColor* color = [TiUtils colorValue:value];
-        UITabBar* tabBar = [controller tabBar];
-        tabBar.tintColor = [color color];
-    }
+    TiColor* color = [TiUtils colorValue:value];
+    UITabBar* tabBar = [controller tabBar];
+    tabBar.tintColor = [color color];
 }
 
 -(void)setTabsBackgroundImage_:(id)value
@@ -391,10 +375,6 @@ DEFINE_EXCEPTIONS
 
 -(void)setShadowImage_:(id)value
 {
-    if (![TiUtils isIOS6OrGreater]) {
-		NSLog(@"[WARN] activeTabBackgroundImage is only supported in iOS 6 or above.");
-		return;
-	}
 	//Because we still support XCode 4.3, we cannot use the shadowImage property
 	[controller.tabBar setShadowImage:[self loadImage:value]];
 }

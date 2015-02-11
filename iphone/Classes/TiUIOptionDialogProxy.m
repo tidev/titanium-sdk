@@ -281,7 +281,7 @@
 - (void)willPresentActionSheet:(UIActionSheet *)actionSheet_
 {
     //TIMOB-15939. Workaround rendering issue on iPAD on iOS7
-    if (actionSheet_ == actionSheet && forceOpaqueBackground &&[TiUtils isIOS7OrGreater] && [TiUtils isIPad]) {
+    if (actionSheet_ == actionSheet && forceOpaqueBackground && [TiUtils isIPad]) {
         NSArray* subviews = [actionSheet subviews];
         
         for (UIView* subview in subviews) {
