@@ -391,10 +391,6 @@ DEFINE_EXCEPTIONS
 
 -(void)setShadowImage_:(id)value
 {
-    if (![TiUtils isIOS6OrGreater]) {
-		NSLog(@"[WARN] activeTabBackgroundImage is only supported in iOS 6 or above.");
-		return;
-	}
 	//Because we still support XCode 4.3, we cannot use the shadowImage property
 	[controller.tabBar setShadowImage:[self loadImage:value]];
 }

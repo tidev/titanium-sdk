@@ -268,17 +268,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     // track all location changes by default 
 	trackSignificantLocationChange = NO;
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
-    if ([TiUtils isIOS6OrGreater]) {
-        // activity Type by default
-        activityType = CLActivityTypeOther;
-        
-        // pauseLocationupdateAutomatically by default NO
-        pauseLocationUpdateAutomatically  = NO;
-        
-    }
-#endif
-    
+	// activity Type by default
+	activityType = CLActivityTypeOther;
+
+	// pauseLocationupdateAutomatically by default NO
+	pauseLocationUpdateAutomatically  = NO;
+
 	lock = [[NSRecursiveLock alloc] init];
 	
 	[super _configure]; 
@@ -323,11 +318,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
             }
         }
 
-        if ([TiUtils isIOS6OrGreater]) {
-            locationManager.activityType = activityType;
-            locationManager.pausesLocationUpdatesAutomatically = pauseLocationUpdateAutomatically;
+        locationManager.activityType = activityType;
+        locationManager.pausesLocationUpdatesAutomatically = pauseLocationUpdateAutomatically;
             
-        }
 
 		if ([CLLocationManager locationServicesEnabled]== NO) 
 		{
@@ -714,11 +707,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)setActivityType:(NSNumber *)value
 {
-    if ([TiUtils isIOS6OrGreater]) {
-        activityType = [TiUtils intValue:value];
-        TiThreadPerformOnMainThread(^{[locationManager setActivityType:activityType];}, NO);
-    }
-    
+    activityType = [TiUtils intValue:value];
+    TiThreadPerformOnMainThread(^{[locationManager setActivityType:activityType];}, NO);
 }
 
 // Flag to decide whether or not the app should continue to send location updates while the app is in background.
@@ -730,10 +720,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)setPauseLocationUpdateAutomatically:(id)value
 {
-	if ([TiUtils isIOS6OrGreater]) {
-        pauseLocationUpdateAutomatically = [TiUtils boolValue:value];
-        TiThreadPerformOnMainThread(^{[locationManager setPausesLocationUpdatesAutomatically:pauseLocationUpdateAutomatically];}, NO);
-    }
+    pauseLocationUpdateAutomatically = [TiUtils boolValue:value];
+    TiThreadPerformOnMainThread(^{[locationManager setPausesLocationUpdatesAutomatically:pauseLocationUpdateAutomatically];}, NO);
 }
 #endif
 

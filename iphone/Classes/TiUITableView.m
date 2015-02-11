@@ -370,7 +370,7 @@
 	
 	// WORKAROUND FOR APPLE BUG: 4.2 and lower don't like setting background color for grouped table views on iPad.
 	// So, we check the table style and device, and if they match up wrong, we replace the background view with our own.
-	if ([table style] == UITableViewStyleGrouped && ([TiUtils isIPad] || [TiUtils isIOS6OrGreater])) {
+	if (([table style] == UITableViewStyleGrouped) && [TiUtils isIPad]) {
 		UIView* bgView = [[[UIView alloc] initWithFrame:[table frame]] autorelease];
 		[table setBackgroundView:bgView];
 	}
@@ -410,7 +410,7 @@
 		
         BOOL initBackGround = YES;
         id bgInitValue = [[self proxy] valueForKey:@"backgroundColor"];
-        if ([TiUtils isIOS6OrGreater] && (style == UITableViewStyleGrouped)) {
+        if (style == UITableViewStyleGrouped) {
             //If it is IOS 6 and style is grouped do not call this method unless a backgroundColor is specified
             initBackGround = (bgInitValue != nil);
         }
