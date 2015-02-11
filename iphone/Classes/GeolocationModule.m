@@ -672,12 +672,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(NSNumber*)locationServicesAuthorization
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_2
-	if ([TiUtils isIOS4_2OrGreater]) {
-		return NUMINT([CLLocationManager authorizationStatus]);
-	}
-#endif
-	return [self AUTHORIZATION_UNKNOWN];
+    return NUMINT([CLLocationManager authorizationStatus]);
 }
 
 -(NSNumber*)trackSignificantLocationChange
