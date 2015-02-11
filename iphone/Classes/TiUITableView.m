@@ -420,10 +420,8 @@
 		
 		[self updateSearchView];
         
-		if ([TiUtils isIOS7OrGreater]) {
-			defaultSeparatorInsets = [tableview separatorInset];
-		}
-        
+        defaultSeparatorInsets = [tableview separatorInset];
+		
         if ([TiUtils isIOS8OrGreater]) {
             [tableview setLayoutMargins:UIEdgeInsetsZero];
         }
@@ -1623,19 +1621,17 @@
 
 -(void)setSeparatorInsets_:(id)arg
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        [self tableView];
-        
-        if ([arg isKindOfClass:[NSDictionary class]]) {
-            CGFloat left = [TiUtils floatValue:@"left" properties:arg def:defaultSeparatorInsets.left];
-            CGFloat right = [TiUtils floatValue:@"right" properties:arg def:defaultSeparatorInsets.right];
-            [tableview setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
-        } else {
-            [tableview setSeparatorInset:defaultSeparatorInsets];
-        }
-        if (!searchActivated) {
-            [tableview setNeedsDisplay];
-        }
+    [self tableView];
+    
+    if ([arg isKindOfClass:[NSDictionary class]]) {
+        CGFloat left = [TiUtils floatValue:@"left" properties:arg def:defaultSeparatorInsets.left];
+        CGFloat right = [TiUtils floatValue:@"right" properties:arg def:defaultSeparatorInsets.right];
+        [tableview setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
+    } else {
+        [tableview setSeparatorInset:defaultSeparatorInsets];
+    }
+    if (!searchActivated) {
+        [tableview setNeedsDisplay];
     }
 }
 
@@ -2403,9 +2399,6 @@ return result;	\
 -(CGFloat)computeRowWidth
 {
     CGFloat rowWidth = tableview.bounds.size.width;
-	if ((self.tableView.style == UITableViewStyleGrouped) && (![TiUtils isIOS7OrGreater]) ){
-		rowWidth -= GROUPED_MARGIN_WIDTH;
-	}
     
     // Apple does not provide a good way to get information about the index sidebar size
     // in the event that it exists - it silently resizes row content which is "flexible width"

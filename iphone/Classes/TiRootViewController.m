@@ -1071,30 +1071,22 @@
         CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
         CGRect viewBounds = [[self view] bounds];
         
-        if ([TiUtils isIOS7OrGreater]) {
-            //Need to do this to force navigation bar to draw correctly on iOS7
-            [[NSNotificationCenter defaultCenter] postNotificationName:kTiFrameAdjustNotification object:nil];
-            if (statusBarFrame.size.height > 20) {
-                if (viewBounds.size.height != (mainScreenBounds.size.height - statusBarFrame.size.height)) {
-                    CGRect newBounds = CGRectMake(0, 0, mainScreenBounds.size.width, mainScreenBounds.size.height - statusBarFrame.size.height);
-                    CGPoint newCenter = CGPointMake(mainScreenBounds.size.width/2, (mainScreenBounds.size.height - statusBarFrame.size.height)/2);
-                    [[self view] setBounds:newBounds];
-                    [[self view] setCenter:newCenter];
-                    [[self view] setNeedsLayout];
-                }
-            } else {
-                if (viewBounds.size.height != mainScreenBounds.size.height) {
-                    CGRect newBounds = CGRectMake(0, 0, mainScreenBounds.size.width, mainScreenBounds.size.height);
-                    CGPoint newCenter = CGPointMake(mainScreenBounds.size.width/2, mainScreenBounds.size.height/2);
-                    [[self view] setBounds:newBounds];
-                    [[self view] setCenter:newCenter];
-                    [[self view] setNeedsLayout];
-                }
+        //Need to do this to force navigation bar to draw correctly on iOS7
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiFrameAdjustNotification object:nil];
+        if (statusBarFrame.size.height > 20) {
+            if (viewBounds.size.height != (mainScreenBounds.size.height - statusBarFrame.size.height)) {
+                CGRect newBounds = CGRectMake(0, 0, mainScreenBounds.size.width, mainScreenBounds.size.height - statusBarFrame.size.height);
+                CGPoint newCenter = CGPointMake(mainScreenBounds.size.width/2, (mainScreenBounds.size.height - statusBarFrame.size.height)/2);
+                [[self view] setBounds:newBounds];
+                [[self view] setCenter:newCenter];
+                [[self view] setNeedsLayout];
             }
-            
         } else {
-            if (viewBounds.size.height != appFrame.size.height) {
-                [[self view] setFrame:appFrame];
+            if (viewBounds.size.height != mainScreenBounds.size.height) {
+                CGRect newBounds = CGRectMake(0, 0, mainScreenBounds.size.width, mainScreenBounds.size.height);
+                CGPoint newCenter = CGPointMake(mainScreenBounds.size.width/2, mainScreenBounds.size.height/2);
+                [[self view] setBounds:newBounds];
+                [[self view] setCenter:newCenter];
                 [[self view] setNeedsLayout];
             }
         }
@@ -1664,7 +1656,7 @@
 
 - (void) updateStatusBar
 {
-    if ([TiUtils isIOS7OrGreater] && viewControllerControlsStatusBar) {
+    if (viewControllerControlsStatusBar) {
         [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate) withObject:nil];
     } else {
         [[UIApplication sharedApplication] setStatusBarHidden:[self prefersStatusBarHidden] withAnimation:UIStatusBarAnimationNone];

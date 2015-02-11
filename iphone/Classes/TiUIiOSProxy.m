@@ -290,44 +290,24 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ATTRIBUTE_EXPANSION, AttributeNameExpansion
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 -(id)createTransitionAnimation:(id)args;
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiUIiOSTransitionAnimationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Transition Animation Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+    return [[[TiUIiOSTransitionAnimationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 #ifdef USE_TI_UIIOSANIMATOR
 -(id)createAnimator:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiAnimatorProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Animator object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+    return [[[TiAnimatorProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #ifdef USE_TI_UIIOSSNAPBEHAVIOR
 -(id)createSnapBehavior:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiSnapBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Snap Behavior Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+    return [[[TiSnapBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 #ifdef USE_TI_UIIOSPUSHBEHAVIOR
 -(id)createPushBehavior:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiPushBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Push Behavior Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+    return [[[TiPushBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 //TiPushBehavior Constants
 MAKE_SYSTEM_PROP(PUSH_MODE_CONTINUOUS, 0);
@@ -337,48 +317,28 @@ MAKE_SYSTEM_PROP(PUSH_MODE_INSTANTANEOUS, 1);
 #ifdef USE_TI_UIIOSGRAVITYBEHAVIOR
 -(id)createGravityBehavior:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiGravityBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Gravity Behavior Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+    return [[[TiGravityBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
 #ifdef USE_TI_UIIOSANCHORATTACHMENTBEHAVIOR
 -(id)createAnchorAttachmentBehavior:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiAnchorAttachBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Anchor Attachment Behavior Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+    return [[[TiAnchorAttachBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
 #ifdef USE_TI_UIIOSVIEWATTACHMENTBEHAVIOR
 -(id)createViewAttachmentBehavior:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiViewAttachBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The View Attachment Behavior Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+    return [[[TiViewAttachBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
 #ifdef USE_TI_UIIOSCOLLISIONBEHAVIOR
 -(id)createCollisionBehavior:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiCollisionBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Collision Behavior Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+    return [[[TiCollisionBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 //TiCollisionBehavior Constants
 MAKE_SYSTEM_PROP(COLLISION_MODE_ITEM, 0);
@@ -389,12 +349,7 @@ MAKE_SYSTEM_PROP(COLLISION_MODE_ALL, 2);
 #ifdef USE_TI_UIIOSDYNAMICITEMBEHAVIOR
 -(id)createDynamicItemBehavior:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiDynamicItemBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Dynamic Item Behavior Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+    return [[[TiDynamicItemBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
