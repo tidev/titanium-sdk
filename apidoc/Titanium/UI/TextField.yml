@@ -147,7 +147,7 @@ properties:
     type: Number
     constants: Titanium.UI.INPUT_BORDERSTYLE_*
     default: <Titanium.UI.INPUT_BORDERSTYLE_NONE>
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: clearButtonMode
     summary: Determines when the clear button is displayed.
@@ -388,7 +388,7 @@ properties:
   - name: suppressReturn
     summary: Determines whether the return key should be suppressed during entry.
     type: Boolean
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: selection
     summary: Returns the currently selected text of the text field.
@@ -437,7 +437,7 @@ properties:
     default: -1
     type: Number
     since: {android: "3.0.0"}
-    platforms: [android, iphone, mobileweb, tizen]
+    platforms: [android, iphone, mobileweb]
 
 events:
   - name: blur

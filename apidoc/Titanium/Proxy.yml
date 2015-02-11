@@ -94,7 +94,7 @@ properties:
       returns `Ti.UI.Button`.
     permission: read-only
     type: String
-    platforms: [android, blackberry, iphone, ipad, mobileweb, tizen]
+    platforms: [android, blackberry, iphone, ipad, mobileweb]
     since: "3.2.0"
 
   - name: lifecycleContainer

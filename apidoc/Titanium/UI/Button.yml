@@ -146,12 +146,12 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.Button.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
 
 properties:
   - name: backgroundImage
@@ -173,7 +173,7 @@ properties:
         Also sets the background image for the other button states (normal, focused, selected), 
         unless they've been specified explicitly, except for iOS, which requires a backgroundImage.
     type: String
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: backgroundFocusedImage
     summary: |
@@ -183,7 +183,7 @@ properties:
         Focusable must be true for normal views. Sets the background image for the focused 
         state only. For iOS, since there is not a trackball, this does nothing.
     type: String
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: backgroundSelectedImage
     summary: |
@@ -193,7 +193,7 @@ properties:
         On Android, Focusable must be true in order to be selected. Sets the background image for the selected 
         state only.
     type: String
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: color
     summary: Default button text color, as a color name or hex triplet.
@@ -212,7 +212,7 @@ properties:
     summary: Set to `true` to enable the button, `false` to disable the button.
     type: Boolean
     default: true
-    platforms: [ipad, iphone, mobileweb, tizen, blackberry]
+    platforms: [ipad, iphone, mobileweb, blackberry]
 
   - name: font
     summary: Font to use for the button text.
@@ -233,7 +233,7 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [iphone,ipad,mobileweb, tizen]
+    platforms: [iphone,ipad,mobileweb]
 
   - name: shadowColor
     summary: Shadow color of the [title](Titanium.UI.Button.title), as a color name or hex triplet.
@@ -310,7 +310,7 @@ properties:
     type: [Number,String]
     constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
 
 examples:
   - title: Simple Button Example

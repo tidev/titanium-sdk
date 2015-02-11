@@ -29,7 +29,7 @@ description: |
     retrieved as a <Titanium.Blob> type. 
 extends: Titanium.Module
 since: "1.5"
-platforms: [android, iphone, ipad, mobileweb, tizen, blackberry]
+platforms: [android, iphone, ipad, mobileweb, blackberry]
 
 methods:
   - name: clearData
