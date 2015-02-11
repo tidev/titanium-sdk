@@ -15,6 +15,13 @@
 @synthesize suppressFocusEvents;
 DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+    [self initializeProperty:@"enabled" defaultValue:NUMBOOL(YES)];
+    [self initializeProperty:@"editable" defaultValue:NUMBOOL(YES)];
+    [super _initWithProperties:properties];
+}
+
 - (void)windowWillClose
 {
 	if([self viewInitialized])
