@@ -21,10 +21,10 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.AttributedStringProxy;
-import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Spannable;
@@ -32,6 +32,7 @@ import android.text.TextUtils.TruncateAt;
 import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
 import android.text.method.DigitsKeyListener;
+import android.text.method.LinkMovementMethod;
 import android.text.method.NumberKeyListener;
 import android.text.method.PasswordTransformationMethod;
 import android.view.Gravity;
@@ -630,9 +631,12 @@ public class TiUIText extends TiUIView
 	}
 
 	public void setAttributedStringText(AttributedStringProxy attrString) {
-		Spannable spannableText = AttributedStringProxy.toSpannable(attrString, TiApplication.getAppCurrentActivity());
-		if (spannableText != null) {
-			tv.setText(spannableText);
+		Bundle bundleText = AttributedStringProxy.toSpannableInBundle(attrString, TiApplication.getAppCurrentActivity());
+		if (bundleText.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			tv.setText((Spannable) bundleText.getCharSequence(TiC.PROPERTY_ATTRIBUTED_STRING));
+			if(bundleText.getBoolean(TiC.PROPERTY_HAS_LINK, false)){
+				tv.setMovementMethod(LinkMovementMethod.getInstance());
+			}
 		}
 	}
 

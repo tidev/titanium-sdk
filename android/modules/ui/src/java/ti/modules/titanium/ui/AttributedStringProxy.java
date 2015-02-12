@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -95,9 +96,19 @@ public class AttributedStringProxy extends KrollProxy
 			return attributeProxy;
 		}
 	}
-	
+
 	public static Spannable toSpannable(AttributedStringProxy attrString, Activity activity)
 	{
+		Bundle results = toSpannableInBundle(attrString, activity);
+		if (results.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			return (Spannable) results.getCharSequence(TiC.PROPERTY_ATTRIBUTED_STRING);
+		}
+		return null;
+	}
+
+	public static Bundle toSpannableInBundle(AttributedStringProxy attrString, Activity activity)
+	{
+		Bundle results = new Bundle();
 		if (attrString != null && attrString.hasProperty(TiC.PROPERTY_TEXT)) {
 			String textString = TiConvert.toString(attrString.getProperty(TiC.PROPERTY_TEXT));
 			if (!TextUtils.isEmpty(textString)) {
@@ -176,16 +187,18 @@ public class AttributedStringProxy extends KrollProxy
 											spannableText.setSpan(new URLSpan(TiConvert.toString(attrValue)), range[0], range[0]
 												+ range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 										}
+										results.putBoolean(TiC.PROPERTY_HAS_LINK, true);
 										break;
 								}
 							}
 						}
 					}
 				}
-				return spannableText;
+				results.putCharSequence(TiC.PROPERTY_ATTRIBUTED_STRING, spannableText);
+				return results;
 			}
 		}
-		return null;
+		return results;
 	}
 
 	@Override
