@@ -176,7 +176,7 @@ iOSModuleBuilder.prototype.doAnalytics = function (next) {
 
 iOSModuleBuilder.prototype.initialize = function (next) {
 
-	this.moduleIdAsIdentifier = this.manifest['moduleid'].replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) { return s.substring(0, 1).toUpperCase() + s.substring(1); }).join('');
+	this.moduleIdAsIdentifier = this.manifest.moduleid.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) { return s.substring(0, 1).toUpperCase() + s.substring(1); }).join('');
 	this.tiSymbols = {};
 	this.documentation = [];
 	this.metaData = [];
@@ -213,7 +213,7 @@ iOSModuleBuilder.prototype.initialize = function (next) {
 iOSModuleBuilder.prototype.loginfo = function (next) {
 	this.logger.debug(__('Titanium SDK iOS directory: %s', this.platformPath.cyan));
 	this.logger.info(__('Project directory: %s', this.projectDir.cyan));
-	this.logger.info(__('Module ID: %s', this.manifest['moduleid'].cyan));
+	this.logger.info(__('Module ID: %s', this.manifest.moduleid.cyan));
 
 	next();
 };
@@ -256,8 +256,8 @@ iOSModuleBuilder.prototype.processTiXcconfig = function (next) {
 					value = match[2].trim();
 
 				bindingMatch = bindingReg.exec(value);
-				if (bindingMatch != null) {
-					while (bindingMatch != null) {
+				if (bindingMatch !== null) {
+					while (bindingMatch !== null) {
 						keyList.push(bindingMatch[1]);
 						bindingMatch = bindingReg.exec(value);
 					}
@@ -350,14 +350,14 @@ iOSModuleBuilder.prototype.compileJS = function (next) {
 			fs.existsSync(jsFile) && this.jsFilesToEncrypt.push(jsFile);
 
 			if (!this.jsFilesToEncrypt.length) {
-				renderData['mainEncryptedAsset'] = '';
-				renderData['mainEncryptedAssetReturn'] = 'return nil;';
+				renderData.mainEncryptedAsset = '';
+				renderData.mainEncryptedAssetReturn = 'return nil;';
 				return cb();
 			}
 
 			titaniumPrepHook(
 				path.join(this.titaniumIosSdkPath, 'titanium_prep'),
-				[this.manifest['moduleid'], this.assetsDir],
+				[this.manifest.moduleid, this.assetsDir],
 				{'jsFiles': this.jsFilesToEncrypt, 'placeHolder': 'mainEncryptedAsset'},
 				cb
 			);
@@ -373,14 +373,14 @@ iOSModuleBuilder.prototype.compileJS = function (next) {
 
 			var jsFilesCount = this.jsFilesToEncrypt.length;
 
-			if (jsFilesCount == 0 || ( fs.existsSync(jsFile) && jsFilesCount == 1)) {
-				renderData['allEncryptedAssets'] = renderData['mainEncryptedAsset'];
-				renderData['allEncryptedAssetsReturn'] = 'return nil;';
+			if (jsFilesCount === 0 || ( fs.existsSync(jsFile) && jsFilesCount === 1)) {
+				renderData.allEncryptedAssets = renderData.mainEncryptedAsset;
+				renderData.allEncryptedAssetsReturn = 'return nil;';
 				cb();
 			} else {
 				titaniumPrepHook(
 					path.join(this.titaniumIosSdkPath, 'titanium_prep'),
-					[this.manifest['moduleid'], this.assetsDir],
+					[this.manifest.moduleid, this.assetsDir],
 					{'jsFiles': this.jsFilesToEncrypt, 'placeHolder': 'allEncryptedAssets'},
 					cb
 				);
@@ -506,7 +506,7 @@ iOSModuleBuilder.prototype.buildModule = function (next) {
 iOSModuleBuilder.prototype.createUniBinary = function (next) {
 	// Create a universal build by merging the all builds to a single binary
 	var binaryFiles = [],
-		outputFile = path.join(this.projectDir, 'build', 'lib'+this.manifest['moduleid']+'.a'),
+		outputFile = path.join(this.projectDir, 'build', 'lib' + this.manifest.moduleid + '.a'),
 		lipoArgs = [
 			'-create',
 			'-output',
@@ -515,7 +515,7 @@ iOSModuleBuilder.prototype.createUniBinary = function (next) {
 
 	this.dirWalker(this.universalBinaryDir, function (file) {
 		if (path.extname(file) === '.a'
-			&& file.indexOf( this.manifest['name'] + '.build') === -1
+			&& file.indexOf( this.manifest.name + '.build') === -1
 			&& file.indexOf('Release-') > -1
 		) {
 			binaryFiles.push(file);
@@ -528,12 +528,12 @@ iOSModuleBuilder.prototype.createUniBinary = function (next) {
 };
 
 iOSModuleBuilder.prototype.verifyBuildArch = function (next) {
-	var outputFile = path.join(this.projectDir, 'build', 'lib'+this.manifest['moduleid']+'.a'),
+	var outputFile = path.join(this.projectDir, 'build', 'lib' + this.manifest.moduleid + '.a'),
 		lipoArgs = ['-info', outputFile];
 
 	appc.subprocess.run(this.xcodeEnv.executables.lipo, lipoArgs, function (code, out, err) {
 		var buildArchs = out.substr(out.lastIndexOf(':') + 1).trim().split(' '),
-			manifestArchs = this.manifest['architectures'].split(' '),
+			manifestArchs = this.manifest.architectures.split(' '),
 			buildDiff = manifestArchs.filter(function (i) { return buildArchs.indexOf(i) < 0; });
 
 		if (buildArchs.length != manifestArchs.length || buildDiff.length > 0) {
@@ -736,13 +736,13 @@ iOSModuleBuilder.prototype.runModule = function (next) {
 			runTiCommand(
 				'ti',
 				[
-				'create',
-				'--id', this.manifest.moduleid,
-				'-n', this.manifest.name,
-				'-t', 'app',
-				'-u', 'localhost',
-				'-d', tmpDir,
-				'-p', 'ios'
+					'create',
+					'--id', this.manifest.moduleid,
+					'-n', this.manifest.name,
+					'-t', 'app',
+					'-u', 'localhost',
+					'-d', tmpDir,
+					'-p', 'ios'
 				],
 				this.logger,
 				cb
@@ -782,9 +782,9 @@ iOSModuleBuilder.prototype.runModule = function (next) {
 			runTiCommand(
 				'ti',
 				[
-				'build',
-				'-p', 'ios',
-				'-d', tmpProjectDir
+					'build',
+					'-p', 'ios',
+					'-d', tmpProjectDir
 				],
 				this.logger,
 				cb
