@@ -54,7 +54,7 @@ methods:
   - name: removeView
     summary: Removes an existing page from this Scrollable View.
     description: |
-        On Android and Mobile Web, does nothing if the page does not exist in 
+        On Mobile Web, does nothing if the page does not exist in 
         <Titanium.UI.ScrollableView.views>. 
         
         On iOS, throws an exception if the page does not exist in <Titanium.UI.ScrollableView.views> 

@@ -21,6 +21,7 @@ import ti.modules.titanium.ui.widget.TiUIScrollView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_CONTENT_HEIGHT, TiC.PROPERTY_CONTENT_WIDTH,
@@ -39,7 +40,7 @@ public class ScrollViewProxy extends TiViewProxy
 	private static final int MSG_SCROLL_TO = MSG_FIRST_ID + 100;
 	private static final int MSG_SCROLL_TO_BOTTOM = MSG_FIRST_ID + 101;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
-
+	
 	public ScrollViewProxy()
 	{
 		super();
@@ -124,6 +125,7 @@ public class ScrollViewProxy extends TiViewProxy
 	public void handleScrollToBottom() {
 		getScrollView().scrollToBottom();
 	}
+	
 
 	@Override
 	public String getApiName()
