@@ -59,7 +59,7 @@ methods:
         Returns `true` on Android if an external storage device, such as an SD card, is
         available for reading and writing.
 
-        Returns `false` on iOS, Mobile Web and Tizen.
+        Returns `false` on iOS and Mobile Web.
     returns:
         type: Boolean
     exclude-platforms: [blackberry]
