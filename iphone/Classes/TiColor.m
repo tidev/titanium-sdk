@@ -28,7 +28,7 @@
 			return nil;
 		}
 	}
-    if ([TiUtils isIOS6OrGreater] && (translatedColor == [UIColor groupTableViewBackgroundColor])) {
+    if (translatedColor == [UIColor groupTableViewBackgroundColor]) {
         DebugLog(@"[WARN]Group style table view backgrounds can no longer be represented by a simple color. Reverting to black");
         translatedColor = [UIColor blackColor];
     }

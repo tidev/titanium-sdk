@@ -94,7 +94,7 @@ properties:
       returns `Ti.UI.Button`.
     permission: read-only
     type: String
-    platforms: [android, blackberry, iphone, ipad, mobileweb, tizen]
+    platforms: [android, blackberry, iphone, ipad, mobileweb]
     since: "3.2.0"
 
   - name: lifecycleContainer
@@ -105,4 +105,4 @@ properties:
       to the appropriate containing Window or TabGroup.
     type: [Titanium.UI.Window, Titanium.UI.TabGroup]
     platforms: [android]
-    since: "3.5.0"
+    since: "3.6.0"

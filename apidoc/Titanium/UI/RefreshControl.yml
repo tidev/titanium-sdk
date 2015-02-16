@@ -27,7 +27,7 @@ methods:
 properties:
   - name: title
     summary: The title of the control. 
-    type: Titanium.UI.iOS.AttributedString
+    type: Titanium.UI.AttributedString
 
   - name: tintColor
     summary: The tint color for the refresh control, as a color name or hex triplet.

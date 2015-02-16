@@ -55,7 +55,7 @@
     RELEASE_TO_NIL(disclosureLabel)
 
     dismissButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    dismissButton.backgroundColor = [TiUtils isIOS7OrGreater] ? [UIColor whiteColor] : [UIColor clearColor];
+    dismissButton.backgroundColor = [UIColor whiteColor];
     dismissButton.translatesAutoresizingMaskIntoConstraints = NO;
     [dismissButton setTitle:@"Dismiss" forState:UIControlStateNormal];
     

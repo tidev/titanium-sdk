@@ -87,7 +87,8 @@ properties:
     default: Titanium.UI.iPhone.SystemButtonStyle.PLAIN
     deprecated:
         since: "3.4.1"
-        notes: The style property no longer has any effect on iOS7 and greater.
+        notes: The style property no longer has any effect on iOS 7 and greater.
+    osver: {ios: {max: "6.1"}}
 examples:
   - title: Simple 3 button button bar
     example: |

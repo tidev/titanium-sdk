@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -75,11 +74,8 @@ public class TiResourceFile extends TiBaseFile
 		Context context = TiApplication.getInstance();
 		if (context != null) {
 			String p = TiFileHelper2.joinSegments("Resources", path);
-			if (TiFastDev.isFastDevEnabled()) {
-				in = TiFastDev.getInstance().openInputStream(path);
-			} else {
-				in = context.getAssets().open(p);
-			}
+			in = context.getAssets().open(p);
+			
 		}
 		return in;
 	}
@@ -152,12 +148,9 @@ public class TiResourceFile extends TiBaseFile
 		boolean result = false;
 		InputStream is = null;
 		try {
-			if (TiFastDev.isFastDevEnabled()) {
-				result = TiFastDev.getInstance().fileExists(path);
-			} else {
-				is = getInputStream();
-				result = (is != null);
-			}
+			is = getInputStream();
+			result = (is != null);
+			
 		} catch (IOException e) {
 			// getInputStream() will throw a FileNotFoundException if it is a
 			// directory. We check if there are directory listings. If there is,
@@ -217,27 +210,24 @@ public class TiResourceFile extends TiBaseFile
 
 	public long size()
 	{
-		if (TiFastDev.isFastDevEnabled()) {
-			return TiFastDev.getInstance().getLength(path);
-		} else {
-			long length = 0;
-			InputStream is = null;
-			try {
-				is = getInputStream();
-				length = is.available();
-			} catch (IOException e) {
-				Log.w(TAG, "Error while trying to determine file size: " + e.getMessage(), e);
-			} finally {
-				if (is != null) {
-					try {
-						is.close();
-					} catch (IOException e) {
-						Log.w(TAG, e.getMessage(), e, Log.DEBUG_MODE);
-					}
+		long length = 0;
+		InputStream is = null;
+		try {
+			is = getInputStream();
+			length = is.available();
+		} catch (IOException e) {
+			Log.w(TAG, "Error while trying to determine file size: " + e.getMessage(), e);
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					Log.w(TAG, e.getMessage(), e, Log.DEBUG_MODE);
 				}
 			}
-			return length;
 		}
+		return length;
+		
 	}
 
 	@Override

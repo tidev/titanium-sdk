@@ -29,7 +29,6 @@ void AssetsModule::Initialize(Handle<Object> target)
 
 	DEFINE_METHOD(target, "readAsset", readAsset);
 	DEFINE_METHOD(target, "readFile", readFile);
-	DEFINE_METHOD(target, "fileExists", fileExists);
 
 }
 
@@ -121,29 +120,6 @@ Handle<Value> AssetsModule::readFile(const Arguments& args)
 	delete[] buffer;
 
 	return data;
-}
-
-Handle<Value> AssetsModule::fileExists(const Arguments& args)
-{
-	if (args.Length() == 0 || args[0]->IsNull() || args[0]->IsUndefined()) {
-		return JSException::Error("assets.fileExists requires a valid filename");
-	}
-
-	JNIEnv *env = JNIScope::getEnv();
-	if (!env) {
-		return JSException::GetJNIEnvironmentError();
-	}
-
-	jstring resourcePath = TypeConverter::jsStringToJavaString(env, args[0]->ToString());
-
-	jboolean result = env->CallStaticBooleanMethod(
-		JNIUtil::krollAssetHelperClass,
-		JNIUtil::krollAssetHelperFileExistsMethod,
-		resourcePath);
-
-	env->DeleteLocalRef(resourcePath);
-
-	return TypeConverter::javaBooleanToJsBoolean(result);
 }
 
 }

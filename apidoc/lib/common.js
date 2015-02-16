@@ -11,18 +11,17 @@ var yaml = require('js-yaml'),
 	ignoreList = ['node_modules', '.travis.yml'],
 	logLevel = 0;
 
-exports.VALID_PLATFORMS = ['android', 'blackberry', 'iphone', 'ipad', 'mobileweb', 'tizen', 'windowsphone'];
-exports.VALID_OSES = ['android', 'blackberry', 'ios', 'mobileweb', 'tizen', 'windowsphone'];
+exports.VALID_PLATFORMS = ['android', 'blackberry', 'iphone', 'ipad', 'mobileweb', 'windowsphone'];
+exports.VALID_OSES = ['android', 'blackberry', 'ios', 'mobileweb', 'windowsphone'];
 exports.DEFAULT_VERSIONS = {
 	'android' : '0.8',
 	'blackberry' : '3.1.2',
 	'iphone' : '0.8',
 	'ipad' : '0.8',
-	'mobileweb' : '1.8',
-	'tizen' : '3.1'
+	'mobileweb' : '1.8'
 };
 exports.ADDON_VERSIONS = {
-	'windowsphone' : '3.6.0'
+	'windowsphone' : '4.0.0'
 };
 exports.DATA_TYPES = ['Array', 'Boolean', 'Callback', 'Date', 'Dictionary', 'Number', 'Object', 'String'];
 exports.PRETTY_PLATFORM = {

@@ -105,7 +105,7 @@ methods:
     returns:
         type: Titanium.Buffer
         summary: The new buffer.
-    platforms: [android, iphone, ipad, mobileweb, tizen, blackberry]
+    platforms: [android, iphone, ipad, mobileweb, blackberry]
     examples:
       - title: Create a buffer with 1K bytes
         example: |
@@ -128,7 +128,7 @@ methods:
 name: CreateBufferArgs
 summary: Arguments to be passed to createBuffer
 since: "1.7"
-platforms: [android, iphone, ipad, mobileweb, tizen]
+platforms: [android, iphone, ipad, mobileweb]
 
 properties:
   - name: value

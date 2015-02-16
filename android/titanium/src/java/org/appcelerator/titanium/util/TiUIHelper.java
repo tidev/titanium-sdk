@@ -27,7 +27,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -74,8 +73,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -531,6 +528,18 @@ public class TiUIHelper
 				bFontSet = true;
 				fontProperties[FONT_WEIGHT_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONT_WEIGHT);
 			}
+			if (fontProps.containsKey(TiC.PROPERTY_FONTFAMILY)) {
+				bFontSet = true;
+				fontProperties[FONT_FAMILY_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONTFAMILY);
+			}
+			if (fontProps.containsKey(TiC.PROPERTY_FONTSIZE)) {
+				bFontSet = true;
+				fontProperties[FONT_SIZE_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONTSIZE);
+			}
+			if (fontProps.containsKey(TiC.PROPERTY_FONTWEIGHT)) {
+				bFontSet = true;
+				fontProperties[FONT_WEIGHT_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONTWEIGHT);
+			}
 			if (fontProps.containsKey(TiC.PROPERTY_FONTSTYLE)) {
 				bFontSet = true;
 				fontProperties[FONT_STYLE_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONTSTYLE);
@@ -914,12 +923,6 @@ public class TiUIHelper
 
 	public static Drawable getResourceDrawable(String url)
 	{
-		if (TiFastDev.isFastDevEnabled()) {
-			Drawable d = loadFastDevDrawable(url);
-			if (d != null) {
-				return d;
-			}
-		}
 		int id = getResourceId(url);
 		if (id == 0) {
 			return null;

@@ -175,7 +175,7 @@ exports.bootstrap = function(Titanium) {
 			moduleId = this.url;
 
 		// Return "resolvedURL" if it is a valid path.
-		if (parentModule.filenameExists(resolved) || assets.fileExists(resolved)) {
+		if (parentModule.filenameExists(resolved)) {
 			return resolved;
 
 		// Otherwise, try each possible path where the module's source file could be located.

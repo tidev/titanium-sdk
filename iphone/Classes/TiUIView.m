@@ -466,10 +466,8 @@ DEFINE_EXCEPTIONS
 
 -(void)setTintColor_:(id)color
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        TiColor *ticolor = [TiUtils colorValue:color];
-        [self performSelector:@selector(setTintColor:) withObject:[ticolor _color]];
-    }
+    TiColor *ticolor = [TiUtils colorValue:color];
+    [self setTintColor:[ticolor _color]];
 }
 
 -(void)setBorderColor_:(id)color

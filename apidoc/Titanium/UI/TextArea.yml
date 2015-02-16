@@ -76,11 +76,17 @@ properties:
   - name: attributedString
     summary: TextArea attributed string. 
     description: |
-        The underlying attributed string drawn by the textArea, if set, the textArea ignores
-        the `value` property
-    type: Titanium.UI.iOS.AttributedString
-    platforms: [iphone, ipad]
-    since: 3.2.0
+        The underlying attributed string drawn by the textArea. If set, avoid setting common attributes 
+        in textArea, such as `value`, `color` and `font`, as unexpected behaviors may result. 
+
+        Prior to Release 3.6.0, assign this property an object from the
+        <Titanium.UI.iOS.AttributedString> class.
+    type: Titanium.UI.AttributedString
+    platforms: [android, iphone, ipad]
+    since:
+        android: 3.6.0
+        iphone: 3.2.0
+        ipad: 3.2.0
 
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 
@@ -99,7 +105,7 @@ properties:
         On Android and iOS, the returned default value is undefined, and on Mobile Web, the returned
         default value is `false`, but all behave as if the value is `true`.
     type: Boolean
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: autoLink
     summary: Automatically convert text to clickable links. 
@@ -260,7 +266,7 @@ properties:
   - name: suppressReturn
     summary: Determines if the return key should be suppressed during text entry.
     type: Boolean
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: textAlign
     summary: Text alignment within this text area.

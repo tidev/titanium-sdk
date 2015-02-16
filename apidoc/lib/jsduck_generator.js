@@ -228,6 +228,70 @@ function exportReturns (api) {
 
 }
 
+function exportDefault (api) {
+		if ('default' in api && api['default'] != 'undefined') {
+				if (typeof api['default'] === 'string') {
+						return convertLinks(api['default']);
+				} else {
+						return api['default'];
+				}
+		}
+		return '';
+}
+
+// Returns GitHub edit URL for current API file.
+function exportEditUrl (api) {
+	var file = api.__file;
+	var rv = '';
+	var blackList = ['appcelerator.https', 'ti.geofence']; // Don't include Edit button for these modules
+	var modulename, modulepath;
+
+	// Determine edit URL by file's folder location
+	if(file.indexOf("titanium_mobile/apidoc") != -1){
+		var basePath = "https://github.com/appcelerator/titanium_mobile/edit/master/"
+		var startIndex = file.indexOf('apidoc/')
+		var path = file.substr(startIndex);
+		rv = basePath + path;
+	} else if (file.indexOf("titanium_modules") != -1 || file.indexOf("appc_modules") != -1) {
+		// URL template with placeholders for module name and path.
+		var urlTemplate = 'https://github.com/appcelerator-modules/%MODULE_NAME%/edit/master/%MODULE_PATH%';
+		var re = /titanium_modules|appc_modules\/(.+)\/apidoc/;
+		var match = file.match(re);
+		if(match) {
+			modulename = match[1];
+			if (blackList.indexOf(modulename) != -1)
+				return rv;
+		}
+		else {
+			common.log(common.LOG_ERROR, 'Error creating edit URL for: ', file, ". Couldn't find apidoc/ folder.");
+			return rv;
+		}
+
+		var index = file.indexOf('apidoc/')
+		var modulepath = file.substr(index);
+		var urlReplacements = {
+		    "%MODULE_NAME%": modulename,
+		    "%MODULE_PATH%": modulepath
+		}
+		rv = urlTemplate.replace(/%\w+%/g, function(all) {
+		    return urlReplacements[all] || all;
+		});
+
+	} else if (file.indexOf("titanium_mobile_tizen/modules/tizen/apidoc") != -1) {
+		var basePath = "https://github.com/appcelerator/titanium_mobile_tizen/edit/master/"
+		var index = file.indexOf('modules/tizen/apidoc/')
+		if(index != -1) {
+			var path = file.substr(index);
+			rv = basePath + path;
+		} else {
+			common.log(common.LOG_WARN, 'Error creating edit URL for:', file, ". Couldn't find apidoc/ folder.");
+			return rv;			
+		}
+	}
+
+	return rv;
+}
+
 function exportAPIs (api, type) {
 	var x = 0,
 		member = {},
@@ -265,6 +329,7 @@ function exportAPIs (api, type) {
 					break;
 				case 'properties':
 					annotatedMember.constants = exportConstants(member);
+					annotatedMember.defaultValue = exportDefault(member);
 					annotatedMember.permission = member.permission || 'read-write';
 					annotatedMember.type = exportType(member);
 					annotatedMember.value = exportValue(member);
@@ -305,6 +370,7 @@ exports.exportData = function exportJsDuck (apis) {
 		annotatedClass.events = exportAPIs(cls, 'events') || [];
 		annotatedClass.methods = exportAPIs(cls, 'methods') || [];
 		annotatedClass.properties = exportAPIs(cls, 'properties') || [];
+		annotatedClass.editurl = exportEditUrl(cls);
 		rv.push(annotatedClass);
 		cls = annotatedClass = {};
 	}

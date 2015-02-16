@@ -5,6 +5,7 @@
  * @platform <%- platform %> <%- cls.since[platform] %> <% } %>
 <% if (cls.subtype == 'pseudo') { %> * @pseudo <% } %>
 <% if ('extends' in cls) { %> * @extends <%- cls.extends %> <% } %> 
+<% if (cls.editurl) { %> * @editurl <%- cls.editurl %> <% } %>
  * <%- cls.summary %>
 <% if (cls.deprecated) { %> * <%- cls.deprecated %> <% } %>  
 <% if (cls.osver) { %> * <%- cls.osver %> <% } %> 
@@ -47,7 +48,11 @@
 
 <% cls.properties.forEach(function (property) { %>
 /**
+<% if ('defaultValue' in property && property.defaultValue) { %>
+ * @property [<%- property.name %>=<%- property.defaultValue %>]
+<% } else { %>
  * @property <%- property.name %>
+<% } %>
 <% if ('hide' in property && property.hide) { %> * @hide <% } %>
  * @type <%- property.type %>
 <% if ('permission' in property) { %>

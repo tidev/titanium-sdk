@@ -9,6 +9,7 @@ var common = require('./lib/common.js'),
 	ejs = require('ejs'),
 	fs = require('fs'),
 	exec = require('child_process').exec,
+	os = require('os'),
 	assert = common.assertObjectKey;
 	basePaths = [],
 	processFirst = ['Titanium.Proxy', 'Titanium.Module', 'Titanium.UI.View'],
@@ -142,9 +143,10 @@ function processConstants (api) {
  * Returns a list of platforms and since versions the API supports
  * @params api {Object} API to evaluate
  * @params versions {Object} Possible platforms and versions the API supports (usually from the class)
+ * @params matchVersion {Boolean} For members, only match platforms from the versions param
  * @returns {Object} Object containing platforms and versions the API supports
  */
-function processVersions (api, versions) {
+function processVersions (api, versions, matchVersion) {
 	var defaultVersions = nodeappc.util.mixObj({}, versions),
 		platform = null,
 		key = null;
@@ -153,10 +155,22 @@ function processVersions (api, versions) {
 			if (!~api.platforms.indexOf(platform)) delete defaultVersions[platform];
 		}
 		for (platform in common.ADDON_VERSIONS) {
-			if (~api.platforms.indexOf(platform)) defaultVersions[platform] = common.ADDON_VERSIONS[platform];
+			if (((matchVersion && ~Object.keys(versions).indexOf(platform)) || !matchVersion)
+				&& ~api.platforms.indexOf(platform)) {
+					defaultVersions[platform] = common.ADDON_VERSIONS[platform];
+			}
 		}
 	} else if (assert(api, 'exclude-platforms')) {
 		api['exclude-platforms'].forEach(function (platform) {
+			if (platform in defaultVersions) delete defaultVersions[platform];
+		});
+		// Remove add-on platforms from defaults if exclude-platforms tag is used
+		Object.keys(common.ADDON_VERSIONS).forEach(function (platform) {
+			if (platform in defaultVersions) delete defaultVersions[platform];
+		});
+	} else {
+		// Remove add-on platforms from defaults if platforms tag is not specified
+		Object.keys(common.ADDON_VERSIONS).forEach(function (platform) {
 			if (platform in defaultVersions) delete defaultVersions[platform];
 		});
 	}
@@ -184,7 +198,7 @@ function processVersions (api, versions) {
 function processAPIMembers (apis, type, defaultVersions) {
 	var rv = [], x = 0;
 	apis.forEach(function (api) {
-		api.since = processVersions(api, defaultVersions);
+		api.since = processVersions(api, defaultVersions, true);
 		api.platforms = Object.keys(api.since);
 		if (type == 'properties') {
 			if (api.constants) {
@@ -338,7 +352,7 @@ function processAPIs (api) {
 		inheritedAPIs = {};
 
 	// Generate list of supported platforms and versions
-	api.since = processVersions(api, defaultVersions);
+	api.since = processVersions(api, defaultVersions, false);
 	api.platforms = Object.keys(api.since);
 
 	// Get inherited APIs
@@ -441,11 +455,12 @@ function addOnMerge(baseObj, addObj) {
 		rv = baseObj;
 
 	for (key in addObj) {
-		base = baseObj[key];
-		add = addObj[key];
+		var base = baseObj[key];
+		var add = addObj[key];
 		if (Array.isArray(base)) {
 			// Array of objects
 			if (typeof base[0] === 'object') {
+
 				var tempArray = base;
 				add.forEach(function (api) {
 					if ('name' in base[0]) {
@@ -549,7 +564,8 @@ function addOnMerge(baseObj, addObj) {
 
 // Create path if it does not exist
 function mkdirDashP(path) {
-	var p = path.substring(0, path.lastIndexOf('/'));
+	var p = path.replace(/\\/g, '/');
+	p = p.substring(0, path.lastIndexOf('/'));
 	if(!fs.existsSync(p)) {
 		mkdirDashP(p);
 	}
@@ -560,7 +576,8 @@ function mkdirDashP(path) {
 
 // Start of Main Flow
 // Get a list of valid formats
-apidocPath = process.argv[1].substring(0, process.argv[1].lastIndexOf('/'))
+apidocPath = process.argv[1].replace(/\\/g, '/');
+apidocPath = apidocPath.substring(0, apidocPath.lastIndexOf('/'));
 libPath = apidocPath + '/lib/';
 fsArray = fs.readdirSync(libPath);
 fsArray.forEach(function (file) {
@@ -721,6 +738,8 @@ formats.forEach(function (format) {
 		case 'html' :
 		case 'modulehtml' :
 
+			var copyCommand;
+
 			output += '/apidoc/';
 			if(!fs.existsSync(output)) {
 				fs.mkdirSync(output);
@@ -730,7 +749,14 @@ formats.forEach(function (format) {
 				fs.createReadStream(cssPath).pipe(fs.createWriteStream(output + cssFile));
 			}
 
-			exec('cp -r ' + apidocPath + '/images' + ' ' + output, function (error) {
+			if (os.type() == 'Windows_NT') {
+				copyCommand = 'xcopy ' + apidocPath + '/images' + ' ' + output;
+				copyCommand = copyCommand.replace(/\//g, '\\') + ' /s';
+			} else {
+				copyCommand = 'cp -r ' + apidocPath + '/images' + ' ' + output;
+			}
+
+			exec(copyCommand, function (error) {
 				if (error !== null) {
 					common.log(common.LOG_ERROR, 'Error copying file: %s', error);
 				}
@@ -758,13 +784,17 @@ formats.forEach(function (format) {
 			break;
 		case 'jsca' :
 			render = JSON.stringify(exportData, null, '    ');
-			output = output + '/api.jsca';
+			output = output + 'api.jsca';
 			break;
 		case 'jsduck' :
 			templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
 			render = ejs.render(templateStr, {doc: exportData});
-			output = output + '/titanium.js';
+			output = output + 'titanium.js';
 			break;
+		case 'parity' :
+			templateStr = fs.readFileSync(templatePath + 'parity.ejs', 'utf8');
+			render = ejs.render(templateStr, {apis: exportData});
+			output = output + 'parity.html';
 		default:
 			;
 	}

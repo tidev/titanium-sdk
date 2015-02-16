@@ -69,7 +69,7 @@ public class AndroidModule extends KrollModule
 	
 	@Kroll.constant public static final int SWITCH_STYLE_CHECKBOX     = 0;
 	@Kroll.constant public static final int SWITCH_STYLE_TOGGLEBUTTON = 1;
-	@Kroll.constant public static final int SWITCH_STYLE_TOGGLEBUTTON_OLD = 2;
+	@Kroll.constant public static final int SWITCH_STYLE_SWITCH = 2;
 	
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_OFF = TiUIWebView.PLUGIN_STATE_OFF;
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_ON = TiUIWebView.PLUGIN_STATE_ON;

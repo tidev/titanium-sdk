@@ -399,11 +399,9 @@
         UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
         [[self view] setAccessibilityElementsHidden:NO];
     }
-    if ([TiUtils isIOS7OrGreater]) {
-        TiThreadPerformOnMainThread(^{
-            [self forceNavBarFrame];
-        }, NO);
-    }
+    TiThreadPerformOnMainThread(^{
+        [self forceNavBarFrame];
+    }, NO);
 
 }
 
@@ -560,10 +558,47 @@
     return _supportedOrientations;
 }
 
+
+-(void)showNavBar:(NSArray*)args
+{
+    ENSURE_UI_THREAD(showNavBar,args);
+    [self replaceValue:[NSNumber numberWithBool:NO] forKey:@"navBarHidden" notification:NO];
+    if (controller!=nil)
+    {
+        id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
+        BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+        [[controller navigationController] setNavigationBarHidden:NO animated:animated];
+    }
+}
+
+-(void)hideNavBar:(NSArray*)args
+{
+    ENSURE_UI_THREAD(hideNavBar,args);
+    [self replaceValue:[NSNumber numberWithBool:YES] forKey:@"navBarHidden" notification:NO];
+    if (controller!=nil)
+    {
+        id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
+        BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+        [[controller navigationController] setNavigationBarHidden:YES animated:animated];
+        //TODO: need to fix height
+    }
+}
+
+
 #pragma mark - Appearance and Rotation Callbacks. For subclasses to override.
 //Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 -(void)viewWillAppear:(BOOL)animated
 {
+    id navBarHidden = [self valueForKey:@"navBarHidden"];
+    if (navBarHidden!=nil) {
+        id properties = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:NO] forKey:@"animated"]];
+        if ([TiUtils boolValue:navBarHidden]) {
+            [self hideNavBar:properties];
+        }
+        else {
+            [self showNavBar:properties];
+        }
+    }
     [self willShow];
 }
 -(void)viewWillDisappear:(BOOL)animated

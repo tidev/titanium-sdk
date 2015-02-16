@@ -79,20 +79,32 @@ properties:
   - name: attributedString
     summary: TextField attributed string. 
     description: |
-        The underlying attributed string drawn by the textField, if set, the textField ignores
-        the `value` property
-    type: Titanium.UI.iOS.AttributedString
-    platforms: [iphone, ipad]
-    since: 3.2.0
+        The underlying attributed string drawn by the textField. If set, avoid setting common attributes 
+        in TextField, such as `value`, `color` and `font`, as unexpected behaviors may result. 
+
+        Prior to Release 3.6.0, assign this property an object from the
+        <Titanium.UI.iOS.AttributedString> class.
+    type: Titanium.UI.AttributedString
+    platforms: [android, iphone, ipad]
+    since:
+        android: 3.6.0
+        iphone: 3.2.0
+        ipad: 3.2.0
 
   - name: attributedHintText
     summary: Hint text attributed string. 
     description: |
-        The attributed hint text by the textField, if set, the textField ignores
-        the `hintText` property
-    type: Titanium.UI.iOS.AttributedString
-    platforms: [iphone, ipad]
-    since: 3.2.0
+        The attributed hint text by the textField. If set, avoid setting common attributes 
+        in textField, such as `hintText`, `color` and `font`, as unexpected behaviors may result. 
+
+        Prior to Release 3.6.0, assign this property an object from the
+        <Titanium.UI.iOS.AttributedString> class.
+    type: Titanium.UI.AttributedString
+    platforms: [android, iphone, ipad]
+    since:
+        android: 3.6.0
+        iphone: 3.2.0
+        ipad: 3.2.0
 
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 
@@ -135,7 +147,7 @@ properties:
     type: Number
     constants: Titanium.UI.INPUT_BORDERSTYLE_*
     default: <Titanium.UI.INPUT_BORDERSTYLE_NONE>
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: clearButtonMode
     summary: Determines when the clear button is displayed.
@@ -376,7 +388,7 @@ properties:
   - name: suppressReturn
     summary: Determines whether the return key should be suppressed during entry.
     type: Boolean
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: selection
     summary: Returns the currently selected text of the text field.
@@ -425,7 +437,7 @@ properties:
     default: -1
     type: Number
     since: {android: "3.0.0"}
-    platforms: [android, iphone, mobileweb, tizen]
+    platforms: [android, iphone, mobileweb]
 
 events:
   - name: blur

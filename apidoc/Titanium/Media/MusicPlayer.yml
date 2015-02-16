@@ -5,7 +5,8 @@ summary:
 description: |
     A `MusicPlayer` lets you manage and playback a queue of media [Item](Titanium.Media.Item) objects.
 
-    Use the <Titanium.Media.createMusicPlayer> method to create a music palyer.
+    To retrieve an instance of a MusicPlayer object, use either the
+    <Titanium.Media.appMusicPlayer> or the <Titanium.Media.systemMusicPlayer> property.
 
     Use the [Media](Titanium.Media) module's [openMusicLibrary](Titanium.Media.openMusicLibrary) and
     [queryMusicLibrary](Titanium.Media.queryMusicLibrary) methods to access the media items in the
@@ -13,6 +14,7 @@ description: |
 extends: Titanium.Proxy
 since: "1.4.0"
 platforms: [iphone, ipad]
+createable: false
 methods:
 
   - name: pause
@@ -163,11 +165,14 @@ properties:
   - name: volume
     summary: Volume level for the music player from 0.0 (muted) to 1.0 (loudest).
     description: |
+        This property has no effect on devices running iOS 8.0 and later.
+
         This adjusts the volume of the application's session.
 
         The iOS simulator ignores this volume setting. This is a known issue
         with Apple's simulator.
     type: Number
+    osver: {ios: {"max": "7.0"}}
 
 ---
 name: PlayerQueue

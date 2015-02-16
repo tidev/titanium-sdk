@@ -223,8 +223,9 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 							var goodValues = {},
 								badValues = {};
 
-							// just in case they set -p without a value
-							if (value === true) {
+							// just in case they set -p or --platforms without a value
+							if (value === true || value === '') {
+								logger.error(__('Invalid platforms value "%s"', value) + '\n');
 								return callback(true);
 							}
 
@@ -302,6 +303,11 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 						},
 						required: !!cli.argv.prompt,
 						validate: function (value, callback) {
+							if (!value) {
+								logger.error(__('The url value is "%s"', value) + '\n');
+								return callback(true);
+							}
+
 							callback(null, value);
 						}
 					},

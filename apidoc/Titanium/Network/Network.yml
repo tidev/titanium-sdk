@@ -11,12 +11,6 @@ description: |
     [BonjourService](Titanium.Network.BonjourService) objects.
 
     For all other socket needs, use <Titanium.Network.Socket.TCP>.
-    
-    To use this API on Tizen, you must include the following privilege in the `tiapp.xml` 
-    file of your Titanium application: 
-
-    * `http://tizen.org/privilege/systeminfo`
-    
 extends: Titanium.Module
 since: "0.1"
 methods:
@@ -335,7 +329,7 @@ events:
       - name: reason
         summary: Human-readable text describing the reason for the change.
         type: String
-        platforms: [android, mobileweb, tizen]
+        platforms: [android, mobileweb]
 properties:
   - name: INADDR_ANY
     summary: |
@@ -539,18 +533,23 @@ properties:
     type: Number
     permission: read-only
     since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
+    platforms: [android, iphone, ipad]
 
   - name: TLS_VERSION_1_1
     summary: Constant value specifying TLS version 1.1 for SSL.
     type: Number
     permission: read-only
     since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
+    platforms: [android, iphone, ipad]
+    osver: {android: {min: "4.1"}, ios: {min: "5.0"}}
 
   - name: TLS_VERSION_1_2
     summary: Constant value specifying TLS version 1.2 for SSL.
     type: Number
     permission: read-only
     since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
+    platforms: [android, iphone, ipad]
+    osver: {android: {min: "4.1"}, ios: {min: "5.0"}}
 
   - name: PROGRESS_UNKNOWN
     summary: Constant value specifying that the progress of a download can not be calculated.
@@ -619,7 +618,7 @@ properties:
         This function allows URLs to be formatted for use with the application's proxy to 
         get around cross domain issues.
     type: Callback<String>
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
 ---
 name: PushNotificationConfig

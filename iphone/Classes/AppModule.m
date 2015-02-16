@@ -63,7 +63,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
         [nc removeObserver:thisModule];
     }
     /* Because of other issues, we must leak the modules as well as the runtime */
+#ifndef __clang_analyzer__
     [delegateModules copy];
+#endif
     [delegateModules removeAllObjects];
     
     /* Disconnect the Kroll bridge, and spoof the shutdown */

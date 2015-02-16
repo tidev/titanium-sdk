@@ -188,7 +188,7 @@ properties:
     summary: Key identifying a string in the locale file to use for the message text.
     type: String
     accessors: false
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: style
     summary: The style for the alert dialog.
@@ -213,7 +213,7 @@ properties:
     summary: Key identifying a string in the locale file to use for the title text. 
     type: String
     accessors: false
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: ok
     summary: Text for the `OK` button.
@@ -228,7 +228,7 @@ properties:
         If `buttonNames` is defined, this property is ignored.
     type: String
     accessors: false
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: persistent
     summary: Boolean value indicating if the alert dialog should only be cancelled by user 

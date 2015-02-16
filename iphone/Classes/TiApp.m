@@ -185,28 +185,31 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
         NSString *host = [params objectForKey:@"host"];
         NSInteger port = [[params objectForKey:@"port"] integerValue];
-        NSString *airkey = [params objectForKey:@"airkey"];
         if (([host length] > 0) && ![host isEqualToString:@"__DEBUGGER_HOST__"])
         {
             [self setDebugMode:YES];
             TiDebuggerStart(host, port);
         }
 #if !TARGET_IPHONE_SIMULATOR
-		else if (([airkey length] > 0) && ![airkey isEqualToString:@"__DEBUGGER_AIRKEY__"])
+		else
 		{
-			NSArray *hosts = nil;
-			NSString *hostsString = [params objectForKey:@"hosts"];
-			if (![hostsString isEqualToString:@"__DEBUGGER_HOSTS__"]) {
-				hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
-			}
-			TiDebuggerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
-				if (host != nil) {
-					[self setDebugMode:YES];
-					TiDebuggerStart(host, port);
+			NSString *airkey = [params objectForKey:@"airkey"];
+			if (([airkey length] > 0) && ![airkey isEqualToString:@"__DEBUGGER_AIRKEY__"])
+			{
+				NSArray *hosts = nil;
+				NSString *hostsString = [params objectForKey:@"hosts"];
+				if (![hostsString isEqualToString:@"__DEBUGGER_HOSTS__"]) {
+					hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
 				}
-				[self appBoot];
-			});
-			return;
+				TiDebuggerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
+					if (host != nil) {
+						[self setDebugMode:YES];
+						TiDebuggerStart(host, port);
+					}
+					[self appBoot];
+				});
+				return;
+			}
 		}
 #endif
     }
@@ -214,29 +217,32 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	if (!self.debugMode && filePath != nil) {
         NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
         NSString *host = [params objectForKey:@"host"];
-        NSInteger port = [[params objectForKey:@"port"] integerValue];
-        NSString *airkey = [params objectForKey:@"airkey"];
+        NSInteger port = [[params objectForKey:@"port"] integerValue];		
         if (([host length] > 0) && ![host isEqualToString:@"__PROFILER_HOST__"])
         {
             [self setProfileMode:YES];
             TiProfilerStart(host, port);
         }
 #if !TARGET_IPHONE_SIMULATOR
-		else if (([airkey length] > 0) && ![airkey isEqualToString:@"__PROFILER_AIRKEY__"])
+		else
 		{
-			NSArray *hosts = nil;
-			NSString *hostsString = [params objectForKey:@"hosts"];
-			if (![hostsString isEqualToString:@"__PROFILER_HOSTS__"]) {
-				hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
-			}
-			TiProfilerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
-				if (host != nil) {
-					[self setProfileMode:YES];
-					TiProfilerStart(host, port);
+			NSString *airkey = [params objectForKey:@"airkey"];
+			if (([airkey length] > 0) && ![airkey isEqualToString:@"__PROFILER_AIRKEY__"])
+			{
+				NSArray *hosts = nil;
+				NSString *hostsString = [params objectForKey:@"hosts"];
+				if (![hostsString isEqualToString:@"__PROFILER_HOSTS__"]) {
+					hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
 				}
-				[self appBoot];
-			});
-			return;
+				TiProfilerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
+					if (host != nil) {
+						[self setProfileMode:YES];
+						TiProfilerStart(host, port);
+					}
+					[self appBoot];
+				});
+				return;
+			}
 		}
 #endif
     }
@@ -607,11 +613,26 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
 {
-    //FunctionName();
-    TiBlob * downloadedFile =[[[TiBlob alloc] initWithData:[NSData dataWithContentsOfURL:location] mimetype:[Mimetypes mimeTypeForExtension:[location absoluteString]]] autorelease];
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier ],@"taskIdentifier",downloadedFile,@"data", nil];
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLDownloadFinished object:self userInfo:dict];
-    
+	//FunctionName();
+	//copy downloaded file from location to tempFile (in NSTemporaryDirectory), because file in location will be removed after delegate completes
+	NSError *error;
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+	NSString *destinationFilename = location.lastPathComponent;
+	NSURL *destinationURL = [[NSURL fileURLWithPath:NSTemporaryDirectory()] URLByAppendingPathComponent:destinationFilename];
+	if ([fileManager fileExistsAtPath:[destinationURL path]]) {
+		[fileManager removeItemAtURL:destinationURL error:nil];
+	}
+	BOOL success = [fileManager copyItemAtURL:location toURL:destinationURL error:&error];
+	TiBlob* downloadedData;
+	if (!success) {
+		DebugLog(@"Unable to copy temp file. Error: %@", [error localizedDescription]);
+		downloadedData =[[[TiBlob alloc] initWithData:[NSData dataWithContentsOfURL:location] mimetype:[Mimetypes mimeTypeForExtension:[location absoluteString]]] autorelease];
+	}
+	else {
+		downloadedData = [[[TiBlob alloc] initWithFile:[destinationURL path]] autorelease];
+	}
+	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier ],@"taskIdentifier",downloadedData,@"data", nil];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiURLDownloadFinished object:self userInfo:dict];
 }
 
 -(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
