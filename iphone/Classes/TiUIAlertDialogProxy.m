@@ -103,7 +103,6 @@ static BOOL alertShowing = NO;
     else {
         persistentFlag = [TiUtils boolValue:[self valueForKey:@"persistent"] def:NO];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resumed:) name:kTiResumedNotification object:nil];
         NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
         if (buttonNames==nil || (id)buttonNames == [NSNull null]) {
             buttonNames = [[[NSMutableArray alloc] initWithCapacity:2] autorelease];
@@ -188,12 +187,6 @@ static BOOL alertShowing = NO;
 {
     if (!persistentFlag) {
         [self hide:[NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"]];
-    }
-}
--(void)resumed:(NSNotification*)note
-{
-    if (persistentFlag) {
-        [alert show];
     }
 }
 
