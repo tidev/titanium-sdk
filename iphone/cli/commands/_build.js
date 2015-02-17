@@ -1410,6 +1410,9 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'copyTitaniumLibraries',
 		'copyItunesArtwork',
 		'copyGraphics',
+		'validateExtentions',
+		'invokeXcodeBuildOnExtensionDependencies',
+		'injectExtensionsIntoXcodeProject',
 
 		function (next) {
 			// this is a hack... for non-deployment builds we need to force xcode so that the pre-compile phase
@@ -2619,6 +2622,153 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 	next();
 };
 
+iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtensionsIntoXcodeProject(next) {
+	if (!this.builtExtensions.length) {
+		return next();
+	}
+
+	var projectFile = path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'),
+		projectOrigContents = fs.readFileSync(projectFile).toString(),
+		projectContents = projectOrigContents;
+		targetExts = [],
+		tabs = '\t\t\t\t'; // Tabs aren't necessary, just makes it pretty
+
+	this.builtExtensions.forEach(function (ext) {
+		projectContents.indexOf(ext.extensionName) === -1 && targetExts.push(ext);
+	}, this);
+
+	if (targetExts.length) {
+		// we have some extensions to add to the project file
+		this.logger.info(__('Injecting native extensions into Xcode project file'));
+
+		targetExts.forEach(function (ext) {
+			// Find locations
+			var fileMarkers = [],
+				refMarkers = [],
+				groupMarkers = [],
+				resourcesBuildPhaseMarkers = [],
+				copyFilesBuildPhaseMarkers = [],
+				groupUUID,
+				newGroupUUID = makeUUID(),
+				fileIndex = -1;
+
+			function makeUUID() {
+				return uuid.v4().toUpperCase().replace(/-/g, '').substring(0, 24);
+			}
+
+			projectContents.split('\n').forEach(function (line) {
+				line.indexOf('/* libTiCore.a */;') !== -1 && fileMarkers.push(line);
+				line.indexOf('/* libTiCore.a */ =') !== -1 && refMarkers.push(line);
+			});
+
+			var groupMatch = projectContents.match(/\* Extensions \*\/ = {[^}]*};/);
+			groupMatch && groupMarkers.push(groupMatch[0]);
+
+			var resourcesBuildPhaseMatch = projectContents.match(/\/\* Resources \*\/ = {\s+isa = PBXResourcesBuildPhase;[^}]*};/g);
+			resourcesBuildPhaseMatch && resourcesBuildPhaseMatch.forEach(function(match) {
+				resourcesBuildPhaseMarkers.push(match);
+			});
+
+			var copyFilesBuildPhaseMatch = projectContents.match(/\/\* Embed App Extensions \*\/ = {\s+isa = PBXCopyFilesBuildPhase;[^}]*};/g);
+			copyFilesBuildPhaseMatch && copyFilesBuildPhaseMatch.forEach(function(match) {
+				copyFilesBuildPhaseMarkers.push(match);
+			});
+
+			fileMarkers.forEach(function (marker) {
+				var m = marker.match(/([0-9a-zA-Z]+) \/\*/);
+				if (m) {
+					!groupUUID && (m = marker.match(/fileRef \= ([0-9a-zA-Z]+) /)) && (groupUUID = m[1]);
+				}
+			});
+
+			// Inject files
+			fileMarkers.forEach(function (marker) {
+				fileIndex++;
+				if (fileIndex >= resourcesBuildPhaseMarkers.length ||
+					fileIndex >= copyFilesBuildPhaseMarkers.length) {
+					this.logger.error('Error injecting extension into Xcode project (BuildPhase markers not found or invalid)');
+					process.exit(1);
+				}
+
+				// Add file references for the extension in Resources
+				var begin = projectContents.indexOf(marker),
+					end = begin + marker.length,
+					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
+					newUUID = makeUUID(),
+					line = projectContents
+						.substring(begin, end)
+						.replace(/libTiCore\.a/g, ext.extensionName)
+						.replace(/in Frameworks/g, 'in Resources')
+						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
+						.replace(new RegExp(m[1].trim(), 'g'), newUUID);
+				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
+
+				var buildMarker = resourcesBuildPhaseMarkers[fileIndex];
+				addFileToBuildPhase(buildMarker, newUUID, 'Resources');
+
+				// Add file references for the extension in Embed App Extensions Build Phase
+				var begin = projectContents.indexOf(marker),
+					end = begin + marker.length,
+					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
+					newUUID = makeUUID(),
+					line = projectContents
+						.substring(begin, end)
+						.replace(/libTiCore\.a/g, ext.extensionName)
+						.replace(/in Frameworks/g, 'in Embed App Extensions')
+						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
+						.replace(new RegExp(m[1].trim(), 'g'), newUUID)
+						.replace(new RegExp(ext.extensionName + ' \\*/;', 'g'), ext.extensionName + ' */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); };');
+				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
+
+				var buildMarker = copyFilesBuildPhaseMarkers[fileIndex];
+				addFileToBuildPhase(buildMarker, newUUID, 'Embed App Extensions');
+
+			}, this);
+
+			function addFileToBuildPhase(marker, uuid, inWhere) {
+				var begin = projectContents.indexOf(marker),
+					end = begin + marker.length,
+					line = projectContents
+						.substring(begin, end)
+						.replace(/files = \(/g, 'files = (\n' + tabs + uuid + ' /* ' + ext.extensionName + ' in ' + inWhere + ' */,');
+				projectContents = projectContents.substring(0, begin) + line + '\n' + projectContents.substring(end + 1);
+			}
+
+			refMarkers.forEach(function (marker) {
+				var begin = projectContents.indexOf(marker),
+					end = begin + marker.length,
+					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
+					line = projectContents
+						.substring(begin, end)
+						.replace(/archive.ar/g, '\"wrapper.app-extension\"')
+						.replace(/lib\/libTiCore\.a/g, '"' + ext.extensionFile.replace(/"/g, '\\"') + '"')
+						.replace(/name = libTiCore.a/g, 'name = "' + ext.extensionName+ '"') // File names with spaces need quotes
+						.replace(/libTiCore\.a/g, ext.extensionName)
+						.replace(/SOURCE_ROOT/g, '"<group>"')
+						.replace(new RegExp(m[1].trim(), 'g'), newGroupUUID);
+				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
+			});
+
+			groupMarkers.forEach(function (marker) {
+				var begin = projectContents.indexOf(marker),
+					end = begin + marker.length,
+					line = projectContents
+						.substring(begin, end)
+						.replace(/children = \(/g, 'children = (\n' + tabs + newGroupUUID + ' /* ' + ext.extensionName + ' */,');
+				projectContents = projectContents.substring(0, begin) + line + '\n' + projectContents.substring(end + 1);
+			});
+
+		}, this);
+	}
+
+	if (projectContents !== projectOrigContents) {
+		this.logger.debug(__('Writing %s', projectFile.cyan));
+		fs.writeFileSync(projectFile, projectContents);
+	}
+
+	next();
+};
+
 iOSBuilder.prototype.populateIosFiles = function populateIosFiles(next) {
 	var consts = {
 			'__PROJECT_NAME__': this.tiapp.name,
@@ -2750,6 +2900,218 @@ iOSBuilder.prototype.compileJSSFiles = function compileJSSFiles(next) {
 			}
 		}.bind(this));
 	}.bind(this));
+};
+
+iOSBuilder.prototype.validateExtentions = function validateExtentions(next) {
+	this.extensionsToBuild = [];
+	this.builtExtensions = [];
+
+	if (this.tiapp.extensions) {
+		this.tiapp.extensions.forEach(function (ext) {
+			if (!ext.projectPath) {
+				this.logger.error(__('Extensions must have a "projectPath" attribute that points to a folder containing an Xcode project'));
+				process.exit(1);
+			}
+
+			if (!fs.existsSync(ext.projectPath)) {
+				this.logger.error(__('Extension projectPath %s location does not exist', ext.projectPath.cyan));
+				process.exit(1);
+			}
+
+			if (!ext.target) {
+				this.logger.error(__('Extension with projectPath %s does not have a target as its value', ext.projectPath.cyan));
+				process.exit(1);
+			}
+
+			this.extensionsToBuild.push(ext);
+		}.bind(this));
+	}
+	next();
+};
+
+iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXcodeBuildOnExtensionDependencies(next) {
+	if (!this.extensionsToBuild.length) {
+		return next();
+	}
+	this.logger.info(__('Invoking xcodebuild on extension dependencies'));
+
+	var projectsToBuild = this.extensionsToBuild,
+		buildIndex = 0;
+
+	var buildNextProject = function buildNextProject() {
+		if (projectsToBuild.length <= buildIndex) {
+			return next();
+		}
+
+		var tiProjectDir = process.cwd(),
+			proj = projectsToBuild[buildIndex++];
+
+		process.chdir(proj.projectPath);
+		var xcodeBuildDirectory = path.join(proj.projectPath,'build');
+
+		var xcodeArgs = [
+			'-target', proj.target,
+			'-configuration', this.xcodeTarget,
+			'-sdk', this.xcodeTargetOS,
+			'IPHONEOS_DEPLOYMENT_TARGET=' + appc.version.format(this.minIosVer, 2),
+			'TARGETED_DEVICE_FAMILY=' + this.deviceFamilies[this.deviceFamily],
+			'ONLY_ACTIVE_ARCH=NO',
+			'DEAD_CODE_STRIPPING=YES'
+		],
+		gccDefs = [ 'DEPLOYTYPE=' + this.deployType ];
+
+		if (this.target === 'simulator') {
+			gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
+			gccDefs.push('DEBUG=1');
+			gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
+		}
+
+		if (/simulator|device|dist\-adhoc/.test(this.target)) {
+			this.tiapp.ios && this.tiapp.ios.enablecoverage && gccDefs.push('KROLL_COVERAGE=1');
+		}
+
+		xcodeArgs.push('GCC_PREPROCESSOR_DEFINITIONS=' + gccDefs.join(' '));
+
+		if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
+			xcodeArgs.push('PROVISIONING_PROFILE=' + this.provisioningProfileUUID);
+			xcodeArgs.push('DEPLOYMENT_POSTPROCESSING=YES');
+			if (this.keychain) {
+				xcodeArgs.push('OTHER_CODE_SIGN_FLAGS=--keychain ' + this.keychain);
+			}
+			// Sign the extension with entitlements from the app
+			xcodeArgs.push('CODE_SIGN_ENTITLEMENTS=' + path.join(this.buildDir, 'Entitlements.plist'));
+		}
+
+		var keychains = this.iosInfo.certs.keychains;
+
+		if (this.target === 'device') {
+			Object.keys(keychains).some(function (keychain) {
+				return (keychains[keychain].developer || []).some(function (d) {
+					if (!d.invalid && d.name === this.certDeveloperName) {
+						xcodeArgs.push('CODE_SIGN_IDENTITY=' + d.fullname);
+						return true;
+					}
+				}, this);
+			}, this);
+		}
+
+		if (/dist-appstore|dist\-adhoc/.test(this.target)) {
+			Object.keys(keychains).some(function (keychain) {
+				return (keychains[keychain].developer || []).some(function (d) {
+					if (!d.invalid && d.name === this.certDistributionName) {
+						xcodeArgs.push('CODE_SIGN_IDENTITY=' + d.fullname);
+						return true;
+					}
+				}, this);
+			}, this);
+		}
+
+		var xcodebuildHook = this.cli.createHook('build.ios.xcodebuild', this, function (exe, args, opts, done) {
+
+			var p = spawn(exe, args, opts),
+				out = [],
+				err = [],
+				stopOutputting = false;
+
+			p.stdout.on('data', function (data) {
+				data.toString().split('\n').forEach(function (line) {
+					if (line.length) {
+						out.push(line);
+						if (line.indexOf('Failed to minify') !== -1) {
+							stopOutputting = true;
+						}
+						if (!stopOutputting) {
+							this.logger.trace(line);
+						}
+					}
+				}, this);
+			}.bind(this));
+
+			p.stderr.on('data', function (data) {
+				data.toString().split('\n').forEach(function (line) {
+					if (line.length) {
+						err.push(line);
+					}
+				}, this);
+			}.bind(this));
+
+			p.on('close', function (code, signal) {
+				if (code) {
+					// first see if we errored due to a dependency issue
+					if (err.join('\n').indexOf('Check dependencies') !== -1) {
+						var len = out.length;
+						for (var i = len - 1; i >= 0; i--) {
+							if (out[i].indexOf('Check dependencies') !== -1) {
+								if (out[out.length - 1].indexOf('Command /bin/sh failed with exit code') !== -1) {
+									len--;
+								}
+								for (var j = i + 1; j < len; j++) {
+									this.logger.error(__('Error details: %s', out[j]));
+								}
+								this.logger.log();
+								process.exit(1);
+							}
+						}
+					}
+
+					// next see if it was a minification issue
+					var len = out.length;
+					for (var i = len - 1, k = 0; i >= 0 && k < 10; i--, k++) {
+						if (out[i].indexOf('Failed to minify') !== -1) {
+							if (out[out.length - 1].indexOf('Command /bin/sh failed with exit code') !== -1) {
+								len--;
+							}
+							while (i < len) {
+								this.logger.log(out[i++]);
+							}
+							this.logger.log();
+							process.exit(1);
+						}
+					}
+
+					// just print the entire error buffer
+					err.forEach(function (line) {
+						this.logger.error(line);
+					}, this);
+					this.logger.log();
+					process.exit(1);
+				}
+
+				// end of the line
+				done(code);
+			}.bind(this));
+		});
+
+		this.logger.info(__('Building target: %s at: %s', proj.target.cyan, process.cwd().cyan));
+
+		xcodebuildHook(
+			this.xcodeEnv.executables.xcodebuild,
+			xcodeArgs,
+			{
+				cwd: proj.projec,
+				env: {
+					DEVELOPER_DIR: this.xcodeEnv.path,
+					TMPDIR: process.env.TMPDIR,
+					HOME: process.env.HOME,
+					PATH: process.env.PATH,
+					TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? http://jobs.appcelerator.com/',
+					TITANIUM_CLI_IMAGES_OPTIMIZED: this.target === 'simulator' ? '' : this.imagesOptimizedFile
+				}
+			},
+			function() {
+				var productPath = path.join(xcodeBuildDirectory, this.xcodeTarget + '-' + (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos')),
+					productFileName = proj.target + '.appex';				
+				this.builtExtensions.push({
+					extensionName: productFileName,
+					extensionFile: path.join(productPath, productFileName)
+				});
+
+				buildNextProject.call(this);
+			}.bind(this)
+		);
+	};
+
+	buildNextProject.call(this);
 };
 
 iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
