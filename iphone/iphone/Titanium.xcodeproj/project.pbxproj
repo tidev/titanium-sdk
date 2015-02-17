@@ -922,6 +922,39 @@
 		EF0ADD1C143FA0CD00977386 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADD19143FA0CD00977386 /* GeolocationModule.m */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		CEFFA0B81A8A7E1B0078F310 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CEFFA0B91A8A7E420078F310 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CEFFA0BA1A8A7E550078F310 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		1D0061BF160283820016BBEE /* TiBindingRunLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBindingRunLoop.h; sourceTree = "<group>"; };
 		1D0061C0160283820016BBEE /* TiBindingRunLoop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiBindingRunLoop.m; sourceTree = "<group>"; };
@@ -2663,6 +2696,7 @@
 				24CA8903111160C30084E2DE /* Thirdparty */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
+				CEFFA0BB1A8A80810078F310 /* Extensions */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
@@ -2958,6 +2992,13 @@
 			name = AttributedString;
 			sourceTree = "<group>";
 		};
+		CEFFA0BB1A8A80810078F310 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Extensions;
+			sourceTree = "<group>";
+		};
 		D93DAA4C16CBF8A000AD64C9 /* Calendar */ = {
 			isa = PBXGroup;
 			children = (
@@ -3016,6 +3057,7 @@
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
 				24CA8D03111169070084E2DE /* Post-Compile */,
+				CEFFA0B81A8A7E1B0078F310 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
@@ -3035,6 +3077,7 @@
 				24D8E3BA119B9D8A00F8CAA6 /* Sources */,
 				24D8E497119B9D8A00F8CAA6 /* Frameworks */,
 				24D8E4AD119B9D8A00F8CAA6 /* Post-Compile */,
+				CEFFA0B91A8A7E420078F310 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
@@ -3054,6 +3097,7 @@
 				DABB36A012E8CB280026A6EA /* Sources */,
 				DABB37A112E8CB280026A6EA /* Frameworks */,
 				DABB37B812E8CB280026A6EA /* Post-Compile */,
+				CEFFA0BA1A8A7E550078F310 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
