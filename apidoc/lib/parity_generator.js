@@ -6,7 +6,7 @@
 if (!String.prototype.contains) {
     String.prototype.contains = function (arg) {
         return !!~this.indexOf(arg);
-    };
+    }
 }
 function sort(object) {
     var sorted = {}, key, array = [];
@@ -26,12 +26,18 @@ function sortByKey(array, key) {
 		}
 	);
 }
+function removeKeys(array_a, array_b) {
+	for (i in array_b) {
+		i = array_a.indexOf(i);
+		if ( i != -1 ) array_a.splice(i, 1);
+	}
+}
 
 // Process api data into a parsable format
 exports.exportData = function exportHTML(apis) {
 
 	// Define return object
-	var rv = { coverage:[], proxies:[], total_apis:0};
+	var rv = { coverage:[], proxies:[], total_apis:0 };
 	
 	// Sort proxies
 	apis = sort(apis);
@@ -77,6 +83,19 @@ exports.exportData = function exportHTML(apis) {
 		
 		if (!pseudo) updateCoverage(rv.coverage, api.platforms);
 	}
+
+	var coverage = {};
+
+	if ('iphone' in rv.coverage) { coverage['iphone'] = rv.coverage['iphone']; delete rv.coverage['iphone']; }
+	if ('ipad' in rv.coverage) { coverage['ipad'] = rv.coverage['ipad']; delete rv.coverage['ipad']; }
+	if ('android' in rv.coverage) { coverage['android'] = rv.coverage['android']; delete rv.coverage['android']; }
+	if ('windowsphone' in rv.coverage) { coverage['windowsphone'] = rv.coverage['windowsphone']; delete rv.coverage['windowsphone']; }
+	if ('blackberry' in rv.coverage) { coverage['blackberry'] = rv.coverage['blackberry']; delete rv.coverage['blackberry']; }
+	if ('mobileweb' in rv.coverage) { coverage['mobileweb'] = rv.coverage['mobileweb']; delete rv.coverage['mobileweb']; }
+
+	for (i in rv.proxies) removeKeys(rv.proxies[i].platforms, rv.coverage);
+
+	rv.coverage = coverage;
 	
 	return rv;
 }
