@@ -1170,10 +1170,8 @@ DEFINE_EXCEPTIONS
     // occur, and it's up to the delegate to make sense of it (for now).
     
     if (newValue) {
-        // Remember any proxies set on us so they don't get GC'd
-		if ([propvalue isKindOfClass:[TiProxy class]] || [current isKindOfClass:[NSArray class]] || [current isKindOfClass:[NSDictionary class]]) {
-            [self rememberProxy:propvalue];
-        }
+		// Remember any proxies set on us so they don't get GC'd
+		[self rememberProxy:propvalue];
 		[dynprops setValue:propvalue forKey:key];
     }
 	pthread_rwlock_unlock(&dynpropsLock);
@@ -1188,9 +1186,9 @@ DEFINE_EXCEPTIONS
     }
     
     // Forget any old proxies so that they get cleaned up
-    if (newValue && ([current isKindOfClass:[TiProxy class]] || [current isKindOfClass:[NSArray class]] || [current isKindOfClass:[NSDictionary class]])) {
-        [self forgetProxy:current];
-    }
+	if (newValue) {
+		[self forgetProxy:current];
+	}
 }
 
 // TODO: Shouldn't we be forgetting proxies and unprotecting callbacks and such here?
