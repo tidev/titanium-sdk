@@ -7,6 +7,7 @@
 package org.appcelerator.titanium;
 
 import android.app.Activity;
+import android.os.Bundle;
 
 /**
  *This class contains a single static utility method for firing a lifecycle event to a single listener.
@@ -19,11 +20,18 @@ public class TiLifecycle
 	public static final int LIFECYCLE_ON_PAUSE = 2;
 	public static final int LIFECYCLE_ON_STOP = 3;
 	public static final int LIFECYCLE_ON_DESTROY = 4;
+	public static final int LIFECYCLE_ON_CREATE = 5;
 
 	/**
 	 * An interface for receiving Android lifecycle events. 
 	 */
 	public interface OnLifecycleEvent {
+
+		/**
+		 * Implementing classes should use this to receive native Android onStart lifecycle events.
+		 * @param activity the attached activity.
+		 */
+		public void onCreate(Activity activity, Bundle savedInstanceState);
 
 		/**
 		 * Implementing classes should use this to receive native Android onStart lifecycle events.
@@ -86,5 +94,12 @@ public class TiLifecycle
 			case LIFECYCLE_ON_DESTROY: listener.onDestroy(activity); break;
 		}
 	}
+
+       public static void fireLifecycleEvent(Activity activity, OnLifecycleEvent listener, Bundle bundle, int which)
+        {
+                switch (which) {
+                        case LIFECYCLE_ON_CREATE: listener.onCreate(activity, bundle); break;
+                }
+        }
 }
 
