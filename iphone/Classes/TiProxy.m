@@ -669,12 +669,28 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	return YES;
 }
 
--(void)rememberProxy:(TiProxy *)rememberedProxy
+-(void)rememberProxy:(id)args
 {
-	if (rememberedProxy == nil)
-	{
+	if (args == nil) return;
+	
+	if ([args isKindOfClass:[NSArray class]]) {
+		for(id each in args) {
+			[self rememberProxy:each];
+		}
 		return;
 	}
+	else if([args isKindOfClass:[NSDictionary class]]) {
+		for(NSString* each in args) {
+			[self rememberProxy:[args valueForKey:each]];
+		}
+		return;
+	}
+	if (![args isKindOfClass:[TiProxy class]]) {
+		return;
+	}
+	
+	TiProxy* rememberedProxy = (TiProxy*)args;
+	
 	if ((bridgeCount == 1) && (pageKrollObject != nil))
 	{
 		if (rememberedProxy == self) {
@@ -708,12 +724,28 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 }
 
 
--(void)forgetProxy:(TiProxy *)forgottenProxy
+-(void)forgetProxy:(id)args
 {
-	if (forgottenProxy == nil)
-	{
+	if (args == nil) return;
+	
+	if ([args isKindOfClass:[NSArray class]]) {
+		for(id each in args) {
+			[self forgetProxy:each];
+		}
 		return;
 	}
+	else if ([args isKindOfClass:[NSDictionary class]]) {
+		for(NSString* each in args) {
+			[self forgetProxy:[args valueForKey:each]];
+		}
+		return;
+	}
+	if (![args isKindOfClass:[TiProxy class]]) {
+		return;
+	}
+	
+	TiProxy* forgottenProxy = (TiProxy*)args;
+	
 	if ((bridgeCount == 1) && (pageKrollObject != nil))
 	{
 		if (forgottenProxy == self) {
@@ -1138,10 +1170,8 @@ DEFINE_EXCEPTIONS
     // occur, and it's up to the delegate to make sense of it (for now).
     
     if (newValue) {
-        // Remember any proxies set on us so they don't get GC'd
-        if ([propvalue isKindOfClass:[TiProxy class]]) {
-            [self rememberProxy:propvalue];
-        }
+		// Remember any proxies set on us so they don't get GC'd
+		[self rememberProxy:propvalue];
 		[dynprops setValue:propvalue forKey:key];
     }
 	pthread_rwlock_unlock(&dynpropsLock);
@@ -1156,9 +1186,9 @@ DEFINE_EXCEPTIONS
     }
     
     // Forget any old proxies so that they get cleaned up
-    if (newValue && [current isKindOfClass:[TiProxy class]]) {
-        [self forgetProxy:current];
-    }
+	if (newValue) {
+		[self forgetProxy:current];
+	}
 }
 
 // TODO: Shouldn't we be forgetting proxies and unprotecting callbacks and such here?

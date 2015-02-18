@@ -245,21 +245,21 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
  Tells the proxy to associate another proxy with it.
  
  The associated proxy will be retained.
- Note: rememberProxy/forgetProxy are not reference counted - multiple calls to <rememberProxy:> are all undone by a single call to <forgetProxy:> 
- @param rememberedProxy The proxy to remember.
+ Note: rememberProxy/forgetProxy are not reference counted - multiple calls to <rememberProxy:> are all undone by a single call to <forgetProxy:>
+ @param rememberedProxy The proxy to remember. It can also be an array or dictionary of proxies.
  @see forgetProxy:
  */
--(void)rememberProxy:(TiProxy *)rememberedProxy;
+-(void)rememberProxy:(id)rememberedProxy;
 
 /**
  Tells the proxy to disassociate another proxy from it.
  
  The deassociated proxy will be released.
- Note: rememberProxy/forgetProxy are not reference counted - multiple calls to <rememberProxy:> are all undone by a single call to <forgetProxy:> 
- @param forgottenProxy The proxy to forget.
+ Note: rememberProxy/forgetProxy are not reference counted - multiple calls to <rememberProxy:> are all undone by a single call to <forgetProxy:>
+ @param forgottenProxy The proxy to forget. It can also be an array or dictionary of proxies.
  @see rememberProxy:
  */
--(void)forgetProxy:(TiProxy *)forgottenProxy;
+-(void)forgetProxy:(id)forgottenProxy;
 
 //These are when, say, a window is opened, so you want to do tiValueProtect to make SURE it doesn't go away.
 
