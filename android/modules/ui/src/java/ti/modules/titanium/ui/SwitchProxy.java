@@ -35,7 +35,7 @@ public class SwitchProxy extends TiViewProxy
 		super();
 
 		setProperty(TiC.PROPERTY_VALUE, false);
-		setProperty(TiC.PROPERTY_STYLE, AndroidModule.SWITCH_STYLE_TOGGLEBUTTON);
+		setProperty(TiC.PROPERTY_STYLE, AndroidModule.SWITCH_STYLE_SWITCH);
 	}
 
 	public SwitchProxy(TiContext tiContext)

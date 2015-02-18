@@ -1252,7 +1252,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	// Set horizontal layout wrap:true as default 
 	layoutProperties.layoutFlags.horizontalWrap = YES;
 	[self initializeProperty:@"horizontalWrap" defaultValue:NUMBOOL(YES)];
-	
+	[self initializeProperty:@"visible" defaultValue:NUMBOOL(YES)];
+
 	if (properties!=nil)
 	{
 		NSString *objectId = [properties objectForKey:@"id"];

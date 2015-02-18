@@ -169,7 +169,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
         id backgroundColor = [self.proxy valueForKey:@"backgroundColor"];
         BOOL doSetBackground = YES;
-        if ([TiUtils isIOS6OrGreater] && (style == UITableViewStyleGrouped)) {
+        if (style == UITableViewStyleGrouped) {
             doSetBackground = (backgroundColor != nil);
         }
         if (doSetBackground) {
@@ -181,9 +181,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [tapGestureRecognizer release];
 
         [self configureHeaders];
-        if ([TiUtils isIOS7OrGreater]) {
-            _defaultSeparatorInsets = [_tableView separatorInset];
-        }
+        _defaultSeparatorInsets = [_tableView separatorInset];
         
         if ([TiUtils isIOS8OrGreater]) {
             [_tableView setLayoutMargins:UIEdgeInsetsZero];
@@ -511,18 +509,16 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)setSeparatorInsets_:(id)arg
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        [self tableView];
-        if ([arg isKindOfClass:[NSDictionary class]]) {
-            CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
-            CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
-            [_tableView setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
-        } else {
-            [_tableView setSeparatorInset:_defaultSeparatorInsets];
-        }
-        if (![searchController isActive]) {
-            [_tableView setNeedsDisplay];
-        }
+    [self tableView];
+    if ([arg isKindOfClass:[NSDictionary class]]) {
+        CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
+        CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
+        [_tableView setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
+    } else {
+        [_tableView setSeparatorInset:_defaultSeparatorInsets];
+    }
+    if (![searchController isActive]) {
+        [_tableView setNeedsDisplay];
     }
 }
 
@@ -778,14 +774,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         searchViewProxy = [args retain];
         [searchViewProxy setDelegate:self];
         [_searchWrapper add:searchViewProxy];
-        if ([TiUtils isIOS7OrGreater]) {
-            NSString *curPlaceHolder = [[searchViewProxy searchBar] placeholder];
-            if (curPlaceHolder == nil) {
-                [[searchViewProxy searchBar] setPlaceholder:@"Search"];
-            }
-        } else {
-            [self initSearchController:self];
+        NSString *curPlaceHolder = [[searchViewProxy searchBar] placeholder];
+        if (curPlaceHolder == nil) {
+            [[searchViewProxy searchBar] setPlaceholder:@"Search"];
         }
+        
         keepSectionsInSearch = NO;
     } else {
         keepSectionsInSearch = [TiUtils boolValue:[self.proxy valueForKey:@"keepSectionsInSearch"] def:NO];
@@ -1330,15 +1323,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     //Let the cell configure its background
     [(TiUIListItem*)cell configureCellBackground];
     
-    if ([TiUtils isIOS7OrGreater]) {
-        NSIndexPath* realPath = [self pathForSearchPath:indexPath];
-        id tintValue = [self valueWithKey:@"tintColor" atIndexPath:realPath];
-        UIColor* theTint = [[TiUtils colorValue:tintValue] color];
-        if (theTint == nil) {
-            theTint = [tableView tintColor];
-        }
-        [cell performSelector:@selector(setTintColor:) withObject:theTint];
+    NSIndexPath* realPath = [self pathForSearchPath:indexPath];
+    id tintValue = [self valueWithKey:@"tintColor" atIndexPath:realPath];
+    UIColor* theTint = [[TiUtils colorValue:tintValue] color];
+    if (theTint == nil) {
+        theTint = [tableView tintColor];
     }
+    [cell setTintColor:theTint];
     
     if (searchActive || (tableView != _tableView)) {
         return;
@@ -1534,20 +1525,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                     theCell.dataItem = item;
                     CGFloat maxWidth = [self computeRowWidth:tableView];
                     if (maxWidth > 0) {
-                        if ((tableView.style == UITableViewStyleGrouped) && (![TiUtils isIOS7OrGreater]) ){
-                            maxWidth -= 20;
-                        }
 
                         CGFloat accessoryAdjustment = 0;
                         int accessoryTypeValue = [TiUtils intValue:[self valueWithKey:@"accessoryType" atIndexPath:realPath] def:0];
                         if (accessoryTypeValue > 0) {
                             if (accessoryTypeValue == UITableViewCellAccessoryDetailDisclosureButton) {
-                                accessoryAdjustment = 33.0;
+                                accessoryAdjustment = 48.0;
                             } else {
-                                accessoryAdjustment = 20.0;
-                            }
-                            if ([TiUtils isIOS7OrGreater]) {
-                                accessoryAdjustment += 15.0;
+                                accessoryAdjustment = 35.0;
                             }
                             maxWidth -= accessoryAdjustment;
                         }
@@ -1641,9 +1626,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (_searchWrapper != nil) {
         [_searchWrapper layoutProperties]->right = TiDimensionDip(0);
         [_searchWrapper refreshView:nil];
-        if ([TiUtils isIOS7OrGreater]) {
-            [self initSearchController:self];
-        }
+        [self initSearchController:self];
     }
 }
 
@@ -1703,9 +1686,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     //IOS7 DP3. TableView seems to be adding the searchView to
     //tableView. Bug on IOS7?
-    if ([TiUtils isIOS7OrGreater]) {
-        [self clearSearchController:self];
-    }
+    [self clearSearchController:self];
     [_tableView reloadData];
 }
 
@@ -1845,7 +1826,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	
 	// WORKAROUND FOR APPLE BUG: 4.2 and lower don't like setting background color for grouped table views on iPad.
 	// So, we check the table style and device, and if they match up wrong, we replace the background view with our own.
-	if ([table style] == UITableViewStyleGrouped && ([TiUtils isIPad] || [TiUtils isIOS6OrGreater])) {
+	if (([table style] == UITableViewStyleGrouped) && [TiUtils isIPad]) {
 		UIView* bgView = [[[UIView alloc] initWithFrame:[table frame]] autorelease];
 		[table setBackgroundView:bgView];
 	}

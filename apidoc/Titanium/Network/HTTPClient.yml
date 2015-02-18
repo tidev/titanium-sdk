@@ -38,7 +38,7 @@ description: |
       * For all other data types on Android, the content type is set to `application/x-www-form-urlencoded`.
       * For all other data types on iOS, the content type is **NOT** set.
 
-    On the BlackBerry, Mobile Web and Tizen platforms, the content type is always set to
+    On the BlackBerry and Mobile Web platforms, the content type is always set to
     `application/x-www-form-urlencoded` as the default.
 
     Use the [setRequestHeader](Titanium.Network.HTTPClient.setRequestHeader) method to override the
@@ -199,7 +199,7 @@ methods:
         type: String
 
       - name: async
-        summary: Determines whether the request should be made asynchronously. Only used on iOS, Mobile Web and Tizen.
+        summary: Determines whether the request should be made asynchronously. Only used on iOS and Mobile Web.
         type: Boolean
         optional: true
         default: true
@@ -253,7 +253,7 @@ methods:
   - name: setTimeout
     summary: Sets the request timeout.
     description: |
-        On Mobile Web and Tizen, the timeout only works when making asynchronous requests.
+        On Mobile Web, the timeout only works when making asynchronous requests.
     parameters:
       - name: timeout
         summary: Timeout in milliseconds.
@@ -356,10 +356,10 @@ properties:
         On iOS, can only be set **after** calling [open](Titanium.Network.HTTPClient.open).
 
         
-        On Android, Mobile Web and Tizen, can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
+        On Android and Mobile Web, can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
         The file must be writable such as the application data directory or temp directory.
     type: String
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     since: {android: 3.4.0}
 
   - name: location
@@ -498,7 +498,7 @@ properties:
   - name: timeout
     summary: Timeout in milliseconds when the connection should be aborted.
     description: |
-        On Mobile Web and Tizen, the timeout only works when making asynchronous requests.
+        On Mobile Web, the timeout only works when making asynchronous requests.
     type: Number
 
   - name: username
@@ -530,7 +530,7 @@ properties:
         request to be asynchronous.
     type: Boolean
     default: false
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
     
   - name: tlsVersion
     summary: Sets the TLS version to use for handshakes.

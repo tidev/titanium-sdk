@@ -3,12 +3,6 @@ name: Titanium.Platform
 summary: |
   The top-level Platform module.  The Platform module is used to access the device's platform-related 
   functionality.
-  
-  To use this API on Tizen, you must include the following privilege in the `tiapp.xml` 
-  file of your Titanium application: 
-
-  * `http://tizen.org/privilege/systeminfo`
-  
 extends: Titanium.Module
 since: "0.1"
 
@@ -24,7 +18,7 @@ events:
       - name: level
         summary: Percentage battery power level.
         type: Number
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad]
     
 methods:
   - name: canOpenURL
@@ -43,14 +37,14 @@ methods:
         
   - name: createUUID
     summary: Creates a globally-unique identifier.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     returns:
         type: String
         
   - name: openURL
     summary: |
         Opens this URL using the system's default application for its protocol.
-    platforms: [android, iphone, ipad, mobileweb, tizen]    
+    platforms: [android, iphone, ipad, mobileweb]
     returns:
         type: Boolean
     parameters:
@@ -61,10 +55,10 @@ methods:
   - name: is24HourTimeFormat
     summary: Returns whether the system settings are configured to show times in 24-hour format.
     description: |
-        On Mobile Web and Tizen, this function always returns false.
+        On Mobile Web, this function always returns false.
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     
 properties:
   - name: BATTERY_STATE_CHARGING
@@ -92,13 +86,13 @@ properties:
     summary: System's WIFI IP address. No other network types are supported.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad]
     
   - name: architecture
     summary: System's processor architecture.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad]
     
   - name: availableMemory
     summary: System's unused memory, measured in megabytes on iOS and bytes on Android.
@@ -115,7 +109,7 @@ properties:
     
   - name: batteryMonitoring
     summary: Determines whether battery monitoring is enabled.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     default: false
     type: Boolean
     
@@ -147,7 +141,7 @@ properties:
         this has been restricted by Apple. For more information, see
         [Apple's uniqueIdentifier](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIDevice_Class/DeprecationAppendix/AppendixADeprecatedAPI.html#//apple_ref/occ/instp/UIDevice/uniqueIdentifier)
         documentation.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     type: String
     permission: read-only
         
@@ -159,7 +153,7 @@ properties:
         [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
         [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
         sections of wikipedia for reference.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     type: String
     permission: read-only
     
@@ -197,7 +191,7 @@ properties:
         Firefox 12 running on Ubuntu.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad]
     examples:
       - title: Testing for a Virtual Device
         example: |
@@ -211,7 +205,7 @@ properties:
   - name: name
     summary: |
         Name of the platform. Returns `android` for the Android platform, `iPhone OS` for the iOS
-        platform (iPhone, iPad, or iPod Touch), `TIZEN` for Tizen platform and `mobileweb` for the Mobile Web platform.
+        platform (iPhone, iPad, or iPod Touch), and `mobileweb` for the Mobile Web platform.
     type: String
     permission: read-only
     
@@ -224,14 +218,14 @@ properties:
   - name: osname
     summary: |
         Short name of the system's Operating System. Returns `android` for the Android platfrom,
-        `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, `tizen` for Tizen platform and `mobileweb` for the Mobile Web
+        `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, and `mobileweb` for the Mobile Web
         platform.
     type: String
     permission: read-only
     
   - name: ostype
     summary: Operating System architecture. On Android, this is `32bit`.
-    platforms: [android, iphone, mobileweb, ipad, tizen]
+    platforms: [android, iphone, mobileweb, ipad]
     type: String
     permission: read-only
     

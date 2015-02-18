@@ -24,7 +24,7 @@ excludes:
     events: [ 'click', 'longclick', 'pinch', 'swipe', 'touchend', 'touchmove' ]
     properties: [ 'enabled' ]
 extends: Titanium.UI.View
-platforms: [android, iphone, ipad, mobileweb, tizen, blackberry]
+platforms: [android, iphone, ipad, mobileweb, blackberry]
 since: "0.8"
 
 methods:
@@ -192,7 +192,7 @@ events:
         since: "3.0.0"
         notes: Renamed to [scrollend](Titanium.UI.ScrollableView.scrollend) (all lowercase).
     summary: Fired when the view has stopped moving completely.
-    platforms: [iphone, ipad, android, mobileweb, tizen]
+    platforms: [iphone, ipad, android, mobileweb]
     since: "2.1.0"
 
     properties:
@@ -213,7 +213,7 @@ events:
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
     since: "2.1.0"
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
     exclude-platforms: [blackberry]
 
   - name: dragEnd
@@ -221,7 +221,7 @@ events:
        since: "3.0.0"
        notes: Renamed to [dragend](Titanium.UI.ScrollableView.dragend) (all lowercase).
     summary: Fired when the scrolling drag gesture on the view has been completed.
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     since: "2.1.0"
     properties:
       - name: currentPage
@@ -250,13 +250,13 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
     since: '3.0.0'
     exclude-platforms: [blackberry]
 
   - name: dragend
     summary: Fired when the scrolling drag gesture on the view has been completed.
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     since: "3.0.0"
     properties:
       - name: currentPage
@@ -325,7 +325,7 @@ properties:
     type: Number
     availability: creation
     default: 3000
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     
   - name: pagingControlAlpha
     summary: Alpha value of the paging control.
@@ -359,7 +359,7 @@ properties:
     description: If this property is unset or `true`, scrolling is enabled.
     type: Boolean
     default: undefined (scrolling enabled)
-    platforms: [iphone, ipad, android, mobileweb, tizen]
+    platforms: [iphone, ipad, android, mobileweb]
     since: { android: "2.1.0", iphone: "2.0.0", ipad: "2.0.0", mobileweb: "3.0.0" }
 
   - name: views

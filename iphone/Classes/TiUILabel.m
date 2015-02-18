@@ -313,7 +313,7 @@
                                    nil];
             [self.proxy fireEvent:@"longpress" withObject:event];
         }
-        if ([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO] && (label != nil) && [TiUtils isIOS7OrGreater]) {
+        if ([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO] && (label != nil)) {
             NSMutableAttributedString* optimizedAttributedText = [label.attributedText mutableCopy];
             if (optimizedAttributedText != nil) {
                 // use label's font and lineBreakMode properties in case the attributedText does not contain such attributes

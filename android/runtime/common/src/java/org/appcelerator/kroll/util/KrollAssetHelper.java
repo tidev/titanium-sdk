@@ -13,8 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 
-import org.appcelerator.kroll.common.TiFastDev;
-
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
@@ -46,19 +44,6 @@ public class KrollAssetHelper
 	public static String readAsset(String path)
 	{
 		String resourcePath = path.replace("Resources/", "");
-
-		if (TiFastDev.isFastDevEnabled()) {
-			if (path != null && path.startsWith("Resources/")) {
-				Log.d(TAG, "Fetching \"" + resourcePath + "\" with Fastdev...");
-				InputStream stream = TiFastDev.getInstance().openInputStream(resourcePath);
-				String asset = KrollStreamHelper.toString(stream);
-				if (!asset.equals("NOT_FOUND")) {
-					return asset;
-				} else {
-					Log.d(TAG, "File not found with Fastdev.");
-				}
-			}
-		}
 
 		if (assetCrypt != null) {
 			String asset = assetCrypt.readAsset(resourcePath);
@@ -118,18 +103,6 @@ public class KrollAssetHelper
 		}
 
 		return null;
-	}
-
-	public static boolean fileExists(String path)
-	{
-		if (TiFastDev.isFastDevEnabled()) {
-			if (path != null && path.startsWith("Resources/")) {
-				String resourcePath = path.replace("Resources/", "");
-				return TiFastDev.getInstance().fileExists(resourcePath);
-			}
-		}
-
-		return false;
 	}
 
 	public static String getPackageName()

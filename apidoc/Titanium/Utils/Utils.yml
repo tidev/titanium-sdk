@@ -5,7 +5,7 @@ summary: |
     building applications.
 extends: Titanium.Module
 since: "0.9"
-platforms: [android, iphone, ipad, mobileweb, tizen]
+platforms: [android, iphone, ipad, mobileweb]
 
 methods:
   - name: base64decode

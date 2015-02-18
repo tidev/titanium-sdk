@@ -170,7 +170,7 @@ properties:
         slowly and speeds up.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: ANIMATION_CURVE_EASE_IN_OUT
     summary: |
@@ -178,7 +178,7 @@ properties:
         slowly, and speeds up, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: ANIMATION_CURVE_EASE_OUT
     summary: |
@@ -186,7 +186,7 @@ properties:
         quickly, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: ANIMATION_CURVE_LINEAR
     summary: |
@@ -194,7 +194,7 @@ properties:
         at a constant rate.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: ATTRIBUTE_FONT
     summary: |
@@ -1209,7 +1209,7 @@ properties:
         a size of <Titanium.UI.SIZE>. Otherwise, the child inherits a size of <Titanium.UI.FILL>.
     type: String
     permission: read-only
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
     since: "2.0.0"
     
   - name: INPUT_BORDERSTYLE_BEZEL
@@ -1326,7 +1326,7 @@ properties:
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
         
-        Note: on MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be 
+        Note: on Mobile Web, if you enable `passwordType`, the `keyboardType` value will be
         overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
@@ -1357,7 +1357,7 @@ properties:
 
         On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
         
-        On MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be overridden with 
+        On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
         `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
@@ -1370,7 +1370,7 @@ properties:
 
         On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
         
-        On MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be overridden with 
+        On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
         `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
@@ -1381,7 +1381,7 @@ properties:
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
         
-        On MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be overridden with 
+        On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
         `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
@@ -1673,7 +1673,7 @@ properties:
         Use with the <Titanium.UI.TextField.textAlign> and 
         <Titanium.UI.TextArea.textAlign> properties.
         
-        This constant is a string on Android, and a number on iOS, Tizen and Mobile Web.
+        This constant is a string on Android, and a number on iOS and Mobile Web.
     type: [Number, String]
     permission: read-only
     
@@ -1683,7 +1683,7 @@ properties:
         Use with the <Titanium.UI.TextField.textAlign> and 
         <Titanium.UI.TextArea.textAlign> properties.
         
-        This constant is a string on android, and a number on iOS, Tizen and Mobile Web.
+        This constant is a string on Android, and a number on iOS and Mobile Web.
     type: [Number, String]
     permission: read-only
     
@@ -1693,7 +1693,7 @@ properties:
         Use with the <Titanium.UI.TextField.textAlign> and 
         <Titanium.UI.TextArea.textAlign> properties.
         
-        This constant is a string on Android, and a number on iOS, Tizen and Mobile Web.
+        This constant is a string on Android, and a number on iOS and Mobile Web.
     type: [Number, String]
     permission: read-only
     
@@ -1730,7 +1730,7 @@ properties:
         Use with the <Titanium.UI.TextField.autocapitalization> and 
         <Titanium.UI.TextArea.autocapitalization> properties.
         
-        Mobile Web and Tizen does not support this because it would interfere with the native capitalization 
+        Mobile Web does not support this because it would interfere with the native capitalization
         of the mobile browser.
     type: Number
     permission: read-only
@@ -1802,7 +1802,7 @@ properties:
         Use with the <Titanium.UI.TextField.verticalAlign> and 
         <Titanium.UI.TextArea.verticalAlign> properties.
         
-        This constant is a string on android, and a number on iOS, Tizen and Mobile Web.
+        This constant is a string on Android, and a number on iOS and Mobile Web.
     type: [Number, String]
     permission: read-only
     exclude-platforms: [blackberry]
@@ -1813,7 +1813,7 @@ properties:
         Use with the <Titanium.UI.TextField.verticalAlign> and 
         <Titanium.UI.TextArea.verticalAlign> properties.
         
-        This constant is a string on android, and a number on iOS, Tizen and Mobile Web.
+        This constant is a string on Android, and a number on iOS and Mobile Web.
     type: [Number, String]
     permission: read-only
     exclude-platforms: [blackberry]
@@ -1824,7 +1824,7 @@ properties:
         Use with the <Titanium.UI.TextField.verticalAlign> and 
         <Titanium.UI.TextArea.verticalAlign> properties.
         
-        This constant is a string on android, and a number on iOS, Tizen and Mobile Web.
+        This constant is a string on Android, and a number on iOS and Mobile Web.
     type: [Number, String]
     permission: read-only
     exclude-platforms: [blackberry]

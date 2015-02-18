@@ -228,6 +228,7 @@ exports.send = function send(args, callback) {
 				titaniumHomeDir: titaniumHomeDir,
 				url: args.analyticsUrl || url
 			});
+			child.unref();
 		} else {
 			logger.debug(__('Not logged in or no user guid, skipping send analytics'));
 		}

@@ -12,11 +12,6 @@
 @private
     TiUIView * touchHandler;
     UIView * touchedContentView;
-    //TIMOB-12988 Additions
-    BOOL delay;
-    BOOL ignore;
-    BOOL offsetAnimated;
-    CGPoint offsetPoint;
 }
 -(void)setTouchHandler:(TiUIView*)handler;
 @end

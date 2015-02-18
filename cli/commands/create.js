@@ -308,7 +308,7 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 								return callback(true);
 							}
 
-							callback(null, value);
+							Array.isArray(value) ? callback(null, value[value.length-1]) : callback(null, value);
 						}
 					},
 					'workspace-dir': {

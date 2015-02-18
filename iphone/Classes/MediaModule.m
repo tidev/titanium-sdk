@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -207,18 +207,12 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_USBAUDIO,AVAudioSessionPortUSBAudio)
 
 -(NSString*)AUDIO_SESSION_PORT_BLUETOOTHLE
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return AVAudioSessionPortBluetoothLE;
-    }
-    return @"Unavailable";
+    return AVAudioSessionPortBluetoothLE;
 }
 
 -(NSString*)AUDIO_SESSION_PORT_CARAUDIO
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return AVAudioSessionPortCarAudio;
-    }
-    return @"Unavailable";
+    return AVAudioSessionPortCarAudio;
 }
 
 
@@ -700,7 +694,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                                   -[window bounds].size.height * [[window layer] anchorPoint].y);
             
             // Render the layer hierarchy to the current context
-            [[window layer] renderInContext:context];
+            if ([window respondsToSelector:@selector(drawViewHierarchyInRect:afterScreenUpdates:)]) {
+                [window drawViewHierarchyInRect:[window bounds] afterScreenUpdates:NO];
+            } else {
+                [[window layer] renderInContext:context];
+            }
             
             // Restore the context
             CGContextRestoreGState(context);

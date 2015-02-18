@@ -317,10 +317,6 @@
 {
     NSString *color = [TiUtils stringValue:colorString];
     [self replaceValue:color forKey:@"navTintColor" notification:NO];
-    if (![TiUtils isIOS7OrGreater]) {
-        return;
-    }
-    
     TiThreadPerformOnMainThread(^{
         if(controller != nil) {
             TiColor * newColor = [TiUtils colorValue:color];
@@ -354,11 +350,7 @@
 
         UINavigationBar * navBar = [[controller navigationController] navigationBar];
         [navBar setBarStyle:navBarStyle];
-        if([TiUtils isIOS7OrGreater]) {
-            [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
-        } else {
-            [navBar setTintColor:barColor];
-        }
+        [navBar setBarTintColor:barColor];
         [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
     }
 }
@@ -416,13 +408,7 @@
     
     UINavigationBar* ourNB = [[controller navigationController] navigationBar];
     UIImage* theImage = nil;
-    if ([TiUtils isIOS7OrGreater]) {
-        //TIMOB-16490
-        theImage = [TiUtils toImage:barImageValue proxy:self];
-    } else {
-        //TIMOB-16338
-        theImage = [TiUtils toImage:barImageValue proxy:self size:[ourNB bounds].size];
-    }
+    theImage = [TiUtils toImage:barImageValue proxy:self];
     
     if (theImage == nil) {
         [ourNB setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
@@ -482,8 +468,7 @@
 	[self replaceValue:value forKey:@"translucent" notification:NO];
 	if (controller!=nil)
 	{
-        BOOL def = [TiUtils isIOS7OrGreater] ? YES: NO;
-		[controller navigationController].navigationBar.translucent = [TiUtils boolValue:value def:def];
+		[controller navigationController].navigationBar.translucent = [TiUtils boolValue:value def:YES];
 	}
 }
 
@@ -897,20 +882,17 @@
 				}
 			}
 			hasToolbar = (array != nil && [array count] > 0) ? YES : NO ;
-			BOOL translucent = [TiUtils boolValue:@"translucent" properties:properties def:[TiUtils isIOS7OrGreater]];
+			BOOL translucent = [TiUtils boolValue:@"translucent" properties:properties def:YES];
 			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:hasToolbar];
 			TiColor* toolbarColor = [TiUtils colorValue:@"barColor" properties:properties];
 			UIColor* barColor = [TiUtils barColorForColor:toolbarColor];
 			[controller setToolbarItems:array animated:animated];
 			[ourNC setToolbarHidden:(hasToolbar == NO ? YES : NO) animated:animated];
 			[ourNC.toolbar setTranslucent:translucent];
-			if ([TiUtils isIOS7OrGreater]) {
-				UIColor* tintColor = [[TiUtils colorValue:@"tintColor" properties:properties] color];
-				[ourNC.toolbar performSelector:@selector(setBarTintColor:) withObject:barColor];
-				[ourNC.toolbar setTintColor:tintColor];
-			} else {
-				[ourNC.toolbar setTintColor:barColor];
-			}
+			UIColor* tintColor = [[TiUtils colorValue:@"tintColor" properties:properties] color];
+			[ourNC.toolbar setBarTintColor:barColor];
+			[ourNC.toolbar setTintColor:tintColor];
+			
 			[array release];
 			
 		}

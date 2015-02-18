@@ -27,7 +27,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -74,8 +73,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -926,12 +923,6 @@ public class TiUIHelper
 
 	public static Drawable getResourceDrawable(String url)
 	{
-		if (TiFastDev.isFastDevEnabled()) {
-			Drawable d = loadFastDevDrawable(url);
-			if (d != null) {
-				return d;
-			}
-		}
 		int id = getResourceId(url);
 		if (id == 0) {
 			return null;
