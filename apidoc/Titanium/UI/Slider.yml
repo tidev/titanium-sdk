@@ -25,7 +25,9 @@ description: |
     On Android, both `min` and `max` must be specified for the slider to work properly.
 
 extends: Titanium.UI.View
-excludes: { events: [ 'pinch' ] }
+excludes:
+    events: [ 'pinch' ]
+    properties: ['height']
 since: "0.8"
 examples: 
   - title: Simple Slider
