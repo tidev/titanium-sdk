@@ -1171,7 +1171,7 @@ DEFINE_EXCEPTIONS
     
     if (newValue) {
         // Remember any proxies set on us so they don't get GC'd
-        if ([propvalue isKindOfClass:[TiProxy class]]) {
+		if ([propvalue isKindOfClass:[TiProxy class]] || [current isKindOfClass:[NSArray class]] || [current isKindOfClass:[NSDictionary class]]) {
             [self rememberProxy:propvalue];
         }
 		[dynprops setValue:propvalue forKey:key];
@@ -1188,7 +1188,7 @@ DEFINE_EXCEPTIONS
     }
     
     // Forget any old proxies so that they get cleaned up
-    if (newValue && [current isKindOfClass:[TiProxy class]]) {
+    if (newValue && ([current isKindOfClass:[TiProxy class]] || [current isKindOfClass:[NSArray class]] || [current isKindOfClass:[NSDictionary class]])) {
         [self forgetProxy:current];
     }
 }
