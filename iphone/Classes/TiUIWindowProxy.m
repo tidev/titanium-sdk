@@ -536,14 +536,14 @@
     for (TiViewProxy* curProxy in curValues) {
         if (![(NSArray*)arg containsObject:curProxy]) {
             [curProxy removeBarButtonView];
-			[self forgetProxy:proxy];
+            [self forgetProxy:curProxy];
         }
     }
-	for(TiViewProxy* proxy in arg) {
-		if([proxy isKindOfClass:[TiViewProxy class]]) {
-			[self rememberProxy:proxy];
-		}
-	}
+    for(TiViewProxy* proxy in arg) {
+        if([proxy isKindOfClass:[TiViewProxy class]]) {
+            [self rememberProxy:proxy];
+        }
+    }
 	
     [self replaceValue:arg forKey:@"rightNavButtons" notification:NO];
     [self replaceValue:properties forKey:@"rightNavSettings" notification:NO];
@@ -606,14 +606,14 @@
     for (TiViewProxy* curProxy in curValues) {
         if (![(NSArray*)arg containsObject:curProxy]) {
             [curProxy removeBarButtonView];
-			[self forgetProxy:curProxy];
+            [self forgetProxy:curProxy];
         }
     }
-	for(TiViewProxy* proxy in arg) {
-		if([proxy isKindOfClass:[TiViewProxy class]]) {
-			[self rememberProxy:proxy];
-		}
-	}
+    for(TiViewProxy* proxy in arg) {
+        if([proxy isKindOfClass:[TiViewProxy class]]) {
+            [self rememberProxy:proxy];
+        }
+    }
     [self replaceValue:arg forKey:@"leftNavButtons" notification:NO];
     [self replaceValue:properties forKey:@"leftNavSettings" notification:NO];
     TiThreadPerformOnMainThread(^{
