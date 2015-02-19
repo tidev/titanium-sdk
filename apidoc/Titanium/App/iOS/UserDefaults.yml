@@ -1,40 +1,22 @@
 ---
-name: Titanium.App.Properties
+name: Titanium.App.iOS.UserDefaults
 summary: |
-    The App Properties module is used for storing application-related data in property/value pairs 
-    that persist beyond application sessions and device power cycles.
+    The UserDefaults module is used for storing application-related data in property/value pairs 
+    that persist beyond application sessions and device power cycles. UserDefaults allows the suiteName
+    of the UserDefaults to be specified at creation time.
 description: |
-    #### App Properties in the tiapp.xml file
+    Unlike Titanium.App.Properties, Titanium.App.iOS.UserDefaults does not pull properties defined in the `tiapp.xml` file.
 
-    App properties defined in the `tiapp.xml` file may be accessed using these APIs.  An app
-    property is defined inside the root-level `<ti:app>` element with the `<property>` element.
-    Use the `name` attribute to define your property name and place the value inline with the
-    `<property>` element. For example, to define an app property called `foo` with the value `42`:
+    To create a notification action, use the <Titanium.App.iOS.createUserDefaults> method.
+creatable: false
+extends: Titanium.Proxy
+since: "4.0.0"
 
-        <?xml version="1.0" encoding="UTF-8"?>
-        <ti:app xmlns:ti="http://ti.appcelerator.org">
-            <property name="foo" type="string">42</property>
-        </ti:app>
-
-    Then, you can retrieve the property during runtime with the following API call:
-
-        var foo = Ti.App.Properties.getString('foo');
-
-    As of Release 3.2.0, any application properties defined in the `tiapp.xml` file are stored in the
-    device's secure storage, making them read-only.  Additionally, external access to these
-    properties is now restricted.  Other iOS applications cannot access these properties and
-    native Android modules must use the Titanium module API
-    [TiApplication.getAppProperties](http://docs.appcelerator.com/module-apidoc/latest/android/org/appcelerator/titanium/TiApplication.html#getAppProperties())
-    method to access these properties.
-
-    If you need to change the values during runtime, initially create the property with these APIs
-    rather than defining them in the `tiapp.xml` file.
-
-    Prior to Release 3.2.0, application properties defined in the `tiapp.xml` file could be
-    overwritten by these APIs and accessed externally by other applications and modules.
-    
-extends: Titanium.Module
-since: "0.5"
+properties:
+  - name: suiteName
+    summary: Sets the name of the suite to be used to access UserDefaults.
+    type: String
+    availability: creation
 
 methods:
   - name: getBool
@@ -247,6 +229,14 @@ events:
     since: "3.0.0"
 
 examples:
+  - title: Create a UserDefaults object
+    example: |
+        Creating a UserDefaults object
+        
+            var props = Ti.App.iOS.createUserDefaults({
+                suiteName: 'group.mySuite'
+            });
+
   - title: Store a property
     example: |
         Store a string property.
