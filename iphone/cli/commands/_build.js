@@ -2688,7 +2688,6 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 			var fileMarkers = [],
 				refMarkers = [],
 				groupMarkers = [],
-				resourcesBuildPhaseMarkers = [],
 				copyFilesBuildPhaseMarkers = [],
 				groupUUID,
 				newGroupUUID = makeUUID(),
@@ -2706,11 +2705,6 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 			var groupMatch = projectContents.match(/\* Extensions \*\/ = {[^}]*};/);
 			groupMatch && groupMarkers.push(groupMatch[0]);
 
-			var resourcesBuildPhaseMatch = projectContents.match(/\/\* Resources \*\/ = {\s+isa = PBXResourcesBuildPhase;[^}]*};/g);
-			resourcesBuildPhaseMatch && resourcesBuildPhaseMatch.forEach(function(match) {
-				resourcesBuildPhaseMarkers.push(match);
-			});
-
 			var copyFilesBuildPhaseMatch = projectContents.match(/\/\* Embed App Extensions \*\/ = {\s+isa = PBXCopyFilesBuildPhase;[^}]*};/g);
 			copyFilesBuildPhaseMatch && copyFilesBuildPhaseMatch.forEach(function(match) {
 				copyFilesBuildPhaseMarkers.push(match);
@@ -2726,8 +2720,7 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 			// Inject files
 			fileMarkers.forEach(function (marker) {
 				fileIndex++;
-				if (fileIndex >= resourcesBuildPhaseMarkers.length ||
-					fileIndex >= copyFilesBuildPhaseMarkers.length) {
+				if (fileIndex >= copyFilesBuildPhaseMarkers.length) {
 					this.logger.error('Error injecting extension into Xcode project (BuildPhase markers not found or invalid)');
 					process.exit(1);
 				}
@@ -2744,9 +2737,6 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
 						.replace(new RegExp(m[1].trim(), 'g'), newUUID);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
-
-				var buildMarker = resourcesBuildPhaseMarkers[fileIndex];
-				addFileToBuildPhase(buildMarker, newUUID, 'Resources');
 
 				// Add file references for the extension in Embed App Extensions Build Phase
 				var begin = projectContents.indexOf(marker),
