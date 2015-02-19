@@ -2159,48 +2159,44 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 };
 
 iOSBuilder.prototype.createEntitlementsPlist = function createEntitlementsPlist(next) {
-	if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
-		// allow the project to have its own custom entitlements
-		var entitlementsFile = path.join(this.projectDir, 'Entitlements.plist'),
-			contents = '',
-			pp;
-		if (fs.existsSync(entitlementsFile)) {
-			this.logger.info(__('Found custom entitlements: %s', entitlementsFile));
-			contents = fs.readFileSync(entitlementsFile).toString();
-		} else {
-			function getPP(list, uuid) {
-				for (var i = 0, l = list.length; i < l; i++) {
-					if (list[i].uuid === uuid) {
-						return list[i];
-					}
+	// allow the project to have its own custom entitlements
+	var entitlementsFile = path.join(this.projectDir, 'Entitlements.plist'),
+		contents = '',
+		pp;
+	if (fs.existsSync(entitlementsFile)) {
+		this.logger.info(__('Found custom entitlements: %s', entitlementsFile));
+		contents = fs.readFileSync(entitlementsFile).toString();
+	} else {
+		function getPP(list, uuid) {
+			for (var i = 0, l = list.length; i < l; i++) {
+				if (list[i].uuid === uuid) {
+					return list[i];
 				}
-			}
-
-			var pp;
-			if (this.target === 'device') {
-				pp = getPP(this.iosInfo.provisioning.development, this.provisioningProfileUUID);
-			} else {
-				pp = getPP(this.iosInfo.provisioning.distribution, this.provisioningProfileUUID);
-				if (!pp) {
-					pp = getPP(this.iosInfo.provisioning.adhoc, this.provisioningProfileUUID);
-				}
-			}
-
-			if (pp) {
-				// attempt to customize it by reading provisioning profile
-				var plist = new appc.plist();
-				(this.target === 'dist-appstore') && (plist['beta-reports-active'] = true);
-				plist['get-task-allow'] = !!pp.getTaskAllow;
-				pp.apsEnvironment && (plist['aps-environment'] = pp.apsEnvironment);
-				plist['application-identifier'] = pp.appPrefix + '.' + this.tiapp.id;
-				plist['keychain-access-groups'] = [ plist['application-identifier'] ];
-				contents = plist.toString('xml');
 			}
 		}
-		fs.writeFile(path.join(this.buildDir, 'Entitlements.plist'), contents, next);
-	} else {
-		next();
+
+		var pp;
+		if (this.target === 'device') {
+			pp = getPP(this.iosInfo.provisioning.development, this.provisioningProfileUUID);
+		} else {
+			pp = getPP(this.iosInfo.provisioning.distribution, this.provisioningProfileUUID);
+			if (!pp) {
+				pp = getPP(this.iosInfo.provisioning.adhoc, this.provisioningProfileUUID);
+			}
+		}
+
+		var plist = new appc.plist();
+		if (pp) {
+			// attempt to customize it by reading provisioning profile
+			(this.target === 'dist-appstore') && (plist['beta-reports-active'] = true);
+			plist['get-task-allow'] = !!pp.getTaskAllow;
+			pp.apsEnvironment && (plist['aps-environment'] = pp.apsEnvironment);
+			plist['application-identifier'] = pp.appPrefix + '.' + this.tiapp.id;
+			plist['keychain-access-groups'] = [ plist['application-identifier'] ];
+		}
+		contents = plist.toString('xml');
 	}
+	fs.writeFile(path.join(this.buildDir, 'Entitlements.plist'), contents, next);
 };
 
 iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
@@ -3137,8 +3133,9 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		if (this.keychain) {
 			xcodeArgs.push('OTHER_CODE_SIGN_FLAGS=--keychain ' + this.keychain);
 		}
-		xcodeArgs.push('CODE_SIGN_ENTITLEMENTS=Entitlements.plist');
 	}
+
+	xcodeArgs.push('CODE_SIGN_ENTITLEMENTS=Entitlements.plist');
 
 	var keychains = this.iosInfo.certs.keychains;
 
