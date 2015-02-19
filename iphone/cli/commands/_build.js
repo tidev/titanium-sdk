@@ -2959,13 +2959,10 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 		xcodeArgs.push('GCC_PREPROCESSOR_DEFINITIONS=' + gccDefs.join(' '));
 
 		if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
-			xcodeArgs.push('PROVISIONING_PROFILE=' + this.provisioningProfileUUID);
 			xcodeArgs.push('DEPLOYMENT_POSTPROCESSING=YES');
 			if (this.keychain) {
 				xcodeArgs.push('OTHER_CODE_SIGN_FLAGS=--keychain ' + this.keychain);
 			}
-			// Sign the extension with entitlements from the app
-			xcodeArgs.push('CODE_SIGN_ENTITLEMENTS=' + path.join(this.buildDir, 'Entitlements.plist'));
 		}
 
 		var keychains = this.iosInfo.certs.keychains;
