@@ -127,7 +127,8 @@
 
 -(void)setEnabled_:(id)value
 {
-	[(UITextView *)[self textWidgetView] setEditable:[TiUtils boolValue:value]];
+    BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"editable"] def:YES]);
+	[(UITextView *)[self textWidgetView] setEditable:_trulyEnabled];
 }
 
 -(void)setScrollable_:(id)value
@@ -135,9 +136,10 @@
 	[(UITextView *)[self textWidgetView] setScrollEnabled:[TiUtils boolValue:value]];
 }
 
--(void)setEditable_:(id)editable
+-(void)setEditable_:(id)value
 {
-	[(UITextView *)[self textWidgetView] setEditable:[TiUtils boolValue:editable]];
+    BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"enabled"] def:YES]);
+    [(UITextView *)[self textWidgetView] setEditable:_trulyEnabled];
 }
 
 -(void)setAutoLink_:(id)type_
