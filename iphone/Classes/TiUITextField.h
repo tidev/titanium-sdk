@@ -42,10 +42,6 @@
 @private
 }
 
-#pragma mark Internal 
-
--(TiTextField*)textWidgetView;
-
 @end
 
 #endif
