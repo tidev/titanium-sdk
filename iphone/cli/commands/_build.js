@@ -3132,8 +3132,6 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		}
 	}
 
-	xcodeArgs.push('CODE_SIGN_ENTITLEMENTS=Entitlements.plist');
-
 	var keychains = this.iosInfo.certs.keychains;
 
 	if (this.target === 'device') {
