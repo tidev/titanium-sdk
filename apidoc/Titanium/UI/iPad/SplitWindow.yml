@@ -121,7 +121,7 @@ examples:
                                 <ListItem title="Item 3"></ListItem>
                             </ListSection>
                         </ListView>
-                    </Window>
+                    </NavigationWindow>
 
                     <!-- Second window is the detailView -->
                     <Window>
