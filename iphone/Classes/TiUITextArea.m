@@ -169,36 +169,6 @@
 	return [(UITextView *)[self textWidgetView] hasText];
 }
 
--(BOOL)resignFirstResponder
-{
-	[super resignFirstResponder];
-	becameResponder = NO;
-    return [textWidgetView resignFirstResponder];
-}
-
--(BOOL)becomeFirstResponder
-{
-    UITextView* ourView = (UITextView*)[self textWidgetView];
-    if (ourView.isEditable) {
-        becameResponder = YES;
-        
-        if ([textWidgetView isFirstResponder])
-        {
-            return NO;
-        }
-        
-        [self makeRootViewFirstResponder];
-        BOOL result = [super becomeFirstResponder];
-        return result;
-    }
-    return NO;
-}
--(BOOL)isFirstResponder
-{
-    if (becameResponder)
-        return YES;
-    return [super isFirstResponder];
-}
 
 //TODO: scrollRangeToVisible
 
