@@ -552,11 +552,14 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 			if ([TiUtils isIOS8OrGreater] && property == 999) {
 				if (identifier == 0) {
 					propertyName = @"birthday";
-					value = (NSString *) ABRecordCopyValue(person, kABPersonBirthdayProperty);
 				}
 				else {
 					propertyName = @"alternateBirthday";
-					value = (NSDictionary *) ABRecordCopyValue(person, kABPersonAlternateBirthdayProperty);
+				}
+				CFTypeRef val = ABRecordCopyValue(person, property);
+				if (val != NULL) {
+					value = [[(id)val retain] autorelease]; // Force toll-free bridging & autorelease
+					CFRelease(val);
 				}
 			}
 			else {

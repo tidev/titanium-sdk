@@ -1068,7 +1068,6 @@
         }
         
         CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-        CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
         CGRect viewBounds = [[self view] bounds];
         
         //Need to do this to force navigation bar to draw correctly on iOS7
