@@ -73,8 +73,6 @@
 
 @implementation TiUITextArea
 
-@synthesize becameResponder;
-
 #pragma mark Internal
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds

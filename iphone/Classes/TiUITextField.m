@@ -19,7 +19,7 @@
 
 @implementation TiTextField
 
-@synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight, becameResponder;
+@synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight;
 
 -(void)configure
 {
@@ -199,33 +199,19 @@
 	if ([super resignFirstResponder])
 	{
 		[self repaintMode];
-        if (becameResponder) {
-            becameResponder = NO;
-            [touchHandler makeRootViewFirstResponder];
-        }
-        return YES;
+		[touchHandler makeRootViewFirstResponder];
+		return YES;
 	}
 	return NO;
 }
 
 -(BOOL)becomeFirstResponder
 {
-    if (self.isEnabled) {
-        if ([super becomeFirstResponder])
-        {
-            becameResponder = YES;
-            [self repaintMode];
-            return YES;
-        }
+    if ([super becomeFirstResponder]) {
+        [self repaintMode];
+        return YES;
     }
     return NO;
-}
-
-
--(BOOL)isFirstResponder
-{
-	if (becameResponder) return YES;
-	return [super isFirstResponder];
 }
 
 -(void)setLeftView:(UIView*)value
