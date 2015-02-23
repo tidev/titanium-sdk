@@ -1,3 +1,7 @@
+0.1.8 (2/23/2015)
+-------------------
+ * Fix issues launching phone emulator seen on some setups/foreign languages
+
 0.1.7 (1/8/2015)
 -------------------
  * Remove use of custom wptool, defer to deploy cmd for launch/connect [TIMOB-18303]
