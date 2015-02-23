@@ -89,7 +89,7 @@
 	return NO;
 }
 
--(UIView *)textWidgetView
+-(UIView<UITextInputTraits>*)textWidgetView
 {
 	return nil;
 }
@@ -147,22 +147,6 @@
 #pragma mark Responder methods
 //These used to be blur/focus, but that's moved to the proxy only.
 //The reason for that is so checking the toolbar can use UIResponder methods.
-
--(BOOL)resignFirstResponder
-{
-	[super resignFirstResponder];
-	return [[self textWidgetView] resignFirstResponder];
-}
-
--(BOOL)becomeFirstResponder
-{
-	return [[self textWidgetView] becomeFirstResponder];
-}
-
--(BOOL)isFirstResponder
-{
-	return [textWidgetView isFirstResponder];
-}
 
 -(void)setPasswordMask_:(id)value
 {
@@ -237,9 +221,9 @@
 
 -(void)setSelectionFrom:(id)start to:(id)end
 {
-    id<UITextInput> textView = (id<UITextInput>)[self textWidgetView];
+    UIView<UITextInput>* textView = (UIView<UITextInput>*)[self textWidgetView];
     if ([textView conformsToProtocol:@protocol(UITextInput)]) {
-        if([self becomeFirstResponder] || [self isFirstResponder]) {
+        if([textView becomeFirstResponder] || [textView isFirstResponder]) {
             UITextPosition *beginning = textView.beginningOfDocument;
             UITextPosition *startPos = [textView positionFromPosition:beginning offset:[TiUtils intValue: start]];
             UITextPosition *endPos = [textView positionFromPosition:beginning offset:[TiUtils intValue: end]];
