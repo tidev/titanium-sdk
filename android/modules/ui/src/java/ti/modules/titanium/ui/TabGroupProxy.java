@@ -382,9 +382,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// Prevent any duplicate events from firing by marking
 		// this group has having focus.
 		isFocused = true;
-
-		// Setup the new tab activity like setting orientation modes.
-		onWindowActivityCreated();
 	}
 
 	@Override

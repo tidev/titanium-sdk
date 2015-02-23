@@ -96,3 +96,13 @@ properties:
     type: String
     platforms: [android, blackberry, iphone, ipad, mobileweb, tizen]
     since: "3.2.0"
+
+  - name: lifecycleContainer
+    summary: The Window or TabGroup whose Activity lifecycle should be triggered on the proxy.
+    description: |
+      If this property is set to a Window or TabGroup, then the corresponding Activity lifecycle event callbacks
+      will also be called on the proxy. Proxies that require the activity lifecycle will need this property set
+      to the appropriate containing Window or TabGroup.
+    type: [Titanium.UI.Window, Titanium.UI.TabGroup]
+    platforms: [android]
+    since: "3.5.0"
