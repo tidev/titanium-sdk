@@ -95,11 +95,11 @@ methods:
   - name: directoryForSuite
     summary: Returns the path to the container directory associated with the specified security application group ID.
     description: |
-        This is a writable directory used on iOS. For groups of sandboxed apps that need to share files 
+        This is a writable directory used on iOS. Groups of sandboxed apps that need to share files 
         and other information can request a container directory as part of their entitlements.
         
         When called with a valid group identifier, this method returns the location of that directory as a string.
-        Returns null if the group identifier is invalid, check the app's entitlements.
+        Returns null if the group identifier is invalid; check the app's entitlements.
     parameters:
       - name: suiteName
         summary: |
