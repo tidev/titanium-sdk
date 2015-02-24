@@ -380,20 +380,20 @@ public class TiDrawableReference
 				}
 				// If decoding fails, we try to get it from httpclient.
 				if (b == null) {
-					 HttpClient client = new DefaultHttpClient();
-			         HttpGet request = new HttpGet(url);
-			         HttpResponse response;
-			         try {
-			             response = (HttpResponse)client.execute(request);           
-			             HttpEntity entity = response.getEntity();
-			             BufferedHttpEntity bufferedEntity = new BufferedHttpEntity(entity);
-			             InputStream inputStream = bufferedEntity.getContent();
-			             b = BitmapFactory.decodeStream(inputStream, null, opts);
-			         } catch (ClientProtocolException e) {
-			        	 Log.e(TAG, "ClientProtocolException" + e.getStackTrace());
-			         } catch (IOException e) {
-			        	 //Ignore
-			         }
+					HttpClient client = new DefaultHttpClient();
+					HttpGet request = new HttpGet(url);
+					HttpResponse response;
+					try {
+						response = (HttpResponse)client.execute(request);           
+						HttpEntity entity = response.getEntity();
+						BufferedHttpEntity bufferedEntity = new BufferedHttpEntity(entity);
+						InputStream inputStream = bufferedEntity.getContent();
+						b = BitmapFactory.decodeStream(inputStream, null, opts);
+					} catch (ClientProtocolException e) {
+						Log.e(TAG, "ClientProtocolException" + e.getStackTrace());
+					} catch (IOException e) {
+						//Ignore
+					}
 				}
 			} else {
 				if (is == null) {
