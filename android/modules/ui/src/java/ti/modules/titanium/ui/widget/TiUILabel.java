@@ -107,23 +107,21 @@ public class TiUILabel extends TiUIView
 			                ClickableSpan[] link = buffer.getSpans(off, off,
 			                        ClickableSpan.class);
 
-			                if (link.length != 0) {
-			                	ClickableSpan cSpan = link[0]; 
-			                	if (action == MotionEvent.ACTION_UP) {
-			                		TiViewProxy proxy = getProxy();
-			                		if(proxy.hasListeners("link")) {
-			                			KrollDict evnt = new KrollDict();
-			                			if(cSpan instanceof URLSpan) {
-			                				evnt.put("url", ((URLSpan)cSpan).getURL());
-			                			}
-			                			proxy.fireEvent("link", evnt, false);
-			                    	} else {
-			                    		cSpan.onClick(textView);
-			                    	}
-			                	} else if (action == MotionEvent.ACTION_DOWN) {
-			                		Selection.setSelection(buffer, buffer.getSpanStart(cSpan), buffer.getSpanEnd(cSpan));
-			                	}
-			                }
+							if (link.length != 0) {
+								ClickableSpan cSpan = link[0]; 
+								if (action == MotionEvent.ACTION_UP) {
+									TiViewProxy proxy = getProxy();
+									if(proxy.hasListeners("link") && (cSpan instanceof URLSpan)) {
+										KrollDict evnt = new KrollDict();
+										evnt.put("url", ((URLSpan)cSpan).getURL());
+										proxy.fireEvent("link", evnt, false);
+									} else {
+										cSpan.onClick(textView);
+									}
+								} else if (action == MotionEvent.ACTION_DOWN) {
+									Selection.setSelection(buffer, buffer.getSpanStart(cSpan), buffer.getSpanEnd(cSpan));
+								}
+							}
 			            }
 
 			        }
