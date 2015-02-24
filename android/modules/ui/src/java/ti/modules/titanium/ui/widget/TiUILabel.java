@@ -30,6 +30,7 @@ import android.text.Spannable.Factory;
 import android.text.SpannedString;
 import android.text.TextUtils.TruncateAt;
 import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -107,20 +108,27 @@ public class TiUILabel extends TiUIView
 			                        ClickableSpan.class);
 
 			                if (link.length != 0) {
-			                	ClickableSpan cSpan = link[0];
-			                    if (action == MotionEvent.ACTION_UP) {
-			                        cSpan.onClick(textView);
-			                    } else if (action == MotionEvent.ACTION_DOWN) {
-			                         Selection.setSelection(buffer, buffer.getSpanStart(cSpan), buffer.getSpanEnd(cSpan));
-			                    }
+			                	ClickableSpan cSpan = link[0]; 
+			                	if (action == MotionEvent.ACTION_UP) {
+			                		TiViewProxy proxy = getProxy();
+			                		if(proxy.hasListeners("link")) {
+			                			KrollDict evnt = new KrollDict();
+			                			if(cSpan instanceof URLSpan) {
+			                				evnt.put("url", ((URLSpan)cSpan).getURL());
+			                			}
+			                			proxy.fireEvent("link", evnt, false);
+			                    	} else {
+			                    		cSpan.onClick(textView);
+			                    	}
+			                	} else if (action == MotionEvent.ACTION_DOWN) {
+			                		Selection.setSelection(buffer, buffer.getSpanStart(cSpan), buffer.getSpanEnd(cSpan));
+			                	}
 			                }
 			            }
 
 			        }
-
 			        return super.onTouchEvent(event);
-			    } 
-			
+			    }
 		};
 		tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		tv.setPadding(0, 0, 0, 0);
