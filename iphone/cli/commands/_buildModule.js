@@ -182,8 +182,8 @@ iOSModuleBuilder.prototype.initialize = function (next) {
 	this.metaData = [];
 	this.metaDataFile = path.join(this.projectDir, 'metadata.json');
 	this.manifestFile = path.join(this.projectDir, 'manifest');
-	this.titaniumIosSdkPath = appc.fs.resolvePath(__dirname, '..', '..');
-	this.templatesDir = path.join(this.titaniumIosSdkPath, 'templates');
+	this.platformPath = appc.fs.resolvePath(__dirname, '..', '..');
+	this.templatesDir = path.join(this.platformPath, 'templates');
 	this.assetsTemplateFile = path.join(this.templatesDir, 'module', 'default', 'template', 'iphone', 'Classes', '{{ModuleIdAsIdentifier}}ModuleAssets.m.ejs');
 
 	this.universalBinaryDir = path.join(this.projectDir, 'build');
@@ -356,7 +356,7 @@ iOSModuleBuilder.prototype.compileJS = function (next) {
 			}
 
 			titaniumPrepHook(
-				path.join(this.titaniumIosSdkPath, 'titanium_prep'),
+				path.join(this.platformPath, 'titanium_prep'),
 				[this.manifest.moduleid, this.assetsDir],
 				{'jsFiles': this.jsFilesToEncrypt, 'placeHolder': 'mainEncryptedAsset'},
 				cb
@@ -379,7 +379,7 @@ iOSModuleBuilder.prototype.compileJS = function (next) {
 				cb();
 			} else {
 				titaniumPrepHook(
-					path.join(this.titaniumIosSdkPath, 'titanium_prep'),
+					path.join(this.platformPath, 'titanium_prep'),
 					[this.manifest.moduleid, this.assetsDir],
 					{'jsFiles': this.jsFilesToEncrypt, 'placeHolder': 'allEncryptedAssets'},
 					cb
