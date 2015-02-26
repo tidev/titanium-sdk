@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -105,11 +105,11 @@ public class TiUISlider extends TiUIView
 	private void updateRange() {
 		minRange = Math.max(minRange, min);
 		minRange = Math.min(minRange, max);
-		proxy.setProperty("minRange", minRange, false);
+		proxy.setProperty("minRange", minRange);
 		
 		maxRange = Math.min(maxRange, max);
 		maxRange = Math.max(maxRange, minRange);
-		proxy.setProperty("maxRange", maxRange, false);
+		proxy.setProperty("maxRange", maxRange);
 	}
 	
 	private void updateControl() {
