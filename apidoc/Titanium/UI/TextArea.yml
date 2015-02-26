@@ -152,11 +152,6 @@ properties:
     default: false
     platforms: [android]
     
-  - name: enabled
-    summary: Determines whether this field is enabled.
-    type: Boolean
-    default: true
-    
   - name: enableReturnKey
     summary: |
         Determines whether the return key is enabled automatically when there is text in this text 
