@@ -208,8 +208,9 @@ public class TiUIProgressIndicator extends TiUIView
 			}
 
 			progressDialog.setMessage(message);
+			// setCanceledOnTouchOutside() overrides the value of setCancelable(), so order of execution matters.
+			progressDialog.setCanceledOnTouchOutside(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, false));
 			progressDialog.setCancelable(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELABLE, false));
-			progressDialog.setCanceledOnTouchOutside(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, true));
 
 			if (type == INDETERMINANT) {
 				progressDialog.setIndeterminate(true);
