@@ -1,4 +1,7 @@
 /**
+ * Copyright (c) 2015 Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License.
+ * 
  * Script to preprocess the YAML docs in to a common JSON format,
  * then calls an generator script to format the API documentation.
  */
@@ -8,6 +11,7 @@ var common = require('./lib/common.js'),
 	nodeappc = require('node-appc'),
 	ejs = require('ejs'),
 	fs = require('fs'),
+	yaml = require('js-yaml'),
 	exec = require('child_process').exec,
 	os = require('os'),
 	assert = common.assertObjectKey;
@@ -35,7 +39,8 @@ var common = require('./lib/common.js'),
 	exportStdout = false,
 	cssPath = '',
 	cssFile = '',
-	addOnDocs = [];
+	addOnDocs = [],
+	searchPlatform = null;
 
 /**
  * Returns a list of inherited APIs.
@@ -141,15 +146,17 @@ function processConstants (api) {
 
 /**
  * Returns a list of platforms and since versions the API supports
- * @params api {Object} API to evaluate
- * @params versions {Object} Possible platforms and versions the API supports (usually from the class)
- * @params matchVersion {Boolean} For members, only match platforms from the versions param
+ * @param api {Object} API to evaluate
+ * @param versions {Object} Possible platforms and versions the API supports (usually from the class)
+ * @param matchVersion {Boolean} For members, only match platforms from the versions param
+ * @param addon {Boolean} Indicates if the class came from an add-on file
  * @returns {Object} Object containing platforms and versions the API supports
  */
-function processVersions (api, versions, matchVersion) {
+function processVersions (api, versions, matchVersion, addon) {
 	var defaultVersions = nodeappc.util.mixObj({}, versions),
 		platform = null,
 		key = null;
+
 	if (assert(api, 'platforms')) {
 		for (platform in defaultVersions) {
 			if (!~api.platforms.indexOf(platform)) delete defaultVersions[platform];
@@ -168,6 +175,13 @@ function processVersions (api, versions, matchVersion) {
 		Object.keys(common.ADDON_VERSIONS).forEach(function (platform) {
 			if (platform in defaultVersions) delete defaultVersions[platform];
 		});
+	} else if (addon) {
+		// Verify add-on platforms if there is not platforms tags and the class came from an add
+		for (platform in common.ADDON_VERSIONS) {
+			if (~Object.keys(versions).indexOf(platform)) {
+					defaultVersions[platform] = common.ADDON_VERSIONS[platform];
+			}
+		}
 	} else {
 		// Remove add-on platforms from defaults if platforms tag is not specified
 		Object.keys(common.ADDON_VERSIONS).forEach(function (platform) {
@@ -190,15 +204,16 @@ function processVersions (api, versions, matchVersion) {
 
 /**
  * Processes APIs based on the given list of platforms and versions
- * @params apis {Array<Object>} List of APIs to evaluate
+ * @param apis {Array<Object>} List of APIs to evaluate
  * @param type {String} Type of API
- * @params defaultVersions {Object} List of platforms and versions the APIs support
+ * @param defaultVersions {Object} List of platforms and versions the APIs support
+ * @param addon {Boolean} Indicates if the class came from an add-on file
  * @returns {Array<Object>} List of processed APIs
  */
-function processAPIMembers (apis, type, defaultVersions) {
+function processAPIMembers (apis, type, defaultVersions, addon) {
 	var rv = [], x = 0;
 	apis.forEach(function (api) {
-		api.since = processVersions(api, defaultVersions, true);
+		api.since = processVersions(api, defaultVersions, true, addon);
 		api.platforms = Object.keys(api.since);
 		if (type == 'properties') {
 			if (api.constants) {
@@ -328,7 +343,7 @@ function getSubtype (api) {
 	}
 
 	if (api.name.indexOf('Global.') == 0) {
-		return 'proxy';
+		return 'module';
 	}
 
 	switch (api.extends) {
@@ -412,7 +427,7 @@ function processAPIs (api) {
 	if (assert(api, 'properties')) {
 		var accessors;
 		api = hideAPIMembers(api, 'properties');
-		api.properties = processAPIMembers(api.properties, 'properties', api.since);
+		api.properties = processAPIMembers(api.properties, 'properties', api.since, api.__addon);
 		if (api.__subtype != 'pseudo' && (accessors = generateAccessors(api.properties, api.name))) {
 			if (assert(api, 'methods')) {
 				var matches = [];
@@ -433,30 +448,31 @@ function processAPIs (api) {
 
 	if (assert(api, 'methods')) {
 		api = hideAPIMembers(api, 'methods');
-		api.methods = processAPIMembers(api.methods, 'methods', api.since);
+		api.methods = processAPIMembers(api.methods, 'methods', api.since, api.__addon);
 	}
 
 	return api;
 }
 
 function cliUsage () {
-	console.log('Usage: node docgen.js [--addon-docs <PATH_TO_YAML_FILES] [--css <CSS_FILE>] [--format <EXPORT_FORMAT>] [--output <OUTPUT_DIRECTORY>] [--stdout] [<PATH_TO_YAML_FILES>]'.white);
-	console.log('\nOptions:'.white);
-	console.log('\t--addon-docs, -a\tDocs to add to the base Titanium Docs'.white);
-	console.log('\t--css           \tCSS style file to use for HTML exports.'.white);
-	console.log('\t--format, -f    \tExport format: %s. Default is html.'.white, validFormats);
-	console.log('\t--output, -o    \tDirectory to output the files.'.white);
-	console.log('\t--stdout        \tOutput processed YAML to stdout.'.white);
+	common.log('Usage: node docgen.js [--addon-docs <PATH_TO_YAML_FILES] [--css <CSS_FILE>] [--format <EXPORT_FORMAT>] [--output <OUTPUT_DIRECTORY>] [<PATH_TO_YAML_FILES>]');
+	common.log('\nOptions:');
+	common.log('\t--addon-docs, -a\tDocs to add to the base Titanium Docs');
+	common.log('\t--css           \tCSS style file to use for HTML exports.');
+	common.log('\t--format, -f    \tExport format: %s. Default is html.', validFormats);
+	common.log('\t--output, -o    \tDirectory to output the files.');
+	common.log('\t--platform, -p  \tPlatform to extract for addon format.');
+	common.log('\t--stdout        \tOutput processed YAML to stdout.');
 }
 
 // Merge values from add-on object to base object
 function addOnMerge(baseObj, addObj) {
-	var key = base = add = null,
-		rv = baseObj;
+	var key = base = add = null;
 
 	for (key in addObj) {
 		var base = baseObj[key];
 		var add = addObj[key];
+
 		if (Array.isArray(base)) {
 			// Array of objects
 			if (typeof base[0] === 'object') {
@@ -472,10 +488,16 @@ function addOnMerge(baseObj, addObj) {
 							tempArray.splice(tempArray.indexOf(match[0]), 1);
 							tempArray.push(addOnMerge(match[0], api));
 						} else {
-							common.log(common.LOG_WARN, 'Could not locate object in %s array with name: %s', key, api.name);
+							if (~['properties', 'methods', 'events'].indexOf(key) &&
+								!(api.name.indexOf("set") == 0 || api.name.indexOf("get") == 0 || api.name.indexOf("create") == 0)) {
+								common.log(common.LOG_INFO, 'Adding new API to %s array: %s', key, api.name);
+								tempArray.push(api);
+							} else {
+								common.log(common.LOG_WARN, 'Could not locate object in %s array with name: %s', key, api.name);
+							}
 						}
 					} else {
-						common.log(common.LOG_WARN, 'Element in %s array do not have a name key.', key);
+						common.log(common.LOG_WARN, 'Element in %s array does not have a name key.', key);
 					}
 				});
 				baseObj[key] = tempArray;
@@ -490,6 +512,13 @@ function addOnMerge(baseObj, addObj) {
 		} else {
 			switch (typeof base) {
 				case 'object':
+					var k;
+					for (k in add) {
+						if (!base[k]) {
+							base[k] = add[k];
+							delete add[k];
+						}
+					}
 					baseObj[key] = addOnMerge(base, add);
 					break;
 				case 'string':
@@ -497,7 +526,7 @@ function addOnMerge(baseObj, addObj) {
 						baseObj[key] += ' ' + add;
 					}
 					else if (key === 'since') {
-						var platforms = baseObj.platforms || common.VALID_PLATFORMS,
+						var platforms = baseObj.platforms || Object.keys(common.DEFAULT_VERSIONS),
 							since = {};
 
 						platforms.forEach(function(p){
@@ -530,7 +559,7 @@ function addOnMerge(baseObj, addObj) {
 						baseObj[key] = add;
 					}
 					else if (key == 'platforms') {
-						baseObj[key] = common.VALID_PLATFORMS.concat(add);
+						baseObj[key] = Object.keys(common.DEFAULT_VERSIONS).concat(add);
 					}
 					else if (key == 'since') {
 						var since = {};
@@ -558,7 +587,7 @@ function addOnMerge(baseObj, addObj) {
 			}
 		}
 	}
-	return rv;
+	return baseObj;
 }
 
 
@@ -647,13 +676,25 @@ if ((argc = process.argv.length) > 2) {
 				}
 				outputPath = process.argv[x];
 				break;
-			case '--stdout':
+			case '--platform':
+			case '-p':
+				if (++x > argc) {
+					common.log(common.LOG_WARN, 'Specify a platform.');
+					cliUsage();
+					process.exit(1);
+				}
+				searchPlatform = process.argv[x];
+				if (!~common.VALID_PLATFORMS.indexOf(searchPlatform)) {
+					common.log(common.LOG_WARN, 'Not a valid platform. Specify one of the following: %s', common.VALID_PLATFORMS);
+					process.exit(1);
+				}
+				break;
 				exportStdout = true;
 				break;
-			// old python script options
 			case '--colorize':
 			case '--exclude-external':
 			case '-e':
+			case '--stdout':
 			case '--verbose':
 			case '--version':
 			case '-v' :
@@ -671,6 +712,11 @@ if ((argc = process.argv.length) > 2) {
 				path = null;
 		}
 	}
+}
+
+if (~formats.indexOf("addon") && searchPlatform == null) {
+	common.log(common.LOG_ERROR, 'Specify a platform to extract with the -p option.');
+	process.exit(1);
 }
 
 // Parse YAML files
@@ -704,6 +750,7 @@ addOnDocs.forEach(function (basePath) {
 			doc[key] = addOnMerge(doc[key], parseData.data[key]);
 		} else {
 			common.log(common.LOG_INFO, 'New class found in add-on docs: %s...', key);
+			parseData.data[key].__addon = true;
 			doc[key] = parseData.data[key];
 		}
 	}
@@ -727,6 +774,9 @@ formats.forEach(function (format) {
 	if (format == 'modulehtml') {
 		processedData.__modules = modules;
 	}
+	if (searchPlatform) {
+		processedData.__platform = searchPlatform;
+	}
 	exportData = exporter.exportData(processedData);
 	templatePath = apidocPath + '/templates/';
 	output = outputPath;
@@ -735,6 +785,30 @@ formats.forEach(function (format) {
 	common.log(common.LOG_INFO, 'Generating %s output...', format.toUpperCase());
 
 	switch (format) {
+		case 'addon':
+
+			output += 'addon/';
+			if(!fs.existsSync(output)) {
+				fs.mkdirSync(output);
+			}
+			templateStr = fs.readFileSync(templatePath + 'addon.ejs', 'utf8');
+			for (cls in exportData) {
+				if (cls.indexOf('__') == 0) continue;
+				render = yaml.safeDump(exportData[cls]);
+				if (fs.writeFileSync(output + cls + '.yml', render) <= 0) {
+					common.log(common.LOG_ERROR, 'Failed to write to file: %s', output + cls + '.yml');
+				}
+			}
+			exportData.__copyList.forEach(function(file) {
+				copyCommand = 'cp ' + file + ' ' + output;
+				exec(copyCommand, function (error) {
+					if (error !== null) {
+						common.log(common.LOG_ERROR, 'Error copying file: %s (%s)', file, error);
+					}
+				});
+			});
+		    common.log("Generated output at %s".green, output);
+		    break;
 		case 'html' :
 		case 'modulehtml' :
 
@@ -786,6 +860,10 @@ formats.forEach(function (format) {
 			render = JSON.stringify(exportData, null, '    ');
 			output = output + 'api.jsca';
 			break;
+		case 'json' :
+			render = JSON.stringify(exportData, null, '    ');
+			output = output + 'api.json';
+			break;
 		case 'jsduck' :
 			templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
 			render = ejs.render(templateStr, {doc: exportData});
@@ -795,19 +873,19 @@ formats.forEach(function (format) {
 			templateStr = fs.readFileSync(templatePath + 'parity.ejs', 'utf8');
 			render = ejs.render(templateStr, {apis: exportData});
 			output = output + 'parity.html';
+			break;
 		default:
 			;
 	}
 
-	if (fs.writeFile(output, render) <= 0) {
-		common.log(common.LOG_ERROR, 'Failed to write to file: %s', output);
-		process.exit(1);
-	} else {
-	    console.log("Generated output at %s".green, output);
+	if (!~['addon'].indexOf(format)) {
+		if (fs.writeFile(output, render) <= 0) {
+			common.log(common.LOG_ERROR, 'Failed to write to file: %s', output);
+			process.exit(1);
+		} else {
+		    common.log("Generated output at %s", output);
+		}
 	}
 	exporter = exportData = null;
-});
 
-if (exportStdout) {
-	process.stdout.write(JSON.stringify(processedData, null, '    '));
-}
+});

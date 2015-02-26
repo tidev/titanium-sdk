@@ -1,4 +1,7 @@
 /**
+ * Copyright (c) 2015 Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License.
+ *
  * Common Library for Doctools
  */
 
@@ -15,12 +18,12 @@ exports.VALID_PLATFORMS = ['android', 'blackberry', 'iphone', 'ipad', 'mobileweb
 exports.VALID_OSES = ['android', 'blackberry', 'ios', 'mobileweb', 'windowsphone'];
 exports.DEFAULT_VERSIONS = {
 	'android' : '0.8',
-	'blackberry' : '3.1.2',
 	'iphone' : '0.8',
 	'ipad' : '0.8',
 	'mobileweb' : '1.8'
 };
 exports.ADDON_VERSIONS = {
+	'blackberry' : '3.1.2',
 	'windowsphone' : '4.0.0'
 };
 exports.DATA_TYPES = ['Array', 'Boolean', 'Callback', 'Date', 'Dictionary', 'Number', 'Object', 'String'];
@@ -70,22 +73,26 @@ exports.log = function log (level, message) {
 		args.splice(0, 2);
 	}
 
-	switch (level) {
-		case LOG_INFO:
-			message = '[INFO] ' + message;
-			args.unshift(message.white);
-			console.info.apply(this, args);
-			break;
-		case LOG_WARN:
-			message = '[WARN] ' + message;
-			args.unshift(message.yellow);
-			console.warn.apply(this, args);
-			break;
-		case LOG_ERROR:
-			message = '[ERROR] ' + message;
-			args.unshift(message.red);
-			console.error.apply(this, args);
-			break;
+	if (typeof level === 'string') {
+		console.info.apply(this, arguments);
+	} else {
+		switch (level) {
+			case LOG_INFO:
+				message = '[INFO] ' + message;
+				args.unshift(message.white);
+				console.info.apply(this, args);
+				break;
+			case LOG_WARN:
+				message = '[WARN] ' + message;
+				args.unshift(message.yellow);
+				console.warn.apply(this, args);
+				break;
+			case LOG_ERROR:
+				message = '[ERROR] ' + message;
+				args.unshift(message.red);
+				console.error.apply(this, args);
+				break;
+		}
 	}
 }
 
