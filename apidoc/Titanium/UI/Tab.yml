@@ -189,7 +189,7 @@ properties:
   - name: badge
     summary: Badge value for this tab. `null` indicates no badge.
     type: String
-    platforms: [iphone,ipad, blackberry]
+    platforms: [iphone,ipad]
 
   - name: icon
     summary: Icon URL for this tab.
@@ -250,7 +250,7 @@ properties:
   - name: titleid
     summary: Key identifying a string from the locale file to use for the tab title. Only one of `title` or `titleid` should be specified.
     type: String
-    exclude-platforms: [blackberry]
+
 
   - name: touchEnabled
     platforms: [mobileweb]
@@ -276,11 +276,11 @@ events:
       - name: previousTab
         summary: Previous active tab object.
         type: Titanium.UI.Tab
-    exclude-platforms: [blackberry]
+
 
   - name: click
     summary: Fired when this tab is clicked in the tab group.
-    exclude-platforms: [blackberry, iphone, ipad]
+    exclude-platforms: [iphone, ipad]
 
   - name: dblclick
     platforms: [mobileweb]

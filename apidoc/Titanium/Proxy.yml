@@ -70,7 +70,7 @@ methods:
       - name: props
         summary: A dictionary of properties to apply.
         type: Dictionary
-    since: {android: "3.0.0", blackberry: "3.3.0", iphone: "3.0.0", ipad: "3.0.0", mobileweb: "3.0.0"}
+    since: {android: "3.0.0",  iphone: "3.0.0", ipad: "3.0.0", mobileweb: "3.0.0"}
 
 properties:
 
@@ -94,7 +94,7 @@ properties:
       returns `Ti.UI.Button`.
     permission: read-only
     type: String
-    platforms: [android, blackberry, iphone, ipad, mobileweb]
+    platforms: [android,  iphone, ipad, mobileweb]
     since: "3.2.0"
 
   - name: lifecycleContainer
