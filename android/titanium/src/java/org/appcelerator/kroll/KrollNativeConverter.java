@@ -6,6 +6,7 @@
  */
 package org.appcelerator.kroll;
 
-public interface KrollNativeConverter {
-	public Object convertNative(Object o); 
+public interface KrollNativeConverter
+{
+	public Object convertNative(Object o);
 }

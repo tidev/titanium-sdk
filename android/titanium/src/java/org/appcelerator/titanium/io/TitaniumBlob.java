@@ -24,7 +24,8 @@ public class TitaniumBlob extends TiBaseFile
 	protected String name;
 	protected String path;
 
-	public TitaniumBlob(String url) {
+	public TitaniumBlob(String url)
+	{
 		super(TYPE_BLOB);
 		this.url = url;
 		if (url != null) {
@@ -32,11 +33,9 @@ public class TitaniumBlob extends TiBaseFile
 		}
 	}
 
-	protected void init() {
-		String [] projection = {
-			MediaStore.Images.ImageColumns.DISPLAY_NAME,
-			MediaStore.Images.ImageColumns.DATA
-		};
+	protected void init()
+	{
+		String[] projection = { MediaStore.Images.ImageColumns.DISPLAY_NAME, MediaStore.Images.ImageColumns.DATA };
 		Cursor c = null;
 		try {
 			c = TiApplication.getInstance().getContentResolver().query(Uri.parse(url), projection, null, null, null);
@@ -52,7 +51,8 @@ public class TitaniumBlob extends TiBaseFile
 		}
 	}
 
-	public void setUrl(String url) {
+	public void setUrl(String url)
+	{
 		this.url = url;
 		if (url != null) {
 			init();
@@ -60,40 +60,46 @@ public class TitaniumBlob extends TiBaseFile
 	}
 
 	@Override
-	public String nativePath() {
+	public String nativePath()
+	{
 		return url;
 	}
 
-	public String toURL() {
+	public String toURL()
+	{
 		return url;
 	}
 
 	@Override
-	public String name() {
+	public String name()
+	{
 		return name;
 	}
 
-	public File getFile() {
+	public File getFile()
+	{
 		return new File(path);
 	}
 
-	public String getContentType() {
+	public String getContentType()
+	{
 		return TiApplication.getInstance().getContentResolver().getType(Uri.parse(url));
 	}
 
-	public InputStream getInputStream()
-		throws IOException
+	public InputStream getInputStream() throws IOException
 	{
 		return TiApplication.getInstance().getContentResolver().openInputStream(Uri.parse(url));
 	}
 
 	@Override
-	public OutputStream getOutputStream() throws IOException {
+	public OutputStream getOutputStream() throws IOException
+	{
 		return null;
 	}
 
 	@Override
-	public File getNativeFile() {
+	public File getNativeFile()
+	{
 		return new File(path);
 	}
 }

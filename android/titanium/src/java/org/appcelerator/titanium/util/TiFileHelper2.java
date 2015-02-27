@@ -10,10 +10,11 @@ import org.appcelerator.titanium.TiC;
 
 public class TiFileHelper2
 {
-	public static final String APP_SCHEME= "app://";
+	public static final String APP_SCHEME = "app://";
 
 	/**
 	 * Joins a path with a relative "Resources" folder
+	 * 
 	 * @param path The path under Resources to get
 	 * @return joinSegments("Resources", path)
 	 */
@@ -24,6 +25,7 @@ public class TiFileHelper2
 
 	/**
 	 * Joins many String path segments into one path
+	 * 
 	 * @param segments A vararg (or String array) of path segments
 	 * @return The passed-in segements normalized and joined by "/"
 	 */
@@ -34,7 +36,7 @@ public class TiFileHelper2
 		}
 
 		String s1 = segments[0];
-		for(int i = 1; i < segments.length; i++) {
+		for (int i = 1; i < segments.length; i++) {
 			String s2 = segments[i];
 			if (s1.endsWith("/")) {
 				if (s2.startsWith("/")) {
@@ -55,6 +57,7 @@ public class TiFileHelper2
 
 	/**
 	 * Returns the "Resources" relative path of the passed in URL
+	 * 
 	 * @param url A URL in either app:// or file:///android_asset/Resources form
 	 * @return The path relative to the "Resources" folder, or null if the URL doesn't start with one of these prefixes
 	 */

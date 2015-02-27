@@ -20,9 +20,7 @@ import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 
-@Kroll.proxy(propertyAccessors = {
-	TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED
-})
+@Kroll.proxy(propertyAccessors = { TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED })
 public class ActionBarProxy extends KrollProxy
 {
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
@@ -56,10 +54,11 @@ public class ActionBarProxy extends KrollProxy
 		actionBar = activity.getSupportActionBar();
 	}
 
-	@Kroll.method @Kroll.setProperty
+	@Kroll.method
+	@Kroll.setProperty
 	public void setDisplayHomeAsUp(boolean showHomeAsUp)
 	{
-		if(TiApplication.isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handlesetDisplayHomeAsUp(showHomeAsUp);
 		} else {
 			Message message = getMainHandler().obtainMessage(MSG_DISPLAY_HOME_AS_UP, showHomeAsUp);
@@ -68,10 +67,11 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	@Kroll.method
+	@Kroll.setProperty
 	public void setHomeButtonEnabled(boolean homeButtonEnabled)
 	{
-		if(TiApplication.isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handlesetHomeButtonEnabled(homeButtonEnabled);
 		} else {
 			Message message = getMainHandler().obtainMessage(MSG_SET_HOME_BUTTON_ENABLED, homeButtonEnabled);
@@ -80,7 +80,8 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	@Kroll.method
+	@Kroll.setProperty
 	public void setNavigationMode(int navigationMode)
 	{
 		if (TiApplication.isUIThread()) {
@@ -92,7 +93,8 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	@Kroll.method
+	@Kroll.setProperty
 	public void setBackgroundImage(String url)
 	{
 		if (TiApplication.isUIThread()) {
@@ -104,7 +106,8 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	@Kroll.method
+	@Kroll.setProperty
 	public void setTitle(String title)
 	{
 		if (TiApplication.isUIThread()) {
@@ -116,7 +119,8 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	@Kroll.method
+	@Kroll.setProperty
 	public void setSubtitle(String subTitle)
 	{
 		if (TiApplication.isUIThread()) {
@@ -127,13 +131,14 @@ public class ActionBarProxy extends KrollProxy
 			message.sendToTarget();
 		}
 	}
-	
-	@Kroll.method 
-	public void setDisplayShowHomeEnabled(boolean show) {
+
+	@Kroll.method
+	public void setDisplayShowHomeEnabled(boolean show)
+	{
 		if (actionBar == null) {
 			return;
 		}
-		
+
 		if (TiApplication.isUIThread()) {
 			actionBar.setDisplayShowHomeEnabled(show);
 		} else {
@@ -141,13 +146,14 @@ public class ActionBarProxy extends KrollProxy
 			message.sendToTarget();
 		}
 	}
-	
+
 	@Kroll.method
-	public void setDisplayShowTitleEnabled(boolean show) {
+	public void setDisplayShowTitleEnabled(boolean show)
+	{
 		if (actionBar == null) {
 			return;
 		}
-		
+
 		if (TiApplication.isUIThread()) {
 			actionBar.setDisplayShowTitleEnabled(show);
 			showTitleEnabled = show;
@@ -156,8 +162,9 @@ public class ActionBarProxy extends KrollProxy
 			message.sendToTarget();
 		}
 	}
-	
-	@Kroll.method @Kroll.getProperty
+
+	@Kroll.method
+	@Kroll.getProperty
 	public String getSubtitle()
 	{
 		if (actionBar == null) {
@@ -165,9 +172,9 @@ public class ActionBarProxy extends KrollProxy
 		}
 		return (String) actionBar.getSubtitle();
 	}
-	
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method
+	@Kroll.getProperty
 	public String getTitle()
 	{
 		if (actionBar == null) {
@@ -175,9 +182,9 @@ public class ActionBarProxy extends KrollProxy
 		}
 		return (String) actionBar.getTitle();
 	}
-	
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method
+	@Kroll.getProperty
 	public int getNavigationMode()
 	{
 		if (actionBar == null) {
@@ -206,7 +213,8 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	@Kroll.method
+	@Kroll.setProperty
 	public void setLogo(String url)
 	{
 		if (TiApplication.isUIThread()) {
@@ -216,10 +224,11 @@ public class ActionBarProxy extends KrollProxy
 			message.getData().putString(LOGO, url);
 			message.sendToTarget();
 		}
-		
+
 	}
 
-	@Kroll.method @Kroll.setProperty
+	@Kroll.method
+	@Kroll.setProperty
 	public void setIcon(String url)
 	{
 		if (TiApplication.isUIThread()) {
@@ -229,7 +238,7 @@ public class ActionBarProxy extends KrollProxy
 			message.getData().putString(ICON, url);
 			message.sendToTarget();
 		}
-		
+
 	}
 
 	private void handleSetIcon(String url)
@@ -242,7 +251,7 @@ public class ActionBarProxy extends KrollProxy
 		Drawable icon = getDrawableFromUrl(url);
 		if (icon != null) {
 			actionBar.setIcon(icon);
-		} 
+		}
 	}
 
 	private void handleSetTitle(String title)
@@ -263,7 +272,7 @@ public class ActionBarProxy extends KrollProxy
 			Log.w(TAG, "ActionBar is not enabled");
 		}
 	}
-	
+
 	private void handleShow()
 	{
 		if (actionBar != null) {
@@ -290,7 +299,7 @@ public class ActionBarProxy extends KrollProxy
 		}
 
 		Drawable backgroundImage = getDrawableFromUrl(url);
-		//This is a workaround due to https://code.google.com/p/styled-action-bar/issues/detail?id=3. [TIMOB-12148]
+		// This is a workaround due to https://code.google.com/p/styled-action-bar/issues/detail?id=3. [TIMOB-12148]
 		if (backgroundImage != null) {
 			actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
 			actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
@@ -307,14 +316,14 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-        private void handlesetHomeButtonEnabled(boolean homeButtonEnabled)
-        {
-                if (actionBar != null) {
-                        actionBar.setHomeButtonEnabled(homeButtonEnabled);
-                } else {
-                        Log.w(TAG, "ActionBar is not enabled");
-                }
-        }
+	private void handlesetHomeButtonEnabled(boolean homeButtonEnabled)
+	{
+		if (actionBar != null) {
+			actionBar.setHomeButtonEnabled(homeButtonEnabled);
+		} else {
+			Log.w(TAG, "ActionBar is not enabled");
+		}
+	}
 
 	private void handlesetNavigationMode(int navigationMode)
 	{

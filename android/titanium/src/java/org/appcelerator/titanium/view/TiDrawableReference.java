@@ -57,8 +57,7 @@ import android.webkit.URLUtil;
 public class TiDrawableReference
 {
 	private static Map<Integer, Bounds> boundsCache;
-	static
-	{
+	static {
 		boundsCache = Collections.synchronizedMap(new HashMap<Integer, Bounds>());
 	}
 
@@ -110,9 +109,11 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * A very primitive implementation based on org.apache.commons.lang3.builder.HashCodeBuilder,
-	 * which is licensed under Apache 2.0 license.
-	 * @see <a href="http://svn.apache.org/viewvc/commons/proper/lang/trunk/src/main/java/org/apache/commons/lang3/builder/HashCodeBuilder.java?view=markup">HashCodeBuilder</a>
+	 * A very primitive implementation based on org.apache.commons.lang3.builder.HashCodeBuilder, which is licensed
+	 * under Apache 2.0 license.
+	 * 
+	 * @see <a
+	 *      href="http://svn.apache.org/viewvc/commons/proper/lang/trunk/src/main/java/org/apache/commons/lang3/builder/HashCodeBuilder.java?view=markup">HashCodeBuilder</a>
 	 */
 	@Override
 	public int hashCode()
@@ -133,10 +134,10 @@ public class TiDrawableReference
 		if (!(object instanceof TiDrawableReference)) {
 			return super.equals(object);
 		}
-		return (this.hashCode() == ((TiDrawableReference)object).hashCode());
+		return (this.hashCode() == ((TiDrawableReference) object).hashCode());
 	}
 
-	public static TiDrawableReference fromResourceId(Activity activity, int resourceId) 
+	public static TiDrawableReference fromResourceId(Activity activity, int resourceId)
 	{
 		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.RESOURCE_ID);
 		ref.resourceId = resourceId;
@@ -145,6 +146,7 @@ public class TiDrawableReference
 
 	/**
 	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.BLOB.
+	 * 
 	 * @param activity the referenced activity.
 	 * @param blob the referenced blob.
 	 * @return A ready instance of TiDrawableReference.
@@ -159,6 +161,7 @@ public class TiDrawableReference
 
 	/**
 	 * Resolves the url, then creates and returns a TiDrawableReference instance.
+	 * 
 	 * @param proxy the activity proxy.
 	 * @param url the url to resolve.
 	 * @return A ready instance of TiDrawableReference.
@@ -174,6 +177,7 @@ public class TiDrawableReference
 
 	/**
 	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.URL.
+	 * 
 	 * @param activity the referenced activity.
 	 * @param url the resource's url.
 	 * @return A ready instance of TiDrawableReference.
@@ -186,9 +190,10 @@ public class TiDrawableReference
 
 		// Could still be a resource image file in android/images/medium|high|low. Check once.
 		if (url != null) {
-			int id =  TiUIHelper.getResourceId(url);
+			int id = TiUIHelper.getResourceId(url);
 			if (id != 0) {
-				// This is a resource so handle it as such.  Is it evil to switch up the type on someone like this? Maybe...
+				// This is a resource so handle it as such. Is it evil to switch up the type on someone like this?
+				// Maybe...
 				ref.type = DrawableReferenceType.RESOURCE_ID;
 				ref.resourceId = id;
 			}
@@ -198,6 +203,7 @@ public class TiDrawableReference
 
 	/**
 	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.FILE.
+	 * 
 	 * @param activity the referenced activity.
 	 * @param file the referenced file.
 	 * @return A ready instance of TiDrawableReference.
@@ -208,19 +214,21 @@ public class TiDrawableReference
 		ref.file = file;
 		return ref;
 	}
-	
+
 	public static TiDrawableReference fromDictionary(Activity activity, HashMap dict)
 	{
 		if (dict.containsKey("media")) {
 			return fromBlob(activity, TiConvert.toBlob(new KrollDict(dict), "media"));
 		} else {
 			Log.w(TAG,
-				"Unknown drawable reference inside dictionary.  Expected key 'media' to be a blob.  Returning null drawable reference");
+					"Unknown drawable reference inside dictionary.  Expected key 'media' to be a blob.  Returning null drawable reference");
 			return fromObject(activity, null);
 		}
 	}
+
 	/**
 	 * Does its best to determine the type of reference (url, blob, etc) based on object parameter.
+	 * 
 	 * @param activity the referenced activity.
 	 * @param object the referenced object.
 	 * @return A ready instance of TiDrawableReference.
@@ -231,20 +239,20 @@ public class TiDrawableReference
 		if (object == null) {
 			return new TiDrawableReference(activity, DrawableReferenceType.NULL);
 		}
-		
+
 		if (object instanceof String) {
 			return fromUrl(activity, TiConvert.toString(object));
 		} else if (object instanceof HashMap) {
-			return fromDictionary(activity, (HashMap)object);
+			return fromDictionary(activity, (HashMap) object);
 		} else if (object instanceof TiBaseFile) {
-			return fromFile(activity, (TiBaseFile)object);
+			return fromFile(activity, (TiBaseFile) object);
 		} else if (object instanceof TiBlob) {
 			return fromBlob(activity, TiConvert.toBlob(object));
 		} else if (object instanceof Number) {
-			return fromResourceId(activity, ((Number)object).intValue());
+			return fromResourceId(activity, ((Number) object).intValue());
 		} else {
 			Log.w(TAG, "Unknown image resource type: " + object.getClass().getSimpleName()
-				+ ". Returning null drawable reference");
+					+ ". Returning null drawable reference");
 			return fromObject(activity, null);
 		}
 	}
@@ -263,7 +271,7 @@ public class TiDrawableReference
 	{
 		return type == DrawableReferenceType.FILE;
 	}
-	
+
 	public boolean isTypeBlob()
 	{
 		return type == DrawableReferenceType.BLOB;
@@ -273,6 +281,7 @@ public class TiDrawableReference
 	{
 		return type == DrawableReferenceType.RESOURCE_ID;
 	}
+
 	public boolean isTypeNull()
 	{
 		return type == DrawableReferenceType.NULL;
@@ -280,6 +289,7 @@ public class TiDrawableReference
 
 	/**
 	 * Gets the bitmap from the resource without respect to sampling/scaling.
+	 * 
 	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
 	 * @module.api
 	 */
@@ -289,12 +299,12 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * Gets the bitmap from the resource without respect to sampling/scaling.
-	 * When needRetry is set to true, it will retry loading when decode fails.
-	 * If decode fails because of out of memory, clear the memory and call GC and retry loading a smaller image.
-	 * If decode fails because of the odd Android 2.3/Gingerbread behavior (TIMOB-3599), retry loading the original image.
-	 * This method should be called from a background thread when needRetry is set to true because it may block
-	 * the thread if it needs to retry several times.
+	 * Gets the bitmap from the resource without respect to sampling/scaling. When needRetry is set to true, it will
+	 * retry loading when decode fails. If decode fails because of out of memory, clear the memory and call GC and retry
+	 * loading a smaller image. If decode fails because of the odd Android 2.3/Gingerbread behavior (TIMOB-3599), retry
+	 * loading the original image. This method should be called from a background thread when needRetry is set to true
+	 * because it may block the thread if it needs to retry several times.
+	 * 
 	 * @param needRetry If true, it will retry loading when decode fails.
 	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
 	 * @module.api
@@ -303,15 +313,15 @@ public class TiDrawableReference
 	{
 		return getBitmap(needRetry, false);
 	}
-	
+
 	/**
-	 * Gets the bitmap from the resource. If densityScaled is set to true, image is scaled
-	 * based on the device density otherwise no sampling/scaling is done.
-	 * When needRetry is set to true, it will retry loading when decode fails.
-	 * If decode fails because of out of memory, clear the memory and call GC and retry loading a smaller image.
-	 * If decode fails because of the odd Android 2.3/Gingerbread behavior (TIMOB-3599), retry loading the original image.
-	 * This method should be called from a background thread when needRetry is set to true because it may block
-	 * the thread if it needs to retry several times.
+	 * Gets the bitmap from the resource. If densityScaled is set to true, image is scaled based on the device density
+	 * otherwise no sampling/scaling is done. When needRetry is set to true, it will retry loading when decode fails. If
+	 * decode fails because of out of memory, clear the memory and call GC and retry loading a smaller image. If decode
+	 * fails because of the odd Android 2.3/Gingerbread behavior (TIMOB-3599), retry loading the original image. This
+	 * method should be called from a background thread when needRetry is set to true because it may block the thread if
+	 * it needs to retry several times.
+	 * 
 	 * @param needRetry If true, it will retry loading when decode fails.
 	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
 	 */
@@ -355,7 +365,8 @@ public class TiDrawableReference
 						}
 						// Decode fails because of TIMOB-3599.
 						// Really odd Android 2.3/Gingerbread behavior -- BitmapFactory.decode* Skia functions
-						// fail randomly and seemingly without a cause. Retry 5 times by default w/ 250ms between each try.
+						// fail randomly and seemingly without a cause. Retry 5 times by default w/ 250ms between each
+						// try.
 						// Usually the 2nd or 3rd try succeeds, but the "decodeRetries" property in ImageView
 						// will allow users to tweak this if needed
 						Log.i(TAG, "Unable to decode bitmap. Will retry.", Log.DEBUG_MODE);
@@ -384,7 +395,7 @@ public class TiDrawableReference
 					HttpGet request = new HttpGet(url);
 					HttpResponse response;
 					try {
-						response = (HttpResponse)client.execute(request);           
+						response = (HttpResponse) client.execute(request);
 						HttpEntity entity = response.getEntity();
 						BufferedHttpEntity bufferedEntity = new BufferedHttpEntity(entity);
 						InputStream inputStream = bufferedEntity.getContent();
@@ -392,7 +403,7 @@ public class TiDrawableReference
 					} catch (ClientProtocolException e) {
 						Log.e(TAG, "ClientProtocolException" + e.getStackTrace());
 					} catch (IOException e) {
-						//Ignore
+						// Ignore
 					}
 				}
 			} else {
@@ -444,9 +455,10 @@ public class TiDrawableReference
 		}
 		return drawable;
 	}
+
 	/**
-	 * Gets a resource drawable directly if the reference is to a resource, else
-	 * makes a BitmapDrawable with the given attributes.
+	 * Gets a resource drawable directly if the reference is to a resource, else makes a BitmapDrawable with the given
+	 * attributes.
 	 */
 	public Drawable getDrawable(View parent, TiDimension destWidthDimension, TiDimension destHeightDimension)
 	{
@@ -459,9 +471,10 @@ public class TiDrawableReference
 		}
 		return drawable;
 	}
+
 	/**
-	 * Gets a resource drawable directly if the reference is to a resource, else
-	 * makes a BitmapDrawable with the given attributes.
+	 * Gets a resource drawable directly if the reference is to a resource, else makes a BitmapDrawable with the given
+	 * attributes.
 	 */
 	public Drawable getDrawable(int destWidth, int destHeight)
 	{
@@ -474,9 +487,10 @@ public class TiDrawableReference
 		}
 		return drawable;
 	}
+
 	/**
-	 * Gets a resource drawable directly if the reference is to a resource, else
-	 * makes a BitmapDrawable with default attributes.
+	 * Gets a resource drawable directly if the reference is to a resource, else makes a BitmapDrawable with default
+	 * attributes.
 	 */
 	public Drawable getDrawable()
 	{
@@ -489,11 +503,10 @@ public class TiDrawableReference
 		}
 		return drawable;
 	}
-	
+
 	/**
-	 * Gets a scaled resource drawable directly if the reference is to a resource, else
-	 * makes a BitmapDrawable with default attributes. Scaling is done based on the device
-	 * resolution.
+	 * Gets a scaled resource drawable directly if the reference is to a resource, else makes a BitmapDrawable with
+	 * default attributes. Scaling is done based on the device resolution.
 	 */
 	public Drawable getDensityScaledDrawable()
 	{
@@ -506,23 +519,25 @@ public class TiDrawableReference
 		}
 		return drawable;
 	}
+
 	/**
 	 * Gets the bitmap, scaled to a specific width & height.
+	 * 
 	 * @param destWidth Width in pixels of resulting scaled bitmap
 	 * @param destHeight Height in pixels of resulting scaled bitmap
-	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
+	 * @return Bitmap, or null if any problem getting it. Check logcat if null.
 	 */
 	public Bitmap getBitmap(int destWidth, int destHeight)
 	{
-		return getBitmap(null,
-			TiConvert.toTiDimension(new Integer(destWidth), TiDimension.TYPE_WIDTH),
-			TiConvert.toTiDimension(new Integer(destHeight), TiDimension.TYPE_HEIGHT));
+		return getBitmap(null, TiConvert.toTiDimension(new Integer(destWidth), TiDimension.TYPE_WIDTH),
+				TiConvert.toTiDimension(new Integer(destHeight), TiDimension.TYPE_HEIGHT));
 	}
+
 	/**
-	 * Gets the bitmap, scaled to a specific width, with the height matching the
-	 * original aspect ratio.
+	 * Gets the bitmap, scaled to a specific width, with the height matching the original aspect ratio.
+	 * 
 	 * @param destWidth Width in pixels of resulting bitmap
-	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
+	 * @return Bitmap, or null if any problem getting it. Check logcat if null.
 	 */
 	public Bitmap getBitmap(int destWidth)
 	{
@@ -534,8 +549,8 @@ public class TiDrawableReference
 			Log.w(TAG, "Bitmap bounds could not be determined.  If bitmap is loaded, it won't be scaled.");
 			return getBitmap(); // fallback
 		}
-		double aspectRatio = (double)srcWidth/(double)srcHeight;
-		destHeight = (int) ((double)destWidth / aspectRatio);
+		double aspectRatio = (double) srcWidth / (double) srcHeight;
+		destHeight = (int) ((double) destWidth / aspectRatio);
 		return getBitmap(destWidth, destHeight);
 	}
 
@@ -543,10 +558,8 @@ public class TiDrawableReference
 			TiDimension destHeightDimension, View parent)
 	{
 		Bounds bounds = new Bounds();
-		int destWidth, destHeight, containerWidth, containerHeight,
-			parentWidth, parentHeight;
-		destWidth = destHeight = parentWidth = parentHeight =
-			containerWidth = containerHeight = TiDrawableReference.UNKNOWN;
+		int destWidth, destHeight, containerWidth, containerHeight, parentWidth, parentHeight;
+		destWidth = destHeight = parentWidth = parentHeight = containerWidth = containerHeight = TiDrawableReference.UNKNOWN;
 		boolean widthSpecified = false;
 		boolean heightSpecified = false;
 
@@ -569,7 +582,8 @@ public class TiDrawableReference
 			}
 		}
 		if (containerWidth < 0) {
-			Log.w(TAG, "Could not determine container width for image. Defaulting to source width. This shouldn't happen.");
+			Log.w(TAG,
+					"Could not determine container width for image. Defaulting to source width. This shouldn't happen.");
 			containerWidth = srcWidth;
 		}
 
@@ -588,7 +602,8 @@ public class TiDrawableReference
 		}
 
 		if (containerHeight < 0) {
-			Log.w(TAG, "Could not determine container height for image. Defaulting to source height. This shouldn't happen.");
+			Log.w(TAG,
+					"Could not determine container height for image. Defaulting to source height. This shouldn't happen.");
 			containerHeight = srcHeight;
 		}
 
@@ -620,13 +635,14 @@ public class TiDrawableReference
 
 	/**
 	 * Gets the bitmap, scaled to a width & height specified in TiDimension params.
-	 * @param destWidthDimension (null-ok) TiDimension specifying the desired width.  If .isUnitAuto()
-	 * then the width will be the source width.  If destWidthDimension is null, then the TiContext
-	 * will be used to determine the activity window's decor width and use that.
-	 * @param destHeightDimension (null-ok) TiDimension specifying the desired height.  If .isUnitAuto()
-	 * then the height will be the source height.  If destHeightDimension is null, then resulting height will
-	 * be at same ratio to the resulting width as the original height:width.
-	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
+	 * 
+	 * @param destWidthDimension (null-ok) TiDimension specifying the desired width. If .isUnitAuto() then the width
+	 *            will be the source width. If destWidthDimension is null, then the TiContext will be used to determine
+	 *            the activity window's decor width and use that.
+	 * @param destHeightDimension (null-ok) TiDimension specifying the desired height. If .isUnitAuto() then the height
+	 *            will be the source height. If destHeightDimension is null, then resulting height will be at same ratio
+	 *            to the resulting width as the original height:width.
+	 * @return Bitmap, or null if any problem getting it. Check logcat if null.
 	 */
 	public Bitmap getBitmap(View parent, TiDimension destWidthDimension, TiDimension destHeightDimension)
 	{
@@ -673,7 +689,7 @@ public class TiDrawableReference
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inInputShareable = true;
 			opts.inPurgeable = true;
-			opts.inSampleSize =  calcSampleSize(srcWidth, srcHeight, destWidth, destHeight);
+			opts.inSampleSize = calcSampleSize(srcWidth, srcHeight, destWidth, destHeight);
 			if (Log.isDebugModeEnabled()) {
 				StringBuilder sb = new StringBuilder();
 				sb.append("Bitmap calcSampleSize results: inSampleSize=");
@@ -715,7 +731,7 @@ public class TiDrawableReference
 				// Orient the image when orientation is set.
 				if (autoRotate) {
 					// Only set the orientation if it is uninitialized
-					if(orientation < 0) {
+					if (orientation < 0) {
 						orientation = getOrientation();
 					}
 					if (orientation > 0) {
@@ -736,7 +752,9 @@ public class TiDrawableReference
 					// pixel dimensions, need to do that here as well, because Bitmap width/height
 					// calculations do _not_ do that automatically.
 					if (anyDensityFalse && displayMetrics.density != 1f) {
-						destWidth = (int) (destWidth * displayMetrics.density + 0.5f); // 0.5 is to force round up of dimension. Casting to int drops decimals.
+						destWidth = (int) (destWidth * displayMetrics.density + 0.5f); // 0.5 is to force round up of
+																						// dimension. Casting to int
+																						// drops decimals.
 						destHeight = (int) (destHeight * displayMetrics.density + 0.5f);
 					}
 
@@ -783,7 +801,7 @@ public class TiDrawableReference
 		if (!isNetworkUrl()) {
 			Log.w(TAG, "getBitmapAsync called on non-network url.  Will attempt load.", Log.DEBUG_MODE);
 		}
-		
+
 		try {
 			TiDownloadManager.getInstance().download(new URI(TiUrl.getCleanUri(url).toString()), listener);
 		} catch (URISyntaxException e) {
@@ -794,8 +812,9 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * Uses BitmapFactory.Options' 'inJustDecodeBounds' to peak at the bitmap's bounds
-	 * (height & width) so we can do some sampling and scaling.
+	 * Uses BitmapFactory.Options' 'inJustDecodeBounds' to peak at the bitmap's bounds (height & width) so we can do
+	 * some sampling and scaling.
+	 * 
 	 * @return Bounds object with width and height.
 	 */
 	public Bounds peekBounds()
@@ -805,7 +824,9 @@ public class TiDrawableReference
 			return boundsCache.get(hash);
 		}
 		Bounds bounds = new Bounds();
-		if (isTypeNull()) { return bounds; }
+		if (isTypeNull()) {
+			return bounds;
+		}
 
 		InputStream stream = getInputStream();
 
@@ -834,9 +855,9 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * Based on the underlying type of reference this is, figures out how to get
-	 * an InputStream for it.  E.g., if a blob, calls blob.getInputStream, if 
-	 * a resource id, calls context.getTiApp().getResources().openRawResource(resourceId).
+	 * Based on the underlying type of reference this is, figures out how to get an InputStream for it. E.g., if a blob,
+	 * calls blob.getInputStream, if a resource id, calls context.getTiApp().getResources().openRawResource(resourceId).
+	 * 
 	 * @return InputStream or null if problem getting it (check logcat in that case)
 	 */
 	public InputStream getInputStream()
@@ -846,7 +867,7 @@ public class TiDrawableReference
 		if (isTypeUrl() && url != null) {
 			try {
 				stream = TiFileHelper.getInstance().openInputStream(url, false);
-				
+
 			} catch (IOException e) {
 				Log.e(TAG, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
 			}
@@ -864,7 +885,8 @@ public class TiDrawableReference
 			try {
 				stream = TiApplication.getInstance().getResources().openRawResource(resourceId);
 			} catch (Resources.NotFoundException e) {
-				Log.e(TAG, "Drawable resource could not be opened. Are you sure you have the resource for the current device configuration (orientation, screen size, etc.)?");
+				Log.e(TAG,
+						"Drawable resource could not be opened. Are you sure you have the resource for the current device configuration (orientation, screen size, etc.)?");
 				throw e;
 			}
 		}
@@ -875,7 +897,8 @@ public class TiDrawableReference
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property.
 	 * 
-	 * @see <a href="http://developer.android.com/reference/android/graphics/BitmapFactory.Options.html#inSampleSize">BitmapFactory.Options.inSampleSize</a>
+	 * @see <a
+	 *      href="http://developer.android.com/reference/android/graphics/BitmapFactory.Options.html#inSampleSize">BitmapFactory.Options.inSampleSize</a>
 	 * @param srcWidth int
 	 * @param srcHeight int
 	 * @param destWidth int
@@ -893,16 +916,18 @@ public class TiDrawableReference
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property.
 	 * 
-	 * @see <a href="http://developer.android.com/reference/android/graphics/BitmapFactory.Options.html#inSampleSize">BitmapFactory.Options.inSampleSize</a>
+	 * @see <a
+	 *      href="http://developer.android.com/reference/android/graphics/BitmapFactory.Options.html#inSampleSize">BitmapFactory.Options.inSampleSize</a>
 	 * @param srcWidth int
 	 * @param srcHeight int
-	 * @param destWidthDimension TiDimension holding the destination width. If null, the TiContext's Activity's Window's decor width is used
-	 * as the destWidth.
-	 * @param destHeightDimension TiDimension holding the destination height.  If null, the destHeight will be proportional to destWidth as srcHeight
-	 * is to srcWidth.
+	 * @param destWidthDimension TiDimension holding the destination width. If null, the TiContext's Activity's Window's
+	 *            decor width is used as the destWidth.
+	 * @param destHeightDimension TiDimension holding the destination height. If null, the destHeight will be
+	 *            proportional to destWidth as srcHeight is to srcWidth.
 	 * @return max of srcWidth/destWidth or srcHeight/destHeight
 	 */
-	public int calcSampleSize(View parent, int srcWidth, int srcHeight, TiDimension destWidthDimension, TiDimension destHeightDimension) 
+	public int calcSampleSize(View parent, int srcWidth, int srcHeight, TiDimension destWidthDimension,
+			TiDimension destHeightDimension)
 	{
 		int destWidth, destHeight;
 		destWidth = destHeight = TiDrawableReference.UNKNOWN;
@@ -920,7 +945,8 @@ public class TiDrawableReference
 		return oomOccurred;
 	}
 
-	private Bitmap getRotatedBitmap(Bitmap src, int orientation) {
+	private Bitmap getRotatedBitmap(Bitmap src, int orientation)
+	{
 		Matrix m = new Matrix();
 		m.postRotate(orientation);
 		return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), m, false);

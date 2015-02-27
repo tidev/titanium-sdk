@@ -26,16 +26,17 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
 
 /**
- * Base layout class for all Titanium views. 
+ * Base layout class for all Titanium views.
  */
-public class TiCompositeLayout extends ViewGroup
-	implements OnHierarchyChangeListener
+public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeListener
 {
 	/**
 	 * Supported layout arrangements
+	 * 
 	 * @module.api
 	 */
-	public enum LayoutArrangement {
+	public enum LayoutArrangement
+	{
 		/**
 		 * The default Titanium layout arrangement.
 		 */
@@ -57,7 +58,7 @@ public class TiCompositeLayout extends ViewGroup
 	private TreeSet<View> viewSorter;
 	private boolean needsSort;
 	protected LayoutArrangement arrangement;
-	
+
 	// Used by horizonal arrangement calculations
 	private int horizontalLayoutTopBuffer = 0;
 	private int horizontalLayoutCurrentLeft = 0;
@@ -74,6 +75,7 @@ public class TiCompositeLayout extends ViewGroup
 
 	/**
 	 * Constructs a new TiCompositeLayout object.
+	 * 
 	 * @param context the associated context.
 	 * @module.api
 	 */
@@ -84,6 +86,7 @@ public class TiCompositeLayout extends ViewGroup
 
 	/**
 	 * Constructs a new TiCompositeLayout object.
+	 * 
 	 * @param context the associated context.
 	 * @param arrangement the associated LayoutArrangement
 	 * @module.api
@@ -92,14 +95,15 @@ public class TiCompositeLayout extends ViewGroup
 	{
 		this(context, LayoutArrangement.DEFAULT, null);
 	}
-	
-	public TiCompositeLayout(Context context, AttributeSet set) 
+
+	public TiCompositeLayout(Context context, AttributeSet set)
 	{
 		this(context, LayoutArrangement.DEFAULT, null);
 	}
 
 	/**
 	 * Constructs a new TiCompositeLayout object.
+	 * 
 	 * @param context the associated context.
 	 * @param proxy the associated proxy.
 	 */
@@ -110,6 +114,7 @@ public class TiCompositeLayout extends ViewGroup
 
 	/**
 	 * Constructs a new TiCompositeLayout object.
+	 * 
 	 * @param context the associated context.
 	 * @param arrangement the associated LayoutArrangement
 	 * @param proxy the associated proxy.
@@ -169,10 +174,11 @@ public class TiCompositeLayout extends ViewGroup
 		this.proxy = new WeakReference<TiViewProxy>(proxy);
 	}
 
-	private String viewToString(View view) {
+	private String viewToString(View view)
+	{
 		return view.getClass().getSimpleName() + "@" + Integer.toHexString(view.hashCode());
 	}
-	
+
 	public void resort()
 	{
 		setNeedsSort(true);
@@ -180,14 +186,16 @@ public class TiCompositeLayout extends ViewGroup
 		invalidate();
 	}
 
-	public void onChildViewAdded(View parent, View child) {
+	public void onChildViewAdded(View parent, View child)
+	{
 		setNeedsSort(true);
 		if (Log.isDebugModeEnabled() && parent != null && child != null) {
 			Log.d(TAG, "Attaching: " + viewToString(child) + " to " + viewToString(parent), Log.DEBUG_MODE);
 		}
 	}
 
-	public void onChildViewRemoved(View parent, View child) {
+	public void onChildViewRemoved(View parent, View child)
+	{
 		setNeedsSort(true);
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Removing: " + viewToString(child) + " from " + viewToString(parent), Log.DEBUG_MODE);
@@ -195,7 +203,8 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	@Override
-	protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
+	protected boolean checkLayoutParams(ViewGroup.LayoutParams p)
+	{
 		return p instanceof TiCompositeLayout.LayoutParams;
 	}
 
@@ -272,7 +281,7 @@ public class TiCompositeLayout extends ViewGroup
 		int horizontalRowWidth = 0;
 		int horizontalRowHeight = 0;
 
-		for(int i = 0; i < childCount; i++) {
+		for (int i = 0; i < childCount; i++) {
 			View child = getChildAt(i);
 			if (child.getVisibility() != View.GONE) {
 				constrainChild(child, w, wMode, h, hMode);
@@ -325,16 +334,16 @@ public class TiCompositeLayout extends ViewGroup
 		maxHeight += getPaddingTop() + getPaddingBottom();
 
 		// Account for border
-		//int padding = Math.round(borderHelper.calculatePadding());
-		//maxWidth += padding;
-		//maxHeight += padding;
+		// int padding = Math.round(borderHelper.calculatePadding());
+		// maxWidth += padding;
+		// maxHeight += padding;
 
 		// check minimums
 		maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
 		maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
 
 		int measuredWidth = getMeasuredWidth(maxWidth, widthMeasureSpec);
-		int measuredHeight = getMeasuredHeight(maxHeight,heightMeasureSpec);
+		int measuredHeight = getMeasuredHeight(maxHeight, heightMeasureSpec);
 		setMeasuredDimension(measuredWidth, measuredHeight);
 	}
 
@@ -370,7 +379,7 @@ public class TiCompositeLayout extends ViewGroup
 
 		int widthPadding = getViewWidthPadding(child, width);
 		int widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode), widthPadding,
-			childDimension);
+				childDimension);
 		// If autoFillsHeight is false, and optionHeight is null, then we use size behavior.
 		childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionHeight != null) {
@@ -393,7 +402,7 @@ public class TiCompositeLayout extends ViewGroup
 
 		int heightPadding = getViewHeightPadding(child, height);
 		int heightSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(height, hMode), heightPadding,
-			childDimension);
+				childDimension);
 
 		child.measure(widthSpec, heightSpec);
 		// Useful for debugging.
@@ -404,7 +413,7 @@ public class TiCompositeLayout extends ViewGroup
 	// Try to calculate width from pins, if we couldn't calculate from pins or we don't need to, then return the
 	// measured width
 	private int calculateWidthFromPins(LayoutParams params, int parentLeft, int parentRight, int parentWidth,
-		int measuredWidth)
+			int measuredWidth)
 	{
 		int width = measuredWidth;
 
@@ -431,7 +440,7 @@ public class TiCompositeLayout extends ViewGroup
 	// Try to calculate height from pins, if we couldn't calculate from pins or we don't need to, then return the
 	// measured height
 	private int calculateHeightFromPins(LayoutParams params, int parentTop, int parentBottom, int parentHeight,
-		int measuredHeight)
+			int measuredHeight)
 	{
 		int height = measuredHeight;
 
@@ -480,10 +489,9 @@ public class TiCompositeLayout extends ViewGroup
 		if (needsSort) {
 			viewSorter.clear();
 			if (count > 1) { // No need to sort one item.
-				for(int i = 0; i < count; i++) {
+				for (int i = 0; i < count; i++) {
 					View child = getChildAt(i);
-					TiCompositeLayout.LayoutParams params =
-						(TiCompositeLayout.LayoutParams) child.getLayoutParams();
+					TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) child.getLayoutParams();
 					params.index = i;
 					viewSorter.add(child);
 				}
@@ -507,8 +515,7 @@ public class TiCompositeLayout extends ViewGroup
 
 		for (int i = 0; i < count; i++) {
 			View child = getChildAt(i);
-			TiCompositeLayout.LayoutParams params =
-				(TiCompositeLayout.LayoutParams) child.getLayoutParams();
+			TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) child.getLayoutParams();
 			if (child.getVisibility() != View.GONE) {
 				// Dimension is required from Measure. Positioning is determined here.
 
@@ -516,7 +523,7 @@ public class TiCompositeLayout extends ViewGroup
 				int childMeasuredWidth = child.getMeasuredWidth();
 
 				if (isHorizontalArrangement()) {
-					if (i == 0)  {
+					if (i == 0) {
 						horizontalLayoutCurrentLeft = left;
 						horizontalLayoutLineHeight = 0;
 						horizontalLayoutTopBuffer = 0;
@@ -524,39 +531,43 @@ public class TiCompositeLayout extends ViewGroup
 						horiztonalLayoutPreviousRight = 0;
 						updateRowForHorizontalWrap(right, i);
 					}
-					computeHorizontalLayoutPosition(params, childMeasuredWidth, childMeasuredHeight, right, top, bottom, horizontal, vertical, i);
+					computeHorizontalLayoutPosition(params, childMeasuredWidth, childMeasuredHeight, right, top,
+							bottom, horizontal, vertical, i);
 
 				} else {
-					// Try to calculate width/height from pins, and default to measured width/height. We have to do this in
-					// onLayout since we can't get the correct top, bottom, left, and right values inside constrainChild().
+					// Try to calculate width/height from pins, and default to measured width/height. We have to do this
+					// in
+					// onLayout since we can't get the correct top, bottom, left, and right values inside
+					// constrainChild().
 					childMeasuredHeight = calculateHeightFromPins(params, top, bottom, getHeight(), childMeasuredHeight);
 					childMeasuredWidth = calculateWidthFromPins(params, left, right, getWidth(), childMeasuredWidth);
 
-					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
+					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight,
+							childMeasuredWidth, left, right, horizontal);
 					if (isVerticalArrangement()) {
-						computeVerticalLayoutPosition(currentHeight, params.optionTop, childMeasuredHeight, top, vertical,
-							bottom);
+						computeVerticalLayoutPosition(currentHeight, params.optionTop, childMeasuredHeight, top,
+								vertical, bottom);
 						// Include bottom in height calculation for vertical layout (used as padding)
 						TiDimension optionBottom = params.optionBottom;
 						if (optionBottom != null) {
 							currentHeight += optionBottom.getAsPixels(this);
 						}
 					} else {
-						computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
+						computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom,
+								childMeasuredHeight, top, bottom, vertical);
 					}
 				}
 
 				if (Log.isDebugModeEnabled()) {
-					Log.d(TAG, child.getClass().getName() + " {" + horizontal[0] + "," + vertical[0] + "," + horizontal[1] + ","
-						+ vertical[1] + "}", Log.DEBUG_MODE);
+					Log.d(TAG, child.getClass().getName() + " {" + horizontal[0] + "," + vertical[0] + ","
+							+ horizontal[1] + "," + vertical[1] + "}", Log.DEBUG_MODE);
 				}
 
 				int newWidth = horizontal[1] - horizontal[0];
 				int newHeight = vertical[1] - vertical[0];
 				// If the old child measurements do not match the new measurements that we calculated, then update the
 				// child measurements accordingly
-				if (newWidth != child.getMeasuredWidth()
-					|| newHeight != child.getMeasuredHeight()) {
+				if (newWidth != child.getMeasuredWidth() || newHeight != child.getMeasuredHeight()) {
 					int newWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
 					int newHeightSpec = MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY);
 					child.measure(newWidthSpec, newHeightSpec);
@@ -566,7 +577,8 @@ public class TiCompositeLayout extends ViewGroup
 					Activity currentActivity = TiApplication.getAppCurrentActivity();
 					if (currentActivity instanceof TiLaunchActivity) {
 						if (!((TiLaunchActivity) currentActivity).isJSActivity()) {
-							Log.w(TAG, "The root activity is no longer available.  Skipping layout pass.", Log.DEBUG_MODE);
+							Log.w(TAG, "The root activity is no longer available.  Skipping layout pass.",
+									Log.DEBUG_MODE);
 							return;
 						}
 					}
@@ -587,8 +599,8 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	// option0 is left/top, option1 is right/bottom
-	public static void computePosition(View parent, TiDimension leftOrTop, TiDimension optionCenter, TiDimension rightOrBottom,
-		int measuredSize, int layoutPosition0, int layoutPosition1, int[] pos)
+	public static void computePosition(View parent, TiDimension leftOrTop, TiDimension optionCenter,
+			TiDimension rightOrBottom, int measuredSize, int layoutPosition0, int layoutPosition1, int[] pos)
 	{
 		int dist = layoutPosition1 - layoutPosition0;
 		if (leftOrTop != null) {
@@ -614,8 +626,8 @@ public class TiCompositeLayout extends ViewGroup
 		}
 	}
 
-	private void computeVerticalLayoutPosition(int currentHeight, TiDimension optionTop, int measuredHeight, int layoutTop,
-		int[] pos, int maxBottom)
+	private void computeVerticalLayoutPosition(int currentHeight, TiDimension optionTop, int measuredHeight,
+			int layoutTop, int[] pos, int maxBottom)
 	{
 		int top = layoutTop + currentHeight;
 		if (optionTop != null) {
@@ -629,7 +641,8 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	private void computeHorizontalLayoutPosition(TiCompositeLayout.LayoutParams params, int measuredWidth,
-		int measuredHeight, int layoutRight, int layoutTop, int layoutBottom, int[] hpos, int[] vpos, int currentIndex)
+			int measuredHeight, int layoutRight, int layoutTop, int layoutBottom, int[] hpos, int[] vpos,
+			int currentIndex)
 	{
 
 		TiDimension optionLeft = params.optionLeft;
@@ -644,7 +657,7 @@ public class TiCompositeLayout extends ViewGroup
 
 		int right;
 		// If it's fill width with horizontal wrap, just take up remaining space.
-		if(enableHorizontalWrap && params.autoFillsWidth && params.sizeOrFillWidthEnabled) {
+		if (enableHorizontalWrap && params.autoFillsWidth && params.sizeOrFillWidthEnabled) {
 			right = measuredWidth;
 		} else {
 			right = left + measuredWidth;
@@ -671,13 +684,13 @@ public class TiCompositeLayout extends ViewGroup
 				updateRowForHorizontalWrap(layoutRight, currentIndex);
 			}
 			measuredHeight = calculateHeightFromPins(params, horizontalLayoutTopBuffer, horizontalLayoutTopBuffer
-				+ horizontalLayoutLineHeight, horizontalLayoutLineHeight, measuredHeight);
+					+ horizontalLayoutLineHeight, horizontalLayoutLineHeight, measuredHeight);
 			layoutBottom = horizontalLayoutLineHeight;
 		}
 
 		// Get vertical position into vpos
 		computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, measuredHeight, layoutTop,
-			layoutBottom, vpos);
+				layoutBottom, vpos);
 		// account for moving the item "down" to later line(s) if there has been wrapping.
 		vpos[0] = vpos[0] + horizontalLayoutTopBuffer;
 		vpos[1] = vpos[1] + horizontalLayoutTopBuffer;
@@ -717,7 +730,8 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	// Determine whether we have a conflict where a parent has size behavior, and child has fill behavior.
-	private boolean hasSizeFillConflict(View parent, int[] conflicts, boolean firstIteration, boolean hasFixedWidthParent, boolean hasFixedHeightParent)
+	private boolean hasSizeFillConflict(View parent, int[] conflicts, boolean firstIteration,
+			boolean hasFixedWidthParent, boolean hasFixedHeightParent)
 	{
 		if (parent instanceof TiCompositeLayout) {
 			TiCompositeLayout currentLayout = (TiCompositeLayout) parent;
@@ -735,10 +749,12 @@ public class TiCompositeLayout extends ViewGroup
 			// this method) will be adjusted to undefined behavior accordingly during the layout phase.
 			// sizeOrFillHeightEnabled is used during the layout phase to determine whether we want to use the fill/size
 			// measurements that we got from the measure phase.
-			if (currentParams.autoFillsWidth && currentParams.optionWidth == null && conflicts[0] == NOT_SET && !hasFixedWidthParent) {
+			if (currentParams.autoFillsWidth && currentParams.optionWidth == null && conflicts[0] == NOT_SET
+					&& !hasFixedWidthParent) {
 				conflicts[0] = HAS_SIZE_FILL_CONFLICT;
 			}
-			if (currentParams.autoFillsHeight && currentParams.optionHeight == null && conflicts[1] == NOT_SET && !hasFixedHeightParent) {
+			if (currentParams.autoFillsHeight && currentParams.optionHeight == null && conflicts[1] == NOT_SET
+					&& !hasFixedHeightParent) {
 				conflicts[1] = HAS_SIZE_FILL_CONFLICT;
 			}
 
@@ -746,7 +762,7 @@ public class TiCompositeLayout extends ViewGroup
 			if (conflicts[0] != NOT_SET && conflicts[1] != NOT_SET) {
 				return true;
 			}
-			
+
 			if (currentParams.optionWidth != null && !currentParams.optionWidth.isUnitAuto())
 				hasFixedWidthParent = true;
 
@@ -756,7 +772,8 @@ public class TiCompositeLayout extends ViewGroup
 			// If the child has size behavior, continue traversing through children and see if any of them have fill
 			// behavior
 			for (int i = 0; i < currentLayout.getChildCount(); ++i) {
-				if (hasSizeFillConflict(currentLayout.getChildAt(i), conflicts, false, hasFixedWidthParent, hasFixedHeightParent)) {
+				if (hasSizeFillConflict(currentLayout.getChildAt(i), conflicts, false, hasFixedWidthParent,
+						hasFixedHeightParent)) {
 					return true;
 				}
 			}
@@ -772,18 +789,21 @@ public class TiCompositeLayout extends ViewGroup
 		return false;
 	}
 
-	protected int getWidthMeasureSpec(View child) {
+	protected int getWidthMeasureSpec(View child)
+	{
 		return MeasureSpec.EXACTLY;
 	}
 
-	protected int getHeightMeasureSpec(View child) {
+	protected int getHeightMeasureSpec(View child)
+	{
 		return MeasureSpec.EXACTLY;
 	}
 
 	/**
 	 * A TiCompositeLayout specific version of {@link android.view.ViewGroup.LayoutParams}
 	 */
-	public static class LayoutParams extends ViewGroup.LayoutParams {
+	public static class LayoutParams extends ViewGroup.LayoutParams
+	{
 		protected int index;
 
 		public int optionZIndex = NOT_SET;
@@ -862,7 +882,7 @@ public class TiCompositeLayout extends ViewGroup
 	{
 		this.proxy = new WeakReference<TiViewProxy>(proxy);
 	}
-	
+
 	private void setNeedsSort(boolean value)
 	{
 		// For vertical and horizontal layouts, since the controls doesn't

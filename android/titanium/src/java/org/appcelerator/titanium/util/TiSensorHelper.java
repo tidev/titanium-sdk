@@ -24,9 +24,9 @@ public class TiSensorHelper
 
 	private static SensorManager sensorManager;
 
-
 	/**
 	 * Registers a sensor listener with specified types and sensitivity.
+	 * 
 	 * @param types sensor's types, refer to {@link android.hardware.Sensor} for the supported list.
 	 * @param listener the sensor listener to be registered.
 	 * @param rate the listener sensitivity measured in milliseconds.
@@ -46,7 +46,7 @@ public class TiSensorHelper
 			return;
 		}
 
-		Sensor sensor  = sensorManager.getDefaultSensor(type);
+		Sensor sensor = sensorManager.getDefaultSensor(type);
 		if (sensor != null) {
 			Log.d(TAG, "Enabling Listener: " + sensor.getName(), Log.DEBUG_MODE);
 			sensorManager.registerListener(listener, sensor, rate);
@@ -64,6 +64,7 @@ public class TiSensorHelper
 
 	/**
 	 * Attempts to unregister the listener. An error will be logged if unable to unregister.
+	 * 
 	 * @param type the register's type, refer to {@link android.hardware.Sensor} for the supported list.
 	 * @param listener the sensor listener.
 	 */
@@ -98,11 +99,11 @@ public class TiSensorHelper
 		return sensorManager.getDefaultSensor(type) != null;
 	}
 
-	public static synchronized SensorManager getSensorManager() {
+	public static synchronized SensorManager getSensorManager()
+	{
 		if (sensorManager == null) {
 			sensorManager = (SensorManager) TiApplication.getInstance().getSystemService(Context.SENSOR_SERVICE);
 		}
 		return sensorManager;
 	}
 }
-

@@ -18,7 +18,8 @@ import android.graphics.Color;
 import android.os.Build;
 
 /**
- * This class contain utility methods that converts a String color, like "red", into its corresponding RGB/RGBA representation.
+ * This class contain utility methods that converts a String color, like "red", into its corresponding RGB/RGBA
+ * representation.
  */
 public class TiColorHelper
 {
@@ -28,15 +29,17 @@ public class TiColorHelper
 
 	private static final String TAG = "TiColorHelper";
 	private static HashMap<String, Integer> colorTable;
-	private static List<String> alphaMissingColors = Arrays.asList(new String[] {"aqua", "fuchsia", "lime", "maroon", "navy", "olive", "purple", "silver", "teal"});
-	
+	private static List<String> alphaMissingColors = Arrays.asList(new String[] { "aqua", "fuchsia", "lime", "maroon",
+			"navy", "olive", "purple", "silver", "teal" });
 
 	/**
 	 * Convert string representations of colors, like "red" into the corresponding RGB/RGBA representation.
+	 * 
 	 * @param value the color value to convert. For example, "red".
 	 * @return the RGB/RGBA representation (int) of the color.
 	 */
-	public static int parseColor(String value) {
+	public static int parseColor(String value)
+	{
 		int color = Color.TRANSPARENT;
 		if (value != null) {
 			String lowval = value.trim().toLowerCase();
@@ -45,30 +48,23 @@ public class TiColorHelper
 			if ((m = shortHexPattern.matcher(lowval)).matches()) {
 				StringBuilder sb = new StringBuilder();
 				sb.append("#");
-				for(int i = 1; i <= m.groupCount(); i++) {
+				for (int i = 1; i <= m.groupCount(); i++) {
 					String s = m.group(i);
 					sb.append(s).append(s);
 				}
 				String newColor = sb.toString();
 				color = Color.parseColor(newColor);
 			} else if ((m = rgbPattern.matcher(lowval)).matches()) {
-				color = Color.rgb(
-					Integer.valueOf(m.group(1)),
-					Integer.valueOf(m.group(2)),
-					Integer.valueOf(m.group(3))
-					);
+				color = Color
+						.rgb(Integer.valueOf(m.group(1)), Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
 			} else if ((m = argbPattern.matcher(lowval)).matches()) {
-				color = Color.argb(
-						Integer.valueOf(m.group(4)),
-						Integer.valueOf(m.group(1)),
-						Integer.valueOf(m.group(2)),
-						Integer.valueOf(m.group(3))
-						);
+				color = Color.argb(Integer.valueOf(m.group(4)), Integer.valueOf(m.group(1)),
+						Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
 			} else {
 				// Try the parser, will throw illegalArgument if it can't parse it.
 				try {
 					// In 4.3, Google introduced some new string color constants and they forgot to
-					// add the alpha bits to them! This is a temporary workaround 
+					// add the alpha bits to them! This is a temporary workaround
 					// until they fix it. I've created a Google ticket for this:
 					// https://code.google.com/p/android/issues/detail?id=58352&thanks=58352
 					if (Build.VERSION.SDK_INT > 17 && alphaMissingColors.contains(lowval)) {
@@ -92,8 +88,9 @@ public class TiColorHelper
 		return color;
 	}
 
-	private static void buildColorTable() {
-		synchronized(TiColorHelper.class) {
+	private static void buildColorTable()
+	{
+		synchronized (TiColorHelper.class) {
 			colorTable = new HashMap<String, Integer>(20);
 
 			colorTable.put("black", Color.BLACK);
@@ -104,13 +101,13 @@ public class TiColorHelper
 			colorTable.put("darkgray", Color.DKGRAY);
 			colorTable.put("lightgray", Color.LTGRAY);
 			colorTable.put("cyan", Color.CYAN);
-			colorTable.put("magenta",Color.MAGENTA);
+			colorTable.put("magenta", Color.MAGENTA);
 			colorTable.put("transparent", Color.TRANSPARENT);
 			colorTable.put("aqua", Color.rgb(0, 0xff, 0xff));
 			colorTable.put("fuchsia", Color.rgb(0xff, 0, 0xff));
 			colorTable.put("lime", Color.rgb(0, 0xff, 0));
-			colorTable.put("maroon", Color.rgb(0x88,0 ,0x88));
-			colorTable.put("pink", Color.rgb(0xff,0xc0, 0xcb));
+			colorTable.put("maroon", Color.rgb(0x88, 0, 0x88));
+			colorTable.put("pink", Color.rgb(0xff, 0xc0, 0xcb));
 			colorTable.put("navy", Color.rgb(0, 0, 0x80));
 			colorTable.put("silver", Color.rgb(0xc0, 0xc0, 0xc0));
 			colorTable.put("olive", Color.rgb(0x80, 0x80, 0));

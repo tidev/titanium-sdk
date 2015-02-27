@@ -13,8 +13,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-@SuppressWarnings({"serial"})
-public class TiWeakList<T> extends ArrayList<WeakReference<T>> {
+@SuppressWarnings({ "serial" })
+public class TiWeakList<T> extends ArrayList<WeakReference<T>>
+{
 
 	protected List<WeakReference<T>> synchronizedList;
 
@@ -40,9 +41,12 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>> {
 
 	public boolean refEquals(WeakReference<T> ref, Object o)
 	{
-		if (ref == null) return false;
-		if (ref.get() == o) return true;
-		if (ref.get() != null && ref.get().equals(o)) return true;
+		if (ref == null)
+			return false;
+		if (ref.get() == o)
+			return true;
+		if (ref.get() != null && ref.get().equals(o))
+			return true;
 		return false;
 	}
 
@@ -55,9 +59,9 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>> {
 		}
 		return false;
 	}
-	
+
 	@Override
-	public boolean add(WeakReference<T> o) 
+	public boolean add(WeakReference<T> o)
 	{
 		if (synchronizedList != null) {
 			synchronized (synchronizedList) {
@@ -70,7 +74,8 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>> {
 	@Override
 	public boolean contains(Object o)
 	{
-		if (o instanceof WeakReference) return super.contains(o);
+		if (o instanceof WeakReference)
+			return super.contains(o);
 		if (synchronizedList != null) {
 			synchronized (synchronizedList) {
 				return findRef(o);
@@ -95,7 +100,8 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>> {
 	@Override
 	public boolean remove(Object o)
 	{
-		if (o instanceof WeakReference) return super.remove(o);
+		if (o instanceof WeakReference)
+			return super.remove(o);
 		if (synchronizedList != null) {
 			synchronized (synchronizedList) {
 				return removeRef(o);
@@ -126,7 +132,8 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>> {
 		}
 
 		// TODO @Override
-		public boolean hasNext() {
+		public boolean hasNext()
+		{
 			if (synchronizedList != null) {
 				synchronized (synchronizedList) {
 					return getNextIndex() >= 0;
@@ -137,24 +144,28 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>> {
 		}
 
 		// TODO @Override
-		public T next() {
+		public T next()
+		{
 			if (synchronizedList != null) {
 				synchronized (synchronizedList) {
 					int nextIndex = getNextIndex();
-					if (nextIndex < 0) throw new NoSuchElementException();
-					index = nextIndex+1;
+					if (nextIndex < 0)
+						throw new NoSuchElementException();
+					index = nextIndex + 1;
 					return get(nextIndex).get();
 				}
 			} else {
 				int nextIndex = getNextIndex();
-				if (nextIndex < 0) throw new NoSuchElementException();
-				index = nextIndex+1;
+				if (nextIndex < 0)
+					throw new NoSuchElementException();
+				index = nextIndex + 1;
 				return get(nextIndex).get();
 			}
 		}
 
 		// TODO @Override
-		public void remove() {
+		public void remove()
+		{
 			if (synchronizedList != null) {
 				synchronized (synchronizedList) {
 					TiWeakList.this.remove(index);
@@ -172,8 +183,10 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>> {
 
 	public Iterable<T> nonNull()
 	{
-		return new Iterable<T>() {
-			public Iterator<T> iterator() {
+		return new Iterable<T>()
+		{
+			public Iterator<T> iterator()
+			{
 				return nonNullIterator();
 			}
 		};

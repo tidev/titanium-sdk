@@ -136,6 +136,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 
 	}
+
 	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
 	public TiApplication()
@@ -155,6 +156,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	/**
 	 * Retrieves the instance of TiApplication. There is one instance per Android application.
+	 * 
 	 * @return the instance of TiApplication.
 	 * @module.api
 	 */
@@ -223,6 +225,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	/**
 	 * Check whether the current activity is in foreground or not.
+	 * 
 	 * @return true if the current activity is in foreground; false otherwise.
 	 * @module.api
 	 */
@@ -230,14 +233,15 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		Activity currentActivity = getAppCurrentActivity();
 		if (currentActivity instanceof TiBaseActivity) {
-			return ((TiBaseActivity)currentActivity).isInForeground();
+			return ((TiBaseActivity) currentActivity).isInForeground();
 		}
 		return false;
 	}
 
 	/**
-	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every
-	 * time we need to grab the current activity.
+	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every time we need
+	 * to grab the current activity.
+	 * 
 	 * @return the current activity
 	 * @module.api
 	 */
@@ -252,9 +256,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	/**
-	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every
-	 * time we need to grab the root or current activity.
-	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
+	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every time we need
+	 * to grab the root or current activity.
+	 * 
+	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise
+	 *         returns null.
 	 * @module.api
 	 */
 	public static Activity getAppRootOrCurrentActivity()
@@ -280,7 +286,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 			// Skip and remove any activities which are dead or in the process of finishing.
 			if (activity == null || activity.isFinishing()) {
-				activityStack.remove(activityStackSize -1);
+				activityStack.remove(activityStackSize - 1);
 				continue;
 			}
 
@@ -292,7 +298,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	/**
-	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
+	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise
+	 *         returns null.
 	 */
 	public Activity getRootOrCurrentActivity()
 	{
@@ -320,7 +327,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		buildVersion = "1.0";
 		buildTimestamp = "N/A";
 		buildHash = "N/A";
-		InputStream versionStream = getClass().getClassLoader().getResourceAsStream("org/appcelerator/titanium/build.properties");
+		InputStream versionStream = getClass().getClassLoader().getResourceAsStream(
+				"org/appcelerator/titanium/build.properties");
 		if (versionStream != null) {
 			Properties properties = new Properties();
 			try {
@@ -334,11 +342,13 @@ public abstract class TiApplication extends Application implements KrollApplicat
 				if (properties.containsKey("build.githash")) {
 					buildHash = properties.getProperty("build.githash");
 				}
-			} catch (IOException e) {}
+			} catch (IOException e) {
+			}
 		}
 	}
 
-	private void loadAppProperties() {
+	private void loadAppProperties()
+	{
 		// Load the JSON file:
 		String appPropertiesString = KrollAssetHelper.readAsset("Resources/_app_props_.json");
 		if (appPropertiesString != null) {
@@ -357,12 +367,16 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		Log.d(TAG, "Application onCreate", Log.DEBUG_MODE);
 
 		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
-		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-			public void uncaughtException(Thread t, Throwable e) {
+		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler()
+		{
+			public void uncaughtException(Thread t, Throwable e)
+			{
 				if (isAnalyticsEnabled()) {
-					String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash ;
-					Log.e(TAG, "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium " + tiVer, e);
-					TiPlatformHelper.getInstance().postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
+					String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash;
+					Log.e(TAG, "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString()
+							+ "; Titanium " + tiVer, e);
+					TiPlatformHelper.getInstance().postAnalyticsEvent(
+							TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
 				}
 				defaultHandler.uncaughtException(t, e);
 			}
@@ -389,7 +403,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	@Override
-	public void onLowMemory ()
+	public void onLowMemory()
 	{
 		// Release all the cached images
 		TiImageLruCache.getInstance().evictAll();
@@ -442,8 +456,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private File getRemoteCacheDir()
 	{
 		File cacheDir = new File(tempFileHelper.getTempDirectory(), "remote-cache");
-		if (!cacheDir.exists())
-		{
+		if (!cacheDir.exists()) {
 			cacheDir.mkdirs();
 			tempFileHelper.excludeFileOnCleanup(cacheDir);
 		}
@@ -458,8 +471,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		// calculate the display density
 		DisplayMetrics dm = new DisplayMetrics();
 		rootActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-		switch(dm.densityDpi)
-		{
+		switch (dm.densityDpi) {
 			case DisplayMetrics.DENSITY_HIGH: {
 				density = "high";
 				break;
@@ -582,8 +594,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	/**
-	 * @return the app's properties, which are listed in tiapp.xml.
-	 * App properties can also be set at runtime by the application in Javascript.
+	 * @return the app's properties, which are listed in tiapp.xml. App properties can also be set at runtime by the
+	 *         application in Javascript.
 	 * @module.api
 	 */
 	public TiProperties getAppProperties()
@@ -701,11 +713,10 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public boolean isFastDevMode()
 	{
-		/* Fast dev is enabled by default in development mode, and disabled otherwise
-		 * When the property is set, it overrides the default behavior on emulator only
-		 * Deploy types are as follow:
-		 *    Emulator: 'development'
-		 *    Device: 'test'
+		/*
+		 * Fast dev is enabled by default in development mode, and disabled otherwise When the property is set, it
+		 * overrides the default behavior on emulator only Deploy types are as follow: Emulator: 'development' Device:
+		 * 'test'
 		 */
 		boolean development = getDeployType().equals(TiApplication.DEPLOY_TYPE_DEVELOPMENT);
 		if (!development) {
@@ -716,8 +727,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public boolean isCoverageEnabled()
 	{
-		if (!getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION))
-		{
+		if (!getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {
 			return getAppProperties().getBool(TiApplication.PROPERTY_ENABLE_COVERAGE, false);
 		}
 		return false;
@@ -727,7 +737,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		Log.w(TAG, "Scheduling application restart");
 		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
+			Log.d(TAG,
+					"Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
 			(new Exception()).printStackTrace();
 		}
 		this.restartPending = true;
@@ -838,9 +849,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	/**
-	 * Our forced restarts (for conditions such as android bug 2373, TIMOB-1911 and TIMOB-7293)
-	 * don't create new processes or pass through TiApplication() (the ctor). We need to reset
-	 * some state to better mimic a complete application restart.
+	 * Our forced restarts (for conditions such as android bug 2373, TIMOB-1911 and TIMOB-7293) don't create new
+	 * processes or pass through TiApplication() (the ctor). We need to reset some state to better mimic a complete
+	 * application restart.
 	 */
 	public void beforeForcedRestart()
 	{
@@ -875,4 +886,3 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public abstract void verifyCustomModules(TiRootActivity rootActivity);
 }
-

@@ -40,8 +40,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	private static boolean dialogShowing = false;
 	private static Handler mainHandler;
 
-	public void printError(String title, String message, String sourceName, int line, String lineSource,
-		int lineOffset)
+	public void printError(String title, String message, String sourceName, int line, String lineSource, int lineOffset)
 	{
 		Log.e(TAG, "----- Titanium Javascript " + title + " -----");
 		Log.e(TAG, "- In " + sourceName + ":" + line + "," + lineOffset);
@@ -181,11 +180,9 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			}
 		};
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(context)
-			.setTitle(error.title).setView(layout)
-			.setPositiveButton("Kill", clickListener)
-			.setNeutralButton("Continue", clickListener)
-			.setCancelable(false);
+		AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(error.title).setView(layout)
+				.setPositiveButton("Kill", clickListener).setNeutralButton("Continue", clickListener)
+				.setCancelable(false);
 
 		// TODO: Enable when we have fastdev working
 		// if (TiFastDev.isFastDevEnabled()) {
@@ -200,9 +197,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		// TODO: Enable this when we have fastdev
 		// KrollContext.getKrollContext().evalFile(sourceName);
 		/*
-		 * } catch (IOException e) {
-		 * Log.e(TAG, e.getMessage(), e);
-		 * }
+		 * } catch (IOException e) { Log.e(TAG, e.getMessage(), e); }
 		 */
 	}
 
@@ -224,6 +219,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 
 	/**
 	 * Handles the exception by opening an error dialog with an error message
+	 * 
 	 * @param error An error message containing line number, error title, message, etc
 	 * @module.api
 	 */

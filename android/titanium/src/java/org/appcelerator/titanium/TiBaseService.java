@@ -18,8 +18,8 @@ import android.os.Binder;
 import android.os.IBinder;
 
 /**
- * The base class for Titanium services. To learn more about Services, see the
- * <a href="http://developer.android.com/reference/android/app/Service.html">Android Service documentation</a>.
+ * The base class for Titanium services. To learn more about Services, see the <a
+ * href="http://developer.android.com/reference/android/app/Service.html">Android Service documentation</a>.
  */
 public class TiBaseService extends Service
 {
@@ -43,8 +43,9 @@ public class TiBaseService extends Service
 	}
 
 	/**
-	 * Creates and returns a service proxy, also increments the instance id.
-	 * Each service proxy has a unique instance id.
+	 * Creates and returns a service proxy, also increments the instance id. Each service proxy has a unique instance
+	 * id.
+	 * 
 	 * @param intent the intent used to create the proxy.
 	 * @return service proxy
 	 */
@@ -56,6 +57,7 @@ public class TiBaseService extends Service
 
 	/**
 	 * Implementing subclasses should use this method to start the service.
+	 * 
 	 * @param proxy the ServiceProxy.
 	 */
 	public void start(ServiceProxy proxy)
@@ -65,6 +67,7 @@ public class TiBaseService extends Service
 
 	/**
 	 * Implementing subclasses should use this method to release the proxy.
+	 * 
 	 * @param proxy the proxy to release.
 	 */
 	public void unbindProxy(ServiceProxy proxy)

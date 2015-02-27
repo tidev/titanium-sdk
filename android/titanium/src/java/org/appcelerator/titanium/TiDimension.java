@@ -19,19 +19,11 @@ import android.view.View;
 import android.view.WindowManager;
 
 /**
- * A class used to handle different unit measurements for layout purposes.
- * Supported units include: 
- * <li> TypedValue.COMPLEX_UNIT_PX </li>
- * <li> TypedValue.COMPLEX_UNIT_PT </li>
- * <li> TypedValue.COMPLEX_UNIT_DIP </li>
- * <li> TypedValue.COMPLEX_UNIT_SP </li>
- * <li> TypedValue.COMPLEX_UNIT_MM </li>
- * <li> TypedValue.COMPLEX_UNIT_IN </li>
- * <li> TiDimension.COMPLEX_UNIT_PERCENT </li>
- * <li> TiDimension.COMPLEX_UNIT_AUTO </li>
- * <li> TiDimension.COMPLEX_UNIT_UNDEFINED </li>
+ * A class used to handle different unit measurements for layout purposes. Supported units include: <li>
+ * TypedValue.COMPLEX_UNIT_PX</li> <li>TypedValue.COMPLEX_UNIT_PT</li> <li>TypedValue.COMPLEX_UNIT_DIP</li> <li>
+ * TypedValue.COMPLEX_UNIT_SP</li> <li>TypedValue.COMPLEX_UNIT_MM</li> <li>TypedValue.COMPLEX_UNIT_IN</li> <li>
+ * TiDimension.COMPLEX_UNIT_PERCENT</li> <li>TiDimension.COMPLEX_UNIT_AUTO</li> <li>TiDimension.COMPLEX_UNIT_UNDEFINED</li>
  * Refer to {@link android.util.TypedValue} for more details.
- *
  */
 public class TiDimension
 {
@@ -69,7 +61,8 @@ public class TiDimension
 	public static final String UNIT_PERCENT = "%";
 	public static final String UNIT_AUTO = "auto";
 
-	public static Pattern DIMENSION_PATTERN = Pattern.compile("(-?[0-9]*\\.?[0-9]+)\\s*(system|px|dp|dip|sp|sip|mm|cm|pt|in|%)?");
+	public static Pattern DIMENSION_PATTERN = Pattern
+			.compile("(-?[0-9]*\\.?[0-9]+)\\s*(system|px|dp|dip|sp|sip|mm|cm|pt|in|%)?");
 	protected static DisplayMetrics metrics = null;
 
 	protected double value;
@@ -77,10 +70,11 @@ public class TiDimension
 
 	/**
 	 * Creates a TiDimension object.
+	 * 
 	 * @param value the value to set.
-	 * @param valueType the valueType to set. Supported types include: {@link #TYPE_LEFT}, {@link #TYPE_RIGHT}, 
-	 * {@link #TYPE_BOTTOM}, {@link #TYPE_TOP}, {@link #TYPE_CENTER_X}, {@link #TYPE_CENTER_Y}, {@link #TYPE_HEIGHT}.
-	 * {@link #TYPE_WIDTH}.
+	 * @param valueType the valueType to set. Supported types include: {@link #TYPE_LEFT}, {@link #TYPE_RIGHT},
+	 *            {@link #TYPE_BOTTOM}, {@link #TYPE_TOP}, {@link #TYPE_CENTER_X}, {@link #TYPE_CENTER_Y},
+	 *            {@link #TYPE_HEIGHT}. {@link #TYPE_WIDTH}.
 	 */
 	public TiDimension(double value, int valueType)
 	{
@@ -91,10 +85,11 @@ public class TiDimension
 
 	/**
 	 * Creates and parses a TiDimension object.
+	 * 
 	 * @param svalue the string to parse.
-	 * @param valueType the valueType to set. Supported types include: {@link #TYPE_LEFT}, {@link #TYPE_RIGHT}, 
-	 * {@link #TYPE_BOTTOM}, {@link #TYPE_TOP}, {@link #TYPE_CENTER_X}, {@link #TYPE_CENTER_Y}, {@link #TYPE_HEIGHT}.
-	 * {@link #TYPE_WIDTH}.
+	 * @param valueType the valueType to set. Supported types include: {@link #TYPE_LEFT}, {@link #TYPE_RIGHT},
+	 *            {@link #TYPE_BOTTOM}, {@link #TYPE_TOP}, {@link #TYPE_CENTER_X}, {@link #TYPE_CENTER_Y},
+	 *            {@link #TYPE_HEIGHT}. {@link #TYPE_WIDTH}.
 	 */
 	public TiDimension(String svalue, int valueType)
 	{
@@ -158,6 +153,7 @@ public class TiDimension
 
 	/**
 	 * Sets value to a double value.
+	 * 
 	 * @param value a double to be set.
 	 */
 	public void setValue(double value)
@@ -166,18 +162,11 @@ public class TiDimension
 	}
 
 	/**
-	 * @return the TiDimension's units. Supported units include: 
-	 * <li> TypedValue.COMPLEX_UNIT_PX </li>
-	 * <li> TypedValue.COMPLEX_UNIT_PT </li>
-	 * <li> TypedValue.COMPLEX_UNIT_DIP </li>
-	 * <li> TypedValue.COMPLEX_UNIT_SP </li>
-	 * <li> TypedValue.COMPLEX_UNIT_MM </li>
-	 * <li> TypedValue.COMPLEX_UNIT_IN </li>
-	 * <li> TypedValue.COMPLEX_UNIT_CM </li>
-	 * <li> TiDimension.COMPLEX_UNIT_PERCENT </li>
-	 * <li> TiDimension.COMPLEX_UNIT_AUTO </li>
-	 * <li> TiDimension.COMPLEX_UNIT_UNDEFINED </li>
-	 * Refer to {@link android.util.TypedValue} for more details.
+	 * @return the TiDimension's units. Supported units include: <li>TypedValue.COMPLEX_UNIT_PX</li> <li>
+	 *         TypedValue.COMPLEX_UNIT_PT</li> <li>TypedValue.COMPLEX_UNIT_DIP</li> <li>TypedValue.COMPLEX_UNIT_SP</li>
+	 *         <li>TypedValue.COMPLEX_UNIT_MM</li> <li>TypedValue.COMPLEX_UNIT_IN</li> <li>TypedValue.COMPLEX_UNIT_CM</li>
+	 *         <li>TiDimension.COMPLEX_UNIT_PERCENT</li> <li>TiDimension.COMPLEX_UNIT_AUTO</li> <li>
+	 *         TiDimension.COMPLEX_UNIT_UNDEFINED</li> Refer to {@link android.util.TypedValue} for more details.
 	 */
 	public int getUnits()
 	{
@@ -186,6 +175,7 @@ public class TiDimension
 
 	/**
 	 * Set TiDimension's units. Refer to {@link #getUnits()} for more details.
+	 * 
 	 * @param units the unit to set.
 	 */
 	public void setUnits(int units)
@@ -212,10 +202,11 @@ public class TiDimension
 		}
 		return -1;
 	}
-	
+
 	/**
-	 * Calculates and returns the number of pixels, depending on the type.
-	 * It also takes screen/view density into consideration.
+	 * Calculates and returns the number of pixels, depending on the type. It also takes screen/view density into
+	 * consideration.
+	 * 
 	 * @param parent the parent view used for calculation.
 	 * @return the number of pixels.
 	 */
@@ -259,10 +250,10 @@ public class TiDimension
 
 		return (int) Math.round((getPixels(parent) / getDisplayMetrics(parent).density));
 	}
-	
+
 	/**
-	 * Calculates and returns the dimension in the default units. If the default
-	 * unit is not valid, returns in PX.
+	 * Calculates and returns the dimension in the default units. If the default unit is not valid, returns in PX.
+	 * 
 	 * @param parent the parent of the view used for calculation
 	 * @return the dimension in the system unit
 	 */
@@ -271,14 +262,11 @@ public class TiDimension
 		String defaultUnit = TiApplication.getInstance().getDefaultUnit();
 		if (UNIT_DP.equals(defaultUnit) || UNIT_DIP.equals(defaultUnit)) {
 			return (double) getAsDIP(parent);
-		}
-		else if (UNIT_MM.equals(defaultUnit)) {
+		} else if (UNIT_MM.equals(defaultUnit)) {
 			return getAsMillimeters(parent);
-		}
-		else if (UNIT_CM.equals(defaultUnit)) {
+		} else if (UNIT_CM.equals(defaultUnit)) {
 			return getAsCentimeters(parent);
-		}
-		else if (UNIT_IN.equals(defaultUnit)) {
+		} else if (UNIT_IN.equals(defaultUnit)) {
 			return getAsInches(parent);
 		}
 
@@ -330,10 +318,10 @@ public class TiDimension
 		}
 		return -1;
 	}
-	
+
 	protected double getDPIForType(View parent)
 	{
-		DisplayMetrics metrics = getDisplayMetrics(parent);		
+		DisplayMetrics metrics = getDisplayMetrics(parent);
 		float dpi = -1;
 		switch (valueType) {
 			case TYPE_TOP:
@@ -351,14 +339,14 @@ public class TiDimension
 			default:
 				dpi = metrics.densityDpi;
 		}
-		
+
 		return dpi;
 	}
-	
+
 	protected double getSizePixels(View parent)
 	{
 		double dpi = getDPIForType(parent);
-		
+
 		if (units == TypedValue.COMPLEX_UNIT_PT) {
 			return (this.value * (dpi / POINT_DPI));
 		} else if (units == TypedValue.COMPLEX_UNIT_MM) {

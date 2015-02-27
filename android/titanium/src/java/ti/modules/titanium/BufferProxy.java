@@ -23,11 +23,8 @@ import ti.modules.titanium.codec.CodecModule;
 /**
  * A proxy that wraps a primitive byte array buffer
  */
-@Kroll.proxy(creatableInModule=TitaniumModule.class, propertyAccessors = {
-	TiC.PROPERTY_BYTE_ORDER,
-	TiC.PROPERTY_TYPE,
-	TiC.PROPERTY_VALUE
-})
+@Kroll.proxy(creatableInModule = TitaniumModule.class, propertyAccessors = { TiC.PROPERTY_BYTE_ORDER,
+		TiC.PROPERTY_TYPE, TiC.PROPERTY_VALUE })
 public class BufferProxy extends KrollProxy
 {
 	private static final String TAG = "BufferProxy";
@@ -141,7 +138,7 @@ public class BufferProxy extends KrollProxy
 	public void setIndexedProperty(int index, Object value)
 	{
 		if (value instanceof Number) {
-			buffer[index] = ((Number)value).byteValue();
+			buffer[index] = ((Number) value).byteValue();
 		} else {
 			super.setIndexedProperty(index, value);
 		}
@@ -169,12 +166,14 @@ public class BufferProxy extends KrollProxy
 	protected void validateOffsetAndLength(int offset, int length, int bufferLength)
 	{
 		if (length > offset + bufferLength) {
-			throw new IllegalArgumentException("offset of " + offset + " and length of " + length + " is larger than the buffer length: " + bufferLength);
+			throw new IllegalArgumentException("offset of " + offset + " and length of " + length
+					+ " is larger than the buffer length: " + bufferLength);
 		}
 	}
 
 	/**
 	 * Writes data from sourceBuffer into this.
+	 * 
 	 * @param position the offset position of this buffer.
 	 * @param sourceBuffer the source buffer to write from.
 	 * @param sourceOffset the offset position of the sourceBuffer.
@@ -296,7 +295,7 @@ public class BufferProxy extends KrollProxy
 
 		validateOffsetAndLength(offset, length, buffer.length);
 
-		return new BufferProxy(copyOfRange(buffer, offset, offset+length));
+		return new BufferProxy(copyOfRange(buffer, offset, offset + length));
 	}
 
 	@Kroll.method
@@ -319,13 +318,13 @@ public class BufferProxy extends KrollProxy
 
 		validateOffsetAndLength(offset, length, buffer.length);
 
-		Arrays.fill(buffer, offset, (offset + length), (byte)fillByte);
+		Arrays.fill(buffer, offset, (offset + length), (byte) fillByte);
 	}
 
 	@Kroll.method
 	public void clear()
 	{
-		Arrays.fill(buffer, (byte)0);
+		Arrays.fill(buffer, (byte) 0);
 	}
 
 	@Kroll.method
@@ -350,19 +349,21 @@ public class BufferProxy extends KrollProxy
 	 * @return The length of this buffer in bytes
 	 * @module.api
 	 */
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty
+	@Kroll.method
 	public int getLength()
 	{
 		return buffer.length;
 	}
 
 	/**
-	 * Sets the length of this buffer proxy by either growing or shrinking
-	 * the allocated buffer space
+	 * Sets the length of this buffer proxy by either growing or shrinking the allocated buffer space
+	 * 
 	 * @param length The new length of this buffer proxy in bytes
 	 * @module.api
 	 */
-	@Kroll.setProperty @Kroll.method
+	@Kroll.setProperty
+	@Kroll.method
 	public void setLength(int length)
 	{
 		resize(length);
@@ -379,4 +380,3 @@ public class BufferProxy extends KrollProxy
 		return "Ti.Buffer";
 	}
 }
-

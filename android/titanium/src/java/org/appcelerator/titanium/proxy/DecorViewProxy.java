@@ -18,14 +18,12 @@ import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.view.View;
 
-
 @Kroll.proxy
 public class DecorViewProxy extends TiViewProxy
 {
 	private static final String TAG = "DecorViewProxy";
 	protected View layout;
 	protected int[] orientationModes = null;
-
 
 	public DecorViewProxy(View layout)
 	{
@@ -34,13 +32,11 @@ public class DecorViewProxy extends TiViewProxy
 		this.view = createView(null);
 	}
 
-
 	@Override
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUIDecorView(this);
 	}
-
 
 	public View getLayout()
 	{
@@ -52,9 +48,9 @@ public class DecorViewProxy extends TiViewProxy
 	{
 		Activity activity = getActivity();
 
-		if (activity != null)
-		{
-			return TiOrientationHelper.convertConfigToTiOrientationMode(activity.getResources().getConfiguration().orientation);
+		if (activity != null) {
+			return TiOrientationHelper
+					.convertConfigToTiOrientationMode(activity.getResources().getConfiguration().orientation);
 		}
 
 		Log.e(TAG, "Unable to get orientation, activity not found for window", Log.DEBUG_MODE);
@@ -62,7 +58,7 @@ public class DecorViewProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void setOrientationModes (int[] modes)
+	public void setOrientationModes(int[] modes)
 	{
 		int activityOrientationMode = -1;
 		boolean hasPortrait = false;
@@ -73,106 +69,68 @@ public class DecorViewProxy extends TiViewProxy
 		// update orientation modes that get exposed
 		orientationModes = modes;
 
-		if (modes != null)
-		{
+		if (modes != null) {
 			// look through orientation modes and determine what has been set
-			for (int i = 0; i < orientationModes.length; i++)
-			{
-				if (orientationModes [i] == TiOrientationHelper.ORIENTATION_PORTRAIT)
-				{
+			for (int i = 0; i < orientationModes.length; i++) {
+				if (orientationModes[i] == TiOrientationHelper.ORIENTATION_PORTRAIT) {
 					hasPortrait = true;
-				}
-				else if (orientationModes [i] == TiOrientationHelper.ORIENTATION_PORTRAIT_REVERSE)
-				{
+				} else if (orientationModes[i] == TiOrientationHelper.ORIENTATION_PORTRAIT_REVERSE) {
 					hasPortraitReverse = true;
-				}
-				else if (orientationModes [i] == TiOrientationHelper.ORIENTATION_LANDSCAPE)
-				{
+				} else if (orientationModes[i] == TiOrientationHelper.ORIENTATION_LANDSCAPE) {
 					hasLandscape = true;
-				}
-				else if (orientationModes [i] == TiOrientationHelper.ORIENTATION_LANDSCAPE_REVERSE)
-				{
+				} else if (orientationModes[i] == TiOrientationHelper.ORIENTATION_LANDSCAPE_REVERSE) {
 					hasLandscapeReverse = true;
 				}
 			}
 
 			// determine if we have a valid activity orientation mode based on provided modes list
-			if (orientationModes.length == 0)
-			{
+			if (orientationModes.length == 0) {
 				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
-			}
-			else if ((hasPortrait || hasPortraitReverse) && (hasLandscape || hasLandscapeReverse))
-			{
+			} else if ((hasPortrait || hasPortraitReverse) && (hasLandscape || hasLandscapeReverse)) {
 				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
-			}
-			else if (hasPortrait && hasPortraitReverse)
-			{
-				//activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
+			} else if (hasPortrait && hasPortraitReverse) {
+				// activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
 
 				// unable to use constant until sdk lvl 9, use constant value instead
 				// if sdk level is less than 9, set as regular portrait
-				if (Build.VERSION.SDK_INT >= 9)
-				{
+				if (Build.VERSION.SDK_INT >= 9) {
 					activityOrientationMode = 7;
-				}
-				else
-				{
+				} else {
 					activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 				}
-			}
-			else if (hasLandscape && hasLandscapeReverse)
-			{
-				//activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
+			} else if (hasLandscape && hasLandscapeReverse) {
+				// activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
 
 				// unable to use constant until sdk lvl 9, use constant value instead
 				// if sdk level is less than 9, set as regular landscape
-				if (Build.VERSION.SDK_INT >= 9)
-				{
+				if (Build.VERSION.SDK_INT >= 9) {
 					activityOrientationMode = 6;
-				}
-				else
-				{
+				} else {
 					activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
 				}
-			}
-			else if (hasPortrait)
-			{
+			} else if (hasPortrait) {
 				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-			}
-			else if (hasPortraitReverse && Build.VERSION.SDK_INT >= 9)
-			{
+			} else if (hasPortraitReverse && Build.VERSION.SDK_INT >= 9) {
 				activityOrientationMode = 9;
-			}
-			else if (hasLandscape)
-			{
+			} else if (hasLandscape) {
 				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-			}
-			else if (hasLandscapeReverse && Build.VERSION.SDK_INT >= 9)
-			{
+			} else if (hasLandscapeReverse && Build.VERSION.SDK_INT >= 9) {
 				activityOrientationMode = 8;
 			}
 
 			Activity activity = getActivity();
-			if (activity != null)
-			{
-				if (activityOrientationMode != -1)
-				{
+			if (activity != null) {
+				if (activityOrientationMode != -1) {
 					activity.setRequestedOrientation(activityOrientationMode);
-				}
-				else
-				{
+				} else {
 					activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 				}
 			}
-		}
-		else
-		{
+		} else {
 			Activity activity = getActivity();
-			if (activity != null)
-			{
-				if (activity instanceof TiBaseActivity)
-				{
-					activity.setRequestedOrientation(((TiBaseActivity)activity).getOriginalOrientationMode());
+			if (activity != null) {
+				if (activity instanceof TiBaseActivity) {
+					activity.setRequestedOrientation(((TiBaseActivity) activity).getOriginalOrientationMode());
 				}
 			}
 		}

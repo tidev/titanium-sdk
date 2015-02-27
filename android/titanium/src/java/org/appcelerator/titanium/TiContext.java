@@ -46,11 +46,16 @@ public class TiContext// implements ErrorReporter
 
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners;
 
-	public static interface OnLifecycleEvent {
+	public static interface OnLifecycleEvent
+	{
 		void onStart(Activity activity);
+
 		void onResume(Activity activity);
+
 		void onPause(Activity activity);
+
 		void onStop(Activity activity);
+
 		void onDestroy(Activity activity);
 	}
 
@@ -81,7 +86,8 @@ public class TiContext// implements ErrorReporter
 
 	public Activity getActivity()
 	{
-		if (weakActivity == null) return null;
+		if (weakActivity == null)
+			return null;
 		Activity activity = weakActivity.get();
 		return activity;
 	}
@@ -91,7 +97,7 @@ public class TiContext// implements ErrorReporter
 		weakActivity = new WeakReference<Activity>(activity);
 	}
 
-	public TiApplication getTiApp() 
+	public TiApplication getTiApp()
 	{
 		return tiApp;
 	}
@@ -137,13 +143,12 @@ public class TiContext// implements ErrorReporter
 	 * @deprecated
 	 * @see KrollRuntime#evalString(String)
 	 */
-	public Object evalFile(String filename, Messenger messenger, int messageId)
-		throws IOException
+	public Object evalFile(String filename, Messenger messenger, int messageId) throws IOException
 	{
 		Object result = null;
 		String setUrlBackTo = null;
 		if (this.currentUrl != null && this.currentUrl.length() > 0 && !this.currentUrl.equals(filename)) {
-			// A new file is being eval'd.  Must be from an include() statement.  Remember to set back
+			// A new file is being eval'd. Must be from an include() statement. Remember to set back
 			// the original url, else things like JSS which depend on context's filename will break.
 			setUrlBackTo = this.currentUrl;
 		}
@@ -158,11 +163,13 @@ public class TiContext// implements ErrorReporter
 				msg.what = messageId;
 				messenger.send(msg);
 				Log.d(TAG, "Notifying caller that evalFile has completed", Log.DEBUG_MODE);
-			} catch(RemoteException e) {
+			} catch (RemoteException e) {
 				Log.w(TAG, "Failed to notify caller that eval completed");
 			}
 		}
-		if (setUrlBackTo != null) { this.currentUrl = setUrlBackTo; }
+		if (setUrlBackTo != null) {
+			this.currentUrl = setUrlBackTo;
+		}
 		return result;
 	}
 
@@ -170,8 +177,7 @@ public class TiContext// implements ErrorReporter
 	 * @deprecated
 	 * @see KrollRuntime#evalString(String)
 	 */
-	public Object evalFile(String filename)
-		throws IOException
+	public Object evalFile(String filename) throws IOException
 	{
 		return evalFile(filename, null, -1);
 	}
@@ -213,11 +219,21 @@ public class TiContext// implements ErrorReporter
 	protected void fireLifecycleEvent(Activity activity, OnLifecycleEvent listener, int which)
 	{
 		switch (which) {
-			case LIFECYCLE_ON_START: listener.onStart(activity); break;
-			case LIFECYCLE_ON_RESUME: listener.onResume(activity); break;
-			case LIFECYCLE_ON_PAUSE: listener.onPause(activity); break;
-			case LIFECYCLE_ON_STOP: listener.onStop(activity); break;
-			case LIFECYCLE_ON_DESTROY: listener.onDestroy(activity); break;
+			case LIFECYCLE_ON_START:
+				listener.onStart(activity);
+				break;
+			case LIFECYCLE_ON_RESUME:
+				listener.onResume(activity);
+				break;
+			case LIFECYCLE_ON_PAUSE:
+				listener.onPause(activity);
+				break;
+			case LIFECYCLE_ON_STOP:
+				listener.onStop(activity);
+				break;
+			case LIFECYCLE_ON_DESTROY:
+				listener.onDestroy(activity);
+				break;
 		}
 	}
 
@@ -291,4 +307,3 @@ public class TiContext// implements ErrorReporter
 		}
 	}
 }
-

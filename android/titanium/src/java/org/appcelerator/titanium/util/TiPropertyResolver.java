@@ -21,7 +21,8 @@ public class TiPropertyResolver
 		}
 	}
 
-	public void release() {
+	public void release()
+	{
 		for (int i = 0; i < propSets.length; i++) {
 			propSets[i] = null;
 		}
@@ -32,7 +33,7 @@ public class TiPropertyResolver
 	{
 		KrollDict result = null;
 
-		for(KrollDict d : propSets) {
+		for (KrollDict d : propSets) {
 			if (d != null) {
 				if (d.containsKey(key)) {
 					result = d;
@@ -48,7 +49,7 @@ public class TiPropertyResolver
 	{
 		boolean found = false;
 
-		for(KrollDict d : propSets) {
+		for (KrollDict d : propSets) {
 			if (d != null) {
 				for (String key : keys) {
 					if (d.containsKey(key)) {
