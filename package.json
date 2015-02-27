@@ -39,10 +39,11 @@
 		"xmldom": "~0.1.16"
 	},
 	"devDependencies": {
-	    "grunt": "^0.4.5",
+	    "grunt-cli": "*",
 	    "grunt-contrib-clean": "^0.6.0",
 	    "grunt-contrib-jshint": "^0.10.0",
 	    "grunt-jscs": "^1.5.0",
+	    "grunt-mocha-test": "^0.12.7",
 	    "jscs-jsdoc": "^0.4.5",
 		"mocha": "*",
 		"optimist": "~0.6.0",
