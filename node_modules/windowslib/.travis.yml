@@ -1,5 +1,14 @@
 language: c#
+sudo: false
 install:
 - npm install
 script:
 - npm test
+deploy:
+  provider: npm
+  email: npmjs@appcelerator.com
+  api_key:
+    secure: cvJUAohYPkI6FwAAXsUS3LunO/tfYzpsIagKMon9B8JkeMB1YqgmGgroZf46SeMtWVst2LodkE8VR/0LHg+4I/xSEzKk5/LwlW9QmAr1HmIl+hPSa5kgnlqI1xS6UstrN0YS88NWlwIAuW5e94BqhHUjUEMI/FdzGB4ALTANIfo=
+  on:
+    tags: true
+    repo: appcelerator/windowslib
