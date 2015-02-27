@@ -135,10 +135,10 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 		for (; i < len; i++) {
 			if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
 				issues[i].message.split('\n').forEach(function (line) {
-					logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
+					logger[issues[i].type === 'error' ? 'error' : 'warn'](line.replace(/(__(.+?)__)/g, '$2'.bold));
 				});
 				logger.log();
-				process.exit(1);
+				if (issues[i].type === 'error') {process.exit(1);}
 			}
 		}
 	}
@@ -162,6 +162,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					_t.androidInfo = androidInfo;
 					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND');
 					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS');
+					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_TOO_NEW');
 
 					if (!cli.argv.prompt) {
 						// check that the Android SDK is found and sane
