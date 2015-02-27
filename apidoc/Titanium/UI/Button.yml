@@ -163,7 +163,7 @@ properties:
         image will appear faded to indicate being disabled. Also on iOS, if backgroundSelectedImage
         is unset, the image will be darkened to indicate being selected.
     type: String
-    exclude-platforms: [blackberry]
+
 
   - name: backgroundDisabledImage
     summary: |
@@ -200,7 +200,7 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    exclude-platforms: [blackberry]
+
 
   - name: disabledColor
     summary: Text color of the button in its disabled state, as a color name or hex triplet.
@@ -212,12 +212,12 @@ properties:
     summary: Set to `true` to enable the button, `false` to disable the button.
     type: Boolean
     default: true
-    platforms: [ipad, iphone, mobileweb, blackberry]
+    platforms: [ipad, iphone, mobileweb]
 
   - name: font
     summary: Font to use for the button text.
     type: Font
-    exclude-platforms: [blackberry]
+
 
   - name: image
     summary: Image to display on the button, specified as a local
@@ -290,7 +290,7 @@ properties:
     type: [String,Number]
     constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: <Titanium.UI.TEXT_ALIGNMENT_CENTER>
-    exclude-platforms: [blackberry]
+
 
   - name: title
     summary: Button title.
@@ -301,7 +301,7 @@ properties:
     description: Only one of `title` or `titleid` should be specified.
     type: String
     since: "1.5"
-    exclude-platforms: [blackberry]
+
 
   - name: verticalAlign
     summary: |

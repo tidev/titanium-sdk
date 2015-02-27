@@ -19,7 +19,7 @@ description: |
     See the examples for sample use of the `reload` event.
 extends: Titanium.Module
 since: "0.8"
-platforms: [android, iphone, ipad, blackberry]
+platforms: [android, iphone, ipad]
 
 events:
   - name: reload
@@ -71,7 +71,7 @@ methods:
     
   - name: getAllPeople
     summary: Gets all people, unless a limit is specified.
-    platforms: [android, iphone, ipad, blackberry]
+    platforms: [android, iphone, ipad]
     returns:
         type: Array<Titanium.Contacts.Person>    
     parameters:
@@ -93,7 +93,7 @@ methods:
     summary: |
         Gets people with a `firstName`, `middleName` or `lastName` field, or a combination 
         of these fields, that match the specified name.
-    platforms: [android, iphone, ipad, blackberry]
+    platforms: [android, iphone, ipad]
     returns:
         type: Array<Titanium.Contacts.Person>
     parameters:
@@ -166,7 +166,7 @@ methods:
       - name: params
         summary: Argument containing parameters for this method. Optional on Android.
         type: showContactsParams
-    exclude-platforms: [blackberry]
+
 
   - name: requestAuthorization
     summary: If authorization is unknown, will bring up a dialog requesting permission.
@@ -192,7 +192,7 @@ properties:
         and [CONTACTS_KIND_PERSON](Titanium.Contacts.CONTACTS_KIND_PERSON).
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: CONTACTS_KIND_PERSON
     summary: Specifies that a contact is a person.
@@ -204,7 +204,7 @@ properties:
         and [CONTACTS_KIND_PERSON](Titanium.Contacts.CONTACTS_KIND_PERSON).
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: CONTACTS_SORT_FIRST_NAME
     summary: Specifies that group members will be sorted by first name.
@@ -216,7 +216,7 @@ properties:
         and [CONTACTS_SORT_LAST_NAME](Titanium.Contacts.CONTACTS_SORT_LAST_NAME).
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: CONTACTS_SORT_LAST_NAME
     summary: Specifies that group members will be sorted by last name.
@@ -228,7 +228,7 @@ properties:
         and [CONTACTS_SORT_LAST_NAME](Titanium.Contacts.CONTACTS_SORT_LAST_NAME).
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: AUTHORIZATION_AUTHORIZED
     summary: |
@@ -281,7 +281,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, android]
     since: 2.1.3
-    exclude-platforms: [blackberry]
+
 
 examples:
   - title: Request access to the address book
