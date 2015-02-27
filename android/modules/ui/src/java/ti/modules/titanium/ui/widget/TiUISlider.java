@@ -109,8 +109,8 @@ public class TiUISlider extends TiUIView
 		if(rightClipDrawable != null) {
 			SeekBar seekBar = (SeekBar) getNativeView();
 			double percent = (double) seekBar.getProgress()/ (double)seekBar.getMax();
-	        int level = 10000 - (int)Math.floor(percent*10000);
-	        rightClipDrawable.setLevel(level);
+			int level = 10000 - (int)Math.floor(percent*10000);
+			rightClipDrawable.setLevel(level);
 		}
 	}
 
