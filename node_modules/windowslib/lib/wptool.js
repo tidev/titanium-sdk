@@ -96,7 +96,7 @@ function enumerate(options, callback) {
 						next(ex, null);
 					} else {
 						// Parse the output! Hope this regex is OK!
-						var deviceListingRE = /^\s*(\d+)\s+([\w \.]+)$/mg
+						var deviceListingRE = /^\s*(\d+)\s+([\w \.]+)/mg
 						deviceListingRE.exec(out); // skip device
 						var emulators = [];
 						var match;
@@ -245,23 +245,17 @@ function connect(udid, options, callback) {
 
 					child.on('close', function (code) {
 						clearTimeout(abortTimer);
+
+						var errmsg = out.trim().split(/\r\n|\n/).shift(),
+							ex = new Error(/^Error: /.test(errmsg) ? errmsg.substring(7) : __('Failed to start %s (code %s)', dev.name, code));
 						// Here's where we expect the failure that the app is not installed, which is right.
-						if (code == -2146233088) {
-							var errmsg = out.trim().split(/\r\n|\n/).shift(),
-								ex = new Error(/^Error: /.test(errmsg) ? errmsg.substring(7) : __('Failed to start %s (code %s)', dev.name, code));
-							if (errmsg == 'Error: The application is not installed.') {
-								// we must be successful, right?
-								emitter.emit('connected', dev);
-								callback(null, dev);
-							} else {
-								// we sometimes get the same code, but different error message
-								emitter.emit('error', ex);
-								callback(ex);
-							}
-						}
-						else {
-							var errmsg = out.trim().split(/\r\n|\n/).shift(),
-								ex = new Error(/^Error: /.test(errmsg) ? errmsg.substring(7) : __('Failed to start %s (code %s)', dev.name, code));
+						// if (code == -2146233088 || code == 2148734208)
+						if (errmsg.indexOf('The application is not installed.') != -1) {
+							// we must be successful, right?
+							emitter.emit('connected', dev);
+							callback(null, dev);
+						} else {
+							// we sometimes get the same code, but different error message
 							emitter.emit('error', ex);
 							callback(ex);
 						}

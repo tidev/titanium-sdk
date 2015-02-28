@@ -197,7 +197,7 @@ FILENOOP(setHidden:(id)x);
 			[fm createDirectoryAtPath:[path stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:nil];
 			//We don't care if this fails.
 		}
-		result = [[NSData data] writeToFile:path options:NSDataWritingFileProtectionComplete error:nil];
+		result = [[NSData data] writeToFile:path options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:nil];
 	}			
 	return NUMBOOL(result);
 }
@@ -455,7 +455,7 @@ FILENOOP(setHidden:(id)x);
 	} 
 	else 
 	{
-		[[NSData data] writeToFile:resultPath options:NSDataWritingFileProtectionComplete error:&error];
+		[[NSData data] writeToFile:resultPath options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&error];
 	}
 	
 	if (error != nil)

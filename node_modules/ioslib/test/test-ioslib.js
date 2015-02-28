@@ -9,7 +9,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-var ioslib = require('..');
+var ioslib = require('..'),
+	fs = require('fs');
 
 describe('ioslib', function () {
 	it('namespace should be an object', function () {

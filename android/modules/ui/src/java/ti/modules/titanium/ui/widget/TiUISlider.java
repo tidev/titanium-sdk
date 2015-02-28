@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -37,6 +37,7 @@ public class TiUISlider extends TiUIView
 	private int minRange;
 	private int maxRange;
 	private int scaleFactor;
+	private ClipDrawable rightClipDrawable;
 	
 	private SoftReference<Drawable> thumbDrawable;
 
@@ -95,21 +96,32 @@ public class TiUISlider extends TiUIView
 			updateThumb(seekBar, d);
 		}
 		
-		if (d.containsKey("leftTrackImage") && d.containsKey("rightTrackImage")) {
+		if (d.containsKey("leftTrackImage") || d.containsKey("rightTrackImage")) {
 			updateTrackingImages(seekBar, d);
 		}
 		updateRange();
 		updateControl();
+		updateRightDrawable();
+	}
+	
+	private void updateRightDrawable()
+	{
+		if(rightClipDrawable != null) {
+			SeekBar seekBar = (SeekBar) getNativeView();
+			double percent = (double) seekBar.getProgress()/ (double)seekBar.getMax();
+			int level = 10000 - (int)Math.floor(percent*10000);
+			rightClipDrawable.setLevel(level);
+		}
 	}
 
 	private void updateRange() {
 		minRange = Math.max(minRange, min);
 		minRange = Math.min(minRange, max);
-		proxy.setProperty("minRange", minRange, false);
+		proxy.setProperty("minRange", minRange);
 		
 		maxRange = Math.min(maxRange, max);
 		maxRange = Math.max(maxRange, minRange);
-		proxy.setProperty("maxRange", maxRange, false);
+		proxy.setProperty("maxRange", maxRange);
 	}
 	
 	private void updateControl() {
@@ -151,42 +163,53 @@ public class TiUISlider extends TiUIView
 	
 	private void updateTrackingImages(SeekBar seekBar, KrollDict d) 
 	{
-		TiFileHelper tfh = null;
 		String leftImage =  TiConvert.toString(d, "leftTrackImage");
 		String rightImage = TiConvert.toString(d, "rightTrackImage");
-		if (leftImage != null && rightImage != null) {
-			if (tfh == null) {
-				tfh = new TiFileHelper(seekBar.getContext());
-			}
+		
+		Drawable leftDrawable = null;
+		Drawable rightDrawable = null;
+		TiFileHelper tfh = new TiFileHelper(seekBar.getContext());
+		
+		if(leftImage != null) {
 			String leftUrl = proxy.resolveUrl(null, leftImage);
-			String rightUrl = proxy.resolveUrl(null, rightImage);
-
-			Drawable rightDrawable = tfh.loadDrawable(rightUrl, false, true);
-			Drawable leftDrawable = tfh.loadDrawable(leftUrl, false, true);
-			if (rightDrawable != null && leftDrawable != null) {
-				Drawable[] lda = {
-					rightDrawable,
-					new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL)
-				};
-				LayerDrawable ld = new LayerDrawable(lda);
-				ld.setId(0, android.R.id.background);
-				ld.setId(1, android.R.id.progress);
-				seekBar.setProgressDrawable(ld);
-			} else {
+			if(leftUrl != null) {
+				leftDrawable = tfh.loadDrawable(leftUrl, false, true);
 				if (leftDrawable == null) {
 					Log.e(TAG, "Unable to locate left image for progress bar: " + leftUrl);
 				}
+			}
+		}
+		
+		if(rightImage != null) {
+			String rightUrl = proxy.resolveUrl(null, rightImage);
+			if(rightUrl != null) {
+				rightDrawable = tfh.loadDrawable(rightUrl, false, true);
 				if (rightDrawable == null) {
 					Log.e(TAG, "Unable to locate right image for progress bar: " + rightUrl);
 				}
-				// release
-				leftDrawable = null;
-				rightDrawable = null;
 			}
-		} else if (leftImage == null && rightImage == null) {
-			seekBar.setProgressDrawable(null);
+		}
+		
+		if(leftDrawable != null || rightDrawable != null) {
+			LayerDrawable ld = null;
+			if(rightDrawable == null) {
+				Drawable[] lda = {new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL)};
+				ld = new LayerDrawable(lda);
+				ld.setId(0, android.R.id.progress);
+			} else if(leftDrawable == null) {
+				rightClipDrawable = new ClipDrawable(rightDrawable, Gravity.RIGHT, ClipDrawable.HORIZONTAL);
+				Drawable[] lda = {rightClipDrawable};
+				ld = new LayerDrawable(lda);
+				ld.setId(0, android.R.id.secondaryProgress);
+			} else {
+				Drawable[] lda = {rightDrawable, new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL)};
+				ld = new LayerDrawable(lda);
+				ld.setId(0, android.R.id.background);
+				ld.setId(1, android.R.id.progress);
+			}
+			seekBar.setProgressDrawable(ld);
 		} else {
-			Log.w(TAG, "Custom tracking images must both be set before they will be drawn.");
+			Log.w(TAG, "Custom tracking images could not be loaded.");
 		}
 	}
 	
@@ -267,6 +290,8 @@ public class TiUISlider extends TiUIView
 			seekBar.setProgress(actualMaxRange*scaleFactor);
 			pos = maxRange;
 		}
+		
+		updateRightDrawable();
 		
 		Drawable thumb = (thumbDrawable != null) ? thumbDrawable.get() : null;
 		KrollDict offset = new KrollDict();

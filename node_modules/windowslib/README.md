@@ -1,11 +1,9 @@
-# Windows Phone Utility Library
+# Windows Phone Utility Library [![Build Status](https://travis-ci.org/appcelerator/windowslib.svg?branch=master)](https://travis-ci.org/appcelerator/windowslib)
 
 This is a library of utilities for dealing programmatically with Windows Phone applications,
 used namely for tools like [Titanium](https://github.com/appcelerator/titanium).
 
 windowslib supports Visual Studio 2012 and 2013.
-
-[![Build Status](https://travis-ci.org/appcelerator/windowslib.svg?branch=master)](https://travis-ci.org/appcelerator/windowslib) [![NPM version](https://badge.fury.io/js/windowslib.svg)](http://badge.fury.io/js/windowslib)
 
 [![NPM](https://nodei.co/npm/windowslib.png?downloads=true&stars=true)](https://nodei.co/npm/windowslib/)
 

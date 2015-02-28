@@ -266,6 +266,7 @@ events:
   - name: keyboardFrameChanged
     deprecated:
         since: "3.0.0"
+        removed: "4.0.0"
         notes: |
             Renamed to [keyboardframechanged](Titanium.App.keyboardframechanged)
             (all lowercase).
@@ -285,12 +286,22 @@ events:
     summary: Fired when the soft keyboard is presented, on and off the screen.
     description: |
         This event fires when the application presents the soft keyboard on/off the screen . The 
-        event returns the dictionary containing `keyboardFrame.x`, `keyboardFrame.y`, 
-        `keyboardFrame.height` and `keyboardFrame.width` variables, corresponding to the frame of 
-        the keyboard with respect to the screen coordinates.
+        event returns the dictionary `keyboardFrame` containing `x`, `y`, `height` and `width` keys, 
+        corresponding to the frame of the keyboard with respect to the screen coordinates. 
+
+        On Titanium SDK 4.0.0 and later the event also contains a second parameter `animationDuration` representing
+        the duration of the animation for the presentation and dismissal of the soft keyboard.
         
         Note that the keyboard `height` and `width` properties will not be accurate when the keyboard 
         is being dissmissed.
+    properties:
+      - name: keyboardFrame
+        summary: A dictionary with keys x, y, width and height representing the frame of keyboard on screen.
+        type: Dictionary
+    
+      - name: animationDuration
+        summary: The duration of the keyboard animation. This parameter is only available on Titanium SDK 4.0.0 and later.
+        type: Number
     platforms: [iphone, ipad]
     since: '3.0.0'
 
