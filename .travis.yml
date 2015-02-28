@@ -51,4 +51,6 @@ script:
   - echo $TITANIUM_BUILD
   - cd $TRAVIS_BUILD_DIR
   - source $TITANIUM_BUILD/mobile/driver_travis.sh $TRAVIS_BRANCH
+  - npm install
+  - npm test
   - ls dist
