@@ -22,9 +22,9 @@
 	TiDOMElementProxy* element;
 }
 
-@property(nonatomic,readonly) NSNumber* length;
+@property(nonatomic, readonly) NSNumber* length;
 
--(void)setElement:(TiDOMElementProxy*)element;
+- (void)setElement:(TiDOMElementProxy*)element;
 
 @end
 

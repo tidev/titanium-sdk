@@ -10,14 +10,13 @@
 #import "GDataXMLNode.h"
 
 @interface TIDOMDocumentTypeProxy : TiDOMNodeProxy {
-    
 }
-@property(nonatomic,readonly) id name;
-@property(nonatomic,readonly) id entities;
-@property(nonatomic,readonly) id notations;
-@property(nonatomic,readonly) id publicId;
-@property(nonatomic,readonly) id systemId;
-@property(nonatomic,readonly) id internalSubset;
+@property(nonatomic, readonly) id name;
+@property(nonatomic, readonly) id entities;
+@property(nonatomic, readonly) id notations;
+@property(nonatomic, readonly) id publicId;
+@property(nonatomic, readonly) id systemId;
+@property(nonatomic, readonly) id internalSubset;
 @end
 
 #endif

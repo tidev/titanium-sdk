@@ -10,49 +10,47 @@
 #import "TiUtils.h"
 #import <libxml/tree.h>
 
-
 @implementation TiDOMValidator
 
-+(BOOL)checkElementName:(NSString*)pName
++ (BOOL)checkElementName:(NSString*)pName
 {
 	return (xmlValidateNCName((xmlChar*)[pName UTF8String], 0) == 0);
 }
 
-+(BOOL)checkAttributeName:(NSString*)pName
++ (BOOL)checkAttributeName:(NSString*)pName
 {
 	if ([self checkElementName:pName]) {
 		if ([[pName lowercaseString] isEqualToString:@"xmlns"])
 			return NO;
-		
+
 		return YES;
 	}
 	return NO;
 }
 
-+(BOOL)checkNamespacePrefix:(NSString*)pName
++ (BOOL)checkNamespacePrefix:(NSString*)pName
 {
 	//Can be nil or empty
-	if ([pName length]==0) {
+	if ([pName length] == 0) {
 		return YES;
 	}
-	
+
 	if (xmlValidateNCName((xmlChar*)[pName UTF8String], 0) == 0) {
 		if ([[pName lowercaseString] hasPrefix:@"xml"])
 			return NO;
 
 		return YES;
-	}
-	else
+	} else
 		return NO;
 }
 
-+(BOOL)checkNamespaceURI:(NSString*)pName
++ (BOOL)checkNamespaceURI:(NSString*)pName
 {
 	// Can be nil or empty
-	if ([pName length]==0) {
+	if ([pName length] == 0) {
 		return YES;
 	}
-	
+
 	NSURL* url = [NSURL URLWithString:[pName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 	return (url != nil);
 }

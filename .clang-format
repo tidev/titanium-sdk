@@ -1,0 +1,15 @@
+---
+Language: Cpp
+BasedOnStyle: Google
+UseTab: ForIndentation
+IndentWidth: 4
+TabWidth: 4
+BreakBeforeBraces: Linux
+ColumnLimit: 0
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakBeforeMultilineStrings: false
+Standard: Cpp11
+NamespaceIndentation: All
+AccessModifierOffset: -4
+BinPackParameters: true
