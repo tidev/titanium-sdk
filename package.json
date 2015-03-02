@@ -1,7 +1,7 @@
 {
 	"name": "titanium-mobile",
 	"description": "Appcelerator Titanium Mobile",
-	"version": "4.0.0",
+	"version": "4.1.0",
 	"keywords": [
 		"appcelerator",
 		"titanium",
@@ -12,7 +12,10 @@
 		"ipad",
 		"ios"
 	],
-	"author": "Appcelerator, Inc. <info@appcelerator.com>",
+	"author": "Appcelerator, Inc. <npmjs@appcelerator.com>",
+	"scripts": {
+		"test": "grunt"
+	},
 	"dependencies": {
 		"adm-zip": "~0.4.4",
 		"archiver": "~0.4.10",
@@ -36,6 +39,12 @@
 		"xmldom": "~0.1.16"
 	},
 	"devDependencies": {
+	    "grunt-cli": "*",
+	    "grunt-contrib-clean": "^0.6.0",
+	    "grunt-contrib-jshint": "^0.10.0",
+	    "grunt-jscs": "^1.5.0",
+	    "grunt-mocha-test": "^0.12.7",
+	    "jscs-jsdoc": "^0.4.5",
 		"mocha": "*",
 		"optimist": "~0.6.0",
 		"should": "~1.3.0"
