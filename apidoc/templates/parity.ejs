@@ -55,7 +55,7 @@ function toggleShowClass(clsName) {
 	<th>overall</th>
 </tr>
 <tr>
-	<th class="stats_description" style="font-weight: bold;">Total APIs (<%= apis.total_apis %>)</th>
+	<th class="stats_description" style="font-weight: bold;">Total APIs (<%= apis.totalAPIs %>)</th>
 	<% for (platform in apis.coverage) { %>
 		<th><%= apis.coverage[platform] %></th>
 	<% } %>
@@ -64,7 +64,7 @@ function toggleShowClass(clsName) {
 <tr>
 	<th class="stats_description" style="font-weight: bold;">Percentage</th>
 	<% for (platform in apis.coverage) { %>
-		<th><%= (100*apis.coverage[platform]/apis.total_apis).toFixed(2) %>%</th>
+		<th><%= (100*apis.coverage[platform]/apis.totalAPIs).toFixed(2) %>%</th>
 	<% } %>
 	<th></th>
 </tr>
@@ -112,3 +112,4 @@ function toggleShowClass(clsName) {
 	<% } %>
 <% } %>
 </table>
+
