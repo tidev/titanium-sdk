@@ -2942,7 +2942,7 @@ iOSBuilder.prototype.validateExtentions = function validateExtentions(next) {
 				process.exit(1);
 			}
 
-			if (!fs.existsSync(ext.projectPath)) {
+			if (!fs.existsSync(appc.fs.resolvePath(ext.projectPath))) {
 				this.logger.error(__('Extension projectPath %s location does not exist', ext.projectPath.cyan));
 				process.exit(1);
 			}
@@ -2973,10 +2973,11 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 		}
 
 		var tiProjectDir = process.cwd(),
-			proj = projectsToBuild[buildIndex++];
+			proj = projectsToBuild[buildIndex++],
+			projectAbsolutePath = appc.fs.resolvePath(proj.projectPath),
+			xcodeBuildDirectory = path.join(projectAbsolutePath,'build');
 
-		process.chdir(proj.projectPath);
-		var xcodeBuildDirectory = path.join(proj.projectPath,'build');
+		process.chdir(projectAbsolutePath);
 
 		var xcodeArgs = [
 			'-target', proj.target,
@@ -3131,6 +3132,7 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 					extensionFile: path.join(productPath, productFileName)
 				});
 
+				process.chdir(tiProjectDir);
 				buildNextProject.call(this);
 			}.bind(this)
 		);
