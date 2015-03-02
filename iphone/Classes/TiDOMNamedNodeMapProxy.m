@@ -13,21 +13,25 @@
 
 @implementation TiDOMNamedNodeMapProxy
 
-- (void)dealloc {
+- (void)dealloc
+{
 	RELEASE_TO_NIL(element);
 	[super dealloc];
 }
 
-- (NSString *)apiName {
+- (NSString *)apiName
+{
 	return @"Ti.XML.NamedNodeMap";
 }
 
-- (void)setElement:(TiDOMElementProxy *)element_ {
+- (void)setElement:(TiDOMElementProxy *)element_
+{
 	RELEASE_TO_NIL(element);
 	element = [element_ retain];
 }
 
-- (id)getNamedItem:(id)name {
+- (id)getNamedItem:(id)name
+{
 	if (element != nil) {
 		return [element getAttributeNode:name];
 	}
@@ -35,7 +39,8 @@
 	return [NSNull null];
 }
 
-- (id)getNamedItemNS:(id)args {
+- (id)getNamedItemNS:(id)args
+{
 	if (element != nil) {
 		return [element getAttributeNodeNS:args];
 	}
@@ -43,7 +48,8 @@
 	return [NSNull null];
 }
 
-- (id)setNamedItem:(id)args {
+- (id)setNamedItem:(id)args
+{
 	if (element != nil) {
 		return [element setAttributeNode:args];
 	}
@@ -51,7 +57,8 @@
 	return [NSNull null];
 }
 
-- (id)setNamedItemNS:(id)args {
+- (id)setNamedItemNS:(id)args
+{
 	if (element != nil) {
 		return [element setAttributeNodeNS:args];
 	}
@@ -59,7 +66,8 @@
 	return [NSNull null];
 }
 
-- (id)removeNamedItem:(id)args {
+- (id)removeNamedItem:(id)args
+{
 	if (element != nil) {
 		id proxy = [element getAttributeNode:args];
 		if (proxy != (id)[NSNull null]) {
@@ -73,7 +81,8 @@
 	return [NSNull null];
 }
 
-- (id)removeNamedItemNS:(id)args {
+- (id)removeNamedItemNS:(id)args
+{
 	if (element != nil) {
 		id proxy = [element getAttributeNodeNS:args];
 		if (proxy != (id)[NSNull null]) {
@@ -87,7 +96,8 @@
 	return [NSNull null];
 }
 
-- (id)item:(id)args {
+- (id)item:(id)args
+{
 	ENSURE_SINGLE_ARG(args, NSObject);
 	int index = [TiUtils intValue:args];
 
@@ -120,7 +130,8 @@ properties the same as foo.item(index).
 }
 */
 
-- (NSNumber *)length {
+- (NSNumber *)length
+{
 	return NUMUINTEGER([[(GDataXMLElement *)[element node] attributes] count]);
 }
 

@@ -16,31 +16,37 @@
 
 @implementation TiDOMElementProxy
 
-- (void)dealloc {
+- (void)dealloc
+{
 	RELEASE_TO_NIL(element);
 	[super dealloc];
 }
 
-- (NSString *)apiName {
+- (NSString *)apiName
+{
 	return @"Ti.XML.Element";
 }
 
-- (void)setElement:(GDataXMLElement *)element_ {
+- (void)setElement:(GDataXMLElement *)element_
+{
 	RELEASE_TO_NIL(element);
 	element = [element_ retain];
 	[self setNode:element];
 }
 
-- (id)nodeValue {
+- (id)nodeValue
+{
 	// DOM spec says nodeValue for element must return null
 	return [NSNull null];
 }
 
-- (id)tagName {
+- (id)tagName
+{
 	return [element name];
 }
 
-- (id)evaluate:(id)args {
+- (id)evaluate:(id)args
+{
 	ENSURE_SINGLE_ARG(args, NSString);
 	NSError *error = nil;
 	NSArray *nodes = [node nodesForXPath:args error:&error];
@@ -51,7 +57,8 @@
 	return [NSNull null];
 }
 
-- (id)getElementsByTagName:(id)args {
+- (id)getElementsByTagName:(id)args
+{
 	ENSURE_SINGLE_ARG(args, NSString);
 	NSError *error = nil;
 	NSString *xpath = [NSString stringWithFormat:@"self::node()/descendant::*[local-name()='%@']", args];
@@ -70,7 +77,8 @@
 	}
 }
 
-- (id)getElementsByTagNameNS:(id)args {
+- (id)getElementsByTagNameNS:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 	NSString *theURI = [args objectAtIndex:0];
 	NSString *localName = [args objectAtIndex:1];
@@ -96,7 +104,8 @@
 	}
 }
 
-- (id)getAttribute:(id)args {
+- (id)getAttribute:(id)args
+{
 	ENSURE_SINGLE_ARG(args, NSString);
 	GDataXMLNode *_node = [element attributeForName:args];
 	if (_node != nil) {
@@ -105,7 +114,8 @@
 	return @"";
 }
 
-- (id)getAttributeNS:(id)args {
+- (id)getAttributeNS:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 	NSString *theURI = [args objectAtIndex:0];
 	NSString *localName = [args objectAtIndex:1];
@@ -124,7 +134,8 @@
 	return @"";
 }
 
-- (void)setAttribute:(id)args {
+- (void)setAttribute:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 
 	NSString *name = nil;
@@ -156,7 +167,8 @@
 	}
 }
 
-- (void)setAttributeNS:(id)args {
+- (void)setAttributeNS:(id)args
+{
 	ENSURE_ARG_COUNT(args, 3);
 	NSString *theURI = [args objectAtIndex:0];
 	NSString *name = [args objectAtIndex:1];
@@ -222,7 +234,8 @@
 	}
 }
 
-- (void)removeAttribute:(id)args {
+- (void)removeAttribute:(id)args
+{
 	ENSURE_SINGLE_ARG(args, NSString);
 
 	GDataXMLNode *attributeNode = [element attributeForName:args];
@@ -247,7 +260,8 @@
 	}
 }
 
-- (void)removeAttributeNS:(id)args {
+- (void)removeAttributeNS:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 
 	NSString *theURI = [args objectAtIndex:0];
@@ -280,7 +294,8 @@
 	}
 }
 
-- (id)getAttributeNode:(id)args {
+- (id)getAttributeNode:(id)args
+{
 	ENSURE_SINGLE_ARG(args, NSString);
 	GDataXMLNode *attributeNode = [element attributeForName:args];
 	if (attributeNode == nil) {
@@ -301,7 +316,8 @@
 	return result;
 }
 
-- (id)getAttributeNodeNS:(id)args {
+- (id)getAttributeNodeNS:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 
 	NSString *theURI = [args objectAtIndex:0];
@@ -333,7 +349,8 @@
 	return [NSNull null];
 }
 
-- (id)setAttributeNode:(id)args {
+- (id)setAttributeNode:(id)args
+{
 	ENSURE_SINGLE_ARG(args, TiDOMAttrProxy);
 	TiDOMAttrProxy *attProxy = (TiDOMAttrProxy *)args;
 
@@ -398,7 +415,8 @@
 	return result;
 }
 
-- (id)setAttributeNodeNS:(id)args {
+- (id)setAttributeNodeNS:(id)args
+{
 	ENSURE_SINGLE_ARG(args, TiDOMAttrProxy);
 	TiDOMAttrProxy *attProxy = (TiDOMAttrProxy *)args;
 	NSString *name = [[attProxy node] name];
@@ -466,7 +484,8 @@
 	return result;
 }
 
-- (id)removeAttributeNode:(id)args {
+- (id)removeAttributeNode:(id)args
+{
 	ENSURE_SINGLE_ARG(args, TiDOMAttrProxy);
 	TiDOMAttrProxy *attProxy = (TiDOMAttrProxy *)args;
 
@@ -501,7 +520,8 @@
 	}
 }
 
-- (id)insertBefore:(id)args {
+- (id)insertBefore:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 	TiDOMNodeProxy *newChild = nil;
 	TiDOMNodeProxy *refChild = nil;
@@ -552,7 +572,8 @@
 	}
 }
 
-- (id)replaceChild:(id)args {
+- (id)replaceChild:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 	TiDOMNodeProxy *newChild = nil;
 	TiDOMNodeProxy *refChild = nil;
@@ -604,7 +625,8 @@
 	}
 }
 
-- (id)removeChild:(id)args {
+- (id)removeChild:(id)args
+{
 	ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
 	TiDOMNodeProxy *oldChild = (TiDOMNodeProxy *)args;
 
@@ -629,7 +651,8 @@
 	}
 }
 
-- (id)appendChild:(id)args {
+- (id)appendChild:(id)args
+{
 	ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
 	TiDOMNodeProxy *newChild = (TiDOMNodeProxy *)args;
 	if ([newChild document] != [self document]) {
@@ -670,20 +693,23 @@
 	}
 }
 
-- (id)attributes {
+- (id)attributes
+{
 	id context = ([self executionContext] == nil) ? [self pageContext] : [self executionContext];
 	TiDOMNamedNodeMapProxy *proxy = [[[TiDOMNamedNodeMapProxy alloc] _initWithPageContext:context] autorelease];
 	[proxy setElement:self];
 	return proxy;
 }
 
-- (id)hasAttribute:(id)args {
+- (id)hasAttribute:(id)args
+{
 	ENSURE_SINGLE_ARG(args, NSString);
 	GDataXMLNode *_node = [element attributeForName:args];
 	return NUMBOOL(_node != nil);
 }
 
-- (id)hasAttributeNS:(id)args {
+- (id)hasAttributeNS:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 
 	NSString *theURI = [args objectAtIndex:0];

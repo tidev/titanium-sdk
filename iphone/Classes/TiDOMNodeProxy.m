@@ -39,7 +39,8 @@ OSSpinLock nodeRegistryLock = OS_SPINLOCK_INIT;
 
 #pragma mark Internal
 
-- (void)dealloc {
+- (void)dealloc
+{
 	if ([node XMLNode] != NULL) {
 		[TiDOMNodeProxy removeNodeForXMLNode:[node XMLNode]];
 	}
@@ -48,15 +49,18 @@ OSSpinLock nodeRegistryLock = OS_SPINLOCK_INIT;
 	[super dealloc];
 }
 
-- (NSString *)apiName {
+- (NSString *)apiName
+{
 	return @"Ti.XML.Node";
 }
 
-- (NSString *)XMLString {
+- (NSString *)XMLString
+{
 	return [node XMLString];
 }
 
-+ (id)nodeForXMLNode:(xmlNodePtr)nodePtr {
++ (id)nodeForXMLNode:(xmlNodePtr)nodePtr
+{
 	id result = nil;
 	OSSpinLockLock(&nodeRegistryLock);
 	if (nodeRegistry != NULL) {
@@ -66,15 +70,18 @@ OSSpinLock nodeRegistryLock = OS_SPINLOCK_INIT;
 	return result;
 }
 
-Boolean simpleEquals(const void *value1, const void *value2) {
+Boolean simpleEquals(const void *value1, const void *value2)
+{
 	return value1 == value2;
 }
 
-CFHashCode simpleHash(const void *value) {
+CFHashCode simpleHash(const void *value)
+{
 	return (CFHashCode)value;
 }
 
-+ (void)setNode:(id)node forXMLNode:(xmlNodePtr)nodePtr {
++ (void)setNode:(id)node forXMLNode:(xmlNodePtr)nodePtr
+{
 	if ((node == nil) || (nodePtr == NULL)) {
 		return;
 	}
@@ -94,7 +101,8 @@ CFHashCode simpleHash(const void *value) {
 	OSSpinLockUnlock(&nodeRegistryLock);
 }
 
-+ (void)removeNodeForXMLNode:(xmlNodePtr)nodePtr {
++ (void)removeNodeForXMLNode:(xmlNodePtr)nodePtr
+{
 	OSSpinLockLock(&nodeRegistryLock);
 	if (nodeRegistry == NULL)
 		return;
@@ -102,11 +110,13 @@ CFHashCode simpleHash(const void *value) {
 	OSSpinLockUnlock(&nodeRegistryLock);
 }
 
-- (id)makeNodeListProxyFromArray:(NSArray *)nodes context:(id<TiEvaluator>)context {
+- (id)makeNodeListProxyFromArray:(NSArray *)nodes context:(id<TiEvaluator>)context
+{
 	return [[[TiDOMNodeListProxy alloc] _initWithPageContext:context nodes:nodes document:[self document]] autorelease];
 }
 
-+ (void)validateAttributeParameters:(NSString *)tagName withUri:(NSString *)theURI reason:(NSString **)error subreason:(NSString **)suberror {
++ (void)validateAttributeParameters:(NSString *)tagName withUri:(NSString *)theURI reason:(NSString **)error subreason:(NSString **)suberror
+{
 	NSString *prefix = [GDataXMLNode prefixForName:tagName];
 	NSString *localName = [GDataXMLNode localNameForName:tagName];
 
@@ -158,7 +168,8 @@ CFHashCode simpleHash(const void *value) {
 	}
 }
 
-+ (void)validateElementParameters:(NSString *)tagName withUri:(NSString *)theURI reason:(NSString **)error subreason:(NSString **)suberror {
++ (void)validateElementParameters:(NSString *)tagName withUri:(NSString *)theURI reason:(NSString **)error subreason:(NSString **)suberror
+{
 	NSString *prefix = [GDataXMLNode prefixForName:tagName];
 	NSString *localName = [GDataXMLNode localNameForName:tagName];
 
@@ -196,7 +207,8 @@ CFHashCode simpleHash(const void *value) {
 	}
 }
 
-- (id)makeNode:(id)child context:(id<TiEvaluator>)context {
+- (id)makeNode:(id)child context:(id<TiEvaluator>)context
+{
 	// if already a proxy, just return it.
 	if ([child isKindOfClass:[TiDOMNodeProxy class]]) {
 		return child;
@@ -207,7 +219,8 @@ CFHashCode simpleHash(const void *value) {
 	return result;
 }
 
-+ (id)makeNode:(id)child context:(id<TiEvaluator>)context {
++ (id)makeNode:(id)child context:(id<TiEvaluator>)context
+{
 	// if already a proxy, just return it.
 	if ([child isKindOfClass:[TiDOMNodeProxy class]]) {
 		return child;
@@ -300,7 +313,8 @@ CFHashCode simpleHash(const void *value) {
 
 #pragma mark Public APIs
 
-- (id)nodeName {
+- (id)nodeName
+{
 	xmlNodePtr realNode = [node XMLNode];
 	if (realNode == NULL) {
 		return [NSNull null];
@@ -323,23 +337,28 @@ CFHashCode simpleHash(const void *value) {
 	}
 }
 
-- (id)nodeValue {
+- (id)nodeValue
+{
 	return [node stringValue];
 }
 
-- (void)setNodeValue:(NSString *)data {
+- (void)setNodeValue:(NSString *)data
+{
 	[self throwException:[NSString stringWithFormat:@"Setting NodeValue not supported for %d type of Node", [[self nodeType] intValue]] subreason:nil location:CODELOCATION];
 }
 
-- (id)textContent {
+- (id)textContent
+{
 	return [node stringValue];
 }
 
-- (id)text {
+- (id)text
+{
 	return [node stringValue];
 }
 
-- (id)parentNode {
+- (id)parentNode
+{
 	xmlNodePtr p = [node XMLNode]->parent;
 	if (p == NULL)
 		return [NSNull null];
@@ -349,13 +368,15 @@ CFHashCode simpleHash(const void *value) {
 	return [self makeNode:sibling context:context];
 }
 
-- (id)childNodes {
+- (id)childNodes
+{
 	[node releaseCachedValues];
 	id context = ([self executionContext] == nil) ? [self pageContext] : [self executionContext];
 	return [self makeNodeListProxyFromArray:[node children] context:context];
 }
 
-- (id)firstChild {
+- (id)firstChild
+{
 	[node releaseCachedValues];
 	NSUInteger count = [node childCount];
 	if (count == 0)
@@ -365,7 +386,8 @@ CFHashCode simpleHash(const void *value) {
 	return [self makeNode:child context:context];
 }
 
-- (id)lastChild {
+- (id)lastChild
+{
 	[node releaseCachedValues];
 	NSUInteger count = [node childCount];
 	if (count == 0)
@@ -375,7 +397,8 @@ CFHashCode simpleHash(const void *value) {
 	return [self makeNode:child context:context];
 }
 
-- (id)previousSibling {
+- (id)previousSibling
+{
 	xmlNodePtr p = [node XMLNode]->prev;
 	if (p == NULL) {
 		return [NSNull null];
@@ -385,7 +408,8 @@ CFHashCode simpleHash(const void *value) {
 	return [self makeNode:sibling context:context];
 }
 
-- (id)nextSibling {
+- (id)nextSibling
+{
 	xmlNodePtr p = [node XMLNode]->next;
 	if (p == NULL) {
 		return [NSNull null];
@@ -395,11 +419,13 @@ CFHashCode simpleHash(const void *value) {
 	return [self makeNode:sibling context:context];
 }
 
-- (id)attributes {
+- (id)attributes
+{
 	return [NSNull null];
 }
 
-- (id)ownerDocument {
+- (id)ownerDocument
+{
 	xmlDocPtr p = [node XMLNode]->doc;
 	if (p == NULL) {
 		if ([self document] != nil) {
@@ -421,31 +447,38 @@ CFHashCode simpleHash(const void *value) {
 	return proxy;
 }
 
-- (id)insertBefore:(id)args {
+- (id)insertBefore:(id)args
+{
 	[self throwException:@"mutation not supported" subreason:nil location:CODELOCATION];
 }
 
-- (id)replaceChild:(id)args {
+- (id)replaceChild:(id)args
+{
 	[self throwException:@"mutation not supported" subreason:nil location:CODELOCATION];
 }
 
-- (id)removeChild:(id)args {
+- (id)removeChild:(id)args
+{
 	[self throwException:@"mutation not supported" subreason:nil location:CODELOCATION];
 }
 
-- (id)appendChild:(id)args {
+- (id)appendChild:(id)args
+{
 	[self throwException:@"mutation not supported" subreason:nil location:CODELOCATION];
 }
 
-- (id)hasChildNodes:(id)args {
+- (id)hasChildNodes:(id)args
+{
 	return NUMBOOL([node childCount] > 0);
 }
 
-- (void)normalize:(id)args {
+- (void)normalize:(id)args
+{
 	//TODO
 }
 
-- (id)isSupported:(id)args {
+- (id)isSupported:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 
 	NSString *feature = [args objectAtIndex:0];
@@ -468,21 +501,24 @@ CFHashCode simpleHash(const void *value) {
 	return NUMBOOL(NO);
 }
 
-- (id)namespaceURI {
+- (id)namespaceURI
+{
 	NSString *result = [node URI];
 	if (result == nil)
 		return [NSNull null];
 	return result;
 }
 
-- (id)prefix {
+- (id)prefix
+{
 	NSString *result = [node prefix];
 	if ([result length] == 0)
 		return [NSNull null];
 	return result;
 }
 
-- (id)localName {
+- (id)localName
+{
 	if (node != nil) {
 		xmlNodePtr theRealNode = [node XMLNode];
 		if (theRealNode != nil) {
@@ -497,7 +533,8 @@ CFHashCode simpleHash(const void *value) {
 	return [NSNull null];
 }
 
-- (id)hasAttributes:(id)args {
+- (id)hasAttributes:(id)args
+{
 	if ([node kind] == GDataXMLElementKind) {
 		GDataXMLElement *element = (GDataXMLElement *)node;
 		if ([element attributes] != nil) {
@@ -507,7 +544,8 @@ CFHashCode simpleHash(const void *value) {
 	return NUMBOOL(NO);
 }
 
-- (id)nodeType {
+- (id)nodeType
+{
 	xmlNodePtr realNode = [node XMLNode];
 	if (realNode == NULL) {
 		return NUMINT(0);
@@ -518,7 +556,8 @@ CFHashCode simpleHash(const void *value) {
 	return NUMINT(realNodeType);
 }
 
-- (id)cloneNode:(id)args {
+- (id)cloneNode:(id)args
+{
 	int recursive;
 	ENSURE_SINGLE_ARG(args, NSNumber);
 

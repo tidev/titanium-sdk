@@ -21,17 +21,20 @@
 	return self;
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
 	[nodes release];
 	[document release];
 	[super dealloc];
 }
 
-- (NSString *)apiName {
+- (NSString *)apiName
+{
 	return @"Ti.XML.NodeList";
 }
 
-- (id)item:(id)args {
+- (id)item:(id)args
+{
 	ENSURE_SINGLE_ARG(args, NSObject);
 	int index = [TiUtils intValue:args];
 
@@ -45,7 +48,8 @@
 	return [NSNull null];
 }
 
-- (NSNumber *)length {
+- (NSNumber *)length
+{
 	return NUMUINTEGER([nodes count]);
 }
 

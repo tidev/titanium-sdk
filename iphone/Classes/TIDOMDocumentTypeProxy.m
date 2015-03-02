@@ -10,29 +10,35 @@
 
 @implementation TIDOMDocumentTypeProxy
 
-- (NSString *)apiName {
+- (NSString *)apiName
+{
 	return @"Ti.XML.DocumentType";
 }
 
-- (id)nodeValue {
+- (id)nodeValue
+{
 	// DOM spec says nodeValue must return null
 	return [NSNull null];
 }
-- (id)entities {
+- (id)entities
+{
 	//TODO
 	return [NSNull null];
 }
-- (id)notations {
+- (id)notations
+{
 	//TODO
 	return [NSNull null];
 }
-- (id)name {
+- (id)name
+{
 	if (node != nil) {
 		return [node localName];
 	}
 	return [NSNull null];
 }
-- (id)publicId {
+- (id)publicId
+{
 	if (node != nil) {
 		xmlDtdPtr theRealNode = (xmlDtdPtr)[node XMLNode];
 		if (theRealNode->ExternalID != nil) {
@@ -45,7 +51,8 @@
 	}
 	return [NSNull null];
 }
-- (id)systemId {
+- (id)systemId
+{
 	if (node != nil) {
 		xmlDtdPtr theRealNode = (xmlDtdPtr)[node XMLNode];
 		if (theRealNode->SystemID != nil) {
@@ -58,7 +65,8 @@
 	}
 	return [NSNull null];
 }
-- (id)internalSubset {
+- (id)internalSubset
+{
 	if (node != nil) {
 		[node XMLString];
 	}

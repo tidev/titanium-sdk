@@ -46,7 +46,7 @@ Standard:        Cpp11
 IndentWidth:     4
 TabWidth:        4
 UseTab: ForIndentation
-BreakBeforeBraces: Attach
+BreakBeforeBraces: Linux
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 SpacesInAngles:  false

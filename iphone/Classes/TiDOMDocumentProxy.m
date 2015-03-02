@@ -26,7 +26,8 @@
 
 #pragma mark internal
 
-- (void)dealloc {
+- (void)dealloc
+{
 	if ([document docNode] != NULL) {
 		//Ensure that docNode is removed from nodeRegistry
 		[TiDOMNodeProxy removeNodeForXMLNode:(xmlNodePtr)[document docNode]];
@@ -34,18 +35,21 @@
 	[super dealloc];
 }
 
-- (BOOL)equals:(id)value {
+- (BOOL)equals:(id)value
+{
 	if ([value isKindOfClass:[TiDOMDocumentProxy class]]) {
 		return [value isEqual:self];
 	}
 	return NO;
 }
 
-- (NSString *)apiName {
+- (NSString *)apiName
+{
 	return @"Ti.XML.Document";
 }
 
-- (void)parseString:(NSString *)xml {
+- (void)parseString:(NSString *)xml
+{
 	NSError *error = nil;
 	GDataXMLDocument *ourDocument = [[[GDataXMLDocument alloc] initWithXMLString:xml options:0 error:&error] autorelease];
 	if (error != nil) {
@@ -59,12 +63,14 @@
 
 #pragma mark Public APIs
 
-- (id)nodeValue {
+- (id)nodeValue
+{
 	// DOM spec says nodeValue for document must return null
 	return [NSNull null];
 }
 
-- (id)createAttribute:(id)args {
+- (id)createAttribute:(id)args
+{
 	ENSURE_ARG_COUNT(args, 1);
 	NSString *tagName = nil;
 	ENSURE_ARG_AT_INDEX(tagName, args, 0, NSString);
@@ -86,7 +92,8 @@
 	return result;
 }
 
-- (id)createAttributeNS:(id)args {
+- (id)createAttributeNS:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 	NSString *theURI = [args objectAtIndex:0];
 	NSString *tagName = [args objectAtIndex:1];
@@ -142,7 +149,8 @@
 	return result;
 }
 
-- (TiDOMCDATANodeProxy *)createCDATASection:(id)args {
+- (TiDOMCDATANodeProxy *)createCDATASection:(id)args
+{
 	ENSURE_ARG_COUNT(args, 1);
 	NSString *textData = nil;
 	ENSURE_ARG_AT_INDEX(textData, args, 0, NSString);
@@ -154,7 +162,8 @@
 	[TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
 	return result;
 }
-- (TiDOMCommentProxy *)createComment:(id)args {
+- (TiDOMCommentProxy *)createComment:(id)args
+{
 	ENSURE_ARG_COUNT(args, 1);
 	NSString *textData = nil;
 	ENSURE_ARG_AT_INDEX(textData, args, 0, NSString);
@@ -167,7 +176,8 @@
 	return result;
 }
 
-- (TiDOMDocFragProxy *)createDocumentFragment:(id)args {
+- (TiDOMDocFragProxy *)createDocumentFragment:(id)args
+{
 	id context = ([self executionContext] == nil) ? [self pageContext] : [self executionContext];
 
 	TiDOMDocFragProxy *result = [[[TiDOMDocFragProxy alloc] _initWithPageContext:context] autorelease];
@@ -178,7 +188,8 @@
 	return result;
 }
 
-- (id)createElement:(id)args {
+- (id)createElement:(id)args
+{
 	ENSURE_ARG_COUNT(args, 1);
 	NSString *tagName = nil;
 	ENSURE_ARG_AT_INDEX(tagName, args, 0, NSString);
@@ -196,7 +207,8 @@
 	return result;
 }
 
-- (id)createElementNS:(id)args {
+- (id)createElementNS:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 
 	NSString *theURI = [args objectAtIndex:0];
@@ -251,7 +263,8 @@
 	return result;
 }
 
-- (TiDOMEntityRefProxy *)createEntityReference:(id)args {
+- (TiDOMEntityRefProxy *)createEntityReference:(id)args
+{
 	ENSURE_ARG_COUNT(args, 1);
 	NSString *tagName = nil;
 	ENSURE_ARG_AT_INDEX(tagName, args, 0, NSString);
@@ -265,7 +278,8 @@
 	return result;
 }
 
-- (TiDOMPIProxy *)createProcessingInstruction:(id)args {
+- (TiDOMPIProxy *)createProcessingInstruction:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 	NSString *theTarget = nil;
 	NSString *theData = nil;
@@ -280,7 +294,8 @@
 	return result;
 }
 
-- (TiDOMTextNodeProxy *)createTextNode:(id)args {
+- (TiDOMTextNodeProxy *)createTextNode:(id)args
+{
 	ENSURE_ARG_COUNT(args, 1);
 	NSString *textData = nil;
 	ENSURE_ARG_AT_INDEX(textData, args, 0, NSString);
@@ -293,13 +308,15 @@
 	return result;
 }
 
-- (id)documentElement {
+- (id)documentElement
+{
 	GDataXMLElement *root = [[self document] rootElement];
 	id context = ([self executionContext] == nil) ? [self pageContext] : [self executionContext];
 	return [self makeNode:root context:context];
 }
 
-- (id)doctype {
+- (id)doctype
+{
 	xmlDtdPtr resultPtr = [[self document] intDTD];
 
 	if (resultPtr != nil) {
@@ -317,13 +334,15 @@
 	return [NSNull null];
 }
 
-- (id)implementation {
+- (id)implementation
+{
 	id context = ([self executionContext] == nil) ? [self pageContext] : [self executionContext];
 	TIDOMDOMImplementation *result = [[[TIDOMDOMImplementation alloc] _initWithPageContext:context] autorelease];
 	return result;
 }
 
-- (id)getElementById:(id)args {
+- (id)getElementById:(id)args
+{
 	ENSURE_SINGLE_ARG(args, NSString);
 	NSError *error = nil;
 	NSArray *nodes = [[self document] nodesForXPath:[NSString stringWithFormat:@"//*[@id='%@']", args] error:&error];
@@ -334,7 +353,8 @@
 	return [NSNull null];
 }
 
-- (id)getElementsByTagName:(id)args {
+- (id)getElementsByTagName:(id)args
+{
 	ENSURE_SINGLE_ARG(args, NSString);
 	NSError *error = nil;
 	NSString *xpath = [NSString stringWithFormat:@"//*[local-name()='%@']", args];
@@ -354,7 +374,8 @@
 	return [NSNull null];
 }
 
-- (id)getElementsByTagNameNS:(id)args {
+- (id)getElementsByTagNameNS:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 	NSString *theURI = [args objectAtIndex:0];
 	NSString *localName = [args objectAtIndex:1];
@@ -379,7 +400,8 @@
 	}
 }
 
-- (id)importNode:(id)args {
+- (id)importNode:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 	TiDOMNodeProxy *theNodeToImport = nil;
 	NSNumber *recursive = nil;
@@ -401,7 +423,8 @@
 	return nil;
 }
 
-- (id)evaluate:(id)args {
+- (id)evaluate:(id)args
+{
 	ENSURE_SINGLE_ARG(args, NSString);
 	NSError *error = nil;
 	NSArray *nodes = [[self document] nodesForXPath:args error:&error];

@@ -14,11 +14,13 @@
 
 @implementation TIDOMDOMImplementation
 
-- (NSString *)apiName {
+- (NSString *)apiName
+{
 	return @"Ti.XML.DOMImplementation";
 }
 
-- (id)hasFeature:(id)args {
+- (id)hasFeature:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 
 	NSString *feature = [args objectAtIndex:0];
@@ -41,7 +43,8 @@
 	return NUMBOOL(NO);
 }
 
-- (id)createDocumentType:(id)args {
+- (id)createDocumentType:(id)args
+{
 	ENSURE_ARG_COUNT(args, 3);
 	NSString *qualifiedName = nil;
 	NSString *publicId = nil;
@@ -61,7 +64,8 @@
 	return result;
 }
 
-- (id)createDocument:(id)args {
+- (id)createDocument:(id)args
+{
 	ENSURE_ARG_COUNT(args, 3);
 	NSString *theURI = [args objectAtIndex:0];
 	NSString *qualifiedName = [args objectAtIndex:1];

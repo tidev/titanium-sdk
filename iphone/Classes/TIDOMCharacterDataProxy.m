@@ -13,24 +13,29 @@
 
 @implementation TiDOMCharacterDataProxy
 
-- (NSString *)apiName {
+- (NSString *)apiName
+{
 	return @"Ti.XML.CharacterData";
 }
 
-- (NSString *)data {
+- (NSString *)data
+{
 	return [node stringValue];
 }
 
-- (void)setData:(NSString *)data {
+- (void)setData:(NSString *)data
+{
 	ENSURE_TYPE(data, NSString);
 	[node setStringValue:data];
 }
 
-- (void)setNodeValue:(NSString *)data {
+- (void)setNodeValue:(NSString *)data
+{
 	[self setData:data];
 }
 
-- (NSNumber *)length {
+- (NSNumber *)length
+{
 	xmlNodePtr realNode = [node XMLNode];
 	if (realNode == NULL) {
 		return [NSNumber numberWithInt:0];
@@ -40,7 +45,8 @@
 	return NUMUINTEGER(result);
 }
 
-- (NSString *)substringData:(id)args {
+- (NSString *)substringData:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 	int offsetArg, countArg;
 	ENSURE_INT_AT_INDEX(offsetArg, args, 0);
@@ -53,7 +59,8 @@
 	return [ourData substringWithRange:NSMakeRange(offsetArg, MIN(countArg, dataLength - offsetArg))];
 }
 
-- (void)appendData:(id)args {
+- (void)appendData:(id)args
+{
 	ENSURE_ARG_COUNT(args, 1);
 	NSString *newData = nil;
 	ENSURE_ARG_AT_INDEX(newData, args, 0, NSString);
@@ -61,7 +68,8 @@
 	[node setStringValue:[[node stringValue] stringByAppendingString:newData]];
 }
 
-- (void)insertData:(id)args {
+- (void)insertData:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 	int offsetArg;
 	NSString *newData = nil;
@@ -83,7 +91,8 @@
 	[node setStringValue:result];
 }
 
-- (void)deleteData:(id)args {
+- (void)deleteData:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 	int offsetArg, countArg;
 	ENSURE_INT_AT_INDEX(offsetArg, args, 0);
@@ -100,7 +109,8 @@
 
 	[node setStringValue:result];
 }
-- (void)replaceData:(id)args {
+- (void)replaceData:(id)args
+{
 	ENSURE_ARG_COUNT(args, 2);
 	int offsetArg, countArg;
 	NSString *newData = nil;
