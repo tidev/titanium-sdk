@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.widget.tabgroup;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiUIHelper;
-
 import org.appcelerator.kroll.common.Log;
 
 import ti.modules.titanium.ui.TabProxy;
@@ -21,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+@SuppressWarnings("deprecation")
 public class TiUIActionBarTab extends TiUIAbstractTab {
 
 	private static final String TAG = "TiUIActionBarTab";

@@ -23,7 +23,6 @@ import org.appcelerator.kroll.common.Log;
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIActionBarTab.TabFragment;
-
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.app.Activity;
@@ -52,6 +51,7 @@ import android.view.MotionEvent;
  * See http://developer.android.com/guide/topics/ui/actionbar.html#Tabs
  * for further details on how Action bar tabs work.
  */
+@SuppressWarnings("deprecation")
 public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabListener, OnLifecycleEvent , OnInstanceStateEvent {
 	private static final String TAG = "TiUIActionBarTabGroup";
 	private static final String FRAGMENT_ID_ARRAY = "fragmentIdArray";
