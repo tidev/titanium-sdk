@@ -7,7 +7,6 @@
 package ti.modules.titanium.geolocation;
 
 import java.util.Calendar;
-import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;

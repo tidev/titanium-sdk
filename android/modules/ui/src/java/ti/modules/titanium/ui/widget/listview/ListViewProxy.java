@@ -25,7 +25,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
 import android.app.Activity;
-import android.os.Handler;
 import android.os.Message;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {

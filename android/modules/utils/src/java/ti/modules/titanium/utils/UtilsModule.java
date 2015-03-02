@@ -22,10 +22,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
-import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
-
-import android.util.Base64InputStream;
 
 @Kroll.module
 public class UtilsModule extends KrollModule

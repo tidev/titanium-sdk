@@ -23,9 +23,7 @@ import javax.net.ssl.TrustManager;
 
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiC;
 
-import android.annotation.TargetApi;
 import android.os.Build;
 
 public class TiSocketFactory extends SSLSocketFactory {
