@@ -17,6 +17,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 
+@SuppressWarnings("deprecation")
 public class TiCamera
 {
 	private static final String TAG = "TiCamera";
