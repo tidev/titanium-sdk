@@ -58,6 +58,18 @@ platforms: [iphone, ipad]
 since: "1.5"
 
 methods:
+  - name: createUserDefaults
+    summary: |
+        Creates and returns an instance of Titanium.App.iOS.UserDefaults.
+    parameters:
+      - name: parameters
+        summary: Properties to set on a new object, including any defined by Titanium.App.iOS.UserDefaults except those marked not-creation or read-only.
+        type: Dictionary<Titanium.App.iOS.UserDefaults>
+
+    returns:
+        type: Titanium.App.iOS.UserDefaults
+    since: "4.0.0"
+
   - name: cancelAllLocalNotifications
     summary: Cancels all scheduled local notifications.
 

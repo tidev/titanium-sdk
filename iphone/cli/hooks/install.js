@@ -70,7 +70,7 @@ exports.init = function (logger, config, cli) {
 						}
 
 						logger.info(__('Initiating iTunes sync'));
-						run('osascript', path.join(builder.titaniumIosSdkPath, 'itunes_sync.scpt'), function (code, out, err) {
+						run('osascript', path.join(builder.platformPath, 'itunes_sync.scpt'), function (code, out, err) {
 							if (code) {
 								if (err.indexOf('(-1708)') !== -1) {
 									// err == "itunes_sync.scpt: execution error: iTunes got an error: every source doesn’t understand the count message. (-1708)"

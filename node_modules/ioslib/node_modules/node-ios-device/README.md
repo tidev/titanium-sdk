@@ -1,4 +1,4 @@
-# node-ios-device
+# node-ios-device [![Build Status](https://travis-ci.org/appcelerator/node-ios-device.svg?branch=master)](https://travis-ci.org/appcelerator/node-ios-device)
 
 Queries connected iOS devices and installs apps.
 
