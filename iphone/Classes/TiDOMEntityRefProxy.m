@@ -9,13 +9,11 @@
 #import "TiDOMEntityRefProxy.h"
 
 @implementation TiDOMEntityRefProxy
-- (NSString*)apiName
-{
+- (NSString *)apiName {
 	return @"Ti.XML.EntityReference";
 }
 
-- (id)nodeValue
-{
+- (id)nodeValue {
 	// DOM spec says nodeValue must return null
 	return [NSNull null];
 }

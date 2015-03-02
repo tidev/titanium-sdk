@@ -11,13 +11,11 @@
 
 @implementation TiDOMTextNodeProxy
 
-- (NSString *)apiName
-{
+- (NSString *)apiName {
 	return @"Ti.XML.Text";
 }
 
-- (TiDOMTextNodeProxy *)splitText:(id)args
-{
+- (TiDOMTextNodeProxy *)splitText:(id)args {
 	ENSURE_ARG_COUNT(args, 1);
 	int offsetArg;
 	ENSURE_INT_AT_INDEX(offsetArg, args, 0);
