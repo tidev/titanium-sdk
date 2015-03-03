@@ -517,8 +517,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 						wait();
 					}
 				}
-
-				BitmapWithIndex b = loader.getBitmapQueue().take();
+				ArrayBlockingQueue<BitmapWithIndex> bitmapQueue = loader.getBitmapQueue();
+				//Fire stop event when animation finishes
+				if (!isLoading.get() && bitmapQueue.isEmpty()) {
+					fireStop();
+				}
+				BitmapWithIndex b = bitmapQueue.take();
 				Log.d(TAG, "set image: " + b.index, Log.DEBUG_MODE);
 				setImage(b.bitmap);
 				fireChange(b.index);
