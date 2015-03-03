@@ -4,7 +4,7 @@ summary: |
     A SplitWindow is a window that manages the presentation of two side-by-side view 
     controllers. 
 description: |
-    This class replaces the deprecated <Ti.UI.iPad.SplitWindow> class.
+    This class replaces the deprecated <Titanium.UI.iPad.SplitWindow> class.
 
     The [masterView](Titanium.UI.iOS.SplitWindow.masterView) and [detailView](Titanium.UI.iOS.SplitWindow.detailView) 
     properties are required before the SplitWindow is opened.
