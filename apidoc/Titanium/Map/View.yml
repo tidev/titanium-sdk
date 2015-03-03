@@ -165,7 +165,7 @@ methods:
         summary: |
             Dictionary specifying the location and the zoom level for the map.
         type: MapLocationType
-    exclude-platforms: [blackberry]
+
 
   - name: setMapType
     summary: Sets the type of map (satellite, hybrid, or standard).
@@ -175,7 +175,7 @@ methods:
             Map type constant, either <Titanium.Map.STANDARD_TYPE>, <Titanium.Map.SATELLITE_TYPE> or 
             <Titanium.Map.HYBRID_TYPE>.
         type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: zoom
     summary: Zooms in or out of the map.
@@ -188,7 +188,7 @@ methods:
       - name: level
         summary: Relative zoom level (positive to zoom in, negative to zoom out).
         type: Number
-    exclude-platforms: [blackberry]
+
 
 events:
 
@@ -366,7 +366,7 @@ events:
       - name: latitude
         summary: Latitude value for the center point of the map, in decimal degrees.
         type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: regionchanged
     summary: |

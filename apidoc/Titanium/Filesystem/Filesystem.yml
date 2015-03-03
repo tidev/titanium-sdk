@@ -24,13 +24,13 @@ methods:
     summary: Creates a temporary directory and returns a [File](Titanium.Filesystem.File) object representing the new directory.
     returns:
         type: Titanium.Filesystem.File
-    exclude-platforms: [blackberry]
+
   - name: createTempFile
     summary: Creates a temporary file and returns a [File](Titanium.Filesystem.File)
         object representing the new file.
     returns:
         type: Titanium.Filesystem.File
-    exclude-platforms: [blackberry]
+
   - name: getFile
     summary: Returns a `File` object representing the file identified by the path
         arguments.
@@ -74,7 +74,7 @@ methods:
         Returns `false` on iOS and Mobile Web.
     returns:
         type: Boolean
-    exclude-platforms: [blackberry]
+
   - name: openStream
     summary: Opens file using the <Titanium.IOStream> interface.
     parameters:
@@ -91,7 +91,7 @@ methods:
         type: String
     returns:
         type: Titanium.Filesystem.FileStream
-    exclude-platforms: [blackberry]
+
   - name: directoryForSuite
     summary: Returns the path to the container directory associated with the specified security application group ID.
     description: |
@@ -114,17 +114,17 @@ properties:
     summary: Constant for append mode for file operations.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: MODE_READ
     summary: Constant for read mode for file operations.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: MODE_WRITE
     summary: Constant for write mode for file operations.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: applicationCacheDirectory
     summary: Path to the application's internal cache directory.
     description: |
@@ -202,7 +202,7 @@ properties:
     summary: Platform-specific line ending constant.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: resourcesDirectory
     summary: Path to the application's resource directory.
     description: |
@@ -247,7 +247,7 @@ properties:
     summary: Platform-specific path separator constant.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: tempDirectory
     summary: Path for the application's temporary directory. 
     description: |

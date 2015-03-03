@@ -111,7 +111,7 @@ properties:
     type: Number
     constants: Titanium.UI.TEXT_AUTOCAPITALIZATION_*
     default: <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>
-    exclude-platforms: [blackberry]    
+    
   - name: autocorrect
     summary: |
         Determines whether to automatically correct text entered into this text field.
@@ -123,7 +123,7 @@ properties:
         On iOS and Mobile Web, the returned default value is `false`, and on Android, the returned
         default value is undefined, but all behave as if the value is `true`.
     type: Boolean
-    exclude-platforms: [blackberry]    
+    
 
   - name: autoLink
     summary: Automatically convert text to clickable links. 
@@ -160,7 +160,7 @@ properties:
     summary: Determines whether the value of this text field should be cleared when it is focused.
     type: Boolean
     default: false
-    exclude-platforms: [blackberry]    
+    
     
   - name: color
     summary: Color of the text in this text field, as a color name or hex triplet.
@@ -192,7 +192,7 @@ properties:
         
     type: Boolean
     default: false
-    exclude-platforms: [blackberry]    
+    
     
   - name: font
     summary: Font to use for text.
@@ -404,7 +404,7 @@ properties:
     type: [String, Number]
     constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
-    exclude-platforms: [blackberry]    
+    
     
   - name: value
     summary: Value of this text field, which may be set programmatically and modified by the user.
