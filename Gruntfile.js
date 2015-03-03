@@ -6,7 +6,7 @@ module.exports = function (grunt) {
 			options: {
 				jshintrc: true
 			},
-			src: ['Gruntfile.js', 'apidoc/**/*.js']
+			src: ['Gruntfile.js', 'apidoc/**/*.js', '!apidoc/node_modules/**']
 		},
 		jscs: {
             options: {
@@ -14,7 +14,7 @@ module.exports = function (grunt) {
                 reporter: 'inline'
 
             },
-			src: ['Gruntfile.js', 'apidoc/**/*.js']
+			src: ['Gruntfile.js', 'apidoc/**/*.js', '!apidoc/node_modules/**']
 		}
 	});
 
