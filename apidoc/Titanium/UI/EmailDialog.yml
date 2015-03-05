@@ -3,14 +3,37 @@ name: Titanium.UI.EmailDialog
 summary: |
     An email dialog is a modal window that allows users to compose and send an email.
 description: |
-    The Email Dialog is created with the <Titanium.UI.createEmailDialog> method.
+    <table id="platformComparison">
+      <tr>
+        <td><img src="images/emaildialog/emaildialog_android.png" height="150" style="border: 1px solid black;"/></td>
+        <td><img src="images/emaildialog/emaildialog_ios.png" height="150" style="border: 1px solid black;"/></td>
+      </tr>
+      <tr><th>Android</th><th>iOS</th></tr>
+    </table>
+
+    The Email Dialog is created with the <Titanium.UI.createEmailDialog> method. The user needs to
+    register an e-mail account on the device in order to open the dialog.  The dialog will not
+    open when there is not a registered e-mail account.
+
+    **BlackBerry Platform Notes**
+
+    On BlackBerry, the email dialog only opens on device.  It does not work on the simulator.
+
+    **iOS Platform Notes**
+
+    On iOS, you cannot test the e-mail dialog on the iOS 8.0 simulator or greater.  Test the email
+    dialog on device.
+
+    **Mobile Web Platform Notes**
+
+    On Mobile Web, the application will open the OS's default e-mail client.
     
-    On Mobile Web and Tizen, the `to` addresses, `cc` addresses, `bcc` addresses, `subject`, and `body` are 
+    The `to` addresses, `cc` addresses, `bcc` addresses, `subject`, and `body` are
     appended together and formatted into a `mailto:` URL. This URL typically has a limit of 
     approximately 2000 characters.
 extends: Titanium.Proxy
 since: "0.8"
-platforms: [android, iphone, ipad, mobileweb, tizen, blackberry]
+platforms: [android, iphone, ipad, mobileweb]
 
 methods:
   - name: addAttachment
@@ -25,22 +48,16 @@ methods:
       - name: attachment
         summary: Attachment to include in the email.
         type: [Titanium.Blob, Titanium.Filesystem.File]
-    platforms: [android, iphone, ipad, blackberry]
+    platforms: [android, iphone, ipad]
     
   - name: isSupported
     summary: Indicates whether sending email is supported by the system.
-    exclude-platforms: [blackberry]
+
     returns:
         type: Boolean
     
   - name: open
     summary: Opens this email dialog.
-    description: |
-        To use this method on Tizen, you must include the following privilege
-        in the `tiapp.xml` file of your Titanium application: 
-
-        * `http://tizen.org/privilege/application.launch`
-        
     parameters:
       - name: properties
         summary: |
@@ -51,9 +68,9 @@ methods:
 events:
   - name: complete
     summary: Fired when this email dialog has completed sending an email.
-    exclude-platforms: [blackberry]
+
     description: |
-        On Mobile Web and Tizen, as the platform cannot determine whether a message has been sent or not, 
+        On Mobile Web, as the platform cannot determine whether a message has been sent or not,
         this event fires immediately after calling open() and always reports success.
     properties:
       - name: success
@@ -91,13 +108,13 @@ properties:
     summary: Constant for the `CANCELLED` status result. On Android, this property exists but is not used.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad]
     
   - name: FAILED
     summary: Constant for the `FAILED` status result.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: SAVED
     summary: Constant for the `SAVED` status result. On Android, this property exists but is not used.
@@ -109,7 +126,7 @@ properties:
     summary: Constant for the `SENT` status result.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: barColor
     summary: |
@@ -133,11 +150,11 @@ properties:
         [messageBody](Titanium.UI.EmailDialog.messageBody), should be sent as HTML content type 
         rather than plain text.
     description: |
-        On Mobile Web and Tizen, while iPhone and iPad properly interpret HTML messages, some email clients, 
+        On Mobile Web, while iPhone and iPad properly interpret HTML messages, some email clients,
         especially those for the desktop, do not support them.
     type: Boolean
     default: false
-    platforms: [android, iphone, ipad, mobileweb, blackberry]
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: messageBody
     summary: Email message body.

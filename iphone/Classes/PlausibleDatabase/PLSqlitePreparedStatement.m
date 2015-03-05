@@ -41,7 +41,7 @@
 /**
  * Return the number of available parameters
  */
-- (int) count;
+- (NSUInteger) count;
 
 /**
  * Return the value for the given parameter. May
@@ -78,7 +78,7 @@
     [super dealloc];
 }
 
-- (int) count {
+- (NSUInteger) count {
     return [_values count];
 }
 
@@ -120,7 +120,7 @@
     [super dealloc];
 }
 
-- (int) count {
+- (NSUInteger) count {
     return [_values count];
 }
 
@@ -271,7 +271,7 @@
     /* Verify that a complete parameter list was provided */
     if ([strategy count] != _parameterCount)
         [NSException raise: TI_PLSqliteException 
-                    format: @"%@ prepared statement provided invalid parameter count (expected %d, but %d were provided)", [self class], _parameterCount, [strategy count]];
+                    format: @"%@ prepared statement provided invalid parameter count (expected %d, but %lu were provided)", [self class], _parameterCount, (unsigned long)[strategy count]];
     
     /* Clear any existing bindings */
     sqlite3_clear_bindings(_sqlite_stmt);
@@ -456,7 +456,7 @@
 	
     /* Data */
 	if ([value isKindOfClass: [NSData class]]) {
-        return sqlite3_bind_blob(_sqlite_stmt, parameterIndex, [value bytes], [value length], SQLITE_TRANSIENT);
+        return sqlite3_bind_blob(_sqlite_stmt, parameterIndex, [value bytes], (int)[value length], SQLITE_TRANSIENT);
     }
     
     /* Date */
@@ -481,7 +481,7 @@
         
         /* If the value can fit into a 32-bit value, use that bind type. */
         else if (number <= INT32_MAX) {
-            return sqlite3_bind_int(_sqlite_stmt, parameterIndex, number);
+            return sqlite3_bind_int(_sqlite_stmt, parameterIndex, (int)number);
             
             /* Otherwise use the 64-bit bind. */
         } else {

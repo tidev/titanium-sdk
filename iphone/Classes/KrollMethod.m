@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -253,22 +253,25 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 	}
 	
 	// special generic factory for creating proxy objects for modules
-	if (type == KrollMethodFactory)
-	{
-		//TODO: This likely could be further optimized later
-		//
-		bool useResult = [_methodSignature methodReturnLength] == sizeof(id);
-		id result = nil;
-		id delegate = context.delegate;
-		IMP methodFunction = [target methodForSelector:selector];
-		if (useResult) {
-			result = methodFunction(target,selector,args,name,delegate);
-		}
-		else
-		{
-			methodFunction(target,selector,args,name,delegate);
-		}
-		return result;
+	if (type == KrollMethodFactory) {
+        //TODO: This likely could be further optimized later
+        //
+        BOOL useResult = [_methodSignature methodReturnLength] == sizeof(id);
+        id result = nil;
+        id delegate = context.delegate;
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:_methodSignature];
+        [invocation setTarget:target];
+        [invocation setSelector:selector];
+        [invocation setArgument:&args atIndex:2];
+        [invocation setArgument:&name atIndex:3];
+        [invocation setArgument:&delegate atIndex:4];
+        [invocation invoke];
+        if (useResult) {
+            void *tempResult;
+            [invocation getReturnValue:&tempResult];
+            result = (__bridge id)tempResult;
+        }
+        return result;
 	}
 	
 	
@@ -277,7 +280,6 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 	{
 		@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"invalid method '%@'",NSStringFromSelector(selector)] userInfo:nil];
 	}
-	IMP methodFunction = [target methodForSelector:selector];
 	id arg1=nil;
 	id arg2=nil;
 
@@ -286,7 +288,7 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 		[target setExecutionContext:context.delegate];
 	}
 	
-	int methodArgCount = [_methodSignature numberOfArguments];
+	NSUInteger methodArgCount = [_methodSignature numberOfArguments];
 	
 	if (methodArgCount > 0 && argcount > 0)
 	{
@@ -318,77 +320,121 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 		}
 	}
 	
-	if ([_methodSignature methodReturnLength] == sizeof(id))
-	{
-		id result;
-		result = methodFunction(target,selector,arg1,arg2);
-		return result;
-	}
-
-	const char * retType = [_methodSignature methodReturnType];
-	char t = retType[0];
-	switch(t)
-	{
-		case 'v':
-			methodFunction(target,selector,arg1,arg2);
-			return nil;
-		case 'c':
-		{
-			char c;
-			typedef char (*cIMP)(id, SEL, ...);
-			c = ((cIMP)methodFunction)(target,selector,arg1,arg2);
-			return [NSNumber numberWithChar:c];
-		}
-		case 'f':
-		{
-			float f;
-			typedef float (*fIMP)(id, SEL, ...);
-			f = ((fIMP)methodFunction)(target,selector,arg1,arg2);
-			return [NSNumber numberWithFloat:f];
-		}
-		case 'i':
-		{
-			int i;
-			typedef float (*iIMP)(id, SEL, ...);
-			i = ((iIMP)methodFunction)(target,selector,arg1,arg2);
-			return [NSNumber numberWithInt:i];
-		}
-		case 'd':
-		{
-			double d;
-			typedef double (*dIMP)(id, SEL, ...);
-			d = ((dIMP)methodFunction)(target,selector,arg1,arg2);
-			return [NSNumber numberWithDouble:d];
-		}
-		case 'l':
-		{
-			long l;
-			typedef long (*lIMP)(id, SEL, ...);
-			l = ((lIMP)methodFunction)(target,selector,arg1,arg2);
-			return [NSNumber numberWithLong:l];
-		}
-		case 'q':
-		{
-			long long l;
-			typedef long long (*lIMP)(id, SEL, ...);
-			l = ((lIMP)methodFunction)(target,selector,arg1,arg2);
-			return [NSNumber numberWithLongLong:l];
-		}
-		case 'Q':
-		{
-			unsigned long long l;
-			typedef unsigned long long (*lIMP)(id, SEL, ...);
-			l = ((lIMP)methodFunction)(target,selector,arg1,arg2);
-			return [NSNumber numberWithUnsignedLongLong:l];
-		}
-		default:
-		{
-			DeveloperLog(@"[ERROR] Unsupported primitive return type: %c for target:%@->%@",t,target,NSStringFromSelector(selector));
-			break;
-		}
-	}
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:_methodSignature];
+    [invocation setTarget:target];
+    [invocation setSelector:selector];
+    if (methodArgCount >= 3) {
+        [invocation setArgument:&arg1 atIndex:2];
+    }
+    if (methodArgCount >= 4) {
+        [invocation setArgument:&arg2 atIndex:3];
+    }
+    
+    [invocation invoke];
+    
+    const char * retType = [_methodSignature methodReturnType];
+    char t = retType[0];
+    switch(t)
+    {
+        case 'v':
+        {
+            return nil;
+        }
+        case '@':
+        {
+            id result = nil;
+            void *tempResult;
+            [invocation getReturnValue:&tempResult];
+            result = (__bridge id)tempResult;
+            return result;
+        }
+        case 'c':
+        {
+            char c;
+            [invocation getReturnValue:&c];
+            return [NSNumber numberWithChar:c];
+        }
+        case 'C':
+        {
+            unsigned char uc;
+            [invocation getReturnValue:&uc];
+            return [NSNumber numberWithUnsignedChar:uc];
+        }
+        case 'f':
+        {
+            float f;
+            [invocation getReturnValue:&f];
+            return [NSNumber numberWithFloat:f];
+        }
+        case 'i':
+        {
+            int i;
+            [invocation getReturnValue:&i];
+            return [NSNumber numberWithInt:i];
+        }
+        case 'I':
+        {
+            unsigned int ui;
+            [invocation getReturnValue:&ui];
+            return [NSNumber numberWithUnsignedInt:ui];
+        }
+        case 's':
+        {
+            short s;
+            [invocation getReturnValue:&s];
+            return [NSNumber numberWithShort:s];
+        }
+        case 'S':
+        {
+            unsigned short us;
+            [invocation getReturnValue:&us];
+            return [NSNumber numberWithUnsignedShort:us];
+        }
+        case 'd':
+        {
+            double d;
+            [invocation getReturnValue:&d];
+            return [NSNumber numberWithDouble:d];
+        }
+        case 'l':
+        {
+            long l;
+            [invocation getReturnValue:&l];
+            return [NSNumber numberWithLong:l];
+        }
+        case 'L':
+        {
+            unsigned long ul;
+            [invocation getReturnValue:&ul];
+            return [NSNumber numberWithUnsignedLong:ul];
+        }
+        case 'q':
+        {
+            long long ll;
+            [invocation getReturnValue:&ll];
+            return [NSNumber numberWithLongLong:ll];
+        }
+        case 'Q':
+        {
+            unsigned long long ull;
+            [invocation getReturnValue:&ull];
+            return [NSNumber numberWithUnsignedLongLong:ull];
+        }
+        case 'b':
+        case 'B':
+        {
+            bool b;
+            [invocation getReturnValue:&b];
+            return [NSNumber numberWithBool:b];
+        }
+        default:
+        {
+            DebugLog(@"[ERROR] Unsupported primitive return type: %c for target:%@->%@",t,target,NSStringFromSelector(selector));
+            break;
+        }
+    }
 	
-	return nil; 
+    return nil;
 }
 
 - (TiValueRef)jsvalueForUndefinedKey:(NSString *)key

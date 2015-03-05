@@ -131,7 +131,7 @@ typedef NSUInteger GDataXMLNodeKind;
 
 - (NSUInteger)childCount;
 - (NSArray *)children;
-- (GDataXMLNode *)childAtIndex:(unsigned)index;
+- (GDataXMLNode *)childAtIndex:(NSUInteger)index;
 
 - (NSString *)localName;
 - (NSString *)name;

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,34 +13,6 @@
 #endif
 
 #endif
-
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-typedef enum {
-	AttributeNameFont,
-	AttributeNameParagraphStyle,
-	AttributeNameForegroundColor,
-	AttributeNameBackgroundColor,
-	AttributeNameLigature,
-	AttributeNameKern,
-	AttributeNameStrikethroughStyle,
-	AttributeNameUnderlineStyle,
-	AttributeNameStrokeColor,
-	AttributeNameStrokeWidth,
-	AttributeNameShadow,
-	AttributeNameVerticalGlyphForm,
-	AttributeNameWritingDirection,
-	AttributeNameTextEffect,
-	AttributeNameAttachment,
-	AttributeNameLink,
-	AttributeNameBaselineOffset,
-	AttributeNameUnderlineColor,
-	AttributeNameStrikethroughColor,
-	AttributeNameObliqueness,
-	AttributeNameExpansion
-} AttributeName;
-
-#endif
-
 @interface TiUIiOSProxy : TiProxy {
 @private
 
@@ -94,8 +66,8 @@ typedef enum {
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT;
 
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
-// -----
 #endif
+
 
 #ifdef USE_TI_UIIOSADVIEW
 -(id)createAdView:(id)args;
@@ -121,6 +93,9 @@ typedef enum {
 #endif
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
 -(id)createNavigationWindow:(id)args;
+#endif
+#ifdef USE_TI_UIIOSSPLITWINDOW
+-(id)createSplitWindow:(id)args;
 #endif
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 -(id)createAttributedString:(id)args;

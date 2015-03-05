@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -209,12 +209,25 @@
 
 -(NSNumber*)volume
 {
-	return NUMFLOAT([player volume]);
+    __block float volume = 1.0;
+    if (player != nil) {
+        TiThreadPerformOnMainThread(^{
+            volume = [TiUtils volumeFromObject:player default:volume];
+        }, YES);
+    }
+    
+    return NUMFLOAT(volume);
 }
 
 -(void)setVolume:(NSNumber*)vol
 {
-	[player setVolume:[vol floatValue]];
+    float volume = [TiUtils floatValue:vol def:-1];
+    volume = MAX(0.0, MIN(volume, 1.0));
+    if (player != nil) {
+        TiThreadPerformOnMainThread(^{
+            [TiUtils setVolume:volume onObject:player];
+        }, NO);
+    }
 }
 
 #pragma mark Notifications

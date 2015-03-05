@@ -517,6 +517,10 @@ public class TiC
 	 */
 	public static final String EVENT_SSL_ERROR = "sslerror";
 	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_WEBVIEW_ON_LOAD_RESOURCE = "onLoadResource";
 
 	/**
 	 * @module.api
@@ -599,6 +603,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK = "smoothScrollOnTabClick";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR = "activeTabBackgroundColor";
 
 	/**
@@ -635,6 +644,26 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ALTITUDE_ACCURACY = "altitudeAccuracy";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTES = "attributes";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTED_HINT_TEXT = "attributedHintText";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTE_RANGE = "range";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTED_STRING = "attributedString";
 
 	/**
 	 * @module.api
@@ -710,6 +739,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_AUTOROTATE = "autorotate";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_AUTO_REDIRECT = "autoRedirect";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_AUTO_ENCODE_URL = "autoEncodeUrl";
 
 	/**
 	 * @module.api
@@ -878,6 +917,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_CANCELABLE = "cancelable";
 	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CANCELED_ON_TOUCH_OUTSIDE = "canceledOnTouchOutside";
+
 	/**
 	 * @module.api
 	 */
@@ -1117,6 +1161,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ENABLED = "enabled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ENABLE_JAVASCRIPT_INTERFACE = "enableJavascriptInterface";
 
 	/**
 	 * @module.api
@@ -1475,6 +1524,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LIFECYCLE_CONTAINER = "lifecycleContainer";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LOAD_URL = "loadUrl";
 	
 	/**
@@ -1716,6 +1770,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_STOP = "onStop";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TLS_VERSION = "tlsVersion";
 
 	/**
 	 * @module.api
@@ -2153,7 +2212,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SOURCE_POSITION = "sourcePosition";
-	
+
+	/**
+	* @module.api
+	*/
+	public static final String PROPERTY_SPLIT_ACTIONBAR = "splitActionBar";
+
 	/**
 	 * @module.api
 	 */
@@ -2407,6 +2471,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VISIBLE = "visible";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VISIBILITY = "visibility";
 
 	/**
 	 * @module.api
@@ -2510,6 +2579,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CATEGORY = "category";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CUSTOM = "custom";
 	
 	/**
@@ -2522,6 +2596,46 @@ public class TiC
 	 */
 	public static final String PROPERTY_MAX_DATE = "maxDate";
 	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PREFIX = "prefix";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PRIORITY = "priority";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SUFFIX = "suffix";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FIRSTPHONETIC = "firstPhonetic";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MIDDLEPHONETIC = "middlePhonetic";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LASTPHONETIC = "lastPhonetic";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_JOBTITLE = "jobTitle";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DEPARTMENT = "department";
+
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";

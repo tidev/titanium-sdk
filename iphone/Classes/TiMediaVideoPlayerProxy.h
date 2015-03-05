@@ -17,14 +17,13 @@
 	NSRecursiveLock* playerLock;
 	BOOL playing;
 @private
-	UIView * legacyWindowView;
 
 	NSURL *url;
 	TiColor* backgroundColor;
 	NSMutableArray *views;
 	TiFile *tempFile;
 	KrollCallback *thumbnailCallback;
-	int callbackRequestCount;
+	NSUInteger callbackRequestCount;
 	
 	NSMutableDictionary* loadProperties; // Used to set properties when the player is created
 	BOOL sizeSet;

@@ -8,7 +8,7 @@
 #ifdef USE_TI_MEDIA
 
 #import "SCListener.h"
-
+#import <AVFoundation/AVAudioSession.h>
 @interface SCListener (Private)
 
 - (void)updateLevels;
@@ -126,9 +126,13 @@ static void listeningCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 #if TARGET_IPHONE_SIMULATOR
 	format.mSampleRate = 44100.0;
 #else
-	UInt32 ioDataSize = sizeof(sampleRate);
-	AudioSessionGetProperty(kAudioSessionProperty_CurrentHardwareSampleRate, &ioDataSize, &sampleRate);
-	format.mSampleRate = sampleRate;
+    /*Titanium Modification begin*/
+//	UInt32 ioDataSize = sizeof(sampleRate);
+//	AudioSessionGetProperty(kAudioSessionProperty_CurrentHardwareSampleRate, &ioDataSize, &sampleRate);
+//	format.mSampleRate = sampleRate;
+    sampleRate = [[AVAudioSession sharedInstance] sampleRate];
+    format.mSampleRate = sampleRate;
+    /*Titanium Modifications End*/
 #endif
 	format.mFormatID = kAudioFormatLinearPCM;
 	format.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
@@ -170,9 +174,7 @@ static void listeningCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 }
 
 - (id)init {
-	if ([super init] == nil)
-		return nil;
-	
+	self = [super init];
 	return self;
 }
 
@@ -180,7 +182,7 @@ static void listeningCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 	return self;
 }
 
-- (unsigned)retainCount {
+- (NSUInteger)retainCount {
 	return UINT_MAX;
 }
 

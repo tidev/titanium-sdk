@@ -45,6 +45,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewParent;
 
@@ -516,8 +517,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 						wait();
 					}
 				}
-
-				BitmapWithIndex b = loader.getBitmapQueue().take();
+				ArrayBlockingQueue<BitmapWithIndex> bitmapQueue = loader.getBitmapQueue();
+				//Fire stop event when animation finishes
+				if (!isLoading.get() && bitmapQueue.isEmpty()) {
+					fireStop();
+				}
+				BitmapWithIndex b = bitmapQueue.take();
 				Log.d(TAG, "set image: " + b.index, Log.DEBUG_MODE);
 				setImage(b.bitmap);
 				fireChange(b.index);
@@ -767,7 +772,15 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			heightDefined = !TiC.LAYOUT_SIZE.equals(heightProperty) && !TiC.SIZE_AUTO.equals(heightProperty);
 			view.setHeightDefined(heightDefined);
 		}
+		
+		if (d.containsKey(TiC.PROPERTY_LEFT) && d.containsKey(TiC.PROPERTY_RIGHT)) {
+			view.setWidthDefined(true);
+		}
 
+		if (d.containsKey(TiC.PROPERTY_TOP) && d.containsKey(TiC.PROPERTY_BOTTOM)) {
+			view.setHeightDefined(true);
+		}
+	
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
 			setImageSource(d.get(TiC.PROPERTY_IMAGES));
 			setImages();
@@ -855,6 +868,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 	}
 
+	public void onCreate(Activity activity, Bundle savedInstanceState)
+	{
+	}
+ 
 	public void onDestroy(Activity activity)
 	{
 	}

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,6 +14,7 @@
 #import "TiAppiOSLocalNotificationProxy.h"
 #import "TiAppiOSNotificationActionProxy.h"
 #import "TiAppiOSNotificationCategoryProxy.h"
+#import "TiAppiOSUserDefaultsProxy.h"
 
 
 @implementation TiAppiOSProxy
@@ -131,9 +132,24 @@
 
 #pragma mark Public
 
+-(id)createUserDefaults:(id)args
+{
+    NSString *suiteName;
+    ENSURE_SINGLE_ARG(args,NSDictionary);
+    ENSURE_ARG_FOR_KEY(suiteName, args, @"suiteName", NSString);
+    
+    NSUserDefaults *defaultsObject = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
+    
+    TiAppiOSUserDefaultsProxy *userDefaultsProxy = [[[TiAppiOSUserDefaultsProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+    
+    userDefaultsProxy.defaultsObject = defaultsObject;
+    
+    return userDefaultsProxy;
+}
+
 -(id)registerBackgroundService:(id)args
 {
-	NSDictionary* a;
+	NSDictionary* a = nil;
 	ENSURE_ARG_AT_INDEX(a, args, 0, NSDictionary)
 	
 	NSString* urlString = [[TiUtils toURL:[a objectForKey:@"url"] proxy:self]absoluteString];
@@ -225,6 +241,7 @@
 			[afdc addObject:action.notificationAction];
 		}
 		[notifCategory setActions:afdc forContext:UIUserNotificationActionContextDefault];
+		RELEASE_TO_NIL(afdc);
 	}
 	if (actionsForMinimalContext != nil) {
 		NSMutableArray *afmc = [[NSMutableArray alloc] init];
@@ -233,6 +250,7 @@
 			[afmc addObject:action.notificationAction];
 		}
 		[notifCategory setActions:afmc forContext:UIUserNotificationActionContextMinimal];
+		RELEASE_TO_NIL(afmc);
     }
     
 	TiAppiOSNotificationCategoryProxy *cp = [[[TiAppiOSNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
@@ -529,13 +547,9 @@
 -(void)setMinimumBackgroundFetchInterval:(id)value
 {
     ENSURE_TYPE(value, NSNumber);
-    if ([TiUtils isIOS7OrGreater]) {
-        double fetchInterval = [TiUtils doubleValue:value];
-        fetchInterval = MAX(MIN(fetchInterval, UIApplicationBackgroundFetchIntervalNever),UIApplicationBackgroundFetchIntervalMinimum);
-        [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:fetchInterval];
-    } else {
-        DebugLog(@"[ERROR] Methond only available on iOS 7 and above.");
-    }
+    double fetchInterval = [TiUtils doubleValue:value];
+    fetchInterval = MAX(MIN(fetchInterval, UIApplicationBackgroundFetchIntervalNever),UIApplicationBackgroundFetchIntervalMinimum);
+    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:fetchInterval];
 }
 
 -(void)endBackgroundHandler:(id)arg
@@ -549,17 +563,11 @@
 }
 
 -(NSNumber*)BACKGROUNDFETCHINTERVAL_MIN {
-    if ([TiUtils isIOS7OrGreater]) {
-        return NUMDOUBLE(UIApplicationBackgroundFetchIntervalMinimum);
-    }
-    return nil;
+    return NUMDOUBLE(UIApplicationBackgroundFetchIntervalMinimum);
 }
 
 -(NSNumber*)BACKGROUNDFETCHINTERVAL_NEVER {
-    if ([TiUtils isIOS7OrGreater]) {
-        return NUMDOUBLE(UIApplicationBackgroundFetchIntervalNever);
-    }
-    return nil;
+    return NUMDOUBLE(UIApplicationBackgroundFetchIntervalNever);
 }
 
 -(NSNumber*)USER_NOTIFICATION_TYPE_NONE

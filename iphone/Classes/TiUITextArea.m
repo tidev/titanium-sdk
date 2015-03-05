@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -73,8 +73,6 @@
 
 @implementation TiUITextArea
 
-@synthesize becameResponder;
-
 #pragma mark Internal
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -127,7 +125,8 @@
 
 -(void)setEnabled_:(id)value
 {
-	[(UITextView *)[self textWidgetView] setEditable:[TiUtils boolValue:value]];
+    BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"editable"] def:YES]);
+	[(UITextView *)[self textWidgetView] setEditable:_trulyEnabled];
 }
 
 -(void)setScrollable_:(id)value
@@ -135,9 +134,10 @@
 	[(UITextView *)[self textWidgetView] setScrollEnabled:[TiUtils boolValue:value]];
 }
 
--(void)setEditable_:(id)editable
+-(void)setEditable_:(id)value
 {
-	[(UITextView *)[self textWidgetView] setEditable:[TiUtils boolValue:editable]];
+    BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"enabled"] def:YES]);
+    [(UITextView *)[self textWidgetView] setEditable:_trulyEnabled];
 }
 
 -(void)setAutoLink_:(id)type_
@@ -167,35 +167,6 @@
 	return [(UITextView *)[self textWidgetView] hasText];
 }
 
--(BOOL)resignFirstResponder
-{
-    becameResponder = NO;
-    return [textWidgetView resignFirstResponder];
-}
-
--(BOOL)becomeFirstResponder
-{
-    UITextView* ourView = (UITextView*)[self textWidgetView];
-    if (ourView.isEditable) {
-        becameResponder = YES;
-        
-        if ([textWidgetView isFirstResponder])
-        {
-            return NO;
-        }
-        
-        [self makeRootViewFirstResponder];
-        BOOL result = [super becomeFirstResponder];
-        return result;
-    }
-    return NO;
-}
--(BOOL)isFirstResponder
-{
-    if (becameResponder)
-        return YES;
-    return [super isFirstResponder];
-}
 
 //TODO: scrollRangeToVisible
 
@@ -207,7 +178,7 @@
     if([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO]) {
         NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                    [URL absoluteString], @"url",
-                                   [NSArray arrayWithObjects:NUMINT(characterRange.location), NUMINT(characterRange.length),nil],@"range",
+                                   [NSArray arrayWithObjects:NUMUINTEGER(characterRange.location), NUMUINTEGER(characterRange.length),nil],@"range",
                                    nil];
         [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
@@ -247,8 +218,8 @@
 	if ([self.proxy _hasListeners:@"selected"])
 	{
 		NSRange range = tv.selectedRange;
-        NSDictionary* rangeDict = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(range.location),@"location",
-                                   NUMINT(range.length),@"length", nil];
+        NSDictionary* rangeDict = [NSDictionary dictionaryWithObjectsAndKeys:NUMUINTEGER(range.location),@"location",
+                                   NUMUINTEGER(range.length),@"length", nil];
 		NSDictionary *event = [NSDictionary dictionaryWithObject:rangeDict forKey:@"range"];
 		[self.proxy fireEvent:@"selected" withObject:event];
 	}
@@ -309,9 +280,10 @@ Text area constrains the text event though the content offset and edge insets ar
 -(CGFloat)contentWidthForWidth:(CGFloat)value
 {
     UITextView* ourView = (UITextView*)[self textWidgetView];
-    NSString* txt = ourView.text;
-    //sizeThatFits does not seem to work properly.
-    CGFloat txtWidth = [txt sizeWithFont:ourView.font constrainedToSize:CGSizeMake(value, 1E100) lineBreakMode:UILineBreakModeWordWrap].width;
+    NSAttributedString* theString = [ourView attributedText];
+    CGFloat txtWidth = ceilf([theString boundingRectWithSize:CGSizeMake(value, CGFLOAT_MAX)
+                                               options:NSStringDrawingUsesLineFragmentOrigin
+                                               context:nil].size.width);
     if (value - txtWidth >= TXT_OFFSET) {
         return (txtWidth + TXT_OFFSET);
     }
@@ -321,11 +293,6 @@ Text area constrains the text event though the content offset and edge insets ar
 -(CGFloat)contentHeightForWidth:(CGFloat)value
 {
     UITextView* ourView = (UITextView*)[self textWidgetView];
-    NSString* txt = ourView.text;
-    if (txt.length == 0) {
-        txt = @" ";
-    }
-    
     return [ourView sizeThatFits:CGSizeMake(value, 1E100)].height;
 }
 

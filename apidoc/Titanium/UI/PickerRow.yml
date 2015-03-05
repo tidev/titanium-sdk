@@ -8,7 +8,7 @@ description: |
     as a shorthand for `<PickerRow>` (see Examples).
     
     Views added to picker rows is only supported on iOS.
-platforms: [android, iphone, ipad, mobileweb, tizen]
+platforms: [android, iphone, ipad, mobileweb]
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
@@ -29,15 +29,11 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [mobileweb, tizen]
-  - name: fontSize
-    summary: Font size for displaying item text. Ignored when using a custom view.
-    type: Number
-    platforms: [iphone, ipad]
+    platforms: [mobileweb]
   - name: font
     summary: Font to use for the item text.
     type: Font
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb, iphone, ipad]
   - name: title
     summary: Item text.
     type: String
@@ -67,7 +63,6 @@ examples:
                 font:{fontSize:20,fontWeight:'bold'},
                 text: fruit[i],
                 textAlign:'left',
-                height:'auto',
                 width:'126'
               });
               
@@ -79,7 +74,8 @@ examples:
 
             for(var i=0, ilen=color.length; i<ilen; i++){
               var row = Ti.UI.createPickerRow({
-                title: color[i]
+                title: color[i],
+                font: {fontSize:30}
               });
               column2.addRow(row);
             }

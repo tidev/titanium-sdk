@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,6 +19,9 @@
 
 @property (nonatomic, readonly) ADBannerView* adview;
 
+#pragma mark - Titanium Internal Use
+-(CGFloat)contentHeightForWidth:(CGFloat)value;
+-(CGFloat)contentWidthForWidth:(CGFloat)value;
 @end
 
 #endif

@@ -7,7 +7,6 @@
 #import "TiBase.h"
 #import "TiApp.h"
 #import "TiDebugger.h"
-
 #include <stdarg.h>
 #include <pthread.h>
 #include <sys/time.h>

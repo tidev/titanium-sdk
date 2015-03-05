@@ -1,0 +1,362 @@
+# Titanium SDK 3.5.0 GA - 13 January 2015
+
+#### Contents
+
+  * [About This Release](#about)
+    * [iOS 64-bit Support](#ios)
+  * [Notice of Feature and Behavior Changes](#changes)
+    * [Module Builds](#modules)
+    * [iOS Platform](#deprecated_ios)
+      * [Alert and Options Dialogs](#dialogs)
+      * [Audio Session](#audio)
+      * [Popover](#popover)
+    * [Window url Property](#windowurl)
+  * [Known Issues](#known_issues)
+    * [iOS Debugger](#debugger)
+    * [iOS Profiler](#profiler)
+  * [API Changes](#apis) 
+    * [New APIs](#new_apis)
+    * [Deprecated APIs](#deprecated_apis)
+    * [Removed APIs](#removed_apis)
+
+<a name="about"></a>
+
+## About This Release
+
+This is the general availability (GA) release version of the Titanium SDK 3.5.0.
+
+Note that this release includes feature and behavior changes. See [Notice of Feature and Behavior
+Changes](#changes) for details.
+
+This release includes over 90 bug fixes and improvements, see the [full list of issues that were
+addressed in Release 3.5.0](https://jira.appcelerator.org/issues/?filter=16606).  Notable issues
+include adding 64-bit build support for iOS and refactoring various APIs to use the newer iOS 8
+APIs.
+
+There are no updates to the other Titanium components: Alloy, Studio or the CLI. Use the current GA
+versions: Alloy 1.5.1, Studio 3.4.1 and CLI 3.4.1.
+
+<a name="ios"></a>
+### iOS 64-bit Support
+
+Starting February 1, 2015, Apple will require that all **new** App Store submissions be [compiled using the
+iOS 8 SDK, and support 64-bit architectures](https://developer.apple.com/news/?id=10202014a), and
+starting June 1, 2015, all **updated** applications will also need to follow the
+[same requirements](https://developer.apple.com/news/?id=12172014b).
+
+This Release contains the following changes to support 64-bit builds:
+
+  * New, 64-bit build of JavaScript core, now 80% smaller, and based on a much newer codebase
+  * Updated 64-bit supporting libraries
+  * 64-bit clean Titanium iOS SDK
+  * Updated 64-bit modules
+  * 64-bit module and project templates
+
+**Note:** Any module included with your project must support 64-bit architectures.  All modules
+included in this Release support 64-bit architectures.
+To build old modules with 64-bit support, you need to change the supported architectures
+and deployment targets.  For details, see the [Module Builds](#modules) section below. 
+
+<a name="changes"></a>
+## Notice of Feature or Behavior Changes 
+
+<a name="modules"></a>
+### Module Builds
+
+To update an existing iOS module and make it 64-bit compatible follow these steps:
+
+  1. Open the module's Xcode project.
+  2. You should have at least one warning asking you to update the project to the "recommended settings", do that.
+  3. Change all architectures to `$(ARCHS_STANDARD)`.
+  4. Set the deployment target to at least iOS 6.0.
+
+That's it. Build the module normally with this Release and it should now be 64-bit compatible. To
+verify, run the following command:
+
+    cd /PATH/TO/MODULE/
+    xcrun lipo -info build/lib.<MODULE_NAME>.a 
+    
+And the output should be:
+
+    Architectures in the fat file: build/lib.your_module_here.a are: armv7 i386 x86_64 arm64
+
+For Android and iOS modules, add the `architectures` field to the `manifest` file with the
+architectures to support. To find out which architectures the SDK supports, create a module using
+this Release and open its manifest file(s).  Copy the `architectures` field from the `manifest` file
+to the `manifest` file of the module you want to build.  Android and iOS support difference
+architectures.  Once the `architectures` field is added, build the module.
+
+**Note:** For Android and iOS modules, starting with Release 3.6.0, the build will fail if the
+`architectures` field is missing or the architectures do not match the architectures the Titanium
+SDK supports.  
+
+For example, add the following lines to the respected manifest files:
+
+`android/manifest`:
+
+    architectures: armeabi armeabi-v7a
+
+`ios/manifest`:
+
+    architectures: armv7 arm64 i386 x86_64
+
+**Note:** For Android, only add the supported architectures your module supports.
+
+<a name="deprecated_ios"></a>
+### iOS Platform
+
+This section lists changes for the iOS platform.
+
+<a name="dialogs"></a>
+#### Alert and Option Dialogs
+
+The Alert and Option Dialog APIs were refactored to support the newer iOS 8 Alert and Option Dialog
+APIs.  There are no Titanium SDK API changes associated with this refactor, but there are behavior
+changes.
+
+Since Alert and Option Dialogs are view controllers in iOS 8, the background window will fire the
+`blur` and `focus` events when the dialog appears and disappears.  In iOS 7, the events do not fire.
+
+<a name="audio"></a>
+#### Audio Session
+
+The Audio Session API was refactored to support the newer iOS 8 Audio Session APIs.  The older APIs
+are being deprecated in favor of the newer APIs.  If your application uses any of the older Audio
+Session APIs, see the table below for the new APIs to use.
+
+<table>
+<tr><th>Prior to Release 3.5.0</th><th>Release 3.5.0 and later</th></tr>
+<tr><td> <code>Titanium.Media.audioLineType</code> property </td><td> Use the
+<a href="http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Media-property-currentRoute">Titanium.Media.currentRoute</a>
+property </td></tr>
+<tr><td> <code>Titanium.Media.audioSessionMode</code> property </td><td> Use the
+<a href="http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Media-property-audioSessionCategory">Titanium.Media.audioSessionCategory</a>
+property </td></tr>
+<tr><td> <code>Titanium.Media.linechange</code> event </td><td> Use the
+<a href="http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Media-event-routechange">Titanium.Media.routechange</a>
+event </td></tr>
+<tr><td> <code>Titanium.Media.recordinginput</code> event </td><td> Use the
+<a href="http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Media-property-canRecord">Titanium.Media.canRecord</a>
+property to check if the device supports recording audio </td></tr>
+<tr><td> <code>Titanium.Media.AUDIO_HEADPHONES</code>, <br/>
+<code>Titanium.Media.AUDIO_HEADPHONES_AND_MIC</code>, <br/>
+<code>Titanium.Media.AUDIO_HEADSET_INOUT</code>, <br/> <code>Titanium.Media.AUDIO_LINEOUT</code>, <br/>
+<code>Titanium.Media.AUDIO_MICROPHONE</code>, <br/>  <code>Titanium.Media.AUDIO_MUTED</code>, <br/>
+<code>Titanium.Media.AUDIO_RECEIVER_AND_MIC</code>, <br/>  <code>Titanium.Media.AUDIO_SPEAKER</code>, <br/>
+<code>Titanium.Media.AUDIO_UNAVAILABLE</code> <br/> and  <code>Titanium.Media.AUDIO_UNKNOWN</code>
+constants </td><td> Use a
+<code>Titanium.Media.AUDIO_SESSION_PORT_*</code> constant </td></tr>
+<tr><td> <code>Titanium.Media.AUDIO_SESSION_MODE_*</code> constants </td><td> Use a
+<code>Titanium.Media.AUDIO_SESSION_CATEGORY_*</code> constant </td></tr>
+</table>
+
+<a name="popover"></a>
+#### Popover
+
+The Popover API was refactored to support the newer iOS 8 Popover APIs.  The `add()` and `remove()`
+methods have been removed and the  `title`, `leftNavButton` and `rightNavButton` properties have
+been deprecated.
+
+Assign the
+[`contentView`](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.iPad.Popover-property-contentView)
+property of the `Popover` object to a View object to display as the contents of the popover.  To
+display a navigation bar that includes a title and navigation buttons, use a
+`Titanium.UI.iOS.NavigationWindow` object as the root container of the content view.
+
+<a name="windowurl"></a>
+### Window url Property
+
+As of this Release, the `Titanium.UI.Window.url` property is deprecated.  This property was used to
+create a window with its own context using a JavaScript file.
+
+The recommended way of creating windows with their own context is to either use the [Alloy
+Framework](http://docs.appcelerator.com/titanium/latest/#!/guide/Alloy_Framework) or a [CommonJS
+module](http://docs.appcelerator.com/titanium/latest/#!/guide/CommonJS_Modules_in_Titanium). 
+
+<a name="known_issues"></a>
+## Known Issues
+
+<a name="debugger"></a>
+### iOS Debugger
+
+Stepping over breakpoints fails if the breakpoints are in a file added to the application
+using the `Ti.include()` method ([TIMOB-18369](https://jira.appcelerator.org/browse/TIMOB-18369)).
+
+<a name="profiler"></a>
+### iOS Profiler
+
+The profiler does not report the function's name, and reports it as either `anonymous` or `program`
+([TIMOB-18064](https://jira.appcelerator.org/browse/TIMOB-18064)).
+
+<a name="apis"></a>
+## API Changes
+
+<a name="new_apis"></a>
+
+### New APIs
+
+The following APIs are new or have expanded platform support in Release
+3.5.0.
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr> <tr><td>Titanium.Media.AUDIO_SESSION_CATEGORY_AMBIENT</td><td>property</td><td><p>For
+long-duration sounds such as rain, car engine noise, and so on. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_CATEGORY_PLAYBACK</td><td>property</td><td><p>Session mode
+for playing recorded music or other sounds that are central to the successful use of your
+application. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD</td><td>property</td><td><p>Session
+mode for recording (input) and playback (output) of audio, such as for a VOIP (voice over IP)
+application. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_CATEGORY_RECORD</td><td>property</td><td><p>Session mode for
+recording audio; it silences playback audio. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT</td><td>property</td><td><p>Session
+mode for long-duration sounds such as rain, car engine noise, and so on. (New API, supported on
+iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_PORT_AIRPLAY</td><td>property</td><td><p>Constant for output
+on a remote Air Play device. This is an output port. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_PORT_BLUETOOTHA2DP</td><td>property</td><td><p>Constant for
+output on a Bluetooth A2DP device. This is an output port. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_PORT_BLUETOOTHHFP</td><td>property</td><td><p>Constant for
+input or output on a Bluetooth Hands-Free Profile device. This can be both an input and output port.
+(New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_PORT_BLUETOOTHLE</td><td>property</td><td><p>Constant for
+output on a Bluetooth Low Energy device. This is an output port. This is available on iOS7 and
+later. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_PORT_BUILTINMIC</td><td>property</td><td><p>Constant for
+built-in microphone on an iOS device. This is an input port. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_PORT_BUILTINRECEIVER</td><td>property</td><td><p>Constant for
+the speaker you hold to your ear when on a phone call. This is an output port. (New API, supported
+on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_PORT_BUILTINSPEAKER</td><td>property</td><td><p>Constant for
+built-in speaker on an iOS device. This is an output port. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_PORT_CARAUDIO</td><td>property</td><td><p>Constant for Input
+or output via Car Audio. This can be both an input and output port. This is available on iOS7 and
+later. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_PORT_HDMI</td><td>property</td><td><p>Constant for output via
+High-Definition Multimedia Interface. This is an output port (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_PORT_HEADPHONES</td><td>property</td><td><p>Constant for
+headphone or headset output. This is an output port. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_PORT_HEADSETMIC</td><td>property</td><td><p>Constant for
+microphone on a wired headset. This is an input port. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_PORT_LINEIN</td><td>property</td><td><p>Constant for line
+level input on a dock connector. This is an input port. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_PORT_LINEOUT</td><td>property</td><td><p>Constant for line
+level output on a dock connector. This is an output port. (New API, supported on iPhone and
+iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_PORT_USBAUDIO</td><td>property</td><td><p>Constant for input
+or output on a Universal Serial Bus device. This can be both an input and output port. (New API,
+supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.audioSessionCategory</td><td>property</td><td><p>A constant for the audio
+session category to be used. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.currentRoute</td><td>property</td><td><p>Returns a description of the
+current route, consisting of zero or more input ports and zero or more output ports.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.getAudioSessionCategory</td><td>method</td><td><p>Gets the value of the
+audioSessionCategory property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.getCurrentRoute</td><td>method</td><td><p>Gets the value of the
+currentRoute property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.routechange</td><td>event</td><td><p>Fired when an audio line type change
+is detected. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.setAudioSessionCategory</td><td>method</td><td><p>Sets the value of the
+audioSessionCategory property. (New API, supported on iPhone and iPad.)</p></td></tr>
+<tr>
+  <tr><td>Titanium.Network.PROGRESS_UNKNOWN</td><td>property</td><td><p>Constant value specifying
+that the progress of a download can not be calculated. (New API, supported on Android, iPhone and
+iPad.)</p></td></tr>
+</table>
+<a name="deprecated_apis"></a>
+
+### Deprecated APIs
+
+The following APIs are deprecated in Release 3.5.0.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.Media.AUDIO_HEADPHONES</td><td>property</td><td><p>Deprecated in favor of the
+<code>AUDIO_SESSION_PORT</code> constants defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_HEADPHONES_AND_MIC</td><td>property</td><td><p>Deprecated in favor of
+the <code>AUDIO_SESSION_PORT</code> constants defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_HEADSET_INOUT</td><td>property</td><td><p>Deprecated in favor of the
+<code>AUDIO_SESSION_PORT</code> constants defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_LINEOUT</td><td>property</td><td><p>Deprecated in favor of the
+<code>AUDIO_SESSION_PORT</code> constants defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_MICROPHONE</td><td>property</td><td><p>Deprecated in favor of the
+<code>AUDIO_SESSION_PORT</code> constants defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_MUTED</td><td>property</td><td><p>Deprecated in favor of the
+<code>AUDIO_SESSION_PORT</code> constants defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_RECEIVER_AND_MIC</td><td>property</td><td><p>Deprecated in favor of
+the <code>AUDIO_SESSION_PORT</code> constants defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_MODE_AMBIENT</td><td>property</td><td><p>Deprecated in favor
+of the <code>AUDIO_SESSION_CATEGORY</code> constants defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_MODE_PLAYBACK</td><td>property</td><td><p>Deprecated in favor
+of the <code>AUDIO_SESSION_CATEGORY</code> constants defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD</td><td>property</td><td><p>Deprecated
+in favor of the <code>AUDIO_SESSION_CATEGORY</code> constants defined in
+Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_MODE_RECORD</td><td>property</td><td><p>Deprecated in favor
+of the <code>AUDIO_SESSION_CATEGORY</code> constants defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT</td><td>property</td><td><p>Deprecated in
+favor of the <code>AUDIO_SESSION_CATEGORY</code> constants defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_SPEAKER</td><td>property</td><td><p>Deprecated in favor of the
+<code>AUDIO_SESSION_PORT</code> constants defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_UNAVAILABLE</td><td>property</td><td><p>Deprecated in favor of the
+<code>AUDIO_SESSION_PORT</code> constants defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.AUDIO_UNKNOWN</td><td>property</td><td><p>Deprecated in favor of the
+<code>AUDIO_SESSION_PORT</code> constants defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.audioLineType</td><td>property</td><td><p>Deprecated in favor of
+currentRoute property defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.audioSessionMode</td><td>property</td><td><p>Deprecated in favor of the
+audioSessionCategory property defined in Titanium.Media.</p></td></tr>
+  <tr><td>Titanium.Media.getAudioLineType</td><td>method</td><td></td></tr>
+  <tr><td>Titanium.Media.getAudioSessionMode</td><td>method</td><td></td></tr>
+  <tr><td>Titanium.Media.linechange</td><td>event</td><td><p>Titanium no longer fires this event.
+Use the routechange event instead.</p></td></tr>
+  <tr><td>Titanium.Media.recordinginput</td><td>event</td><td><p>Titanium no longer fires this
+event. Use the canRecord property to check if an input hardware is available.</p></td></tr>
+  <tr><td>Titanium.Media.setAudioSessionMode</td><td>method</td><td></td></tr>
+  <tr><td>Titanium.UI.iOS.COLOR_SCROLLVIEW_BACKGROUND</td><td>property</td><td><p>Deprecated in iOS
+7.</p></td></tr>
+  <tr><td>Titanium.UI.iOS.COLOR_UNDER_PAGE_BACKGROUND</td><td>property</td><td><p>Deprecated in iOS
+7.</p></td></tr>
+  <tr><td>Titanium.UI.iOS.COLOR_VIEW_FLIPSIDE_BACKGROUND</td><td>property</td><td><p>Deprecated in
+iOS 7.</p></td></tr>
+  <tr><td>Titanium.UI.iPad.Popover.height</td><td>property</td><td><p>This property is deprecated.
+Set the height on the contentView property instead.</p></td></tr>
+  <tr><td>Titanium.UI.iPad.Popover.leftNavButton</td><td>property</td><td><p>This property is no
+longer supported.</p></td></tr>
+  <tr><td>Titanium.UI.iPad.Popover.rightNavButton</td><td>property</td><td><p>This property is no
+longer supported.</p></td></tr>
+  <tr><td>Titanium.UI.iPad.Popover.title</td><td>property</td><td><p>This property is no longer
+supported.</p></td></tr>
+  <tr><td>Titanium.UI.iPad.Popover.width</td><td>property</td><td><p>This property is deprecated.
+Set the width on the contentView property instead.</p></td></tr>
+  <tr><td>Titanium.UI.Window.url</td><td>property</td><td><p>The recommended way of creating windows
+with their own context is to either use the Alloy Framework or a CommonJS module than using this
+property.</p></td></tr>  
+<tr>
+</table>
+
+
+
+<a name="removed_apis"></a>
+
+### Removed APIs
+
+The following APIs have been removed in Release 3.5.0.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.UI.iPad.Popover.add</td><td>method</td><td><p>Use the
+Titanium.UI.iPad.Popover.contentView property to modify the content of the popover.</p></td></tr>
+  <tr><td>Titanium.UI.iPad.Popover.remove</td><td>method</td><td><p>Use the
+Titanium.UI.iPad.Popover.contentView property to modify the content of the popover.</p></td></tr>
+<tr>
+</table>

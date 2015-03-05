@@ -152,6 +152,7 @@ description: |
     results from getting through. 
 
 since: "2.0.0"
+platforms: ["android"]
 extends: Titanium.Module
 
 properties:

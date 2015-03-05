@@ -12,6 +12,9 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,7 +27,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -65,16 +67,16 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.StateListDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -526,6 +528,18 @@ public class TiUIHelper
 				bFontSet = true;
 				fontProperties[FONT_WEIGHT_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONT_WEIGHT);
 			}
+			if (fontProps.containsKey(TiC.PROPERTY_FONTFAMILY)) {
+				bFontSet = true;
+				fontProperties[FONT_FAMILY_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONTFAMILY);
+			}
+			if (fontProps.containsKey(TiC.PROPERTY_FONTSIZE)) {
+				bFontSet = true;
+				fontProperties[FONT_SIZE_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONTSIZE);
+			}
+			if (fontProps.containsKey(TiC.PROPERTY_FONTWEIGHT)) {
+				bFontSet = true;
+				fontProperties[FONT_WEIGHT_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONTWEIGHT);
+			}
 			if (fontProps.containsKey(TiC.PROPERTY_FONTSTYLE)) {
 				bFontSet = true;
 				fontProperties[FONT_STYLE_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONTSTYLE);
@@ -770,6 +784,32 @@ public class TiUIHelper
 		return b;
 	}
 	
+	/**
+	 * Creates and returns a density scaled Bitmap from an InputStream.
+	 * @param stream an InputStream to read bitmap data.
+	 * @return a new bitmap instance.
+	 */
+	public static Bitmap createDensityScaledBitmap(InputStream stream)
+	{
+		Rect pad = new Rect();
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inPurgeable = true;
+		opts.inInputShareable = true;
+		DisplayMetrics dm = new DisplayMetrics();
+		dm.setToDefaults();
+		opts.inDensity = DisplayMetrics.DENSITY_MEDIUM;
+		opts.inTargetDensity = dm.densityDpi;
+		opts.inScaled = true;
+
+		Bitmap b = null;
+		try {
+			b = BitmapFactory.decodeResourceStream(null, null, stream, pad, opts);
+		} catch (OutOfMemoryError e) {
+			Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage());
+		}
+		return b;
+	}
+	
 	private static String getResourceKeyForImage(String url)
 	{
 		if (resourceImageKeys.containsKey(url)) {
@@ -883,12 +923,6 @@ public class TiUIHelper
 
 	public static Drawable getResourceDrawable(String url)
 	{
-		if (TiFastDev.isFastDevEnabled()) {
-			Drawable d = loadFastDevDrawable(url);
-			if (d != null) {
-				return d;
-			}
-		}
 		int id = getResourceId(url);
 		if (id == 0) {
 			return null;
@@ -1061,5 +1095,45 @@ public class TiUIHelper
 		if (proxy != null && proxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
 			proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
 		}
+	}
+
+	/**
+	 * To get the redirected Uri
+	 * @param Uri
+	 */
+	public static Uri getRedirectUri(Uri mUri) throws MalformedURLException, IOException
+	{
+		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB &&
+				("http".equals(mUri.getScheme()) || "https".equals(mUri.getScheme()))) {
+			// Media player doesn't handle redirects, try to follow them
+			// here. (Redirects work fine without this in ICS.)
+			while (true) {
+				// java.net.URL doesn't handle rtsp
+				if (mUri.getScheme() != null && mUri.getScheme().equals("rtsp"))
+					break;
+
+				URL url = new URL(mUri.toString());
+				HttpURLConnection cn = (HttpURLConnection) url.openConnection();
+				cn.setInstanceFollowRedirects(false);
+				String location = cn.getHeaderField("Location");
+				if (location != null) {
+					String host = mUri.getHost();
+					int port = mUri.getPort();
+					String scheme = mUri.getScheme();
+					mUri = Uri.parse(location);
+					if (mUri.getScheme() == null) {
+						// Absolute URL on existing host/port/scheme
+						if (scheme == null) {
+							scheme = "http";
+						}
+						String authority = port == -1 ? host : host + ":" + port;
+						mUri = mUri.buildUpon().scheme(scheme).encodedAuthority(authority).build();
+					}
+				} else {
+					break;
+				}
+			}
+		}
+		return mUri;
 	}
 }

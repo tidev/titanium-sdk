@@ -11,12 +11,6 @@ description: |
     [BonjourService](Titanium.Network.BonjourService) objects.
 
     For all other socket needs, use <Titanium.Network.Socket.TCP>.
-    
-    To use this API on Tizen, you must include the following privilege in the `tiapp.xml` 
-    file of your Titanium application: 
-
-    * `http://tizen.org/privilege/systeminfo`
-    
 extends: Titanium.Module
 since: "0.1"
 methods:
@@ -138,7 +132,7 @@ methods:
 
   - name: decodeURIComponent
     summary: Returns a decoded version of a URI encoded value.
-    exclude-platforms: [blackberry]
+
     returns:
         type: String
     parameters:
@@ -310,7 +304,7 @@ methods:
     
   - name: unregisterForPushNotifications
     summary: Unregisters the application for push notifications.
-    exclude-platforms: [blackberry]
+
     description: |
         Per Apple's documentation, it is rarely necessary to call this method. See:
         [unregisterForRemoteNotifications in the UIApplication Class
@@ -335,13 +329,13 @@ events:
       - name: reason
         summary: Human-readable text describing the reason for the change.
         type: String
-        platforms: [android, mobileweb, tizen]
+        platforms: [android, mobileweb]
 properties:
   - name: INADDR_ANY
     summary: |
         Special hostname value for listening sockets, representing all
         locally available network interfaces.
-    exclude-platforms: [blackberry]
+
     type: String
     permission: read-only
     platforms: [iphone, ipad]
@@ -352,7 +346,7 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the device is
         communicating over a local-area network.
-    exclude-platforms: [blackberry]
+
     description: |
         This network type is only used by the Mobile Web platform, when the application
         is running in a desktop browser attached to a LAN.
@@ -366,7 +360,7 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the device is
         communicating over a mobile network.
-    exclude-platforms: [blackberry]
+
     description: |
         This constant is also a possible value for the `networkType` property of the 
         [change](Titanium.Network.change) event.
@@ -377,7 +371,7 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that no 
         network is available.
-    exclude-platforms: [blackberry]
+
     description: |
         This constant is also a possible value for the `networkType` property of the 
         [change](Titanium.Network.change) event.
@@ -388,7 +382,7 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the  
         current network type is unknown.
-    exclude-platforms: [blackberry]
+
     description: |
         This constant is also a possible value for the `networkType` property of the 
         [change](Titanium.Network.change) event.
@@ -399,7 +393,7 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the  
         device is communicating over a WiFi network.
-    exclude-platforms: [blackberry]
+
     description: |
         This constant is also a possible value for the `networkType` property of the 
         [change](Titanium.Network.change) event.
@@ -538,22 +532,31 @@ properties:
     summary: Constant value specifying TLS version 1.0 for SSL.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    since: "1.8.0.1"
+    since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
+    platforms: [android, iphone, ipad]
 
   - name: TLS_VERSION_1_1
     summary: Constant value specifying TLS version 1.1 for SSL.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    since: "1.8.0.1"
+    since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
+    platforms: [android, iphone, ipad]
+    osver: {android: {min: "4.1"}, ios: {min: "5.0"}}
 
   - name: TLS_VERSION_1_2
     summary: Constant value specifying TLS version 1.2 for SSL.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    since: "1.8.0.1"
+    since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
+    platforms: [android, iphone, ipad]
+    osver: {android: {min: "4.1"}, ios: {min: "5.0"}}
+
+  - name: PROGRESS_UNKNOWN
+    summary: Constant value specifying that the progress of a download can not be calculated.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "3.5.0"
 
   - name: allHTTPCookies
     summary: A list of all cookies in the cookie storage.
@@ -615,7 +618,7 @@ properties:
         This function allows URLs to be formatted for use with the application's proxy to 
         get around cross domain issues.
     type: Callback<String>
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
 ---
 name: PushNotificationConfig

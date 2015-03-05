@@ -7,7 +7,6 @@
 package org.appcelerator.titanium;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
 
@@ -100,12 +99,12 @@ public class TiRootActivity extends TiLaunchActivity
 	}
 
 	@Override
-	protected void windowCreated()
+	protected void windowCreated(Bundle savedInstanceState)
 	{
 		// Use settings from tiapp.xml
 		ITiAppInfo appInfo = getTiApp().getAppInfo();
 		getIntent().putExtra(TiC.PROPERTY_FULLSCREEN, appInfo.isFullscreen());
-		super.windowCreated();
+		super.windowCreated(savedInstanceState);
 	}
 
 	@Override
@@ -144,7 +143,6 @@ public class TiRootActivity extends TiLaunchActivity
 		}
 
 		Log.d(TAG, "root activity onDestroy, activity = " + this, Log.DEBUG_MODE);
-		TiFastDev.onDestroy();
 	}
 
 	@Override

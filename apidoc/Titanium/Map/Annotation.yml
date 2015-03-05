@@ -61,7 +61,7 @@ properties:
     description: |
         Must be set before the annotation is added to the map view.
     type: Boolean
-    exclude-platforms: [blackberry]
+
 
   - name: canShowCallout
     summary: Defines whether the annotation view is able to display extra information in a callout bubble.
@@ -108,7 +108,7 @@ properties:
         The image can be specified using a local URL or an image `Blob`. This is ignored if the customView property is set.
     type: [String, Titanium.Blob]
     default: If not specified, a standard map pin image is used.
-    exclude-platforms: [blackberry]
+
 
   - name: latitude 
     summary: Latitude of the annotation, in decimal degrees.
@@ -130,7 +130,7 @@ properties:
 
         Mutually exclusive with `leftView`.
     type: [Number,String]
-    exclude-platforms: [blackberry]
+
 
   - name: leftView
     summary: Left view that is displayed on the annotation.
@@ -165,7 +165,7 @@ properties:
 
         Mutually exclusive with `rightView`.
     type: [Number,String]
-    exclude-platforms: [blackberry]
+
 
   - name: rightView
     summary: Right view that is displayed on the annotation.
@@ -181,7 +181,7 @@ properties:
   - name: subtitleid
     summary: Key in the locale file to use for the subtitle property.
     type: String
-    exclude-platforms: [blackberry]
+
 
   - name: title
     summary: Primary title of the annotation view.
@@ -190,7 +190,7 @@ properties:
   - name: titleid
     summary: Key in the locale file to use for the title property.
     type: String
-    exclude-platforms: [blackberry]
+
 
 events:
   - name: click
@@ -219,7 +219,7 @@ events:
         `title`, or `subtitle`. If the user deselects the annotation by clicking elsewhere
         in the map view, `clicksource` is `null`.
 
-    platforms: [iphone, ipad, mobileweb, tizen, blackberry]
+    platforms: [iphone, ipad, mobileweb]
 
     properties:
 

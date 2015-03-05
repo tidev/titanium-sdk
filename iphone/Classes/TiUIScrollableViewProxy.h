@@ -16,10 +16,10 @@
 }
 
 @property(nonatomic,readonly)	NSArray * viewProxies;
--(TiViewProxy *)viewAtIndex:(int)index;
+-(TiViewProxy *)viewAtIndex:(NSInteger)index;
 -(void)lockViews;
 -(void)unlockViews;
--(int)viewCount;
+-(NSUInteger)viewCount;
 -(NSArray *)views;
 @end
 

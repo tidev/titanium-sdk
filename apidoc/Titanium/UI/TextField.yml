@@ -1,7 +1,18 @@
 ---
 name: Titanium.UI.TextField
 summary: A single line text field. 
-description: Use the <Titanium.UI.createTextField> method or **`<TextField>`** Alloy element to create a text field.
+description: |
+    <table id="platformComparison">
+      <tr>
+        <td><img src="images/textfield/textfield_android.png" height="25" /></td>
+        <td><img src="images/textfield/textfield_bb.png" height="25" /></td>
+        <td><img src="images/textfield/textfield_ios.png" height="25" /></td>
+        <td><img src="images/textfield/textfield_mobileweb.png" height="25" /></td>
+      </tr>
+      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
+    </table>
+
+    Use the <Titanium.UI.createTextField> method or **`<TextField>`** Alloy element to create a text field.
 extends: Titanium.UI.View
 since: "0.8"
 
@@ -68,27 +79,39 @@ properties:
   - name: attributedString
     summary: TextField attributed string. 
     description: |
-        The underlying attributed string drawn by the textField, if set, the textField ignores
-        the `value` property
-    type: Titanium.UI.iOS.AttributedString
-    platforms: [iphone, ipad]
-    since: 3.2.0
+        The underlying attributed string drawn by the textField. If set, avoid setting common attributes 
+        in TextField, such as `value`, `color` and `font`, as unexpected behaviors may result. 
+
+        Prior to Release 3.6.0, assign this property an object from the
+        <Titanium.UI.iOS.AttributedString> class.
+    type: Titanium.UI.AttributedString
+    platforms: [android, iphone, ipad]
+    since:
+        android: 3.6.0
+        iphone: 3.2.0
+        ipad: 3.2.0
 
   - name: attributedHintText
     summary: Hint text attributed string. 
     description: |
-        The attributed hint text by the textField, if set, the textField ignores
-        the `hintText` property
-    type: Titanium.UI.iOS.AttributedString
-    platforms: [iphone, ipad]
-    since: 3.2.0
+        The attributed hint text by the textField. If set, avoid setting common attributes 
+        in textField, such as `hintText`, `color` and `font`, as unexpected behaviors may result. 
+
+        Prior to Release 3.6.0, assign this property an object from the
+        <Titanium.UI.iOS.AttributedString> class.
+    type: Titanium.UI.AttributedString
+    platforms: [android, iphone, ipad]
+    since:
+        android: 3.6.0
+        iphone: 3.2.0
+        ipad: 3.2.0
 
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 
     type: Number
     constants: Titanium.UI.TEXT_AUTOCAPITALIZATION_*
     default: <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>
-    exclude-platforms: [blackberry]    
+    
   - name: autocorrect
     summary: |
         Determines whether to automatically correct text entered into this text field.
@@ -100,7 +123,7 @@ properties:
         On iOS and Mobile Web, the returned default value is `false`, and on Android, the returned
         default value is undefined, but all behave as if the value is `true`.
     type: Boolean
-    exclude-platforms: [blackberry]    
+    
 
   - name: autoLink
     summary: Automatically convert text to clickable links. 
@@ -122,9 +145,9 @@ properties:
   - name: borderStyle
     summary: Border style for the field. 
     type: Number
-    constants: Titainium.UI.INPUT_BORDERSTYLE_*
+    constants: Titanium.UI.INPUT_BORDERSTYLE_*
     default: <Titanium.UI.INPUT_BORDERSTYLE_NONE>
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: clearButtonMode
     summary: Determines when the clear button is displayed.
@@ -137,7 +160,7 @@ properties:
     summary: Determines whether the value of this text field should be cleared when it is focused.
     type: Boolean
     default: false
-    exclude-platforms: [blackberry]    
+    
     
   - name: color
     summary: Color of the text in this text field, as a color name or hex triplet.
@@ -156,11 +179,6 @@ properties:
     default: false
     platforms: [android]
     
-  - name: enabled
-    summary: Determines whether the field is enabled.
-    type: Boolean
-    default: true
-    
   - name: enableReturnKey
     summary: |
         Determines whether the return key is enabled automatically when there is text in this text 
@@ -174,7 +192,7 @@ properties:
         
     type: Boolean
     default: false
-    exclude-platforms: [blackberry]    
+    
     
   - name: font
     summary: Font to use for text.
@@ -365,7 +383,7 @@ properties:
   - name: suppressReturn
     summary: Determines whether the return key should be suppressed during entry.
     type: Boolean
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: selection
     summary: Returns the currently selected text of the text field.
@@ -386,7 +404,7 @@ properties:
     type: [String, Number]
     constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
-    exclude-platforms: [blackberry]    
+    
     
   - name: value
     summary: Value of this text field, which may be set programmatically and modified by the user.
@@ -414,7 +432,7 @@ properties:
     default: -1
     type: Number
     since: {android: "3.0.0"}
-    platforms: [android, iphone, mobileweb, tizen]
+    platforms: [android, iphone, mobileweb]
 
 events:
   - name: blur

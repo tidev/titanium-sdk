@@ -4,6 +4,14 @@ summary: |
     A list view is used to present information, organized in to sections and items,
     in a vertically-scrolling view.
 description: |
+    <table id="platformComparison">
+      <tr>
+        <td><img src="images/listview/listview_android.png" height="200" style="border: 1px solid black;"/></td>
+        <td><img src="images/listview/listview_ios.png" height="200" style="border: 1px solid black;"/></td>
+      </tr>
+      <tr><th>Android</th><th>iOS</th></tr>
+    </table>
+
     Use the <Titanium.UI.createListView> method or **`<ListView>`** Alloy element to create a `ListView`.
     
     A `ListView` object is a container for [ListSection](Titanium.UI.ListSection) 
@@ -1242,7 +1250,6 @@ description: |
     for animation while the content insets are updated. For example
 
         setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
-optional: true
 since: 3.2.0
 platforms: [iphone, ipad]
 

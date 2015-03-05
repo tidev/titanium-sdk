@@ -7,18 +7,30 @@ description: |
     as well as the other Filesystem submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
+examples: 
+  - title: Getting a directory for an application group (iOS)
+    example: |
+        This example writes a string to a text file in a shared directory
+
+            var suiteDir = Ti.Filesystem.directoryForSuite('group.appc.Sharing');
+            if (!suiteDir) {
+                logInApp('Suite Directory not found, check Entitlements.');
+                return;
+            }
+            var f = Ti.Filesystem.getFile(suiteDir,'emptyfile.txt');
+            f.write('The file is no longer empty!');
 methods:
   - name: createTempDirectory
     summary: Creates a temporary directory and returns a [File](Titanium.Filesystem.File) object representing the new directory.
     returns:
         type: Titanium.Filesystem.File
-    exclude-platforms: [blackberry]
+
   - name: createTempFile
     summary: Creates a temporary file and returns a [File](Titanium.Filesystem.File)
         object representing the new file.
     returns:
         type: Titanium.Filesystem.File
-    exclude-platforms: [blackberry]
+
   - name: getFile
     summary: Returns a `File` object representing the file identified by the path
         arguments.
@@ -59,10 +71,10 @@ methods:
         Returns `true` on Android if an external storage device, such as an SD card, is
         available for reading and writing.
 
-        Returns `false` on iOS, Mobile Web and Tizen.
+        Returns `false` on iOS and Mobile Web.
     returns:
         type: Boolean
-    exclude-platforms: [blackberry]
+
   - name: openStream
     summary: Opens file using the <Titanium.IOStream> interface.
     parameters:
@@ -79,23 +91,40 @@ methods:
         type: String
     returns:
         type: Titanium.Filesystem.FileStream
-    exclude-platforms: [blackberry]
+
+  - name: directoryForSuite
+    summary: Returns the path to the container directory associated with the specified security application group ID.
+    description: |
+        This is a writable directory used on iOS. Groups of sandboxed apps that need to share files 
+        and other information can request a container directory as part of their entitlements.
+        
+        When called with a valid group identifier, this method returns the location of that directory as a string.
+        Returns null if the group identifier is invalid; check the app's entitlements.
+    parameters:
+      - name: suiteName
+        summary: |
+            The name of the suite.
+        type: String
+    returns:
+        type: String
+    platforms: [iphone, ipad]
+    since: "4.0.0"
 properties:
   - name: MODE_APPEND
     summary: Constant for append mode for file operations.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: MODE_READ
     summary: Constant for read mode for file operations.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: MODE_WRITE
     summary: Constant for write mode for file operations.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: applicationCacheDirectory
     summary: Path to the application's internal cache directory.
     description: |
@@ -173,7 +202,7 @@ properties:
     summary: Platform-specific line ending constant.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: resourcesDirectory
     summary: Path to the application's resource directory.
     description: |
@@ -218,7 +247,7 @@ properties:
     summary: Platform-specific path separator constant.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: tempDirectory
     summary: Path for the application's temporary directory. 
     description: |

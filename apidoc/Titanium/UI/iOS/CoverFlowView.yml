@@ -9,11 +9,9 @@ description: |
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [iphone, ipad]
-excludes: {
+excludes:
    events: ["dblclick", "doubletap", "longclick", "longpress", "pinch", "singletap", "swipe", 
-            "touchcancel", "touchend", "touchmove", "touchstart", "twofingertap"
-   ]
-}
+            "touchcancel", "touchend", "touchmove", "touchstart", "twofingertap"]
 
 events:
   - name: change
@@ -43,7 +41,7 @@ methods:
     summary: Changes the image for a specified index.
     description: |
         To specify a size for the image, you may pass the image as a simple dictionary, as defined 
-        in <CoverFlowImageType>.  If you specify a size, the size must be exact, not 'auto' or a 
+        in <CoverFlowImageType>.  If you specify a size, the size must be exact, not a
         percentage size. 
         
         If the image is passed as a `File` object or file path, the filename is checked. If the 
@@ -110,7 +108,7 @@ examples:
 name: CoverFlowImageType
 summary: Simple object for defining a single image in a cover flow view.
 description: |
-    If supplied, the `width` and `height` values must be exact values, not `'auto'`.
+    If supplied, the `width` and `height` values must be exact values, not a percentage size.
     
     If the size specified is different to the size of the image, the image is cropped and/or scaled 
     to fit the specified size.

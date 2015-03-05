@@ -146,6 +146,7 @@ public class TiHTTPClient
 	private Credentials credentials;
 	private TiBlob responseData;
 	private OutputStream responseOut;
+	private StatusLine responseStatusLine;
 	private String charset;
 	private String contentType;
 	private long maxBufferSize;
@@ -165,6 +166,7 @@ public class TiHTTPClient
 	private ArrayList<X509TrustManager> trustManagers = new ArrayList<X509TrustManager>();
 	private ArrayList<X509KeyManager> keyManagers = new ArrayList<X509KeyManager>();
 	protected SecurityManagerProtocol securityManager;
+	private int tlsVersion = NetworkModule.TLS_DEFAULT;
 
 	private static CookieStore cookieStore = NetworkModule.getHTTPCookieStoreInstance();
 
@@ -269,12 +271,7 @@ public class TiHTTPClient
 					}
 				}
 
-				StatusLine statusLine = response.getStatusLine();
-				if (statusLine.getStatusCode() >= 400) {
-					setResponseText(response.getEntity());
-					throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
-				}
-
+				responseStatusLine = response.getStatusLine();
 				entity = response.getEntity();
 				contentEncoding = response.getFirstHeader("Content-Encoding");
 				if (entity != null) {
@@ -305,6 +302,9 @@ public class TiHTTPClient
 						charset = EntityUtils.getContentCharSet(entity);
 					}
 					while((count = is.read(buf)) != -1) {
+						if (aborted) {
+							break;
+						}
 						totalSize += count;
 						try {
 							handleEntityData(buf, count, totalSize, contentLength);
@@ -399,7 +399,12 @@ public class TiHTTPClient
 
 			TiBlob blob = TiBlob.blobFromData(blobData, contentType);
 			callbackData.put("blob", blob);
-			callbackData.put("progress", ((double)totalSize)/((double)contentLength));
+			double progress = ((double)totalSize)/((double)contentLength);
+			// return progress as -1 if it is outside the valid range
+			if (progress > 1 || progress < 0) {
+				progress = NetworkModule.PROGRESS_UNKNOWN;
+			}
+			callbackData.put("progress", progress);
 
 			dispatchCallback("ondatastream", callbackData);
 		}
@@ -565,13 +570,14 @@ public class TiHTTPClient
 	{
 		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
 		this.readyState = readyState;
-
-		dispatchCallback("onreadystatechange", null);
+		KrollDict data = new KrollDict();
+		data.put("readyState", Integer.valueOf(readyState));
+		dispatchCallback("onreadystatechange", data);
 
 		if (readyState == READY_STATE_DONE) {
-			KrollDict data = new KrollDict();
-			data.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
-			dispatchCallback("onload", data);
+			KrollDict data1 = new KrollDict();
+			data1.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
+			dispatchCallback("onload", data1);
 		}
 	}
 
@@ -1076,7 +1082,7 @@ public class TiHTTPClient
 				KeyManager[] keyManagerArray = this.securityManager.getKeyManagers((HTTPClientProxy)this.proxy);
 				
 				try {
-					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray);
+					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
 				} catch(Exception e) {
 					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
 					sslSocketFactory = null;
@@ -1099,7 +1105,7 @@ public class TiHTTPClient
 				}
 				
 				try {
-					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray);
+					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
 				} catch(Exception e) {
 					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
 					sslSocketFactory = null;
@@ -1107,7 +1113,7 @@ public class TiHTTPClient
 			} else if (!validating) {
 				TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
 				try {
-					sslSocketFactory = new TiSocketFactory(null, trustManagerArray);
+					sslSocketFactory = new TiSocketFactory(null, trustManagerArray, tlsVersion);
 				} catch(Exception e) {
 					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
 					sslSocketFactory = null;
@@ -1324,6 +1330,9 @@ public class TiHTTPClient
 				Log.d(TAG, "Preparing to execute request", Log.DEBUG_MODE);
 
 				String result = null;
+				if (aborted) {
+					return;
+				}
 				try {
 					result = client.execute(host, request, handler);
 				} catch (IOException e) {
@@ -1337,7 +1346,14 @@ public class TiHTTPClient
 				}
 				connected = false;
 				setResponseText(result);
-				setReadyState(READY_STATE_DONE);
+
+				if (responseStatusLine.getStatusCode() >= 400) {
+					throw new HttpResponseException(responseStatusLine.getStatusCode(), responseStatusLine.getReasonPhrase());
+				}
+
+				if (!aborted) {
+					setReadyState(READY_STATE_DONE);
+				}
 
 			} catch(Throwable t) {
 				if (client != null) {
@@ -1495,4 +1511,11 @@ public class TiHTTPClient
 		}
 		trustManagers.add(manager);
 	}
+	
+	protected void setTlsVersion(int value)
+	{
+		this.proxy.setProperty(TiC.PROPERTY_TLS_VERSION, value);
+		tlsVersion = value;
+	}
+
 }

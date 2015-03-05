@@ -15,7 +15,6 @@
 #import "ApplicationMods.h"
 #import <libkern/OSAtomic.h>
 #import "KrollContext.h"
-#import "TiDebugger.h"
 #import "TiConsole.h"
 #import "TiExceptionHandler.h"
 #import "APSAnalytics.h"
@@ -23,7 +22,7 @@
 #ifdef KROLL_COVERAGE
 # include "KrollCoverage.h"
 #endif
-
+#import "TiDebugger.h"
 extern BOOL const TI_APPLICATION_ANALYTICS;
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_GUID;
@@ -52,10 +51,9 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 	[module setHost:host_];
 	[module _setBaseURL:baseURL_];
 	
-	pageContext = pageContext_;
-	
 	if (self = [super initWithTarget:module context:context_])
 	{
+		pageContext = pageContext_;
 		modules = [[NSMutableDictionary alloc] init];
 		host = [host_ retain];
 		[(KrollBridge *)pageContext_ registerProxy:module krollObject:self];
@@ -246,7 +244,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
     }
     
     BOOL keepWarning = YES;    
-    int proxiesCount = CFDictionaryGetCount(registeredProxies);
+    signed long proxiesCount = CFDictionaryGetCount(registeredProxies);
     OSSpinLockUnlock(&proxyLock);
         
     //During a memory panic, we may not get the chance to copy proxies.
@@ -264,7 +262,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
                 break;
             }
             
-            int newCount = CFDictionaryGetCount(registeredProxies);
+            signed long newCount = CFDictionaryGetCount(registeredProxies);
             OSSpinLockUnlock(&proxyLock);
 
             if (newCount != proxiesCount)
@@ -442,23 +440,22 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef) jcode);
 	TiStringRef jsURL = TiStringCreateWithUTF8CString(urlCString);
 	
-	// validate script
-	if (![TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
-		TiCheckScriptSyntax(jsContext,jsCode,jsURL,1,&exception);
-	}
+//  TIMOB-18152. There is no need to check syntax since TiEvalScript
+//  will check syntax before evaluation of the script.
+//	if (![TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
+//		TiCheckScriptSyntax(jsContext,jsCode,jsURL,1,&exception);
+//	}
 	
 	// only continue if we don't have any exceptions from above
 	if (exception == NULL) {
         if ([[self host] debugMode]) {
             TiDebuggerBeginScript(context_,urlCString);
         }
-		
 		TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
-		
         if ([[self host] debugMode]) {
             TiDebuggerEndScript(context_);
         }
-		if (exception == NULL) {
+        if (exception == NULL) {
             evaluationError = NO;
         }
 	}
@@ -909,21 +906,18 @@ loadNativeJS:
 	{
         NSString* urlPath = (filepath != nil) ? filepath : fullPath;
 		NSURL *url_ = [TiHost resourceBasedURL:urlPath baseURL:NULL];
-       	const char *urlCString = [[url_ absoluteString] UTF8String];
         KrollWrapper* wrapper = nil;
-        
+       	const char *urlCString = [[url_ absoluteString] UTF8String];
         if ([[self host] debugMode] && ![module isJSModule]) {
             TiDebuggerBeginScript([self krollContext],urlCString);
         }
-        
 		NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 		wrapper = [self loadCommonJSModule:dataContents withSourceURL:url_];
         [dataContents release];
-		
+
         if ([[self host] debugMode] && ![module isJSModule]) {
             TiDebuggerEndScript([self krollContext]);
         }
-        
 		if (![wrapper respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
             [self setCurrentURL:oldURL];
 			@throw [NSException exceptionWithName:@"org.appcelerator.kroll" 
@@ -975,7 +969,8 @@ loadNativeJS:
 		return module;
 	}
 	
-	@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@",path] userInfo:nil];
+	NSString *arch = [TiUtils currentArchitecture];
+	@throw [NSException exceptionWithName:@"org.test.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@ for architecture: %@", path, arch] userInfo:nil];
 }
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy
@@ -983,7 +978,7 @@ loadNativeJS:
 	NSMutableArray * results = nil;
 
 	OSSpinLockLock(&krollBridgeRegistryLock);
-	int bridgeCount = CFSetGetCount(krollBridgeRegistry);
+	signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
 	KrollBridge * registryObjects[bridgeCount];
 	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
 	
@@ -1011,7 +1006,7 @@ loadNativeJS:
 + (NSArray *)krollContexts
 {
 	OSSpinLockLock(&krollBridgeRegistryLock);
-	int bridgeCount = CFSetGetCount(krollBridgeRegistry);
+	signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
 	KrollBridge * registryObjects[bridgeCount];
 	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
 
@@ -1034,7 +1029,7 @@ loadNativeJS:
 
 	bool result=NO;
 	OSSpinLockLock(&krollBridgeRegistryLock);
-	int bridgeCount = CFSetGetCount(krollBridgeRegistry);
+	signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
 	KrollBridge * registryObjects[bridgeCount];
 	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
 	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
@@ -1062,7 +1057,7 @@ loadNativeJS:
 
 	KrollBridge * result=nil;
 	OSSpinLockLock(&krollBridgeRegistryLock);
-	int bridgeCount = CFSetGetCount(krollBridgeRegistry);
+	signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
 	KrollBridge * registryObjects[bridgeCount];
 	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
 	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)

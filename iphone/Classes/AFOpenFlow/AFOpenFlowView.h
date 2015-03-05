@@ -43,10 +43,10 @@
 	CGFloat							defaultImageHeight;
 
 	UIScrollView					*scrollView;
-	int								lowerVisibleCover;
-	int								upperVisibleCover;
-	int								numberOfImages;
-	int								beginningCover;
+	NSInteger						lowerVisibleCover;
+	NSInteger						upperVisibleCover;
+	NSInteger						numberOfImages;
+	NSInteger						beginningCover;
 	
 	AFItemView						*selectedCoverView;
 
@@ -64,23 +64,23 @@
 @property (nonatomic, assign) id <AFOpenFlowViewDataSource> dataSource;
 @property (nonatomic, assign) id <AFOpenFlowViewDelegate> viewDelegate;
 @property (nonatomic, retain) UIImage *defaultImage;
-@property (nonatomic) int numberOfImages;
+@property (nonatomic) NSInteger numberOfImages;
 
-- (void)setSelectedCover:(int)newSelectedCover;
+- (void)setSelectedCover:(NSInteger)newSelectedCover;
 - (void)centerOnSelectedCover:(BOOL)animated;
-- (void)setImage:(UIImage *)image forIndex:(int)index;
+- (void)setImage:(UIImage *)image forIndex:(NSInteger)index;
 - (void)updateLayout;
 
 @end
 
 @protocol AFOpenFlowViewDelegate <NSObject>
 @optional
-- (void)openFlowView:(AFOpenFlowView *)openFlowView click:(int)index;
-- (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(int)index;
+- (void)openFlowView:(AFOpenFlowView *)openFlowView click:(NSInteger)index;
+- (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(NSInteger)index;
 @end
 
 @protocol AFOpenFlowViewDataSource <NSObject>
-- (void)openFlowView:(AFOpenFlowView *)openFlowView requestImageForIndex:(int)index;
+- (void)openFlowView:(AFOpenFlowView *)openFlowView requestImageForIndex:(NSInteger)index;
 - (UIImage *)defaultImage;
 @end
 

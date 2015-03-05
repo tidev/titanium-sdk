@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,7 @@
 #import "NSData+Additions.h"
 #import "ImageLoader.h"
 #import "TiDebugger.h"
-#import "TiProfiler.h"
+#import "TiProfiler/TiProfiler.h"
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
 #import "ApplicationDefaults.h"
@@ -180,72 +180,73 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	
 	sessionId = [[TiUtils createUUID] retain];
 	TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
-
 	NSString *filePath = [[NSBundle mainBundle] pathForResource:@"debugger" ofType:@"plist"];
     if (filePath != nil) {
-        NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
         NSString *host = [params objectForKey:@"host"];
         NSInteger port = [[params objectForKey:@"port"] integerValue];
-        NSString *airkey = [params objectForKey:@"airkey"];
         if (([host length] > 0) && ![host isEqualToString:@"__DEBUGGER_HOST__"])
         {
             [self setDebugMode:YES];
             TiDebuggerStart(host, port);
         }
 #if !TARGET_IPHONE_SIMULATOR
-		else if (([airkey length] > 0) && ![airkey isEqualToString:@"__DEBUGGER_AIRKEY__"])
+		else
 		{
-			NSArray *hosts = nil;
-			NSString *hostsString = [params objectForKey:@"hosts"];
-			if (![hostsString isEqualToString:@"__DEBUGGER_HOSTS__"]) {
-				hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
-			}
-			TiDebuggerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
-				if (host != nil) {
-					[self setDebugMode:YES];
-					TiDebuggerStart(host, port);
+			NSString *airkey = [params objectForKey:@"airkey"];
+			if (([airkey length] > 0) && ![airkey isEqualToString:@"__DEBUGGER_AIRKEY__"])
+			{
+				NSArray *hosts = nil;
+				NSString *hostsString = [params objectForKey:@"hosts"];
+				if (![hostsString isEqualToString:@"__DEBUGGER_HOSTS__"]) {
+					hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
 				}
-				[self appBoot];
-			});
-			[params release];
-			return;
+				TiDebuggerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
+					if (host != nil) {
+						[self setDebugMode:YES];
+						TiDebuggerStart(host, port);
+					}
+					[self appBoot];
+				});
+				return;
+			}
 		}
-		[params release];
 #endif
     }
-	filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
+    filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
 	if (!self.debugMode && filePath != nil) {
-        NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
         NSString *host = [params objectForKey:@"host"];
-        NSInteger port = [[params objectForKey:@"port"] integerValue];
-        NSString *airkey = [params objectForKey:@"airkey"];
+        NSInteger port = [[params objectForKey:@"port"] integerValue];		
         if (([host length] > 0) && ![host isEqualToString:@"__PROFILER_HOST__"])
         {
             [self setProfileMode:YES];
             TiProfilerStart(host, port);
         }
 #if !TARGET_IPHONE_SIMULATOR
-		else if (([airkey length] > 0) && ![airkey isEqualToString:@"__PROFILER_AIRKEY__"])
+		else
 		{
-			NSArray *hosts = nil;
-			NSString *hostsString = [params objectForKey:@"hosts"];
-			if (![hostsString isEqualToString:@"__PROFILER_HOSTS__"]) {
-				hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
-			}
-			TiProfilerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
-				if (host != nil) {
-					[self setProfileMode:YES];
-					TiProfilerStart(host, port);
+			NSString *airkey = [params objectForKey:@"airkey"];
+			if (([airkey length] > 0) && ![airkey isEqualToString:@"__PROFILER_AIRKEY__"])
+			{
+				NSArray *hosts = nil;
+				NSString *hostsString = [params objectForKey:@"hosts"];
+				if (![hostsString isEqualToString:@"__PROFILER_HOSTS__"]) {
+					hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
 				}
-				[self appBoot];
-			});
-			[params release];
-			return;
+				TiProfilerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
+					if (host != nil) {
+						[self setProfileMode:YES];
+						TiProfilerStart(host, port);
+					}
+					[self appBoot];
+				});
+				return;
+			}
 		}
-		[params release];
 #endif
     }
-	[self appBoot];
+    [self appBoot];
 }
 
 - (void)appBoot
@@ -260,7 +261,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	[[[NSClassFromString(TIV) alloc] init] autorelease];
 }
-
 - (void)booted:(id)bridge
 {
 	if ([bridge isKindOfClass:[KrollBridge class]])
@@ -271,7 +271,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		if (localNotification != nil) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 		}
-		TiThreadPerformOnMainThread(^{[self validator];}, YES);
+        TiThreadPerformOnMainThread(^{[self validator];}, YES);
 	}
 }
 
@@ -419,7 +419,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
             pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
         }
 
-        [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
+        [pendingCompletionHandlers setObject:[[completionHandler copy] autorelease ]forKey:key];
 
         // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
         // the bridge completes processing of app.js (adding the event into notification center).
@@ -488,7 +488,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:userInfo];
     } else {
         //Try again in 2 sec. TODO: should we reduce this value ?
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_current_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [self postNotificationwithKey:userInfo withNotificationName:notificationName];
         });
     }
@@ -568,7 +568,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
             pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
         }
         
-        [pendingCompletionHandlers setObject:[completionHandler copy] forKey:key];
+        [pendingCompletionHandlers setObject:[[completionHandler copy] autorelease ]forKey:key];
         
         // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
         // the bridge completes processing of app.js (adding the event into notification center).
@@ -600,7 +600,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         backgroundTransferCompletionHandlers = [[NSMutableDictionary alloc] init];
     }
     
-    [backgroundTransferCompletionHandlers setObject:[completionHandler copy] forKey:key];
+    [backgroundTransferCompletionHandlers setObject:[[completionHandler copy] autorelease ]forKey:key];
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:identifier, @"sessionId",
                                                                              key, @"handlerId", nil];
     [self postNotificationwithKey:dict withNotificationName:kTiBackgroundTransfer];
@@ -613,11 +613,26 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
 {
-    //FunctionName();
-    TiBlob * downloadedFile =[[[TiBlob alloc] initWithData:[NSData dataWithContentsOfURL:location] mimetype:[Mimetypes mimeTypeForExtension:[location absoluteString]]] autorelease];
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier ],@"taskIdentifier",downloadedFile,@"data", nil];
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLDownloadFinished object:self userInfo:dict];
-    
+	//FunctionName();
+	//copy downloaded file from location to tempFile (in NSTemporaryDirectory), because file in location will be removed after delegate completes
+	NSError *error;
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+	NSString *destinationFilename = location.lastPathComponent;
+	NSURL *destinationURL = [[NSURL fileURLWithPath:NSTemporaryDirectory()] URLByAppendingPathComponent:destinationFilename];
+	if ([fileManager fileExistsAtPath:[destinationURL path]]) {
+		[fileManager removeItemAtURL:destinationURL error:nil];
+	}
+	BOOL success = [fileManager copyItemAtURL:location toURL:destinationURL error:&error];
+	TiBlob* downloadedData;
+	if (!success) {
+		DebugLog(@"Unable to copy temp file. Error: %@", [error localizedDescription]);
+		downloadedData =[[[TiBlob alloc] initWithData:[NSData dataWithContentsOfURL:location] mimetype:[Mimetypes mimeTypeForExtension:[location absoluteString]]] autorelease];
+	}
+	else {
+		downloadedData = [[[TiBlob alloc] initWithFile:[destinationURL path]] autorelease];
+	}
+	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier ],@"taskIdentifier",downloadedData,@"data", nil];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiURLDownloadFinished object:self userInfo:dict];
 }
 
 -(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
@@ -636,7 +651,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent
     totalBytesSent:(int64_t) totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
 {
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMINT(task.taskIdentifier),@"taskIdentifier",
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMUINTEGER(task.taskIdentifier),@"taskIdentifier",
                                  [NSNumber numberWithUnsignedLongLong:bytesSent], @"bytesSent",
                                  [NSNumber numberWithUnsignedLongLong:totalBytesSent], @"totalBytesSent",
                                  [NSNumber numberWithUnsignedLongLong:totalBytesExpectedToSend], @"totalBytesExpectedToSend", nil];
@@ -652,7 +667,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
                           nil];
     if (error) {
         NSDictionary * errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
-                                                NUMINT([error code]), @"errorCode",
+                                                NUMINTEGER([error code]), @"errorCode",
                                                 [error localizedDescription], @"message",
                                                 nil];
         [dict addEntriesFromDictionary:errorinfo];
@@ -902,24 +917,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	}
 	ENSURE_UI_THREAD(showModalError,message);
 	TiErrorController *error = [[[TiErrorController alloc] initWithError:message] autorelease];
-	[controller presentModalViewController:error animated:YES];
-}
-
--(void)attachModal:(UIViewController*)modalController toController:(UIViewController*)presentingController animated:(BOOL)animated
-{
-	UIViewController * currentModalController = [presentingController modalViewController];
-
-	if (currentModalController == modalController)
-	{
-		DeveloperLog(@"[WARN] Trying to present a modal window that already is a modal window.");
-		return;
-	}
-	if (currentModalController == nil)
-	{
-		[presentingController presentModalViewController:modalController animated:animated];
-		return;
-	}
-	[self attachModal:modalController toController:currentModalController animated:animated];
+	[self showModalController:error animated:YES];
 }
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated
@@ -1083,7 +1081,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     [event setObject:NOTNIL([notification alertAction]) forKey:@"alertAction"];
     [event setObject:NOTNIL([notification alertLaunchImage]) forKey:@"alertLaunchImage"];
     [event setObject:NOTNIL([notification soundName]) forKey:@"sound"];
-    [event setObject:NUMINT([notification applicationIconBadgeNumber]) forKey:@"badge"];
+    [event setObject:NUMINTEGER([notification applicationIconBadgeNumber]) forKey:@"badge"];
     [event setObject:NOTNIL([notification userInfo]) forKey:@"userInfo"];
 	//include category for ios8
 	if ([TiUtils isIOS8OrGreater]) {

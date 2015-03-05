@@ -37,11 +37,8 @@
 
 -(BOOL)isValidTextStyle:(NSString*)theStyle
 {
-    if([TiUtils isIOS7OrGreater]){
-        return ([theStyle isEqualToString:UIFontTextStyleBody] || [theStyle isEqualToString:UIFontTextStyleCaption1] || [theStyle isEqualToString:UIFontTextStyleCaption2]
-                || [theStyle isEqualToString:UIFontTextStyleHeadline] || [theStyle isEqualToString:UIFontTextStyleSubheadline] || [theStyle isEqualToString:UIFontTextStyleFootnote]);
-    }
-    return NO;
+    return ([theStyle isEqualToString:UIFontTextStyleBody] || [theStyle isEqualToString:UIFontTextStyleCaption1] || [theStyle isEqualToString:UIFontTextStyleCaption2]
+            || [theStyle isEqualToString:UIFontTextStyleHeadline] || [theStyle isEqualToString:UIFontTextStyleSubheadline] || [theStyle isEqualToString:UIFontTextStyleFootnote]);
 }
 
 -(UIFont *) font
@@ -329,10 +326,10 @@
 
 +(WebFont *)fontWithName:(NSString*)name
 {
-	WebFont * result = [[self alloc] init];
-	result.family = [name copy];
+	WebFont * result = [[[self alloc] init] autorelease];
+	result.family = [[name copy] autorelease];
 	result.size = 15;
-	return [result autorelease];
+	return result;
 }
 
 +(WebFont *)tableRowFont

@@ -24,8 +24,12 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_DOWN,UIPopoverArrowDirectionDown);
 MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_LEFT,UIPopoverArrowDirectionLeft);
 MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_RIGHT,UIPopoverArrowDirectionRight);
 MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_ANY,UIPopoverArrowDirectionAny);
-MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_UNKNOWN,UIPopoverArrowDirectionUnknown);
-			
+-(NSNumber*)POPOVER_ARROW_DIRECTION_UNKNOWN
+{
+    if ([TiUtils isIPad]) {
+        return NUMUINTEGER(UIPopoverArrowDirectionUnknown);
+    }
+}
 -(id)createPopover:(id)args
 {
 	if ([TiUtils isIPad])
@@ -41,6 +45,7 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_UNKNOWN,UIPopoverArrowDirectionUnk
 {
 	if ([TiUtils isIPad])
 	{
+        DEPRECATED_REPLACED(@"UI.iPad.createSplitWindow", @"3.6.0", @"Ti.UI.iOS.createSplitWindow()")
 		return [[[TiUIiPadSplitWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 	}
 	[self throwException:@"this API is not available on non iPad devices" subreason:nil location:CODELOCATION];
@@ -52,7 +57,7 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_UNKNOWN,UIPopoverArrowDirectionUnk
 {
 	if ([TiUtils isIPad])
 	{
-        DEPRECATED_REMOVED(@"UI.iPad.createDocumentViewer", @"2.1.1", @"Ti.Ui.iOS.createDocumentViewer()")
+        DEPRECATED_REPLACED(@"UI.iPad.createDocumentViewer", @"2.1.1", @"Ti.UI.iOS.createDocumentViewer()")
         return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 	}
 	[self throwException:@"this API is not available on non iPad devices" subreason:nil location:CODELOCATION];

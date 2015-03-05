@@ -23,6 +23,8 @@
 
 #define IGNORE_IF_NOT_OPENED if (!windowOpened||[self viewAttached]==NO) return;
 
+static NSArray* touchEventsArray;
+
 @implementation TiViewProxy
 
 @synthesize eventOverrideDelegate = eventOverrideDelegate;
@@ -179,7 +181,7 @@
 	if ([NSThread isMainThread]) {
 		pthread_rwlock_wrlock(&childrenLock);
 		if(position < 0 || position > [children count]) {
-			position = [children count];
+			position = (int)[children count];
 		}
 		[children insertObject:childView atIndex:position];
 		//Turn on clipping because I have children
@@ -212,7 +214,7 @@
 		}
 		pthread_rwlock_wrlock(&childrenLock);
 		if(position < 0 || position > [children count]) {
-			position = [children count];
+			position = (int)[children count];
 		}
 		[children insertObject:childView atIndex:position];
 		pthread_rwlock_unlock(&childrenLock);
@@ -569,7 +571,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 -(TiBlob*)toImage:(id)args
 {
     KrollCallback *callback = nil;
-    BOOL honorScale = NO;
     
     NSObject *obj = nil;
     if( [args count] > 0) {
@@ -578,10 +579,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
         if (obj == [NSNull null]) {
             obj = nil;
         }
-        
-        if( [args count] > 1) {
-            honorScale = [TiUtils boolValue:[args objectAtIndex:1] def:NO];
-        }
     }
     callback = (KrollCallback*)obj;
 	TiBlob *blob = [[[TiBlob alloc] init] autorelease];
@@ -589,7 +586,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	// if you pass a callback function, we'll run the render asynchronously, if you
 	// don't, we'll do it synchronously
 	TiThreadPerformOnMainThread(^{
-		[self windowWillOpen];
+		BOOL viewIsAttached = [self viewAttached];
+		if (!viewIsAttached) {
+			[self windowWillOpen];
+		}
 		TiUIView *myview = [self view];
 		CGSize size = myview.bounds.size;
 		if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
@@ -607,7 +607,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 			CGRect rect = CGRectMake(0, 0, size.width, size.height);
 			[TiUtils setView:myview positionRect:rect];
 		}
-		UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], (honorScale ? 0.0 : 1.0));
+		if (!viewIsAttached) {
+			[self layoutChildren:NO];
+		}
+		UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], 0);
 		[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
 		UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 		[blob setImage:image];
@@ -720,7 +723,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	for (TiViewProxy * thisChildProxy in subproxies)
 	{
         if (isHorizontal) {
-            sandBox = CGRectZero;
             sandBox = [self computeChildSandbox:thisChildProxy withBounds:bounds];
             thisWidth = sandBox.origin.x + sandBox.size.width;
         }
@@ -774,7 +776,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	for (TiViewProxy * thisChildProxy in array)
 	{
         if (!isAbsolute) {
-            sandBox = CGRectZero;
             sandBox = [self computeChildSandbox:thisChildProxy withBounds:bounds];
             thisHeight = sandBox.origin.y + sandBox.size.height;
         }
@@ -990,6 +991,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		
 		[childrenArray release];
 		[self viewDidAttach];
+		[view updateClipping];
 
 		// If parent has a non absolute layout signal the parent that
 		//contents will change else just lay ourselves out
@@ -1076,38 +1078,46 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 -(void)windowWillOpen
 {
-	//TODO: This should be properly handled and moved, but for now, let's force it (Redundantly, I know.)
-	if (parent != nil) {
-		[self parentWillShow];
-	}
+    //TODO: This should be properly handled and moved, but for now, let's force it (Redundantly, I know.)
+    if (parent != nil) {
+        [self parentWillShow];
+    }
 
-	pthread_rwlock_rdlock(&childrenLock);
-	
-	// this method is called just before the top level window
-	// that this proxy is part of will open and is ready for
-	// the views to be attached
-	
-	if (windowOpened==YES)
-	{
-		pthread_rwlock_unlock(&childrenLock);
-		return;
-	}
-	
-	windowOpened = YES;
-	windowOpening = YES;
-	
-	// If the window was previously opened, it may need to have
-	// its existing children redrawn
-	// Maybe need to call layout children instead for non absolute layout
-	if (children != nil) {
-		for (TiViewProxy* child in children) {
-			[self layoutChild:child optimize:NO withMeasuredBounds:[[self size] rect]];
-			[child windowWillOpen];
-		}
-	}
-	
-	pthread_rwlock_unlock(&childrenLock);
-	
+    pthread_rwlock_rdlock(&childrenLock);
+
+    // this method is called just before the top level window
+    // that this proxy is part of will open and is ready for
+    // the views to be attached
+
+    if (windowOpened==YES)
+    {
+        pthread_rwlock_unlock(&childrenLock);
+        return;
+    }
+
+    windowOpened = YES;
+    windowOpening = YES;
+
+    BOOL absoluteLayout = TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle);
+
+    // If the window was previously opened, it may need to have
+    // its existing children redrawn
+    // Maybe need to call layout children instead for non absolute layout
+    if (children != nil) {
+        for (TiViewProxy* child in children) {
+            if (absoluteLayout) {
+                [self layoutChild:child optimize:NO withMeasuredBounds:[[self size] rect]];
+            }
+            [child windowWillOpen];
+        }
+    }
+
+    pthread_rwlock_unlock(&childrenLock);
+
+    //TIMOB-17923 - Do a full layout pass (set proper sandbox) if non absolute layout
+    if (!absoluteLayout) {
+        [self layoutChildren:NO];
+    }
 }
 
 -(void)windowDidOpen
@@ -1242,7 +1252,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	// Set horizontal layout wrap:true as default 
 	layoutProperties.layoutFlags.horizontalWrap = YES;
 	[self initializeProperty:@"horizontalWrap" defaultValue:NUMBOOL(YES)];
-	
+	[self initializeProperty:@"visible" defaultValue:NUMBOOL(YES)];
+
 	if (properties!=nil)
 	{
 		NSString *objectId = [properties objectForKey:@"id"];
@@ -1528,6 +1539,17 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	return [self _hasListeners:type checkParent:YES];
 }
 
+-(BOOL)checkTouchEvent:(NSString*)event
+{
+    if (touchEventsArray == nil) {
+        touchEventsArray = [[NSArray arrayWithObjects:@"touchstart",@"touchend",@"touchmove",@"touchcancel",
+                            @"click",@"dblclick",@"singletap",@"doubletap",@"twofingertap",
+                            @"swipe", @"pinch", @"longpress", nil] retain];
+    }
+    
+    return [touchEventsArray containsObject:event];
+}
+
 //TODO: Remove once we've properly deprecated.
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
 {
@@ -1542,12 +1564,13 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	// Have to handle the situation in which the proxy's view might be nil... like, for example,
 	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
     // NOTE: We want to fire postlayout events on ANY view, even those which do not allow interactions.
-	if (proxyView == nil || [proxyView interactionEnabled] || [type isEqualToString:@"postlayout"]) {
+	BOOL isTouchEvent = [self checkTouchEvent:type];
+	if (proxyView == nil || !isTouchEvent || (isTouchEvent && [proxyView interactionEnabled])) {
 		[super fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:report errorCode:code message:message];
 	}
 }
 
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message;
 {
 	// Note that some events (like movie 'complete') are fired after the view is removed/dealloc'd.
 	// Because of the handling below, we can safely set the view to 'nil' in this case.
@@ -1560,7 +1583,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	// Have to handle the situation in which the proxy's view might be nil... like, for example,
 	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
     // NOTE: We want to fire postlayout events on ANY view, even those which do not allow interactions.
-	if (proxyView == nil || [proxyView interactionEnabled] || [type isEqualToString:@"postlayout"]) {
+	BOOL isTouchEvent = [self checkTouchEvent:type];
+	if (proxyView == nil || !isTouchEvent || (isTouchEvent && [proxyView interactionEnabled])) {
 		if (eventOverrideDelegate != nil) {
 			obj = [eventOverrideDelegate overrideEventObject:obj forEvent:type fromViewProxy:self];
 		}
@@ -2110,7 +2134,10 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		ENSURE_UI_THREAD_0_ARGS
 
 		repositioning = YES;
-
+        
+        CGRect oldRect = sizeCache;
+        CGPoint oldCenter = positionCache;
+        
         UIView *parentView = [parent parentViewForChild:self];
         CGSize referenceSize = (parentView != nil) ? parentView.bounds.size : sandboxBounds.size;
         if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle)) ) {
@@ -2126,13 +2153,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		positionCache.x += sizeCache.origin.x + sandboxBounds.origin.x;
 		positionCache.y += sizeCache.origin.y + sandboxBounds.origin.y;
         
-        BOOL layoutChanged = (!CGRectEqualToRect([view bounds], sizeCache) || !CGPointEqualToPoint([view center], positionCache));
-        if (!layoutChanged && [view isKindOfClass:[TiUIView class]]) {
-            //Views with flexible margins might have already resized when the parent resized.
-            //So we need to explicitly check for oldSize here which triggers frameSizeChanged
-            CGSize oldSize = [(TiUIView*) view oldSize];
-            layoutChanged = layoutChanged || !(CGSizeEqualToSize(oldSize,sizeCache.size));
-        }
+        BOOL layoutChanged = (!CGRectEqualToRect(oldRect, sizeCache) || !CGPointEqualToPoint(oldCenter, positionCache));
         
 		[view setAutoresizingMask:autoresizeCache];
 		[view setCenter:positionCache];
@@ -2245,7 +2266,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
     
 	BOOL horizontalNoWrap = TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle) && !TiLayoutFlagsHasHorizontalWrap(&layoutProperties);
     NSMutableArray * measuredBounds = [NSMutableArray arrayWithCapacity:[childArray count]];
-    NSUInteger i, count = [childArray count];
+    int i, count = (int)[childArray count];
 	int maxHeight = 0;
     
     //First measure the sandbox bounds

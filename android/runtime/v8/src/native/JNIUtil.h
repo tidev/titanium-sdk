@@ -132,7 +132,6 @@ public:
 	static jmethodID krollRuntimeDispatchExceptionMethod;
 
 	static jmethodID krollAssetHelperReadAssetMethod;
-	static jmethodID krollAssetHelperFileExistsMethod;
 
 };
 

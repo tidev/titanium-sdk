@@ -13,32 +13,29 @@ description: |
 
     * [Android](http://developer.android.com/guide/appendix/media-formats.html#core)
     * [iOS](https://developer.apple.com/library/ios/documentation/AudioVideo/Conceptual/MultimediaPG/UsingAudio/UsingAudio.html#//apple_ref/doc/uid/TP40009767-CH2-SW33)
-    * [Blackberry](http://docs.blackberry.com/en/smartphone_users/deliverables/18577/Supported_audio_video_file_formats_60_1018040_11.jsp)
-    * [Tizen](https://developer.tizen.org/dev-guide/2.2.0/org.tizen.native.appprogramming/html/guide/media/support_multimedia_format.htm)
-
 
 extends: Titanium.Proxy
 since: "0.8"
-platforms: [android, iphone, ipad, tizen, blackberry]
+platforms: [android, iphone, ipad]
 methods:
 
   - name: isLooping
     summary: Returns the value of the [looping](Titanium.Media.Sound.looping) property.
     returns:
         type: Boolean
-    exclude-platforms: [blackberry]
+
 
   - name: isPaused
     summary: Returns the value of the [paused](Titanium.Media.Sound.paused) property.
     returns:
         type: Boolean
-    exclude-platforms: [blackberry]
+
 
   - name: isPlaying
     summary: Returns the value of the [playing](Titanium.Media.Sound.playing) property.
     returns:
         type: Boolean
-    exclude-platforms: [blackberry]
+
 
   - name: pause
     summary: Pauses the audio.
@@ -56,7 +53,7 @@ methods:
 
   - name: reset
     summary: Resets the audio playback position to the beginning.
-    exclude-platforms: [blackberry]
+
 
   - name: setLooping
     summary: Sets the value of the [looping](Titanium.Media.Sound.looping) property.
@@ -64,19 +61,19 @@ methods:
       - name: looping
         summary: New value for the `looping` property.
         type: Boolean
-    exclude-platforms: [blackberry]
+
 
   - name: setPaused
     summary: Sets the value of the [paused](Titanium.Media.Sound.paused) property.
     description: |
-        On iOS and Tizen, this method can be used to pause and unpause playback. For portability,
+        On iOS, this method can be used to pause and unpause playback. For portability,
         it is preferable to use the [pause](Titanium.Media.Sound.pause) and
         [play](Titanium.Media.Sound.play) methods instead.
     parameters:
       - name: paused
         summary: Pass `true` to pause the current playback temporarily, `false` to unpause it.
         type: Boolean
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad]
 
   - name: stop
     summary: Stops playing the audio and resets the playback position to the beginning of the clip.
@@ -106,7 +103,7 @@ events:
             Indicates if the sound was played successfully.
             Returns `true` if request succeeded, `false` otherwise.
         type: Boolean
-        platforms: [iphone, ipad, android, tizen]
+        platforms: [iphone, ipad, android]
 
       - name: error
         summary: Error message, if any returned. Will be undefined if `success` is `true`.
@@ -148,7 +145,7 @@ events:
         type: String
         deprecated:
             since: "3.1.0"
-    exclude-platforms: [blackberry]
+
 
   - name: interrupted
     summary: Fired  when audio playback is interrupted by the device. 
@@ -242,25 +239,25 @@ properties:
     description: |
         On iOS, playback time is reported in seconds.
 
-        On Android and Tizen, time is reported in milliseconds.
+        On Android, time is reported in milliseconds.
 
         Android note: Starting from Titanium 3.2.0, the remote audio plays asynchronously. The duration
         can only be fetched after the audio is initialized (refer to <Titanium.Media.Sound.STATE_INITIALIZED>).
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: looping
     summary: Determines whether the audio should loop upon completion.
     type: Boolean
     default: false
     accessors: false
-    exclude-platforms: [blackberry]
+
 
   - name: paused
     summary: Indicates if the audio is paused.
     description: |
-        On iOS and Tizen, this property is read-write, and you can pause and resume playback by setting this 
+        On iOS, this property is read-write, and you can pause and resume playback by setting this
         property to `true` or `false`.
         
         On Android, this property is read-only. For portability, use [pause](Titanium.Media.Sound.pause)
@@ -281,7 +278,7 @@ properties:
         
         On iOS, prior to Release 3.0, playback time is reported in seconds.
     type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: url
     summary: URL identifying the audio resource.

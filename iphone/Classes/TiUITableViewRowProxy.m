@@ -253,7 +253,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
         }
     }
     
-    if (updateForiOS7 && [TiUtils isIOS7OrGreater]) {
+    if (updateForiOS7) {
         width -= IOS7_ACCESSORY_EXTRA_OFFSET;
     }
 	
@@ -423,11 +423,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
                 case UITableViewCellSelectionStyleGray:theColor = [Webcolor webColorNamed:@"#bbb"];break;
                 case UITableViewCellSelectionStyleNone:theColor = [UIColor clearColor];break;
                 case UITableViewCellSelectionStyleBlue:theColor = [Webcolor webColorNamed:@"#0272ed"];break;
-                default:theColor = [TiUtils isIOS7OrGreater] ? [Webcolor webColorNamed:@"#e0e0e0"] : [Webcolor webColorNamed:@"#0272ed"];break;
+                default:theColor = [Webcolor webColorNamed:@"#e0e0e0"];break;
             }
         }
         selectedBGView.fillColor = theColor;
-        int count = [section rowCount];
+        NSInteger count = [section rowCount];
         if (count == 1) {
             selectedBGView.position = TiCellBackgroundViewPositionSingleLine;
         }
@@ -651,17 +651,15 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(void)configureTintColor:(UITableViewCell*)cell
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        UIColor* theTint = nil;
-        id theColor = [self valueForUndefinedKey:@"tintColor"];
-        if (theColor != nil) {
-            theTint = [[TiUtils colorValue:theColor] color];
-        }
-        if (theTint == nil) {
-            theTint = [[table tableView] tintColor];
-        }
-        [cell performSelector:@selector(setTintColor:) withObject:theTint];
+    UIColor* theTint = nil;
+    id theColor = [self valueForUndefinedKey:@"tintColor"];
+    if (theColor != nil) {
+        theTint = [[TiUtils colorValue:theColor] color];
     }
+    if (theTint == nil) {
+        theTint = [[table tableView] tintColor];
+    }
+    [cell setTintColor:theTint];
 }
 
 -(void)initializeTableViewCell:(UITableViewCell*)cell
@@ -803,7 +801,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		dict = [NSMutableDictionary dictionaryWithDictionary:initialObject];
 	}
 	NSInteger index = [table indexForRow:self];
-	[dict setObject:NUMINT(index) forKey:@"index"];
+	[dict setObject:NUMINTEGER(index) forKey:@"index"];
     // TODO: We really need to ensure that a row's section is set upon creation - even if this means changing how tables work.
     if (section != nil) {
         [dict setObject:section forKey:@"section"];
@@ -828,7 +826,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[super fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:report errorCode:code message:message];
 }
 
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message;
 {
 	[callbackCell handleEvent:type];
 	[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];

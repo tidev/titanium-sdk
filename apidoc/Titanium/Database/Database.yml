@@ -5,7 +5,7 @@ summary: |
   in-application SQLite database.
 extends: Titanium.Module
 since: "0.1"
-platforms: [android, iphone, ipad, blackberry]
+platforms: [android, iphone, ipad]
 methods:
   - name: install
     summary: Installs an SQLite database to device's internal storage.
@@ -50,7 +50,7 @@ methods:
         type: String
       - name: dbName
         summary: |
-          Destination filename, which will subsequently be passed to
+          Destination filename or absolute path, which will subsequently be passed to
           <Titanium.Database.open>.
         type: String
     examples:
@@ -122,9 +122,9 @@ methods:
     parameters:
       - name: dbName
         summary: |
-          The dbname previously passed to <Titanium.Database.install>. On Android, 
-          an absolute path to the file, including one that is constructed with a 
-          <Titanium.Filesystem> constant, may be used.
+          The dbname previously passed to <Titanium.Database.install>. An absolute path 
+          to the file, including one that is constructed with a <Titanium.Filesystem> 
+          constant or <Titanium.Filesystem.directoryForSuite> method, may be used.
         type: String
     examples:
     - title: Open a Database from Internal Storage (iOS)
@@ -170,24 +170,36 @@ methods:
         absolute path, as follows.
 
         * `file:///sdcard/path/to/mydb2Installed`
+    - title: Open a Database in the shared directory of an application group (iOS)
+      example: |
+        Opens a Database in a shared directory
+
+            var suiteDir = Ti.Filesystem.directoryForSuite('group.appc.Sharing');
+            if (!suiteDir) {
+                logInApp('Suite Directory not found, check Entitlements.');
+                return;
+            }
+            var path = suiteDir + 'TestDB';
+            var db = Ti.Database.open(path);
+            db.close();
 properties:
   - name: FIELD_TYPE_DOUBLE
     summary: Constant for requesting a column's value returned in double form.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: FIELD_TYPE_FLOAT
     summary: Constant for requesting a column's value returned in float form.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: FIELD_TYPE_INT
     summary: Constant for requesting a column's value returned in integer form.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: FIELD_TYPE_STRING
     summary: Constant for requesting a column's value returned in string form.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+

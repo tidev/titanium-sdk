@@ -17,9 +17,11 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = { 
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_HEADER_TITLE,
-	TiC.PROPERTY_FOOTER_TITLE
+	TiC.PROPERTY_HEADER_VIEW,
+	TiC.PROPERTY_FOOTER_TITLE,
+	TiC.PROPERTY_FOOTER_VIEW
 })
 public class TableViewSectionProxy extends TiViewProxy
 {

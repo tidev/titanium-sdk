@@ -8,6 +8,7 @@ description: |
     manually configure location updates.
 extends: Titanium.Proxy
 since: "2.0.0"
+platforms: ["android"]
 properties:
   - name: name
     summary: |

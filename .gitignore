@@ -16,7 +16,13 @@ anvil/driver/config.js
 ._*
 npm-debug.log
 node_modules/.bin
+node_modules/grunt*
+node_modules/jscs*
+node_modules/mocha*
+node_modules/optimist*
+node_modules/should*
 anvil/driver/titanium_mobile
 anvil/hub/config.js
 support/mobileweb/dependencyAnalyzer/node_modules/*
 anvil/driver/node_modules/*
+apidoc/node_modules/*

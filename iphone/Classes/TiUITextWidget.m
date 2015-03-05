@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,9 +11,8 @@
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUtils.h"
-
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-#import "TiUIiOSAttributedStringProxy.h"
+#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#import "TiUIAttributedStringProxy.h"
 #endif
 
 
@@ -34,11 +33,12 @@
 
 -(void)setAttributedString_:(id)arg
 {
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-    ENSURE_SINGLE_ARG(arg, TiUIiOSAttributedStringProxy);
-    [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
-    [(id)[self textWidgetView] setAttributedText:[arg attributedString]];
+#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+	ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
+	[[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
+	[(id)[self textWidgetView] setAttributedText:[arg attributedString]];
 #endif
+
 }
 
 -(void)setValue_:(id)value
@@ -89,7 +89,7 @@
 	return NO;
 }
 
--(UIView *)textWidgetView
+-(UIView<UITextInputTraits>*)textWidgetView
 {
 	return nil;
 }
@@ -148,21 +148,6 @@
 //These used to be blur/focus, but that's moved to the proxy only.
 //The reason for that is so checking the toolbar can use UIResponder methods.
 
--(BOOL)resignFirstResponder
-{
-	return [[self textWidgetView] resignFirstResponder];
-}
-
--(BOOL)becomeFirstResponder
-{
-	return [[self textWidgetView] becomeFirstResponder];
-}
-
--(BOOL)isFirstResponder
-{
-	return [textWidgetView isFirstResponder];
-}
-
 -(void)setPasswordMask_:(id)value
 {
 	[[self textWidgetView] setSecureTextEntry:[TiUtils boolValue:value]];
@@ -184,11 +169,11 @@
 {
 	TiUITextWidgetProxy * ourProxy = (TiUITextWidgetProxy *)[self proxy];
 
+	[[TiApp controller] didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
+
 	if ([ourProxy suppressFocusEvents]) {
 		return;
 	}
-
-	[[TiApp controller] didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
 
 	if ([ourProxy _hasListeners:@"focus"])
 	{
@@ -200,12 +185,12 @@
 {
 	TiUITextWidgetProxy * ourProxy = (TiUITextWidgetProxy *)[self proxy];
 
+	[[TiApp controller] didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
+
 	if ([ourProxy suppressFocusEvents]) {
 		return;
 	}
-
-	[[TiApp controller] didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
-
+	
 	if ([ourProxy _hasListeners:@"blur"])
 	{
 		[ourProxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"] propagate:NO];
@@ -228,7 +213,7 @@
             NSInteger endPos = [textView offsetFromPosition:beginning toPosition:end];
             NSInteger length = endPos - startPos;
             
-            return [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(startPos),@"location",NUMINT(length),@"length",nil];
+            return [NSDictionary dictionaryWithObjectsAndKeys:NUMINTEGER(startPos),@"location",NUMINTEGER(length),@"length",nil];
         }
     }
     return nil;
@@ -236,9 +221,9 @@
 
 -(void)setSelectionFrom:(id)start to:(id)end
 {
-    id<UITextInput> textView = (id<UITextInput>)[self textWidgetView];
+    UIView<UITextInput>* textView = (UIView<UITextInput>*)[self textWidgetView];
     if ([textView conformsToProtocol:@protocol(UITextInput)]) {
-        if([self becomeFirstResponder] || [self isFirstResponder]) {
+        if([textView becomeFirstResponder] || [textView isFirstResponder]) {
             UITextPosition *beginning = textView.beginningOfDocument;
             UITextPosition *startPos = [textView positionFromPosition:beginning offset:[TiUtils intValue: start]];
             UITextPosition *endPos = [textView positionFromPosition:beginning offset:[TiUtils intValue: end]];

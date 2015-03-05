@@ -4,7 +4,7 @@ summary: The ResultSet instance returned by <Titanium.Database.DB.execute>.
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
-platforms: [android, iphone, ipad, blackberry]
+platforms: [android, iphone, ipad]
 description: |
     A result set represents the results returned by a database query.
 
@@ -105,7 +105,7 @@ methods:
         since: "3.3.0"
         removed: "3.3.0"
         notes: Use the fieldCount property instead.
-    platforms: [iphone, ipad, blackberry]
+    platforms: [iphone, ipad]
     
   - name: fieldName
     summary: Returns the field name for the specified field index.
@@ -115,7 +115,7 @@ methods:
       - name: index
         summary: A zero-based column index for the field.
         type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: getFieldName
     summary: Returns the field name for the specified field index.
@@ -144,7 +144,7 @@ properties:
     summary: The number of columns in this result set.
     type: Number
     permission: read-only
-    platforms: [android, blackberry, iphone, ipad]
+    platforms: [android,  iphone, ipad]
     since: {iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: rowCount

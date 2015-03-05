@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -237,15 +237,8 @@
     int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"] def:[[[TiApp app] controller] defaultStatusBarStyle]];
     switch (theStyle){
         case UIStatusBarStyleDefault:
-            barStyle = UIStatusBarStyleDefault;
-            break;
-        case UIStatusBarStyleBlackOpaque:
-        case UIStatusBarStyleBlackTranslucent: //This will also catch UIStatusBarStyleLightContent
-            if ([TiUtils isIOS7OrGreater]) {
-                barStyle = 1;//UIStatusBarStyleLightContent;
-            } else {
-                barStyle = theStyle;
-            }
+        case UIStatusBarStyleLightContent:
+            barStyle = theStyle;
             break;
         default:
             barStyle = UIStatusBarStyleDefault;
@@ -272,15 +265,8 @@
     int theStyle = [TiUtils intValue:style def:[[[TiApp app] controller] defaultStatusBarStyle]];
     switch (theStyle){
         case UIStatusBarStyleDefault:
-            barStyle = UIStatusBarStyleDefault;
-            break;
-        case UIStatusBarStyleBlackOpaque:
-        case UIStatusBarStyleBlackTranslucent: //This will also catch UIStatusBarStyleLightContent
-            if ([TiUtils isIOS7OrGreater]) {
-                barStyle = 1;//UIStatusBarStyleLightContent;
-            } else {
-                barStyle = theStyle;
-            }
+        case UIStatusBarStyleLightContent:
+            barStyle = theStyle;
             break;
         default:
             barStyle = UIStatusBarStyleDefault;
@@ -413,11 +399,9 @@
         UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
         [[self view] setAccessibilityElementsHidden:NO];
     }
-    if ([TiUtils isIOS7OrGreater]) {
-        TiThreadPerformOnMainThread(^{
-            [self forceNavBarFrame];
-        }, NO);
-    }
+    TiThreadPerformOnMainThread(^{
+        [self forceNavBarFrame];
+    }, NO);
 
 }
 
@@ -574,10 +558,47 @@
     return _supportedOrientations;
 }
 
+
+-(void)showNavBar:(NSArray*)args
+{
+    ENSURE_UI_THREAD(showNavBar,args);
+    [self replaceValue:[NSNumber numberWithBool:NO] forKey:@"navBarHidden" notification:NO];
+    if (controller!=nil)
+    {
+        id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
+        BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+        [[controller navigationController] setNavigationBarHidden:NO animated:animated];
+    }
+}
+
+-(void)hideNavBar:(NSArray*)args
+{
+    ENSURE_UI_THREAD(hideNavBar,args);
+    [self replaceValue:[NSNumber numberWithBool:YES] forKey:@"navBarHidden" notification:NO];
+    if (controller!=nil)
+    {
+        id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
+        BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+        [[controller navigationController] setNavigationBarHidden:YES animated:animated];
+        //TODO: need to fix height
+    }
+}
+
+
 #pragma mark - Appearance and Rotation Callbacks. For subclasses to override.
 //Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 -(void)viewWillAppear:(BOOL)animated
 {
+    id navBarHidden = [self valueForKey:@"navBarHidden"];
+    if (navBarHidden!=nil) {
+        id properties = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:NO] forKey:@"animated"]];
+        if ([TiUtils boolValue:navBarHidden]) {
+            [self hideNavBar:properties];
+        }
+        else {
+            [self showNavBar:properties];
+        }
+    }
     [self willShow];
 }
 -(void)viewWillDisappear:(BOOL)animated

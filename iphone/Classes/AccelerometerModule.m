@@ -11,40 +11,70 @@
 
 @implementation AccelerometerModule
 
+-(void)dealloc
+{
+    [self stopGeneratingEvents];
+    [super dealloc];
+}
+
 -(NSString*)apiName
 {
     return @"Ti.Accelerometer";
 }
 
+
+-(void)startGeneratingEvents
+{
+    if (_motionManager == nil) {
+        _motionManager = [[CMMotionManager alloc] init];
+        if (_motionManager.isAccelerometerAvailable) {
+            _motionQueue = [[NSOperationQueue alloc] init];
+            _motionManager.accelerometerUpdateInterval = 1.0/10.0;
+            oldTime = CFAbsoluteTimeGetCurrent();
+            [_motionManager startAccelerometerUpdatesToQueue:_motionQueue withHandler:^(CMAccelerometerData *accelerometerData, NSError *error){
+                if (error == nil) {
+                    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                                           NUMDOUBLE(accelerometerData.acceleration.x), @"x",
+                                           NUMDOUBLE(accelerometerData.acceleration.y), @"y",
+                                           NUMDOUBLE(accelerometerData.acceleration.z), @"z",
+                                           NUMLONGLONG((CFAbsoluteTimeGetCurrent() - oldTime)*1000),@"timestamp",
+                                           nil];
+                    [self fireEvent:@"update" withObject:event];
+                } else {
+                    DebugLog(@"Error in event - %@",[TiUtils messageFromError:error]);
+                }
+            }];
+            
+        } else {
+            DebugLog(@"Accelerometer is Unavailable on this device");
+            RELEASE_TO_NIL(_motionManager);
+        }
+    }
+}
+
+-(void)stopGeneratingEvents
+{
+    if (_motionManager != nil) {
+        [_motionManager stopAccelerometerUpdates];
+        RELEASE_TO_NIL_AUTORELEASE(_motionQueue);
+        RELEASE_TO_NIL_AUTORELEASE(_motionManager);
+    }
+}
+
 -(void)_listenerAdded:(NSString *)type count:(int)count
 {
-	if (count == 1 && [type isEqualToString:@"update"])
-	{
-		[[UIAccelerometer sharedAccelerometer] setDelegate:self];
-	}
+    if ( (count == 1) && [type isEqualToString:@"update"] ) {
+        [self startGeneratingEvents];
+    }
+	
 }
 
 -(void)_listenerRemoved:(NSString *)type count:(int)count
 {
-	if (count == 0 && [type isEqualToString:@"update"])
-	{
-		[[UIAccelerometer sharedAccelerometer] setDelegate:nil];
-	}
+    if ( (count == 0) && [type isEqualToString:@"update"] ) {
+        [self stopGeneratingEvents];
+    }
 }
-
-#pragma mark Accelerometer Delegate
-
-- (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration
-{
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-						   NUMFLOAT([acceleration x]), @"x",
-						   NUMFLOAT([acceleration y]), @"y",
-						   NUMFLOAT([acceleration z]), @"z",
-						   NUMLONGLONG([acceleration timestamp] * 1000), @"timestamp",
-						   nil];
-	[self fireEvent:@"update" withObject:event];
-}
-
 
 @end
 

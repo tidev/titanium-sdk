@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -21,17 +21,13 @@
 	UIView *right;
 	UIView *leftView;
 	UIView *rightView;
-	
-	BOOL becameResponder;
-    TiUIView * touchHandler;
+	TiUIView * touchHandler;
 }
 
 @property(nonatomic,readwrite,assign) CGFloat paddingLeft;
 @property(nonatomic,readwrite,assign) CGFloat paddingRight;
 @property(nonatomic,readwrite,assign) CGFloat leftButtonPadding;
 @property(nonatomic,readwrite,assign) CGFloat rightButtonPadding;
-
-@property(nonatomic,readonly) BOOL becameResponder;
 
 -(void)setTouchHandler:(TiUIView*)handler;
 
@@ -41,10 +37,6 @@
 {
 @private
 }
-
-#pragma mark Internal 
-
--(TiTextField*)textWidgetView;
 
 @end
 

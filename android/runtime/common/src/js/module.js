@@ -402,7 +402,7 @@ Module.prototype.resolveFilename = function (request) {
 	// could be located.
 	for (var i = 0, pathCount = paths.length; i < pathCount; ++i) {
 		var filename = path.resolve(paths[i], id) + '.js';
-		if (this.filenameExists(filename) || assets.fileExists(filename)) {
+		if (this.filenameExists(filename)) {
 			return [id, filename];
 		}
 	}

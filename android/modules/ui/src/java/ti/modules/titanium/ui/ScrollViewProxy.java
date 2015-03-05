@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
@@ -43,6 +44,10 @@ public class ScrollViewProxy extends TiViewProxy
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
+		KrollDict offset = new KrollDict();
+		offset.put(TiC.EVENT_PROPERTY_X, 0);
+		offset.put(TiC.EVENT_PROPERTY_Y, 0);
+		defaultValues.put(TiC.PROPERTY_CONTENT_OFFSET, offset);
 	}
 
 	public ScrollViewProxy(TiContext context)

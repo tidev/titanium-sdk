@@ -53,7 +53,7 @@ exports.bootstrap = function(Titanium) {
 		var handle = new PersistentHandle(this);
 
 		var self = this;
-		this.on("close", function(e) {
+		this.once("close", function(e) {
 			if (e._closeFromActivityForcedToDestroy) {
 				if (kroll.DBG) {
 					kroll.log(TAG, "Window is closed because the activity is forced to destroy by Android OS.");
@@ -175,7 +175,7 @@ exports.bootstrap = function(Titanium) {
 			moduleId = this.url;
 
 		// Return "resolvedURL" if it is a valid path.
-		if (parentModule.filenameExists(resolved) || assets.fileExists(resolved)) {
+		if (parentModule.filenameExists(resolved)) {
 			return resolved;
 
 		// Otherwise, try each possible path where the module's source file could be located.

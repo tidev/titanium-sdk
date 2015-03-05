@@ -213,7 +213,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 - (NSString *)titaniumInjection
 {
 	if (pageToken==nil) {
-		pageToken = [[NSString stringWithFormat:@"%d",[self hash]] retain];
+		pageToken = [[NSString stringWithFormat:@"%lu",(unsigned long)[self hash]] retain];
 		[(TiUIWebViewProxy*)self.proxy setPageToken:pageToken];
 	}
 	NSMutableString *html = [[[NSMutableString alloc] init] autorelease];

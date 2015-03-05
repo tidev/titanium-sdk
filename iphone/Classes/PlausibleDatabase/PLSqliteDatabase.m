@@ -132,7 +132,7 @@ NSString *PLSqliteException = @"PLSqliteException";
         [NSException raise: TI_PLSqliteException format: @"Attempted to open already-open SQLite database instance at '%@'. Called -[PLSqliteDatabase open] twice?", _path];
     
     /* Open the database */
-    err = sqlite3_open([_path fileSystemRepresentation], &_sqlite);
+    err = sqlite3_open_v2([_path fileSystemRepresentation], &_sqlite, SQLITE_OPEN_SHAREDCACHE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
     if (err != SQLITE_OK) {
         [self populateError: error 
               withErrorCode: PLDatabaseErrorFileNotFound 
@@ -278,7 +278,7 @@ NSString *PLSqliteException = @"PLSqliteException";
     /* Create the statement */
     stmt = [self prepareStatement: statement error: error closeAtCheckin: YES];
     if (stmt == nil)
-        return NO;
+        return NULL;
     
     /* Bind the arguments */
     [stmt bindParameters: [self arrayWithVaList: args count: [stmt parameterCount]]];
@@ -517,11 +517,6 @@ NSString *PLSqliteException = @"PLSqliteException";
     }
     
     return sqlite_stmt;
-}
-
-- (sqlite3 *) sqliteDB;
-{
-	return _sqlite;
 }
 
 @end

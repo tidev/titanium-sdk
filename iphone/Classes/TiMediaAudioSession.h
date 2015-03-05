@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,29 +12,13 @@ extern NSString * const kTiMediaAudioSessionRouteChange;
 extern NSString * const kTiMediaAudioSessionVolumeChange;
 extern NSString * const kTiMediaAudioSessionInputChange;
 
-typedef enum
-{
-	TiMediaAudioSessionInputHeadsetInOut,
-	TiMediaAudioSessionInputReceiverAndMicrophone,
-	TiMediaAudioSessionInputHeadphonesAndMicrophone,
-	TiMediaAudioSessionInputLineOut,
-	TiMediaAudioSessionInputSpeaker,
-	TiMediaAudioSessionInputHeadphones,
-	TiMediaAudioSessionInputMicrophoneBuiltin,
-	TiMediaAudioSessionInputMuted,
-	TiMediaAudioSessionInputUnavailable,
-	TiMediaAudioSessionInputUnknown
-}
-TiMediaAudioSessionInputType;
-
-
 @interface TiMediaAudioSession : NSObject {
 @private
 	NSInteger count;
 	NSLock *lock;
 }
 
-@property (readwrite, assign) UInt32 sessionMode;
+@property (readwrite, assign) NSString* sessionMode;
 
 +(TiMediaAudioSession*)sharedSession;
 
@@ -43,11 +27,12 @@ TiMediaAudioSessionInputType;
 -(BOOL)canRecord;
 -(BOOL)canPlayback;
 -(BOOL)isActive;
--(TiMediaAudioSessionInputType)inputType;
+-(NSDictionary*)currentRoute;
 -(CGFloat)volume;
 -(BOOL)isAudioPlaying;
 -(BOOL)hasInput;
 -(void)setRouteOverride:(UInt32)mode;
+
 @end
 
 #endif

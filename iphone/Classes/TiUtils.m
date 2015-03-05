@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -796,6 +796,16 @@ If the new path starts with / and the base url is app://..., we have to massage 
 	}
 
 	result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
+    
+    //TIMOB-18262
+    if (result && ([[result scheme] isEqualToString:@"file"])){
+        BOOL isDir = NO;
+        BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:[result path] isDirectory:&isDir];
+        
+        if (exists && !isDir) {
+            return [TiUtils checkFor2XImage:result];
+        }
+    }
 
 	//TODO: Make this less ugly.
 	if ([relativeString hasPrefix:@"/"])
@@ -1183,23 +1193,23 @@ If the new path starts with / and the base url is app://..., we have to massage 
 	return [[[TiScriptError alloc] initWithMessage:[value description] sourceURL:nil lineNo:0] autorelease];
 }
 
-+(UITextAlignment)textAlignmentValue:(id)alignment
++(NSTextAlignment)textAlignmentValue:(id)alignment
 {
-	UITextAlignment align = UITextAlignmentLeft;
+	NSTextAlignment align = NSTextAlignmentLeft;
 
 	if ([alignment isKindOfClass:[NSString class]])
 	{
 		if ([alignment isEqualToString:@"left"])
 		{
-			align = UITextAlignmentLeft;
+			align = NSTextAlignmentLeft;
 		}
 		else if ([alignment isEqualToString:@"center"])
 		{
-			align = UITextAlignmentCenter;
+			align = NSTextAlignmentCenter;
 		}
 		else if ([alignment isEqualToString:@"right"])
 		{
-			align = UITextAlignmentRight;
+			align = NSTextAlignmentRight;
 		}
 	}
 	else if ([alignment isKindOfClass:[NSNumber class]])
@@ -1359,7 +1369,9 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 		}
 		if ([appurlstr hasPrefix:@"/"])
 		{
+#ifndef __clang_analyzer__
 			leadingSlashRemoved = YES;
+#endif
 			appurlstr = [appurlstr substringFromIndex:1];
 		}
 #if TARGET_IPHONE_SIMULATOR
@@ -1461,40 +1473,61 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return result;
 }
 
-+(void)configureController:(id)controller withObject:(id)object
++(void)setVolume:(float)volume onObject:(id)theObject
 {
-    if ([self isIOS7OrGreater]) {
-        id edgesValue = nil;
-        id includeOpaque = nil;
-        id autoAdjust = nil;
-        if ([object isKindOfClass:[TiProxy class]]) {
-            edgesValue = [(TiProxy*)object valueForUndefinedKey:@"extendEdges"];
-            includeOpaque = [(TiProxy*)object valueForUndefinedKey:@"includeOpaqueBars"];
-            autoAdjust = [(TiProxy*)object valueForUndefinedKey:@"autoAdjustScrollViewInsets"];
-        } else if ([object isKindOfClass:[NSDictionary class]]){
-            edgesValue = [(NSDictionary*)object objectForKey:@"extendEdges"];
-            includeOpaque = [(NSDictionary*)object objectForKey:@"includeOpaqueBars"];
-            autoAdjust = [(NSDictionary*)object objectForKey:@"autoAdjustScrollViewInsets"];
-        } 
-        id<TiUIViewControllerIOS7Support> theController = controller;
-        
-        [theController setEdgesForExtendedLayout:[self extendedEdgesFromProp:edgesValue]];
-        [theController setExtendedLayoutIncludesOpaqueBars:[self boolValue:includeOpaque def:NO]];
-        [theController setAutomaticallyAdjustsScrollViewInsets:[self boolValue:autoAdjust def:NO]];
+    //Must be called on the main thread
+    if ([NSThread isMainThread]) {
+        if ([theObject respondsToSelector:@selector(setVolume:)]) {
+            [(id<VolumeSupport>)theObject setVolume:volume];
+        } else {
+            DebugLog(@"[WARN] The Object %@ does not respond to method -(void)setVolume:(float)volume",[theObject description]);
+        }
     }
 }
 
++(float)volumeFromObject:(id)theObject default:(float)def
+{
+    //Must be called on the main thread
+    float returnValue = def;
+    if ([NSThread isMainThread]) {
+        if ([theObject respondsToSelector:@selector(volume)]) {
+            returnValue = [(id<VolumeSupport>)theObject volume];
+        } else {
+            DebugLog(@"[WARN] The Object %@ does not respond to method -(float)volume",[theObject description]);
+        }
+    }
+    return returnValue;
+}
 
-+(CGRect)frameForController:(id)theController
++(void)configureController:(UIViewController*)controller withObject:(id)object
+{
+    id edgesValue = nil;
+    id includeOpaque = nil;
+    id autoAdjust = nil;
+    if ([object isKindOfClass:[TiProxy class]]) {
+        edgesValue = [(TiProxy*)object valueForUndefinedKey:@"extendEdges"];
+        includeOpaque = [(TiProxy*)object valueForUndefinedKey:@"includeOpaqueBars"];
+        autoAdjust = [(TiProxy*)object valueForUndefinedKey:@"autoAdjustScrollViewInsets"];
+    } else if ([object isKindOfClass:[NSDictionary class]]){
+        edgesValue = [(NSDictionary*)object objectForKey:@"extendEdges"];
+        includeOpaque = [(NSDictionary*)object objectForKey:@"includeOpaqueBars"];
+        autoAdjust = [(NSDictionary*)object objectForKey:@"autoAdjustScrollViewInsets"];
+    } 
+    
+    [controller setEdgesForExtendedLayout:[self extendedEdgesFromProp:edgesValue]];
+    [controller setExtendedLayoutIncludesOpaqueBars:[self boolValue:includeOpaque def:NO]];
+    [controller setAutomaticallyAdjustsScrollViewInsets:[self boolValue:autoAdjust def:NO]];
+}
+
+
++(CGRect)frameForController:(UIViewController*)theController
 {
     CGRect mainScreen = [[UIScreen mainScreen] bounds];
     CGRect rect = [[UIScreen mainScreen] applicationFrame];
-    if ([TiUtils isIOS7OrGreater]) {
-        NSUInteger edges = [(id<TiUIViewControllerIOS7Support>)theController edgesForExtendedLayout];
-        //Check if I cover status bar
-        if ( ((edges & 1/*UIRectEdgeTop*/) != 0) ){
-            return mainScreen;
-        }
+    NSUInteger edges = [theController edgesForExtendedLayout];
+    //Check if I cover status bar
+    if ( ((edges & UIRectEdgeTop) != 0) ){
+        return mainScreen;
     }
     return rect;
 }
@@ -1505,26 +1538,16 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     UIBarStyle barStyle = [self barStyleForColor:color];
     BOOL isTranslucent = [self barTranslucencyForColor:color];
 
-    BOOL isIOS7 = [self isIOS7OrGreater];
-
     UINavigationBar * navBar = [navController navigationBar];
     [navBar setBarStyle:barStyle];
     [navBar setTranslucent:isTranslucent];
-    if(isIOS7) {
-        [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
-    } else {
-        [navBar setTintColor:barColor];
-    }
+    [navBar setBarTintColor:barColor];
     
     //This should not be here but in setToolBar. But keeping in place. Clean in 3.2.0
     UIToolbar * toolBar = [navController toolbar];
     [toolBar setBarStyle:barStyle];
     [toolBar setTranslucent:isTranslucent];
-    if(isIOS7) {
-        [toolBar performSelector:@selector(setBarTintColor:) withObject:barColor];
-    } else {
-        [toolBar setTintColor:barColor];
-    }
+    [toolBar setBarTintColor:barColor];
 }
 
 +(NSString*)replaceString:(NSString *)string characters:(NSCharacterSet *)characterSet withString:(NSString *)replacementString
@@ -1548,15 +1571,15 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 {
     if (encodingMap == nil) {
         encodingMap = [[NSDictionary alloc] initWithObjectsAndKeys:
-                       NUMLONGLONG(NSASCIIStringEncoding),kTiASCIIEncoding,
-                       NUMLONGLONG(NSISOLatin1StringEncoding),kTiISOLatin1Encoding,
-                       NUMLONGLONG(NSUTF8StringEncoding),kTiUTF8Encoding,
-                       NUMLONGLONG(NSUTF16StringEncoding),kTiUTF16Encoding,
-                       NUMLONGLONG(NSUTF16BigEndianStringEncoding),kTiUTF16BEEncoding,
-                       NUMLONGLONG(NSUTF16LittleEndianStringEncoding),kTiUTF16LEEncoding,
+                       NUMUINT(NSASCIIStringEncoding),kTiASCIIEncoding,
+                       NUMUINT(NSISOLatin1StringEncoding),kTiISOLatin1Encoding,
+                       NUMUINT(NSUTF8StringEncoding),kTiUTF8Encoding,
+                       NUMUINT(NSUTF16StringEncoding),kTiUTF16Encoding,
+                       NUMUINT(NSUTF16BigEndianStringEncoding),kTiUTF16BEEncoding,
+                       NUMUINT(NSUTF16LittleEndianStringEncoding),kTiUTF16LEEncoding,
                        nil];
     }
-    return [[encodingMap valueForKey:type] longLongValue];
+    return [[encodingMap valueForKey:type] unsignedIntegerValue];
 }
 
 +(TiDataType)constantToType:(NSString *)type
@@ -1574,7 +1597,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return [[typeMap valueForKey:type] intValue];
 }
 
-+(size_t)dataSize:(TiDataType)type
++(int)dataSize:(TiDataType)type
 {
     if (sizeMap == nil) {
         sizeMap = [[NSDictionary alloc] initWithObjectsAndKeys:
@@ -1589,7 +1612,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return [[sizeMap objectForKey:NUMINT(type)] intValue];
 }
 
-+(int)encodeString:(NSString *)string toBuffer:(TiBuffer *)dest charset:(NSString*)charset offset:(int)destPosition sourceOffset:(int)srcPosition length:(int)srcLength
++(int)encodeString:(NSString *)string toBuffer:(TiBuffer *)dest charset:(NSString*)charset offset:(NSUInteger)destPosition sourceOffset:(NSUInteger)srcPosition length:(NSUInteger)srcLength
 {
     // TODO: Define standardized behavior.. but for now:
     // 1. Throw exception if destPosition extends past [dest length]
@@ -1609,16 +1632,16 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         return BAD_ENCODING;
     }
     
-    int length = MIN(srcLength, [string length] - srcPosition);
+    NSUInteger length = MIN(srcLength, [string length] - srcPosition);
     NSData* encodedString = [[string substringWithRange:NSMakeRange(srcPosition, length)] dataUsingEncoding:encoding];
-    int encodeLength = MIN([encodedString length], [[dest data] length] - destPosition);
+    NSUInteger encodeLength = MIN([encodedString length], [[dest data] length] - destPosition);
     
     void* bufferBytes = [[dest data] mutableBytes];
     const void* stringBytes = [encodedString bytes];
     
     memcpy(bufferBytes+destPosition, stringBytes, encodeLength);
     
-    return destPosition+encodeLength;
+    return (int)(destPosition+encodeLength);
 }
 
 +(int)encodeNumber:(NSNumber *)data toBuffer:(TiBuffer *)dest offset:(int)position type:(NSString *)type endianness:(CFByteOrder)byteOrder
@@ -1637,7 +1660,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     
     void* bytes = [[dest data] mutableBytes];
     TiDataType dataType = [TiUtils constantToType:type];
-    size_t size = [TiUtils dataSize:dataType];
+    int size = [TiUtils dataSize:dataType];
     
     if (size > MIN([[dest data] length], [[dest data] length] - position)) {
         return TOO_SMALL;
@@ -1755,7 +1778,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 +(NSString*)md5:(NSData*)data
 {
 	unsigned char result[CC_MD5_DIGEST_LENGTH];
-	CC_MD5([data bytes], [data length], result);
+	CC_MD5([data bytes], (CC_LONG)[data length], result);
 	return [self convertToHex:(unsigned char*)&result length:CC_MD5_DIGEST_LENGTH];    
 }
 
@@ -1845,11 +1868,11 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 	return result;
 }
 
-+ (NSMutableDictionary *)dictionaryWithCode:(int)code message:(NSString *)message
++ (NSMutableDictionary *)dictionaryWithCode:(NSInteger)code message:(NSString *)message
 {
 	return [NSMutableDictionary dictionaryWithObjectsAndKeys:
 			NUMBOOL(code==0), @"success",
-			NUMINT(code), @"code",
+			NUMLONG(code), @"code",
 			message,@"error", nil];
 }
 
@@ -1889,6 +1912,23 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         NSLog(@"Could not parse JSON. Error: %@", error);
     }
     return r;
+}
+
++(NSString*)currentArchitecture
+{
+#ifdef __arm64__
+    return @"arm64";
+#endif
+#ifdef __arm__
+    return @"armv7";
+#endif
+#ifdef __x86_64__
+    return @"x86_64";
+#endif
+#ifdef __i386__
+    return @"i386";
+#endif
+    return @"Unknown";
 }
 
 @end

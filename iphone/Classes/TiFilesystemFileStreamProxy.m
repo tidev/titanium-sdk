@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -116,7 +116,7 @@ if(fileHandle == nil) {\
 
 #pragma mark TiStreamInternal methods
 
--(int) readToBuffer:(TiBuffer *)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback {
+-(NSInteger) readToBuffer:(TiBuffer *)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback {
 	THROW_IF_HANDLE_NIL(CODELOCATION);
 	
 	if([[buffer data] length] == 0 && length != 0) {
@@ -125,13 +125,10 @@ if(fileHandle == nil) {\
 			NSMutableDictionary* event = [TiUtils dictionaryWithCode:-1 message:errorMessage];
 			[event setObject:NUMINT(0) forKey:@"bytesProcessed"];
 			[event setObject:errorMessage forKey:@"errorMessage"];
-			[event setObject:NUMINT(0) forKey:@"errorCode"];
+			[event setObject:NUMINT(-1) forKey:@"errorState"];
 			[self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
-		} else {
-			[self throwException:TiExceptionRangeError
-					   subreason:errorMessage
-						location:CODELOCATION];
 		}
+        return 0;
 	}
 	
 	NSData *fileData = nil;
@@ -142,12 +139,26 @@ if(fileHandle == nil) {\
 	
 	if([fileHandle offsetInFile] >= [self currentFileSize]) {
 		//out of bounds
+        if (callback != nil) {
+            NSMutableDictionary* event = [TiUtils dictionaryWithCode:-1 message:nil];
+            [event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
+            [event setObject:NUMINT(-1) forKey:@"errorState"];
+            [event setObject:@"" forKey:@"errorDescription"];
+            [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
+        }        
 		return -1;
 	}
 	
 	if(length == 0) {
 		[buffer setData:[NSMutableData dataWithData:[fileHandle availableData]]];
-		return [[buffer length] intValue];
+        if (callback != nil) {
+            NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+            [event setObject:[buffer length] forKey:@"bytesProcessed"];
+            [event setObject:NUMINT(0) forKey:@"errorState"];
+            [event setObject:@"" forKey:@"errorDescription"];
+            [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
+        }
+		return [[buffer length] integerValue];
 	}
 	
 	fileData = [fileHandle readDataOfLength:length];
@@ -165,13 +176,20 @@ if(fileHandle == nil) {\
 			VerboseLog(@"streamBytes: %@", [NSString stringWithCString:streamBytes encoding:NSUTF8StringEncoding]);
 			
 			memcpy(bufferBytes + offset, streamBytes, MIN([fileData length], length));	
-			return [fileData length];
+			
 		}
 	}
-	return -1;
+    if (callback != nil) {
+        NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+        [event setObject:NUMUINTEGER([fileData length]) forKey:@"bytesProcessed"];
+        [event setObject:NUMINT(0) forKey:@"errorState"];
+        [event setObject:@"" forKey:@"errorDescription"];
+        [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
+    }
+	return [fileData length];
 }
 
--(int) writeFromBuffer:(TiBuffer *)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback {
+-(NSInteger) writeFromBuffer:(TiBuffer *)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback {
 	THROW_IF_HANDLE_NIL(CODELOCATION);
 	
 	if (length == 0) {
@@ -192,10 +210,10 @@ if(fileHandle == nil) {\
 			if(callback != nil) {
 				NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
 				[event setObject:self forKey:@"source"];
-				[event setObject:NUMINT([slicedData length]) forKey:@"bytesProcessed"];
+				[event setObject:NUMUINTEGER([slicedData length]) forKey:@"bytesProcessed"];
 				[event setObject:NUMINT(0) forKey:@"errorState"];
 				[event setObject:@"" forKey:@"errorDescription"];
-				[self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
+				[self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
 			}
 		}
 		@catch (NSException * e) {
@@ -205,7 +223,7 @@ if(fileHandle == nil) {\
 				[event setObject:NUMINT(0) forKey:@"bytesProcessed"];
 				[event setObject:[e reason] forKey:@"errorDescription"];
 				[event setObject:NUMINT(-1) forKey:@"errorState"];
-                [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
+                [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
 			} else {
 				@throw e;
 			}
@@ -215,55 +233,59 @@ if(fileHandle == nil) {\
 	return -1;
 }
 
--(int) writeToStream:(id <TiStreamInternal>)output chunkSize:(int)size callback:(KrollCallback *)callback {
-	THROW_IF_HANDLE_NIL(CODELOCATION);
-	
-    NSUInteger totalBytes = 0;
-	NSUInteger position = [fileHandle offsetInFile];
-	NSUInteger remaining = [self currentFileSize] - position;
-	
-    while (position < [self currentFileSize]) {
-		VerboseLog(@"position is %d, size is %d", position, [self currentFileSize]);
-		
-        TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
-        NSRange subdataRange = NSMakeRange(position, MIN(size, [self currentFileSize] - position));
-        
-        int bytesWritten = 0;
-        @try {
-			NSData *data = [fileHandle readDataOfLength:subdataRange.length];
-			if([data length] > 0) {
-				void* bytes = malloc(subdataRange.length);
-				if (bytes == NULL) {
-					[self throwException:TiExceptionMemoryFailure subreason:@"Failed to allocate for stream" location:CODELOCATION];
-				}
+-(NSInteger) writeToStream:(id <TiStreamInternal>)output chunkSize:(NSInteger)size callback:(KrollCallback *)callback {
+    THROW_IF_HANDLE_NIL(CODELOCATION);
 
-				[data getBytes:bytes length:subdataRange.length];
-				[tempBuffer setData:[NSMutableData dataWithBytesNoCopy:bytes length:subdataRange.length freeWhenDone:YES]];
-				bytesWritten = [output writeFromBuffer:tempBuffer offset:0 length:subdataRange.length callback:nil];
-				
-				//call callback
-				if(callback != nil) {
-					NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
-					[event setObject:self forKey:@"fromStream"];
-					[event setObject:output forKey:@"toStream"];
-					[event setObject:NUMINT(bytesWritten) forKey:@"bytesProcessed"];
-					[event setObject:NUMINT(0) forKey:@"errorState"];
-					[event setObject:@"" forKey:@"errorDescription"];
-					[self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
-				}
-			} else {
-				//EOF
-				return totalBytes;
-			}
+    NSUInteger totalBytes = 0;
+    unsigned long long position = [fileHandle offsetInFile];
+    unsigned long long remaining = [self currentFileSize] - position;
+
+    while (position < [self currentFileSize]) {
+        VerboseLog(@"position is %d, size is %d", position, [self currentFileSize]);
+        
+        TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
+        unsigned long long readLengthMax = MIN(size, [self currentFileSize] - position);
+        if (readLengthMax > INT_MAX) {
+            readLengthMax = INT_MAX;
+        }
+        NSUInteger readLength = (NSUInteger) readLengthMax;
+        
+        NSUInteger bytesWritten = 0;
+        @try {
+            NSData *data = [fileHandle readDataOfLength:readLength];
+            if([data length] > 0) {
+                void* bytes = malloc(readLength);
+                if (bytes == NULL) {
+                    [self throwException:TiExceptionMemoryFailure subreason:@"Failed to allocate for stream" location:CODELOCATION];
+                }
+
+                [data getBytes:bytes length:readLength];
+                [tempBuffer setData:[NSMutableData dataWithBytesNoCopy:bytes length:readLength freeWhenDone:YES]];
+                bytesWritten = [output writeFromBuffer:tempBuffer offset:0 length:readLength callback:nil];
+                
+                //call callback
+                if(callback != nil) {
+                    NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+                    [event setObject:self forKey:@"fromStream"];
+                    [event setObject:output forKey:@"toStream"];
+                    [event setObject:NUMUINTEGER(bytesWritten) forKey:@"bytesProcessed"];
+                    [event setObject:NUMINT(0) forKey:@"errorState"];
+                    [event setObject:@"" forKey:@"errorDescription"];
+                    [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
+                }
+            } else {
+                //EOF
+                return totalBytes;
+            }
         }
         @catch (NSException* e) {
             if (callback != nil) {
-				NSMutableDictionary* event = [TiUtils dictionaryWithCode:-1 message:[e reason]];
-				[event setObject:self forKey:@"fromStream"];
-				[event setObject:output forKey:@"toStream"];
-				[event setObject:NUMINT(0) forKey:@"bytesProcessed"];
-				[event setObject:[e reason] forKey:@"errorDescription"];
-				[event setObject:NUMINT(-1) forKey:@"errorState"];
+                NSMutableDictionary* event = [TiUtils dictionaryWithCode:-1 message:[e reason]];
+                [event setObject:self forKey:@"fromStream"];
+                [event setObject:output forKey:@"toStream"];
+                [event setObject:NUMINT(0) forKey:@"bytesProcessed"];
+                [event setObject:[e reason] forKey:@"errorDescription"];
+                [event setObject:NUMINT(-1) forKey:@"errorState"];
                 [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
             }
             else {
@@ -275,72 +297,77 @@ if(fileHandle == nil) {\
         }
         
         totalBytes += bytesWritten;
-		remaining = [self currentFileSize] - [fileHandle offsetInFile];
-		if(remaining < size) {
-			remaining = size;
-		}
-	}	
-    
+        remaining = [self currentFileSize] - [fileHandle offsetInFile];
+        if(remaining < size) {
+            remaining = size;
+        }
+    }
+
     if (callback != nil) {
-		NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
-		[event setObject:self forKey:@"fromStream"];
-		[event setObject:output forKey:@"toStream"];
-		[event setObject:NUMINT(totalBytes) forKey:@"bytesProcessed"];
-		[event setObject:NUMINT(0) forKey:@"errorState"];
-		[event setObject:@"" forKey:@"errorDescription"];
+        NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+        [event setObject:self forKey:@"fromStream"];
+        [event setObject:output forKey:@"toStream"];
+        [event setObject:NUMUINTEGER(totalBytes) forKey:@"bytesProcessed"];
+        [event setObject:NUMINT(0) forKey:@"errorState"];
+        [event setObject:@"" forKey:@"errorDescription"];
         [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
     }
-    
+
     return totalBytes;
 }
 
--(void) pumpToCallback:(KrollCallback *)callback chunkSize:(int)maxSize asynch:(BOOL)asynch {
-	THROW_IF_HANDLE_NIL(CODELOCATION);
-	
-	if(callback == nil) {
-		[self throwException:TiExceptionNotEnoughArguments
-				   subreason:@"No callback provided to Ti.Stream.pump"
-					location:CODELOCATION];
-	}
-	unsigned long long remaining = [self currentFileSize] - [fileHandle offsetInFile];
-	unsigned long long totalBytes = 0;
-	
-	if(maxSize > remaining) {
-		//truncate to avoid buffer overruns
-		maxSize = remaining;
-	}
-	
-	while([fileHandle offsetInFile] < [self currentFileSize]) {
-		//create temporary buffer
-		NSData *chunkedData = [fileHandle readDataOfLength:MIN(maxSize, [self currentFileSize] - [fileHandle offsetInFile])];
-		TiBuffer *buffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
-		
-		[buffer setData:[NSMutableData dataWithData:chunkedData]];
-		
-		totalBytes += [chunkedData length];
-		
-		VerboseLog(@"pumping data: %@", buffer);
-		
-		//invoke callback, passing the chunked data
-		NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
-		[event setObject:self forKey:@"source"];
-		[event setObject:buffer forKey:@"buffer"];
-		[event setObject:NUMINT([chunkedData length]) forKey:@"bytesProcessed"];
-		[event setObject:NUMINT(totalBytes) forKey:@"totalBytesProcessed"];
-		[self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
-		
-		remaining = [self currentFileSize] - [fileHandle offsetInFile];
-		if(maxSize > remaining) {
-			maxSize = remaining;
-		}
-		
-		//are we going to hit EOF? if so, invoke the callback with a -1 bytesProcessed event dict
-		if(remaining == 0) {
-			[event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
-			[self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
-			break;
-		}
-	}
+-(void) pumpToCallback:(KrollCallback *)callback chunkSize:(NSInteger)maxSize asynch:(BOOL)asynch {
+    THROW_IF_HANDLE_NIL(CODELOCATION);
+
+    if(callback == nil) {
+        [self throwException:TiExceptionNotEnoughArguments
+                   subreason:@"No callback provided to Ti.Stream.pump"
+                    location:CODELOCATION];
+    }
+    unsigned long long remaining = [self currentFileSize] - [fileHandle offsetInFile];
+    unsigned long long totalBytes = 0;
+
+    if(maxSize > remaining) {
+        //truncate to avoid buffer overruns
+        maxSize = (int)remaining;
+    }
+
+    while([fileHandle offsetInFile] < [self currentFileSize]) {
+        //create temporary buffer
+        unsigned long long readLengthMax = MIN(maxSize, [self currentFileSize] - [fileHandle offsetInFile]);
+        if (readLengthMax > INT_MAX) {
+            readLengthMax = INT_MAX;
+        }
+        NSUInteger readLength = (NSUInteger) readLengthMax;
+        NSData *chunkedData = [fileHandle readDataOfLength:readLength];
+        TiBuffer *buffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
+        
+        [buffer setData:[NSMutableData dataWithData:chunkedData]];
+        
+        totalBytes += [chunkedData length];
+        
+        VerboseLog(@"pumping data: %@", buffer);
+        
+        //invoke callback, passing the chunked data
+        NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+        [event setObject:self forKey:@"source"];
+        [event setObject:buffer forKey:@"buffer"];
+        [event setObject:NUMUINTEGER([chunkedData length]) forKey:@"bytesProcessed"];
+        [event setObject:[NSNumber numberWithUnsignedLongLong:totalBytes] forKey:@"totalBytesProcessed"];
+        [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
+        
+        remaining = [self currentFileSize] - [fileHandle offsetInFile];
+        if(maxSize > remaining) {
+            maxSize = (int)remaining;
+        }
+        
+        //are we going to hit EOF? if so, invoke the callback with a -1 bytesProcessed event dict
+        if(remaining == 0) {
+            [event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
+            [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
+            break;
+        }
+    }
 }
 
 -(void) close:(id) args {

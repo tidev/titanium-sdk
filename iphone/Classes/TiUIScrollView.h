@@ -12,11 +12,6 @@
 @private
     TiUIView * touchHandler;
     UIView * touchedContentView;
-    //TIMOB-12988 Additions
-    BOOL delay;
-    BOOL ignore;
-    BOOL offsetAnimated;
-    CGPoint offsetPoint;
 }
 -(void)setTouchHandler:(TiUIView*)handler;
 @end
@@ -33,7 +28,6 @@
 	
 	BOOL needsHandleContentSize;
 	
-	id	lastFocusedView; //DOES NOT RETAIN.
 }
 
 @property(nonatomic,retain,readonly) TiUIScrollViewImpl * scrollView;

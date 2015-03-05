@@ -8,9 +8,8 @@
 #import "TiUtils.h"
 #import "TiBase.h"
 #import "TiApp.h"
-#import "TiDebugger.h"
 #import "TiExceptionHandler.h"
-
+#import "TiDebugger.h"
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 @implementation APIModule
@@ -22,7 +21,6 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 -(void)logMessage:(NSArray*)args severity:(NSString*)severity
 {
-    NSMutableString* message = [NSMutableString string];
     
     NSString* lcSeverity = [severity lowercaseString];
     DebuggerLogLevel level = OUT;
@@ -50,7 +48,8 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
         
         TiDebuggerLogMessage(level, [messages componentsJoinedByString:@" "]);
     }
-    else {
+    else
+    {
         if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
             if (level != ERR) {
                 return;

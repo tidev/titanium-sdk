@@ -70,7 +70,7 @@ methods:
       - name: props
         summary: A dictionary of properties to apply.
         type: Dictionary
-    since: {android: "3.0.0", blackberry: "3.3.0", iphone: "3.0.0", ipad: "3.0.0", mobileweb: "3.0.0"}
+    since: {android: "3.0.0",  iphone: "3.0.0", ipad: "3.0.0", mobileweb: "3.0.0"}
 
 properties:
 
@@ -94,5 +94,15 @@ properties:
       returns `Ti.UI.Button`.
     permission: read-only
     type: String
-    platforms: [android, blackberry, iphone, ipad, mobileweb, tizen]
+    platforms: [android,  iphone, ipad, mobileweb]
     since: "3.2.0"
+
+  - name: lifecycleContainer
+    summary: The Window or TabGroup whose Activity lifecycle should be triggered on the proxy.
+    description: |
+      If this property is set to a Window or TabGroup, then the corresponding Activity lifecycle event callbacks
+      will also be called on the proxy. Proxies that require the activity lifecycle will need this property set
+      to the appropriate containing Window or TabGroup.
+    type: [Titanium.UI.Window, Titanium.UI.TabGroup]
+    platforms: [android]
+    since: "3.6.0"

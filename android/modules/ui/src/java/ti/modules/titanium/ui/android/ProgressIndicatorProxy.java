@@ -24,7 +24,8 @@ import android.app.Activity;
 	TiC.PROPERTY_TYPE,
 	TiC.PROPERTY_MIN,
 	TiC.PROPERTY_MAX,
-	TiC.PROPERTY_CANCELABLE
+	TiC.PROPERTY_CANCELABLE,
+	TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE
 })
 @Kroll.dynamicApis(methods = {
 	"hide", "show"

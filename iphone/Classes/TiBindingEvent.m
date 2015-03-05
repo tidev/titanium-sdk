@@ -8,7 +8,7 @@
 
 #import "TiBindingEvent.h"
 #include <libkern/OSAtomic.h>
-#include "Ti.h"
+#include "JavaScriptCore/Ti.h"
 #import "KrollObject.h"
 #import "TiBindingTiValue.h"
 #import "TiBindingRunLoop.h"
@@ -48,7 +48,7 @@ struct TiBindingEventOpaque{
 	bool bubbles;	//Immutable
 	bool cancelBubble;	//Mutable, set to true
 	bool reportError;		//Immutable
-	int errorCode;			//Immutable
+	NSInteger errorCode;			//Immutable
 //Objective C version
 	TiProxy * targetProxy;	//Immutable in-event, mutable for bubbling.
 	TiProxy * sourceProxy;	//Immutable
@@ -125,7 +125,7 @@ TiProxy * TiBindingEventNextBubbleTargetProxy(TiBindingEvent event, TiProxy * cu
         //TIMOB-11691. Ensure that tableviewrowproxy modifies the event object before passing it along.
         if ([currentTarget respondsToSelector:@selector(createEventObject:)]) {
             NSDictionary *curPayload = event->payloadDictionary;
-            NSDictionary *modifiedPayload = [currentTarget createEventObject:curPayload];
+            NSDictionary *modifiedPayload = [currentTarget performSelector:@selector(createEventObject:) withObject:curPayload];
             [event->payloadDictionary release];
             event->payloadDictionary = [modifiedPayload copy];
         }
@@ -133,7 +133,7 @@ TiProxy * TiBindingEventNextBubbleTargetProxy(TiBindingEvent event, TiProxy * cu
 	return currentTarget;
 }
 
-void TiBindingEventSetErrorCode(TiBindingEvent event, int code)
+void TiBindingEventSetErrorCode(TiBindingEvent event, NSInteger code)
 {
 	event->reportError = true;
 	event->errorCode = code;

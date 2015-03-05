@@ -39,8 +39,8 @@ DEFAULT_SINCE = "0.8"
 apis = {} # raw conversion from yaml
 annotated_apis = {} # made friendlier for templates, etc.
 current_api = None
-ignore_dirs = (".git", ".svn", "CVS")
-ignore_files = ("template.yml",)
+ignore_dirs = (".git", ".svn", "CVS", "node_modules")
+ignore_files = ("template.yml")
 warn_inherited = False # see optparse option with same name in main()
 options = None
 
@@ -206,6 +206,7 @@ def process_yaml(source_dirs, options=None):
 						if one_type["name"] in apis:
 							log.warn("%s has a duplicate" % one_type["name"])
 						one_type["external"] = tag_external
+						one_type["filepath"] = filepath
 						apis[one_type["name"]] = one_type
 		tag_external = False
 

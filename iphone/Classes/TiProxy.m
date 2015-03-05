@@ -367,7 +367,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 		// proxies have the same page context.
 		executionContext = context_;
 		id a = nil;
-		int count = [args count];
+		NSUInteger count = [args count];
 		
 		if (count > 0 && [[args objectAtIndex:0] isKindOfClass:[NSDictionary class]])
 		{
@@ -945,13 +945,13 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 
 
 
--(void)fireEvent:(NSString*)type withObject:(id)obj errorCode:(int)code message:(NSString*)message;
+-(void)fireEvent:(NSString*)type withObject:(id)obj errorCode:(NSInteger)code message:(NSString*)message;
 {
 	[self fireEvent:type withObject:obj propagate:YES reportSuccess:YES errorCode:code message:message];
 }
 
 //What classes should actually use.
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message;
 {
 	if (![self _hasListeners:type])
 	{
@@ -1308,6 +1308,5 @@ DEFINE_EXCEPTIONS
 	return [[[proxyClass alloc] _initWithPageContext:context args:args
 			 ] autorelease];
 }
-
 
 @end

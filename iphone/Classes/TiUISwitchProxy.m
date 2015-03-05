@@ -10,6 +10,12 @@
 
 @implementation TiUISwitchProxy
 
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+    [self initializeProperty:@"enabled" defaultValue:NUMBOOL(YES)];
+    [super _initWithProperties:properties];
+}
+
 -(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
 	return suggestedResizing & ~(UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth);

@@ -46,7 +46,7 @@
 													8,
 													0,
 													colorSpace,
-													kCGImageAlphaPremultipliedLast);
+													kCGBitmapAlphaInfoMask & kCGImageAlphaPremultipliedLast);
 		
 		// Rotate and/or flip the image if required by its orientation
 		CGContextConcatCTM(bitmap, transform);
@@ -64,9 +64,9 @@
 		// Clean up
 		CGContextRelease(bitmap);
 		CGImageRelease(newImageRef);
-		CGColorSpaceRelease(colorSpace);
+
 	}
-    
+	CGColorSpaceRelease(colorSpace);    
     return newImage;
 }
 
@@ -208,7 +208,7 @@
             break;
             
         default:
-            [NSException raise:NSInvalidArgumentException format:@"Unsupported content mode: %d", contentMode];
+            [NSException raise:NSInvalidArgumentException format:@"Unsupported content mode: %ld", (long)contentMode];
     }
     
     CGSize newSize = CGSizeMake(image.size.width * ratio, image.size.height * ratio);

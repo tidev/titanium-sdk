@@ -9,6 +9,7 @@ package ti.modules.titanium.media;
 import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -23,9 +24,11 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.media.TiThumbnailRetriever.ThumbnailResponseHandler;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
@@ -72,7 +75,9 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	// Used only if TiVideoActivity is used (fullscreen == true)
 	private Handler videoActivityHandler;
 	private WeakReference<Activity> activityListeningTo = null;
-
+	
+	private TiThumbnailRetriever mTiThumbnailRetriever;
+	
 	public VideoPlayerProxy()
 	{
 		super();
@@ -159,6 +164,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		if (fullscreen) {
 			launchVideoActivity(options);
 		}
+		
 	}
 
 	private void launchVideoActivity(KrollDict options)
@@ -707,6 +713,51 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		if (wasPlaying) {
 			fireComplete(MediaModule.VIDEO_FINISH_REASON_USER_EXITED);
 		}
+		
+		// Cancel any Thumbnail requests and releasing TiMediaMetadataRetriver resource
+		cancelAllThumbnailImageRequests();
+		
+	}
+
+	@Kroll.method
+	public void requestThumbnailImagesAtTimes(Object[] times, Object option, KrollFunction callback)
+	{
+		if (this.hasProperty(TiC.PROPERTY_URL)) {
+			cancelAllThumbnailImageRequests();		
+			mTiThumbnailRetriever = new TiThumbnailRetriever();
+			mTiThumbnailRetriever.setUri(Uri.parse(this.resolveUrl(null, TiConvert.toString(this.getProperty(TiC.PROPERTY_URL)))));
+			mTiThumbnailRetriever.getBitmap(TiConvert.toIntArray(times), TiConvert.toInt(option), createThumbnailResponseHandler(callback));
+		}			
+	}
+	
+	@Kroll.method
+	public void cancelAllThumbnailImageRequests()
+	{
+		if(mTiThumbnailRetriever != null){
+			mTiThumbnailRetriever.cancelAnyRequestsAndRelease();
+			mTiThumbnailRetriever = null;
+		}
+	}
+	
+	/**
+	 * Convenience method for creating a response handler that is used when getting a 
+	 * bitmmap.
+	 * 
+	 * @param callback          Javascript function that the response handler will invoke 
+	 *                          once the bitmap response is ready
+	 * @return                  the bitmap response handler
+	 */
+	private ThumbnailResponseHandler createThumbnailResponseHandler(final KrollFunction callback)
+	{
+		final VideoPlayerProxy videoPlayerProxy = this;
+		return new ThumbnailResponseHandler() {
+			@Override
+			public void handleThumbnailResponse(KrollDict bitmapResponse)
+			{
+				bitmapResponse.put(TiC.EVENT_PROPERTY_SOURCE, videoPlayerProxy);
+				callback.call(getKrollObject(), new Object[] { bitmapResponse });
+			}
+		};
 	}
 
 	private TiUIVideoView getVideoView()
