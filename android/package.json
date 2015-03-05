@@ -23,7 +23,7 @@
 		"android sdk": ">=14 <=21",
 		"android build tools": ">=17 <21.x",
 		"android platform tools": ">=17 <=21.x",
-		"android tools": "<=23.x",
+		"android tools": "<=24.1.2",
 		"android ndk": ">=r8e <=r9",
 		"node": ">=0.10.0 <=0.12.x",
 		"java": "<=1.8.x"
