@@ -324,10 +324,16 @@ function exportAPIs (api, type) {
 					annotatedMember.properties = exportParams(member.properties, 'properties');
 					break;
 				case 'methods':
+
+					annotatedMember.isClassProperty = !api.__creatable;
+					annotatedMember.isInstanceProperty = api.__creatable;
 					if ('parameters' in member) annotatedMember.parameters = exportParams(member.parameters, 'parameters');
 					if ('returns' in member) annotatedMember.returns = exportReturns(member);
 					break;
 				case 'properties':
+					annotatedMember.isClassProperty = (member.name == member.name.toUpperCase()) ? true : !api.__creatable;
+					annotatedMember.isInstanceProperty = (member.name == member.name.toUpperCase()) ? false : api.__creatable;
+
 					annotatedMember.constants = exportConstants(member);
 					annotatedMember.defaultValue = exportDefault(member);
 					annotatedMember.permission = member.permission || 'read-write';
@@ -357,6 +363,7 @@ exports.exportData = function exportJsDuck (apis) {
 
 	for (className in apis) {
 		cls = apis[className];
+
 		annotatedClass.name = cls.name;
 		annotatedClass.extends = cls.extends || null;
 		annotatedClass.subtype = cls.__subtype;
@@ -366,11 +373,11 @@ exports.exportData = function exportJsDuck (apis) {
 		annotatedClass.osver = exportOSVer(cls);
 		annotatedClass.description = exportDescription(cls);
 		annotatedClass.examples = exportExamples(cls);
-
 		annotatedClass.events = exportAPIs(cls, 'events') || [];
 		annotatedClass.methods = exportAPIs(cls, 'methods') || [];
 		annotatedClass.properties = exportAPIs(cls, 'properties') || [];
 		annotatedClass.editurl = exportEditUrl(cls);
+
 		rv.push(annotatedClass);
 		cls = annotatedClass = {};
 	}
