@@ -101,6 +101,30 @@
     return NUMINT(-1);
 }
 
+#ifdef USE_TI_UILISTVIEW
+-(NSNumber*) ROW_ACTION_STYLE_DEFAULT
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMINTEGER(UITableViewRowActionStyleDefault);
+    }
+    return nil;
+}
+-(NSNumber*) ROW_ACTION_STYLE_DESTRUCTIVE
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMINTEGER(UITableViewRowActionStyleDestructive);
+    }
+    return nil;
+}
+-(NSNumber*) ROW_ACTION_STYLE_NORMAL
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMINTEGER(UITableViewRowActionStyleNormal);
+    }
+    return nil;
+}
+#endif
+
 //DEPRECATED, REPLACED IN UIMODULE FOR TI_UIATTRIBUTEDSTRING
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ATTRIBUTE_FONT, AttributeNameFont, @"UI.iOS.ATTRIBUTE_FONT", @"3.6.0", @"TI.UI.ATTRIBUTE_FONT");

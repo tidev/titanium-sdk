@@ -183,6 +183,15 @@ properties:
     platforms: [iphone, ipad]
     accessors: false
 
+  - name: editActions
+    summary: Specifies custom action items to be shown when when a list item is edited.
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
+    type: Array<RowActionType>
+    since: 4.1.0
+    osver: {ios: {min: "8.0"}}
+    platforms: [iphone, ipad]
+
   - name: searchableText
     summary: The text to match against when the [ListView](Titanium.UI.ListView) is performing a search.
     description: |
@@ -558,5 +567,40 @@ properties:
     description: |
         If there are properties set in the <ItemTemplate> (not the children view templates),
         the values set in the list data item override the template's properties.
+
+
+---
+name: RowActionType
+summary: Represents the custom edit action for a ListItem.
+description: |
+    By default when a listItem has [canEdit](Titanium.UI.ListItem.canEdit) set to true, a left swipe on the the row presens the 'Delete' button.
+    This object lets developers define custom titles for editing actions supported on the row. 
+    This object is used in conjunction with the [editActions](Titanium.UI.ListItem.editActions) property and 
+    [rowAction](Titanium.UI.ListView.rowAction) event. 
+platforms: [ipad, iphone]
+since: '4.1.0' 
+osver: {ios: {min: "8.0"}}
+properties:
+  - name: title
+    type: String
+    summary: The title of the row action.
+    optional: false
+
+  - name: style
+    type: Number
+    summary: The style of the row action.
+    description: |
+        Use one of <Titanium.UI.iOS.ROW_ACTION_STYLE_DEFAULT>, <Titanium.UI.iOS.ROW_ACTION_STYLE_DESTRUCTIVE> or
+        <Titanium.UI.iOS.ROW_ACTION_STYLE_NORMAL> 
+    optional: false
+
+  - name: color
+    type: String
+    summary: The background color of the row action.
+    description: |
+        By default the background color of the row action is defined by the style applied. Use this property to 
+        override the default background color of the row action.
+    optional: true
+
 
 
