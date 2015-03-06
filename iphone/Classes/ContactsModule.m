@@ -550,13 +550,15 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 		else {
 			//birthdays for iOS8 is multivalue and NOT kABPersonBirthdayProperty only in DELEGATE, but undocumented in Apple
 			if ([TiUtils isIOS8OrGreater] && property == 999) {
-				if (identifier == 0) {
+                CFTypeRef val = nil;
+                if (identifier == 0) {
 					propertyName = @"birthday";
+                    val = ABRecordCopyValue(person, kABPersonBirthdayProperty);
 				}
 				else {
 					propertyName = @"alternateBirthday";
+                    val = ABRecordCopyValue(person, kABPersonAlternateBirthdayProperty);
 				}
-				CFTypeRef val = ABRecordCopyValue(person, property);
 				if (val != NULL) {
 					value = [[(id)val retain] autorelease]; // Force toll-free bridging & autorelease
 					CFRelease(val);
