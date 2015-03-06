@@ -188,11 +188,9 @@ properties:
     description: |
         For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Array<RowActionType>
-    default: false
     since: 4.1.0
     osver: {ios: {min: "8.0"}}
     platforms: [iphone, ipad]
-    accessors: false
 
   - name: searchableText
     summary: The text to match against when the [ListView](Titanium.UI.ListView) is performing a search.
