@@ -6,8 +6,6 @@
   * [Studio 3.4.2](#studio)
   * [Titanium CLI 3.4.2](#cli) 
   * [Fixed Issues](#issues)
-  * [Known Issues](#known)
-    * [LiveView Fails with Android Emulator](#liveview) 
   * [API Changes](#apichanges)
 
 <a name="about"></a>
@@ -63,24 +61,6 @@ See the CLI [Changelog](https://github.com/appcelerator/titanium/blob/3_4_X/CHAN
   * [TIMOB-18629](https://jira.appcelerator.org/browse/TIMOB-18629) CLI: Warn if using an unsupported Node version
   * [TIMOB-18632](https://jira.appcelerator.org/browse/TIMOB-18632) CLI: Node 0.12: If the CLI is updated to 3.4.2 before the SDK is updated then you can't install the new SDK
   * [TIMOB-18635](https://jira.appcelerator.org/browse/TIMOB-18635) Android: Android SDK tools 24.1.2 is listed as not supported
-
-
-<a name="known"></a>
-
-## Known Issues
-
-<a name="liveview"></a>
-### LiveView Fails with Android Emulator
-
-Building to the Android Emulator with LiveView enabled fails
-([TIMOB-18600](https://jira.appcelerator.org/browse/TIMOB-18600)).
-
-To workaround this issue, disable LiveView by either:
-
-  * Running `liveview rm clihook` from a terminal
-  * Editing your `~/.titanium/config.json` file and remove the `com.appcelerator.titanium.liveview` entry from the hooks section to disable LiveView
-
-Please note that restarting Appcelerator Studio will re-add the hook.
 
 <a name="apichanges"></a>
 
