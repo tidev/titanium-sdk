@@ -40,8 +40,7 @@ public class TiConvert
 	public static final String ASSET_URL = "file:///android_asset/"; // class scope on URLUtil
 	public static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
-
-	// Bundle 
+	// Bundle
 	public static Object putInKrollDict(KrollDict d, String key, Object value)
 	{
 		if (value instanceof String || value instanceof Number || value instanceof Boolean || value instanceof Date) {
@@ -70,34 +69,31 @@ public class TiConvert
 
 				if (v != null && v instanceof String) {
 					String[] sa = new String[len];
-					for(int i = 0; i < len; i++) {
+					for (int i = 0; i < len; i++) {
 						sa[i] = (String) a[i];
 					}
 					d.put(key, sa);
 
 				} else if (v != null && v instanceof Double) {
 					double[] da = new double[len];
-					for(int i = 0; i < len; i++) {
+					for (int i = 0; i < len; i++) {
 						da[i] = (Double) a[i];
 					}
 					d.put(key, da);
 
-				} /*else if (v != null && v instanceof KrollObject) {
-					KrollProxy[] pa = new KrollProxy[len];
-					for(int i = 0; i < len; i++) {
-						KrollObject ko = (KrollObject) a[i];
-						pa[i] = (KrollProxy) ko.getProxy();
-					}
-					d.put(key, pa);
-
-				} */else {
+				} /*
+				 * else if (v != null && v instanceof KrollObject) { KrollProxy[] pa = new KrollProxy[len]; for(int i =
+				 * 0; i < len; i++) { KrollObject ko = (KrollObject) a[i]; pa[i] = (KrollProxy) ko.getProxy(); }
+				 * d.put(key, pa); }
+				 */else {
 
 					Object[] oa = new Object[len];
-					for(int i = 0; i < len; i++) {
+					for (int i = 0; i < len; i++) {
 						oa[i] = a[i];
 					}
 					d.put(key, oa);
-					//throw new IllegalArgumentException("Unsupported array property type " + v.getClass().getSimpleName());
+					// throw new IllegalArgumentException("Unsupported array property type " +
+					// v.getClass().getSimpleName());
 				}
 
 			} else {
@@ -112,27 +108,26 @@ public class TiConvert
 
 		} else if (value instanceof Map) {
 			KrollDict dict = new KrollDict();
-			Map<?,?> map = (Map<?,?>)value;
+			Map<?, ?> map = (Map<?, ?>) value;
 			Iterator<?> iter = map.keySet().iterator();
-			while(iter.hasNext())
-			{
-				String k = (String)iter.next();
-				putInKrollDict(dict,k,map.get(k));
+			while (iter.hasNext()) {
+				String k = (String) iter.next();
+				putInKrollDict(dict, k, map.get(k));
 			}
-			d.put(key,dict);
+			d.put(key, dict);
 
 		} else {
 			throw new IllegalArgumentException("Unsupported property type "
-				+ (value == null ? "null" : value.getClass().getName()));
+					+ (value == null ? "null" : value.getClass().getName()));
 		}
 
 		return value;
 	}
 
 	/**
-	 * This is a wrapper method. 
-	 * Refer to {@link TiColorHelper#parseColor(String)} for more details.
-	 * @param value  color value to convert.
+	 * This is a wrapper method. Refer to {@link TiColorHelper#parseColor(String)} for more details.
+	 * 
+	 * @param value color value to convert.
 	 * @return an int representation of the color.
 	 * @module.api
 	 */
@@ -142,8 +137,8 @@ public class TiConvert
 	}
 
 	/**
-	 * This is a wrapper method. 
-	 * Refer to {@link TiColorHelper#parseColor(String)} for more details.
+	 * This is a wrapper method. Refer to {@link TiColorHelper#parseColor(String)} for more details.
+	 * 
 	 * @param hashMap the HashMap contains the String representation of the color.
 	 * @param key the color lookup key.
 	 * @return an int representation of the color.
@@ -322,10 +317,10 @@ public class TiConvert
 	}
 
 	/**
-	 * Attempts to convert a value into a boolean, if value is a Boolean or String. Otherwise,
-	 * default value is returned
+	 * Attempts to convert a value into a boolean, if value is a Boolean or String. Otherwise, default value is returned
+	 * 
 	 * @param value the value to convert.
-	 * @param def  the default value.
+	 * @param def the default value.
 	 * @return a boolean value.
 	 * @module.api
 	 */
@@ -339,8 +334,8 @@ public class TiConvert
 	}
 
 	/**
-	 * Attempts to convert a value into a boolean, if value is a Boolean or String. Otherwise,
-	 * an exception is thrown.
+	 * Attempts to convert a value into a boolean, if value is a Boolean or String. Otherwise, an exception is thrown.
+	 * 
 	 * @param value the value to convert.
 	 * @return a boolean value.
 	 * @module.api
@@ -354,12 +349,14 @@ public class TiConvert
 			return Boolean.parseBoolean(((String) value));
 
 		} else {
-			throw new IllegalArgumentException("Unable to convert " + (value == null ? "null" : value.getClass().getName()) + " to boolean.");
+			throw new IllegalArgumentException("Unable to convert "
+					+ (value == null ? "null" : value.getClass().getName()) + " to boolean.");
 		}
 	}
 
 	/**
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toBoolean(Object)}.
+	 * 
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @param def the default value.
@@ -373,6 +370,7 @@ public class TiConvert
 
 	/**
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toBoolean(Object)}.
+	 * 
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return a boolean value.
@@ -384,8 +382,8 @@ public class TiConvert
 	}
 
 	/**
-	 * If value is a Double, Integer, Long or String, converts it to Integer. Otherwise
-	 * an exception is thrown.
+	 * If value is a Double, Integer, Long or String, converts it to Integer. Otherwise an exception is thrown.
+	 * 
 	 * @param value the value to convert.
 	 * @return an int value.
 	 * @module.api
@@ -410,8 +408,8 @@ public class TiConvert
 	}
 
 	/**
-	 * If value is a Double, Integer, Long or String, converts it to Integer. Otherwise
-	 * returns default value.
+	 * If value is a Double, Integer, Long or String, converts it to Integer. Otherwise returns default value.
+	 * 
 	 * @param value the value to convert.
 	 * @param def the default value to return
 	 * @return an int value.
@@ -428,6 +426,7 @@ public class TiConvert
 
 	/**
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toInt(Object)}.
+	 * 
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return an int value.
@@ -439,8 +438,8 @@ public class TiConvert
 	}
 
 	/**
-	 * If value is a Double, Integer or String, converts it to Float. Otherwise,
-	 * an exception is thrown.
+	 * If value is a Double, Integer or String, converts it to Float. Otherwise, an exception is thrown.
+	 * 
 	 * @param value the value to convert.
 	 * @return a float value.
 	 * @module.api
@@ -465,8 +464,8 @@ public class TiConvert
 	}
 
 	/**
-	 * If value is a Double, Integer, Long or String, converts it to Float. Otherwise
-	 * returns default value.
+	 * If value is a Double, Integer, Long or String, converts it to Float. Otherwise returns default value.
+	 * 
 	 * @param value the value to convert.
 	 * @param def the default value to return
 	 * @return an float value.
@@ -483,6 +482,7 @@ public class TiConvert
 
 	/**
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toFloat(Object)} for more details.
+	 * 
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return a float value.
@@ -495,6 +495,7 @@ public class TiConvert
 
 	/**
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toFloat(Object)} for more details.
+	 * 
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @param def the default value to return.
@@ -507,12 +508,12 @@ public class TiConvert
 	}
 
 	/**
-	 * If value is a Double, Integer, or String, converts it to Double. Otherwise,
-	 * an exception is thrown.
+	 * If value is a Double, Integer, or String, converts it to Double. Otherwise, an exception is thrown.
+	 * 
 	 * @param value the value to convert.
 	 * @return a double value.
 	 * @module.api
-	 */ 
+	 */
 	public static double toDouble(Object value)
 	{
 		if (value instanceof Double) {
@@ -525,12 +526,14 @@ public class TiConvert
 			return Double.parseDouble((String) value);
 
 		} else {
-			throw new NumberFormatException("Unable to convert " + (value == null ? "null" : value.getClass().getName()));
+			throw new NumberFormatException("Unable to convert "
+					+ (value == null ? "null" : value.getClass().getName()));
 		}
 	}
 
 	/**
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toDouble(Object)} for more details.
+	 * 
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return a double.
@@ -543,6 +546,7 @@ public class TiConvert
 
 	/**
 	 * Converts a vlaue into a String. If value is null, a default value is returned.
+	 * 
 	 * @param value the value to convert.
 	 * @param defaultString the default value.
 	 * @return a String.
@@ -560,6 +564,7 @@ public class TiConvert
 
 	/**
 	 * Converts a value into a String. If value is null, returns null.
+	 * 
 	 * @param value the value to convert.
 	 * @return String or null.
 	 * @module.api
@@ -571,6 +576,7 @@ public class TiConvert
 
 	/**
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toString(Object)} for more details.
+	 * 
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return String or null.
@@ -583,6 +589,7 @@ public class TiConvert
 
 	/**
 	 * Converts an Object array into a String array.
+	 * 
 	 * @param parts the object array to convert
 	 * @return a String array.
 	 * @module.api
@@ -601,11 +608,13 @@ public class TiConvert
 
 	/**
 	 * Converts an array of boxed objects into a primitive int array.
+	 * 
 	 * @param inArray array that contains Number objects
 	 * @return a primitive int array
 	 * @throws ClassCastException if a non-Integer object is found in the array.
 	 */
-	public static int[] toIntArray(Object[] inArray) {
+	public static int[] toIntArray(Object[] inArray)
+	{
 		int[] outArray = new int[inArray.length];
 		for (int i = 0; i < inArray.length; i++) {
 			outArray[i] = ((Number) inArray[i]).intValue();
@@ -614,8 +623,9 @@ public class TiConvert
 	}
 
 	/**
-	 * Returns a new TiDimension object given a String value and type.
-	 * Refer to {@link TiDimension#TiDimension(String, int)} for more details.
+	 * Returns a new TiDimension object given a String value and type. Refer to
+	 * {@link TiDimension#TiDimension(String, int)} for more details.
+	 * 
 	 * @param value the dimension value.
 	 * @param valueType the dimension type.
 	 * @return a TiDimension instance.
@@ -626,9 +636,10 @@ public class TiConvert
 	}
 
 	/**
-	 * Converts value to String, and if value is a Number, appends "px" to value, 
-	 * then creates and returns a new TiDimension object with the new value and valueType.
-	 * Refer to {@link TiDimension#TiDimension(String, int)} for more details.
+	 * Converts value to String, and if value is a Number, appends "px" to value, then creates and returns a new
+	 * TiDimension object with the new value and valueType. Refer to {@link TiDimension#TiDimension(String, int)} for
+	 * more details.
+	 * 
 	 * @param value the dimension value.
 	 * @param valueType the dimension type.
 	 * @return a TiDimension instance.
@@ -643,8 +654,11 @@ public class TiConvert
 		}
 		return null;
 	}
+
 	/**
-	 * Takes a value out of a hash table then attempts to convert it using {@link #toTiDimension(Object, int)} for more details.
+	 * Takes a value out of a hash table then attempts to convert it using {@link #toTiDimension(Object, int)} for more
+	 * details.
+	 * 
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @param valueType the dimension type.
@@ -656,8 +670,8 @@ public class TiConvert
 	}
 
 	/**
-	 * Returns a url string by appending the 
-	 * String representation of 'uri' to file:///android_asset/Resources/
+	 * Returns a url string by appending the String representation of 'uri' to file:///android_asset/Resources/
+	 * 
 	 * @param uri the uri, cannot be null.
 	 * @return url string.
 	 */
@@ -682,6 +696,7 @@ public class TiConvert
 
 	/**
 	 * Casts and returns value as TiBlob.
+	 * 
 	 * @param value must be of type TiBlob.
 	 * @return a TiBlob instance.
 	 * @module.api
@@ -692,8 +707,8 @@ public class TiConvert
 	}
 
 	/**
-	 * A wrapper function.
-	 * Refer to {@link #toBlob(Object)} for more details.
+	 * A wrapper function. Refer to {@link #toBlob(Object)} for more details.
+	 * 
 	 * @param object the hashmap.
 	 * @param property the lookup key.
 	 * @return a TiBlob instance.
@@ -706,6 +721,7 @@ public class TiConvert
 
 	/**
 	 * Converts a HashMap into a JSONObject and returns it. If data is null, null is returned.
+	 * 
 	 * @param data the HashMap used for conversion.
 	 * @return a JSONObject instance.
 	 */
@@ -732,7 +748,7 @@ public class TiConvert
 					json.put(key, (Boolean) o);
 
 				} else if (o instanceof Date) {
-					json.put(key, toJSONString((Date)o));
+					json.put(key, toJSONString((Date) o));
 
 				} else if (o instanceof HashMap) {
 					json.put(key, toJSON((HashMap) o));
@@ -754,7 +770,8 @@ public class TiConvert
 
 	/**
 	 * Converts an object array into JSONArray and returns it.
-	 * @param a  the object array to be converted.
+	 * 
+	 * @param a the object array to be converted.
 	 * @return a JSONArray instance.
 	 */
 	public static JSONArray toJSONArray(Object[] a)
@@ -767,9 +784,9 @@ public class TiConvert
 			}
 
 			// dead code, for now leave in place for debugging
-			/*if (o == null) {
-				ja.put(JSONObject.NULL);
-			} else */
+			/*
+			 * if (o == null) { ja.put(JSONObject.NULL); } else
+			 */
 			if (o instanceof Number) {
 				ja.put((Number) o);
 
@@ -780,7 +797,7 @@ public class TiConvert
 				ja.put((Boolean) o);
 
 			} else if (o instanceof Date) {
-				ja.put(toJSONString((Date)o));
+				ja.put(toJSONString((Date) o));
 
 			} else if (o instanceof HashMap) {
 				ja.put(toJSON((HashMap) o));
@@ -795,10 +812,10 @@ public class TiConvert
 
 		return ja;
 	}
-	
+
 	/**
-	 * If value is a  Date, formats and returns it. Otherwise,
-	 * return a String representation of value.
+	 * If value is a Date, formats and returns it. Otherwise, return a String representation of value.
+	 * 
 	 * @param value the value to convert.
 	 * @return a String.
 	 * @module.api
@@ -809,7 +826,7 @@ public class TiConvert
 			DateFormat df = new SimpleDateFormat(JSON_DATE_FORMAT);
 			df.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-			return df.format((Date)value);
+			return df.format((Date) value);
 
 		} else {
 			return toString(value);
@@ -818,6 +835,7 @@ public class TiConvert
 
 	/**
 	 * Converts value into Date object and returns it.
+	 * 
 	 * @param value the value to convert.
 	 * @return a Date instance.
 	 * @module.api
@@ -825,20 +843,20 @@ public class TiConvert
 	public static Date toDate(Object value)
 	{
 		if (value instanceof Date) {
-			return (Date)value;
+			return (Date) value;
 
 		} else if (value instanceof Number) {
-			long millis = ((Number)value).longValue();
+			long millis = ((Number) value).longValue();
 
 			return new Date(millis);
 		}
 
 		return null;
 	}
-	
+
 	/**
-	 * A wrapper function.
-	 * Refer to {@link #toDate(Object)} for more details.
+	 * A wrapper function. Refer to {@link #toDate(Object)} for more details.
+	 * 
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key
 	 * @return a Date instance.
@@ -849,5 +867,3 @@ public class TiConvert
 		return toDate(hashMap.get(key));
 	}
 }
-
-

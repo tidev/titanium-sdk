@@ -33,9 +33,8 @@ public class MenuItemProxy extends KrollProxy
 
 	private MenuItem item;
 
-
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
-	
+
 	private static final int MSG_GROUP_ID = MSG_FIRST_ID + 200;
 	private static final int MSG_ITEM_ID = MSG_FIRST_ID + 201;
 	private static final int MSG_ORDER = MSG_FIRST_ID + 202;
@@ -56,14 +55,17 @@ public class MenuItemProxy extends KrollProxy
 	private static final int MSG_ACTION_VIEW_EXPANDED = MSG_FIRST_ID + 217;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 1000;
-	
-	private final class CompatActionExpandListener implements MenuItemCompat.OnActionExpandListener {
-		public boolean onMenuItemActionCollapse(MenuItem item) {
+
+	private final class CompatActionExpandListener implements MenuItemCompat.OnActionExpandListener
+	{
+		public boolean onMenuItemActionCollapse(MenuItem item)
+		{
 			fireEvent(TiC.EVENT_COLLAPSE, null);
 			return true;
 		}
 
-		public boolean onMenuItemActionExpand(MenuItem item) {
+		public boolean onMenuItemActionExpand(MenuItem item)
+		{
 			fireEvent(TiC.EVENT_EXPAND, null);
 			return true;
 		}
@@ -73,16 +75,16 @@ public class MenuItemProxy extends KrollProxy
 	{
 		this.item = item;
 		MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
-		
+
 	}
 
 	@Override
-	public boolean handleMessage(Message msg) 
+	public boolean handleMessage(Message msg)
 	{
 		AsyncResult result = null;
 		result = (AsyncResult) msg.obj;
 
-		switch(msg.what) {
+		switch (msg.what) {
 			case MSG_GROUP_ID: {
 				result.setResult(item.getGroupId());
 				return true;
@@ -124,22 +126,22 @@ public class MenuItemProxy extends KrollProxy
 				return true;
 			}
 			case MSG_SET_CHECKED: {
-				item.setChecked((Boolean)result.getArg());
+				item.setChecked((Boolean) result.getArg());
 				result.setResult(this);
 				return true;
 			}
 			case MSG_SET_CHECKABLE: {
-				item.setCheckable((Boolean)result.getArg());
+				item.setCheckable((Boolean) result.getArg());
 				result.setResult(this);
 				return true;
 			}
 			case MSG_SET_ENABLED: {
-				item.setEnabled((Boolean)result.getArg());
+				item.setEnabled((Boolean) result.getArg());
 				result.setResult(this);
 				return true;
 			}
 			case MSG_SET_VISIBLE: {
-				item.setVisible((Boolean)result.getArg());
+				item.setVisible((Boolean) result.getArg());
 				result.setResult(this);
 				return true;
 			}
@@ -148,12 +150,12 @@ public class MenuItemProxy extends KrollProxy
 				return true;
 			}
 			case MSG_SET_TITLE: {
-				item.setTitle((String)result.getArg());
+				item.setTitle((String) result.getArg());
 				result.setResult(this);
 				return true;
 			}
 			case MSG_SET_TITLE_CONDENSED: {
-				item.setTitleCondensed((String)result.getArg());
+				item.setTitleCondensed((String) result.getArg());
 				result.setResult(this);
 				return true;
 			}
@@ -161,134 +163,162 @@ public class MenuItemProxy extends KrollProxy
 				result.setResult(isAppCompatActionViewExpanded());
 				return true;
 			}
-			
-			default : {
+
+			default: {
 				return super.handleMessage(msg);
 			}
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
-	public int getGroupId() {
+	@Kroll.method
+	@Kroll.getProperty
+	public int getGroupId()
+	{
 		if (TiApplication.isUIThread()) {
 			return item.getGroupId();
 		}
 
 		return (Integer) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GROUP_ID));
 	}
-	
-	@Kroll.method @Kroll.getProperty
-	public int getItemId() {
+
+	@Kroll.method
+	@Kroll.getProperty
+	public int getItemId()
+	{
 		if (TiApplication.isUIThread()) {
 			return item.getItemId();
 		}
 
 		return (Integer) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ITEM_ID));
 	}
-	
-	@Kroll.method @Kroll.getProperty
-	public int getOrder() {
+
+	@Kroll.method
+	@Kroll.getProperty
+	public int getOrder()
+	{
 		if (TiApplication.isUIThread()) {
 			return item.getOrder();
 		}
 
 		return (Integer) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ORDER));
 	}
-	
-	@Kroll.method @Kroll.getProperty
-	public String getTitle() {
+
+	@Kroll.method
+	@Kroll.getProperty
+	public String getTitle()
+	{
 		if (TiApplication.isUIThread()) {
 			return (String) item.getTitle();
 		}
 
 		return (String) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TITLE));
 	}
-	
-	@Kroll.method @Kroll.getProperty
-	public String getTitleCondensed() {
+
+	@Kroll.method
+	@Kroll.getProperty
+	public String getTitleCondensed()
+	{
 		if (TiApplication.isUIThread()) {
 			return (String) item.getTitleCondensed();
 		}
 
 		return (String) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TITLE_CONDENSED));
 	}
-	
+
 	@Kroll.method
-	public boolean hasSubMenu() {
+	public boolean hasSubMenu()
+	{
 		if (TiApplication.isUIThread()) {
 			return item.hasSubMenu();
 		}
 
 		return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SUB_MENU));
 	}
-	
-	@Kroll.method @Kroll.getProperty
-	public boolean isChecked() {
+
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean isChecked()
+	{
 		if (TiApplication.isUIThread()) {
 			return item.isChecked();
 		}
 
 		return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CHECKED));
 	}
-	
-	@Kroll.method @Kroll.getProperty
-	public boolean isCheckable() {
+
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean isCheckable()
+	{
 		if (TiApplication.isUIThread()) {
 			return item.isCheckable();
 		}
 
 		return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CHECKABLE));
 	}
-	
-	@Kroll.method @Kroll.getProperty
-	public boolean isEnabled() {
+
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean isEnabled()
+	{
 		if (TiApplication.isUIThread()) {
 			return item.isEnabled();
 		}
 
 		return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ENABLED));
 	}
-	
-	@Kroll.method @Kroll.getProperty
-	public boolean isVisible() {
+
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean isVisible()
+	{
 		if (TiApplication.isUIThread()) {
 			return item.isVisible();
 		}
 
 		return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_VISIBLE));
 	}
-	
-	@Kroll.method @Kroll.setProperty
-	public MenuItemProxy setCheckable(boolean checkable) {
+
+	@Kroll.method
+	@Kroll.setProperty
+	public MenuItemProxy setCheckable(boolean checkable)
+	{
 		if (TiApplication.isUIThread()) {
 			item.setCheckable(checkable);
 			return this;
 		}
 
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_CHECKABLE), checkable);
+		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_CHECKABLE),
+				checkable);
 	}
-	
-	@Kroll.method @Kroll.setProperty
-	public MenuItemProxy setChecked(boolean checked) {
+
+	@Kroll.method
+	@Kroll.setProperty
+	public MenuItemProxy setChecked(boolean checked)
+	{
 		if (TiApplication.isUIThread()) {
 			item.setChecked(checked);
 			return this;
 		}
 
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_CHECKED), checked);
+		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_CHECKED),
+				checked);
 	}
-	
-	@Kroll.method @Kroll.setProperty
-	public MenuItemProxy setEnabled(boolean enabled) {
+
+	@Kroll.method
+	@Kroll.setProperty
+	public MenuItemProxy setEnabled(boolean enabled)
+	{
 		if (TiApplication.isUIThread()) {
 			item.setEnabled(enabled);
 			return this;
 		}
 
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ENABLED), enabled);
+		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ENABLED),
+				enabled);
 	}
-	
-	private MenuItemProxy handleSetIcon(Object icon) 
+
+	private MenuItemProxy handleSetIcon(Object icon)
 	{
 		if (icon != null) {
 			if (icon instanceof String) {
@@ -310,61 +340,77 @@ public class MenuItemProxy extends KrollProxy
 		}
 		return this;
 	}
-	@Kroll.method @Kroll.setProperty
-	public MenuItemProxy setIcon(Object icon) 
+
+	@Kroll.method
+	@Kroll.setProperty
+	public MenuItemProxy setIcon(Object icon)
 	{
 		if (TiApplication.isUIThread()) {
 			return handleSetIcon(icon);
 		}
 
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ICON), icon);	
+		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ICON), icon);
 	}
-	
-	@Kroll.method @Kroll.setProperty
-	public MenuItemProxy setTitle(String title) {
+
+	@Kroll.method
+	@Kroll.setProperty
+	public MenuItemProxy setTitle(String title)
+	{
 		if (TiApplication.isUIThread()) {
 			item.setTitle(title);
 			return this;
 		}
 
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_TITLE), title);
+		return (MenuItemProxy) TiMessenger
+				.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_TITLE), title);
 	}
-	
-	@Kroll.method @Kroll.setProperty
-	public MenuItemProxy setTitleCondensed(String title) {
+
+	@Kroll.method
+	@Kroll.setProperty
+	public MenuItemProxy setTitleCondensed(String title)
+	{
 		if (TiApplication.isUIThread()) {
 			item.setTitleCondensed(title);
 			return this;
 		}
 
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_TITLE_CONDENSED), title);
+		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(
+				getMainHandler().obtainMessage(MSG_SET_TITLE_CONDENSED), title);
 	}
-	
-	@Kroll.method @Kroll.setProperty
-	public MenuItemProxy setVisible(boolean visible) {
+
+	@Kroll.method
+	@Kroll.setProperty
+	public MenuItemProxy setVisible(boolean visible)
+	{
 		if (TiApplication.isUIThread()) {
 			item.setVisible(visible);
 			return this;
 		}
 
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_VISIBLE), visible);
+		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_VISIBLE),
+				visible);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	@Kroll.method
+	@Kroll.setProperty
 	public void setActionView(Object view)
 	{
 		if (view instanceof TiViewProxy) {
 			final View v = ((TiViewProxy) view).getOrCreateView().getNativeView();
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-				TiMessenger.postOnMain(new Runnable() {
-					public void run() {
+				TiMessenger.postOnMain(new Runnable()
+				{
+					public void run()
+					{
 						item.setActionView(v);
 					}
 				});
 
 			} else {
-				TiMessenger.postOnMain(new Runnable() {
-					public void run() {
+				TiMessenger.postOnMain(new Runnable()
+				{
+					public void run()
+					{
 						MenuItemCompat.setActionView(item, v);
 					}
 				});
@@ -374,18 +420,24 @@ public class MenuItemProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void setShowAsAction(final int flag) {
+	@Kroll.method
+	@Kroll.setProperty
+	public void setShowAsAction(final int flag)
+	{
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			TiMessenger.postOnMain(new Runnable() {
-				public void run() {
+			TiMessenger.postOnMain(new Runnable()
+			{
+				public void run()
+				{
 					item.setShowAsAction(flag);
 				}
 			});
 
 		} else {
-			TiMessenger.postOnMain(new Runnable() {
-				public void run() {
+			TiMessenger.postOnMain(new Runnable()
+			{
+				public void run()
+				{
 					MenuItemCompat.setShowAsAction(item, flag);
 				}
 			});
@@ -394,17 +446,22 @@ public class MenuItemProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void collapseActionView() {
+	public void collapseActionView()
+	{
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			TiMessenger.postOnMain(new Runnable() {
-				public void run() {
+			TiMessenger.postOnMain(new Runnable()
+			{
+				public void run()
+				{
 					item.collapseActionView();
 				}
 			});
 
 		} else {
-			TiMessenger.postOnMain(new Runnable() {
-				public void run() {
+			TiMessenger.postOnMain(new Runnable()
+			{
+				public void run()
+				{
 					MenuItemCompat.collapseActionView(item);
 				}
 			});
@@ -412,24 +469,30 @@ public class MenuItemProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void expandActionView() {
+	public void expandActionView()
+	{
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			TiMessenger.postOnMain(new Runnable() {
-				public void run() {
+			TiMessenger.postOnMain(new Runnable()
+			{
+				public void run()
+				{
 					item.expandActionView();
 				}
 			});
 
 		} else {
-			TiMessenger.postOnMain(new Runnable() {
-				public void run() {
+			TiMessenger.postOnMain(new Runnable()
+			{
+				public void run()
+				{
 					MenuItemCompat.expandActionView(item);
 				}
 			});
 		}
 	}
 
-	private boolean isAppCompatActionViewExpanded() {
+	private boolean isAppCompatActionViewExpanded()
+	{
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			return item.isActionViewExpanded();
 		} else {
@@ -437,14 +500,17 @@ public class MenuItemProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
-	public boolean isActionViewExpanded() {
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean isActionViewExpanded()
+	{
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			if (TiApplication.isUIThread()) {
 				isAppCompatActionViewExpanded();
 			}
 
-			return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ACTION_VIEW_EXPANDED));
+			return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(
+					MSG_ACTION_VIEW_EXPANDED));
 		}
 
 		// If this system does not support expandable action views, we will

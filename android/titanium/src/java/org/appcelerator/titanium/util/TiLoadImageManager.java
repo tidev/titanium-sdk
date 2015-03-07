@@ -20,8 +20,7 @@ import android.os.Message;
 import android.util.SparseArray;
 
 /**
- * Manages the asynchronous opening of InputStreams from URIs so that
- * the resources get put into our TiResponseCache.
+ * Manages the asynchronous opening of InputStreams from URIs so that the resources get put into our TiResponseCache.
  */
 public class TiLoadImageManager implements Handler.Callback
 {
@@ -69,7 +68,7 @@ public class TiLoadImageManager implements Handler.Callback
 			}
 			listenerList.add(new SoftReference<TiLoadImageListener>(listener));
 		}
-		
+
 		synchronized (loadingImageRefs) {
 			if (!loadingImageRefs.contains(hash)) {
 				loadingImageRefs.add(hash);
@@ -104,10 +103,10 @@ public class TiLoadImageManager implements Handler.Callback
 	{
 		switch (msg.what) {
 			case MSG_FIRE_LOAD_FINISHED:
-				handleLoadImageMessage(MSG_FIRE_LOAD_FINISHED, (Integer)msg.arg1, (Bitmap)msg.obj);
+				handleLoadImageMessage(MSG_FIRE_LOAD_FINISHED, (Integer) msg.arg1, (Bitmap) msg.obj);
 				return true;
 			case MSG_FIRE_LOAD_FAILED:
-				handleLoadImageMessage(MSG_FIRE_LOAD_FAILED, (Integer)msg.arg1, null);
+				handleLoadImageMessage(MSG_FIRE_LOAD_FAILED, (Integer) msg.arg1, null);
 				return true;
 		}
 		return false;
@@ -117,7 +116,7 @@ public class TiLoadImageManager implements Handler.Callback
 	{
 		protected TiDrawableReference imageref;
 
-		public LoadImageJob (TiDrawableReference imageref)
+		public LoadImageJob(TiDrawableReference imageref)
 		{
 			this.imageref = imageref;
 		}
@@ -127,7 +126,7 @@ public class TiLoadImageManager implements Handler.Callback
 			try {
 				Bitmap b = imageref.getBitmap(true);
 				synchronized (loadingImageRefs) {
-					loadingImageRefs.remove((Integer)imageref.hashCode());
+					loadingImageRefs.remove((Integer) imageref.hashCode());
 				}
 				Message msg = handler.obtainMessage(MSG_FIRE_LOAD_FINISHED);
 				msg.obj = b;

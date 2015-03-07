@@ -31,11 +31,10 @@ public class TiUrl
 	public static final String CURRENT_PATH = ".";
 	public static final String PARENT_PATH_WITH_SEPARATOR = "../";
 	public static final String CURRENT_PATH_WITH_SEPARATOR = "./";
-    
 
 	public String baseUrl;
 	public String url;
-	
+
 	public TiUrl(String url)
 	{
 		this(TiC.URL_APP_PREFIX, url);
@@ -52,7 +51,7 @@ public class TiUrl
 		return normalizeWindowUrl(baseUrl, url).url;
 	}
 
-	protected static String parseRelativeBaseUrl(String path, String baseUrl, boolean checkAppPrefix) 
+	protected static String parseRelativeBaseUrl(String path, String baseUrl, boolean checkAppPrefix)
 	{
 		String[] right = path.split(PATH_SEPARATOR);
 		String[] left = null;
@@ -62,7 +61,7 @@ public class TiUrl
 					left = new String[0];
 				} else {
 					int idx = baseUrl.indexOf(SCHEME_SUFFIX);
-					left = baseUrl.substring(idx+3).split(PATH_SEPARATOR);
+					left = baseUrl.substring(idx + 3).split(PATH_SEPARATOR);
 				}
 			} else {
 				String[] tmp = baseUrl.split(SCHEME_SUFFIX);
@@ -78,10 +77,10 @@ public class TiUrl
 
 		int rIndex = 0;
 		int lIndex = left.length;
-		while(right[rIndex].equals(PARENT_PATH)) {
+		while (right[rIndex].equals(PARENT_PATH)) {
 			lIndex--;
 			rIndex++;
-			if (rIndex > right.length-1) {
+			if (rIndex > right.length - 1) {
 				break;
 			}
 		}
@@ -102,13 +101,14 @@ public class TiUrl
 		return bUrl;
 	}
 
-	private static HashMap<String,TiUrl> proxyUrlCache = new HashMap<String,TiUrl>(5);
+	private static HashMap<String, TiUrl> proxyUrlCache = new HashMap<String, TiUrl>(5);
+
 	public static TiUrl createProxyUrl(String url)
 	{
 		if (proxyUrlCache.containsKey(url)) {
 			return proxyUrlCache.get(url);
 		}
-	
+
 		if (url == null) {
 			return new TiUrl(null);
 		}
@@ -121,14 +121,14 @@ public class TiUrl
 
 		String path = url.substring(lastSlash + 1);
 		TiUrl result = new TiUrl(baseUrl, path);
-		proxyUrlCache.put(url,result);
+		proxyUrlCache.put(url, result);
 		return result;
 	}
 
-	public static TiUrl normalizeWindowUrl(String url) 
+	public static TiUrl normalizeWindowUrl(String url)
 	{
 		int lastSlash = url.lastIndexOf(PATH_SEPARATOR);
-		String baseUrl = url.substring(0, lastSlash+1);
+		String baseUrl = url.substring(0, lastSlash + 1);
 		if (baseUrl.length() == 0) {
 			baseUrl = TiC.URL_APP_PREFIX;
 		}
@@ -158,7 +158,7 @@ public class TiUrl
 				}
 				int lastIndex = path.lastIndexOf(PATH_SEPARATOR);
 				if (lastIndex > 0) {
-					fname = path.substring(lastIndex+1);
+					fname = path.substring(lastIndex + 1);
 					path = path.substring(0, lastIndex);
 				} else {
 					fname = path;
@@ -203,7 +203,7 @@ public class TiUrl
 	{
 		return resolve(baseUrl, path, null);
 	}
-	
+
 	public static String resolve(String baseUrl, String path, String scheme)
 	{
 		if (!TiFileFactory.isLocalScheme(path)) {
@@ -277,7 +277,7 @@ public class TiUrl
 					// the url already has a scheme, so we ignore the
 					// baseUrl completely.
 					combined = url;
-				} else if (baseUrl.endsWith(PATH_SEPARATOR) && url.startsWith(PATH_SEPARATOR) 
+				} else if (baseUrl.endsWith(PATH_SEPARATOR) && url.startsWith(PATH_SEPARATOR)
 						&& !baseUrl.equals("file://")) {
 					if (baseUrl.length() == 1 && url.length() == 1) {
 						combined = PATH_SEPARATOR;
@@ -313,19 +313,19 @@ public class TiUrl
 			return url;
 		}
 	}
-	
-	public static Uri getCleanUri(String argString) 
+
+	public static Uri getCleanUri(String argString)
 	{
 		try {
 			if (argString == null) {
 				return null;
 			}
-			
+
 			Uri base = Uri.parse(argString);
-	
+
 			Uri.Builder builder = base.buildUpon();
 			builder.encodedQuery(Uri.encode(Uri.decode(base.getQuery()), "&="));
-			String encodedAuthority = Uri.encode(Uri.decode(base.getAuthority()),"/:@");
+			String encodedAuthority = Uri.encode(Uri.decode(base.getAuthority()), "/:@");
 			int firstAt = encodedAuthority.indexOf('@');
 			if (firstAt >= 0) {
 				int lastAt = encodedAuthority.lastIndexOf('@');
@@ -333,9 +333,10 @@ public class TiUrl
 					// We have a situation that might be like this:
 					// http://user@domain.com:password@api.mickey.com
 					// i.e., the user name is user@domain.com, and the host
-					// is api.mickey.com.  We need all at-signs prior to the final one (which
+					// is api.mickey.com. We need all at-signs prior to the final one (which
 					// indicates the host) to be encoded.
-					encodedAuthority = Uri.encode(encodedAuthority.substring(0, lastAt), "/:") + encodedAuthority.substring(lastAt);
+					encodedAuthority = Uri.encode(encodedAuthority.substring(0, lastAt), "/:")
+							+ encodedAuthority.substring(lastAt);
 				}
 			}
 			builder.encodedAuthority(encodedAuthority);

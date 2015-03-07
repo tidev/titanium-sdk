@@ -8,6 +8,7 @@ package org.appcelerator.titanium.util;
 
 /**
  * This class is deprecated, use org.appcelerator.kroll.common.Log instead
+ * 
  * @deprecated
  * @module.api
  */

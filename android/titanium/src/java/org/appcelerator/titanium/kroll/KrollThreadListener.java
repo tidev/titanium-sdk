@@ -12,5 +12,6 @@ package org.appcelerator.titanium.kroll;
 public interface KrollThreadListener
 {
 	public void threadStarted(KrollHandlerThread thread);
+
 	public void threadEnded(KrollHandlerThread thread);
 }

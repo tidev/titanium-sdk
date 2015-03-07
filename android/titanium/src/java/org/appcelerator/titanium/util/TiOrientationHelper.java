@@ -8,7 +8,6 @@ package org.appcelerator.titanium.util;
 
 import android.content.res.Configuration;
 
-
 public class TiOrientationHelper
 {
 	// public member
@@ -19,10 +18,9 @@ public class TiOrientationHelper
 	public static final int ORIENTATION_LANDSCAPE_REVERSE = 4;
 	public static final int ORIENTATION_SQUARE = 5;
 
-	public static int convertConfigToTiOrientationMode (int configOrientationMode)
+	public static int convertConfigToTiOrientationMode(int configOrientationMode)
 	{
-		switch (configOrientationMode)
-		{
+		switch (configOrientationMode) {
 			case Configuration.ORIENTATION_PORTRAIT:
 				return ORIENTATION_PORTRAIT;
 
@@ -37,4 +35,3 @@ public class TiOrientationHelper
 		}
 	}
 }
-

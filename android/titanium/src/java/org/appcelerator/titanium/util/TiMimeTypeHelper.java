@@ -20,12 +20,14 @@ public class TiMimeTypeHelper
 		EXTRA_MIMETYPES.put("html", MIME_TYPE_HTML);
 		EXTRA_MIMETYPES.put("htm", MIME_TYPE_HTML);
 	}
-	
-	public static String getMimeType(String url) {
+
+	public static String getMimeType(String url)
+	{
 		return getMimeType(url, "application/octet-stream");
 	}
-	
-	public static String getMimeTypeFromFileExtension(String extension, String defaultType) {
+
+	public static String getMimeTypeFromFileExtension(String extension, String defaultType)
+	{
 		MimeTypeMap mtm = MimeTypeMap.getSingleton();
 		String mimetype = defaultType;
 
@@ -43,7 +45,7 @@ public class TiMimeTypeHelper
 
 		return mimetype;
 	}
-	
+
 	public static String getMimeType(String url, String defaultType)
 	{
 		String extension = "";
@@ -53,7 +55,7 @@ public class TiMimeTypeHelper
 		}
 		return getMimeTypeFromFileExtension(extension, defaultType);
 	}
-	
+
 	public static String getFileExtensionFromMimeType(String mimeType, String defaultExtension)
 	{
 		String result = defaultExtension;
@@ -67,28 +69,24 @@ public class TiMimeTypeHelper
 				}
 			}
 		}
-		
+
 		return result;
 	}
-	
-	public static boolean isBinaryMimeType(String mimeType) {
+
+	public static boolean isBinaryMimeType(String mimeType)
+	{
 		if (mimeType != null) {
 			String parts[] = mimeType.split(";");
 			mimeType = parts[0];
-			
-			if (mimeType.startsWith("application/") && !mimeType.endsWith("xml"))
-			{
+
+			if (mimeType.startsWith("application/") && !mimeType.endsWith("xml")) {
 				return true;
-			}
-			else if (mimeType.startsWith("image/") && !mimeType.endsWith("xml"))
-			{
+			} else if (mimeType.startsWith("image/") && !mimeType.endsWith("xml")) {
 				return true;
-			}
-			else if (mimeType.startsWith("audio/") || mimeType.startsWith("video/")) 
-			{
+			} else if (mimeType.startsWith("audio/") || mimeType.startsWith("video/")) {
 				return true;
-			}
-			else return false;
+			} else
+				return false;
 		}
 		return false;
 	}

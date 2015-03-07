@@ -13,17 +13,21 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 /**
  * @deprecated
  */
-public class TiBindingHelper {
+public class TiBindingHelper
+{
 
-	public static void bindCurrentActivity(ActivityProxy currentActivityProxy) {
+	public static void bindCurrentActivity(ActivityProxy currentActivityProxy)
+	{
 	}
-	
-	public static void bindCurrentService(ServiceProxy currentService) {
+
+	public static void bindCurrentService(ServiceProxy currentService)
+	{
 	}
-	
-	public static void bindCurrentWindow(TiViewProxy currentWindow) {
+
+	public static void bindCurrentWindow(TiViewProxy currentWindow)
+	{
 	}
-	
+
 	public static void bindCurrentWindowAndActivity(TiViewProxy currentWindow, ActivityProxy currentActivityProxy)
 	{
 	}

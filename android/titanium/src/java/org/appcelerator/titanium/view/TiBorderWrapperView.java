@@ -27,8 +27,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 /**
- * This class is a wrapper for Titanium Views with borders. Any view that specifies a border
- * related property will have a border wrapper view to maintain its border.
+ * This class is a wrapper for Titanium Views with borders. Any view that specifies a border related property will have
+ * a border wrapper view to maintain its border.
  */
 public class TiBorderWrapperView extends FrameLayout
 {
@@ -70,7 +70,7 @@ public class TiBorderWrapperView extends FrameLayout
 				}
 				// Then we clip it to ensure anti-aliasing.
 				canvas.clipPath(innerPath);
-				
+
 				// Then we clear the clipped region so when the view draws, alpha doesn't stack if bgColor
 				// has an alpha that is less than 1. We then reset the color and alpha.
 				if (bgColor != Color.TRANSPARENT) {
@@ -102,7 +102,7 @@ public class TiBorderWrapperView extends FrameLayout
 			float outerRadii[] = new float[8];
 			Arrays.fill(outerRadii, radius);
 			borderPath = new Path();
-			borderPath.addRoundRect(outerRect, outerRadii, Direction.CW); 
+			borderPath.addRoundRect(outerRect, outerRadii, Direction.CW);
 			borderPath.setFillType(FillType.EVEN_ODD);
 			innerPath = new Path();
 			innerPath.setFillType(FillType.EVEN_ODD);
@@ -141,7 +141,7 @@ public class TiBorderWrapperView extends FrameLayout
 	{
 		this.color = color;
 	}
-	
+
 	public void setBgColor(int color)
 	{
 		this.bgColor = color;
@@ -156,30 +156,28 @@ public class TiBorderWrapperView extends FrameLayout
 	{
 		this.borderWidth = borderWidth;
 	}
-	
+
 	@Override
 	public boolean onSetAlpha(int alpha)
 	{
 		if (Build.VERSION.SDK_INT < 11) {
 			/*
-			 * This is an ugly hack. ViewHelper.setAlpha does not work on border when 
-			 * alpha < 1. So we are going to manage alpha animation for ourselves and our
-			 * child view manually. This needs to be researched and factored out.
-			 * 
-			 * TIMOB-17287
+			 * This is an ugly hack. ViewHelper.setAlpha does not work on border when alpha < 1. So we are going to
+			 * manage alpha animation for ourselves and our child view manually. This needs to be researched and
+			 * factored out. TIMOB-17287
 			 */
 			this.alpha = alpha;
-			float falpha = alpha/255.0f;
+			float falpha = alpha / 255.0f;
 			if (child == null) {
 				try {
 					child = getChildAt(0);
 				} catch (Throwable t) {
-					//Ignore this error.
+					// Ignore this error.
 					child = null;
 				}
 			}
 			if (child != null) {
-				//Set alpha of child view
+				// Set alpha of child view
 				ViewHelper.setAlpha(child, falpha);
 			}
 			return true;

@@ -19,6 +19,7 @@ import android.os.RemoteException;
 
 /**
  * This class is deprecated, please see {@link org.appcelerator.kroll.KrollRuntime} instead
+ * 
  * @deprecated
  */
 public class KrollContext implements Handler.Callback
@@ -33,7 +34,6 @@ public class KrollContext implements Handler.Callback
 	private static KrollContext _instance;
 
 	private Handler handler;
-
 
 	public static KrollContext getKrollContext()
 	{
@@ -61,11 +61,10 @@ public class KrollContext implements Handler.Callback
 
 	public boolean handleMessage(Message msg)
 	{
-		switch (msg.what)
-		{
-			case MSG_EVAL_STRING : {
+		switch (msg.what) {
+			case MSG_EVAL_STRING: {
 			}
-			case MSG_EVAL_FILE : {
+			case MSG_EVAL_FILE: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				String filename = msg.getData().getString(TiC.MSG_PROPERTY_FILENAME);
 				result.setResult(handleEvalFile(filename));
@@ -117,7 +116,7 @@ public class KrollContext implements Handler.Callback
 				responseMsg.what = messageId;
 				messenger.send(responseMsg);
 				Log.d(TAG, "Notifying caller that evalFile has completed", Log.DEBUG_MODE);
-			} catch(RemoteException e) {
+			} catch (RemoteException e) {
 				Log.w(TAG, "Failed to notify caller that eval completed");
 			}
 		}

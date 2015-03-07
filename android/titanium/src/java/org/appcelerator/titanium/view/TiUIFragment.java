@@ -62,7 +62,7 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 	{
 		return false;
 	}
-	
+
 	@Override
 	public void release()
 	{

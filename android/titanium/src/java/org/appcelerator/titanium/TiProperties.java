@@ -17,8 +17,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
- * API for accessing, storing, and modifying application properties that are 
- * exposed via Ti.App.Properties.
+ * API for accessing, storing, and modifying application properties that are exposed via Ti.App.Properties.
  */
 public class TiProperties
 {
@@ -28,14 +27,16 @@ public class TiProperties
 	SharedPreferences preferences;
 
 	/**
-	 * Instantiates the private SharedPreferences collection with the given name and context.
-	 * This means no other Android application will have access to they keys and values.
+	 * Instantiates the private SharedPreferences collection with the given name and context. This means no other
+	 * Android application will have access to they keys and values.
+	 * 
 	 * @param context the context used to create/retrieve preferences.
 	 * @param name the name used to create/retrieve preferences.
 	 * @param clear whether to clear all keys and values in the instantiated SharedPreferences collection.
 	 */
-	public TiProperties(Context context, String name, boolean clear) {
-		preferences = context.getSharedPreferences(name,Context.MODE_PRIVATE);
+	public TiProperties(Context context, String name, boolean clear)
+	{
+		preferences = context.getSharedPreferences(name, Context.MODE_PRIVATE);
 		if (clear) {
 			preferences.edit().clear().commit();
 		}
@@ -43,6 +44,7 @@ public class TiProperties
 
 	/**
 	 * Returns the mapping of a specified key, in String format. If key does not exist, returns the default value.
+	 * 
 	 * @param key the lookup key.
 	 * @param def the default value.
 	 * @return mapping of key, or default value.
@@ -89,6 +91,7 @@ public class TiProperties
 	/**
 	 * Maps the specified key with a String value. If value is null, existing key will be removed from preferences.
 	 * Otherwise, its value will be overwritten.
+	 * 
 	 * @param key the key to set.
 	 * @param value the value to set.
 	 * @module.api
@@ -96,7 +99,7 @@ public class TiProperties
 	public void setString(String key, String value)
 	{
 		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG,"setString called with key:"+key+", value:"+value);
+			Log.d(TAG, "setString called with key:" + key + ", value:" + value);
 		}
 
 		if (systemProperties != null && systemProperties.has(key)) {
@@ -110,13 +113,14 @@ public class TiProperties
 		if (value == null) {
 			editor.remove(key);
 		} else {
-			editor.putString(key,value);
+			editor.putString(key, value);
 		}
 		editor.commit();
 	}
 
 	/**
 	 * Returns the mapping of a specified key as an Integer. If key does not exist, returns the default value.
+	 * 
 	 * @param key the lookup key.
 	 * @param def the default value.
 	 * @return mapping of key, or default value.
@@ -133,15 +137,15 @@ public class TiProperties
 				try {
 					value = systemProperties.getInt(key);
 				} catch (JSONException e) {
-					value = preferences.getInt(key,def);
+					value = preferences.getInt(key, def);
 				}
 			} else {
-				value = preferences.getInt(key,def);
+				value = preferences.getInt(key, def);
 			}
 			return value;
-		} catch(ClassCastException cce) {
-			//Value stored as something other than int. Try and convert to int
-			String val = getString(key,"");
+		} catch (ClassCastException cce) {
+			// Value stored as something other than int. Try and convert to int
+			String val = getString(key, "");
 			try {
 				return Integer.parseInt(val);
 			} catch (NumberFormatException nfe) {
@@ -149,9 +153,10 @@ public class TiProperties
 			}
 		}
 	}
-	
+
 	/**
 	 * Maps the specified key with an int value. If key exists, its value will be overwritten.
+	 * 
 	 * @param key the key to set.
 	 * @param value the value to set.
 	 * @module.api
@@ -170,12 +175,13 @@ public class TiProperties
 		}
 
 		SharedPreferences.Editor editor = preferences.edit();
-		editor.putInt(key,value);
+		editor.putInt(key, value);
 		editor.commit();
 	}
-	
+
 	/**
 	 * Returns the mapping of a specified key as a Double. If key does not exist, returns the default value.
+	 * 
 	 * @param key the lookup key.
 	 * @param def the default value.
 	 * @return mapping of key, or default value.
@@ -200,8 +206,8 @@ public class TiProperties
 	}
 
 	/**
-	 * Maps the specified key with a double value. If key exists, its value will be
-	 * overwritten.
+	 * Maps the specified key with a double value. If key exists, its value will be overwritten.
+	 * 
 	 * @param key the key to set.
 	 * @param value the value to set.
 	 * @module.api
@@ -220,12 +226,13 @@ public class TiProperties
 		}
 
 		SharedPreferences.Editor editor = preferences.edit();
-		editor.putString(key,value + "");
+		editor.putString(key, value + "");
 		editor.commit();
 	}
-	
+
 	/**
 	 * Returns the mapping of a specified key, as a Boolean. If key does not exist, returns the default value.
+	 * 
 	 * @param key the lookup key.
 	 * @param def the default value.
 	 * @return mapping of key, or default value.
@@ -242,15 +249,15 @@ public class TiProperties
 				try {
 					value = systemProperties.getBoolean(key);
 				} catch (JSONException e) {
-					value = preferences.getBoolean(key,def);
+					value = preferences.getBoolean(key, def);
 				}
 			} else {
-				value = preferences.getBoolean(key,def);
+				value = preferences.getBoolean(key, def);
 			}
 			return value;
-		} catch(ClassCastException cce) {
-			//Value stored as something other than boolean. Try and convert to boolean
-			String val = getString(key,"");
+		} catch (ClassCastException cce) {
+			// Value stored as something other than boolean. Try and convert to boolean
+			String val = getString(key, "");
 			try {
 				return Boolean.valueOf(val).booleanValue();
 			} catch (Exception e) {
@@ -260,8 +267,8 @@ public class TiProperties
 	}
 
 	/**
-	 * Maps the specified key with a boolean value. If key exists, its value will be
-	 * overwritten.
+	 * Maps the specified key with a boolean value. If key exists, its value will be overwritten.
+	 * 
 	 * @param key the key to set.
 	 * @param value the value to set.
 	 * @module.api
@@ -280,12 +287,13 @@ public class TiProperties
 		}
 
 		SharedPreferences.Editor editor = preferences.edit();
-		editor.putBoolean(key,value);
+		editor.putBoolean(key, value);
 		editor.commit();
 	}
 
 	/**
 	 * Returns the mapping of a specified key as a String array. If key does not exist, returns the default value.
+	 * 
 	 * @param key the lookup key.
 	 * @param def the default value.
 	 * @return mapping of key, or default value.
@@ -297,21 +305,22 @@ public class TiProperties
 			Log.d(TAG, "getList called with key:" + key + ", def:" + def);
 		}
 
-		int length = preferences.getInt(key+".length", -1);
+		int length = preferences.getInt(key + ".length", -1);
 		if (length == -1) {
 			return def;
 		}
 
 		String list[] = new String[length];
 		for (int i = 0; i < length; i++) {
-			list[i] = preferences.getString(key+"."+i, "");
+			list[i] = preferences.getString(key + "." + i, "");
 		}
 		return list;
 	}
 
 	/**
-	 * Maps the specified key with String[] value. Also maps 'key.length' to 'value.length'.
-	 * If key exists, its value will be overwritten.
+	 * Maps the specified key with String[] value. Also maps 'key.length' to 'value.length'. If key exists, its value
+	 * will be overwritten.
+	 * 
 	 * @param key the key to set.
 	 * @param value the value to set.
 	 * @module.api
@@ -337,23 +346,27 @@ public class TiProperties
 	 * @return true if the list property exists in preferences
 	 * @module.api
 	 */
-	public boolean hasListProperty(String key) {
-		return hasProperty(key+".0");
+	public boolean hasListProperty(String key)
+	{
+		return hasProperty(key + ".0");
 	}
 
 	/**
 	 * Returns whether key exists in preferences.
+	 * 
 	 * @param key the lookup key.
 	 * @return true if key exists in preferences.
 	 * @module.api
 	 */
 	public boolean hasProperty(String key)
 	{
-		return systemProperties != null ? systemProperties.has(key) || preferences.contains(key) : preferences.contains(key);
+		return systemProperties != null ? systemProperties.has(key) || preferences.contains(key) : preferences
+				.contains(key);
 	}
 
 	/**
 	 * Returns an array of keys whose values are lists.
+	 * 
 	 * @return an array of keys.
 	 * @module.api
 	 */
@@ -382,6 +395,7 @@ public class TiProperties
 
 	/**
 	 * Removes the key from preferences if it exists.
+	 * 
 	 * @param key the key to remove.
 	 * @module.api
 	 */
@@ -401,7 +415,8 @@ public class TiProperties
 		}
 	}
 
-	public static void setSystemProperties(JSONObject prop) {
+	public static void setSystemProperties(JSONObject prop)
+	{
 		systemProperties = prop;
 	}
 }

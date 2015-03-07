@@ -9,12 +9,12 @@ package org.appcelerator.titanium;
 import android.content.Intent;
 import android.os.Bundle;
 
-
 public class TiActivity extends TiBaseActivity
 {
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState)
+	{
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
 		if (intent == null) {

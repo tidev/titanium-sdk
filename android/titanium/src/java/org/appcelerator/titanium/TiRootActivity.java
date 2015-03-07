@@ -17,13 +17,12 @@ import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.view.Window;
 
-public class TiRootActivity extends TiLaunchActivity
-	implements TiActivitySupport
+public class TiRootActivity extends TiLaunchActivity implements TiActivitySupport
 {
 	private static final String TAG = "TiRootActivity";
 	private boolean finishing = false;
 
-	private Drawable[] backgroundLayers = {null, null};
+	private Drawable[] backgroundLayers = { null, null };
 
 	public void setBackgroundColor(int color)
 	{

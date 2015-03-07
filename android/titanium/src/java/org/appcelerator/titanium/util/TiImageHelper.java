@@ -34,8 +34,7 @@ public class TiImageHelper
 	/**
 	 * Add an alpha channel to the given image if it does not already have one.
 	 * 
-	 * @param image
-	 *            the image to add an alpha channel to.
+	 * @param image the image to add an alpha channel to.
 	 * @return a copy of the given image with an alpha channel. If the image already have the alpha channel, return the
 	 *         image itself.
 	 */
@@ -53,12 +52,9 @@ public class TiImageHelper
 	/**
 	 * Create a copy of the given image with rounded corners and a transparent border around its edges.
 	 * 
-	 * @param image
-	 *            the image to add rounded corners to.
-	 * @param cornerRadius
-	 *            the radius of the rounded corners.
-	 * @param borderSize
-	 *            the size of the border to be added.
+	 * @param image the image to add rounded corners to.
+	 * @param cornerRadius the radius of the rounded corners.
+	 * @param borderSize the size of the border to be added.
 	 * @return a copy of the given image with rounded corners and a transparent border. If the cornerRadius <= 0 or
 	 *         borderSize < 0, return the image itself.
 	 */
@@ -74,8 +70,8 @@ public class TiImageHelper
 
 		int width = image.getWidth();
 		int height = image.getHeight();
-		Bitmap imageRoundedCorner = Bitmap.createBitmap(width + (int) (borderSize * 2), height + (int) (borderSize * 2),
-			Bitmap.Config.ARGB_8888);
+		Bitmap imageRoundedCorner = Bitmap.createBitmap(width + (int) (borderSize * 2),
+				height + (int) (borderSize * 2), Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(imageRoundedCorner);
 
 		Path clipPath = new Path();
@@ -104,10 +100,8 @@ public class TiImageHelper
 	/**
 	 * Add a transparent border to the given image around its edges.
 	 * 
-	 * @param image
-	 *            the image to add a transparent border to.
-	 * @param borderSize
-	 *            the size of the border to be added.
+	 * @param image the image to add a transparent border to.
+	 * @param borderSize the size of the border to be added.
 	 * @return a copy of the given image with a transparent border. If the borderSize <= 0, return the image itself.
 	 */
 	public static Bitmap imageWithTransparentBorder(Bitmap image, int borderSize)
@@ -127,32 +121,35 @@ public class TiImageHelper
 
 		int width = image.getWidth();
 		int height = image.getHeight();
-		Bitmap imageBorder = Bitmap.createBitmap(width + borderSize * 2, height + borderSize * 2, Bitmap.Config.ARGB_8888);
+		Bitmap imageBorder = Bitmap.createBitmap(width + borderSize * 2, height + borderSize * 2,
+				Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(imageBorder);
 		canvas.drawBitmap(imageWithAlpha(image), borderSize, borderSize, paint);
 		return imageBorder;
 	}
-	
+
 	private static final String FILE_PREFIX = "file://";
-	
+
 	/**
 	 * Find the orientation of the image.
+	 * 
 	 * @param file image file
 	 * @return return the orientation in degrees, -1 for error
 	 */
-	public static int getOrientation(String path) {
+	public static int getOrientation(String path)
+	{
 		int orientation = 0;
 		try {
 			if (path == null) {
 				Log.e(TAG,
-					"Path of image file could not determined. Could not create an exifInterface from an invalid path.");
+						"Path of image file could not determined. Could not create an exifInterface from an invalid path.");
 				return 0;
 			}
 			// Remove path prefix
 			if (path.startsWith(FILE_PREFIX)) {
 				path = path.replaceFirst(FILE_PREFIX, "");
 			}
-			
+
 			ExifInterface ei = new ExifInterface(path);
 			int orientationConst = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
 			switch (orientationConst) {
@@ -171,16 +168,18 @@ public class TiImageHelper
 		}
 		return orientation;
 	}
-	
+
 	/**
 	 * Rotate the image
+	 * 
 	 * @param bm source bitmap
 	 * @param rotation degree of rotation
 	 * @return return the rotated bitmap
 	 */
-	public static Bitmap rotateImage(Bitmap bm, int rotation) {
+	public static Bitmap rotateImage(Bitmap bm, int rotation)
+	{
 		Matrix matrix = new Matrix();
-	    matrix.postRotate(rotation);
-	    return Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
+		matrix.postRotate(rotation);
+		return Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
 	}
 }
