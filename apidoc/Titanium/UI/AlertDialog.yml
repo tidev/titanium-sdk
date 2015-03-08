@@ -178,6 +178,14 @@ properties:
         On iOS and Mobile Web, set to `-1` to disable the cancel option.
     type: Number
     default: undefined (Android), -1 (iOS, Mobile Web)
+
+  - name: destructive
+    summary: Index to define the destructive button.
+    platforms: [iphone, ipad]
+    description: |
+        Note that this property available on iOS SDK 8 or above. 
+    type: Number
+    default: -1
     
   - name: message
     summary: Dialog message.
