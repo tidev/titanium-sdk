@@ -114,6 +114,8 @@ static BOOL alertShowing = NO;
         }
         
         cancelIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
+        destructiveIndex = [TiUtils intValue:[self valueForKey:@"destructive"] def:-1];
+
         if (cancelIndex >= [buttonNames count]) {
             cancelIndex = -1;
         }
@@ -133,7 +135,7 @@ static BOOL alertShowing = NO;
                 NSString* btnName = [TiUtils stringValue:btn];
                 if (!IS_NULL_OR_NIL(btnName)) {
                     UIAlertAction* theAction = [UIAlertAction actionWithTitle:btnName
-                                                                        style:((curIndex == cancelIndex) ? UIAlertActionStyleCancel : UIAlertActionStyleDefault)
+                                                                        style:((curIndex == cancelIndex) ? UIAlertActionStyleCancel : (curIndex == destructiveIndex) ? UIAlertActionStyleDestructive :UIAlertActionStyleDefault)
                                                                       handler:^(UIAlertAction * action){
                                                                                 [self fireClickEventWithAction:action];
                                                                                 }];
