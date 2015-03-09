@@ -7,6 +7,18 @@ description: |
     as well as the other Filesystem submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
+examples: 
+  - title: Getting a directory for an application group (iOS)
+    example: |
+        This example writes a string to a text file in a shared directory
+
+            var suiteDir = Ti.Filesystem.directoryForSuite('group.appc.Sharing');
+            if (!suiteDir) {
+                logInApp('Suite Directory not found, check Entitlements.');
+                return;
+            }
+            var f = Ti.Filesystem.getFile(suiteDir,'emptyfile.txt');
+            f.write('The file is no longer empty!');
 methods:
   - name: createTempDirectory
     summary: Creates a temporary directory and returns a [File](Titanium.Filesystem.File) object representing the new directory.
@@ -80,6 +92,23 @@ methods:
     returns:
         type: Titanium.Filesystem.FileStream
     exclude-platforms: [blackberry]
+  - name: directoryForSuite
+    summary: Returns the path to the container directory associated with the specified security application group ID.
+    description: |
+        This is a writable directory used on iOS. Groups of sandboxed apps that need to share files 
+        and other information can request a container directory as part of their entitlements.
+        
+        When called with a valid group identifier, this method returns the location of that directory as a string.
+        Returns null if the group identifier is invalid; check the app's entitlements.
+    parameters:
+      - name: suiteName
+        summary: |
+            The name of the suite.
+        type: String
+    returns:
+        type: String
+    platforms: [iphone, ipad]
+    since: "4.0.0"
 properties:
   - name: MODE_APPEND
     summary: Constant for append mode for file operations.
