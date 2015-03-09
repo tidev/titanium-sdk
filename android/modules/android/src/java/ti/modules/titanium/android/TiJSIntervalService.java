@@ -21,6 +21,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
 import org.appcelerator.titanium.util.TiBindingHelper;
+import org.appcelerator.titanium.util.TiShadowHelper;
 
 import android.app.Service;
 import android.content.Intent;
@@ -28,6 +29,8 @@ import android.os.Bundle;
 
 public class TiJSIntervalService extends TiJSService
 {
+	protected TiShadowHelper tiShadowHelper;
+	protected Boolean isTishadow = tiShadowHelper.isTishadow();
 	private static final String TAG = "TiJSIntervalService";
 	private List<IntervalServiceRunner> runners = null;
 
@@ -72,10 +75,18 @@ public class TiJSIntervalService extends TiJSService
 		}
 
 		if (fullUrl.startsWith(TiC.URL_APP_PREFIX)) {
-			fullUrl = fullUrl.replaceAll("app:/", "Resources");
+			if(isTishadow){
+				fullUrl = fullUrl.replaceAll("app://", "");
+			}else{
+				fullUrl = fullUrl.replaceAll("app:/", "Resources");
+			}
 
 		} else if (fullUrl.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
 			fullUrl = fullUrl.replaceAll("file:///android_asset/", "");
+		}
+		
+		if(isTishadow){
+			fullUrl = tiShadowHelper.getDataDirectory()+fullUrl;
 		}
 
 		IntervalServiceRunner runner = new IntervalServiceRunner(this, proxy, interval, fullUrl);
@@ -152,7 +163,11 @@ public class TiJSIntervalService extends TiJSService
 			this.proxy = proxy;
 			this.interval = interval;
 			this.url = url;
-			this.source = KrollAssetHelper.readAsset(url);
+			if(isTishadow){
+				this.source = KrollAssetHelper.readFile(url);
+			}else{
+				this.source = KrollAssetHelper.readAsset(url);
+			}
 			this.serviceSimpleName = service.getClass().getSimpleName();
 		}
 
