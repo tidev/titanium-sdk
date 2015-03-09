@@ -170,6 +170,12 @@ description: |
           property to true, or by swiping accross an item whose `canEdit` property is set to true. When the user
           deletes the item, a [delete](Titanium.UI.ListView.delete) event is fired.
 
+        - [editActions](Titanium.UI.ListItem.editActions) - When [canEdit](Titanium.UI.ListItem.canEdit) is set to true, the default behavior
+          is to allow the item to be deleted. This behavior can be overridden with on iOS 8 and above by using the [editActions](Titanium.UI.ListItem.editActions)
+          property of the listItem. When this property is defined, the user is instead presented with the options as defined by the [title](RowActionType.title) property.
+          In this scenario the listview does not fire a [delete](Titanium.UI.ListView.delete) event. Instead the [rowAction](Titanium.UI.ListView.rowAction) event is fired
+          and the developer is free to update the listview as required. This is supported on Titanium SDK 4.1.0 and later on the iOS platform.
+
         - [canMove](Titanium.UI.ListItem.canMove) - When this item is set to true, it allows the item to be moved
           to a different location within the List View. The item can only be moved when the List View is put in 
           editing mode by explicitly setting the [editing](Titanium.UI.ListView.editing) property to true. When the 
@@ -350,6 +356,43 @@ events:
     platforms: [iphone, ipad]
     since: 3.2.0
     properties:
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+  - name: rowAction
+    summary: Fired when the user interacts with one of the custom row actions defined by <Titanium.UI.ListItem.editActions>.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+
+        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the List View state
+        before the user action.
+    platforms: [iphone, ipad]
+    since: 4.1.0
+    osver: {ios: {min: "8.0"}}
+    properties:
+      - name: action
+        summary: The [title](RowActionType.title) as defined in the row action object.
+        type: String
+
+      - name: section
+        summary: List section from which the item is deleted.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
       - name: bubbles
         summary: false. This event does not bubble.
         type: Boolean

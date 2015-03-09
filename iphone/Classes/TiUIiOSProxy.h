@@ -24,6 +24,12 @@
 @property (nonatomic,readonly) NSNumber* CLIP_MODE_ENABLED;
 @property (nonatomic,readonly) NSNumber* CLIP_MODE_DISABLED;
 
+#ifdef USE_TI_UILISTVIEW
+@property (nonatomic,readonly) NSNumber* ROW_ACTION_STYLE_DEFAULT;
+@property (nonatomic,readonly) NSNumber* ROW_ACTION_STYLE_DESTRUCTIVE;
+@property (nonatomic,readonly) NSNumber* ROW_ACTION_STYLE_NORMAL;
+#endif
+
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE;

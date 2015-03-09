@@ -76,13 +76,16 @@
 
 -(UIActivityIndicatorView*)indicatorView
 {
-	if (indicatorView==nil)
-	{
-		indicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:style];
-		[self setNeedsLayout];
-		[self addSubview:indicatorView];
-	}
-	return indicatorView;
+    if (indicatorView==nil) {
+        indicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:style];
+        //TIMOB-17572. When a cell is reused all animations are removed. That will hide the
+        //ActivityIndicator. Setting it to false ensures that visibility is controlled by the
+        //visible property of the ActivityIndicator (initialized to false)
+        [indicatorView setHidesWhenStopped:NO];
+        [self setNeedsLayout];
+        [self addSubview:indicatorView];
+    }
+    return indicatorView;
 }
 
 -(UILabel *)messageLabel
