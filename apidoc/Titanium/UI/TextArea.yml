@@ -187,6 +187,26 @@ properties:
     default: No hint text.
     platforms: [android, blackberry]
     
+  - name: hintTextColor
+    summary: Color of hint text that displays when field is empty.
+    platforms: [android]
+    since: 4.1.0
+    description: |
+        Hint text color in Android is determined by the theme of the application. By default, the
+        theme is `Theme.AppCompat` which is a Dark theme. When you create the background to be white,
+        the hint text color would also be white, hence not visible to the user. To change this, you can
+        edit the tiapp.xml file with another theme. Example as follows:
+
+            <android xmlns:android="http://schemas.android.com/apk/res/android">
+                <manifest>
+                    <application android:theme="@style/Theme.AppCompat.Light"/>
+                </manifest>
+            </android>
+
+        Another way to change the hint text color is to use this property and specify a color.
+    type: String
+    default: Default Android theme's hint text color.
+
   - name: handleLinks
     summary: Specifies if the text area should allow user interaction with the given URL in the given range of text.
     description: |
