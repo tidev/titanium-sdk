@@ -470,7 +470,7 @@ function validateKey (obj, syntax, currentKey, className) {
 			case 'Class' :
 				if ((err = validateClass(obj))) {
 					if (currentKey === 'extends' && standaloneFlag) {
-						console.warn('WARNING! Cannot validate parent class: %s'.yellow, obj);
+						console.warn('WARNING! Cannot validate class: %s'.yellow, obj);
 					} else {
 						errors[currentKey] = err;
 					}
