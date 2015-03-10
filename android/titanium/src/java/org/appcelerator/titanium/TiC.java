@@ -1343,6 +1343,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_HAS_LINK = "hasLink";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_HEADER = "header";
 	
 	/**
