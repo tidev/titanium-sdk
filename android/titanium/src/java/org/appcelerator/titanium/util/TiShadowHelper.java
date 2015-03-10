@@ -33,7 +33,7 @@ public class TiShadowHelper {
 	
 	public static String getDataDirectory()
 	{
-		String appName = tiApp.getAppInfo().getName();
+		String appName = tiApp.getAppInfo().getName().replaceAll(" ", "_");
 		String dataDirectory = tiFileFactory.getDataDirectory(true).toString();
 		String path = dataDirectory+"/"+appName+"/android/";
 		
