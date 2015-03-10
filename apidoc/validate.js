@@ -469,7 +469,11 @@ function validateKey (obj, syntax, currentKey, className) {
 				break;
 			case 'Class' :
 				if ((err = validateClass(obj))) {
-					errors[currentKey] = err;
+					if (currentKey === 'extends' && standaloneFlag) {
+						console.warn('WARNING! Cannot validate parent class: %s'.yellow, obj);
+					} else {
+						errors[currentKey] = err;
+					}
 				}
 				break;
 			case 'Constants' :
