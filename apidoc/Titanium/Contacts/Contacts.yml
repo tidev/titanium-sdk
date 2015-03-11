@@ -490,6 +490,8 @@ properties:
   summary: |
       Function to call when a property is selected. Must not be used with `selectedPerson` 
       property.
+      Note: If ringtone or texttone is selected, null values are returned, since these are unsupported
+      by Apple.
   platforms: [iphone, ipad]
   type: Callback<Object>
   optional: true
