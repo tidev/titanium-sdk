@@ -159,6 +159,10 @@ public class TiUIText extends TiUIView
 			tv.setHint(d.getString(TiC.PROPERTY_HINT_TEXT));
 		}
 
+		if (d.containsKey(TiC.PROPERTY_HINT_TEXT_COLOR)) {
+			tv.setHintTextColor(TiConvert.toColor(d, TiC.PROPERTY_HINT_TEXT_COLOR));
+		}
+
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
 			if (TiConvert.toBoolean(d, TiC.PROPERTY_ELLIPSIZE)) {
 				tv.setEllipsize(TruncateAt.END);
@@ -240,6 +244,8 @@ public class TiUIText extends TiUIView
 			tv.setTextColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
 			tv.setHint(TiConvert.toString(newValue));
+		} else if (key.equals(TiC.PROPERTY_HINT_TEXT_COLOR)) {
+			tv.setHintTextColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals(TiC.PROPERTY_ELLIPSIZE)) {
 			if (TiConvert.toBoolean(newValue)) {
 				tv.setEllipsize(TruncateAt.END);
