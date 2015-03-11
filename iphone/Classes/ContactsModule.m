@@ -23,6 +23,13 @@
 #define kABAuthorizationStatusAuthorized 3
 #endif
 
+#define appleUndocumentedBirthdayProperty 999
+#define appleUndocumentedToneProperty 16
+#define appleUndocumentedRingToneIdentifier -1
+#define appleUndocumentedRingVibrationIdentifier -101
+#define appleUndocumentedTextToneIdentifier -2
+#define appleUndocumentedTextVibrationIdentifier -102
+
 @implementation ContactsModule
 
 void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRef info,void *context)
@@ -537,7 +544,26 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 		NSString *propertyName = nil;
 		id value = [NSNull null];
 		id label = [NSNull null];
-		if (identifier == kABMultiValueInvalidIdentifier) {
+
+		//if statement to handle undocumented ring and text tone property from apple
+		//only implemented in this method, since apple doesn't want people fooling around with these
+		//null values are accompanied. Only inform app that user selected this property in the peoplePicker
+		if (property == appleUndocumentedToneProperty)
+		{
+			if (identifier == appleUndocumentedRingToneIdentifier) {
+				propertyName = @"ringTone";
+			}
+			if (identifier == appleUndocumentedRingVibrationIdentifier) {
+				propertyName = @"ringVibration";
+			}
+			if (identifier == appleUndocumentedTextToneIdentifier) {
+				propertyName = @"textTone";
+			}
+			if (identifier == appleUndocumentedTextVibrationIdentifier) {
+				propertyName = @"textVibration";
+			}
+		}
+		else if (identifier == kABMultiValueInvalidIdentifier) {
 			propertyName = [[[TiContactsPerson contactProperties] allKeysForObject:[NSNumber numberWithInt:property]] objectAtIndex:0];
 
 			// Contacts is poorly-designed enough that we should worry about receiving NULL values for properties which are actually assigned.
@@ -548,7 +574,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 			}
 		} else {
 			//birthdays for iOS8 is multivalue and NOT kABPersonBirthdayProperty only in DELEGATE, but undocumented in Apple
-			if ([TiUtils isIOS8OrGreater] && property == 999) {
+			if ([TiUtils isIOS8OrGreater] && property == appleUndocumentedBirthdayProperty) {
 				CFTypeRef val = nil;
 				if (identifier == 0) {
 					propertyName = @"birthday";
@@ -590,7 +616,6 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 				if (CFlabel != NULL) {
 					CFRelease(CFlabel);
 				}
-
 				CFRelease(multival);
 			}
 		}
