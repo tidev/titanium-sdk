@@ -545,24 +545,24 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 		id value = [NSNull null];
 		id label = [NSNull null];
 
-        //if statement to handle undocumented ring and text tone property from apple
-        //only implemented in this method, since apple doesn't want people fooling around with these
-        //null values are accompanied. Only inform app that user selected this property in the peoplePicker
-        if (property == appleUndocumentedToneProperty)
-        {
-            if (identifier == appleUndocumentedRingToneIdentifier) {
-                propertyName = @"ringTone";
-            }
-            if (identifier == appleUndocumentedRingVibrationIdentifier) {
-                propertyName = @"ringVibration";
-            }
-            if (identifier == appleUndocumentedTextToneIdentifier) {
-                propertyName = @"textTone";
-            }
-            if (identifier == appleUndocumentedTextVibrationIdentifier) {
-                propertyName = @"textVibration";
-            }
-        }
+		//if statement to handle undocumented ring and text tone property from apple
+		//only implemented in this method, since apple doesn't want people fooling around with these
+		//null values are accompanied. Only inform app that user selected this property in the peoplePicker
+		if (property == appleUndocumentedToneProperty)
+		{
+			if (identifier == appleUndocumentedRingToneIdentifier) {
+				propertyName = @"ringTone";
+			}
+			if (identifier == appleUndocumentedRingVibrationIdentifier) {
+				propertyName = @"ringVibration";
+			}
+			if (identifier == appleUndocumentedTextToneIdentifier) {
+				propertyName = @"textTone";
+			}
+			if (identifier == appleUndocumentedTextVibrationIdentifier) {
+				propertyName = @"textVibration";
+			}
+		}
 		else if (identifier == kABMultiValueInvalidIdentifier) {
 			propertyName = [[[TiContactsPerson contactProperties] allKeysForObject:[NSNumber numberWithInt:property]] objectAtIndex:0];
 
@@ -616,7 +616,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 				if (CFlabel != NULL) {
 					CFRelease(CFlabel);
 				}
-                CFRelease(multival);
+				CFRelease(multival);
 			}
 		}
 
