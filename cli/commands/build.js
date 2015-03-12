@@ -127,7 +127,7 @@ exports.config = function (logger, config, cli) {
 										cli.argv.type = 'app';
 
 									} else if (fs.existsSync(path.join(projectDir, 'timodule.xml'))) {
-										var timodule = cli.timodule = new tiappxml(path.join(projectDir, 'timodule.xml')),
+										var timodule = cli.tiapp = cli.timodule = new tiappxml(path.join(projectDir, 'timodule.xml')),
 											manifest = cli.manifest = ti.loadModuleManifest(logger, path.join(projectDir, 'manifest'));
 
 										timodule.properties || (timodule.properties = {});
