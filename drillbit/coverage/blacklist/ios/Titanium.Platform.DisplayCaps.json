@@ -1,7 +1,0 @@
-{
- "functions": [], 
- "properties": [
-  "isDevicePortrait", 
-  "isUIPortrait"
- ]
-}
