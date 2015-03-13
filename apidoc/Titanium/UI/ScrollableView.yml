@@ -24,7 +24,7 @@ excludes:
     events: [ 'click', 'longclick', 'pinch', 'swipe', 'touchend', 'touchmove' ]
     properties: [ 'enabled' ]
 extends: Titanium.UI.View
-platforms: [android, iphone, ipad, mobileweb, blackberry]
+platforms: [android, iphone, ipad, mobileweb]
 since: "0.8"
 
 methods:
@@ -40,7 +40,7 @@ methods:
         Sets the current page to the next consecutive page in <Titanium.UI.ScrollableView.views>.
     description: |
         Since Titanium Mobile Release 3.3.0, using this method to change current page animates the change on iOS and Android.
-    platforms: [android, blackberry, iphone, ipad]
+    platforms: [android,  iphone, ipad]
     since: {iphone: "3.3.0", ipad: "3.3.0"}
     
   - name: movePrevious
@@ -48,7 +48,7 @@ methods:
         Sets the current page to the previous consecutive page in <Titanium.UI.ScrollableView.views>.
     description: |
         Since Titanium Mobile Release 3.3.0, using this method to change current page animates the change on iOS and Android.
-    platforms: [android, blackberry, iphone, ipad]
+    platforms: [android,  iphone, ipad]
     since: {iphone: "3.3.0", ipad: "3.3.0"}
     
   - name: removeView
@@ -85,7 +85,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    exclude-platforms: [blackberry]
+
   - name: doubletap
     summary: Fired when the device detects a double tap against this page.
     platforms: [iphone, ipad]
@@ -186,7 +186,7 @@ events:
       - name: view
         summary: The currently visible view.
         type: Titanium.UI.View
-    exclude-platforms: [blackberry]
+
   - name: scrollEnd
     deprecated:
         since: "3.0.0"
@@ -214,7 +214,7 @@ events:
         the view, as opposed to it being the result of scrolling momentum.
     since: "2.1.0"
     platforms: [mobileweb]
-    exclude-platforms: [blackberry]
+
 
   - name: dragEnd
     deprecated:
@@ -230,7 +230,7 @@ events:
       - name: view
         summary: The currently visible view.
         type: Titanium.UI.View
-    exclude-platforms: [blackberry]
+
 
   - name: scrollend
     summary: Fired when the view has stopped moving completely.
@@ -243,7 +243,7 @@ events:
         summary: The currently visible view.
         type: Titanium.UI.View
     since: '3.0.0'
-    exclude-platforms: [blackberry]
+
 
   - name: dragstart
     summary: Fired when the scrollable region starts being dragged.
@@ -252,7 +252,7 @@ events:
         the view, as opposed to it being the result of scrolling momentum.
     platforms: [mobileweb]
     since: '3.0.0'
-    exclude-platforms: [blackberry]
+
 
   - name: dragend
     summary: Fired when the scrolling drag gesture on the view has been completed.
@@ -265,7 +265,7 @@ events:
       - name: view
         summary: The currently visible view.
         type: Titanium.UI.View
-    exclude-platforms: [blackberry]
+
 
 properties:
   - name: cacheSize
@@ -317,7 +317,7 @@ properties:
     description: Set to `true` to show paging control.
     type: Boolean
     default: false
-    exclude-platforms: [blackberry]
+
 
   - name: pagingControlTimeout
     summary: Number of milliseconds to wait before hiding the paging control.

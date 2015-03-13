@@ -142,22 +142,6 @@ description: |
     In addition to the accuracy setting, there are several Mobile Web-specific settings.
     See <Titanium.Geolocation.MobileWeb> for details.
 
-    #### Configuring Location Updates on BlackBerry
-
-    On the BlackBerry platform you must add the `access_location_services` and
-    `access_internet` permissions to the `tiapp.xml` of your Titanium project.
-    If the `blackberry` tag does not exist, you can simply create it, then add the `permissions`
-    tag and list the permissions that you need:
-
-        <blackberry>
-            <permissions>
-                <permission>access_location_services</permission>
-                <permission>access_internet</permission>
-            </permissions>
-        </blackberry>
-
-    Prior to BlackBerry 10.2.0, you also needed the `read_geolocation` permission.
-
     #### Using the Compass
 
     Both iOS and Android support a receiving heading updates from a hardware compass, if available.
@@ -675,7 +659,7 @@ properties:
         migrate to using `ACCURACY_HIGH`, `ACCURACY_LOW`, or Android manual mode.
     type: Number
     constants: Titanium.Geolocation.ACCURACY_*
-    exclude-platforms: [blackberry]
+
     
   - name: distanceFilter
     summary: The minimum change of position (in meters) before a 'location' event is fired. 
@@ -704,7 +688,7 @@ properties:
         A lower frequency value generally increases power consumption. 
         A value of 0 means that updates should be generated as quickly as possible.
     type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: hasCompass
     summary: Indicates whether the current device supports a compass.

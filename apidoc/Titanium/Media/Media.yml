@@ -134,18 +134,6 @@ methods:
         the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera)
         methods.
 
-        #### BlackBerry Platform Notes
-
-        To use this method on BlackBerry, you must include the `access_shared` and `use_camera`
-        permissions in the `tiapp.xml` file of your Titanium application:
-
-            <blackberry>
-                <permissions>
-                    <permission>access_shared</permission>
-                    <permission>use_camera</permission>
-                </permissions>
-            </blackberry>
-        
         #### iOS Platform Notes
 
         To suppress the default controls, set `showControls` and `autohide` to `false`.
@@ -153,7 +141,7 @@ methods:
         If the `showControls` option is `false`, you must control the camera explicitly, using
         the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera)
         methods.
-    platforms: [iphone, ipad, android, blackberry]
+    platforms: [iphone, ipad, android]
     parameters:
       - name: options
         summary: A dictionary of camera options as described in <CameraOptionsType>.
@@ -701,7 +689,7 @@ properties:
     summary: Constant for media device busy error.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: MEDIA_TYPE_PHOTO
     summary: Media type constant for photo media.
     type: String
@@ -710,7 +698,7 @@ properties:
     summary: Media type constant for video media.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: MUSIC_MEDIA_TYPE_ALL
     summary: Music library media containing any type of content.
     type: Number
@@ -860,12 +848,12 @@ properties:
     summary: Constant for media no camera error.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: NO_VIDEO
     summary: Constant for media no video error.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: QUALITY_HIGH
     summary: Media type constant for high-quality video recording. 
     description: |
@@ -893,7 +881,7 @@ properties:
     summary: Constant for unknown media error.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: VIDEO_CONTROL_DEFAULT
     summary: Constant for default video controls.
     description: |
@@ -902,7 +890,7 @@ properties:
         of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: VIDEO_CONTROL_EMBEDDED
     summary: Constant for video controls for an embedded view. 
     description: |
@@ -960,7 +948,7 @@ properties:
         of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: VIDEO_CONTROL_VOLUME_ONLY
     deprecated:
         since: "1.8.0"
@@ -1076,7 +1064,7 @@ properties:
         is filled with a black bar. The aspect ratio of the movie is preserved.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: VIDEO_SCALING_MODE_FILL
     summary: Video is scaled until both dimensions fit the screen exactly, stretching if necessary.
     description: |
@@ -1088,7 +1076,7 @@ properties:
     summary: Video scaling is disabled.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: VIDEO_SOURCE_TYPE_FILE
     summary: Video source type is a file. 
     description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>.

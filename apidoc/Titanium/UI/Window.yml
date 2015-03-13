@@ -235,7 +235,7 @@ events:
         if it was previously backgrounded.
         The application needs to monitor the <Titanium.App.resumed> event.
         See <Titanium.App> for more information on the iOS application lifecycle.
-    platforms: [android, blackberry, iphone, ipad, mobileweb]
+    platforms: [android,  iphone, ipad, mobileweb]
 
   - name: open
     summary: Fired when the window is opened.
@@ -452,7 +452,7 @@ properties:
         See the "Modal Windows" section for platform-specific information.
     type: Boolean
     default: false
-    exclude-platforms: [blackberry]
+
 
   - name: navBarHidden
     summary: Hides the nav bar (`true`) or shows the nav bar (`false`).
@@ -757,7 +757,7 @@ properties:
     summary: Key identifying a string from the locale file to use for the window title.
     description: Only one of `title` or `titleid` should be specified.
     type: String
-    exclude-platforms: [blackberry]
+
 
   - name: titlepromptid
     summary: Key identifying a string from the locale file to use for the window title prompt.
@@ -851,7 +851,7 @@ properties:
 
     type: String
     availability: creation
-    exclude-platforms: [blackberry]
+
 
   - name: windowFlags
     summary: Additional flags to set on the Activity Window.
