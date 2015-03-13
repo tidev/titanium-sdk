@@ -30,8 +30,6 @@ description: |
     not support this action. Parity between the two platforms cannot be achieved with this feature.
 extends: Titanium.UI.View
 since: "0.9"
-excludes:
-    properties: [ enabled ]
 
 methods:
   - name: scrollTo
