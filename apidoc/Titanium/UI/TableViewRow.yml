@@ -85,7 +85,6 @@ since: "0.9"
 excludes:
     events: [dblclick, doubletap, focus, longpress, pinch, singletap, touchmove, twofingertap]
     methods: [animate]
-    properties: [enabled]
 
 events:
   - name: click
