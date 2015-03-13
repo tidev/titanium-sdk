@@ -3656,7 +3656,7 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 
 				titaniumPrepHook(
 					path.join(this.platformPath, 'titanium_prep'),
-					[this.tiapp.id, this.buildAssetsDir],
+					[ this.tiapp.id, this.buildAssetsDir, this.tiapp.guid ],
 					{},
 					finished
 				);
