@@ -56,7 +56,6 @@ description: |
 extends: Titanium.UI.View
 excludes:
     events: ['focus', 'pinch', 'longclick', 'twofingertap']
-    properties: ['enabled']
 
 since: "0.9"
 examples: 

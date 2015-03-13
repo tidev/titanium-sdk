@@ -35,6 +35,10 @@ description: |
     Add key-value pairs of view properties and their values to the `properties` dictionary of the
     item template to set view properties of the list item.
 
+    **Note:** If possible, do not use `Ti.UI.SIZE` or non-static dimensions to set the
+    dimensions of view elements in list items.  Instead, try to use static dimensions. Scrolling in
+    the list view may be jerky if you use non-static dimensions.
+
     Add key-value pairs of event names and their callback functions (or array of callback functions
     for multiple callback bindings) to the `events` dictionary of the  item template to bind callbacks
     to events, which are bubbled from the subcomponents of the item.
