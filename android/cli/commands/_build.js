@@ -2741,7 +2741,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						return next();
 					}
 
-					if (process.platform != 'win32') {
+					if (process.platform !== 'win32' || !/jvm\.dll/i.test(err.msg)) {
 						fatal(err);
 					}
 
