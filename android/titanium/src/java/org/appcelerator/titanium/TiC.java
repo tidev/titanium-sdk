@@ -1343,6 +1343,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_HAS_LINK = "hasLink";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_HEADER = "header";
 	
 	/**
@@ -1389,7 +1394,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HINT_TEXT = "hintText";
-	
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HINT_TEXT_COLOR = "hintTextColor";
+
 	/**
 	 * @module.api
 	 */

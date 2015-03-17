@@ -105,10 +105,14 @@ exports.exportData = function exportHTML(apis) {
 				updateCoverage(rv.coverage, event.platforms);
 			}
 		}
-
 		// Update return object
 		rv.proxies.push(proxy);
-		rv.totalAPIs += api.properties.length + api.methods.length + api.events.length + 1;
+		// Skip platform specific proxies from api count
+		if (!className.contains('iOS') && !className.contains('iPhone') &&
+			!className.contains('iPad') && !className.contains('Android') &&
+			!className.contains('Tizen')) {
+			rv.totalAPIs += api.properties.length + api.methods.length + api.events.length + 1;
+		}
 
 		if (!pseudo) {
 			updateCoverage(rv.coverage, api.platforms);

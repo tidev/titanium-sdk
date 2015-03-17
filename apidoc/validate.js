@@ -469,7 +469,11 @@ function validateKey (obj, syntax, currentKey, className) {
 				break;
 			case 'Class' :
 				if ((err = validateClass(obj))) {
-					errors[currentKey] = err;
+					if (standaloneFlag) {
+						console.warn('WARNING! Cannot validate class: %s'.yellow, obj);
+					} else {
+						errors[currentKey] = err;
+					}
 				}
 				break;
 			case 'Constants' :

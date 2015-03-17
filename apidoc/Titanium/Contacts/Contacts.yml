@@ -17,6 +17,11 @@ description: |
     reload them from the `Contacts` module before modifying them.
 
     See the examples for sample use of the `reload` event.
+
+    If 'ABAddressBookErrorDomain error 0' occurs, it implies that you are not allowed to add or edit 
+    certain fields. Check your default account in the iOS settings under contacts. If it's not 'iCloud',
+    mostly likely it will not support fields such as alternateBirthday or socialProfile.
+
 extends: Titanium.Module
 since: "0.8"
 platforms: [android, iphone, ipad]
@@ -485,6 +490,8 @@ properties:
   summary: |
       Function to call when a property is selected. Must not be used with `selectedPerson` 
       property.
+      Note: If ringtone or texttone is selected, null values are returned, since these are unsupported
+      by Apple.
   platforms: [iphone, ipad]
   type: Callback<Object>
   optional: true

@@ -5,8 +5,7 @@ Welcome to the Titanium open source project.  Titanium provides
 a platform for web developers to build cross-platform, native mobile applications
 using JavaScript.
 
-Currently, Titanium supports mobile smartphone operating systems such as Apple iPhone, Google's Android, Tizen and Mobile Web. [RIM Blackberry 10](https://github.com/appcelerator/titanium_mobile_blackberry) support is currently in development. Other platforms 
-will eventually be supported such as Windows 8.
+Currently, Titanium supports mobile smartphone operating systems such as Apple iPhone, Google's Android, and Mobile Web. Other platforms, such as Windows Phone, are currently in development.
 
 Titanium is licensed under the OSI approved Apache Public License (version 2). Please
 see the LICENSE file for specific details.

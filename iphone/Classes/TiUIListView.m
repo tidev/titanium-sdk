@@ -909,6 +909,53 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     return [TiUtils boolValue:moveValue def:NO];
 }
 
+-(NSArray*)editActionsFromValue:(id)value
+{
+    ENSURE_ARRAY(value);
+    NSArray* propArray = (NSArray*)value;
+    NSMutableArray* returnArray = nil;
+    for (id prop in propArray) {
+        ENSURE_DICT(prop);
+        NSString* title = [TiUtils stringValue:@"title" properties:prop];
+        int actionStyle = [TiUtils intValue:@"style" properties:prop];
+        TiColor* theColor = [TiUtils colorValue:@"color" properties:prop];
+        UITableViewRowAction* theAction = [UITableViewRowAction rowActionWithStyle:actionStyle title:title handler:^(UITableViewRowAction *action, NSIndexPath *indexPath){
+            NSString* eventName = @"rowAction";
+            if ([self.listViewProxy _hasListeners:eventName checkParent:NO]) {
+                TiUIListSectionProxy* theSection = [[self.listViewProxy sectionForIndex:indexPath.section] retain];
+                NSDictionary *theItem = [[theSection itemAtIndex:indexPath.row] retain];
+                NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                    theSection, @"section",
+                                                    NUMINTEGER(indexPath.section), @"sectionIndex",
+                                                    NUMINTEGER(indexPath.row), @"itemIndex",
+                                                    action.title,@"action",
+                                                    nil];
+                id propertiesValue = [theItem objectForKey:@"properties"];
+                NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+                id itemId = [properties objectForKey:@"itemId"];
+                if (itemId != nil) {
+                    [eventObject setObject:itemId forKey:@"itemId"];
+                }
+                [self.proxy fireEvent:eventName withObject:eventObject withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+                [eventObject release];
+                [theItem release];
+                [theSection release];
+            }
+
+        }];
+        if (theColor != nil) {
+            theAction.backgroundColor = [theColor color];
+        }
+        if (returnArray == nil) {
+            returnArray = [NSMutableArray arrayWithObject:theAction];
+        } else {
+            [returnArray addObject:theAction];
+        }
+    }
+    
+    return returnArray;
+}
+
 #pragma mark - Editing Support Datasource methods.
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1045,6 +1092,30 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     } else {
         return UITableViewCellEditingStyleNone;
     }
+}
+
+- (NSArray *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (tableView != _tableView) {
+        return nil;
+    }
+    
+    if (searchActive) {
+        return nil;
+    }
+    
+    if (![self canEditRowAtIndexPath:indexPath]) {
+        return nil;
+    }
+    
+    id editValue = [self valueWithKey:@"editActions" atIndexPath:indexPath];
+    
+    if (IS_NULL_OR_NIL(editValue)) {
+        return nil;
+    }
+    
+    return [self editActionsFromValue:editValue];
+
 }
 
 - (BOOL)tableView:(UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath

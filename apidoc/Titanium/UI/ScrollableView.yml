@@ -22,7 +22,6 @@ description: |
     the "Simple Scrollable View with 2 Zoomable Images" example for a demonstration.
 excludes:
     events: [ 'click', 'longclick', 'pinch', 'swipe', 'touchend', 'touchmove' ]
-    properties: [ 'enabled' ]
 extends: Titanium.UI.View
 platforms: [android, iphone, ipad, mobileweb]
 since: "0.8"

@@ -23,6 +23,13 @@
 #define kABAuthorizationStatusAuthorized 3
 #endif
 
+#define appleUndocumentedBirthdayProperty 999
+#define appleUndocumentedToneProperty 16
+#define appleUndocumentedRingToneIdentifier -1
+#define appleUndocumentedRingVibrationIdentifier -101
+#define appleUndocumentedTextToneIdentifier -2
+#define appleUndocumentedTextVibrationIdentifier -102
+
 @implementation ContactsModule
 
 void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRef info,void *context)
@@ -529,60 +536,77 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 }
 
 //Deprecated in iOS 8
--(BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
+- (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
 {
 	if (selectedPropertyCallback) {
 		ABRecordID id_ = ABRecordGetRecordID(person);
-		TiContactsPerson* personObject = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:id_ module:self] autorelease];
-		NSString* propertyName = nil;
+		TiContactsPerson *personObject = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:id_ module:self] autorelease];
+		NSString *propertyName = nil;
 		id value = [NSNull null];
 		id label = [NSNull null];
-		if (identifier == kABMultiValueInvalidIdentifier) { 
-			propertyName = [[[TiContactsPerson contactProperties] allKeysForObject:[NSNumber numberWithInt:property]] objectAtIndex:0];
-            
-            // Contacts is poorly-designed enough that we should worry about receiving NULL values for properties which are actually assigned.
-			CFTypeRef val = ABRecordCopyValue(person, property);
-            if (val != NULL) {
-                value = [[(id)val retain] autorelease]; // Force toll-free bridging & autorelease
-                CFRelease(val);
-            }
+
+		//if statement to handle undocumented ring and text tone property from apple
+		//only implemented in this method, since apple doesn't want people fooling around with these
+		//null values are accompanied. Only inform app that user selected this property in the peoplePicker
+		if (property == appleUndocumentedToneProperty)
+		{
+			if (identifier == appleUndocumentedRingToneIdentifier) {
+				propertyName = @"ringTone";
+			}
+			if (identifier == appleUndocumentedRingVibrationIdentifier) {
+				propertyName = @"ringVibration";
+			}
+			if (identifier == appleUndocumentedTextToneIdentifier) {
+				propertyName = @"textTone";
+			}
+			if (identifier == appleUndocumentedTextVibrationIdentifier) {
+				propertyName = @"textVibration";
+			}
 		}
-		else {
+		else if (identifier == kABMultiValueInvalidIdentifier) {
+			propertyName = [[[TiContactsPerson contactProperties] allKeysForObject:[NSNumber numberWithInt:property]] objectAtIndex:0];
+
+			// Contacts is poorly-designed enough that we should worry about receiving NULL values for properties which are actually assigned.
+			CFTypeRef val = ABRecordCopyValue(person, property);
+			if (val != NULL) {
+				value = [[(id)val retain] autorelease];  // Force toll-free bridging & autorelease
+				CFRelease(val);
+			}
+		} else {
 			//birthdays for iOS8 is multivalue and NOT kABPersonBirthdayProperty only in DELEGATE, but undocumented in Apple
-			if ([TiUtils isIOS8OrGreater] && property == 999) {
+			if ([TiUtils isIOS8OrGreater] && property == appleUndocumentedBirthdayProperty) {
+				CFTypeRef val = nil;
 				if (identifier == 0) {
 					propertyName = @"birthday";
-				}
-				else {
+					val = ABRecordCopyValue(person, kABPersonBirthdayProperty);
+				} else {
 					propertyName = @"alternateBirthday";
+					val = ABRecordCopyValue(person, kABPersonAlternateBirthdayProperty);
 				}
-				CFTypeRef val = ABRecordCopyValue(person, property);
 				if (val != NULL) {
-					value = [[(id)val retain] autorelease]; // Force toll-free bridging & autorelease
+					value = [[(id)val retain] autorelease];  // Force toll-free bridging & autorelease
 					CFRelease(val);
 				}
-			}
-			else {
+			} else {
 				propertyName = [[[TiContactsPerson multiValueProperties] allKeysForObject:[NSNumber numberWithInt:property]] objectAtIndex:0];
 				ABMultiValueRef multival = ABRecordCopyValue(person, property);
 				CFIndex index = ABMultiValueGetIndexForIdentifier(multival, identifier);
-				
+
 				CFTypeRef val = ABMultiValueCopyValueAtIndex(multival, index);
 				if (val != NULL) {
-					value = [[(id)val retain] autorelease]; // Force toll-free bridging & autorelease
+					value = [[(id)val retain] autorelease];  // Force toll-free bridging & autorelease
 					CFRelease(val);
 				}
-				
+
 				CFStringRef CFlabel = ABMultiValueCopyLabelAtIndex(multival, index);
-				NSArray* labelKeys = [[TiContactsPerson multiValueLabels] allKeysForObject:(NSString*)CFlabel];
+				NSArray *labelKeys = [[TiContactsPerson multiValueLabels] allKeysForObject:(NSString *)CFlabel];
 				if ([labelKeys count] > 0) {
 					label = [NSString stringWithString:[labelKeys objectAtIndex:0]];
-				}
-				else {
+				} else {
 					// Hack for Exchange and other 'cute' setups where there is no label associated with a multival property;
 					// in this case, force it to be the property name.
 					if (CFlabel != NULL) {
-						label = [NSString stringWithString:(NSString*)CFlabel];
+						label = [NSString stringWithString:(NSString *)CFlabel];
 					}
 					// There may also be cases where we get a property from the system that we can't handle, because it's undocumented or not in the map.
 					else if (propertyName != nil) {
@@ -592,12 +616,11 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 				if (CFlabel != NULL) {
 					CFRelease(CFlabel);
 				}
-				
 				CFRelease(multival);
 			}
 		}
-		
-		NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:personObject,@"person",propertyName,@"property",value,@"value",label,@"label",nil];
+
+		NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:personObject, @"person", propertyName, @"property", value, @"value", label, @"label", nil];
 		[self _fireEventToListener:@"selectedProperty" withObject:dict listener:selectedPropertyCallback thisObject:nil];
 		[[TiApp app] hideModalController:picker animated:animated];
 		return NO;

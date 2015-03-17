@@ -138,7 +138,6 @@ description: |
 extends: Titanium.UI.View
 excludes:
     methods: [ add, removeAllChildren ]
-    properties: [ enabled ]
 since: "0.8"
 methods:
 

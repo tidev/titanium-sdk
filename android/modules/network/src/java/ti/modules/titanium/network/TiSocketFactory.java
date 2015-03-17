@@ -57,8 +57,9 @@ public class TiSocketFactory extends SSLSocketFactory {
 				tlsVersion = TLS_VERSION_1_2_PROTOCOL;
 				enabledProtocols = new String[] {TLS_VERSION_1_0_PROTOCOL, TLS_VERSION_1_1_PROTOCOL, TLS_VERSION_1_2_PROTOCOL};
 				break;
-			case NetworkModule.TLS_DEFAULT:	
 			default:
+				Log.e(TAG, "Incorrect TLS version was set in HTTPClient. Reverting to default TLS version.");
+			case NetworkModule.TLS_DEFAULT:	
 				if (JELLYBEAN_OR_GREATER) {
 					tlsVersion = TLS_VERSION_1_2_PROTOCOL;
 					enabledProtocols = new String[] {TLS_VERSION_1_0_PROTOCOL, TLS_VERSION_1_1_PROTOCOL, TLS_VERSION_1_2_PROTOCOL};

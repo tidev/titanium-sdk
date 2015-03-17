@@ -54,7 +54,6 @@ var common = require('./lib/common.js'),
 function getInheritedAPIs (api) {
 
 	var inheritedAPIs = {'events': [], 'methods': [], 'properties': []},
-		key = null,
 		removeAPIs = [],
 		copyAPIs = [],
 		matches = [],
@@ -73,7 +72,7 @@ function getInheritedAPIs (api) {
 
 		});
 
-		for (key in inheritedAPIs) {
+		for (var key in inheritedAPIs) {
 			removeAPIs = [];
 			if (!(key in api) || !api[key]) {
 				continue;
@@ -114,13 +113,13 @@ function getInheritedAPIs (api) {
 		}
 
 	} else {
-		for (key in inheritedAPIs) {
-			if (!(key in api) || !api[key]) {
+		for (var key2 in inheritedAPIs) {
+			if (!(key2 in api) || !api[key2]) {
 				continue;
 			}
-			inheritedAPIs[key] = nodeappc.util.mixObj([], api[key]);
-			for (x = 0; x < inheritedAPIs[key].length; x++) {
-				inheritedAPIs[key][x].__inherits = api.name;
+			inheritedAPIs[key2] = nodeappc.util.mixObj([], api[key2]);
+			for (x = 0; x < inheritedAPIs[key2].length; x++) {
+				inheritedAPIs[key2][x].__inherits = api.name;
 			}
 		}
 	}
