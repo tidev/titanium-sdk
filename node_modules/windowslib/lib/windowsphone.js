@@ -46,7 +46,7 @@ function detect(options, callback) {
 		}
 
 		var results = {
-				windowsphone: null,
+				windowsphone: {},
 				issues: []
 			},
 			searchPaths = [

@@ -31,7 +31,7 @@
 		"sprintf": "~0.1.4",
 		"temp": "~0.6.0",
 		"uglify-js": "~2.4.3",
-		"windowslib": "0.1.9",
+		"windowslib": "0.1.10",
 		"wrench": "~1.5.1",
 		"xmldom": "~0.1.16"
 	},
