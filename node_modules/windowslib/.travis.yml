@@ -8,7 +8,7 @@ deploy:
   provider: npm
   email: npmjs@appcelerator.com
   api_key:
-    secure: cvJUAohYPkI6FwAAXsUS3LunO/tfYzpsIagKMon9B8JkeMB1YqgmGgroZf46SeMtWVst2LodkE8VR/0LHg+4I/xSEzKk5/LwlW9QmAr1HmIl+hPSa5kgnlqI1xS6UstrN0YS88NWlwIAuW5e94BqhHUjUEMI/FdzGB4ALTANIfo=
+    secure: PsfkpJp/SwfC/0/4FTKNGqYascVEgnClwkQ+T/CL4Jwop+n5+PrylOd3ePvo+zO6TnRXK0KISHQschS0TopicpMQl3fzT4Cp+7QvO7329HL4a4AzA3JTzRB7lHBAjlTx6gDfyfVjMbLTM01kdSaLI5m/haa8K9GY22QM/ek5r0w=
   on:
     tags: true
     repo: appcelerator/windowslib
