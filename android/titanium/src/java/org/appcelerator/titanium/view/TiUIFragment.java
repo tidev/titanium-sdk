@@ -50,7 +50,7 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 			FragmentTransaction transaction = manager.beginTransaction();
 			fragment = createFragment();
 			transaction.add(container.getId(), fragment);
-			transaction.commit();
+			transaction.commitAllowingStateLoss();
 		}
 		// initialize handler
 		handler = new Handler(TiMessenger.getMainMessenger().getLooper(), this);
