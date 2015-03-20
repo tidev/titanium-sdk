@@ -386,7 +386,7 @@ examples:
     example: |
         
         This example uses the Graph API to create an event  
-        in the logged-on user's Facebook account. This requires the "create_event" permission.
+        in the logged-on user's Facebook account. This requires the "create_event" permission. Note that starting API 2.0 facebook does not allow creation of events.
         
             // First make sure this permission exists
             Ti.Facebook.permissions = ['create_event'];
