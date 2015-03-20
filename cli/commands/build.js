@@ -225,12 +225,14 @@ exports.validate = function (logger, config, cli) {
 	if (cli.argv.type === 'module') {
 
 		return function (finished) {
-			var result = ti.validatePlatformOptions(logger, config, cli, 'buildModule');
-			if (result && typeof result == 'function') {
-				result(finished);
-			} else {
-				finished(result);
-			}
+			logger.log.init(function () {
+				var result = ti.validatePlatformOptions(logger, config, cli, 'buildModule');
+				if (result && typeof result == 'function') {
+					result(finished);
+				} else {
+					finished(result);
+				}
+			});
 		};
 
 	} else {
@@ -240,24 +242,26 @@ exports.validate = function (logger, config, cli) {
 		// since we need validate() to be async, we return a function in which the cli
 		// will immediately call
 		return function (finished) {
-			function next(result) {
-				if (result !== false) {
-					// no error, load the tiapp.xml plugins
-					ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
+			logger.log.init(function () {
+				function next(result) {
+					if (result !== false) {
+						// no error, load the tiapp.xml plugins
+						ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
+							finished(result);
+						});
+					} else {
 						finished(result);
-					});
-				} else {
-					finished(result);
+					}
 				}
-			}
 
-			// loads the platform specific bulid command and runs its validate() function
-			var result = ti.validatePlatformOptions(logger, config, cli, 'build');
-			if (result && typeof result == 'function') {
-				result(next);
-			} else {
-				next(result);
-			}
+				// loads the platform specific bulid command and runs its validate() function
+				var result = ti.validatePlatformOptions(logger, config, cli, 'build');
+				if (result && typeof result == 'function') {
+					result(next);
+				} else {
+					next(result);
+				}
+			});
 		};
 	}
 };
