@@ -1402,9 +1402,9 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 			next();
 		},
 
+		'initBuildDir',
 		'createInfoPlist',
 		'createEntitlementsPlist',
-		'initBuildDir',
 		'injectModulesIntoXcodeProject',
 		'injectApplicationDefaults', // if ApplicationDefaults.m was modified, forceRebuild will be set to true
 		'copyTitaniumLibraries',
@@ -1511,6 +1511,7 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 	this.forceCopy = !!argv['force-copy'];
 	this.forceCopyAll = !!argv['force-copy-all'];
 
+	this.forceCleanBuild = false;
 	this.forceRebuild = false;
 
 	this.buildAssetsDir    = path.join(this.buildDir, 'assets');
@@ -1612,6 +1613,21 @@ iOSBuilder.prototype.readBuildManifest = function readBuildManifest(next) {
 	next();
 };
 
+iOSBuilder.prototype.checkIfShouldForceCleanBuild = function checkIfShouldForceCleanBuild() {
+	if (fs.existsSync(this.xcodeProjectConfigFile)) {
+		// we have a previous build, see if the Titanium SDK changed
+		var conf = fs.readFileSync(this.xcodeProjectConfigFile).toString(),
+			versionMatch = conf.match(/TI_VERSION\=([^\n]*)/);
+
+		if (versionMatch && !appc.version.eq(versionMatch[1], this.titaniumSdkVersion)) {
+			this.logger.info(__("Forcing clean: last build was under Titanium SDK version %s and we're compiling for version %s", versionMatch[1].cyan, this.titaniumSdkVersion.cyan));
+			return true;
+		}
+	}
+
+	return false;
+}
+
 iOSBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForceRebuild() {
 	var manifest = this.buildManifest;
 
@@ -1635,15 +1651,9 @@ iOSBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForceRebu
 	}
 
 	if (fs.existsSync(this.xcodeProjectConfigFile)) {
-		// we have a previous build, see if the Titanium SDK changed
+		// we have a previous build, see if the app id changed
 		var conf = fs.readFileSync(this.xcodeProjectConfigFile).toString(),
-			versionMatch = conf.match(/TI_VERSION\=([^\n]*)/),
 			idMatch = conf.match(/TI_APPID\=([^\n]*)/);
-
-		if (versionMatch && !appc.version.eq(versionMatch[1], this.titaniumSdkVersion)) {
-			this.logger.info(__("Forcing rebuild: last build was under Titanium SDK version %s and we're compiling for version %s", versionMatch[1].cyan, this.titaniumSdkVersion.cyan));
-			return true;
-		}
 
 		if (idMatch && idMatch[1] !== this.tiapp.id) {
 			this.logger.info(__("Forcing rebuild: app id changed from %s to %s", idMatch[1].cyan, this.tiapp.id.cyan));
@@ -1823,6 +1833,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile(ne
 	}).join('|') : '');
 
 	// check if we need to do a rebuild
+	this.forceCleanBuild = this.checkIfShouldForceCleanBuild();
 	this.forceRebuild = this.checkIfShouldForceRebuild();
 
 	// now that we've read the build manifest, delete it so if this build
@@ -1861,7 +1872,17 @@ iOSBuilder.prototype.preparePhase = function preparePhase(next) {
 };
 
 iOSBuilder.prototype.initBuildDir = function initBuildDir(next) {
-	if (this.forceRebuild) {
+	// perform a clean
+	if (this.forceCleanBuild) {
+		if (fs.existsSync(this.buildDir)) {
+			this.logger.info(__('Cleaning build'));
+			wrench.rmdirSyncRecursive(this.buildDir, true);
+		}
+		this.createXcodeProject();
+		this.populateIosFiles();
+
+	// perform a rebuild
+	} else if (this.forceRebuild) {
 		var xcodeBuildDir = path.join(this.buildDir, 'build');
 		if (fs.existsSync(xcodeBuildDir)) {
 			this.logger.info(__('Cleaning old build directory'));
