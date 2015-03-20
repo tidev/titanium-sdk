@@ -324,6 +324,7 @@ static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFu
 	NSString* format = [KrollObject toID:ctx value:args[0]];
 #if TARGET_IPHONE_SIMULATOR
     // convert string references to objects
+    format = [format stringByReplacingOccurrencesOfString:@"%@" withString:@"%@_TIDELIMITER_"];
     format = [format stringByReplacingOccurrencesOfString:@"%s" withString:@"%@_TIDELIMITER_"];
     format = [format stringByReplacingOccurrencesOfString:@"%1$s" withString:@"%1$@_TIDELIMITER_"];
     format = [format stringByReplacingOccurrencesOfString:@"%2$s" withString:@"%2$@_TIDELIMITER_"];
