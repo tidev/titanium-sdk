@@ -39,11 +39,12 @@
 		"xmldom": "~0.1.16"
 	},
 	"devDependencies": {
-	    "grunt-cli": "*",
-	    "grunt-contrib-clean": "^0.6.0",
-	    "grunt-clang-format": "*",
-	    "grunt-appc-js": "*",
-	    "grunt-mocha-test": "^0.12.7",
+		"grunt-appc-js": "*",
+		"grunt-clang-format": "*",
+		"grunt-cli": "*",
+		"grunt-contrib-clean": "^0.6.0",
+		"grunt-mocha-test": "^0.12.7",
+		"grunt-version": "^0.3.1",
 		"mocha": "*",
 		"optimist": "~0.6.0",
 		"should": "~1.3.0"
