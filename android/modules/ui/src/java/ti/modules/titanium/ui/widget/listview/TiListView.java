@@ -34,6 +34,7 @@ import ti.modules.titanium.ui.android.SearchViewProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
+import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -52,6 +53,7 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.AbsListView.OnScrollListener;
 
 public class TiListView extends TiUIView implements OnSearchChangeListener {
 
@@ -302,7 +304,68 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		listView.setFocusable(true);
 		listView.setFocusableInTouchMode(true);
 		listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+		final KrollProxy fProxy = proxy;
+		listView.setOnScrollListener(new OnScrollListener()
+		{
+			private int _firstVisibleItem = 0;
+			private int _visibleItemCount = 0;
+			// private int _totalItemCount = 0;
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState)
+			{
+				switch(scrollState) {
 
+					/*
+					 * Not supporting this one for now
+					 *
+					 * case OnScrollListener.SCROLL_STATE_FLING:
+					 * {
+					 * 	// The user had previously been scrolling using touch and had performed a fling.
+					 * 	// The animation is now coasting to a stop
+					 * 	KrollDict eventArgs = new KrollDict();
+					 * 	fProxy.fireEvent("fling", eventArgs);
+					 * 	return;
+					 * }
+					 */
+
+					case OnScrollListener.SCROLL_STATE_IDLE:
+					case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
+					{
+						KrollDict eventArgs = new KrollDict();
+						Pair<ListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(_firstVisibleItem);
+						
+						
+						int itemIndex = info.second.second;
+						ListSectionProxy section = info.first;
+						
+						if(section.getHeaderTitle() == null || section.getHeaderView() == null) {
+							if(itemIndex > 0) itemIndex -= 1;
+							_visibleItemCount -=1;
+						}
+						eventArgs.put("firstVisibleSection", section);
+						eventArgs.put("firstVisibleSectionIndex", info.second.first);
+						eventArgs.put("firstVisibleItem", section.getItemAt(itemIndex));
+						eventArgs.put("firstVisibleItemIndex", itemIndex);
+						eventArgs.put("visibleItemCount", _visibleItemCount);
+						
+						if(scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
+							fProxy.fireEvent(TiC.EVENT_SCROLLEND, eventArgs);
+						} else {
+							fProxy.fireEvent(TiC.EVENT_SCROLLSTART, eventArgs);
+						}
+						return;
+					}
+				}
+			}
+
+			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
+			{
+				_firstVisibleItem = firstVisibleItem;
+				_visibleItemCount = visibleItemCount;
+				// _totalItemCount = totalItemCount;
+			}
+		});
+		
 		try {
 			headerFooterId = TiRHelper.getResource("layout.titanium_ui_list_header_or_footer");
 			listItemId = TiRHelper.getResource("layout.titanium_ui_list_item");
