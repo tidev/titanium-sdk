@@ -397,6 +397,62 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
+  - name: scrollstart
+    summary: Fires when the listview starts scrolling
+    description: |
+        This event will fire when the user starts scrolling the listview. Use the `firstVisibleSectionIndex` and 
+        the `firstVisibleItemIndex` to determine the position of the listview.
+    platforms: [iphone, ipad, android]
+    since: 4.1.0
+    properties: 
+      - name: visibleItemCount
+        summary: The number of visible items in the listView when the event
+        type: Number
+
+      - name: firstVisibleItem
+        summary: The first visible item in the listView when the event
+        type: Object
+
+      - name: firstVisibleSection
+        summary: The first visible section in the listView when the event
+        type: Titanium.UI.ListSection
+
+      - name: firstVisibleItemIndex
+        summary: The index of the first visible item in the listView when the event
+        type: Number
+
+      - name: firstVisibleSectionIndex
+        summary: The index of the first visible section in the listView when the event
+        type: Number
+
+  - name: scrollend
+    summary: Fires when the listview ends scrolling
+    description: |
+        This event will fire when the listview ends scrolling. Use the `firstVisibleSectionIndex` and 
+        the `firstVisibleItemIndex` to determine the position of the listview.
+    platforms: [iphone, ipad, android]
+    since: 4.1.0
+    properties: 
+      - name: visibleItemCount
+        summary: The number of visible items in the listView when the event
+        type: Number
+
+      - name: firstVisibleItem
+        summary: The first visible item in the listView when the event
+        type: Object
+
+      - name: firstVisibleSection
+        summary: The first visible section in the listView when the event
+        type: Titanium.UI.ListSection
+
+      - name: firstVisibleItemIndex
+        summary: The index of the first visible item in the listView when the event
+        type: Number
+
+      - name: firstVisibleSectionIndex
+        summary: The index of the first visible section in the listView when the event
+        type: Number
+
 properties:
 
   - name: allowsSelection
