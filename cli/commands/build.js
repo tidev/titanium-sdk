@@ -109,42 +109,49 @@ exports.config = function (logger, config, cli) {
 
 								projectDir = appc.fs.resolvePath(projectDir);
 
-								// load the tiapp.xml
-								try {
-									if (fs.existsSync(path.join(projectDir, 'tiapp.xml'))) {
+								// load the tiapp.xml/timodule.xml
+								if (fs.existsSync(path.join(projectDir, 'tiapp.xml'))) {
+									try {
 										var tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'));
-
-										tiapp.properties || (tiapp.properties = {});
-
-										// make sure the tiapp.xml is sane
-										ti.validateTiappXml(logger, config, tiapp);
-
-										// check that the Titanium SDK version is correct
-										if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
-											throw new cli.GracefulShutdown();
-										}
-
-										cli.argv.type = 'app';
-
-									} else if (fs.existsSync(path.join(projectDir, 'timodule.xml'))) {
-										var timodule = cli.tiapp = cli.timodule = new tiappxml(path.join(projectDir, 'timodule.xml')),
-											manifest = cli.manifest = ti.loadModuleManifest(logger, path.join(projectDir, 'manifest'));
-
-										timodule.properties || (timodule.properties = {});
-
-										// make sure the module manifest is sane
-										ti.validateModuleManifest(logger, cli, manifest);
-
-										cli.argv.type = 'module';
-
-									} else {
-										// neither app nor module
-										return;
+									} catch (ex) {
+										logger.error(ex);
+										logger.log();
+										process.exit(1);
 									}
-								} catch (ex) {
-									logger.error(ex);
-									logger.log();
-									process.exit(1);
+
+									tiapp.properties || (tiapp.properties = {});
+
+									// make sure the tiapp.xml is sane
+									ti.validateTiappXml(logger, config, tiapp);
+
+									// check that the Titanium SDK version is correct
+									if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
+										throw new cli.GracefulShutdown();
+									}
+
+									cli.argv.type = 'app';
+
+								} else if (fs.existsSync(path.join(projectDir, 'timodule.xml'))) {
+									try {
+										var timodule = cli.tiapp = cli.timodule = new tiappxml(path.join(projectDir, 'timodule.xml'));
+									} catch (ex) {
+										logger.error(ex);
+										logger.log();
+										process.exit(1);
+									}
+
+									var manifest = cli.manifest = ti.loadModuleManifest(logger, path.join(projectDir, 'manifest'));
+
+									timodule.properties || (timodule.properties = {});
+
+									// make sure the module manifest is sane
+									ti.validateModuleManifest(logger, cli, manifest);
+
+									cli.argv.type = 'module';
+
+								} else {
+									// neither app nor module
+									return;
 								}
 
 								return projectDir;
