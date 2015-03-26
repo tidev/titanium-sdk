@@ -1653,18 +1653,71 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
         }
     }
+}
+
+// Gets the visible index paths and removes the top row that is not completely visible
+-(NSIndexPath*)firstVisibleIndexPath:(NSInteger)index
+{
+    UITableView* tableView = [self tableView];
+    NSArray* array = [tableView indexPathsForVisibleRows];
+    NSIndexPath* indexPath = [array objectAtIndex: index];
+    CGRect cellRect = [tableView rectForRowAtIndexPath:indexPath];
+    CGRect tableRect = [tableView bounds];
     
+    if(tableRect.origin.y <= (cellRect.origin.y - [self tableView:tableView heightForHeaderInSection:[indexPath section]])) {
+        return indexPath;
+    }
+
+    index += 1;
+    if([array count] >= index) {
+        return [self firstVisibleIndexPath:index];
+    }
+    if(indexPath == nil) {
+        return [NSIndexPath indexPathForRow:0 inSection:0];
+    }
+    return indexPath;
+}
+
+
+// For now, this is fired on `scrollstart` and `scrollend`
+- (void)fireScrollEvent:(NSString*)eventName
+{
+    if([[self proxy] _hasListeners:eventName])
+    {
+        UITableView* tableView = [self tableView];
+        
+        NSIndexPath* indexPath = [self firstVisibleIndexPath:0];
+        NSArray* indexPaths = [tableView indexPathsForVisibleRows];
+        NSUInteger visibleItemCount = [indexPaths count];
+        
+        for(NSIndexPath *currentIndexPath in indexPaths) {
+            if ([currentIndexPath isEqual:indexPath]) break;
+            visibleItemCount -= 1;
+        }
+        
+        TiUIListSectionProxy* section = [[self listViewProxy] sectionForIndex: [indexPath section]];
+        NSDictionary* eventArgs = @{
+                                    @"firstVisibleSectionIndex": NUMINTEGER([indexPath section]),
+                                    @"firstVisibleItemIndex": NUMINTEGER([indexPath row]),
+                                    @"firstVisibleSection": section,
+                                    @"firstVisibleItem": [section itemAtIndex:[indexPath row]],
+                                    @"visibleItemCount": NUMUINTEGER(visibleItemCount)
+                                    };
+        [[self proxy] fireEvent:eventName withObject:eventArgs propagate:NO];
+    }
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
     [[ImageLoader sharedLoader] suspend];
-    //Events - None (maybe dragstart later)
+    [self fireScrollEvent:@"scrollstart"];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    //Events - pullend (maybe dragend later)
+    if(!decelerate) {
+        [self fireScrollEvent:@"scrollend"];
+    }
     if (![self.proxy _hasListeners:@"pullend"]) {
         return;
     }
@@ -1677,7 +1730,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     [[ImageLoader sharedLoader] resume];
-    //Events - none (maybe scrollend later)
+    [self fireScrollEvent:@"scrollend"];
 }
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
