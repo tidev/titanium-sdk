@@ -434,23 +434,23 @@ events:
     since: 4.1.0
     properties: 
       - name: visibleItemCount
-        summary: The number of visible items in the listView when the event
+        summary: The number of visible items in the listView when the event fires
         type: Number
 
       - name: firstVisibleItem
-        summary: The first visible item in the listView when the event
+        summary: The first visible item in the listView when the event fires
         type: Object
 
       - name: firstVisibleSection
-        summary: The first visible section in the listView when the event
+        summary: The first visible section in the listView when the event fires
         type: Titanium.UI.ListSection
 
       - name: firstVisibleItemIndex
-        summary: The index of the first visible item in the listView when the event
+        summary: The index of the first visible item in the listView when the event fires
         type: Number
 
       - name: firstVisibleSectionIndex
-        summary: The index of the first visible section in the listView when the event
+        summary: The index of the first visible section in the listView when the event fires
         type: Number
 
 properties:
