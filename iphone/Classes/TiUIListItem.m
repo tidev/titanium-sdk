@@ -422,7 +422,7 @@
 					}
 					[(NSDictionary *)dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
 						NSString *keyPath = [NSString stringWithFormat:@"%@.%@", bindId, key];
-						if ([self shouldUpdateValue:value forKeyPath:keyPath]) {
+						if ([self shouldUpdateValue:value forKeyPath:keyPath] || [self shouldUpdateValue:value forKey:key withProxy:bindObject withKeyPath:keyPath] ) {
 							[self recordChangeValue:value forKeyPath:keyPath withBlock:^{
 								[bindObject setValue:value forKey:key];
 							}];
@@ -503,6 +503,19 @@
 		[_currentValues removeObjectForKey:keyPath];
 	}
 	[_resetKeys removeObject:keyPath];
+}
+
+- (BOOL)shouldUpdateValue:(id)value forKey:(NSString *)key withProxy:(id)object withKeyPath:(NSString*)keyPath
+{
+    if ([object isKindOfClass:[TiProxy class]] && (key != nil)) {
+        id current = [object valueForKey:key];
+        BOOL sameValue = ((current == value) || [current isEqual:value]);
+        if (sameValue) {
+            [_resetKeys removeObject:keyPath];
+        }
+        return !sameValue;
+    }
+    return NO;
 }
 
 - (BOOL)shouldUpdateValue:(id)value forKeyPath:(NSString *)keyPath

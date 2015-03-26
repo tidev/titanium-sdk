@@ -324,6 +324,7 @@ static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFu
 	NSString* format = [KrollObject toID:ctx value:args[0]];
 #if TARGET_IPHONE_SIMULATOR
     // convert string references to objects
+    format = [format stringByReplacingOccurrencesOfString:@"%@" withString:@"%@_TIDELIMITER_"];
     format = [format stringByReplacingOccurrencesOfString:@"%s" withString:@"%@_TIDELIMITER_"];
     format = [format stringByReplacingOccurrencesOfString:@"%1$s" withString:@"%1$@_TIDELIMITER_"];
     format = [format stringByReplacingOccurrencesOfString:@"%2$s" withString:@"%2$@_TIDELIMITER_"];
@@ -349,6 +350,7 @@ static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFu
     NSArray* formatArray = [format componentsSeparatedByString:@"_TIDELIMITER_"];
     NSUInteger formatCount = [formatArray count];
     NSMutableString* result = [[NSMutableString alloc] init];
+    size_t lastArgIndex = 0;
     @try {
         for (size_t x=1; (x < argCount) && (x <= formatCount); x++)
         {
@@ -369,6 +371,11 @@ static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFu
                 bool theResult = TiValueToBoolean(jsContext,valueRef);
                 [result appendString:[NSString stringWithFormat:theFormat,theResult]];
             }
+            lastArgIndex = x;
+        }
+        if (lastArgIndex < formatCount) {
+            // Append any remaining format components
+            [result appendString:[[formatArray subarrayWithRange: NSMakeRange(lastArgIndex, formatCount-lastArgIndex)] componentsJoinedByString:@""]];
         }
         TiValueRef value = [KrollObject toValue:ctx value:result];
         [result release];

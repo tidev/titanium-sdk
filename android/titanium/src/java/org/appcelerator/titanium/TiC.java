@@ -1299,6 +1299,11 @@ public class TiC
 	public static final String PROPERTY_FOOTER_VIEW = "footerView";
 
 	public static final String PROPERTY_FORWARD = "forward";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FRAGMENT_ONLY = "fragmentOnly";
 
 	/**
 	 * @module.api
