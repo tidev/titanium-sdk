@@ -95,13 +95,8 @@
 
 -(NSString*)dbPath:(NSString*)name_
 {
-    NSString *dbDir = name_;
-    if (![name_ hasPrefix:@"/"] && ![name_ hasPrefix:@"file:"])
-    {
-        dbDir = [[self dbDir] stringByAppendingPathComponent:name_];
-    }
-    
-    return [dbDir stringByAppendingPathExtension:@"sql"];
+	NSString *dbDir = [self dbDir];
+	return [[dbDir stringByAppendingPathComponent:name_] stringByAppendingPathExtension:@"sql"];
 }
 
 -(void)open:(NSString*)name_

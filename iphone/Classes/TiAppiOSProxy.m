@@ -14,7 +14,6 @@
 #import "TiAppiOSLocalNotificationProxy.h"
 #import "TiAppiOSNotificationActionProxy.h"
 #import "TiAppiOSNotificationCategoryProxy.h"
-#import "TiAppiOSUserDefaultsProxy.h"
 
 
 @implementation TiAppiOSProxy
@@ -131,21 +130,6 @@
 }
 
 #pragma mark Public
-
--(id)createUserDefaults:(id)args
-{
-    NSString *suiteName;
-    ENSURE_SINGLE_ARG(args,NSDictionary);
-    ENSURE_ARG_FOR_KEY(suiteName, args, @"suiteName", NSString);
-    
-    NSUserDefaults *defaultsObject = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
-    
-    TiAppiOSUserDefaultsProxy *userDefaultsProxy = [[[TiAppiOSUserDefaultsProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-    
-    userDefaultsProxy.defaultsObject = defaultsObject;
-    
-    return userDefaultsProxy;
-}
 
 -(id)registerBackgroundService:(id)args
 {
