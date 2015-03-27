@@ -146,9 +146,8 @@
         [[self searchBar] setBackgroundImage:nil];
         // try to set the image with UIBarMetricsDefaultPrompt barMetrics
         [[self searchBar] setBackgroundImage:image forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefaultPrompt];
-        // check that the image has been set, otherwise then try the other barMetrics
-        if([[self searchBar] backgroundImage] == nil)
-        {
+        // check that the image has been set, otherwise try the other barMetrics
+        if([[self searchBar] backgroundImage] == nil) {
             [[self searchBar] setBackgroundImage:image forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault];
         }
     } else {
