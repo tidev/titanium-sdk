@@ -141,11 +141,23 @@
 -(void)setBackgroundImage_:(id)arg
 {
     UIImage *image = [self loadImage:arg];
-    [[self searchBar] setBackgroundImage:image];
+    if([TiUtils isIOS7OrGreater]) {
+        // reset the image to nil so we can check if the next statement sets it
+        [[self searchBar] setBackgroundImage:nil];
+        // try to set the image with UIBarMetricsDefaultPrompt barMetrics
+        [[self searchBar] setBackgroundImage:image forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefaultPrompt];
+        // check that the image has been set, otherwise then try the other barMetrics
+        if([[self searchBar] backgroundImage] == nil)
+        {
+            [[self searchBar] setBackgroundImage:image forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault];
+        }
+    } else {
+        [[self searchBar] setBackgroundImage:image];
+    }
     self.backgroundImage = arg;
 }
 
-#pragma mark Delegate 
+#pragma mark Delegate
 - (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
 {
     if (delegate!=nil && [delegate respondsToSelector:@selector(searchBarShouldBeginEditing:)]) {
