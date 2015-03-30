@@ -5,11 +5,10 @@ description: |
     <table id="platformComparison">
       <tr>
         <td><img src="images/textarea/textarea_android.png" height="50" /></td>
-        <td><img src="images/textarea/textarea_bb.png" height="50" /></td>
         <td><img src="images/textarea/textarea_ios.png" height="50" /></td>
         <td><img src="images/textarea/textarea_mobileweb.png" height="50" /></td>
       </tr>
-      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
     </table>
 
     Use the <Titanium.UI.createTextArea> method or **&lt;TextArea&gt;** Alloy element to create a text area.

@@ -7,11 +7,10 @@ description: |
     <table id="platformComparison">
       <tr>
         <td><img src="images/alertdialog/alertdialog_android.png" height="75" /></td>
-        <td><img src="images/alertdialog/alertdialog_bb.png" height="75" /></td>
         <td><img src="images/alertdialog/alertdialog_ios.png" height="75" /></td>
         <td><img src="images/alertdialog/alertdialog_mobileweb.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
     </table>
     
     An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.

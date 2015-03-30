@@ -40,7 +40,7 @@ description: |
 
     Further Reading:
 
-      * [Android Broadcast Intents and Receivers guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Android_Broadcast_Intents_and_Receivers)
+      * [Android Broadcast Intents and Receivers guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Broadcast_Intents_and_Receivers)
       * [Android Developers: Broadcast Receivers](http://developer.android.com/reference/android/content/BroadcastReceiver.html).
 
 

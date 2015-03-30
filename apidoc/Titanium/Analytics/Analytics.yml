@@ -25,7 +25,7 @@ description: |
     should not be used.
 
     See also [Ti
-    Analytics](http://docs.appcelerator.com/titanium/2.1/index.html#!/guide/Ti_Analytics)
+    Analytics](http://docs.appcelerator.com/platform/latest/#!/guide/Ti_Analytics)
     in the Titanium Mobile Guides.
 
 extends: Titanium.Module

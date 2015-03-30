@@ -8,12 +8,11 @@ description: |
     <table id="platformComparison">
       <tr>
         <td><img src="images/optiondialog/optiondialog_android.png" height="75" /></td>
-        <td><img src="images/optiondialog/optiondialog_bb.png" height="75" /></td>
         <td><img src="images/optiondialog/optiondialog_iphone.png" height="75" /></td>
         <td><img src="images/optiondialog/optiondialog_ipad.png" height="75" /></td>
         <td><img src="images/optiondialog/optiondialog_mobileweb.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>BlackBerry</th><th>iPhone</th><td>iPad</td><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iPhone</th><td>iPad</td><th>Mobile Web</th></tr>
     </table>
 
     An option dialog is created using <Titanium.UI.createOptionDialog> or Alloy `<OptionDialog>`
